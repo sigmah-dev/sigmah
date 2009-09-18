@@ -1,4 +1,5 @@
 * text=auto !eol
+activityinfo/pom.xml -text
 activityinfo/src/main/java/com/ebessette/maps/core/CoreMaps.gwt.xml -text
 activityinfo/src/main/java/com/ebessette/maps/core/client/ZoomLevelConstants.java -text
 activityinfo/src/main/java/com/ebessette/maps/core/client/overlay/GridBounds.java -text
@@ -1070,4 +1071,3 @@ activityinfo/war/thumbs/grid.png -text
 activityinfo/war/thumbs/kml.png -text
 activityinfo/war/thumbs/pivot.png -text
 activityinfo/war/webcachetool.html -text
-/pom.xml -text
