@@ -1,9 +1,4 @@
 * text=auto !eol
-/.classpath -text
-/.project -text
-/ActivityInfo.ids -text
-/ActivityInfo.ipr -text
-/activityinfo.iml -text
 activityinfo/src/main/java/com/ebessette/maps/core/CoreMaps.gwt.xml -text
 activityinfo/src/main/java/com/ebessette/maps/core/client/ZoomLevelConstants.java -text
 activityinfo/src/main/java/com/ebessette/maps/core/client/overlay/GridBounds.java -text
@@ -1076,4 +1071,3 @@ activityinfo/war/thumbs/kml.png -text
 activityinfo/war/thumbs/pivot.png -text
 activityinfo/war/webcachetool.html -text
 /pom.xml -text
-/soyc.cmd -text
