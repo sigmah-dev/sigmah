@@ -1,12 +1,6 @@
 * text=auto !eol
 /.classpath -text
 /.project -text
-.settings/com.google.appengine.eclipse.core.prefs -text
-.settings/com.google.gdt.eclipse.core.prefs -text
-.settings/com.google.gwt.eclipse.core.prefs -text
-.settings/org.eclipse.core.resources.prefs -text
-.settings/org.eclipse.jdt.core.prefs -text
-.settings/org.maven.ide.eclipse.prefs -text
 /ActivityInfo.ids -text
 /ActivityInfo.ipr -text
 /activityinfo.iml -text
