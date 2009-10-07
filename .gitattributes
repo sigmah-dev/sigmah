@@ -613,8 +613,6 @@ activityinfo/src/main/java/org/activityinfo/server/domain/LocationType.java -tex
 activityinfo/src/main/java/org/activityinfo/server/domain/Orderable.java -text
 activityinfo/src/main/java/org/activityinfo/server/domain/Partner.java -text
 activityinfo/src/main/java/org/activityinfo/server/domain/Phase.java -text
-activityinfo/src/main/java/org/activityinfo/server/domain/Report.java -text
-activityinfo/src/main/java/org/activityinfo/server/domain/ReportReviewers.java -text
 activityinfo/src/main/java/org/activityinfo/server/domain/ReportSubscription.java -text
 activityinfo/src/main/java/org/activityinfo/server/domain/ReportSubscriptionId.java -text
 activityinfo/src/main/java/org/activityinfo/server/domain/ReportTemplate.java -text
