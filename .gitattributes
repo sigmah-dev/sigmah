@@ -322,6 +322,7 @@ activityinfo/src/main/java/org/activityinfo/client/util/IStateManager.java -text
 activityinfo/src/main/java/org/activityinfo/client/util/ITimer.java -text
 activityinfo/src/main/java/org/activityinfo/client/util/SortInfoHelper.java -text
 activityinfo/src/main/java/org/activityinfo/linker/ApplicationLinker.java -text
+activityinfo/src/main/java/org/activityinfo/public/clear.gif -text
 activityinfo/src/main/java/org/activityinfo/public/gxt201/chart/open-flash-chart.swf -text
 activityinfo/src/main/java/org/activityinfo/public/gxt201/css/gxt-all.css -text
 activityinfo/src/main/java/org/activityinfo/public/gxt201/flash/swfobject.js -text
