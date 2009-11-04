@@ -540,6 +540,11 @@ activityinfo/src/main/java/org/activityinfo/public/gxt201/images/default/window/
 activityinfo/src/main/java/org/activityinfo/public/image/filter.png -text
 activityinfo/src/main/java/org/activityinfo/public/image/gallery-over.gif -text
 activityinfo/src/main/java/org/activityinfo/public/image/mapped.png -text
+activityinfo/src/main/java/org/activityinfo/public/image/thumbs/charts/time.png -text
+activityinfo/src/main/java/org/activityinfo/public/image/thumbs/form.png -text
+activityinfo/src/main/java/org/activityinfo/public/image/thumbs/grid.png -text
+activityinfo/src/main/java/org/activityinfo/public/image/thumbs/kml.png -text
+activityinfo/src/main/java/org/activityinfo/public/image/thumbs/pivot.png -text
 activityinfo/src/main/java/org/activityinfo/public/image/unmapped.png -text
 activityinfo/src/main/java/org/activityinfo/rebind/ExportServiceInterfaceProxyGenerator.java -text
 activityinfo/src/main/java/org/activityinfo/server/ActivityInfoModule.java -text
@@ -1090,9 +1095,4 @@ activityinfo/war/static/unicef-120.png -text
 activityinfo/war/static/unicef.png -text
 activityinfo/war/test-worker.html -text
 activityinfo/war/test.html -text
-activityinfo/war/thumbs/charts/time.png -text
-activityinfo/war/thumbs/form.png -text
-activityinfo/war/thumbs/grid.png -text
-activityinfo/war/thumbs/kml.png -text
-activityinfo/war/thumbs/pivot.png -text
 activityinfo/war/webcachetool.html -text
