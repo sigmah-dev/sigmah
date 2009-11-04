@@ -539,12 +539,14 @@ activityinfo/src/main/java/org/activityinfo/public/gxt201/images/default/window/
 activityinfo/src/main/java/org/activityinfo/public/gxt201/images/default/window/top-bottom.png -text
 activityinfo/src/main/java/org/activityinfo/public/image/filter.png -text
 activityinfo/src/main/java/org/activityinfo/public/image/gallery-over.gif -text
+activityinfo/src/main/java/org/activityinfo/public/image/mapped.gif -text
 activityinfo/src/main/java/org/activityinfo/public/image/mapped.png -text
 activityinfo/src/main/java/org/activityinfo/public/image/thumbs/charts/time.png -text
 activityinfo/src/main/java/org/activityinfo/public/image/thumbs/form.png -text
 activityinfo/src/main/java/org/activityinfo/public/image/thumbs/grid.png -text
 activityinfo/src/main/java/org/activityinfo/public/image/thumbs/kml.png -text
 activityinfo/src/main/java/org/activityinfo/public/image/thumbs/pivot.png -text
+activityinfo/src/main/java/org/activityinfo/public/image/unmapped.gif -text
 activityinfo/src/main/java/org/activityinfo/public/image/unmapped.png -text
 activityinfo/src/main/java/org/activityinfo/rebind/ExportServiceInterfaceProxyGenerator.java -text
 activityinfo/src/main/java/org/activityinfo/server/ActivityInfoModule.java -text
