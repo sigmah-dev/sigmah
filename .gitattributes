@@ -644,8 +644,6 @@ activityinfo/src/main/java/org/activityinfo/server/domain/util/BCrypt.java -text
 activityinfo/src/main/java/org/activityinfo/server/domain/util/EntropicToken.class -text
 activityinfo/src/main/java/org/activityinfo/server/domain/util/EntropicToken.java -text
 activityinfo/src/main/java/org/activityinfo/server/filter/CacheFilter.java -text
-activityinfo/src/main/java/org/activityinfo/server/mail/MailMessages.properties -text
-activityinfo/src/main/java/org/activityinfo/server/mail/MailMessages_fr.properties -text
 activityinfo/src/main/java/org/activityinfo/server/mail/Mailer.java -text
 activityinfo/src/main/java/org/activityinfo/server/mail/MailerImpl.java -text
 activityinfo/src/main/java/org/activityinfo/server/report/ReportMetadataParser.java -text
@@ -942,6 +940,8 @@ activityinfo/src/main/resources/dozer.properties -text
 activityinfo/src/main/resources/log4j.properties -text
 activityinfo/src/main/resources/manifest/Common.manifest -text
 activityinfo/src/main/resources/manifest/Permutation.manifest -text
+activityinfo/src/main/resources/org/activityinfo/server/mail/MailMessages.properties -text
+activityinfo/src/main/resources/org/activityinfo/server/mail/MailMessages_fr.properties -text
 activityinfo/src/main/resources/report-def.xsd -text
 activityinfo/src/main/vba/SVGExport.bas -text
 activityinfo/src/test/java/org/activityinfo/ApplicationTest.gwt.xml -text
