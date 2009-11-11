@@ -856,10 +856,8 @@ activityinfo/src/main/java/org/activityinfo/shared/exception/InvalidLoginExcepti
 activityinfo/src/main/java/org/activityinfo/shared/exception/PartnerHasSitesException.java -text
 activityinfo/src/main/java/org/activityinfo/shared/exception/SchemaElementDeletedException.java -text
 activityinfo/src/main/java/org/activityinfo/shared/exception/UnexpectedCommandException.java -text
-activityinfo/src/main/java/org/activityinfo/shared/i18n/UIConstants.java -text
 activityinfo/src/main/java/org/activityinfo/shared/i18n/UIConstants.properties -text
 activityinfo/src/main/java/org/activityinfo/shared/i18n/UIConstants_fr.properties -text
-activityinfo/src/main/java/org/activityinfo/shared/i18n/UIMessages.java -text
 activityinfo/src/main/java/org/activityinfo/shared/i18n/UIMessages.properties -text
 activityinfo/src/main/java/org/activityinfo/shared/i18n/UIMessages_fr.properties -text
 activityinfo/src/main/java/org/activityinfo/shared/map/AbstractCoordinateEditor.java -text
