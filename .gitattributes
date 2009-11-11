@@ -697,6 +697,7 @@ activityinfo/src/main/java/org/activityinfo/server/report/renderer/RendererFacto
 activityinfo/src/main/java/org/activityinfo/server/report/renderer/TiledMapRenderer.java -text
 activityinfo/src/main/java/org/activityinfo/server/report/renderer/excel/BaseExcelRenderer.java -text
 activityinfo/src/main/java/org/activityinfo/server/report/renderer/excel/BaseExcelTableRenderer.java -text
+activityinfo/src/main/java/org/activityinfo/server/report/renderer/excel/ExcelChartRenderer.java -text
 activityinfo/src/main/java/org/activityinfo/server/report/renderer/excel/ExcelMapDataExporter.java -text
 activityinfo/src/main/java/org/activityinfo/server/report/renderer/excel/ExcelPivotTableRenderer.java -text
 activityinfo/src/main/java/org/activityinfo/server/report/renderer/excel/ExcelRenderer.java -text
