@@ -661,6 +661,7 @@ activityinfo/src/main/java/org/activityinfo/server/report/generator/PivotTableAx
 activityinfo/src/main/java/org/activityinfo/server/report/generator/PivotTableGenerator.java -text
 activityinfo/src/main/java/org/activityinfo/server/report/generator/ReportGenerator.java -text
 activityinfo/src/main/java/org/activityinfo/server/report/generator/RowBinder.java -text
+activityinfo/src/main/java/org/activityinfo/server/report/generator/ScaleUtil.java -text
 activityinfo/src/main/java/org/activityinfo/server/report/generator/SiteDataBinder.java -text
 activityinfo/src/main/java/org/activityinfo/server/report/generator/TableGenerator.java -text
 activityinfo/src/main/java/org/activityinfo/server/report/generator/map/ArabicNumberSequence.java -text
@@ -868,6 +869,7 @@ activityinfo/src/main/java/org/activityinfo/shared/message/Message.java -text
 activityinfo/src/main/java/org/activityinfo/shared/message/StartSynchronizing.java -text
 activityinfo/src/main/java/org/activityinfo/shared/report/ExportService.java -text
 activityinfo/src/main/java/org/activityinfo/shared/report/ExportServiceAsync.java -text
+activityinfo/src/main/java/org/activityinfo/shared/report/Theme.java -text
 activityinfo/src/main/java/org/activityinfo/shared/report/content/BubbleMapMarker.java -text
 activityinfo/src/main/java/org/activityinfo/shared/report/content/Content.java -text
 activityinfo/src/main/java/org/activityinfo/shared/report/content/DimensionCategory.java -text
@@ -915,7 +917,6 @@ activityinfo/src/main/java/org/activityinfo/shared/report/model/PivotTableElemen
 activityinfo/src/main/java/org/activityinfo/shared/report/model/Report.java -text
 activityinfo/src/main/java/org/activityinfo/shared/report/model/ReportElement.java -text
 activityinfo/src/main/java/org/activityinfo/shared/report/model/ReportFrequency.java -text
-activityinfo/src/main/java/org/activityinfo/shared/report/model/ReportTheme.java -text
 activityinfo/src/main/java/org/activityinfo/shared/report/model/SortOrder.java -text
 activityinfo/src/main/java/org/activityinfo/shared/report/model/TableElement.java -text
 activityinfo/src/main/java/org/activityinfo/shared/report/model/typeadapter/CategoryAdapter.java -text
@@ -1012,6 +1013,7 @@ activityinfo/src/test/java/org/activityinfo/server/report/TableTest.java -text
 activityinfo/src/test/java/org/activityinfo/server/report/generator/GridTest.java -text
 activityinfo/src/test/java/org/activityinfo/server/report/generator/PivotTableGeneratorTest.java -text
 activityinfo/src/test/java/org/activityinfo/server/report/generator/ReportGeneratorTest.java -text
+activityinfo/src/test/java/org/activityinfo/server/report/generator/ScaleTest.java -text
 activityinfo/src/test/java/org/activityinfo/server/report/generator/SiteDataBinderTest.java -text
 activityinfo/src/test/java/org/activityinfo/server/report/generator/map/BubbleGeneratorTest.java -text
 activityinfo/src/test/java/org/activityinfo/server/report/generator/map/CircleMathTest.java -text
