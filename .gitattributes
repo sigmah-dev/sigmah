@@ -1157,6 +1157,7 @@ gaxb/src/main/java/com/google/code/gaxb/rebind/XmlBindingGenerator.java -text
 gaxb/src/test/java/com/google/code/gaxb/client/AnnotationTest.java -text
 gaxb/src/test/java/com/google/code/gaxb/client/BindingTest.java -text
 gaxb/src/test/java/com/google/code/gaxb/client/testbeans/Person.java -text
+gwt-gears-contrib/pom.xml -text
 gwt-gears-contrib/src/main/antlr3/com/google/gwt/gwt/gears/persistence/ejbql/EJBQL.g -text
 gwt-gears-contrib/src/main/java/com/google/gwt/gears/bulk/client/BulkOperation.java -text
 gwt-gears-contrib/src/main/java/com/google/gwt/gears/jdbc/Jdbc.gwt.xml -text
@@ -1322,4 +1323,3 @@ gwt-gears-contrib/src/test/java/com/google/gwt/gears/worker/client/RpcTest.java 
 gwt-gears-contrib/src/test/java/com/google/gwt/gears/worker/client/WorkerRPCTest.java -text
 gwt-gears-contrib/src/test/java/com/google/gwt/gears/worker/client/WorkerTest.java -text
 gwt-gears-contrib/src/test/java/com/google/gwt/gears/worker/server/WorkerServlet.java -text
-/pom.xml -text
