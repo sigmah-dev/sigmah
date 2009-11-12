@@ -724,6 +724,7 @@ activityinfo/src/main/java/org/activityinfo/server/report/renderer/itext/ItextMa
 activityinfo/src/main/java/org/activityinfo/server/report/renderer/itext/ItextPivotTableRenderer.java -text
 activityinfo/src/main/java/org/activityinfo/server/report/renderer/itext/ItextRenderer.java -text
 activityinfo/src/main/java/org/activityinfo/server/report/renderer/itext/ItextReportRenderer.java -text
+activityinfo/src/main/java/org/activityinfo/server/report/renderer/itext/ItextTableRenderer.java -text
 activityinfo/src/main/java/org/activityinfo/server/report/renderer/itext/PdfReportRenderer.java -text
 activityinfo/src/main/java/org/activityinfo/server/report/renderer/itext/RtfReportRenderer.java -text
 activityinfo/src/main/java/org/activityinfo/server/report/renderer/itext/ThemeHelper.java -text
@@ -918,6 +919,7 @@ activityinfo/src/main/java/org/activityinfo/shared/report/model/Report.java -tex
 activityinfo/src/main/java/org/activityinfo/shared/report/model/ReportElement.java -text
 activityinfo/src/main/java/org/activityinfo/shared/report/model/ReportFrequency.java -text
 activityinfo/src/main/java/org/activityinfo/shared/report/model/SortOrder.java -text
+activityinfo/src/main/java/org/activityinfo/shared/report/model/TableColumn.java -text
 activityinfo/src/main/java/org/activityinfo/shared/report/model/TableElement.java -text
 activityinfo/src/main/java/org/activityinfo/shared/report/model/typeadapter/CategoryAdapter.java -text
 activityinfo/src/main/java/org/activityinfo/shared/report/model/typeadapter/DimensionAdapter.java -text
@@ -1015,6 +1017,7 @@ activityinfo/src/test/java/org/activityinfo/server/report/generator/PivotTableGe
 activityinfo/src/test/java/org/activityinfo/server/report/generator/ReportGeneratorTest.java -text
 activityinfo/src/test/java/org/activityinfo/server/report/generator/ScaleTest.java -text
 activityinfo/src/test/java/org/activityinfo/server/report/generator/SiteDataBinderTest.java -text
+activityinfo/src/test/java/org/activityinfo/server/report/generator/TableGeneratorTest.java -text
 activityinfo/src/test/java/org/activityinfo/server/report/generator/map/BubbleGeneratorTest.java -text
 activityinfo/src/test/java/org/activityinfo/server/report/generator/map/CircleMathTest.java -text
 activityinfo/src/test/java/org/activityinfo/server/report/generator/map/CoincidentPointsClusterTest.java -text
@@ -1023,6 +1026,7 @@ activityinfo/src/test/java/org/activityinfo/server/report/generator/map/ComplexP
 activityinfo/src/test/java/org/activityinfo/server/report/generator/map/GeneticTracer.java -text
 activityinfo/src/test/java/org/activityinfo/server/report/generator/map/GraphTest.java -text
 activityinfo/src/test/java/org/activityinfo/server/report/generator/map/LRTBComparatorTest.java -text
+activityinfo/src/test/java/org/activityinfo/server/report/generator/map/MockBaseMapDAO.java -text
 activityinfo/src/test/java/org/activityinfo/server/report/generator/map/PieMapMarkerTest.java -text
 activityinfo/src/test/java/org/activityinfo/server/report/renderer/excel/PivotTableRendererTest.java -text
 activityinfo/src/test/java/org/activityinfo/server/report/renderer/html/PivotTableHtmlRendererTest.java -text
