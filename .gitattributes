@@ -9,6 +9,7 @@ activityinfo/src/main/java/com/ebessette/maps/core/client/overlay/OverlayManager
 activityinfo/src/main/java/com/ebessette/maps/core/client/overlay/OverlayManagerOptions.java -text
 activityinfo/src/main/java/org/activityinfo/Application.gwt.xml -text
 activityinfo/src/main/java/org/activityinfo/ApplicationFFTest.gwt.xml -text
+activityinfo/src/main/java/org/activityinfo/ApplicationIE6Test.gwt.xml -text
 activityinfo/src/main/java/org/activityinfo/Synchronizer.gwt.xml -text
 activityinfo/src/main/java/org/activityinfo/client/AppEvents.java -text
 activityinfo/src/main/java/org/activityinfo/client/Application.java -text
