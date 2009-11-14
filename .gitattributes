@@ -729,6 +729,7 @@ activityinfo/src/main/java/org/activityinfo/server/report/renderer/itext/ItextTa
 activityinfo/src/main/java/org/activityinfo/server/report/renderer/itext/PdfReportRenderer.java -text
 activityinfo/src/main/java/org/activityinfo/server/report/renderer/itext/RtfReportRenderer.java -text
 activityinfo/src/main/java/org/activityinfo/server/report/renderer/itext/ThemeHelper.java -text
+activityinfo/src/main/java/org/activityinfo/server/report/renderer/ppt/PPTChartRenderer.java -text
 activityinfo/src/main/java/org/activityinfo/server/report/renderer/ppt/PPTMapRenderer.java -text
 activityinfo/src/main/java/org/activityinfo/server/report/renderer/ppt/PPTRenderer.java -text
 activityinfo/src/main/java/org/activityinfo/server/report/util/DateRangeFormat.java -text
