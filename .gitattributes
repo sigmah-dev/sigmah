@@ -1000,6 +1000,7 @@ activityinfo/src/test/java/org/activityinfo/server/command/MonthlyReportsTest.ja
 activityinfo/src/test/java/org/activityinfo/server/command/PartnerTest.java -text
 activityinfo/src/test/java/org/activityinfo/server/command/ReportTest.java -text
 activityinfo/src/test/java/org/activityinfo/server/command/UpdateSiteTest.java -text
+activityinfo/src/test/java/org/activityinfo/server/command/handler/UpdateReportDefHandlerTest.java -text
 activityinfo/src/test/java/org/activityinfo/server/dao/BaseMapDAOTest.java -text
 activityinfo/src/test/java/org/activityinfo/server/dao/CreateUserTest.java -text
 activityinfo/src/test/java/org/activityinfo/server/dao/PivotDAOTest.java -text
