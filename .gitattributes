@@ -311,7 +311,6 @@ activityinfo/src/main/java/org/activityinfo/client/page/welcome/Welcome.java -te
 activityinfo/src/main/java/org/activityinfo/client/page/welcome/WelcomeLoader.java -text
 activityinfo/src/main/java/org/activityinfo/client/page/welcome/WelcomePlace.java -text
 activityinfo/src/main/java/org/activityinfo/client/report/DimensionStoreFactory.java -text
-activityinfo/src/main/java/org/activityinfo/client/report/ExportServiceProxy.java -text
 activityinfo/src/main/java/org/activityinfo/client/report/NarrativeRenderer.java -text
 activityinfo/src/main/java/org/activityinfo/client/util/CookieProvider.java -text
 activityinfo/src/main/java/org/activityinfo/client/util/CookieProviderImpl.java -text
@@ -548,7 +547,6 @@ activityinfo/src/main/java/org/activityinfo/public/image/thumbs/kml.png -text
 activityinfo/src/main/java/org/activityinfo/public/image/thumbs/pivot.png -text
 activityinfo/src/main/java/org/activityinfo/public/image/unmapped.gif -text
 activityinfo/src/main/java/org/activityinfo/public/image/unmapped.png -text
-activityinfo/src/main/java/org/activityinfo/rebind/ExportServiceInterfaceProxyGenerator.java -text
 activityinfo/src/main/java/org/activityinfo/server/ActivityInfoModule.java -text
 activityinfo/src/main/java/org/activityinfo/server/StartupListener.java -text
 activityinfo/src/main/java/org/activityinfo/server/command/handler/AddPartnerHandler.java -text
@@ -747,7 +745,6 @@ activityinfo/src/main/java/org/activityinfo/server/service/impl/CongoPasswordGen
 activityinfo/src/main/java/org/activityinfo/server/service/impl/DbAuthenticator.java -text
 activityinfo/src/main/java/org/activityinfo/server/service/impl/NullMailer.java -text
 activityinfo/src/main/java/org/activityinfo/server/service/impl/PronounceablePasswordGenerator.java -text
-activityinfo/src/main/java/org/activityinfo/server/servlet/CommandDownloadServlet.java -text
 activityinfo/src/main/java/org/activityinfo/server/servlet/CommandServlet.java -text
 activityinfo/src/main/java/org/activityinfo/server/servlet/DownloadServlet.java -text
 activityinfo/src/main/java/org/activityinfo/server/servlet/Export.java -text
