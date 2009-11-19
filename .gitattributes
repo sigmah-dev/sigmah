@@ -541,6 +541,9 @@ activityinfo/src/main/java/org/activityinfo/public/image/gallery-over.gif -text
 activityinfo/src/main/java/org/activityinfo/public/image/mapped.gif -text
 activityinfo/src/main/java/org/activityinfo/public/image/mapped.png -text
 activityinfo/src/main/java/org/activityinfo/public/image/thumbs/charts/time.png -text
+activityinfo/src/main/java/org/activityinfo/public/image/thumbs/db-design.png -text
+activityinfo/src/main/java/org/activityinfo/public/image/thumbs/db-partners.png -text
+activityinfo/src/main/java/org/activityinfo/public/image/thumbs/db-users.png -text
 activityinfo/src/main/java/org/activityinfo/public/image/thumbs/form.png -text
 activityinfo/src/main/java/org/activityinfo/public/image/thumbs/grid.png -text
 activityinfo/src/main/java/org/activityinfo/public/image/thumbs/kml.png -text
