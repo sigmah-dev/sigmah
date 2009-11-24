@@ -128,7 +128,6 @@ activityinfo/src/main/java/org/activityinfo/client/map/RgcTileLayer.java -text
 activityinfo/src/main/java/org/activityinfo/client/offline/DatabaseProvider.java -text
 activityinfo/src/main/java/org/activityinfo/client/offline/DatabaseStateProvider.java -text
 activityinfo/src/main/java/org/activityinfo/client/offline/Installer.java -text
-activityinfo/src/main/java/org/activityinfo/client/offline/ManagedResourceStores.java -text
 activityinfo/src/main/java/org/activityinfo/client/offline/OfflineApplication.java -text
 activityinfo/src/main/java/org/activityinfo/client/offline/OfflineManager.java -text
 activityinfo/src/main/java/org/activityinfo/client/offline/OfflineModule.java -text
@@ -320,7 +319,6 @@ activityinfo/src/main/java/org/activityinfo/client/util/GxtStateManagerImpl.java
 activityinfo/src/main/java/org/activityinfo/client/util/IStateManager.java -text
 activityinfo/src/main/java/org/activityinfo/client/util/ITimer.java -text
 activityinfo/src/main/java/org/activityinfo/client/util/SortInfoHelper.java -text
-activityinfo/src/main/java/org/activityinfo/linker/ApplicationLinker.java -text
 activityinfo/src/main/java/org/activityinfo/public/clear.gif -text
 activityinfo/src/main/java/org/activityinfo/public/gxt201/chart/open-flash-chart.swf -text
 activityinfo/src/main/java/org/activityinfo/public/gxt201/css/gxt-all.css -text
@@ -979,7 +977,6 @@ activityinfo/src/test/java/org/activityinfo/clientjre/place/entry/editor/SiteFor
 activityinfo/src/test/java/org/activityinfo/clientjre/place/entry/editor/mock/MockAdminFieldSet.java -text
 activityinfo/src/test/java/org/activityinfo/clientjre/place/entry/editor/mock/MockMapView.java -text
 activityinfo/src/test/java/org/activityinfo/clientjre/place/entry/editor/mock/MockSiteForm.java -text
-activityinfo/src/test/java/org/activityinfo/linker/ApplicationLinkerTest.java -text
 activityinfo/src/test/java/org/activityinfo/server/ActivityInfoTestingModule.java -text
 activityinfo/src/test/java/org/activityinfo/server/DbUnitTestCase.java -text
 activityinfo/src/test/java/org/activityinfo/server/SchemaMigrationTest.java -text
