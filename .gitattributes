@@ -19,12 +19,14 @@ activityinfo/src/main/java/org/activityinfo/client/LoggingEventBus.java -text
 activityinfo/src/main/java/org/activityinfo/client/Place.java -text
 activityinfo/src/main/java/org/activityinfo/client/PlaceParser.java -text
 activityinfo/src/main/java/org/activityinfo/client/PlaceSerializer.java -text
+activityinfo/src/main/java/org/activityinfo/client/UsageTracker.java -text
 activityinfo/src/main/java/org/activityinfo/client/ViewPath.java -text
 activityinfo/src/main/java/org/activityinfo/client/command/Authentication.java -text
 activityinfo/src/main/java/org/activityinfo/client/command/CommandEventSource.java -text
 activityinfo/src/main/java/org/activityinfo/client/command/CommandRequest.java -text
 activityinfo/src/main/java/org/activityinfo/client/command/CommandService.java -text
 activityinfo/src/main/java/org/activityinfo/client/command/CommandServiceImpl.java -text
+activityinfo/src/main/java/org/activityinfo/client/command/DefaultCommandListener.java -text
 activityinfo/src/main/java/org/activityinfo/client/command/ProxyManager.java -text
 activityinfo/src/main/java/org/activityinfo/client/command/cache/AbstractCache.java -text
 activityinfo/src/main/java/org/activityinfo/client/command/cache/AdminEntityCache.java -text
