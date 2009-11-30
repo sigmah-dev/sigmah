@@ -756,10 +756,6 @@ activityinfo/src/main/java/org/activityinfo/server/servlet/NewUserServlet.java -
 activityinfo/src/main/java/org/activityinfo/server/servlet/ReportServlet.java -text
 activityinfo/src/main/java/org/activityinfo/server/servlet/RootServlet.java -text
 activityinfo/src/main/java/org/activityinfo/server/servlet/SyncServlet.java -text
-activityinfo/src/main/java/org/activityinfo/server/servlet/kml/KmlDataServlet.java -text
-activityinfo/src/main/java/org/activityinfo/server/servlet/kml/KmlLinkServlet.java -text
-activityinfo/src/main/java/org/activityinfo/server/servlet/wfs/Capabilities.java -text
-activityinfo/src/main/java/org/activityinfo/server/servlet/wfs/WfsServlet.java -text
 activityinfo/src/main/java/org/activityinfo/server/util/DateUtilCalendarImpl.java -text
 activityinfo/src/main/java/org/activityinfo/server/util/KMLNamespace.java -text
 activityinfo/src/main/java/org/activityinfo/server/util/SimpleXmlElement.java -text
