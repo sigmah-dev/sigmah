@@ -607,6 +607,7 @@ activityinfo/src/main/java/org/activityinfo/public/image/thumbs/pivot.png -text
 activityinfo/src/main/java/org/activityinfo/public/image/unmapped.gif -text
 activityinfo/src/main/java/org/activityinfo/public/image/unmapped.png -text
 activityinfo/src/main/java/org/activityinfo/server/ActivityInfoModule.java -text
+activityinfo/src/main/java/org/activityinfo/server/ActivityInfoServletModule.java -text
 activityinfo/src/main/java/org/activityinfo/server/StartupListener.java -text
 activityinfo/src/main/java/org/activityinfo/server/command/handler/AddPartnerHandler.java -text
 activityinfo/src/main/java/org/activityinfo/server/command/handler/BaseEntityHandler.java -text
@@ -700,6 +701,17 @@ activityinfo/src/main/java/org/activityinfo/server/domain/util/BCrypt.class -tex
 activityinfo/src/main/java/org/activityinfo/server/domain/util/BCrypt.java -text
 activityinfo/src/main/java/org/activityinfo/server/domain/util/EntropicToken.class -text
 activityinfo/src/main/java/org/activityinfo/server/domain/util/EntropicToken.java -text
+activityinfo/src/main/java/org/activityinfo/server/endpoint/gwtrpc/CommandServlet.java -text
+activityinfo/src/main/java/org/activityinfo/server/endpoint/gwtrpc/DownloadServlet.java -text
+activityinfo/src/main/java/org/activityinfo/server/endpoint/jaxws/ApiService.java -text
+activityinfo/src/main/java/org/activityinfo/server/endpoint/jaxws/GuiceManaged.java -text
+activityinfo/src/main/java/org/activityinfo/server/endpoint/jaxws/GuiceManagedFeature.java -text
+activityinfo/src/main/java/org/activityinfo/server/endpoint/jaxws/GuiceManagedInstanceResolver.java -text
+activityinfo/src/main/java/org/activityinfo/server/endpoint/kml/KmlDataServlet.java -text
+activityinfo/src/main/java/org/activityinfo/server/endpoint/kml/KmlLinkServlet.java -text
+activityinfo/src/main/java/org/activityinfo/server/endpoint/kml/KmlModule.java -text
+activityinfo/src/main/java/org/activityinfo/server/endpoint/wfs/Capabilities.java -text
+activityinfo/src/main/java/org/activityinfo/server/endpoint/wfs/WfsServlet.java -text
 activityinfo/src/main/java/org/activityinfo/server/filter/CacheFilter.java -text
 activityinfo/src/main/java/org/activityinfo/server/mail/Mailer.java -text
 activityinfo/src/main/java/org/activityinfo/server/mail/MailerImpl.java -text
@@ -804,15 +816,12 @@ activityinfo/src/main/java/org/activityinfo/server/service/impl/CongoPasswordGen
 activityinfo/src/main/java/org/activityinfo/server/service/impl/DbAuthenticator.java -text
 activityinfo/src/main/java/org/activityinfo/server/service/impl/NullMailer.java -text
 activityinfo/src/main/java/org/activityinfo/server/service/impl/PronounceablePasswordGenerator.java -text
-activityinfo/src/main/java/org/activityinfo/server/servlet/CommandServlet.java -text
-activityinfo/src/main/java/org/activityinfo/server/servlet/DownloadServlet.java -text
 activityinfo/src/main/java/org/activityinfo/server/servlet/Export.java -text
 activityinfo/src/main/java/org/activityinfo/server/servlet/ExportServlet.java -text
 activityinfo/src/main/java/org/activityinfo/server/servlet/MapIconServlet.java -text
 activityinfo/src/main/java/org/activityinfo/server/servlet/NewUserServlet.java -text
 activityinfo/src/main/java/org/activityinfo/server/servlet/ReportServlet.java -text
 activityinfo/src/main/java/org/activityinfo/server/servlet/RootServlet.java -text
-activityinfo/src/main/java/org/activityinfo/server/servlet/SyncServlet.java -text
 activityinfo/src/main/java/org/activityinfo/server/util/DateUtilCalendarImpl.java -text
 activityinfo/src/main/java/org/activityinfo/server/util/KMLNamespace.java -text
 activityinfo/src/main/java/org/activityinfo/server/util/SimpleXmlElement.java -text
@@ -1059,6 +1068,7 @@ activityinfo/src/test/java/org/activityinfo/server/dao/PivotDAOTest.java -text
 activityinfo/src/test/java/org/activityinfo/server/dao/SiteTableDAOTest.java -text
 activityinfo/src/test/java/org/activityinfo/server/dao/filter/DateTokenMatcherTest.java -text
 activityinfo/src/test/java/org/activityinfo/server/dao/filter/FrenchFilterParserTest.java -text
+activityinfo/src/test/java/org/activityinfo/server/endpoint/jaxws/ApiServiceJsonIT.java -text
 activityinfo/src/test/java/org/activityinfo/server/report/DummyPivotTableData.java -text
 activityinfo/src/test/java/org/activityinfo/server/report/DummyPivotTableData2.java -text
 activityinfo/src/test/java/org/activityinfo/server/report/FileNameTest.java -text
@@ -1108,10 +1118,14 @@ activityinfo/src/test/resources/report-def/parse-test/filter.xml -text
 activityinfo/src/test/resources/report-def/parse-test/report-elements.xml -text
 activityinfo/src/test/resources/report-def/parse-test/report.xml -text
 activityinfo/src/test/resources/report-def/parse-test/table.xml -text
+activityinfo/war/WEB-INF/sun-jaxws.xml -text
 activityinfo/war/WEB-INF/web.xml -text
+activityinfo/war/apitest.html -text
 activityinfo/war/dbquery.html -text
 activityinfo/war/ftl/Application.css -text svneol=unset#unset
 activityinfo/war/ftl/hostpage.ftl -text
+activityinfo/war/ftl/kml/NetworkLink.kml.ftl -text
+activityinfo/war/ftl/kml/Sites.kml.ftl -text
 activityinfo/war/ftl/login.ftl -text
 activityinfo/war/ftl/newuser.ftl -text
 activityinfo/war/ftl/wfs/Capabilities.ftl -text
