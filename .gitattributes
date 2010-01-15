@@ -1116,7 +1116,6 @@ activityinfo/src/test/java/org/activityinfo/server/command/handler/UpdateReportD
 activityinfo/src/test/java/org/activityinfo/server/command/handler/UpdateUserPermissionsHandlerTest.java -text
 activityinfo/src/test/java/org/activityinfo/server/dao/BaseMapDAOTest.java -text
 activityinfo/src/test/java/org/activityinfo/server/dao/OnDataSet.java -text
-activityinfo/src/test/java/org/activityinfo/server/dao/OnDataset.java -text
 activityinfo/src/test/java/org/activityinfo/server/dao/ServletTestingDataModule.java -text
 activityinfo/src/test/java/org/activityinfo/server/dao/SiteTableDAOTest.java -text
 activityinfo/src/test/java/org/activityinfo/server/dao/TestingDataModule.java -text
