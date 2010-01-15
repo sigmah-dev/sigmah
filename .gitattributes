@@ -735,8 +735,6 @@ activityinfo/src/main/java/org/activityinfo/server/domain/SiteData.java -text
 activityinfo/src/main/java/org/activityinfo/server/domain/User.java -text
 activityinfo/src/main/java/org/activityinfo/server/domain/UserDatabase.java -text
 activityinfo/src/main/java/org/activityinfo/server/domain/UserPermission.java -text
-activityinfo/src/main/java/org/activityinfo/server/domain/util/BCrypt.class -text
-activityinfo/src/main/java/org/activityinfo/server/domain/util/EntropicToken.class -text
 activityinfo/src/main/java/org/activityinfo/server/endpoint/gwtrpc/CommandServlet.java -text
 activityinfo/src/main/java/org/activityinfo/server/endpoint/gwtrpc/DownloadServlet.java -text
 activityinfo/src/main/java/org/activityinfo/server/endpoint/jaxws/ApiService.java -text
@@ -750,6 +748,7 @@ activityinfo/src/main/java/org/activityinfo/server/endpoint/wfs/Capabilities.jav
 activityinfo/src/main/java/org/activityinfo/server/endpoint/wfs/WfsServlet.java -text
 activityinfo/src/main/java/org/activityinfo/server/filter/CacheFilter.java -text
 activityinfo/src/main/java/org/activityinfo/server/mail/Invitation.java -text
+activityinfo/src/main/java/org/activityinfo/server/mail/InvitationMailer.java -text
 activityinfo/src/main/java/org/activityinfo/server/mail/MailModule.java -text
 activityinfo/src/main/java/org/activityinfo/server/mail/MailSender.java -text
 activityinfo/src/main/java/org/activityinfo/server/mail/MailSenderImpl.java -text
@@ -845,9 +844,9 @@ activityinfo/src/main/java/org/activityinfo/server/report/util/HtmlTableCellTag.
 activityinfo/src/main/java/org/activityinfo/server/report/util/HtmlTag.java -text
 activityinfo/src/main/java/org/activityinfo/server/report/util/HtmlWriter.java -text
 activityinfo/src/main/java/org/activityinfo/server/report/util/MismatchedTagError.java -text
+activityinfo/src/main/java/org/activityinfo/server/schedule/Jobs.java -text
 activityinfo/src/main/java/org/activityinfo/server/schedule/ReportMailerHelper.java -text
 activityinfo/src/main/java/org/activityinfo/server/schedule/ReportMailerJob.java -text
-activityinfo/src/main/java/org/activityinfo/server/schedule/ScheduleInitializer.java -text
 activityinfo/src/main/java/org/activityinfo/server/servlet/Export.java -text
 activityinfo/src/main/java/org/activityinfo/server/servlet/ExportServlet.java -text
 activityinfo/src/main/java/org/activityinfo/server/servlet/MapIconServlet.java -text
@@ -1046,6 +1045,7 @@ activityinfo/src/main/resources/template/page/ConfirmInvite.ftl -text
 activityinfo/src/main/resources/template/page/Host.ftl -text
 activityinfo/src/main/resources/template/page/InvalidInvite.ftl -text
 activityinfo/src/main/resources/template/page/Login.ftl -text
+activityinfo/src/main/resources/template/page/login.ftl -text
 activityinfo/src/main/vba/SVGExport.bas -text
 activityinfo/src/test/java/org/activityinfo/ApplicationTest.gwt.xml -text
 activityinfo/src/test/java/org/activityinfo/MockDAO.java -text
@@ -1116,12 +1116,14 @@ activityinfo/src/test/java/org/activityinfo/server/command/handler/UpdateReportD
 activityinfo/src/test/java/org/activityinfo/server/command/handler/UpdateUserPermissionsHandlerTest.java -text
 activityinfo/src/test/java/org/activityinfo/server/dao/BaseMapDAOTest.java -text
 activityinfo/src/test/java/org/activityinfo/server/dao/OnDataSet.java -text
+activityinfo/src/test/java/org/activityinfo/server/dao/OnDataset.java -text
 activityinfo/src/test/java/org/activityinfo/server/dao/ServletTestingDataModule.java -text
 activityinfo/src/test/java/org/activityinfo/server/dao/SiteTableDAOTest.java -text
 activityinfo/src/test/java/org/activityinfo/server/dao/TestingDataModule.java -text
 activityinfo/src/test/java/org/activityinfo/server/dao/filter/DateTokenMatcherTest.java -text
 activityinfo/src/test/java/org/activityinfo/server/dao/filter/FrenchFilterParserTest.java -text
 activityinfo/src/test/java/org/activityinfo/server/dao/hibernate/AdminDAOImplTest.java -text
+activityinfo/src/test/java/org/activityinfo/server/dao/hibernate/LoadDataSet.java -text
 activityinfo/src/test/java/org/activityinfo/server/dao/hibernate/PivotDAOImplTest.java -text
 activityinfo/src/test/java/org/activityinfo/server/dao/hibernate/TransactionInterceptorTest.java -text
 activityinfo/src/test/java/org/activityinfo/server/dao/hibernate/UserDAOImplTest.java -text
@@ -1170,6 +1172,7 @@ activityinfo/src/test/java/org/activityinfo/test/Modules.java -text
 activityinfo/src/test/java/org/activityinfo/test/SimpleScope.java -text
 activityinfo/src/test/java/org/activityinfo/test/SuperScoped.java -text
 activityinfo/src/test/java/org/activityinfo/test/TestScopeTest.java -text
+activityinfo/src/test/java/org/activityinfo/test/TestScoped.java -text
 activityinfo/src/test/resources/alpha.ppt -text
 activityinfo/src/test/resources/dbunit/adminEntities.db.xml -text
 activityinfo/src/test/resources/dbunit/authTest.db.xml -text
