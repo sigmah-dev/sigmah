@@ -1168,6 +1168,7 @@ activityinfo/src/test/java/org/activityinfo/test/AssertUtils.java -text
 activityinfo/src/test/java/org/activityinfo/test/ExitScope.java -text
 activityinfo/src/test/java/org/activityinfo/test/InjectionSupport.java -text
 activityinfo/src/test/java/org/activityinfo/test/Modules.java -text
+activityinfo/src/test/java/org/activityinfo/test/OnDataSet.java -text
 activityinfo/src/test/java/org/activityinfo/test/SimpleScope.java -text
 activityinfo/src/test/java/org/activityinfo/test/SuperScoped.java -text
 activityinfo/src/test/java/org/activityinfo/test/TestScopeTest.java -text
