@@ -665,6 +665,7 @@ activityinfo/src/main/java/org/activityinfo/server/dao/AdminDAO.java -text
 activityinfo/src/main/java/org/activityinfo/server/dao/AuthenticationDAO.java -text
 activityinfo/src/main/java/org/activityinfo/server/dao/BaseMapDAO.java -text
 activityinfo/src/main/java/org/activityinfo/server/dao/BaseMapDAOImpl.java -text
+activityinfo/src/main/java/org/activityinfo/server/dao/CountryDAO.java -text
 activityinfo/src/main/java/org/activityinfo/server/dao/DAO.java -text
 activityinfo/src/main/java/org/activityinfo/server/dao/DatabaseDAO.java -text
 activityinfo/src/main/java/org/activityinfo/server/dao/PartnerDAO.java -text
@@ -676,6 +677,7 @@ activityinfo/src/main/java/org/activityinfo/server/dao/SiteProjectionBinder.java
 activityinfo/src/main/java/org/activityinfo/server/dao/SiteTableDAO.java -text
 activityinfo/src/main/java/org/activityinfo/server/dao/Transactional.java -text
 activityinfo/src/main/java/org/activityinfo/server/dao/UserDAO.java -text
+activityinfo/src/main/java/org/activityinfo/server/dao/UserDatabaseDAO.java -text
 activityinfo/src/main/java/org/activityinfo/server/dao/UserPermissionDAO.java -text
 activityinfo/src/main/java/org/activityinfo/server/dao/filter/AbstractEntityTokenMatcher.java -text
 activityinfo/src/main/java/org/activityinfo/server/dao/filter/AdminTokenMatcher.java -text
@@ -689,8 +691,10 @@ activityinfo/src/main/java/org/activityinfo/server/dao/filter/TokenMatcher.java 
 activityinfo/src/main/java/org/activityinfo/server/dao/hibernate/AbstractDAO.java -text
 activityinfo/src/main/java/org/activityinfo/server/dao/hibernate/AdminDAOImpl.java -text
 activityinfo/src/main/java/org/activityinfo/server/dao/hibernate/AuthenticationDAOImpl.java -text
+activityinfo/src/main/java/org/activityinfo/server/dao/hibernate/CountryHibernateDAO.java -text
 activityinfo/src/main/java/org/activityinfo/server/dao/hibernate/DataModule.java -text
 activityinfo/src/main/java/org/activityinfo/server/dao/hibernate/DatabaseDAOImpl.java -text
+activityinfo/src/main/java/org/activityinfo/server/dao/hibernate/HibernateDAOProvider.java -text
 activityinfo/src/main/java/org/activityinfo/server/dao/hibernate/PartnerDAOImpl.java -text
 activityinfo/src/main/java/org/activityinfo/server/dao/hibernate/PivotDAOImpl.java -text
 activityinfo/src/main/java/org/activityinfo/server/dao/hibernate/ReportDAOJPA.java -text
@@ -752,6 +756,7 @@ activityinfo/src/main/java/org/activityinfo/server/mail/InvitationMailer.java -t
 activityinfo/src/main/java/org/activityinfo/server/mail/MailModule.java -text
 activityinfo/src/main/java/org/activityinfo/server/mail/MailSender.java -text
 activityinfo/src/main/java/org/activityinfo/server/mail/MailSenderImpl.java -text
+activityinfo/src/main/java/org/activityinfo/server/policy/UserDatabasePolicy.java -text
 activityinfo/src/main/java/org/activityinfo/server/report/ReportParserJaxb.java -text
 activityinfo/src/main/java/org/activityinfo/server/report/ServletImageStorageProvider.java -text
 activityinfo/src/main/java/org/activityinfo/server/report/generator/BaseGenerator.java -text
@@ -1127,6 +1132,7 @@ activityinfo/src/test/java/org/activityinfo/server/dao/hibernate/PivotDAOImplTes
 activityinfo/src/test/java/org/activityinfo/server/dao/hibernate/TransactionInterceptorTest.java -text
 activityinfo/src/test/java/org/activityinfo/server/dao/hibernate/UserDAOImplTest.java -text
 activityinfo/src/test/java/org/activityinfo/server/endpoint/jaxws/ApiServiceJsonIT.java -text
+activityinfo/src/test/java/org/activityinfo/server/endpoint/sync/SyncAcceptanceTest.java -text
 activityinfo/src/test/java/org/activityinfo/server/mail/MockMailer.java -text
 activityinfo/src/test/java/org/activityinfo/server/mapping/AdminEntityMappingTest.java -text
 activityinfo/src/test/java/org/activityinfo/server/mock/MockHttpServletRequest.java -text
@@ -1176,6 +1182,7 @@ activityinfo/src/test/resources/alpha.ppt -text
 activityinfo/src/test/resources/dbunit/adminEntities.db.xml -text
 activityinfo/src/test/resources/dbunit/authTest.db.xml -text
 activityinfo/src/test/resources/dbunit/filter.db.xml -text
+activityinfo/src/test/resources/dbunit/multicountry.db.xml -text
 activityinfo/src/test/resources/dbunit/schema1.db.xml -text
 activityinfo/src/test/resources/dbunit/sites-deleted.db.xml -text
 activityinfo/src/test/resources/dbunit/sites-quarters.db.xml -text
