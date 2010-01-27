@@ -661,6 +661,7 @@ activityinfo/src/main/java/org/activityinfo/server/command/handler/UpdateMonthly
 activityinfo/src/main/java/org/activityinfo/server/command/handler/UpdateReportDefHandler.java -text
 activityinfo/src/main/java/org/activityinfo/server/command/handler/UpdateSubscriptionHandler.java -text
 activityinfo/src/main/java/org/activityinfo/server/command/handler/UpdateUserPermissionsHandler.java -text
+activityinfo/src/main/java/org/activityinfo/server/dao/ActivityDAO.java -text
 activityinfo/src/main/java/org/activityinfo/server/dao/AdminDAO.java -text
 activityinfo/src/main/java/org/activityinfo/server/dao/AuthenticationDAO.java -text
 activityinfo/src/main/java/org/activityinfo/server/dao/BaseMapDAO.java -text
