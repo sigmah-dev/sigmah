@@ -750,6 +750,8 @@ activityinfo/src/main/java/org/activityinfo/server/mail/InvitationMailer.java -t
 activityinfo/src/main/java/org/activityinfo/server/mail/MailModule.java -text
 activityinfo/src/main/java/org/activityinfo/server/mail/MailSender.java -text
 activityinfo/src/main/java/org/activityinfo/server/mail/MailSenderImpl.java -text
+activityinfo/src/main/java/org/activityinfo/server/policy/ActivityPolicy.java -text
+activityinfo/src/main/java/org/activityinfo/server/policy/PropertyMap.java -text
 activityinfo/src/main/java/org/activityinfo/server/policy/UserDatabasePolicy.java -text
 activityinfo/src/main/java/org/activityinfo/server/report/ReportParserJaxb.java -text
 activityinfo/src/main/java/org/activityinfo/server/report/ServletImageStorageProvider.java -text
