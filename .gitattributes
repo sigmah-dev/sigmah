@@ -313,10 +313,8 @@ activityinfo/src/main/java/org/activityinfo/client/report/NarrativeRenderer.java
 activityinfo/src/main/java/org/activityinfo/client/util/CookieProvider.java -text
 activityinfo/src/main/java/org/activityinfo/client/util/CookieProviderImpl.java -text
 activityinfo/src/main/java/org/activityinfo/client/util/DateUtilGWTImpl.java -text
-activityinfo/src/main/java/org/activityinfo/client/util/GWTTimerImpl.java -text
 activityinfo/src/main/java/org/activityinfo/client/util/GxtStateManagerImpl.java -text
 activityinfo/src/main/java/org/activityinfo/client/util/IStateManager.java -text
-activityinfo/src/main/java/org/activityinfo/client/util/ITimer.java -text
 activityinfo/src/main/java/org/activityinfo/client/util/SortInfoHelper.java -text
 activityinfo/src/main/java/org/activityinfo/public/clear.gif -text
 activityinfo/src/main/java/org/activityinfo/public/gxt210/chart/open-flash-chart.swf -text
@@ -1067,7 +1065,6 @@ activityinfo/src/test/java/org/activityinfo/clientjre/mock/MockCookieProvider.ja
 activityinfo/src/test/java/org/activityinfo/clientjre/mock/MockEventBus.java -text
 activityinfo/src/test/java/org/activityinfo/clientjre/mock/MockRemoteCommandService.java -text
 activityinfo/src/test/java/org/activityinfo/clientjre/mock/MockStateManager.java -text
-activityinfo/src/test/java/org/activityinfo/clientjre/mock/MockTimer.java -text
 activityinfo/src/test/java/org/activityinfo/clientjre/mock/NullAsyncCallback.java -text
 activityinfo/src/test/java/org/activityinfo/clientjre/place/config/DbUserTest.java -text
 activityinfo/src/test/java/org/activityinfo/clientjre/place/config/design/DesignTest.java -text
