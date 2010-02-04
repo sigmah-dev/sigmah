@@ -1,5 +1,6 @@
 * text=auto !eol
 /activityinfo-endtoend-tests.iml -text
+activityinfo-endtoend-tests/pom.xml -text
 activityinfo-endtoend-tests/src/test/java/org/activityinfo/endtoend/ApiServiceJsonIT.java -text
 activityinfo-endtoend-tests/src/test/java/org/activityinfo/endtoend/CreateDatabaseTest.java -text
 activityinfo-endtoend-tests/src/test/java/org/activityinfo/endtoend/EndToEndTestCase.java -text
@@ -1493,4 +1494,3 @@ gwt-gears-contrib/src/test/java/com/google/gwt/gears/worker/client/RpcTest.java 
 gwt-gears-contrib/src/test/java/com/google/gwt/gears/worker/client/WorkerRPCTest.java -text
 gwt-gears-contrib/src/test/java/com/google/gwt/gears/worker/client/WorkerTest.java -text
 gwt-gears-contrib/src/test/java/com/google/gwt/gears/worker/server/WorkerServlet.java -text
-/pom.xml -text
