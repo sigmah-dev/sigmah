@@ -1,5 +1,4 @@
 * text=auto !eol
-/activityinfo-endtoend-tests.iml -text
 activityinfo-endtoend-tests/pom.xml -text
 activityinfo-endtoend-tests/src/test/java/org/activityinfo/endtoend/ApiServiceJsonIT.java -text
 activityinfo-endtoend-tests/src/test/java/org/activityinfo/endtoend/CreateDatabaseTest.java -text
