@@ -669,9 +669,11 @@ activityinfo/src/main/java/org/activityinfo/server/dao/BaseMapDAOImpl.java -text
 activityinfo/src/main/java/org/activityinfo/server/dao/CountryDAO.java -text
 activityinfo/src/main/java/org/activityinfo/server/dao/DAO.java -text
 activityinfo/src/main/java/org/activityinfo/server/dao/DatabaseDAO.java -text
+activityinfo/src/main/java/org/activityinfo/server/dao/LocationDAO.java -text
 activityinfo/src/main/java/org/activityinfo/server/dao/PartnerDAO.java -text
 activityinfo/src/main/java/org/activityinfo/server/dao/PivotDAO.java -text
 activityinfo/src/main/java/org/activityinfo/server/dao/ReportDAO.java -text
+activityinfo/src/main/java/org/activityinfo/server/dao/ReportingPeriodDAO.java -text
 activityinfo/src/main/java/org/activityinfo/server/dao/SchemaDAO.java -text
 activityinfo/src/main/java/org/activityinfo/server/dao/SiteDAO.java -text
 activityinfo/src/main/java/org/activityinfo/server/dao/SiteProjectionBinder.java -text
@@ -693,10 +695,13 @@ activityinfo/src/main/java/org/activityinfo/server/dao/hibernate/AbstractDAO.jav
 activityinfo/src/main/java/org/activityinfo/server/dao/hibernate/AdminDAOImpl.java -text
 activityinfo/src/main/java/org/activityinfo/server/dao/hibernate/HibernateDAOProvider.java -text
 activityinfo/src/main/java/org/activityinfo/server/dao/hibernate/HibernateModule.java -text
+activityinfo/src/main/java/org/activityinfo/server/dao/hibernate/LocationHibernateDAO.java -text
 activityinfo/src/main/java/org/activityinfo/server/dao/hibernate/PivotDAOImpl.java -text
 activityinfo/src/main/java/org/activityinfo/server/dao/hibernate/ReportDAOJPA.java -text
+activityinfo/src/main/java/org/activityinfo/server/dao/hibernate/ReportingPeriodHibernateDAO.java -text
 activityinfo/src/main/java/org/activityinfo/server/dao/hibernate/SchemaDAOJPA.java -text
 activityinfo/src/main/java/org/activityinfo/server/dao/hibernate/SiteAdminOrder.java -text
+activityinfo/src/main/java/org/activityinfo/server/dao/hibernate/SiteHibernateDAO.java -text
 activityinfo/src/main/java/org/activityinfo/server/dao/hibernate/SiteIndicatorOrder.java -text
 activityinfo/src/main/java/org/activityinfo/server/dao/hibernate/SiteTableDAOHibernate.java -text
 activityinfo/src/main/java/org/activityinfo/server/dao/hibernate/TransactionalInterceptor.java -text
@@ -790,6 +795,7 @@ activityinfo/src/main/java/org/activityinfo/server/mail/MailSenderImpl.java -tex
 activityinfo/src/main/java/org/activityinfo/server/policy/ActivityPolicy.java -text
 activityinfo/src/main/java/org/activityinfo/server/policy/EntityPolicy.java -text
 activityinfo/src/main/java/org/activityinfo/server/policy/PropertyMap.java -text
+activityinfo/src/main/java/org/activityinfo/server/policy/SitePolicy.java -text
 activityinfo/src/main/java/org/activityinfo/server/policy/UserDatabasePolicy.java -text
 activityinfo/src/main/java/org/activityinfo/server/report/MapIconPathProvider.java -text
 activityinfo/src/main/java/org/activityinfo/server/report/ReportModule.java -text
@@ -1129,7 +1135,6 @@ activityinfo/src/test/java/org/activityinfo/server/bootstrap/model/PageModelTest
 activityinfo/src/test/java/org/activityinfo/server/dao/BaseMapDAOTest.java -text
 activityinfo/src/test/java/org/activityinfo/server/dao/DatabaseCleaner.java -text
 activityinfo/src/test/java/org/activityinfo/server/dao/OnDataSet.java -text
-activityinfo/src/test/java/org/activityinfo/server/dao/ServletTestingDataModule.java -text
 activityinfo/src/test/java/org/activityinfo/server/dao/SiteTableDAOTest.java -text
 activityinfo/src/test/java/org/activityinfo/server/dao/filter/DateTokenMatcherTest.java -text
 activityinfo/src/test/java/org/activityinfo/server/dao/filter/FrenchFilterParserTest.java -text
