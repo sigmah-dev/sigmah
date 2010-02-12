@@ -638,6 +638,7 @@ activityinfo/src/main/java/org/activityinfo/public/image/thumbs/pivot.png -text
 activityinfo/src/main/java/org/activityinfo/public/image/unmapped.gif -text
 activityinfo/src/main/java/org/activityinfo/public/image/unmapped.png -text
 activityinfo/src/main/java/org/activityinfo/server/BeanMappingModule.java -text
+activityinfo/src/main/java/org/activityinfo/server/ConfigModule.java -text
 activityinfo/src/main/java/org/activityinfo/server/StartupListener.java -text
 activityinfo/src/main/java/org/activityinfo/server/TemplateModule.java -text
 activityinfo/src/main/java/org/activityinfo/server/auth/AuthenticationModule.java -text
@@ -901,6 +902,10 @@ activityinfo/src/main/java/org/activityinfo/server/util/StringUtil.java -text
 activityinfo/src/main/java/org/activityinfo/server/util/XmlAttribute.java -text
 activityinfo/src/main/java/org/activityinfo/server/util/XmlBuilder.java -text
 activityinfo/src/main/java/org/activityinfo/server/util/XmlElement.java -text
+activityinfo/src/main/java/org/activityinfo/server/util/logging/LogException.java -text
+activityinfo/src/main/java/org/activityinfo/server/util/logging/LoggingInterceptor.java -text
+activityinfo/src/main/java/org/activityinfo/server/util/logging/LoggingModule.java -text
+activityinfo/src/main/java/org/activityinfo/server/util/logging/Trace.java -text
 activityinfo/src/main/java/org/activityinfo/shared/Servlets.java -text
 activityinfo/src/main/java/org/activityinfo/shared/command/AddPartner.java -text
 activityinfo/src/main/java/org/activityinfo/shared/command/BatchCommand.java -text
