@@ -637,10 +637,8 @@ activityinfo/src/main/java/org/activityinfo/public/image/thumbs/map.png -text
 activityinfo/src/main/java/org/activityinfo/public/image/thumbs/pivot.png -text
 activityinfo/src/main/java/org/activityinfo/public/image/unmapped.gif -text
 activityinfo/src/main/java/org/activityinfo/public/image/unmapped.png -text
-activityinfo/src/main/java/org/activityinfo/server/BeanMappingModule.java -text
 activityinfo/src/main/java/org/activityinfo/server/ConfigModule.java -text
 activityinfo/src/main/java/org/activityinfo/server/StartupListener.java -text
-activityinfo/src/main/java/org/activityinfo/server/TemplateModule.java -text
 activityinfo/src/main/java/org/activityinfo/server/auth/AuthenticationModule.java -text
 activityinfo/src/main/java/org/activityinfo/server/auth/Authenticator.java -text
 activityinfo/src/main/java/org/activityinfo/server/auth/SecureSequenceGenerator.java -text
@@ -895,10 +893,12 @@ activityinfo/src/main/java/org/activityinfo/server/report/util/MismatchedTagErro
 activityinfo/src/main/java/org/activityinfo/server/schedule/Jobs.java -text
 activityinfo/src/main/java/org/activityinfo/server/schedule/ReportMailerHelper.java -text
 activityinfo/src/main/java/org/activityinfo/server/schedule/ReportMailerJob.java -text
+activityinfo/src/main/java/org/activityinfo/server/util/BeanMappingModule.java -text
 activityinfo/src/main/java/org/activityinfo/server/util/DateUtilCalendarImpl.java -text
 activityinfo/src/main/java/org/activityinfo/server/util/KMLNamespace.java -text
 activityinfo/src/main/java/org/activityinfo/server/util/SimpleXmlElement.java -text
 activityinfo/src/main/java/org/activityinfo/server/util/StringUtil.java -text
+activityinfo/src/main/java/org/activityinfo/server/util/TemplateModule.java -text
 activityinfo/src/main/java/org/activityinfo/server/util/XmlAttribute.java -text
 activityinfo/src/main/java/org/activityinfo/server/util/XmlBuilder.java -text
 activityinfo/src/main/java/org/activityinfo/server/util/XmlElement.java -text
