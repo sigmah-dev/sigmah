@@ -708,6 +708,7 @@ activityinfo/src/main/java/org/activityinfo/server/dao/hibernate/LocationHiberna
 activityinfo/src/main/java/org/activityinfo/server/dao/hibernate/PivotDAOImpl.java -text
 activityinfo/src/main/java/org/activityinfo/server/dao/hibernate/ReportDAOJPA.java -text
 activityinfo/src/main/java/org/activityinfo/server/dao/hibernate/ReportingPeriodHibernateDAO.java -text
+activityinfo/src/main/java/org/activityinfo/server/dao/hibernate/SQLDialect.java -text
 activityinfo/src/main/java/org/activityinfo/server/dao/hibernate/SchemaDAOJPA.java -text
 activityinfo/src/main/java/org/activityinfo/server/dao/hibernate/SiteAdminOrder.java -text
 activityinfo/src/main/java/org/activityinfo/server/dao/hibernate/SiteHibernateDAO.java -text
