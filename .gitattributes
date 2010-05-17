@@ -1243,7 +1243,6 @@ activityinfo/src/test/resources/report-def/parse-test/filter.xml -text
 activityinfo/src/test/resources/report-def/parse-test/report-elements.xml -text
 activityinfo/src/test/resources/report-def/parse-test/report.xml -text
 activityinfo/src/test/resources/report-def/parse-test/table.xml -text
-activityinfo/war/WEB-INF/sun-jaxws.xml -text
 activityinfo/war/WEB-INF/web.xml -text
 activityinfo/war/apitest.html -text
 activityinfo/war/dbquery.html -text
