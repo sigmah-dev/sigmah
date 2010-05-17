@@ -788,10 +788,6 @@ activityinfo/src/main/java/org/activityinfo/server/endpoint/gwtrpc/handler/Updat
 activityinfo/src/main/java/org/activityinfo/server/endpoint/gwtrpc/handler/UpdateReportDefHandler.java -text
 activityinfo/src/main/java/org/activityinfo/server/endpoint/gwtrpc/handler/UpdateSubscriptionHandler.java -text
 activityinfo/src/main/java/org/activityinfo/server/endpoint/gwtrpc/handler/UpdateUserPermissionsHandler.java -text
-activityinfo/src/main/java/org/activityinfo/server/endpoint/jaxws/ApiService.java -text
-activityinfo/src/main/java/org/activityinfo/server/endpoint/jaxws/GuiceManaged.java -text
-activityinfo/src/main/java/org/activityinfo/server/endpoint/jaxws/GuiceManagedFeature.java -text
-activityinfo/src/main/java/org/activityinfo/server/endpoint/jaxws/GuiceManagedInstanceResolver.java -text
 activityinfo/src/main/java/org/activityinfo/server/endpoint/kml/KmlDataServlet.java -text
 activityinfo/src/main/java/org/activityinfo/server/endpoint/kml/KmlLinkServlet.java -text
 activityinfo/src/main/java/org/activityinfo/server/endpoint/kml/KmlModule.java -text
