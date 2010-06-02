@@ -160,18 +160,20 @@ activityinfo/src/main/java/org/activityinfo/client/map/IconFactory.java -text
 activityinfo/src/main/java/org/activityinfo/client/map/MapApiLoader.java -text
 activityinfo/src/main/java/org/activityinfo/client/map/MapTypeFactory.java -text
 activityinfo/src/main/java/org/activityinfo/client/map/RgcTileLayer.java -text
-activityinfo/src/main/java/org/activityinfo/client/offline/DatabaseProvider.java -text
+activityinfo/src/main/java/org/activityinfo/client/offline/ConnectionProvider.java -text
 activityinfo/src/main/java/org/activityinfo/client/offline/DatabaseStateProvider.java -text
-activityinfo/src/main/java/org/activityinfo/client/offline/Installer.java -text
-activityinfo/src/main/java/org/activityinfo/client/offline/OfflineApplication.java -text
 activityinfo/src/main/java/org/activityinfo/client/offline/OfflineManager.java -text
 activityinfo/src/main/java/org/activityinfo/client/offline/OfflineModule.java -text
 activityinfo/src/main/java/org/activityinfo/client/offline/OfflineSchemaCache.java -text
 activityinfo/src/main/java/org/activityinfo/client/offline/dao/AuthDAO.java -text
 activityinfo/src/main/java/org/activityinfo/client/offline/dao/GuidGenerator.java -text
 activityinfo/src/main/java/org/activityinfo/client/offline/dao/SchemaDAO.java -text
+activityinfo/src/main/java/org/activityinfo/client/offline/sync/CacheScript.java -text
+activityinfo/src/main/java/org/activityinfo/client/offline/sync/CacheUserDetails.java -text
+activityinfo/src/main/java/org/activityinfo/client/offline/sync/InstallSteps.java -text
+activityinfo/src/main/java/org/activityinfo/client/offline/sync/Step.java -text
+activityinfo/src/main/java/org/activityinfo/client/offline/sync/Synchronizer.java -text
 activityinfo/src/main/java/org/activityinfo/client/offline/ui/OfflineMenu.java -text
-activityinfo/src/main/java/org/activityinfo/client/offline/ui/OfflineMenuDisabled.java -text
 activityinfo/src/main/java/org/activityinfo/client/offline/ui/OfflineStatusWindow.java -text
 activityinfo/src/main/java/org/activityinfo/client/page/DownloadManager.java -text
 activityinfo/src/main/java/org/activityinfo/client/page/FrameSetId.java -text
@@ -360,6 +362,7 @@ activityinfo/src/main/java/org/activityinfo/login/client/LoginResult.java -text
 activityinfo/src/main/java/org/activityinfo/login/client/LoginService.java -text
 activityinfo/src/main/java/org/activityinfo/login/client/LoginServiceAsync.java -text
 activityinfo/src/main/java/org/activityinfo/login/public/working.gif -text
+activityinfo/src/main/java/org/activityinfo/public/Application.css -text svneol=unset#unset
 activityinfo/src/main/java/org/activityinfo/public/clear.gif -text
 activityinfo/src/main/java/org/activityinfo/public/gxt211/chart/open-flash-chart.swf -text
 activityinfo/src/main/java/org/activityinfo/public/gxt211/css/gxt-all.css -text
@@ -822,6 +825,7 @@ activityinfo/src/main/java/org/activityinfo/public/image/thumbs/map.png -text
 activityinfo/src/main/java/org/activityinfo/public/image/thumbs/pivot.png -text
 activityinfo/src/main/java/org/activityinfo/public/image/unmapped.gif -text
 activityinfo/src/main/java/org/activityinfo/public/image/unmapped.png -text
+activityinfo/src/main/java/org/activityinfo/public/offline.html -text
 activityinfo/src/main/java/org/activityinfo/server/ConfigModule.java -text
 activityinfo/src/main/java/org/activityinfo/server/Cookies.java -text
 activityinfo/src/main/java/org/activityinfo/server/StartupListener.java -text
@@ -953,6 +957,8 @@ activityinfo/src/main/java/org/activityinfo/server/endpoint/gwtrpc/handler/GetRe
 activityinfo/src/main/java/org/activityinfo/server/endpoint/gwtrpc/handler/GetSchemaHandler.java -text
 activityinfo/src/main/java/org/activityinfo/server/endpoint/gwtrpc/handler/GetSitePointsHandler.java -text
 activityinfo/src/main/java/org/activityinfo/server/endpoint/gwtrpc/handler/GetSitesHandler.java -text
+activityinfo/src/main/java/org/activityinfo/server/endpoint/gwtrpc/handler/GetSyncRegionUpdatesHandler.java -text
+activityinfo/src/main/java/org/activityinfo/server/endpoint/gwtrpc/handler/GetSyncRegionsHandler.java -text
 activityinfo/src/main/java/org/activityinfo/server/endpoint/gwtrpc/handler/GetUsersHandler.java -text
 activityinfo/src/main/java/org/activityinfo/server/endpoint/gwtrpc/handler/HandlerUtil.java -text
 activityinfo/src/main/java/org/activityinfo/server/endpoint/gwtrpc/handler/RemovePartnerHandler.java -text
@@ -1077,6 +1083,7 @@ activityinfo/src/main/java/org/activityinfo/server/report/util/MismatchedTagErro
 activityinfo/src/main/java/org/activityinfo/server/schedule/Jobs.java -text
 activityinfo/src/main/java/org/activityinfo/server/schedule/ReportMailerHelper.java -text
 activityinfo/src/main/java/org/activityinfo/server/schedule/ReportMailerJob.java -text
+activityinfo/src/main/java/org/activityinfo/server/sync/SchemaUpdateBuilder.java -text
 activityinfo/src/main/java/org/activityinfo/server/util/BeanMappingModule.java -text
 activityinfo/src/main/java/org/activityinfo/server/util/DateUtilCalendarImpl.java -text
 activityinfo/src/main/java/org/activityinfo/server/util/KMLNamespace.java -text
@@ -1110,8 +1117,9 @@ activityinfo/src/main/java/org/activityinfo/shared/command/GetReportDef.java -te
 activityinfo/src/main/java/org/activityinfo/shared/command/GetReportTemplates.java -text
 activityinfo/src/main/java/org/activityinfo/shared/command/GetSchema.java -text
 activityinfo/src/main/java/org/activityinfo/shared/command/GetSitePoints.java -text
-activityinfo/src/main/java/org/activityinfo/shared/command/GetSiteUpdates.java -text
 activityinfo/src/main/java/org/activityinfo/shared/command/GetSites.java -text
+activityinfo/src/main/java/org/activityinfo/shared/command/GetSyncRegionUpdates.java -text
+activityinfo/src/main/java/org/activityinfo/shared/command/GetSyncRegions.java -text
 activityinfo/src/main/java/org/activityinfo/shared/command/GetUsers.java -text
 activityinfo/src/main/java/org/activityinfo/shared/command/Month.java -text
 activityinfo/src/main/java/org/activityinfo/shared/command/MutatingCommand.java -text
@@ -1142,7 +1150,8 @@ activityinfo/src/main/java/org/activityinfo/shared/command/result/RenderResult.j
 activityinfo/src/main/java/org/activityinfo/shared/command/result/ReportTemplateResult.java -text
 activityinfo/src/main/java/org/activityinfo/shared/command/result/SingleResult.java -text
 activityinfo/src/main/java/org/activityinfo/shared/command/result/SiteResult.java -text
-activityinfo/src/main/java/org/activityinfo/shared/command/result/SiteUpdates.java -text
+activityinfo/src/main/java/org/activityinfo/shared/command/result/SyncRegionUpdate.java -text
+activityinfo/src/main/java/org/activityinfo/shared/command/result/SyncRegions.java -text
 activityinfo/src/main/java/org/activityinfo/shared/command/result/UserResult.java -text
 activityinfo/src/main/java/org/activityinfo/shared/command/result/VoidResult.java -text
 activityinfo/src/main/java/org/activityinfo/shared/command/result/XmlResult.java -text
@@ -1257,6 +1266,7 @@ activityinfo/src/main/java/org/activityinfo/shared/soundex/RdcCoder.java -text
 activityinfo/src/main/java/org/activityinfo/shared/soundex/SoundexCoder.java -text
 activityinfo/src/main/java/org/activityinfo/shared/soundex/SoundexCoders.java -text
 activityinfo/src/main/java/org/activityinfo/shared/sync/Region.java -text
+activityinfo/src/main/java/org/activityinfo/shared/sync/SyncRegion.java -text
 activityinfo/src/main/java/org/activityinfo/shared/sync/SyncService.java -text
 activityinfo/src/main/java/org/activityinfo/shared/sync/UpdateBatch.java -text
 activityinfo/src/main/maps/icons/msa.png -text
@@ -1350,6 +1360,7 @@ activityinfo/src/test/java/org/activityinfo/server/endpoint/gwtrpc/InvitationTes
 activityinfo/src/test/java/org/activityinfo/server/endpoint/gwtrpc/MonthlyReportsTest.java -text
 activityinfo/src/test/java/org/activityinfo/server/endpoint/gwtrpc/PartnerTest.java -text
 activityinfo/src/test/java/org/activityinfo/server/endpoint/gwtrpc/ReportTest.java -text
+activityinfo/src/test/java/org/activityinfo/server/endpoint/gwtrpc/SyncIntegrationTest.java -text
 activityinfo/src/test/java/org/activityinfo/server/endpoint/gwtrpc/UpdateReportDefHandlerTest.java -text
 activityinfo/src/test/java/org/activityinfo/server/endpoint/gwtrpc/UpdateSiteTest.java -text
 activityinfo/src/test/java/org/activityinfo/server/endpoint/gwtrpc/handler/GetAdminEntitiesHandlerTest.java -text
