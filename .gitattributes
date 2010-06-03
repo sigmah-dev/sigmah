@@ -361,6 +361,8 @@ activityinfo/src/main/java/org/activityinfo/login/client/LoginPanel.java -text
 activityinfo/src/main/java/org/activityinfo/login/client/LoginResult.java -text
 activityinfo/src/main/java/org/activityinfo/login/client/LoginService.java -text
 activityinfo/src/main/java/org/activityinfo/login/client/LoginServiceAsync.java -text
+activityinfo/src/main/java/org/activityinfo/login/client/xs/WindowNameFormPanelImpl.java -text
+activityinfo/src/main/java/org/activityinfo/login/client/xs/WindowNameFormPanelImplIE6.java -text
 activityinfo/src/main/java/org/activityinfo/login/public/working.gif -text
 activityinfo/src/main/java/org/activityinfo/public/Application.css -text svneol=unset#unset
 activityinfo/src/main/java/org/activityinfo/public/clear.gif -text
