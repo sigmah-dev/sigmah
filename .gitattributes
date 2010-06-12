@@ -44,7 +44,6 @@ activityinfo/src/main/java/org/activityinfo/ActivityInfoApi.gwt.xml -text
 activityinfo/src/main/java/org/activityinfo/Application.gwt.xml -text
 activityinfo/src/main/java/org/activityinfo/ApplicationFFTest.gwt.xml -text
 activityinfo/src/main/java/org/activityinfo/ApplicationIE6Test.gwt.xml -text
-activityinfo/src/main/java/org/activityinfo/Synchronizer.gwt.xml -text
 activityinfo/src/main/java/org/activityinfo/client/AppEvents.java -text
 activityinfo/src/main/java/org/activityinfo/client/Application.java -text
 activityinfo/src/main/java/org/activityinfo/client/EventBus.java -text
@@ -170,6 +169,7 @@ activityinfo/src/main/java/org/activityinfo/client/offline/dao/GuidGenerator.jav
 activityinfo/src/main/java/org/activityinfo/client/offline/dao/SchemaDAO.java -text
 activityinfo/src/main/java/org/activityinfo/client/offline/sync/CacheScript.java -text
 activityinfo/src/main/java/org/activityinfo/client/offline/sync/CacheUserDetails.java -text
+activityinfo/src/main/java/org/activityinfo/client/offline/sync/InitialSyncStep.java -text
 activityinfo/src/main/java/org/activityinfo/client/offline/sync/InstallSteps.java -text
 activityinfo/src/main/java/org/activityinfo/client/offline/sync/Step.java -text
 activityinfo/src/main/java/org/activityinfo/client/offline/sync/Synchronizer.java -text
@@ -1085,7 +1085,11 @@ activityinfo/src/main/java/org/activityinfo/server/report/util/MismatchedTagErro
 activityinfo/src/main/java/org/activityinfo/server/schedule/Jobs.java -text
 activityinfo/src/main/java/org/activityinfo/server/schedule/ReportMailerHelper.java -text
 activityinfo/src/main/java/org/activityinfo/server/schedule/ReportMailerJob.java -text
+activityinfo/src/main/java/org/activityinfo/server/sync/AdminLocalState.java -text
+activityinfo/src/main/java/org/activityinfo/server/sync/AdminUpdateBuilder.java -text
+activityinfo/src/main/java/org/activityinfo/server/sync/LocationUpdateBuilder.java -text
 activityinfo/src/main/java/org/activityinfo/server/sync/SchemaUpdateBuilder.java -text
+activityinfo/src/main/java/org/activityinfo/server/sync/UpdateBuilder.java -text
 activityinfo/src/main/java/org/activityinfo/server/util/BeanMappingModule.java -text
 activityinfo/src/main/java/org/activityinfo/server/util/DateUtilCalendarImpl.java -text
 activityinfo/src/main/java/org/activityinfo/server/util/KMLNamespace.java -text
