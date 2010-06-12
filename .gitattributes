@@ -366,6 +366,7 @@ activityinfo/src/main/java/org/activityinfo/login/client/xs/WindowNameFormPanelI
 activityinfo/src/main/java/org/activityinfo/login/public/working.gif -text
 activityinfo/src/main/java/org/activityinfo/public/Application.css -text svneol=unset#unset
 activityinfo/src/main/java/org/activityinfo/public/clear.gif -text
+activityinfo/src/main/java/org/activityinfo/public/dbquery.html -text
 activityinfo/src/main/java/org/activityinfo/public/gxt211/chart/open-flash-chart.swf -text
 activityinfo/src/main/java/org/activityinfo/public/gxt211/css/gxt-all.css -text
 activityinfo/src/main/java/org/activityinfo/public/gxt211/css/gxt-gray.css -text
@@ -1437,7 +1438,6 @@ activityinfo/src/test/resources/report-def/parse-test/report.xml -text
 activityinfo/src/test/resources/report-def/parse-test/table.xml -text
 activityinfo/war/WEB-INF/web.xml -text
 activityinfo/war/apitest.html -text
-activityinfo/war/dbquery.html -text
 activityinfo/war/ftl/kml/NetworkLink.kml.ftl -text
 activityinfo/war/ftl/kml/Sites.kml.ftl -text
 activityinfo/war/ftl/wfs/Capabilities.ftl -text
@@ -1477,8 +1477,7 @@ activityinfo/war/static/note_bg.xcf -text
 activityinfo/war/static/note_bg_fr.png -text
 activityinfo/war/static/unicef-120.png -text
 activityinfo/war/static/unicef.png -text
-activityinfo/war/test-worker.html -text
-activityinfo/war/test.html -text
+activityinfo/war/style.css -text
 activityinfo/war/webcachetool.html -text
 gaxb/pom.xml -text
 gaxb/src/main/java/com/google/code/gaxb/Annotations.gwt.xml -text
