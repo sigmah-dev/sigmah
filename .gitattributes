@@ -62,11 +62,7 @@ activityinfo/src/main/java/org/activityinfo/client/dispatch/Dispatcher.java -tex
 activityinfo/src/main/java/org/activityinfo/client/dispatch/callback/Created.java -text
 activityinfo/src/main/java/org/activityinfo/client/dispatch/callback/Deleted.java -text
 activityinfo/src/main/java/org/activityinfo/client/dispatch/callback/DownloadCallback.java -text
-activityinfo/src/main/java/org/activityinfo/client/dispatch/callback/Generated.java -text
 activityinfo/src/main/java/org/activityinfo/client/dispatch/callback/Got.java -text
-activityinfo/src/main/java/org/activityinfo/client/dispatch/callback/GotList.java -text
-activityinfo/src/main/java/org/activityinfo/client/dispatch/callback/GotPagedList.java -text
-activityinfo/src/main/java/org/activityinfo/client/dispatch/callback/Updated.java -text
 activityinfo/src/main/java/org/activityinfo/client/dispatch/loader/AbstractCmdLoader.java -text
 activityinfo/src/main/java/org/activityinfo/client/dispatch/loader/AbstractListCmdLoader.java -text
 activityinfo/src/main/java/org/activityinfo/client/dispatch/loader/AbstractLoader.java -text
@@ -75,7 +71,6 @@ activityinfo/src/main/java/org/activityinfo/client/dispatch/loader/DummyLoadConf
 activityinfo/src/main/java/org/activityinfo/client/dispatch/loader/ListCmdLoader.java -text
 activityinfo/src/main/java/org/activityinfo/client/dispatch/loader/PagingCmdLoader.java -text
 activityinfo/src/main/java/org/activityinfo/client/dispatch/monitor/MaskingAsyncMonitor.java -text
-activityinfo/src/main/java/org/activityinfo/client/dispatch/monitor/ModalAsyncMonitor.java -text
 activityinfo/src/main/java/org/activityinfo/client/dispatch/monitor/NullAsyncMonitor.java -text
 activityinfo/src/main/java/org/activityinfo/client/dispatch/remote/Authentication.java -text
 activityinfo/src/main/java/org/activityinfo/client/dispatch/remote/CommandRequest.java -text
@@ -83,12 +78,10 @@ activityinfo/src/main/java/org/activityinfo/client/dispatch/remote/ProxyManager.
 activityinfo/src/main/java/org/activityinfo/client/dispatch/remote/RemoteDispatcher.java -text
 activityinfo/src/main/java/org/activityinfo/client/dispatch/remote/cache/AbstractCache.java -text
 activityinfo/src/main/java/org/activityinfo/client/dispatch/remote/cache/AdminEntityCache.java -text
-activityinfo/src/main/java/org/activityinfo/client/dispatch/remote/cache/AdminEntityGearsCache.java -text
 activityinfo/src/main/java/org/activityinfo/client/dispatch/remote/cache/CacheModule.java -text
 activityinfo/src/main/java/org/activityinfo/client/dispatch/remote/cache/CommandProxyResult.java -text
 activityinfo/src/main/java/org/activityinfo/client/dispatch/remote/cache/DefaultCommandListener.java -text
 activityinfo/src/main/java/org/activityinfo/client/dispatch/remote/cache/SchemaCache.java -text
-activityinfo/src/main/java/org/activityinfo/client/event/AuthenticationEvent.java -text
 activityinfo/src/main/java/org/activityinfo/client/event/ConnectionEvent.java -text
 activityinfo/src/main/java/org/activityinfo/client/event/DownloadEvent.java -text
 activityinfo/src/main/java/org/activityinfo/client/event/NavigationEvent.java -text
@@ -163,10 +156,7 @@ activityinfo/src/main/java/org/activityinfo/client/offline/ConnectionProvider.ja
 activityinfo/src/main/java/org/activityinfo/client/offline/DatabaseStateProvider.java -text
 activityinfo/src/main/java/org/activityinfo/client/offline/OfflineManager.java -text
 activityinfo/src/main/java/org/activityinfo/client/offline/OfflineModule.java -text
-activityinfo/src/main/java/org/activityinfo/client/offline/OfflineSchemaCache.java -text
-activityinfo/src/main/java/org/activityinfo/client/offline/dao/AuthDAO.java -text
 activityinfo/src/main/java/org/activityinfo/client/offline/dao/GuidGenerator.java -text
-activityinfo/src/main/java/org/activityinfo/client/offline/dao/SchemaDAO.java -text
 activityinfo/src/main/java/org/activityinfo/client/offline/sync/CacheScript.java -text
 activityinfo/src/main/java/org/activityinfo/client/offline/sync/CacheUserDetails.java -text
 activityinfo/src/main/java/org/activityinfo/client/offline/sync/InitialSyncStep.java -text
@@ -1104,7 +1094,6 @@ activityinfo/src/main/java/org/activityinfo/server/util/logging/LogException.jav
 activityinfo/src/main/java/org/activityinfo/server/util/logging/LoggingInterceptor.java -text
 activityinfo/src/main/java/org/activityinfo/server/util/logging/LoggingModule.java -text
 activityinfo/src/main/java/org/activityinfo/server/util/logging/Trace.java -text
-activityinfo/src/main/java/org/activityinfo/shared/Servlets.java -text
 activityinfo/src/main/java/org/activityinfo/shared/command/AddPartner.java -text
 activityinfo/src/main/java/org/activityinfo/shared/command/BatchCommand.java -text
 activityinfo/src/main/java/org/activityinfo/shared/command/Command.java -text
@@ -1209,10 +1198,6 @@ activityinfo/src/main/java/org/activityinfo/shared/map/AbstractCoordinateEditor.
 activityinfo/src/main/java/org/activityinfo/shared/map/BaseMap.java -text
 activityinfo/src/main/java/org/activityinfo/shared/map/CoordinateFormatException.java -text
 activityinfo/src/main/java/org/activityinfo/shared/map/LocalBaseMap.java -text
-activityinfo/src/main/java/org/activityinfo/shared/message/Message.java -text
-activityinfo/src/main/java/org/activityinfo/shared/message/StartSynchronizing.java -text
-activityinfo/src/main/java/org/activityinfo/shared/report/ExportService.java -text
-activityinfo/src/main/java/org/activityinfo/shared/report/ExportServiceAsync.java -text
 activityinfo/src/main/java/org/activityinfo/shared/report/Theme.java -text
 activityinfo/src/main/java/org/activityinfo/shared/report/content/BubbleMapMarker.java -text
 activityinfo/src/main/java/org/activityinfo/shared/report/content/Content.java -text
@@ -1269,13 +1254,6 @@ activityinfo/src/main/java/org/activityinfo/shared/report/model/typeadapter/Dime
 activityinfo/src/main/java/org/activityinfo/shared/report/model/typeadapter/FilterAdapter.java -text
 activityinfo/src/main/java/org/activityinfo/shared/report/xml/DeserializatonException.java -text
 activityinfo/src/main/java/org/activityinfo/shared/report/xml/ReportDeserializer.java -text
-activityinfo/src/main/java/org/activityinfo/shared/soundex/RdcCoder.java -text
-activityinfo/src/main/java/org/activityinfo/shared/soundex/SoundexCoder.java -text
-activityinfo/src/main/java/org/activityinfo/shared/soundex/SoundexCoders.java -text
-activityinfo/src/main/java/org/activityinfo/shared/sync/Region.java -text
-activityinfo/src/main/java/org/activityinfo/shared/sync/SyncRegion.java -text
-activityinfo/src/main/java/org/activityinfo/shared/sync/SyncService.java -text
-activityinfo/src/main/java/org/activityinfo/shared/sync/UpdateBatch.java -text
 activityinfo/src/main/maps/icons/msa.png -text
 activityinfo/src/main/maps/icons/msa.psd -text
 activityinfo/src/main/maps/icons/school[!!-~]icons.xcf -text
