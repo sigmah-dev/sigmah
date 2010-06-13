@@ -340,12 +340,10 @@ activityinfo/src/main/java/org/activityinfo/client/page/welcome/WelcomeLoader.ja
 activityinfo/src/main/java/org/activityinfo/client/page/welcome/WelcomePlace.java -text
 activityinfo/src/main/java/org/activityinfo/client/report/DimensionStoreFactory.java -text
 activityinfo/src/main/java/org/activityinfo/client/report/NarrativeRenderer.java -text
-activityinfo/src/main/java/org/activityinfo/client/util/CookieProvider.java -text
-activityinfo/src/main/java/org/activityinfo/client/util/CookieProviderImpl.java -text
 activityinfo/src/main/java/org/activityinfo/client/util/DateUtilGWTImpl.java -text
-activityinfo/src/main/java/org/activityinfo/client/util/GxtStateManagerImpl.java -text
-activityinfo/src/main/java/org/activityinfo/client/util/IStateManager.java -text
 activityinfo/src/main/java/org/activityinfo/client/util/SortInfoHelper.java -text
+activityinfo/src/main/java/org/activityinfo/client/util/state/GxtStateManagerImpl.java -text
+activityinfo/src/main/java/org/activityinfo/client/util/state/IStateManager.java -text
 activityinfo/src/main/java/org/activityinfo/login/Login.gwt.xml -text
 activityinfo/src/main/java/org/activityinfo/login/client/LoginEntryPoint.java -text
 activityinfo/src/main/java/org/activityinfo/login/client/LoginException.java -text
@@ -1280,7 +1278,6 @@ activityinfo/src/test/java/org/activityinfo/client/dispatch/remote/cache/SchemaC
 activityinfo/src/test/java/org/activityinfo/client/mock/DummyData.java -text
 activityinfo/src/test/java/org/activityinfo/client/mock/JreCoordinateEditor.java -text
 activityinfo/src/test/java/org/activityinfo/client/mock/MockCommandService.java -text
-activityinfo/src/test/java/org/activityinfo/client/mock/MockCookieProvider.java -text
 activityinfo/src/test/java/org/activityinfo/client/mock/MockEventBus.java -text
 activityinfo/src/test/java/org/activityinfo/client/mock/MockRemoteCommandService.java -text
 activityinfo/src/test/java/org/activityinfo/client/mock/MockStateManager.java -text
