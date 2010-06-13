@@ -341,8 +341,8 @@ activityinfo/src/main/java/org/activityinfo/client/page/welcome/WelcomePlace.jav
 activityinfo/src/main/java/org/activityinfo/client/report/DimensionStoreFactory.java -text
 activityinfo/src/main/java/org/activityinfo/client/report/NarrativeRenderer.java -text
 activityinfo/src/main/java/org/activityinfo/client/util/DateUtilGWTImpl.java -text
-activityinfo/src/main/java/org/activityinfo/client/util/SortInfoHelper.java -text
-activityinfo/src/main/java/org/activityinfo/client/util/state/GxtStateManagerImpl.java -text
+activityinfo/src/main/java/org/activityinfo/client/util/SortInfoEqualityChecker.java -text
+activityinfo/src/main/java/org/activityinfo/client/util/state/GXTStateManager.java -text
 activityinfo/src/main/java/org/activityinfo/client/util/state/IStateManager.java -text
 activityinfo/src/main/java/org/activityinfo/login/Login.gwt.xml -text
 activityinfo/src/main/java/org/activityinfo/login/client/LoginEntryPoint.java -text
@@ -858,6 +858,7 @@ activityinfo/src/main/java/org/activityinfo/server/dao/PivotDAO.java -text
 activityinfo/src/main/java/org/activityinfo/server/dao/ReportDAO.java -text
 activityinfo/src/main/java/org/activityinfo/server/dao/ReportingPeriodDAO.java -text
 activityinfo/src/main/java/org/activityinfo/server/dao/SchemaDAO.java -text
+activityinfo/src/main/java/org/activityinfo/server/dao/SiteColumn.java -text
 activityinfo/src/main/java/org/activityinfo/server/dao/SiteDAO.java -text
 activityinfo/src/main/java/org/activityinfo/server/dao/SiteProjectionBinder.java -text
 activityinfo/src/main/java/org/activityinfo/server/dao/SiteTableDAO.java -text
@@ -1154,7 +1155,6 @@ activityinfo/src/main/java/org/activityinfo/shared/command/result/UserResult.jav
 activityinfo/src/main/java/org/activityinfo/shared/command/result/VoidResult.java -text
 activityinfo/src/main/java/org/activityinfo/shared/command/result/XmlResult.java -text
 activityinfo/src/main/java/org/activityinfo/shared/date/DateUtil.java -text
-activityinfo/src/main/java/org/activityinfo/shared/domain/SiteColumn.java -text
 activityinfo/src/main/java/org/activityinfo/shared/dto/ActivityDTO.java -text
 activityinfo/src/main/java/org/activityinfo/shared/dto/AdminEntityDTO.java -text
 activityinfo/src/main/java/org/activityinfo/shared/dto/AdminLevelDTO.java -text
