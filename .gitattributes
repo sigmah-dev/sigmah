@@ -32,7 +32,10 @@ activityinfo-endtoend-tests/src/test/resources/dbunit/createdatabase.db.xml -tex
 activityinfo-endtoend-tests/src/test/resources/dbunit/login.db.xml -text
 activityinfo-endtoend-tests/src/test/resources/dbunit/monthlyreports.db.xml -text
 activityinfo-endtoend-tests/src/test/resources/dbunit/multicountry.db.xml -text
+activityinfo/activityinfo.log -text
 activityinfo/pom.xml -text
+activityinfo/pom.xml.releaseBackup -text
+activityinfo/release.properties -text
 activityinfo/src/main/java/com/ebessette/maps/core/CoreMaps.gwt.xml -text
 activityinfo/src/main/java/com/ebessette/maps/core/client/ZoomLevelConstants.java -text
 activityinfo/src/main/java/com/ebessette/maps/core/client/overlay/GridBounds.java -text
@@ -1404,6 +1407,7 @@ activityinfo/src/test/resources/report-def/parse-test/filter.xml -text
 activityinfo/src/test/resources/report-def/parse-test/report-elements.xml -text
 activityinfo/src/test/resources/report-def/parse-test/report.xml -text
 activityinfo/src/test/resources/report-def/parse-test/table.xml -text
+activityinfo/test.db -text
 activityinfo/war/WEB-INF/web.xml -text
 activityinfo/war/apitest.html -text
 activityinfo/war/ftl/kml/NetworkLink.kml.ftl -text
