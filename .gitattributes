@@ -1146,6 +1146,7 @@ activityinfo/src/main/java/org/activityinfo/shared/command/result/RenderResult.j
 activityinfo/src/main/java/org/activityinfo/shared/command/result/ReportTemplateResult.java -text
 activityinfo/src/main/java/org/activityinfo/shared/command/result/SingleResult.java -text
 activityinfo/src/main/java/org/activityinfo/shared/command/result/SiteResult.java -text
+activityinfo/src/main/java/org/activityinfo/shared/command/result/SyncRegion.java -text
 activityinfo/src/main/java/org/activityinfo/shared/command/result/SyncRegionUpdate.java -text
 activityinfo/src/main/java/org/activityinfo/shared/command/result/SyncRegions.java -text
 activityinfo/src/main/java/org/activityinfo/shared/command/result/UserResult.java -text
