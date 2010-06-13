@@ -87,6 +87,10 @@ activityinfo/src/main/java/org/activityinfo/client/event/DownloadEvent.java -tex
 activityinfo/src/main/java/org/activityinfo/client/event/NavigationEvent.java -text
 activityinfo/src/main/java/org/activityinfo/client/event/PivotCellEvent.java -text
 activityinfo/src/main/java/org/activityinfo/client/event/SiteEvent.java -text
+activityinfo/src/main/java/org/activityinfo/client/i18n/UIConstants.properties -text
+activityinfo/src/main/java/org/activityinfo/client/i18n/UIConstants_fr.properties -text
+activityinfo/src/main/java/org/activityinfo/client/i18n/UIMessages.properties -text
+activityinfo/src/main/java/org/activityinfo/client/i18n/UIMessages_fr.properties -text
 activityinfo/src/main/java/org/activityinfo/client/icon/IconImageBundle.java -text
 activityinfo/src/main/java/org/activityinfo/client/icon/activity.png -text
 activityinfo/src/main/java/org/activityinfo/client/icon/add.png -text
@@ -1185,10 +1189,6 @@ activityinfo/src/main/java/org/activityinfo/shared/exception/ParseException.java
 activityinfo/src/main/java/org/activityinfo/shared/exception/PartnerHasSitesException.java -text
 activityinfo/src/main/java/org/activityinfo/shared/exception/SchemaElementDeletedException.java -text
 activityinfo/src/main/java/org/activityinfo/shared/exception/UnexpectedCommandException.java -text
-activityinfo/src/main/java/org/activityinfo/shared/i18n/UIConstants.properties -text
-activityinfo/src/main/java/org/activityinfo/shared/i18n/UIConstants_fr.properties -text
-activityinfo/src/main/java/org/activityinfo/shared/i18n/UIMessages.properties -text
-activityinfo/src/main/java/org/activityinfo/shared/i18n/UIMessages_fr.properties -text
 activityinfo/src/main/java/org/activityinfo/shared/map/AbstractCoordinateEditor.java -text
 activityinfo/src/main/java/org/activityinfo/shared/map/BaseMap.java -text
 activityinfo/src/main/java/org/activityinfo/shared/map/CoordinateFormatException.java -text
