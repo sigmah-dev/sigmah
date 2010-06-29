@@ -4,13 +4,6 @@ sigmah/activityinfo.log -text
 sigmah/pom.xml -text
 sigmah/pom.xml.releaseBackup -text
 sigmah/release.properties -text
-sigmah/src/main/java/com/ebessette/maps/core/CoreMaps.gwt.xml -text
-sigmah/src/main/java/com/ebessette/maps/core/client/ZoomLevelConstants.java -text
-sigmah/src/main/java/com/ebessette/maps/core/client/overlay/GridBounds.java -text
-sigmah/src/main/java/com/ebessette/maps/core/client/overlay/MarkerManagerChangeListener.java -text
-sigmah/src/main/java/com/ebessette/maps/core/client/overlay/MarkerManagerImpl.java -text
-sigmah/src/main/java/com/ebessette/maps/core/client/overlay/OverlayManager.java -text
-sigmah/src/main/java/com/ebessette/maps/core/client/overlay/OverlayManagerOptions.java -text
 sigmah/src/main/java/org/activityinfo/ActivityInfoApi.gwt.xml -text
 sigmah/src/main/java/org/activityinfo/Application.gwt.xml -text
 sigmah/src/main/java/org/activityinfo/ApplicationFFTest.gwt.xml -text
