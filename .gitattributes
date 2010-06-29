@@ -791,8 +791,8 @@ sigmah/src/main/java/org/activityinfo/server/auth/AuthenticationModule.java -tex
 sigmah/src/main/java/org/activityinfo/server/auth/Authenticator.java -text
 sigmah/src/main/java/org/activityinfo/server/auth/SecureSequenceGenerator.java -text
 sigmah/src/main/java/org/activityinfo/server/auth/SecureTokenGenerator.java -text
-sigmah/src/main/java/org/activityinfo/server/auth/impl/AuthenticatorImpl.java -text
 sigmah/src/main/java/org/activityinfo/server/auth/impl/BCrypt.java -text
+sigmah/src/main/java/org/activityinfo/server/auth/impl/DatabaseAuthenticator.java -text
 sigmah/src/main/java/org/activityinfo/server/bootstrap/AbstractController.java -text
 sigmah/src/main/java/org/activityinfo/server/bootstrap/BootstrapModule.java -text
 sigmah/src/main/java/org/activityinfo/server/bootstrap/ConfirmInviteController.java -text
