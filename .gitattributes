@@ -1117,11 +1117,11 @@ sigmah/src/main/java/org/activityinfo/server/report/renderer/html/ImageStoragePr
 sigmah/src/main/java/org/activityinfo/server/report/renderer/html/LocalImageStorageProvider.java -text
 sigmah/src/main/java/org/activityinfo/server/report/renderer/image/ImageMapRenderer.java -text
 sigmah/src/main/java/org/activityinfo/server/report/renderer/image/ImageReportRenderer.java -text
-sigmah/src/main/java/org/activityinfo/server/report/renderer/itext/DocGenerator.java -text
 sigmah/src/main/java/org/activityinfo/server/report/renderer/itext/ItextChartRenderer.java -text
 sigmah/src/main/java/org/activityinfo/server/report/renderer/itext/ItextMapRenderer.java -text
 sigmah/src/main/java/org/activityinfo/server/report/renderer/itext/ItextPivotTableRenderer.java -text
 sigmah/src/main/java/org/activityinfo/server/report/renderer/itext/ItextRenderer.java -text
+sigmah/src/main/java/org/activityinfo/server/report/renderer/itext/ItextRendererHelper.java -text
 sigmah/src/main/java/org/activityinfo/server/report/renderer/itext/ItextReportRenderer.java -text
 sigmah/src/main/java/org/activityinfo/server/report/renderer/itext/ItextTableRenderer.java -text
 sigmah/src/main/java/org/activityinfo/server/report/renderer/itext/PdfReportRenderer.java -text
