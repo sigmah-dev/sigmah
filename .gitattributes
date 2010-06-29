@@ -1,4 +1,6 @@
 * text=auto !eol
+/COPYRIGHT.txt -text
+/LICENSE.txt -text
 /pom.xml -text
 sigmah/pom.xml -text
 sigmah/pom.xml.releaseBackup -text
