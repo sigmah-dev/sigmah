@@ -1,4 +1,5 @@
 * text=auto !eol
+/pom.xml -text
 sigmah/activityinfo.log -text
 sigmah/pom.xml -text
 sigmah/pom.xml.releaseBackup -text
