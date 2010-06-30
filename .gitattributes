@@ -877,8 +877,10 @@ sigmah/src/main/java/org/sigmah/server/domain/IndicatorValueId.java -text
 sigmah/src/main/java/org/sigmah/server/domain/Location.java -text
 sigmah/src/main/java/org/sigmah/server/domain/LocationType.java -text
 sigmah/src/main/java/org/sigmah/server/domain/Orderable.java -text
-sigmah/src/main/java/org/sigmah/server/domain/Partner.java -text
-sigmah/src/main/java/org/sigmah/server/domain/Phase.java -text
+sigmah/src/main/java/org/sigmah/server/domain/OrgUnit.java -text
+sigmah/src/main/java/org/sigmah/server/domain/OrgUnitPermission.java -text
+sigmah/src/main/java/org/sigmah/server/domain/Organization.java -text
+sigmah/src/main/java/org/sigmah/server/domain/Project.java -text
 sigmah/src/main/java/org/sigmah/server/domain/ReportDefinition.java -text
 sigmah/src/main/java/org/sigmah/server/domain/ReportSubscription.java -text
 sigmah/src/main/java/org/sigmah/server/domain/ReportSubscriptionId.java -text
@@ -888,6 +890,7 @@ sigmah/src/main/java/org/sigmah/server/domain/Site.java -text
 sigmah/src/main/java/org/sigmah/server/domain/SiteData.java -text
 sigmah/src/main/java/org/sigmah/server/domain/User.java -text
 sigmah/src/main/java/org/sigmah/server/domain/UserDatabase.java -text
+sigmah/src/main/java/org/sigmah/server/domain/UserDatabaseTemplate.java -text
 sigmah/src/main/java/org/sigmah/server/domain/UserPermission.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/export/Export.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/export/ExportModule.java -text
