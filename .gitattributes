@@ -5,10 +5,10 @@
 sigmah/pom.xml -text
 sigmah/pom.xml.releaseBackup -text
 sigmah/release.properties -text
-sigmah/src/main/java/org/sigmah/ActivityInfoApi.gwt.xml -text
-sigmah/src/main/java/org/sigmah/Application.gwt.xml -text
-sigmah/src/main/java/org/sigmah/ApplicationFFTest.gwt.xml -text
-sigmah/src/main/java/org/sigmah/ApplicationIE6Test.gwt.xml -text
+sigmah/src/main/java/org/sigmah/ActivityInfo.gwt.xml -text
+sigmah/src/main/java/org/sigmah/ActivityInfoFFTest.gwt.xml -text
+sigmah/src/main/java/org/sigmah/ActivityInfoIE6Test.gwt.xml -text
+sigmah/src/main/java/org/sigmah/Sigmah.gwt.xml -text
 sigmah/src/main/java/org/sigmah/client/AppEvents.java -text
 sigmah/src/main/java/org/sigmah/client/Application.java -text
 sigmah/src/main/java/org/sigmah/client/EventBus.java -text
