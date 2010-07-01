@@ -920,6 +920,7 @@ sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetCountriesHandl
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetInvitationListHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetMapIconsHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetMonthlyReportsHandler.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetProjectsHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetReportDefHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetReportTemplatesHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetSchemaHandler.java -text
@@ -951,6 +952,7 @@ sigmah/src/main/java/org/sigmah/server/mail/MailSenderImpl.java -text
 sigmah/src/main/java/org/sigmah/server/mail/Mailer.java -text
 sigmah/src/main/java/org/sigmah/server/policy/ActivityPolicy.java -text
 sigmah/src/main/java/org/sigmah/server/policy/EntityPolicy.java -text
+sigmah/src/main/java/org/sigmah/server/policy/ProjectPolicy.java -text
 sigmah/src/main/java/org/sigmah/server/policy/PropertyMap.java -text
 sigmah/src/main/java/org/sigmah/server/policy/SitePolicy.java -text
 sigmah/src/main/java/org/sigmah/server/policy/UserDatabasePolicy.java -text
@@ -1083,6 +1085,7 @@ sigmah/src/main/java/org/sigmah/shared/command/GetInvitationList.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetListCommand.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetMapIcons.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetMonthlyReports.java -text
+sigmah/src/main/java/org/sigmah/shared/command/GetProjects.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetReportDef.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetReportTemplates.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetSchema.java -text
@@ -1116,6 +1119,7 @@ sigmah/src/main/java/org/sigmah/shared/command/result/ListResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/MapIconResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/MonthlyReportResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/PagingResult.java -text
+sigmah/src/main/java/org/sigmah/shared/command/result/ProjectList.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/RenderResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/ReportTemplateResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/SingleResult.java -text
@@ -1143,6 +1147,7 @@ sigmah/src/main/java/org/sigmah/shared/dto/IndicatorRowDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/LocationTypeDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/MapIconDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/PartnerDTO.java -text
+sigmah/src/main/java/org/sigmah/shared/dto/ProjectDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/ReportDefinitionDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/ReportSubscriptionDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/SchemaDTO.java -text
@@ -1309,6 +1314,7 @@ sigmah/src/test/java/org/sigmah/server/endpoint/gwtrpc/GetUsersTest.java -text
 sigmah/src/test/java/org/sigmah/server/endpoint/gwtrpc/InvitationTest.java -text
 sigmah/src/test/java/org/sigmah/server/endpoint/gwtrpc/MonthlyReportsTest.java -text
 sigmah/src/test/java/org/sigmah/server/endpoint/gwtrpc/PartnerTest.java -text
+sigmah/src/test/java/org/sigmah/server/endpoint/gwtrpc/ProjectTest.java -text
 sigmah/src/test/java/org/sigmah/server/endpoint/gwtrpc/ReportTest.java -text
 sigmah/src/test/java/org/sigmah/server/endpoint/gwtrpc/SyncIntegrationTest.java -text
 sigmah/src/test/java/org/sigmah/server/endpoint/gwtrpc/UpdateReportDefHandlerTest.java -text
@@ -1364,6 +1370,7 @@ sigmah/src/test/resources/dbunit/adminEntities.db.xml -text
 sigmah/src/test/resources/dbunit/authTest.db.xml -text
 sigmah/src/test/resources/dbunit/filter.db.xml -text
 sigmah/src/test/resources/dbunit/multicountry.db.xml -text
+sigmah/src/test/resources/dbunit/projects.db.xml -text
 sigmah/src/test/resources/dbunit/schema1.db.xml -text
 sigmah/src/test/resources/dbunit/sites-deleted.db.xml -text
 sigmah/src/test/resources/dbunit/sites-quarters.db.xml -text
