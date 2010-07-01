@@ -8,6 +8,7 @@ sigmah/release.properties -text
 sigmah/src/main/java/org/sigmah/ActivityInfo.gwt.xml -text
 sigmah/src/main/java/org/sigmah/ActivityInfoFFTest.gwt.xml -text
 sigmah/src/main/java/org/sigmah/ActivityInfoIE6Test.gwt.xml -text
+sigmah/src/main/java/org/sigmah/ActivityInfoSafariTest.gwt.xml -text
 sigmah/src/main/java/org/sigmah/Sigmah.gwt.xml -text
 sigmah/src/main/java/org/sigmah/client/AppEvents.java -text
 sigmah/src/main/java/org/sigmah/client/Application.java -text
@@ -876,6 +877,9 @@ sigmah/src/main/java/org/sigmah/server/domain/IndicatorValue.java -text
 sigmah/src/main/java/org/sigmah/server/domain/IndicatorValueId.java -text
 sigmah/src/main/java/org/sigmah/server/domain/Location.java -text
 sigmah/src/main/java/org/sigmah/server/domain/LocationType.java -text
+sigmah/src/main/java/org/sigmah/server/domain/LogFrame.java -text
+sigmah/src/main/java/org/sigmah/server/domain/LogFrameRow.java -text
+sigmah/src/main/java/org/sigmah/server/domain/LogFrameRowGroup.java -text
 sigmah/src/main/java/org/sigmah/server/domain/Orderable.java -text
 sigmah/src/main/java/org/sigmah/server/domain/OrgUnit.java -text
 sigmah/src/main/java/org/sigmah/server/domain/OrgUnitPermission.java -text
