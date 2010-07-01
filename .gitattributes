@@ -15,6 +15,9 @@ sigmah/src/main/java/org/sigmah/client/AppEvents.java -text
 sigmah/src/main/java/org/sigmah/client/EventBus.java -text
 sigmah/src/main/java/org/sigmah/client/HistoryManager.java -text
 sigmah/src/main/java/org/sigmah/client/LoggingEventBus.java -text
+sigmah/src/main/java/org/sigmah/client/SigmahAppFrame.java -text
+sigmah/src/main/java/org/sigmah/client/SigmahInjector.java -text
+sigmah/src/main/java/org/sigmah/client/SigmahModule.java -text
 sigmah/src/main/java/org/sigmah/client/UsageTracker.java -text
 sigmah/src/main/java/org/sigmah/client/dispatch/AsyncMonitor.java -text
 sigmah/src/main/java/org/sigmah/client/dispatch/CommandProxy.java -text
@@ -277,6 +280,11 @@ sigmah/src/main/java/org/sigmah/client/page/map/MapPresenter.java -text
 sigmah/src/main/java/org/sigmah/client/page/map/MapPreview.java -text
 sigmah/src/main/java/org/sigmah/client/page/map/Maps.java -text
 sigmah/src/main/java/org/sigmah/client/page/map/SingleMapForm.java -text
+sigmah/src/main/java/org/sigmah/client/page/project/ProjectListPresenter.java -text
+sigmah/src/main/java/org/sigmah/client/page/project/ProjectListState.java -text
+sigmah/src/main/java/org/sigmah/client/page/project/ProjectListView.java -text
+sigmah/src/main/java/org/sigmah/client/page/project/ProjectModule.java -text
+sigmah/src/main/java/org/sigmah/client/page/project/ProjectPageLoader.java -text
 sigmah/src/main/java/org/sigmah/client/page/report/ReportGrid.java -text
 sigmah/src/main/java/org/sigmah/client/page/report/ReportHomePageState.java -text
 sigmah/src/main/java/org/sigmah/client/page/report/ReportHomePresenter.java -text
@@ -787,6 +795,7 @@ sigmah/src/main/java/org/sigmah/public/image/thumbs/pivot.png -text
 sigmah/src/main/java/org/sigmah/public/image/unmapped.gif -text
 sigmah/src/main/java/org/sigmah/public/image/unmapped.png -text
 sigmah/src/main/java/org/sigmah/public/offline.html -text
+sigmah/src/main/java/org/sigmah/public/sigmah.html -text
 sigmah/src/main/java/org/sigmah/server/ConfigModule.java -text
 sigmah/src/main/java/org/sigmah/server/Cookies.java -text
 sigmah/src/main/java/org/sigmah/server/StartupListener.java -text
@@ -1254,9 +1263,9 @@ sigmah/src/test/java/org/sigmah/client/dispatch/remote/CommandRequestTest.java -
 sigmah/src/test/java/org/sigmah/client/dispatch/remote/RemoteDispatcherTest.java -text
 sigmah/src/test/java/org/sigmah/client/dispatch/remote/cache/AdminEntityCacheTest.java -text
 sigmah/src/test/java/org/sigmah/client/dispatch/remote/cache/SchemaCacheTest.java -text
+sigmah/src/test/java/org/sigmah/client/mock/DispatcherStub.java -text
 sigmah/src/test/java/org/sigmah/client/mock/DummyData.java -text
 sigmah/src/test/java/org/sigmah/client/mock/JreCoordinateEditor.java -text
-sigmah/src/test/java/org/sigmah/client/mock/MockCommandService.java -text
 sigmah/src/test/java/org/sigmah/client/mock/MockEventBus.java -text
 sigmah/src/test/java/org/sigmah/client/mock/MockRemoteCommandService.java -text
 sigmah/src/test/java/org/sigmah/client/mock/MockStateManager.java -text
@@ -1277,6 +1286,7 @@ sigmah/src/test/java/org/sigmah/client/page/entry/editor/SiteFormTest.java -text
 sigmah/src/test/java/org/sigmah/client/page/entry/editor/mock/MockAdminFieldSet.java -text
 sigmah/src/test/java/org/sigmah/client/page/entry/editor/mock/MockMapView.java -text
 sigmah/src/test/java/org/sigmah/client/page/entry/editor/mock/MockSiteForm.java -text
+sigmah/src/test/java/org/sigmah/client/page/project/ProjectListPresenterTest.java -text
 sigmah/src/test/java/org/sigmah/server/SchemaMigrationTest.java -text
 sigmah/src/test/java/org/sigmah/server/auth/BCryptTest.java -text
 sigmah/src/test/java/org/sigmah/server/auth/NullMailer.java -text
