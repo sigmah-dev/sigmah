@@ -171,6 +171,7 @@ sigmah/src/main/java/org/sigmah/client/page/common/filter/AdminTreeLoader.java -
 sigmah/src/main/java/org/sigmah/client/page/common/filter/AdminTreeProxy.java -text
 sigmah/src/main/java/org/sigmah/client/page/common/filter/DateRangePanel.java -text
 sigmah/src/main/java/org/sigmah/client/page/common/filter/IndicatorTreePanel.java -text
+sigmah/src/main/java/org/sigmah/client/page/common/filter/PartnerFilterPanel.java -text
 sigmah/src/main/java/org/sigmah/client/page/common/grid/AbstractEditorGridPresenter.java -text
 sigmah/src/main/java/org/sigmah/client/page/common/grid/AbstractEditorGridView.java -text
 sigmah/src/main/java/org/sigmah/client/page/common/grid/AbstractEditorTreeGridView.java -text
@@ -1213,6 +1214,7 @@ sigmah/src/main/java/org/sigmah/shared/report/model/DateDimension.java -text
 sigmah/src/main/java/org/sigmah/shared/report/model/DateRange.java -text
 sigmah/src/main/java/org/sigmah/shared/report/model/DateUnit.java -text
 sigmah/src/main/java/org/sigmah/shared/report/model/Dimension.java -text
+sigmah/src/main/java/org/sigmah/shared/report/model/DimensionFolder.java -text
 sigmah/src/main/java/org/sigmah/shared/report/model/DimensionType.java -text
 sigmah/src/main/java/org/sigmah/shared/report/model/Filter.java -text
 sigmah/src/main/java/org/sigmah/shared/report/model/IconMapLayer.java -text
