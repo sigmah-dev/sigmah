@@ -16,6 +16,7 @@ sigmah/src/main/java/org/sigmah/client/EventBus.java -text
 sigmah/src/main/java/org/sigmah/client/HistoryManager.java -text
 sigmah/src/main/java/org/sigmah/client/LoggingEventBus.java -text
 sigmah/src/main/java/org/sigmah/client/SigmahAppFrame.java -text
+sigmah/src/main/java/org/sigmah/client/SigmahEntryPoint.java -text
 sigmah/src/main/java/org/sigmah/client/SigmahInjector.java -text
 sigmah/src/main/java/org/sigmah/client/SigmahModule.java -text
 sigmah/src/main/java/org/sigmah/client/UsageTracker.java -text
@@ -116,6 +117,7 @@ sigmah/src/main/java/org/sigmah/client/inject/AppModule.java -text
 sigmah/src/main/java/org/sigmah/client/inject/AuthProvider.java -text
 sigmah/src/main/java/org/sigmah/client/inject/RemoteServiceProvider.java -text
 sigmah/src/main/java/org/sigmah/client/inject/Root.java -text
+sigmah/src/main/java/org/sigmah/client/inject/SigmahAuthProvider.java -text
 sigmah/src/main/java/org/sigmah/client/map/BaseMapLayer.java -text
 sigmah/src/main/java/org/sigmah/client/map/GcIconFactory.java -text
 sigmah/src/main/java/org/sigmah/client/map/IconFactory.java -text
