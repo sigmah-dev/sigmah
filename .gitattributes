@@ -141,6 +141,7 @@ sigmah/src/main/java/org/sigmah/client/page/DownloadManager.java -text
 sigmah/src/main/java/org/sigmah/client/page/Frame.java -text
 sigmah/src/main/java/org/sigmah/client/page/FrameId.java -text
 sigmah/src/main/java/org/sigmah/client/page/Frames.java -text
+sigmah/src/main/java/org/sigmah/client/page/HasTab.java -text
 sigmah/src/main/java/org/sigmah/client/page/NavigationCallback.java -text
 sigmah/src/main/java/org/sigmah/client/page/NavigationHandler.java -text
 sigmah/src/main/java/org/sigmah/client/page/Page.java -text
