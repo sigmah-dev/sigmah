@@ -1229,6 +1229,7 @@ sigmah/src/main/java/org/sigmah/shared/report/content/TableData.java -text
 sigmah/src/main/java/org/sigmah/shared/report/content/TreeNode.java -text
 sigmah/src/main/java/org/sigmah/shared/report/content/YearCategory.java -text
 sigmah/src/main/java/org/sigmah/shared/report/model/AdminDimension.java -text
+sigmah/src/main/java/org/sigmah/shared/report/model/AttributeDimension.java -text
 sigmah/src/main/java/org/sigmah/shared/report/model/BubbleMapLayer.java -text
 sigmah/src/main/java/org/sigmah/shared/report/model/CategoryProperties.java -text
 sigmah/src/main/java/org/sigmah/shared/report/model/DateDimension.java -text
