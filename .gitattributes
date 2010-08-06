@@ -240,9 +240,12 @@ sigmah/src/main/java/org/sigmah/client/page/config/form/FieldSetFitLayout.java -
 sigmah/src/main/java/org/sigmah/client/page/config/form/ModelFormPanel.java -text
 sigmah/src/main/java/org/sigmah/client/page/config/form/PartnerForm.java -text
 sigmah/src/main/java/org/sigmah/client/page/config/form/UserForm.java -text
+sigmah/src/main/java/org/sigmah/client/page/dashboard/DashboardImageBundle.java -text
 sigmah/src/main/java/org/sigmah/client/page/dashboard/DashboardPageLoader.java -text
 sigmah/src/main/java/org/sigmah/client/page/dashboard/DashboardPageState.java -text
 sigmah/src/main/java/org/sigmah/client/page/dashboard/DashboardPresenter.java -text
+sigmah/src/main/java/org/sigmah/client/page/dashboard/emptyStar.png -text
+sigmah/src/main/java/org/sigmah/client/page/dashboard/star.png -text
 sigmah/src/main/java/org/sigmah/client/page/entry/DataEntryLoader.java -text
 sigmah/src/main/java/org/sigmah/client/page/entry/DataEntryNavigator.java -text
 sigmah/src/main/java/org/sigmah/client/page/entry/DetailsPresenter.java -text
