@@ -1083,6 +1083,7 @@ sigmah/src/main/java/org/sigmah/server/report/renderer/excel/ExcelMapDataExporte
 sigmah/src/main/java/org/sigmah/server/report/renderer/excel/ExcelPivotTableRenderer.java -text
 sigmah/src/main/java/org/sigmah/server/report/renderer/excel/ExcelRenderer.java -text
 sigmah/src/main/java/org/sigmah/server/report/renderer/excel/ExcelReportRenderer.java -text
+sigmah/src/main/java/org/sigmah/server/report/renderer/excel/ExcelStaticRenderer.java -text
 sigmah/src/main/java/org/sigmah/server/report/renderer/excel/ExcelTableRenderer.java -text
 sigmah/src/main/java/org/sigmah/server/report/renderer/html/CssStyles.java -text
 sigmah/src/main/java/org/sigmah/server/report/renderer/html/HtmlChartRenderer.java -text
@@ -1092,6 +1093,7 @@ sigmah/src/main/java/org/sigmah/server/report/renderer/html/HtmlPivotTableRender
 sigmah/src/main/java/org/sigmah/server/report/renderer/html/HtmlRenderer.java -text
 sigmah/src/main/java/org/sigmah/server/report/renderer/html/HtmlReportRenderer.java -text
 sigmah/src/main/java/org/sigmah/server/report/renderer/html/HtmlReportUtil.java -text
+sigmah/src/main/java/org/sigmah/server/report/renderer/html/HtmlStaticRenderer.java -text
 sigmah/src/main/java/org/sigmah/server/report/renderer/html/HtmlTableRenderer.java -text
 sigmah/src/main/java/org/sigmah/server/report/renderer/html/ImageStorage.java -text
 sigmah/src/main/java/org/sigmah/server/report/renderer/html/ImageStorageProvider.java -text
@@ -1105,6 +1107,7 @@ sigmah/src/main/java/org/sigmah/server/report/renderer/itext/ItextPivotTableRend
 sigmah/src/main/java/org/sigmah/server/report/renderer/itext/ItextRenderer.java -text
 sigmah/src/main/java/org/sigmah/server/report/renderer/itext/ItextRendererHelper.java -text
 sigmah/src/main/java/org/sigmah/server/report/renderer/itext/ItextReportRenderer.java -text
+sigmah/src/main/java/org/sigmah/server/report/renderer/itext/ItextStaticRenderer.java -text
 sigmah/src/main/java/org/sigmah/server/report/renderer/itext/ItextTableRenderer.java -text
 sigmah/src/main/java/org/sigmah/server/report/renderer/itext/PdfReportRenderer.java -text
 sigmah/src/main/java/org/sigmah/server/report/renderer/itext/RtfReportRenderer.java -text
@@ -1314,6 +1317,7 @@ sigmah/src/main/java/org/sigmah/shared/report/model/Report.java -text
 sigmah/src/main/java/org/sigmah/shared/report/model/ReportElement.java -text
 sigmah/src/main/java/org/sigmah/shared/report/model/ReportFrequency.java -text
 sigmah/src/main/java/org/sigmah/shared/report/model/SortOrder.java -text
+sigmah/src/main/java/org/sigmah/shared/report/model/StaticElement.java -text
 sigmah/src/main/java/org/sigmah/shared/report/model/TableColumn.java -text
 sigmah/src/main/java/org/sigmah/shared/report/model/TableElement.java -text
 sigmah/src/main/java/org/sigmah/shared/report/model/typeadapter/CategoryAdapter.java -text
@@ -1430,6 +1434,7 @@ sigmah/src/test/java/org/sigmah/server/report/DummyPivotTableData2.java -text
 sigmah/src/test/java/org/sigmah/server/report/FullTest.java -text
 sigmah/src/test/java/org/sigmah/server/report/JaxbParseTest.java -text
 sigmah/src/test/java/org/sigmah/server/report/NullImageStorageProvider.java -text
+sigmah/src/test/java/org/sigmah/server/report/StaticElementRenderTest.java -text
 sigmah/src/test/java/org/sigmah/server/report/generator/GridTest.java -text
 sigmah/src/test/java/org/sigmah/server/report/generator/PivotTableGeneratorTest.java -text
 sigmah/src/test/java/org/sigmah/server/report/generator/ReportGeneratorTest.java -text
@@ -1480,6 +1485,7 @@ sigmah/src/test/resources/report-def/parse-test/dimensions.xml -text
 sigmah/src/test/resources/report-def/parse-test/filter.xml -text
 sigmah/src/test/resources/report-def/parse-test/report-elements.xml -text
 sigmah/src/test/resources/report-def/parse-test/report.xml -text
+sigmah/src/test/resources/report-def/parse-test/static.xml -text
 sigmah/src/test/resources/report-def/parse-test/table.xml -text
 sigmah/war/WEB-INF/web.xml -text
 sigmah/war/apitest.html -text
