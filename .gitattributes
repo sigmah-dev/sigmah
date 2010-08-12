@@ -207,6 +207,7 @@ sigmah/src/main/java/org/sigmah/client/page/common/widget/MapIconComboBox.java -
 sigmah/src/main/java/org/sigmah/client/page/common/widget/MappingComboBox.java -text
 sigmah/src/main/java/org/sigmah/client/page/common/widget/MappingComboBoxBinding.java -text
 sigmah/src/main/java/org/sigmah/client/page/common/widget/RemoteComboBox.java -text
+sigmah/src/main/java/org/sigmah/client/page/common/widget/VSplitFilteredFrameSet.java -text
 sigmah/src/main/java/org/sigmah/client/page/common/widget/VSplitFrameSet.java -text
 sigmah/src/main/java/org/sigmah/client/page/config/AccountEditor.java -text
 sigmah/src/main/java/org/sigmah/client/page/config/AccountPageState.java -text
