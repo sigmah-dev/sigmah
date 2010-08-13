@@ -301,9 +301,9 @@ sigmah/src/main/java/org/sigmah/client/page/project/ProjectPageLoader.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/ProjectPresenter.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/ProjectState.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/ProjectView.java -text
-sigmah/src/main/java/org/sigmah/client/page/report/ReportGrid.java -text
 sigmah/src/main/java/org/sigmah/client/page/report/ReportListPagePresenter.java -text
 sigmah/src/main/java/org/sigmah/client/page/report/ReportListPageState.java -text
+sigmah/src/main/java/org/sigmah/client/page/report/ReportListPageView.java -text
 sigmah/src/main/java/org/sigmah/client/page/report/ReportLoader.java -text
 sigmah/src/main/java/org/sigmah/client/page/report/ReportModule.java -text
 sigmah/src/main/java/org/sigmah/client/page/report/ReportPreview.java -text
