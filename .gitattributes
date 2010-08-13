@@ -291,6 +291,7 @@ sigmah/src/main/java/org/sigmah/client/page/map/BubbleLayerForm.java -text
 sigmah/src/main/java/org/sigmah/client/page/map/LayoutForm.java -text
 sigmah/src/main/java/org/sigmah/client/page/map/MapForm.java -text
 sigmah/src/main/java/org/sigmah/client/page/map/MapLoader.java -text
+sigmah/src/main/java/org/sigmah/client/page/map/MapModule.java -text
 sigmah/src/main/java/org/sigmah/client/page/map/MapPage.java -text
 sigmah/src/main/java/org/sigmah/client/page/map/MapPageState.java -text
 sigmah/src/main/java/org/sigmah/client/page/map/MapPresenter.java -text
