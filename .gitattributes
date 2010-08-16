@@ -3,7 +3,6 @@
 /LICENSE.txt -text
 /pom.xml -text
 sigmah/pom.xml -text
-sigmah/pom.xml.releaseBackup -text
 sigmah/release.properties -text
 sigmah/src/main/java/org/sigmah/ActivityInfo.gwt.xml -text
 sigmah/src/main/java/org/sigmah/ActivityInfoFFTest.gwt.xml -text
@@ -1489,6 +1488,7 @@ sigmah/src/test/resources/report-def/parse-test/report-elements.xml -text
 sigmah/src/test/resources/report-def/parse-test/report.xml -text
 sigmah/src/test/resources/report-def/parse-test/static.xml -text
 sigmah/src/test/resources/report-def/parse-test/table.xml -text
+sigmah/war/WEB-INF/sigmah.properties -text
 sigmah/war/WEB-INF/web.xml -text
 sigmah/war/apitest.html -text
 sigmah/war/ftl/kml/NetworkLink.kml.ftl -text
