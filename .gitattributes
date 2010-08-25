@@ -248,6 +248,7 @@ sigmah/src/main/java/org/sigmah/client/page/dashboard/DashboardImageBundle.java 
 sigmah/src/main/java/org/sigmah/client/page/dashboard/DashboardPageLoader.java -text
 sigmah/src/main/java/org/sigmah/client/page/dashboard/DashboardPageState.java -text
 sigmah/src/main/java/org/sigmah/client/page/dashboard/DashboardPresenter.java -text
+sigmah/src/main/java/org/sigmah/client/page/dashboard/DashboardView.java -text
 sigmah/src/main/java/org/sigmah/client/page/dashboard/emptyStar.png -text
 sigmah/src/main/java/org/sigmah/client/page/dashboard/star.png -text
 sigmah/src/main/java/org/sigmah/client/page/entry/DataEntryLoader.java -text
