@@ -71,6 +71,7 @@ sigmah/src/main/java/org/sigmah/client/icon/attribute.png -text
 sigmah/src/main/java/org/sigmah/client/icon/attributeGroup.png -text
 sigmah/src/main/java/org/sigmah/client/icon/barChart.png -text
 sigmah/src/main/java/org/sigmah/client/icon/cancel.png -text
+sigmah/src/main/java/org/sigmah/client/icon/checked.png -text
 sigmah/src/main/java/org/sigmah/client/icon/curveChart.png -text
 sigmah/src/main/java/org/sigmah/client/icon/database.png -text
 sigmah/src/main/java/org/sigmah/client/icon/delete.png -text
@@ -109,6 +110,7 @@ sigmah/src/main/java/org/sigmah/client/icon/save.png -text
 sigmah/src/main/java/org/sigmah/client/icon/save_all.png -text
 sigmah/src/main/java/org/sigmah/client/icon/sum.png -text
 sigmah/src/main/java/org/sigmah/client/icon/table.png -text
+sigmah/src/main/java/org/sigmah/client/icon/unchecked.png -text
 sigmah/src/main/java/org/sigmah/client/icon/unmapped.png -text
 sigmah/src/main/java/org/sigmah/client/icon/user.png -text
 sigmah/src/main/java/org/sigmah/client/icon/wrench_orange.png -text
@@ -336,6 +338,7 @@ sigmah/src/main/java/org/sigmah/client/ui/Tab.java -text
 sigmah/src/main/java/org/sigmah/client/ui/TabBar.java -text
 sigmah/src/main/java/org/sigmah/client/ui/TabModel.java -text
 sigmah/src/main/java/org/sigmah/client/util/DateUtilGWTImpl.java -text
+sigmah/src/main/java/org/sigmah/client/util/NotImplementedMethod.java -text
 sigmah/src/main/java/org/sigmah/client/util/SortInfoEqualityChecker.java -text
 sigmah/src/main/java/org/sigmah/client/util/state/GXTStateManager.java -text
 sigmah/src/main/java/org/sigmah/client/util/state/IStateManager.java -text
@@ -973,9 +976,12 @@ sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/DownloadServlet.java -tex
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/GwtRpcModule.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/LoginServiceServlet.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/MapIconServlet.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/UploadManager.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/UploadServlet.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/AddPartnerHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/BaseEntityHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/BatchCommandHandler.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/ChangePhaseHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/CommandHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/CreateEntityHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/CreateReportDefHandler.java -text
@@ -1146,6 +1152,7 @@ sigmah/src/main/java/org/sigmah/server/util/logging/LoggingModule.java -text
 sigmah/src/main/java/org/sigmah/server/util/logging/Trace.java -text
 sigmah/src/main/java/org/sigmah/shared/command/AddPartner.java -text
 sigmah/src/main/java/org/sigmah/shared/command/BatchCommand.java -text
+sigmah/src/main/java/org/sigmah/shared/command/ChangePhase.java -text
 sigmah/src/main/java/org/sigmah/shared/command/Command.java -text
 sigmah/src/main/java/org/sigmah/shared/command/CreateEntity.java -text
 sigmah/src/main/java/org/sigmah/shared/command/CreateReportDef.java -text
@@ -1258,6 +1265,7 @@ sigmah/src/main/java/org/sigmah/shared/dto/layout/LayoutGroupDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/package-info.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/value/BudgetPartsListValueDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/value/FileDTO.java -text
+sigmah/src/main/java/org/sigmah/shared/dto/value/FileUploadUtils.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/value/FileVersionDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/value/FilesListValueDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/value/IndicatorsListValueDTO.java -text
@@ -1356,6 +1364,7 @@ sigmah/src/main/resources/template/page/ConfirmInvite.ftl -text
 sigmah/src/main/resources/template/page/Host.ftl -text
 sigmah/src/main/resources/template/page/InvalidInvite.ftl -text
 sigmah/src/main/resources/template/page/Login.ftl -text
+sigmah/src/main/resources/upload.properties -text
 sigmah/src/main/vba/SVGExport.bas -text
 sigmah/src/test/java/org/sigmah/ExcludeSources.gwt.xml -text
 sigmah/src/test/java/org/sigmah/MockDb.java -text
