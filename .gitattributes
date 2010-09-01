@@ -355,6 +355,7 @@ sigmah/src/main/java/org/sigmah/login/client/xs/WindowNameFormPanelImpl.java -te
 sigmah/src/main/java/org/sigmah/login/client/xs/WindowNameFormPanelImplIE6.java -text
 sigmah/src/main/java/org/sigmah/login/public/working.gif -text
 sigmah/src/main/java/org/sigmah/public/Application.css -text svneol=unset#unset
+sigmah/src/main/java/org/sigmah/public/activityInfo.css -text
 sigmah/src/main/java/org/sigmah/public/clear.gif -text
 sigmah/src/main/java/org/sigmah/public/dbquery.html -text
 sigmah/src/main/java/org/sigmah/public/gxt/chart/open-flash-chart.swf -text
