@@ -1012,6 +1012,7 @@ sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/RenderElementHand
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/RenderReportHtmlHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/UpdateEntityHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/UpdateMonthlyReportsHandler.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/UpdateProjectHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/UpdateReportDefHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/UpdateSubscriptionHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/UpdateUserPermissionsHandler.java -text
@@ -1188,6 +1189,7 @@ sigmah/src/main/java/org/sigmah/shared/command/RenderElement.java -text
 sigmah/src/main/java/org/sigmah/shared/command/RenderReportHtml.java -text
 sigmah/src/main/java/org/sigmah/shared/command/UpdateEntity.java -text
 sigmah/src/main/java/org/sigmah/shared/command/UpdateMonthlyReports.java -text
+sigmah/src/main/java/org/sigmah/shared/command/UpdateProject.java -text
 sigmah/src/main/java/org/sigmah/shared/command/UpdateReportDef.java -text
 sigmah/src/main/java/org/sigmah/shared/command/UpdateSubscription.java -text
 sigmah/src/main/java/org/sigmah/shared/command/UpdateUserPermissions.java -text
