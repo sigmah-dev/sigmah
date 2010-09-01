@@ -973,11 +973,12 @@ sigmah/src/main/java/org/sigmah/server/endpoint/export/ReportServlet.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/CacheFilter.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/CommandServlet.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/DownloadServlet.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/FileDownloadServlet.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/FileManager.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/FileUploadServlet.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/GwtRpcModule.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/LoginServiceServlet.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/MapIconServlet.java -text
-sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/UploadManager.java -text
-sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/UploadServlet.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/AddPartnerHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/BaseEntityHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/BatchCommandHandler.java -text
