@@ -987,6 +987,7 @@ sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/BatchCommandHandl
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/ChangePhaseHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/CommandHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/CreateEntityHandler.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/CreateProjectHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/CreateReportDefHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/DeleteHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GenerateElementHandler.java -text
@@ -997,6 +998,7 @@ sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetInvitationList
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetMapIconsHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetMonthlyReportsHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetProjectHandler.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetProjectModelsHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetProjectsHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetReportDefHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetReportTemplatesHandler.java -text
@@ -1159,6 +1161,7 @@ sigmah/src/main/java/org/sigmah/shared/command/BatchCommand.java -text
 sigmah/src/main/java/org/sigmah/shared/command/ChangePhase.java -text
 sigmah/src/main/java/org/sigmah/shared/command/Command.java -text
 sigmah/src/main/java/org/sigmah/shared/command/CreateEntity.java -text
+sigmah/src/main/java/org/sigmah/shared/command/CreateProject.java -text
 sigmah/src/main/java/org/sigmah/shared/command/CreateReportDef.java -text
 sigmah/src/main/java/org/sigmah/shared/command/Delete.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GenerateElement.java -text
@@ -1170,6 +1173,7 @@ sigmah/src/main/java/org/sigmah/shared/command/GetListCommand.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetMapIcons.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetMonthlyReports.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetProject.java -text
+sigmah/src/main/java/org/sigmah/shared/command/GetProjectModels.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetProjects.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetReportDef.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetReportTemplates.java -text
@@ -1207,6 +1211,7 @@ sigmah/src/main/java/org/sigmah/shared/command/result/MapIconResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/MonthlyReportResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/PagingResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/ProjectListResult.java -text
+sigmah/src/main/java/org/sigmah/shared/command/result/ProjectModelListResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/RenderResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/ReportTemplateResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/SingleResult.java -text
@@ -1241,6 +1246,7 @@ sigmah/src/main/java/org/sigmah/shared/dto/ProjectBannerDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/ProjectDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/ProjectDetailsDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/ProjectModelDTO.java -text
+sigmah/src/main/java/org/sigmah/shared/dto/ProjectModelDTOLight.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/ReportDefinitionDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/ReportSubscriptionDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/SchemaDTO.java -text
