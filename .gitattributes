@@ -965,6 +965,7 @@ sigmah/src/main/java/org/sigmah/server/domain/value/FilesListValue.java -text
 sigmah/src/main/java/org/sigmah/server/domain/value/FilesListValueId.java -text
 sigmah/src/main/java/org/sigmah/server/domain/value/IndicatorsListValue.java -text
 sigmah/src/main/java/org/sigmah/server/domain/value/IndicatorsListValueId.java -text
+sigmah/src/main/java/org/sigmah/server/domain/value/ListElementItem.java -text
 sigmah/src/main/java/org/sigmah/server/domain/value/TripletValue.java -text
 sigmah/src/main/java/org/sigmah/server/domain/value/Value.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/export/Export.java -text
@@ -1273,6 +1274,7 @@ sigmah/src/main/java/org/sigmah/shared/dto/value/FileUploadUtils.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/value/FileVersionDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/value/FilesListValueDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/value/IndicatorsListValueDTO.java -text
+sigmah/src/main/java/org/sigmah/shared/dto/value/ListElementItemDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/value/TripletValueDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/value/ValueDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/exception/CommandException.java -text
