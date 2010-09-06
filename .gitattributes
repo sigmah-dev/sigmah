@@ -972,12 +972,14 @@ sigmah/src/main/java/org/sigmah/server/endpoint/export/Export.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/export/ExportModule.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/export/ExportServlet.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/export/ReportServlet.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/file/FileDownloadServlet.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/file/FileManager.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/file/FileManagerImpl.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/file/FileModule.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/file/FileUploadServlet.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/CacheFilter.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/CommandServlet.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/DownloadServlet.java -text
-sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/FileDownloadServlet.java -text
-sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/FileManager.java -text
-sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/FileUploadServlet.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/GwtRpcModule.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/LoginServiceServlet.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/MapIconServlet.java -text
@@ -1376,7 +1378,6 @@ sigmah/src/main/resources/template/page/ConfirmInvite.ftl -text
 sigmah/src/main/resources/template/page/Host.ftl -text
 sigmah/src/main/resources/template/page/InvalidInvite.ftl -text
 sigmah/src/main/resources/template/page/Login.ftl -text
-sigmah/src/main/resources/upload.properties -text
 sigmah/src/main/vba/SVGExport.bas -text
 sigmah/src/test/java/org/sigmah/ExcludeSources.gwt.xml -text
 sigmah/src/test/java/org/sigmah/MockDb.java -text
