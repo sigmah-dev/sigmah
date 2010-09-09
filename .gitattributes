@@ -990,7 +990,6 @@ sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/BatchCommandHandl
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/ChangePhaseHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/CommandHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/CreateEntityHandler.java -text
-sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/CreateProjectHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/CreateReportDefHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/DeleteHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GenerateElementHandler.java -text
@@ -1164,7 +1163,6 @@ sigmah/src/main/java/org/sigmah/shared/command/BatchCommand.java -text
 sigmah/src/main/java/org/sigmah/shared/command/ChangePhase.java -text
 sigmah/src/main/java/org/sigmah/shared/command/Command.java -text
 sigmah/src/main/java/org/sigmah/shared/command/CreateEntity.java -text
-sigmah/src/main/java/org/sigmah/shared/command/CreateProject.java -text
 sigmah/src/main/java/org/sigmah/shared/command/CreateReportDef.java -text
 sigmah/src/main/java/org/sigmah/shared/command/Delete.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GenerateElement.java -text
