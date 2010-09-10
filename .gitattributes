@@ -1409,6 +1409,7 @@ sigmah/src/test/java/org/sigmah/client/dao/AdminDAOTest.java -text
 sigmah/src/test/java/org/sigmah/client/dao/CountryDAOTest.java -text
 sigmah/src/test/java/org/sigmah/client/dao/DTOMapperTest.java -text
 sigmah/src/test/java/org/sigmah/client/dao/DaoTest.java -text
+sigmah/src/test/java/org/sigmah/client/dao/OfflineEndpointModule.java -text
 sigmah/src/test/java/org/sigmah/client/dao/SchemaTest.java -text
 sigmah/src/test/java/org/sigmah/client/dao/SitesTest.java -text
 sigmah/src/test/java/org/sigmah/client/dao/UserDBTest.java -text
@@ -1422,6 +1423,7 @@ sigmah/src/test/java/org/sigmah/client/mock/DummyData.java -text
 sigmah/src/test/java/org/sigmah/client/mock/JreCoordinateEditor.java -text
 sigmah/src/test/java/org/sigmah/client/mock/MockEventBus.java -text
 sigmah/src/test/java/org/sigmah/client/mock/MockJPAModule.java -text
+sigmah/src/test/java/org/sigmah/client/mock/MockPersistenceUnitFactory.java -text
 sigmah/src/test/java/org/sigmah/client/mock/MockRemoteCommandService.java -text
 sigmah/src/test/java/org/sigmah/client/mock/MockStateManager.java -text
 sigmah/src/test/java/org/sigmah/client/mock/NullAsyncCallback.java -text
