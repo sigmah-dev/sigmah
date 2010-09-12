@@ -122,6 +122,7 @@ sigmah/src/main/java/org/sigmah/client/icon/zoom_out.png -text
 sigmah/src/main/java/org/sigmah/client/inject/AppInjector.java -text
 sigmah/src/main/java/org/sigmah/client/inject/AppModule.java -text
 sigmah/src/main/java/org/sigmah/client/inject/AuthProvider.java -text
+sigmah/src/main/java/org/sigmah/client/inject/DummyConnection.java -text
 sigmah/src/main/java/org/sigmah/client/inject/Root.java -text
 sigmah/src/main/java/org/sigmah/client/inject/SigmahAuthProvider.java -text
 sigmah/src/main/java/org/sigmah/client/inject/package-info.java -text
