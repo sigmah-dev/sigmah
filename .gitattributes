@@ -1403,7 +1403,6 @@ sigmah/src/main/resources/template/page/ConfirmInvite.ftl -text
 sigmah/src/main/resources/template/page/Host.ftl -text
 sigmah/src/main/resources/template/page/InvalidInvite.ftl -text
 sigmah/src/main/resources/template/page/Login.ftl -text
-sigmah/src/main/vba/SVGExport.bas -text
 sigmah/src/test/java/org/sigmah/ExcludeSources.gwt.xml -text
 sigmah/src/test/java/org/sigmah/MockDb.java -text
 sigmah/src/test/java/org/sigmah/client/dao/AdminDAOTest.java -text
