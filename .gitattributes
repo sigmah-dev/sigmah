@@ -912,6 +912,7 @@ sigmah/src/main/java/org/sigmah/server/domain/LogFrame.java -text
 sigmah/src/main/java/org/sigmah/server/domain/LogFrameRow.java -text
 sigmah/src/main/java/org/sigmah/server/domain/LogFrameRowGroup.java -text
 sigmah/src/main/java/org/sigmah/server/domain/OrgUnitPermission.java -text
+sigmah/src/main/java/org/sigmah/server/domain/PersistentClasses.java -text
 sigmah/src/main/java/org/sigmah/server/domain/Phase.java -text
 sigmah/src/main/java/org/sigmah/server/domain/PhaseModel.java -text
 sigmah/src/main/java/org/sigmah/server/domain/Project.java -text
@@ -1545,6 +1546,7 @@ sigmah/src/test/resources/dbunit/sites-quarters.db.xml -text
 sigmah/src/test/resources/dbunit/sites-simple1.db.xml -text
 sigmah/src/test/resources/dbunit/sites-zeros.db.xml -text
 sigmah/src/test/resources/distribscolaire-points.csv -text
+sigmah/src/test/resources/hibernate.cfg.xml -text
 sigmah/src/test/resources/log4j.properties -text
 sigmah/src/test/resources/msa-points.csv -text
 sigmah/src/test/resources/report-def/full-test.xml -text
