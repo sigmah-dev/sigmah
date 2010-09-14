@@ -1125,6 +1125,8 @@ sigmah/src/main/java/org/sigmah/server/sync/AdminLocalState.java -text
 sigmah/src/main/java/org/sigmah/server/sync/AdminUpdateBuilder.java -text
 sigmah/src/main/java/org/sigmah/server/sync/LocationUpdateBuilder.java -text
 sigmah/src/main/java/org/sigmah/server/sync/SchemaUpdateBuilder.java -text
+sigmah/src/main/java/org/sigmah/server/sync/SiteUpdateBuilder.java -text
+sigmah/src/main/java/org/sigmah/server/sync/TimestampHelper.java -text
 sigmah/src/main/java/org/sigmah/server/sync/UpdateBuilder.java -text
 sigmah/src/main/java/org/sigmah/server/util/BeanMappingModule.java -text
 sigmah/src/main/java/org/sigmah/server/util/DateUtilCalendarImpl.java -text
@@ -1538,6 +1540,7 @@ sigmah/src/test/resources/dbunit/authTest.db.xml -text
 sigmah/src/test/resources/dbunit/client-sites-h2.db.xml -text
 sigmah/src/test/resources/dbunit/client-sites-simple1.db.xml -text
 sigmah/src/test/resources/dbunit/filter.db.xml -text
+sigmah/src/test/resources/dbunit/locations.db.xml -text
 sigmah/src/test/resources/dbunit/multicountry.db.xml -text
 sigmah/src/test/resources/dbunit/projects.db.xml -text
 sigmah/src/test/resources/dbunit/schema1.db.xml -text
