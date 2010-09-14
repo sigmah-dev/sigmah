@@ -149,12 +149,13 @@ sigmah/src/main/java/org/sigmah/client/offline/dao/OfflineDAO.java -text
 sigmah/src/main/java/org/sigmah/client/offline/dao/SiteTableLocalDAO.java -text
 sigmah/src/main/java/org/sigmah/client/offline/dao/UserDatabaseLocalDAO.java -text
 sigmah/src/main/java/org/sigmah/client/offline/dao/UserLocalDAO.java -text
-sigmah/src/main/java/org/sigmah/client/offline/sync/CacheScript.java -text
-sigmah/src/main/java/org/sigmah/client/offline/sync/CacheUserDetails.java -text
-sigmah/src/main/java/org/sigmah/client/offline/sync/InitialSyncStep.java -text
-sigmah/src/main/java/org/sigmah/client/offline/sync/InstallSteps.java -text
-sigmah/src/main/java/org/sigmah/client/offline/sync/Step.java -text
-sigmah/src/main/java/org/sigmah/client/offline/sync/Synchronizer.java -text
+sigmah/src/main/java/org/sigmah/client/offline/install/CacheScript.java -text
+sigmah/src/main/java/org/sigmah/client/offline/install/CacheUserDetails.java -text
+sigmah/src/main/java/org/sigmah/client/offline/install/InitialSyncStep.java -text
+sigmah/src/main/java/org/sigmah/client/offline/install/InstallSteps.java -text
+sigmah/src/main/java/org/sigmah/client/offline/install/ShortcutStep.java -text
+sigmah/src/main/java/org/sigmah/client/offline/install/Step.java -text
+sigmah/src/main/java/org/sigmah/client/offline/install/Synchronizer.java -text
 sigmah/src/main/java/org/sigmah/client/offline/ui/OfflineMenu.java -text
 sigmah/src/main/java/org/sigmah/client/offline/ui/OfflineStatusWindow.java -text
 sigmah/src/main/java/org/sigmah/client/page/DownloadManager.java -text
@@ -370,8 +371,14 @@ sigmah/src/main/java/org/sigmah/login/public/working.gif -text
 sigmah/src/main/java/org/sigmah/public/Application.css -text svneol=unset#unset
 sigmah/src/main/java/org/sigmah/public/Sigmah.params.js -text
 sigmah/src/main/java/org/sigmah/public/activityInfo.css -text
+sigmah/src/main/java/org/sigmah/public/aioffline.html -text
 sigmah/src/main/java/org/sigmah/public/clear.gif -text
 sigmah/src/main/java/org/sigmah/public/dbquery.html -text
+sigmah/src/main/java/org/sigmah/public/desktopicons/128x128.png -text
+sigmah/src/main/java/org/sigmah/public/desktopicons/16x16.png -text
+sigmah/src/main/java/org/sigmah/public/desktopicons/32x32.png -text
+sigmah/src/main/java/org/sigmah/public/desktopicons/48x48.png -text
+sigmah/src/main/java/org/sigmah/public/desktopicons/64x64.png -text
 sigmah/src/main/java/org/sigmah/public/gxt/chart/open-flash-chart.swf -text
 sigmah/src/main/java/org/sigmah/public/gxt/css/gxt-all.css -text
 sigmah/src/main/java/org/sigmah/public/gxt/css/gxt-gray.css -text
@@ -836,7 +843,6 @@ sigmah/src/main/java/org/sigmah/public/image/thumbs/map.png -text
 sigmah/src/main/java/org/sigmah/public/image/thumbs/pivot.png -text
 sigmah/src/main/java/org/sigmah/public/image/unmapped.gif -text
 sigmah/src/main/java/org/sigmah/public/image/unmapped.png -text
-sigmah/src/main/java/org/sigmah/public/offline.html -text
 sigmah/src/main/java/org/sigmah/public/sigmah.css -text
 sigmah/src/main/java/org/sigmah/public/sigmah.html -text
 sigmah/src/main/java/org/sigmah/server/ConfigModule.java -text
@@ -1562,6 +1568,7 @@ sigmah/src/test/resources/report-def/parse-test/table.xml -text
 sigmah/war/WEB-INF/sigmah.properties -text
 sigmah/war/WEB-INF/web.xml -text
 sigmah/war/apitest.html -text
+sigmah/war/favicon.ico -text
 sigmah/war/ftl/kml/NetworkLink.kml.ftl -text
 sigmah/war/ftl/kml/Sites.kml.ftl -text
 sigmah/war/ftl/wfs/Capabilities.ftl -text
