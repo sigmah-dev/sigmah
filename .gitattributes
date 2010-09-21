@@ -7,6 +7,7 @@ sigmah/release.properties -text
 sigmah/src/main/java/org/sigmah/ActivityInfo.gwt.xml -text
 sigmah/src/main/java/org/sigmah/ActivityInfoFFTest.gwt.xml -text
 sigmah/src/main/java/org/sigmah/ActivityInfoIE6Test.gwt.xml -text
+sigmah/src/main/java/org/sigmah/ActivityInfoProduction.gwt.xml -text
 sigmah/src/main/java/org/sigmah/ActivityInfoSafariTest.gwt.xml -text
 sigmah/src/main/java/org/sigmah/ActivityInfoSoyc.gwt.xml -text
 sigmah/src/main/java/org/sigmah/Sigmah.gwt.xml -text
