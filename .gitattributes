@@ -1382,7 +1382,6 @@ sigmah/src/main/java/org/sigmah/shared/dao/AdminDAO.java -text
 sigmah/src/main/java/org/sigmah/shared/dao/CountryDAO.java -text
 sigmah/src/main/java/org/sigmah/shared/dao/DAO.java -text
 sigmah/src/main/java/org/sigmah/shared/dao/IndicatorDAO.java -text
-sigmah/src/main/java/org/sigmah/shared/dao/NoResultException.java -text
 sigmah/src/main/java/org/sigmah/shared/dao/SiteTableColumn.java -text
 sigmah/src/main/java/org/sigmah/shared/dao/UserDAO.java -text
 sigmah/src/main/java/org/sigmah/shared/dao/UserDatabaseDAO.java -text
