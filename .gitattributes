@@ -28,6 +28,7 @@ sigmah/src/main/java/org/sigmah/client/dispatch/DispatchEventSource.java -text
 sigmah/src/main/java/org/sigmah/client/dispatch/DispatchListener.java -text
 sigmah/src/main/java/org/sigmah/client/dispatch/Dispatcher.java -text
 sigmah/src/main/java/org/sigmah/client/dispatch/RemoteServiceProvider.java -text
+sigmah/src/main/java/org/sigmah/client/dispatch/SwitchingDispatcher.java -text
 sigmah/src/main/java/org/sigmah/client/dispatch/callback/Created.java -text
 sigmah/src/main/java/org/sigmah/client/dispatch/callback/Deleted.java -text
 sigmah/src/main/java/org/sigmah/client/dispatch/callback/DownloadCallback.java -text
@@ -44,9 +45,10 @@ sigmah/src/main/java/org/sigmah/client/dispatch/monitor/NullAsyncMonitor.java -t
 sigmah/src/main/java/org/sigmah/client/dispatch/package-info.java -text
 sigmah/src/main/java/org/sigmah/client/dispatch/remote/Authentication.java -text
 sigmah/src/main/java/org/sigmah/client/dispatch/remote/CommandRequest.java -text
+sigmah/src/main/java/org/sigmah/client/dispatch/remote/Direct.java -text
+sigmah/src/main/java/org/sigmah/client/dispatch/remote/DirectDispatcher.java -text
 sigmah/src/main/java/org/sigmah/client/dispatch/remote/ProxyManager.java -text
 sigmah/src/main/java/org/sigmah/client/dispatch/remote/RemoteDispatcher.java -text
-sigmah/src/main/java/org/sigmah/client/dispatch/remote/SwitchingDispatcher.java -text
 sigmah/src/main/java/org/sigmah/client/dispatch/remote/cache/AbstractCache.java -text
 sigmah/src/main/java/org/sigmah/client/dispatch/remote/cache/AdminEntityCache.java -text
 sigmah/src/main/java/org/sigmah/client/dispatch/remote/cache/DefaultDispatchListener.java -text
@@ -137,9 +139,12 @@ sigmah/src/main/java/org/sigmah/client/map/RgcTileLayer.java -text
 sigmah/src/main/java/org/sigmah/client/map/package-info.java -text
 sigmah/src/main/java/org/sigmah/client/offline/DatabaseStateProvider.java -text
 sigmah/src/main/java/org/sigmah/client/offline/LocalConnectionProvider.java -text
+sigmah/src/main/java/org/sigmah/client/offline/OfflineGateway.java -text
+sigmah/src/main/java/org/sigmah/client/offline/OfflineImpl.java -text
 sigmah/src/main/java/org/sigmah/client/offline/OfflineManager.java -text
 sigmah/src/main/java/org/sigmah/client/offline/OfflineModule.java -text
 sigmah/src/main/java/org/sigmah/client/offline/OfflineStatus.java -text
+sigmah/src/main/java/org/sigmah/client/offline/command/LocalDispatcher.java -text
 sigmah/src/main/java/org/sigmah/client/offline/command/handler/GetSitesHandlerLocal.java -text
 sigmah/src/main/java/org/sigmah/client/offline/dao/ActivityLocalDAO.java -text
 sigmah/src/main/java/org/sigmah/client/offline/dao/AdminLocalDAO.java -text
@@ -156,7 +161,7 @@ sigmah/src/main/java/org/sigmah/client/offline/install/InitialSyncStep.java -tex
 sigmah/src/main/java/org/sigmah/client/offline/install/InstallSteps.java -text
 sigmah/src/main/java/org/sigmah/client/offline/install/ShortcutStep.java -text
 sigmah/src/main/java/org/sigmah/client/offline/install/Step.java -text
-sigmah/src/main/java/org/sigmah/client/offline/install/Synchronizer.java -text
+sigmah/src/main/java/org/sigmah/client/offline/sync/Synchronizer.java -text
 sigmah/src/main/java/org/sigmah/client/offline/ui/OfflineMenu.java -text
 sigmah/src/main/java/org/sigmah/client/offline/ui/OfflineStatusWindow.java -text
 sigmah/src/main/java/org/sigmah/client/page/DownloadManager.java -text
@@ -1289,6 +1294,7 @@ sigmah/src/main/java/org/sigmah/server/sync/AdminLocalState.java -text
 sigmah/src/main/java/org/sigmah/server/sync/AdminUpdateBuilder.java -text
 sigmah/src/main/java/org/sigmah/server/sync/LocationUpdateBuilder.java -text
 sigmah/src/main/java/org/sigmah/server/sync/SchemaUpdateBuilder.java -text
+sigmah/src/main/java/org/sigmah/server/sync/SiteTableUpdateBuilder.java -text
 sigmah/src/main/java/org/sigmah/server/sync/SiteUpdateBuilder.java -text
 sigmah/src/main/java/org/sigmah/server/sync/TimestampHelper.java -text
 sigmah/src/main/java/org/sigmah/server/sync/UpdateBuilder.java -text
@@ -1688,6 +1694,7 @@ sigmah/src/test/java/org/sigmah/server/report/renderer/ppt/PptAlphaCheck.java -t
 sigmah/src/test/java/org/sigmah/server/schedule/ReportMailerIntegrationTest.java -text
 sigmah/src/test/java/org/sigmah/server/schedule/ReportMailerTest.java -text
 sigmah/src/test/java/org/sigmah/server/servlet/ExportIntegrationTest.java -text
+sigmah/src/test/java/org/sigmah/server/sync/SiteUpdateBuilderTest.java -text
 sigmah/src/test/java/org/sigmah/test/AssertUtils.java -text
 sigmah/src/test/java/org/sigmah/test/ExitScope.java -text
 sigmah/src/test/java/org/sigmah/test/InjectionSupport.java -text
