@@ -1043,6 +1043,7 @@ sigmah/src/main/java/org/sigmah/server/dao/SiteTableDAO.java -text
 sigmah/src/main/java/org/sigmah/server/dao/Transactional.java -text
 sigmah/src/main/java/org/sigmah/server/dao/hibernate/AdminHibernateDAO.java -text
 sigmah/src/main/java/org/sigmah/server/dao/hibernate/DAOInvocationHandler.java -text
+sigmah/src/main/java/org/sigmah/server/dao/hibernate/FilterCriterionBridge.java -text
 sigmah/src/main/java/org/sigmah/server/dao/hibernate/GenericDAO.java -text
 sigmah/src/main/java/org/sigmah/server/dao/hibernate/HibernateDAOProvider.java -text
 sigmah/src/main/java/org/sigmah/server/dao/hibernate/HibernateModule.java -text
@@ -1183,7 +1184,6 @@ sigmah/src/main/java/org/sigmah/server/report/ServletImageStorageProvider.java -
 sigmah/src/main/java/org/sigmah/server/report/generator/BaseGenerator.java -text
 sigmah/src/main/java/org/sigmah/server/report/generator/ContentGenerator.java -text
 sigmah/src/main/java/org/sigmah/server/report/generator/DateAxisCompleter.java -text
-sigmah/src/main/java/org/sigmah/server/report/generator/FilterCriterionBridge.java -text
 sigmah/src/main/java/org/sigmah/server/report/generator/ListGenerator.java -text
 sigmah/src/main/java/org/sigmah/server/report/generator/MapGenerator.java -text
 sigmah/src/main/java/org/sigmah/server/report/generator/MapIconPath.java -text
@@ -1375,7 +1375,9 @@ sigmah/src/main/java/org/sigmah/shared/dao/ActivityDAO.java -text
 sigmah/src/main/java/org/sigmah/shared/dao/AdminDAO.java -text
 sigmah/src/main/java/org/sigmah/shared/dao/CountryDAO.java -text
 sigmah/src/main/java/org/sigmah/shared/dao/DAO.java -text
+sigmah/src/main/java/org/sigmah/shared/dao/Filter.java -text
 sigmah/src/main/java/org/sigmah/shared/dao/IndicatorDAO.java -text
+sigmah/src/main/java/org/sigmah/shared/dao/SiteOrder.java -text
 sigmah/src/main/java/org/sigmah/shared/dao/SiteTableColumn.java -text
 sigmah/src/main/java/org/sigmah/shared/dao/UserDAO.java -text
 sigmah/src/main/java/org/sigmah/shared/dao/UserDatabaseDAO.java -text
@@ -1517,7 +1519,6 @@ sigmah/src/main/java/org/sigmah/shared/report/model/DateUnit.java -text
 sigmah/src/main/java/org/sigmah/shared/report/model/Dimension.java -text
 sigmah/src/main/java/org/sigmah/shared/report/model/DimensionFolder.java -text
 sigmah/src/main/java/org/sigmah/shared/report/model/DimensionType.java -text
-sigmah/src/main/java/org/sigmah/shared/report/model/Filter.java -text
 sigmah/src/main/java/org/sigmah/shared/report/model/IconMapLayer.java -text
 sigmah/src/main/java/org/sigmah/shared/report/model/MapElement.java -text
 sigmah/src/main/java/org/sigmah/shared/report/model/MapIcon.java -text
