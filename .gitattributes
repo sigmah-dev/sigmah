@@ -372,10 +372,11 @@ sigmah/src/main/java/org/sigmah/login/client/LoginServiceAsync.java -text
 sigmah/src/main/java/org/sigmah/login/client/xs/WindowNameFormPanelImpl.java -text
 sigmah/src/main/java/org/sigmah/login/client/xs/WindowNameFormPanelImplIE6.java -text
 sigmah/src/main/java/org/sigmah/login/public/working.gif -text
+sigmah/src/main/java/org/sigmah/public/ActivityInfo.offline.html -text
 sigmah/src/main/java/org/sigmah/public/Application.css -text svneol=unset#unset
+sigmah/src/main/java/org/sigmah/public/Sigmah.offline.html -text
 sigmah/src/main/java/org/sigmah/public/Sigmah.params.js -text
 sigmah/src/main/java/org/sigmah/public/activityInfo.css -text
-sigmah/src/main/java/org/sigmah/public/aioffline.html -text
 sigmah/src/main/java/org/sigmah/public/clear.gif -text
 sigmah/src/main/java/org/sigmah/public/dbquery.html -text
 sigmah/src/main/java/org/sigmah/public/desktopicons/128x128.png -text
