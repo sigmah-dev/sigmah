@@ -309,7 +309,6 @@ sigmah/src/main/java/org/sigmah/client/page/entry/editor/SiteFormLeash.java -tex
 sigmah/src/main/java/org/sigmah/client/page/entry/editor/SiteFormLoader.java -text
 sigmah/src/main/java/org/sigmah/client/page/entry/editor/SiteFormPage.java -text
 sigmah/src/main/java/org/sigmah/client/page/entry/editor/SiteFormPresenter.java -text
-sigmah/src/main/java/org/sigmah/client/page/entry/filter/FilterMenu.java -text
 sigmah/src/main/java/org/sigmah/client/page/map/BubbleLayerForm.java -text
 sigmah/src/main/java/org/sigmah/client/page/map/LayoutForm.java -text
 sigmah/src/main/java/org/sigmah/client/page/map/MapForm.java -text
@@ -1045,15 +1044,6 @@ sigmah/src/main/java/org/sigmah/server/dao/SiteDAO.java -text
 sigmah/src/main/java/org/sigmah/server/dao/SiteProjectionBinder.java -text
 sigmah/src/main/java/org/sigmah/server/dao/SiteTableDAO.java -text
 sigmah/src/main/java/org/sigmah/server/dao/Transactional.java -text
-sigmah/src/main/java/org/sigmah/server/dao/filter/AbstractEntityTokenMatcher.java -text
-sigmah/src/main/java/org/sigmah/server/dao/filter/AdminTokenMatcher.java -text
-sigmah/src/main/java/org/sigmah/server/dao/filter/DateTokenMatcher.java -text
-sigmah/src/main/java/org/sigmah/server/dao/filter/FilterHelper.java -text
-sigmah/src/main/java/org/sigmah/server/dao/filter/FilterParser.java -text
-sigmah/src/main/java/org/sigmah/server/dao/filter/FrenchFilterParser.java -text
-sigmah/src/main/java/org/sigmah/server/dao/filter/MatchResult.java -text
-sigmah/src/main/java/org/sigmah/server/dao/filter/PartnerTokenMatcher.java -text
-sigmah/src/main/java/org/sigmah/server/dao/filter/TokenMatcher.java -text
 sigmah/src/main/java/org/sigmah/server/dao/hibernate/AdminHibernateDAO.java -text
 sigmah/src/main/java/org/sigmah/server/dao/hibernate/DAOInvocationHandler.java -text
 sigmah/src/main/java/org/sigmah/server/dao/hibernate/GenericDAO.java -text
@@ -1629,8 +1619,6 @@ sigmah/src/test/java/org/sigmah/server/dao/BaseMapDAOTest.java -text
 sigmah/src/test/java/org/sigmah/server/dao/DatabaseCleaner.java -text
 sigmah/src/test/java/org/sigmah/server/dao/OnDataSet.java -text
 sigmah/src/test/java/org/sigmah/server/dao/SiteTableDAOTest.java -text
-sigmah/src/test/java/org/sigmah/server/dao/filter/DateTokenMatcherTest.java -text
-sigmah/src/test/java/org/sigmah/server/dao/filter/FrenchFilterParserTest.java -text
 sigmah/src/test/java/org/sigmah/server/dao/hibernate/AdminDAOImplTest.java -text
 sigmah/src/test/java/org/sigmah/server/dao/hibernate/CountryDAOTest.java -text
 sigmah/src/test/java/org/sigmah/server/dao/hibernate/LoadDataSet.java -text
