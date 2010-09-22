@@ -278,8 +278,6 @@ sigmah/src/main/java/org/sigmah/client/page/entry/DataEntryNavigator.java -text
 sigmah/src/main/java/org/sigmah/client/page/entry/DetailsPresenter.java -text
 sigmah/src/main/java/org/sigmah/client/page/entry/DetailsTab.java -text
 sigmah/src/main/java/org/sigmah/client/page/entry/EntryModule.java -text
-sigmah/src/main/java/org/sigmah/client/page/entry/HierSiteEditor.java -text
-sigmah/src/main/java/org/sigmah/client/page/entry/HierSiteTree.java -text
 sigmah/src/main/java/org/sigmah/client/page/entry/MonthlyGrid.java -text
 sigmah/src/main/java/org/sigmah/client/page/entry/MonthlyPresenter.java -text
 sigmah/src/main/java/org/sigmah/client/page/entry/MonthlyTab.java -text
@@ -290,7 +288,6 @@ sigmah/src/main/java/org/sigmah/client/page/entry/SiteGridDragSource.java -text
 sigmah/src/main/java/org/sigmah/client/page/entry/SiteGridPage.java -text
 sigmah/src/main/java/org/sigmah/client/page/entry/SiteGridPageState.java -text
 sigmah/src/main/java/org/sigmah/client/page/entry/SiteMap.java -text
-sigmah/src/main/java/org/sigmah/client/page/entry/SiteTreeProxy.java -text
 sigmah/src/main/java/org/sigmah/client/page/entry/editor/AbstractFieldSet.java -text
 sigmah/src/main/java/org/sigmah/client/page/entry/editor/ActivityFieldSet.java -text
 sigmah/src/main/java/org/sigmah/client/page/entry/editor/AdminFieldSet.java -text
@@ -1592,7 +1589,6 @@ sigmah/src/test/java/org/sigmah/client/page/config/DbListPresenterTest.java -tex
 sigmah/src/test/java/org/sigmah/client/page/config/DbUserTest.java -text
 sigmah/src/test/java/org/sigmah/client/page/config/design/DesignTest.java -text
 sigmah/src/test/java/org/sigmah/client/page/config/design/MockDesignTree.java -text
-sigmah/src/test/java/org/sigmah/client/page/entry/HierSiteEditorTest.java -text
 sigmah/src/test/java/org/sigmah/client/page/entry/SiteGridPlaceParserTest.java -text
 sigmah/src/test/java/org/sigmah/client/page/entry/SiteGridTest.java -text
 sigmah/src/test/java/org/sigmah/client/page/entry/editor/AdminChangeTest.java -text
