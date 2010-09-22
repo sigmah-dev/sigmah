@@ -351,10 +351,12 @@ sigmah/src/main/java/org/sigmah/client/page/welcome/WelcomePageState.java -text
 sigmah/src/main/java/org/sigmah/client/report/DimensionStoreFactory.java -text
 sigmah/src/main/java/org/sigmah/client/ui/SigmahTheme.java -text
 sigmah/src/main/java/org/sigmah/client/ui/SigmahViewport.java -text
+sigmah/src/main/java/org/sigmah/client/ui/StylableHBoxLayout.java -text
 sigmah/src/main/java/org/sigmah/client/ui/StylableVBoxLayout.java -text
 sigmah/src/main/java/org/sigmah/client/ui/Tab.java -text
 sigmah/src/main/java/org/sigmah/client/ui/TabBar.java -text
 sigmah/src/main/java/org/sigmah/client/ui/TabModel.java -text
+sigmah/src/main/java/org/sigmah/client/ui/ToggleAnchor.java -text
 sigmah/src/main/java/org/sigmah/client/util/DateUtilGWTImpl.java -text
 sigmah/src/main/java/org/sigmah/client/util/NotImplementedMethod.java -text
 sigmah/src/main/java/org/sigmah/client/util/SortInfoEqualityChecker.java -text
@@ -757,6 +759,7 @@ sigmah/src/main/java/org/sigmah/public/gxt/themes/sigmah/images/sigmah/grid/page
 sigmah/src/main/java/org/sigmah/public/gxt/themes/sigmah/images/sigmah/grid/refresh.gif -text
 sigmah/src/main/java/org/sigmah/public/gxt/themes/sigmah/images/sigmah/grid/row-over.gif -text
 sigmah/src/main/java/org/sigmah/public/gxt/themes/sigmah/images/sigmah/grid/row-sel.gif -text
+sigmah/src/main/java/org/sigmah/public/gxt/themes/sigmah/images/sigmah/grid/sort-hd.gif -text
 sigmah/src/main/java/org/sigmah/public/gxt/themes/sigmah/images/sigmah/grid/sort_asc.gif -text
 sigmah/src/main/java/org/sigmah/public/gxt/themes/sigmah/images/sigmah/grid/sort_desc.gif -text
 sigmah/src/main/java/org/sigmah/public/gxt/themes/sigmah/images/sigmah/grid/tabs-sprite.gif -text
