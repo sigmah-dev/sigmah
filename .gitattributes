@@ -1339,6 +1339,7 @@ sigmah/src/main/java/org/sigmah/shared/command/result/SyncRegionUpdate.java -tex
 sigmah/src/main/java/org/sigmah/shared/command/result/SyncRegions.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/UserResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/ValueResult.java -text
+sigmah/src/main/java/org/sigmah/shared/command/result/ValueResultUtils.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/VoidResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/XmlResult.java -text
 sigmah/src/main/java/org/sigmah/shared/dao/ActivityDAO.java -text
