@@ -349,6 +349,7 @@ sigmah/src/main/java/org/sigmah/client/page/welcome/Welcome.java -text
 sigmah/src/main/java/org/sigmah/client/page/welcome/WelcomeLoader.java -text
 sigmah/src/main/java/org/sigmah/client/page/welcome/WelcomePageState.java -text
 sigmah/src/main/java/org/sigmah/client/report/DimensionStoreFactory.java -text
+sigmah/src/main/java/org/sigmah/client/ui/FlexibleGrid.java -text
 sigmah/src/main/java/org/sigmah/client/ui/SigmahTheme.java -text
 sigmah/src/main/java/org/sigmah/client/ui/SigmahViewport.java -text
 sigmah/src/main/java/org/sigmah/client/ui/StylableHBoxLayout.java -text
@@ -1407,11 +1408,10 @@ sigmah/src/main/java/org/sigmah/shared/domain/value/BudgetPart.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/value/BudgetPartsListValue.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/value/File.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/value/FileVersion.java -text
-sigmah/src/main/java/org/sigmah/shared/domain/value/FilesListValue.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/value/FilesListValueId.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/value/IndicatorsListValue.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/value/IndicatorsListValueId.java -text
-sigmah/src/main/java/org/sigmah/shared/domain/value/ListElementItem.java -text
+sigmah/src/main/java/org/sigmah/shared/domain/value/ListEntity.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/value/TripletValue.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/value/Value.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/ActivityDTO.java -text
@@ -1468,9 +1468,8 @@ sigmah/src/main/java/org/sigmah/shared/dto/value/BudgetPartsListValueDTO.java -t
 sigmah/src/main/java/org/sigmah/shared/dto/value/FileDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/value/FileUploadUtils.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/value/FileVersionDTO.java -text
-sigmah/src/main/java/org/sigmah/shared/dto/value/FilesListValueDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/value/IndicatorsListValueDTO.java -text
-sigmah/src/main/java/org/sigmah/shared/dto/value/ListElementItemDTO.java -text
+sigmah/src/main/java/org/sigmah/shared/dto/value/ListEntityDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/value/TripletValueDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/value/ValueDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/exception/CommandException.java -text
