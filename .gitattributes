@@ -1391,6 +1391,8 @@ sigmah/src/main/java/org/sigmah/shared/domain/Site.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/User.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/UserDatabase.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/UserPermission.java -text
+sigmah/src/main/java/org/sigmah/shared/domain/category/CategoryElement.java -text
+sigmah/src/main/java/org/sigmah/shared/domain/category/CategoryType.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/element/BudgetDistributionElement.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/element/CheckboxElement.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/element/FilesListElement.java -text
@@ -1445,6 +1447,8 @@ sigmah/src/main/java/org/sigmah/shared/dto/SiteDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/SitePointDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/UserDatabaseDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/UserPermissionDTO.java -text
+sigmah/src/main/java/org/sigmah/shared/dto/category/CategoryElementDTO.java -text
+sigmah/src/main/java/org/sigmah/shared/dto/category/CategoryTypeDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/element/BudgetDistributionElementDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/element/CheckboxElementDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/element/FilesListElementDTO.java -text
