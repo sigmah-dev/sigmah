@@ -322,6 +322,7 @@ sigmah/src/main/java/org/sigmah/client/page/project/ProjectPageLoader.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/ProjectPresenter.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/ProjectState.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/ProjectView.java -text
+sigmah/src/main/java/org/sigmah/client/page/project/calendar/ProjectCalendarPresenter.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/dashboard/ProjectDashboardPresenter.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/dashboard/ProjectDashboardView.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/dashboard/RequiredValueState.java -text
@@ -354,6 +355,7 @@ sigmah/src/main/java/org/sigmah/client/page/welcome/Welcome.java -text
 sigmah/src/main/java/org/sigmah/client/page/welcome/WelcomeLoader.java -text
 sigmah/src/main/java/org/sigmah/client/page/welcome/WelcomePageState.java -text
 sigmah/src/main/java/org/sigmah/client/report/DimensionStoreFactory.java -text
+sigmah/src/main/java/org/sigmah/client/ui/CalendarWidget.java -text
 sigmah/src/main/java/org/sigmah/client/ui/FlexibleGrid.java -text
 sigmah/src/main/java/org/sigmah/client/ui/SigmahTheme.java -text
 sigmah/src/main/java/org/sigmah/client/ui/SigmahViewport.java -text
@@ -1396,6 +1398,9 @@ sigmah/src/main/java/org/sigmah/shared/domain/Site.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/User.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/UserDatabase.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/UserPermission.java -text
+sigmah/src/main/java/org/sigmah/shared/domain/calendar/Calendar.java -text
+sigmah/src/main/java/org/sigmah/shared/domain/calendar/Event.java -text
+sigmah/src/main/java/org/sigmah/shared/domain/calendar/Todo.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/category/CategoryElement.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/category/CategoryType.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/element/BudgetDistributionElement.java -text
