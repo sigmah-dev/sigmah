@@ -316,11 +316,16 @@ sigmah/src/main/java/org/sigmah/client/page/map/MapPageState.java -text
 sigmah/src/main/java/org/sigmah/client/page/map/MapPresenter.java -text
 sigmah/src/main/java/org/sigmah/client/page/map/MapPreview.java -text
 sigmah/src/main/java/org/sigmah/client/page/map/SigmahMapLoader.java -text
+sigmah/src/main/java/org/sigmah/client/page/project/Presenter.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/ProjectModule.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/ProjectPageLoader.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/ProjectPresenter.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/ProjectState.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/ProjectView.java -text
+sigmah/src/main/java/org/sigmah/client/page/project/dashboard/ProjectDashboardPresenter.java -text
+sigmah/src/main/java/org/sigmah/client/page/project/dashboard/ProjectDashboardView.java -text
+sigmah/src/main/java/org/sigmah/client/page/project/dashboard/RequiredValueState.java -text
+sigmah/src/main/java/org/sigmah/client/page/project/dashboard/RequiredValueStateList.java -text
 sigmah/src/main/java/org/sigmah/client/page/report/ReportListPagePresenter.java -text
 sigmah/src/main/java/org/sigmah/client/page/report/ReportListPageState.java -text
 sigmah/src/main/java/org/sigmah/client/page/report/ReportListPageView.java -text
