@@ -1062,7 +1062,7 @@ sigmah/src/main/java/org/sigmah/server/dao/hibernate/HibernateModule.java -text
 sigmah/src/main/java/org/sigmah/server/dao/hibernate/LocationHibernateDAO.java -text
 sigmah/src/main/java/org/sigmah/server/dao/hibernate/PivotHibernateDAO.java -text
 sigmah/src/main/java/org/sigmah/server/dao/hibernate/ReportingPeriodHibernateDAO.java -text
-sigmah/src/main/java/org/sigmah/server/dao/hibernate/SQLDialect.java -text
+sigmah/src/main/java/org/sigmah/server/dao/hibernate/SQLDialectProvider.java -text
 sigmah/src/main/java/org/sigmah/server/dao/hibernate/SiteHibernateDAO.java -text
 sigmah/src/main/java/org/sigmah/server/dao/hibernate/SiteTableDAOHibernate.java -text
 sigmah/src/main/java/org/sigmah/server/dao/hibernate/TransactionalInterceptor.java -text
@@ -1355,6 +1355,7 @@ sigmah/src/main/java/org/sigmah/shared/dao/CountryDAO.java -text
 sigmah/src/main/java/org/sigmah/shared/dao/DAO.java -text
 sigmah/src/main/java/org/sigmah/shared/dao/Filter.java -text
 sigmah/src/main/java/org/sigmah/shared/dao/IndicatorDAO.java -text
+sigmah/src/main/java/org/sigmah/shared/dao/SQLDialect.java -text
 sigmah/src/main/java/org/sigmah/shared/dao/SiteOrder.java -text
 sigmah/src/main/java/org/sigmah/shared/dao/SiteTableColumn.java -text
 sigmah/src/main/java/org/sigmah/shared/dao/UserDAO.java -text
@@ -1637,7 +1638,7 @@ sigmah/src/test/java/org/sigmah/server/dao/SiteTableDAOTest.java -text
 sigmah/src/test/java/org/sigmah/server/dao/hibernate/AdminDAOImplTest.java -text
 sigmah/src/test/java/org/sigmah/server/dao/hibernate/CountryDAOTest.java -text
 sigmah/src/test/java/org/sigmah/server/dao/hibernate/LoadDataSet.java -text
-sigmah/src/test/java/org/sigmah/server/dao/hibernate/PivotDAOImplTest.java -text
+sigmah/src/test/java/org/sigmah/server/dao/hibernate/PivotHibernateDAOTest.java -text
 sigmah/src/test/java/org/sigmah/server/dao/hibernate/TransactionalInterceptorTest.java -text
 sigmah/src/test/java/org/sigmah/server/dao/hibernate/UserDAOImplTest.java -text
 sigmah/src/test/java/org/sigmah/server/endpoint/gwtrpc/ActivityTest.java -text
@@ -1722,7 +1723,10 @@ sigmah/src/test/resources/dbunit/sites-quarters.db.xml -text
 sigmah/src/test/resources/dbunit/sites-simple1.db.xml -text
 sigmah/src/test/resources/dbunit/sites-zeros.db.xml -text
 sigmah/src/test/resources/distribscolaire-points.csv -text
-sigmah/src/test/resources/hibernate.cfg.xml -text
+sigmah/src/test/resources/hibernate-tests-h2.cfg.xml -text
+sigmah/src/test/resources/hibernate-tests-mssql.cfg.xml -text
+sigmah/src/test/resources/hibernate-tests-mysql.cfg.xml -text
+sigmah/src/test/resources/hibernate-tests-postgres.cfg.xml -text
 sigmah/src/test/resources/log4j.properties -text
 sigmah/src/test/resources/msa-points.csv -text
 sigmah/src/test/resources/report-def/full-test.xml -text
