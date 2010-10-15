@@ -102,6 +102,9 @@ sigmah/src/main/java/org/sigmah/client/icon/keyboard.png -text
 sigmah/src/main/java/org/sigmah/client/icon/map.png -text
 sigmah/src/main/java/org/sigmah/client/icon/mapped.png -text
 sigmah/src/main/java/org/sigmah/client/icon/msword.png -text
+sigmah/src/main/java/org/sigmah/client/icon/offline.png -text
+sigmah/src/main/java/org/sigmah/client/icon/onlineSynced.png -text
+sigmah/src/main/java/org/sigmah/client/icon/onlineSyncing.png -text
 sigmah/src/main/java/org/sigmah/client/icon/package-info.java -text
 sigmah/src/main/java/org/sigmah/client/icon/pdf.png -text
 sigmah/src/main/java/org/sigmah/client/icon/pieChart.png -text
