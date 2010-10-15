@@ -1115,6 +1115,7 @@ sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/DeleteHandler.jav
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GenerateElementHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetAdminEntitiesHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetBaseMapsHandler.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetCalendarHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetCountriesHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetInvitationListHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetMapIconsHandler.java -text
@@ -1140,6 +1141,9 @@ sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/UpdateProjectHand
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/UpdateReportDefHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/UpdateSubscriptionHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/UpdateUserPermissionsHandler.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/calendar/CalendarHandler.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/calendar/DummyCalendarHandler.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/calendar/PersonalCalendarHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/kml/KmlDataServlet.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/kml/KmlLinkServlet.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/kml/KmlModule.java -text
@@ -1291,6 +1295,7 @@ sigmah/src/main/java/org/sigmah/shared/command/Delete.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GenerateElement.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetAdminEntities.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetBaseMaps.java -text
+sigmah/src/main/java/org/sigmah/shared/command/GetCalendar.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetCountries.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetInvitationList.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetListCommand.java -text
@@ -1405,6 +1410,7 @@ sigmah/src/main/java/org/sigmah/shared/domain/UserDatabase.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/UserPermission.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/calendar/Calendar.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/calendar/Event.java -text
+sigmah/src/main/java/org/sigmah/shared/domain/calendar/PersonalEvent.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/calendar/Todo.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/category/CategoryElement.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/category/CategoryType.java -text
