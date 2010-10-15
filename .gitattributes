@@ -147,7 +147,6 @@ sigmah/src/main/java/org/sigmah/client/offline/OfflineImpl.java -text
 sigmah/src/main/java/org/sigmah/client/offline/OfflineModule.java -text
 sigmah/src/main/java/org/sigmah/client/offline/OfflineStatus.java -text
 sigmah/src/main/java/org/sigmah/client/offline/command/LocalDispatcher.java -text
-sigmah/src/main/java/org/sigmah/client/offline/command/handler/GetSitesHandlerLocal.java -text
 sigmah/src/main/java/org/sigmah/client/offline/dao/ActivityLocalDAO.java -text
 sigmah/src/main/java/org/sigmah/client/offline/dao/AdminLocalDAO.java -text
 sigmah/src/main/java/org/sigmah/client/offline/dao/CountryLocalDAO.java -text
@@ -1054,8 +1053,6 @@ sigmah/src/main/java/org/sigmah/server/dao/PivotDAO.java -text
 sigmah/src/main/java/org/sigmah/server/dao/ReportDefinitionDAO.java -text
 sigmah/src/main/java/org/sigmah/server/dao/ReportingPeriodDAO.java -text
 sigmah/src/main/java/org/sigmah/server/dao/SiteDAO.java -text
-sigmah/src/main/java/org/sigmah/server/dao/SiteProjectionBinder.java -text
-sigmah/src/main/java/org/sigmah/server/dao/SiteTableDAO.java -text
 sigmah/src/main/java/org/sigmah/server/dao/Transactional.java -text
 sigmah/src/main/java/org/sigmah/server/dao/hibernate/AdminHibernateDAO.java -text
 sigmah/src/main/java/org/sigmah/server/dao/hibernate/DAOInvocationHandler.java -text
@@ -1063,12 +1060,12 @@ sigmah/src/main/java/org/sigmah/server/dao/hibernate/FilterCriterionBridge.java 
 sigmah/src/main/java/org/sigmah/server/dao/hibernate/GenericDAO.java -text
 sigmah/src/main/java/org/sigmah/server/dao/hibernate/HibernateDAOProvider.java -text
 sigmah/src/main/java/org/sigmah/server/dao/hibernate/HibernateModule.java -text
+sigmah/src/main/java/org/sigmah/server/dao/hibernate/HibernateSiteTableDAO.java -text
 sigmah/src/main/java/org/sigmah/server/dao/hibernate/LocationHibernateDAO.java -text
 sigmah/src/main/java/org/sigmah/server/dao/hibernate/PivotHibernateDAO.java -text
 sigmah/src/main/java/org/sigmah/server/dao/hibernate/ReportingPeriodHibernateDAO.java -text
 sigmah/src/main/java/org/sigmah/server/dao/hibernate/SQLDialectProvider.java -text
 sigmah/src/main/java/org/sigmah/server/dao/hibernate/SiteHibernateDAO.java -text
-sigmah/src/main/java/org/sigmah/server/dao/hibernate/SiteTableDAOHibernate.java -text
 sigmah/src/main/java/org/sigmah/server/dao/hibernate/TransactionalInterceptor.java -text
 sigmah/src/main/java/org/sigmah/server/dao/hibernate/UserDAOImpl.java -text
 sigmah/src/main/java/org/sigmah/server/dao/hibernate/criterion/SiteAdminOrder.java -text
@@ -1088,7 +1085,6 @@ sigmah/src/main/java/org/sigmah/server/domain/ReportSubscription.java -text
 sigmah/src/main/java/org/sigmah/server/domain/ReportSubscriptionId.java -text
 sigmah/src/main/java/org/sigmah/server/domain/SiteData.java -text
 sigmah/src/main/java/org/sigmah/server/domain/UserDatabaseTemplate.java -text
-sigmah/src/main/java/org/sigmah/server/endpoint/EndpointModule.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/export/Export.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/export/ExportModule.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/export/ExportServlet.java -text
@@ -1126,7 +1122,6 @@ sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetProjectsHandle
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetReportDefHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetReportTemplatesHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetSitePointsHandler.java -text
-sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetSitesHandlerHibernate.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetSyncRegionUpdatesHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetSyncRegionsHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetUsersHandler.java -text
@@ -1366,7 +1361,12 @@ sigmah/src/main/java/org/sigmah/shared/dao/Filter.java -text
 sigmah/src/main/java/org/sigmah/shared/dao/IndicatorDAO.java -text
 sigmah/src/main/java/org/sigmah/shared/dao/SQLDialect.java -text
 sigmah/src/main/java/org/sigmah/shared/dao/SiteOrder.java -text
+sigmah/src/main/java/org/sigmah/shared/dao/SiteProjectionBinder.java -text
 sigmah/src/main/java/org/sigmah/shared/dao/SiteTableColumn.java -text
+sigmah/src/main/java/org/sigmah/shared/dao/SiteTableDAO.java -text
+sigmah/src/main/java/org/sigmah/shared/dao/SqlQueryBuilder.java -text
+sigmah/src/main/java/org/sigmah/shared/dao/SqlSiteTableDAO.java -text
+sigmah/src/main/java/org/sigmah/shared/dao/SqliteDialect.java -text
 sigmah/src/main/java/org/sigmah/shared/dao/UserDAO.java -text
 sigmah/src/main/java/org/sigmah/shared/dao/UserDatabaseDAO.java -text
 sigmah/src/main/java/org/sigmah/shared/dao/UserPermissionDAO.java -text
@@ -1596,7 +1596,6 @@ sigmah/src/test/java/org/sigmah/client/dao/AdminDAOTest.java -text
 sigmah/src/test/java/org/sigmah/client/dao/CountryDAOTest.java -text
 sigmah/src/test/java/org/sigmah/client/dao/DTOMapperTest.java -text
 sigmah/src/test/java/org/sigmah/client/dao/DaoTest.java -text
-sigmah/src/test/java/org/sigmah/client/dao/OfflineEndpointModule.java -text
 sigmah/src/test/java/org/sigmah/client/dao/SchemaTest.java -text
 sigmah/src/test/java/org/sigmah/client/dao/SitesTest.java -text
 sigmah/src/test/java/org/sigmah/client/dao/UserDBTest.java -text
