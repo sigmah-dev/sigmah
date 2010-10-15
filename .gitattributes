@@ -141,7 +141,6 @@ sigmah/src/main/java/org/sigmah/client/offline/DatabaseStateProvider.java -text
 sigmah/src/main/java/org/sigmah/client/offline/LocalConnectionProvider.java -text
 sigmah/src/main/java/org/sigmah/client/offline/OfflineGateway.java -text
 sigmah/src/main/java/org/sigmah/client/offline/OfflineImpl.java -text
-sigmah/src/main/java/org/sigmah/client/offline/OfflineManager.java -text
 sigmah/src/main/java/org/sigmah/client/offline/OfflineModule.java -text
 sigmah/src/main/java/org/sigmah/client/offline/OfflineStatus.java -text
 sigmah/src/main/java/org/sigmah/client/offline/command/LocalDispatcher.java -text
@@ -161,9 +160,11 @@ sigmah/src/main/java/org/sigmah/client/offline/install/InitialSyncStep.java -tex
 sigmah/src/main/java/org/sigmah/client/offline/install/InstallSteps.java -text
 sigmah/src/main/java/org/sigmah/client/offline/install/ShortcutStep.java -text
 sigmah/src/main/java/org/sigmah/client/offline/install/Step.java -text
+sigmah/src/main/java/org/sigmah/client/offline/sync/SyncStatusEvent.java -text
 sigmah/src/main/java/org/sigmah/client/offline/sync/Synchronizer.java -text
-sigmah/src/main/java/org/sigmah/client/offline/ui/OfflineMenu.java -text
+sigmah/src/main/java/org/sigmah/client/offline/ui/OfflinePresenter.java -text
 sigmah/src/main/java/org/sigmah/client/offline/ui/OfflineStatusWindow.java -text
+sigmah/src/main/java/org/sigmah/client/offline/ui/OfflineView.java -text
 sigmah/src/main/java/org/sigmah/client/page/DownloadManager.java -text
 sigmah/src/main/java/org/sigmah/client/page/Frame.java -text
 sigmah/src/main/java/org/sigmah/client/page/FrameId.java -text
