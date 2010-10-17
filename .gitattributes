@@ -147,6 +147,8 @@ sigmah/src/main/java/org/sigmah/client/offline/OfflineImpl.java -text
 sigmah/src/main/java/org/sigmah/client/offline/OfflineModule.java -text
 sigmah/src/main/java/org/sigmah/client/offline/OfflineStatus.java -text
 sigmah/src/main/java/org/sigmah/client/offline/command/LocalDispatcher.java -text
+sigmah/src/main/java/org/sigmah/client/offline/command/handler/LocalGetAdminEntitiesHandler.java -text
+sigmah/src/main/java/org/sigmah/client/offline/command/handler/LocalGetSchemaHandler.java -text
 sigmah/src/main/java/org/sigmah/client/offline/dao/ActivityLocalDAO.java -text
 sigmah/src/main/java/org/sigmah/client/offline/dao/AdminLocalDAO.java -text
 sigmah/src/main/java/org/sigmah/client/offline/dao/CountryLocalDAO.java -text
