@@ -1594,13 +1594,7 @@ sigmah/src/main/resources/template/page/InvalidInvite.ftl -text
 sigmah/src/main/resources/template/page/Login.ftl -text
 sigmah/src/test/java/org/sigmah/ExcludeSources.gwt.xml -text
 sigmah/src/test/java/org/sigmah/MockDb.java -text
-sigmah/src/test/java/org/sigmah/client/dao/AdminDAOTest.java -text
-sigmah/src/test/java/org/sigmah/client/dao/CountryDAOTest.java -text
 sigmah/src/test/java/org/sigmah/client/dao/DTOMapperTest.java -text
-sigmah/src/test/java/org/sigmah/client/dao/DaoTest.java -text
-sigmah/src/test/java/org/sigmah/client/dao/SchemaTest.java -text
-sigmah/src/test/java/org/sigmah/client/dao/SitesTest.java -text
-sigmah/src/test/java/org/sigmah/client/dao/UserDBTest.java -text
 sigmah/src/test/java/org/sigmah/client/db/UnitConnectionProvider.java -text
 sigmah/src/test/java/org/sigmah/client/dispatch/remote/CommandRequestTest.java -text
 sigmah/src/test/java/org/sigmah/client/dispatch/remote/RemoteDispatcherTest.java -text
@@ -1610,7 +1604,6 @@ sigmah/src/test/java/org/sigmah/client/mock/DispatcherStub.java -text
 sigmah/src/test/java/org/sigmah/client/mock/DummyData.java -text
 sigmah/src/test/java/org/sigmah/client/mock/JreCoordinateEditor.java -text
 sigmah/src/test/java/org/sigmah/client/mock/MockEventBus.java -text
-sigmah/src/test/java/org/sigmah/client/mock/MockJPAModule.java -text
 sigmah/src/test/java/org/sigmah/client/mock/MockPersistenceUnitFactory.java -text
 sigmah/src/test/java/org/sigmah/client/mock/MockRemoteCommandService.java -text
 sigmah/src/test/java/org/sigmah/client/mock/MockStateManager.java -text
