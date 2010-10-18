@@ -159,8 +159,9 @@ sigmah/src/main/java/org/sigmah/client/offline/install/Step.java -text
 sigmah/src/main/java/org/sigmah/client/offline/sync/SyncStatusEvent.java -text
 sigmah/src/main/java/org/sigmah/client/offline/sync/Synchronizer.java -text
 sigmah/src/main/java/org/sigmah/client/offline/ui/OfflinePresenter.java -text
-sigmah/src/main/java/org/sigmah/client/offline/ui/OfflineStatusWindow.java -text
 sigmah/src/main/java/org/sigmah/client/offline/ui/OfflineView.java -text
+sigmah/src/main/java/org/sigmah/client/offline/ui/ProgressDialog.java -text
+sigmah/src/main/java/org/sigmah/client/offline/ui/StatusWindow.java -text
 sigmah/src/main/java/org/sigmah/client/page/DownloadManager.java -text
 sigmah/src/main/java/org/sigmah/client/page/Frame.java -text
 sigmah/src/main/java/org/sigmah/client/page/FrameId.java -text
@@ -1604,6 +1605,7 @@ sigmah/src/test/java/org/sigmah/client/mock/MockRemoteCommandService.java -text
 sigmah/src/test/java/org/sigmah/client/mock/MockStateManager.java -text
 sigmah/src/test/java/org/sigmah/client/mock/NullAsyncCallback.java -text
 sigmah/src/test/java/org/sigmah/client/offline/command/handler/LocalGetSchemaHandlerIntTest.java -text
+sigmah/src/test/java/org/sigmah/client/offline/ui/OfflinePresenterTest.java -text
 sigmah/src/test/java/org/sigmah/client/page/NavigationHandlerTest.java -text
 sigmah/src/test/java/org/sigmah/client/page/config/DbListPresenterTest.java -text
 sigmah/src/test/java/org/sigmah/client/page/config/DbUserTest.java -text
