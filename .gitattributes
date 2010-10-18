@@ -1615,6 +1615,7 @@ sigmah/src/test/java/org/sigmah/client/mock/MockPersistenceUnitFactory.java -tex
 sigmah/src/test/java/org/sigmah/client/mock/MockRemoteCommandService.java -text
 sigmah/src/test/java/org/sigmah/client/mock/MockStateManager.java -text
 sigmah/src/test/java/org/sigmah/client/mock/NullAsyncCallback.java -text
+sigmah/src/test/java/org/sigmah/client/offline/command/handler/LocalGetSchemaHandlerIntTest.java -text
 sigmah/src/test/java/org/sigmah/client/page/NavigationHandlerTest.java -text
 sigmah/src/test/java/org/sigmah/client/page/config/DbListPresenterTest.java -text
 sigmah/src/test/java/org/sigmah/client/page/config/DbUserTest.java -text
@@ -1710,6 +1711,7 @@ sigmah/src/test/java/org/sigmah/server/schedule/ReportMailerIntegrationTest.java
 sigmah/src/test/java/org/sigmah/server/schedule/ReportMailerTest.java -text
 sigmah/src/test/java/org/sigmah/server/servlet/ExportIntegrationTest.java -text
 sigmah/src/test/java/org/sigmah/server/sync/SiteUpdateBuilderTest.java -text
+sigmah/src/test/java/org/sigmah/shared/command/handler/LocalHandlerTestCase.java -text
 sigmah/src/test/java/org/sigmah/test/AssertUtils.java -text
 sigmah/src/test/java/org/sigmah/test/ExitScope.java -text
 sigmah/src/test/java/org/sigmah/test/InjectionSupport.java -text
