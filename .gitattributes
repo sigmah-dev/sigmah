@@ -1046,6 +1046,7 @@ sigmah/src/main/java/org/sigmah/server/dao/BaseMapDAO.java -text
 sigmah/src/main/java/org/sigmah/server/dao/BaseMapFsDAO.java -text
 sigmah/src/main/java/org/sigmah/server/dao/LocationDAO.java -text
 sigmah/src/main/java/org/sigmah/server/dao/PartnerDAO.java -text
+sigmah/src/main/java/org/sigmah/server/dao/PersonalEventDAO.java -text
 sigmah/src/main/java/org/sigmah/server/dao/PivotDAO.java -text
 sigmah/src/main/java/org/sigmah/server/dao/ReportDefinitionDAO.java -text
 sigmah/src/main/java/org/sigmah/server/dao/ReportingPeriodDAO.java -text
@@ -1059,6 +1060,7 @@ sigmah/src/main/java/org/sigmah/server/dao/hibernate/HibernateDAOProvider.java -
 sigmah/src/main/java/org/sigmah/server/dao/hibernate/HibernateModule.java -text
 sigmah/src/main/java/org/sigmah/server/dao/hibernate/HibernateSiteTableDAO.java -text
 sigmah/src/main/java/org/sigmah/server/dao/hibernate/LocationHibernateDAO.java -text
+sigmah/src/main/java/org/sigmah/server/dao/hibernate/PersonalEventHibernateDAO.java -text
 sigmah/src/main/java/org/sigmah/server/dao/hibernate/PivotHibernateDAO.java -text
 sigmah/src/main/java/org/sigmah/server/dao/hibernate/ReportingPeriodHibernateDAO.java -text
 sigmah/src/main/java/org/sigmah/server/dao/hibernate/SQLDialectProvider.java -text
@@ -1150,6 +1152,7 @@ sigmah/src/main/java/org/sigmah/server/mail/MailSenderImpl.java -text
 sigmah/src/main/java/org/sigmah/server/mail/Mailer.java -text
 sigmah/src/main/java/org/sigmah/server/policy/ActivityPolicy.java -text
 sigmah/src/main/java/org/sigmah/server/policy/EntityPolicy.java -text
+sigmah/src/main/java/org/sigmah/server/policy/PersonalEventPolicy.java -text
 sigmah/src/main/java/org/sigmah/server/policy/ProjectPolicy.java -text
 sigmah/src/main/java/org/sigmah/server/policy/PropertyMap.java -text
 sigmah/src/main/java/org/sigmah/server/policy/SitePolicy.java -text
@@ -1408,6 +1411,7 @@ sigmah/src/main/java/org/sigmah/shared/domain/UserPermission.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/calendar/Calendar.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/calendar/CalendarType.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/calendar/Event.java -text
+sigmah/src/main/java/org/sigmah/shared/domain/calendar/PersonalCalendar.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/calendar/PersonalEvent.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/calendar/Todo.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/category/CategoryElement.java -text
