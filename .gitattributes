@@ -1152,7 +1152,6 @@ sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/UpdateReportDefHa
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/UpdateSubscriptionHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/UpdateUserPermissionsHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/calendar/CalendarHandler.java -text
-sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/calendar/DummyCalendarHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/calendar/PersonalCalendarHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/kml/KmlDataServlet.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/kml/KmlLinkServlet.java -text
@@ -1682,6 +1681,7 @@ sigmah/src/test/java/org/sigmah/server/dao/hibernate/TransactionalInterceptorTes
 sigmah/src/test/java/org/sigmah/server/dao/hibernate/UserDAOImplTest.java -text
 sigmah/src/test/java/org/sigmah/server/endpoint/gwtrpc/ActivityTest.java -text
 sigmah/src/test/java/org/sigmah/server/endpoint/gwtrpc/AttributeGroupTest.java -text
+sigmah/src/test/java/org/sigmah/server/endpoint/gwtrpc/CalendarTest.java -text
 sigmah/src/test/java/org/sigmah/server/endpoint/gwtrpc/CommandTestCase.java -text
 sigmah/src/test/java/org/sigmah/server/endpoint/gwtrpc/CountryNameOnlyBeanMappingTest.java -text
 sigmah/src/test/java/org/sigmah/server/endpoint/gwtrpc/CreateDatabaseTest.java -text
@@ -1701,6 +1701,7 @@ sigmah/src/test/java/org/sigmah/server/endpoint/gwtrpc/UpdateReportDefHandlerTes
 sigmah/src/test/java/org/sigmah/server/endpoint/gwtrpc/UpdateSiteTest.java -text
 sigmah/src/test/java/org/sigmah/server/endpoint/gwtrpc/handler/GetAdminEntitiesHandlerTest.java -text
 sigmah/src/test/java/org/sigmah/server/endpoint/gwtrpc/handler/UpdateUserPermissionsHandlerTest.java -text
+sigmah/src/test/java/org/sigmah/server/endpoint/gwtrpc/handler/calendar/DummyCalendarHandler.java -text
 sigmah/src/test/java/org/sigmah/server/mail/InvitationMailerTest.java -text
 sigmah/src/test/java/org/sigmah/server/mail/MockMailSender.java -text
 sigmah/src/test/java/org/sigmah/server/mapping/AdminEntityMappingTest.java -text
@@ -1751,6 +1752,7 @@ sigmah/src/test/java/org/sigmah/test/TestScoped.java -text
 sigmah/src/test/resources/alpha.ppt -text
 sigmah/src/test/resources/dbunit/adminEntities.db.xml -text
 sigmah/src/test/resources/dbunit/authTest.db.xml -text
+sigmah/src/test/resources/dbunit/calendar.db.xml -text
 sigmah/src/test/resources/dbunit/client-sites-h2.db.xml -text
 sigmah/src/test/resources/dbunit/client-sites-simple1.db.xml -text
 sigmah/src/test/resources/dbunit/filter.db.xml -text
