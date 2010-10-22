@@ -1152,6 +1152,7 @@ sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/UpdateProjectHand
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/UpdateReportDefHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/UpdateSubscriptionHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/UpdateUserPermissionsHandler.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/calendar/ActivityCalendarHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/calendar/CalendarHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/calendar/PersonalCalendarHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/kml/KmlDataServlet.java -text
@@ -1425,6 +1426,7 @@ sigmah/src/main/java/org/sigmah/shared/domain/Site.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/User.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/UserDatabase.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/UserPermission.java -text
+sigmah/src/main/java/org/sigmah/shared/domain/calendar/ActivityCalendarIdentifier.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/calendar/Calendar.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/calendar/CalendarType.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/calendar/Event.java -text
