@@ -329,13 +329,14 @@ sigmah/src/main/java/org/sigmah/client/page/project/dashboard/ProjectDashboardVi
 sigmah/src/main/java/org/sigmah/client/page/project/dashboard/RequiredValueState.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/dashboard/RequiredValueStateList.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/logframe/CodePolicy.java -text
-sigmah/src/main/java/org/sigmah/client/page/project/logframe/ProjectLogFrameActionMenu.java -text
+sigmah/src/main/java/org/sigmah/client/page/project/logframe/ProjectLogFrameGrid.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/logframe/ProjectLogFramePresenter.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/logframe/ProjectLogFrameView.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/logframe/SelectWindow.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/logframe/grid/FlexTableView.java -text
+sigmah/src/main/java/org/sigmah/client/page/project/logframe/grid/FlexTableViewActionsMenu.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/logframe/grid/HTMLTableUtils.java -text
-sigmah/src/main/java/org/sigmah/client/page/project/logframe/grid/ProjectLogFrameGrid.java -text
+sigmah/src/main/java/org/sigmah/client/page/project/logframe/grid/MenuAction.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/logframe/grid/Row.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/logframe/grid/RowsGroup.java -text
 sigmah/src/main/java/org/sigmah/client/page/report/ReportListPagePresenter.java -text
