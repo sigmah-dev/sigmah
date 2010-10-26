@@ -316,12 +316,12 @@ sigmah/src/main/java/org/sigmah/client/page/map/MapPageState.java -text
 sigmah/src/main/java/org/sigmah/client/page/map/MapPresenter.java -text
 sigmah/src/main/java/org/sigmah/client/page/map/MapPreview.java -text
 sigmah/src/main/java/org/sigmah/client/page/map/SigmahMapLoader.java -text
-sigmah/src/main/java/org/sigmah/client/page/project/Presenter.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/ProjectModule.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/ProjectPageLoader.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/ProjectPresenter.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/ProjectState.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/ProjectView.java -text
+sigmah/src/main/java/org/sigmah/client/page/project/SubPresenter.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/calendar/ProjectCalendarPresenter.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/calendar/ProjectCalendarView.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/dashboard/ProjectDashboardPresenter.java -text
