@@ -71,6 +71,7 @@ sigmah/src/main/java/org/sigmah/client/icon/add.png -text
 sigmah/src/main/java/org/sigmah/client/icon/addActivity.png -text
 sigmah/src/main/java/org/sigmah/client/icon/addDatabase.png -text
 sigmah/src/main/java/org/sigmah/client/icon/addUser.png -text
+sigmah/src/main/java/org/sigmah/client/icon/attach.png -text
 sigmah/src/main/java/org/sigmah/client/icon/attribute.png -text
 sigmah/src/main/java/org/sigmah/client/icon/attributeGroup.png -text
 sigmah/src/main/java/org/sigmah/client/icon/barChart.png -text
@@ -111,6 +112,7 @@ sigmah/src/main/java/org/sigmah/client/icon/pieChart.png -text
 sigmah/src/main/java/org/sigmah/client/icon/ppt.png -text
 sigmah/src/main/java/org/sigmah/client/icon/printer.png -text
 sigmah/src/main/java/org/sigmah/client/icon/refresh.png -text
+sigmah/src/main/java/org/sigmah/client/icon/remove.png -text
 sigmah/src/main/java/org/sigmah/client/icon/report.png -text
 sigmah/src/main/java/org/sigmah/client/icon/report_edit.png -text
 sigmah/src/main/java/org/sigmah/client/icon/ruler.png -text
@@ -365,6 +367,7 @@ sigmah/src/main/java/org/sigmah/client/page/welcome/Welcome.java -text
 sigmah/src/main/java/org/sigmah/client/page/welcome/WelcomeLoader.java -text
 sigmah/src/main/java/org/sigmah/client/page/welcome/WelcomePageState.java -text
 sigmah/src/main/java/org/sigmah/client/report/DimensionStoreFactory.java -text
+sigmah/src/main/java/org/sigmah/client/ui/ButtonFileUploadField.java -text
 sigmah/src/main/java/org/sigmah/client/ui/CalendarWidget.java -text
 sigmah/src/main/java/org/sigmah/client/ui/ClickableFlowPanel.java -text
 sigmah/src/main/java/org/sigmah/client/ui/FlexibleGrid.java -text
