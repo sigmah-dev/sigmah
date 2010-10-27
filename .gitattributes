@@ -54,7 +54,6 @@ sigmah/src/main/java/org/sigmah/client/dispatch/remote/cache/AdminEntityCache.ja
 sigmah/src/main/java/org/sigmah/client/dispatch/remote/cache/DefaultDispatchListener.java -text
 sigmah/src/main/java/org/sigmah/client/dispatch/remote/cache/ProxyResult.java -text
 sigmah/src/main/java/org/sigmah/client/dispatch/remote/cache/SchemaCache.java -text
-sigmah/src/main/java/org/sigmah/client/dto/ClientDTOMapper.java -text
 sigmah/src/main/java/org/sigmah/client/event/DownloadRequestEvent.java -text
 sigmah/src/main/java/org/sigmah/client/event/NavigationEvent.java -text
 sigmah/src/main/java/org/sigmah/client/event/PivotCellEvent.java -text
@@ -143,7 +142,6 @@ sigmah/src/main/java/org/sigmah/client/map/MapTypeFactory.java -text
 sigmah/src/main/java/org/sigmah/client/map/RgcTileLayer.java -text
 sigmah/src/main/java/org/sigmah/client/map/package-info.java -text
 sigmah/src/main/java/org/sigmah/client/offline/DatabaseStateProvider.java -text
-sigmah/src/main/java/org/sigmah/client/offline/LocalConnectionProvider.java -text
 sigmah/src/main/java/org/sigmah/client/offline/OfflineGateway.java -text
 sigmah/src/main/java/org/sigmah/client/offline/OfflineImpl.java -text
 sigmah/src/main/java/org/sigmah/client/offline/OfflineModule.java -text
@@ -1392,7 +1390,6 @@ sigmah/src/main/java/org/sigmah/shared/dao/UserDatabaseDAO.java -text
 sigmah/src/main/java/org/sigmah/shared/dao/UserPermissionDAO.java -text
 sigmah/src/main/java/org/sigmah/shared/date/DateUtil.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/Activity.java -text
-sigmah/src/main/java/org/sigmah/shared/domain/ActivityInfoOfflineUnit.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/AdminEntity.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/AdminLevel.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/Attribute.java -text
@@ -1629,7 +1626,6 @@ sigmah/src/main/resources/template/page/InvalidInvite.ftl -text
 sigmah/src/main/resources/template/page/Login.ftl -text
 sigmah/src/test/java/org/sigmah/ExcludeSources.gwt.xml -text
 sigmah/src/test/java/org/sigmah/MockDb.java -text
-sigmah/src/test/java/org/sigmah/client/dao/DTOMapperTest.java -text
 sigmah/src/test/java/org/sigmah/client/db/UnitConnectionProvider.java -text
 sigmah/src/test/java/org/sigmah/client/dispatch/remote/CommandRequestTest.java -text
 sigmah/src/test/java/org/sigmah/client/dispatch/remote/RemoteDispatcherTest.java -text
@@ -1639,7 +1635,6 @@ sigmah/src/test/java/org/sigmah/client/mock/DispatcherStub.java -text
 sigmah/src/test/java/org/sigmah/client/mock/DummyData.java -text
 sigmah/src/test/java/org/sigmah/client/mock/JreCoordinateEditor.java -text
 sigmah/src/test/java/org/sigmah/client/mock/MockEventBus.java -text
-sigmah/src/test/java/org/sigmah/client/mock/MockPersistenceUnitFactory.java -text
 sigmah/src/test/java/org/sigmah/client/mock/MockRemoteCommandService.java -text
 sigmah/src/test/java/org/sigmah/client/mock/MockStateManager.java -text
 sigmah/src/test/java/org/sigmah/client/mock/NullAsyncCallback.java -text
