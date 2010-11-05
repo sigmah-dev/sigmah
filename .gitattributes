@@ -1423,8 +1423,6 @@ sigmah/src/main/java/org/sigmah/shared/domain/Project.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/ProjectBanner.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/ProjectDetails.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/ProjectModel.java -text
-sigmah/src/main/java/org/sigmah/shared/domain/QualityCriterion.java -text
-sigmah/src/main/java/org/sigmah/shared/domain/QualityFramework.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/Report.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/ReportingPeriod.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/SchemaElement.java -text
@@ -1462,6 +1460,8 @@ sigmah/src/main/java/org/sigmah/shared/domain/logframe/LogFrameGroupType.java -t
 sigmah/src/main/java/org/sigmah/shared/domain/logframe/LogFrameModel.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/logframe/Prerequisite.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/logframe/SpecificObjective.java -text
+sigmah/src/main/java/org/sigmah/shared/domain/quality/QualityCriterion.java -text
+sigmah/src/main/java/org/sigmah/shared/domain/quality/QualityFramework.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/value/Budget.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/value/BudgetPart.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/value/BudgetPartsListValue.java -text
@@ -1533,6 +1533,7 @@ sigmah/src/main/java/org/sigmah/shared/dto/logframe/LogFrameModelDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/logframe/PrerequisiteDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/logframe/SpecificObjectiveDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/package-info.java -text
+sigmah/src/main/java/org/sigmah/shared/dto/quality/QualityCriterionDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/value/BudgetPartsListValueDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/value/FileDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/value/FileUploadUtils.java -text
