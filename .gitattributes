@@ -75,6 +75,10 @@ sigmah/src/main/java/org/sigmah/client/icon/attach.png -text
 sigmah/src/main/java/org/sigmah/client/icon/attribute.png -text
 sigmah/src/main/java/org/sigmah/client/icon/attributeGroup.png -text
 sigmah/src/main/java/org/sigmah/client/icon/barChart.png -text
+sigmah/src/main/java/org/sigmah/client/icon/bullet_green.png -text
+sigmah/src/main/java/org/sigmah/client/icon/bullet_red.png -text
+sigmah/src/main/java/org/sigmah/client/icon/bullet_star_black.png -text
+sigmah/src/main/java/org/sigmah/client/icon/bullet_star_new.png -text
 sigmah/src/main/java/org/sigmah/client/icon/cancel.png -text
 sigmah/src/main/java/org/sigmah/client/icon/checked.png -text
 sigmah/src/main/java/org/sigmah/client/icon/curveChart.png -text
@@ -993,6 +997,8 @@ sigmah/src/main/java/org/sigmah/public/image/bar-top-left.png -text
 sigmah/src/main/java/org/sigmah/public/image/bg-grey.jpg -text
 sigmah/src/main/java/org/sigmah/public/image/bg-logo.jpg -text
 sigmah/src/main/java/org/sigmah/public/image/bg-name.jpg -text
+sigmah/src/main/java/org/sigmah/public/image/bullet_star.png -text
+sigmah/src/main/java/org/sigmah/public/image/bullet_star_black.png -text
 sigmah/src/main/java/org/sigmah/public/image/close.png -text
 sigmah/src/main/java/org/sigmah/public/image/deconnexion.png -text
 sigmah/src/main/java/org/sigmah/public/image/filter.png -text
