@@ -1418,6 +1418,7 @@ sigmah/src/main/java/org/sigmah/shared/domain/OrgUnit.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/Organization.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/Phase.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/PhaseModel.java -text
+sigmah/src/main/java/org/sigmah/shared/domain/PhaseModelDefinition.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/PrivacyLevel.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/Project.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/ProjectBanner.java -text
@@ -1492,6 +1493,7 @@ sigmah/src/main/java/org/sigmah/shared/dto/OrganizationDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/PartnerDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/PhaseDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/PhaseModelDTO.java -text
+sigmah/src/main/java/org/sigmah/shared/dto/PhaseModelDefinitionDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/ProjectBannerDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/ProjectDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/ProjectDetailsDTO.java -text
