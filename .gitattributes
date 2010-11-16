@@ -1481,6 +1481,7 @@ sigmah/src/main/java/org/sigmah/shared/domain/logframe/LogFrameGroupType.java -t
 sigmah/src/main/java/org/sigmah/shared/domain/logframe/LogFrameModel.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/logframe/Prerequisite.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/logframe/SpecificObjective.java -text
+sigmah/src/main/java/org/sigmah/shared/domain/quality/CriterionType.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/quality/QualityCriterion.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/quality/QualityFramework.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/value/Budget.java -text
@@ -1558,7 +1559,9 @@ sigmah/src/main/java/org/sigmah/shared/dto/logframe/LogFrameModelDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/logframe/PrerequisiteDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/logframe/SpecificObjectiveDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/package-info.java -text
+sigmah/src/main/java/org/sigmah/shared/dto/quality/CriterionTypeDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/quality/QualityCriterionDTO.java -text
+sigmah/src/main/java/org/sigmah/shared/dto/quality/QualityFrameworkDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/value/BudgetPartsListValueDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/value/FileDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/value/FileUploadUtils.java -text
