@@ -322,6 +322,7 @@ sigmah/src/main/java/org/sigmah/client/page/map/MapPageState.java -text
 sigmah/src/main/java/org/sigmah/client/page/map/MapPresenter.java -text
 sigmah/src/main/java/org/sigmah/client/page/map/MapPreview.java -text
 sigmah/src/main/java/org/sigmah/client/page/map/SigmahMapLoader.java -text
+sigmah/src/main/java/org/sigmah/client/page/project/DummyPresenter.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/ProjectModule.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/ProjectPageLoader.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/ProjectPresenter.java -text
@@ -359,6 +360,23 @@ sigmah/src/main/java/org/sigmah/client/page/project/logframe/grid/HTMLTableUtils
 sigmah/src/main/java/org/sigmah/client/page/project/logframe/grid/MenuAction.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/logframe/grid/Row.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/logframe/grid/RowsGroup.java -text
+sigmah/src/main/java/org/sigmah/client/page/project/reports/ProjectReportsPresenter.java -text
+sigmah/src/main/java/org/sigmah/client/page/project/reports/ProjectReportsView.java -text
+sigmah/src/main/java/org/sigmah/client/page/project/reports/images/ToolbarImages.java -text
+sigmah/src/main/java/org/sigmah/client/page/project/reports/images/image_add.png -text
+sigmah/src/main/java/org/sigmah/client/page/project/reports/images/text_align_center.png -text
+sigmah/src/main/java/org/sigmah/client/page/project/reports/images/text_align_justify.png -text
+sigmah/src/main/java/org/sigmah/client/page/project/reports/images/text_align_left.png -text
+sigmah/src/main/java/org/sigmah/client/page/project/reports/images/text_align_right.png -text
+sigmah/src/main/java/org/sigmah/client/page/project/reports/images/text_bold.png -text
+sigmah/src/main/java/org/sigmah/client/page/project/reports/images/text_horizontalrule.png -text
+sigmah/src/main/java/org/sigmah/client/page/project/reports/images/text_italic.png -text
+sigmah/src/main/java/org/sigmah/client/page/project/reports/images/text_list_bullets.png -text
+sigmah/src/main/java/org/sigmah/client/page/project/reports/images/text_list_numbers.png -text
+sigmah/src/main/java/org/sigmah/client/page/project/reports/images/text_strikethrough.png -text
+sigmah/src/main/java/org/sigmah/client/page/project/reports/images/text_subscript.png -text
+sigmah/src/main/java/org/sigmah/client/page/project/reports/images/text_superscript.png -text
+sigmah/src/main/java/org/sigmah/client/page/project/reports/images/text_underline.png -text
 sigmah/src/main/java/org/sigmah/client/page/report/ReportListPagePresenter.java -text
 sigmah/src/main/java/org/sigmah/client/page/report/ReportListPageState.java -text
 sigmah/src/main/java/org/sigmah/client/page/report/ReportListPageView.java -text
@@ -391,6 +409,7 @@ sigmah/src/main/java/org/sigmah/client/ui/ButtonFileUploadField.java -text
 sigmah/src/main/java/org/sigmah/client/ui/CalendarWidget.java -text
 sigmah/src/main/java/org/sigmah/client/ui/ClickableFlowPanel.java -text
 sigmah/src/main/java/org/sigmah/client/ui/FlexibleGrid.java -text
+sigmah/src/main/java/org/sigmah/client/ui/FoldPanel.java -text
 sigmah/src/main/java/org/sigmah/client/ui/SigmahTheme.java -text
 sigmah/src/main/java/org/sigmah/client/ui/SigmahViewport.java -text
 sigmah/src/main/java/org/sigmah/client/ui/StylableHBoxLayout.java -text
@@ -1086,6 +1105,7 @@ sigmah/src/main/java/org/sigmah/server/dao/LocationDAO.java -text
 sigmah/src/main/java/org/sigmah/server/dao/PartnerDAO.java -text
 sigmah/src/main/java/org/sigmah/server/dao/PersonalEventDAO.java -text
 sigmah/src/main/java/org/sigmah/server/dao/PivotDAO.java -text
+sigmah/src/main/java/org/sigmah/server/dao/ProjectReportDAO.java -text
 sigmah/src/main/java/org/sigmah/server/dao/ReportDefinitionDAO.java -text
 sigmah/src/main/java/org/sigmah/server/dao/ReportingPeriodDAO.java -text
 sigmah/src/main/java/org/sigmah/server/dao/SiteDAO.java -text
@@ -1100,6 +1120,7 @@ sigmah/src/main/java/org/sigmah/server/dao/hibernate/HibernateSiteTableDAO.java 
 sigmah/src/main/java/org/sigmah/server/dao/hibernate/LocationHibernateDAO.java -text
 sigmah/src/main/java/org/sigmah/server/dao/hibernate/PersonalEventHibernateDAO.java -text
 sigmah/src/main/java/org/sigmah/server/dao/hibernate/PivotHibernateDAO.java -text
+sigmah/src/main/java/org/sigmah/server/dao/hibernate/ProjectReportHibernateDAO.java -text
 sigmah/src/main/java/org/sigmah/server/dao/hibernate/ReportingPeriodHibernateDAO.java -text
 sigmah/src/main/java/org/sigmah/server/dao/hibernate/SQLDialectProvider.java -text
 sigmah/src/main/java/org/sigmah/server/dao/hibernate/SiteHibernateDAO.java -text
@@ -1157,6 +1178,8 @@ sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetMonthlyReports
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetOrganizationHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetProjectHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetProjectModelsHandler.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetProjectReportHandler.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetProjectReportsHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetProjectsHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetReportDefHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetReportTemplatesHandler.java -text
@@ -1195,6 +1218,7 @@ sigmah/src/main/java/org/sigmah/server/policy/ActivityPolicy.java -text
 sigmah/src/main/java/org/sigmah/server/policy/EntityPolicy.java -text
 sigmah/src/main/java/org/sigmah/server/policy/PersonalEventPolicy.java -text
 sigmah/src/main/java/org/sigmah/server/policy/ProjectPolicy.java -text
+sigmah/src/main/java/org/sigmah/server/policy/ProjectReportPolicy.java -text
 sigmah/src/main/java/org/sigmah/server/policy/PropertyMap.java -text
 sigmah/src/main/java/org/sigmah/server/policy/SitePolicy.java -text
 sigmah/src/main/java/org/sigmah/server/policy/UserDatabasePolicy.java -text
@@ -1340,6 +1364,8 @@ sigmah/src/main/java/org/sigmah/shared/command/GetMonthlyReports.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetOrganization.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetProject.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetProjectModels.java -text
+sigmah/src/main/java/org/sigmah/shared/command/GetProjectReport.java -text
+sigmah/src/main/java/org/sigmah/shared/command/GetProjectReports.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetProjects.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetReportDef.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetReportTemplates.java -text
@@ -1384,6 +1410,7 @@ sigmah/src/main/java/org/sigmah/shared/command/result/MonthlyReportResult.java -
 sigmah/src/main/java/org/sigmah/shared/command/result/PagingResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/ProjectListResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/ProjectModelListResult.java -text
+sigmah/src/main/java/org/sigmah/shared/command/result/ProjectReportListResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/RenderResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/ReportTemplateResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/SingleResult.java -text
@@ -1484,6 +1511,10 @@ sigmah/src/main/java/org/sigmah/shared/domain/logframe/SpecificObjective.java -t
 sigmah/src/main/java/org/sigmah/shared/domain/quality/CriterionType.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/quality/QualityCriterion.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/quality/QualityFramework.java -text
+sigmah/src/main/java/org/sigmah/shared/domain/report/ProjectReport.java -text
+sigmah/src/main/java/org/sigmah/shared/domain/report/ProjectReportModel.java -text
+sigmah/src/main/java/org/sigmah/shared/domain/report/ProjectReportModelSection.java -text
+sigmah/src/main/java/org/sigmah/shared/domain/report/RichTextElement.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/value/Budget.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/value/BudgetPart.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/value/BudgetPartsListValue.java -text
@@ -1562,6 +1593,9 @@ sigmah/src/main/java/org/sigmah/shared/dto/package-info.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/quality/CriterionTypeDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/quality/QualityCriterionDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/quality/QualityFrameworkDTO.java -text
+sigmah/src/main/java/org/sigmah/shared/dto/report/ProjectReportDTO.java -text
+sigmah/src/main/java/org/sigmah/shared/dto/report/ProjectReportSectionDTO.java -text
+sigmah/src/main/java/org/sigmah/shared/dto/report/RichTextElementDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/value/BudgetPartsListValueDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/value/FileDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/value/FileUploadUtils.java -text
