@@ -1179,6 +1179,7 @@ sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetOrganizationHa
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetProjectHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetProjectModelsHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetProjectReportHandler.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetProjectReportModelsHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetProjectReportsHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetProjectsHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetReportDefHandler.java -text
@@ -1365,6 +1366,7 @@ sigmah/src/main/java/org/sigmah/shared/command/GetOrganization.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetProject.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetProjectModels.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetProjectReport.java -text
+sigmah/src/main/java/org/sigmah/shared/command/GetProjectReportModels.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetProjectReports.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetProjects.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetReportDef.java -text
@@ -1411,6 +1413,7 @@ sigmah/src/main/java/org/sigmah/shared/command/result/PagingResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/ProjectListResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/ProjectModelListResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/ProjectReportListResult.java -text
+sigmah/src/main/java/org/sigmah/shared/command/result/ProjectReportModelListResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/RenderResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/ReportTemplateResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/SingleResult.java -text
