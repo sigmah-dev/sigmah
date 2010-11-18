@@ -1492,6 +1492,8 @@ sigmah/src/main/java/org/sigmah/shared/domain/category/CategoryElement.java -tex
 sigmah/src/main/java/org/sigmah/shared/domain/category/CategoryType.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/element/BudgetDistributionElement.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/element/CheckboxElement.java -text
+sigmah/src/main/java/org/sigmah/shared/domain/element/DefaultFlexibleElement.java -text
+sigmah/src/main/java/org/sigmah/shared/domain/element/DefaultFlexibleElementType.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/element/FilesListElement.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/element/FlexibleElement.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/element/IndicatorsListElement.java -text
@@ -1568,6 +1570,7 @@ sigmah/src/main/java/org/sigmah/shared/dto/category/CategoryElementDTO.java -tex
 sigmah/src/main/java/org/sigmah/shared/dto/category/CategoryTypeDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/element/BudgetDistributionElementDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/element/CheckboxElementDTO.java -text
+sigmah/src/main/java/org/sigmah/shared/dto/element/DefaultFlexibleElementDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/element/FilesListElementDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/element/FlexibleElementDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/element/FlexibleElementType.java -text
@@ -1577,6 +1580,7 @@ sigmah/src/main/java/org/sigmah/shared/dto/element/QuestionChoiceElementDTO.java
 sigmah/src/main/java/org/sigmah/shared/dto/element/QuestionElementDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/element/TextAreaElementDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/element/TripletsListElementDTO.java -text
+sigmah/src/main/java/org/sigmah/shared/dto/element/handler/GWTImmortalEvent.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/element/handler/RequiredValueEvent.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/element/handler/RequiredValueHandler.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/element/handler/ValueEvent.java -text
