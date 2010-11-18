@@ -349,6 +349,8 @@ sigmah/src/main/java/org/sigmah/client/page/project/dashboard/funding/partner.pn
 sigmah/src/main/java/org/sigmah/client/page/project/dashboard/funding/partner2.png -text
 sigmah/src/main/java/org/sigmah/client/page/project/dashboard/funding/partner3.png -text
 sigmah/src/main/java/org/sigmah/client/page/project/dashboard/funding/partner4.png -text
+sigmah/src/main/java/org/sigmah/client/page/project/details/ProjectDetailsPresenter.java -text
+sigmah/src/main/java/org/sigmah/client/page/project/details/ProjectDetailsView.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/logframe/CodePolicy.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/logframe/FormWindow.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/logframe/ProjectLogFrameGrid.java -text
