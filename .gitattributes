@@ -112,6 +112,7 @@ sigmah/src/main/java/org/sigmah/client/icon/offline.png -text
 sigmah/src/main/java/org/sigmah/client/icon/onlineSynced.png -text
 sigmah/src/main/java/org/sigmah/client/icon/onlineSyncing.png -text
 sigmah/src/main/java/org/sigmah/client/icon/package-info.java -text
+sigmah/src/main/java/org/sigmah/client/icon/page_edit.png -text
 sigmah/src/main/java/org/sigmah/client/icon/pdf.png -text
 sigmah/src/main/java/org/sigmah/client/icon/pieChart.png -text
 sigmah/src/main/java/org/sigmah/client/icon/ppt.png -text
@@ -356,11 +357,13 @@ sigmah/src/main/java/org/sigmah/client/page/project/logframe/FormWindow.java -te
 sigmah/src/main/java/org/sigmah/client/page/project/logframe/ProjectLogFrameGrid.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/logframe/ProjectLogFramePresenter.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/logframe/ProjectLogFrameView.java -text
+sigmah/src/main/java/org/sigmah/client/page/project/logframe/grid/ActionsMenu.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/logframe/grid/FlexTableView.java -text
-sigmah/src/main/java/org/sigmah/client/page/project/logframe/grid/FlexTableViewActionsMenu.java -text
+sigmah/src/main/java/org/sigmah/client/page/project/logframe/grid/GroupActionMenu.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/logframe/grid/HTMLTableUtils.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/logframe/grid/MenuAction.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/logframe/grid/Row.java -text
+sigmah/src/main/java/org/sigmah/client/page/project/logframe/grid/RowActionsMenu.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/logframe/grid/RowsGroup.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/reports/ProjectReportsPresenter.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/reports/ProjectReportsView.java -text
