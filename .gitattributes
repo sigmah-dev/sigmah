@@ -126,6 +126,7 @@ sigmah/src/main/java/org/sigmah/client/icon/save.png -text
 sigmah/src/main/java/org/sigmah/client/icon/save_all.png -text
 sigmah/src/main/java/org/sigmah/client/icon/sum.png -text
 sigmah/src/main/java/org/sigmah/client/icon/table.png -text
+sigmah/src/main/java/org/sigmah/client/icon/table_edit.png -text
 sigmah/src/main/java/org/sigmah/client/icon/unchecked.png -text
 sigmah/src/main/java/org/sigmah/client/icon/unmapped.png -text
 sigmah/src/main/java/org/sigmah/client/icon/up.png -text
