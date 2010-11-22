@@ -314,6 +314,7 @@ sigmah/src/main/java/org/sigmah/client/page/entry/editor/SiteFormLeash.java -tex
 sigmah/src/main/java/org/sigmah/client/page/entry/editor/SiteFormLoader.java -text
 sigmah/src/main/java/org/sigmah/client/page/entry/editor/SiteFormPage.java -text
 sigmah/src/main/java/org/sigmah/client/page/entry/editor/SiteFormPresenter.java -text
+sigmah/src/main/java/org/sigmah/client/page/login/LoginView.java -text
 sigmah/src/main/java/org/sigmah/client/page/map/BubbleLayerForm.java -text
 sigmah/src/main/java/org/sigmah/client/page/map/LayoutForm.java -text
 sigmah/src/main/java/org/sigmah/client/page/map/MapForm.java -text
@@ -1047,7 +1048,7 @@ sigmah/src/main/java/org/sigmah/public/image/default-logo.png -text
 sigmah/src/main/java/org/sigmah/public/image/filter.png -text
 sigmah/src/main/java/org/sigmah/public/image/gallery-over.gif -text
 sigmah/src/main/java/org/sigmah/public/image/grid3-hrow-2.gif -text
-sigmah/src/main/java/org/sigmah/public/image/logo.png -text
+sigmah/src/main/java/org/sigmah/public/image/login-logo.png -text
 sigmah/src/main/java/org/sigmah/public/image/mapped.gif -text
 sigmah/src/main/java/org/sigmah/public/image/mapped.png -text
 sigmah/src/main/java/org/sigmah/public/image/name.png -text
@@ -1086,6 +1087,7 @@ sigmah/src/main/java/org/sigmah/server/auth/AuthenticationModule.java -text
 sigmah/src/main/java/org/sigmah/server/auth/Authenticator.java -text
 sigmah/src/main/java/org/sigmah/server/auth/SecureSequenceGenerator.java -text
 sigmah/src/main/java/org/sigmah/server/auth/SecureTokenGenerator.java -text
+sigmah/src/main/java/org/sigmah/server/auth/SigmahAuthDictionaryServlet.java -text
 sigmah/src/main/java/org/sigmah/server/auth/impl/BCrypt.java -text
 sigmah/src/main/java/org/sigmah/server/auth/impl/DatabaseAuthenticator.java -text
 sigmah/src/main/java/org/sigmah/server/auth/impl/PasswordHelper.java -text
