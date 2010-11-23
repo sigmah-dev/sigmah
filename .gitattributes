@@ -428,6 +428,7 @@ sigmah/src/main/java/org/sigmah/client/ui/ToggleAnchor.java -text
 sigmah/src/main/java/org/sigmah/client/util/DateUtilGWTImpl.java -text
 sigmah/src/main/java/org/sigmah/client/util/NotImplementedMethod.java -text
 sigmah/src/main/java/org/sigmah/client/util/Notification.java -text
+sigmah/src/main/java/org/sigmah/client/util/NumberUtils.java -text
 sigmah/src/main/java/org/sigmah/client/util/SortInfoEqualityChecker.java -text
 sigmah/src/main/java/org/sigmah/client/util/state/GXTStateManager.java -text
 sigmah/src/main/java/org/sigmah/client/util/state/IStateManager.java -text
