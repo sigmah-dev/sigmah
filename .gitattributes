@@ -82,6 +82,7 @@ sigmah/src/main/java/org/sigmah/client/icon/bullet_star_new.png -text
 sigmah/src/main/java/org/sigmah/client/icon/cancel.png -text
 sigmah/src/main/java/org/sigmah/client/icon/checked.png -text
 sigmah/src/main/java/org/sigmah/client/icon/cog.png -text
+sigmah/src/main/java/org/sigmah/client/icon/collapse.png -text
 sigmah/src/main/java/org/sigmah/client/icon/curveChart.png -text
 sigmah/src/main/java/org/sigmah/client/icon/database.png -text
 sigmah/src/main/java/org/sigmah/client/icon/delete.png -text
@@ -94,6 +95,7 @@ sigmah/src/main/java/org/sigmah/client/icon/editDatabase.png -text
 sigmah/src/main/java/org/sigmah/client/icon/editPage.png -text
 sigmah/src/main/java/org/sigmah/client/icon/editUser.png -text
 sigmah/src/main/java/org/sigmah/client/icon/excel.png -text
+sigmah/src/main/java/org/sigmah/client/icon/expand.png -text
 sigmah/src/main/java/org/sigmah/client/icon/filter-check.png -text
 sigmah/src/main/java/org/sigmah/client/icon/filter-uncheck.png -text
 sigmah/src/main/java/org/sigmah/client/icon/filter.png -text
@@ -326,6 +328,20 @@ sigmah/src/main/java/org/sigmah/client/page/map/MapPageState.java -text
 sigmah/src/main/java/org/sigmah/client/page/map/MapPresenter.java -text
 sigmah/src/main/java/org/sigmah/client/page/map/MapPreview.java -text
 sigmah/src/main/java/org/sigmah/client/page/map/SigmahMapLoader.java -text
+sigmah/src/main/java/org/sigmah/client/page/orgunit/OrgUnitImageBundle.java -text
+sigmah/src/main/java/org/sigmah/client/page/orgunit/OrgUnitModule.java -text
+sigmah/src/main/java/org/sigmah/client/page/orgunit/OrgUnitPageLoader.java -text
+sigmah/src/main/java/org/sigmah/client/page/orgunit/OrgUnitPresenter.java -text
+sigmah/src/main/java/org/sigmah/client/page/orgunit/OrgUnitState.java -text
+sigmah/src/main/java/org/sigmah/client/page/orgunit/OrgUnitView.java -text
+sigmah/src/main/java/org/sigmah/client/page/orgunit/calendar/OrgUnitCalendarPresenter.java -text
+sigmah/src/main/java/org/sigmah/client/page/orgunit/dashboard/OrgUnitDashboardPresenter.java -text
+sigmah/src/main/java/org/sigmah/client/page/orgunit/dashboard/OrgUnitDashboardView.java -text
+sigmah/src/main/java/org/sigmah/client/page/orgunit/details/OrgUnitDetailsPresenter.java -text
+sigmah/src/main/java/org/sigmah/client/page/orgunit/details/OrgUnitDetailsView.java -text
+sigmah/src/main/java/org/sigmah/client/page/orgunit/orgunit.png -text
+sigmah/src/main/java/org/sigmah/client/page/orgunit/orgunit2.png -text
+sigmah/src/main/java/org/sigmah/client/page/orgunit/orgunit3.png -text
 sigmah/src/main/java/org/sigmah/client/page/project/DummyPresenter.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/ProjectModule.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/ProjectPageLoader.java -text
@@ -1188,6 +1204,7 @@ sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetCountriesHandl
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetInvitationListHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetMapIconsHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetMonthlyReportsHandler.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetOrgUnitHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetOrganizationHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetProjectHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetProjectModelsHandler.java -text
@@ -1375,6 +1392,7 @@ sigmah/src/main/java/org/sigmah/shared/command/GetInvitationList.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetListCommand.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetMapIcons.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetMonthlyReports.java -text
+sigmah/src/main/java/org/sigmah/shared/command/GetOrgUnit.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetOrganization.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetProject.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetProjectModels.java -text
@@ -1475,6 +1493,9 @@ sigmah/src/main/java/org/sigmah/shared/domain/Location.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/LocationType.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/Orderable.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/OrgUnit.java -text
+sigmah/src/main/java/org/sigmah/shared/domain/OrgUnitBanner.java -text
+sigmah/src/main/java/org/sigmah/shared/domain/OrgUnitDetails.java -text
+sigmah/src/main/java/org/sigmah/shared/domain/OrgUnitModel.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/Organization.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/Phase.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/PhaseModel.java -text
@@ -1559,6 +1580,11 @@ sigmah/src/main/java/org/sigmah/shared/dto/IndicatorGroup.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/IndicatorRowDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/LocationTypeDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/MapIconDTO.java -text
+sigmah/src/main/java/org/sigmah/shared/dto/OrgUnitBannerDTO.java -text
+sigmah/src/main/java/org/sigmah/shared/dto/OrgUnitDTO.java -text
+sigmah/src/main/java/org/sigmah/shared/dto/OrgUnitDTOLight.java -text
+sigmah/src/main/java/org/sigmah/shared/dto/OrgUnitDetailsDTO.java -text
+sigmah/src/main/java/org/sigmah/shared/dto/OrgUnitModelDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/OrganizationDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/PartnerDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/PhaseDTO.java -text
@@ -1583,8 +1609,10 @@ sigmah/src/main/java/org/sigmah/shared/dto/category/CategoryElementDTO.java -tex
 sigmah/src/main/java/org/sigmah/shared/dto/category/CategoryTypeDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/element/BudgetDistributionElementDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/element/CheckboxElementDTO.java -text
+sigmah/src/main/java/org/sigmah/shared/dto/element/DefaultFlexibleElementContainer.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/element/DefaultFlexibleElementDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/element/FilesListElementDTO.java -text
+sigmah/src/main/java/org/sigmah/shared/dto/element/FlexibleElementContainer.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/element/FlexibleElementDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/element/FlexibleElementType.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/element/IndicatorsListElementDTO.java -text
