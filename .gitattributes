@@ -384,6 +384,7 @@ sigmah/src/main/java/org/sigmah/client/page/project/logframe/grid/MenuAction.jav
 sigmah/src/main/java/org/sigmah/client/page/project/logframe/grid/Row.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/logframe/grid/RowActionsMenu.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/logframe/grid/RowsGroup.java -text
+sigmah/src/main/java/org/sigmah/client/page/project/reports/EditReportDialog.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/reports/ProjectReportsPresenter.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/reports/ProjectReportsView.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/reports/images/ToolbarImages.java -text
@@ -442,6 +443,7 @@ sigmah/src/main/java/org/sigmah/client/ui/Tab.java -text
 sigmah/src/main/java/org/sigmah/client/ui/TabBar.java -text
 sigmah/src/main/java/org/sigmah/client/ui/TabModel.java -text
 sigmah/src/main/java/org/sigmah/client/ui/ToggleAnchor.java -text
+sigmah/src/main/java/org/sigmah/client/ui/WidgetField.java -text
 sigmah/src/main/java/org/sigmah/client/util/DateUtilGWTImpl.java -text
 sigmah/src/main/java/org/sigmah/client/util/NotImplementedMethod.java -text
 sigmah/src/main/java/org/sigmah/client/util/Notification.java -text
@@ -1397,6 +1399,7 @@ sigmah/src/main/java/org/sigmah/shared/command/GetOrganization.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetProject.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetProjectModels.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetProjectReport.java -text
+sigmah/src/main/java/org/sigmah/shared/command/GetProjectReportModel.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetProjectReportModels.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetProjectReports.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetProjects.java -text
@@ -1534,6 +1537,7 @@ sigmah/src/main/java/org/sigmah/shared/domain/element/IndicatorsListElement.java
 sigmah/src/main/java/org/sigmah/shared/domain/element/MessageElement.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/element/QuestionChoiceElement.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/element/QuestionElement.java -text
+sigmah/src/main/java/org/sigmah/shared/domain/element/ReportElement.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/element/TextAreaElement.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/element/TripletsListElement.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/layout/Layout.java -text
@@ -1619,6 +1623,7 @@ sigmah/src/main/java/org/sigmah/shared/dto/element/IndicatorsListElementDTO.java
 sigmah/src/main/java/org/sigmah/shared/dto/element/MessageElementDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/element/QuestionChoiceElementDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/element/QuestionElementDTO.java -text
+sigmah/src/main/java/org/sigmah/shared/dto/element/ReportElementDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/element/TextAreaElementDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/element/TripletsListElementDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/element/handler/GWTImmortalEvent.java -text
