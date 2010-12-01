@@ -388,9 +388,14 @@ sigmah/src/main/java/org/sigmah/client/page/project/logframe/grid/Row.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/logframe/grid/RowActionsMenu.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/logframe/grid/RowsGroup.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/reports/EditReportDialog.java -text
+sigmah/src/main/java/org/sigmah/client/page/project/reports/KeyQuestionDialog.java -text
+sigmah/src/main/java/org/sigmah/client/page/project/reports/KeyQuestionState.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/reports/ProjectReportsPresenter.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/reports/ProjectReportsView.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/reports/images/ToolbarImages.java -text
+sigmah/src/main/java/org/sigmah/client/page/project/reports/images/compas.png -text
+sigmah/src/main/java/org/sigmah/client/page/project/reports/images/compas_green.png -text
+sigmah/src/main/java/org/sigmah/client/page/project/reports/images/compas_red.png -text
 sigmah/src/main/java/org/sigmah/client/page/project/reports/images/image_add.png -text
 sigmah/src/main/java/org/sigmah/client/page/project/reports/images/text_align_center.png -text
 sigmah/src/main/java/org/sigmah/client/page/project/reports/images/text_align_justify.png -text
@@ -1568,6 +1573,7 @@ sigmah/src/main/java/org/sigmah/shared/domain/quality/QualityCriterion.java -tex
 sigmah/src/main/java/org/sigmah/shared/domain/quality/QualityFramework.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/reminder/MonitoredPoint.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/reminder/MonitoredPointList.java -text
+sigmah/src/main/java/org/sigmah/shared/domain/report/KeyQuestion.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/report/ProjectReport.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/report/ProjectReportModel.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/report/ProjectReportModelSection.java -text
@@ -1663,6 +1669,7 @@ sigmah/src/main/java/org/sigmah/shared/dto/quality/QualityCriterionDTO.java -tex
 sigmah/src/main/java/org/sigmah/shared/dto/quality/QualityFrameworkDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/reminder/MonitoredPointDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/reminder/MonitoredPointListDTO.java -text
+sigmah/src/main/java/org/sigmah/shared/dto/report/KeyQuestionDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/report/ProjectReportDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/report/ProjectReportSectionDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/report/RichTextElementDTO.java -text
