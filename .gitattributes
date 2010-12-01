@@ -448,6 +448,7 @@ sigmah/src/main/java/org/sigmah/client/ui/TabModel.java -text
 sigmah/src/main/java/org/sigmah/client/ui/ToggleAnchor.java -text
 sigmah/src/main/java/org/sigmah/client/ui/WidgetField.java -text
 sigmah/src/main/java/org/sigmah/client/util/DateUtilGWTImpl.java -text
+sigmah/src/main/java/org/sigmah/client/util/DateUtils.java -text
 sigmah/src/main/java/org/sigmah/client/util/NotImplementedMethod.java -text
 sigmah/src/main/java/org/sigmah/client/util/Notification.java -text
 sigmah/src/main/java/org/sigmah/client/util/NumberUtils.java -text
@@ -1233,6 +1234,7 @@ sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/RenderElementHand
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/RenderReportHtmlHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/UpdateEntityHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/UpdateLogFrameHandler.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/UpdateMonitoredPointsHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/UpdateMonthlyReportsHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/UpdateProjectHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/UpdateReportDefHandler.java -text
@@ -1240,6 +1242,7 @@ sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/UpdateSubscriptio
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/UpdateUserPermissionsHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/calendar/ActivityCalendarHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/calendar/CalendarHandler.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/calendar/MonitoredPointCalendarHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/calendar/PersonalCalendarHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/kml/KmlDataServlet.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/kml/KmlLinkServlet.java -text
@@ -1429,6 +1432,7 @@ sigmah/src/main/java/org/sigmah/shared/command/RenderElement.java -text
 sigmah/src/main/java/org/sigmah/shared/command/RenderReportHtml.java -text
 sigmah/src/main/java/org/sigmah/shared/command/UpdateEntity.java -text
 sigmah/src/main/java/org/sigmah/shared/command/UpdateLogFrame.java -text
+sigmah/src/main/java/org/sigmah/shared/command/UpdateMonitoredPoints.java -text
 sigmah/src/main/java/org/sigmah/shared/command/UpdateMonthlyReports.java -text
 sigmah/src/main/java/org/sigmah/shared/command/UpdateProject.java -text
 sigmah/src/main/java/org/sigmah/shared/command/UpdateReportDef.java -text
@@ -1448,6 +1452,7 @@ sigmah/src/main/java/org/sigmah/shared/command/result/InvitationList.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/ListResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/LogFrameResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/MapIconResult.java -text
+sigmah/src/main/java/org/sigmah/shared/command/result/MonitoredPointsResultList.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/MonthlyReportResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/PagingResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/ProjectListResult.java -text
@@ -1528,6 +1533,7 @@ sigmah/src/main/java/org/sigmah/shared/domain/calendar/ActivityCalendarIdentifie
 sigmah/src/main/java/org/sigmah/shared/domain/calendar/Calendar.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/calendar/CalendarType.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/calendar/Event.java -text
+sigmah/src/main/java/org/sigmah/shared/domain/calendar/MonitoredPointCalendarIdentifier.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/calendar/PersonalCalendar.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/calendar/PersonalEvent.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/calendar/Todo.java -text
@@ -1560,6 +1566,8 @@ sigmah/src/main/java/org/sigmah/shared/domain/logframe/SpecificObjective.java -t
 sigmah/src/main/java/org/sigmah/shared/domain/quality/CriterionType.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/quality/QualityCriterion.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/quality/QualityFramework.java -text
+sigmah/src/main/java/org/sigmah/shared/domain/reminder/MonitoredPoint.java -text
+sigmah/src/main/java/org/sigmah/shared/domain/reminder/MonitoredPointList.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/report/ProjectReport.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/report/ProjectReportModel.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/report/ProjectReportModelSection.java -text
@@ -1653,6 +1661,8 @@ sigmah/src/main/java/org/sigmah/shared/dto/package-info.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/quality/CriterionTypeDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/quality/QualityCriterionDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/quality/QualityFrameworkDTO.java -text
+sigmah/src/main/java/org/sigmah/shared/dto/reminder/MonitoredPointDTO.java -text
+sigmah/src/main/java/org/sigmah/shared/dto/reminder/MonitoredPointListDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/report/ProjectReportDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/report/ProjectReportSectionDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/report/RichTextElementDTO.java -text
