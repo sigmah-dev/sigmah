@@ -1,6 +1,8 @@
 * text=auto !eol
 /COPYRIGHT.txt -text
 /LICENSE.txt -text
+doc/reports/Example-Ituri.pdf -text
+doc/reports/Example-Ituri.xml -text
 /pom.xml -text
 sigmah/pom.xml -text
 sigmah/release.properties -text
