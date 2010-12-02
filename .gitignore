@@ -1,5 +1,8 @@
 sigmah/src/main/java/org/sigmah/client/i18n/UIConstants.java
 sigmah/src/main/java/org/sigmah/client/i18n/UIMessages.java
+sigmah/war/ActivityInfo
+sigmah/war/Login
+sigmah/war/Sigmah
 sigmah/war/WEB-INF/classes
 sigmah/war/WEB-INF/lib
 sigmah/war/temp

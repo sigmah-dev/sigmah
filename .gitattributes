@@ -3,6 +3,7 @@
 /LICENSE.txt -text
 doc/reports/Example-Ituri.pdf -text
 doc/reports/Example-Ituri.xml -text
+doc/reports/reports.xsd -text
 /pom.xml -text
 sigmah/pom.xml -text
 sigmah/release.properties -text
@@ -1600,6 +1601,7 @@ sigmah/src/main/java/org/sigmah/shared/dto/BoundingBoxDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/CountryDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/DTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/DTOMapper.java -text
+sigmah/src/main/java/org/sigmah/shared/dto/DimensionFolder.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/EntityDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/IndicatorDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/IndicatorGroup.java -text
@@ -1690,6 +1692,7 @@ sigmah/src/main/java/org/sigmah/shared/exception/InvalidAuthTokenException.java 
 sigmah/src/main/java/org/sigmah/shared/exception/InvalidLoginException.java -text
 sigmah/src/main/java/org/sigmah/shared/exception/ParseException.java -text
 sigmah/src/main/java/org/sigmah/shared/exception/PartnerHasSitesException.java -text
+sigmah/src/main/java/org/sigmah/shared/exception/ReportModelException.java -text
 sigmah/src/main/java/org/sigmah/shared/exception/SchemaElementDeletedException.java -text
 sigmah/src/main/java/org/sigmah/shared/exception/UnexpectedCommandException.java -text
 sigmah/src/main/java/org/sigmah/shared/map/AbstractCoordinateEditor.java -text
@@ -1731,13 +1734,11 @@ sigmah/src/main/java/org/sigmah/shared/report/model/DateDimension.java -text
 sigmah/src/main/java/org/sigmah/shared/report/model/DateRange.java -text
 sigmah/src/main/java/org/sigmah/shared/report/model/DateUnit.java -text
 sigmah/src/main/java/org/sigmah/shared/report/model/Dimension.java -text
-sigmah/src/main/java/org/sigmah/shared/report/model/DimensionFolder.java -text
 sigmah/src/main/java/org/sigmah/shared/report/model/DimensionType.java -text
 sigmah/src/main/java/org/sigmah/shared/report/model/IconMapLayer.java -text
 sigmah/src/main/java/org/sigmah/shared/report/model/MapElement.java -text
 sigmah/src/main/java/org/sigmah/shared/report/model/MapIcon.java -text
 sigmah/src/main/java/org/sigmah/shared/report/model/MapLayer.java -text
-sigmah/src/main/java/org/sigmah/shared/report/model/ModelException.java -text
 sigmah/src/main/java/org/sigmah/shared/report/model/ObjectFactory.java -text
 sigmah/src/main/java/org/sigmah/shared/report/model/PivotChartElement.java -text
 sigmah/src/main/java/org/sigmah/shared/report/model/PivotElement.java -text
@@ -1745,7 +1746,7 @@ sigmah/src/main/java/org/sigmah/shared/report/model/PivotTableElement.java -text
 sigmah/src/main/java/org/sigmah/shared/report/model/Report.java -text
 sigmah/src/main/java/org/sigmah/shared/report/model/ReportElement.java -text
 sigmah/src/main/java/org/sigmah/shared/report/model/ReportFrequency.java -text
-sigmah/src/main/java/org/sigmah/shared/report/model/SortOrder.java -text
+sigmah/src/main/java/org/sigmah/shared/report/model/SortType.java -text
 sigmah/src/main/java/org/sigmah/shared/report/model/StaticElement.java -text
 sigmah/src/main/java/org/sigmah/shared/report/model/TableColumn.java -text
 sigmah/src/main/java/org/sigmah/shared/report/model/TableElement.java -text
