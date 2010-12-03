@@ -108,6 +108,7 @@ sigmah/src/main/java/org/sigmah/client/icon/group_add.png -text
 sigmah/src/main/java/org/sigmah/client/icon/group_delete.png -text
 sigmah/src/main/java/org/sigmah/client/icon/group_edit.png -text
 sigmah/src/main/java/org/sigmah/client/icon/gs.png -text
+sigmah/src/main/java/org/sigmah/client/icon/hourglass.png -text
 sigmah/src/main/java/org/sigmah/client/icon/image.png -text
 sigmah/src/main/java/org/sigmah/client/icon/information.png -text
 sigmah/src/main/java/org/sigmah/client/icon/key.png -text
@@ -446,6 +447,7 @@ sigmah/src/main/java/org/sigmah/client/ui/CalendarWidget.java -text
 sigmah/src/main/java/org/sigmah/client/ui/ClickableFlowPanel.java -text
 sigmah/src/main/java/org/sigmah/client/ui/FlexibleGrid.java -text
 sigmah/src/main/java/org/sigmah/client/ui/FoldPanel.java -text
+sigmah/src/main/java/org/sigmah/client/ui/HistoryWindow.java -text
 sigmah/src/main/java/org/sigmah/client/ui/SigmahTheme.java -text
 sigmah/src/main/java/org/sigmah/client/ui/SigmahViewport.java -text
 sigmah/src/main/java/org/sigmah/client/ui/StylableHBoxLayout.java -text
@@ -1218,6 +1220,7 @@ sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetAdminEntitiesH
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetBaseMapsHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetCalendarHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetCountriesHandler.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetHistoryHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetInvitationListHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetMapIconsHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetMonthlyReportsHandler.java -text
@@ -1407,6 +1410,7 @@ sigmah/src/main/java/org/sigmah/shared/command/GetAdminEntities.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetBaseMaps.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetCalendar.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetCountries.java -text
+sigmah/src/main/java/org/sigmah/shared/command/GetHistory.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetInvitationList.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetListCommand.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetMapIcons.java -text
@@ -1455,6 +1459,7 @@ sigmah/src/main/java/org/sigmah/shared/command/result/BatchResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/CommandResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/CountryResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/CreateResult.java -text
+sigmah/src/main/java/org/sigmah/shared/command/result/HistoryResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/HtmlResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/InvitationList.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/ListResult.java -text
@@ -1560,6 +1565,8 @@ sigmah/src/main/java/org/sigmah/shared/domain/element/QuestionElement.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/element/ReportElement.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/element/TextAreaElement.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/element/TripletsListElement.java -text
+sigmah/src/main/java/org/sigmah/shared/domain/history/Historable.java -text
+sigmah/src/main/java/org/sigmah/shared/domain/history/HistoryToken.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/layout/Layout.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/layout/LayoutConstraint.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/layout/LayoutGroup.java -text
@@ -1657,6 +1664,8 @@ sigmah/src/main/java/org/sigmah/shared/dto/element/handler/RequiredValueHandler.
 sigmah/src/main/java/org/sigmah/shared/dto/element/handler/ValueEvent.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/element/handler/ValueEventWrapper.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/element/handler/ValueHandler.java -text
+sigmah/src/main/java/org/sigmah/shared/dto/history/HistoryTokenDTO.java -text
+sigmah/src/main/java/org/sigmah/shared/dto/history/HistoryTokenManager.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/layout/LayoutConstraintDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/layout/LayoutDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/layout/LayoutGroupDTO.java -text
@@ -1683,6 +1692,7 @@ sigmah/src/main/java/org/sigmah/shared/dto/value/FileUploadUtils.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/value/FileVersionDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/value/IndicatorsListValueDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/value/ListEntityDTO.java -text
+sigmah/src/main/java/org/sigmah/shared/dto/value/ListableValue.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/value/TripletValueDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/value/ValueDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/exception/CommandException.java -text
