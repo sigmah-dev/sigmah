@@ -1683,6 +1683,7 @@ sigmah/src/main/java/org/sigmah/shared/dto/quality/QualityFrameworkDTO.java -tex
 sigmah/src/main/java/org/sigmah/shared/dto/reminder/MonitoredPointDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/reminder/MonitoredPointListDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/report/KeyQuestionDTO.java -text
+sigmah/src/main/java/org/sigmah/shared/dto/report/ProjectReportContent.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/report/ProjectReportDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/report/ProjectReportSectionDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/report/RichTextElementDTO.java -text
