@@ -459,6 +459,7 @@ sigmah/src/main/java/org/sigmah/client/ui/ToggleAnchor.java -text
 sigmah/src/main/java/org/sigmah/client/ui/WidgetField.java -text
 sigmah/src/main/java/org/sigmah/client/util/DateUtilGWTImpl.java -text
 sigmah/src/main/java/org/sigmah/client/util/DateUtils.java -text
+sigmah/src/main/java/org/sigmah/client/util/HistoryTokenText.java -text
 sigmah/src/main/java/org/sigmah/client/util/NotImplementedMethod.java -text
 sigmah/src/main/java/org/sigmah/client/util/Notification.java -text
 sigmah/src/main/java/org/sigmah/client/util/NumberUtils.java -text
@@ -1665,6 +1666,7 @@ sigmah/src/main/java/org/sigmah/shared/dto/element/handler/ValueEvent.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/element/handler/ValueEventWrapper.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/element/handler/ValueHandler.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/history/HistoryTokenDTO.java -text
+sigmah/src/main/java/org/sigmah/shared/dto/history/HistoryTokenListDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/history/HistoryTokenManager.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/layout/LayoutConstraintDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/layout/LayoutDTO.java -text
