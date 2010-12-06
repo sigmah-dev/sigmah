@@ -17,6 +17,7 @@ sigmah/src/main/java/org/sigmah/Sigmah.gwt.xml -text
 sigmah/src/main/java/org/sigmah/SigmahSoyc.gwt.xml -text
 sigmah/src/main/java/org/sigmah/client/ActivityInfoEntryPoint.java -text
 sigmah/src/main/java/org/sigmah/client/AppEvents.java -text
+sigmah/src/main/java/org/sigmah/client/CountriesList.java -text
 sigmah/src/main/java/org/sigmah/client/EventBus.java -text
 sigmah/src/main/java/org/sigmah/client/HistoryManager.java -text
 sigmah/src/main/java/org/sigmah/client/LoggingEventBus.java -text
