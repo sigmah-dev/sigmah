@@ -450,6 +450,7 @@ sigmah/src/main/java/org/sigmah/client/ui/ClickableFlowPanel.java -text
 sigmah/src/main/java/org/sigmah/client/ui/FlexibleGrid.java -text
 sigmah/src/main/java/org/sigmah/client/ui/FoldPanel.java -text
 sigmah/src/main/java/org/sigmah/client/ui/HistoryWindow.java -text
+sigmah/src/main/java/org/sigmah/client/ui/RatioBar.java -text
 sigmah/src/main/java/org/sigmah/client/ui/SigmahTheme.java -text
 sigmah/src/main/java/org/sigmah/client/ui/SigmahViewport.java -text
 sigmah/src/main/java/org/sigmah/client/ui/StylableHBoxLayout.java -text
