@@ -392,7 +392,9 @@ sigmah/src/main/java/org/sigmah/client/page/project/logframe/grid/MenuAction.jav
 sigmah/src/main/java/org/sigmah/client/page/project/logframe/grid/Row.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/logframe/grid/RowActionsMenu.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/logframe/grid/RowsGroup.java -text
-sigmah/src/main/java/org/sigmah/client/page/project/reports/AttachDocumentMenu.java -text
+sigmah/src/main/java/org/sigmah/client/page/project/reports/AttachFileHandler.java -text
+sigmah/src/main/java/org/sigmah/client/page/project/reports/AttachMenuBuilder.java -text
+sigmah/src/main/java/org/sigmah/client/page/project/reports/AttachReportHandler.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/reports/EditReportDialog.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/reports/KeyQuestionDialog.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/reports/KeyQuestionState.java -text
