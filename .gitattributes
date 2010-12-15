@@ -124,6 +124,9 @@ sigmah/src/main/java/org/sigmah/client/icon/package-info.java -text
 sigmah/src/main/java/org/sigmah/client/icon/page_edit.png -text
 sigmah/src/main/java/org/sigmah/client/icon/pdf.png -text
 sigmah/src/main/java/org/sigmah/client/icon/pieChart.png -text
+sigmah/src/main/java/org/sigmah/client/icon/points1.png -text
+sigmah/src/main/java/org/sigmah/client/icon/points2.png -text
+sigmah/src/main/java/org/sigmah/client/icon/points3.png -text
 sigmah/src/main/java/org/sigmah/client/icon/ppt.png -text
 sigmah/src/main/java/org/sigmah/client/icon/printer.png -text
 sigmah/src/main/java/org/sigmah/client/icon/refresh.png -text
