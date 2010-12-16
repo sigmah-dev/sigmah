@@ -362,6 +362,14 @@ sigmah/src/main/java/org/sigmah/client/page/project/ProjectView.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/SubPresenter.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/calendar/ProjectCalendarPresenter.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/calendar/ProjectCalendarView.java -text
+sigmah/src/main/java/org/sigmah/client/page/project/category/CategoryIconProvider.java -text
+sigmah/src/main/java/org/sigmah/client/page/project/category/CategoryImageBundle.java -text
+sigmah/src/main/java/org/sigmah/client/page/project/category/circle.png -text
+sigmah/src/main/java/org/sigmah/client/page/project/category/cross.png -text
+sigmah/src/main/java/org/sigmah/client/page/project/category/diamond.png -text
+sigmah/src/main/java/org/sigmah/client/page/project/category/square.png -text
+sigmah/src/main/java/org/sigmah/client/page/project/category/star.png -text
+sigmah/src/main/java/org/sigmah/client/page/project/category/triangle.png -text
 sigmah/src/main/java/org/sigmah/client/page/project/dashboard/ProjectDashboardPresenter.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/dashboard/ProjectDashboardView.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/dashboard/RequiredValueState.java -text
@@ -1567,6 +1575,7 @@ sigmah/src/main/java/org/sigmah/shared/domain/calendar/PersonalCalendar.java -te
 sigmah/src/main/java/org/sigmah/shared/domain/calendar/PersonalEvent.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/calendar/Todo.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/category/CategoryElement.java -text
+sigmah/src/main/java/org/sigmah/shared/domain/category/CategoryIcon.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/category/CategoryType.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/element/BudgetDistributionElement.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/element/CheckboxElement.java -text
