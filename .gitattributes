@@ -27,6 +27,7 @@ sigmah/src/main/java/org/sigmah/client/SigmahInjector.java -text
 sigmah/src/main/java/org/sigmah/client/SigmahModule.java -text
 sigmah/src/main/java/org/sigmah/client/UsageTracker.java -text
 sigmah/src/main/java/org/sigmah/client/UserInfo.java -text
+sigmah/src/main/java/org/sigmah/client/dispatch/AsyncCallbacks.java -text
 sigmah/src/main/java/org/sigmah/client/dispatch/AsyncMonitor.java -text
 sigmah/src/main/java/org/sigmah/client/dispatch/CommandProxy.java -text
 sigmah/src/main/java/org/sigmah/client/dispatch/DispatchEventSource.java -text
@@ -1266,7 +1267,9 @@ sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetUserInfoHandle
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetUsersHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetValueHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/HandlerUtil.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/PromoteProjectReportDraftHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/RemovePartnerHandler.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/RemoveProjectReportDraftHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/RenderElementHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/RenderReportHtmlHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/UpdateEntityHandler.java -text
@@ -1466,9 +1469,11 @@ sigmah/src/main/java/org/sigmah/shared/command/Month.java -text
 sigmah/src/main/java/org/sigmah/shared/command/MutatingCommand.java -text
 sigmah/src/main/java/org/sigmah/shared/command/OfflineSupport.java -text
 sigmah/src/main/java/org/sigmah/shared/command/PagingGetCommand.java -text
+sigmah/src/main/java/org/sigmah/shared/command/PromoteProjectReportDraft.java -text
 sigmah/src/main/java/org/sigmah/shared/command/RemoteCommandService.java -text
 sigmah/src/main/java/org/sigmah/shared/command/RemoteCommandServiceAsync.java -text
 sigmah/src/main/java/org/sigmah/shared/command/RemovePartner.java -text
+sigmah/src/main/java/org/sigmah/shared/command/RemoveProjectReportDraft.java -text
 sigmah/src/main/java/org/sigmah/shared/command/RenderElement.java -text
 sigmah/src/main/java/org/sigmah/shared/command/RenderReportHtml.java -text
 sigmah/src/main/java/org/sigmah/shared/command/UpdateEntity.java -text
@@ -1622,6 +1627,7 @@ sigmah/src/main/java/org/sigmah/shared/domain/report/KeyQuestion.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/report/ProjectReport.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/report/ProjectReportModel.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/report/ProjectReportModelSection.java -text
+sigmah/src/main/java/org/sigmah/shared/domain/report/ProjectReportVersion.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/report/RichTextElement.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/value/Budget.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/value/BudgetPart.java -text
