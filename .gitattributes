@@ -297,6 +297,7 @@ sigmah/src/main/java/org/sigmah/client/page/dashboard/DashboardPageState.java -t
 sigmah/src/main/java/org/sigmah/client/page/dashboard/DashboardPresenter.java -text
 sigmah/src/main/java/org/sigmah/client/page/dashboard/DashboardView.java -text
 sigmah/src/main/java/org/sigmah/client/page/dashboard/OrgUnitTreeGrid.java -text
+sigmah/src/main/java/org/sigmah/client/page/dashboard/ProjectsListPanel.java -text
 sigmah/src/main/java/org/sigmah/client/page/dashboard/emptyStar.png -text
 sigmah/src/main/java/org/sigmah/client/page/dashboard/star.png -text
 sigmah/src/main/java/org/sigmah/client/page/entry/DataEntryLoader.java -text
