@@ -1564,7 +1564,6 @@ sigmah/src/main/java/org/sigmah/shared/domain/Organization.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/Phase.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/PhaseModel.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/PhaseModelDefinition.java -text
-sigmah/src/main/java/org/sigmah/shared/domain/PrivacyLevel.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/Project.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/ProjectBanner.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/ProjectDetails.java -text
@@ -1617,6 +1616,13 @@ sigmah/src/main/java/org/sigmah/shared/domain/logframe/LogFrameGroupType.java -t
 sigmah/src/main/java/org/sigmah/shared/domain/logframe/LogFrameModel.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/logframe/Prerequisite.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/logframe/SpecificObjective.java -text
+sigmah/src/main/java/org/sigmah/shared/domain/profile/GlobalPermission.java -text
+sigmah/src/main/java/org/sigmah/shared/domain/profile/GlobalPermissionEnum.java -text
+sigmah/src/main/java/org/sigmah/shared/domain/profile/OrgUnitProfile.java -text
+sigmah/src/main/java/org/sigmah/shared/domain/profile/PrivacyGroup.java -text
+sigmah/src/main/java/org/sigmah/shared/domain/profile/PrivacyGroupPermission.java -text
+sigmah/src/main/java/org/sigmah/shared/domain/profile/PrivacyGroupPermissionEnum.java -text
+sigmah/src/main/java/org/sigmah/shared/domain/profile/Profile.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/quality/CriterionType.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/quality/QualityCriterion.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/quality/QualityFramework.java -text
@@ -1720,6 +1726,9 @@ sigmah/src/main/java/org/sigmah/shared/dto/logframe/LogFrameModelDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/logframe/PrerequisiteDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/logframe/SpecificObjectiveDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/package-info.java -text
+sigmah/src/main/java/org/sigmah/shared/dto/profile/PrivacyGroupDTO.java -text
+sigmah/src/main/java/org/sigmah/shared/dto/profile/ProfileDTO.java -text
+sigmah/src/main/java/org/sigmah/shared/dto/profile/ProfileUtils.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/quality/CriterionTypeDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/quality/QualityCriterionDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/quality/QualityFrameworkDTO.java -text
