@@ -1235,6 +1235,7 @@ sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/GwtRpcModule.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/LoginServiceServlet.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/MapIconServlet.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/AddPartnerHandler.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/AmendmentActionHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/BaseEntityHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/BatchCommandHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/ChangePhaseHandler.java -text
@@ -1300,6 +1301,7 @@ sigmah/src/main/java/org/sigmah/server/mail/MailSender.java -text
 sigmah/src/main/java/org/sigmah/server/mail/MailSenderImpl.java -text
 sigmah/src/main/java/org/sigmah/server/mail/Mailer.java -text
 sigmah/src/main/java/org/sigmah/server/policy/ActivityPolicy.java -text
+sigmah/src/main/java/org/sigmah/server/policy/AmendmentPolicy.java -text
 sigmah/src/main/java/org/sigmah/server/policy/EntityPolicy.java -text
 sigmah/src/main/java/org/sigmah/server/policy/PersonalEventPolicy.java -text
 sigmah/src/main/java/org/sigmah/server/policy/ProjectPolicy.java -text
@@ -1431,6 +1433,7 @@ sigmah/src/main/java/org/sigmah/server/util/logging/LoggingInterceptor.java -tex
 sigmah/src/main/java/org/sigmah/server/util/logging/LoggingModule.java -text
 sigmah/src/main/java/org/sigmah/server/util/logging/Trace.java -text
 sigmah/src/main/java/org/sigmah/shared/command/AddPartner.java -text
+sigmah/src/main/java/org/sigmah/shared/command/AmendmentAction.java -text
 sigmah/src/main/java/org/sigmah/shared/command/BatchCommand.java -text
 sigmah/src/main/java/org/sigmah/shared/command/ChangePhase.java -text
 sigmah/src/main/java/org/sigmah/shared/command/Command.java -text
@@ -1543,6 +1546,7 @@ sigmah/src/main/java/org/sigmah/shared/date/DateUtil.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/Activity.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/AdminEntity.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/AdminLevel.java -text
+sigmah/src/main/java/org/sigmah/shared/domain/Amendment.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/Attribute.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/AttributeGroup.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/AttributeValue.java -text
@@ -1650,6 +1654,7 @@ sigmah/src/main/java/org/sigmah/shared/domain/value/Value.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/ActivityDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/AdminEntityDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/AdminLevelDTO.java -text
+sigmah/src/main/java/org/sigmah/shared/dto/AmendmentDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/AttributeDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/AttributeGroupDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/BoundingBoxDTO.java -text
