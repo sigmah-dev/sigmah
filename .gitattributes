@@ -23,6 +23,7 @@ sigmah/src/main/java/org/sigmah/client/HistoryManager.java -text
 sigmah/src/main/java/org/sigmah/client/LoggingEventBus.java -text
 sigmah/src/main/java/org/sigmah/client/SigmahAppFrame.java -text
 sigmah/src/main/java/org/sigmah/client/SigmahEntryPoint.java -text
+sigmah/src/main/java/org/sigmah/client/SigmahHelpWindow.java -text
 sigmah/src/main/java/org/sigmah/client/SigmahInjector.java -text
 sigmah/src/main/java/org/sigmah/client/SigmahModule.java -text
 sigmah/src/main/java/org/sigmah/client/UsageTracker.java -text
