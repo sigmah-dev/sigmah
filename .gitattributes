@@ -1165,6 +1165,9 @@ sigmah/src/main/java/org/sigmah/server/bootstrap/ConfirmInviteController.java -t
 sigmah/src/main/java/org/sigmah/server/bootstrap/HostController.java -text
 sigmah/src/main/java/org/sigmah/server/bootstrap/LoginController.java -text
 sigmah/src/main/java/org/sigmah/server/bootstrap/LogoutController.java -text
+sigmah/src/main/java/org/sigmah/server/bootstrap/SigmahBootstrapModule.java -text
+sigmah/src/main/java/org/sigmah/server/bootstrap/SigmahHostController.html -text
+sigmah/src/main/java/org/sigmah/server/bootstrap/SigmahHostController.java -text
 sigmah/src/main/java/org/sigmah/server/bootstrap/exception/IncompleteFormException.java -text
 sigmah/src/main/java/org/sigmah/server/bootstrap/exception/InvalidKeyException.java -text
 sigmah/src/main/java/org/sigmah/server/bootstrap/exception/NoValidAuthentication.java -text
@@ -1435,6 +1438,7 @@ sigmah/src/main/java/org/sigmah/server/util/logging/LogException.java -text
 sigmah/src/main/java/org/sigmah/server/util/logging/LoggingInterceptor.java -text
 sigmah/src/main/java/org/sigmah/server/util/logging/LoggingModule.java -text
 sigmah/src/main/java/org/sigmah/server/util/logging/Trace.java -text
+sigmah/src/main/java/org/sigmah/shared/Cookies.java -text
 sigmah/src/main/java/org/sigmah/shared/command/AddPartner.java -text
 sigmah/src/main/java/org/sigmah/shared/command/AmendmentAction.java -text
 sigmah/src/main/java/org/sigmah/shared/command/BatchCommand.java -text
