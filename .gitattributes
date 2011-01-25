@@ -1240,6 +1240,7 @@ sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/BaseEntityHandler
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/BatchCommandHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/ChangePhaseHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/CommandHandlerModule.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/CopyLogFrameHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/CreateEntityHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/CreateReportDefHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/DeleteHandler.java -text
@@ -1248,6 +1249,7 @@ sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetAdminEntitiesH
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetBaseMapsHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetCalendarHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetCountriesHandler.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetCountryHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetHistoryHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetInvitationListHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetMapIconsHandler.java -text
@@ -1437,6 +1439,7 @@ sigmah/src/main/java/org/sigmah/shared/command/AmendmentAction.java -text
 sigmah/src/main/java/org/sigmah/shared/command/BatchCommand.java -text
 sigmah/src/main/java/org/sigmah/shared/command/ChangePhase.java -text
 sigmah/src/main/java/org/sigmah/shared/command/Command.java -text
+sigmah/src/main/java/org/sigmah/shared/command/CopyLogFrame.java -text
 sigmah/src/main/java/org/sigmah/shared/command/CreateEntity.java -text
 sigmah/src/main/java/org/sigmah/shared/command/CreateReportDef.java -text
 sigmah/src/main/java/org/sigmah/shared/command/Delete.java -text
@@ -1445,6 +1448,7 @@ sigmah/src/main/java/org/sigmah/shared/command/GetAdminEntities.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetBaseMaps.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetCalendar.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetCountries.java -text
+sigmah/src/main/java/org/sigmah/shared/command/GetCountry.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetHistory.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetInvitationList.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetListCommand.java -text
