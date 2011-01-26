@@ -1166,7 +1166,6 @@ sigmah/src/main/java/org/sigmah/server/bootstrap/HostController.java -text
 sigmah/src/main/java/org/sigmah/server/bootstrap/LoginController.java -text
 sigmah/src/main/java/org/sigmah/server/bootstrap/LogoutController.java -text
 sigmah/src/main/java/org/sigmah/server/bootstrap/SigmahBootstrapModule.java -text
-sigmah/src/main/java/org/sigmah/server/bootstrap/SigmahHostController.html -text
 sigmah/src/main/java/org/sigmah/server/bootstrap/SigmahHostController.java -text
 sigmah/src/main/java/org/sigmah/server/bootstrap/exception/IncompleteFormException.java -text
 sigmah/src/main/java/org/sigmah/server/bootstrap/exception/InvalidKeyException.java -text
@@ -1845,6 +1844,7 @@ sigmah/src/main/resources/dozer.properties -text
 sigmah/src/main/resources/log4j.properties -text
 sigmah/src/main/resources/manifest/Common.manifest -text
 sigmah/src/main/resources/manifest/Permutation.manifest -text
+sigmah/src/main/resources/org/sigmah/server/bootstrap/SigmahHostController.html -text
 sigmah/src/main/resources/org/sigmah/server/mail/MailMessages.properties -text
 sigmah/src/main/resources/org/sigmah/server/mail/MailMessages_fr.properties -text
 sigmah/src/main/resources/report-def.xsd -text
