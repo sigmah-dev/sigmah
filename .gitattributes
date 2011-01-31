@@ -1613,6 +1613,7 @@ sigmah/src/main/java/org/sigmah/shared/domain/element/MessageElement.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/element/QuestionChoiceElement.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/element/QuestionElement.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/element/ReportElement.java -text
+sigmah/src/main/java/org/sigmah/shared/domain/element/ReportListElement.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/element/TextAreaElement.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/element/TripletsListElement.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/history/Historable.java -text
@@ -1717,6 +1718,7 @@ sigmah/src/main/java/org/sigmah/shared/dto/element/MessageElementDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/element/QuestionChoiceElementDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/element/QuestionElementDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/element/ReportElementDTO.java -text
+sigmah/src/main/java/org/sigmah/shared/dto/element/ReportListElementDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/element/TextAreaElementDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/element/TripletsListElementDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/element/handler/GWTImmortalEvent.java -text
@@ -1753,6 +1755,7 @@ sigmah/src/main/java/org/sigmah/shared/dto/report/KeyQuestionDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/report/ProjectReportContent.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/report/ProjectReportDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/report/ProjectReportSectionDTO.java -text
+sigmah/src/main/java/org/sigmah/shared/dto/report/ReportReference.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/report/RichTextElementDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/value/BudgetPartsListValueDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/value/FileDTO.java -text
