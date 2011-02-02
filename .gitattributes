@@ -184,6 +184,7 @@ sigmah/src/main/java/org/sigmah/client/offline/install/ShortcutStep.java -text
 sigmah/src/main/java/org/sigmah/client/offline/install/Step.java -text
 sigmah/src/main/java/org/sigmah/client/offline/sync/SyncStatusEvent.java -text
 sigmah/src/main/java/org/sigmah/client/offline/sync/Synchronizer.java -text
+sigmah/src/main/java/org/sigmah/client/offline/ui/AppCacheMenu.java -text
 sigmah/src/main/java/org/sigmah/client/offline/ui/OfflinePresenter.java -text
 sigmah/src/main/java/org/sigmah/client/offline/ui/OfflineView.java -text
 sigmah/src/main/java/org/sigmah/client/offline/ui/ProgressDialog.java -text
@@ -1870,7 +1871,7 @@ sigmah/src/main/resources/org/sigmah/server/mail/MailMessages_fr.properties -tex
 sigmah/src/main/resources/report-def.xsd -text
 sigmah/src/main/resources/template/mail/Invite.ftl -text
 sigmah/src/main/resources/template/mail/Invite_fr.ftl -text
-sigmah/src/main/resources/template/page/Application.css -text svneol=unset#unset
+sigmah/src/main/resources/template/page/Application.css -text
 sigmah/src/main/resources/template/page/ConfirmInvite.ftl -text
 sigmah/src/main/resources/template/page/Host.ftl -text
 sigmah/src/main/resources/template/page/InvalidInvite.ftl -text
