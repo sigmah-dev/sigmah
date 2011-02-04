@@ -189,6 +189,7 @@ sigmah/src/main/java/org/sigmah/client/map/MapApiLoader.java -text
 sigmah/src/main/java/org/sigmah/client/map/MapTypeFactory.java -text
 sigmah/src/main/java/org/sigmah/client/map/RgcTileLayer.java -text
 sigmah/src/main/java/org/sigmah/client/map/package-info.java -text
+sigmah/src/main/java/org/sigmah/client/offline/AuthTokenUtil.java -text
 sigmah/src/main/java/org/sigmah/client/offline/DatabaseStateProvider.java -text
 sigmah/src/main/java/org/sigmah/client/offline/OfflineGateway.java -text
 sigmah/src/main/java/org/sigmah/client/offline/OfflineImpl.java -text
