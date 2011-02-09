@@ -57,7 +57,6 @@ sigmah/src/main/java/org/sigmah/client/dispatch/DispatchEventSource.java -text
 sigmah/src/main/java/org/sigmah/client/dispatch/DispatchListener.java -text
 sigmah/src/main/java/org/sigmah/client/dispatch/Dispatcher.java -text
 sigmah/src/main/java/org/sigmah/client/dispatch/RemoteServiceProvider.java -text
-sigmah/src/main/java/org/sigmah/client/dispatch/SwitchingDispatcher.java -text
 sigmah/src/main/java/org/sigmah/client/dispatch/callback/Created.java -text
 sigmah/src/main/java/org/sigmah/client/dispatch/callback/Deleted.java -text
 sigmah/src/main/java/org/sigmah/client/dispatch/callback/DownloadCallback.java -text
