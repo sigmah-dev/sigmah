@@ -207,6 +207,7 @@ sigmah/src/main/java/org/sigmah/client/offline/install/Step.java -text
 sigmah/src/main/java/org/sigmah/client/offline/sync/SyncStatusEvent.java -text
 sigmah/src/main/java/org/sigmah/client/offline/sync/Synchronizer.java -text
 sigmah/src/main/java/org/sigmah/client/offline/ui/AppCacheMenu.java -text
+sigmah/src/main/java/org/sigmah/client/offline/ui/ConnectionDialog.java -text
 sigmah/src/main/java/org/sigmah/client/offline/ui/OfflinePresenter.java -text
 sigmah/src/main/java/org/sigmah/client/offline/ui/OfflineView.java -text
 sigmah/src/main/java/org/sigmah/client/offline/ui/ProgressDialog.java -text
@@ -1182,6 +1183,7 @@ sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetUsersHandler.j
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetUsersWithProfilesHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetValueHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/HandlerUtil.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/PingHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/PromoteProjectReportDraftHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/RemovePartnerHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/RemoveProjectReportDraftHandler.java -text
@@ -1397,6 +1399,7 @@ sigmah/src/main/java/org/sigmah/shared/command/Month.java -text
 sigmah/src/main/java/org/sigmah/shared/command/MutatingCommand.java -text
 sigmah/src/main/java/org/sigmah/shared/command/OfflineSupport.java -text
 sigmah/src/main/java/org/sigmah/shared/command/PagingGetCommand.java -text
+sigmah/src/main/java/org/sigmah/shared/command/Ping.java -text
 sigmah/src/main/java/org/sigmah/shared/command/PromoteProjectReportDraft.java -text
 sigmah/src/main/java/org/sigmah/shared/command/RemoteCommandService.java -text
 sigmah/src/main/java/org/sigmah/shared/command/RemoteCommandServiceAsync.java -text
