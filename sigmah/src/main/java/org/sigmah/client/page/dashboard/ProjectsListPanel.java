@@ -374,8 +374,13 @@ public class ProjectsListPanel {
             public Widget getWidget(ProjectDTOLight model, String property, ColumnData config, int rowIndex,
                     int colIndex, ListStore<ProjectDTOLight> store, Grid<ProjectDTOLight> grid) {
 
+                Integer id = model.get("id");
+                if (id <= 0) {
+                    id = model.get("pid");
+                }
+
                 final Hyperlink h = new Hyperlink((String) model.get(property), true, ProjectPresenter.PAGE_ID
-                        .toString() + '!' + model.get("id").toString());
+                        .toString() + '!' + String.valueOf(id));
                 if (!model.isLeaf()) {
                     h.addStyleName("project-grid-node");
                 } else {
@@ -660,6 +665,13 @@ public class ProjectsListPanel {
 
                         if (result != null) {
                             final List<ProjectDTOLight> resultList = result.getList();
+                            int i = -1;
+                            for (final ProjectDTOLight p : resultList) {
+                                // Project id.
+                                p.setProjectId(p.getId());
+                                // Tree id.
+                                p.setId(i--);
+                            }
                             getProjectsStore().add(resultList, true);
                         }
 

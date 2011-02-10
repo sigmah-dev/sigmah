@@ -40,6 +40,14 @@ public class ProjectDTOLight extends BaseTreeModel implements EntityDTO {
         set("id", id);
     }
 
+    public int getProjectId() {
+        return (Integer) get("pid");
+    }
+
+    public void setProjectId(int id) {
+        set("pid", id);
+    }
+
     // Project name
     public String getName() {
         return get("name");
