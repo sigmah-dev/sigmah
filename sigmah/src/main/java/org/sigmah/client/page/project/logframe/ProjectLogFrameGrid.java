@@ -31,6 +31,10 @@ import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.MouseOutEvent;
+import com.google.gwt.event.dom.client.MouseOutHandler;
+import com.google.gwt.event.dom.client.MouseOverEvent;
+import com.google.gwt.event.dom.client.MouseOverHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.FlexTable;
@@ -82,9 +86,19 @@ public class ProjectLogFrameGrid {
     private static final String CSS_CODE_LABEL_STYLE_NAME = CSS_LOG_FRAME_GRID_STYLE_NAME + "-code-label";
 
     /**
+     * CSS style name for the labels which display codes (active state).
+     */
+    private static final String CSS_CODE_LABEL_ACTIVE_STYLE_NAME = CSS_CODE_LABEL_STYLE_NAME + "-active";
+
+    /**
      * CSS style name for the menus buttons.
      */
     private static final String CSS_MENU_BUTTON_STYLE_NAME = CSS_LOG_FRAME_GRID_STYLE_NAME + "-menu-button";
+
+    /**
+     * CSS style name for the menus buttons (active state).
+     */
+    private static final String CSS_MENU_BUTTON_ACTIVE_STYLE_NAME = CSS_MENU_BUTTON_STYLE_NAME + "-active";
 
     /**
      * Listeners.
@@ -854,7 +868,7 @@ public class ProjectLogFrameGrid {
                 grid.setCellSpacing(0);
                 grid.setWidget(0, 0, label);
                 if (!readOnly) {
-                    grid.setWidget(0, 1, buildGroupMenu(specificObjectivesView, this));
+                    grid.setWidget(0, 1, buildGroupMenu(specificObjectivesView, this, label));
                 }
 
                 return grid;
@@ -1010,7 +1024,7 @@ public class ProjectLogFrameGrid {
                             grid.setWidget(0, 0, codeLabel);
 
                             if (!readOnly) {
-                                grid.setWidget(0, 1, buildSpecificObjectiveMenu(this));
+                                grid.setWidget(0, 1, buildSpecificObjectiveMenu(this, codeLabel));
                             }
 
                             return grid;
@@ -1221,7 +1235,7 @@ public class ProjectLogFrameGrid {
                 grid.setCellSpacing(0);
                 grid.setWidget(0, 0, label);
                 if (!readOnly) {
-                    grid.setWidget(0, 1, buildGroupMenu(expectedResultsView, this));
+                    grid.setWidget(0, 1, buildGroupMenu(expectedResultsView, this, label));
                 }
 
                 return grid;
@@ -1435,7 +1449,7 @@ public class ProjectLogFrameGrid {
                             grid.setCellSpacing(0);
                             grid.setWidget(0, 0, codeLabel);
                             if (!readOnly) {
-                                grid.setWidget(0, 1, buildExpectedResultMenu(this));
+                                grid.setWidget(0, 1, buildExpectedResultMenu(this, codeLabel));
                             }
 
                             return grid;
@@ -1646,7 +1660,7 @@ public class ProjectLogFrameGrid {
                 grid.setCellSpacing(0);
                 grid.setWidget(0, 0, label);
                 if (!readOnly) {
-                    grid.setWidget(0, 1, buildGroupMenu(activitiesView, this));
+                    grid.setWidget(0, 1, buildGroupMenu(activitiesView, this, label));
                 }
 
                 return grid;
@@ -1904,7 +1918,7 @@ public class ProjectLogFrameGrid {
                             grid.setCellSpacing(0);
                             grid.setWidget(0, 0, codeLabel);
                             if (!readOnly) {
-                                grid.setWidget(0, 1, buildActivityMenu(this));
+                                grid.setWidget(0, 1, buildActivityMenu(this, codeLabel));
                             }
 
                             return grid;
@@ -2054,7 +2068,7 @@ public class ProjectLogFrameGrid {
                 grid.setCellSpacing(0);
                 grid.setWidget(0, 0, label);
                 if (!readOnly) {
-                    grid.setWidget(0, 1, buildGroupMenu(prerequisitesView, this));
+                    grid.setWidget(0, 1, buildGroupMenu(prerequisitesView, this, label));
                 }
 
                 return grid;
@@ -2198,7 +2212,7 @@ public class ProjectLogFrameGrid {
                     grid.setCellSpacing(0);
                     grid.setWidget(0, 0, codeLabel);
                     if (!readOnly) {
-                        grid.setWidget(0, 1, buildPrerequisiteMenu(this));
+                        grid.setWidget(0, 1, buildPrerequisiteMenu(this, codeLabel));
                     }
 
                     return grid;
@@ -2249,20 +2263,56 @@ public class ProjectLogFrameGrid {
      * 
      * @param menu
      *            The actions menu.
+     * @param label
+     *            The label beside this menu.
      * @return The widget to display this menu.
      */
-    private Widget buildMenuWidget(final ActionsMenu menu) {
+    private Widget buildMenuWidget(final ActionsMenu menu, final Label label) {
 
         // Menu button.
-        final Anchor anchor = new Anchor("\u25BC");
+        final Anchor anchor = new Anchor();
+        anchor.setHTML("&nbsp;");
         anchor.addStyleName(CSS_MENU_BUTTON_STYLE_NAME);
-        anchor.addClickHandler(new ClickHandler() {
+
+        final ClickHandler clickHandler = new ClickHandler() {
 
             @Override
             public void onClick(ClickEvent event) {
                 menu.show(anchor);
             }
-        });
+        };
+
+        final MouseOverHandler mouseOverHandler = new MouseOverHandler() {
+
+            @Override
+            public void onMouseOver(MouseOverEvent event) {
+                anchor.addStyleName(CSS_MENU_BUTTON_ACTIVE_STYLE_NAME);
+                if (label != null) {
+                    label.addStyleName(CSS_CODE_LABEL_ACTIVE_STYLE_NAME);
+                }
+            }
+        };
+        final MouseOutHandler mouseOutHandler = new MouseOutHandler() {
+
+            @Override
+            public void onMouseOut(MouseOutEvent event) {
+                anchor.removeStyleName(CSS_MENU_BUTTON_ACTIVE_STYLE_NAME);
+                if (label != null) {
+                    label.removeStyleName(CSS_CODE_LABEL_ACTIVE_STYLE_NAME);
+                }
+            }
+        };
+
+        anchor.addClickHandler(clickHandler);
+        anchor.addMouseOverHandler(mouseOverHandler);
+        anchor.addMouseOutHandler(mouseOutHandler);
+
+        // Label.
+        if (label != null) {
+            label.addClickHandler(clickHandler);
+            label.addMouseOverHandler(mouseOverHandler);
+            label.addMouseOutHandler(mouseOutHandler);
+        }
 
         return anchor;
     }
@@ -2272,9 +2322,11 @@ public class ProjectLogFrameGrid {
      * 
      * @param row
      *            The specific objective row.
+     * @param label
+     *            The label beside this menu.
      * @return The menu.
      */
-    private Widget buildSpecificObjectiveMenu(final Row<SpecificObjectiveDTO> row) {
+    private Widget buildSpecificObjectiveMenu(final Row<SpecificObjectiveDTO> row, final Label label) {
 
         // Actions menu.
         return buildMenuWidget(new RowActionsMenu(specificObjectivesView, row) {
@@ -2327,7 +2379,7 @@ public class ProjectLogFrameGrid {
                 fireLogFrameEdited();
                 return true;
             }
-        });
+        }, label);
     }
 
     /**
@@ -2335,9 +2387,11 @@ public class ProjectLogFrameGrid {
      * 
      * @param row
      *            The expected result row.
+     * @param label
+     *            The label beside this menu.
      * @return The menu.
      */
-    private Widget buildExpectedResultMenu(final Row<ExpectedResultDTO> row) {
+    private Widget buildExpectedResultMenu(final Row<ExpectedResultDTO> row, final Label label) {
 
         // Actions menu.
         return buildMenuWidget(new RowActionsMenu(expectedResultsView, row) {
@@ -2391,7 +2445,7 @@ public class ProjectLogFrameGrid {
                 fireLogFrameEdited();
                 return true;
             }
-        });
+        }, label);
     }
 
     /**
@@ -2399,9 +2453,11 @@ public class ProjectLogFrameGrid {
      * 
      * @param row
      *            The activity row.
+     * @param label
+     *            The label beside this menu.
      * @return The menu.
      */
-    private Widget buildActivityMenu(final Row<LogFrameActivityDTO> row) {
+    private Widget buildActivityMenu(final Row<LogFrameActivityDTO> row, final Label label) {
 
         // Actions menu.
         return buildMenuWidget(new RowActionsMenu(activitiesView, row) {
@@ -2454,7 +2510,7 @@ public class ProjectLogFrameGrid {
                 fireLogFrameEdited();
                 return true;
             }
-        });
+        }, label);
     }
 
     /**
@@ -2462,9 +2518,11 @@ public class ProjectLogFrameGrid {
      * 
      * @param row
      *            The prerequisite row.
+     * @param label
+     *            The label beside this menu.
      * @return The menu.
      */
-    private Widget buildPrerequisiteMenu(final Row<PrerequisiteDTO> row) {
+    private Widget buildPrerequisiteMenu(final Row<PrerequisiteDTO> row, final Label label) {
 
         // Actions menu.
         return buildMenuWidget(new RowActionsMenu(prerequisitesView, row) {
@@ -2516,7 +2574,7 @@ public class ProjectLogFrameGrid {
                 fireLogFrameEdited();
                 return true;
             }
-        });
+        }, label);
     }
 
     /**
@@ -2524,9 +2582,11 @@ public class ProjectLogFrameGrid {
      * 
      * @param group
      *            The group.
+     * @param label
+     *            The label beside this menu.
      * @return The menu.
      */
-    private Widget buildGroupMenu(final FlexTableView view, final RowsGroup<LogFrameGroupDTO> group) {
+    private Widget buildGroupMenu(final FlexTableView view, final RowsGroup<LogFrameGroupDTO> group, final Label label) {
 
         // Actions menu.
         return buildMenuWidget(new GroupActionMenu(view, group) {
@@ -2563,6 +2623,6 @@ public class ProjectLogFrameGrid {
                             }
                         });
             }
-        });
+        }, label);
     }
 }
