@@ -7,7 +7,7 @@
 
 <module rename-to="Sigmah">
 
-    <!-- Inherit the core Web Toolkit stuff.                        -->
+    <!-- Inherit the core Web Toolkit stuff. -->
     <inherits name='com.google.gwt.user.User' />
 
     <!-- Inherit additional dependencies  -->
@@ -23,19 +23,19 @@
     <inherits name="com.google.code.gaxb.Annotations"/>
     <inherits name="com.bedatadriven.rebar.sql.Sql"/>
     <inherits name="com.bedatadriven.rebar.sync.Sync"/>
+    <inherits name="com.bedatadriven.rebar.appcache.AppCache"/>
     <inherits name="com.allen_sauer.gwt.log.gwt-log"/>
 
+	<!-- Configure Logging -->
     <extend-property name="log_level" values="TRACE"/>
     <set-property name="log_level" value="TRACE"/>
     <set-property name="log_DivLogger" value="DISABLED" />
                                               
-    <!-- Configure Logging -->
-
     <!-- Include generated sources -->
     <source path='client'/>
     <source path='shared'/>
 
-    <!-- Specify the app entry point class.                         -->
+    <!-- Specify the app entry point class. -->
     <entry-point class='org.sigmah.client.SigmahEntryPoint' />
 
     <!-- Enable other locales -->
