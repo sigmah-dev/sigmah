@@ -1777,6 +1777,7 @@ sigmah/src/main/resources/org/sigmah/server/bootstrap/SigmahHostController.html 
 sigmah/src/main/resources/org/sigmah/server/mail/MailMessages.properties -text
 sigmah/src/main/resources/org/sigmah/server/mail/MailMessages_fr.properties -text
 sigmah/src/main/resources/report-def.xsd -text
+sigmah/src/main/resources/sigmah.properties -text
 sigmah/src/main/resources/template/mail/Invite.ftl -text
 sigmah/src/main/resources/template/mail/Invite_fr.ftl -text
 sigmah/src/main/resources/template/page/Application.css -text

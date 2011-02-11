@@ -15,6 +15,7 @@ import javax.servlet.ServletContext;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Properties;
 
 public class ConfigModule extends AbstractModule {
@@ -28,17 +29,28 @@ public class ConfigModule extends AbstractModule {
     @Singleton
     @Trace
     public Properties provideConfigProperties(ServletContext context) {
-        Properties properties = new Properties();
+
+        final Properties properties = new Properties();
 
         tryToLoadFrom(properties, webInfDirectory(context));
         tryToLoadFrom(properties, tomcatConfigurationDirectory());
+        tryToLoadFrom(properties, classesDirectory());
+
+        // Debug
+        if (logger.isDebugEnabled()) {
+            logger.debug("Properties 'repository.files' [sigmah.properties] = "
+                    + properties.getProperty("repository.files"));
+            logger.debug("Properties 'repository.images' [sigmah.properties] = "
+                    + properties.getProperty("repository.images"));
+        }
+
         return properties;
     }
 
     private boolean tryToLoadFrom(Properties properties, File file) {
         try {
             logger.info("Trying to read properties from: " + file.getAbsolutePath());
-            if(file.exists()) {
+            if (file.exists()) {
                 logger.info("Reading properties from " + file.getAbsolutePath());
                 properties.load(new FileInputStream(file));
                 return true;
@@ -49,12 +61,26 @@ public class ConfigModule extends AbstractModule {
         return false;
     }
 
+    private boolean tryToLoadFrom(Properties properties, InputStream input) {
+        try {
+            logger.info("Trying to read properties from input stream.");
+            properties.load(input);
+            logger.info("Reading properties from input stream.");
+            return true;
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
     private File webInfDirectory(ServletContext context) {
         return new File(context.getRealPath("WEB-INF") + File.separator + "sigmah.properties");
     }
 
     private File tomcatConfigurationDirectory() {
-        return  new File(System.getenv("CATALINA_BASE") + File.separator +
-                "conf" + File.separator + "sigmah.properties");
+        return new File(System.getenv("CATALINA_BASE") + File.separator + "conf" + File.separator + "sigmah.properties");
+    }
+
+    private InputStream classesDirectory() {
+        return this.getClass().getClassLoader().getResourceAsStream("/sigmah.properties");
     }
 }
