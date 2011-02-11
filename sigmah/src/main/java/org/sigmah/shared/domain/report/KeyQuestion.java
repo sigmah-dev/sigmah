@@ -6,6 +6,7 @@
 package org.sigmah.shared.domain.report;
 
 import java.io.Serializable;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -58,6 +59,7 @@ public class KeyQuestion implements Serializable {
         this.qualityCriterion = qualityCriterion;
     }
 
+    @Column(name="sort_order")
     public Integer getIndex() {
         return index;
     }

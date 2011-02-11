@@ -7,6 +7,7 @@ package org.sigmah.shared.domain.report;
 
 import java.io.Serializable;
 import java.util.List;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -65,6 +66,7 @@ public class ProjectReportModelSection implements Serializable {
         this.name = name;
     }
 
+    @Column(name="sort_order")
     public Integer getIndex() {
         return index;
     }

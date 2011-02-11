@@ -59,6 +59,7 @@ public class RichTextElement implements Serializable {
         this.version = version;
     }
 
+    @Column(name="sort_order")
     public Integer getIndex() {
         return index;
     }
