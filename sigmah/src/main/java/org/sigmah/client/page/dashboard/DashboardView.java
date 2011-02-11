@@ -5,6 +5,7 @@
 
 package org.sigmah.client.page.dashboard;
 
+import com.allen_sauer.gwt.log.client.Log;
 import org.sigmah.client.EventBus;
 import org.sigmah.client.UserInfo;
 import org.sigmah.client.dispatch.Dispatcher;
@@ -60,6 +61,7 @@ import com.google.inject.Inject;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import org.sigmah.client.dispatch.monitor.MaskingAsyncMonitor;
 import org.sigmah.client.util.DateUtils;
 import org.sigmah.shared.command.GetMonitoredPoints;
 import org.sigmah.shared.command.GetReminders;
@@ -126,32 +128,14 @@ public class DashboardView extends ContentPanel implements DashboardPresenter.Vi
         vBoxLayoutData.setMargins(new Margins(0, 0, BORDER, 0));
 
         // Reminders
-        leftPanel.add(createReminderListPanel(), vBoxLayoutData);
-        dispatcher.execute(new GetReminders(), null, new AsyncCallback<RemindersResultList>() {
-            @Override
-            public void onFailure(Throwable caught) {
-                Notification.show("ERROR", "NO REMINDERS");
-            }
-
-            @Override
-            public void onSuccess(RemindersResultList result) {
-                getReminderStore().add(result.getList());
-            }
-        });
+        final ContentPanel reminderListPanel = createReminderListPanel();
+        leftPanel.add(reminderListPanel, vBoxLayoutData);
 
         // Monitored points
-        leftPanel.add(createMonitoredPointListPanel(), vBoxLayoutData);
-        dispatcher.execute(new GetMonitoredPoints(), null, new AsyncCallback<MonitoredPointsResultList>() {
-            @Override
-            public void onFailure(Throwable caught) {
-                Notification.show("ERROR", "NO REMINDERS");
-            }
+        final ContentPanel monitoredPointListPanel = createMonitoredPointListPanel();
+        leftPanel.add(monitoredPointListPanel, vBoxLayoutData);
 
-            @Override
-            public void onSuccess(MonitoredPointsResultList result) {
-                getMonitoredPointStore().add(result.getList());
-            }
-        });
+        loadTasks(reminderListPanel, monitoredPointListPanel);
 
         // Bottom-left menu
         final ContentPanel menuPanel = new ContentPanel();
@@ -482,6 +466,32 @@ public class DashboardView extends ContentPanel implements DashboardPresenter.Vi
         });
 
         return Arrays.asList(new ColumnConfig[] { iconColumn, labelColumn, expectedDateColumn });
+    }
+
+    private void loadTasks(final ContentPanel reminderListPanel, final ContentPanel monitoredPointListPanel) {
+        dispatcher.execute(new GetReminders(), new MaskingAsyncMonitor(reminderListPanel, I18N.CONSTANTS.loading()), new AsyncCallback<RemindersResultList>() {
+            @Override
+            public void onFailure(Throwable caught) {
+                Log.error("[DashboardView loadTasks()] Error while retrieving reminders.", caught);
+            }
+
+            @Override
+            public void onSuccess(RemindersResultList result) {
+                getReminderStore().add(result.getList());
+            }
+        });
+
+        dispatcher.execute(new GetMonitoredPoints(), new MaskingAsyncMonitor(monitoredPointListPanel, I18N.CONSTANTS.loading()), new AsyncCallback<MonitoredPointsResultList>() {
+            @Override
+            public void onFailure(Throwable caught) {
+                Log.error("[DashboardView loadTasks()] Error while retrieving monitored points.", caught);
+            }
+
+            @Override
+            public void onSuccess(MonitoredPointsResultList result) {
+                getMonitoredPointStore().add(result.getList());
+            }
+        });
     }
 
     @Override
