@@ -1164,6 +1164,7 @@ sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/CreateReportDefHa
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/DeleteHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GenerateElementHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetAdminEntitiesHandler.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetApplicationInfoHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetBaseMapsHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetCalendarHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetCountriesHandler.java -text
@@ -1375,6 +1376,7 @@ sigmah/src/main/java/org/sigmah/shared/command/CreateReportDef.java -text
 sigmah/src/main/java/org/sigmah/shared/command/Delete.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GenerateElement.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetAdminEntities.java -text
+sigmah/src/main/java/org/sigmah/shared/command/GetApplicationInfo.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetBaseMaps.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetCalendar.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetCountries.java -text
@@ -1432,6 +1434,7 @@ sigmah/src/main/java/org/sigmah/shared/command/handler/CommandHandler.java -text
 sigmah/src/main/java/org/sigmah/shared/command/handler/GetSchemaHandler.java -text
 sigmah/src/main/java/org/sigmah/shared/command/handler/GetSitesHandler.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/AdminEntityResult.java -text
+sigmah/src/main/java/org/sigmah/shared/command/result/ApplicationInfo.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/BaseMapResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/BatchResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/CommandResult.java -text

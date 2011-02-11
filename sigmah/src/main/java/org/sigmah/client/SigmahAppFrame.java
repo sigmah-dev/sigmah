@@ -27,8 +27,10 @@ import org.sigmah.client.ui.SigmahViewport;
 import org.sigmah.client.ui.Tab;
 import org.sigmah.client.ui.TabBar;
 import org.sigmah.client.ui.TabModel;
+import org.sigmah.shared.command.GetApplicationInfo;
 import org.sigmah.shared.command.GetCountries;
 import org.sigmah.shared.command.GetUserInfo;
+import org.sigmah.shared.command.result.ApplicationInfo;
 import org.sigmah.shared.command.result.CountryResult;
 import org.sigmah.shared.dto.UserInfoDTO;
 import org.sigmah.shared.dto.value.FileUploadUtils;
@@ -101,9 +103,29 @@ public class SigmahAppFrame implements Frame {
             // Credit
             final Anchor creditButton = new Anchor(I18N.CONSTANTS.credits());
             creditButton.addClickHandler(new ClickHandler() {
+
+                boolean initalized = false;
+
                 @Override
                 public void onClick(ClickEvent event) {
-                    CreditFrame.show();
+
+                    if (initalized) {
+                        CreditFrame.show();
+                    } else {
+                        dispatcher.execute(new GetApplicationInfo(), null, new AsyncCallback<ApplicationInfo>() {
+
+                            @Override
+                            public void onFailure(Throwable caught) {
+                                // nothing.
+                            }
+
+                            @Override
+                            public void onSuccess(ApplicationInfo result) {
+                                CreditFrame.init(result);
+                                CreditFrame.show();
+                            }
+                        });
+                    }
                 }
             });
             RootPanel.get("credit").add(creditButton);

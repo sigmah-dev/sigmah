@@ -1030,3 +1030,40 @@ body {
 .help-content {
 	padding: 5px;
 }
+
+/* ---------------------------------------------- Credits */
+
+.credits-version {
+	font-weight: bold;	
+	padding-top: 25px;
+}
+
+.credits-version-date {
+	padding-top: 10px;	
+}
+
+.credits-manager-header {
+	font-weight: bold;
+}
+
+.credits-partner-header {
+	font-weight: bold;
+	padding-top: 20px;
+}
+
+.credits-partner {
+	margin-left: 15px;
+	padding-top: 8px;
+}
+
+a.credits-partner-url,
+a.credits-partner-url:link,
+a.credits-partner-url:visited,
+a.credits-partner-url:hover,
+a.credits-partner-url:focus,
+a.credits-partner-url:active {
+	cursor: pointer;
+	color: black;
+	text-decoration: none;
+	text-decoration: underline;
+}
