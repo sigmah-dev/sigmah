@@ -441,7 +441,7 @@ public class ProjectsListPanel {
             }
         });
 
-        // Spent budget
+        // Ratio budget
         final ColumnConfig spentBudgetColumn = new ColumnConfig("spentBudget", I18N.CONSTANTS.projectSpendBudget(), 100);
         spentBudgetColumn.setRenderer(new GridCellRenderer<ProjectDTOLight>() {
 
@@ -451,6 +451,20 @@ public class ProjectsListPanel {
                 return new RatioBar(NumberUtils.ratio(model.getSpendBudget(), model.getPlannedBudget()));
             }
         });
+
+        // Planned budget
+        final ColumnConfig plannedBudgetColumn = new ColumnConfig("plannedBudget",
+                I18N.CONSTANTS.projectPlannedBudget(), 75);
+        plannedBudgetColumn.setHidden(true);
+
+        // Spend budget
+        final ColumnConfig spendBudgetColumn = new ColumnConfig("spendBudget", I18N.CONSTANTS.projectSpendBudget(), 75);
+        spendBudgetColumn.setHidden(true);
+
+        // Received budget
+        final ColumnConfig receivedBudgetColumn = new ColumnConfig("receivedBudget",
+                I18N.CONSTANTS.projectReceivedBudget(), 75);
+        receivedBudgetColumn.setHidden(true);
 
         // Time
         final ColumnConfig timeColumn = new ColumnConfig("time", I18N.CONSTANTS.projectTime(), 100);
@@ -465,6 +479,7 @@ public class ProjectsListPanel {
 
         // Start date
         final ColumnConfig startDateColumn = new ColumnConfig("startDate", I18N.CONSTANTS.projectStartDate(), 75);
+        startDateColumn.setHidden(true);
         startDateColumn.setDateTimeFormat(format);
         startDateColumn.setRenderer(new GridCellRenderer<ProjectDTOLight>() {
 
@@ -479,6 +494,7 @@ public class ProjectsListPanel {
         // End date
         final ColumnConfig endDateColumn = new ColumnConfig("endDate", I18N.CONSTANTS.projectEndDate(), 75);
         endDateColumn.setDateTimeFormat(format);
+        endDateColumn.setHidden(true);
         endDateColumn.setRenderer(new GridCellRenderer<ProjectDTOLight>() {
 
             @Override
@@ -492,6 +508,7 @@ public class ProjectsListPanel {
         // Close date
         final ColumnConfig closeDateColumn = new ColumnConfig("closeDate", I18N.CONSTANTS.projectClosedDate(), 75);
         closeDateColumn.setDateTimeFormat(format);
+        closeDateColumn.setHidden(true);
         closeDateColumn.setRenderer(new GridCellRenderer<ProjectDTOLight>() {
 
             @Override
@@ -539,8 +556,8 @@ public class ProjectsListPanel {
         });
 
         return new ColumnModel(Arrays.asList(starredIconColumn, codeColumn, titleColumn, currentPhaseName,
-                orgUnitColumn, spentBudgetColumn, startDateColumn, endDateColumn, closeDateColumn, timeColumn,
-                activityColumn, categoryColumn));
+                orgUnitColumn, spentBudgetColumn, plannedBudgetColumn, spendBudgetColumn, receivedBudgetColumn,
+                startDateColumn, endDateColumn, closeDateColumn, timeColumn, activityColumn, categoryColumn));
     }
 
     private Object createProjectGridText(ProjectDTOLight model, String content) {
