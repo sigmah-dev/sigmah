@@ -196,8 +196,8 @@ public class DashboardView extends ContentPanel implements DashboardPresenter.Vi
             addNavLink(eventBus, menuPanel, I18N.CONSTANTS.createProjectNewProject(), IconImageBundle.ICONS.add(),
                     new Listener<ButtonEvent>() {
 
-                        private final CreateProjectWindow window = new CreateProjectWindow(dispatcher,
-                                authentication, info);
+                        private final CreateProjectWindow window = new CreateProjectWindow(dispatcher, authentication,
+                                info);
 
                         {
                             window.addListener(new CreateProjectListener() {
@@ -233,12 +233,15 @@ public class DashboardView extends ContentPanel implements DashboardPresenter.Vi
                     });
         }
 
+        if (ProfileUtils.isGranted(authentication, GlobalPermissionEnum.VIEW_ADMIN)) {
+            addNavLink(eventBus, menuPanel, I18N.CONSTANTS.adminboard(), IconImageBundle.ICONS.setup(),
+                    new AdminPageState());
+        }
+
         // There are two ways to show these menus (authentication / profile).
         if (authentication.isShowMenus()
                 || ProfileUtils.isGranted(authentication, GlobalPermissionEnum.VIEW_ACTIVITYINFO)) {
-        	addNavLink(eventBus, menuPanel, I18N.CONSTANTS.adminboard(), IconImageBundle.ICONS.setup(),
-                    new AdminPageState());
-        	addNavLink(eventBus, menuPanel, I18N.CONSTANTS.dataEntry(), IconImageBundle.ICONS.dataEntry(),
+            addNavLink(eventBus, menuPanel, I18N.CONSTANTS.dataEntry(), IconImageBundle.ICONS.dataEntry(),
                     new SiteGridPageState());
             addNavLink(eventBus, menuPanel, I18N.CONSTANTS.reports(), IconImageBundle.ICONS.report(),
                     new ReportListPageState());
@@ -248,7 +251,7 @@ public class DashboardView extends ContentPanel implements DashboardPresenter.Vi
             addNavLink(eventBus, menuPanel, I18N.CONSTANTS.tables(), IconImageBundle.ICONS.table(),
                     new PivotPageState());
             addNavLink(eventBus, menuPanel, I18N.CONSTANTS.setup(), IconImageBundle.ICONS.setup(),
-                    new DbListPageState());                      
+                    new DbListPageState());
         }
     }
 
@@ -341,7 +344,8 @@ public class DashboardView extends ContentPanel implements DashboardPresenter.Vi
         remindersPanel.setHeading(I18N.CONSTANTS.reminderPoints());
 
         reminderStore = new ListStore<ReminderDTO>();
-        final Grid<ReminderDTO> reminderGrid = new Grid<ReminderDTO>(reminderStore, new ColumnModel(createReminderGridColumnConfigs()));
+        final Grid<ReminderDTO> reminderGrid = new Grid<ReminderDTO>(reminderStore, new ColumnModel(
+                createReminderGridColumnConfigs()));
         reminderGrid.getView().setForceFit(true);
         reminderGrid.setAutoExpandColumn("label");
 
@@ -407,7 +411,8 @@ public class DashboardView extends ContentPanel implements DashboardPresenter.Vi
         monitoredPointsPanel.setHeading(I18N.CONSTANTS.monitoredPoints());
 
         monitoredPointStore = new ListStore<MonitoredPointDTO>();
-        final Grid<MonitoredPointDTO> reminderGrid = new Grid<MonitoredPointDTO>(monitoredPointStore, new ColumnModel(createMonitoredPointGridColumnConfigs()));
+        final Grid<MonitoredPointDTO> reminderGrid = new Grid<MonitoredPointDTO>(monitoredPointStore, new ColumnModel(
+                createMonitoredPointGridColumnConfigs()));
         reminderGrid.getView().setForceFit(true);
         reminderGrid.setAutoExpandColumn("label");
 
@@ -419,7 +424,7 @@ public class DashboardView extends ContentPanel implements DashboardPresenter.Vi
     private List<ColumnConfig> createMonitoredPointGridColumnConfigs() {
         final DateTimeFormat format = DateTimeFormat.getFormat(I18N.CONSTANTS.monitoredPointDateFormat());
         final Date now = new Date();
-        
+
         // Icon
         final ColumnConfig iconColumn = new ColumnConfig();
         iconColumn.setId("icon");
@@ -428,8 +433,8 @@ public class DashboardView extends ContentPanel implements DashboardPresenter.Vi
         iconColumn.setRenderer(new GridCellRenderer<MonitoredPointDTO>() {
 
             @Override
-            public Object render(MonitoredPointDTO model, String property, ColumnData config, int rowIndex, int colIndex,
-                    ListStore<MonitoredPointDTO> store, Grid<MonitoredPointDTO> grid) {
+            public Object render(MonitoredPointDTO model, String property, ColumnData config, int rowIndex,
+                    int colIndex, ListStore<MonitoredPointDTO> store, Grid<MonitoredPointDTO> grid) {
 
                 if (DateUtils.DAY_COMPARATOR.compare(now, model.getExpectedDate()) > 0) {
                     return IconImageBundle.ICONS.overduePoint().createImage();
@@ -454,8 +459,8 @@ public class DashboardView extends ContentPanel implements DashboardPresenter.Vi
         expectedDateColumn.setRenderer(new GridCellRenderer<MonitoredPointDTO>() {
 
             @Override
-            public Object render(MonitoredPointDTO model, String property, ColumnData config, int rowIndex, int colIndex,
-                    ListStore<MonitoredPointDTO> store, Grid<MonitoredPointDTO> grid) {
+            public Object render(MonitoredPointDTO model, String property, ColumnData config, int rowIndex,
+                    int colIndex, ListStore<MonitoredPointDTO> store, Grid<MonitoredPointDTO> grid) {
 
                 final Label l = new Label(format.format(model.getExpectedDate()));
                 if (!model.isCompleted() && DateUtils.DAY_COMPARATOR.compare(now, model.getExpectedDate()) > 0) {
@@ -469,29 +474,32 @@ public class DashboardView extends ContentPanel implements DashboardPresenter.Vi
     }
 
     private void loadTasks(final ContentPanel reminderListPanel, final ContentPanel monitoredPointListPanel) {
-        dispatcher.execute(new GetReminders(), new MaskingAsyncMonitor(reminderListPanel, I18N.CONSTANTS.loading()), new AsyncCallback<RemindersResultList>() {
-            @Override
-            public void onFailure(Throwable caught) {
-                Log.error("[DashboardView loadTasks()] Error while retrieving reminders.", caught);
-            }
+        dispatcher.execute(new GetReminders(), new MaskingAsyncMonitor(reminderListPanel, I18N.CONSTANTS.loading()),
+                new AsyncCallback<RemindersResultList>() {
+                    @Override
+                    public void onFailure(Throwable caught) {
+                        Log.error("[DashboardView loadTasks()] Error while retrieving reminders.", caught);
+                    }
 
-            @Override
-            public void onSuccess(RemindersResultList result) {
-                getReminderStore().add(result.getList());
-            }
-        });
+                    @Override
+                    public void onSuccess(RemindersResultList result) {
+                        getReminderStore().add(result.getList());
+                    }
+                });
 
-        dispatcher.execute(new GetMonitoredPoints(), new MaskingAsyncMonitor(monitoredPointListPanel, I18N.CONSTANTS.loading()), new AsyncCallback<MonitoredPointsResultList>() {
-            @Override
-            public void onFailure(Throwable caught) {
-                Log.error("[DashboardView loadTasks()] Error while retrieving monitored points.", caught);
-            }
+        dispatcher.execute(new GetMonitoredPoints(),
+                new MaskingAsyncMonitor(monitoredPointListPanel, I18N.CONSTANTS.loading()),
+                new AsyncCallback<MonitoredPointsResultList>() {
+                    @Override
+                    public void onFailure(Throwable caught) {
+                        Log.error("[DashboardView loadTasks()] Error while retrieving monitored points.", caught);
+                    }
 
-            @Override
-            public void onSuccess(MonitoredPointsResultList result) {
-                getMonitoredPointStore().add(result.getList());
-            }
-        });
+                    @Override
+                    public void onSuccess(MonitoredPointsResultList result) {
+                        getMonitoredPointStore().add(result.getList());
+                    }
+                });
     }
 
     @Override
