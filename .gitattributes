@@ -1006,7 +1006,6 @@ sigmah/src/main/java/org/sigmah/public/image/bg-logo.jpg -text
 sigmah/src/main/java/org/sigmah/public/image/bg-name.jpg -text
 sigmah/src/main/java/org/sigmah/public/image/bullet_star.png -text
 sigmah/src/main/java/org/sigmah/public/image/bullet_star_black.png -text
-sigmah/src/main/java/org/sigmah/public/image/close.png -text
 sigmah/src/main/java/org/sigmah/public/image/context_menu_icon.png -text
 sigmah/src/main/java/org/sigmah/public/image/context_menu_icon_orange.png -text
 sigmah/src/main/java/org/sigmah/public/image/deconnexion.png -text
@@ -1055,7 +1054,6 @@ sigmah/src/main/java/org/sigmah/public/image/thumbs/pivot.png -text
 sigmah/src/main/java/org/sigmah/public/image/unmapped.gif -text
 sigmah/src/main/java/org/sigmah/public/image/unmapped.png -text
 sigmah/src/main/java/org/sigmah/public/sigmah.css -text
-sigmah/src/main/java/org/sigmah/public/sigmah.html -text
 sigmah/src/main/java/org/sigmah/server/ConfigModule.java -text
 sigmah/src/main/java/org/sigmah/server/Cookies.java -text
 sigmah/src/main/java/org/sigmah/server/StartupListener.java -text

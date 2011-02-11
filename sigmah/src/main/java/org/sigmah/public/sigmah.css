@@ -90,6 +90,18 @@ body {
 	text-decoration: underline;
 }
 
+#offline-status {
+        float: right;
+        height: 36px;
+        line-height: 36px;
+        margin-right: 130px;
+        font-weight: bold;
+        width: 128px;
+        margin-top: 2px;
+        font-size: 12px;
+        text-align: center;
+}
+
 .minimenu {
 	height: 16px;
 	width: 200px;
