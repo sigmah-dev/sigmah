@@ -65,9 +65,9 @@ body {
 
 .sigmah {
 	height: 56px;
-	width: 308px;
+	width: 340px;
 	float: right;
-	background: url(image/sigmah-logo.jpg) no-repeat;
+	background: url(image/sigmah-logo.jpg) no-repeat top right;
 	overflow: hidden;
 }
 
@@ -104,7 +104,7 @@ body {
 
 .minimenu {
 	height: 16px;
-	width: 200px;
+	width: 225px;
 	float: right;
 	text-align: right;
 	padding-top: 1px;

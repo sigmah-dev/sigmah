@@ -22,6 +22,7 @@ import org.sigmah.client.page.TabPage;
 import org.sigmah.client.page.common.widget.LoadingPlaceHolder;
 import org.sigmah.client.page.dashboard.DashboardPageState;
 import org.sigmah.client.page.login.LoginView;
+import org.sigmah.client.ui.CreditFrame;
 import org.sigmah.client.ui.SigmahViewport;
 import org.sigmah.client.ui.Tab;
 import org.sigmah.client.ui.TabBar;
@@ -96,6 +97,16 @@ public class SigmahAppFrame implements Frame {
                 }
             });
             RootPanel.get("logout").add(logoutButton);
+
+            // Credit
+            final Anchor creditButton = new Anchor(I18N.CONSTANTS.credits());
+            creditButton.addClickHandler(new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    CreditFrame.show();
+                }
+            });
+            RootPanel.get("credit").add(creditButton);
 
             // Tab bar
             final TabBar tabBar = new TabBar(tabModel, eventBus);
@@ -182,25 +193,25 @@ public class SigmahAppFrame implements Frame {
     }
 
     private native int getDecorationHeight(int defaultHeight) /*-{
-        var height = 0;
+                                                              var height = 0;
 
-        if(!$wnd.document.getElementsByClassName && !$wnd.getComputedStyle)
-            return defaultHeight;
+                                                              if(!$wnd.document.getElementsByClassName && !$wnd.getComputedStyle)
+                                                              return defaultHeight;
 
-        var elements = $wnd.document.getElementsByClassName("decoration");
-        for(var index = 0; index < elements.length; index++) {
-            var style = $wnd.getComputedStyle(elements[index], null);
-            height += parseInt(style.height) +
-            parseInt(style.borderTopWidth) +
-            parseInt(style.borderBottomWidth) +
-            parseInt(style.marginTop) +
-            parseInt(style.marginBottom) +
-            parseInt(style.paddingTop) +
-            parseInt(style.paddingBottom);
-        }
+                                                              var elements = $wnd.document.getElementsByClassName("decoration");
+                                                              for(var index = 0; index < elements.length; index++) {
+                                                              var style = $wnd.getComputedStyle(elements[index], null);
+                                                              height += parseInt(style.height) +
+                                                              parseInt(style.borderTopWidth) +
+                                                              parseInt(style.borderBottomWidth) +
+                                                              parseInt(style.marginTop) +
+                                                              parseInt(style.marginBottom) +
+                                                              parseInt(style.paddingTop) +
+                                                              parseInt(style.paddingBottom);
+                                                              }
 
-        return height;
-    }-*/;
+                                                              return height;
+                                                              }-*/;
 
     @Override
     public void setActivePage(Page page) {

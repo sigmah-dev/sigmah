@@ -498,6 +498,7 @@ sigmah/src/main/java/org/sigmah/client/report/DimensionStoreFactory.java -text
 sigmah/src/main/java/org/sigmah/client/ui/ButtonFileUploadField.java -text
 sigmah/src/main/java/org/sigmah/client/ui/CalendarWidget.java -text
 sigmah/src/main/java/org/sigmah/client/ui/ClickableFlowPanel.java -text
+sigmah/src/main/java/org/sigmah/client/ui/CreditFrame.java -text
 sigmah/src/main/java/org/sigmah/client/ui/FlexibleGrid.java -text
 sigmah/src/main/java/org/sigmah/client/ui/FoldPanel.java -text
 sigmah/src/main/java/org/sigmah/client/ui/HistoryWindow.java -text
@@ -1019,6 +1020,7 @@ sigmah/src/main/java/org/sigmah/public/image/grid3-hrow-2.gif -text
 sigmah/src/main/java/org/sigmah/public/image/loader.gif -text
 sigmah/src/main/java/org/sigmah/public/image/login-loader.gif -text
 sigmah/src/main/java/org/sigmah/public/image/login-logo.png -text
+sigmah/src/main/java/org/sigmah/public/image/logo.png -text
 sigmah/src/main/java/org/sigmah/public/image/mapped.gif -text
 sigmah/src/main/java/org/sigmah/public/image/mapped.png -text
 sigmah/src/main/java/org/sigmah/public/image/name.png -text
