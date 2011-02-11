@@ -1165,6 +1165,7 @@ sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetCountryHandler
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetHistoryHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetInvitationListHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetMapIconsHandler.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetMonitoredPointsHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetMonthlyReportsHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetOrgUnitHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetProfilesHandler.java -text
@@ -1175,6 +1176,7 @@ sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetProjectReportH
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetProjectReportModelsHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetProjectReportsHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetProjectsHandler.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetRemindersHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetReportDefHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetReportTemplatesHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetSitePointsHandler.java -text
@@ -1375,6 +1377,7 @@ sigmah/src/main/java/org/sigmah/shared/command/GetHistory.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetInvitationList.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetListCommand.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetMapIcons.java -text
+sigmah/src/main/java/org/sigmah/shared/command/GetMonitoredPoints.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetMonthlyReports.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetOrgUnit.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetProfiles.java -text
@@ -1386,6 +1389,7 @@ sigmah/src/main/java/org/sigmah/shared/command/GetProjectReportModel.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetProjectReportModels.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetProjectReports.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetProjects.java -text
+sigmah/src/main/java/org/sigmah/shared/command/GetReminders.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetReportDef.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetReportTemplates.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetSchema.java -text

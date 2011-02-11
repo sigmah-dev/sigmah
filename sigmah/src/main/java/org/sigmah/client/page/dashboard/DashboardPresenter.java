@@ -5,6 +5,7 @@
 
 package org.sigmah.client.page.dashboard;
 
+import com.extjs.gxt.ui.client.store.ListStore;
 import org.sigmah.client.UserInfo;
 import org.sigmah.client.dispatch.remote.Authentication;
 import org.sigmah.client.i18n.I18N;
@@ -20,6 +21,8 @@ import com.extjs.gxt.ui.client.widget.treegrid.TreeGrid;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
+import org.sigmah.shared.dto.reminder.MonitoredPointDTO;
+import org.sigmah.shared.dto.reminder.ReminderDTO;
 
 /**
  * Home screen of sigmah. Displays the main menu and a reminder of urgent tasks.
@@ -43,6 +46,10 @@ public class DashboardPresenter implements Page {
         public TreeGrid<OrgUnitDTOLight> getOrgUnitsTree();
 
         public ContentPanel getOrgUnitsPanel();
+
+        public ListStore<ReminderDTO> getReminderStore();
+
+        public ListStore<MonitoredPointDTO> getMonitoredPointStore();
     }
 
     /**

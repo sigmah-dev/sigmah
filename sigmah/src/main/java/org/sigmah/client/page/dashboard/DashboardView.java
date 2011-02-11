@@ -34,20 +34,39 @@ import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.store.TreeStore;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.util.Padding;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.Label;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
+import com.extjs.gxt.ui.client.widget.grid.ColumnData;
+import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
+import com.extjs.gxt.ui.client.widget.grid.Grid;
+import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.VBoxLayout;
 import com.extjs.gxt.ui.client.widget.layout.VBoxLayoutData;
 import com.extjs.gxt.ui.client.widget.treegrid.TreeGrid;
+import com.google.gwt.i18n.client.DateTimeFormat;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.inject.Inject;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import org.sigmah.client.util.DateUtils;
+import org.sigmah.shared.command.GetMonitoredPoints;
+import org.sigmah.shared.command.GetReminders;
+import org.sigmah.shared.command.result.MonitoredPointsResultList;
+import org.sigmah.shared.command.result.RemindersResultList;
+import org.sigmah.shared.dto.reminder.MonitoredPointDTO;
+import org.sigmah.shared.dto.reminder.ReminderDTO;
 
 /**
  * Displays the dashboard.
@@ -71,6 +90,9 @@ public class DashboardView extends ContentPanel implements DashboardPresenter.Vi
 
     private OrgUnitTreeGrid orgUnitsTreeGrid;
     private ContentPanel orgUnitsPanel;
+
+    private ListStore<ReminderDTO> reminderStore;
+    private ListStore<MonitoredPointDTO> monitoredPointStore;
 
     @Inject
     public DashboardView(final EventBus eventBus, final Dispatcher dispatcher, final Authentication authentication,
@@ -103,14 +125,35 @@ public class DashboardView extends ContentPanel implements DashboardPresenter.Vi
         vBoxLayoutData.setFlex(1.0);
         vBoxLayoutData.setMargins(new Margins(0, 0, BORDER, 0));
 
-        final ContentPanel remindersPanel = new ContentPanel(new FitLayout());
-        remindersPanel.setHeading(I18N.CONSTANTS.reminderPoints());
-        leftPanel.add(remindersPanel, vBoxLayoutData);
+        // Reminders
+        leftPanel.add(createReminderListPanel(), vBoxLayoutData);
+        dispatcher.execute(new GetReminders(), null, new AsyncCallback<RemindersResultList>() {
+            @Override
+            public void onFailure(Throwable caught) {
+                Notification.show("ERROR", "NO REMINDERS");
+            }
 
-        final ContentPanel importantPointsPanel = new ContentPanel(new FitLayout());
-        importantPointsPanel.setHeading(I18N.CONSTANTS.monitoredPoints());
-        leftPanel.add(importantPointsPanel, vBoxLayoutData);
+            @Override
+            public void onSuccess(RemindersResultList result) {
+                getReminderStore().add(result.getList());
+            }
+        });
 
+        // Monitored points
+        leftPanel.add(createMonitoredPointListPanel(), vBoxLayoutData);
+        dispatcher.execute(new GetMonitoredPoints(), null, new AsyncCallback<MonitoredPointsResultList>() {
+            @Override
+            public void onFailure(Throwable caught) {
+                Notification.show("ERROR", "NO REMINDERS");
+            }
+
+            @Override
+            public void onSuccess(MonitoredPointsResultList result) {
+                getMonitoredPointStore().add(result.getList());
+            }
+        });
+
+        // Bottom-left menu
         final ContentPanel menuPanel = new ContentPanel();
         final VBoxLayout menuPanelLayout = new VBoxLayout();
         menuPanelLayout.setVBoxLayoutAlign(VBoxLayout.VBoxLayoutAlign.STRETCH);
@@ -309,6 +352,138 @@ public class DashboardView extends ContentPanel implements DashboardPresenter.Vi
         return projectsListPanel.getProjectsPanel();
     }
 
+    private ContentPanel createReminderListPanel() {
+        final ContentPanel remindersPanel = new ContentPanel(new FitLayout());
+        remindersPanel.setHeading(I18N.CONSTANTS.reminderPoints());
+
+        reminderStore = new ListStore<ReminderDTO>();
+        final Grid<ReminderDTO> reminderGrid = new Grid<ReminderDTO>(reminderStore, new ColumnModel(createReminderGridColumnConfigs()));
+        reminderGrid.getView().setForceFit(true);
+        reminderGrid.setAutoExpandColumn("label");
+
+        remindersPanel.add(reminderGrid);
+
+        return remindersPanel;
+    }
+
+    private List<ColumnConfig> createReminderGridColumnConfigs() {
+        final DateTimeFormat format = DateTimeFormat.getFormat(I18N.CONSTANTS.monitoredPointDateFormat());
+        final Date now = new Date();
+
+        // Icon
+        final ColumnConfig iconColumn = new ColumnConfig();
+        iconColumn.setId("icon");
+        iconColumn.setHeader("");
+        iconColumn.setWidth(16);
+        iconColumn.setRenderer(new GridCellRenderer<ReminderDTO>() {
+
+            @Override
+            public Object render(ReminderDTO model, String property, ColumnData config, int rowIndex, int colIndex,
+                    ListStore<ReminderDTO> store, Grid<ReminderDTO> grid) {
+
+                if (DateUtils.DAY_COMPARATOR.compare(now, model.getExpectedDate()) > 0) {
+                    return IconImageBundle.ICONS.overdueReminder().createImage();
+                } else {
+                    return IconImageBundle.ICONS.openedReminder().createImage();
+                }
+            }
+        });
+
+        // Label.
+        final ColumnConfig labelColumn = new ColumnConfig();
+        labelColumn.setId("label");
+        labelColumn.setHeader(I18N.CONSTANTS.monitoredPointLabel());
+        labelColumn.setWidth(100);
+
+        // Expected date.
+        final ColumnConfig expectedDateColumn = new ColumnConfig();
+        expectedDateColumn.setId("expectedDate");
+        expectedDateColumn.setHeader(I18N.CONSTANTS.monitoredPointExpectedDate());
+        expectedDateColumn.setWidth(60);
+        expectedDateColumn.setDateTimeFormat(format);
+        expectedDateColumn.setRenderer(new GridCellRenderer<ReminderDTO>() {
+
+            @Override
+            public Object render(ReminderDTO model, String property, ColumnData config, int rowIndex, int colIndex,
+                    ListStore<ReminderDTO> store, Grid<ReminderDTO> grid) {
+
+                final Label l = new Label(format.format(model.getExpectedDate()));
+                if (!model.isCompleted() && DateUtils.DAY_COMPARATOR.compare(now, model.getExpectedDate()) > 0) {
+                    l.addStyleName("points-date-exceeded");
+                }
+                return l;
+            }
+        });
+
+        return Arrays.asList(new ColumnConfig[] { iconColumn, labelColumn, expectedDateColumn });
+    }
+
+    private ContentPanel createMonitoredPointListPanel() {
+        final ContentPanel monitoredPointsPanel = new ContentPanel(new FitLayout());
+        monitoredPointsPanel.setHeading(I18N.CONSTANTS.monitoredPoints());
+
+        monitoredPointStore = new ListStore<MonitoredPointDTO>();
+        final Grid<MonitoredPointDTO> reminderGrid = new Grid<MonitoredPointDTO>(monitoredPointStore, new ColumnModel(createMonitoredPointGridColumnConfigs()));
+        reminderGrid.getView().setForceFit(true);
+        reminderGrid.setAutoExpandColumn("label");
+
+        monitoredPointsPanel.add(reminderGrid);
+
+        return monitoredPointsPanel;
+    }
+
+    private List<ColumnConfig> createMonitoredPointGridColumnConfigs() {
+        final DateTimeFormat format = DateTimeFormat.getFormat(I18N.CONSTANTS.monitoredPointDateFormat());
+        final Date now = new Date();
+        
+        // Icon
+        final ColumnConfig iconColumn = new ColumnConfig();
+        iconColumn.setId("icon");
+        iconColumn.setHeader("");
+        iconColumn.setWidth(16);
+        iconColumn.setRenderer(new GridCellRenderer<MonitoredPointDTO>() {
+
+            @Override
+            public Object render(MonitoredPointDTO model, String property, ColumnData config, int rowIndex, int colIndex,
+                    ListStore<MonitoredPointDTO> store, Grid<MonitoredPointDTO> grid) {
+
+                if (DateUtils.DAY_COMPARATOR.compare(now, model.getExpectedDate()) > 0) {
+                    return IconImageBundle.ICONS.overduePoint().createImage();
+                } else {
+                    return IconImageBundle.ICONS.openedPoint().createImage();
+                }
+            }
+        });
+
+        // Label.
+        final ColumnConfig labelColumn = new ColumnConfig();
+        labelColumn.setId("label");
+        labelColumn.setHeader(I18N.CONSTANTS.monitoredPointLabel());
+        labelColumn.setWidth(100);
+
+        // Expected date.
+        final ColumnConfig expectedDateColumn = new ColumnConfig();
+        expectedDateColumn.setId("expectedDate");
+        expectedDateColumn.setHeader(I18N.CONSTANTS.monitoredPointExpectedDate());
+        expectedDateColumn.setWidth(60);
+        expectedDateColumn.setDateTimeFormat(format);
+        expectedDateColumn.setRenderer(new GridCellRenderer<MonitoredPointDTO>() {
+
+            @Override
+            public Object render(MonitoredPointDTO model, String property, ColumnData config, int rowIndex, int colIndex,
+                    ListStore<MonitoredPointDTO> store, Grid<MonitoredPointDTO> grid) {
+
+                final Label l = new Label(format.format(model.getExpectedDate()));
+                if (!model.isCompleted() && DateUtils.DAY_COMPARATOR.compare(now, model.getExpectedDate()) > 0) {
+                    l.addStyleName("points-date-exceeded");
+                }
+                return l;
+            }
+        });
+
+        return Arrays.asList(new ColumnConfig[] { iconColumn, labelColumn, expectedDateColumn });
+    }
+
     @Override
     public ProjectsListPanel getProjectsListPanel() {
         return projectsListPanel;
@@ -327,5 +502,15 @@ public class DashboardView extends ContentPanel implements DashboardPresenter.Vi
     @Override
     public ContentPanel getOrgUnitsPanel() {
         return orgUnitsPanel;
+    }
+
+    @Override
+    public ListStore<ReminderDTO> getReminderStore() {
+        return reminderStore;
+    }
+
+    @Override
+    public ListStore<MonitoredPointDTO> getMonitoredPointStore() {
+        return monitoredPointStore;
     }
 }
