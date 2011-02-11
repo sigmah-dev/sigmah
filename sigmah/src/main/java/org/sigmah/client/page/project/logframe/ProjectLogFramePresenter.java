@@ -4,18 +4,22 @@ import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.dispatch.monitor.MaskingAsyncMonitor;
 import org.sigmah.client.dispatch.remote.Authentication;
 import org.sigmah.client.i18n.I18N;
-import org.sigmah.client.page.project.SubPresenter;
 import org.sigmah.client.page.project.ProjectPresenter;
+import org.sigmah.client.page.project.SubPresenter;
 import org.sigmah.client.util.Notification;
+import org.sigmah.shared.command.CopyLogFrame;
 import org.sigmah.shared.command.UpdateLogFrame;
 import org.sigmah.shared.command.result.LogFrameResult;
+import org.sigmah.shared.domain.Amendment;
 import org.sigmah.shared.domain.profile.GlobalPermissionEnum;
+import org.sigmah.shared.dto.ExportUtils;
 import org.sigmah.shared.dto.ProjectDTO;
 import org.sigmah.shared.dto.logframe.LogFrameDTO;
 import org.sigmah.shared.dto.profile.ProfileUtils;
 
 import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
@@ -24,10 +28,10 @@ import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.form.FormPanel;
+import com.extjs.gxt.ui.client.widget.form.HiddenField;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import org.sigmah.shared.command.CopyLogFrame;
-import org.sigmah.shared.domain.Amendment;
 
 /**
  * Presenter for the project log frame.
@@ -55,9 +59,9 @@ public class ProjectLogFramePresenter implements SubPresenter {
 
         public abstract Button getPasteButton();
 
-        public abstract Button getWordExportButton();
-
         public abstract Button getExcelExportButton();
+
+        public abstract FormPanel getExcelExportForm();
 
         public abstract TextField<String> getLogFrameTitleTextBox();
 
@@ -109,12 +113,12 @@ public class ProjectLogFramePresenter implements SubPresenter {
 
         if (view == null) {
             view = new ProjectLogFrameView();
-            
-            if(projectPresenter.getCurrentProjectDTO().getCurrentAmendment() == null)
+
+            if (projectPresenter.getCurrentProjectDTO().getCurrentAmendment() == null)
                 logFrame = projectPresenter.getCurrentProjectDTO().getLogFrameDTO();
             else
                 logFrame = projectPresenter.getCurrentProjectDTO().getCurrentAmendment().getLogFrameDTO();
-            
+
             currentProjectDTO = projectPresenter.getCurrentProjectDTO();
             fillAndInit();
             addListeners();
@@ -122,7 +126,7 @@ public class ProjectLogFramePresenter implements SubPresenter {
 
         // If the current project has changed, clear the view
         if (projectPresenter.getCurrentProjectDTO() != currentProjectDTO) {
-            if(projectPresenter.getCurrentProjectDTO().getCurrentAmendment() == null)
+            if (projectPresenter.getCurrentProjectDTO().getCurrentAmendment() == null)
                 logFrame = projectPresenter.getCurrentProjectDTO().getLogFrameDTO();
             else
                 logFrame = projectPresenter.getCurrentProjectDTO().getCurrentAmendment().getLogFrameDTO();
@@ -244,42 +248,76 @@ public class ProjectLogFramePresenter implements SubPresenter {
 
             @Override
             public void handleEvent(BaseEvent be) {
-                MessageBox.confirm(I18N.CONSTANTS.paste(), I18N.CONSTANTS.logFramePasteConfirm(), new Listener<MessageBoxEvent>() {
+                MessageBox.confirm(I18N.CONSTANTS.paste(), I18N.CONSTANTS.logFramePasteConfirm(),
+                        new Listener<MessageBoxEvent>() {
 
-                    @Override
-                    public void handleEvent(MessageBoxEvent be) {
-                        if(Dialog.YES.equals(be.getButtonClicked().getItemId())) {
-                            final CopyLogFrame copyLogFrame = new CopyLogFrame(logFrameIdCopySource, currentProjectDTO.getId());
-                            dispatcher.execute(copyLogFrame, null, new AsyncCallback<LogFrameDTO>() {
+                            @Override
+                            public void handleEvent(MessageBoxEvent be) {
+                                if (Dialog.YES.equals(be.getButtonClicked().getItemId())) {
+                                    final CopyLogFrame copyLogFrame = new CopyLogFrame(logFrameIdCopySource,
+                                            currentProjectDTO.getId());
+                                    dispatcher.execute(copyLogFrame, null, new AsyncCallback<LogFrameDTO>() {
 
-                                @Override
-                                public void onFailure(Throwable caught) {
-                                    MessageBox.alert(I18N.CONSTANTS.paste(), I18N.CONSTANTS.logFramePasteError(), null);
+                                        @Override
+                                        public void onFailure(Throwable caught) {
+                                            MessageBox.alert(I18N.CONSTANTS.paste(),
+                                                    I18N.CONSTANTS.logFramePasteError(), null);
+                                        }
+
+                                        @Override
+                                        public void onSuccess(LogFrameDTO result) {
+                                            logFrame = result;
+                                            currentProjectDTO.setLogFrameDTO(result);
+
+                                            fillAndInit();
+                                            Notification.show(I18N.CONSTANTS.paste(), I18N.CONSTANTS.logFramePasted());
+                                        }
+
+                                    });
                                 }
+                            }
+                        });
 
-                                @Override
-                                public void onSuccess(LogFrameDTO result) {
-                                    logFrame = result;
-                                    currentProjectDTO.setLogFrameDTO(result);
+            }
+        });
 
-                                    fillAndInit();
-                                    Notification.show(I18N.CONSTANTS.paste(), I18N.CONSTANTS.logFramePasted());
-                                }
+        // Excel action.
+        view.getExcelExportButton().addListener(Events.OnClick, new Listener<ButtonEvent>() {
 
-                            });
-                        }
-                    }
-                });
-                
+            @Override
+            public void handleEvent(ButtonEvent be) {
+
+                // Clears the form.
+                view.getExcelExportForm().removeAll();
+
+                // Adds parameters.
+                final HiddenField<String> exportTypeHidden = new HiddenField<String>();
+                exportTypeHidden.setName(ExportUtils.PARAM_EXPORT_TYPE);
+                exportTypeHidden.setValue(ExportUtils.ExportType.PROJECT_LOG_FRAME.name());
+                view.getExcelExportForm().add(exportTypeHidden);
+
+                final HiddenField<String> projectIdHidden = new HiddenField<String>();
+                projectIdHidden.setName(ExportUtils.PARAM_EXPORT_PROJECT_ID);
+                projectIdHidden.setValue(String.valueOf(currentProjectDTO.getId()));
+                view.getExcelExportForm().add(projectIdHidden);
+
+                final HiddenField<String> labelsHidden = new HiddenField<String>();
+                labelsHidden.setName(ExportUtils.PARAM_EXPORT_LABELS_LIST);
+                labelsHidden.setValue(ProjectLogFrameLabels.merge());
+                view.getExcelExportForm().add(labelsHidden);
+
+                view.getExcelExportForm().layout();
+
+                // Submits the form.
+                view.getExcelExportForm().submit();
             }
         });
     }
 
     private boolean isEditable() {
-        return logFrame != null &&
-               currentProjectDTO.getAmendmentState() == Amendment.State.DRAFT &&
-               currentProjectDTO.getCurrentAmendment() == null &&
-               ProfileUtils.isGranted(authentication, GlobalPermissionEnum.EDIT_PROJECT);
+        return logFrame != null && currentProjectDTO.getAmendmentState() == Amendment.State.DRAFT
+                && currentProjectDTO.getCurrentAmendment() == null
+                && ProfileUtils.isGranted(authentication, GlobalPermissionEnum.EDIT_PROJECT);
     }
 
     /**
@@ -309,8 +347,8 @@ public class ProjectLogFramePresenter implements SubPresenter {
         // Default buttons states.
         view.getSaveButton().setEnabled(false);
         view.getCopyButton().setEnabled(true);
-        view.getPasteButton().setEnabled(isEditable() && logFrameIdCopySource != null && currentProjectDTO.getCurrentAmendment() == null);
-        view.getWordExportButton().setEnabled(false);
+        view.getPasteButton().setEnabled(
+                isEditable() && logFrameIdCopySource != null && currentProjectDTO.getCurrentAmendment() == null);
         view.getExcelExportButton().setEnabled(false);
     }
 }

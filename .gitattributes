@@ -431,6 +431,7 @@ sigmah/src/main/java/org/sigmah/client/page/project/details/ProjectDetailsView.j
 sigmah/src/main/java/org/sigmah/client/page/project/logframe/CodePolicy.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/logframe/FormWindow.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/logframe/ProjectLogFrameGrid.java -text
+sigmah/src/main/java/org/sigmah/client/page/project/logframe/ProjectLogFrameLabels.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/logframe/ProjectLogFramePresenter.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/logframe/ProjectLogFrameView.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/logframe/grid/ActionsMenu.java -text
@@ -1134,6 +1135,11 @@ sigmah/src/main/java/org/sigmah/server/endpoint/export/Export.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/export/ExportModule.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/export/ExportServlet.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/export/ReportServlet.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/export/sigmah/ExportException.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/export/sigmah/ExportFormat.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/export/sigmah/Exporter.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/export/sigmah/LogFrameExporter.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/export/sigmah/SigmahExportServlet.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/file/FileDownloadServlet.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/file/FileManager.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/file/FileManagerImpl.java -text
@@ -1598,6 +1604,7 @@ sigmah/src/main/java/org/sigmah/shared/dto/DTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/DTOMapper.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/DimensionFolder.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/EntityDTO.java -text
+sigmah/src/main/java/org/sigmah/shared/dto/ExportUtils.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/IndicatorDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/IndicatorGroup.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/IndicatorRowDTO.java -text

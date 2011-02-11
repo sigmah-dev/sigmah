@@ -11,6 +11,9 @@ import com.extjs.gxt.ui.client.widget.Container;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Label;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.form.FormPanel;
+import com.extjs.gxt.ui.client.widget.form.FormPanel.Encoding;
+import com.extjs.gxt.ui.client.widget.form.FormPanel.Method;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.HBoxLayout;
 import com.extjs.gxt.ui.client.widget.layout.HBoxLayoutData;
@@ -19,6 +22,7 @@ import com.extjs.gxt.ui.client.widget.layout.VBoxLayout.VBoxLayoutAlign;
 import com.extjs.gxt.ui.client.widget.layout.VBoxLayoutData;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
+import com.google.gwt.core.client.GWT;
 
 /**
  * The view manipulated by the log frame presenter.
@@ -32,8 +36,8 @@ public class ProjectLogFrameView extends ProjectLogFramePresenter.View {
     private Button saveButton;
     private Button copyButton;
     private Button pasteButton;
-    private Button wordButton;
     private Button excelButton;
+    private FormPanel excelForm;
 
     // Textboxes.
     private TextField<String> titleTextBox;
@@ -164,22 +168,22 @@ public class ProjectLogFrameView extends ProjectLogFramePresenter.View {
         // Copy button.
         copyButton = new Button(I18N.CONSTANTS.copy());
         copyButton.setEnabled(true);
-        // TODO unmask it.
-//        copyButton.setVisible(false);
 
         // Paste button.
         pasteButton = new Button(I18N.CONSTANTS.paste());
         pasteButton.setEnabled(false);
-        // TODO unmask it.
-//        pasteButton.setVisible(false);
-
-        // Export to Word button.
-        wordButton = new Button(I18N.CONSTANTS.exportToWord(), IconImageBundle.ICONS.msword());
-        wordButton.setEnabled(true);
 
         // Export to Excel button.
         excelButton = new Button(I18N.CONSTANTS.exportToExcel(), IconImageBundle.ICONS.excel());
-        excelButton.setEnabled(false);
+
+        // Export form.
+        excelForm = new FormPanel();
+        excelForm.setBodyBorder(false);
+        excelForm.setHeaderVisible(false);
+        excelForm.setPadding(0);
+        excelForm.setEncoding(Encoding.URLENCODED);
+        excelForm.setMethod(Method.POST);
+        excelForm.setAction(GWT.getModuleBaseURL() + "export");
 
         // Actions toolbar.
         final ToolBar toolBar = new ToolBar();
@@ -190,8 +194,8 @@ public class ProjectLogFrameView extends ProjectLogFramePresenter.View {
         toolBar.add(copyButton);
         toolBar.add(pasteButton);
         toolBar.add(new SeparatorToolItem());
-        toolBar.add(wordButton);
         toolBar.add(excelButton);
+        toolBar.add(excelForm);
 
         return toolBar;
     }
@@ -217,13 +221,13 @@ public class ProjectLogFrameView extends ProjectLogFramePresenter.View {
     }
 
     @Override
-    public Button getWordExportButton() {
-        return wordButton;
+    public Button getExcelExportButton() {
+        return excelButton;
     }
 
     @Override
-    public Button getExcelExportButton() {
-        return excelButton;
+    public FormPanel getExcelExportForm() {
+        return excelForm;
     }
 
     @Override
