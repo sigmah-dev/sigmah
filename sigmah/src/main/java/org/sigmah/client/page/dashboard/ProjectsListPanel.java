@@ -667,10 +667,18 @@ public class ProjectsListPanel {
                             final List<ProjectDTOLight> resultList = result.getList();
                             int i = -1;
                             for (final ProjectDTOLight p : resultList) {
+
                                 // Project id.
                                 p.setProjectId(p.getId());
                                 // Tree id.
                                 p.setId(i--);
+
+                                for (final ProjectDTOLight c : p.getChildrenProjects()) {
+                                    // Project id.
+                                    c.setProjectId(c.getId());
+                                    // Tree id.
+                                    c.setId(i--);
+                                }
                             }
                             getProjectsStore().add(resultList, true);
                         }
