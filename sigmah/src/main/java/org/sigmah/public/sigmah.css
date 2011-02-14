@@ -1053,7 +1053,7 @@ body {
 
 .credits-partner {
 	margin-left: 15px;
-	padding-top: 8px;
+	padding-top: 3px;
 }
 
 a.credits-partner-url,
@@ -1066,4 +1066,22 @@ a.credits-partner-url:active {
 	color: black;
 	text-decoration: none;
 	text-decoration: underline;
+}
+
+.credits-timeline {
+	border-top: #1B3280 3px solid;
+	padding-top: 10px;
+}
+
+.credits-developers {
+	margin-top: 20px;	
+}
+
+.credits-developers-header {
+	font-weight: bold;
+}
+
+.credits-developer {
+	margin-left: 15px;
+	padding-top: 3px;
 }

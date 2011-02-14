@@ -1010,6 +1010,7 @@ sigmah/src/main/java/org/sigmah/public/image/bullet_star.png -text
 sigmah/src/main/java/org/sigmah/public/image/bullet_star_black.png -text
 sigmah/src/main/java/org/sigmah/public/image/context_menu_icon.png -text
 sigmah/src/main/java/org/sigmah/public/image/context_menu_icon_orange.png -text
+sigmah/src/main/java/org/sigmah/public/image/credits.png -text
 sigmah/src/main/java/org/sigmah/public/image/deconnexion.png -text
 sigmah/src/main/java/org/sigmah/public/image/default-logo.png -text
 sigmah/src/main/java/org/sigmah/public/image/filter.png -text
@@ -1797,6 +1798,7 @@ sigmah/src/main/resources/template/page/ConfirmInvite.ftl -text
 sigmah/src/main/resources/template/page/Host.ftl -text
 sigmah/src/main/resources/template/page/InvalidInvite.ftl -text
 sigmah/src/main/resources/template/page/Login.ftl -text
+sigmah/src/main/resources/version.properties -text
 sigmah/src/test/java/org/sigmah/MockDb.java -text
 sigmah/src/test/java/org/sigmah/client/dispatch/remote/CommandRequestTest.java -text
 sigmah/src/test/java/org/sigmah/client/dispatch/remote/RemoteDispatcherTest.java -text

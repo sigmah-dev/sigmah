@@ -32,9 +32,13 @@ public class ConfigModule extends AbstractModule {
 
         final Properties properties = new Properties();
 
-        tryToLoadFrom(properties, webInfDirectory(context));
-        tryToLoadFrom(properties, tomcatConfigurationDirectory());
-        tryToLoadFrom(properties, classesDirectory());
+        // Load sigmah.properties.
+        tryToLoadFrom(properties, sigmahFromWebInfDirectory(context));
+        tryToLoadFrom(properties, sigmahFromTomcatConfigurationDirectory());
+        tryToLoadFrom(properties, sigmahFromClassesDirectory());
+
+        // Load version.properties.
+        tryToLoadFrom(properties, versionFromClassesDirectory());
 
         // Debug
         if (logger.isDebugEnabled()) {
@@ -42,6 +46,8 @@ public class ConfigModule extends AbstractModule {
                     + properties.getProperty("repository.files"));
             logger.debug("Properties 'repository.images' [sigmah.properties] = "
                     + properties.getProperty("repository.images"));
+            logger.debug("Properties 'version.number' [sigmah.properties] = "
+                    + properties.getProperty("version.number"));
         }
 
         return properties;
@@ -72,15 +78,19 @@ public class ConfigModule extends AbstractModule {
         }
     }
 
-    private File webInfDirectory(ServletContext context) {
+    private File sigmahFromWebInfDirectory(ServletContext context) {
         return new File(context.getRealPath("WEB-INF") + File.separator + "sigmah.properties");
     }
 
-    private File tomcatConfigurationDirectory() {
+    private File sigmahFromTomcatConfigurationDirectory() {
         return new File(System.getenv("CATALINA_BASE") + File.separator + "conf" + File.separator + "sigmah.properties");
     }
 
-    private InputStream classesDirectory() {
+    private InputStream sigmahFromClassesDirectory() {
         return this.getClass().getClassLoader().getResourceAsStream("/sigmah.properties");
+    }
+
+    private InputStream versionFromClassesDirectory() {
+        return this.getClass().getClassLoader().getResourceAsStream("/version.properties");
     }
 }

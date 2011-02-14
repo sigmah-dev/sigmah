@@ -59,7 +59,7 @@ public class ApplicationInfo implements CommandResult {
      * 
      */
     public static enum ApplicationPartnerRole {
-        DEVELOPPER, DESIGN, GRAPHISM;
+        DEV, DES, GRA;
     }
 
     /**
@@ -117,18 +117,18 @@ public class ApplicationInfo implements CommandResult {
      * @author tmi
      * 
      */
-    public static class ApplicationDevelopper implements Serializable {
+    public static class ApplicationDeveloper implements Serializable {
 
         private static final long serialVersionUID = -3612557266664530686L;
 
         private String name;
         private String email;
 
-        public ApplicationDevelopper() {
+        public ApplicationDeveloper() {
             // serialization
         }
 
-        public ApplicationDevelopper(String name, String email) {
+        public ApplicationDeveloper(String name, String email) {
             this.name = name;
             this.email = email;
         }
@@ -194,7 +194,7 @@ public class ApplicationInfo implements CommandResult {
     private String versionReleaseDate;
     private List<ApplicationManager> managers;
     private List<ApplicationPartner> partners;
-    private List<ApplicationDevelopper> developpers;
+    private List<ApplicationDeveloper> developpers;
     private List<ApplicationContributor> contributors;
 
     public ApplicationInfo() {
@@ -241,11 +241,11 @@ public class ApplicationInfo implements CommandResult {
         this.partners = partners;
     }
 
-    public List<ApplicationDevelopper> getDeveloppers() {
+    public List<ApplicationDeveloper> getDeveloppers() {
         return developpers;
     }
 
-    public void setDeveloppers(List<ApplicationDevelopper> developpers) {
+    public void setDeveloppers(List<ApplicationDeveloper> developpers) {
         this.developpers = developpers;
     }
 
