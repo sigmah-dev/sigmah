@@ -128,7 +128,8 @@ public class SigmahAppFrame implements Frame {
                     }
                 }
             });
-            RootPanel.get("credit").add(creditButton);
+            // TODO hide the credit frame
+            // RootPanel.get("credit").add(creditButton);
 
             // Tab bar
             final TabBar tabBar = new TabBar(tabModel, eventBus);
