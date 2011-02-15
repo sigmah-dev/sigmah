@@ -34,10 +34,11 @@ public class GwtRpcModule extends ServletModule {
         serve("/Login/service").with(LoginServiceServlet.class);
 
         // Sigmah services
-        serve("/SigmahAuthToken").with(SigmahAuthDictionaryServlet.class); // Authentication
+        serve("/SigmahAuthToken").with(SigmahAuthDictionaryServlet.class); // Authentication.
         serve("/Sigmah/upload").with(FileUploadServlet.class); // Files upload.
         serve("/Sigmah/download").with(FileDownloadServlet.class); // Files download.
         serve("/Sigmah/image-provider").with(ImageServlet.class); // Image provider.
+        serve("/Sigmah/password").with(RetrievePasswordServlet.class); // Password lost service.
         
         // Disengages the export service.
         // serve("/Sigmah/export").with(SigmahExportServlet.class); // Exports.

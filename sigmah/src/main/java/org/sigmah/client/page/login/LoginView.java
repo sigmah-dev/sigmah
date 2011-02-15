@@ -8,8 +8,11 @@ package org.sigmah.client.page.login;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.MessageBoxEvent;
+import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style.Visibility;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.KeyCodes;
@@ -34,6 +37,7 @@ import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.http.client.URL;
 import com.google.gwt.user.client.Cookies;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.ListBox;
@@ -137,7 +141,40 @@ public class LoginView extends Composite {
         label.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                MessageBox.alert("Error", "Not Implemented Yet.", null);
+                MessageBox.prompt(I18N.CONSTANTS.loginPasswordForgotten(), I18N.CONSTANTS.loginLoginField(), new Listener<MessageBoxEvent>() {
+
+                    @Override
+                    public void handleEvent(MessageBoxEvent be) {
+                        // If the user clicked on "OK".
+                        if(Dialog.OK.equals(be.getButtonClicked().getItemId())) {
+                            final Dialog waitDialog = new Dialog();
+                            waitDialog.setHeading(I18N.CONSTANTS.loginPasswordForgotten());
+                            waitDialog.addText(I18N.CONSTANTS.loading());
+                            waitDialog.setButtons("");
+                            waitDialog.setModal(true);
+                            waitDialog.setClosable(false);
+                            waitDialog.show();
+
+                            final String email = be.getValue();
+
+                            final RetrievePasswordServiceAsync service = GWT.create(RetrievePasswordService.class);
+                            service.retrievePassword(email, languageListBox.getValue(languageListBox.getSelectedIndex()), new AsyncCallback<Void>() {
+
+                                @Override
+                                public void onFailure(Throwable caught) {
+                                    waitDialog.hide();
+                                    MessageBox.alert(I18N.CONSTANTS.loginPasswordForgotten(), I18N.MESSAGES.loginRetrievePasswordBadLogin(email), null);
+                                }
+
+                                @Override
+                                public void onSuccess(Void result) {
+                                    waitDialog.hide();
+                                    MessageBox.alert(I18N.CONSTANTS.loginPasswordForgotten(), I18N.MESSAGES.loginRetrievePasswordSuccessfull(email), null);
+                                }
+                            });
+                        }
+                    }
+                });
             }
         });
         bottomPanel.add(label);

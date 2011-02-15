@@ -367,6 +367,8 @@ sigmah/src/main/java/org/sigmah/client/page/entry/editor/SiteFormLoader.java -te
 sigmah/src/main/java/org/sigmah/client/page/entry/editor/SiteFormPage.java -text
 sigmah/src/main/java/org/sigmah/client/page/entry/editor/SiteFormPresenter.java -text
 sigmah/src/main/java/org/sigmah/client/page/login/LoginView.java -text
+sigmah/src/main/java/org/sigmah/client/page/login/RetrievePasswordService.java -text
+sigmah/src/main/java/org/sigmah/client/page/login/RetrievePasswordServiceAsync.java -text
 sigmah/src/main/java/org/sigmah/client/page/map/BubbleLayerForm.java -text
 sigmah/src/main/java/org/sigmah/client/page/map/LayoutForm.java -text
 sigmah/src/main/java/org/sigmah/client/page/map/MapForm.java -text
@@ -1153,6 +1155,7 @@ sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/DownloadServlet.java -tex
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/GwtRpcModule.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/LoginServiceServlet.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/MapIconServlet.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/RetrievePasswordServlet.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/AddPartnerHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/AmendmentActionHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/BaseEntityHandler.java -text
