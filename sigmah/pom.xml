@@ -5,7 +5,7 @@
     <groupId>org.sigmah</groupId>
     <artifactId>sigmah</artifactId>
     <packaging>war</packaging>
-    <version>0.6.2-SNAPSHOT</version>
+    <version>0.8.1-SNAPSHOT</version>
     <name>Sigmah</name>
     <description>Web-based database platform for program monitoring and reporting for the UN,
         NGOs, and others working in humanitarian, development, and post-conflict contexts.</description>
@@ -867,7 +867,7 @@
                         <configuration>
                             <module>org.sigmah.Sigmah</module>
                             <logLevel>DEBUG</logLevel>
-                            <runTarget>Sigmah/sigmah.html</runTarget>
+                            <runTarget>Sigmah</runTarget>
                         </configuration>
                         <executions>
                             <execution>
