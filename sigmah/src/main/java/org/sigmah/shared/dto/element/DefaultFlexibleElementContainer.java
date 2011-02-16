@@ -79,4 +79,10 @@ public interface DefaultFlexibleElementContainer extends FlexibleElementContaine
      *         {@link DefaultFlexibleElementType#MANAGER}.
      */
     public UserDTO getManager();
+
+    /**
+     * @return the property for the default type
+     *         {@link DefaultFlexibleElementType#ORG_UNIT}.
+     */
+    public int getOrgUnitId();
 }

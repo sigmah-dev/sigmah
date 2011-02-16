@@ -15,6 +15,7 @@ import org.sigmah.shared.command.result.ValueResult;
 import org.sigmah.shared.command.result.ValueResultUtils;
 import org.sigmah.shared.domain.element.DefaultFlexibleElementType;
 import org.sigmah.shared.dto.CountryDTO;
+import org.sigmah.shared.dto.OrgUnitDTOLight;
 import org.sigmah.shared.dto.UserDTO;
 import org.sigmah.shared.dto.element.handler.RequiredValueEvent;
 import org.sigmah.shared.dto.element.handler.ValueEvent;
@@ -56,6 +57,8 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
     private transient ListStore<CountryDTO> countriesStore;
 
     private transient ListStore<UserDTO> usersStore;
+
+    private transient ListStore<OrgUnitDTOLight> orgUnitsStore;
 
     private transient DefaultFlexibleElementContainer container;
 
@@ -734,6 +737,192 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
             component = field;
         }
             break;
+        case ORG_UNIT: {
+
+            final Field<?> field;
+            final int id = container.getOrgUnitId();
+
+            if (enabled) {
+
+                final ComboBox<OrgUnitDTOLight> comboBox = new ComboBox<OrgUnitDTOLight>();
+
+                if (orgUnitsStore == null) {
+                    orgUnitsStore = new ListStore<OrgUnitDTOLight>();
+                }
+
+                comboBox.setStore(orgUnitsStore);
+                comboBox.setDisplayField("completeName");
+                comboBox.setValueField("id");
+                comboBox.setTriggerAction(TriggerAction.ALL);
+                comboBox.setEditable(true);
+                comboBox.setAllowBlank(true);
+
+                if (orgUnitsStore.getCount() == 0) {
+
+                    info.getOrgUnit(new AsyncCallback<OrgUnitDTOLight>() {
+
+                        /**
+                         * Fills combobox with the children of the given root
+                         * org units.
+                         * 
+                         * @param root
+                         *            The root org unit.
+                         */
+                        private void fillOrgUnitsList(OrgUnitDTOLight root) {
+
+                            for (final OrgUnitDTOLight child : root.getChildrenDTO()) {
+                                recursiveFillOrgUnitsList(child);
+                            }
+                        }
+
+                        /**
+                         * Fills recursively the combobox from the given root
+                         * org unit.
+                         * 
+                         * @param root
+                         *            The root org unit.
+                         */
+                        private void recursiveFillOrgUnitsList(OrgUnitDTOLight root) {
+
+                            if (root.getCanContainProjects()) {
+                                orgUnitsStore.add(root);
+                            }
+
+                            for (final OrgUnitDTOLight child : root.getChildrenDTO()) {
+                                recursiveFillOrgUnitsList(child);
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Throwable e) {
+                            Log.error("[getComponent] Error while getting users info.", e);
+                        }
+
+                        @Override
+                        public void onSuccess(OrgUnitDTOLight result) {
+
+                            // Fills the store.
+                            fillOrgUnitsList(result);
+
+                            // Sets the value to the field.
+                            if (id != -1) {
+                                for (final OrgUnitDTOLight model : orgUnitsStore.getModels()) {
+                                    if (model.getId() == id) {
+                                        comboBox.setValue(model);
+                                    }
+                                }
+                            }
+
+                            // Listens to the selection changes.
+                            comboBox.addSelectionChangedListener(new SelectionChangedListener<OrgUnitDTOLight>() {
+
+                                @Override
+                                public void selectionChanged(SelectionChangedEvent<OrgUnitDTOLight> se) {
+
+                                    String value = null;
+                                    final boolean isValueOn;
+
+                                    // Gets the selected choice.
+                                    final OrgUnitDTOLight choice = se.getSelectedItem();
+
+                                    // Checks if the choice isn't the
+                                    // default empty choice.
+                                    isValueOn = choice != null && choice.getId() != -1;
+
+                                    if (choice != null) {
+                                        value = String.valueOf(choice.getId());
+                                    }
+
+                                    if (value != null) {
+                                        // Fires value change event.
+                                        handlerManager.fireEvent(new ValueEvent(DefaultFlexibleElementDTO.this, value));
+                                    }
+
+                                    // Required element ?
+                                    if (getValidates()) {
+                                        handlerManager.fireEvent(new RequiredValueEvent(isValueOn));
+                                    }
+                                }
+                            });
+                        }
+                    });
+
+                } else {
+
+                    // Sets the value to the field.
+                    if (id != -1) {
+                        for (final OrgUnitDTOLight model : orgUnitsStore.getModels()) {
+                            if (model.getId() == id) {
+                                comboBox.setValue(model);
+                            }
+                        }
+                    }
+
+                    // Listens to the selection changes.
+                    comboBox.addSelectionChangedListener(new SelectionChangedListener<OrgUnitDTOLight>() {
+
+                        @Override
+                        public void selectionChanged(SelectionChangedEvent<OrgUnitDTOLight> se) {
+
+                            String value = null;
+                            final boolean isValueOn;
+
+                            // Gets the selected choice.
+                            final OrgUnitDTOLight choice = se.getSelectedItem();
+
+                            // Checks if the choice isn't the
+                            // default empty choice.
+                            isValueOn = choice != null && choice.getId() != -1;
+
+                            if (choice != null) {
+                                value = String.valueOf(choice.getId());
+                            }
+
+                            if (value != null) {
+                                // Fires value change event.
+                                handlerManager.fireEvent(new ValueEvent(DefaultFlexibleElementDTO.this, value));
+                            }
+
+                            // Required element ?
+                            if (getValidates()) {
+                                handlerManager.fireEvent(new RequiredValueEvent(isValueOn));
+                            }
+                        }
+                    });
+                }
+
+                field = comboBox;
+            } else {
+
+                final LabelField labelField = createLabelField();
+
+                info.getOrgUnit(id, new AsyncCallback<OrgUnitDTOLight>() {
+
+                    @Override
+                    public void onFailure(Throwable e) {
+                        Log.error("[getComponent] Error while getting users info.", e);
+                    }
+
+                    @Override
+                    public void onSuccess(OrgUnitDTOLight result) {
+                        if (result == null) {
+                            labelField.setValue("-");
+                        } else {
+                            labelField.setValue(result.getName() + " - " + result.getFullName());
+                        }
+                    }
+                });
+
+                field = labelField;
+            }
+
+            // Sets the field label.
+            setLabel(I18N.CONSTANTS.orgunit());
+            field.setFieldLabel(getLabel());
+
+            component = field;
+        }
+            break;
         default:
             throw new IllegalArgumentException("[getComponent] The type '" + getType()
                     + "' for the default flexible element doen't exist.");
@@ -1060,6 +1249,41 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
             component = field;
         }
             break;
+        case ORG_UNIT: {
+
+            final Field<Object> field;
+            final int orgUnitId = Integer.parseInt(valueResult.getValueObject());
+
+            // Builds the field and sets its value.
+            if (enabled) {
+                final TextField<Object> textField = new TextField<Object>();
+                field = textField;
+
+            } else {
+                final LabelField labelField = createLabelField();
+                field = labelField;
+            }
+
+            info.getOrgUnit(orgUnitId, new AsyncCallback<OrgUnitDTOLight>() {
+
+                @Override
+                public void onSuccess(OrgUnitDTOLight result) {
+                    field.setValue(result.getName() + " - " + result.getFullName());
+                }
+
+                @Override
+                public void onFailure(Throwable caught) {
+                    field.setValue("-");
+                }
+            });
+
+            // Sets the field label.
+            setLabel(I18N.CONSTANTS.orgunit());
+            field.setFieldLabel(getLabel());
+
+            component = field;
+        }
+            break;
         default:
             throw new IllegalArgumentException("[getComponent] The type '" + getType()
                     + "' for the default flexible element doen't exist.");
@@ -1310,6 +1534,17 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
                     if (u != null) {
                         return new HistoryTokenText(u.getFirstName() != null ? u.getFirstName() + ' ' + u.getName()
                                 : u.getName());
+                    } else {
+                        return new HistoryTokenText("#" + value);
+                    }
+                } else {
+                    return new HistoryTokenText("#" + value);
+                }
+            case ORG_UNIT:
+                if (info != null) {
+                    final OrgUnitDTOLight o = info.getOrgUnit(Integer.valueOf(value));
+                    if (o != null) {
+                        return new HistoryTokenText(o.getName() + " - " + o.getFullName());
                     } else {
                         return new HistoryTokenText("#" + value);
                     }

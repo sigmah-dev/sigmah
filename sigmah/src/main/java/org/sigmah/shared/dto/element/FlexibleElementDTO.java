@@ -7,6 +7,7 @@ package org.sigmah.shared.dto.element;
 
 import org.sigmah.client.CountriesList;
 import org.sigmah.client.EventBus;
+import org.sigmah.client.UserInfo;
 import org.sigmah.client.UsersList;
 import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.dispatch.remote.Authentication;
@@ -67,6 +68,8 @@ public abstract class FlexibleElementDTO extends BaseModelData implements Entity
     protected transient CountriesList countries;
 
     protected transient UsersList users;
+
+    protected transient UserInfo info;
 
     /**
      * Sets the dispatcher to be used in the
@@ -133,6 +136,17 @@ public abstract class FlexibleElementDTO extends BaseModelData implements Entity
      */
     public void setUsers(UsersList users) {
         this.users = users;
+    }
+
+    /**
+     * Sets the info to be used in the {@link #getElementComponent(ValueResult)}
+     * method.
+     * 
+     * @param info
+     *            The info.
+     */
+    public void setUserInfo(UserInfo info) {
+        this.info = info;
     }
 
     /**

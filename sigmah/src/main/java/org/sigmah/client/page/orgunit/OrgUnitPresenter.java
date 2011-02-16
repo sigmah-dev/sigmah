@@ -2,6 +2,7 @@ package org.sigmah.client.page.orgunit;
 
 import org.sigmah.client.CountriesList;
 import org.sigmah.client.EventBus;
+import org.sigmah.client.UserInfo;
 import org.sigmah.client.UsersList;
 import org.sigmah.client.dispatch.AsyncMonitor;
 import org.sigmah.client.dispatch.Dispatcher;
@@ -72,6 +73,7 @@ public class OrgUnitPresenter implements Frame, TabPage {
     private final Authentication authentication;
     private final CountriesList countriesList;
     private final UsersList usersList;
+    private final UserInfo info;
     private Page activePage;
     private OrgUnitState currentState;
     private ToggleAnchor currentTab;
@@ -83,19 +85,20 @@ public class OrgUnitPresenter implements Frame, TabPage {
 
     @Inject
     public OrgUnitPresenter(final Dispatcher dispatcher, View view, Authentication authentication,
-            final EventBus eventBus, final CountriesList countriesList,  final UsersList usersList) {
+            final EventBus eventBus, final CountriesList countriesList, final UsersList usersList, final UserInfo info) {
 
         this.dispatcher = dispatcher;
         this.view = view;
         this.authentication = authentication;
         this.countriesList = countriesList;
         this.usersList = usersList;
-        
+        this.info = info;
+
         final DummyPresenter dummyPresenter = new DummyPresenter();
 
         this.presenters = new SubPresenter[] {
                 new OrgUnitDashboardPresenter(dispatcher, eventBus, authentication, this),
-                new OrgUnitDetailsPresenter(dispatcher, authentication, this, countriesList, usersList),
+                new OrgUnitDetailsPresenter(dispatcher, authentication, this, countriesList, usersList, info),
                 new OrgUnitCalendarPresenter(dispatcher, authentication, this), dummyPresenter
 
         };
@@ -289,6 +292,7 @@ public class OrgUnitPresenter implements Frame, TabPage {
                         defaultElement.setAuthentication(authentication);
                         defaultElement.setCountries(countriesList);
                         defaultElement.setUsers(usersList);
+                        defaultElement.setUserInfo(info);
                         defaultElement.setCurrentContainerDTO(currentOrgUnitDTO);
 
                         final Component component = defaultElement.getElementComponent(null, false);

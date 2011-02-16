@@ -416,6 +416,15 @@ public final class ProjectDTO extends BaseModelData implements EntityDTO, Defaul
         set("currentAmendment", currentAmendment);
     }
 
+    @Override
+    public int getOrgUnitId() {
+        return get("orgUnit");
+    }
+
+    public void setOrgUnit(int orgUnit) {
+        set("orgUnit", orgUnit);
+    }
+
     public void addListener(MonitoredPointListener l) {
 
         if (listeners == null) {

@@ -568,6 +568,33 @@ public class UpdateProjectHandler implements CommandHandler<UpdateProject> {
                 oldValue = null;
             }
         }
+            break;
+        case ORG_UNIT: {
+
+            if (project != null) {
+
+                OrgUnit old = null;
+                for (OrgUnit p : project.getPartners()) {
+                    old = p;
+                    break;
+                }
+
+                oldValue = old == null ? null : String.valueOf(old.getId());
+
+                // Retrieves manager.
+                final OrgUnit o = em.find(OrgUnit.class, Integer.valueOf(stringValue));
+                project.getPartners().clear();
+                project.getPartners().add(o);
+
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("[saveDefaultElement] Set container org unit to '" + o.getFullName() + "'.");
+                }
+
+            } else {
+                oldValue = null;
+            }
+        }
+            break;
         default:
             LOG.error("[saveDefaultElement] Unknown type '" + type + "' for the default flexible elements.");
             return null;

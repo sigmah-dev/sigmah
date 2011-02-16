@@ -598,6 +598,7 @@ public class ProjectDashboardPresenter implements SubPresenter {
                         elementDTO.setAuthentication(authentication);
                         elementDTO.setCountries(countriesList);
                         elementDTO.setUsers(usersList);
+                        elementDTO.setUserInfo(info);
                         elementDTO.setCurrentContainerDTO(projectPresenter.getCurrentProjectDTO());
                         elementDTO.assignValue(valueResult);
 
@@ -1251,6 +1252,9 @@ public class ProjectDashboardPresenter implements SubPresenter {
             } else {
                 // nothing, invalid user.
             }
+            break;
+        case ORG_UNIT:
+            currentProjectDTO.setOrgUnit(Integer.parseInt(value));
             break;
         default:
             // Nothing, unknown type.

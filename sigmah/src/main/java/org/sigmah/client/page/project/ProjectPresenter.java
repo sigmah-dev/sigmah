@@ -107,6 +107,7 @@ public class ProjectPresenter implements Frame, TabPage {
     private final Authentication authentication;
     private final CountriesList countriesList;
     private final UsersList usersList;
+    private final UserInfo info;
     private Page activePage;
 
     private ProjectState currentState;
@@ -147,13 +148,15 @@ public class ProjectPresenter implements Frame, TabPage {
         this.authentication = authentication;
         this.countriesList = countriesList;
         this.usersList = usersList;
+        this.info = info;
 
         final DummyPresenter dummyPresenter = new DummyPresenter(); // For
                                                                     // development
 
         this.presenters = new SubPresenter[] {
-                new ProjectDashboardPresenter(dispatcher, eventBus, authentication, this, info, countriesList, usersList), // Dashboard
-                new ProjectDetailsPresenter(dispatcher, authentication, this, countriesList, usersList), // Details,
+                new ProjectDashboardPresenter(dispatcher, eventBus, authentication, this, info, countriesList,
+                        usersList), // Dashboard
+                new ProjectDetailsPresenter(dispatcher, authentication, this, countriesList, usersList, info), // Details,
                 new ProjectLogFramePresenter(dispatcher, authentication, this), // Logical
                 // Framework
                 dummyPresenter, // Indicators
@@ -376,6 +379,7 @@ public class ProjectPresenter implements Frame, TabPage {
                         defaultElement.setAuthentication(authentication);
                         defaultElement.setCountries(countriesList);
                         defaultElement.setUsers(usersList);
+                        defaultElement.setUserInfo(info);
                         defaultElement.setCurrentContainerDTO(currentProjectDTO);
 
                         final Component component = defaultElement.getElementComponent(null, false);
@@ -445,11 +449,11 @@ public class ProjectPresenter implements Frame, TabPage {
             @Override
             public void selectionChanged(SelectionChangedEvent<AmendmentDTO> se) {
                 int currentAmendmentId = 0;
-                if(currentProjectDTO.getCurrentAmendment() != null)
+                if (currentProjectDTO.getCurrentAmendment() != null)
                     currentAmendmentId = currentProjectDTO.getCurrentAmendment().getId();
 
-                Log.debug("Current "+currentAmendmentId+" / Selected "+se.getSelectedItem().getId());
-                
+                Log.debug("Current " + currentAmendmentId + " / Selected " + se.getSelectedItem().getId());
+
                 displayAmendmentButton.setEnabled(se.getSelectedItem().getId() != currentAmendmentId);
             }
         });
@@ -459,14 +463,13 @@ public class ProjectPresenter implements Frame, TabPage {
             @Override
             public void componentSelected(ButtonEvent ce) {
                 AmendmentDTO amendmentDTO = versionList.getSelection().get(0);
-                if(amendmentDTO.getId() == 0)
+                if (amendmentDTO.getId() == 0)
                     amendmentDTO = null;
                 else
-                    Log.debug("Back to "+amendmentDTO.getId());
+                    Log.debug("Back to " + amendmentDTO.getId());
 
                 currentProjectDTO.setCurrentAmendment(amendmentDTO);
 
-                
                 // Refreshing the whole view
                 discardAllViews();
                 selectTab(currentState.getCurrentSection(), true);
@@ -482,7 +485,7 @@ public class ProjectPresenter implements Frame, TabPage {
 
         // Displaying the available actions
         final Amendment.Action[] actions;
-        if(currentProjectDTO.getAmendmentState() != null)
+        if (currentProjectDTO.getAmendmentState() != null)
             actions = currentProjectDTO.getAmendmentState().getActions();
         else
             actions = new Amendment.Action[0];

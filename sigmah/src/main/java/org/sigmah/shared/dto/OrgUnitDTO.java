@@ -163,6 +163,11 @@ public class OrgUnitDTO extends BaseModelData implements EntityDTO, DefaultFlexi
         return null;
     }
 
+    @Override
+    public int getOrgUnitId() {
+        return -1;
+    }
+
     /**
      * Transforms this entity into a {@link OrgUnitDTOLight} entity.
      * 

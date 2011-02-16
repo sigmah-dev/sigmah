@@ -72,7 +72,12 @@ public class GetProjectHandler implements CommandHandler<GetProject> {
         } else {
 
             if (isProjectVisible(project, user)) {
-                return mapper.map(project, ProjectDTO.class);
+                final ProjectDTO dto = mapper.map(project, ProjectDTO.class);
+                for (final OrgUnit orgUnit : project.getPartners()) {
+                    dto.setOrgUnit(orgUnit.getId());
+                    break;
+                }
+                return dto;
             }
             // The user cannot see this project.
             else {

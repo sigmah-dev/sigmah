@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 
 import org.sigmah.client.CountriesList;
+import org.sigmah.client.UserInfo;
 import org.sigmah.client.UsersList;
 import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.dispatch.monitor.MaskingAsyncMonitor;
@@ -72,6 +73,8 @@ public class ProjectDetailsPresenter implements SubPresenter {
 
     private final UsersList usersList;
 
+    private final UserInfo info;
+
     /**
      * The main project presenter.
      */
@@ -88,12 +91,13 @@ public class ProjectDetailsPresenter implements SubPresenter {
     private int maskCount;
 
     public ProjectDetailsPresenter(Dispatcher dispatcher, Authentication authentication,
-            ProjectPresenter projectPresenter, CountriesList countriesList, UsersList usersList) {
+            ProjectPresenter projectPresenter, CountriesList countriesList, UsersList usersList, UserInfo info) {
         this.dispatcher = dispatcher;
         this.projectPresenter = projectPresenter;
         this.authentication = authentication;
         this.countriesList = countriesList;
         this.usersList = usersList;
+        this.info = info;
     }
 
     @Override
@@ -257,6 +261,7 @@ public class ProjectDetailsPresenter implements SubPresenter {
                                 elementDTO.setAuthentication(authentication);
                                 elementDTO.setCountries(countriesList);
                                 elementDTO.setUsers(usersList);
+                                elementDTO.setUserInfo(info);
                                 elementDTO.setCurrentContainerDTO(projectPresenter.getCurrentProjectDTO());
                                 elementDTO.assignValue(valueResult);
 
@@ -408,6 +413,9 @@ public class ProjectDetailsPresenter implements SubPresenter {
             } else {
                 // nothing, invalid user.
             }
+            break;
+        case ORG_UNIT:
+            currentProjectDTO.setOrgUnit(Integer.parseInt(value));
             break;
         default:
             // Nothing, unknown type.

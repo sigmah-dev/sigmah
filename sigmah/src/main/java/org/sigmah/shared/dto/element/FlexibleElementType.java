@@ -55,6 +55,7 @@ public final class FlexibleElementType {
             return types.get(TextAreaElementDTO.class);
         case COUNTRY:
         case MANAGER:
+        case ORG_UNIT:
             return types.get(QuestionElementDTO.class);
         case BUDGET:
             return types.get(BudgetDistributionElementDTO.class);

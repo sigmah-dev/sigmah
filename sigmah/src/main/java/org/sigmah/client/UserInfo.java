@@ -1,6 +1,7 @@
 package org.sigmah.client;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -35,6 +36,7 @@ public class UserInfo {
      * User org unit.
      */
     private OrgUnitDTOLight orgUnit;
+    private final HashMap<Integer, OrgUnitDTOLight> orgUnitWithId;
     private boolean orgUnitHasBeenSet;
 
     /**
@@ -46,12 +48,15 @@ public class UserInfo {
 
     private final ArrayList<AsyncCallback<OrganizationDTO>> queueOrganization;
     private final ArrayList<AsyncCallback<OrgUnitDTOLight>> queueOrgUnit;
+    private final HashMap<Integer, ArrayList<AsyncCallback<OrgUnitDTOLight>>> queueOrgUnitWithId;
     private final ArrayList<AsyncCallback<ProfileDTO>> queueAggregatedProfile;
     private final ArrayList<AsyncCallback<List<ProfileDTO>>> queueProfiles;
 
     public UserInfo() {
+        orgUnitWithId = new HashMap<Integer, OrgUnitDTOLight>();
         queueOrganization = new ArrayList<AsyncCallback<OrganizationDTO>>();
         queueOrgUnit = new ArrayList<AsyncCallback<OrgUnitDTOLight>>();
+        queueOrgUnitWithId = new HashMap<Integer, ArrayList<AsyncCallback<OrgUnitDTOLight>>>();
         queueAggregatedProfile = new ArrayList<AsyncCallback<ProfileDTO>>();
         queueProfiles = new ArrayList<AsyncCallback<List<ProfileDTO>>>();
         organizationHasBeenSet = false;
@@ -96,6 +101,42 @@ public class UserInfo {
         // Else put the callback in queue to be called later.
         else {
             queueOrgUnit.add(callback);
+        }
+    }
+
+    /**
+     * Gets the org unit with the specified id. If the org unit isn't available
+     * immediately, the callback will be called after the org unit has been set
+     * by the first server call.
+     * 
+     * @param id
+     *            The id.
+     * @param callback
+     *            The callback.
+     */
+    public void getOrgUnit(int id, AsyncCallback<OrgUnitDTOLight> callback) {
+
+        // If the org unit is available, returns it immediately.
+        if (orgUnitHasBeenSet) {
+            callback.onSuccess(orgUnitWithId.get(id));
+        }
+        // Else put the callback in queue to be called later.
+        else {
+
+            final ArrayList<AsyncCallback<OrgUnitDTOLight>> list = queueOrgUnitWithId.get(id);
+            if (list == null) {
+                queueOrgUnitWithId.put(id, list);
+            }
+
+            list.add(callback);
+        }
+    }
+
+    public OrgUnitDTOLight getOrgUnit(int id) {
+        if (orgUnitHasBeenSet) {
+            return orgUnitWithId.get(id);
+        } else {
+            return null;
         }
     }
 
@@ -168,15 +209,35 @@ public class UserInfo {
     private void setOrgUnit(OrgUnitDTOLight orgUnit) {
 
         this.orgUnit = orgUnit;
+        crawlOrgUnit(orgUnit);
 
         for (final AsyncCallback<OrgUnitDTOLight> callback : queueOrgUnit) {
             callback.onSuccess(orgUnit);
         }
 
+        for (final Map.Entry<Integer, ArrayList<AsyncCallback<OrgUnitDTOLight>>> entry : queueOrgUnitWithId.entrySet()) {
+            final OrgUnitDTOLight o = orgUnitWithId.get(entry.getKey());
+            for (final AsyncCallback<OrgUnitDTOLight> callback : entry.getValue()) {
+                callback.onSuccess(o);
+            }
+        }
+
         // Clears the queue.
         queueOrgUnit.clear();
+        queueOrgUnitWithId.clear();
 
         orgUnitHasBeenSet = true;
+    }
+
+    private void crawlOrgUnit(OrgUnitDTOLight root) {
+        if (root != null) {
+            orgUnitWithId.put(root.getId(), root);
+            if (root.getChildrenDTO() != null) {
+                for (final OrgUnitDTOLight child : root.getChildrenDTO()) {
+                    crawlOrgUnit(child);
+                }
+            }
+        }
     }
 
     /**
