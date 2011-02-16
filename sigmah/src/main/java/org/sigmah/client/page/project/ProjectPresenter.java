@@ -8,6 +8,7 @@ import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import org.sigmah.client.CountriesList;
 import org.sigmah.client.EventBus;
 import org.sigmah.client.UserInfo;
+import org.sigmah.client.UsersList;
 import org.sigmah.client.dispatch.AsyncMonitor;
 import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.dispatch.remote.Authentication;
@@ -105,6 +106,7 @@ public class ProjectPresenter implements Frame, TabPage {
     private final Dispatcher dispatcher;
     private final Authentication authentication;
     private final CountriesList countriesList;
+    private final UsersList usersList;
     private Page activePage;
 
     private ProjectState currentState;
@@ -139,18 +141,19 @@ public class ProjectPresenter implements Frame, TabPage {
 
     @Inject
     public ProjectPresenter(final Dispatcher dispatcher, View view, Authentication authentication,
-            final EventBus eventBus, final UserInfo info, final CountriesList countriesList) {
+            final EventBus eventBus, final UserInfo info, final CountriesList countriesList, final UsersList usersList) {
         this.dispatcher = dispatcher;
         this.view = view;
         this.authentication = authentication;
         this.countriesList = countriesList;
+        this.usersList = usersList;
 
         final DummyPresenter dummyPresenter = new DummyPresenter(); // For
                                                                     // development
 
         this.presenters = new SubPresenter[] {
-                new ProjectDashboardPresenter(dispatcher, eventBus, authentication, this, info, countriesList), // Dashboard
-                new ProjectDetailsPresenter(dispatcher, authentication, this, countriesList), // Details,
+                new ProjectDashboardPresenter(dispatcher, eventBus, authentication, this, info, countriesList, usersList), // Dashboard
+                new ProjectDetailsPresenter(dispatcher, authentication, this, countriesList, usersList), // Details,
                 new ProjectLogFramePresenter(dispatcher, authentication, this), // Logical
                 // Framework
                 dummyPresenter, // Indicators
@@ -372,6 +375,7 @@ public class ProjectPresenter implements Frame, TabPage {
                         defaultElement.setService(dispatcher);
                         defaultElement.setAuthentication(authentication);
                         defaultElement.setCountries(countriesList);
+                        defaultElement.setUsers(usersList);
                         defaultElement.setCurrentContainerDTO(currentProjectDTO);
 
                         final Component component = defaultElement.getElementComponent(null, false);

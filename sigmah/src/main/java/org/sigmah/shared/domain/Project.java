@@ -17,6 +17,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.OrderBy;
@@ -51,6 +52,7 @@ public class Project extends UserDatabase {
     private List<Amendment> amendments = new ArrayList<Amendment>();
     private Integer amendmentVersion;
     private Integer amendmentRevision;
+    private User manager;
 
     @Temporal(TemporalType.DATE)
     @Column(name = "end_date", length = 23)
@@ -198,6 +200,16 @@ public class Project extends UserDatabase {
 
     public void setRemindersList(ReminderList remindersList) {
         this.remindersList = remindersList;
+    }
+
+    @ManyToOne(optional = true)
+    @JoinColumn(name = "id_manager", nullable = true)
+    public User getManager() {
+        return this.manager;
+    }
+
+    public void setManager(User manager) {
+        this.manager = manager;
     }
 
     @Override

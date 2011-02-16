@@ -50,6 +50,7 @@ sigmah/src/main/java/org/sigmah/client/SigmahInjector.java -text
 sigmah/src/main/java/org/sigmah/client/SigmahModule.java -text
 sigmah/src/main/java/org/sigmah/client/UsageTracker.java -text
 sigmah/src/main/java/org/sigmah/client/UserInfo.java -text
+sigmah/src/main/java/org/sigmah/client/UsersList.java -text
 sigmah/src/main/java/org/sigmah/client/dispatch/AsyncCallbacks.java -text
 sigmah/src/main/java/org/sigmah/client/dispatch/AsyncMonitor.java -text
 sigmah/src/main/java/org/sigmah/client/dispatch/CommandProxy.java -text
@@ -1194,6 +1195,7 @@ sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetSitePointsHand
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetSyncRegionUpdatesHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetSyncRegionsHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetUserInfoHandler.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetUsersByOrganizationHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetUsersHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetUsersWithProfilesHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetValueHandler.java -text
@@ -1411,6 +1413,7 @@ sigmah/src/main/java/org/sigmah/shared/command/GetSyncRegionUpdates.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetSyncRegions.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetUserInfo.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetUsers.java -text
+sigmah/src/main/java/org/sigmah/shared/command/GetUsersByOrganization.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetUsersWithProfiles.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetValue.java -text
 sigmah/src/main/java/org/sigmah/shared/command/Month.java -text

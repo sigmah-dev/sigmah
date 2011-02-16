@@ -7,5 +7,5 @@ package org.sigmah.shared.domain.element;
  * 
  */
 public enum DefaultFlexibleElementType {
-    CODE, TITLE, BUDGET, START_DATE, END_DATE, COUNTRY, OWNER;
+    CODE, TITLE, BUDGET, START_DATE, END_DATE, COUNTRY, OWNER, MANAGER;
 }

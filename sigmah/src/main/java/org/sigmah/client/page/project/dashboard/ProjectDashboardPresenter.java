@@ -13,6 +13,7 @@ import java.util.List;
 import org.sigmah.client.CountriesList;
 import org.sigmah.client.EventBus;
 import org.sigmah.client.UserInfo;
+import org.sigmah.client.UsersList;
 import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.dispatch.monitor.MaskingAsyncMonitor;
 import org.sigmah.client.dispatch.remote.Authentication;
@@ -51,6 +52,7 @@ import org.sigmah.shared.dto.PhaseModelDTO;
 import org.sigmah.shared.dto.ProjectDTO;
 import org.sigmah.shared.dto.ProjectDTOLight;
 import org.sigmah.shared.dto.ProjectFundingDTO;
+import org.sigmah.shared.dto.UserDTO;
 import org.sigmah.shared.dto.element.DefaultFlexibleElementDTO;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
 import org.sigmah.shared.dto.element.handler.RequiredValueEvent;
@@ -168,6 +170,7 @@ public class ProjectDashboardPresenter implements SubPresenter {
     private final Authentication authentication;
     private final UserInfo info;
     private final CountriesList countriesList;
+    private final UsersList usersList;
 
     /**
      * List of values changes.
@@ -191,13 +194,14 @@ public class ProjectDashboardPresenter implements SubPresenter {
     private int maskCount;
 
     public ProjectDashboardPresenter(Dispatcher dispatcher, EventBus eventBus, Authentication authentication,
-            ProjectPresenter projectPresenter, UserInfo info, CountriesList countriesList) {
+            ProjectPresenter projectPresenter, UserInfo info, CountriesList countriesList, UsersList usersList) {
         this.authentication = authentication;
         this.dispatcher = dispatcher;
         this.eventBus = eventBus;
         this.projectPresenter = projectPresenter;
         this.info = info;
         this.countriesList = countriesList;
+        this.usersList = usersList;
 
         this.tabItemsMap = new HashMap<Integer, TabItem>();
     }
@@ -593,6 +597,7 @@ public class ProjectDashboardPresenter implements SubPresenter {
                         elementDTO.setEventBus(eventBus);
                         elementDTO.setAuthentication(authentication);
                         elementDTO.setCountries(countriesList);
+                        elementDTO.setUsers(usersList);
                         elementDTO.setCurrentContainerDTO(projectPresenter.getCurrentProjectDTO());
                         elementDTO.assignValue(valueResult);
 
@@ -1237,17 +1242,15 @@ public class ProjectDashboardPresenter implements SubPresenter {
             }
             break;
         case OWNER:
-
             // The owner component doesn't fire any event for now.
-
-            /*
-             * final UserPermissionDTO user =
-             * element.getUsersStore().findModel("email", value); if (user !=
-             * null) { currentProjectDTO.setOwnerName(user.getName());
-             * currentProjectDTO.setOwnerFirstName(user.getFirstName());
-             * currentProjectDTO.setOwnerEmail(user.getEmail()); } else { //
-             * nothing, invalid user. }
-             */
+            break;
+        case MANAGER:
+            final UserDTO manager = element.getManagersStore().findModel("id", Integer.parseInt(value));
+            if (manager != null) {
+                currentProjectDTO.setManager(manager);
+            } else {
+                // nothing, invalid user.
+            }
             break;
         default:
             // Nothing, unknown type.

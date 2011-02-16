@@ -551,6 +551,23 @@ public class UpdateProjectHandler implements CommandHandler<UpdateProject> {
             }
         }
             break;
+        case MANAGER: {
+
+            if (project != null) {
+                oldValue = project.getManager() == null ? null : String.valueOf(project.getManager().getId());
+
+                // Retrieves manager.
+                final User manager = em.find(User.class, Integer.valueOf(stringValue));
+                project.setManager(manager);
+
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("[saveDefaultElement] Set container manager to '" + manager.getName() + "'.");
+                }
+
+            } else {
+                oldValue = null;
+            }
+        }
         default:
             LOG.error("[saveDefaultElement] Unknown type '" + type + "' for the default flexible elements.");
             return null;

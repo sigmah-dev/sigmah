@@ -7,11 +7,15 @@ import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.util.HistoryTokenText;
 import org.sigmah.client.util.NumberUtils;
 import org.sigmah.shared.command.GetCountries;
+import org.sigmah.shared.command.GetCountry;
+import org.sigmah.shared.command.GetUsersByOrganization;
 import org.sigmah.shared.command.result.CountryResult;
+import org.sigmah.shared.command.result.UserListResult;
 import org.sigmah.shared.command.result.ValueResult;
 import org.sigmah.shared.command.result.ValueResultUtils;
 import org.sigmah.shared.domain.element.DefaultFlexibleElementType;
 import org.sigmah.shared.dto.CountryDTO;
+import org.sigmah.shared.dto.UserDTO;
 import org.sigmah.shared.dto.element.handler.RequiredValueEvent;
 import org.sigmah.shared.dto.element.handler.ValueEvent;
 import org.sigmah.shared.dto.history.HistoryTokenListDTO;
@@ -38,7 +42,6 @@ import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import org.sigmah.shared.command.GetCountry;
 
 /**
  * DTO mapping class for entity element.DefaultFlexibleElement.
@@ -51,6 +54,8 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
     private static final long serialVersionUID = 3746586633233053639L;
 
     private transient ListStore<CountryDTO> countriesStore;
+
+    private transient ListStore<UserDTO> usersStore;
 
     private transient DefaultFlexibleElementContainer container;
 
@@ -72,9 +77,13 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
         return countriesStore;
     }
 
+    public ListStore<UserDTO> getManagersStore() {
+        return usersStore;
+    }
+
     @Override
     protected Component getComponent(ValueResult valueResult, boolean enabled) {
-        if(valueResult != null && valueResult.isValueDefined())
+        if (valueResult != null && valueResult.isValueDefined())
             return getComponentWithValue(valueResult, enabled);
         else
             return getComponent(enabled);
@@ -514,7 +523,7 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
             final LabelField labelField = createLabelField();
 
             // Sets the field label.
-            setLabel(I18N.CONSTANTS.projectManager());
+            setLabel(I18N.CONSTANTS.projectOwner());
             labelField.setFieldLabel(getLabel());
 
             // Sets the value to the field.
@@ -522,6 +531,207 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
                     + container.getOwnerName() : container.getOwnerName());
 
             component = labelField;
+        }
+            break;
+        case MANAGER: {
+
+            final Field<?> field;
+            final UserDTO u = container.getManager();
+
+            if (enabled) {
+
+                final ComboBox<UserDTO> comboBox = new ComboBox<UserDTO>();
+                comboBox.setEmptyText(I18N.CONSTANTS.flexibleElementDefaultSelectManager());
+
+                if (usersStore == null) {
+                    usersStore = new ListStore<UserDTO>();
+                }
+
+                comboBox.setStore(usersStore);
+                comboBox.setDisplayField("cname");
+                comboBox.setValueField("id");
+                comboBox.setTriggerAction(TriggerAction.ALL);
+                comboBox.setEditable(true);
+                comboBox.setAllowBlank(true);
+
+                // Retrieves the county list.
+                if (usersStore.getCount() == 0) {
+
+                    if (users != null) {
+
+                        users.getUsers(new AsyncCallback<List<UserDTO>>() {
+
+                            @Override
+                            public void onFailure(Throwable e) {
+                                Log.error("[getComponent] Error while getting users list.", e);
+                            }
+
+                            @Override
+                            public void onSuccess(List<UserDTO> result) {
+
+                                // Fills the store.
+                                usersStore.add(result);
+
+                                // Sets the value to the field.
+                                if (u != null) {
+                                    for (final UserDTO model : usersStore.getModels()) {
+                                        if (model.getId() == u.getId()) {
+                                            comboBox.setValue(model);
+                                        }
+                                    }
+                                }
+
+                                // Listens to the selection changes.
+                                comboBox.addSelectionChangedListener(new SelectionChangedListener<UserDTO>() {
+
+                                    @Override
+                                    public void selectionChanged(SelectionChangedEvent<UserDTO> se) {
+
+                                        String value = null;
+                                        final boolean isValueOn;
+
+                                        // Gets the selected choice.
+                                        final UserDTO choice = se.getSelectedItem();
+
+                                        // Checks if the choice isn't the
+                                        // default empty choice.
+                                        isValueOn = choice != null && choice.getId() != -1;
+
+                                        if (choice != null) {
+                                            value = String.valueOf(choice.getId());
+                                        }
+
+                                        if (value != null) {
+                                            // Fires value change event.
+                                            handlerManager.fireEvent(new ValueEvent(DefaultFlexibleElementDTO.this,
+                                                    value));
+                                        }
+
+                                        // Required element ?
+                                        if (getValidates()) {
+                                            handlerManager.fireEvent(new RequiredValueEvent(isValueOn));
+                                        }
+                                    }
+                                });
+                            }
+                        });
+                    } else {
+
+                        dispatcher.execute(new GetUsersByOrganization(authentication.getOrganizationId()), null,
+                                new AsyncCallback<UserListResult>() {
+
+                                    @Override
+                                    public void onFailure(Throwable e) {
+                                        Log.error("[getComponent] Error while getting users list.", e);
+                                    }
+
+                                    @Override
+                                    public void onSuccess(UserListResult result) {
+
+                                        // Fills the store.
+                                        usersStore.add(result.getList());
+
+                                        // Sets the value to the field.
+                                        if (u != null) {
+                                            comboBox.setValue(u);
+                                        }
+
+                                        // Listens to the selection changes.
+                                        comboBox.addSelectionChangedListener(new SelectionChangedListener<UserDTO>() {
+
+                                            @Override
+                                            public void selectionChanged(SelectionChangedEvent<UserDTO> se) {
+
+                                                String value = null;
+                                                final boolean isValueOn;
+
+                                                // Gets the selected choice.
+                                                final UserDTO choice = se.getSelectedItem();
+
+                                                // Checks if the choice isn't
+                                                // the
+                                                // default empty choice.
+                                                isValueOn = choice != null && choice.getId() != -1;
+
+                                                if (choice != null) {
+                                                    value = String.valueOf(choice.getId());
+                                                }
+
+                                                if (value != null) {
+                                                    // Fires value change event.
+                                                    handlerManager.fireEvent(new ValueEvent(
+                                                            DefaultFlexibleElementDTO.this, value));
+                                                }
+
+                                                // Required element ?
+                                                if (getValidates()) {
+                                                    handlerManager.fireEvent(new RequiredValueEvent(isValueOn));
+                                                }
+                                            }
+                                        });
+                                    }
+                                });
+                    }
+                } else {
+
+                    // Sets the value to the field.
+                    if (u != null) {
+                        comboBox.setValue(u);
+                    }
+
+                    // Listens to the selection changes.
+                    comboBox.addSelectionChangedListener(new SelectionChangedListener<UserDTO>() {
+
+                        @Override
+                        public void selectionChanged(SelectionChangedEvent<UserDTO> se) {
+
+                            String value = null;
+                            final boolean isValueOn;
+
+                            // Gets the selected choice.
+                            final UserDTO choice = se.getSelectedItem();
+
+                            // Checks if the choice isn't the default empty
+                            // choice.
+                            isValueOn = choice != null && choice.getId() != -1;
+
+                            if (choice != null) {
+                                value = String.valueOf(choice.getId());
+                            }
+
+                            if (value != null) {
+                                // Fires value change event.
+                                handlerManager.fireEvent(new ValueEvent(DefaultFlexibleElementDTO.this, value));
+                            }
+
+                            // Required element ?
+                            if (getValidates()) {
+                                handlerManager.fireEvent(new RequiredValueEvent(isValueOn));
+                            }
+                        }
+                    });
+                }
+
+                field = comboBox;
+
+            } else {
+
+                final LabelField labelField = createLabelField();
+
+                if (u == null) {
+                    labelField.setValue("-");
+                } else {
+                    labelField.setValue(u.getFirstName() != null ? u.getFirstName() + " " + u.getName() : u.getName());
+                }
+
+                field = labelField;
+            }
+
+            // Sets the field label.
+            setLabel(I18N.CONSTANTS.projectManager());
+            field.setFieldLabel(getLabel());
+
+            component = field;
         }
             break;
         default:
@@ -763,7 +973,6 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
         }
             break;
         case COUNTRY: {
-            // TODO
 
             final Field<Object> field;
             final int countryId = Integer.parseInt(valueResult.getValueObject());
@@ -789,9 +998,8 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
                 public void onSuccess(CountryDTO result) {
                     field.setValue(result.getName());
                 }
-                
+
             });
-            
 
             // Sets the field label.
             setLabel(I18N.CONSTANTS.projectCountry());
@@ -806,13 +1014,50 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
             final LabelField labelField = createLabelField();
 
             // Sets the field label.
-            setLabel(I18N.CONSTANTS.projectManager());
+            setLabel(I18N.CONSTANTS.projectOwner());
             labelField.setFieldLabel(getLabel());
 
             // Sets the value to the field.
             labelField.setValue(valueResult.getValueObject());
 
             component = labelField;
+        }
+            break;
+        case MANAGER: {
+
+            final Field<Object> field;
+            final int userId = Integer.parseInt(valueResult.getValueObject());
+
+            // Builds the field and sets its value.
+            if (enabled) {
+                final TextField<Object> textField = new TextField<Object>();
+                field = textField;
+
+            } else {
+                final LabelField labelField = createLabelField();
+                field = labelField;
+            }
+
+            dispatcher.execute(new GetUsersByOrganization(authentication.getOrganizationId(), userId), null,
+                    new AsyncCallback<UserListResult>() {
+
+                        @Override
+                        public void onFailure(Throwable caught) {
+                            field.setValue("-");
+                        }
+
+                        @Override
+                        public void onSuccess(UserListResult result) {
+                            field.setValue(result.getList().get(0).getCompleteName());
+                        }
+
+                    });
+
+            // Sets the field label.
+            setLabel(I18N.CONSTANTS.projectManager());
+            field.setFieldLabel(getLabel());
+
+            component = field;
         }
             break;
         default:
@@ -1059,6 +1304,18 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
                 final DateTimeFormat format = DateTimeFormat.getFormat(I18N.CONSTANTS.flexibleElementDateFormat());
                 final long time = Long.valueOf(value);
                 return new HistoryTokenText(format.format(new Date(time)));
+            case MANAGER:
+                if (users != null) {
+                    final UserDTO u = users.getUser(Integer.valueOf(value));
+                    if (u != null) {
+                        return new HistoryTokenText(u.getFirstName() != null ? u.getFirstName() + ' ' + u.getName()
+                                : u.getName());
+                    } else {
+                        return new HistoryTokenText("#" + value);
+                    }
+                } else {
+                    return new HistoryTokenText("#" + value);
+                }
             default:
                 return super.renderHistoryToken(token);
             }

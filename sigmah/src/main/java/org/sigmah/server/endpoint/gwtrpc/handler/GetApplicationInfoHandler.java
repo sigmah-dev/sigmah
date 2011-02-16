@@ -26,8 +26,6 @@ public class GetApplicationInfoHandler implements CommandHandler<GetApplicationI
 
         final ApplicationInfo info = new ApplicationInfo();
 
-        // TODO read info from an external file.
-
         // Version.
         info.setVersionName(configProperties.getProperty("version.name"));
         info.setVersionNumber(configProperties.getProperty("version.number"));

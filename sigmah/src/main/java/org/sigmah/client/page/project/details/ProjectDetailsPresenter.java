@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 
 import org.sigmah.client.CountriesList;
+import org.sigmah.client.UsersList;
 import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.dispatch.monitor.MaskingAsyncMonitor;
 import org.sigmah.client.dispatch.remote.Authentication;
@@ -19,6 +20,7 @@ import org.sigmah.shared.domain.profile.GlobalPermissionEnum;
 import org.sigmah.shared.dto.CountryDTO;
 import org.sigmah.shared.dto.ProjectDTO;
 import org.sigmah.shared.dto.ProjectDetailsDTO;
+import org.sigmah.shared.dto.UserDTO;
 import org.sigmah.shared.dto.element.DefaultFlexibleElementDTO;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
 import org.sigmah.shared.dto.element.handler.ValueEvent;
@@ -68,6 +70,8 @@ public class ProjectDetailsPresenter implements SubPresenter {
 
     private final CountriesList countriesList;
 
+    private final UsersList usersList;
+
     /**
      * The main project presenter.
      */
@@ -84,11 +88,12 @@ public class ProjectDetailsPresenter implements SubPresenter {
     private int maskCount;
 
     public ProjectDetailsPresenter(Dispatcher dispatcher, Authentication authentication,
-            ProjectPresenter projectPresenter, CountriesList countriesList) {
+            ProjectPresenter projectPresenter, CountriesList countriesList, UsersList usersList) {
         this.dispatcher = dispatcher;
         this.projectPresenter = projectPresenter;
         this.authentication = authentication;
         this.countriesList = countriesList;
+        this.usersList = usersList;
     }
 
     @Override
@@ -220,7 +225,7 @@ public class ProjectDetailsPresenter implements SubPresenter {
 
                         // Retrieving the current amendment id
                         Integer amendmentId = null;
-                        if(projectPresenter.getCurrentProjectDTO().getCurrentAmendment() != null)
+                        if (projectPresenter.getCurrentProjectDTO().getCurrentAmendment() != null)
                             amendmentId = projectPresenter.getCurrentProjectDTO().getCurrentAmendment().getId();
 
                         // Remote call to ask for this element value.
@@ -251,6 +256,7 @@ public class ProjectDetailsPresenter implements SubPresenter {
                                 elementDTO.setService(dispatcher);
                                 elementDTO.setAuthentication(authentication);
                                 elementDTO.setCountries(countriesList);
+                                elementDTO.setUsers(usersList);
                                 elementDTO.setCurrentContainerDTO(projectPresenter.getCurrentProjectDTO());
                                 elementDTO.assignValue(valueResult);
 
@@ -393,17 +399,15 @@ public class ProjectDetailsPresenter implements SubPresenter {
             }
             break;
         case OWNER:
-
             // The owner component doesn't fire any event for now.
-
-            /*
-             * final UserPermissionDTO user =
-             * element.getUsersStore().findModel("email", value); if (user !=
-             * null) { currentProjectDTO.setOwnerName(user.getName());
-             * currentProjectDTO.setOwnerFirstName(user.getFirstName());
-             * currentProjectDTO.setOwnerEmail(user.getEmail()); } else { //
-             * nothing, invalid user. }
-             */
+            break;
+        case MANAGER:
+            final UserDTO manager = element.getManagersStore().findModel("id", Integer.parseInt(value));
+            if (manager != null) {
+                currentProjectDTO.setManager(manager);
+            } else {
+                // nothing, invalid user.
+            }
             break;
         default:
             // Nothing, unknown type.

@@ -7,6 +7,7 @@ package org.sigmah.shared.dto.element;
 
 import org.sigmah.client.CountriesList;
 import org.sigmah.client.EventBus;
+import org.sigmah.client.UsersList;
 import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.dispatch.remote.Authentication;
 import org.sigmah.client.i18n.I18N;
@@ -65,6 +66,8 @@ public abstract class FlexibleElementDTO extends BaseModelData implements Entity
 
     protected transient CountriesList countries;
 
+    protected transient UsersList users;
+
     /**
      * Sets the dispatcher to be used in the
      * {@link #getElementComponent(ValueResult)} method.
@@ -119,6 +122,17 @@ public abstract class FlexibleElementDTO extends BaseModelData implements Entity
      */
     public void setCountries(CountriesList countries) {
         this.countries = countries;
+    }
+
+    /**
+     * Sets the users list to be used in the
+     * {@link #getElementComponent(ValueResult)} method.
+     * 
+     * @param users
+     *            The users list.
+     */
+    public void setUsers(UsersList users) {
+        this.users = users;
     }
 
     /**
@@ -180,10 +194,14 @@ public abstract class FlexibleElementDTO extends BaseModelData implements Entity
     private Component getComponentWithHistory(ValueResult valueResult, boolean enabled) {
 
         // Checking the amendment state.
-        if(enabled && // This element is in an editable state
-                Boolean.TRUE.equals(getAmendable()) && // This element is part of the amendment
-                currentContainerDTO instanceof ProjectDTO && // This element is displayed in a project
-                (((ProjectDTO)currentContainerDTO).getAmendmentState() != Amendment.State.DRAFT || ((ProjectDTO)currentContainerDTO).getCurrentAmendment() != null)) {
+        if (enabled && // This element is in an editable state
+                Boolean.TRUE.equals(getAmendable()) && // This element is part
+                                                       // of the amendment
+                currentContainerDTO instanceof ProjectDTO && // This element is
+                                                             // displayed in a
+                                                             // project
+                (((ProjectDTO) currentContainerDTO).getAmendmentState() != Amendment.State.DRAFT || ((ProjectDTO) currentContainerDTO)
+                        .getCurrentAmendment() != null)) {
             enabled = false;
         }
 

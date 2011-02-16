@@ -158,6 +158,11 @@ public class OrgUnitDTO extends BaseModelData implements EntityDTO, DefaultFlexi
         set("country", officeLocationCountry);
     }
 
+    @Override
+    public UserDTO getManager() {
+        return null;
+    }
+
     /**
      * Transforms this entity into a {@link OrgUnitDTOLight} entity.
      * 

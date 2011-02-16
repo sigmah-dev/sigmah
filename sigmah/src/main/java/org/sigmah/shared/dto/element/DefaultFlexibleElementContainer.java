@@ -4,6 +4,7 @@ import java.util.Date;
 
 import org.sigmah.shared.domain.element.DefaultFlexibleElementType;
 import org.sigmah.shared.dto.CountryDTO;
+import org.sigmah.shared.dto.UserDTO;
 
 /**
  * Defines a DTO class that contains default flexible elements.
@@ -72,4 +73,10 @@ public interface DefaultFlexibleElementContainer extends FlexibleElementContaine
      *         {@link DefaultFlexibleElementType#OWNER}.
      */
     public String getOwnerName();
+
+    /**
+     * @return the property for the default type
+     *         {@link DefaultFlexibleElementType#MANAGER}.
+     */
+    public UserDTO getManager();
 }

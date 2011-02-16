@@ -54,7 +54,7 @@ public final class FlexibleElementType {
         case END_DATE:
             return types.get(TextAreaElementDTO.class);
         case COUNTRY:
-        case OWNER:
+        case MANAGER:
             return types.get(QuestionElementDTO.class);
         case BUDGET:
             return types.get(BudgetDistributionElementDTO.class);

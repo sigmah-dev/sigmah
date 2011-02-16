@@ -30,8 +30,10 @@ import org.sigmah.client.ui.TabModel;
 import org.sigmah.shared.command.GetApplicationInfo;
 import org.sigmah.shared.command.GetCountries;
 import org.sigmah.shared.command.GetUserInfo;
+import org.sigmah.shared.command.GetUsersByOrganization;
 import org.sigmah.shared.command.result.ApplicationInfo;
 import org.sigmah.shared.command.result.CountryResult;
+import org.sigmah.shared.command.result.UserListResult;
 import org.sigmah.shared.dto.UserInfoDTO;
 import org.sigmah.shared.dto.value.FileUploadUtils;
 
@@ -66,7 +68,8 @@ public class SigmahAppFrame implements Frame {
 
     @Inject
     public SigmahAppFrame(EventBus eventBus, final Authentication auth, OfflineView offlineMenu,
-            final TabModel tabModel, final Dispatcher dispatcher, final UserInfo info, final CountriesList countries) {
+            final TabModel tabModel, final Dispatcher dispatcher, final UserInfo info, final CountriesList countries,
+            final UsersList users) {
 
         if (auth == null) {
             RootPanel.get().add(new LoginView());
@@ -128,8 +131,7 @@ public class SigmahAppFrame implements Frame {
                     }
                 }
             });
-            // TODO hide the credit frame
-            // RootPanel.get("credit").add(creditButton);
+            RootPanel.get("credit").add(creditButton);
 
             // Tab bar
             final TabBar tabBar = new TabBar(tabModel, eventBus);
@@ -212,6 +214,21 @@ public class SigmahAppFrame implements Frame {
                     countries.setCountries(result.getData());
                 }
             });
+
+            // Gets users list.
+            dispatcher.execute(new GetUsersByOrganization(auth.getOrganizationId()), null,
+                    new AsyncCallback<UserListResult>() {
+
+                        @Override
+                        public void onFailure(Throwable e) {
+                            Log.error("[execute] Error while getting the users list.", e);
+                        }
+
+                        @Override
+                        public void onSuccess(UserListResult result) {
+                            users.setCountries(result.getList());
+                        }
+                    });
         }
     }
 

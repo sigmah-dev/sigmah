@@ -330,6 +330,15 @@ public final class ProjectDTO extends BaseModelData implements EntityDTO, Defaul
         set("country", country);
     }
 
+    @Override
+    public UserDTO getManager() {
+        return get("manager");
+    }
+
+    public void setManager(UserDTO manager) {
+        set("manager", manager);
+    }
+
     public MonitoredPointListDTO getPointsList() {
         return get("pointsList");
     }

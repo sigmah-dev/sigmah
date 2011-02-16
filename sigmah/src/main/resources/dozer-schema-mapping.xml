@@ -514,7 +514,6 @@
 			<a>parentLogFrame</a>
 			<b>parentLogFrameDTO</b>
 		</field>
-
 	</mapping>
 
 	<!-- LogFrame/LogFrameDTO Mapping -->
@@ -574,8 +573,8 @@
 		</field>
 	</mapping>
 	
-	        <!-- Amendments -->
-        <mapping wildcard="true">
+	<!-- Amendments -->
+	<mapping wildcard="true">
 		<class-a>org.sigmah.shared.domain.Amendment</class-a>
 		<class-b>org.sigmah.shared.dto.AmendmentDTO</class-b>
 
@@ -585,22 +584,22 @@
 		</field>
 	</mapping>
 
-        <!-- ProjectReport/GetProjectReports.ReportReference mapping -->
-        <mapping wildcard="true">
+	<!-- ProjectReport/GetProjectReports.ReportReference mapping -->
+	<mapping wildcard="true">
 		<class-a>org.sigmah.shared.domain.report.ProjectReport</class-a>
 		<class-b>org.sigmah.shared.dto.report.ReportReference</class-b>
 
-                <field>
+		<field>
 			<a>currentVersion.editDate</a>
 			<b>lastEditDate</b>
 		</field>
 
-                <field>
+		<field>
 			<a>currentVersion.editorShortName</a>
 			<b>editorName</b>
 		</field>
 
-                <field>
+		<field>
 			<a>currentVersion.phaseName</a>
 			<b>phaseName</b>
 		</field>
@@ -610,13 +609,14 @@
 	<mapping wildcard="true">
 		<class-a>org.sigmah.shared.domain.User</class-a>
 		<class-b>org.sigmah.shared.dto.UserDTO</class-b>
+		
 		<field-exclude>
 			<a>orgUnitWithProfiles</a>
 			<b>orgUnitWithProfiles</b>
 		</field-exclude>
 	</mapping>
+	
 	<mapping wildcard="true">
-
 		<class-a>org.sigmah.shared.domain.profile.Profile</class-a>
 		<class-b>org.sigmah.shared.dto.profile.ProfileDTOLight</class-b>
 
