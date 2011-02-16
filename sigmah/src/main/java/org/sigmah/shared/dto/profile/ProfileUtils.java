@@ -24,10 +24,10 @@ public final class ProfileUtils {
 
     private static final String START_TAG = "-PDTOS;BEGIN-[";
     private static final String END_TAG = "]-PDTOS;END-";
-    private static final String FIELD_SEPARATOR = "¤";
+    private static final String FIELD_SEPARATOR = "\\|";
     private static final String GLOBAL_PERMISSION_SEPARATOR = "#";
     private static final String PRIVACY_GROUP_SEPARATOR = "#";
-    private static final String PRIVACY_GROUP_FIELD_SEPARATOR = "°";
+    private static final String PRIVACY_GROUP_FIELD_SEPARATOR = "\\*";
 
     /**
      * Gets a custom string representation of a profile which can be
