@@ -101,7 +101,9 @@ public class SigmahAppFrame implements Frame {
                     Window.Location.reload();
                 }
             });
-            RootPanel.get("logout").add(logoutButton);
+            if (RootPanel.get("logout") != null) { 
+            	RootPanel.get("logout").add(logoutButton);
+            }
 
             // Credit
             final Anchor creditButton = new Anchor(I18N.CONSTANTS.credits());
@@ -131,7 +133,10 @@ public class SigmahAppFrame implements Frame {
                     }
                 }
             });
-            RootPanel.get("credit").add(creditButton);
+            
+            if (RootPanel.get("credit")!= null) {
+            	RootPanel.get("credit").add(creditButton);
+            }
 
             // Tab bar
             final TabBar tabBar = new TabBar(tabModel, eventBus);
