@@ -70,16 +70,20 @@ public class ProfileDTO extends BaseModelData implements EntityDTO {
         sb.append("Profile: ");
         sb.append(getName());
         sb.append("\n\tGlobal permissions: ");
-        for (final GlobalPermissionEnum perm : getGlobalPermissions()) {
-            sb.append(perm.name());
-            sb.append(" | ");
+        if (getGlobalPermissions() != null) {
+            for (final GlobalPermissionEnum perm : getGlobalPermissions()) {
+                sb.append(perm.name());
+                sb.append(" | ");
+            }
         }
         sb.append("\n\tPrivacy groups: ");
-        for (final Map.Entry<PrivacyGroupDTO, PrivacyGroupPermissionEnum> perm : getPrivacyGroups().entrySet()) {
-            sb.append(perm.getKey().getTitle());
-            sb.append(" - ");
-            sb.append(perm.getValue().name());
-            sb.append(" | ");
+        if (getPrivacyGroups() != null) {
+            for (final Map.Entry<PrivacyGroupDTO, PrivacyGroupPermissionEnum> perm : getPrivacyGroups().entrySet()) {
+                sb.append(perm.getKey().getTitle());
+                sb.append(" - ");
+                sb.append(perm.getValue().name());
+                sb.append(" | ");
+            }
         }
 
         return sb.toString();
