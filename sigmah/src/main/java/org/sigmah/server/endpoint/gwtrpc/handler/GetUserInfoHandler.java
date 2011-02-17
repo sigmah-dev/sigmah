@@ -18,7 +18,6 @@ import org.sigmah.shared.domain.profile.GlobalPermissionEnum;
 import org.sigmah.shared.domain.profile.PrivacyGroupPermission;
 import org.sigmah.shared.domain.profile.PrivacyGroupPermissionEnum;
 import org.sigmah.shared.domain.profile.Profile;
-import org.sigmah.shared.dto.OrgUnitDTO;
 import org.sigmah.shared.dto.OrganizationDTO;
 import org.sigmah.shared.dto.UserInfoDTO;
 import org.sigmah.shared.dto.profile.PrivacyGroupDTO;
@@ -67,7 +66,7 @@ public class GetUserInfoHandler implements CommandHandler<GetUserInfo> {
             infos.setOrganization(mapper.map(member.getOrganization(), OrganizationDTO.class));
 
             // Org unit.
-            infos.setOrgUnit(mapper.map(member.getOrgUnitWithProfiles().getOrgUnit(), OrgUnitDTO.class));
+            infos.setOrgUnit(member.getOrgUnitWithProfiles().getOrgUnit().getId());
 
             // Profiles.
             aggregateProfiles(member, infos);

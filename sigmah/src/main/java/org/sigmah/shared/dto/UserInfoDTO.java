@@ -10,7 +10,7 @@ public class UserInfoDTO implements CommandResult {
     private static final long serialVersionUID = -6918917417021859161L;
 
     private OrganizationDTO organization;
-    private OrgUnitDTO orgUnit;
+    private int orgUnit;
     private List<ProfileDTO> profiles;
     private ProfileDTO aggregatedProfile;
 
@@ -22,11 +22,11 @@ public class UserInfoDTO implements CommandResult {
         this.organization = organization;
     }
 
-    public OrgUnitDTO getOrgUnit() {
+    public int getOrgUnit() {
         return orgUnit;
     }
 
-    public void setOrgUnit(OrgUnitDTO orgUnit) {
+    public void setOrgUnit(int orgUnit) {
         this.orgUnit = orgUnit;
     }
 

@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.sigmah.shared.domain.profile.GlobalPermissionEnum;
 import org.sigmah.shared.domain.profile.PrivacyGroupPermissionEnum;
+import org.sigmah.shared.dto.OrgUnitDTO;
 import org.sigmah.shared.dto.OrgUnitDTOLight;
 import org.sigmah.shared.dto.OrganizationDTO;
 import org.sigmah.shared.dto.UserInfoDTO;
@@ -35,7 +36,7 @@ public class UserInfo {
     /**
      * User org unit.
      */
-    private OrgUnitDTOLight orgUnit;
+    private int myOrgUnitId;
     private final HashMap<Integer, OrgUnitDTOLight> orgUnitWithId;
     private boolean orgUnitHasBeenSet;
 
@@ -96,7 +97,7 @@ public class UserInfo {
 
         // If the org unit is available, returns it immediately.
         if (orgUnitHasBeenSet) {
-            callback.onSuccess(orgUnit);
+            callback.onSuccess(orgUnitWithId.get(myOrgUnitId));
         }
         // Else put the callback in queue to be called later.
         else {
@@ -190,6 +191,8 @@ public class UserInfo {
 
         this.organization = organization;
 
+        crawlOrgUnit(organization.getRoot());
+
         for (final AsyncCallback<OrganizationDTO> callback : queueOrganization) {
             callback.onSuccess(organization);
         }
@@ -200,25 +203,40 @@ public class UserInfo {
         organizationHasBeenSet = true;
     }
 
+    private void crawlOrgUnit(OrgUnitDTO root) {
+        if (root != null) {
+            orgUnitWithId.put(root.getId(), root.light());
+            if (root.getChildren() != null) {
+                for (final OrgUnitDTO child : root.getChildren()) {
+                    crawlOrgUnit(child);
+                }
+            }
+        }
+    }
+
     /**
      * Sets the org unit and call all waiting jobs.
      * 
-     * @param orgUnit
-     *            The new org unit.
+     * @param orgUnitId
+     *            The org unit id.
      */
-    private void setOrgUnit(OrgUnitDTOLight orgUnit) {
+    private void setOrgUnit(int orgUnitId) {
 
-        this.orgUnit = orgUnit;
-        crawlOrgUnit(orgUnit);
+        this.myOrgUnitId = orgUnitId;
 
-        for (final AsyncCallback<OrgUnitDTOLight> callback : queueOrgUnit) {
-            callback.onSuccess(orgUnit);
+        if (!queueOrgUnit.isEmpty()) {
+            for (final AsyncCallback<OrgUnitDTOLight> callback : queueOrgUnit) {
+                callback.onSuccess(orgUnitWithId.get(myOrgUnitId));
+            }
         }
 
-        for (final Map.Entry<Integer, ArrayList<AsyncCallback<OrgUnitDTOLight>>> entry : queueOrgUnitWithId.entrySet()) {
-            final OrgUnitDTOLight o = orgUnitWithId.get(entry.getKey());
-            for (final AsyncCallback<OrgUnitDTOLight> callback : entry.getValue()) {
-                callback.onSuccess(o);
+        if (!queueOrgUnitWithId.isEmpty()) {
+            for (final Map.Entry<Integer, ArrayList<AsyncCallback<OrgUnitDTOLight>>> entry : queueOrgUnitWithId
+                    .entrySet()) {
+                final OrgUnitDTOLight o = orgUnitWithId.get(entry.getKey());
+                for (final AsyncCallback<OrgUnitDTOLight> callback : entry.getValue()) {
+                    callback.onSuccess(o);
+                }
             }
         }
 
@@ -227,17 +245,6 @@ public class UserInfo {
         queueOrgUnitWithId.clear();
 
         orgUnitHasBeenSet = true;
-    }
-
-    private void crawlOrgUnit(OrgUnitDTOLight root) {
-        if (root != null) {
-            orgUnitWithId.put(root.getId(), root);
-            if (root.getChildrenDTO() != null) {
-                for (final OrgUnitDTOLight child : root.getChildrenDTO()) {
-                    crawlOrgUnit(child);
-                }
-            }
-        }
     }
 
     /**
@@ -287,8 +294,8 @@ public class UserInfo {
             sb.append(info.getOrganization().getName());
 
             // Org unit.
-            sb.append("\n- Organization unit: ");
-            sb.append(info.getOrgUnit().getName());
+            sb.append("\n- Organizational unit: ");
+            sb.append(info.getOrgUnit());
 
             // Profiles list.
             if (info.getProfiles() != null) {
@@ -333,7 +340,7 @@ public class UserInfo {
 
         // Sets info.
         setOrganization(info.getOrganization());
-        setOrgUnit(info.getOrgUnit().light());
+        setOrgUnit(info.getOrgUnit());
         setProfiles(info.getProfiles(), info.getAggregatedProfile());
     }
 }
