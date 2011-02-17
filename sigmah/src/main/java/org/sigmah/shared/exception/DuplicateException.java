@@ -10,6 +10,8 @@ package org.sigmah.shared.exception;
 
 public class DuplicateException extends CommandException {
 
+    private static final long serialVersionUID = -1472379157717566617L;
+
     public DuplicateException() {
     }
 }

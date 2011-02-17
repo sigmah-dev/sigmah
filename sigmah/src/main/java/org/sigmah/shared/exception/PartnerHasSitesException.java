@@ -9,6 +9,8 @@ package org.sigmah.shared.exception;
  */
 public class PartnerHasSitesException extends CommandException {
 
+    private static final long serialVersionUID = -1689479221226000318L;
+
     public PartnerHasSitesException() {
     }
 }

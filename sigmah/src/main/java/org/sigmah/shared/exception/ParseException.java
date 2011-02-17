@@ -10,6 +10,8 @@ package org.sigmah.shared.exception;
  */
 public class ParseException extends CommandException {
 
+    private static final long serialVersionUID = -1785738366482269376L;
+
     public ParseException(String message) {
         super(message);
     }

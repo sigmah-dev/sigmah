@@ -13,9 +13,12 @@ import org.sigmah.shared.report.model.ReportElement;
  * @author Alex Bertram
  *
  */
+@SuppressWarnings("rawtypes")
 public class ReportModelException extends RuntimeException  {
 
-	public ReportModelException() {
+	private static final long serialVersionUID = -773754576378486008L;
+
+    public ReportModelException() {
 		super();
 	}
 
@@ -23,7 +26,8 @@ public class ReportModelException extends RuntimeException  {
 		super(appendElementDetails(message, element), cause);
 	}
 
-	public ReportModelException(String message, ReportElement element) {
+	
+    public ReportModelException(String message, ReportElement element) {
 		super(appendElementDetails(message, element));
 	}
 

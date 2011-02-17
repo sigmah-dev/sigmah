@@ -10,6 +10,8 @@ package org.sigmah.shared.exception;
  */
 public class IllegalAccessCommandException extends UnexpectedCommandException {
 
+    private static final long serialVersionUID = 4811925450225005973L;
+
     public IllegalAccessCommandException() {
     }
 

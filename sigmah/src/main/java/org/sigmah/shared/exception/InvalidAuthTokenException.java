@@ -7,7 +7,9 @@ package org.sigmah.shared.exception;
 
 public class InvalidAuthTokenException extends CommandException {
 
-	public InvalidAuthTokenException() {
+	private static final long serialVersionUID = 5908497842936393699L;
+
+    public InvalidAuthTokenException() {
 		
 	}
 

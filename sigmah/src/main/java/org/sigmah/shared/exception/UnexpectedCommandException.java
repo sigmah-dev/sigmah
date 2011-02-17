@@ -11,6 +11,8 @@ package org.sigmah.shared.exception;
 public class UnexpectedCommandException extends CommandException {
 
 
+    private static final long serialVersionUID = -4328653065951775285L;
+
     public UnexpectedCommandException() {
     }
 

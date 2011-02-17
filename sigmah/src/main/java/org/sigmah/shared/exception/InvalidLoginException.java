@@ -7,7 +7,9 @@ package org.sigmah.shared.exception;
 
 public class InvalidLoginException extends CommandException {
 
-	public InvalidLoginException() {
+	private static final long serialVersionUID = -2555577894555056517L;
+
+    public InvalidLoginException() {
 		super();
 	}
 	
