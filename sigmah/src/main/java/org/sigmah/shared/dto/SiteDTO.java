@@ -18,6 +18,8 @@ import java.util.Date;
  */
 public final class SiteDTO extends BaseModelData implements EntityDTO {
 
+    private static final long serialVersionUID = -8005793321070591202L;
+
     public SiteDTO() {
 	}
 

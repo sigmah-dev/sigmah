@@ -14,7 +14,8 @@ import com.extjs.gxt.ui.client.data.BaseModelData;
  * @author Alex Bertram
  */
 public final class AdminEntityDTO extends BaseModelData implements DTO {
-	private BoundingBoxDTO bounds;
+	private static final long serialVersionUID = 4996539919456037792L;
+    private BoundingBoxDTO bounds;
 	
 	public AdminEntityDTO() {
 	}

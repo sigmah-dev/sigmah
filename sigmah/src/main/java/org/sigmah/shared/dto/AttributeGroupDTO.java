@@ -17,7 +17,8 @@ import com.extjs.gxt.ui.client.data.BaseModelData;
  */
 public final class AttributeGroupDTO extends BaseModelData implements EntityDTO {
 
-	private List<AttributeDTO> attributes = new ArrayList<AttributeDTO>(0);
+	private static final long serialVersionUID = -1370895037462680014L;
+    private List<AttributeDTO> attributes = new ArrayList<AttributeDTO>(0);
 	
 	public AttributeGroupDTO() {
 	}

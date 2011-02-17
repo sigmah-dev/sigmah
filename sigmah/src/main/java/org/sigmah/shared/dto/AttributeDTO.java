@@ -14,6 +14,7 @@ import com.extjs.gxt.ui.client.data.BaseModelData;
  */
 public final class AttributeDTO extends BaseModelData implements EntityDTO {
 
+    private static final long serialVersionUID = -9170500205294367917L;
     public static final String PROPERTY_PREFIX = "ATTRIB";
 
     public AttributeDTO() {

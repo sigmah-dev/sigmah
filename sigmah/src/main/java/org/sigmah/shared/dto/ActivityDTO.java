@@ -19,6 +19,7 @@ import java.util.Map;
  */
 public final class ActivityDTO extends BaseModelData implements EntityDTO {
 
+    private static final long serialVersionUID = -3319562645487148050L;
     public final static int REPORT_ONCE = 0;
     public static final int REPORT_MONTHLY = 1;
 

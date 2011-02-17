@@ -15,6 +15,8 @@ import com.extjs.gxt.ui.client.data.BaseModelData;
 public class MapIconDTO extends BaseModelData {
 
 
+    private static final long serialVersionUID = -98374293830234259L;
+
     public MapIconDTO() {
     }
 

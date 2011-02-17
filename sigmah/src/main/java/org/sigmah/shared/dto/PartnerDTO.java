@@ -15,7 +15,9 @@ import com.extjs.gxt.ui.client.data.BaseModelData;
  */
 public final class PartnerDTO extends BaseModelData implements DTO {
 
-	public PartnerDTO() {
+	private static final long serialVersionUID = 5152225243123590523L;
+
+    public PartnerDTO() {
 		
 	}
 	

@@ -20,6 +20,7 @@ import java.util.List;
  */
 public final class IndicatorGroup extends BaseModelData {
 
+    private static final long serialVersionUID = -4402642905140940245L;
     private List<IndicatorDTO> indicators = new ArrayList<IndicatorDTO>();
 
     public IndicatorGroup(String name) {

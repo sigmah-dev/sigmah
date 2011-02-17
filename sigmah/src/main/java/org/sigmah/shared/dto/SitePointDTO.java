@@ -15,10 +15,12 @@ package org.sigmah.shared.dto;
  */
 public final class SitePointDTO implements DTO {
 
+    private static final long serialVersionUID = -8101008855562300481L;
     private int siteId;
     private double y;
     private double x;
     
+    @SuppressWarnings("unused")
     private SitePointDTO() {
     }
 

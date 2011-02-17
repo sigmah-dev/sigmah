@@ -14,7 +14,8 @@ import com.extjs.gxt.ui.client.data.BaseModelData;
  * @author Alex Bertram
  */
 public final class IndicatorDTO extends BaseModelData implements EntityDTO {
-	public final static int AGGREGATE_SUM = 0;
+	private static final long serialVersionUID = -2992445195546815844L;
+    public final static int AGGREGATE_SUM = 0;
 	public final static int AGGREGATE_AVG = 1;
 	public final static int AGGREGATE_SITE_COUNT = 2;
 

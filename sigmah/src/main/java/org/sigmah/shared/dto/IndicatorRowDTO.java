@@ -25,6 +25,7 @@ import com.extjs.gxt.ui.client.data.BaseModelData;
  */
 public final class IndicatorRowDTO extends BaseModelData implements DTO {
 
+    private static final long serialVersionUID = -2986242126039751719L;
     private int siteId;
     private int activityId;
     private int indicatorId;

@@ -1,6 +1,5 @@
 package org.sigmah.shared.dto;
 
-import org.sigmah.shared.command.handler.CommandHandler;
 
 public interface DTOMapper {
 

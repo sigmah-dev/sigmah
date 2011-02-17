@@ -15,10 +15,12 @@ import org.sigmah.shared.report.model.ReportFrequency;
  */
 public final class ReportDefinitionDTO extends BaseModelData implements DTO {
 
+    private static final long serialVersionUID = 8176612048620814942L;
     /**
      * Dummy reference to assure that GWT includes ReportFrequency is included
      * in the list of classes to serialize.
      */
+    @SuppressWarnings("unused")
     private ReportFrequency freq_;
 
     public ReportDefinitionDTO() {

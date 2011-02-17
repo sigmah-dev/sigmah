@@ -16,7 +16,9 @@ import com.extjs.gxt.ui.client.data.BaseModelData;
  */
 public class LocationTypeDTO extends BaseModelData implements DTO {
 
-	public LocationTypeDTO() {
+	private static final long serialVersionUID = 1187763034988828905L;
+
+    public LocationTypeDTO() {
 	}
 
     public LocationTypeDTO(int id, String name) {

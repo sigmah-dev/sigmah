@@ -5,7 +5,8 @@ import org.sigmah.shared.report.model.DimensionType;
 
 public class DimensionFolder extends BaseModelData {
 	
-	private DimensionType type;
+	private static final long serialVersionUID = 9212781626829843237L;
+    private DimensionType type;
 	private int depth;
 	private int id;
 	

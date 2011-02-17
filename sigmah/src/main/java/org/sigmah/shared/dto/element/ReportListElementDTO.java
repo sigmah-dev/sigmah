@@ -1,5 +1,4 @@
 /*
- * All Sigmah code is released under the GNU General Public License v3
  * See COPYRIGHT.txt and LICENSE.txt.
  */
 
@@ -52,8 +51,11 @@ import org.sigmah.shared.dto.ProjectDTO;
  * Flexible element that can contain a list of project reports.
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class ReportListElementDTO extends FlexibleElementDTO {
     
+    private static final long serialVersionUID = 4984099670087438625L;
+
     public Integer getModelId() {
         return get("modelId");
     }
@@ -61,7 +63,7 @@ public class ReportListElementDTO extends FlexibleElementDTO {
     public void setModelId(Integer modelId) {
         set("modelId", modelId);
     }
-
+    
     @Override
     protected Component getComponent(ValueResult valueResult, boolean enabled) {
         final ContentPanel component = new ContentPanel();

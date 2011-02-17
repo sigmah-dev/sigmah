@@ -13,6 +13,7 @@ import java.io.Serializable;
  * @author Alex Bertram
  */
 public final class BoundingBoxDTO implements Serializable {
+    private static final long serialVersionUID = -2540090780161889833L;
     public double x1;
     public double y1;
     public double x2;

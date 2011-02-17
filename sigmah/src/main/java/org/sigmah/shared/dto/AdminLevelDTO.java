@@ -14,7 +14,8 @@ import com.extjs.gxt.ui.client.data.BaseModelData;
  * @author Alex Bertram
  */
 public final class AdminLevelDTO extends BaseModelData implements DTO {
-	public static final String PROPERTY_PREFIX = "E";
+	private static final long serialVersionUID = 4848962573517037175L;
+    public static final String PROPERTY_PREFIX = "E";
 
 	public AdminLevelDTO(){
 	}

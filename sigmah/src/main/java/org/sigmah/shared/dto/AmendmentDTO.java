@@ -16,6 +16,8 @@ import org.sigmah.shared.dto.logframe.LogFrameDTO;
  */
 public class AmendmentDTO extends BaseModelData implements EntityDTO {
 
+    private static final long serialVersionUID = 5115812364091542385L;
+
     public AmendmentDTO() {
     }
 

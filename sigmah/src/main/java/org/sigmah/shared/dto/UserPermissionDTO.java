@@ -15,6 +15,8 @@ import com.extjs.gxt.ui.client.data.BaseModelData;
  */
 public final class UserPermissionDTO extends BaseModelData implements DTO {
 
+    private static final long serialVersionUID = -8402651897719157011L;
+
     public UserPermissionDTO() {
         setAllowView(true);
         setAllowViewAll(false);

@@ -5,7 +5,6 @@
 
 package org.sigmah.shared.dto;
 
-import com.extjs.gxt.ui.client.data.BaseModel;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 
 /**
@@ -19,6 +18,8 @@ import com.extjs.gxt.ui.client.data.BaseModelData;
  * @author Alex Bertram
  */
 public final class ReportSubscriptionDTO extends BaseModelData {
+
+    private static final long serialVersionUID = -1579057643702812941L;
 
     public ReportSubscriptionDTO() {
     }

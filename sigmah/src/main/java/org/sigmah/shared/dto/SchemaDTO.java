@@ -24,7 +24,8 @@ import java.util.Set;
  */
 public final class SchemaDTO extends BaseModelData implements DTO {
 
-	private long version;
+	private static final long serialVersionUID = -7758321494901142415L;
+    private long version;
 	private List<UserDatabaseDTO> databases = new ArrayList<UserDatabaseDTO>(0);
 	private List<CountryDTO> countries = new ArrayList<CountryDTO>(0);
 	
