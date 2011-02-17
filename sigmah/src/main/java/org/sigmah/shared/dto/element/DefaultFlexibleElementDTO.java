@@ -762,20 +762,6 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
                     info.getOrgUnit(new AsyncCallback<OrgUnitDTOLight>() {
 
                         /**
-                         * Fills combobox with the children of the given root
-                         * org units.
-                         * 
-                         * @param root
-                         *            The root org unit.
-                         */
-                        private void fillOrgUnitsList(OrgUnitDTOLight root) {
-
-                            for (final OrgUnitDTOLight child : root.getChildrenDTO()) {
-                                recursiveFillOrgUnitsList(child);
-                            }
-                        }
-
-                        /**
                          * Fills recursively the combobox from the given root
                          * org unit.
                          * 
@@ -785,7 +771,9 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
                         private void recursiveFillOrgUnitsList(OrgUnitDTOLight root) {
 
                             if (root.getCanContainProjects()) {
-                                orgUnitsStore.add(root);
+                                if (root.getId() != id) {
+                                    orgUnitsStore.add(root);
+                                }
                             }
 
                             for (final OrgUnitDTOLight child : root.getChildrenDTO()) {
@@ -801,8 +789,10 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
                         @Override
                         public void onSuccess(OrgUnitDTOLight result) {
 
+                            orgUnitsStore.add(info.getOrgUnit(id));
+
                             // Fills the store.
-                            fillOrgUnitsList(result);
+                            recursiveFillOrgUnitsList(result);
 
                             // Sets the value to the field.
                             if (id != -1) {
