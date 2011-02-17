@@ -17,7 +17,8 @@ import javax.persistence.Embeddable;
 @Embeddable
 public class IndicatorValueId implements java.io.Serializable {
 
-	private int reportingPeriodId;
+	private static final long serialVersionUID = -1757987480434102219L;
+    private int reportingPeriodId;
 	private int indicatorId;
 
 	public IndicatorValueId() {

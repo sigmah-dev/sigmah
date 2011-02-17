@@ -25,7 +25,9 @@ import java.util.Set;
 	)
 public class AttributeGroup implements Serializable, Deleteable, Orderable, SchemaElement {
 
-	private int id;
+	private static final long serialVersionUID = 1348645779346918621L;
+
+    private int id;
 
     private String name;
 	private Set<Attribute> attributes = new HashSet<Attribute>(0);

@@ -28,7 +28,8 @@ import javax.persistence.OneToMany;
         query="select c from Country c order by c.name")
 public class Country implements Serializable, SchemaElement {
 
-	private int id;
+	private static final long serialVersionUID = 6374196595434657898L;
+    private int id;
 	private String name;
 	private Bounds bounds;
 	

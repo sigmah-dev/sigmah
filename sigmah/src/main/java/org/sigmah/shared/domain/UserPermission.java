@@ -50,7 +50,8 @@ import javax.persistence.TemporalType;
 })
 public class UserPermission implements Serializable, SchemaElement {
 
-	private int id;
+	private static final long serialVersionUID = -4816666797315483563L;
+    private int id;
 	private OrgUnit partner;
 	private UserDatabase database;
 	private User user;

@@ -21,7 +21,8 @@ import javax.persistence.*;
 	)
 public class IndicatorValue implements java.io.Serializable {
 
-	private IndicatorValueId id;
+	private static final long serialVersionUID = 6044381165902879418L;
+    private IndicatorValueId id;
 	private Indicator indicator;
 	private ReportingPeriod reportingPeriod;
 	private Double value;

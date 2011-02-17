@@ -17,6 +17,7 @@ import java.util.Set;
 @Table(name = "AdminEntity")
 public class AdminEntity implements java.io.Serializable {
 
+    private static final long serialVersionUID = 7813010816730061755L;
     private int id;
     private AdminLevel level;
     private AdminEntity parent;

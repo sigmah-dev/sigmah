@@ -26,7 +26,8 @@ import java.util.Date;
 	)
 public class Indicator implements java.io.Serializable, Orderable, Deleteable, SchemaElement {
 
-	private int id;
+	private static final long serialVersionUID = 5978350531347182242L;
+    private int id;
     private Date dateDeleted;
 
 	private String name;

@@ -27,6 +27,8 @@ import org.sigmah.shared.domain.User;
  */
 @Entity
 public class ProjectReportVersion implements Serializable {
+    private static final long serialVersionUID = 2704394858349357250L;
+
     private Integer id;
 
     private ProjectReport report;

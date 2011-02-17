@@ -21,7 +21,8 @@ import java.util.Date;
 @Entity
 public class Attribute implements Serializable, Deleteable, Orderable, SchemaElement {
 
-	private int id;
+	private static final long serialVersionUID = -861408062042779542L;
+    private int id;
 	private AttributeGroup group;
 	private String name;
 	private int sortOrder;

@@ -19,6 +19,7 @@ import javax.persistence.ManyToOne;
  */
 @Entity
 public class RichTextElement implements Serializable {
+    private static final long serialVersionUID = 5948142357960490953L;
     private Integer id;
     private ProjectReportVersion version;
     private Integer sectionId;

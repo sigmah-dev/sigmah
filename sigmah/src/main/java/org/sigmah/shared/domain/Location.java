@@ -20,7 +20,8 @@ import java.util.Set;
 @Entity
 public class Location implements java.io.Serializable {
 
-	private int id;
+	private static final long serialVersionUID = 4928884549525700609L;
+    private int id;
     private LocationType locationType;
 	private String locationGuid;
 	private Double x;

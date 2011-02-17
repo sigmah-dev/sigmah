@@ -17,6 +17,7 @@ import org.sigmah.shared.command.result.CommandResult;
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
 public class Calendar implements Serializable, CommandResult {
+    private static final long serialVersionUID = -8998748771413470650L;
     private Serializable identifier;
     private CalendarType type;
     private String name;

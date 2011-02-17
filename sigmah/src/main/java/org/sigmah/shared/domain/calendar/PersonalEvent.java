@@ -24,6 +24,8 @@ import org.sigmah.shared.domain.Deleteable;
 @org.hibernate.annotations.FilterDefs({ @org.hibernate.annotations.FilterDef(name = "hideDeleted") })
 @org.hibernate.annotations.Filters({ @org.hibernate.annotations.Filter(name = "hideDeleted", condition = "dateDeleted IS null") })
 public class PersonalEvent implements Serializable, Deleteable {
+    private static final long serialVersionUID = -4972704490321613870L;
+
     /**
      * Event identifier.
      */

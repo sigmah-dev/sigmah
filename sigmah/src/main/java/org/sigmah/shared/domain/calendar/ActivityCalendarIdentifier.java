@@ -12,6 +12,7 @@ import java.io.Serializable;
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
 public class ActivityCalendarIdentifier implements Serializable {
+    private static final long serialVersionUID = -1227917435084017958L;
     private int projectId;
     private String calendarName;
     private String activityPrefix;

@@ -18,11 +18,13 @@ import org.sigmah.shared.domain.report.ProjectReport;
 @Entity
 @Table(name = "report_list_element")
 public class ReportListElement extends FlexibleElement {
+    private static final long serialVersionUID = -1752871868903402599L;
     /**
      * Link to the ProjectReportModel that will be used by the report contained
      * by this element.
      */
     private Integer modelId;
+    @SuppressWarnings("unused")
     private List<ProjectReport> reports;
 
     @Column(name = "model_id", nullable = true)

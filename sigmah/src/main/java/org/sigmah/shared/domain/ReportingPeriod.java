@@ -22,7 +22,8 @@ import java.util.Set;
 @Entity
 public class ReportingPeriod implements java.io.Serializable, Deleteable {
 
-	private int id;
+	private static final long serialVersionUID = 5691930618952633225L;
+    private int id;
     private Site site;
 	private boolean monitoring;
 	private Date date1;

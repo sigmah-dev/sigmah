@@ -21,7 +21,8 @@ import java.util.Set;
 @Entity
 public class LocationType implements Serializable, SchemaElement {
 
-	private int id;
+	private static final long serialVersionUID = 232690778137357387L;
+    private int id;
 	private boolean reuse;
 	private String name;
 	private Country country;

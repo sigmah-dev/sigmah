@@ -17,7 +17,8 @@ import javax.persistence.Embeddable;
 @Embeddable
 public class AttributeValueId implements java.io.Serializable {
 
-	private int siteId;
+	private static final long serialVersionUID = 8255967204777550586L;
+    private int siteId;
 	private int attributeId;
 
 	public AttributeValueId() {

@@ -17,6 +17,8 @@ import javax.persistence.Id;
  */
 @Entity
 public class PersonalCalendar implements Serializable {
+    private static final long serialVersionUID = 7449137508209480728L;
+
     /**
      * Event identifier.
      */

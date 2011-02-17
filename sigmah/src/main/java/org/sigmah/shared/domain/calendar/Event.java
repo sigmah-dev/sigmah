@@ -13,6 +13,7 @@ import java.util.Date;
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
 public class Event implements Serializable {
+    private static final long serialVersionUID = -4231012925362130117L;
     private Serializable identifier;
     private String summary;
     private String description;

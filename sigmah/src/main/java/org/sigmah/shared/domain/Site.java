@@ -50,7 +50,8 @@ import javax.persistence.Transient;
 )})
 public class Site implements java.io.Serializable, Deleteable {
 
-	private int id;
+	private static final long serialVersionUID = 6200911357882396424L;
+    private int id;
     private Site assessment;
 	
 	private Activity activity;

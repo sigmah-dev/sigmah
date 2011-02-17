@@ -13,6 +13,7 @@ import java.util.Date;
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
 public class Todo implements Serializable, Comparable<Todo> {
+    private static final long serialVersionUID = -1825998676357274501L;
     private String description;
     private int percent;
     private Date dtstart;

@@ -18,7 +18,8 @@ import javax.persistence.*;
 @Entity
 public class AttributeValue implements java.io.Serializable {
 
-	private AttributeValueId id;
+	private static final long serialVersionUID = -9081370879826092607L;
+    private AttributeValueId id;
 	private Attribute attribute;
 	private Site site;
 	private boolean value;

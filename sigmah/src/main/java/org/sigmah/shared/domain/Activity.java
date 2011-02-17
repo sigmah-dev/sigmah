@@ -32,6 +32,7 @@ import java.util.Set;
         query = "select max(e.sortOrder) from Activity e where e.database.id = ?1")
 public class Activity implements Serializable, Deleteable, Orderable, SchemaElement {
 
+    private static final long serialVersionUID = 4795179200348055951L;
     private int id;
     private LocationType locationType;
 
