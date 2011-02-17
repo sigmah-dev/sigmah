@@ -418,7 +418,7 @@ public final class ProjectDTO extends BaseModelData implements EntityDTO, Defaul
 
     @Override
     public int getOrgUnitId() {
-        return get("orgUnit");
+        return (Integer) get("orgUnit");
     }
 
     public void setOrgUnit(int orgUnit) {
