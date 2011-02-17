@@ -544,7 +544,7 @@ public class CreateProjectWindow {
 
                 @Override
                 public void onSuccess(OrgUnitDTOLight result) {
-                    fillOrgUnitsList(result);
+                    recursiveFillOrgUnitsList(result);
 
                     if (orgUnitsStore.getCount() == 0) {
                         Log.error("[show] No available org unit.");
@@ -613,6 +613,7 @@ public class CreateProjectWindow {
      * @param root
      *            The root org unit.
      */
+    @SuppressWarnings("unused")
     private void fillOrgUnitsList(OrgUnitDTOLight root) {
 
         for (final OrgUnitDTOLight child : root.getChildrenDTO()) {
