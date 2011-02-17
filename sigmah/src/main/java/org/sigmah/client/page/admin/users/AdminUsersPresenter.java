@@ -1,6 +1,6 @@
 package org.sigmah.client.page.admin.users;
 
-import org.sigmah.client.UserInfo;
+import org.sigmah.client.cache.UserLocalCache;
 import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.dispatch.monitor.MaskingAsyncMonitor;
 import org.sigmah.client.page.common.grid.ConfirmCallback;
@@ -13,13 +13,13 @@ import org.sigmah.shared.command.result.CreateResult;
 import org.sigmah.shared.command.result.UserListResult;
 import org.sigmah.shared.dto.UserDTO;
 
+import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.allen_sauer.gwt.log.client.Log;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
 
@@ -33,7 +33,7 @@ public class AdminUsersPresenter implements SubPresenter {
 	
 	private static boolean alert = false;
     private final Dispatcher dispatcher;
-    private final UserInfo info;
+    private final UserLocalCache cache;
     private View view;
     
     @ImplementedBy(AdminUsersView.class)
@@ -124,10 +124,10 @@ public class AdminUsersPresenter implements SubPresenter {
 	
 
 	@Inject
-	public AdminUsersPresenter(Dispatcher dispatcher, UserInfo info) {
-		this.info = info;
+	public AdminUsersPresenter(Dispatcher dispatcher, UserLocalCache cache) {
+		this.cache = cache;
         this.dispatcher = dispatcher;
-        this.view = new AdminUsersView(dispatcher, info);
+        this.view = new AdminUsersView(dispatcher, cache);
 		        
         dispatcher.execute(new GetUsersWithProfiles(), 
         		view.getUsersLoadingMonitor(),
@@ -166,7 +166,7 @@ public class AdminUsersPresenter implements SubPresenter {
 	public Component getView() {
 		Log.debug("AdminUsersPresenter : getting view");
 		if (view == null) {
-			view = new AdminUsersView(dispatcher, info);
+			view = new AdminUsersView(dispatcher, cache);
 			Log.debug("AdminUsersPresenter : view is null");
 		}
 		return view.getMainPanel();

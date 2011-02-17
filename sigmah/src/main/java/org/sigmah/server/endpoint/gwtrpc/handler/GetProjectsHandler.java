@@ -85,14 +85,15 @@ public class GetProjectsHandler implements CommandHandler<GetProjects> {
         // Projects which I own or I manage.
         // ---------------
 
-        final Query ownerManagerQuery = em
-                .createQuery("SELECT p FROM Project p WHERE p.owner = :ouser OR p.manager = :muser");
-        ownerManagerQuery.setParameter("ouser", user);
-        ownerManagerQuery.setParameter("muser", user);
-        for (final Project p : (List<Project>) ownerManagerQuery.getResultList()) {
-            projects.add(p);
+        if (cmd.getViewOwnOrManage()) {
+            final Query ownerManagerQuery = em
+                    .createQuery("SELECT p FROM Project p WHERE p.owner = :ouser OR p.manager = :muser");
+            ownerManagerQuery.setParameter("ouser", user);
+            ownerManagerQuery.setParameter("muser", user);
+            for (final Project p : (List<Project>) ownerManagerQuery.getResultList()) {
+                projects.add(p);
+            }
         }
-
         // ---------------
         // Projects in my visible organization units.
         // ---------------

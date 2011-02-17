@@ -16,7 +16,7 @@ import com.extjs.gxt.ui.client.data.BaseModelData;
  *
  * @author Alex Bertram
  */
-public final class CountryDTO extends BaseModelData implements DTO {
+public final class CountryDTO extends BaseModelData implements EntityDTO {
 
     private static final long serialVersionUID = 3189552164304073119L;
     
@@ -24,6 +24,10 @@ public final class CountryDTO extends BaseModelData implements DTO {
 	private List<LocationTypeDTO> locationTypes = new ArrayList<LocationTypeDTO>(0);
     private BoundingBoxDTO bounds;
 
+    @Override
+    public String getEntityName() {
+        return "Country";
+    }
     
 	public CountryDTO() {
 	}
@@ -37,6 +41,7 @@ public final class CountryDTO extends BaseModelData implements DTO {
 		set("id",id);
 	}
 	
+    @Override
 	public int getId() {
 		return (Integer)get("id");
 	}

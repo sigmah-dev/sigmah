@@ -39,7 +39,6 @@ sigmah/src/main/java/org/sigmah/Sigmah.gwt.xml -text
 sigmah/src/main/java/org/sigmah/SigmahSoyc.gwt.xml -text
 sigmah/src/main/java/org/sigmah/client/ActivityInfoEntryPoint.java -text
 sigmah/src/main/java/org/sigmah/client/AppEvents.java -text
-sigmah/src/main/java/org/sigmah/client/CountriesList.java -text
 sigmah/src/main/java/org/sigmah/client/EventBus.java -text
 sigmah/src/main/java/org/sigmah/client/HistoryManager.java -text
 sigmah/src/main/java/org/sigmah/client/LoggingEventBus.java -text
@@ -49,8 +48,9 @@ sigmah/src/main/java/org/sigmah/client/SigmahHelpWindow.java -text
 sigmah/src/main/java/org/sigmah/client/SigmahInjector.java -text
 sigmah/src/main/java/org/sigmah/client/SigmahModule.java -text
 sigmah/src/main/java/org/sigmah/client/UsageTracker.java -text
-sigmah/src/main/java/org/sigmah/client/UserInfo.java -text
-sigmah/src/main/java/org/sigmah/client/UsersList.java -text
+sigmah/src/main/java/org/sigmah/client/cache/LocalCachedCollection.java -text
+sigmah/src/main/java/org/sigmah/client/cache/LocalCachedOrganization.java -text
+sigmah/src/main/java/org/sigmah/client/cache/UserLocalCache.java -text
 sigmah/src/main/java/org/sigmah/client/dispatch/AsyncCallbacks.java -text
 sigmah/src/main/java/org/sigmah/client/dispatch/AsyncMonitor.java -text
 sigmah/src/main/java/org/sigmah/client/dispatch/CommandProxy.java -text
@@ -1180,6 +1180,7 @@ sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetMapIconsHandle
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetMonitoredPointsHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetMonthlyReportsHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetOrgUnitHandler.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetOrganizationHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetProfilesHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetProjectDocumentsHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetProjectHandler.java -text
@@ -1194,7 +1195,6 @@ sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetReportTemplate
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetSitePointsHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetSyncRegionUpdatesHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetSyncRegionsHandler.java -text
-sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetUserInfoHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetUsersByOrganizationHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetUsersHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetUsersWithProfilesHandler.java -text
@@ -1394,6 +1394,7 @@ sigmah/src/main/java/org/sigmah/shared/command/GetMapIcons.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetMonitoredPoints.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetMonthlyReports.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetOrgUnit.java -text
+sigmah/src/main/java/org/sigmah/shared/command/GetOrganization.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetProfiles.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetProject.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetProjectDocuments.java -text
@@ -1411,7 +1412,6 @@ sigmah/src/main/java/org/sigmah/shared/command/GetSitePoints.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetSites.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetSyncRegionUpdates.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetSyncRegions.java -text
-sigmah/src/main/java/org/sigmah/shared/command/GetUserInfo.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetUsers.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetUsersByOrganization.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetUsersWithProfiles.java -text

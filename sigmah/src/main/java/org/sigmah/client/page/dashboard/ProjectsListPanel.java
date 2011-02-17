@@ -653,7 +653,7 @@ public class ProjectsListPanel {
     /**
      * Refreshes the projects grid with the current parameters.
      */
-    private void refreshProjectGrid() {
+    private void refreshProjectGrid(boolean viewOwnOrManage) {
 
         // Checks that the user can view projects.
         if (!ProfileUtils.isGranted(authentication, GlobalPermissionEnum.VIEW_PROJECT)) {
@@ -664,6 +664,7 @@ public class ProjectsListPanel {
         // etc. are applied locally.
         final GetProjects cmd = new GetProjects();
         cmd.setOrgUnitsIds(orgUnitsIds);
+        cmd.setViewOwnOrManage(viewOwnOrManage);
 
         dispatcher.execute(cmd, new MaskingAsyncMonitor(projectTreePanel, I18N.CONSTANTS.loading()),
                 new AsyncCallback<ProjectListResult>() {
@@ -717,13 +718,13 @@ public class ProjectsListPanel {
         return (ProjectStore) projectTreeGrid.getTreeStore();
     }
 
-    public void refresh(Integer... orgUnitsIds) {
-        refresh(Arrays.asList(orgUnitsIds));
+    public void refresh(boolean viewOwnOrManage, Integer... orgUnitsIds) {
+        refresh(viewOwnOrManage, Arrays.asList(orgUnitsIds));
     }
 
-    public void refresh(List<Integer> orgUnitsIds) {
+    public void refresh(boolean viewOwnOrManage, List<Integer> orgUnitsIds) {
         this.orgUnitsIds.clear();
         this.orgUnitsIds.addAll(orgUnitsIds);
-        refreshProjectGrid();
+        refreshProjectGrid(viewOwnOrManage);
     }
 }

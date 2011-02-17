@@ -3,7 +3,7 @@ package org.sigmah.client.page.dashboard;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.sigmah.client.UserInfo;
+import org.sigmah.client.cache.UserLocalCache;
 import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.dispatch.remote.Authentication;
 import org.sigmah.client.i18n.I18N;
@@ -118,7 +118,7 @@ public class CreateProjectWindow {
 
     private final ArrayList<CreateProjectListener> listeners;
     private final Dispatcher dispatcher;
-    private final UserInfo info;
+    private final UserLocalCache cache;
     private final Window window;
     private final FormPanel formPanel;
     private final TextField<String> nameField;
@@ -144,12 +144,13 @@ public class CreateProjectWindow {
      */
     private boolean alert = false;
 
-    public CreateProjectWindow(final Dispatcher dispatcher, final Authentication authentication, final UserInfo info) {
+    public CreateProjectWindow(final Dispatcher dispatcher, final Authentication authentication,
+            final UserLocalCache cache) {
 
         listeners = new ArrayList<CreateProjectListener>();
 
         this.dispatcher = dispatcher;
-        this.info = info;
+        this.cache = cache;
 
         // Name field.
         nameField = new TextField<String>();
@@ -540,7 +541,7 @@ public class CreateProjectWindow {
 
         if (orgUnitsStore.getCount() == 0) {
 
-            info.getOrgUnit(new AsyncCallback<OrgUnitDTOLight>() {
+            cache.getOrganizationCache().get(new AsyncCallback<OrgUnitDTOLight>() {
 
                 @Override
                 public void onSuccess(OrgUnitDTOLight result) {

@@ -5,8 +5,7 @@
 
 package org.sigmah.client.page.dashboard;
 
-import com.extjs.gxt.ui.client.store.ListStore;
-import org.sigmah.client.UserInfo;
+import org.sigmah.client.cache.UserLocalCache;
 import org.sigmah.client.dispatch.remote.Authentication;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.page.NavigationCallback;
@@ -14,15 +13,16 @@ import org.sigmah.client.page.Page;
 import org.sigmah.client.page.PageId;
 import org.sigmah.client.page.PageState;
 import org.sigmah.shared.dto.OrgUnitDTOLight;
+import org.sigmah.shared.dto.reminder.MonitoredPointDTO;
+import org.sigmah.shared.dto.reminder.ReminderDTO;
 
+import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.store.TreeStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.treegrid.TreeGrid;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
-import org.sigmah.shared.dto.reminder.MonitoredPointDTO;
-import org.sigmah.shared.dto.reminder.ReminderDTO;
 
 /**
  * Home screen of sigmah. Displays the main menu and a reminder of urgent tasks.
@@ -60,13 +60,13 @@ public class DashboardPresenter implements Page {
     /**
      * The user's info.
      */
-    private final UserInfo info;
+    private final UserLocalCache cache;
 
     @Inject
-    public DashboardPresenter(final View view, final UserInfo info, final Authentication authentication) {
+    public DashboardPresenter(final View view, final UserLocalCache cache, final Authentication authentication) {
 
         this.view = view;
-        this.info = info;
+        this.cache = cache;
     }
 
     @Override
@@ -96,7 +96,7 @@ public class DashboardPresenter implements Page {
         // sure to show the last modifications.
 
         // Gets user's organization.
-        info.getOrgUnit(new AsyncCallback<OrgUnitDTOLight>() {
+        cache.getOrganizationCache().get(new AsyncCallback<OrgUnitDTOLight>() {
 
             @Override
             public void onFailure(Throwable e) {
@@ -107,7 +107,6 @@ public class DashboardPresenter implements Page {
             public void onSuccess(OrgUnitDTOLight result) {
 
                 if (result != null) {
-
                     view.getOrgUnitsStore().removeAll();
                     view.getOrgUnitsPanel().setHeading(
                             result.getName() + " (" + result.getFullName() + ") : " + I18N.CONSTANTS.orgunitTree());
@@ -116,7 +115,7 @@ public class DashboardPresenter implements Page {
                         view.getOrgUnitsStore().add(child, true);
                     }
 
-                    view.getProjectsListPanel().refresh(result.getId());
+                    view.getProjectsListPanel().refresh(true, result.getId());
                 }
             }
         });

@@ -2,9 +2,7 @@ package org.sigmah.client.page.orgunit.details;
 
 import java.util.ArrayList;
 
-import org.sigmah.client.CountriesList;
-import org.sigmah.client.UserInfo;
-import org.sigmah.client.UsersList;
+import org.sigmah.client.cache.UserLocalCache;
 import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.dispatch.monitor.MaskingAsyncMonitor;
 import org.sigmah.client.dispatch.remote.Authentication;
@@ -64,11 +62,7 @@ public class OrgUnitDetailsPresenter implements SubPresenter {
 
     private final Authentication authentication;
 
-    private final CountriesList countriesList;
-
-    private final UsersList usersList;
-
-    private final UserInfo info;
+    private final UserLocalCache cache;
 
     /**
      * The main presenter.
@@ -86,13 +80,11 @@ public class OrgUnitDetailsPresenter implements SubPresenter {
     private int maskCount;
 
     public OrgUnitDetailsPresenter(Dispatcher dispatcher, Authentication authentication, OrgUnitPresenter mainPrsenter,
-            CountriesList countriesList, UsersList usersList, UserInfo info) {
+            UserLocalCache cache) {
         this.dispatcher = dispatcher;
         this.mainPresenter = mainPrsenter;
         this.authentication = authentication;
-        this.countriesList = countriesList;
-        this.usersList = usersList;
-        this.info = info;
+        this.cache = cache;
     }
 
     @Override
@@ -250,9 +242,7 @@ public class OrgUnitDetailsPresenter implements SubPresenter {
                                 elementDTO.setService(dispatcher);
                                 elementDTO.setAuthentication(authentication);
                                 elementDTO.setCurrentContainerDTO(mainPresenter.getCurrentOrgUnitDTO());
-                                elementDTO.setCountries(countriesList);
-                                elementDTO.setUsers(usersList);
-                                elementDTO.setUserInfo(info);
+                                elementDTO.setCache(cache);
                                 elementDTO.assignValue(valueResult);
 
                                 // Generates element component (with the value).

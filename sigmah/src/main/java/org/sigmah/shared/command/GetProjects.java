@@ -36,6 +36,11 @@ public class GetProjects implements Command<ProjectListResult> {
      */
     private List<Integer> orgUnitsIds;
 
+    /**
+     * If the project that the current user own or manage must be retrieved.
+     */
+    private boolean viewOwnOrManage;
+
     public GetProjects() {
     }
 
@@ -85,6 +90,14 @@ public class GetProjects implements Command<ProjectListResult> {
 
     public List<Integer> getOrgUnitsIds() {
         return orgUnitsIds;
+    }
+
+    public void setViewOwnOrManage(boolean viewOwnOrManage) {
+        this.viewOwnOrManage = viewOwnOrManage;
+    }
+
+    public boolean getViewOwnOrManage() {
+        return viewOwnOrManage;
     }
 
     /**

@@ -5,6 +5,7 @@
 
 package org.sigmah.client;
 
+import org.sigmah.client.cache.UserLocalCache;
 import org.sigmah.client.dispatch.AsyncMonitor;
 import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.dispatch.remote.Authentication;
@@ -28,13 +29,8 @@ import org.sigmah.client.ui.Tab;
 import org.sigmah.client.ui.TabBar;
 import org.sigmah.client.ui.TabModel;
 import org.sigmah.shared.command.GetApplicationInfo;
-import org.sigmah.shared.command.GetCountries;
-import org.sigmah.shared.command.GetUserInfo;
-import org.sigmah.shared.command.GetUsersByOrganization;
 import org.sigmah.shared.command.result.ApplicationInfo;
-import org.sigmah.shared.command.result.CountryResult;
-import org.sigmah.shared.command.result.UserListResult;
-import org.sigmah.shared.dto.UserInfoDTO;
+import org.sigmah.shared.dto.OrganizationDTO;
 import org.sigmah.shared.dto.value.FileUploadUtils;
 
 import com.allen_sauer.gwt.log.client.Log;
@@ -68,14 +64,17 @@ public class SigmahAppFrame implements Frame {
 
     @Inject
     public SigmahAppFrame(EventBus eventBus, final Authentication auth, OfflineView offlineMenu,
-            final TabModel tabModel, final Dispatcher dispatcher, final UserInfo info, final CountriesList countries,
-            final UsersList users) {
+            final TabModel tabModel, final Dispatcher dispatcher, final UserLocalCache cache) {
 
         if (auth == null) {
             RootPanel.get().add(new LoginView());
             RootPanel.get("loading").getElement().removeFromParent();
 
         } else {
+
+            // Init cache first.
+            cache.init();
+
             // The user is already logged in
             RootPanel.get("username").add(new Label(auth.getEmail()));
 
@@ -101,8 +100,8 @@ public class SigmahAppFrame implements Frame {
                     Window.Location.reload();
                 }
             });
-            if (RootPanel.get("logout") != null) { 
-            	RootPanel.get("logout").add(logoutButton);
+            if (RootPanel.get("logout") != null) {
+                RootPanel.get("logout").add(logoutButton);
             }
 
             // Credit
@@ -133,9 +132,9 @@ public class SigmahAppFrame implements Frame {
                     }
                 }
             });
-            
-            if (RootPanel.get("credit")!= null) {
-            	RootPanel.get("credit").add(creditButton);
+
+            if (RootPanel.get("credit") != null) {
+                RootPanel.get("credit").add(creditButton);
             }
 
             // Tab bar
@@ -175,65 +174,30 @@ public class SigmahAppFrame implements Frame {
 
             RootPanel.get("content").add(this.view);
 
-            // Gets user's info.
-            dispatcher.execute(new GetUserInfo(auth.getUserId()), null, new AsyncCallback<UserInfoDTO>() {
+            cache.getOrganizationCache().getOrganization(new AsyncCallback<OrganizationDTO>() {
 
                 @Override
-                public void onFailure(Throwable e) {
-                    Log.error("[execute] Error while getting the organization for user #id " + auth.getUserId() + ".",
-                            e);
-                }
-
-                @Override
-                public void onSuccess(UserInfoDTO result) {
+                public void onSuccess(OrganizationDTO result) {
 
                     if (result != null) {
-
-                        info.setUserInfo(result);
-
                         // Sets organization parameters.
-                        RootPanel.get("orgname").getElement()
-                                .setInnerHTML(result.getOrganization().getName().toUpperCase());
+                        RootPanel.get("orgname").getElement().setInnerHTML(result.getName().toUpperCase());
                         RootPanel
                                 .get("orglogo")
                                 .getElement()
                                 .setAttribute(
                                         "style",
                                         "background-image: url(" + GWT.getModuleBaseURL() + "image-provider?"
-                                                + FileUploadUtils.IMAGE_URL + "=" + result.getOrganization().getLogo()
-                                                + ")");
+                                                + FileUploadUtils.IMAGE_URL + "=" + result.getLogo() + ")");
                     }
                 }
-            });
-
-            // Gets countries list.
-            dispatcher.execute(new GetCountries(), null, new AsyncCallback<CountryResult>() {
 
                 @Override
                 public void onFailure(Throwable e) {
-                    Log.error("[execute] Error while getting the countries list.", e);
-                }
-
-                @Override
-                public void onSuccess(CountryResult result) {
-                    countries.setCountries(result.getData());
+                    Log.error("[execute] Error while getting the organization for user #id " + auth.getUserId() + ".",
+                            e);
                 }
             });
-
-            // Gets users list.
-            dispatcher.execute(new GetUsersByOrganization(auth.getOrganizationId()), null,
-                    new AsyncCallback<UserListResult>() {
-
-                        @Override
-                        public void onFailure(Throwable e) {
-                            Log.error("[execute] Error while getting the users list.", e);
-                        }
-
-                        @Override
-                        public void onSuccess(UserListResult result) {
-                            users.setCountries(result.getList());
-                        }
-                    });
         }
     }
 

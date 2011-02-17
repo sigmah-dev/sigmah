@@ -1,7 +1,7 @@
 package org.sigmah.client.page.admin;
 
 import org.sigmah.client.EventBus;
-import org.sigmah.client.UserInfo;
+import org.sigmah.client.cache.UserLocalCache;
 import org.sigmah.client.dispatch.AsyncMonitor;
 import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.dispatch.remote.Authentication;
@@ -36,35 +36,31 @@ import com.google.inject.Inject;
  * 
  */
 public class AdminPresenter implements TabPage, Frame {
-	
-    private final static String[] MAIN_TABS = {I18N.CONSTANTS.adminUsers()};
-	public static final PageId PAGE_ID = new PageId(I18N.CONSTANTS.adminboard());
-	
+
+    private final static String[] MAIN_TABS = { I18N.CONSTANTS.adminUsers() };
+    public static final PageId PAGE_ID = new PageId(I18N.CONSTANTS.adminboard());
+
     private final View view;
 
     private final SubPresenter[] presenters;
     private AdminPageState currentState;
     private Page activePage;
-    
-    
-	@ImplementedBy(AdminView.class)
-    public interface View {
-		
-		public void setMainPanel(Widget widget);
 
-		public ContentPanel getTabPanel();
+    @ImplementedBy(AdminView.class)
+    public interface View {
+
+        public void setMainPanel(Widget widget);
+
+        public ContentPanel getTabPanel();
 
     }
-	
-	@Inject
-    public AdminPresenter(final EventBus eventBus, final Dispatcher dispatcher, 
-    		final View view, final UserInfo info,
-            final Authentication authentication, IStateManager stateMgr) {
+
+    @Inject
+    public AdminPresenter(final EventBus eventBus, final Dispatcher dispatcher, final View view,
+            final UserLocalCache cache, final Authentication authentication, IStateManager stateMgr) {
         this.view = view;
-        this.presenters = new SubPresenter[] {
-        		new AdminUsersPresenter(dispatcher, info),
-        };
-        
+        this.presenters = new SubPresenter[] { new AdminUsersPresenter(dispatcher, cache), };
+
         for (int i = 0; i < MAIN_TABS.length; i++) {
             final int index = i;
 
@@ -87,79 +83,78 @@ public class AdminPresenter implements TabPage, Frame {
 
             this.view.getTabPanel().add(anchor, layoutData);
         }
-	}
-	
-	@Override
-	public void shutdown() {
-	}
+    }
 
-	@Override
-	public PageId getPageId() {
-		return PAGE_ID;
-	}
+    @Override
+    public void shutdown() {
+    }
 
-	@Override
-	public Object getWidget() {
-		 return view;
-	}
+    @Override
+    public PageId getPageId() {
+        return PAGE_ID;
+    }
 
-	@Override
-	public void requestToNavigateAway(PageState place,
-			NavigationCallback callback) {
-		callback.onDecided(true);
-	}
+    @Override
+    public Object getWidget() {
+        return view;
+    }
 
-	@Override
-	public String beforeWindowCloses() {
-		return null;
-	}
+    @Override
+    public void requestToNavigateAway(PageState place, NavigationCallback callback) {
+        callback.onDecided(true);
+    }
 
-	@Override
-	public void setActivePage(Page page) {
-		this.activePage = page;
-		
-	}
+    @Override
+    public String beforeWindowCloses() {
+        return null;
+    }
 
-	@Override
-	public Page getActivePage() {
-		return this.activePage;
-	}
-	
-	@Override
-	public AsyncMonitor showLoadingPlaceHolder(PageId pageId,
-			PageState loadingPlace) {
-		return null;
-	}
+    @Override
+    public void setActivePage(Page page) {
+        this.activePage = page;
 
-	@Override
-	public String getTabTitle() {
-		return I18N.CONSTANTS.adminboard();
-	}
-	
-	@Override
-	public boolean navigate(PageState place) {
-		final AdminPageState adminPageState = (AdminPageState) place;
-		currentState = adminPageState;
+    }
+
+    @Override
+    public Page getActivePage() {
+        return this.activePage;
+    }
+
+    @Override
+    public AsyncMonitor showLoadingPlaceHolder(PageId pageId, PageState loadingPlace) {
+        return null;
+    }
+
+    @Override
+    public String getTabTitle() {
+        return I18N.CONSTANTS.adminboard();
+    }
+
+    @Override
+    public boolean navigate(PageState place) {
+        final AdminPageState adminPageState = (AdminPageState) place;
+        currentState = adminPageState;
 
         selectTab(adminPageState.getCurrentSection(), false);
-		return true;
-	}
-	
-	private void selectTab(int index, boolean force) {
-        /*final ToggleAnchor anchor = (ToggleAnchor) view.getTabPanel().getWidget(index);
+        return true;
+    }
 
-        if (currentTab != anchor) {
-            if (currentTab != null)
-                currentTab.toggleAnchorMode();
-
-            anchor.toggleAnchorMode();
-            currentTab = anchor;*/
-			Log.debug("AdminPresenter getting view of SubPresenter " + index);
-            view.setMainPanel(presenters[index].getView());
-            presenters[index].viewDidAppear();
-       /* } else if (force) {
-            view.setMainPanel(presenters[index].getView());
-            presenters[index].viewDidAppear();
-        }*/
+    private void selectTab(int index, boolean force) {
+        /*
+         * final ToggleAnchor anchor = (ToggleAnchor)
+         * view.getTabPanel().getWidget(index);
+         * 
+         * if (currentTab != anchor) { if (currentTab != null)
+         * currentTab.toggleAnchorMode();
+         * 
+         * anchor.toggleAnchorMode(); currentTab = anchor;
+         */
+        Log.debug("AdminPresenter getting view of SubPresenter " + index);
+        view.setMainPanel(presenters[index].getView());
+        presenters[index].viewDidAppear();
+        /*
+         * } else if (force) { view.setMainPanel(presenters[index].getView());
+         * presenters[index].viewDidAppear(); }
+         */
     }
 }

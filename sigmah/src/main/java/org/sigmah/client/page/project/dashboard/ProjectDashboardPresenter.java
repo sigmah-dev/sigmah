@@ -10,10 +10,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
-import org.sigmah.client.CountriesList;
 import org.sigmah.client.EventBus;
-import org.sigmah.client.UserInfo;
-import org.sigmah.client.UsersList;
+import org.sigmah.client.cache.UserLocalCache;
 import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.dispatch.monitor.MaskingAsyncMonitor;
 import org.sigmah.client.dispatch.remote.Authentication;
@@ -168,9 +166,7 @@ public class ProjectDashboardPresenter implements SubPresenter {
     private final Dispatcher dispatcher;
     private final EventBus eventBus;
     private final Authentication authentication;
-    private final UserInfo info;
-    private final CountriesList countriesList;
-    private final UsersList usersList;
+    private final UserLocalCache cache;
 
     /**
      * List of values changes.
@@ -194,14 +190,12 @@ public class ProjectDashboardPresenter implements SubPresenter {
     private int maskCount;
 
     public ProjectDashboardPresenter(Dispatcher dispatcher, EventBus eventBus, Authentication authentication,
-            ProjectPresenter projectPresenter, UserInfo info, CountriesList countriesList, UsersList usersList) {
+            ProjectPresenter projectPresenter, UserLocalCache cache) {
         this.authentication = authentication;
         this.dispatcher = dispatcher;
         this.eventBus = eventBus;
         this.projectPresenter = projectPresenter;
-        this.info = info;
-        this.countriesList = countriesList;
-        this.usersList = usersList;
+        this.cache = cache;
 
         this.tabItemsMap = new HashMap<Integer, TabItem>();
     }
@@ -596,9 +590,7 @@ public class ProjectDashboardPresenter implements SubPresenter {
                         elementDTO.setService(dispatcher);
                         elementDTO.setEventBus(eventBus);
                         elementDTO.setAuthentication(authentication);
-                        elementDTO.setCountries(countriesList);
-                        elementDTO.setUsers(usersList);
-                        elementDTO.setUserInfo(info);
+                        elementDTO.setCache(cache);
                         elementDTO.setCurrentContainerDTO(projectPresenter.getCurrentProjectDTO());
                         elementDTO.assignValue(valueResult);
 
@@ -1281,7 +1273,9 @@ public class ProjectDashboardPresenter implements SubPresenter {
             public void handleEvent(ButtonEvent be) {
 
                 // Gets all potential financial projects.
-                dispatcher.execute(new GetProjects(), null, new AsyncCallback<ProjectListResult>() {
+                final GetProjects cmd = new GetProjects();
+                cmd.setViewOwnOrManage(true);
+                dispatcher.execute(cmd, null, new AsyncCallback<ProjectListResult>() {
 
                     @Override
                     public void onFailure(Throwable e) {
@@ -1446,7 +1440,7 @@ public class ProjectDashboardPresenter implements SubPresenter {
         // Adds the create financial project actions.
         view.getCreateFinancialProjectButton().addListener(Events.OnClick, new Listener<ButtonEvent>() {
 
-            private final CreateProjectWindow window = new CreateProjectWindow(dispatcher, authentication, info);
+            private final CreateProjectWindow window = new CreateProjectWindow(dispatcher, authentication, cache);
 
             {
                 window.addListener(new CreateProjectListener() {
@@ -1519,7 +1513,9 @@ public class ProjectDashboardPresenter implements SubPresenter {
             public void handleEvent(ButtonEvent be) {
 
                 // Gets all potential local partner projects.
-                dispatcher.execute(new GetProjects(), null, new AsyncCallback<ProjectListResult>() {
+                final GetProjects cmd = new GetProjects();
+                cmd.setViewOwnOrManage(true);
+                dispatcher.execute(cmd, null, new AsyncCallback<ProjectListResult>() {
 
                     @Override
                     public void onFailure(Throwable e) {
@@ -1690,7 +1686,7 @@ public class ProjectDashboardPresenter implements SubPresenter {
         // Adds the create local partner project actions.
         view.getCreateLocalPartnerProjectButton().addListener(Events.OnClick, new Listener<ButtonEvent>() {
 
-            private final CreateProjectWindow window = new CreateProjectWindow(dispatcher, authentication, info);
+            private final CreateProjectWindow window = new CreateProjectWindow(dispatcher, authentication, cache);
 
             {
                 window.addListener(new CreateProjectListener() {

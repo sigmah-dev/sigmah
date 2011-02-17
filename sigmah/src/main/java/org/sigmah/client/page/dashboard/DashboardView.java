@@ -5,10 +5,14 @@
 
 package org.sigmah.client.page.dashboard;
 
-import com.allen_sauer.gwt.log.client.Log;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+
 import org.sigmah.client.EventBus;
-import org.sigmah.client.UserInfo;
+import org.sigmah.client.cache.UserLocalCache;
 import org.sigmah.client.dispatch.Dispatcher;
+import org.sigmah.client.dispatch.monitor.MaskingAsyncMonitor;
 import org.sigmah.client.dispatch.remote.Authentication;
 import org.sigmah.client.event.NavigationEvent;
 import org.sigmah.client.i18n.I18N;
@@ -24,12 +28,20 @@ import org.sigmah.client.page.map.MapPageState;
 import org.sigmah.client.page.report.ReportListPageState;
 import org.sigmah.client.page.table.PivotPageState;
 import org.sigmah.client.ui.StylableVBoxLayout;
+import org.sigmah.client.util.DateUtils;
 import org.sigmah.client.util.Notification;
+import org.sigmah.shared.command.GetMonitoredPoints;
+import org.sigmah.shared.command.GetReminders;
+import org.sigmah.shared.command.result.MonitoredPointsResultList;
+import org.sigmah.shared.command.result.RemindersResultList;
 import org.sigmah.shared.domain.profile.GlobalPermissionEnum;
 import org.sigmah.shared.dto.OrgUnitDTOLight;
 import org.sigmah.shared.dto.ProjectDTOLight;
 import org.sigmah.shared.dto.profile.ProfileUtils;
+import org.sigmah.shared.dto.reminder.MonitoredPointDTO;
+import org.sigmah.shared.dto.reminder.ReminderDTO;
 
+import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
@@ -58,17 +70,6 @@ import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.inject.Inject;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import org.sigmah.client.dispatch.monitor.MaskingAsyncMonitor;
-import org.sigmah.client.util.DateUtils;
-import org.sigmah.shared.command.GetMonitoredPoints;
-import org.sigmah.shared.command.GetReminders;
-import org.sigmah.shared.command.result.MonitoredPointsResultList;
-import org.sigmah.shared.command.result.RemindersResultList;
-import org.sigmah.shared.dto.reminder.MonitoredPointDTO;
-import org.sigmah.shared.dto.reminder.ReminderDTO;
 
 /**
  * Displays the dashboard.
@@ -86,7 +87,7 @@ public class DashboardView extends ContentPanel implements DashboardPresenter.Vi
     private final Dispatcher dispatcher;
     private final EventBus eventBus;
     private final Authentication authentication;
-    private final UserInfo info;
+    private final UserLocalCache cache;
 
     private ProjectsListPanel projectsListPanel;
 
@@ -98,12 +99,12 @@ public class DashboardView extends ContentPanel implements DashboardPresenter.Vi
 
     @Inject
     public DashboardView(final EventBus eventBus, final Dispatcher dispatcher, final Authentication authentication,
-            final UserInfo info) {
+            final UserLocalCache cache) {
 
         this.dispatcher = dispatcher;
         this.eventBus = eventBus;
         this.authentication = authentication;
-        this.info = info;
+        this.cache = cache;
 
         // The dashboard itself
         final BorderLayout borderLayout = new BorderLayout();
@@ -197,7 +198,7 @@ public class DashboardView extends ContentPanel implements DashboardPresenter.Vi
                     new Listener<ButtonEvent>() {
 
                         private final CreateProjectWindow window = new CreateProjectWindow(dispatcher, authentication,
-                                info);
+                                cache);
 
                         {
                             window.addListener(new CreateProjectListener() {

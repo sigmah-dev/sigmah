@@ -350,9 +350,9 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
                 // Retrieves the county list.
                 if (countriesStore.getCount() == 0) {
 
-                    if (countries != null) {
+                    if (cache != null) {
 
-                        countries.getCountries(new AsyncCallback<List<CountryDTO>>() {
+                        cache.getCountryCache().get(new AsyncCallback<List<CountryDTO>>() {
 
                             @Override
                             public void onFailure(Throwable e) {
@@ -560,9 +560,9 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
                 // Retrieves the county list.
                 if (usersStore.getCount() == 0) {
 
-                    if (users != null) {
+                    if (cache != null) {
 
-                        users.getUsers(new AsyncCallback<List<UserDTO>>() {
+                        cache.getUserCache().get(new AsyncCallback<List<UserDTO>>() {
 
                             @Override
                             public void onFailure(Throwable e) {
@@ -759,7 +759,7 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 
                 if (orgUnitsStore.getCount() == 0) {
 
-                    info.getOrgUnit(new AsyncCallback<OrgUnitDTOLight>() {
+                    cache.getOrganizationCache().get(new AsyncCallback<OrgUnitDTOLight>() {
 
                         /**
                          * Fills recursively the combobox from the given root
@@ -789,7 +789,7 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
                         @Override
                         public void onSuccess(OrgUnitDTOLight result) {
 
-                            orgUnitsStore.add(info.getOrgUnit(id));
+                            orgUnitsStore.add(cache.getOrganizationCache().get(id));
 
                             // Fills the store.
                             recursiveFillOrgUnitsList(result);
@@ -886,7 +886,7 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 
                 final LabelField labelField = createLabelField();
 
-                info.getOrgUnit(id, new AsyncCallback<OrgUnitDTOLight>() {
+                cache.getOrganizationCache().get(id, new AsyncCallback<OrgUnitDTOLight>() {
 
                     @Override
                     public void onFailure(Throwable e) {
@@ -1254,7 +1254,7 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
                 field = labelField;
             }
 
-            info.getOrgUnit(orgUnitId, new AsyncCallback<OrgUnitDTOLight>() {
+            cache.getOrganizationCache().get(orgUnitId, new AsyncCallback<OrgUnitDTOLight>() {
 
                 @Override
                 public void onSuccess(OrgUnitDTOLight result) {
@@ -1469,8 +1469,8 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
         if (getType() != null) {
             switch (getType()) {
             case COUNTRY:
-                if (countries != null) {
-                    final CountryDTO c = countries.getCountry(Integer.valueOf(value));
+                if (cache != null) {
+                    final CountryDTO c = cache.getCountryCache().get(Integer.valueOf(value));
                     if (c != null) {
                         return new HistoryTokenText(c.getName());
                     } else {
@@ -1519,8 +1519,8 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
                 final long time = Long.valueOf(value);
                 return new HistoryTokenText(format.format(new Date(time)));
             case MANAGER:
-                if (users != null) {
-                    final UserDTO u = users.getUser(Integer.valueOf(value));
+                if (cache != null) {
+                    final UserDTO u = cache.getUserCache().get(Integer.valueOf(value));
                     if (u != null) {
                         return new HistoryTokenText(u.getFirstName() != null ? u.getFirstName() + ' ' + u.getName()
                                 : u.getName());
@@ -1531,8 +1531,8 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
                     return new HistoryTokenText("#" + value);
                 }
             case ORG_UNIT:
-                if (info != null) {
-                    final OrgUnitDTOLight o = info.getOrgUnit(Integer.valueOf(value));
+                if (cache != null) {
+                    final OrgUnitDTOLight o = cache.getOrganizationCache().get(Integer.valueOf(value));
                     if (o != null) {
                         return new HistoryTokenText(o.getName() + " - " + o.getFullName());
                     } else {

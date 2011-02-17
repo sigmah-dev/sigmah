@@ -4,11 +4,11 @@
  */
 package org.sigmah.client.page.project;
 
-import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
-import org.sigmah.client.CountriesList;
+import java.util.EnumMap;
+import java.util.Map;
+
 import org.sigmah.client.EventBus;
-import org.sigmah.client.UserInfo;
-import org.sigmah.client.UsersList;
+import org.sigmah.client.cache.UserLocalCache;
 import org.sigmah.client.dispatch.AsyncMonitor;
 import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.dispatch.remote.Authentication;
@@ -28,8 +28,11 @@ import org.sigmah.client.page.project.details.ProjectDetailsPresenter;
 import org.sigmah.client.page.project.logframe.ProjectLogFramePresenter;
 import org.sigmah.client.page.project.reports.ProjectReportsPresenter;
 import org.sigmah.client.ui.ToggleAnchor;
+import org.sigmah.shared.command.AmendmentAction;
 import org.sigmah.shared.command.GetProject;
+import org.sigmah.shared.domain.Amendment;
 import org.sigmah.shared.domain.profile.GlobalPermissionEnum;
+import org.sigmah.shared.dto.AmendmentDTO;
 import org.sigmah.shared.dto.PhaseDTO;
 import org.sigmah.shared.dto.ProjectBannerDTO;
 import org.sigmah.shared.dto.ProjectDTO;
@@ -42,6 +45,7 @@ import org.sigmah.shared.dto.profile.ProfileUtils;
 
 import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
@@ -66,11 +70,6 @@ import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
-import java.util.EnumMap;
-import java.util.Map;
-import org.sigmah.shared.command.AmendmentAction;
-import org.sigmah.shared.domain.Amendment;
-import org.sigmah.shared.dto.AmendmentDTO;
 
 /**
  * Project presenter which manages the {@link ProjectView}.
@@ -105,9 +104,7 @@ public class ProjectPresenter implements Frame, TabPage {
     private final View view;
     private final Dispatcher dispatcher;
     private final Authentication authentication;
-    private final CountriesList countriesList;
-    private final UsersList usersList;
-    private final UserInfo info;
+    private final UserLocalCache cache;
     private Page activePage;
 
     private ProjectState currentState;
@@ -142,21 +139,18 @@ public class ProjectPresenter implements Frame, TabPage {
 
     @Inject
     public ProjectPresenter(final Dispatcher dispatcher, View view, Authentication authentication,
-            final EventBus eventBus, final UserInfo info, final CountriesList countriesList, final UsersList usersList) {
+            final EventBus eventBus, final UserLocalCache cache) {
         this.dispatcher = dispatcher;
         this.view = view;
         this.authentication = authentication;
-        this.countriesList = countriesList;
-        this.usersList = usersList;
-        this.info = info;
+        this.cache = cache;
 
         final DummyPresenter dummyPresenter = new DummyPresenter(); // For
                                                                     // development
 
         this.presenters = new SubPresenter[] {
-                new ProjectDashboardPresenter(dispatcher, eventBus, authentication, this, info, countriesList,
-                        usersList), // Dashboard
-                new ProjectDetailsPresenter(dispatcher, authentication, this, countriesList, usersList, info), // Details,
+                new ProjectDashboardPresenter(dispatcher, eventBus, authentication, this, cache), // Dashboard
+                new ProjectDetailsPresenter(dispatcher, authentication, this, cache), // Details,
                 new ProjectLogFramePresenter(dispatcher, authentication, this), // Logical
                 // Framework
                 dummyPresenter, // Indicators
@@ -377,9 +371,7 @@ public class ProjectPresenter implements Frame, TabPage {
                         final DefaultFlexibleElementDTO defaultElement = (DefaultFlexibleElementDTO) element;
                         defaultElement.setService(dispatcher);
                         defaultElement.setAuthentication(authentication);
-                        defaultElement.setCountries(countriesList);
-                        defaultElement.setUsers(usersList);
-                        defaultElement.setUserInfo(info);
+                        defaultElement.setCache(cache);
                         defaultElement.setCurrentContainerDTO(currentProjectDTO);
 
                         final Component component = defaultElement.getElementComponent(null, false);

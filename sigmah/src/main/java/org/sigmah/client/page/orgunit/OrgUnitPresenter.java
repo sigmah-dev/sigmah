@@ -1,9 +1,7 @@
 package org.sigmah.client.page.orgunit;
 
-import org.sigmah.client.CountriesList;
 import org.sigmah.client.EventBus;
-import org.sigmah.client.UserInfo;
-import org.sigmah.client.UsersList;
+import org.sigmah.client.cache.UserLocalCache;
 import org.sigmah.client.dispatch.AsyncMonitor;
 import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.dispatch.remote.Authentication;
@@ -71,9 +69,7 @@ public class OrgUnitPresenter implements Frame, TabPage {
     private final View view;
     private final Dispatcher dispatcher;
     private final Authentication authentication;
-    private final CountriesList countriesList;
-    private final UsersList usersList;
-    private final UserInfo info;
+    private final UserLocalCache cache;
     private Page activePage;
     private OrgUnitState currentState;
     private ToggleAnchor currentTab;
@@ -85,20 +81,18 @@ public class OrgUnitPresenter implements Frame, TabPage {
 
     @Inject
     public OrgUnitPresenter(final Dispatcher dispatcher, View view, Authentication authentication,
-            final EventBus eventBus, final CountriesList countriesList, final UsersList usersList, final UserInfo info) {
+            final EventBus eventBus, final UserLocalCache cache) {
 
         this.dispatcher = dispatcher;
         this.view = view;
         this.authentication = authentication;
-        this.countriesList = countriesList;
-        this.usersList = usersList;
-        this.info = info;
+        this.cache = cache;
 
         final DummyPresenter dummyPresenter = new DummyPresenter();
 
         this.presenters = new SubPresenter[] {
                 new OrgUnitDashboardPresenter(dispatcher, eventBus, authentication, this),
-                new OrgUnitDetailsPresenter(dispatcher, authentication, this, countriesList, usersList, info),
+                new OrgUnitDetailsPresenter(dispatcher, authentication, this, cache),
                 new OrgUnitCalendarPresenter(dispatcher, authentication, this), dummyPresenter
 
         };
@@ -290,9 +284,7 @@ public class OrgUnitPresenter implements Frame, TabPage {
                         final DefaultFlexibleElementDTO defaultElement = (DefaultFlexibleElementDTO) element;
                         defaultElement.setService(dispatcher);
                         defaultElement.setAuthentication(authentication);
-                        defaultElement.setCountries(countriesList);
-                        defaultElement.setUsers(usersList);
-                        defaultElement.setUserInfo(info);
+                        defaultElement.setCache(cache);
                         defaultElement.setCurrentContainerDTO(currentOrgUnitDTO);
 
                         final Component component = defaultElement.getElementComponent(null, false);

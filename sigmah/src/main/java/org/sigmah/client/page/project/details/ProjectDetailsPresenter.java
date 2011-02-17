@@ -3,9 +3,7 @@ package org.sigmah.client.page.project.details;
 import java.util.ArrayList;
 import java.util.Date;
 
-import org.sigmah.client.CountriesList;
-import org.sigmah.client.UserInfo;
-import org.sigmah.client.UsersList;
+import org.sigmah.client.cache.UserLocalCache;
 import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.dispatch.monitor.MaskingAsyncMonitor;
 import org.sigmah.client.dispatch.remote.Authentication;
@@ -69,11 +67,7 @@ public class ProjectDetailsPresenter implements SubPresenter {
 
     private final Authentication authentication;
 
-    private final CountriesList countriesList;
-
-    private final UsersList usersList;
-
-    private final UserInfo info;
+    private final UserLocalCache cache;
 
     /**
      * The main project presenter.
@@ -91,13 +85,11 @@ public class ProjectDetailsPresenter implements SubPresenter {
     private int maskCount;
 
     public ProjectDetailsPresenter(Dispatcher dispatcher, Authentication authentication,
-            ProjectPresenter projectPresenter, CountriesList countriesList, UsersList usersList, UserInfo info) {
+            ProjectPresenter projectPresenter, UserLocalCache cache) {
         this.dispatcher = dispatcher;
         this.projectPresenter = projectPresenter;
         this.authentication = authentication;
-        this.countriesList = countriesList;
-        this.usersList = usersList;
-        this.info = info;
+        this.cache = cache;
     }
 
     @Override
@@ -259,9 +251,7 @@ public class ProjectDetailsPresenter implements SubPresenter {
                                 // its component.
                                 elementDTO.setService(dispatcher);
                                 elementDTO.setAuthentication(authentication);
-                                elementDTO.setCountries(countriesList);
-                                elementDTO.setUsers(usersList);
-                                elementDTO.setUserInfo(info);
+                                elementDTO.setCache(cache);
                                 elementDTO.setCurrentContainerDTO(projectPresenter.getCurrentProjectDTO());
                                 elementDTO.assignValue(valueResult);
 

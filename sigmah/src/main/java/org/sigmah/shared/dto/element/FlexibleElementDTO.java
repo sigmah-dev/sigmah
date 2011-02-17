@@ -5,10 +5,8 @@
 
 package org.sigmah.shared.dto.element;
 
-import org.sigmah.client.CountriesList;
 import org.sigmah.client.EventBus;
-import org.sigmah.client.UserInfo;
-import org.sigmah.client.UsersList;
+import org.sigmah.client.cache.UserLocalCache;
 import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.dispatch.remote.Authentication;
 import org.sigmah.client.i18n.I18N;
@@ -18,8 +16,10 @@ import org.sigmah.client.util.HistoryTokenText;
 import org.sigmah.shared.command.GetHistory;
 import org.sigmah.shared.command.result.HistoryResult;
 import org.sigmah.shared.command.result.ValueResult;
+import org.sigmah.shared.domain.Amendment;
 import org.sigmah.shared.domain.profile.PrivacyGroupPermissionEnum;
 import org.sigmah.shared.dto.EntityDTO;
+import org.sigmah.shared.dto.ProjectDTO;
 import org.sigmah.shared.dto.element.handler.RequiredValueEvent;
 import org.sigmah.shared.dto.element.handler.RequiredValueHandler;
 import org.sigmah.shared.dto.element.handler.ValueEvent;
@@ -39,8 +39,6 @@ import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.google.gwt.event.shared.HandlerManager;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import org.sigmah.shared.domain.Amendment;
-import org.sigmah.shared.dto.ProjectDTO;
 
 /**
  * 
@@ -65,11 +63,7 @@ public abstract class FlexibleElementDTO extends BaseModelData implements Entity
 
     private transient Menu historyMenu;
 
-    protected transient CountriesList countries;
-
-    protected transient UsersList users;
-
-    protected transient UserInfo info;
+    protected transient UserLocalCache cache;
 
     /**
      * Sets the dispatcher to be used in the
@@ -117,36 +111,14 @@ public abstract class FlexibleElementDTO extends BaseModelData implements Entity
     }
 
     /**
-     * Sets the countries list to be used in the
+     * Sets the cache to be used in the
      * {@link #getElementComponent(ValueResult)} method.
      * 
-     * @param countries
-     *            The countries list.
+     * @param cache
+     *            The cache.
      */
-    public void setCountries(CountriesList countries) {
-        this.countries = countries;
-    }
-
-    /**
-     * Sets the users list to be used in the
-     * {@link #getElementComponent(ValueResult)} method.
-     * 
-     * @param users
-     *            The users list.
-     */
-    public void setUsers(UsersList users) {
-        this.users = users;
-    }
-
-    /**
-     * Sets the info to be used in the {@link #getElementComponent(ValueResult)}
-     * method.
-     * 
-     * @param info
-     *            The info.
-     */
-    public void setUserInfo(UserInfo info) {
-        this.info = info;
+    public void setCache(UserLocalCache cache) {
+        this.cache = cache;
     }
 
     /**

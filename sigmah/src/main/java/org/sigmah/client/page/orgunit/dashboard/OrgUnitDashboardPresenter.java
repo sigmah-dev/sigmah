@@ -69,7 +69,7 @@ public class OrgUnitDashboardPresenter implements SubPresenter {
                 view.getTreeStore().add(child, true);
             }
 
-            view.getProjectsListPanel().refresh(currentOrgUnitDTO.getId());
+            view.getProjectsListPanel().refresh(false, currentOrgUnitDTO.getId());
         }
 
         return view;
