@@ -80,6 +80,23 @@ public class GetProjectsHandler implements CommandHandler<GetProjects> {
         // Retrieves command parameters.
         final HashSet<Project> projects = new HashSet<Project>();
         final ProjectModelType modelType = cmd.getModelType();
+
+        // ---------------
+        // Projects which I own or I manage.
+        // ---------------
+
+        final Query ownerManagerQuery = em
+                .createQuery("SELECT p FROM Project p WHERE p.owner = :ouser OR p.manager = :muser");
+        ownerManagerQuery.setParameter("ouser", user);
+        ownerManagerQuery.setParameter("muser", user);
+        for (final Project p : (List<Project>) ownerManagerQuery.getResultList()) {
+            projects.add(p);
+        }
+
+        // ---------------
+        // Projects in my visible organization units.
+        // ---------------
+
         final List<Integer> ids = cmd.getOrgUnitsIds();
 
         // Use a set to be avoid duplicated entries.
@@ -134,6 +151,10 @@ public class GetProjectsHandler implements CommandHandler<GetProjects> {
                         + unit.getName() + ".");
             }
         }
+
+        // ---------------
+        // Mapping and return.
+        // ---------------
 
         // Mapping into DTO objects
         final ArrayList<ProjectDTOLight> projectDTOList = new ArrayList<ProjectDTOLight>();

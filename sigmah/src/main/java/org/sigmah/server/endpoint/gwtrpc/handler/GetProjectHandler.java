@@ -125,6 +125,20 @@ public class GetProjectHandler implements CommandHandler<GetProject> {
      */
     public static boolean isProjectVisible(Project project, User user) {
 
+        // Owner.
+        if (project.getOwner() != null) {
+            if (project.getOwner().getId() == user.getId()) {
+                return true;
+            }
+        }
+
+        // Manager.
+        if (project.getManager() != null) {
+            if (project.getManager().getId() == user.getId()) {
+                return true;
+            }
+        }
+
         // Checks that the user can see this project.
         final HashSet<OrgUnit> units = new HashSet<OrgUnit>();
         GetProjectHandler.crawlUnits(user.getOrgUnitWithProfiles().getOrgUnit(), units, true);

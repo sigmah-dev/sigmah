@@ -65,10 +65,15 @@ public class ProjectPolicy implements EntityPolicy<Project> {
 
         // Creates the new project
         Project project = new Project();
-        
+
         // Userdatabase attributes.
         project.setStartDate(new Date());
-        project.setOwner(em.getReference(User.class, user.getId()));
+        final User owner = em.getReference(User.class, user.getId());
+        project.setOwner(owner);
+
+        // Manager.
+        // The default manager is the owner of the project.
+        project.setManager(owner);
 
         // Monitored points.
         project.setPointsList(new MonitoredPointList());
