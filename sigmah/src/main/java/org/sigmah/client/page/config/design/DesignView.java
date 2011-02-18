@@ -5,6 +5,27 @@
 
 package org.sigmah.client.page.config.design;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.sigmah.client.dispatch.Dispatcher;
+import org.sigmah.client.i18n.I18N;
+import org.sigmah.client.i18n.UIConstants;
+import org.sigmah.client.icon.IconImageBundle;
+import org.sigmah.client.page.common.dialog.FormDialogCallback;
+import org.sigmah.client.page.common.dialog.FormDialogImpl;
+import org.sigmah.client.page.common.dialog.FormDialogTether;
+import org.sigmah.client.page.common.grid.AbstractEditorTreeGridView;
+import org.sigmah.client.page.common.grid.ImprovedCellTreeGridSelectionModel;
+import org.sigmah.client.page.common.toolbar.UIActions;
+import org.sigmah.shared.dto.ActivityDTO;
+import org.sigmah.shared.dto.AttributeDTO;
+import org.sigmah.shared.dto.AttributeGroupDTO;
+import org.sigmah.shared.dto.EntityDTO;
+import org.sigmah.shared.dto.IndicatorDTO;
+import org.sigmah.shared.dto.SchemaDTO;
+import org.sigmah.shared.dto.UserDatabaseDTO;
+
 import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.Style;
 import com.extjs.gxt.ui.client.binding.FieldBinding;
@@ -14,14 +35,25 @@ import com.extjs.gxt.ui.client.data.TreeModel;
 import com.extjs.gxt.ui.client.dnd.DND;
 import com.extjs.gxt.ui.client.dnd.TreeGridDragSource;
 import com.extjs.gxt.ui.client.dnd.TreeGridDropTarget;
-import com.extjs.gxt.ui.client.event.*;
+import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.DNDEvent;
+import com.extjs.gxt.ui.client.event.DNDListener;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.GridEvent;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.MenuEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.Store;
 import com.extjs.gxt.ui.client.store.TreeStore;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.TextField;
-import com.extjs.gxt.ui.client.widget.grid.*;
+import com.extjs.gxt.ui.client.widget.grid.CellEditor;
+import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
+import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
+import com.extjs.gxt.ui.client.widget.grid.EditorGrid;
+import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
@@ -33,19 +65,6 @@ import com.extjs.gxt.ui.client.widget.treegrid.TreeGrid;
 import com.extjs.gxt.ui.client.widget.treegrid.TreeGridCellRenderer;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.inject.Inject;
-import org.sigmah.client.dispatch.Dispatcher;
-import org.sigmah.client.i18n.I18N;
-import org.sigmah.client.icon.IconImageBundle;
-import org.sigmah.client.page.common.dialog.FormDialogCallback;
-import org.sigmah.client.page.common.dialog.FormDialogImpl;
-import org.sigmah.client.page.common.dialog.FormDialogTether;
-import org.sigmah.client.page.common.grid.AbstractEditorTreeGridView;
-import org.sigmah.client.page.common.grid.ImprovedCellTreeGridSelectionModel;
-import org.sigmah.client.page.common.toolbar.UIActions;
-import org.sigmah.shared.dto.*;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author Alex Bertram
@@ -53,39 +72,45 @@ import java.util.List;
 public class DesignView extends AbstractEditorTreeGridView<ModelData, DesignPresenter>
         implements DesignPresenter.View {
 
-    protected final Dispatcher service;
-
+    final protected Dispatcher service;
     protected EditorTreeGrid<ModelData> tree;
     protected ContentPanel formContainer;
-
-    protected UserDatabaseDTO db;
-
-    @Inject
+    private DesignPresenter presenter;
+	protected UserDatabaseDTO db;
+	private UIConstants messages;
+	
+    @Inject   
     public DesignView(Dispatcher service) {
-        this.service = service;
+    	this.service = service;
     }
-
+    
     @Override
-    public void init(DesignPresenter presenter, UserDatabaseDTO db, TreeStore store) {
-
-        this.db = db;
-
-        setLayout(new BorderLayout());
-        setHeading(I18N.CONSTANTS.design() + " - " + db.getName());
-        setIcon(IconImageBundle.ICONS.design());
-
-        super.init(presenter, store);
-
-        createFormContainer();
+    public void init(DesignPresenter presenter,UIConstants messages, TreeStore<ModelData> tree) {
+    	super.init(presenter, presenter.treeStore);
+    	this.presenter = presenter;
+    	this.messages= messages;
     }
-
-
+    
+    
+    @Override
+    public void init(DesignPresenter presenter,UIConstants messages, UserDatabaseDTO db, TreeStore<ModelData> tree) {
+    	init(presenter, messages, db, tree);
+    	doLayout(db);
+    }
+    
+    @Override
+    public void doLayout(UserDatabaseDTO db) {
+    	this.db = db;
+    	setLayout(new BorderLayout());
+		setIcon(IconImageBundle.ICONS.design());
+    	createFormContainer();
+    	setHeading(I18N.CONSTANTS.design() + " - " + db.getFullName());
+    	presenter.initListeners(presenter.treeStore, null); 
+    }
+    
     @Override
     protected Grid<ModelData> createGridAndAddToContainer(Store store) {
-
-
         final TreeStore treeStore = (TreeStore) store;
-
         tree = new EditorTreeGrid<ModelData>(treeStore, createColumnModel());
         tree.setSelectionModel(new ImprovedCellTreeGridSelectionModel<ModelData>());
         tree.setClicksToEdit(EditorGrid.ClicksToEdit.TWO);
@@ -166,7 +191,6 @@ public class DesignView extends AbstractEditorTreeGridView<ModelData, DesignPres
 
     @Override
     protected void initToolBar() {
-
         toolBar.addSaveSplitButton();
 
         SelectionListener<MenuEvent> listener = new SelectionListener<MenuEvent>() {
@@ -182,16 +206,16 @@ public class DesignView extends AbstractEditorTreeGridView<ModelData, DesignPres
 
         Button newButtonMenu = new Button(I18N.CONSTANTS.newText(), IconImageBundle.ICONS.add());
         newButtonMenu.setMenu(newMenu);
-        newButtonMenu.setEnabled(db.isDesignAllowed());
+        // TODO fix this!!
+        //newButtonMenu.setEnabled(db.isDesignAllowed());
+        newButtonMenu.setEnabled(true);
+ 
         toolBar.add(newButtonMenu);
-
         toolBar.addDeleteButton();
-
 
     }
 
     protected void initNewMenu(Menu menu, SelectionListener<MenuEvent> listener) {
-
         MenuItem newActivity = new MenuItem(I18N.CONSTANTS.newActivity(), IconImageBundle.ICONS.activity(), listener);
         newActivity.setItemId("Activity");
         menu.add(newActivity);
@@ -207,7 +231,6 @@ public class DesignView extends AbstractEditorTreeGridView<ModelData, DesignPres
         final MenuItem newIndicator = new MenuItem(I18N.CONSTANTS.newIndicator(), IconImageBundle.ICONS.indicator(), listener);
         newIndicator.setItemId("Indicator");
         menu.add(newIndicator);
-
 
         menu.addListener(Events.BeforeShow, new Listener<BaseEvent>() {
             public void handleEvent(BaseEvent be) {
@@ -225,19 +248,15 @@ public class DesignView extends AbstractEditorTreeGridView<ModelData, DesignPres
         final MenuItem removeItem = new MenuItem(I18N.CONSTANTS.delete(), IconImageBundle.ICONS.delete());
         removeItem.setItemId(UIActions.delete);
         menu.add(removeItem);
-
     }
 
     protected Menu createContextMenu() {
         Menu menu = new Menu();
-
         initNewMenu(menu, null);
         menu.add(new SeparatorMenuItem());
         initRemoveMenu(menu);
-
         return menu;
     }
-
 
     private void createFormContainer() {
         formContainer = new ContentPanel();
@@ -255,7 +274,6 @@ public class DesignView extends AbstractEditorTreeGridView<ModelData, DesignPres
     }
 
     private ColumnModel createColumnModel() {
-
         List<ColumnConfig> columns = new ArrayList<ColumnConfig>();
 
         TextField<String> nameField = new TextField<String>();
@@ -264,14 +282,12 @@ public class DesignView extends AbstractEditorTreeGridView<ModelData, DesignPres
         ColumnConfig nameColumn = new ColumnConfig("name", I18N.CONSTANTS.name(), 150);
         nameColumn.setEditor(new CellEditor(nameField));
         nameColumn.setRenderer(new TreeGridCellRenderer());
-
         columns.add(nameColumn);
 
         return new ColumnModel(columns);
     }
 
     protected Class formClassForSelection(ModelData sel) {
-
         if (sel instanceof ActivityDTO) {
             return ActivityForm.class;
         } else if (sel instanceof AttributeGroupDTO) {
@@ -281,8 +297,6 @@ public class DesignView extends AbstractEditorTreeGridView<ModelData, DesignPres
         } else if (sel instanceof AttributeDTO) {
             return AttributeForm.class;
         }
-
-
         return null;
 
     }
@@ -297,13 +311,11 @@ public class DesignView extends AbstractEditorTreeGridView<ModelData, DesignPres
         } else if (sel instanceof IndicatorDTO) {
             return new IndicatorForm();
         }
-
         return null;
     }
 
 
     public void showForm(ModelData model) {
-
         // do we have the right form?
         Class formClass = formClassForSelection(model);
 
@@ -327,7 +339,6 @@ public class DesignView extends AbstractEditorTreeGridView<ModelData, DesignPres
                     formContainer.removeAll();
                     currentForm.getBinding().unbind();
                 }
-
                 currentForm = createForm(model);
                 currentForm.setReadOnly(!db.isDesignAllowed());
                 currentForm.setHeaderVisible(false);
@@ -342,14 +353,13 @@ public class DesignView extends AbstractEditorTreeGridView<ModelData, DesignPres
     }
 
     public FormDialogTether showNewForm(EntityDTO entity, FormDialogCallback callback) {
-
         AbstractDesignForm form = createForm(entity);
         form.getBinding().bind(entity);
 
         for (FieldBinding field : form.getBinding().getBindings()) {
             field.getField().clearInvalid();
         }
-
+        
         FormDialogImpl dlg = new FormDialogImpl(form);
         dlg.setWidth(form.getPreferredDialogWidth());
         dlg.setHeight(form.getPreferredDialogHeight());
@@ -369,4 +379,5 @@ public class DesignView extends AbstractEditorTreeGridView<ModelData, DesignPres
 
         return dlg;
     }
+    
 }

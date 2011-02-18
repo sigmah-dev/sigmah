@@ -130,6 +130,7 @@ public class ProjectsListPanel {
         projectTreeGrid.setAutoExpandColumn("fullName");
         projectTreeGrid.setTrackMouseOver(false);
         projectTreeGrid.setAutoExpand(true);
+       
 
         // Store.
         projectStore.setStoreSorter(new StoreSorter<ProjectDTOLight>() {
@@ -685,18 +686,25 @@ public class ProjectsListPanel {
                             final List<ProjectDTOLight> resultList = result.getList();
                             int i = -1;
                             for (final ProjectDTOLight p : resultList) {
-
-                                // Project id.
-                                p.setProjectId(p.getId());
-                                // Tree id.
-                                p.setId(i--);
-
-                                for (final ProjectDTOLight c : p.getChildrenProjects()) {
-                                    // Project id.
-                                    c.setProjectId(c.getId());
-                                    // Tree id.
-                                    c.setId(i--);
-                                }
+                            	try {
+	                                // Project id.
+	                                p.setProjectId(p.getId());
+	                                // Tree id.
+	                                p.setId(i--);
+	
+	                                for (final ProjectDTOLight c : p.getChildrenProjects()) {
+	                                    // Project id.
+	                                	if (c != null) {
+	                                		
+	                                		c.setProjectId(c.getId());
+	                                		// Tree id.
+	                                		c.setId(i--);
+	                                	
+	                                	}
+	                                }
+                            	} catch (Exception e) {
+                            		e.printStackTrace();
+                            	}
                             }
                             getProjectsStore().add(resultList, true);
                         }

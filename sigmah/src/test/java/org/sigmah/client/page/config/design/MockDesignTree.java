@@ -8,6 +8,7 @@ package org.sigmah.client.page.config.design;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.store.TreeStore;
 import org.sigmah.client.dispatch.AsyncMonitor;
+import org.sigmah.client.i18n.UIConstants;
 import org.sigmah.client.page.common.dialog.FormDialogCallback;
 import org.sigmah.client.page.common.dialog.FormDialogTether;
 import org.sigmah.client.page.common.grid.ConfirmCallback;
@@ -27,9 +28,10 @@ public class MockDesignTree implements DesignPresenter.View {
 
     public ModelData selection = null;
     public Map<String, Object> newEntityProperties = new HashMap<String, Object>();
-
+    public TreeStore<ModelData> ts = null;
+    
     public void init(DesignPresenter presenter, UserDatabaseDTO db, TreeStore store) {
-
+    	
     }
 
     public FormDialogTether showNewForm(EntityDTO entity, FormDialogCallback callback) {
@@ -68,4 +70,25 @@ public class MockDesignTree implements DesignPresenter.View {
     public AsyncMonitor getSavingMonitor() {
         return null;
     }
+
+	@Override
+	public void init(DesignPresenter presenter, UIConstants msg,
+			UserDatabaseDTO db, TreeStore<ModelData> ts) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void init(DesignPresenter presenter, UIConstants msg,
+			TreeStore<ModelData> ts) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void doLayout(UserDatabaseDTO db) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

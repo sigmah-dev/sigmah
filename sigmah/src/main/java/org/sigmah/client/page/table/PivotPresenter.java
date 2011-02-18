@@ -18,6 +18,7 @@ import org.sigmah.client.page.Page;
 import org.sigmah.client.page.PageId;
 import org.sigmah.client.page.PageState;
 import org.sigmah.client.page.common.toolbar.UIActions;
+import org.sigmah.client.page.project.SubPresenter;
 import org.sigmah.shared.command.GenerateElement;
 import org.sigmah.shared.command.RenderElement;
 import org.sigmah.shared.dto.AdminEntityDTO;
@@ -33,6 +34,7 @@ import org.sigmah.shared.report.model.PivotTableElement;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.store.TreeStore;
+import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.ImplementedBy;
@@ -41,7 +43,7 @@ import com.google.inject.Inject;
 /**
  * @author Alex Bertram (akbertram@gmail.com)
  */
-public class PivotPresenter implements Page {
+public class PivotPresenter implements Page, SubPresenter {
     public static final PageId Pivot = new PageId("pivot");
 
     @ImplementedBy(PivotPage.class)
@@ -109,6 +111,13 @@ public class PivotPresenter implements Page {
 		*/
     }
 
+    public PivotPresenter(Dispatcher service, EventBus eventBus) {
+    	this.view= new PivotPage(eventBus, service, null);
+        this.service = service;
+        this.eventBus = eventBus;
+        this.view.bindPresenter(this);
+    }
+    
     public void shutdown() {
 
     }
@@ -190,6 +199,27 @@ public class PivotPresenter implements Page {
 
     public boolean navigate(PageState place) {
         return true;
+    }
+    
+    /**
+     * Free the current view.
+     */
+    public Component getView() {
+    	return (Component)view;
+    }
+
+    /**
+     * Free the current view.
+     */
+    public void discardView() {
+    	// ignore
+    }
+
+    /**
+     * Allows the component to perform custom initialization just after it has been rendered.
+     */
+    public void viewDidAppear() {
+    	// ignore
     }
   
 }

@@ -20,6 +20,9 @@ import org.sigmah.client.page.NavigationHandler;
 import org.sigmah.client.page.Page;
 import org.sigmah.client.page.PageId;
 import org.sigmah.client.page.PageState;
+import org.sigmah.client.page.table.PivotPresenter;
+import org.sigmah.client.page.config.design.DesignPresenter;
+import org.sigmah.client.page.config.design.DesignView;
 import org.sigmah.client.page.TabPage;
 import org.sigmah.client.page.project.calendar.ProjectCalendarPresenter;
 import org.sigmah.client.page.project.dashboard.ProjectDashboardPresenter;
@@ -133,6 +136,7 @@ public class ProjectPresenter implements Frame, TabPage {
 
     private final static String[] MAIN_TABS = { I18N.CONSTANTS.projectTabDashboard(), I18N.CONSTANTS.projectDetails(),
             I18N.CONSTANTS.projectTabLogFrame(), I18N.CONSTANTS.projectTabIndicators(),
+            I18N.CONSTANTS.projectTabDataEntry(),
             I18N.CONSTANTS.projectTabCalendar(), I18N.CONSTANTS.projectTabReports(),
             I18N.CONSTANTS.projectTabSecurityIncident() };
     private final SubPresenter[] presenters;
@@ -151,9 +155,9 @@ public class ProjectPresenter implements Frame, TabPage {
         this.presenters = new SubPresenter[] {
                 new ProjectDashboardPresenter(dispatcher, eventBus, authentication, this, cache), // Dashboard
                 new ProjectDetailsPresenter(dispatcher, authentication, this, cache), // Details,
-                new ProjectLogFramePresenter(dispatcher, authentication, this), // Logical
-                // Framework
-                dummyPresenter, // Indicators
+                new ProjectLogFramePresenter(dispatcher, authentication, this), // Logic
+                new DesignPresenter(eventBus, dispatcher, I18N.CONSTANTS, this),
+                new PivotPresenter(dispatcher, eventBus),
                 new ProjectCalendarPresenter(dispatcher, authentication, this), // Calendar
                 new ProjectReportsPresenter(authentication, dispatcher, eventBus, this), // Reports
                 dummyPresenter // Security incidents
@@ -171,7 +175,7 @@ public class ProjectPresenter implements Frame, TabPage {
             anchor.setAnchorMode(true);
 
             anchor.addClickHandler(new ClickHandler() {
-
+ 
                 @Override
                 public void onClick(ClickEvent event) {
                     eventBus.fireEvent(new NavigationEvent(NavigationHandler.NavigationRequested, currentState
