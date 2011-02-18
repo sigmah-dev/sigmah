@@ -17,13 +17,17 @@ import org.sigmah.client.page.PageStateSerializer;
 
 /**
  * Page loader for the dashboard screen of Sigmah.
+ * 
  * @author rca
  */
 public class DashboardPageLoader implements PageLoader {
+
     private final SigmahInjector injector;
-    
+    private DashboardPresenter presenter;
+
     @Inject
-    public DashboardPageLoader(SigmahInjector injector, NavigationHandler navigationHandler, PageStateSerializer placeSerializer) {
+    public DashboardPageLoader(SigmahInjector injector, NavigationHandler navigationHandler,
+            PageStateSerializer placeSerializer) {
         this.injector = injector;
 
         navigationHandler.registerPageLoader(DashboardPresenter.PAGE_ID, this);
@@ -32,8 +36,12 @@ public class DashboardPageLoader implements PageLoader {
 
     @Override
     public void load(PageId pageId, PageState pageState, AsyncCallback<Page> callback) {
-        if(pageId.equals(DashboardPresenter.PAGE_ID)) {
-            final DashboardPresenter presenter = injector.getDashboardPresenter();
+        if (pageId.equals(DashboardPresenter.PAGE_ID)) {
+
+            if (presenter == null) {
+                presenter = injector.getDashboardPresenter();
+            }
+
             presenter.navigate(pageState);
             callback.onSuccess(presenter);
         }

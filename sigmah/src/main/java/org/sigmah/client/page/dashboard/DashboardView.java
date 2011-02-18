@@ -12,7 +12,6 @@ import java.util.List;
 import org.sigmah.client.EventBus;
 import org.sigmah.client.cache.UserLocalCache;
 import org.sigmah.client.dispatch.Dispatcher;
-import org.sigmah.client.dispatch.monitor.MaskingAsyncMonitor;
 import org.sigmah.client.dispatch.remote.Authentication;
 import org.sigmah.client.event.NavigationEvent;
 import org.sigmah.client.i18n.I18N;
@@ -30,10 +29,6 @@ import org.sigmah.client.page.table.PivotPageState;
 import org.sigmah.client.ui.StylableVBoxLayout;
 import org.sigmah.client.util.DateUtils;
 import org.sigmah.client.util.Notification;
-import org.sigmah.shared.command.GetMonitoredPoints;
-import org.sigmah.shared.command.GetReminders;
-import org.sigmah.shared.command.result.MonitoredPointsResultList;
-import org.sigmah.shared.command.result.RemindersResultList;
 import org.sigmah.shared.domain.profile.GlobalPermissionEnum;
 import org.sigmah.shared.dto.OrgUnitDTOLight;
 import org.sigmah.shared.dto.ProjectDTOLight;
@@ -41,7 +36,6 @@ import org.sigmah.shared.dto.profile.ProfileUtils;
 import org.sigmah.shared.dto.reminder.MonitoredPointDTO;
 import org.sigmah.shared.dto.reminder.ReminderDTO;
 
-import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
@@ -67,7 +61,6 @@ import com.extjs.gxt.ui.client.widget.layout.VBoxLayout;
 import com.extjs.gxt.ui.client.widget.layout.VBoxLayoutData;
 import com.extjs.gxt.ui.client.widget.treegrid.TreeGrid;
 import com.google.gwt.i18n.client.DateTimeFormat;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.inject.Inject;
 
@@ -94,7 +87,9 @@ public class DashboardView extends ContentPanel implements DashboardPresenter.Vi
     private OrgUnitTreeGrid orgUnitsTreeGrid;
     private ContentPanel orgUnitsPanel;
 
+    private final ContentPanel reminderListPanel;
     private ListStore<ReminderDTO> reminderStore;
+    private final ContentPanel monitoredPointListPanel;
     private ListStore<MonitoredPointDTO> monitoredPointStore;
 
     @Inject
@@ -129,14 +124,12 @@ public class DashboardView extends ContentPanel implements DashboardPresenter.Vi
         vBoxLayoutData.setMargins(new Margins(0, 0, BORDER, 0));
 
         // Reminders
-        final ContentPanel reminderListPanel = createReminderListPanel();
+        reminderListPanel = createReminderListPanel();
         leftPanel.add(reminderListPanel, vBoxLayoutData);
 
         // Monitored points
-        final ContentPanel monitoredPointListPanel = createMonitoredPointListPanel();
+        monitoredPointListPanel = createMonitoredPointListPanel();
         leftPanel.add(monitoredPointListPanel, vBoxLayoutData);
-
-        loadTasks(reminderListPanel, monitoredPointListPanel);
 
         // Bottom-left menu
         final ContentPanel menuPanel = new ContentPanel();
@@ -336,7 +329,7 @@ public class DashboardView extends ContentPanel implements DashboardPresenter.Vi
      */
     private Component buildProjectPanel() {
 
-        projectsListPanel = new ProjectsListPanel(dispatcher, authentication);
+        projectsListPanel = new ProjectsListPanel(dispatcher, authentication, ProjectsListPanel.RefreshMode.BUTTON);
         return projectsListPanel.getProjectsPanel();
     }
 
@@ -474,35 +467,6 @@ public class DashboardView extends ContentPanel implements DashboardPresenter.Vi
         return Arrays.asList(new ColumnConfig[] { iconColumn, labelColumn, expectedDateColumn });
     }
 
-    private void loadTasks(final ContentPanel reminderListPanel, final ContentPanel monitoredPointListPanel) {
-        dispatcher.execute(new GetReminders(), new MaskingAsyncMonitor(reminderListPanel, I18N.CONSTANTS.loading()),
-                new AsyncCallback<RemindersResultList>() {
-                    @Override
-                    public void onFailure(Throwable caught) {
-                        Log.error("[DashboardView loadTasks()] Error while retrieving reminders.", caught);
-                    }
-
-                    @Override
-                    public void onSuccess(RemindersResultList result) {
-                        getReminderStore().add(result.getList());
-                    }
-                });
-
-        dispatcher.execute(new GetMonitoredPoints(),
-                new MaskingAsyncMonitor(monitoredPointListPanel, I18N.CONSTANTS.loading()),
-                new AsyncCallback<MonitoredPointsResultList>() {
-                    @Override
-                    public void onFailure(Throwable caught) {
-                        Log.error("[DashboardView loadTasks()] Error while retrieving monitored points.", caught);
-                    }
-
-                    @Override
-                    public void onSuccess(MonitoredPointsResultList result) {
-                        getMonitoredPointStore().add(result.getList());
-                    }
-                });
-    }
-
     @Override
     public ProjectsListPanel getProjectsListPanel() {
         return projectsListPanel;
@@ -524,6 +488,11 @@ public class DashboardView extends ContentPanel implements DashboardPresenter.Vi
     }
 
     @Override
+    public ContentPanel getReminderListPanel() {
+        return reminderListPanel;
+    }
+
+    @Override
     public ListStore<ReminderDTO> getReminderStore() {
         return reminderStore;
     }
@@ -531,5 +500,10 @@ public class DashboardView extends ContentPanel implements DashboardPresenter.Vi
     @Override
     public ListStore<MonitoredPointDTO> getMonitoredPointStore() {
         return monitoredPointStore;
+    }
+
+    @Override
+    public ContentPanel getMonitoredPointListPanel() {
+        return monitoredPointListPanel;
     }
 }

@@ -92,6 +92,28 @@ public class ProjectsListPanel {
     public static class ProjectStore extends TreeStore<ProjectDTOLight> {
     }
 
+    /**
+     * Defines the refreshing mode.
+     * 
+     * @author tmi
+     * 
+     */
+    public static enum RefreshMode {
+
+        /**
+         * The project list is refreshed each time the
+         * {@link ProjectsListPanel#refresh(boolean, Integer...)} method is
+         * called.
+         */
+        AUTOMATIC,
+
+        /**
+         * The project list is refreshed each time user clicks on the refresh
+         * button.
+         */
+        BUTTON;
+    }
+
     private final Dispatcher dispatcher;
     private final Authentication authentication;
     private final ContentPanel projectTreePanel;
@@ -105,10 +127,40 @@ public class ProjectsListPanel {
     private ProjectModelType currentModelType;
     private final ArrayList<Integer> orgUnitsIds;
 
+    // The refreshing mode (automatic by default)
+    private final RefreshMode refreshMode;
+
+    // The GetProjects command which will be executed for the next refresh.
+    private GetProjects command;
+
+    /**
+     * Builds a new project list panel with the default refreshing mode to
+     * {@link RefreshMode#AUTOMATIC}.
+     * 
+     * @param dispatcher
+     *            The dispatcher.
+     * @param authentication
+     *            The current authentication.
+     */
     public ProjectsListPanel(Dispatcher dispatcher, Authentication authentication) {
+        this(dispatcher, authentication, RefreshMode.AUTOMATIC);
+    }
+
+    /**
+     * Builds a new project list panel.
+     * 
+     * @param dispatcher
+     *            The dispatcher.
+     * @param authentication
+     *            The current authentication.
+     * @param refreshMode
+     *            The refreshing mode.
+     */
+    public ProjectsListPanel(Dispatcher dispatcher, Authentication authentication, RefreshMode refreshMode) {
 
         this.dispatcher = dispatcher;
         this.authentication = authentication;
+        this.refreshMode = refreshMode;
 
         // Default filters parameters.
         orgUnitsIds = new ArrayList<Integer>();
@@ -130,7 +182,6 @@ public class ProjectsListPanel {
         projectTreeGrid.setAutoExpandColumn("fullName");
         projectTreeGrid.setTrackMouseOver(false);
         projectTreeGrid.setAutoExpand(true);
-       
 
         // Store.
         projectStore.setStoreSorter(new StoreSorter<ProjectDTOLight>() {
@@ -264,10 +315,27 @@ public class ProjectsListPanel {
                     }
                 });
 
-        // Collapse all button.
+        // Filter button.
         filterButton = new Button(I18N.CONSTANTS.filter(), IconImageBundle.ICONS.filter());
 
+        // Refresh button.
+        final Button refreshButton = new Button(I18N.CONSTANTS.refreshProjectList(), IconImageBundle.ICONS.refresh(),
+                new SelectionListener<ButtonEvent>() {
+
+                    @Override
+                    public void componentSelected(ButtonEvent ce) {
+                        // Explicit refresh.
+                        refreshProjectGrid(command);
+                    }
+                });
+        refreshButton.setToolTip(I18N.CONSTANTS.refreshProjectListDetails());
+        refreshButton.addStyleName("project-refresh-button");
+
         final ToolBar toolbar = new ToolBar();
+        if (refreshMode == RefreshMode.BUTTON) {
+            toolbar.add(refreshButton);
+            toolbar.add(new SeparatorToolItem());
+        }
         toolbar.add(expandButton);
         toolbar.add(collapseButton);
         toolbar.add(new SeparatorToolItem());
@@ -653,19 +721,20 @@ public class ProjectsListPanel {
 
     /**
      * Refreshes the projects grid with the current parameters.
+     * 
+     * @param cmd
+     *            The {@link GetProjects} command to execute.
      */
-    private void refreshProjectGrid(boolean viewOwnOrManage) {
+    private void refreshProjectGrid(GetProjects cmd) {
 
         // Checks that the user can view projects.
         if (!ProfileUtils.isGranted(authentication, GlobalPermissionEnum.VIEW_PROJECT)) {
             return;
         }
 
-        // Retrieves all the projects in the org units. The filters on type,
-        // etc. are applied locally.
-        final GetProjects cmd = new GetProjects();
-        cmd.setOrgUnitsIds(orgUnitsIds);
-        cmd.setViewOwnOrManage(viewOwnOrManage);
+        if (cmd == null) {
+            return;
+        }
 
         dispatcher.execute(cmd, new MaskingAsyncMonitor(projectTreePanel, I18N.CONSTANTS.loading()),
                 new AsyncCallback<ProjectListResult>() {
@@ -686,25 +755,25 @@ public class ProjectsListPanel {
                             final List<ProjectDTOLight> resultList = result.getList();
                             int i = -1;
                             for (final ProjectDTOLight p : resultList) {
-                            	try {
-	                                // Project id.
-	                                p.setProjectId(p.getId());
-	                                // Tree id.
-	                                p.setId(i--);
-	
-	                                for (final ProjectDTOLight c : p.getChildrenProjects()) {
-	                                    // Project id.
-	                                	if (c != null) {
-	                                		
-	                                		c.setProjectId(c.getId());
-	                                		// Tree id.
-	                                		c.setId(i--);
-	                                	
-	                                	}
-	                                }
-                            	} catch (Exception e) {
-                            		e.printStackTrace();
-                            	}
+                                try {
+                                    // Project id.
+                                    p.setProjectId(p.getId());
+                                    // Tree id.
+                                    p.setId(i--);
+
+                                    for (final ProjectDTOLight c : p.getChildrenProjects()) {
+                                        // Project id.
+                                        if (c != null) {
+
+                                            c.setProjectId(c.getId());
+                                            // Tree id.
+                                            c.setId(i--);
+
+                                        }
+                                    }
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
                             }
                             getProjectsStore().add(resultList, true);
                         }
@@ -726,13 +795,39 @@ public class ProjectsListPanel {
         return (ProjectStore) projectTreeGrid.getTreeStore();
     }
 
-    public void refresh(boolean viewOwnOrManage, Integer... orgUnitsIds) {
-        refresh(viewOwnOrManage, Arrays.asList(orgUnitsIds));
+    public RefreshMode getRefreshMode() {
+        return refreshMode;
     }
 
-    public void refresh(boolean viewOwnOrManage, List<Integer> orgUnitsIds) {
+    /**
+     * Asks for a refresh of the projects list. If the refreshing mode is set to
+     * {@link RefreshMode#AUTOMATIC}, the list will be refreshed immediately.
+     * Otherwise, the list will be refreshed depending on the selected
+     * refreshing mode.
+     * 
+     * @param viewOwnOrManage
+     *            If the projects that the user own or manage must be included
+     *            in the list (no matter of their organizational units).
+     * @param orgUnitsIds
+     *            The list of ids of the organizational units for which the
+     *            projects will be retrieved. The projects of each the
+     *            sub-organizational units are retrieved automatically.
+     */
+    public void refresh(boolean viewOwnOrManage, Integer... orgUnitsIds) {
+
+        final List<Integer> orgUnitsIdsAsList = Arrays.asList(orgUnitsIds);
+
         this.orgUnitsIds.clear();
-        this.orgUnitsIds.addAll(orgUnitsIds);
-        refreshProjectGrid(viewOwnOrManage);
+        this.orgUnitsIds.addAll(orgUnitsIdsAsList);
+
+        // Builds the next refresh command.
+        command = new GetProjects();
+        command.setOrgUnitsIds(orgUnitsIdsAsList);
+        command.setViewOwnOrManage(viewOwnOrManage);
+
+        // If the mode is automatic, the list is refreshed immediately.
+        if (refreshMode == RefreshMode.AUTOMATIC) {
+            refreshProjectGrid(command);
+        }
     }
 }

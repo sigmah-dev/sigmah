@@ -6,16 +6,23 @@
 package org.sigmah.client.page.dashboard;
 
 import org.sigmah.client.cache.UserLocalCache;
+import org.sigmah.client.dispatch.Dispatcher;
+import org.sigmah.client.dispatch.monitor.MaskingAsyncMonitor;
 import org.sigmah.client.dispatch.remote.Authentication;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.page.NavigationCallback;
 import org.sigmah.client.page.Page;
 import org.sigmah.client.page.PageId;
 import org.sigmah.client.page.PageState;
+import org.sigmah.shared.command.GetMonitoredPoints;
+import org.sigmah.shared.command.GetReminders;
+import org.sigmah.shared.command.result.MonitoredPointsResultList;
+import org.sigmah.shared.command.result.RemindersResultList;
 import org.sigmah.shared.dto.OrgUnitDTOLight;
 import org.sigmah.shared.dto.reminder.MonitoredPointDTO;
 import org.sigmah.shared.dto.reminder.ReminderDTO;
 
+import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.store.TreeStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
@@ -47,7 +54,11 @@ public class DashboardPresenter implements Page {
 
         public ContentPanel getOrgUnitsPanel();
 
+        public ContentPanel getReminderListPanel();
+
         public ListStore<ReminderDTO> getReminderStore();
+
+        public ContentPanel getMonitoredPointListPanel();
 
         public ListStore<MonitoredPointDTO> getMonitoredPointStore();
     }
@@ -58,15 +69,41 @@ public class DashboardPresenter implements Page {
     private final View view;
 
     /**
-     * The user's info.
+     * The dispatcher.
      */
-    private final UserLocalCache cache;
+    private final Dispatcher dispatcher;
 
     @Inject
-    public DashboardPresenter(final View view, final UserLocalCache cache, final Authentication authentication) {
+    public DashboardPresenter(final View view, final UserLocalCache cache, final Authentication authentication,
+            final Dispatcher dispatcher) {
 
+        this.dispatcher = dispatcher;
         this.view = view;
-        this.cache = cache;
+
+        // Gets user's organization.
+        cache.getOrganizationCache().get(new AsyncCallback<OrgUnitDTOLight>() {
+
+            @Override
+            public void onFailure(Throwable e) {
+                // nothing
+            }
+
+            @Override
+            public void onSuccess(OrgUnitDTOLight result) {
+
+                if (result != null) {
+                    view.getOrgUnitsStore().removeAll();
+                    view.getOrgUnitsPanel().setHeading(
+                            result.getName() + " (" + result.getFullName() + ") : " + I18N.CONSTANTS.orgunitTree());
+
+                    for (final OrgUnitDTOLight child : result.getChildrenDTO()) {
+                        view.getOrgUnitsStore().add(child, true);
+                    }
+
+                    view.getProjectsListPanel().refresh(true, result.getId());
+                }
+            }
+        });
     }
 
     @Override
@@ -92,31 +129,34 @@ public class DashboardPresenter implements Page {
     @Override
     public boolean navigate(PageState place) {
 
-        // Reloads the list of projects each time the navigation is done to be
-        // sure to show the last modifications.
+        // Reloads the reminders/moniroted points.
 
-        // Gets user's organization.
-        cache.getOrganizationCache().get(new AsyncCallback<OrgUnitDTOLight>() {
+        dispatcher.execute(new GetReminders(),
+                new MaskingAsyncMonitor(view.getReminderListPanel(), I18N.CONSTANTS.loading()),
+                new AsyncCallback<RemindersResultList>() {
+                    @Override
+                    public void onFailure(Throwable caught) {
+                        Log.error("[navigate] Error while retrieving reminders.", caught);
+                    }
 
+                    @Override
+                    public void onSuccess(RemindersResultList result) {
+                        view.getReminderStore().removeAll();
+                        view.getReminderStore().add(result.getList());
+                    }
+                });
+
+        dispatcher.execute(new GetMonitoredPoints(), new MaskingAsyncMonitor(view.getMonitoredPointListPanel(),
+                I18N.CONSTANTS.loading()), new AsyncCallback<MonitoredPointsResultList>() {
             @Override
-            public void onFailure(Throwable e) {
-                // nothing
+            public void onFailure(Throwable caught) {
+                Log.error("[navigate] Error while retrieving monitored points.", caught);
             }
 
             @Override
-            public void onSuccess(OrgUnitDTOLight result) {
-
-                if (result != null) {
-                    view.getOrgUnitsStore().removeAll();
-                    view.getOrgUnitsPanel().setHeading(
-                            result.getName() + " (" + result.getFullName() + ") : " + I18N.CONSTANTS.orgunitTree());
-
-                    for (final OrgUnitDTOLight child : result.getChildrenDTO()) {
-                        view.getOrgUnitsStore().add(child, true);
-                    }
-
-                    view.getProjectsListPanel().refresh(true, result.getId());
-                }
+            public void onSuccess(MonitoredPointsResultList result) {
+                view.getMonitoredPointStore().removeAll();
+                view.getMonitoredPointStore().add(result.getList());
             }
         });
 
