@@ -96,7 +96,6 @@ public class ProjectsListPanel {
      * Defines the refreshing mode.
      * 
      * @author tmi
-     * 
      */
     public static enum RefreshMode {
 
@@ -112,6 +111,25 @@ public class ProjectsListPanel {
          * button.
          */
         BUTTON;
+    }
+
+    /**
+     * Defines the loading mode.
+     * 
+     * @author tmi
+     */
+    public static enum LoadingMode {
+
+        /**
+         * The projects list id loaded by one single server call.
+         */
+        ONE_TIME,
+
+        /**
+         * The projects list is loaded by chunks and a progress bar informs of
+         * the loading process.
+         */
+        CHUNK;
     }
 
     private final Dispatcher dispatcher;
@@ -130,6 +148,9 @@ public class ProjectsListPanel {
     // The refreshing mode (automatic by default)
     private final RefreshMode refreshMode;
 
+    // The loading mode (one time by default)
+    private final LoadingMode loadingMode;
+
     // The GetProjects command which will be executed for the next refresh.
     private GetProjects command;
 
@@ -143,7 +164,7 @@ public class ProjectsListPanel {
      *            The current authentication.
      */
     public ProjectsListPanel(Dispatcher dispatcher, Authentication authentication) {
-        this(dispatcher, authentication, RefreshMode.AUTOMATIC);
+        this(dispatcher, authentication, RefreshMode.AUTOMATIC, LoadingMode.ONE_TIME);
     }
 
     /**
@@ -157,10 +178,28 @@ public class ProjectsListPanel {
      *            The refreshing mode.
      */
     public ProjectsListPanel(Dispatcher dispatcher, Authentication authentication, RefreshMode refreshMode) {
+        this(dispatcher, authentication, refreshMode, LoadingMode.ONE_TIME);
+    }
+
+    /**
+     * Builds a new project list panel.
+     * 
+     * @param dispatcher
+     *            The dispatcher.
+     * @param authentication
+     *            The current authentication.
+     * @param refreshMode
+     *            The refreshing mode.
+     * @param loadingMode
+     *            The loading mode.
+     */
+    public ProjectsListPanel(Dispatcher dispatcher, Authentication authentication, RefreshMode refreshMode,
+            LoadingMode loadingMode) {
 
         this.dispatcher = dispatcher;
         this.authentication = authentication;
         this.refreshMode = refreshMode;
+        this.loadingMode = loadingMode;
 
         // Default filters parameters.
         orgUnitsIds = new ArrayList<Integer>();
@@ -736,51 +775,107 @@ public class ProjectsListPanel {
             return;
         }
 
-        dispatcher.execute(cmd, new MaskingAsyncMonitor(projectTreePanel, I18N.CONSTANTS.loading()),
-                new AsyncCallback<ProjectListResult>() {
+        if (loadingMode == LoadingMode.ONE_TIME) {
 
-                    @Override
-                    public void onFailure(Throwable e) {
-                        Log.error("[GetProjects command] Error while getting projects.", e);
-                        // nothing
-                    }
+            dispatcher.execute(cmd, new MaskingAsyncMonitor(projectTreePanel, I18N.CONSTANTS.loading()),
+                    new AsyncCallback<ProjectListResult>() {
 
-                    @Override
-                    public void onSuccess(ProjectListResult result) {
-
-                        getProjectsStore().removeAll();
-                        getProjectsStore().clearFilters();
-
-                        if (result != null) {
-                            final List<ProjectDTOLight> resultList = result.getList();
-                            int i = -1;
-                            for (final ProjectDTOLight p : resultList) {
-                                try {
-                                    // Project id.
-                                    p.setProjectId(p.getId());
-                                    // Tree id.
-                                    p.setId(i--);
-
-                                    for (final ProjectDTOLight c : p.getChildrenProjects()) {
-                                        // Project id.
-                                        if (c != null) {
-
-                                            c.setProjectId(c.getId());
-                                            // Tree id.
-                                            c.setId(i--);
-
-                                        }
-                                    }
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                            getProjectsStore().add(resultList, true);
+                        @Override
+                        public void onFailure(Throwable e) {
+                            Log.error("[GetProjects command] Error while getting projects.", e);
+                            // nothing
                         }
 
-                        applyProjectFilters();
+                        @Override
+                        public void onSuccess(ProjectListResult result) {
+
+                            getProjectsStore().removeAll();
+                            getProjectsStore().clearFilters();
+
+                            if (result != null) {
+                                final List<ProjectDTOLight> resultList = result.getListProjectsLightDTO();
+                                int i = -1;
+                                for (final ProjectDTOLight p : resultList) {
+                                    try {
+                                        // Project id.
+                                        p.setProjectId(p.getId());
+                                        // Tree id.
+                                        p.setId(i--);
+
+                                        for (final ProjectDTOLight c : p.getChildrenProjects()) {
+                                            // Project id.
+                                            if (c != null) {
+
+                                                c.setProjectId(c.getId());
+                                                // Tree id.
+                                                c.setId(i--);
+
+                                            }
+                                        }
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                                getProjectsStore().add(resultList, true);
+                            }
+
+                            applyProjectFilters();
+                        }
+                    });
+        } else if (loadingMode == LoadingMode.CHUNK) {
+
+            // Builds a new chunks worker.
+            final GetProjectsWorker worker = new GetProjectsWorker(dispatcher, cmd, projectTreePanel, 1);
+            worker.addWorkerListener(new GetProjectsWorker.WorkerListener() {
+
+                private int index = -1;
+
+                @Override
+                public void serverError(Throwable error) {
+                    Log.error("[GetProjectsWorker] Error while getting projects by chunks.", error);
+                    // nothing
+                }
+
+                @Override
+                public void chunkRetrieved(List<ProjectDTOLight> projects) {
+
+                    if (projects != null) {
+                        for (final ProjectDTOLight p : projects) {
+                            try {
+                                // Project id.
+                                p.setProjectId(p.getId());
+                                // Tree id.
+                                p.setId(index--);
+
+                                for (final ProjectDTOLight c : p.getChildrenProjects()) {
+                                    // Project id.
+                                    if (c != null) {
+
+                                        c.setProjectId(c.getId());
+                                        // Tree id.
+                                        c.setId(index--);
+
+                                    }
+                                }
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        getProjectsStore().add(projects, true);
                     }
-                });
+                }
+
+                @Override
+                public void ended() {
+                    applyProjectFilters();
+                }
+            });
+
+            // Runs the worker.
+            getProjectsStore().removeAll();
+            getProjectsStore().clearFilters();
+            worker.run();
+        }
     }
 
     public ContentPanel getProjectsPanel() {

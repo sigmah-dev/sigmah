@@ -71,6 +71,7 @@ sigmah/src/main/java/org/sigmah/client/dispatch/loader/PagingCmdLoader.java -tex
 sigmah/src/main/java/org/sigmah/client/dispatch/loader/PagingGetCommandConfig.java -text
 sigmah/src/main/java/org/sigmah/client/dispatch/monitor/MaskingAsyncMonitor.java -text
 sigmah/src/main/java/org/sigmah/client/dispatch/monitor/NullAsyncMonitor.java -text
+sigmah/src/main/java/org/sigmah/client/dispatch/monitor/ProgressingAsyncMonitor.java -text
 sigmah/src/main/java/org/sigmah/client/dispatch/package-info.java -text
 sigmah/src/main/java/org/sigmah/client/dispatch/remote/Authentication.java -text
 sigmah/src/main/java/org/sigmah/client/dispatch/remote/CommandRequest.java -text
@@ -330,6 +331,7 @@ sigmah/src/main/java/org/sigmah/client/page/dashboard/DashboardPageLoader.java -
 sigmah/src/main/java/org/sigmah/client/page/dashboard/DashboardPageState.java -text
 sigmah/src/main/java/org/sigmah/client/page/dashboard/DashboardPresenter.java -text
 sigmah/src/main/java/org/sigmah/client/page/dashboard/DashboardView.java -text
+sigmah/src/main/java/org/sigmah/client/page/dashboard/GetProjectsWorker.java -text
 sigmah/src/main/java/org/sigmah/client/page/dashboard/OrgUnitTreeGrid.java -text
 sigmah/src/main/java/org/sigmah/client/page/dashboard/ProjectsListPanel.java -text
 sigmah/src/main/java/org/sigmah/client/page/dashboard/emptyStar.png -text
@@ -1188,6 +1190,7 @@ sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetProjectModelsH
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetProjectReportHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetProjectReportModelsHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetProjectReportsHandler.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetProjectsFromIdHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetProjectsHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetRemindersHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetReportDefHandler.java -text
@@ -1404,6 +1407,7 @@ sigmah/src/main/java/org/sigmah/shared/command/GetProjectReportModel.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetProjectReportModels.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetProjectReports.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetProjects.java -text
+sigmah/src/main/java/org/sigmah/shared/command/GetProjectsFromId.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetReminders.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetReportDef.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetReportTemplates.java -text

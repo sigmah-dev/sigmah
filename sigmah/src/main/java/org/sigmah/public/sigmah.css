@@ -441,6 +441,11 @@ body {
 	font-weight: bold;
 }
 
+.monitor-progress-bar {
+	width: 50%;
+	z-index: 200;
+}
+
 /* ----------------------------------------------------------------- Calendar */
 .calendar {
 	border-collapse: collapse;

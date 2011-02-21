@@ -157,19 +157,41 @@ public class GetProjectsHandler implements CommandHandler<GetProjects> {
         // Mapping and return.
         // ---------------
 
-        // Mapping into DTO objects
-        final ArrayList<ProjectDTOLight> projectDTOList = new ArrayList<ProjectDTOLight>();
-        for (final Project project : projects) {
-            final ProjectDTOLight pLight = mapProject(em, mapper, user, project, true);
-            projectDTOList.add(pLight);
+        final ProjectListResult result = new ProjectListResult();
+
+        switch (cmd.getReturnType()) {
+        case PROJECT:
+            // Not implemented.
+            break;
+        case ID:
+
+            final ArrayList<Integer> projectsIds = new ArrayList<Integer>();
+            for (final Project project : projects) {
+                projectsIds.add(project.getId());
+            }
+
+            result.setListProjectsIds(projectsIds);
+            break;
+
+        case PROJECT_LIGHT:
+        default:
+
+            // Mapping into DTO objects
+            final ArrayList<ProjectDTOLight> projectDTOList = new ArrayList<ProjectDTOLight>();
+            for (final Project project : projects) {
+                final ProjectDTOLight pLight = mapProject(em, mapper, user, project, true);
+                projectDTOList.add(pLight);
+            }
+
+            result.setListProjectsLightDTO(projectDTOList);
+            break;
         }
 
         if (LOG.isDebugEnabled()) {
             LOG.debug("[execute] Found " + projects.size() + " project(s).");
         }
 
-        return new ProjectListResult(projectDTOList);
-
+        return result;
     }
 
     /**

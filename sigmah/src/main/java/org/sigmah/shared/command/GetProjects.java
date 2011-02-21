@@ -19,6 +19,29 @@ public class GetProjects implements Command<ProjectListResult> {
     private static final long serialVersionUID = 4355275610740881552L;
 
     /**
+     * Defines the different of returns that that command handles.
+     * 
+     * @author tmi
+     */
+    public static enum ProjectResultType {
+
+        /**
+         * Returns the projects as light DTO.
+         */
+        PROJECT_LIGHT,
+
+        /**
+         * Returns the projects.
+         */
+        PROJECT,
+
+        /**
+         * Returns the projects ids.
+         */
+        ID;
+    }
+
+    /**
      * List of countries in which the projects will be searched (set to
      * <code>null</code> to ignore this filter).
      */
@@ -41,7 +64,14 @@ public class GetProjects implements Command<ProjectListResult> {
      */
     private boolean viewOwnOrManage;
 
+    /**
+     * The command return type (default to
+     * {@link ProjectResultType#PROJECT_LIGHT}).
+     */
+    private ProjectResultType returnType;
+
     public GetProjects() {
+        this(null, null);
     }
 
     public GetProjects(ProjectModelType modelType) {
@@ -56,6 +86,7 @@ public class GetProjects implements Command<ProjectListResult> {
         this.countries = null;
         this.modelType = modelType;
         this.orgUnitsIds = orgUnitsIds;
+        this.returnType = ProjectResultType.PROJECT_LIGHT;
     }
 
     public List<CountryDTO> getCountries() {
@@ -100,6 +131,14 @@ public class GetProjects implements Command<ProjectListResult> {
         return viewOwnOrManage;
     }
 
+    public void setReturnType(ProjectResultType returnType) {
+        this.returnType = returnType;
+    }
+
+    public ProjectResultType getReturnType() {
+        return returnType;
+    }
+
     /**
      * Sets the list of organizational units ids in which the projects will be
      * searched (set to <code>null</code> to ignore this filter).
@@ -118,6 +157,8 @@ public class GetProjects implements Command<ProjectListResult> {
         result = prime * result + ((countries == null) ? 0 : countries.hashCode());
         result = prime * result + ((modelType == null) ? 0 : modelType.hashCode());
         result = prime * result + ((orgUnitsIds == null) ? 0 : orgUnitsIds.hashCode());
+        result = prime * result + ((returnType == null) ? 0 : returnType.hashCode());
+        result = prime * result + (viewOwnOrManage ? 1231 : 1237);
         return result;
     }
 
@@ -142,12 +183,15 @@ public class GetProjects implements Command<ProjectListResult> {
                 return false;
         } else if (!orgUnitsIds.equals(other.orgUnitsIds))
             return false;
+        if (returnType != other.returnType)
+            return false;
+        if (viewOwnOrManage != other.viewOwnOrManage)
+            return false;
         return true;
     }
 
     @Override
     public String toString() {
-
         final StringBuilder sb = new StringBuilder();
         sb.append("[GetProjects] command: ");
         sb.append("countries [");
@@ -155,6 +199,15 @@ public class GetProjects implements Command<ProjectListResult> {
         sb.append("] ; ");
         sb.append("model type [");
         sb.append(modelType);
+        sb.append("] ; ");
+        sb.append("org units ids [");
+        sb.append(orgUnitsIds);
+        sb.append("] ; ");
+        sb.append("view own or manage [");
+        sb.append(viewOwnOrManage);
+        sb.append("] ; ");
+        sb.append("return type [");
+        sb.append(returnType);
         sb.append("]");
         return sb.toString();
     }
