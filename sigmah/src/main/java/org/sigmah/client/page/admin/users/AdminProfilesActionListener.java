@@ -31,18 +31,18 @@ public class AdminProfilesActionListener implements ActionListener {
 	
 	@Override
 	public void onUIAction(String actionId) {
-		if (UIActions.delete.equals(actionId)) {
+		/*if (UIActions.delete.equals(actionId)) {
             view.confirmDeleteSelected(new ConfirmCallback() {
                 public void confirmed() {
                     onDeleteConfirmed(view.getProfilesSelection());
                 }
             });
-        } else if (UIActions.add.equals(actionId)) {
+        } else*/ if (UIActions.add.equals(actionId)) {
             onAdd();
         }		
 	}
 	
-	protected void onDeleteConfirmed(final List<ProfileDTO> selection) {
+	/*protected void onDeleteConfirmed(final List<ProfileDTO> selection) {
 		
 		List<Integer> ids = new ArrayList<Integer>();
 		String names = "";
@@ -67,7 +67,7 @@ public class AdminProfilesActionListener implements ActionListener {
             	}    
             }
         });
-	}
+	}*/
 	
 	private void onAdd() {
 		final Window window = new Window();
