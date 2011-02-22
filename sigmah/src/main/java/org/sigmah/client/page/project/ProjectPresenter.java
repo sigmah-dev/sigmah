@@ -83,7 +83,7 @@ public class ProjectPresenter implements Frame, TabPage {
 
     public static final PageId PAGE_ID = new PageId("project");
 
-    public static final int REPORT_TAB_INDEX = 5;
+    public static final int REPORT_TAB_INDEX = 6;
 
     /**
      * Description of the view managed by this presenter.
