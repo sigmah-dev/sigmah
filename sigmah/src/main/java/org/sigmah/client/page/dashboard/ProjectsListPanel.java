@@ -149,6 +149,7 @@ public class ProjectsListPanel {
 
     // The refreshing mode (automatic by default)
     private final RefreshMode refreshMode;
+    private final com.extjs.gxt.ui.client.widget.Label refreshDateLabel;
 
     // The loading mode (one time by default)
     private final LoadingMode loadingMode;
@@ -371,9 +372,13 @@ public class ProjectsListPanel {
         refreshButton.setToolTip(I18N.CONSTANTS.refreshProjectListDetails());
         refreshButton.addStyleName("project-refresh-button");
 
+        // Refresh date.
+        refreshDateLabel = new com.extjs.gxt.ui.client.widget.Label();
+
         final ToolBar toolbar = new ToolBar();
         if (refreshMode == RefreshMode.BUTTON) {
             toolbar.add(refreshButton);
+            toolbar.add(refreshDateLabel);
             toolbar.add(new SeparatorToolItem());
         }
         toolbar.add(expandButton);
@@ -760,6 +765,20 @@ public class ProjectsListPanel {
     }
 
     /**
+     * Display the given date as the last refreshed date.
+     * 
+     * @param date
+     *            The last refreshed date.
+     */
+    @SuppressWarnings("deprecation")
+    private void updateRefreshingDate(Date date) {
+        if (date != null) {
+            refreshDateLabel.setText("(" + (date.getHours() < 10 ? "0" + date.getHours() : date.getHours()) + "h"
+                    + (date.getMinutes() < 10 ? "0" + date.getMinutes() : date.getMinutes()) + ")");
+        }
+    }
+
+    /**
      * Refreshes the projects grid with the current parameters.
      * 
      * @param cmd
@@ -821,6 +840,7 @@ public class ProjectsListPanel {
                             }
 
                             applyProjectFilters();
+                            updateRefreshingDate(new Date());
                         }
                     });
         } else if (loadingMode == LoadingMode.CHUNK) {
@@ -846,6 +866,7 @@ public class ProjectsListPanel {
                 public void serverError(Throwable error) {
                     Log.error("[GetProjectsWorker] Error while getting projects by chunks.", error);
                     applyProjectFilters();
+                    updateRefreshingDate(new Date());
                     MessageBox.alert(I18N.CONSTANTS.error(), I18N.CONSTANTS.refreshProjectListError(), null);
                 }
 
@@ -881,6 +902,7 @@ public class ProjectsListPanel {
                 @Override
                 public void ended() {
                     applyProjectFilters();
+                    updateRefreshingDate(new Date());
                 }
             });
 
