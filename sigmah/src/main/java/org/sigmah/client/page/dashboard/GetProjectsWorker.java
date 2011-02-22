@@ -79,6 +79,11 @@ public class GetProjectsWorker {
      * The list of projects ids to retrieve by chunks.
      */
     private List<Integer> projectsIds;
+    
+    /**
+     * The number of projects ids to retrieve by chunks.
+     */
+    private int projectsIdsSize;
 
     /**
      * The async monitor.
@@ -157,7 +162,8 @@ public class GetProjectsWorker {
                 // Retrieves projects by chunks.
                 if (list != null && !list.isEmpty()) {
                     projectsIds = list;
-                    monitor.initCounter(projectsIds.size());
+                    projectsIdsSize = list.size();
+                    monitor.initCounter(projectsIdsSize);
                     chunk();
                 } else {
                     monitor.initCounter(0);
@@ -187,7 +193,7 @@ public class GetProjectsWorker {
             @Override
             public void onFailure(Throwable e) {
                 Log.error("[GetProjectsFromId command] Error while getting projects.", e);
-                monitor.increment(Integer.MAX_VALUE);
+                monitor.increment(projectsIdsSize);
                 fireServerError(e);
             }
 

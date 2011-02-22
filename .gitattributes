@@ -1204,6 +1204,7 @@ sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetUsersWithProfi
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetValueHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/HandlerUtil.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/PingHandler.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/ProjectMapper.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/PromoteProjectReportDraftHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/RemovePartnerHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/RemoveProjectReportDraftHandler.java -text

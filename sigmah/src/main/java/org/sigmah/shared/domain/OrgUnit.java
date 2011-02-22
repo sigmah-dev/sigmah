@@ -53,7 +53,7 @@ public class OrgUnit implements java.io.Serializable, SchemaElement {
     public OrgUnit() {
     }
 
-    @OneToOne(fetch = FetchType.EAGER, optional = true)
+    @OneToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "id_org_unit_model")
     public OrgUnitModel getOrgUnitModel() {
         return orgUnitModel;

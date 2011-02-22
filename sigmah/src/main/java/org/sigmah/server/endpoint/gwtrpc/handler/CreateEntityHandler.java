@@ -56,13 +56,15 @@ import com.google.inject.Injector;
 public class CreateEntityHandler extends BaseEntityHandler implements CommandHandler<CreateEntity> {
 
     private final Injector injector;
+    private final ProjectMapper mapper;
 
     private static final Log log = LogFactory.getLog(CreateEntityHandler.class);
 
     @Inject
-    public CreateEntityHandler(EntityManager em, Injector injector) {
+    public CreateEntityHandler(EntityManager em, ProjectMapper mapper, Injector injector) {
         super(em);
         this.injector = injector;
+        this.mapper = mapper;
     }
 
     @Override
@@ -86,8 +88,7 @@ public class CreateEntityHandler extends BaseEntityHandler implements CommandHan
         } else if ("Project".equals(cmd.getEntityName())) {
             final ProjectPolicy policy = injector.getInstance(ProjectPolicy.class);
             final Project createdProject = (Project) policy.create(user, propertyMap);
-            final ProjectDTOLight mappedProject = GetProjectsHandler.mapProject(em, injector.getInstance(Mapper.class),
-                    user, createdProject, false);
+            final ProjectDTOLight mappedProject = mapper.map(createdProject, false);
             return new CreateResult(mappedProject);
         } else if ("Site".equals(cmd.getEntityName())) {
             SitePolicy policy = injector.getInstance(SitePolicy.class);
@@ -109,19 +110,20 @@ public class CreateEntityHandler extends BaseEntityHandler implements CommandHan
             return createReminder(properties);
         } else if ("User".equals(cmd.getEntityName())) {
             return createUser(user, propertyMap);
-        }else {
+        } else {
             throw new CommandException("Invalid entity class " + cmd.getEntityName());
         }
     }
 
     private CommandResult createUser(User user, PropertyMap propertyMap) {
-    	UserPolicy policy = injector.getInstance(UserPolicy.class);
-    	User newUser = (User) policy.create(user, propertyMap);
-    	if(newUser != null)
-    		return new CreateResult(newUser.getId());
-    	else
-    		return null;
+        UserPolicy policy = injector.getInstance(UserPolicy.class);
+        User newUser = (User) policy.create(user, propertyMap);
+        if (newUser != null)
+            return new CreateResult(newUser.getId());
+        else
+            return null;
     }
+
     private CommandResult createAttributeGroup(CreateEntity cmd, Map<String, Object> properties) {
 
         AttributeGroup group = new AttributeGroup();
@@ -260,7 +262,7 @@ public class CreateEntityHandler extends BaseEntityHandler implements CommandHan
 
         return new CreateResult(injector.getInstance(Mapper.class).map(point, MonitoredPointDTO.class));
     }
-    
+
     private CommandResult createReminder(Map<String, Object> properties) {
 
         if (log.isDebugEnabled()) {

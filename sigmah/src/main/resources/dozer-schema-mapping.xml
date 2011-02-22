@@ -130,22 +130,6 @@
 		</field>
 	</mapping>
 
-	<!-- Project/ProjectDTO Mapping -->
-	<mapping wildcard="false">
-		<class-a>org.sigmah.shared.domain.Project</class-a>
-		<class-b>org.sigmah.shared.dto.ProjectDTOLight</class-b>
-
-		<field>
-			<a>currentPhase.model.name</a>
-			<b>currentPhaseName</b>
-		</field>
-
-		<field>
-			<a>projectModel.visibilities</a>
-			<b>visibilities</b>
-		</field>
-	</mapping>
-
 	<!-- Phase/PhaseDTO Mapping -->
 	<mapping wildcard="true">
 		<class-a>org.sigmah.shared.domain.Phase</class-a>

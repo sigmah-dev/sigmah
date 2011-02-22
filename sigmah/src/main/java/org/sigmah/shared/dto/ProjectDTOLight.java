@@ -3,14 +3,12 @@ package org.sigmah.shared.dto;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.sigmah.client.util.DateUtils;
 import org.sigmah.client.util.NumberUtils;
 import org.sigmah.shared.domain.ProjectModelType;
 import org.sigmah.shared.dto.category.CategoryElementDTO;
-import org.sigmah.shared.dto.category.CategoryTypeDTO;
 
 import com.extjs.gxt.ui.client.data.BaseTreeModel;
 import com.extjs.gxt.ui.client.data.ModelData;
@@ -200,12 +198,12 @@ public class ProjectDTOLight extends BaseTreeModel implements EntityDTO {
     }
 
     // Categories.
-    public Map<CategoryTypeDTO, Set<CategoryElementDTO>> getCategoriesMap() {
-        return get("categoriesMap");
+    public Set<CategoryElementDTO> getCategoryElements() {
+        return get("categoryElements");
     }
 
-    public void setCategoriesMap(Map<CategoryTypeDTO, Set<CategoryElementDTO>> categoriesMap) {
-        set("categoriesMap", categoriesMap);
+    public void setCategoryElements(Set<CategoryElementDTO> categoryElements) {
+        set("categoryElements", categoryElements);
     }
 
     // Children (projects funded by this project)
@@ -324,26 +322,5 @@ public class ProjectDTOLight extends BaseTreeModel implements EntityDTO {
         }
 
         return NumberUtils.adjustRatio(ratio);
-    }
-
-    /**
-     * Gets all the category elements of this project.
-     * 
-     * @return The category elements of this project.
-     */
-    public List<CategoryElementDTO> getCategoryElements() {
-
-        final Map<CategoryTypeDTO, Set<CategoryElementDTO>> categories = getCategoriesMap();
-        final ArrayList<CategoryElementDTO> elements = new ArrayList<CategoryElementDTO>();
-
-        if (categories != null) {
-            for (final Set<CategoryElementDTO> set : categories.values()) {
-                for (final CategoryElementDTO element : set) {
-                    elements.add(element);
-                }
-            }
-        }
-
-        return elements;
     }
 }

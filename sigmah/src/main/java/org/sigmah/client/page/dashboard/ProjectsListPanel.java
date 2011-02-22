@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.dispatch.monitor.MaskingAsyncMonitor;
@@ -68,6 +69,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.i18n.client.DateTimeFormat;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Hyperlink;
@@ -232,8 +234,7 @@ public class ProjectsListPanel {
                 } else if ("fullName".equals(property)) {
                     return m1.getFullName().compareToIgnoreCase(m2.getFullName());
                 } else if ("phase".equals(property)) {
-                    return m1.getCurrentPhaseDTO().getPhaseModelDTO().getName()
-                            .compareToIgnoreCase(m2.getCurrentPhaseDTO().getPhaseModelDTO().getName());
+                    return m1.getCurrentPhaseName().compareToIgnoreCase(m2.getCurrentPhaseName());
                 } else if ("orgUnitName".equals(property)) {
                     return m1.getOrgUnitName().compareToIgnoreCase(m2.getOrgUnitName());
                 } else if ("spentBudget".equals(property)) {
@@ -534,7 +535,7 @@ public class ProjectsListPanel {
             @Override
             public Object render(ProjectDTOLight model, String property, ColumnData config, int rowIndex, int colIndex,
                     ListStore<ProjectDTOLight> store, Grid<ProjectDTOLight> grid) {
-                return createProjectGridText(model, model.getCurrentPhaseDTO().getPhaseModelDTO().getName());
+                return createProjectGridText(model, model.getCurrentPhaseName());
             }
         });
 
@@ -648,7 +649,7 @@ public class ProjectsListPanel {
             public Object render(ProjectDTOLight model, String property, ColumnData config, int rowIndex, int colIndex,
                     ListStore<ProjectDTOLight> store, Grid<ProjectDTOLight> grid) {
 
-                final List<CategoryElementDTO> elements = model.getCategoryElements();
+                final Set<CategoryElementDTO> elements = model.getCategoryElements();
                 final LayoutContainer panel = new LayoutContainer();
                 panel.setLayout(new FlowLayout());
                 final FlowData data = new FlowData(new Margins(0, 5, 0, 0));
@@ -825,7 +826,18 @@ public class ProjectsListPanel {
         } else if (loadingMode == LoadingMode.CHUNK) {
 
             // Builds a new chunks worker.
-            final GetProjectsWorker worker = new GetProjectsWorker(dispatcher, cmd, projectTreePanel, 1);
+
+            int chunSize = 2;
+            try {
+                chunSize = Integer.parseInt(Window.Location.getParameter("chunk"));
+                if (chunSize <= 0) {
+                    chunSize = 2;
+                }
+            } catch (Throwable e) {
+                // swallow exception.
+            }
+
+            final GetProjectsWorker worker = new GetProjectsWorker(dispatcher, cmd, projectTreePanel, chunSize);
             worker.addWorkerListener(new GetProjectsWorker.WorkerListener() {
 
                 private int index = -1;
@@ -833,7 +845,8 @@ public class ProjectsListPanel {
                 @Override
                 public void serverError(Throwable error) {
                     Log.error("[GetProjectsWorker] Error while getting projects by chunks.", error);
-                    // nothing
+                    applyProjectFilters();
+                    MessageBox.alert(I18N.CONSTANTS.error(), I18N.CONSTANTS.refreshProjectListError(), null);
                 }
 
                 @Override

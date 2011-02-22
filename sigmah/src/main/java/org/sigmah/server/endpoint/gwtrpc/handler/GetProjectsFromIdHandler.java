@@ -13,7 +13,6 @@ import javax.persistence.Query;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.dozer.Mapper;
 import org.hibernate.ejb.HibernateEntityManager;
 import org.sigmah.shared.command.GetProjectsFromId;
 import org.sigmah.shared.command.handler.CommandHandler;
@@ -29,12 +28,12 @@ import com.google.inject.Inject;
 public class GetProjectsFromIdHandler implements CommandHandler<GetProjectsFromId> {
 
     private final EntityManager em;
-    private final Mapper mapper;
+    private final ProjectMapper mapper;
 
     private final static Log LOG = LogFactory.getLog(GetProjectsFromIdHandler.class);
 
     @Inject
-    public GetProjectsFromIdHandler(EntityManager em, Mapper mapper) {
+    public GetProjectsFromIdHandler(EntityManager em, ProjectMapper mapper) {
         this.em = em;
         this.mapper = mapper;
     }
@@ -74,7 +73,7 @@ public class GetProjectsFromIdHandler implements CommandHandler<GetProjectsFromI
         // Mapping into DTO objects
         final ArrayList<ProjectDTOLight> projectDTOList = new ArrayList<ProjectDTOLight>();
         for (final Project project : projects) {
-            final ProjectDTOLight pLight = GetProjectsHandler.mapProject(em, mapper, user, project, true);
+            final ProjectDTOLight pLight = mapper.map(project, true);
             projectDTOList.add(pLight);
         }
 
