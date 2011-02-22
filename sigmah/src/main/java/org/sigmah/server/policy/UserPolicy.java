@@ -53,7 +53,6 @@ public class UserPolicy implements EntityPolicy<User> {
 
 	@Override
 	public Object create(User executingUser, PropertyMap properties) {
-		log.debug("UserPolicy : init");
 		User userToPersist  = null;
 		User userFound  = null;
 		OrgUnitProfile orgUnitProfileToPersist = null;
@@ -88,7 +87,7 @@ public class UserPolicy implements EntityPolicy<User> {
 				userToPersist.setDateChangePasswordKeyIssued(new Date());
 			}
 			
-			if (userFound.getId() > 0) {
+			if (userFound != null && userFound.getId() > 0) {
 				//update user
 				userToPersist.setId(userFound.getId());				
 				userToPersist = em.merge(userToPersist);
@@ -104,7 +103,7 @@ public class UserPolicy implements EntityPolicy<User> {
         	
 	        //update link to profile
 	        if(userToPersist.getId() > 0){
-	        	if(userFound.getId() > 0 && orgUnitProfileFound != null)
+	        	if(userFound != null && userFound.getId() > 0 && orgUnitProfileFound != null)
 	        		orgUnitProfileToPersist = orgUnitProfileFound;
 	        	else
 	        		orgUnitProfileToPersist = new OrgUnitProfile();
@@ -120,7 +119,7 @@ public class UserPolicy implements EntityPolicy<User> {
 		        	}
 		        	orgUnitProfileToPersist.setProfiles(profilesToPersist);
 		        	orgUnitProfileToPersist.setUser(userToPersist);
-		        	if(userFound.getId() > 0 && orgUnitProfileFound != null){
+		        	if(userFound != null && userFound.getId() > 0 && orgUnitProfileFound != null){
 		        		orgUnitProfileToPersist = em.merge(orgUnitProfileToPersist);		        				        		
 		        	}else{
 		        		em.persist(orgUnitProfileToPersist);
@@ -130,8 +129,6 @@ public class UserPolicy implements EntityPolicy<User> {
 		        	}
 	        	}	        	
 	        }	        
-		}else{
-			log.debug("UserPolicy : email & name are null");
 		}
 		
 		UserDTO userPersisted = null;
