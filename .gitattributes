@@ -1178,7 +1178,6 @@ sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/CreateEntityHandl
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/CreateReportDefHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/DeactivateUsersHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/DeleteHandler.java -text
-sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/DeleteListHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GenerateElementHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetAdminEntitiesHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetApplicationInfoHandler.java -text

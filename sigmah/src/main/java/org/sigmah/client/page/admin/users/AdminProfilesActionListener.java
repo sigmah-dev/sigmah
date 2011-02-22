@@ -1,22 +1,13 @@
 package org.sigmah.client.page.admin.users;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.sigmah.client.dispatch.Dispatcher;
-import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.page.admin.users.AdminUsersPresenter.View;
-import org.sigmah.client.page.common.grid.ConfirmCallback;
 import org.sigmah.client.page.common.toolbar.ActionListener;
 import org.sigmah.client.page.common.toolbar.UIActions;
 import org.sigmah.client.page.config.form.ProfileSigmahForm;
-import org.sigmah.shared.command.DeleteList;
 import org.sigmah.shared.command.result.CreateResult;
-import org.sigmah.shared.command.result.VoidResult;
-import org.sigmah.shared.domain.profile.Profile;
 import org.sigmah.shared.dto.profile.ProfileDTO;
 
-import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
