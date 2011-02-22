@@ -131,13 +131,13 @@
 	</mapping>
 
 	<!-- Project/ProjectDTO Mapping -->
-	<mapping wildcard="true">
+	<mapping wildcard="false">
 		<class-a>org.sigmah.shared.domain.Project</class-a>
 		<class-b>org.sigmah.shared.dto.ProjectDTOLight</class-b>
 
 		<field>
-			<a>currentPhase</a>
-			<b>currentPhaseDTO</b>
+			<a>currentPhase.model.name</a>
+			<b>currentPhaseName</b>
 		</field>
 
 		<field>

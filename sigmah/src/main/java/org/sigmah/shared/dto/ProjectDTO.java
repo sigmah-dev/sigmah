@@ -531,7 +531,7 @@ public final class ProjectDTO extends BaseModelData implements EntityDTO, Defaul
         light.setName(getName());
         light.setFullName(getFullName());
         light.generateCompleteName();
-        light.setCurrentPhaseDTO(getCurrentPhaseDTO());
+        light.setCurrentPhaseName(getCurrentPhaseDTO().getPhaseModelDTO().getName());
         light.setVisibilities(getProjectModelDTO().getVisibilities());
         light.setPlannedBudget(getPlannedBudget());
         light.setSpendBudget(getSpendBudget());

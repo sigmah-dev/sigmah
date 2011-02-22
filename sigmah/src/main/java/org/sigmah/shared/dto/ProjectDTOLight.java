@@ -80,12 +80,12 @@ public class ProjectDTOLight extends BaseTreeModel implements EntityDTO {
     }
 
     // Reference to the current phase
-    public PhaseDTO getCurrentPhaseDTO() {
-        return get("currentPhaseDTO");
+    public String getCurrentPhaseName() {
+        return get("currentPhaseName");
     }
 
-    public void setCurrentPhaseDTO(PhaseDTO currentPhaseDTO) {
-        set("currentPhaseDTO", currentPhaseDTO);
+    public void setCurrentPhaseName(String currentPhaseName) {
+        set("currentPhaseName", currentPhaseName);
     }
 
     // Project visibilities

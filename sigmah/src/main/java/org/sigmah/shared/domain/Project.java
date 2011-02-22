@@ -68,12 +68,12 @@ public class Project extends UserDatabase {
         this.logFrame = logFrame;
     }
 
-    @OneToOne(mappedBy = "parentProject", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "parentProject", cascade = CascadeType.ALL, fetch=FetchType.LAZY)
     public LogFrame getLogFrame() {
         return logFrame;
     }
 
-    @OneToOne(fetch = FetchType.EAGER)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_project_model")
     public ProjectModel getProjectModel() {
         return projectModel;
@@ -93,7 +93,7 @@ public class Project extends UserDatabase {
         this.currentPhase = currentPhase;
     }
 
-    @OneToMany(mappedBy = "parentProject", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "parentProject", cascade = CascadeType.ALL, fetch=FetchType.LAZY)
     public List<Phase> getPhases() {
         return phases;
     }
@@ -182,7 +182,7 @@ public class Project extends UserDatabase {
         this.funded = funded;
     }
 
-    @OneToOne(optional = true, cascade = CascadeType.ALL)
+    @OneToOne(optional = true, cascade = CascadeType.ALL, fetch=FetchType.LAZY)
     @JoinColumn(name = "id_monitored_points_list", nullable = true)
     public MonitoredPointList getPointsList() {
         return pointsList;
@@ -192,7 +192,7 @@ public class Project extends UserDatabase {
         this.pointsList = pointsList;
     }
 
-    @OneToOne(optional = true, cascade = CascadeType.ALL)
+    @OneToOne(optional = true, cascade = CascadeType.ALL, fetch=FetchType.LAZY)
     @JoinColumn(name = "id_reminder_list", nullable = true)
     public ReminderList getRemindersList() {
         return remindersList;
@@ -202,7 +202,7 @@ public class Project extends UserDatabase {
         this.remindersList = remindersList;
     }
 
-    @ManyToOne(optional = true)
+    @ManyToOne(optional = true, fetch=FetchType.LAZY)
     @JoinColumn(name = "id_manager", nullable = true)
     public User getManager() {
         return this.manager;
@@ -262,7 +262,7 @@ public class Project extends UserDatabase {
         this.amendmentState = state;
     }
 
-    @OneToMany(mappedBy = "parentProject", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "parentProject", cascade = CascadeType.ALL, fetch=FetchType.LAZY)
     @OrderBy("date ASC")
     public List<Amendment> getAmendments() {
         return amendments;
