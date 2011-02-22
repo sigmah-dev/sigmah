@@ -108,7 +108,7 @@ public class UserDTO extends BaseModelData implements EntityDTO {
     }
     
     public int getIdd(){
-    	return get("idd");
+    	return (Integer) get("idd");
     }
     
     public void setActive(boolean isActive){
@@ -116,7 +116,7 @@ public class UserDTO extends BaseModelData implements EntityDTO {
     }
     
     public boolean getActive(){
-    	return get("active");
+    	return (Boolean) get("active");
     }
 
 }
