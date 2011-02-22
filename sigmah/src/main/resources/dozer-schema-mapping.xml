@@ -605,4 +605,26 @@
 		<class-b>org.sigmah.shared.dto.profile.ProfileDTOLight</class-b>
 
 	</mapping>
+	<mapping wildcard="true">
+
+		<class-a>org.sigmah.shared.domain.profile.Profile</class-a>
+		<class-b>org.sigmah.shared.dto.profile.ProfileDTO</class-b>
+		<field-exclude>
+			<a>globalPermissions</a>
+			<b>globalPermissions</b>
+		</field-exclude>
+		<field-exclude>
+			<a>privacyGroupPermissions</a>
+			<b>privacyGroups</b>
+		</field-exclude>
+
+	</mapping>
+	
+	<mapping wildcard="true">
+
+		<class-a>org.sigmah.shared.domain.profile.PrivacyGroup</class-a>
+		<class-b>org.sigmah.shared.dto.profile.PrivacyGroupDTO</class-b>
+
+	</mapping>
+	
 </mappings>

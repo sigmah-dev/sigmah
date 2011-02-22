@@ -61,7 +61,7 @@ public class GetProjectModelsHandler implements CommandHandler<GetProjectModels>
             for (final ProjectModel model : models) {
 
                 final ProjectModelType type = model.getVisibility(user.getOrganization());
-
+                
                 // Filters only visible models.
                 if (type != null) {
 

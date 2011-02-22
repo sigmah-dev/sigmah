@@ -57,7 +57,9 @@ public class GetUsersWithProfilesHandler implements CommandHandler<GetUsersWithP
         if (users != null) {
             for (final User oneUser : users) {
             	UserDTO userDTO = mapper.map(oneUser, UserDTO.class);
-            	
+                log.debug("user " + oneUser.getName() + " id " + oneUser.getId() + " dto " + userDTO);
+            	//if(oneUser != null && oneUser.getId() > 0 && userDTO != null)
+            		//userDTO.setId(oneUser.getId());
             	if(oneUser.getOrgUnitWithProfiles() != null){
             		if(oneUser.getOrgUnitWithProfiles().getOrgUnit() != null)
             			userDTO.setOrgUnitWithProfiles(
@@ -89,4 +91,32 @@ public class GetUsersWithProfilesHandler implements CommandHandler<GetUsersWithP
 
         return new UserListResult(userDTOList);
     }
+	
+	public static UserDTO mapUserToUserDTO(User oneUser, Mapper mapper){
+		UserDTO userDTO = mapper.map(oneUser, UserDTO.class);
+        log.debug("user " + oneUser.getName() + " id " + oneUser.getId() + " dto " + userDTO);
+    	//if(oneUser != null && oneUser.getId() > 0 && userDTO != null)
+    		//userDTO.setId(oneUser.getId());
+    	if(oneUser.getOrgUnitWithProfiles() != null){
+    		if(oneUser.getOrgUnitWithProfiles().getOrgUnit() != null)
+    			userDTO.setOrgUnitWithProfiles(
+    					mapper.map(oneUser.getOrgUnitWithProfiles().getOrgUnit(), OrgUnitDTO.class));            			
+    		
+    		List<Profile> profiles = oneUser.getOrgUnitWithProfiles().getProfiles();
+    		List<ProfileDTO> profilesDTO = new ArrayList<ProfileDTO>();
+        	for(final Profile profile : profiles){
+        		ProfileDTO profileDTO = new ProfileDTO();
+        		profileDTO.set("id", profile.getId());
+        		profileDTO.set("name", profile.getName());
+        		profilesDTO.add(profileDTO);
+        	}
+        	log.debug("[execute] Found " + profilesDTO.size() + " profiles for user " + 
+        			oneUser.getName());
+        	userDTO.setProfilesDTO(profilesDTO);                    
+    	}else{
+    		log.debug("[execute] No profiles found for user " + 
+        			oneUser.getName());
+    	}
+    	return userDTO;
+	}
 }

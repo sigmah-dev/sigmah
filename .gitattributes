@@ -119,6 +119,7 @@ sigmah/src/main/java/org/sigmah/client/icon/delete.png -text
 sigmah/src/main/java/org/sigmah/client/icon/deleteActivity.png -text
 sigmah/src/main/java/org/sigmah/client/icon/deleteDatabase.png -text
 sigmah/src/main/java/org/sigmah/client/icon/deleteUser.png -text
+sigmah/src/main/java/org/sigmah/client/icon/delete_icon.png -text
 sigmah/src/main/java/org/sigmah/client/icon/design.png -text
 sigmah/src/main/java/org/sigmah/client/icon/down.png -text
 sigmah/src/main/java/org/sigmah/client/icon/editDatabase.png -text
@@ -233,6 +234,9 @@ sigmah/src/main/java/org/sigmah/client/page/admin/AdminPageLoader.java -text
 sigmah/src/main/java/org/sigmah/client/page/admin/AdminPageState.java -text
 sigmah/src/main/java/org/sigmah/client/page/admin/AdminPresenter.java -text
 sigmah/src/main/java/org/sigmah/client/page/admin/AdminView.java -text
+sigmah/src/main/java/org/sigmah/client/page/admin/users/AdminPrivacyGroupsActionListener.java -text
+sigmah/src/main/java/org/sigmah/client/page/admin/users/AdminProfilesActionListener.java -text
+sigmah/src/main/java/org/sigmah/client/page/admin/users/AdminUsersActionListener.java -text
 sigmah/src/main/java/org/sigmah/client/page/admin/users/AdminUsersPresenter.java -text
 sigmah/src/main/java/org/sigmah/client/page/admin/users/AdminUsersView.java -text
 sigmah/src/main/java/org/sigmah/client/page/app/AppFrameSet.java -text
@@ -322,6 +326,8 @@ sigmah/src/main/java/org/sigmah/client/page/config/form/DateRangeForm.java -text
 sigmah/src/main/java/org/sigmah/client/page/config/form/FieldSetFitLayout.java -text
 sigmah/src/main/java/org/sigmah/client/page/config/form/ModelFormPanel.java -text
 sigmah/src/main/java/org/sigmah/client/page/config/form/PartnerForm.java -text
+sigmah/src/main/java/org/sigmah/client/page/config/form/PrivacyGroupSigmahForm.java -text
+sigmah/src/main/java/org/sigmah/client/page/config/form/ProfileSigmahForm.java -text
 sigmah/src/main/java/org/sigmah/client/page/config/form/UserForm.java -text
 sigmah/src/main/java/org/sigmah/client/page/config/form/UserSigmahForm.java -text
 sigmah/src/main/java/org/sigmah/client/page/dashboard/CreateProjectWindow.java -text
@@ -504,6 +510,7 @@ sigmah/src/main/java/org/sigmah/client/report/DimensionStoreFactory.java -text
 sigmah/src/main/java/org/sigmah/client/ui/ButtonFileUploadField.java -text
 sigmah/src/main/java/org/sigmah/client/ui/CalendarWidget.java -text
 sigmah/src/main/java/org/sigmah/client/ui/ClickableFlowPanel.java -text
+sigmah/src/main/java/org/sigmah/client/ui/ClickableLabel.java -text
 sigmah/src/main/java/org/sigmah/client/ui/CreditFrame.java -text
 sigmah/src/main/java/org/sigmah/client/ui/FlexibleGrid.java -text
 sigmah/src/main/java/org/sigmah/client/ui/FoldPanel.java -text
@@ -1120,6 +1127,7 @@ sigmah/src/main/java/org/sigmah/server/dao/hibernate/SQLDialectProvider.java -te
 sigmah/src/main/java/org/sigmah/server/dao/hibernate/SiteHibernateDAO.java -text
 sigmah/src/main/java/org/sigmah/server/dao/hibernate/TransactionalInterceptor.java -text
 sigmah/src/main/java/org/sigmah/server/dao/hibernate/UserDAOImpl.java -text
+sigmah/src/main/java/org/sigmah/server/dao/hibernate/UserUnitDAOImpl.java -text
 sigmah/src/main/java/org/sigmah/server/dao/hibernate/criterion/SiteAdminOrder.java -text
 sigmah/src/main/java/org/sigmah/server/dao/hibernate/criterion/SiteIndicatorOrder.java -text
 sigmah/src/main/java/org/sigmah/server/dao/hibernate/criterion/package-info.java -text
@@ -1168,7 +1176,9 @@ sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/CommandHandlerMod
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/CopyLogFrameHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/CreateEntityHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/CreateReportDefHandler.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/DeactivateUsersHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/DeleteHandler.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/DeleteListHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GenerateElementHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetAdminEntitiesHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetApplicationInfoHandler.java -text
@@ -1183,7 +1193,9 @@ sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetMonitoredPoint
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetMonthlyReportsHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetOrgUnitHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetOrganizationHandler.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetPrivacyGroupsHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetProfilesHandler.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetProfilesWithDetailsHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetProjectDocumentsHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetProjectHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetProjectModelsHandler.java -text
@@ -1245,6 +1257,8 @@ sigmah/src/main/java/org/sigmah/server/policy/ActivityPolicy.java -text
 sigmah/src/main/java/org/sigmah/server/policy/AmendmentPolicy.java -text
 sigmah/src/main/java/org/sigmah/server/policy/EntityPolicy.java -text
 sigmah/src/main/java/org/sigmah/server/policy/PersonalEventPolicy.java -text
+sigmah/src/main/java/org/sigmah/server/policy/PrivacyGroupPolicy.java -text
+sigmah/src/main/java/org/sigmah/server/policy/ProfilePolicy.java -text
 sigmah/src/main/java/org/sigmah/server/policy/ProjectPolicy.java -text
 sigmah/src/main/java/org/sigmah/server/policy/ProjectReportPolicy.java -text
 sigmah/src/main/java/org/sigmah/server/policy/PropertyMap.java -text
@@ -1383,6 +1397,7 @@ sigmah/src/main/java/org/sigmah/shared/command/Command.java -text
 sigmah/src/main/java/org/sigmah/shared/command/CopyLogFrame.java -text
 sigmah/src/main/java/org/sigmah/shared/command/CreateEntity.java -text
 sigmah/src/main/java/org/sigmah/shared/command/CreateReportDef.java -text
+sigmah/src/main/java/org/sigmah/shared/command/DeactivateUsers.java -text
 sigmah/src/main/java/org/sigmah/shared/command/Delete.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GenerateElement.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetAdminEntities.java -text
@@ -1399,7 +1414,9 @@ sigmah/src/main/java/org/sigmah/shared/command/GetMonitoredPoints.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetMonthlyReports.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetOrgUnit.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetOrganization.java -text
+sigmah/src/main/java/org/sigmah/shared/command/GetPrivacyGroups.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetProfiles.java -text
+sigmah/src/main/java/org/sigmah/shared/command/GetProfilesWithDetails.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetProject.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetProjectDocuments.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetProjectModels.java -text
@@ -1461,7 +1478,9 @@ sigmah/src/main/java/org/sigmah/shared/command/result/MapIconResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/MonitoredPointsResultList.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/MonthlyReportResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/PagingResult.java -text
+sigmah/src/main/java/org/sigmah/shared/command/result/PrivacyGroupsListResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/ProfileListResult.java -text
+sigmah/src/main/java/org/sigmah/shared/command/result/ProfileWithDetailsListResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/ProjectListResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/ProjectModelListResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/ProjectReportListResult.java -text
@@ -1475,6 +1494,7 @@ sigmah/src/main/java/org/sigmah/shared/command/result/SiteResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/SyncRegion.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/SyncRegionUpdate.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/SyncRegions.java -text
+sigmah/src/main/java/org/sigmah/shared/command/result/UserDatabaseListResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/UserListResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/UserResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/ValueResult.java -text
@@ -1498,6 +1518,7 @@ sigmah/src/main/java/org/sigmah/shared/dao/SqliteDialect.java -text
 sigmah/src/main/java/org/sigmah/shared/dao/UserDAO.java -text
 sigmah/src/main/java/org/sigmah/shared/dao/UserDatabaseDAO.java -text
 sigmah/src/main/java/org/sigmah/shared/dao/UserPermissionDAO.java -text
+sigmah/src/main/java/org/sigmah/shared/dao/UserUnitDAO.java -text
 sigmah/src/main/java/org/sigmah/shared/date/DateUtil.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/Activity.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/AdminEntity.java -text
@@ -1690,7 +1711,9 @@ sigmah/src/main/java/org/sigmah/shared/dto/logframe/LogFrameModelDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/logframe/PrerequisiteDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/logframe/SpecificObjectiveDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/package-info.java -text
+sigmah/src/main/java/org/sigmah/shared/dto/profile/GlobalPermissionDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/profile/PrivacyGroupDTO.java -text
+sigmah/src/main/java/org/sigmah/shared/dto/profile/PrivacyGroupPermDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/profile/ProfileDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/profile/ProfileDTOLight.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/profile/ProfileUtils.java -text

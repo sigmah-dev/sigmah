@@ -25,6 +25,10 @@ public class DatabaseAuthenticator implements Authenticator {
             return true;
            
         }
+        if(!user.isActive()){
+        	return false;
+        }
+        
         return BCrypt.checkpw(plaintextPassword, user.getHashedPassword());
     }
 

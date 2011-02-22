@@ -49,6 +49,7 @@ public class User implements java.io.Serializable {
     private String hashedPassword;
     private Organization organization;
     private OrgUnitProfile orgUnitWithProfiles;
+    private boolean isActive;
 
     public User() {
     }
@@ -141,6 +142,15 @@ public class User implements java.io.Serializable {
     public void setChangePasswordKey(String changePasswordKey) {
         this.changePasswordKey = changePasswordKey;
     }
+    
+    @Column(name = "Active", nullable = false)
+    public void setActive(boolean isActive) {
+		this.isActive = isActive;
+	}
+
+	public boolean isActive() {
+		return isActive;
+	}
 
     /**
      * Gets the date on which the password key was issued; the application
@@ -335,4 +345,6 @@ public class User implements java.io.Serializable {
 
         return sb.toString();
     }
+
+	
 }

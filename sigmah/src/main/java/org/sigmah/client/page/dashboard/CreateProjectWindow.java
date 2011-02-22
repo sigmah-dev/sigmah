@@ -383,8 +383,8 @@ public class CreateProjectWindow {
 
         // Checks the form completion.
         if (!formPanel.isValid()) {
-            MessageBox.alert(I18N.CONSTANTS.createProjectFormIncomplete(),
-                    I18N.CONSTANTS.createProjectFormIncompleteDetails(), null);
+            MessageBox.alert(I18N.CONSTANTS.createFormIncomplete(),
+                    I18N.MESSAGES.createFormIncompleteDetails(I18N.CONSTANTS.project()), null);
             return;
         }
 
@@ -545,7 +545,7 @@ public class CreateProjectWindow {
 
                 @Override
                 public void onSuccess(OrgUnitDTOLight result) {
-                    recursiveFillOrgUnitsList(result);
+                    fillOrgUnitsList(result);
 
                     if (orgUnitsStore.getCount() == 0) {
                         Log.error("[show] No available org unit.");
@@ -614,7 +614,6 @@ public class CreateProjectWindow {
      * @param root
      *            The root org unit.
      */
-    @SuppressWarnings("unused")
     private void fillOrgUnitsList(OrgUnitDTOLight root) {
 
         for (final OrgUnitDTOLight child : root.getChildrenDTO()) {

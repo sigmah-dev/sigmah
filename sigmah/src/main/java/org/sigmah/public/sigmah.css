@@ -1039,6 +1039,11 @@ body {
 	padding: 5px;
 }
 
+.delete-cell {
+	border: 1px solid lightgrey;
+	vertical-align: center;
+}
+
 /* ---------------------------------------------- Credits */
 
 .credits-version {

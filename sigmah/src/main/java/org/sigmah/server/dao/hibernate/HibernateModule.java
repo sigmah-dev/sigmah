@@ -68,6 +68,7 @@ public class HibernateModule extends AbstractModule {
         bindDAOProxy(UserDatabaseDAO.class);
         bindDAOProxy(UserPermissionDAO.class);
         bind(UserDAO.class).to(UserDAOImpl.class);
+        bind(UserUnitDAO.class).to(UserUnitDAOImpl.class);
         bind(PersonalEventDAO.class).to(PersonalEventHibernateDAO.class);
         bind(ProjectReportDAO.class).to(ProjectReportHibernateDAO.class);
     }

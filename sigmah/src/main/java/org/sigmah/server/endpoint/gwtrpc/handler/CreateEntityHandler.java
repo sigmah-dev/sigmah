@@ -18,6 +18,8 @@ import org.apache.commons.logging.LogFactory;
 import org.dozer.Mapper;
 import org.sigmah.server.policy.ActivityPolicy;
 import org.sigmah.server.policy.PersonalEventPolicy;
+import org.sigmah.server.policy.PrivacyGroupPolicy;
+import org.sigmah.server.policy.ProfilePolicy;
 import org.sigmah.server.policy.ProjectPolicy;
 import org.sigmah.server.policy.ProjectReportPolicy;
 import org.sigmah.server.policy.PropertyMap;
@@ -41,6 +43,9 @@ import org.sigmah.shared.domain.reminder.Reminder;
 import org.sigmah.shared.domain.reminder.ReminderList;
 import org.sigmah.shared.dto.ProjectDTOLight;
 import org.sigmah.shared.dto.ProjectFundingDTO;
+import org.sigmah.shared.dto.UserDTO;
+import org.sigmah.shared.dto.profile.PrivacyGroupDTO;
+import org.sigmah.shared.dto.profile.ProfileDTO;
 import org.sigmah.shared.dto.reminder.MonitoredPointDTO;
 import org.sigmah.shared.dto.reminder.ReminderDTO;
 import org.sigmah.shared.exception.CommandException;
@@ -110,20 +115,50 @@ public class CreateEntityHandler extends BaseEntityHandler implements CommandHan
             return createReminder(properties);
         } else if ("User".equals(cmd.getEntityName())) {
             return createUser(user, propertyMap);
-        } else {
+        }else if ("PrivacyGroup".equals(cmd.getEntityName())) {
+            return createPrivacyGroup(user, propertyMap);
+        }else if ("Profile".equals(cmd.getEntityName())) {
+            return createProfile(user, propertyMap);
+        }else {
             throw new CommandException("Invalid entity class " + cmd.getEntityName());
         }
     }
-
-    private CommandResult createUser(User user, PropertyMap propertyMap) {
-        UserPolicy policy = injector.getInstance(UserPolicy.class);
-        User newUser = (User) policy.create(user, propertyMap);
-        if (newUser != null)
-            return new CreateResult(newUser.getId());
-        else
-            return null;
+    
+    private CommandResult createProfile(User user, PropertyMap propertyMap) {
+    	ProfilePolicy policy = injector.getInstance(ProfilePolicy.class);
+    	ProfileDTO newProfile = (ProfileDTO) policy.create(user, propertyMap);
+    	if(newProfile != null){
+    		CreateResult c = new CreateResult(newProfile.getId());
+    		c.setEntity(newProfile);
+    		return c;
+    	}   		
+    	else
+    		return null;
+    }
+    
+    private CommandResult createPrivacyGroup(User user, PropertyMap propertyMap) {
+    	PrivacyGroupPolicy policy = injector.getInstance(PrivacyGroupPolicy.class);
+    	PrivacyGroupDTO newPrivacyGroup = (PrivacyGroupDTO) policy.create(user, propertyMap);
+    	if(newPrivacyGroup != null){
+    		CreateResult c = new CreateResult(newPrivacyGroup.getCode());
+    		c.setEntity(newPrivacyGroup);
+    		return c;
+    	}   		
+    	else
+    		return null;
     }
 
+    private CommandResult createUser(User user, PropertyMap propertyMap) {
+    	UserPolicy policy = injector.getInstance(UserPolicy.class);
+    	UserDTO newUser = (UserDTO) policy.create(user, propertyMap);
+    	if(newUser != null){
+    		CreateResult c = new CreateResult(newUser.getIdd());
+    		c.setEntity(newUser);
+    		return c;
+    	}   		
+    	else
+    		return null;
+    }
     private CommandResult createAttributeGroup(CreateEntity cmd, Map<String, Object> properties) {
 
         AttributeGroup group = new AttributeGroup();
@@ -262,7 +297,7 @@ public class CreateEntityHandler extends BaseEntityHandler implements CommandHan
 
         return new CreateResult(injector.getInstance(Mapper.class).map(point, MonitoredPointDTO.class));
     }
-
+    
     private CommandResult createReminder(Map<String, Object> properties) {
 
         if (log.isDebugEnabled()) {

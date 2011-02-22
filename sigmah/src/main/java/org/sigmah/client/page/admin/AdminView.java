@@ -38,9 +38,16 @@ public class AdminView extends LayoutContainer implements AdminPresenter.View{
 		leftNavigationPanel = new ContentPanel(new StylableHBoxLayout("main-background project-top-bar"));
 		leftNavigationPanel.setHeaderVisible(false);
         
-        rightPanel = new ContentPanel();
+		rightPanel = new ContentPanel();
+		final BorderLayout rightBorderLayout = new BorderLayout();
+        borderLayout.setContainerStyle("x-border-layout-ct " + STYLE_MAIN_BACKGROUND);
+        rightPanel.setLayout(rightBorderLayout);
         rightPanel.setHeaderVisible(false);
-        rightPanel.setSize(300, 300);
+        rightPanel.setBorders(false);
+		
+        
+        //rightPanel.setHeaderVisible(false);
+        //rightPanel.setSize(300, 300);
         add(leftNavigationPanel,leftLayoutData);
         add(rightPanel,new BorderLayoutData(LayoutRegion.CENTER));
 	}
@@ -50,7 +57,9 @@ public class AdminView extends LayoutContainer implements AdminPresenter.View{
 		if(this.widget != null)
             rightPanel.remove(this.widget);
 
-        rightPanel.add(widget);
+		final BorderLayoutData mainLayoutData = new BorderLayoutData(LayoutRegion.CENTER);
+        mainLayoutData.setMargins(new Margins(0, 0, 0, BORDER / 2));
+        rightPanel.add(widget, mainLayoutData);
         this.widget = widget;		
 	}
 

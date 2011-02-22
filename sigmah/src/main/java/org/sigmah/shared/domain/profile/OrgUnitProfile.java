@@ -12,6 +12,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
@@ -26,6 +28,8 @@ import org.sigmah.shared.domain.User;
  */
 @Entity
 @Table(name = "user_unit")
+@NamedQueries({
+        @NamedQuery(name = "findOrgUnitProfileByUser", query = "select o from OrgUnitProfile o where o.user = :user")})
 public class OrgUnitProfile implements Serializable {
 
     private static final long serialVersionUID = 1736608073907371468L;
