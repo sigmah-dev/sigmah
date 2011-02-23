@@ -30,7 +30,13 @@ public class AdminProfilesActionListener implements ActionListener {
             });
         } else*/ if (UIActions.add.equals(actionId)) {
             onAdd();
+        }else if(UIActions.refresh.equals(actionId)){
+        	onRefresh();
         }		
+	}
+	
+	protected void onRefresh() {
+		AdminUsersPresenter.refreshProfilePanel(dispatcher, view);		
 	}
 	
 	/*protected void onDeleteConfirmed(final List<ProfileDTO> selection) {

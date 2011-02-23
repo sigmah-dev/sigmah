@@ -53,8 +53,16 @@ public class ProfilePolicy implements EntityPolicy<Profile>  {
         Set<GlobalPermissionEnum> gpEnumList = profileDTO.getGlobalPermissions();
         Map<PrivacyGroupDTO, PrivacyGroupPermissionEnum> privacyGroupsPerms = profileDTO.getPrivacyGroups();
         
-        if(profileDTO.getId() > 0)
+        if(profileDTO.getId() > 0){
         	profileFound = em.find(Profile.class, profileDTO.getId());
+        	for(GlobalPermission globalPerm : profileFound.getGlobalPermissions()){
+        		em.remove(globalPerm);
+        	}
+        	for(PrivacyGroupPermission privacyGroupPerm : profileFound.getPrivacyGroupPermissions()){
+        		em.remove(privacyGroupPerm);
+        	}
+        }
+        	
         if(profileFound != null)
         	profileToPersist = profileFound;
         
@@ -66,12 +74,9 @@ public class ProfilePolicy implements EntityPolicy<Profile>  {
         	GlobalPermission gpToPersist = new GlobalPermission();
     		gpToPersist.setPermission(gpEnum);
     		gpToPersist.setProfile(profileToPersist);  
-    		gps.add(gpToPersist);
-    		
-    		/*if(findGlobalPermission(gpEnum, profileToPersist) == null){    			
-    			em.persist(gpToPersist);
-    		} */          
+    		gps.add(gpToPersist);         
         }
+
         profileToPersist.setGlobalPermissions(gps);
         
         for(Entry<PrivacyGroupDTO, PrivacyGroupPermissionEnum> p : privacyGroupsPerms.entrySet()){
@@ -80,14 +85,6 @@ public class ProfilePolicy implements EntityPolicy<Profile>  {
         	
         	PrivacyGroup privacyGroup = em.find(PrivacyGroup.class, p.getKey().getId());
         	pgp.setPermission(p.getValue());      	
-        	/*if(findPrivacyGroupPermission(privacyGroup , profileToPersist) == null){
-        		pgp = findPrivacyGroupPermission(privacyGroup , profileToPersist);       		
-        		pgp = em.merge(pgp);
-    		}else{           	
-            	pgp.setPrivacyGroup(privacyGroup);
-            	pgp.setProfile(profileToPersist);
-            	em.persist(pgp);
-    		}	*/
         	pgp.setPrivacyGroup(privacyGroup);
         	pgp.setProfile(profileToPersist);
         	pgs.add(pgp);

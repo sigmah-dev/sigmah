@@ -38,13 +38,16 @@ import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.KeyListener;
 import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.store.Store;
 import com.extjs.gxt.ui.client.store.StoreEvent;
 import com.extjs.gxt.ui.client.store.StoreFilter;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Text;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
@@ -209,6 +212,17 @@ public class AdminUsersView extends View {
 								AdminUsersView.this.getAdminPrivacyGroupsStore().remove(model);
 								AdminUsersView.this.getAdminPrivacyGroupsStore().add((PrivacyGroupDTO)result.getEntity());
 								AdminUsersView.this.getAdminPrivacyGroupsStore().commitChanges();
+								
+								//question to refresh profiles panel								
+								MessageBox.confirm("", I18N.CONSTANTS.adminRefreshProfilesBox(), new Listener<MessageBoxEvent>() {
+			                        @Override
+			                        public void handleEvent(MessageBoxEvent be) {
+
+			                            if (Dialog.YES.equals(be.getButtonClicked().getItemId())) {
+			                            	AdminUsersPresenter.refreshProfilePanel(dispatcher, AdminUsersView.this);
+			                            }
+			                        }
+			                    });																	
 							}			
 						}, model);
 						
@@ -266,25 +280,7 @@ public class AdminUsersView extends View {
 						content = perm + ", " + content;
 				}
 				return createUserGridText(content);
-				//init comboBox
-				/*CheckBoxComboBox<GlobalPermissionDTO> globalPermissionsCombo = new CheckBoxComboBox<GlobalPermissionDTO>();
-				ListStore<GlobalPermissionDTO> permissionsStore = new ListStore<GlobalPermissionDTO>();
-				List<GlobalPermissionDTO> selection = new ArrayList<GlobalPermissionDTO>();
-				for(GlobalPermissionEnum enumItem : GlobalPermissionEnum.values()){			
-					GlobalPermissionDTO gpEnum = new GlobalPermissionDTO();
-					gpEnum.setGlobalPermissions(enumItem);				
-					permissionsStore.add(gpEnum);
-					if(selectedGlobalPermissions.contains(enumItem))
-						selection.add(gpEnum);
-				}
-				
-				globalPermissionsCombo.setStore(permissionsStore);
-				//globalPermissionsCombo.setSelection(selection);
-				globalPermissionsCombo.setDisplayField("globalPermission");
-				globalPermissionsCombo.setValueField("globalPermission");
-				globalPermissionsCombo.setEditable(true);		
-				globalPermissionsCombo.setTriggerAction(TriggerAction.ALL);
-				return globalPermissionsCombo;*/
+
 			}
 			
 		});
@@ -336,10 +332,22 @@ public class AdminUsersView extends View {
 							@Override
 							public void onSuccess(CreateResult result) {
 								window.hide();
-								//refresh view
+								//refresh profiles view
 								AdminUsersView.this.getAdminProfilesStore().remove(model);
 								AdminUsersView.this.getAdminProfilesStore().add((ProfileDTO)result.getEntity());
 								AdminUsersView.this.getAdminProfilesStore().commitChanges();
+								//question to refresh users panel
+								if(!model.getName().equals(((ProfileDTO)result.getEntity()).getName())){
+									MessageBox.confirm("", I18N.CONSTANTS.adminRefreshUsersBox(), new Listener<MessageBoxEvent>() {
+				                        @Override
+				                        public void handleEvent(MessageBoxEvent be) {
+
+				                            if (Dialog.YES.equals(be.getButtonClicked().getItemId())) {
+				                            	AdminUsersPresenter.refreshUserPanel(dispatcher, AdminUsersView.this);
+				                            }
+				                        }
+				                    });									
+								}
 							}			
 						}, model);
 						
@@ -596,36 +604,15 @@ public class AdminUsersView extends View {
 	        addFilterByUser();
 	        toolBar.add(filterUserName);
 	        
-	        /*toolBar.add(new LabelToolItem(I18N.CONSTANTS.adminUsersSelectionMode()));  
-	        final SimpleComboBox<String> type = new SimpleComboBox<String>();  
-	        type.setTriggerAction(TriggerAction.ALL);  
-	        type.setEditable(false);  
-	        type.setFireChangeEventOnSetValue(true);  
-		    type.setWidth(100);  
-		    type.add("Row");  
-		    type.add("Cell");  
-		    type.setSimpleValue("Row");  
-		    type.addListener(Events.Change, new Listener<FieldEvent>() {  
-		    	public void handleEvent(FieldEvent be) {  
-		    		boolean cell = type.getSimpleValue().equals("Cell");  
-		    		usersGrid.getSelectionModel().deselectAll();  
-		    		if (cell) {  
-		    			usersGrid.setSelectionModel(new CellSelectionModel<UserDTO>());  
-		    		} else {  
-		    			usersGrid.setSelectionModel(new GridSelectionModel<UserDTO>());  
-		    		}  
-		    	}  
-		    });  
-		    
-		    toolBar.add(type);*/
+	        toolBar.addButton(UIActions.refresh, I18N.CONSTANTS.refresh(), IconImageBundle.ICONS.refresh());
 		    toolBar.setListener(new AdminUsersActionListener(this, dispatcher));
 		}else if(panel == 2){
 			toolBar.addButton(UIActions.add, I18N.CONSTANTS.adminProfileAdd(), IconImageBundle.ICONS.add());
-			//toolBar.addButton(UIActions.delete, I18N.CONSTANTS.adminProfileDelete(), IconImageBundle.ICONS.delete());
+			toolBar.addButton(UIActions.refresh, I18N.CONSTANTS.refresh(), IconImageBundle.ICONS.refresh());
 			toolBar.setListener(new AdminProfilesActionListener(this, dispatcher));
 		}else if(panel == 3){
 			toolBar.addButton(UIActions.add, I18N.CONSTANTS.addItem(), IconImageBundle.ICONS.add());
-			//toolBar.addButton(UIActions.delete, I18N.CONSTANTS.adminPrivacyGroupDelete(), IconImageBundle.ICONS.delete());
+			
 			toolBar.setListener(new AdminPrivacyGroupsActionListener(this, dispatcher));
 		}
 

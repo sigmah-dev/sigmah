@@ -116,7 +116,8 @@ public class UserDTO extends BaseModelData implements EntityDTO {
     }
     
     public boolean getActive(){
-    	return (Boolean) get("active");
+    	Boolean isActive = (Boolean) get("active");
+    	return isActive == null ? true : isActive;
     }
 
 }

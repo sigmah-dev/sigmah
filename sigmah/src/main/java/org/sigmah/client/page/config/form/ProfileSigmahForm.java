@@ -98,30 +98,17 @@ public class ProfileSigmahForm extends FormPanel {
 		checkGPGroup.setOrientation(Orientation.VERTICAL);
 		checkGPGroup.setFieldLabel(I18N.CONSTANTS.adminProfilesGlobalPermissions());
 		String label = "";
-		//int i = 1;
 		for(GlobalPermissionEnum enumItem : GlobalPermissionEnum.values()){			
-			//++i;
 			label = translateGlobalPermission(enumItem);	
 			CheckBox box = createCheckBox(enumItem.toString(),label);
 			if(profileToUpdate != null && profileToUpdate.getGlobalPermissions()!=null
 					&& profileToUpdate.getGlobalPermissions().contains(enumItem) ){
 				box.setValue(true);
 			}
-			checkGPGroup.add(box);
-			/*if(i >= 5){
-				i = 1;		
-				checkGlobalPermissions.add(checkGPGroup);
-				add(checkGPGroup);
-				checkGPGroup = new CheckBoxGroup();
-				checkGPGroup.setLabelSeparator(" ");
-			}*/			
+			checkGPGroup.add(box);		
 		}
 		checkGlobalPermissions.add(checkGPGroup);
 		add(checkGPGroup);
-		/*if(i > 1){
-			checkGlobalPermissions.add(checkGPGroup);
-			add(checkGPGroup);
-		}*/
 		
 		/* ************************************Privacy Groups ********************************************/
 		//Add hidden empty labels
@@ -133,23 +120,10 @@ public class ProfileSigmahForm extends FormPanel {
     			public void onClick(ClickEvent arg0) {
     				pglabel.removeFromParent();
     				
-    				String  ch2= "";
-    				for (Integer in : selectedPrivacyGroupsIds)
-				      {
-				       ch2= in + "," + ch2;
-				      }
-    				Log.debug(ch2);
     				selectedPrivacyGroupsIds.remove(new Integer(((PrivacyGroupDTO)pglabel.getData(PRIVACY_GROUP)).getId()));
     				if(privacyGroupsPerms.containsKey((PrivacyGroupDTO)pglabel.getData(PRIVACY_GROUP))){
-    					Log.debug("yes contains " + ((PrivacyGroupDTO)pglabel.getData(PRIVACY_GROUP)).getTitle());
     				}
-    				privacyGroupsPerms.remove((PrivacyGroupDTO)pglabel.getData(PRIVACY_GROUP));//FIXME
-    				String s = "";
-	       			 for(Map.Entry<PrivacyGroupDTO, PrivacyGroupPermissionEnum> p : privacyGroupsPerms.entrySet()){
-	       				 s = "ProfileSigmahForm :  when remove : privacy group to save " + p.getKey().getTitle() + " perm "
-	       						 + p.getValue().name();
-	       			 }
-	       			 Log.debug(s);
+    				privacyGroupsPerms.remove((PrivacyGroupDTO)pglabel.getData(PRIVACY_GROUP));
     			}
     			
     		});
@@ -239,15 +213,9 @@ public class ProfileSigmahForm extends FormPanel {
                     		selectedPrivacyGroupsIds.add(new Integer(privacyGroupsListCombo.getValue().getId()));
                     		privacyGroupsPerms.put(privacyGroupsListCombo.getValue(), 
                     				translatePGPermission(privacyGroupsPermissionsListCombo.getValue().getPermission()));
-                    		String s = "";
-	               			 for(Map.Entry<PrivacyGroupDTO, PrivacyGroupPermissionEnum> p : privacyGroupsPerms.entrySet()){
-	               				 s = "ProfileSigmahForm :  when add : privacy group to save " + p.getKey().getTitle() + " perm "
-	               						 + p.getValue().name();
-	               			 }
-	               			 Log.debug(s);
                     		
                 		}else{
-                			MessageBox.alert("Maximum Attempts", "Maximum attempts to modify user's profiles have been reached. Try again", null);
+                			MessageBox.alert(I18N.CONSTANTS.adminMaxAttempts(), I18N.CONSTANTS.adminMaxAttemptsProfiles(), null);
                 			ProfileSigmahForm.this.hide();
                 		}                		
                 	}
@@ -273,12 +241,6 @@ public class ProfileSigmahForm extends FormPanel {
 	    			ProfileSigmahForm.this.hide();
 	    		} 
         	}
-        	String s = "";
-			 for(Map.Entry<PrivacyGroupDTO, PrivacyGroupPermissionEnum> p : privacyGroupsPerms.entrySet()){
-				 s = "ProfileSigmahForm :  at init : privacy group to save " + p.getKey().getTitle() + " perm "
-						 + p.getValue().name();
-			 }
-			 Log.debug(s);
         }
         
         for(ClickableLabel selected : selectedPrivacyGroups.values()){
@@ -330,15 +292,8 @@ public class ProfileSigmahForm extends FormPanel {
 			 }
 		 }
 		 profileToSave.setGlobalPermissions(globalPerms);
-		 String s = "";
-		 for(Map.Entry<PrivacyGroupDTO, PrivacyGroupPermissionEnum> p : privacyGroupsPerms.entrySet()){
-			 s = "ProfileSigmahForm :  before save : privacy group to save " + p.getKey().getTitle() + " perm "
-					 + p.getValue().name();
-		 }
-		 Log.debug(s);
 		 profileToSave.setPrivacyGroups(privacyGroupsPerms);
 		 newProfileProperties.put("profile", profileToSave);
-         //dispatcher.execute(new UpdateProfile(profileToSave), null, new AsyncCallback<ProfileWithDetailsListResult>(){
          dispatcher.execute(new CreateEntity("Profile", newProfileProperties), null, new AsyncCallback<CreateResult>(){
              public void onFailure(Throwable caught) {
              	MessageBox.alert(I18N.CONSTANTS.adminProfileCreationBox(), 

@@ -198,7 +198,6 @@ public class UserSigmahForm extends FormPanel {
         	label.addClickHandler(new ClickHandler(){
     			@Override
     			public void onClick(ClickEvent arg0) {
-    				Log.debug("aaaaaaaaaaaaaaah");
     				label.hide();
     				selectedProfilesIds.remove((Integer)label.getData(ID_PROFILE));
     			}
@@ -264,7 +263,6 @@ public class UserSigmahForm extends FormPanel {
                 	if(!selectedProfilesIds.contains(profilesListCombo.getValue().getId())){
                 		if(num < MAX_PROFILES_TENTATIVES_PER_USER){
                 			selectedProfiles.get(num).setData(ID_PROFILE, new Integer(profilesListCombo.getValue().getId()));  
-                			Log.debug("num " + num + " user sigmah form add " + profilesListCombo.getValue().getName());
                     		selectedProfiles.get(num).setText(profilesListCombo.getValue().getName());
                     		selectedProfiles.get(num).show();
                     		num++;               		
@@ -288,13 +286,11 @@ public class UserSigmahForm extends FormPanel {
         	for(final ProfileDTO usedProfile : usedProfiles){
         		if(num < MAX_PROFILES_TENTATIVES_PER_USER){
         			selectedProfiles.get(num).setData(ID_PROFILE, new Integer(usedProfile.getId()));
-	        		Log.debug("num " + num +  " user sigmah form " + usedProfile.getName());
 	        		selectedProfiles.get(num).setText(usedProfile.getName().toString());
 	        		selectedProfiles.get(num).show();	        		
 	        		num++;  
 	        	}else{
-	        		//FIXME
-	    			MessageBox.alert("Maximum Attempts", "Maximum attempts to modify user's profiles have been reached. Try again", null);
+	    			MessageBox.alert(I18N.CONSTANTS.adminMaxAttempts(), I18N.CONSTANTS.adminMaxAttemptsUsers(), null);
 	    			UserSigmahForm.this.removeFromParent();
 	    		} 
         	}

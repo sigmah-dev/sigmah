@@ -39,6 +39,8 @@ public class AdminUsersActionListener implements ActionListener {
             });
         } else if (UIActions.add.equals(actionId)) {
             onAdd();
+        } else if(UIActions.refresh.equals(actionId)){
+        	onRefresh();
         }
 		
 	}
@@ -71,6 +73,10 @@ public class AdminUsersActionListener implements ActionListener {
         });
 	}
 
+	protected void onRefresh() {
+		AdminUsersPresenter.refreshUserPanel(dispatcher, view);		
+	}
+	
 	protected void onAdd() {
 
 		final Window window = new Window();

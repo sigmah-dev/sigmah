@@ -18,6 +18,8 @@ import org.sigmah.client.page.admin.users.AdminUsersPresenter;
 import org.sigmah.client.page.project.SubPresenter;
 import org.sigmah.client.ui.ToggleAnchor;
 import org.sigmah.client.util.state.IStateManager;
+import org.sigmah.shared.domain.profile.GlobalPermissionEnum;
+import org.sigmah.shared.dto.profile.ProfileUtils;
 
 import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.util.Margins;
@@ -25,6 +27,7 @@ import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.layout.HBoxLayoutData;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
@@ -45,6 +48,7 @@ public class AdminPresenter implements TabPage, Frame {
     private final SubPresenter[] presenters;
     private AdminPageState currentState;
     private Page activePage;
+    private final Authentication authentication;
 
     @ImplementedBy(AdminView.class)
     public interface View {
@@ -59,8 +63,8 @@ public class AdminPresenter implements TabPage, Frame {
     public AdminPresenter(final EventBus eventBus, final Dispatcher dispatcher, final View view,
             final UserLocalCache cache, final Authentication authentication, IStateManager stateMgr) {
         this.view = view;
-        this.presenters = new SubPresenter[] { new AdminUsersPresenter(dispatcher, cache), };
-
+        this.presenters = new SubPresenter[] { new AdminUsersPresenter(dispatcher, cache, authentication), };
+        this.authentication = authentication;
         for (int i = 0; i < MAIN_TABS.length; i++) {
             final int index = i;
 
@@ -96,7 +100,15 @@ public class AdminPresenter implements TabPage, Frame {
 
     @Override
     public Object getWidget() {
+    	if(!ProfileUtils.isGranted(authentication, GlobalPermissionEnum.VIEW_ADMIN)){
+    		ContentPanel insufficientView = new ContentPanel();
+			final HTML insufficient = new HTML(I18N.CONSTANTS.permAdminInsufficient());
+	        insufficient.addStyleName("important-label");
+	        insufficientView.add(insufficient);
+	        return insufficientView;
+    	}
         return view;
+        
     }
 
     @Override

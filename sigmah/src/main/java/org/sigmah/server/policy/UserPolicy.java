@@ -59,6 +59,7 @@ public class UserPolicy implements EntityPolicy<User> {
 		OrgUnitProfile orgUnitProfileFound = null;
 		
 		//get User that need to be saved from properties	
+		int id = (Integer)properties.get("id");
 		String email = properties.get("email");
 		String name = properties.get("name");
 		String firstName = properties.get("firstName");
@@ -70,12 +71,11 @@ public class UserPolicy implements EntityPolicy<User> {
 		//Save user
 		if(email != null && name != null){
 			
-	        if (userDAO.doesUserExist(email)) {
-	        	userFound = userDAO.findUserByEmail(email);
-	        	userFound = em.find(User.class, userFound.getId());
-	        	if(userUnitDAO.doesOrgUnitProfileExist(userFound))
+        	userFound = em.find(User.class, id);
+        	if(userFound != null){
+        		if(userUnitDAO.doesOrgUnitProfileExist(userFound))
 	        		orgUnitProfileFound = userUnitDAO.findOrgUnitProfileByUser(userFound);
-	        }
+        	}
 	        	        
         	userToPersist = UserDAOImpl.createNewUser(email, name, locale);	
 			userToPersist.setFirstName(firstName);

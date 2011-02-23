@@ -25,7 +25,7 @@ public class DatabaseAuthenticator implements Authenticator {
             return true;
            
         }
-        if(!user.isActive()){
+        if(user.isActive()!= null && !user.isActive()){
         	return false;
         }
         

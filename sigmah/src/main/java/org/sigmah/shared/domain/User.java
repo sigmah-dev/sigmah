@@ -49,7 +49,7 @@ public class User implements java.io.Serializable {
     private String hashedPassword;
     private Organization organization;
     private OrgUnitProfile orgUnitWithProfiles;
-    private boolean isActive;
+    private Boolean isActive;
 
     public User() {
     }
@@ -143,12 +143,12 @@ public class User implements java.io.Serializable {
         this.changePasswordKey = changePasswordKey;
     }
     
-    @Column(name = "Active", nullable = false)
-    public void setActive(boolean isActive) {
+    @Column(name = "Active", nullable = true)
+    public void setActive(Boolean isActive) {
 		this.isActive = isActive;
 	}
 
-	public boolean isActive() {
+	public Boolean isActive() {
 		return isActive;
 	}
 
