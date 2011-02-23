@@ -316,11 +316,14 @@ sigmah/src/main/java/org/sigmah/client/page/config/design/ActivityForm.java -tex
 sigmah/src/main/java/org/sigmah/client/page/config/design/AttributeForm.java -text
 sigmah/src/main/java/org/sigmah/client/page/config/design/AttributeGroupFolder.java -text
 sigmah/src/main/java/org/sigmah/client/page/config/design/AttributeGroupForm.java -text
+sigmah/src/main/java/org/sigmah/client/page/config/design/DesignGrid.java -text
 sigmah/src/main/java/org/sigmah/client/page/config/design/DesignPresenter.java -text
 sigmah/src/main/java/org/sigmah/client/page/config/design/DesignView.java -text
 sigmah/src/main/java/org/sigmah/client/page/config/design/Folder.java -text
 sigmah/src/main/java/org/sigmah/client/page/config/design/IndicatorFolder.java -text
 sigmah/src/main/java/org/sigmah/client/page/config/design/IndicatorForm.java -text
+sigmah/src/main/java/org/sigmah/client/page/config/design/ProjectIndicatorsPresenter.java -text
+sigmah/src/main/java/org/sigmah/client/page/config/design/ProjectIndicatorsView.java -text
 sigmah/src/main/java/org/sigmah/client/page/config/form/DatabaseForm.java -text
 sigmah/src/main/java/org/sigmah/client/page/config/form/DateRangeForm.java -text
 sigmah/src/main/java/org/sigmah/client/page/config/form/FieldSetFitLayout.java -text

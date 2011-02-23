@@ -17,6 +17,8 @@ import org.sigmah.client.page.PageState;
 import org.sigmah.client.page.common.dialog.FormDialogCallback;
 import org.sigmah.client.page.common.dialog.FormDialogTether;
 import org.sigmah.client.page.common.grid.AbstractEditorGridPresenter;
+import org.sigmah.client.page.common.grid.ConfirmCallback;
+import org.sigmah.client.page.common.grid.GridView;
 import org.sigmah.client.page.common.grid.TreeGridView;
 import org.sigmah.client.page.common.toolbar.UIActions;
 import org.sigmah.client.page.config.DbPageState;
@@ -74,6 +76,12 @@ public class DesignPresenter extends AbstractEditorGridPresenter<ModelData> impl
         
         public FormDialogTether showNewForm(EntityDTO entity, FormDialogCallback callback);
       
+        public ModelData getSelection();
+        
+    	public void confirmDeleteSelected(ConfirmCallback callback);
+    	
+    	public void setActionEnabled(String actionId, boolean enabled);
+       
     }
     
     private View view;
@@ -313,7 +321,6 @@ public class DesignPresenter extends AbstractEditorGridPresenter<ModelData> impl
 			treeStore = new TreeStore<ModelData>( new BaseTreeLoader<ModelData>( new Proxy() )); 
 			view = new DesignView( service);	
 			view.init(this, messages, treeStore);
-			//treeStore.getLoader().load();
 		}
 		return (Component) view;
 	}
