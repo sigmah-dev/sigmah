@@ -30,6 +30,7 @@ import com.extjs.gxt.ui.client.widget.Component;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.sigmah.shared.dto.report.ReportReference;
 import org.sigmah.shared.dto.element.ReportElementDTO;
+import org.sigmah.shared.dto.element.ReportListElementDTO;
 
 /**
  * Sub presenter that manage the "reports" view from the project page.
@@ -123,8 +124,12 @@ public class ProjectReportsPresenter implements SubPresenter {
         // Reset the attach documents menu.
         AttachMenuBuilder.createMenu(currentProjectDTO, FilesListElementDTO.class,
                 view.getAttachButton(), reportStore, authentication, dispatcher, eventBus);
-        
-        AttachMenuBuilder.createMenu(currentProjectDTO, ReportElementDTO.class,
+
+        // TODO: Do something to add the report list elements too
+        final List<LocalizedElement> reportElements = currentProjectDTO.getLocalizedElements(ReportElementDTO.class);
+        reportElements.addAll(currentProjectDTO.getLocalizedElements(ReportListElementDTO.class));
+
+        AttachMenuBuilder.createMenu(currentProjectDTO, reportElements,
                 view.getCreateReportButton(), reportStore, authentication, dispatcher, eventBus);
 
         

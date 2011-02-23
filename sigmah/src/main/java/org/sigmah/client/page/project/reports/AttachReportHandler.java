@@ -38,10 +38,12 @@ import org.sigmah.shared.dto.ProjectDTO;
 import org.sigmah.shared.dto.ProjectDTO.LocalizedElement;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
 import org.sigmah.shared.dto.element.ReportElementDTO;
+import org.sigmah.shared.dto.element.ReportListElementDTO;
 
 /**
- * 
+ * Handle the "create report" dialog for report elements.
  * @author Raphaël Calabro (rcalabro@ideia.fr)
+ * @see ReportElementDTO
  */
 public class AttachReportHandler implements AttachMenuBuilder.AttachDocumentHandler {
     private Dialog dialog;
@@ -85,10 +87,20 @@ public class AttachReportHandler implements AttachMenuBuilder.AttachDocumentHand
         return dialogBox;
     }
 
+    /**
+     * Extracts the name field from the given dialog box.
+     * @param dialog A dialog created with the {@link #createDialog()} method.
+     * @return The name text field.
+     */
     private TextField<String> getNameField(Dialog dialog) {
         return (TextField<String>) dialog.getWidget(0);
     }
 
+    /**
+     * Extracts the flexible element name field from the given dialog box.
+     * @param dialog A dialog created with the {@link #createDialog()} method.
+     * @return The flexible element name text field.
+     */
     private LabelField getElementNameField(Dialog dialog) {
         return (LabelField) dialog.getWidget(1);
     }
@@ -108,7 +120,7 @@ public class AttachReportHandler implements AttachMenuBuilder.AttachDocumentHand
             dialog = createDialog();
         }
 
-        final ReportElementDTO reportElementDTO = (ReportElementDTO) flexibleElement;
+        //final ReportElementDTO reportElementDTO = (ReportElementDTO) flexibleElement;
 
         // Clearing the name field
         final TextField<String> nameField = getNameField(dialog);
@@ -127,11 +139,18 @@ public class AttachReportHandler implements AttachMenuBuilder.AttachDocumentHand
             public void componentSelected(ButtonEvent ce) {
                 final HashMap<String, Serializable> properties = new HashMap<String, Serializable>();
                 properties.put("name", nameField.getValue());
-                properties.put("reportModelId", reportElementDTO.getModelId());
                 properties.put("phaseName", phaseName);
                 properties.put("projectId", project.getId());
                 properties.put("containerId", project.getId());
-                properties.put("flexibleElementId", reportElementDTO.getId());
+                properties.put("flexibleElementId", flexibleElement.getId());
+
+                if(flexibleElement instanceof ReportElementDTO) {
+                    properties.put("reportModelId", ((ReportElementDTO) flexibleElement).getModelId());
+                }
+                else if(flexibleElement instanceof ReportListElementDTO) {
+                    properties.put("reportModelId", ((ReportListElementDTO) flexibleElement).getModelId());
+                    properties.put("multiple", true);
+                }
 
                 final CreateEntity createEntity = new CreateEntity("ProjectReport", properties);
                 dispatcher.execute(createEntity, null, new AsyncCallback<CreateResult>() {
@@ -147,13 +166,15 @@ public class AttachReportHandler implements AttachMenuBuilder.AttachDocumentHand
                         final ReportReference reportReference = new ReportReference();
                         reportReference.setId(result.getNewId());
                         reportReference.setName(nameField.getValue());
-                        reportReference.setFlexibleElementLabel(reportElementDTO.getElementLabel());
+                        reportReference.setFlexibleElementLabel(flexibleElement.getElementLabel());
                         reportReference.setEditorName(authentication.getUserShortName());
                         reportReference.setPhaseName(phaseName);
                         reportReference.setLastEditDate(new Date());
 
                         documentsStore.add(reportReference);
-                        menuItem.setEnabled(false);
+
+                        if(flexibleElement instanceof ReportElementDTO)
+                            menuItem.setEnabled(false);
 
                         dialog.hide();
 
@@ -179,6 +200,12 @@ public class AttachReportHandler implements AttachMenuBuilder.AttachDocumentHand
                                          element.getElement().getId(),
                                          element.getElement().getEntityName());
 
+        // If the current flexible element is a report list, then the menu item
+        // is always enabled.
+        if(element.getElement() instanceof ReportListElementDTO)
+            return true;
+
+        // Checking the value of the report element to decide if the state of the menu item.
         dispatcher.execute(getValue, null, new AsyncCallback<ValueResult>() {
 
             @Override

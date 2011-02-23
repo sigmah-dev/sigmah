@@ -26,6 +26,7 @@ import org.sigmah.shared.dto.ProjectDTO.LocalizedElement;
 import org.sigmah.shared.dto.element.FilesListElementDTO;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
 import org.sigmah.shared.dto.element.ReportElementDTO;
+import org.sigmah.shared.dto.element.ReportListElementDTO;
 
 /**
  * Builds menus to attach documents and reports to flexibles elements.
@@ -50,11 +51,23 @@ public class AttachMenuBuilder {
                 EventBus eventBus);
 
         /**
-         * Indicate
-         * @param menuItem
-         * @param elementDTO
-         * @param dispatcher
-         * @return
+         * Returns <code>true</code> if the given menu item can be accessed by
+         * the user.<br>
+         * Typically, this method will return <code>true</code> if the
+         * flexible element has a <code>null</code> value.<br>
+         * <br>
+         * This method is called only if the given menu item can be enabled
+         * (for example, it will ne be called if the phase it is in is closed).
+         * <br>
+         * <br>
+         * If you need to, you can defer this setting by returning
+         * <code>false</code> and by enabling the <code>menuItem</code> instance
+         * yourself.
+         *
+         * @param menuItem Menu item that will be enabled / disabled.
+         * @param element Flexible element associated with the <code>menuItem</code>.
+         * @param dispatcher Command dispatcher.
+         * @return <code>true</code> to enable the menu item, <code>false</code> otherwise.
          */
         boolean shouldEnableMenuItem(MenuItem menuItem, LocalizedElement element, Dispatcher dispatcher);
     }
@@ -64,7 +77,10 @@ public class AttachMenuBuilder {
     static {
         final HashMap<Class<? extends FlexibleElementDTO>, AttachDocumentHandler> map = new HashMap<Class<? extends FlexibleElementDTO>, AttachDocumentHandler>();
         map.put(FilesListElementDTO.class, new AttachFileHandler());
-        map.put(ReportElementDTO.class, new AttachReportHandler());
+
+        final AttachReportHandler attachReportHandler = new AttachReportHandler();
+        map.put(ReportElementDTO.class, attachReportHandler);
+        map.put(ReportListElementDTO.class, attachReportHandler);
 
         handlers = map;
     }
@@ -90,6 +106,89 @@ public class AttachMenuBuilder {
         if (filesLists != null) {
             // For each files list.
             for (final LocalizedElement filesList : filesLists) {
+
+                boolean itemEnabled = false;
+
+                // Builds the item label.
+                final StringBuilder sb = new StringBuilder();
+                if (filesList.getPhaseModel() != null) {
+                    sb.append(filesList.getPhaseModel().getName());
+                } else {
+                    sb.append(I18N.CONSTANTS.projectDetails());
+                }
+                sb.append(" | ");
+                sb.append(filesList.getElement().getLabel());
+
+                // Builds the corresponding menu item.
+                final MenuItem item = new MenuItem(sb.toString());
+
+                // If the phase is the details page.
+                if (filesList.getPhase() == null) {
+                    item.addSelectionListener(getAttachListener(type, I18N.CONSTANTS.projectDetails(),
+                            filesList.getElement(), item, project, documentsStore, authentication,
+                            dispatcher, eventBus));
+                    itemEnabled = true;
+                }
+                // If the phase is closed.
+                else if (filesList.getPhase().isEnded()) {
+                    item.setIcon(IconImageBundle.ICONS.close());
+                    item.setTitle(I18N.CONSTANTS.flexibleElementFilesListAddErrorPhaseClosed());
+                }
+                // If the phase is active.
+                else if (filesList.getPhase() == project.getCurrentPhaseDTO()) {
+                    item.setIcon(IconImageBundle.ICONS.activate());
+                    item.addSelectionListener(getAttachListener(type, filesList.getPhaseModel().getName(),
+                            filesList.getElement(), item, project, documentsStore, authentication,
+                            dispatcher, eventBus));
+                    itemEnabled = true;
+                }
+                // If the phase is a successor of the active one.
+                else if (filesList.getPhase().isSuccessor(project.getCurrentPhaseDTO())) {
+                    item.addSelectionListener(getAttachListener(type, filesList.getPhaseModel().getName(),
+                            filesList.getElement(), item, project, documentsStore, authentication,
+                            dispatcher, eventBus));
+                    itemEnabled = true;
+                }
+                // Future phase, not yet accessible.
+                else {
+                    item.setTitle(I18N.CONSTANTS.flexibleElementFilesListAddErrorPhaseInactive());
+                }
+
+                if(itemEnabled) {
+                    item.setEnabled(handler.shouldEnableMenuItem(item, filesList, dispatcher));
+                    menuEnabled = true;
+                }
+
+                menu.add(item);
+            }
+        }
+
+        // Adds this menu to the button.
+        button.setEnabled(menuEnabled);
+
+        if (menuEnabled) {
+            button.setMenu(menu);
+        }
+    }
+
+    public static void createMenu(
+            final ProjectDTO project,
+            final List<LocalizedElement> filesLists,
+            final Button button,
+            final ListStore<ReportReference> documentsStore,
+            final Authentication authentication,
+            final Dispatcher dispatcher,
+            final EventBus eventBus) {
+
+        final Menu menu = new Menu();
+
+        boolean menuEnabled = false;
+
+        if (filesLists != null) {
+            // For each files list.
+            for (final LocalizedElement filesList : filesLists) {
+                final Class<? extends FlexibleElementDTO> type = filesList.getElement().getClass();
+                final AttachDocumentHandler handler = handlers.get(type);
 
                 boolean itemEnabled = false;
 
