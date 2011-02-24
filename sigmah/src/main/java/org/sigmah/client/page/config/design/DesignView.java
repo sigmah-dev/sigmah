@@ -31,6 +31,7 @@ import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.treegrid.EditorTreeGrid;
+import com.google.inject.Inject;
 
 
 public class DesignView extends Component implements DesignPresenter.View {
@@ -43,13 +44,13 @@ public class DesignView extends Component implements DesignPresenter.View {
     DesignPresenter presenter;
 	protected UserDatabaseDTO db;
 	
-  
+	
+	@Inject 
     public DesignView(Dispatcher service) {
     	this.service = service;
     	grid = new DesignGrid();
     }
     
-
     @Override
     public void init(DesignPresenter presenter,UIConstants messages, TreeStore<ModelData> tree) {
     	this.presenter = presenter;
