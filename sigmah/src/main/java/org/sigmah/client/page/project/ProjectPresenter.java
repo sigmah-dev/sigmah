@@ -20,16 +20,15 @@ import org.sigmah.client.page.NavigationHandler;
 import org.sigmah.client.page.Page;
 import org.sigmah.client.page.PageId;
 import org.sigmah.client.page.PageState;
-import org.sigmah.client.page.table.PivotPresenter;
-import org.sigmah.client.page.config.design.DesignPresenter;
-import org.sigmah.client.page.config.design.DesignView;
 import org.sigmah.client.page.TabPage;
+import org.sigmah.client.page.config.design.ProjectIndicatorsPresenter;
 import org.sigmah.client.page.project.calendar.ProjectCalendarPresenter;
 import org.sigmah.client.page.project.dashboard.ProjectDashboardPresenter;
 import org.sigmah.client.page.project.dashboard.funding.FundingIconProvider;
 import org.sigmah.client.page.project.details.ProjectDetailsPresenter;
 import org.sigmah.client.page.project.logframe.ProjectLogFramePresenter;
 import org.sigmah.client.page.project.reports.ProjectReportsPresenter;
+import org.sigmah.client.page.table.PivotPresenter;
 import org.sigmah.client.ui.ToggleAnchor;
 import org.sigmah.shared.command.AmendmentAction;
 import org.sigmah.shared.command.GetProject;
@@ -156,7 +155,8 @@ public class ProjectPresenter implements Frame, TabPage {
                 new ProjectDashboardPresenter(dispatcher, eventBus, authentication, this, cache), // Dashboard
                 new ProjectDetailsPresenter(dispatcher, authentication, this, cache), // Details,
                 new ProjectLogFramePresenter(dispatcher, authentication, this), // Logic
-                new DesignPresenter(eventBus, dispatcher, I18N.CONSTANTS, this),
+             //   new DesignPresenter(eventBus, dispatcher, I18N.CONSTANTS, this),
+                new ProjectIndicatorsPresenter(dispatcher, eventBus, this),
                 new PivotPresenter(dispatcher, eventBus),
                 new ProjectCalendarPresenter(dispatcher, authentication, this), // Calendar
                 new ProjectReportsPresenter(authentication, dispatcher, eventBus, this), // Reports

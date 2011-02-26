@@ -17,8 +17,6 @@ import org.sigmah.client.page.PageState;
 import org.sigmah.client.page.common.dialog.FormDialogCallback;
 import org.sigmah.client.page.common.dialog.FormDialogTether;
 import org.sigmah.client.page.common.grid.AbstractEditorGridPresenter;
-import org.sigmah.client.page.common.grid.ConfirmCallback;
-import org.sigmah.client.page.common.grid.GridView;
 import org.sigmah.client.page.common.grid.TreeGridView;
 import org.sigmah.client.page.common.toolbar.UIActions;
 import org.sigmah.client.page.config.DbPageState;
@@ -29,7 +27,6 @@ import org.sigmah.shared.command.BatchCommand;
 import org.sigmah.shared.command.Command;
 import org.sigmah.shared.command.CreateEntity;
 import org.sigmah.shared.command.Delete;
-import org.sigmah.shared.command.GetSchema;
 import org.sigmah.shared.command.UpdateEntity;
 import org.sigmah.shared.command.result.CreateResult;
 import org.sigmah.shared.command.result.VoidResult;
@@ -38,12 +35,8 @@ import org.sigmah.shared.dto.AttributeDTO;
 import org.sigmah.shared.dto.AttributeGroupDTO;
 import org.sigmah.shared.dto.EntityDTO;
 import org.sigmah.shared.dto.IndicatorDTO;
-import org.sigmah.shared.dto.SchemaDTO;
 import org.sigmah.shared.dto.UserDatabaseDTO;
 
-import com.extjs.gxt.ui.client.data.BaseTreeLoader;
-import com.extjs.gxt.ui.client.data.DataProxy;
-import com.extjs.gxt.ui.client.data.DataReader;
 import com.extjs.gxt.ui.client.data.Loader;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.store.Record;
@@ -76,21 +69,14 @@ public class DesignPresenter extends AbstractEditorGridPresenter<ModelData> impl
         
         public FormDialogTether showNewForm(EntityDTO entity, FormDialogCallback callback);
       
-        public ModelData getSelection();
-        
-    	public void confirmDeleteSelected(ConfirmCallback callback);
-    	
-    	public void setActionEnabled(String actionId, boolean enabled);
-       
     }
     
     private View view;
     private final EventBus eventBus;
     private final Dispatcher service;
     private final UIConstants messages;
-    protected TreeStore<ModelData> treeStore = null;
-    protected ProjectPresenter projectPresenter = null; 
-	private SchemaDTO schema;
+    protected TreeStore<ModelData> treeStore;
+    protected final ProjectPresenter projectPresenter; 
 	protected UserDatabaseDTO db;
 
     @Inject
@@ -101,24 +87,33 @@ public class DesignPresenter extends AbstractEditorGridPresenter<ModelData> impl
         this.service = service;
         this.view = view;
         this.messages = messages;
+        this.projectPresenter = null;
     }
     
-    public DesignPresenter(EventBus eventBus, Dispatcher service, UIConstants messages, ProjectPresenter projectPresenter) {
-    	super(eventBus, service, null, null);
+     
+    public DesignPresenter(EventBus eventBus, Dispatcher service, UIConstants messages,  View view, ProjectPresenter projectPresenter, TreeStore<ModelData> tree) {
+        super(eventBus, service, null, view);
         this.eventBus = eventBus;
         this.service = service;
         this.messages = messages;
-    	this.projectPresenter = projectPresenter;
+        this.projectPresenter = projectPresenter;
+        this.treeStore = tree;
+        this.view = view;
     }
-    
+
     public void go(UserDatabaseDTO db) {
     	this.db = db;
-    	this.treeStore =  new TreeStore<ModelData>();
-        this.view.init( this, messages, db, this.treeStore);
-        fillStore(messages);
-        this.view.setActionEnabled(UIActions.delete, false);     
+    	this.view.doLayout(db);
+    	
+    	// this is used by activity info
+    	if (treeStore == null) { 
+    			this.treeStore = new TreeStore<ModelData>();
+    			fillStore(messages);
+    			this.view.setActionEnabled(UIActions.delete, false);
+    	}
+    	initListeners(treeStore, null);
+
     }
-    
     
     @Override
     public Store<ModelData> getStore() {
@@ -317,12 +312,9 @@ public class DesignPresenter extends AbstractEditorGridPresenter<ModelData> impl
 
 	@Override
 	public Component getView() {
-		if (view==null) {
-			treeStore = new TreeStore<ModelData>( new BaseTreeLoader<ModelData>( new Proxy() )); 
-			view = new DesignView( service);	
-			view.init(this, messages, treeStore);
-		}
-		return (Component) view;
+		view.init(this, messages, treeStore);
+		view.setActionEnabled(UIActions.delete, false); 
+		return (Component)view;
 	}
 
 	@Override
@@ -340,63 +332,34 @@ public class DesignPresenter extends AbstractEditorGridPresenter<ModelData> impl
 		// TODO Auto-generated method stub	
 	}
 	
-	 private void fillStore(UIConstants messages) {
-	        for (ActivityDTO activity : db.getActivities()) {
-	            ActivityDTO activityNode = new ActivityDTO(activity);
-	            treeStore.add(activityNode, false);
+	private void fillStore(UIConstants messages) {
+		for (ActivityDTO activity : db.getActivities()) {
+			ActivityDTO activityNode = new ActivityDTO(activity);
+			treeStore.add(activityNode, false);
 
-	            AttributeGroupFolder attributeFolder = new AttributeGroupFolder(activityNode, messages.attributes());
-	            treeStore.add(activityNode, attributeFolder, false);
+			AttributeGroupFolder attributeFolder = new AttributeGroupFolder(
+					activityNode, messages.attributes());
+			treeStore.add(activityNode, attributeFolder, false);
 
-	            for (AttributeGroupDTO group : activity.getAttributeGroups()) {
-	                AttributeGroupDTO groupNode = new AttributeGroupDTO(group);
-	                treeStore.add(attributeFolder, groupNode, false);
+			for (AttributeGroupDTO group : activity.getAttributeGroups()) {
+				AttributeGroupDTO groupNode = new AttributeGroupDTO(group);
+				treeStore.add(attributeFolder, groupNode, false);
 
-	                for (AttributeDTO attribute : group.getAttributes()) {
-	                    AttributeDTO attributeNode = new AttributeDTO(attribute);
-	                    treeStore.add(groupNode, attributeNode, false);
-	                }
-	            }
-
-	            IndicatorFolder indicatorFolder = new IndicatorFolder(activityNode, messages.indicators());
-	            treeStore.add(activityNode, indicatorFolder, false);
-
-	            for (IndicatorDTO indicator : activity.getIndicators()) {
-	                IndicatorDTO indicatorNode = new IndicatorDTO(indicator);
-	                treeStore.add(indicatorFolder, indicatorNode, false);
-	            }
-	        }
-	    }
-	    
-		private void finishLoad(UserDatabaseDTO db) {
-			fillStore(messages);
-			this.view.doLayout(db);
-			this.view.setActionEnabled(UIActions.delete, false);
-		}
-		
-	    private class Proxy implements DataProxy<List<ModelData>> {
-	    	
-			@Override
-			public void load(DataReader<List<ModelData>> reader, Object loadConfig,
-					AsyncCallback<List<ModelData>> callback) {
-				if (db == null) {
-					service.execute(new GetSchema(), null,
-							new AsyncCallback<SchemaDTO>() {
-						
-						public void onSuccess(SchemaDTO result) {
-							schema = result;	
-							db = schema.getDatabaseById(projectPresenter.getCurrentProjectDTO().getId());
-							finishLoad(db);
-						}
-
-						@Override
-						public void onFailure(Throwable caught) {
-							// TODO Auto-generated method stub
-						}
-					});
-				} else {
-					finishLoad(db);
+				for (AttributeDTO attribute : group.getAttributes()) {
+					AttributeDTO attributeNode = new AttributeDTO(attribute);
+					treeStore.add(groupNode, attributeNode, false);
 				}
-			}	
+			}
+
+			IndicatorFolder indicatorFolder = new IndicatorFolder(activityNode,
+					messages.indicators());
+			treeStore.add(activityNode, indicatorFolder, false);
+
+			for (IndicatorDTO indicator : activity.getIndicators()) {
+				IndicatorDTO indicatorNode = new IndicatorDTO(indicator);
+				treeStore.add(indicatorFolder, indicatorNode, false);
+			}
 		}
+	}
+	
 }

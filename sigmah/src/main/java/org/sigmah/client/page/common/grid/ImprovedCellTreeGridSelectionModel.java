@@ -24,8 +24,10 @@ public class ImprovedCellTreeGridSelectionModel<M extends ModelData> extends Cel
 
     @Override
     public List<M> getSelectedItems() {
-        List<M> list = new ArrayList<M>(1);
-        list.add(getSelectCell().model);
+    	List<M> list = new ArrayList<M>(1);
+        if (getSelectCell() != null) {
+        	list.add(getSelectCell().model);	
+        }
         return list;
     }
 }

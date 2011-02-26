@@ -11,6 +11,7 @@ import com.extjs.gxt.ui.client.data.SortInfo;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.store.Record;
+import com.extjs.gxt.ui.client.widget.Component;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
@@ -30,6 +31,7 @@ import org.sigmah.client.page.common.grid.AbstractEditorGridPresenter;
 import org.sigmah.client.page.common.grid.GridView;
 import org.sigmah.client.page.common.toolbar.UIActions;
 import org.sigmah.client.page.entry.editor.SiteFormLoader;
+import org.sigmah.client.page.project.SubPresenter;
 import org.sigmah.client.util.state.IStateManager;
 import org.sigmah.shared.command.*;
 import org.sigmah.shared.command.result.PagingResult;
@@ -49,9 +51,9 @@ import java.util.Map;
 /**
  * @author Alex Bertram (akbertram@gmail.com)
  */
-public class SiteEditor extends AbstractEditorGridPresenter<SiteDTO> implements Page {
+public class SiteEditor extends AbstractEditorGridPresenter<SiteDTO> implements Page, SubPresenter {
 
-    private Listener<SiteEvent> siteChangedListener;
+	private Listener<SiteEvent> siteChangedListener;
     private Listener<SiteEvent> siteCreatedListener;
     private Listener<SiteEvent> siteSelectedListner;
     private List<Shutdownable> subComponents = new ArrayList<Shutdownable>();
@@ -207,13 +209,15 @@ public class SiteEditor extends AbstractEditorGridPresenter<SiteDTO> implements 
         if(filter == null) {
             filter = new Filter();
         }
-        filter.addRestriction(DimensionType.Activity, currentActivity.getId());
+        if (currentActivity != null)
+        	filter.addRestriction(DimensionType.Activity, currentActivity.getId());
 
         GetSites cmd = new GetSites();
         cmd.setFilter(filter);
         
         loader.setCommand(cmd);
-        view.init(SiteEditor.this, currentActivity, store);
+        if (currentActivity != null)
+        	view.init(SiteEditor.this, currentActivity, store);
 
         view.setActionEnabled(UIActions.add, currentActivity.getDatabase().isEditAllowed());
         view.setActionEnabled(UIActions.edit, false);
@@ -397,4 +401,23 @@ public class SiteEditor extends AbstractEditorGridPresenter<SiteDTO> implements 
         String url = GWT.getModuleBaseURL() + "export?auth=#AUTH#&a=" + currentActivity.getId();
         eventBus.fireEvent(new DownloadRequestEvent("siteExport", url));
     }
+    
+    @Override
+	public Component getView() {
+		// TODO Auto-generated method stub
+		return (Component)this.view;
+	}
+
+	@Override
+	public void discardView() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void viewDidAppear() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }
