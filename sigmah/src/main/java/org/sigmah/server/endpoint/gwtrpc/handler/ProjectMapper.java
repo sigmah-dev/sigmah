@@ -12,6 +12,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sigmah.shared.command.result.ValueResultUtils;
 import org.sigmah.shared.domain.OrgUnit;
+import org.sigmah.shared.domain.Phase;
 import org.sigmah.shared.domain.Project;
 import org.sigmah.shared.domain.ProjectFunding;
 import org.sigmah.shared.domain.ProjectModelVisibility;
@@ -96,7 +97,10 @@ public class ProjectMapper {
 
         start = new Date().getTime();
 
-        pLight.setCurrentPhaseName(project.getCurrentPhase().getModel().getName());
+        final Phase currentPhase = project.getCurrentPhase();
+        if (currentPhase != null) {
+            pLight.setCurrentPhaseName(currentPhase.getModel().getName());
+        }
 
         sb.append("- CURRENT PHASE: ");
         sb.append(new Date().getTime() - start);

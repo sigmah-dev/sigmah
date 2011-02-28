@@ -38,18 +38,6 @@ import org.sigmah.test.InjectionSupport;
 public class ProjectTest extends CommandTestCase {
 
     @Test
-    public void getProjects() throws CommandException {
-
-        setUser(1);
-
-        GetProjects cmd = new GetProjects();
-
-        ProjectListResult result = execute(cmd);
-
-        Assert.assertThat(result.getListProjectsLightDTO().size(), CoreMatchers.equalTo(3));
-    }
-
-    @Test
     public void createProject() throws CommandException {
 
         setUser(1);
@@ -68,6 +56,18 @@ public class ProjectTest extends CommandTestCase {
 
         Assert.assertThat(createResult.getEntity(), CoreMatchers.not(CoreMatchers.nullValue()));
 
+    }
+
+    @Test
+    public void getProjects() throws CommandException {
+
+        setUser(1);
+
+        GetProjects cmd = new GetProjects();
+
+        ProjectListResult result = execute(cmd);
+
+        Assert.assertThat(result.getListProjectsLightDTO().size(), CoreMatchers.equalTo(3));
     }
 
     @Test
@@ -106,43 +106,39 @@ public class ProjectTest extends CommandTestCase {
 
         // Flexible elements defined in the test database
         final ElementDefinition[] definitions = new ElementDefinition[] {
-            new ElementDefinition("Success", false, "element.MessageElement"),
-            new ElementDefinition("Check this", true, "element.CheckboxElement", new CustomVerificator() {
-                @Override
-                public void verify(FlexibleElementDTO element, ValueResult valueResult) {
-                    Assert.assertThat(element.isCorrectRequiredValue(valueResult), CoreMatchers.equalTo(true));
-                }
-            }),
-            new ElementDefinition("Question 1", false, "element.QuestionElement", new CustomVerificator() {
-                @Override
-                public void verify(FlexibleElementDTO element, ValueResult valueResult) {
-                    final QuestionElementDTO questionElementDTO = (QuestionElementDTO) element;
-                    final List<QuestionChoiceElementDTO> choices = questionElementDTO.getChoicesDTO();
-                    Assert.assertThat(choices, CoreMatchers.notNullValue());
-                    Assert.assertThat(choices.size(), CoreMatchers.equalTo(2));
-                }
-            }),
-            new ElementDefinition("Question 2", true, "element.QuestionElement", new CustomVerificator() {
-                @Override
-                public void verify(FlexibleElementDTO element, ValueResult valueResult) {
-                    final QuestionElementDTO questionElementDTO = (QuestionElementDTO) element;
-                    final List<QuestionChoiceElementDTO> choices = questionElementDTO.getChoicesDTO();
-                    Assert.assertThat(choices, CoreMatchers.notNullValue());
-                    Assert.assertThat(choices.size(), CoreMatchers.equalTo(3));
+                new ElementDefinition("Success", false, "element.MessageElement"),
+                new ElementDefinition("Check this", true, "element.CheckboxElement", new CustomVerificator() {
+                    @Override
+                    public void verify(FlexibleElementDTO element, ValueResult valueResult) {
+                        Assert.assertThat(element.isCorrectRequiredValue(valueResult), CoreMatchers.equalTo(true));
+                    }
+                }), new ElementDefinition("Question 1", false, "element.QuestionElement", new CustomVerificator() {
+                    @Override
+                    public void verify(FlexibleElementDTO element, ValueResult valueResult) {
+                        final QuestionElementDTO questionElementDTO = (QuestionElementDTO) element;
+                        final List<QuestionChoiceElementDTO> choices = questionElementDTO.getChoicesDTO();
+                        Assert.assertThat(choices, CoreMatchers.notNullValue());
+                        Assert.assertThat(choices.size(), CoreMatchers.equalTo(2));
+                    }
+                }), new ElementDefinition("Question 2", true, "element.QuestionElement", new CustomVerificator() {
+                    @Override
+                    public void verify(FlexibleElementDTO element, ValueResult valueResult) {
+                        final QuestionElementDTO questionElementDTO = (QuestionElementDTO) element;
+                        final List<QuestionChoiceElementDTO> choices = questionElementDTO.getChoicesDTO();
+                        Assert.assertThat(choices, CoreMatchers.notNullValue());
+                        Assert.assertThat(choices.size(), CoreMatchers.equalTo(3));
 
-                    // Sort order
-                    final QuestionChoiceElementDTO third = choices.get(2);
-                    Assert.assertThat(third, CoreMatchers.notNullValue());
-                    Assert.assertThat(third.getLabel(), CoreMatchers.equalTo("Answer 3"));
-                }
-            }),
-            new ElementDefinition("Comments", false, "element.TextAreaElement", new CustomVerificator() {
-                @Override
-                public void verify(FlexibleElementDTO element, ValueResult valueResult) {
-                    Assert.assertThat((String)valueResult.getValueObject(), CoreMatchers.equalTo("Something"));
-                }
-            })
-        };
+                        // Sort order
+                        final QuestionChoiceElementDTO third = choices.get(2);
+                        Assert.assertThat(third, CoreMatchers.notNullValue());
+                        Assert.assertThat(third.getLabel(), CoreMatchers.equalTo("Answer 3"));
+                    }
+                }), new ElementDefinition("Comments", false, "element.TextAreaElement", new CustomVerificator() {
+                    @Override
+                    public void verify(FlexibleElementDTO element, ValueResult valueResult) {
+                        Assert.assertThat((String) valueResult.getValueObject(), CoreMatchers.equalTo("Something"));
+                    }
+                }) };
 
         // Retrieving the project
         final GetProject cmd = new GetProject(projectId);
@@ -197,7 +193,7 @@ public class ProjectTest extends CommandTestCase {
                 Assert.assertThat(element.getValidates(), CoreMatchers.equalTo(definition.isValidates()));
                 Assert.assertThat(element.getEntityName(), CoreMatchers.equalTo(definition.getEntityName()));
 
-                if(definition.getCustomVerificator() != null)
+                if (definition.getCustomVerificator() != null)
                     definition.getCustomVerificator().verify(element, result);
 
                 index++;
