@@ -278,6 +278,9 @@ public class ProjectReportsView extends LayoutContainer {
                         public void onClick(ClickEvent event) {
                             // Opening a report
 
+                            setReport(null); // Closing the current report
+                            mainPanel.mask(I18N.CONSTANTS.loading());
+
                             final ProjectState state = new ProjectState(currentState.getProjectId());
                             state.setCurrentSection(currentState.getCurrentSection());
                             state.setArgument(model.getId().toString());
@@ -704,6 +707,7 @@ public class ProjectReportsView extends LayoutContainer {
         mainPanel.add(reportPanel, new BorderLayoutData(LayoutRegion.CENTER));
         mainPanel.layout();
 
+        mainPanel.unmask();
     }
 
     private void createRichTextToolbar(final ToolBar toolbar) {
