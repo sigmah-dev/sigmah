@@ -86,6 +86,14 @@ public class SigmahAuthDictionaryServlet extends HttpServlet {
                 final Authentication auth = authDAO.findById(authToken);
 
                 final User user = auth.getUser();
+                
+                if(user.getOrganization() == null) {
+                	log.error(String.format("User with id=%d, email=%s has no organization set, cannot log into the Sigmah interface.", 
+                			user.getId(), user.getEmail()));
+                	resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Your account is not configured for use with Sigmah");
+                	return;
+                }
+                
 
                 parameters.put(SigmahAuthProvider.USER_ID, Integer.toString(user.getId()));
                 parameters.put(SigmahAuthProvider.USER_TOKEN, '"' + authToken + '"');
