@@ -19,7 +19,7 @@ import com.extjs.gxt.ui.client.data.ModelData;
  * @author tmi
  * 
  */
-public class ProjectDTOLight extends BaseTreeModel implements EntityDTO {
+public class ProjectDTOLight extends DeRpcSafeBaseTreeModel implements EntityDTO {
 
     private static final long serialVersionUID = -4898072895587927460L;
 

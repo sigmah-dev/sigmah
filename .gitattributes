@@ -1640,6 +1640,7 @@ sigmah/src/main/java/org/sigmah/shared/dto/BoundingBoxDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/CountryDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/DTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/DTOMapper.java -text
+sigmah/src/main/java/org/sigmah/shared/dto/DeRpcSafeBaseTreeModel.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/DimensionFolder.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/EntityDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/ExportUtils.java -text

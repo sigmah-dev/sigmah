@@ -9,7 +9,7 @@ import java.util.Set;
 import com.extjs.gxt.ui.client.data.BaseTreeModel;
 import com.extjs.gxt.ui.client.data.ModelData;
 
-public class OrgUnitDTOLight extends BaseTreeModel implements EntityDTO {
+public class OrgUnitDTOLight extends DeRpcSafeBaseTreeModel implements EntityDTO {
 
     private static final long serialVersionUID = -1821740105271321253L;
 
