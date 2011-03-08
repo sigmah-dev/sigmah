@@ -217,7 +217,7 @@ public class OrgUnitPresenter implements Frame, TabPage {
         // Panel.
         final ContentPanel panel = view.getPanelBanner();
         panel.setHeading(currentOrgUnitDTO.getOrgUnitModel().getTitle() + ' ' + currentOrgUnitDTO.getName() + " ("
-                + currentOrgUnitDTO.getFullName() + ") : " + I18N.CONSTANTS.projectInfos());
+                + currentOrgUnitDTO.getFullName() + ")");
         panel.removeAll();
 
         final Grid gridPanel = new Grid(1, 2);

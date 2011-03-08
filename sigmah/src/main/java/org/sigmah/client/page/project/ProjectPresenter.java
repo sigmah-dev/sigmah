@@ -306,7 +306,7 @@ public class ProjectPresenter implements Frame, TabPage {
         // Panel.
         final ContentPanel panel = view.getPanelProjectBanner();
         panel.setHeading(I18N.CONSTANTS.projectMainTabTitle() + ' ' + currentProjectDTO.getName() + " ("
-                + currentProjectDTO.getFullName() + ") : " + I18N.CONSTANTS.projectInfos());
+                + currentProjectDTO.getFullName() + ")");
         panel.removeAll();
 
         final Grid gridPanel = new Grid(1, 2);
