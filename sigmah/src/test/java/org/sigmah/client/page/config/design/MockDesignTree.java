@@ -6,12 +6,17 @@
 package org.sigmah.client.page.config.design;
 
 import com.extjs.gxt.ui.client.data.ModelData;
+import com.extjs.gxt.ui.client.event.MenuEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.TreeStore;
+import com.extjs.gxt.ui.client.widget.menu.Menu;
+
 import org.sigmah.client.dispatch.AsyncMonitor;
 import org.sigmah.client.i18n.UIConstants;
 import org.sigmah.client.page.common.dialog.FormDialogCallback;
 import org.sigmah.client.page.common.dialog.FormDialogTether;
 import org.sigmah.client.page.common.grid.ConfirmCallback;
+import org.sigmah.client.page.common.toolbar.ActionToolBar;
 import org.sigmah.shared.dto.EntityDTO;
 import org.sigmah.shared.dto.UserDatabaseDTO;
 
@@ -87,6 +92,18 @@ public class MockDesignTree implements DesignPresenter.View {
 
 	@Override
 	public void doLayout(UserDatabaseDTO db) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public ActionToolBar getToolbar() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void initNewMenu(Menu menu, SelectionListener<MenuEvent> listener) {
 		// TODO Auto-generated method stub
 		
 	}

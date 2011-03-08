@@ -12,6 +12,10 @@ import org.sigmah.shared.domain.Indicator;
  * by {@link org.sigmah.server.dao.hibernate.DAOInvocationHandler proxy}.
  *
  * @author Alex Bertram
+ * @param <IndicatorDTO>
  */
 public interface IndicatorDAO extends DAO<Indicator, Integer> {
+	
+    Indicator findIndicatorsByDatabaseId(int databaseId);
+	
 }

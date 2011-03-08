@@ -16,6 +16,7 @@ import org.sigmah.client.page.common.dialog.FormDialogCallback;
 import org.sigmah.client.page.common.dialog.FormDialogTether;
 import org.sigmah.client.page.common.grid.AbstractEditorTreeGridView;
 import org.sigmah.client.page.common.grid.ImprovedCellTreeGridSelectionModel;
+import org.sigmah.client.page.common.toolbar.ActionToolBar;
 import org.sigmah.client.page.common.toolbar.UIActions;
 import org.sigmah.shared.dto.ActivityDTO;
 import org.sigmah.shared.dto.AttributeDTO;
@@ -42,15 +43,12 @@ import com.extjs.gxt.ui.client.event.MenuEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.Store;
 import com.extjs.gxt.ui.client.store.TreeStore;
-import com.extjs.gxt.ui.client.util.Margins;
-import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.grid.CellEditor;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.EditorGrid;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
-import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
@@ -108,14 +106,19 @@ public class DesignView extends AbstractEditorTreeGridView<ModelData, DesignPres
 		layout.setCollapsible(true);
 		layout.setSize(375);
 		layout.setMargins(new Margins(0, 0, 0, 5));
-
 		add(formContainer, layout);
  */   	
     	setHeading(I18N.CONSTANTS.design() + " - " + db.getFullName());
     	presenter.initListeners(presenter.treeStore, null); 
     }
     
+    
     @Override
+	public ActionToolBar getToolbar() {
+		return toolBar;
+	}
+
+	@Override
     protected Grid<ModelData> createGridAndAddToContainer(Store store) {
         final TreeStore treeStore = (TreeStore) store;
         tree = new EditorTreeGrid<ModelData>(treeStore, createColumnModel());
@@ -200,29 +203,10 @@ public class DesignView extends AbstractEditorTreeGridView<ModelData, DesignPres
     protected void initToolBar() {
         toolBar.addSaveSplitButton();
 
-        SelectionListener<MenuEvent> listener = new SelectionListener<MenuEvent>() {
-            @Override
-            public void componentSelected(MenuEvent ce) {
-
-                presenter.onNew(ce.getItem().getItemId());
-            }
-        };
-
-        Menu newMenu = new Menu();
-        initNewMenu(newMenu, listener);
-
-        Button newButtonMenu = new Button(I18N.CONSTANTS.newText(), IconImageBundle.ICONS.add());
-        newButtonMenu.setMenu(newMenu);
-        // TODO fix this!!
-        //newButtonMenu.setEnabled(db.isDesignAllowed());
-        newButtonMenu.setEnabled(true);
- 
-        toolBar.add(newButtonMenu);
-        toolBar.addDeleteButton();
-
     }
 
-    protected void initNewMenu(Menu menu, SelectionListener<MenuEvent> listener) {
+    @Override
+	public void initNewMenu(Menu menu, SelectionListener<MenuEvent> listener) {
         MenuItem newActivity = new MenuItem(I18N.CONSTANTS.newActivity(), IconImageBundle.ICONS.activity(), listener);
         newActivity.setItemId("Activity");
         menu.add(newActivity);

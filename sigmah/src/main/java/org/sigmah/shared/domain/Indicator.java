@@ -10,7 +10,6 @@ import javax.persistence.*;
 
 import org.sigmah.shared.domain.quality.QualityCriterion;
 
-
 import java.util.Date;
 
 /**
@@ -24,6 +23,11 @@ import java.util.Date;
 		name="hideDeleted",
 		condition="DateDeleted is null"
 	)
+	
+@NamedQueries({
+	@NamedQuery(name = "findIndicatorsByDatabaseId", query = "select i from Indicator i where i. = :email")
+	})
+
 public class Indicator implements java.io.Serializable, Orderable, Deleteable, SchemaElement {
 
 	private static final long serialVersionUID = 5978350531347182242L;
@@ -32,6 +36,7 @@ public class Indicator implements java.io.Serializable, Orderable, Deleteable, S
 
 	private String name;
 	private String units;
+	private double objective;
 	private String description;
 	
 	private String sector;
@@ -86,7 +91,8 @@ public class Indicator implements java.io.Serializable, Orderable, Deleteable, S
 		this.name = name;
 	}
 
-    /**
+  
+	/**
      * @deprecated No longer used; see the Category property for a more general classification of indicators
      * @return the sector of intervention to which this Indicator belongs (NFI, Watsan, etc)
      */
@@ -126,6 +132,28 @@ public class Indicator implements java.io.Serializable, Orderable, Deleteable, S
 		this.units = units;
 	}
 
+
+    /**
+     * Gets the numerical objective for this Indicator. 
+     *
+     * @return the objective for this Indicator
+     */
+	@Column(name = "Objective", precision = 15, scale = 0, nullable=false)
+	public double getObjective() {
+		return objective;
+	}
+
+
+    /**
+     * Sets the numerical objective for this Indicator.
+     * 
+     * @param objective
+     */
+	public void setObjective(double objective) {
+		this.objective = objective;
+	}
+
+
     /**
      * @return a full description of this indicator, containing perhaps detailed instructions on how
      * it is to be collected or calculated.
@@ -146,7 +174,7 @@ public class Indicator implements java.io.Serializable, Orderable, Deleteable, S
      * @return the Activity which is implemented at this Site
      */
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "ActivityId", nullable = false)
+	@JoinColumn(name = "ActivityId", nullable = true)
 	public Activity getActivity() {
 		return this.activity;
 	}

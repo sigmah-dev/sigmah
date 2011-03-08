@@ -173,6 +173,22 @@ public final class IndicatorDTO extends BaseModelData implements EntityDTO {
 		set("category", category);
 	}
 
+	/**
+     * Sets this Indicator's objective
+     */
+	public void setObjective(double objective) {
+		set("objective", objective);
+	}
+
+    /**
+     *
+     * @return this Indicator's objective value 
+     *
+     */
+	public double getObjective() { 
+		return (Double)get("objective");
+	}
+	
     /**
      *
      * @return the name of the property in which values for this indicator are stored, for
@@ -182,7 +198,7 @@ public final class IndicatorDTO extends BaseModelData implements EntityDTO {
 	public String getPropertyName() { 
 		return getPropertyName(this.getId());
 	}
-
+	
     /**
      * Returns the name of the property in which values for Indicators of this id are stored, for
      * example in the {@link org.sigmah.shared.dto.SiteDTO} object.
@@ -210,4 +226,7 @@ public final class IndicatorDTO extends BaseModelData implements EntityDTO {
     public String getEntityName() {
         return "Indicator";
     }
+    
+
+    
 }

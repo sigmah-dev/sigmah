@@ -10,7 +10,9 @@ import java.util.List;
 import org.sigmah.client.AppEvents;
 import org.sigmah.client.EventBus;
 import org.sigmah.client.dispatch.Dispatcher;
+import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.i18n.UIConstants;
+import org.sigmah.client.icon.IconImageBundle;
 import org.sigmah.client.page.Page;
 import org.sigmah.client.page.PageId;
 import org.sigmah.client.page.PageState;
@@ -18,6 +20,7 @@ import org.sigmah.client.page.common.dialog.FormDialogCallback;
 import org.sigmah.client.page.common.dialog.FormDialogTether;
 import org.sigmah.client.page.common.grid.AbstractEditorGridPresenter;
 import org.sigmah.client.page.common.grid.TreeGridView;
+import org.sigmah.client.page.common.toolbar.ActionToolBar;
 import org.sigmah.client.page.common.toolbar.UIActions;
 import org.sigmah.client.page.config.DbPageState;
 import org.sigmah.client.page.project.ProjectPresenter;
@@ -39,287 +42,338 @@ import org.sigmah.shared.dto.UserDatabaseDTO;
 
 import com.extjs.gxt.ui.client.data.Loader;
 import com.extjs.gxt.ui.client.data.ModelData;
+import com.extjs.gxt.ui.client.event.MenuEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.Record;
 import com.extjs.gxt.ui.client.store.Store;
 import com.extjs.gxt.ui.client.store.TreeStore;
 import com.extjs.gxt.ui.client.widget.Component;
+import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.menu.Menu;
+import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
 
-
 /**
- * Presenter for the Design Page, which enables the user to define UserDatabases and their
- * Activities, Attributes, and Indicators.
- *
+ * Presenter for the Design Page, which enables the user to define UserDatabases
+ * and their Activities, Attributes, and Indicators.
+ * 
  * @author Alex Bertram
  */
-public class DesignPresenter extends AbstractEditorGridPresenter<ModelData> implements Page, SubPresenter {
-	
-    public static final PageId PAGE_ID = new PageId("design");
+public class DesignPresenter extends AbstractEditorGridPresenter<ModelData>
+		implements Page, SubPresenter {
 
-    @ImplementedBy(DesignView.class)
-    public interface View extends TreeGridView<DesignPresenter, ModelData> {
-    	
-        public void init(DesignPresenter presenter, UIConstants msg, UserDatabaseDTO db, TreeStore<ModelData> ts);
-        
-        public void init(DesignPresenter presenter, UIConstants msg, TreeStore<ModelData> ts);
-        
-        public void doLayout(UserDatabaseDTO db);
-        
-        public FormDialogTether showNewForm(EntityDTO entity, FormDialogCallback callback);
-      
-    }
-    
-    private View view;
-    private final EventBus eventBus;
-    private final Dispatcher service;
-    private final UIConstants messages;
-    protected TreeStore<ModelData> treeStore;
-    protected final ProjectPresenter projectPresenter; 
+	public static final PageId PAGE_ID = new PageId("design");
+
+	@ImplementedBy(DesignView.class)
+	public interface View extends TreeGridView<DesignPresenter, ModelData> {
+
+		public void init(DesignPresenter presenter, UIConstants msg,
+				UserDatabaseDTO db, TreeStore<ModelData> ts);
+
+		public void init(DesignPresenter presenter, UIConstants msg,
+				TreeStore<ModelData> ts);
+
+		public void doLayout(UserDatabaseDTO db);
+
+		public FormDialogTether showNewForm(EntityDTO entity,
+				FormDialogCallback callback);
+		
+		public ActionToolBar getToolbar();
+		
+		public void initNewMenu(Menu menu, SelectionListener<MenuEvent> listener);
+
+	}
+
+	private View view;
+	private final EventBus eventBus;
+	private final Dispatcher service;
+	private final UIConstants messages;
+	protected TreeStore<ModelData> treeStore;
+	protected final ProjectPresenter projectPresenter;
 	protected UserDatabaseDTO db;
 
-    @Inject
-    public DesignPresenter(EventBus eventBus, Dispatcher service, IStateManager stateMgr,
-                    View view, UIConstants messages) {
-        super(eventBus, service, stateMgr, view);
-        this.eventBus = eventBus;
-        this.service = service;
-        this.view = view;
-        this.messages = messages;
-        this.projectPresenter = null;
-    }
-    
-     
-    public DesignPresenter(EventBus eventBus, Dispatcher service, UIConstants messages,  View view, ProjectPresenter projectPresenter, TreeStore<ModelData> tree) {
-        super(eventBus, service, null, view);
-        this.eventBus = eventBus;
-        this.service = service;
-        this.messages = messages;
-        this.projectPresenter = projectPresenter;
-        this.treeStore = tree;
-        this.view = view;
-    }
+	@Inject
+	public DesignPresenter(EventBus eventBus, Dispatcher service,
+			IStateManager stateMgr, View view, UIConstants messages) {
+		super(eventBus, service, stateMgr, view);
+		this.eventBus = eventBus;
+		this.service = service;
+		this.view = view;
+		this.messages = messages;
+		this.projectPresenter = null;
+	}
 
-    public void go(UserDatabaseDTO db) {
-    	this.db = db;
-    	this.view.doLayout(db);
-    	
-    	// this is used by activity info
-    	if (treeStore == null) { 
-    			this.treeStore = new TreeStore<ModelData>();
-    			fillStore(messages);
-    			this.view.setActionEnabled(UIActions.delete, false);
-    	}
-    	initListeners(treeStore, null);
+	public DesignPresenter(EventBus eventBus, Dispatcher service,
+			UIConstants messages, View view, ProjectPresenter projectPresenter,
+			TreeStore<ModelData> tree) {
+		super(eventBus, service, null, view);
+		this.eventBus = eventBus;
+		this.service = service;
+		this.messages = messages;
+		this.projectPresenter = projectPresenter;
+		this.treeStore = tree;
+		this.view = view;
+	}
 
-    }
-    
-    @Override
-    public Store<ModelData> getStore() {
-        return this.treeStore;
-    }
+	public void go(UserDatabaseDTO db) {
+		this.db = db;
+		this.view.doLayout(db);
 
-    public TreeStore<ModelData> getTreeStore() {
-        return this.treeStore;
-    }
+		// init for activity info
+		if (treeStore == null) {
+			this.treeStore = new TreeStore<ModelData>();
+			fillStore(messages);
+			this.view.setActionEnabled(UIActions.delete, false);
+			
+			ActionToolBar bar = this.view.getToolbar();
+	        SelectionListener<MenuEvent> listener = new SelectionListener<MenuEvent>() {
+	            @Override
+	            public void componentSelected(MenuEvent ce) {
 
-    public boolean navigate(PageState place) {
-        return place instanceof DbPageState &&
-                place.getPageId().equals(PAGE_ID) &&
-                ((DbPageState) place).getDatabaseId() == projectPresenter.getCurrentProjectDTO().getId();
-    }
+	                onNew(ce.getItem().getItemId());
+	            }
+	        };
 
-    public void onNodeDropped(ModelData source) {
+	        Menu newMenu = new Menu();
+	        this.view.initNewMenu(newMenu, listener);
 
-        // update sortOrder
-        ModelData parent = treeStore.getParent(source);
-        List<ModelData> children = parent == null ? treeStore.getRootItems() : treeStore.getChildren(parent);
+	        Button newButtonMenu = new Button(I18N.CONSTANTS.newText(), IconImageBundle.ICONS.add());
+	        newButtonMenu.setMenu(newMenu);
+	        // TODO fix this!!
+	        //newButtonMenu.setEnabled(db.isDesignAllowed());
+	        newButtonMenu.setEnabled(true);
+	 
+	        bar.add(newButtonMenu);
+	        bar.addDeleteButton();
+			
+		}
+		
+		initListeners(treeStore, null);
 
-        for (int i = 0; i != children.size(); ++i) {
-            Record record = treeStore.getRecord(children.get(i));
-            record.set("sortOrder", i);
-        }
+	}
 
-    }
+	@Override
+	public Store<ModelData> getStore() {
+		return this.treeStore;
+	}
 
-    public void onNew(String entityName) {
+	public TreeStore<ModelData> getTreeStore() {
+		return this.treeStore;
+	}
 
-        final EntityDTO newEntity;
-        ModelData parent;
+	public boolean navigate(PageState place) {
+		return place instanceof DbPageState
+				&& place.getPageId().equals(PAGE_ID)
+				&& ((DbPageState) place).getDatabaseId() == projectPresenter
+						.getCurrentProjectDTO().getId();
+	}
 
-        ModelData selected = view.getSelection();
+	public void onNodeDropped(ModelData source) {
 
-        if ("Activity".equals(entityName)) {
-        	UserDatabaseDTO d = new UserDatabaseDTO();
-        	d.setId(db.getId());
-            newEntity = new ActivityDTO(d);
-            newEntity.set("databaseId", db.getId());
-            parent = null;
+		// update sortOrder
+		ModelData parent = treeStore.getParent(source);
+		List<ModelData> children = parent == null ? treeStore.getRootItems()
+				: treeStore.getChildren(parent);
 
-        } else if ("AttributeGroup".equals(entityName)) {
-            ActivityDTO activity = findActivityFolder(selected);
+		for (int i = 0; i != children.size(); ++i) {
+			Record record = treeStore.getRecord(children.get(i));
+			record.set("sortOrder", i);
+		}
 
-            newEntity = new AttributeGroupDTO();
-            newEntity.set("activityId", activity.getId());
-            parent = treeStore.getChild(activity, 0);
+	}
 
-        } else if ("Attribute".equals(entityName)) {
-            AttributeGroupDTO group = findAttributeGroupNode(selected);
+	public void onNew(String entityName) {
 
-            newEntity = new AttributeDTO();
-            newEntity.set("attributeGroupId", group.getId());
-            parent = group;
+		final EntityDTO newEntity;
+		ModelData parent;
 
-        } else if ("Indicator".equals(entityName)) {
-            ActivityDTO activity = findActivityFolder(selected);
+		ModelData selected = view.getSelection();
 
-            IndicatorDTO newIndicator = new IndicatorDTO();
-            newIndicator.setCollectIntervention(true);
-            newIndicator.setAggregation(IndicatorDTO.AGGREGATE_SUM);
+		if ("Activity".equals(entityName)) {
+			UserDatabaseDTO d = new UserDatabaseDTO();
+			d.setId(db.getId());
+			newEntity = new ActivityDTO(d);
+			newEntity.set("databaseId", db.getId());
+			parent = null;
 
-            newEntity = newIndicator;
-            newEntity.set("activityId", activity.getId());
+		} else if ("AttributeGroup".equals(entityName)) {
+			ActivityDTO activity = findActivityFolder(selected);
 
-            parent = treeStore.getChild(activity, 1);
+			newEntity = new AttributeGroupDTO();
+			newEntity.set("activityId", activity.getId());
+			parent = treeStore.getChild(activity, 0);
 
-        } else {
-            return; // TODO log error
-        }
+		} else if ("Attribute".equals(entityName)) {
+			AttributeGroupDTO group = findAttributeGroupNode(selected);
 
-        createEntity(parent, newEntity);
-    }
+			newEntity = new AttributeDTO();
+			newEntity.set("attributeGroupId", group.getId());
+			parent = group;
 
-    private void createEntity(final ModelData parent, final EntityDTO newEntity) {
-        view.showNewForm(newEntity, new FormDialogCallback() {
-            @Override
-            public void onValidated(final FormDialogTether tether) {
+		} else if ("Indicator".equals(entityName)) {
+			//ActivityDTO activity = findActivityFolder(selected);
 
-                service.execute(new CreateEntity(newEntity), tether, new AsyncCallback<CreateResult>() {
-                    public void onFailure(Throwable caught) {
+			IndicatorDTO newIndicator = new IndicatorDTO();
+			newIndicator.setCollectIntervention(true);
+			newIndicator.setAggregation(IndicatorDTO.AGGREGATE_SUM);
 
-                    }
+			newEntity = newIndicator;
+			//newEntity.set("activityId", activity.getId());
 
-                    public void onSuccess(CreateResult result) {
-                        newEntity.set("id", result.getNewId()); // todo add setId to EntityDTO interface
+			ModelData activity = null;
+			parent = treeStore.getChild(activity, 1);
 
-                        if (parent == null) {
-                        	treeStore.add(newEntity, false);
-                        } else {
-                        	treeStore.add(parent, newEntity, false);
-                        }
+		} else {
+			return; // TODO log error
+		}
 
-                        if (newEntity instanceof ActivityDTO) {
-                        	treeStore.add(newEntity, new AttributeGroupFolder((ActivityDTO) newEntity, messages.attributes()), false);
-                        	treeStore.add(newEntity, new IndicatorFolder((ActivityDTO) newEntity, messages.indicators()), false);
-                        }
+		createEntity(parent, newEntity);
+	}
 
-                        tether.hide();
+	private void createEntity(final ModelData parent, final EntityDTO newEntity) {
+		view.showNewForm(newEntity, new FormDialogCallback() {
+			@Override
+			public void onValidated(final FormDialogTether tether) {
 
-                        eventBus.fireEvent(AppEvents.SchemaChanged);
-                    }
-                });
-            }
-        });
-    }
+				service.execute(new CreateEntity(newEntity), tether,
+						new AsyncCallback<CreateResult>() {
+							public void onFailure(Throwable caught) {
 
-    protected ActivityDTO findActivityFolder(ModelData selected) {
+							}
 
-        while (!(selected instanceof ActivityDTO)) {
-            selected = treeStore.getParent(selected);
-        }
+							public void onSuccess(CreateResult result) {
+								newEntity.set("id", result.getNewId()); // todo
+							
 
-        return (ActivityDTO) selected;
-    }
+								if (parent == null) {
+									treeStore.add(newEntity, false);
+								} else {
+									treeStore.add(parent, newEntity, false);
+								}
 
-    protected AttributeGroupDTO findAttributeGroupNode(ModelData selected) {
-        if (selected instanceof AttributeGroupDTO) {
-            return (AttributeGroupDTO) selected;
-        }
-        if (selected instanceof AttributeDTO) {
-            return (AttributeGroupDTO) treeStore.getParent(selected);
-        }
-        throw new AssertionError("not a valid selection to add an attribute !");
+								if (newEntity instanceof ActivityDTO) {
+									treeStore.add(newEntity,
+											new AttributeGroupFolder(
+													(ActivityDTO) newEntity,
+													messages.attributes()),
+											false);
+									treeStore.add(newEntity,
+											new IndicatorFolder(
+													(ActivityDTO) newEntity,
+													messages.indicators()),
+											false);
+								}
 
-    }
+								tether.hide();
 
-    @Override
-    protected void onDeleteConfirmed(final ModelData model) {
-        service.execute(new Delete((EntityDTO) model), view.getDeletingMonitor(), new AsyncCallback<VoidResult>() {
-            public void onFailure(Throwable caught) {
+								eventBus.fireEvent(AppEvents.SchemaChanged);
+							}
+						});
+			}
+		});
+	}
 
-            }
+	protected ActivityDTO findActivityFolder(ModelData selected) {
 
-            public void onSuccess(VoidResult result) {
-            	treeStore.remove(model);
-                eventBus.fireEvent(AppEvents.SchemaChanged);
-            }
-        });
-    }
+		while (!(selected instanceof ActivityDTO)) {
+			selected = treeStore.getParent(selected);
+		}
 
-    @Override
+		return (ActivityDTO) selected;
+	}
+
+	protected AttributeGroupDTO findAttributeGroupNode(ModelData selected) {
+		if (selected instanceof AttributeGroupDTO) {
+			return (AttributeGroupDTO) selected;
+		}
+		if (selected instanceof AttributeDTO) {
+			return (AttributeGroupDTO) treeStore.getParent(selected);
+		}
+		throw new AssertionError("not a valid selection to add an attribute !");
+
+	}
+
+	@Override
+	protected void onDeleteConfirmed(final ModelData model) {
+		service.execute(new Delete((EntityDTO) model),
+				view.getDeletingMonitor(), new AsyncCallback<VoidResult>() {
+					public void onFailure(Throwable caught) {
+
+					}
+
+					public void onSuccess(VoidResult result) {
+						treeStore.remove(model);
+						eventBus.fireEvent(AppEvents.SchemaChanged);
+					}
+				});
+	}
+
+	@Override
 	protected void initListeners(Store store, Loader loader) {
 		super.initListeners(store, loader);
 	}
 
 	@Override
-    protected String getStateId() {
-        return "Design" + projectPresenter.getCurrentProjectDTO().getId();
-    }
+	protected String getStateId() {
+		return "Design" + projectPresenter.getCurrentProjectDTO().getId();
+	}
 
-    @Override
-    protected Command createSaveCommand() {
-        BatchCommand batch = new BatchCommand();
+	@Override
+	protected Command createSaveCommand() {
+		BatchCommand batch = new BatchCommand();
 
-        for (ModelData model : treeStore.getRootItems()) {
-            prepareBatch(batch, model);
-        }
-        return batch;
-    }
+		for (ModelData model : treeStore.getRootItems()) {
+			prepareBatch(batch, model);
+		}
+		return batch;
+	}
 
-    protected void prepareBatch(BatchCommand batch, ModelData model) {
-        if (model instanceof EntityDTO) {
-            Record record = treeStore.getRecord(model);
-            if (record.isDirty()) {
-                batch.add(new UpdateEntity((EntityDTO) model, this.getChangedProperties(record)));
-            }
-        }
+	protected void prepareBatch(BatchCommand batch, ModelData model) {
+		if (model instanceof EntityDTO) {
+			Record record = treeStore.getRecord(model);
+			if (record.isDirty()) {
+				batch.add(new UpdateEntity((EntityDTO) model, this
+						.getChangedProperties(record)));
+			}
+		}
 
-        for (ModelData child : treeStore.getChildren(model)) {
-            prepareBatch(batch, child);
-        }
-    }
+		for (ModelData child : treeStore.getChildren(model)) {
+			prepareBatch(batch, child);
+		}
+	}
 
-    public void onSelectionChanged(ModelData selectedItem) {
-    	
-    	view.setActionEnabled(UIActions.delete, db.isDesignAllowed() &&
-    			selectedItem instanceof EntityDTO);
-    
-    }
+	public void onSelectionChanged(ModelData selectedItem) {
 
-    public PageId getPageId() {
-        return PAGE_ID;
-    }
+		view.setActionEnabled(UIActions.delete, db.isDesignAllowed()
+				&& selectedItem instanceof EntityDTO);
 
-    public Object getWidget() {
-        return view;
-    }
+	}
 
-    @Override
-    protected void onSaved() {
-        eventBus.fireEvent(AppEvents.SchemaChanged);
-    }
+	public PageId getPageId() {
+		return PAGE_ID;
+	}
+
+	public Object getWidget() {
+		return view;
+	}
+
+	@Override
+	protected void onSaved() {
+		eventBus.fireEvent(AppEvents.SchemaChanged);
+	}
 
 	@Override
 	public Component getView() {
 		view.init(this, messages, treeStore);
-		view.setActionEnabled(UIActions.delete, false); 
-		return (Component)view;
+		view.setActionEnabled(UIActions.delete, false);
+		return (Component) view;
 	}
 
 	@Override
 	public void discardView() {
-		// TODO Auto-generated method stub	
+		// TODO Auto-generated method stub
 	}
 
 	@Override
@@ -329,9 +383,9 @@ public class DesignPresenter extends AbstractEditorGridPresenter<ModelData> impl
 
 	@Override
 	public void shutdown() {
-		// TODO Auto-generated method stub	
+		// TODO Auto-generated method stub
 	}
-	
+
 	private void fillStore(UIConstants messages) {
 		for (ActivityDTO activity : db.getActivities()) {
 			ActivityDTO activityNode = new ActivityDTO(activity);
@@ -361,5 +415,5 @@ public class DesignPresenter extends AbstractEditorGridPresenter<ModelData> impl
 			}
 		}
 	}
-	
+
 }

@@ -1121,6 +1121,7 @@ sigmah/src/main/java/org/sigmah/server/dao/hibernate/GenericDAO.java -text
 sigmah/src/main/java/org/sigmah/server/dao/hibernate/HibernateDAOProvider.java -text
 sigmah/src/main/java/org/sigmah/server/dao/hibernate/HibernateModule.java -text
 sigmah/src/main/java/org/sigmah/server/dao/hibernate/HibernateSiteTableDAO.java -text
+sigmah/src/main/java/org/sigmah/server/dao/hibernate/IndicatorDAOImpl.java -text
 sigmah/src/main/java/org/sigmah/server/dao/hibernate/LocationHibernateDAO.java -text
 sigmah/src/main/java/org/sigmah/server/dao/hibernate/PersonalEventHibernateDAO.java -text
 sigmah/src/main/java/org/sigmah/server/dao/hibernate/PivotHibernateDAO.java -text
@@ -1409,6 +1410,7 @@ sigmah/src/main/java/org/sigmah/shared/command/GetCalendar.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetCountries.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetCountry.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetHistory.java -text
+sigmah/src/main/java/org/sigmah/shared/command/GetIndicators.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetInvitationList.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetListCommand.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetMapIcons.java -text
@@ -1462,6 +1464,7 @@ sigmah/src/main/java/org/sigmah/shared/command/UpdateReportDef.java -text
 sigmah/src/main/java/org/sigmah/shared/command/UpdateSubscription.java -text
 sigmah/src/main/java/org/sigmah/shared/command/UpdateUserPermissions.java -text
 sigmah/src/main/java/org/sigmah/shared/command/handler/CommandHandler.java -text
+sigmah/src/main/java/org/sigmah/shared/command/handler/GetIndicatorsHandler.java -text
 sigmah/src/main/java/org/sigmah/shared/command/handler/GetSchemaHandler.java -text
 sigmah/src/main/java/org/sigmah/shared/command/handler/GetSitesHandler.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/AdminEntityResult.java -text
