@@ -90,6 +90,7 @@ public class Indicator implements java.io.Serializable, Orderable, Deleteable, S
      */
 	public void setName(String name) {
 		this.name = name;
+		
 	}
 
   
@@ -139,8 +140,8 @@ public class Indicator implements java.io.Serializable, Orderable, Deleteable, S
      *
      * @return the objective for this Indicator
      */
-	@Column(name = "Objective", precision = 15, scale = 0, nullable=true)
-	public double getObjective() {
+	@Column(name = "Objective", precision = 15, scale = 0, nullable=true )
+	public Double getObjective() {
 		return objective;
 	}
 
@@ -150,7 +151,7 @@ public class Indicator implements java.io.Serializable, Orderable, Deleteable, S
      * 
      * @param objective
      */
-	public void setObjective(double objective) {
+	public void setObjective(Double objective) {
 		this.objective = objective;
 	}
 
