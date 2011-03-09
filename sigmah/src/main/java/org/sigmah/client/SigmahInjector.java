@@ -29,9 +29,9 @@ import org.sigmah.client.page.config.design.DesignPresenter;
 import org.sigmah.client.page.dashboard.DashboardModule;
 import org.sigmah.client.page.dashboard.DashboardPageLoader;
 import org.sigmah.client.page.dashboard.DashboardPresenter;
-import org.sigmah.client.page.entry.DataEntryNavigator;
+import org.sigmah.client.page.entry.ActivityFilterPanel;
+import org.sigmah.client.page.entry.DataEntryLoader;
 import org.sigmah.client.page.entry.EntryModule;
-import org.sigmah.client.page.entry.SigmahDataEntryLoader;
 import org.sigmah.client.page.map.MapModule;
 import org.sigmah.client.page.map.SigmahMapLoader;
 import org.sigmah.client.page.orgunit.OrgUnitModule;
@@ -93,7 +93,7 @@ public interface SigmahInjector extends Ginjector {
     AdminPageLoader registerAdminPageLoader();
     
     // Pages from ActivityInfo
-    SigmahDataEntryLoader registerDataEntryLoader();
+    DataEntryLoader registerDataEntryLoader();
     SigmahMapLoader registerMapLoader();
     SigmahChartLoader registerChartLoader();
     SigmahConfigLoader registerConfigLoader();
@@ -101,7 +101,7 @@ public interface SigmahInjector extends Ginjector {
     SigmahReportLoader registerReportLoader();
     
     // Required by the 'Data Entry' page
-    DataEntryNavigator getDataEntryNavigator();
+    ActivityFilterPanel getDataEntryNavigator();
     IStateManager getStateManager();
     UIConstants getMessages();
     

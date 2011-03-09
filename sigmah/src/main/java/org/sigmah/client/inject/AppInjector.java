@@ -25,7 +25,7 @@ import org.sigmah.client.page.charts.ChartLoader;
 import org.sigmah.client.page.config.*;
 import org.sigmah.client.page.config.design.DesignPresenter;
 import org.sigmah.client.page.entry.DataEntryLoader;
-import org.sigmah.client.page.entry.DataEntryNavigator;
+import org.sigmah.client.page.entry.ActivityFilterPanel;
 import org.sigmah.client.page.entry.EntryModule;
 import org.sigmah.client.page.map.MapLoader;
 import org.sigmah.client.page.map.MapModule;
@@ -67,7 +67,7 @@ public interface AppInjector extends Ginjector {
 
     HistoryManager getHistoryManager();
 
-    DataEntryNavigator getDataEntryNavigator();
+    ActivityFilterPanel getDataEntryNavigator();
 
     ReportListPagePresenter getReportHomePresenter();
 

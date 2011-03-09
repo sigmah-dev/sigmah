@@ -5,56 +5,38 @@
 
 package org.sigmah.client.page.table.drilldown;
 
-import com.extjs.gxt.ui.client.Style;
-import com.extjs.gxt.ui.client.data.LoadEvent;
-import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.store.ListStore;
 import org.sigmah.client.AppEvents;
 import org.sigmah.client.EventBus;
 import org.sigmah.client.dispatch.Dispatcher;
-import org.sigmah.client.dispatch.callback.Got;
 import org.sigmah.client.event.PivotCellEvent;
-import org.sigmah.client.page.common.grid.AbstractGridPageState;
-import org.sigmah.client.page.entry.SiteEditor;
+import org.sigmah.client.i18n.I18N;
+import org.sigmah.client.page.entry.SiteGridPanel;
 import org.sigmah.client.util.state.IStateManager;
-import org.sigmah.shared.command.GetSchema;
-import org.sigmah.shared.command.GetSites;
 import org.sigmah.shared.dao.Filter;
 import org.sigmah.shared.date.DateUtil;
-import org.sigmah.shared.dto.ActivityDTO;
-import org.sigmah.shared.dto.IndicatorDTO;
-import org.sigmah.shared.dto.SchemaDTO;
-import org.sigmah.shared.dto.SiteDTO;
 import org.sigmah.shared.report.content.EntityCategory;
 import org.sigmah.shared.report.content.PivotTableData;
 import org.sigmah.shared.report.model.DimensionType;
-/*
+
+import com.extjs.gxt.ui.client.event.Listener;
+
+/**
+ * 
+ * Subclass of SiteGridPanel that filters based on pivot cell.
+ * 
  * @author Alex Bertram
  */
+public class DrillDownEditor extends SiteGridPanel {
 
-public class DrillDownEditor extends SiteEditor {
-
-    public interface View extends SiteEditor.View {
-
-        void show(SiteEditor presenter, ActivityDTO activity, IndicatorDTO indicator,
-                  ListStore<SiteDTO> store);
-
-    }
-
-    private final EventBus eventBus;
-    private final Dispatcher service;
     private final DateUtil dateUtil;
-    private final View view;
     private Listener<PivotCellEvent> eventListener;
 
-    public DrillDownEditor(EventBus eventBus, Dispatcher service, IStateManager stateMgr, DateUtil dateUtil,
-                           View view) {
-        super(eventBus, service, stateMgr, view);
+    public DrillDownEditor(EventBus eventBus, Dispatcher service, IStateManager stateMgr, DateUtil dateUtil) {
+    	super(eventBus, service, stateMgr);    	
+    	this.dateUtil = dateUtil;
 
-        this.eventBus = eventBus;
-        this.dateUtil = dateUtil;
-        this.service = service;
-        this.view = view;
+    	setHeading(I18N.CONSTANTS.drilldown());
+       
 
         eventListener = new Listener<PivotCellEvent>() {
             public void handleEvent(PivotCellEvent be) {
@@ -82,34 +64,11 @@ public class DrillDownEditor extends SiteEditor {
         final int indicatorId = effectiveFilter.getRestrictions(DimensionType.Indicator).iterator().next();
         effectiveFilter.clearRestrictions(DimensionType.Indicator);
 
-        service.execute(new GetSchema(), null, new Got<SchemaDTO>() {
-
-            @Override
-            public void got(SchemaDTO schema) {
-
-                ActivityDTO activity = schema.getActivityByIndicatorId(indicatorId);
-                IndicatorDTO indicator = activity.getIndicatorById(indicatorId);
-
-                drill(activity, indicator, effectiveFilter);
-            }
-        });
-    }
-
-    public void drill(ActivityDTO activity, IndicatorDTO indicator, Filter filter) {
-
-
-        currentActivity = activity;
-
-        GetSites cmd = GetSites.byActivity(currentActivity.getId());
-        cmd.setFilter(filter);
-
-        loader.setCommand(cmd);
-        loader.setSortField(indicator.getPropertyName());
-        loader.setSortDir(Style.SortDir.DESC);
-
-        view.show(this, currentActivity, indicator, store);
-
-        loader.load();
+        // TODO : add configuration option to SiteGridPanel that allows choosing indicators
+        
+        
+        load(effectiveFilter);
+        
     }
 
 
@@ -129,10 +88,6 @@ public class DrillDownEditor extends SiteEditor {
         return filter;
     }
 
-    @Override
-    protected void firePageEvent(AbstractGridPageState place, LoadEvent le) {
-        // no page events, we're embedded in another page
-    }
 }
 
 

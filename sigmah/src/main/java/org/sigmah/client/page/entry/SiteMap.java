@@ -67,11 +67,10 @@ public class SiteMap extends ContentPanel implements Shutdownable {
 
     private final EventBus eventBus;
     private final Dispatcher service;
-    private final ActivityDTO activity;
+    private ActivityDTO activity;
 
     private MapWidget map = null;
     private LatLngBounds pendingZoom = null;
-    private StateManager stateMgr;
 
     /**
      * Efficiently handles a large number of markers
@@ -102,7 +101,20 @@ public class SiteMap extends ContentPanel implements Shutdownable {
         this.activity = activity;
 
         setHeaderVisible(false);
-
+    }
+    
+    /**
+     * Loads the sites for the given Activity
+     * 
+     * @param activity
+     */
+    public void loadSites(ActivityDTO activity) {
+    	this.activity = activity;
+    	if(map == null) {
+    		loadMap();
+    	} else {
+    		doLoadSites();
+    	}
     }
 
     private void onSiteChanged(SiteDTO site) {
@@ -146,12 +158,8 @@ public class SiteMap extends ContentPanel implements Shutdownable {
         return AdminBoundsHelper.calculate(activity, site);
     }
 
-
-    @Override
-    protected void onRender(final Element parent, final int pos) {
-        SiteMap.super.onRender(parent, pos);
-
-        MapApiLoader.load(new MaskingAsyncMonitor(this, I18N.CONSTANTS.loadingComponent()), new AsyncCallback<Void>() {
+	private void loadMap() {
+		MapApiLoader.load(new MaskingAsyncMonitor(this, I18N.CONSTANTS.loadingComponent()), new AsyncCallback<Void>() {
 
             @Override
             public void onFailure(Throwable throwable) {
@@ -167,7 +175,8 @@ public class SiteMap extends ContentPanel implements Shutdownable {
 
                 CountryDTO country = activity.getDatabase().getCountry();
                 BoundingBoxDTO countryBounds = country.getBounds();
-                map = new MapWidget(LatLng.newInstance(countryBounds.getCenterY(), countryBounds.getCenterX()), 8);
+                LatLng boundsFromActivity = LatLng.newInstance(countryBounds.getCenterY(), countryBounds.getCenterX());
+				map = new MapWidget(boundsFromActivity, 8);
 
                 MapType adminMap = MapTypeFactory.createLocalisationMapType(country);
                 map.addMapType(adminMap);
@@ -217,14 +226,15 @@ public class SiteMap extends ContentPanel implements Shutdownable {
                 new MapDropTarget(SiteMap.this);
 
                 layout();
-
-                loadSites();
+                
+                doLoadSites();
             }
         });
-    }
+	}
 
-    private void loadSites() {
-        service.execute(new GetSitePoints(activity.getId()), null, new AsyncCallback<SitePointList>() {
+
+	private void doLoadSites() {
+		service.execute(new GetSitePoints(activity.getId()), null, new AsyncCallback<SitePointList>() {
             @Override
             public void onFailure(Throwable throwable) {
 
@@ -252,7 +262,8 @@ public class SiteMap extends ContentPanel implements Shutdownable {
                 eventBus.addListener(AppEvents.SiteChanged, siteListener);
             }
         });
-    }
+	}
+
 
 
     private int siteIdFromOverlay(Overlay overlay) {

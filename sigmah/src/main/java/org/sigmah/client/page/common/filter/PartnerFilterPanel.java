@@ -12,6 +12,8 @@ import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.treepanel.TreePanel;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.inject.Inject;
+
 import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.icon.IconImageBundle;
@@ -42,6 +44,7 @@ public class PartnerFilterPanel extends ContentPanel {
      * 
      * @param service
      */
+	@Inject
     public PartnerFilterPanel(Dispatcher service) {
     	this.service = service;
         setHeading(I18N.CONSTANTS.filterByPartner());

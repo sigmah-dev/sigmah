@@ -11,7 +11,7 @@ import com.extjs.gxt.ui.client.widget.TabPanel;
 /**
  * A tab panel that can be collapsed by double-clicking the tab.
  *
- * TODO: move the logic from {@link org.sigmah.client.page.entry.SiteGridPage} to this class
+ * TODO: move the logic from {@link org.sigmah.client.page.entry.DataEntryPage} to this class
  *
  * @author Alex Bertram
  */

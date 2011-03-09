@@ -117,6 +117,13 @@ public class ActionToolBar extends ToolBar implements Listener<ButtonEvent> {
             }
         }
     }
+    
+	public void setSaving() {
+		if(saveButton != null) {
+			saveButton.setEnabled(false);
+			saveButton.setText(I18N.CONSTANTS.saving());
+		}
+	}
 
 
     public void handleEvent(ButtonEvent be) {
@@ -139,6 +146,8 @@ public class ActionToolBar extends ToolBar implements Listener<ButtonEvent> {
         this.listener = listener;
         setEnabled(listener != null);
     }
+
+
 
 
 }

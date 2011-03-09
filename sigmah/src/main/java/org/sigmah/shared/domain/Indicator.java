@@ -32,7 +32,7 @@ public class Indicator implements java.io.Serializable, Orderable, Deleteable, S
 
 	private String name;
 	private String units;
-	private double objective;
+	private Double objective;
 	private String description;
 	
 	private String sector;

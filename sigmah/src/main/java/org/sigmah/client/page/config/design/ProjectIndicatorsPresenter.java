@@ -6,20 +6,19 @@ import org.sigmah.client.EventBus;
 import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.i18n.UIConstants;
-import org.sigmah.client.icon.IconImageBundle;
 import org.sigmah.client.page.common.toolbar.ActionToolBar;
-import org.sigmah.client.page.entry.SiteEditor;
-import org.sigmah.client.page.entry.SiteGrid;
-import org.sigmah.client.page.entry.SiteGridPageState;
 import org.sigmah.client.page.project.ProjectPresenter;
 import org.sigmah.client.page.project.SubPresenter;
+import org.sigmah.client.util.state.GXTStateManager;
 import org.sigmah.shared.command.GetSchema;
+import org.sigmah.shared.dao.Filter;
 import org.sigmah.shared.dto.ActivityDTO;
 import org.sigmah.shared.dto.AttributeDTO;
 import org.sigmah.shared.dto.AttributeGroupDTO;
 import org.sigmah.shared.dto.IndicatorDTO;
 import org.sigmah.shared.dto.SchemaDTO;
 import org.sigmah.shared.dto.UserDatabaseDTO;
+import org.sigmah.shared.report.model.DimensionType;
 
 import com.extjs.gxt.ui.client.data.BaseTreeLoader;
 import com.extjs.gxt.ui.client.data.DataProxy;
@@ -28,12 +27,9 @@ import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.MenuEvent;
-import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.TreeStore;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class ProjectIndicatorsPresenter implements SubPresenter {
@@ -42,7 +38,7 @@ public class ProjectIndicatorsPresenter implements SubPresenter {
 	private final Dispatcher service;
 	private final EventBus eventBus;
 
-	private SiteEditor siteEditor;
+	private ProjectSiteGridPanel siteEditor;
 	private DesignPresenter designPresenter;
 	private SchemaDTO schema;
 	private UserDatabaseDTO db;
@@ -134,12 +130,10 @@ public class ProjectIndicatorsPresenter implements SubPresenter {
 			// create a tree store
 			treeStore = new TreeStore<ModelData>(new BaseTreeLoader<ModelData>(
 					new Proxy()));
-			// treeStore.getLoader().load();
-
-			SiteGrid siteGrid = new SiteGrid();
-			siteGrid.setHeaderVisible(false);
-
-			this.siteEditor = new SiteEditor(eventBus, service, null, siteGrid);
+			
+			this.siteEditor = new ProjectSiteGridPanel(eventBus, service, new GXTStateManager());
+			this.siteEditor.setHeaderVisible(false);
+			
 			this.designPresenter = new DesignPresenter(eventBus, service,
 					I18N.CONSTANTS, new DesignView(service), projectPresenter,
 					treeStore);
@@ -192,9 +186,11 @@ public class ProjectIndicatorsPresenter implements SubPresenter {
 	private void finishLoad(UserDatabaseDTO db) {
 		fillStore(I18N.CONSTANTS);
 		this.designPresenter.go(db);
-		SiteGridPageState state = new SiteGridPageState();
-		state.setPageNum(1);
-		this.siteEditor.go(state, getCurrentActivity());
+		
+		Filter filter = new Filter();
+		filter.addRestriction(DimensionType.Database, db.getId());
+		
+		this.siteEditor.load(filter);
 	}
 
 	private class Proxy implements DataProxy<List<ModelData>> {

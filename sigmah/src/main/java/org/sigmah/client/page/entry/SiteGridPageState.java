@@ -42,7 +42,7 @@ public class SiteGridPageState extends AbstractPagingGridPageState implements Ta
 
     @Override
 	public PageId getPageId() {
-		return SiteEditor.ID;
+		return DataEntryPage.ID;
 	}
 
     @Override
@@ -59,7 +59,7 @@ public class SiteGridPageState extends AbstractPagingGridPageState implements Ta
 
 	@Override
 	public List<PageId> getEnclosingFrames() {
-		return Arrays.asList(Frames.DataEntryFrameSet,SiteEditor.ID);
+		return Arrays.asList(DataEntryPage.ID);
 	}
 
     public void setActivityId(int activityId) {
