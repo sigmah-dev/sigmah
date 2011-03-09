@@ -11,6 +11,9 @@ import org.sigmah.shared.domain.ProjectModelType;
 import org.sigmah.shared.dto.category.CategoryElementDTO;
 
 import com.extjs.gxt.ui.client.data.BaseTreeModel;
+import com.extjs.gxt.ui.client.data.ChangeEvent;
+import com.extjs.gxt.ui.client.data.ChangeEventSupport;
+import com.extjs.gxt.ui.client.data.ChangeListener;
 import com.extjs.gxt.ui.client.data.ModelData;
 
 /**
@@ -22,6 +25,28 @@ import com.extjs.gxt.ui.client.data.ModelData;
 public class ProjectDTOLight extends DeRpcSafeBaseTreeModel implements EntityDTO {
 
     private static final long serialVersionUID = -4898072895587927460L;
+
+    public ProjectDTOLight() {
+        changeEventSupport = new ChangeEventSupport();
+    }
+
+    @Override
+    public void addChangeListener(ChangeListener... listener) {
+        // Fix for the Mac JVM
+        if(changeEventSupport == null)
+            changeEventSupport = new ChangeEventSupport();
+        
+        changeEventSupport.addChangeListener(listener);
+    }
+
+    @Override
+    public void notify(ChangeEvent evt) {
+        // Fix for the Mac JVM
+        if(changeEventSupport == null)
+            changeEventSupport = new ChangeEventSupport();
+
+        changeEventSupport.notify(evt);
+    }
 
     @Override
     public String getEntityName() {
