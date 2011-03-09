@@ -23,11 +23,6 @@ import java.util.Date;
 		name="hideDeleted",
 		condition="DateDeleted is null"
 	)
-	
-@NamedQueries({
-        @NamedQuery(name = "findIndicatorsByDatabaseId", query = "select i from Indicator i where i. = :email")
-    })
-
 
 public class Indicator implements java.io.Serializable, Orderable, Deleteable, SchemaElement {
 
