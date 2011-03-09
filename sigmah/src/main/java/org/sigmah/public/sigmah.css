@@ -65,7 +65,7 @@ body {
 
 .sigmah {
 	height: 56px;
-	width: 340px;
+	width: 360px;
 	float: right;
 	background: url(image/sigmah-logo.jpg) no-repeat top right;
 	overflow: hidden;
@@ -99,12 +99,17 @@ body {
         width: 128px;
         margin-top: 2px;
         font-size: 12px;
-        text-align: center;
+        text-align: right;
+        color: white;
+}
+
+#offline-status:hover {
+        color: #EE9329;
 }
 
 .minimenu {
 	height: 16px;
-	width: 225px;
+	width: 245px;
 	float: right;
 	text-align: right;
 	padding-top: 1px;

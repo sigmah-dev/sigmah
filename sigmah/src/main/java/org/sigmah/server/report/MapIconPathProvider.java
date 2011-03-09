@@ -17,6 +17,9 @@ public class MapIconPathProvider implements Provider<String> {
     @Inject
     public MapIconPathProvider(ServletContext context) {
         path = context.getRealPath("/mapicons");
+
+        if(path == null)
+            path = "";
     }
 
     public String get() {

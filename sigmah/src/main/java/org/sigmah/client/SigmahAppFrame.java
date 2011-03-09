@@ -11,7 +11,6 @@ import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.dispatch.remote.Authentication;
 import org.sigmah.client.event.NavigationEvent;
 import org.sigmah.client.i18n.I18N;
-import org.sigmah.client.offline.ui.OfflineView;
 import org.sigmah.client.page.Frame;
 import org.sigmah.client.page.HasTab;
 import org.sigmah.client.page.NavigationCallback;
@@ -39,6 +38,7 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.gears.client.Factory;
 import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -47,6 +47,9 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
+import org.sigmah.client.offline.sigmah.DispatchOperator;
+import org.sigmah.client.offline.sigmah.OfflineLabelFactory;
+import org.sigmah.client.offline.sigmah.OnlineMode;
 
 /**
  * Main frame of Sigmah.
@@ -63,8 +66,9 @@ public class SigmahAppFrame implements Frame {
     private PageState activePageState;
 
     @Inject
-    public SigmahAppFrame(EventBus eventBus, final Authentication auth, OfflineView offlineMenu,
-            final TabModel tabModel, final Dispatcher dispatcher, final UserLocalCache cache) {
+    public SigmahAppFrame(EventBus eventBus, final Authentication auth, 
+            final TabModel tabModel, final Dispatcher dispatcher,
+            final UserLocalCache cache, final OnlineMode onlineMode) {
 
         if (auth == null) {
             RootPanel.get().add(new LoginView());
@@ -103,6 +107,10 @@ public class SigmahAppFrame implements Frame {
             if (RootPanel.get("logout") != null) {
                 RootPanel.get("logout").add(logoutButton);
             }
+
+            // Offline
+            if(dispatcher instanceof DispatchOperator && Factory.getInstance() != null)
+                RootPanel.get("offline-status").add(OfflineLabelFactory.getLabel((DispatchOperator)dispatcher, onlineMode));
 
             // Credit
             final Anchor creditButton = new Anchor(I18N.CONSTANTS.credits());

@@ -11,19 +11,19 @@
     <inherits name='com.google.gwt.user.User' />
 
     <!-- Inherit additional dependencies  -->
-	<inherits name='com.google.gwt.inject.Inject' />
+    <inherits name='com.google.gwt.inject.Inject' />
     <inherits name="com.google.gwt.i18n.I18N" />
     <inherits name="com.google.gwt.rpc.RPC" />
     <inherits name='com.extjs.gxt.ui.GXT' />
     <inherits name="com.google.gwt.maps.GoogleMaps" />
     <inherits name="com.ebessette.maps.core.OverlayManager" />
     <inherits name="com.google.gwt.gears.Gears" />
+    <inherits name="com.google.gwt.gears.Offline" />
     <inherits name="com.google.gwt.inject.Inject"/>
     <inherits name="com.extjs.gxt.charts.Chart"/>
     <inherits name="com.google.code.gaxb.Annotations"/>
     <inherits name="com.bedatadriven.rebar.sql.Sql"/>
     <inherits name="com.bedatadriven.rebar.sync.Sync"/>
-    <inherits name="com.bedatadriven.rebar.appcache.AppCache"/>
     <inherits name="com.allen_sauer.gwt.log.gwt-log"/>
 
 	<!-- Configure Logging -->
@@ -32,7 +32,23 @@
     <set-property name="log_DivLogger" value="DISABLED" />
                                               
     <!-- Include generated sources -->
-    <source path='client'/>
+    <source path='client'>
+        <exclude name="offline/*" />
+        <exclude name="offline/dao/**" />
+        <exclude name="offline/install/**" />
+        <exclude name="offline/state/**" />
+        <exclude name="offline/sync/**" />
+        <exclude name="offline/ui/**" />
+        <exclude name="ActivityInfoEntryPoint.java" />
+        <exclude name="inject/AppInjector.java" />
+        <exclude name="inject/AppModule.java" />
+        <exclude name="page/app/AppFrameSet.java" />
+        <exclude name="page/report/ReportLoader.java" />
+        <exclude name="page/table/PivotPageLoader.java" />
+        <exclude name="page/entry/DataEntryLoader.java" />
+        <exclude name="page/config/ConfigLoader.java" />
+        <exclude name="page/welcome/WelcomeLoader.java" />
+    </source>
     <source path='shared'/>
 
     <!-- Specify the app entry point class. -->
