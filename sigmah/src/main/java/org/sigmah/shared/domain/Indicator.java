@@ -53,8 +53,8 @@ public class Indicator implements java.io.Serializable, Orderable, Deleteable, S
 	private QualityCriterion qualityCriterion;
 
 	public Indicator() {
+	
 	}
-
 
     /**
      *
@@ -136,7 +136,7 @@ public class Indicator implements java.io.Serializable, Orderable, Deleteable, S
      *
      * @return the objective for this Indicator
      */
-	@Column(name = "Objective", precision = 15, scale = 0, nullable=false)
+	@Column(name = "Objective", precision = 15, scale = 0, nullable=true)
 	public double getObjective() {
 		return objective;
 	}
