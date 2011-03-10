@@ -9,8 +9,7 @@
  */
 package org.sigmah.client.page.config;
 
-import org.sigmah.client.page.config.design.DesignPresenter;
-import org.sigmah.client.page.config.design.DesignView;
+import org.sigmah.client.page.config.design.DesignPanel;
 
 import com.google.gwt.inject.client.AbstractGinModule;
 
@@ -27,6 +26,5 @@ public class ConfigModule extends AbstractGinModule {
         bind(DbListPresenter.View.class).to(DbListPage.class);
         bind(DbUserEditor.View.class).to(DbUserGrid.class);
         bind(DbPartnerEditor.View.class).to(DbPartnerGrid.class);
-        bind(DesignPresenter.View.class).to(DesignView.class);
     }
 }

@@ -283,7 +283,6 @@ sigmah/src/main/java/org/sigmah/client/page/common/filter/PartnerFilterPanel.jav
 sigmah/src/main/java/org/sigmah/client/page/common/filter/package-info.java -text
 sigmah/src/main/java/org/sigmah/client/page/common/grid/AbstractEditorGridPresenter.java -text
 sigmah/src/main/java/org/sigmah/client/page/common/grid/AbstractEditorGridView.java -text
-sigmah/src/main/java/org/sigmah/client/page/common/grid/AbstractEditorTreeGridView.java -text
 sigmah/src/main/java/org/sigmah/client/page/common/grid/AbstractGridPageState.java -text
 sigmah/src/main/java/org/sigmah/client/page/common/grid/AbstractGridPresenter.java -text
 sigmah/src/main/java/org/sigmah/client/page/common/grid/AbstractGridView.java -text
@@ -293,7 +292,6 @@ sigmah/src/main/java/org/sigmah/client/page/common/grid/GridPresenter.java -text
 sigmah/src/main/java/org/sigmah/client/page/common/grid/GridView.java -text
 sigmah/src/main/java/org/sigmah/client/page/common/grid/ImprovedCellTreeGridSelectionModel.java -text
 sigmah/src/main/java/org/sigmah/client/page/common/grid/SavingHelper.java -text
-sigmah/src/main/java/org/sigmah/client/page/common/grid/TreeGridView.java -text
 sigmah/src/main/java/org/sigmah/client/page/common/nav/Link.java -text
 sigmah/src/main/java/org/sigmah/client/page/common/nav/NavigationPanel.java -text
 sigmah/src/main/java/org/sigmah/client/page/common/nav/Navigator.java -text
@@ -335,13 +333,13 @@ sigmah/src/main/java/org/sigmah/client/page/config/design/AttributeForm.java -te
 sigmah/src/main/java/org/sigmah/client/page/config/design/AttributeGroupFolder.java -text
 sigmah/src/main/java/org/sigmah/client/page/config/design/AttributeGroupForm.java -text
 sigmah/src/main/java/org/sigmah/client/page/config/design/DesignFormContainer.java -text
-sigmah/src/main/java/org/sigmah/client/page/config/design/DesignPresenter.java -text
-sigmah/src/main/java/org/sigmah/client/page/config/design/DesignView.java -text
+sigmah/src/main/java/org/sigmah/client/page/config/design/DesignPanel.java -text
+sigmah/src/main/java/org/sigmah/client/page/config/design/DesignPanelActivityInfo.java -text
+sigmah/src/main/java/org/sigmah/client/page/config/design/DesignPanelBase.java -text
 sigmah/src/main/java/org/sigmah/client/page/config/design/Folder.java -text
 sigmah/src/main/java/org/sigmah/client/page/config/design/IndicatorFolder.java -text
 sigmah/src/main/java/org/sigmah/client/page/config/design/IndicatorForm.java -text
-sigmah/src/main/java/org/sigmah/client/page/config/design/ProjectIndicatorsPresenter.java -text
-sigmah/src/main/java/org/sigmah/client/page/config/design/ProjectIndicatorsView.java -text
+sigmah/src/main/java/org/sigmah/client/page/config/design/ProjectIndicatorsContainer.java -text
 sigmah/src/main/java/org/sigmah/client/page/config/design/ProjectSiteGridPanel.java -text
 sigmah/src/main/java/org/sigmah/client/page/config/form/DatabaseForm.java -text
 sigmah/src/main/java/org/sigmah/client/page/config/form/DateRangeForm.java -text
@@ -1874,8 +1872,6 @@ sigmah/src/test/java/org/sigmah/client/offline/ui/OfflinePresenterTest.java -tex
 sigmah/src/test/java/org/sigmah/client/page/NavigationHandlerTest.java -text
 sigmah/src/test/java/org/sigmah/client/page/config/DbListPresenterTest.java -text
 sigmah/src/test/java/org/sigmah/client/page/config/DbUserTest.java -text
-sigmah/src/test/java/org/sigmah/client/page/config/design/DesignTest.java -text
-sigmah/src/test/java/org/sigmah/client/page/config/design/MockDesignTree.java -text
 sigmah/src/test/java/org/sigmah/client/page/entry/editor/AdminChangeTest.java -text
 sigmah/src/test/java/org/sigmah/client/page/entry/editor/AdminFieldSetTest.java -text
 sigmah/src/test/java/org/sigmah/client/page/entry/editor/CoordinateEditorTest.java -text

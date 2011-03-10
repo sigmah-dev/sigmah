@@ -5,15 +5,16 @@
 
 package org.sigmah.client.page.config;
 
-import com.google.inject.Inject;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.page.NavigationCallback;
 import org.sigmah.client.page.Page;
 import org.sigmah.client.page.PageId;
 import org.sigmah.client.page.PageState;
 import org.sigmah.client.page.common.GalleryView;
-import org.sigmah.client.page.config.design.DesignPresenter;
+import org.sigmah.client.page.config.design.DesignPanelActivityInfo;
 import org.sigmah.shared.dto.UserDatabaseDTO;
+
+import com.google.inject.Inject;
 
 public class DbConfigPresenter implements Page {
 
@@ -30,7 +31,7 @@ public class DbConfigPresenter implements Page {
 
         if (db.isDesignAllowed()) {
             view.add(I18N.CONSTANTS.design(), I18N.CONSTANTS.designDescription(),
-                    "db-design.png", new DbPageState(DesignPresenter.PAGE_ID, db.getId()));
+                    "db-design.png", new DbPageState(DesignPanelActivityInfo.PAGE_ID, db.getId()));
         }
         if (db.isManageAllUsersAllowed()) {
             view.add(I18N.CONSTANTS.partner(), I18N.CONSTANTS.partnerEditorDescription(),

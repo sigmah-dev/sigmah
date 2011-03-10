@@ -21,7 +21,7 @@ import org.sigmah.client.page.Page;
 import org.sigmah.client.page.PageId;
 import org.sigmah.client.page.PageState;
 import org.sigmah.client.page.TabPage;
-import org.sigmah.client.page.config.design.ProjectIndicatorsPresenter;
+import org.sigmah.client.page.config.design.ProjectIndicatorsContainer;
 import org.sigmah.client.page.project.calendar.ProjectCalendarPresenter;
 import org.sigmah.client.page.project.dashboard.ProjectDashboardPresenter;
 import org.sigmah.client.page.project.dashboard.funding.FundingIconProvider;
@@ -63,6 +63,7 @@ import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 import com.extjs.gxt.ui.client.widget.layout.HBoxLayout;
 import com.extjs.gxt.ui.client.widget.layout.HBoxLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.VBoxLayoutData;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -72,6 +73,7 @@ import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
+import com.google.inject.Injector;
 
 /**
  * Project presenter which manages the {@link ProjectView}.
@@ -142,7 +144,7 @@ public class ProjectPresenter implements Frame, TabPage {
 
     @Inject
     public ProjectPresenter(final Dispatcher dispatcher, View view, Authentication authentication,
-            final EventBus eventBus, final UserLocalCache cache) {
+            final EventBus eventBus, final UserLocalCache cache, ProjectIndicatorsContainer projectIndicators) {
         this.dispatcher = dispatcher;
         this.view = view;
         this.authentication = authentication;
@@ -155,8 +157,8 @@ public class ProjectPresenter implements Frame, TabPage {
                 new ProjectDashboardPresenter(dispatcher, eventBus, authentication, this, cache), // Dashboard
                 new ProjectDetailsPresenter(dispatcher, authentication, this, cache), // Details,
                 new ProjectLogFramePresenter(dispatcher, authentication, this), // Logic
-             //   new DesignPresenter(eventBus, dispatcher, I18N.CONSTANTS, this),
-                new ProjectIndicatorsPresenter(dispatcher, eventBus, this),
+                projectIndicators,
+             //   new ProjectIndicatorsContainer(),
                 new PivotPresenter(dispatcher, eventBus),
                 new ProjectCalendarPresenter(dispatcher, authentication, this), // Calendar
                 new ProjectReportsPresenter(authentication, dispatcher, eventBus, this), // Reports

@@ -72,6 +72,7 @@ public class SigmahAuthProvider implements Provider<Authentication> {
             }
 
         } catch (MissingResourceException e) {
+        
             return null;
         }
 

@@ -15,7 +15,8 @@ import org.sigmah.client.inject.AppInjector;
 import org.sigmah.client.page.*;
 import org.sigmah.client.page.common.nav.NavigationPanel;
 import org.sigmah.client.page.common.widget.VSplitFrameSet;
-import org.sigmah.client.page.config.design.DesignPresenter;
+import org.sigmah.client.page.config.design.DesignPanel;
+import org.sigmah.client.page.config.design.DesignPanelActivityInfo;
 import org.sigmah.shared.command.GetSchema;
 import org.sigmah.shared.dto.SchemaDTO;
 import org.sigmah.shared.dto.UserDatabaseDTO;
@@ -36,14 +37,14 @@ public class ConfigLoader implements PageLoader {
         pageManager.registerPageLoader(DbListPresenter.DatabaseList, this);
         pageManager.registerPageLoader(DbUserEditor.DatabaseUsers, this);
         pageManager.registerPageLoader(DbPartnerEditor.DatabasePartners, this);
-        pageManager.registerPageLoader(DesignPresenter.PAGE_ID, this);
+        pageManager.registerPageLoader(DesignPanelActivityInfo.PAGE_ID, this);
 
         placeSerializer.registerStatelessPlace(AccountEditor.Account, new AccountPageState());
         placeSerializer.registerStatelessPlace(DbListPresenter.DatabaseList, new DbListPageState());
         placeSerializer.registerParser(DbConfigPresenter.DatabaseConfig, new DbPageState.Parser(DbConfigPresenter.DatabaseConfig));
         placeSerializer.registerParser(DbUserEditor.DatabaseUsers, new DbPageState.Parser(DbUserEditor.DatabaseUsers));
         placeSerializer.registerParser(DbPartnerEditor.DatabasePartners, new DbPageState.Parser(DbPartnerEditor.DatabasePartners));
-        placeSerializer.registerParser(DesignPresenter.PAGE_ID, new DbPageState.Parser(DesignPresenter.PAGE_ID));
+        placeSerializer.registerParser(DesignPanelActivityInfo.PAGE_ID, new DbPageState.Parser(DesignPanelActivityInfo.PAGE_ID));
     }
 
     @Override
@@ -83,8 +84,8 @@ public class ConfigLoader implements PageLoader {
                                 presenter.go(db);
                                 callback.onSuccess(presenter);
 
-                            } else if (DesignPresenter.PAGE_ID.equals(pageId)) {
-                                DesignPresenter presenter = injector.getDesigner();
+                            } else if (DesignPanelActivityInfo.PAGE_ID.equals(pageId)) {
+                                DesignPanelActivityInfo presenter = injector.getDesignerActivityInfo();
                                 presenter.go(db);
                                 callback.onSuccess(presenter);
 

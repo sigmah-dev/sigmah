@@ -1,14 +1,13 @@
 package org.sigmah.client.page.config.design;
 
+import org.sigmah.client.EventBus;
+import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.icon.IconImageBundle;
 import org.sigmah.client.page.common.toolbar.ActionToolBar;
 import org.sigmah.client.page.project.SubPresenter;
 import org.sigmah.shared.dto.ActivityDTO;
-import org.sigmah.shared.dto.AttributeDTO;
-import org.sigmah.shared.dto.AttributeGroupDTO;
-import org.sigmah.shared.dto.EntityDTO;
-import org.sigmah.shared.dto.IndicatorDTO;
+import org.sigmah.shared.dto.SchemaDTO;
 import org.sigmah.shared.dto.UserDatabaseDTO;
 
 import com.extjs.gxt.ui.client.Style;
@@ -17,6 +16,7 @@ import com.extjs.gxt.ui.client.event.MenuEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.TreeStore;
 import com.extjs.gxt.ui.client.util.Margins;
+import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.TabItem;
@@ -27,30 +27,38 @@ import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
+import com.google.inject.Inject;
 
-public class ProjectIndicatorsView extends LayoutContainer implements
-		ProjectIndicatorsPresenter.View {
+public class ProjectIndicatorsContainer extends LayoutContainer implements SubPresenter {
 
-	protected ContentPanel mapContainer;
-
+	//private SiteEditor siteEditor;
+	private DesignPanelBase designPanel;
+	private SchemaDTO schema;
+	private UserDatabaseDTO db;
+	private final Dispatcher service;
+	private final EventBus eventBus;
+	
+	private ContentPanel mapContainer;
 	private Button newIndicatorButton;
 	private Button newGroupButton;
 	private Button reloadButton;
 	private Button showSiteMapButton;
 	private Button showSiteTableButton;
 	private Button loadSitesButton;
-	private TreeStore<ModelData> treeStore;
+	private TreeStore<ModelData> treeStore;	
 	private TabPanel tabPanel;
 	private TabItem mapTabItem;
 	private TabItem sitesTabItem;
-	private SubPresenter siteEditor;
-	private DesignPresenter designPresenter;
+	private ProjectSiteGridPanel siteEditor;
 
-	public ProjectIndicatorsView(SubPresenter siteEditor,
-			final DesignPresenter designPresenter) {
-
+	@Inject
+	public ProjectIndicatorsContainer(ProjectSiteGridPanel siteEditor,
+			final DesignPanel designPanel, Dispatcher service, EventBus eventBus) {
+		
 		this.siteEditor = siteEditor;
-		this.designPresenter = designPresenter;
+		this.designPanel = designPanel;
+		this.service = service;
+		this.eventBus = eventBus;
 
 		BorderLayout borderLayout = new BorderLayout();
 		borderLayout.setContainerStyle("x-border-layout-ct main-background");
@@ -116,12 +124,11 @@ public class ProjectIndicatorsView extends LayoutContainer implements
 		layout.setSize(375);
 		layout.setMargins(new Margins(0, 0, 0, 5));
 
-		add(designPresenter.getView(), centerLayout);
+		add(designPanel, centerLayout);
 		add(tabPanel, layout);
 		// setHeading(I18N.CONSTANTS.design() + " - " );
-		final DesignPresenter.View designView = (DesignPresenter.View) designPresenter
-				.getView();
-		ActionToolBar bar = designView.getToolbar();
+	
+		ActionToolBar bar = designPanel.getToolbar();
 		Menu newMenu = new Menu();
 
 		Button newButtonMenu = new Button(I18N.CONSTANTS.newText(),
@@ -133,7 +140,7 @@ public class ProjectIndicatorsView extends LayoutContainer implements
 		SelectionListener<MenuEvent> listener = new SelectionListener<MenuEvent>() {
 			@Override
 			public void componentSelected(MenuEvent ce) {
-				designPresenter.onNew(ce.getItem().getItemId());
+				designPanel.onNew(ce.getItem().getItemId());
 			}
 		};
 		
@@ -156,53 +163,75 @@ public class ProjectIndicatorsView extends LayoutContainer implements
 	}
 
 	
-	@Override
-	public Button getNewIndicatorButton() {
-		return this.newIndicatorButton;
-	}
+	
 
-	@Override
-	public Button getNewGroupButton() {
-		return this.newGroupButton;
-	}
-
-	@Override
-	public Button getReloadButton() {
-		return this.reloadButton;
-	}
-
-	@Override
-	public Button getShowSiteMapButton() {
-		return this.showSiteMapButton;
-	}
-
-	@Override
-	public Button getShowSiteTableButton() {
-		return this.showSiteTableButton;
-	}
-
-	@Override
-	public Button getLoadSitesButton() {
-		return this.loadSitesButton;
-	}
-
-	@Override
-	public TreeStore<ModelData> getTreeStore() {
-		return this.treeStore;
-	}
-
-	@Override
-	public ActionToolBar getDesignTreeToolBar() {
-		// TODO Auto-generated method stub
+	private ActivityDTO getCurrentActivity() {
+		if (db.getActivities() != null && db.getActivities().size() > 0) {
+			// TODO fix me
+			return db.getActivities().get(0);
+		}
 		return null;
 	}
+	
+	/*private void wireViews() {
+		
+		getNewIndicatorButton().addListener(Events.OnClick,
+				new Listener<ButtonEvent>() {
+					@Override
+					public void handleEvent(ButtonEvent be) {
 
-	/*
-	 * @Override public void init(ProjectIndicatorsPresenter
-	 * projectIndicatorsPresenter, TreeStore<ModelData> treeStore) { // TODO
-	 * Auto-generated method stub
-	 * 
-	 * }
-	 */
+					}
+				});
 
+		getNewGroupButton().addListener(Events.OnClick,
+				new Listener<ButtonEvent>() {
+					@Override
+					public void handleEvent(ButtonEvent be) {
+
+					}
+				});
+
+		getReloadButton().addListener(Events.OnClick,
+				new Listener<ButtonEvent>() {
+					@Override
+					public void handleEvent(ButtonEvent be) {
+
+					}
+				});
+
+		getShowSiteMapButton().addListener(Events.OnClick,
+				new Listener<ButtonEvent>() {
+					@Override
+					public void handleEvent(ButtonEvent be) {
+
+					}
+				});
+
+		getLoadSitesButton().addListener(Events.OnClick,
+				new Listener<ButtonEvent>() {
+					@Override
+					public void handleEvent(ButtonEvent be) {
+
+					}
+				});
+	}*/
+
+	@Override
+	public Component getView() {
+		// create a tree store
+		//SiteGrid siteGrid = new SiteGrid();
+		//siteGrid.setHeaderVisible(false);
+		return (Component) this;
+	}
+
+	@Override
+	public void viewDidAppear() {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public void discardView() {
+		// TODO Auto-generated method stub
+		
+	}
 }

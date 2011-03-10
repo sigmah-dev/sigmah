@@ -5,20 +5,27 @@
 
 package org.sigmah.client.page.config;
 
+import org.sigmah.client.SigmahInjector;
+import org.sigmah.client.dispatch.Dispatcher;
+import org.sigmah.client.dispatch.callback.Got;
+import org.sigmah.client.page.Frames;
+import org.sigmah.client.page.NavigationHandler;
+import org.sigmah.client.page.Page;
+import org.sigmah.client.page.PageId;
+import org.sigmah.client.page.PageLoader;
+import org.sigmah.client.page.PageState;
+import org.sigmah.client.page.PageStateSerializer;
+import org.sigmah.client.page.common.nav.NavigationPanel;
+import org.sigmah.client.page.common.widget.VSplitFrameSet;
+import org.sigmah.client.page.config.design.DesignPanelActivityInfo;
+import org.sigmah.shared.command.GetSchema;
+import org.sigmah.shared.dto.SchemaDTO;
+import org.sigmah.shared.dto.UserDatabaseDTO;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.RunAsyncCallback;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
-import org.sigmah.client.SigmahInjector;
-import org.sigmah.client.dispatch.Dispatcher;
-import org.sigmah.client.dispatch.callback.Got;
-import org.sigmah.client.page.*;
-import org.sigmah.client.page.common.nav.NavigationPanel;
-import org.sigmah.client.page.common.widget.VSplitFrameSet;
-import org.sigmah.client.page.config.design.DesignPresenter;
-import org.sigmah.shared.command.GetSchema;
-import org.sigmah.shared.dto.SchemaDTO;
-import org.sigmah.shared.dto.UserDatabaseDTO;
 
 public class SigmahConfigLoader implements PageLoader {
 
@@ -36,14 +43,14 @@ public class SigmahConfigLoader implements PageLoader {
         pageManager.registerPageLoader(DbListPresenter.DatabaseList, this);
         pageManager.registerPageLoader(DbUserEditor.DatabaseUsers, this);
         pageManager.registerPageLoader(DbPartnerEditor.DatabasePartners, this);
-        pageManager.registerPageLoader(DesignPresenter.PAGE_ID, this);
+        pageManager.registerPageLoader(DesignPanelActivityInfo.PAGE_ID, this);
 
         placeSerializer.registerStatelessPlace(AccountEditor.Account, new AccountPageState());
         placeSerializer.registerStatelessPlace(DbListPresenter.DatabaseList, new DbListPageState());
         placeSerializer.registerParser(DbConfigPresenter.DatabaseConfig, new DbPageState.Parser(DbConfigPresenter.DatabaseConfig));
         placeSerializer.registerParser(DbUserEditor.DatabaseUsers, new DbPageState.Parser(DbUserEditor.DatabaseUsers));
         placeSerializer.registerParser(DbPartnerEditor.DatabasePartners, new DbPageState.Parser(DbPartnerEditor.DatabasePartners));
-        placeSerializer.registerParser(DesignPresenter.PAGE_ID, new DbPageState.Parser(DesignPresenter.PAGE_ID));
+        placeSerializer.registerParser(DesignPanelActivityInfo.PAGE_ID, new DbPageState.Parser(DesignPanelActivityInfo.PAGE_ID));
     }
 
     @Override
@@ -88,10 +95,10 @@ public class SigmahConfigLoader implements PageLoader {
                                 presenter.go(db);
                                 callback.onSuccess(presenter);
 
-                            } else if (DesignPresenter.PAGE_ID.equals(pageId)) {
-                                DesignPresenter presenter = injector.getDesigner();
-                                presenter.go(db);
-                                callback.onSuccess(presenter);
+                            } else if (DesignPanelActivityInfo.PAGE_ID.equals(pageId)) {
+                                DesignPanelActivityInfo designPanel = injector.getActivityInfoDesigner();
+                                designPanel.go(db);
+                                callback.onSuccess(designPanel);
 
                             } else if (DbUserEditor.DatabaseUsers.equals(pageId)) {
                                 DbUserEditor editor = injector.getDbUserEditor();

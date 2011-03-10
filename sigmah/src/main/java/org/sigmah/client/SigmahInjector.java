@@ -25,7 +25,8 @@ import org.sigmah.client.page.config.DbListPresenter;
 import org.sigmah.client.page.config.DbPartnerEditor;
 import org.sigmah.client.page.config.DbUserEditor;
 import org.sigmah.client.page.config.SigmahConfigLoader;
-import org.sigmah.client.page.config.design.DesignPresenter;
+import org.sigmah.client.page.config.design.DesignPanel;
+import org.sigmah.client.page.config.design.DesignPanelActivityInfo;
 import org.sigmah.client.page.dashboard.DashboardModule;
 import org.sigmah.client.page.dashboard.DashboardPageLoader;
 import org.sigmah.client.page.dashboard.DashboardPresenter;
@@ -118,7 +119,8 @@ public interface SigmahInjector extends Ginjector {
     DbListPresenter getDbListPresenter();
     DbUserEditor getDbUserEditor();
     DbPartnerEditor getDbPartnerEditor();
-    DesignPresenter getDesigner();
+    DesignPanel getDesigner();
+    DesignPanelActivityInfo getActivityInfoDesigner();
     DbConfigPresenter getDbConfigPresenter();
     DbListPage getDbListPage();
     
