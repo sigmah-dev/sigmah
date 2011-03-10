@@ -30,10 +30,12 @@ public enum ProjectModelType {
     public static String getName(ProjectModelType type) {
 
         if (translationMap == null) {
-            translationMap = new HashMap<ProjectModelType, String>();
-            translationMap.put(NGO, I18N.CONSTANTS.createProjectTypeNGO());
-            translationMap.put(FUNDING, I18N.CONSTANTS.createProjectTypeFunding2());
-            translationMap.put(LOCAL_PARTNER, I18N.CONSTANTS.createProjectTypePartner2());
+            final HashMap<ProjectModelType, String> tmp = new HashMap<ProjectModelType, String>();
+            tmp.put(NGO, I18N.CONSTANTS.createProjectTypeNGO());
+            tmp.put(FUNDING, I18N.CONSTANTS.createProjectTypeFunding2());
+            tmp.put(LOCAL_PARTNER, I18N.CONSTANTS.createProjectTypePartner2());
+
+            translationMap = tmp;
         }
 
         return translationMap.get(type);
