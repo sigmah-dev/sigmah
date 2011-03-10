@@ -30,7 +30,11 @@
 
 
     <!-- Include generated sources -->
-    <source path='client'/>
+    <source path='client'>
+        <exclude name="offline/sigmah/**" />
+        <exclude name="SigmahModule.java" />
+        <exclude name="SigmahAppFrame.java" />
+    </source>
     <source path="shared"/>
 
 
