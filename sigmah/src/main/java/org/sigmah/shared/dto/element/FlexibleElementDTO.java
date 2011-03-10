@@ -204,10 +204,12 @@ public abstract class FlexibleElementDTO extends BaseModelData implements Entity
             return null;
         case READ:
             // Read-only mode.
-            enabled = enabled && false;
+            enabled = false;
+            break;
         case WRITE:
             // Edit mode.
             enabled = enabled && true;
+            break;
         default:
             break;
         }
