@@ -339,6 +339,7 @@ sigmah/src/main/java/org/sigmah/client/page/config/design/DesignPanelBase.java -
 sigmah/src/main/java/org/sigmah/client/page/config/design/Folder.java -text
 sigmah/src/main/java/org/sigmah/client/page/config/design/IndicatorFolder.java -text
 sigmah/src/main/java/org/sigmah/client/page/config/design/IndicatorForm.java -text
+sigmah/src/main/java/org/sigmah/client/page/config/design/IndicatorGroupForm.java -text
 sigmah/src/main/java/org/sigmah/client/page/config/design/ProjectIndicatorsContainer.java -text
 sigmah/src/main/java/org/sigmah/client/page/config/design/ProjectSiteGridPanel.java -text
 sigmah/src/main/java/org/sigmah/client/page/config/form/DatabaseForm.java -text
