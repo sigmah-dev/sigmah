@@ -10,6 +10,7 @@ import org.sigmah.shared.dto.AttributeDTO;
 import org.sigmah.shared.dto.AttributeGroupDTO;
 import org.sigmah.shared.dto.EntityDTO;
 import org.sigmah.shared.dto.IndicatorDTO;
+import org.sigmah.shared.dto.IndicatorGroup;
 import org.sigmah.shared.dto.UserDatabaseDTO;
 
 import com.extjs.gxt.ui.client.Style;
@@ -34,8 +35,8 @@ public class DesignFormContainer extends ContentPanel {
         setFrame(false);
 	}
     
-
- 	public FormDialogTether showNewForm(EntityDTO entity, FormDialogCallback callback) {
+    
+ 	public FormDialogTether showNewForm(ModelData entity, FormDialogCallback callback) {
         AbstractDesignForm form = createForm(entity);
         form.getBinding().bind(entity);
 
@@ -71,6 +72,8 @@ public class DesignFormContainer extends ContentPanel {
             return new AttributeForm();
         } else if (sel instanceof IndicatorDTO) {
             return new IndicatorForm();
+        } else if (sel instanceof IndicatorGroup) {
+        	return new IndicatorGroupForm();
         }
         return null;
     }
@@ -79,7 +82,6 @@ public class DesignFormContainer extends ContentPanel {
     public void showForm(ModelData model) {
         // do we have the right form?
         Class formClass = formClassForSelection(model);
-
         AbstractDesignForm currentForm = null;
         if (getItemCount() != 0) {
             currentForm = (AbstractDesignForm) getItem(0);
@@ -92,7 +94,6 @@ public class DesignFormContainer extends ContentPanel {
             }
             return;
         } else {
-
             if (currentForm == null ||
                     (currentForm != null && !formClass.equals(currentForm.getClass()))) {
 

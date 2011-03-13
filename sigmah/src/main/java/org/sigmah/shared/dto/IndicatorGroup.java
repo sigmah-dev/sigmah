@@ -22,7 +22,9 @@ public final class IndicatorGroup extends BaseModelData {
 
     private static final long serialVersionUID = -4402642905140940245L;
     private List<IndicatorDTO> indicators = new ArrayList<IndicatorDTO>();
-
+    
+    public IndicatorGroup(){}
+    
     public IndicatorGroup(String name) {
         set("name", name);
     }
@@ -43,6 +45,21 @@ public final class IndicatorGroup extends BaseModelData {
 
     public void addIndicator(IndicatorDTO indicator) {
         indicators.add(indicator);
+    }
+
+    /**
+     *
+     * @return the id of the Indicator
+     */
+    public int getId() {
+        return (Integer)get("id");
+    }
+
+    /**
+     * Sets the Indicator's id
+     */
+    public void setId(int id) {
+        set("id", id);
     }
 
 }

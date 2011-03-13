@@ -47,6 +47,7 @@ public class Indicator implements java.io.Serializable, Orderable, Deleteable, S
 	
 	private int sortOrder;
 	private String listHeader;
+	private UserDatabase database;
 	
 	private QualityCriterion qualityCriterion;
 
@@ -323,4 +324,15 @@ public class Indicator implements java.io.Serializable, Orderable, Deleteable, S
 	public void setQualityCriterion(QualityCriterion qualityCriterion) {
 		this.qualityCriterion = qualityCriterion;
 	}
+
+	@ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "DatabaseId", nullable = true)
+    public UserDatabase getDatabase() {
+        return this.database;
+    }
+
+    public void setDatabase(UserDatabase database) {
+        this.database = database;
+    }
+
 }

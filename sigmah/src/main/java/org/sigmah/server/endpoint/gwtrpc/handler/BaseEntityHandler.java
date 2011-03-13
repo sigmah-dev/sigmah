@@ -71,7 +71,11 @@ public class BaseEntityHandler {
             indicator.setSortOrder((Integer) changes.get("sortOrder"));
         }
 
-        indicator.getActivity().getDatabase().setLastSchemaUpdate(new Date());
+        if (indicator.getActivity() != null) {
+        	indicator.getActivity().getDatabase().setLastSchemaUpdate(new Date());
+        } else {
+        	indicator.getDatabase().setLastSchemaUpdate(new Date());
+        }
     }
 
     protected void updateAttributeProperties(Map<String, Object> changes, Attribute attribute) {

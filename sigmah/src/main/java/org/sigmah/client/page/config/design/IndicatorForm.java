@@ -22,7 +22,6 @@ class IndicatorForm extends AbstractDesignForm {
 
     public IndicatorForm()  {
         super();
-
         binding = new FormBinding(this);
 
         UIConstants constants = GWT.create(UIConstants.class);
@@ -47,6 +46,7 @@ class IndicatorForm extends AbstractDesignForm {
         categoryField.setName("category");
         categoryField.setFieldLabel(constants.category());
         categoryField.setMaxLength(50);
+        categoryField.setReadOnly(true);
         binding.addFieldBinding(new FieldBinding(categoryField, "category"));
         this.add(categoryField);
 
@@ -57,6 +57,12 @@ class IndicatorForm extends AbstractDesignForm {
         unitsField.setMaxLength(15);
         binding.addFieldBinding(new FieldBinding(unitsField, "units"));
         this.add(unitsField);
+        
+        NumberField objectiveField = new NumberField();
+        objectiveField.setName("objective");
+        objectiveField.setFieldLabel(constants.objecive());
+        binding.addFieldBinding(new FieldBinding(objectiveField, "id"));
+        this.add(objectiveField);
 
         MappingComboBox aggregationCombo = new MappingComboBox();
         aggregationCombo.setFieldLabel(constants.aggregationMethod());

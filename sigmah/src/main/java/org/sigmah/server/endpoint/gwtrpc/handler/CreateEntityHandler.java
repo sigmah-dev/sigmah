@@ -1,4 +1,4 @@
-/*
+ /*
  * All Sigmah code is released under the GNU General Public License v3
  * See COPYRIGHT.txt and LICENSE.txt.
  */
@@ -37,6 +37,7 @@ import org.sigmah.shared.domain.Indicator;
 import org.sigmah.shared.domain.Project;
 import org.sigmah.shared.domain.ProjectFunding;
 import org.sigmah.shared.domain.User;
+import org.sigmah.shared.domain.UserDatabase;
 import org.sigmah.shared.domain.reminder.MonitoredPoint;
 import org.sigmah.shared.domain.reminder.MonitoredPointList;
 import org.sigmah.shared.domain.reminder.Reminder;
@@ -188,12 +189,19 @@ public class CreateEntityHandler extends BaseEntityHandler implements CommandHan
             throws IllegalAccessCommandException {
 
         Indicator indicator = new Indicator();
-        indicator.setActivity(em.getReference(Activity.class, properties.get("activityId")));
-
-        assertDesignPriviledges(user, indicator.getActivity().getDatabase());
-
+        
+        if (properties.containsKey("activityId")) {
+        	Object o = properties.get("activityId");
+        	indicator.setActivity(em.getReference(Activity.class, o));
+        	assertDesignPriviledges(user, indicator.getActivity().getDatabase());
+        		
+        } else if (properties.containsKey("databaseId")) {        	
+        	Object o = properties.get("databaseId");
+        	indicator.setDatabase(em.getReference(UserDatabase.class, o));
+        	assertDesignPriviledges(user, indicator.getDatabase());
+        }
+    
         updateIndicatorProperties(indicator, properties);
-
         em.persist(indicator);
 
         return new CreateResult(indicator.getId());

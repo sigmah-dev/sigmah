@@ -1,5 +1,8 @@
 package org.sigmah.client.page.config.design;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.sigmah.client.EventBus;
 import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.i18n.I18N;
@@ -17,11 +20,20 @@ import org.sigmah.shared.dto.IndicatorDTO;
 import org.sigmah.shared.dto.UserDatabaseDTO;
 
 import com.extjs.gxt.ui.client.data.ModelData;
+import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MenuEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.TreeStore;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.grid.CellEditor;
+import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
+import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
+import com.extjs.gxt.ui.client.widget.menu.MenuItem;
+import com.extjs.gxt.ui.client.widget.treegrid.TreeGridCellRenderer;
 import com.google.inject.Inject;
 
 public class DesignPanelActivityInfo extends DesignPanelBase implements Page  {
@@ -30,13 +42,20 @@ public class DesignPanelActivityInfo extends DesignPanelBase implements Page  {
 	
 	@Inject
 	public DesignPanelActivityInfo(EventBus eventBus, Dispatcher service) {
-		super(eventBus, service);
+		this.eventBus=eventBus;
+		this.service=service;
 		treeStore = new TreeStore<ModelData>();
 	}	
 
 	public void go(UserDatabaseDTO db) {
 		this.db = db;
-		doLayout(db);
+		toolBar.setDirty(false);
+		if (this.isRendered()) {
+			this.layout();
+		}
+		// setLayout(new BorderLayout());
+		setIcon(IconImageBundle.ICONS.design());
+		setHeading(I18N.CONSTANTS.design() + " - " + db.getFullName());
 		fillStore();
 		//setActionEnabled(UIActions.delete, false);
 		
@@ -63,6 +82,44 @@ public class DesignPanelActivityInfo extends DesignPanelBase implements Page  {
 		//initListeners(treeStore);
 	}
 	
+	@Override
+	protected void initNewMenu(Menu menu, SelectionListener<MenuEvent> listener) {
+		MenuItem newActivity = new MenuItem(I18N.CONSTANTS.newActivity(),
+				IconImageBundle.ICONS.activity(), listener);
+		newActivity.setItemId("Activity");
+		menu.add(newActivity);
+
+		final MenuItem newAttributeGroup = new MenuItem(
+				I18N.CONSTANTS.newAttributeGroup(),
+				IconImageBundle.ICONS.attributeGroup(), listener);
+		newAttributeGroup.setItemId("AttributeGroup");
+		menu.add(newAttributeGroup);
+
+		final MenuItem newAttribute = new MenuItem(
+				I18N.CONSTANTS.newAttribute(),
+				IconImageBundle.ICONS.attribute(), listener);
+		newAttribute.setItemId("Attribute");
+		menu.add(newAttribute);
+
+		final MenuItem newIndicator = new MenuItem(
+				I18N.CONSTANTS.newIndicator(),
+				IconImageBundle.ICONS.indicator(), listener);
+		newIndicator.setItemId("Indicator");
+		menu.add(newIndicator);
+
+		menu.addListener(Events.BeforeShow, new Listener<BaseEvent>() {
+			public void handleEvent(BaseEvent be) {
+
+				ModelData sel = getSelection();
+				newAttributeGroup.setEnabled(sel != null);
+				newAttribute.setEnabled(sel instanceof AttributeGroupDTO
+						|| sel instanceof AttributeDTO);
+				newIndicator.setEnabled(sel != null);
+			}
+		});
+	}
+	
+	@Override
 	protected void fillStore() {
 		for (ActivityDTO activity : db.getActivities()) {
 			ActivityDTO activityNode = new ActivityDTO(activity);
@@ -91,6 +148,21 @@ public class DesignPanelActivityInfo extends DesignPanelBase implements Page  {
 				treeStore.add(indicatorFolder, indicatorNode, false);
 			}
 		}
+	}
+	
+	@Override
+	protected ColumnModel createColumnModel() {
+		List<ColumnConfig> columns = new ArrayList<ColumnConfig>();
+
+		TextField<String> nameField = new TextField<String>();
+		nameField.setAllowBlank(false);
+
+		ColumnConfig nameColumn = new ColumnConfig("name",
+				I18N.CONSTANTS.name(), 150);
+		nameColumn.setEditor(new CellEditor(nameField));
+		nameColumn.setRenderer(new TreeGridCellRenderer());
+		columns.add(nameColumn);
+		return new ColumnModel(columns);
 	}
 	
 	@Override

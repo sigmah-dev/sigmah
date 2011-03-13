@@ -152,7 +152,8 @@ public class ProjectPresenter implements Frame, TabPage {
 
         final DummyPresenter dummyPresenter = new DummyPresenter(); // For
                                                                     // development
-
+        projectIndicators.setProjectPresenter(this);
+        	
         this.presenters = new SubPresenter[] {
                 new ProjectDashboardPresenter(dispatcher, eventBus, authentication, this, cache), // Dashboard
                 new ProjectDetailsPresenter(dispatcher, authentication, this, cache), // Details,
