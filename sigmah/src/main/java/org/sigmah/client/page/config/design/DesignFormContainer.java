@@ -102,7 +102,7 @@ public class DesignFormContainer extends ContentPanel {
                     currentForm.getBinding().unbind();
                 }
                 currentForm = createForm(model);
-                currentForm.setReadOnly(!db.isDesignAllowed());
+                //currentForm.setReadOnly(!db.isDesignAllowed());
                 currentForm.setHeaderVisible(false);
                 currentForm.setBorders(false);
                 currentForm.setFrame(false);

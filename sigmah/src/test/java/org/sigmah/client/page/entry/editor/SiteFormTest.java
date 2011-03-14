@@ -6,6 +6,7 @@
 package org.sigmah.client.page.entry.editor;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.sigmah.client.mock.DispatcherStub;
 import org.sigmah.client.mock.DummyData;
@@ -14,15 +15,20 @@ import org.sigmah.client.page.common.toolbar.UIActions;
 import org.sigmah.client.page.entry.editor.mock.MockSiteForm;
 import org.sigmah.shared.dto.SchemaDTO;
 
+import com.google.gwt.junit.GWTMockUtilities;
+
 /**
  * @author Alex Bertram (akbertram@gmail.com)
  */
 public class SiteFormTest {
 
 
+	@Ignore("needs to be converted to GWT test")
     @Test
     public void testAdminInit() {
 
+    	GWTMockUtilities.disarm();
+    	
         // Test data
         SchemaDTO schema = DummyData.PEAR();
 
@@ -36,7 +42,7 @@ public class SiteFormTest {
         MockSiteForm form = new MockSiteForm();
 
         // CLASS UNDER TEST
-        SiteFormPresenter presenter = new SiteFormPresenter(eventBus, service, schema.getActivityById(91), form);
+        SiteForm presenter = new SiteForm(service, schema.getActivityById(91));
         presenter.setSite(DummyData.PEAR_Sites().get(4));
 
         // Verify that the admin field set is intialzed
@@ -52,6 +58,7 @@ public class SiteFormTest {
 
     }
 
+	@Ignore("needs to be converted to GWT test")
     @Test
     public void testMapBoundsSetOnInit() {
         // Test data

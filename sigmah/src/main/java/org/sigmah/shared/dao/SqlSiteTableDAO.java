@@ -285,7 +285,7 @@ public class SqlSiteTableDAO implements SiteTableDAO {
         private BaseQueryBuilder(int userId) {
             from("Site  " +
                     " LEFT JOIN Activity ON (Site.ActivityId = Activity.ActivityId) " +
-                    " LEFT JOIN UserDatabase ON (Activity.DatabaseId = UserDatabase.DatabaseId) " +
+                    " LEFT JOIN UserDatabase ON (Site.DatabaseId = UserDatabase.DatabaseId) " +
                     " LEFT JOIN Location ON (Site.LocationId = Location.LocationId) " +
                     " LEFT JOIN LocationType ON (Location.LocationTypeId = LocationType.LocationTypeId) " +
                     " LEFT JOIN Partner ON (Site.PartnerId = Partner.PartnerId) ")

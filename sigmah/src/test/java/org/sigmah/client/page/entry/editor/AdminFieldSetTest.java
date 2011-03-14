@@ -78,7 +78,7 @@ public class AdminFieldSetTest {
         MockAdminFieldSet fieldSet = new MockAdminFieldSet();
 
         // CLASS under TEST
-        AdminFieldSetPresenter presenter = new AdminFieldSetPresenter(service, nfi, fieldSet);
+        AdminFieldSetPresenter presenter = new AdminFieldSetPresenter(service, nfi.getDatabase().getCountry(), fieldSet);
         presenter.setSite(new SiteDTO());
 
         // verify that the combos are properly enabled

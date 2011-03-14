@@ -6,28 +6,36 @@
 package org.sigmah.client.page.entry.editor;
 
 
-import com.extjs.gxt.ui.client.Style.Scroll;
-import com.extjs.gxt.ui.client.store.ListStore;
-import com.extjs.gxt.ui.client.widget.form.FieldSet;
-import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
-import com.google.gwt.maps.client.Maps;
-import org.sigmah.client.dispatch.AsyncMonitor;
-import org.sigmah.client.dispatch.monitor.MaskingAsyncMonitor;
+import java.util.List;
+import java.util.Map;
+
+import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.icon.IconImageBundle;
-import org.sigmah.client.page.common.widget.LoadingPlaceHolder;
 import org.sigmah.client.page.config.form.ModelFormPanel;
 import org.sigmah.shared.dto.ActivityDTO;
+import org.sigmah.shared.dto.AdminLevelDTO;
+import org.sigmah.shared.dto.BoundingBoxDTO;
 import org.sigmah.shared.dto.CountryDTO;
 import org.sigmah.shared.dto.PartnerDTO;
 import org.sigmah.shared.dto.SiteDTO;
 
-import java.util.Map;
+import com.extjs.gxt.ui.client.Style;
+import com.extjs.gxt.ui.client.Style.Scroll;
+import com.extjs.gxt.ui.client.binding.FormBinding;
+import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.widget.form.FieldSet;
+import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
+import com.google.gwt.maps.client.Maps;
 
-public class SiteForm extends ModelFormPanel implements SiteFormPresenter.View {
+/**
+ * GXT Form for editing Site objects
+ * 
+ * @author alexander
+ *
+ */
+public class SiteForm extends ModelFormPanel  {
 
-    protected SiteFormPresenter presenter;
-    protected ActivityDTO activity;
 
     private ActivityFieldSet activityFieldSet;
     private LocationFieldSet locationFieldSet;
@@ -36,51 +44,53 @@ public class SiteForm extends ModelFormPanel implements SiteFormPresenter.View {
     private IndicatorFieldSet indicatorFieldSet;
     private CommentFieldSet commentFieldSet;
 
-
-    public SiteForm() {
-        this.setBodyStyle("padding: 3px");
+    private MapPresenter mapPresenter;
+    private AdminFieldSetPresenter adminPresenter;
+  
+    private CountryDTO country;
+    
+    private SiteForm() {
+    	
+    	this.setBodyStyle("padding: 3px");
         this.setIcon(IconImageBundle.ICONS.editPage());
         this.setHeading(I18N.CONSTANTS.loading());
-
-        add(new LoadingPlaceHolder());
-    }
-
-
-    @Override
-    public void init(SiteFormPresenter presenter,
-                     ActivityDTO activity,
-                     ListStore<PartnerDTO> partnerStore,
-                     ListStore<SiteDTO> assessmentStore) {
-
-        removeAll();
+        
         setLayout(new FlowLayout());
+        setScrollMode(Scroll.AUTOY);
+    }
+    
+    /**
+     * Constructs a generic SiteForm
+     * @param dispatcher
+     * @param levels
+     */
+    public SiteForm(Dispatcher dispatcher, CountryDTO country) {
+    	this();
+	  addLocationFieldSet(dispatcher, country, I18N.CONSTANTS.location());
+      addGeoFieldSet(country);
+      
+      registerAll();
+    }
+    
+    /**
+     * Constructs a SiteForm for a specific activity
+     * 
+     * @param activity
+     */
+    public SiteForm(Dispatcher dispatcher, ActivityDTO activity) {
+    	this();
+    	
+        setHeading(activity.getName());
 
-        this.presenter = presenter;
-        this.activity = activity;
-
-        this.setLayout(new FlowLayout());
-        this.setScrollMode(Scroll.AUTOY);
-        this.setHeading(activity.getName());
-
+       
         // ACTIVITY fieldset
 
-        activityFieldSet = new ActivityFieldSet(activity, partnerStore, assessmentStore);
+        activityFieldSet = new ActivityFieldSet(activity, createPartnerStore(activity));
         add(activityFieldSet);
 
-        // LOCATION fieldset
-
-        add(locationFieldSet);
-
-        // GEO POSITION
-
-        add((FieldSet) mapView);
-
-        if (Maps.isLoaded()) {
-            registerField(((MapFieldSet) mapView).getLngField());
-            registerField(((MapFieldSet) mapView).getLatField());
-        } else {
-            registerFieldSet((FieldSet) mapView);
-        }
+        addLocationFieldSet(dispatcher, activity.getDatabase().getCountry(), 
+        			activity.getLocationType().getName());
+        addGeoFieldSet(activity.getDatabase().getCountry());
 
         // ATTRIBUTE fieldset
 
@@ -96,7 +106,6 @@ public class SiteForm extends ModelFormPanel implements SiteFormPresenter.View {
             registerFieldSet(indicatorFieldSet);
             add(indicatorFieldSet);
 
-
             // COMMENT
 
             commentFieldSet = new CommentFieldSet();
@@ -108,60 +117,65 @@ public class SiteForm extends ModelFormPanel implements SiteFormPresenter.View {
         layout();
     }
 
+	private void addGeoFieldSet(CountryDTO country) {
+        MapFieldSet mapFieldSet = new MapFieldSet(country);
+        this.mapView = mapFieldSet;
+     
+        mapPresenter = new MapPresenter(mapView);
+        add((FieldSet) mapView);
+
+        registerField(((MapFieldSet) mapView).getLngField());
+        registerField(((MapFieldSet) mapView).getLatField());
+    
+	}
+
+	private void addLocationFieldSet(Dispatcher dispatcher, CountryDTO country, String locationLabel) {
+		locationFieldSet = new LocationFieldSet(country.getAdminLevels(), locationLabel);
+        add(locationFieldSet);
+
+        adminPresenter = new AdminFieldSetPresenter(dispatcher, country, locationFieldSet);
+        adminPresenter.setListener(new AdminFieldSetPresenter.Listener() {
+            @Override
+            public void onBoundsChanged(String name, BoundingBoxDTO bounds) {
+                mapPresenter.setBounds(name, bounds);
+            }
+
+            @Override
+            public void onModified() {
+            }
+        });
+	}
+	
+
 
     public void setSite(SiteDTO site) {
         updateForm(site);
-
     }
 
-    @Override
-    public AsyncMonitor getMonitor() {
-        return new MaskingAsyncMonitor(this, I18N.CONSTANTS.saving());
-    }
+    private ListStore<PartnerDTO> createPartnerStore(ActivityDTO activity) {
+        ListStore<PartnerDTO> store = new ListStore<PartnerDTO>();
 
-    @Override
-    public AdminFieldSetPresenter.View createAdminFieldSetView(ActivityDTO activity) {
+        if (activity.getDatabase().isEditAllAllowed()) {
 
-        locationFieldSet = new LocationFieldSet(activity);
+            for (PartnerDTO partner : activity.getDatabase().getPartners()) {
+                if (partner.isOperational()) {
+                    store.add(partner);
+                }
+            }
+            store.sort("name", Style.SortDir.ASC);
 
-        return locationFieldSet;
-    }
-
-    @Override
-    public MapPresenter.View createMapView(CountryDTO country) {
-
-        if (Maps.isLoaded()) {
-            MapFieldSet mapFieldSet = new MapFieldSet(country);
-            this.mapView = mapFieldSet;
         } else {
-            CoordFieldSet coordFieldSet = new CoordFieldSet();
-            this.mapView = coordFieldSet;
+
+            store.add(activity.getDatabase().getMyPartner());
+
         }
-
-        return mapView;
+        return store;
     }
-
-    @Override
-    public Map<String, Object> getChanges() {
-        return super.getModified();
-    }
-
-    @Override
-    public boolean validate() {
-        return true;
-    }
-
-    @Override
-    protected void onDirtyFlagChanged(boolean isDirty) {
-        presenter.onModified();
-    }
-
-    @Override
-    public void setActionEnabled(String actionId, boolean enabled) {
-
-    }
+    
 
     public Map<String, Object> getPropertyMap() {
         return super.getAllValues();
     }
+    
+    
 }

@@ -34,7 +34,6 @@ public class Indicator implements java.io.Serializable, Orderable, Deleteable, S
 	private Double objective;
 	private String description;
 	
-	private String sector;
 	private String category;
 	
 	private boolean collectIntervention;
@@ -45,7 +44,7 @@ public class Indicator implements java.io.Serializable, Orderable, Deleteable, S
 	private int aggregation;
 	
 	private int sortOrder;
-	private String listHeader;
+	private String code;
 	private UserDatabase database;
 	
 	private QualityCriterion qualityCriterion;
@@ -88,27 +87,7 @@ public class Indicator implements java.io.Serializable, Orderable, Deleteable, S
 		
 	}
 
-  
-	/**
-     * @deprecated No longer used; see the Category property for a more general classification of indicators
-     * @return the sector of intervention to which this Indicator belongs (NFI, Watsan, etc)
-     */
-	@Column(name = "Sector", nullable = true, length = 50)
-	@Deprecated
-    public String getSector() {
-		return this.sector;
-	}
-
-    /**
-     * Sets the sector of intervention to which this Indicator belongs (NFI, Watsan, etc)
-     * @deprecated No loner used; see the Category property for a more general classificaton of indicators
-     * @param sector
-     */
-    @Deprecated
-	public void setSector(String sector) {
-		this.sector = sector;
-	}
-
+ 
     /**
      * Gets a description of the units in which this Indicator is expressed. Note that this
      * is for descriptive purpose only for the user, it does not carry any semantics for our system.
@@ -250,8 +229,8 @@ public class Indicator implements java.io.Serializable, Orderable, Deleteable, S
      * grid
      */
 	@Column(name = "ListHeader", length = 30)
-	public String getListHeader() {
-		return this.listHeader;
+	public String getCode() {
+		return this.code;
 	}
 
     /**
@@ -259,8 +238,8 @@ public class Indicator implements java.io.Serializable, Orderable, Deleteable, S
      * a grid
      *
      */
-	public void setListHeader(String listHeader) {
-		this.listHeader = listHeader;
+	public void setCode(String listHeader) {
+		this.code = listHeader;
 	}
 
     /**

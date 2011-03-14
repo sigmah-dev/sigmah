@@ -89,7 +89,7 @@ public class GetSchemaTest extends CommandTestCase {
         Assert.assertEquals("property:collectIntervention", test.isCollectIntervention(), true);
         Assert.assertEquals("property:collectMonitoring", test.isCollectMonitoring(), true);
         Assert.assertEquals("property:category", test.getCategory(), "outputs");
-        Assert.assertEquals("property:listHeader", test.getListHeader(), "header");
+        Assert.assertEquals("property:code", test.getCode(), "header");
         Assert.assertEquals("property:description", test.getDescription(), "desc");
     }
 

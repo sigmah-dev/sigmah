@@ -74,50 +74,12 @@ public class SiteFormPresenter implements SiteFormLeash {
     }
 
 
-    protected ListStore<PartnerDTO> createPartnerStore() {
-        ListStore<PartnerDTO> store = new ListStore<PartnerDTO>();
-
-        if (currentActivity.getDatabase().isEditAllAllowed()) {
-
-            for (PartnerDTO partner : currentActivity.getDatabase().getPartners()) {
-                if (partner.isOperational()) {
-                    store.add(partner);
-                }
-            }
-            store.sort("name", Style.SortDir.ASC);
-
-        } else {
-
-            store.add(currentActivity.getDatabase().getMyPartner());
-
-        }
-        return store;
-    }
 
     protected ListStore<SiteDTO> createAsssessmentStore() {
         return new ListStore<SiteDTO>();
     }
 
     public void init(ActivityDTO activity) {
-
-        this.currentActivity = activity;
-
-        mapPresenter = new MapPresenter(view.createMapView(activity.getDatabase().getCountry()));
-
-        adminPresenter = new AdminFieldSetPresenter(service, currentActivity, view.createAdminFieldSetView(currentActivity));
-        adminPresenter.setListener(new AdminFieldSetPresenter.Listener() {
-            @Override
-            public void onBoundsChanged(String name, BoundingBoxDTO bounds) {
-                mapPresenter.setBounds(name, bounds);
-            }
-
-            @Override
-            public void onModified() {
-                SiteFormPresenter.this.onModified();
-            }
-        });
-
-        view.init(this, currentActivity, createPartnerStore(), createAsssessmentStore());
 
     }
 

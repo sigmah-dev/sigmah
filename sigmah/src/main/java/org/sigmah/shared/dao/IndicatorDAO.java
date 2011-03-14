@@ -63,7 +63,7 @@ public class IndicatorDAO  {
 				dto.setUnits(rs.getString(4));
 				dto.setCategory(rs.getString(5));
 				dto.setDescription(rs.getString(6));
-				dto.setListHeader(rs.getString(7));
+				dto.setCode(rs.getString(7));
 				dto.setObjective(rs.getDouble(8));
 
 				if(dto.getAggregation() == IndicatorDTO.AGGREGATE_SUM) {

@@ -6,11 +6,20 @@
 package org.sigmah.client.page.entry.editor;
 
 
+import org.sigmah.client.i18n.I18N;
+import org.sigmah.client.map.MapApiLoader;
+import org.sigmah.client.map.MapTypeFactory;
+import org.sigmah.client.page.common.widget.CoordinateField;
+import org.sigmah.client.page.config.form.FieldSetFitLayout;
+import org.sigmah.shared.dto.BoundingBoxDTO;
+import org.sigmah.shared.dto.CountryDTO;
+
 import com.extjs.gxt.ui.client.event.ContainerEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FieldEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.Label;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
@@ -25,12 +34,7 @@ import com.google.gwt.maps.client.geom.LatLng;
 import com.google.gwt.maps.client.geom.LatLngBounds;
 import com.google.gwt.maps.client.overlay.Marker;
 import com.google.gwt.maps.client.overlay.MarkerOptions;
-import org.sigmah.client.i18n.I18N;
-import org.sigmah.client.map.MapTypeFactory;
-import org.sigmah.client.page.common.widget.CoordinateField;
-import org.sigmah.client.page.config.form.FieldSetFitLayout;
-import org.sigmah.shared.dto.BoundingBoxDTO;
-import org.sigmah.shared.dto.CountryDTO;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class MapFieldSet extends FieldSet implements MapPresenter.View {
 
@@ -100,8 +104,31 @@ public class MapFieldSet extends FieldSet implements MapPresenter.View {
 
         panel.setBottomComponent(coordBar);
 
-        /* Create the map itself */
+        panel.add(new Label(I18N.CONSTANTS.loadingGoogleMaps()));
+        
+        MapApiLoader.load(null, new AsyncCallback<Void>() {
+			
+			@Override
+			public void onSuccess(Void result) {
+				addMap();
+			}
+			
+			@Override
+			public void onFailure(Throwable caught) {
+				panel.removeAll();
+				panel.add(new Label("Failed to load Google Maps"));
+				layout();
+			}
+		});
 
+        add(panel);
+    }
+
+	private void addMap() {
+		/* Create the map itself */
+
+		panel.removeAll();
+		
         map = new MapWidget();
         panel.add(map);
 
@@ -140,9 +167,9 @@ public class MapFieldSet extends FieldSet implements MapPresenter.View {
                 }
             }
         });
-
-        add(panel);
-    }
+        
+        layout();
+	}
 
     @Override
     public BoundingBoxDTO getMapView() {

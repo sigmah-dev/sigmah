@@ -36,10 +36,10 @@ class IndicatorForm extends AbstractDesignForm {
         binding.addFieldBinding(new FieldBinding(idField, "id"));
         add(idField);
         
-        TextField<String> listHeaderField = new TextField<String>();
-        listHeaderField.setFieldLabel(constants.indicatorCode());
-        binding.addFieldBinding(new FieldBinding(listHeaderField,"listHeader"));
-        this.add(listHeaderField);
+        TextField<String> codeField = new TextField<String>();
+        codeField.setFieldLabel(constants.indicatorCode());
+        binding.addFieldBinding(new FieldBinding(codeField,"code"));
+        this.add(codeField);
 
         TextField<String> nameField = new TextField<String>();
         nameField.setFieldLabel(constants.name());

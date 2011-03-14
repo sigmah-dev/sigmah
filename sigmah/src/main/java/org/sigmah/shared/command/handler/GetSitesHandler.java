@@ -122,6 +122,7 @@ public class GetSitesHandler implements CommandHandler<GetSites> {
             SiteDTO model = new SiteDTO();
             model.setId( rs.getInt(SiteTableColumn.id.index()) );
             model.setActivityId( rs.getInt(activity_id.index() ));
+            model.setDatabaseId( rs.getInt(database_id.index() ));
             model.setDate1(rs.getDate(date1.index() ));
             model.setDate2(rs.getDate(date2.index() ));
             model.setLocationName( rs.getString( location_name.index() ));

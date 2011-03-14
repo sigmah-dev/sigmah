@@ -128,7 +128,7 @@ public class SiteMap extends ContentPanel implements Shutdownable {
     private void onSiteSelected(SiteEvent se) {
         if (se.getSource() != this) {
             if (se.getSite() != null && !se.getSite().hasCoords()) {
-                BoundingBoxDTO bounds = AdminBoundsHelper.calculate(activity, se.getSite());
+                BoundingBoxDTO bounds = AdminBoundsHelper.calculate(activity.getDatabase().getCountry(), se.getSite());
                 LatLngBounds llBounds = llBoundsForBounds(bounds);
 
                 if (!llBounds.containsBounds(map.getBounds())) {
@@ -138,6 +138,10 @@ public class SiteMap extends ContentPanel implements Shutdownable {
                 highlightSite(se.getSiteId(), true);
             }
         }
+    }
+    
+    private CountryDTO getCountry() {
+    	return activity.getDatabase().getCountry();
     }
 
 
@@ -155,7 +159,7 @@ public class SiteMap extends ContentPanel implements Shutdownable {
     }
 
     public BoundingBoxDTO getSiteBounds(SiteDTO site) {
-        return AdminBoundsHelper.calculate(activity, site);
+        return AdminBoundsHelper.calculate(getCountry(), site);
     }
 
 	private void loadMap() {
@@ -422,8 +426,8 @@ public class SiteMap extends ContentPanel implements Shutdownable {
             if (site == null) {
                 bounds = null;
             } else {
-                bounds = AdminBoundsHelper.calculate(activity, site);
-                boundsName = AdminBoundsHelper.name(activity, bounds, site);
+                bounds = AdminBoundsHelper.calculate(getCountry(), site);
+                boundsName = AdminBoundsHelper.name(getCountry(), bounds, site);
             }
             updateDragStatus(event);
         }

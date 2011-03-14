@@ -137,7 +137,7 @@ public class Site implements java.io.Serializable, Deleteable {
 	}
 	
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "DatabaseId", nullable=true)
+	@JoinColumn(name = "DatabaseId", nullable=false)
     public UserDatabase getDatabase() {
 		return database;
 	}

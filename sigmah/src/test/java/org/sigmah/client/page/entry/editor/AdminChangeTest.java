@@ -42,7 +42,7 @@ public class AdminChangeTest {
         SiteDTO site = DummyData.PEAR_Sites().get(4);
 
         // CLASS UNDER TEST
-        AdminFieldSetPresenter presenter = new AdminFieldSetPresenter(service, schema.getActivityById(91), view);
+        AdminFieldSetPresenter presenter = new AdminFieldSetPresenter(service, schema.getActivityById(91).getDatabase().getCountry(), view);
 
         // VERIFY: changing one adminlevel works properlty
         presenter.setSite(site);

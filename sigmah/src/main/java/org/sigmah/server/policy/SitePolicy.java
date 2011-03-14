@@ -10,9 +10,12 @@ import org.sigmah.server.dao.*;
 import org.sigmah.server.domain.*;
 import org.sigmah.shared.dao.ActivityDAO;
 import org.sigmah.shared.dao.AdminDAO;
+import org.sigmah.shared.dao.UserDatabaseDAO;
 import org.sigmah.shared.domain.Activity;
 import org.sigmah.shared.domain.Location;
+import org.sigmah.shared.domain.LocationType;
 import org.sigmah.shared.domain.OrgUnit;
+import org.sigmah.shared.domain.Project;
 import org.sigmah.shared.domain.ReportingPeriod;
 import org.sigmah.shared.domain.Site;
 import org.sigmah.shared.domain.User;
@@ -23,6 +26,7 @@ import org.sigmah.shared.dto.*;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class SitePolicy implements EntityPolicy<Site> {
     private final ActivityDAO activityDAO;
@@ -31,34 +35,65 @@ public class SitePolicy implements EntityPolicy<Site> {
     private final PartnerDAO partnerDAO;
     private final ReportingPeriodDAO reportingPeriodDAO;
     private final SiteDAO siteDAO;
+    private final UserDatabaseDAO userDatabaseDAO;
 
 
     @Inject
     public SitePolicy(ActivityDAO activityDAO, AdminDAO adminDAO, LocationDAO locationDAO,
-                      PartnerDAO partnerDAO, SiteDAO siteDAO, ReportingPeriodDAO reportingPeriodDAO) {
+                      PartnerDAO partnerDAO, SiteDAO siteDAO, ReportingPeriodDAO reportingPeriodDAO,
+                      UserDatabaseDAO userDatabaseDAO) {
         this.locationDAO = locationDAO;
         this.siteDAO = siteDAO;
         this.reportingPeriodDAO = reportingPeriodDAO;
         this.partnerDAO = partnerDAO;
         this.activityDAO = activityDAO;
         this.adminDAO = adminDAO;
+        this.userDatabaseDAO = userDatabaseDAO;
     }
 
     @Override
     public Integer create(User user, PropertyMap properties) {
 
-        Activity activity = activityDAO.findById((Integer) properties.get("activityId"));
-        OrgUnit partner = partnerDAO.findById(((PartnerDTO) properties.get("partner")).getId());
-
-        assertSiteEditPrivileges(user, activity, partner);
-
-
+    	
+        Activity activity = null;
+        UserDatabase database;
+        LocationType locationType;
+    	OrgUnit partner = null;
+        
+    	if(properties.containsKey("activityId")) {
+    		activity = activityDAO.findById((Integer) properties.get("activityId"));
+    		locationType = activity.getLocationType();
+    		database = activity.getDatabase();
+    		    		
+    	} else if(properties.containsKey("databaseId")) {
+    		database = userDatabaseDAO.findById((Integer)properties.get("databaseId"));
+    		Set<LocationType> locationTypes = database.getCountry().getLocationTypes();
+			if(locationTypes.isEmpty()) {
+				throw new RuntimeException("A site cannot be created without a location type, and the country '" + 
+						database.getCountry().getName() + "' (id = " + database.getCountry().getId() + ") has no location types defined.");
+			}
+			locationType = locationTypes.iterator().next();
+			if(user.getOrganization() != null) {
+				partner = user.getOrganization().getRoot();
+			}
+    	} else {
+    		throw new RuntimeException("An activityId or databaseId must be provided to create a site");
+    	}
+    	
+    	if(properties.containsKey("partner")) {
+    		partner = partnerDAO.findById(((PartnerDTO) properties.get("partner")).getId());
+    	}
+    	
+    	if(partner == null) {
+    		throw new RuntimeException("No orgUnit id provided for new site");
+    	}
+    	
         /*
            * Create and save a new Location object in the database
            */
 
         Location location = new Location();
-        location.setLocationType(activity.getLocationType());
+        location.setLocationType(locationType);
         updateLocationProperties(location, properties);
 
         locationDAO.persist(location);
@@ -72,6 +107,7 @@ public class SitePolicy implements EntityPolicy<Site> {
         Site site = new Site();
         site.setLocation(location);
         site.setActivity(activity);
+        site.setDatabase(database);
         site.setPartner(partner);
         site.setDateCreated(new Date());
 
@@ -88,7 +124,7 @@ public class SitePolicy implements EntityPolicy<Site> {
            * otherwise ReportingPeriods are modeled separately on the client.
            */
 
-        if (activity.getReportingFrequency() == ActivityDTO.REPORT_ONCE) {
+        if (activity != null && activity.getReportingFrequency() == ActivityDTO.REPORT_ONCE) {
 
             ReportingPeriod period = new ReportingPeriod();
             period.setSite(site);
@@ -111,7 +147,7 @@ public class SitePolicy implements EntityPolicy<Site> {
 
         Site site = siteDAO.findById((Integer)id);
 
-        assertSiteEditPrivileges(user, site.getActivity(), site.getPartner());
+        assertSiteEditPrivileges(user, site.getDatabase(), site.getPartner());
 
         site.setDateEdited(new Date());
 
@@ -132,8 +168,7 @@ public class SitePolicy implements EntityPolicy<Site> {
      * Asserts that the user has permission to edit a site in a given database
      * belonging to a given partner
      */
-    protected void assertSiteEditPrivileges(User user, Activity activity, OrgUnit partner)  {
-        UserDatabase db = activity.getDatabase();
+    protected void assertSiteEditPrivileges(User user, UserDatabase db, OrgUnit partner)  {
 
         if (db.getOwner().getId() == user.getId()) {
             return;

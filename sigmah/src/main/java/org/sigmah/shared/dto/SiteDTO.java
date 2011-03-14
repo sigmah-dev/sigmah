@@ -61,8 +61,8 @@ public final class SiteDTO extends BaseModelData implements EntityDTO {
     /**
      * @return the id of the Activity to which this Site belongs
      */
-	public int getActivityId() {
-		return (Integer)get("activityId");
+	public Integer getActivityId() {
+		return get("activityId");
 	}
 
     /**
@@ -70,9 +70,18 @@ public final class SiteDTO extends BaseModelData implements EntityDTO {
      *
      * @param id
      */
-	public void setActivityId(int id) {
+	public void setActivityId(Integer id) {
 		set("activityId", id);
 	}
+	
+	public Integer getDatabaseId() {
+		return get("databaseId");
+	}
+	
+	public void setDatabaseId(Integer id) {
+		set("databaseId", id);
+	}
+	
 
     /**
      * @return the beginning of work at this Site

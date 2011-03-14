@@ -1,0 +1,12 @@
+
+
+@sprite .mapIcon {gwt-image: "map";}
+@sprite .emptyMapIcon {gwt-image: "emptyMap";}
+@sprite .starIcon {gwt-image: "star";}
+@sprite .emptyStarIcon {gwt-image: "emptyStar";}
+
+.indicatorCell {
+	padding-left: 40px;
+	cursor: pointer;
+	text-decoration: none;
+}

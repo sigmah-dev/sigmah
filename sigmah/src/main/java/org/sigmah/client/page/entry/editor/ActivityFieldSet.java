@@ -5,24 +5,30 @@
 
 package org.sigmah.client.page.entry.editor;
 
-import com.extjs.gxt.ui.client.store.ListStore;
-import com.extjs.gxt.ui.client.widget.form.*;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.shared.dto.ActivityDTO;
 import org.sigmah.shared.dto.PartnerDTO;
-import org.sigmah.shared.dto.SiteDTO;
+
+import com.extjs.gxt.ui.client.binding.Bindings;
+import com.extjs.gxt.ui.client.binding.FieldBinding;
+import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.extjs.gxt.ui.client.widget.form.DateField;
+import com.extjs.gxt.ui.client.widget.form.Field;
+import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.form.Validator;
 
 /**
  * @author Alex Bertram (akbertram@gmail.com)
  */
-public class
-        ActivityFieldSet extends AbstractFieldSet {
+public class ActivityFieldSet extends AbstractFieldSet {
     private DateField dateField1;
     private DateField dateField2;
 
-    public ActivityFieldSet(ActivityDTO activity,
-                            ListStore<PartnerDTO> partnerStore,
-                            ListStore<SiteDTO> assessmentStore) {
+    public ActivityFieldSet(ActivityDTO activity, ListStore<PartnerDTO> partnerStore) {
         super(I18N.CONSTANTS.activity(), 100, 200);
 
         TextField<String> databaseField = new TextField<String>();
@@ -74,13 +80,6 @@ public class
 			add(dateField2);
 
 		}
-
-//		if(activity.getLocationType().getBoundAdminLevelId() == null) {
-//			ComboBox<SiteDTO> assessmentCombo = new AssessmentCombo(activity.getDatabase().getCountry());
-//			assessmentCombo.setName("assessment");
-//			assessmentCombo.setFieldLabel(Application.CONSTANTS.assessment());
-//			add(assessmentCombo);
-//		}
     }
 
 }

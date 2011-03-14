@@ -1,15 +1,29 @@
 package org.sigmah.client.page.config.design;
 
+import java.util.Map;
+
 import org.sigmah.client.EventBus;
 import org.sigmah.client.dispatch.Dispatcher;
+import org.sigmah.client.page.common.dialog.FormDialogCallback;
+import org.sigmah.client.page.common.toolbar.UIActions;
+import org.sigmah.client.page.entry.SiteMap;
+import org.sigmah.client.page.entry.editor.SiteForm;
+import org.sigmah.client.page.entry.editor.SiteFormDialog;
 import org.sigmah.client.page.project.ProjectPresenter;
 import org.sigmah.client.page.project.SubPresenter;
-import org.sigmah.shared.dto.ActivityDTO;
+import org.sigmah.shared.command.CreateEntity;
+import org.sigmah.shared.command.result.CreateResult;
+import org.sigmah.shared.dao.Filter;
+import org.sigmah.shared.dto.ProjectDTO;
 import org.sigmah.shared.dto.SchemaDTO;
+import org.sigmah.shared.dto.SiteDTO;
 import org.sigmah.shared.dto.UserDatabaseDTO;
+import org.sigmah.shared.report.model.DimensionType;
 
 import com.extjs.gxt.ui.client.Style;
 import com.extjs.gxt.ui.client.data.ModelData;
+import com.extjs.gxt.ui.client.event.ComponentEvent;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.store.TreeStore;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.Component;
@@ -21,6 +35,7 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 
 public class ProjectIndicatorsContainer extends LayoutContainer implements SubPresenter {
@@ -40,18 +55,26 @@ public class ProjectIndicatorsContainer extends LayoutContainer implements SubPr
 	private TabPanel tabPanel;
 	private TabItem mapTabItem;
 	private TabItem sitesTabItem;
+	
 	private ProjectSiteGridPanel siteEditor;
+	private SiteMap siteMap;
+	
 	private ProjectPresenter projectPresenter;
 		
 	@Inject
-	public ProjectIndicatorsContainer(ProjectSiteGridPanel siteEditor,
-			final DesignPanel designPanel, Dispatcher service, EventBus eventBus) {
+	public ProjectIndicatorsContainer(
+			ProjectSiteGridPanel siteEditor,
+			SiteMap siteMap,
+			final DesignPanel designPanel, 
+			Dispatcher service, EventBus eventBus) {
 		
 		this.siteEditor = siteEditor;
+		this.siteMap = siteMap;
 		this.designPanel = designPanel;
 		this.service = service;
 		this.eventBus = eventBus;
-
+		
+		
 		BorderLayout borderLayout = new BorderLayout();
 		borderLayout.setContainerStyle("x-border-layout-ct main-background");
 		setLayout(borderLayout);
@@ -72,6 +95,7 @@ public class ProjectIndicatorsContainer extends LayoutContainer implements SubPr
 		mapTabItem.setEnabled(false);
 		mapTabItem.setAutoHeight(true);
 		mapTabItem.setEnabled(true);
+		mapTabItem.add(siteMap);
 		tabPanel.add(mapTabItem);
 
 		// sites tab item
@@ -80,7 +104,7 @@ public class ProjectIndicatorsContainer extends LayoutContainer implements SubPr
 		sitesTabItem.setEnabled(false);
 		sitesTabItem.setAutoHeight(true);
 		sitesTabItem.setEnabled(true);
-		sitesTabItem.add(siteEditor.getView());
+		sitesTabItem.add(siteEditor);
 		tabPanel.add(sitesTabItem);
 
 		// buttons for indicator view
@@ -108,21 +132,71 @@ public class ProjectIndicatorsContainer extends LayoutContainer implements SubPr
 		add(tabPanel, layout);
 		// setHeading(I18N.CONSTANTS.design() + " - " );
 		
+		siteEditor.addActionListener(new Listener<ComponentEvent>() {
+			
+			@Override
+			public void handleEvent(ComponentEvent be) {
+				if(UIActions.add.equals(be.getComponent().getItemId() )) {
+					addSite();
+				}
+			}
+		});
 	}
 	
+
 	public void setProjectPresenter(ProjectPresenter projectPresenter) {
 		this.projectPresenter = projectPresenter;
 	}
+	
 
-
-	private ActivityDTO getCurrentActivity() {
-		if (db.getActivities() != null && db.getActivities().size() > 0) {
-			// TODO fix me
-			return db.getActivities().get(0);
-		}
-		return null;
+	public void loadProject(ProjectDTO projectDTO) {
+		
+		// load design panel
+		designPanel.load(projectDTO.getId());
+		
+		// load site grid
+		Filter siteFilter = new Filter();
+		siteFilter.addRestriction(DimensionType.Database, projectDTO.getId());
+		siteEditor.load(siteFilter);		
+		
+		
 	}
 
+	protected void addSite() {
+
+		final int projectId = projectPresenter.getCurrentProjectDTO().getId();
+
+		SiteDTO site = new SiteDTO();
+		site.setDatabaseId(projectId);
+		//site.setPartner(projectPresenter.getCurrentProjectDTO().getOrgUnitId());
+		
+		final SiteForm form = new SiteForm(service, projectPresenter.getCurrentProjectDTO().getCountry());
+		form.setSite(site);
+		
+		final SiteFormDialog dialog = new SiteFormDialog(form);
+		dialog.show(new FormDialogCallback() {
+
+			@Override
+			public void onValidated() {
+				Map<String, Object> props = form.getPropertyMap();
+				props.put("databaseId", projectId);
+								 
+				service.execute(new CreateEntity("Site", props), dialog, new AsyncCallback<CreateResult>() {
+
+					@Override
+					public void onFailure(Throwable caught) {						
+					}
+
+					@Override
+					public void onSuccess(CreateResult result) {
+						dialog.hide();
+					}
+				});
+			}
+			
+		});
+	}
+	
 	@Override
 	public Component getView() {
 		this.designPanel.setProjectPresenter(this.projectPresenter);
@@ -139,4 +213,6 @@ public class ProjectIndicatorsContainer extends LayoutContainer implements SubPr
 		// TODO Auto-generated method stub
 		
 	}
+
+
 }

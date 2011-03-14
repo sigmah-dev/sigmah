@@ -54,8 +54,8 @@ abstract class DesignPanelBase extends ContentPanel {
 
 	protected abstract ColumnModel createColumnModel();
 
-	protected abstract void initNewMenu(Menu menu,
-			SelectionListener<MenuEvent> listener);
+	protected void initNewMenu(Menu menu,
+			SelectionListener<MenuEvent> listener) {}
 
 	protected abstract void fillStore();
 

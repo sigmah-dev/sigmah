@@ -1,6 +1,7 @@
 package org.sigmah.client.page.entry;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.sigmah.client.dispatch.Dispatcher;
@@ -46,10 +47,12 @@ public class SiteColumnModelBuilder {
     private final Dispatcher dispatcher;
     private final Filter filter;
     private final List<ColumnConfig> columns = new ArrayList<ColumnConfig>();
+    private final Collection<IndicatorDTO> indicators;
 	
-	public SiteColumnModelBuilder(Dispatcher dispatch, Filter filter, AsyncCallback<ColumnModel> callback) {
+	public SiteColumnModelBuilder(Dispatcher dispatch, Filter filter, Collection<IndicatorDTO> indicators, AsyncCallback<ColumnModel> callback) {
 		this.callback = callback;
 		this.filter = filter;
+		this.indicators = indicators;
 		this.dispatcher = dispatch;
 		
         if(!filterIncludesSingleDatabase()) {
@@ -62,7 +65,10 @@ public class SiteColumnModelBuilder {
         	addActivitySpecificColumns();
         	
         } else if(filterIncludesSingleDatabase()) {
-        	addGeographicColumnsForDatabaseId(filteredActivityId());
+            columns.add(createLocationColumn());
+            columns.add(createLocation2Column());
+            addIndicatorColumns(indicators);
+        	addGeographicColumnsForDatabaseId(filteredDatabaseId());
         
         } else {
         	columns.add(createLocationColumn());
@@ -72,7 +78,8 @@ public class SiteColumnModelBuilder {
     }
 
 
-	
+
+
 	private void addActivitySpecificColumns() {
 		dispatcher.execute(new GetSchema(), null, new AsyncCallback<SchemaDTO>() {
 
@@ -105,15 +112,21 @@ public class SiteColumnModelBuilder {
         addGeographicColumns(activity.getDatabase());
 	}
 	
+	private void addIndicatorColumns(Collection<IndicatorDTO> indicators) {
+		for(IndicatorDTO indicator : indicators) {
+			columns.add(createIndicatorColumn(indicator, indicator.getCode()));
+		}
+	}
+	
     private void addIndicatorColumns(ActivityDTO activity) {
         /*
         * Add columns for all indicators that have a queries heading
         */
 
         for (IndicatorDTO indicator : activity.getIndicators()) {
-            if(indicator.getListHeader() != null && !indicator.getListHeader().isEmpty()) {
+            if(indicator.getCode() != null && !indicator.getCode().isEmpty()) {
 
-                columns.add(createIndicatorColumn(indicator, indicator.getListHeader()));
+                columns.add(createIndicatorColumn(indicator, indicator.getCode()));
             }
         }
     }
@@ -134,8 +147,7 @@ public class SiteColumnModelBuilder {
     }
 
 	private void addGeographicColumns(UserDatabaseDTO database) {
-       columns.add(createLocationColumn());
-       columns.add(createLocation2Column());
+   
 
        for (AdminLevelDTO level : database.getCountry().getAdminLevels()) {
            ColumnConfig adminColumn = new ColumnConfig(level.getPropertyName(), level.getName(), 75);

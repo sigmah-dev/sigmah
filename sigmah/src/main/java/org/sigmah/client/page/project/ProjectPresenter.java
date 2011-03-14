@@ -140,7 +140,13 @@ public class ProjectPresenter implements Frame, TabPage {
             I18N.CONSTANTS.projectTabDataEntry(),
             I18N.CONSTANTS.projectTabCalendar(), I18N.CONSTANTS.projectTabReports(),
             I18N.CONSTANTS.projectTabSecurityIncident() };
+    
+
+    // TODO: the sub presenters all probably need to be notified of when the project is to be loaded
+    // into view. Maybe a SubProjectPresenter interface? Then projectIndicators field can be removed below
     private final SubPresenter[] presenters;
+    
+    private ProjectIndicatorsContainer projectIndicators;
 
     @Inject
     public ProjectPresenter(final Dispatcher dispatcher, View view, Authentication authentication,
@@ -154,12 +160,12 @@ public class ProjectPresenter implements Frame, TabPage {
                                                                     // development
         projectIndicators.setProjectPresenter(this);
         	
+        this.projectIndicators = projectIndicators;
         this.presenters = new SubPresenter[] {
                 new ProjectDashboardPresenter(dispatcher, eventBus, authentication, this, cache), // Dashboard
                 new ProjectDetailsPresenter(dispatcher, authentication, this, cache), // Details,
                 new ProjectLogFramePresenter(dispatcher, authentication, this), // Logic
                 projectIndicators,
-             //   new ProjectIndicatorsContainer(),
                 new PivotPresenter(dispatcher, eventBus),
                 new ProjectCalendarPresenter(dispatcher, authentication, this), // Calendar
                 new ProjectReportsPresenter(authentication, dispatcher, eventBus, this), // Reports
@@ -273,7 +279,7 @@ public class ProjectPresenter implements Frame, TabPage {
      * Loads a {@link ProjectDTO} object on the view.
      * 
      * @param projectDTO
-     *            the {@link ProjectDTO} object loaded on the view
+     *            the {@link ProjectDTO} object loaded on the viewprojectIndicators
      */
     private void loadProjectOnView(ProjectDTO projectDTO) {
         currentProjectDTO = projectDTO;
@@ -283,6 +289,7 @@ public class ProjectPresenter implements Frame, TabPage {
         refreshAmendment();
 
         // TODO: Call the sub-presenter
+        projectIndicators.loadProject(projectDTO);
     }
 
     public ProjectDTO getCurrentProjectDTO() {

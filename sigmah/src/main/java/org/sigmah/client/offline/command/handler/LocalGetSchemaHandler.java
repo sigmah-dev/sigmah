@@ -216,7 +216,7 @@ public class LocalGetSchemaHandler implements CommandHandler<GetSchema> {
                     indicator.setId(rs.getInt(1));
                     indicator.setName(rs.getString(2));
                     indicator.setCategory(rs.getString(3));
-                    indicator.setListHeader(rs.getString(4));
+                    indicator.setCode(rs.getString(4));
                     indicator.setDescription(rs.getString(5));
                     indicator.setAggregation(rs.getInt(6));
                     indicator.setUnits(rs.getString(7));

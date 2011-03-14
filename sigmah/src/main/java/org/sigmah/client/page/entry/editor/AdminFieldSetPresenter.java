@@ -9,6 +9,8 @@ import com.extjs.gxt.ui.client.store.ListStore;
 import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.dispatch.loader.ListCmdLoader;
 import org.sigmah.client.map.AdminBoundsHelper;
+import org.sigmah.client.mock.DispatcherStub;
+import org.sigmah.client.page.entry.editor.mock.MockAdminFieldSet;
 import org.sigmah.shared.command.GetAdminEntities;
 import org.sigmah.shared.command.result.AdminEntityResult;
 import org.sigmah.shared.dto.*;
@@ -44,8 +46,8 @@ public class AdminFieldSetPresenter {
 
     private final View view;
 
-    private ActivityDTO currentActivity;
-
+    private CountryDTO country;
+    
     private List<AdminLevelDTO> levels;
     private Map<Integer, ListCmdLoader<AdminEntityResult>> loaders =
             new HashMap<Integer, ListCmdLoader<AdminEntityResult>>();
@@ -59,12 +61,12 @@ public class AdminFieldSetPresenter {
 
     private Listener listener;
 
-    public AdminFieldSetPresenter(Dispatcher service, ActivityDTO activity, View view) {
+    public AdminFieldSetPresenter(Dispatcher service, CountryDTO country, View view) {
         this.view = view;
         this.view.bindPresenter(this);
-        this.currentActivity = activity;
 
-        this.levels = activity.getAdminLevels();
+        this.country = country;
+        this.levels = country.getAdminLevels();
 
         for (AdminLevelDTO level : levels) {
             int levelId = level.getId();
@@ -85,7 +87,12 @@ public class AdminFieldSetPresenter {
         }
     }
 
-    public void setListener(Listener listener) {
+    public AdminFieldSetPresenter(Dispatcher service, ActivityDTO activity,
+			View fieldSet) {
+    	this(service, activity.getDatabase().getCountry(), fieldSet);
+    }
+
+	public void setListener(Listener listener) {
         this.listener = listener;
     }
 
@@ -271,7 +278,7 @@ public class AdminFieldSetPresenter {
 
         // update bounds
         BoundingBoxDTO oldBounds = bounds;
-        bounds = AdminBoundsHelper.calculate(currentActivity, levels, new AdminBoundsHelper.EntityAccessor() {
+        bounds = AdminBoundsHelper.calculate(country, new AdminBoundsHelper.EntityAccessor() {
             public AdminEntityDTO get(int levelId) {
                 return selection.get(levelId);
             }

@@ -5,9 +5,12 @@
 
 package org.sigmah.client.page.entry.editor;
 
-import com.extjs.gxt.ui.client.widget.form.TextField;
+import java.util.List;
+
 import org.sigmah.client.i18n.I18N;
-import org.sigmah.shared.dto.ActivityDTO;
+import org.sigmah.shared.dto.AdminLevelDTO;
+
+import com.extjs.gxt.ui.client.widget.form.TextField;
 
 /**
  * @author Alex Bertram (akbertram@gmail.com)
@@ -15,22 +18,18 @@ import org.sigmah.shared.dto.ActivityDTO;
 public class LocationFieldSet extends AdminFieldSet {
 
 
-    public LocationFieldSet(ActivityDTO activity) {
-        super(activity);
+    public LocationFieldSet(List<AdminLevelDTO> adminLevels, String locationLabel) {
+        super(adminLevels);
 
-        if (activity.getLocationType().getBoundAdminLevelId() == null) {
+        TextField<String> nameField = new TextField<String>();
+        nameField.setName("locationName");
+        nameField.setFieldLabel(locationLabel);
+        nameField.setAllowBlank(false);
+        add(nameField);
 
-            TextField<String> nameField = new TextField<String>();
-            nameField.setName("locationName");
-            nameField.setFieldLabel(activity.getLocationType().getName());
-            nameField.setAllowBlank(false);
-            add(nameField);
-
-            TextField<String> axeField = new TextField<String>();
-            axeField.setName("locationAxe");
-            axeField.setFieldLabel(I18N.CONSTANTS.axe());
-            add(axeField);
-        }
+        TextField<String> axeField = new TextField<String>();
+        axeField.setName("locationAxe");
+        axeField.setFieldLabel(I18N.CONSTANTS.axe());
+        add(axeField);
     }
-
 }

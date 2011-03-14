@@ -6,6 +6,7 @@
 package org.sigmah.client.page.entry;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -26,6 +27,7 @@ import org.sigmah.shared.command.GetSites;
 import org.sigmah.shared.command.result.BatchResult;
 import org.sigmah.shared.command.result.SiteResult;
 import org.sigmah.shared.dao.Filter;
+import org.sigmah.shared.dto.IndicatorDTO;
 import org.sigmah.shared.dto.SchemaDTO;
 import org.sigmah.shared.dto.SiteDTO;
 import org.sigmah.shared.dto.UserDatabaseDTO;
@@ -36,6 +38,7 @@ import com.extjs.gxt.ui.client.data.LoadEvent;
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.data.PagingLoader;
 import com.extjs.gxt.ui.client.data.RpcProxy;
+import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.event.Listener;
@@ -49,8 +52,8 @@ import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Info;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.EditorGrid;
-import com.extjs.gxt.ui.client.widget.grid.GridSelectionModel;
 import com.extjs.gxt.ui.client.widget.grid.EditorGrid.ClicksToEdit;
+import com.extjs.gxt.ui.client.widget.grid.GridSelectionModel;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
@@ -86,7 +89,7 @@ public class SiteGridPanel extends ContentPanel implements ActionListener, Selec
 	private boolean dragSource;
 
 	private Integer siteIdToSelectOnNextLoad;
-
+	
 	@Inject
 	public SiteGridPanel(EventBus eventBus, Dispatcher service, IStateManager stateMgr) {
 		this.eventBus = eventBus;
@@ -145,6 +148,7 @@ public class SiteGridPanel extends ContentPanel implements ActionListener, Selec
 		});
 	}
 	
+	
 	/**
 	 * Loads the sites using the given filter.
 	 * This must be called by the container.
@@ -152,10 +156,23 @@ public class SiteGridPanel extends ContentPanel implements ActionListener, Selec
 	 * @param filter
 	 */
 	public void load(Filter filter) {
+		load(filter, Collections.<IndicatorDTO>emptySet());
+	}
+	
+	/**
+	 * Loads the sites using the given filter, 
+	 * and including columns for the supplied indicators.
+	 * 
+	 * This must be called by the container.
+	 * 
+	 * @param filter
+	 * @param indicators a list of indicators to include as columns
+	 */
+	public void load(Filter filter, Collection<IndicatorDTO> indicators) {
 		this.filter = filter;
 		loader.setOffset(0);
 		loader.load();
-		new SiteColumnModelBuilder(service, filter, new AsyncCallback<ColumnModel>() {
+		new SiteColumnModelBuilder(service, filter, indicators, new AsyncCallback<ColumnModel>() {
 			
 			@Override
 			public void onSuccess(ColumnModel result) {
@@ -168,6 +185,8 @@ public class SiteGridPanel extends ContentPanel implements ActionListener, Selec
 			}
 		});
 	}
+	
+	
 	
 	/**
 	 * 
@@ -231,6 +250,10 @@ public class SiteGridPanel extends ContentPanel implements ActionListener, Selec
 	public void removeSelectionListener(
 			SelectionChangedListener<SiteDTO> listener) {
 		removeListener(Events.SelectionChange, listener);
+	}
+	
+	public void addActionListener(Listener<ComponentEvent> listener) {
+		toolBar.addListener(Events.Select, listener);
 	}
 
 	@Override
@@ -395,7 +418,7 @@ public class SiteGridPanel extends ContentPanel implements ActionListener, Selec
 
 			@Override
 			public void onSuccess(SchemaDTO result) {
-				UserDatabaseDTO db = result.getActivityById(selectedSite.getActivityId()).getDatabase();
+				UserDatabaseDTO db = result.getDatabaseById(selectedSite.getDatabaseId());
 				boolean editable = db.isEditAllAllowed() ||
 				(db.isEditAllowed() && db.getMyPartnerId() == selectedSite.getPartner().getId());
 				callback.onSuccess(editable);			

@@ -130,6 +130,7 @@ public class ActionToolBar extends ToolBar implements Listener<ButtonEvent> {
         if(listener != null) {
             listener.onUIAction(be.getButton().getItemId());
         }
+        fireEvent(Events.Select, be);
     }
 
     public void setActionEnabled(String actionId, boolean enabled) {

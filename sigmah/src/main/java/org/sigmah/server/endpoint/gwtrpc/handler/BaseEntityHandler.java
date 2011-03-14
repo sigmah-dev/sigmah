@@ -55,8 +55,8 @@ public class BaseEntityHandler {
             indicator.setCollectMonitoring((Boolean) changes.get("collectMonitoring"));
         }
 
-        if (changes.containsKey("listHeader")) {
-            indicator.setListHeader((String) changes.get("listHeader"));
+        if (changes.containsKey("code")) {
+            indicator.setCode((String) changes.get("code"));
         }
 
         if (changes.containsKey("description")) {

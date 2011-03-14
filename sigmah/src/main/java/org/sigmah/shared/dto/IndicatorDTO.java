@@ -89,16 +89,16 @@ public final class IndicatorDTO extends BaseModelData implements EntityDTO {
     /**
      * @return the short list header used when displaying this Indicator in a grid
      */
-	public String getListHeader() {
-		return get("listHeader");
+	public String getCode() {
+		return get("code");
 	}
 
     /**
      * Sets the short list header that is used when this Indicator's values are displayed
      * in a grid.
      */
-	public void setListHeader(String value) {
-		set("listHeader", value);
+	public void setCode(String value) {
+		set("code", value);
 	}
 
     /**
