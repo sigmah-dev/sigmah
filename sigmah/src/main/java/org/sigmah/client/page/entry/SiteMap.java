@@ -87,7 +87,7 @@ public class SiteMap extends ContentPanel implements Shutdownable {
      */
     private Map<Integer, Marker> sites;
 
-    private Listener<SiteEvent> siteListener;
+    private Listener<SiteEvent> siteListener; 
 
     private Marker currentHighlightedMarker;
     private Marker highlitMarker;

@@ -162,7 +162,6 @@ public class Activity implements Serializable, Deleteable, Orderable, SchemaElem
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "activity")
     @org.hibernate.annotations.OrderBy(clause = "sortOrder")
-    @org.hibernate.annotations.Fetch(org.hibernate.annotations.FetchMode.SUBSELECT)
     @org.hibernate.annotations.Filter(name = "hideDeleted", condition = "DateDeleted is null")
     public Set<Indicator> getIndicators() {
         return this.indicators;

@@ -21,6 +21,7 @@ public class SqlQueryBuilder {
     protected StringBuilder tableList = new StringBuilder();
     protected StringBuilder whereClause = new StringBuilder();
     protected StringBuilder orderByClause = new StringBuilder();
+    protected String groupByClause;
     protected List<Object> parameters = new ArrayList<Object>();
 
     private String limitClause = "";
@@ -132,20 +133,29 @@ public class SqlQueryBuilder {
         }
         return this;
     }
+    
+	public SqlQueryBuilder groupBy(String string) {
+		this.groupByClause = string;
+		return this;
+	}
 
     public String sql() {
         StringBuilder sql = new StringBuilder("SELECT ")
-                .append(fieldList.toString())
+                .append(fieldList)
                 .append(" FROM ")
-                .append(tableList.toString());
+                .append(tableList);
 
         if(whereClause.length() > 0) {
             sql.append(" WHERE ")
-                    .append(whereClause.toString());
+                    .append(whereClause);
+        }
+        if(groupByClause != null) {
+        	sql.append(" GROUP BY ")
+        		.append(groupByClause);
         }
         if(orderByClause.length() > 0) {
             sql.append(" ORDER BY ")
-                    .append(orderByClause.toString());
+                    .append(orderByClause);
         }
         sql.append(" ")
                 .append(limitClause);
@@ -280,4 +290,5 @@ public class SqlQueryBuilder {
         public abstract void handle(ResultSet rs) throws SQLException;
 
     }
+
 }

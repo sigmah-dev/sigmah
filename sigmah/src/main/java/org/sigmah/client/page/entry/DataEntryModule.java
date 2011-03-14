@@ -15,7 +15,7 @@ import com.google.gwt.inject.client.AbstractGinModule;
  *
  * @author Alex Bertram
  */
-public class EntryModule extends AbstractGinModule {
+public class DataEntryModule extends AbstractGinModule {
 
     @Override
     protected void configure() {

@@ -6,9 +6,9 @@
 package org.sigmah.client.page.entry;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-import org.apache.poi.hssf.record.formula.functions.T;
 import org.sigmah.client.AppEvents;
 import org.sigmah.client.EventBus;
 import org.sigmah.client.dispatch.Dispatcher;
@@ -30,6 +30,7 @@ import org.sigmah.shared.dto.SchemaDTO;
 import org.sigmah.shared.dto.SiteDTO;
 import org.sigmah.shared.dto.UserDatabaseDTO;
 
+import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.data.BasePagingLoader;
 import com.extjs.gxt.ui.client.data.LoadEvent;
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
@@ -41,6 +42,7 @@ import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.LoadListener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
+import com.extjs.gxt.ui.client.event.SelectionProvider;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.store.Record;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
@@ -48,8 +50,8 @@ import com.extjs.gxt.ui.client.widget.Info;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.EditorGrid;
 import com.extjs.gxt.ui.client.widget.grid.GridSelectionModel;
+import com.extjs.gxt.ui.client.widget.grid.EditorGrid.ClicksToEdit;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
-import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -62,7 +64,7 @@ import com.google.inject.Inject;
  * 
  * @author Alex Bertram (akbertram@gmail.com)
  */
-public class SiteGridPanel extends ContentPanel implements ActionListener {
+public class SiteGridPanel extends ContentPanel implements ActionListener, SelectionProvider<SiteDTO> {
 
 	private Listener<SiteEvent> siteChangedListener;
 	private Listener<SiteEvent> siteCreatedListener;
@@ -91,7 +93,7 @@ public class SiteGridPanel extends ContentPanel implements ActionListener {
 		this.service = service;
 
 		setLayout(new FitLayout());
-		
+		setHeading("Sites");
 		initLoader();
 		
 		store = new ListStore<SiteDTO>(loader);
@@ -117,14 +119,35 @@ public class SiteGridPanel extends ContentPanel implements ActionListener {
 				//toolBar.setActionEnabled(UIActions.add, currentActivity.getDatabase().isEditAllowed());
 				toolBar.setActionEnabled(UIActions.edit, false);
 				toolBar.setActionEnabled(UIActions.delete, false);
+				if(grid != null) {
+					grid.mask();
+				}
+			}
+			@Override
+			public void loaderLoad(LoadEvent le) {
+				// set the first item as selected
+				if(store.getCount() > 0) {
+					grid.getSelectionModel().setSelection(Collections.singletonList(store.getAt(0)));
+				}
+				if(grid != null) {
+					grid.unmask();
+				}
+			}
+			@Override
+			public void loaderLoadException(LoadEvent le) {
+				Log.debug("SiteGridPanel load failed", le.exception);
+				grid.getView().setEmptyText(I18N.CONSTANTS.connectionProblem());
+				store.removeAll();
+				if(grid != null) {
+					grid.unmask();
+				}
 			}
 		});
 	}
 	
-
 	/**
 	 * Loads the sites using the given filter.
-	 * This must be called by the container
+	 * This must be called by the container.
 	 * 
 	 * @param filter
 	 */
@@ -141,7 +164,7 @@ public class SiteGridPanel extends ContentPanel implements ActionListener {
 			
 			@Override
 			public void onFailure(Throwable caught) {
-								
+				// TODO: what to do??	
 			}
 		});
 	}
@@ -156,9 +179,23 @@ public class SiteGridPanel extends ContentPanel implements ActionListener {
 	public ActionToolBar getToolBar() {
 		return toolBar;
 	}
-
+	
 	protected void initToolBar() {
-		toolBar = new ActionToolBar();
+		toolBar = createToolBar(); 
+		assert toolBar != null : "createToolBar() cannot return null.";
+		toolBar.setListener(this);
+
+		setTopComponent(toolBar);
+	}
+
+	/**
+	 * Creates the {@link ActionToolBar} used as the top component.
+	 * This can be overriden by subclasses.
+	 * 
+	 * @return the toolbar
+	 */
+	protected ActionToolBar createToolBar() {
+		ActionToolBar toolBar = new ActionToolBar();
 		toolBar.addSaveSplitButton();
 		toolBar.add(new SeparatorToolItem());
 
@@ -170,10 +207,7 @@ public class SiteGridPanel extends ContentPanel implements ActionListener {
 
 		toolBar.addExcelExportButton();
 		
-		toolBar.setListener(this); 
-		
-		setTopComponent(toolBar);
-		
+		return toolBar;
 	}
 	
 	private void initPagingToolBar() {
@@ -182,6 +216,30 @@ public class SiteGridPanel extends ContentPanel implements ActionListener {
 		setBottomComponent(bar);
 	}
 	
+	@Override
+	public List<SiteDTO> getSelection() {
+		return grid == null ? Collections.<SiteDTO>emptyList() : grid.getSelectionModel().getSelection();
+	}
+
+	@Override
+	public void addSelectionChangedListener(
+			SelectionChangedListener<SiteDTO> listener) {
+		addListener(Events.SelectionChange, listener);
+	}
+
+	@Override
+	public void removeSelectionListener(
+			SelectionChangedListener<SiteDTO> listener) {
+		removeListener(Events.SelectionChange, listener);
+	}
+
+	@Override
+	public void setSelection(List<SiteDTO> selection) {
+		if(grid != null) {
+			grid.getSelectionModel().setSelection(selection);
+		}
+	} 
+
 	/**
 	 * A GXT grid can't be created without a column model, and since 
 	 * our column model is a function of the filter applied, we delay
@@ -193,7 +251,7 @@ public class SiteGridPanel extends ContentPanel implements ActionListener {
 		
 		if(grid == null) {
 			grid = new EditorGrid<SiteDTO>(store, model);
-			grid.setLoadMask(true); 
+			grid.setClicksToEdit(ClicksToEdit.TWO);
 			grid.addListener(Events.AfterEdit, new Listener<GridEvent<SiteDTO>>() {
 				@Override
 				public void handleEvent(GridEvent<SiteDTO> event) {
@@ -209,7 +267,7 @@ public class SiteGridPanel extends ContentPanel implements ActionListener {
 			grid.getSelectionModel().addSelectionChangedListener(new SelectionChangedListener<SiteDTO>() {
 				@Override
 				public void selectionChanged(SelectionChangedEvent<SiteDTO> se) {
-					onSelectionChanged(se.getSelectedItem());
+					onSelectionChanged(se);
 				}
 			});
 			
@@ -299,13 +357,13 @@ public class SiteGridPanel extends ContentPanel implements ActionListener {
 //		}
 	}
 
-	public void onSelectionChanged(SiteDTO selectedSite) {
+	public void onSelectionChanged(SelectionChangedEvent<SiteDTO> event) {
 
 		toolBar.setActionEnabled(UIActions.delete, false);
 		toolBar.setActionEnabled(UIActions.edit, false);
 
-		if(selectedSite != null) {
-			isEditable(selectedSite, new AsyncCallback<Boolean>() {
+		if(!event.getSelection().isEmpty()) {
+			isEditable(event.getSelectedItem(), new AsyncCallback<Boolean>() {
 
 				@Override
 				public void onFailure(Throwable caught) {					
@@ -318,7 +376,12 @@ public class SiteGridPanel extends ContentPanel implements ActionListener {
 				}
 			});
 		}
-		eventBus.fireEvent(new SiteEvent(AppEvents.SiteSelected, this, selectedSite));
+		
+		fireEvent(Events.SelectionChange, event);
+
+		if(!event.getSelection().isEmpty()) {
+			eventBus.fireEvent(new SiteEvent(AppEvents.SiteSelected, this, event.getSelectedItem()));
+		}
 	}
 
 
@@ -339,33 +402,7 @@ public class SiteGridPanel extends ContentPanel implements ActionListener {
 			}
 		});
 	}
-////
-////	@Override
-////	public boolean beforeEdit(Record record, String property) {
-////		return isEditable((SiteDTO) record.getModel());
-////	}
-////
-////	@Override
-////	protected Command createSaveCommand() {
-////
-////		BatchCommand batch = new BatchCommand();
-////		for (Record record : store.getModifiedRecords()) {
-////			batch.add(new UpdateEntity("Site", (Integer) record.get("id"), getChangedProperties(record)));
-////		}
-////
-////		return batch;
-////	}
-////
-////	@Override
-////	public void onUIAction(String actionId) {
-////		super.onUIAction(actionId);
-////		if (UIActions.export.equals(actionId)) {
-////			onExport();
-////		} else if (UIActions.map.equals(actionId)) {
-////
-////		}
-////	}
-////
+
 ////
 ////	protected void onAdd() {
 ////
@@ -415,7 +452,6 @@ public class SiteGridPanel extends ContentPanel implements ActionListener {
 //		eventBus.fireEvent(new DownloadRequestEvent("siteExport", url));
 //	}
 
-
 	private class SiteProxy extends RpcProxy<SiteResult> {
 
 		@Override
@@ -430,9 +466,5 @@ public class SiteGridPanel extends ContentPanel implements ActionListener {
 			
 			service.execute(cmd, null, callback);
 		}
-
 	}
-
-
-
 }

@@ -5,79 +5,102 @@
 
 package org.sigmah.client.page.entry;
 
-import com.extjs.gxt.ui.client.event.Listener;
-import com.google.gwt.i18n.client.NumberFormat;
-import com.google.inject.Inject;
 import org.sigmah.client.AppEvents;
 import org.sigmah.client.EventBus;
 import org.sigmah.client.event.SiteEvent;
+import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.i18n.UIConstants;
 import org.sigmah.client.page.common.Shutdownable;
-import org.sigmah.shared.dto.*;
+import org.sigmah.shared.dto.ActivityDTO;
+import org.sigmah.shared.dto.AttributeDTO;
+import org.sigmah.shared.dto.AttributeGroupDTO;
+import org.sigmah.shared.dto.IndicatorDTO;
+import org.sigmah.shared.dto.IndicatorGroup;
+import org.sigmah.shared.dto.SiteDTO;
 
-/*
+import com.extjs.gxt.ui.client.Style;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.Html;
+import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.google.gwt.i18n.client.NumberFormat;
+import com.google.inject.Inject;
+
+/**
+ * 
+ * ContentPanel that displays the full details of a {@link SiteDTO} in 
+ * natural HTML form.
+ * 
  * @author Alex Bertram
  */
-
-public class DetailsPresenter implements Shutdownable {
-
-	public interface View {
-		public void setHtml(String html);
-
-		void setSelectionTitle(String title);
-	}
+public class SiteDetailPanel extends ContentPanel implements Shutdownable {
 
 	private final EventBus eventBus;
-	private final ActivityDTO activity;
 	private final UIConstants messages;
-	private final View view;
-	private final NumberFormat indicatorFormat;
 
-	private SiteDTO currentSite;
+	private final Html html;
 
 	private boolean showEmptyRows = false;
 
-	private Listener<SiteEvent> siteListener;
-
+	private ActivityDTO currentActivity;
+	private SiteDTO currentSite;
+	
+	private Listener siteListener;
+	
 	@Inject
-	public DetailsPresenter(EventBus eventBus, ActivityDTO activity,
-			UIConstants messages, View view) {
+	public SiteDetailPanel(EventBus eventBus, UIConstants messages) {
 		this.eventBus = eventBus;
-		this.activity = activity;
 		this.messages = messages;
-		this.view = view;
+		
+        setHeading(I18N.CONSTANTS.details());
+        setScrollMode(Style.Scroll.AUTOY);
+        setLayout(new FitLayout());
 
-		indicatorFormat = NumberFormat.getFormat("#,###");
+        html = new Html("&nbsp;");
+        html.setStyleName("details");
+        add(html);
 
-		siteListener = new Listener<SiteEvent>() {
+		Listener siteListener = new Listener<SiteEvent>() {
 			public void handleEvent(SiteEvent be) {
-				if (be.getType() == AppEvents.SiteSelected
-						&& be.getSite() != null) {
-					onSiteSelected(be.getSite());
-				} else if (be.getType() == AppEvents.SiteChanged) {
-					if (currentSite.getId() == be.getSite().getId()) {
-						onSiteSelected(be.getSite());
+				if (be.getType() == AppEvents.SiteChanged) {
+					if (currentSite != null && currentSite.getId() == be.getSite().getId()) {
+						updateHtml(be.getSite());
 					}
 				}
 			}
 		};
-		eventBus.addListener(AppEvents.SiteSelected, siteListener);
 		eventBus.addListener(AppEvents.SiteChanged, siteListener);
 	}
 
+	/**
+	 * Displays the details of the given site in the Panel
+	 * 
+	 * @param activity
+	 * @param site
+	 */
+	public void showSite(ActivityDTO activity, SiteDTO site) {
+		this.currentActivity = activity;
+		this.currentSite = site;
+		updateHtml(site);
+	}
+	
+	
 	public void shutdown() {
-		eventBus.removeListener(AppEvents.SiteSelected, siteListener);
 		eventBus.removeListener(AppEvents.SiteChanged, siteListener);
 	}
 
-	private void onSiteSelected(SiteDTO site) {
-
-		this.currentSite = site;
-		view.setSelectionTitle(site.getLocationName());
-		view.setHtml(renderSite(site));
+	private void updateHtml(SiteDTO site) {
+		setHeading(site.getLocationName());
+		html.setHtml(renderSite(site));		
 	}
 
-	protected String renderSite(SiteDTO site) {
+
+	public void clear() {
+		setHeading(I18N.CONSTANTS.details());
+		html.setHtml("&nbsp;");
+	}
+	
+	private String renderSite(SiteDTO site) {
 
 		StringBuilder html = new StringBuilder();
 
@@ -89,12 +112,12 @@ public class DetailsPresenter implements Shutdownable {
 					.append(commentsHtml).append("</p>");
 		}
 
-		for (AttributeGroupDTO group : activity.getAttributeGroups()) {
+		for (AttributeGroupDTO group : currentActivity.getAttributeGroups()) {
 			renderAttribute(html, group, site);
 		}
 
 		html.append("<table class='indicatorTable' cellspacing='0'>");
-		for (IndicatorGroup group : activity.groupIndicators()) {
+		for (IndicatorGroup group : currentActivity.groupIndicators()) {
 			renderIndicatorGroup(html, group, site);
 		}
 		html.append("</table>");
@@ -145,8 +168,10 @@ public class DetailsPresenter implements Shutdownable {
 	protected String formatValue(IndicatorDTO indicator, Double value) {
 		if (value == null) {
 			return "-";
+		} else if(indicator.getAggregation() == IndicatorDTO.AGGREGATE_AVG) {
+			return IndicatorNumberFormats.RATE.format(value);
 		} else {
-			return indicatorFormat.format(value);
+			return IndicatorNumberFormats.STOCK.format(value);
 		}
 	}
 

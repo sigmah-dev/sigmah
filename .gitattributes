@@ -365,14 +365,14 @@ sigmah/src/main/java/org/sigmah/client/page/dashboard/emptyStar.png -text
 sigmah/src/main/java/org/sigmah/client/page/dashboard/star.png -text
 sigmah/src/main/java/org/sigmah/client/page/entry/ActivityFilterPanel.java -text
 sigmah/src/main/java/org/sigmah/client/page/entry/DataEntryLoader.java -text
+sigmah/src/main/java/org/sigmah/client/page/entry/DataEntryModule.java -text
 sigmah/src/main/java/org/sigmah/client/page/entry/DataEntryPage.java -text
-sigmah/src/main/java/org/sigmah/client/page/entry/DetailsPresenter.java -text
-sigmah/src/main/java/org/sigmah/client/page/entry/DetailsTab.java -text
-sigmah/src/main/java/org/sigmah/client/page/entry/EntryModule.java -text
+sigmah/src/main/java/org/sigmah/client/page/entry/IndicatorNumberFormats.java -text
 sigmah/src/main/java/org/sigmah/client/page/entry/MonthlyGrid.java -text
 sigmah/src/main/java/org/sigmah/client/page/entry/MonthlyPresenter.java -text
 sigmah/src/main/java/org/sigmah/client/page/entry/MonthlyTab.java -text
 sigmah/src/main/java/org/sigmah/client/page/entry/SiteColumnModelBuilder.java -text
+sigmah/src/main/java/org/sigmah/client/page/entry/SiteDetailPanel.java -text
 sigmah/src/main/java/org/sigmah/client/page/entry/SiteGridDragSource.java -text
 sigmah/src/main/java/org/sigmah/client/page/entry/SiteGridPageState.java -text
 sigmah/src/main/java/org/sigmah/client/page/entry/SiteGridPanel.java -text
@@ -1122,6 +1122,7 @@ sigmah/src/main/java/org/sigmah/server/bootstrap/model/ResetPasswordPageModel.ja
 sigmah/src/main/java/org/sigmah/server/dao/AuthenticationDAO.java -text
 sigmah/src/main/java/org/sigmah/server/dao/BaseMapDAO.java -text
 sigmah/src/main/java/org/sigmah/server/dao/BaseMapFsDAO.java -text
+sigmah/src/main/java/org/sigmah/server/dao/IndicatorDAO.java -text
 sigmah/src/main/java/org/sigmah/server/dao/LocationDAO.java -text
 sigmah/src/main/java/org/sigmah/server/dao/PartnerDAO.java -text
 sigmah/src/main/java/org/sigmah/server/dao/PersonalEventDAO.java -text
@@ -1138,7 +1139,6 @@ sigmah/src/main/java/org/sigmah/server/dao/hibernate/GenericDAO.java -text
 sigmah/src/main/java/org/sigmah/server/dao/hibernate/HibernateDAOProvider.java -text
 sigmah/src/main/java/org/sigmah/server/dao/hibernate/HibernateModule.java -text
 sigmah/src/main/java/org/sigmah/server/dao/hibernate/HibernateSiteTableDAO.java -text
-sigmah/src/main/java/org/sigmah/server/dao/hibernate/IndicatorDAOImpl.java -text
 sigmah/src/main/java/org/sigmah/server/dao/hibernate/LocationHibernateDAO.java -text
 sigmah/src/main/java/org/sigmah/server/dao/hibernate/PersonalEventHibernateDAO.java -text
 sigmah/src/main/java/org/sigmah/server/dao/hibernate/PivotHibernateDAO.java -text
@@ -1207,6 +1207,7 @@ sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetCalendarHandle
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetCountriesHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetCountryHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetHistoryHandler.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetIndicatorsHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetInvitationListHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetMapIconsHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetMonitoredPointsHandler.java -text
@@ -1481,7 +1482,6 @@ sigmah/src/main/java/org/sigmah/shared/command/UpdateReportDef.java -text
 sigmah/src/main/java/org/sigmah/shared/command/UpdateSubscription.java -text
 sigmah/src/main/java/org/sigmah/shared/command/UpdateUserPermissions.java -text
 sigmah/src/main/java/org/sigmah/shared/command/handler/CommandHandler.java -text
-sigmah/src/main/java/org/sigmah/shared/command/handler/GetIndicatorsHandler.java -text
 sigmah/src/main/java/org/sigmah/shared/command/handler/GetSchemaHandler.java -text
 sigmah/src/main/java/org/sigmah/shared/command/handler/GetSitesHandler.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/AdminEntityResult.java -text
@@ -1493,6 +1493,7 @@ sigmah/src/main/java/org/sigmah/shared/command/result/CountryResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/CreateResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/HistoryResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/HtmlResult.java -text
+sigmah/src/main/java/org/sigmah/shared/command/result/IndicatorListResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/InvitationList.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/ListResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/LogFrameResult.java -text
@@ -1911,6 +1912,7 @@ sigmah/src/test/java/org/sigmah/server/endpoint/gwtrpc/CountryNameOnlyBeanMappin
 sigmah/src/test/java/org/sigmah/server/endpoint/gwtrpc/CreateDatabaseTest.java -text
 sigmah/src/test/java/org/sigmah/server/endpoint/gwtrpc/CreateSiteTest.java -text
 sigmah/src/test/java/org/sigmah/server/endpoint/gwtrpc/DeleteTest.java -text
+sigmah/src/test/java/org/sigmah/server/endpoint/gwtrpc/GetIndicatorsHandlerTest.java -text
 sigmah/src/test/java/org/sigmah/server/endpoint/gwtrpc/GetMapIconsTest.java -text
 sigmah/src/test/java/org/sigmah/server/endpoint/gwtrpc/GetSchemaTest.java -text
 sigmah/src/test/java/org/sigmah/server/endpoint/gwtrpc/GetSitesTest.java -text

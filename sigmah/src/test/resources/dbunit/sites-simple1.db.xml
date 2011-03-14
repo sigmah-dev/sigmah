@@ -97,6 +97,7 @@
 				
 			<indicator indicatorId="1"
 				activityId="1"
+				databaseId="1"
 				name="beneficiaries"
 				units="menages"
 				aggregation="0"
@@ -111,6 +112,7 @@
 				
 			<indicator indicatorId="2"
 				activityId="1"
+				databaseId="1"
 				name="baches" 
 				units="menages"   
 				aggregation="0"
@@ -125,6 +127,7 @@
 
             <indicator indicatorId="103"
                 activityId="1"
+                databaseId="1"
                 name="Nb. of distributions"
                 units="distributions"
                 aggregation="2"
@@ -170,6 +173,7 @@
 				
 			<indicator indicatorId="5"
 				activityId="3"
+				databaseId="2"
 				name="Utilisaton rate"
 				units="nc/hab/month"   
 				aggregation="1"  
@@ -191,6 +195,7 @@
 
             <indicator indicatorId="6"
                  activityId="4"
+                 databaseId="2"
                  name="Number of children"
                  units="children"
                  aggregation="1"
@@ -256,7 +261,7 @@
 	<locationAdminLink locationId="1" adminEntityId="2"/>
 	<locationAdminLink locationId="1" adminEntityId="12"/>
 	
-	<site siteId="1" activityId="1" locationId="1" partnerId="1" Status="1" target="0" Date1="2009-01-01" Date2="2009-01-02" DateCreated="2009-02-01" DateEdited="2009-02-01"/>
+	<site siteId="1" databaseId="1" activityId="1" locationId="1" partnerId="1" Status="1" target="0" Date1="2009-01-01" Date2="2009-01-02" DateCreated="2009-02-01" DateEdited="2009-02-01"/>
 	<attributeValue siteId="1" attributeId="1" value="0"/>
 	<attributeValue siteId="1" attributeId="2" value="1"/>
 	
@@ -271,7 +276,7 @@
 	<locationAdminLink locationId="2" adminEntityId="2"/>
 	<locationAdminLink locationId="2" adminEntityId="11"/>
 	
-	<site siteId="2" activityId="1" locationId="2" partnerId="1" Status="1" target="1" Date1="2009-01-15" Date2="2009-01-16" DateCreated="2009-02-01" DateEdited="2009-02-01"/>
+	<site siteId="2" databaseId="1" activityId="1" locationId="2" partnerId="1" Status="1" target="1" Date1="2009-01-15" Date2="2009-01-16" DateCreated="2009-02-01" DateEdited="2009-02-01"/>
 	<attributeValue siteId="2" attributeId="1" value="1"/>
 	<attributeValue siteId="2" attributeId="2" value="1"/>
 	
@@ -285,7 +290,7 @@
 	<locationAdminLink locationId="3" adminEntityId="4"/>
 	<locationAdminLink locationId="3" adminEntityId="21"/>
 	
-	<site siteId="3" activityId="1" locationId="3" partnerId="2" Status="1" target="0" Date1="2008-10-05" Date2="2008-10-06" DateCreated="2009-02-01" DateEdited="2009-02-01"/>
+	<site siteId="3" databaseId="1" activityId="1" locationId="3" partnerId="2" Status="1" target="0" Date1="2008-10-05" Date2="2008-10-06" DateCreated="2009-02-01" DateEdited="2009-02-01"/>
 	<attributeValue siteId="3" attributeId="1" value="1"/>
 	<attributeValue siteId="3" attributeId="2" value="0"/>
 	

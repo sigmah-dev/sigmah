@@ -23,7 +23,6 @@ import java.util.Date;
 		name="hideDeleted",
 		condition="DateDeleted is null"
 	)
-
 public class Indicator implements java.io.Serializable, Orderable, Deleteable, SchemaElement {
 
 	private static final long serialVersionUID = 5978350531347182242L;

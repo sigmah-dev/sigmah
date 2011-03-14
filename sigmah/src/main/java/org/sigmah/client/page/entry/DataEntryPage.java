@@ -5,7 +5,6 @@
 
 package org.sigmah.client.page.entry;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.sigmah.client.EventBus;
@@ -23,14 +22,12 @@ import org.sigmah.shared.dao.Filter;
 import org.sigmah.shared.dto.ActivityDTO;
 import org.sigmah.shared.dto.AdminEntityDTO;
 import org.sigmah.shared.dto.PartnerDTO;
+import org.sigmah.shared.dto.SiteDTO;
 import org.sigmah.shared.report.model.DimensionType;
 
 import com.extjs.gxt.ui.client.Style;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.ComponentEvent;
-import com.extjs.gxt.ui.client.event.Events;
-import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
@@ -39,20 +36,18 @@ import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.TabItem;
-import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.extjs.gxt.ui.client.widget.button.ToggleButton;
 import com.extjs.gxt.ui.client.widget.layout.AccordionLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.CardLayout;
+import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
-import com.google.gwt.user.client.Event;
-import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.inject.Inject;
 
 /**
  * 
- * This is the container and Page for the data entry components.
+ * The DataEntryPage is a container for the data entry components.
  *  
  * 
  * @author Alex Bertram (akbertram@gmail.com)
@@ -62,11 +57,8 @@ public class DataEntryPage extends LayoutContainer implements Page {
 	public static final PageId ID = new PageId("site-grid");
 
 	private CollapsibleTabPanel tabPanel;
+	private LayoutContainer center;
 	private LayoutContainer sidePanel;
-
-	private int tabPanelExandedSize = 200;
-	private boolean tabPanelCollapsed;
-	private BorderLayoutData tabPanelLayout;
 
 	private EventBus eventBus;
 	
@@ -77,8 +69,12 @@ public class DataEntryPage extends LayoutContainer implements Page {
 	
 	private SiteGridPanel gridPanel;
 	
+	private SiteDetailPanel detailPanel;
+	
 	private SiteMap siteMap;
 
+	private ActivityDTO currentActivity;
+	
 	
 	@Inject
 	public DataEntryPage(
@@ -88,23 +84,29 @@ public class DataEntryPage extends LayoutContainer implements Page {
 			DateRangePanel datePanel, 
 			PartnerFilterPanel partnerPanel, 
 			SiteGridPanel gridPanel,
-			SiteMap siteMap) {
+			SiteMap siteMap,
+			SiteDetailPanel detailPanel) {
 		
 		this.eventBus = eventBus;
 		this.activityPanel = activityPanel;
 		this.adminPanel = adminPanel;
 		this.datePanel = datePanel;
 		this.partnerPanel = partnerPanel;
+		this.detailPanel = detailPanel;
 		
 		this.gridPanel = gridPanel;
 		this.siteMap = siteMap;
 		
 		setLayout(new BorderLayout());
 		
+		center = new LayoutContainer();
+		center.setLayout(new BorderLayout());
+		add(center, new BorderLayoutData(LayoutRegion.CENTER));
+		
 		addFilterPane();			
-		addSiteGridPanel(gridPanel);
+		addSiteGridPanel();
 		addMapPanel();
-	
+		addSouthTabs();
 		
 		sinkEvents();
 	}
@@ -120,9 +122,16 @@ public class DataEntryPage extends LayoutContainer implements Page {
 		});
 	}
 
-	private void addSiteGridPanel(SiteGridPanel gridPanel) {
+	private void addSiteGridPanel() {
 		gridPanel.getToolBar().add(new SeparatorToolItem());
-		add(gridPanel, new BorderLayoutData(LayoutRegion.CENTER));
+		gridPanel.addSelectionChangedListener(new SelectionChangedListener<SiteDTO>() {
+			
+			@Override
+			public void selectionChanged(SelectionChangedEvent<SiteDTO> se) {
+				onSelectionChanged(se.getSelectedItem());
+			}
+		});
+		center.add(gridPanel, new BorderLayoutData(LayoutRegion.CENTER));
 	}
 	
 	private void addFilterPane() {
@@ -159,67 +168,18 @@ public class DataEntryPage extends LayoutContainer implements Page {
 		gridPanel.getToolBar().add(sideBarButton);
 	}
 
-	public void addSouthTab(TabItem tab) {
+	public void addSouthTabs() {
+		tabPanel = new CollapsibleTabPanel(center);
 
-		if(tabPanel == null) {
-
-			tabPanelLayout = new BorderLayoutData(Style.LayoutRegion.SOUTH);
-			tabPanelLayout.setCollapsible(true);
-			tabPanelLayout.setSplit(true);
-			tabPanelLayout.setMargins(new Margins(5, 0, 0, 0));
-
-			tabPanel = new CollapsibleTabPanel();
-			tabPanel.setTabPosition(TabPanel.TabPosition.BOTTOM);
-			tabPanel.setAutoSelect(false);
-			add(tabPanel, tabPanelLayout);
-		}
-
-		tab.getHeader().addListener(Events.BrowserEvent, new Listener<ComponentEvent>() {
-			public void handleEvent(ComponentEvent be) {
-				if(be.getEventTypeInt() == Event.ONCLICK) {
-					onTabClicked((TabItem.HeaderItem) be.getComponent());
-				}
-			}
-		});
-
-		tabPanel.add(tab);
+		TabItem detailsTab = new TabItem(I18N.CONSTANTS.details());
+		detailsTab.setLayout(new FitLayout());
+		detailsTab.add(detailPanel);
+		tabPanel.add(detailsTab);
 	}
-
-	private void onTabClicked(TabItem.HeaderItem header) {
-		if(tabPanel.getSelectedItem()!=null && tabPanel.getSelectedItem().getHeader() == header) {
-			if(!tabPanelCollapsed) {
-				// "collapse" tab panel - show only the tab strip
-				collapseTabs();
-			} else {
-				// expand tab panel to previous size
-				expandTabs();
-			}
-			getLayout().layout();
-		} else if(tabPanelCollapsed) {
-			expandTabs();
-			getLayout().layout();
-		}
-	}
-
-	private void collapseTabs() {
-		tabPanelExandedSize = (int)tabPanelLayout.getSize();
-		tabPanelLayout.setSize(tabPanel.getBar().getHeight());
-		tabPanelLayout.setMargins(new Margins(0));
-		tabPanel.getBody().setVisible(false);
-		tabPanelLayout.setSplit(false);
-		tabPanelCollapsed = true;
-	}
-
-	private void expandTabs() {
-		tabPanel.getBody().setVisible(true);
-		tabPanelLayout.setSize(tabPanelExandedSize);
-		tabPanelLayout.setMargins(new Margins(5, 0, 0, 0));
-		tabPanelLayout.setSplit(true);
-		tabPanelCollapsed = false;
-	}
-	
 
 	private void onActivityChanged(ActivityDTO selectedItem) {
+		this.currentActivity = selectedItem;
+		
 		applyFilter();
 		gridPanel.setHeading(selectedItem.getName());
 		if(siteMap.isVisible()) {
@@ -227,6 +187,14 @@ public class DataEntryPage extends LayoutContainer implements Page {
 		}
 	}
 
+	private void onSelectionChanged(SiteDTO selection) {
+		if(selection == null) {
+			detailPanel.clear();
+		} else {
+			detailPanel.showSite(currentActivity, selection);
+		}
+	}
+	
 	private void applyFilter() {
 
 		Filter filter = new Filter();

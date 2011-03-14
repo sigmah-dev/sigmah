@@ -55,6 +55,7 @@ public class Site implements java.io.Serializable, Deleteable {
     private Site assessment;
 	
 	private Activity activity;
+	private UserDatabase database;
 	private Location location;
 	
 	private String siteGuid;
@@ -122,7 +123,7 @@ public class Site implements java.io.Serializable, Deleteable {
      * @return the Activity to which this Site belongs
      */
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "ActivityId", nullable = false)
+	@JoinColumn(name = "ActivityId", nullable = true)
 	public Activity getActivity() {
 		return this.activity;
 	}
@@ -134,8 +135,18 @@ public class Site implements java.io.Serializable, Deleteable {
 	public void setActivity(Activity activity) {
 		this.activity = activity;
 	}
+	
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "DatabaseId", nullable=true)
+    public UserDatabase getDatabase() {
+		return database;
+	}
 
-    /**
+	public void setDatabase(UserDatabase database) {
+		this.database = database;
+	}
+
+	/**
      *
      * @return the geographic Location of this Site
      */

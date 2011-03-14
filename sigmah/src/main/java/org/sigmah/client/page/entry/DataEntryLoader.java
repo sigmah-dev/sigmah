@@ -32,6 +32,9 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 
 /**
+ * Loader for the {@link DataEntryPage }
+ * 
+ * 
  * @author Alex Bertram (akbertram@gmail.com)
  */
 public class DataEntryLoader implements PageLoader {

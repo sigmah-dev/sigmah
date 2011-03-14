@@ -5,15 +5,16 @@
 
 package org.sigmah.shared.command;
 
+import org.sigmah.shared.command.result.IndicatorListResult;
 import org.sigmah.shared.dto.IndicatorDTO;
 
 /**
  * Retrieves all of a project's indicators
  * @author 
  */
-public class GetIndicators implements Command<IndicatorDTO> {
+public class GetIndicators implements Command<IndicatorListResult> {
     private int userDatabaseId;
-
+    
     public GetIndicators() {
     }
 

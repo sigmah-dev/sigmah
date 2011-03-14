@@ -19,6 +19,7 @@ import org.sigmah.shared.dto.IndicatorDTO;
 class IndicatorForm extends AbstractDesignForm {
 
     private FormBinding binding;
+	private NumberField idField;
 
     public IndicatorForm()  {
         super();
@@ -29,11 +30,16 @@ class IndicatorForm extends AbstractDesignForm {
         this.setLabelWidth(150);
         this.setFieldWidth(200);
 
-        NumberField idField = new NumberField();
+        idField = new NumberField();
         idField.setFieldLabel("ID");
         idField.setReadOnly(true);
         binding.addFieldBinding(new FieldBinding(idField, "id"));
         add(idField);
+        
+        TextField<String> listHeaderField = new TextField<String>();
+        listHeaderField.setFieldLabel(constants.indicatorCode());
+        binding.addFieldBinding(new FieldBinding(listHeaderField,"listHeader"));
+        this.add(listHeaderField);
 
         TextField<String> nameField = new TextField<String>();
         nameField.setFieldLabel(constants.name());
@@ -72,31 +78,14 @@ class IndicatorForm extends AbstractDesignForm {
         binding.addFieldBinding(new MappingComboBoxBinding(aggregationCombo, "aggregation"));
         this.add(aggregationCombo);
 
-
-        TextField<String> listHeaderField = new TextField<String>();
-        listHeaderField.setFieldLabel(constants.listHeader());
-        binding.addFieldBinding(new FieldBinding(listHeaderField,"listHeader"));
-        this.add(listHeaderField);
-
-        CheckBox collectInterventionField = new CheckBox();
-        collectInterventionField.setBoxLabel(constants.duringIntervention());
-        binding.addFieldBinding(new FieldBinding(collectInterventionField, "collectIntervention"));
-
-        CheckBox collectMonitoringField = new CheckBox();
-        collectMonitoringField.setBoxLabel(constants.duringMonitoring());
-        binding.addFieldBinding(new FieldBinding(collectMonitoringField, "collectMonitoring"));
-
-        CheckBoxGroup group = new CheckBoxGroup();
-        group.setFieldLabel(constants.dataCollection());
-        group.setOrientation(Orientation.VERTICAL);
-        group.add(collectInterventionField);
-        group.add(collectMonitoringField);
-        this.add(group);
-
         TextArea descField = new TextArea();
         descField.setFieldLabel(constants.description());
         binding.addFieldBinding(new FieldBinding(descField, "description"));
         this.add(descField);
+    }
+    
+    public void setIdVisible(boolean visible) {
+    	idField.setVisible(visible);
     }
 
     @Override

@@ -6,9 +6,10 @@
 package org.sigmah.server.report.generator;
 
 import com.google.inject.Inject;
+
+import org.sigmah.server.dao.IndicatorDAO;
 import org.sigmah.server.dao.PivotDAO;
 import org.sigmah.shared.dao.Filter;
-import org.sigmah.shared.dao.IndicatorDAO;
 import org.sigmah.shared.dao.SiteOrder;
 import org.sigmah.shared.dao.SiteTableDAO;
 import org.sigmah.shared.domain.User;

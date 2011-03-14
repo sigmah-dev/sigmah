@@ -8,6 +8,7 @@ package org.sigmah.server.report.generator;
 import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.sigmah.server.dao.IndicatorDAO;
 import org.sigmah.server.dao.PivotDAO;
 import org.sigmah.server.report.generator.map.MockBaseMapDAO;
 import org.sigmah.shared.dao.*;

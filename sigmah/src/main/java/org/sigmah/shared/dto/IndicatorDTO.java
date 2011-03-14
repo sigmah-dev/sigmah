@@ -180,6 +180,16 @@ public final class IndicatorDTO extends BaseModelData implements EntityDTO {
 		set("objective", objective);
 	}
 
+
+	public void setCurrentValue(double value) {
+		set("currentValue", value);
+	}
+	
+	public Double getCurrentValue() {
+		return (Double)get("currentValue");
+	}
+    
+	
     /**
      *
      * @return this Indicator's objective value 
@@ -226,7 +236,7 @@ public final class IndicatorDTO extends BaseModelData implements EntityDTO {
     public String getEntityName() {
         return "Indicator";
     }
-    
+
 
     
 }

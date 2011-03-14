@@ -195,10 +195,11 @@ public class SiteColumnModelBuilder {
 	
 
     protected ColumnConfig createIndicatorColumn(IndicatorDTO indicator, String header) {
-        final NumberFormat format = NumberFormat.getFormat("0");
 
+    	final NumberFormat format = IndicatorNumberFormats.forIndicator(indicator);
+    	
         NumberField indicatorField = new NumberField();
-        indicatorField.getPropertyEditor().setFormat(format);
+       
 
         ColumnConfig indicatorColumn = new ColumnConfig(indicator.getPropertyName(),
                 header, 50);
@@ -225,7 +226,7 @@ public class SiteColumnModelBuilder {
 
         return indicatorColumn;
     }
-    
+
 	private ColumnConfig createLocation2Column() {
 		TextField<String> locationAxeField = new TextField<String>();
 
@@ -233,7 +234,6 @@ public class SiteColumnModelBuilder {
 		axeColumn.setEditor(new CellEditor(locationAxeField));
 		return axeColumn;
 	}
-
 
 	private ColumnConfig createLocationColumn() {
 		TextField<String> locationField = new TextField<String>();

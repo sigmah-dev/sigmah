@@ -32,7 +32,7 @@ import org.sigmah.client.page.config.design.DesignPanel;
 import org.sigmah.client.page.config.design.DesignPanelActivityInfo;
 import org.sigmah.client.page.entry.DataEntryLoader;
 import org.sigmah.client.page.entry.ActivityFilterPanel;
-import org.sigmah.client.page.entry.EntryModule;
+import org.sigmah.client.page.entry.DataEntryModule;
 import org.sigmah.client.page.map.MapLoader;
 import org.sigmah.client.page.map.MapModule;
 import org.sigmah.client.page.report.ReportListPagePresenter;
@@ -58,7 +58,7 @@ import com.google.gwt.inject.client.Ginjector;
 @GinModules({
         AppModule.class,
         ReportModule.class,
-        EntryModule.class,
+        DataEntryModule.class,
         MapModule.class,
         PivotModule.class,
         ConfigModule.class,

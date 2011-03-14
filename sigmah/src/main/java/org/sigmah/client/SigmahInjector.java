@@ -32,7 +32,7 @@ import org.sigmah.client.page.dashboard.DashboardPageLoader;
 import org.sigmah.client.page.dashboard.DashboardPresenter;
 import org.sigmah.client.page.entry.ActivityFilterPanel;
 import org.sigmah.client.page.entry.DataEntryLoader;
-import org.sigmah.client.page.entry.EntryModule;
+import org.sigmah.client.page.entry.DataEntryModule;
 import org.sigmah.client.page.map.MapModule;
 import org.sigmah.client.page.map.SigmahMapLoader;
 import org.sigmah.client.page.orgunit.OrgUnitModule;
@@ -61,7 +61,7 @@ import com.google.gwt.inject.client.Ginjector;
              MapModule.class,
              PivotModule.class,
              ReportModule.class,
-             EntryModule.class,
+             DataEntryModule.class,
              ConfigModule.class})
 public interface SigmahInjector extends Ginjector {
     Authentication getAuthentication();

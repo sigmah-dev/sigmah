@@ -6,38 +6,41 @@
 package org.sigmah.client.page.config.design;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.sigmah.client.EventBus;
 import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.icon.IconImageBundle;
 import org.sigmah.client.page.common.grid.ImprovedCellTreeGridSelectionModel;
-import org.sigmah.client.page.common.toolbar.ActionToolBar;
 import org.sigmah.client.page.common.toolbar.UIActions;
+import org.sigmah.client.page.entry.IndicatorNumberFormats;
 import org.sigmah.client.page.entry.SiteGridPageState;
 import org.sigmah.client.page.project.ProjectPresenter;
 import org.sigmah.client.page.project.SubPresenter;
-import org.sigmah.shared.command.GetSchema;
+import org.sigmah.shared.command.GetIndicators;
+import org.sigmah.shared.command.result.IndicatorListResult;
 import org.sigmah.shared.dto.ActivityDTO;
 import org.sigmah.shared.dto.AttributeDTO;
 import org.sigmah.shared.dto.AttributeGroupDTO;
 import org.sigmah.shared.dto.IndicatorDTO;
-import org.sigmah.shared.dto.SchemaDTO;
 import org.sigmah.shared.dto.UserDatabaseDTO;
 
 import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.Style;
 import com.extjs.gxt.ui.client.data.BaseTreeLoader;
-import com.extjs.gxt.ui.client.data.DataProxy;
-import com.extjs.gxt.ui.client.data.DataReader;
+import com.extjs.gxt.ui.client.data.BaseTreeModel;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.data.ModelIconProvider;
+import com.extjs.gxt.ui.client.data.RpcProxy;
 import com.extjs.gxt.ui.client.data.TreeModel;
 import com.extjs.gxt.ui.client.dnd.DND;
 import com.extjs.gxt.ui.client.dnd.TreeGridDragSource;
 import com.extjs.gxt.ui.client.dnd.TreeGridDropTarget;
 import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.DNDEvent;
 import com.extjs.gxt.ui.client.event.DNDListener;
 import com.extjs.gxt.ui.client.event.Events;
@@ -45,14 +48,19 @@ import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MenuEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.store.TreeStore;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.form.NumberField;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.grid.CellEditor;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
+import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.EditorGrid;
+import com.extjs.gxt.ui.client.widget.grid.Grid;
+import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
@@ -177,35 +185,32 @@ public class DesignPanel extends DesignPanelBase implements SubPresenter {
 		});	
 		add(treeGrid, new BorderLayoutData(Style.LayoutRegion.CENTER));
 		
-		// setup toolbar
-		Menu newMenu = new Menu();
-		Button newButtonMenu = new Button(I18N.CONSTANTS.newText(),
-				IconImageBundle.ICONS.add());
-		newButtonMenu.setMenu(newMenu);
-		newButtonMenu.setEnabled(true);
-		toolBar.add(newButtonMenu);
-
-		SelectionListener<MenuEvent> listener = new SelectionListener<MenuEvent>() {
+		SelectionListener<ButtonEvent> listener = new SelectionListener<ButtonEvent>() {
 			@Override
-			public void componentSelected(MenuEvent ce) {
-				onNew(ce.getItem().getItemId());
+			public void componentSelected(ButtonEvent ce) {
+				onNew(ce.getButton().getItemId());
 			}
 		};
 		
-		final MenuItem newIndicatorGroup = new MenuItem(
+		final Button newIndicatorGroup = new Button(
 				I18N.CONSTANTS.newIndicatorGroup(),
 				IconImageBundle.ICONS.indicator(), listener);
 		newIndicatorGroup.setItemId("IndicatorGroup");
-		newMenu.add(newIndicatorGroup);
+		toolBar.add(newIndicator);
 		
-		final MenuItem newIndicatorButton = new MenuItem(
+		final Button newIndicatorButton = new Button(
 				I18N.CONSTANTS.newIndicator(),
 				IconImageBundle.ICONS.indicator(), listener);
 		newIndicatorButton.setItemId("Indicator");
-		newMenu.add(newIndicatorButton);
+		toolBar.add(newIndicatorButton);
 		
 		Button reloadButtonMenu = new Button(I18N.CONSTANTS.refresh(),
-				IconImageBundle.ICONS.refresh());
+				IconImageBundle.ICONS.refresh(), new SelectionListener<ButtonEvent>() {
+					@Override
+					public void componentSelected(ButtonEvent ce) {
+						fillStore();
+					}
+				});
 		reloadButtonMenu.setEnabled(true);
 		toolBar.add(reloadButtonMenu);	
 		
@@ -239,36 +244,50 @@ public class DesignPanel extends DesignPanelBase implements SubPresenter {
 	}
 	
 	
-	private class Proxy implements DataProxy<List<ModelData>> {
-		
+	private class Proxy extends RpcProxy<List<ModelData>> {
+
 		@Override
-		public void load(DataReader<List<ModelData>> reader, Object loadConfig,
+		protected void load(Object parent,
 				AsyncCallback<List<ModelData>> callback) {
-			if (db == null) {
-				service.execute(new GetSchema(), null,
-						new AsyncCallback<SchemaDTO>() {
-	
-							public void onSuccess(SchemaDTO result) {
-								SchemaDTO schema = result;
-								db = schema.getDatabaseById(projectPresenter
-										.getCurrentProjectDTO().getId());
-								finishLoad(db);
-							}
-	
-							@Override
-							public void onFailure(Throwable caught) {
-								// TODO Auto-generated method stubs
-							}
-						});
-			} else {
-				finishLoad(db);
+			
+			if(parent == null) {
+				
 			}
+			
 		}
+		
+		
 	}
 
 	@Override
 	protected void fillStore() {
-		
+		service.execute(new GetIndicators(projectPresenter.getCurrentProjectDTO().getId()), null, new AsyncCallback<IndicatorListResult>() {
+
+			@Override
+			public void onFailure(Throwable caught) {
+				// TODO
+			}
+
+			@Override
+			public void onSuccess(IndicatorListResult result) {
+				Map<String, TreeModel> categoryNodes = new HashMap<String, TreeModel>();
+				for(IndicatorDTO indicator : result.getData()) {
+										
+					if(indicator.getCategory() != null) {
+						TreeModel categoryNode = categoryNodes.get(indicator.getCategory());
+						if(categoryNode == null) {
+							categoryNode = new BaseTreeModel();
+							categoryNode.set("name", indicator.getCategory());
+							treeStore.add(categoryNode, false);
+						} 
+						treeStore.add(categoryNode, indicator, false);
+					} else {
+						treeStore.add(indicator, false);
+					}
+				}
+			}
+
+		});
 	}
 
 	@Override
@@ -284,11 +303,43 @@ public class DesignPanel extends DesignPanelBase implements SubPresenter {
 		TextField<String> nameField = new TextField<String>();
 		nameField.setAllowBlank(false);
 
-		ColumnConfig nameColumn = new ColumnConfig("name",
+		ColumnConfig nameColumn = new ColumnConfig("code",
 				I18N.CONSTANTS.name(), 150);
 		nameColumn.setEditor(new CellEditor(nameField));
 		nameColumn.setRenderer(new TreeGridCellRenderer());
 		columns.add(nameColumn);
+		
+		ColumnConfig objectiveColumn = new ColumnConfig("objective", I18N.CONSTANTS.objecive(), 50);
+		objectiveColumn.setRenderer(new IndicatorValueRenderer());
+		objectiveColumn.setEditor(new CellEditor(new NumberField()));
+		columns.add(objectiveColumn);
+		
+		ColumnConfig valueColumn = new ColumnConfig("currentValue", I18N.CONSTANTS.objecive(), 50);
+		valueColumn.setRenderer(new IndicatorValueRenderer());
+		valueColumn.setEditor(new CellEditor(new NumberField()));
+		columns.add(valueColumn);
+		
 		return new ColumnModel(columns);
 	}
+	
+	private class IndicatorValueRenderer implements GridCellRenderer {
+
+		@Override
+		public Object render(ModelData model, String property,
+				ColumnData config, int rowIndex, int colIndex, ListStore store,
+				Grid grid) {
+			
+			if(model instanceof IndicatorDTO) {
+				Double value = model.get(property);
+				if(value != null) {
+					return IndicatorNumberFormats
+						.forIndicator((IndicatorDTO)model)
+							.format(value);
+				}
+			}
+			return "";
+		}
+		
+	}
+	
 }
