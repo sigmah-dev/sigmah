@@ -5,19 +5,23 @@
 
 package org.sigmah.client.page.entry.editor;
 
-import com.extjs.gxt.ui.client.store.ListStore;
-import org.sigmah.client.dispatch.Dispatcher;
-import org.sigmah.client.dispatch.loader.ListCmdLoader;
-import org.sigmah.client.map.AdminBoundsHelper;
-import org.sigmah.client.mock.DispatcherStub;
-import org.sigmah.client.page.entry.editor.mock.MockAdminFieldSet;
-import org.sigmah.shared.command.GetAdminEntities;
-import org.sigmah.shared.command.result.AdminEntityResult;
-import org.sigmah.shared.dto.*;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.sigmah.client.dispatch.Dispatcher;
+import org.sigmah.client.dispatch.loader.ListCmdLoader;
+import org.sigmah.client.map.AdminBoundsHelper;
+import org.sigmah.shared.command.GetAdminEntities;
+import org.sigmah.shared.command.result.AdminEntityResult;
+import org.sigmah.shared.dto.ActivityDTO;
+import org.sigmah.shared.dto.AdminEntityDTO;
+import org.sigmah.shared.dto.AdminLevelDTO;
+import org.sigmah.shared.dto.BoundingBoxDTO;
+import org.sigmah.shared.dto.CountryDTO;
+import org.sigmah.shared.dto.SiteDTO;
+
+import com.extjs.gxt.ui.client.store.ListStore;
 
 /**
  * @author Alex Bertram (akbertram@gmail.com)
