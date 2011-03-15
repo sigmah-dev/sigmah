@@ -129,7 +129,8 @@
         </dependency>
 
 
-        <!--  Other clientside APIs  -->
+        <!--  Other clientside APIs  -->  
+        
         <dependency>
             <groupId>com.extjs</groupId>
             <artifactId>gxt</artifactId>
@@ -140,6 +141,12 @@
             <artifactId>gwt-maps</artifactId>
             <version>1.0.4</version>
             <scope>provided</scope>
+            <exclusions>
+            	<exclusion>
+            		<artifactId>gwt-user</artifactId>
+            		<groupId>com.google.gwt</groupId>
+            	</exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.ebessette.maps</groupId>
@@ -152,6 +159,12 @@
             <artifactId>gwt-gears</artifactId>
             <version>1.2.1</version>
             <scope>provided</scope>
+            <exclusions>
+            	<exclusion>
+            		<artifactId>gwt-user</artifactId>
+            		<groupId>com.google.gwt</groupId>
+            	</exclusion>
+            </exclusions>
         </dependency>
 
         <!-- Rebar- client persistence -->

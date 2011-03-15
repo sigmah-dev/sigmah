@@ -6,6 +6,7 @@
 package org.sigmah.shared.dto;
 
 import com.extjs.gxt.ui.client.data.BaseModelData;
+import com.extjs.gxt.ui.client.data.BaseTreeModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,10 +19,9 @@ import java.util.List;
  *
  * @author Alex Bertram (akbertram@gmail.com)
  */
-public final class IndicatorGroup extends BaseModelData {
+public final class IndicatorGroup extends BaseTreeModel {
 
     private static final long serialVersionUID = -4402642905140940245L;
-    private List<IndicatorDTO> indicators = new ArrayList<IndicatorDTO>();
     
     public IndicatorGroup(){}
     
@@ -40,26 +40,12 @@ public final class IndicatorGroup extends BaseModelData {
     }
 
     public List<IndicatorDTO> getIndicators() {
-        return indicators;         
+        return (List)getChildren();         
     }
 
     public void addIndicator(IndicatorDTO indicator) {
-        indicators.add(indicator);
+        getChildren().add(indicator);
     }
 
-    /**
-     *
-     * @return the id of the Indicator
-     */
-    public int getId() {
-        return (Integer)get("id");
-    }
-
-    /**
-     * Sets the Indicator's id
-     */
-    public void setId(int id) {
-        set("id", id);
-    }
-
+ 
 }

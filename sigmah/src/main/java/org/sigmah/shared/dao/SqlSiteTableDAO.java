@@ -13,6 +13,7 @@ import org.sigmah.shared.domain.Bounds;
 import org.sigmah.shared.domain.User;
 import org.sigmah.shared.dto.AdminLevelDTO;
 import org.sigmah.shared.dto.IndicatorDTO;
+import org.sigmah.shared.report.model.DimensionType;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -371,8 +372,27 @@ public class SqlSiteTableDAO implements SiteTableDAO {
 
             return derivedTableAlias + ".Name";
         }
+        
+        
 
-        public String[] aliases() {
+        @Override
+		protected void addIndicatorFilter(Filter filter, DimensionType type) {
+			
+        	StringBuilder idList = new StringBuilder("");
+        	for(Integer id : filter.getRestrictions(DimensionType.Indicator)) {
+        		if(idList.length() > 0) {
+        			idList.append(",");
+        		} 
+        		idList.append(id);
+        	}
+        	
+        	where("Site.SiteId in (select s.SiteId FROM IndicatorValue v " +
+        			"LEFT JOIN ReportingPeriod p on (v.ReportingPeriodId = p.ReportingPeriodId) " +
+        			"LEFT JOIN Site s on (p.SiteId=s.SiteId) " +
+        			"WHERE v.IndicatorId IN (" + idList.toString() + "))");
+		}
+
+		public String[] aliases() {
             return aliases;
         }
     }

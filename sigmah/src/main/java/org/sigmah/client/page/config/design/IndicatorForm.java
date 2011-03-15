@@ -6,27 +6,30 @@
 package org.sigmah.client.page.config.design;
 
 
-import com.extjs.gxt.ui.client.Style.Orientation;
-import com.extjs.gxt.ui.client.binding.FieldBinding;
-import com.extjs.gxt.ui.client.binding.FormBinding;
-import com.extjs.gxt.ui.client.widget.form.*;
-import com.google.gwt.core.client.GWT;
-import org.sigmah.client.i18n.UIConstants;
+import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.page.common.widget.MappingComboBox;
 import org.sigmah.client.page.common.widget.MappingComboBoxBinding;
 import org.sigmah.shared.dto.IndicatorDTO;
+
+import com.extjs.gxt.ui.client.Style.Scroll;
+import com.extjs.gxt.ui.client.binding.FieldBinding;
+import com.extjs.gxt.ui.client.binding.FormBinding;
+import com.extjs.gxt.ui.client.widget.form.NumberField;
+import com.extjs.gxt.ui.client.widget.form.TextArea;
+import com.extjs.gxt.ui.client.widget.form.TextField;
 
 class IndicatorForm extends AbstractDesignForm {
 
     private FormBinding binding;
 	private NumberField idField;
+	private TextField<String> categoryField;
 
     public IndicatorForm()  {
         super();
         binding = new FormBinding(this);
 
-        UIConstants constants = GWT.create(UIConstants.class);
-
+        setScrollMode(Scroll.AUTOY);
+        
         this.setLabelWidth(150);
         this.setFieldWidth(200);
 
@@ -37,20 +40,20 @@ class IndicatorForm extends AbstractDesignForm {
         add(idField);
         
         TextField<String> codeField = new TextField<String>();
-        codeField.setFieldLabel(constants.indicatorCode());
+        codeField.setFieldLabel(I18N.CONSTANTS.indicatorCode());
         binding.addFieldBinding(new FieldBinding(codeField,"code"));
         this.add(codeField);
 
         TextField<String> nameField = new TextField<String>();
-        nameField.setFieldLabel(constants.name());
+        nameField.setFieldLabel(I18N.CONSTANTS.name());
         nameField.setAllowBlank(false);
         nameField.setMaxLength(128);
         binding.addFieldBinding(new FieldBinding(nameField, "name"));
         this.add(nameField);
 
-        TextField<String> categoryField = new TextField<String>();
+        categoryField = new TextField<String>();
         categoryField.setName("category");
-        categoryField.setFieldLabel(constants.category());
+        categoryField.setFieldLabel(I18N.CONSTANTS.category());
         categoryField.setMaxLength(50);
         categoryField.setReadOnly(true);
         binding.addFieldBinding(new FieldBinding(categoryField, "category"));
@@ -58,7 +61,7 @@ class IndicatorForm extends AbstractDesignForm {
 
         TextField<String> unitsField = new TextField<String>();
         unitsField.setName("units");
-        unitsField.setFieldLabel(constants.units());
+        unitsField.setFieldLabel(I18N.CONSTANTS.units());
         unitsField.setAllowBlank(false);
         unitsField.setMaxLength(15);
         binding.addFieldBinding(new FieldBinding(unitsField, "units"));
@@ -66,26 +69,30 @@ class IndicatorForm extends AbstractDesignForm {
         
         NumberField objectiveField = new NumberField();
         objectiveField.setName("objective");
-        objectiveField.setFieldLabel(constants.objecive());
-        binding.addFieldBinding(new FieldBinding(objectiveField, "id"));
+        objectiveField.setFieldLabel(I18N.CONSTANTS.objecive());
+        binding.addFieldBinding(new FieldBinding(objectiveField, "objective"));
         this.add(objectiveField);
 
         MappingComboBox aggregationCombo = new MappingComboBox();
-        aggregationCombo.setFieldLabel(constants.aggregationMethod());
-        aggregationCombo.add(IndicatorDTO.AGGREGATE_SUM, constants.sum());
-        aggregationCombo.add(IndicatorDTO.AGGREGATE_AVG, constants.average());
-        aggregationCombo.add(IndicatorDTO.AGGREGATE_SITE_COUNT, constants.siteCount());
+        aggregationCombo.setFieldLabel(I18N.CONSTANTS.aggregationMethod());
+        aggregationCombo.add(IndicatorDTO.AGGREGATE_SUM, I18N.CONSTANTS.sum());
+        aggregationCombo.add(IndicatorDTO.AGGREGATE_AVG, I18N.CONSTANTS.average());
+        aggregationCombo.add(IndicatorDTO.AGGREGATE_SITE_COUNT, I18N.CONSTANTS.siteCount());
         binding.addFieldBinding(new MappingComboBoxBinding(aggregationCombo, "aggregation"));
         this.add(aggregationCombo);
 
         TextArea descField = new TextArea();
-        descField.setFieldLabel(constants.description());
+        descField.setFieldLabel(I18N.CONSTANTS.description());
         binding.addFieldBinding(new FieldBinding(descField, "description"));
         this.add(descField);
     }
     
     public void setIdVisible(boolean visible) {
     	idField.setVisible(visible);
+    }
+    
+    public void setCategoryVisible(boolean visible) {
+    	categoryField.setVisible(visible);
     }
 
     @Override

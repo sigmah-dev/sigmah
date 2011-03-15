@@ -6,29 +6,38 @@
 package org.sigmah.shared.command;
 
 import org.sigmah.shared.command.result.SitePointList;
+import org.sigmah.shared.dao.Filter;
+import org.sigmah.shared.report.model.DimensionType;
 
 /**
  * @author Alex Bertram (akbertram@gmail.com)
  */
 public class GetSitePoints implements Command<SitePointList> {
 
-    private int activityId;
+    private Filter filter;
 
     private GetSitePoints() {
 
     }
+    
+    public GetSitePoints(Filter filter) {
+    	this.filter = filter;
+    }
 
     public GetSitePoints(int activityId) {
-        this.activityId= activityId;
+        this.filter = new Filter();
+        filter.addRestriction(DimensionType.Activity, activityId);
     }
 
-    public int getActivityId() {
-        return activityId;
-    }
+	public Filter getFilter() {
+		return filter;
+	}
 
-    public void setActivityId(int activityId) {
-        this.activityId = activityId;
-    }
+	public void setFilter(Filter filter) {
+		this.filter = filter;
+	}
+
+    
 }
 
 

@@ -7,6 +7,9 @@ package org.sigmah.shared.dao;
 
 import org.sigmah.shared.report.model.DimensionType;
 
+import com.allen_sauer.gwt.log.client.Log;
+import com.google.gwt.core.client.GWT;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -111,7 +114,7 @@ public class SqlQueryBuilder {
     public SqlQueryBuilder filteredBy(Filter filter) {
         for (DimensionType type : filter.getRestrictedDimensions()) {
             if (type == DimensionType.Indicator) {
-                where("Indicator.IndicatorId").in(filter.getRestrictions(type));
+                addIndicatorFilter(filter, type);
 
             } else if (type == DimensionType.Activity) {
                 where("Site.ActivityId").in(filter.getRestrictions(type));
@@ -133,6 +136,10 @@ public class SqlQueryBuilder {
         }
         return this;
     }
+
+	protected void addIndicatorFilter(Filter filter, DimensionType type) {
+		where("Indicator.IndicatorId").in(filter.getRestrictions(type));
+	}
     
 	public SqlQueryBuilder groupBy(String string) {
 		this.groupByClause = string;
@@ -165,6 +172,7 @@ public class SqlQueryBuilder {
 
     public ResultSet executeQuery(Connection connection) throws SQLException {
         String sql = sql();
+        Log.debug(sql);
         PreparedStatement stmt = prepareStatement(connection, sql);
         return stmt.executeQuery();
     }

@@ -109,8 +109,8 @@ public class SigmahAppFrame implements Frame {
             }
 
             // Offline
-//            if(dispatcher instanceof DispatchOperator && Factory.getInstance() != null)
-//                RootPanel.get("offline-status").add(OfflineLabelFactory.getLabel((DispatchOperator)dispatcher, onlineMode));
+            if(dispatcher instanceof DispatchOperator && Factory.getInstance() != null)
+                RootPanel.get("offline-status").add(OfflineLabelFactory.getLabel((DispatchOperator)dispatcher, onlineMode));
 
             // Credit
             final Anchor creditButton = new Anchor(I18N.CONSTANTS.credits());

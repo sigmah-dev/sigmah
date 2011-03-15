@@ -25,7 +25,7 @@ public class IndicatorGroupForm extends AbstractDesignForm {
 		nameField.setFieldLabel(constants.name());
 		nameField.setAllowBlank(false);
 		nameField.setMaxLength(128);
-		binding.addFieldBinding(new FieldBinding(nameField, "code"));
+		binding.addFieldBinding(new FieldBinding(nameField, "name"));
 		this.add(nameField);
 	}
 

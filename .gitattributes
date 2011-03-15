@@ -338,11 +338,13 @@ sigmah/src/main/java/org/sigmah/client/page/config/design/DesignPanel.java -text
 sigmah/src/main/java/org/sigmah/client/page/config/design/DesignPanelActivityInfo.java -text
 sigmah/src/main/java/org/sigmah/client/page/config/design/DesignPanelBase.java -text
 sigmah/src/main/java/org/sigmah/client/page/config/design/DesignPanelResources.java -text
+sigmah/src/main/java/org/sigmah/client/page/config/design/DesignTreeGridCellRenderer.java -text
 sigmah/src/main/java/org/sigmah/client/page/config/design/Folder.java -text
 sigmah/src/main/java/org/sigmah/client/page/config/design/IndicatorDialog.java -text
 sigmah/src/main/java/org/sigmah/client/page/config/design/IndicatorFolder.java -text
 sigmah/src/main/java/org/sigmah/client/page/config/design/IndicatorForm.java -text
 sigmah/src/main/java/org/sigmah/client/page/config/design/IndicatorGroupForm.java -text
+sigmah/src/main/java/org/sigmah/client/page/config/design/MappedIndicatorSelection.java -text
 sigmah/src/main/java/org/sigmah/client/page/config/design/ProjectIndicatorsContainer.java -text
 sigmah/src/main/java/org/sigmah/client/page/config/design/ProjectSiteGridPanel.java -text
 sigmah/src/main/java/org/sigmah/client/page/config/design/emptyMap.png -text

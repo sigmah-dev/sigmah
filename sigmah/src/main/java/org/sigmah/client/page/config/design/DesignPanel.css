@@ -1,12 +1,29 @@
 
 
-@sprite .mapIcon {gwt-image: "map";}
-@sprite .emptyMapIcon {gwt-image: "emptyMap";}
-@sprite .starIcon {gwt-image: "star";}
-@sprite .emptyStarIcon {gwt-image: "emptyStar";}
 
-.indicatorCell {
-	padding-left: 40px;
+@sprite .emptyMapIcon {	
+	gwt-image: 'emptyMap'; 
+	vertical-align: -4px;
+	cursor: pointer; 
+}
+@sprite .mapIcon { 
+	gwt-image: 'map'; 
+	vertical-align: -4px;
+	cursor: pointer; 
+}
+@sprite .starIcon { 
+	gwt-image: 'star'; 
+	vertical-align: -4px; 
+	cursor: pointer; 
+	}
+@sprite .emptyStarIcon { 
+	gwt-image: 'emptyStar'; 
+	vertical-align: -4px;
 	cursor: pointer;
-	text-decoration: none;
+ }
+
+.indicatorLabel {
+	cursor: pointer;
+	text-decoration: underline;
+	padding-left: 5px;
 }

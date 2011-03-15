@@ -43,7 +43,7 @@ public class GetSitePointsHandler implements CommandHandler<GetSitePoints> {
 
         // query for the sites
         List<SiteData> sites = dao.query(user,
-                filter().onActivity(cmd.getActivityId()),
+                cmd.getFilter(),
                 Collections.<SiteOrder>emptyList(),
                 new SiteDataBinder(),
                 SiteTableDAO.RETRIEVE_NONE, 0, -1);
@@ -52,17 +52,11 @@ public class GetSitePointsHandler implements CommandHandler<GetSitePoints> {
 
         List<SitePointDTO> points = new ArrayList<SitePointDTO>(sites.size());
         for (SiteData site : sites) {
-
             if (site.hasLatLong()) {
-
                 points.add(new SitePointDTO(site.getId(), site.getLongitude(), site.getLatitude()));
                 bounds.grow(site.getLatitude(), site.getLongitude());
-
             }
-
         }
-
         return new SitePointList(bounds, points);
-
     }
 }

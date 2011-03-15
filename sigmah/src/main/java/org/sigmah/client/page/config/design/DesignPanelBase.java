@@ -57,7 +57,7 @@ abstract class DesignPanelBase extends ContentPanel {
 	protected void initNewMenu(Menu menu,
 			SelectionListener<MenuEvent> listener) {}
 
-	protected abstract void fillStore();
+	protected abstract void doLoad();
 
 	protected ActionToolBar getToolbar() {
 		return this.toolBar;
@@ -172,7 +172,7 @@ abstract class DesignPanelBase extends ContentPanel {
 		throw new AssertionError("not a valid selection to add an attribute !");
 	}
 	
-	private void createEntity(final ModelData parent, final ModelData newEntity) {
+	protected void createEntity(final ModelData parent, final ModelData newEntity) {
 		getFormContainer(newEntity, new FormDialogCallback() {
 			@Override
 			public void onValidated(final FormDialogTether tether) {

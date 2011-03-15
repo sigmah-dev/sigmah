@@ -43,9 +43,6 @@ public class FormDialogImpl<FormT extends FormPanel> extends Window implements A
            * Configure this window
            */
         setModal(true);
-        setLayout(new FitLayout());
-        setModal(true);
-        //setCloseAction(CloseAction.HIDE);
         setClosable(false);
         setBodyStyle("padding: 5px;");
         setLayout(new FitLayout());
@@ -69,8 +66,17 @@ public class FormDialogImpl<FormT extends FormPanel> extends Window implements A
         status = new Status();
         status.setWidth(200);
         this.getButtonBar().add(status);
-        //	this.getButtonBar().add(new FillToolItem());
 
+        cancelButton = new Button(I18N.CONSTANTS.cancel());
+        cancelButton.setIcon(IconImageBundle.ICONS.cancel());
+        addButton(cancelButton);
+
+        cancelButton.addListener(Events.Select, new Listener<ButtonEvent>() {
+            public void handleEvent(ButtonEvent be) {
+                hide();
+            }
+        });
+        
         saveButton = new Button(I18N.CONSTANTS.save());
         saveButton.setIcon(IconImageBundle.ICONS.save());
         saveButton.addListener(Events.Select, new Listener<ButtonEvent>() {
@@ -92,19 +98,6 @@ public class FormDialogImpl<FormT extends FormPanel> extends Window implements A
         });
         addButton(saveButton);
 
-        cancelButton = new Button(I18N.CONSTANTS.cancel());
-        cancelButton.setIcon(IconImageBundle.ICONS.cancel());
-        addButton(cancelButton);
-
-        cancelButton.addListener(Events.Select, new Listener<ButtonEvent>() {
-            public void handleEvent(ButtonEvent be) {
-//				if(getCloseAction() == CloseAction.CLOSE) {
-//					close();
-//				} else {
-                hide();
-//				}
-            }
-        });
     }
 
 

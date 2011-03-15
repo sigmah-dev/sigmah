@@ -56,7 +56,7 @@ public class DesignPanelActivityInfo extends DesignPanelBase implements Page  {
 		// setLayout(new BorderLayout());
 		setIcon(IconImageBundle.ICONS.design());
 		setHeading(I18N.CONSTANTS.design() + " - " + db.getFullName());
-		fillStore();
+		doLoad();
 		//setActionEnabled(UIActions.delete, false);
 		
 		ActionToolBar bar = getToolbar();
@@ -120,7 +120,7 @@ public class DesignPanelActivityInfo extends DesignPanelBase implements Page  {
 	}
 	
 	@Override
-	protected void fillStore() {
+	protected void doLoad() {
 		for (ActivityDTO activity : db.getActivities()) {
 			ActivityDTO activityNode = new ActivityDTO(activity);
 			treeStore.add(activityNode, false);

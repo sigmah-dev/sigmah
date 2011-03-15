@@ -11,6 +11,7 @@ import javax.persistence.EntityManager;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.dom4j.util.UserDataAttribute;
 import org.sigmah.server.policy.ActivityPolicy;
 import org.sigmah.server.policy.PropertyMap;
 import org.sigmah.server.policy.SitePolicy;
@@ -21,6 +22,7 @@ import org.sigmah.shared.domain.Attribute;
 import org.sigmah.shared.domain.AttributeGroup;
 import org.sigmah.shared.domain.Indicator;
 import org.sigmah.shared.domain.User;
+import org.sigmah.shared.domain.UserDatabase;
 import org.sigmah.shared.exception.CommandException;
 import org.sigmah.shared.exception.IllegalAccessCommandException;
 
@@ -91,7 +93,13 @@ public class UpdateEntityHandler extends BaseEntityHandler implements CommandHan
             throws IllegalAccessCommandException {
         Indicator indicator = em.find(Indicator.class, cmd.getId());
 
-        assertDesignPriviledges(user, indicator.getActivity().getDatabase());
+        // todo: make UserDatabase non-nullable
+        UserDatabase db = indicator.getDatabase();
+        if(db == null) {
+        	db = indicator.getActivity().getDatabase();
+        }
+        
+        assertDesignPriviledges(user, db);
 
         updateIndicatorProperties(indicator, changes);
     }

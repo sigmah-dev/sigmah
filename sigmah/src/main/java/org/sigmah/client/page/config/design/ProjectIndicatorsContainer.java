@@ -14,6 +14,7 @@ import org.sigmah.client.page.project.SubPresenter;
 import org.sigmah.shared.command.CreateEntity;
 import org.sigmah.shared.command.result.CreateResult;
 import org.sigmah.shared.dao.Filter;
+import org.sigmah.shared.dto.IndicatorDTO;
 import org.sigmah.shared.dto.ProjectDTO;
 import org.sigmah.shared.dto.SchemaDTO;
 import org.sigmah.shared.dto.SiteDTO;
@@ -35,6 +36,8 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.google.gwt.event.logical.shared.ValueChangeEvent;
+import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 
@@ -129,6 +132,14 @@ public class ProjectIndicatorsContainer extends LayoutContainer implements SubPr
 		layout.setMargins(new Margins(0, 0, 0, 5));
 
 		add(designPanel, centerLayout);
+		designPanel.getMappedIndicator().addValueChangeHandler(new ValueChangeHandler<IndicatorDTO>() {
+			
+			@Override
+			public void onValueChange(ValueChangeEvent<IndicatorDTO> event) {
+				onMappedIndicatorChanged(event.getValue());
+			}
+		});
+		
 		add(tabPanel, layout);
 		// setHeading(I18N.CONSTANTS.design() + " - " );
 		
@@ -144,6 +155,7 @@ public class ProjectIndicatorsContainer extends LayoutContainer implements SubPr
 	}
 	
 
+
 	public void setProjectPresenter(ProjectPresenter projectPresenter) {
 		this.projectPresenter = projectPresenter;
 	}
@@ -157,9 +169,15 @@ public class ProjectIndicatorsContainer extends LayoutContainer implements SubPr
 		// load site grid
 		Filter siteFilter = new Filter();
 		siteFilter.addRestriction(DimensionType.Database, projectDTO.getId());
-		siteEditor.load(siteFilter);		
+		siteEditor.load(siteFilter);			
+	}
+	
+	private void onMappedIndicatorChanged(IndicatorDTO value) {
+		Filter filter = new Filter();
+		filter.addRestriction(DimensionType.Indicator, value.getId());
 		
-		
+		siteMap.loadSites(projectPresenter.getCurrentProjectDTO().getCountry(), 
+				filter);
 	}
 
 	protected void addSite() {

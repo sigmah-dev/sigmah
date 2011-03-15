@@ -5,34 +5,11 @@
 
 package org.sigmah.client.page.entry;
 
-import com.ebessette.maps.core.client.overlay.MarkerManagerImpl;
-import com.ebessette.maps.core.client.overlay.OverlayManagerOptions;
-import com.extjs.gxt.ui.client.GXT;
-import com.extjs.gxt.ui.client.dnd.DropTarget;
-import com.extjs.gxt.ui.client.event.*;
-import com.extjs.gxt.ui.client.state.StateManager;
-import com.extjs.gxt.ui.client.store.Record;
-import com.extjs.gxt.ui.client.widget.Component;
-import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.Html;
-import com.extjs.gxt.ui.client.widget.layout.CenterLayout;
-import com.extjs.gxt.ui.client.widget.layout.FitLayout;
-import com.extjs.gxt.ui.client.widget.menu.Menu;
-import com.extjs.gxt.ui.client.widget.menu.MenuItem;
-import com.google.gwt.maps.client.MapType;
-import com.google.gwt.maps.client.MapWidget;
-import com.google.gwt.maps.client.control.SmallMapControl;
-import com.google.gwt.maps.client.event.MapClickHandler;
-import com.google.gwt.maps.client.event.MapRightClickHandler;
-import com.google.gwt.maps.client.geom.LatLng;
-import com.google.gwt.maps.client.geom.LatLngBounds;
-import com.google.gwt.maps.client.geom.Point;
-import com.google.gwt.maps.client.overlay.Marker;
-import com.google.gwt.maps.client.overlay.MarkerOptions;
-import com.google.gwt.maps.client.overlay.Overlay;
-import com.google.gwt.user.client.Element;
-import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.inject.Inject;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.sigmah.client.AppEvents;
 import org.sigmah.client.EventBus;
 import org.sigmah.client.dispatch.Dispatcher;
@@ -47,19 +24,50 @@ import org.sigmah.client.map.MapTypeFactory;
 import org.sigmah.client.page.common.Shutdownable;
 import org.sigmah.shared.command.GetSitePoints;
 import org.sigmah.shared.command.result.SitePointList;
-import org.sigmah.shared.dto.*;
+import org.sigmah.shared.dao.Filter;
+import org.sigmah.shared.dto.ActivityDTO;
+import org.sigmah.shared.dto.BoundingBoxDTO;
+import org.sigmah.shared.dto.CountryDTO;
+import org.sigmah.shared.dto.SiteDTO;
+import org.sigmah.shared.dto.SitePointDTO;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import com.ebessette.maps.core.client.overlay.MarkerManagerImpl;
+import com.ebessette.maps.core.client.overlay.OverlayManagerOptions;
+import com.extjs.gxt.ui.client.GXT;
+import com.extjs.gxt.ui.client.dnd.DropTarget;
+import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.DNDEvent;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.MenuEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.store.Record;
+import com.extjs.gxt.ui.client.widget.Component;
+import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.Html;
+import com.extjs.gxt.ui.client.widget.layout.CenterLayout;
+import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.extjs.gxt.ui.client.widget.menu.Menu;
+import com.extjs.gxt.ui.client.widget.menu.MenuItem;
+import com.extjs.gxt.ui.client.widget.tips.Tip;
+import com.google.gwt.maps.client.MapType;
+import com.google.gwt.maps.client.MapWidget;
+import com.google.gwt.maps.client.control.SmallMapControl;
+import com.google.gwt.maps.client.event.MapClickHandler;
+import com.google.gwt.maps.client.event.MapRightClickHandler;
+import com.google.gwt.maps.client.geom.LatLng;
+import com.google.gwt.maps.client.geom.LatLngBounds;
+import com.google.gwt.maps.client.geom.Point;
+import com.google.gwt.maps.client.overlay.Marker;
+import com.google.gwt.maps.client.overlay.MarkerOptions;
+import com.google.gwt.maps.client.overlay.Overlay;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.inject.Inject;
 
 /**
  * A map panel that serves a counterpart to the SiteGrid, and
  * a drop target for <code>SiteDTO</code>.
  * <p/>
- * Note: this class is not split into presenter-view as nearly all
- * of the logic involves Javascript objects or other GWT entanglements.
  *
  * @author Alex Bertram (akbertram@gmail.com)
  */
@@ -67,7 +75,7 @@ public class SiteMap extends ContentPanel implements Shutdownable {
 
     private final EventBus eventBus;
     private final Dispatcher service;
-    private ActivityDTO activity;
+    private Filter filter;
 
     private MapWidget map = null;
     private LatLngBounds pendingZoom = null;
@@ -93,14 +101,29 @@ public class SiteMap extends ContentPanel implements Shutdownable {
     private Marker highlitMarker;
 
     private Menu contextMenu;
+    
+    private CountryDTO country;
 
+    private Tip infoTip;
+    private Html infoHtml;
+    
     @Inject
-    public SiteMap(EventBus eventBus, Dispatcher service, ActivityDTO activity) {
+    public SiteMap(EventBus eventBus, Dispatcher service) {
         this.eventBus = eventBus;
         this.service = service;
-        this.activity = activity;
 
         setHeaderVisible(false);
+        
+        infoTip = new Tip();
+        infoTip.setClosable(true);
+        infoHtml = new Html();
+        infoTip.add(infoHtml);
+    }
+    
+    public void loadSites(ActivityDTO activity) {
+    	loadSites(
+    			activity.getDatabase().getCountry(),
+    			Filter.filter().onActivity(activity.getId()));
     }
     
     /**
@@ -108,8 +131,9 @@ public class SiteMap extends ContentPanel implements Shutdownable {
      * 
      * @param activity
      */
-    public void loadSites(ActivityDTO activity) {
-    	this.activity = activity;
+    public void loadSites(CountryDTO country, Filter filter) {
+    	this.country = country;
+    	this.filter = filter;
     	if(map == null) {
     		loadMap();
     	} else {
@@ -128,7 +152,7 @@ public class SiteMap extends ContentPanel implements Shutdownable {
     private void onSiteSelected(SiteEvent se) {
         if (se.getSource() != this) {
             if (se.getSite() != null && !se.getSite().hasCoords()) {
-                BoundingBoxDTO bounds = AdminBoundsHelper.calculate(activity.getDatabase().getCountry(), se.getSite());
+                BoundingBoxDTO bounds = AdminBoundsHelper.calculate(country, se.getSite());
                 LatLngBounds llBounds = llBoundsForBounds(bounds);
 
                 if (!llBounds.containsBounds(map.getBounds())) {
@@ -141,7 +165,7 @@ public class SiteMap extends ContentPanel implements Shutdownable {
     }
     
     private CountryDTO getCountry() {
-    	return activity.getDatabase().getCountry();
+    	return country;
     }
 
 
@@ -177,7 +201,6 @@ public class SiteMap extends ContentPanel implements Shutdownable {
             public void onSuccess(Void result) {
                 removeAll();
 
-                CountryDTO country = activity.getDatabase().getCountry();
                 BoundingBoxDTO countryBounds = country.getBounds();
                 LatLng boundsFromActivity = LatLng.newInstance(countryBounds.getCenterY(), countryBounds.getCenterX());
 				map = new MapWidget(boundsFromActivity, 8);
@@ -198,7 +221,6 @@ public class SiteMap extends ContentPanel implements Shutdownable {
                             highlightSite(siteId, false);
                             eventBus.fireEvent(new SiteEvent(AppEvents.SiteSelected, SiteMap.this, siteId));
                         }
-
                     }
                 });
                 map.addMapRightClickHandler(new MapRightClickHandler() {
@@ -238,7 +260,7 @@ public class SiteMap extends ContentPanel implements Shutdownable {
 
 
 	private void doLoadSites() {
-		service.execute(new GetSitePoints(activity.getId()), null, new AsyncCallback<SitePointList>() {
+		service.execute(new GetSitePoints(filter), null, new AsyncCallback<SitePointList>() {
             @Override
             public void onFailure(Throwable throwable) {
 
@@ -246,7 +268,14 @@ public class SiteMap extends ContentPanel implements Shutdownable {
 
             @Override
             public void onSuccess(SitePointList points) {
-                addSitesToMap(points);
+                if(points.getPoints().isEmpty()) {
+                	infoHtml.setHtml("No sites to display");
+                	infoTip.showAt(SiteMap.this.getPosition(false));
+                } else {
+                	infoTip.hide();
+                }
+            	
+            	addSitesToMap(points);
 
                 siteListener = new Listener<SiteEvent>() {
                     public void handleEvent(SiteEvent be) {
@@ -257,7 +286,6 @@ public class SiteMap extends ContentPanel implements Shutdownable {
                         } else if (be.getType() == AppEvents.SiteChanged) {
                             onSiteChanged(be.getSite());
                         }
-
                     }
                 };
 

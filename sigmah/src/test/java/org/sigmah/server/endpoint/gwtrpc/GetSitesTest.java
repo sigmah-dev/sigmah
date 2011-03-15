@@ -12,7 +12,10 @@ import junit.framework.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sigmah.server.dao.OnDataSet;
+import org.sigmah.shared.command.GetSitePoints;
 import org.sigmah.shared.command.GetSites;
+import org.sigmah.shared.command.result.SitePointList;
+import org.sigmah.shared.dao.Filter;
 import org.sigmah.shared.dto.IndicatorDTO;
 import org.sigmah.shared.dto.SiteDTO;
 import org.sigmah.shared.exception.CommandException;
@@ -197,5 +200,18 @@ public class GetSitesTest extends CommandTestCase {
         Assert.assertEquals("second page returned", 2, result.getOffset());
         Assert.assertEquals("rows on this page", 1, result.getData().size());
         Assert.assertEquals("correct site returned", 1, result.getData().get(0).getId());
+    }
+    
+    @Test
+    public void testSitePointsForIndicator() throws Exception {
+    	setUser(DATABASE_OWNER);
+    	
+    	Filter filter = new Filter();
+    	filter.addRestriction(DimensionType.Indicator, 1);
+    	
+    	GetSitePoints cmd = new GetSitePoints(filter);
+    	
+    	SitePointList list = execute(cmd);
+    	Assert.assertEquals(3, list.getPoints().size());
     }
 }
