@@ -11,6 +11,7 @@ import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.dispatch.remote.Authentication;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.icon.IconImageBundle;
+import org.sigmah.client.page.admin.model.common.element.ElementTypeEnum;
 import org.sigmah.client.ui.HistoryWindow;
 import org.sigmah.client.util.HistoryTokenText;
 import org.sigmah.shared.command.GetHistory;
@@ -26,6 +27,8 @@ import org.sigmah.shared.dto.element.handler.ValueEvent;
 import org.sigmah.shared.dto.element.handler.ValueHandler;
 import org.sigmah.shared.dto.history.HistoryTokenListDTO;
 import org.sigmah.shared.dto.history.HistoryTokenManager;
+import org.sigmah.shared.dto.layout.LayoutConstraintDTO;
+import org.sigmah.shared.dto.layout.LayoutGroupDTO;
 import org.sigmah.shared.dto.profile.PrivacyGroupDTO;
 import org.sigmah.shared.dto.profile.ProfileUtils;
 
@@ -303,7 +306,10 @@ public abstract class FlexibleElementDTO extends BaseModelData implements Entity
     // Flexible element id
     @Override
     public int getId() {
-        return (Integer) get("id");
+    	if(get("id") != null)
+    		return (Integer) get("id");
+    	else 
+    		return 0;
     }
 
     public void setId(int id) {
@@ -396,5 +402,67 @@ public abstract class FlexibleElementDTO extends BaseModelData implements Entity
     public Object renderHistoryToken(HistoryTokenListDTO token) {
         ensureHistorable();
         return new HistoryTokenText(token);
+    }
+    
+    public ElementTypeEnum getElementType() {
+    	ElementTypeEnum type = null;
+    	if(this instanceof TextAreaElementDTO){
+    		type = ElementTypeEnum.TEXT_AREA;
+    	}else if(this instanceof BudgetDistributionElementDTO){
+    		type = ElementTypeEnum.BUDGET;
+    	}else if(this instanceof CheckboxElementDTO){
+    		type = ElementTypeEnum.CHECKBOX;
+    	}else if(this instanceof DefaultFlexibleElementDTO){
+    		type = ElementTypeEnum.DEFAULT;
+    	}else if(this instanceof FilesListElementDTO){
+    		type = ElementTypeEnum.FILES_LIST;
+    	}else if(this instanceof IndicatorsListElementDTO){
+    		type = ElementTypeEnum.INDICATORS;
+    	}else if(this instanceof MessageElementDTO){
+    		type = ElementTypeEnum.MESSAGE;
+    	}else if(this instanceof QuestionElementDTO){
+    		type = ElementTypeEnum.QUESTION;
+    	}else if(this instanceof ReportElementDTO){
+    		type = ElementTypeEnum.REPORT;
+    	}else if(this instanceof ReportListElementDTO){
+    		type = ElementTypeEnum.REPORT_LIST;
+    	}else if(this instanceof MessageElementDTO){
+    		type = ElementTypeEnum.MESSAGE;
+    	}else if(this instanceof TripletsListElementDTO){
+    		type = ElementTypeEnum.TRIPLETS;
+    	}
+        return type;
+    }
+    
+    public LayoutGroupDTO getGroup() {
+        return get("group");
+    }
+
+    public void setGroup(LayoutGroupDTO group) {
+        set("group", group);
+    }
+    
+    public BaseModelData getContainerModel() {
+        return get("container");
+    }
+
+    public void setContainerModel(BaseModelData model) {
+        set("container", model);
+    }
+    
+    public LayoutConstraintDTO getConstraint() {
+        return get("constraint");
+    }
+
+    public void setConstraint(LayoutConstraintDTO constraint) {
+        set("constraint", constraint);
+    }
+    
+    public LayoutConstraintDTO getBannerConstraint() {
+        return get("banner");
+    }
+
+    public void setBannerConstraint(LayoutConstraintDTO constraint) {
+        set("banner", constraint);
     }
 }

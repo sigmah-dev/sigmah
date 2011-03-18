@@ -1,5 +1,6 @@
 package org.sigmah.shared.dto;
 
+import org.sigmah.client.i18n.I18N;
 import org.sigmah.shared.dto.layout.LayoutDTO;
 
 import com.extjs.gxt.ui.client.data.BaseModelData;
@@ -22,6 +23,10 @@ public class OrgUnitDetailsDTO extends BaseModelData implements EntityDTO {
         set("id", id);
     }
 
+    public String getName(){
+    	return I18N.CONSTANTS.Admin_ORGUNIT_DETAILS();
+    }
+    
     // Layout
     public LayoutDTO getLayout() {
         return get("layout");

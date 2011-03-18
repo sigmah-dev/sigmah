@@ -5,6 +5,7 @@
 
 package org.sigmah.shared.dto;
 
+import org.sigmah.client.i18n.I18N;
 import org.sigmah.shared.dto.layout.LayoutDTO;
 
 import com.extjs.gxt.ui.client.data.BaseModelData;
@@ -28,6 +29,10 @@ public class ProjectBannerDTO extends BaseModelData implements EntityDTO {
         set("id", id);
     }
 
+    public String getName(){
+    	return I18N.CONSTANTS.Admin_BANNER();
+    }
+    
     // Reference to the Layout
     public LayoutDTO getLayoutDTO() {
         return get("layoutDTO");

@@ -1,6 +1,7 @@
 package org.sigmah.client.page.admin;
 
 import org.sigmah.client.EventBus;
+import org.sigmah.client.SigmahInjector;
 import org.sigmah.client.cache.UserLocalCache;
 import org.sigmah.client.dispatch.AsyncMonitor;
 import org.sigmah.client.dispatch.Dispatcher;
@@ -14,6 +15,9 @@ import org.sigmah.client.page.Page;
 import org.sigmah.client.page.PageId;
 import org.sigmah.client.page.PageState;
 import org.sigmah.client.page.TabPage;
+import org.sigmah.client.page.admin.model.common.AdminOneModelPresenter;
+import org.sigmah.client.page.admin.model.common.report.AdminReportModelPresenter;
+import org.sigmah.client.page.admin.model.project.AdminProjectModelsPresenter;
 import org.sigmah.client.page.admin.users.AdminUsersPresenter;
 import org.sigmah.client.page.project.SubPresenter;
 import org.sigmah.client.ui.ToggleAnchor;
@@ -24,7 +28,7 @@ import org.sigmah.shared.dto.profile.ProfileUtils;
 import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.layout.HBoxLayoutData;
+import com.extjs.gxt.ui.client.widget.layout.VBoxLayoutData;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.HTML;
@@ -40,12 +44,13 @@ import com.google.inject.Inject;
  */
 public class AdminPresenter implements TabPage, Frame {
 
-    private final static String[] MAIN_TABS = { I18N.CONSTANTS.adminUsers() };
+    private final static String[] MAIN_TABS = { I18N.CONSTANTS.adminUsers(), I18N.CONSTANTS.adminProjectModels(), I18N.CONSTANTS.adminReportSection() };
     public static final PageId PAGE_ID = new PageId(I18N.CONSTANTS.adminboard());
 
     private final View view;
-
-    private final SubPresenter[] presenters;
+    private final SigmahInjector injector;
+    private final AdminSubPresenter[] presenters;
+    private ToggleAnchor currentTab;
     private AdminPageState currentState;
     private Page activePage;
     private final Authentication authentication;
@@ -60,18 +65,21 @@ public class AdminPresenter implements TabPage, Frame {
     }
 
     @Inject
-    public AdminPresenter(final EventBus eventBus, final Dispatcher dispatcher, final View view,
+    public AdminPresenter(SigmahInjector injector, final EventBus eventBus, final Dispatcher dispatcher, final View view,
             final UserLocalCache cache, final Authentication authentication, IStateManager stateMgr) {
+    	this.injector = injector;
         this.view = view;
-        this.presenters = new SubPresenter[] { new AdminUsersPresenter(dispatcher, cache, authentication), };
+        this.presenters = new AdminSubPresenter[] { new AdminUsersPresenter(dispatcher, cache, authentication), 
+        										new AdminProjectModelsPresenter(dispatcher, cache, authentication, eventBus, currentState),
+        										new AdminReportModelPresenter(dispatcher)};
         this.authentication = authentication;
         for (int i = 0; i < MAIN_TABS.length; i++) {
             final int index = i;
 
             String tabTitle = MAIN_TABS[i];
 
-            final HBoxLayoutData layoutData = new HBoxLayoutData();
-            layoutData.setMargins(new Margins(0, 10, 0, 0));
+            final VBoxLayoutData layoutData = new VBoxLayoutData();
+            layoutData.setMargins(new Margins(0, 0, 10, 0));
 
             final ToggleAnchor anchor = new ToggleAnchor(tabTitle);
             anchor.setAnchorMode(true);
@@ -144,29 +152,46 @@ public class AdminPresenter implements TabPage, Frame {
 
     @Override
     public boolean navigate(PageState place) {
+    	
         final AdminPageState adminPageState = (AdminPageState) place;
         currentState = adminPageState;
-
-        selectTab(adminPageState.getCurrentSection(), false);
+        Log.debug("AdminPresenter : navigate normal" + currentState.getModel());
+        
+        
+        if (currentState.getModel()!=null && currentState.getSubModel()!=null) {
+            final AdminOneModelPresenter adminModelPresenter = injector.getAdminModelPresenter();
+            this.navigate(currentState, adminModelPresenter);
+        }else{
+        	selectTab(currentState.getCurrentSection(), false);
+        }
+        
+        return true;
+    }
+    
+    public boolean navigate(PageState place, AdminOneModelPresenter adminOneModelPresenter) {
+    	if(place != null)
+    		Log.debug("AdminPresenter : navigate special " + ((AdminPageState) place).serializeAsHistoryToken());
+        adminOneModelPresenter.navigate(place, view);
         return true;
     }
 
     private void selectTab(int index, boolean force) {
-        /*
-         * final ToggleAnchor anchor = (ToggleAnchor)
-         * view.getTabPanel().getWidget(index);
-         * 
-         * if (currentTab != anchor) { if (currentTab != null)
-         * currentTab.toggleAnchorMode();
-         * 
-         * anchor.toggleAnchorMode(); currentTab = anchor;
-         */
-        Log.debug("AdminPresenter getting view of SubPresenter " + index);
-        view.setMainPanel(presenters[index].getView());
-        presenters[index].viewDidAppear();
-        /*
-         * } else if (force) { view.setMainPanel(presenters[index].getView());
-         * presenters[index].viewDidAppear(); }
-         */
+    	
+        final ToggleAnchor anchor = (ToggleAnchor)view.getTabPanel().getWidget(index);
+        if (currentTab != anchor) { 
+        	if (currentTab != null)
+        		currentTab.toggleAnchorMode();
+        	
+         	anchor.toggleAnchorMode(); 
+         	currentTab = anchor;
+         	
+	        view.setMainPanel(presenters[index].getView());
+	        presenters[index].viewDidAppear();
+	        presenters[index].setCurrentState(currentState);
+        }else if (force) { 
+        	view.setMainPanel(presenters[index].getView());
+        	presenters[index].viewDidAppear(); 
+        	presenters[index].setCurrentState(currentState);
+        }         
     }
 }

@@ -7,7 +7,7 @@ import com.extjs.gxt.ui.client.data.BaseModelData;
 /**
  * DTO mapping class for entity profile.PrivacyGroup.
  * 
- * @author tmi
+ * @author nrebiai
  * 
  */
 public class PrivacyGroupDTO extends BaseModelData implements EntityDTO {

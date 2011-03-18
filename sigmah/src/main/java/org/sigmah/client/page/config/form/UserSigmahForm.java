@@ -177,7 +177,7 @@ public class UserSigmahForm extends FormPanel {
         cache.getOrganizationCache().get(new AsyncCallback<OrgUnitDTOLight>() {
 			@Override
             public void onFailure(Throwable e) {
-				orgUnitsList.setEmptyText(I18N.CONSTANTS.adminUserCreationChoiceProblem());
+				orgUnitsList.setEmptyText(I18N.CONSTANTS.adminChoiceProblem());
             }
 
             @Override
@@ -219,7 +219,7 @@ public class UserSigmahForm extends FormPanel {
 
 					@Override
 					public void onFailure(Throwable arg0) {
-						profilesListCombo.setEmptyText(I18N.CONSTANTS.adminUserCreationChoiceProblem());
+						profilesListCombo.setEmptyText(I18N.CONSTANTS.adminChoiceProblem());
 					}
 
 					@Override

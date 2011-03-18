@@ -1,4 +1,4 @@
- /*
+/*
  * All Sigmah code is released under the GNU General Public License v3
  * See COPYRIGHT.txt and LICENSE.txt.
  */
@@ -20,6 +20,7 @@ import org.sigmah.server.policy.ActivityPolicy;
 import org.sigmah.server.policy.PersonalEventPolicy;
 import org.sigmah.server.policy.PrivacyGroupPolicy;
 import org.sigmah.server.policy.ProfilePolicy;
+import org.sigmah.server.policy.ProjectModelPolicy;
 import org.sigmah.server.policy.ProjectPolicy;
 import org.sigmah.server.policy.ProjectReportPolicy;
 import org.sigmah.server.policy.PropertyMap;
@@ -44,6 +45,7 @@ import org.sigmah.shared.domain.reminder.Reminder;
 import org.sigmah.shared.domain.reminder.ReminderList;
 import org.sigmah.shared.dto.ProjectDTOLight;
 import org.sigmah.shared.dto.ProjectFundingDTO;
+import org.sigmah.shared.dto.ProjectModelDTO;
 import org.sigmah.shared.dto.UserDTO;
 import org.sigmah.shared.dto.profile.PrivacyGroupDTO;
 import org.sigmah.shared.dto.profile.ProfileDTO;
@@ -120,9 +122,23 @@ public class CreateEntityHandler extends BaseEntityHandler implements CommandHan
             return createPrivacyGroup(user, propertyMap);
         }else if ("Profile".equals(cmd.getEntityName())) {
             return createProfile(user, propertyMap);
+        }else if ("ProjectModel".equals(cmd.getEntityName())) {
+            return createProjectModel(user, propertyMap);
         }else {
             throw new CommandException("Invalid entity class " + cmd.getEntityName());
         }
+    }
+    
+    private CommandResult createProjectModel(User user, PropertyMap propertyMap) {
+    	ProjectModelPolicy policy = injector.getInstance(ProjectModelPolicy.class);
+    	ProjectModelDTO newProjectModel = (ProjectModelDTO) policy.create(user, propertyMap);
+    	if(newProjectModel != null){
+    		CreateResult c = new CreateResult(newProjectModel.getId());
+    		c.setEntity(newProjectModel);
+    		return c;
+    	}   		
+    	else
+    		return null;
     }
     
     private CommandResult createProfile(User user, PropertyMap propertyMap) {

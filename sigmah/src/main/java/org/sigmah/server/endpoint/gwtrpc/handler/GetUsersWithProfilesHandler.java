@@ -47,7 +47,8 @@ public class GetUsersWithProfilesHandler implements CommandHandler<GetUsersWithP
         final List<UserDTO> userDTOList = new ArrayList<UserDTO>();
 
         // Creates selection query.
-        final Query query = em.createQuery("SELECT u FROM User u ORDER BY u.name");
+        final Query query = em.createQuery("SELECT u FROM User u WHERE u.organization = :org ORDER BY u.name");
+        query.setParameter("org", user.getOrganization());
 
         // Gets all users entities.
         @SuppressWarnings("unchecked")
@@ -57,9 +58,6 @@ public class GetUsersWithProfilesHandler implements CommandHandler<GetUsersWithP
         if (users != null) {
             for (final User oneUser : users) {
             	UserDTO userDTO = mapper.map(oneUser, UserDTO.class);
-                log.debug("user " + oneUser.getName() + " id " + oneUser.getId() + " dto " + userDTO);
-            	//if(oneUser != null && oneUser.getId() > 0 && userDTO != null)
-            		//userDTO.setId(oneUser.getId());
             	if(oneUser.getOrgUnitWithProfiles() != null){
             		if(oneUser.getOrgUnitWithProfiles().getOrgUnit() != null)
             			userDTO.setOrgUnitWithProfiles(
@@ -73,12 +71,7 @@ public class GetUsersWithProfilesHandler implements CommandHandler<GetUsersWithP
                 		profileDTO.set("name", profile.getName());
                 		profilesDTO.add(profileDTO);
                 	}
-                	log.debug("[execute] Found " + profilesDTO.size() + " profiles for user " + 
-                			oneUser.getName());
                 	userDTO.setProfilesDTO(profilesDTO);                    
-            	}else{
-            		log.debug("[execute] No profiles found for user " + 
-                			oneUser.getName());
             	}
             	
             	userDTOList.add(userDTO);               
@@ -94,9 +87,6 @@ public class GetUsersWithProfilesHandler implements CommandHandler<GetUsersWithP
 	
 	public static UserDTO mapUserToUserDTO(User oneUser, Mapper mapper){
 		UserDTO userDTO = mapper.map(oneUser, UserDTO.class);
-        log.debug("user " + oneUser.getName() + " id " + oneUser.getId() + " dto " + userDTO);
-    	//if(oneUser != null && oneUser.getId() > 0 && userDTO != null)
-    		//userDTO.setId(oneUser.getId());
     	if(oneUser.getOrgUnitWithProfiles() != null){
     		if(oneUser.getOrgUnitWithProfiles().getOrgUnit() != null)
     			userDTO.setOrgUnitWithProfiles(
@@ -110,12 +100,7 @@ public class GetUsersWithProfilesHandler implements CommandHandler<GetUsersWithP
         		profileDTO.set("name", profile.getName());
         		profilesDTO.add(profileDTO);
         	}
-        	log.debug("[execute] Found " + profilesDTO.size() + " profiles for user " + 
-        			oneUser.getName());
         	userDTO.setProfilesDTO(profilesDTO);                    
-    	}else{
-    		log.debug("[execute] No profiles found for user " + 
-        			oneUser.getName());
     	}
     	return userDTO;
 	}

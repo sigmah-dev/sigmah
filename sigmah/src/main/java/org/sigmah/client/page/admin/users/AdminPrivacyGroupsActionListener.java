@@ -4,7 +4,7 @@ import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.page.admin.users.AdminUsersPresenter.View;
 import org.sigmah.client.page.common.toolbar.ActionListener;
 import org.sigmah.client.page.common.toolbar.UIActions;
-import org.sigmah.client.page.config.form.PrivacyGroupSigmahForm;
+import org.sigmah.client.page.admin.users.form.PrivacyGroupSigmahForm;
 import org.sigmah.shared.command.result.CreateResult;
 import org.sigmah.shared.dto.profile.PrivacyGroupDTO;
 import com.extjs.gxt.ui.client.widget.Window;

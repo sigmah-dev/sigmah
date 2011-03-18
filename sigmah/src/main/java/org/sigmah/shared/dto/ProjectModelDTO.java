@@ -8,11 +8,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import org.sigmah.shared.domain.ProjectModelStatus;
 import org.sigmah.shared.domain.ProjectModelType;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
 import org.sigmah.shared.dto.layout.LayoutConstraintDTO;
 import org.sigmah.shared.dto.layout.LayoutGroupDTO;
 
+import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 
 public class ProjectModelDTO extends BaseModelData implements EntityDTO {
@@ -148,7 +150,71 @@ public class ProjectModelDTO extends BaseModelData implements EntityDTO {
 
         return null;
     }
+   
+    public void setStatus(ProjectModelStatus status) {
+    	set("status",status);
+	}
+    
+    public  ProjectModelStatus getStatus() {
+    	return get("status");
+	}
 
+    public List<FlexibleElementDTO> getAllElements(){
+    	List<FlexibleElementDTO> allElements = new ArrayList<FlexibleElementDTO>();
+    	List<FlexibleElementDTO> bannerElements = new ArrayList<FlexibleElementDTO>();
+    	
+    	//banner
+		if(this.getProjectBannerDTO().getLayoutDTO()!=null){
+			for(LayoutGroupDTO lg : getProjectBannerDTO().getLayoutDTO().getLayoutGroupsDTO()){
+				for(LayoutConstraintDTO lc : lg.getLayoutConstraintsDTO()){
+					FlexibleElementDTO f = lc.getFlexibleElementDTO();
+					f.setBannerConstraint(lc);
+					bannerElements.add(f);			
+				}
+			}
+		}
+		
+    	//phases
+		for(PhaseModelDTO phaseDTO : getPhaseModelsDTO()){
+			for(LayoutGroupDTO lg : phaseDTO.getLayoutDTO().getLayoutGroupsDTO()){
+				for(LayoutConstraintDTO lc : lg.getLayoutConstraintsDTO()){
+					FlexibleElementDTO f = lc.getFlexibleElementDTO();
+					f.setGroup(lg);
+					f.setConstraint(lc);
+					f.setContainerModel(phaseDTO);
+					for(FlexibleElementDTO bf : bannerElements){
+						if(f.getId()== bf.getId()){
+							f.setBannerConstraint(bf.getBannerConstraint());
+						}
+					}				
+					allElements.add(f);
+				}
+			}
+		}
+		//Project Details
+		ProjectDetailsDTO p = getProjectDetailsDTO();
+		p.setName();
+		setProjectDetailsDTO(p);
+		if(getProjectDetailsDTO().getLayoutDTO()!=null){
+			for(LayoutGroupDTO lg : getProjectDetailsDTO().getLayoutDTO().getLayoutGroupsDTO()){
+				for(LayoutConstraintDTO lc : lg.getLayoutConstraintsDTO()){
+					FlexibleElementDTO f = lc.getFlexibleElementDTO();
+					f.setGroup(lg);
+					f.setConstraint(lc);
+					f.setContainerModel(getProjectDetailsDTO());
+					for(FlexibleElementDTO bf : bannerElements){
+						if(f.getId()== bf.getId()){
+							f.setBannerConstraint(bf.getBannerConstraint());
+						}
+					}
+					allElements.add(f);					
+				}
+			}
+		}
+		
+		
+		return allElements;
+    }
     /**
      * Gets all the flexible elements instances of the given class in this model
      * (phases and details page). The banner is ignored cause the elements in it

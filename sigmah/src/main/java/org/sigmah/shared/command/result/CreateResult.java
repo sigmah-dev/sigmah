@@ -19,9 +19,9 @@ public class CreateResult implements CommandResult {
 
     private static final long serialVersionUID = -2196195672020302549L;
 
-    private int newId;
+    protected int newId;
 
-    private BaseModelData entity;
+    protected BaseModelData entity;
 
     protected CreateResult() {
 

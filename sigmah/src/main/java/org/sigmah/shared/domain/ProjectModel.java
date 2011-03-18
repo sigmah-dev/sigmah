@@ -7,6 +7,8 @@ import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -37,6 +39,7 @@ public class ProjectModel extends BaseModelData implements Serializable {
     private ProjectBanner projectBanner;
     private ProjectDetails projectDetails;
     private List<ProjectModelVisibility> visibilities;
+    private ProjectModelStatus status;
     private LogFrameModel logFrameModel;
 
     @Id
@@ -121,6 +124,15 @@ public class ProjectModel extends BaseModelData implements Serializable {
         this.logFrameModel = logFrameModel;
     }
 
+    public void setStatus(ProjectModelStatus status) {
+		this.status = status;
+	}
+
+    @Column(name = "status")
+    @Enumerated(EnumType.STRING)
+	public  ProjectModelStatus getStatus() {
+		return status;
+	}
     /**
      * Gets the type of this model for the given organization. If this model
      * isn't visible for this organization, <code>null</code> is returned.
@@ -144,4 +156,6 @@ public class ProjectModel extends BaseModelData implements Serializable {
 
         return null;
     }
+
+	
 }

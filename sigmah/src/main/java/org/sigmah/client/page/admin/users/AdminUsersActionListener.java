@@ -8,7 +8,7 @@ import org.sigmah.client.page.admin.users.AdminUsersPresenter.View;
 import org.sigmah.client.page.common.grid.ConfirmCallback;
 import org.sigmah.client.page.common.toolbar.ActionListener;
 import org.sigmah.client.page.common.toolbar.UIActions;
-import org.sigmah.client.page.config.form.UserSigmahForm;
+import org.sigmah.client.page.admin.users.form.UserSigmahForm;
 import org.sigmah.shared.command.DeactivateUsers;
 import org.sigmah.shared.command.result.CreateResult;
 import org.sigmah.shared.command.result.VoidResult;

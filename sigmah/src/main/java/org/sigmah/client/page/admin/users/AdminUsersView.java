@@ -19,9 +19,9 @@ import org.sigmah.client.page.admin.users.AdminUsersPresenter.View;
 import org.sigmah.client.page.common.grid.ConfirmCallback;
 import org.sigmah.client.page.common.toolbar.ActionToolBar;
 import org.sigmah.client.page.common.toolbar.UIActions;
-import org.sigmah.client.page.config.form.PrivacyGroupSigmahForm;
-import org.sigmah.client.page.config.form.ProfileSigmahForm;
-import org.sigmah.client.page.config.form.UserSigmahForm;
+import org.sigmah.client.page.admin.users.form.PrivacyGroupSigmahForm;
+import org.sigmah.client.page.admin.users.form.ProfileSigmahForm;
+import org.sigmah.client.page.admin.users.form.UserSigmahForm;
 import org.sigmah.client.ui.StylableVBoxLayout;
 import org.sigmah.shared.command.result.CreateResult;
 import org.sigmah.shared.domain.profile.GlobalPermissionEnum;
@@ -31,6 +31,7 @@ import org.sigmah.shared.dto.UserDTO;
 import org.sigmah.shared.dto.profile.PrivacyGroupDTO;
 import org.sigmah.shared.dto.profile.ProfileDTO;
 
+import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.Style;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -66,6 +67,7 @@ import com.extjs.gxt.ui.client.widget.layout.VBoxLayoutData;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.HTML;
 
 /**
  * Displays users administration screen.
@@ -79,6 +81,9 @@ public class AdminUsersView extends View {
 	private final static String STYLE_MAIN_BACKGROUND = "main-background";
 	private final static int BORDER = 8;
 	
+	private Boolean viewDisplayed = null;
+	
+	final HTML insufficient;
 	private final Grid<UserDTO> usersGrid;
 	private final Grid<ProfileDTO> profilesGrid;
 	private final Grid<PrivacyGroupDTO> privacyGroupsGrid;
@@ -95,7 +100,7 @@ public class AdminUsersView extends View {
 	private String filterUser = DEFAULT_FILTER;
 	
 	public AdminUsersView(Dispatcher dispatcher, UserLocalCache cache){
-		
+
 		this.dispatcher = dispatcher;
 		this.cache = cache;
         
@@ -118,9 +123,9 @@ public class AdminUsersView extends View {
 		usersListPanel.setTopComponent(initToolBar(1));
 		usersListPanel.add(usersGrid);
 		
-		final VBoxLayoutData topVBoxLayoutData = new VBoxLayoutData();
+		/*final VBoxLayoutData topVBoxLayoutData = new VBoxLayoutData();
         topVBoxLayoutData.setFlex(1.0);
-        usersPanel.add(usersListPanel, topVBoxLayoutData);
+        usersPanel.add(usersListPanel, topVBoxLayoutData);*/
 		
 		//Profiles Panel		
 		profilesPanel = new LayoutContainer(new BorderLayout());
@@ -152,14 +157,21 @@ public class AdminUsersView extends View {
         rightLayoutData.setMargins(new Margins(BORDER/2, 0, 0, BORDER/2));
         profilesPanel.add(privacyGroupsPanel, rightLayoutData);					
         
-        final VBoxLayoutData bottomVBoxLayoutData = new VBoxLayoutData();
+        /*final VBoxLayoutData bottomVBoxLayoutData = new VBoxLayoutData();
         bottomVBoxLayoutData.setFlex(2.0);
-        usersPanel.add(profilesPanel, bottomVBoxLayoutData);
+        usersPanel.add(profilesPanel, bottomVBoxLayoutData);*/
+        
+        insufficient = new HTML(I18N.CONSTANTS.permManageUsersInsufficient());
+        insufficient.addStyleName("important-label");
+        /*final VBoxLayoutData vBoxLayoutData = new VBoxLayoutData();
+        vBoxLayoutData.setFlex(3.0);       
+        usersPanel.add(insufficient, vBoxLayoutData);*/ 
 	}
 	
 	
 	@Override
 	public ContentPanel getMainPanel() {
+		usersPanel.setTitle("users");
 		return usersPanel;
 	}
 	
@@ -275,7 +287,7 @@ public class AdminUsersView extends View {
 				//get selected permissions
 				Set<GlobalPermissionEnum> selectedGlobalPermissions = model.get(property);
 				for(GlobalPermissionEnum gpEnum : selectedGlobalPermissions){
-					String perm = ProfileSigmahForm.translateGlobalPermission(gpEnum);
+					String perm = GlobalPermissionEnum.getName(gpEnum);
 					if(perm!=null && !perm.isEmpty())
 						content = perm + ", " + content;
 				}
@@ -297,7 +309,7 @@ public class AdminUsersView extends View {
 				Map<PrivacyGroupDTO, PrivacyGroupPermissionEnum> privacyGroups = model.get(property);
 				String content = "";
 				for(Map.Entry<PrivacyGroupDTO, PrivacyGroupPermissionEnum> pg : privacyGroups.entrySet()){
-					content = "(" + pg.getKey().getTitle() + ", " + ProfileSigmahForm.translatePGPermission(pg.getValue()) + ")" + ", " + content;
+					content = "(" + pg.getKey().getTitle() + ", " + PrivacyGroupPermissionEnum.getName(pg.getValue()) + ")" + ", " + content;
 				}
 				return createUserGridText(content);
 			}
@@ -531,7 +543,7 @@ public class AdminUsersView extends View {
 		ColumnModel cm = new ColumnModel(configs);
 		
 		final Grid<UserDTO> grid = new Grid<UserDTO>(adminUsersStore, cm); 
-	    adminUsersStore.addListener(Events.Add, new Listener<StoreEvent<UserDTO>>() {
+	    /*adminUsersStore.addListener(Events.Add, new Listener<StoreEvent<UserDTO>>() {
 
 	            @Override
 	            public void handleEvent(StoreEvent<UserDTO> be) {
@@ -549,7 +561,7 @@ public class AdminUsersView extends View {
 	            @Override
 	            public void handleEvent(StoreEvent<UserDTO> be) {
 	            }
-	        });
+	        });*/
 	     
 	     grid.getView().setForceFit(true);  
 	     grid.setStyleAttribute("borderTop", "none");    
@@ -611,8 +623,7 @@ public class AdminUsersView extends View {
 			toolBar.addButton(UIActions.refresh, I18N.CONSTANTS.refresh(), IconImageBundle.ICONS.refresh());
 			toolBar.setListener(new AdminProfilesActionListener(this, dispatcher));
 		}else if(panel == 3){
-			toolBar.addButton(UIActions.add, I18N.CONSTANTS.addItem(), IconImageBundle.ICONS.add());
-			
+			toolBar.addButton(UIActions.add, I18N.CONSTANTS.addItem(), IconImageBundle.ICONS.add());			
 			toolBar.setListener(new AdminPrivacyGroupsActionListener(this, dispatcher));
 		}
 
@@ -649,7 +660,7 @@ public class AdminUsersView extends View {
 	public UserSigmahForm showNewUserForm(Window window, AsyncCallback<CreateResult> callback, UserDTO userToUpdate) {		
 		
         window.setHeading(I18N.CONSTANTS.newUser());
-        window.setSize(550, 350);
+        window.setSize(550, 450);
         window.setPlain(true);
         window.setModal(true);
         window.setBlinkModal(true);
@@ -728,5 +739,49 @@ public class AdminUsersView extends View {
 	public void confirmDeleteSelected(ConfirmCallback confirmCallback) {
 		confirmCallback.confirmed();		
 	}
+	
+	@Override
+    public void insufficient() {
+
+        if (viewDisplayed != null && !viewDisplayed) {
+            return;
+        }
+
+        if (viewDisplayed != null) {
+        	usersPanel.remove(usersListPanel);
+        	usersPanel.remove(profilesPanel);
+        }
+
+        final VBoxLayoutData vBoxLayoutData = new VBoxLayoutData();
+        vBoxLayoutData.setFlex(3.0);              
+        usersPanel.add(insufficient, vBoxLayoutData);
+
+        viewDisplayed = false;
+        
+        usersPanel.layout();
+    }
+
+    @Override
+    public void sufficient() {
+
+        if (viewDisplayed != null && viewDisplayed) {
+            return;
+        }
+
+        if (viewDisplayed != null) {
+            usersPanel.remove(insufficient);
+        }
+        
+        final VBoxLayoutData topVBoxLayoutData = new VBoxLayoutData();
+        topVBoxLayoutData.setFlex(1.0);
+        usersPanel.add(usersListPanel, topVBoxLayoutData);
+        final VBoxLayoutData bottomVBoxLayoutData = new VBoxLayoutData();
+        bottomVBoxLayoutData.setFlex(2.0);
+        usersPanel.add(profilesPanel, bottomVBoxLayoutData);
+
+        viewDisplayed = true;
+        
+        usersPanel.layout();
+    }
 
 }

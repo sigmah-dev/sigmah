@@ -3,6 +3,7 @@ package org.sigmah.shared.dto;
 import java.util.List;
 
 import org.sigmah.shared.domain.ProjectModel;
+import org.sigmah.shared.domain.ProjectModelStatus;
 import org.sigmah.shared.domain.ProjectModelType;
 
 import com.extjs.gxt.ui.client.data.BaseModelData;
@@ -40,6 +41,14 @@ public class ProjectModelDTOLight extends BaseModelData implements EntityDTO {
 
     public void setName(String name) {
         set("name", name);
+    }
+    
+    public ProjectModelStatus getStatus() {
+        return get("status");
+    }
+
+    public void setStatus(ProjectModelStatus status) {
+        set("status", status);
     }
 
     // Project visibilities

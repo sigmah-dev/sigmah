@@ -1,14 +1,16 @@
 package org.sigmah.client.page.admin;
 
 
-import org.sigmah.client.ui.StylableHBoxLayout;
+import org.sigmah.client.ui.StylableVBoxLayout;
 
 
+import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
+import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
@@ -35,16 +37,16 @@ public class AdminView extends LayoutContainer implements AdminPresenter.View{
 		final BorderLayout borderLayout = new BorderLayout();
         borderLayout.setContainerStyle("x-border-layout-ct " + STYLE_MAIN_BACKGROUND);
         setLayout(borderLayout);
-		leftNavigationPanel = new ContentPanel(new StylableHBoxLayout("main-background project-top-bar"));
+		leftNavigationPanel = new ContentPanel(new StylableVBoxLayout("main-background project-top-bar"));
 		leftNavigationPanel.setHeaderVisible(false);
+		leftNavigationPanel.setCollapsible(true);
         
-		rightPanel = new ContentPanel();
+		rightPanel = new ContentPanel(new FitLayout());
 		final BorderLayout rightBorderLayout = new BorderLayout();
         borderLayout.setContainerStyle("x-border-layout-ct " + STYLE_MAIN_BACKGROUND);
         rightPanel.setLayout(rightBorderLayout);
         rightPanel.setHeaderVisible(false);
         rightPanel.setBorders(false);
-		
         
         //rightPanel.setHeaderVisible(false);
         //rightPanel.setSize(300, 300);
@@ -53,14 +55,19 @@ public class AdminView extends LayoutContainer implements AdminPresenter.View{
 	}
 
 	@Override
-	public void setMainPanel(Widget widget) {
-		if(this.widget != null)
-            rightPanel.remove(this.widget);
-
+	public void setMainPanel(Widget newWidget) {
+		
+		if(widget != null){
+			Log.debug("Old widget " + widget.getTitle());
+			rightPanel.remove(widget);
+		}
+           
 		final BorderLayoutData mainLayoutData = new BorderLayoutData(LayoutRegion.CENTER);
         mainLayoutData.setMargins(new Margins(0, 0, 0, BORDER / 2));
-        rightPanel.add(widget, mainLayoutData);
-        this.widget = widget;		
+        rightPanel.add(newWidget, mainLayoutData);
+        widget = newWidget;		
+        Log.debug("New widget " + newWidget.getTitle());
+        rightPanel.layout();
 	}
 
 	@Override

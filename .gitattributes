@@ -251,12 +251,34 @@ sigmah/src/main/java/org/sigmah/client/page/admin/AdminModule.java -text
 sigmah/src/main/java/org/sigmah/client/page/admin/AdminPageLoader.java -text
 sigmah/src/main/java/org/sigmah/client/page/admin/AdminPageState.java -text
 sigmah/src/main/java/org/sigmah/client/page/admin/AdminPresenter.java -text
+sigmah/src/main/java/org/sigmah/client/page/admin/AdminSubPresenter.java -text
+sigmah/src/main/java/org/sigmah/client/page/admin/AdminUtil.java -text
 sigmah/src/main/java/org/sigmah/client/page/admin/AdminView.java -text
+sigmah/src/main/java/org/sigmah/client/page/admin/model/AdminModelSubPresenter.java -text
+sigmah/src/main/java/org/sigmah/client/page/admin/model/common/AdminModelActionListener.java -text
+sigmah/src/main/java/org/sigmah/client/page/admin/model/common/AdminOneModelPresenter.java -text
+sigmah/src/main/java/org/sigmah/client/page/admin/model/common/AdminOneModelView.java -text
+sigmah/src/main/java/org/sigmah/client/page/admin/model/common/ProjectModelForm.java -text
+sigmah/src/main/java/org/sigmah/client/page/admin/model/common/element/AdminFlexibleElementActionListener.java -text
+sigmah/src/main/java/org/sigmah/client/page/admin/model/common/element/AdminFlexibleElementsPresenter.java -text
+sigmah/src/main/java/org/sigmah/client/page/admin/model/common/element/AdminFlexibleElementsView.java -text
+sigmah/src/main/java/org/sigmah/client/page/admin/model/common/element/ElementForm.java -text
+sigmah/src/main/java/org/sigmah/client/page/admin/model/common/element/ElementTypeEnum.java -text
+sigmah/src/main/java/org/sigmah/client/page/admin/model/common/report/AdminReportModelPresenter.java -text
+sigmah/src/main/java/org/sigmah/client/page/admin/model/common/report/AdminReportModelView.java -text
+sigmah/src/main/java/org/sigmah/client/page/admin/model/project/AdminProjectModelsPresenter.java -text
+sigmah/src/main/java/org/sigmah/client/page/admin/model/project/AdminProjectModelsView.java -text
+sigmah/src/main/java/org/sigmah/client/page/admin/model/project/phase/AdminPhasesPresenter.java -text
+sigmah/src/main/java/org/sigmah/client/page/admin/model/project/phase/AdminPhasesView.java -text
+sigmah/src/main/java/org/sigmah/client/page/admin/model/project/phase/PhaseSigmahForm.java -text
 sigmah/src/main/java/org/sigmah/client/page/admin/users/AdminPrivacyGroupsActionListener.java -text
 sigmah/src/main/java/org/sigmah/client/page/admin/users/AdminProfilesActionListener.java -text
 sigmah/src/main/java/org/sigmah/client/page/admin/users/AdminUsersActionListener.java -text
 sigmah/src/main/java/org/sigmah/client/page/admin/users/AdminUsersPresenter.java -text
 sigmah/src/main/java/org/sigmah/client/page/admin/users/AdminUsersView.java -text
+sigmah/src/main/java/org/sigmah/client/page/admin/users/form/PrivacyGroupSigmahForm.java -text
+sigmah/src/main/java/org/sigmah/client/page/admin/users/form/ProfileSigmahForm.java -text
+sigmah/src/main/java/org/sigmah/client/page/admin/users/form/UserSigmahForm.java -text
 sigmah/src/main/java/org/sigmah/client/page/app/AppFrameSet.java -text
 sigmah/src/main/java/org/sigmah/client/page/charts/ChartLoader.java -text
 sigmah/src/main/java/org/sigmah/client/page/charts/ChartOFCView.java -text
@@ -1231,6 +1253,7 @@ sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetAdminEntitiesH
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetApplicationInfoHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetBaseMapsHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetCalendarHandler.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetCategoriesHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetCountriesHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetCountryHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetHistoryHandler.java -text
@@ -1246,6 +1269,7 @@ sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetProfilesHandle
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetProfilesWithDetailsHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetProjectDocumentsHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetProjectHandler.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetProjectModelHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetProjectModelsHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetProjectReportHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetProjectReportModelsHandler.java -text
@@ -1254,6 +1278,7 @@ sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetProjectsFromId
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetProjectsHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetRemindersHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetReportDefHandler.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetReportModelsHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetReportTemplatesHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetSitePointsHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetSyncRegionUpdatesHandler.java -text
@@ -1307,6 +1332,7 @@ sigmah/src/main/java/org/sigmah/server/policy/EntityPolicy.java -text
 sigmah/src/main/java/org/sigmah/server/policy/PersonalEventPolicy.java -text
 sigmah/src/main/java/org/sigmah/server/policy/PrivacyGroupPolicy.java -text
 sigmah/src/main/java/org/sigmah/server/policy/ProfilePolicy.java -text
+sigmah/src/main/java/org/sigmah/server/policy/ProjectModelPolicy.java -text
 sigmah/src/main/java/org/sigmah/server/policy/ProjectPolicy.java -text
 sigmah/src/main/java/org/sigmah/server/policy/ProjectReportPolicy.java -text
 sigmah/src/main/java/org/sigmah/server/policy/PropertyMap.java -text
@@ -1452,6 +1478,7 @@ sigmah/src/main/java/org/sigmah/shared/command/GetAdminEntities.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetApplicationInfo.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetBaseMaps.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetCalendar.java -text
+sigmah/src/main/java/org/sigmah/shared/command/GetCategories.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetCountries.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetCountry.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetHistory.java -text
@@ -1468,6 +1495,7 @@ sigmah/src/main/java/org/sigmah/shared/command/GetProfiles.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetProfilesWithDetails.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetProject.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetProjectDocuments.java -text
+sigmah/src/main/java/org/sigmah/shared/command/GetProjectModel.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetProjectModels.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetProjectReport.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetProjectReportModel.java -text
@@ -1477,6 +1505,7 @@ sigmah/src/main/java/org/sigmah/shared/command/GetProjects.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetProjectsFromId.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetReminders.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetReportDef.java -text
+sigmah/src/main/java/org/sigmah/shared/command/GetReportModels.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetReportTemplates.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetSchema.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetSitePoints.java -text
@@ -1515,6 +1544,7 @@ sigmah/src/main/java/org/sigmah/shared/command/result/AdminEntityResult.java -te
 sigmah/src/main/java/org/sigmah/shared/command/result/ApplicationInfo.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/BaseMapResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/BatchResult.java -text
+sigmah/src/main/java/org/sigmah/shared/command/result/CategoriesListResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/CommandResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/CountryResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/CreateResult.java -text
@@ -1525,6 +1555,7 @@ sigmah/src/main/java/org/sigmah/shared/command/result/InvitationList.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/ListResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/LogFrameResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/MapIconResult.java -text
+sigmah/src/main/java/org/sigmah/shared/command/result/ModelElementListResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/MonitoredPointsResultList.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/MonthlyReportResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/PagingResult.java -text
@@ -1537,6 +1568,7 @@ sigmah/src/main/java/org/sigmah/shared/command/result/ProjectReportListResult.ja
 sigmah/src/main/java/org/sigmah/shared/command/result/ProjectReportModelListResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/RemindersResultList.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/RenderResult.java -text
+sigmah/src/main/java/org/sigmah/shared/command/result/ReportModelsListResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/ReportTemplateResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/SingleResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/SitePointList.java -text
@@ -1544,6 +1576,7 @@ sigmah/src/main/java/org/sigmah/shared/command/result/SiteResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/SyncRegion.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/SyncRegionUpdate.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/SyncRegions.java -text
+sigmah/src/main/java/org/sigmah/shared/command/result/UpdateModelResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/UserDatabaseListResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/UserListResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/UserResult.java -text
@@ -1779,6 +1812,7 @@ sigmah/src/main/java/org/sigmah/shared/dto/report/KeyQuestionDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/report/ProjectReportContent.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/report/ProjectReportDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/report/ProjectReportSectionDTO.java -text
+sigmah/src/main/java/org/sigmah/shared/dto/report/ReportModelDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/report/ReportReference.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/report/RichTextElementDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/value/BudgetPartsListValueDTO.java -text

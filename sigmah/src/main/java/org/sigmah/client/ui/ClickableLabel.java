@@ -19,6 +19,7 @@ public class ClickableLabel extends AdapterField{
 	
 	private Grid grid;		
 	private Image deleteIcon;
+	private String text;
 	
 	public ClickableLabel(){
 		super(null);
@@ -40,7 +41,12 @@ public class ClickableLabel extends AdapterField{
 	
 	
 	public void setText(String s){
+		this.text = s;
 		grid.setText(0, 1, s);
+	}
+	
+	public String getText(){
+		return text;
 	}
 	
 	public Grid getGrid(){

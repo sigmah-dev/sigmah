@@ -7,11 +7,12 @@ import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.dispatch.monitor.MaskingAsyncMonitor;
 import org.sigmah.client.dispatch.remote.Authentication;
 import org.sigmah.client.i18n.I18N;
+import org.sigmah.client.page.admin.AdminPageState;
+import org.sigmah.client.page.admin.AdminSubPresenter;
 import org.sigmah.client.page.common.grid.ConfirmCallback;
-import org.sigmah.client.page.config.form.PrivacyGroupSigmahForm;
-import org.sigmah.client.page.config.form.ProfileSigmahForm;
-import org.sigmah.client.page.config.form.UserSigmahForm;
-import org.sigmah.client.page.project.SubPresenter;
+import org.sigmah.client.page.admin.users.form.PrivacyGroupSigmahForm;
+import org.sigmah.client.page.admin.users.form.ProfileSigmahForm;
+import org.sigmah.client.page.admin.users.form.UserSigmahForm;
 import org.sigmah.shared.command.GetPrivacyGroups;
 import org.sigmah.shared.command.GetProfilesWithDetails;
 import org.sigmah.shared.command.GetUsersWithProfiles;
@@ -31,7 +32,6 @@ import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.HTML;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
 
@@ -41,12 +41,12 @@ import com.google.inject.Inject;
  * @author nrebiai
  * 
  */
-public class AdminUsersPresenter implements SubPresenter {
+public class AdminUsersPresenter implements AdminSubPresenter {
 	
 	private static boolean alert = false;
     private final Dispatcher dispatcher;
     private final UserLocalCache cache;
-    private View view;
+    private final View view;
     private Authentication authentication;
     
     @ImplementedBy(AdminUsersView.class)
@@ -69,7 +69,8 @@ public class AdminUsersPresenter implements SubPresenter {
 		public abstract void confirmDeleteSelected(ConfirmCallback confirmCallback);
 		public abstract List<ProfileDTO> getProfilesSelection();
 		public abstract List<PrivacyGroupDTO> getPrivacyGroupsSelection();
-		
+		public abstract void sufficient();
+		public abstract void insufficient();
    }
     
 	public static class AdminUsersStore extends ListStore<UserDTO> {
@@ -87,11 +88,9 @@ public class AdminUsersPresenter implements SubPresenter {
 		this.cache = cache;
         this.dispatcher = dispatcher;
         this.authentication = authentication;
+        this.view = new AdminUsersView(dispatcher, cache);
         if(ProfileUtils.isGranted(authentication, GlobalPermissionEnum.MANAGE_USER)){
-	        	
-	        
-	        this.view = new AdminUsersView(dispatcher, cache);
-			        
+	                
 	        //Getting Users 
 	        refreshUserPanel(dispatcher, view);
 	        
@@ -100,32 +99,31 @@ public class AdminUsersPresenter implements SubPresenter {
 	        
 	      //Getting privacy groups
 	        refreshPrivacyGroupPanel(dispatcher, view);
+	        view.sufficient();
+		}else{
+			view.insufficient();
 		}
 	}
 
 	
-	//FIXME
 	private static void alertPbmData() {
         if (alert)
             return;
         alert = true;
-        MessageBox.alert("Users Pbm", "Pbm getting data", null);
+        MessageBox.alert(I18N.CONSTANTS.adminUsers(), I18N.CONSTANTS.adminProblemLoading(), null);
     }
 
 	@Override
-	public Component getView() {		
-		if(!ProfileUtils.isGranted(authentication, GlobalPermissionEnum.MANAGE_USER)){
+	public Component getView() {	
+		/*if(!ProfileUtils.isGranted(authentication, GlobalPermissionEnum.MANAGE_USER)){
 			ContentPanel insufficientView = new ContentPanel();
 			final HTML insufficient = new HTML(I18N.CONSTANTS.permManageUsersInsufficient());
 	        insufficient.addStyleName("important-label");
 	        insufficientView.add(insufficient);
 	        return insufficientView;
-		}else{
-			if (view == null) {
-				view = new AdminUsersView(dispatcher, cache);
-			}
+		}else{*/
 			return view.getMainPanel();
-		}		
+		//}		
 	}
 
 	@Override
@@ -210,6 +208,13 @@ public class AdminUsersPresenter implements SubPresenter {
 
 	@Override
 	public void discardView() {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void setCurrentState(AdminPageState currentState) {
 		// TODO Auto-generated method stub
 		
 	}

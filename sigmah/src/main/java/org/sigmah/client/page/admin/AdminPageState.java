@@ -1,6 +1,6 @@
 package org.sigmah.client.page.admin;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.sigmah.client.i18n.I18N;
@@ -9,20 +9,28 @@ import org.sigmah.client.page.PageId;
 import org.sigmah.client.page.PageState;
 import org.sigmah.client.page.PageStateParser;
 import org.sigmah.client.page.TabPage;
+import org.sigmah.client.page.admin.model.common.AdminOneModelPresenter;
 import org.sigmah.client.ui.Tab;
 
 public class AdminPageState implements PageState, TabPage, HasTab {
 
 	private Integer currentSection;
-	//private String argument;
+	private Integer model;
+	private String subModel;
 	private Tab tab;
 	
 	public AdminPageState() {
 		
 	} 
 	
-    public AdminPageState(int section) {
+	public AdminPageState(int section) {
 		this.currentSection = section;
+	}
+	
+	public AdminPageState(int section, int model, String subModel) {
+		this.currentSection = section;
+		this.model = model;
+		this.subModel = subModel;
 	} 
 	
 
@@ -34,6 +42,11 @@ public class AdminPageState implements PageState, TabPage, HasTab {
         	final AdminPageState state = new AdminPageState(Integer.parseInt(tokens[0]));
         	if(tokens.length > 1) {
                 state.setCurrentSection(Integer.parseInt(tokens[1]));
+                if(tokens.length > 2) {
+                    state.setModel(new Integer(tokens[2]));
+                } else {
+                    state.setModel(null);
+                }
             }
         	return state;
         }
@@ -46,8 +59,11 @@ public class AdminPageState implements PageState, TabPage, HasTab {
         if(currentSection != null)
             tokenBuilder.append(currentSection.toString());
 
-        /*if(argument != null)
-            tokenBuilder.append('/').append(argument);*/
+        if(model != null)
+            tokenBuilder.append('/').append(model);
+        
+        if(subModel != null)
+            tokenBuilder.append('/').append(subModel);
 
         if(tokenBuilder.length() == 0)
             return null;
@@ -59,6 +75,13 @@ public class AdminPageState implements PageState, TabPage, HasTab {
         final AdminPageState derivation = new AdminPageState(section);
         return derivation;
     }
+	
+	public AdminPageState deriveTo(int section, int model, String subModel) {
+        final AdminPageState derivation = new AdminPageState(section);
+        derivation.setModel(model);
+        derivation.setSubModel(subModel);
+        return derivation;
+    }
 
 	@Override
 	public PageId getPageId() {
@@ -67,7 +90,7 @@ public class AdminPageState implements PageState, TabPage, HasTab {
 
 	@Override
 	public List<PageId> getEnclosingFrames() {
-		return Arrays.asList(AdminPresenter.PAGE_ID);
+		return Collections.singletonList(AdminPresenter.PAGE_ID);
 	}
 	
 	public void setCurrentSection(Integer currentSection) {
@@ -94,6 +117,22 @@ public class AdminPageState implements PageState, TabPage, HasTab {
 	@Override
 	public void setTab(Tab tab) {
 		this.tab = tab;		
+	}
+
+	public void setModel(Integer model) {
+		this.model = model;
+	}
+
+	public Integer getModel() {
+		return model;
+	}
+
+	public void setSubModel(String subModel) {
+		this.subModel = subModel;
+	}
+
+	public String getSubModel() {
+		return subModel;
 	}
 
 }

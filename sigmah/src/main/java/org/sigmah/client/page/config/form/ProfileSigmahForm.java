@@ -85,7 +85,7 @@ public class ProfileSigmahForm extends FormPanel {
 		setLayout(layout);
 		
 		nameField = new TextField<String>();
-		nameField.setFieldLabel(constants.adminUsersName());
+		nameField.setFieldLabel(constants.adminProfilesName());
 		nameField.setAllowBlank(false);
 		if(profileToUpdate != null && !profileToUpdate.getName().isEmpty())
 			nameField.setValue(profileToUpdate.getName());
@@ -99,7 +99,7 @@ public class ProfileSigmahForm extends FormPanel {
 		checkGPGroup.setFieldLabel(I18N.CONSTANTS.adminProfilesGlobalPermissions());
 		String label = "";
 		for(GlobalPermissionEnum enumItem : GlobalPermissionEnum.values()){			
-			label = translateGlobalPermission(enumItem);	
+			label = GlobalPermissionEnum.getName(enumItem);	
 			CheckBox box = createCheckBox(enumItem.toString(),label);
 			if(profileToUpdate != null && profileToUpdate.getGlobalPermissions()!=null
 					&& profileToUpdate.getGlobalPermissions().contains(enumItem) ){
@@ -142,7 +142,7 @@ public class ProfileSigmahForm extends FormPanel {
 			j++;
 			PrivacyGroupPermDTO perm =  new PrivacyGroupPermDTO();
 			perm.setId(j);
-			perm.setPermission(translatePGPermission(enumItem));			
+			perm.setPermission(PrivacyGroupPermissionEnum.getName(enumItem));			
 			permsStore.add(perm);			
 		}
 		privacyGroupsPermissionsListCombo.setStore(permsStore );		
@@ -159,7 +159,7 @@ public class ProfileSigmahForm extends FormPanel {
 
 					@Override
 					public void onFailure(Throwable arg0) {
-						privacyGroupsListCombo.setEmptyText(I18N.CONSTANTS.adminUserCreationChoiceProblem());
+						privacyGroupsListCombo.setEmptyText(I18N.CONSTANTS.adminChoiceProblem());
 					}
 
 					@Override
@@ -212,7 +212,7 @@ public class ProfileSigmahForm extends FormPanel {
                     		num++;               		
                     		selectedPrivacyGroupsIds.add(new Integer(privacyGroupsListCombo.getValue().getId()));
                     		privacyGroupsPerms.put(privacyGroupsListCombo.getValue(), 
-                    				translatePGPermission(privacyGroupsPermissionsListCombo.getValue().getPermission()));
+                    				PrivacyGroupPermissionEnum.translatePGPermission(privacyGroupsPermissionsListCombo.getValue().getPermission()));
                     		
                 		}else{
                 			MessageBox.alert(I18N.CONSTANTS.adminMaxAttempts(), I18N.CONSTANTS.adminMaxAttemptsProfiles(), null);
@@ -233,7 +233,7 @@ public class ProfileSigmahForm extends FormPanel {
         		if(num < MAX_PRIVACY_GROUPS_TENTATIVES_PER_USER){
         			selectedPrivacyGroups.get(num).setData(PRIVACY_GROUP, usedPrivacyGroup);        			 
 	        		selectedPrivacyGroups.get(num).setText(usedPrivacyGroup.getCode() + "-" + usedPrivacyGroup.getTitle()
-	        				+ " : " + translatePGPermission(profileToUpdate.getPrivacyGroups().get(usedPrivacyGroup)));
+	        				+ " : " + PrivacyGroupPermissionEnum.getName(profileToUpdate.getPrivacyGroups().get(usedPrivacyGroup)));
 	        		selectedPrivacyGroups.get(num).show();
 	        		num++;  
 	        	}else{
@@ -329,46 +329,4 @@ public class ProfileSigmahForm extends FormPanel {
 		 
 	}
 	
-	public static String translateGlobalPermission(GlobalPermissionEnum gp){
-		String gpName = "default";
-		switch(gp){
-		case VIEW_PROJECT : gpName = I18N.CONSTANTS.VIEW_PROJECT(); break;
-		case EDIT_PROJECT : gpName = I18N.CONSTANTS.EDIT_PROJECT(); break;
-		case CREATE_PROJECT : gpName = I18N.CONSTANTS.CREATE_PROJECT(); break;
-		case CHANGE_PHASE : gpName = I18N.CONSTANTS.CHANGE_PHASE(); break;
-		case VIEW_ADMIN : gpName = I18N.CONSTANTS.VIEW_ADMIN(); break;
-		case MANAGE_USER : gpName = I18N.CONSTANTS.MANAGE_USER(); break;
-		case MANAGE_UNIT : gpName = I18N.CONSTANTS.MANAGE_UNIT(); break;
-		case REMOVE_FILE : gpName = I18N.CONSTANTS.REMOVE_FILE(); break;
-		case VIEW_ACTIVITYINFO : gpName = I18N.CONSTANTS.VIEW_ACTIVITYINFO(); break;
-		default : gpName = null;
-		}
-		
-		return gpName;
-	}
-	
-	public static String translatePGPermission(PrivacyGroupPermissionEnum pg){
-		String pgName = "default";
-		switch(pg){
-		case NONE : pgName = I18N.CONSTANTS.none(); break;
-		case READ : pgName = I18N.CONSTANTS.view(); break;
-		case WRITE : pgName = I18N.CONSTANTS.edit(); break;
-		default : pg = null;
-		}
-		
-		return pgName;
-	}
-	
-	public static PrivacyGroupPermissionEnum translatePGPermission(String pg){
-		
-		PrivacyGroupPermissionEnum pgName = null;
-		if(I18N.CONSTANTS.none().equals(pg))
-			pgName = PrivacyGroupPermissionEnum.NONE;
-		else if(I18N.CONSTANTS.view().equals(pg))
-			pgName = PrivacyGroupPermissionEnum.READ;
-		else if(I18N.CONSTANTS.edit().equals(pg))
-			pgName =PrivacyGroupPermissionEnum.WRITE;
-				
-		return pgName;
-	}
 }

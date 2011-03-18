@@ -7,7 +7,9 @@ import org.sigmah.client.page.PageId;
 import org.sigmah.client.page.PageLoader;
 import org.sigmah.client.page.PageState;
 import org.sigmah.client.page.PageStateSerializer;
+import org.sigmah.client.page.admin.model.common.AdminOneModelPresenter;
 
+import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 
@@ -15,6 +17,7 @@ public class AdminPageLoader implements PageLoader {
 
 	
 	private final SigmahInjector injector;
+	private AdminPresenter adminPresenter;
 
     @Inject
     public AdminPageLoader(SigmahInjector injector, NavigationHandler navigationHandler,
@@ -24,15 +27,18 @@ public class AdminPageLoader implements PageLoader {
 
         navigationHandler.registerPageLoader(AdminPresenter.PAGE_ID, this);
         placeSerializer.registerParser(AdminPresenter.PAGE_ID, new AdminPageState.Parser());
+
     }
 
     @Override
     public void load(final PageId pageId, final PageState pageState, final AsyncCallback<Page> callback) {    
         if (pageId.equals(AdminPresenter.PAGE_ID)) {
             final AdminPresenter adminPresenter = injector.getAdminPresenter();
+            this.adminPresenter = adminPresenter;
             adminPresenter.navigate(pageState);
             callback.onSuccess(adminPresenter);
-        }
+            
+        } 
     }
 
 }
