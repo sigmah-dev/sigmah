@@ -1,4 +1,4 @@
-package org.sigmah.client.page.config.design;
+package org.sigmah.client.page.project.design;
 
 import java.util.Map;
 
@@ -6,10 +6,13 @@ import org.sigmah.client.EventBus;
 import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.page.common.dialog.FormDialogCallback;
 import org.sigmah.client.page.common.toolbar.UIActions;
+import org.sigmah.client.page.config.design.DesignPanel;
+import org.sigmah.client.page.config.design.ProjectSiteGridPanel;
 import org.sigmah.client.page.entry.SiteMap;
 import org.sigmah.client.page.entry.editor.SiteForm;
 import org.sigmah.client.page.entry.editor.SiteFormDialog;
 import org.sigmah.client.page.project.ProjectPresenter;
+import org.sigmah.client.page.project.ProjectSubPresenter;
 import org.sigmah.client.page.project.SubPresenter;
 import org.sigmah.shared.command.CreateEntity;
 import org.sigmah.shared.command.result.CreateResult;
@@ -41,7 +44,7 @@ import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 
-public class ProjectIndicatorsContainer extends LayoutContainer implements SubPresenter {
+public class ProjectIndicatorsContainer extends LayoutContainer implements ProjectSubPresenter {
 
 	//private SiteEditor siteEditor;
 	private DesignPanel designPanel;
@@ -62,7 +65,9 @@ public class ProjectIndicatorsContainer extends LayoutContainer implements SubPr
 	private ProjectSiteGridPanel siteEditor;
 	private SiteMap siteMap;
 	
-	private ProjectPresenter projectPresenter;
+	private ProjectDTO project;
+	
+	
 		
 	@Inject
 	public ProjectIndicatorsContainer(
@@ -153,14 +158,8 @@ public class ProjectIndicatorsContainer extends LayoutContainer implements SubPr
 			}
 		});
 	}
-	
 
-
-	public void setProjectPresenter(ProjectPresenter projectPresenter) {
-		this.projectPresenter = projectPresenter;
-	}
-	
-
+	@Override
 	public void loadProject(ProjectDTO projectDTO) {
 		
 		// load design panel
@@ -176,19 +175,18 @@ public class ProjectIndicatorsContainer extends LayoutContainer implements SubPr
 		Filter filter = new Filter();
 		filter.addRestriction(DimensionType.Indicator, value.getId());
 		
-		siteMap.loadSites(projectPresenter.getCurrentProjectDTO().getCountry(), 
-				filter);
+		siteMap.loadSites(project.getCountry(),	filter);
 	}
 
 	protected void addSite() {
 
-		final int projectId = projectPresenter.getCurrentProjectDTO().getId();
+		final int projectId = project.getId();
 
 		SiteDTO site = new SiteDTO();
 		site.setDatabaseId(projectId);
 		//site.setPartner(projectPresenter.getCurrentProjectDTO().getOrgUnitId());
 		
-		final SiteForm form = new SiteForm(service, projectPresenter.getCurrentProjectDTO().getCountry());
+		final SiteForm form = new SiteForm(service, project.getCountry());
 		form.setSite(site);
 		
 		final SiteFormDialog dialog = new SiteFormDialog(form);
@@ -217,7 +215,6 @@ public class ProjectIndicatorsContainer extends LayoutContainer implements SubPr
 	
 	@Override
 	public Component getView() {
-		this.designPanel.setProjectPresenter(this.projectPresenter);
 		return (Component) this;
 	}
 

@@ -33,7 +33,7 @@ public abstract class PivotGenerator<T extends PivotElement> extends BaseGenerat
 
         List<PivotDAO.Bucket> buckets = pivotDAO.aggregate(
                 userId, filter,
-                element.allDimensions());
+                element.allDimensions(), element.isShowEmptyCells());
 
 
         Map<Dimension, Comparator<PivotTableData.Axis>> comparators =

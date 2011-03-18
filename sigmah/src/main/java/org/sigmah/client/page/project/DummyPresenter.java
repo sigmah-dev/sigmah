@@ -5,6 +5,8 @@
 
 package org.sigmah.client.page.project;
 
+import org.sigmah.shared.dto.ProjectDTO;
+
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.Label;
 

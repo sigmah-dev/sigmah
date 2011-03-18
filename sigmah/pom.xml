@@ -382,7 +382,7 @@
         <dependency>
             <groupId>org.easymock</groupId>
             <artifactId>easymock</artifactId>
-            <version>2.5.1</version>
+            <version>3.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -391,6 +391,7 @@
             <version>3.6.2</version>
             <scope>test</scope>
         </dependency>
+        
         <!-- Apache Commons File Upload -->
         <dependency>
             <groupId>commons-fileupload</groupId>
@@ -879,7 +880,7 @@
                         <version>1.2</version>
                         <configuration>
                             <module>org.sigmah.Sigmah</module>
-                            <logLevel>DEBUG</logLevel>
+                            <logLevel>INFO</logLevel>
                             <runTarget>Sigmah</runTarget>
                         </configuration>
                         <executions>

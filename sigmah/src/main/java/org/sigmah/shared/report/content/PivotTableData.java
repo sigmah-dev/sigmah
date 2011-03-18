@@ -5,10 +5,15 @@
 
 package org.sigmah.shared.report.content;
 
-import org.sigmah.shared.report.model.Dimension;
-
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import org.sigmah.shared.report.model.Dimension;
 
 public class PivotTableData implements Serializable {
 
@@ -77,6 +82,21 @@ public class PivotTableData implements Serializable {
     private void setRootColumn(Axis rootColumn) {
         this.rootColumn = rootColumn;
     }
+    
+    @Override 
+    public String toString() {
+    	StringBuilder sb = new StringBuilder();
+    	
+    	sb.append(" COLUMNS:\n");
+    	for(Axis col : rootColumn.getChildren()) {
+    		col.toString(1,sb);
+    	}
+    	sb.append(" ROWS:\n");
+    	for(Axis row : rootRow.getChildren()) {
+    		row.toString(1,sb);
+    	}
+    	return sb.toString();
+    }
 
     public static class Cell implements Serializable {
 		private Double value;
@@ -99,6 +119,7 @@ public class PivotTableData implements Serializable {
         public void setValue(Double value) {
             this.value = value;
         }
+        
     }
 
 
@@ -315,6 +336,23 @@ public class PivotTableData implements Serializable {
             }
 
             return max;
+        }
+        
+        public void toString(int depth, StringBuilder sb) {
+        	for(int i=0;i!=depth;++i) {
+        		sb.append("  ");
+        	}
+        	sb.append(dimension).append(":").append(label);
+        	
+        	for(Entry<Axis, Cell> column : cells.entrySet()) {
+        		sb.append(" | ");
+        		sb.append(column.getKey().label).append("=").append(column.getValue().getValue());
+        	}
+        	sb.append("\n");
+        	for(Axis child : getChildren()) {
+        		child.toString(depth+1, sb);
+        	}
+        	
         }
     }
 

@@ -96,6 +96,7 @@ sigmah/src/main/java/org/sigmah/client/i18n/UIMessages.properties -text
 sigmah/src/main/java/org/sigmah/client/i18n/UIMessages_fr.properties -text
 sigmah/src/main/java/org/sigmah/client/i18n/package-info.java -text
 sigmah/src/main/java/org/sigmah/client/icon/IconImageBundle.java -text
+sigmah/src/main/java/org/sigmah/client/icon/IconUtil.java -text
 sigmah/src/main/java/org/sigmah/client/icon/activity.png -text
 sigmah/src/main/java/org/sigmah/client/icon/add.png -text
 sigmah/src/main/java/org/sigmah/client/icon/addActivity.png -text
@@ -345,8 +346,8 @@ sigmah/src/main/java/org/sigmah/client/page/config/design/IndicatorFolder.java -
 sigmah/src/main/java/org/sigmah/client/page/config/design/IndicatorForm.java -text
 sigmah/src/main/java/org/sigmah/client/page/config/design/IndicatorGroupForm.java -text
 sigmah/src/main/java/org/sigmah/client/page/config/design/MappedIndicatorSelection.java -text
-sigmah/src/main/java/org/sigmah/client/page/config/design/ProjectIndicatorsContainer.java -text
 sigmah/src/main/java/org/sigmah/client/page/config/design/ProjectSiteGridPanel.java -text
+sigmah/src/main/java/org/sigmah/client/page/config/design/ValueLabelGrid.java -text
 sigmah/src/main/java/org/sigmah/client/page/config/design/emptyMap.png -text
 sigmah/src/main/java/org/sigmah/client/page/config/design/emptyStar.png -text
 sigmah/src/main/java/org/sigmah/client/page/config/design/map.png -text
@@ -385,6 +386,7 @@ sigmah/src/main/java/org/sigmah/client/page/entry/SiteDetailPanel.java -text
 sigmah/src/main/java/org/sigmah/client/page/entry/SiteGridDragSource.java -text
 sigmah/src/main/java/org/sigmah/client/page/entry/SiteGridPageState.java -text
 sigmah/src/main/java/org/sigmah/client/page/entry/SiteGridPanel.java -text
+sigmah/src/main/java/org/sigmah/client/page/entry/SiteGridPanelResources.java -text
 sigmah/src/main/java/org/sigmah/client/page/entry/SiteMap.java -text
 sigmah/src/main/java/org/sigmah/client/page/entry/SiteStoreHelper.java -text
 sigmah/src/main/java/org/sigmah/client/page/entry/editor/AbstractFieldSet.java -text
@@ -436,6 +438,7 @@ sigmah/src/main/java/org/sigmah/client/page/project/ProjectModule.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/ProjectPageLoader.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/ProjectPresenter.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/ProjectState.java -text
+sigmah/src/main/java/org/sigmah/client/page/project/ProjectSubPresenter.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/ProjectView.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/SubPresenter.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/calendar/ProjectCalendarPresenter.java -text
@@ -466,6 +469,7 @@ sigmah/src/main/java/org/sigmah/client/page/project/dashboard/funding/partner.pn
 sigmah/src/main/java/org/sigmah/client/page/project/dashboard/funding/partner2.png -text
 sigmah/src/main/java/org/sigmah/client/page/project/dashboard/funding/partner3.png -text
 sigmah/src/main/java/org/sigmah/client/page/project/dashboard/funding/partner4.png -text
+sigmah/src/main/java/org/sigmah/client/page/project/design/ProjectIndicatorsContainer.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/details/ProjectDetailsPresenter.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/details/ProjectDetailsView.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/logframe/CodePolicy.java -text
@@ -482,6 +486,17 @@ sigmah/src/main/java/org/sigmah/client/page/project/logframe/grid/MenuAction.jav
 sigmah/src/main/java/org/sigmah/client/page/project/logframe/grid/Row.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/logframe/grid/RowActionsMenu.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/logframe/grid/RowsGroup.java -text
+sigmah/src/main/java/org/sigmah/client/page/project/pivot/DateFilterCombo.java -text
+sigmah/src/main/java/org/sigmah/client/page/project/pivot/DateRangeModel.java -text
+sigmah/src/main/java/org/sigmah/client/page/project/pivot/HistorySelector.java -text
+sigmah/src/main/java/org/sigmah/client/page/project/pivot/IndicatorByTimeLayout.java -text
+sigmah/src/main/java/org/sigmah/client/page/project/pivot/IndicatorFilterCombo.java -text
+sigmah/src/main/java/org/sigmah/client/page/project/pivot/PivotLayout.java -text
+sigmah/src/main/java/org/sigmah/client/page/project/pivot/PivotToolBar.java -text
+sigmah/src/main/java/org/sigmah/client/page/project/pivot/ProjectPivotContainer.java -text
+sigmah/src/main/java/org/sigmah/client/page/project/pivot/SiteByIndicatorLayout.java -text
+sigmah/src/main/java/org/sigmah/client/page/project/pivot/SiteFilterCombo.java -text
+sigmah/src/main/java/org/sigmah/client/page/project/pivot/SitesByTimeLayout.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/reports/AttachFileHandler.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/reports/AttachMenuBuilder.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/reports/AttachReportHandler.java -text
@@ -519,15 +534,17 @@ sigmah/src/main/java/org/sigmah/client/page/report/ReportPreviewPresenter.java -
 sigmah/src/main/java/org/sigmah/client/page/report/ReportXmlForm.java -text
 sigmah/src/main/java/org/sigmah/client/page/report/SigmahReportLoader.java -text
 sigmah/src/main/java/org/sigmah/client/page/table/PivotGridPanel.java -text
-sigmah/src/main/java/org/sigmah/client/page/table/PivotModule.java -text
+sigmah/src/main/java/org/sigmah/client/page/table/PivotGridPanelView.java -text
 sigmah/src/main/java/org/sigmah/client/page/table/PivotPage.java -text
 sigmah/src/main/java/org/sigmah/client/page/table/PivotPageLoader.java -text
 sigmah/src/main/java/org/sigmah/client/page/table/PivotPageState.java -text
-sigmah/src/main/java/org/sigmah/client/page/table/PivotPresenter.java -text
-sigmah/src/main/java/org/sigmah/client/page/table/SigmahPivotPageLoader.java -text
+sigmah/src/main/java/org/sigmah/client/page/table/PivotResources.java -text
 sigmah/src/main/java/org/sigmah/client/page/table/drilldown/DrillDownEditor.java -text
 sigmah/src/main/java/org/sigmah/client/page/table/filter/AbstractFilterFieldSet.java -text
 sigmah/src/main/java/org/sigmah/client/page/table/filter/PartnerFieldSet.java -text
+sigmah/src/main/java/org/sigmah/client/page/table/pencil.png -text
+sigmah/src/main/java/org/sigmah/client/page/table/pivot.css -text
+sigmah/src/main/java/org/sigmah/client/page/table/zoom.png -text
 sigmah/src/main/java/org/sigmah/client/page/welcome/StaticPage.java -text
 sigmah/src/main/java/org/sigmah/client/page/welcome/StaticPageLoader.java -text
 sigmah/src/main/java/org/sigmah/client/page/welcome/StaticPageState.java -text
@@ -1892,6 +1909,7 @@ sigmah/src/test/java/org/sigmah/client/page/entry/editor/SiteFormTest.java -text
 sigmah/src/test/java/org/sigmah/client/page/entry/editor/mock/MockAdminFieldSet.java -text
 sigmah/src/test/java/org/sigmah/client/page/entry/editor/mock/MockMapView.java -text
 sigmah/src/test/java/org/sigmah/client/page/entry/editor/mock/MockSiteForm.java -text
+sigmah/src/test/java/org/sigmah/client/page/project/pivot/LayoutTest.java -text
 sigmah/src/test/java/org/sigmah/server/SchemaMigrationTest.java -text
 sigmah/src/test/java/org/sigmah/server/auth/BCryptTest.java -text
 sigmah/src/test/java/org/sigmah/server/auth/NullMailer.java -text
@@ -1994,6 +2012,7 @@ sigmah/src/test/resources/dbunit/client-sites-simple1.db.xml -text
 sigmah/src/test/resources/dbunit/filter.db.xml -text
 sigmah/src/test/resources/dbunit/locations.db.xml -text
 sigmah/src/test/resources/dbunit/multicountry.db.xml -text
+sigmah/src/test/resources/dbunit/project-indicator.db.xml -text
 sigmah/src/test/resources/dbunit/projects.db.xml -text
 sigmah/src/test/resources/dbunit/schema1.db.xml -text
 sigmah/src/test/resources/dbunit/sites-deleted.db.xml -text

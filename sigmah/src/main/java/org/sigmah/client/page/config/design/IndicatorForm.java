@@ -14,6 +14,7 @@ import org.sigmah.shared.dto.IndicatorDTO;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.binding.FieldBinding;
 import com.extjs.gxt.ui.client.binding.FormBinding;
+import com.extjs.gxt.ui.client.widget.form.AdapterField;
 import com.extjs.gxt.ui.client.widget.form.NumberField;
 import com.extjs.gxt.ui.client.widget.form.TextArea;
 import com.extjs.gxt.ui.client.widget.form.TextField;
@@ -80,6 +81,10 @@ class IndicatorForm extends AbstractDesignForm {
         aggregationCombo.add(IndicatorDTO.AGGREGATE_SITE_COUNT, I18N.CONSTANTS.siteCount());
         binding.addFieldBinding(new MappingComboBoxBinding(aggregationCombo, "aggregation"));
         this.add(aggregationCombo);
+        
+        AdapterField labelsField = new AdapterField(new ValueLabelGrid());
+        labelsField.setFieldLabel("Value Labels");
+        this.add(labelsField);
 
         TextArea descField = new TextArea();
         descField.setFieldLabel(I18N.CONSTANTS.description());

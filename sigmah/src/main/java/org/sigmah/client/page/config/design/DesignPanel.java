@@ -83,7 +83,6 @@ import com.google.inject.Provider;
 
 public class DesignPanel extends DesignPanelBase implements ActionListener {
 	
-	private ProjectPresenter projectPresenter;
 	private Provider<IndicatorDialog> indicatorDialog;
 	
 	private int currentDatabaseId;
@@ -247,10 +246,6 @@ public class DesignPanel extends DesignPanelBase implements ActionListener {
 		}
 	}
 
-	public void setProjectPresenter(ProjectPresenter project) {
-		this.projectPresenter = project;
-	}
-	
 	/**
 	 * Loads the indicators for the given databaseId/projectId
 	 * 
@@ -371,7 +366,7 @@ public class DesignPanel extends DesignPanelBase implements ActionListener {
 	
 	private void showIndicatorForm(IndicatorDTO model) {
 	    IndicatorDialog dialog = indicatorDialog.get();
-	    dialog.bindIndicator(projectPresenter.getCurrentProjectDTO().getId(), model, treeStore);
+	    dialog.bindIndicator(currentDatabaseId, model, treeStore);
 	    dialog.show();
 	}
 	

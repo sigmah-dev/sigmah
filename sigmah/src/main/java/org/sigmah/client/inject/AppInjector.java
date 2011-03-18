@@ -30,8 +30,8 @@ import org.sigmah.client.page.config.DbPartnerEditor;
 import org.sigmah.client.page.config.DbUserEditor;
 import org.sigmah.client.page.config.design.DesignPanel;
 import org.sigmah.client.page.config.design.DesignPanelActivityInfo;
-import org.sigmah.client.page.entry.DataEntryLoader;
 import org.sigmah.client.page.entry.ActivityFilterPanel;
+import org.sigmah.client.page.entry.DataEntryLoader;
 import org.sigmah.client.page.entry.DataEntryModule;
 import org.sigmah.client.page.map.MapLoader;
 import org.sigmah.client.page.map.MapModule;
@@ -39,9 +39,7 @@ import org.sigmah.client.page.report.ReportListPagePresenter;
 import org.sigmah.client.page.report.ReportLoader;
 import org.sigmah.client.page.report.ReportModule;
 import org.sigmah.client.page.report.ReportPreviewPresenter;
-import org.sigmah.client.page.table.PivotModule;
 import org.sigmah.client.page.table.PivotPageLoader;
-import org.sigmah.client.page.table.PivotPresenter;
 import org.sigmah.client.page.welcome.Welcome;
 import org.sigmah.client.page.welcome.WelcomeLoader;
 import org.sigmah.client.util.state.IStateManager;
@@ -60,7 +58,6 @@ import com.google.gwt.inject.client.Ginjector;
         ReportModule.class,
         DataEntryModule.class,
         MapModule.class,
-        PivotModule.class,
         ConfigModule.class,
         OfflineModule.class
 })
@@ -105,8 +102,6 @@ public interface AppInjector extends Ginjector {
     ConfigLoader createConfigLoader();
 
     PivotPageLoader createPivotLoader();
-
-    PivotPresenter getPivotPresenter();
 
     UIConstants getMessages();
 

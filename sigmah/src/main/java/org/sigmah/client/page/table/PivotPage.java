@@ -13,10 +13,15 @@ import org.sigmah.client.AppEvents;
 import org.sigmah.client.EventBus;
 import org.sigmah.client.dispatch.AsyncMonitor;
 import org.sigmah.client.dispatch.Dispatcher;
+import org.sigmah.client.dispatch.callback.DownloadCallback;
 import org.sigmah.client.dispatch.monitor.MaskingAsyncMonitor;
 import org.sigmah.client.event.PivotCellEvent;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.icon.IconImageBundle;
+import org.sigmah.client.page.NavigationCallback;
+import org.sigmah.client.page.Page;
+import org.sigmah.client.page.PageId;
+import org.sigmah.client.page.PageState;
 import org.sigmah.client.page.common.filter.AdminFilterPanel;
 import org.sigmah.client.page.common.filter.DateRangePanel;
 import org.sigmah.client.page.common.filter.IndicatorTreePanel;
@@ -25,7 +30,9 @@ import org.sigmah.client.page.common.toolbar.UIActions;
 import org.sigmah.client.page.table.drilldown.DrillDownEditor;
 import org.sigmah.client.util.DateUtilGWTImpl;
 import org.sigmah.client.util.state.IStateManager;
+import org.sigmah.shared.command.GenerateElement;
 import org.sigmah.shared.command.GetSchema;
+import org.sigmah.shared.command.RenderElement;
 import org.sigmah.shared.dto.ActivityDTO;
 import org.sigmah.shared.dto.AdminEntityDTO;
 import org.sigmah.shared.dto.AdminLevelDTO;
@@ -36,6 +43,8 @@ import org.sigmah.shared.dto.IndicatorDTO;
 import org.sigmah.shared.dto.PartnerDTO;
 import org.sigmah.shared.dto.SchemaDTO;
 import org.sigmah.shared.dto.UserDatabaseDTO;
+import org.sigmah.shared.report.content.Content;
+import org.sigmah.shared.report.content.PivotContent;
 import org.sigmah.shared.report.model.AdminDimension;
 import org.sigmah.shared.report.model.AttributeGroupDimension;
 import org.sigmah.shared.report.model.DateDimension;
@@ -70,6 +79,7 @@ import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.ListView;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Text;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.layout.AccordionLayout;
@@ -85,13 +95,11 @@ import com.google.inject.Inject;
 /**
  * @author Alex Bertram (akbertram@gmail.com)
  */
-public class PivotPage extends LayoutContainer implements PivotPresenter.View {
+public class PivotPage extends LayoutContainer implements Page {
 
 	protected EventBus eventBus;
 	protected Dispatcher service;
 	protected IStateManager stateMgr;
-
-	protected PivotPresenter presenter;
 
 	protected ListStore<Dimension> rowDims;
 	protected ListStore<Dimension> colDims;
@@ -109,6 +117,7 @@ public class PivotPage extends LayoutContainer implements PivotPresenter.View {
 	protected PivotGridPanel gridContainer;
 	protected ToolBar gridToolBar;
 	private Listener<PivotCellEvent> initialDrillDownListener;
+	public static final PageId PAGE_ID = new PageId("pivot");
 
 	@Inject
 	public PivotPage(EventBus eventBus, Dispatcher service, IStateManager stateMgr) {
@@ -277,9 +286,7 @@ public class PivotPage extends LayoutContainer implements PivotPresenter.View {
 		store.addStoreListener(new StoreListener<Dimension>() {
 			@Override
 			public void storeDataChanged(StoreEvent<Dimension> se) {
-				if (presenter != null) {
-					presenter.onDimensionsChanged();
-				}
+				onDimensionsChanged();
 			}
 		});
 		return store;
@@ -335,6 +342,11 @@ public class PivotPage extends LayoutContainer implements PivotPresenter.View {
 		partnerPanel = new PartnerFilterPanel(service);
 		filterPane.add(partnerPanel);
 	}
+	
+	private void onDimensionsChanged() {
+		// TODO Auto-generated method stub
+		
+	}
 
 	private void createGridContainer() {
 
@@ -352,8 +364,8 @@ public class PivotPage extends LayoutContainer implements PivotPresenter.View {
 		SelectionListener<ButtonEvent> listener = new SelectionListener<ButtonEvent>() {
 			@Override
 			public void componentSelected(ButtonEvent ce) {
-				if (presenter != null && ce.getButton().getItemId() != null) {
-					presenter.onUIAction(ce.getButton().getItemId());
+				if (ce.getButton().getItemId() != null) {
+					onUIAction(ce.getButton().getItemId());
 				}
 			}
 		};
@@ -391,12 +403,10 @@ public class PivotPage extends LayoutContainer implements PivotPresenter.View {
 
 	}
 
-	@Override
 	public ListStore<Dimension> getRowStore() {
 		return rowDims;
 	}
 
-	@Override
 	public ListStore<Dimension> getColStore() {
 		return colDims;
 	}
@@ -404,11 +414,32 @@ public class PivotPage extends LayoutContainer implements PivotPresenter.View {
 	public void setSchema(SchemaDTO result) {
 		//    indicatorPanel.setSchema(result);
 	}
+	
 
-	public void bindPresenter(PivotPresenter presenter) {
 
-		this.presenter = presenter;
-	}
+    @Override
+    public PageId getPageId() {
+        return PAGE_ID;
+    }
+
+    @Override
+    public Object getWidget() {
+        return this;
+    }
+
+    @Override
+    public void requestToNavigateAway(PageState place, NavigationCallback callback) {
+        callback.onDecided(true);
+    }
+
+    @Override
+    public String beforeWindowCloses() {
+        return null;
+    }
+
+    public boolean navigate(PageState place) {
+        return true;
+    }
 
 	public void enableUIAction(String actionId, boolean enabled) {
 		Component button = gridToolBar.getItemByItemId(actionId);
@@ -549,5 +580,62 @@ public class PivotPage extends LayoutContainer implements PivotPresenter.View {
 				callback.onSuccess(dims);
 			}
 		}
+	}
+
+    private PivotTableElement createElement() {
+        PivotTableElement table = new PivotTableElement();
+        table.setRowDimensions(getRowStore().getModels());
+        table.setColumnDimensions(getColStore().getModels());
+
+        List<IndicatorDTO> selectedIndicators = getSelectedIndicators();
+        for (IndicatorDTO indicator : selectedIndicators) {
+            table.getFilter().addRestriction(DimensionType.Indicator, indicator.getId());
+        }
+
+        List<AdminEntityDTO> entities = getAdminRestrictions();
+        for (AdminEntityDTO entity : entities) {
+            table.getFilter().addRestriction(DimensionType.AdminLevel, entity.getId());
+        }
+
+        List<PartnerDTO> partners = getPartnerRestrictions();
+        for (PartnerDTO entity : partners) {
+            table.getFilter().addRestriction(DimensionType.Partner, entity.getId());
+        }
+        
+        if (getMinDate() != null) {	
+            table.getFilter().setMinDate(getMinDate());
+        }
+        
+        if (getMaxDate() != null) {
+            table.getFilter().setMaxDate(getMaxDate());
+        }
+        return table;
+    }
+    
+
+
+    public void onUIAction(String itemId) {
+        if (UIActions.refresh.equals(itemId)) {
+            final PivotTableElement element = createElement();
+            service.execute(new GenerateElement(element), getMonitor(), new AsyncCallback<Content>() {
+                public void onFailure(Throwable throwable) {
+                    MessageBox.alert(I18N.CONSTANTS.error(), I18N.CONSTANTS.errorOnServer(), null);
+                }
+
+                public void onSuccess(Content content) {
+                    element.setContent((PivotContent) content);
+                    setContent(element);
+                }
+            });
+
+        } else if (UIActions.export.equals(itemId)) {
+            service.execute(new RenderElement(createElement(), RenderElement.Format.Excel), getMonitor(),
+                    new DownloadCallback(eventBus, "pivotTable"));
+        }
+    }
+
+	@Override
+	public void shutdown() {
+		
 	}
 }

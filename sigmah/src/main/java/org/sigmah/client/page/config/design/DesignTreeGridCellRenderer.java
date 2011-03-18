@@ -1,5 +1,6 @@
 package org.sigmah.client.page.config.design;
 
+import org.sigmah.client.icon.IconUtil;
 import org.sigmah.shared.dto.IndicatorDTO;
 import org.sigmah.shared.dto.IndicatorGroup;
 
@@ -11,7 +12,6 @@ import com.extjs.gxt.ui.client.util.Format;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.treegrid.TreeGridCellRenderer;
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Element;
 
 
@@ -24,11 +24,11 @@ import com.google.gwt.dom.client.Element;
 class DesignTreeGridCellRenderer extends TreeGridCellRenderer {
 
 	private final static DesignPanelResources.Style CSS = DesignPanelResources.INSTANCE.css();
-	private final static String EMPTY_MAP_ICON = iconHtml(CSS.emptyMapIcon());
-	private final static String MAP_ICON = iconHtml(CSS.mapIcon());
+	private final static String EMPTY_MAP_ICON = IconUtil.iconHtml(CSS.emptyMapIcon());
+	private final static String MAP_ICON = IconUtil.iconHtml(CSS.mapIcon());
 
-	private final static String EMPTY_STAR_ICON = iconHtml(CSS.emptyStarIcon());
-	private final static String STAR_ICON = iconHtml(CSS.emptyStarIcon());
+	private final static String EMPTY_STAR_ICON = IconUtil.iconHtml(CSS.emptyStarIcon());
+	private final static String STAR_ICON = IconUtil.iconHtml(CSS.emptyStarIcon());
 	
 	private MappedIndicatorSelection mappedSelection;
 	
@@ -74,12 +74,6 @@ class DesignTreeGridCellRenderer extends TreeGridCellRenderer {
 		}
 	}
 	
-
-	private static String iconHtml(String spriteStyle) {
-		// we can't use the normal div produced by GWT because the icons need to be inline
-		// to display properly in the existing GXT html structure
-		return "<img width='16' height='16' src='" + GWT.getModuleBaseURL() + "clear.cache.gif' class='" + spriteStyle + "'>";
-	}
 
 	private ModelWrapper modelWrapper = new ModelWrapper();
 

@@ -27,8 +27,6 @@ public class PivotTableGenerator extends PivotGenerator<PivotTableElement> {
         super(pivotDAO);
     }
 
-    private Map<Dimension, Comparator<PivotTableData.Axis>> comparators;
-
     @Override
     public void generate(User user, PivotTableElement element, Filter inheritedFilter,
                          DateRange dateRange) {

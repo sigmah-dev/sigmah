@@ -45,9 +45,7 @@ import org.sigmah.client.page.report.ReportListPagePresenter;
 import org.sigmah.client.page.report.ReportModule;
 import org.sigmah.client.page.report.ReportPreviewPresenter;
 import org.sigmah.client.page.report.SigmahReportLoader;
-import org.sigmah.client.page.table.PivotModule;
-import org.sigmah.client.page.table.PivotPresenter;
-import org.sigmah.client.page.table.SigmahPivotPageLoader;
+import org.sigmah.client.page.table.PivotPageLoader;
 import org.sigmah.client.util.state.IStateManager;
 
 import com.google.gwt.inject.client.GinModules;
@@ -59,7 +57,6 @@ import com.google.gwt.inject.client.Ginjector;
              OrgUnitModule.class,
              AdminModule.class,
              MapModule.class,
-             PivotModule.class,
              ReportModule.class,
              DataEntryModule.class,
              ConfigModule.class})
@@ -98,7 +95,7 @@ public interface SigmahInjector extends Ginjector {
     SigmahMapLoader registerMapLoader();
     SigmahChartLoader registerChartLoader();
     SigmahConfigLoader registerConfigLoader();
-    SigmahPivotPageLoader registerPivotLoader();
+    PivotPageLoader registerPivotLoader();
     SigmahReportLoader registerReportLoader();
     
     // Required by the 'Data Entry' page
@@ -124,8 +121,6 @@ public interface SigmahInjector extends Ginjector {
     DbConfigPresenter getDbConfigPresenter();
     DbListPage getDbListPage();
     
-    // Required by the 'Pivot' page
-    PivotPresenter getPivotPresenter();
     
     // Cache
     SchemaCache createSchemaCache();

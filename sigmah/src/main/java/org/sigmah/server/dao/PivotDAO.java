@@ -23,6 +23,8 @@ import java.util.*;
 @ImplementedBy(PivotHibernateDAO.class)
 public interface PivotDAO {
 
+	
+
     /**
      *
      * @param userId the id of the User for whom the data is restricted
@@ -31,6 +33,16 @@ public interface PivotDAO {
      * @return
      */
     List<Bucket> aggregate(int userId, Filter filter, Set<Dimension> dimensions);
+	
+	
+    /**
+     *
+     * @param userId the id of the User for whom the data is restricted
+     * @param filter a {@link org.sigmah.shared.dao.Filter filter} restricting the sites
+     * @param dimensions
+     * @return
+     */
+    List<Bucket> aggregate(int userId, Filter filter, Set<Dimension> dimensions, boolean showEmptyCells);
 
     List<String> getFilterLabels(DimensionType type, Collection<Integer> ids);
 

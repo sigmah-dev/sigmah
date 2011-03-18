@@ -1,0 +1,22 @@
+
+@external x-grid3-hd-inner;
+
+@sprite .zoomIcon {
+	gwt-image: 'zoom';
+	cursor: pointer;
+	vertical-align: -3px;
+	padding-left: 3px;
+}	
+
+@sprite .editIcon {
+	gwt-image: 'pencil';
+	cursor: pointer;
+	vertical-align: -3px;
+	padding-left: 2px;
+	
+	
+}
+.pivotTable .x-grid3-hd-inner {
+	white-space:normal !important;
+		
+}

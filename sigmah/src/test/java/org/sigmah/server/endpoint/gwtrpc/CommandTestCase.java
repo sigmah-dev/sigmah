@@ -6,8 +6,12 @@
 package org.sigmah.server.endpoint.gwtrpc;
 
 
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
+
+import org.sigmah.client.dispatch.AsyncMonitor;
+import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.shared.domain.User;
 import org.sigmah.server.util.BeanMappingModule;
 import org.sigmah.server.util.TemplateModule;
@@ -39,7 +43,7 @@ public abstract class CommandTestCase {
 
     protected int userId = 1;
 
-
+    
     protected void setUser(int userId) {
         this.userId = userId;
     }
@@ -68,4 +72,20 @@ public abstract class CommandTestCase {
 
         return (T) result;
     }
+    
+    protected Dispatcher dispatcher = new Dispatcher() {
+		
+		@Override
+		public <T extends CommandResult> void execute(Command<T> command,
+				AsyncMonitor monitor, AsyncCallback<T> callback) {
+			try {
+				callback.onSuccess(CommandTestCase.this.execute(command));
+			} catch(Exception e) {
+				System.out.println("Exception thrown while handling command " + command.toString() + ": ");
+				e.printStackTrace();
+				callback.onFailure(e);
+			}
+		}
+	};
+    
 }

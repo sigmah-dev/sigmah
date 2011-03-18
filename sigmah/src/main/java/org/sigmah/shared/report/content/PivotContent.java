@@ -50,4 +50,9 @@ public class PivotContent implements Content {
     public void setEffectiveFilter(Filter effectiveFilter) {
         this.effectiveFilter = effectiveFilter;
     }
+    
+    @Override
+    public String toString() {
+    	return "PivotContent:\n" + data.toString();
+    }
 }

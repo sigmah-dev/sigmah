@@ -233,7 +233,7 @@
 	<locationAdminLink locationId="2" adminEntityId="2"/>
 	<locationAdminLink locationId="2" adminEntityId="11"/>
 	
-	<site siteId="2" databaseId="2" activityId="1" locationId="2" partnerId="1" Status="1" target="1" Date1="2009-01-15" Date2="2009-01-16" DateCreated="2009-02-01" DateEdited="2009-02-01" />
+	<site siteId="2" databaseId="1" activityId="1" locationId="2" partnerId="1" Status="1" target="1" Date1="2009-01-15" Date2="2009-01-16" DateCreated="2009-02-01" DateEdited="2009-02-01" />
 	<attributeValue siteId="2" attributeId="1" value="1"/>
 	<attributeValue siteId="2" attributeId="2" value="1"/>
 	

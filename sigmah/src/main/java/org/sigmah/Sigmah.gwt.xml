@@ -44,7 +44,6 @@
         <exclude name="inject/AppModule.java" />
         <exclude name="page/app/AppFrameSet.java" />
         <exclude name="page/report/ReportLoader.java" />
-        <exclude name="page/table/PivotPageLoader.java" />
         <exclude name="page/config/ConfigLoader.java" />
         <exclude name="page/welcome/WelcomeLoader.java" />
     </source>

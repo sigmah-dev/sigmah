@@ -19,6 +19,8 @@ import java.util.Set;
  */
 public abstract class PivotElement<ContentT extends PivotContent> extends ReportElement<ContentT> {
 
+	private boolean showEmptyCells = false;
+	
 
 	/**
 	 * Returns the set of all dimensions that figure in the 
@@ -51,4 +53,13 @@ public abstract class PivotElement<ContentT extends PivotContent> extends Report
     public void setContent(ContentT content) {
         this.content = content;
     }
+
+	public boolean isShowEmptyCells() {
+		return showEmptyCells;
+	}
+
+	public void setShowEmptyCells(boolean showEmptyCells) {
+		this.showEmptyCells = showEmptyCells;
+	}
+    
 }

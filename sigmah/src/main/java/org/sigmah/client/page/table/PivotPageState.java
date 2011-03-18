@@ -21,7 +21,7 @@ public class PivotPageState implements PageState, TabPage {
 
     @Override
     public PageId getPageId() {
-        return PivotPresenter.Pivot;
+        return PivotPage.PAGE_ID;
     }
 
     @Override
@@ -31,7 +31,7 @@ public class PivotPageState implements PageState, TabPage {
 
     @Override
     public List<PageId> getEnclosingFrames() {
-        return Arrays.asList(PivotPresenter.Pivot);
+        return Arrays.asList(PivotPage.PAGE_ID);
     }
 
     @Override
