@@ -1633,6 +1633,7 @@ sigmah/src/main/java/org/sigmah/shared/domain/ProjectBanner.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/ProjectDetails.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/ProjectFunding.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/ProjectModel.java -text
+sigmah/src/main/java/org/sigmah/shared/domain/ProjectModelStatus.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/ProjectModelType.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/ProjectModelVisibility.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/ReportingPeriod.java -text
