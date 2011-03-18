@@ -44,7 +44,7 @@ import com.google.inject.Inject;
  */
 public class AdminPresenter implements TabPage, Frame {
 
-    private final static String[] MAIN_TABS = { I18N.CONSTANTS.adminUsers(), I18N.CONSTANTS.adminProjectModels(), I18N.CONSTANTS.adminReportSection() };
+    private final static String[] MAIN_TABS = { I18N.CONSTANTS.adminUsers(), I18N.CONSTANTS.adminProjectModels(), I18N.CONSTANTS.adminProjectModelReports() };
     public static final PageId PAGE_ID = new PageId(I18N.CONSTANTS.adminboard());
 
     private final View view;
