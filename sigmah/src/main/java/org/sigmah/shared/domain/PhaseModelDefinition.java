@@ -1,5 +1,6 @@
 package org.sigmah.shared.domain;
 
+import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -16,7 +17,7 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "phase_model_definition")
-public class PhaseModelDefinition {
+public class PhaseModelDefinition implements Serializable {
 
     private Integer id;
 
