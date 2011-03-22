@@ -37,6 +37,9 @@ public class ProjectModelHandler implements ModelHandler {
             if(hibernateModel == null)
                 throw new ExportException("No project model is associated with the identifier '"+identifier+"'.");
 
+            // Removing superfluous links
+            hibernateModel.setVisibilities(null);
+
             // Stripping hibernate proxies from the model.
             final ProjectModel realModel = Realizer.realize(hibernateModel);
 

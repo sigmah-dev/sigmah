@@ -4,12 +4,15 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.hibernate.collection.PersistentBag;
+import org.hibernate.collection.PersistentSet;
 
 /**
  * Creates plain objects from Hibernate proxies.
@@ -24,7 +27,7 @@ class Realizer {
 
     /**
      * Creates a new instance of <code>object</code> with <code>ArrayList</code>s instead of
-     * <code>PersistentBag</code>s.
+     * <code>PersistentBag</code>s and <code>HashSet</code> instead of <code>PersistentSet</code>s.
      * <br>
      * <b>Note:</b> do not use this without testing its compatibility with your objects.
      * @param <T>
@@ -45,6 +48,8 @@ class Realizer {
                 return (T) alreadyRealizedObjects.get(object);
             }
 
+            LOG.debug("Realizing "+object.getClass()+"...");
+
             try {
                 // Extracting the class of the current object
                 final Class<T> clazz = (Class<T>) object.getClass();
@@ -56,9 +61,22 @@ class Realizer {
                 alreadyRealizedObjects.put(object, instance);
 
                 // Accessing fields from the given object
-                final Field[] fields = clazz.getDeclaredFields();
+                final ArrayList<Field> fields = new ArrayList<Field>();
+
+                fields.addAll(Arrays.asList(clazz.getDeclaredFields()));
+
+                Class<?> superClass = clazz.getSuperclass();
+                while(superClass.getPackage().getName().startsWith("org.sigmah")) {
+
+                    fields.addAll(Arrays.asList(superClass.getDeclaredFields()));
+
+                    superClass = superClass.getSuperclass();
+                }
+
                 for (final Field field : fields) {
                     if (!Modifier.isStatic(field.getModifiers())) { // Avoid trying to modify static fields
+                        LOG.debug("\tfield "+field.getName());
+
                         field.setAccessible(true); // Force the accessibility of the current field
 
                         final Object sourceValue = field.get(object);
@@ -78,9 +96,20 @@ class Realizer {
 
                             destinationValue = list;
 
-                        } else if (sourceValue.getClass().getName().startsWith("java.lang")
+                        } else if (sourceValue instanceof PersistentSet) {
+                            // Turning persistent sets into sets
+
+                            final HashSet<Object> set = new HashSet<Object>();
+
+                            for(Object value : (PersistentSet) sourceValue) {
+                                set.add(realize(value, alreadyRealizedObjects));
+                            }
+
+                            destinationValue = set;
+
+                        } else if (sourceValue.getClass().getName().startsWith("java.")
                                 || sourceValue.getClass().isEnum()) {
-                            // Simple copy if the current field is a primitive type or an enum
+                            // Simple copy if the current field is a jdk type or an enum
                             destinationValue = sourceValue;
 
                         } else {
