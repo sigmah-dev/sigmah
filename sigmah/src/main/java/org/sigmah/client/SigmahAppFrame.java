@@ -39,6 +39,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.gears.client.Factory;
+import com.google.gwt.http.client.URL;
 import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -83,7 +84,10 @@ public class SigmahAppFrame implements Frame {
             RootPanel.get("username").add(new Label(auth.getEmail()));
 
             final Anchor reportButton = new Anchor(I18N.CONSTANTS.bugReport());
+            configureReportAnchor(reportButton);
             RootPanel.get("bugreport").add(reportButton);
+
+
 
             final Anchor helpButton = new Anchor(I18N.CONSTANTS.help());
             helpButton.addClickHandler(new ClickHandler() {
@@ -229,6 +233,23 @@ public class SigmahAppFrame implements Frame {
 
                                                               return height;
                                                               }-*/;
+
+    private void configureReportAnchor(final Anchor reportButton) {
+
+        final StringBuilder hrefBuilder = new StringBuilder("mailto:");
+        hrefBuilder.
+                append(I18N.CONSTANTS.bugReportSupportAddress()).
+                append("?subject=").
+                append(URL.encodeComponent(I18N.CONSTANTS.bugReportMailObject(), false)).
+                append("&body=").
+                append(URL.encodeComponent(I18N.MESSAGES.bugReportBody(getUserAgent()), false));
+
+        reportButton.setHref(hrefBuilder.toString());
+    }
+
+    private native String getUserAgent() /*-{
+        return navigator.userAgent;
+    }-*/;
 
     @Override
     public void setActivePage(Page page) {
