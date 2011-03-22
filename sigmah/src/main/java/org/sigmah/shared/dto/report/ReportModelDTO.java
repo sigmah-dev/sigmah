@@ -20,7 +20,7 @@ public class ReportModelDTO extends BaseModelData implements EntityDTO {
     }
 
 	public int getId() {
-        return get("id");
+        return (Integer) get("id");
     }
     public void setId(Integer id) {
         this.set("id", id);
