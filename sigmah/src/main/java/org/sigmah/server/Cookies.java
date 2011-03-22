@@ -8,6 +8,7 @@ package org.sigmah.server;
 import org.sigmah.server.domain.Authentication;
 
 import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 public class Cookies extends org.sigmah.shared.Cookies {
@@ -23,5 +24,19 @@ public class Cookies extends org.sigmah.shared.Cookies {
         authCookie.setMaxAge(remember ? For.THIRTY_DAYS : For.THIS_SESSION);
         authCookie.setPath("/");
         response.addCookie(authCookie);
+    }
+
+    public static String getCookieValue(String cookieName, HttpServletRequest req) {
+        final Cookie[] cookies = req.getCookies();
+
+        if(cookies != null) {
+            for (final Cookie cookie : cookies) {
+                if (cookie.getName().equals(cookieName)) {
+                    return cookie.getValue();
+                }
+            }
+        }
+
+        return null;
     }
 }

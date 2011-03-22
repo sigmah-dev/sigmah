@@ -7,9 +7,7 @@ package org.sigmah.server.auth;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 
 import javax.servlet.ServletException;
@@ -21,12 +19,20 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.dozer.Mapper;
 import org.sigmah.client.inject.SigmahAuthProvider;
 import org.sigmah.server.dao.AuthenticationDAO;
 import org.sigmah.server.domain.Authentication;
 import org.sigmah.shared.Cookies;
 import org.sigmah.shared.domain.User;
+import org.sigmah.shared.dto.profile.ProfileDTO;
+import org.sigmah.shared.dto.profile.ProfileUtils;
+
+import com.google.inject.Inject;
+import com.google.inject.Injector;
+import com.google.inject.Singleton;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import org.dozer.Mapper;
 import org.sigmah.shared.domain.profile.GlobalPermission;
 import org.sigmah.shared.domain.profile.GlobalPermissionEnum;
 import org.sigmah.shared.domain.profile.PrivacyGroupPermission;
@@ -34,12 +40,6 @@ import org.sigmah.shared.domain.profile.PrivacyGroupPermissionEnum;
 import org.sigmah.shared.domain.profile.Profile;
 import org.sigmah.shared.dto.UserInfoDTO;
 import org.sigmah.shared.dto.profile.PrivacyGroupDTO;
-import org.sigmah.shared.dto.profile.ProfileDTO;
-import org.sigmah.shared.dto.profile.ProfileUtils;
-
-import com.google.inject.Inject;
-import com.google.inject.Injector;
-import com.google.inject.Singleton;
 
 /**
  * Creates and returns the current user informations.
@@ -105,7 +105,7 @@ public class SigmahAuthDictionaryServlet extends HttpServlet {
                         Integer.toString(user.getOrgUnitWithProfiles().getOrgUnit().getId()));
 
                 // Custom serialization of the profile.
-                final ProfileDTO aggregatedProfile = aggregateProfiles(user, null);
+                final ProfileDTO aggregatedProfile = aggregateProfiles(user, null, injector);
                 final String aggregatedProfileAsString = ProfileUtils.writeProfile(aggregatedProfile);
                 parameters.put(SigmahAuthProvider.USER_AG_PROFILE, '"' + aggregatedProfileAsString + '"');
                 if (log.isDebugEnabled()) {
@@ -137,14 +137,14 @@ public class SigmahAuthDictionaryServlet extends HttpServlet {
 
     /**
      * Aggregates the list of profiles of a user.
-     * 
+     *
      * @param user
      *            The user.
      * @param infos
      *            The optional user info to fill.
      * @return The aggregated profile DTO.
      */
-    private ProfileDTO aggregateProfiles(User user, UserInfoDTO infos) {
+    public static ProfileDTO aggregateProfiles(User user, UserInfoDTO infos, Injector injector) {
 
         // Profiles.
         if (infos != null) {
@@ -156,7 +156,7 @@ public class SigmahAuthDictionaryServlet extends HttpServlet {
         // profile'.
         final ProfileDTO aggretatedProfileDTO = new ProfileDTO();
         aggretatedProfileDTO.setName("AGGREGATED_PROFILE");
-        aggretatedProfileDTO.setGlobalPermissions(new HashSet<GlobalPermissionEnum>());
+        aggretatedProfileDTO.setGlobalPermissions(EnumSet.noneOf(GlobalPermissionEnum.class));
         aggretatedProfileDTO.setPrivacyGroups(new HashMap<PrivacyGroupDTO, PrivacyGroupPermissionEnum>());
 
         if (user != null && user.getOrgUnitWithProfiles() != null
@@ -170,7 +170,7 @@ public class SigmahAuthDictionaryServlet extends HttpServlet {
                 profileDTO.setName(profile.getName());
 
                 // Global permissions.
-                profileDTO.setGlobalPermissions(new HashSet<GlobalPermissionEnum>());
+                profileDTO.setGlobalPermissions(EnumSet.noneOf(GlobalPermissionEnum.class));
                 if (profile.getGlobalPermissions() != null) {
                     for (final GlobalPermission p : profile.getGlobalPermissions()) {
                         profileDTO.getGlobalPermissions().add(p.getPermission());

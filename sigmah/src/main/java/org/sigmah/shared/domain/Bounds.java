@@ -5,6 +5,7 @@
 
 package org.sigmah.shared.domain;
 
+import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 
@@ -14,7 +15,7 @@ import javax.persistence.Embeddable;
  * 
  */
 @Embeddable
-public class Bounds {
+public class Bounds implements Serializable {
 
     private double x1;
     private double y1;

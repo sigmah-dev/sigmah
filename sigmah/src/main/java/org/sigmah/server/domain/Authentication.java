@@ -41,6 +41,11 @@ public class Authentication implements java.io.Serializable {
         setDateLastActive(new Date());
     }
 
+    @Override
+    public String toString() {
+        return User.getUserCompleteName(user);
+    }
+
     /**
      * Gets the secure id of this Authentication, which is a 128-bit random number
      * represented as a 32-character hexadecimal string.

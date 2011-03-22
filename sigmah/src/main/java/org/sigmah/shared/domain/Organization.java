@@ -5,6 +5,7 @@
 
 package org.sigmah.shared.domain;
 
+import java.io.Serializable;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -26,7 +27,7 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "organization")
-public class Organization {
+public class Organization implements Serializable {
 
     private int id;
     private String name;
