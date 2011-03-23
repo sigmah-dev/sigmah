@@ -112,7 +112,14 @@ public class ProjectsListPanel {
          * The project list is refreshed each time user clicks on the refresh
          * button.
          */
-        BUTTON;
+        BUTTON,
+
+        /**
+         * Refresh the project list when {@link #refresh(boolean, Integer...)}
+         * if called for the first time. Subsequent refreshs are called by
+         * the refresh button.
+         */
+        BOTH;
     }
 
     /**
@@ -143,18 +150,21 @@ public class ProjectsListPanel {
     private final Radio partnerRadio;
     private final Button filterButton;
 
-    // Current projects grid parameters.
+    /** Current projects grid parameters. */
     private ProjectModelType currentModelType;
     private final ArrayList<Integer> orgUnitsIds;
 
-    // The refreshing mode (automatic by default)
+    /** The refreshing mode (automatic by default) */
     private final RefreshMode refreshMode;
     private final com.extjs.gxt.ui.client.widget.Label refreshDateLabel;
 
-    // The loading mode (one time by default)
+    /** The loading mode (one time by default) */
     private final LoadingMode loadingMode;
 
-    // The GetProjects command which will be executed for the next refresh.
+    /** true if {@link #refresh(boolean, Integer...)} has already been called at least one time */
+    private static boolean isLoaded = false;
+
+    /** The GetProjects command which will be executed for the next refresh. */
     private GetProjects command;
 
     /**
@@ -376,7 +386,7 @@ public class ProjectsListPanel {
         refreshDateLabel = new com.extjs.gxt.ui.client.widget.Label();
 
         final ToolBar toolbar = new ToolBar();
-        if (refreshMode == RefreshMode.BUTTON) {
+        if (refreshMode == RefreshMode.BUTTON || refreshMode == RefreshMode.BOTH) {
             toolbar.add(refreshButton);
             toolbar.add(refreshDateLabel);
             toolbar.add(new SeparatorToolItem());
@@ -956,8 +966,9 @@ public class ProjectsListPanel {
         command.setViewOwnOrManage(viewOwnOrManage);
 
         // If the mode is automatic, the list is refreshed immediately.
-        if (refreshMode == RefreshMode.AUTOMATIC) {
+        if (refreshMode == RefreshMode.AUTOMATIC || (refreshMode == RefreshMode.BOTH && !isLoaded)) {
             refreshProjectGrid(command);
+            isLoaded = true;
         }
     }
 }
