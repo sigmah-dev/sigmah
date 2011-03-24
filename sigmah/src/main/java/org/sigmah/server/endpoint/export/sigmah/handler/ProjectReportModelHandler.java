@@ -16,6 +16,7 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 
+import org.sigmah.server.domain.Authentication;
 import org.sigmah.server.endpoint.export.sigmah.ExportException;
 import org.sigmah.shared.domain.quality.QualityCriterion;
 import org.sigmah.shared.domain.quality.QualityFramework;
@@ -40,7 +41,7 @@ public class ProjectReportModelHandler implements ModelHandler {
 	public static HashSet<Object> modelesImport = new HashSet<Object>();
 
     @Override
-    public void importModel(InputStream inputStream, EntityManager em) throws ExportException {
+    public void importModel(InputStream inputStream, EntityManager em, Authentication authentication) throws ExportException {
     	ObjectInputStream objectInputStream;
     	em.getTransaction().begin();
 		try {

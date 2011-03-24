@@ -34,6 +34,7 @@ import org.sigmah.server.endpoint.export.sigmah.handler.ModelHandler;
 import org.sigmah.server.endpoint.export.sigmah.handler.OrgUnitModelHandler;
 import org.sigmah.server.endpoint.export.sigmah.handler.ProjectModelHandler;
 import org.sigmah.server.endpoint.export.sigmah.handler.ProjectReportModelHandler;
+import org.sigmah.shared.domain.ProjectModelType;
 import org.sigmah.shared.domain.User;
 import org.sigmah.shared.domain.profile.GlobalPermissionEnum;
 import org.sigmah.shared.dto.profile.ProfileDTO;
@@ -46,7 +47,8 @@ import org.sigmah.shared.dto.profile.ProfileUtils;
 @Singleton
 public class ExportModelServlet extends HttpServlet {
 
-    private final static Log LOG = LogFactory.getLog(ExportModelServlet.class);
+	private static final long serialVersionUID = -7530695817850669821L;
+	private final static Log LOG = LogFactory.getLog(ExportModelServlet.class);
     private final static long MAXIMUM_FILE_SIZE = 2097152; // 2 Mo
 
     private final Injector injector;
@@ -181,11 +183,21 @@ public class ExportModelServlet extends HttpServlet {
                     final ModelHandler handler = handlers.get(type);
 
                     if(handler != null) {
+                    	
+                    	if(handler instanceof ProjectModelHandler){
+                    		final String projectModelTypeAsString = properties.get("project-model-type");
+                    		try {
+                    			final ProjectModelType projectModelType = ProjectModelType.valueOf(projectModelTypeAsString);
+                    			((ProjectModelHandler)handler).setProjectModelType(projectModelType);
+                    		} catch (IllegalArgumentException e) {
+								LOG.debug("Bad value for project model type: "+projectModelTypeAsString, e);
+							}
+                    	}
 
                         final ByteArrayInputStream inputStream = new ByteArrayInputStream(data);
 
                         try {
-                            handler.importModel(inputStream, injector.getInstance(EntityManager.class));
+                            handler.importModel(inputStream, injector.getInstance(EntityManager.class), authentication);
 
                         } catch (ExportException ex) {
                             LOG.error("Model import error, type: "+type, ex);

@@ -7,7 +7,10 @@ package org.sigmah.server.endpoint.export.sigmah.handler;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+
 import javax.persistence.EntityManager;
+
+import org.sigmah.server.domain.Authentication;
 import org.sigmah.server.endpoint.export.sigmah.ExportException;
 
 /**
@@ -20,8 +23,9 @@ public interface ModelHandler {
      * Read a model from the given input stream and persist it.
      * @param inputStream Data stream.
      * @param em
+     * @param authentication TODO
      */
-    void importModel(InputStream inputStream, EntityManager em) throws ExportException;
+    void importModel(InputStream inputStream, EntityManager em, Authentication authentication) throws ExportException;
 
     /**
      * Write the content of the model identified by the given properties into

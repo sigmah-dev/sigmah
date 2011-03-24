@@ -16,6 +16,7 @@ import javax.persistence.EntityManager;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sigmah.server.domain.Authentication;
 import org.sigmah.server.endpoint.export.sigmah.ExportException;
 import org.sigmah.shared.domain.OrgUnitModel;
 import org.sigmah.shared.domain.element.FlexibleElement;
@@ -31,7 +32,7 @@ import org.sigmah.shared.domain.layout.LayoutGroup;
 public class OrgUnitModelHandler implements ModelHandler {
 	private final static Log LOG = LogFactory.getLog(OrgUnitModelHandler.class);
     @Override
-    public void importModel(InputStream inputStream, EntityManager em) throws ExportException {
+    public void importModel(InputStream inputStream, EntityManager em, Authentication authentication) throws ExportException {
         ObjectInputStream objectInputStream;
         em.getTransaction().begin();
 		try {

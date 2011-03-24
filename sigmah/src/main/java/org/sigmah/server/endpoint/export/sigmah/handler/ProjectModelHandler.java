@@ -10,20 +10,25 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
 import javax.persistence.EntityManager;
 
+import org.sigmah.server.domain.Authentication;
 import org.sigmah.server.endpoint.export.sigmah.ExportException;
 import org.sigmah.shared.domain.PhaseModel;
 import org.sigmah.shared.domain.ProjectModel;
+import org.sigmah.shared.domain.ProjectModelType;
+import org.sigmah.shared.domain.ProjectModelVisibility;
 import org.sigmah.shared.domain.element.FlexibleElement;
 import org.sigmah.shared.domain.element.QuestionChoiceElement;
 import org.sigmah.shared.domain.element.QuestionElement;
 import org.sigmah.shared.domain.layout.LayoutConstraint;
 import org.sigmah.shared.domain.layout.LayoutGroup;
+
 
 /**
  * Exports and imports project models.
@@ -40,9 +45,11 @@ public class ProjectModelHandler implements ModelHandler {
 	 * The list of imported objects which are transformed or being transformed.
 	 */
 	public static HashSet<Object> modelesImport = new HashSet<Object>();
+	
+	private ProjectModelType projectModelType = ProjectModelType.NGO;
 
     @Override
-    public void importModel(InputStream inputStream, EntityManager em) throws ExportException {
+    public void importModel(InputStream inputStream, EntityManager em, Authentication authentication) throws ExportException {
     	ObjectInputStream objectInputStream;
     	em.getTransaction().begin();
 		try {
@@ -50,6 +57,17 @@ public class ProjectModelHandler implements ModelHandler {
 			ProjectModel projectModel = (ProjectModel) objectInputStream.readObject();
 			projectModel.resetImport(modelesReset, modelesImport);
 			saveProjectFlexibleElement(projectModel, em) ;
+			
+			// Attaching the new model to the current user's organization
+			final ProjectModelVisibility visibility = new ProjectModelVisibility();
+			visibility.setModel(projectModel);
+			visibility.setType(projectModelType);
+			visibility.setOrganization(authentication.getUser().getOrganization());
+			
+			final ArrayList<ProjectModelVisibility> visibilities = new ArrayList<ProjectModelVisibility>();
+			visibilities.add(visibility);
+			projectModel.setVisibilities(visibilities);
+			
 			em.merge(projectModel);
 			em.getTransaction().commit();
 		} catch (IOException e) {
@@ -90,6 +108,14 @@ public class ProjectModelHandler implements ModelHandler {
             throw new ExportException("The identifier is missing.");
         }
     }
+    
+    /**
+     * Define the default project model type used when importing a project model.
+     * @param projectModelType
+     */
+    public void setProjectModelType(ProjectModelType projectModelType) {
+		this.projectModelType = projectModelType;
+	}
     
     /**
 	 * Save the flexible elements of imported project model.
