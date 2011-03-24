@@ -32,6 +32,7 @@ import com.google.inject.Injector;
 import com.google.inject.Singleton;
 import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.Properties;
 import org.dozer.Mapper;
 import org.sigmah.shared.domain.profile.GlobalPermission;
 import org.sigmah.shared.domain.profile.GlobalPermissionEnum;
@@ -113,6 +114,9 @@ public class SigmahAuthDictionaryServlet extends HttpServlet {
                     log.debug("[doGet] String representation of the profile: " + aggregatedProfileAsString);
                 }
             }
+
+            final Properties properties = injector.getInstance(Properties.class);
+            parameters.put(SigmahAuthProvider.VERSION_NUMBER, properties.getProperty("version.number"));
 
             final Charset utf8 = Charset.forName("UTF-8");
             resp.setCharacterEncoding("UTF-8");

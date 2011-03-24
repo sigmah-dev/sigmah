@@ -40,6 +40,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.gears.client.Factory;
 import com.google.gwt.http.client.URL;
+import com.google.gwt.i18n.client.Dictionary;
 import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -48,6 +49,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
+import org.sigmah.client.inject.SigmahAuthProvider;
 import org.sigmah.client.offline.sigmah.DispatchOperator;
 import org.sigmah.client.offline.sigmah.OfflineLabelFactory;
 import org.sigmah.client.offline.sigmah.OnlineMode;
@@ -236,13 +238,15 @@ public class SigmahAppFrame implements Frame {
 
     private void configureReportAnchor(final Anchor reportButton) {
 
+        final String versionNumber = Dictionary.getDictionary(SigmahAuthProvider.DICTIONARY_NAME).get(SigmahAuthProvider.VERSION_NUMBER);
+
         final StringBuilder hrefBuilder = new StringBuilder("mailto:");
         hrefBuilder.
                 append(I18N.CONSTANTS.bugReportSupportAddress()).
                 append("?subject=").
                 append(URL.encodeComponent(I18N.CONSTANTS.bugReportMailObject(), false)).
                 append("&body=").
-                append(URL.encodeComponent(I18N.MESSAGES.bugReportBody(getUserAgent()), false));
+                append(URL.encodeComponent(I18N.MESSAGES.bugReportBody(getUserAgent(), versionNumber), false));
 
         reportButton.setHref(hrefBuilder.toString());
     }

@@ -32,6 +32,7 @@ public class SigmahAuthProvider implements Provider<Authentication> {
     public static final String USER_ORG_UNIT_ID = "connectedUserOrgUnitId";
     public static final String SHOW_MENUS = "showActivityInfoMenus";
     public static final String USER_AG_PROFILE = "connectedUserProfile";
+    public static final String VERSION_NUMBER = "versionNumber";
 
     /**
      * Retrieves the authentication object.
