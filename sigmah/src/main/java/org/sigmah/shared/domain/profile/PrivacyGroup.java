@@ -53,4 +53,11 @@ public class PrivacyGroup implements Serializable {
     public void setTitle(String title) {
         this.title = title;
     }
+    
+    /**
+     * Reset the identifiers of the object.
+     */
+    public void resetImport(){
+    	this.id = null;
+    }
 }

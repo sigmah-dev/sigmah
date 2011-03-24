@@ -6,6 +6,7 @@
 package org.sigmah.shared.domain.report;
 
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -14,6 +15,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
+import java.util.HashMap;
 
 /**
  *
@@ -102,4 +104,45 @@ public class ProjectReportModelSection implements Serializable {
     public void setKeyQuestions(List<KeyQuestion> keyQuestions) {
         this.keyQuestions = keyQuestions;
     }
+    
+	/**
+	 * Reset the identifiers of the object.
+	 * 
+	 * @param projectModelId
+	 *            the project-report parent identifier.
+	 * 
+	 * @param parentSectionModelId
+	 *            project-report-section parent identifier.
+	 * 
+	 * @param modelesReset
+	 *            the map of the reseted objects (original object, transformed
+	 *            object).
+	 * @param modelesImport
+	 *            the list of object that have been transformed or are being
+	 *            transformed.
+	 */
+	public void resetImport(Integer projectModelId, Integer parentSectionModelId, HashMap<Object, Object> modelesReset, HashSet<Object> modelesImport) {
+		this.id = null;
+		this.projectModelId = projectModelId;
+		this.parentSectionModelId = parentSectionModelId;
+
+		if (this.subSections != null) {
+			for (ProjectReportModelSection projetModelSection : this.subSections) {
+				if (!modelesReset
+						.containsKey(projetModelSection)) {
+					ProjectReportModelSection key = projetModelSection;
+					projetModelSection.resetImport(null, this.id, modelesReset, modelesImport);
+					modelesReset.put(key, projetModelSection);
+				} else {
+					projetModelSection = (ProjectReportModelSection)modelesReset
+							.get(projetModelSection);
+				}
+			}
+		}
+		if (this.keyQuestions != null) {
+			for (KeyQuestion keyQuestion : keyQuestions) {
+				keyQuestion.resetImport(this.id, modelesReset, modelesImport);
+			}
+		}
+	}
 }

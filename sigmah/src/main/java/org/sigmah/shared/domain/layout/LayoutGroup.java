@@ -106,4 +106,20 @@ public class LayoutGroup implements Serializable {
         constraint.setParentLayoutGroup(this);
         constraints.add(constraint);
     }
+    
+	/**
+	 * Reset the identifiers of the object.
+	 * 
+	 * @param parentLayout
+	 *            the parent Layout
+	 */
+	 public void resetImport(Layout parentLayout){
+	    	this.id = null;
+	    	this.parentLayout = parentLayout;
+	    	if(this.constraints != null){
+	    		for(LayoutConstraint layoutConstraint : constraints){
+	    			layoutConstraint.resetImport(this);
+	    		}
+	    	}
+	   }
 }

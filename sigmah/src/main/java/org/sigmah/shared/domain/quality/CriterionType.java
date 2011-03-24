@@ -60,4 +60,15 @@ public class CriterionType implements Serializable {
     public void setLevel(Integer level) {
         this.level = level;
     }
+    
+	/**
+	 * Reset the identifiers of the object.
+	 * 
+	 * @param qualityFramework
+	 *            the quality framework
+	 */
+	public void resetImport(QualityFramework qualityFramework) {
+		this.id = null;
+		this.qualityFramework = qualityFramework;
+	}
 }

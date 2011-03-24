@@ -18,8 +18,8 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "phase_model_definition")
 public class PhaseModelDefinition implements Serializable {
-
-    private Integer id;
+	private static final long serialVersionUID = 3321666998351127589L;
+	private Integer id;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -31,4 +31,11 @@ public class PhaseModelDefinition implements Serializable {
     public void setId(Integer id) {
         this.id = id;
     }
+    
+    /**
+	 * Reset the identifiers of the object.
+	 */
+	public void resetImport() {
+		this.id = null;
+	}
 }

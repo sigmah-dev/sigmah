@@ -247,4 +247,11 @@ public class LogFrameModel implements Serializable {
     public void setPrerequisitesPerGroupMax(Integer prerequisitesPerGroupMax) {
         this.prerequisitesPerGroupMax = prerequisitesPerGroupMax;
     }
+    
+    /**
+	 * Reset the identifiers of the object.
+	 */
+	public void resetImport() {
+		this.id = null;
+	}
 }

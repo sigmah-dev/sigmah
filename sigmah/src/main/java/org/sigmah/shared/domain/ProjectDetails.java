@@ -57,4 +57,18 @@ public class ProjectDetails implements Serializable {
     public void setLayout(Layout layout) {
         this.layout = layout;
     }
+    
+    /**
+	 * Reset the identifiers of the object.
+	 * 
+	 * @param parentProjectModel
+	 *           the parent project identifier.
+	 */
+	public void resetImport(ProjectModel parentProjectModel) {
+		this.id = null;
+		this.projectModel = parentProjectModel;
+		if (this.layout != null) {
+			this.layout.resetImport();
+		}
+	}
 }

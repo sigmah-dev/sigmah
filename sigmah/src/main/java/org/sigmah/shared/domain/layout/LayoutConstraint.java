@@ -67,4 +67,18 @@ public class LayoutConstraint implements Serializable {
 	public Integer getSortOrder() {
 		return sortOrder;
 	}
+	
+	/**
+	 * Reset the identifiers of the object.
+	 * 
+	 * @param parentLayoutGroup
+	 *            the parent LayoutGroup
+	 */
+	public void resetImport(LayoutGroup parentLayoutGroup) {
+		this.id = null;
+		this.parentLayoutGroup = parentLayoutGroup;
+		if (this.element != null) {
+			this.element.resetImport();
+		}
+	}
 }

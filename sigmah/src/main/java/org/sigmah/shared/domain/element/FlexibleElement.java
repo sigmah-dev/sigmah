@@ -123,4 +123,14 @@ public abstract class FlexibleElement implements Serializable, Historable {
 
         return sb.toString();
     }
+    
+    /**
+     * Reset the identifiers of the object.
+     */
+    public void resetImport(){
+    	this.id = null;
+    	if(privacyGroup !=null){
+    		this.privacyGroup.resetImport();
+    	}
+    }
 }

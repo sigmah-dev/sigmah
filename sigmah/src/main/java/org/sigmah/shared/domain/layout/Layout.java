@@ -130,4 +130,16 @@ public class Layout implements Serializable {
 			}
 		}
 	}
+	
+	/**
+	 * Reset the identifiers of the object.
+	 */
+	public void resetImport() {
+		this.id = null;
+		if (this.groups != null) {
+			for (LayoutGroup layoutGroup : groups) {
+				layoutGroup.resetImport(this);
+			}
+		}
+	}
 }

@@ -6,7 +6,10 @@
 package org.sigmah.shared.domain.report;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -52,4 +55,22 @@ public class ProjectReportModel implements Serializable {
     public void setSections(List<ProjectReportModelSection> sections) {
         this.sections = sections;
     }
+    /**
+	 * Reset the identifiers of the object.
+	 * 
+	 * @param modelesReset
+	 *            the map of the reseted objects (original object, transformed
+	 *            object).
+	 * @param modelesImport
+	 *            the list of object that have been transformed or are being
+	 *            transformed.
+	 */
+	public void resetImport(HashMap<Object, Object> modelesReset, HashSet<Object> modelesImport) {
+		this.id = null;
+		if (sections != null) {
+			for (ProjectReportModelSection section : sections) {
+				section.resetImport(this.id, null, modelesReset, modelesImport);
+			}
+		}
+	}
 }

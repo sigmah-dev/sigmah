@@ -124,4 +124,26 @@ public class PhaseModel implements Serializable {
     public void setGuide(String guide) {
         this.guide = guide;
     }
+    
+    /**
+	 * Reset identifiers of the object.
+	 * 
+	 * @param parentProjectModel
+	 *            the  parent project model
+	 */
+	public void resetImport(ProjectModel parentProjectModel) {
+		this.id = null;
+		this.parentProjectModel = parentProjectModel;
+		if (this.successors != null) {
+			for (PhaseModel successor : successors) {
+				successor.resetImport(null);
+			}
+		}
+		if (this.layout != null) {
+			this.layout.resetImport();
+		}
+		if (this.definition != null) {
+			this.definition.resetImport();
+		}
+	}
 }

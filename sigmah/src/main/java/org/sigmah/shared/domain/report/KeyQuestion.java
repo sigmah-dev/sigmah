@@ -6,6 +6,8 @@
 package org.sigmah.shared.domain.report;
 
 import java.io.Serializable;
+import java.util.HashSet;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -13,6 +15,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import org.sigmah.shared.domain.quality.QualityCriterion;
+
+import java.util.HashMap;
 
 /**
  * Represents a key question associated with a report section.
@@ -66,4 +70,24 @@ public class KeyQuestion implements Serializable {
     public void setIndex(Integer index) {
         this.index = index;
     }
+    
+	/**
+	 * Reset the identifiers of the object.
+	 * 
+	 * @param sectionId
+	 *            the parent section identifier.
+	 * @param modelesReset
+	 *            the map of the reseted objects (original object, transformed
+	 *            object).
+	 * @param modelesImport
+	 *            the list of object that have been transformed or are being
+	 *            transformed.
+	 */
+	public void resetImport(Integer sectionId, HashMap<Object, Object> modelesReset, HashSet<Object> modelesImport) {
+		this.id = null;
+		this.sectionId = sectionId;
+		if (this.qualityCriterion != null) {
+			this.qualityCriterion.resetImport(modelesReset, modelesImport);
+		}
+	}
 }

@@ -2,6 +2,8 @@ package org.sigmah.shared.domain;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -153,9 +155,36 @@ public class ProjectModel extends BaseModelData implements Serializable {
                 return visibility.getType();
             }
         }
-
         return null;
     }
+    
+	/**
+	 * Reset the identifiers of the object
+	 */
+	public void resetImport(HashMap<Object, Object> modelesReset, HashSet<Object> modelesImport) {
+		this.id = null;
+		if (this.rootPhase != null) {
+			this.rootPhase.resetImport(this);
+		}
+
+		if (phases != null) {
+			for (PhaseModel phase : this.phases) {
+				phase.resetImport(null);
+			}
+		}
+
+		if (this.projectBanner != null) {
+			this.projectBanner.resetImport(this);
+		}
+
+		if (this.projectDetails != null) {
+			this.projectDetails.resetImport(this);
+		}
+
+		if (this.logFrameModel != null) {
+			this.logFrameModel.resetImport();
+		}
+	}
 
 	
 }

@@ -125,4 +125,17 @@ public class OrgUnitModel implements Serializable {
     public void setCanContainProjects(Boolean canContainProjects) {
         this.canContainProjects = canContainProjects;
     }
+    
+    /**
+     * Reset the identifiers of the object.
+     */
+    public void resetImport(){
+    	this.id = null;
+    	if(this.banner!=null){
+    		this.banner.resetImport(this);
+    	}
+    	if(this.details!=null){
+    		this.details.resetImport(this);
+    	}
+    }
 }
