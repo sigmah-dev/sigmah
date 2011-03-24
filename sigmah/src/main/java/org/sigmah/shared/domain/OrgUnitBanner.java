@@ -59,4 +59,18 @@ public class OrgUnitBanner implements Serializable {
     public void setLayout(Layout layout) {
         this.layout = layout;
     }
+    
+	/**
+	 * Reset the identifiers of the object.
+	 * 
+	 * @param orgUnitModel
+	 *            the parent org-unit model.
+	 */
+    public void resetImport(OrgUnitModel orgUnitModel){
+    	this.id = null;
+    	this.orgUnitModel = orgUnitModel;
+    	if(this.layout!=null){
+    		this.layout.resetImport();
+    	}
+    }
 }
