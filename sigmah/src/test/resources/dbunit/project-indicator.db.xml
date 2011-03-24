@@ -220,11 +220,12 @@
 	<locationAdminLink locationId="3" adminEntityId="21"/>
 	
 	<site siteId="3" databaseId="1" locationId="3" partnerId="2" Status="1" target="0" Date1="2008-10-05" Date2="2008-10-06" DateCreated="2009-02-01" DateEdited="2009-02-01"/>
-
 	
 	<reportingPeriod reportingPeriodId="3" siteId="3" monitoring="0" date1="2008-10-05" date2="2008-10-06" DateCreated="2009-02-01" DateEdited="2009-02-01"/>
 	<indicatorValue reportingPeriodId="3" indicatorId="1" value="10000"/>
 	<indicatorValue reportingPeriodId="3" indicatorId="2" value="500"/>
+
+	<site siteId="4" databaseId="1" locationId="3" partnerId="2" Status="1" target="0" Date1="2008-10-05" Date2="2008-10-06" DateCreated="2009-02-01" DateEdited="2009-02-01"/>
 		
     
 </dataset>

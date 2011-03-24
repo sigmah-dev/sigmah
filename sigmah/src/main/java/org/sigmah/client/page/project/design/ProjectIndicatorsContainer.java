@@ -161,6 +161,7 @@ public class ProjectIndicatorsContainer extends LayoutContainer implements Proje
 
 	@Override
 	public void loadProject(ProjectDTO projectDTO) {
+		this.project = project;
 		
 		// load design panel
 		designPanel.load(projectDTO.getId());

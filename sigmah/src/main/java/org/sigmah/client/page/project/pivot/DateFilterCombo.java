@@ -26,14 +26,13 @@ public class DateFilterCombo extends ComboBox<DateRangeModel> {
 		
 		store.removeAll();
 		
-        DateTimeFormat monthFormat = DateTimeFormat.getFormat("MMM yy");
         DateWrapper start = new DateWrapper(startDate);
         DateWrapper today = new DateWrapper();
         
         DateWrapper month = new DateWrapper(start.getFullYear(), start.getMonth(), 1);
         do {
         	DateWrapper lastDayOfMonth = month.addMonths(1).addDays(-1);
-        	store.add(new DateRangeModel(monthFormat.format(month.asDate()), month.asDate(), lastDayOfMonth.asDate())); 
+        	store.add(DateRangeModel.monthModel(month)); 
             month = month.addMonths(1);
         } while (month.before(today));
 	}

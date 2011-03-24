@@ -59,7 +59,7 @@ public class PivotTableGeneratorTest {
         // collaborator : PivotDAO
 
         PivotDAO dao = createMock(PivotDAO.class);
-        expect(dao.aggregate(anyInt(), isA(Filter.class), EasyMock.<Set<Dimension>>anyObject(), eq(false))).andReturn(buckets);
+        expect(dao.aggregate(anyInt(), isA(Filter.class), EasyMock.<Set<Dimension>>anyObject())).andReturn(buckets);
         replay(dao);
 
         // CLASS UNDER TEST!!
@@ -97,7 +97,7 @@ public class PivotTableGeneratorTest {
 
         // collaborator : PivotDAO
         PivotDAO dao = createMock(PivotDAO.class);
-        expect(dao.aggregate(anyInt(), isA(Filter.class), EasyMock.<Set<Dimension>>anyObject(), eq(false))).andReturn(buckets);
+        expect(dao.aggregate(anyInt(), isA(Filter.class), EasyMock.<Set<Dimension>>anyObject())).andReturn(buckets);
         replay(dao);
 
         // CLASS UNDER TEST!!

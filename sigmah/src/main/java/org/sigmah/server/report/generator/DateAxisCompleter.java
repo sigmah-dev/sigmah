@@ -8,6 +8,7 @@ package org.sigmah.server.report.generator;
 import org.sigmah.shared.report.content.PivotTableData.Axis;
 import org.sigmah.shared.report.content.YearCategory;
 import org.sigmah.shared.report.model.DateDimension;
+import org.sigmah.shared.report.model.DateRange;
 import org.sigmah.shared.report.model.DateUnit;
 
 import java.util.Collection;
@@ -36,10 +37,15 @@ import java.util.Collection;
  */
 public class DateAxisCompleter implements PivotTableAxisCompleter {
 	
+	private DateRange dateRange = new DateRange();
+	
 	public DateAxisCompleter() {
 	
 	}
 
+	public DateAxisCompleter(DateRange dateRange) {
+		
+	}
 
 	protected boolean isMonthAxis(Axis axis) {
 		if(axis == null) {
@@ -112,9 +118,4 @@ public class DateAxisCompleter implements PivotTableAxisCompleter {
             }
         }
     }
-
-
-	
-
-	
 }

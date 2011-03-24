@@ -5,26 +5,41 @@
 
 package org.sigmah.server.dao.hibernate;
 
-import com.google.inject.Inject;
+import static org.junit.Assert.assertEquals;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Set;
+
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sigmah.server.dao.OnDataSet;
 import org.sigmah.server.dao.PivotDAO;
+import org.sigmah.server.dao.PivotDAO.Bucket;
+import org.sigmah.server.util.DateUtilCalendarImpl;
 import org.sigmah.shared.dao.Filter;
+import org.sigmah.shared.date.DateUtil;
 import org.sigmah.shared.report.content.DimensionCategory;
 import org.sigmah.shared.report.content.EntityCategory;
 import org.sigmah.shared.report.content.LabeledDimensionCategory;
 import org.sigmah.shared.report.content.QuarterCategory;
-import org.sigmah.shared.report.model.*;
+import org.sigmah.shared.report.model.AdminDimension;
+import org.sigmah.shared.report.model.AttributeGroupDimension;
+import org.sigmah.shared.report.model.DateDimension;
+import org.sigmah.shared.report.model.DateUnit;
+import org.sigmah.shared.report.model.Dimension;
+import org.sigmah.shared.report.model.DimensionType;
 import org.sigmah.test.InjectionSupport;
 import org.sigmah.test.MockHibernateModule;
 import org.sigmah.test.Modules;
 
-import java.util.*;
-
-import static org.junit.Assert.assertEquals;
+import com.google.inject.Inject;
 
 @RunWith(InjectionSupport.class)
 @Modules({MockHibernateModule.class})
@@ -40,6 +55,7 @@ public class PivotHibernateDAOTest {
     private AdminDimension territoireDim;
     private List<PivotDAO.Bucket> buckets;
     private Dimension partnerDim;
+    private DateUtil dateUtil = new DateUtilCalendarImpl();
 
 
     private static final int OWNER_USER_ID = 1;
@@ -216,8 +232,9 @@ public class PivotHibernateDAOTest {
         assertEquals(5, ((EntityCategory) buckets.get(0).getCategory(this.indicatorDim)).getId());
     }
 
+ 
 
-    @Test
+	@Test
     @OnDataSet("/dbunit/sites-quarters.db.xml")
     public void testQuarters() {
 
@@ -282,6 +299,11 @@ public class PivotHibernateDAOTest {
         dimensions.add(new AttributeGroupDimension(groupId));
     }
 
+    private void withDateDimension(DateUnit unit) {
+		DateDimension dim = new DateDimension(unit);
+    	dimensions.add(dim);
+	}
+    
     private void execute() {
         buckets = dao.aggregate(OWNER_USER_ID, filter, dimensions);
 

@@ -5,14 +5,19 @@
 
 package org.sigmah.server.dao;
 
-import com.google.inject.ImplementedBy;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.sigmah.server.dao.hibernate.PivotHibernateDAO;
 import org.sigmah.shared.dao.Filter;
 import org.sigmah.shared.report.content.DimensionCategory;
 import org.sigmah.shared.report.model.Dimension;
 import org.sigmah.shared.report.model.DimensionType;
 
-import java.util.*;
+import com.google.inject.ImplementedBy;
 
 /**
  * PivotDAO is a reporting data access object that provides aggregation ("or pivoting")
@@ -35,22 +40,26 @@ public interface PivotDAO {
     List<Bucket> aggregate(int userId, Filter filter, Set<Dimension> dimensions);
 	
 	
-    /**
-     *
-     * @param userId the id of the User for whom the data is restricted
-     * @param filter a {@link org.sigmah.shared.dao.Filter filter} restricting the sites
-     * @param dimensions
-     * @return
-     */
-    List<Bucket> aggregate(int userId, Filter filter, Set<Dimension> dimensions, boolean showEmptyCells);
 
     List<String> getFilterLabels(DimensionType type, Collection<Integer> ids);
 
+    /**
+     * Returns the complete set of dimension categories for a user / filter / dimensions combination.
+     * This can be used to build a pivot table with empty cells.
+     * 
+     * @param userId
+     * @param filter
+     * @param dimensions
+     * @return
+     */
+    List<Bucket> queryDimensionCategories(int userId, Filter filter, Set<Dimension> dimensions);
+    
     /**
      * Contains the aggregate value for an intersection of dimension categories.
      */
     public static class Bucket {
         private double value;
+        private int count;
         private Map<Dimension, DimensionCategory> categories = new HashMap<Dimension, DimensionCategory>();
 
         public Bucket() {
@@ -78,6 +87,32 @@ public interface PivotDAO {
 
         public void setDoubleValue(double value) {
             this.value = value;
+        }
+        
+        public int count() {
+        	return count;
+        }
+        public void setCount(int count) {
+        	this.count = count;
+        }
+        
+        @Override
+        public String toString() {
+        	StringBuilder sb = new StringBuilder();
+        	sb.append("[Value=").append(doubleValue()).append(",Count=").append(count);
+        	for(java.util.Map.Entry<Dimension, DimensionCategory> entry : categories.entrySet()) {
+        		sb.append(",").append(entry.getKey()).append("=").append(entry.getValue());        		
+        	}
+        	sb.append("]");
+        	return sb.toString();
+        }
+        
+        public static String toString(Iterable<Bucket> buckets) {
+        	StringBuilder sb = new StringBuilder();
+        	for(Bucket bucket : buckets) {
+        		sb.append(bucket).append("\n");
+        	}
+        	return sb.toString();
         }
     }
 }

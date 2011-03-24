@@ -511,14 +511,12 @@ sigmah/src/main/java/org/sigmah/client/page/project/logframe/grid/RowsGroup.java
 sigmah/src/main/java/org/sigmah/client/page/project/pivot/DateFilterCombo.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/pivot/DateRangeModel.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/pivot/HistorySelector.java -text
-sigmah/src/main/java/org/sigmah/client/page/project/pivot/IndicatorByTimeLayout.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/pivot/IndicatorFilterCombo.java -text
+sigmah/src/main/java/org/sigmah/client/page/project/pivot/LayoutComposer.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/pivot/PivotLayout.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/pivot/PivotToolBar.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/pivot/ProjectPivotContainer.java -text
-sigmah/src/main/java/org/sigmah/client/page/project/pivot/SiteByIndicatorLayout.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/pivot/SiteFilterCombo.java -text
-sigmah/src/main/java/org/sigmah/client/page/project/pivot/SitesByTimeLayout.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/reports/AttachFileHandler.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/reports/AttachMenuBuilder.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/reports/AttachReportHandler.java -text
@@ -555,6 +553,8 @@ sigmah/src/main/java/org/sigmah/client/page/report/ReportPreviewPageState.java -
 sigmah/src/main/java/org/sigmah/client/page/report/ReportPreviewPresenter.java -text
 sigmah/src/main/java/org/sigmah/client/page/report/ReportXmlForm.java -text
 sigmah/src/main/java/org/sigmah/client/page/report/SigmahReportLoader.java -text
+sigmah/src/main/java/org/sigmah/client/page/table/PivotGridCellEvent.java -text
+sigmah/src/main/java/org/sigmah/client/page/table/PivotGridHeaderEvent.java -text
 sigmah/src/main/java/org/sigmah/client/page/table/PivotGridPanel.java -text
 sigmah/src/main/java/org/sigmah/client/page/table/PivotGridPanelView.java -text
 sigmah/src/main/java/org/sigmah/client/page/table/PivotPage.java -text

@@ -79,7 +79,12 @@ public class DateRange implements Serializable {
     }
 
 
-    /**
+    public DateRange(DateRange dateRange) {
+		this.minDate = dateRange.minDate;
+		this.maxDate = dateRange.maxDate;
+	}
+
+	/**
      * Gets the minimum date in this range (inclusive).
      *
      * @return The minimum date in this range (inclusive) or <code>null</code> if the
@@ -117,6 +122,14 @@ public class DateRange implements Serializable {
      */
     public void setMaxDate(Date maxDate) {
         this.maxDate = maxDate;
+    }
+    
+    /**
+     * 
+     * @return true if the range is closed, i.e. has both min and max dates.
+     */
+    public boolean isClosed() {
+    	return minDate != null && maxDate != null;
     }
 
     public static DateRange intersection(DateRange a, DateRange b) {

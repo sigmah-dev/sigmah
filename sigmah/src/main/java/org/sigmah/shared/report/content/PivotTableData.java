@@ -100,6 +100,7 @@ public class PivotTableData implements Serializable {
 
     public static class Cell implements Serializable {
 		private Double value;
+		private int count;
 
         /**
          * Required for GWT serialization
@@ -108,8 +109,9 @@ public class PivotTableData implements Serializable {
 
         }
 		
-		public Cell(Double value) {
+		public Cell(Double value, int count) {
 			this.value = value;
+			this.count = count;
 		}
 		
 		public Double getValue() {
@@ -119,6 +121,16 @@ public class PivotTableData implements Serializable {
         public void setValue(Double value) {
             this.value = value;
         }
+
+		public int getCount() {
+			return count;
+		}
+
+		public void setCount(int count) {
+			this.count = count;
+		}
+        
+        
         
     }
 
@@ -224,8 +236,8 @@ public class PivotTableData implements Serializable {
 			return children.get(children.size()-1);
 		}
 						
-		public void setValue(Axis column, Double value) {
-			cells.put(column, new Cell(value));
+		public void setValue(Axis column, Double value, int count) {
+			cells.put(column, new Cell(value, count));
 		}
 		
 		public Cell getCell(Axis column) {
@@ -346,7 +358,8 @@ public class PivotTableData implements Serializable {
         	
         	for(Entry<Axis, Cell> column : cells.entrySet()) {
         		sb.append(" | ");
-        		sb.append(column.getKey().label).append("=").append(column.getValue().getValue());
+        		sb.append(column.getKey().label).append("=").append(column.getValue().getValue())
+        			.append("[").append(column.getValue().getCount()).append("]");
         	}
         	sb.append("\n");
         	for(Axis child : getChildren()) {

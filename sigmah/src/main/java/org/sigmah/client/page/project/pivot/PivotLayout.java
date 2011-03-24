@@ -1,18 +1,33 @@
 package org.sigmah.client.page.project.pivot;
 
-import com.google.gwt.user.client.ui.HasValue;
+import org.sigmah.shared.dto.EntityDTO;
+import org.sigmah.shared.report.model.PivotTableElement;
+
+import com.extjs.gxt.ui.client.data.ModelData;
 
 
 /**
- * Base class for three layouts. 
+ * Encapsulates the state of a pivot table layout.
  * 
  * @author alexander
  *
  */
-abstract class PivotLayout {
+class PivotLayout {
 
-	public void activate(int databaseId) {
+	private ModelData filter;
+
+	public PivotLayout(ModelData filter) {
+		this.filter = filter;
 	}
+
+	public ModelData getFilter() {
+		return filter;
+	}
+
+	public void setFilter(ModelData filter) {
+		this.filter = filter;
+	}
+	
 	
 	
 }

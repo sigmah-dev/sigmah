@@ -48,7 +48,7 @@ public class Filter implements Serializable {
         for(Map.Entry<DimensionType, Set<Integer>> entry : filter.restrictions.entrySet()) {
             this.restrictions.put(entry.getKey(), new HashSet<Integer>(entry.getValue()));
         }
-        this.dateRange = filter.dateRange;
+        this.dateRange = new DateRange(filter.dateRange);
     }
 
 

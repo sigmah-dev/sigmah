@@ -20,7 +20,7 @@ public class HistorySelector implements HasValue<PivotLayout> {
 	private Button prevButton;
 	private Button nextButton;
 	private HandlerManager handlerManager;
-	private List<PivotLayout> layouts;
+	private List<PivotLayout> layouts = new ArrayList<PivotLayout>();
 	private PivotLayout value;
 	
 	public HistorySelector() {
@@ -40,6 +40,9 @@ public class HistorySelector implements HasValue<PivotLayout> {
 				next();
 			}
 		});
+		
+		prevButton.disable();
+		nextButton.disable();
 		
 		handlerManager = new HandlerManager(this);
 		
@@ -66,6 +69,7 @@ public class HistorySelector implements HasValue<PivotLayout> {
 		} else {
 			setValueByIndex(curIndex-1);
 		}
+		enableButtons();
 	}
 	
 	private void next() {
@@ -74,6 +78,18 @@ public class HistorySelector implements HasValue<PivotLayout> {
 			setValueByIndex(curIndex+1);
 		} else {
 			setValueByIndex(0);
+		}
+		enableButtons();
+	}
+	
+	private void enableButtons() {
+		if(value == null || layouts.isEmpty()) {
+			nextButton.disable();
+			prevButton.disable();
+		} else {
+			int curIndex = getValueIndex();
+			nextButton.setEnabled(curIndex > 0);
+			prevButton.setEnabled(curIndex+1 != layouts.size());
 		}
 	}
 
@@ -122,5 +138,11 @@ public class HistorySelector implements HasValue<PivotLayout> {
 
 	public void setValueByIndex(int i) {
 		setValue(layouts.get(i));
+	}
+	
+	public void onNewLayout(PivotLayout layout) {
+		layouts.add(layout);
+		value = layout;
+		enableButtons();
 	}
 }
