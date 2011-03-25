@@ -10,7 +10,6 @@ import org.sigmah.client.util.NumberUtils;
 import org.sigmah.shared.domain.ProjectModelType;
 import org.sigmah.shared.dto.category.CategoryElementDTO;
 
-import com.extjs.gxt.ui.client.data.BaseTreeModel;
 import com.extjs.gxt.ui.client.data.ChangeEvent;
 import com.extjs.gxt.ui.client.data.ChangeEventSupport;
 import com.extjs.gxt.ui.client.data.ChangeListener;

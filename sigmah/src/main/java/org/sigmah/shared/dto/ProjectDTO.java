@@ -553,16 +553,15 @@ public final class ProjectDTO extends BaseModelData implements EntityDTO, Defaul
      */
     public List<LocalizedElement> getLocalizedElements(Class<? extends FlexibleElementDTO> clazz) {
 
+        final ArrayList<LocalizedElement> elements = new ArrayList<LocalizedElement>();
+
         final List<ProjectModelDTO.LocalizedElement> localizedElements = getProjectModelDTO().getLocalizedElements(
                 clazz);
 
-        if (localizedElements == null) {
-            return null;
-        }
-
-        final ArrayList<LocalizedElement> elements = new ArrayList<LocalizedElement>();
-        for (final ProjectModelDTO.LocalizedElement localized : localizedElements) {
-            elements.add(new LocalizedElement(localized, getPhaseFromModel(localized.getPhaseModel())));
+        if (localizedElements != null) {
+            for (final ProjectModelDTO.LocalizedElement localized : localizedElements) {
+                elements.add(new LocalizedElement(localized, getPhaseFromModel(localized.getPhaseModel())));
+            }
         }
 
         return elements;
