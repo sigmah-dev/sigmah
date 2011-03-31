@@ -254,6 +254,8 @@ sigmah/src/main/java/org/sigmah/client/page/admin/AdminPresenter.java -text
 sigmah/src/main/java/org/sigmah/client/page/admin/AdminSubPresenter.java -text
 sigmah/src/main/java/org/sigmah/client/page/admin/AdminUtil.java -text
 sigmah/src/main/java/org/sigmah/client/page/admin/AdminView.java -text
+sigmah/src/main/java/org/sigmah/client/page/admin/category/AdminCategoryPresenter.java -text
+sigmah/src/main/java/org/sigmah/client/page/admin/category/AdminCategoryView.java -text
 sigmah/src/main/java/org/sigmah/client/page/admin/model/AdminModelSubPresenter.java -text
 sigmah/src/main/java/org/sigmah/client/page/admin/model/common/AdminModelActionListener.java -text
 sigmah/src/main/java/org/sigmah/client/page/admin/model/common/AdminOneModelPresenter.java -text
@@ -265,11 +267,18 @@ sigmah/src/main/java/org/sigmah/client/page/admin/model/common/element/AdminFlex
 sigmah/src/main/java/org/sigmah/client/page/admin/model/common/element/ElementForm.java -text
 sigmah/src/main/java/org/sigmah/client/page/admin/model/common/element/ElementTypeEnum.java -text
 sigmah/src/main/java/org/sigmah/client/page/admin/model/common/element/LayoutGroupSigmahForm.java -text
+sigmah/src/main/java/org/sigmah/client/page/admin/model/orgunit/AdminOrgUnitModelsPresenter.java -text
+sigmah/src/main/java/org/sigmah/client/page/admin/model/orgunit/AdminOrgUnitModelsView.java -text
+sigmah/src/main/java/org/sigmah/client/page/admin/model/orgunit/OrgUnitModelForm.java -text
 sigmah/src/main/java/org/sigmah/client/page/admin/model/project/AdminProjectModelsPresenter.java -text
 sigmah/src/main/java/org/sigmah/client/page/admin/model/project/AdminProjectModelsView.java -text
+sigmah/src/main/java/org/sigmah/client/page/admin/model/project/logframe/AdminLogFramePresenter.java -text
+sigmah/src/main/java/org/sigmah/client/page/admin/model/project/logframe/AdminLogFrameView.java -text
 sigmah/src/main/java/org/sigmah/client/page/admin/model/project/phase/AdminPhasesPresenter.java -text
 sigmah/src/main/java/org/sigmah/client/page/admin/model/project/phase/AdminPhasesView.java -text
 sigmah/src/main/java/org/sigmah/client/page/admin/model/project/phase/PhaseSigmahForm.java -text
+sigmah/src/main/java/org/sigmah/client/page/admin/report/AdminReportModelPresenter.java -text
+sigmah/src/main/java/org/sigmah/client/page/admin/report/AdminReportModelView.java -text
 sigmah/src/main/java/org/sigmah/client/page/admin/users/AdminPrivacyGroupsActionListener.java -text
 sigmah/src/main/java/org/sigmah/client/page/admin/users/AdminProfilesActionListener.java -text
 sigmah/src/main/java/org/sigmah/client/page/admin/users/AdminUsersActionListener.java -text
@@ -1352,6 +1361,7 @@ sigmah/src/main/java/org/sigmah/server/policy/PropertyMap.java -text
 sigmah/src/main/java/org/sigmah/server/policy/SitePolicy.java -text
 sigmah/src/main/java/org/sigmah/server/policy/UserDatabasePolicy.java -text
 sigmah/src/main/java/org/sigmah/server/policy/UserPolicy.java -text
+sigmah/src/main/java/org/sigmah/server/policy/admin/ModelUtil.java -text
 sigmah/src/main/java/org/sigmah/server/report/MapIconPathProvider.java -text
 sigmah/src/main/java/org/sigmah/server/report/ReportModule.java -text
 sigmah/src/main/java/org/sigmah/server/report/ReportParserJaxb.java -text
