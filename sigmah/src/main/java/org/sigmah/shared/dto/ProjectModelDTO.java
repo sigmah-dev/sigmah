@@ -13,8 +13,8 @@ import org.sigmah.shared.domain.ProjectModelType;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
 import org.sigmah.shared.dto.layout.LayoutConstraintDTO;
 import org.sigmah.shared.dto.layout.LayoutGroupDTO;
+import org.sigmah.shared.dto.logframe.LogFrameModelDTO;
 
-import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 
 public class ProjectModelDTO extends BaseModelData implements EntityDTO {
@@ -66,7 +66,10 @@ public class ProjectModelDTO extends BaseModelData implements EntityDTO {
 
     // Project model id
     public int getId() {
-        return (Integer) get("id");
+    	if(get("id") != null)
+    		return (Integer) get("id");
+    	else
+    		return -1;
     }
 
     public void setId(int id) {
@@ -125,6 +128,15 @@ public class ProjectModelDTO extends BaseModelData implements EntityDTO {
 
     public void setVisibilities(List<ProjectModelVisibilityDTO> visibilities) {
         set("visibilities", visibilities);
+    }
+    
+    //logFrame
+    public LogFrameModelDTO getLogFrameModelDTO() {
+        return get("logFrameModelDTO");
+    }
+
+    public void setLogFrameModelDTO(LogFrameModelDTO logFrameModelDTO) {
+        set("logFrameModelDTO", logFrameModelDTO);
     }
 
     /**

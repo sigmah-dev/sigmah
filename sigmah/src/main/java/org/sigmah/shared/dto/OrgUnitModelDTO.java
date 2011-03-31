@@ -1,5 +1,13 @@
 package org.sigmah.shared.dto;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.sigmah.shared.domain.ProjectModelStatus;
+import org.sigmah.shared.dto.element.FlexibleElementDTO;
+import org.sigmah.shared.dto.layout.LayoutConstraintDTO;
+import org.sigmah.shared.dto.layout.LayoutGroupDTO;
+
 import com.extjs.gxt.ui.client.data.BaseModelData;
 
 public class OrgUnitModelDTO extends BaseModelData implements EntityDTO {
@@ -14,7 +22,10 @@ public class OrgUnitModelDTO extends BaseModelData implements EntityDTO {
     // Id
     @Override
     public int getId() {
-        return (Integer) get("id");
+    	if(get("id") != null)
+    		return (Integer) get("id");
+    	else
+    		return -1;
     }
 
     public void setId(int id) {
@@ -100,5 +111,53 @@ public class OrgUnitModelDTO extends BaseModelData implements EntityDTO {
 
     public void setCanContainProjects(Boolean canContainProjects) {
         set("canContainProjects", canContainProjects);
+    }
+    
+    public ProjectModelStatus getStatus() {
+        return (ProjectModelStatus) get("status");
+    }
+
+    public void setStatus(ProjectModelStatus status) {
+        set("status", status);
+    }
+    
+    public List<FlexibleElementDTO> getAllElements(){
+    	List<FlexibleElementDTO> allElements = new ArrayList<FlexibleElementDTO>();
+    	List<FlexibleElementDTO> bannerElements = new ArrayList<FlexibleElementDTO>();
+    	
+    	//banner
+		if(this.getBanner().getLayout()!=null){
+			for(LayoutGroupDTO lg : getBanner().getLayout().getLayoutGroupsDTO()){
+				for(LayoutConstraintDTO lc : lg.getLayoutConstraintsDTO()){
+					FlexibleElementDTO f = lc.getFlexibleElementDTO();
+					f.setBannerConstraint(lc);
+					bannerElements.add(f);			
+				}
+			}
+		}
+		
+		//Details
+		OrgUnitDetailsDTO d = getDetails();
+		d.setName();
+		setDetails(d);
+		if(getDetails().getLayout()!=null){
+			for(LayoutGroupDTO lg : getDetails().getLayout().getLayoutGroupsDTO()){
+				for(LayoutConstraintDTO lc : lg.getLayoutConstraintsDTO()){
+					FlexibleElementDTO f = lc.getFlexibleElementDTO();
+					f.setGroup(lg);
+					f.setConstraint(lc);
+					f.setContainerModel(getDetails());
+					for(FlexibleElementDTO bf : bannerElements){
+						if(f.getId()== bf.getId()){
+							f.setBannerConstraint(bf.getBannerConstraint());
+						}
+					}
+					allElements.add(f);					
+				}
+			}
+		}
+		
+		
+		return allElements;
     }
 }

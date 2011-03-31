@@ -1,5 +1,7 @@
 package org.sigmah.shared.dto.report;
 
+import java.util.List;
+
 import org.sigmah.shared.dto.EntityDTO;
 
 import com.extjs.gxt.ui.client.data.BaseModelData;
@@ -19,8 +21,10 @@ public class ReportModelDTO extends BaseModelData implements EntityDTO {
         return "report.ProjectReportModel";
     }
 
+	@Override
 	public int getId() {
-        return (Integer) get("id");
+		final Integer id = (Integer) get("id");
+        return id != null ? id : -1;
     }
     public void setId(Integer id) {
         this.set("id", id);
@@ -31,5 +35,13 @@ public class ReportModelDTO extends BaseModelData implements EntityDTO {
     }
     public void setName(String name) {
         this.set("name", name);
+    }
+    
+    public List<ProjectReportModelSectionDTO> getSectionsDTO() {
+        return get("sections");
+    }
+
+    public void setSectionsDTO(List<ProjectReportModelSectionDTO> sections) {
+        this.set("sections", sections);
     }
 }

@@ -171,7 +171,6 @@ public class AdminUsersView extends View {
 	
 	@Override
 	public ContentPanel getMainPanel() {
-		usersPanel.setTitle("users");
 		return usersPanel;
 	}
 	

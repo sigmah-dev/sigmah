@@ -3,22 +3,23 @@ package org.sigmah.client.page.admin.model.project.phase;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.sigmah.client.cache.UserLocalCache;
 import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.i18n.I18N;
+import org.sigmah.client.icon.IconImageBundle;
 import org.sigmah.client.page.admin.AdminUtil;
+import org.sigmah.client.page.admin.model.common.element.AdminFlexibleElementsView;
 import org.sigmah.client.page.admin.model.project.phase.AdminPhasesPresenter.View;
 import org.sigmah.client.page.common.toolbar.UIActions;
-import org.sigmah.shared.command.result.CreateResult;
+import org.sigmah.shared.command.result.UpdateModelResult;
 import org.sigmah.shared.dto.PhaseModelDTO;
 import org.sigmah.shared.dto.ProjectModelDTO;
+import org.sigmah.shared.dto.element.FlexibleElementDTO;
 
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Component;
-import com.extjs.gxt.ui.client.widget.Text;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
@@ -29,6 +30,7 @@ import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.VBoxLayoutData;
+import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class AdminPhasesView extends View {	
@@ -50,7 +52,7 @@ public class AdminPhasesView extends View {
         
         Grid<PhaseModelDTO> grid = buildModelsListGrid();
         grid.setAutoHeight(true);
-        
+        setTopComponent(initToolBar());
         add(grid, topVBoxLayoutData);
 	}
 	
@@ -99,35 +101,7 @@ public class AdminPhasesView extends View {
 
 					@Override
 					public void handleEvent(ButtonEvent be) {
-						FormPanel form = new PhaseSigmahForm(dispatcher, new AsyncCallback<CreateResult>(){
-
-							@Override
-							public void onFailure(Throwable caught) {
-								// TODO Auto-generated method stub
-								
-							}
-
-							@Override
-							public void onSuccess(CreateResult result) {
-								ProjectModelDTO projectModelUpdated = (ProjectModelDTO)result.getEntity();
-								AdminPhasesView.this.setModel(projectModelUpdated);
-							}
-
-
-							
-						}, model, projectModel);
-						int width = 400;
-						int height = 400;
-						String title = I18N.CONSTANTS.adminPhaseName();
-						final Window window = new Window();		
-						window.setHeading(title);
-				        window.setSize(width, height);
-				        window.setPlain(true);
-				        window.setModal(true);
-				        window.setBlinkModal(true);
-				        window.setLayout(new FitLayout());
-						window.add(form);
-				        window.show();
+						showPhaseForm(model, true);
 					}
 				});		        		        
 				return button;			
@@ -143,13 +117,68 @@ public class AdminPhasesView extends View {
 		return grid;
 	}
 	
-	private Object createUserGridText(String content) {
-        final Text label = new Text(content);
-        label.addStyleName("project-grid-leaf");
-        
-        return label;
+	private ToolBar initToolBar() {
+		
+		ToolBar toolbar = new ToolBar();
+    	
+		Button button = new Button(I18N.CONSTANTS.addItem(), IconImageBundle.ICONS.add());
+        button.setItemId(UIActions.add);
+		button.addListener(Events.OnClick, new Listener<ButtonEvent>(){
+
+			@Override
+			public void handleEvent(ButtonEvent be) {
+				showPhaseForm(null, false);
+			}
+			
+		});
+		
+		toolbar.add(button);
+	    return toolbar;
     }
 
+	private void showPhaseForm(final PhaseModelDTO model, final boolean isUpdate){
+		int width = 400;
+		int height = 400;
+		String title = I18N.CONSTANTS.adminPhaseName();
+		final Window window = new Window();		
+		window.setHeading(title);
+        window.setSize(width, height);
+        window.setPlain(true);
+        window.setModal(true);
+        window.setBlinkModal(true);
+        window.setLayout(new FitLayout());
+		FormPanel form = new PhaseSigmahForm(dispatcher, new AsyncCallback<UpdateModelResult>(){
+
+			@Override
+			public void onFailure(Throwable caught) {
+				window.hide();
+			}
+
+			@Override
+			public void onSuccess(UpdateModelResult result) {
+				if(isUpdate){
+					ProjectModelDTO projectModelUpdated = (ProjectModelDTO)result.getEntity();
+					AdminPhasesView.this.setModel(projectModelUpdated);
+					AdminPhasesView.this.getPhaseStore().remove(model);
+					AdminPhasesView.this.getPhaseStore().add((PhaseModelDTO)result.getAnnexEntity());
+					AdminPhasesView.this.getPhaseStore().commitChanges();
+				}else{
+					ProjectModelDTO projectModelUpdated = (ProjectModelDTO)result.getEntity();
+					AdminPhasesView.this.setModel(projectModelUpdated);
+					AdminPhasesView.this.getPhaseStore().add((PhaseModelDTO)result.getAnnexEntity());
+					AdminPhasesView.this.getPhaseStore().commitChanges();
+				}		
+				window.hide();
+			}
+
+
+			
+		}, model, projectModel);
+		
+		window.add(form);
+        window.show();
+	}
+	
 	public ListStore<PhaseModelDTO> getPhaseStore() {
 		return phaseStore;
 	}
@@ -157,7 +186,6 @@ public class AdminPhasesView extends View {
 
 	@Override
 	public Component getMainPanel() {
-		this.setTitle("phases");
 		return this;
 	}
 

@@ -496,11 +496,11 @@ public class ProjectDashboardPresenter implements SubPresenter {
      */
     private void loadPhaseOnTab(final PhaseDTO phaseDTO) {
 
-        if (Log.isDebugEnabled()) {
+        /*if (Log.isDebugEnabled()) {
             Log.debug("[loadPhaseOnTab] Loading phase #" + phaseDTO.getId() + " with model #"
                     + phaseDTO.getPhaseModelDTO().getId() + " and definition #"
                     + phaseDTO.getPhaseModelDTO().getDefinitionDTO().getId() + ".");
-        }
+        }*/
 
         // If the element are read only.
         final boolean readOnly = isEndedPhase(phaseDTO)

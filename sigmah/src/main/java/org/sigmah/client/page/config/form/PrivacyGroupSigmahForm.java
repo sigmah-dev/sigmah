@@ -112,11 +112,11 @@ public class PrivacyGroupSigmahForm extends FormPanel {
  					if(pgToUpdateId != 0){
  						Notification.show(I18N.CONSTANTS.adminPrivacyGroupCreationBox(), 
  	 							I18N.MESSAGES.adminStandardUpdateSuccess(I18N.MESSAGES.adminStandardPrivacyGroup()
- 	 									+ " '" + result.getEntity().get("title"))+ " '");
+ 	 									+ " '" + result.getEntity().get("title")+ " '"));
  					}else{
  						Notification.show(I18N.CONSTANTS.adminPrivacyGroupCreationBox(), 
  	 							I18N.MESSAGES.adminStandardCreationSuccess(I18N.MESSAGES.adminStandardPrivacyGroup()
- 	 									+ " '" + result.getEntity().get("title"))+ " '");
+ 	 									+ " '" + result.getEntity().get("title")+ " '"));
  					}					
  				}					
  				else{

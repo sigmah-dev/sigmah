@@ -9,6 +9,7 @@ import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.dispatch.monitor.MaskingAsyncMonitor;
 import org.sigmah.client.event.NavigationEvent;
 import org.sigmah.client.i18n.I18N;
+import org.sigmah.client.icon.IconImageBundle;
 import org.sigmah.client.page.NavigationHandler;
 import org.sigmah.client.page.admin.AdminPageState;
 import org.sigmah.client.page.admin.model.common.AdminModelActionListener;
@@ -17,6 +18,7 @@ import org.sigmah.client.page.admin.model.project.AdminProjectModelsPresenter.Vi
 import org.sigmah.client.page.common.toolbar.UIActions;
 import org.sigmah.client.page.project.dashboard.funding.FundingIconProvider;
 import org.sigmah.client.page.project.dashboard.funding.FundingIconProvider.IconSize;
+import org.sigmah.shared.domain.ProjectModelStatus;
 import org.sigmah.shared.domain.ProjectModelType;
 import org.sigmah.shared.dto.ProjectModelDTOLight;
 import com.extjs.gxt.ui.client.Style;
@@ -41,8 +43,6 @@ import com.google.inject.Inject;
 
 public class AdminProjectModelsView extends View {
 
-	private final static String STYLE_MAIN_BACKGROUND = "main-background";
-	
 	private final ContentPanel mainPanel;
 	private final Grid<ProjectModelDTOLight> grid;
 	private final AdminModelsStore modelsStore;
@@ -105,7 +105,16 @@ public class AdminProjectModelsView extends View {
 		column = new ColumnConfig("name",I18N.CONSTANTS.adminProjectModelsName(), 400);   
 		configs.add(column); 
 		
-		column = new ColumnConfig("status",I18N.CONSTANTS.adminProjectModelsStatus(), 400);   
+		column = new ColumnConfig("status",I18N.CONSTANTS.adminProjectModelsStatus(), 400); 
+		column.setRenderer(new GridCellRenderer<ProjectModelDTOLight>(){
+
+			@Override
+			public Object render(ProjectModelDTOLight model, String property,
+					ColumnData config, int rowIndex, int colIndex,
+					ListStore<ProjectModelDTOLight> store, Grid<ProjectModelDTOLight> grid) {
+				return ProjectModelStatus.getName(model.getStatus());
+			}
+		});
 		configs.add(column); 
 		
 		column = new ColumnConfig();    
@@ -129,7 +138,7 @@ public class AdminProjectModelsView extends View {
 						derivation.setModel(model.getId());
 						//FIXME
 						derivation.setSubModel(I18N.CONSTANTS.adminProjectModelFields());
-						
+						derivation.setIsProject(true);
 						AdminProjectModelsView.this.eventBus.fireEvent(new NavigationEvent(
 								NavigationHandler.NavigationRequested, derivation));					
 					}		        	
@@ -150,13 +159,13 @@ public class AdminProjectModelsView extends View {
 		
 		ToolBar toolbar = new ToolBar();
     	
-		Button button = new Button(I18N.CONSTANTS.addItem());
+		Button button = new Button(I18N.CONSTANTS.addItem(), IconImageBundle.ICONS.add());
         button.setItemId(UIActions.add);
 		button.addListener(Events.OnClick, new Listener<ButtonEvent>(){
 
 			@Override
 			public void handleEvent(ButtonEvent be) {
-				AdminModelActionListener listener  = new AdminModelActionListener(AdminProjectModelsView.this, dispatcher);
+				AdminModelActionListener listener  = new AdminModelActionListener(AdminProjectModelsView.this, dispatcher, true);
 				listener.onUIAction(UIActions.add);
 			}
 			
@@ -177,12 +186,6 @@ public class AdminProjectModelsView extends View {
 
 	@Override
 	public Component getMainPanel(int id) {
-		mainPanel.setTitle("models");	
-		//if(id != -1){
-			//mainPanel.remove(grid);
-			//AdminOneModelPresenter modelPresenter = new AdminOneModelPresenter();
-			//mainPanel.add((Widget)modelPresenter.getWidget());
-		//}
 		return mainPanel;			
 	}
 

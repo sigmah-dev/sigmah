@@ -3,20 +3,10 @@ package org.sigmah.client.page.admin;
 import java.util.List;
 
 import org.sigmah.client.i18n.I18N;
-import org.sigmah.client.page.admin.users.AdminUsersPresenter;
-import org.sigmah.client.page.admin.users.AdminUsersView;
 import org.sigmah.client.page.common.toolbar.UIActions;
-import org.sigmah.client.page.config.form.ProfileSigmahForm;
-import org.sigmah.shared.command.result.CreateResult;
-import org.sigmah.shared.dto.profile.ProfileDTO;
-
-import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.MessageBoxEvent;
-import com.extjs.gxt.ui.client.widget.Dialog;
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Text;
 import com.extjs.gxt.ui.client.widget.Window;
@@ -24,23 +14,97 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class AdminUtil {
 	
 	public final static String ADMIN_PROJECT_MODEL = "projectModel";
+	public final static String ADMIN_ORG_UNIT_MODEL = "orgUnitModel";
+	public static final String PROP_LOG_FRAME = "log_frame";
 	
-	public static void alertPbmData(boolean alert, String title, String msg) {
+	public static final String PROP_LOG_FRAME_NAME = "logframe name";
+	public static final String PROP_OBJ_MAX = "objectives_max";
+	public static final String PROP_OBJ_MAX_PER_GROUP = "objectives_max_per_group";
+	public static final String PROP_OBJ_ENABLE_GROUPS = "objectives_enable_groups";
+	public static final String PROP_OBJ_MAX_GROUPS = "objectives_max_groups";
+	public static final String PROP_A_MAX = "activities_max";
+	public static final String PROP_A_ENABLE_GROUPS = "activities_enable_groups";
+	public static final String PROP_A_MAX_PER_RESULT = "activities_max_per_result";
+	public static final String PROP_A_MAX_GROUPS = "activities_max_groups";
+	public static final String PROP_A_MAX_PER_GROUP = "activities_max_per_group";
+	public static final String PROP_R_MAX = "results_max";
+	public static final String PROP_R_ENABLE_GROUPS = "results_enable_groups";
+	public static final String PROP_R_MAX_PER_OBJ = "results_max_per_obj";
+	public static final String PROP_R_MAX_GROUPS = "results_max_groups";
+	public static final String PROP_R_MAX_PER_GROUP = "results_max_per_group";
+	public static final String PROP_P_MAX = "prerequisites_max";
+	public static final String PROP_P_ENABLE_GROUPS = "prerequisites_enable_groups";
+	public static final String PROP_P_MAX_GROUPS = "prerequisites_max_groups";
+	public static final String PROP_P_MAX_PER_GROUP = "prerequisites_max_per_group";
+	
+	public final static String PROP_FX_REPORT_MODEL = "FlexibleElementReportModel";
+	public final static String PROP_FX_MAX_LIMIT = "FlexibleElementMaxLimit";
+	public final static String PROP_FX_MIN_LIMIT = "FlexibleElementMinLimit";
+	public final static String PROP_FX_TEXT_TYPE = "FlexibleElementTextType";
+	public final static String PROP_FX_LENGTH = "FlexibleElementLength";
+	public final static String PROP_FX_DECIMAL = "FlexibleElementDecimal";
+	public final static String PROP_FX_Q_MULTIPLE = "FlexibleElementQuestionMultiple";
+	public final static String PROP_FX_Q_QUALITY = "FlexibleElementQuestionQuality";
+	public final static String PROP_FX_Q_CATEGORY = "FlexibleElementQuestionCategory";
+	public final static String PROP_FX_Q_CHOICES = "FlexibleElementQuestionChoices";
+	
+	public final static String PROP_FX_NAME = "name";
+	public final static String PROP_FX_TYPE = "type";
+	public final static String PROP_FX_GROUP = "group";
+	public final static String PROP_FX_ORDER_IN_GROUP = "orderInGroup";
+	public final static String PROP_FX_IN_BANNER = "inBanner";
+	public final static String PROP_FX_POS_IN_BANNER = "posBanner";
+	public final static String PROP_FX_IS_COMPULSARY = "isCompulsory";
+	public final static String PROP_FX_PRIVACY_GROUP = "privacyGroup";
+	public final static String PROP_FX_AMENDABLE = "amendable";
+	
+	public final static String PROP_FX_LC_BANNER = "layoutConstraintBanner";
+	public final static String PROP_FX_LC = "layoutConstraint";
+	
+	public final static String PROP_FX_FLEXIBLE_ELEMENT = "flexibleElement";
+	
+	public final static String PROP_FX_OLD_FIELDS = "oldFieldProperties";
+	
+	public final static String PROP_NEW_GROUP_LAYOUT = "NewLayoutGroup";
+	
+	public final static String PROP_PHASE_MODEL = "NewPhaseModel";
+	public final static String PROP_PHASE_ROWS = "PhaseRows";
+	public final static String PROP_PHASE_ROOT = "PhaseRoot";
+	public final static String PROP_PHASE_ORDER = "PhaseDisplayOrder";
+	
+	public final static String PROP_REPORT_MODEL_NAME = "ProjectReportModelName";
+	public final static String PROP_REPORT_SECTION_MODEL = "ProjectReportModelSection";
+	
+	public final static String PROP_CATEGORY_TYPE = "NewCategoryType";
+	public final static String PROP_CATEGORY_ELEMENT = "NewCategoryElement";
+	
+	public final static String PROP_PM_NAME = "ProjectModelName";
+	public final static String PROP_PM_USE = "ProjectModelUse";
+	public final static String PROP_PM_STATUS = "ProjectModelStatus";
+	
+	public final static String PROP_OM_NAME = "OrgUnitModelName";
+	public final static String PROP_OM_STATUS = "OrgUnitModelStatus";
+	public final static String PROP_OM_TITLE = "OrgUnitModelTitle";
+	public final static String PROP_OM_HAS_BUDGET = "OrgUnitModelBudget";
+	public final static String PROP_OM_HAS_SITE = "OrgUnitModelSite";
+	public final static String PROP_OM_CONTAINS_PROJECTS = "OrgUnitModelContainProjects";
+	public final static String PROP_OM_MIN_LEVEL = "OrgUnitModelMinLevel";
+	public final static String PROP_OM_MAX_LEVEL = "OrgUnitModelMaxLevel";
+	
+	public static void alertPbmData(boolean alert) {
         if (alert)
             return;
         alert = true;
-        MessageBox.alert(I18N.CONSTANTS.adminUsers(), I18N.CONSTANTS.adminProblemLoading(), null);
+        MessageBox.alert(I18N.CONSTANTS.adminboard(), I18N.CONSTANTS.adminProblemLoading(), null);
     }
 	
-	public static Object createUserGridText(String content) {
+	public static Text createGridText(String content) {
         final Text label = new Text(content);
-        label.addStyleName("project-grid-leaf");
-        
+        label.addStyleName("label-small");
         return label;
     }
 	
@@ -62,7 +126,7 @@ public class AdminUtil {
 		}else{
 			content = defaultLabel;
 		}				
-		return createUserGridText(content);
+		return createGridText(content);
 		
 	}
 	

@@ -17,11 +17,14 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dozer.Mapper;
 import org.sigmah.server.policy.ActivityPolicy;
+import org.sigmah.server.policy.LayoutGroupPolicy;
+import org.sigmah.server.policy.OrgUnitModelPolicy;
 import org.sigmah.server.policy.PersonalEventPolicy;
 import org.sigmah.server.policy.PrivacyGroupPolicy;
 import org.sigmah.server.policy.ProfilePolicy;
 import org.sigmah.server.policy.ProjectModelPolicy;
 import org.sigmah.server.policy.ProjectPolicy;
+import org.sigmah.server.policy.ProjectReportModelPolicy;
 import org.sigmah.server.policy.ProjectReportPolicy;
 import org.sigmah.server.policy.PropertyMap;
 import org.sigmah.server.policy.SitePolicy;
@@ -43,14 +46,18 @@ import org.sigmah.shared.domain.reminder.MonitoredPoint;
 import org.sigmah.shared.domain.reminder.MonitoredPointList;
 import org.sigmah.shared.domain.reminder.Reminder;
 import org.sigmah.shared.domain.reminder.ReminderList;
+import org.sigmah.shared.dto.OrgUnitModelDTO;
 import org.sigmah.shared.dto.ProjectDTOLight;
 import org.sigmah.shared.dto.ProjectFundingDTO;
 import org.sigmah.shared.dto.ProjectModelDTO;
 import org.sigmah.shared.dto.UserDTO;
+import org.sigmah.shared.dto.layout.LayoutGroupDTO;
 import org.sigmah.shared.dto.profile.PrivacyGroupDTO;
 import org.sigmah.shared.dto.profile.ProfileDTO;
 import org.sigmah.shared.dto.reminder.MonitoredPointDTO;
 import org.sigmah.shared.dto.reminder.ReminderDTO;
+import org.sigmah.shared.dto.report.ProjectReportModelSectionDTO;
+import org.sigmah.shared.dto.report.ReportModelDTO;
 import org.sigmah.shared.exception.CommandException;
 import org.sigmah.shared.exception.IllegalAccessCommandException;
 
@@ -124,9 +131,51 @@ public class CreateEntityHandler extends BaseEntityHandler implements CommandHan
             return createProfile(user, propertyMap);
         }else if ("ProjectModel".equals(cmd.getEntityName())) {
             return createProjectModel(user, propertyMap);
+        }else if ("ProjectReportModel".equals(cmd.getEntityName())) {
+            return createProjectReportModel(user, propertyMap);
+        }else if ("OrgUnitModel".equals(cmd.getEntityName())) {
+            return createOrgUnitModel(user, propertyMap);
+        }else if ("GroupLayout".equals(cmd.getEntityName())) {
+            return createLayoutGroupModel(user, propertyMap);
         }else {
             throw new CommandException("Invalid entity class " + cmd.getEntityName());
         }
+    }
+
+    private CommandResult createLayoutGroupModel(User user, PropertyMap propertyMap) {
+		LayoutGroupPolicy policy = injector.getInstance(LayoutGroupPolicy.class);
+		LayoutGroupDTO newGroupModel = (LayoutGroupDTO) policy.create(user, propertyMap);
+    	if(newGroupModel != null){
+    		CreateResult c = new CreateResult(newGroupModel.getId());
+    		c.setEntity(newGroupModel);
+    		return c;
+    	}   		
+    	else
+    		return null;
+	}
+    
+	private CommandResult createOrgUnitModel(User user, PropertyMap propertyMap) {
+		OrgUnitModelPolicy policy = injector.getInstance(OrgUnitModelPolicy.class);
+		OrgUnitModelDTO newOrgUnitModel = (OrgUnitModelDTO) policy.create(user, propertyMap);
+    	if(newOrgUnitModel != null){
+    		CreateResult c = new CreateResult(newOrgUnitModel.getId());
+    		c.setEntity(newOrgUnitModel);
+    		return c;
+    	}   		
+    	else
+    		return null;
+	}
+
+    private CommandResult createProjectReportModel(User user, PropertyMap propertyMap) {
+    	ProjectReportModelPolicy policy = injector.getInstance(ProjectReportModelPolicy.class);
+    	ReportModelDTO newProjectReportModel = (ReportModelDTO) policy.create(user, propertyMap);
+    	if(newProjectReportModel != null){
+    		CreateResult c = new CreateResult(newProjectReportModel.getId());
+    		c.setEntity(newProjectReportModel);
+    		return c;
+    	}   		
+    	else
+    		return null;
     }
     
     private CommandResult createProjectModel(User user, PropertyMap propertyMap) {

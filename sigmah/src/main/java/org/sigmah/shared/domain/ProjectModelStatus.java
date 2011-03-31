@@ -21,15 +21,30 @@ public enum ProjectModelStatus {
      * @return The translation value for the given type.
      */
     public static String getName(ProjectModelStatus status){
-		String gpName = "default";
+		String statusName = "default";
 		switch(status){
-		case DRAFT : gpName = I18N.CONSTANTS.DRAFT(); break;
-		case READY : gpName = I18N.CONSTANTS.READY(); break;
-		case USED : gpName = I18N.CONSTANTS.USED(); break;
-		case UNAVAILABLE : gpName = I18N.CONSTANTS.UNAVAILABLE(); break;
-		default : gpName = null;
+		case DRAFT : statusName = I18N.CONSTANTS.DRAFT(); break;
+		case READY : statusName = I18N.CONSTANTS.READY(); break;
+		case USED : statusName = I18N.CONSTANTS.USED(); break;
+		case UNAVAILABLE : statusName = I18N.CONSTANTS.UNAVAILABLE(); break;
+		default : statusName = null;
 		}
 		
-		return gpName;
+		return statusName;
+	}
+    
+    public static ProjectModelStatus getStatus(String status){
+    	ProjectModelStatus statusEnum = DRAFT;
+    	if(I18N.CONSTANTS.DRAFT().equals(status)){
+    		statusEnum = DRAFT;
+    	}else if(I18N.CONSTANTS.READY().equals(status)){
+    		statusEnum = READY;
+    	}else if(I18N.CONSTANTS.USED().equals(status)){
+    		statusEnum = USED;
+    	}else if(I18N.CONSTANTS.UNAVAILABLE().equals(status)){
+    		statusEnum = UNAVAILABLE;
+    	}
+		
+		return statusEnum;
 	}
 }

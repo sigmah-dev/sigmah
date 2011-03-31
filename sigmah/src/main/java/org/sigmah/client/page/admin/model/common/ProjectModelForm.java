@@ -4,14 +4,16 @@ import java.util.HashMap;
 import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.i18n.UIConstants;
+import org.sigmah.client.page.admin.AdminUtil;
 import org.sigmah.client.page.project.dashboard.funding.FundingIconProvider;
 import org.sigmah.client.page.project.dashboard.funding.FundingIconProvider.IconSize;
 import org.sigmah.client.util.Notification;
 import org.sigmah.shared.command.CreateEntity;
 import org.sigmah.shared.command.result.CreateResult;
+import org.sigmah.shared.domain.ProjectModelStatus;
 import org.sigmah.shared.domain.ProjectModelType;
+import org.sigmah.shared.dto.ProjectModelDTO;
 
-import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FieldEvent;
@@ -28,24 +30,16 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Label;
 
 public class ProjectModelForm extends FormPanel {
-	
-	public final static String PM_NAME_PROPERTY = "ProjectModelName";
-	public final static String PM_USE_PROPERTY = "ProjectModelUse";
-	
-	public final static String MODEL_NAME = "model";
-	public final static String MODEL_TYPE = "type";
-	public final static String MODEL_STATUS = "status";
 	
 	private final Dispatcher dispatcher;
 	private final TextField<String> nameField;
 	private final Radio ngoRadio;
     private final Radio fundingRadio;
     private final Radio partnerRadio;
-    private ProjectModelType currentModelType = ProjectModelType.NGO;;
+    private ProjectModelType currentModelType = ProjectModelType.NGO;
 	private HashMap<String, Object> newProjectModelProperties;
 	
 	private final static int LABEL_WIDTH = 90;
@@ -60,7 +54,7 @@ public class ProjectModelForm extends FormPanel {
 		setLayout(layout);
 		
 		nameField = new TextField<String>();
-		nameField.setFieldLabel(constants.adminPrivacyGroupsName());
+		nameField.setFieldLabel(constants.adminProjectModelsName());
 		nameField.setAllowBlank(false);
 		add(nameField);
 		
@@ -175,45 +169,41 @@ public class ProjectModelForm extends FormPanel {
 	private void createProjectModel(final AsyncCallback<CreateResult> callback) {
 		 if (!this.isValid()) {
 			 MessageBox.alert(I18N.CONSTANTS.createFormIncomplete(),
-	                    I18N.MESSAGES.createFormIncompleteDetails(I18N.MESSAGES.adminStandardPrivacyGroup()), null);
+	                    I18N.MESSAGES.createFormIncompleteDetails(I18N.CONSTANTS.adminProjectModelStandard()), null);
 	            return;
 		 }
 		 final String name = nameField.getValue();
 		 
 		 newProjectModelProperties = new HashMap<String, Object>();
-		 Log.debug("Visibility " + currentModelType);
-		 newProjectModelProperties.put(PM_USE_PROPERTY, currentModelType);
-		 newProjectModelProperties.put(PM_NAME_PROPERTY, name);   
+		 newProjectModelProperties.put(AdminUtil.PROP_PM_USE, currentModelType);
+		 newProjectModelProperties.put(AdminUtil.PROP_PM_NAME, name);   
+		 ProjectModelDTO model = new ProjectModelDTO();
+		 model.setStatus(ProjectModelStatus.DRAFT);
+		 newProjectModelProperties.put(AdminUtil.ADMIN_PROJECT_MODEL, model);
 		 
         dispatcher.execute(new CreateEntity("ProjectModel", newProjectModelProperties), null, new AsyncCallback<CreateResult>(){
 
        	 public void onFailure(Throwable caught) {
-             	MessageBox.alert(I18N.CONSTANTS.adminPrivacyGroupCreationBox(), 
-             			I18N.MESSAGES.adminStandardCreationFailure(I18N.MESSAGES.adminStandardPrivacyGroup()
-								+ " '" + name + " '"), null);
+       		MessageBox.alert(I18N.CONSTANTS.adminProjectModelCreationBox(), 
+          			I18N.MESSAGES.adminStandardCreationFailure(I18N.CONSTANTS.adminProjectModelStandard()
+								+ " '" + name + "'"), null);
              	callback.onFailure(caught);
              }
 
 			@Override
 			public void onSuccess(CreateResult result) {
-				if(result != null){						
+				if(result != null && result.getEntity() != null){						
 					callback.onSuccess(result);		
-					if(result.getEntity() != null){
-						Notification.show(I18N.CONSTANTS.adminPrivacyGroupCreationBox(), 
-	 							I18N.MESSAGES.adminStandardUpdateSuccess(I18N.MESSAGES.adminStandardPrivacyGroup()
-	 									+ " '" + result.getEntity().get("title"))+ " '");
-					}else{
-						Notification.show(I18N.CONSTANTS.adminPrivacyGroupCreationBox(), 
-	 							I18N.MESSAGES.adminStandardCreationSuccess(I18N.MESSAGES.adminStandardPrivacyGroup()
-	 									+ " '" + result.getEntity().get("title"))+ " '");
-					}					
+					
+					Notification.show(I18N.CONSTANTS.adminProjectModelCreationBox(), I18N.MESSAGES.adminStandardCreationSuccess(I18N.CONSTANTS.adminProjectModelStandard()
+							+ " '" + name +"'"));					
 				}					
 				else{
 					Throwable t = new Throwable("ProjectModelForm : creation result is null");
 					callback.onFailure(t);
-					MessageBox.alert(I18N.CONSTANTS.adminPrivacyGroupCreationBox(), 
-							I18N.MESSAGES.adminStandardCreationNull(I18N.MESSAGES.adminStandardPrivacyGroup()
-									+ " '" + name+ " '"), null);
+					MessageBox.alert(I18N.CONSTANTS.adminProjectModelCreationBox(), 
+		          			I18N.MESSAGES.adminStandardCreationNull(I18N.CONSTANTS.adminProjectModelStandard()
+										+ " '" + name + "'"), null);
 				}		
 			}
         });

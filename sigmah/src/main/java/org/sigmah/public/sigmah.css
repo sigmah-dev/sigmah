@@ -1043,10 +1043,15 @@ body {
 .help-content {
 	padding: 5px;
 }
-
+/* ---------------------------------------------  Admin */
 .delete-cell {
-	border: 1px solid lightgrey;
+	border: 1px solid lightgrey;	
 	vertical-align: center;
+}
+
+.label-small {
+	font-size: 8pt;
+	font-weight: normal;
 }
 
 /* ---------------------------------------------- Credits */

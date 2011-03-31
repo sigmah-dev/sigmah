@@ -24,7 +24,8 @@ public class PhaseModelDTO extends BaseModelData implements EntityDTO {
     // Phase model id
     @Override
     public int getId() {
-        return (Integer) get("id");
+    	final Integer id = (Integer) get("id");
+        return id != null ? id : -1;
     }
 
     public void setId(int id) {
@@ -92,6 +93,14 @@ public class PhaseModelDTO extends BaseModelData implements EntityDTO {
 
     public void setGuide(String guide) {
         set("guide", guide);
+    }
+    
+    public Boolean isRoot(){
+    	return get("root");
+    }
+    
+    public void setIsRoot(Boolean isRoot){
+    	set("root", isRoot);
     }
 
     /**

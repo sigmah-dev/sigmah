@@ -159,7 +159,7 @@ public class UserSigmahForm extends FormPanel {
 		orgUnitsList.setFieldLabel(I18N.CONSTANTS.adminUsersOrgUnit());
 		orgUnitsList.setDisplayField("fullName");
 		orgUnitsList.setValueField("id");
-		orgUnitsList.setEditable(true);
+		orgUnitsList.setEditable(false);
 		orgUnitsList.setAllowBlank(false);
 		orgUnitsList.setTriggerAction(TriggerAction.ALL);		
 		if(userToUpdate != null && userToUpdate.getOrgUnitWithProfiles() != null
@@ -210,7 +210,7 @@ public class UserSigmahForm extends FormPanel {
 		profilesListCombo = new ComboBox<ProfileDTOLight>();
 		profilesListCombo.setDisplayField("name");
 		profilesListCombo.setValueField("id");
-		profilesListCombo.setEditable(true);		
+		profilesListCombo.setEditable(false);		
 		profilesListCombo.setTriggerAction(TriggerAction.ALL);
 		final ListStore<ProfileDTOLight> profilesStore = new ListStore<ProfileDTOLight>();
 		dispatcher.execute(new GetProfiles(), 

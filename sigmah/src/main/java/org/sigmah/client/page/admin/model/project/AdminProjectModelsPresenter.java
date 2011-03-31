@@ -5,16 +5,15 @@ import org.sigmah.client.cache.UserLocalCache;
 import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.dispatch.monitor.MaskingAsyncMonitor;
 import org.sigmah.client.dispatch.remote.Authentication;
-import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.page.admin.AdminPageState;
 import org.sigmah.client.page.admin.AdminSubPresenter;
+import org.sigmah.client.page.admin.AdminUtil;
 import org.sigmah.shared.command.GetProjectModels;
 import org.sigmah.shared.command.result.ProjectModelListResult;
 import org.sigmah.shared.dto.ProjectModelDTOLight;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
@@ -55,7 +54,7 @@ public class AdminProjectModelsPresenter implements AdminSubPresenter {
         		new AsyncCallback<ProjectModelListResult>() {
         	@Override
             public void onFailure(Throwable arg0) {
-        		alertPbmData();
+        		AdminUtil.alertPbmData(alert);
             }
 
             @Override
@@ -69,13 +68,6 @@ public class AdminProjectModelsPresenter implements AdminSubPresenter {
             }
         });
 	}
-	
-	private static void alertPbmData() {
-        if (alert)
-            return;
-        alert = true;
-        MessageBox.alert(I18N.CONSTANTS.adminUsers(), I18N.CONSTANTS.adminProblemLoading(), null);
-    }
 	
 	@Override
 	public Component getView() {		

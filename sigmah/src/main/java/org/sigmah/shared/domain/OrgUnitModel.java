@@ -5,6 +5,8 @@ import java.io.Serializable;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -33,6 +35,7 @@ public class OrgUnitModel implements Serializable {
     private Integer maxLevel;
     private String title;
     private Boolean canContainProjects = true;
+    private ProjectModelStatus status = ProjectModelStatus.DRAFT;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -126,6 +129,16 @@ public class OrgUnitModel implements Serializable {
         this.canContainProjects = canContainProjects;
     }
     
+    @Column(name = "status", nullable = false)
+    @Enumerated(EnumType.STRING)
+    public ProjectModelStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(ProjectModelStatus status) {
+        this.status = status;
+    }
+    
     /**
      * Reset the identifiers of the object.
      */
@@ -138,4 +151,5 @@ public class OrgUnitModel implements Serializable {
     		this.details.resetImport(this);
     	}
     }
+
 }

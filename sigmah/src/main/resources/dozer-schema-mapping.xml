@@ -186,8 +186,34 @@
 			<a>projectDetails</a>
 			<b>projectDetailsDTO</b>
 		</field>
+		
+		<field>
+			<a>logFrameModel</a>
+			<b>logFrameModelDTO</b>
+		</field>
 	</mapping>
-
+	<mapping wildcard="true">
+		<class-a>org.sigmah.shared.domain.logframe.LogFrameModel</class-a>
+		<class-b>org.sigmah.shared.dto.logframe.LogFrameModelDTO</class-b>
+	</mapping>
+	<mapping wildcard="true">
+		<class-a>org.sigmah.shared.domain.report.ProjectReportModel</class-a>
+		<class-b>org.sigmah.shared.dto.report.ReportModelDTO</class-b>
+		
+		<field>
+			<a>sections</a>
+			<b>sectionsDTO</b>
+		</field>
+	</mapping>
+	<mapping wildcard="true">
+		<class-a>org.sigmah.shared.domain.report.ProjectReportModelSection</class-a>
+		<class-b>org.sigmah.shared.dto.report.ProjectReportModelSectionDTO</class-b>
+		
+		<field>
+			<a>subSections</a>
+			<b>subSectionsDTO</b>
+		</field>
+	</mapping>
 	<!-- PhaseModel/PhaseModelDTO Mapping -->
 	<mapping wildcard="true">
 		<class-a>org.sigmah.shared.domain.PhaseModel</class-a>
@@ -572,7 +598,10 @@
 			<b>canContainProjects</b>
 		</field>
 	</mapping>
-	
+	<mapping wildcard="true">
+		<class-a>org.sigmah.shared.domain.OrgUnitModel</class-a>
+		<class-b>org.sigmah.shared.dto.OrgUnitModelDTO</class-b>
+	</mapping>
 	<!-- Amendments -->
 	<mapping wildcard="true">
 		<class-a>org.sigmah.shared.domain.Amendment</class-a>

@@ -17,7 +17,7 @@ import org.sigmah.shared.dto.profile.PrivacyGroupDTO;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.google.inject.Inject;
 /**
- * Create user policy.
+ * Create privacy group policy.
  * 
  * @author nrebiai
  * 
@@ -42,11 +42,11 @@ public class PrivacyGroupPolicy implements EntityPolicy<PrivacyGroup> {
 
 		PrivacyGroup pgToPersist  = null;
 				
-		//get User that need to be saved from properties	
+		//get privacy group that need to be saved from properties	
 		Number code = (Number)properties.get("code");
 		String name = properties.get("name");
 		
-		//Save user
+		//Save privacy group 
 		if(code != null && name != null){
 			
 			List<PrivacyGroup> privacyGroups = new ArrayList<PrivacyGroup>();

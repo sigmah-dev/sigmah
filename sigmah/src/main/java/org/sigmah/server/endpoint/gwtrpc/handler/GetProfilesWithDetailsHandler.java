@@ -60,7 +60,6 @@ public class GetProfilesWithDetailsHandler implements CommandHandler<GetProfiles
 				Set<GlobalPermissionEnum> permissions = new HashSet<GlobalPermissionEnum>();
 				for(final GlobalPermission globalPermission : oneProfile.getGlobalPermissions()){
 					permissions.add(globalPermission.getPermission());
-					log.debug("For profile " + profile.getName() + " found global permission " + globalPermission.getPermission());
 				}				
 				profile.setGlobalPermissions(permissions);
 				//Privacy Groups

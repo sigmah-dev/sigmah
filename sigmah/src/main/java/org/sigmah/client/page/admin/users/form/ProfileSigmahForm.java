@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
@@ -134,7 +133,7 @@ public class ProfileSigmahForm extends FormPanel {
 		privacyGroupsPermissionsListCombo = new ComboBox<PrivacyGroupPermDTO>();
 		privacyGroupsPermissionsListCombo.setDisplayField("permission");
 		privacyGroupsPermissionsListCombo.setValueField("id");
-		privacyGroupsPermissionsListCombo.setEditable(true);		
+		privacyGroupsPermissionsListCombo.setEditable(false);		
 		privacyGroupsPermissionsListCombo.setTriggerAction(TriggerAction.ALL);
 		int j = 0;
 		ListStore<PrivacyGroupPermDTO> permsStore = new ListStore<PrivacyGroupPermDTO>();
@@ -150,7 +149,7 @@ public class ProfileSigmahForm extends FormPanel {
 		privacyGroupsListCombo = new ComboBox<PrivacyGroupDTO>();
 		privacyGroupsListCombo.setDisplayField("title");
 		privacyGroupsListCombo.setValueField("id");
-		privacyGroupsListCombo.setEditable(true);		
+		privacyGroupsListCombo.setEditable(false);		
 		privacyGroupsListCombo.setTriggerAction(TriggerAction.ALL);
 		final ListStore<PrivacyGroupDTO> privacyGroupsStore = new ListStore<PrivacyGroupDTO>();
 		dispatcher.execute(new GetPrivacyGroups(), 
@@ -164,7 +163,7 @@ public class ProfileSigmahForm extends FormPanel {
 
 					@Override
 					public void onSuccess(PrivacyGroupsListResult result) {
-						privacyGroupsListCombo.setEmptyText(I18N.CONSTANTS.adminUserCreationProfileChoice());
+						privacyGroupsListCombo.setEmptyText(I18N.CONSTANTS.adminPrivacyGroupChoice());
 						privacyGroupsStore.removeAll();
 		                if (result != null) {
 		                    privacyGroupsStore.add(result.getList());
@@ -309,11 +308,11 @@ public class ProfileSigmahForm extends FormPanel {
 					if(profileToUpdate != null){
 						Notification.show(I18N.CONSTANTS.adminProfileCreationBox(), 
 								I18N.MESSAGES.adminStandardUpdateSuccess(I18N.MESSAGES.adminStandardProfile()
-										+ " '" + result.getEntity().get("name"))+"'");
+										+ " '" + result.getEntity().get("name")+"'"));
 					}else{
 						Notification.show(I18N.CONSTANTS.adminProfileCreationBox(), 
 								I18N.MESSAGES.adminStandardCreationSuccess(I18N.MESSAGES.adminStandardProfile()
-										+ " '" +result.getEntity().get("name"))+"'");
+										+ " '" +result.getEntity().get("name")+"'"));
 					}
 					
 				}					

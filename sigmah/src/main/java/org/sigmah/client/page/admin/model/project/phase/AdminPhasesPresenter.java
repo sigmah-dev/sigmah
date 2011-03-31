@@ -44,13 +44,6 @@ public class AdminPhasesPresenter implements AdminModelSubPresenter {
 		this.model = view.getModel();
 		return view.getMainPanel();
 	}
-	
-	private static void alertPbmData() {
-        if (alert)
-            return;
-        alert = true;
-        MessageBox.alert(I18N.CONSTANTS.adminUsers(), I18N.CONSTANTS.adminProblemLoading(), null);
-    }
 
 	@Override
 	public void discardView() {

@@ -27,6 +27,10 @@ public class OrgUnitDetailsDTO extends BaseModelData implements EntityDTO {
     	return I18N.CONSTANTS.Admin_ORGUNIT_DETAILS();
     }
     
+    public void setName() {
+        set("name", I18N.CONSTANTS.Admin_ORGUNIT_DETAILS());
+    }
+    
     // Layout
     public LayoutDTO getLayout() {
         return get("layout");

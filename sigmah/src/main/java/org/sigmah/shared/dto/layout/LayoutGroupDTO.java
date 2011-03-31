@@ -33,7 +33,10 @@ public class LayoutGroupDTO extends BaseModelData implements EntityDTO {
     // Layout group id
     @Override
     public int getId() {
-        return (Integer) get("id");
+    	if(get("id") == null)
+    		return -1;
+    	else
+    		return (Integer) get("id");
     }
 
     public void setId(int id) {

@@ -9,7 +9,6 @@ import org.sigmah.client.page.PageId;
 import org.sigmah.client.page.PageState;
 import org.sigmah.client.page.PageStateParser;
 import org.sigmah.client.page.TabPage;
-import org.sigmah.client.page.admin.model.common.AdminOneModelPresenter;
 import org.sigmah.client.ui.Tab;
 
 public class AdminPageState implements PageState, TabPage, HasTab {
@@ -17,6 +16,7 @@ public class AdminPageState implements PageState, TabPage, HasTab {
 	private Integer currentSection;
 	private Integer model;
 	private String subModel;
+	private Boolean isProject;
 	private Tab tab;
 	
 	public AdminPageState() {
@@ -38,17 +38,20 @@ public class AdminPageState implements PageState, TabPage, HasTab {
 	public static class Parser implements PageStateParser {        
         @Override
         public PageState parse(String token) {
-        	final String[] tokens = token.split("/");
-        	final AdminPageState state = new AdminPageState(Integer.parseInt(tokens[0]));
-        	if(tokens.length > 1) {
-                state.setCurrentSection(Integer.parseInt(tokens[1]));
-                if(tokens.length > 2) {
-                    state.setModel(new Integer(tokens[2]));
-                } else {
-                    state.setModel(null);
+        	if(token != null){
+        		final String[] tokens = token.split("/");
+            	final AdminPageState state = new AdminPageState(Integer.parseInt(tokens[0]));
+            	if(tokens.length > 1) {
+                    state.setCurrentSection(Integer.parseInt(tokens[1]));
+                    if(tokens.length > 2) {
+                        state.setModel(new Integer(tokens[2]));
+                    } else {
+                        state.setModel(null);
+                    }
                 }
-            }
-        	return state;
+            	return state;
+        	}
+        	return new AdminPageState(1);
         }
     }
 	
@@ -76,10 +79,11 @@ public class AdminPageState implements PageState, TabPage, HasTab {
         return derivation;
     }
 	
-	public AdminPageState deriveTo(int section, int model, String subModel) {
+	public AdminPageState deriveTo(int section, int model, String subModel, boolean isProject) {
         final AdminPageState derivation = new AdminPageState(section);
         derivation.setModel(model);
         derivation.setSubModel(subModel);
+        derivation.setIsProject(isProject);
         return derivation;
     }
 
@@ -133,6 +137,14 @@ public class AdminPageState implements PageState, TabPage, HasTab {
 
 	public String getSubModel() {
 		return subModel;
+	}
+
+	public void setIsProject(Boolean isProject) {
+		this.isProject = isProject;
+	}
+
+	public Boolean isProject() {
+		return isProject;
 	}
 
 }

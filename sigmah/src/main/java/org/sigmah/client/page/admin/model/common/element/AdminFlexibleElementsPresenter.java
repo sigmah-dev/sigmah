@@ -1,57 +1,63 @@
 package org.sigmah.client.page.admin.model.common.element;
 
+import java.util.List;
+
 import org.sigmah.client.dispatch.Dispatcher;
-import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.page.admin.AdminPageState;
 import org.sigmah.client.page.admin.model.AdminModelSubPresenter;
-import org.sigmah.shared.dto.PhaseModelDTO;
+import org.sigmah.client.page.common.grid.ConfirmCallback;
+import org.sigmah.shared.dto.OrgUnitModelDTO;
 import org.sigmah.shared.dto.ProjectModelDTO;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
-import org.sigmah.shared.dto.layout.LayoutGroupDTO;
 
 import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.MessageBox;
 
 public class AdminFlexibleElementsPresenter implements AdminModelSubPresenter {
-	
-	private static boolean alert = false;
 
 	private final View view;
-	private final Dispatcher dispatcher;
-	private ProjectModelDTO model;
+	private ProjectModelDTO projectModel;
+	private OrgUnitModelDTO orgUnitModel;
 	
 	public static abstract class View extends ContentPanel {
 		public abstract Component getMainPanel();
 		public abstract ListStore<FlexibleElementDTO> getFieldsStore();
-		public abstract void setModel(ProjectModelDTO model);
-		public abstract ProjectModelDTO getModel();
+		public abstract void setProjectModel(ProjectModelDTO model);
+		public abstract ProjectModelDTO getProjectModel();
+		public abstract void setOrgUnitModel(OrgUnitModelDTO model);
+		public abstract OrgUnitModelDTO getOrgUnitModel();
+		public abstract void showNewFlexibleElementForm(FlexibleElementDTO element, boolean isUpdate);
+		public abstract void showNewGroupForm(final FlexibleElementDTO model, final boolean isUpdate);
+		public abstract List<FlexibleElementDTO> getDeleteSelection();
+		public abstract void confirmDeleteSelected(ConfirmCallback confirmCallback);
 	}
 	
 	public AdminFlexibleElementsPresenter(Dispatcher dispatcher){
 		this.view = new AdminFlexibleElementsView(dispatcher);
-		this.dispatcher = dispatcher;
 	}
 
 	@Override
 	public Component getView() {
 		
-		assert this.model != null;
-		view.setModel(model);
-		view.getFieldsStore().add(model.getAllElements());
-		view.getFieldsStore().commitChanges();
-		this.model = view.getModel();
+		assert (projectModel != null || orgUnitModel != null);
+		if(projectModel != null){
+			view.setProjectModel(projectModel);
+			view.setOrgUnitModel(null);
+			view.getFieldsStore().add(projectModel.getAllElements());
+			view.getFieldsStore().commitChanges();
+			projectModel = view.getModel();
+		}else if(orgUnitModel != null){
+			view.setOrgUnitModel(orgUnitModel);
+			view.setProjectModel(null);
+			view.getFieldsStore().add(orgUnitModel.getAllElements());
+			view.getFieldsStore().commitChanges();
+			orgUnitModel = view.getModel();
+		}
+		
 		return view.getMainPanel();
 	}
-	
-	private static void alertPbmData() {
-        if (alert)
-            return;
-        alert = true;
-        MessageBox.alert(I18N.CONSTANTS.adminUsers(), I18N.CONSTANTS.adminProblemLoading(), null);
-    }
 
 	@Override
 	public void discardView() {
@@ -67,11 +73,21 @@ public class AdminFlexibleElementsPresenter implements AdminModelSubPresenter {
 
 	@Override
 	public void setModel(Object model) {
-		this.model = (ProjectModelDTO) model;
+		if(model instanceof ProjectModelDTO){
+			this.projectModel = (ProjectModelDTO) model;
+			this.orgUnitModel = null;
+		}			
+		else if(model instanceof OrgUnitModelDTO){
+			this.orgUnitModel = (OrgUnitModelDTO) model;
+			this.projectModel = null;
+		}			
 	}
 
 	@Override
 	public Object getModel() {
-		return model;
+		if(projectModel != null)
+			return projectModel;
+		else
+			return orgUnitModel;
 	}
 }
