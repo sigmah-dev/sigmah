@@ -9,15 +9,25 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import org.sigmah.client.AppEvents;
 import org.sigmah.client.EventBus;
 import org.sigmah.client.event.PivotCellEvent;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.icon.IconUtil;
+import org.sigmah.client.util.DateUtilGWTImpl;
+import org.sigmah.shared.command.Month;
+import org.sigmah.shared.date.DateUtil;
+import org.sigmah.shared.report.content.DimensionCategory;
 import org.sigmah.shared.report.content.EntityCategory;
+import org.sigmah.shared.report.content.MonthCategory;
 import org.sigmah.shared.report.content.PivotTableData;
 import org.sigmah.shared.report.content.PivotTableData.Axis;
+import org.sigmah.shared.report.model.DateDimension;
+import org.sigmah.shared.report.model.DateRange;
+import org.sigmah.shared.report.model.DateUnit;
 import org.sigmah.shared.report.model.Dimension;
 import org.sigmah.shared.report.model.DimensionType;
 import org.sigmah.shared.report.model.PivotElement;
@@ -30,6 +40,7 @@ import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.store.Store;
 import com.extjs.gxt.ui.client.store.TreeStore;
 import com.extjs.gxt.ui.client.util.DelayedTask;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
@@ -42,13 +53,11 @@ import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.HeaderGroupConfig;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.treegrid.EditorTreeGrid;
-import com.extjs.gxt.ui.client.widget.treegrid.TreeGrid;
 import com.extjs.gxt.ui.client.widget.treegrid.TreeGridCellRenderer;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.i18n.client.NumberFormat;
-import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.HasValue;
 import com.google.inject.Inject;
 
@@ -66,6 +75,12 @@ public class PivotGridPanel extends ContentPanel implements HasValue<PivotElemen
     protected EditorTreeGrid<PivotTableRow> grid;
     protected TreeStore<PivotTableRow> store;
     protected ColumnModel columnModel;
+    
+    private DateUtil dateUtil = new DateUtilGWTImpl();
+    
+    /**
+     * Maps column axes to property names
+     */
     protected Map<PivotTableData.Axis, String> propertyMap;
     
     /**
@@ -81,6 +96,8 @@ public class PivotGridPanel extends ContentPanel implements HasValue<PivotElemen
         this.eventBus = eventBus;
         setLayout(new FitLayout());
         
+        store = new TreeStore<PivotTableRow>();
+
         PivotResources.INSTANCE.css().ensureInjected();
     }
 
@@ -105,6 +122,72 @@ public class PivotGridPanel extends ContentPanel implements HasValue<PivotElemen
         public PivotTableData.Axis getRowAxis() {
             return rowAxis;
         }
+        
+        public PivotTableData.Axis getColAxis(String property) {
+        	for(Entry<PivotTableData.Axis, String> entry : propertyMap.entrySet()) {
+        		if(entry.getValue().equals(property)) {
+        			return entry.getKey();
+        		}
+        	}
+        	throw new IllegalArgumentException("the property '" + property + "' is not linked to a column axis");
+        }
+        
+        public DimensionCategory getCategory(String property, Dimension dimension) {
+        	DimensionCategory category = findCategory(rowAxis, dimension);
+        	if(category == null) {
+        		return findCategory(getColAxis(property), dimension);
+        	}
+        	return category;
+        }
+        
+        private DimensionCategory findCategory(PivotTableData.Axis leaf, Dimension dim) {
+        	while(leaf != null) {
+        		if(leaf.getDimension() != null && leaf.getDimension().equals(dim)) {
+        			return leaf.getCategory();
+        		}
+        		leaf = leaf.getParent();
+        	}
+        	return null;
+        }
+        
+        public int getIndicatorId(String property) {
+        	Set<Integer> indicatorRestrictions = element.getFilter().getRestrictions(DimensionType.Indicator);
+			if(indicatorRestrictions.size() == 1) {
+        		return indicatorRestrictions.iterator().next();
+        	}
+        	EntityCategory cat = (EntityCategory) getCategory(property, new Dimension(DimensionType.Indicator));
+        	if(cat != null) {
+        		return cat.getId();
+        	}
+        	return -1;
+        }
+        
+        public int getSiteId(String property) {
+        	Set<Integer> siteRestrictions = element.getFilter().getRestrictions(DimensionType.Site);
+        	if(siteRestrictions.size() == 1) {
+        		return siteRestrictions.iterator().next();
+        	}
+        	EntityCategory cat = (EntityCategory) getCategory(property, new Dimension(DimensionType.Site));
+        	if(cat != null) {
+        		return cat.getId();
+        	}
+        	return -1;
+        }
+        
+        public Month getMonth(String property) {
+    		if(element.getFilter().getDateRange().isClosed()) {
+    			// TODO(alex) : this should check to see whether the date range is actually a month range
+    			// but dateUtil is behaving weirdly because of conflicting timezones
+    			return new Month(dateUtil.getYear(element.getFilter().getMinDate()), dateUtil.getMonth(element.getFilter().getMinDate()));
+    		}
+    	
+        	MonthCategory cat = (MonthCategory) getCategory(property, new DateDimension(DateUnit.MONTH));
+        	if(cat != null) {
+        		return new Month(cat.getYear(), cat.getMonth());
+        	}
+        	throw new UnsupportedOperationException("This cell at property '" + property + "' is not constrained by month");
+        }
+        
     }
 
     public void setData(final PivotElement element) {
@@ -120,10 +203,9 @@ public class PivotGridPanel extends ContentPanel implements HasValue<PivotElemen
         propertyMap = new HashMap<PivotTableData.Axis, String>();
         columnMap = new HashMap<Integer, PivotTableData.Axis>();
 
-        store = new TreeStore<PivotTableRow>();
-
         columnModel = createColumnModel(data);
 
+        store.removeAll();
         for(PivotTableData.Axis axis : data.getRootRow().getChildren()) {
             store.add(new PivotTableRow(axis), true);
         }
@@ -320,6 +402,10 @@ public class PivotGridPanel extends ContentPanel implements HasValue<PivotElemen
 		if(fireEvents) {
 			ValueChangeEvent.fire(this, value);
 		}
+	}
+
+	public Store<PivotTableRow> getStore() {
+		return store;
 	}
 
 }

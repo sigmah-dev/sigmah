@@ -45,11 +45,11 @@ import com.extjs.gxt.ui.client.store.Record;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Html;
+import com.extjs.gxt.ui.client.widget.Status;
 import com.extjs.gxt.ui.client.widget.layout.CenterLayout;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
-import com.extjs.gxt.ui.client.widget.tips.Tip;
 import com.google.gwt.maps.client.MapType;
 import com.google.gwt.maps.client.MapWidget;
 import com.google.gwt.maps.client.control.SmallMapControl;
@@ -61,6 +61,8 @@ import com.google.gwt.maps.client.geom.Point;
 import com.google.gwt.maps.client.overlay.Marker;
 import com.google.gwt.maps.client.overlay.MarkerOptions;
 import com.google.gwt.maps.client.overlay.Overlay;
+import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 
@@ -104,8 +106,7 @@ public class SiteMap extends ContentPanel implements Shutdownable {
     
     private CountryDTO country;
 
-    private Tip infoTip;
-    private Html infoHtml;
+    private Status status;
     
     @Inject
     public SiteMap(EventBus eventBus, Dispatcher service) {
@@ -114,10 +115,8 @@ public class SiteMap extends ContentPanel implements Shutdownable {
 
         setHeaderVisible(false);
         
-        infoTip = new Tip();
-        infoTip.setClosable(true);
-        infoHtml = new Html();
-        infoTip.add(infoHtml);
+        status = new Status();
+        setBottomComponent(status);
     }
     
     public void loadSites(ActivityDTO activity) {
@@ -187,6 +186,7 @@ public class SiteMap extends ContentPanel implements Shutdownable {
     }
 
 	private void loadMap() {
+		status.setBusy(I18N.CONSTANTS.loadingGoogleMaps());
 		MapApiLoader.load(new MaskingAsyncMonitor(this, I18N.CONSTANTS.loadingComponent()), new AsyncCallback<Void>() {
 
             @Override
@@ -260,19 +260,19 @@ public class SiteMap extends ContentPanel implements Shutdownable {
 
 
 	private void doLoadSites() {
+		status.setBusy(I18N.CONSTANTS.loading());
 		service.execute(new GetSitePoints(filter), null, new AsyncCallback<SitePointList>() {
             @Override
             public void onFailure(Throwable throwable) {
-
+            	status.clearStatus(I18N.CONSTANTS.serverError());
             }
 
             @Override
             public void onSuccess(SitePointList points) {
                 if(points.getPoints().isEmpty()) {
-                	infoHtml.setHtml("No sites to display");
-                	infoTip.showAt(SiteMap.this.getPosition(false));
+                	status.clearStatus("No sites to display");
                 } else {
-                	infoTip.hide();
+                	status.clearStatus(points.getPoints().size() + " site(s) loaded.");
                 }
             	
             	addSitesToMap(points);
@@ -353,7 +353,13 @@ public class SiteMap extends ContentPanel implements Shutdownable {
         }
 
         markerMgr.addOverlays(markers, 0);
-        markerMgr.refresh();
+        DeferredCommand.addCommand(new Command() {
+			
+			@Override
+			public void execute() {
+				markerMgr.refresh();
+			}
+		});
 
     }
 

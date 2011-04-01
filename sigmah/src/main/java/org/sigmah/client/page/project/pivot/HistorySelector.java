@@ -88,8 +88,8 @@ public class HistorySelector implements HasValue<PivotLayout> {
 			prevButton.disable();
 		} else {
 			int curIndex = getValueIndex();
-			nextButton.setEnabled(curIndex > 0);
-			prevButton.setEnabled(curIndex+1 != layouts.size());
+			prevButton.setEnabled(curIndex > 0);
+			nextButton.setEnabled(curIndex+1 != layouts.size());
 		}
 	}
 

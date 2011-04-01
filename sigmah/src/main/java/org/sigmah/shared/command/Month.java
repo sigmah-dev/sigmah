@@ -173,4 +173,8 @@ public class Month implements Serializable, Comparable<Month> {
     public Month previous() {
         return plus(-1);
     }
+
+	public static int monthsBetween(Month startMonth, Month endMonth) {
+		return (endMonth.month - startMonth.month) + ((endMonth.year - startMonth.year) * 12);
+	}
 }

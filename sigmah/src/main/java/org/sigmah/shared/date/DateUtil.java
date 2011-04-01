@@ -86,4 +86,25 @@ public abstract class DateUtil {
        return new DateRange(startDateOfLastCompleteMonth(today),
                             endDateOfLastCompleteMonth(today));
     }
+    
+    /**
+     * 
+     * @param dateRange
+     * @return true if the given dateRange includes a single calendar month
+     */
+    public boolean isMonthRange(DateRange dateRange) {
+    	return dateRange.isClosed() && 
+    		getMonth(dateRange.getMinDate()) == getMonth(dateRange.getMaxDate()) &&
+    		getDay(dateRange.getMinDate()) == 1 &&
+    		isLastDayOfMonth(dateRange.getMaxDate());
+    }
+
+    public Month monthFromDate(Date date) {
+    	return new Month(getYear(date), getMonth(date));
+    }
+
+	public DateRange dateRange(Month startMonth, Month endMonth) {
+		return new DateRange(monthRange(startMonth).getMinDate(), monthRange(endMonth).getMaxDate());
+	}
+    
 }

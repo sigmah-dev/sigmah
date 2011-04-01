@@ -40,6 +40,8 @@ public class ConfigModule extends AbstractModule {
         // Load version.properties.
         tryToLoadFrom(properties, versionFromClassesDirectory());
 
+        //loadFromBeanstalkEnvironment(properties);
+        
         // Debug
         if (logger.isDebugEnabled()) {
             logger.debug("Properties 'repository.files' [sigmah.properties] = "
@@ -53,7 +55,27 @@ public class ConfigModule extends AbstractModule {
         return properties;
     }
 
-    private boolean tryToLoadFrom(Properties properties, File file) {
+    /**
+     * Reads properties from Beanstalk environment, if present.
+     * Facilitates deployment. 
+     * 
+     * @param properties
+     */
+    private void loadFromBeanstalkEnvironment(Properties properties) {
+
+        // read properties from Beanstalk environment
+        if(System.getProperty("JDBC_CONNECTION_STRING") != null) {
+        	properties.setProperty("hibernate.connection.url", System.getProperty("JDBC_CONNECTION_STRING"));
+        }
+        if(System.getProperty("PARAM1") != null) {
+        	properties.setProperty("hibernate.connection.username", System.getProperty("PARAM1"));
+        }
+        if(System.getProperty("PARAM2") != null) {
+        	properties.setProperty("hibernate.connection.password", System.getProperty("PARAM2"));
+        }		
+	}
+
+	private boolean tryToLoadFrom(Properties properties, File file) {
         try {
             logger.info("Trying to read properties from: " + file.getAbsolutePath());
             if (file.exists()) {

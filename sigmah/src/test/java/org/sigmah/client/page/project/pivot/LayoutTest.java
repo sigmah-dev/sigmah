@@ -1,15 +1,12 @@
 package org.sigmah.client.page.project.pivot;
 
-import static org.junit.Assert.*;
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertThat;
 
-import static org.easymock.EasyMock.capture;
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.replay;
-
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
-import org.easymock.Capture;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,17 +14,12 @@ import org.sigmah.server.dao.OnDataSet;
 import org.sigmah.server.endpoint.gwtrpc.CommandTestCase;
 import org.sigmah.server.util.DateUtilCalendarImpl;
 import org.sigmah.shared.command.GenerateElement;
-import org.sigmah.shared.command.Month;
 import org.sigmah.shared.date.DateUtil;
 import org.sigmah.shared.exception.CommandException;
 import org.sigmah.shared.report.content.PivotContent;
 import org.sigmah.shared.report.content.PivotTableData.Axis;
-import org.sigmah.shared.report.model.DateRange;
-import org.sigmah.shared.report.model.PivotElement;
 import org.sigmah.shared.report.model.PivotTableElement;
 import org.sigmah.test.InjectionSupport;
-
-import com.google.gwt.user.client.ui.HasValue;
 
 @RunWith(InjectionSupport.class)
 @OnDataSet("/dbunit/project-indicator.db.xml")
@@ -39,10 +31,19 @@ public class LayoutTest extends CommandTestCase {
 	
 	@Before
 	public void setupComposer() {
-		composer = new LayoutComposer(1, dateUtil.yearRange(2010));
+		composer = new LayoutComposer(new DateUtilCalendarImpl(), 1, ymd(2010,1,15), null);
 	}
 	
 	
+	private Date ymd(int year, int month, int day) {
+		Calendar cal = Calendar.getInstance();
+		cal.set(Calendar.YEAR, year);
+		cal.set(Calendar.MONTH, month-1);
+		cal.set(Calendar.DAY_OF_MONTH, day);
+		return cal.getTime();
+	}
+
+
 	@Test
 	public void dateFixed() throws CommandException {
 

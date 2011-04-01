@@ -160,15 +160,15 @@ public class ProjectIndicatorsContainer extends LayoutContainer implements Proje
 	}
 
 	@Override
-	public void loadProject(ProjectDTO projectDTO) {
+	public void loadProject(ProjectDTO project) {
 		this.project = project;
 		
 		// load design panel
-		designPanel.load(projectDTO.getId());
+		designPanel.load(project.getId());
 		
 		// load site grid
 		Filter siteFilter = new Filter();
-		siteFilter.addRestriction(DimensionType.Database, projectDTO.getId());
+		siteFilter.addRestriction(DimensionType.Database, project.getId());
 		siteEditor.load(siteFilter);			
 	}
 	

@@ -41,6 +41,7 @@ import org.sigmah.shared.dto.UserDatabaseDTO;
 
 import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.Style;
+import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.data.BaseTreeModel;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.data.ModelIconProvider;
@@ -381,11 +382,12 @@ public class DesignPanel extends DesignPanelBase implements ActionListener {
 		ColumnConfig objectiveColumn = new ColumnConfig("objective", I18N.CONSTANTS.objecive(), 75);
 		objectiveColumn.setRenderer(new IndicatorValueRenderer());
 		objectiveColumn.setEditor(new CellEditor(new NumberField()));
+		objectiveColumn.setAlignment(HorizontalAlignment.RIGHT);
 		columns.add(objectiveColumn);
 		
 		ColumnConfig valueColumn = new ColumnConfig("currentValue", I18N.CONSTANTS.value(), 75);
 		valueColumn.setRenderer(new IndicatorValueRenderer());
-		valueColumn.setEditor(new CellEditor(new NumberField()));
+		valueColumn.setAlignment(HorizontalAlignment.RIGHT);
 		columns.add(valueColumn);
 		
 		return new ColumnModel(columns);

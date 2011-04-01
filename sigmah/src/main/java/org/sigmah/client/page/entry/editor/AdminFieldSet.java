@@ -34,6 +34,7 @@ public class AdminFieldSet extends AbstractFieldSet implements AdminFieldSetPres
             final int levelId = level.getId();
 
             final ComboBox<AdminEntityDTO> comboBox = new RemoteComboBox<AdminEntityDTO>();
+            comboBox.setName(AdminEntityDTO.getPropertyName(levelId));
             comboBox.setFieldLabel(level.getName());
             comboBox.setStore(new ListStore<AdminEntityDTO>());
             comboBox.setTypeAhead(false);

@@ -54,7 +54,7 @@ public class GetSitePointsHandler implements CommandHandler<GetSitePoints> {
         for (SiteData site : sites) {
             if (site.hasLatLong()) {
                 points.add(new SitePointDTO(site.getId(), site.getLongitude(), site.getLatitude()));
-                bounds.grow(site.getLatitude(), site.getLongitude());
+                bounds.grow(site.getLongitude(), site.getLatitude());
             }
         }
         return new SitePointList(bounds, points);

@@ -43,6 +43,14 @@ public class UpdateMonthlyReports implements Command<VoidResult> {
         this.changes = changes;
     }
 
+    public UpdateMonthlyReports(int siteId, Change... changes) {
+    	this.siteId = siteId;
+    	this.changes = new ArrayList<Change>();
+    	for(Change c : changes) {
+    		this.changes.add(c);
+    	}
+    }
+    
     public int getSiteId() {
         return siteId;
     }
