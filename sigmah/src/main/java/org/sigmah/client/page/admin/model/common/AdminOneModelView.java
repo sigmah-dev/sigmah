@@ -19,6 +19,7 @@ import org.sigmah.shared.domain.ProjectModelType;
 import org.sigmah.shared.dto.OrgUnitModelDTO;
 import org.sigmah.shared.dto.ProjectModelDTO;
 
+import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
@@ -78,6 +79,7 @@ public class AdminOneModelView extends LayoutContainer implements AdminOneModelP
     private final Radio ngoRadio;
     private final Radio fundingRadio;
     private final Radio partnerRadio;
+    private final RadioGroup radioGroup;
     private final Grid ngoGrid;
     private final Grid fundingGrid;
     private final Grid partnerGrid;
@@ -90,6 +92,8 @@ public class AdminOneModelView extends LayoutContainer implements AdminOneModelP
 	private final CheckBox canContainProjectsCheckBox;	
 	private final NumberField minLevelField;
 	private final NumberField maxLevelField;
+	
+	private final Button saveButton;
 	
     private ProjectModelDTO currentProjectModel;   
     private OrgUnitModelDTO currentOrgUnitModel;
@@ -124,16 +128,19 @@ public class AdminOneModelView extends LayoutContainer implements AdminOneModelP
 		topRightFormPanel.setHeaderVisible(false);
 				
 		name = new TextField<String>();
+		name.disable();
         name.setAllowBlank(false);
         name.setFieldLabel(I18N.CONSTANTS.adminProjectModelsName());
         
         statusList = new SimpleComboBox<String>();
+        statusList.disable();
         statusList.setFieldLabel(I18N.CONSTANTS.adminProjectModelsStatus());
 		statusList.setAllowBlank(false);
 		statusList.setTriggerAction(TriggerAction.ALL);	
 		List<String> values = new ArrayList<String>();  
 		for(ProjectModelStatus e : ProjectModelStatus.values()){
-			values.add(ProjectModelStatus.getName(e));
+			if(!ProjectModelStatus.USED.equals(e))//Technical status
+				values.add(ProjectModelStatus.getName(e));
 		}
 		statusList.add(values);
 		statusList.addListener(Events.Select, new Listener<BaseEvent>() {
@@ -179,8 +186,8 @@ public class AdminOneModelView extends LayoutContainer implements AdminOneModelP
         
         /* *******************************************ProjectModel ***********************/
         
-        final RadioGroup group = new RadioGroup("projectTypeFilter");
-        group.setFireChangeEventOnSetValue(true);
+        radioGroup = new RadioGroup("projectTypeFilter");
+        
 
         ngoRadio = new Radio();
         ngoRadio.setFireChangeEventOnSetValue(true);
@@ -252,9 +259,9 @@ public class AdminOneModelView extends LayoutContainer implements AdminOneModelP
             }
         });
         
-        group.add(ngoRadio);
-        group.add(fundingRadio);
-        group.add(partnerRadio);
+        radioGroup.add(ngoRadio);
+        radioGroup.add(fundingRadio);
+        radioGroup.add(partnerRadio);
         
         ngoGrid = new Grid(1,3);
         ngoGrid.setVisible(false);
@@ -358,7 +365,8 @@ public class AdminOneModelView extends LayoutContainer implements AdminOneModelP
         final BorderLayoutData centerData = new BorderLayoutData(LayoutRegion.CENTER);
         centerData.setMargins(new Margins(0, 0, 4, 4));
         
-        Button saveButton = new Button(I18N.CONSTANTS.save());
+        saveButton = new Button(I18N.CONSTANTS.save());
+        saveButton.disable();
         saveButton.addListener(Events.OnClick, new Listener<ButtonEvent>(){
 
 			@Override
@@ -516,16 +524,32 @@ public class AdminOneModelView extends LayoutContainer implements AdminOneModelP
 	public void initModelView(Object model) {
 		
 		if(model instanceof ProjectModelDTO){
-			isProject = true;
 			ngoGrid.setVisible(true);
 			fundingGrid.setVisible(true);
 			partnerGrid.setVisible(true);
+
+			fundingGrid.setVisible(true);
+			partnerGrid.setVisible(true);
+			if(ProjectModelStatus.DRAFT.equals(((ProjectModelDTO) model).getStatus())){
+				name.enable();
+				statusList.enable();
+				saveButton.enable();
+				ngoGrid.setVisible(true);
+				fundingGrid.setVisible(true);
+				partnerGrid.setVisible(true);
+				radioGroup.setFireChangeEventOnSetValue(true);
+			}
+				
+			
+			isProject = true;
+			
 			currentProjectModel = (ProjectModelDTO) model;
 			if(currentProjectModel != null){
 				
 				name.setValue(currentProjectModel.getName());
 				
 				statusList.setSimpleValue(ProjectModelStatus.getName(currentProjectModel.getStatus()));
+				Log.debug("Original project model status : " + ProjectModelStatus.getName(currentProjectModel.getStatus()));
 				
 				currentProjectModel.getStatus();
 				ProjectModelType type = currentProjectModel.getVisibility(cache.getOrganizationCache().getOrganization().getId());
@@ -562,11 +586,33 @@ public class AdminOneModelView extends LayoutContainer implements AdminOneModelP
 			minLevelField.show();
 			maxLevelField.show();
 			
+			titleField.disable();
+			hasBudgetCheckBox.disable();
+			hasSiteCheckBox.disable();
+			canContainProjectsCheckBox.disable();	
+			minLevelField.disable();
+			maxLevelField.disable();
+			if(ProjectModelStatus.DRAFT.equals(((OrgUnitModelDTO) model).getStatus())){
+				name.enable();
+				statusList.enable();
+				radioGroup.setFireChangeEventOnSetValue(true);
+				saveButton.enable();
+				titleField.enable();
+				hasBudgetCheckBox.enable();
+				hasSiteCheckBox.enable();
+				canContainProjectsCheckBox.enable();
+				minLevelField.enable();
+				maxLevelField.enable();
+			}
+				
+			
+			
 			currentOrgUnitModel = (OrgUnitModelDTO) model;
 			if(currentOrgUnitModel != null){
 				
 				name.setValue(currentOrgUnitModel.getName());				
 				statusList.setSimpleValue(ProjectModelStatus.getName(currentOrgUnitModel.getStatus()));
+				Log.debug("Original org unit model status : " + currentOrgUnitModel.getName() + " " + ProjectModelStatus.getName(currentOrgUnitModel.getStatus()));
 			}
 				
 		}

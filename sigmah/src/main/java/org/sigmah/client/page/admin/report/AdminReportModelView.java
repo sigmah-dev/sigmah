@@ -6,19 +6,23 @@ import java.util.List;
 import java.util.Map;
 
 import org.sigmah.client.dispatch.Dispatcher;
+import org.sigmah.client.dispatch.callback.Deleted;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.icon.IconImageBundle;
 import org.sigmah.client.page.admin.AdminUtil;
 import org.sigmah.client.page.admin.report.AdminReportModelPresenter.View;
+import org.sigmah.client.page.common.grid.ConfirmCallback;
 import org.sigmah.client.page.common.toolbar.UIActions;
 import org.sigmah.client.ui.ToggleAnchor;
 import org.sigmah.client.util.Notification;
 import org.sigmah.shared.command.CreateEntity;
+import org.sigmah.shared.command.Delete;
 import org.sigmah.shared.command.result.CreateResult;
 import org.sigmah.shared.dto.report.ProjectReportModelSectionDTO;
 import org.sigmah.shared.dto.report.ReportModelDTO;
 
 import com.allen_sauer.gwt.log.client.Log;
+import com.extjs.gxt.ui.client.Style;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -53,6 +57,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class AdminReportModelView extends View {	
 	
+	private final Grid<ReportModelDTO> reportModelsGrid;
 	private ListStore<ReportModelDTO> modelsStore;
 	private ListStore<ProjectReportModelSectionDTO> reportSectionsStore;
 	private ListStore<ProjectReportModelSectionDTO> reportSectionsComboStore;
@@ -64,7 +69,7 @@ public class AdminReportModelView extends View {
 	private ComboBox<ProjectReportModelSectionDTO>  parentSectionsCombo;
 	private List<ProjectReportModelSectionDTO> sectionsToBeSaved = new ArrayList<ProjectReportModelSectionDTO>();
 	private ReportModelDTO currentReportModel;
-	//private ProjectReportModelSectionDTO parentSection;
+	private final ContentPanel reportPanel ;
 
 	public AdminReportModelView(Dispatcher dispatcher){		
 		
@@ -79,10 +84,11 @@ public class AdminReportModelView extends View {
         sidePanel.setHeaderVisible(false);
         sidePanel.setWidth(300);
         sidePanel.setScrollMode(Scroll.NONE);
-        sidePanel.add(buildModelsListGrid());
+        reportModelsGrid = buildModelsListGrid();
+        sidePanel.add(reportModelsGrid);
         sidePanel.setTopComponent(reportModelToolBar());
         
-        ContentPanel reportPanel = new ContentPanel(new FitLayout());
+        reportPanel = new ContentPanel(new FitLayout());
         reportPanel.setHeaderVisible(false);
         reportPanel.setBorders(true);
         reportPanel.add(buildReportSectionsGrid());
@@ -104,6 +110,12 @@ public class AdminReportModelView extends View {
 		List<ColumnConfig> configs = new ArrayList<ColumnConfig>();  
 		  
         ColumnConfig column = new ColumnConfig();  
+        column.setId("id");
+        column.setWidth(50);
+        column.setHeader(I18N.CONSTANTS.adminFlexibleFieldId());
+        configs.add(column);
+        
+        column = new ColumnConfig();  
         column.setId("index");
         column.setWidth(50);
         column.setHeader(I18N.CONSTANTS.adminReportSectionIndex()); 
@@ -152,10 +164,9 @@ public class AdminReportModelView extends View {
         column.setHeader(I18N.CONSTANTS.adminReportSectionParentSection()); 
         parentSectionsCombo = new ComboBox<ProjectReportModelSectionDTO>();    
         parentSectionsCombo.setTriggerAction(TriggerAction.ALL);  
-        parentSectionsCombo.setEditable(false);
+        parentSectionsCombo.setEditable(false);      
         reportSectionsComboStore = new ListStore<ProjectReportModelSectionDTO>();
-        //Equivalent to report root
-        fillComboSections();
+        parentSectionsCombo.setStore(reportSectionsComboStore);        
         parentSectionsCombo.setDisplayField("name");
         column.setEditor(new CellEditor(parentSectionsCombo) {    
         	@Override    
@@ -186,12 +197,42 @@ public class AdminReportModelView extends View {
         	}    
         });
         configs.add(column);
+        
+        column = new ColumnConfig();    
+		column.setWidth(75);  
+		column.setAlignment(Style.HorizontalAlignment.RIGHT);
+	    column.setRenderer(new GridCellRenderer<ProjectReportModelSectionDTO>(){
+
+			@Override
+			public Object render(final ProjectReportModelSectionDTO model, final String property,
+					ColumnData config, int rowIndex, int colIndex,
+					ListStore<ProjectReportModelSectionDTO> store, Grid<ProjectReportModelSectionDTO> grid) {
+				
+				Button button = new Button(I18N.CONSTANTS.delete());
+		        button.setItemId(UIActions.delete);
+		        button.addListener(Events.OnClick, new Listener<ButtonEvent>(){
+
+					@Override
+					public void handleEvent(ButtonEvent be) {
+						dispatcher.execute(new Delete(model), null, new Deleted() {
+	                        @Override
+	                        public void deleted() {
+	                        	reportSectionsStore.remove(model);
+	                        }
+	                    });
+		                
+					}
+		        	
+		        });
+		        return button;
+			}
+	    });
+	    configs.add(column);
 		
 		ColumnModel cm = new ColumnModel(configs);		
 		
 		sectionsGrid = new EditorGrid<ProjectReportModelSectionDTO>(reportSectionsStore, cm); 
 		sectionsGrid.setAutoHeight(true);
-		sectionsGrid.setAutoWidth(false);
 		sectionsGrid.addListener(Events.AfterEdit, new Listener<GridEvent<ProjectReportModelSectionDTO>>() {
 
             @Override
@@ -199,18 +240,18 @@ public class AdminReportModelView extends View {
             	Log.debug("report " + currentReportModel.getName());
             	ProjectReportModelSectionDTO sectionToBeSaved = be.getModel();
             	sectionToBeSaved.setRow(be.getRowIndex());
-            	if(sectionToBeSaved != null && I18N.CONSTANTS.adminReportSectionRoot().equals(sectionToBeSaved.getParentSectionModelName())){
-            		
+            	if(sectionToBeSaved != null && I18N.CONSTANTS.adminReportSectionRoot().equals(sectionToBeSaved.getParentSectionModelName())){           		
             		sectionToBeSaved.setProjectModelId(currentReportModel.getId());
             		sectionToBeSaved.setReportModelName(currentReportModel.getName());
             		sectionToBeSaved.setParentSectionModelName(null);
-            	}/*else if(sectionToBeSaved != null){
+            	}else if(sectionToBeSaved != null){
+            		ProjectReportModelSectionDTO parentSection = reportSectionsComboStore.findModel("name", sectionToBeSaved.getParentSectionModelName());
             		Log.debug("parentSection " + parentSection);
             		if(parentSection != null){
             			sectionToBeSaved.setParentSectionModelName(parentSection.getName());
                 		sectionToBeSaved.setParentSectionModelId(parentSection.getId());
             		} 
-            	}*/
+            	}
             	Boolean alreadyIn = false;
             	for(ProjectReportModelSectionDTO sectionI : sectionsToBeSaved){
             		if(sectionI.getRow().equals(sectionToBeSaved.getRow())){
@@ -244,7 +285,9 @@ public class AdminReportModelView extends View {
 		modelsStore = new ListStore<ReportModelDTO>();
 		
         List<ColumnConfig> configs = new ArrayList<ColumnConfig>();  
-		  
+		
+        
+        
         ColumnConfig column = new ColumnConfig("name",I18N.CONSTANTS.adminReportName(), 245);  
 		column.setRenderer(new GridCellRenderer<ReportModelDTO>(){
 
@@ -259,14 +302,18 @@ public class AdminReportModelView extends View {
 
 	                @Override
 	                public void onClick(ClickEvent event) {
+	                	
 	                	currentReportModel = model;
 						sectionsGrid.show();
 						reportSectionsStore.removeAll();
-						for(ProjectReportModelSectionDTO sectionDTO : model.getSectionsDTO()){
-							sectionDTO.setParentSectionModelName(I18N.CONSTANTS.adminReportSectionRoot());
-							recursiveFillSectionsList(sectionDTO);
-						}
+						if(model.getSectionsDTO() != null){
+							for(ProjectReportModelSectionDTO sectionDTO : model.getSectionsDTO()){
+								sectionDTO.setParentSectionModelName(I18N.CONSTANTS.adminReportSectionRoot());
+								recursiveFillSectionsList(sectionDTO);
+							}
+						}							
 						reportSectionsStore.commitChanges();
+						fillComboSections();
 						addReportSectionButton.enable();
 					}
 					
@@ -300,7 +347,8 @@ public class AdminReportModelView extends View {
 
 			@Override
 			public void handleEvent(ButtonEvent be) {
-				if(reportName.getValue() !=  null){
+				if(reportName.getValue() !=  null && modelsStore.findModel("name", reportName.getValue()) == null){
+										
 					newReportProperties.put(AdminUtil.PROP_REPORT_MODEL_NAME, reportName.getValue());
 					dispatcher.execute(new CreateEntity("ProjectReportModel", newReportProperties), null, new AsyncCallback<CreateResult>(){
 			             public void onFailure(Throwable caught) {
@@ -325,9 +373,27 @@ public class AdminReportModelView extends View {
 							}		
 						}
 			         });
-				}				
+				}else{
+					MessageBox.alert(I18N.CONSTANTS.adminReportModelCreationBox(),I18N.CONSTANTS.adminStandardInvalidValues(),null);
+				}
 			}			
 		});
+		Button deleteReportButton = new Button(I18N.CONSTANTS.delete(), IconImageBundle.ICONS.delete());
+		deleteReportButton.addListener(Events.OnClick, new Listener<ButtonEvent>(){
+
+			@Override
+			public void handleEvent(ButtonEvent be) {
+				dispatcher.execute(new Delete(reportModelsGrid.getSelectionModel().getSelectedItem()), null, new Deleted() {
+                    @Override
+                    public void deleted() {
+                        modelsStore.remove(reportModelsGrid.getSelectionModel().getSelectedItem());
+                    }
+                });
+			}
+			
+		});
+		toolbar.add(deleteReportButton);
+		
 		toolbar.add(addReportButton);
 		return toolbar;
 	}
@@ -379,13 +445,13 @@ public class AdminReportModelView extends View {
 				       	 public void onFailure(Throwable caught) {
 				       		 	MessageBox.alert(I18N.CONSTANTS.adminReportModelCreationBox(), 
 				          			I18N.MESSAGES.adminStandardCreationFailure(I18N.CONSTANTS.adminReportModelStandard()
-												+ " '" + name + "'"), null);
+												+ " '" + currentReportModel.getName() + "'"), null);
 				       		 	sectionsToBeSaved.clear();
 				             }
 
 							@Override
 							public void onSuccess(CreateResult result) {
-								if(result != null && result.getEntity() != null){	
+								if(result != null && result.getEntity() != null){										
 									reportSectionsStore.removeAll();
 									for(ProjectReportModelSectionDTO sectionDTO : ((ReportModelDTO)result.getEntity()).getSectionsDTO()){
 										sectionDTO.setParentSectionModelName(I18N.CONSTANTS.adminReportSectionRoot());										
@@ -393,14 +459,16 @@ public class AdminReportModelView extends View {
 									}
 									reportSectionsStore.commitChanges();
 									fillComboSections();
+									modelsStore.remove(currentReportModel);
+									modelsStore.add(((ReportModelDTO)result.getEntity()));
+									modelsStore.commitChanges();
 									Notification.show(I18N.CONSTANTS.adminReportModelCreationBox(), I18N.MESSAGES.adminStandardUpdateSuccess(I18N.CONSTANTS.adminReportModelStandard()
-											+ " '" + name +"'"));					
+											+ " '" + currentReportModel.getName() +"'"));					
 								}					
 								else{
-									Throwable t = new Throwable("ProjectModelForm : creation result is null");
 									MessageBox.alert(I18N.CONSTANTS.adminReportModelCreationBox(), 
 						          			I18N.MESSAGES.adminStandardCreationNull(I18N.CONSTANTS.adminReportModelStandard()
-														+ " '" + name + "'"), null);
+														+ " '" + currentReportModel.getName() + "'"), null);
 								}	
 								sectionsToBeSaved.clear();
 							}
@@ -433,6 +501,7 @@ public class AdminReportModelView extends View {
     }
 	
 	private void fillComboSections(){
+		
 		reportSectionsComboStore.removeAll();
 		ProjectReportModelSectionDTO dummyRootSection = new ProjectReportModelSectionDTO();		
 		dummyRootSection.setIndex(0);
@@ -442,6 +511,6 @@ public class AdminReportModelView extends View {
 		dummyRootSection.setProjectModelId(0);
 		reportSectionsComboStore.add(dummyRootSection);
 		reportSectionsComboStore.add(reportSectionsStore.getModels());
-		parentSectionsCombo.setStore(reportSectionsComboStore);
+		reportSectionsComboStore.commitChanges();
 	}
 }

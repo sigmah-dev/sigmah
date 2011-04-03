@@ -14,6 +14,7 @@ import org.sigmah.shared.command.CreateEntity;
 import org.sigmah.shared.command.GetProjectModels;
 import org.sigmah.shared.command.result.CreateResult;
 import org.sigmah.shared.command.result.ProjectModelListResult;
+import org.sigmah.shared.domain.ProjectModelStatus;
 import org.sigmah.shared.domain.ProjectModelType;
 import org.sigmah.shared.dto.OrgUnitDTOLight;
 import org.sigmah.shared.dto.ProjectDTOLight;
@@ -584,8 +585,12 @@ public class CreateProjectWindow {
                         missingRequiredData(I18N.CONSTANTS.createProjectDisableModel());
                         return;
                     }
-
-                    modelsStore.add(result.getList());
+                    for(ProjectModelDTOLight projectModelLight : result.getList()){
+                    	if(!ProjectModelStatus.DRAFT.equals(projectModelLight.getStatus())
+                    			&& !ProjectModelStatus.UNAVAILABLE.equals(projectModelLight.getStatus())){
+                    		 modelsStore.add(projectModelLight);
+                    	}
+                    }                   
                     modelsStore.commitChanges();
 
                     countBeforeShow();

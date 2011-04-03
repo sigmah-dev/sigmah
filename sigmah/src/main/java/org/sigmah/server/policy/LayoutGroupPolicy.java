@@ -58,77 +58,10 @@ public class LayoutGroupPolicy implements EntityPolicy<LayoutGroup> {
 			groupToPersist = em.merge(groupToPersist);
 			
 		}else{
-			
-				
-			
 			//Save group
 			if(groupToPersist != null){
-				
-				Layout l = em.find(Layout.class, groupToPersist.getParentLayout().getId());
-				
-				
-				ProjectModel projectModel = null;
-				if(projectModelDTO != null && projectModelDTO.getId() != -1){
-					projectModel = em.find(ProjectModel.class, new Integer(projectModelDTO.getId()).longValue());		
-				}
-				OrgUnitModel orgUnitModel = null;
-				if(orgUnitModelDTO != null && orgUnitModelDTO.getId() != -1){
-					orgUnitModel = em.find(OrgUnitModel.class, new Integer(orgUnitModelDTO.getId()).longValue());		
-				}
-				
-				if(projectModel != null){
-					for(PhaseModel phase :projectModel.getPhases()){
-						if(phase.getLayout().equals(l)){
-							l.getGroups().add(groupToPersist);
-							phase.setLayout(l);
-							phase = em.merge(phase);
-							l = phase.getLayout();
-						}
-					}
-					if(projectModel.getProjectDetails() != null
-							&& projectModel.getProjectDetails().getLayout().equals(l)){
-						l.getGroups().add(groupToPersist);
-						projectModel.getProjectDetails().setLayout(l);
-						ProjectDetails d = em.merge(projectModel.getProjectDetails());
-						l = d.getLayout();
-					}
-				}else if(orgUnitModel != null){
-					if(orgUnitModel.getDetails() != null
-							&& orgUnitModel.getDetails().getLayout().equals(l)){
-						l.getGroups().add(groupToPersist);
-						orgUnitModel.getDetails().setLayout(l);
-						OrgUnitDetails d = em.merge(orgUnitModel.getDetails());
-						l = d.getLayout();
-					}
-				}
-				
-				
-				
-				for(LayoutGroup g : l.getGroups()){
-					if(g.getTitle()!= null && g.getTitle().equals(groupToPersist.getTitle())){
-						groupToPersist = g;
-					}
-				}
-				
-				//em.persist(groupToPersist);
-				
-				/*List<LayoutGroup> layoutGroups = new ArrayList<LayoutGroup>();
-				
-				final Query query = em.createQuery("SELECT g FROM LayoutGroup g WHERE g.title = :title ORDER BY g.id");
-				query.setParameter("title", groupToPersist.getTitle());
-				
-				layoutGroups.addAll(query.getResultList());
-				
-				if(layoutGroups.size() != 0){
-					for(LayoutGroup foundGroup : layoutGroups){
-						if(foundGroup.getParentLayout().equals(groupToPersist.getParentLayout())){
-							
-						}
-					}
-				}*/
-				
-				
-				
+				groupToPersist.setId(null);// id = -1				
+				em.persist(groupToPersist);
 			}
 		}
 		

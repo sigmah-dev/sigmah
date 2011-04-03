@@ -80,7 +80,11 @@ public class AdminUtil {
 	public final static String PROP_REPORT_SECTION_MODEL = "ProjectReportModelSection";
 	
 	public final static String PROP_CATEGORY_TYPE = "NewCategoryType";
+	public final static String PROP_CATEGORY_TYPE_NAME = "NewCategoryTypeName";
+	public final static String PROP_CATEGORY_TYPE_ICON = "NewCategoryTypeIcon";
 	public final static String PROP_CATEGORY_ELEMENT = "NewCategoryElement";
+	public final static String PROP_CATEGORY_ELEMENT_NAME = "NewCategoryElementName";
+	public final static String PROP_CATEGORY_ELEMENT_COLOR = "NewCategoryElementColor";
 	
 	public final static String PROP_PM_NAME = "ProjectModelName";
 	public final static String PROP_PM_USE = "ProjectModelUse";

@@ -74,6 +74,7 @@ public class AdminProjectModelsView extends View {
         grid = buildModelsListGrid();
 		
 		grid.setAutoHeight(true);
+		grid.getView().setForceFit(true);
 		
 		mainPanel.setTopComponent(initToolBar());
 		

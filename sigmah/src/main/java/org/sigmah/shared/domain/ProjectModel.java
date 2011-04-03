@@ -130,7 +130,7 @@ public class ProjectModel extends BaseModelData implements Serializable {
 		this.status = status;
 	}
 
-    @Column(name = "status")
+    @Column(name = "status", nullable=false)
     @Enumerated(EnumType.STRING)
 	public  ProjectModelStatus getStatus() {
 		return status;

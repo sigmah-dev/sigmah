@@ -322,9 +322,11 @@ public class ElementForm extends ContentPanel {
 				if(isMultipleQ.getValue()){
 					linkedCategory.setEnabled(true);
 					questionChoice.setEnabled(true);
+					addChoiceButton.setEnabled(true);
 				}else{
 					linkedCategory.setEnabled(false);
 					questionChoice.setEnabled(false);
+					addChoiceButton.setEnabled(false);
 				}
 			}
 			
@@ -854,6 +856,10 @@ public class ElementForm extends ContentPanel {
 		 if(selectedChoicesLabels != null)
 			 newFieldProperties.put(AdminUtil.PROP_FX_Q_CHOICES, selectedChoicesLabels);
 		 
+		 for(String selLab : selectedChoicesLabels){
+			 Log.debug("Sel : " + selLab);
+		 }
+		 
 		 String  message = "New : (";
 		 for(Map.Entry<String, Object> newP : newFieldProperties.entrySet()){
 			 message += newP.getKey() + "=" + newP.getValue() + ", ";
@@ -916,13 +922,12 @@ public class ElementForm extends ContentPanel {
 						if(flexibleElementToUpdate != null){//Update
 							for(FlexibleElementDTO f :pModelUpdated.getAllElements()){
 								if(f.getId() == flexibleElementToUpdate.getId()){
-									Log.debug("@EF --> FlexibleElement Updated : " + f.getId());
 									completeResult.setAnnexEntity(f);
 								}
 							}						
 							Notification.show(I18N.CONSTANTS.adminFlexibleCreationBox(), 
 									I18N.MESSAGES.adminStandardUpdateSuccess(I18N.CONSTANTS.adminStandardFlexibleName()
-											+ " '" + result.getEntity().get("name")+"'"));
+											+ " '" + name +"'"));
 						}else{//Creation	
 							List<Integer> flexibleIds = new ArrayList<Integer>();
 							//Get old ids
@@ -938,7 +943,7 @@ public class ElementForm extends ContentPanel {
 							
 							Notification.show(I18N.CONSTANTS.adminFlexibleCreationBox(), 
 									I18N.MESSAGES.adminStandardCreationSuccess(I18N.CONSTANTS.adminStandardFlexibleName()
-											+ " '" +result.getEntity().get("name")+"'"));
+											+ " '" + name +"'"));
 						}
 						callback.onSuccess(completeResult);	
 						
@@ -977,7 +982,7 @@ public class ElementForm extends ContentPanel {
 							}						
 							Notification.show(I18N.CONSTANTS.adminFlexibleCreationBox(), 
 									I18N.MESSAGES.adminStandardUpdateSuccess(I18N.CONSTANTS.adminStandardFlexibleName()
-											+ " '" + result.getEntity().get("name")+"'"));
+											+ " '" + name +"'"));
 						}else{//Creation
 							
 							List<Integer> flexibleIds = new ArrayList<Integer>();
@@ -995,7 +1000,7 @@ public class ElementForm extends ContentPanel {
 							
 							Notification.show(I18N.CONSTANTS.adminFlexibleCreationBox(), 
 									I18N.MESSAGES.adminStandardCreationSuccess(I18N.CONSTANTS.adminStandardFlexibleName()
-											+ " '" +result.getEntity().get("name")+"'"));
+											+ " '" + name +"'"));
 						}
 						callback.onSuccess(completeResult);	
 						

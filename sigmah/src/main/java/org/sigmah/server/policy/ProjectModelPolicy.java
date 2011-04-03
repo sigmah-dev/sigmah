@@ -120,13 +120,17 @@ public class ProjectModelPolicy implements EntityPolicy<ProjectModel>  {
 				pMBanner.setLayout(pMBannerLayout);
 				pMBanner.setProjectModel(pM);
 				
-				LayoutGroup bannerGroup = new LayoutGroup();
-				bannerGroup.setColumn(0);
-				bannerGroup.setRow(0);
-				bannerGroup.setParentLayout(pMBannerLayout);
-				
 				List<LayoutGroup> bannerGroups = new ArrayList<LayoutGroup>();
-				bannerGroups.add(bannerGroup);
+				for(int i=0; i<3 ; i++){
+					for(int j=0; j<2; j++){
+						LayoutGroup bannerGroup = new LayoutGroup();
+						bannerGroup.setColumn(i);
+						bannerGroup.setRow(j);
+						bannerGroup.setParentLayout(pMBannerLayout);
+						bannerGroups.add(bannerGroup);
+					}					
+				}
+				
 				pMBannerLayout.setGroups(bannerGroups);
 				
 				

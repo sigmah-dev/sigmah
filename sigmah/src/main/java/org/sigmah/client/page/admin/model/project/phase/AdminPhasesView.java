@@ -7,14 +7,12 @@ import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.icon.IconImageBundle;
 import org.sigmah.client.page.admin.AdminUtil;
-import org.sigmah.client.page.admin.model.common.element.AdminFlexibleElementsView;
 import org.sigmah.client.page.admin.model.project.phase.AdminPhasesPresenter.View;
 import org.sigmah.client.page.common.toolbar.UIActions;
 import org.sigmah.shared.command.result.UpdateModelResult;
+import org.sigmah.shared.domain.ProjectModelStatus;
 import org.sigmah.shared.dto.PhaseModelDTO;
 import org.sigmah.shared.dto.ProjectModelDTO;
-import org.sigmah.shared.dto.element.FlexibleElementDTO;
-
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
@@ -36,7 +34,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 public class AdminPhasesView extends View {	
 
 	private final ListStore<PhaseModelDTO> phaseStore;
-	private ProjectModelDTO projectModel;
+
 	private final Dispatcher dispatcher;
 
 	public AdminPhasesView(Dispatcher dispatcher){	
@@ -52,7 +50,7 @@ public class AdminPhasesView extends View {
         
         Grid<PhaseModelDTO> grid = buildModelsListGrid();
         grid.setAutoHeight(true);
-        setTopComponent(initToolBar());
+        
         add(grid, topVBoxLayoutData);
 	}
 	
@@ -96,6 +94,10 @@ public class AdminPhasesView extends View {
 					ListStore<PhaseModelDTO> store, Grid<PhaseModelDTO> grid) {		
 				
 				Button button = new Button(I18N.CONSTANTS.edit());
+				button.disable();
+				if((projectModel != null && ProjectModelStatus.DRAFT.equals(projectModel.getStatus()))
+						|| (orgUnitModel != null && ProjectModelStatus.DRAFT.equals(orgUnitModel.getStatus())))
+					button.enable();
 		        button.setItemId(UIActions.edit);
 		        button.addListener(Events.OnClick, new Listener<ButtonEvent>(){
 
@@ -191,13 +193,9 @@ public class AdminPhasesView extends View {
 
 
 	@Override
-	public void setModel(ProjectModelDTO model) {
-		this.projectModel = model;
+	public void enableToolBar() {
+		setTopComponent(initToolBar());
 	}
 
 
-	@Override
-	public ProjectModelDTO getModel() {
-		return projectModel;
-	}
 }

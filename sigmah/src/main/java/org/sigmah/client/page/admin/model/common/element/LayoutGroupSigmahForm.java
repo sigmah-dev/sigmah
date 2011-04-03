@@ -26,6 +26,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.i18n.UIConstants;
 import org.sigmah.client.page.admin.AdminUtil;
+import org.sigmah.client.util.Notification;
 import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.shared.command.CreateEntity;
 import org.sigmah.shared.command.result.CreateResult;
@@ -233,7 +234,7 @@ public class LayoutGroupSigmahForm extends FormPanel {
 		 
 		 dispatcher.execute(new CreateEntity("GroupLayout", newGroupProperties), null, new AsyncCallback<CreateResult>(){
              public void onFailure(Throwable caught) {
-             	MessageBox.alert(I18N.CONSTANTS.adminFlexibleCreationBox(), 
+             	MessageBox.alert(I18N.CONSTANTS.adminFlexibleGroup(), 
              			I18N.MESSAGES.adminStandardCreationFailure(I18N.MESSAGES.adminStandardLayoutGroup()
 								+ " '" + name + "'"), null);
              	callback.onFailure(caught);
@@ -243,11 +244,13 @@ public class LayoutGroupSigmahForm extends FormPanel {
 			public void onSuccess(CreateResult result) {
 				if(result != null){
 					callback.onSuccess(result);	
-					
+					Notification.show(I18N.CONSTANTS.adminFlexibleGroup(), 
+							I18N.MESSAGES.adminStandardUpdateSuccess(I18N.MESSAGES.adminStandardLayoutGroup()
+									+ " '" + name +"'"));
 				}					
 				else{
-					Throwable t = new Throwable("ElementForm : creation result is null");					
-					MessageBox.alert(I18N.CONSTANTS.adminFlexibleCreationBox(), 
+					Throwable t = new Throwable("Group Form : creation result is null");					
+					MessageBox.alert(I18N.CONSTANTS.adminFlexibleGroup(), 
 						I18N.MESSAGES.adminStandardCreationNull(I18N.MESSAGES.adminStandardLayoutGroup()
 									+ " '" + name+"'"), null);
 					callback.onFailure(t);

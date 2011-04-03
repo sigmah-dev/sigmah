@@ -22,6 +22,7 @@ import org.sigmah.shared.domain.Phase;
 import org.sigmah.shared.domain.PhaseModel;
 import org.sigmah.shared.domain.Project;
 import org.sigmah.shared.domain.ProjectModel;
+import org.sigmah.shared.domain.ProjectModelStatus;
 import org.sigmah.shared.domain.User;
 import org.sigmah.shared.domain.calendar.PersonalCalendar;
 import org.sigmah.shared.domain.logframe.LogFrame;
@@ -126,7 +127,11 @@ public class ProjectPolicy implements EntityPolicy<Project> {
         project.setCalendarId(calendar.getId());
 
         // Project attributes.
-        final ProjectModel model = em.getReference(ProjectModel.class, properties.<Long> get("modelId"));
+        ProjectModel model = em.getReference(ProjectModel.class, properties.<Long> get("modelId"));
+        if(ProjectModelStatus.READY.equals(model.getStatus())){
+        	model.setStatus(ProjectModelStatus.USED);
+        }
+        model = em.merge(model);
         project.setProjectModel(model);
         project.setLogFrame(null);
         project.setPlannedBudget(properties.<Double> get("budget"));

@@ -1,7 +1,5 @@
 package org.sigmah.server.policy;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import javax.persistence.EntityManager;
@@ -12,6 +10,8 @@ import org.apache.commons.logging.LogFactory;
 import org.dozer.Mapper;
 import org.sigmah.client.page.admin.AdminUtil;
 import org.sigmah.shared.domain.User;
+import org.sigmah.shared.domain.category.CategoryElement;
+import org.sigmah.shared.domain.category.CategoryIcon;
 import org.sigmah.shared.domain.category.CategoryType;
 import org.sigmah.shared.dto.category.CategoryElementDTO;
 import org.sigmah.shared.dto.category.CategoryTypeDTO;
@@ -38,28 +38,90 @@ public class CategoryPolicy implements EntityPolicy<CategoryType> {
         this.mapper = mapper;
     }
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public Object create(User executingUser, PropertyMap properties) {
 
 		CategoryType categoryToPersist  = null;
+		CategoryElement categoryElementToPersist = null;
 				
-		CategoryTypeDTO categoyTypeDTO = (CategoryTypeDTO) properties.get(AdminUtil.PROP_CATEGORY_TYPE);
-		CategoryElementDTO categoyElementDTO = (CategoryElementDTO) properties.get(AdminUtil.PROP_CATEGORY_ELEMENT);
+		String name = (String) properties.get(AdminUtil.PROP_CATEGORY_TYPE_NAME);
+		CategoryIcon icon = (CategoryIcon) properties.get(AdminUtil.PROP_CATEGORY_TYPE_ICON);
+		
+		String label = (String) properties.get(AdminUtil.PROP_CATEGORY_ELEMENT_NAME);
+		String color = (String) properties.get(AdminUtil.PROP_CATEGORY_ELEMENT_COLOR);		
+		CategoryTypeDTO category = (CategoryTypeDTO) properties.get(AdminUtil.PROP_CATEGORY_TYPE);
+		
+		
 		
 		//save categoryType
-		if(categoyTypeDTO != null){
-			//FIXME verif id
+		if(name != null && icon != null){
+			final Query query = em.createQuery("SELECT c FROM CategoryType c WHERE c.label = :name ORDER BY c.id");
+			query.setParameter("name", name);
+			try{
+				if(query.getSingleResult() != null){
+					categoryToPersist = (CategoryType) query.getSingleResult();
+					categoryToPersist.setLabel(name);
+					categoryToPersist.setIcon(icon);
+					categoryToPersist = em.merge(categoryToPersist);
+				}else{
+					categoryToPersist = new CategoryType();
+					categoryToPersist.setLabel(name);
+					categoryToPersist.setIcon(icon);
+					em.persist(categoryToPersist);
+				}
+			}catch(Exception e){
+				categoryToPersist = new CategoryType();
+				categoryToPersist.setLabel(name);
+				categoryToPersist.setIcon(icon);
+				em.persist(categoryToPersist);
+			}
 		}
 		
 		//save categoryElement
-		
-		CategoryTypeDTO categoryPersisted = null;
-		if(categoryToPersist != null){
-			categoryPersisted = mapper.map(categoryToPersist, CategoryTypeDTO.class);
+		if(label != null && color != null && category != null){			
+			CategoryType parentType = em.find(CategoryType.class, category.getId());
+			if(parentType != null){
+				final Query query = em.createQuery("SELECT c FROM CategoryElement c " +
+						"WHERE c.label = :name AND c.parentType = :category ORDER BY c.id");
+				query.setParameter("name", name);
+				query.setParameter("category", parentType);
+				try{
+					if(query.getSingleResult() != null){
+						categoryElementToPersist = (CategoryElement) query.getSingleResult();
+						categoryElementToPersist.setLabel(label);
+						categoryElementToPersist.setColor(color);
+						categoryElementToPersist.setParentType(parentType);
+						categoryElementToPersist = em.merge(categoryElementToPersist);
+					}else{
+						categoryElementToPersist = new CategoryElement();
+						categoryElementToPersist.setLabel(label);
+						categoryElementToPersist.setColor(color);
+						categoryElementToPersist.setParentType(parentType);
+						em.persist(categoryElementToPersist);
+					}
+				}catch(Exception e){
+					categoryElementToPersist = new CategoryElement();
+					categoryElementToPersist.setLabel(label);
+					categoryElementToPersist.setColor(color);
+					categoryElementToPersist.setParentType(parentType);
+					em.persist(categoryElementToPersist);
+				}
+			}
 		}
 		
-		return categoryPersisted;
+		if(properties.get(AdminUtil.PROP_CATEGORY_TYPE) == null){
+			CategoryTypeDTO categoryPersisted = null;
+			if(categoryToPersist != null){
+				categoryPersisted = mapper.map(categoryToPersist, CategoryTypeDTO.class);
+			}
+			return categoryPersisted;
+		}else{
+			CategoryElementDTO categoryElementPersisted = null;
+			if(categoryElementToPersist != null){
+				categoryElementPersisted = mapper.map(categoryElementToPersist, CategoryElementDTO.class);
+			}
+			return categoryElementPersisted;
+		}	
 	}
 
 	@Override

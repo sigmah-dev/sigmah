@@ -24,7 +24,7 @@ public class ReportModelDTO extends BaseModelData implements EntityDTO {
 	@Override
 	public int getId() {
 		final Integer id = (Integer) get("id");
-        return id != null ? id : -1;
+        return (id != null) ? id : -1;
     }
     public void setId(Integer id) {
         this.set("id", id);

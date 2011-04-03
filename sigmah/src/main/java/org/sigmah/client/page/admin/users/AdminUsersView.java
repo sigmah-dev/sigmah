@@ -182,10 +182,7 @@ public class AdminUsersView extends View {
 		
 		List<ColumnConfig> configs = new ArrayList<ColumnConfig>();  
 		   
-		ColumnConfig column = new ColumnConfig("id",I18N.CONSTANTS.adminPrivacyGroupsId(),30);  
-		configs.add(column);
-		
-		column = new ColumnConfig("code",I18N.CONSTANTS.adminPrivacyGroupsCode(),100);  
+		ColumnConfig column = new ColumnConfig("code",I18N.CONSTANTS.adminPrivacyGroupsCode(),100);  
 		configs.add(column);
 		
 		column = new ColumnConfig("title",I18N.CONSTANTS.adminPrivacyGroupsName(),100);  
@@ -269,10 +266,7 @@ public class AdminUsersView extends View {
 		
 		List<ColumnConfig> configs = new ArrayList<ColumnConfig>();  
 		   
-		ColumnConfig column = new ColumnConfig("id",I18N.CONSTANTS.adminProfilesId(),30);  
-		configs.add(column);
-		
-		column = new ColumnConfig("name",I18N.CONSTANTS.adminProfilesName(),100);  
+		ColumnConfig column = new ColumnConfig("name",I18N.CONSTANTS.adminProfilesName(),100);  
 		configs.add(column);
 		
 		column = new ColumnConfig("globalPermissions",I18N.CONSTANTS.adminProfilesGlobalPermissions(),200);  
@@ -410,7 +404,7 @@ public class AdminUsersView extends View {
 
 		List<ColumnConfig> configs = new ArrayList<ColumnConfig>();  
 
-		ColumnConfig  column = new ColumnConfig("name",I18N.CONSTANTS.adminUsersName(),100);  
+		ColumnConfig column = new ColumnConfig("name",I18N.CONSTANTS.adminUsersName(),100);  
 		configs.add(column);
 		
 		column = new ColumnConfig("firstName",I18N.CONSTANTS.adminUsersFirstName(),100);    

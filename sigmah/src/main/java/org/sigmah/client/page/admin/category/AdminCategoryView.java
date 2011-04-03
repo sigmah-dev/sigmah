@@ -3,15 +3,22 @@ package org.sigmah.client.page.admin.category;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.icon.IconImageBundle;
+import org.sigmah.client.page.admin.AdminUtil;
 import org.sigmah.client.page.admin.category.AdminCategoryPresenter.View;
 import org.sigmah.client.page.common.toolbar.UIActions;
 import org.sigmah.client.page.common.widget.ColorField;
 import org.sigmah.client.page.project.category.CategoryIconProvider;
 import org.sigmah.client.ui.ToggleAnchor;
+import org.sigmah.client.util.Notification;
+import org.sigmah.shared.command.CreateEntity;
+import org.sigmah.shared.command.DeleteCategories;
+import org.sigmah.shared.command.result.CreateResult;
+import org.sigmah.shared.command.result.VoidResult;
 import org.sigmah.shared.domain.category.CategoryIcon;
 import org.sigmah.shared.dto.category.CategoryElementDTO;
 import org.sigmah.shared.dto.category.CategoryTypeDTO;
@@ -29,11 +36,9 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
-import com.extjs.gxt.ui.client.widget.grid.CellEditor;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
-import com.extjs.gxt.ui.client.widget.grid.EditorGrid;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
@@ -43,15 +48,19 @@ import com.extjs.gxt.ui.client.widget.layout.VBoxLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class AdminCategoryView extends View {	
 	
 	private ListStore<CategoryTypeDTO> categoriesStore;
 	private ListStore<CategoryElementDTO> categoryElementsStore;
-	private EditorGrid<CategoryElementDTO> categoryElementsGrid;
-	private final HashMap<String, Object> newCategoryTypeProperties = new HashMap<String, Object>();
+	private final Grid<CategoryElementDTO> categoryElementsGrid;
+	private final Grid<CategoryTypeDTO> categoriesGrid;
+	private SimpleComboBox<String> categoryIcon;
+	private TextField<String> categoryName;
 	private final Dispatcher dispatcher;
 	private CategoryTypeDTO currentCategoryType;
+	private Button addCategoryElementButton;
 
 	public AdminCategoryView(Dispatcher dispatcher){		
 		
@@ -66,16 +75,18 @@ public class AdminCategoryView extends View {
         sidePanel.setHeaderVisible(false);
         sidePanel.setWidth(375);
         sidePanel.setScrollMode(Scroll.NONE);
-        sidePanel.add(buildModelsListGrid());
+        categoriesGrid = buildCategoriesListGrid();
+        sidePanel.add(categoriesGrid);
         sidePanel.setTopComponent(categoryTypeToolBar());
         
         ContentPanel reportPanel = new ContentPanel(new FitLayout());
         reportPanel.setHeaderVisible(false);
         reportPanel.setBorders(true);
-        reportPanel.add(buildCategoryElementsGrid());
+        categoryElementsGrid = buildCategoryElementsGrid();
+        reportPanel.add(categoryElementsGrid);
         reportPanel.setTopComponent(categoryElementToolBar());
         
-        final BorderLayoutData leftLayoutData = new BorderLayoutData(LayoutRegion.WEST, 375);
+        final BorderLayoutData leftLayoutData = new BorderLayoutData(LayoutRegion.WEST, 400);
         leftLayoutData.setMargins(new Margins(0, 4, 0, 0));
 		add(sidePanel, leftLayoutData);	
 		 final BorderLayoutData mainLayoutData = new BorderLayoutData(LayoutRegion.CENTER);
@@ -83,7 +94,7 @@ public class AdminCategoryView extends View {
 		add(reportPanel, mainLayoutData);		
 	}
 
-	private EditorGrid<CategoryElementDTO> buildCategoryElementsGrid(){	
+	private Grid<CategoryElementDTO> buildCategoryElementsGrid(){	
 		
 		categoryElementsStore = new ListStore<CategoryElementDTO>();
 		
@@ -113,7 +124,7 @@ public class AdminCategoryView extends View {
 		
 		ColumnModel cm = new ColumnModel(configs);		
 		
-		categoryElementsGrid = new EditorGrid<CategoryElementDTO>(categoryElementsStore, cm); 
+		Grid<CategoryElementDTO> categoryElementsGrid = new Grid<CategoryElementDTO>(categoryElementsStore, cm); 
 		categoryElementsGrid.setAutoHeight(true);
 		categoryElementsGrid.setAutoWidth(false);
 		categoryElementsGrid.getView().setForceFit(true);
@@ -121,13 +132,16 @@ public class AdminCategoryView extends View {
 		return categoryElementsGrid;
 	}
 	
-	private Grid<CategoryTypeDTO> buildModelsListGrid(){		
+	private Grid<CategoryTypeDTO> buildCategoriesListGrid(){		
 		
 		categoriesStore = new ListStore<CategoryTypeDTO>();
 		
         List<ColumnConfig> configs = new ArrayList<ColumnConfig>();  
 		  
-        ColumnConfig column = new ColumnConfig();
+        ColumnConfig column = new ColumnConfig("id",I18N.CONSTANTS.adminProfilesId(), 25);
+        configs.add(column);
+        
+        column = new ColumnConfig();
         column.setId("icon_name");
         column.setWidth(75);
         column.setHeader(I18N.CONSTANTS.adminCategoryTypeIcon());  
@@ -149,7 +163,7 @@ public class AdminCategoryView extends View {
         
         configs.add(column);
         
-        column = new ColumnConfig("name",I18N.CONSTANTS.adminCategoryTypeName(), 300);  
+        column = new ColumnConfig("label",I18N.CONSTANTS.adminCategoryTypeName(), 300);  
 		column.setRenderer(new GridCellRenderer<CategoryTypeDTO>(){
 
 			@Override
@@ -163,12 +177,14 @@ public class AdminCategoryView extends View {
 
 	                @Override
 	                public void onClick(ClickEvent event) {
+	                	currentCategoryType = model;
 						categoryElementsGrid.show();
 						categoryElementsStore.removeAll();
 						for(CategoryElementDTO categoryElementDTO : model.getCategoryElementsDTO()){
 							categoryElementsStore.add(categoryElementDTO);
 						}
 						categoryElementsStore.commitChanges();
+						addCategoryElementButton.enable();
 					}
 					
 				});
@@ -191,8 +207,9 @@ public class AdminCategoryView extends View {
 	private ToolBar categoryTypeToolBar() {		
 		ToolBar toolbar = new ToolBar();
 		
-		final SimpleComboBox<String> categoryIcon = new SimpleComboBox<String>();
+		categoryIcon = new SimpleComboBox<String>();
 		categoryIcon.setFieldLabel(I18N.CONSTANTS.adminCategoryTypeIcon());
+		categoryIcon.setWidth(75);
 		categoryIcon.setEditable(false);
 		categoryIcon.setAllowBlank(false);
 		categoryIcon.setTriggerAction(TriggerAction.ALL);	
@@ -204,7 +221,7 @@ public class AdminCategoryView extends View {
 		
 		toolbar.add(categoryIcon);
 		
-		final TextField<String> categoryName = new TextField<String>();
+		categoryName = new TextField<String>();
 		categoryName.setFieldLabel(I18N.CONSTANTS.adminCategoryTypeName());
 		toolbar.add(categoryName);
     	
@@ -213,18 +230,54 @@ public class AdminCategoryView extends View {
 		addCategoryTypeButton.addListener(Events.OnClick, new Listener<ButtonEvent>(){
 
 			@Override
-			public void handleEvent(ButtonEvent be) {
-				if(categoryName.getValue() !=  null){				
-					if(categoryName.getValue()!= null && categoryIcon.getValue() != null){
-						
-					}else{
-						MessageBox.alert("",I18N.CONSTANTS.adminStandardInvalidValues(), null);
-					}
-				}				
+			public void handleEvent(ButtonEvent be) {				
+				if(categoryName.getValue() != null && categoryIcon.getValue() != null
+						&& categoriesStore.findModel("label", categoryName.getValue()) == null){
+					Map<String, Object> newCategoryTypeProperties = new HashMap<String, Object>();
+					newCategoryTypeProperties.put(AdminUtil.PROP_CATEGORY_TYPE_ICON, CategoryIcon.getIcon(categoryIcon.getValue().getValue()));
+					newCategoryTypeProperties.put(AdminUtil.PROP_CATEGORY_TYPE_NAME, categoryName.getValue());
+					dispatcher.execute(new CreateEntity("CategoryType", newCategoryTypeProperties), null, new AsyncCallback<CreateResult>(){
+
+				       	 public void onFailure(Throwable caught) {
+				       		 	MessageBox.alert(I18N.CONSTANTS.adminCategoryTypeCreationBox(), 
+				          			I18N.MESSAGES.adminStandardCreationFailureF(I18N.CONSTANTS.adminCategoryTypeStandard()
+												+ " '" + categoryName.getValue() + "'"), null);
+				             }
+
+							@Override
+							public void onSuccess(CreateResult result) {
+								if(result != null && result.getEntity() != null){	
+									categoriesStore.add((CategoryTypeDTO) result.getEntity());
+									categoriesStore.commitChanges();
+									Notification.show(I18N.CONSTANTS.adminCategoryTypeCreationBox(), I18N.MESSAGES.adminStandardUpdateSuccessF(I18N.CONSTANTS.adminCategoryTypeStandard()
+											+ " '" + categoryName.getValue() +"'"));					
+								}					
+								else{
+									MessageBox.alert(I18N.CONSTANTS.adminCategoryTypeCreationBox(), 
+						          			I18N.MESSAGES.adminStandardCreationNullF(I18N.CONSTANTS.adminCategoryTypeStandard()
+														+ " '" + categoryName.getValue() + "'"), null);
+								}
+							}
+				        });
+				}else{
+					MessageBox.alert("",I18N.CONSTANTS.adminStandardInvalidValues(), null);
+				}
+								
 			}
 			
 		});
 		toolbar.add(addCategoryTypeButton);
+		
+		Button deleteCategoryTypeButton = new Button(I18N.CONSTANTS.delete(), IconImageBundle.ICONS.delete());
+		deleteCategoryTypeButton.addListener(Events.OnClick, new Listener<ButtonEvent>(){
+
+			@Override
+			public void handleEvent(ButtonEvent be) {
+				onDeleteCategoryConfirmed(categoriesGrid.getSelectionModel().getSelectedItems());                
+			}
+			
+		});
+		toolbar.add(deleteCategoryTypeButton);
 		return toolbar;
 	}
 	
@@ -241,15 +294,54 @@ public class AdminCategoryView extends View {
 		colorField.setEditable(true);
 		toolbar.add(colorField);
 		
-		Button addCategoryElementButton = new Button(I18N.CONSTANTS.addItem(), IconImageBundle.ICONS.add());
+	    addCategoryElementButton = new Button(I18N.CONSTANTS.addItem(), IconImageBundle.ICONS.add());
+	    addCategoryElementButton.disable();
 		addCategoryElementButton.setItemId(UIActions.add);
 		addCategoryElementButton.addListener(Events.OnClick, new Listener<ButtonEvent>(){
 
 			@Override
 			public void handleEvent(ButtonEvent be) {
 				if(name.getValue() != null && !name.getValue().isEmpty()
-						&& categoriesStore.findModel("label", name) == null){
+						&& categoryElementsStore.findModel("label", name.getValue()) == null){
+					Map<String, Object> newCategoryElementProperties = new HashMap<String, Object>();
+					newCategoryElementProperties.put(AdminUtil.PROP_CATEGORY_ELEMENT_NAME, name.getValue());
+					newCategoryElementProperties.put(AdminUtil.PROP_CATEGORY_ELEMENT_COLOR, colorField.getValue());
+					newCategoryElementProperties.put(AdminUtil.PROP_CATEGORY_TYPE, currentCategoryType);
 					
+					dispatcher.execute(new CreateEntity("CategoryType", newCategoryElementProperties), null, new AsyncCallback<CreateResult>(){
+
+				       	 public void onFailure(Throwable caught) {
+				       		 	MessageBox.alert(I18N.CONSTANTS.adminCategoryTypeCreationBox(), 
+				          			I18N.MESSAGES.adminStandardCreationFailureF(I18N.CONSTANTS.adminCategoryTypeStandard()
+												+ " '" + currentCategoryType.getLabel() + "'"), null);
+				             }
+
+							@Override
+							public void onSuccess(CreateResult result) {
+								if(result != null && result.getEntity() != null){	
+									categoriesStore.remove(currentCategoryType);
+									categoryElementsStore.add((CategoryElementDTO) result.getEntity());
+									categoryElementsStore.commitChanges();
+									List<CategoryElementDTO> elements = null;
+									if(currentCategoryType.getCategoryElementsDTO()== null){
+										elements = new ArrayList<CategoryElementDTO>();										
+									}else{
+										elements = currentCategoryType.getCategoryElementsDTO();
+									}
+									elements.add((CategoryElementDTO) result.getEntity());
+									currentCategoryType.setCategoryElementsDTO(elements);
+									categoriesStore.add(currentCategoryType);
+									categoriesStore.commitChanges();
+									Notification.show(I18N.CONSTANTS.adminCategoryTypeCreationBox(), I18N.MESSAGES.adminStandardUpdateSuccessF(I18N.CONSTANTS.adminReportModelStandard()
+											+ " '" + currentCategoryType.getLabel() +"'"));					
+								}					
+								else{
+									MessageBox.alert(I18N.CONSTANTS.adminCategoryTypeCreationBox(), 
+						          			I18N.MESSAGES.adminStandardCreationNullF(I18N.CONSTANTS.adminCategoryTypeStandard()
+														+ " '" + currentCategoryType.getLabel() + "'"), null);
+								}
+							}
+				        });
 				}else{
 					MessageBox.alert("",I18N.CONSTANTS.adminStandardInvalidValues(), null);
 				}
@@ -257,7 +349,74 @@ public class AdminCategoryView extends View {
 			
 		});
 		toolbar.add(addCategoryElementButton);
+		
+		Button deleteCategoryElementButton = new Button(I18N.CONSTANTS.delete(), IconImageBundle.ICONS.delete());
+		deleteCategoryElementButton.addListener(Events.OnClick, new Listener<ButtonEvent>(){
+
+			@Override
+			public void handleEvent(ButtonEvent be) {
+				onDeleteCategoryElementConfirmed(categoryElementsGrid.getSelectionModel().getSelectedItems());	            
+			}
+			
+		});
+		toolbar.add(deleteCategoryElementButton);
 		return toolbar;
+	}
+	
+	private void onDeleteCategoryConfirmed(final List<CategoryTypeDTO> selection) {
+		
+		List<Integer> ids = new ArrayList<Integer>();
+		String names = "";
+		for(CategoryTypeDTO s : selection){
+			ids.add(s.getId());
+			names = s.getLabel() + ", " + names;
+		}
+		
+		final String toDelete = names;
+		final DeleteCategories deactivate = new DeleteCategories(selection, null);
+        dispatcher.execute(deactivate, null, new AsyncCallback<VoidResult>() {
+
+            @Override
+            public void onFailure(Throwable caught) {
+                MessageBox.alert(I18N.CONSTANTS.error(), I18N.MESSAGES.entityDeleteEventError(toDelete), null);
+            }
+
+            @Override
+            public void onSuccess(VoidResult result) {
+            	for(CategoryTypeDTO model : selection){
+            		categoriesStore.remove(model);
+            	}   
+            	categoriesStore.commitChanges();
+            }
+        });
+	}
+	
+	private void onDeleteCategoryElementConfirmed(final List<CategoryElementDTO> selection) {
+		
+		List<Integer> ids = new ArrayList<Integer>();
+		String names = "";
+		for(CategoryElementDTO s : selection){
+			ids.add(s.getId());
+			names = s.getLabel() + ", " + names;
+		}
+		
+		final String toDelete = names;
+		final DeleteCategories deactivate = new DeleteCategories(null, selection);
+        dispatcher.execute(deactivate, null, new AsyncCallback<VoidResult>() {
+
+            @Override
+            public void onFailure(Throwable caught) {
+                MessageBox.alert(I18N.CONSTANTS.error(), I18N.MESSAGES.entityDeleteEventError(toDelete), null);
+            }
+
+            @Override
+            public void onSuccess(VoidResult result) {
+            	for(CategoryElementDTO model : selection){
+            		categoryElementsStore.remove(model);
+            	}   
+            	categoryElementsStore.commitChanges();
+            }
+        });
 	}
 	
 	@Override

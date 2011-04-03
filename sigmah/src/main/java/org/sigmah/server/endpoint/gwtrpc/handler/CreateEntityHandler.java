@@ -16,7 +16,9 @@ import javax.persistence.Query;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dozer.Mapper;
+import org.sigmah.client.page.admin.AdminUtil;
 import org.sigmah.server.policy.ActivityPolicy;
+import org.sigmah.server.policy.CategoryPolicy;
 import org.sigmah.server.policy.LayoutGroupPolicy;
 import org.sigmah.server.policy.OrgUnitModelPolicy;
 import org.sigmah.server.policy.PersonalEventPolicy;
@@ -51,12 +53,13 @@ import org.sigmah.shared.dto.ProjectDTOLight;
 import org.sigmah.shared.dto.ProjectFundingDTO;
 import org.sigmah.shared.dto.ProjectModelDTO;
 import org.sigmah.shared.dto.UserDTO;
+import org.sigmah.shared.dto.category.CategoryElementDTO;
+import org.sigmah.shared.dto.category.CategoryTypeDTO;
 import org.sigmah.shared.dto.layout.LayoutGroupDTO;
 import org.sigmah.shared.dto.profile.PrivacyGroupDTO;
 import org.sigmah.shared.dto.profile.ProfileDTO;
 import org.sigmah.shared.dto.reminder.MonitoredPointDTO;
 import org.sigmah.shared.dto.reminder.ReminderDTO;
-import org.sigmah.shared.dto.report.ProjectReportModelSectionDTO;
 import org.sigmah.shared.dto.report.ReportModelDTO;
 import org.sigmah.shared.exception.CommandException;
 import org.sigmah.shared.exception.IllegalAccessCommandException;
@@ -137,10 +140,36 @@ public class CreateEntityHandler extends BaseEntityHandler implements CommandHan
             return createOrgUnitModel(user, propertyMap);
         }else if ("GroupLayout".equals(cmd.getEntityName())) {
             return createLayoutGroupModel(user, propertyMap);
+        }else if ("CategoryType".equals(cmd.getEntityName())) {
+            return createCategoryType(user, propertyMap);
         }else {
             throw new CommandException("Invalid entity class " + cmd.getEntityName());
         }
     }
+    
+    private CommandResult createCategoryType(User user, PropertyMap propertyMap) {
+    	CategoryPolicy policy = injector.getInstance(CategoryPolicy.class);
+    	if(propertyMap.get(AdminUtil.PROP_CATEGORY_TYPE) == null){
+    		CategoryTypeDTO newCategoryType = (CategoryTypeDTO) policy.create(user, propertyMap);
+        	if(newCategoryType != null){
+        		CreateResult c = new CreateResult(newCategoryType.getId());
+        		c.setEntity(newCategoryType);
+        		return c;
+        	}   		
+        	else
+        		return null;
+    	}else{
+    		CategoryElementDTO newCategoryElement = (CategoryElementDTO) policy.create(user, propertyMap);
+        	if(newCategoryElement != null){
+        		CreateResult c = new CreateResult(newCategoryElement.getId());
+        		c.setEntity(newCategoryElement);
+        		return c;
+        	}   		
+        	else
+        		return null;
+    	}
+		
+	}
 
     private CommandResult createLayoutGroupModel(User user, PropertyMap propertyMap) {
 		LayoutGroupPolicy policy = injector.getInstance(LayoutGroupPolicy.class);

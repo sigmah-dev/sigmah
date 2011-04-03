@@ -10,6 +10,7 @@ import org.sigmah.shared.command.result.ReportModelsListResult;
 import org.sigmah.shared.dto.ProjectModelDTO;
 import org.sigmah.shared.dto.report.ReportModelDTO;
 
+import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
@@ -47,6 +48,7 @@ public class AdminReportModelPresenter implements AdminModelSubPresenter {
 	
 	            @Override
 	            public void onSuccess(ReportModelsListResult result) {
+	            	Log.debug("id for report " + (ReportModelDTO) result.getList().get(0));
 	            	view.getReportModelsStore().removeAll();
 	            	view.getReportModelsStore().clearFilters();
 	                if (result.getList() == null || result.getList().isEmpty()) {

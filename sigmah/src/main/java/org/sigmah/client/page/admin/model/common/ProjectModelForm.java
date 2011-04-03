@@ -30,12 +30,16 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.Label;
 
 public class ProjectModelForm extends FormPanel {
 	
 	private final Dispatcher dispatcher;
 	private final TextField<String> nameField;
+	private final Grid ngoGrid;
+    private final Grid fundingGrid;
+    private final Grid partnerGrid;
 	private final Radio ngoRadio;
     private final Radio fundingRadio;
     private final Radio partnerRadio;
@@ -71,7 +75,7 @@ public class ProjectModelForm extends FormPanel {
                 ProjectModelType.NGO, IconSize.SMALL).createImage());
         ngoIcon.addStyleName("toolbar-icon");
 
-        final Label ngoLabel = new Label(ProjectModelType.getName(ProjectModelType.NGO));
+        /*final Label ngoLabel = new Label(ProjectModelType.getName(ProjectModelType.NGO));
         ngoLabel.addStyleName("flexibility-element-label");
         ngoLabel.addStyleName("project-starred-icon");
         ngoLabel.addClickHandler(new ClickHandler() {
@@ -83,7 +87,7 @@ public class ProjectModelForm extends FormPanel {
                 fundingRadio.setValue(false);
                 partnerRadio.setValue(false);
             }
-        });
+        });*/
 
         fundingRadio = new Radio();
         fundingRadio.setFireChangeEventOnSetValue(true);
@@ -94,7 +98,7 @@ public class ProjectModelForm extends FormPanel {
                 ProjectModelType.FUNDING, IconSize.SMALL).createImage());
         fundingIcon.addStyleName("toolbar-icon");
 
-        final Label fundingLabel = new Label(ProjectModelType.getName(ProjectModelType.FUNDING));
+        /*final Label fundingLabel = new Label(ProjectModelType.getName(ProjectModelType.FUNDING));
         fundingLabel.addStyleName("flexibility-element-label");
         fundingLabel.addStyleName("project-starred-icon");
         fundingLabel.addClickHandler(new ClickHandler() {
@@ -106,7 +110,7 @@ public class ProjectModelForm extends FormPanel {
                 currentModelType = ProjectModelType.FUNDING;
                 partnerRadio.setValue(false);
             }
-        });
+        });*/
 
         partnerRadio = new Radio();
         partnerRadio.setFireChangeEventOnSetValue(true);
@@ -117,7 +121,7 @@ public class ProjectModelForm extends FormPanel {
                 ProjectModelType.LOCAL_PARTNER, IconSize.SMALL).createImage());
         partnerIcon.addStyleName("toolbar-icon");
 
-        final Label partnerLabel = new Label(ProjectModelType.getName(ProjectModelType.LOCAL_PARTNER));
+        /*final Label partnerLabel = new Label(ProjectModelType.getName(ProjectModelType.LOCAL_PARTNER));
         partnerLabel.addStyleName("flexibility-element-label");
         partnerLabel.addStyleName("project-starred-icon");
         partnerLabel.addClickHandler(new ClickHandler() {
@@ -129,19 +133,33 @@ public class ProjectModelForm extends FormPanel {
                 partnerRadio.setValue(true);
                 currentModelType = ProjectModelType.LOCAL_PARTNER;
             }
-        });
+        });*/
         
         group.add(ngoRadio);
         group.add(fundingRadio);
         group.add(partnerRadio);
         
+        ngoGrid = new Grid(1,3);
+        ngoGrid.setBorderWidth(0);
+        ngoGrid.setWidget(0, 0, ngoIcon);
+        ngoGrid.setWidget(0, 1, ngoRadio);
+        ngoGrid.setWidget(0, 2, AdminUtil.createGridText(ProjectModelType.getName(ProjectModelType.NGO)));
         
-        add(ngoRadio);
-        add(ngoIcon);
-        add(fundingRadio);
-        add(fundingIcon);
-        add(partnerRadio);
-        add(partnerIcon);
+        fundingGrid = new Grid(1,3);
+        fundingGrid.setBorderWidth(0);
+        fundingGrid.setWidget(0, 0, fundingIcon);
+        fundingGrid.setWidget(0, 1, fundingRadio);		
+        fundingGrid.setWidget(0, 2,AdminUtil.createGridText(ProjectModelType.getName(ProjectModelType.FUNDING)));
+        
+        partnerGrid = new Grid(1,3);
+        partnerGrid.setBorderWidth(0);
+        partnerGrid.setWidget(0, 0, partnerIcon);
+        partnerGrid.setWidget(0, 1, partnerRadio);
+        partnerGrid.setWidget(0, 2, AdminUtil.createGridText(ProjectModelType.getName(ProjectModelType.LOCAL_PARTNER)));
+        
+        add(ngoGrid);
+        add(fundingGrid);
+        add(partnerGrid);
 		
         // Adds actions on filter by model type.
         for (final ProjectModelType type : ProjectModelType.values()) {

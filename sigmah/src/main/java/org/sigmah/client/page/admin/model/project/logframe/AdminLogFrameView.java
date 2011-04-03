@@ -36,10 +36,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 public class AdminLogFrameView extends View {	
 
 	private static final int LIMIT = 20;
-	
-	
-	
-	private ProjectModelDTO projectModel;
+
 	private final Dispatcher dispatcher;
 	
 	private final TextField<String> name;
@@ -95,7 +92,7 @@ public class AdminLogFrameView extends View {
         logFrameMainPanel.setBodyBorder(false);		
         logFrameMainPanel.setWidth(1300);
         logFrameMainPanel.setHeight(900);
-        logFrameMainPanel.setTopComponent(initToolBar());
+        
         
         List<String> values = new ArrayList<String>();
         values.add(I18N.CONSTANTS.adminLogFrameUnlimited());
@@ -593,15 +590,11 @@ public class AdminLogFrameView extends View {
 		return logFrameMainPanel;
 	}
 
-
 	@Override
-	public void setModel(ProjectModelDTO model) {
-		this.projectModel = model;
+	public void enableToolBar() {
+		logFrameMainPanel.setTopComponent(initToolBar());
 	}
 
 
-	@Override
-	public ProjectModelDTO getModel() {
-		return projectModel;
-	}
+
 }

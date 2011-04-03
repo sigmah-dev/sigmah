@@ -12,19 +12,18 @@ import org.sigmah.client.page.common.grid.ConfirmCallback;
 import org.sigmah.client.page.common.toolbar.UIActions;
 import org.sigmah.shared.command.result.CreateResult;
 import org.sigmah.shared.command.result.UpdateModelResult;
-import org.sigmah.shared.dto.OrgUnitModelDTO;
-import org.sigmah.shared.dto.PhaseModelDTO;
+import org.sigmah.shared.domain.ProjectModelStatus;
 import org.sigmah.shared.dto.ProjectModelDTO;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
 import org.sigmah.shared.dto.layout.LayoutGroupDTO;
 import org.sigmah.shared.dto.profile.PrivacyGroupDTO;
 
-import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
@@ -43,16 +42,16 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 public class AdminFlexibleElementsView extends View {	
 	
 	private final ListStore<FlexibleElementDTO> fieldsStore;
-	private ProjectModelDTO projectModel;
-	private OrgUnitModelDTO orgUnitModel;
+	
 	private final Dispatcher dispatcher;
 	private final Grid<FlexibleElementDTO> flexGrid;
+	private Button groupButton;
+	private Button flexButton;
 
 	public AdminFlexibleElementsView(Dispatcher dispatcher){	
 		this.dispatcher = dispatcher;
 		this.fieldsStore = new ListStore<FlexibleElementDTO>();		
-		//final VBoxLayout mainPanelLayout = new StylableVBoxLayout(STYLE_MAIN_BACKGROUND);
-        //mainPanelLayout.setVBoxLayoutAlign(VBoxLayout.VBoxLayoutAlign.STRETCH);
+
         setLayout(new FitLayout());
         setHeaderVisible(false);
         setBorders(false);
@@ -60,13 +59,14 @@ public class AdminFlexibleElementsView extends View {
         
         
         final VBoxLayoutData topVBoxLayoutData = new VBoxLayoutData();
+        topVBoxLayoutData.setMargins(new Margins(0,0,0,2));
         topVBoxLayoutData.setFlex(1.0);
         
         flexGrid = buildFieldsListGrid();
         flexGrid.setSelectionModel(new GridSelectionModel<FlexibleElementDTO>());
         flexGrid.setAutoHeight(true);
         flexGrid.getView().setForceFit(true);
-        setTopComponent(initToolBar());
+        
         
         add(flexGrid, topVBoxLayoutData);
         this.layout();
@@ -122,7 +122,7 @@ public class AdminFlexibleElementsView extends View {
 	public void showNewGroupForm(final FlexibleElementDTO model,
 			final boolean isUpdate) {
 		int width = 400;
-		int height = 400;
+		int height = 250;
 		String title = I18N.CONSTANTS.adminFlexibleGroup();
 		final Window window = new Window();		
 		window.setHeading(title);
@@ -143,23 +143,15 @@ public class AdminFlexibleElementsView extends View {
 				//FIXME add new group and update model
 				window.hide();
 				if(result != null){
-					LayoutGroupDTO group = (LayoutGroupDTO)result.getEntity();
-					if(projectModel != null){
-						if(projectModel.getProjectDetailsDTO().getLayoutDTO().getId() == group.getParentLayoutDTO().getId()){
-							projectModel.getProjectDetailsDTO().setLayoutDTO(group.getParentLayoutDTO());
-						}else{
-							for(PhaseModelDTO phaseModel : projectModel.getPhaseModelsDTO()){
-								if(phaseModel.getLayoutDTO().getId() == group.getParentLayoutDTO().getId()){
-									phaseModel.setLayoutDTO(group.getParentLayoutDTO());
-								}
-							}
-						}
-						
-					}else if(orgUnitModel != null){
-						if(orgUnitModel.getDetails().getLayout().getId() == group.getParentLayoutDTO().getId()){
-							orgUnitModel.getDetails().setLayout(group.getParentLayoutDTO());
-						}
-					}
+					if(isUpdate){						
+						List<FlexibleElementDTO> modifiedFlexs = AdminFlexibleElementsView.this.getFieldsStore().findModels("group", model.getGroup());
+						for(FlexibleElementDTO modifiedFlex : modifiedFlexs){
+							AdminFlexibleElementsView.this.getFieldsStore().remove(modifiedFlex);
+							modifiedFlex.setGroup((LayoutGroupDTO) result.getEntity());
+							AdminFlexibleElementsView.this.getFieldsStore().add(modifiedFlex);							
+						}			
+						AdminFlexibleElementsView.this.getFieldsStore().commitChanges();
+					}					
 				}				
 			}			
 		}, model , projectModel, orgUnitModel);
@@ -214,20 +206,7 @@ public class AdminFlexibleElementsView extends View {
 		
         List<ColumnConfig> configs = new ArrayList<ColumnConfig>();  
 		  
-        ColumnConfig 
-		column = new ColumnConfig("id",I18N.CONSTANTS.adminFlexibleFieldId(), 50);   
-		column.setRenderer(new GridCellRenderer<FlexibleElementDTO>(){
-
-			@Override
-			public Object render(FlexibleElementDTO model, String property,
-					ColumnData config, int rowIndex, int colIndex,
-					ListStore<FlexibleElementDTO> store, Grid<FlexibleElementDTO> grid) {	
-				return AdminUtil.createGridText(String.valueOf(model.getId()));
-			}	    	
-	    });
-		configs.add(column);
-				
-		column = new ColumnConfig("label",I18N.CONSTANTS.adminFlexibleName(), 200);   
+        ColumnConfig column = new ColumnConfig("label",I18N.CONSTANTS.adminFlexibleName(), 300);   
 		configs.add(column);
 		
 		column = new ColumnConfig("type",I18N.CONSTANTS.adminFlexibleType(), 100);   
@@ -333,7 +312,7 @@ public class AdminFlexibleElementsView extends View {
 	    }); 
 		configs.add(column);
 		
-		column = new ColumnConfig("groupId",I18N.CONSTANTS.adminFlexibleGroup(), 50);   
+		column = new ColumnConfig("groupId",I18N.CONSTANTS.adminFlexibleGroupId(), 50);   
 		column.setRenderer(new GridCellRenderer<FlexibleElementDTO>(){
 
 			@Override
@@ -369,7 +348,11 @@ public class AdminFlexibleElementsView extends View {
 			public Object render(final FlexibleElementDTO model, String property,
 					ColumnData config, int rowIndex, int colIndex,
 					ListStore<FlexibleElementDTO> store, Grid<FlexibleElementDTO> grid) {	
-				Button groupButton = new Button(I18N.CONSTANTS.adminFlexibleUpdateGroup());
+				groupButton = new Button(I18N.CONSTANTS.adminFlexibleUpdateGroup());
+				groupButton.disable();
+				if((projectModel != null && ProjectModelStatus.DRAFT.equals(projectModel.getStatus()))
+						|| (orgUnitModel != null && ProjectModelStatus.DRAFT.equals(orgUnitModel.getStatus())))
+					groupButton.enable();
 		        groupButton.setItemId(UIActions.edit);
 				groupButton.addListener(Events.OnClick, new Listener<ButtonEvent>(){
 
@@ -394,9 +377,13 @@ public class AdminFlexibleElementsView extends View {
 					ColumnData config, int rowIndex, int colIndex,
 					ListStore<FlexibleElementDTO> store, Grid<FlexibleElementDTO> grid) {
 				
-				Button button = new Button(I18N.CONSTANTS.edit());
-		        button.setItemId(UIActions.edit);
-		        button.addListener(Events.OnClick, new Listener<ButtonEvent>(){
+				flexButton = new Button(I18N.CONSTANTS.edit());
+				flexButton.disable();
+				if((projectModel != null && ProjectModelStatus.DRAFT.equals(projectModel.getStatus()))
+						|| (orgUnitModel != null && ProjectModelStatus.DRAFT.equals(orgUnitModel.getStatus())))
+					flexButton.enable();
+		        flexButton.setItemId(UIActions.edit);
+		        flexButton.addListener(Events.OnClick, new Listener<ButtonEvent>(){
 
 					@Override
 					public void handleEvent(ButtonEvent be) {
@@ -404,7 +391,7 @@ public class AdminFlexibleElementsView extends View {
 					}
 				});		        		   
 		        
-				return button;			
+				return flexButton;			
 			}
 	    	
 	    }); 
@@ -430,25 +417,8 @@ public class AdminFlexibleElementsView extends View {
 
 
 	@Override
-	public void setProjectModel(ProjectModelDTO model) {
-		this.projectModel = model;
-	}
-
-
-	@Override
-	public ProjectModelDTO getProjectModel() {
-		return projectModel;
-	}
-	
-	@Override
-	public void setOrgUnitModel(OrgUnitModelDTO model) {
-		this.orgUnitModel = model;
-	}
-
-
-	@Override
-	public OrgUnitModelDTO getOrgUnitModel() {
-		return orgUnitModel;
+	public void enableToolBar(){
+		setTopComponent(initToolBar());
 	}
 
 	@Override

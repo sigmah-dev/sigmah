@@ -4,6 +4,7 @@ import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.page.admin.AdminPageState;
 import org.sigmah.client.page.admin.model.AdminModelSubPresenter;
+import org.sigmah.client.page.admin.model.common.ModelView;
 import org.sigmah.shared.dto.ProjectModelDTO;
 import org.sigmah.shared.dto.logframe.LogFrameModelDTO;
 
@@ -20,12 +21,9 @@ public class AdminLogFramePresenter implements AdminModelSubPresenter {
 	private final Dispatcher dispatcher;
 	private ProjectModelDTO model;
 	
-	public static abstract class View extends ContentPanel {
+	public static abstract class View extends ModelView {
 		public abstract Component getMainPanel();
-		public abstract void setModel(ProjectModelDTO model);
 		public abstract void fillLogFrame(LogFrameModelDTO logFrameModel);
-		@SuppressWarnings("unchecked")
-		public abstract ProjectModelDTO getModel();
 	}
 	
 	public AdminLogFramePresenter(Dispatcher dispatcher){
@@ -37,12 +35,12 @@ public class AdminLogFramePresenter implements AdminModelSubPresenter {
 	public Component getView() {
 		
 		assert this.model != null;
-		view.setModel(model);
+		view.setProjectModel(model);
 
 		LogFrameModelDTO logFrameModel = model.getLogFrameModelDTO();
 		view.fillLogFrame(logFrameModel);
 		
-		this.model = view.getModel();
+		this.model = view.getProjectModel();
 		return view.getMainPanel();
 	}
 

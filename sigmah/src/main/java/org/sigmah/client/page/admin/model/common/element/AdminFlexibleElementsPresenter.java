@@ -5,6 +5,7 @@ import java.util.List;
 import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.page.admin.AdminPageState;
 import org.sigmah.client.page.admin.model.AdminModelSubPresenter;
+import org.sigmah.client.page.admin.model.common.ModelView;
 import org.sigmah.client.page.common.grid.ConfirmCallback;
 import org.sigmah.shared.dto.OrgUnitModelDTO;
 import org.sigmah.shared.dto.ProjectModelDTO;
@@ -21,13 +22,9 @@ public class AdminFlexibleElementsPresenter implements AdminModelSubPresenter {
 	private ProjectModelDTO projectModel;
 	private OrgUnitModelDTO orgUnitModel;
 	
-	public static abstract class View extends ContentPanel {
+	public static abstract class View extends ModelView {
 		public abstract Component getMainPanel();
-		public abstract ListStore<FlexibleElementDTO> getFieldsStore();
-		public abstract void setProjectModel(ProjectModelDTO model);
-		public abstract ProjectModelDTO getProjectModel();
-		public abstract void setOrgUnitModel(OrgUnitModelDTO model);
-		public abstract OrgUnitModelDTO getOrgUnitModel();
+		public abstract ListStore<FlexibleElementDTO> getFieldsStore();		
 		public abstract void showNewFlexibleElementForm(FlexibleElementDTO element, boolean isUpdate);
 		public abstract void showNewGroupForm(final FlexibleElementDTO model, final boolean isUpdate);
 		public abstract List<FlexibleElementDTO> getDeleteSelection();

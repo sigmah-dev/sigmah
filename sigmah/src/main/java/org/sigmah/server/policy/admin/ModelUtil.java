@@ -40,6 +40,7 @@ public class ModelUtil {
 	
 	private final static Log log = LogFactory.getLog(ModelUtil.class);
 
+	@SuppressWarnings("unchecked")
 	public static void persistFlexibleElement(EntityManager em, Mapper mapper, PropertyMap changes, Object model){
 		
 		FlexibleElementDTO flexibleEltDTO = null;
@@ -74,7 +75,6 @@ public class ModelUtil {
 				posB = (Integer) changes.get(AdminUtil.PROP_FX_POS_IN_BANNER);
 			
 			//FIXME
-			@SuppressWarnings("unchecked")
 			HashMap<String, Object> oldLayoutFields = (HashMap<String, Object>) changes.get(AdminUtil.PROP_FX_OLD_FIELDS);
 			LayoutConstraintDTO oldLayoutConstraintDTO = (LayoutConstraintDTO) oldLayoutFields.get(AdminUtil.PROP_FX_LC);
 			LayoutConstraintDTO oldBannerLayoutConstraintDTO = (LayoutConstraintDTO) oldLayoutFields.get(AdminUtil.PROP_FX_LC_BANNER);
@@ -302,8 +302,7 @@ public class ModelUtil {
 								qChoice.setSortOrder(i++);
 								choices.add(qChoice);
 							}
-							((QuestionElement)flexibleElt).setChoices(choices);
-							
+							((QuestionElement)flexibleElt).setChoices(choices);							
 							specificChanges = true;
 						}						
 					}else if(qChoices != null){
@@ -395,9 +394,9 @@ public class ModelUtil {
 	private static void changeBanner(EntityManager em, Integer posB, Object model, FlexibleElement flexibleElt){
 		LayoutGroup bannerGroup = null;
 		if(model instanceof ProjectModel)
-			bannerGroup = ((ProjectModel)model).getProjectBanner().getLayout().getGroups().get(0);
+			bannerGroup = ((ProjectModel)model).getProjectBanner().getLayout().getGroups().get(posB);
 		else if(model instanceof OrgUnitModel)
-			bannerGroup = ((OrgUnitModel)model).getBanner().getLayout().getGroups().get(0);
+			bannerGroup = ((OrgUnitModel)model).getBanner().getLayout().getGroups().get(posB);
 		
 		LayoutConstraint newLayoutConstraint = null;
 		boolean positionTaken = false;
@@ -426,19 +425,17 @@ public class ModelUtil {
 		
 		LayoutGroup bannerGroup = null;
 		if(model instanceof ProjectModel)
-			bannerGroup = ((ProjectModel)model).getProjectBanner().getLayout().getGroups().get(0);
+			bannerGroup = ((ProjectModel)model).getProjectBanner().getLayout().getGroups().get(posB);
 		else if(model instanceof OrgUnitModel)
-			bannerGroup = ((OrgUnitModel)model).getBanner().getLayout().getGroups().get(0);
+			bannerGroup = ((OrgUnitModel)model).getBanner().getLayout().getGroups().get(posB);
 
 		//Delete any constraint that places another flexible element in the same position
 		for(LayoutConstraint lc : bannerGroup.getConstraints()){
-			if(posB.equals(lc.getSortOrder())){
-				em.remove(lc);
-			}
+			em.remove(lc);
 		}
 		oldBannerLayoutConstraint.setElement(flexibleElt);
 		oldBannerLayoutConstraint.setParentLayoutGroup(bannerGroup);
-		oldBannerLayoutConstraint.setSortOrder(posB);
+		oldBannerLayoutConstraint.setSortOrder(new Integer(posB));
 		em.merge(oldBannerLayoutConstraint);
 	}
 	
