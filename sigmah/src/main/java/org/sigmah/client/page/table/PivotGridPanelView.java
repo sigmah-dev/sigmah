@@ -4,6 +4,7 @@ import com.extjs.gxt.ui.client.widget.treegrid.TreeGridView;
 
 public class PivotGridPanelView extends TreeGridView {
 
+	
 	/** 
 	 * Overrides the default autoExpand behavior to distribute columns evenly.
 	 */

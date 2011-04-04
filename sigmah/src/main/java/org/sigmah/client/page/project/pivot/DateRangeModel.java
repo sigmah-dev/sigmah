@@ -23,6 +23,10 @@ public class DateRangeModel extends BaseModelData {
 		return dateRange;
 	}
 	
+	public String getLabel() {
+		return get("label");
+	}
+	
 	public static DateRangeModel monthModel(MonthCategory month) {
 		DateWrapper date = new DateWrapper(month.getYear(), month.getMonth()-1, 1);
 		return monthModel(date);

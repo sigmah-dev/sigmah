@@ -5,17 +5,24 @@
 	gwt-image: 'zoom';
 	cursor: pointer;
 	vertical-align: -3px;
-	padding-left: 3px;
+	margin-left: 3px;
 }	
 
 @sprite .editIcon {
 	gwt-image: 'pencil';
 	cursor: pointer;
 	vertical-align: -3px;
-	padding-left: 2px;
-	
-	
+	margin-left: 2px;
 }
+
+@sprite .swapIcon {
+	gwt-image: 'swap';
+	cursor: pointer;
+	position: absolute;
+	right: 4px;
+	bottom: 3px;
+}
+
 .pivotTable .x-grid3-hd-inner {
 	white-space:normal !important;
 		

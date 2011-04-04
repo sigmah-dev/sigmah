@@ -12,6 +12,7 @@ public class PivotGridHeaderEvent extends GridEvent<PivotGridPanel.PivotTableRow
 	public enum IconTarget {
 		ZOOM,
 		EDIT,
+		SWAP,
 		NONE
 	}
 	
@@ -32,6 +33,8 @@ public class PivotGridHeaderEvent extends GridEvent<PivotGridPanel.PivotTableRow
 			return IconTarget.ZOOM;
 		} else if(PivotResources.INSTANCE.css().editIcon().equals(targetClass)) {
 			return IconTarget.EDIT;
+		} else if(PivotResources.INSTANCE.css().swapIcon().equals(targetClass)) {
+			return IconTarget.SWAP;
 		} else {
 			return IconTarget.NONE;
 		}

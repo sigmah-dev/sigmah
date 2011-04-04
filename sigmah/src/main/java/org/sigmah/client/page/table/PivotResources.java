@@ -11,6 +11,7 @@ public interface PivotResources extends ClientBundle {
 	
 	ImageResource pencil();
 	ImageResource zoom();
+	ImageResource swap();
 	
 	@Source("pivot.css")
 	Style css();
@@ -18,6 +19,7 @@ public interface PivotResources extends ClientBundle {
 	interface Style extends CssResource {
 		String editIcon();
 		String zoomIcon();
+		String swapIcon();
 		String pivotTable();
 	}
 	

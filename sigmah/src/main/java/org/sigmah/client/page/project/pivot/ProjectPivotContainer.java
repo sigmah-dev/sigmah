@@ -32,6 +32,7 @@ import org.sigmah.shared.report.model.DimensionType;
 import org.sigmah.shared.report.model.PivotTableElement;
 
 import com.allen_sauer.gwt.log.client.Log;
+import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FieldEvent;
@@ -70,6 +71,8 @@ public class ProjectPivotContainer extends ContentPanel implements ProjectSubPre
 
 	private ActionToolBar toolBar;
 	
+	private boolean axesSwapped = false;
+	
 	@Inject
 	public ProjectPivotContainer(Dispatcher dispatcher, PivotGridPanel gridPanel, Provider<IndicatorDialog> indicatorDialog) {
 		this.dispatcher = dispatcher;
@@ -78,7 +81,7 @@ public class ProjectPivotContainer extends ContentPanel implements ProjectSubPre
 
 		setHeaderVisible(false);
 		setLayout(new FitLayout());
-		gridPanel.setHeaderVisible(false);
+		gridPanel.setHeading(I18N.CONSTANTS.indicators());
 		gridPanel.addListener(Events.HeaderClick, new Listener<PivotGridHeaderEvent>() {
 
 			@Override
@@ -153,6 +156,7 @@ public class ProjectPivotContainer extends ContentPanel implements ProjectSubPre
 		toolBar.add(new Label(I18N.CONSTANTS.defaultView()));
 		toolBar.add(new CheckBox());
 		toolBar.setListener(this);
+		toolBar.setDirty(false);
 		setTopComponent(toolBar);
 
 	}
@@ -176,27 +180,38 @@ public class ProjectPivotContainer extends ContentPanel implements ProjectSubPre
 		siteFilter.clear();
 		dateFilter.clear();
 
-		PivotTableElement pivot = composer.fixIndicator(indicatorFilter.getSelectedIndicatorId());
+		IndicatorDTO indicator = indicatorFilter.getValue();
+		gridPanel.setHeading(indicator.getName() + " [" + indicator.getCode() + "]");
+		gridPanel.setShowSwapIcon(false);
 
-		loadPivot(new PivotLayout(indicatorFilter.getValue()), pivot);
+		PivotTableElement pivot = composer.fixIndicator(indicator.getId());
+		loadPivot(new PivotLayout(indicator), pivot);
 	}
 
 	private void onSiteSelected() {
 		indicatorFilter.clear();
 		dateFilter.clear();
+		SiteDTO site = (SiteDTO)siteFilter.getValue();
 
-		PivotTableElement pivot = composer.fixSite(siteFilter.getSelectedSiteId());
-
-		loadPivot(new PivotLayout(siteFilter.getValue()), pivot);
+		PivotTableElement pivot = composer.fixSite(site.getId());
+		gridPanel.setHeading(site.getLocationName());
+		gridPanel.setShowSwapIcon(false);
+		
+		loadPivot(new PivotLayout(site), pivot);
 	}
 
 	private void onDateSelected() {
 		indicatorFilter.clear();
 		siteFilter.clear();
 
-		PivotTableElement pivot = composer.fixDateRange(dateFilter.getValue().getDateRange());
+		DateRangeModel dateRangeModel = dateFilter.getValue();
+		
+		gridPanel.setHeading(dateRangeModel.getLabel());
+		gridPanel.setShowSwapIcon(true);
+		
+		PivotTableElement pivot = composer.fixDateRange(dateRangeModel.getDateRange(), axesSwapped);
 
-		loadPivot(new PivotLayout(dateFilter.getValue()), pivot);
+		loadPivot(new PivotLayout(dateRangeModel), pivot);
 	}
 
 	private void onHeaderClicked(PivotGridHeaderEvent event) {
@@ -209,6 +224,9 @@ public class ProjectPivotContainer extends ContentPanel implements ProjectSubPre
 			if(axis.getDimension().getType() == DimensionType.Indicator) {
 				editIndicator( ((EntityCategory)axis.getCategory()).getId() );
 			}
+		} else if(event.getIconTarget() == IconTarget.SWAP) {
+			axesSwapped = !axesSwapped;
+			onDateSelected();
 		}
 	}
 
@@ -274,6 +292,7 @@ public class ProjectPivotContainer extends ContentPanel implements ProjectSubPre
 
 
 	private void onCellEdited(final PivotGridCellEvent event) {
+		toolBar.setDirty(true);
 		if(event.getCell() != null) {
 			if(event.getCell().getCount() > 1) {
 				MessageBox.confirm(I18N.CONSTANTS.confirmUpdate(), I18N.CONSTANTS.confirmUpdateOfAggregatedCell(), new Listener<MessageBoxEvent>() {
@@ -303,7 +322,8 @@ public class ProjectPivotContainer extends ContentPanel implements ProjectSubPre
 	}
 
 	private void loadPivot(final PivotLayout layout, final PivotTableElement pivot) {
-		dispatcher.execute(new GenerateElement<PivotContent>(pivot), null, new AsyncCallback<PivotContent>() {
+		dispatcher.execute(new GenerateElement<PivotContent>(pivot), new MaskingAsyncMonitor(this, I18N.CONSTANTS.loading()), 
+				new AsyncCallback<PivotContent>() {
 
 			@Override
 			public void onFailure(Throwable caught) {

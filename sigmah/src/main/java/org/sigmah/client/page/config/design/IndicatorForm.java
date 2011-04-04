@@ -11,11 +11,20 @@ import org.sigmah.client.page.common.widget.MappingComboBox;
 import org.sigmah.client.page.common.widget.MappingComboBoxBinding;
 import org.sigmah.shared.dto.IndicatorDTO;
 
+import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.Style.Scroll;
+import com.extjs.gxt.ui.client.binding.Converter;
 import com.extjs.gxt.ui.client.binding.FieldBinding;
 import com.extjs.gxt.ui.client.binding.FormBinding;
+import com.extjs.gxt.ui.client.data.ModelData;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.FieldEvent;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.form.AdapterField;
+import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.NumberField;
+import com.extjs.gxt.ui.client.widget.form.Radio;
+import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.extjs.gxt.ui.client.widget.form.TextArea;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 
@@ -24,6 +33,9 @@ class IndicatorForm extends AbstractDesignForm {
     private FormBinding binding;
 	private NumberField idField;
 	private TextField<String> categoryField;
+	private TextField<String> unitsField;
+	private AdapterField labelsField;
+	private RadioGroup typeGroup;
 
     public IndicatorForm()  {
         super();
@@ -54,13 +66,33 @@ class IndicatorForm extends AbstractDesignForm {
 
         categoryField = new TextField<String>();
         categoryField.setName("category");
-        categoryField.setFieldLabel(I18N.CONSTANTS.category());
+        categoryField.setFieldLabel(I18N.CONSTANTS.group());
         categoryField.setMaxLength(50);
         categoryField.setReadOnly(true);
         binding.addFieldBinding(new FieldBinding(categoryField, "category"));
         this.add(categoryField);
+        
+        NumberField objectiveField = new NumberField();
+        objectiveField.setName("objective");
+        objectiveField.setFieldLabel(I18N.CONSTANTS.objecive());
+        binding.addFieldBinding(new FieldBinding(objectiveField, "objective"));
+        this.add(objectiveField);
+       
+        typeGroup = new RadioGroup("aggregation");
+        typeGroup.setFieldLabel(I18N.CONSTANTS.type());
+        typeGroup.setOrientation(Orientation.VERTICAL);
+        typeGroup.add(newRadio(IndicatorDTO.AGGREGATE_SUM, I18N.CONSTANTS.sum()));
+        typeGroup.add(newRadio(IndicatorDTO.AGGREGATE_AVG, I18N.CONSTANTS.average()));
+        typeGroup.add(newRadio(IndicatorDTO.AGGREGATE_SITE_COUNT, I18N.CONSTANTS.siteCount()));
+        typeGroup.add(newRadio(IndicatorDTO.AGGREGATE_MULTINOMIAL, "Qualitative"));
+        binding.addFieldBinding(new AggregationFieldBinding(typeGroup, "aggregation"));
+        this.add(typeGroup);
+        
+        labelsField = new AdapterField(new ValueLabelGrid());
+        labelsField.setFieldLabel("Value Labels");
+        this.add(labelsField);
 
-        TextField<String> unitsField = new TextField<String>();
+        unitsField = new TextField<String>();
         unitsField.setName("units");
         unitsField.setFieldLabel(I18N.CONSTANTS.units());
         unitsField.setAllowBlank(false);
@@ -68,28 +100,25 @@ class IndicatorForm extends AbstractDesignForm {
         binding.addFieldBinding(new FieldBinding(unitsField, "units"));
         this.add(unitsField);
         
-        NumberField objectiveField = new NumberField();
-        objectiveField.setName("objective");
-        objectiveField.setFieldLabel(I18N.CONSTANTS.objecive());
-        binding.addFieldBinding(new FieldBinding(objectiveField, "objective"));
-        this.add(objectiveField);
+        typeGroup.addListener(Events.Change, new Listener<FieldEvent>() {
 
-        MappingComboBox aggregationCombo = new MappingComboBox();
-        aggregationCombo.setFieldLabel(I18N.CONSTANTS.aggregationMethod());
-        aggregationCombo.add(IndicatorDTO.AGGREGATE_SUM, I18N.CONSTANTS.sum());
-        aggregationCombo.add(IndicatorDTO.AGGREGATE_AVG, I18N.CONSTANTS.average());
-        aggregationCombo.add(IndicatorDTO.AGGREGATE_SITE_COUNT, I18N.CONSTANTS.siteCount());
-        binding.addFieldBinding(new MappingComboBoxBinding(aggregationCombo, "aggregation"));
-        this.add(aggregationCombo);
+			@Override
+			public void handleEvent(FieldEvent be) {
+				updateFormLayout();
+			}
+		});
         
-        AdapterField labelsField = new AdapterField(new ValueLabelGrid());
-        labelsField.setFieldLabel("Value Labels");
-        this.add(labelsField);
-
         TextArea descField = new TextArea();
         descField.setFieldLabel(I18N.CONSTANTS.description());
         binding.addFieldBinding(new FieldBinding(descField, "description"));
         this.add(descField);
+    }
+    
+    private Radio newRadio(int value, String label) {
+    	Radio radio = new Radio();
+    	radio.setBoxLabel(label);
+    	radio.setData("type", value);
+    	return radio;
     }
     
     public void setIdVisible(boolean visible) {
@@ -103,5 +132,43 @@ class IndicatorForm extends AbstractDesignForm {
     @Override
     public FormBinding getBinding() {
         return binding;
+    }
+    
+    private void updateFormLayout() {
+    	if(typeGroup.getValue() != null) {
+			int type = (Integer)typeGroup.getValue().getData("type");
+	
+			labelsField.setVisible(type == IndicatorDTO.AGGREGATE_MULTINOMIAL);
+			
+			boolean requiresUnit = type != IndicatorDTO.AGGREGATE_MULTINOMIAL && type != IndicatorDTO.AGGREGATE_SITE_COUNT;
+			unitsField.setVisible(requiresUnit);
+			unitsField.setAllowBlank(!requiresUnit);
+    	}
+	}
+
+	private static class AggregationFieldBinding extends FieldBinding {
+
+		public AggregationFieldBinding(final Field field, String property) {
+			super(field, property);
+			 setConverter(new Converter() {
+		            @Override
+		            public Object convertModelValue(Object value) {
+		            	for(Field radio : ((RadioGroup)field).getAll()) {
+		            		if(radio.getData("type").equals(value)) {
+		            			return radio;
+		            		}
+		            	}
+		                return null;
+		            }
+
+		            @Override
+		            public Object convertFieldValue(Object value) {
+		                Radio radio = (Radio)value;
+		                return radio == null ? null : (Integer)radio.getData("type");
+		            }
+		        });
+		}
+    	
+    	
     }
 }

@@ -27,7 +27,6 @@ class PivotLayout {
 	public void setFilter(ModelData filter) {
 		this.filter = filter;
 	}
-	
-	
+
 	
 }

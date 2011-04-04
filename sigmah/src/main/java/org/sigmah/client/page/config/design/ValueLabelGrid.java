@@ -31,7 +31,7 @@ public class ValueLabelGrid extends EditorGrid<ModelData> {
 			@Override
 			public void handleEvent(GridEvent<ModelData> be) {
 				if(be.getRowIndex()+1 == getStore().getCount() &&
-						(be.getModel().get("code") != null || be.getModel().get("label") != null)) {
+						(be.getModel().get("label") != null)) {
 					getStore().add(new BaseModelData());
 				}
 			}
@@ -42,11 +42,6 @@ public class ValueLabelGrid extends EditorGrid<ModelData> {
 		
 		NumberField codeField = new NumberField();
 		
-		ColumnConfig code = new ColumnConfig("code", "Code",  50);
-		code.setEditor(new CellEditor(codeField));
-		code.setSortable(false);
-		code.setMenuDisabled(true);
-		code.setAlignment(HorizontalAlignment.RIGHT);
 		
 		TextField<String> labelField = new TextField<String>();
 		
@@ -55,7 +50,7 @@ public class ValueLabelGrid extends EditorGrid<ModelData> {
 		label.setSortable(false);
 		label.setMenuDisabled(true);
 		
-		return new ColumnModel(Arrays.asList(code, label));
+		return new ColumnModel(Arrays.asList(label));
 		
 	}
 	

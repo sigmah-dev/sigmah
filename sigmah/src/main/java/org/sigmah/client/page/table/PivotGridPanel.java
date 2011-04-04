@@ -89,7 +89,8 @@ public class PivotGridPanel extends ContentPanel implements HasValue<PivotElemen
     protected Map<Integer, PivotTableData.Axis> columnMap;
     
     
-    private boolean showIcons = true;
+    private boolean showAxisIcons = true;
+    private boolean showSwapIcon = false;
 
     @Inject
     public PivotGridPanel(EventBus eventBus) {
@@ -101,7 +102,24 @@ public class PivotGridPanel extends ContentPanel implements HasValue<PivotElemen
         PivotResources.INSTANCE.css().ensureInjected();
     }
 
-    public class PivotTableRow extends BaseTreeModel {
+    
+    public boolean isShowAxisIcons() {
+		return showAxisIcons;
+	}
+
+	public void setShowAxisIcons(boolean showAxisIcons) {
+		this.showAxisIcons = showAxisIcons;
+	}
+
+	public boolean isShowSwapIcon() {
+		return showSwapIcon;
+	}
+
+	public void setShowSwapIcon(boolean showSwapIcon) {
+		this.showSwapIcon = showSwapIcon;
+	}
+
+	public class PivotTableRow extends BaseTreeModel {
 
         private PivotTableData.Axis rowAxis;
 
@@ -282,7 +300,7 @@ public class PivotGridPanel extends ContentPanel implements HasValue<PivotElemen
 
         List<ColumnConfig> config = new ArrayList<ColumnConfig>();
 
-        ColumnConfig rowHeader = new ColumnConfig("header", "", 150);
+        ColumnConfig rowHeader = new ColumnConfig("header", cornerCellHtml(), 150);
         rowHeader.setRenderer(new TreeGridCellRenderer() {
 
 			@Override
@@ -364,8 +382,16 @@ public class PivotGridPanel extends ContentPanel implements HasValue<PivotElemen
         return columnModel;
     }
 
-    private String decorateHeader(String header, Axis axis) {
-    	if(showIcons && axis.isLeaf()) {
+    private String cornerCellHtml() {
+    	if(showSwapIcon) {
+    		return IconUtil.iconHtml(PivotResources.INSTANCE.css().swapIcon());
+    	} else {
+    		return "";
+    	}
+	}
+
+	private String decorateHeader(String header, Axis axis) {
+    	if(showAxisIcons && axis.isLeaf()) {
     		StringBuilder sb = new StringBuilder(header);
     		sb.append(IconUtil.iconHtml(PivotResources.INSTANCE.css().zoomIcon()));
     		

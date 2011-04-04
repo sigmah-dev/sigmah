@@ -48,7 +48,7 @@ public class LayoutTest extends CommandTestCase {
 	public void dateFixed() throws CommandException {
 
 		setUser(1);
-		PivotTableElement element = executeLayout(composer.fixDateRange(dateUtil.monthRange(2010, 1)));			
+		PivotTableElement element = executeLayout(composer.fixDateRange(dateUtil.monthRange(2010, 1), false));			
 	
 		System.out.println(element.getContent());
 

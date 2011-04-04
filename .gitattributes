@@ -575,6 +575,7 @@ sigmah/src/main/java/org/sigmah/client/page/table/filter/AbstractFilterFieldSet.
 sigmah/src/main/java/org/sigmah/client/page/table/filter/PartnerFieldSet.java -text
 sigmah/src/main/java/org/sigmah/client/page/table/pencil.png -text
 sigmah/src/main/java/org/sigmah/client/page/table/pivot.css -text
+sigmah/src/main/java/org/sigmah/client/page/table/swap.png -text
 sigmah/src/main/java/org/sigmah/client/page/table/zoom.png -text
 sigmah/src/main/java/org/sigmah/client/page/welcome/StaticPage.java -text
 sigmah/src/main/java/org/sigmah/client/page/welcome/StaticPageLoader.java -text

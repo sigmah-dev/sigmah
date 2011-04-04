@@ -18,6 +18,7 @@ public final class IndicatorDTO extends BaseModelData implements EntityDTO {
     public final static int AGGREGATE_SUM = 0;
 	public final static int AGGREGATE_AVG = 1;
 	public final static int AGGREGATE_SITE_COUNT = 2;
+	public final static int AGGREGATE_MULTINOMIAL = 3;
 
     public static final String PROPERTY_PREFIX = "I";
 	

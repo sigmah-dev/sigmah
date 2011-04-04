@@ -78,14 +78,22 @@ public class LayoutComposer {
 	}
 	
 
-	public PivotTableElement fixDateRange(DateRange dateRange) {
+	public PivotTableElement fixDateRange(DateRange dateRange, boolean indicatorsInRows) {
 		PivotTableElement pivot = new PivotTableElement();
 		pivot.setShowEmptyCells(true);
 
-		pivot.addColDimension(new Dimension(DimensionType.IndicatorCategory));
-		pivot.addColDimension(new Dimension(DimensionType.Indicator));
-		
-		pivot.addRowDimension(new Dimension(DimensionType.Site));
+		if(indicatorsInRows) {
+			pivot.addColDimension(new Dimension(DimensionType.Site));	
+
+			pivot.addRowDimension(new Dimension(DimensionType.IndicatorCategory));
+			pivot.addRowDimension(new Dimension(DimensionType.Indicator));
+			
+		} else {
+			pivot.addColDimension(new Dimension(DimensionType.IndicatorCategory));
+			pivot.addColDimension(new Dimension(DimensionType.Indicator));
+			
+			pivot.addRowDimension(new Dimension(DimensionType.Site));
+		}
 		
 		
 		Filter filter = new Filter();
