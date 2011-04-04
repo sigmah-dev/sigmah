@@ -33,7 +33,7 @@
 	
     <orgUnitPermission id="1" unit_Id="4" user_UserId="3" viewAll="1" editAll="0"/>
     
-    <project_model id_project_model="1" name="Mock model 1" />
+    <project_model id_project_model="1" name="Mock model 1" status="READY" />
 
     <layout id_layout="1" rows_count="2" columns_count="1" />
         <layout_group id_layout_group="1" id_layout="1" row_index="0" column_index="0" title="Header" />
