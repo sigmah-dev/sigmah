@@ -84,7 +84,7 @@ class IndicatorForm extends AbstractDesignForm {
         typeGroup.add(newRadio(IndicatorDTO.AGGREGATE_SUM, I18N.CONSTANTS.sum()));
         typeGroup.add(newRadio(IndicatorDTO.AGGREGATE_AVG, I18N.CONSTANTS.average()));
         typeGroup.add(newRadio(IndicatorDTO.AGGREGATE_SITE_COUNT, I18N.CONSTANTS.siteCount()));
-        typeGroup.add(newRadio(IndicatorDTO.AGGREGATE_MULTINOMIAL, "Qualitative"));
+        typeGroup.add(newRadio(IndicatorDTO.AGGREGATE_MULTINOMIAL, I18N.CONSTANTS.qualitative()));
         binding.addFieldBinding(new AggregationFieldBinding(typeGroup, "aggregation"));
         this.add(typeGroup);
         
