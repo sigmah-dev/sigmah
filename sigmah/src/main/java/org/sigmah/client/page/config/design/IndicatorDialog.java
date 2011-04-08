@@ -52,14 +52,11 @@ public class IndicatorDialog extends Window {
 		TabItem valuesTab = new TabItem(I18N.CONSTANTS.value());
 		valuesTab.setLayout(new FitLayout());
 		valuesTab.add(siteGridPanel);
-		
-		TabItem linkTab = new TabItem("Links");
-		
+
 		
 		TabPanel tabPanel = new TabPanel();
 		tabPanel.add(defTab);
 		tabPanel.add(valuesTab);
-		tabPanel.add(linkTab);
 		
 		setLayout(new FitLayout());
 		add(tabPanel);
