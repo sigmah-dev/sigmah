@@ -79,19 +79,19 @@ public class AdminCategoryView extends View {
         sidePanel.add(categoriesGrid);
         sidePanel.setTopComponent(categoryTypeToolBar());
         
-        ContentPanel reportPanel = new ContentPanel(new FitLayout());
-        reportPanel.setHeaderVisible(false);
-        reportPanel.setBorders(true);
+        ContentPanel categoryPanel = new ContentPanel(new FitLayout());
+        categoryPanel.setHeaderVisible(false);
+        categoryPanel.setBorders(true);
         categoryElementsGrid = buildCategoryElementsGrid();
-        reportPanel.add(categoryElementsGrid);
-        reportPanel.setTopComponent(categoryElementToolBar());
+        categoryPanel.add(categoryElementsGrid);
+        categoryPanel.setTopComponent(categoryElementToolBar());
         
         final BorderLayoutData leftLayoutData = new BorderLayoutData(LayoutRegion.WEST, 400);
         leftLayoutData.setMargins(new Margins(0, 4, 0, 0));
 		add(sidePanel, leftLayoutData);	
 		 final BorderLayoutData mainLayoutData = new BorderLayoutData(LayoutRegion.CENTER);
 	        mainLayoutData.setMargins(new Margins(0, 0, 0, 4));
-		add(reportPanel, mainLayoutData);		
+		add(categoryPanel, mainLayoutData);		
 	}
 
 	private Grid<CategoryElementDTO> buildCategoryElementsGrid(){	
@@ -330,9 +330,9 @@ public class AdminCategoryView extends View {
 									}
 									elements.add((CategoryElementDTO) result.getEntity());
 									currentCategoryType.setCategoryElementsDTO(elements);
-									categoriesStore.add(currentCategoryType);
+									categoriesStore.update(currentCategoryType);
 									categoriesStore.commitChanges();
-									Notification.show(I18N.CONSTANTS.adminCategoryTypeCreationBox(), I18N.MESSAGES.adminStandardUpdateSuccessF(I18N.CONSTANTS.adminReportModelStandard()
+									Notification.show(I18N.CONSTANTS.adminCategoryTypeCreationBox(), I18N.MESSAGES.adminStandardUpdateSuccessF(I18N.CONSTANTS.adminCategoryTypeStandard()
 											+ " '" + currentCategoryType.getLabel() +"'"));					
 								}					
 								else{
@@ -411,10 +411,16 @@ public class AdminCategoryView extends View {
 
             @Override
             public void onSuccess(VoidResult result) {
+            	List<CategoryElementDTO> elements = currentCategoryType.getCategoryElementsDTO();
             	for(CategoryElementDTO model : selection){
             		categoryElementsStore.remove(model);
+            		elements.remove((CategoryElementDTO) model);
             	}   
             	categoryElementsStore.commitChanges();
+            	
+				currentCategoryType.setCategoryElementsDTO(elements);
+				categoriesStore.update(currentCategoryType);
+				categoriesStore.commitChanges();
             }
         });
 	}

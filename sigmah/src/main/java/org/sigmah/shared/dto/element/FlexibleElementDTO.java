@@ -408,9 +408,9 @@ public abstract class FlexibleElementDTO extends BaseModelData implements Entity
     	ElementTypeEnum type = null;
     	if(this instanceof TextAreaElementDTO){
     		type = ElementTypeEnum.TEXT_AREA;
-    	}else if(this instanceof BudgetDistributionElementDTO){
+    	}/*else if(this instanceof BudgetDistributionElementDTO){
     		type = ElementTypeEnum.BUDGET;
-    	}else if(this instanceof CheckboxElementDTO){
+    	}*/else if(this instanceof CheckboxElementDTO){
     		type = ElementTypeEnum.CHECKBOX;
     	}else if(this instanceof DefaultFlexibleElementDTO){
     		type = ElementTypeEnum.DEFAULT;

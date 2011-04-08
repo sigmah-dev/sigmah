@@ -1,5 +1,8 @@
 package org.sigmah.client.page.admin.model.project.phase;
 
+import java.util.List;
+import java.util.Map;
+
 import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.page.admin.AdminPageState;
 import org.sigmah.client.page.admin.model.AdminModelSubPresenter;
@@ -18,6 +21,8 @@ public class AdminPhasesPresenter implements AdminModelSubPresenter {
 	public static abstract class View extends ModelView {
 		public abstract Component getMainPanel();
 		public abstract ListStore<PhaseModelDTO> getPhaseStore();
+		public abstract Map<String, PhaseModelDTO> getPhases();
+		public abstract List<String> getSuccessorsPhases();
 	}
 	
 	public AdminPhasesPresenter(Dispatcher dispatcher){

@@ -23,6 +23,7 @@ import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.LabelField;
+import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.layout.FormLayout;
@@ -59,7 +60,7 @@ public class UserSigmahForm extends FormPanel {
 	private final TextField<String> pwdField;
 	private final TextField<String> checkPwdField;
 	private final TextField<String> emailField;
-	private final TextField<String> localeField;
+	private final SimpleComboBox<String> localeField;
 	private final ComboBox<OrgUnitDTOLight> orgUnitsList;
 	private final ListStore<OrgUnitDTOLight> orgUnitsStore;
 	private final ComboBox<ProfileDTOLight> profilesListCombo;
@@ -148,11 +149,14 @@ public class UserSigmahForm extends FormPanel {
 		}
 			
 		
-		localeField = new TextField<String>();
+		localeField = new SimpleComboBox<String>();
+		localeField.add(I18N.CONSTANTS.adminUsersLocaleFr());
+		localeField.add(I18N.CONSTANTS.adminUsersLocaleEn());
 		localeField.setFieldLabel(constants.adminUsersLocale());
+		localeField.setTriggerAction(TriggerAction.ALL);
 		localeField.setAllowBlank(false);
 		if(userToUpdate != null && !userToUpdate.getLocale().isEmpty())
-			localeField.setValue(userToUpdate.getLocale());
+			localeField.setSimpleValue(userToUpdate.getLocale());
 		add(localeField);
 		
 		orgUnitsList = new ComboBox<OrgUnitDTOLight>();
@@ -330,7 +334,16 @@ public class UserSigmahForm extends FormPanel {
 		 final String firstName = firstNameField.getValue();
 		 final String email = emailField.getValue();
 		 final String pwd = pwdField.getValue();
-		 final String locale = localeField.getValue();
+		 String locale = null;
+		 if(localeField.getSimpleValue() != null){
+			 if(localeField.getSimpleValue().equals(I18N.CONSTANTS.adminUsersLocaleFr())){
+				 locale = "fr";
+			 }
+			 else{
+				 locale = "en";
+			 }
+		 }
+		 
 		 final int orgUnit = orgUnitsList.getValue().getId();
 		 final List<Integer> profiles = selectedProfilesIds;
 		 

@@ -586,10 +586,10 @@ public class CreateProjectWindow {
                         return;
                     }
                     for(ProjectModelDTOLight projectModelLight : result.getList()){
-                    	if(!ProjectModelStatus.DRAFT.equals(projectModelLight.getStatus())
-                    			&& !ProjectModelStatus.UNAVAILABLE.equals(projectModelLight.getStatus())){
+                    	/*TODO enable if(!ProjectModelStatus.DRAFT.equals(projectModelLight.getStatus())
+                    			&& !ProjectModelStatus.UNAVAILABLE.equals(projectModelLight.getStatus())){*/
                     		 modelsStore.add(projectModelLight);
-                    	}
+                    	//}
                     }                   
                     modelsStore.commitChanges();
 

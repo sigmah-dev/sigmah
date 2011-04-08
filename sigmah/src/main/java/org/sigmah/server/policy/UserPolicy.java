@@ -93,12 +93,16 @@ public class UserPolicy implements EntityPolicy<User> {
 				userToPersist = em.merge(userToPersist);
 			}else{
 				//create new user
-				userDAO.persist(userToPersist);
-				try {
-		    		inviteMailer.send(new Invitation(userToPersist, executingUser), LocaleHelper.getLocaleObject(executingUser));
-		        } catch (Exception e) {
-		            // ignore, don't abort because mail didn't work
-		        }
+				if(!userDAO.doesUserExist(email)){
+					userDAO.persist(userToPersist);
+					try {
+			    		inviteMailer.send(new Invitation(userToPersist, executingUser), LocaleHelper.getLocaleObject(executingUser));
+			        } catch (Exception e) {
+			            // ignore, don't abort because mail didn't work
+			        }
+				}else{
+					return null;
+				}				
 			}
         	
 	        //update link to profile

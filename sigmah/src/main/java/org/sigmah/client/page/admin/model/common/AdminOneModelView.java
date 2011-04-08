@@ -612,6 +612,14 @@ public class AdminOneModelView extends LayoutContainer implements AdminOneModelP
 				
 				name.setValue(currentOrgUnitModel.getName());				
 				statusList.setSimpleValue(ProjectModelStatus.getName(currentOrgUnitModel.getStatus()));
+				
+				titleField.setValue(currentOrgUnitModel.getTitle());
+				hasBudgetCheckBox.setValue(currentOrgUnitModel.getHasBudget());
+				hasSiteCheckBox.setValue(currentOrgUnitModel.getHasSite());
+				canContainProjectsCheckBox.setValue(currentOrgUnitModel.getCanContainProjects());
+				minLevelField.setValue(currentOrgUnitModel.getMinLevel());
+				maxLevelField.setValue(currentOrgUnitModel.getMaxLevel());
+				
 				Log.debug("Original org unit model status : " + currentOrgUnitModel.getName() + " " + ProjectModelStatus.getName(currentOrgUnitModel.getStatus()));
 			}
 				

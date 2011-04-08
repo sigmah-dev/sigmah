@@ -1,7 +1,9 @@
 package org.sigmah.client.page.admin.model.project.phase;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.i18n.I18N;
@@ -34,7 +36,8 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 public class AdminPhasesView extends View {	
 
 	private final ListStore<PhaseModelDTO> phaseStore;
-
+	private final Map<String, PhaseModelDTO> phases = new HashMap<String, PhaseModelDTO>();;	
+	private final List<String> successorsPhasesNames = new ArrayList<String>();
 	private final Dispatcher dispatcher;
 
 	public AdminPhasesView(Dispatcher dispatcher){	
@@ -50,6 +53,9 @@ public class AdminPhasesView extends View {
         
         Grid<PhaseModelDTO> grid = buildModelsListGrid();
         grid.setAutoHeight(true);
+        grid.getView().setForceFit(true);
+        
+        
         
         add(grid, topVBoxLayoutData);
 	}
@@ -95,8 +101,7 @@ public class AdminPhasesView extends View {
 				
 				Button button = new Button(I18N.CONSTANTS.edit());
 				button.disable();
-				if((projectModel != null && ProjectModelStatus.DRAFT.equals(projectModel.getStatus()))
-						|| (orgUnitModel != null && ProjectModelStatus.DRAFT.equals(orgUnitModel.getStatus())))
+				if((projectModel != null && ProjectModelStatus.DRAFT.equals(projectModel.getStatus())))
 					button.enable();
 		        button.setItemId(UIActions.edit);
 		        button.addListener(Events.OnClick, new Listener<ButtonEvent>(){
@@ -149,7 +154,7 @@ public class AdminPhasesView extends View {
         window.setModal(true);
         window.setBlinkModal(true);
         window.setLayout(new FitLayout());
-		FormPanel form = new PhaseSigmahForm(dispatcher, new AsyncCallback<UpdateModelResult>(){
+		FormPanel form = new PhaseSigmahForm(this, dispatcher, new AsyncCallback<UpdateModelResult>(){
 
 			@Override
 			public void onFailure(Throwable caught) {
@@ -188,6 +193,7 @@ public class AdminPhasesView extends View {
 
 	@Override
 	public Component getMainPanel() {
+		initPhases();
 		return this;
 	}
 
@@ -198,4 +204,29 @@ public class AdminPhasesView extends View {
 	}
 
 
+	@Override
+	public Map<String, PhaseModelDTO> getPhases() {
+		return phases;
+	}
+
+
+	@Override
+	public List<String> getSuccessorsPhases() {
+		return successorsPhasesNames;
+	}
+
+	public void initPhases(){
+		for(PhaseModelDTO phase : projectModel.getPhaseModelsDTO()){
+			for(PhaseModelDTO succPhase : phase.getSuccessorsDTO()){
+				if(!successorsPhasesNames.contains(succPhase.getName()))
+					successorsPhasesNames.add(succPhase.getName());
+			}
+			if(projectModel.getRootPhaseModelDTO() != null && phase.getName().equals(projectModel.getRootPhaseModelDTO().getName())){
+				phase.setIsRoot(true);
+			}else{
+				phase.setIsRoot(false);
+			}
+			phases.put(phase.getName(), phase);
+		}
+	}
 }

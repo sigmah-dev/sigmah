@@ -86,7 +86,6 @@ public class AdminUsersActionListener implements ActionListener {
 			@Override
 			public void onFailure(Throwable arg0) {
 				window.hide();
-				
 			}
 
 			@Override

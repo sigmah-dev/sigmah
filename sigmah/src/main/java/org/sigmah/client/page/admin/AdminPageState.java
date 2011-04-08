@@ -42,13 +42,11 @@ public class AdminPageState implements PageState, TabPage, HasTab {
         		final String[] tokens = token.split("/");
             	final AdminPageState state = new AdminPageState(Integer.parseInt(tokens[0]));
             	if(tokens.length > 1) {
-                    state.setCurrentSection(Integer.parseInt(tokens[1]));
-                    if(tokens.length > 2) {
-                        state.setModel(new Integer(tokens[2]));
-                    } else {
-                        state.setModel(null);
-                    }
+                    state.setModel(new Integer(tokens[1]));
+                } else {
+                    state.setModel(null);
                 }
+                
             	return state;
         	}
         	return new AdminPageState(1);

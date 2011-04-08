@@ -13,11 +13,15 @@ import org.sigmah.client.page.common.toolbar.UIActions;
 import org.sigmah.shared.command.result.CreateResult;
 import org.sigmah.shared.command.result.UpdateModelResult;
 import org.sigmah.shared.domain.ProjectModelStatus;
+import org.sigmah.shared.domain.element.DefaultFlexibleElementType;
+import org.sigmah.shared.dto.OrgUnitModelDTO;
 import org.sigmah.shared.dto.ProjectModelDTO;
+import org.sigmah.shared.dto.element.DefaultFlexibleElementDTO;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
 import org.sigmah.shared.dto.layout.LayoutGroupDTO;
 import org.sigmah.shared.dto.profile.PrivacyGroupDTO;
 
+import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
@@ -37,7 +41,10 @@ import com.extjs.gxt.ui.client.widget.grid.GridSelectionModel;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.VBoxLayoutData;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.Anchor;
 
 public class AdminFlexibleElementsView extends View {	
 	
@@ -45,8 +52,7 @@ public class AdminFlexibleElementsView extends View {
 	
 	private final Dispatcher dispatcher;
 	private final Grid<FlexibleElementDTO> flexGrid;
-	private Button groupButton;
-	private Button flexButton;
+	private final List<LayoutGroupDTO> addedGroups = new ArrayList<LayoutGroupDTO>();
 
 	public AdminFlexibleElementsView(Dispatcher dispatcher){	
 		this.dispatcher = dispatcher;
@@ -146,12 +152,12 @@ public class AdminFlexibleElementsView extends View {
 					if(isUpdate){						
 						List<FlexibleElementDTO> modifiedFlexs = AdminFlexibleElementsView.this.getFieldsStore().findModels("group", model.getGroup());
 						for(FlexibleElementDTO modifiedFlex : modifiedFlexs){
-							AdminFlexibleElementsView.this.getFieldsStore().remove(modifiedFlex);
 							modifiedFlex.setGroup((LayoutGroupDTO) result.getEntity());
-							AdminFlexibleElementsView.this.getFieldsStore().add(modifiedFlex);							
+							AdminFlexibleElementsView.this.getFieldsStore().update(modifiedFlex);							
 						}			
-						AdminFlexibleElementsView.this.getFieldsStore().commitChanges();
-					}					
+						AdminFlexibleElementsView.this.getFieldsStore().commitChanges();						
+					}
+					addedGroups.add((LayoutGroupDTO) result.getEntity());
 				}				
 			}			
 		}, model , projectModel, orgUnitModel);
@@ -161,8 +167,8 @@ public class AdminFlexibleElementsView extends View {
 	
 	public void showNewFlexibleElementForm(final FlexibleElementDTO model,
 			final boolean isUpdate) {
-		int width = 800;
-		int height = 650;
+		int width = 700;
+		int height = 450;
 		String title = I18N.CONSTANTS.adminFlexible();
 		final Window window = new Window();		
 		window.setHeading(title);
@@ -186,8 +192,13 @@ public class AdminFlexibleElementsView extends View {
 					AdminFlexibleElementsView.this.getFieldsStore().commitChanges();
 				}else{
 					window.hide();
-					ProjectModelDTO projectModelUpdated = (ProjectModelDTO)result.getEntity();
-					AdminFlexibleElementsView.this.setModel(projectModelUpdated);
+					if(projectModel != null){
+						ProjectModelDTO modelUpdated = (ProjectModelDTO)result.getEntity();
+						AdminFlexibleElementsView.this.setProjectModel(modelUpdated);
+					}else{
+						OrgUnitModelDTO modelUpdated = (OrgUnitModelDTO)result.getEntity();
+						AdminFlexibleElementsView.this.setOrgUnitModel(modelUpdated);
+					}					
 					AdminFlexibleElementsView.this.getFieldsStore().remove(model);
 					AdminFlexibleElementsView.this.getFieldsStore().add((FlexibleElementDTO)result.getAnnexEntity());
 					AdminFlexibleElementsView.this.getFieldsStore().commitChanges();
@@ -196,7 +207,7 @@ public class AdminFlexibleElementsView extends View {
 
 
 			
-		}, model, projectModel, orgUnitModel);
+		}, model, projectModel, orgUnitModel, addedGroups);
 		window.add(form);
         window.show();
 	}
@@ -207,6 +218,41 @@ public class AdminFlexibleElementsView extends View {
         List<ColumnConfig> configs = new ArrayList<ColumnConfig>();  
 		  
         ColumnConfig column = new ColumnConfig("label",I18N.CONSTANTS.adminFlexibleName(), 300);   
+        column.setRenderer(new GridCellRenderer<FlexibleElementDTO>(){
+
+			@Override
+			public Object render(final FlexibleElementDTO model, String property,
+					ColumnData config, int rowIndex, int colIndex,
+					ListStore<FlexibleElementDTO> store, Grid<FlexibleElementDTO> grid) {
+				
+				if((projectModel != null && ProjectModelStatus.DRAFT.equals(projectModel.getStatus()))
+						|| (orgUnitModel != null && ProjectModelStatus.DRAFT.equals(orgUnitModel.getStatus()))){
+					final Anchor nameHyperlink ;
+					if(ElementTypeEnum.DEFAULT.equals(model.getElementType())){
+						nameHyperlink = new Anchor(DefaultFlexibleElementType.getName(((DefaultFlexibleElementDTO)model).getType()), true);	
+						Log.debug("Default flexible element");
+					}
+							//FIXME ?				
+					else
+						nameHyperlink = new Anchor(model.getLabel().replace("?", ""), true);
+	                nameHyperlink.addStyleName("hyperlink");
+	                nameHyperlink.addClickHandler(new ClickHandler(){
+
+						@Override
+						public void onClick(ClickEvent event) {
+							showNewFlexibleElementForm(model,true);
+						}
+	                	
+	                });
+	                return nameHyperlink;
+				}else{				
+					if(ElementTypeEnum.DEFAULT.equals(model.getElementType()))
+						return AdminUtil.createGridText(DefaultFlexibleElementType.getName(((DefaultFlexibleElementDTO)model).getType()).replace("?", ""));
+					else
+						return AdminUtil.createGridText(model.getLabel().replace("?", ""));					
+				}
+			}
+        });
 		configs.add(column);
 		
 		column = new ColumnConfig("type",I18N.CONSTANTS.adminFlexibleType(), 100);   
@@ -229,6 +275,7 @@ public class AdminFlexibleElementsView extends View {
 					ColumnData config, int rowIndex, int colIndex,
 					ListStore<FlexibleElementDTO> store, Grid<FlexibleElementDTO> grid) {	
 				CheckBox validates = AdminUtil.createCheckBox(I18N.CONSTANTS.adminFlexibleCompulsory(), null);
+				validates.disable();
 				validates.setValue(model.getValidates());
 				return validates;
 			}	    	
@@ -260,6 +307,7 @@ public class AdminFlexibleElementsView extends View {
 					ListStore<FlexibleElementDTO> store, Grid<FlexibleElementDTO> grid) {	
 				CheckBox amendable = AdminUtil.createCheckBox(I18N.CONSTANTS.adminFlexibleAmendable(), null);
 				amendable.setValue(model.getAmendable());
+				amendable.disable();
 				return amendable;
 			}	    	
 	    });
@@ -276,6 +324,7 @@ public class AdminFlexibleElementsView extends View {
 				if(model.getBannerConstraint()!=null){
 					banner.setValue(true);
 				}
+				banner.disable();
 				return banner;
 			}	    	
 	    });
@@ -330,74 +379,32 @@ public class AdminFlexibleElementsView extends View {
 		column.setRenderer(new GridCellRenderer<FlexibleElementDTO>(){
 
 			@Override
-			public Object render(FlexibleElementDTO model, String property,
+			public Object render(final FlexibleElementDTO model, String property,
 					ColumnData config, int rowIndex, int colIndex,
 					ListStore<FlexibleElementDTO> store, Grid<FlexibleElementDTO> grid) {	
 				LayoutGroupDTO group = model.getGroup();
 				
-				return AdminUtil.createGridText((String)group.get("title"));
+				if((projectModel != null && ProjectModelStatus.DRAFT.equals(projectModel.getStatus()))
+						|| (orgUnitModel != null && ProjectModelStatus.DRAFT.equals(orgUnitModel.getStatus()))){
+					final Anchor nameHyperlink = new Anchor((String)group.get("title"), true);
+	                nameHyperlink.addStyleName("hyperlink");
+	                nameHyperlink.addClickHandler(new ClickHandler(){
+
+						@Override
+						public void onClick(ClickEvent event) {
+							showNewGroupForm(model, true);
+						}
+	                	
+	                });
+	                return nameHyperlink;
+				}else{
+					return AdminUtil.createGridText((String)group.get("title"));
+				}
+				
+				
 			}	    	
 	    }); 
 		configs.add(column);
-		
-		column = new ColumnConfig();
-		column.setWidth(120);   		
-		column.setRenderer(new GridCellRenderer<FlexibleElementDTO>(){
-
-			@Override
-			public Object render(final FlexibleElementDTO model, String property,
-					ColumnData config, int rowIndex, int colIndex,
-					ListStore<FlexibleElementDTO> store, Grid<FlexibleElementDTO> grid) {	
-				groupButton = new Button(I18N.CONSTANTS.adminFlexibleUpdateGroup());
-				groupButton.disable();
-				if((projectModel != null && ProjectModelStatus.DRAFT.equals(projectModel.getStatus()))
-						|| (orgUnitModel != null && ProjectModelStatus.DRAFT.equals(orgUnitModel.getStatus())))
-					groupButton.enable();
-		        groupButton.setItemId(UIActions.edit);
-				groupButton.addListener(Events.OnClick, new Listener<ButtonEvent>(){
-
-					@Override
-					public void handleEvent(ButtonEvent be) {
-						showNewGroupForm(model, true);
-					}
-					
-				});
-				return groupButton;
-			}
-	    	
-	    }); 
-		configs.add(column);
-		
-		column = new ColumnConfig();
-		column.setWidth(100);   		
-		column.setRenderer(new GridCellRenderer<FlexibleElementDTO>(){
-
-			@Override
-			public Object render(final FlexibleElementDTO model, String property,
-					ColumnData config, int rowIndex, int colIndex,
-					ListStore<FlexibleElementDTO> store, Grid<FlexibleElementDTO> grid) {
-				
-				flexButton = new Button(I18N.CONSTANTS.edit());
-				flexButton.disable();
-				if((projectModel != null && ProjectModelStatus.DRAFT.equals(projectModel.getStatus()))
-						|| (orgUnitModel != null && ProjectModelStatus.DRAFT.equals(orgUnitModel.getStatus())))
-					flexButton.enable();
-		        flexButton.setItemId(UIActions.edit);
-		        flexButton.addListener(Events.OnClick, new Listener<ButtonEvent>(){
-
-					@Override
-					public void handleEvent(ButtonEvent be) {
-						showNewFlexibleElementForm(model,true);
-					}
-				});		        		   
-		        
-				return flexButton;			
-			}
-	    	
-	    }); 
-		configs.add(column);
-		
-		
 		
 		ColumnModel cm = new ColumnModel(configs);		
 		fieldsStore.setSortField("container");

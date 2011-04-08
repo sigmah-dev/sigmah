@@ -14,9 +14,11 @@ import org.sigmah.shared.domain.OrgUnitDetails;
 import org.sigmah.shared.domain.OrgUnitModel;
 import org.sigmah.shared.domain.ProjectModelStatus;
 import org.sigmah.shared.domain.User;
+import org.sigmah.shared.domain.element.DefaultFlexibleElement;
+import org.sigmah.shared.domain.element.DefaultFlexibleElementType;
+import org.sigmah.shared.domain.layout.LayoutConstraint;
 import org.sigmah.shared.domain.layout.LayoutGroup;
 import org.sigmah.shared.dto.OrgUnitModelDTO;
-import org.sigmah.shared.dto.element.FlexibleElementDTO;
 import org.sigmah.shared.domain.layout.Layout;
 import com.google.inject.Inject;
 
@@ -72,6 +74,26 @@ public class OrgUnitModelPolicy implements EntityPolicy<OrgUnitModel>  {
 				detailsGroup.setRow(0);
 				detailsGroup.setParentLayout(oMDetailsLayout);
 				
+				//Default flexible elements all in default details group
+				int order = 0;
+				for(DefaultFlexibleElementType e : DefaultFlexibleElementType.values()){
+					if(!DefaultFlexibleElementType.START_DATE.equals(e) && 
+							!DefaultFlexibleElementType.END_DATE.equals(e)
+							&& !(DefaultFlexibleElementType.BUDGET.equals(e) && Boolean.FALSE.equals(oM.getHasBudget()))
+							){
+						DefaultFlexibleElement defaultElement = new DefaultFlexibleElement();
+						defaultElement.setType(e);
+						defaultElement.setValidates(false);
+						defaultElement.setAmendable(false);
+						em.persist(defaultElement);
+						LayoutConstraint defaultLayoutConstraint = new LayoutConstraint();
+						defaultLayoutConstraint.setParentLayoutGroup(detailsGroup);
+						defaultLayoutConstraint.setElement(defaultElement);
+						defaultLayoutConstraint.setSortOrder(order++);
+						detailsGroup.addConstraint(defaultLayoutConstraint);
+					}
+				}
+				
 				List<LayoutGroup> detailsGroups = new ArrayList<LayoutGroup>();
 				detailsGroups.add(detailsGroup);
 				oMDetailsLayout.setGroups(detailsGroups);
@@ -110,9 +132,10 @@ public class OrgUnitModelPolicy implements EntityPolicy<OrgUnitModel>  {
 			model = em.find(OrgUnitModel.class, new Integer(orgUnitModel.getId()));		
 		}
 		if(model != null){
-			model = createOrgUnitModel(model, changes);
-			model = em.merge(model);
-						
+			if(changes.get(AdminUtil.PROP_OM_NAME) != null){//Update model
+				model = createOrgUnitModel(model, changes);
+				model = em.merge(model);
+			}			
 			/* ***********************************Flexible Element******************************************************/
 			if(changes.get(AdminUtil.PROP_FX_FLEXIBLE_ELEMENT) != null){
 				ModelUtil.persistFlexibleElement(em, mapper, changes, model);

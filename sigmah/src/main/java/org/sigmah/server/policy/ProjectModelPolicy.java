@@ -17,6 +17,9 @@ import org.sigmah.shared.domain.ProjectModelStatus;
 import org.sigmah.shared.domain.ProjectModelType;
 import org.sigmah.shared.domain.ProjectModelVisibility;
 import org.sigmah.shared.domain.User;
+import org.sigmah.shared.domain.element.DefaultFlexibleElement;
+import org.sigmah.shared.domain.element.DefaultFlexibleElementType;
+import org.sigmah.shared.domain.layout.LayoutConstraint;
 import org.sigmah.shared.domain.layout.LayoutGroup;
 import org.sigmah.shared.dto.PhaseModelDTO;
 import org.sigmah.shared.dto.ProjectModelDTO;
@@ -96,6 +99,7 @@ public class ProjectModelPolicy implements EntityPolicy<ProjectModel>  {
 	    		visibilities.add(v);
 				pM.setVisibilities(visibilities);
 				
+				//Project model details
 				ProjectDetails pMDetails = new ProjectDetails();
 				
 				Layout pMDetailsLayout = new Layout();
@@ -105,14 +109,31 @@ public class ProjectModelPolicy implements EntityPolicy<ProjectModel>  {
 				pMDetails.setProjectModel(pM);
 				
 				LayoutGroup detailsGroup = new LayoutGroup();
+				detailsGroup.setTitle("Details");
 				detailsGroup.setColumn(0);
 				detailsGroup.setRow(0);
 				detailsGroup.setParentLayout(pMDetailsLayout);
+				
+				//Default flexible elements all in default details group
+				int order = 0;
+				for(DefaultFlexibleElementType e : DefaultFlexibleElementType.values()){
+					DefaultFlexibleElement defaultElement = new DefaultFlexibleElement();
+					defaultElement.setType(e);
+					defaultElement.setValidates(false);
+					defaultElement.setAmendable(false);
+					em.persist(defaultElement);
+					LayoutConstraint defaultLayoutConstraint = new LayoutConstraint();
+					defaultLayoutConstraint.setParentLayoutGroup(detailsGroup);
+					defaultLayoutConstraint.setElement(defaultElement);
+					defaultLayoutConstraint.setSortOrder(order++);
+					detailsGroup.addConstraint(defaultLayoutConstraint);
+				}
 				
 				List<LayoutGroup> detailsGroups = new ArrayList<LayoutGroup>();
 				detailsGroups.add(detailsGroup);
 				pMDetailsLayout.setGroups(detailsGroups);
 				
+				//Banner and groups for banner
 				ProjectBanner pMBanner = new ProjectBanner();
 				Layout pMBannerLayout = new Layout();
 				pMBannerLayout.setColumnsCount(3);
@@ -137,7 +158,36 @@ public class ProjectModelPolicy implements EntityPolicy<ProjectModel>  {
 				pM.setProjectDetails(pMDetails);
 				pM.setProjectBanner(pMBanner);
 				
+				
+				
 				em.persist(pM);
+				//Add a root phase : one model has minimum one phase
+				PhaseModel defaultRootPhase = new PhaseModel();
+				defaultRootPhase.setName("Default root phase");
+				defaultRootPhase.setParentProjectModel(pM);
+				defaultRootPhase.setDisplayOrder(0);
+				Layout phaseLayout = new Layout();
+				phaseLayout.setColumnsCount(1);
+				phaseLayout.setRowsCount(4);					
+				
+				LayoutGroup phaseGroup = new LayoutGroup();
+				phaseGroup.setTitle("Default phase group");
+				phaseGroup.setColumn(0);
+				phaseGroup.setRow(0);
+				phaseGroup.setParentLayout(phaseLayout);
+				
+				List<LayoutGroup> phaseGroups = new ArrayList<LayoutGroup>();
+				phaseGroups.add(phaseGroup);
+				phaseLayout.setGroups(phaseGroups);
+				
+				defaultRootPhase.setLayout(phaseLayout);
+				em.persist(defaultRootPhase);
+				
+				LogFrameModel defaultLogFrame =  createLogFrame(pM);
+				
+				pM.setRootPhase(defaultRootPhase);
+				pM.setLogFrameModel(defaultLogFrame);
+				pM = em.merge(pM);
 				return mapper.map(pM, ProjectModelDTO.class);
 	    	}
     	}
@@ -292,6 +342,7 @@ public class ProjectModelPolicy implements EntityPolicy<ProjectModel>  {
 					phaseFound.setSuccessors(phaseToSave.getSuccessors());
 					if(numRows != null)
 						phaseFound.getLayout().setRowsCount(numRows);
+						
 					if(displayOrder != null)
 						phaseFound.setDisplayOrder(displayOrder);
 					phaseToSave = em.merge(phaseFound);
@@ -301,9 +352,12 @@ public class ProjectModelPolicy implements EntityPolicy<ProjectModel>  {
 					Layout phaseLayout = new Layout();
 					phaseLayout.setColumnsCount(1);
 					if(numRows != null)
-						phaseLayout.setRowsCount(numRows);					
+						phaseLayout.setRowsCount(numRows);	
+					else
+						phaseLayout.setRowsCount(4);
 					
 					LayoutGroup phaseGroup = new LayoutGroup();
+					phaseGroup.setTitle(phaseToSave.getName() + " default group");
 					phaseGroup.setColumn(0);
 					phaseGroup.setRow(0);
 					phaseGroup.setParentLayout(phaseLayout);
@@ -324,5 +378,36 @@ public class ProjectModelPolicy implements EntityPolicy<ProjectModel>  {
 			}			
 		}
 			
+	}
+	
+	private LogFrameModel createLogFrame(ProjectModel model){
+		LogFrameModel logFrameModel = new LogFrameModel();
+		logFrameModel.setName("Default log frame");
+		logFrameModel.setActivitiesGroupsMax(3);
+		logFrameModel.setActivitiesMax(3);
+		logFrameModel.setActivitiesPerExpectedResultMax(3);
+		logFrameModel.setActivitiesPerGroupMax(3);
+		logFrameModel.setEnableActivitiesGroups(true);
+		
+		logFrameModel.setEnableExpectedResultsGroups(true);
+		logFrameModel.setExpectedResultsGroupsMax(3);
+		logFrameModel.setExpectedResultsMax(3);
+		logFrameModel.setExpectedResultsPerGroupMax(3);
+		logFrameModel.setExpectedResultsPerSpecificObjectiveMax(3);
+		
+		logFrameModel.setSpecificObjectivesGroupsMax(3);
+		logFrameModel.setEnableSpecificObjectivesGroups(true);
+		logFrameModel.setSpecificObjectivesMax(3);
+		logFrameModel.setSpecificObjectivesPerGroupMax(3);
+		
+		logFrameModel.setPrerequisitesGroupsMax(3);
+		logFrameModel.setEnablePrerequisitesGroups(true);
+		logFrameModel.setPrerequisitesMax(3);
+		logFrameModel.setPrerequisitesPerGroupMax(3);
+		
+		logFrameModel.setProjectModel(model);
+		
+		em.persist(logFrameModel);
+		return logFrameModel;
 	}
 }

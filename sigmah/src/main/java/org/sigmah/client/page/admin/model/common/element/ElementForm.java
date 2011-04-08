@@ -40,6 +40,7 @@ import com.google.gwt.user.client.ui.Grid;
 
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.i18n.UIConstants;
+import org.sigmah.client.icon.IconImageBundle;
 import org.sigmah.client.page.admin.AdminUtil;
 import org.sigmah.client.ui.ClickableLabel;
 import org.sigmah.client.util.Notification;
@@ -53,6 +54,7 @@ import org.sigmah.shared.command.result.CreateResult;
 import org.sigmah.shared.command.result.PrivacyGroupsListResult;
 import org.sigmah.shared.command.result.ReportModelsListResult;
 import org.sigmah.shared.command.result.UpdateModelResult;
+import org.sigmah.shared.domain.element.DefaultFlexibleElementType;
 import org.sigmah.shared.dto.OrgUnitDetailsDTO;
 import org.sigmah.shared.dto.OrgUnitModelDTO;
 import org.sigmah.shared.dto.PhaseModelDTO;
@@ -60,6 +62,7 @@ import org.sigmah.shared.dto.ProjectBannerDTO;
 import org.sigmah.shared.dto.ProjectDetailsDTO;
 import org.sigmah.shared.dto.ProjectModelDTO;
 import org.sigmah.shared.dto.category.CategoryTypeDTO;
+import org.sigmah.shared.dto.element.DefaultFlexibleElementDTO;
 import org.sigmah.shared.dto.element.FilesListElementDTO;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
 import org.sigmah.shared.dto.element.QuestionChoiceElementDTO;
@@ -126,7 +129,7 @@ public class ElementForm extends ContentPanel {
 	
 	public ElementForm(Dispatcher dispatcher, 
 			final AsyncCallback<UpdateModelResult> callback, FlexibleElementDTO flexibleElement, ProjectModelDTO projectModelToUpdate,
-			OrgUnitModelDTO orgUnitModelToUpdate) {
+			OrgUnitModelDTO orgUnitModelToUpdate, final List<LayoutGroupDTO> addedGroups) {
 		
 		final VBoxLayout mainPanelLayout = new VBoxLayout();
         mainPanelLayout.setVBoxLayoutAlign(VBoxLayout.VBoxLayoutAlign.STRETCH);
@@ -188,6 +191,7 @@ public class ElementForm extends ContentPanel {
 		
 		//Text area special
 		textAreaTypeList = new SimpleComboBox<String>();
+		textAreaTypeList.setTriggerAction(TriggerAction.ALL);
 		textAreaTypeList.setEditable(false);
 		textAreaTypeList.hide();
 		textAreaTypeList.setFieldLabel(I18N.CONSTANTS.adminFlexibleTextType());
@@ -208,20 +212,23 @@ public class ElementForm extends ContentPanel {
 		
 		isDecimal = new CheckBox();
 		isDecimal.hide();
-		isDecimal.setBoxLabel(I18N.CONSTANTS.adminFlexibleDecimal());
+		//isDecimal.setBoxLabel(I18N.CONSTANTS.adminFlexibleDecimal());
+		isDecimal.setBoxLabel(" ");
 		isDecimal.setFieldLabel(I18N.CONSTANTS.adminFlexibleDecimal());
 		isDecimal.setLabelSeparator("");
 		
 		//Question special
 		isMultipleQ = new CheckBox();
 		isMultipleQ.hide();
-		isMultipleQ.setBoxLabel(I18N.CONSTANTS.adminFlexibleMultipleQ());
+		//isMultipleQ.setBoxLabel(I18N.CONSTANTS.adminFlexibleMultipleQ());
+		isMultipleQ.setBoxLabel(" ");
 		isMultipleQ.setFieldLabel(I18N.CONSTANTS.adminFlexibleMultipleQ());
 		isMultipleQ.setLabelSeparator("");
 		
 		isLinkedToQuality = new CheckBox();
 		isLinkedToQuality.hide();
-		isLinkedToQuality.setBoxLabel(I18N.CONSTANTS.adminFlexibleLinkedToQuality());
+		//isLinkedToQuality.setBoxLabel(I18N.CONSTANTS.adminFlexibleLinkedToQuality());
+		isLinkedToQuality.setBoxLabel(" ");
 		isLinkedToQuality.setFieldLabel(I18N.CONSTANTS.adminFlexibleLinkedToQuality());
 		isLinkedToQuality.setLabelSeparator("");
 		
@@ -376,13 +383,39 @@ public class ElementForm extends ContentPanel {
 		UIConstants constants = GWT.create(UIConstants.class);
 		
 		htmlArea = new HtmlEditor();
+		htmlArea.hide();
+		htmlArea.setEnableAlignments(false);
+		htmlArea.setEnableLinks(false);
+		htmlArea.setEnableFont(false);
+		htmlArea.setEnableLists(false);
+		htmlArea.setEnableColors(false);
+		htmlArea.setSourceEditMode(false);		
+		htmlArea.setHeight(75);
 		htmlArea.setFieldLabel(constants.adminFlexibleName());
-		if(flexibleElement != null && !flexibleElement.getLabel().isEmpty()){
+		if(flexibleElement != null && flexibleElement.getLabel() != null){
 			htmlArea.setValue(flexibleElement.getLabel());
 			oldFieldProperties.put(AdminUtil.PROP_FX_NAME,flexibleElement.getLabel());
 		}
-		commonPanel.add(htmlArea);
 		
+		LabelField label = new LabelField();
+		label.hide();
+		label.setFieldLabel(constants.adminFlexibleName());
+		
+		if(flexibleElement != null && flexibleElement.getElementType()!= null){		
+			if(ElementTypeEnum.DEFAULT.equals(flexibleElement.getElementType())){				
+				label.setText(DefaultFlexibleElementType.getName(((DefaultFlexibleElementDTO)flexibleElement).getType()));			
+				label.show();
+				oldFieldProperties.put(AdminUtil.PROP_FX_NAME,DefaultFlexibleElementType.getName(((DefaultFlexibleElementDTO)flexibleElement).getType()));
+				htmlArea.setValue(DefaultFlexibleElementType.getName(((DefaultFlexibleElementDTO)flexibleElement).getType()));
+			}else{
+				htmlArea.show();
+			}
+		}else{
+			htmlArea.show();
+		}
+		
+		commonPanel.add(label);
+		commonPanel.add(htmlArea);
 		/*nameField = new TextArea();
 		nameField.setFieldLabel(constants.adminFlexibleName());
 		nameField.setAllowBlank(false);
@@ -405,8 +438,6 @@ public class ElementForm extends ContentPanel {
 			
 		});
 		
-		
-		
 		typeList.setFieldLabel(constants.adminFlexibleType());
 		typeList.setAllowBlank(false);
 		typeList.setTriggerAction(TriggerAction.ALL);	
@@ -418,11 +449,11 @@ public class ElementForm extends ContentPanel {
 		typeList.add(values);
 		if(flexibleElement != null && flexibleElement.getElementType()!= null){
 			
-			String value = ElementTypeEnum.getName(flexibleElement.getElementType());
-			typeList.setSimpleValue(value);
+			String typeOfElement = ElementTypeEnum.getName(flexibleElement.getElementType());
+			typeList.setSimpleValue(typeOfElement);
 			showSpecificAttributes(typeList.getSimpleValue(), flexibleElement, false);
 			oldFieldProperties.put(AdminUtil.PROP_FX_TYPE,flexibleElement.getElementType());
-			if(ElementTypeEnum.DEFAULT.equals(value)){
+			if(ElementTypeEnum.DEFAULT.equals(flexibleElement.getElementType())){
 				typeList.setEnabled(false);
 			}
 		}
@@ -453,6 +484,7 @@ public class ElementForm extends ContentPanel {
 		groupList.setTriggerAction(TriggerAction.ALL);
 		
 		posBanner = new SimpleComboBox<Integer>();
+		posBanner.setTriggerAction(TriggerAction.ALL);
 		posBanner.setEditable(false);
 		posBanner.setFieldLabel(constants.adminFlexibleBannerPosition());
 		posBanner.removeAll();
@@ -464,7 +496,7 @@ public class ElementForm extends ContentPanel {
 		
 		isBanner = new CheckBox();
 		isBanner.setFieldLabel(constants.Admin_BANNER());
-		isBanner.setBoxLabel(constants.Admin_BANNER());
+		isBanner.setBoxLabel(" ");//constants.Admin_BANNER());
 		isBanner.setValue(false);
 		isBanner.addListener(Events.Change, new Listener<BaseEvent>(){
 
@@ -515,6 +547,7 @@ public class ElementForm extends ContentPanel {
 					 for(LayoutGroupDTO lg : container.getLayoutGroupsDTO()){
 						 groupsStore.add(lg);
 					 }
+					 addNewGroupsToStore(container, groupsStore, addedGroups);
 					 groupList.setValue(groupsStore.getAt(0));
 				 }				 
 			}
@@ -542,10 +575,12 @@ public class ElementForm extends ContentPanel {
 					for(LayoutGroupDTO groupChoice : ((PhaseModelDTO)container).getLayoutDTO().getLayoutGroupsDTO()){
 						 groupsStore.add(groupChoice);
 					}
+					addNewGroupsToStore(((PhaseModelDTO)container).getLayoutDTO(), groupsStore, addedGroups);
 				}else{
 					for(LayoutGroupDTO groupChoice : ((ProjectDetailsDTO)container).getLayoutDTO().getLayoutGroupsDTO()){
 						 groupsStore.add(groupChoice);
 					}
+					addNewGroupsToStore(((ProjectDetailsDTO)container).getLayoutDTO(), groupsStore, addedGroups);
 				}
 				if(flexibleElement.getBannerConstraint() != null){
 					posBanner.setSimpleValue(flexibleElement.getBannerConstraint().getSortOrder());
@@ -576,7 +611,7 @@ public class ElementForm extends ContentPanel {
 				for(LayoutGroupDTO groupChoice : ((OrgUnitDetailsDTO)container).getLayout().getLayoutGroupsDTO()){
 					 groupsStore.add(groupChoice);
 				}
-			
+				addNewGroupsToStore(((OrgUnitDetailsDTO)container).getLayout(), groupsStore, addedGroups);
 				if(flexibleElement.getBannerConstraint() != null){
 					posBanner.setSimpleValue(flexibleElement.getBannerConstraint().getSortOrder());
 					isBanner.setValue(true);
@@ -606,7 +641,8 @@ public class ElementForm extends ContentPanel {
 		
 		validates = new CheckBox();
 		validates.setFieldLabel(constants.adminFlexibleCompulsory());
-		validates.setBoxLabel(constants.adminFlexibleCompulsory());
+		//validates.setBoxLabelX(constants.adminFlexibleCompulsory());
+		validates.setBoxLabel(" ");
 		validates.setValue(false);
 		if(flexibleElement != null){
 			validates.setValue(flexibleElement.getValidates());
@@ -651,7 +687,8 @@ public class ElementForm extends ContentPanel {
 		commonPanel.add(privacyGroupsListCombo);
 			
 		isAmendable = new CheckBox();
-		isAmendable.setBoxLabel(constants.adminFlexibleAmendable());
+		//isAmendable.setBoxLabel(constants.adminFlexibleAmendable());
+		isAmendable.setBoxLabel(" ");
 		isAmendable.setFieldLabel(constants.adminFlexibleAmendable());
 		isAmendable.setValue(false);
 		if(flexibleElement != null){
@@ -662,7 +699,7 @@ public class ElementForm extends ContentPanel {
 		commonPanel.add(isAmendable);
 		
 		// Create button.
-        final Button createButton = new Button(I18N.CONSTANTS.save());
+        final Button createButton = new Button(I18N.CONSTANTS.save(), IconImageBundle.ICONS.save());
         createButton.addListener(Events.OnClick, new Listener<ButtonEvent>() {
             @Override
             public void handleEvent(ButtonEvent be) {
@@ -671,7 +708,7 @@ public class ElementForm extends ContentPanel {
         });
         
         final ContentPanel form  = new ContentPanel();
-        form.setHeight(650);
+        form.setHeight(450);
         form.setHeaderVisible(false);
         form.setLayout(new BorderLayout());
         final BorderLayoutData leftLayoutData = new BorderLayoutData(LayoutRegion.WEST);
@@ -717,9 +754,7 @@ public class ElementForm extends ContentPanel {
 	
 	private void showSpecificAttributes(String type, FlexibleElementDTO flexibleElement, boolean onSelectAction){
 		initSpecifics(flexibleElement);
-		if(ElementTypeEnum.getName(ElementTypeEnum.BUDGET).equals(type)){
-			//no additional fields
-		}else if(ElementTypeEnum.getName(ElementTypeEnum.CHECKBOX).equals(type)){
+		if(ElementTypeEnum.getName(ElementTypeEnum.CHECKBOX).equals(type)){
 			//no additional fields
 		}else if(ElementTypeEnum.getName(ElementTypeEnum.FILES_LIST).equals(type)){
 			if(onSelectAction){
@@ -757,23 +792,20 @@ public class ElementForm extends ContentPanel {
 			minLimitField.show();
 			maxLimitField.show();
 			specificsPanel.show();
-		}else if(ElementTypeEnum.getName(ElementTypeEnum.TRIPLETS).equals(type)){
-		}else if(ElementTypeEnum.getName(ElementTypeEnum.DEFAULT).equals(type)){
-
 		}
 	}
 
 	private void createFlexibleElement(final AsyncCallback<UpdateModelResult> callback) {
 		
-		 if (!commonPanel.isValid()) {
+		 if (!commonPanel.isValid() || htmlArea.getValue() != null && htmlArea.getValue().isEmpty() || "?".equals(htmlArea.getValue()) ) {
 	            MessageBox.alert(I18N.CONSTANTS.createFormIncomplete(),
 	                    I18N.MESSAGES.createFormIncompleteDetails(I18N.CONSTANTS.adminStandardFlexibleName()), null);
 	            return;
 		 }
 		 
 		 
-		 //common attributes
-		 final String name = htmlArea.getValue();
+		 //common attributes FIXME
+		 final String name = htmlArea.getValue().replace("?", "");
 		 String type = null;
 		 if(typeList.getSimpleValue() != null)
 			 type = typeList.getSimpleValue();
@@ -1162,6 +1194,13 @@ public class ElementForm extends ContentPanel {
 		}      
 	}
 	
+	private void addNewGroupsToStore(LayoutDTO container, ListStore<LayoutGroupDTO> groupsStore, List<LayoutGroupDTO> addedGroups){
+		for(LayoutGroupDTO lg : addedGroups){
+			 if(lg.getParentLayoutDTO().getId() == container.getId()){
+				 groupsStore.add(lg);
+			 }
+		 }
+	}
 	
 }
 

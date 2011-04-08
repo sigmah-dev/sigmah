@@ -27,6 +27,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.i18n.UIConstants;
 import org.sigmah.client.page.admin.AdminUtil;
+import org.sigmah.client.page.admin.model.project.phase.AdminPhasesPresenter.View;
 import org.sigmah.client.util.Notification;
 import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.shared.command.CreateEntity;
@@ -48,38 +49,24 @@ public class PhaseSigmahForm extends FormPanel {
 	private final TextField<String> nameField;
 	private final PhaseModelDTO phaseToUpdate;
 	private final ProjectModelDTO projectModelToUpdate;
-	private final Map<String, PhaseModelDTO> phases;
-	private final List<CheckBoxGroup> successorsPhases;
+	private final View view;
+	private final List<CheckBoxGroup> candidatesSuccessorsPhases;
+	private final List<PhaseModelDTO> candidatesPhases = new ArrayList<PhaseModelDTO>();
 	private final CheckBox isRoot;
-	private final NumberField rowNumberField;
+	
+	//FIXME private final NumberField rowNumberField;
 	private final NumberField orderField;
 
 	private final Dispatcher dispatcher;
 	
 	private final static int LABEL_WIDTH = 90;
 	
-	public PhaseSigmahForm(Dispatcher dispatcher, 
+	public PhaseSigmahForm(View view, Dispatcher dispatcher, 
 			final AsyncCallback<UpdateModelResult> callback, PhaseModelDTO phaseToUpdate, ProjectModelDTO projectModelToUpdate) {
-		
+		this.view = view;
 		this.dispatcher = dispatcher;
 		this.phaseToUpdate = phaseToUpdate;
 		this.projectModelToUpdate = projectModelToUpdate;
-		
-		List<String> successorsPhasesNames = new ArrayList<String>();
-		
-		phases = new HashMap<String, PhaseModelDTO>();
-		for(PhaseModelDTO phase : projectModelToUpdate.getPhaseModelsDTO()){
-			for(PhaseModelDTO succPhase : phase.getSuccessorsDTO()){
-				if(!successorsPhasesNames.contains(succPhase.getName()))
-					successorsPhasesNames.add(succPhase.getName());
-			}
-			if(projectModelToUpdate.getRootPhaseModelDTO() != null && phase.getName().equals(projectModelToUpdate.getRootPhaseModelDTO().getName())){
-				phase.setIsRoot(true);
-			}else{
-				phase.setIsRoot(false);
-			}
-			phases.put(phase.getName(), phase);
-		}
 		
 		UIConstants constants = GWT.create(UIConstants.class);
 		
@@ -98,27 +85,44 @@ public class PhaseSigmahForm extends FormPanel {
 		
 		
 		
-		successorsPhases = new ArrayList<CheckBoxGroup>();
+		candidatesSuccessorsPhases = new ArrayList<CheckBoxGroup>();
 		CheckBoxGroup checkphasesGroup = new CheckBoxGroup();
 		checkphasesGroup.setOrientation(Orientation.VERTICAL);
 		checkphasesGroup.setFieldLabel(I18N.CONSTANTS.adminPhaseSuccessors());
 		String label = "";
-		for(Map.Entry<String, PhaseModelDTO> phaseModel : phases.entrySet()){			
+		for(Map.Entry<String, PhaseModelDTO> phaseModel : view.getPhases().entrySet()){	
+			Boolean isSuccessor = false;
 			label = phaseModel.getKey();	
 			CheckBox box = createCheckBox(label,label);
 			if(phaseToUpdate != null){
 				if(phaseToUpdate.getSuccessorsDTO()!=null
 						&& phaseToUpdate.getSuccessorsDTO().contains(phaseModel.getValue())){
 					box.setValue(true);
+					checkphasesGroup.add(box);
+					isSuccessor = true;
+					candidatesPhases.add(phaseModel.getValue());
 				}
-				if(!phaseToUpdate.getName().equals(phaseModel.getKey()) && !successorsPhasesNames.contains(phaseModel.getKey()))
+				if(!isSuccessor 
+						&& !view.getSuccessorsPhases().contains(phaseModel.getKey())
+						&& !phaseToUpdate.getName().equals(phaseModel.getKey()) 
+						&& !(projectModelToUpdate.getRootPhaseModelDTO()!= null 
+								&& projectModelToUpdate.getRootPhaseModelDTO().getId() == phaseModel.getValue().getId())
+								){
 					checkphasesGroup.add(box);
+					candidatesPhases.add(phaseModel.getValue());
+				}
+					
 			}else{
-				if(!successorsPhasesNames.contains(phaseModel.getKey()))
+				if(!view.getSuccessorsPhases().contains(phaseModel.getKey())
+						&& !(this.projectModelToUpdate.getRootPhaseModelDTO()!= null 
+								&& this.projectModelToUpdate.getRootPhaseModelDTO().getId() == phaseModel.getValue().getId())){
 					checkphasesGroup.add(box);
+					candidatesPhases.add(phaseModel.getValue());
+				}
+					
 			}
 		}
-		successorsPhases.add(checkphasesGroup);
+		candidatesSuccessorsPhases.add(checkphasesGroup);
 		add(checkphasesGroup);
 
 		isRoot = new CheckBox();
@@ -128,7 +132,7 @@ public class PhaseSigmahForm extends FormPanel {
 		isRoot.setBoxLabel(constants.adminPhaseModelRoot());
 		isRoot.setValue(false);
 		if(phaseToUpdate != null){
-			if(projectModelToUpdate.getRootPhaseModelDTO()!= null && phaseToUpdate.getId() == projectModelToUpdate.getRootPhaseModelDTO().getId()){
+			if(this.projectModelToUpdate.getRootPhaseModelDTO()!= null && phaseToUpdate.getId() == this.projectModelToUpdate.getRootPhaseModelDTO().getId()){
 				isRoot.setValue(true);
 			}			
 		}
@@ -136,15 +140,15 @@ public class PhaseSigmahForm extends FormPanel {
 		
 		orderField = new NumberField();
 		orderField.setAllowBlank(false);
-		orderField.setFieldLabel(constants.adminFlexibleOrder());
+		orderField.setFieldLabel(I18N.CONSTANTS.adminPhaseOrder());
 		orderField.clear();
 		if(phaseToUpdate != null){
 			orderField.setValue(phaseToUpdate.getDisplayOrder());
 		}
 		add(orderField);
 		
-		rowNumberField = new NumberField();
-		//FIXME orderField.setAllowBlank(false);
+		/*rowNumberField = new NumberField();
+		rowNumberField.setAllowBlank(false);
 		rowNumberField.setFieldLabel(constants.adminPhaseModelSize());
 		rowNumberField.clear();
 		if(phaseToUpdate != null){
@@ -152,7 +156,7 @@ public class PhaseSigmahForm extends FormPanel {
 				rowNumberField.setValue(phaseToUpdate.getLayoutDTO().getRowsCount());
 			}			
 		}
-		add(rowNumberField);
+		add(rowNumberField);*/
 		
 		// Create button.
         final Button createButton = new Button(I18N.CONSTANTS.save());
@@ -192,16 +196,19 @@ public class PhaseSigmahForm extends FormPanel {
 		 
 		 //successors phases
 		 final List<PhaseModelDTO> successors = new ArrayList<PhaseModelDTO>();
-		 for(CheckBoxGroup checkGPGroup :successorsPhases){
-			 List<CheckBox> checkedPhases = checkGPGroup.getValues();
+		 for(CheckBoxGroup checkGPGroup :candidatesSuccessorsPhases){
+			 final List<CheckBox> checkedPhases = checkGPGroup.getValues();
 			 for(CheckBox checkedPhase : checkedPhases){	
-				 PhaseModelDTO phase = phases.get(checkedPhase.getName());
+				 PhaseModelDTO phase = view.getPhases().get(checkedPhase.getName());
 				 successors.add(phase);				 
 			 }
 		 }
 		 
+		 
+		 
+		 
 		 //rows
-		 final Integer numRows = new Integer(this.rowNumberField.getValue().intValue());
+		 //final Integer numRows = new Integer(this.rowNumberField.getValue().intValue());
 		 
 		 //root
 		 final Boolean root = isRoot.getValue();
@@ -216,7 +223,7 @@ public class PhaseSigmahForm extends FormPanel {
 		 newPhaseProperties.put(AdminUtil.PROP_PHASE_MODEL, phaseToSave);
 		 newPhaseProperties.put(AdminUtil.PROP_PHASE_ORDER, order);
 		 newPhaseProperties.put(AdminUtil.PROP_PHASE_ROOT, root);
-		 newPhaseProperties.put(AdminUtil.PROP_PHASE_ROWS, numRows);
+		 //newPhaseProperties.put(AdminUtil.PROP_PHASE_ROWS, numRows);
 		 newPhaseProperties.put("modelId", new Integer(projectModelToUpdate.getId()));
          dispatcher.execute(new CreateEntity("ProjectModel", newPhaseProperties), null, new AsyncCallback<CreateResult>(){
              public void onFailure(Throwable caught) {
@@ -232,15 +239,30 @@ public class PhaseSigmahForm extends FormPanel {
 					ProjectModelDTO pModelUpdated = (ProjectModelDTO) result.getEntity();
 					UpdateModelResult completeResult = new UpdateModelResult(pModelUpdated.getId());
 					completeResult.setEntity(pModelUpdated);	
+					view.setProjectModel(pModelUpdated);
 					if(phaseToUpdate != null){
 						Notification.show(I18N.CONSTANTS.adminPhaseCreationBox(), 
 								I18N.MESSAGES.adminStandardUpdateSuccessF(I18N.MESSAGES.adminStandardPhase()
 										+ " '" + result.getEntity().get("name")+"'"));
 						for(PhaseModelDTO p :pModelUpdated.getPhaseModelsDTO()){
 							if(p.getId() == phaseToUpdate.getId()){
-								completeResult.setAnnexEntity(p);
+								completeResult.setAnnexEntity(p);							
+								for(Map.Entry<String, PhaseModelDTO> oldPhase : view.getPhases().entrySet()){
+									if(oldPhase.getValue().getId() == p.getId())
+										view.getPhases().remove(oldPhase.getValue());
+								}
+								view.getPhases().put(p.getName(), p);
+								for(PhaseModelDTO candidatePhase : candidatesPhases){
+									 if(successors.contains(candidatePhase)){
+										 if(!view.getSuccessorsPhases().contains(candidatePhase.getName()))
+											 view.getSuccessorsPhases().add(candidatePhase.getName());
+									 }else{
+										 view.getSuccessorsPhases().remove(candidatePhase.getName());
+									 }
+								 }								
 							}
 						}
+						
 					}else{
 						Notification.show(I18N.CONSTANTS.adminPhaseCreationBox(), 
 								I18N.MESSAGES.adminStandardCreationSuccessF(I18N.MESSAGES.adminStandardPhase()
@@ -248,8 +270,18 @@ public class PhaseSigmahForm extends FormPanel {
 						for(PhaseModelDTO p :pModelUpdated.getPhaseModelsDTO()){
 							if(!projectModelToUpdate.getPhaseModelsDTO().contains(p)){
 									completeResult.setAnnexEntity(p);
-							}				
+									view.getPhases().put(p.getName(), p);
+							}	
+							for(PhaseModelDTO candidatePhase : candidatesPhases){
+								 if(successors.contains(candidatePhase)){
+									 if(!view.getSuccessorsPhases().contains(candidatePhase.getName()))
+										 view.getSuccessorsPhases().add(candidatePhase.getName());
+								 }else{
+									 view.getSuccessorsPhases().remove(candidatePhase.getName());
+								 }
+							 }
 						}
+						
 					}
 					callback.onSuccess(completeResult);	
 				}					

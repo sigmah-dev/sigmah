@@ -41,7 +41,7 @@ public class InvitationMailer implements Mailer<Invitation> {
 
         SimpleEmail mail = new SimpleEmail();
         mail.addTo(model.getNewUser().getEmail(), model.getNewUser().getName());
-        mail.addBcc("akbertram@gmail.com"); // for testing purposes
+        //mail.addBcc("akbertram@gmail.com"); // for testing purposes
         mail.setSubject(mailMessages.getString("newUserSubject"));
 
         mail.setMsg(composeMessage(model, locale));

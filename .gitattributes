@@ -388,10 +388,7 @@ sigmah/src/main/java/org/sigmah/client/page/config/form/DateRangeForm.java -text
 sigmah/src/main/java/org/sigmah/client/page/config/form/FieldSetFitLayout.java -text
 sigmah/src/main/java/org/sigmah/client/page/config/form/ModelFormPanel.java -text
 sigmah/src/main/java/org/sigmah/client/page/config/form/PartnerForm.java -text
-sigmah/src/main/java/org/sigmah/client/page/config/form/PrivacyGroupSigmahForm.java -text
-sigmah/src/main/java/org/sigmah/client/page/config/form/ProfileSigmahForm.java -text
 sigmah/src/main/java/org/sigmah/client/page/config/form/UserForm.java -text
-sigmah/src/main/java/org/sigmah/client/page/config/form/UserSigmahForm.java -text
 sigmah/src/main/java/org/sigmah/client/page/dashboard/CreateProjectWindow.java -text
 sigmah/src/main/java/org/sigmah/client/page/dashboard/DashboardImageBundle.java -text
 sigmah/src/main/java/org/sigmah/client/page/dashboard/DashboardModule.java -text

@@ -8,6 +8,7 @@ import org.sigmah.client.page.admin.model.orgunit.AdminOrgUnitModelsPresenter;
 import org.sigmah.client.page.admin.model.orgunit.OrgUnitModelForm;
 import org.sigmah.client.page.admin.model.project.AdminProjectModelsPresenter;
 import org.sigmah.shared.command.result.CreateResult;
+import org.sigmah.shared.domain.ProjectModelStatus;
 import org.sigmah.shared.dto.OrgUnitModelDTO;
 import org.sigmah.shared.dto.ProjectModelDTO;
 import org.sigmah.shared.dto.ProjectModelDTOLight;
@@ -96,7 +97,7 @@ public class AdminModelActionListener implements ActionListener {
 					ProjectModelDTOLight pMLight = new ProjectModelDTOLight();
 					pMLight.setName(pM.getName());
 					pMLight.setId(pM.getId());
-					pMLight.setStatus(pM.getStatus());
+					pMLight.setStatus(ProjectModelStatus.DRAFT);
 					pMLight.setVisibilities(pM.getVisibilities());
 					((AdminProjectModelsPresenter.View)view).getAdminModelsStore().add(pMLight);
 					((AdminProjectModelsPresenter.View)view).getAdminModelsStore().commitChanges();

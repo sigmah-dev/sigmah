@@ -7,8 +7,6 @@ import org.sigmah.client.i18n.I18N;
 
 public enum ElementTypeEnum{
 	
-	BUDGET,
-	
 	CHECKBOX,
 	
 	DEFAULT,
@@ -35,7 +33,7 @@ public enum ElementTypeEnum{
 	
 	static {
 		
-		classMap.put("BudgetDistributionElement", ElementTypeEnum.BUDGET);
+		//classMap.put("BudgetDistributionElement", ElementTypeEnum.BUDGET);
 		classMap.put("CheckboxElement", ElementTypeEnum.CHECKBOX);
 		classMap.put("DefaultFlexibleElement", ElementTypeEnum.DEFAULT);
 		classMap.put("FilesListElement", ElementTypeEnum.FILES_LIST);
@@ -53,7 +51,7 @@ public enum ElementTypeEnum{
 	public static String getName(ElementTypeEnum e){
 		
 		nameMap.clear();
-		nameMap.put(I18N.CONSTANTS.projectBudget(), ElementTypeEnum.BUDGET);
+		//nameMap.put(I18N.CONSTANTS.projectBudget(), ElementTypeEnum.BUDGET);
 		nameMap.put(I18N.CONSTANTS.flexibleElementCheckbox(), ElementTypeEnum.CHECKBOX);
 		nameMap.put(I18N.CONSTANTS.flexibleElementDefault(),ElementTypeEnum.DEFAULT);
 		nameMap.put(I18N.CONSTANTS.flexibleElementFilesList(), ElementTypeEnum.FILES_LIST);
@@ -78,7 +76,7 @@ public enum ElementTypeEnum{
 	public static ElementTypeEnum getType(String e){
 		
 		nameMap.clear();
-		nameMap.put(I18N.CONSTANTS.projectBudget(), ElementTypeEnum.BUDGET);
+		//nameMap.put(I18N.CONSTANTS.projectBudget(), ElementTypeEnum.BUDGET);
 		nameMap.put(I18N.CONSTANTS.flexibleElementCheckbox(), ElementTypeEnum.CHECKBOX);
 		nameMap.put(I18N.CONSTANTS.flexibleElementDefault(),ElementTypeEnum.DEFAULT);
 		nameMap.put(I18N.CONSTANTS.flexibleElementFilesList(), ElementTypeEnum.FILES_LIST);
