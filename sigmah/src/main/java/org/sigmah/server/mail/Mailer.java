@@ -8,5 +8,8 @@ package org.sigmah.server.mail;
 import java.util.Locale;
 
 public interface Mailer<T> {
+	
     void send(T model, Locale locale) throws Exception;
+    
+    void send(T model, Locale locale,boolean sendBySigmah) throws Exception;
 }

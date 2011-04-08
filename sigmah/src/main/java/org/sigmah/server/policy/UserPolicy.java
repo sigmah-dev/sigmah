@@ -96,7 +96,7 @@ public class UserPolicy implements EntityPolicy<User> {
 				if(!userDAO.doesUserExist(email)){
 					userDAO.persist(userToPersist);
 					try {
-			    		inviteMailer.send(new Invitation(userToPersist, executingUser), LocaleHelper.getLocaleObject(executingUser));
+			    		inviteMailer.send(new Invitation(userToPersist, executingUser), LocaleHelper.getLocaleObject(executingUser), true);
 			        } catch (Exception e) {
 			            // ignore, don't abort because mail didn't work
 			        }

@@ -1938,11 +1938,14 @@ sigmah/src/main/resources/manifest/Common.manifest -text
 sigmah/src/main/resources/manifest/Permutation.manifest -text
 sigmah/src/main/resources/org/sigmah/server/bootstrap/SigmahHostController.html -text
 sigmah/src/main/resources/org/sigmah/server/mail/MailMessages.properties -text
+sigmah/src/main/resources/org/sigmah/server/mail/MailMessages_en.properties -text
 sigmah/src/main/resources/org/sigmah/server/mail/MailMessages_fr.properties -text
 sigmah/src/main/resources/report-def.xsd -text
 sigmah/src/main/resources/sigmah.properties -text
 sigmah/src/main/resources/template/mail/Invite.ftl -text
 sigmah/src/main/resources/template/mail/Invite_fr.ftl -text
+sigmah/src/main/resources/template/mail/SigmahInvite.ftl -text
+sigmah/src/main/resources/template/mail/SigmahInvite_fr.ftl -text
 sigmah/src/main/resources/template/page/Application.css -text
 sigmah/src/main/resources/template/page/ConfirmInvite.ftl -text
 sigmah/src/main/resources/template/page/Host.ftl -text
