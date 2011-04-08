@@ -10,4 +10,5 @@ public class IconUtil {
 		return "<img width='16' height='16' src='" + GWT.getModuleBaseURL() + "clear.cache.gif' class='" + spriteStyle + "'>";
 	}
 
+
 }

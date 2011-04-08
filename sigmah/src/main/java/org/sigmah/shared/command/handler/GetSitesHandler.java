@@ -64,7 +64,7 @@ public class GetSitesHandler implements CommandHandler<GetSites> {
 
     private int calculateOffset(GetSites cmd, User user, List<SiteOrder> order) {
         int offset;
-        if (cmd.getSeekToSiteId() != null && cmd.getLimit() > 0) {
+        if (cmd.getSeekToSiteId() != null && cmd.getSeekToSiteId() != 0 && cmd.getLimit() > 0) {
             int pageNum = siteDAO.queryPageNumber(
                     user,
                     cmd.getFilter(),

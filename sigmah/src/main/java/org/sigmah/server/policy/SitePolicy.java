@@ -28,6 +28,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import javax.persistence.EntityManager;
+
 public class SitePolicy implements EntityPolicy<Site> {
     private final ActivityDAO activityDAO;
     private final AdminDAO adminDAO;
@@ -36,12 +38,13 @@ public class SitePolicy implements EntityPolicy<Site> {
     private final ReportingPeriodDAO reportingPeriodDAO;
     private final SiteDAO siteDAO;
     private final UserDatabaseDAO userDatabaseDAO;
-
+    private final EntityManager entityManager;
+    
 
     @Inject
     public SitePolicy(ActivityDAO activityDAO, AdminDAO adminDAO, LocationDAO locationDAO,
                       PartnerDAO partnerDAO, SiteDAO siteDAO, ReportingPeriodDAO reportingPeriodDAO,
-                      UserDatabaseDAO userDatabaseDAO) {
+                      UserDatabaseDAO userDatabaseDAO, EntityManager entityManager) {
         this.locationDAO = locationDAO;
         this.siteDAO = siteDAO;
         this.reportingPeriodDAO = reportingPeriodDAO;
@@ -49,6 +52,7 @@ public class SitePolicy implements EntityPolicy<Site> {
         this.activityDAO = activityDAO;
         this.adminDAO = adminDAO;
         this.userDatabaseDAO = userDatabaseDAO;
+        this.entityManager = entityManager;
     }
 
     @Override
@@ -67,12 +71,7 @@ public class SitePolicy implements EntityPolicy<Site> {
     		    		
     	} else if(properties.containsKey("databaseId")) {
     		database = userDatabaseDAO.findById((Integer)properties.get("databaseId"));
-    		Set<LocationType> locationTypes = database.getCountry().getLocationTypes();
-			if(locationTypes.isEmpty()) {
-				throw new RuntimeException("A site cannot be created without a location type, and the country '" + 
-						database.getCountry().getName() + "' (id = " + database.getCountry().getId() + ") has no location types defined.");
-			}
-			locationType = locationTypes.iterator().next();
+    		locationType = locationTypeFromDatabase(database);
 			if(user.getOrganization() != null) {
 				partner = user.getOrganization().getRoot();
 			}
@@ -141,6 +140,24 @@ public class SitePolicy implements EntityPolicy<Site> {
         return site.getId();
 
     }
+
+	private LocationType locationTypeFromDatabase(UserDatabase database) {
+
+		Set<LocationType> locationTypes = database.getCountry().getLocationTypes();
+		for(LocationType type : locationTypes) {
+			if(type.getName().equals(LocationType.DEFAULT)) {
+				return type;
+			}
+		}
+		// still need to create the default location type for this country
+		LocationType defaultType = new LocationType();
+		defaultType.setName(LocationType.DEFAULT);
+		defaultType.setCountry(database.getCountry());
+		
+		entityManager.persist(defaultType);
+		
+		return defaultType;
+	}
 
 
     public void update(User user, Object id, PropertyMap changes)  {

@@ -20,11 +20,6 @@ public class AppEvents {
 
     public static final EventType LogoutRequested = new EventBus.NamedEventType("LogoutRequeseted");
 
-    public static final EventType SiteSelected = new EventBus.NamedEventType("SiteSelected");
-    public static final EventType SiteCreated = new EventBus.NamedEventType("SiteCreated");
-    public static final EventType SiteChanged = new EventBus.NamedEventType("SiteChanged");
-
-
     public static final EventType Drilldown = new EventBus.NamedEventType("Drilldown");
     public static final EventType GoOffline = new EventBus.NamedEventType("GoOffline");
 

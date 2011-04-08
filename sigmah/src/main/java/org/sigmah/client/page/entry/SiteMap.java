@@ -10,11 +10,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.sigmah.client.AppEvents;
 import org.sigmah.client.EventBus;
 import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.dispatch.monitor.MaskingAsyncMonitor;
-import org.sigmah.client.event.SiteEvent;
+import org.sigmah.client.event.EntityEvent;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.icon.IconImageBundle;
 import org.sigmah.client.map.AdminBoundsHelper;
@@ -97,7 +96,7 @@ public class SiteMap extends ContentPanel implements Shutdownable {
      */
     private Map<Integer, Marker> sites;
 
-    private Listener<SiteEvent> siteListener; 
+    private Listener<EntityEvent<SiteDTO>> siteListener; 
 
     private Marker currentHighlightedMarker;
     private Marker highlitMarker;
@@ -148,10 +147,10 @@ public class SiteMap extends ContentPanel implements Shutdownable {
 
     }
 
-    private void onSiteSelected(SiteEvent se) {
+    private void onSiteSelected(EntityEvent<SiteDTO> se) {
         if (se.getSource() != this) {
-            if (se.getSite() != null && !se.getSite().hasCoords()) {
-                BoundingBoxDTO bounds = AdminBoundsHelper.calculate(country, se.getSite());
+            if (se.getEntity() != null && !se.getEntity().hasCoords()) {
+                BoundingBoxDTO bounds = AdminBoundsHelper.calculate(country, se.getEntity());
                 LatLngBounds llBounds = llBoundsForBounds(bounds);
 
                 if (!llBounds.containsBounds(map.getBounds())) {
@@ -169,9 +168,9 @@ public class SiteMap extends ContentPanel implements Shutdownable {
 
 
     public void shutdown() {
-        eventBus.removeListener(AppEvents.SiteSelected, siteListener);
-        eventBus.removeListener(AppEvents.SiteCreated, siteListener);
-        eventBus.removeListener(AppEvents.SiteChanged, siteListener);
+        eventBus.removeListener(EntityEvent.SELECTED, siteListener);
+        eventBus.removeListener(EntityEvent.CREATED, siteListener);
+        eventBus.removeListener(EntityEvent.UPDATED, siteListener);
     }
 
     public void onSiteDropped(Record record, double lat, double lng) {
@@ -219,7 +218,6 @@ public class SiteMap extends ContentPanel implements Shutdownable {
                         if (event.getOverlay() != null) {
                             int siteId = siteIdFromOverlay(event.getOverlay());
                             highlightSite(siteId, false);
-                            eventBus.fireEvent(new SiteEvent(AppEvents.SiteSelected, SiteMap.this, siteId));
                         }
                     }
                 });
@@ -277,21 +275,21 @@ public class SiteMap extends ContentPanel implements Shutdownable {
             	
             	addSitesToMap(points);
 
-                siteListener = new Listener<SiteEvent>() {
-                    public void handleEvent(SiteEvent be) {
-                        if (be.getType() == AppEvents.SiteSelected) {
+                siteListener = new Listener<EntityEvent<SiteDTO>>() {
+                    public void handleEvent(EntityEvent<SiteDTO> be) {
+                        if (be.getType() == EntityEvent.SELECTED) {
                             onSiteSelected(be);
-                        } else if (be.getType() == AppEvents.SiteCreated) {
-                            onSiteCreated(be.getSite());
-                        } else if (be.getType() == AppEvents.SiteChanged) {
-                            onSiteChanged(be.getSite());
+                        } else if (be.getType() == EntityEvent.CREATED) {
+                            onSiteCreated(be.getEntity());
+                        } else if (be.getType() == EntityEvent.UPDATED) {
+                            onSiteChanged(be.getEntity());
                         }
                     }
                 };
 
-                eventBus.addListener(AppEvents.SiteSelected, siteListener);
-                eventBus.addListener(AppEvents.SiteCreated, siteListener);
-                eventBus.addListener(AppEvents.SiteChanged, siteListener);
+                eventBus.addListener(EntityEvent.SELECTED, siteListener);
+                eventBus.addListener(EntityEvent.CREATED, siteListener);
+                eventBus.addListener(EntityEvent.UPDATED, siteListener);
             }
         });
 	}

@@ -12,11 +12,10 @@ import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.store.Record;
 import com.extjs.gxt.ui.client.store.Store;
 import com.extjs.gxt.ui.client.util.DateWrapper;
-import org.sigmah.client.AppEvents;
 import org.sigmah.client.EventBus;
 import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.dispatch.loader.ListCmdLoader;
-import org.sigmah.client.event.SiteEvent;
+import org.sigmah.client.event.EntityEvent;
 import org.sigmah.client.page.PageId;
 import org.sigmah.client.page.PageState;
 import org.sigmah.client.page.common.grid.AbstractEditorGridPresenter;
@@ -53,7 +52,7 @@ public class MonthlyPresenter extends AbstractEditorGridPresenter<IndicatorRowDT
     private ListStore<IndicatorRowDTO> store;
     private ListCmdLoader<MonthlyReportResult> loader;
 
-    private Listener<SiteEvent> siteListener;
+    private Listener<EntityEvent<SiteDTO>> siteListener;
 
     private int currentSiteId = -1;
     private Month startMonth;
@@ -76,14 +75,14 @@ public class MonthlyPresenter extends AbstractEditorGridPresenter<IndicatorRowDT
         store.setMonitorChanges(true);
         this.view.init(this, store);
 
-        siteListener = new Listener<SiteEvent>() {
-            public void handleEvent(SiteEvent be) {
-                if (be.getType() == AppEvents.SiteSelected) {
-                    onSiteSelected(be.getSite());
+        siteListener = new Listener<EntityEvent<SiteDTO>>() {
+            public void handleEvent(EntityEvent<SiteDTO> be) {
+                if (be.getType() == EntityEvent.SELECTED) {
+                    onSiteSelected(be.getEntity());
                 }
             }
         };
-        eventBus.addListener(AppEvents.SiteSelected, siteListener);
+        eventBus.addListener(EntityEvent.SELECTED, siteListener);
 
         getInitialStartMonth(stateMgr);
 
@@ -91,7 +90,7 @@ public class MonthlyPresenter extends AbstractEditorGridPresenter<IndicatorRowDT
     }
 
     public void shutdown() {
-        eventBus.removeListener(AppEvents.SiteSelected, siteListener);
+        eventBus.removeListener(EntityEvent.SELECTED, siteListener);
     }
 
     private void getInitialStartMonth(IStateManager stateMgr) {

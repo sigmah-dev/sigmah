@@ -4,6 +4,8 @@ import java.util.Map;
 
 import org.sigmah.client.EventBus;
 import org.sigmah.client.dispatch.Dispatcher;
+import org.sigmah.client.event.EntityEvent;
+import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.page.common.dialog.FormDialogCallback;
 import org.sigmah.client.page.common.toolbar.UIActions;
 import org.sigmah.client.page.config.design.DesignPanel;
@@ -11,9 +13,7 @@ import org.sigmah.client.page.config.design.ProjectSiteGridPanel;
 import org.sigmah.client.page.entry.SiteMap;
 import org.sigmah.client.page.entry.editor.SiteForm;
 import org.sigmah.client.page.entry.editor.SiteFormDialog;
-import org.sigmah.client.page.project.ProjectPresenter;
 import org.sigmah.client.page.project.ProjectSubPresenter;
-import org.sigmah.client.page.project.SubPresenter;
 import org.sigmah.shared.command.CreateEntity;
 import org.sigmah.shared.command.result.CreateResult;
 import org.sigmah.shared.dao.Filter;
@@ -32,6 +32,7 @@ import com.extjs.gxt.ui.client.store.TreeStore;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.Info;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
@@ -188,30 +189,9 @@ public class ProjectIndicatorsContainer extends LayoutContainer implements Proje
 		//site.setPartner(projectPresenter.getCurrentProjectDTO().getOrgUnitId());
 		
 		final SiteForm form = new SiteForm(service, project.getCountry());
-		form.setSite(site);
 		
-		final SiteFormDialog dialog = new SiteFormDialog(form);
-		dialog.show(new FormDialogCallback() {
-
-			@Override
-			public void onValidated() {
-				Map<String, Object> props = form.getPropertyMap();
-				props.put("databaseId", projectId);
-								 
-				service.execute(new CreateEntity("Site", props), dialog, new AsyncCallback<CreateResult>() {
-
-					@Override
-					public void onFailure(Throwable caught) {						
-					}
-
-					@Override
-					public void onSuccess(CreateResult result) {
-						dialog.hide();
-					}
-				});
-			}
-			
-		});
+		final SiteFormDialog dialog = new SiteFormDialog(eventBus, service, form);
+		dialog.create(site);
 	}
 	
 	@Override

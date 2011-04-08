@@ -21,6 +21,15 @@ import java.util.Set;
 @Entity
 public class LocationType implements Serializable, SchemaElement {
 
+	/**
+	 * The name of the "default" location type for a country. 
+	 * The LocationType with this name can be used for locations that have
+	 * no additional semantic meaning, e.g. they are not Schools, or clinics, or 
+	 * nutrition centers, but just a point on the earth. 
+	 * Default LocationType are created as needed, by country.
+	 */
+	public static final String DEFAULT = "$DEFAULT$";
+	
 	private static final long serialVersionUID = 232690778137357387L;
     private int id;
 	private boolean reuse;

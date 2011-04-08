@@ -10,10 +10,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import org.sigmah.client.AppEvents;
 import org.sigmah.client.EventBus;
 import org.sigmah.client.dispatch.Dispatcher;
-import org.sigmah.client.event.SiteEvent;
+import org.sigmah.client.event.EntityEvent;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.icon.IconImageBundle;
 import org.sigmah.client.page.common.Shutdownable;
@@ -21,10 +20,13 @@ import org.sigmah.client.page.common.grid.SavingHelper;
 import org.sigmah.client.page.common.toolbar.ActionListener;
 import org.sigmah.client.page.common.toolbar.ActionToolBar;
 import org.sigmah.client.page.common.toolbar.UIActions;
+import org.sigmah.client.page.entry.editor.SiteForm;
+import org.sigmah.client.page.entry.editor.SiteFormDialog;
 import org.sigmah.client.util.state.IStateManager;
 import org.sigmah.shared.command.GetSchema;
 import org.sigmah.shared.command.GetSites;
 import org.sigmah.shared.command.result.BatchResult;
+import org.sigmah.shared.command.result.PagingResult;
 import org.sigmah.shared.command.result.SiteResult;
 import org.sigmah.shared.dao.Filter;
 import org.sigmah.shared.dto.IndicatorDTO;
@@ -50,6 +52,7 @@ import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.store.Record;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Info;
+import com.extjs.gxt.ui.client.widget.Label;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.EditorGrid;
 import com.extjs.gxt.ui.client.widget.grid.EditorGrid.ClicksToEdit;
@@ -69,9 +72,8 @@ import com.google.inject.Inject;
  */
 public class SiteGridPanel extends ContentPanel implements ActionListener, SelectionProvider<SiteDTO> {
 
-	private Listener<SiteEvent> siteChangedListener;
-	private Listener<SiteEvent> siteCreatedListener;
-	private Listener<SiteEvent> siteSelectedListner;
+	private Listener<EntityEvent<SiteDTO>> siteChangedListener;
+	private Listener<EntityEvent<SiteDTO>> siteCreatedListener;
 	private List<Shutdownable> subComponents = new ArrayList<Shutdownable>();
 
 	public static final int PAGE_SIZE = 25;
@@ -103,6 +105,25 @@ public class SiteGridPanel extends ContentPanel implements ActionListener, Selec
 		
 		initToolBar();
 		initPagingToolBar();
+		
+		eventBus.addListener(EntityEvent.CREATED, new Listener<EntityEvent<SiteDTO>>() {
+
+			@Override
+			public void handleEvent(EntityEvent<SiteDTO> be) {
+				if(be.getEntityName().equals("Site")) {
+					onSiteCreated(be);
+				}
+			}
+		});
+		eventBus.addListener(EntityEvent.UPDATED, new Listener<EntityEvent<SiteDTO>>() {
+
+			@Override
+			public void handleEvent(EntityEvent<SiteDTO> be) {
+				if(be.getEntityName().equals("Site")) {
+					onSiteUpdated(be);
+				}
+			}
+		});
 	}
 	
 	/*
@@ -139,11 +160,15 @@ public class SiteGridPanel extends ContentPanel implements ActionListener, Selec
 			@Override
 			public void loaderLoadException(LoadEvent le) {
 				Log.debug("SiteGridPanel load failed", le.exception);
-				grid.getView().setEmptyText(I18N.CONSTANTS.connectionProblem());
-				store.removeAll();
-				if(grid != null) {
+				if(grid == null) {
+					removeAll();
+					add(new Label(I18N.CONSTANTS.connectionProblem()));
+					layout();
+				} else {
+					grid.getView().setEmptyText(I18N.CONSTANTS.connectionProblem());
 					grid.unmask();
 				}
+				store.removeAll();
 			}
 		});
 	}
@@ -170,6 +195,7 @@ public class SiteGridPanel extends ContentPanel implements ActionListener, Selec
 	 */
 	public void load(Filter filter, Collection<IndicatorDTO> indicators) {
 		this.filter = filter;
+		this.siteIdToSelectOnNextLoad = 0;
 		loader.setOffset(0);
 		loader.load();
 		new SiteColumnModelBuilder(service, filter, indicators, new AsyncCallback<ColumnModel>() {
@@ -199,13 +225,6 @@ public class SiteGridPanel extends ContentPanel implements ActionListener, Selec
 		return toolBar;
 	}
 	
-	protected void initToolBar() {
-		toolBar = createToolBar(); 
-		assert toolBar != null : "createToolBar() cannot return null.";
-		toolBar.setListener(this);
-
-		setTopComponent(toolBar);
-	}
 
 	/**
 	 * Creates the {@link ActionToolBar} used as the top component.
@@ -213,8 +232,8 @@ public class SiteGridPanel extends ContentPanel implements ActionListener, Selec
 	 * 
 	 * @return the toolbar
 	 */
-	protected ActionToolBar createToolBar() {
-		ActionToolBar toolBar = new ActionToolBar();
+	private void initToolBar() {
+		toolBar = new ActionToolBar();
 		toolBar.addSaveSplitButton();
 		toolBar.add(new SeparatorToolItem());
 
@@ -226,7 +245,7 @@ public class SiteGridPanel extends ContentPanel implements ActionListener, Selec
 
 		toolBar.addExcelExportButton();
 		
-		return toolBar;
+		setTopComponent(toolBar);
 	}
 	
 	private void initPagingToolBar() {
@@ -293,7 +312,7 @@ public class SiteGridPanel extends ContentPanel implements ActionListener, Selec
 					onSelectionChanged(se);
 				}
 			});
-			
+			removeAll();
 			add(grid);
 			layout();
 		} else {
@@ -306,6 +325,8 @@ public class SiteGridPanel extends ContentPanel implements ActionListener, Selec
 		if(UIActions.save.equals(actionId)) {
 			save();
 		} else if(UIActions.add.equals(actionId)) {
+			
+		} else if(UIActions.edit.equals(actionId)) {
 			
 		}
 	}
@@ -332,27 +353,28 @@ public class SiteGridPanel extends ContentPanel implements ActionListener, Selec
 		});
 	}
 
-	private void onSiteCreated(SiteEvent se) {
-//		if (store.getCount() < PAGE_SIZE) {
-//			// there is only one page, so we can save some time by justing adding this model to directly to
-//			//  the store
-//			store.add(se.getSite());
-//		} else {
-//			// there are multiple pages and we don't really know where this site is going
-//			// to end up, so do a reload and seek to the page with the new site
-//			GetSites cmd = (GetSites) loader.getCommand();
-//			cmd.setSeekToSiteId(se.getSite().getId());
-//			siteIdToSelectOnNextLoad = se.getSite().getId();
-//			loader.load();
-//		}
+	private void onSiteCreated(EntityEvent<SiteDTO> se) {
+		if (store.getCount() < PAGE_SIZE) {
+			// there is only one page, so we can save some time by justing adding this model to directly to
+			//  the store
+			store.add(se.getEntity());
+		} else {
+			// there are multiple pages and we don't really know where this site is going
+			// to end up, so do a reload and seek to the page with the new site
+			siteIdToSelectOnNextLoad = se.getEntity().getId();
+			loader.load();
+		}
+	}
+	
+	private void onSiteUpdated(EntityEvent<SiteDTO> se) {
+		// find the mo
 	}
 
 
 	public void shutdown() {
 
-		eventBus.removeListener(AppEvents.SiteChanged, siteChangedListener);
-		eventBus.removeListener(AppEvents.SiteCreated, siteCreatedListener);
-		eventBus.removeListener(AppEvents.SiteSelected, siteSelectedListner);
+		eventBus.removeListener(EntityEvent.UPDATED, siteChangedListener);
+		eventBus.removeListener(EntityEvent.CREATED, siteCreatedListener);
 
 		for (Shutdownable subComponet : subComponents) {
 			subComponet.shutdown();
@@ -362,22 +384,17 @@ public class SiteGridPanel extends ContentPanel implements ActionListener, Selec
 
 
 	protected void onLoaded(LoadEvent le) {
-//		PagingResult result = (PagingResult) le.getData();
-//		view.setActionEnabled(UIActions.export, result.getTotalLength() != 0);
-//
-//		/*
-//		 * Let everyone else know we have navigated
-//		 */
-//		firePageEvent(new SiteGridPageState(currentActivity), le);
-//
-//		/*
-//		 * Select a site
-//		 */
-//
-//		if (siteIdToSelectOnNextLoad != null) {
-//			view.setSelection(siteIdToSelectOnNextLoad);
-//			siteIdToSelectOnNextLoad = null;
-//		}
+		PagingResult result = (PagingResult) le.getData();
+		toolBar.setActionEnabled(UIActions.export, result.getTotalLength() != 0);
+
+
+		if (siteIdToSelectOnNextLoad != null) {
+			SiteDTO model = store.findModel("id", siteIdToSelectOnNextLoad);
+			if(model != null) {
+				grid.getSelectionModel().setSelection(Collections.singletonList(model));
+			}
+			siteIdToSelectOnNextLoad = null;
+		}
 	}
 
 	public void onSelectionChanged(SelectionChangedEvent<SiteDTO> event) {
@@ -401,10 +418,6 @@ public class SiteGridPanel extends ContentPanel implements ActionListener, Selec
 		}
 		
 		fireEvent(Events.SelectionChange, event);
-
-		if(!event.getSelection().isEmpty()) {
-			eventBus.fireEvent(new SiteEvent(AppEvents.SiteSelected, this, event.getSelectedItem()));
-		}
 	}
 
 
@@ -426,34 +439,7 @@ public class SiteGridPanel extends ContentPanel implements ActionListener, Selec
 		});
 	}
 
-////
-////	protected void onAdd() {
-////
-////		SiteDTO newSite = new SiteDTO();
-////		newSite.setActivityId(currentActivity.getId());
-////
-////		if (!currentActivity.getDatabase().isEditAllAllowed()) {
-////			newSite.setPartner(currentActivity.getDatabase().getMyPartner());
-////		}
-////
-////		// initialize with defaults
-////		SiteDTO sel = view.getSelection();
-////		if (sel != null) {
-////			for (Map.Entry<String, Object> prop : sel.getProperties().entrySet()) {
-////				if (prop.getKey().startsWith(AdminLevelDTO.PROPERTY_PREFIX)) {
-////					newSite.set(prop.getKey(), prop.getValue());
-////				}
-////			}
-////		}
-////
-////		formLoader.edit(currentActivity, newSite, view.getLoadingMonitor());
-////
-////	}
-////
-////	protected void onEdit(SiteDTO site) {
-////		formLoader.edit(currentActivity, site, view.getLoadingMonitor());
-////	}
-////
+
 ////
 ////	@Override
 ////	protected void onDeleteConfirmed(final SiteDTO site) {
@@ -486,6 +472,7 @@ public class SiteGridPanel extends ContentPanel implements ActionListener, Selec
 			cmd.setLimit(config.getLimit());
 			cmd.setOffset(config.getOffset());
 			cmd.setFilter(filter);
+			cmd.setSeekToSiteId(siteIdToSelectOnNextLoad);
 			
 			service.execute(cmd, null, callback);
 		}

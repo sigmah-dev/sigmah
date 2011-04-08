@@ -153,7 +153,7 @@ public class ModelFormPanel extends FormPanel {
         return map;
     }
 
-    protected Map<String, Object> getModified() {
+    public Map<String, Object> getModified() {
         Map<String, Object> changes = new HashMap<String, Object>();
 
         for(String property : dirtyProperties) {
