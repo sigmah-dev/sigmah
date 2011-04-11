@@ -21,6 +21,7 @@ import org.sigmah.client.page.project.dashboard.funding.FundingIconProvider.Icon
 import org.sigmah.shared.domain.ProjectModelStatus;
 import org.sigmah.shared.domain.ProjectModelType;
 import org.sigmah.shared.dto.ProjectModelDTOLight;
+
 import com.extjs.gxt.ui.client.Style;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
@@ -113,13 +114,13 @@ public class AdminProjectModelsView extends View {
 			public Object render(ProjectModelDTOLight model, String property,
 					ColumnData config, int rowIndex, int colIndex,
 					ListStore<ProjectModelDTOLight> store, Grid<ProjectModelDTOLight> grid) {
-				return ProjectModelStatus.getName(model.getStatus());
+				return model.getStatus()!=null ? ProjectModelStatus.getName(model.getStatus()) : "";
 			}
 		});
 		configs.add(column); 
 		
 		column = new ColumnConfig();    
-		column.setWidth(75);  
+		column.setWidth(40);  
 		column.setAlignment(Style.HorizontalAlignment.RIGHT);
 	    column.setRenderer(new GridCellRenderer<ProjectModelDTOLight>(){
 
@@ -148,6 +149,36 @@ public class AdminProjectModelsView extends View {
 			}	    	
 	    }); 
 	    configs.add(column); 
+	    
+		column = new ColumnConfig();
+		column.setWidth(40);
+		column.setAlignment(Style.HorizontalAlignment.CENTER);
+		column.setRenderer(new GridCellRenderer<ProjectModelDTOLight>() {
+			@Override
+			public Object render(final ProjectModelDTOLight model,
+					final String property, ColumnData config, int rowIndex,
+					int colIndex, ListStore<ProjectModelDTOLight> store,
+					Grid<ProjectModelDTOLight> grid) {
+
+				Button buttonExport = new Button(I18N.CONSTANTS.export());
+				buttonExport.setItemId(UIActions.exportModel);
+				buttonExport.addListener(Events.OnClick,
+						new Listener<ButtonEvent>() {
+							@Override
+							public void handleEvent(ButtonEvent be) {
+								AdminModelActionListener listener = new AdminModelActionListener(
+										AdminProjectModelsView.this,
+										dispatcher, true);
+								listener.setModelId(model.getId());
+								listener.setIsOrgUnit(false);
+								listener.setIsReport(false);
+								listener.onUIAction(UIActions.exportModel);
+							}
+						});
+				return buttonExport;
+			}
+		});
+		configs.add(column);
 		
 		ColumnModel cm = new ColumnModel(configs);		
 		
@@ -172,6 +203,23 @@ public class AdminProjectModelsView extends View {
 			
 		});
 		toolbar.add(button);
+		
+		Button buttonImport = new Button(I18N.CONSTANTS.importItem());
+		buttonImport.setItemId(UIActions.importModel);
+		buttonImport.addListener(Events.OnClick, new Listener<ButtonEvent>() {
+
+			@Override
+			public void handleEvent(ButtonEvent be) {
+				AdminModelActionListener listener = new AdminModelActionListener(
+						AdminProjectModelsView.this, dispatcher, true);
+				listener.setIsOrgUnit(false);
+				listener.setIsReport(false);
+				listener.onUIAction(UIActions.importModel);
+			}
+
+		});
+		toolbar.add(buttonImport);
+		
 	    return toolbar;
     }
 	
@@ -194,4 +242,5 @@ public class AdminProjectModelsView extends View {
 	public void setCurrentState(AdminPageState currentState) {
 		this.currentState = currentState;
 	}
+	
 }

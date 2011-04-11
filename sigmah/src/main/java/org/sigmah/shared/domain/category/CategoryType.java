@@ -72,4 +72,16 @@ public class CategoryType implements Serializable {
     public void setIcon(CategoryIcon icon) {
         this.icon = icon;
     }
+    
+    /**
+     * Reset the identifiers of the object.
+     */
+    public void resetImport(){
+    	this.id = null;
+    	if(elements!=null){
+    		for(CategoryElement categoryElement : elements){
+    			categoryElement.resetImport();
+    		}
+    	}
+    }
 }

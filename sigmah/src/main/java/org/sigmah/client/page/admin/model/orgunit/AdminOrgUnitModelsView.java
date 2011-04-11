@@ -18,6 +18,7 @@ import org.sigmah.client.page.admin.model.orgunit.AdminOrgUnitModelsPresenter.Vi
 import org.sigmah.client.page.common.toolbar.UIActions;
 import org.sigmah.shared.domain.ProjectModelStatus;
 import org.sigmah.shared.dto.OrgUnitModelDTO;
+
 import com.extjs.gxt.ui.client.Style;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
@@ -110,7 +111,7 @@ public class AdminOrgUnitModelsView extends View {
 			public Object render(OrgUnitModelDTO model, String property,
 					ColumnData config, int rowIndex, int colIndex,
 					ListStore<OrgUnitModelDTO> store, Grid<OrgUnitModelDTO> grid) {
-				return ProjectModelStatus.getName(model.getStatus());
+				return model.getStatus()!=null ? ProjectModelStatus.getName(model.getStatus()): "";
 			}
 		});
 		configs.add(column);
@@ -146,6 +147,37 @@ public class AdminOrgUnitModelsView extends View {
 	    }); 
 	    configs.add(column); 
 		
+		column = new ColumnConfig();
+		column.setWidth(75);
+		column.setAlignment(Style.HorizontalAlignment.RIGHT);
+		column.setRenderer(new GridCellRenderer<OrgUnitModelDTO>() {
+
+			@Override
+			public Object render(final OrgUnitModelDTO model,
+					final String property, ColumnData config, int rowIndex,
+					int colIndex, ListStore<OrgUnitModelDTO> store,
+					Grid<OrgUnitModelDTO> grid) {
+
+				Button buttonExport = new Button(I18N.CONSTANTS.export());
+				buttonExport.setItemId(UIActions.exportModel);
+				buttonExport.addListener(Events.OnClick,
+						new Listener<ButtonEvent>() {
+							@Override
+							public void handleEvent(ButtonEvent be) {
+								AdminModelActionListener listener = new AdminModelActionListener(
+										AdminOrgUnitModelsView.this,
+										dispatcher, false);
+								listener.setModelId(model.getId());
+								listener.setIsOrgUnit(true);
+								listener.setIsReport(false);
+								listener.onUIAction(UIActions.exportModel);
+							}
+						});
+				return buttonExport;
+			}
+		});
+		configs.add(column);
+	    
 		ColumnModel cm = new ColumnModel(configs);		
 		
 		Grid<OrgUnitModelDTO> grid = new Grid<OrgUnitModelDTO>(modelsStore, cm); 
@@ -168,7 +200,25 @@ public class AdminOrgUnitModelsView extends View {
 			}
 			
 		});
+		
 		toolbar.add(button);
+		
+		Button buttonImport = new Button(I18N.CONSTANTS.importItem());
+		buttonImport.setItemId(UIActions.importModel);
+		buttonImport.addListener(Events.OnClick, new Listener<ButtonEvent>() {
+
+			@Override
+			public void handleEvent(ButtonEvent be) {
+				AdminModelActionListener listener = new AdminModelActionListener(
+						AdminOrgUnitModelsView.this, dispatcher, false);
+				listener.setIsOrgUnit(true);
+				listener.setIsReport(false);
+				listener.onUIAction(UIActions.importModel);
+			}
+
+		});
+		toolbar.add(buttonImport);
+		
 	    return toolbar;
     }
 	

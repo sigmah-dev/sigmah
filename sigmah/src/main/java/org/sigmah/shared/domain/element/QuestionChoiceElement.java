@@ -95,4 +95,15 @@ public class QuestionChoiceElement implements Serializable {
         sb.append(sortOrder);
         return sb.toString();
     }
+    
+    /**
+     * Reset the identifiers of the object.
+     */
+    public void resetImport(QuestionElement parentQuestion){
+    	this.id = null;
+    	this.parentQuestion = parentQuestion;
+    	if(categoryElement!=null){
+    		categoryElement.resetImport();
+    	}
+    }
 }

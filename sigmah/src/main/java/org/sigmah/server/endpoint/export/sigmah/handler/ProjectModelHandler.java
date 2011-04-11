@@ -23,6 +23,8 @@ import org.sigmah.shared.domain.PhaseModel;
 import org.sigmah.shared.domain.ProjectModel;
 import org.sigmah.shared.domain.ProjectModelType;
 import org.sigmah.shared.domain.ProjectModelVisibility;
+import org.sigmah.shared.domain.category.CategoryElement;
+import org.sigmah.shared.domain.category.CategoryType;
 import org.sigmah.shared.domain.element.FlexibleElement;
 import org.sigmah.shared.domain.element.QuestionChoiceElement;
 import org.sigmah.shared.domain.element.QuestionElement;
@@ -47,7 +49,7 @@ public class ProjectModelHandler implements ModelHandler {
 	public static HashSet<Object> modelesImport = new HashSet<Object>();
 	
 	private ProjectModelType projectModelType = ProjectModelType.NGO;
-
+	
     @Override
     public void importModel(InputStream inputStream, EntityManager em, Authentication authentication) throws ExportException {
     	ObjectInputStream objectInputStream;
@@ -142,31 +144,65 @@ public class ProjectModelHandler implements ModelHandler {
 								if (layoutConstraint.getElement() instanceof QuestionElement) {
 									List<QuestionChoiceElement> questionChoiceElements = ((QuestionElement) layoutConstraint
 											.getElement()).getChoices();
-									if (questionChoiceElements != null) {
-										// Save parent QuestionElement like a FlexibleElement
+									CategoryType  type = ((QuestionElement) layoutConstraint.getElement()).getCategoryType();
+									if (questionChoiceElements != null || type!=null ) {
+										
 										FlexibleElement parent = (FlexibleElement) layoutConstraint
 												.getElement();
 										((QuestionElement) parent)
 												.setChoices(null);
+										((QuestionElement) parent).setCategoryType(null);
 										em.persist(parent);
+										
 										// Save QuestionChoiceElement with their QuestionElement parent(saved above)
-										for (QuestionChoiceElement questionChoiceElement : questionChoiceElements) {
-											if (questionChoiceElement != null) {
-												questionChoiceElement
-														.setId(null);
-												questionChoiceElement
-														.setParentQuestion((QuestionElement) parent);
-												em
-														.persist(questionChoiceElement);
+										if(questionChoiceElements!=null){
+											for (QuestionChoiceElement questionChoiceElement : questionChoiceElements) {
+												if (questionChoiceElement != null) {
+													questionChoiceElement
+															.setId(null);
+													questionChoiceElement
+															.setParentQuestion((QuestionElement) parent);
+													CategoryElement categoryElement = questionChoiceElement.getCategoryElement();
+													if(categoryElement!=null){
+														questionChoiceElement.setCategoryElement(null);
+														
+														em.persist(questionChoiceElement);
+														saveProjectModelCategoryElement(categoryElement, em);
+														questionChoiceElement.setCategoryElement(categoryElement);
+														em.merge(questionChoiceElement);
+													}else{
+														em.persist(questionChoiceElement);
+													}
+												}
 											}
+											// Set saved QuestionChoiceElement to QuestionElement parent and update it
+											((QuestionElement) parent).setChoices(questionChoiceElements);
 										}
-										// Set saved QuestionChoiceElement to QuestionElement parent and update it
-										((QuestionElement) parent)
-												.setChoices(questionChoiceElements);
+							
+										// Save the Category type of QuestionElement parent(saved above)
+										if(type!=null){
+											if(em.find(CategoryType.class, type.getId())==null){								
+												List<CategoryElement> typeElements = type.getElements();
+												if(typeElements!=null){
+													type.setElements(null);
+													em.merge(type);
+													for(CategoryElement element : typeElements){
+														if(em.find(CategoryElement.class, element.getId())==null){
+															element.setParentType(type);
+															saveProjectModelCategoryElement(element, em);
+														}
+													}
+													type.setElements(typeElements);
+													em.merge(type);
+												}
+											}												
+											//Set the saved CategoryType to QuestionElement parent and update it
+											((QuestionElement) parent).setCategoryType(type);
+										}
+										//Update the QuestionElement parent 
 										em.merge(parent);
 									} else {
-										em.persist(layoutConstraint
-												.getElement());
+										em.persist(layoutConstraint.getElement());
 									}
 								} else {
 									em.persist(layoutConstraint.getElement());
@@ -193,31 +229,65 @@ public class ProjectModelHandler implements ModelHandler {
 								if (layoutConstraint.getElement() instanceof QuestionElement) {
 									List<QuestionChoiceElement> questionChoiceElements = ((QuestionElement) layoutConstraint
 											.getElement()).getChoices();
-									if (questionChoiceElements != null) {
-										// Save parent QuestionElement like FlexibleElement
+									CategoryType  type = ((QuestionElement) layoutConstraint.getElement()).getCategoryType();
+									if (questionChoiceElements != null || type!=null ) {
+										
 										FlexibleElement parent = (FlexibleElement) layoutConstraint
 												.getElement();
 										((QuestionElement) parent)
 												.setChoices(null);
+										((QuestionElement) parent).setCategoryType(null);
 										em.persist(parent);
+										
 										// Save QuestionChoiceElement with their QuestionElement parent(saved above)
-										for (QuestionChoiceElement questionChoiceElement : questionChoiceElements) {
-											if (questionChoiceElement != null) {
-												questionChoiceElement
-														.setId(null);
-												questionChoiceElement
-														.setParentQuestion((QuestionElement) parent);
-												em
-														.persist(questionChoiceElement);
+										if(questionChoiceElements!=null){
+											for (QuestionChoiceElement questionChoiceElement : questionChoiceElements) {
+												if (questionChoiceElement != null) {
+													questionChoiceElement
+															.setId(null);
+													questionChoiceElement
+															.setParentQuestion((QuestionElement) parent);
+													CategoryElement categoryElement = questionChoiceElement.getCategoryElement();
+													if(categoryElement!=null){
+														questionChoiceElement.setCategoryElement(null);
+														
+														em.persist(questionChoiceElement);
+														saveProjectModelCategoryElement(categoryElement, em);
+														questionChoiceElement.setCategoryElement(categoryElement);
+														em.merge(questionChoiceElement);
+													}else{
+														em.persist(questionChoiceElement);
+													}
+												}
 											}
+											// Set saved QuestionChoiceElement to QuestionElement parent and update it
+											((QuestionElement) parent).setChoices(questionChoiceElements);
 										}
-										// Set saved QuestionChoiceElement to QuestionElement parent and update it
-										((QuestionElement) parent)
-												.setChoices(questionChoiceElements);
+							
+										// Save the Category type of QuestionElement parent(saved above)
+										if(type!=null){
+											if(em.find(CategoryType.class, type.getId())==null){								
+												List<CategoryElement> typeElements = type.getElements();
+												if(typeElements!=null){
+													type.setElements(null);
+													em.merge(type);
+													for(CategoryElement element : typeElements){
+														if(em.find(CategoryElement.class, element.getId())==null){
+															element.setParentType(type);
+															saveProjectModelCategoryElement(element, em);
+														}
+													}
+													type.setElements(typeElements);
+													em.merge(type);
+												}
+											}												
+											//Set the saved CategoryType to QuestionElement parent and update it
+											((QuestionElement) parent).setCategoryType(type);
+										}
+										//Update the QuestionElement parent 
 										em.merge(parent);
 									} else {
-										em.persist(layoutConstraint
-												.getElement());
+										em.persist(layoutConstraint.getElement());
 									}
 								} else {
 									em.persist(layoutConstraint.getElement());
@@ -246,38 +316,73 @@ public class ProjectModelHandler implements ModelHandler {
 							if (layoutConstraints != null) {
 								for (LayoutConstraint layoutConstraint : layoutConstraints) {
 									if (layoutConstraint.getElement() != null) {
+										
+										// Save parent QuestionElement like a FlexibleElement
 										if (layoutConstraint.getElement() instanceof QuestionElement) {
 											List<QuestionChoiceElement> questionChoiceElements = ((QuestionElement) layoutConstraint
 													.getElement()).getChoices();
-											if (questionChoiceElements != null) {
-												// Save parent QuestionElement like a FlexibleElement
+											CategoryType  type = ((QuestionElement) layoutConstraint.getElement()).getCategoryType();
+											if (questionChoiceElements != null || type!=null ) {
+												
 												FlexibleElement parent = (FlexibleElement) layoutConstraint
 														.getElement();
 												((QuestionElement) parent)
 														.setChoices(null);
+												((QuestionElement) parent).setCategoryType(null);
 												em.persist(parent);
+												
 												// Save QuestionChoiceElement with their QuestionElement parent(saved above)
-												for (QuestionChoiceElement questionChoiceElement : questionChoiceElements) {
-													if (questionChoiceElement != null) {
-														questionChoiceElement
-																.setId(null);
-														questionChoiceElement
-																.setParentQuestion((QuestionElement) parent);
-														em
-																.persist(questionChoiceElement);
+												if(questionChoiceElements!=null){
+													for (QuestionChoiceElement questionChoiceElement : questionChoiceElements) {
+														if (questionChoiceElement != null) {
+															questionChoiceElement
+																	.setId(null);
+															questionChoiceElement
+																	.setParentQuestion((QuestionElement) parent);
+															CategoryElement categoryElement = questionChoiceElement.getCategoryElement();
+															if(categoryElement!=null){
+																questionChoiceElement.setCategoryElement(null);
+																
+																em.persist(questionChoiceElement);
+																saveProjectModelCategoryElement(categoryElement, em);
+																questionChoiceElement.setCategoryElement(categoryElement);
+																em.merge(questionChoiceElement);
+															}else{
+																em.persist(questionChoiceElement);
+															}
+														}
 													}
+													// Set saved QuestionChoiceElement to QuestionElement parent and update it
+													((QuestionElement) parent).setChoices(questionChoiceElements);
 												}
-												// Set saved QuestionChoiceElement to QuestionElement parent and update it
-												((QuestionElement) parent)
-														.setChoices(questionChoiceElements);
+									
+												// Save the Category type of QuestionElement parent(saved above)
+												if(type!=null){
+													if(em.find(CategoryType.class, type.getId())==null){								
+														List<CategoryElement> typeElements = type.getElements();
+														if(typeElements!=null){
+															type.setElements(null);
+															em.merge(type);
+															for(CategoryElement element : typeElements){
+																if(em.find(CategoryElement.class, element.getId())==null){
+																	element.setParentType(type);
+																	saveProjectModelCategoryElement(element, em);
+																}
+															}
+															type.setElements(typeElements);
+															em.merge(type);
+														}
+													}												
+													//Set the saved CategoryType to QuestionElement parent and update it
+													((QuestionElement) parent).setCategoryType(type);
+												}
+												//Update the QuestionElement parent 
 												em.merge(parent);
 											} else {
-												em.persist(layoutConstraint
-														.getElement());
+												em.persist(layoutConstraint.getElement());
 											}
 										} else {
-											em.persist(layoutConstraint
-													.getElement());
+											em.persist(layoutConstraint.getElement());
 										}
 									}
 								}
@@ -293,4 +398,55 @@ public class ProjectModelHandler implements ModelHandler {
 			projectModel.setPhases(phases);
 		}
 	}
+	
+	/**
+	 * Save the category element of a question choice element.
+	 * 
+	 * @param categoryElement
+	 *            the category element to save.
+	 * @param em
+	 *            the entity manager.
+	 */
+	private void saveProjectModelCategoryElement(CategoryElement categoryElement, EntityManager em){
+		if(!modelesImport.contains(categoryElement)){
+			modelesImport.add(categoryElement);
+			
+			if(!modelesReset.containsKey(categoryElement)){
+				CategoryElement key = categoryElement;
+				categoryElement.setId(null);
+				
+				CategoryType parentType = categoryElement.getParentType();
+				if(!modelesImport.contains(parentType)){
+					modelesImport.add(parentType);
+					
+					if(!modelesReset.containsKey(parentType)){
+						CategoryType parentKey = parentType;
+						parentType.setId(null);
+						
+						List<CategoryElement> elements = parentType.getElements();
+						if(elements!=null){
+							parentType.setElements(null);
+							em.persist(parentType);
+							for(CategoryElement element : elements){
+								categoryElement.setParentType(parentType);
+								saveProjectModelCategoryElement(element, em);
+							}
+							parentType.setElements(elements);
+							em.merge(parentType);
+						}else{
+							em.persist(parentType);
+						}						
+						modelesReset.put(parentKey, parentType);
+					}else{
+						parentType = (CategoryType)modelesReset.get(parentType);
+					}
+				}
+				categoryElement.setParentType(parentType);
+				em.persist(categoryElement);
+				modelesReset.put(key, categoryElement);
+			}else{
+				categoryElement = (CategoryElement)modelesReset.get(categoryElement);
+			}
+		}
+	}	
 }

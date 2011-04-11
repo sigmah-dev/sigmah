@@ -30,6 +30,7 @@ import org.sigmah.server.Cookies;
 import org.sigmah.server.auth.SigmahAuthDictionaryServlet;
 import org.sigmah.server.dao.AuthenticationDAO;
 import org.sigmah.server.domain.Authentication;
+import org.sigmah.server.endpoint.export.sigmah.handler.CategoryTypeHandler;
 import org.sigmah.server.endpoint.export.sigmah.handler.ModelHandler;
 import org.sigmah.server.endpoint.export.sigmah.handler.OrgUnitModelHandler;
 import org.sigmah.server.endpoint.export.sigmah.handler.ProjectModelHandler;
@@ -62,6 +63,7 @@ public class ExportModelServlet extends HttpServlet {
         map.put("project-model", new ProjectModelHandler());
         map.put("project-report-model", new ProjectReportModelHandler());
         map.put("org-unit-model", new OrgUnitModelHandler());
+        map.put("category-type", new CategoryTypeHandler());
 
         this.handlers = map;
     }
@@ -81,7 +83,6 @@ public class ExportModelServlet extends HttpServlet {
 
         if(hasPermission) {
             // Export the model
-            
             final String type = (String) req.getParameter("type");
             final String identifier = (String) req.getParameter("id");
 

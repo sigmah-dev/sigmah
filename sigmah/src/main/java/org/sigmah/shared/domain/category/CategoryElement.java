@@ -66,4 +66,14 @@ public class CategoryElement implements Serializable {
     public void setColor(String color) {
         this.color = color;
     }
+    
+    /**
+     * Reset the identifiers of the object.
+     */
+    public void resetImport(){
+    	this.id = null;
+    	if(parentType!=null){
+    		parentType.resetImport();
+    	}
+    }
 }

@@ -50,6 +50,7 @@ public class GetReportModelsHandler implements CommandHandler<GetReportModels> {
 		final List<ProjectReportModel> models = query.getResultList();
         for(final ProjectReportModel model : models){
         	ReportModelDTO reportModel = mapper.map(model, ReportModelDTO.class);
+        	reportModel.setId(model.getId());//Set the id property for the DTO model
         	List<ProjectReportModelSectionDTO> sections = new ArrayList<ProjectReportModelSectionDTO>();
         	for(ProjectReportModelSection section : model.getSections()){
         		ProjectReportModelSectionDTO sectionDTO = new ProjectReportModelSectionDTO();

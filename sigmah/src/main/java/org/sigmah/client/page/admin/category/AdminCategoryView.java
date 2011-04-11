@@ -6,10 +6,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.sigmah.client.dispatch.Dispatcher;
+import org.sigmah.client.dispatch.monitor.MaskingAsyncMonitor;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.icon.IconImageBundle;
 import org.sigmah.client.page.admin.AdminUtil;
 import org.sigmah.client.page.admin.category.AdminCategoryPresenter.View;
+import org.sigmah.client.page.admin.model.common.AdminModelActionListener;
 import org.sigmah.client.page.common.toolbar.UIActions;
 import org.sigmah.client.page.common.widget.ColorField;
 import org.sigmah.client.page.project.category.CategoryIconProvider;
@@ -22,6 +24,8 @@ import org.sigmah.shared.command.result.VoidResult;
 import org.sigmah.shared.domain.category.CategoryIcon;
 import org.sigmah.shared.dto.category.CategoryElementDTO;
 import org.sigmah.shared.dto.category.CategoryTypeDTO;
+
+import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -73,7 +77,7 @@ public class AdminCategoryView extends View {
         
         ContentPanel sidePanel = new ContentPanel(new VBoxLayout());
         sidePanel.setHeaderVisible(false);
-        sidePanel.setWidth(375);
+        sidePanel.setWidth(425);
         sidePanel.setScrollMode(Scroll.NONE);
         categoriesGrid = buildCategoriesListGrid();
         sidePanel.add(categoriesGrid);
@@ -86,7 +90,7 @@ public class AdminCategoryView extends View {
         categoryPanel.add(categoryElementsGrid);
         categoryPanel.setTopComponent(categoryElementToolBar());
         
-        final BorderLayoutData leftLayoutData = new BorderLayoutData(LayoutRegion.WEST, 400);
+        final BorderLayoutData leftLayoutData = new BorderLayoutData(LayoutRegion.WEST, 425);
         leftLayoutData.setMargins(new Margins(0, 4, 0, 0));
 		add(sidePanel, leftLayoutData);	
 		 final BorderLayoutData mainLayoutData = new BorderLayoutData(LayoutRegion.CENTER);
@@ -120,7 +124,7 @@ public class AdminCategoryView extends View {
         column.setId("label");
         column.setWidth(400);
         column.setHeader(I18N.CONSTANTS.adminCategoryElementLabel()); 
-        configs.add(column);
+        configs.add(column);       
 		
 		ColumnModel cm = new ColumnModel(configs);		
 		
@@ -163,7 +167,7 @@ public class AdminCategoryView extends View {
         
         configs.add(column);
         
-        column = new ColumnConfig("label",I18N.CONSTANTS.adminCategoryTypeName(), 300);  
+        column = new ColumnConfig("label",I18N.CONSTANTS.adminCategoryTypeName(), 325);  
 		column.setRenderer(new GridCellRenderer<CategoryTypeDTO>(){
 
 			@Override
@@ -194,13 +198,43 @@ public class AdminCategoryView extends View {
 	    });
 		configs.add(column);
 		
+		column = new ColumnConfig();
+		column.setWidth(70);
+		column.setAlignment(HorizontalAlignment.CENTER);
+		column.setRenderer(new GridCellRenderer<CategoryTypeDTO>() {
+
+			@Override
+			public Object render(final CategoryTypeDTO model, String property,
+					ColumnData config, int rowIndex, int colIndex,
+					ListStore<CategoryTypeDTO> store, Grid<CategoryTypeDTO> grid) {
+
+				Button buttonExport = new Button(I18N.CONSTANTS.export());
+				buttonExport.setItemId(UIActions.exportModel);
+				buttonExport.addListener(Events.OnClick,
+						new Listener<ButtonEvent>() {
+							@Override
+							public void handleEvent(ButtonEvent be) {
+									AdminModelActionListener listener = new AdminModelActionListener(
+											AdminCategoryView.this, dispatcher,
+											false);
+									listener.setModelId(model.getId());
+									listener.setIsOrgUnit(false);
+									listener.setIsReport(false);
+									listener.onUIAction(UIActions.exportModel);
+							}
+						});
+				return buttonExport;
+			}
+		});
+		configs.add(column);
+	
 		ColumnModel cm = new ColumnModel(configs);		
 		
 		Grid<CategoryTypeDTO> grid = new Grid<CategoryTypeDTO>(categoriesStore, cm); 
 		grid.setAutoHeight(true);
 		grid.getView().setForceFit(true);
 		grid.setAutoWidth(false);
-		grid.setWidth(375);
+		grid.setWidth(425);
 		return grid;
 	}
 	
@@ -278,6 +312,22 @@ public class AdminCategoryView extends View {
 			
 		});
 		toolbar.add(deleteCategoryTypeButton);
+		
+		Button buttonImport = new Button(I18N.CONSTANTS.importItem());
+		buttonImport.setItemId(UIActions.importModel);
+		buttonImport.addListener(Events.OnClick, new Listener<ButtonEvent>() {
+			@Override
+			public void handleEvent(ButtonEvent be) {
+				AdminModelActionListener listener = new AdminModelActionListener(
+						AdminCategoryView.this, dispatcher, false);
+				listener.setIsReport(false);
+				listener.setIsOrgUnit(false);
+				listener.onUIAction(UIActions.importModel);
+			}
+
+		});
+		toolbar.add(buttonImport);
+		
 		return toolbar;
 	}
 	
@@ -433,6 +483,11 @@ public class AdminCategoryView extends View {
 	@Override
 	public Component getMainPanel() {
 		return this;
+	}
+
+	@Override
+	public MaskingAsyncMonitor getReportModelsLoadingMonitor() {
+		return new MaskingAsyncMonitor(categoriesGrid, I18N.CONSTANTS.loading());
 	}
 	
 }

@@ -18,7 +18,7 @@ import org.hibernate.collection.PersistentSet;
  * Creates plain objects from Hibernate proxies.
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
-class Realizer {
+public class Realizer {
 
     private final static Log LOG = LogFactory.getLog(Realizer.class);
 

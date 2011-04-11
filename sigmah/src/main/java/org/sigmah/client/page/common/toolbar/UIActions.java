@@ -21,8 +21,12 @@ public class UIActions {
     public static final String edit = "edit";
 
     public static final String export = "export";
+    
+    public static final String exportModel = "exportModel";
 
     public static final String gotoGrid = "grid";
+    
+    public static final String importModel = "importModel";
     
     public static final String save = "save";
     

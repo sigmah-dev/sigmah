@@ -1,7 +1,7 @@
 package org.sigmah.client.page.admin.category;
 
 import org.sigmah.client.dispatch.Dispatcher;
-import org.sigmah.client.i18n.I18N;
+import org.sigmah.client.dispatch.monitor.MaskingAsyncMonitor;
 import org.sigmah.client.page.admin.AdminPageState;
 import org.sigmah.client.page.admin.AdminUtil;
 import org.sigmah.client.page.admin.model.AdminModelSubPresenter;
@@ -10,11 +10,9 @@ import org.sigmah.shared.command.result.CategoriesListResult;
 import org.sigmah.shared.dto.ProjectModelDTO;
 import org.sigmah.shared.dto.category.CategoryTypeDTO;
 
-
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class AdminCategoryPresenter implements AdminModelSubPresenter {
@@ -28,6 +26,7 @@ public class AdminCategoryPresenter implements AdminModelSubPresenter {
 	public static abstract class View extends ContentPanel {
 		public abstract ListStore<CategoryTypeDTO> getCategoriesStore();
 		public abstract Component getMainPanel();
+		public abstract MaskingAsyncMonitor getReportModelsLoadingMonitor();
 	}
 	
 	public AdminCategoryPresenter(Dispatcher dispatcher){
@@ -62,6 +61,27 @@ public class AdminCategoryPresenter implements AdminModelSubPresenter {
 		return view.getMainPanel();
 	}
 
+	public static void refreshCategoryTypePanel(Dispatcher dispatcher, final View view){
+		dispatcher.execute(new GetCategories(), 
+				view.getReportModelsLoadingMonitor(),
+        		new AsyncCallback<CategoriesListResult>() {
+        	@Override
+            public void onFailure(Throwable arg0) {
+        		AdminUtil.alertPbmData(alert);
+            }
+
+            @Override
+            public void onSuccess(CategoriesListResult result) {
+            	if (result.getList() != null && !result.getList().isEmpty()) {
+            		view.getCategoriesStore().removeAll();
+            		view.getCategoriesStore().add(result.getList());
+                	view.getCategoriesStore().commitChanges();
+            	}
+            	
+            }
+        });
+	}
+	
 	@Override
 	public void discardView() {
 	}

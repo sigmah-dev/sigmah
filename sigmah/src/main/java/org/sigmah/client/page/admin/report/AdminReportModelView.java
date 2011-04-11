@@ -7,11 +7,12 @@ import java.util.Map;
 
 import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.dispatch.callback.Deleted;
+import org.sigmah.client.dispatch.monitor.MaskingAsyncMonitor;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.icon.IconImageBundle;
 import org.sigmah.client.page.admin.AdminUtil;
+import org.sigmah.client.page.admin.model.common.AdminModelActionListener;
 import org.sigmah.client.page.admin.report.AdminReportModelPresenter.View;
-import org.sigmah.client.page.common.grid.ConfirmCallback;
 import org.sigmah.client.page.common.toolbar.UIActions;
 import org.sigmah.client.ui.ToggleAnchor;
 import org.sigmah.client.util.Notification;
@@ -23,6 +24,7 @@ import org.sigmah.shared.dto.report.ReportModelDTO;
 
 import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.Style;
+import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -36,9 +38,9 @@ import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.NumberField;
 import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.grid.CellEditor;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
@@ -82,7 +84,7 @@ public class AdminReportModelView extends View {
         
         ContentPanel sidePanel = new ContentPanel(new VBoxLayout());
         sidePanel.setHeaderVisible(false);
-        sidePanel.setWidth(300);
+        sidePanel.setWidth(350);
         sidePanel.setScrollMode(Scroll.NONE);
         reportModelsGrid = buildModelsListGrid();
         sidePanel.add(reportModelsGrid);
@@ -94,7 +96,7 @@ public class AdminReportModelView extends View {
         reportPanel.add(buildReportSectionsGrid());
         reportPanel.setTopComponent(reportSectionToolBar());
         
-        final BorderLayoutData leftLayoutData = new BorderLayoutData(LayoutRegion.WEST, 250);
+        final BorderLayoutData leftLayoutData = new BorderLayoutData(LayoutRegion.WEST, 350);
         leftLayoutData.setMargins(new Margins(0, 4, 0, 0));
 		add(sidePanel, leftLayoutData);	
 		 final BorderLayoutData mainLayoutData = new BorderLayoutData(LayoutRegion.CENTER);
@@ -288,7 +290,7 @@ public class AdminReportModelView extends View {
 		
         
         
-        ColumnConfig column = new ColumnConfig("name",I18N.CONSTANTS.adminReportName(), 245);  
+        ColumnConfig column = new ColumnConfig("name",I18N.CONSTANTS.adminReportName(), 280);  
 		column.setRenderer(new GridCellRenderer<ReportModelDTO>(){
 
 			@Override
@@ -324,13 +326,42 @@ public class AdminReportModelView extends View {
 	    });
 		configs.add(column);
 		
+		column = new ColumnConfig();
+		column.setWidth(70);
+		column.setAlignment(HorizontalAlignment.CENTER);
+		column.setRenderer(new GridCellRenderer<ReportModelDTO>() {
+			@Override
+			public Object render(final ReportModelDTO model, String property,
+					ColumnData config, int rowIndex, int colIndex,
+					ListStore<ReportModelDTO> store, Grid<ReportModelDTO> grid) {
+
+				Button buttonExport = new Button(I18N.CONSTANTS.export());
+				buttonExport.setItemId(UIActions.exportModel);
+				buttonExport.addListener(Events.OnClick,
+						new Listener<ButtonEvent>() {
+							@Override
+							public void handleEvent(ButtonEvent be) {
+								AdminModelActionListener listener = new AdminModelActionListener(
+										AdminReportModelView.this, dispatcher,
+										false);
+								listener.setModelId(model.getId());
+								listener.setIsOrgUnit(false);
+								listener.setIsReport(true);// the model is a project report
+								listener.onUIAction(UIActions.exportModel);
+							}
+						});
+				return buttonExport;
+			}
+		});
+		configs.add(column);
+		
 		ColumnModel cm = new ColumnModel(configs);		
 		
 		Grid<ReportModelDTO> grid = new Grid<ReportModelDTO>(modelsStore, cm); 
 		grid.setAutoHeight(true);
 		grid.setAutoWidth(false);
 		grid.getView().setForceFit(true);
-		grid.setWidth(250);
+		grid.setAutoWidth(true);
 		return grid;
 	}
 	
@@ -391,10 +422,29 @@ public class AdminReportModelView extends View {
                 });
 			}
 			
+		});		
+
+		Button buttonImport = new Button(I18N.CONSTANTS.importItem());
+		buttonImport.setItemId(UIActions.importModel);
+		buttonImport.setEnabled(true);
+		buttonImport.addListener(Events.OnClick, new Listener<ButtonEvent>() {
+			@Override
+			public void handleEvent(ButtonEvent be) {
+				AdminModelActionListener listener = new AdminModelActionListener(
+						AdminReportModelView.this, dispatcher, false);
+				listener.setIsOrgUnit(false);
+				listener.setIsReport(true);
+				listener.onUIAction(UIActions.importModel);
+			}
+
 		});
+		
 		toolbar.add(deleteReportButton);
 		
 		toolbar.add(addReportButton);
+		
+		toolbar.add(buttonImport);
+		
 		return toolbar;
 	}
 	
@@ -512,5 +562,10 @@ public class AdminReportModelView extends View {
 		reportSectionsComboStore.add(dummyRootSection);
 		reportSectionsComboStore.add(reportSectionsStore.getModels());
 		reportSectionsComboStore.commitChanges();
+	}
+
+	@Override
+	public MaskingAsyncMonitor getReportModelsLoadingMonitor() {
+		return new MaskingAsyncMonitor(reportModelsGrid, I18N.CONSTANTS.loading());
 	}
 }

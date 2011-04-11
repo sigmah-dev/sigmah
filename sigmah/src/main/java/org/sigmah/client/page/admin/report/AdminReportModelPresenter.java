@@ -1,7 +1,7 @@
 package org.sigmah.client.page.admin.report;
 
-import org.sigmah.client.EventBus;
 import org.sigmah.client.dispatch.Dispatcher;
+import org.sigmah.client.dispatch.monitor.MaskingAsyncMonitor;
 import org.sigmah.client.page.admin.AdminPageState;
 import org.sigmah.client.page.admin.AdminUtil;
 import org.sigmah.client.page.admin.model.AdminModelSubPresenter;
@@ -14,7 +14,6 @@ import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.google.gwt.event.shared.HandlerManager;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class AdminReportModelPresenter implements AdminModelSubPresenter {
@@ -28,6 +27,7 @@ public class AdminReportModelPresenter implements AdminModelSubPresenter {
 	public static abstract class View extends ContentPanel {
 		public abstract ListStore<ReportModelDTO> getReportModelsStore();
 		public abstract Component getMainPanel();
+		public abstract MaskingAsyncMonitor getReportModelsLoadingMonitor();
 	}
 	
 	public AdminReportModelPresenter(Dispatcher dispatcher){
@@ -83,5 +83,26 @@ public class AdminReportModelPresenter implements AdminModelSubPresenter {
 	@Override
 	public Object getModel() {
 		return projectModel;
+	}
+	
+	public static void refreshReportModelsPanel(Dispatcher dispatcher, final View view){
+		dispatcher.execute(new GetReportModels(), 
+				view.getReportModelsLoadingMonitor(),
+        		new AsyncCallback<ReportModelsListResult>() {
+        	@Override
+            public void onFailure(Throwable arg0) {
+        		AdminUtil.alertPbmData(alert);
+            }
+
+            @Override
+            public void onSuccess(ReportModelsListResult result) {
+            	if (result.getList() != null && !result.getList().isEmpty()) {
+            		view.getReportModelsStore().removeAll();
+            		view.getReportModelsStore().add(result.getList());
+                	view.getReportModelsStore().commitChanges();
+            	}
+            	
+            }
+        });
 	}
 }
