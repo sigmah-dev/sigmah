@@ -290,6 +290,7 @@ public class PivotGridPanel extends ContentPanel implements HasValue<PivotElemen
 				fireEvent(Events.AfterEdit, pivotEvent);
 			}
 		});
+
         grid.addStyleName(PivotResources.INSTANCE.css().pivotTable());
         
         add(grid);
@@ -342,12 +343,13 @@ public class PivotGridPanel extends ContentPanel implements HasValue<PivotElemen
         List<ColumnConfig> config = new ArrayList<ColumnConfig>();
 
         ColumnConfig rowHeader = new ColumnConfig("header", cornerCellHtml(), 150);
-        rowHeader.setRenderer(new TreeGridCellRenderer() {
+        rowHeader.setRenderer(new TreeGridCellRenderer<PivotTableRow>() {
 
 			@Override
-			public Object render(ModelData model, String property,
+			public Object render(PivotTableRow model, String property,
 					ColumnData config, int rowIndex, int colIndex,
 					ListStore store, Grid grid) {
+				
 				Object result = super.render(model, property, config, rowIndex, colIndex, store, grid);
 				config.css = config.css + " x-grid3-header";
 				return result;
@@ -441,7 +443,8 @@ public class PivotGridPanel extends ContentPanel implements HasValue<PivotElemen
         return columnModel;
     }
 
-    private String cornerCellHtml() {
+
+	private String cornerCellHtml() {
     	if(showSwapIcon) {
     		return IconUtil.iconHtml(PivotResources.INSTANCE.css().swapIcon());
     	} else {
@@ -451,20 +454,24 @@ public class PivotGridPanel extends ContentPanel implements HasValue<PivotElemen
 
 	private String decorateHeader(String header, Axis axis) {
     	if(showAxisIcons && axis.isLeaf()) {
-    		StringBuilder sb = new StringBuilder(header);
+    		StringBuilder sb = new StringBuilder();
     		sb.append(IconUtil.iconHtml(PivotResources.INSTANCE.css().zoomIcon()));
     		
     		switch(axis.getDimension().getType()) {
     		case Indicator:
-    		case Site:
     			sb.append(IconUtil.iconHtml(PivotResources.INSTANCE.css().editIcon()));
     		}
+    		sb.append("<span>");
+    		sb.append(header);
+    		sb.append("</span>");
     		return sb.toString();
     	} else {
     		return header;
     	}
     }
-    
+
+
+	
 	@Override
 	public HandlerRegistration addValueChangeHandler(
 			ValueChangeHandler<PivotElement> handler) {
