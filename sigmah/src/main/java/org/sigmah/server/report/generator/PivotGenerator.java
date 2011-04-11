@@ -35,6 +35,7 @@ import org.sigmah.shared.report.model.DateDimension;
 import org.sigmah.shared.report.model.DateRange;
 import org.sigmah.shared.report.model.DateUnit;
 import org.sigmah.shared.report.model.Dimension;
+import org.sigmah.shared.report.model.DimensionType;
 import org.sigmah.shared.report.model.PivotElement;
 
 /**
@@ -85,7 +86,9 @@ public abstract class PivotGenerator<T extends PivotElement> extends BaseGenerat
 				element.allDimensions()));
 
 
-		populator.getTable().getRootRow().total();
+		if(!rowDims.contains(new Dimension(DimensionType.Indicator))) {
+			populator.getTable().getRootRow().total();
+		}
 		
 		return populator.getTable();
 	}

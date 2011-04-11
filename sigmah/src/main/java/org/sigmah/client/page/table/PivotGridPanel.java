@@ -311,7 +311,7 @@ public class PivotGridPanel extends ContentPanel implements HasValue<PivotElemen
     private void updateTotalsAfterEdit(PivotGridCellEvent event) {
 		// update the PivotTableData.Cell
     	Double newValue = event.getModel().get(event.getProperty());
-    	event.getCell().setValue(newValue);
+    	event.getOrCreateCell().setValue(newValue);
     	
     	// update totals
     	element.getContent().getData().updateTotals();
@@ -387,9 +387,11 @@ public class PivotGridPanel extends ContentPanel implements HasValue<PivotElemen
 						return "";
 					} else {
 						if(model.getRowAxis().isTotal()) {
-							config.css = config.css + " " + PivotResources.INSTANCE.css().totalCell();
+							return "<span class='" + PivotResources.INSTANCE.css().totalCell() + "'>" +
+									numberFormat.format(value) + "</span>";
+						} else {
+							return numberFormat.format(value);
 						}
-						return numberFormat.format(value);
 					}
 				}
 		
@@ -417,28 +419,20 @@ public class PivotGridPanel extends ContentPanel implements HasValue<PivotElemen
         for(int d = 1; d<=depth; ++d) {
 
             List<PivotTableData.Axis> children = data.getRootColumn().getDescendantsAtDepth(d);
-
-            // first add a group identifying the dimension
-
-            Dimension dim = children.get(0).getDimension();
-
-            // now add child columns
-
             if(d < depth) {
 
                 int col = 1;
                 for(PivotTableData.Axis child : children) {
-
+          
+                	int rowSpan = child.isLeaf() ? (depth - child.getDepth() - 1) : ( depth - child.getDepth());
                     int colSpan = child.getLeaves().size();
-                    columnModel.addHeaderGroup(row, col, new HeaderGroupConfig(child.getLabel(), 1, colSpan) );
+                    columnModel.addHeaderGroup(row, col, new HeaderGroupConfig( child.isLeaf() ? "&nbsp;" : child.getLabel(), rowSpan, colSpan) );
 
                     col += colSpan;
-
+                
                 }
                 row++;
-
             }
-
         }
         return columnModel;
     }

@@ -32,4 +32,8 @@ public class PivotGridCellEvent extends GridEvent<PivotTableRow> {
 	public PivotTableData.Cell getCell() {
 		return getRowAxis().getCell(columnAxis);
 	}
+	
+	public PivotTableData.Cell getOrCreateCell() {
+		return getRowAxis().getOrCreateCell(columnAxis);
+	}
 }

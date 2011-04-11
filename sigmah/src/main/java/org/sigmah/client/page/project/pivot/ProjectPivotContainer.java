@@ -73,6 +73,8 @@ public class ProjectPivotContainer extends ContentPanel implements ProjectSubPre
 	
 	private boolean axesSwapped = false;
 	
+	private boolean historyNavigation = false;
+	
 	@Inject
 	public ProjectPivotContainer(Dispatcher dispatcher, PivotGridPanel gridPanel, Provider<IndicatorDialog> indicatorDialog) {
 		this.dispatcher = dispatcher;
@@ -308,6 +310,7 @@ public class ProjectPivotContainer extends ContentPanel implements ProjectSubPre
 	}
 
 	private void historyValueChange(PivotLayout value) {
+		historyNavigation = true;
 		if(value.getFilter() instanceof SiteDTO) {
 			siteFilter.setValue(value.getFilter());
 			onSiteSelected();
@@ -318,6 +321,7 @@ public class ProjectPivotContainer extends ContentPanel implements ProjectSubPre
 			dateFilter.setValue((DateRangeModel) value.getFilter());
 			onDateSelected();
 		}
+		historyNavigation = false;
 	}
 
 	private void loadPivot(final PivotLayout layout, final PivotTableElement pivot) {
@@ -333,7 +337,9 @@ public class ProjectPivotContainer extends ContentPanel implements ProjectSubPre
 			public void onSuccess(PivotContent content) {
 				pivot.setContent(content);
 				gridPanel.setValue(pivot);
-				historySelector.onNewLayout(layout);
+				if(!historyNavigation) {
+					historySelector.onNewLayout(layout);
+				}
 			}
 		});
 	}

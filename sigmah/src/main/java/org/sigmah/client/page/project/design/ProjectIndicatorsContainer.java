@@ -155,6 +155,8 @@ public class ProjectIndicatorsContainer extends LayoutContainer implements Proje
 			public void handleEvent(ComponentEvent be) {
 				if(UIActions.add.equals(be.getComponent().getItemId() )) {
 					addSite();
+				} else if(UIActions.edit.equals(be.getComponent().getItemId())) {
+					editSite();
 				}
 			}
 		});
@@ -180,7 +182,7 @@ public class ProjectIndicatorsContainer extends LayoutContainer implements Proje
 		siteMap.loadSites(project.getCountry(),	filter);
 	}
 
-	protected void addSite() {
+	private void addSite() {
 
 		final int projectId = project.getId();
 
@@ -192,6 +194,16 @@ public class ProjectIndicatorsContainer extends LayoutContainer implements Proje
 		
 		final SiteFormDialog dialog = new SiteFormDialog(eventBus, service, form);
 		dialog.create(site);
+	}
+	
+	private void editSite() {
+		if(!siteEditor.getSelection().isEmpty()) {
+			SiteDTO site = siteEditor.getSelection().get(0);
+			final SiteForm form = new SiteForm(service, project.getCountry());
+			
+			final SiteFormDialog dialog = new SiteFormDialog(eventBus, service, form);
+			dialog.edit(site);
+		}	
 	}
 	
 	@Override

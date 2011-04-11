@@ -12,6 +12,7 @@ import java.util.List;
 
 import org.sigmah.client.EventBus;
 import org.sigmah.client.dispatch.Dispatcher;
+import org.sigmah.client.dispatch.monitor.MaskingAsyncMonitor;
 import org.sigmah.client.event.EntityEvent;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.icon.IconImageBundle;
@@ -23,11 +24,13 @@ import org.sigmah.client.page.common.toolbar.UIActions;
 import org.sigmah.client.page.entry.editor.SiteForm;
 import org.sigmah.client.page.entry.editor.SiteFormDialog;
 import org.sigmah.client.util.state.IStateManager;
+import org.sigmah.shared.command.Delete;
 import org.sigmah.shared.command.GetSchema;
 import org.sigmah.shared.command.GetSites;
 import org.sigmah.shared.command.result.BatchResult;
 import org.sigmah.shared.command.result.PagingResult;
 import org.sigmah.shared.command.result.SiteResult;
+import org.sigmah.shared.command.result.VoidResult;
 import org.sigmah.shared.dao.Filter;
 import org.sigmah.shared.dto.IndicatorDTO;
 import org.sigmah.shared.dto.SchemaDTO;
@@ -45,6 +48,7 @@ import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.LoadListener;
+import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionProvider;
@@ -53,6 +57,7 @@ import com.extjs.gxt.ui.client.store.Record;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Info;
 import com.extjs.gxt.ui.client.widget.Label;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.EditorGrid;
 import com.extjs.gxt.ui.client.widget.grid.EditorGrid.ClicksToEdit;
@@ -60,6 +65,7 @@ import com.extjs.gxt.ui.client.widget.grid.GridSelectionModel;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 
@@ -234,6 +240,7 @@ public class SiteGridPanel extends ContentPanel implements ActionListener, Selec
 	 */
 	private void initToolBar() {
 		toolBar = new ActionToolBar();
+		toolBar.setListener(this);
 		toolBar.addSaveSplitButton();
 		toolBar.add(new SeparatorToolItem());
 
@@ -324,12 +331,11 @@ public class SiteGridPanel extends ContentPanel implements ActionListener, Selec
 	public void onUIAction(String actionId) {
 		if(UIActions.save.equals(actionId)) {
 			save();
-		} else if(UIActions.add.equals(actionId)) {
-			
-		} else if(UIActions.edit.equals(actionId)) {
-			
+		} else if(UIActions.delete.equals(actionId)) {
+			delete();
 		}
 	}
+
 
 	private void save() {
 		toolBar.setSaving();
@@ -348,6 +354,30 @@ public class SiteGridPanel extends ContentPanel implements ActionListener, Selec
 				toolBar.setDirty(false);
 				for(Record record : dirty) {
 					record.commit(false);
+				}
+			}
+		});
+	}
+		
+	private void delete() {
+		final SiteDTO site = grid.getSelectionModel().getSelectedItem();
+		MessageBox.confirm(I18N.CONSTANTS.deleteSite(), I18N.MESSAGES.confirmDelete(site.getLocationName()), new Listener<MessageBoxEvent>() {
+			
+			@Override
+			public void handleEvent(MessageBoxEvent be) {
+				if(be.getButtonClicked().getItemId().equals("yes")) {
+					service.execute(new Delete(site), new MaskingAsyncMonitor(grid, I18N.CONSTANTS.deleting()), new AsyncCallback<VoidResult>() {
+
+						@Override
+						public void onFailure(Throwable caught) {
+							// handled by monitor
+						}
+
+						@Override
+						public void onSuccess(VoidResult result) {
+							store.remove(site);
+						}
+					});
 				}
 			}
 		});

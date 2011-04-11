@@ -14,6 +14,7 @@ public class DateFilterCombo extends ComboBox<DateRangeModel> {
 	public DateFilterCombo() {
 		setStore(new ListStore());
 		setDisplayField("label");
+		setTriggerAction(TriggerAction.ALL);
 	}
 	
 	public DateRange getSelectedDateRange() {
