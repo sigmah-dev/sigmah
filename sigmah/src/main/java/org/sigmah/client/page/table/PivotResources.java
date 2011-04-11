@@ -21,6 +21,7 @@ public interface PivotResources extends ClientBundle {
 		String zoomIcon();
 		String swapIcon();
 		String pivotTable();
+		String totalCell();
 	}
 	
 }

@@ -85,6 +85,8 @@ public abstract class PivotGenerator<T extends PivotElement> extends BaseGenerat
 				element.allDimensions()));
 
 
+		populator.getTable().getRootRow().total();
+		
 		return populator.getTable();
 	}
 
@@ -148,20 +150,25 @@ public abstract class PivotGenerator<T extends PivotElement> extends BaseGenerat
 			DimensionCategory category = bucket.getCategory(childDimension);
 			PivotTableData.Axis child = null;
 
-			child = axis.getChild(category);
-			if (child == null) {
-
-				String categoryLabel = childDimension.getLabel(category);
-
-				if (categoryLabel == null) {
-					categoryLabel = renderLabel(childDimension, category);
+			if(category == null) {
+				// skip this dimension, it's value is missing
+				child = axis;
+			} else {
+				child = axis.getChild(category);
+				if (child == null) {
+	
+					String categoryLabel = childDimension.getLabel(category);
+	
+					if (categoryLabel == null) {
+						categoryLabel = renderLabel(childDimension, category);
+					}
+	
+					child = axis.addChild(childDimension,
+							category,
+							categoryLabel,
+							comparators.get(childDimension));
+	
 				}
-
-				child = axis.addChild(childDimension,
-						bucket.getCategory(childDimension),
-						categoryLabel,
-						comparators.get(childDimension));
-
 			}
 
 			if (dimensionIterator.hasNext()) {
@@ -218,9 +225,12 @@ public abstract class PivotGenerator<T extends PivotElement> extends BaseGenerat
 				addHeaders(table.getRootColumn(), colDims, databaseRows, dateRange);
 			}
 		}
-
+		
 		private void addHeaders(PivotTableData.Axis parent, List<Dimension> dims, List<Bucket> buckets, DateRange range) {
-			Dimension childDimension = next(dims, parent.getDimension());
+			addHeaders(parent, dims, next(dims, parent.getDimension()), buckets, range);
+		}
+
+		private void addHeaders(PivotTableData.Axis parent, List<Dimension> dims, Dimension childDimension, List<Bucket> buckets, DateRange range) {
 			if(childDimension instanceof DateDimension) {
 				if(((DateDimension) childDimension).getUnit() == DateUnit.YEAR) {
 					addYears(parent, dims, buckets, range);
@@ -228,6 +238,10 @@ public abstract class PivotGenerator<T extends PivotElement> extends BaseGenerat
 					addMonths(parent, dims, buckets, range);
 				}
 			} else if(childDimension != null) {
+				
+				// first add those who are missing a value for this dimension
+				addHeaders(parent, dims, next(dims, childDimension), filter(buckets, childDimension, null), range);
+								
 				for(DimensionCategory category : categories(buckets, childDimension)) {
 					PivotTableData.Axis child = parent.addChild(childDimension, category, renderLabel(childDimension, category), comparators.get(childDimension));
 					addHeaders(child, dims, filter(buckets, childDimension, category), range);
@@ -249,7 +263,9 @@ public abstract class PivotGenerator<T extends PivotElement> extends BaseGenerat
 		private List<Bucket> filter(List<Bucket> buckets, Dimension dim, DimensionCategory cat) {
 			List<Bucket> filtered = new ArrayList<Bucket>();
 			for(Bucket bucket : buckets) {
-				if(cat.equals(bucket.getCategory(dim))) {
+				DimensionCategory bucketCategory = bucket.getCategory(dim);
+				if( (cat == null &&  bucketCategory == null) ||
+				    (cat != null && cat.equals(bucketCategory))) {
 					filtered.add(bucket);
 				}
 			}

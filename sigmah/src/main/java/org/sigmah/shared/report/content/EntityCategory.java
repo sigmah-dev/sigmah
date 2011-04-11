@@ -13,6 +13,7 @@ public class EntityCategory implements LabeledDimensionCategory {
     private int id;
     private String label;
     private Integer sortOrder;
+    private DimensionCategory parent = null;
 
     /**
      * Required for GWT serialization
@@ -76,8 +77,20 @@ public class EntityCategory implements LabeledDimensionCategory {
 
         return true;
     }
+    
+    
 
     @Override
+	public DimensionCategory getParent() {
+		return parent;
+	}
+
+	@Override
+	public boolean hasParent() {
+		return parent != null;
+	}
+
+	@Override
     public int hashCode() {
         int result = id;
         return result;

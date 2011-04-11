@@ -5,14 +5,17 @@
 
 package org.sigmah.test;
 
-import com.google.inject.Provider;
-import com.google.inject.Singleton;
+import java.io.File;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+
 import org.hibernate.ejb.Ejb3Configuration;
 import org.sigmah.server.dao.hibernate.HibernateModule;
 import org.sigmah.server.domain.PersistentClasses;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
+import com.google.inject.Provider;
+import com.google.inject.Singleton;
 
 public class MockHibernateModule extends HibernateModule {
     private static EntityManagerFactory emf = null;
@@ -26,6 +29,16 @@ public class MockHibernateModule extends HibernateModule {
                 // we are assuming that the tests do not affect the database schema, so there is no
                 // need to restart hibernate for each test class, and we save quite a bit of time
                 if (emf == null) {
+                	
+                	// clear out the default h2 databse if it exists
+                	File h2db = new File("activitityinfo-test.h2");
+                	if(h2db.exists()) {
+                		if(!h2db.delete()) {
+                			throw new RuntimeException("Could not delete the testing database activityinfo.h2 prior to starting tests. Maybe there is another" +
+                					" test running?");
+                		}
+                	}
+                	
                     // we want to avoid a full scan of WEB-INF/classes during hibernate
                     // startup for tests. So we avoid the normal persistence.xml config
                     // and build the configuration manually.

@@ -60,6 +60,8 @@ public interface PivotDAO {
     public static class Bucket {
         private double value;
         private int count;
+        private int aggregationType;
+        
         private Map<Dimension, DimensionCategory> categories = new HashMap<Dimension, DimensionCategory>();
 
         public Bucket() {

@@ -168,7 +168,7 @@ public class ProjectPivotContainer extends ContentPanel implements ProjectSubPre
 		indicatorFilter.setDatabaseId(currentDatabaseId);
 		siteFilter.setDatabaseId(currentDatabaseId);
 		dateFilter.fillMonths(project.getStartDate());
-		composer = new LayoutComposer(new DateUtilGWTImpl(), project.getId(), project.getStartDate(), project.getEndDate());
+		composer = new LayoutComposer(new DateUtilGWTImpl(), project);
 
 		dateFilter.setValue(dateFilter.getStore().getAt(0));
 		onDateSelected();

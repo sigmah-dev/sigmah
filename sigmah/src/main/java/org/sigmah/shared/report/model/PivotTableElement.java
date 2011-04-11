@@ -5,14 +5,16 @@
 
 package org.sigmah.shared.report.model;
 
-import org.sigmah.shared.report.content.PivotContent;
-
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+
+import org.sigmah.shared.report.content.PivotContent;
 
 public class PivotTableElement extends PivotElement<PivotContent> {
 
@@ -35,7 +37,10 @@ public class PivotTableElement extends PivotElement<PivotContent> {
 	
 	public void addColDimension(Dimension dim) {
 		this.columnDimensions.add(dim);
-		
+	}
+	
+	public void addColDimensions(Collection<Dimension> dims) {
+		this.columnDimensions.addAll(dims);
 	}
 
     @XmlElement(name="dimension")
@@ -50,6 +55,10 @@ public class PivotTableElement extends PivotElement<PivotContent> {
 	
 	public void addRowDimension(Dimension dim) {
 		this.rowDimensions.add(dim);
+	}
+	
+	public void addRowDimensions(Collection<Dimension> dims) {
+		this.rowDimensions.addAll(dims);
 	}
 	
 	@Override

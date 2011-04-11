@@ -5,28 +5,43 @@
 
 package org.sigmah.server.dao.hibernate;
 
-import com.allen_sauer.gwt.log.client.Log;
-import com.google.inject.Inject;
-import org.hibernate.Session;
-import org.hibernate.ejb.HibernateEntityManager;
-import org.hibernate.jdbc.Work;
-import org.sigmah.server.dao.PivotDAO;
-import org.sigmah.server.dao.PivotDAO.Bucket;
-import org.sigmah.server.domain.AggregationMethod;
-import org.sigmah.shared.dao.Filter;
-import org.sigmah.shared.dao.SQLDialect;
-import org.sigmah.shared.report.content.*;
-import org.sigmah.shared.report.model.*;
-
-import javax.persistence.EntityManager;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+
+import javax.persistence.EntityManager;
+
+import org.hibernate.Session;
+import org.hibernate.ejb.HibernateEntityManager;
+import org.hibernate.jdbc.Work;
+import org.sigmah.server.dao.PivotDAO;
+import org.sigmah.server.domain.AggregationMethod;
+import org.sigmah.shared.dao.Filter;
+import org.sigmah.shared.dao.SQLDialect;
+import org.sigmah.shared.dao.SqlQueryBuilder;
+import org.sigmah.shared.dao.SqlQueryBuilder.ResultHandler;
+import org.sigmah.shared.report.content.DimensionCategory;
+import org.sigmah.shared.report.content.EntityCategory;
+import org.sigmah.shared.report.content.MonthCategory;
+import org.sigmah.shared.report.content.QuarterCategory;
+import org.sigmah.shared.report.content.SimpleCategory;
+import org.sigmah.shared.report.content.YearCategory;
+import org.sigmah.shared.report.model.AdminDimension;
+import org.sigmah.shared.report.model.AttributeGroupDimension;
+import org.sigmah.shared.report.model.DateDimension;
+import org.sigmah.shared.report.model.DateUnit;
+import org.sigmah.shared.report.model.Dimension;
+import org.sigmah.shared.report.model.DimensionType;
+
+import com.allen_sauer.gwt.log.client.Log;
+import com.google.inject.Inject;
 
 
 /**
@@ -131,9 +146,12 @@ public class PivotHibernateDAO implements PivotDAO {
 		}
 
 		public void bundle(ResultSet rs, Bucket bucket) throws SQLException {
-			bucket.setCategory(dimension, new EntityCategory(
-					rs.getInt(idColumnIndex),
-					rs.getString(idColumnIndex + 1)));
+			int entityId = rs.getInt(idColumnIndex);
+			if(!rs.wasNull()) {	
+				bucket.setCategory(dimension, new EntityCategory(
+						entityId,
+						rs.getString(idColumnIndex + 1)));
+			}
 		}
 	}
 
@@ -148,10 +166,13 @@ public class PivotHibernateDAO implements PivotDAO {
 		}
 
 		public void bundle(ResultSet rs, Bucket bucket) throws SQLException {
-			bucket.setCategory(dimension, new EntityCategory(
-					rs.getInt(idColumnIndex),
-					rs.getString(idColumnIndex + 1),
-					rs.getInt(idColumnIndex + 2)));
+			int entityId = rs.getInt(idColumnIndex);
+			if(!rs.wasNull()) {
+				bucket.setCategory(dimension, new EntityCategory(
+						entityId,
+						rs.getString(idColumnIndex + 1),
+						rs.getInt(idColumnIndex + 2)));
+			}
 		}
 	}
 
@@ -214,6 +235,11 @@ public class PivotHibernateDAO implements PivotDAO {
 
 	public List<Bucket> aggregate(int userId, Filter filter, Set<Dimension> dimensions, boolean showEmptyCells) {
 		final List<Bucket> buckets = new ArrayList<Bucket>();
+		
+		
+		if(dimensions.contains(new Dimension(DimensionType.Site))) {
+			
+		}
 
 		Query query1 = new Query(userId, filter, dimensions, buckets);
 		query1.queryForSumAndAverages();
@@ -356,7 +382,7 @@ public class PivotHibernateDAO implements PivotDAO {
 			 nextColumnIndex = 1;
 			 buildAndExecuteRestOfQuery();
 		}
-
+		
 
 		protected void buildAndExecuteRestOfQuery() {
 
@@ -540,7 +566,6 @@ public class PivotHibernateDAO implements PivotDAO {
 		}
 
 
-
 		private List<Integer> queryAttributeIds(AttributeGroupDimension attrGroupDim) {
 			return em.createQuery("select a.id from Attribute a where a.group.id=?1")
 			.setParameter(1, attrGroupDim.getAttributeGroupId())
@@ -604,5 +629,4 @@ public class PivotHibernateDAO implements PivotDAO {
 			parameters.add(id);
 		}
 	}
-
 }

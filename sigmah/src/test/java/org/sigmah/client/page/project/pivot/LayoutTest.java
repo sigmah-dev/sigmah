@@ -14,10 +14,14 @@ import org.sigmah.server.dao.OnDataSet;
 import org.sigmah.server.endpoint.gwtrpc.CommandTestCase;
 import org.sigmah.server.util.DateUtilCalendarImpl;
 import org.sigmah.shared.command.GenerateElement;
+import org.sigmah.shared.command.GetProject;
 import org.sigmah.shared.date.DateUtil;
+import org.sigmah.shared.dto.ProjectDTO;
 import org.sigmah.shared.exception.CommandException;
+import org.sigmah.shared.report.content.EntityCategory;
 import org.sigmah.shared.report.content.PivotContent;
 import org.sigmah.shared.report.content.PivotTableData.Axis;
+import org.sigmah.shared.report.model.DimensionType;
 import org.sigmah.shared.report.model.PivotTableElement;
 import org.sigmah.test.InjectionSupport;
 
@@ -29,25 +33,20 @@ public class LayoutTest extends CommandTestCase {
 	private LayoutComposer composer;
 	private DateUtil dateUtil = new DateUtilCalendarImpl();
 	
-	@Before
-	public void setupComposer() {
-		composer = new LayoutComposer(new DateUtilCalendarImpl(), 1, ymd(2010,1,15), null);
+	public void setupComposer() throws CommandException {
+		setUser(1);
+		
+		ProjectDTO project = execute(new GetProject(1));
+		composer = new LayoutComposer(new DateUtilCalendarImpl(), project);
 	}
 	
-	
-	private Date ymd(int year, int month, int day) {
-		Calendar cal = Calendar.getInstance();
-		cal.set(Calendar.YEAR, year);
-		cal.set(Calendar.MONTH, month-1);
-		cal.set(Calendar.DAY_OF_MONTH, day);
-		return cal.getTime();
-	}
 
 
 	@Test
 	public void dateFixed() throws CommandException {
 
-		setUser(1);
+		setupComposer();
+		
 		PivotTableElement element = executeLayout(composer.fixDateRange(dateUtil.monthRange(2010, 1), false));			
 	
 		System.out.println(element.getContent());
@@ -56,12 +55,17 @@ public class LayoutTest extends CommandTestCase {
 	
 		assertThat(indicatorColumns.size(), equalTo(4));
 		
+		// make sure that empty admin levels are skipped
+		Axis nordKivu = element.getContent().getData().getRootRow().getChild(new EntityCategory(3));
+		Axis goma = nordKivu.firstChild();
+		
+		assertThat( goma.getDimension().getType(), equalTo(DimensionType.Site) );
 	}
 	
 	@Test
 	public void siteFixed() throws CommandException {
+		setupComposer();
 
-		setUser(1);
 					
 		PivotTableElement element = executeLayout(composer.fixSite(1));
 		
@@ -72,20 +76,18 @@ public class LayoutTest extends CommandTestCase {
 	@Test
 	public void siteFixedWithNoDataEntered() throws CommandException {
 
-		setUser(1);
-					
+		setupComposer();
+
 		PivotTableElement element = executeLayout(composer.fixSite(4));
 		
 		System.out.println(element.getContent());
 		
 	}
 	
-	
 	@Test
 	public void indicatorFixed() throws CommandException {
+		setupComposer();
 
-		setUser(1);
-					
 		PivotTableElement element = executeLayout(composer.fixSite(1));
 		
 		System.out.println(element.getContent());

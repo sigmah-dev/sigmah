@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.sigmah.shared.report.content.PivotTableData.Cell;
 import org.sigmah.shared.report.model.Dimension;
 
 public class PivotTableData implements Serializable {
@@ -83,6 +84,10 @@ public class PivotTableData implements Serializable {
         this.rootColumn = rootColumn;
     }
     
+    public void updateTotals() {
+    	rootRow.total();
+    }
+    
     @Override 
     public String toString() {
     	StringBuilder sb = new StringBuilder();
@@ -101,7 +106,9 @@ public class PivotTableData implements Serializable {
     public static class Cell implements Serializable {
 		private Double value;
 		private int count;
-
+		private int indicatorId;
+		private int indicatorType;
+		
         /**
          * Required for GWT serialization
          */
@@ -129,9 +136,14 @@ public class PivotTableData implements Serializable {
 		public void setCount(int count) {
 			this.count = count;
 		}
-        
-        
-        
+
+		public void add(Cell cell) {
+			if(this.value == null) {
+				this.value = 0d;
+			}
+			this.value += cell.getValue();
+			this.count += cell.getCount();
+		}
     }
 
 
@@ -154,7 +166,7 @@ public class PivotTableData implements Serializable {
 		private Dimension dimension;
 		private DimensionCategory category;
         private String label;
-
+        
 		private Map<DimensionCategory, Axis> childMap = new HashMap<DimensionCategory, Axis>();
 		private Map<Axis, Cell> cells = new HashMap<Axis, Cell>();
 		
@@ -242,6 +254,15 @@ public class PivotTableData implements Serializable {
 		
 		public Cell getCell(Axis column) {
 			return cells.get(column);
+		}
+		
+		public Cell getOrCreateCell(Axis column) {
+			Cell cell = cells.get(column);
+			if(cell == null) {
+				cell = new Cell(null, 0);
+				cells.put(column, cell);
+			}
+			return cell;
 		}
 		
 		public Dimension getDimension() {
@@ -333,6 +354,10 @@ public class PivotTableData implements Serializable {
             this.children = children;
         }
 
+        /**
+         * Recursively searches for the maximum cell value in this node and its descendants.
+         * @return
+         */
         public double getMaxValue() {
             return findMaxValue(0.0);
         }
@@ -349,6 +374,26 @@ public class PivotTableData implements Serializable {
 
             return max;
         }
+        
+        /**
+         * Recursively constructs totals for this node and its descendants.
+         */
+        public void total() {
+        	if(!isLeaf()) {
+        		cells.clear();
+	        	for(Axis child : children) {
+	        		child.total();
+	        		for(Entry<Axis, Cell> entry : child.getCells().entrySet()) {
+	        			getOrCreateCell(entry.getKey()).add(entry.getValue());
+	        		}
+	        	}
+        	} 
+        }
+        
+		public boolean isTotal() {
+			return !isLeaf();
+		}
+
         
         public void toString(int depth, StringBuilder sb) {
         	for(int i=0;i!=depth;++i) {
@@ -367,6 +412,7 @@ public class PivotTableData implements Serializable {
         	}
         	
         }
+
     }
 
     public static class RangeCalculator implements CellVisitor {

@@ -68,4 +68,14 @@ public class MonthCategory implements DimensionCategory {
     public String toString() {
         return "MonthCategory{" + year + "/" + month + "}";
     }
+
+	@Override
+	public DimensionCategory getParent() {
+		return null;
+	}
+
+	@Override
+	public boolean hasParent() {
+		return false;
+	}
 }

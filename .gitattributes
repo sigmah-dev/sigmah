@@ -1644,6 +1644,7 @@ sigmah/src/main/java/org/sigmah/shared/domain/Bounds.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/Country.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/Deleteable.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/Indicator.java -text
+sigmah/src/main/java/org/sigmah/shared/domain/IndicatorCategory.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/IndicatorValue.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/IndicatorValueId.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/Location.java -text

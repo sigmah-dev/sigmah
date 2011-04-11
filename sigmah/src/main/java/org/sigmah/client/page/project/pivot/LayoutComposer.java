@@ -1,10 +1,17 @@
 package org.sigmah.client.page.project.pivot;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
+import org.sigmah.client.util.DateUtilGWTImpl;
 import org.sigmah.shared.command.Month;
 import org.sigmah.shared.dao.Filter;
 import org.sigmah.shared.date.DateUtil;
+import org.sigmah.shared.dto.AdminLevelDTO;
+import org.sigmah.shared.dto.CountryDTO;
+import org.sigmah.shared.dto.ProjectDTO;
+import org.sigmah.shared.report.model.AdminDimension;
 import org.sigmah.shared.report.model.DateDimension;
 import org.sigmah.shared.report.model.DateRange;
 import org.sigmah.shared.report.model.DateUnit;
@@ -17,13 +24,16 @@ public class LayoutComposer {
 	private int databaseId;
 	private DateRange projectDateRange;
 	private DateUtil dateUtil;
+	private List<Dimension> adminDimensions;
 	
-	public LayoutComposer(DateUtil dateUtil, int databaseId, Date startDate, Date endDate) {
-		this.databaseId = databaseId;
+	public LayoutComposer(DateUtil dateUtil, ProjectDTO project) {
+		this.databaseId = project.getId();
 		this.dateUtil = dateUtil;
-		this.projectDateRange = computeProjectDateRange(startDate, endDate);
+		this.projectDateRange = computeProjectDateRange(project.getStartDate(), project.getEndDate());
+		this.adminDimensions = getAdminDimensions(project.getCountry());
 	}
 	
+
 	/**
 	 * Using the project start date as a guideline, generate a date
 	 * range of at least six months.
@@ -46,6 +56,7 @@ public class LayoutComposer {
 		PivotTableElement pivot = new PivotTableElement();
 		pivot.setShowEmptyCells(true);
 
+		pivot.addRowDimensions(adminDimensions);
 		pivot.addRowDimension(new Dimension(DimensionType.Site));
 		
 		//pivot.addColDimension(new DateDimension(DateUnit.YEAR));
@@ -83,6 +94,7 @@ public class LayoutComposer {
 		pivot.setShowEmptyCells(true);
 
 		if(indicatorsInRows) {
+			pivot.addColDimensions(adminDimensions);
 			pivot.addColDimension(new Dimension(DimensionType.Site));	
 
 			pivot.addRowDimension(new Dimension(DimensionType.IndicatorCategory));
@@ -92,6 +104,7 @@ public class LayoutComposer {
 			pivot.addColDimension(new Dimension(DimensionType.IndicatorCategory));
 			pivot.addColDimension(new Dimension(DimensionType.Indicator));
 			
+			pivot.addRowDimensions(adminDimensions);
 			pivot.addRowDimension(new Dimension(DimensionType.Site));
 		}
 		
@@ -101,5 +114,26 @@ public class LayoutComposer {
 		filter.setDateRange(dateRange);
 		pivot.setFilter(filter);
 		return pivot;
+	}
+	
+	private List<Dimension> getAdminDimensions(CountryDTO country) {
+		List<Dimension> dims = new ArrayList<Dimension>();
+		Integer parentId = null;
+		AdminLevelDTO level;
+		while ( (level=getFirstChild(country, parentId)) != null) {
+			dims.add(new AdminDimension(level.getId()));
+			parentId = level.getId();
+		}
+		return dims;
+	}
+	
+	private AdminLevelDTO getFirstChild(CountryDTO country, Integer parentId) {
+		for(AdminLevelDTO level : country.getAdminLevels()) {
+			if( (level.getParentLevelId() == null && parentId == null) ||
+			    (level.getParentLevelId() != null && level.getParentLevelId().equals(parentId))) {
+				return level;
+			}
+		}
+		return null;
 	}
 }

@@ -6,6 +6,7 @@
 package org.sigmah.client.page.table;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,6 +51,7 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
+import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.grid.HeaderGroupConfig;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.treegrid.EditorTreeGrid;
@@ -127,15 +129,23 @@ public class PivotGridPanel extends ContentPanel implements HasValue<PivotElemen
             this.rowAxis = axis;
             set("header", decorateHeader(axis.getLabel(), axis));
 
-            for(Map.Entry<PivotTableData.Axis, PivotTableData.Cell> entry : axis.getCells().entrySet()) {
-                String property = propertyMap.get(entry.getKey());
-				set(property, entry.getValue().getValue());
-            }
-
-            for(PivotTableData.Axis child : axis.getChildren()) {
+            updateFromTree();
+            
+            for(PivotTableData.Axis child : rowAxis.getChildren()) {
                 add(new PivotTableRow(child));
             }
         }
+
+        /**
+         * Updates this model from the Cell values in the PivotTableData tree. 
+         */
+		private void updateFromTree() {
+			this.setProperties(Collections.EMPTY_MAP);
+			for(Map.Entry<PivotTableData.Axis, PivotTableData.Cell> entry : rowAxis.getCells().entrySet()) {
+                String property = propertyMap.get(entry.getKey());
+				set(property, entry.getValue().getValue());
+            }
+		}
 
         public PivotTableData.Axis getRowAxis() {
             return rowAxis;
@@ -262,11 +272,22 @@ public class PivotGridPanel extends ContentPanel implements HasValue<PivotElemen
 				}
 			}
         });
+        grid.addListener(Events.BeforeEdit, new Listener<GridEvent<PivotTableRow>>() {
+
+			@Override
+			public void handleEvent(GridEvent<PivotTableRow> be) {
+				if(!be.getModel().getRowAxis().isLeaf()) {
+					be.setCancelled(true);
+				}
+			}
+        });
         grid.addListener(Events.AfterEdit, new Listener<GridEvent<PivotTableRow>>() {
 
 			@Override
 			public void handleEvent(GridEvent<PivotTableRow> event) {
-				fireEvent(Events.AfterEdit, new PivotGridCellEvent(event, columnMap.get(event.getColIndex())));
+				PivotGridCellEvent pivotEvent = new PivotGridCellEvent(event, columnMap.get(event.getColIndex()));
+				updateTotalsAfterEdit(pivotEvent);
+				fireEvent(Events.AfterEdit, pivotEvent);
 			}
 		});
         grid.addStyleName(PivotResources.INSTANCE.css().pivotTable());
@@ -284,9 +305,29 @@ public class PivotGridPanel extends ContentPanel implements HasValue<PivotElemen
             }
         }).delay(1);
 
+    } 
+
+    private void updateTotalsAfterEdit(PivotGridCellEvent event) {
+		// update the PivotTableData.Cell
+    	Double newValue = event.getModel().get(event.getProperty());
+    	event.getCell().setValue(newValue);
+    	
+    	// update totals
+    	element.getContent().getData().updateTotals();
+    	
+    	syncGridWithContent();
+    	
+	}
+    
+    private void syncGridWithContent() {
+    	for(PivotTableRow row : store.getAllItems()) {
+    		row.updateFromTree();
+    	}
+    	grid.getView().refresh(false);
     }
 
-    protected int findIndicatorId(PivotTableData.Axis axis) {
+
+    private int findIndicatorId(PivotTableData.Axis axis) {
         while(axis != null) {
             if(axis.getDimension().getType() == DimensionType.Indicator) {
                 return ((EntityCategory)axis.getCategory()).getId();
@@ -296,7 +337,7 @@ public class PivotGridPanel extends ContentPanel implements HasValue<PivotElemen
         return -1;
     }
 
-    protected ColumnModel createColumnModel(PivotTableData data) {
+    private ColumnModel createColumnModel(PivotTableData data) {
 
         List<ColumnConfig> config = new ArrayList<ColumnConfig>();
 
@@ -330,9 +371,27 @@ public class PivotGridPanel extends ContentPanel implements HasValue<PivotElemen
                 label = I18N.CONSTANTS.value();
             }
             label = decorateHeader(label, axis);
-            
+            final NumberFormat numberFormat = NumberFormat.getFormat("#,###");
             ColumnConfig column = new ColumnConfig(id, label, 75);
-            column.setNumberFormat(NumberFormat.getFormat("#,##0"));
+            column.setRenderer(new GridCellRenderer<PivotTableRow>() {
+
+				@Override
+				public Object render(PivotTableRow model, String property,
+						ColumnData config, int rowIndex, int colIndex,
+						ListStore<PivotTableRow> store, Grid<PivotTableRow> grid) {
+					
+					Double value = model.get(property);
+					if(value == null) {
+						return "";
+					} else {
+						if(model.getRowAxis().isTotal()) {
+							config.css = config.css + " " + PivotResources.INSTANCE.css().totalCell();
+						}
+						return numberFormat.format(value);
+					}
+				}
+		
+			});
             column.setAlignment(Style.HorizontalAlignment.RIGHT);
             column.setSortable(false);
             column.setMenuDisabled(true);

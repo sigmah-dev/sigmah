@@ -21,7 +21,18 @@ public interface DimensionCategory extends Serializable {
      *
      * @return  The value by which to sort this category
      */
-    public Comparable getSortKey();
+    Comparable getSortKey();
+    
+    /** 
+     * 
+     * @return the parent category 
+     */
+     DimensionCategory getParent();
+    
+     /**
+      * @return true if this category has a parent
+      */
+     boolean hasParent();
     
 
 }

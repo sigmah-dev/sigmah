@@ -59,4 +59,14 @@ public class YearCategory implements DimensionCategory {
     public String toString() {
         return "YearCategory{" + year + '}';
     }
+
+	@Override
+	public DimensionCategory getParent() {
+		return null;
+	}
+
+	@Override
+	public boolean hasParent() {
+		return false;
+	}
 }

@@ -58,4 +58,14 @@ public class SimpleCategory implements LabeledDimensionCategory {
                 "label='" + label + '\'' +
                 '}';
     }
+
+	@Override
+	public DimensionCategory getParent() {
+		return null;
+	}
+
+	@Override
+	public boolean hasParent() {
+		return false;
+	}
 }

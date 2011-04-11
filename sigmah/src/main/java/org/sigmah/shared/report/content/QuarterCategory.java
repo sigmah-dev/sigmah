@@ -73,4 +73,14 @@ public class QuarterCategory implements DimensionCategory {
     public String toString() {
         return "QuarterCategory{" + year + "Q" + quarter + "}";
     }
+
+	@Override
+	public DimensionCategory getParent() {
+		return null;
+	}
+
+	@Override
+	public boolean hasParent() {
+		return false;
+	}
 }

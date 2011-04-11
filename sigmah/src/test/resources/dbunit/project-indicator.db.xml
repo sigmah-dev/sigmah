@@ -76,7 +76,7 @@
     <phase_model_sucessors id_phase_model="1" id_phase_model_successor="3" />
     <phase_model_sucessors id_phase_model="2" id_phase_model_successor="4" />
 
-    <userDatabase databaseId="1" name="PEAR" countryId="1" ownerUserId="1" lastSchemaUpdate="2009-01-01"/>
+    <userDatabase databaseId="1" name="PEAR"  startDate="2010-01-15" countryId="1" ownerUserId="1" lastSchemaUpdate="2009-01-01"/>
     <project databaseId="1" id_project_model="1"/>
 
     <userDatabase databaseId="2" name="RRM" countryId="1" ownerUserId="1" lastSchemaUpdate="2009-01-01"/>
@@ -193,9 +193,9 @@
 	<locationAdminLink locationId="1" adminEntityId="2"/>
 	<locationAdminLink locationId="1" adminEntityId="12"/>
 	
-	<site siteId="1" databaseId="1"  locationId="1" partnerId="1" Status="1" target="0" Date1="2009-01-01" Date2="2009-01-02" DateCreated="2009-02-01" DateEdited="2009-02-01"/>
+	<site siteId="1" databaseId="1"  locationId="1" partnerId="1" Status="1" target="0" Date1="2010-01-01" Date2="2010-01-31" DateCreated="2009-02-01" DateEdited="2009-02-01"/>
 	
-	<reportingPeriod reportingPeriodId="1" siteId="1" monitoring="0" date1="2009-01-01" date2="2009-01-02" DateCreated="2009-02-01" DateEdited="2009-02-01"/>
+	<reportingPeriod reportingPeriodId="1" siteId="1" monitoring="0" date1="2010-01-01" date2="2010-01-31" DateCreated="2009-02-01" DateEdited="2009-02-01"/>
 	<indicatorValue reportingPeriodId="1" indicatorId="1" value="1500"/>
 	<indicatorValue reportingPeriodId="1" indicatorId="2" value="500"/>
 		
@@ -207,9 +207,8 @@
 	<locationAdminLink locationId="2" adminEntityId="11"/>
 	
 	<site siteId="2" databaseId="1"   locationId="2" partnerId="1" Status="1" target="1" Date1="2009-01-15" Date2="2009-01-16" DateCreated="2009-02-01" DateEdited="2009-02-01"/>
-
 	
-	<reportingPeriod reportingPeriodId="2" siteId="2" monitoring="0" date1="2009-01-15" date2="2009-01-16" DateCreated="2009-02-01" DateEdited="2009-02-01"/>
+	<reportingPeriod reportingPeriodId="2" siteId="2" monitoring="0" date1="2010-01-15" date2="2010-01-16" DateCreated="2009-02-01" DateEdited="2009-02-01"/>
 	<indicatorValue reportingPeriodId="2" indicatorId="1" value="3600"/>
 	<indicatorValue reportingPeriodId="2" indicatorId="2" value="1200"/>
 
@@ -225,7 +224,14 @@
 	<indicatorValue reportingPeriodId="3" indicatorId="1" value="10000"/>
 	<indicatorValue reportingPeriodId="3" indicatorId="2" value="500"/>
 
-	<site siteId="4" databaseId="1" locationId="3" partnerId="2" Status="1" target="0" Date1="2008-10-05" Date2="2008-10-06" DateCreated="2009-02-01" DateEdited="2009-02-01"/>
+	<location locationId="4" name="Goma" locationTypeId="1" X="3.323" Y="27.232" DateCreated="2009-02-01" DateEdited="2009-02-01"/>
+	<locationAdminLink locationId="4" adminEntityId="3"/>
+
+	<site siteId="4" databaseId="1" locationId="4" partnerId="2" Status="1" target="0" Date1="2008-10-05" Date2="2008-10-06" DateCreated="2009-02-01" DateEdited="2009-02-01"/>
+	<reportingPeriod siteId="4" reportingPeriodId="4" date1="2010-01-01" date2="2010-01-31" DateCreated="2009-02-01" DateEdited="2009-02-01" monitoring="0"/>
+	
+	<indicatorValue reportingPeriodId="4" indicatorId="1" value="940"/>
+		
 		
     
 </dataset>
