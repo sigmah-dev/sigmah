@@ -234,6 +234,7 @@ public class ProjectsListPanel {
         projectTreeGrid.setAutoExpandColumn("fullName");
         projectTreeGrid.setTrackMouseOver(false);
         projectTreeGrid.setAutoExpand(true);
+        
 
         // Store.
         projectStore.setStoreSorter(new StoreSorter<ProjectDTOLight>() {
@@ -277,7 +278,7 @@ public class ProjectsListPanel {
         ngoRadio.setValue(true);
         ngoRadio.setFieldLabel(ProjectModelType.getName(ProjectModelType.NGO));
         ngoRadio.addStyleName("toolbar-radio");
-
+        
         final WidgetComponent ngoIcon = new WidgetComponent(FundingIconProvider.getProjectTypeIcon(
                 ProjectModelType.NGO, IconSize.SMALL).createImage());
         ngoIcon.addStyleName("toolbar-icon");
@@ -286,7 +287,7 @@ public class ProjectsListPanel {
         ngoLabel.addStyleName("flexibility-element-label");
         ngoLabel.addStyleName("project-starred-icon");
         ngoLabel.addClickHandler(new ClickHandler() {
-
+        
             @Override
             public void onClick(ClickEvent event) {
                 ngoRadio.setValue(true);
@@ -299,7 +300,7 @@ public class ProjectsListPanel {
         fundingRadio.setFireChangeEventOnSetValue(true);
         fundingRadio.setFieldLabel(ProjectModelType.getName(ProjectModelType.FUNDING));
         fundingRadio.addStyleName("toolbar-radio");
-
+      
         final WidgetComponent fundingIcon = new WidgetComponent(FundingIconProvider.getProjectTypeIcon(
                 ProjectModelType.FUNDING, IconSize.SMALL).createImage());
         fundingIcon.addStyleName("toolbar-icon");
@@ -321,7 +322,7 @@ public class ProjectsListPanel {
         partnerRadio.setFireChangeEventOnSetValue(true);
         partnerRadio.setFieldLabel(ProjectModelType.getName(ProjectModelType.LOCAL_PARTNER));
         partnerRadio.addStyleName("toolbar-radio");
-
+        
         final WidgetComponent partnerIcon = new WidgetComponent(FundingIconProvider.getProjectTypeIcon(
                 ProjectModelType.LOCAL_PARTNER, IconSize.SMALL).createImage());
         partnerIcon.addStyleName("toolbar-icon");
@@ -345,9 +346,10 @@ public class ProjectsListPanel {
         group.add(ngoRadio);
         group.add(fundingRadio);
         group.add(partnerRadio);
+        group.setAutoWidth(true);
 
         // Expand all button.
-        final Button expandButton = new Button(I18N.CONSTANTS.expandAll(), IconImageBundle.ICONS.expand(),
+        final Button expandButton = new Button("", IconImageBundle.ICONS.expand(),
                 new SelectionListener<ButtonEvent>() {
 
                     @Override
@@ -357,7 +359,7 @@ public class ProjectsListPanel {
                 });
 
         // Collapse all button.
-        final Button collapseButton = new Button(I18N.CONSTANTS.collapseAll(), IconImageBundle.ICONS.collapse(),
+        final Button collapseButton = new Button("", IconImageBundle.ICONS.collapse(),
                 new SelectionListener<ButtonEvent>() {
 
                     @Override
@@ -564,15 +566,15 @@ public class ProjectsListPanel {
                 return createProjectGridText(model, (String) model.get(property));
             }
         });
-
+        
         // Ratio budget
         final ColumnConfig spentBudgetColumn = new ColumnConfig("spentBudget", I18N.CONSTANTS.projectSpendBudget(), 100);
         spentBudgetColumn.setRenderer(new GridCellRenderer<ProjectDTOLight>() {
-
+        	
             @Override
             public Object render(ProjectDTOLight model, String property, ColumnData config, int rowIndex, int colIndex,
                     ListStore<ProjectDTOLight> store, Grid<ProjectDTOLight> grid) {
-                return new RatioBar(NumberUtils.ratio(model.getSpendBudget(), model.getPlannedBudget()));
+            	return new RatioBar(NumberUtils.ratio(model.getSpendBudget(), model.getPlannedBudget()));
             }
         });
 
@@ -651,7 +653,7 @@ public class ProjectsListPanel {
             @Override
             public Object render(ProjectDTOLight model, String property, ColumnData config, int rowIndex, int colIndex,
                     ListStore<ProjectDTOLight> store, Grid<ProjectDTOLight> grid) {
-                return new RatioBar(0);
+				return new RatioBar(0);
             }
         });
 
