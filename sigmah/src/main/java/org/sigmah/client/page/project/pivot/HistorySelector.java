@@ -3,6 +3,7 @@ package org.sigmah.client.page.project.pivot;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.sigmah.client.icon.IconImageBundle;
 import org.sigmah.shared.dto.element.handler.ValueEvent;
 
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -25,7 +26,7 @@ public class HistorySelector implements HasValue<PivotLayout> {
 	
 	public HistorySelector() {
 		
-		prevButton = new Button("&lt;", new SelectionListener<ButtonEvent>() {
+		prevButton = new Button(null, IconImageBundle.ICONS.back(), new SelectionListener<ButtonEvent>() {
 			
 			@Override
 			public void componentSelected(ButtonEvent ce) {
@@ -33,7 +34,7 @@ public class HistorySelector implements HasValue<PivotLayout> {
 			}
 		});
 		
-		nextButton = new Button("&gt;", new SelectionListener<ButtonEvent>() {
+		nextButton = new Button(null, IconImageBundle.ICONS.forward(), new SelectionListener<ButtonEvent>() {
 
 			@Override
 			public void componentSelected(ButtonEvent ce) {

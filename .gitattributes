@@ -114,6 +114,8 @@ sigmah/src/main/java/org/sigmah/client/icon/cancel.png -text
 sigmah/src/main/java/org/sigmah/client/icon/checked.png -text
 sigmah/src/main/java/org/sigmah/client/icon/cog.png -text
 sigmah/src/main/java/org/sigmah/client/icon/collapse.png -text
+sigmah/src/main/java/org/sigmah/client/icon/control_fastforward.png -text
+sigmah/src/main/java/org/sigmah/client/icon/control_rewind.png -text
 sigmah/src/main/java/org/sigmah/client/icon/curveChart.png -text
 sigmah/src/main/java/org/sigmah/client/icon/database.png -text
 sigmah/src/main/java/org/sigmah/client/icon/delete.png -text

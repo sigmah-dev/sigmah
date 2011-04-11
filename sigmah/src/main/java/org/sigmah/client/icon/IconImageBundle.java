@@ -190,4 +190,10 @@ public interface IconImageBundle extends ImageBundle {
     
     @Resource(value = "delete_icon.png")
     AbstractImagePrototype deleteIcon();
+    
+    @Resource(value = "control_fastforward.png")
+    AbstractImagePrototype forward();
+    
+    @Resource(value = "control_rewind.png")
+    AbstractImagePrototype back();
 }

@@ -158,7 +158,6 @@ public class ProjectPivotContainer extends ContentPanel implements ProjectSubPre
 		toolBar.setListener(this);
 		toolBar.setDirty(false);
 		setTopComponent(toolBar);
-
 	}
 
 
@@ -181,7 +180,7 @@ public class ProjectPivotContainer extends ContentPanel implements ProjectSubPre
 		dateFilter.clear();
 
 		IndicatorDTO indicator = indicatorFilter.getValue();
-		gridPanel.setHeading(indicator.getName() + " [" + indicator.getCode() + "]");
+		gridPanel.setHeading(I18N.MESSAGES.projectPivotByIndicator(indicatorFilter.getName()));
 		gridPanel.setShowSwapIcon(false);
 
 		PivotTableElement pivot = composer.fixIndicator(indicator.getId());
@@ -194,7 +193,7 @@ public class ProjectPivotContainer extends ContentPanel implements ProjectSubPre
 		SiteDTO site = (SiteDTO)siteFilter.getValue();
 
 		PivotTableElement pivot = composer.fixSite(site.getId());
-		gridPanel.setHeading(site.getLocationName());
+		gridPanel.setHeading(I18N.MESSAGES.projectPivotBySite(site.getLocationName()));
 		gridPanel.setShowSwapIcon(false);
 		
 		loadPivot(new PivotLayout(site), pivot);
@@ -206,7 +205,7 @@ public class ProjectPivotContainer extends ContentPanel implements ProjectSubPre
 
 		DateRangeModel dateRangeModel = dateFilter.getValue();
 		
-		gridPanel.setHeading(dateRangeModel.getLabel());
+		gridPanel.setHeading(I18N.MESSAGES.projectPivotByMonth(dateRangeModel.getLabel()));
 		gridPanel.setShowSwapIcon(true);
 		
 		PivotTableElement pivot = composer.fixDateRange(dateRangeModel.getDateRange(), axesSwapped);
