@@ -234,7 +234,7 @@ public class FilesListElementDTO extends FlexibleElementDTO {
             @Override
             public void handleEvent(BaseEvent be) {
 
-                mainPanel.mask(I18N.CONSTANTS.loading());
+                //mainPanel.mask(I18N.CONSTANTS.loading());
 
                 // Set hidden fields values.
                 elementIdHidden.setValue(String.valueOf(getId()));
