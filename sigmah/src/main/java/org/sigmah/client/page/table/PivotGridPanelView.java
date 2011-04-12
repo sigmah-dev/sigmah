@@ -2,7 +2,7 @@ package org.sigmah.client.page.table;
 
 import com.extjs.gxt.ui.client.widget.treegrid.TreeGridView;
 
-public class PivotGridPanelView extends TreeGridView {
+class PivotGridPanelView extends TreeGridView {
 
 	
 	/** 

@@ -187,6 +187,10 @@ public class PivotTableData implements Serializable {
             return childMap.get(category);
         }
 
+        public Axis addChild(Dimension childDimension, LabeledDimensionCategory category) {
+        	return addChild(childDimension, category, category.getLabel(), null);
+        }
+        
         public Axis addChild(Dimension childDimension, DimensionCategory category, String categoryLabel,
                              Comparator<Axis> comparator) {
 

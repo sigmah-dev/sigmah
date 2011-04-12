@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.hibernate.engine.Mapping;
 import org.sigmah.client.AppEvents;
 import org.sigmah.client.EventBus;
 import org.sigmah.client.event.PivotCellEvent;
@@ -76,19 +77,9 @@ public class PivotGridPanel extends ContentPanel implements HasValue<PivotElemen
     protected PivotElement element;
     protected EditorTreeGrid<PivotTableRow> grid;
     protected TreeStore<PivotTableRow> store;
-    protected ColumnModel columnModel;
+    protected ColumnMapping columnMapping;
     
     private DateUtil dateUtil = new DateUtilGWTImpl();
-    
-    /**
-     * Maps column axes to property names
-     */
-    protected Map<PivotTableData.Axis, String> propertyMap;
-    
-    /**
-     * Maps grid column indices to the leaf axis
-     */
-    protected Map<Integer, PivotTableData.Axis> columnMap;
     
     
     private boolean showAxisIcons = true;
@@ -127,7 +118,7 @@ public class PivotGridPanel extends ContentPanel implements HasValue<PivotElemen
 
         public PivotTableRow(PivotTableData.Axis axis) {
             this.rowAxis = axis;
-            set("header", decorateHeader(axis.getLabel(), axis));
+            set("header", HEADER_DECORATOR.decorateHeader(axis));
 
             updateFromTree();
             
@@ -142,7 +133,7 @@ public class PivotGridPanel extends ContentPanel implements HasValue<PivotElemen
 		private void updateFromTree() {
 			this.setProperties(Collections.EMPTY_MAP);
 			for(Map.Entry<PivotTableData.Axis, PivotTableData.Cell> entry : rowAxis.getCells().entrySet()) {
-                String property = propertyMap.get(entry.getKey());
+                String property = columnMapping.propertyNameForAxis(entry.getKey());
 				set(property, entry.getValue().getValue());
             }
 		}
@@ -152,12 +143,7 @@ public class PivotGridPanel extends ContentPanel implements HasValue<PivotElemen
         }
         
         public PivotTableData.Axis getColAxis(String property) {
-        	for(Entry<PivotTableData.Axis, String> entry : propertyMap.entrySet()) {
-        		if(entry.getValue().equals(property)) {
-        			return entry.getKey();
-        		}
-        	}
-        	throw new IllegalArgumentException("the property '" + property + "' is not linked to a column axis");
+        	return columnMapping.columnAxisForProperty(property);
         }
         
         public DimensionCategory getCategory(String property, Dimension dimension) {
@@ -225,20 +211,17 @@ public class PivotGridPanel extends ContentPanel implements HasValue<PivotElemen
         }
 
         this.element = element;
-
         PivotTableData data = element.getContent().getData();
 
-        propertyMap = new HashMap<PivotTableData.Axis, String>();
-        columnMap = new HashMap<Integer, PivotTableData.Axis>();
-
-        columnModel = createColumnModel(data);
+        
+        this.columnMapping = new ColumnMapping(data, HEADER_DECORATOR);
 
         store.removeAll();
-        for(PivotTableData.Axis axis : data.getRootRow().getChildren()) {
+		for(PivotTableData.Axis axis : data.getRootRow().getChildren()) {
             store.add(new PivotTableRow(axis), true);
         }
 
-        grid = new EditorTreeGrid<PivotTableRow>(store, columnModel);
+        grid = new EditorTreeGrid<PivotTableRow>(store, columnMapping.getColumnModel());
         grid.setView(new PivotGridPanelView());
         grid.getStyle().setNodeCloseIcon(null);
         grid.getStyle().setNodeOpenIcon(null);
@@ -250,7 +233,7 @@ public class PivotGridPanel extends ContentPanel implements HasValue<PivotElemen
                     eventBus.fireEvent(new PivotCellEvent(AppEvents.Drilldown,
                             element,
                             ge.getModel().getRowAxis(),
-                            columnMap.get(ge.getColIndex())));
+                        	columnMapping.columnAxisForIndex(ge.getColIndex())));
                 }
             }
         });
@@ -258,7 +241,7 @@ public class PivotGridPanel extends ContentPanel implements HasValue<PivotElemen
 
 			@Override
 			public void handleEvent(GridEvent<PivotTableRow> event) {
-				fireEvent(Events.HeaderClick, new PivotGridHeaderEvent(event, columnMap.get(event.getColIndex())));				
+				fireEvent(Events.HeaderClick, new PivotGridHeaderEvent(event, columnMapping.columnAxisForIndex(event.getColIndex())));				
 			}
 		});
         grid.addListener(Events.CellClick, new Listener<GridEvent<PivotTableRow>>() {
@@ -268,7 +251,7 @@ public class PivotGridPanel extends ContentPanel implements HasValue<PivotElemen
 				if(event.getColIndex() == 0) {
 					fireEvent(Events.HeaderClick, new PivotGridHeaderEvent(event, event.getModel().getRowAxis()));
 				} else {
-					fireEvent(Events.CellClick, new PivotGridCellEvent(event, columnMap.get(event.getColIndex())));
+					fireEvent(Events.CellClick, new PivotGridCellEvent(event, columnMapping.columnAxisForIndex(event.getColIndex())));
 				}
 			}
         });
@@ -285,7 +268,7 @@ public class PivotGridPanel extends ContentPanel implements HasValue<PivotElemen
 
 			@Override
 			public void handleEvent(GridEvent<PivotTableRow> event) {
-				PivotGridCellEvent pivotEvent = new PivotGridCellEvent(event, columnMap.get(event.getColIndex()));
+				PivotGridCellEvent pivotEvent = new PivotGridCellEvent(event, columnMapping.columnAxisForIndex(event.getColIndex()));
 				updateTotalsAfterEdit(pivotEvent);
 				fireEvent(Events.AfterEdit, pivotEvent);
 			}
@@ -338,133 +321,6 @@ public class PivotGridPanel extends ContentPanel implements HasValue<PivotElemen
         return -1;
     }
 
-    private ColumnModel createColumnModel(PivotTableData data) {
-
-        List<ColumnConfig> config = new ArrayList<ColumnConfig>();
-
-        ColumnConfig rowHeader = new ColumnConfig("header", cornerCellHtml(), 150);
-        rowHeader.setRenderer(new TreeGridCellRenderer<PivotTableRow>() {
-
-			@Override
-			public Object render(PivotTableRow model, String property,
-					ColumnData config, int rowIndex, int colIndex,
-					ListStore store, Grid grid) {
-				
-				Object result = super.render(model, property, config, rowIndex, colIndex, store, grid);
-				config.css = config.css + " x-grid3-header";
-				return result;
-			}
-        	
-        });
-        rowHeader.setSortable(false);
-        rowHeader.setMenuDisabled(true);
-        config.add(rowHeader);
-
-        int colIndex = 1;
-
-        List<PivotTableData.Axis> leaves = data.getRootColumn().getLeaves();
-        for(PivotTableData.Axis axis : leaves) {
-
-
-            String id = "col" + colIndex;
-
-            String label = axis.getLabel();
-            if(label == null) {
-                label = I18N.CONSTANTS.value();
-            }
-            label = decorateHeader(label, axis);
-            final NumberFormat numberFormat = NumberFormat.getFormat("#,###");
-            ColumnConfig column = new ColumnConfig(id, label, 75);
-            column.setRenderer(new GridCellRenderer<PivotTableRow>() {
-
-				@Override
-				public Object render(PivotTableRow model, String property,
-						ColumnData config, int rowIndex, int colIndex,
-						ListStore<PivotTableRow> store, Grid<PivotTableRow> grid) {
-					
-					Double value = model.get(property);
-					if(value == null) {
-						return "";
-					} else {
-						if(model.getRowAxis().isTotal()) {
-							return "<span class='" + PivotResources.INSTANCE.css().totalCell() + "'>" +
-									numberFormat.format(value) + "</span>";
-						} else {
-							return numberFormat.format(value);
-						}
-					}
-				}
-		
-			});
-            column.setAlignment(Style.HorizontalAlignment.RIGHT);
-            column.setSortable(false);
-            column.setMenuDisabled(true);
-            
-            NumberField valueField = new NumberField();            
-            column.setEditor(new CellEditor(valueField));
-
-            propertyMap.put(axis, id);
-            columnMap.put(colIndex, axis);
-
-
-            config.add(column);
-            colIndex++;
-        }
-
-        ColumnModel columnModel = new ColumnModel(config);
-
-        int depth = data.getRootColumn().getDepth();
-        int row = 0;
-
-        for(int d = 1; d<=depth; ++d) {
-
-            List<PivotTableData.Axis> children = data.getRootColumn().getDescendantsAtDepth(d);
-            if(d < depth) {
-
-                int col = 1;
-                for(PivotTableData.Axis child : children) {
-          
-                	int rowSpan = child.isLeaf() ? (depth - child.getDepth() - 1) : ( depth - child.getDepth());
-                    int colSpan = child.getLeaves().size();
-                    columnModel.addHeaderGroup(row, col, new HeaderGroupConfig( child.isLeaf() ? "&nbsp;" : child.getLabel(), rowSpan, colSpan) );
-
-                    col += colSpan;
-                
-                }
-                row++;
-            }
-        }
-        return columnModel;
-    }
-
-
-	private String cornerCellHtml() {
-    	if(showSwapIcon) {
-    		return IconUtil.iconHtml(PivotResources.INSTANCE.css().swapIcon());
-    	} else {
-    		return "";
-    	}
-	}
-
-	private String decorateHeader(String header, Axis axis) {
-    	if(showAxisIcons && axis.isLeaf()) {
-    		StringBuilder sb = new StringBuilder();
-    		sb.append(IconUtil.iconHtml(PivotResources.INSTANCE.css().zoomIcon()));
-    		
-    		switch(axis.getDimension().getType()) {
-    		case Indicator:
-    			sb.append(IconUtil.iconHtml(PivotResources.INSTANCE.css().editIcon()));
-    		}
-    		sb.append("<span>");
-    		sb.append(header);
-    		sb.append("</span>");
-    		return sb.toString();
-    	} else {
-    		return header;
-    	}
-    }
-
-
 	
 	@Override
 	public HandlerRegistration addValueChangeHandler(
@@ -494,4 +350,37 @@ public class PivotGridPanel extends ContentPanel implements HasValue<PivotElemen
 		return store;
 	}
 
+	private class GridHeaderDecorator implements HeaderDecorator {
+
+		@Override
+		public String decorateHeader(Axis axis) {
+			if(showAxisIcons && axis.isLeaf()) {
+	    		StringBuilder sb = new StringBuilder();
+	    		sb.append(IconUtil.iconHtml(PivotResources.INSTANCE.css().zoomIcon()));
+	    		
+	    		switch(axis.getDimension().getType()) {
+	    		case Indicator:
+	    			sb.append(IconUtil.iconHtml(PivotResources.INSTANCE.css().editIcon()));
+	    		}
+	    		sb.append("<span>");
+	    		sb.append(axis.getLabel());
+	    		sb.append("</span>");
+	    		return sb.toString();
+	    	} else {
+	    		return axis.getLabel();
+	    	}
+		}
+
+		@Override
+		public String cornerCellHtml() {
+	    	if(showSwapIcon) {
+	    		return IconUtil.iconHtml(PivotResources.INSTANCE.css().swapIcon());
+	    	} else {
+	    		return "";
+	    	}
+		}
+	}
+	
+	private final HeaderDecorator HEADER_DECORATOR = new GridHeaderDecorator();
+	
 }

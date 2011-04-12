@@ -1,11 +1,10 @@
 package org.sigmah.client.page.table;
 
-import org.sigmah.client.page.table.PivotGridPanel.PivotTableRow;
 import org.sigmah.shared.report.content.PivotTableData;
 
 import com.extjs.gxt.ui.client.event.GridEvent;
 
-public class PivotGridCellEvent extends GridEvent<PivotTableRow> {
+public class PivotGridCellEvent extends GridEvent<PivotGridPanel.PivotTableRow> {
 	
 	private PivotTableData.Axis columnAxis;
 	
