@@ -380,7 +380,7 @@ sigmah/src/main/java/org/sigmah/client/page/config/design/IndicatorForm.java -te
 sigmah/src/main/java/org/sigmah/client/page/config/design/IndicatorGroupForm.java -text
 sigmah/src/main/java/org/sigmah/client/page/config/design/MappedIndicatorSelection.java -text
 sigmah/src/main/java/org/sigmah/client/page/config/design/ProjectSiteGridPanel.java -text
-sigmah/src/main/java/org/sigmah/client/page/config/design/ValueLabelGrid.java -text
+sigmah/src/main/java/org/sigmah/client/page/config/design/ValueLabelField.java -text
 sigmah/src/main/java/org/sigmah/client/page/config/design/emptyMap.png -text
 sigmah/src/main/java/org/sigmah/client/page/config/design/emptyStar.png -text
 sigmah/src/main/java/org/sigmah/client/page/config/design/map.png -text

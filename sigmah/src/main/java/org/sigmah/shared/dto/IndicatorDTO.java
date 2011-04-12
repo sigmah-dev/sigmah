@@ -5,6 +5,9 @@
 
 package	org.sigmah.shared.dto;
 
+import java.util.List;
+
+
 import com.extjs.gxt.ui.client.data.BaseModelData;
 
 
@@ -182,16 +185,31 @@ public final class IndicatorDTO extends BaseModelData implements EntityDTO {
 	}
 
 
-	public void setCurrentValue(double value) {
+	public void setCurrentValue(Double value) {
 		set("currentValue", value);
 	}
 	
 	public Double getCurrentValue() {
 		return (Double)get("currentValue");
 	}
-    
+
+	public List<String> getLabels() {
+		return (List<String>)get("labels");
+	}
+
+	public void setLabels(List<String> labels) {
+		set("labels", labels);
+	}
 	
-    /**
+	public List<Integer> getLabelCounts() {
+		return (List<Integer>)get("labelCounts");
+	}
+	
+	public void setLabelCounts(List<Integer> counts) {
+		set("labelCounts", counts);
+	}
+
+	/**
      *
      * @return this Indicator's objective value 
      *

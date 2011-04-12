@@ -92,6 +92,7 @@ public class ProjectIndicatorsContainer extends LayoutContainer implements Proje
 		mainPanel.setIcon(null);
 		mainPanel.setLayout(new FitLayout());  
 		mainPanel.setSize(600, 300);  
+		mainPanel.setHeaderVisible(false);
 
 		// setIcon(IconImageBundle.ICONS.design());
 		// map tab panel

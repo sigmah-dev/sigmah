@@ -5,7 +5,9 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.sigmah.shared.dao.SqlQueryBuilder.ResultHandler;
 import org.sigmah.shared.dto.IndicatorDTO;
@@ -33,7 +35,7 @@ public class IndicatorDAO  {
      */
 	public List<IndicatorDTO> queryIndicatorsByDatabaseWithCurrentValues(int databaseId) {
     	final List<IndicatorDTO> list = new ArrayList<IndicatorDTO>();
-    	
+    	final Map<Integer, IndicatorDTO> map = new HashMap<Integer, IndicatorDTO>();
     	SqlQueryBuilder
     		.select("i.indicatorId")
     			.appendField("i.name")
@@ -64,17 +66,64 @@ public class IndicatorDAO  {
 				dto.setCategory(rs.getString(5));
 				dto.setDescription(rs.getString(6));
 				dto.setCode(rs.getString(7));
-				dto.setObjective(rs.getDouble(8));
-
-				if(dto.getAggregation() == IndicatorDTO.AGGREGATE_SUM) {
-					dto.setCurrentValue(rs.getDouble(9));
-				} else if(dto.getAggregation() == IndicatorDTO.AGGREGATE_AVG) {
-					dto.setCurrentValue(rs.getDouble(10));
+				
+				double objective = rs.getDouble(8);
+				if(!rs.wasNull()) {
+					dto.setObjective(objective);
 				}
+
+				Double currentValue = null;
+				if(dto.getAggregation() == IndicatorDTO.AGGREGATE_SUM) {
+					currentValue = rs.getDouble(9);
+					if(!rs.wasNull()) {
+						dto.setCurrentValue(currentValue);
+					}
+				} else if(dto.getAggregation() == IndicatorDTO.AGGREGATE_AVG) {
+					currentValue = rs.getDouble(10);
+					if(!rs.wasNull()) {
+						dto.setCurrentValue(currentValue);
+					}
+				} 
 				
 				list.add(dto);
+				map.put(dto.getId(), dto);
 			}
 		});		
+    	
+    	SqlQueryBuilder
+		.select("i.indicatorId")
+    		.appendField("l.code")
+    		.appendField("l.element")
+    		.appendField("COUNT(v.Value)")
+			.from("Indicator i")
+				.leftJoin("Site s").on("s.databaseId=i.databaseId")
+				.leftJoin("Indicator_labels l").on("i.IndicatorId = l.Indicator_IndicatorId")
+				.leftJoin("ReportingPeriod p").on("s.siteId = p.SiteId")
+				.leftJoin("IndicatorValue v").on("p.ReportingPeriodId = v.ReportingPeriodId and v.IndicatorId=i.indicatorId and v.Value=l.code")
+			.whereTrue("i.databaseId=" + databaseId)
+			.where("i.aggregation").equalTo(IndicatorDTO.AGGREGATE_MULTINOMIAL)
+			.groupBy("i.indicatorId, l.element, l.code")
+			.orderBy("l.code")
+			.forEachResult(connection, new ResultHandler() {
+				
+				@Override
+				public void handle(ResultSet rs) throws SQLException {
+					int id = rs.getInt(1);
+					int code = rs.getInt(2);
+					String label = rs.getString(3);
+					int count = rs.getInt(4);
+					
+					IndicatorDTO dto = map.get(id);
+					if(dto.getLabels() == null) {
+						dto.setLabels(new ArrayList<String>());
+					}
+					dto.getLabels().add(label);
+					
+				}
+			});		
+			
+			
+    	
     	
     	return list;
     }

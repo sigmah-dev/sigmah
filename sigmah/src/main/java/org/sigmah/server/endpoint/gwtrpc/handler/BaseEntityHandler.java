@@ -18,6 +18,7 @@ import org.sigmah.shared.exception.IllegalAccessCommandException;
 
 import javax.persistence.EntityManager;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -69,6 +70,10 @@ public class BaseEntityHandler {
 
         if (changes.containsKey("sortOrder")) {
             indicator.setSortOrder((Integer) changes.get("sortOrder"));
+        }
+        
+        if (changes.containsKey("labels")) {
+        	indicator.setLabels((List<String>) changes.get("labels"));
         }
 
         if (indicator.getActivity() != null) {

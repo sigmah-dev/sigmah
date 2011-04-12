@@ -6,11 +6,25 @@
 package org.sigmah.shared.domain;
 
 
-import javax.persistence.*;
-
-import org.sigmah.shared.domain.quality.QualityCriterion;
-
 import java.util.Date;
+import java.util.List;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
+import javax.persistence.ManyToOne;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.persistence.Transient;
+
+import org.hibernate.annotations.CollectionOfElements;
+import org.hibernate.annotations.IndexColumn;
+import org.sigmah.shared.domain.quality.QualityCriterion;
 
 /**
  * Defines an Indicator, a numeric value that can change over time.
@@ -48,6 +62,8 @@ public class Indicator implements java.io.Serializable, Orderable, Deleteable, S
 	private UserDatabase database;
 	
 	private QualityCriterion qualityCriterion;
+	
+	private List<String> labels;
 
 	public Indicator() {
 	
@@ -95,7 +111,7 @@ public class Indicator implements java.io.Serializable, Orderable, Deleteable, S
      * @return description of the units in which this indicator is expressed. Examples: "households", "%"
      * "cm"
      */
-	@Column(name = "Units", nullable = false, length = 15)
+	@Column(name = "Units", nullable = true, length = 15)
 	public String getUnits() {
 		return this.units;
 	}
@@ -312,5 +328,15 @@ public class Indicator implements java.io.Serializable, Orderable, Deleteable, S
     public void setDatabase(UserDatabase database) {
         this.database = database;
     }
+
+    @CollectionOfElements
+    @IndexColumn(name = "code", base=1)
+	public List<String> getLabels() {
+		return labels;
+	}
+
+	public void setLabels(List<String> labels) {
+		this.labels = labels;
+	}
 
 }

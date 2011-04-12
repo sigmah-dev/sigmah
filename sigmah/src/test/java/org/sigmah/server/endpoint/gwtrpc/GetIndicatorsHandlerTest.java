@@ -43,7 +43,35 @@ public class GetIndicatorsHandlerTest extends CommandTestCase {
         assertThat(i1.getCurrentValue(), equalTo(15100d));
 
         assertThat(i2.getName(), equalTo("Nb. of distributions"));
+    }
+    
+    
+    @Test
+    @OnDataSet("/dbunit/project-indicator.db.xml")
+    public void testListWithCategorical() throws CommandException {
 
+
+        setUser(DATABASE_OWNER);
+
+        GetIndicators cmd = new GetIndicators();
+        cmd.setUserDatabaseId(2);
+        
+        IndicatorListResult result = execute(cmd);    
+        
+        assertThat(result.getData().size(), equalTo(2));
+        
+        IndicatorDTO construction = result.getData().get(0);
+        IndicatorDTO service = result.getData().get(1);
+        
+        assertThat(construction.getLabels().size(), equalTo(3));
+        assertThat(construction.getLabels().get(0), equalTo("Good"));
+        assertThat(construction.getLabels().get(1), equalTo("Bad"));
+        assertThat(construction.getLabels().get(2), equalTo("Ugly"));
+        
+        assertThat(service.getLabels().size(), equalTo(3));
+        assertThat(service.getLabels().get(0), equalTo("Mediocre"));
+        assertThat(service.getLabels().get(1), equalTo("Pretty bad"));
+        assertThat(service.getLabels().get(2), equalTo("Terrible"));
 
     }
 

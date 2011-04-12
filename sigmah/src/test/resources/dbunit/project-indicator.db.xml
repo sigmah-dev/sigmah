@@ -185,7 +185,31 @@
 		description="desc"  
 		sortOrder="1"/>
 		
+	<!-- Database 2 -->
 
+	<indicator indicatorId="5"
+		databaseId="2"
+		collectIntervention="1"  
+		collectMonitoring="1"  
+		name="Quality of Construction"
+		aggregation="3"
+		sortOrder="1"/>
+		
+	<indicator_labels indicator_IndicatorId="5" code="1" element="Good"/>
+	<indicator_labels indicator_IndicatorId="5" code="2" element="Bad"/>
+	<indicator_labels indicator_IndicatorId="5" code="3" element="Ugly"/>
+		
+	<indicator indicatorId="6"
+		databaseId="2"
+		collectIntervention="1"  
+		collectMonitoring="1"  
+		name="Quality of Service"
+		aggregation="3"
+		sortOrder="2"/>
+		
+	<indicator_labels indicator_IndicatorId="6" code="1" element="Mediocre"/>
+	<indicator_labels indicator_IndicatorId="6" code="2" element="Pretty bad"/>
+	<indicator_labels indicator_IndicatorId="6" code="3" element="Terrible"/>
 
 	<!-- id=1  NFI Distribution at Penekusu, Sud Kivu   2 jan 2009-->
 
