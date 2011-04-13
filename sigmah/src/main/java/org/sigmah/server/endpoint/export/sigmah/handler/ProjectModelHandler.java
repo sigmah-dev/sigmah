@@ -21,6 +21,7 @@ import org.sigmah.server.domain.Authentication;
 import org.sigmah.server.endpoint.export.sigmah.ExportException;
 import org.sigmah.shared.domain.PhaseModel;
 import org.sigmah.shared.domain.ProjectModel;
+import org.sigmah.shared.domain.ProjectModelStatus;
 import org.sigmah.shared.domain.ProjectModelType;
 import org.sigmah.shared.domain.ProjectModelVisibility;
 import org.sigmah.shared.domain.category.CategoryElement;
@@ -69,6 +70,9 @@ public class ProjectModelHandler implements ModelHandler {
 			final ArrayList<ProjectModelVisibility> visibilities = new ArrayList<ProjectModelVisibility>();
 			visibilities.add(visibility);
 			projectModel.setVisibilities(visibilities);
+			
+			//Set the staus to DRAFT
+			projectModel.setStatus(ProjectModelStatus.DRAFT);
 			
 			em.merge(projectModel);
 			em.getTransaction().commit();

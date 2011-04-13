@@ -21,6 +21,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sigmah.server.domain.Authentication;
 import org.sigmah.server.endpoint.export.sigmah.ExportException;
 import org.sigmah.shared.domain.OrgUnitModel;
+import org.sigmah.shared.domain.ProjectModelStatus;
 import org.sigmah.shared.domain.category.CategoryElement;
 import org.sigmah.shared.domain.category.CategoryType;
 import org.sigmah.shared.domain.element.FlexibleElement;
@@ -57,6 +58,10 @@ public class OrgUnitModelHandler implements ModelHandler {
 			OrgUnitModel orgUnitModel = (OrgUnitModel)objectInputStream.readObject();
 			orgUnitModel.resetImport();
 			saveOrgUnitFlexibleElement(orgUnitModel, em);
+			
+			//Set the staus to DRAFT
+			orgUnitModel.setStatus(ProjectModelStatus.DRAFT);
+			
 			em.persist(orgUnitModel);
 			em.getTransaction().commit();
 		} catch (IOException e) {
