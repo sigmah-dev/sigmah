@@ -1295,6 +1295,7 @@ sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetMapIconsHandle
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetMonitoredPointsHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetMonthlyReportsHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetOrgUnitHandler.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetOrgUnitModelCopyHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetOrgUnitModelHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetOrgUnitModelsHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetOrganizationHandler.java -text
@@ -1303,6 +1304,7 @@ sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetProfilesHandle
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetProfilesWithDetailsHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetProjectDocumentsHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetProjectHandler.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetProjectModelCopyHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetProjectModelHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetProjectModelsHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetProjectReportHandler.java -text
@@ -1532,6 +1534,7 @@ sigmah/src/main/java/org/sigmah/shared/command/GetMonitoredPoints.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetMonthlyReports.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetOrgUnit.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetOrgUnitModel.java -text
+sigmah/src/main/java/org/sigmah/shared/command/GetOrgUnitModelCopy.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetOrgUnitModels.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetOrganization.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetPrivacyGroups.java -text
@@ -1540,6 +1543,7 @@ sigmah/src/main/java/org/sigmah/shared/command/GetProfilesWithDetails.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetProject.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetProjectDocuments.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetProjectModel.java -text
+sigmah/src/main/java/org/sigmah/shared/command/GetProjectModelCopy.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetProjectModels.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetProjectReport.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetProjectReportModel.java -text

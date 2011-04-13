@@ -23,6 +23,8 @@ public class UIActions {
     public static final String export = "export";
     
     public static final String exportModel = "exportModel";
+    
+    public static final String copyModel = "copyModel";
 
     public static final String gotoGrid = "grid";
     

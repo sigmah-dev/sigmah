@@ -119,6 +119,7 @@ public class AdminProjectModelsView extends View {
 		});
 		configs.add(column); 
 		
+		
 		column = new ColumnConfig();    
 		column.setWidth(40);  
 		column.setAlignment(Style.HorizontalAlignment.RIGHT);
@@ -150,6 +151,7 @@ public class AdminProjectModelsView extends View {
 	    }); 
 	    configs.add(column); 
 	    
+	   
 		column = new ColumnConfig();
 		column.setWidth(40);
 		column.setAlignment(Style.HorizontalAlignment.CENTER);
@@ -179,6 +181,37 @@ public class AdminProjectModelsView extends View {
 			}
 		});
 		configs.add(column);
+		
+		
+		column = new ColumnConfig();
+		column.setWidth(40);
+		column.setAlignment(Style.HorizontalAlignment.CENTER);
+		column.setRenderer(new GridCellRenderer<ProjectModelDTOLight>() {
+			@Override
+			public Object render(final ProjectModelDTOLight model,
+					final String property, ColumnData config, int rowIndex,
+					int colIndex, ListStore<ProjectModelDTOLight> store,
+					Grid<ProjectModelDTOLight> grid) {
+
+				Button buttonCopy = new Button(I18N.CONSTANTS.copy());
+				buttonCopy.setItemId(UIActions.copyModel);
+				buttonCopy.addListener(Events.OnClick,
+						new Listener<ButtonEvent>() {
+							@Override
+							public void handleEvent(ButtonEvent be) {
+								AdminModelActionListener listener = new AdminModelActionListener(
+										AdminProjectModelsView.this,
+										dispatcher, true);
+								listener.setModelId(model.getId());
+								listener.setIsOrgUnit(false);
+								listener.onUIAction(UIActions.copyModel);
+							}
+						});
+				return buttonCopy;
+			}
+		});
+		configs.add(column);
+
 		
 		ColumnModel cm = new ColumnModel(configs);		
 		

@@ -15,6 +15,7 @@ import org.sigmah.client.page.admin.AdminPageState;
 import org.sigmah.client.page.admin.model.common.AdminModelActionListener;
 import org.sigmah.client.page.admin.model.orgunit.AdminOrgUnitModelsPresenter.AdminModelsStore;
 import org.sigmah.client.page.admin.model.orgunit.AdminOrgUnitModelsPresenter.View;
+import org.sigmah.client.page.admin.model.project.AdminProjectModelsView;
 import org.sigmah.client.page.common.toolbar.UIActions;
 import org.sigmah.shared.domain.ProjectModelStatus;
 import org.sigmah.shared.dto.OrgUnitModelDTO;
@@ -177,6 +178,36 @@ public class AdminOrgUnitModelsView extends View {
 			}
 		});
 		configs.add(column);
+		
+		column = new ColumnConfig();
+		column.setWidth(60);
+		column.setAlignment(Style.HorizontalAlignment.CENTER);
+		column.setRenderer(new GridCellRenderer<OrgUnitModelDTO>() {
+			@Override
+			public Object render(final OrgUnitModelDTO model,
+					final String property, ColumnData config, int rowIndex,
+					int colIndex, ListStore<OrgUnitModelDTO> store,
+					Grid<OrgUnitModelDTO> grid) {
+
+				Button buttonCopy = new Button(I18N.CONSTANTS.copy());
+				buttonCopy.setItemId(UIActions.copyModel);
+				buttonCopy.addListener(Events.OnClick,
+						new Listener<ButtonEvent>() {
+							@Override
+							public void handleEvent(ButtonEvent be) {
+								AdminModelActionListener listener = new AdminModelActionListener(
+										AdminOrgUnitModelsView.this,
+										dispatcher, false);
+								listener.setModelId(model.getId());
+								listener.setIsOrgUnit(true);
+								listener.onUIAction(UIActions.copyModel);
+							}
+						});
+				return buttonCopy;
+			}
+		});
+		configs.add(column);
+
 	    
 		ColumnModel cm = new ColumnModel(configs);		
 		

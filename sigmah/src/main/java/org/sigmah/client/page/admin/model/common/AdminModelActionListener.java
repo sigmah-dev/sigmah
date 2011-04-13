@@ -9,6 +9,9 @@ import org.sigmah.client.page.admin.model.project.AdminProjectModelsPresenter;
 import org.sigmah.client.page.admin.report.AdminReportModelPresenter;
 import org.sigmah.client.page.common.toolbar.ActionListener;
 import org.sigmah.client.page.common.toolbar.UIActions;
+import org.sigmah.client.util.Notification;
+import org.sigmah.shared.command.GetOrgUnitModelCopy;
+import org.sigmah.shared.command.GetProjectModelCopy;
 import org.sigmah.shared.command.result.CreateResult;
 import org.sigmah.shared.domain.ProjectModelStatus;
 import org.sigmah.shared.dto.OrgUnitModelDTO;
@@ -23,6 +26,7 @@ import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Dialog;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.form.FileUploadField;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
@@ -81,6 +85,9 @@ public class AdminModelActionListener implements ActionListener {
         }
         if(UIActions.importModel.equals(actionId)){
         	onImportModel();
+        }
+        if(UIActions.copyModel.equals(actionId)){
+        	onCopyModel();
         }
 		
 	}
@@ -311,12 +318,69 @@ public class AdminModelActionListener implements ActionListener {
 		importDialog.show();
 	}
 
-	public int getModelId() {
-		return modelId;
-	}
+	
+	/**
+	 * Duplicate models.
+	 */
+	private void onCopyModel() {	
+		if (isProject) {
+			dispatcher.execute(new GetProjectModelCopy(getModelId()), null,
+					new AsyncCallback<ProjectModelDTOLight>() {
 
-	public void setModelId(int projectModelId) {
-		this.modelId = projectModelId;
+						@Override
+						public void onFailure(Throwable arg0) {
+							MessageBox.alert(I18N.CONSTANTS
+									.adminProjectModelCopy(), I18N.CONSTANTS
+									.adminProjectModelCopyError(), null);
+						}
+
+						@Override
+						public void onSuccess(ProjectModelDTOLight result) {
+							if (result != null) {
+								((AdminProjectModelsPresenter.View) view)
+										.getAdminModelsStore().add(result);
+								((AdminProjectModelsPresenter.View) view)
+										.getAdminModelsStore().commitChanges();
+								// Show notification.
+								Notification.show(I18N.CONSTANTS
+										.adminProjectModelCopy(),
+										I18N.CONSTANTS
+												.adminProjectModelCopyDetail());
+							}
+
+						}
+					});
+		}
+		
+		if (isOrgUnit) {
+			dispatcher.execute(new GetOrgUnitModelCopy(getModelId()), null,
+					new AsyncCallback<OrgUnitModelDTO>() {
+
+						@Override
+						public void onFailure(Throwable arg0) {
+							MessageBox.alert(I18N.CONSTANTS
+									.adminOrgUnitsModelCopy(), I18N.CONSTANTS
+									.adminOrgUnitsModelCopyError(), null);
+						}
+
+						@Override
+						public void onSuccess(OrgUnitModelDTO result) {
+							if (result != null) {
+								((AdminOrgUnitModelsPresenter.View) view)
+										.getAdminModelsStore().add(result);
+								((AdminOrgUnitModelsPresenter.View) view)
+										.getAdminModelsStore().commitChanges();
+								// Show notification.
+								Notification
+										.show(
+												I18N.CONSTANTS
+														.adminOrgUnitsModelCopy(),
+												I18N.CONSTANTS
+														.adminOrgUnitsModelCopyDetail());
+							}
+						}
+					});
+		}
 	}
 	
 	/**
@@ -338,5 +402,14 @@ public class AdminModelActionListener implements ActionListener {
 			}
 		}
 	}
+	
+	public int getModelId() {
+		return modelId;
+	}
+
+	public void setModelId(int projectModelId) {
+		this.modelId = projectModelId;
+	}
+	
 
 }
