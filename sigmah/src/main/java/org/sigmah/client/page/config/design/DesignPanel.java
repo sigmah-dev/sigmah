@@ -10,60 +10,39 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.sigmah.client.AppEvents;
+import org.sigmah.client.EventBus;
 import org.sigmah.client.dispatch.Dispatcher;
-import org.sigmah.client.dispatch.monitor.MaskingAsyncMonitor;
+import org.sigmah.client.event.IndicatorEvent;
 import org.sigmah.client.i18n.I18N;
-import org.sigmah.client.icon.IconImageBundle;
 import org.sigmah.client.page.common.dialog.FormDialogCallback;
 import org.sigmah.client.page.common.dialog.FormDialogImpl;
-import org.sigmah.client.page.common.dialog.FormDialogTether;
 import org.sigmah.client.page.common.grid.ImprovedCellTreeGridSelectionModel;
 import org.sigmah.client.page.common.grid.SavingHelper;
 import org.sigmah.client.page.common.toolbar.ActionListener;
-import org.sigmah.client.page.common.toolbar.ActionToolBar;
 import org.sigmah.client.page.common.toolbar.UIActions;
 import org.sigmah.client.page.entry.IndicatorNumberFormats;
-import org.sigmah.client.page.entry.SiteGridPageState;
-import org.sigmah.client.page.project.ProjectPresenter;
 import org.sigmah.shared.command.CreateEntity;
 import org.sigmah.shared.command.GetIndicators;
-import org.sigmah.shared.command.UpdateEntity;
 import org.sigmah.shared.command.result.CreateResult;
 import org.sigmah.shared.command.result.IndicatorListResult;
-import org.sigmah.shared.dto.ActivityDTO;
-import org.sigmah.shared.dto.AttributeDTO;
-import org.sigmah.shared.dto.AttributeGroupDTO;
-import org.sigmah.shared.dto.EntityDTO;
 import org.sigmah.shared.dto.IndicatorDTO;
 import org.sigmah.shared.dto.IndicatorGroup;
-import org.sigmah.shared.dto.UserDatabaseDTO;
 
-import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.Style;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
-import com.extjs.gxt.ui.client.data.BaseTreeModel;
 import com.extjs.gxt.ui.client.data.ModelData;
-import com.extjs.gxt.ui.client.data.ModelIconProvider;
 import com.extjs.gxt.ui.client.data.TreeModel;
 import com.extjs.gxt.ui.client.dnd.DND;
 import com.extjs.gxt.ui.client.dnd.TreeGridDragSource;
 import com.extjs.gxt.ui.client.dnd.TreeGridDropTarget;
-import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.DNDEvent;
 import com.extjs.gxt.ui.client.event.DNDListener;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
-import com.extjs.gxt.ui.client.store.Record;
 import com.extjs.gxt.ui.client.store.TreeStore;
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.NumberField;
-import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.grid.CellEditor;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
@@ -76,7 +55,6 @@ import com.extjs.gxt.ui.client.widget.tips.QuickTip;
 import com.extjs.gxt.ui.client.widget.treegrid.CellTreeGridSelectionModel;
 import com.extjs.gxt.ui.client.widget.treegrid.EditorTreeGrid;
 import com.extjs.gxt.ui.client.widget.treegrid.TreeGrid;
-import com.extjs.gxt.ui.client.widget.treepanel.TreePanel.Joint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
@@ -91,8 +69,8 @@ public class DesignPanel extends DesignPanelBase implements ActionListener {
 	private MappedIndicatorSelection mappedIndicator; 
 	
 	@Inject
-	public DesignPanel(Dispatcher dispatcher, Provider<IndicatorDialog> indicatorDialog) {
-		service=dispatcher;
+	public DesignPanel(EventBus eventBus, Dispatcher dispatcher, Provider<IndicatorDialog> indicatorDialog) {
+		super(eventBus, dispatcher);
 		treeStore = new TreeStore<ModelData>();
 		this.indicatorDialog = indicatorDialog;
 
@@ -190,6 +168,16 @@ public class DesignPanel extends DesignPanelBase implements ActionListener {
 		toolBar.addButton("newIndicatorGroup", I18N.CONSTANTS.newIndicatorGroup(), null);
 		toolBar.addButton("newIndicator", I18N.CONSTANTS.newIndicator(), null);
 		toolBar.addRefreshButton();
+		
+		eventBus.addListener(IndicatorEvent.CHANGED, new Listener<IndicatorEvent>() {
+
+			@Override
+			public void handleEvent(IndicatorEvent be) {
+				if(be.getSource() != DesignPanel.this) {
+					doLoad();
+				}
+			}
+		});
 	}
 	
 	
@@ -326,6 +314,7 @@ public class DesignPanel extends DesignPanelBase implements ActionListener {
 					public void onSuccess(CreateResult result) {
 						dialog.hide();
 						treeStore.add(parent, newIndicator, false);
+						eventBus.fireEvent(new IndicatorEvent(DesignPanel.this));
 					}
 				});
 			}

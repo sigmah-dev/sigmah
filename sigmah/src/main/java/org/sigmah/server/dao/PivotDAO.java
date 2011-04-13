@@ -60,7 +60,7 @@ public interface PivotDAO {
     public static class Bucket {
         private double value;
         private int count;
-        private int aggregationType;
+        private int aggregation;
         
         private Map<Dimension, DimensionCategory> categories = new HashMap<Dimension, DimensionCategory>();
 
@@ -98,6 +98,16 @@ public interface PivotDAO {
         	this.count = count;
         }
         
+		public int aggregation() {
+			return aggregation;
+		}
+		
+
+		public void setAggregation(int aggMethod) {
+			this.aggregation = aggMethod;
+			
+		}
+        
         @Override
         public String toString() {
         	StringBuilder sb = new StringBuilder();
@@ -116,5 +126,8 @@ public interface PivotDAO {
         	}
         	return sb.toString();
         }
+
+
+
     }
 }

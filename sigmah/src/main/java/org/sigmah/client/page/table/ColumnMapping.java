@@ -5,27 +5,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 
-import org.sigmah.shared.date.DateUtil;
-import org.sigmah.shared.report.content.DimensionCategory;
-import org.sigmah.shared.report.content.EntityCategory;
 import org.sigmah.shared.report.content.PivotTableData;
 import org.sigmah.shared.report.content.PivotTableData.Axis;
-import org.sigmah.shared.report.content.PivotTableData.Cell;
-import org.sigmah.shared.report.model.Dimension;
-import org.sigmah.shared.report.model.DimensionType;
-import org.sigmah.shared.report.model.PivotElement;
 
 import com.extjs.gxt.ui.client.Style;
-import com.extjs.gxt.ui.client.store.ListStore;
-import com.extjs.gxt.ui.client.widget.form.NumberField;
-import com.extjs.gxt.ui.client.widget.grid.CellEditor;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.grid.HeaderGroupConfig;
 import com.google.gwt.core.client.GWT;
+import com.google.inject.Provider;
 
 /**
  * Maps a PivotTableData structure to a ColumnModel for 
@@ -52,11 +42,15 @@ class ColumnMapping {
      * Maps grid column indices to the leaf axis
      */
     private Map<Integer, PivotTableData.Axis> columnMap;
+
+
+    private PivotCellRendererProvider rendererProvider;
     
 
-    public ColumnMapping(PivotTableData data, HeaderDecorator headerDecorator) {
+    public ColumnMapping(PivotTableData data, PivotCellRendererProvider rendererProvider, HeaderDecorator headerDecorator) {
     	this.data = data;
     	this.headerDecorator = headerDecorator;
+    	this.rendererProvider = rendererProvider;
     	
         propertyMap = new HashMap<PivotTableData.Axis, String>();
         columnMap = new HashMap<Integer, PivotTableData.Axis>();
@@ -101,14 +95,13 @@ class ColumnMapping {
             String id = "col" + colIndex;
 
             ColumnConfig column = new ColumnConfig(id, headerDecorator.decorateHeader(axis), 75);
-            column.setRenderer(new PivotCellRenderer());
+            column.setRenderer(rendererProvider.getRendererForColumn(axis));
             column.setAlignment(Style.HorizontalAlignment.RIGHT);
             column.setSortable(false);
             column.setMenuDisabled(true);
             
             if(GWT.isClient()) { // hack to allow unit tests to run
-	            NumberField valueField = new NumberField();            
-	            column.setEditor(new CellEditor(valueField));
+	            column.setEditor(new IndicatorValueEditor());
             }
 
             propertyMap.put(axis, id);

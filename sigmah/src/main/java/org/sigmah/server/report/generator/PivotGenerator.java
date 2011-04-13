@@ -117,7 +117,7 @@ public abstract class PivotGenerator<T extends PivotElement> extends BaseGenerat
 		private void addValues(List<Bucket> buckets) {
 			for(Bucket bucket : buckets) {
 				PivotTableData.Axis row = findRowNode(bucket);
-				row.setValue(findColumnNode(bucket), bucket.doubleValue(), bucket.count());
+				row.setValue(findColumnNode(bucket), bucket.doubleValue(), bucket.count(), bucket.aggregation());
 			}
 		}
 		 
@@ -333,6 +333,12 @@ public abstract class PivotGenerator<T extends PivotElement> extends BaseGenerat
 				return 1;
 			}
 
+			if(c1.getClass() != c2.getClass()) {
+				// this occurs if we have an unbalanced tree and we end up comparing categories of 
+				// different dimensions to each other. we sort by class name to get a stable, if arbitrary
+				// ordering
+				return c1.getClass().getSimpleName().compareTo(c2.getClass().getSimpleName());
+			}
 
 			return c1.compareTo(c2);
 		}

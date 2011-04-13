@@ -10,6 +10,7 @@ public class PivotGridCellEvent extends GridEvent<PivotGridPanel.PivotTableRow> 
 	
 	public PivotGridCellEvent(GridEvent<PivotGridPanel.PivotTableRow> event, PivotTableData.Axis columnAxis) {
 		super(event.getGrid(), event.getEvent());
+		this.setColIndex(event.getColIndex());
 		this.columnAxis = columnAxis;
 		this.setProperty(event.getProperty());
 		this.setRecord(event.getRecord());
@@ -34,5 +35,9 @@ public class PivotGridCellEvent extends GridEvent<PivotGridPanel.PivotTableRow> 
 	
 	public PivotTableData.Cell getOrCreateCell() {
 		return getRowAxis().getOrCreateCell(columnAxis);
+	}
+	
+	public int getIndicatorId() {
+		return this.getModel().getIndicatorId(this.getProperty());
 	}
 }

@@ -256,6 +256,10 @@ public final class IndicatorDTO extends BaseModelData implements EntityDTO {
         return "Indicator";
     }
 
+	public boolean isQualitative() {
+		return getAggregation() == AGGREGATE_MULTINOMIAL;
+	}
+
 
     
 }

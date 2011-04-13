@@ -9,6 +9,7 @@
     <!--  This is test data used for the SchemaBuilderTest cases -->
 
     <country countryId="1" name="Rdc" x1="0" y1="0" x2="0" y2="0"/>
+    <country countryId="2" name="France" x1="0" y1="0" x2="0" y2="0"/>
 
     
     <organization id_organization="1" name="Ideia"/>
@@ -84,10 +85,14 @@
 
     <userDatabase databaseId="3" name="RRM" countryId="1" ownerUserId="2" lastSchemaUpdate="2009-01-01"/>
     <project databaseId="3" id_project_model="1"/>
+    
+    <userDatabase databaseId="4" name="PEAR France"  startDate="2010-01-15" countryId="1" ownerUserId="1" lastSchemaUpdate="2009-01-01"/>
+    <project databaseId="4" id_project_model="1"/>
 
 	<partnerInDatabase databaseId="1" partnerId="2"/>
 	<partnerInDatabase databaseId="2" partnerId="3"/>
 	<partnerInDatabase databaseId="3" partnerId="4"/>
+	<partnerInDatabase databaseId="4" partnerId="4"/>
 
     <project_details id="1" id_layout="5" id_project_model="1" />
     <project_banner id="1" id_layout="5" id_project_model="1" />

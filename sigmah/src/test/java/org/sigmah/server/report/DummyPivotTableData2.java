@@ -48,7 +48,7 @@ public class DummyPivotTableData2 {
 
         for(int i=0; i!= leafRows.length; ++i) {
 
-            leafRows[i].setValue(table.getRootColumn(), (double)((i+1) * 100), 1);
+            leafRows[i].setValue(table.getRootColumn(), (double)((i+1) * 100), 1, 0);
 
         }
 

@@ -191,6 +191,40 @@ public class CreateSiteTest extends CommandTestCase {
         
         execute(cmd);
     }
+    
+    @Test
+    @OnDataSet("/dbunit/project-indicator.db.xml")
+    public void testAddByDatabaseWithoutAdminDetails() throws CommandException {
+        setUser(1);
+
+        SiteDTO newSite = new SiteDTO();
+
+        newSite.setDatabaseId(4);
+        newSite.setLocationName("Paris");
+        newSite.setPartner(new PartnerDTO(4, "Foobar"));
+
+        // create command
+
+        CreateEntity cmd = CreateEntity.Site(newSite);
+
+        // execute the command      
+        execute(cmd);
+        
+        // add another
+        SiteDTO newSite2 = new SiteDTO();
+
+        newSite.setDatabaseId(4);
+        newSite.setLocationName("Lyon");
+        newSite.setPartner(new PartnerDTO(4, "Foobar"));
+
+        // create command
+
+        CreateEntity cmd2 = CreateEntity.Site(newSite);
+    
+        execute(cmd);
+
+    }
+
 
 
 }

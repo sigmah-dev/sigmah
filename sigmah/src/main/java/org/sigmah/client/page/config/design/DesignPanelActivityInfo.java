@@ -42,8 +42,7 @@ public class DesignPanelActivityInfo extends DesignPanelBase implements Page  {
 	
 	@Inject
 	public DesignPanelActivityInfo(EventBus eventBus, Dispatcher service) {
-		this.eventBus=eventBus;
-		this.service=service;
+		super(eventBus, service);
 		treeStore = new TreeStore<ModelData>();
 	}	
 

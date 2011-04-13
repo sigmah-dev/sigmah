@@ -58,10 +58,9 @@ public class DummyPivotTableData {
 
         for(int i=0; i!= leafRows.length; ++i) {
             for(int j=0; j!= leafCols.length; ++j) {
-                leafRows[i].setValue(leafCols[j], (double)(i * (j+9) * 100), 1);
+                leafRows[i].setValue(leafCols[j], (double)(i * (j+9) * 100), 1, 0);
             }
         }
-
     }
 
 

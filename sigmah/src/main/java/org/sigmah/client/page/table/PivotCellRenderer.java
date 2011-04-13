@@ -1,6 +1,9 @@
 package org.sigmah.client.page.table;
 
+import java.util.Map;
+
 import org.sigmah.client.page.table.PivotGridPanel.PivotTableRow;
+import org.sigmah.shared.dto.IndicatorDTO;
 import org.sigmah.shared.report.content.PivotTableData;
 
 import com.extjs.gxt.ui.client.store.ListStore;
@@ -16,26 +19,32 @@ import com.google.gwt.i18n.client.NumberFormat;
  * @author alexander
  *
  */
-final class PivotCellRenderer implements
+abstract class PivotCellRenderer implements
 		GridCellRenderer<PivotGridPanel.PivotTableRow> {
 	
+	
+	public PivotCellRenderer() {
+	}
+
 	@Override
 	public Object render(PivotGridPanel.PivotTableRow model, String property,
 			ColumnData config, int rowIndex, int colIndex,
 			ListStore<PivotGridPanel.PivotTableRow> store, Grid<PivotGridPanel.PivotTableRow> grid) {
 		
 		
-		NumberFormat numberFormat = NumberFormat.getFormat("#,###");
 		Double value = model.get(property);
 		if(value == null) {
 			return "";
 		} else {
+			String formattedValue = formatValue(model.getRowAxis(), value);
 			if(model.getRowAxis().isTotal()) {
 				return "<span class='" + PivotResources.INSTANCE.css().totalCell() + "'>" +
-						numberFormat.format(value) + "</span>";
+						formattedValue + "</span>";
 			} else {
-				return numberFormat.format(value);
+				return formattedValue;
 			}
 		}
 	}
+
+	protected abstract String formatValue(PivotTableData.Axis rowAxis, double value);
 }

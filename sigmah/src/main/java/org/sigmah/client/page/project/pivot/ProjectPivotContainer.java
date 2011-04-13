@@ -1,7 +1,9 @@
 package org.sigmah.client.page.project.pivot;
 
+import org.sigmah.client.EventBus;
 import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.dispatch.monitor.MaskingAsyncMonitor;
+import org.sigmah.client.event.IndicatorEvent;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.page.common.dialog.FormDialogCallback;
 import org.sigmah.client.page.common.toolbar.ActionListener;
@@ -21,6 +23,7 @@ import org.sigmah.shared.command.GetIndicators;
 import org.sigmah.shared.command.UpdateMonthlyReports;
 import org.sigmah.shared.command.result.BatchResult;
 import org.sigmah.shared.command.result.IndicatorListResult;
+import org.sigmah.shared.domain.element.IndicatorsListElement;
 import org.sigmah.shared.dto.IndicatorDTO;
 import org.sigmah.shared.dto.ProjectDTO;
 import org.sigmah.shared.dto.SiteDTO;
@@ -32,7 +35,6 @@ import org.sigmah.shared.report.model.DimensionType;
 import org.sigmah.shared.report.model.PivotTableElement;
 
 import com.allen_sauer.gwt.log.client.Log;
-import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FieldEvent;
@@ -56,6 +58,7 @@ import com.google.inject.Provider;
 
 public class ProjectPivotContainer extends ContentPanel implements ProjectSubPresenter, ActionListener {
 
+	private final EventBus eventBus;
 	private final Dispatcher dispatcher;
 
 	private final IndicatorFilterCombo indicatorFilter;
@@ -76,8 +79,9 @@ public class ProjectPivotContainer extends ContentPanel implements ProjectSubPre
 	private boolean historyNavigation = false;
 	
 	@Inject
-	public ProjectPivotContainer(Dispatcher dispatcher, PivotGridPanel gridPanel, Provider<IndicatorDialog> indicatorDialog) {
+	public ProjectPivotContainer(EventBus eventBus, Dispatcher dispatcher, PivotGridPanel gridPanel, Provider<IndicatorDialog> indicatorDialog) {
 		this.dispatcher = dispatcher;
+		this.eventBus = eventBus;
 		this.gridPanel = gridPanel;
 		this.indicatorDialogProvider = indicatorDialog;
 
@@ -160,6 +164,16 @@ public class ProjectPivotContainer extends ContentPanel implements ProjectSubPre
 		toolBar.setListener(this);
 		toolBar.setDirty(false);
 		setTopComponent(toolBar);
+		
+		eventBus.addListener(IndicatorEvent.CHANGED, new Listener<IndicatorEvent>() {
+
+			@Override
+			public void handleEvent(IndicatorEvent be) {
+				if(be.getSource() != ProjectPivotContainer.this) {
+					historyValueChange(historySelector.getValue());
+				}
+			}
+		});
 	}
 
 
@@ -182,7 +196,7 @@ public class ProjectPivotContainer extends ContentPanel implements ProjectSubPre
 		dateFilter.clear();
 
 		IndicatorDTO indicator = indicatorFilter.getValue();
-		gridPanel.setHeading(I18N.MESSAGES.projectPivotByIndicator(indicatorFilter.getName()));
+		gridPanel.setHeading(I18N.MESSAGES.projectPivotByIndicator(indicator.getName()));
 		gridPanel.setShowSwapIcon(false);
 
 		PivotTableElement pivot = composer.fixIndicator(indicator.getId());
@@ -321,7 +335,6 @@ public class ProjectPivotContainer extends ContentPanel implements ProjectSubPre
 			dateFilter.setValue((DateRangeModel) value.getFilter());
 			onDateSelected();
 		}
-		historyNavigation = false;
 	}
 
 	private void loadPivot(final PivotLayout layout, final PivotTableElement pivot) {
@@ -337,9 +350,8 @@ public class ProjectPivotContainer extends ContentPanel implements ProjectSubPre
 			public void onSuccess(PivotContent content) {
 				pivot.setContent(content);
 				gridPanel.setValue(pivot);
-				if(!historyNavigation) {
-					historySelector.onNewLayout(layout);
-				}
+				historySelector.onNewLayout(layout);
+				historyNavigation = false;
 			}
 		});
 	}
@@ -377,6 +389,7 @@ public class ProjectPivotContainer extends ContentPanel implements ProjectSubPre
 			public void onSuccess(BatchResult result) {
 				gridPanel.getStore().commitChanges();
 				toolBar.setDirty(false);
+				eventBus.fireEvent(IndicatorEvent.CHANGED, new IndicatorEvent(ProjectPivotContainer.this));
 			}
 		});
 	}

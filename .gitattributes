@@ -86,6 +86,7 @@ sigmah/src/main/java/org/sigmah/client/dispatch/remote/cache/ProxyResult.java -t
 sigmah/src/main/java/org/sigmah/client/dispatch/remote/cache/SchemaCache.java -text
 sigmah/src/main/java/org/sigmah/client/event/DownloadRequestEvent.java -text
 sigmah/src/main/java/org/sigmah/client/event/EntityEvent.java -text
+sigmah/src/main/java/org/sigmah/client/event/IndicatorEvent.java -text
 sigmah/src/main/java/org/sigmah/client/event/NavigationEvent.java -text
 sigmah/src/main/java/org/sigmah/client/event/PivotCellEvent.java -text
 sigmah/src/main/java/org/sigmah/client/event/package-info.java -text
@@ -563,7 +564,12 @@ sigmah/src/main/java/org/sigmah/client/page/report/ReportXmlForm.java -text
 sigmah/src/main/java/org/sigmah/client/page/report/SigmahReportLoader.java -text
 sigmah/src/main/java/org/sigmah/client/page/table/ColumnMapping.java -text
 sigmah/src/main/java/org/sigmah/client/page/table/HeaderDecorator.java -text
+sigmah/src/main/java/org/sigmah/client/page/table/IndicatorValue.java -text
+sigmah/src/main/java/org/sigmah/client/page/table/IndicatorValueEditor.java -text
+sigmah/src/main/java/org/sigmah/client/page/table/IndicatorValueField.java -text
+sigmah/src/main/java/org/sigmah/client/page/table/MixedCellRenderer.java -text
 sigmah/src/main/java/org/sigmah/client/page/table/PivotCellRenderer.java -text
+sigmah/src/main/java/org/sigmah/client/page/table/PivotCellRendererProvider.java -text
 sigmah/src/main/java/org/sigmah/client/page/table/PivotGridCellEvent.java -text
 sigmah/src/main/java/org/sigmah/client/page/table/PivotGridHeaderEvent.java -text
 sigmah/src/main/java/org/sigmah/client/page/table/PivotGridPanel.java -text
@@ -573,6 +579,9 @@ sigmah/src/main/java/org/sigmah/client/page/table/PivotPageLoader.java -text
 sigmah/src/main/java/org/sigmah/client/page/table/PivotPageState.java -text
 sigmah/src/main/java/org/sigmah/client/page/table/PivotResources.java -text
 sigmah/src/main/java/org/sigmah/client/page/table/PivotTreeGridCellRenderer.java -text
+sigmah/src/main/java/org/sigmah/client/page/table/QualitativeCellRenderer.java -text
+sigmah/src/main/java/org/sigmah/client/page/table/QuantitativeCellRenderer.java -text
+sigmah/src/main/java/org/sigmah/client/page/table/RendererProvider.java -text
 sigmah/src/main/java/org/sigmah/client/page/table/drilldown/DrillDownEditor.java -text
 sigmah/src/main/java/org/sigmah/client/page/table/filter/AbstractFilterFieldSet.java -text
 sigmah/src/main/java/org/sigmah/client/page/table/filter/PartnerFieldSet.java -text
@@ -1204,6 +1213,7 @@ sigmah/src/main/java/org/sigmah/server/dao/hibernate/HibernateSiteTableDAO.java 
 sigmah/src/main/java/org/sigmah/server/dao/hibernate/LocationHibernateDAO.java -text
 sigmah/src/main/java/org/sigmah/server/dao/hibernate/PersonalEventHibernateDAO.java -text
 sigmah/src/main/java/org/sigmah/server/dao/hibernate/PivotHibernateDAO.java -text
+sigmah/src/main/java/org/sigmah/server/dao/hibernate/PivotHibernateDAO.java.edited -text
 sigmah/src/main/java/org/sigmah/server/dao/hibernate/ProjectReportHibernateDAO.java -text
 sigmah/src/main/java/org/sigmah/server/dao/hibernate/ReportingPeriodHibernateDAO.java -text
 sigmah/src/main/java/org/sigmah/server/dao/hibernate/SQLDialectProvider.java -text

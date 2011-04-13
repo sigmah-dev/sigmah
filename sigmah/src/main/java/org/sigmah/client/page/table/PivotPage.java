@@ -354,7 +354,7 @@ public class PivotPage extends LayoutContainer implements Page {
 		center.setLayout(new BorderLayout());
 		add(center, new BorderLayoutData(Style.LayoutRegion.CENTER));
 
-		gridContainer = new PivotGridPanel(eventBus);
+		gridContainer = new PivotGridPanel(eventBus, service);
 		gridContainer.setHeaderVisible(true);
 		gridContainer.setHeading(I18N.CONSTANTS.preview());
 

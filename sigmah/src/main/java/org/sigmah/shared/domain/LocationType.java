@@ -46,6 +46,7 @@ public class LocationType implements Serializable, SchemaElement {
 
 	@Id
 	@Column(name = "LocationTypeId", unique = true, nullable = false)
+	@GeneratedValue(strategy=GenerationType.AUTO)
 	public int getId() {
 		return this.id;
 	}

@@ -9,7 +9,8 @@ public enum AggregationMethod {
 
 	Sum(0),
 	Average(1),
-	SiteCount(2);
+	SiteCount(2), 
+	Multinomial(3);
 	
 	private final int code;
 	

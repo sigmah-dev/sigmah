@@ -28,7 +28,7 @@ public class DateFilterCombo extends ComboBox<DateRangeModel> {
 		store.removeAll();
 		
         DateWrapper start = new DateWrapper(startDate);
-        DateWrapper today = new DateWrapper();
+        DateWrapper today = new DateWrapper().addMonths(6);
         
         DateWrapper month = new DateWrapper(start.getFullYear(), start.getMonth(), 1);
         do {

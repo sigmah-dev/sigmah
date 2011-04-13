@@ -37,7 +37,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 abstract class DesignPanelBase extends ContentPanel {
 
 	protected Dispatcher service;
-	protected EventBus eventBus;
+	protected final EventBus eventBus;
 	protected TreeStore<ModelData> treeStore;
 	protected UserDatabaseDTO db;
 	protected ActionToolBar toolBar;
@@ -45,7 +45,9 @@ abstract class DesignPanelBase extends ContentPanel {
 
 	protected DesignFormContainer formContainer;
 
-	protected DesignPanelBase() {
+	protected DesignPanelBase(EventBus eventBus, Dispatcher service) {
+		this.eventBus = eventBus;
+		this.service = service;
 		toolBar = new ActionToolBar();
 		toolBar.addSaveSplitButton();
 		formContainer = new DesignFormContainer(service, db, treeGrid);

@@ -15,6 +15,7 @@ import java.util.Map.Entry;
 
 import org.sigmah.shared.report.content.PivotTableData.Cell;
 import org.sigmah.shared.report.model.Dimension;
+import org.sigmah.shared.report.model.DimensionType;
 
 public class PivotTableData implements Serializable {
 
@@ -106,8 +107,7 @@ public class PivotTableData implements Serializable {
     public static class Cell implements Serializable {
 		private Double value;
 		private int count;
-		private int indicatorId;
-		private int indicatorType;
+		private int aggregation;
 		
         /**
          * Required for GWT serialization
@@ -116,9 +116,10 @@ public class PivotTableData implements Serializable {
 
         }
 		
-		public Cell(Double value, int count) {
+		public Cell(Double value, int count, int aggregation) {
 			this.value = value;
 			this.count = count;
+			this.aggregation = aggregation;
 		}
 		
 		public Double getValue() {
@@ -252,8 +253,8 @@ public class PivotTableData implements Serializable {
 			return children.get(children.size()-1);
 		}
 						
-		public void setValue(Axis column, Double value, int count) {
-			cells.put(column, new Cell(value, count));
+		public void setValue(Axis column, Double value, int count, int aggregation) {
+			cells.put(column, new Cell(value, count, aggregation));
 		}
 		
 		public Cell getCell(Axis column) {
@@ -263,7 +264,7 @@ public class PivotTableData implements Serializable {
 		public Cell getOrCreateCell(Axis column) {
 			Cell cell = cells.get(column);
 			if(cell == null) {
-				cell = new Cell(null, 0);
+				cell = new Cell(null, 0, -1);
 				cells.put(column, cell);
 			}
 			return cell;
@@ -382,16 +383,23 @@ public class PivotTableData implements Serializable {
         /**
          * Recursively constructs totals for this node and its descendants.
          */
-        public void total() {
+        public boolean total() {
+        	if(dimension != null && dimension.getType() == DimensionType.Indicator) {
+        		// different indicators cannot be totaled
+        		return false;
+        	}
         	if(!isLeaf()) {
         		cells.clear();
 	        	for(Axis child : children) {
-	        		child.total();
+	        		if(!child.total()) {
+	        			return false;
+	        		}
 	        		for(Entry<Axis, Cell> entry : child.getCells().entrySet()) {
 	        			getOrCreateCell(entry.getKey()).add(entry.getValue());
 	        		}
 	        	}
         	} 
+        	return true;
         }
         
 		public boolean isTotal() {

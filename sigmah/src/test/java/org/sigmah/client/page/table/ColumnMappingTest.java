@@ -44,7 +44,7 @@ public class ColumnMappingTest {
 		
 		PivotTableElement element = new PivotTableElement();
 		
-		ColumnMapping mapping = new ColumnMapping(data, new HeaderDecoratorStub());
+		ColumnMapping mapping = new ColumnMapping(data, new ProviderStub(), new HeaderDecoratorStub());
 		
 										 /* row, 	col, 	rowSpan, 	colSpan */
 		assertGroupPos(mapping, kinshasa, 	0, 		1, 		3, 			1);
@@ -80,6 +80,15 @@ public class ColumnMappingTest {
 
 	private EntityCategory entity(int id, String label) {
 		return new EntityCategory(id, label);
+	}
+	
+	private static class ProviderStub implements PivotCellRendererProvider {
+
+		@Override
+		public PivotCellRenderer getRendererForColumn(Axis column) {
+			return null;
+		}
+		
 	}
 	
 	private static class HeaderDecoratorStub implements HeaderDecorator {

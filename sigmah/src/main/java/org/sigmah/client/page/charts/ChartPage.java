@@ -166,7 +166,7 @@ public class ChartPage extends LayoutContainer implements ChartPagePresenter.Vie
         south.setSplit(true);
         south.setMargins(new Margins(5, 0, 0, 0));
 
-        gridPanel = new PivotGridPanel(eventBus);
+        gridPanel = new PivotGridPanel(eventBus, service);
         gridPanel.setHeading("Table");
 
         center.add(gridPanel, south);

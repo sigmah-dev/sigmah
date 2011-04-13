@@ -5,43 +5,28 @@
 
 package org.sigmah.server.dao.hibernate;
 
+import com.allen_sauer.gwt.log.client.Log;
+import com.google.inject.Inject;
+import org.hibernate.Session;
+import org.hibernate.ejb.HibernateEntityManager;
+import org.hibernate.jdbc.Work;
+import org.sigmah.server.dao.PivotDAO;
+import org.sigmah.server.dao.PivotDAO.Bucket;
+import org.sigmah.server.domain.AggregationMethod;
+import org.sigmah.shared.dao.Filter;
+import org.sigmah.shared.dao.SQLDialect;
+import org.sigmah.shared.report.content.*;
+import org.sigmah.shared.report.model.*;
+
+import javax.persistence.EntityManager;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-
-import javax.persistence.EntityManager;
-
-import org.hibernate.Session;
-import org.hibernate.ejb.HibernateEntityManager;
-import org.hibernate.jdbc.Work;
-import org.sigmah.server.dao.PivotDAO;
-import org.sigmah.server.domain.AggregationMethod;
-import org.sigmah.shared.dao.Filter;
-import org.sigmah.shared.dao.SQLDialect;
-import org.sigmah.shared.dao.SqlQueryBuilder;
-import org.sigmah.shared.dao.SqlQueryBuilder.ResultHandler;
-import org.sigmah.shared.report.content.DimensionCategory;
-import org.sigmah.shared.report.content.EntityCategory;
-import org.sigmah.shared.report.content.MonthCategory;
-import org.sigmah.shared.report.content.QuarterCategory;
-import org.sigmah.shared.report.content.SimpleCategory;
-import org.sigmah.shared.report.content.YearCategory;
-import org.sigmah.shared.report.model.AdminDimension;
-import org.sigmah.shared.report.model.AttributeGroupDimension;
-import org.sigmah.shared.report.model.DateDimension;
-import org.sigmah.shared.report.model.DateUnit;
-import org.sigmah.shared.report.model.Dimension;
-import org.sigmah.shared.report.model.DimensionType;
-
-import com.allen_sauer.gwt.log.client.Log;
-import com.google.inject.Inject;
 
 
 /**
@@ -69,19 +54,22 @@ public class PivotHibernateDAO implements PivotDAO {
 		public void bundle(ResultSet rs, Bucket bucket) throws SQLException;
 	}
 
+<<<<<<< .mine
 	private static class SumAndAverageBundler implements Bundler {
 		public void bundle(ResultSet rs, Bucket bucket) throws SQLException {
 			int aggMethod = rs.getInt(1);
+=======
+    private static class SumAndAverageBundler implements Bundler {
+        @Override
+        public void bundle(ResultSet rs, Bucket bucket) throws SQLException {
+            int aggMethod = rs.getInt(1);
+>>>>>>> .r781
 
 			double value;
 			if (aggMethod == AggregationMethod.Sum.code()) {
 				value = rs.getDouble(2);
 			} else if (aggMethod == AggregationMethod.Average.code()) {
 				value = rs.getDouble(3);
-			} else if( aggMethod == AggregationMethod.Multinomial.code()) {
-				// right now we do not expect any aggregated values at this level
-				// this will need to be expanded to a second query to go further than this
-				value = rs.getDouble(2);
 			} else {
 				assert false : "Database has a weird value for aggregation method = " + aggMethod;
 			value = rs.getDouble(2);
@@ -89,15 +77,23 @@ public class PivotHibernateDAO implements PivotDAO {
 
 			bucket.setDoubleValue(value);
 			bucket.setCount(rs.getInt(4));
-			bucket.setAggregation(aggMethod);
 		}
 	}
 
+<<<<<<< .mine
 	private static class SiteCountBundler implements Bundler {
 		public void bundle(ResultSet rs, Bucket bucket) throws SQLException {
 			bucket.setDoubleValue((double) rs.getInt(1));
 		}
 	}
+=======
+    private static class SiteCountBundler implements Bundler {
+        @Override
+        public void bundle(ResultSet rs, Bucket bucket) throws SQLException {
+            bucket.setDoubleValue((double) rs.getInt(1));
+        }
+    }
+>>>>>>> .r781
 
 	private static class SimpleBundler implements Bundler {
 		private final Dimension dimension;
@@ -108,13 +104,18 @@ public class PivotHibernateDAO implements PivotDAO {
 			this.dimension = dimension;
 		}
 
+<<<<<<< .mine
 		public void bundle(ResultSet rs, Bucket bucket) throws SQLException {
-			String label = rs.getString(labelColumnIndex);
-			if(label != null && !label.trim().isEmpty()) {
-				bucket.setCategory(dimension, new SimpleCategory(label));
-			}
+			bucket.setCategory(dimension, new SimpleCategory(rs.getString(labelColumnIndex)));
 		}
 	}
+=======
+        @Override
+        public void bundle(ResultSet rs, Bucket bucket) throws SQLException {
+            bucket.setCategory(dimension, new SimpleCategory(rs.getString(labelColumnIndex)));
+        }
+    }
+>>>>>>> .r781
 
 
 	private static class AttributeBundler implements Bundler {
@@ -128,7 +129,12 @@ public class PivotHibernateDAO implements PivotDAO {
 			this.attributeCount = attributeCount;
 		}
 
+<<<<<<< .mine
 		public void bundle(ResultSet rs, Bucket bucket) throws SQLException {
+=======
+        @Override
+        public void bundle(ResultSet rs, Bucket bucket) throws SQLException {
+>>>>>>> .r781
 
 			StringBuilder buff = new StringBuilder();
 			for (int i = labelColumnIndex; i < labelColumnIndex + attributeCount; i++) {
@@ -153,15 +159,22 @@ public class PivotHibernateDAO implements PivotDAO {
 			this.dimension = key;
 		}
 
+<<<<<<< .mine
 		public void bundle(ResultSet rs, Bucket bucket) throws SQLException {
-			int entityId = rs.getInt(idColumnIndex);
-			if(!rs.wasNull()) {	
-				bucket.setCategory(dimension, new EntityCategory(
-						entityId,
-						rs.getString(idColumnIndex + 1)));
-			}
+			bucket.setCategory(dimension, new EntityCategory(
+					rs.getInt(idColumnIndex),
+					rs.getString(idColumnIndex + 1)));
 		}
 	}
+=======
+        @Override
+        public void bundle(ResultSet rs, Bucket bucket) throws SQLException {
+            bucket.setCategory(dimension, new EntityCategory(
+                    rs.getInt(idColumnIndex),
+                    rs.getString(idColumnIndex + 1)));
+        }
+    }
+>>>>>>> .r781
 
 
 	private static class OrderedEntityBundler implements Bundler {
@@ -173,16 +186,24 @@ public class PivotHibernateDAO implements PivotDAO {
 			this.dimension = dimension;
 		}
 
+<<<<<<< .mine
 		public void bundle(ResultSet rs, Bucket bucket) throws SQLException {
-			int entityId = rs.getInt(idColumnIndex);
-			if(!rs.wasNull()) {
-				bucket.setCategory(dimension, new EntityCategory(
-						entityId,
-						rs.getString(idColumnIndex + 1),
-						rs.getInt(idColumnIndex + 2)));
-			}
+			bucket.setCategory(dimension, new EntityCategory(
+					rs.getInt(idColumnIndex),
+					rs.getString(idColumnIndex + 1),
+					rs.getInt(idColumnIndex + 2)));
 		}
 	}
+=======
+        @Override
+        public void bundle(ResultSet rs, Bucket bucket) throws SQLException {
+            bucket.setCategory(dimension, new EntityCategory(
+                    rs.getInt(idColumnIndex),
+                    rs.getString(idColumnIndex + 1),
+                    rs.getInt(idColumnIndex + 2)));
+        }
+    }
+>>>>>>> .r781
 
 	private static class YearBundler implements Bundler {
 		private final Dimension dimension;
@@ -237,17 +258,28 @@ public class PivotHibernateDAO implements PivotDAO {
 		}
 	}
 
+<<<<<<< .mine
 	public List<Bucket> aggregate(int userId, Filter filter, Set<Dimension> dimensions) {
 		return aggregate(userId, filter, dimensions, false);
 	}
+=======
+            bucket.setCategory(dimension, new QuarterCategory(year, quarter));
+        }
+    }
+    @Override
+    public List<Bucket> aggregate(int userId, Filter filter, Set<Dimension> dimensions) {
+    	return aggregate(userId, filter, dimensions, false);
+    }
+>>>>>>> .r781
 
+<<<<<<< .mine
 	public List<Bucket> aggregate(int userId, Filter filter, Set<Dimension> dimensions, boolean showEmptyCells) {
 		final List<Bucket> buckets = new ArrayList<Bucket>();
-		
-		
-		if(dimensions.contains(new Dimension(DimensionType.Site))) {
-			
-		}
+=======
+    @Override
+    public List<Bucket> aggregate(int userId, Filter filter, Set<Dimension> dimensions, boolean showEmptyCells) {
+        final List<Bucket> buckets = new ArrayList<Bucket>();
+>>>>>>> .r781
 
 		Query query1 = new Query(userId, filter, dimensions, buckets);
 		query1.queryForSumAndAverages();
@@ -284,6 +316,7 @@ public class PivotHibernateDAO implements PivotDAO {
 
 	private class Query {
 
+<<<<<<< .mine
 		private int userId;
 		private Filter filter;
 		private Set<Dimension> dimensions;
@@ -297,6 +330,23 @@ public class PivotHibernateDAO implements PivotDAO {
 			this.dimensions = dimensions;
 			this.buckets = buckets;
 		}
+=======
+        	where.append(" 1 = 1 ");
+        	
+        } else {
+	        
+	        from.append(" IndicatorValue V " +
+	                "LEFT JOIN ReportingPeriod Period ON (Period.ReportingPeriodId=V.ReportingPeriodId) " +
+	                "LEFT JOIN Indicator ON (Indicator.IndicatorId = V.IndicatorId) " +
+	                "LEFT JOIN Site ON (Period.SiteId = Site.SiteId) " +
+	                "LEFT JOIN Partner ON (Site.PartnerId = Partner.PartnerId) " +
+	                "LEFT JOIN Location ON (Location.LocationId = Site.LocationId) " +
+	        		"LEFT JOIN UserDatabase ON (Site.DatabaseId = UserDatabase.DatabaseId) " +
+	                "LEFT JOIN Activity ON (Activity.ActivityId = Site.ActivityId) ");
+	        
+        	// Retrieve only AVERAGES (of any value), and SUMs (non zero)
+            where.append("( (V.value <> 0 and Indicator.Aggregation=0) or Indicator.Aggregation=1) ");
+>>>>>>> .r781
 
 		private int nextColumnIndex;
 		private final StringBuilder from = new StringBuilder();
@@ -324,8 +374,8 @@ public class PivotHibernateDAO implements PivotDAO {
 					 "LEFT JOIN UserDatabase ON (Site.DatabaseId = UserDatabase.DatabaseId) " +
 					 "LEFT JOIN Activity ON (Activity.ActivityId = Site.ActivityId) ");
 
-			 // Retrieve only AVERAGES (of any value), SUMs (non zero), And Multinomial (value labels)
-			 where.append("( (V.value <> 0 and Indicator.Aggregation=0) or Indicator.Aggregation=1 or Indicator.Aggregation=3) ");
+			 // Retrieve only AVERAGES (of any value), and SUMs (non zero)
+			 where.append("( (V.value <> 0 and Indicator.Aggregation=0) or Indicator.Aggregation=1) ");
 			 /*
 			  * First add the indicator to the query: we can't aggregate values from different
 			  * indicators so this is a must
@@ -386,11 +436,11 @@ public class PivotHibernateDAO implements PivotDAO {
 			 		"LEFT JOIN Location ON (Location.LocationId = Site.LocationId) " +
 			 		"LEFT JOIN Indicator ON (Indicator.DatabaseId = UserDatabase.DatabaseId) ");
 			
-			 where.append(" 1=1 ");
+			 where.append(" 1 ");
 			 nextColumnIndex = 1;
 			 buildAndExecuteRestOfQuery();
 		}
-		
+
 
 		protected void buildAndExecuteRestOfQuery() {
 
@@ -535,7 +585,14 @@ public class PivotHibernateDAO implements PivotDAO {
 			}
 
 
+<<<<<<< .mine
 			appendDimensionRestrictions(where, filter, parameters);
+=======
+        session.doWork(new Work() {
+            @Override
+            public void execute(Connection connection) throws SQLException {
+                PreparedStatement stmt = connection.prepareStatement(sql.toString());
+>>>>>>> .r781
 
 			if(columns.charAt(0) == ',') {
 				columns.setCharAt(0, ' ');
@@ -572,6 +629,7 @@ public class PivotHibernateDAO implements PivotDAO {
 				}
 			});
 		}
+
 
 
 		private List<Integer> queryAttributeIds(AttributeGroupDimension attrGroupDim) {
@@ -637,4 +695,5 @@ public class PivotHibernateDAO implements PivotDAO {
 			parameters.add(id);
 		}
 	}
+
 }

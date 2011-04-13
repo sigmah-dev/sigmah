@@ -135,6 +135,7 @@ public class HistorySelector implements HasValue<PivotLayout> {
 	public void setValue(PivotLayout value, boolean fireEvents) {
 		ValueChangeEvent.fireIfNotEqual(this, this.value, value);
 		this.value = value;
+		enableButtons();
 	}
 
 	public void setValueByIndex(int i) {
