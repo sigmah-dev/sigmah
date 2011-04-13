@@ -79,7 +79,7 @@ public class SigmahAuthDictionaryServlet extends HttpServlet {
 
         } else {
             final HashMap<String, String> parameters = new HashMap<String, String>();
-            parameters.put(SigmahAuthProvider.SHOW_MENUS, String.valueOf(true));
+            parameters.put(SigmahAuthProvider.SHOW_MENUS, String.valueOf(false));
 
             final String authToken = getAuthToken(req.getCookies());
             if (authToken != null) {
