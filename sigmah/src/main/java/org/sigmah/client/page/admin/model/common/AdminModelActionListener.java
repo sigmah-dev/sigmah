@@ -243,7 +243,7 @@ public class AdminModelActionListener implements ActionListener {
 
 		importDialog.setLayout(new FitLayout());
 		importDialog.setSize(400, 100);
-		importDialog.setButtons(Dialog.YESNO);
+		importDialog.setButtons(Dialog.OKCANCEL);
 
 		final FormPanel importPanel = new FormPanel();
 		importPanel.setBodyBorder(false);
@@ -299,7 +299,7 @@ public class AdminModelActionListener implements ActionListener {
 		});
 		importDialog.add(importPanel);
 
-		importDialog.getButtonById(Dialog.NO).addSelectionListener(
+		importDialog.getButtonById(Dialog.CANCEL).addSelectionListener(
 				new SelectionListener<ButtonEvent>() {
 					@Override
 					public void componentSelected(ButtonEvent ce) {
@@ -307,7 +307,7 @@ public class AdminModelActionListener implements ActionListener {
 					}
 				});
 
-		importDialog.getButtonById(Dialog.YES).addSelectionListener(
+		importDialog.getButtonById(Dialog.OK).addSelectionListener(
 				new SelectionListener<ButtonEvent>() {
 					@Override
 					public void componentSelected(ButtonEvent ce) {

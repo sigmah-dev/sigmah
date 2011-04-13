@@ -239,7 +239,7 @@ public class AdminProjectModelsView extends View {
 		
 		Button buttonImport = new Button(I18N.CONSTANTS.importItem());
 		buttonImport.setItemId(UIActions.importModel);
-		buttonImport.addListener(Events.OnClick, new Listener<ButtonEvent>() {
+		buttonImport.addListener(Events.Select, new Listener<ButtonEvent>() {
 
 			@Override
 			public void handleEvent(ButtonEvent be) {
