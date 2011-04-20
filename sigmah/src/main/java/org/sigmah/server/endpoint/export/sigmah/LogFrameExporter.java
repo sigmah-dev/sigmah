@@ -100,7 +100,7 @@ public class LogFrameExporter extends Exporter {
             final WritableSheet sheet = workbook.createSheet(labels.get(ProjectLogFrameLabels.KEY_LOG_FRAME), 0);
 
             if (logFrame != null) {
-                writeLogFrame(sheet, logFrame, labels);
+                writeLogFrame(sheet, logFrame, labels,project);
             }
 
             // Writes workbook.
@@ -125,10 +125,12 @@ public class LogFrameExporter extends Exporter {
      *            The log frame.
      * @param labels
      *            The labels.
+     * @param project 
+     *            The project 
      * @throws WriteException
      *             If an error occurs.
      */
-    private void writeLogFrame(WritableSheet sheet, LogFrame logFrame, Map<String, String> labels)
+    private void writeLogFrame(WritableSheet sheet, LogFrame logFrame, Map<String, String> labels, Project project)
             throws WriteException {
 
         final LogFrameModel logFrameModel = logFrame.getLogFrameModel();
@@ -209,7 +211,8 @@ public class LogFrameExporter extends Exporter {
         // Title and objective.
         // -----------
 
-        label = new Label(1, 0, logFrame.getTitle());
+
+        label = new Label(1, 0, project.getFullName());
         label.setCellFormat(contentFormat);
         sheet.addCell(label);
 

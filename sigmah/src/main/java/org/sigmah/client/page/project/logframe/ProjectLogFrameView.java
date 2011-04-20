@@ -39,8 +39,8 @@ public class ProjectLogFrameView extends ProjectLogFramePresenter.View {
     private Button excelButton;
     private FormPanel excelForm;
 
-    // Textboxes.
-    private TextField<String> titleTextBox;
+    //Title lable
+    private Label titleContentLabel;
     private TextField<String> mainObjectiveTextBox;
 
     // Grid.
@@ -86,7 +86,7 @@ public class ProjectLogFrameView extends ProjectLogFramePresenter.View {
 
         setTopComponent(toolBar);
         add(titlePanel, new VBoxLayoutData(4, 8, 0, 8));
-        add(mainObjectivePanel, new VBoxLayoutData(4, 8, 4, 8));
+        add(mainObjectivePanel, new VBoxLayoutData(0, 8, 4, 8));
         add(logFrameGrid.getWidget(), new VBoxLayoutData(0, 8, 0, 8));
     }
 
@@ -98,16 +98,16 @@ public class ProjectLogFrameView extends ProjectLogFramePresenter.View {
     private ContentPanel buildTitlePanel() {
 
         // Title label.
-        final Label titleLabel = new Label(I18N.CONSTANTS.logFrameActionTitle());
+        final Label titleLabel = new Label(I18N.CONSTANTS.logFrameActionTitle()+":");
         titleLabel.addStyleName("flexibility-element-label");
-        titleLabel.setLabelFor("logFrameTitleBox-input");
         titleLabel.setWidth(100);
 
-        // Title box.
-        titleTextBox = new TextField<String>();
-        titleTextBox.addStyleName("flexibility-text-field");
-        titleTextBox.setId("logFrameTitleBox");
+        
 
+        // Title label content.
+       titleContentLabel = new Label();
+       titleContentLabel.setStyleName("flexibility-element-label");
+       
         // Title panel.
         final ContentPanel titlePanel = new ContentPanel();
         titlePanel.setBodyBorder(false);
@@ -115,9 +115,9 @@ public class ProjectLogFrameView extends ProjectLogFramePresenter.View {
         titlePanel.setLayout(new HBoxLayout());
 
         titlePanel.add(titleLabel, new HBoxLayoutData(new Margins(4, 0, 0, 0)));
-        final HBoxLayoutData flex = new HBoxLayoutData(new Margins(0, 0, 0, 5));
+        final HBoxLayoutData flex = new HBoxLayoutData(new Margins(4, 0, 0, 5));
         flex.setFlex(1);
-        titlePanel.add(titleTextBox, flex);
+        titlePanel.add(titleContentLabel, flex);
 
         return titlePanel;
     }
@@ -230,12 +230,12 @@ public class ProjectLogFrameView extends ProjectLogFramePresenter.View {
         return excelForm;
     }
 
-    @Override
-    public TextField<String> getLogFrameTitleTextBox() {
-        return titleTextBox;
+    
+  @Override
+    public Label getLogFrameTitleContentLabel() {
+        return titleContentLabel;
     }
 
-    @Override
     public TextField<String> getLogFrameMainObjectiveTextBox() {
         return mainObjectiveTextBox;
     }

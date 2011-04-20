@@ -17,6 +17,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.Filter;
 import org.sigmah.shared.domain.Project;
 
@@ -147,6 +148,8 @@ public class LogFrame implements Serializable {
     }
 
     @OneToMany(mappedBy = "parentLogFrame", cascade = CascadeType.ALL)
+    //Use this hibernate specific annotation to make LogFrame Entity delete its child
+    @Cascade(value=org.hibernate.annotations.CascadeType.DELETE_ORPHAN) 
     public List<LogFrameGroup> getGroups() {
         return groups;
     }

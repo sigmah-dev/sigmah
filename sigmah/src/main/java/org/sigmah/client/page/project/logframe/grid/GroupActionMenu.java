@@ -13,106 +13,183 @@ import com.google.gwt.user.client.ui.AbstractImagePrototype;
  * @author tmi
  * 
  */
+/**
+ * @author tmi
+ *
+ */
+
 public abstract class GroupActionMenu extends ActionsMenu {
 
-    /**
-     * The row.
-     */
-    private final RowsGroup<?> group;
+	/**
+	 * The row.
+	 */
+	private final RowsGroup<?> group;
 
-    /**
-     * Builds this menu.
-     * 
-     * @param view
-     *            The view where this menu is displayed.
-     * @param group
-     *            The group managed by this menu.
-     */
-    public GroupActionMenu(FlexTableView view, RowsGroup<?> group) {
-        super(view);
+	/**
+	 * Builds this menu.
+	 * 
+	 * @param view
+	 *            The view where this menu is displayed.
+	 * @param group
+	 *            The group managed by this menu.
+	 */
+	public GroupActionMenu(FlexTableView view, RowsGroup<?> group) {
+		super(view);
 
-        this.group = group;
+		this.group = group;
 
-        // Rename action.
-        final MenuItem renameMenuItem = createRenameAction();
+		// Rename action.
+		final MenuItem renameMenuItem = createRenameAction();
 
-        // Menu.
-        menu.add(renameMenuItem);
-    }
+		// Menu.
+		menu.add(renameMenuItem);
 
-    /**
-     * Builds and returns the rename action.
-     * 
-     * @return The rename action.
-     */
-    private MenuItem createRenameAction() {
+		// Remove action.
+		final MenuItem removeMenuItem = createRemoveAction();
 
-        final MenuAction action = new MenuAction() {
+		// Add remove menu
+		menu.add(removeMenuItem);
+	}
 
-            @Override
-            public void perform() {
+	/**
+	 * Create a menu to remove a log group from a view
+	 * 
+	 * @return A MenuItem
+	 * 
+	 * @author HUZHE
+	 */
+	private MenuItem createRemoveAction() {
 
-                // Tries to rename the element.
-                beforeRename(new AsyncCallback<String>() {
+		final MenuAction action = new MenuAction() {
 
-                    @Override
-                    public void onFailure(Throwable caught) {
-                        // nothing.
-                    }
+			@Override
+			public String getText() {
+				return I18N.CONSTANTS.logFrameActionRemove();
+			}
 
-                    @Override
-                    public void onSuccess(String result) {
-                        view.refreshGroupWidget(group);
-                    }
-                });
-            }
+			@Override
+			public AbstractImagePrototype getIcon() {
+				return IconImageBundle.ICONS.delete();
+			}
 
-            @Override
-            public String getText() {
-                return I18N.CONSTANTS.logFrameActionRename();
-            }
+			@Override
+			public String canBePerformed() {
 
-            @Override
-            public AbstractImagePrototype getIcon() {
-                return IconImageBundle.ICONS.rename();
-            }
+				final boolean canBeRemoved = canBeRemoved();
 
-            @Override
-            public String canBePerformed() {
+				if (canBeRemoved) {
+					return null;
+				} else {
+					return I18N.CONSTANTS.logFrameActionDeleteUnavailable();
+				}
+			}
 
-                final boolean canBeRenamed = canBeRemaned();
+			@Override
+			public void perform() {
 
-                if (canBeRenamed) {
-                    return null;
-                } else {
-                    return I18N.CONSTANTS.logFrameActionRenameUnavailable();
-                }
-            }
-        };
+				if (beforeRemove()) {
+					// remove from the view in order to refresh
+					view.removeGroup(group);
+				}
+			}
 
-        action.setInactivationPolicy(inactivationPolicy);
+		};
 
-        // Adds it locally.
-        actions.add(action);
+		// Add the remove action to the action list
+		actions.add(action);
+		return action.getMenuItem();
+	}
 
-        return action.getMenuItem();
-    }
+	/**
+	 * Builds and returns the rename action.
+	 * 
+	 * @return The rename action.
+	 */
+	private MenuItem createRenameAction() {
 
-    /**
-     * Returns if the element managed by this menu can be renamed.
-     * 
-     * @return If the element can be renamed.
-     */
-    public abstract boolean canBeRemaned();
+		final MenuAction action = new MenuAction() {
 
-    /**
-     * Method called just before renaming the element managed by this menu. If
-     * this method returns <code>true</code>, the corresponding group will be
-     * renamed in the view. Otherwise, this method has no effect.
-     * 
-     * @param callback
-     *            Called after the group has been renamed.
-     */
-    public abstract void beforeRename(AsyncCallback<String> callback);
+			@Override
+			public void perform() {
+
+				// Tries to rename the element.
+				beforeRename(new AsyncCallback<String>() {
+
+					@Override
+					public void onFailure(Throwable caught) {
+						// nothing.
+					}
+
+					@Override
+					public void onSuccess(String result) {
+						view.refreshGroupWidget(group);
+					}
+				});
+			}
+
+			@Override
+			public String getText() {
+				return I18N.CONSTANTS.logFrameActionRename();
+			}
+
+			@Override
+			public AbstractImagePrototype getIcon() {
+				return IconImageBundle.ICONS.rename();
+			}
+
+			@Override
+			public String canBePerformed() {
+
+				final boolean canBeRenamed = canBeRemaned();
+
+				if (canBeRenamed) {
+					return null;
+				} else {
+					return I18N.CONSTANTS.logFrameActionRenameUnavailable();
+				}
+			}
+		};
+
+		action.setInactivationPolicy(inactivationPolicy);
+
+		// Adds it locally.
+		actions.add(action);
+
+		return action.getMenuItem();
+	}
+
+	/**
+	 * Returns if the element managed by this menu can be renamed.
+	 * 
+	 * @return If the element can be renamed.
+	 */
+	public abstract boolean canBeRemaned();
+
+	/**
+	 * Method called just before renaming the element managed by this menu. If
+	 * this method returns <code>true</code>, the corresponding group will be
+	 * renamed in the view. Otherwise, this method has no effect.
+	 * 
+	 * @param callback
+	 *            Called after the group has been renamed.
+	 */
+	public abstract void beforeRename(AsyncCallback<String> callback);
+
+	/**
+	 * Returns if the element managed by this menu can be removed.
+	 * 
+	 * @return If the element can be removed.
+	 * 
+	 * @author HUZHE
+	 */
+	public abstract boolean canBeRemoved();
+
+	/**
+	 * @param callback
+	 *            Called after the group has been removed
+	 * 
+	 * @author HUZHE
+	 */
+	public abstract boolean beforeRemove();
 
 }

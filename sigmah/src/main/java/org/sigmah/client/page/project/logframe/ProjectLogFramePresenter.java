@@ -26,6 +26,7 @@ import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Dialog;
+import com.extjs.gxt.ui.client.widget.Label;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
@@ -63,8 +64,8 @@ public class ProjectLogFramePresenter implements SubPresenter {
 
         public abstract FormPanel getExcelExportForm();
 
-        public abstract TextField<String> getLogFrameTitleTextBox();
-
+        public abstract Label getLogFrameTitleContentLabel();
+        
         public abstract TextField<String> getLogFrameMainObjectiveTextBox();
     }
 
@@ -90,7 +91,15 @@ public class ProjectLogFramePresenter implements SubPresenter {
      */
     private final ProjectPresenter projectPresenter;
 
-    /**
+    public ProjectDTO getCurrentProjectDTO() {
+		return currentProjectDTO;
+	}
+
+	public void setCurrentProjectDTO(ProjectDTO currentProjectDTO) {
+		this.currentProjectDTO = currentProjectDTO;
+	}
+
+	/**
      * The current displayed project.
      */
     private ProjectDTO currentProjectDTO;
@@ -102,18 +111,18 @@ public class ProjectLogFramePresenter implements SubPresenter {
 
     public ProjectLogFramePresenter(Dispatcher dispatcher, Authentication authentication,
             ProjectPresenter projectPresenter) {
+    	
         this.dispatcher = dispatcher;
         this.authentication = authentication;
         this.projectPresenter = projectPresenter;
-        this.currentProjectDTO = projectPresenter.getCurrentProjectDTO();
+        this.currentProjectDTO = projectPresenter.getCurrentProjectDTO();      
     }
 
     @Override
     public Component getView() {
-
+   	
         if (view == null) {
             view = new ProjectLogFrameView();
-
             if (projectPresenter.getCurrentProjectDTO().getCurrentAmendment() == null)
                 logFrame = projectPresenter.getCurrentProjectDTO().getLogFrameDTO();
             else
@@ -123,7 +132,7 @@ public class ProjectLogFramePresenter implements SubPresenter {
             fillAndInit();
             addListeners();
         }
-
+            
         // If the current project has changed, clear the view
         if (projectPresenter.getCurrentProjectDTO() != currentProjectDTO) {
             if (projectPresenter.getCurrentProjectDTO().getCurrentAmendment() == null)
@@ -145,7 +154,10 @@ public class ProjectLogFramePresenter implements SubPresenter {
 
     @Override
     public void viewDidAppear() {
-        // nothing to do.
+    	
+        // Make sure when the currentProjectDTO's title is changed, reset the log title's value
+    		 view.getLogFrameTitleContentLabel().setText(projectPresenter.getCurrentProjectDTO().getFullName());        
+		
     }
 
     /**
@@ -159,18 +171,6 @@ public class ProjectLogFramePresenter implements SubPresenter {
             @Override
             public void logFrameEdited() {
                 view.getSaveButton().setEnabled(true);
-            }
-        });
-
-        // Log frame title box listener.
-        view.getLogFrameTitleTextBox().addListener(Events.OnKeyUp, new Listener<BaseEvent>() {
-
-            @Override
-            public void handleEvent(BaseEvent be) {
-                if (logFrame != null) {
-                    logFrame.setTitle(view.getLogFrameTitleTextBox().getValue());
-                    view.getSaveButton().setEnabled(true);
-                }
             }
         });
 
@@ -325,18 +325,16 @@ public class ProjectLogFramePresenter implements SubPresenter {
      */
     private void fillAndInit() {
 
+        // Fill the log frame title with the project's title
+        view.getLogFrameTitleContentLabel().setText(currentProjectDTO.getFullName());
+        
         if (logFrame != null) {
-
-            // Fill the log frame title.
-            view.getLogFrameTitleTextBox().setValue(logFrame.getTitle());
-
             // Fill the log frame main objective.
             view.getLogFrameMainObjectiveTextBox().setValue(logFrame.getMainObjective());
 
             final boolean editable = isEditable();
 
             if (!editable) {
-                view.getLogFrameTitleTextBox().setEnabled(false);
                 view.getLogFrameMainObjectiveTextBox().setEnabled(false);
             }
 
@@ -351,4 +349,7 @@ public class ProjectLogFramePresenter implements SubPresenter {
                 isEditable() && logFrameIdCopySource != null && currentProjectDTO.getCurrentAmendment() == null);
         view.getExcelExportButton().setEnabled(false);
     }
+    
+    
+   
 }
