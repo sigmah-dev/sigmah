@@ -193,7 +193,7 @@ public class AdminProjectModelsView extends View {
 					int colIndex, ListStore<ProjectModelDTOLight> store,
 					Grid<ProjectModelDTOLight> grid) {
 
-				Button buttonCopy = new Button(I18N.CONSTANTS.copy());
+				Button buttonCopy = new Button(I18N.CONSTANTS.adminModelCopy());
 				buttonCopy.setItemId(UIActions.copyModel);
 				buttonCopy.addListener(Events.OnClick,
 						new Listener<ButtonEvent>() {
