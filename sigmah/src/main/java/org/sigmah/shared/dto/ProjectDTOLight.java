@@ -171,6 +171,15 @@ public class ProjectDTOLight extends DeRpcSafeBaseTreeModel implements EntityDTO
         set("receivedBudget", receivedBudget);
     }
 
+    //Activities advancement
+    public Integer getActivityAdvancement() {
+        return get("activityAdvancement");
+    }
+
+    public void setActivityAdvancement(Integer activityAdvancement) {
+        set("activityAdvancement", activityAdvancement);
+    }   
+    
     // Org Unit
     public String getOrgUnitName() {
         return get("orgUnitName");

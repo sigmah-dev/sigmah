@@ -5,16 +5,10 @@
 
 package org.sigmah.shared.command;
 
-import java.util.Date;
-
 import org.sigmah.shared.command.result.ProjectReportListResult;
-import org.sigmah.shared.domain.report.ProjectReport;
-
-import com.extjs.gxt.ui.client.data.BaseModelData;
-import org.sigmah.shared.dto.value.ListableValue;
 
 /**
- * Request to retrieves the reports attached to a given project.
+ * Request to retrieves the reports attached to a given project or the given orgUnit.
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
 public class GetProjectReports implements Command<ProjectReportListResult> {
@@ -23,12 +17,14 @@ public class GetProjectReports implements Command<ProjectReportListResult> {
 
     private Integer projectId;
     private Integer reportId;
+    private Integer orgUnitId;
 
     public GetProjectReports() {
     }
 
-    public GetProjectReports(Integer projectId) {
+    public GetProjectReports(Integer projectId, Integer orgUnitId) {
         this.projectId = projectId;
+        this.orgUnitId = orgUnitId;
     }
 
     public Integer getProjectId() {
@@ -47,4 +43,11 @@ public class GetProjectReports implements Command<ProjectReportListResult> {
         this.reportId = reportId;
     }
 
+	public Integer getOrgUnitId() {
+		return orgUnitId;
+	}
+
+	public void setOrgUnitId(Integer orgUnitId) {
+		this.orgUnitId = orgUnitId;
+	}
 }

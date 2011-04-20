@@ -16,6 +16,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sigmah.client.page.project.logframe.ProjectLogFramePresenter;
 import org.sigmah.server.dao.Transactional;
+import org.sigmah.shared.domain.Amendment;
 import org.sigmah.shared.domain.Country;
 import org.sigmah.shared.domain.OrgUnit;
 import org.sigmah.shared.domain.Phase;
@@ -33,7 +34,6 @@ import org.sigmah.shared.domain.reminder.MonitoredPointList;
 import org.sigmah.shared.domain.reminder.ReminderList;
 
 import com.google.inject.Inject;
-import org.sigmah.shared.domain.Amendment;
 
 public class ProjectPolicy implements EntityPolicy<Project> {
 
@@ -81,16 +81,20 @@ public class ProjectPolicy implements EntityPolicy<Project> {
 
         // Reminders.
         project.setRemindersList(new ReminderList());
-
-        // Org unit.
-        final OrgUnit orgunit = em.find(OrgUnit.class, properties.<Integer> get("orgUnitId"));
-        project.getPartners().add(orgunit);
-
+        OrgUnit orgunit = null;
+        //No organizational unit for the testProjects
+        if(properties.get("orgUnitId")!=null){
+        	// Org unit.
+        	int orgUnitId = Integer.parseInt(""+properties.get("orgUnitId"));
+        	orgunit = em.find(OrgUnit.class, orgUnitId);
+            project.getPartners().add(orgunit);
+        }      
+        
         // Country
         final Country country = getProjectCountry(orgunit);
         project.setCountry(country);
-
-        // Amendment
+       
+          // Amendment
         project.setAmendmentState(Amendment.State.DRAFT);
         project.setAmendmentVersion(1);
         project.setAmendmentRevision(1);

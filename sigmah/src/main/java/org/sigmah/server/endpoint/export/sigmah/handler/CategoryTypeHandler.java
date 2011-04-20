@@ -9,9 +9,12 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import javax.persistence.EntityManager;
+
+import org.h2.util.StringUtils;
 import org.sigmah.server.domain.Authentication;
 import org.sigmah.server.endpoint.export.sigmah.ExportException;
 import org.sigmah.shared.domain.category.CategoryElement;
+import org.sigmah.shared.domain.category.CategoryIcon;
 import org.sigmah.shared.domain.category.CategoryType;
 
 /**
@@ -97,18 +100,22 @@ public class CategoryTypeHandler implements ModelHandler {
 		modelesImport.add(categoryType);
 		CategoryType key = categoryType;
 		List<CategoryElement> categoryElements = categoryType.getElements();
-		//Save as a new entry the category type if it doesn't exist in the database
-		//(without the category elements)
-		if(em.find(CategoryType.class, categoryType.getId())==null){
-			categoryType.setId(null);
-			categoryType.setElements(null);
-			em.persist(categoryType);
-		}else{// Update it (without the category elements)
+		
+		//Find the database category corresponding to the imported one
+		CategoryType hibernateCategoryType = em.find(CategoryType.class, categoryType.getId());
+		
+		//Compare the two category types
+		if(isEqualsCategoryTypes(categoryType, hibernateCategoryType)){// Update it (without the category elements)
 			categoryType.setElements(null);
 			em.merge(categoryType);
+		}else{			
+			categoryType.setId(null);//Save the new category type (without the category elements)
+			categoryType.setElements(null);
+			em.persist(categoryType);
 		}
+		
+		//Save or update the category elements
 		if(categoryElements!=null){
-			//Save or update the category elements
 			for(CategoryElement element : categoryElements){
 				element.setParentType(categoryType);
 				saveOrUpdateCategoryElement(element, em);
@@ -116,6 +123,7 @@ public class CategoryTypeHandler implements ModelHandler {
 			categoryType.setElements(categoryElements);
 			em.merge(categoryType);
 		}
+		
 		//Add the category type in the map of elements has been handled
 		modelesReset.put(key, categoryType);		
 	}
@@ -135,64 +143,97 @@ public class CategoryTypeHandler implements ModelHandler {
 		//Test if the category isn't being transformed
 		if (!modelesImport.contains(categoryElement)) {
 			modelesImport.add(categoryElement);
+			
 			//Test if the category hasn't been transformed
 			if (!modelesReset.containsKey(categoryElement)) {
 				CategoryElement key = categoryElement;
-				//If the imported category doesn't exist in the database it's id is set to null
-				if (em.find(CategoryElement.class, categoryElement.getId()) == null) {
-					categoryElement.setId(null);
-				}
+								
 				CategoryType parentType = categoryElement.getParentType();
 				//Test if the category type isn't being transformed
 				if (!modelesImport.contains(parentType)) {
 					modelesImport.add(parentType);
+					
 					//Test if the category type  hasn't been transformed
 					if (!modelesReset.containsKey(parentType)) {
-						CategoryType parentKey = parentType;
-						List<CategoryElement> elements = parentType.getElements();
-						if (elements != null) {
-							parentType.setElements(null);
-							//If the category type doesn't exist in the database it's id is set to null
-							//The category type is inserted in the database
-							if (em.find(CategoryType.class, parentType.getId()) == null) {
-								parentType.setId(null);
-								em.persist(parentType);
-							} else {//The existant category type is updated
-								em.merge(parentType);
-							}
-							for (CategoryElement element : elements) {
-								categoryElement.setParentType(parentType);
-								saveOrUpdateCategoryElement(element, em);
-							}
-							parentType.setElements(elements);
-							em.merge(parentType);
-						} else {
-							//If the category type doesn't exist in the database it's id is set to null
-							//The category type is inserted in the database
-							if (em.find(CategoryType.class, parentType.getId()) == null) {
-								parentType.setId(null);
-								em.persist(parentType);
-							} else {//The existant category type is updated
-								em.merge(parentType);
-							}
-						}
-						modelesReset.put(parentKey, parentType);
+						saveOrUpdateCategoryType(parentType, em);
 					} else {
 						parentType = (CategoryType) modelesReset.get(parentType);
 					}
 				}
 				categoryElement.setParentType(parentType);
 				
-				if(categoryElement.getId()==null){
-					em.persist(categoryElement);
-				}else{
+				//Find the database category element corresponding to the imported one
+				CategoryElement hibernateCategoryElement = em.find(CategoryElement.class, categoryElement.getId());
+				
+				//Compare the two category types
+				if (isEqualCategoryElements(categoryElement, hibernateCategoryElement)) {
 					em.merge(categoryElement);
+				}else{
+					categoryElement.setId(null);
+					em.persist(categoryElement);
 				}
+				
 				modelesReset.put(key, categoryElement);
+				
 			} else {// The category element has already been transformed
 				categoryElement = (CategoryElement) modelesReset
 						.get(categoryElement);
 			}
 		}
+	}
+	
+	/**
+	 * Copare two catagory types.
+	 * 
+	 * @param mine
+	 *            the imported category type.
+	 * @param other
+	 *            the database category type which has the same id with the
+	 *            imported category type.
+	 * @return true if the category types are equals, otherwise false
+	 */
+	private boolean isEqualsCategoryTypes(CategoryType mine, CategoryType other) {
+		if ((mine == null && other != null) || (mine != null && other == null))
+			return false;
+
+		// Compare the labels
+		if (!StringUtils.equals(mine.getLabel(), other.getLabel()))
+			return false;
+
+		// Compare the icons
+		CategoryIcon myIcon = mine.getIcon();
+		CategoryIcon otherIcon = other.getIcon();
+		if ((myIcon == null && otherIcon != null)
+				|| (myIcon != null && otherIcon == null))
+			return false;
+		if (!myIcon.equals(otherIcon))
+			return false;
+		return true;
+	}
+
+	/**
+	 * Compare two category elements.
+	 * 
+	 * @param mine
+	 *            the imported category element.
+	 * @param other
+	 *            the database category element which has the same id with the
+	 *            imported category element.
+	 * @return true if the two category elements are equals, orherwise false
+	 */
+	private boolean isEqualCategoryElements(CategoryElement mine,
+			CategoryElement other) {
+		if ((mine == null && other.equals(null) || (mine != null && other == null)))
+			return false;
+
+		// compare the labels
+		if (!StringUtils.equals(mine.getLabel(), other.getLabel()))
+			return false;
+
+		// compare the colors
+		if (!StringUtils.equals(mine.getColor(), other.getColor()))
+			return false;
+
+		return true;
 	}
 }

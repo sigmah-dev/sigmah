@@ -1,6 +1,7 @@
 package org.sigmah.shared.command;
 
 import org.sigmah.shared.command.result.ProjectModelListResult;
+import org.sigmah.shared.domain.ProjectModelStatus;
 import org.sigmah.shared.domain.ProjectModelType;
 
 /**
@@ -18,9 +19,20 @@ public class GetProjectModels implements Command<ProjectModelListResult> {
      * <code>null</code> to ignore this filter).
      */
     private ProjectModelType modelType;
+    
+	/**
+	 * The status of the project set to <code>DRAFT</code> for the test
+	 * projects.
+	 */
+    private ProjectModelStatus projectModelStatus;
 
     public GetProjectModels() {
         // serialization.
+    }
+    
+    public GetProjectModels(ProjectModelStatus projectModelStatus) {
+    	//Test projects
+        this.projectModelStatus = projectModelStatus;
     }
 
     public GetProjectModels(ProjectModelType modelType) {
@@ -35,7 +47,15 @@ public class GetProjectModels implements Command<ProjectModelListResult> {
         this.modelType = modelType;
     }
 
-    @Override
+    public ProjectModelStatus getProjectModelStatus() {
+		return projectModelStatus;
+	}
+
+	public void setProjectModelStatus(ProjectModelStatus projectModelStatus) {
+		this.projectModelStatus = projectModelStatus;
+	}
+
+	@Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;

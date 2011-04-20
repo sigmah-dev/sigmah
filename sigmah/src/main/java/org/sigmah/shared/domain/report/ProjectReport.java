@@ -18,6 +18,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 import org.sigmah.shared.domain.Deleteable;
+import org.sigmah.shared.domain.OrgUnit;
 import org.sigmah.shared.domain.Project;
 import org.sigmah.shared.domain.element.FlexibleElement;
 
@@ -52,6 +53,10 @@ public class ProjectReport implements Serializable, Deleteable {
      * Project hosting this report.
      */
     private Project project;
+    /**
+     * OrgUnit hosting this report.
+     */
+    private OrgUnit orgUnit;
     /**
      * Flexible element hosting this report.
      */
@@ -98,6 +103,15 @@ public class ProjectReport implements Serializable, Deleteable {
     }
 
     @ManyToOne
+    public OrgUnit getOrgUnit() {
+		return orgUnit;
+	}
+
+	public void setOrgUnit(OrgUnit orgUnit) {
+		this.orgUnit = orgUnit;
+	}
+
+	@ManyToOne
     public Project getProject() {
         return project;
     }

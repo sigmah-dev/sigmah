@@ -42,6 +42,7 @@ public class LogFrameActivity implements Serializable, Deleteable {
     private Date startDate;
     private Date endDate;
     private Integer position;
+    private Integer advancement;
 
     /**
      * Duplicates this activity (omits its ID).
@@ -60,7 +61,7 @@ public class LogFrameActivity implements Serializable, Deleteable {
         copy.startDate = this.startDate;
         copy.endDate = this.endDate;
         copy.position = this.position;
-
+        copy.advancement = this.advancement;
         return copy;
     }
 
@@ -171,4 +172,15 @@ public class LogFrameActivity implements Serializable, Deleteable {
     public void setPosition(Integer position) {
         this.position = position;
     }
+
+    @Column(name = "advancement")
+	public Integer getAdvancement() {
+		return advancement;
+	}
+
+	public void setAdvancement(Integer advancement) {
+		this.advancement = advancement;
+	}
+    
+    
 }

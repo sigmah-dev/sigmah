@@ -53,6 +53,7 @@ public class Project extends UserDatabase {
     private Integer amendmentVersion;
     private Integer amendmentRevision;
     private User manager;
+    private Integer activityAdvancement;
 
     @Temporal(TemporalType.DATE)
     @Column(name = "end_date", length = 23)
@@ -289,4 +290,14 @@ public class Project extends UserDatabase {
     public void setAmendmentRevision(Integer amendmentRevision) {
         this.amendmentRevision = amendmentRevision;
     }
+    				
+    @Column(name = "activity_advancement")
+	public Integer getActivityAdvancement() {
+		return activityAdvancement;
+	}
+
+	public void setActivityAdvancement(Integer activityAdvancement) {
+		this.activityAdvancement = activityAdvancement;
+	}
+    
 }

@@ -653,7 +653,9 @@ public class ProjectsListPanel {
             @Override
             public Object render(ProjectDTOLight model, String property, ColumnData config, int rowIndex, int colIndex,
                     ListStore<ProjectDTOLight> store, Grid<ProjectDTOLight> grid) {
-				return new RatioBar(0);
+				return new RatioBar(
+						model.getActivityAdvancement() != null ? model
+								.getActivityAdvancement() : 0);
             }
         });
 

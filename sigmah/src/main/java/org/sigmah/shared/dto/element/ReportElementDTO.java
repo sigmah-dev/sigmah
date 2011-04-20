@@ -16,6 +16,7 @@ import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Image;
+
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
@@ -24,6 +25,8 @@ import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.icon.IconImageBundle;
 import org.sigmah.client.page.NavigationHandler;
 import org.sigmah.client.page.PageState;
+import org.sigmah.client.page.orgunit.OrgUnitPresenter;
+import org.sigmah.client.page.orgunit.OrgUnitState;
 import org.sigmah.client.page.project.ProjectPresenter;
 import org.sigmah.client.page.project.ProjectState;
 import org.sigmah.client.page.project.reports.EditReportDialog;
@@ -32,6 +35,7 @@ import org.sigmah.shared.command.GetProjectReports;
 import org.sigmah.shared.dto.report.ReportReference;
 import org.sigmah.shared.command.result.ProjectReportListResult;
 import org.sigmah.shared.command.result.ValueResult;
+import org.sigmah.shared.dto.OrgUnitDTO;
 import org.sigmah.shared.dto.ProjectDTO;
 
 /**
@@ -89,10 +93,16 @@ public class ReportElementDTO extends FlexibleElementDTO {
                 state.setArgument(reportId);
                 targetState = state;
 
-            } else {
-                Log.debug("ReportElementDTO does not know how to render properly from a '"+currentContainerDTO.getClass()+"' container.");
-                targetState = null;
-            }
+            } else if(currentContainerDTO instanceof OrgUnitDTO) {
+        		final OrgUnitState state = new OrgUnitState(currentContainerDTO.getId());
+        		state.setCurrentSection(OrgUnitPresenter.REPORT_TAB_INDEX);
+        		state.setArgument(reportId);
+        		targetState = state;
+        		
+        	} else {
+        		Log.debug("ReportElementDTO does not know how to render properly from a '"+currentContainerDTO.getClass()+"' container.");
+        		targetState = null;
+        	}
 
             button.addClickHandler(new ClickHandler() {
                 @Override
@@ -131,7 +141,26 @@ public class ReportElementDTO extends FlexibleElementDTO {
                 });
                 
             } else {
-                Log.debug("ReportElementDTO does not know how to render properly from the '"+History.getToken()+"' page.");
+            	if(currentContainerDTO instanceof OrgUnitDTO){
+            		final OrgUnitDTO orgUnitDTO = (OrgUnitDTO)currentContainerDTO;
+            		final HandlerRegistration[] registrations = new HandlerRegistration[1];
+
+                    registrations[0] = button.addClickHandler(new ClickHandler() {
+                        @Override
+                        public void onClick(ClickEvent event) {
+                            final HashMap<String, Serializable> properties = new HashMap<String, Serializable>();
+                            properties.put("flexibleElementId", getId());
+                            properties.put("containerId", currentContainerDTO.getId());
+                            properties.put("reportModelId", getModelId());
+                            properties.put("phaseName", null);
+                            properties.put("orgUnitId", orgUnitDTO.getId());
+
+                            EditReportDialog.getDialog(properties, button, registrations, eventBus, dispatcher).show();
+                        }
+                    });
+            	}else{
+            		Log.debug("ReportElementDTO does not know how to render properly from the '"+History.getToken()+"' page.");
+            	}
             }
 
             field.setEnabled(enabled);

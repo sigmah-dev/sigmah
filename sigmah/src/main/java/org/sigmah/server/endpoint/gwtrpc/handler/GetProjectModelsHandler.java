@@ -10,6 +10,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dozer.Mapper;
 import org.sigmah.shared.domain.ProjectModel;
+import org.sigmah.shared.domain.ProjectModelStatus;
 import org.sigmah.shared.domain.ProjectModelType;
 import org.sigmah.shared.domain.User;
 import org.sigmah.shared.command.GetProjectModels;
@@ -59,19 +60,28 @@ public class GetProjectModelsHandler implements CommandHandler<GetProjectModels>
         // Mapping (entity -> dto).
         if (models != null) {
             for (final ProjectModel model : models) {
-
-                final ProjectModelType type = model.getVisibility(user.getOrganization());
-                
-                // Filters only visible models.
-                if (type != null) {
-
-                    // Filters with the command type is any.
-                    if (cmd.getModelType() == null || type == cmd.getModelType()) {
-                        projectModelDTOList.add(mapper.map(model, ProjectModelDTOLight.class));
-                    }
-                }
-            }
-        }
+            	      	
+				final ProjectModelType type = model.getVisibility(user.getOrganization());
+				// Filters with the project status DRAFT.
+				if (cmd.getProjectModelStatus() != null && cmd.getProjectModelStatus().equals(
+								ProjectModelStatus.DRAFT)) {
+					if (model.getStatus() != null && ProjectModelStatus.DRAFT.equals(model.getStatus())) {
+						projectModelDTOList.add(mapper.map(model, ProjectModelDTOLight.class));
+					}
+				} else {
+					// Filters only visible models.
+					if (type != null) {
+						// Filters with the command type is any ans the project
+						// status different form DRAFT.
+						if ((cmd.getModelType() == null || type == cmd.getModelType())
+								&& !ProjectModelStatus.DRAFT.equals(model.getStatus())) {
+							projectModelDTOList.add(mapper.map(model, ProjectModelDTOLight.class));
+						}
+					}
+				}
+			}
+		}
+        
 
         if (log.isDebugEnabled()) {
             log.debug("[execute] Found " + projectModelDTOList.size() + " project models.");

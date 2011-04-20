@@ -238,6 +238,15 @@ public final class ProjectDTO extends BaseModelData implements EntityDTO, Defaul
     public void setLogFrameDTO(LogFrameDTO logFrameDTO) {
         set("logFrameDTO", logFrameDTO);
     }
+    
+    //Activities advancement
+    public Integer getActivityAdvancement() {
+        return get("activityAdvancement");
+    }
+
+    public void setActivityAdvancement(Integer activityAdvancement) {
+        set("activityAdvancement", activityAdvancement);
+    }   
 
     @Override
     public Double getPlannedBudget() {

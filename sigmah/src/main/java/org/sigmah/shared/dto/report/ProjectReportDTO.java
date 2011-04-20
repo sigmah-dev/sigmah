@@ -20,6 +20,7 @@ public class ProjectReportDTO implements Serializable, CommandResult {
     private Integer id;
     private Integer versionId;
     private Integer projectId;
+    private Integer orgUnitId;
     private String name;
     private String phaseName;
     private List<ProjectReportSectionDTO> sections;
@@ -60,8 +61,16 @@ public class ProjectReportDTO implements Serializable, CommandResult {
     public void setPhaseName(String phaseName) {
         this.phaseName = phaseName;
     }
+    
+    public Integer getOrgUnitId() {
+		return orgUnitId;
+	}
 
-    public Integer getProjectId() {
+	public void setOrgUnitId(Integer orgUnitId) {
+		this.orgUnitId = orgUnitId;
+	}
+
+	public Integer getProjectId() {
         return projectId;
     }
 

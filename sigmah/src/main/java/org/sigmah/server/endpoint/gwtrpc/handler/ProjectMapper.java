@@ -86,6 +86,7 @@ public class ProjectMapper {
         pLight.setEndDate(project.getEndDate());
         pLight.setStarred(project.getStarred());
         pLight.setCloseDate(project.getCloseDate());
+        pLight.setActivityAdvancement(project.getActivityAdvancement());
         pLight.setOrgUnitName(project.getCountry().getName());
         sb.append("- SIMPLE FIELDS: ");
         sb.append(new Date().getTime() - start);

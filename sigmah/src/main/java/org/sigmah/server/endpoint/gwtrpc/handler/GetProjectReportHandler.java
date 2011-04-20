@@ -93,17 +93,19 @@ public class GetProjectReportHandler implements CommandHandler<GetProjectReport>
 
         if(report.getProject() != null)
                 reportDTO.setProjectId(report.getProject().getId());
+        if(report.getOrgUnit()!=null)
+        	reportDTO.setOrgUnitId(report.getOrgUnit().getId());
+        
 
         final ProjectReportModel model = report.getModel();
 
         final List<ProjectReportModelSection> sectionModels = model.getSections();
         final HashMap<Integer, List<RichTextElement>> richTextElements = organizeElementsBySection(version.getTexts());
+        	 final ArrayList<ProjectReportSectionDTO> sectionDTOs = new ArrayList<ProjectReportSectionDTO>();
+             for(ProjectReportModelSection sectionModel : sectionModels)
+                 sectionDTOs.add(iterateOnSection(sectionModel, richTextElements));
 
-        final ArrayList<ProjectReportSectionDTO> sectionDTOs = new ArrayList<ProjectReportSectionDTO>();
-        for(ProjectReportModelSection sectionModel : sectionModels)
-            sectionDTOs.add(iterateOnSection(sectionModel, richTextElements));
-
-        reportDTO.setSections(sectionDTOs);
+             reportDTO.setSections(sectionDTOs);       
 
         return reportDTO;
     }

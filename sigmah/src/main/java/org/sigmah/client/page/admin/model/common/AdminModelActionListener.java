@@ -14,11 +14,13 @@ import org.sigmah.shared.command.GetOrgUnitModelCopy;
 import org.sigmah.shared.command.GetProjectModelCopy;
 import org.sigmah.shared.command.result.CreateResult;
 import org.sigmah.shared.domain.ProjectModelStatus;
+import org.sigmah.shared.domain.ProjectModelType;
 import org.sigmah.shared.dto.OrgUnitModelDTO;
 import org.sigmah.shared.dto.ProjectModelDTO;
 import org.sigmah.shared.dto.ProjectModelDTOLight;
 import org.sigmah.shared.dto.value.FileUploadUtils;
 
+import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FormEvent;
@@ -30,6 +32,8 @@ import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.form.FileUploadField;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
+import com.extjs.gxt.ui.client.widget.form.Radio;
+import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.FormPanel.Encoding;
 import com.extjs.gxt.ui.client.widget.form.FormPanel.Method;
@@ -39,10 +43,15 @@ import com.google.gwt.http.client.URL;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class AdminModelActionListener implements ActionListener {
+	
 	private final ContentPanel view;
+	
 	private final Dispatcher dispatcher;
+	
 	private final Boolean isProject;
+	
 	private Boolean isReport;
+	
 	private Boolean isOrgUnit;
 
 	private int modelId;
@@ -63,6 +72,14 @@ public class AdminModelActionListener implements ActionListener {
 		this.isOrgUnit = isOrgUnit;
 	}
 
+	public int getModelId() {
+		return modelId;
+	}
+
+	public void setModelId(int projectModelId) {
+		this.modelId = projectModelId;
+	}
+	
 	public AdminModelActionListener(ContentPanel view, Dispatcher dispatcher, Boolean isProject){
 		this.view = view;
 		this.dispatcher = dispatcher;
@@ -186,7 +203,7 @@ public class AdminModelActionListener implements ActionListener {
 	}
 	
 	/**
-	 * Export models.
+	 * Export project, org-unit, repport and category type models.
 	 */
 	private void onExportModel() {
 		String parametres = "type=" + URL.encodeComponent("project-model")
@@ -215,7 +232,7 @@ public class AdminModelActionListener implements ActionListener {
 	}
 
 	/**
-	 * Import model.
+	 * Import project, org-unit, report and category type model.
 	 */
 	private void onImportModel() {
 		final Dialog importDialog = new Dialog();
@@ -242,9 +259,10 @@ public class AdminModelActionListener implements ActionListener {
 		}
 
 		importDialog.setLayout(new FitLayout());
-		importDialog.setSize(400, 100);
 		importDialog.setButtons(Dialog.OKCANCEL);
-
+		importDialog.setWidth(420);
+		importDialog.setAutoHeight(true);
+		
 		final FormPanel importPanel = new FormPanel();
 		importPanel.setBodyBorder(false);
 		importPanel.setHeaderVisible(false);
@@ -255,7 +273,8 @@ public class AdminModelActionListener implements ActionListener {
 		importPanel.setPadding(5);
 		importPanel.setLabelWidth(120);
 		importPanel.setFieldWidth(250);
-		importPanel.setSize(400, 70);
+		importPanel.setWidth(420);
+		importPanel.setAutoHeight(true);
 
 		final FileUploadField uploadField = new FileUploadField();
 		uploadField.setAllowBlank(false);
@@ -280,13 +299,37 @@ public class AdminModelActionListener implements ActionListener {
 		typeHandler.setName("type");
 		typeHandler.setVisible(false);
 		importPanel.add(typeHandler);
-		if (isProject) {
+		
+		if (isProject) {			
 			// Type project model
-			final TextField<String> projectmodelType = new TextField<String>();
-			projectmodelType.setName("project-model-type");
-			projectmodelType.setAllowBlank(false);
-			projectmodelType.setFieldLabel(I18N.CONSTANTS.createProjectType());
-			importPanel.add(projectmodelType);
+			final RadioGroup projectModelTypeGroup = new RadioGroup("project-model-type");
+			projectModelTypeGroup.setOrientation(Orientation.VERTICAL);
+			projectModelTypeGroup.setFieldLabel(I18N.CONSTANTS.createProjectType());
+	        projectModelTypeGroup.setFireChangeEventOnSetValue(true);
+
+	        Radio ngoRadio = new Radio();
+	        ngoRadio.setFireChangeEventOnSetValue(true);
+	        ngoRadio.setValue(true);
+	        ngoRadio.setBoxLabel(ProjectModelType.getName(ProjectModelType.NGO));
+	        ngoRadio.setValueAttribute("NGO");
+	        ngoRadio.addStyleName("toolbar-radio");
+
+	        Radio fundingRadio = new Radio();
+	        fundingRadio.setFireChangeEventOnSetValue(true);
+	        fundingRadio.setBoxLabel(ProjectModelType.getName(ProjectModelType.FUNDING));
+	        fundingRadio.setValueAttribute("FUNDING");
+	        fundingRadio.addStyleName("toolbar-radio");
+
+	        Radio partnerRadio = new Radio();
+	        partnerRadio.setFireChangeEventOnSetValue(true);	        
+	        partnerRadio.setBoxLabel(ProjectModelType.getName(ProjectModelType.LOCAL_PARTNER));
+	        ngoRadio.setValueAttribute("LOCAL_PARTNER");
+	        partnerRadio.addStyleName("toolbar-radio");
+
+	        projectModelTypeGroup.add(ngoRadio);
+	        projectModelTypeGroup.add(fundingRadio);
+	        projectModelTypeGroup.add(partnerRadio);
+	        importPanel.add(projectModelTypeGroup);
 		}
 
 		importPanel.addListener(Events.Submit, new Listener<FormEvent>() {
@@ -294,6 +337,16 @@ public class AdminModelActionListener implements ActionListener {
 			public void handleEvent(FormEvent be) {
 				refreshDataModelList();
 				importDialog.hide();
+				
+				//Show notification
+				if(isProject)
+					Notification.show(I18N.CONSTANTS.adminProjectModelImport(), I18N.CONSTANTS.adminProjectModelImportDetail());
+				else if(isOrgUnit)
+						Notification.show(I18N.CONSTANTS.adminOrgUnitsModelImport(), I18N.CONSTANTS.adminOrgUnitsModelImportDetail());
+					else if(isReport)
+							Notification.show(I18N.CONSTANTS.adminReportModelImport(), I18N.CONSTANTS.adminReportModelImportDetail());
+						else
+							Notification.show(I18N.CONSTANTS.adminCategoryImport(), I18N.CONSTANTS.adminCategoryImportDetailt());		
 			}
 
 		});
@@ -311,18 +364,32 @@ public class AdminModelActionListener implements ActionListener {
 				new SelectionListener<ButtonEvent>() {
 					@Override
 					public void componentSelected(ButtonEvent ce) {
-						importPanel.submit();
+						if (importPanel.isValid()) {
+							importPanel.submit();
+						}else{
+							if(isProject)
+								MessageBox.alert(I18N.CONSTANTS.createFormIncomplete(),
+					                    I18N.MESSAGES.importFormIncompleteDetails(I18N.CONSTANTS.adminProjectModelStandard()), null);
+							else if(isOrgUnit)
+								MessageBox.alert(I18N.CONSTANTS.createFormIncomplete(),
+					                    I18N.MESSAGES.importFormIncompleteDetails(I18N.CONSTANTS.adminOrgUnitsModelStandard()), null);
+							else if(isReport)
+								MessageBox.alert(I18N.CONSTANTS.createFormIncomplete(),
+					                    I18N.MESSAGES.importFormIncompleteDetails(I18N.CONSTANTS.adminReportModelStandard()), null);
+							else
+								MessageBox.alert(I18N.CONSTANTS.createFormIncomplete(),
+					                    I18N.MESSAGES.importFormIncompleteDetails(I18N.CONSTANTS.adminCategoryTypeStandard()), null);
+						}
 					}
 				});
 
 		importDialog.show();
 	}
 
-	
 	/**
-	 * Duplicate models.
+	 * Duplicates project and org-unit models.
 	 */
-	private void onCopyModel() {	
+	private void onCopyModel() {
 		if (isProject) {
 			dispatcher.execute(new GetProjectModelCopy(getModelId()), null,
 					new AsyncCallback<ProjectModelDTOLight>() {
@@ -351,7 +418,7 @@ public class AdminModelActionListener implements ActionListener {
 						}
 					});
 		}
-		
+
 		if (isOrgUnit) {
 			dispatcher.execute(new GetOrgUnitModelCopy(getModelId()), null,
 					new AsyncCallback<OrgUnitModelDTO>() {
@@ -371,18 +438,15 @@ public class AdminModelActionListener implements ActionListener {
 								((AdminOrgUnitModelsPresenter.View) view)
 										.getAdminModelsStore().commitChanges();
 								// Show notification.
-								Notification
-										.show(
-												I18N.CONSTANTS
-														.adminOrgUnitsModelCopy(),
-												I18N.CONSTANTS
-														.adminOrgUnitsModelCopyDetail());
+								Notification.show(
+												I18N.CONSTANTS.adminOrgUnitsModelCopy(),
+												I18N.CONSTANTS.adminOrgUnitsModelCopyDetail());
 							}
 						}
 					});
 		}
 	}
-	
+
 	/**
 	 * Refresh the model list.
 	 */
@@ -402,14 +466,4 @@ public class AdminModelActionListener implements ActionListener {
 			}
 		}
 	}
-	
-	public int getModelId() {
-		return modelId;
-	}
-
-	public void setModelId(int projectModelId) {
-		this.modelId = projectModelId;
-	}
-	
-
 }

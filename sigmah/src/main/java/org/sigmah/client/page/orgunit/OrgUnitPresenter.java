@@ -17,7 +17,7 @@ import org.sigmah.client.page.TabPage;
 import org.sigmah.client.page.orgunit.calendar.OrgUnitCalendarPresenter;
 import org.sigmah.client.page.orgunit.dashboard.OrgUnitDashboardPresenter;
 import org.sigmah.client.page.orgunit.details.OrgUnitDetailsPresenter;
-import org.sigmah.client.page.project.DummyPresenter;
+import org.sigmah.client.page.orgunit.reports.OrgUnitReportsPresenter;
 import org.sigmah.client.page.project.SubPresenter;
 import org.sigmah.client.ui.ToggleAnchor;
 import org.sigmah.shared.command.GetOrgUnit;
@@ -48,6 +48,8 @@ import com.google.inject.Inject;
 public class OrgUnitPresenter implements Frame, TabPage {
 
     public static final PageId PAGE_ID = new PageId("orgunit");
+    
+    public static final int REPORT_TAB_INDEX = 3;
 
     /**
      * Description of the view managed by this presenter.
@@ -88,13 +90,11 @@ public class OrgUnitPresenter implements Frame, TabPage {
         this.authentication = authentication;
         this.cache = cache;
 
-        final DummyPresenter dummyPresenter = new DummyPresenter();
-
         this.presenters = new SubPresenter[] {
                 new OrgUnitDashboardPresenter(dispatcher, eventBus, authentication, this),
-                new OrgUnitDetailsPresenter(dispatcher, authentication, this, cache),
-                new OrgUnitCalendarPresenter(dispatcher, authentication, this), dummyPresenter
-
+                new OrgUnitDetailsPresenter(dispatcher, authentication, this, cache, eventBus),
+                new OrgUnitCalendarPresenter(dispatcher, authentication, this), 
+                new OrgUnitReportsPresenter(authentication, dispatcher, eventBus, this)
         };
 
         for (int i = 0; i < MAIN_TABS.length; i++) {
@@ -127,9 +127,9 @@ public class OrgUnitPresenter implements Frame, TabPage {
         if (currentTab != anchor) {
             if (currentTab != null)
                 currentTab.toggleAnchorMode();
-
-            anchor.toggleAnchorMode();
-            currentTab = anchor;
+            
+            	anchor.toggleAnchorMode();
+                currentTab = anchor;
 
             OrgUnitPresenter.this.view.setMainPanel(presenters[index].getView());
             presenters[index].viewDidAppear();

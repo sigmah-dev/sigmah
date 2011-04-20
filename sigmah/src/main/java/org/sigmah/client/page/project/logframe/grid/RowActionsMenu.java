@@ -19,15 +19,17 @@ public abstract class RowActionsMenu extends ActionsMenu {
      */
     private final Row<?> row;
 
-    /**
-     * Builds this menu.
-     * 
-     * @param view
-     *            The view where this menu is displayed.
-     * @param row
-     *            The row managed by this menu.
-     */
-    public RowActionsMenu(final FlexTableView view, final Row<?> row) {
+	/**
+	 * Builds this menu.
+	 * 
+	 * @param view
+	 *            The view where this menu is displayed.
+	 * @param row
+	 *            The row managed by this menu.
+	 * @param isActivity
+	 *            indicate if the view is a log frame activity.
+	 */
+    public RowActionsMenu(final FlexTableView view, final Row<?> row, final boolean isActivity) {
 
         super(view);
 
@@ -42,10 +44,17 @@ public abstract class RowActionsMenu extends ActionsMenu {
 
         // Delete action.
         final MenuItem deleteMenuItem = createDeleteAction();
+        
 
         // Menu.
         menu.add(upMenuItem);
         menu.add(downMenuItem);
+        //Add the modify item for the log frame activities elements.
+        if(isActivity){
+        	 //Modify action
+            final MenuItem modifyMenuItem = createModifyAction();
+            menu.add(modifyMenuItem);
+        }
         menu.add(deleteMenuItem);
     }
 
@@ -206,6 +215,46 @@ public abstract class RowActionsMenu extends ActionsMenu {
     }
 
     /**
+     * Builds and returns the modify action.
+     * 
+     * @return The modify action.
+     */
+    private MenuItem createModifyAction() {
+
+        final MenuAction action = new MenuAction() {
+
+            @Override
+            public void perform() {
+            	//Show the action property window
+            	buidModifyActionPopUp();
+            }
+
+            @Override
+            public String getText() {
+                return I18N.CONSTANTS.edit();
+            }
+
+            @Override
+            public AbstractImagePrototype getIcon() {
+                return IconImageBundle.ICONS.editActivity();
+            }
+
+            @Override
+            public String canBePerformed() {
+            	// the update action can be performed
+                return null;
+            }
+        };
+
+        action.setInactivationPolicy(inactivationPolicy);
+
+        // Adds it locally.
+        actions.add(action);
+
+        return action.getMenuItem();
+    }
+    
+    /**
      * Returns if the element managed by this menu can be removed.
      * 
      * @return If the element can be removed.
@@ -252,4 +301,9 @@ public abstract class RowActionsMenu extends ActionsMenu {
      * @return If the element has been moved up.
      */
     public abstract boolean beforeMoveDown();
+    
+    /**
+     * Method called while selecting activity modify item.
+     */
+    public  abstract void buidModifyActionPopUp();
 }

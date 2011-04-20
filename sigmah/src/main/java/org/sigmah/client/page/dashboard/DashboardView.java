@@ -22,6 +22,7 @@ import org.sigmah.client.page.admin.AdminPageState;
 import org.sigmah.client.page.charts.ChartPageState;
 import org.sigmah.client.page.config.DbListPageState;
 import org.sigmah.client.page.dashboard.CreateProjectWindow.CreateProjectListener;
+import org.sigmah.client.page.dashboard.ProjectsListPanel.ProjectStore;
 import org.sigmah.client.page.entry.SiteGridPageState;
 import org.sigmah.client.page.map.MapPageState;
 import org.sigmah.client.page.report.ReportListPageState;
@@ -217,6 +218,18 @@ public class DashboardView extends ContentPanel implements DashboardPresenter.Vi
                                 public void projectCreatedAsFunding(ProjectDTOLight project, double percentage) {
                                     // nothing to do (must not be called).
                                 }
+
+								@Override
+								public void projectCreatedAsTest(
+										ProjectDTOLight project) {
+									// nothing to do (must not be called).
+								}
+
+								@Override
+								public void projectDeletedAsTest(
+										ProjectDTOLight project) {
+									// nothing to do (must not be called).									
+								}
                             });
                         }
 
@@ -227,6 +240,98 @@ public class DashboardView extends ContentPanel implements DashboardPresenter.Vi
                     });
         }
 
+        if (ProfileUtils.isGranted(authentication, GlobalPermissionEnum.VIEW_ADMIN)) {
+            addNavLink(eventBus, menuPanel, I18N.CONSTANTS.createTestProject(), IconImageBundle.ICONS.add(),
+                    new Listener<ButtonEvent>() {
+
+                        private final CreateProjectWindow window = new CreateProjectWindow(dispatcher, authentication,
+                                cache);
+
+                        {
+                            window.addListener(new CreateProjectListener() {
+
+                                @Override
+                                public void projectCreated(ProjectDTOLight project) {
+                                	// nothing to do (must not be called).
+                                }
+
+                                @Override
+                                public void projectCreatedAsFunded(ProjectDTOLight project, double percentage) {
+                                    // nothing to do (must not be called).
+                                }
+
+                                @Override
+                                public void projectCreatedAsFunding(ProjectDTOLight project, double percentage) {
+                                    // nothing to do (must not be called).
+                                }
+
+								
+								public void projectCreatedAsTest(
+										ProjectDTOLight project) {
+									projectsListPanel.getProjectsStore().clearFilters();
+	                                projectsListPanel.getProjectsStore().add(project, false);
+	                                projectsListPanel.getProjectsStore().commitChanges();
+	                                projectsListPanel.getProjectsStore().applyFilters(null);
+	                                
+
+									  // Show notification.
+                                    Notification.show(I18N.CONSTANTS.createProjectSucceeded(),
+                                            I18N.CONSTANTS.createTestProjectSucceededDetails());
+									
+								}
+
+								@Override
+								public void projectDeletedAsTest(
+										ProjectDTOLight project) {
+									
+									menuPanel.mask(I18N.CONSTANTS.loadingDeleteProject());
+									
+									ProjectStore store = projectsListPanel.getProjectsStore();		
+									store.clearFilters();	
+									
+									final int projectId = project.getId();
+									
+									//inspect root elements
+									List<ProjectDTOLight> parents = store.getRootItems();
+									for(ProjectDTOLight parent : parents){
+										List<ProjectDTOLight> childrens = parent.getChildrenProjects();
+										for(ProjectDTOLight child: childrens){
+											//delete children if equals to project
+											if(child.getId() == projectId || child.getProjectId() == projectId){
+												store.remove(parent, child);
+											}
+										}			
+									}
+									
+									// delete the parent that corresponds to project
+									if(store.findModel("pid", projectId) != null)	{
+										//deletes childrens links
+										store.removeAll(store.findModel("pid", projectId));
+										store.remove(store.findModel("pid", projectId));
+									}else{
+										//deletes childrens links
+										store.removeAll(store.findModel("id", projectId));
+										store.remove(store.findModel("id", projectId));
+									}
+									
+									store.applyFilters(null);									
+									menuPanel.unmask();
+									// Show notification.
+									Notification
+											.show(
+													I18N.CONSTANTS.deleteTestProjectHeader(),
+													I18N.CONSTANTS.deleteTestProjectSucceededDetails());
+								}
+							});
+                        }
+
+                        @Override
+                        public void handleEvent(ButtonEvent be) {
+                            window.showProjectTest();
+                        }
+                    });
+        }
+        
         if (ProfileUtils.isGranted(authentication, GlobalPermissionEnum.VIEW_ADMIN)) {
             addNavLink(eventBus, menuPanel, I18N.CONSTANTS.adminboard(), IconImageBundle.ICONS.setup(),
                     new AdminPageState());

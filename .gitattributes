@@ -464,6 +464,14 @@ sigmah/src/main/java/org/sigmah/client/page/orgunit/details/OrgUnitDetailsView.j
 sigmah/src/main/java/org/sigmah/client/page/orgunit/orgunit.png -text
 sigmah/src/main/java/org/sigmah/client/page/orgunit/orgunit2.png -text
 sigmah/src/main/java/org/sigmah/client/page/orgunit/orgunit3.png -text
+sigmah/src/main/java/org/sigmah/client/page/orgunit/reports/AttachFileHandler.java -text
+sigmah/src/main/java/org/sigmah/client/page/orgunit/reports/AttachMenuBuilder.java -text
+sigmah/src/main/java/org/sigmah/client/page/orgunit/reports/AttachReportHandler.java -text
+sigmah/src/main/java/org/sigmah/client/page/orgunit/reports/EditReportDialog.java -text
+sigmah/src/main/java/org/sigmah/client/page/orgunit/reports/KeyQuestionDialog.java -text
+sigmah/src/main/java/org/sigmah/client/page/orgunit/reports/KeyQuestionState.java -text
+sigmah/src/main/java/org/sigmah/client/page/orgunit/reports/OrgUnitReportsPresenter.java -text
+sigmah/src/main/java/org/sigmah/client/page/orgunit/reports/OrgUnitReportsView.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/DummyPresenter.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/ProjectModule.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/ProjectPageLoader.java -text
@@ -1319,6 +1327,7 @@ sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetReportTemplate
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetSitePointsHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetSyncRegionUpdatesHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetSyncRegionsHandler.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetTestProjectsHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetUserDatabaseHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetUsersByOrganizationHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetUsersHandler.java -text
@@ -1560,6 +1569,7 @@ sigmah/src/main/java/org/sigmah/shared/command/GetSitePoints.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetSites.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetSyncRegionUpdates.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetSyncRegions.java -text
+sigmah/src/main/java/org/sigmah/shared/command/GetTestProjects.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetUserDatabase.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetUsers.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetUsersByOrganization.java -text
@@ -1612,6 +1622,7 @@ sigmah/src/main/java/org/sigmah/shared/command/result/PagingResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/PrivacyGroupsListResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/ProfileListResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/ProfileWithDetailsListResult.java -text
+sigmah/src/main/java/org/sigmah/shared/command/result/ProjectDTOLightListResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/ProjectListResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/ProjectModelListResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/ProjectReportListResult.java -text

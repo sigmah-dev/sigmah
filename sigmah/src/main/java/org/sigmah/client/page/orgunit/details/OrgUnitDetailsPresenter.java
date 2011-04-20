@@ -2,6 +2,7 @@ package org.sigmah.client.page.orgunit.details;
 
 import java.util.ArrayList;
 
+import org.sigmah.client.EventBus;
 import org.sigmah.client.cache.UserLocalCache;
 import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.dispatch.monitor.MaskingAsyncMonitor;
@@ -63,6 +64,8 @@ public class OrgUnitDetailsPresenter implements SubPresenter {
     private final Authentication authentication;
 
     private final UserLocalCache cache;
+    
+    private final EventBus eventBus;
 
     /**
      * The main presenter.
@@ -80,11 +83,12 @@ public class OrgUnitDetailsPresenter implements SubPresenter {
     private int maskCount;
 
     public OrgUnitDetailsPresenter(Dispatcher dispatcher, Authentication authentication, OrgUnitPresenter mainPrsenter,
-            UserLocalCache cache) {
+            UserLocalCache cache, EventBus eventBus) {
         this.dispatcher = dispatcher;
         this.mainPresenter = mainPrsenter;
         this.authentication = authentication;
         this.cache = cache;
+        this.eventBus = eventBus;
     }
 
     @Override
@@ -241,6 +245,7 @@ public class OrgUnitDetailsPresenter implements SubPresenter {
                                 // its component.
                                 elementDTO.setService(dispatcher);
                                 elementDTO.setAuthentication(authentication);
+                                elementDTO.setEventBus(eventBus);
                                 elementDTO.setCurrentContainerDTO(mainPresenter.getCurrentOrgUnitDTO());
                                 elementDTO.setCache(cache);
                                 elementDTO.assignValue(valueResult);

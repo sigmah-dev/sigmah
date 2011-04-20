@@ -20,6 +20,7 @@ import org.sigmah.shared.command.result.ValueResult;
 import org.sigmah.shared.domain.Amendment;
 import org.sigmah.shared.domain.profile.PrivacyGroupPermissionEnum;
 import org.sigmah.shared.dto.EntityDTO;
+import org.sigmah.shared.dto.OrgUnitDTO;
 import org.sigmah.shared.dto.ProjectDTO;
 import org.sigmah.shared.dto.element.handler.RequiredValueEvent;
 import org.sigmah.shared.dto.element.handler.RequiredValueHandler;
@@ -184,14 +185,19 @@ public abstract class FlexibleElementDTO extends BaseModelData implements Entity
 
         // Checking the amendment state.
         if (enabled && // This element is in an editable state
-                Boolean.TRUE.equals(getAmendable()) && // This element is part
+                Boolean.TRUE.equals(getAmendable())){// This element is part
                                                        // of the amendment
-                currentContainerDTO instanceof ProjectDTO && // This element is
+               if( currentContainerDTO instanceof ProjectDTO && // This element is
                                                              // displayed in a
                                                              // project
                 (((ProjectDTO) currentContainerDTO).getAmendmentState() != Amendment.State.DRAFT || ((ProjectDTO) currentContainerDTO)
                         .getCurrentAmendment() != null)) {
             enabled = false;
+        }else{
+        	if(currentContainerDTO instanceof OrgUnitDTO ){
+        		enabled = false;	
+        	}
+        }
         }
 
         // The permission for this element.

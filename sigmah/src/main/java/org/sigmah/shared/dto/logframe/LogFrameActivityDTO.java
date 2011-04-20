@@ -70,6 +70,15 @@ public class LogFrameActivityDTO extends BaseModelData implements EntityDTO, Pos
     public void setContent(String content) {
         set("content", content);
     }
+    
+    //Activity advancement 
+    public Integer getAdvancement() {
+        return get("advancement");
+    }
+
+    public void setAdvancement(Integer advancement) {
+        set("advancement", advancement);
+    }
 
     // Activity title.
     public String getTitle() {

@@ -3,7 +3,7 @@
  * See COPYRIGHT.txt and LICENSE.txt.
  */
 
-package org.sigmah.client.page.project.reports;
+package org.sigmah.client.page.orgunit.reports;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,50 +12,51 @@ import org.sigmah.client.EventBus;
 import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.dispatch.remote.Authentication;
 import org.sigmah.client.i18n.I18N;
-import org.sigmah.client.page.project.ProjectPresenter;
+import org.sigmah.client.page.orgunit.OrgUnitPresenter;
 import org.sigmah.client.page.project.SubPresenter;
 import org.sigmah.shared.command.GetProjectDocuments;
 import org.sigmah.shared.command.GetProjectReport;
 import org.sigmah.shared.command.GetProjectReports;
 import org.sigmah.shared.command.result.ProjectReportListResult;
-import org.sigmah.shared.dto.ProjectDTO;
-import org.sigmah.shared.dto.ProjectDTO.LocalizedElement;
+import org.sigmah.shared.dto.OrgUnitDTO;
+import org.sigmah.shared.dto.OrgUnitDTO.LocalizedElement;
 import org.sigmah.shared.dto.element.FilesListElementDTO;
+import org.sigmah.shared.dto.element.ReportElementDTO;
+import org.sigmah.shared.dto.element.ReportListElementDTO;
 import org.sigmah.shared.dto.report.ProjectReportDTO;
+import org.sigmah.shared.dto.report.ReportReference;
 
 import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.Style.SortDir;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import org.sigmah.shared.dto.report.ReportReference;
-import org.sigmah.shared.dto.element.ReportElementDTO;
-import org.sigmah.shared.dto.element.ReportListElementDTO;
 
 /**
- * Sub presenter that manage the "reports" view from the project page.
+ * Sub presenter that manage the "reports" view from the organizational unit
+ * page.
  * 
- * @author Raphaël Calabro (rcalabro@ideia.fr)
+ * @author Kristela Macaj(kmacaj@ideia.fr)
  */
-public class ProjectReportsPresenter implements SubPresenter {
+public class OrgUnitReportsPresenter implements SubPresenter {
     private Dispatcher dispatcher;
     private EventBus eventBus;
     private Authentication authentication;
 
-    private ProjectPresenter projectPresenter;
-    private ProjectDTO currentProjectDTO;
+    private OrgUnitPresenter orgUnitPresenter;
+    private OrgUnitDTO currentOrgUnitDTO;
 
-    private ProjectReportsView view;
+    private OrgUnitReportsView view;
     private ListStore<ReportReference> reportStore;
 
     int currentReportId = -1;
 
-    public ProjectReportsPresenter(Authentication authentication, Dispatcher dispatcher, EventBus eventBus,
-            ProjectPresenter projectPresenter) {
+    public OrgUnitReportsPresenter(Authentication authentication, Dispatcher dispatcher, EventBus eventBus,
+            OrgUnitPresenter orgUnitPresenter) {
         this.authentication = authentication;
         this.dispatcher = dispatcher;
         this.eventBus = eventBus;
-        this.projectPresenter = projectPresenter;
+        this.orgUnitPresenter = orgUnitPresenter;
     }
 
     @Override
@@ -64,18 +65,18 @@ public class ProjectReportsPresenter implements SubPresenter {
         if (view == null) {
             reportStore = new ListStore<ReportReference>();
             reportStore.setMonitorChanges(true);
-            view = new ProjectReportsView(authentication, eventBus, dispatcher, reportStore);
+            view = new OrgUnitReportsView(authentication, eventBus, dispatcher, reportStore);
         }
 
         // Calculating the report id
         int reportId = currentReportId;
-        final String arg = projectPresenter.getCurrentState().getArgument();
+        final String arg = orgUnitPresenter.getCurrentState().getArgument();
         if (arg != null)
             reportId = Integer.parseInt(arg);
 
-        if (!projectPresenter.getCurrentProjectDTO().equals(currentProjectDTO)) {
+        if (!orgUnitPresenter.getCurrentOrgUnitDTO().equals(currentOrgUnitDTO)) {
             // If the current project has changed, clear the view
-            currentProjectDTO = projectPresenter.getCurrentProjectDTO();
+            currentOrgUnitDTO = orgUnitPresenter.getCurrentOrgUnitDTO();
             reportStore.removeAll();
 
             if (arg == null)
@@ -114,29 +115,30 @@ public class ProjectReportsPresenter implements SubPresenter {
     public void discardView() {
         this.view = null;
     }
-
+    
     @Override
     public void viewDidAppear() {
         // Updating the current state
-        view.setCurrentState(projectPresenter.getCurrentState());
-        view.setPhaseName(projectPresenter.getCurrentProjectDTO().getCurrentPhaseDTO().getPhaseModelDTO().getName());
+        view.setCurrentState(orgUnitPresenter.getCurrentState());
+        //organizational unit dont have phase element
+        view.setPhaseName(null);
 
         // Reset the attach documents menu.
-        AttachMenuBuilder.createMenu(currentProjectDTO, FilesListElementDTO.class,
+        AttachMenuBuilder.createMenu(currentOrgUnitDTO, FilesListElementDTO.class,
                 view.getAttachButton(), reportStore, authentication, dispatcher, eventBus);
 
         // TODO: Do something to add the report list elements too
-        final List<LocalizedElement> reportElements = currentProjectDTO.getLocalizedElements(ReportElementDTO.class);
-        reportElements.addAll(currentProjectDTO.getLocalizedElements(ReportListElementDTO.class));
+        final List<LocalizedElement> reportElements = currentOrgUnitDTO.getLocalizedElements(ReportElementDTO.class);
+        reportElements.addAll(currentOrgUnitDTO.getLocalizedElements(ReportListElementDTO.class));
 
-        AttachMenuBuilder.createMenu(currentProjectDTO, reportElements,
+        AttachMenuBuilder.createMenu(currentOrgUnitDTO, reportElements,
                 view.getCreateReportButton(), reportStore, authentication, dispatcher, eventBus);
 
         
         // Updates the report & document list
         
         // Retrieves reports.
-        GetProjectReports getProjectReports = new GetProjectReports(currentProjectDTO.getId(), null);
+        GetProjectReports getProjectReports = new GetProjectReports(null, currentOrgUnitDTO.getId());
         dispatcher.execute(getProjectReports, null, new AsyncCallback<ProjectReportListResult>() {
             @Override
             public void onSuccess(ProjectReportListResult result) {
@@ -155,16 +157,14 @@ public class ProjectReportsPresenter implements SubPresenter {
 
         // Retrieves all the files lists elements in the current project.
         final List<GetProjectDocuments.FilesListElement> filesLists = new ArrayList<GetProjectDocuments.FilesListElement>();
-        final List<LocalizedElement> filesLists2 = currentProjectDTO
-                .getLocalizedElements(FilesListElementDTO.class);
+        final List<LocalizedElement> filesLists2 = currentOrgUnitDTO.getLocalizedElements(FilesListElementDTO.class);
         for (LocalizedElement e : filesLists2) {
-            filesLists.add(new GetProjectDocuments.FilesListElement((long) e.getElement().getId(), e
-                    .getPhaseModel() != null ? e.getPhaseModel().getName() : I18N.CONSTANTS.projectDetails(), e
+            filesLists.add(new GetProjectDocuments.FilesListElement((long) e.getElement().getId(), I18N.CONSTANTS.projectDetails(), e
                     .getElement().getLabel()));
         }
 
         // Retrieves documents.
-        dispatcher.execute(new GetProjectDocuments(currentProjectDTO.getId(), filesLists), null,
+        dispatcher.execute(new GetProjectDocuments(currentOrgUnitDTO.getId(), filesLists), null,
                 new AsyncCallback<ProjectReportListResult>() {
                     @Override
                     public void onSuccess(ProjectReportListResult result) {

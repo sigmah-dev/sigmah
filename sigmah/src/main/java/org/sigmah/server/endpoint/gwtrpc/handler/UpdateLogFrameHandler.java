@@ -1,5 +1,7 @@
 package org.sigmah.server.endpoint.gwtrpc.handler;
 
+import java.util.List;
+
 import javax.persistence.EntityManager;
 
 import org.apache.commons.logging.Log;
@@ -12,6 +14,7 @@ import org.sigmah.shared.command.result.LogFrameResult;
 import org.sigmah.shared.domain.Project;
 import org.sigmah.shared.domain.User;
 import org.sigmah.shared.domain.logframe.LogFrame;
+import org.sigmah.shared.dto.logframe.LogFrameActivityDTO;
 import org.sigmah.shared.dto.logframe.LogFrameDTO;
 import org.sigmah.shared.exception.CommandException;
 
@@ -42,6 +45,16 @@ public class UpdateLogFrameHandler implements CommandHandler<UpdateLogFrame> {
         LogFrameDTO logFrameDTO = cmd.getLogFrame();
         LogFrame logFrame = null;
 
+        List<LogFrameActivityDTO> activities = logFrameDTO.getAllActivitiesDTO();
+        int countActivities= 0;
+        int projectActivitiesAdvancement = 0;
+        if(activities!=null && !activities.isEmpty()){
+        	for(LogFrameActivityDTO activity :activities){
+        		countActivities++;
+        		projectActivitiesAdvancement+=activity.getAdvancement();
+        	}
+        }
+        
         // Maps the log frame.
         if (logFrameDTO != null) {
             logFrame = mapper.map(logFrameDTO, LogFrame.class);
@@ -54,6 +67,7 @@ public class UpdateLogFrameHandler implements CommandHandler<UpdateLogFrame> {
             project.setId(cmd.getProjectId());
 
             logFrame.setParentProject(project);
+           
         }
 
         if (logFrame != null) {
@@ -64,11 +78,19 @@ public class UpdateLogFrameHandler implements CommandHandler<UpdateLogFrame> {
 
             // Merges log frame.
             logFrame = em.merge(logFrame);
+            
+            //Update the projets activities advancement
+            if(countActivities>0){
+            	projectActivitiesAdvancement/=countActivities;
+            	logFrame.getParentProject().setActivityAdvancement(projectActivitiesAdvancement);
+            	em.merge(logFrame.getParentProject());
+            }
+            
 
             // Re-map as DTO.
             logFrameDTO = mapper.map(logFrame, LogFrameDTO.class);
         }
-
+         
         return new LogFrameResult(logFrameDTO);
     }
 

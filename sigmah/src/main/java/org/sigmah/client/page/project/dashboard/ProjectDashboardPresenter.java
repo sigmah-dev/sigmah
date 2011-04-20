@@ -1491,6 +1491,16 @@ public class ProjectDashboardPresenter implements SubPresenter {
                     public void projectCreatedAsFunded(ProjectDTOLight project, double percentage) {
                         // nothing to do (must not be called).
                     }
+
+					@Override
+					public void projectCreatedAsTest(ProjectDTOLight project) {
+						 // nothing to do (must not be called).
+					}
+
+					@Override
+					public void projectDeletedAsTest(ProjectDTOLight project) {
+						 // nothing to do (must not be called).
+					}
                 });
             }
 
@@ -1737,6 +1747,16 @@ public class ProjectDashboardPresenter implements SubPresenter {
                                     }
                                 });
                     }
+
+					@Override
+					public void projectCreatedAsTest(ProjectDTOLight project) {
+						 // nothing to do (must not be called).						
+					}
+
+					@Override
+					public void projectDeletedAsTest(ProjectDTOLight project) {
+						 // nothing to do (must not be called).						
+					}
                 });
             }
 
@@ -1760,7 +1780,6 @@ public class ProjectDashboardPresenter implements SubPresenter {
             {
                 window.addTextField(I18N.CONSTANTS.monitoredPointLabel(), false);
                 window.addDateField(I18N.CONSTANTS.monitoredPointExpectedDate(), false);
-
                 window.addFormSubmitListener(new FormSubmitListener() {
 
                     @Override
@@ -1779,56 +1798,59 @@ public class ProjectDashboardPresenter implements SubPresenter {
 
                         final Date pointExpectedDate = (Date) element0;
                         final String pointLabel = (String) element1;
+                      
+                        if(pointExpectedDate!=null && pointLabel!=null){
+                        	final HashMap<String, Object> properties = new HashMap<String, Object>();
+                            properties.put("expectedDate", pointExpectedDate.getTime());
+                            properties.put("label", pointLabel);
+                            properties.put("projectId", projectPresenter.getCurrentProjectDTO().getId());
 
-                        final HashMap<String, Object> properties = new HashMap<String, Object>();
-                        properties.put("expectedDate", pointExpectedDate.getTime());
-                        properties.put("label", pointLabel);
-                        properties.put("projectId", projectPresenter.getCurrentProjectDTO().getId());
+                            dispatcher.execute(new CreateEntity("MonitoredPoint", properties),
+                                    new MaskingAsyncMonitor(view.getMonitoredPointsGrid(), I18N.CONSTANTS.loading()),
+                                    new AsyncCallback<CreateResult>() {
 
-                        dispatcher.execute(new CreateEntity("MonitoredPoint", properties),
-                                new MaskingAsyncMonitor(view.getMonitoredPointsGrid(), I18N.CONSTANTS.loading()),
-                                new AsyncCallback<CreateResult>() {
-
-                                    @Override
-                                    public void onFailure(Throwable e) {
-                                        Log.error("[execute] Error while creating the monitored points.", e);
-                                        MessageBox.alert(I18N.CONSTANTS.monitoredPointAddError(),
-                                                I18N.CONSTANTS.monitoredPointAddErrorDetails(), null);
-                                    }
-
-                                    @Override
-                                    public void onSuccess(CreateResult result) {
-
-                                        Notification.show(I18N.CONSTANTS.infoConfirmation(),
-                                                I18N.CONSTANTS.monitoredPointAddConfirm());
-
-                                        // Gets the created point.
-                                        final MonitoredPointDTO point = (MonitoredPointDTO) result.getEntity();
-
-                                        // Gets the project list and creates it
-                                        // if needed.
-                                        MonitoredPointListDTO list = projectPresenter.getCurrentProjectDTO()
-                                                .getPointsList();
-
-                                        if (list == null) {
-
-                                            if (Log.isDebugEnabled()) {
-                                                Log.debug("[execute] The project points list doesn't exist, creates it.");
-                                            }
-
-                                            list = new MonitoredPointListDTO();
-                                            list.setPoints(new ArrayList<MonitoredPointDTO>());
-                                            projectPresenter.getCurrentProjectDTO().setPointsList(list);
+                                        @Override
+                                        public void onFailure(Throwable e) {
+                                            Log.error("[execute] Error while creating the monitored points.", e);
+                                            MessageBox.alert(I18N.CONSTANTS.monitoredPointAddError(),
+                                                    I18N.CONSTANTS.monitoredPointAddErrorDetails(), null);
                                         }
 
-                                        // Forces the default completion state.
-                                        point.setCompletionDate(null);
+                                        @Override
+                                        public void onSuccess(CreateResult result) {
 
-                                        // Adds the point locally.
-                                        list.getPoints().add(point);
-                                        view.getMonitoredPointsGrid().getStore().add(point);
-                                    }
-                                });
+                                            Notification.show(I18N.CONSTANTS.infoConfirmation(),
+                                                    I18N.CONSTANTS.monitoredPointAddConfirm());
+
+                                            // Gets the created point.
+                                            final MonitoredPointDTO point = (MonitoredPointDTO) result.getEntity();
+
+                                            // Gets the project list and creates it
+                                            // if needed.
+                                            MonitoredPointListDTO list = projectPresenter.getCurrentProjectDTO()
+                                                    .getPointsList();
+
+                                            if (list == null) {
+
+                                                if (Log.isDebugEnabled()) {
+                                                    Log.debug("[execute] The project points list doesn't exist, creates it.");
+                                                }
+
+                                                list = new MonitoredPointListDTO();
+                                                list.setPoints(new ArrayList<MonitoredPointDTO>());
+                                                projectPresenter.getCurrentProjectDTO().setPointsList(list);
+                                            }
+
+                                            // Forces the default completion state.
+                                            point.setCompletionDate(null);
+
+                                            // Adds the point locally.
+                                            list.getPoints().add(point);
+                                            view.getMonitoredPointsGrid().getStore().add(point);
+                                        }
+                                    });
+                        }
+
                     }
                 });
             }

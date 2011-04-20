@@ -1,6 +1,7 @@
 package org.sigmah.shared.dto;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import org.sigmah.shared.domain.ProjectModelStatus;
@@ -13,6 +14,32 @@ import com.extjs.gxt.ui.client.data.BaseModelData;
 public class OrgUnitModelDTO extends BaseModelData implements EntityDTO {
 
     private static final long serialVersionUID = -6438355456637422931L;
+    
+	/**
+	 * Localizes an flexible element in the organizational unit model.
+	 * 
+	 * @author kma
+	 * 
+	 */
+    protected static class LocalizedElement {
+    	
+        private final FlexibleElementDTO element;
+
+        protected LocalizedElement(FlexibleElementDTO element) {
+            this.element = element;
+        }
+
+        /**
+         * Gets the flexible element.
+         * 
+         * @return The flexible element.
+         */
+        public FlexibleElementDTO getElement() {
+            return element;
+        }
+    }
+    
+    private transient HashMap<Class<? extends FlexibleElementDTO>, List<LocalizedElement>> localizedElements;
 
     @Override
     public String getEntityName() {
@@ -159,5 +186,45 @@ public class OrgUnitModelDTO extends BaseModelData implements EntityDTO {
 		
 		
 		return allElements;
+    }
+    
+	/**
+	 * Gets all the flexible elements instances of the given class in this model
+	 * (details page). The banner is ignored cause the elements in it are
+	 * read-only.
+	 * 
+	 * @param clazz
+	 *            The class of the searched flexible elements.
+	 * @return The elements localized for the given class, or <code>null</code>
+	 *         if there is no element of this class.
+	 */
+    public List<LocalizedElement> getLocalizedElements(Class<? extends FlexibleElementDTO> clazz) {
+
+        if (localizedElements == null) {
+
+            localizedElements = new HashMap<Class<? extends FlexibleElementDTO>, List<LocalizedElement>>();
+
+            // Details
+            for (final LayoutGroupDTO group : getDetails().getLayout().getLayoutGroupsDTO()) {
+
+                // For each constraint
+                for (final LayoutConstraintDTO constraint : group.getLayoutConstraintsDTO()) {
+
+                    // Gets the element and its class
+                    final FlexibleElementDTO element = constraint.getFlexibleElementDTO();
+                    List<LocalizedElement> elements = localizedElements.get(element.getClass());
+
+                    // First element for this class
+                    if (elements == null) {
+                        elements = new ArrayList<LocalizedElement>();
+                        localizedElements.put(element.getClass(), elements);
+                    }
+
+                    // Maps the element.
+                    elements.add(new LocalizedElement(element));
+                }
+            }            
+        }
+        return localizedElements.get(clazz);
     }
 }

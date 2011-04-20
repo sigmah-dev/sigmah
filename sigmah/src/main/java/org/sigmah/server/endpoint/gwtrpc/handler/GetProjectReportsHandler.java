@@ -42,10 +42,13 @@ public class GetProjectReportsHandler implements CommandHandler<GetProjectReport
             query = em.createQuery("SELECT r FROM ProjectReport r WHERE r.project.id = :projectId");
             query.setParameter("projectId", cmd.getProjectId());
 
+        } else if(cmd.getOrgUnitId()!=null){
+        	query = em.createQuery("SELECT r FROM ProjectReport r WHERE r.orgUnit.id = :orgUnitId");
+            query.setParameter("orgUnitId", cmd.getOrgUnitId());
+            
         } else if(cmd.getReportId() != null) {
             query = em.createQuery("SELECT r FROM ProjectReport r WHERE r.id = :reportId");
             query.setParameter("reportId", cmd.getReportId());
-            
         } else
             throw new IllegalArgumentException("GetProjectReports should either specify a project id or a report id.");
 

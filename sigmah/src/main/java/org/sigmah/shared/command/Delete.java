@@ -5,6 +5,7 @@
 
 package org.sigmah.shared.command;
 
+import org.sigmah.client.page.dashboard.CreateProjectWindow.Mode;
 import org.sigmah.shared.command.result.VoidResult;
 import org.sigmah.shared.dto.EntityDTO;
 
@@ -24,10 +25,10 @@ public class Delete implements Command<VoidResult> {
 
 	private String entityName;
 	private int id;
+	
+	private Mode mode;
 
-    protected Delete() {
-		
-	}
+    protected Delete() {}
 	
 	public Delete(EntityDTO entity) {
 		this.entityName = entity.getEntityName();
@@ -54,4 +55,13 @@ public class Delete implements Command<VoidResult> {
 	public void setId(int id) {
 		this.id = id;
 	}
+
+	public Mode getMode() {
+		return mode;
+	}
+
+	public void setMode(Mode mode) {
+		this.mode = mode;
+	}
+	
 }
