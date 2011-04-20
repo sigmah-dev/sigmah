@@ -78,7 +78,7 @@ public class OrgUnitPresenter implements Frame, TabPage {
     private OrgUnitDTO currentOrgUnitDTO;
     private final SubPresenter[] presenters;
 
-    private final static String[] MAIN_TABS = { I18N.CONSTANTS.dashboard(), I18N.CONSTANTS.projectDetails(),
+    private final static String[] MAIN_TABS = { I18N.CONSTANTS.orgUnitTabOverview(), I18N.CONSTANTS.orgUnitTabInformations(),
             I18N.CONSTANTS.projectTabCalendar(), I18N.CONSTANTS.projectTabReports() };
 
     @Inject

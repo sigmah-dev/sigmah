@@ -134,7 +134,7 @@ class IndicatorForm extends AbstractDesignForm {
         
         objectiveField = new NumberField();
         objectiveField.setName("objective");
-        objectiveField.setFieldLabel(I18N.CONSTANTS.objecive());
+        objectiveField.setFieldLabel(I18N.CONSTANTS.targetValue());
         binding.addFieldBinding(new FieldBinding(objectiveField, "objective"));
         this.add(objectiveField);
       

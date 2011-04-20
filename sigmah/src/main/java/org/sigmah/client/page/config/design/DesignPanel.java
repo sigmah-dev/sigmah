@@ -368,7 +368,7 @@ public class DesignPanel extends DesignPanelBase implements ActionListener {
 		nameColumn.setRenderer(new DesignTreeGridCellRenderer(mappedIndicator));
 		columns.add(nameColumn);
 		
-		ColumnConfig objectiveColumn = new ColumnConfig("objective", I18N.CONSTANTS.objecive(), 75);
+		ColumnConfig objectiveColumn = new ColumnConfig("objective", I18N.CONSTANTS.targetValue(), 75);
 		objectiveColumn.setRenderer(new IndicatorValueRenderer());
 		objectiveColumn.setEditor(new CellEditor(new NumberField()));
 		objectiveColumn.setAlignment(HorizontalAlignment.RIGHT);

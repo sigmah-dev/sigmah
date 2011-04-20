@@ -483,7 +483,7 @@ public class OrgUnitReportsView extends LayoutContainer {
                             timeFormat.format(report.getLastEditDate())));
 
             final Button cancelButton = new Button(I18N.CONSTANTS.delete());
-            final Button sendButton = new Button(I18N.CONSTANTS.send());
+            final Button sendButton = new Button(I18N.CONSTANTS.sendReportDraft());
 
             cancelButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
