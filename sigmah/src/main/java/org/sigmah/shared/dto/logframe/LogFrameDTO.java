@@ -45,15 +45,6 @@ public class LogFrameDTO extends BaseModelData implements EntityDTO {
 		set("model", model);
 	}
 
-	// Log frame risks.
-	public String getTitle() {
-		return get("title");
-	}
-
-	public void setTitle(String title) {
-		set("title", title);
-	}
-
 	// Log main objective.
 	public String getMainObjective() {
 		return get("mainObjective");
@@ -155,8 +146,6 @@ public class LogFrameDTO extends BaseModelData implements EntityDTO {
 		sb.append(getEntityName());
 		sb.append(" ; id = ");
 		sb.append(getId());
-		sb.append(" ; title = ");
-		sb.append(getTitle());
 		sb.append(" ; main objective = ");
 		sb.append(getMainObjective());
 		sb.append(" ; groups = (\n");

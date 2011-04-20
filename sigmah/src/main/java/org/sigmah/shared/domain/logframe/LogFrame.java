@@ -37,7 +37,6 @@ public class LogFrame implements Serializable {
 
     private Integer id;
     private LogFrameModel logFrameModel;
-    private String title;
     private String mainObjective;
     private List<SpecificObjective> specificObjectives = new ArrayList<SpecificObjective>();
     private List<Prerequisite> prerequisites = new ArrayList<Prerequisite>();
@@ -51,7 +50,6 @@ public class LogFrame implements Serializable {
     public LogFrame copy() {
         final LogFrame copy = new LogFrame();
         copy.logFrameModel = this.logFrameModel;
-        copy.title = this.title;
         copy.mainObjective = this.mainObjective;
 
         // Copying groups
@@ -95,15 +93,6 @@ public class LogFrame implements Serializable {
 
     public void setLogFrameModel(LogFrameModel logFrameModel) {
         this.logFrameModel = logFrameModel;
-    }
-
-    @Column(name = "title", columnDefinition = "TEXT")
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
     }
 
     @Column(name = "main_objective", columnDefinition = "TEXT")
