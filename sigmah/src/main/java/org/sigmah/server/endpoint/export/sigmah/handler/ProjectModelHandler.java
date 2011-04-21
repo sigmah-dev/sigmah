@@ -84,8 +84,10 @@ public class ProjectModelHandler implements ModelHandler {
     }
 
     @Override
-    public void exportModel(OutputStream outputStream, String identifier,
+    public String exportModel(OutputStream outputStream, String identifier,
             EntityManager em) throws ExportException {
+
+        String name ="";
 
         if(identifier != null) {
             final Long projectModelId = Long.parseLong(identifier);
@@ -94,6 +96,8 @@ public class ProjectModelHandler implements ModelHandler {
 
             if(hibernateModel == null)
                 throw new ExportException("No project model is associated with the identifier '"+identifier+"'.");
+
+            name = hibernateModel.getName();
 
             // Removing superfluous links
             hibernateModel.setVisibilities(null);
@@ -113,6 +117,8 @@ public class ProjectModelHandler implements ModelHandler {
         } else {
             throw new ExportException("The identifier is missing.");
         }
+
+        return name;
     }
     
     /**

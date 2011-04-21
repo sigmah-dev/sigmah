@@ -12,6 +12,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 import javax.persistence.EntityManager;
@@ -89,11 +90,11 @@ public class ExportModelServlet extends HttpServlet {
             final ModelHandler handler = handlers.get(type);
             if(handler != null) {
                 try {
-                    handler.exportModel(resp.getOutputStream(), identifier,
+                    String fileName = handler.exportModel(resp.getOutputStream(), identifier,
                             injector.getInstance(EntityManager.class));
 
                     resp.setContentType("application/octet-stream");
-                    resp.addHeader("Content-Disposition", "attachment; filename="+type+".dat");
+                    resp.addHeader("Content-Disposition", "attachment; filename=\""+escapeFileName(fileName)+".dat\"");
 
                 } catch (ExportException ex) {
                     LOG.error("Model export error, type: "+type+", id: "+identifier+'.', ex);
@@ -225,6 +226,11 @@ public class ExportModelServlet extends HttpServlet {
     }
 
 
+    /**
+     * Retrieves the authentication token inside the user request.
+     * @param req
+     * @return
+     */
     private Authentication retrieveAuthentication(HttpServletRequest req) {
 
         final String authToken = Cookies.getCookieValue(Cookies.AUTH_TOKEN_COOKIE, req);
@@ -236,5 +242,26 @@ public class ExportModelServlet extends HttpServlet {
         final Authentication authentication = authenticationDAO.findById(authToken);
 
         return authentication;
+    }
+
+    /**
+     * Replaces every character not included in [a-z][A-Z][0-9] by a '_'.
+     *
+     * @param fileName The name to escape.
+     * @return An escaped file name.
+     */
+    private String escapeFileName(String fileName) {
+        final StringBuilder fileNameBuilder = new StringBuilder();
+
+        char[] characters = fileName.toCharArray();
+        for(char c : characters) {
+
+            if((c < 'a' || c > 'z' ) && (c < 'A' || c > 'Z') && (c < '0' || c > '9'))
+                c = '_';
+
+            fileNameBuilder.append(c);
+        }
+
+        return fileNameBuilder.toString();
     }
 }

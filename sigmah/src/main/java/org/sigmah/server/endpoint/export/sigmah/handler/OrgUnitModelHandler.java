@@ -72,9 +72,10 @@ public class OrgUnitModelHandler implements ModelHandler {
     }
 
     @Override
-    public void exportModel(OutputStream outputStream, String identifier,
+    public String exportModel(OutputStream outputStream, String identifier,
             EntityManager em) throws ExportException {
-        
+        String name = "";
+
         if(identifier != null) {
             final Integer orgUnitModelId = Integer.parseInt(identifier);
 
@@ -82,6 +83,8 @@ public class OrgUnitModelHandler implements ModelHandler {
 
             if(hibernateModel == null)
                 throw new ExportException("No orgUnit model is associated with the identifier '"+identifier+"'.");
+
+            name = hibernateModel.getName();
 
             // Stripping hibernate proxies from the model.
             final OrgUnitModel realModel = Realizer.realize(hibernateModel);
@@ -98,6 +101,8 @@ public class OrgUnitModelHandler implements ModelHandler {
         } else {
             throw new ExportException("The identifier is missing.");
         }
+
+        return name;
     }
 
 	/**

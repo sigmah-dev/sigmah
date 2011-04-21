@@ -15,6 +15,8 @@ import java.util.HashSet;
 import java.util.List;
 
 import javax.persistence.EntityManager;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.sigmah.server.domain.Authentication;
 import org.sigmah.server.endpoint.export.sigmah.ExportException;
@@ -29,6 +31,8 @@ import org.sigmah.shared.domain.report.ProjectReportModelSection;
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
 public class ProjectReportModelHandler implements ModelHandler {
+
+    private final static Log LOG = LogFactory.getLog(ProjectReportModelHandler.class);
 	
 	/**
 	 * The map of imported objects (original object, transformed object)
@@ -52,15 +56,17 @@ public class ProjectReportModelHandler implements ModelHandler {
 			em.persist(projectReportModel);
 			em.getTransaction().commit();
 		} catch (IOException e) {
-			e.printStackTrace();
+			LOG.debug(e);
 		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
+			LOG.debug(e);
 		}    	
     }
 
     @Override
-    public void exportModel(OutputStream outputStream, String identifier,
+    public String exportModel(OutputStream outputStream, String identifier,
             EntityManager em) throws ExportException {
+
+        String name = "";
 
         if(identifier != null) {
             final Integer projectReportModelId = Integer.parseInt(identifier);
@@ -69,6 +75,8 @@ public class ProjectReportModelHandler implements ModelHandler {
 
             if(hibernateModel == null)
                 throw new ExportException("No project report model is associated with the identifier '"+identifier+"'.");
+
+            name = hibernateModel.getName();
 
             // Stripping hibernate proxies from the model.
             final ProjectReportModel realModel = Realizer.realize(hibernateModel);
@@ -85,6 +93,8 @@ public class ProjectReportModelHandler implements ModelHandler {
         } else {
             throw new ExportException("The identifier is missing.");
         }
+
+        return name;
     }
 
 	/**

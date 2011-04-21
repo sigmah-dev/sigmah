@@ -23,7 +23,7 @@ public interface ModelHandler {
      * Read a model from the given input stream and persist it.
      * @param inputStream Data stream.
      * @param em
-     * @param authentication TODO
+     * @param authentication Current user.
      */
     void importModel(InputStream inputStream, EntityManager em, Authentication authentication) throws ExportException;
 
@@ -33,6 +33,7 @@ public interface ModelHandler {
      * @param outputStream Output stream.
      * @param properties Map of properties, must identify a model.
      * @param em
+     * @return The name of the exported model.
      */
-    void exportModel(OutputStream outputStream, String identifier, EntityManager em) throws ExportException;
+    String exportModel(OutputStream outputStream, String identifier, EntityManager em) throws ExportException;
 }

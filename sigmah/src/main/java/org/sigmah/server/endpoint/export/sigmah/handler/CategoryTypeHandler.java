@@ -36,31 +36,37 @@ public class CategoryTypeHandler implements ModelHandler {
 	
 
 	@Override
-	public void exportModel(OutputStream outputStream, String identifier,
+	public String exportModel(OutputStream outputStream, String identifier,
 			EntityManager em) throws ExportException {
-	    if(identifier != null) {
-            final Integer categoryTypeId = Integer.parseInt(identifier);
+	    String name = "";
+            
+            if(identifier != null) {
+                final Integer categoryTypeId = Integer.parseInt(identifier);
 
-            final CategoryType hibernateCategory = em.find(CategoryType.class, categoryTypeId);
+                final CategoryType hibernateCategory = em.find(CategoryType.class, categoryTypeId);
 
-            if(hibernateCategory == null)
-                throw new ExportException("No category type is associated with the identifier '"+identifier+"'.");
-
-            // Stripping hibernate proxies from the element.
-            final CategoryType realCategory = Realizer.realize(hibernateCategory);
-
-            // Serialization
-            try {
-                final ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream);
-                objectOutputStream.writeObject(realCategory);
+                if(hibernateCategory == null)
+                    throw new ExportException("No category type is associated with the identifier '"+identifier+"'.");
                 
-            } catch (IOException ex) {
-                throw new ExportException("An error occured while serializing the category type "+categoryTypeId, ex);
-            }
+                name = hibernateCategory.getLabel();
 
-        } else {
-            throw new ExportException("The identifier is missing.");
-        }
+                // Stripping hibernate proxies from the element.
+                final CategoryType realCategory = Realizer.realize(hibernateCategory);
+
+                // Serialization
+                try {
+                    final ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream);
+                    objectOutputStream.writeObject(realCategory);
+
+                } catch (IOException ex) {
+                    throw new ExportException("An error occured while serializing the category type "+categoryTypeId, ex);
+                }
+
+            } else {
+                throw new ExportException("The identifier is missing.");
+            }
+            
+            return name;
 	}
 
 	@Override

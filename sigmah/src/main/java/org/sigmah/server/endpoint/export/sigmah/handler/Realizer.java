@@ -12,6 +12,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.hibernate.collection.PersistentBag;
+import org.hibernate.collection.PersistentList;
 import org.hibernate.collection.PersistentSet;
 
 /**
@@ -48,7 +49,7 @@ public class Realizer {
                 return (T) alreadyRealizedObjects.get(object);
             }
 
-            LOG.debug("Realizing "+object.getClass()+"...");
+            LOG.trace("Realizing "+object.getClass()+"...");
 
             try {
                 // Extracting the class of the current object
@@ -75,7 +76,7 @@ public class Realizer {
 
                 for (final Field field : fields) {
                     if (!Modifier.isStatic(field.getModifiers())) { // Avoid trying to modify static fields
-                        LOG.debug("\tfield "+field.getName());
+                        LOG.trace("\tfield "+field.getName());
 
                         field.setAccessible(true); // Force the accessibility of the current field
 
@@ -85,8 +86,9 @@ public class Realizer {
                         if (sourceValue == null) {
                             destinationValue = null;
 
-                        } else if (sourceValue instanceof PersistentBag) {
-                            // Turning persistent bags into lists
+                        } else if (sourceValue instanceof PersistentBag
+                                || sourceValue instanceof PersistentList) {
+                            // Turning persistent bags into array lists
 
                             final ArrayList<Object> list = new ArrayList<Object>();
 
@@ -97,7 +99,7 @@ public class Realizer {
                             destinationValue = list;
 
                         } else if (sourceValue instanceof PersistentSet) {
-                            // Turning persistent sets into sets
+                            // Turning persistent sets into hash sets
 
                             final HashSet<Object> set = new HashSet<Object>();
 
