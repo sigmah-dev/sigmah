@@ -129,8 +129,7 @@ public abstract class FlexibleElement implements Serializable, Historable {
      */
     public void resetImport(){
     	this.id = null;
-    	if(privacyGroup !=null){
-    		this.privacyGroup.resetImport();
-    	}
+    	//remove the privacy group from imported flexible elements.
+    	this.privacyGroup = null;
     }
 }
