@@ -20,7 +20,7 @@ import org.sigmah.shared.dto.ProjectModelDTO;
 import org.sigmah.shared.dto.ProjectModelDTOLight;
 import org.sigmah.shared.dto.value.FileUploadUtils;
 
-import com.extjs.gxt.ui.client.Style.Orientation;
+import com.extjs.gxt.ui.client.Style.VerticalAlignment;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FormEvent;
@@ -28,19 +28,21 @@ import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Dialog;
+import com.extjs.gxt.ui.client.widget.HorizontalPanel;
+import com.extjs.gxt.ui.client.widget.Label;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.form.FileUploadField;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
-import com.extjs.gxt.ui.client.widget.form.Radio;
-import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.FormPanel.Encoding;
 import com.extjs.gxt.ui.client.widget.form.FormPanel.Method;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.extjs.gxt.ui.client.widget.layout.LayoutData;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.http.client.URL;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.ListBox;
 
 public class AdminModelActionListener implements ActionListener {
 	
@@ -271,10 +273,17 @@ public class AdminModelActionListener implements ActionListener {
 		importPanel.setAction(GWT.getModuleBaseURL() + "models");
 		importPanel.setMethod(FormPanel.Method.POST);
 		importPanel.setPadding(5);
-		importPanel.setLabelWidth(120);
-		importPanel.setFieldWidth(250);
-		importPanel.setWidth(420);
+		
+		if(isProject){
+			importPanel.setLabelWidth(120);
+			importPanel.setFieldWidth(270);
+		} else{			
+			importPanel.setLabelWidth(120);
+			importPanel.setFieldWidth(250);
+		}
+		
 		importPanel.setAutoHeight(true);
+		importPanel.setAutoWidth(true);
 
 		final FileUploadField uploadField = new FileUploadField();
 		uploadField.setAllowBlank(false);
@@ -299,37 +308,21 @@ public class AdminModelActionListener implements ActionListener {
 		typeHandler.setName("type");
 		typeHandler.setVisible(false);
 		importPanel.add(typeHandler);
-		
-		if (isProject) {			
-			// Type project model
-			final RadioGroup projectModelTypeGroup = new RadioGroup("project-model-type");
-			projectModelTypeGroup.setOrientation(Orientation.VERTICAL);
-			projectModelTypeGroup.setFieldLabel(I18N.CONSTANTS.createProjectType());
-	        projectModelTypeGroup.setFireChangeEventOnSetValue(true);
-
-	        Radio ngoRadio = new Radio();
-	        ngoRadio.setFireChangeEventOnSetValue(true);
-	        ngoRadio.setValue(true);
-	        ngoRadio.setBoxLabel(ProjectModelType.getName(ProjectModelType.NGO));
-	        ngoRadio.setValueAttribute("NGO");
-	        ngoRadio.addStyleName("toolbar-radio");
-
-	        Radio fundingRadio = new Radio();
-	        fundingRadio.setFireChangeEventOnSetValue(true);
-	        fundingRadio.setBoxLabel(ProjectModelType.getName(ProjectModelType.FUNDING));
-	        fundingRadio.setValueAttribute("FUNDING");
-	        fundingRadio.addStyleName("toolbar-radio");
-
-	        Radio partnerRadio = new Radio();
-	        partnerRadio.setFireChangeEventOnSetValue(true);	        
-	        partnerRadio.setBoxLabel(ProjectModelType.getName(ProjectModelType.LOCAL_PARTNER));
-	        ngoRadio.setValueAttribute("LOCAL_PARTNER");
-	        partnerRadio.addStyleName("toolbar-radio");
-
-	        projectModelTypeGroup.add(ngoRadio);
-	        projectModelTypeGroup.add(fundingRadio);
-	        projectModelTypeGroup.add(partnerRadio);
-	        importPanel.add(projectModelTypeGroup);
+		//Add project model type choice
+		if (isProject) {
+			Label labelProjectModelType = new Label(I18N.CONSTANTS.adminProjectModelType());
+			labelProjectModelType.setStyleAttribute("font-size", "12px");
+			labelProjectModelType.setStyleAttribute("margin-right", "30px");
+			
+			ListBox projectModelTypeList = new ListBox();
+			projectModelTypeList.setName("project-model-type");
+			projectModelTypeList.setVisibleItemCount(1);
+			projectModelTypeList.addItem(ProjectModelType.getName(ProjectModelType.NGO), "NGO");
+			projectModelTypeList.addItem(ProjectModelType.getName(ProjectModelType.FUNDING), "FUNDING");
+			projectModelTypeList.addItem(ProjectModelType.getName(ProjectModelType.LOCAL_PARTNER), "LOCAL_PARTNER");
+			
+			importPanel.add(labelProjectModelType);
+			importPanel.add(projectModelTypeList);
 		}
 
 		importPanel.addListener(Events.Submit, new Listener<FormEvent>() {
