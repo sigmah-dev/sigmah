@@ -2741,14 +2741,30 @@ public class ProjectLogFrameGrid {
 
 			@Override
 			public boolean beforeRemove() {
-				// TODO Auto-generated method stub
-				return false;
+				// Delete the group from LogFrameDTO
+				boolean removed = logFrame.removeGroup(group.getUserObject());
+	          
+				if(removed)
+				{
+				//Notify that the logframe has been modified
+                fireLogFrameEdited();
+				}
+				
+				return removed;
 			}
 
 			@Override
 			public boolean canBeRemoved() {
-				// TODO Auto-generated method stub
-				return false;
+				// Delete the group from LogFrameDTO
+				boolean removed = logFrame.removeGroup(group.getUserObject());
+	          
+				if(removed)
+				{
+				//Notify that the logframe has been modified
+                fireLogFrameEdited();
+				}
+				
+				return removed;
 			}
 
 			@Override
