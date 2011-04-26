@@ -2755,16 +2755,17 @@ public class ProjectLogFrameGrid {
 
 			@Override
 			public boolean canBeRemoved() {
-				// Delete the group from LogFrameDTO
-				boolean removed = logFrame.removeGroup(group.getUserObject());
-	          
-				if(removed)
-				{
-				//Notify that the logframe has been modified
-                fireLogFrameEdited();
+				if(view.getGroupsCount()==1)
+				{//If this is the last group in the view,can not be deleted
+					return false;
 				}
-				
-				return removed;
+				if(group.getRowsCount()!=0)
+				{//If this group is not empty,can not be deleted
+					
+					return false;
+				}
+               
+			    return true;
 			}
 
 			@Override
