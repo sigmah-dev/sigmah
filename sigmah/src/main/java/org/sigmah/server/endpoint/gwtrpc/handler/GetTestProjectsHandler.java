@@ -45,7 +45,7 @@ public class GetTestProjectsHandler implements CommandHandler<GetTestProjects> {
         final ArrayList<ProjectDTOLight> projectDTOList = new ArrayList<ProjectDTOLight>();
 
         // Creates selection query.
-        final Query query = em.createQuery("SELECT u FROM UserDatabase u where u.owner.id = "+user.getId()+" ORDER BY u.fullName");
+        final Query query = em.createQuery("SELECT p FROM Project p where p.owner.id = "+user.getId()+" ORDER BY p.fullName");
 
         // Gets all project models entities.
         @SuppressWarnings("unchecked")
