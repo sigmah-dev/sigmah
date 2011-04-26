@@ -26,7 +26,7 @@ import org.sigmah.shared.dto.category.CategoryElementDTO;
 import org.sigmah.shared.dto.category.CategoryTypeDTO;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
+import com.google.inject.servlet.RequestScoped;
 
 /**
  * Responsible for the mapping of project objects.
@@ -34,7 +34,7 @@ import com.google.inject.Singleton;
  * @author tmi
  * 
  */
-@Singleton
+@RequestScoped
 public class ProjectMapper {
 
     private final static Log LOG = LogFactory.getLog(GetProjectsHandler.class);
