@@ -120,6 +120,7 @@ public class ProjectReportsView extends LayoutContainer {
     private RichTextArea.Formatter[] globalFormatterArray = new RichTextArea.Formatter[1];
 
 //    private ProjectReportDTO currentReport;
+    private int currentReportId = -1;
     private HashMap<Integer, RichTextArea> textAreas;
     private KeyQuestionState keyQuestionState;
 
@@ -127,6 +128,7 @@ public class ProjectReportsView extends LayoutContainer {
     private Button createReportButton;
 
     private Timer autoSaveTimer;
+
 
     public ProjectReportsView(Authentication authentication, EventBus eventBus, Dispatcher dispatcher,
             ListStore<ReportReference> store) {
@@ -278,14 +280,19 @@ public class ProjectReportsView extends LayoutContainer {
                         public void onClick(ClickEvent event) {
                             // Opening a report
 
-                            setReport(null); // Closing the current report
-                            mainPanel.mask(I18N.CONSTANTS.loading());
+                            if(model.getId() != currentReportId) {
+                                setReport(null); // Closing the current report
+                                mainPanel.mask(I18N.CONSTANTS.loading());
 
-                            final ProjectState state = new ProjectState(currentState.getProjectId());
-                            state.setCurrentSection(currentState.getCurrentSection());
-                            state.setArgument(model.getId().toString());
+                                final ProjectState state = new ProjectState(currentState.getProjectId());
+                                state.setCurrentSection(currentState.getCurrentSection());
+                                state.setArgument(model.getId().toString());
 
-                            eventBus.fireEvent(new NavigationEvent(NavigationHandler.NavigationRequested, state));
+                                eventBus.fireEvent(new NavigationEvent(NavigationHandler.NavigationRequested, state));
+                                
+                            } else {
+                                Notification.show(I18N.CONSTANTS.projectTabReports(), I18N.CONSTANTS.reportAlreadyOpened());
+                            }
                         }
                     });
 
@@ -419,8 +426,12 @@ public class ProjectReportsView extends LayoutContainer {
             autoSaveTimer = null;
         }
 
-        if (report == null)
+        if (report == null) {
+            currentReportId = -1;
             return;
+        }
+
+        currentReportId = report.getId();
 
         // Preparing the view for the new report
         textAreas.clear();
