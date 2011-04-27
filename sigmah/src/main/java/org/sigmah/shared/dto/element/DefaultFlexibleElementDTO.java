@@ -43,6 +43,7 @@ import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import org.sigmah.shared.dto.ProjectDTO;
 
 /**
  * DTO mapping class for entity element.DefaultFlexibleElement.
@@ -92,7 +93,7 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
             return getComponent(enabled);
     }
 
-    protected Component getComponent(boolean enabled) {
+    protected Component getComponent(final boolean enabled) {
 
         if (currentContainerDTO instanceof DefaultFlexibleElementContainer) {
             container = (DefaultFlexibleElementContainer) currentContainerDTO;
@@ -223,89 +224,93 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
             ratioLabel.addStyleName("project-label-10");
             ratioLabel.addStyleName("flexibility-label");
 
+            // Planned budget.
+            final NumberField plannedBudgetNumberField = createNumberField(false);
+            plannedBudgetNumberField.setFieldLabel(I18N.CONSTANTS.projectPlannedBudget());
+            plannedBudgetField = plannedBudgetNumberField;
+            plannedBudgetNumberField.setValue(pb);
+
+            // Spent budget.
+            final NumberField spendBudgetNumberField = createNumberField(false);
+            spendBudgetNumberField.setFieldLabel(I18N.CONSTANTS.projectSpendBudget());
+            spendBudgetField = spendBudgetNumberField;
+            spendBudgetNumberField.setValue(sb);
+
+            // Final reference to the "received budget" field (needed by the listener).
+            final NumberField[] receivedBudgetReference = new NumberField[] {null};
+
+            // Listener.
+            final Listener<BaseEvent> listener = new Listener<BaseEvent>() {
+
+                final double minValue = 0.0;
+
+                @Override
+                public void handleEvent(BaseEvent be) {
+
+                    // Retrieves values.
+                    final Number plannedBudget = plannedBudgetNumberField.getValue();
+                    final Double plannedBudgetAsDouble = plannedBudget.doubleValue();
+
+                    final Number spendBudget = spendBudgetNumberField.getValue();
+                    final Double spendBudgetAsDouble = spendBudget.doubleValue();
+
+                    final Double receivedBudgetAsDouble;
+                    if(receivedBudgetReference[0] != null) {
+                        // If the field exists, retrieving its value.
+                        final Number receivedBudget = receivedBudgetReference[0].getValue();
+                        receivedBudgetAsDouble = receivedBudget.doubleValue();
+                        
+                    } else {
+                        // Otherwise, using the default value.
+                        receivedBudgetAsDouble = rb;
+                    }
+
+                    // Checks the numbers intervals.
+                    final boolean isValueOn = plannedBudgetAsDouble >= minValue && spendBudgetAsDouble >= minValue
+                            && receivedBudgetAsDouble >= minValue;
+
+                    // The numbers are saved as strings.
+                    final String plannedBudgetRawValue = String.valueOf(plannedBudgetAsDouble);
+                    final String spendBudgetRawValue = String.valueOf(spendBudgetAsDouble);
+                    final String receivedBudgetRawValue = String.valueOf(receivedBudgetAsDouble);
+                    final String rawValue = ValueResultUtils.mergeElements(plannedBudgetRawValue,
+                            spendBudgetRawValue, receivedBudgetRawValue);
+
+                    ratioLabel.setText(I18N.CONSTANTS.flexibleElementBudgetDistributionRatio() + ": "
+                            + NumberUtils.ratioAsString(spendBudgetAsDouble, plannedBudgetAsDouble));
+
+                    fireEvents(rawValue, isValueOn);
+                }
+            };
+
+            plannedBudgetNumberField.addListener(Events.Change, listener);
+            spendBudgetNumberField.addListener(Events.Change, listener);
+
             if (enabled) {
-
-                // Planned budget.
-                final NumberField plannedBudgetNumberField = createNumberField(false);
-                plannedBudgetNumberField.setFieldLabel(I18N.CONSTANTS.projectPlannedBudget());
-
-                // Spend budget.
-                final NumberField spendBudgetNumberField = createNumberField(false);
-                spendBudgetNumberField.setFieldLabel(I18N.CONSTANTS.projectSpendBudget());
 
                 // Received budget.
                 final NumberField receivedBudgetNumberField = createNumberField(false);
                 receivedBudgetNumberField.setFieldLabel(I18N.CONSTANTS.projectReceivedBudget());
 
-                // Listener.
-                final Listener<BaseEvent> listener = new Listener<BaseEvent>() {
-
-                    final double minValue = 0.0;
-
-                    @Override
-                    public void handleEvent(BaseEvent be) {
-
-                        // Retrieves values.
-                        final Number plannedBudget = plannedBudgetNumberField.getValue();
-                        final Double plannedBudgetAsDouble = plannedBudget.doubleValue();
-
-                        final Number spendBudget = spendBudgetNumberField.getValue();
-                        final Double spendBudgetAsDouble = spendBudget.doubleValue();
-
-                        final Number receivedBudget = receivedBudgetNumberField.getValue();
-                        final Double receivedBudgetAsDouble = receivedBudget.doubleValue();
-
-                        // Checks the numbers intervals.
-                        final boolean isValueOn = plannedBudgetAsDouble >= minValue && spendBudgetAsDouble >= minValue
-                                && receivedBudgetAsDouble >= minValue;
-
-                        // The numbers are saved as strings.
-                        final String plannedBudgetRawValue = String.valueOf(plannedBudgetAsDouble);
-                        final String spendBudgetRawValue = String.valueOf(spendBudgetAsDouble);
-                        final String receivedBudgetRawValue = String.valueOf(receivedBudgetAsDouble);
-                        final String rawValue = ValueResultUtils.mergeElements(plannedBudgetRawValue,
-                                spendBudgetRawValue, receivedBudgetRawValue);
-
-                        ratioLabel.setText(I18N.CONSTANTS.flexibleElementBudgetDistributionRatio() + ": "
-                                + NumberUtils.ratioAsString(spendBudgetAsDouble, plannedBudgetAsDouble));
-
-                        fireEvents(rawValue, isValueOn);
-                    }
-                };
-
-                plannedBudgetNumberField.addListener(Events.Change, listener);
-                spendBudgetNumberField.addListener(Events.Change, listener);
                 receivedBudgetNumberField.addListener(Events.Change, listener);
 
                 // Sets the value to the fields.
-                plannedBudgetNumberField.setValue(pb);
-                spendBudgetNumberField.setValue(sb);
                 receivedBudgetNumberField.setValue(rb);
 
-                plannedBudgetField = plannedBudgetNumberField;
-                spendBudgetField = spendBudgetNumberField;
+                receivedBudgetReference[0] = receivedBudgetNumberField;
                 receivedBudgetField = receivedBudgetNumberField;
 
             } else {
-
-                final LabelField plannedBudgetLabelField = createLabelField();
-                plannedBudgetLabelField.setFieldLabel(I18N.CONSTANTS.projectPlannedBudget());
-
-                final LabelField spendBudgetLabelField = createLabelField();
-                spendBudgetLabelField.setFieldLabel(I18N.CONSTANTS.projectSpendBudget());
 
                 final LabelField receivedBudgetLabelField = createLabelField();
                 receivedBudgetLabelField.setFieldLabel(I18N.CONSTANTS.projectReceivedBudget());
 
                 // Sets the value to the fields.
-                plannedBudgetLabelField.setValue(pb);
-                spendBudgetLabelField.setValue(sb);
                 receivedBudgetLabelField.setValue(rb);
 
-                plannedBudgetField = plannedBudgetLabelField;
-                spendBudgetField = spendBudgetLabelField;
                 receivedBudgetField = receivedBudgetLabelField;
             }
+
 
             ratioLabel.setText(I18N.CONSTANTS.flexibleElementBudgetDistributionRatio() + ": "
                     + NumberUtils.ratioAsString(sb, pb));
@@ -1284,6 +1289,19 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 
     @Override
     public boolean isCorrectRequiredValue(ValueResult result) {
+
+        if(getType() == DefaultFlexibleElementType.BUDGET &&
+                currentContainerDTO instanceof ProjectDTO) {
+
+            Log.debug("YO YO VALUE IS "+result.getValueObject()+" CHECK IT OUT!");
+
+            ProjectDTO projectDTO = (ProjectDTO) currentContainerDTO;
+            if(projectDTO.getCurrentAmendment() != null) {
+                
+
+            }
+        }
+
         // These elements don't have any value.
         return true;
     }

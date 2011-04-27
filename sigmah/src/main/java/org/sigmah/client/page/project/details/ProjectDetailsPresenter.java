@@ -42,6 +42,8 @@ import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Grid;
+import java.util.List;
+import org.sigmah.shared.command.result.ValueResultUtils;
 
 public class ProjectDetailsPresenter implements SubPresenter {
 
@@ -124,7 +126,7 @@ public class ProjectDetailsPresenter implements SubPresenter {
     private void addListeners() {
 
         // Save action.
-        view.getSaveButton().addListener(Events.OnClick, new Listener<ButtonEvent>() {
+        view.getSaveButton().addListener(Events.Select, new Listener<ButtonEvent>() {
 
             @Override
             public void handleEvent(ButtonEvent be) {
@@ -372,10 +374,11 @@ public class ProjectDetailsPresenter implements SubPresenter {
         case BUDGET:
             try {
 
-                final String[] budgets = value.split("\\|");
-                final double plannedBudget = Double.parseDouble(budgets[0]);
-                final double spendBudget = Double.parseDouble(budgets[1]);
-                final double receivedBudget = Double.parseDouble(budgets[2]);
+                final List<String> budgets = ValueResultUtils.splitElements(value);
+                
+                final double plannedBudget = Double.parseDouble(budgets.get(0));
+                final double spendBudget = Double.parseDouble(budgets.get(1));
+                final double receivedBudget = Double.parseDouble(budgets.get(2));
 
                 currentProjectDTO.setPlannedBudget(plannedBudget);
                 currentProjectDTO.setSpendBudget(spendBudget);
