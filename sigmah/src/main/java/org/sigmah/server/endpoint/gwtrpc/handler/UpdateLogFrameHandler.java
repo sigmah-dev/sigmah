@@ -44,16 +44,6 @@ public class UpdateLogFrameHandler implements CommandHandler<UpdateLogFrame> {
 
         LogFrameDTO logFrameDTO = cmd.getLogFrame();
         LogFrame logFrame = null;
-
-        List<LogFrameActivityDTO> activities = logFrameDTO.getAllActivitiesDTO();
-        int countActivities= 0;
-        int projectActivitiesAdvancement = 0;
-        if(activities!=null && !activities.isEmpty()){
-        	for(LogFrameActivityDTO activity :activities){
-        		countActivities++;
-        		projectActivitiesAdvancement+=activity.getAdvancement();
-        	}
-        }
         
         // Maps the log frame.
         if (logFrameDTO != null) {
@@ -79,14 +69,24 @@ public class UpdateLogFrameHandler implements CommandHandler<UpdateLogFrame> {
             // Merges log frame.
             logFrame = em.merge(logFrame);
             
-            //Update the projets activities advancement
-            if(countActivities>0){
-            	projectActivitiesAdvancement/=countActivities;
-            	logFrame.getParentProject().setActivityAdvancement(projectActivitiesAdvancement);
-            	em.merge(logFrame.getParentProject());
-            }
+            //Update the project activities advancement
+            List<LogFrameActivityDTO> activities = logFrameDTO.getAllActivitiesDTO();
+            int countActivities= 0;
+            int projectActivitiesAdvancement = 0;
             
-
+            if(activities!=null && !activities.isEmpty()){
+            	for(LogFrameActivityDTO activity :activities){
+            		countActivities++;
+            		projectActivitiesAdvancement+=activity.getAdvancement();
+            	}
+            }            
+            
+            if(countActivities>0)
+            	projectActivitiesAdvancement/=countActivities;
+            
+            logFrame.getParentProject().setActivityAdvancement(projectActivitiesAdvancement);
+        	em.merge(logFrame.getParentProject());
+        	
             // Re-map as DTO.
             logFrameDTO = mapper.map(logFrame, LogFrameDTO.class);
         }

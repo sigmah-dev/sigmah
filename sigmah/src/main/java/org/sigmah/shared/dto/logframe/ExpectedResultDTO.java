@@ -226,6 +226,8 @@ public class ExpectedResultDTO extends BaseModelData implements EntityDTO, Posit
         sb.append(getLabel());
         sb.append(" ; code = ");
         sb.append(getCode());
+        sb.append(" ; date deleted = ");
+        sb.append(getDateDeleted());
         sb.append(" ; intervention logic = ");
         sb.append(getInterventionLogic());
         sb.append(" ; risks = ");
