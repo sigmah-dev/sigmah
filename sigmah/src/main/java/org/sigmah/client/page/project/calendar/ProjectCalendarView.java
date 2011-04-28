@@ -4,6 +4,29 @@
  */
 package org.sigmah.client.page.project.calendar;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.sigmah.client.dispatch.Dispatcher;
+import org.sigmah.client.dispatch.remote.Authentication;
+import org.sigmah.client.i18n.I18N;
+import org.sigmah.client.page.project.calendar.ProjectCalendarPresenter.CalendarWrapper;
+import org.sigmah.client.ui.CalendarWidget;
+import org.sigmah.shared.command.CreateEntity;
+import org.sigmah.shared.command.Delete;
+import org.sigmah.shared.command.UpdateEntity;
+import org.sigmah.shared.command.result.CreateResult;
+import org.sigmah.shared.command.result.VoidResult;
+import org.sigmah.shared.domain.calendar.Calendar;
+import org.sigmah.shared.domain.calendar.Event;
+import org.sigmah.shared.domain.profile.GlobalPermissionEnum;
+import org.sigmah.shared.dto.profile.ProfileUtils;
+
 import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.data.ModelData;
@@ -22,13 +45,13 @@ import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.TextArea;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.Time;
 import com.extjs.gxt.ui.client.widget.form.TimeField;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.grid.CheckBoxSelectionModel;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
@@ -47,27 +70,6 @@ import com.google.gwt.i18n.client.LocaleInfo;
 import com.google.gwt.i18n.client.constants.DateTimeConstants;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.SimplePanel;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import org.sigmah.client.dispatch.Dispatcher;
-import org.sigmah.client.dispatch.remote.Authentication;
-import org.sigmah.client.i18n.I18N;
-import org.sigmah.client.page.project.calendar.ProjectCalendarPresenter.CalendarWrapper;
-import org.sigmah.client.ui.CalendarWidget;
-import org.sigmah.shared.command.CreateEntity;
-import org.sigmah.shared.command.Delete;
-import org.sigmah.shared.command.UpdateEntity;
-import org.sigmah.shared.command.result.CreateResult;
-import org.sigmah.shared.command.result.VoidResult;
-import org.sigmah.shared.domain.calendar.Calendar;
-import org.sigmah.shared.domain.calendar.Event;
-import org.sigmah.shared.domain.profile.GlobalPermissionEnum;
-import org.sigmah.shared.dto.profile.ProfileUtils;
 
 /**
  * 
@@ -325,12 +327,14 @@ public class ProjectCalendarView extends LayoutContainer {
             final TimeField eventStartHourField = new TimeField();
             eventStartHourField.setFieldLabel(I18N.CONSTANTS.calendarEventStartHour());
             eventStartHourField.setName("startDate");
+            eventStartHourField.setTriggerAction(TriggerAction.ALL);
             dialog.add(eventStartHourField);
-
+            
             // Event end time
             final TimeField eventEndHourField = new TimeField();
             eventEndHourField.setFieldLabel(I18N.CONSTANTS.calendarEventEndHour());
             eventEndHourField.setName("endDate");
+            eventEndHourField.setTriggerAction(TriggerAction.ALL);
             dialog.add(eventEndHourField);
 
             // Event description
