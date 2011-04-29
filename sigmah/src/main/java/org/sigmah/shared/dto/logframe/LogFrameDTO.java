@@ -8,6 +8,7 @@ import java.util.List;
 import org.sigmah.shared.domain.logframe.LogFrameGroupType;
 import org.sigmah.shared.dto.EntityDTO;
 
+import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 
 /**
@@ -209,6 +210,39 @@ public class LogFrameDTO extends BaseModelData implements EntityDTO {
 	}
 
 	/**
+	 * Get all groups that are not deleted of a given type.If the type is <code>null</code>,
+	 * all gropus that are not deleted will be returned.
+	 * 
+	 * @param 
+	 *      The Type
+	 * @return
+	 *      A Collection<LogFrameGroupDTO>    
+	 * @author 
+	 *      HUZHE(zhe.hu32@gmail.com)
+	 */
+	public Collection<LogFrameGroupDTO> getAllGroupsNotDeleted(LogFrameGroupType type) {
+
+		// Lists of groups.
+		final List<LogFrameGroupDTO> returnedGroups = new ArrayList<LogFrameGroupDTO>();
+		final List<LogFrameGroupDTO> groups = (List<LogFrameGroupDTO>) getAllGroups(type);
+
+		// Retrieves groups that are not deleted
+		if (groups != null) {
+			for (final LogFrameGroupDTO g : groups) {
+
+				// Adds the group if it has the correct type.
+				if (!g.isDeleted()) {
+
+					returnedGroups.add(g);
+
+				}
+			}
+		}
+		return returnedGroups;
+	}
+
+	
+	/**
 	 * Gets the only default group of this type. The default group is never
 	 * <code>null</code>. An empty project log frame contains always one group
 	 * of each type.
@@ -284,13 +318,17 @@ public class LogFrameDTO extends BaseModelData implements EntityDTO {
 		// If the list is empty,do nothing
 		if (groups == null) {
 			return false;
-		} else {
-
-			groups.remove(group);
-			setGroupsDTO(groups);
+		} 
+           
+	    //Try to delete the group
+		if(groups.contains(group))
+		{
+		   group.delete();
 			return true;
-
 		}
+		
+		return false;
+			
 	}
 
 	/**

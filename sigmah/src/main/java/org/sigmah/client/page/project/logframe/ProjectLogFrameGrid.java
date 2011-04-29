@@ -715,22 +715,22 @@ public class ProjectLogFrameGrid {
         for (final LogFrameGroupDTO group : logFrame.getGroupsDTO()) {
             switch (group.getType()) {
             case SPECIFIC_OBJECTIVE:
-                if (logFrameModel.getEnableSpecificObjectivesGroups()) {
+                if (logFrameModel.getEnableSpecificObjectivesGroups() && !group.isDeleted()) {
                     addSpecificObjectivesGroup(group);
                 }
                 break;
             case EXPECTED_RESULT:
-                if (logFrameModel.getEnableExpectedResultsGroups()) {
+                if (logFrameModel.getEnableExpectedResultsGroups() && !group.isDeleted()) {
                     addExpectedResultsGroup(group);
                 }
                 break;
             case PREREQUISITE:
-                if (logFrameModel.getEnablePrerequisitesGroups()) {
+                if (logFrameModel.getEnablePrerequisitesGroups() && !group.isDeleted()) {
                     addPrerequisitesGroup(group);
                 }
                 break;
             case ACTIVITY:
-                if (logFrameModel.getEnableActivitiesGroups()) {
+                if (logFrameModel.getEnableActivitiesGroups() && !group.isDeleted()) {
                     addActivitiesGroup(group);
                 }
                 break;
@@ -916,7 +916,7 @@ public class ProjectLogFrameGrid {
             // Sets the form window.
             formWindow.clear();
             formWindow.addChoicesList(I18N.CONSTANTS.logFrameGroup(),
-                    logFrame.getAllGroups(LogFrameGroupType.SPECIFIC_OBJECTIVE), false, "label");
+                    logFrame.getAllGroupsNotDeleted(LogFrameGroupType.SPECIFIC_OBJECTIVE), false, "label");
             formWindow.addFormSubmitListener(new FormSubmitListener() {
 
                 @Override
@@ -1293,7 +1293,7 @@ public class ProjectLogFrameGrid {
             formWindow.clear();
             formWindow.addChoicesList(I18N.CONSTANTS.logFrameSpecificObjective(), objectives, false, "label");
             formWindow.addChoicesList(I18N.CONSTANTS.logFrameGroup(),
-                    logFrame.getAllGroups(LogFrameGroupType.EXPECTED_RESULT), false, "label");
+                    logFrame.getAllGroupsNotDeleted(LogFrameGroupType.EXPECTED_RESULT), false, "label");
             formWindow.addFormSubmitListener(new FormSubmitListener() {
 
                 @Override
@@ -1718,7 +1718,7 @@ public class ProjectLogFrameGrid {
             formWindow.clear();
             formWindow.addChoicesList(I18N.CONSTANTS.logFrameExceptedResult(), results, false, "label");
             formWindow.addChoicesList(I18N.CONSTANTS.logFrameGroup(),
-                    logFrame.getAllGroups(LogFrameGroupType.ACTIVITY), false, "label");
+                    logFrame.getAllGroupsNotDeleted(LogFrameGroupType.ACTIVITY), false, "label");
             formWindow.addDateField(I18N.CONSTANTS.logFrameActivityStartDate(), false);
             formWindow.addDateField(I18N.CONSTANTS.logFrameActivityEndDate(), false);
             formWindow.addTextField(I18N.CONSTANTS.logFrameActivityContent(), true);
@@ -2118,7 +2118,7 @@ public class ProjectLogFrameGrid {
             // Sets the form window.
             formWindow.clear();
             formWindow.addChoicesList(I18N.CONSTANTS.logFrameGroup(),
-                    logFrame.getAllGroups(LogFrameGroupType.PREREQUISITE), false, "label");
+                    logFrame.getAllGroupsNotDeleted(LogFrameGroupType.PREREQUISITE), false, "label");
             formWindow.addFormSubmitListener(new FormSubmitListener() {
 
                 @Override

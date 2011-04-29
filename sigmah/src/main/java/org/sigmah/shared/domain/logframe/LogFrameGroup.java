@@ -1,6 +1,7 @@
 package org.sigmah.shared.domain.logframe;
 
 import java.io.Serializable;
+import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -12,6 +13,11 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.persistence.Transient;
+
+import org.sigmah.shared.domain.Deleteable;
 
 /**
  * Represents a group of log frame elements displayed together.
@@ -21,7 +27,7 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "log_frame_group")
-public class LogFrameGroup implements Serializable {
+public class LogFrameGroup implements Serializable,Deleteable {
 
     private static final long serialVersionUID = 5457361875504176525L;
 
@@ -29,6 +35,7 @@ public class LogFrameGroup implements Serializable {
     private LogFrameGroupType type;
     private String label;
     private LogFrame parentLogFrame;
+    private Date dateDeleted;
 
     /**
      * Duplicates this group.
@@ -40,6 +47,7 @@ public class LogFrameGroup implements Serializable {
         copy.type = type;
         copy.label = label;
         copy.parentLogFrame = parentLogFrame;
+        copy.dateDeleted = dateDeleted;
 
         return copy;
     }
@@ -83,4 +91,26 @@ public class LogFrameGroup implements Serializable {
     public void setParentLogFrame(LogFrame parentLogFrame) {
         this.parentLogFrame = parentLogFrame;
     }
+    
+    @Column(name="dateDeleted",nullable = true)
+    @Temporal(value = TemporalType.TIMESTAMP)
+    public Date getDateDeleted() {
+		return dateDeleted;
+	}
+
+	public void setDateDeleted(Date dataDeleted) {
+		this.dateDeleted = dataDeleted;
+	}
+
+	@Override
+	public void delete() {
+		setDateDeleted(new Date());
+		
+	}
+
+	@Override
+	@Transient
+	public boolean isDeleted() {		
+		return getDateDeleted()!=null;
+	}
 }

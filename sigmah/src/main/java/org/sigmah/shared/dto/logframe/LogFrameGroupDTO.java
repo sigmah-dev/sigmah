@@ -59,6 +59,15 @@ public class LogFrameGroupDTO extends BaseModelData implements EntityDTO {
     public void setParentLogFrameDTO(LogFrameDTO parentLogFrameDTO) {
         set("parentLogFrameDTO", parentLogFrameDTO);
     }
+    
+    // group deleted date.
+    public Date getDateDeleted() {
+        return get("dateDeleted");
+    }
+
+    public void setDateDeleted(Date dateDeleted) {
+        set("dateDeleted", dateDeleted);
+    }
 
     /**
      * Gets the client-side id for this entity. If this entity has a server-id
@@ -132,4 +141,24 @@ public class LogFrameGroupDTO extends BaseModelData implements EntityDTO {
         sb.append("]");
         return sb.toString();
     }
+    
+
+    
+    /**
+     * Deletes this group.
+     */
+    public void delete() {
+        setDateDeleted(new Date());
+    }
+
+    /**
+     * Returns if this group is deleted.
+     * 
+     * @return If this group is deleted.
+     */
+    public boolean isDeleted() {
+        return getDateDeleted() != null;
+    }
+
+    
 }
