@@ -204,7 +204,7 @@ public class ProjectDashboardPresenter implements SubPresenter {
     public View getView() {
 
         if (view == null) {
-            view = new ProjectDashboardView(authentication);
+            view = new ProjectDashboardView(authentication,this.dispatcher);
             addLinkedProjectsListeners();
             addMonitoredPointsListeners();
             addRemindersListeners();
@@ -459,8 +459,13 @@ public class ProjectDashboardPresenter implements SubPresenter {
         final MonitoredPointListDTO list = projectDTO.getPointsList();
         if (list != null) {
             for (final MonitoredPointDTO point : list.getPoints()) {
+            	
+            	//Only show the undeleted points
+            	if(point.isDeleted()==false)
+            	{
                 point.setIsCompleted();
                 view.getMonitoredPointsGrid().getStore().add(point);
+            	}
             }
         }
 
@@ -480,8 +485,13 @@ public class ProjectDashboardPresenter implements SubPresenter {
         final ReminderListDTO list = projectDTO.getRemindersList();
         if (list != null) {
             for (final ReminderDTO reminder : list.getReminders()) {
+            	
+            	//Only show the undeleted reminders
+               if(reminder.isDeleted()==false)
+               {
                 reminder.setIsCompleted();
                 view.getRemindersGrid().getStore().add(reminder);
+               }
             }
         }
 

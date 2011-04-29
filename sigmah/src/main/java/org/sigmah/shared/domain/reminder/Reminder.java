@@ -26,6 +26,7 @@ public class Reminder implements Serializable {
     private Date expectedDate;
     private Date completionDate;
     private ReminderList parentList;
+    private boolean deleted;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -81,4 +82,18 @@ public class Reminder implements Serializable {
     public boolean isCompleted() {
         return completionDate != null;
     }
+   
+    @Column(name="deleted",nullable = false,columnDefinition="BIT(1) default 0")
+	public boolean isDeleted() {
+		return deleted;
+	}
+
+	public void setDeleted(boolean deleted) {
+		this.deleted = deleted;
+	}
+
+
+    
+    
+   
 }

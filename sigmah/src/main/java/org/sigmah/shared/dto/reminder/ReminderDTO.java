@@ -59,6 +59,17 @@ public class ReminderDTO extends BaseModelData implements EntityDTO {
         set("completionDate", completionDate);
         setIsCompleted();
     }
+    
+    //Deleted
+    public boolean isDeleted()
+    {
+    	return (Boolean) get("deleted");
+    }
+    
+    public void setDeleted(boolean isDeleted)
+    {
+    	set("deleted",isDeleted);
+    }
 
     public void setIsCompleted() {
         set("completed", getCompletionDate() != null);

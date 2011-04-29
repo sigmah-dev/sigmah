@@ -686,6 +686,11 @@ body {
     color: #4B3E2D;
 }
 
+.hyperlink_style_label{
+	text-decoration: underline;
+	cursor: pointer;
+	}
+
 /* ----------------------------------------------------- GWT HTML Table */
 .html-grid-header-row {
 	border-bottom: solid 1px #B7A076;
@@ -974,6 +979,7 @@ body {
 
 .points-completed {
 	text-decoration: line-through;
+	cursor: pointer;
 }
 
 /* ---------------------------------------------- History */

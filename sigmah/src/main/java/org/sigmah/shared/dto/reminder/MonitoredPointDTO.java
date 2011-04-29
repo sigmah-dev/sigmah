@@ -78,6 +78,17 @@ public class MonitoredPointDTO extends BaseModelData implements EntityDTO {
     public void setFile(File file) {
         set("file", file);
     }
+    
+    //Deleted
+    public boolean isDeleted()
+    {
+    	return (Boolean) get("deleted");
+    }
+    
+    public void setDeleted(boolean isDeleted)
+    {
+    	set("deleted",isDeleted);
+    }
 
     public boolean isCompleted() {
         return getCompletionDate() != null;

@@ -5,6 +5,9 @@
 
 package org.sigmah.client.page.dashboard;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.sigmah.client.cache.UserLocalCache;
 import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.dispatch.monitor.MaskingAsyncMonitor;
@@ -141,8 +144,18 @@ public class DashboardPresenter implements Page {
 
                     @Override
                     public void onSuccess(RemindersResultList result) {
+                    	
+                    	List<ReminderDTO> reminderListToLoad = new ArrayList<ReminderDTO>();                  	
+                    	//Only show the undeleted reminders
+                    	for(ReminderDTO r:result.getList())
+                    	{
+                    		if(r.isDeleted()==false)
+                    		{
+                    			reminderListToLoad.add(r);
+                    		}
+                    	}
                         view.getReminderStore().removeAll();
-                        view.getReminderStore().add(result.getList());
+                        view.getReminderStore().add(reminderListToLoad);
                     }
                 });
 
@@ -155,8 +168,18 @@ public class DashboardPresenter implements Page {
 
             @Override
             public void onSuccess(MonitoredPointsResultList result) {
+            	
+            	List<MonitoredPointDTO> pointListToLoad = new ArrayList<MonitoredPointDTO>();
+            	//Only show the undeleted monitored points
+            	for(MonitoredPointDTO p:result.getList())
+            	{ 
+            	   if(p.isDeleted()==false)
+            	   {
+            		pointListToLoad.add(p);
+            	   }
+            	}
                 view.getMonitoredPointStore().removeAll();
-                view.getMonitoredPointStore().add(result.getList());
+                view.getMonitoredPointStore().add(pointListToLoad);
             }
         });
 

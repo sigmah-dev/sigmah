@@ -8,6 +8,7 @@ package org.sigmah.client.page.project.dashboard;
 import java.util.Arrays;
 import java.util.Date;
 
+import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.dispatch.remote.Authentication;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.icon.IconImageBundle;
@@ -75,7 +76,7 @@ import com.google.gwt.user.client.ui.Hyperlink;
 public class ProjectDashboardView extends ProjectDashboardPresenter.View {
 
     private final Authentication authentication;
-
+    private final Dispatcher dispatcher;
     private final ToolBar toolBar;
 
     private TabPanel tabPanelPhases;
@@ -105,9 +106,10 @@ public class ProjectDashboardView extends ProjectDashboardPresenter.View {
     private Button addMonitoredPointButton;
     private Grid<MonitoredPointDTO> monitoredPointsGrid;
 
-    public ProjectDashboardView(Authentication authentication) {
+    public ProjectDashboardView(Authentication authentication, Dispatcher dispatcher) {
 
         this.authentication = authentication;
+        this.dispatcher = dispatcher;
 
         final BorderLayout borderLayout = new BorderLayout();
         borderLayout.setContainerStyle("x-border-layout-ct main-background");
@@ -1047,19 +1049,7 @@ public class ProjectDashboardView extends ProjectDashboardPresenter.View {
         labelColumn.setId("label");
         labelColumn.setHeader(I18N.CONSTANTS.monitoredPointLabel());
         labelColumn.setWidth(60);
-        labelColumn.setRenderer(new GridCellRenderer<MonitoredPointDTO>() {
-
-            @Override
-            public Object render(MonitoredPointDTO model, String property, ColumnData config, int rowIndex,
-                    int colIndex, ListStore<MonitoredPointDTO> store, Grid<MonitoredPointDTO> grid) {
-
-                final Label l = new Label(model.getLabel());
-                if (model.isCompleted()) {
-                    l.addStyleName("points-completed");
-                }
-                return l;
-            }
-        });
+        labelColumn.setRenderer(new MonitoredPointLabelCellRender(this,this.dispatcher));
 
         // Expected date.
         final ColumnConfig expectedDateColumn = new ColumnConfig();
@@ -1136,20 +1126,9 @@ public class ProjectDashboardView extends ProjectDashboardPresenter.View {
         labelColumn.setId("label");
         labelColumn.setHeader(I18N.CONSTANTS.monitoredPointLabel());
         labelColumn.setWidth(60);
-        labelColumn.setRenderer(new GridCellRenderer<ReminderDTO>() {
-
-            @Override
-            public Object render(ReminderDTO model, String property, ColumnData config, int rowIndex, int colIndex,
-                    ListStore<ReminderDTO> store, Grid<ReminderDTO> grid) {
-
-                final Label l = new Label(model.getLabel());
-                if (model.isCompleted()) {
-                    l.addStyleName("points-completed");
-                }
-                return l;
-            }
-        });
-
+        labelColumn.setRenderer(new ReminderLableCellRenderer(this,this.dispatcher));
+             
+       
         // Expected date.
         final ColumnConfig expectedDateColumn = new ColumnConfig();
         expectedDateColumn.setId("expectedDate");
@@ -1177,6 +1156,6 @@ public class ProjectDashboardView extends ProjectDashboardPresenter.View {
         completionDateColumn.setWidth(60);
         completionDateColumn.setDateTimeFormat(format);
 
-        return new ColumnConfig[] { completedColumn, iconColumn, labelColumn, expectedDateColumn, completionDateColumn };
+        return new ColumnConfig[] { completedColumn, iconColumn,labelColumn, expectedDateColumn, completionDateColumn };
     }
 }
