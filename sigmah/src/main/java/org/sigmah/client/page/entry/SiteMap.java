@@ -49,6 +49,7 @@ import com.extjs.gxt.ui.client.widget.layout.CenterLayout;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
+import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.maps.client.MapType;
 import com.google.gwt.maps.client.MapWidget;
 import com.google.gwt.maps.client.control.SmallMapControl;
@@ -115,7 +116,9 @@ public class SiteMap extends ContentPanel implements Shutdownable {
         setHeaderVisible(false);
         
         status = new Status();
-        setBottomComponent(status);
+        ToolBar statusBar = new ToolBar();
+        statusBar.add(status);
+        setBottomComponent(statusBar);
     }
     
     public void loadSites(ActivityDTO activity) {
@@ -267,12 +270,10 @@ public class SiteMap extends ContentPanel implements Shutdownable {
 
             @Override
             public void onSuccess(SitePointList points) {
-                if(points.getPoints().isEmpty()) {
-                	status.clearStatus("No sites to display");
-                } else {
-                	status.clearStatus(points.getPoints().size() + " site(s) loaded.");
-                }
-            	
+             	status.clearStatus(I18N.MESSAGES.siteLoadStatus(
+            			Integer.toString(points.getPoints().size()), 
+            			Integer.toString(points.getWithoutCoordinates())));
+        	
             	addSitesToMap(points);
 
                 siteListener = new Listener<EntityEvent<SiteDTO>>() {
@@ -323,7 +324,7 @@ public class SiteMap extends ContentPanel implements Shutdownable {
         }
     }
 
-    public void addSitesToMap(SitePointList points) {
+    public void addSitesToMap(final SitePointList points) {
 
         if (markerMgr == null) {
             OverlayManagerOptions options = new OverlayManagerOptions();
@@ -337,8 +338,6 @@ public class SiteMap extends ContentPanel implements Shutdownable {
         }
         markerIds = new HashMap<Marker, Integer>();
         sites = new HashMap<Integer, Marker>();
-
-        zoomToBounds(llBoundsForBounds(points.getBounds()));
 
         List<Marker> markers = new ArrayList<Marker>(points.getPoints().size());
 
@@ -356,6 +355,13 @@ public class SiteMap extends ContentPanel implements Shutdownable {
 			@Override
 			public void execute() {
 				markerMgr.refresh();
+				
+				if(points.getPoints().size() == 1) {
+					SitePointDTO p = points.getPoints().get(0);
+					map.setCenter(LatLng.newInstance(p.getY(), p.getX()));
+				} else {
+					zoomToBounds(llBoundsForBounds(points.getBounds()));
+				}
 			}
 		});
 

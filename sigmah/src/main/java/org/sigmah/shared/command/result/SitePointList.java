@@ -17,14 +17,16 @@ public class SitePointList implements CommandResult {
 
     private BoundingBoxDTO bounds;
     private List<SitePointDTO> points;
+    private int withoutCoordinates;
 
     private SitePointList() {
 
     }
 
-    public SitePointList(BoundingBoxDTO bounds, List<SitePointDTO> points) {
+    public SitePointList(BoundingBoxDTO bounds, List<SitePointDTO> points, int withoutCoordinates) {
         this.bounds = bounds;
         this.points = points;
+        this.withoutCoordinates = withoutCoordinates;
     }
 
     public BoundingBoxDTO getBounds() {
@@ -42,4 +44,14 @@ public class SitePointList implements CommandResult {
     public void setPoints(List<SitePointDTO> points) {
         this.points = points;
     }
+
+	public int getWithoutCoordinates() {
+		return withoutCoordinates;
+	}
+
+	public void setWithoutCoordinates(int withoutCoordinates) {
+		this.withoutCoordinates = withoutCoordinates;
+	}
+    
+    
 }

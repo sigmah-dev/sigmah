@@ -100,7 +100,7 @@ public class ProjectIndicatorsContainer extends LayoutContainer implements Proje
 		tabPanel.setPlain(true);
 
 		// map tab item
-		mapTabItem = new TabItem("map");
+		mapTabItem = new TabItem(I18N.CONSTANTS.map());
 		mapTabItem.setLayout(new FitLayout());
 		mapTabItem.setEnabled(false);
 		mapTabItem.setAutoHeight(true);
@@ -109,7 +109,7 @@ public class ProjectIndicatorsContainer extends LayoutContainer implements Proje
 		tabPanel.add(mapTabItem);
 
 		// sites tab item
-		sitesTabItem = new TabItem("sites");
+		sitesTabItem = new TabItem(I18N.CONSTANTS.sites());
 		sitesTabItem.setLayout(new FitLayout());
 		sitesTabItem.setEnabled(false);
 		sitesTabItem.setAutoHeight(true);
@@ -214,7 +214,7 @@ public class ProjectIndicatorsContainer extends LayoutContainer implements Proje
 
 	@Override
 	public void viewDidAppear() {
-		// TODO Auto-generated method stub
+		
 	}
 
 	@Override

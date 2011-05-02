@@ -274,10 +274,31 @@ public class DesignPanel extends DesignPanelBase implements ActionListener {
 						treeStore.add(indicator, false);
 					}
 				}
+				onLoaded();
 			}
 
 		});
 	}
+
+	private void onLoaded() {
+		// set the first indicator as the mapped indicator
+		IndicatorDTO first = getFirstIndicator();
+		if(first != null) {
+			mappedIndicator.setValue(first, true);
+			treeGrid.getView().refresh(false);
+		}
+	}
+	
+	private IndicatorDTO getFirstIndicator() {
+		for(ModelData model : treeStore.getAllItems()) {
+			if(model instanceof IndicatorDTO) {
+				return (IndicatorDTO) model;
+			}
+		}
+		return null;
+	}
+
+
 
 	private void onNewIndicator() {
 		final IndicatorDTO newIndicator = new IndicatorDTO();

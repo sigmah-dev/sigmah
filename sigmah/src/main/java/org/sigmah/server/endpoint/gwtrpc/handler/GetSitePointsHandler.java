@@ -50,13 +50,16 @@ public class GetSitePointsHandler implements CommandHandler<GetSitePoints> {
 
         BoundingBoxDTO bounds = new BoundingBoxDTO();
 
+        int withoutCoordinates = 0;
         List<SitePointDTO> points = new ArrayList<SitePointDTO>(sites.size());
         for (SiteData site : sites) {
             if (site.hasLatLong()) {
                 points.add(new SitePointDTO(site.getId(), site.getLongitude(), site.getLatitude()));
                 bounds.grow(site.getLongitude(), site.getLatitude());
+            } else {
+            	withoutCoordinates++;
             }
         }
-        return new SitePointList(bounds, points);
+        return new SitePointList(bounds, points, withoutCoordinates);
     }
 }
