@@ -374,8 +374,7 @@ public class DesignPanel extends DesignPanelBase implements ActionListener {
 	
 	private void showIndicatorForm(IndicatorDTO model) {
 	    IndicatorDialog dialog = indicatorDialog.get();
-	    dialog.bindIndicator(currentDatabaseId, model, treeStore);
-	    dialog.show();
+	    dialog.show(currentDatabaseId, model);
 	}
 	
 	protected ColumnModel createColumnModel() {

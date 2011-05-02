@@ -300,14 +300,8 @@ public class ProjectPivotContainer extends ContentPanel implements ProjectSubPre
 
 	protected void editIndicator(IndicatorDTO indicator) {
 		IndicatorDialog dialog = indicatorDialogProvider.get();
-		dialog.bindIndicator(currentDatabaseId, indicator);
-		dialog.show(new FormDialogCallback() {
-
-			@Override
-			public void onValidated() {
-				
-			}
-		});
+		dialog.show(currentDatabaseId, indicator);
+	
 	}
 
 
@@ -372,18 +366,9 @@ public class ProjectPivotContainer extends ContentPanel implements ProjectSubPre
 	}
 
 	private void save() {
-		BatchCommand batch = new BatchCommand();
-		for (Record record : gridPanel.getStore().getModifiedRecords()) {
-			PivotTableRow row = (PivotTableRow) record.getModel();
-			for (String property : record.getChanges().keySet()) {
-				UpdateMonthlyReports.Change change = new UpdateMonthlyReports.Change();
-				change.indicatorId = row.getIndicatorId(property);
-				change.month = row.getMonth(property);
-				change.value = row.get(property);
-				batch.add(new UpdateMonthlyReports(row.getSiteId(property), change));
-			}
-		}
-		dispatcher.execute(batch, new MaskingAsyncMonitor(this, I18N.CONSTANTS.saving()), new AsyncCallback<BatchResult>() {
+
+		dispatcher.execute(gridPanel.composeSaveCommand(),
+				new MaskingAsyncMonitor(this, I18N.CONSTANTS.saving()), new AsyncCallback<BatchResult>() {
 
 			@Override
 			public void onFailure(Throwable caught) {

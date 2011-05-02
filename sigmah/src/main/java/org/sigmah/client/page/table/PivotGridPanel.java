@@ -12,15 +12,22 @@ import java.util.Set;
 
 import org.sigmah.client.AppEvents;
 import org.sigmah.client.EventBus;
+import org.sigmah.client.dispatch.AsyncMonitor;
 import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.dispatch.monitor.MaskingAsyncMonitor;
+import org.sigmah.client.event.IndicatorEvent;
 import org.sigmah.client.event.PivotCellEvent;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.icon.IconUtil;
+import org.sigmah.client.page.project.pivot.ProjectPivotContainer;
 import org.sigmah.client.util.DateUtilGWTImpl;
+import org.sigmah.shared.command.BatchCommand;
 import org.sigmah.shared.command.GetIndicators;
 import org.sigmah.shared.command.Month;
+import org.sigmah.shared.command.UpdateMonthlyReports;
+import org.sigmah.shared.command.result.BatchResult;
 import org.sigmah.shared.command.result.IndicatorListResult;
+import org.sigmah.shared.command.result.VoidResult;
 import org.sigmah.shared.date.DateUtil;
 import org.sigmah.shared.dto.IndicatorDTO;
 import org.sigmah.shared.report.content.DimensionCategory;
@@ -39,6 +46,7 @@ import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.store.Record;
 import com.extjs.gxt.ui.client.store.Store;
 import com.extjs.gxt.ui.client.store.TreeStore;
 import com.extjs.gxt.ui.client.util.DelayedTask;
@@ -370,6 +378,21 @@ public class PivotGridPanel extends ContentPanel implements HasValue<PivotElemen
 		return store;
 	}
 	
+	public BatchCommand composeSaveCommand() {
+		BatchCommand batch = new BatchCommand();
+		for (Record record : store.getModifiedRecords()) {
+			PivotTableRow row = (PivotTableRow) record.getModel();
+			for (String property : record.getChanges().keySet()) {
+				UpdateMonthlyReports.Change change = new UpdateMonthlyReports.Change();
+				change.indicatorId = row.getIndicatorId(property);
+				change.month = row.getMonth(property);
+				change.value = row.get(property);
+				batch.add(new UpdateMonthlyReports(row.getSiteId(property), change));
+			}
+		}
+		return batch;
+	}
+
 	private class RendererProvider implements PivotCellRendererProvider {
 
 		@Override

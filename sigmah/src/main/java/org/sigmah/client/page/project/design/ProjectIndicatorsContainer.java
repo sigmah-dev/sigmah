@@ -1,12 +1,8 @@
 package org.sigmah.client.page.project.design;
 
-import java.util.Map;
-
 import org.sigmah.client.EventBus;
 import org.sigmah.client.dispatch.Dispatcher;
-import org.sigmah.client.event.EntityEvent;
 import org.sigmah.client.i18n.I18N;
-import org.sigmah.client.page.common.dialog.FormDialogCallback;
 import org.sigmah.client.page.common.toolbar.UIActions;
 import org.sigmah.client.page.config.design.DesignPanel;
 import org.sigmah.client.page.config.design.ProjectSiteGridPanel;
@@ -14,8 +10,6 @@ import org.sigmah.client.page.entry.SiteMap;
 import org.sigmah.client.page.entry.editor.SiteForm;
 import org.sigmah.client.page.entry.editor.SiteFormDialog;
 import org.sigmah.client.page.project.ProjectSubPresenter;
-import org.sigmah.shared.command.CreateEntity;
-import org.sigmah.shared.command.result.CreateResult;
 import org.sigmah.shared.dao.Filter;
 import org.sigmah.shared.dto.IndicatorDTO;
 import org.sigmah.shared.dto.ProjectDTO;
@@ -32,17 +26,14 @@ import com.extjs.gxt.ui.client.store.TreeStore;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.Info;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
-import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 
 public class ProjectIndicatorsContainer extends LayoutContainer implements ProjectSubPresenter {
@@ -55,9 +46,6 @@ public class ProjectIndicatorsContainer extends LayoutContainer implements Proje
 	private final EventBus eventBus;
 	
 	private ContentPanel mapContainer;
-	private Button newIndicatorButton;
-	private Button newGroupButton;
-	private Button reloadButton;
 	private TreeStore<ModelData> treeStore;	
 	private TabPanel tabPanel;
 	private TabItem mapTabItem;
@@ -80,6 +68,8 @@ public class ProjectIndicatorsContainer extends LayoutContainer implements Proje
 		this.siteEditor = siteEditor;
 		this.siteMap = siteMap;
 		this.designPanel = designPanel;
+		this.designPanel.setHeaderVisible(false);
+		
 		this.service = service;
 		this.eventBus = eventBus;
 		
@@ -87,12 +77,6 @@ public class ProjectIndicatorsContainer extends LayoutContainer implements Proje
 		BorderLayout borderLayout = new BorderLayout();
 		borderLayout.setContainerStyle("x-border-layout-ct main-background");
 		setLayout(borderLayout);
-
-		ContentPanel mainPanel = new ContentPanel();
-		mainPanel.setIcon(null);
-		mainPanel.setLayout(new FitLayout());  
-		mainPanel.setSize(600, 300);  
-		mainPanel.setHeaderVisible(false);
 
 		// setIcon(IconImageBundle.ICONS.design());
 		// map tab panel
@@ -117,15 +101,6 @@ public class ProjectIndicatorsContainer extends LayoutContainer implements Proje
 		sitesTabItem.add(siteEditor);
 		tabPanel.add(sitesTabItem);
 
-		// buttons for indicator view
-		newIndicatorButton = new Button("new indicator");
-		newGroupButton = new Button("new group");
-		reloadButton = new Button("reload button");
-
-		mainPanel.add(newIndicatorButton);
-		mainPanel.add(newGroupButton);
-		mainPanel.add(reloadButton);
-
 		BorderLayoutData centerLayout = new BorderLayoutData(
 				Style.LayoutRegion.CENTER);
 		centerLayout.setMargins(new Margins(0, 0, 0, 0));
@@ -148,7 +123,6 @@ public class ProjectIndicatorsContainer extends LayoutContainer implements Proje
 		});
 		
 		add(tabPanel, layout);
-		// setHeading(I18N.CONSTANTS.design() + " - " );
 		
 		siteEditor.addActionListener(new Listener<ComponentEvent>() {
 			
@@ -214,13 +188,10 @@ public class ProjectIndicatorsContainer extends LayoutContainer implements Proje
 
 	@Override
 	public void viewDidAppear() {
-		
 	}
 
 	@Override
-	public void discardView() {
-		// TODO Auto-generated method stub
-		
+	public void discardView() {		
 	}
 
 
