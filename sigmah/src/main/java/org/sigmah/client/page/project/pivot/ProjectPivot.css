@@ -1,0 +1,9 @@
+
+@external x-toolbar-cell;
+
+.toolbar label {
+	margin-left: 10px;
+	margin-right: 5px !important;
+}
+
+

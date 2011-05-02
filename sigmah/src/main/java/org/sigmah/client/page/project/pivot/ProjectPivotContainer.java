@@ -84,6 +84,8 @@ public class ProjectPivotContainer extends ContentPanel implements ProjectSubPre
 		this.eventBus = eventBus;
 		this.gridPanel = gridPanel;
 		this.indicatorDialogProvider = indicatorDialog;
+		
+		ProjectPivotResources.INSTANCE.style().ensureInjected();
 
 		setHeaderVisible(false);
 		setLayout(new FitLayout());
@@ -147,10 +149,10 @@ public class ProjectPivotContainer extends ContentPanel implements ProjectSubPre
 		});
 
 		toolBar = new ActionToolBar();
+		toolBar.addStyleName(ProjectPivotResources.INSTANCE.style().toolbar());
 		toolBar.addSaveSplitButton();
 		toolBar.setDirty(false);
-		toolBar.add(historySelector.getPrevButton());
-		toolBar.add(historySelector.getNextButton());
+		
 		toolBar.add(new SeparatorToolItem());
 		toolBar.add(new Label(I18N.CONSTANTS.site()));
 		toolBar.add(siteFilter);
@@ -158,7 +160,10 @@ public class ProjectPivotContainer extends ContentPanel implements ProjectSubPre
 		toolBar.add(indicatorFilter);
 		toolBar.add(new Label(I18N.CONSTANTS.indicatorFilterToolBarLabel()));
 		toolBar.add(dateFilter);
+
 		toolBar.add(new FillToolItem());
+		toolBar.add(historySelector.getPrevButton());
+		toolBar.add(historySelector.getNextButton());
 		toolBar.add(new Label(I18N.CONSTANTS.defaultView()));
 		toolBar.add(new CheckBox());
 		toolBar.setListener(this);

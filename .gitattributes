@@ -535,7 +535,9 @@ sigmah/src/main/java/org/sigmah/client/page/project/pivot/IndicatorFilterCombo.j
 sigmah/src/main/java/org/sigmah/client/page/project/pivot/LayoutComposer.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/pivot/PivotLayout.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/pivot/PivotToolBar.java -text
+sigmah/src/main/java/org/sigmah/client/page/project/pivot/ProjectPivot.css -text
 sigmah/src/main/java/org/sigmah/client/page/project/pivot/ProjectPivotContainer.java -text
+sigmah/src/main/java/org/sigmah/client/page/project/pivot/ProjectPivotResources.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/pivot/SiteFilterCombo.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/reports/AttachFileHandler.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/reports/AttachMenuBuilder.java -text
