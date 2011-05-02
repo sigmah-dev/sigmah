@@ -54,10 +54,7 @@ class DesignTreeGridCellRenderer extends TreeGridCellRenderer {
 			StringBuilder html = new StringBuilder();
 			//html.append(EMPTY_STAR_ICON); // to be readded once Project Dashboard displays indicators
 			html.append(indicator == mappedSelection.getValue() ? MAP_ICON : EMPTY_MAP_ICON);
-			html.append("<span class='" + CSS.indicatorLabel() + "' qtip='");
-			html.append(Format.htmlEncode(indicator.getName()).replace("'", "&#39;"));
-			html.append("'>");
-			html.append(indicator.getCode());
+			html.append(Format.htmlEncode(indicator.getName()));
 			html.append("</span>");
 			return (X)html.toString();
 		}

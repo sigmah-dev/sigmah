@@ -107,9 +107,6 @@ public class DesignPanel extends DesignPanelBase implements ActionListener {
 				}
 			}
 		});
-
-		// Quick tip to display indicator full name
-		QuickTip fullNameTip = new QuickTip(treeGrid);
 		
 		// Setup context menu
 			
