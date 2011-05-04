@@ -16,6 +16,8 @@ import org.sigmah.shared.command.result.VoidResult;
 import org.sigmah.shared.dto.reminder.ReminderDTO;
 
 import com.allen_sauer.gwt.log.client.Log;
+import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.store.ListStore;
@@ -146,15 +148,15 @@ public class ReminderLableCellRenderer implements GridCellRenderer<ReminderDTO> 
 
 				});
 				
-				//Add a text for the deletion link
-				window.getDeleteLabel().setText(I18N.CONSTANTS.delete()+" "+I18N.CONSTANTS.reminderPoint());
+				//Add a text for the deletion button
+				window.getDeleteButton().setText(I18N.CONSTANTS.delete()+" "+I18N.CONSTANTS.reminderPoint());
 				
 				//Add  a delete link click-handler 
-				window.getDeleteLabel().addClickHandler(new ClickHandler()
+				window.getDeleteButton().addListener(Events.OnClick,new Listener<BaseEvent>() 
 				{
 
 					@Override
-					public void onClick(ClickEvent event) {
+					public void handleEvent(BaseEvent be) {
 							       
 						
 						
@@ -193,6 +195,7 @@ public class ReminderLableCellRenderer implements GridCellRenderer<ReminderDTO> 
 													public void onSuccess(VoidResult result) {
 														
 														//After RPC, refresh the veiw
+														 model.setDeleted(true);
 														 ListStore<ReminderDTO> reminderDTOStore = view
 															.getRemindersGrid().getStore();
 													     reminderDTOStore.remove(model);

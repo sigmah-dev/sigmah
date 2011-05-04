@@ -13,6 +13,8 @@ import org.sigmah.shared.command.UpdateEntity;
 import org.sigmah.shared.command.result.VoidResult;
 import org.sigmah.shared.dto.reminder.MonitoredPointDTO;
 
+import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.store.ListStore;
@@ -136,16 +138,15 @@ public class MonitoredPointLabelCellRender implements GridCellRenderer<Monitored
 				
 
 
-				//Add a text for the deletion link
-				window.getDeleteLabel().setText(I18N.CONSTANTS.delete()+" "+I18N.CONSTANTS.monitoredPoint());
+				//Add a text for the deletion button
+				window.getDeleteButton().setText(I18N.CONSTANTS.delete()+" "+I18N.CONSTANTS.monitoredPoint());
 				
 				//Add  a delete link click-handler 
-				window.getDeleteLabel().addClickHandler(new ClickHandler()
+				window.getDeleteButton().addListener(Events.OnClick,new Listener<BaseEvent>() 
 				{
 
 					@Override
-					public void onClick(ClickEvent event) {
-							       
+					public void handleEvent(BaseEvent be) {
 						
 						
 					     //Create a listener for the confirm message box
@@ -182,6 +183,7 @@ public class MonitoredPointLabelCellRender implements GridCellRenderer<Monitored
 													public void onSuccess(VoidResult result) {
 														
 														//Refresh the grid 
+														model.setDeleted(true);
 													    ListStore<MonitoredPointDTO> pointDTOStore = view.getMonitoredPointsGrid().getStore();
 													    pointDTOStore.remove(model);
 													    

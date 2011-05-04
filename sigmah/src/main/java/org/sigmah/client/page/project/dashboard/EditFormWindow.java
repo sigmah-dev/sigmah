@@ -113,9 +113,9 @@ public class EditFormWindow {
 	private final ArrayList<FieldWrapper> fields;
 	
 	/**
-	 * A label with a hyperlink style for deletion
+	 * A label with a button for deletion
 	 */
-	private com.google.gwt.user.client.ui.Label deleteLabel;
+	private Button deleteButton;
 
 
 
@@ -125,8 +125,7 @@ public class EditFormWindow {
 	public EditFormWindow() {
 		listeners = new ArrayList<FormSubmitListener>();
 		fields = new ArrayList<FieldWrapper>();
-		deleteLabel = new com.google.gwt.user.client.ui.Label("");
-		deleteLabel.addStyleName("hyperlink_style_label");
+		deleteButton = new Button();
 	}
 
 	/**
@@ -229,12 +228,13 @@ public class EditFormWindow {
 		mainPanel.setLayout(layout);
 		mainPanel.setBorders(true);
 		mainPanel.setWidth("100%");
+		mainPanel.setHeight("100%");
 
 		mainPanel.setTopComponent(null);
 		mainPanel.add(titleLabel, new VBoxLayoutData(new Margins(4, 8, 0, 8)));
 		mainPanel.add(fieldsPanel, new VBoxLayoutData(new Margins(4, 8, 0, 8)));
 		mainPanel.add(selectButton, new VBoxLayoutData(new Margins(4, 8, 0, 8)));
-		mainPanel.add(deleteLabel, new VBoxLayoutData(new Margins(4,8,0,8)));
+		mainPanel.add(deleteButton, new VBoxLayoutData(new Margins(4,8,4,8)));
 
 		// Builds window.
 		window = new Window();
@@ -266,7 +266,7 @@ public class EditFormWindow {
 
 		// Open the window.
 		window.setHeading(title);
-		window.setHeight(100 + (FIELD_HEIGHT * (fields.size())));
+		window.setHeight(120 + (FIELD_HEIGHT * (fields.size())));
 		window.show();
 	}
 
@@ -403,12 +403,12 @@ public class EditFormWindow {
 		window.hide();
 	}
 	
-	public com.google.gwt.user.client.ui.Label getDeleteLabel() {
-		return deleteLabel;
+	public Button getDeleteButton() {
+		return deleteButton;
 	}
 
-	public void setDeleteLabel(com.google.gwt.user.client.ui.Label deleteLabel) {
-		this.deleteLabel = deleteLabel;
+	public void setDeleteButton(Button deleteButton) {
+		this.deleteButton = deleteButton;
 	}
 
 }

@@ -91,20 +91,20 @@ body {
 }
 
 #offline-status {
-        float: right;
-        height: 36px;
-        line-height: 36px;
-        margin-right: 130px;
-        font-weight: bold;
-        width: 128px;
-        margin-top: 2px;
-        font-size: 12px;
-        text-align: right;
-        color: white;
+	float: right;
+	height: 36px;
+	line-height: 36px;
+	margin-right: 130px;
+	font-weight: bold;
+	width: 128px;
+	margin-top: 2px;
+	font-size: 12px;
+	text-align: right;
+	color: white;
 }
 
 #offline-status:hover {
-        color: #EE9329;
+	color: #EE9329;
 }
 
 .minimenu {
@@ -428,7 +428,7 @@ body {
 }
 
 .project-grid-code-icon {
-	padding-right:5px;
+	padding-right: 5px;
 }
 
 .important-label {
@@ -789,33 +789,39 @@ body {
 .project-report {
 	padding-top: 4px;
 	padding-left: 8px;
-        padding-right: 32px;
+	padding-right: 32px;
 	font-size: 10pt;
 }
 
 .project-report-draft {
-    font-size: 10pt;
-    color: white;
-    background-color: rgb(74, 63, 43);
-    padding-left: 8px;
-    padding-right: 24px;
-    line-height: 32px;
+	font-size: 10pt;
+	color: white;
+	width: 100%;
+	margin: 0 ;
+	background-color: rgb(74, 63, 43);
+	padding-left: 8px;
+	padding-right: 24px;
+	line-height: 32px;
+}
+
+.project-report-personalDraft {	
+	font-weight: bold;
 }
 
 .project-report-draft-button {
-    float:right;
-    height: 100%;
+	float: right;
+	height: 100%;
 }
 
 .project-report-field {
-    margin-top: 4px;
-    margin-bottom: 16px;
+	margin-top: 4px;
+	margin-bottom: 16px;
 }
 
 .project-report-field-empty {
-    color: #888;
-    margin-top: 4px;
-    margin-bottom: 16px;
+	color: #888;
+	margin-top: 4px;
+	margin-bottom: 16px;
 }
 
 .project-report-level-1 {
@@ -1004,17 +1010,17 @@ body {
 /* ---------------------------------------------- Block stat */
 .blockStat {
 	border: 1px solid #B9A48F;
-        padding: 1px;
+	padding: 1px;
 	background: transparent url(image/ratio-bar-bg.png) repeat-x scroll 0 1px;
 }
 
 .blockStat div {
 	height: 11px;
-        line-height: 10px;
+	line-height: 10px;
 	color: white;
 	font-weight: bold;
-        font-family: tahoma;
-        font-size: 11px;
+	font-family: tahoma;
+	font-size: 11px;
 	text-align: center;
 	background-repeat: repeat-x;
 	background-position: 0 0;
@@ -1038,20 +1044,19 @@ body {
 
 /* ---------------------------------------------- Amendements */
 .amendment-action {
-    font-size: 11px;
-    font-weight: bold;
-    font-family: tahoma,arial,helvetica,sans-serif;
-    color: #4B3E2D;
+	font-size: 11px;
+	font-weight: bold;
+	font-family: tahoma, arial, helvetica, sans-serif;
+	color: #4B3E2D;
 }
 
 /* ---------------------------------------------- Help */
-
 .help-content {
 	padding: 5px;
 }
 /* ---------------------------------------------  Admin */
 .delete-cell {
-	border: 1px solid lightgrey;	
+	border: 1px solid lightgrey;
 	vertical-align: center;
 }
 
@@ -1061,14 +1066,13 @@ body {
 }
 
 /* ---------------------------------------------- Credits */
-
 .credits-version {
-	font-weight: bold;	
+	font-weight: bold;
 	padding-top: 25px;
 }
 
 .credits-version-date {
-	padding-top: 10px;	
+	padding-top: 10px;
 }
 
 .credits-manager-header {
@@ -1103,7 +1107,7 @@ a.credits-partner-url:active {
 }
 
 .credits-developers {
-	margin-top: 20px;	
+	margin-top: 20px;
 }
 
 .credits-developers-header {

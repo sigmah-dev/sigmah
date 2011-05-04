@@ -61,10 +61,10 @@ import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ToolButton;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
-import com.extjs.gxt.ui.client.widget.form.HiddenField;
-import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.FormPanel.Encoding;
 import com.extjs.gxt.ui.client.widget.form.FormPanel.Method;
+import com.extjs.gxt.ui.client.widget.form.HiddenField;
+import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
@@ -91,11 +91,11 @@ import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.RichTextArea;
-import com.google.gwt.user.client.ui.SimplePanel;
 
 /**
  * Displays the reports attached to a organizational unit.
@@ -473,14 +473,23 @@ public class OrgUnitReportsView extends LayoutContainer {
 
         if (report.isDraft()) {
             // Draft banner
-            final SimplePanel header = new SimplePanel();
+            final HorizontalPanel  header = new HorizontalPanel();
             header.addStyleName("project-report-draft");
-
+                   
+            //The "Personal Draft" 
+            final Label personalDraft = new Label (I18N.MESSAGES.personalDraft());
+            personalDraft.addStyleName("project-report-personalDraft");
+            
             final DateTimeFormat dateFormat = DateTimeFormat.getMediumDateFormat();
             final DateTimeFormat timeFormat = DateTimeFormat.getMediumTimeFormat();
-            header.getElement().setInnerText(
-                    I18N.MESSAGES.reportDraftHeader(dateFormat.format(report.getLastEditDate()),
-                            timeFormat.format(report.getLastEditDate())));
+            
+            //The label showing the last changed time
+            final Label draftLastChangedTime = new Label (I18N.MESSAGES.reportDraftLastChanged(dateFormat.format(report.getLastEditDate()),
+                    timeFormat.format(report.getLastEditDate())));
+           
+            //Add the two labels 
+           header.add(personalDraft);
+           header.add(draftLastChangedTime);
 
             final Button cancelButton = new Button(I18N.CONSTANTS.delete());
             final Button sendButton = new Button(I18N.CONSTANTS.sendReportDraft());
@@ -553,6 +562,7 @@ public class OrgUnitReportsView extends LayoutContainer {
             buttons.add(sendButton);
 
             header.add(buttons);
+            header.setCellHorizontalAlignment(buttons,  HasHorizontalAlignment.ALIGN_RIGHT);
 
             flowPanel.add(header);
 
@@ -583,8 +593,10 @@ public class OrgUnitReportsView extends LayoutContainer {
 
                             final Date now = new Date();
                             header.clear();
-                            header.getElement().setInnerText(
-                                    I18N.MESSAGES.reportDraftHeader(dateFormat.format(now), timeFormat.format(now)));
+                            draftLastChangedTime.setText(I18N.MESSAGES.reportDraftLastChanged(dateFormat.format(now), timeFormat.format(now)));
+                            personalDraft.setText(I18N.MESSAGES.personalDraft());
+                            header.add(personalDraft);
+                            header.add(draftLastChangedTime);
                             header.add(buttons);
 
                             boolean found = false;
