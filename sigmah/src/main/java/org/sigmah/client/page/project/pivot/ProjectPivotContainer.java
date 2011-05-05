@@ -1,9 +1,12 @@
 package org.sigmah.client.page.project.pivot;
 
+import javax.management.Notification;
+
 import org.sigmah.client.EventBus;
 import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.dispatch.monitor.MaskingAsyncMonitor;
 import org.sigmah.client.event.IndicatorEvent;
+import org.sigmah.client.event.ProjectEvent;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.page.common.dialog.FormDialogCallback;
 import org.sigmah.client.page.common.toolbar.ActionListener;
@@ -20,6 +23,8 @@ import org.sigmah.client.util.DateUtilGWTImpl;
 import org.sigmah.shared.command.BatchCommand;
 import org.sigmah.shared.command.GenerateElement;
 import org.sigmah.shared.command.GetIndicators;
+import org.sigmah.shared.command.GetProfiles;
+import org.sigmah.shared.command.GetProject;
 import org.sigmah.shared.command.UpdateMonthlyReports;
 import org.sigmah.shared.command.result.BatchResult;
 import org.sigmah.shared.command.result.IndicatorListResult;
@@ -133,7 +138,7 @@ public class ProjectPivotContainer extends ContentPanel implements ProjectSubPre
 		dateFilter = new DateFilterCombo();
 		dateFilter.addListener(Events.Select, new Listener<BaseEvent>() {
 
-			@Override// using the project start date 
+			@Override
 			public void handleEvent(BaseEvent be) {
 				onDateSelected();
 			}
@@ -179,6 +184,16 @@ public class ProjectPivotContainer extends ContentPanel implements ProjectSubPre
 				}
 			}
 		});
+		
+		eventBus.addListener(ProjectEvent.CHANGED, new Listener<ProjectEvent>() {
+
+			@Override
+			public void handleEvent(ProjectEvent event) {
+				if(event.getProjectId()== currentDatabaseId) {
+					onProjectChanged();
+				}
+			}
+		});
 	}
 
 
@@ -192,6 +207,22 @@ public class ProjectPivotContainer extends ContentPanel implements ProjectSubPre
 
 		dateFilter.setValue(dateFilter.getStore().getAt(0));
 		onDateSelected();
+	}
+	
+	private void onProjectChanged() {
+		dispatcher.execute(new GetProject(currentDatabaseId), new MaskingAsyncMonitor(this, I18N.CONSTANTS.loading()),
+				new AsyncCallback<ProjectDTO>() {
+
+			@Override
+			public void onFailure(Throwable caught) {
+			}
+	
+			@Override
+			public void onSuccess(ProjectDTO project) {
+				dateFilter.fillMonths(project.getStartDate());			
+			}
+			
+		});
 	}
 
 

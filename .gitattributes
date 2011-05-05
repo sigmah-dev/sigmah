@@ -89,6 +89,7 @@ sigmah/src/main/java/org/sigmah/client/event/EntityEvent.java -text
 sigmah/src/main/java/org/sigmah/client/event/IndicatorEvent.java -text
 sigmah/src/main/java/org/sigmah/client/event/NavigationEvent.java -text
 sigmah/src/main/java/org/sigmah/client/event/PivotCellEvent.java -text
+sigmah/src/main/java/org/sigmah/client/event/ProjectEvent.java -text
 sigmah/src/main/java/org/sigmah/client/event/package-info.java -text
 sigmah/src/main/java/org/sigmah/client/i18n/I18N.java -text
 sigmah/src/main/java/org/sigmah/client/i18n/UIConstants.properties -text

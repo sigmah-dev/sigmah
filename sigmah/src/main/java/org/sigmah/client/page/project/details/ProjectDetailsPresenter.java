@@ -3,10 +3,12 @@ package org.sigmah.client.page.project.details;
 import java.util.ArrayList;
 import java.util.Date;
 
+import org.sigmah.client.EventBus;
 import org.sigmah.client.cache.UserLocalCache;
 import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.dispatch.monitor.MaskingAsyncMonitor;
 import org.sigmah.client.dispatch.remote.Authentication;
+import org.sigmah.client.event.ProjectEvent;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.page.project.ProjectPresenter;
 import org.sigmah.client.page.project.SubPresenter;
@@ -66,6 +68,8 @@ public class ProjectDetailsPresenter implements SubPresenter {
      * The dispatcher.
      */
     private final Dispatcher dispatcher;
+    
+    private final EventBus eventBus;
 
     private final Authentication authentication;
 
@@ -86,9 +90,10 @@ public class ProjectDetailsPresenter implements SubPresenter {
      */
     private int maskCount;
 
-    public ProjectDetailsPresenter(Dispatcher dispatcher, Authentication authentication,
+    public ProjectDetailsPresenter(EventBus eventBus, Dispatcher dispatcher, Authentication authentication,
             ProjectPresenter projectPresenter, UserLocalCache cache) {
-        this.dispatcher = dispatcher;
+        this.eventBus = eventBus;
+    	this.dispatcher = dispatcher;
         this.projectPresenter = projectPresenter;
         this.authentication = authentication;
         this.cache = cache;
@@ -167,6 +172,9 @@ public class ProjectDetailsPresenter implements SubPresenter {
                                 if (refreshBanner) {
                                     projectPresenter.refreshBanner();
                                 }
+                               
+                                // avoid tight coupling with other project events
+                                eventBus.fireEvent(new ProjectEvent(ProjectEvent.CHANGED, projectPresenter.getCurrentProjectDTO().getId()));
                             }
                         });
             }
