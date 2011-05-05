@@ -4,15 +4,16 @@
  */
 package org.sigmah.server.endpoint.gwtrpc.handler.calendar;
 
-import com.google.inject.Inject;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sigmah.shared.domain.calendar.ActivityCalendarIdentifier;
@@ -22,6 +23,8 @@ import org.sigmah.shared.domain.logframe.ExpectedResult;
 import org.sigmah.shared.domain.logframe.LogFrame;
 import org.sigmah.shared.domain.logframe.LogFrameActivity;
 import org.sigmah.shared.domain.logframe.SpecificObjective;
+
+import com.google.inject.Inject;
 
 /**
  * Convert activities as calendar events.
@@ -85,15 +88,20 @@ public class ActivityCalendarHandler implements CalendarHandler {
                         codeBuilder.append(activity.getCode());
                         codeBuilder.append('.');
 
-                        final Date startDate = activity.getStartDate();
-
+						final Date startDate = activity.getStartDate();
+						
                         if(activity.getTitle() != null) {
                             codeBuilder.append(' ');
                             codeBuilder.append(activity.getTitle());
                         }
-
+                    
                         // For each day
                         if (startDate != null) {
+                        	//if activity end date is not spécified set its value to start date
+							if (activity.getEndDate() == null) {
+								activity.setEndDate(startDate);
+							}
+                        	
                             for (Date date = new Date(startDate.getYear(), startDate.getMonth(), startDate.getDate());
                                     date.compareTo(activity.getEndDate()) < 1; date.setDate(date.getDate() + 1)) {
                                 final Date key = new Date(date.getTime());

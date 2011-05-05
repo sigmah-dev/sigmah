@@ -1718,9 +1718,9 @@ public class ProjectLogFrameGrid {
             formWindow.clear();
             formWindow.addChoicesList(I18N.CONSTANTS.logFrameExceptedResult(), results, false, "label");
             formWindow.addChoicesList(I18N.CONSTANTS.logFrameGroup(),
-                    logFrame.getAllGroupsNotDeleted(LogFrameGroupType.ACTIVITY), false, "label");
-            formWindow.addDateField(I18N.CONSTANTS.logFrameActivityStartDate(), false);
-            formWindow.addDateField(I18N.CONSTANTS.logFrameActivityEndDate(), false);
+                    logFrame.getAllGroups(LogFrameGroupType.ACTIVITY), false, "label");
+            formWindow.addDateField(I18N.CONSTANTS.logFrameActivityStartDate(), true);
+            formWindow.addDateField(I18N.CONSTANTS.logFrameActivityEndDate(), true);
             formWindow.addTextField(I18N.CONSTANTS.logFrameActivityContent(), true);
             formWindow.addFormSubmitListener(new FormSubmitListener() {
 
@@ -1739,12 +1739,12 @@ public class ProjectLogFrameGrid {
                     }
 
                     final Object element2 = elements[2];
-                    if (!(element2 instanceof Date)) {
+                    if (element2 != null && !(element2 instanceof Date)) {
                         return;
                     }
 
                     final Object element3 = elements[3];
-                    if (!(element3 instanceof Date)) {
+                    if (element3 != null && !(element3 instanceof Date)) {
                         return;
                     }
 
@@ -1756,8 +1756,8 @@ public class ProjectLogFrameGrid {
                     // Retrieves the selected ER and group and activity params.
                     final ExpectedResultDTO expectedResult = (ExpectedResultDTO) element0;
                     final LogFrameGroupDTO group = (LogFrameGroupDTO) element1;
-                    final Date startDate = (Date) element2;
-                    final Date endDate = (Date) element3;
+                    final Date startDate = element2 != null ? (Date) element2 : null;
+                    final Date endDate = element3 != null ? (Date) element3 : null;
                     final String title = (String) element4;
 
                     // Creates and displays a new activity.
@@ -1781,8 +1781,8 @@ public class ProjectLogFrameGrid {
             formWindow.clear();
             formWindow.addChoicesList(I18N.CONSTANTS.logFrameExceptedResult(), results, false, "label");
             formWindow.addTextField(I18N.CONSTANTS.logFrameActivityTitle(), false);
-            formWindow.addDateField(I18N.CONSTANTS.logFrameActivityStartDate(), false);
-            formWindow.addDateField(I18N.CONSTANTS.logFrameActivityEndDate(), false);
+            formWindow.addDateField(I18N.CONSTANTS.logFrameActivityStartDate(), true);
+            formWindow.addDateField(I18N.CONSTANTS.logFrameActivityEndDate(), true);
             formWindow.addFormSubmitListener(new FormSubmitListener() {
 
                 @Override
@@ -1800,12 +1800,13 @@ public class ProjectLogFrameGrid {
                     }
 
                     final Object element2 = elements[2];
-                    if (!(element2 instanceof Date)) {
+                    
+                    if (element2 != null && !(element2 instanceof Date)) {
                         return;
                     }
 
                     final Object element3 = elements[3];
-                    if (!(element3 instanceof Date)) {
+                    if (element3 != null && !(element3 instanceof Date)) {
                         return;
                     }
 
@@ -1813,8 +1814,8 @@ public class ProjectLogFrameGrid {
                     final ExpectedResultDTO expectedResult = (ExpectedResultDTO) element0;
                     final LogFrameGroupDTO group = logFrame.getDefaultGroup(LogFrameGroupType.ACTIVITY);
                     final String title = (String) element1;
-                    final Date startDate = (Date) element2;
-                    final Date endDate = (Date) element3;
+                    final Date startDate = element2 != null ? (Date) element2 : null;
+                    final Date endDate = element3 != null ? (Date) element3 : null;
 
                     // Creates and displays a new activity.
                     final LogFrameActivityDTO activity = expectedResult.addActivity();
@@ -2586,14 +2587,14 @@ public class ProjectLogFrameGrid {
             	
             	//Start date
         		final DateField startDate = new DateField();
-                startDate.setAllowBlank(false);
+                startDate.setAllowBlank(true);
                 startDate.setValue(activity.getStartDate());
                 startDate.setFieldLabel(I18N.CONSTANTS.logFrameActivityStartDate());
                 updatePanel.add(startDate);
                 
                 //End date
                 final DateField endDate = new DateField();
-                endDate.setAllowBlank(false);
+                endDate.setAllowBlank(true);
                 endDate.setValue(activity.getEndDate());
                 endDate.setFieldLabel(I18N.CONSTANTS.logFrameActivityEndDate());
                 updatePanel.add(endDate);
