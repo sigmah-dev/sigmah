@@ -175,7 +175,7 @@ public class ProjectLogFrameView extends ProjectLogFramePresenter.View {
 
         // Export to Excel button.
         excelButton = new Button(I18N.CONSTANTS.exportToExcel(), IconImageBundle.ICONS.excel());
-
+        excelButton.hide();
         // Export form.
         excelForm = new FormPanel();
         excelForm.setBodyBorder(false);

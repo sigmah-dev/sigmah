@@ -136,9 +136,9 @@ public class ProjectPresenter implements Frame, TabPage {
     private final static String[] MAIN_TABS = { I18N.CONSTANTS.projectTabDashboard(), I18N.CONSTANTS.projectDetails(),
             I18N.CONSTANTS.projectTabLogFrame(), I18N.CONSTANTS.projectTabIndicators(),
             I18N.CONSTANTS.projectTabDataEntry(),
-            I18N.CONSTANTS.projectTabCalendar(), I18N.CONSTANTS.projectTabReports(),
-            I18N.CONSTANTS.projectTabSecurityIncident() };
-    
+            I18N.CONSTANTS.projectTabCalendar(), I18N.CONSTANTS.projectTabReports()
+            /*, I18N.CONSTANTS.projectTabSecurityIncident()*/ // TO DO 
+    };
 
     // TODO: the sub presenters all probably need to be notified of when the project is to be loaded
     // into view. Maybe a SubProjectPresenter interface? Then projectIndicators field can be removed below
@@ -155,7 +155,7 @@ public class ProjectPresenter implements Frame, TabPage {
         this.cache = cache;
 
         final DummyPresenter dummyPresenter = new DummyPresenter(); // For
-                                                                    // development       	
+                                                                   // development       	
         this.presenters = new SubPresenter[] {
                 new ProjectDashboardPresenter(dispatcher, eventBus, authentication, this, cache), // Dashboard
                 new ProjectDetailsPresenter(eventBus, dispatcher, authentication, this, cache), // Details,
@@ -163,8 +163,8 @@ public class ProjectPresenter implements Frame, TabPage {
                 projectIndicators,
                 pivot,
                 new ProjectCalendarPresenter(dispatcher, authentication, this), // Calendar
-                new ProjectReportsPresenter(authentication, dispatcher, eventBus, this), // Reports
-                dummyPresenter // Security incidents
+                new ProjectReportsPresenter(authentication, dispatcher, eventBus, this) // Reports
+                /*,dummyPresenter*/ // Security incidents TO DO
         };
 
         for (int i = 0; i < MAIN_TABS.length; i++) {
