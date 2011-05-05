@@ -6,6 +6,7 @@
 package org.sigmah.server.endpoint.gwtrpc;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sigmah.server.dao.OnDataSet;
@@ -63,12 +64,14 @@ public class UpdateSiteTest extends CommandTestCase {
         Assert.assertEquals("site.attribute[4]", true, model.getAttributeValue(1));
     }
 
+    @Ignore
+    @Test
     public void testUpdatePartner() throws CommandException {
         // define changes for site id=2
         Map<String, Object> changes = new HashMap<String, Object>();
         changes.put("partnerId", 2);
 
-        execute(new UpdateEntity("site", 2, changes));
+        execute(new UpdateEntity("Site", 2, changes));
 
         // assure that the change has been effected
 
@@ -76,4 +79,19 @@ public class UpdateSiteTest extends CommandTestCase {
         Assert.assertEquals("partnerId", 2, site.getPartner().getId());
     }
 
+    @Test
+    @OnDataSet("/dbunit/project-indicator.db.xml")
+    public void updateLocationNameOnSiteWithoutActivityId() throws CommandException {
+    	
+    	Map<String, Object> changes = new HashMap<String, Object>();
+    	changes.put("locationName", "Goma 2");
+    	
+    	execute(new UpdateEntity("Site", 4, changes));
+    	
+        // assure that the change has been effected
+    	
+        Site site = em.find(Site.class, 4);
+        Assert.assertEquals("location Name", "Goma 2", site.getLocation().getName());
+    	
+    }
 }

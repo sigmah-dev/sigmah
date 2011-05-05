@@ -300,7 +300,7 @@ public class SitePolicy implements EntityPolicy<Site> {
             String property = change.getKey();
             Object value = change.getValue();
 
-            if (!isAdminBound && "locationName".equals(property)) {
+            if ("locationName".equals(property)) {
                 location.setName((String) value);
 
             } else if ("locationAxe".equals(property)) {
