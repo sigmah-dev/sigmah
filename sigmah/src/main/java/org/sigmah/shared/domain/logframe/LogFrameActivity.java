@@ -34,7 +34,6 @@ public class LogFrameActivity implements Serializable, Deleteable {
 
     private Integer id;
     private Integer code;
-    private String content;
     private ExpectedResult parentExpectedResult;
     private LogFrameGroup group;
     private Date dateDeleted;
@@ -53,7 +52,7 @@ public class LogFrameActivity implements Serializable, Deleteable {
     public LogFrameActivity copy(final ExpectedResult parentExpectedResult, final Map<Integer, LogFrameGroup> groupMap) {
         final LogFrameActivity copy = new LogFrameActivity();
         copy.code = this.code;
-        copy.content = this.content;
+//        copy.content = this.content;
         copy.parentExpectedResult = parentExpectedResult;
         copy.group = groupMap.get(this.group.getId());
         copy.dateDeleted = this.dateDeleted;
@@ -83,15 +82,6 @@ public class LogFrameActivity implements Serializable, Deleteable {
 
     public void setCode(Integer code) {
         this.code = code;
-    }
-
-    @Column(name = "content", columnDefinition = "TEXT")
-    public String getContent() {
-        return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
     }
 
     @ManyToOne(optional = false)

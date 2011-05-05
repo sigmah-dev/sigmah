@@ -61,15 +61,6 @@ public class LogFrameActivityDTO extends BaseModelData implements EntityDTO, Pos
     public void setPosition(Integer position) {
         set("position", position);
     }
-
-    // Activity content text.
-    public String getContent() {
-        return get("content");
-    }
-
-    public void setContent(String content) {
-        set("content", content);
-    }
     
     //Activity advancement 
     public Integer getAdvancement() {
@@ -215,8 +206,8 @@ public class LogFrameActivityDTO extends BaseModelData implements EntityDTO, Pos
         sb.append(getLabel());
         sb.append(" ; code = ");
         sb.append(getCode());
-        sb.append(" ; content = ");
-        sb.append(getContent());
+//        sb.append(" ; content = ");
+//        sb.append(getContent());
         sb.append("]");
         return sb.toString();
     }
