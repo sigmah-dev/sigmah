@@ -1721,7 +1721,6 @@ public class ProjectLogFrameGrid {
                     logFrame.getAllGroups(LogFrameGroupType.ACTIVITY), false, "label");
             formWindow.addDateField(I18N.CONSTANTS.logFrameActivityStartDate(), true);
             formWindow.addDateField(I18N.CONSTANTS.logFrameActivityEndDate(), true);
-            formWindow.addTextField(I18N.CONSTANTS.logFrameActivityContent(), true);
             formWindow.addFormSubmitListener(new FormSubmitListener() {
 
                 @Override
@@ -1748,22 +1747,15 @@ public class ProjectLogFrameGrid {
                         return;
                     }
 
-                    final Object element4 = elements[4];
-                    if (element4 != null && !(element4 instanceof String)) {
-                        return;
-                    }
-
                     // Retrieves the selected ER and group and activity params.
                     final ExpectedResultDTO expectedResult = (ExpectedResultDTO) element0;
                     final LogFrameGroupDTO group = (LogFrameGroupDTO) element1;
                     final Date startDate = element2 != null ? (Date) element2 : null;
                     final Date endDate = element3 != null ? (Date) element3 : null;
-                    final String title = (String) element4;
 
                     // Creates and displays a new activity.
                     final LogFrameActivityDTO activity = expectedResult.addActivity();
                     activity.setLogFrameGroupDTO(group);
-                    activity.setTitle(title != null ? title : "");
                     activity.setStartDate(startDate);
                     activity.setEndDate(endDate);
                     activity.setAdvancement(0); // advancement set to 0 at the begin
@@ -1780,7 +1772,6 @@ public class ProjectLogFrameGrid {
             // Sets the form window.
             formWindow.clear();
             formWindow.addChoicesList(I18N.CONSTANTS.logFrameExceptedResult(), results, false, "label");
-            formWindow.addTextField(I18N.CONSTANTS.logFrameActivityTitle(), false);
             formWindow.addDateField(I18N.CONSTANTS.logFrameActivityStartDate(), true);
             formWindow.addDateField(I18N.CONSTANTS.logFrameActivityEndDate(), true);
             formWindow.addFormSubmitListener(new FormSubmitListener() {
@@ -1795,32 +1786,25 @@ public class ProjectLogFrameGrid {
                     }
 
                     final Object element1 = elements[1];
-                    if (!(element1 instanceof String)) {
+                    
+                    if (element1 != null && !(element1 instanceof Date)) {
                         return;
                     }
 
                     final Object element2 = elements[2];
-                    
                     if (element2 != null && !(element2 instanceof Date)) {
-                        return;
-                    }
-
-                    final Object element3 = elements[3];
-                    if (element3 != null && !(element3 instanceof Date)) {
                         return;
                     }
 
                     // Retrieves the selected ER and group and activity params.
                     final ExpectedResultDTO expectedResult = (ExpectedResultDTO) element0;
                     final LogFrameGroupDTO group = logFrame.getDefaultGroup(LogFrameGroupType.ACTIVITY);
-                    final String title = (String) element1;
-                    final Date startDate = element2 != null ? (Date) element2 : null;
-                    final Date endDate = element3 != null ? (Date) element3 : null;
+                    final Date startDate = element1 != null ? (Date) element1 : null;
+                    final Date endDate = element2 != null ? (Date) element2 : null;
 
                     // Creates and displays a new activity.
                     final LogFrameActivityDTO activity = expectedResult.addActivity();
                     activity.setLogFrameGroupDTO(group);
-                    activity.setTitle(title);
                     activity.setStartDate(startDate);
                     activity.setEndDate(endDate);
                     activity.setAdvancement(0); // advancement set to 0 at the begin
@@ -2543,7 +2527,8 @@ public class ProjectLogFrameGrid {
                 updateWindow.setBlinkModal(true);
                 updateWindow.setHeading(I18N.CONSTANTS.logFrameModifyA());
                 updateWindow.setLayout(new FitLayout());
-                updateWindow.setSize(380, 250);
+                updateWindow.setWidth(380);
+                updateWindow.setAutoHeight(true);
                 
             	final FormPanel updatePanel = new FormPanel();
             	updatePanel.setBodyBorder(false);
@@ -2554,11 +2539,13 @@ public class ProjectLogFrameGrid {
             	updatePanel.setSize(380, 250);
             	
             	//titre
-            	final TextField<String> titre = new TextField<String>();
-            	titre.setFieldLabel(I18N.CONSTANTS.logFrameActivityTitle());
-            	titre.setValue(activity.getTitle());
-            	titre.setEnabled(false);
-            	updatePanel.add(titre);
+            	if(activity.getTitle()!=null && !activity.getTitle().trim().isEmpty()){
+            		final TextField<String> titre = new TextField<String>();
+                	titre.setFieldLabel(I18N.CONSTANTS.logFrameActivityTitle());
+                	titre.setValue(activity.getTitle());
+                	titre.setEnabled(false);
+                	updatePanel.add(titre);
+            	}
                           	
             	//group 
             	final TextField<String> expectedResult = new TextField<String>();
@@ -2599,15 +2586,6 @@ public class ProjectLogFrameGrid {
                 endDate.setFieldLabel(I18N.CONSTANTS.logFrameActivityEndDate());
                 updatePanel.add(endDate);
                 
-                //Content
-                final com.extjs.gxt.ui.client.widget.form.TextArea content = new com.extjs.gxt.ui.client.widget.form.TextArea();
-                content.setAllowBlank(true);
-                content.setValue(activity.getContent());
-                content.setFieldLabel(I18N.CONSTANTS.logFrameActivityContent());
-                updatePanel.add(content);
-                
-   
-                
                 //save button
                 final Button saveButton = new Button(I18N.CONSTANTS.ok());
                 saveButton.addListener(Events.OnClick, new Listener<ButtonEvent>() {
@@ -2616,7 +2594,6 @@ public class ProjectLogFrameGrid {
                     	//get the new values for the selected activity
                        activity.setStartDate(startDate.getValue());
                        activity.setEndDate(endDate.getValue());
-                       activity.setContent(content.getValue());
                        activity.setAdvancement(sliderAdvancment.getValue());			
                    
                        updateWindow.hide();                       
