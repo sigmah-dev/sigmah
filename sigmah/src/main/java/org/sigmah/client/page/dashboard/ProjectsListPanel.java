@@ -461,8 +461,11 @@ public class ProjectsListPanel {
                         dto.setId(-1);
                         final ValueEvent starredEvent = new ValueEvent(dto, String.valueOf(!model.getStarred()));
                         events.add(starredEvent);
-
-                        dispatcher.execute(new UpdateProject(model.getId(), events), new MaskingAsyncMonitor(
+                        int modelId= model.getId();
+                        if(modelId < 0)
+                        	modelId = model.getProjectId();
+                    
+                        dispatcher.execute(new UpdateProject(modelId, events), new MaskingAsyncMonitor(
                                 projectTreePanel, I18N.CONSTANTS.loading()), new AsyncCallback<VoidResult>() {
 
                             @Override

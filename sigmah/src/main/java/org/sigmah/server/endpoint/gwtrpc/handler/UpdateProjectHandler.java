@@ -111,11 +111,13 @@ public class UpdateProjectHandler implements CommandHandler<UpdateProject> {
                         updateSingleValue);
 
                 // Checks if the first value as been already historized or not.
-                final Query query = em
-                        .createQuery("SELECT h FROM HistoryToken h WHERE h.elementId = :elementId AND h.projectId = :projectId");
-                query.setParameter("elementId", element.getId());
-                query.setParameter("projectId", historableId);
-                final List<Object> results = query.getResultList();
+                List<Object> results = null;                
+				if (element != null) {
+                	final Query query = em .createQuery("SELECT h FROM HistoryToken h WHERE h.elementId = :elementId AND h.projectId = :projectId");
+		            query.setParameter("elementId", element.getId());
+		            query.setParameter("projectId", historableId);
+		            results = query.getResultList();
+                }               
 
                 if (results == null || results.isEmpty()) {
 
@@ -293,7 +295,7 @@ public class UpdateProjectHandler implements CommandHandler<UpdateProject> {
             String singleValue, ListEntity listValue) {
 
         // Manages history.
-        if (element.isHistorable()) {
+		if (element != null && element.isHistorable()) {
 
             final HistoryToken historyToken = new HistoryToken();
 
