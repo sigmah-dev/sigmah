@@ -1,6 +1,7 @@
 package org.sigmah.shared.domain.quality;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
@@ -10,9 +11,12 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import java.util.HashMap;
+
+import org.sigmah.shared.domain.Organization;
 
 /**
  * Quality framework entity.
@@ -30,7 +34,8 @@ public class QualityFramework implements Serializable {
     private String label;
     private List<CriterionType> types;
     private List<QualityCriterion> criteria;
-
+    private Organization organization;
+    
     public void setId(Integer id) {
         this.id = id;
     }
@@ -68,6 +73,16 @@ public class QualityFramework implements Serializable {
     public void setCriteria(List<QualityCriterion> criteria) {
         this.criteria = criteria;
     }
+    
+    @ManyToOne
+    @JoinColumn(name = "id_organization") 
+    public Organization getOrganization() {
+		return organization;
+	}
+
+	public void setOrganization(Organization organization) {
+		this.organization = organization;
+	}
     
     /**
 	 * Reset the object identifier.
@@ -116,4 +131,5 @@ public class QualityFramework implements Serializable {
 			}
 		}
 	}
+
 }

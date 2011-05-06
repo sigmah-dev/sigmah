@@ -14,8 +14,12 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
+
+import org.sigmah.shared.domain.Organization;
 
 /**
  *
@@ -27,6 +31,7 @@ public class ProjectReportModel implements Serializable {
     private Integer id;
     private String name;
     private List<ProjectReportModelSection> sections;
+    private Organization organization;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -55,7 +60,18 @@ public class ProjectReportModel implements Serializable {
     public void setSections(List<ProjectReportModelSection> sections) {
         this.sections = sections;
     }
-    /**
+    
+    @ManyToOne
+    @JoinColumn(name = "id_organization") 
+    public Organization getOrganization() {
+		return organization;
+	}
+
+	public void setOrganization(Organization organization) {
+		this.organization = organization;
+	}
+
+	/**
 	 * Reset the identifiers of the object.
 	 * 
 	 * @param modelesReset

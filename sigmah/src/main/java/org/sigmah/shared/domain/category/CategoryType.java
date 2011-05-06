@@ -12,9 +12,13 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
 import javax.persistence.Table;
+
+import org.sigmah.shared.domain.Organization;
 
 /**
  * Global category type.
@@ -32,6 +36,7 @@ public class CategoryType implements Serializable {
     private String label;
     private List<CategoryElement> elements = new ArrayList<CategoryElement>();
     private CategoryIcon icon;
+    private Organization organization;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -73,7 +78,17 @@ public class CategoryType implements Serializable {
         this.icon = icon;
     }
     
-    /**
+    @ManyToOne
+    @JoinColumn(name = "id_organization") 
+    public Organization getOrganization() {
+		return organization;
+	}
+
+	public void setOrganization(Organization organization) {
+		this.organization = organization;
+	}
+
+	/**
      * Reset the identifiers of the object.
      */
     public void resetImport(){

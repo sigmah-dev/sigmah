@@ -88,7 +88,6 @@ public class AdminOneModelView extends LayoutContainer implements AdminOneModelP
     //Org unit model
     private final TextField<String> titleField;
 	private final CheckBox hasBudgetCheckBox;
-	private final CheckBox hasSiteCheckBox;
 	private final CheckBox canContainProjectsCheckBox;	
 	private final NumberField minLevelField;
 	private final NumberField maxLevelField;
@@ -305,14 +304,6 @@ public class AdminOneModelView extends LayoutContainer implements AdminOneModelP
 		hasBudgetCheckBox.setValue(false);
 		topCenterFormPanel.add(hasBudgetCheckBox);
 		
-		hasSiteCheckBox = new CheckBox();
-		hasSiteCheckBox.hide();
-		hasSiteCheckBox.setBoxLabel(I18N.CONSTANTS.adminOrgUnitsModelHasSite());
-		hasSiteCheckBox.setFieldLabel("      ");
-		hasSiteCheckBox.setLabelSeparator(" ");
-		hasSiteCheckBox.setValue(false);
-		topCenterFormPanel.add(hasSiteCheckBox);
-		
 		canContainProjectsCheckBox = new CheckBox();
 		canContainProjectsCheckBox.hide();
 		canContainProjectsCheckBox.setBoxLabel(I18N.CONSTANTS.adminOrgUnitsModelContainProjects());
@@ -434,8 +425,7 @@ public class AdminOneModelView extends LayoutContainer implements AdminOneModelP
 			
 			final String nameValue = name.getValue();
 			final String title = titleField.getValue();
-			final Boolean hasBudget = hasBudgetCheckBox.getValue();
-			final Boolean hasSite = hasSiteCheckBox.getValue();		 
+			final Boolean hasBudget = hasBudgetCheckBox.getValue(); 
 			final Boolean containsProjects = canContainProjectsCheckBox.getValue();
 			Integer minLevel = 0;
 			if(minLevelField.getValue() != null){
@@ -457,7 +447,6 @@ public class AdminOneModelView extends LayoutContainer implements AdminOneModelP
 			modelProperties.put(AdminUtil.PROP_OM_NAME, nameValue);
 			modelProperties.put(AdminUtil.PROP_OM_TITLE, title);
 			modelProperties.put(AdminUtil.PROP_OM_HAS_BUDGET, hasBudget);
-			modelProperties.put(AdminUtil.PROP_OM_HAS_SITE, hasSite);
 			modelProperties.put(AdminUtil.PROP_OM_CONTAINS_PROJECTS, containsProjects);
 			modelProperties.put(AdminUtil.PROP_OM_MIN_LEVEL, minLevel);
 			modelProperties.put(AdminUtil.PROP_OM_MAX_LEVEL, maxLevel);
@@ -581,14 +570,12 @@ public class AdminOneModelView extends LayoutContainer implements AdminOneModelP
 			
 			titleField.show();
 			hasBudgetCheckBox.show();
-			hasSiteCheckBox.show();
 			canContainProjectsCheckBox.show();	
 			minLevelField.show();
 			maxLevelField.show();
 			
 			titleField.disable();
 			hasBudgetCheckBox.disable();
-			hasSiteCheckBox.disable();
 			canContainProjectsCheckBox.disable();	
 			minLevelField.disable();
 			maxLevelField.disable();
@@ -599,7 +586,6 @@ public class AdminOneModelView extends LayoutContainer implements AdminOneModelP
 				saveButton.enable();
 				titleField.enable();
 				hasBudgetCheckBox.enable();
-				hasSiteCheckBox.enable();
 				canContainProjectsCheckBox.enable();
 				minLevelField.enable();
 				maxLevelField.enable();
@@ -615,7 +601,6 @@ public class AdminOneModelView extends LayoutContainer implements AdminOneModelP
 				
 				titleField.setValue(currentOrgUnitModel.getTitle());
 				hasBudgetCheckBox.setValue(currentOrgUnitModel.getHasBudget());
-				hasSiteCheckBox.setValue(currentOrgUnitModel.getHasSite());
 				canContainProjectsCheckBox.setValue(currentOrgUnitModel.getCanContainProjects());
 				minLevelField.setValue(currentOrgUnitModel.getMinLevel());
 				maxLevelField.setValue(currentOrgUnitModel.getMaxLevel());

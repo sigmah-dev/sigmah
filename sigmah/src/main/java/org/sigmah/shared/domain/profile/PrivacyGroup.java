@@ -7,7 +7,11 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+
+import org.sigmah.shared.domain.Organization;
 
 /**
  * Defines a privacy group to be contained in a profile.
@@ -24,6 +28,7 @@ public class PrivacyGroup implements Serializable {
     private Integer id;
     private Integer code;
     private String title;
+    private Organization organization;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -60,4 +65,14 @@ public class PrivacyGroup implements Serializable {
     public void resetImport(){
     	this.id = null;
     }
+
+    @ManyToOne
+    @JoinColumn(name = "id_organization") 
+	public Organization getOrganization() {
+		return organization;
+	}
+
+	public void setOrganization(Organization organization) {
+		this.organization = organization;
+	}
 }

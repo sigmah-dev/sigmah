@@ -11,6 +11,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import org.sigmah.shared.domain.Organization;
+
 /**
  * Category items associated to a global category type.
  * 
@@ -26,7 +28,8 @@ public class CategoryElement implements Serializable {
     private Integer id;
     private String label;
     private CategoryType parentType;
-    private String color;
+    private String color;    
+    private Organization organization;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -67,7 +70,17 @@ public class CategoryElement implements Serializable {
         this.color = color;
     }
     
-    /**
+    @ManyToOne
+    @JoinColumn(name = "id_organization")    
+    public Organization getOrganization() {
+		return organization;
+	}
+
+	public void setOrganization(Organization organization) {
+		this.organization = organization;
+	}
+
+	/**
      * Reset the identifiers of the object.
      */
     public void resetImport(){

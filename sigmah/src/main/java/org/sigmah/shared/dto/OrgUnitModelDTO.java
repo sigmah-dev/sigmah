@@ -104,15 +104,6 @@ public class OrgUnitModelDTO extends BaseModelData implements EntityDTO {
         set("hasBudget", hasBudget);
     }
 
-    // Site
-    public Boolean getHasSite() {
-        return (Boolean) get("hasSite");
-    }
-
-    public void setHasSite(Boolean hasSite) {
-        set("hasSite", hasSite);
-    }
-
     // Min level
     public Integer getMinLevel() {
         return (Integer) get("minLevel");

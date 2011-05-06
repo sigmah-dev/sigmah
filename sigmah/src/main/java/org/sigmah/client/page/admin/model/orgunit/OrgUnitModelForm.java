@@ -30,7 +30,6 @@ public class OrgUnitModelForm extends FormPanel {
 	private final TextField<String> nameField;
 	private final TextField<String> titleField;
 	private final CheckBox hasBudgetCheckBox;
-	private final CheckBox hasSiteCheckBox;
 	private final CheckBox canContainProjectsCheckBox;	
 	private final NumberField minLevelField;
 	private final NumberField maxLevelField;
@@ -63,12 +62,6 @@ public class OrgUnitModelForm extends FormPanel {
 		hasBudgetCheckBox.setFieldLabel(constants.adminOrgUnitsModelHasBudget());
 		hasBudgetCheckBox.setValue(false);
 		add(hasBudgetCheckBox);
-		
-		hasSiteCheckBox = new CheckBox();
-		hasSiteCheckBox.setBoxLabel(constants.adminOrgUnitsModelHasSite());
-		hasSiteCheckBox.setFieldLabel(constants.adminOrgUnitsModelHasSite());
-		hasSiteCheckBox.setValue(false);
-		add(hasSiteCheckBox);
 		
 		canContainProjectsCheckBox = new CheckBox();
 		canContainProjectsCheckBox.setBoxLabel(constants.adminOrgUnitsModelContainProjects());
@@ -106,8 +99,7 @@ public class OrgUnitModelForm extends FormPanel {
 		 
 		 final String name = nameField.getValue();
 		 final String title = titleField.getValue();
-		 final Boolean hasBudget = hasBudgetCheckBox.getValue();
-		 final Boolean hasSite = hasSiteCheckBox.getValue();		 
+		 final Boolean hasBudget = hasBudgetCheckBox.getValue();	 
 		 final Boolean containsProjects = canContainProjectsCheckBox.getValue();
 		 Integer minLevel = 0;
 		 if(minLevelField.getValue() != null){
@@ -122,7 +114,6 @@ public class OrgUnitModelForm extends FormPanel {
 		 newOrgUnitModelProperties.put(AdminUtil.PROP_OM_NAME, name);
 		 newOrgUnitModelProperties.put(AdminUtil.PROP_OM_TITLE, title);
 		 newOrgUnitModelProperties.put(AdminUtil.PROP_OM_HAS_BUDGET, hasBudget);
-		 newOrgUnitModelProperties.put(AdminUtil.PROP_OM_HAS_SITE, hasSite);
 		 newOrgUnitModelProperties.put(AdminUtil.PROP_OM_CONTAINS_PROJECTS, containsProjects);
 		 newOrgUnitModelProperties.put(AdminUtil.PROP_OM_MIN_LEVEL, minLevel);
 		 newOrgUnitModelProperties.put(AdminUtil.PROP_OM_MAX_LEVEL, maxLevel);

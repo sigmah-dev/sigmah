@@ -159,9 +159,6 @@ public class OrgUnitModelPolicy implements EntityPolicy<OrgUnitModel>  {
 		Boolean hasBudget = null;
 		if(properties.get(AdminUtil.PROP_OM_HAS_BUDGET) != null)
 			hasBudget = (Boolean) properties.get(AdminUtil.PROP_OM_HAS_BUDGET);
-		Boolean hasSite = null;
-		if(properties.get(AdminUtil.PROP_OM_HAS_SITE) != null)
-			hasSite = (Boolean) properties.get(AdminUtil.PROP_OM_HAS_SITE);
 		Boolean containsProjects = null;
 		if(properties.get(AdminUtil.PROP_OM_CONTAINS_PROJECTS) != null)
 			containsProjects = (Boolean) properties.get(AdminUtil.PROP_OM_CONTAINS_PROJECTS);
@@ -177,7 +174,6 @@ public class OrgUnitModelPolicy implements EntityPolicy<OrgUnitModel>  {
 		oM.setStatus(ProjectModelStatus.DRAFT);
 		oM.setTitle(oMTitle);
 		oM.setHasBudget(hasBudget);
-		oM.setHasSite(hasSite);
 		oM.setMinLevel(minLevel);
 		oM.setMaxLevel(maxLevel);
 		

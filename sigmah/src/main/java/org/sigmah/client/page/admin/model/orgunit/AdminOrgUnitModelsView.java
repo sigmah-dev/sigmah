@@ -93,9 +93,6 @@ public class AdminOrgUnitModelsView extends View {
 		column = new ColumnConfig("hasBudget",I18N.CONSTANTS.adminOrgUnitsModelHasBudget(), 75);   
 		configs.add(column); 
 		
-		column = new ColumnConfig("hasSite",I18N.CONSTANTS.adminOrgUnitsModelHasSite(), 75);   
-		configs.add(column); 
-		
 		column = new ColumnConfig("canContainProjects",I18N.CONSTANTS.adminOrgUnitsModelContainProjects(), 75);   
 		configs.add(column);
 		

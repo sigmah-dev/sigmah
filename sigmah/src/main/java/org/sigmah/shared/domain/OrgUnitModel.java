@@ -10,6 +10,8 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
@@ -30,13 +32,13 @@ public class OrgUnitModel implements Serializable {
     private OrgUnitBanner banner;
     private OrgUnitDetails details;
     private Boolean hasBudget = false;
-    private Boolean hasSite = false;
     private Integer minLevel;
     private Integer maxLevel;
     private String title;
     private Boolean canContainProjects = true;
     private ProjectModelStatus status = ProjectModelStatus.DRAFT;
-
+    private Organization organization;
+    
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "org_unit_model_id")
@@ -93,15 +95,6 @@ public class OrgUnitModel implements Serializable {
         this.hasBudget = hasBudget;
     }
 
-    @Column(name = "has_site")
-    public Boolean getHasSite() {
-        return hasSite;
-    }
-
-    public void setHasSite(Boolean hasSite) {
-        this.hasSite = hasSite;
-    }
-
     @Column(name = "min_level")
     public Integer getMinLevel() {
         return minLevel;
@@ -139,7 +132,17 @@ public class OrgUnitModel implements Serializable {
         this.status = status;
     }
     
-    /**
+    @ManyToOne
+    @JoinColumn(name = "id_organization") 
+    public Organization getOrganization() {
+		return organization;
+	}
+
+	public void setOrganization(Organization organization) {
+		this.organization = organization;
+	}
+
+	/**
      * Reset the identifiers of the object.
      */
     public void resetImport(){

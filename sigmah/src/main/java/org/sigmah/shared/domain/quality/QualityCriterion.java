@@ -1,6 +1,7 @@
 package org.sigmah.shared.domain.quality;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
@@ -16,7 +17,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-import java.util.HashMap;
+
+import org.sigmah.shared.domain.Organization;
 
 /**
  * Quality criterion entity.
@@ -35,7 +37,8 @@ public class QualityCriterion implements Serializable {
     private QualityFramework qualityFramework;
     private QualityCriterion parentCriterion;
     private List<QualityCriterion> subCriteria;
-
+    private Organization organization;
+    
     public void setId(Integer id) {
         this.id = id;
     }
@@ -94,8 +97,18 @@ public class QualityCriterion implements Serializable {
     public void setSubCriteria(List<QualityCriterion> subCriteria) {
         this.subCriteria = subCriteria;
     }
-    
-    /**
+
+    @ManyToOne
+    @JoinColumn(name = "id_organization") 
+    public Organization getOrganization() {
+		return organization;
+	}
+
+	public void setOrganization(Organization organization) {
+		this.organization = organization;
+	}
+
+	/**
 	 * Reset the identifiers of the object.
 	 * 
 	 * @param modelesReset

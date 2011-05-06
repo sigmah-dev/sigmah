@@ -9,8 +9,12 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+
+import org.sigmah.shared.domain.Organization;
 
 /**
  * Defines a permissions profile.
@@ -28,6 +32,7 @@ public class Profile implements Serializable {
     private String name;
     private List<GlobalPermission> globalPermissions;
     private List<PrivacyGroupPermission> privacyGroupPermissions;
+    private Organization organization;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -66,4 +71,15 @@ public class Profile implements Serializable {
     public void setPrivacyGroupPermissions(List<PrivacyGroupPermission> privacyGroupPermissions) {
         this.privacyGroupPermissions = privacyGroupPermissions;
     }
+    
+    @ManyToOne
+    @JoinColumn(name = "id_organization") 
+	public Organization getOrganization() {
+		return organization;
+	}
+
+	public void setOrganization(Organization organization) {
+		this.organization = organization;
+	}
+    
 }
