@@ -7,25 +7,33 @@ import java.util.ArrayList;
 import java.util.Date;
 
 import org.sigmah.client.i18n.I18N;
+import org.sigmah.client.icon.IconImageBundle;
 
+
+import com.extjs.gxt.ui.client.Style;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.HorizontalPanel;
 import com.extjs.gxt.ui.client.widget.Label;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.Field;
+import com.extjs.gxt.ui.client.widget.form.LabelField;
+import com.extjs.gxt.ui.client.widget.form.NumberField;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.HBoxLayout;
 import com.extjs.gxt.ui.client.widget.layout.HBoxLayoutData;
+import com.extjs.gxt.ui.client.widget.layout.TableData;
 import com.extjs.gxt.ui.client.widget.layout.VBoxLayout;
 import com.extjs.gxt.ui.client.widget.layout.VBoxLayout.VBoxLayoutAlign;
 import com.extjs.gxt.ui.client.widget.layout.VBoxLayoutData;
+
 /**
  * A pop-up form window for the edit of reminders and monitored points.
  * It is almost the same as {@link org.sigmah.client.page.project.logframe.FormWindow}
@@ -55,6 +63,13 @@ public class EditFormWindow {
 		 *            The input values.
 		 */
 		public void formSubmitted(Object... values);
+		
+		
+		/**
+		 * Method called when the uses just click the delete button to remove
+		 * the model object.
+		 */
+		public void deleteModelObject();
 
 	}
 
@@ -111,13 +126,7 @@ public class EditFormWindow {
 	 * List of all fields.
 	 */
 	private final ArrayList<FieldWrapper> fields;
-	
-	/**
-	 * A label with a button for deletion
-	 */
-	private Button deleteButton;
-
-
+		
 
 	/**
 	 * Initialize the window.
@@ -125,7 +134,7 @@ public class EditFormWindow {
 	public EditFormWindow() {
 		listeners = new ArrayList<FormSubmitListener>();
 		fields = new ArrayList<FieldWrapper>();
-		deleteButton = new Button();
+		
 	}
 
 	/**
@@ -169,6 +178,17 @@ public class EditFormWindow {
 			l.formSubmitted(values);
 		}
 	}
+	
+	/**
+	 * Informs the listeners that users has pressed the delete button.
+	 * 
+	 */
+	protected void fireDeletion() {
+		for (final FormSubmitListener l : listeners) {
+			l.deleteModelObject();
+		}
+	}
+	
 
 	/**
 	 * Builds the pop-up window.
@@ -180,7 +200,7 @@ public class EditFormWindow {
 
 		// Builds the submit button.
 		final Button selectButton = new Button(
-				I18N.CONSTANTS.formWindowSubmitAction());
+				I18N.CONSTANTS.formWindowSubmitAction(),IconImageBundle.ICONS.save());
 		selectButton.addListener(Events.OnClick, new Listener<BaseEvent>() {
 
 			@Override
@@ -210,6 +230,22 @@ public class EditFormWindow {
 				window.hide();
 			}
 		});
+		
+		final Button deleteButton = new Button(I18N.CONSTANTS.formWindowDeleteAction(),IconImageBundle.ICONS.remove());
+		
+		deleteButton.addListener(Events.OnClick, new Listener<BaseEvent>(){
+
+			@Override
+			public void handleEvent(BaseEvent be) {
+				
+				fireDeletion();
+				
+				//Closes the window
+				window.hide();
+				
+			}
+			
+		});
 
 		// Builds the fields panel.
 		fieldsPanel = new ContentPanel();
@@ -233,8 +269,17 @@ public class EditFormWindow {
 		mainPanel.setTopComponent(null);
 		mainPanel.add(titleLabel, new VBoxLayoutData(new Margins(4, 8, 0, 8)));
 		mainPanel.add(fieldsPanel, new VBoxLayoutData(new Margins(4, 8, 0, 8)));
-		mainPanel.add(selectButton, new VBoxLayoutData(new Margins(4, 8, 0, 8)));
-		mainPanel.add(deleteButton, new VBoxLayoutData(new Margins(4,8,4,8)));
+		
+		//Add the buttons
+		final HorizontalPanel buttonsPanel = new HorizontalPanel();
+		buttonsPanel.setWidth("80%");
+		buttonsPanel.setTableWidth("100%");
+		buttonsPanel.setBorders(false);
+		buttonsPanel.add(deleteButton,new TableData(Style.HorizontalAlignment.CENTER,Style.VerticalAlignment.MIDDLE));
+		buttonsPanel.add(selectButton, new TableData(Style.HorizontalAlignment.CENTER,Style.VerticalAlignment.MIDDLE));
+		
+		mainPanel.add(buttonsPanel,  new VBoxLayoutData(new Margins(8, 8, 0, 8)));
+
 
 		// Builds window.
 		window = new Window();
@@ -266,7 +311,7 @@ public class EditFormWindow {
 
 		// Open the window.
 		window.setHeading(title);
-		window.setHeight(120 + (FIELD_HEIGHT * (fields.size())));
+		window.setHeight(100 + (FIELD_HEIGHT * (fields.size())));
 		window.show();
 	}
 
@@ -359,8 +404,59 @@ public class EditFormWindow {
         return field;
     }
 
+	  /**
+     * Adds a label field in the window.
+     * 
+     * @param fieldLabelString
+     *            The label of the date field. Can be <code>null</code>.
+     * @return The field.
+     */
+    public LabelField addLabelField(String fieldLabelString) {
 
+        // Lazy building.
+        if (window == null) {
+            init();
+        }
 
+        // Builds the text field.
+        final LabelField field = new LabelField();
+        field.setFieldLabel(fieldLabelString);
+
+        fields.add(new FieldWrapper(field, true));
+
+        addField(field, fieldLabelString);
+
+        return field;
+    }
+
+    /**
+     * Adds a number field in the window.
+     * 
+     * @param fieldLabelString
+     *            The label of the number field. Can be <code>null</code>.
+     * @param allowBlank
+     *            If the field is required.
+     * @return The field.
+     */
+    public NumberField addNumberField(String fieldLabelString,Number defaultValue, boolean allowBlank) {
+
+        // Lazy building.
+        if (window == null) {
+            init();
+        }
+
+        // Builds the text field.
+        final NumberField field = new NumberField();
+        field.setAllowBlank(allowBlank);
+        field.setFieldLabel(fieldLabelString);
+        field.setValue(defaultValue);
+
+        fields.add(new FieldWrapper(field, allowBlank));
+
+        addField(field, fieldLabelString);
+
+        return field;
+    }
 
 	/**
 	 * Adds a field in the form.
@@ -395,6 +491,8 @@ public class EditFormWindow {
 		fieldsPanel.layout();
 	}
 	
+	
+	
 	/**
 	 * Hide the EditFormWindow
 	 */
@@ -402,13 +500,6 @@ public class EditFormWindow {
 	{
 		window.hide();
 	}
-	
-	public Button getDeleteButton() {
-		return deleteButton;
-	}
 
-	public void setDeleteButton(Button deleteButton) {
-		this.deleteButton = deleteButton;
-	}
 
 }

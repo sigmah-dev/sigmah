@@ -119,8 +119,10 @@ public class ElementForm extends ContentPanel {
 	private final ComboBox<CategoryTypeDTO> linkedCategory;
 	private final TextField<String> questionChoice;	
 	private final Button addChoiceButton = new Button(I18N.CONSTANTS.addItem());
-	private final Map<Integer, ClickableLabel> selectedChoices = new HashMap<Integer, ClickableLabel>();
+	private final Map<Integer, ClickableLabel> selectableChoices = new HashMap<Integer, ClickableLabel>();
 	private final List<String> selectedChoicesLabels = new ArrayList<String>();
+	final CategoryTypeDTO defaultNoCategory= new CategoryTypeDTO();
+	
 	
 	private int num = 0;
 		
@@ -128,7 +130,7 @@ public class ElementForm extends ContentPanel {
 	private final static int MAX_TENTATIVES_FOR_CHOICES = 100;
 	
 	public ElementForm(Dispatcher dispatcher, 
-			final AsyncCallback<UpdateModelResult> callback, FlexibleElementDTO flexibleElement, ProjectModelDTO projectModelToUpdate,
+			final AsyncCallback<UpdateModelResult> callback, final FlexibleElementDTO flexibleElement, ProjectModelDTO projectModelToUpdate,
 			OrgUnitModelDTO orgUnitModelToUpdate, final List<LayoutGroupDTO> addedGroups) {
 		
 		final VBoxLayout mainPanelLayout = new VBoxLayout();
@@ -178,7 +180,21 @@ public class ElementForm extends ContentPanel {
 		                if (result != null) {
 		                	reportModelsStore.add(result.getList());
 		                	reportModelsStore.commitChanges();		                    
-		                }						
+		                }
+		                
+		                if(flexibleElement != null){
+		        			if(flexibleElement instanceof ReportElementDTO){
+		        				if(((ReportElementDTO)flexibleElement).getModelId() != null){
+		        					//Log.debug("Init specifics for Report " + ((ReportElementDTO)flexibleElement).getModelId() + " store "
+		        					//		+ reportModelsStore.getModels().size());
+		        					for(ReportModelDTO reportModel : reportModelsStore.getModels()){
+		        						if(reportModel.getId() == ((ReportElementDTO)flexibleElement).getModelId()){
+		        							reportModelList.setValue(reportModel);
+		        						}
+		        					}
+		        				}
+		        			}
+		                }
 					}			
 		});
 		
@@ -218,6 +234,8 @@ public class ElementForm extends ContentPanel {
 		isDecimal.setLabelSeparator("");
 		
 		//Question special
+		
+		
 		isMultipleQ = new CheckBox();
 		isMultipleQ.hide();
 		//isMultipleQ.setBoxLabel(I18N.CONSTANTS.adminFlexibleMultipleQ());
@@ -232,10 +250,8 @@ public class ElementForm extends ContentPanel {
 		isLinkedToQuality.setFieldLabel(I18N.CONSTANTS.adminFlexibleLinkedToQuality());
 		isLinkedToQuality.setLabelSeparator("");
 		
-		final CategoryTypeDTO defaultNoCategory= new CategoryTypeDTO();
 		defaultNoCategory.setLabel(I18N.CONSTANTS.adminFlexibleNoLinkedCategory());
 		defaultNoCategory.setId(-1);
-		
 		linkedCategory = new ComboBox<CategoryTypeDTO>();
 		linkedCategory.setEditable(false);
 		linkedCategory.hide();
@@ -284,7 +300,7 @@ public class ElementForm extends ContentPanel {
     			
     		});
         	label.hide();
-        	selectedChoices.put(i, label);
+        	selectableChoices.put(i, label);
         }
 		
 		questionChoice = new TextField<String>();
@@ -306,8 +322,8 @@ public class ElementForm extends ContentPanel {
                 	if(!selectedChoicesLabels.contains(questionChoice.getValue())){
                 		if(num < MAX_TENTATIVES_FOR_CHOICES){
                 			linkedCategory.setEnabled(false);
-                			selectedChoices.get(num).setText(questionChoice.getValue());
-                			selectedChoices.get(num).show();
+                			selectableChoices.get(num).setText(questionChoice.getValue());
+                			selectableChoices.get(num).show();
                     		num++;               		
                     		selectedChoicesLabels.add(questionChoice.getValue());
                 		}else{
@@ -320,24 +336,6 @@ public class ElementForm extends ContentPanel {
         });
         
         qChoicesAddGrid.setWidget(0, 2, addChoiceButton);
-        
-      //If user choose multiple, he can add personal choices or choose a category
-		isMultipleQ.addListener(Events.Change, new Listener<BaseEvent>(){
-
-			@Override
-			public void handleEvent(BaseEvent be) {
-				if(isMultipleQ.getValue()){
-					linkedCategory.setEnabled(true);
-					questionChoice.setEnabled(true);
-					addChoiceButton.setEnabled(true);
-				}else{
-					linkedCategory.setEnabled(false);
-					questionChoice.setEnabled(false);
-					addChoiceButton.setEnabled(false);
-				}
-			}
-			
-		});
 		
 		//If user choose to link the question to a category, he can't add personal choices
         linkedCategory.addListener(Events.Select, new Listener<BaseEvent>() {
@@ -351,14 +349,14 @@ public class ElementForm extends ContentPanel {
 				else {
 					questionChoice.setEnabled(false);
 					addChoiceButton.setEnabled(false);
-					for(ClickableLabel selected : selectedChoices.values()){
+					for(ClickableLabel selected : selectableChoices.values()){
 						selected.setEnabled(false);
 			        }
 				}
 			}
 		});
         
-		initSpecifics(flexibleElement);
+		//initSpecifics(flexibleElement);
 		
 		specificsPanel.add(reportModelList);
 		specificsPanel.add(textAreaTypeList);
@@ -370,7 +368,7 @@ public class ElementForm extends ContentPanel {
 		specificsPanel.add(isLinkedToQuality);		
 		specificsPanel.add(linkedCategory);
 		specificsPanel.add(qChoicesAddGrid);
-		for(ClickableLabel selected : selectedChoices.values()){
+		for(ClickableLabel selected : selectableChoices.values()){
 			selected.hide();
 			specificsPanel.add(selected);
         }
@@ -739,7 +737,7 @@ public class ElementForm extends ContentPanel {
 		isMultipleQ.hide();
 		questionChoice.hide();
 		addChoiceButton.hide();
-		for(ClickableLabel selected : selectedChoices.values()){
+		for(ClickableLabel selected : selectableChoices.values()){
 			selected.hide();
         }
 		qChoicesAddGrid.setVisible(false);
@@ -772,9 +770,10 @@ public class ElementForm extends ContentPanel {
 			isMultipleQ.show();
 			questionChoice.show();
 			addChoiceButton.show();
-			for(ClickableLabel selected : selectedChoices.values()){
-				if(selected.getText()!= null)
+			for(ClickableLabel selected : selectableChoices.values()){
+				if(selected.getText()!= null){
 					selected.show();
+				}
 	        }
 			qChoicesAddGrid.setVisible(true);
 			specificsPanel.show();
@@ -883,7 +882,7 @@ public class ElementForm extends ContentPanel {
 		 //Question Element
 		 if(multipleQ != null)		 
 			 newFieldProperties.put(AdminUtil.PROP_FX_Q_MULTIPLE, multipleQ);		 
-		 if(category != null)
+		 if(category != null && category != defaultNoCategory)
 			 newFieldProperties.put(AdminUtil.PROP_FX_Q_CATEGORY, category);		 
 		 if(selectedChoicesLabels != null)
 			 newFieldProperties.put(AdminUtil.PROP_FX_Q_CHOICES, selectedChoicesLabels);
@@ -1052,9 +1051,24 @@ public class ElementForm extends ContentPanel {
 	
 	private void initSpecifics(FlexibleElementDTO flexibleElement){
 		
+		isDecimal.setValue(false);
+		isMultipleQ.setValue(false);
+		
+		linkedCategory.setValue(defaultNoCategory);
+		isLinkedToQuality.setValue(false);
+		//Question Multiple/Choices implications
+        linkedCategory.setEnabled(true);
+		questionChoice.setEnabled(true);
+		addChoiceButton.setEnabled(true);
+		for(ClickableLabel selected : selectableChoices.values()){
+			selected.setEnabled(true);
+        }
+		
 		if(flexibleElement != null){
 			if(flexibleElement instanceof ReportElementDTO){
 				if(((ReportElementDTO)flexibleElement).getModelId() != null){
+					Log.debug("Init specifics for Report " + ((ReportElementDTO)flexibleElement).getModelId() + " store "
+							+ reportModelsStore.getModels().size());
 					for(ReportModelDTO reportModel : reportModelsStore.getModels()){
 						if(reportModel.getId() == ((ReportElementDTO)flexibleElement).getModelId()){
 							reportModelList.setValue(reportModel);
@@ -1062,134 +1076,92 @@ public class ElementForm extends ContentPanel {
 					}
 				}
 			}
-		}
-		
-		
-		if(flexibleElement != null){
-			if(flexibleElement instanceof FilesListElementDTO){
+			else if(flexibleElement instanceof FilesListElementDTO){
 				if(((FilesListElementDTO)flexibleElement).getLimit() != null){
 					maxLimitField.setValue(((FilesListElementDTO)flexibleElement).getLimit());
 					oldFieldProperties.put(AdminUtil.PROP_FX_MAX_LIMIT, ((FilesListElementDTO)flexibleElement).getLimit());
 				}
 					
 			}else if(flexibleElement instanceof TextAreaElementDTO){
+				
 				if(((TextAreaElementDTO)flexibleElement).getMaxValue() != null){
 					maxLimitField.setValue(((TextAreaElementDTO)flexibleElement).getMaxValue());
 					oldFieldProperties.put(AdminUtil.PROP_FX_MAX_LIMIT, ((TextAreaElementDTO)flexibleElement).getMaxValue());
 				}
-					
-			}
-		}
-		
-		
-		if(flexibleElement != null){
-			if(flexibleElement instanceof TextAreaElementDTO){
+				
 				TextAreaElementDTO textElement =  (TextAreaElementDTO)flexibleElement;
-				if("P".equals(textElement.getType())){
+				if("P".equals(textElement.getType().toString())){
 					oldFieldProperties.put(AdminUtil.PROP_FX_TEXT_TYPE, 'P');
 					textAreaTypeList.setSimpleValue(I18N.CONSTANTS.adminFlexibleTextTypeP());
-				}else if("T".equals(textElement.getType())){
+				}else if("T".equals(textElement.getType().toString())){
 					oldFieldProperties.put(AdminUtil.PROP_FX_TEXT_TYPE, 'T');
 					textAreaTypeList.setSimpleValue(I18N.CONSTANTS.adminFlexibleTextTypeT());
-				}else if("N".equals(textElement.getType())){
+				}else if("N".equals(textElement.getType().toString())){
 					oldFieldProperties.put(AdminUtil.PROP_FX_TEXT_TYPE, 'N');
 					textAreaTypeList.setSimpleValue(I18N.CONSTANTS.adminFlexibleTextTypeN());
-				}else if("D".equals(textElement.getType())){
+				}else if("D".equals(textElement.getType().toString())){
 					oldFieldProperties.put(AdminUtil.PROP_FX_TEXT_TYPE, 'D');
 					textAreaTypeList.setSimpleValue(I18N.CONSTANTS.adminFlexibleTextTypeD());
 				}				
-			}
-		}
-		
-		
-		if(flexibleElement != null){
-			if(flexibleElement instanceof TextAreaElementDTO){
+			
 				if(((TextAreaElementDTO)flexibleElement).getMinValue() != null){
 					minLimitField.setValue(((TextAreaElementDTO)flexibleElement).getMinValue());
 					oldFieldProperties.put(AdminUtil.PROP_FX_MIN_LIMIT, ((TextAreaElementDTO)flexibleElement).getMinValue());
 				}					
-			}
-		}
-		
-		
-		if(flexibleElement != null){
-			if(flexibleElement instanceof TextAreaElementDTO){
+			
 				if(((TextAreaElementDTO)flexibleElement).getLength() != null){
 					lengthField.setValue(((TextAreaElementDTO)flexibleElement).getLength());
 					oldFieldProperties.put(AdminUtil.PROP_FX_LENGTH,((TextAreaElementDTO)flexibleElement).getLength());
 				}		
-			}
-		}
-		
-		
-		isDecimal.setValue(false);
-		if(flexibleElement != null){
-			if(flexibleElement instanceof TextAreaElementDTO){
+			
 				if(((TextAreaElementDTO)flexibleElement).getIsDecimal() != null){
 					isDecimal.setValue(((TextAreaElementDTO)flexibleElement).getIsDecimal());
 					oldFieldProperties.put(AdminUtil.PROP_FX_DECIMAL,((TextAreaElementDTO)flexibleElement).getIsDecimal());
 				}				
 			}
-		}
-		
-		isLinkedToQuality.setValue(false);
-		if(flexibleElement != null){
-			if(flexibleElement instanceof QuestionElementDTO){
+			else if(flexibleElement instanceof QuestionElementDTO){
 				if(((QuestionElementDTO)flexibleElement).getQualityCriterionDTO() != null){
 					isLinkedToQuality.setValue(true);
 					oldFieldProperties.put(AdminUtil.PROP_FX_Q_QUALITY,true);
 				}				
-			}
-		}
-		
-		isMultipleQ.setValue(false);
-		final CategoryTypeDTO defaultNoCategory= new CategoryTypeDTO();
-		defaultNoCategory.setLabel(I18N.CONSTANTS.adminFlexibleNoLinkedCategory());
-		defaultNoCategory.setId(-1);
-		linkedCategory.setValue(defaultNoCategory);
-		
-		//Question Multiple/Choices implications
-        linkedCategory.setEnabled(false);
-		questionChoice.setEnabled(false);
-		addChoiceButton.setEnabled(false);
-		for(ClickableLabel selected : selectedChoices.values()){
-			selected.setEnabled(false);
-        }
-		
-        if(flexibleElement != null){
-			if(flexibleElement instanceof QuestionElementDTO){
-				if(((QuestionElementDTO)flexibleElement).getIsMultiple() != null){
-					
+			
+				if(((QuestionElementDTO)flexibleElement).getIsMultiple() != null){					
+					isMultipleQ.setValue(((QuestionElementDTO)flexibleElement).getIsMultiple());
+					oldFieldProperties.put(AdminUtil.PROP_FX_Q_MULTIPLE,((QuestionElementDTO)flexibleElement).getIsMultiple());
+				}
+				
+				if(((QuestionElementDTO)flexibleElement).getCategoryTypeDTO() != null){
+					linkedCategory.setEnabled(true);
+					questionChoice.setEnabled(false);
+					addChoiceButton.setEnabled(false);
+					for(ClickableLabel selected : selectableChoices.values()){
+						selected.setEnabled(false);
+			        }
 					linkedCategory.setValue(((QuestionElementDTO)flexibleElement).getCategoryTypeDTO());
 					oldFieldProperties.put(AdminUtil.PROP_FX_Q_CATEGORY,((QuestionElementDTO)flexibleElement).getCategoryTypeDTO());
+				}else{
+					linkedCategory.setValue(defaultNoCategory);
+					linkedCategory.setEnabled(false);
+					questionChoice.setEnabled(true);
+					addChoiceButton.setEnabled(true);
+					for(ClickableLabel selected : selectableChoices.values()){
+						selected.setEnabled(true);
+			        }
 					
 					List<QuestionChoiceElementDTO> usedChoices = ((QuestionElementDTO)flexibleElement).getChoicesDTO();
 		        	for(QuestionChoiceElementDTO choice : usedChoices){
 		        		selectedChoicesLabels.add(choice.getLabel());
 		        	
 		        		if(num < MAX_TENTATIVES_FOR_CHOICES){
-			        		selectedChoices.get(num).setText(choice.getLabel());
-			        		selectedChoices.get(num).show();	        		
+			        		selectableChoices.get(num).setText(choice.getLabel());
+			        		selectableChoices.get(num).show();	        		
 			        		num++;  
 			        	}else{
 			    			MessageBox.alert(I18N.CONSTANTS.adminMaxAttempts(), I18N.CONSTANTS.adminMaxAttemptsQChoices(), null);
 			    			ElementForm.this.removeFromParent();
 			    		} 
-		        	}
-		        	
-					isMultipleQ.setValue(((QuestionElementDTO)flexibleElement).getIsMultiple());
-					if(isMultipleQ.getValue()){
-						linkedCategory.setEnabled(true);
-						if(linkedCategory.getValue() == null || defaultNoCategory.equals(linkedCategory.getValue())){
-							questionChoice.setEnabled(true);
-							addChoiceButton.setEnabled(true);
-							for(ClickableLabel selected : selectedChoices.values()){
-								selected.setEnabled(true);
-					        }
-						}
-					}
-					oldFieldProperties.put(AdminUtil.PROP_FX_Q_MULTIPLE,((QuestionElementDTO)flexibleElement).getIsMultiple());
-				}				
+		        	}	
+				}			
 			}
 		}      
 	}

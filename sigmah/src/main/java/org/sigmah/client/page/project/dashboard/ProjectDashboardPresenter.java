@@ -99,6 +99,7 @@ import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Grid;
+import com.google.gwt.user.client.ui.Image;
 
 /**
  * 
@@ -156,6 +157,8 @@ public class ProjectDashboardPresenter implements SubPresenter {
         public abstract Button getAddReminderButton();
 
         public abstract com.extjs.gxt.ui.client.widget.grid.Grid<ReminderDTO> getRemindersGrid();
+        
+        public abstract Image getEditIcon();
     }
 
     /**
@@ -204,7 +207,7 @@ public class ProjectDashboardPresenter implements SubPresenter {
     public View getView() {
 
         if (view == null) {
-            view = new ProjectDashboardView(authentication,this.dispatcher);
+            view = new ProjectDashboardView(authentication,this.dispatcher,projectPresenter);
             addLinkedProjectsListeners();
             addMonitoredPointsListeners();
             addRemindersListeners();
@@ -1328,7 +1331,7 @@ public class ProjectDashboardPresenter implements SubPresenter {
                         final LabelField modelTypeLabel = window.addLabelField(I18N.CONSTANTS.createProjectType());
                         modelTypeLabel.setHeight(25);
 
-                        final NumberField amountField = window.addNumberField(I18N.CONSTANTS.projectFundedByDetails()
+                        final NumberField amountField = window.addNumberField(I18N.MESSAGES.projectFundedByDetails(projectPresenter.getCurrentProjectDTO().getName())
                                 + " (" + I18N.CONSTANTS.currencyEuro() + ')', true);
 
                         final LabelField percentageField = window.addLabelField(I18N.CONSTANTS
@@ -1578,7 +1581,7 @@ public class ProjectDashboardPresenter implements SubPresenter {
                         final LabelField modelTypeLabel = window.addLabelField(I18N.CONSTANTS.createProjectType());
                         modelTypeLabel.setHeight(25);
 
-                        final NumberField amountField = window.addNumberField(I18N.CONSTANTS.projectFinancesDetails()
+                        final NumberField amountField = window.addNumberField(I18N.MESSAGES.projectFinancesDetails(projectPresenter.getCurrentProjectDTO().getName())
                                 + " (" + I18N.CONSTANTS.currencyEuro() + ')', true);
 
                         final LabelField percentageField = window.addLabelField(I18N.CONSTANTS

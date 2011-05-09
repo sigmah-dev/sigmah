@@ -7,6 +7,7 @@ package org.sigmah.server.policy;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Map;
 
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -22,6 +23,7 @@ import org.sigmah.shared.domain.OrgUnit;
 import org.sigmah.shared.domain.Phase;
 import org.sigmah.shared.domain.PhaseModel;
 import org.sigmah.shared.domain.Project;
+import org.sigmah.shared.domain.ProjectFunding;
 import org.sigmah.shared.domain.ProjectModel;
 import org.sigmah.shared.domain.ProjectModelStatus;
 import org.sigmah.shared.domain.User;
@@ -315,5 +317,49 @@ public class ProjectPolicy implements EntityPolicy<Project> {
 
     @Override
     public void update(User user, Object entityId, PropertyMap changes) {
+    	
+    	
+    	
+    	 for(Map.Entry<String, Object> entry : changes.entrySet()) {
+    		 
+             if("fundingId".equals(entry.getKey())) {
+                
+            	//Get the current project
+             	Project project = em.find(Project.class, entityId); 
+             	
+             	//Get the project funding relation entity object
+            	ProjectFunding projectFunding = em.find(ProjectFunding.class,entry.getValue()); 
+            	
+            	//Remove it from the current project
+            	project.getFunding().remove(projectFunding);
+            	
+            	//Save
+            	em.merge(project);
+            	em.remove(projectFunding);
+            	                                  	
+             } 
+             
+             else if("funded".equals(entry.getKey()))
+             {
+            	//Get the current project
+              	Project project = em.find(Project.class, entityId); 
+              	
+              	//Get the project funding relation entity object
+             	ProjectFunding projectFunding = em.find(ProjectFunding.class,entry.getValue()); 
+             	
+             	//Remove it from the current project
+             	project.getFunded().remove(projectFunding);
+             	
+             	//Save
+             	em.merge(project);
+             	em.remove(projectFunding); 
+            
+                
+             }
+    	
+    	   }
+    	 
+   
+    	 
     }
 }

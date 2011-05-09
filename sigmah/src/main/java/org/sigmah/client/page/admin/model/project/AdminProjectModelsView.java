@@ -21,7 +21,6 @@ import org.sigmah.client.page.project.dashboard.funding.FundingIconProvider.Icon
 import org.sigmah.shared.domain.ProjectModelStatus;
 import org.sigmah.shared.domain.ProjectModelType;
 import org.sigmah.shared.dto.ProjectModelDTOLight;
-
 import com.extjs.gxt.ui.client.Style;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
@@ -36,10 +35,12 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
-import com.extjs.gxt.ui.client.widget.layout.VBoxLayout;
 import com.extjs.gxt.ui.client.widget.layout.VBoxLayoutData;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
-import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.ui.Anchor;
+import com.google.gwt.user.client.ui.Hyperlink;
 import com.google.inject.Inject;
 
 public class AdminProjectModelsView extends View {
@@ -59,15 +60,10 @@ public class AdminProjectModelsView extends View {
 		this.eventBus = eventBus;
 		
 		mainPanel = new ContentPanel(new FitLayout());
-		final VBoxLayout mainPanelLayout = new VBoxLayout();
-        mainPanelLayout.setVBoxLayoutAlign(VBoxLayout.VBoxLayoutAlign.STRETCH);
-        mainPanel.setLayout(mainPanelLayout);
         mainPanel.setHeaderVisible(false);
         mainPanel.setBorders(false);
         mainPanel.setBodyBorder(false);
         
-        //ContentPanel modelsListPanel = new ContentPanel();
-        //modelsListPanel.setTitle(I18N.CONSTANTS.adminProjectModelsPanel());
         final VBoxLayoutData topVBoxLayoutData = new VBoxLayoutData();
         topVBoxLayoutData.setFlex(1.0);
         
@@ -78,9 +74,9 @@ public class AdminProjectModelsView extends View {
 		grid.getView().setForceFit(true);
 		
 		mainPanel.setTopComponent(initToolBar());
+		mainPanel.setScrollMode(Style.Scroll.AUTO);
 		
-		//modelsListPanel.add(grid);
-		mainPanel.add(grid, topVBoxLayoutData);
+		mainPanel.add(grid);
 	}
 	
 	private Grid<ProjectModelDTOLight> buildModelsListGrid(){
@@ -88,26 +84,61 @@ public class AdminProjectModelsView extends View {
 		
         List<ColumnConfig> configs = new ArrayList<ColumnConfig>();  
 		  
-        ColumnConfig column = new ColumnConfig("visibility",I18N.CONSTANTS.adminProjectModelsUse(),50);  
+        ColumnConfig column = new ColumnConfig("name",I18N.CONSTANTS.adminProjectModelsName(), 300);   
 		column.setRenderer(new GridCellRenderer<ProjectModelDTOLight>(){
 
 			@Override
-			public Object render(ProjectModelDTOLight model, String property,
+			public Object render(final ProjectModelDTOLight model, String property,
 					ColumnData config, int rowIndex, int colIndex,
 					ListStore<ProjectModelDTOLight> store, Grid<ProjectModelDTOLight> grid) {
-				ProjectModelType type = model.getVisibility(cache.getOrganizationCache().getOrganization().getId());
 				
-				Image icon = FundingIconProvider.getProjectTypeIcon(type, IconSize.MEDIUM).createImage();
-				return icon;
+				final AdminPageState derivation = new AdminPageState(AdminProjectModelsView.this.currentState.getCurrentSection());
+				derivation.setModel(model.getId());
+				//FIXME
+				derivation.setSubModel(I18N.CONSTANTS.adminProjectModelFields());
+				derivation.setIsProject(true);
+				String link = derivation.getPageId().toString() + "/" + derivation.serializeAsHistoryToken();
+				
+				final Hyperlink h = new Hyperlink((String) model.get(property), true, link);
+				
+				final Anchor nameHyperlink ;
+				nameHyperlink = new Anchor(model.getName(), true);
+                nameHyperlink.setStyleName("hyperlink");
+                nameHyperlink.addStyleName("project-grid-leaf");
+                nameHyperlink.addClickHandler(new ClickHandler(){
+
+					@Override
+					public void onClick(ClickEvent event) {
+						final AdminPageState derivation = new AdminPageState(AdminProjectModelsView.this.currentState.getCurrentSection());
+						derivation.setModel(model.getId());
+						//FIXME
+						derivation.setSubModel(I18N.CONSTANTS.adminProjectModelFields());
+						derivation.setIsProject(true);
+						AdminProjectModelsView.this.eventBus.fireEvent(new NavigationEvent(
+								NavigationHandler.NavigationRequested, derivation));
+					}
+                	
+                });
+                
+                final com.google.gwt.user.client.ui.Grid panel = new com.google.gwt.user.client.ui.Grid(1, 2);
+                panel.setCellPadding(0);
+                panel.setCellSpacing(0);
+                ProjectModelType type = model.getVisibility(cache.getOrganizationCache().getOrganization().getId()); 
+                panel.setWidget(
+                        0,
+                        0,
+                        FundingIconProvider.getProjectTypeIcon(type, IconSize.MEDIUM).createImage());
+                panel.getCellFormatter().addStyleName(0, 0, "project-grid-code-icon");
+                panel.setWidget(0, 1, nameHyperlink);
+                panel.getCellFormatter().addStyleName(0, 1, "project-grid-code");
+
+                return panel;
+                //return nameHyperlink;
 			}
-			
-		});  
-		configs.add(column);
-		
-		column = new ColumnConfig("name",I18N.CONSTANTS.adminProjectModelsName(), 400);   
+        });
 		configs.add(column); 
 		
-		column = new ColumnConfig("status",I18N.CONSTANTS.adminProjectModelsStatus(), 400); 
+		column = new ColumnConfig("status",I18N.CONSTANTS.adminProjectModelsStatus(), 300); 
 		column.setRenderer(new GridCellRenderer<ProjectModelDTOLight>(){
 
 			@Override
@@ -118,38 +149,6 @@ public class AdminProjectModelsView extends View {
 			}
 		});
 		configs.add(column); 
-		
-		
-		column = new ColumnConfig();    
-		column.setWidth(40);  
-		column.setAlignment(Style.HorizontalAlignment.RIGHT);
-	    column.setRenderer(new GridCellRenderer<ProjectModelDTOLight>(){
-
-			@Override
-			public Object render(final ProjectModelDTOLight model, final String property,
-					ColumnData config, int rowIndex, int colIndex,
-					ListStore<ProjectModelDTOLight> store, Grid<ProjectModelDTOLight> grid) {
-				
-				Button button = new Button(I18N.CONSTANTS.edit());
-		        button.setItemId(UIActions.edit);
-		        button.addListener(Events.OnClick, new Listener<ButtonEvent>(){
-
-					@Override
-					public void handleEvent(ButtonEvent be) {
-						
-						final AdminPageState derivation = new AdminPageState(AdminProjectModelsView.this.currentState.getCurrentSection());
-						derivation.setModel(model.getId());
-						//FIXME
-						derivation.setSubModel(I18N.CONSTANTS.adminProjectModelFields());
-						derivation.setIsProject(true);
-						AdminProjectModelsView.this.eventBus.fireEvent(new NavigationEvent(
-								NavigationHandler.NavigationRequested, derivation));					
-					}		        	
-		        });		        		        
-				return button;				
-			}	    	
-	    }); 
-	    configs.add(column); 
 	    
 	   
 		column = new ColumnConfig();

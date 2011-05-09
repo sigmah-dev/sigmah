@@ -11,6 +11,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sigmah.server.dao.ProjectReportDAO;
 import org.sigmah.server.dao.Transactional;
 import org.sigmah.server.endpoint.gwtrpc.handler.UpdateProjectHandler;
@@ -36,6 +38,8 @@ import com.google.inject.Inject;
 public class ProjectReportPolicy implements EntityPolicy<ProjectReport> {
     private final ProjectReportDAO dao;
     private final UpdateProjectHandler updateProjectHandler;
+    
+    private static final Log log = LogFactory.getLog(ProjectPolicy.class);
 
     @Inject
     public ProjectReportPolicy(ProjectReportDAO dao, UpdateProjectHandler updateProjectHandler) {
@@ -102,6 +106,8 @@ public class ProjectReportPolicy implements EntityPolicy<ProjectReport> {
             subSections = Collections.emptyList();
 
         for(final ProjectReportModelSection subSection : subSections) {
+        	log.debug("subSection " + subSection);
+        	log.debug("subSection " + subSection.getName());
             while(index < subSection.getIndex() && areaCount > 0) {
                 // New rich text element
                 final RichTextElement element = new RichTextElement();

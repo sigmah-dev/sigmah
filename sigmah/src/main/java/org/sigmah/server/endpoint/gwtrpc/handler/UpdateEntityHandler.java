@@ -14,6 +14,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sigmah.server.policy.ActivityPolicy;
 import org.sigmah.server.policy.PersonalEventPolicy;
+import org.sigmah.server.policy.ProjectPolicy;
 import org.sigmah.server.policy.ProjectReportPolicy;
 import org.sigmah.server.policy.PropertyMap;
 import org.sigmah.server.policy.SitePolicy;
@@ -24,6 +25,7 @@ import org.sigmah.shared.command.result.VoidResult;
 import org.sigmah.shared.domain.Attribute;
 import org.sigmah.shared.domain.AttributeGroup;
 import org.sigmah.shared.domain.Indicator;
+import org.sigmah.shared.domain.ProjectFunding;
 import org.sigmah.shared.domain.User;
 import org.sigmah.shared.domain.UserDatabase;
 import org.sigmah.shared.domain.reminder.MonitoredPoint;
@@ -91,7 +93,16 @@ public class UpdateEntityHandler extends BaseEntityHandler implements CommandHan
 		}else if("reminder.MonitoredPoint".equals(cmd.getEntityName()))
 		{
 			updateMonitoredPoint(cmd);
-		}	
+		}
+		else if("ProjectFunding".equals(cmd.getEntityName()))
+		{
+			updateProjectFunding(cmd);
+		}
+		else if("Project".equals(cmd.getEntityName()))
+		{
+			 ProjectPolicy policy = injector.getInstance(ProjectPolicy.class);
+				policy.update(user, cmd.getId(), changeMap);
+		}
 		else {
 			throw new RuntimeException("unknown entity type");
 		}
@@ -99,7 +110,18 @@ public class UpdateEntityHandler extends BaseEntityHandler implements CommandHan
 		return null;
 	}
 
-    private void updateIndicator(User user, UpdateEntity cmd, Map<String, Object> changes)
+    private VoidResult updateProjectFunding(UpdateEntity cmd) {
+		
+    	ProjectFunding projectFunding = em.find(ProjectFunding.class, cmd.getId());
+    	if(projectFunding!=null)
+    	{
+    		projectFunding.setPercentage((Double)cmd.getChanges().get("percentage"));
+    		em.merge(projectFunding);
+    	}
+		return new VoidResult();
+	}
+
+	private void updateIndicator(User user, UpdateEntity cmd, Map<String, Object> changes)
             throws IllegalAccessCommandException {
 		Indicator indicator = em.find(Indicator.class, cmd.getId());
 

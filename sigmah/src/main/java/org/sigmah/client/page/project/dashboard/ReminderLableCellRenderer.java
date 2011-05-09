@@ -16,8 +16,6 @@ import org.sigmah.shared.command.result.VoidResult;
 import org.sigmah.shared.dto.reminder.ReminderDTO;
 
 import com.allen_sauer.gwt.log.client.Log;
-import com.extjs.gxt.ui.client.event.BaseEvent;
-import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.store.ListStore;
@@ -81,9 +79,13 @@ public class ReminderLableCellRenderer implements GridCellRenderer<ReminderDTO> 
 
 				window.show(I18N.CONSTANTS.reminderUpdate(),I18N.CONSTANTS.reminderUpdateDetails());
 								
-				//SubmitLister, see the definition of FormWindow for details
+				//SubmitLister, see the definition of EditFormWindow for details
 				window.addFormSubmitListener(new FormSubmitListener() {
 
+					
+					// ---------Updating Handler-------------------------
+					// --------------------------------------------------	
+					
 					@Override
 					public void formSubmitted(Object... values) {
 
@@ -145,20 +147,15 @@ public class ReminderLableCellRenderer implements GridCellRenderer<ReminderDTO> 
 								});
 
 					}
+                    
+					// ---------Updating End-----------------------------
 
-				});
-				
-				//Add a text for the deletion button
-				window.getDeleteButton().setText(I18N.CONSTANTS.delete()+" "+I18N.CONSTANTS.reminderPoint());
-				
-				//Add  a delete link click-handler 
-				window.getDeleteButton().addListener(Events.OnClick,new Listener<BaseEvent>() 
-				{
-
+					
+					// ---------Deletion Handler-------------------------
+				    // --------------------------------------------------	
+					
 					@Override
-					public void handleEvent(BaseEvent be) {
-							       
-						
+					public void deleteModelObject() {
 						
 					     //Create a listener for the confirm message box
 					    Listener<MessageBoxEvent> confirmListener =new Listener<MessageBoxEvent>() {  
@@ -222,12 +219,14 @@ public class ReminderLableCellRenderer implements GridCellRenderer<ReminderDTO> 
 				       ((Button)confirmMessageBox.getDialog().getButtonBar().getItem(0)).setText(I18N.CONSTANTS.yes());
 				       ((Button)confirmMessageBox.getDialog().getButtonBar().getItem(1)).setText(I18N.CONSTANTS.no());
 				       confirmMessageBox.setIcon(MessageBox.WARNING);
-				       confirmMessageBox.show();				        			      											
+				       confirmMessageBox.show();	
+						
 					}
-		
-				}
-				
-			  );
+					
+					// ---------Deletion End-----------------------------		
+					
+				});
+						
 
 			}
 		});

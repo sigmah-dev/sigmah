@@ -13,8 +13,6 @@ import org.sigmah.shared.command.UpdateEntity;
 import org.sigmah.shared.command.result.VoidResult;
 import org.sigmah.shared.dto.reminder.MonitoredPointDTO;
 
-import com.extjs.gxt.ui.client.event.BaseEvent;
-import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.store.ListStore;
@@ -79,6 +77,10 @@ public class MonitoredPointLabelCellRender implements GridCellRenderer<Monitored
 				//SubmitLister, see the definition of FormWindow for details
 				window.addFormSubmitListener(new FormSubmitListener() {
 
+					
+					// ---------Updating Handler-------------------------
+					// --------------------------------------------------	
+					
 					@Override
 					public void formSubmitted(Object... values) {
 
@@ -134,20 +136,14 @@ public class MonitoredPointLabelCellRender implements GridCellRenderer<Monitored
 
 					}
 
-				});
-				
-
-
-				//Add a text for the deletion button
-				window.getDeleteButton().setText(I18N.CONSTANTS.delete()+" "+I18N.CONSTANTS.monitoredPoint());
-				
-				//Add  a delete link click-handler 
-				window.getDeleteButton().addListener(Events.OnClick,new Listener<BaseEvent>() 
-				{
-
+					// ---------Updating End-----------------------------
+					
+					// ---------Deletion Handler-------------------------
+				    // --------------------------------------------------	
+					
 					@Override
-					public void handleEvent(BaseEvent be) {
-						
+					public void deleteModelObject() {
+					
 						
 					     //Create a listener for the confirm message box
 					    Listener<MessageBoxEvent> confirmListener =new Listener<MessageBoxEvent>() {  
@@ -207,13 +203,15 @@ public class MonitoredPointLabelCellRender implements GridCellRenderer<Monitored
 				       ((Button)confirmMessageBox.getDialog().getButtonBar().getItem(0)).setText(I18N.CONSTANTS.yes());
 				       ((Button)confirmMessageBox.getDialog().getButtonBar().getItem(1)).setText(I18N.CONSTANTS.no());
 				       confirmMessageBox.setIcon(MessageBox.WARNING);
-				       confirmMessageBox.show();				        			      											
+				       confirmMessageBox.show();		
+						
 					}
-		
+
+					// ---------Deletion End-----------------------------
+					
 				});
 				
-				
-				
+			
 
 			}
 		});

@@ -369,7 +369,6 @@ public class AdminCategoryView extends View {
 							@Override
 							public void onSuccess(CreateResult result) {
 								if(result != null && result.getEntity() != null){	
-									categoriesStore.remove(currentCategoryType);
 									categoryElementsStore.add((CategoryElementDTO) result.getEntity());
 									categoryElementsStore.commitChanges();
 									List<CategoryElementDTO> elements = null;
@@ -437,6 +436,8 @@ public class AdminCategoryView extends View {
             		categoriesStore.remove(model);
             	}   
             	categoriesStore.commitChanges();
+            	Notification.show(I18N.CONSTANTS.adminCategoryTypeCreationBox(), I18N.MESSAGES.adminStandardUpdateSuccessF(I18N.CONSTANTS.adminCategoryTypeStandard()
+						+ " '" + currentCategoryType.getLabel() +"'"));	
             }
         });
 	}

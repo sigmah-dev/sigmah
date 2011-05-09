@@ -46,6 +46,9 @@ public interface IconImageBundle extends ImageBundle {
 
     @Resource(value = "editPage.png")
     AbstractImagePrototype editActivity();
+    
+    @Resource(value = "link_edit.png")
+    AbstractImagePrototype editLinkedProject();
 
     AbstractImagePrototype user();
 
@@ -151,7 +154,7 @@ public interface IconImageBundle extends ImageBundle {
     @Resource(value = "page_edit.png")
     AbstractImagePrototype rename();
 
-    @Resource(value = "table_edit.png")
+    @Resource(value = "link.png")
     AbstractImagePrototype select();
 
     @Resource(value = "information.png")

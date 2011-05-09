@@ -25,6 +25,8 @@ public class GetProjectModels implements Command<ProjectModelListResult> {
 	 * projects.
 	 */
     private ProjectModelStatus projectModelStatus;
+    
+    private Boolean allProjectModelStatus = false;
 
     public GetProjectModels() {
         // serialization.
@@ -53,6 +55,14 @@ public class GetProjectModels implements Command<ProjectModelListResult> {
 
 	public void setProjectModelStatus(ProjectModelStatus projectModelStatus) {
 		this.projectModelStatus = projectModelStatus;
+	}
+	
+	public Boolean getAllProjectModelStatus() {
+		return allProjectModelStatus;
+	}
+
+	public void allProjectModelStatus() {
+		this.allProjectModelStatus = true;
 	}
 
 	@Override

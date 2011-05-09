@@ -50,7 +50,6 @@ public class LayoutGroupSigmahForm extends FormPanel {
 	private final TextField<String> nameField;
 	private final ComboBox<BaseModelData> containerList;
 	private final SimpleComboBox<Integer> rowField;
-	private final SimpleComboBox<Integer> columnField;
 	private LayoutGroupDTO layoutGroupToUpdate;
 	private ProjectModelDTO projectModelToUpdate;
 	private OrgUnitModelDTO orgUnitModelToUpdate;
@@ -114,13 +113,6 @@ public class LayoutGroupSigmahForm extends FormPanel {
 			rowField.setSimpleValue(layoutGroupToUpdate.getRow());
 		}
 		
-		columnField = new SimpleComboBox<Integer>();
-		columnField.setEditable(false);
-		columnField.setFieldLabel(constants.adminFlexibleGroupHPosition());
-		if(fxToUpdate != null){
-			columnField.setSimpleValue(layoutGroupToUpdate.getColumn());
-		}
-		
 		if(fxToUpdate != null){
 			containerList.setValue(fxToUpdate.getContainerModel());
 			if(fxToUpdate.getContainerModel() != null){
@@ -136,10 +128,6 @@ public class LayoutGroupSigmahForm extends FormPanel {
 					rowField.removeAll();
 					 for(int i=0; i<container.getRowsCount();i++){						 						 
 						 rowField.add(i);
-					 }
-					 columnField.removeAll();
-					 for(int i=0; i<container.getColumnsCount();i++){						 						 
-						 columnField.add(i);
 					 }
 				}
 				 
@@ -165,17 +153,12 @@ public class LayoutGroupSigmahForm extends FormPanel {
 					 for(int i=0; i<container.getRowsCount();i++){						 						 
 						 rowField.add(i);
 					 }
-					 columnField.removeAll();
-					 for(int i=0; i<container.getColumnsCount();i++){						 						 
-						 columnField.add(i);
-					 }
 				 }				 
 			}
 		});
 		
 		add(containerList);		
-		add(rowField);		
-		add(columnField);
+		add(rowField);
 			
 		// Create button.
         final Button createButton = new Button(I18N.CONSTANTS.save());
@@ -202,9 +185,7 @@ public class LayoutGroupSigmahForm extends FormPanel {
 		 if(rowField.getValue() != null)
 			 row = new Integer(rowField.getValue().getValue());
 		 
-		 Integer column = null;
-		 if(columnField.getValue() != null)
-			 column = new Integer(columnField.getValue().getValue());
+		 Integer column = 0;
 		 
 		 LayoutDTO container = null;
 		 if(containerList.getValue() != null){

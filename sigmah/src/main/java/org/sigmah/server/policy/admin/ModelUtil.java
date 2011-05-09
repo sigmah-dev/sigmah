@@ -288,6 +288,9 @@ public class ModelUtil {
 						specificChanges = true;
 					}
 					if(category != null){
+						for(QuestionChoiceElement choiceElt : ((QuestionElement)flexibleElt).getChoices()){
+							em.remove(choiceElt);
+						}
 						CategoryType categoryType = em.find(CategoryType.class, category.getId());
 						if(categoryType != null){
 							((QuestionElement)flexibleElt).setCategoryType(categoryType);
@@ -306,6 +309,10 @@ public class ModelUtil {
 							specificChanges = true;
 						}						
 					}else if(qChoices != null){
+						for(QuestionChoiceElement choiceElt : ((QuestionElement)flexibleElt).getChoices()){
+							em.remove(choiceElt);
+						}
+						((QuestionElement)flexibleElt).setCategoryType(null);
 						List<QuestionChoiceElement> choices = new ArrayList<QuestionChoiceElement>();
 						int i = 0;
 						for(String choiceLabel : qChoices){							

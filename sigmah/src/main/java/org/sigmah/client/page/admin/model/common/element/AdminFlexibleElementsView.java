@@ -230,12 +230,10 @@ public class AdminFlexibleElementsView extends View {
 					final Anchor nameHyperlink ;
 					if(ElementTypeEnum.DEFAULT.equals(model.getElementType())){
 						nameHyperlink = new Anchor(DefaultFlexibleElementType.getName(((DefaultFlexibleElementDTO)model).getType()), true);	
-						Log.debug("Default flexible element");
-					}
-							//FIXME ?				
+					}			
 					else
 						nameHyperlink = new Anchor(model.getLabel().replace("?", ""), true);
-	                nameHyperlink.addStyleName("hyperlink");
+	                nameHyperlink.addStyleName("credits-partner-url");
 	                nameHyperlink.addClickHandler(new ClickHandler(){
 
 						@Override
@@ -387,7 +385,7 @@ public class AdminFlexibleElementsView extends View {
 				if((projectModel != null && ProjectModelStatus.DRAFT.equals(projectModel.getStatus()))
 						|| (orgUnitModel != null && ProjectModelStatus.DRAFT.equals(orgUnitModel.getStatus()))){
 					final Anchor nameHyperlink = new Anchor((String)group.get("title"), true);
-	                nameHyperlink.addStyleName("hyperlink");
+	                nameHyperlink.addStyleName("credits-partner-url");
 	                nameHyperlink.addClickHandler(new ClickHandler(){
 
 						@Override

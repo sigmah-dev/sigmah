@@ -716,7 +716,7 @@ public class CreateProjectWindow {
             amountField.setVisible(true);
             amountField.setValue(0);
             amountField.setAllowBlank(false);
-            amountField.setFieldLabel(I18N.CONSTANTS.projectFundedByDetails() + " (" + I18N.CONSTANTS.currencyEuro()
+            amountField.setFieldLabel(I18N.MESSAGES.projectFundedByDetails(this.currentFunding.getName()) + " (" + I18N.CONSTANTS.currencyEuro()
                     + ')');
             percentageField.setVisible(true);
             orgUnitsField.setAllowBlank(false);
@@ -728,7 +728,7 @@ public class CreateProjectWindow {
             amountField.setVisible(true);
             amountField.setValue(0);
             amountField.setAllowBlank(false);
-            amountField.setFieldLabel(I18N.CONSTANTS.projectFinancesDetails() + " (" + I18N.CONSTANTS.currencyEuro()
+            amountField.setFieldLabel(I18N.MESSAGES.projectFinancesDetails(this.currentFunding.getName()) + " (" + I18N.CONSTANTS.currencyEuro()
                     + ')');
             percentageField.setVisible(true);
             orgUnitsField.setAllowBlank(false);

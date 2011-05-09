@@ -145,6 +145,8 @@ sigmah/src/main/java/org/sigmah/client/icon/image.png -text
 sigmah/src/main/java/org/sigmah/client/icon/information.png -text
 sigmah/src/main/java/org/sigmah/client/icon/key.png -text
 sigmah/src/main/java/org/sigmah/client/icon/keyboard.png -text
+sigmah/src/main/java/org/sigmah/client/icon/link.png -text
+sigmah/src/main/java/org/sigmah/client/icon/link_edit.png -text
 sigmah/src/main/java/org/sigmah/client/icon/map.png -text
 sigmah/src/main/java/org/sigmah/client/icon/mapped.png -text
 sigmah/src/main/java/org/sigmah/client/icon/msword.png -text
@@ -493,6 +495,8 @@ sigmah/src/main/java/org/sigmah/client/page/project/category/square.png -text
 sigmah/src/main/java/org/sigmah/client/page/project/category/star.png -text
 sigmah/src/main/java/org/sigmah/client/page/project/category/triangle.png -text
 sigmah/src/main/java/org/sigmah/client/page/project/dashboard/EditFormWindow.java -text
+sigmah/src/main/java/org/sigmah/client/page/project/dashboard/FinancialProjectEditButtonGridCellRender.java -text
+sigmah/src/main/java/org/sigmah/client/page/project/dashboard/LocalPartnerProjectEditButtonGridCellRender.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/dashboard/MonitoredPointLabelCellRender.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/dashboard/ProjectDashboardPresenter.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/dashboard/ProjectDashboardView.java -text

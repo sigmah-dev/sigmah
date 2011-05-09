@@ -67,6 +67,7 @@ import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.ui.Hyperlink;
+import com.google.gwt.user.client.ui.Image;
 
 /**
  * 
@@ -103,13 +104,19 @@ public class ProjectDashboardView extends ProjectDashboardPresenter.View {
     private Grid<ReminderDTO> remindersGrid;
 
     private ContentPanel panelMonitoredPoints;
-    private Button addMonitoredPointButton;
+	private Button addMonitoredPointButton;
     private Grid<MonitoredPointDTO> monitoredPointsGrid;
+    
+    private Image editIcon;
+    
+    private final ProjectPresenter projectPresenter;
 
-    public ProjectDashboardView(Authentication authentication, Dispatcher dispatcher) {
+
+    public ProjectDashboardView(Authentication authentication, Dispatcher dispatcher,ProjectPresenter projectPresenter) {
 
         this.authentication = authentication;
         this.dispatcher = dispatcher;
+        this.projectPresenter = projectPresenter;
 
         final BorderLayout borderLayout = new BorderLayout();
         borderLayout.setContainerStyle("x-border-layout-ct main-background");
@@ -400,6 +407,13 @@ public class ProjectDashboardView extends ProjectDashboardPresenter.View {
     public Button getAddMonitoredPointButton() {
         return addMonitoredPointButton;
     }
+    
+    @Override
+    public Image getEditIcon()
+    {
+    	return editIcon;
+    }
+    
 
     /**
      * Builds the grid to display financial projects.
@@ -553,7 +567,7 @@ public class ProjectDashboardView extends ProjectDashboardPresenter.View {
         final ColumnConfig nameColumn = new ColumnConfig();
         nameColumn.setId("name");
         nameColumn.setHeader(I18N.CONSTANTS.projectName());
-        nameColumn.setWidth(150);
+        nameColumn.setWidth(80);
         nameColumn.setRenderer(new GridCellRenderer<ProjectFundingDTO>() {
 
             @Override
@@ -572,7 +586,7 @@ public class ProjectDashboardView extends ProjectDashboardPresenter.View {
         final ColumnConfig fullNameColumn = new ColumnConfig();
         fullNameColumn.setId("fullName");
         fullNameColumn.setHeader(I18N.CONSTANTS.projectFullName());
-        fullNameColumn.setWidth(300);
+        fullNameColumn.setWidth(130);
         fullNameColumn.setRenderer(new GridCellRenderer<ProjectFundingDTO>() {
 
             @Override
@@ -589,13 +603,13 @@ public class ProjectDashboardView extends ProjectDashboardPresenter.View {
         final ColumnConfig amountColumn = new ColumnConfig();
         amountColumn.setId("percentage");
         amountColumn.setHeader(I18N.CONSTANTS.projectFinances() + " (" + I18N.CONSTANTS.currencyEuro() + ')');
-        amountColumn.setWidth(150);
+        amountColumn.setWidth(120);
 
         // Percentage.
         final ColumnConfig percentageColumn = new ColumnConfig();
         percentageColumn.setId("percentage2");
         percentageColumn.setHeader(I18N.CONSTANTS.createProjectPercentage());
-        percentageColumn.setWidth(100);
+        percentageColumn.setWidth(60);
         percentageColumn.setRenderer(new GridCellRenderer<ProjectFundingDTO>() {
 
             @Override
@@ -612,8 +626,18 @@ public class ProjectDashboardView extends ProjectDashboardPresenter.View {
                 return percentageLabel;
             }
         });
+        
+        
+        // Edit icon.
+        final ColumnConfig editButtonColumn = new ColumnConfig();
+        editButtonColumn.setId("editButton");
+        editButtonColumn.setSortable(false);
+        editButtonColumn.setWidth(15);
+        editButtonColumn.setAlignment(HorizontalAlignment.LEFT);
+        editButtonColumn.setRenderer(new FinancialProjectEditButtonGridCellRender(this,dispatcher,projectPresenter));
 
-        return new ColumnConfig[] { iconColumn, nameColumn, fullNameColumn, amountColumn, percentageColumn };
+
+        return new ColumnConfig[] { iconColumn, nameColumn, fullNameColumn, amountColumn, percentageColumn,editButtonColumn};
     }
 
     /**
@@ -643,7 +667,7 @@ public class ProjectDashboardView extends ProjectDashboardPresenter.View {
         final ColumnConfig nameColumn = new ColumnConfig();
         nameColumn.setId("name");
         nameColumn.setHeader(I18N.CONSTANTS.projectName());
-        nameColumn.setWidth(150);
+        nameColumn.setWidth(80);
         nameColumn.setRenderer(new GridCellRenderer<ProjectFundingDTO>() {
 
             @Override
@@ -662,7 +686,7 @@ public class ProjectDashboardView extends ProjectDashboardPresenter.View {
         final ColumnConfig fullNameColumn = new ColumnConfig();
         fullNameColumn.setId("fullName");
         fullNameColumn.setHeader(I18N.CONSTANTS.projectFullName());
-        fullNameColumn.setWidth(300);
+        fullNameColumn.setWidth(130);
         fullNameColumn.setRenderer(new GridCellRenderer<ProjectFundingDTO>() {
 
             @Override
@@ -679,13 +703,13 @@ public class ProjectDashboardView extends ProjectDashboardPresenter.View {
         final ColumnConfig amountColumn = new ColumnConfig();
         amountColumn.setId("percentage");
         amountColumn.setHeader(I18N.CONSTANTS.projectFundedBy() + " (" + I18N.CONSTANTS.currencyEuro() + ')');
-        amountColumn.setWidth(150);
+        amountColumn.setWidth(120);
 
         // Percentage.
         final ColumnConfig percentageColumn = new ColumnConfig();
         percentageColumn.setId("percentage2");
         percentageColumn.setHeader(I18N.CONSTANTS.createProjectPercentage());
-        percentageColumn.setWidth(100);
+        percentageColumn.setWidth(60);
         percentageColumn.setRenderer(new GridCellRenderer<ProjectFundingDTO>() {
 
             @Override
@@ -702,8 +726,16 @@ public class ProjectDashboardView extends ProjectDashboardPresenter.View {
                 return percentageLabel;
             }
         });
+        
+        // Edit icon.
+        final ColumnConfig editButtonColumn = new ColumnConfig();
+        editButtonColumn.setId("editButton");
+        editButtonColumn.setSortable(false);
+        editButtonColumn.setWidth(15);
+        editButtonColumn.setAlignment(HorizontalAlignment.LEFT);
+        editButtonColumn.setRenderer(new LocalPartnerProjectEditButtonGridCellRender(this,dispatcher,projectPresenter));
 
-        return new ColumnConfig[] { iconColumn, nameColumn, fullNameColumn, amountColumn, percentageColumn };
+        return new ColumnConfig[] { iconColumn, nameColumn, fullNameColumn, amountColumn, percentageColumn,editButtonColumn };
     }
 
     /**
@@ -1158,4 +1190,8 @@ public class ProjectDashboardView extends ProjectDashboardPresenter.View {
 
         return new ColumnConfig[] { completedColumn, iconColumn,labelColumn, expectedDateColumn, completionDateColumn };
     }
+    
+    
+
+    
 }

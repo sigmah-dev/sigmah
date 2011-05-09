@@ -15,6 +15,8 @@ import org.sigmah.shared.command.result.UpdateModelResult;
 import org.sigmah.shared.domain.ProjectModelStatus;
 import org.sigmah.shared.dto.PhaseModelDTO;
 import org.sigmah.shared.dto.ProjectModelDTO;
+
+import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
@@ -165,12 +167,14 @@ public class AdminPhasesView extends View {
 			public void onSuccess(UpdateModelResult result) {
 				if(isUpdate){
 					ProjectModelDTO projectModelUpdated = (ProjectModelDTO)result.getEntity();
+					Log.debug("Phase added for project model " + projectModelUpdated.getName() + " status " + projectModelUpdated.getStatus());
 					AdminPhasesView.this.setModel(projectModelUpdated);
 					AdminPhasesView.this.getPhaseStore().remove(model);
 					AdminPhasesView.this.getPhaseStore().add((PhaseModelDTO)result.getAnnexEntity());
 					AdminPhasesView.this.getPhaseStore().commitChanges();
 				}else{
 					ProjectModelDTO projectModelUpdated = (ProjectModelDTO)result.getEntity();
+					Log.debug("Phase added for project model " + projectModelUpdated.getName() + " status " + projectModelUpdated.getStatus());
 					AdminPhasesView.this.setModel(projectModelUpdated);
 					AdminPhasesView.this.getPhaseStore().add((PhaseModelDTO)result.getAnnexEntity());
 					AdminPhasesView.this.getPhaseStore().commitChanges();

@@ -24,6 +24,7 @@ import javax.persistence.OrderBy;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import org.hibernate.annotations.Cascade;
 import org.sigmah.shared.domain.Amendment.State;
 import org.sigmah.shared.domain.logframe.LogFrame;
 import org.sigmah.shared.domain.reminder.MonitoredPointList;

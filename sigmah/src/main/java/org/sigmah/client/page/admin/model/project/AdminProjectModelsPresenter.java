@@ -10,6 +10,7 @@ import org.sigmah.client.page.admin.AdminSubPresenter;
 import org.sigmah.client.page.admin.AdminUtil;
 import org.sigmah.shared.command.GetProjectModels;
 import org.sigmah.shared.command.result.ProjectModelListResult;
+import org.sigmah.shared.domain.ProjectModelStatus;
 import org.sigmah.shared.dto.ProjectModelDTOLight;
 
 import com.extjs.gxt.ui.client.store.ListStore;
@@ -50,7 +51,11 @@ public class AdminProjectModelsPresenter implements AdminSubPresenter {
 	}
 	
 	public static void refreshProjectModelsPanel(Dispatcher dispatcher, final View view){
-		dispatcher.execute(new GetProjectModels(), 
+		
+		GetProjectModels cmdGetProjectModels = new GetProjectModels();		
+		cmdGetProjectModels.allProjectModelStatus();
+		
+		dispatcher.execute(cmdGetProjectModels, 
 				view.getProjectModelsLoadingMonitor(),
         		new AsyncCallback<ProjectModelListResult>() {
         	@Override

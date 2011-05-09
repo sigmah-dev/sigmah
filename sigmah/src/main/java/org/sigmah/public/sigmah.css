@@ -398,6 +398,34 @@ body {
 	cursor: pointer;
 }
 
+.project-linkedProject-editButton {
+	width: 13px;
+    Height: 13px;
+}
+
+.project-linkedProject-editButton-down-hovering {
+    border: border-width : 1px;
+	border-style: solid;
+	border-bottom-color:#FFFCEC;
+	border-right-color: #FFFCEC;
+	border-top-color: #FFF8D7;
+	border-left-color:#FFF8D7;
+	
+}
+
+.project-linkedProject-editButton-up-hovering {
+	
+	border: border-width : 1px;
+	border-style: solid;
+	border-bottom-color: #FFF8D7;
+	border-right-color: #FFF8D7;
+	border-top-color: #FFFCEC;
+	border-left-color: #FFFCEC;
+}
+
+
+
+
 .toolbar-title {
 	font-weight: bold !important;
 	margin-left: 4px;
@@ -683,13 +711,13 @@ body {
 }
 
 .flexibility-link {
-    color: #4B3E2D;
+	color: #4B3E2D;
 }
 
-.hyperlink_style_label{
+.hyperlink_style_label {
 	text-decoration: underline;
 	cursor: pointer;
-	}
+}
 
 /* ----------------------------------------------------- GWT HTML Table */
 .html-grid-header-row {
@@ -1089,12 +1117,8 @@ body {
 	padding-top: 3px;
 }
 
-a.credits-partner-url,
-a.credits-partner-url:link,
-a.credits-partner-url:visited,
-a.credits-partner-url:hover,
-a.credits-partner-url:focus,
-a.credits-partner-url:active {
+a.credits-partner-url,a.credits-partner-url:link,a.credits-partner-url:visited,a.credits-partner-url:hover,a.credits-partner-url:focus,a.credits-partner-url:active
+	{
 	cursor: pointer;
 	color: black;
 	text-decoration: none;
