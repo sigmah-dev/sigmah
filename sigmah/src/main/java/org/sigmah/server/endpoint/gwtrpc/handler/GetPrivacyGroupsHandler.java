@@ -38,8 +38,8 @@ public class GetPrivacyGroupsHandler implements CommandHandler<GetPrivacyGroups>
 	public CommandResult execute(GetPrivacyGroups cmd, User user)
 			throws CommandException {
 		List<PrivacyGroupDTO> privacyGroups = new ArrayList<PrivacyGroupDTO>();
-		
-		final Query query = em.createQuery("SELECT p FROM PrivacyGroup p ORDER BY p.id");
+		final Query query = em.createQuery("SELECT p FROM PrivacyGroup p WHERE p.organization.id = :orgid ORDER BY p.id");
+		query.setParameter("orgid", user.getOrganization().getId());
 		
 		final List<PrivacyGroup> resultPrivacyGroups = (List<PrivacyGroup>) query.getResultList();
 		

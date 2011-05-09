@@ -92,6 +92,7 @@ public class ProfilePolicy implements EntityPolicy<Profile>  {
         }
         profileToPersist.setPrivacyGroupPermissions(pgs);   
         
+        profileToPersist.setOrganization(user.getOrganization());
         if(profileFound != null){       	
             //update profile
         	

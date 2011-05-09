@@ -45,8 +45,9 @@ public class GetOrgUnitModelsHandler implements CommandHandler<GetOrgUnitModels>
         final ArrayList<OrgUnitModelDTO> orgUnitModelDTOList = new ArrayList<OrgUnitModelDTO>();
 
         // Creates selection query.
-        final Query query = em.createQuery("SELECT m FROM OrgUnitModel m ORDER BY m.name");
-
+        final Query query = em.createQuery("SELECT m FROM OrgUnitModel m WHERE m.organization.id = :orgid ORDER BY m.name");
+        query.setParameter("orgid", user.getOrganization().getId());
+        
         // Gets all project models entities.
         @SuppressWarnings("unchecked")
         final List<OrgUnitModel> models = (List<OrgUnitModel>) query.getResultList();

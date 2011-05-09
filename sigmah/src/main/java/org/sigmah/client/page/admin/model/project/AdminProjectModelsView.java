@@ -123,17 +123,19 @@ public class AdminProjectModelsView extends View {
                 final com.google.gwt.user.client.ui.Grid panel = new com.google.gwt.user.client.ui.Grid(1, 2);
                 panel.setCellPadding(0);
                 panel.setCellSpacing(0);
-                ProjectModelType type = model.getVisibility(cache.getOrganizationCache().getOrganization().getId()); 
-                panel.setWidget(
-                        0,
-                        0,
-                        FundingIconProvider.getProjectTypeIcon(type, IconSize.MEDIUM).createImage());
-                panel.getCellFormatter().addStyleName(0, 0, "project-grid-code-icon");
-                panel.setWidget(0, 1, nameHyperlink);
-                panel.getCellFormatter().addStyleName(0, 1, "project-grid-code");
+                ProjectModelType type = model.getVisibility(cache.getOrganizationCache().getOrganization().getId());
+                if(type != null){
+                	panel.setWidget(
+                            0,
+                            0,
+                            FundingIconProvider.getProjectTypeIcon(type, IconSize.MEDIUM).createImage());
+                    panel.getCellFormatter().addStyleName(0, 0, "project-grid-code-icon");
+                    panel.setWidget(0, 1, nameHyperlink);
+                    panel.getCellFormatter().addStyleName(0, 1, "project-grid-code");
 
-                return panel;
-                //return nameHyperlink;
+                    return panel;
+                }else
+                	return null;
 			}
         });
 		configs.add(column); 

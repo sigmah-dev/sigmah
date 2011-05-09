@@ -44,8 +44,9 @@ public class GetReportModelsHandler implements CommandHandler<GetReportModels> {
     public CommandResult execute(GetReportModels cmd, User user) throws CommandException {
         final ArrayList<ReportModelDTO> reports = new ArrayList<ReportModelDTO>();
 
-        final Query query = em.createQuery("SELECT r FROM ProjectReportModel r ORDER BY r.id");
-
+        final Query query = em.createQuery("SELECT r FROM ProjectReportModel r WHERE r.organization.id = :orgid  ORDER BY r.id");
+        query.setParameter("orgid", user.getOrganization().getId());
+        
         @SuppressWarnings("unchecked")
 		final List<ProjectReportModel> models = query.getResultList();
         for(final ProjectReportModel model : models){

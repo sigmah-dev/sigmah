@@ -63,13 +63,15 @@ public class GetProjectModelsHandler implements CommandHandler<GetProjectModels>
             	      	
 				final ProjectModelType type = model.getVisibility(user.getOrganization());
 				// Filters with the project status.
-				if (cmd.getProjectModelStatus() != null) {
+				if (type != null && cmd.getProjectModelStatus() != null) {
 					if (model.getStatus() != null && cmd.getProjectModelStatus().equals(model.getStatus())) {
 						projectModelDTOList.add(mapper.map(model, ProjectModelDTOLight.class));
 					}
 				}else if (cmd.getProjectModelStatus() == null && cmd.getAllProjectModelStatus()){
-					//No filter
-					projectModelDTOList.add(mapper.map(model, ProjectModelDTOLight.class));
+					//No project status filter but always organization filter
+					if (type != null) {
+						projectModelDTOList.add(mapper.map(model, ProjectModelDTOLight.class));
+					}
 				}else {
 					// Filters only visible models.
 					if (type != null) {

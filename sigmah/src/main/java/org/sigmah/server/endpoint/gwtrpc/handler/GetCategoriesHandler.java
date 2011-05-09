@@ -44,7 +44,8 @@ public class GetCategoriesHandler implements CommandHandler<GetCategories> {
 			throws CommandException {
 		List<CategoryTypeDTO> categories = new ArrayList<CategoryTypeDTO>();
 		
-		final Query query = em.createQuery("SELECT c FROM CategoryType c ORDER BY c.id");
+		final Query query = em.createQuery("SELECT c FROM CategoryType c WHERE c.organization.id = :orgid ORDER BY c.id");
+		query.setParameter("orgid", user.getOrganization().getId());
 		
 		final List<CategoryType> resultCategories = (List<CategoryType>) query.getResultList();
 		

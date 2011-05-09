@@ -51,7 +51,9 @@ public class PrivacyGroupPolicy implements EntityPolicy<PrivacyGroup> {
 			
 			List<PrivacyGroup> privacyGroups = new ArrayList<PrivacyGroup>();
 			
-			final Query query = em.createQuery("SELECT p FROM PrivacyGroup p WHERE p.code = :code ORDER BY p.id");
+			final Query query = em.createQuery("SELECT p FROM PrivacyGroup p WHERE p.code = :code " +
+					"and p.organization.id = :orgid ORDER BY p.id");
+			query.setParameter("orgid", executingUser.getOrganization().getId());
 			query.setParameter("code", new Integer(code.intValue()));
 			
 			privacyGroups.addAll(query.getResultList());
@@ -60,11 +62,13 @@ public class PrivacyGroupPolicy implements EntityPolicy<PrivacyGroup> {
 					pgToPersist = privacyGroups.get(0);
 					pgToPersist.setCode(code.intValue());
 					pgToPersist.setTitle(name);
+					pgToPersist.setOrganization(executingUser.getOrganization());
 					pgToPersist = em.merge(pgToPersist);				
 			}else{
 				pgToPersist = new PrivacyGroup();
 				pgToPersist.setCode(code.intValue());
 				pgToPersist.setTitle(name);
+				pgToPersist.setOrganization(executingUser.getOrganization());
 				em.persist(pgToPersist);
 			}
 		}

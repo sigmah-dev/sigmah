@@ -53,21 +53,26 @@ public class ProjectReportModelPolicy implements EntityPolicy<ProjectReportModel
 		//Save report
 		if(name != null){
 			
-			final Query query = em.createQuery("SELECT r FROM ProjectReportModel r WHERE r.name = :name ORDER BY r.id");
+			final Query query = em.createQuery("SELECT r FROM ProjectReportModel r WHERE r.name = :name " +
+					" and r.organization.id = :orgid ORDER BY r.id");
+			query.setParameter("orgid", executingUser.getOrganization().getId());
 			query.setParameter("name", name);
 			try{
 				if(query.getSingleResult() != null){
 					reportModel = (ProjectReportModel) query.getSingleResult();
+					reportModel.setOrganization(executingUser.getOrganization());
 					reportModel.setName(name);
 					reportModel = em.merge(reportModel);
 				}else{
 					reportModel = new ProjectReportModel();
 					reportModel.setName(name);
+					reportModel.setOrganization(executingUser.getOrganization());
 					em.persist(reportModel);
 				}
 			}catch(Exception e){
 				reportModel = new ProjectReportModel();
 				reportModel.setName(name);
+				reportModel.setOrganization(executingUser.getOrganization());
 				em.persist(reportModel);
 			}
 		}

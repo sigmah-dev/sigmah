@@ -48,7 +48,8 @@ public class GetProfilesWithDetailsHandler implements CommandHandler<GetProfiles
 			throws CommandException {
 		List<ProfileDTO> profiles = new ArrayList<ProfileDTO>();
 		
-		final Query query = em.createQuery("SELECT p FROM Profile p ORDER BY p.id");
+		final Query query = em.createQuery("SELECT p FROM Profile p WHERE p.organization.id = :orgid ORDER BY p.id");
+		query.setParameter("orgid", user.getOrganization().getId());
 		
 		final List<Profile> resultProfiles = (List<Profile>) query.getResultList();
 		

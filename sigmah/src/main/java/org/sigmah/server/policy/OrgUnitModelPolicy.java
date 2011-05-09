@@ -59,7 +59,7 @@ public class OrgUnitModelPolicy implements EntityPolicy<OrgUnitModel>  {
 	    		}   			
 	    	}else{
 				//Create new draft OrgUnitModel
-	    		OrgUnitModel oM = createOrgUnitModel(null, properties);
+	    		OrgUnitModel oM = createOrgUnitModel(null, properties, user);
 				
 				OrgUnitDetails oMDetails = new OrgUnitDetails();
 				
@@ -133,7 +133,7 @@ public class OrgUnitModelPolicy implements EntityPolicy<OrgUnitModel>  {
 		}
 		if(model != null){
 			if(changes.get(AdminUtil.PROP_OM_NAME) != null){//Update model
-				model = createOrgUnitModel(model, changes);
+				model = createOrgUnitModel(model, changes, user);
 				model = em.merge(model);
 			}			
 			/* ***********************************Flexible Element******************************************************/
@@ -146,7 +146,7 @@ public class OrgUnitModelPolicy implements EntityPolicy<OrgUnitModel>  {
 			
 	}
 	
-	private OrgUnitModel createOrgUnitModel(OrgUnitModel oM, PropertyMap properties){
+	private OrgUnitModel createOrgUnitModel(OrgUnitModel oM, PropertyMap properties, User user){
 		if(oM == null)
 			oM = new OrgUnitModel();
 		
@@ -176,7 +176,7 @@ public class OrgUnitModelPolicy implements EntityPolicy<OrgUnitModel>  {
 		oM.setHasBudget(hasBudget);
 		oM.setMinLevel(minLevel);
 		oM.setMaxLevel(maxLevel);
-		
+		oM.setOrganization(user.getOrganization());
 		return oM;
 	}
 }

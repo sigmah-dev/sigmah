@@ -55,24 +55,29 @@ public class CategoryPolicy implements EntityPolicy<CategoryType> {
 		
 		//save categoryType
 		if(name != null && icon != null){
-			final Query query = em.createQuery("SELECT c FROM CategoryType c WHERE c.label = :name ORDER BY c.id");
+			final Query query = em.createQuery("SELECT c FROM CategoryType c WHERE c.label = :name " +
+					" and c.organization.id = :orgid ORDER BY c.id");
+			query.setParameter("orgid", executingUser.getOrganization().getId());
 			query.setParameter("name", name);
 			try{
 				if(query.getSingleResult() != null){
 					categoryToPersist = (CategoryType) query.getSingleResult();
 					categoryToPersist.setLabel(name);
+					categoryToPersist.setOrganization(executingUser.getOrganization());
 					categoryToPersist.setIcon(icon);
 					categoryToPersist = em.merge(categoryToPersist);
 				}else{
 					categoryToPersist = new CategoryType();
 					categoryToPersist.setLabel(name);
 					categoryToPersist.setIcon(icon);
+					categoryToPersist.setOrganization(executingUser.getOrganization());
 					em.persist(categoryToPersist);
 				}
 			}catch(Exception e){
 				categoryToPersist = new CategoryType();
 				categoryToPersist.setLabel(name);
 				categoryToPersist.setIcon(icon);
+				categoryToPersist.setOrganization(executingUser.getOrganization());
 				em.persist(categoryToPersist);
 			}
 		}
@@ -82,7 +87,9 @@ public class CategoryPolicy implements EntityPolicy<CategoryType> {
 			CategoryType parentType = em.find(CategoryType.class, category.getId());
 			if(parentType != null){
 				final Query query = em.createQuery("SELECT c FROM CategoryElement c " +
-						"WHERE c.label = :name AND c.parentType = :category ORDER BY c.id");
+						"WHERE c.label = :name AND c.parentType = :category  and c.organization.id = :orgid  " +
+						"ORDER BY c.id");
+				query.setParameter("orgid", executingUser.getOrganization().getId());
 				query.setParameter("name", name);
 				query.setParameter("category", parentType);
 				try{
@@ -91,11 +98,13 @@ public class CategoryPolicy implements EntityPolicy<CategoryType> {
 						categoryElementToPersist.setLabel(label);
 						categoryElementToPersist.setColor(color);
 						categoryElementToPersist.setParentType(parentType);
+						categoryElementToPersist.setOrganization(executingUser.getOrganization());
 						categoryElementToPersist = em.merge(categoryElementToPersist);
 					}else{
 						categoryElementToPersist = new CategoryElement();
 						categoryElementToPersist.setLabel(label);
 						categoryElementToPersist.setColor(color);
+						categoryElementToPersist.setOrganization(executingUser.getOrganization());
 						categoryElementToPersist.setParentType(parentType);
 						em.persist(categoryElementToPersist);
 					}
@@ -103,6 +112,7 @@ public class CategoryPolicy implements EntityPolicy<CategoryType> {
 					categoryElementToPersist = new CategoryElement();
 					categoryElementToPersist.setLabel(label);
 					categoryElementToPersist.setColor(color);
+					categoryElementToPersist.setOrganization(executingUser.getOrganization());
 					categoryElementToPersist.setParentType(parentType);
 					em.persist(categoryElementToPersist);
 				}

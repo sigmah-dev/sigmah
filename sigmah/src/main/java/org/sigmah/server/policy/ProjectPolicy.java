@@ -339,7 +339,7 @@ public class ProjectPolicy implements EntityPolicy<Project> {
             	                                  	
              } 
              
-             else if("funded".equals(entry.getKey()))
+             else if("fundedId".equals(entry.getKey()))
              {
             	//Get the current project
               	Project project = em.find(Project.class, entityId); 
