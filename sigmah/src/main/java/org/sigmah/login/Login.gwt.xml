@@ -14,7 +14,7 @@
     <entry-point class='org.sigmah.login.client.LoginEntryPoint' />
 
     <!-- Enable other locales -->
-    <extend-property name="locale" values="en,fr"/>
+    <extend-property name="locale" values="en,fr,es"/>
     <set-property-fallback name="locale" value="en"/>
 
     <servlet path="/service" class="org.sigmah.server.endpoint.gwtrpc.LoginServiceServlet" />
