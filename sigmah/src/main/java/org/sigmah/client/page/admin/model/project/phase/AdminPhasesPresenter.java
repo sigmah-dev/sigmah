@@ -23,6 +23,7 @@ public class AdminPhasesPresenter implements AdminModelSubPresenter {
 		public abstract ListStore<PhaseModelDTO> getPhaseStore();
 		public abstract Map<String, PhaseModelDTO> getPhases();
 		public abstract List<String> getSuccessorsPhases();
+		public abstract void refreshProjectModel(ProjectModelDTO model);
 	}
 	
 	public AdminPhasesPresenter(Dispatcher dispatcher){

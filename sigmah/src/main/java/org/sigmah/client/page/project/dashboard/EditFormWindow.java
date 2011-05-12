@@ -409,9 +409,11 @@ public class EditFormWindow {
      * 
      * @param fieldLabelString
      *            The label of the date field. Can be <code>null</code>.
+	 * @param defaultValue 
+	 *            The initial value when the edit window appears
      * @return The field.
      */
-    public LabelField addLabelField(String fieldLabelString) {
+    public LabelField addLabelField(String fieldLabelString, String defaultValue) {
 
         // Lazy building.
         if (window == null) {
@@ -420,6 +422,7 @@ public class EditFormWindow {
 
         // Builds the text field.
         final LabelField field = new LabelField();
+        field.setValue(defaultValue);
         field.setFieldLabel(fieldLabelString);
 
         fields.add(new FieldWrapper(field, true));

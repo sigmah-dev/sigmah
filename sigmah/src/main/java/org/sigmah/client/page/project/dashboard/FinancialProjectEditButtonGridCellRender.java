@@ -96,8 +96,9 @@ public class FinancialProjectEditButtonGridCellRender implements GridCellRendere
                
 		        //Add a label to signal the percentage into window
 		        final LabelField percentageField = window.addLabelField(I18N.CONSTANTS
-		                .createProjectPercentage());
-		        percentageField.setValue("0 %");
+		                .createProjectPercentage(),NumberUtils.ratioAsString(model.getPercentage(),
+		                        projectPresenter.getCurrentProjectDTO().getPlannedBudget()));
+	       
 
 		        //Add a listener for the event fired when the amountField's value is changed
 		        amountField.addListener(Events.Change, new Listener<BaseEvent>() {

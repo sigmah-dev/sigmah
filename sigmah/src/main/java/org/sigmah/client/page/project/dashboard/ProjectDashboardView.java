@@ -632,7 +632,7 @@ public class ProjectDashboardView extends ProjectDashboardPresenter.View {
         final ColumnConfig editButtonColumn = new ColumnConfig();
         editButtonColumn.setId("editButton");
         editButtonColumn.setSortable(false);
-        editButtonColumn.setWidth(15);
+        editButtonColumn.setWidth(30);
         editButtonColumn.setAlignment(HorizontalAlignment.LEFT);
         editButtonColumn.setRenderer(new FinancialProjectEditButtonGridCellRender(this,dispatcher,projectPresenter));
 
@@ -731,7 +731,7 @@ public class ProjectDashboardView extends ProjectDashboardPresenter.View {
         final ColumnConfig editButtonColumn = new ColumnConfig();
         editButtonColumn.setId("editButton");
         editButtonColumn.setSortable(false);
-        editButtonColumn.setWidth(15);
+        editButtonColumn.setWidth(30);
         editButtonColumn.setAlignment(HorizontalAlignment.LEFT);
         editButtonColumn.setRenderer(new LocalPartnerProjectEditButtonGridCellRender(this,dispatcher,projectPresenter));
 

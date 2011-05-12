@@ -93,8 +93,10 @@ sigmah/src/main/java/org/sigmah/client/event/ProjectEvent.java -text
 sigmah/src/main/java/org/sigmah/client/event/package-info.java -text
 sigmah/src/main/java/org/sigmah/client/i18n/I18N.java -text
 sigmah/src/main/java/org/sigmah/client/i18n/UIConstants.properties -text
+sigmah/src/main/java/org/sigmah/client/i18n/UIConstants_en.properties -text
 sigmah/src/main/java/org/sigmah/client/i18n/UIConstants_fr.properties -text
 sigmah/src/main/java/org/sigmah/client/i18n/UIMessages.properties -text
+sigmah/src/main/java/org/sigmah/client/i18n/UIMessages_en.properties -text
 sigmah/src/main/java/org/sigmah/client/i18n/UIMessages_fr.properties -text
 sigmah/src/main/java/org/sigmah/client/i18n/package-info.java -text
 sigmah/src/main/java/org/sigmah/client/icon/IconImageBundle.java -text

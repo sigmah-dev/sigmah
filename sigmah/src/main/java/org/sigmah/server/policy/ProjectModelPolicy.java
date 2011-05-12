@@ -314,6 +314,7 @@ public class ProjectModelPolicy implements EntityPolicy<ProjectModel>  {
 			final Integer displayOrder = (Integer) changes.get(AdminUtil.PROP_PHASE_ORDER);
 			final Boolean root = (Boolean) changes.get(AdminUtil.PROP_PHASE_ROOT);
 			final Integer numRows = (Integer) changes.get(AdminUtil.PROP_PHASE_ROWS);
+			final String guide = (String) changes.get(AdminUtil.PROP_PHASE_GUIDE);
 			
 			PhaseModel phaseToSave = new PhaseModel();
 			
@@ -321,6 +322,9 @@ public class ProjectModelPolicy implements EntityPolicy<ProjectModel>  {
 				phaseToSave.setName(phaseDTOToSave.getName());
 				if(displayOrder != null)
 					phaseToSave.setDisplayOrder(displayOrder);
+				//Guide
+				if(guide!=null && !guide.isEmpty())
+					phaseToSave.setGuide(guide);	
 				//successors
 				for(PhaseModelDTO sucDTO : phaseDTOToSave.getSuccessorsDTO()){
 					if(sucDTO.getId()!=0){
@@ -345,6 +349,9 @@ public class ProjectModelPolicy implements EntityPolicy<ProjectModel>  {
 						
 					if(displayOrder != null)
 						phaseFound.setDisplayOrder(displayOrder);
+					
+					if(guide!=null && !guide.isEmpty())
+						phaseFound.setGuide(guide);					
 					phaseToSave = em.merge(phaseFound);
 					
 				}else{//create new phase

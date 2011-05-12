@@ -96,8 +96,8 @@ public class DashboardPresenter implements Page {
 
                 if (result != null) {
                     view.getOrgUnitsStore().removeAll();
-                    view.getOrgUnitsPanel().setHeading(
-                            result.getName() + " (" + result.getFullName() + ") : " + I18N.CONSTANTS.orgunitTree());
+                    view.getOrgUnitsPanel().setHeading(I18N.CONSTANTS.orgunitTree()+" - "+
+                            result.getName() + " (" + result.getFullName() + ")" );
 
                     for (final OrgUnitDTOLight child : result.getChildrenDTO()) {
                         view.getOrgUnitsStore().add(child, true);

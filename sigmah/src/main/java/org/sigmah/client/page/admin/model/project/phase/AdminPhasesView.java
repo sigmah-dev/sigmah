@@ -92,6 +92,10 @@ public class AdminPhasesView extends View {
 	    });  
 		configs.add(column); 
 		
+		//Guide URL
+		column = new ColumnConfig("guide",I18N.CONSTANTS.projectPhaseGuideHeader(),300);
+		configs.add(column);
+		
 		column = new ColumnConfig();
 		column.setWidth(200);   		
 		column.setRenderer(new GridCellRenderer<PhaseModelDTO>(){
@@ -232,5 +236,11 @@ public class AdminPhasesView extends View {
 			}
 			phases.put(phase.getName(), phase);
 		}
+	}
+
+
+	@Override
+	public void refreshProjectModel(ProjectModelDTO model) {
+		this.projectModel = model;
 	}
 }

@@ -75,6 +75,7 @@ public class AdminUtil {
 	public final static String PROP_PHASE_ROWS = "PhaseRows";
 	public final static String PROP_PHASE_ROOT = "PhaseRoot";
 	public final static String PROP_PHASE_ORDER = "PhaseDisplayOrder";
+	public final static String PROP_PHASE_GUIDE = "PhaseGuide";
 	
 	public final static String PROP_REPORT_MODEL_NAME = "ProjectReportModelName";
 	public final static String PROP_REPORT_SECTION_MODEL = "ProjectReportModelSection";

@@ -53,6 +53,7 @@ public class PhaseSigmahForm extends FormPanel {
 	private final List<CheckBoxGroup> candidatesSuccessorsPhases;
 	private final List<PhaseModelDTO> candidatesPhases = new ArrayList<PhaseModelDTO>();
 	private final CheckBox isRoot;
+	private final TextField<String> guideField;
 	
 	//FIXME private final NumberField rowNumberField;
 	private final NumberField orderField;
@@ -147,6 +148,16 @@ public class PhaseSigmahForm extends FormPanel {
 		}
 		add(orderField);
 		
+		//Guide field
+		guideField = new TextField<String>();
+		guideField.setFieldLabel(I18N.CONSTANTS.projectPhaseGuideHeader());
+		guideField.setAllowBlank(true);
+		if(phaseToUpdate!=null)
+		{
+			guideField.setValue(phaseToUpdate.getGuide());
+		}
+		add(guideField);
+		
 		/*rowNumberField = new NumberField();
 		rowNumberField.setAllowBlank(false);
 		rowNumberField.setFieldLabel(constants.adminPhaseModelSize());
@@ -218,11 +229,17 @@ public class PhaseSigmahForm extends FormPanel {
 		 if(orderField.getValue() != null)
 			 order = new Integer(orderField.getValue().intValue());
 		 
+		 //Guide
+		 String guide =null;
+		 if( guideField.getValue()!=null)
+			 guide = guideField.getValue();
+		 
 		 phaseToSave.setSuccessorsDTO(successors);
 		 newPhaseProperties.put(AdminUtil.ADMIN_PROJECT_MODEL, projectModelToUpdate);
 		 newPhaseProperties.put(AdminUtil.PROP_PHASE_MODEL, phaseToSave);
 		 newPhaseProperties.put(AdminUtil.PROP_PHASE_ORDER, order);
 		 newPhaseProperties.put(AdminUtil.PROP_PHASE_ROOT, root);
+		 newPhaseProperties.put(AdminUtil.PROP_PHASE_GUIDE,guide);
 		 //newPhaseProperties.put(AdminUtil.PROP_PHASE_ROWS, numRows);
 		 newPhaseProperties.put("modelId", new Integer(projectModelToUpdate.getId()));
          dispatcher.execute(new CreateEntity("ProjectModel", newPhaseProperties), null, new AsyncCallback<CreateResult>(){
@@ -239,7 +256,7 @@ public class PhaseSigmahForm extends FormPanel {
 					ProjectModelDTO pModelUpdated = (ProjectModelDTO) result.getEntity();
 					UpdateModelResult completeResult = new UpdateModelResult(pModelUpdated.getId());
 					completeResult.setEntity(pModelUpdated);	
-					view.setProjectModel(pModelUpdated);
+					view.refreshProjectModel(pModelUpdated);			
 					if(phaseToUpdate != null){
 						Notification.show(I18N.CONSTANTS.adminPhaseCreationBox(), 
 								I18N.MESSAGES.adminStandardUpdateSuccessF(I18N.MESSAGES.adminStandardPhase()
@@ -282,7 +299,7 @@ public class PhaseSigmahForm extends FormPanel {
 							 }
 						}
 						
-					}
+					}					
 					callback.onSuccess(completeResult);	
 				}					
 				else{
