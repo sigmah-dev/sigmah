@@ -35,11 +35,11 @@ public class ImageServlet extends HttpServlet {
     /**
      * To get the images manager.
      */
-    private final Injector injector;
+    private final ImageRepository imageRepository;
 
     @Inject
-    public ImageServlet(Injector injector) {
-        this.injector = injector;
+    public ImageServlet(ImageRepository imageRepository) {
+        this.imageRepository = imageRepository;
     }
 
     @Override
@@ -67,7 +67,9 @@ public class ImageServlet extends HttpServlet {
         }
 
         // Retrieves the image.
-        final File image = injector.getInstance(FileManager.class).getImage(url);
+        final File image = imageRepository.getImage(url);
+        
+        
         final BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(image));
 
         try {

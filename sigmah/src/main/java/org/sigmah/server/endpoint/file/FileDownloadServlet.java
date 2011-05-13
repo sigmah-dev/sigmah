@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sigmah.server.endpoint.file.FileManager.DonwloadableFile;
+import org.sigmah.server.endpoint.file.FileManager.DownloadableFile;
 import org.sigmah.shared.dto.value.FileUploadUtils;
 
 import com.google.inject.Inject;
@@ -35,14 +35,21 @@ public class FileDownloadServlet extends HttpServlet {
     /**
      * To get the download manager.
      */
-    private final Injector injector;
+    private final FileManager fileManager;
+    
+    private final FileStorageProvider fileStorageProvider;
     
     @Inject
-    public FileDownloadServlet(Injector injector) {
-        this.injector = injector;
-    }
-    
-    /**
+    public FileDownloadServlet(FileManager fileManager,
+			FileStorageProvider fileStorageProvider) {
+		super();
+		this.fileManager = fileManager;
+		this.fileStorageProvider = fileStorageProvider;
+	}
+
+
+
+	/**
      * Download a version of a file.
      * 
      * The following parameters must be specified in the HTTP request:
@@ -83,7 +90,7 @@ public class FileDownloadServlet extends HttpServlet {
             }
 
             // Gets the physical file for the given id/version.
-            final DonwloadableFile file = injector.getInstance(FileManager.class).getFile(id, version);
+            final DownloadableFile file = fileManager.getFile(id, version);
 
             // Download error.
             if (file == null) {
@@ -96,7 +103,7 @@ public class FileDownloadServlet extends HttpServlet {
             response.setCharacterEncoding("UTF-8");
             response.setHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
 
-            final BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(file.getPhysicalFile()));
+            final BufferedInputStream inputStream = new BufferedInputStream(fileStorageProvider.open(file.getStorageId()));
 
             try {
 

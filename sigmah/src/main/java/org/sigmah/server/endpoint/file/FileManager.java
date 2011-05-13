@@ -39,16 +39,8 @@ public interface FileManager {
      *            The desired version number.
      * @return The corresponding file.
      */
-    public DonwloadableFile getFile(String idString, String versionString);
+    public DownloadableFile getFile(String idString, String versionString);
 
-    /**
-     * Retrieves an image with the given.
-     * 
-     * @param name
-     *            The image's name.
-     * @return The image as a file.
-     */
-    public File getImage(String name);
 
     /**
      * Creates a monitored point.
@@ -71,7 +63,7 @@ public interface FileManager {
      * @author tmi
      * 
      */
-    public static class DonwloadableFile {
+    public static class DownloadableFile {
 
         /**
          * The file's name (version-independent).
@@ -79,22 +71,25 @@ public interface FileManager {
         private final String name;
 
         /**
-         * The file's content (for the expected version).
+         * The file's storage id (for the expected version).
+         * Use {@link FileStorageProvider} to open an InputStream
          */
-        private final java.io.File physicalFile;
+        private final String storageId;
 
-        public DonwloadableFile(String name, java.io.File physicalFile) {
+        public DownloadableFile(String name, String storageId) {
             super();
             this.name = name;
-            this.physicalFile = physicalFile;
+            this.storageId = storageId;
         }
 
         public String getName() {
             return name;
         }
 
-        public java.io.File getPhysicalFile() {
-            return physicalFile;
-        }
+		public String getStorageId() {
+			return storageId;
+		}
+
+        
     }
 }

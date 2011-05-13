@@ -3,13 +3,11 @@ package org.sigmah.server.endpoint.file;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.UUID;
 
 import javax.persistence.EntityManager;
@@ -31,7 +29,7 @@ import org.sigmah.shared.domain.value.Value;
 import org.sigmah.shared.dto.value.FileUploadUtils;
 
 import com.google.inject.Inject;
-import com.google.inject.Injector;
+import com.google.inject.Provider;
 
 /**
  * Manages files (upload and download).
@@ -41,58 +39,20 @@ import com.google.inject.Injector;
  */
 public class FileManagerImpl implements FileManager {
 
+
     /**
      * Logger.
      */
     private static final Log log = LogFactory.getLog(FileManagerImpl.class);
-
-    /**
-     * To get the entity manager.
-     */
-    private final Injector injector;
-
-    /**
-     * Directory's path name where the uploaded files are stored.
-     */
-    private final String UPLOADED_FILES_REPOSITORY;
-
-    /**
-     * Directory's path name where the images are stored.
-     */
-    private final String IMAGES_REPOSITORY;
-
-    /**
-     * The property's name expected in the properties file to set the uploaded
-     * files repository path name.
-     */
-    private static final String UPLOADED_FILES_REPOSITORY_NAME = "repository.files";
-
-    /**
-     * The property's name expected in the properties file to set the images
-     * repository path name.
-     */
-    private static final String IMAGES_REPOSITORY_NAME = "repository.images";
-
+	
+    private final Provider<EntityManager> entityManager;
+    
+    private final FileStorageProvider fileStorageProvider;
+    
     @Inject
-    public FileManagerImpl(Properties configProperties, Injector injector) {
-
-        // Initializes uploaded files repository path.
-        UPLOADED_FILES_REPOSITORY = configProperties.getProperty(UPLOADED_FILES_REPOSITORY_NAME);
-
-        if (UPLOADED_FILES_REPOSITORY == null) {
-            throw new IllegalStateException("Missing reqquired property '" + UPLOADED_FILES_REPOSITORY_NAME
-                    + "' in the upload properties file.");
-        }
-
-        // Initializes images repository path.
-        IMAGES_REPOSITORY = configProperties.getProperty(IMAGES_REPOSITORY_NAME);
-
-        if (IMAGES_REPOSITORY == null) {
-            throw new IllegalStateException("Missing reqquired property '" + IMAGES_REPOSITORY_NAME
-                    + "' in the upload properties file.");
-        }
-
-        this.injector = injector;
+    public FileManagerImpl(Provider<EntityManager> entityManager, FileStorageProvider storageProvider) {
+    	this.entityManager = entityManager;
+    	this.fileStorageProvider = storageProvider;
     }
 
     @Override
@@ -143,7 +103,7 @@ public class FileManagerImpl implements FileManager {
     @Transactional
     protected String saveNewFile(Map<String, String> properties, byte[] content, int authorId) throws IOException {
 
-        final EntityManager em = injector.getInstance(EntityManager.class);
+        final EntityManager em = entityManager.get();
 
         if (log.isDebugEnabled()) {
             log.debug("[saveNewFile] New file.");
@@ -170,6 +130,8 @@ public class FileManagerImpl implements FileManager {
         file.addVersion(createVersion(1, name, extension, authorId, content));
 
         em.persist(file);
+        
+        
 
         // --------------------------------------------------------------------
         // STEP 2 : gets the current value for this list of files.
@@ -259,7 +221,7 @@ public class FileManagerImpl implements FileManager {
 
         // Saves or updates the new value.
         em.merge(currentValue);
-
+       
         return String.valueOf(file.getId());
     }
 
@@ -282,7 +244,7 @@ public class FileManagerImpl implements FileManager {
     protected String saveNewVersion(Map<String, String> properties, byte[] content, String id, int authorId)
             throws IOException {
 
-        final EntityManager em = injector.getInstance(EntityManager.class);
+        final EntityManager em = entityManager.get();
 
         if (log.isDebugEnabled()) {
             log.debug("[save] New file version.");
@@ -383,18 +345,8 @@ public class FileManagerImpl implements FileManager {
             // Generates the content file name
             final String uniqueName = generateUniqueName();
 
-            // Files repository.
-            final java.io.File repository = new java.io.File(UPLOADED_FILES_REPOSITORY);
-
-            // Content file.
-            final java.io.File contentFile = new java.io.File(repository, uniqueName);
-
-            if (log.isDebugEnabled()) {
-                log.debug("[writeContent] Writes file content to the files repository '" + contentFile + "'.");
-            }
-
             // Streams.
-            output = new BufferedOutputStream(new FileOutputStream(contentFile));
+			output = new BufferedOutputStream(fileStorageProvider.create(uniqueName));
             input = new BufferedInputStream(new ByteArrayInputStream(content));
 
             // Writes content as bytes.
@@ -426,9 +378,9 @@ public class FileManagerImpl implements FileManager {
     }
 
     @Override
-    public DonwloadableFile getFile(String idString, String versionString) {
+    public DownloadableFile getFile(String idString, String versionString) {
 
-        final EntityManager em = injector.getInstance(EntityManager.class);
+        final EntityManager em = entityManager.get();
 
         // Gets file id.
         int id;
@@ -459,7 +411,6 @@ public class FileManagerImpl implements FileManager {
 
         // Downloads the last version.
         if (versionString == null || "".equals(versionString)) {
-
             if (log.isDebugEnabled()) {
                 log.debug("[getFile] Searches last version.");
             }
@@ -482,9 +433,7 @@ public class FileManagerImpl implements FileManager {
 
                 lastVersion = versions.get(index);
             }
-        }
-        // Downloads a specific version.
-        else {
+        } else {
 
             // Get desired file version.
             int version;
@@ -523,32 +472,16 @@ public class FileManagerImpl implements FileManager {
             log.debug("[getFile] Found version with number=" + lastVersion.getVersionNumber() + ".");
         }
 
-        // Files repository.
-        final java.io.File repository = new java.io.File(UPLOADED_FILES_REPOSITORY);
 
-        // Physical file for the desired version.
-        final java.io.File physicalFile = new java.io.File(repository, lastVersion.getPath());
-
-        return new DonwloadableFile(lastVersion.getName() + '.' + lastVersion.getExtension(), physicalFile);
+        return new DownloadableFile(lastVersion.getName() + '.' + lastVersion.getExtension(), lastVersion.getPath());
     }
 
-    @Override
-    public java.io.File getImage(String name) {
-
-        // Images repository.
-        final java.io.File repository = new java.io.File(IMAGES_REPOSITORY);
-
-        // Image file.
-        final java.io.File imageFile = new java.io.File(repository, name);
-
-        return imageFile;
-    }
 
     @Transactional
     @Override
     public MonitoredPoint createMonitoredPoint(Integer projetId, String label, Date expectedDate, Integer fileId) {
 
-        final EntityManager em = injector.getInstance(EntityManager.class);
+        final EntityManager em = entityManager.get();
 
         // Retrieves parent project and points list.
         final Project p = em.find(Project.class, projetId);

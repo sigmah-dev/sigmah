@@ -1284,8 +1284,11 @@ sigmah/src/main/java/org/sigmah/server/endpoint/file/FileDownloadServlet.java -t
 sigmah/src/main/java/org/sigmah/server/endpoint/file/FileManager.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/file/FileManagerImpl.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/file/FileModule.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/file/FileStorageProvider.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/file/FileUploadServlet.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/file/ImageRepository.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/file/ImageServlet.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/file/LocalStorageProvider.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/CacheFilter.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/CommandServlet.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/DownloadServlet.java -text
@@ -2053,6 +2056,9 @@ sigmah/src/test/java/org/sigmah/server/dao/hibernate/LoadDataSet.java -text
 sigmah/src/test/java/org/sigmah/server/dao/hibernate/PivotHibernateDAOTest.java -text
 sigmah/src/test/java/org/sigmah/server/dao/hibernate/TransactionalInterceptorTest.java -text
 sigmah/src/test/java/org/sigmah/server/dao/hibernate/UserDAOImplTest.java -text
+sigmah/src/test/java/org/sigmah/server/endpoint/file/FileManagerTest.java -text
+sigmah/src/test/java/org/sigmah/server/endpoint/file/FileManagerTestConfigModule.java -text
+sigmah/src/test/java/org/sigmah/server/endpoint/file/LocalStorageProviderTest.java -text
 sigmah/src/test/java/org/sigmah/server/endpoint/gwtrpc/ActivityTest.java -text
 sigmah/src/test/java/org/sigmah/server/endpoint/gwtrpc/AttributeGroupTest.java -text
 sigmah/src/test/java/org/sigmah/server/endpoint/gwtrpc/CalendarTest.java -text
