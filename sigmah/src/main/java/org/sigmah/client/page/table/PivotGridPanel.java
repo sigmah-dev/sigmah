@@ -203,19 +203,24 @@ public class PivotGridPanel extends ContentPanel implements HasValue<PivotElemen
         }
         
     }
+	
 
-    public void setData(final PivotElement element) {
+	public void clear() {
         if(grid != null) {
         	grid.removeAllListeners();
             removeAll();
         }
+        store.removeAll();
+	}
+
+    public void setData(final PivotElement element) {
+    	clear();
 
         this.element = element;
         PivotTableData data = element.getContent().getData();
         
         this.columnMapping = new ColumnMapping(data, new RendererProvider(), HEADER_DECORATOR);
 
-        store.removeAll();
 		for(PivotTableData.Axis axis : data.getRootRow().getChildren()) {
             store.add(new PivotTableRow(axis), true);
         }
@@ -347,7 +352,7 @@ public class PivotGridPanel extends ContentPanel implements HasValue<PivotElemen
 	@Override
 	public void setValue(final PivotElement value) {
 		int databaseId = value.getFilter().getRestrictions(DimensionType.Database).iterator().next();
-		dispatcher.execute(new GetIndicators(databaseId), new MaskingAsyncMonitor(this, I18N.CONSTANTS.loading()), new AsyncCallback<IndicatorListResult>() {
+		dispatcher.execute(GetIndicators.forDatabase(databaseId), new MaskingAsyncMonitor(this, I18N.CONSTANTS.loading()), new AsyncCallback<IndicatorListResult>() {
 
 			@Override
 			public void onFailure(Throwable caught) {				
@@ -454,5 +459,6 @@ public class PivotGridPanel extends ContentPanel implements HasValue<PivotElemen
 	}
 	
 	private final HeaderDecorator HEADER_DECORATOR = new GridHeaderDecorator();
+
 	
 }

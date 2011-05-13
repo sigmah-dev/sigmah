@@ -17,7 +17,7 @@ class IndicatorValue extends BaseModelData {
 		return get("label");
 	}
 	
-	public double getValue() {
+	public Double getValue() {
 		return (Double)get("value");
 	}
 

@@ -70,7 +70,12 @@ public class IndicatorValueField extends ComboBox<IndicatorValue> {
 		if(indicator.getAggregation() == IndicatorDTO.AGGREGATE_MULTINOMIAL) {
 			return super.getValue();
 		} else {
-			return new IndicatorValue(format.parse(getRawValue()));
+			String rawValue = getRawValue();
+			if(rawValue.length() == 0) {
+				return new IndicatorValue(null);
+			} else {
+				return new IndicatorValue(format.parse(rawValue));
+			}
 		}
 	}
 
