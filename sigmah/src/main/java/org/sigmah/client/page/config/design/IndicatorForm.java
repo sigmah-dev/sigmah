@@ -107,7 +107,7 @@ class IndicatorForm extends AbstractDesignForm {
         
         
         labelsField = new ValueLabelField();
-        labelsField.setFieldLabel("Value Labels");
+        labelsField.setFieldLabel(I18N.CONSTANTS.possibleValues());
         binding.addFieldBinding(new FieldBinding(labelsField, "labels"));
         this.add(labelsField);
         
