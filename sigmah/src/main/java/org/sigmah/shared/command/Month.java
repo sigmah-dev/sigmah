@@ -36,13 +36,13 @@ public class Month implements Serializable, Comparable<Month> {
         this.year = year;
         this.month = month;
 
-        while(month > 12) {
-            year++;
-            month -= 12;
+        while(this.month > 12) {
+            this.year++;
+            this.month -= 12;
         }
-        while(month < 1) {
-            year--;
-            month+=12;
+        while(this.month < 1) {
+            this.year--;
+            this.month+=12;
         }
     }
 

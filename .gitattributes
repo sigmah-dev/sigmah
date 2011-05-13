@@ -2114,6 +2114,7 @@ sigmah/src/test/java/org/sigmah/server/schedule/ReportMailerIntegrationTest.java
 sigmah/src/test/java/org/sigmah/server/schedule/ReportMailerTest.java -text
 sigmah/src/test/java/org/sigmah/server/servlet/ExportIntegrationTest.java -text
 sigmah/src/test/java/org/sigmah/server/sync/SiteUpdateBuilderTest.java -text
+sigmah/src/test/java/org/sigmah/shared/command/MonthTest.java -text
 sigmah/src/test/java/org/sigmah/shared/command/handler/LocalHandlerTestCase.java -text
 sigmah/src/test/java/org/sigmah/test/AssertUtils.java -text
 sigmah/src/test/java/org/sigmah/test/ExitScope.java -text
