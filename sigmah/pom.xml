@@ -398,6 +398,13 @@
             <artifactId>commons-fileupload</artifactId>
             <version>1.2.2</version>
         </dependency>
+        
+        <dependency>
+   			<groupId>com.amazonaws</groupId>
+    		<artifactId>aws-java-sdk</artifactId>
+			<version>1.1.9</version>
+		</dependency>
+        
         <!-- Excel export/import -->
         <dependency>
             <groupId>net.sourceforge.jexcelapi</groupId>
@@ -496,22 +503,7 @@
                             <i18nMessagesBundle>org.sigmah.client.i18n.UIMessages</i18nMessagesBundle>
                         </configuration>
                     </execution>
-                    <execution>
-                        <id>activityinfo-compile</id>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>compile</goal>
-                        </goals>
-                        <configuration>
-                            <disableClassMetadata>true</disableClassMetadata>
-                            <extraJvmArgs>-Xmx512M -Xss1024k</extraJvmArgs>
-                            <logLevel>INFO</logLevel>
-                            <!-- Takes WAY to long for all 12 permutations -->
-                            <!-- run with profile soyc enabled to generate maps for a single perm-->
-                            <soyc>false</soyc>
-                            <module>org.sigmah.ActivityInfoProduction</module>
-                        </configuration>
-                    </execution>
+                 
                     <execution>
                         <id>sigmah-compile</id>
                         <phase>prepare-package</phase>
@@ -528,17 +520,7 @@
                             <module>org.sigmah.Sigmah</module>
                         </configuration>
                     </execution>
-                    <execution>
-                        <id>login-compile</id>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>compile</goal>
-                        </goals>
-                        <configuration>
-                            <soyc>false</soyc>
-                            <module>org.sigmah.login.Login</module>
-                        </configuration>
-                    </execution>
+             
                 </executions>
             </plugin>
 

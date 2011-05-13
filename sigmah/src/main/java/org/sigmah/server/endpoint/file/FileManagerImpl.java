@@ -4,6 +4,7 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -337,8 +338,7 @@ public class FileManagerImpl implements FileManager {
      */
     private String writeContent(byte[] content) throws IOException {
 
-        BufferedOutputStream output = null;
-        BufferedInputStream input = null;
+        OutputStream output = null;
 
         try {
 
@@ -346,28 +346,20 @@ public class FileManagerImpl implements FileManager {
             final String uniqueName = generateUniqueName();
 
             // Streams.
-			output = new BufferedOutputStream(fileStorageProvider.create(uniqueName));
-            input = new BufferedInputStream(new ByteArrayInputStream(content));
+			output = fileStorageProvider.create(uniqueName);
 
             // Writes content as bytes.
-            final byte[] buffer = new byte[64 * 1024];
-            int len = 0;
-            while ((len = input.read(buffer)) != -1) {
-                output.write(buffer, 0, len);
-            }
+            output.write(content);
 
             return uniqueName;
         } finally {
             if (output != null) {
                 output.close();
             }
-            if (input != null) {
-                input.close();
-            }
         }
     }
 
-    /**
+	/**
      * Computes and returns a unique string identifier to name files.
      * 
      * @return A unique string identifier.

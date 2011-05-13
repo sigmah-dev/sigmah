@@ -1286,9 +1286,11 @@ sigmah/src/main/java/org/sigmah/server/endpoint/file/FileManagerImpl.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/file/FileModule.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/file/FileStorageProvider.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/file/FileUploadServlet.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/file/IOUtil.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/file/ImageRepository.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/file/ImageServlet.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/file/LocalStorageProvider.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/file/S3StorageProvider.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/CacheFilter.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/CommandServlet.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/DownloadServlet.java -text

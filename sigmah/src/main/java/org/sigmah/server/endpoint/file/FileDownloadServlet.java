@@ -1,8 +1,8 @@
 package org.sigmah.server.endpoint.file;
 
 import java.io.BufferedInputStream;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
@@ -16,7 +16,6 @@ import org.sigmah.server.endpoint.file.FileManager.DownloadableFile;
 import org.sigmah.shared.dto.value.FileUploadUtils;
 
 import com.google.inject.Inject;
-import com.google.inject.Injector;
 import com.google.inject.Singleton;
 
 /**
@@ -102,19 +101,14 @@ public class FileDownloadServlet extends HttpServlet {
             response.setContentType("application/octet-stream");
             response.setCharacterEncoding("UTF-8");
             response.setHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
-
-            final BufferedInputStream inputStream = new BufferedInputStream(fileStorageProvider.open(file.getStorageId()));
+                       
+            final InputStream inputStream = fileStorageProvider.open(file.getStorageId());
 
             try {
 
                 // Writes file content to the HTTP response.
                 final ServletOutputStream outputStream = response.getOutputStream();
-
-                int b = inputStream.read();
-                while (b != -1) {
-                    outputStream.write(b);
-                    b = inputStream.read();
-                }
+                IOUtil.copy(inputStream, outputStream);
 
                 inputStream.close();
                 outputStream.close();
