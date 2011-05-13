@@ -1378,6 +1378,7 @@ sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/calendar/Calendar
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/calendar/MonitoredPointCalendarHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/calendar/PersonalCalendarHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/calendar/ReminderCalendarHandler.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/healthcheck/HealthCheckServlet.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/jsonrpc/BadRequestException.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/jsonrpc/JsonCommandServlet.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/jsonrpc/JsonRpcException.java -text

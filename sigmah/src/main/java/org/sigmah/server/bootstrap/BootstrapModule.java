@@ -5,6 +5,8 @@
 
 package org.sigmah.server.bootstrap;
 
+import org.sigmah.server.endpoint.healthcheck.HealthCheckServlet;
+
 import com.google.inject.servlet.ServletModule;
 
 /**
@@ -15,6 +17,7 @@ public class BootstrapModule extends ServletModule {
 
     @Override
     protected void configureServlets() {
+    	serve("/healthcheck").with(HealthCheckServlet.class);
         serve("/" + HostController.ENDPOINT).with(HostController.class);
         serve("/" + LoginController.ENDPOINT).with(LoginController.class);
         serve("/" + ConfirmInviteController.ENDPOINT).with(ConfirmInviteController.class);
