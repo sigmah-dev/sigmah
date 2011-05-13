@@ -539,9 +539,11 @@ sigmah/src/main/java/org/sigmah/client/page/project/logframe/grid/Row.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/logframe/grid/RowActionsMenu.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/logframe/grid/RowsGroup.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/pivot/DateFilterCombo.java -text
+sigmah/src/main/java/org/sigmah/client/page/project/pivot/DateLayout.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/pivot/DateRangeModel.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/pivot/HistorySelector.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/pivot/IndicatorFilterCombo.java -text
+sigmah/src/main/java/org/sigmah/client/page/project/pivot/IndicatorLayout.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/pivot/LayoutComposer.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/pivot/PivotLayout.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/pivot/PivotToolBar.java -text
@@ -549,6 +551,7 @@ sigmah/src/main/java/org/sigmah/client/page/project/pivot/ProjectPivot.css -text
 sigmah/src/main/java/org/sigmah/client/page/project/pivot/ProjectPivotContainer.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/pivot/ProjectPivotResources.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/pivot/SiteFilterCombo.java -text
+sigmah/src/main/java/org/sigmah/client/page/project/pivot/SiteLayout.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/reports/AttachFileHandler.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/reports/AttachMenuBuilder.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/reports/AttachReportHandler.java -text
@@ -2025,7 +2028,8 @@ sigmah/src/test/java/org/sigmah/client/page/entry/editor/SiteFormTest.java -text
 sigmah/src/test/java/org/sigmah/client/page/entry/editor/mock/MockAdminFieldSet.java -text
 sigmah/src/test/java/org/sigmah/client/page/entry/editor/mock/MockMapView.java -text
 sigmah/src/test/java/org/sigmah/client/page/entry/editor/mock/MockSiteForm.java -text
-sigmah/src/test/java/org/sigmah/client/page/project/pivot/LayoutTest.java -text
+sigmah/src/test/java/org/sigmah/client/page/project/pivot/LayoutComposerTest.java -text
+sigmah/src/test/java/org/sigmah/client/page/project/pivot/PivotLayoutTest.java -text
 sigmah/src/test/java/org/sigmah/client/page/table/ColumnMappingTest.java -text
 sigmah/src/test/java/org/sigmah/server/SchemaMigrationTest.java -text
 sigmah/src/test/java/org/sigmah/server/auth/BCryptTest.java -text

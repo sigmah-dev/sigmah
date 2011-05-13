@@ -70,6 +70,8 @@ public class SiteFilterCombo extends ComboBox<ModelData> {
 		
 		return (Integer)getValue().get("id");
 	}
+
+	
 	
 
 }

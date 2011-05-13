@@ -42,7 +42,7 @@ public class IndicatorFilterCombo extends ComboBox<IndicatorDTO> {
 		protected void load(Object loadConfig,
 				final AsyncCallback<ListLoadResult<ModelData>> callback) {
 			
-			dispatcher.execute(new GetIndicators(databaseId), null, new AsyncCallback<IndicatorListResult>() {
+			dispatcher.execute(GetIndicators.forDatabase(databaseId), null, new AsyncCallback<IndicatorListResult>() {
 
 				@Override
 				public void onFailure(Throwable caught) {

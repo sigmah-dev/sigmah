@@ -1,9 +1,9 @@
 package org.sigmah.client.page.project.pivot;
 
-import org.sigmah.shared.dto.EntityDTO;
-import org.sigmah.shared.report.model.PivotTableElement;
+import org.sigmah.client.dispatch.Dispatcher;
 
-import com.extjs.gxt.ui.client.data.ModelData;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+
 
 
 /**
@@ -12,21 +12,26 @@ import com.extjs.gxt.ui.client.data.ModelData;
  * @author alexander
  *
  */
-class PivotLayout {
-
-	private ModelData filter;
-
-	public PivotLayout(ModelData filter) {
-		this.filter = filter;
-	}
-
-	public ModelData getFilter() {
-		return filter;
-	}
-
-	public void setFilter(ModelData filter) {
-		this.filter = filter;
-	}
-
+abstract class PivotLayout {
 	
+	
+	public abstract String serialize();
+	
+	
+	public static void deserialize(Dispatcher dispatcher, int projectId, String text, AsyncCallback<PivotLayout> callback) {
+		switch(text.charAt(0)) {
+		case 'I':
+			IndicatorLayout.deserializeIndicator(dispatcher, projectId, text.substring(1), callback);
+			return;
+		case 'S':
+			SiteLayout.deserializeSite(dispatcher, text.substring(1), callback);
+			return;
+		case 'D':
+			DateLayout.deserializeDate(text.substring(1), callback);
+			return;
+		
+		}
+		throw new IllegalArgumentException(text);
+	}
+
 }

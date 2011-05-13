@@ -244,7 +244,7 @@ public class DesignPanel extends DesignPanelBase implements ActionListener {
 	
 	@Override
 	protected void doLoad() {
-		service.execute(new GetIndicators(currentDatabaseId), null, new AsyncCallback<IndicatorListResult>() {
+		service.execute(GetIndicators.forDatabase(currentDatabaseId), null, new AsyncCallback<IndicatorListResult>() {
 
 			@Override
 			public void onFailure(Throwable caught) {

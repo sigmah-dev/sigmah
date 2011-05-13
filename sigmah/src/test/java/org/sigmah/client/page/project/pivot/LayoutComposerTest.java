@@ -27,7 +27,7 @@ import org.sigmah.test.InjectionSupport;
 
 @RunWith(InjectionSupport.class)
 @OnDataSet("/dbunit/project-indicator.db.xml")
-public class LayoutTest extends CommandTestCase {
+public class LayoutComposerTest extends CommandTestCase {
 
 	
 	private LayoutComposer composer;

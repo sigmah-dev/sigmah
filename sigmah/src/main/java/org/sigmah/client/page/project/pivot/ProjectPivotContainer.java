@@ -1,14 +1,11 @@
 package org.sigmah.client.page.project.pivot;
 
-import javax.management.Notification;
-
 import org.sigmah.client.EventBus;
 import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.dispatch.monitor.MaskingAsyncMonitor;
 import org.sigmah.client.event.IndicatorEvent;
 import org.sigmah.client.event.ProjectEvent;
 import org.sigmah.client.i18n.I18N;
-import org.sigmah.client.page.common.dialog.FormDialogCallback;
 import org.sigmah.client.page.common.toolbar.ActionListener;
 import org.sigmah.client.page.common.toolbar.ActionToolBar;
 import org.sigmah.client.page.common.toolbar.UIActions;
@@ -20,15 +17,12 @@ import org.sigmah.client.page.table.PivotGridHeaderEvent.IconTarget;
 import org.sigmah.client.page.table.PivotGridPanel;
 import org.sigmah.client.page.table.PivotGridPanel.PivotTableRow;
 import org.sigmah.client.util.DateUtilGWTImpl;
-import org.sigmah.shared.command.BatchCommand;
+import org.sigmah.client.util.state.IStateManager;
 import org.sigmah.shared.command.GenerateElement;
 import org.sigmah.shared.command.GetIndicators;
-import org.sigmah.shared.command.GetProfiles;
 import org.sigmah.shared.command.GetProject;
-import org.sigmah.shared.command.UpdateMonthlyReports;
 import org.sigmah.shared.command.result.BatchResult;
 import org.sigmah.shared.command.result.IndicatorListResult;
-import org.sigmah.shared.domain.element.IndicatorsListElement;
 import org.sigmah.shared.dto.IndicatorDTO;
 import org.sigmah.shared.dto.ProjectDTO;
 import org.sigmah.shared.dto.SiteDTO;
@@ -45,10 +39,10 @@ import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FieldEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
-import com.extjs.gxt.ui.client.store.Record;
 import com.extjs.gxt.ui.client.store.StoreEvent;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.Info;
 import com.extjs.gxt.ui.client.widget.Label;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
@@ -72,6 +66,8 @@ public class ProjectPivotContainer extends ContentPanel implements ProjectSubPre
 	private final PivotGridPanel gridPanel;
 	private final Provider<IndicatorDialog> indicatorDialogProvider;
 
+	private final IStateManager stateManager;
+	
 	private int currentDatabaseId;
 	private HistorySelector historySelector;
 
@@ -79,14 +75,22 @@ public class ProjectPivotContainer extends ContentPanel implements ProjectSubPre
 
 	private ActionToolBar toolBar;
 	
-	private boolean axesSwapped = false;
+	/**
+	 * Keeps track of the user's last choice regarding axis swapping,
+	 * to be used when a new date is filtered
+	 */
+	private boolean lastAxesSwapped = false;
 	
-	private boolean historyNavigation = false;
+	private PivotLayout currentLayout;
+	private PivotTableElement currentPivot;
+	private CheckBox defaultViewCheckBox;
 	
 	@Inject
-	public ProjectPivotContainer(EventBus eventBus, Dispatcher dispatcher, PivotGridPanel gridPanel, Provider<IndicatorDialog> indicatorDialog) {
+	public ProjectPivotContainer(EventBus eventBus, Dispatcher dispatcher, PivotGridPanel gridPanel, 
+			Provider<IndicatorDialog> indicatorDialog, IStateManager stateManager) {
 		this.dispatcher = dispatcher;
 		this.eventBus = eventBus;
+		this.stateManager = stateManager;
 		this.gridPanel = gridPanel;
 		this.indicatorDialogProvider = indicatorDialog;
 		
@@ -145,13 +149,26 @@ public class ProjectPivotContainer extends ContentPanel implements ProjectSubPre
 		});
 
 		historySelector = new HistorySelector();
-		historySelector.addValueChangeHandler(new ValueChangeHandler<PivotLayout>() {
+		historySelector.addValueChangeHandler(new ValueChangeHandler<Integer>() {
 
 			@Override
-			public void onValueChange(ValueChangeEvent<PivotLayout> event) {
-				historyValueChange(event.getValue());
+			public void onValueChange(ValueChangeEvent<Integer> event) {
+				historyValueChange(historySelector.getLayouts().get(event.getValue()));
 			}
 		});
+		
+		defaultViewCheckBox = new CheckBox();
+		defaultViewCheckBox.addListener(Events.OnClick, new Listener<FieldEvent>() {
+
+			@Override
+			public void handleEvent(FieldEvent event) {
+				onDefaultCheck(event);
+			}
+			
+		});
+		
+		Label defaultViewLabel = new Label(I18N.CONSTANTS.defaultView());
+		defaultViewLabel.setLabelFor(defaultViewCheckBox.getId());
 
 		toolBar = new ActionToolBar();
 		toolBar.addStyleName(ProjectPivotResources.INSTANCE.style().toolbar());
@@ -169,8 +186,8 @@ public class ProjectPivotContainer extends ContentPanel implements ProjectSubPre
 		toolBar.add(new FillToolItem());
 		toolBar.add(historySelector.getPrevButton());
 		toolBar.add(historySelector.getNextButton());
-		toolBar.add(new Label(I18N.CONSTANTS.defaultView()));
-		toolBar.add(new CheckBox());
+		toolBar.add(defaultViewLabel);
+		toolBar.add(defaultViewCheckBox);
 		toolBar.setListener(this);
 		toolBar.setDirty(false);
 		setTopComponent(toolBar);
@@ -180,11 +197,11 @@ public class ProjectPivotContainer extends ContentPanel implements ProjectSubPre
 			@Override
 			public void handleEvent(IndicatorEvent be) {
 				if(be.getSource() != ProjectPivotContainer.this) {
-					historyValueChange(historySelector.getValue());
+					refresh();
 				}
 			}
 		});
-		
+			
 		eventBus.addListener(ProjectEvent.CHANGED, new Listener<ProjectEvent>() {
 
 			@Override
@@ -196,7 +213,6 @@ public class ProjectPivotContainer extends ContentPanel implements ProjectSubPre
 		});
 	}
 
-
 	@Override
 	public void loadProject(ProjectDTO project) {
 		this.currentDatabaseId = project.getId();
@@ -204,7 +220,33 @@ public class ProjectPivotContainer extends ContentPanel implements ProjectSubPre
 		siteFilter.setDatabaseId(currentDatabaseId);
 		dateFilter.fillMonths(project.getStartDate());
 		composer = new LayoutComposer(new DateUtilGWTImpl(), project);
+		
+		pivotToDefault();
+	}
+	
+	private void pivotToDefault() {
+		String defaultLayoutId = (String) stateManager.get(defaultPivotStateKey());
+		if(defaultLayoutId == null) {
+			pivotToImplictDefault();
+		} else {
+			PivotLayout.deserialize(dispatcher, currentDatabaseId, defaultLayoutId, new AsyncCallback<PivotLayout>() {
+				
+				@Override
+				public void onSuccess(PivotLayout result) {
+					historySelector.onNewLayout(result);
+					pivotTo(result);
+				}
+				
+				@Override
+				public void onFailure(Throwable caught) {
+					pivotToImplictDefault();
+				}
+			});
+		}
+	}
 
+
+	private void pivotToImplictDefault() {
 		dateFilter.setValue(dateFilter.getStore().getAt(0));
 		onDateSelected();
 	}
@@ -221,50 +263,98 @@ public class ProjectPivotContainer extends ContentPanel implements ProjectSubPre
 			public void onSuccess(ProjectDTO project) {
 				dateFilter.fillMonths(project.getStartDate());			
 			}
-			
 		});
 	}
-
-
-
+	
+	/**
+	 * Handle when the user selects an indicator from the filter
+	 */
 	private void onIndicatorSelected() {
-		siteFilter.clear();
-		dateFilter.clear();
 
-		IndicatorDTO indicator = indicatorFilter.getValue();
-		gridPanel.setHeading(I18N.MESSAGES.projectPivotByIndicator(indicator.getName()));
-		gridPanel.setShowSwapIcon(false);
-
-		PivotTableElement pivot = composer.fixIndicator(indicator.getId());
-		loadPivot(new PivotLayout(indicator), pivot);
+		final IndicatorDTO indicator = indicatorFilter.getValue();
+		IndicatorLayout layout = new IndicatorLayout(indicator);
+		historySelector.onNewLayout(layout);
+		pivotTo(layout);
 	}
 
+	
+	/**
+	 * Handle user selection of the site filter combo
+	 */
 	private void onSiteSelected() {
-		indicatorFilter.clear();
-		dateFilter.clear();
-		SiteDTO site = (SiteDTO)siteFilter.getValue();
 
-		PivotTableElement pivot = composer.fixSite(site.getId());
-		gridPanel.setHeading(I18N.MESSAGES.projectPivotBySite(site.getLocationName()));
-		gridPanel.setShowSwapIcon(false);
-		
-		loadPivot(new PivotLayout(site), pivot);
+		final SiteDTO site = (SiteDTO)siteFilter.getValue();
+		SiteLayout layout = new SiteLayout(site);
+		historySelector.onNewLayout(layout);
+		pivotTo(layout);
 	}
 
+
+	/**
+	 * Handle user selection of the date combo
+	 */
 	private void onDateSelected() {
+
+		final DateRangeModel dateRangeModel = dateFilter.getValue();
+		DateLayout dateLayout = new DateLayout(dateRangeModel, lastAxesSwapped);
+		historySelector.onNewLayout(dateLayout);
+
+		pivotTo(dateLayout);
+		
+	}
+	
+	private void pivotTo(IndicatorLayout layout) {
+		siteFilter.clear();
+		dateFilter.clear();
+
+		gridPanel.setHeading(I18N.MESSAGES.projectPivotByIndicator(layout.getIndicator().getName()));
+		gridPanel.setShowSwapIcon(false);
+
+		PivotTableElement pivot = composer.fixIndicator(layout.getIndicator().getId());
+		loadPivot(pivot);
+
+		onLayoutChanged(layout);
+	}
+
+	
+	private void pivotTo(SiteLayout layout) {
+		indicatorFilter.clear();
+		dateFilter.clear();
+		
+		PivotTableElement pivot = composer.fixSite(layout.getSite().getId());
+		gridPanel.setHeading(I18N.MESSAGES.projectPivotBySite(layout.getSite().getLocationName()));
+		gridPanel.setShowSwapIcon(false);
+		
+		loadPivot(pivot);
+		
+		onLayoutChanged(layout);
+	}
+
+	private void pivotTo(DateLayout layout) {
 		indicatorFilter.clear();
 		siteFilter.clear();
-
-		DateRangeModel dateRangeModel = dateFilter.getValue();
-		
-		gridPanel.setHeading(I18N.MESSAGES.projectPivotByMonth(dateRangeModel.getLabel()));
+		gridPanel.setHeading(I18N.MESSAGES.projectPivotByMonth(layout.getModel().getLabel()));
 		gridPanel.setShowSwapIcon(true);
 		
-		PivotTableElement pivot = composer.fixDateRange(dateRangeModel.getDateRange(), axesSwapped);
+		PivotTableElement pivot = composer.fixDateRange(layout.getDateRange(), layout.getAxesSwapped());
 
-		loadPivot(new PivotLayout(dateRangeModel), pivot);
+		loadPivot(pivot);
+		
+		lastAxesSwapped = layout.getAxesSwapped();
+		
+		onLayoutChanged(layout);
 	}
+	
 
+	private void onLayoutChanged(PivotLayout layout) {
+		currentLayout = layout;
+		if(layout.serialize().equals(stateManager.get(defaultPivotStateKey()))) {
+			defaultViewCheckBox.setValue(true);
+		} else {
+			defaultViewCheckBox.setValue(false);
+		}
+	}
+	
 	private void onHeaderClicked(PivotGridHeaderEvent event) {
 		Log.debug("Header clicked : " + event.getAxis());
 
@@ -276,10 +366,18 @@ public class ProjectPivotContainer extends ContentPanel implements ProjectSubPre
 				editIndicator( ((EntityCategory)axis.getCategory()).getId() );
 			}
 		} else if(event.getIconTarget() == IconTarget.SWAP) {
-			axesSwapped = !axesSwapped;
-			onDateSelected();
+			swapAxes();
 		}
 	}
+
+	private void swapAxes() {
+		if(currentLayout instanceof DateLayout) {
+			DateLayout newLayout = ((DateLayout) currentLayout).swapAxes();
+			historySelector.onNewLayout(newLayout);
+			pivotTo(newLayout);
+		}
+	}
+
 
 	private void onZoom(PivotGridHeaderEvent event) {
 		Axis axis = event.getAxis();
@@ -300,7 +398,7 @@ public class ProjectPivotContainer extends ContentPanel implements ProjectSubPre
 			onIndicatorSelected( );
 		} else if(axis.getDimension().getType() == DimensionType.Date) {
 			if(axis.getCategory() instanceof MonthCategory) {
-				DateRangeModel model = DateRangeModel.monthModel((MonthCategory)axis.getCategory());
+				DateRangeModel model = DateFilterCombo.monthModel((MonthCategory)axis.getCategory());
 				dateFilter.setValue(model);
 				onDateSelected();
 			}
@@ -309,7 +407,7 @@ public class ProjectPivotContainer extends ContentPanel implements ProjectSubPre
 	}
 	
 	private void editIndicator(final int id) {
-		dispatcher.execute(new GetIndicators(this.currentDatabaseId), new MaskingAsyncMonitor(this, I18N.CONSTANTS.loading()), new AsyncCallback<IndicatorListResult>() {
+		dispatcher.execute(GetIndicators.forDatabase(this.currentDatabaseId), new MaskingAsyncMonitor(this, I18N.CONSTANTS.loading()), new AsyncCallback<IndicatorListResult>() {
 
 			@Override
 			public void onFailure(Throwable caught) {
@@ -326,15 +424,12 @@ public class ProjectPivotContainer extends ContentPanel implements ProjectSubPre
 			}
 			
 		});
-		
 	}
 
 	protected void editIndicator(IndicatorDTO indicator) {
 		IndicatorDialog dialog = indicatorDialogProvider.get();
 		dialog.show(currentDatabaseId, indicator);
-	
 	}
-
 
 	private void onCellEdited(final PivotGridCellEvent event) {
 		toolBar.setDirty(true);
@@ -353,26 +448,54 @@ public class ProjectPivotContainer extends ContentPanel implements ProjectSubPre
 		}
 	}
 
-	private void historyValueChange(PivotLayout value) {
-		historyNavigation = true;
-		if(value.getFilter() instanceof SiteDTO) {
-			siteFilter.setValue(value.getFilter());
-			onSiteSelected();
-		} else if(value.getFilter() instanceof IndicatorDTO) {
-			indicatorFilter.setValue((IndicatorDTO) value.getFilter());
-			onIndicatorSelected();
-		} else if(value.getFilter() instanceof DateRangeModel) {
-			dateFilter.setValue((DateRangeModel) value.getFilter());
-			onDateSelected();
-		}
+	private void historyValueChange(PivotLayout layout) {
+		pivotTo(layout);
 	}
 
-	private void loadPivot(final PivotLayout layout, final PivotTableElement pivot) {
+
+	private void pivotTo(PivotLayout layout) {
+		if(layout instanceof SiteLayout) {
+			siteFilter.setValue(((SiteLayout) layout).getSite());
+			pivotTo((SiteLayout)layout);
+		
+		} else if(layout instanceof IndicatorLayout) {
+			indicatorFilter.setValue(((IndicatorLayout) layout).getIndicator());
+			pivotTo((IndicatorLayout)layout);
+		
+		} else if(layout instanceof DateLayout) {
+			dateFilter.setValue(((DateLayout) layout).getModel());
+			pivotTo((DateLayout)layout);
+		}
+	}
+	
+	private void refresh() {
+		loadPivot(currentPivot);
+	}
+
+
+	private void onDefaultCheck(FieldEvent event) {
+		if(defaultViewCheckBox.getValue()) {
+			stateManager.set(defaultPivotStateKey(), currentLayout.serialize());
+			Info.display(I18N.CONSTANTS.saved(), I18N.CONSTANTS.defaultViewChanged());
+		} else {
+			// don't allow unchecking: there is not really a logical action to take because
+			// there always needs to be a default view
+			defaultViewCheckBox.setValue(true);
+		}
+	}
+	
+	private String defaultPivotStateKey() {
+		return "ProjectPivotDefault" + currentDatabaseId;
+	}
+	
+	private void loadPivot(final PivotTableElement pivot) {
+		currentPivot = pivot;
 		dispatcher.execute(new GenerateElement<PivotContent>(pivot), new MaskingAsyncMonitor(this, I18N.CONSTANTS.loading()), 
 				new AsyncCallback<PivotContent>() {
 
 			@Override
 			public void onFailure(Throwable caught) {
+				gridPanel.clear();
 				MessageBox.alert("Pivot", "Pivot failed: " + caught.getMessage(), null);
 			}
 
@@ -380,12 +503,9 @@ public class ProjectPivotContainer extends ContentPanel implements ProjectSubPre
 			public void onSuccess(PivotContent content) {
 				pivot.setContent(content);
 				gridPanel.setValue(pivot);
-				historySelector.onNewLayout(layout);
-				historyNavigation = false;
 			}
 		});
 	}
-
 
 	@Override
 	public void onUIAction(String actionId) {
@@ -434,5 +554,4 @@ public class ProjectPivotContainer extends ContentPanel implements ProjectSubPre
 	public void viewDidAppear() {
 
 	}
-
 }

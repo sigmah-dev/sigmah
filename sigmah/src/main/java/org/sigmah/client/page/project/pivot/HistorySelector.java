@@ -16,13 +16,13 @@ import com.google.gwt.event.shared.HandlerManager;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.ui.HasValue;
 
-public class HistorySelector implements HasValue<PivotLayout> {
+public class HistorySelector implements HasValue<Integer> {
 
 	private Button prevButton;
 	private Button nextButton;
 	private HandlerManager handlerManager;
 	private List<PivotLayout> layouts = new ArrayList<PivotLayout>();
-	private PivotLayout value;
+	private int curIndex = 0;
 	
 	public HistorySelector() {
 		
@@ -57,38 +57,21 @@ public class HistorySelector implements HasValue<PivotLayout> {
 		this.layouts = layouts;
 	}
 	
-	private int getValueIndex() {
-		int curIndex = layouts.indexOf(value);
-		assert curIndex != -1 : "currentValue is not included in list of layouts!";
-		return curIndex;
-	}
-
 	private void prev() {
-		int curIndex = getValueIndex();
-		if(curIndex == 0) {
-			setValueByIndex(layouts.size()-1);
-		} else {
-			setValueByIndex(curIndex-1);
-		}
+		setValue(curIndex-1);
 		enableButtons();
 	}
 	
 	private void next() {
-		int curIndex = getValueIndex();
-		if(curIndex != layouts.size()-1) {
-			setValueByIndex(curIndex+1);
-		} else {
-			setValueByIndex(0);
-		}
+		setValue(curIndex+1);
 		enableButtons();
 	}
 	
 	private void enableButtons() {
-		if(value == null || layouts.isEmpty()) {
+		if(layouts.isEmpty()) {
 			nextButton.disable();
 			prevButton.disable();
 		} else {
-			int curIndex = getValueIndex();
 			prevButton.setEnabled(curIndex > 0);
 			nextButton.setEnabled(curIndex+1 != layouts.size());
 		}
@@ -112,7 +95,7 @@ public class HistorySelector implements HasValue<PivotLayout> {
 
 	@Override
 	public HandlerRegistration addValueChangeHandler(
-			ValueChangeHandler<PivotLayout> handler) {
+			ValueChangeHandler<Integer> handler) {
 		return handlerManager.addHandler(ValueChangeEvent.getType(), handler);
 	}
 
@@ -122,29 +105,33 @@ public class HistorySelector implements HasValue<PivotLayout> {
 	}
 
 	@Override
-	public PivotLayout getValue() {
-		return value;
+	public Integer getValue() {
+		return curIndex;
+	}
+	
+	public PivotLayout getCurrentLayout() {
+		return layouts.isEmpty() ? null : layouts.get(curIndex);
 	}
 
 	@Override
-	public void setValue(PivotLayout value) {
+	public void setValue(Integer value) {
 		setValue(value, true);
 	}
 
 	@Override
-	public void setValue(PivotLayout value, boolean fireEvents) {
-		ValueChangeEvent.fireIfNotEqual(this, this.value, value);
-		this.value = value;
+	public void setValue(Integer value, boolean fireEvents) {
+		ValueChangeEvent.fireIfNotEqual(this, this.curIndex, value);
+		this.curIndex = value;
 		enableButtons();
-	}
-
-	public void setValueByIndex(int i) {
-		setValue(layouts.get(i));
 	}
 	
 	public void onNewLayout(PivotLayout layout) {
+		while(layouts.size() > curIndex+1) {
+			layouts.remove(curIndex+1);
+		}
 		layouts.add(layout);
-		value = layout;
+		curIndex = layouts.size()-1;
 		enableButtons();
 	}
+
 }

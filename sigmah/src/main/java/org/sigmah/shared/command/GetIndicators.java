@@ -13,14 +13,12 @@ import org.sigmah.shared.dto.IndicatorDTO;
  * @author 
  */
 public class GetIndicators implements Command<IndicatorListResult> {
-    private int userDatabaseId;
+    
+	private int userDatabaseId;
     
     public GetIndicators() {
     }
 
-    public GetIndicators(int userDatabaseId) {
-        this.userDatabaseId = userDatabaseId;
-    }
 
     public void setUserDatabaseId(int userDatabaseId) {
         this.userDatabaseId = userDatabaseId;
@@ -29,4 +27,13 @@ public class GetIndicators implements Command<IndicatorListResult> {
     public int getUserDatabaseId() {
         return userDatabaseId;
     }
+
+
+	public static GetIndicators forDatabase(int userDatabaseId) {
+		GetIndicators command = new GetIndicators();
+		command.setUserDatabaseId(userDatabaseId);
+		
+		return command;
+	}
+	
 }
