@@ -77,6 +77,7 @@ public class LayoutConstraint implements Serializable {
 	public void resetImport(LayoutGroup parentLayoutGroup) {
 		this.id = null;
 		this.parentLayoutGroup = parentLayoutGroup;
+
 		if (this.element != null) {
 			this.element.resetImport();
 		}

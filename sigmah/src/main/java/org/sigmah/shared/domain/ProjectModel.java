@@ -1,5 +1,6 @@
 package org.sigmah.shared.domain;
 
+import com.allen_sauer.gwt.log.client.Log;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -157,34 +158,32 @@ public class ProjectModel extends BaseModelData implements Serializable {
         }
         return null;
     }
-    
-	/**
-	 * Reset the identifiers of the object
-	 */
-	public void resetImport(HashMap<Object, Object> modelesReset, HashSet<Object> modelesImport) {
-		this.id = null;
-		if (this.rootPhase != null) {
-			this.rootPhase.resetImport(this);
-		}
 
-		if (phases != null) {
-			for (PhaseModel phase : this.phases) {
-				phase.resetImport(null);
-			}
-		}
+    /**
+     * Reset the identifiers of the object
+     */
+    public void resetImport(HashMap<Object, Object> modelesReset, HashSet<Object> modelesImport) {
+        this.id = null;
+        if (this.rootPhase != null) {
+            this.rootPhase.resetImport(this);
+        }
 
-		if (this.projectBanner != null) {
-			this.projectBanner.resetImport(this);
-		}
+        if (phases != null) {
+            for (PhaseModel phase : this.phases) {
+                phase.resetImport(null);
+            }
+        }
 
-		if (this.projectDetails != null) {
-			this.projectDetails.resetImport(this);
-		}
+        if (this.projectBanner != null) {
+            this.projectBanner.resetImport(this);
+        }
 
-		if (this.logFrameModel != null) {
-			this.logFrameModel.resetImport();
-		}
-	}
+        if (this.projectDetails != null) {
+            this.projectDetails.resetImport(this);
+        }
 
-	
+        if (this.logFrameModel != null) {
+            this.logFrameModel.resetImport();
+        }
+    }
 }
