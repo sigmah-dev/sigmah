@@ -116,7 +116,7 @@ public class SigmahAuthDictionaryServlet extends HttpServlet {
             }
 
             final Properties properties = injector.getInstance(Properties.class);
-            parameters.put(SigmahAuthProvider.VERSION_NUMBER, properties.getProperty("version.number"));
+            parameters.put(SigmahAuthProvider.VERSION_NUMBER, '"' + properties.getProperty("version.number") + '"');
 
             final Charset utf8 = Charset.forName("UTF-8");
             resp.setCharacterEncoding("UTF-8");
