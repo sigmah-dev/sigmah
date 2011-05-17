@@ -18,9 +18,7 @@ import org.sigmah.client.page.project.category.CategoryIconProvider;
 import org.sigmah.client.ui.ToggleAnchor;
 import org.sigmah.client.util.Notification;
 import org.sigmah.shared.command.CreateEntity;
-import org.sigmah.shared.command.DeleteCategories;
 import org.sigmah.shared.command.result.CreateResult;
-import org.sigmah.shared.command.result.VoidResult;
 import org.sigmah.shared.domain.category.CategoryIcon;
 import org.sigmah.shared.dto.category.CategoryElementDTO;
 import org.sigmah.shared.dto.category.CategoryTypeDTO;
@@ -65,6 +63,9 @@ public class AdminCategoryView extends View {
 	private final Dispatcher dispatcher;
 	private CategoryTypeDTO currentCategoryType;
 	private Button addCategoryElementButton;
+	private Button deleteCategoryElementButton;
+	private Button deleteCategoryTypeButton;
+
 
 	public AdminCategoryView(Dispatcher dispatcher){		
 		
@@ -302,15 +303,7 @@ public class AdminCategoryView extends View {
 		});
 		toolbar.add(addCategoryTypeButton);
 		
-		Button deleteCategoryTypeButton = new Button(I18N.CONSTANTS.delete(), IconImageBundle.ICONS.delete());
-		deleteCategoryTypeButton.addListener(Events.OnClick, new Listener<ButtonEvent>(){
-
-			@Override
-			public void handleEvent(ButtonEvent be) {
-				onDeleteCategoryConfirmed(categoriesGrid.getSelectionModel().getSelectedItems());                
-			}
-			
-		});
+		deleteCategoryTypeButton = new Button(I18N.CONSTANTS.delete(), IconImageBundle.ICONS.delete());				
 		toolbar.add(deleteCategoryTypeButton);
 		
 		Button buttonImport = new Button(I18N.CONSTANTS.importItem());
@@ -399,82 +392,13 @@ public class AdminCategoryView extends View {
 		});
 		toolbar.add(addCategoryElementButton);
 		
-		Button deleteCategoryElementButton = new Button(I18N.CONSTANTS.delete(), IconImageBundle.ICONS.delete());
-		deleteCategoryElementButton.addListener(Events.OnClick, new Listener<ButtonEvent>(){
-
-			@Override
-			public void handleEvent(ButtonEvent be) {
-				onDeleteCategoryElementConfirmed(categoryElementsGrid.getSelectionModel().getSelectedItems());	            
-			}
-			
-		});
+		deleteCategoryElementButton = new Button(I18N.CONSTANTS.delete(), IconImageBundle.ICONS.delete());
+				
 		toolbar.add(deleteCategoryElementButton);
 		return toolbar;
 	}
 	
-	private void onDeleteCategoryConfirmed(final List<CategoryTypeDTO> selection) {
-		
-		List<Integer> ids = new ArrayList<Integer>();
-		String names = "";
-		for(CategoryTypeDTO s : selection){
-			ids.add(s.getId());
-			names = s.getLabel() + ", " + names;
-		}
-		
-		final String toDelete = names;
-		final DeleteCategories deactivate = new DeleteCategories(selection, null);
-        dispatcher.execute(deactivate, null, new AsyncCallback<VoidResult>() {
-
-            @Override
-            public void onFailure(Throwable caught) {
-                MessageBox.alert(I18N.CONSTANTS.error(), I18N.MESSAGES.entityDeleteEventError(toDelete), null);
-            }
-
-            @Override
-            public void onSuccess(VoidResult result) {
-            	for(CategoryTypeDTO model : selection){
-            		categoriesStore.remove(model);
-            	}   
-            	categoriesStore.commitChanges();
-            	Notification.show(I18N.CONSTANTS.adminCategoryTypeCreationBox(), I18N.MESSAGES.adminStandardUpdateSuccessF(I18N.CONSTANTS.adminCategoryTypeStandard()
-						+ " '" + currentCategoryType.getLabel() +"'"));	
-            }
-        });
-	}
 	
-	private void onDeleteCategoryElementConfirmed(final List<CategoryElementDTO> selection) {
-		
-		List<Integer> ids = new ArrayList<Integer>();
-		String names = "";
-		for(CategoryElementDTO s : selection){
-			ids.add(s.getId());
-			names = s.getLabel() + ", " + names;
-		}
-		
-		final String toDelete = names;
-		final DeleteCategories deactivate = new DeleteCategories(null, selection);
-        dispatcher.execute(deactivate, null, new AsyncCallback<VoidResult>() {
-
-            @Override
-            public void onFailure(Throwable caught) {
-                MessageBox.alert(I18N.CONSTANTS.error(), I18N.MESSAGES.entityDeleteEventError(toDelete), null);
-            }
-
-            @Override
-            public void onSuccess(VoidResult result) {
-            	List<CategoryElementDTO> elements = currentCategoryType.getCategoryElementsDTO();
-            	for(CategoryElementDTO model : selection){
-            		categoryElementsStore.remove(model);
-            		elements.remove((CategoryElementDTO) model);
-            	}   
-            	categoryElementsStore.commitChanges();
-            	
-				currentCategoryType.setCategoryElementsDTO(elements);
-				categoriesStore.update(currentCategoryType);
-				categoriesStore.commitChanges();
-            }
-        });
-	}
 	
 	@Override
 	public ListStore<CategoryTypeDTO> getCategoriesStore() {
@@ -490,5 +414,45 @@ public class AdminCategoryView extends View {
 	public MaskingAsyncMonitor getReportModelsLoadingMonitor() {
 		return new MaskingAsyncMonitor(categoriesGrid, I18N.CONSTANTS.loading());
 	}
+
+	@Override
+	public Button getDeleteCategoryElementButton() {
+		
+		return this.deleteCategoryElementButton;
+	}
+
+	@Override
+	public Grid<CategoryElementDTO> getCategoryElementsGrid() {
+		
+		return this.categoryElementsGrid;
+	}
+
+	@Override
+	public Grid<CategoryTypeDTO> getCategoriesGrid() {
+		
+		return this.categoriesGrid;
+	}
+
+	@Override
+	public Button getDeleteCategoryTypeButton() {
+		
+		return this.deleteCategoryTypeButton;
+	}
+
+	@Override
+	public CategoryTypeDTO getCurrentCategoryType() {
+	
+		return this.currentCategoryType;
+	}
+
+	@Override
+	public ListStore<CategoryElementDTO> getCategoryElementsStore() {
+	
+		return this.categoryElementsStore;
+	}
+	
+	
+	
+
 	
 }

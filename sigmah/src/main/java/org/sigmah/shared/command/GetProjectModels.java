@@ -27,8 +27,24 @@ public class GetProjectModels implements Command<ProjectModelListResult> {
     private ProjectModelStatus projectModelStatus;
     
     private Boolean allProjectModelStatus = false;
+    
+    private Boolean fullVersion=false;
 
-    public GetProjectModels() {
+    /**
+	 * @return the fullVersion
+	 */
+	public Boolean getFullVersion() {
+		return fullVersion;
+	}
+
+	/**
+	 * @param fullVersion the fullVersion to set
+	 */
+	public void setFullVersion(Boolean fullVersion) {
+		this.fullVersion = fullVersion;
+	}
+
+	public GetProjectModels() {
         // serialization.
     }
     

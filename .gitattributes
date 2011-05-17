@@ -266,6 +266,7 @@ sigmah/src/main/java/org/sigmah/client/page/admin/AdminUtil.java -text
 sigmah/src/main/java/org/sigmah/client/page/admin/AdminView.java -text
 sigmah/src/main/java/org/sigmah/client/page/admin/category/AdminCategoryPresenter.java -text
 sigmah/src/main/java/org/sigmah/client/page/admin/category/AdminCategoryView.java -text
+sigmah/src/main/java/org/sigmah/client/page/admin/category/DeletionError.java -text
 sigmah/src/main/java/org/sigmah/client/page/admin/model/AdminModelSubPresenter.java -text
 sigmah/src/main/java/org/sigmah/client/page/admin/model/common/AdminModelActionListener.java -text
 sigmah/src/main/java/org/sigmah/client/page/admin/model/common/AdminOneModelPresenter.java -text

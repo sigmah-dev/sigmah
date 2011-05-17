@@ -17,6 +17,7 @@ import org.sigmah.shared.command.GetProjectModels;
 import org.sigmah.shared.command.handler.CommandHandler;
 import org.sigmah.shared.command.result.CommandResult;
 import org.sigmah.shared.command.result.ProjectModelListResult;
+import org.sigmah.shared.dto.ProjectModelDTO;
 import org.sigmah.shared.dto.ProjectModelDTOLight;
 import org.sigmah.shared.exception.CommandException;
 
@@ -58,7 +59,7 @@ public class GetProjectModelsHandler implements CommandHandler<GetProjectModels>
         final List<ProjectModel> models = (List<ProjectModel>) query.getResultList();
 
         // Mapping (entity -> dto).
-        if (models != null) {
+        if (models != null) {              	    	      	
             for (final ProjectModel model : models) {
             	      	
 				final ProjectModelType type = model.getVisibility(user.getOrganization());
@@ -83,6 +84,7 @@ public class GetProjectModelsHandler implements CommandHandler<GetProjectModels>
 						}
 					}
 				}
+												
 			}
 		}
         
@@ -91,6 +93,19 @@ public class GetProjectModelsHandler implements CommandHandler<GetProjectModels>
             log.debug("[execute] Found " + projectModelDTOList.size() + " project models.");
         }
 
+        
+        if(models!=null && cmd.getFullVersion()==true)
+        {
+        	  final ArrayList<ProjectModelDTO> projectFullModelDTOList = new ArrayList<ProjectModelDTO>();
+        	  for(final ProjectModel model : models)
+        	  {
+        	  projectFullModelDTOList.add(mapper.map(model, ProjectModelDTO.class));
+        	  }
+        	  
+        	  return new ProjectModelListResult(projectModelDTOList,projectFullModelDTOList);
+        	  
+        }
+        
         return new ProjectModelListResult(projectModelDTOList);
     }
 
