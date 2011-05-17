@@ -140,7 +140,7 @@ class IndicatorForm extends AbstractDesignForm {
       
      
         TextArea descField = new TextArea();
-        descField.setFieldLabel(I18N.CONSTANTS.description());
+        descField.setFieldLabel(I18N.CONSTANTS.indicatorComments());
         binding.addFieldBinding(new FieldBinding(descField, "description"));
         this.add(descField);
         
