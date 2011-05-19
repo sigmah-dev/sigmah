@@ -96,14 +96,15 @@ public class DashboardPresenter implements Page {
 
                 if (result != null) {
                     view.getOrgUnitsStore().removeAll();
-                    view.getOrgUnitsPanel().setHeading(I18N.CONSTANTS.orgunitTree()+" - "+
-                            result.getName() + " (" + result.getFullName() + ")" );
+                    view.getOrgUnitsPanel()
+                            .setHeading(
+                                    I18N.CONSTANTS.orgunitTree() + " - " + result.getName() + " ("
+                                            + result.getFullName() + ")");
 
-                    for (final OrgUnitDTOLight child : result.getChildrenDTO()) {
-                        view.getOrgUnitsStore().add(child, true);
-                    }
-
+                    view.getOrgUnitsStore().add(result, true);
                     view.getProjectsListPanel().refresh(true, result.getId());
+
+                    view.getOrgUnitsTree().setExpanded(result, true, false);
                 }
             }
         });
@@ -144,16 +145,14 @@ public class DashboardPresenter implements Page {
 
                     @Override
                     public void onSuccess(RemindersResultList result) {
-                    	
-                    	List<ReminderDTO> reminderListToLoad = new ArrayList<ReminderDTO>();                  	
-                    	//Only show the undeleted reminders
-                    	for(ReminderDTO r:result.getList())
-                    	{
-                    		if(r.isDeleted()==false)
-                    		{
-                    			reminderListToLoad.add(r);
-                    		}
-                    	}
+
+                        List<ReminderDTO> reminderListToLoad = new ArrayList<ReminderDTO>();
+                        // Only show the undeleted reminders
+                        for (ReminderDTO r : result.getList()) {
+                            if (r.isDeleted() == false) {
+                                reminderListToLoad.add(r);
+                            }
+                        }
                         view.getReminderStore().removeAll();
                         view.getReminderStore().add(reminderListToLoad);
                     }
@@ -168,16 +167,14 @@ public class DashboardPresenter implements Page {
 
             @Override
             public void onSuccess(MonitoredPointsResultList result) {
-            	
-            	List<MonitoredPointDTO> pointListToLoad = new ArrayList<MonitoredPointDTO>();
-            	//Only show the undeleted monitored points
-            	for(MonitoredPointDTO p:result.getList())
-            	{ 
-            	   if(p.isDeleted()==false)
-            	   {
-            		pointListToLoad.add(p);
-            	   }
-            	}
+
+                List<MonitoredPointDTO> pointListToLoad = new ArrayList<MonitoredPointDTO>();
+                // Only show the undeleted monitored points
+                for (MonitoredPointDTO p : result.getList()) {
+                    if (p.isDeleted() == false) {
+                        pointListToLoad.add(p);
+                    }
+                }
                 view.getMonitoredPointStore().removeAll();
                 view.getMonitoredPointStore().add(pointListToLoad);
             }
