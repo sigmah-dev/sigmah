@@ -69,6 +69,8 @@ import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.ui.Hyperlink;
 import com.google.gwt.user.client.ui.Image;
 
+
+
 /**
  * 
  * @author Denis Colliot (dcolliot@ideia.fr)
@@ -110,6 +112,8 @@ public class ProjectDashboardView extends ProjectDashboardPresenter.View {
     private Image editIcon;
     
     private final ProjectPresenter projectPresenter;
+    
+    private  ContentPanel requiredElementContentPanel;
 
 
     public ProjectDashboardView(Authentication authentication, Dispatcher dispatcher,ProjectPresenter projectPresenter) {
@@ -124,25 +128,14 @@ public class ProjectDashboardView extends ProjectDashboardPresenter.View {
 
         /* Center panel */
         ListStore<FlexibleElementDTO> storeRequiredElements = new ListStore<FlexibleElementDTO>();
-        storeRequiredElements.setStoreSorter(new StoreSorter<FlexibleElementDTO>() {
-            @Override
-            public int compare(Store<FlexibleElementDTO> store, FlexibleElementDTO m1, FlexibleElementDTO m2,
-                    String property) {
-                if ("type".equals(property)) {
-                    return FlexibleElementType.getFlexibleElementTypeName(m1).compareTo(
-                            FlexibleElementType.getFlexibleElementTypeName(m2));
-                } else {
-                    return super.compare(store, m1, m2, property);
-                }
-            }
-        });
-        gridRequiredElements = new Grid<FlexibleElementDTO>(storeRequiredElements, getColumModel());
+      
+        gridRequiredElements = new Grid<FlexibleElementDTO>(storeRequiredElements, getRequiredElementsColumModel());
         gridRequiredElements.setAutoExpandColumn("label");
         gridRequiredElements.getView().setForceFit(true);
 
         // Phases tab panel
         tabPanelPhases = new TabPanel();
-        tabPanelPhases.setPlain(true);
+        tabPanelPhases.setPlain(true);      
 
         // Toolbar
         toolBar = new ToolBar();
@@ -173,11 +166,10 @@ public class ProjectDashboardView extends ProjectDashboardPresenter.View {
         final BorderLayoutData wd = new BorderLayoutData(LayoutRegion.WEST, 250);
         wd.setMargins(new Margins(0, 4, 4, 4));
 
-        final ContentPanel cp = new ContentPanel(new FitLayout());
-        cp.setHeading(I18N.CONSTANTS.projectRequiredElements());
+        requiredElementContentPanel = new ContentPanel(new FitLayout());     
 
-        cp.add(gridRequiredElements);
-        panelProjectModel.add(cp, wd);
+        requiredElementContentPanel.add(gridRequiredElements);
+        panelProjectModel.add(requiredElementContentPanel, wd);
 
         final BorderLayoutData cd = new BorderLayoutData(LayoutRegion.CENTER);
         cd.setMargins(new Margins(0, 4, 4, 0));
@@ -241,12 +233,13 @@ public class ProjectDashboardView extends ProjectDashboardPresenter.View {
      * 
      * @return the {@link ColumnModel} for the required elements grid.
      */
-    private ColumnModel getColumModel() {
+    private ColumnModel getRequiredElementsColumModel() {
 
         // Element's label.
         final ColumnConfig labelColumn = new ColumnConfig("label", I18N.CONSTANTS.projectRequiredElementsGridLabel(),
                 150);
 
+    
         // Element's completion.
         final CheckColumnConfig filledInColumn = new CheckColumnConfig("filledIn",
                 I18N.CONSTANTS.projectRequiredElementsGridChecked(), 40);
@@ -274,7 +267,7 @@ public class ProjectDashboardView extends ProjectDashboardPresenter.View {
                 return FlexibleElementType.getFlexibleElementTypeName(model);
             }
         });
-
+               
         return new ColumnModel(Arrays.asList(filledInColumn, labelColumn, typeColumn));
     }
 
@@ -1190,6 +1183,12 @@ public class ProjectDashboardView extends ProjectDashboardPresenter.View {
 
         return new ColumnConfig[] { completedColumn, iconColumn,labelColumn, expectedDateColumn, completionDateColumn };
     }
+
+	@Override
+	public ContentPanel getRequiredElementContentPanel() {
+		
+		return requiredElementContentPanel;
+	}
     
     
 

@@ -76,6 +76,7 @@ import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MenuEvent;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.store.Record.RecordUpdate;
 import com.extjs.gxt.ui.client.store.Store;
 import com.extjs.gxt.ui.client.store.StoreEvent;
@@ -100,11 +101,13 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.Image;
+import java.util.*;
 
 /**
  * 
  * @author Denis Colliot (dcolliot@ideia.fr)
  * @author Raphaël Calabro (rcalabro@ideia.fr)
+ * @author HUZHE (zhe.hu32@gmail.com)
  */
 public class ProjectDashboardPresenter implements SubPresenter {
 
@@ -159,6 +162,8 @@ public class ProjectDashboardPresenter implements SubPresenter {
         public abstract com.extjs.gxt.ui.client.widget.grid.Grid<ReminderDTO> getRemindersGrid();
         
         public abstract Image getEditIcon();
+        
+        public abstract ContentPanel getRequiredElementContentPanel();
     }
 
     /**
@@ -191,6 +196,7 @@ public class ProjectDashboardPresenter implements SubPresenter {
      * The counter before the main panel is unmasked.
      */
     private int maskCount;
+     
 
     public ProjectDashboardPresenter(Dispatcher dispatcher, EventBus eventBus, Authentication authentication,
             ProjectPresenter projectPresenter, UserLocalCache cache) {
@@ -210,17 +216,20 @@ public class ProjectDashboardPresenter implements SubPresenter {
             view = new ProjectDashboardView(authentication,this.dispatcher,projectPresenter);
             addLinkedProjectsListeners();
             addMonitoredPointsListeners();
-            addRemindersListeners();
+            addRemindersListeners();         
         }
 
         valueChanges.clear();
         view.getButtonSavePhase().disable();
         loadProjectDashboard(projectPresenter.getCurrentProjectDTO());
 
+        
         return view;
     }
 
-    @Override
+   
+
+	@Override
     public void discardView() {
         this.view = null;
     }
@@ -301,6 +310,7 @@ public class ProjectDashboardPresenter implements SubPresenter {
                                                                                // bar
                 }
             });
+                       
 
             // If the phase is the active one.
             if (isActivePhase(phaseDTO)) {
@@ -413,9 +423,8 @@ public class ProjectDashboardPresenter implements SubPresenter {
                                             if (isActivePhase(projectPresenter.getCurrentDisplayedPhaseDTO())) {
                                                 activePhaseRequiredElements.clearState();
                                             }
-                                        }
-
-                                        loadPhaseOnTab(toDisplayPhase);
+                                        }                                       
+                                       loadPhaseOnTab(toDisplayPhase);
                                     }
                                 });
                     } else {
@@ -514,6 +523,7 @@ public class ProjectDashboardPresenter implements SubPresenter {
                     + phaseDTO.getPhaseModelDTO().getId() + " and definition #"
                     + phaseDTO.getPhaseModelDTO().getDefinitionDTO().getId() + ".");
         }*/
+    	
 
         // If the element are read only.
         final boolean readOnly = isEndedPhase(phaseDTO)
@@ -546,13 +556,17 @@ public class ProjectDashboardPresenter implements SubPresenter {
         view.getPanelSelectedPhase().removeAll();
         view.getGridRequiredElements().getStore().removeAll();
         view.getTabPanelPhases().getSelectedItem().add(view.getPanelProjectModel());
-
+        
+        //Store required elements
+        final List<FlexibleElementDTO> requiredElemetsList = new ArrayList<FlexibleElementDTO>();
+   
         // --
         // -- PHASE LAYOUT
         // --
 
         final Grid layoutGrid = (Grid) phaseDTO.getPhaseModelDTO().getWidget();
         view.getPanelSelectedPhase().add(layoutGrid);
+          
 
         // For each layout group.
         for (final LayoutGroupDTO groupDTO : phaseDTO.getPhaseModelDTO().getLayoutDTO().getLayoutGroupsDTO()) {
@@ -562,7 +576,7 @@ public class ProjectDashboardPresenter implements SubPresenter {
             layoutGrid.setWidget(groupDTO.getRow(), groupDTO.getColumn(), formPanel);
 
             // For each constraint in the current layout group.
-            for (LayoutConstraintDTO constraintDTO : groupDTO.getLayoutConstraintsDTO()) {
+            for (final LayoutConstraintDTO constraintDTO : groupDTO.getLayoutConstraintsDTO()) {
 
                 // Gets the element managed by this constraint.
                 final FlexibleElementDTO elementDTO = constraintDTO.getFlexibleElementDTO();
@@ -622,6 +636,7 @@ public class ProjectDashboardPresenter implements SubPresenter {
 
                         if (elementComponent != null) {
                             formPanel.add(elementComponent, formData);
+                            
                         }
 
                         formPanel.layout();
@@ -638,9 +653,24 @@ public class ProjectDashboardPresenter implements SubPresenter {
 
                             // Adds a specific handler.
                             elementDTO.addRequiredValueHandler(new RequiredValueHandlerImpl(elementDTO));
-
-                            // Adds the element to the 'required panel'.
-                            view.getGridRequiredElements().getStore().add(elementDTO);
+                                         
+                            //Set the groupDTO into the element
+                            elementDTO.setGroup(groupDTO);
+                            
+                            elementDTO.setConstraint(constraintDTO);
+                                                                              
+                            // Adds the element to the tmp list for sorting                         
+                            requiredElemetsList.add(elementDTO);                                             
+                            
+                            //Clear the store
+                            view.getGridRequiredElements().getStore().removeAll();
+                            
+                            //Sorting and add the list to the view
+                            view.getGridRequiredElements().getStore().add(sortRequiredElements(requiredElemetsList));                                                   
+                            
+                            //Refresh header
+                            refreshRequiredElementContentPanelHeader();
+                                                      
 
                             // Map the required element for the current
                             // displayed phase.
@@ -657,12 +687,18 @@ public class ProjectDashboardPresenter implements SubPresenter {
                     }
                 });
             }
+                                   
+            
         }
-
+        
+     
+                     
         // View layouts update.
         // FIXME: This should be done by Ext, not be the developer!
         view.getTabPanelPhases().addStyleName("x-border-panel");
         view.layout();
+        
+       
     }
 
     /**
@@ -715,6 +751,9 @@ public class ProjectDashboardPresenter implements SubPresenter {
             if (event.isImmediate()) {
                 view.getButtonSavePhase().fireEvent(Events.OnClick);
             }
+            
+            //Refresh the panel's header
+            refreshRequiredElementContentPanelHeader();
         }
     }
 
@@ -2086,4 +2125,127 @@ public class ProjectDashboardPresenter implements SubPresenter {
             }
         });
     }
+          
+    
+  /**
+ * This method is to update the herder of requiredElementContentPanel's header text.
+ * 
+ * It computes the numbers of all filled elements and then updates.
+ * 
+ * @author HUZHE (zhe.hu32@gmail.com)
+ */
+
+private void refreshRequiredElementContentPanelHeader()
+  {
+	  //The local sotre of all elements
+	  ListStore<FlexibleElementDTO> listSotre = view.getGridRequiredElements().getStore();
+	  
+	  //The number of all element in the store
+	  int requiredElementsCount=listSotre.getCount();
+	  	  
+	  //The number of all element that are filled in the store
+	  int filledRequiredElements=0;
+	  
+	  for(FlexibleElementDTO elementDTO:listSotre.getModels())
+	  {
+	    if(elementDTO.isFilledIn())
+	    	filledRequiredElements++;
+	   	    
+	  }
+	  
+	  view.getRequiredElementContentPanel().setHeading(I18N.CONSTANTS.projectRequiredElements()+" ("+filledRequiredElements+"/"+requiredElementsCount+")");
+	  
+	  
+  }
+ 
+/**
+ * Method to sort the list of all required elements list
+ * 
+ * @param list  
+ *         List to be sorted
+ * @return List 
+ *         List sorted
+ * 
+ * @author HUZHE (zhe.hu32@gmail.com)
+ */
+private List<FlexibleElementDTO> sortRequiredElements(List<FlexibleElementDTO> list)
+{	   
+   if(list.size()<2)
+	{
+		return list;
+	}
+	   
+	Collections.sort(list, new Comparator<FlexibleElementDTO>(){
+
+		@Override
+		public int compare(FlexibleElementDTO arg0, FlexibleElementDTO arg1) {
+			
+			return comparePosition(arg0,arg1);
+		}
+		
+	});
+	
+  return list;
+  
+}
+
+/**
+ * Method to compare the exact position of the two flexible elements.
+ * 
+ * @param o1
+ * @param o2
+ * @return
+ * 
+ * @author HUZHE (zhe.hu32@gmail.com)
+ */
+private int comparePosition(FlexibleElementDTO o1,FlexibleElementDTO o2)
+{		
+	 int groupRow1 = o1.getGroup().getRow();
+	 int groupColumn1 = o1.getGroup().getColumn();
+	 int groupRow2 = o2.getGroup().getRow();
+	 int groupColumn2 = o2.getGroup().getColumn();
+	 
+	//First,compare the row of group of the element
+	 if(groupRow1>groupRow2)
+	 {
+		 return 1;
+	 }
+	 else if(groupRow1<groupRow2)
+	 {
+		 return -1;
+	 }
+	 else {//The row of group is the same,compare the column of group
+		 
+		 if(groupColumn1>groupColumn2)
+		 {
+			 return 1;
+		 }
+		 else if(groupColumn1<groupColumn2)
+		 {
+			 return -1;
+		 }
+	 }
+	 
+	 
+     //If goes this far,m2 and m2 in the same group, compare the their positions in the group 			 
+	 int elementPosition1 = o1.getConstraint().getSortOrder();
+	 int elementPosition2 = o2.getConstraint().getSortOrder();
+	 
+	 if(elementPosition1>elementPosition2)
+	 {
+		 return 1;
+	 }
+	 else if(elementPosition1<elementPosition2)
+	 {
+		 return -1;
+	 }
+	 else
+	 {
+		 return 0;
+	 }  
+	
+}
+
+
+    
 }
