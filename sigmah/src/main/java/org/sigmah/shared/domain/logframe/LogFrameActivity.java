@@ -1,22 +1,8 @@
 package org.sigmah.shared.domain.logframe;
 
-import java.io.Serializable;
+import javax.persistence.*;
 import java.util.Date;
 import java.util.Map;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.persistence.Transient;
-
-import org.sigmah.shared.domain.Deleteable;
 
 /**
  * Represents the activity of an expected result of a log frame.
@@ -25,22 +11,14 @@ import org.sigmah.shared.domain.Deleteable;
  * 
  */
 @Entity
-@Table(name = "log_frame_activity")
-@org.hibernate.annotations.FilterDefs({ @org.hibernate.annotations.FilterDef(name = "hideDeleted") })
-@org.hibernate.annotations.Filters({ @org.hibernate.annotations.Filter(name = "hideDeleted", condition = "DateDeleted is null") })
-public class LogFrameActivity implements Serializable, Deleteable {
+public class LogFrameActivity extends LogFrameElement {
 
     private static final long serialVersionUID = -2247266774443718302L;
 
-    private Integer id;
-    private Integer code;
     private ExpectedResult parentExpectedResult;
-    private LogFrameGroup group;
-    private Date dateDeleted;
     private String title;
     private Date startDate;
     private Date endDate;
-    private Integer position;
     private Integer advancement;
 
     /**
@@ -64,26 +42,6 @@ public class LogFrameActivity implements Serializable, Deleteable {
         return copy;
     }
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id_activity")
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    @Column(name = "code", nullable = false)
-    public Integer getCode() {
-        return code;
-    }
-
-    public void setCode(Integer code) {
-        this.code = code;
-    }
-
     @ManyToOne(optional = false)
     @JoinColumn(name = "id_result", nullable = false)
     public ExpectedResult getParentExpectedResult() {
@@ -94,38 +52,7 @@ public class LogFrameActivity implements Serializable, Deleteable {
         this.parentExpectedResult = parentExpectedResult;
     }
 
-    @ManyToOne(optional = true)
-    @JoinColumn(name = "id_group", nullable = true)
-    public LogFrameGroup getGroup() {
-        return group;
-    }
-
-    public void setGroup(LogFrameGroup group) {
-        this.group = group;
-    }
-
-    @Column
-    @Temporal(value = TemporalType.TIMESTAMP)
-    public Date getDateDeleted() {
-        return this.dateDeleted;
-    }
-
-    public void setDateDeleted(Date date) {
-        this.dateDeleted = date;
-    }
-
-    @Override
-    public void delete() {
-        setDateDeleted(new Date());
-    }
-
-    @Override
-    @Transient
-    public boolean isDeleted() {
-        return getDateDeleted() != null;
-    }
-
-    @Column(name = "title", columnDefinition = "TEXT")
+  @Column(name = "title", columnDefinition = "TEXT")
     public String getTitle() {
         return title;
     }
@@ -154,23 +81,12 @@ public class LogFrameActivity implements Serializable, Deleteable {
         this.endDate = endDate;
     }
 
-    @Column(name = "position")
-    public Integer getPosition() {
-        return position;
-    }
-
-    public void setPosition(Integer position) {
-        this.position = position;
-    }
-
     @Column(name = "advancement")
-	public Integer getAdvancement() {
-		return advancement;
-	}
+    public Integer getAdvancement() {
+      return advancement;
+    }
 
-	public void setAdvancement(Integer advancement) {
-		this.advancement = advancement;
-	}
-    
-    
+	  public void setAdvancement(Integer advancement) {
+		  this.advancement = advancement;
+	  }
 }

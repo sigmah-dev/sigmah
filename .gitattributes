@@ -1763,6 +1763,7 @@ sigmah/src/main/java/org/sigmah/shared/domain/layout/LayoutGroup.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/logframe/ExpectedResult.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/logframe/LogFrame.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/logframe/LogFrameActivity.java -text
+sigmah/src/main/java/org/sigmah/shared/domain/logframe/LogFrameElement.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/logframe/LogFrameGroup.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/logframe/LogFrameGroupType.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/logframe/LogFrameModel.java -text
