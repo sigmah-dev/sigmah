@@ -142,12 +142,21 @@ public class UserLocalCache {
                 });
 
         // Gets the organization.
+        refreshOrganization(null);
+    }
+
+    public void refreshOrganization(final AsyncCallback<Void> callback) {
+
+        // Gets the organization.
         dispatcher.execute(new GetOrganization(authentication.getOrganizationId()), null,
                 new AsyncCallback<OrganizationDTO>() {
 
                     @Override
                     public void onFailure(Throwable e) {
                         Log.error("[init] Error while getting the organization for the local cache.", e);
+                        if (callback != null) {
+                            callback.onFailure(e);
+                        }
                     }
 
                     @Override
@@ -158,8 +167,11 @@ public class UserLocalCache {
                         if (Log.isDebugEnabled()) {
                             Log.debug("[init] The cache of the organization has been set.");
                         }
+
+                        if (callback != null) {
+                            callback.onSuccess(null);
+                        }
                     }
                 });
     }
-
 }

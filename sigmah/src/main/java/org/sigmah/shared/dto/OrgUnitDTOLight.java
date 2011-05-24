@@ -3,10 +3,10 @@ package org.sigmah.shared.dto;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-import com.extjs.gxt.ui.client.data.BaseTreeModel;
 import com.extjs.gxt.ui.client.data.ModelData;
 
 public class OrgUnitDTOLight extends DeRpcSafeBaseTreeModel implements EntityDTO {
@@ -36,7 +36,7 @@ public class OrgUnitDTOLight extends DeRpcSafeBaseTreeModel implements EntityDTO
     public void setName(String name) {
         set("name", name);
     }
-    
+
     // Title
     public String getTitle() {
         return get("title");
@@ -81,6 +81,15 @@ public class OrgUnitDTOLight extends DeRpcSafeBaseTreeModel implements EntityDTO
 
     public void setOfficeLocationCountry(CountryDTO officeLocationCountry) {
         set("country", officeLocationCountry);
+    }
+
+    // Deleted.
+    public void setDeleted(Date deleted) {
+        set("deleted", deleted);
+    }
+
+    public Date getDeleted() {
+        return get("deleted");
     }
 
     // Can contain projects

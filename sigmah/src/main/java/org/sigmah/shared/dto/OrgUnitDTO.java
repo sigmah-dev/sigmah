@@ -3,6 +3,7 @@ package org.sigmah.shared.dto;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -14,7 +15,7 @@ import com.extjs.gxt.ui.client.data.BaseModelData;
 public class OrgUnitDTO extends BaseModelData implements EntityDTO, DefaultFlexibleElementContainer {
 
     private static final long serialVersionUID = -8812034670573721384L;
-    
+
     /**
      * Localizes an flexible element in the orgUnit model.
      * 
@@ -22,11 +23,10 @@ public class OrgUnitDTO extends BaseModelData implements EntityDTO, DefaultFlexi
      * 
      */
     public static final class LocalizedElement extends OrgUnitModelDTO.LocalizedElement {
-    	private LocalizedElement(OrgUnitModelDTO.LocalizedElement localized) {
-            super(localized.getElement());        
+        private LocalizedElement(OrgUnitModelDTO.LocalizedElement localized) {
+            super(localized.getElement());
         }
     }
-    
 
     @Override
     public String getEntityName() {
@@ -129,6 +129,16 @@ public class OrgUnitDTO extends BaseModelData implements EntityDTO, DefaultFlexi
     }
 
     public void setChildren(Set<OrgUnitDTO> children) {
+
+        if (children != null) {
+            for (final Iterator<OrgUnitDTO> it = children.iterator(); it.hasNext();) {
+                final OrgUnitDTO child = it.next();
+                if (child != null && child.getDeleted() != null) {
+                    it.remove();
+                }
+            }
+        }
+
         set("children", children);
     }
 
@@ -139,6 +149,15 @@ public class OrgUnitDTO extends BaseModelData implements EntityDTO, DefaultFlexi
 
     public void setCalendarId(Integer calendarId) {
         set("calendarId", calendarId);
+    }
+
+    // Deleted.
+    public void setDeleted(Date deleted) {
+        set("deleted", deleted);
+    }
+
+    public Date getDeleted() {
+        return get("deleted");
     }
 
     @Override
@@ -209,6 +228,7 @@ public class OrgUnitDTO extends BaseModelData implements EntityDTO, DefaultFlexi
             children.add(c.light(light));
         }
         light.setChildrenDTO(children);
+        light.setDeleted(getDeleted());
 
         return light;
     }
@@ -227,23 +247,22 @@ public class OrgUnitDTO extends BaseModelData implements EntityDTO, DefaultFlexi
         final OrgUnitDTO other = (OrgUnitDTO) obj;
         return getId() == other.getId();
     }
-    
-	/**
-	 * Gets all the flexible elements instances of the given class in this
-	 * organizational unit (details page). The banner is ignored cause the
-	 * elements in it are read-only.
-	 * 
-	 * @param clazz
-	 *            The class of the searched flexible elements.
-	 * @return The elements localized for the given class, or <code>null</code>
-	 *         if there is no element of this class.
-	 */
+
+    /**
+     * Gets all the flexible elements instances of the given class in this
+     * organizational unit (details page). The banner is ignored cause the
+     * elements in it are read-only.
+     * 
+     * @param clazz
+     *            The class of the searched flexible elements.
+     * @return The elements localized for the given class, or <code>null</code>
+     *         if there is no element of this class.
+     */
     public List<LocalizedElement> getLocalizedElements(Class<? extends FlexibleElementDTO> clazz) {
 
         final ArrayList<LocalizedElement> elements = new ArrayList<LocalizedElement>();
 
-        final List<OrgUnitModelDTO.LocalizedElement> localizedElements = getOrgUnitModel().getLocalizedElements(
-                clazz);
+        final List<OrgUnitModelDTO.LocalizedElement> localizedElements = getOrgUnitModel().getLocalizedElements(clazz);
 
         if (localizedElements != null) {
             for (final OrgUnitModelDTO.LocalizedElement localized : localizedElements) {

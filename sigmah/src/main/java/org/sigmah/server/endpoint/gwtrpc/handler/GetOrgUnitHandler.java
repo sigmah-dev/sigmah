@@ -89,6 +89,10 @@ public class GetOrgUnitHandler implements CommandHandler<GetOrgUnit> {
      */
     public static boolean isOrgUnitVisible(OrgUnit orgUnit, User user) {
 
+        if (orgUnit.getDeleted() != null) {
+            return false;
+        }
+
         // Checks that the user can see this org unit.
         final HashSet<OrgUnit> units = new HashSet<OrgUnit>();
         GetProjectHandler.crawlUnits(user.getOrgUnitWithProfiles().getOrgUnit(), units, true);

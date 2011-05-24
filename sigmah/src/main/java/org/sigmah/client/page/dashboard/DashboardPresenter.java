@@ -26,6 +26,9 @@ import org.sigmah.shared.dto.reminder.MonitoredPointDTO;
 import org.sigmah.shared.dto.reminder.ReminderDTO;
 
 import com.allen_sauer.gwt.log.client.Log;
+import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.store.TreeStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
@@ -75,37 +78,20 @@ public class DashboardPresenter implements Page {
      * The dispatcher.
      */
     private final Dispatcher dispatcher;
+    private final UserLocalCache cache;
 
     @Inject
     public DashboardPresenter(final View view, final UserLocalCache cache, final Authentication authentication,
             final Dispatcher dispatcher) {
-
         this.dispatcher = dispatcher;
         this.view = view;
+        this.cache = cache;
 
-        // Gets user's organization.
-        cache.getOrganizationCache().get(new AsyncCallback<OrgUnitDTOLight>() {
-
-            @Override
-            public void onFailure(Throwable e) {
-                // nothing
-            }
+        view.getOrgUnitsTree().addListener(Events.Attach, new Listener<BaseEvent>() {
 
             @Override
-            public void onSuccess(OrgUnitDTOLight result) {
-
-                if (result != null) {
-                    view.getOrgUnitsStore().removeAll();
-                    view.getOrgUnitsPanel()
-                            .setHeading(
-                                    I18N.CONSTANTS.orgunitTree() + " - " + result.getName() + " ("
-                                            + result.getFullName() + ")");
-
-                    view.getOrgUnitsStore().add(result, true);
-                    view.getProjectsListPanel().refresh(true, result.getId());
-
-                    view.getOrgUnitsTree().setExpanded(result, true, false);
-                }
+            public void handleEvent(BaseEvent be) {
+                view.getOrgUnitsTree().setExpanded(view.getOrgUnitsStore().getRootItems().get(0), true, false);
             }
         });
     }
@@ -132,6 +118,30 @@ public class DashboardPresenter implements Page {
 
     @Override
     public boolean navigate(PageState place) {
+
+        // Gets user's organization.
+        cache.getOrganizationCache().get(new AsyncCallback<OrgUnitDTOLight>() {
+
+            @Override
+            public void onFailure(Throwable e) {
+                // nothing
+            }
+
+            @Override
+            public void onSuccess(OrgUnitDTOLight result) {
+
+                if (result != null) {
+                    view.getOrgUnitsStore().removeAll();
+                    view.getOrgUnitsPanel()
+                            .setHeading(
+                                    I18N.CONSTANTS.orgunitTree() + " - " + result.getName() + " ("
+                                            + result.getFullName() + ")");
+
+                    view.getProjectsListPanel().refresh(true, result.getId());
+                    view.getOrgUnitsStore().add(result, true);
+                }
+            }
+        });
 
         // Reloads the reminders/moniroted points.
 

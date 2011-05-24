@@ -1,14 +1,10 @@
-package org.sigmah.client.page.dashboard;
+package org.sigmah.client.page.admin.orgunit;
 
 import java.util.ArrayList;
 
-import org.sigmah.client.EventBus;
-import org.sigmah.client.event.NavigationEvent;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.icon.IconImageBundle;
-import org.sigmah.client.page.NavigationHandler;
 import org.sigmah.client.page.orgunit.OrgUnitImageBundle;
-import org.sigmah.client.page.orgunit.OrgUnitState;
 import org.sigmah.client.util.TreeGridCheckboxSelectionModel;
 import org.sigmah.shared.dto.CountryDTO;
 import org.sigmah.shared.dto.OrgUnitDTOLight;
@@ -22,46 +18,42 @@ import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.store.Store;
 import com.extjs.gxt.ui.client.store.StoreSorter;
 import com.extjs.gxt.ui.client.store.TreeStore;
+import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
+import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.extjs.gxt.ui.client.widget.treegrid.TreeGrid;
 import com.extjs.gxt.ui.client.widget.treegrid.TreeGridCellRenderer;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 
-/**
- * Widget to represents the organizational chart of an org unit.
- * 
- * @author tmi
- * 
- */
-public class OrgUnitTreeGrid {
+public class AdminOrgUnitView extends AdminOrgUnitPresenter.View {
 
-    /**
-     * The tree grid.
-     */
-    private final TreeGrid<OrgUnitDTOLight> tree;
-
-    /**
-     * The selection model (can be <code>null</code> if the tree doesn't manage
-     * a selection model).
-     */
+    private final ContentPanel mainPanel;
+    private TreeGrid<OrgUnitDTOLight> tree;
     private TreeGridCheckboxSelectionModel<OrgUnitDTOLight> selectionModel;
+    private ToolBar toolbar;
+    private Button addButton;
+    private Button moveButton;
+    private Button removeButton;
 
-    /**
-     * The actions toolbar.
-     */
-    private final ToolBar toolbar;
+    public AdminOrgUnitView() {
 
-    public OrgUnitTreeGrid(final EventBus eventBus, final boolean hasSelectionModel) {
+        buildTree();
+        buildToolbar();
 
-        // Creates columns
+        mainPanel = new ContentPanel(new FitLayout());
+        mainPanel.setHeading(I18N.CONSTANTS.orgunitTree());
+
+        mainPanel.setTopComponent(toolbar);
+        mainPanel.add(tree);
+    }
+
+    private void buildTree() {
 
         final ArrayList<ColumnConfig> columns = new ArrayList<ColumnConfig>();
 
@@ -74,27 +66,6 @@ public class OrgUnitTreeGrid {
         final ColumnConfig fullNameColumn = new ColumnConfig();
         fullNameColumn.setId("fullName");
         fullNameColumn.setHeader(I18N.CONSTANTS.projectFullName());
-        fullNameColumn.setWidth(250);
-        fullNameColumn.setRenderer(new GridCellRenderer<OrgUnitDTOLight>() {
-
-            @Override
-            public Object render(final OrgUnitDTOLight model, String property, ColumnData config, int rowIndex,
-                    int colIndex, ListStore<OrgUnitDTOLight> store, Grid<OrgUnitDTOLight> grid) {
-
-                final com.google.gwt.user.client.ui.Label visitButton = new com.google.gwt.user.client.ui.Label(
-                        (String) model.get(property));
-                visitButton.addStyleName("flexibility-action");
-                visitButton.addClickHandler(new ClickHandler() {
-                    @Override
-                    public void onClick(ClickEvent e) {
-                        eventBus.fireEvent(new NavigationEvent(NavigationHandler.NavigationRequested, new OrgUnitState(
-                                model.getId())));
-                    }
-                });
-
-                return visitButton;
-            }
-        });
 
         final ColumnConfig countryColumn = new ColumnConfig();
         countryColumn.setId("country");
@@ -116,18 +87,6 @@ public class OrgUnitTreeGrid {
             }
         });
 
-        // Adds columns.
-
-        if (hasSelectionModel) {
-            // Tree selection model
-            selectionModel = new TreeGridCheckboxSelectionModel<OrgUnitDTOLight>();
-            columns.add(selectionModel.getColumn());
-        }
-
-        columns.add(nameColumn);
-        columns.add(fullNameColumn);
-        columns.add(countryColumn);
-
         // Tree store
         final TreeStore<OrgUnitDTOLight> store = new TreeStore<OrgUnitDTOLight>();
         store.setSortInfo(new SortInfo("name", SortDir.ASC));
@@ -146,18 +105,27 @@ public class OrgUnitTreeGrid {
             }
         });
 
+        // Tree selection model
+        selectionModel = new TreeGridCheckboxSelectionModel<OrgUnitDTOLight>();
+        columns.add(selectionModel.getColumn());
+
+        columns.add(nameColumn);
+        columns.add(fullNameColumn);
+        columns.add(countryColumn);
+
         // Tree grid
         tree = new TreeGrid<OrgUnitDTOLight>(store, new ColumnModel(columns));
         tree.setBorders(true);
         tree.getStyle().setLeafIcon(OrgUnitImageBundle.ICONS.orgUnitSmall());
         tree.getStyle().setNodeCloseIcon(OrgUnitImageBundle.ICONS.orgUnitSmall());
         tree.getStyle().setNodeOpenIcon(OrgUnitImageBundle.ICONS.orgUnitSmallTransparent());
+        tree.setAutoExpandColumn("fullName");
         tree.setTrackMouseOver(false);
+        tree.setSelectionModel(selectionModel);
+        tree.addPlugin(selectionModel);
+    }
 
-        if (hasSelectionModel) {
-            tree.setSelectionModel(selectionModel);
-            tree.addPlugin(selectionModel);
-        }
+    private void buildToolbar() {
 
         // Expand all button.
         final Button expandButton = new Button(I18N.CONSTANTS.expandAll(), IconImageBundle.ICONS.expand(),
@@ -179,28 +147,50 @@ public class OrgUnitTreeGrid {
                     }
                 });
 
+        // Actions buttons.
+        addButton = new Button(I18N.CONSTANTS.addItem(), IconImageBundle.ICONS.add());
+        moveButton = new Button(I18N.CONSTANTS.adminOrgUnitMove(), IconImageBundle.ICONS.up());
+        removeButton = new Button(I18N.CONSTANTS.delete(), IconImageBundle.ICONS.delete());
+
         // Toolbar
         toolbar = new ToolBar();
         toolbar.setAlignment(HorizontalAlignment.LEFT);
 
         toolbar.add(expandButton);
         toolbar.add(collapseButton);
+        toolbar.add(new SeparatorToolItem());
+        toolbar.add(addButton);
+        toolbar.add(moveButton);
+        toolbar.add(removeButton);
     }
 
-    public TreeGrid<OrgUnitDTOLight> getTreeGrid() {
+    @Override
+    public ContentPanel getMainPanel() {
+        return mainPanel;
+    }
+
+    @Override
+    public TreeGrid<OrgUnitDTOLight> getTree() {
         return tree;
     }
 
+    @Override
     public TreeStore<OrgUnitDTOLight> getStore() {
         return tree.getTreeStore();
     }
 
-    public ToolBar getToolbar() {
-        return toolbar;
+    @Override
+    public Button getAddButton() {
+        return addButton;
     }
 
-    public void addToolbarButton(Button button) {
-        toolbar.add(new SeparatorToolItem());
-        toolbar.add(button);
+    @Override
+    public Button getMoveButton() {
+        return moveButton;
+    }
+
+    @Override
+    public Button getRemoveButton() {
+        return removeButton;
     }
 }

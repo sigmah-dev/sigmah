@@ -5,6 +5,7 @@
 
 package org.sigmah.shared.domain;
 
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -49,6 +50,7 @@ public class OrgUnit implements java.io.Serializable, SchemaElement {
     private OrgUnitModel orgUnitModel;
     private Integer calendarId;
     private Country officeLocationCountry;
+    private Date deleted;
 
     public OrgUnit() {
     }
@@ -218,5 +220,13 @@ public class OrgUnit implements java.io.Serializable, SchemaElement {
     @Override
     public int hashCode() {
         return id;
+    }
+
+    public void setDeleted(Date deleted) {
+        this.deleted = deleted;
+    }
+
+    public Date getDeleted() {
+        return deleted;
     }
 }

@@ -194,10 +194,10 @@ public class LocalCachedOrganization {
      */
     protected void set(OrganizationDTO organization, int currentUserOrgUnitId) {
 
-        // This method is called once.
-        if (hasBeenSet) {
-            return;
-        }
+        // // This method is called once.
+        // if (hasBeenSet) {
+        // return;
+        // }
 
         this.currentUserOrgUnitId = currentUserOrgUnitId;
         this.organization = organization;
@@ -241,7 +241,9 @@ public class LocalCachedOrganization {
             map.put(root.getId(), root.light());
             if (root.getChildren() != null) {
                 for (final OrgUnitDTO child : root.getChildren()) {
-                    crawlOrgUnit(map, child);
+                    if (child.getDeleted() == null) {
+                        crawlOrgUnit(map, child);
+                    }
                 }
             }
         }

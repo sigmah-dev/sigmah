@@ -289,6 +289,10 @@ sigmah/src/main/java/org/sigmah/client/page/admin/model/project/logframe/AdminLo
 sigmah/src/main/java/org/sigmah/client/page/admin/model/project/phase/AdminPhasesPresenter.java -text
 sigmah/src/main/java/org/sigmah/client/page/admin/model/project/phase/AdminPhasesView.java -text
 sigmah/src/main/java/org/sigmah/client/page/admin/model/project/phase/PhaseSigmahForm.java -text
+sigmah/src/main/java/org/sigmah/client/page/admin/orgunit/AddOrgUnitWindow.java -text
+sigmah/src/main/java/org/sigmah/client/page/admin/orgunit/AdminOrgUnitPresenter.java -text
+sigmah/src/main/java/org/sigmah/client/page/admin/orgunit/AdminOrgUnitView.java -text
+sigmah/src/main/java/org/sigmah/client/page/admin/orgunit/MoveOrgUnitWindow.java -text
 sigmah/src/main/java/org/sigmah/client/page/admin/report/AdminReportModelPresenter.java -text
 sigmah/src/main/java/org/sigmah/client/page/admin/report/AdminReportModelView.java -text
 sigmah/src/main/java/org/sigmah/client/page/admin/users/AdminPrivacyGroupsActionListener.java -text
@@ -1299,6 +1303,7 @@ sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/GwtRpcModule.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/LoginServiceServlet.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/MapIconServlet.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/RetrievePasswordServlet.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/AddOrgUnitHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/AddPartnerHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/AmendmentActionHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/BaseEntityHandler.java -text
@@ -1358,9 +1363,11 @@ sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetUsersHandler.j
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetUsersWithProfilesHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetValueHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/HandlerUtil.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/MoveOrgUnitHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/PingHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/ProjectMapper.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/PromoteProjectReportDraftHandler.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/RemoveOrgUnitHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/RemovePartnerHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/RemoveProjectReportDraftHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/RenderElementHandler.java -text
@@ -1539,6 +1546,7 @@ sigmah/src/main/java/org/sigmah/server/util/logging/LoggingInterceptor.java -tex
 sigmah/src/main/java/org/sigmah/server/util/logging/LoggingModule.java -text
 sigmah/src/main/java/org/sigmah/server/util/logging/Trace.java -text
 sigmah/src/main/java/org/sigmah/shared/Cookies.java -text
+sigmah/src/main/java/org/sigmah/shared/command/AddOrgUnit.java -text
 sigmah/src/main/java/org/sigmah/shared/command/AddPartner.java -text
 sigmah/src/main/java/org/sigmah/shared/command/AmendmentAction.java -text
 sigmah/src/main/java/org/sigmah/shared/command/BatchCommand.java -text
@@ -1601,6 +1609,7 @@ sigmah/src/main/java/org/sigmah/shared/command/GetUsersByOrganization.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetUsersWithProfiles.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetValue.java -text
 sigmah/src/main/java/org/sigmah/shared/command/Month.java -text
+sigmah/src/main/java/org/sigmah/shared/command/MoveOrgUnit.java -text
 sigmah/src/main/java/org/sigmah/shared/command/MutatingCommand.java -text
 sigmah/src/main/java/org/sigmah/shared/command/OfflineSupport.java -text
 sigmah/src/main/java/org/sigmah/shared/command/PagingGetCommand.java -text
@@ -1608,6 +1617,7 @@ sigmah/src/main/java/org/sigmah/shared/command/Ping.java -text
 sigmah/src/main/java/org/sigmah/shared/command/PromoteProjectReportDraft.java -text
 sigmah/src/main/java/org/sigmah/shared/command/RemoteCommandService.java -text
 sigmah/src/main/java/org/sigmah/shared/command/RemoteCommandServiceAsync.java -text
+sigmah/src/main/java/org/sigmah/shared/command/RemoveOrgUnit.java -text
 sigmah/src/main/java/org/sigmah/shared/command/RemovePartner.java -text
 sigmah/src/main/java/org/sigmah/shared/command/RemoveProjectReportDraft.java -text
 sigmah/src/main/java/org/sigmah/shared/command/RenderElement.java -text
