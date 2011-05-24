@@ -5,21 +5,10 @@
 
 package org.sigmah.shared.domain;
 
-import java.util.Date;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
-
 import org.sigmah.shared.domain.profile.OrgUnitProfile;
+
+import javax.persistence.*;
+import java.util.Date;
 
 /**
  * Describes a user
@@ -198,7 +187,7 @@ public class User implements java.io.Serializable {
         return getEmail().hashCode();
     }
 
-    @ManyToOne(optional = true)
+    @ManyToOne(optional = true, fetch = FetchType.LAZY)
     @JoinColumn(name = "id_organization", nullable = true)
     public Organization getOrganization() {
         return organization;
@@ -208,7 +197,7 @@ public class User implements java.io.Serializable {
         this.organization = organization;
     }
 
-    @OneToOne(mappedBy = "user", optional = true)
+    @OneToOne(mappedBy = "user", optional = true, fetch = FetchType.LAZY)
     public OrgUnitProfile getOrgUnitWithProfiles() {
         return orgUnitWithProfiles;
     }
