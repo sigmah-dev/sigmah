@@ -672,4 +672,31 @@
 
 	</mapping>
 	
+    <mapping wildcard="true">
+        <class-a>org.sigmah.shared.domain.Indicator</class-a>
+        <class-b>org.sigmah.shared.dto.IndicatorDataSourceDTO</class-b>
+
+		<field>
+			<a>id</a>
+			<b>indicatorId</b>
+		</field>
+
+		<field>
+			<a>name</a>
+			<b>indicatorName</b>
+		</field>
+        <field>
+            <a>code</a>
+            <b>indicatorCode</b>
+        </field>
+		<field>
+			<a>database.id</a>
+			<b>databaseId</b>
+		</field>
+        <field>
+            <a>database.name</a>
+            <b>databaseName</b>
+        </field>
+    </mapping>
+	
 </mappings>

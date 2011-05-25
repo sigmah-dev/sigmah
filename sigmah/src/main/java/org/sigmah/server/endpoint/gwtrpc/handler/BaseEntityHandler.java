@@ -5,7 +5,14 @@
 
 package org.sigmah.server.endpoint.gwtrpc.handler;
 
-import org.sigmah.server.domain.*;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.persistence.EntityManager;
+
 import org.sigmah.shared.domain.Activity;
 import org.sigmah.shared.domain.Attribute;
 import org.sigmah.shared.domain.AttributeGroup;
@@ -15,11 +22,6 @@ import org.sigmah.shared.domain.User;
 import org.sigmah.shared.domain.UserDatabase;
 import org.sigmah.shared.dto.LocationTypeDTO;
 import org.sigmah.shared.exception.IllegalAccessCommandException;
-
-import javax.persistence.EntityManager;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Provides functionality common to CreateEntityHandler and
@@ -74,6 +76,14 @@ public class BaseEntityHandler {
         
         if (changes.containsKey("labels")) {
         	indicator.setLabels((List<String>) changes.get("labels"));
+        }
+        
+        if (changes.containsKey("dataSourceIds")) {
+        	Set<Integer> ids = (Set<Integer>) changes.get("dataSourceIds");
+        	List<Indicator> dataSources = em.createQuery("select i from Indicator i where i.id in (:ids)")
+        	.setParameter("ids", ids)
+        	.getResultList();
+        	indicator.setDataSources(new HashSet<Indicator>(dataSources));
         }
 
         if (indicator.getActivity() != null) {

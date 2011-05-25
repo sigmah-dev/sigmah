@@ -49,6 +49,7 @@ public class DatabaseCleaner {
                 executeSafe(stmt, removeAllRows("phase_model_sucessors"));
                 executeSafe(stmt, removeAllRows("user_unit_profiles"));
                 executeSafe(stmt, removeAllRows("indicator_labels"));
+                executeSafe(stmt, removeAllRows("IndicatorDatasource"));
 
                 for(Class<?> entityClass : PersistentClasses.LIST) {
                     executeSafe(stmt, removeAllRows(tableName(entityClass)));
