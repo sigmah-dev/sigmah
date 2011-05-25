@@ -669,7 +669,6 @@ sigmah/src/main/java/org/sigmah/login/client/xs/WindowNameFormPanelImplIE6.java 
 sigmah/src/main/java/org/sigmah/login/public/working.gif -text
 sigmah/src/main/java/org/sigmah/public/ActivityInfo.gears.manifest -text
 sigmah/src/main/java/org/sigmah/public/Application.css -text svneol=unset#unset
-sigmah/src/main/java/org/sigmah/public/Sigmah.params.js -text
 sigmah/src/main/java/org/sigmah/public/activityInfo.css -text
 sigmah/src/main/java/org/sigmah/public/clear.gif -text
 sigmah/src/main/java/org/sigmah/public/dbquery.html -text
@@ -2182,6 +2181,7 @@ sigmah/src/test/resources/report-def/parse-test/report-elements.xml -text
 sigmah/src/test/resources/report-def/parse-test/report.xml -text
 sigmah/src/test/resources/report-def/parse-test/static.xml -text
 sigmah/src/test/resources/report-def/parse-test/table.xml -text
+sigmah/war/WEB-INF/sigmah.client.js -text
 sigmah/war/WEB-INF/sigmah.properties -text
 sigmah/war/WEB-INF/web.xml -text
 sigmah/war/apitest.html -text

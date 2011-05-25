@@ -5,27 +5,26 @@
 
 package org.sigmah.server.bootstrap;
 
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileReader;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.charset.Charset;
-import java.util.HashMap;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Properties;
+
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sigmah.shared.Cookies;
+
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 /**
  * Serve the Sigmah main page (that handles both the login and the application).
@@ -40,80 +39,38 @@ public class SigmahHostController extends HttpServlet {
 
     private static final Log LOG = LogFactory.getLog(SigmahHostController.class);
 
-    private final HashMap<String, byte[]> pageMap = new HashMap<String, byte[]>();
-
     @Inject
     private Properties properties;
 
+    /**
+     * HTML page template
+     */
+    private String template;
 
     @Override
+	public void init(ServletConfig config) throws ServletException {
+    	try {
+    					
+			template = readAll(getClass().getResourceAsStream("SigmahHostController.html"))
+				.replace("<!--Version-->", properties.getProperty("version.number"))
+				.replace("<!--ClientDictionaries-->",  readClientDictionaries(config));
+			
+		} catch (IOException e) {
+			throw new ServletException(e);
+		}
+	}
+
+	@Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
-        final String locale = getLocale(req.getCookies());
-        byte[] hostPageData = pageMap.get(locale);
-        
-        if(hostPageData == null) {
-            hostPageData = readHostPage(locale);
-            pageMap.put(locale, hostPageData);
-        }
-
-        final OutputStream outputStream = resp.getOutputStream();
-
-        // Headers
         resp.setContentType("text/html");
         resp.setCharacterEncoding(charset);
-
-        // Writing to the output by packets of 1 KB
-        int index = 0;
-        int remaining = hostPageData.length;
-        while(remaining > 0) {
-            int length = remaining > 1024 ? 1024 : remaining;
-            
-            outputStream.write(hostPageData, index, length);
-
-            index += length;
-            remaining -= length;
-        }
-        
-        outputStream.close();
-        
+        resp.getWriter().write( template.replace("<!--Locale-->", getLocaleTag(req) ) );
     }
 
-    private byte[] readHostPage(final String locale) throws IOException {
-        byte[] data = null;
-
-        try {
-            // Opening the host page
-            final URI hostPageURI = SigmahHostController.class.getResource("SigmahHostController.html").toURI();
-            final File hostPageFile = new File(hostPageURI);
-
-            final BufferedReader inputStream = new BufferedReader(new FileReader(hostPageFile));
-
-            // Preparing dynamic contents
-            final String localeMetaTag = "<meta name='gwt:property' content='locale="+locale+"'>";
-            final String version = properties.getProperty("version.number");
-
-            // Parsing the page
-            final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-
-            final Charset utf8 = Charset.forName(charset);
-            String line = inputStream.readLine();
-            while(line != null) {
-                line = line.replace("<!--Locale-->", localeMetaTag);
-                line = line.replace("<!--Version-->", version);
-
-                outputStream.write(line.getBytes(utf8));
-                line = inputStream.readLine();
-            }
-
-            inputStream.close();
-            data = outputStream.toByteArray();
-
-        } catch (URISyntaxException ex) {
-            LOG.fatal("Error while opening the sigmah host page.", ex);
-        }
-
-        return data;
+    
+    private String getLocaleTag(HttpServletRequest req) {
+    	return "<meta name='gwt:property' content='locale=" + getLocale(req.getCookies()) + "'>"; 
     }
 
     private String getLocale(Cookie[] cookies) {
@@ -127,4 +84,21 @@ public class SigmahHostController extends HttpServlet {
 
         return DEFAULT_LOCALE;
     }
+    
+    private String readAll(InputStream in) throws IOException {
+    	StringBuilder sb = new StringBuilder();
+    	BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+    	String line;
+    	while( (line=reader.readLine()) != null) {
+    		sb.append(line);
+    	}
+    	return sb.toString();
+    }
+
+	private String readClientDictionaries(ServletConfig config) throws IOException {
+		String clientDictionaries = readAll(new FileInputStream(
+				config.getServletContext().getRealPath("/WEB-INF/sigmah.client.js")));
+		return clientDictionaries;
+	}
+
 }

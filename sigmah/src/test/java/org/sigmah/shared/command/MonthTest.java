@@ -17,7 +17,6 @@ public class MonthTest {
 		
 		assertThat(elevenMonthsLater.getYear(), equalTo(2011));
 		assertThat(elevenMonthsLater.getMonth(), equalTo(5));
-		
 	}
 	
 	@Test
@@ -28,7 +27,6 @@ public class MonthTest {
 		
 		assertThat(earlier.getYear(), equalTo(2009));
 		assertThat(earlier.getMonth(), equalTo(12));
-		
 	}
 	
 }
