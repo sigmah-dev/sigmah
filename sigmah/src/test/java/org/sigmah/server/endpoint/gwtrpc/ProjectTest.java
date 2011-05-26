@@ -69,6 +69,7 @@ public class ProjectTest extends CommandTestCase {
 
         Assert.assertThat(result.getListProjectsLightDTO().size(), CoreMatchers.equalTo(3));
     }
+    
 
     @Test
     public void projectsWithOrgRightsShouldBeVisible() throws CommandException {
@@ -202,6 +203,7 @@ public class ProjectTest extends CommandTestCase {
 
         Assert.assertThat(index, CoreMatchers.equalTo(definitions.length));
     }
+    
 
     private static interface CustomVerificator {
         void verify(FlexibleElementDTO element, ValueResult valueResult);

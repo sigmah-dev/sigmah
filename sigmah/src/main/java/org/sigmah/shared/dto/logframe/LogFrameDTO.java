@@ -23,8 +23,9 @@ public class LogFrameDTO extends BaseModelData implements EntityDTO {
 	private static final long serialVersionUID = -2994539648384496954L;
 
 	public LogFrameDTO() {
-		setSpecificObjectivesDTO(new ArrayList<SpecificObjectiveDTO>());
-		setPrerequisitesDTO(new ArrayList<PrerequisiteDTO>());
+		setSpecificObjectives(new ArrayList<SpecificObjectiveDTO>());
+		setPrerequisites(new ArrayList<PrerequisiteDTO>());
+		setGroups(new ArrayList<LogFrameGroupDTO>());
 	}
 	
 	
@@ -45,11 +46,11 @@ public class LogFrameDTO extends BaseModelData implements EntityDTO {
 	}
 
 	// Log frame model.
-	public LogFrameModelDTO getLogFrameModelDTO() {
+	public LogFrameModelDTO getLogFrameModel() {
 		return get("model");
 	}
 
-	public void setLogFrameModelDTO(LogFrameModelDTO model) {
+	public void setLogFrameModel(LogFrameModelDTO model) {
 		set("model", model);
 	}
 
@@ -63,32 +64,32 @@ public class LogFrameDTO extends BaseModelData implements EntityDTO {
 	}
 
 	// Log frame specific objectives.
-	public List<SpecificObjectiveDTO> getSpecificObjectivesDTO() {
-		return get("specificObjectivesDTO");
+	public List<SpecificObjectiveDTO> getSpecificObjectives() {
+		return get("specificObjectives");
 	}		
 
-	public void setSpecificObjectivesDTO(
+	public void setSpecificObjectives(
 			List<SpecificObjectiveDTO> specificObjectivesDTO) {
-		set("specificObjectivesDTO", specificObjectivesDTO);
+		set("specificObjectives", specificObjectivesDTO);
 	}
 
 	// Log frame prerequisites.
-	public List<PrerequisiteDTO> getPrerequisitesDTO() {
-		return get("prerequisitesDTO");
+	public List<PrerequisiteDTO> getPrerequisites() {
+		return get("prerequisites");
 	}
 
-	public void setPrerequisitesDTO(List<PrerequisiteDTO> prerequisitesDTO) {
-		set("prerequisitesDTO", prerequisitesDTO);
+	public void setPrerequisites(List<PrerequisiteDTO> prerequisitesDTO) {
+		set("prerequisites", prerequisitesDTO);
 	}
 
 
 	// Log frame group.
-	public List<LogFrameGroupDTO> getGroupsDTO() {
-		return get("groupsDTO");
+	public List<LogFrameGroupDTO> getGroups() {
+		return get("groups");
 	}
 
-	public void setGroupsDTO(List<LogFrameGroupDTO> groupsDTO) {
-		set("groupsDTO", groupsDTO);
+	public void setGroups(List<LogFrameGroupDTO> groupsDTO) {
+		set("groups", groupsDTO);
 	}
 
 	@Override
@@ -102,30 +103,30 @@ public class LogFrameDTO extends BaseModelData implements EntityDTO {
 		sb.append(" ; main objective = ");
 		sb.append(getMainObjective());
 		sb.append(" ; groups = (\n");
-		if (getGroupsDTO() != null) {
-			for (final LogFrameGroupDTO g : getGroupsDTO()) {
+		if (getGroups() != null) {
+			for (final LogFrameGroupDTO g : getGroups()) {
 				sb.append(g);
 				sb.append("\n");
 			}
 		}
 		sb.append(" ; prerequisites = (\n");
-		if (getPrerequisitesDTO() != null) {
-			for (final PrerequisiteDTO p : getPrerequisitesDTO()) {
+		if (getPrerequisites() != null) {
+			for (final PrerequisiteDTO p : getPrerequisites()) {
 				sb.append(p);
 				sb.append("\n");
 			}
 		}
 		sb.append(")\n");
 		sb.append("specific objectives = (\n");
-		if (getSpecificObjectivesDTO() != null) {
-			for (final SpecificObjectiveDTO o : getSpecificObjectivesDTO()) {
+		if (getSpecificObjectives() != null) {
+			for (final SpecificObjectiveDTO o : getSpecificObjectives()) {
 				sb.append(o);
 				sb.append("\n");
 			}
 		}
 		sb.append(")\n");
 		sb.append(" ; model = (\n");
-		sb.append(getLogFrameModelDTO());
+		sb.append(getLogFrameModel());
 		sb.append(")]\n");
 
 		return sb.toString();
@@ -143,7 +144,7 @@ public class LogFrameDTO extends BaseModelData implements EntityDTO {
 
 		// Lists of groups.
 		final List<LogFrameGroupDTO> returnedGroups = new ArrayList<LogFrameGroupDTO>();
-		final List<LogFrameGroupDTO> groups = getGroupsDTO();
+		final List<LogFrameGroupDTO> groups = getGroups();
 
 		// Retrieves groups.
 		if (groups != null) {
@@ -192,7 +193,7 @@ public class LogFrameDTO extends BaseModelData implements EntityDTO {
 		LogFrameGroupDTO group = null;
 
 		// Lists of groups.
-		final List<LogFrameGroupDTO> groups = getGroupsDTO();
+		final List<LogFrameGroupDTO> groups = getGroups();
 
 		// Retrieves group.
 		if (groups != null) {
@@ -224,19 +225,11 @@ public class LogFrameDTO extends BaseModelData implements EntityDTO {
 		final LogFrameGroupDTO group = new LogFrameGroupDTO();
 		group.setLabel(label);
 		group.setType(type);
-		group.setParentLogFrameDTO(this);
+		group.setParentLogFrame(this);
 
 		// Adds it.
-		List<LogFrameGroupDTO> groups = getGroupsDTO();
-
-		if (groups == null) {
-			groups = new ArrayList<LogFrameGroupDTO>();
-		}
-
-		groups.add(group);
+		getGroups().add(group);
 		
-		setGroupsDTO(groups);
-
 		return group;
 	}
 
@@ -249,14 +242,7 @@ public class LogFrameDTO extends BaseModelData implements EntityDTO {
 	 * @author HUZHE
 	 */
 	public boolean removeGroup(LogFrameGroupDTO group) {
-
-		List<LogFrameGroupDTO> groups = getGroupsDTO();
-		// If the list is empty,do nothing
-		if (groups == null) {
-			return false;
-		} else {
-			return groups.remove(group);
-		}		
+		return getGroups().remove(group);
 	}
 
 	/**
@@ -266,28 +252,21 @@ public class LogFrameDTO extends BaseModelData implements EntityDTO {
 	 */
 	public SpecificObjectiveDTO addSpecificObjective() {
 
-		List<SpecificObjectiveDTO> specificObjectives = getSpecificObjectivesDTO();
+		List<SpecificObjectiveDTO> specificObjectives = getSpecificObjectives();
 
 		// Retrieves the higher code.
 		int max = 0;
-		if (specificObjectives != null) {
-			for (final SpecificObjectiveDTO objective : specificObjectives) {
-				max = objective.getCode() > max ? objective.getCode() : max;
-			}
-		}
-
-		if (specificObjectives == null) {
-			specificObjectives = new ArrayList<SpecificObjectiveDTO>();
+		for (final SpecificObjectiveDTO objective : specificObjectives) {
+			max = objective.getCode() > max ? objective.getCode() : max;
 		}
 
 		// Creates the new objective.
 		final SpecificObjectiveDTO newObjective = new SpecificObjectiveDTO();
 		newObjective.setCode(max + 1);
-		newObjective.setParentLogFrameDTO(this);
+		newObjective.setParentLogFrame(this);
 
 		// Adds it to the local list.
 		specificObjectives.add(newObjective);
-		setSpecificObjectivesDTO(specificObjectives);
 
 		return newObjective;
 	}
@@ -300,8 +279,7 @@ public class LogFrameDTO extends BaseModelData implements EntityDTO {
 	 * @return If the objective has been removed.
 	 */
 	public boolean removeSpecificObjective(SpecificObjectiveDTO objective) {
-
-		return getSpecificObjectivesDTO().remove(objective);
+		return getSpecificObjectives().remove(objective);
 	}
 
 	/**
@@ -311,29 +289,22 @@ public class LogFrameDTO extends BaseModelData implements EntityDTO {
 	 */
 	public PrerequisiteDTO addPrerequisite() {
 
-		List<PrerequisiteDTO> prerequisites = getPrerequisitesDTO();
+		List<PrerequisiteDTO> prerequisites = getPrerequisites();
 
 		// Retrieves the higher code.
 		int max = 0;
-		if (prerequisites != null) {
-			for (final PrerequisiteDTO prerequisite : prerequisites) {
-				max = prerequisite.getCode() > max ? prerequisite.getCode()
-						: max;
-			}
-		}
-
-		if (prerequisites == null) {
-			prerequisites = new ArrayList<PrerequisiteDTO>();
+		for (final PrerequisiteDTO prerequisite : prerequisites) {
+			max = prerequisite.getCode() > max ? prerequisite.getCode()
+					: max;
 		}
 
 		// Creates the new objective.
 		final PrerequisiteDTO newPrerequisite = new PrerequisiteDTO();
 		newPrerequisite.setCode(max + 1);
-		newPrerequisite.setParentLogFrameDTO(this);
+		newPrerequisite.setParentLogFrame(this);
 
 		// Adds it to the local list.
 		prerequisites.add(newPrerequisite);
-		setPrerequisitesDTO(prerequisites);
 
 		return newPrerequisite;
 	}
@@ -346,7 +317,7 @@ public class LogFrameDTO extends BaseModelData implements EntityDTO {
 	 * @return If the prerequisite has been removed.
 	 */
 	public boolean removePrerequisite(PrerequisiteDTO prerequisite) {
-		return getPrerequisitesDTO().remove(prerequisite);
+		return getPrerequisites().remove(prerequisite);
 	}
 
 	/**
@@ -359,8 +330,8 @@ public class LogFrameDTO extends BaseModelData implements EntityDTO {
 		final ArrayList<ExpectedResultDTO> results = new ArrayList<ExpectedResultDTO>();
 
 		// Retrieves the expected results for each objective.
-		for (final SpecificObjectiveDTO objective : getSpecificObjectivesDTO()) {
-			results.addAll(objective.getExpectedResultsDTO());
+		for (final SpecificObjectiveDTO objective : getSpecificObjectives()) {
+			results.addAll(objective.getExpectedResults());
 		}
 
 		return results;
@@ -377,7 +348,7 @@ public class LogFrameDTO extends BaseModelData implements EntityDTO {
 
 		// Retrieves the activities for each expected result.
 		for (final ExpectedResultDTO result : getAllExpectedResultsDTO()) {
-			activities.addAll(result.getActivitiesDTO());
+			activities.addAll(result.getActivities());
 		}
 
 		return activities;

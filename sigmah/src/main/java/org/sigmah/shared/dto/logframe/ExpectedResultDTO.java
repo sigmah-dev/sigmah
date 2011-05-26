@@ -17,47 +17,17 @@ import com.extjs.gxt.ui.client.data.BaseModelData;
  * @author tmi
  * 
  */
-public class ExpectedResultDTO extends BaseModelData implements EntityDTO, Positionable {
+public class ExpectedResultDTO extends LogFrameElementDTO {
 
     private static final long serialVersionUID = 2394670766294049525L;
 
     public ExpectedResultDTO() {
-    	setActivitiesDTO(new ArrayList<LogFrameActivityDTO>());
+    	setActivities(new ArrayList<LogFrameActivityDTO>());
     }
     
     @Override
     public String getEntityName() {
         return "logframe.ExpectedResult";
-    }
-
-    // Result id.
-    @Override
-    public int getId() {
-        final Integer id = (Integer) get("id");
-        return id != null ? id : -1;
-    }
-
-    public void setId(int id) {
-        set("id", id);
-    }
-
-    // Result code.
-    public Integer getCode() {
-        return get("code");
-    }
-
-    public void setCode(Integer code) {
-        set("code", code);
-    }
-
-    // Result position in its group.
-    public Integer getPosition() {
-        return get("position");
-    }
-
-    @Override
-    public void setPosition(Integer position) {
-        set("position", position);
     }
 
     // Result intervention logic.
@@ -69,27 +39,9 @@ public class ExpectedResultDTO extends BaseModelData implements EntityDTO, Posit
         set("interventionLogic", interventionLogic);
     }
 
-    // Result risks.
-    public String getRisks() {
-        return get("risks");
-    }
-
-    public void setRisks(String risks) {
-        set("risks", risks);
-    }
-
-    // Result assumptions.
-    public String getAssumptions() {
-        return get("assumptions");
-    }
-
-    public void setAssumptions(String assumptions) {
-        set("assumptions", assumptions);
-    }
-
     // Result activities.
-    public List<LogFrameActivityDTO> getActivitiesDTO() {
-        List<LogFrameActivityDTO> list = get("activitiesDTO");
+    public List<LogFrameActivityDTO> getActivities() {
+        List<LogFrameActivityDTO> list = get("activities");
         if(list == null) {
         	return Collections.emptyList();
         } else {
@@ -97,27 +49,18 @@ public class ExpectedResultDTO extends BaseModelData implements EntityDTO, Posit
         }
     }
 
-    public void setActivitiesDTO(List<LogFrameActivityDTO> activitiesDTO) {
-        set("activitiesDTO", activitiesDTO);
+    public void setActivities(List<LogFrameActivityDTO> activitiesDTO) {
+        set("activities", activitiesDTO);
     }
 
 
     // Result parent objective.
-    public SpecificObjectiveDTO getParentSpecificObjectiveDTO() {
-        return get("parentSpecificObjectiveDTO");
+    public SpecificObjectiveDTO getParentSpecificObjective() {
+        return get("parentSpecificObjective");
     }
 
-    public void setParentSpecificObjectiveDTO(SpecificObjectiveDTO parentSpecificObjectiveDTO) {
-        set("parentSpecificObjectiveDTO", parentSpecificObjectiveDTO);
-    }
-
-    // Result group.
-    public LogFrameGroupDTO getLogFrameGroupDTO() {
-        return get("logFrameGroupDTO");
-    }
-
-    public void setLogFrameGroupDTO(LogFrameGroupDTO logFrameGroupDTO) {
-        set("logFrameGroupDTO", logFrameGroupDTO);
+    public void setParentSpecificObjective(SpecificObjectiveDTO parentSpecificObjectiveDTO) {
+        set("parentSpecificObjective", parentSpecificObjectiveDTO);
     }
 
     // Display label.
@@ -133,40 +76,6 @@ public class ExpectedResultDTO extends BaseModelData implements EntityDTO, Posit
         return get("label");
     }
 
-    /**
-     * Gets the client-side id for this entity. If this entity has a server-id
-     * id, it's returned. Otherwise, a temporary id is generated and returned.
-     * 
-     * @return The client-side id.
-     */
-    public int getClientSideId() {
-
-        // Server-side id.
-        Integer id = (Integer) get("id");
-
-        if (id == null) {
-
-            // Client-side id.
-            id = (Integer) get("tmpid");
-
-            // Generates the client-side id once.
-            if (id == null) {
-                id = generateClientSideId();
-            }
-        }
-
-        return id;
-    }
-
-    /**
-     * Generate a client-side unique id for this entity and stores it in the
-     * <code>temporaryId</code> attribute.
-     */
-    private int generateClientSideId() {
-        final int id = (int) new Date().getTime();
-        set("tmpid", id);
-        return id;
-    }
 
     @Override
     public String toString() {
@@ -177,8 +86,8 @@ public class ExpectedResultDTO extends BaseModelData implements EntityDTO, Posit
         sb.append(" ; id = ");
         sb.append(getId());
         sb.append(" ; group id = ");
-        if (getLogFrameGroupDTO() != null) {
-            sb.append(getLogFrameGroupDTO().getId() != -1 ? getLogFrameGroupDTO().getId() : getLogFrameGroupDTO()
+        if (getGroup() != null) {
+            sb.append(getGroup().getId() != -1 ? getGroup().getId() : getGroup()
                     .getClientSideId());
         }
         sb.append(" ; dlabel = ");
@@ -193,8 +102,8 @@ public class ExpectedResultDTO extends BaseModelData implements EntityDTO, Posit
         sb.append(" ; assumptions = ");
         sb.append(getAssumptions());
         sb.append(" ; activities = (\n");
-        if (getActivitiesDTO() != null) {
-            for (final LogFrameActivityDTO a : getActivitiesDTO()) {
+        if (getActivities() != null) {
+            for (final LogFrameActivityDTO a : getActivities()) {
                 sb.append(a);
                 sb.append("\n");
             }
@@ -230,28 +139,21 @@ public class ExpectedResultDTO extends BaseModelData implements EntityDTO, Posit
      */
     public LogFrameActivityDTO addActivity() {
 
-        List<LogFrameActivityDTO> activities = getActivitiesDTO();
+        List<LogFrameActivityDTO> activities = getActivities();
 
         // Retrieves the higher code.
         int max = 0;
-        if (activities != null) {
-            for (final LogFrameActivityDTO activity : activities) {
-                max = activity.getCode() > max ? activity.getCode() : max;
-            }
-        }
-
-        if (activities == null) {
-            activities = new ArrayList<LogFrameActivityDTO>();
+        for (final LogFrameActivityDTO activity : activities) {
+            max = activity.getCode() > max ? activity.getCode() : max;
         }
 
         // Creates the activity.
         final LogFrameActivityDTO newActivity = new LogFrameActivityDTO();
         newActivity.setCode(max + 1);
-        newActivity.setParentExpectedResultDTO(this);
+        newActivity.setParentExpectedResult(this);
 
         // Adds it to the local list.
         activities.add(newActivity);
-        setActivitiesDTO(activities);
 
         return newActivity;
     }
@@ -264,6 +166,6 @@ public class ExpectedResultDTO extends BaseModelData implements EntityDTO, Posit
      * @return If the activity has been removed.
      */
     public boolean removeActivity(LogFrameActivityDTO activity) {
-        return getActivitiesDTO().remove(activity);
+        return getActivities().remove(activity);
     }
 }

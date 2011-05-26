@@ -26,7 +26,7 @@ import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.extjs.gxt.ui.client.widget.form.TextArea;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 
-class IndicatorForm extends AbstractDesignForm {
+public class IndicatorForm extends AbstractDesignForm {
 
     private FormBinding binding;
 	private NumberField idField;

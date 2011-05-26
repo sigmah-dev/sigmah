@@ -52,7 +52,7 @@ public class SigmahHostController extends HttpServlet {
     	try {
     					
 			template = readAll(getClass().getResourceAsStream("SigmahHostController.html"))
-				.replace("<!--Version-->", properties.getProperty("version.number"))
+				.replaceAll("<!--Version-->", properties.getProperty("version.number"))
 				.replace("<!--ClientDictionaries-->",  readClientDictionaries(config));
 			
 		} catch (IOException e) {

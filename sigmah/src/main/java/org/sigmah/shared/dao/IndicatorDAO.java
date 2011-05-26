@@ -33,7 +33,7 @@ public class IndicatorDAO  {
      * @param databaseId
      * @return
      */
-	public List<IndicatorDTO> queryIndicatorsByDatabaseWithCurrentValues(int databaseId) {
+	public List<IndicatorDTO> queryIndicatorsByDatabaseWithCurrentValues(final int databaseId) {
     	final List<IndicatorDTO> list = new ArrayList<IndicatorDTO>();
     	final Map<Integer, IndicatorDTO> map = new HashMap<Integer, IndicatorDTO>();
     	SqlQueryBuilder
@@ -66,6 +66,7 @@ public class IndicatorDAO  {
 				dto.setCategory(rs.getString(5));
 				dto.setDescription(rs.getString(6));
 				dto.setCode(rs.getString(7));
+				dto.setDatabaseId(databaseId);
 				
 				double objective = rs.getDouble(8);
 				if(!rs.wasNull()) {

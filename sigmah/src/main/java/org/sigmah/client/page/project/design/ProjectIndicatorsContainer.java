@@ -193,6 +193,4 @@ public class ProjectIndicatorsContainer extends LayoutContainer implements Proje
 	@Override
 	public void discardView() {		
 	}
-
-
 }

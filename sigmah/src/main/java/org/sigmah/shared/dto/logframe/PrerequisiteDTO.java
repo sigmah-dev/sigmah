@@ -66,21 +66,21 @@ public class PrerequisiteDTO extends BaseModelData implements EntityDTO, Positio
     }
 
     // Prerequisite parent log frame.
-    public LogFrameDTO getParentLogFrameDTO() {
-        return get("parentLogFrameDTO");
+    public LogFrameDTO getParentLogFrame() {
+        return get("parentLogFrame");
     }
 
-    public void setParentLogFrameDTO(LogFrameDTO parentLogFrameDTO) {
-        set("parentLogFrameDTO", parentLogFrameDTO);
+    public void setParentLogFrame(LogFrameDTO parentLogFrameDTO) {
+        set("parentLogFrame", parentLogFrameDTO);
     }
 
     // Prerequisite group.
-    public LogFrameGroupDTO getLogFrameGroupDTO() {
-        return get("logFrameGroupDTO");
+    public LogFrameGroupDTO getGroup() {
+        return get("group");
     }
 
-    public void setLogFrameGroupDTO(LogFrameGroupDTO logFrameGroupDTO) {
-        set("logFrameGroupDTO", logFrameGroupDTO);
+    public void setGroup(LogFrameGroupDTO logFrameGroupDTO) {
+        set("group", logFrameGroupDTO);
     }
 
     // Display label.
@@ -140,8 +140,8 @@ public class PrerequisiteDTO extends BaseModelData implements EntityDTO, Positio
         sb.append(" ; id = ");
         sb.append(getId());
         sb.append(" ; group id = ");
-        if (getLogFrameGroupDTO() != null) {
-            sb.append(getLogFrameGroupDTO().getId() != -1 ? getLogFrameGroupDTO().getId() : getLogFrameGroupDTO()
+        if (getGroup() != null) {
+            sb.append(getGroup().getId() != -1 ? getGroup().getId() : getGroup()
                     .getClientSideId());
         }
         sb.append(" ; dlabel = ");

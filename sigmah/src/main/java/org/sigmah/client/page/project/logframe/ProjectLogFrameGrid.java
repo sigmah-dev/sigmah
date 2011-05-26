@@ -8,12 +8,13 @@ import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.page.project.logframe.FormWindow.FormSubmitListener;
 import org.sigmah.client.page.project.logframe.grid.ActionsMenu;
 import org.sigmah.client.page.project.logframe.grid.FlexTableView;
+import org.sigmah.client.page.project.logframe.grid.FlexTableView.FlexTableViewListener;
 import org.sigmah.client.page.project.logframe.grid.GroupActionMenu;
 import org.sigmah.client.page.project.logframe.grid.HTMLTableUtils;
+import org.sigmah.client.page.project.logframe.grid.IndicatorListWidget;
 import org.sigmah.client.page.project.logframe.grid.Row;
 import org.sigmah.client.page.project.logframe.grid.RowActionsMenu;
 import org.sigmah.client.page.project.logframe.grid.RowsGroup;
-import org.sigmah.client.page.project.logframe.grid.FlexTableView.FlexTableViewListener;
 import org.sigmah.shared.domain.logframe.LogFrameGroupType;
 import org.sigmah.shared.dto.logframe.ExpectedResultDTO;
 import org.sigmah.shared.dto.logframe.LogFrameActivityDTO;
@@ -184,6 +185,8 @@ public class ProjectLogFrameGrid {
      * The codes displayer for the prerequisites.
      */
     private CodePolicy<PrerequisiteDTO> prerequisitesPolicy;
+
+	private int databaseId;
 
     /**
      * Builds an empty grid.
@@ -603,7 +606,7 @@ public class ProjectLogFrameGrid {
     }
 
     /**
-     * Initializes the codes policies.
+     * Initializes the codes policies.Project
      */
     private void initCodePolicies() {
 
@@ -630,7 +633,7 @@ public class ProjectLogFrameGrid {
                 final StringBuilder sb = new StringBuilder();
 
                 final SpecificObjectiveDTO parent;
-                if ((parent = userObject.getParentSpecificObjectiveDTO()) != null) {
+                if ((parent = userObject.getParentSpecificObjective()) != null) {
                     sb.append(specificObjectivesPolicy.getCode(parent.getCode(), parent));
                 }
 
@@ -650,7 +653,7 @@ public class ProjectLogFrameGrid {
                 final StringBuilder sb = new StringBuilder();
 
                 final ExpectedResultDTO parent;
-                if ((parent = userObject.getParentExpectedResultDTO()) != null) {
+                if ((parent = userObject.getParentExpectedResult()) != null) {
                     sb.append(expectedResultsPolicy.getCode(parent.getCode(), parent));
                 }
 
@@ -685,8 +688,8 @@ public class ProjectLogFrameGrid {
      * @param logFrame
      *            The log frame.
      */
-    public void displayLogFrame(LogFrameDTO logFrame) {
-        displayLogFrame(logFrame, true);
+    public void displayLogFrame(int databaseId, LogFrameDTO logFrame) {
+        displayLogFrame(databaseId, logFrame, true);
     }
 
     /**
@@ -700,9 +703,10 @@ public class ProjectLogFrameGrid {
      * @param logFrame
      *            The log frame.
      */
-    public void displayLogFrame(LogFrameDTO logFrame, boolean enabled) {
+    public void displayLogFrame(int databaseId, LogFrameDTO logFrame, boolean enabled) {
         this.logFrame = logFrame;
-        this.logFrameModel = logFrame.getLogFrameModelDTO();
+        this.databaseId = databaseId;
+        this.logFrameModel = logFrame.getLogFrameModel();
         this.readOnly = !enabled;
 
         ensureLogFrame();
@@ -712,7 +716,7 @@ public class ProjectLogFrameGrid {
         initCodePolicies();
 
         // Displays all the groups (even the empty ones).
-        for (final LogFrameGroupDTO group : logFrame.getGroupsDTO()) {
+        for (final LogFrameGroupDTO group : logFrame.getGroups()) {
             switch (group.getType()) {
             case SPECIFIC_OBJECTIVE:
                 if (logFrameModel.getEnableSpecificObjectivesGroups()) {
@@ -739,12 +743,12 @@ public class ProjectLogFrameGrid {
 
         // Displays the specific objectives (and recursively the expected
         // results and the activities).
-        for (final SpecificObjectiveDTO objective : logFrame.getSpecificObjectivesDTO()) {
+        for (final SpecificObjectiveDTO objective : logFrame.getSpecificObjectives()) {
             addSpecificObjective(objective);
         }
 
         // Displays the prerequisietes.
-        for (final PrerequisiteDTO prerequisite : logFrame.getPrerequisitesDTO()) {
+        for (final PrerequisiteDTO prerequisite : logFrame.getPrerequisites()) {
             addPrerequisite(prerequisite);
         }
     }
@@ -761,7 +765,7 @@ public class ProjectLogFrameGrid {
         // frame. Its needed to update the ids of the new entities in the local
         // maps.
         // TODO optimize this
-        displayLogFrame(logFrame);
+        displayLogFrame(databaseId, logFrame);
 
         // this.logFrame = logFrame;
         // this.logFrameModel = logFrame.getLogFrameModelDTO();
@@ -933,7 +937,7 @@ public class ProjectLogFrameGrid {
 
                     // Creates and displays a new objective.
                     final SpecificObjectiveDTO objective = logFrame.addSpecificObjective();
-                    objective.setLogFrameGroupDTO(group);
+                    objective.setGroup(group);
                     addSpecificObjective(objective);
                 }
             });
@@ -949,7 +953,7 @@ public class ProjectLogFrameGrid {
 
             // Creates and displays a new objective.
             final SpecificObjectiveDTO objective = logFrame.addSpecificObjective();
-            objective.setLogFrameGroupDTO(group);
+            objective.setGroup(group);
             addSpecificObjective(objective);
         }
     }
@@ -968,7 +972,7 @@ public class ProjectLogFrameGrid {
         }
 
         // Retrieves the group.
-        final LogFrameGroupDTO logFrameGroup = specificObjective.getLogFrameGroupDTO();
+        final LogFrameGroupDTO logFrameGroup = specificObjective.getGroup();
 
         // Retrieves the equivalent rows group.
         @SuppressWarnings("unchecked")
@@ -1065,7 +1069,7 @@ public class ProjectLogFrameGrid {
                         case 3:
 
                             // Indicators.
-                            return new Label("");
+                            return new IndicatorListWidget(databaseId, specificObjective);
 
                         case 4:
 
@@ -1129,7 +1133,7 @@ public class ProjectLogFrameGrid {
         fireLogFrameEdited();
 
         // Adds sub expected results.
-        for (final ExpectedResultDTO result : specificObjective.getExpectedResultsDTO()) {
+        for (final ExpectedResultDTO result : specificObjective.getExpectedResults()) {
             addExpectedResult(result);
         }
         
@@ -1276,7 +1280,7 @@ public class ProjectLogFrameGrid {
             return;
         }
 
-        final List<SpecificObjectiveDTO> objectives = logFrame.getSpecificObjectivesDTO();
+        final List<SpecificObjectiveDTO> objectives = logFrame.getSpecificObjectives();
 
         // Checks if there is at least one available specific objective.
         if (objectives.isEmpty()) {
@@ -1315,7 +1319,7 @@ public class ProjectLogFrameGrid {
 
                     // Creates and displays a new objective.
                     final ExpectedResultDTO result = specificObjective.addExpectedResult();
-                    result.setLogFrameGroupDTO(group);
+                    result.setGroup(group);
                     addExpectedResult(result);
                 }
             });
@@ -1329,7 +1333,7 @@ public class ProjectLogFrameGrid {
             // Sets the form window.
             formWindow.clear();
             formWindow.addChoicesList(I18N.CONSTANTS.logFrameSpecificObjective(),
-                    logFrame.getSpecificObjectivesDTO(), false, "label");
+                    logFrame.getSpecificObjectives(), false, "label");
             formWindow.addFormSubmitListener(new FormSubmitListener() {
 
                 @Override
@@ -1349,7 +1353,7 @@ public class ProjectLogFrameGrid {
 
                     // Creates and displays a new objective.
                     final ExpectedResultDTO result = specificObjective.addExpectedResult();
-                    result.setLogFrameGroupDTO(group);
+                    result.setGroup(group);
                     addExpectedResult(result);
                 }
             });
@@ -1372,7 +1376,7 @@ public class ProjectLogFrameGrid {
         }
 
         // Retrieves the group.
-        final LogFrameGroupDTO group = result.getLogFrameGroupDTO();
+        final LogFrameGroupDTO group = result.getGroup();
 
         // Retrieves the equivalent rows group.
         @SuppressWarnings("unchecked")
@@ -1406,10 +1410,10 @@ public class ProjectLogFrameGrid {
                         switch (column) {
                         case 0:
                             // Parent code.
-                            return userObject.getParentSpecificObjectiveDTO() != null
-                                    && other.getParentSpecificObjectiveDTO() != null
-                                    && userObject.getParentSpecificObjectiveDTO().getCode() == other
-                                            .getParentSpecificObjectiveDTO().getCode();
+                            return userObject.getParentSpecificObjective() != null
+                                    && other.getParentSpecificObjective() != null
+                                    && userObject.getParentSpecificObjective().getCode() == other
+                                            .getParentSpecificObjective().getCode();
                         }
                         return false;
                     }
@@ -1425,7 +1429,7 @@ public class ProjectLogFrameGrid {
                             parentCodeLabel.addStyleName(CSS_CODE_LABEL_STYLE_NAME);
 
                             final SpecificObjectiveDTO parent;
-                            if (userObject != null && (parent = userObject.getParentSpecificObjectiveDTO()) != null) {
+                            if (userObject != null && (parent = userObject.getParentSpecificObjective()) != null) {
 
                                 final StringBuilder sb = new StringBuilder();
 
@@ -1489,7 +1493,7 @@ public class ProjectLogFrameGrid {
                         case 3:
 
                             // Indicators.
-                            return new Label("");
+                            return new IndicatorListWidget(databaseId, result);
 
                         case 4:
 
@@ -1553,7 +1557,7 @@ public class ProjectLogFrameGrid {
         fireLogFrameEdited();
 
         // Adds sub activities.
-        for (final LogFrameActivityDTO activity : result.getActivitiesDTO()) {
+        for (final LogFrameActivityDTO activity : result.getActivities()) {
             addActivity(activity);
         }
         
@@ -1608,7 +1612,7 @@ public class ProjectLogFrameGrid {
                             final LogFrameGroupDTO group = logFrame.addGroup(label, LogFrameGroupType.ACTIVITY);
 
                             // Displays it.
-                            addActivitiesGroup(group);
+                            addActivitiesGroup(group);	
                         }
                     }
                 });
@@ -1753,7 +1757,7 @@ public class ProjectLogFrameGrid {
 
                     // Creates and displays a new activity.
                     final LogFrameActivityDTO activity = expectedResult.addActivity();
-                    activity.setLogFrameGroupDTO(group);
+                    activity.setGroup(group);
                     activity.setStartDate(startDate);
                     activity.setEndDate(endDate);
                     activity.setAdvancement(0); // advancement set to 0 at the begin
@@ -1802,7 +1806,7 @@ public class ProjectLogFrameGrid {
 
                     // Creates and displays a new activity.
                     final LogFrameActivityDTO activity = expectedResult.addActivity();
-                    activity.setLogFrameGroupDTO(group);
+                    activity.setGroup(group);
                     activity.setStartDate(startDate);
                     activity.setEndDate(endDate);
                     activity.setAdvancement(0); // advancement set to 0 at the begin
@@ -1828,7 +1832,7 @@ public class ProjectLogFrameGrid {
         }
 
         // Retrieves the group.
-        final LogFrameGroupDTO group = activity.getLogFrameGroupDTO();
+        final LogFrameGroupDTO group = activity.getGroup();
 
         // Retrieves the equivalent rows group.
         @SuppressWarnings("unchecked")
@@ -1861,10 +1865,10 @@ public class ProjectLogFrameGrid {
                         switch (column) {
                         case 0:
                             // Parent code.
-                            return userObject.getParentExpectedResultDTO() != null
-                                    && other.getParentExpectedResultDTO() != null
-                                    && userObject.getParentExpectedResultDTO().getCode() == other
-                                            .getParentExpectedResultDTO().getCode();
+                            return userObject.getParentExpectedResult() != null
+                                    && other.getParentExpectedResult() != null
+                                    && userObject.getParentExpectedResult().getCode() == other
+                                            .getParentExpectedResult().getCode();
                         }
                         return false;
                     }
@@ -1880,7 +1884,7 @@ public class ProjectLogFrameGrid {
                             parentCodeLabel.addStyleName(CSS_CODE_LABEL_STYLE_NAME);
 
                             final ExpectedResultDTO parent;
-                            if (userObject != null && (parent = userObject.getParentExpectedResultDTO()) != null) {
+                            if (userObject != null && (parent = userObject.getParentExpectedResult()) != null) {
 
                                 final StringBuilder sb = new StringBuilder();
 
@@ -1916,6 +1920,9 @@ public class ProjectLogFrameGrid {
                             }
 
                             return grid;
+                            
+                        case 2:
+                        	return new IndicatorListWidget(databaseId, userObject);
 
                         case 5:
 
@@ -2118,7 +2125,7 @@ public class ProjectLogFrameGrid {
 
                     // Creates and displays a new prerequisite.
                     final PrerequisiteDTO prerequisite = logFrame.addPrerequisite();
-                    prerequisite.setLogFrameGroupDTO(group);
+                    prerequisite.setGroup(group);
                     addPrerequisite(prerequisite);
                 }
             });
@@ -2134,7 +2141,7 @@ public class ProjectLogFrameGrid {
 
             // Creates and displays a new prerequisite.
             final PrerequisiteDTO prerequisite = logFrame.addPrerequisite();
-            prerequisite.setLogFrameGroupDTO(group);
+            prerequisite.setGroup(group);
             addPrerequisite(prerequisite);
         }
     }
@@ -2153,7 +2160,7 @@ public class ProjectLogFrameGrid {
         }
 
         // Retrieves the group.
-        final LogFrameGroupDTO group = prerequisite.getLogFrameGroupDTO();
+        final LogFrameGroupDTO group = prerequisite.getGroup();
 
         // Retrieves the equivalent rows group.
         @SuppressWarnings("unchecked")
@@ -2327,7 +2334,7 @@ public class ProjectLogFrameGrid {
 
             @Override
             public boolean canBeRemoved() {
-                return row.getUserObject().getExpectedResultsDTO().isEmpty();
+                return row.getUserObject().getExpectedResults().isEmpty();
             }
 
             @Override
@@ -2395,13 +2402,13 @@ public class ProjectLogFrameGrid {
             @Override
             public boolean canBeRemoved() {
                 // Gets the sub activities list.
-                return row.getUserObject().getActivitiesDTO().isEmpty();
+                return row.getUserObject().getActivities().isEmpty();
             }
 
             @Override
             public boolean beforeRemove() {
 
-                final boolean removed = row.getUserObject().getParentSpecificObjectiveDTO()
+                final boolean removed = row.getUserObject().getParentSpecificObjective()
                         .removeExpectedResult(row.getUserObject());
 
                 if (removed) {
@@ -2472,7 +2479,7 @@ public class ProjectLogFrameGrid {
 			public boolean beforeRemove() {
 
 				final boolean removed = row.getUserObject()
-						.getParentExpectedResultDTO()
+						.getParentExpectedResult()
 						.removeActivity(row.getUserObject());
 
 				if (removed) {
@@ -2545,7 +2552,7 @@ public class ProjectLogFrameGrid {
             	//group 
             	final TextField<String> expectedResult = new TextField<String>();
             	expectedResult.setFieldLabel(I18N.CONSTANTS.logFrameExceptedResult());
-            	expectedResult.setValue(activity.getParentExpectedResultDTO().getLabel());
+            	expectedResult.setValue(activity.getParentExpectedResult().getLabel());
             	expectedResult.setEnabled(false);
             	updatePanel.add(expectedResult);
             	

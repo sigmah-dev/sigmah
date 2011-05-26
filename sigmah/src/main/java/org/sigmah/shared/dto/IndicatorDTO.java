@@ -131,7 +131,7 @@ public final class IndicatorDTO extends BaseModelData implements EntityDTO {
      * @return true if this indicator is collected during the intervention.
      * (Some indicators are only collected during the monitoring phase)
      */
-	public boolean isCollectIntervention() {
+	public Boolean isCollectIntervention() {
 		return (Boolean)get("collectIntervention");
 	}
 
@@ -145,7 +145,7 @@ public final class IndicatorDTO extends BaseModelData implements EntityDTO {
     /**
      * @return true if this indicator is collected during the monitoring phase
      */
-	public boolean isCollectMonitoring() {
+	public Boolean isCollectMonitoring() {
 		return (Boolean)get("collectMonitoring");
 	}
 
@@ -214,7 +214,7 @@ public final class IndicatorDTO extends BaseModelData implements EntityDTO {
      * @return this Indicator's objective value 
      *
      */
-	public double getObjective() { 
+	public Double getObjective() { 
 		return (Double)get("objective");
 	}
 	
@@ -260,6 +260,13 @@ public final class IndicatorDTO extends BaseModelData implements EntityDTO {
 		return getAggregation() == AGGREGATE_MULTINOMIAL;
 	}
 
+	public Integer getDatabaseId() {
+		return (Integer)get("databaseId");
+	}
+	
+	public void setDatabaseId(Integer id) {
+		set("databaseId", id);
+	}
 
     
 }

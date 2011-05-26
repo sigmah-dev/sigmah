@@ -53,12 +53,12 @@ public class LogFrameGroupDTO extends BaseModelData implements EntityDTO {
     }
 
     // Objective parent log frame.
-    public LogFrameDTO getParentLogFrameDTO() {
-        return get("parentLogFrameDTO");
+    public LogFrameDTO getParentLogFrame() {
+        return get("parentLogFrame");
     }
 
-    public void setParentLogFrameDTO(LogFrameDTO parentLogFrameDTO) {
-        set("parentLogFrameDTO", parentLogFrameDTO);
+    public void setParentLogFrame(LogFrameDTO parentLogFrameDTO) {
+        set("parentLogFrame", parentLogFrameDTO);
     }
     
     /**

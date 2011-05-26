@@ -17,47 +17,17 @@ import com.extjs.gxt.ui.client.data.BaseModelData;
  * @author tmi
  * 
  */
-public class SpecificObjectiveDTO extends BaseModelData implements EntityDTO, Positionable {
+public class SpecificObjectiveDTO extends LogFrameElementDTO implements EntityDTO, Positionable {
 
     private static final long serialVersionUID = -5441820698955180264L;
 
     public SpecificObjectiveDTO() {
-    	setExpectedResultsDTO(new ArrayList<ExpectedResultDTO>());
+    	setExpectedResults(new ArrayList<ExpectedResultDTO>());
     }
     
     @Override
     public String getEntityName() {
         return "logframe.SpecificObjective";
-    }
-
-    // Objective id.
-    @Override
-    public int getId() {
-        final Integer id = (Integer) get("id");
-        return id != null ? id : -1;
-    }
-
-    public void setId(int id) {
-        set("id", id);
-    }
-
-    // Objective code.
-    public Integer getCode() {
-        return get("code");
-    }
-
-    public void setCode(Integer code) {
-        set("code", code);
-    }
-
-    // Objective position in its group.
-    public Integer getPosition() {
-        return get("position");
-    }
-
-    @Override
-    public void setPosition(Integer position) {
-        set("position", position);
     }
 
     // Objective intervention logic.
@@ -69,51 +39,25 @@ public class SpecificObjectiveDTO extends BaseModelData implements EntityDTO, Po
         set("interventionLogic", interventionLogic);
     }
 
-    // Objective risks.
-    public String getRisks() {
-        return get("risks");
-    }
-
-    public void setRisks(String risks) {
-        set("risks", risks);
-    }
-
-    // Objective assumptions.
-    public String getAssumptions() {
-        return get("assumptions");
-    }
-
-    public void setAssumptions(String assumptions) {
-        set("assumptions", assumptions);
-    }
-
-    // Objective expected results.
-    public List<ExpectedResultDTO> getExpectedResultsDTO() {
-        return get("expectedResultsDTO");
-    }
-
-    public void setExpectedResultsDTO(List<ExpectedResultDTO> expectedResultsDTO) {
-        set("expectedResultsDTO", expectedResultsDTO);
-    }
-
-
     // Objective parent log frame.
-    public LogFrameDTO getParentLogFrameDTO() {
-        return get("parentLogFrameDTO");
+    public LogFrameDTO getParentLogFrame() {
+        return get("parentLogFrame");
     }
 
-    public void setParentLogFrameDTO(LogFrameDTO parentLogFrameDTO) {
-        set("parentLogFrameDTO", parentLogFrameDTO);
+    public void setParentLogFrame(LogFrameDTO parentLogFrameDTO) {
+        set("parentLogFrame", parentLogFrameDTO);
     }
 
-    // Objective group.
-    public LogFrameGroupDTO getLogFrameGroupDTO() {
-        return get("logFrameGroupDTO");
+    
+    // Objective expected results.
+    public List<ExpectedResultDTO> getExpectedResults() {
+        return get("expectedResults");
     }
 
-    public void setLogFrameGroupDTO(LogFrameGroupDTO logFrameGroupDTO) {
-        set("logFrameGroupDTO", logFrameGroupDTO);
+    public void setExpectedResults(List<ExpectedResultDTO> expectedResults) {
+        set("expectedResults", expectedResults);
     }
+
 
     // Display label.
     /**
@@ -128,41 +72,6 @@ public class SpecificObjectiveDTO extends BaseModelData implements EntityDTO, Po
         return get("label");
     }
 
-  
-    /**
-     * Gets the client-side id for this entity. If this entity has a server-id
-     * id, it's returned. Otherwise, a temporary id is generated and returned.
-     * 
-     * @return The client-side id.
-     */
-    public int getClientSideId() {
-
-        // Server-side id.
-        Integer id = (Integer) get("id");
-
-        if (id == null) {
-
-            // Client-side id.
-            id = (Integer) get("tmpid");
-
-            // Generates the client-side id once.
-            if (id == null) {
-                id = generateClientSideId();
-            }
-        }
-
-        return id;
-    }
-
-    /**
-     * Generate a client-side unique id for this entity and stores it in the
-     * <code>temporaryId</code> attribute.
-     */
-    private int generateClientSideId() {
-        final int id = (int) new Date().getTime();
-        set("tmpid", id);
-        return id;
-    }
 
     @Override
     public String toString() {
@@ -173,8 +82,8 @@ public class SpecificObjectiveDTO extends BaseModelData implements EntityDTO, Po
         sb.append(" ; id = ");
         sb.append(getId());
         sb.append(" ; group id = ");
-        if (getLogFrameGroupDTO() != null) {
-            sb.append(getLogFrameGroupDTO().getId() != -1 ? getLogFrameGroupDTO().getId() : getLogFrameGroupDTO()
+        if (getGroup() != null) {
+            sb.append(getGroup().getId() != -1 ? getGroup().getId() : getGroup()
                     .getClientSideId());
         }
         sb.append(" ; dlabel = ");
@@ -188,8 +97,8 @@ public class SpecificObjectiveDTO extends BaseModelData implements EntityDTO, Po
         sb.append(" ; assumptions = ");
         sb.append(getAssumptions());
         sb.append(" ; expected results = (\n");
-        if (getExpectedResultsDTO() != null) {
-            for (final ExpectedResultDTO r : getExpectedResultsDTO()) {
+        if (getExpectedResults() != null) {
+            for (final ExpectedResultDTO r : getExpectedResults()) {
                 sb.append(r);
                 sb.append("\n");
             }
@@ -225,7 +134,7 @@ public class SpecificObjectiveDTO extends BaseModelData implements EntityDTO, Po
      */
     public ExpectedResultDTO addExpectedResult() {
 
-        List<ExpectedResultDTO> expectedResults = getExpectedResultsDTO();
+        List<ExpectedResultDTO> expectedResults = getExpectedResults();
 
         // Retrieves the higher code.
         int max = 0;
@@ -236,7 +145,7 @@ public class SpecificObjectiveDTO extends BaseModelData implements EntityDTO, Po
         // Creates the expected result.
         final ExpectedResultDTO newResult = new ExpectedResultDTO();
         newResult.setCode(max + 1);
-        newResult.setParentSpecificObjectiveDTO(this);
+        newResult.setParentSpecificObjective(this);
 
         // Adds it to the local list.
         expectedResults.add(newResult);
@@ -252,6 +161,6 @@ public class SpecificObjectiveDTO extends BaseModelData implements EntityDTO, Po
      * @return If the result has been removed.
      */
     public boolean removeExpectedResult(ExpectedResultDTO result) {
-    	return getExpectedResultsDTO().remove(result);
+    	return getExpectedResults().remove(result);
     }
 }

@@ -3,6 +3,7 @@ package org.sigmah.shared.domain.logframe;
 import java.io.Serializable;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -14,6 +15,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 
 import org.sigmah.shared.domain.Indicator;
 
@@ -21,6 +23,7 @@ import org.sigmah.shared.domain.Indicator;
  * Base class for all LogFrame elements, such as SpecificObjective, Activity, etc
  */
 @Entity
+@Table(name="log_frame_element")
 @Inheritance(strategy = InheritanceType.JOINED)
 public abstract class LogFrameElement implements Serializable, Comparable<LogFrameElement> {
 	private Integer id;
@@ -33,7 +36,7 @@ public abstract class LogFrameElement implements Serializable, Comparable<LogFra
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	@Column(name = "id_objective")
+	@Column(name = "id_element")
 	public Integer getId() {
 		return id;
 	}
@@ -89,7 +92,7 @@ public abstract class LogFrameElement implements Serializable, Comparable<LogFra
 		this.assumptions = assumptions;
 	}
 
-	@ManyToMany
+	@ManyToMany(cascade=CascadeType.ALL)
 	@JoinTable(name = "log_frame_indicators")
 	public Set<Indicator> getIndicators() {
 		return indicators;

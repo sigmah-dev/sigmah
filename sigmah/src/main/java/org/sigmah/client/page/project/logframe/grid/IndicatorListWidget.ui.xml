@@ -1,0 +1,18 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui" 
+	xmlns:e="urn:import:com.extjs.gxt.ui.client.widget">
+	
+	<ui:with field='i18n' type='org.sigmah.client.i18n.UIConstants'/>
+	<ui:style>
+		.action {
+			cursor: pointer;
+			text-align: right;
+			text-decoration: underline;
+		}
+	</ui:style>
+	<g:HTMLPanel>
+		<e:ListView ui:field="indicatorList"/>
+		<g:Label styleName="{style.action}" ui:field="newIndicatorLink" text="{i18n.newIndicator}" />
+	</g:HTMLPanel>
+</ui:UiBinder> 

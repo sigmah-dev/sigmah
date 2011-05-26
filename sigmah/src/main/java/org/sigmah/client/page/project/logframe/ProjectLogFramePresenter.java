@@ -339,7 +339,7 @@ public class ProjectLogFramePresenter implements SubPresenter {
             }
 
             // Fill the grid.
-            view.getLogFrameGrid().displayLogFrame(logFrame, editable);
+            view.getLogFrameGrid().displayLogFrame(currentProjectDTO.getId(), logFrame, editable);
         }
 
         // Default buttons states.

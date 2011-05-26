@@ -539,6 +539,8 @@ sigmah/src/main/java/org/sigmah/client/page/project/logframe/grid/ActionsMenu.ja
 sigmah/src/main/java/org/sigmah/client/page/project/logframe/grid/FlexTableView.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/logframe/grid/GroupActionMenu.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/logframe/grid/HTMLTableUtils.java -text
+sigmah/src/main/java/org/sigmah/client/page/project/logframe/grid/IndicatorListWidget.java -text
+sigmah/src/main/java/org/sigmah/client/page/project/logframe/grid/IndicatorListWidget.ui.xml -text
 sigmah/src/main/java/org/sigmah/client/page/project/logframe/grid/MenuAction.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/logframe/grid/Row.java -text
 sigmah/src/main/java/org/sigmah/client/page/project/logframe/grid/RowActionsMenu.java -text
@@ -1892,6 +1894,7 @@ sigmah/src/main/java/org/sigmah/shared/dto/layout/LayoutGroupDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/logframe/ExpectedResultDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/logframe/LogFrameActivityDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/logframe/LogFrameDTO.java -text
+sigmah/src/main/java/org/sigmah/shared/dto/logframe/LogFrameElementDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/logframe/LogFrameGroupDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/logframe/LogFrameModelDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/logframe/PrerequisiteDTO.java -text

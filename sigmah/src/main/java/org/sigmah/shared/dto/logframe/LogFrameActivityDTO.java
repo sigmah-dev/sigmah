@@ -14,7 +14,7 @@ import com.extjs.gxt.ui.client.data.BaseModelData;
  * @author tmi
  * 
  */
-public class LogFrameActivityDTO extends BaseModelData implements EntityDTO, Positionable {
+public class LogFrameActivityDTO extends LogFrameElementDTO  {
 
     private static final long serialVersionUID = 6134012388369233491L;
 
@@ -30,36 +30,6 @@ public class LogFrameActivityDTO extends BaseModelData implements EntityDTO, Pos
     @Override
     public String getEntityName() {
         return "logframe.Activity";
-    }
-
-    // Activity id.
-    @Override
-    public int getId() {
-        final Integer id = (Integer) get("id");
-        return id != null ? id : -1;
-    }
-
-    public void setId(int id) {
-        set("id", id);
-    }
-
-    // Activity code.
-    public Integer getCode() {
-        return get("code");
-    }
-
-    public void setCode(Integer code) {
-        set("code", code);
-    }
-
-    // Activity position in its group.
-    public Integer getPosition() {
-        return get("position");
-    }
-
-    @Override
-    public void setPosition(Integer position) {
-        set("position", position);
     }
     
     //Activity advancement 
@@ -99,21 +69,12 @@ public class LogFrameActivityDTO extends BaseModelData implements EntityDTO, Pos
     }
 
     // Activity parent result.
-    public ExpectedResultDTO getParentExpectedResultDTO() {
-        return get("parentExpectedResultDTO");
+    public ExpectedResultDTO getParentExpectedResult() {
+        return get("parentExpectedResult");
     }
 
-    public void setParentExpectedResultDTO(ExpectedResultDTO parentExpectedResultDTO) {
-        set("parentExpectedResultDTO", parentExpectedResultDTO);
-    }
-
-    // Result group.
-    public LogFrameGroupDTO getLogFrameGroupDTO() {
-        return get("logFrameGroupDTO");
-    }
-
-    public void setLogFrameGroupDTO(LogFrameGroupDTO logFrameGroupDTO) {
-        set("logFrameGroupDTO", logFrameGroupDTO);
+    public void setParentExpectedResult(ExpectedResultDTO parentExpectedResultDTO) {
+        set("parentExpectedResult", parentExpectedResultDTO);
     }
 
     // Display label.
@@ -129,42 +90,6 @@ public class LogFrameActivityDTO extends BaseModelData implements EntityDTO, Pos
         return get("label");
     }
 
-
-    /**
-     * Gets the client-side id for this entity. If this entity has a server-id
-     * id, it's returned. Otherwise, a temporary id is generated and returned.
-     * 
-     * @return The client-side id.
-     */
-    public int getClientSideId() {
-
-        // Server-side id.
-        Integer id = (Integer) get("id");
-
-        if (id == null) {
-
-            // Client-side id.
-            id = (Integer) get("tmpid");
-
-            // Generates the client-side id once.
-            if (id == null) {
-                id = generateClientSideId();
-            }
-        }
-
-        return id;
-    }
-
-    /**
-     * Generate a client-side unique id for this entity and stores it in the
-     * <code>temporaryId</code> attribute.
-     */
-    private int generateClientSideId() {
-        final int id = (int) new Date().getTime();
-        set("tmpid", id);
-        return id;
-    }
-
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder();
@@ -174,8 +99,8 @@ public class LogFrameActivityDTO extends BaseModelData implements EntityDTO, Pos
         sb.append(" ; id = ");
         sb.append(getId());
         sb.append(" ; group id = ");
-        if (getLogFrameGroupDTO() != null) {
-            sb.append(getLogFrameGroupDTO().getId() != -1 ? getLogFrameGroupDTO().getId() : getLogFrameGroupDTO()
+        if (getGroup() != null) {
+            sb.append(getGroup().getId() != -1 ? getGroup().getId() : getGroup()
                     .getClientSideId());
         }
         sb.append(" ; dlabel = ");
