@@ -51,6 +51,7 @@ import org.sigmah.shared.domain.layout.LayoutGroup;
 import org.sigmah.shared.domain.logframe.ExpectedResult;
 import org.sigmah.shared.domain.logframe.LogFrame;
 import org.sigmah.shared.domain.logframe.LogFrameActivity;
+import org.sigmah.shared.domain.logframe.LogFrameElement;
 import org.sigmah.shared.domain.logframe.LogFrameGroup;
 import org.sigmah.shared.domain.logframe.LogFrameModel;
 import org.sigmah.shared.domain.logframe.Prerequisite;
@@ -142,6 +143,7 @@ public class PersistentClasses {
             DefaultFlexibleElement.class,
             Prerequisite.class,
             LogFrameActivity.class,
+            LogFrameElement.class,
             ExpectedResult.class,
             SpecificObjective.class,
             LogFrame.class,

@@ -129,30 +129,6 @@ public class LogFrameActivityDTO extends BaseModelData implements EntityDTO, Pos
         return get("label");
     }
 
-    // Activity deleted date.
-    public Date getDateDeleted() {
-        return get("dateDeleted");
-    }
-
-    public void setDateDeleted(Date dateDeleted) {
-        set("dateDeleted", dateDeleted);
-    }
-
-    /**
-     * Deletes this activity.
-     */
-    public void delete() {
-        setDateDeleted(new Date());
-    }
-
-    /**
-     * Returns if this activity is deleted.
-     * 
-     * @return If this activity is deleted.
-     */
-    public boolean isDeleted() {
-        return getDateDeleted() != null;
-    }
 
     /**
      * Gets the client-side id for this entity. If this entity has a server-id

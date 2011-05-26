@@ -11,6 +11,7 @@ import java.util.Map;
  * 
  */
 @Entity
+@Table(name="log_frame_activity")
 public class LogFrameActivity extends LogFrameElement {
 
     private static final long serialVersionUID = -2247266774443718302L;
@@ -33,7 +34,6 @@ public class LogFrameActivity extends LogFrameElement {
 //        copy.content = this.content;
         copy.parentExpectedResult = parentExpectedResult;
         copy.group = groupMap.get(this.group.getId());
-        copy.dateDeleted = this.dateDeleted;
         copy.title = this.title;
         copy.startDate = this.startDate;
         copy.endDate = this.endDate;
@@ -52,7 +52,7 @@ public class LogFrameActivity extends LogFrameElement {
         this.parentExpectedResult = parentExpectedResult;
     }
 
-  @Column(name = "title", columnDefinition = "TEXT")
+    @Column(name = "title", columnDefinition = "TEXT")
     public String getTitle() {
         return title;
     }

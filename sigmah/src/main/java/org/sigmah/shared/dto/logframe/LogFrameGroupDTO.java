@@ -17,6 +17,7 @@ public class LogFrameGroupDTO extends BaseModelData implements EntityDTO {
 
     private static final long serialVersionUID = -2559578621723205905L;
 
+    
     @Override
     public String getEntityName() {
         return "logframe.LogFrameGroup";
@@ -60,15 +61,6 @@ public class LogFrameGroupDTO extends BaseModelData implements EntityDTO {
         set("parentLogFrameDTO", parentLogFrameDTO);
     }
     
-    // group deleted date.
-    public Date getDateDeleted() {
-        return get("dateDeleted");
-    }
-
-    public void setDateDeleted(Date dateDeleted) {
-        set("dateDeleted", dateDeleted);
-    }
-
     /**
      * Gets the client-side id for this entity. If this entity has a server-id
      * id, it's returned. Otherwise, a temporary id is generated and returned.
@@ -142,23 +134,5 @@ public class LogFrameGroupDTO extends BaseModelData implements EntityDTO {
         return sb.toString();
     }
     
-
-    
-    /**
-     * Deletes this group.
-     */
-    public void delete() {
-        setDateDeleted(new Date());
-    }
-
-    /**
-     * Returns if this group is deleted.
-     * 
-     * @return If this group is deleted.
-     */
-    public boolean isDeleted() {
-        return getDateDeleted() != null;
-    }
-
     
 }

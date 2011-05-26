@@ -17,6 +17,10 @@ public class PrerequisiteDTO extends BaseModelData implements EntityDTO, Positio
 
     private static final long serialVersionUID = 2491895571720689312L;
 
+    public PrerequisiteDTO() {
+    	
+    }
+    
     @Override
     public String getEntityName() {
         return "logframe.Prerequisite";
@@ -77,31 +81,6 @@ public class PrerequisiteDTO extends BaseModelData implements EntityDTO, Positio
 
     public void setLogFrameGroupDTO(LogFrameGroupDTO logFrameGroupDTO) {
         set("logFrameGroupDTO", logFrameGroupDTO);
-    }
-
-    // Prerequisite deleted date.
-    public Date getDateDeleted() {
-        return get("dateDeleted");
-    }
-
-    public void setDateDeleted(Date dateDeleted) {
-        set("dateDeleted", dateDeleted);
-    }
-
-    /**
-     * Deletes this prerequisite.
-     */
-    public void delete() {
-        setDateDeleted(new Date());
-    }
-
-    /**
-     * Returns if this prerequisite is deleted.
-     * 
-     * @return If this prerequisite is deleted.
-     */
-    public boolean isDeleted() {
-        return getDateDeleted() != null;
     }
 
     // Display label.
@@ -168,7 +147,6 @@ public class PrerequisiteDTO extends BaseModelData implements EntityDTO, Positio
         sb.append(" ; dlabel = ");
         sb.append(getLabel());
         sb.append(" ; date deleted = ");
-        sb.append(getDateDeleted());
         sb.append(" ; position = ");
         sb.append(getPosition());
         sb.append(" ; content = ");

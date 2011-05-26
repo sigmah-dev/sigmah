@@ -1,6 +1,7 @@
 package org.sigmah.shared.dto.logframe;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -20,6 +21,10 @@ public class SpecificObjectiveDTO extends BaseModelData implements EntityDTO, Po
 
     private static final long serialVersionUID = -5441820698955180264L;
 
+    public SpecificObjectiveDTO() {
+    	setExpectedResultsDTO(new ArrayList<ExpectedResultDTO>());
+    }
+    
     @Override
     public String getEntityName() {
         return "logframe.SpecificObjective";
@@ -91,32 +96,6 @@ public class SpecificObjectiveDTO extends BaseModelData implements EntityDTO, Po
         set("expectedResultsDTO", expectedResultsDTO);
     }
 
-    /**
-     * Gets the list of results which aren't deleted.
-     * 
-     * @return The list of results which aren't deleted.
-     */
-    public List<ExpectedResultDTO> getExpectedResultsDTONotDeleted() {
-
-        final List<ExpectedResultDTO> results = get("expectedResultsDTO");
-
-        if (results == null) {
-            return null;
-        }
-
-        // Filters deleted results.
-        // This action is needed because after saving the log frame, the
-        // hibernate filter to hide deleted entities isn't re-applied.
-        for (final Iterator<ExpectedResultDTO> iterator = results.iterator(); iterator.hasNext();) {
-
-            final ExpectedResultDTO expectedResultDTO = iterator.next();
-            if (expectedResultDTO.isDeleted()) {
-                iterator.remove();
-            }
-        }
-
-        return results;
-    }
 
     // Objective parent log frame.
     public LogFrameDTO getParentLogFrameDTO() {
@@ -149,31 +128,7 @@ public class SpecificObjectiveDTO extends BaseModelData implements EntityDTO, Po
         return get("label");
     }
 
-    // Objective deleted date.
-    public Date getDateDeleted() {
-        return get("dateDeleted");
-    }
-
-    public void setDateDeleted(Date dateDeleted) {
-        set("dateDeleted", dateDeleted);
-    }
-
-    /**
-     * Deletes this objective.
-     */
-    public void delete() {
-        setDateDeleted(new Date());
-    }
-
-    /**
-     * Returns if this objective is deleted.
-     * 
-     * @return If this objective is deleted.
-     */
-    public boolean isDeleted() {
-        return getDateDeleted() != null;
-    }
-
+  
     /**
      * Gets the client-side id for this entity. If this entity has a server-id
      * id, it's returned. Otherwise, a temporary id is generated and returned.
@@ -226,8 +181,6 @@ public class SpecificObjectiveDTO extends BaseModelData implements EntityDTO, Po
         sb.append(getLabel());
         sb.append(" ; code = ");
         sb.append(getCode());
-        sb.append(" ; date deleted = ");
-        sb.append(getDateDeleted());
         sb.append(" ; intervention logic = ");
         sb.append(getInterventionLogic());
         sb.append(" ; risks = ");
@@ -276,14 +229,8 @@ public class SpecificObjectiveDTO extends BaseModelData implements EntityDTO, Po
 
         // Retrieves the higher code.
         int max = 0;
-        if (expectedResults != null) {
-            for (final ExpectedResultDTO result : expectedResults) {
-                max = result.getCode() > max ? result.getCode() : max;
-            }
-        }
-
-        if (expectedResults == null) {
-            expectedResults = new ArrayList<ExpectedResultDTO>();
+        for (final ExpectedResultDTO result : expectedResults) {
+            max = result.getCode() > max ? result.getCode() : max;
         }
 
         // Creates the expected result.
@@ -293,7 +240,6 @@ public class SpecificObjectiveDTO extends BaseModelData implements EntityDTO, Po
 
         // Adds it to the local list.
         expectedResults.add(newResult);
-        setExpectedResultsDTO(expectedResults);
 
         return newResult;
     }
@@ -306,21 +252,6 @@ public class SpecificObjectiveDTO extends BaseModelData implements EntityDTO, Po
      * @return If the result has been removed.
      */
     public boolean removeExpectedResult(ExpectedResultDTO result) {
-
-        // Gets the current results list.
-        final List<ExpectedResultDTO> results = getExpectedResultsDTO();
-
-        // If the list is empty, do nothing.
-        if (results == null) {
-            return false;
-        }
-
-        // Tries to remove the result from the local list.
-        if (results.contains(result)) {
-            result.delete();
-            return true;
-        }
-
-        return false;
+    	return getExpectedResultsDTO().remove(result);
     }
 }

@@ -2097,6 +2097,7 @@ sigmah/src/test/java/org/sigmah/server/endpoint/gwtrpc/PartnerTest.java -text
 sigmah/src/test/java/org/sigmah/server/endpoint/gwtrpc/ProjectTest.java -text
 sigmah/src/test/java/org/sigmah/server/endpoint/gwtrpc/ReportTest.java -text
 sigmah/src/test/java/org/sigmah/server/endpoint/gwtrpc/SyncIntegrationTest.java -text
+sigmah/src/test/java/org/sigmah/server/endpoint/gwtrpc/UpdateLogFrameTest.java -text
 sigmah/src/test/java/org/sigmah/server/endpoint/gwtrpc/UpdateReportDefHandlerTest.java -text
 sigmah/src/test/java/org/sigmah/server/endpoint/gwtrpc/UpdateSiteTest.java -text
 sigmah/src/test/java/org/sigmah/server/endpoint/gwtrpc/handler/GetAdminEntitiesHandlerTest.java -text

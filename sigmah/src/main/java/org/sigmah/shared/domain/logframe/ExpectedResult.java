@@ -1,11 +1,16 @@
 package org.sigmah.shared.domain.logframe;
 
-import org.hibernate.annotations.Filter;
-
-import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 
 /**
  * Represents an item of the expected results of a specific objective of a log
@@ -16,6 +21,7 @@ import java.util.Map;
  * 
  */
 @Entity
+@Table(name="log_frame_expected_result")
 public class ExpectedResult extends LogFrameElement {
 
     private static final long serialVersionUID = -4913269192377942381L;
@@ -43,13 +49,12 @@ public class ExpectedResult extends LogFrameElement {
             copy.activities.add(activity.copy(copy, groupMap));
 
         copy.group = groupMap.get(this.group.getId());
-        copy.dateDeleted = this.dateDeleted;
         copy.position = this.position;
 
         return copy;
     }
 
-  @Column(name = "intervention_logic", columnDefinition = "TEXT")
+    @Column(name = "intervention_logic", columnDefinition = "TEXT")
     public String getInterventionLogic() {
         return interventionLogic;
     }
@@ -69,8 +74,8 @@ public class ExpectedResult extends LogFrameElement {
     }
 
     @OneToMany(mappedBy = "parentExpectedResult", cascade = CascadeType.ALL)
-    @OrderBy(value = "code asc")
-    @Filter(name = "hideDeleted", condition = "DateDeleted is null")
+    @org.hibernate.annotations.Sort
+    @org.hibernate.annotations.Cascade(org.hibernate.annotations.CascadeType.DELETE_ORPHAN) 
     public List<LogFrameActivity> getActivities() {
         return activities;
     }

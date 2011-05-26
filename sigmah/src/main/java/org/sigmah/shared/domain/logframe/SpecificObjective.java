@@ -1,6 +1,8 @@
 package org.sigmah.shared.domain.logframe;
 
+import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.Filter;
+import org.hibernate.annotations.Sort;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -16,8 +18,6 @@ import java.util.Map;
  */
 @Entity
 @Table(name = "log_frame_specific_objective")
-@org.hibernate.annotations.FilterDefs({ @org.hibernate.annotations.FilterDef(name = "hideDeleted") })
-@org.hibernate.annotations.Filters({ @org.hibernate.annotations.Filter(name = "hideDeleted", condition = "DateDeleted is null") })
 public class SpecificObjective extends LogFrameElement {
 
     private static final long serialVersionUID = 7534655171979110984L;
@@ -26,7 +26,7 @@ public class SpecificObjective extends LogFrameElement {
     private LogFrame parentLogFrame;
     private List<ExpectedResult> expectedResults = new ArrayList<ExpectedResult>();
 
-  /**
+    /**
      * Duplicates this objective (omits its ID).
      * @param parentLogFrame Log frame that will contains this copy.
      * @param groupMap Map of copied groups.
@@ -45,7 +45,6 @@ public class SpecificObjective extends LogFrameElement {
             copy.expectedResults.add(result.copy(copy, groupMap));
         
         copy.group = groupMap.get(this.group.getId());
-        copy.dateDeleted = this.dateDeleted;
         copy.position = this.position;
 
         return copy;
@@ -71,8 +70,9 @@ public class SpecificObjective extends LogFrameElement {
     }
 
     @OneToMany(mappedBy = "parentSpecificObjective", cascade = CascadeType.ALL)
-    @OrderBy(value = "code asc")
-    @Filter(name = "hideDeleted", condition = "DateDeleted is null")
+    // use @Sort instead of @OrderBy as hibernate biffs because the code lives in the log_frame_element table
+    @org.hibernate.annotations.Sort 
+    @org.hibernate.annotations.Cascade(org.hibernate.annotations.CascadeType.DELETE_ORPHAN)     
     public List<ExpectedResult> getExpectedResults() {
         return expectedResults;
     }

@@ -715,22 +715,22 @@ public class ProjectLogFrameGrid {
         for (final LogFrameGroupDTO group : logFrame.getGroupsDTO()) {
             switch (group.getType()) {
             case SPECIFIC_OBJECTIVE:
-                if (logFrameModel.getEnableSpecificObjectivesGroups() && !group.isDeleted()) {
+                if (logFrameModel.getEnableSpecificObjectivesGroups()) {
                     addSpecificObjectivesGroup(group);
                 }
                 break;
             case EXPECTED_RESULT:
-                if (logFrameModel.getEnableExpectedResultsGroups() && !group.isDeleted()) {
+                if (logFrameModel.getEnableExpectedResultsGroups()) {
                     addExpectedResultsGroup(group);
                 }
                 break;
             case PREREQUISITE:
-                if (logFrameModel.getEnablePrerequisitesGroups() && !group.isDeleted()) {
+                if (logFrameModel.getEnablePrerequisitesGroups()) {
                     addPrerequisitesGroup(group);
                 }
                 break;
             case ACTIVITY:
-                if (logFrameModel.getEnableActivitiesGroups() && !group.isDeleted()) {
+                if (logFrameModel.getEnableActivitiesGroups()) {
                     addActivitiesGroup(group);
                 }
                 break;
@@ -739,12 +739,12 @@ public class ProjectLogFrameGrid {
 
         // Displays the specific objectives (and recursively the expected
         // results and the activities).
-        for (final SpecificObjectiveDTO objective : logFrame.getSpecificObjectivesDTONotDeleted()) {
+        for (final SpecificObjectiveDTO objective : logFrame.getSpecificObjectivesDTO()) {
             addSpecificObjective(objective);
         }
 
         // Displays the prerequisietes.
-        for (final PrerequisiteDTO prerequisite : logFrame.getPrerequisitesDTONotDeleted()) {
+        for (final PrerequisiteDTO prerequisite : logFrame.getPrerequisitesDTO()) {
             addPrerequisite(prerequisite);
         }
     }
@@ -1129,11 +1129,10 @@ public class ProjectLogFrameGrid {
         fireLogFrameEdited();
 
         // Adds sub expected results.
-        if (specificObjective.getExpectedResultsDTONotDeleted() != null) {
-            for (final ExpectedResultDTO result : specificObjective.getExpectedResultsDTONotDeleted()) {
-                addExpectedResult(result);
-            }
+        for (final ExpectedResultDTO result : specificObjective.getExpectedResultsDTO()) {
+            addExpectedResult(result);
         }
+        
     }
 
     // ------------------------------------------------------------------------
@@ -1277,10 +1276,10 @@ public class ProjectLogFrameGrid {
             return;
         }
 
-        final List<SpecificObjectiveDTO> objectives = logFrame.getSpecificObjectivesDTONotDeleted();
+        final List<SpecificObjectiveDTO> objectives = logFrame.getSpecificObjectivesDTO();
 
         // Checks if there is at least one available specific objective.
-        if (objectives == null || objectives.isEmpty()) {
+        if (objectives.isEmpty()) {
             MessageBox.alert(I18N.CONSTANTS.logFrameNoSpecificObjective(),
                     I18N.CONSTANTS.logFrameNoSpecificObjectiveDetails(), null);
             return;
@@ -1330,7 +1329,7 @@ public class ProjectLogFrameGrid {
             // Sets the form window.
             formWindow.clear();
             formWindow.addChoicesList(I18N.CONSTANTS.logFrameSpecificObjective(),
-                    logFrame.getSpecificObjectivesDTONotDeleted(), false, "label");
+                    logFrame.getSpecificObjectivesDTO(), false, "label");
             formWindow.addFormSubmitListener(new FormSubmitListener() {
 
                 @Override
@@ -1554,11 +1553,10 @@ public class ProjectLogFrameGrid {
         fireLogFrameEdited();
 
         // Adds sub activities.
-        if (result.getActivitiesDTONotDeleted() != null) {
-            for (final LogFrameActivityDTO activity : result.getActivitiesDTONotDeleted()) {
-                addActivity(activity);
-            }
+        for (final LogFrameActivityDTO activity : result.getActivitiesDTO()) {
+            addActivity(activity);
         }
+        
     }
 
     // ------------------------------------------------------------------------
@@ -2329,9 +2327,7 @@ public class ProjectLogFrameGrid {
 
             @Override
             public boolean canBeRemoved() {
-                // Gets the sub results list.
-                final List<ExpectedResultDTO> results = row.getUserObject().getExpectedResultsDTONotDeleted();
-                return results == null || results.isEmpty();
+                return row.getUserObject().getExpectedResultsDTO().isEmpty();
             }
 
             @Override
@@ -2399,8 +2395,7 @@ public class ProjectLogFrameGrid {
             @Override
             public boolean canBeRemoved() {
                 // Gets the sub activities list.
-                final List<LogFrameActivityDTO> activities = row.getUserObject().getActivitiesDTONotDeleted();
-                return activities == null || activities.isEmpty();
+                return row.getUserObject().getActivitiesDTO().isEmpty();
             }
 
             @Override

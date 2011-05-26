@@ -19,6 +19,7 @@ import javax.persistence.Table;
 
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.Filter;
+import org.hibernate.annotations.Sort;
 import org.sigmah.shared.domain.Project;
 
 /**
@@ -38,7 +39,7 @@ public class LogFrame implements Serializable {
     private Integer id;
     private LogFrameModel logFrameModel;
     private String mainObjective;
-    private List<SpecificObjective> specificObjectives = new ArrayList<SpecificObjective>();
+    private List<SpecificObjective> specificObjectives = new ArrayList<SpecificObjective>(0);
     private List<Prerequisite> prerequisites = new ArrayList<Prerequisite>();
     private Project parentProject;
     private List<LogFrameGroup> groups = new ArrayList<LogFrameGroup>();
@@ -105,8 +106,9 @@ public class LogFrame implements Serializable {
     }
 
     @OneToMany(mappedBy = "parentLogFrame", cascade = CascadeType.ALL)
-    @OrderBy(value = "code asc")
-    @Filter(name = "hideDeleted", condition = "DateDeleted is null")
+    // use @Sort instead of @OrderBy as hibernate biffs because the code lives in the log_frame_element table
+    @org.hibernate.annotations.Sort
+    @org.hibernate.annotations.Cascade(org.hibernate.annotations.CascadeType.DELETE_ORPHAN) 
     public List<SpecificObjective> getSpecificObjectives() {
         return specificObjectives;
     }
@@ -117,7 +119,7 @@ public class LogFrame implements Serializable {
 
     @OneToMany(mappedBy = "parentLogFrame", cascade = CascadeType.ALL)
     @OrderBy(value = "code asc")
-    @Filter(name = "hideDeleted", condition = "DateDeleted is null")
+    @org.hibernate.annotations.Cascade(org.hibernate.annotations.CascadeType.DELETE_ORPHAN) 
     public List<Prerequisite> getPrerequisites() {
         return prerequisites;
     }
@@ -138,7 +140,8 @@ public class LogFrame implements Serializable {
 
     @OneToMany(mappedBy = "parentLogFrame", cascade = CascadeType.ALL)
     //Use this hibernate specific annotation to make LogFrame Entity delete its child
-    @Cascade(value=org.hibernate.annotations.CascadeType.DELETE_ORPHAN) 
+    @org.hibernate.annotations.Sort
+    @org.hibernate.annotations.Cascade(org.hibernate.annotations.CascadeType.DELETE_ORPHAN) 
     public List<LogFrameGroup> getGroups() {
         return groups;
     }

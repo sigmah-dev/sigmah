@@ -1,6 +1,7 @@
 package org.sigmah.shared.dto.logframe;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -20,6 +21,10 @@ public class ExpectedResultDTO extends BaseModelData implements EntityDTO, Posit
 
     private static final long serialVersionUID = 2394670766294049525L;
 
+    public ExpectedResultDTO() {
+    	setActivitiesDTO(new ArrayList<LogFrameActivityDTO>());
+    }
+    
     @Override
     public String getEntityName() {
         return "logframe.ExpectedResult";
@@ -84,39 +89,18 @@ public class ExpectedResultDTO extends BaseModelData implements EntityDTO, Posit
 
     // Result activities.
     public List<LogFrameActivityDTO> getActivitiesDTO() {
-        return get("activitiesDTO");
+        List<LogFrameActivityDTO> list = get("activitiesDTO");
+        if(list == null) {
+        	return Collections.emptyList();
+        } else {
+        	return list;
+        }
     }
 
     public void setActivitiesDTO(List<LogFrameActivityDTO> activitiesDTO) {
         set("activitiesDTO", activitiesDTO);
     }
 
-    /**
-     * Gets the list of activities which aren't deleted.
-     * 
-     * @return The list of activities which aren't deleted.
-     */
-    public List<LogFrameActivityDTO> getActivitiesDTONotDeleted() {
-
-        final List<LogFrameActivityDTO> activities = get("activitiesDTO");
-
-        if (activities == null) {
-            return null;
-        }
-
-        // Filters deleted activities.
-        // This action is needed because after saving the log frame, the
-        // hibernate filter to hide deleted entities isn't re-applied.
-        for (final Iterator<LogFrameActivityDTO> iterator = activities.iterator(); iterator.hasNext();) {
-
-            final LogFrameActivityDTO logFrameActivityDTO = iterator.next();
-            if (logFrameActivityDTO.isDeleted()) {
-                iterator.remove();
-            }
-        }
-
-        return activities;
-    }
 
     // Result parent objective.
     public SpecificObjectiveDTO getParentSpecificObjectiveDTO() {
@@ -147,31 +131,6 @@ public class ExpectedResultDTO extends BaseModelData implements EntityDTO, Posit
 
     public String getLabel() {
         return get("label");
-    }
-
-    // Result deleted date.
-    public Date getDateDeleted() {
-        return get("dateDeleted");
-    }
-
-    public void setDateDeleted(Date dateDeleted) {
-        set("dateDeleted", dateDeleted);
-    }
-
-    /**
-     * Deletes this result.
-     */
-    public void delete() {
-        setDateDeleted(new Date());
-    }
-
-    /**
-     * Returns if this result is deleted.
-     * 
-     * @return If this result is deleted.
-     */
-    public boolean isDeleted() {
-        return getDateDeleted() != null;
     }
 
     /**
@@ -227,7 +186,6 @@ public class ExpectedResultDTO extends BaseModelData implements EntityDTO, Posit
         sb.append(" ; code = ");
         sb.append(getCode());
         sb.append(" ; date deleted = ");
-        sb.append(getDateDeleted());
         sb.append(" ; intervention logic = ");
         sb.append(getInterventionLogic());
         sb.append(" ; risks = ");
@@ -306,21 +264,6 @@ public class ExpectedResultDTO extends BaseModelData implements EntityDTO, Posit
      * @return If the activity has been removed.
      */
     public boolean removeActivity(LogFrameActivityDTO activity) {
-
-        // Gets the current activities list.
-        final List<LogFrameActivityDTO> activities = getActivitiesDTO();
-
-        // If the list is empty, do nothing.
-        if (activities == null) {
-            return false;
-        }
-
-        // Tries to remove the activity from the local list.
-        if (activities.contains(activity)) {
-            activity.delete();
-            return true;
-        }
-
-        return false;
+        return getActivitiesDTO().remove(activity);
     }
 }

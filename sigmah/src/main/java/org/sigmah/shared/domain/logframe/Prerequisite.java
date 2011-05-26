@@ -26,9 +26,7 @@ import org.sigmah.shared.domain.Deleteable;
  */
 @Entity
 @Table(name = "log_frame_prerequisite")
-@org.hibernate.annotations.FilterDefs({ @org.hibernate.annotations.FilterDef(name = "hideDeleted") })
-@org.hibernate.annotations.Filters({ @org.hibernate.annotations.Filter(name = "hideDeleted", condition = "DateDeleted is null") })
-public class Prerequisite implements Serializable, Deleteable {
+public class Prerequisite implements Serializable {
 
     private static final long serialVersionUID = -3093621922617967414L;
 
@@ -37,7 +35,6 @@ public class Prerequisite implements Serializable, Deleteable {
     private String content;
     private LogFrame parentLogFrame;
     private LogFrameGroup group;
-    private Date dateDeleted;
     private Integer position;
 
     /**
@@ -52,7 +49,6 @@ public class Prerequisite implements Serializable, Deleteable {
         copy.content = this.content;
         copy.parentLogFrame = parentLogFrame;
         copy.group = groupMap.get(this.group.getId());
-        copy.dateDeleted = this.dateDeleted;
         copy.position = this.position;
 
         return copy;
@@ -105,27 +101,6 @@ public class Prerequisite implements Serializable, Deleteable {
 
     public void setGroup(LogFrameGroup group) {
         this.group = group;
-    }
-
-    @Column
-    @Temporal(value = TemporalType.TIMESTAMP)
-    public Date getDateDeleted() {
-        return this.dateDeleted;
-    }
-
-    public void setDateDeleted(Date date) {
-        this.dateDeleted = date;
-    }
-
-    @Override
-    public void delete() {
-        setDateDeleted(new Date());
-    }
-
-    @Override
-    @Transient
-    public boolean isDeleted() {
-        return getDateDeleted() != null;
     }
 
     @Column(name = "position")
