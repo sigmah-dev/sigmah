@@ -61,12 +61,12 @@ public class ReminderDTO extends BaseModelData implements EntityDTO {
     }
     
     //Deleted
-    public boolean isDeleted()
+    public Boolean isDeleted()
     {
     	return (Boolean) get("deleted");
     }
     
-    public void setDeleted(boolean isDeleted)
+    public void setDeleted(Boolean isDeleted)
     {
     	set("deleted",isDeleted);
     }
