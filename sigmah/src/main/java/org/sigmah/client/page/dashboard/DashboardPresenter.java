@@ -159,7 +159,9 @@ public class DashboardPresenter implements Page {
                         List<ReminderDTO> reminderListToLoad = new ArrayList<ReminderDTO>();
                         // Only show the undeleted reminders
                         for (ReminderDTO r : result.getList()) {
-                            if (r.isDeleted() == false) {
+                        	Boolean isDeleted =(Boolean)r.isDeleted();
+                        	Log.debug("The reminder is deleted ? :"+isDeleted+" Value original: "+r.isDeleted());
+                            if (isDeleted==null || isDeleted==false) {
                                 reminderListToLoad.add(r);
                             }
                         }
@@ -181,7 +183,9 @@ public class DashboardPresenter implements Page {
                 List<MonitoredPointDTO> pointListToLoad = new ArrayList<MonitoredPointDTO>();
                 // Only show the undeleted monitored points
                 for (MonitoredPointDTO p : result.getList()) {
-                    if (p.isDeleted() == false) {
+                	Boolean isDeleted = (Boolean) p.isDeleted();
+                	Log.debug("The reminder is deleted ? :"+isDeleted+" Value original: "+p.isDeleted());
+                    if (isDeleted==null || isDeleted==false) {
                         pointListToLoad.add(p);
                     }
                 }

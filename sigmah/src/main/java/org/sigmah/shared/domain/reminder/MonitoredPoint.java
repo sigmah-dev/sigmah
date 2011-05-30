@@ -96,7 +96,7 @@ public class MonitoredPoint implements Serializable {
         return completionDate != null;
     }
     
-    @Column(name="deleted",nullable = false)
+    @Column(name="deleted")
 	public Boolean isDeleted() {
 		return deleted;
 	}
