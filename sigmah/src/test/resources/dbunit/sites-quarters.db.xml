@@ -34,6 +34,7 @@
 
 			<indicator indicatorId="1"
 				activityId="1"
+				databaseId="1"
 				name="beneficiaries"
 				units="menages"
 				aggregation="0"

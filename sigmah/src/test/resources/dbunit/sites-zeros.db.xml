@@ -37,6 +37,7 @@
 				
 			<indicator indicatorId="5"
 				activityId="3"
+				databaseId="2"
 				name="Utilisaton rate"
 				units="nc/hab/month"   
 				aggregation="1"  
@@ -58,6 +59,7 @@
 
             <indicator indicatorId="6"
                  activityId="4"
+                 databaseId="2"
                  name="Number of children"
                  units="children"
                  aggregation="0"

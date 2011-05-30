@@ -93,6 +93,7 @@
 				
 			<indicator indicatorId="1"
 				activityId="1"
+				databaseId="1"
 				name="beneficiaries"
 				units="menages"
 				aggregation="0"
@@ -107,6 +108,7 @@
 				
 			<indicator indicatorId="2"
 				activityId="1"
+				databaseId="1"
 				name="baches" 
 				units="menages"   
 				aggregation="0"
@@ -122,6 +124,7 @@
 
             <indicator indicatorId="103"
                 activityId="1"
+                databaseId="1"
                 name="Nb. of distributions"
                 units="distributions"
                 aggregation="2"
@@ -168,6 +171,7 @@
 				
 			<indicator indicatorId="5"
 				activityId="3"
+				databaseId="2"
 				name="Utilisaton rate"
 				units="nc/hab/month"   
 				aggregation="1"  
@@ -190,6 +194,7 @@
 
             <indicator indicatorId="6"
                  activityId="4"
+                 databaseId="2"
                  name="Number of children"
                  units="children"
                  aggregation="1"

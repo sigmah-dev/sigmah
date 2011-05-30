@@ -17,6 +17,7 @@ import java.util.Set;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sigmah.server.dao.OnDataSet;
@@ -215,6 +216,8 @@ public class PivotHibernateDAOTest {
         assertEquals(13600, (int) buckets.get(0).doubleValue());
 
     }
+    
+    
 
 
     @Test
@@ -230,6 +233,23 @@ public class PivotHibernateDAOTest {
         assertEquals(1, buckets.size());
         assertEquals(0, (int) buckets.get(0).doubleValue());
         assertEquals(5, ((EntityCategory) buckets.get(0).getCategory(this.indicatorDim)).getId());
+    }
+
+    @Test
+    @OnDataSet("/dbunit/project-indicator-linked.db.xml")
+    @Ignore("impl not finished")
+    public void testSimpleLink() {
+
+        withIndicatorAsDimension();
+
+        Filter filter = new Filter();
+        filter.addRestriction(DimensionType.Indicator, 2);
+
+        List<PivotDAO.Bucket> buckets = dao.aggregate(1, filter, dimensions);
+
+        assertEquals(1, buckets.size());
+        assertEquals(2, ((EntityCategory) buckets.get(0).getCategory(this.indicatorDim)).getId());
+        assertEquals(2644, (int) buckets.get(0).doubleValue());
     }
 
  

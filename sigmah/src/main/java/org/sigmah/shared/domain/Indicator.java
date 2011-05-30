@@ -345,7 +345,7 @@ public class Indicator implements java.io.Serializable, Orderable, Deleteable, S
 	}
 
 	@ManyToMany
-	@JoinTable(name = "IndicatorDataSource",
+	@JoinTable(name = "indicator_datasource",
 			joinColumns = { @JoinColumn(name = "IndicatorId", nullable = false, updatable = false) },
 			inverseJoinColumns = { @JoinColumn(name = "IndicatorSourceId", nullable = false, updatable = false) })
 			public Set<Indicator> getDataSources() {

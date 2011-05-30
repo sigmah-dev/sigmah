@@ -321,7 +321,7 @@ public class PivotHibernateDAO implements PivotDAO {
 					 "LEFT JOIN Site ON (Period.SiteId = Site.SiteId) " +
 					 "LEFT JOIN Partner ON (Site.PartnerId = Partner.PartnerId) " +
 					 "LEFT JOIN Location ON (Location.LocationId = Site.LocationId) " +
-					 "LEFT JOIN UserDatabase ON (Site.DatabaseId = UserDatabase.DatabaseId) " +
+					 "LEFT JOIN UserDatabase ON (Indicator.DatabaseId = UserDatabase.DatabaseId) " +
 					 "LEFT JOIN Activity ON (Activity.ActivityId = Site.ActivityId) ");
 
 			 // Retrieve only AVERAGES (of any value), SUMs (non zero), And Multinomial (value labels)
