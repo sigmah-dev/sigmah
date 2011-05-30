@@ -71,7 +71,7 @@ public class DesignFormContainer extends ContentPanel {
         } else if (sel instanceof AttributeDTO) {
             return new AttributeForm();
         } else if (sel instanceof IndicatorDTO) {
-            return new IndicatorForm();
+            return new IndicatorForm(service);
         } else if (sel instanceof IndicatorGroup) {
         	return new IndicatorGroupForm();
         }

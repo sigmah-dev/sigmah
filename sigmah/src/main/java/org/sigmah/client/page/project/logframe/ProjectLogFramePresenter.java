@@ -122,7 +122,7 @@ public class ProjectLogFramePresenter implements SubPresenter {
     public Component getView() {
    	
         if (view == null) {
-            view = new ProjectLogFrameView();
+            view = new ProjectLogFrameView(dispatcher);
             if (projectPresenter.getCurrentProjectDTO().getCurrentAmendment() == null)
                 logFrame = projectPresenter.getCurrentProjectDTO().getLogFrameDTO();
             else

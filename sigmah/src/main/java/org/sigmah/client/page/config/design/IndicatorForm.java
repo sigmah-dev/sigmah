@@ -6,6 +6,7 @@
 package org.sigmah.client.page.config.design;
 
 
+import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.shared.dto.IndicatorDTO;
 
@@ -13,12 +14,10 @@ import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.binding.FieldBinding;
 import com.extjs.gxt.ui.client.binding.FormBinding;
-import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.BindingEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FieldEvent;
 import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.widget.form.AdapterField;
 import com.extjs.gxt.ui.client.widget.form.HiddenField;
 import com.extjs.gxt.ui.client.widget.form.NumberField;
 import com.extjs.gxt.ui.client.widget.form.Radio;
@@ -28,6 +27,8 @@ import com.extjs.gxt.ui.client.widget.form.TextField;
 
 public class IndicatorForm extends AbstractDesignForm {
 
+	private final Dispatcher dispatcher;
+	
     private FormBinding binding;
 	private NumberField idField;
 	private TextField<String> categoryField;
@@ -43,16 +44,17 @@ public class IndicatorForm extends AbstractDesignForm {
 	private Radio avgRadio;
 	private RadioGroup aggregationGroup;
 	private NumberField objectiveField;
+	private DatasourceField datasourceField;
 
-
-    public IndicatorForm()  {
+    public IndicatorForm(Dispatcher dispatcher)  {
         super();
+        this.dispatcher = dispatcher;
         binding = new FormBinding(this);
 
         setScrollMode(Scroll.AUTOY);
         
         this.setLabelWidth(150);
-        this.setFieldWidth(200);
+        this.setFieldWidth(250);
 
         idField = new NumberField();
         idField.setFieldLabel("ID");
@@ -74,7 +76,6 @@ public class IndicatorForm extends AbstractDesignForm {
         this.add(nameField);
 
         categoryField = new TextField<String>();
-        categoryField.setName("category");
         categoryField.setFieldLabel(I18N.CONSTANTS.group());
         categoryField.setMaxLength(50);
         categoryField.setReadOnly(true);
@@ -125,7 +126,6 @@ public class IndicatorForm extends AbstractDesignForm {
         });
         
         unitsField = new TextField<String>();
-        unitsField.setName("units");
         unitsField.setFieldLabel(I18N.CONSTANTS.units());
         unitsField.setAllowBlank(false);
         unitsField.setMaxLength(15);
@@ -133,12 +133,16 @@ public class IndicatorForm extends AbstractDesignForm {
         this.add(unitsField);
         
         objectiveField = new NumberField();
-        objectiveField.setName("objective");
         objectiveField.setFieldLabel(I18N.CONSTANTS.targetValue());
         binding.addFieldBinding(new FieldBinding(objectiveField, "objective"));
         this.add(objectiveField);
-      
      
+        datasourceField = new DatasourceField(dispatcher);
+        datasourceField.setFieldLabel("Datasources");
+        binding.addFieldBinding(new FieldBinding(datasourceField, "dataSourceIds"));
+        this.add(datasourceField);
+        
+        
         TextArea descField = new TextArea();
         descField.setFieldLabel(I18N.CONSTANTS.indicatorComments());
         binding.addFieldBinding(new FieldBinding(descField, "description"));
@@ -154,13 +158,20 @@ public class IndicatorForm extends AbstractDesignForm {
 					typeGroup.setValue(quantRadio);
 					aggregationGroup.setValue(aggregation.getValue() == IndicatorDTO.AGGREGATE_AVG ? avgRadio : sumRadio);
 				}
+				updateDatasources((IndicatorDTO) be.getModel());
 				updateFormLayout();
 			}
         	
 		});
     }
     
-    private Radio newRadio(String label) {
+    protected void updateDatasources(IndicatorDTO indicator) {
+    	if(indicator.get("id") != null) {
+    		datasourceField.load(indicator.getId());
+    	}
+	}
+
+	private Radio newRadio(String label) {
     	Radio radio = new Radio();
     	radio.setBoxLabel(label);
     	return radio;

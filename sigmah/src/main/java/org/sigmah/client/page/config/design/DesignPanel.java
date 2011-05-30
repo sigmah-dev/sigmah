@@ -307,7 +307,7 @@ public class DesignPanel extends DesignPanelBase implements ActionListener {
 		if(parent != null) {
 			newIndicator.setCategory(parent.getName());
 		}
-		final IndicatorForm form = new IndicatorForm();
+		final IndicatorForm form = new IndicatorForm(service);
 		form.getBinding().bind(newIndicator);
 		form.setIdVisible(false);
 		form.setCategoryVisible(false);

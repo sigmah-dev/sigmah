@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.page.project.logframe.FormWindow.FormSubmitListener;
 import org.sigmah.client.page.project.logframe.grid.ActionsMenu;
@@ -187,11 +188,14 @@ public class ProjectLogFrameGrid {
     private CodePolicy<PrerequisiteDTO> prerequisitesPolicy;
 
 	private int databaseId;
+	
+	private final Dispatcher dispatcher;
 
     /**
      * Builds an empty grid.
      */
-    public ProjectLogFrameGrid() {
+    public ProjectLogFrameGrid(Dispatcher dispatcher) {
+    	this.dispatcher = dispatcher;
         listeners = new ArrayList<LogFrameGridListener>();
         table = new FlexTable();
         formWindow = new FormWindow();
@@ -1069,7 +1073,7 @@ public class ProjectLogFrameGrid {
                         case 3:
 
                             // Indicators.
-                            return new IndicatorListWidget(databaseId, specificObjective);
+                            return new IndicatorListWidget(dispatcher, databaseId, specificObjective);
 
                         case 4:
 
@@ -1493,7 +1497,7 @@ public class ProjectLogFrameGrid {
                         case 3:
 
                             // Indicators.
-                            return new IndicatorListWidget(databaseId, result);
+                            return new IndicatorListWidget(dispatcher, databaseId, result);
 
                         case 4:
 
@@ -1922,7 +1926,7 @@ public class ProjectLogFrameGrid {
                             return grid;
                             
                         case 2:
-                        	return new IndicatorListWidget(databaseId, userObject);
+                        	return new IndicatorListWidget(dispatcher, databaseId, userObject);
 
                         case 5:
 

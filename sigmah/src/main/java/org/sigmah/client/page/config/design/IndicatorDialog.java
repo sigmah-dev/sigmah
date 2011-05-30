@@ -45,7 +45,7 @@ public class IndicatorDialog extends Dialog {
 		setClosable(true);
 		setModal(true);
 		
-		indicatorForm = new IndicatorForm();
+		indicatorForm = new IndicatorForm(dispatcher);
 		indicatorForm.setHeaderVisible(false);
 		indicatorForm.setScrollMode(Scroll.AUTOY);
 		indicatorForm.setStyleAttribute("backgroundColor", "white");

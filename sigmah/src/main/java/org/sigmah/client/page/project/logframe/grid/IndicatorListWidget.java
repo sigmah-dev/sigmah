@@ -1,5 +1,6 @@
 package org.sigmah.client.page.project.logframe.grid;
 
+import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.page.common.dialog.FormDialogCallback;
 import org.sigmah.client.page.common.dialog.FormDialogImpl;
@@ -34,6 +35,7 @@ public class IndicatorListWidget extends Composite  {
 	private int databaseId;
 	private LogFrameElementDTO element;
 	
+	private final Dispatcher dispatcher;
 
 	@UiField
 	Label newIndicatorLink;
@@ -41,7 +43,8 @@ public class IndicatorListWidget extends Composite  {
 	@UiField(provided=true)
 	ListView<IndicatorDTO> indicatorList;
 		
-	public IndicatorListWidget(int databaseId, LogFrameElementDTO element) {
+	public IndicatorListWidget(Dispatcher dispatcher, int databaseId, LogFrameElementDTO element) {
+		this.dispatcher = dispatcher;
 		this.databaseId = databaseId;
 		this.element = element;
 
@@ -73,7 +76,7 @@ public class IndicatorListWidget extends Composite  {
 		newIndicator.setAggregation(IndicatorDTO.AGGREGATE_SUM);
 		newIndicator.setDatabaseId(databaseId);
 		
-		final IndicatorForm form = new IndicatorForm();
+		final IndicatorForm form = new IndicatorForm(dispatcher);
 		form.getBinding().bind(newIndicator);
 		form.setIdVisible(false);
 		form.setCategoryVisible(false);
