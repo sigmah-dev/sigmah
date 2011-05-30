@@ -24,7 +24,12 @@ public final class ExportUtils {
         /**
          * Log frame.
          */
-        PROJECT_LOG_FRAME;
+        PROJECT_LOG_FRAME,
+        /**
+         * Project report.
+         */
+        PROJECT_REPORT;
+
 
         public static ExportType valueOfOrNull(String name) {
             try {

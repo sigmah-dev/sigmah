@@ -16,6 +16,7 @@ import org.sigmah.shared.dto.ExportUtils;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
+import java.io.OutputStream;
 
 /**
  * Manages exports.
@@ -65,6 +66,11 @@ public class SigmahExportServlet extends HttpServlet {
                 exporter = new LogFrameExporter(injector.getInstance(EntityManager.class),
                         (Map<String, Object>) request.getParameterMap());
                 break;
+                
+            case PROJECT_REPORT:
+                exporter = new ProjectReportExporter(injector.getInstance(EntityManager.class),
+                        (Map<String, Object>) request.getParameterMap());
+                break;
             default:
                 log.error("[doGet] The export type '" + type + "' is unknown.");
                 throw new ServletException("The export type '" + type + "' is unknown.");
@@ -81,7 +87,10 @@ public class SigmahExportServlet extends HttpServlet {
 
             // Exports.
             try {
-                exporter.export(resp.getOutputStream());
+                final OutputStream outputStream = resp.getOutputStream();
+                exporter.export(outputStream);
+                outputStream.close();
+
             } catch (ExportException e) {
                 log.error("[doGet] An error occurred during the export", e);
                 throw new ServletException("An error occurred during the export.", e);

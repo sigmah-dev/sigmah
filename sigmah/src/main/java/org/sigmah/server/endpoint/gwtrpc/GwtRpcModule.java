@@ -12,6 +12,7 @@ import org.sigmah.server.endpoint.file.ImageServlet;
 
 import com.google.inject.servlet.ServletModule;
 import org.sigmah.server.endpoint.export.sigmah.ExportModelServlet;
+import org.sigmah.server.endpoint.export.sigmah.SigmahExportServlet;
 
 public class GwtRpcModule extends ServletModule {
 
@@ -41,8 +42,6 @@ public class GwtRpcModule extends ServletModule {
         serve("/Sigmah/image-provider").with(ImageServlet.class); // Image provider.
         serve("/Sigmah/password").with(RetrievePasswordServlet.class); // Password lost service.
         serve("/Sigmah/models").with(ExportModelServlet.class); // Model export/import
-        
-        // Disengages the export service.
-        // serve("/Sigmah/export").with(SigmahExportServlet.class); // Exports.
+        serve("/Sigmah/export").with(SigmahExportServlet.class); // Exports.
     }
 }
