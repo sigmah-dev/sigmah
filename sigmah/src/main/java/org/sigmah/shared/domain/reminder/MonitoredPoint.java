@@ -29,7 +29,7 @@ public class MonitoredPoint implements Serializable {
     private Date completionDate;
     private File file;
     private MonitoredPointList parentList;
-    private boolean deleted;
+    private Boolean deleted;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -96,12 +96,12 @@ public class MonitoredPoint implements Serializable {
         return completionDate != null;
     }
     
-    @Column(name="deleted",nullable = false,columnDefinition="BIT(1) default 0")
-	public boolean isDeleted() {
+    @Column(name="deleted",nullable = false)
+	public Boolean isDeleted() {
 		return deleted;
 	}
 
-	public void setDeleted(boolean deleted) {
+	public  void setDeleted(Boolean deleted) {
 		this.deleted = deleted;
 	}
     

@@ -473,7 +473,8 @@ public class ProjectDashboardPresenter implements SubPresenter {
             for (final MonitoredPointDTO point : list.getPoints()) {
             	
             	//Only show the undeleted points
-            	if(point.isDeleted()==false)
+            	Boolean isDeleted = (Boolean)point.isDeleted();
+            	if(isDeleted==null||isDeleted==false)
             	{
                 point.setIsCompleted();
                 view.getMonitoredPointsGrid().getStore().add(point);
@@ -499,7 +500,8 @@ public class ProjectDashboardPresenter implements SubPresenter {
             for (final ReminderDTO reminder : list.getReminders()) {
             	
             	//Only show the undeleted reminders
-               if(reminder.isDeleted()==false)
+            	Boolean isDeleted = (Boolean) reminder.isDeleted();
+               if(isDeleted==null||isDeleted==false)
                {
                 reminder.setIsCompleted();
                 view.getRemindersGrid().getStore().add(reminder);
