@@ -4,6 +4,7 @@ import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.dispatch.monitor.MaskingAsyncMonitor;
 import org.sigmah.client.dispatch.remote.Authentication;
 import org.sigmah.client.i18n.I18N;
+import org.sigmah.client.page.common.dialog.FormDialogCallback;
 import org.sigmah.client.page.project.ProjectPresenter;
 import org.sigmah.client.page.project.SubPresenter;
 import org.sigmah.client.util.Notification;
@@ -247,41 +248,42 @@ public class ProjectLogFramePresenter implements SubPresenter {
         // Paste action.
         view.getPasteButton().addListener(Events.OnClick, new Listener<BaseEvent>() {
 
-            @Override
-            public void handleEvent(BaseEvent be) {
-                MessageBox.confirm(I18N.CONSTANTS.paste(), I18N.CONSTANTS.logFramePasteConfirm(),
-                        new Listener<MessageBoxEvent>() {
+        	@Override
+        	public void handleEvent(BaseEvent be) {
+        		final ConfirmPasteDialog dialog = new ConfirmPasteDialog();
+        		dialog.show(new FormDialogCallback() {
 
-                            @Override
-                            public void handleEvent(MessageBoxEvent be) {
-                                if (Dialog.YES.equals(be.getButtonClicked().getItemId())) {
-                                    final CopyLogFrame copyLogFrame = CopyLogFrame
-                                    	.from(logFrameIdCopySource)
-                                    	.to(currentProjectDTO)
-                                    	.with(IndicatorCopyStrategy.DUPLICATE);
-                                    
-                                    dispatcher.execute(copyLogFrame, null, new AsyncCallback<LogFrameDTO>() {
+        			@Override
+        			public void onValidated() {
+        				final CopyLogFrame copyLogFrame = CopyLogFrame
+        				.from(logFrameIdCopySource)
+        				.to(currentProjectDTO)
+        				.with(dialog.isLinkIndicatorsChecked() ?
+        						IndicatorCopyStrategy.DUPLICATE_AND_LINK :
+        						IndicatorCopyStrategy.DUPLICATE);
 
-                                        @Override
-                                        public void onFailure(Throwable caught) {
-                                            MessageBox.alert(I18N.CONSTANTS.paste(),
-                                                    I18N.CONSTANTS.logFramePasteError(), null);
-                                        }
+        				dispatcher.execute(copyLogFrame, null, new AsyncCallback<LogFrameDTO>() {
 
-                                        @Override
-                                        public void onSuccess(LogFrameDTO result) {
-                                            logFrame = result;
-                                            currentProjectDTO.setLogFrameDTO(result);
+        					@Override
+        					public void onFailure(Throwable caught) {
+        						MessageBox.alert(I18N.CONSTANTS.paste(),
+        								I18N.CONSTANTS.logFramePasteError(), null);
+        					}
 
-                                            fillAndInit();
-                                            Notification.show(I18N.CONSTANTS.paste(), I18N.CONSTANTS.logFramePasted());
-                                        }
+        					@Override
+        					public void onSuccess(LogFrameDTO result) {
+        						logFrame = result;
+        						currentProjectDTO.setLogFrameDTO(result);
 
-                                    });
-                                }
-                            }
-                        });
+        						fillAndInit();
+        						Notification.show(I18N.CONSTANTS.paste(), I18N.CONSTANTS.logFramePasted());
+        					}
 
+        				});
+        			}
+
+        		});
+            
             }
         });
 

@@ -1,10 +1,12 @@
 package org.sigmah.server.endpoint.gwtrpc;
 
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
 
-import java.util.Arrays;
+import java.util.List;
 
+import org.dozer.Mapper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sigmah.server.dao.OnDataSet;
@@ -13,8 +15,11 @@ import org.sigmah.shared.command.GetIndicators;
 import org.sigmah.shared.command.GetProject;
 import org.sigmah.shared.command.UpdateLogFrame;
 import org.sigmah.shared.command.result.IndicatorListResult;
+import org.sigmah.shared.command.result.LogFrameResult;
+import org.sigmah.shared.domain.Indicator;
+import org.sigmah.shared.domain.logframe.IndicatorCopyStrategy;
+import org.sigmah.shared.domain.logframe.LogFrame;
 import org.sigmah.shared.domain.logframe.LogFrameGroupType;
-import org.sigmah.shared.domain.logframe.SpecificObjective;
 import org.sigmah.shared.dto.IndicatorDTO;
 import org.sigmah.shared.dto.ProjectDTO;
 import org.sigmah.shared.dto.logframe.ExpectedResultDTO;
@@ -26,15 +31,17 @@ import org.sigmah.shared.dto.logframe.SpecificObjectiveDTO;
 import org.sigmah.shared.exception.CommandException;
 import org.sigmah.test.InjectionSupport;
 
+import com.google.inject.Inject;
+
 
 @RunWith(InjectionSupport.class)
 @OnDataSet("/dbunit/project-indicator.db.xml")
-public class UpdateLogFrameTest extends CommandTestCase {
+public class LogFrameIntegrationTest extends CommandTestCase {
 
     @Test
     public void logFrame() throws CommandException {
     	
-    	createNewLogFrame();
+    	createNewLogFrameForProject(1);
     	
     	// now verify that we can reload
     	ProjectDTO project = execute(new GetProject(1));
@@ -45,7 +52,7 @@ public class UpdateLogFrameTest extends CommandTestCase {
     @Test
     public void deleteActivity() throws CommandException {
     	
-    	createNewLogFrame();
+    	createNewLogFrameForProject(1);
     	
     	// now verify that we can reload
     	ProjectDTO project = execute(new GetProject(1));
@@ -71,7 +78,7 @@ public class UpdateLogFrameTest extends CommandTestCase {
     @Test
     public void saveIndicators() throws CommandException {
     	
-    	createNewLogFrame();
+    	createNewLogFrameForProject(1);
     	
     	// now retrieve the new log frame and the list of indicators
     	ProjectDTO project = execute(new GetProject(1));
@@ -82,7 +89,7 @@ public class UpdateLogFrameTest extends CommandTestCase {
     		.getIndicators().add( indicators.getData().get(0));
     	
     	
-    	execute(new UpdateLogFrame(project.getLogFrameDTO(), project.getId()));
+    	LogFrameResult saved = execute(new UpdateLogFrame(project.getLogFrameDTO(), project.getId()));
     	
     	// validate the indicator was properly added
     	
@@ -94,17 +101,18 @@ public class UpdateLogFrameTest extends CommandTestCase {
     						.getName(), equalTo( indicators.getData().get(0).getName()) );
     
     	
+   
+    	
     }
     
     @Test
     public void newIndicator() throws CommandException {
-    	createNewLogFrame();
+    	createNewLogFrameForProject(1);
     	
     	// retrieve the new logframe
     	ProjectDTO project = execute(new GetProject(1));
     	
     	IndicatorDTO newInd = addNewIndicatorToLogFrame(project);
-    	
     	
     	
     	// validate the indicator was properly added
@@ -119,6 +127,15 @@ public class UpdateLogFrameTest extends CommandTestCase {
     	// .. and validate that the indicator is linked to the database
     	IndicatorListResult indicators = execute(GetIndicators.forDatabase(1));
     	IndicatorDTO theNewIndicator = findByName(indicators, newInd.getName());
+        	
+    	// now try resaving to make sure that the indicator preserves its relationship with UserDatabase
+    	LogFrameResult afterReSave = execute(new UpdateLogFrame(project.getLogFrameDTO(), project.getId()));
+    	
+    	IndicatorDTO theNewIndicatorAfterReSave = afterReSave.getLogFrame()
+    		.getSpecificObjectives().get(0).getIndicators().get(0);
+    	
+    	assertThat(theNewIndicatorAfterReSave.getId(), equalTo(theNewIndicator.getId()));
+    	
     	
     }
 
@@ -126,7 +143,7 @@ public class UpdateLogFrameTest extends CommandTestCase {
     @Test
     public void copyLogFrame() throws CommandException {
     	
-    	createNewLogFrame();    	
+    	createNewLogFrameForProject(1);    	
     	
     	// retrieve the new logframe
     	ProjectDTO project = execute(new GetProject(1));
@@ -157,12 +174,47 @@ public class UpdateLogFrameTest extends CommandTestCase {
 		assertThat(aCopy.getCode(), equalTo(aOriginal.getCode()));
 		assertThat(aCopy.getTitle(), equalTo(aOriginal.getTitle()));
 		    	
-//    	assertThat( copiedLogFrame
-//    		.getSpecificObjectives().get(0)
-//    		.getIndicators().size(), equalTo(1));
+    	List<IndicatorDTO> indicators = copiedLogFrame
+    		.getSpecificObjectives().get(0)
+    		.getIndicators();
     	
+		assertThat( indicators.size(), equalTo(1));
+    	assertThat( indicators.get(0).getDatabaseId(), equalTo(2));    	
     	
+    	// assure that the original is unmolested!
+    	IndicatorListResult reloadedIndicators = execute(GetIndicators.forDatabase(1));
+    	
+    	assertThat( findByName(reloadedIndicators, newInd.getName()).getDatabaseId(), equalTo(1));
     }
+    
+    @Test
+    public void replaceLogFrame() throws CommandException {
+    	
+    	LogFrameResult result1 = createNewLogFrameForProject(1);
+    	LogFrameResult result2 = createNewLogFrameForProject(2);
+    	
+    	execute(new CopyLogFrame(result1.getLogFrame().getId(), 2));
+    	    	
+    }
+    
+    @Test
+    @OnDataSet("/dbunit/project-indicator.db.xml")
+    public void replaceLogFrameWithIndicatorLinking() throws CommandException {
+    	
+    	LogFrameResult result1 = createNewLogFrameForProject(1);
+    	addNewIndicatorToLogFrame(execute(new GetProject(1)));
+    	
+    	
+    	LogFrameResult result2 = createNewLogFrameForProject(2);
+    	
+    	execute(CopyLogFrame.from(result1.getLogFrame().getId())
+    			.to(2)
+    			.with(IndicatorCopyStrategy.DUPLICATE));
+    	
+    	
+    	   	    	    	
+    }
+    
     
 
 	private IndicatorDTO findByName(IndicatorListResult indicators, String name) {
@@ -174,7 +226,7 @@ public class UpdateLogFrameTest extends CommandTestCase {
 		throw new AssertionError("indicator with name '" + name + "' not found");
 	}
 
-	private void createNewLogFrame() throws CommandException {
+	private LogFrameResult createNewLogFrameForProject(int projectId) throws CommandException {
 		
     	LogFrameModelDTO model = new LogFrameModelDTO();
     	model.setName("Generic Model");
@@ -218,7 +270,7 @@ public class UpdateLogFrameTest extends CommandTestCase {
     	    	
     	
     	// verify that is saved without error
-    	execute(new UpdateLogFrame(logFrame, 1));
+    	return execute(new UpdateLogFrame(logFrame, projectId));
 	}
 
 	private IndicatorDTO addNewIndicatorToLogFrame(ProjectDTO project) throws CommandException {
@@ -236,6 +288,41 @@ public class UpdateLogFrameTest extends CommandTestCase {
     	execute(new UpdateLogFrame(project.getLogFrameDTO(), project.getId()));
     	
 		return newInd;
+	}
+	
+	@Inject
+	private Mapper mapper;
+	
+	@Test
+	public void indicatorIdIsMapped() throws CommandException {
+		
+		LogFrameModelDTO model = new LogFrameModelDTO();
+    	model.setName("Generic Model");
+		
+    	LogFrameDTO logFrame = new LogFrameDTO();
+    	logFrame.setMainObjective("Reduce child mortalite");
+    	logFrame.setLogFrameModel(model);
+		
+    	LogFrameGroupDTO soGroup = logFrame.addGroup("S.O. 1", LogFrameGroupType.SPECIFIC_OBJECTIVE);
+    	
+    	SpecificObjectiveDTO so1 = logFrame.addSpecificObjective();
+    	so1.setCode(1);
+    	so1.setAssumptions("The community is open to vaccinating their children");
+    	so1.setInterventionLogic("Assure that all children are vaccinated");
+    	so1.setRisks("A resumption of hostilities could disrupt the vaccination program");
+    	so1.setParentLogFrame(logFrame);
+    	so1.setGroup(soGroup);
+    	
+		IndicatorListResult indicators = execute(GetIndicators.forDatabase(1));
+		IndicatorDTO anIndicator = indicators.getData().get(0);
+		
+		so1.getIndicators().add(anIndicator);
+		
+		LogFrame entity = mapper.map(logFrame, LogFrame.class);
+		Indicator anIndicatorMapped = entity.getSpecificObjectives().get(0).getIndicators().iterator().next();
+		
+		assertThat( anIndicatorMapped.getId(), equalTo( anIndicator.getId() ));
+		
 	}
     
 	

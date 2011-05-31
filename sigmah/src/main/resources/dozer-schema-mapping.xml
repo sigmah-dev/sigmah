@@ -81,7 +81,7 @@
 		<class-a>org.sigmah.shared.domain.Indicator</class-a>
 		<class-b>org.sigmah.shared.dto.IndicatorDTO</class-b>
 
-		<field type="one-way">
+		<field>
 			<a>id</a>
 			<b>id</b>
 		</field>

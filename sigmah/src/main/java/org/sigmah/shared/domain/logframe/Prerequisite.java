@@ -84,7 +84,7 @@ public class Prerequisite implements Serializable {
     }
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "id_log_frame", nullable = false)
+    @JoinColumn(name = "id_log_frame", nullable = true)
     public LogFrame getParentLogFrame() {
         return parentLogFrame;
     }

@@ -66,7 +66,7 @@ public abstract class LogFrameElement implements Serializable, Comparable<LogFra
 	}
 
 	@ManyToOne(optional = true)
-	@JoinColumn(name = "id_group", nullable = false)
+	@JoinColumn(name = "id_group", nullable = true) 
 	public LogFrameGroup getGroup() {
 		return group;
 	}
@@ -93,7 +93,7 @@ public abstract class LogFrameElement implements Serializable, Comparable<LogFra
 		this.assumptions = assumptions;
 	}
 
-	@ManyToMany(cascade=CascadeType.ALL)
+	@ManyToMany(cascade=CascadeType.MERGE)
 	@JoinTable(name = "log_frame_indicators")
 	public Set<Indicator> getIndicators() {
 		return indicators;
@@ -122,15 +122,25 @@ public abstract class LogFrameElement implements Serializable, Comparable<LogFra
 					}
 					copies.add(indicator);
 					break;
+					
 				case DUPLICATE_AND_LINK:
+					copies.add(copyAndLink(indicator, context));
+					break;
+					
 				case DUPLICATE:
 					copies.add(indicator.copy(context.getDestinationProjet()));
 					break;
-								
-					
 				}
 			}
 		}
 		return copies;
+	}
+
+	private Indicator copyAndLink(Indicator indicator,
+			LogFrameCopyContext context) {
+		
+		Indicator copy = indicator.copy(context.getDestinationProjet());
+		copy.getDataSources().add(indicator);
+		return copy;
 	}
 }

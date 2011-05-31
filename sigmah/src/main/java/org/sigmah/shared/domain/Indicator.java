@@ -7,6 +7,7 @@ package org.sigmah.shared.domain;
 
 
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -68,7 +69,7 @@ public class Indicator implements java.io.Serializable, Orderable, Deleteable, S
 
 	private List<String> labels;
 
-	private Set<Indicator> dataSources;
+	private Set<Indicator> dataSources = new HashSet<Indicator>(0);
 
 	public Indicator() {
 
@@ -311,7 +312,7 @@ public class Indicator implements java.io.Serializable, Orderable, Deleteable, S
 	@Override
 	@Transient
 	public boolean isDeleted() {
-		return getDateDeleted() == null;
+		return getDateDeleted() != null;
 	}
 
 	@ManyToOne(optional = true, fetch = FetchType.LAZY)
@@ -371,7 +372,6 @@ public class Indicator implements java.io.Serializable, Orderable, Deleteable, S
 		copy.category = this.category;
 		copy.collectIntervention = this.collectIntervention;
 		copy.collectMonitoring = this.collectMonitoring;
-		
 		copy.aggregation = this.aggregation;
 		copy.sortOrder = this.sortOrder;
 		copy.database = databaseCopy;

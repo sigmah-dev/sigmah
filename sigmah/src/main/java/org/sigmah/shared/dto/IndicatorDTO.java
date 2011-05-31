@@ -52,7 +52,8 @@ public final class IndicatorDTO extends BaseModelData implements EntityDTO {
      * @return the id of the Indicator
      */
     public int getId() {
-        return (Integer)get("id");
+        Object value = get("id");
+		return value == null ? 0 : (Integer)value;
     }
 
     /**

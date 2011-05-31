@@ -9,6 +9,9 @@ import org.sigmah.shared.dto.IndicatorDTO;
 import org.sigmah.shared.dto.logframe.LogFrameElementDTO;
 
 import com.extjs.gxt.ui.client.Style;
+import com.extjs.gxt.ui.client.Style.Scroll;
+import com.extjs.gxt.ui.client.dnd.ListViewDragSource;
+import com.extjs.gxt.ui.client.dnd.ListViewDropTarget;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.ListViewEvent;
 import com.extjs.gxt.ui.client.event.Listener;
@@ -16,6 +19,7 @@ import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.ListView;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
@@ -25,11 +29,18 @@ import com.google.gwt.user.client.ui.Widget;
 
 public class IndicatorListWidget extends Composite  {
 
+	private static final String DRAG_AND_DROP_GROUP = "logframeIndicators";
 	private static IndicatorListWidgetUiBinder uiBinder = GWT
 			.create(IndicatorListWidgetUiBinder.class);
 
 	interface IndicatorListWidgetUiBinder extends
 			UiBinder<Widget, IndicatorListWidget> {
+	}
+	
+	interface Style extends CssResource {
+		String indicator();
+		String indicatorOver();
+		String indicatorSelected();
 	}
 		
 	private int databaseId;
@@ -40,22 +51,28 @@ public class IndicatorListWidget extends Composite  {
 	@UiField
 	Label newIndicatorLink;
 
-	@UiField(provided=true)
+	@UiField()
 	ListView<IndicatorDTO> indicatorList;
+	
+	@UiField Style style;
+
 		
 	public IndicatorListWidget(Dispatcher dispatcher, int databaseId, LogFrameElementDTO element) {
 		this.dispatcher = dispatcher;
 		this.databaseId = databaseId;
 		this.element = element;
 
-			
+		initWidget(uiBinder.createAndBindUi(this));
+		
 		ListStore<IndicatorDTO> store = new ListStore<IndicatorDTO>();
 		store.add(element.getIndicators());
-
-		indicatorList = new ListView<IndicatorDTO>();
+		
+		indicatorList.setTemplate("<tpl for=\".\"><div class=" + style.indicator() + ">{name}</div></tpl>");
 		indicatorList.setStore(store);
-		indicatorList.setDisplayProperty("name");
 		indicatorList.setBorders(false);
+		indicatorList.setOverStyle(style.indicatorOver());
+		indicatorList.setSelectStyle(style.indicatorSelected());
+		indicatorList.setItemSelector("." + style.indicator());
 		
 		indicatorList.addListener(Events.Select, new Listener<ListViewEvent<IndicatorDTO>>() {
 			@Override
@@ -64,9 +81,12 @@ public class IndicatorListWidget extends Composite  {
 			}
 		});
 
+		new ListViewDragSource(indicatorList)
+			.setGroup(DRAG_AND_DROP_GROUP);
+		new ListViewDropTarget(indicatorList)
+			.setGroup(DRAG_AND_DROP_GROUP);
 		
-		
-		initWidget(uiBinder.createAndBindUi(this));
+
 	}
 
 	@UiHandler("newIndicatorLink")
@@ -75,6 +95,7 @@ public class IndicatorListWidget extends Composite  {
 		newIndicator.setCollectIntervention(true);
 		newIndicator.setAggregation(IndicatorDTO.AGGREGATE_SUM);
 		newIndicator.setDatabaseId(databaseId);
+		newIndicator.setCategory(element.getGroup().getLabel());
 		
 		final IndicatorForm form = new IndicatorForm(dispatcher);
 		form.getBinding().bind(newIndicator);
@@ -85,7 +106,7 @@ public class IndicatorListWidget extends Composite  {
 		dialog.setHeading(I18N.CONSTANTS.newIndicatorGroup());
 		dialog.setWidth(form.getPreferredDialogWidth());
 		dialog.setHeight(form.getPreferredDialogHeight());
-		dialog.setScrollMode(Style.Scroll.AUTOY);
+		dialog.setScrollMode(Scroll.AUTOY);
 		dialog.show(new FormDialogCallback() {
 
 			@Override

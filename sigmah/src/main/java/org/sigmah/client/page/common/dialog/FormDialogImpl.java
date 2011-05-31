@@ -69,7 +69,6 @@ public class FormDialogImpl<FormT extends FormPanel> extends Window implements A
 
         cancelButton = new Button(I18N.CONSTANTS.cancel());
         cancelButton.setIcon(IconImageBundle.ICONS.cancel());
-        addButton(cancelButton);
 
         cancelButton.addListener(Events.Select, new Listener<ButtonEvent>() {
             public void handleEvent(ButtonEvent be) {
@@ -96,8 +95,9 @@ public class FormDialogImpl<FormT extends FormPanel> extends Window implements A
                 });
             }
         });
-        addButton(saveButton);
 
+        addButton(saveButton);
+        addButton(cancelButton);
     }
 
 

@@ -4,12 +4,28 @@
 	xmlns:e="urn:import:com.extjs.gxt.ui.client.widget">
 	
 	<ui:with field='i18n' type='org.sigmah.client.i18n.UIConstants'/>
-	<ui:style>
+	<ui:style type="org.sigmah.client.page.project.logframe.grid.IndicatorListWidget.Style">
+	
 		.action {
 			cursor: pointer;
-			text-align: right;
 			text-decoration: underline;
+			display: inline;
+			padding: 2px;
 		}
+		
+		.indicator {
+		    font: 11px tahoma,arial,helvetica,sans-serif;
+		    padding: 2px;
+		}
+		
+		.indicatorOver {
+			text-decoration: underline;
+			cursor: pointer;
+		}
+		
+		.indicatorSelected {
+		}
+	
 	</ui:style>
 	<g:HTMLPanel>
 		<e:ListView ui:field="indicatorList"/>

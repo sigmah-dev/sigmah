@@ -5,6 +5,7 @@
 
 package org.sigmah.shared.command;
 
+import org.sigmah.shared.command.result.CommandResult;
 import org.sigmah.shared.domain.logframe.IndicatorCopyStrategy;
 import org.sigmah.shared.dto.ProjectDTO;
 import org.sigmah.shared.dto.ProjectDTOLight;
@@ -27,7 +28,7 @@ public class CopyLogFrame implements Command<LogFrameDTO> {
     /**
      * Strategy for copying referenced indicators
      */
-    private IndicatorCopyStrategy indicatorCopyStrategy;
+    private IndicatorCopyStrategy indicatorCopyStrategy = IndicatorCopyStrategy.DUPLICATE;
 
     public CopyLogFrame() {
     }
@@ -76,10 +77,15 @@ public class CopyLogFrame implements Command<LogFrameDTO> {
     	this.destinationId = project.getId();
     	return this;
     }
+	public CopyLogFrame to(int destinationProjectId) {
+		this.destinationId = destinationProjectId;
+		return this;
+	}
     
     public CopyLogFrame with(IndicatorCopyStrategy strategy) {
     	this.indicatorCopyStrategy = strategy;
     	return this;
     }
+
 	
 }
