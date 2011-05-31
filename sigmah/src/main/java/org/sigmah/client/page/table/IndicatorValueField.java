@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.sigmah.client.dispatch.Dispatcher;
+import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.page.entry.IndicatorNumberFormats;
 import org.sigmah.shared.command.GetIndicators;
 import org.sigmah.shared.command.result.IndicatorListResult;
@@ -49,6 +50,7 @@ public class IndicatorValueField extends ComboBox<IndicatorValue> {
 				list.add(new IndicatorValue(i+1, labels.get(i)));
 			}
 		}
+		list.add(new IndicatorValue(null, "---" + I18N.CONSTANTS.empty() + "---"));
 		store.removeAll();
 		store.add(list);
 		

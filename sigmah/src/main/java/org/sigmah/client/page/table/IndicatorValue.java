@@ -4,11 +4,15 @@ import com.extjs.gxt.ui.client.data.BaseModelData;
 
 class IndicatorValue extends BaseModelData {
 
-	public IndicatorValue(int value, String label) {
-		set("value", (double)value);
+	public IndicatorValue(Double value, String label) {
+		set("value", value);
 		set("label", label);
 	}
 
+	public IndicatorValue(int value, String label) {
+		this((double)value, label);
+	}
+	
 	public IndicatorValue(Double dvalue) {
 		set("value", dvalue);
 	}

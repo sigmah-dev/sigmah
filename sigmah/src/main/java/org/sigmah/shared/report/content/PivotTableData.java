@@ -139,11 +139,13 @@ public class PivotTableData implements Serializable {
 		}
 
 		public void add(Cell cell) {
-			if(this.value == null) {
-				this.value = 0d;
+			if(cell.getValue() != null) {
+				if(this.value == null) {
+					this.value = 0d;
+				}
+				this.value += cell.getValue();
+				this.count += cell.getCount();
 			}
-			this.value += cell.getValue();
-			this.count += cell.getCount();
 		}
     }
 
