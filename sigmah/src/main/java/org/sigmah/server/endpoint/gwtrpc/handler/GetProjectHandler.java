@@ -5,8 +5,10 @@
 
 package org.sigmah.server.endpoint.gwtrpc.handler;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.persistence.EntityManager;
@@ -20,7 +22,11 @@ import org.sigmah.shared.command.result.CommandResult;
 import org.sigmah.shared.domain.OrgUnit;
 import org.sigmah.shared.domain.Project;
 import org.sigmah.shared.domain.User;
+import org.sigmah.shared.domain.reminder.MonitoredPoint;
+import org.sigmah.shared.domain.reminder.Reminder;
 import org.sigmah.shared.dto.ProjectDTO;
+import org.sigmah.shared.dto.reminder.MonitoredPointDTO;
+import org.sigmah.shared.dto.reminder.ReminderDTO;
 import org.sigmah.shared.exception.CommandException;
 
 import com.google.inject.Inject;
@@ -77,6 +83,26 @@ public class GetProjectHandler implements CommandHandler<GetProject> {
                     dto.setOrgUnit(orgUnit.getId());
                     break;
                 }
+                List<ReminderDTO>reminderDTOs = new ArrayList<ReminderDTO>();
+                List<MonitoredPointDTO>pointDTOs = new ArrayList<MonitoredPointDTO>();
+
+                for(final Reminder r:project.getRemindersList().getReminders())
+                {               	
+                	ReminderDTO reminderDTO = new ReminderDTO();
+                	reminderDTO = mapper.map(r, ReminderDTO.class);
+                	reminderDTO.setDeleted(r.isDeleted());
+                	reminderDTOs.add(reminderDTO);
+                }
+                for(final MonitoredPoint p:project.getPointsList().getPoints())
+                {
+                	LOG.debug("Point is deleted ?"+p.isDeleted());
+                	MonitoredPointDTO pointDTO = new MonitoredPointDTO();
+                	pointDTO = mapper.map(p, MonitoredPointDTO.class);
+                	pointDTO.setDeleted(p.isDeleted());
+                	pointDTOs.add(pointDTO);
+                }
+                dto.getRemindersList().setReminders(reminderDTOs);
+                dto.getPointsList().setPoints(pointDTOs);
                 return dto;
             }
             // The user cannot see this project.

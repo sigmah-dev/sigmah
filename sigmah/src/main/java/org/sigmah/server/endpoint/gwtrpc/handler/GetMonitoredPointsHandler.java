@@ -63,7 +63,11 @@ public class GetMonitoredPointsHandler implements CommandHandler<GetMonitoredPoi
             final List<MonitoredPoint> monitoredPoints = (List<MonitoredPoint>) query.getResultList();
             for (final MonitoredPoint monitoredPoint : monitoredPoints) {
                 if(monitoredPoint.getCompletionDate() == null) // Not completed only
-                    dtos.add(mapper.map(monitoredPoint, MonitoredPointDTO.class));
+                {
+                	MonitoredPointDTO pointDTO = mapper.map(monitoredPoint, MonitoredPointDTO.class);
+                	pointDTO.setDeleted(monitoredPoint.isDeleted());
+                	dtos.add(pointDTO);
+                }
             }
 
         }

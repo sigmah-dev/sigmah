@@ -159,8 +159,8 @@ public class UpdateEntityHandler extends BaseEntityHandler implements CommandHan
 			//Update 3 properties: ExpectedDate,Label,Deleted
 			reminderToUpdate.setExpectedDate(new Date((Long) cmd.getChanges().get("expectedDate")));
 			reminderToUpdate.setLabel((String) cmd.getChanges().get("label"));
-			String deleted = cmd.getChanges().get("deleted").toString();
-			reminderToUpdate.setDeleted(Boolean.valueOf(deleted));
+			Boolean deleted = (Boolean)cmd.getChanges().get("deleted");
+			reminderToUpdate.setDeleted(deleted);
 			em.merge(reminderToUpdate);
 		}
 		return new VoidResult();
@@ -173,8 +173,8 @@ public class UpdateEntityHandler extends BaseEntityHandler implements CommandHan
 			//Update 3 properties: ExpectedDate,Label,Deleted
 			point.setExpectedDate(new Date((Long) cmd.getChanges().get("expectedDate")));
 			point.setLabel((String) cmd.getChanges().get("label"));
-			String deleted = cmd.getChanges().get("deleted").toString();
-			point.setDeleted(Boolean.valueOf(deleted));
+			Boolean deleted =(Boolean) cmd.getChanges().get("deleted");
+			point.setDeleted(deleted);
 			em.merge(point);
 		}
 		return new VoidResult();

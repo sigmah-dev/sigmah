@@ -385,6 +385,7 @@ public class CreateEntityHandler extends BaseEntityHandler implements CommandHan
         point.setExpectedDate(new Date((Long) expectedDate));
         point.setCompletionDate(null);
         point.setFile(null);
+        point.setDeleted(false);
 
         // Adds it to the list.
         list.addMonitoredPoint(point);
@@ -439,6 +440,7 @@ public class CreateEntityHandler extends BaseEntityHandler implements CommandHan
         reminder.setLabel((String) label);
         reminder.setExpectedDate(new Date((Long) expectedDate));
         reminder.setCompletionDate(null);
+        reminder.setDeleted(false);
 
         // Adds it to the list.
         list.addReminder(reminder);

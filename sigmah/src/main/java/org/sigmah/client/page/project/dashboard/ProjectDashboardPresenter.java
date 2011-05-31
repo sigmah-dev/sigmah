@@ -474,7 +474,7 @@ public class ProjectDashboardPresenter implements SubPresenter {
             	
             	//Only show the undeleted points
             	Boolean isDeleted = (Boolean)point.isDeleted();
-            	if(isDeleted==null||isDeleted==false)
+            	if(isDeleted==null || isDeleted==Boolean.FALSE)
             	{
                 point.setIsCompleted();
                 view.getMonitoredPointsGrid().getStore().add(point);
@@ -501,7 +501,9 @@ public class ProjectDashboardPresenter implements SubPresenter {
             	
             	//Only show the undeleted reminders
             	Boolean isDeleted = (Boolean) reminder.isDeleted();
-               if(isDeleted==null||isDeleted==false)
+            	Log.debug("The boolean value is : "+isDeleted+" Name: "+reminder.getLabel());
+            	
+               if(isDeleted==null || isDeleted==Boolean.FALSE)
                {
                 reminder.setIsCompleted();
                 view.getRemindersGrid().getStore().add(reminder);

@@ -20,7 +20,9 @@ import org.sigmah.shared.command.result.CommandResult;
 import org.sigmah.shared.command.result.RemindersResultList;
 import org.sigmah.shared.domain.OrgUnit;
 import org.sigmah.shared.domain.User;
+import org.sigmah.shared.domain.reminder.MonitoredPoint;
 import org.sigmah.shared.domain.reminder.Reminder;
+import org.sigmah.shared.dto.reminder.MonitoredPointDTO;
 import org.sigmah.shared.dto.reminder.ReminderDTO;
 import org.sigmah.shared.exception.CommandException;
 
@@ -61,11 +63,17 @@ public class GetRemindersHandler implements CommandHandler<GetReminders> {
 
             final List<Reminder> reminders = (List<Reminder>) query.getResultList();
             for (final Reminder reminder : reminders) {
-                if(reminder.getCompletionDate() == null) // Not completed only
-                    dtos.add(mapper.map(reminder, ReminderDTO.class));
+                if(reminder.getCompletionDate() == null)
+                {// Not completed only
+                  ReminderDTO reminderDTO = mapper.map(reminder, ReminderDTO.class);
+                  reminderDTO.setDeleted(reminder.isDeleted());
+                  dtos.add(reminderDTO);
+                }
             }
 
         }
+        
+       
 
         final RemindersResultList result = new RemindersResultList();
         result.setList(dtos);
