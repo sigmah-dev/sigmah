@@ -32,7 +32,6 @@ public class GetIndicatorsHandler implements CommandHandler<GetIndicators> {
 	@Override
 	public CommandResult execute(final GetIndicators cmd, User user)
 			throws CommandException {
-	
 		final List<IndicatorDTO> list = new ArrayList<IndicatorDTO>();
 		
 		entityManager.getSession().doWork(new Work() {

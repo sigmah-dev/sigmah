@@ -39,8 +39,10 @@ public class IndicatorListWidget extends Composite  {
 	
 	interface Style extends CssResource {
 		String indicator();
+		String indicatorLabel();
 		String indicatorOver();
 		String indicatorSelected();
+		String sourceOfVerification();
 	}
 		
 	private int databaseId;
@@ -67,7 +69,12 @@ public class IndicatorListWidget extends Composite  {
 		ListStore<IndicatorDTO> store = new ListStore<IndicatorDTO>();
 		store.add(element.getIndicators());
 		
-		indicatorList.setTemplate("<tpl for=\".\"><div class=" + style.indicator() + ">{name}</div></tpl>");
+		indicatorList.setTemplate("<tpl for=\".\"><div class=" + style.indicator() + ">" +
+				"<div><span class=" + style.indicatorLabel() + ">{name}</span></div>" + 
+				"<tpl if=\"values.sourceOfVerification\">" +
+				"<div class=" + style.sourceOfVerification() + ">" + 
+					I18N.CONSTANTS.sourceOfVerification() + ": " + "{sourceOfVerification}</div>" +
+				"</tpl></div></tpl>");
 		indicatorList.setStore(store);
 		indicatorList.setBorders(false);
 		indicatorList.setOverStyle(style.indicatorOver());

@@ -16,11 +16,18 @@
 		.indicator {
 		    font: 11px tahoma,arial,helvetica,sans-serif;
 		    padding: 2px;
+		    margin-bottom: 3px;
+		    
 		}
 		
-		.indicatorOver {
+		.indicatorOver .indicatorLabel {
 			text-decoration: underline;
 			cursor: pointer;
+		}
+		
+		.sourceOfVerification {
+			padding-left: 5px;
+			font-style: italic;
 		}
 		
 		.indicatorSelected {

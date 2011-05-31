@@ -268,6 +268,14 @@ public final class IndicatorDTO extends BaseModelData implements EntityDTO {
 	public void setDatabaseId(Integer id) {
 		set("databaseId", id);
 	}
+	
+	public String getSourceOfVerification() {
+		return get("sourceOfVerification");
+	}
+	
+	public void setSourceOfVerification(String source) {
+		set("sourceOfVerification", source);
+	}
 
     
 }

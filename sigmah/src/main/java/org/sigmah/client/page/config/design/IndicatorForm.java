@@ -142,6 +142,10 @@ public class IndicatorForm extends AbstractDesignForm {
         binding.addFieldBinding(new FieldBinding(datasourceField, "dataSourceIds"));
         this.add(datasourceField);
         
+        TextArea verification = new TextArea();
+        verification.setFieldLabel(I18N.CONSTANTS.sourceOfVerification());
+        binding.addFieldBinding(new FieldBinding(verification, "sourceOfVerification"));
+        this.add(verification);
         
         TextArea descField = new TextArea();
         descField.setFieldLabel(I18N.CONSTANTS.indicatorComments());

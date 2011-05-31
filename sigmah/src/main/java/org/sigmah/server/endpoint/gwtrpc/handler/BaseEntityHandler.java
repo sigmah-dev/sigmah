@@ -78,6 +78,10 @@ public class BaseEntityHandler {
         	indicator.setLabels((List<String>) changes.get("labels"));
         }
         
+        if (changes.containsKey("sourceOfVerification")) {
+        	indicator.setSourceOfVerification((String)changes.get("sourceOfVerification"));
+        }
+        
         if (changes.containsKey("dataSourceIds")) {
         	Set<Integer> ids = (Set<Integer>) changes.get("dataSourceIds");
         	List<Indicator> dataSources = em.createQuery("select i from Indicator i where i.id in (:ids)")

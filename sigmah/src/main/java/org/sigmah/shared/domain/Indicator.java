@@ -70,6 +70,8 @@ public class Indicator implements java.io.Serializable, Orderable, Deleteable, S
 	private List<String> labels;
 
 	private Set<Indicator> dataSources = new HashSet<Indicator>(0);
+	
+	private String sourceOfVerification;
 
 	public Indicator() {
 
@@ -355,6 +357,19 @@ public class Indicator implements java.io.Serializable, Orderable, Deleteable, S
 
 	public void setDataSources(Set<Indicator> dataSources) {
 		this.dataSources = dataSources;
+	}
+	
+	/**
+	 * 
+	 * @return text description of how this indicator will be verified
+	 */
+	@Lob
+	public String getSourceOfVerification() {
+		return sourceOfVerification;
+	}
+
+	public void setSourceOfVerification(String sourceOfVerification) {
+		this.sourceOfVerification = sourceOfVerification;
 	}
 
 	/**

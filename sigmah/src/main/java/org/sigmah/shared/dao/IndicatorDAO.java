@@ -47,12 +47,14 @@ public class IndicatorDAO  {
 	    		.appendField("i.objective")
 	    		.appendField("SUM(v.Value)")
 	    		.appendField("COUNT(v.Value)")
+	    		.appendField("i.SourceOfVerification")
 		.from("Indicator i")
 			.leftJoin("Site s").on("s.databaseId=i.databaseId")
 			.leftJoin("ReportingPeriod p").on("s.siteId = p.SiteId")
 			.leftJoin("IndicatorValue v").on("p.ReportingPeriodId = v.ReportingPeriodId and v.IndicatorId=i.indicatorId")
 		.whereTrue("i.databaseId=" + databaseId)
-		.groupBy("i.indicatorId, i.name, i.aggregation, i.units, i.category, i.description, i.listheader,i.objective")
+		.groupBy("i.indicatorId, i.name, i.aggregation, i.units, i.category, i.description, i.listheader,i.objective," +
+				"i.sourceOfVerification")
 		.orderBy("i.sortOrder")
 		.forEachResult(connection, new ResultHandler() {
 			
@@ -67,7 +69,8 @@ public class IndicatorDAO  {
 				dto.setDescription(rs.getString(6));
 				dto.setCode(rs.getString(7));
 				dto.setDatabaseId(databaseId);
-				
+				dto.setSourceOfVerification(rs.getString(11));
+								
 				double objective = rs.getDouble(8);
 				if(!rs.wasNull()) {
 					dto.setObjective(objective);
