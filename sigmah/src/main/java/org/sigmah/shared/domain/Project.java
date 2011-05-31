@@ -187,6 +187,9 @@ public class Project extends UserDatabase {
     @OneToOne(optional = true, cascade = CascadeType.ALL, fetch=FetchType.LAZY)
     @JoinColumn(name = "id_monitored_points_list", nullable = true)
     public MonitoredPointList getPointsList() {
+    	if(pointsList == null) {
+    		pointsList = new MonitoredPointList();
+    	}
         return pointsList;
     }
 
@@ -197,6 +200,9 @@ public class Project extends UserDatabase {
     @OneToOne(optional = true, cascade = CascadeType.ALL, fetch=FetchType.LAZY)
     @JoinColumn(name = "id_reminder_list", nullable = true)
     public ReminderList getRemindersList() {
+    	if(remindersList == null) {
+    		remindersList = new ReminderList();
+    	}
         return remindersList;
     }
 
