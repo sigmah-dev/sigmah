@@ -40,15 +40,15 @@ public class Prerequisite implements Serializable {
     /**
      * Duplicates this prerequisite (omits the ID).
      * @param parentLogFrame Log frame that will contains this copy.
-     * @param groupMap Map of copied groups.
+     * @param context Map of copied groups.
      * @return A copy of this prerequisite.
      */
-    public Prerequisite copy(final LogFrame parentLogFrame, final Map<Integer, LogFrameGroup> groupMap) {
+    public Prerequisite copy(final LogFrame parentLogFrame, final LogFrameCopyContext context) {
         final Prerequisite copy = new Prerequisite();
         copy.code = this.code;
         copy.content = this.content;
         copy.parentLogFrame = parentLogFrame;
-        copy.group = groupMap.get(this.group.getId());
+        copy.group = context.getGroupCopy(this.group);
         copy.position = this.position;
 
         return copy;
@@ -94,7 +94,7 @@ public class Prerequisite implements Serializable {
     }
 
     @ManyToOne(optional = true)
-    @JoinColumn(name = "id_group", nullable = true)
+    @JoinColumn(name = "id_group", nullable = false)
     public LogFrameGroup getGroup() {
         return group;
     }

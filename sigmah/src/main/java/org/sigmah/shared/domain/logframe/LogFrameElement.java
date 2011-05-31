@@ -1,6 +1,7 @@
 package org.sigmah.shared.domain.logframe;
 
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -32,7 +33,7 @@ public abstract class LogFrameElement implements Serializable, Comparable<LogFra
 	protected LogFrameGroup group;
 	protected String risks;
 	protected String assumptions;
-	private Set<Indicator> indicators;
+	protected Set<Indicator> indicators = new HashSet<Indicator>(0);
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
@@ -65,7 +66,7 @@ public abstract class LogFrameElement implements Serializable, Comparable<LogFra
 	}
 
 	@ManyToOne(optional = true)
-	@JoinColumn(name = "id_group", nullable = true)
+	@JoinColumn(name = "id_group", nullable = false)
 	public LogFrameGroup getGroup() {
 		return group;
 	}
@@ -108,5 +109,28 @@ public abstract class LogFrameElement implements Serializable, Comparable<LogFra
 		int c2 = o.getCode() == null ? 0 : o.getCode();
 		
 		return c1 - c2;
+	}
+	
+	protected final Set<Indicator> copyIndicators(LogFrameCopyContext context) {
+		Set<Indicator> copies = new HashSet<Indicator>();
+		for(Indicator indicator : indicators) {
+			if(!indicator.isDeleted()) {
+				switch(context.getIndicatorStrategy()) {
+				case REFERENCE:
+					if(context.getDestinationProjet().getId() != indicator.getDatabase().getId()) {
+						throw new IllegalStateException("IndicatorStrategy.REFERENCE can only be used when copying a logframe within the same project");
+					}
+					copies.add(indicator);
+					break;
+				case DUPLICATE_AND_LINK:
+				case DUPLICATE:
+					copies.add(indicator.copy(context.getDestinationProjet()));
+					break;
+								
+					
+				}
+			}
+		}
+		return copies;
 	}
 }

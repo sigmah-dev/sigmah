@@ -20,6 +20,8 @@ import org.sigmah.shared.domain.element.FlexibleElement;
 import org.sigmah.shared.domain.history.HistoryToken;
 import org.sigmah.shared.domain.layout.LayoutConstraint;
 import org.sigmah.shared.domain.layout.LayoutGroup;
+import org.sigmah.shared.domain.logframe.IndicatorCopyStrategy;
+import org.sigmah.shared.domain.logframe.LogFrameCopyContext;
 
 /**
  * Creates and updates project amendments.
@@ -51,7 +53,9 @@ public class AmendmentPolicy implements EntityPolicy<Amendment> {
         final Amendment amendment = new Amendment();
 
         amendment.setParentProject(project);
-        amendment.setLogFrame(project.getLogFrame().copy());
+        amendment.setLogFrame(project.getLogFrame().copy(
+        		LogFrameCopyContext.toProject(project)
+        						 .withStrategy(IndicatorCopyStrategy.REFERENCE)));
         amendment.setState(project.getAmendmentState());
         amendment.setVersion(project.getAmendmentVersion());
         amendment.setRevision(project.getAmendmentRevision());

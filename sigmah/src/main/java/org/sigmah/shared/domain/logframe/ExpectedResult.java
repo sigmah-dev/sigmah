@@ -33,22 +33,23 @@ public class ExpectedResult extends LogFrameElement {
     /**
      * Duplicates this expected result (omits its ID).
      * @param parentSpecificObjective Specific objective that will contains this copy.
-     * @param groupMap Map of copied groups.
+     * @param context Map of copied groups.
      * @return A copy of this expected result.
      */
-    public ExpectedResult copy(final SpecificObjective parentSpecificObjective, final Map<Integer, LogFrameGroup> groupMap) {
+    public ExpectedResult copy(final SpecificObjective parentSpecificObjective, final LogFrameCopyContext context) {
         final ExpectedResult copy = new ExpectedResult();
         copy.code = this.code;
         copy.interventionLogic = this.interventionLogic;
         copy.risks = this.risks;
         copy.assumptions = this.assumptions;
         copy.parentSpecificObjective = parentSpecificObjective;
+        copy.indicators = copyIndicators(context);
 
         copy.activities = new ArrayList<LogFrameActivity>();
         for(final LogFrameActivity activity : activities)
-            copy.activities.add(activity.copy(copy, groupMap));
+            copy.activities.add(activity.copy(copy, context));
 
-        copy.group = groupMap.get(this.group.getId());
+        copy.group = context.getGroupCopy(this.group);
         copy.position = this.position;
 
         return copy;

@@ -48,29 +48,31 @@ public class LogFrame implements Serializable {
      * Duplicates this log frame (omits IDs).<br>
      * @return A copy of this log frame.
      */
-    public LogFrame copy() {
-        final LogFrame copy = new LogFrame();
+    public LogFrame copy(LogFrameCopyContext context) {
+
+    	
+    	final LogFrame copy = new LogFrame();
         copy.logFrameModel = this.logFrameModel;
         copy.mainObjective = this.mainObjective;
+               
 
         // Copying groups
         copy.groups = new ArrayList<LogFrameGroup>();
-        final HashMap<Integer, LogFrameGroup> groupMap = new HashMap<Integer, LogFrameGroup>();
         for(final LogFrameGroup group : this.groups) {
             final LogFrameGroup groupCopy = group.copy(copy);
-            groupMap.put(group.getId(), groupCopy);
+            context.addGroupCopy(group, groupCopy);
             copy.groups.add(groupCopy);
         }
 
         // Copying objectives
         copy.specificObjectives = new ArrayList<SpecificObjective>();
         for(final SpecificObjective objective : this.specificObjectives)
-            copy.specificObjectives.add(objective.copy(copy, groupMap));
+            copy.specificObjectives.add(objective.copy(copy, context));
 
         // Copying prerequisites
         copy.prerequisites = new ArrayList<Prerequisite>();
         for(final Prerequisite prerequisite : this.prerequisites)
-            copy.prerequisites.add(prerequisite.copy(copy, groupMap));
+            copy.prerequisites.add(prerequisite.copy(copy, context));
 
         return copy;
     }

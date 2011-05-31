@@ -14,7 +14,9 @@ import org.sigmah.shared.command.handler.CommandHandler;
 import org.sigmah.shared.command.result.CommandResult;
 import org.sigmah.shared.domain.Project;
 import org.sigmah.shared.domain.User;
+import org.sigmah.shared.domain.logframe.IndicatorCopyStrategy;
 import org.sigmah.shared.domain.logframe.LogFrame;
+import org.sigmah.shared.domain.logframe.LogFrameCopyContext;
 import org.sigmah.shared.dto.logframe.LogFrameDTO;
 import org.sigmah.shared.exception.CommandException;
 
@@ -38,16 +40,20 @@ public class CopyLogFrameHandler implements CommandHandler<CopyLogFrame> {
         final Project project = em.find(Project.class, cmd.getDestinationId());
         final LogFrame logFrame = em.find(LogFrame.class, cmd.getSourceId());
 
-        final LogFrame copy = replaceLogFrame(project, logFrame);
+        final LogFrame copy = replaceLogFrame(project, logFrame, cmd);
         return mapper.map(copy, LogFrameDTO.class);
     }
 
     @Transactional
-    private LogFrame replaceLogFrame(Project project, LogFrame source) {
+    private LogFrame replaceLogFrame(Project project, LogFrame source, CopyLogFrame cmd) {
         final LogFrame previousLogFrame = project.getLogFrame();
-        em.remove(previousLogFrame);
+        if(previousLogFrame != null) {
+        	em.remove(previousLogFrame);
+        }
 
-        final LogFrame copy = source.copy();
+        final LogFrame copy = source.copy(LogFrameCopyContext
+        		.toProject(project)
+        		.withStrategy(cmd.getIndicatorCopyStrategy()));
         copy.setParentProject(project);
         project.setLogFrame(copy);
 

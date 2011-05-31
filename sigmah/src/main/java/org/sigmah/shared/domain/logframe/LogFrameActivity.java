@@ -25,20 +25,21 @@ public class LogFrameActivity extends LogFrameElement {
     /**
      * Duplicates this activity (omits its ID).
      * @param parentExpectedResult Expected result that will contains this copy.
-     * @param groupMap Map of copied groups.
+     * @param context Map of copied groups.
      * @return A copy of this activity.
      */
-    public LogFrameActivity copy(final ExpectedResult parentExpectedResult, final Map<Integer, LogFrameGroup> groupMap) {
+    public LogFrameActivity copy(final ExpectedResult parentExpectedResult, final LogFrameCopyContext context) {
         final LogFrameActivity copy = new LogFrameActivity();
         copy.code = this.code;
 //        copy.content = this.content;
         copy.parentExpectedResult = parentExpectedResult;
-        copy.group = groupMap.get(this.group.getId());
+        copy.group = context.getGroupCopy(this.group);
         copy.title = this.title;
         copy.startDate = this.startDate;
         copy.endDate = this.endDate;
         copy.position = this.position;
         copy.advancement = this.advancement;
+        copy.indicators = copyIndicators(context);
         return copy;
     }
 

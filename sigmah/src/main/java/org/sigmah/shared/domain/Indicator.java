@@ -355,4 +355,28 @@ public class Indicator implements java.io.Serializable, Orderable, Deleteable, S
 	public void setDataSources(Set<Indicator> dataSources) {
 		this.dataSources = dataSources;
 	}
+
+	/**
+	 * Copies a indicator to another database.
+	 * 
+	 * @param databaseCopy
+	 * @return
+	 */
+	public Indicator copy(UserDatabase databaseCopy) {
+		Indicator copy = new Indicator();
+		copy.name = this.name;
+		copy.units = this.units;
+		copy.objective = this.objective;
+		copy.description = this.description;
+		copy.category = this.category;
+		copy.collectIntervention = this.collectIntervention;
+		copy.collectMonitoring = this.collectMonitoring;
+		
+		copy.aggregation = this.aggregation;
+		copy.sortOrder = this.sortOrder;
+		copy.database = databaseCopy;
+		copy.labels = this.labels;
+		
+		return copy;
+	}
 }

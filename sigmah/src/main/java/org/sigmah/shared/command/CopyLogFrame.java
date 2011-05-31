@@ -5,6 +5,9 @@
 
 package org.sigmah.shared.command;
 
+import org.sigmah.shared.domain.logframe.IndicatorCopyStrategy;
+import org.sigmah.shared.dto.ProjectDTO;
+import org.sigmah.shared.dto.ProjectDTOLight;
 import org.sigmah.shared.dto.logframe.LogFrameDTO;
 
 /**
@@ -20,13 +23,23 @@ public class CopyLogFrame implements Command<LogFrameDTO> {
      * ID of the project of destination.
      */
     private int destinationId;
+    
+    /**
+     * Strategy for copying referenced indicators
+     */
+    private IndicatorCopyStrategy indicatorCopyStrategy;
 
     public CopyLogFrame() {
     }
 
-    public CopyLogFrame(int sourceId, int destinationId) {
-        this.sourceId = sourceId;
-        this.destinationId = destinationId;
+    /**
+     * 
+     * @param sourceLogFrameId the id of the logframe to copy
+     * @param destinationProjectId the id of the project whose logframe should be replaced
+     */
+    public CopyLogFrame(int sourceLogFrameId, int destinationProjectId) {
+        this.sourceId = sourceLogFrameId;
+        this.destinationId = destinationProjectId;
     }
 
     public int getSourceId() {
@@ -44,4 +57,29 @@ public class CopyLogFrame implements Command<LogFrameDTO> {
     public void setDestinationId(int destinationId) {
         this.destinationId = destinationId;
     }
+
+	public IndicatorCopyStrategy getIndicatorCopyStrategy() {
+		return indicatorCopyStrategy;
+	}
+
+	public void setIndicatorCopyStrategy(IndicatorCopyStrategy indicatorCopyStrategy) {
+		this.indicatorCopyStrategy = indicatorCopyStrategy;
+	}
+    
+    public static CopyLogFrame from(int sourceLogFrameId) {
+    	CopyLogFrame command = new CopyLogFrame();
+    	command.setSourceId(sourceLogFrameId);
+    	return command;
+    }
+    
+    public CopyLogFrame to(ProjectDTO project) {
+    	this.destinationId = project.getId();
+    	return this;
+    }
+    
+    public CopyLogFrame with(IndicatorCopyStrategy strategy) {
+    	this.indicatorCopyStrategy = strategy;
+    	return this;
+    }
+	
 }

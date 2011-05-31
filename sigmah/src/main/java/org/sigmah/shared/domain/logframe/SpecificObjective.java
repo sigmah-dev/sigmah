@@ -29,10 +29,10 @@ public class SpecificObjective extends LogFrameElement {
     /**
      * Duplicates this objective (omits its ID).
      * @param parentLogFrame Log frame that will contains this copy.
-     * @param groupMap Map of copied groups.
+     * @param context Map of copied groups.
      * @return A copy of this specific objective.
      */
-    public SpecificObjective copy(final LogFrame parentLogFrame, final Map<Integer, LogFrameGroup> groupMap) {
+    public SpecificObjective copy(final LogFrame parentLogFrame, final LogFrameCopyContext context) {
         final SpecificObjective copy = new SpecificObjective();
         copy.code = this.code;
         copy.interventionLogic = this.interventionLogic;
@@ -42,10 +42,11 @@ public class SpecificObjective extends LogFrameElement {
 
         copy.expectedResults = new ArrayList<ExpectedResult>();
         for(final ExpectedResult result : this.expectedResults)
-            copy.expectedResults.add(result.copy(copy, groupMap));
+            copy.expectedResults.add(result.copy(copy, context));
         
-        copy.group = groupMap.get(this.group.getId());
+        copy.group = context.getGroupCopy(this.group);
         copy.position = this.position;
+        copy.indicators = this.copyIndicators(context);
 
         return copy;
     }
@@ -70,7 +71,7 @@ public class SpecificObjective extends LogFrameElement {
     }
 
     @OneToMany(mappedBy = "parentSpecificObjective", cascade = CascadeType.ALL)
-    // use @Sort instead of @OrderBy as hibernate biffs because the code lives in the log_frame_element table
+    // use @Sort instead of @OrderBy as hibernate biffs because the code field lives in the log_frame_element table
     @org.hibernate.annotations.Sort 
     @org.hibernate.annotations.Cascade(org.hibernate.annotations.CascadeType.DELETE_ORPHAN)     
     public List<ExpectedResult> getExpectedResults() {

@@ -29,6 +29,7 @@ dotnet/app.config -text
 /pom.xml -text
 sigmah/pom.xml -text
 sigmah/release.properties -text
+sigmah/sigmahtest.sql -text
 sigmah/src/main/java/org/sigmah/ActivityInfo.gwt.xml -text
 sigmah/src/main/java/org/sigmah/ActivityInfoFFTest.gwt.xml -text
 sigmah/src/main/java/org/sigmah/ActivityInfoIE6Test.gwt.xml -text
@@ -1778,8 +1779,10 @@ sigmah/src/main/java/org/sigmah/shared/domain/layout/Layout.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/layout/LayoutConstraint.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/layout/LayoutGroup.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/logframe/ExpectedResult.java -text
+sigmah/src/main/java/org/sigmah/shared/domain/logframe/IndicatorCopyStrategy.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/logframe/LogFrame.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/logframe/LogFrameActivity.java -text
+sigmah/src/main/java/org/sigmah/shared/domain/logframe/LogFrameCopyContext.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/logframe/LogFrameElement.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/logframe/LogFrameGroup.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/logframe/LogFrameGroupType.java -text

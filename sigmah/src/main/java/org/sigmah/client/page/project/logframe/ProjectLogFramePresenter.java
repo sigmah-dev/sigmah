@@ -11,6 +11,7 @@ import org.sigmah.shared.command.CopyLogFrame;
 import org.sigmah.shared.command.UpdateLogFrame;
 import org.sigmah.shared.command.result.LogFrameResult;
 import org.sigmah.shared.domain.Amendment;
+import org.sigmah.shared.domain.logframe.IndicatorCopyStrategy;
 import org.sigmah.shared.domain.profile.GlobalPermissionEnum;
 import org.sigmah.shared.dto.ExportUtils;
 import org.sigmah.shared.dto.ProjectDTO;
@@ -254,8 +255,11 @@ public class ProjectLogFramePresenter implements SubPresenter {
                             @Override
                             public void handleEvent(MessageBoxEvent be) {
                                 if (Dialog.YES.equals(be.getButtonClicked().getItemId())) {
-                                    final CopyLogFrame copyLogFrame = new CopyLogFrame(logFrameIdCopySource,
-                                            currentProjectDTO.getId());
+                                    final CopyLogFrame copyLogFrame = CopyLogFrame
+                                    	.from(logFrameIdCopySource)
+                                    	.to(currentProjectDTO)
+                                    	.with(IndicatorCopyStrategy.DUPLICATE);
+                                    
                                     dispatcher.execute(copyLogFrame, null, new AsyncCallback<LogFrameDTO>() {
 
                                         @Override
