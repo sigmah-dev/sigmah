@@ -216,8 +216,7 @@ public class PivotHibernateDAOTest {
         assertEquals(13600, (int) buckets.get(0).doubleValue());
 
     }
-    
-    
+       
 
 
     @Test
@@ -237,7 +236,6 @@ public class PivotHibernateDAOTest {
 
     @Test
     @OnDataSet("/dbunit/project-indicator-linked.db.xml")
-    @Ignore("impl not finished")
     public void testSimpleLink() {
 
         withIndicatorAsDimension();

@@ -309,15 +309,41 @@ public class PivotHibernateDAO implements PivotDAO {
 			
 		/**
 		 * Starts building a query for indicators of type SUM and AVERAGE.
+		 * 
+		 * <pre>
+		 *                                        --> Activity                                      
+		 *               [     Indicator      ]  /        
+		 * IV --> RP --> |       union        |  --> UserDatabase
+		 *         \     [  IDS -> Indicator  ]			     
+		 *          \
+		 *           --> Site --> Location
+		 *           --> Partner (OrgUnit)
+		 * 			
+		 * </pre> 
+		 * 
+		 * <p>This query also performs the linking of indicator data sources by using a
+		 * derived union to fan an individual result out to both its own proper indicator
+		 * and any indicators for which it serves as a source.
+		 * 
+		 * <p>The Site, Partner (OrgUnit), and Location entities are linked to the source
+		 * results, so an indicator with results coming from another database will retain its 
+		 * its location and agent (OrgUnit).
+		 * 
+		 * <p>Source data will, however, be mapped into the destination user database and
+		 * activity, so permissions will be applied to the later 
+		 * 
+		 * 
 		 */
 		public void queryForSumAndAverages() {
-			/* We're just going to go ahead and add all the tables we need to the SQL statement;
-			 * this saves us some work and hopefully the SQL server will optimize out any unused
-			 * tables
-			 */
 			from.append(" IndicatorValue V " +
 					 "LEFT JOIN ReportingPeriod Period ON (Period.ReportingPeriodId=V.ReportingPeriodId) " +
-					 "LEFT JOIN Indicator ON (Indicator.IndicatorId = V.IndicatorId) " +
+					 "LEFT JOIN (" + 
+					 		"(SELECT IndicatorId as SourceId, IndicatorId, Aggregation, Name, Category, SortOrder, DateDeleted, DatabaseId, ActivityId FROM Indicator) " +
+					 			" UNION ALL " +
+					 		"(SELECT DS.IndicatorSourceId as SourceId, I.IndicatorId, I.Aggregation, I.Name, I.Category, I.SortOrder, I.DateDeleted, I.DatabaseId, I.ActivityId " +
+					 			" FROM Indicator_Datasource DS " +
+					 			" LEFT JOIN Indicator I ON (DS.IndicatorId = I.IndicatorId) ) " + 
+					 		") AS Indicator ON (Indicator.SourceId = V.IndicatorId) " +
 					 "LEFT JOIN Site ON (Period.SiteId = Site.SiteId) " +
 					 "LEFT JOIN Partner ON (Site.PartnerId = Partner.PartnerId) " +
 					 "LEFT JOIN Location ON (Location.LocationId = Site.LocationId) " +
@@ -332,7 +358,7 @@ public class PivotHibernateDAO implements PivotDAO {
 			  */
 
 			 columns.append("Indicator.Aggregation, SUM(V.Value), AVG(V.Value), COUNT(V.Value)");
-			 groupBy.append("V.IndicatorId, Indicator.Aggregation");
+			 groupBy.append("Indicator.IndicatorId, Indicator.Aggregation");
 
 			 bundlers.add(new SumAndAverageBundler());
 
