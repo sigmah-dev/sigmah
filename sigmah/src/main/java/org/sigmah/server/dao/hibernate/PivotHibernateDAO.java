@@ -624,16 +624,16 @@ public class PivotHibernateDAO implements PivotDAO {
 				appendIdCriteria(where, "Indicator.IndicatorId", filter.getRestrictions(type), parameters);
 
 			} else if (type == DimensionType.Activity) {
-				appendIdCriteria(where, "Site.ActivityId", filter.getRestrictions(type), parameters);
+				appendIdCriteria(where, "Indicator.ActivityId", filter.getRestrictions(type), parameters);
 
 			} else if (type == DimensionType.Site) {
 				appendIdCriteria(where, "Site.SiteId", filter.getRestrictions(type), parameters);
 
 			} else if (type == DimensionType.Database) {
-				appendIdCriteria(where, "Site.DatabaseId", filter.getRestrictions(type), parameters);
+				appendIdCriteria(where, "UserDatabase.DatabaseId", filter.getRestrictions(type), parameters);
 
 			} else if (type == DimensionType.Partner) {
-				appendIdCriteria(where, "Site.PartnerId", filter.getRestrictions(type), parameters);
+				appendIdCriteria(where, "Partner.PartnerId", filter.getRestrictions(type), parameters);
 
 			} else if (type == DimensionType.AdminLevel) {
 				where.append(" AND Site.LocationId IN " +

@@ -242,7 +242,7 @@ public class PivotHibernateDAOTest {
 
         Filter filter = new Filter();
         filter.addRestriction(DimensionType.Indicator, 2);
-
+        filter.addRestriction(DimensionType.Database, 1);
         List<PivotDAO.Bucket> buckets = dao.aggregate(1, filter, dimensions);
 
         assertEquals(1, buckets.size());
