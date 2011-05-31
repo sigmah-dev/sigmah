@@ -43,6 +43,7 @@ import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.store.TreeStore;
 import com.extjs.gxt.ui.client.widget.form.NumberField;
+import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.grid.CellEditor;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
@@ -84,7 +85,7 @@ public class DesignPanel extends DesignPanelBase implements ActionListener {
 		treeGrid = new EditorTreeGrid<ModelData>(treeStore, createColumnModel());
 		treeGrid.setSelectionModel(new ImprovedCellTreeGridSelectionModel<ModelData>());
 		treeGrid.setClicksToEdit(EditorGrid.ClicksToEdit.TWO);
-		treeGrid.setAutoExpandColumn("code");
+		treeGrid.setAutoExpandColumn("name");
 		treeGrid.setHideHeaders(false);
 		treeGrid.setLoadMask(true);
 
@@ -379,12 +380,16 @@ public class DesignPanel extends DesignPanelBase implements ActionListener {
 	
 	protected ColumnModel createColumnModel() {
 		List<ColumnConfig> columns = new ArrayList<ColumnConfig>();
-
-		ColumnConfig nameColumn = new ColumnConfig("code",
+		
+		ColumnConfig nameColumn = new ColumnConfig("name",
 				I18N.CONSTANTS.name(), 150);
 		nameColumn.setRenderer(new DesignTreeGridCellRenderer(mappedIndicator));
 		columns.add(nameColumn);
-		
+
+		ColumnConfig codeColumn = new ColumnConfig("code", I18N.CONSTANTS.code(), 75);
+		codeColumn.setEditor(new CellEditor(new TextField<String>()));
+		columns.add(codeColumn);		
+
 		ColumnConfig objectiveColumn = new ColumnConfig("objective", I18N.CONSTANTS.targetValue(), 75);
 		objectiveColumn.setRenderer(new IndicatorValueRenderer());
 		objectiveColumn.setEditor(new CellEditor(new NumberField()));
