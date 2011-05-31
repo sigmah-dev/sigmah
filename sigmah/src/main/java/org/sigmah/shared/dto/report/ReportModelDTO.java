@@ -47,7 +47,7 @@ public class ReportModelDTO extends BaseModelData implements EntityDTO {
     
     public int getOrganizationId()
     {
-    	return get("organizationId");
+    	return (Integer)get("organizationId");
     }
     
     public void setOrganizationId(int organizationId)
