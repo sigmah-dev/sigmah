@@ -25,11 +25,13 @@ public class ProjectReportModelSectionDTO extends BaseModelData implements Entit
     
 	@Override
     public int getId() {
+	
 		if(get("id") != null){
 			final Integer id = (Integer) get("id");
 			return id != null ? id : -1;
 		}
-    	return -1;        
+    	return -1;      
+    
     }
     public void setId(Integer id) {
         this.set("id", id);

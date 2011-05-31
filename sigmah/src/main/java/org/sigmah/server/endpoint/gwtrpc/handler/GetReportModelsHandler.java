@@ -13,6 +13,7 @@ import javax.persistence.EntityManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dozer.Mapper;
+import org.sigmah.server.dao.Transactional;
 import org.sigmah.shared.command.GetReportModels;
 import org.sigmah.shared.command.handler.CommandHandler;
 import org.sigmah.shared.command.result.CommandResult;
@@ -41,6 +42,7 @@ public class GetReportModelsHandler implements CommandHandler<GetReportModels> {
     }
 
     @Override
+    @Transactional 
     public CommandResult execute(GetReportModels cmd, User user) throws CommandException {
         final ArrayList<ReportModelDTO> reports = new ArrayList<ReportModelDTO>();
 
@@ -50,15 +52,25 @@ public class GetReportModelsHandler implements CommandHandler<GetReportModels> {
         @SuppressWarnings("unchecked")
 		final List<ProjectReportModel> models = query.getResultList();
         for(final ProjectReportModel model : models){
-        	ReportModelDTO reportModel = mapper.map(model, ReportModelDTO.class);
-        	reportModel.setId(model.getId());//Set the id property for the DTO model
-        	List<ProjectReportModelSectionDTO> sections = new ArrayList<ProjectReportModelSectionDTO>();
-        	for(ProjectReportModelSection section : model.getSections()){
-        		ProjectReportModelSectionDTO sectionDTO = new ProjectReportModelSectionDTO();
-        		sectionDTO = mapper.map(section, ProjectReportModelSectionDTO.class);
-        		sections.add(sectionDTO);
-        	}       	
-			reportModel.setSectionsDTO(sections);
+   	    
+           ReportModelDTO reportModel = new ReportModelDTO();
+           reportModel.setId(model.getId());
+           reportModel.setName(model.getName());
+           reportModel.setOrganizationId(model.getOrganization().getId());
+           
+           List<ProjectReportModelSectionDTO>sectionDTOList = new ArrayList<ProjectReportModelSectionDTO>();
+           
+           for(ProjectReportModelSection section:model.getSections())
+           {   
+        	   sectionDTOList.add(mappedIntoSectionDTO(section));
+           }
+           
+         
+           
+            reportModel.setSectionsDTO(sectionDTOList);
+              	              	      	
+           
+           
         	reports.add(reportModel);
         }
             
@@ -67,6 +79,45 @@ public class GetReportModelsHandler implements CommandHandler<GetReportModels> {
         log.debug("Size of report models found : " + result.getList().size());
         
         return result;
+    }
+    
+   
+    private ProjectReportModelSectionDTO mappedIntoSectionDTO(ProjectReportModelSection section)
+    {
+    	if(section==null)
+    	{
+    		return null;
+    	}
+    	
+    	log.debug("Section "+section.getName()+" enters. ID is: "+section.getId());
+    	
+    	ProjectReportModelSectionDTO sectionDTO = new ProjectReportModelSectionDTO();        
+         sectionDTO.setId(section.getId());
+  	     sectionDTO.setIndex(section.getIndex());
+  	     sectionDTO.setName(section.getName());
+  	     sectionDTO.setNumberOfTextarea(section.getNumberOfTextarea());
+  	     sectionDTO.setParentSectionModelId(section.getParentSectionModelId());
+  	     sectionDTO.setProjectModelId(section.getProjectModelId());
+  	     if(section.getSubSections()==null || section.getSubSections().size()==0)
+  	     {
+  	    	 sectionDTO.setSubSectionsDTO(null);
+  	    	 return sectionDTO;
+  	     }
+  	     else
+  	     {
+  	     List<ProjectReportModelSectionDTO>sectionDTOList = new ArrayList<ProjectReportModelSectionDTO>();
+  	     for(ProjectReportModelSection subSection:section.getSubSections())
+  	        {
+  	    	   //Recursive 
+  	    	   sectionDTOList.add(mappedIntoSectionDTO(subSection));
+  	        }
+  	    	 
+  	     sectionDTO.setSubSectionsDTO(sectionDTOList);
+  	     return sectionDTO;
+  	     }
+         
+    	
+   
     }
 
 }

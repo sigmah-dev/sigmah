@@ -23,7 +23,6 @@ public class ReportElement extends FlexibleElement {
      * by this element.
      */
     private Integer modelId;
-
     @Column(name = "model_id", nullable = true)
     public Integer getModelId() {
         return modelId;
@@ -32,4 +31,10 @@ public class ReportElement extends FlexibleElement {
     public void setModelId(Integer modelId) {
         this.modelId = modelId;
     }
+
+	
+    
+    
+    
+    
 }

@@ -44,4 +44,15 @@ public class ReportModelDTO extends BaseModelData implements EntityDTO {
     public void setSectionsDTO(List<ProjectReportModelSectionDTO> sections) {
         this.set("sections", sections);
     }
+    
+    public int getOrganizationId()
+    {
+    	return get("organizationId");
+    }
+    
+    public void setOrganizationId(int organizationId)
+    {
+    	this.set("organizationId", organizationId);
+    }
+    
 }

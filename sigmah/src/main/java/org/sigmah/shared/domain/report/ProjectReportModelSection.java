@@ -6,8 +6,10 @@
 package org.sigmah.shared.domain.report;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -15,7 +17,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
-import java.util.HashMap;
+
+import org.hibernate.annotations.Cascade;
 
 /**
  *
@@ -52,6 +55,7 @@ public class ProjectReportModelSection implements Serializable {
         this.parentSectionModelId = parentSectionModelId;
     }
 
+    
     public Integer getProjectModelId() {
         return projectModelId;
     }
@@ -85,7 +89,8 @@ public class ProjectReportModelSection implements Serializable {
         this.numberOfTextarea = numberOfTextarea;
     }
 
-    @OneToMany(mappedBy = "parentSectionModelId")
+    @OneToMany(mappedBy = "parentSectionModelId")  
+    @Cascade(value=org.hibernate.annotations.CascadeType.DELETE_ORPHAN) 
     @OrderBy("index ASC")
     public List<ProjectReportModelSection> getSubSections() {
         return subSections;

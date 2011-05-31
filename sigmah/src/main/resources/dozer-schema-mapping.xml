@@ -206,6 +206,10 @@
 		<class-b>org.sigmah.shared.dto.report.ReportModelDTO</class-b>
 		
 		<field>
+		 <a>organization.id</a>
+		 <b>organizationId</b>
+		</field>
+		<field>
 			<a>sections</a>
 			<b>sectionsDTO</b>
 		</field>

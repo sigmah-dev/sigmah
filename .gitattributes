@@ -1323,6 +1323,7 @@ sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/DeactivateUsersHa
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/DeleteCategoriesHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/DeleteFlexibleElementsHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/DeleteHandler.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/DeleteReportModelsHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GenerateElementHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetAdminEntitiesHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetApplicationInfoHandler.java -text
@@ -1358,6 +1359,7 @@ sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetProjectsFromId
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetProjectsHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetRemindersHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetReportDefHandler.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetReportElementsHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetReportModelsHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetReportTemplatesHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetSitePointsHandler.java -text
@@ -1384,6 +1386,7 @@ sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/UpdateLogFrameHan
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/UpdateMonitoredPointsHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/UpdateMonthlyReportsHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/UpdateProjectHandler.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/UpdateProjectReportModelHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/UpdateRemindersHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/UpdateReportDefHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/UpdateSubscriptionHandler.java -text
@@ -1566,6 +1569,7 @@ sigmah/src/main/java/org/sigmah/shared/command/DeactivateUsers.java -text
 sigmah/src/main/java/org/sigmah/shared/command/Delete.java -text
 sigmah/src/main/java/org/sigmah/shared/command/DeleteCategories.java -text
 sigmah/src/main/java/org/sigmah/shared/command/DeleteFlexibleElements.java -text
+sigmah/src/main/java/org/sigmah/shared/command/DeleteReportModels.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GenerateElement.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetAdminEntities.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetApplicationInfo.java -text
@@ -1603,6 +1607,7 @@ sigmah/src/main/java/org/sigmah/shared/command/GetProjects.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetProjectsFromId.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetReminders.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetReportDef.java -text
+sigmah/src/main/java/org/sigmah/shared/command/GetReportElements.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetReportModels.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetReportTemplates.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetSchema.java -text
@@ -1635,6 +1640,7 @@ sigmah/src/main/java/org/sigmah/shared/command/UpdateLogFrame.java -text
 sigmah/src/main/java/org/sigmah/shared/command/UpdateMonitoredPoints.java -text
 sigmah/src/main/java/org/sigmah/shared/command/UpdateMonthlyReports.java -text
 sigmah/src/main/java/org/sigmah/shared/command/UpdateProject.java -text
+sigmah/src/main/java/org/sigmah/shared/command/UpdateProjectReportModel.java -text
 sigmah/src/main/java/org/sigmah/shared/command/UpdateReminders.java -text
 sigmah/src/main/java/org/sigmah/shared/command/UpdateReportDef.java -text
 sigmah/src/main/java/org/sigmah/shared/command/UpdateSubscription.java -text
@@ -1671,8 +1677,10 @@ sigmah/src/main/java/org/sigmah/shared/command/result/ProjectListResult.java -te
 sigmah/src/main/java/org/sigmah/shared/command/result/ProjectModelListResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/ProjectReportListResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/ProjectReportModelListResult.java -text
+sigmah/src/main/java/org/sigmah/shared/command/result/ProjectReportModelResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/RemindersResultList.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/RenderResult.java -text
+sigmah/src/main/java/org/sigmah/shared/command/result/ReportElementsResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/ReportModelsListResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/ReportTemplateResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/SingleResult.java -text

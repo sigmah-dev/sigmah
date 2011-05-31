@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -19,7 +20,11 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
 
+import org.hibernate.annotations.Cascade;
 import org.sigmah.shared.domain.Organization;
+
+import org.hibernate.annotations.NotFoundAction;
+import org.hibernate.annotations.NotFound;
 
 /**
  *
@@ -51,8 +56,10 @@ public class ProjectReportModel implements Serializable {
         this.name = name;
     }
 
-    @OneToMany(mappedBy = "projectModelId")
+    @OneToMany(mappedBy = "projectModelId",cascade = CascadeType.ALL)
+    @Cascade(value=org.hibernate.annotations.CascadeType.DELETE_ORPHAN) 
     @OrderBy("index ASC")
+    @NotFound(action=NotFoundAction.IGNORE)
     public List<ProjectReportModelSection> getSections() {
         return sections;
     }

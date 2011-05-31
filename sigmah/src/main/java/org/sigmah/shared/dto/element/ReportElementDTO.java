@@ -20,6 +20,7 @@ import com.google.gwt.user.client.ui.Image;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
+
 import org.sigmah.client.event.NavigationEvent;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.icon.IconImageBundle;
@@ -52,6 +53,8 @@ public class ReportElementDTO extends FlexibleElementDTO {
     public void setModelId(Integer modelId) {
         set("modelId", modelId);
     }
+    
+
 
     @Override
     protected Component getComponent(ValueResult valueResult, boolean enabled) {
