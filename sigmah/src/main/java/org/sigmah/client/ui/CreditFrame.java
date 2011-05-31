@@ -72,7 +72,7 @@ public final class CreditFrame {
         // Builds the window.
         window = new Window();
         window.setWidth(735);
-        window.setHeight(535);
+        window.setHeight(570);
         window.setHeading(I18N.CONSTANTS.credits());
         window.setPlain(true);
         window.setModal(true);
