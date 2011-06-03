@@ -54,7 +54,7 @@ public class IndicatorDAO  {
 			.leftJoin("IndicatorValue v").on("p.ReportingPeriodId = v.ReportingPeriodId and v.IndicatorId=i.indicatorId")
 		.whereTrue("i.databaseId=" + databaseId)
 		.groupBy("i.indicatorId, i.name, i.aggregation, i.units, i.category, i.description, i.listheader,i.objective," +
-				"i.sourceOfVerification")
+				"i.sourceOfVerification,i.sortOrder")
 		.orderBy("i.sortOrder")
 		.forEachResult(connection, new ResultHandler() {
 			
