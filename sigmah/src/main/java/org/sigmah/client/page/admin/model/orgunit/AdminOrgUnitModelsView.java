@@ -56,27 +56,21 @@ public class AdminOrgUnitModelsView extends View {
 		this.eventBus = eventBus;
 		
 		mainPanel = new ContentPanel(new FitLayout());
-		final VBoxLayout mainPanelLayout = new VBoxLayout();
-        mainPanelLayout.setVBoxLayoutAlign(VBoxLayout.VBoxLayoutAlign.STRETCH);
-        mainPanel.setLayout(mainPanelLayout);
+
         mainPanel.setHeaderVisible(false);
         mainPanel.setBorders(false);
         mainPanel.setBodyBorder(false);
-        
-        //ContentPanel modelsListPanel = new ContentPanel();
-        //modelsListPanel.setTitle(I18N.CONSTANTS.adminProjectModelsPanel());
-        final VBoxLayoutData topVBoxLayoutData = new VBoxLayoutData();
-        topVBoxLayoutData.setFlex(1.0);
         
         modelsStore = new AdminModelsStore();
         grid = buildModelsListGrid();
 		
 		grid.setAutoHeight(true);
+		grid.getView().setForceFit(true);
 		
 		mainPanel.setTopComponent(initToolBar());
-		
-		//modelsListPanel.add(grid);
-		mainPanel.add(grid, topVBoxLayoutData);
+		mainPanel.setScrollMode(Style.Scroll.AUTO);
+
+		mainPanel.add(grid);
 	}
 	
 	private Grid<OrgUnitModelDTO> buildModelsListGrid(){

@@ -95,24 +95,6 @@ public class OrgUnitModel implements Serializable {
         this.hasBudget = hasBudget;
     }
 
-    @Column(name = "min_level")
-    public Integer getMinLevel() {
-        return minLevel;
-    }
-
-    public void setMinLevel(Integer minLevel) {
-        this.minLevel = minLevel;
-    }
-
-    @Column(name = "max_level")
-    public Integer getMaxLevel() {
-        return maxLevel;
-    }
-
-    public void setMaxLevel(Integer maxLevel) {
-        this.maxLevel = maxLevel;
-    }
-
     @Column(name = "can_contain_projects", nullable = false)
     public Boolean getCanContainProjects() {
         return canContainProjects;

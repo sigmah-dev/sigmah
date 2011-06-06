@@ -162,21 +162,14 @@ public class OrgUnitModelPolicy implements EntityPolicy<OrgUnitModel>  {
 		Boolean containsProjects = null;
 		if(properties.get(AdminUtil.PROP_OM_CONTAINS_PROJECTS) != null)
 			containsProjects = (Boolean) properties.get(AdminUtil.PROP_OM_CONTAINS_PROJECTS);
-		Integer minLevel = null;
-		if(properties.get(AdminUtil.PROP_OM_MIN_LEVEL) !=  null)
-			minLevel = (Integer) properties.get(AdminUtil.PROP_OM_MIN_LEVEL);
-		Integer maxLevel = null;
-		if(properties.get(AdminUtil.PROP_OM_MAX_LEVEL) !=  null)
-			maxLevel = (Integer) properties.get(AdminUtil.PROP_OM_MAX_LEVEL);
 
 		
 		oM.setName(oMName);
 		oM.setStatus(ProjectModelStatus.DRAFT);
 		oM.setTitle(oMTitle);
 		oM.setHasBudget(hasBudget);
-		oM.setMinLevel(minLevel);
-		oM.setMaxLevel(maxLevel);
 		oM.setOrganization(user.getOrganization());
+		oM.setCanContainProjects(containsProjects);
 		return oM;
 	}
 }

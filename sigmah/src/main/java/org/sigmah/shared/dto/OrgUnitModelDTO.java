@@ -104,24 +104,6 @@ public class OrgUnitModelDTO extends BaseModelData implements EntityDTO {
         set("hasBudget", hasBudget);
     }
 
-    // Min level
-    public Integer getMinLevel() {
-        return (Integer) get("minLevel");
-    }
-
-    public void setMinLevel(Integer minLevel) {
-        set("minLevel", minLevel);
-    }
-
-    // Max level
-    public Integer getMaxLevel() {
-        return (Integer) get("maxLevel");
-    }
-
-    public void setMaxLevel(Integer maxLevel) {
-        set("maxLevel", maxLevel);
-    }
-
     // Can contain projects
     public Boolean getCanContainProjects() {
         return (Boolean) get("canContainProjects");

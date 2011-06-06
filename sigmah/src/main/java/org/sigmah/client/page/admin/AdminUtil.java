@@ -97,8 +97,6 @@ public class AdminUtil {
 	public final static String PROP_OM_HAS_BUDGET = "OrgUnitModelBudget";
 	public final static String PROP_OM_HAS_SITE = "OrgUnitModelSite";
 	public final static String PROP_OM_CONTAINS_PROJECTS = "OrgUnitModelContainProjects";
-	public final static String PROP_OM_MIN_LEVEL = "OrgUnitModelMinLevel";
-	public final static String PROP_OM_MAX_LEVEL = "OrgUnitModelMaxLevel";
 	
 	public static void alertPbmData(boolean alert) {
         if (alert)

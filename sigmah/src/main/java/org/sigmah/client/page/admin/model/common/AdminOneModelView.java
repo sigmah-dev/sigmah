@@ -36,7 +36,6 @@ import com.extjs.gxt.ui.client.widget.WidgetComponent;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
-import com.extjs.gxt.ui.client.widget.form.NumberField;
 import com.extjs.gxt.ui.client.widget.form.Radio;
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
@@ -89,8 +88,6 @@ public class AdminOneModelView extends LayoutContainer implements AdminOneModelP
     private final TextField<String> titleField;
 	private final CheckBox hasBudgetCheckBox;
 	private final CheckBox canContainProjectsCheckBox;	
-	private final NumberField minLevelField;
-	private final NumberField maxLevelField;
 	
 	private final Button saveButton;
 	
@@ -311,18 +308,6 @@ public class AdminOneModelView extends LayoutContainer implements AdminOneModelP
 		canContainProjectsCheckBox.setLabelSeparator(" ");
 		canContainProjectsCheckBox.setValue(false);
 		topCenterFormPanel.add(canContainProjectsCheckBox);
-		
-		maxLevelField = new NumberField();
-		maxLevelField.hide();
-		maxLevelField.setFieldLabel(I18N.CONSTANTS.adminOrgUnitsModelMaxLevel());
-		maxLevelField.setAllowBlank(true);
-		topRightFormPanel.add(maxLevelField);
-		
-		minLevelField = new NumberField();
-		minLevelField.hide();
-		minLevelField.setFieldLabel(I18N.CONSTANTS.adminOrgUnitsModelMinLevel());
-		minLevelField.setAllowBlank(true);
-		topRightFormPanel.add(minLevelField);
         
 		
         // Adds actions on filter by model type.
@@ -427,14 +412,6 @@ public class AdminOneModelView extends LayoutContainer implements AdminOneModelP
 			final String title = titleField.getValue();
 			final Boolean hasBudget = hasBudgetCheckBox.getValue(); 
 			final Boolean containsProjects = canContainProjectsCheckBox.getValue();
-			Integer minLevel = 0;
-			if(minLevelField.getValue() != null){
-			  minLevel = new Integer(minLevelField.getValue().intValue());
-			}
-			Integer maxLevel = 0;
-			if(maxLevelField.getValue() != null){
-			 maxLevel = new Integer(maxLevelField.getValue().intValue());
-			}
 					
 			HashMap<String, Object> modelProperties = new HashMap<String, Object>();
 			modelProperties.put(AdminUtil.PROP_OM_NAME, name.getValue());
@@ -448,8 +425,6 @@ public class AdminOneModelView extends LayoutContainer implements AdminOneModelP
 			modelProperties.put(AdminUtil.PROP_OM_TITLE, title);
 			modelProperties.put(AdminUtil.PROP_OM_HAS_BUDGET, hasBudget);
 			modelProperties.put(AdminUtil.PROP_OM_CONTAINS_PROJECTS, containsProjects);
-			modelProperties.put(AdminUtil.PROP_OM_MIN_LEVEL, minLevel);
-			modelProperties.put(AdminUtil.PROP_OM_MAX_LEVEL, maxLevel);
 			 
 	        dispatcher.execute(new CreateEntity("OrgUnitModel", modelProperties), null, new AsyncCallback<CreateResult>(){
 
@@ -571,14 +546,11 @@ public class AdminOneModelView extends LayoutContainer implements AdminOneModelP
 			titleField.show();
 			hasBudgetCheckBox.show();
 			canContainProjectsCheckBox.show();	
-			minLevelField.show();
-			maxLevelField.show();
 			
 			titleField.disable();
 			hasBudgetCheckBox.disable();
 			canContainProjectsCheckBox.disable();	
-			minLevelField.disable();
-			maxLevelField.disable();
+
 			if(ProjectModelStatus.DRAFT.equals(((OrgUnitModelDTO) model).getStatus())){
 				name.enable();
 				statusList.enable();
@@ -587,8 +559,6 @@ public class AdminOneModelView extends LayoutContainer implements AdminOneModelP
 				titleField.enable();
 				hasBudgetCheckBox.enable();
 				canContainProjectsCheckBox.enable();
-				minLevelField.enable();
-				maxLevelField.enable();
 			}
 				
 			
@@ -602,8 +572,6 @@ public class AdminOneModelView extends LayoutContainer implements AdminOneModelP
 				titleField.setValue(currentOrgUnitModel.getTitle());
 				hasBudgetCheckBox.setValue(currentOrgUnitModel.getHasBudget());
 				canContainProjectsCheckBox.setValue(currentOrgUnitModel.getCanContainProjects());
-				minLevelField.setValue(currentOrgUnitModel.getMinLevel());
-				maxLevelField.setValue(currentOrgUnitModel.getMaxLevel());
 				
 				Log.debug("Original org unit model status : " + currentOrgUnitModel.getName() + " " + ProjectModelStatus.getName(currentOrgUnitModel.getStatus()));
 			}

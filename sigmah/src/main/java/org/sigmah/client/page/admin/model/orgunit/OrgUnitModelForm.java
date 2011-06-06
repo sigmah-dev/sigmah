@@ -18,7 +18,6 @@ import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
-import com.extjs.gxt.ui.client.widget.form.NumberField;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 import com.google.gwt.core.client.GWT;
@@ -31,8 +30,6 @@ public class OrgUnitModelForm extends FormPanel {
 	private final TextField<String> titleField;
 	private final CheckBox hasBudgetCheckBox;
 	private final CheckBox canContainProjectsCheckBox;	
-	private final NumberField minLevelField;
-	private final NumberField maxLevelField;
 
 	private HashMap<String, Object> newOrgUnitModelProperties;
 	
@@ -69,16 +66,6 @@ public class OrgUnitModelForm extends FormPanel {
 		canContainProjectsCheckBox.setValue(false);
 		add(canContainProjectsCheckBox);
 		
-		maxLevelField = new NumberField();
-		maxLevelField.setFieldLabel(I18N.CONSTANTS.adminOrgUnitsModelMaxLevel());
-		maxLevelField.setAllowBlank(true);
-		add(maxLevelField);
-		
-		minLevelField = new NumberField();
-		minLevelField.setFieldLabel(I18N.CONSTANTS.adminOrgUnitsModelMinLevel());
-		minLevelField.setAllowBlank(true);
-		add(minLevelField);
-		
 		// Create button.
         final Button createButton = new Button(I18N.CONSTANTS.save());
         createButton.addListener(Events.OnClick, new Listener<ButtonEvent>() {
@@ -101,22 +88,13 @@ public class OrgUnitModelForm extends FormPanel {
 		 final String title = titleField.getValue();
 		 final Boolean hasBudget = hasBudgetCheckBox.getValue();	 
 		 final Boolean containsProjects = canContainProjectsCheckBox.getValue();
-		 Integer minLevel = 0;
-		 if(minLevelField.getValue() != null){
-			  minLevel = new Integer(minLevelField.getValue().intValue());
-		 }
-		 Integer maxLevel = 0;
-		 if(maxLevelField.getValue() != null){
-			 maxLevel = new Integer(maxLevelField.getValue().intValue());
-		 }
 		 
 		 newOrgUnitModelProperties = new HashMap<String, Object>();
 		 newOrgUnitModelProperties.put(AdminUtil.PROP_OM_NAME, name);
 		 newOrgUnitModelProperties.put(AdminUtil.PROP_OM_TITLE, title);
 		 newOrgUnitModelProperties.put(AdminUtil.PROP_OM_HAS_BUDGET, hasBudget);
 		 newOrgUnitModelProperties.put(AdminUtil.PROP_OM_CONTAINS_PROJECTS, containsProjects);
-		 newOrgUnitModelProperties.put(AdminUtil.PROP_OM_MIN_LEVEL, minLevel);
-		 newOrgUnitModelProperties.put(AdminUtil.PROP_OM_MAX_LEVEL, maxLevel);
+
   
 		 OrgUnitModelDTO model = new OrgUnitModelDTO();
 		 model.setStatus(ProjectModelStatus.DRAFT);

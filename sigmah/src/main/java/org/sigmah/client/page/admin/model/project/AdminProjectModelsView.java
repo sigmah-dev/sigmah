@@ -35,7 +35,6 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
-import com.extjs.gxt.ui.client.widget.layout.VBoxLayoutData;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -63,9 +62,6 @@ public class AdminProjectModelsView extends View {
         mainPanel.setHeaderVisible(false);
         mainPanel.setBorders(false);
         mainPanel.setBodyBorder(false);
-        
-        final VBoxLayoutData topVBoxLayoutData = new VBoxLayoutData();
-        topVBoxLayoutData.setFlex(1.0);
         
         modelsStore = new AdminModelsStore();
         grid = buildModelsListGrid();

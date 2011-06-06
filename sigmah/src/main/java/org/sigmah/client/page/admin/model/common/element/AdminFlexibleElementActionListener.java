@@ -11,6 +11,8 @@ import org.sigmah.client.page.common.toolbar.UIActions;
 import org.sigmah.client.page.admin.model.common.element.AdminFlexibleElementsPresenter.View;
 import org.sigmah.shared.command.DeleteFlexibleElements;
 import org.sigmah.shared.command.result.VoidResult;
+import org.sigmah.shared.domain.element.DefaultFlexibleElementType;
+import org.sigmah.shared.dto.element.DefaultFlexibleElementDTO;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
 
 import com.extjs.gxt.ui.client.widget.MessageBox;
@@ -42,32 +44,40 @@ public class AdminFlexibleElementActionListener implements ActionListener {
 	}
 	
 	protected void onDeleteConfirmed(final List<FlexibleElementDTO> selection) {
-		
+		String notDeletableNames = "";
 		List<Integer> ids = new ArrayList<Integer>();
 		String names = "";
 		for(FlexibleElementDTO s : selection){
 			ids.add(s.getId());
 			names = s.getLabel() + ", " + names;
+			if(s instanceof DefaultFlexibleElementDTO){
+				notDeletableNames += DefaultFlexibleElementType.getName(((DefaultFlexibleElementDTO)s).getType()).replace("?", "") + ", ";
+			}
 		}
 		
-		final String toDelete = names;
-		final DeleteFlexibleElements delete = new DeleteFlexibleElements(selection);
-        dispatcher.execute(delete, null, new AsyncCallback<VoidResult>() {
+		if("".equals(notDeletableNames)){
+			final String toDelete = names;
+			final DeleteFlexibleElements delete = new DeleteFlexibleElements(selection);
+	        dispatcher.execute(delete, null, new AsyncCallback<VoidResult>() {
 
-            @Override
-            public void onFailure(Throwable caught) {
-                MessageBox.alert(I18N.CONSTANTS.error(), I18N.MESSAGES.entityDeleteEventError(toDelete), null);
-            }
+	            @Override
+	            public void onFailure(Throwable caught) {
+	                MessageBox.alert(I18N.CONSTANTS.error(), I18N.MESSAGES.entityDeleteEventError(toDelete), null);
+	            }
 
-            @Override
-            public void onSuccess(VoidResult result) {
-            	//update view   
-            	for(FlexibleElementDTO s : selection){
-            		view.getFieldsStore().remove(s);
-            	}
-            	//FIXME update model
-            }
-        });
+	            @Override
+	            public void onSuccess(VoidResult result) {
+	            	//update view   
+	            	for(FlexibleElementDTO s : selection){
+	            		view.getFieldsStore().remove(s);
+	            	}
+	            	//FIXME update model
+	            }
+	        });
+		}else{
+			notDeletableNames = notDeletableNames.substring(0, notDeletableNames.lastIndexOf(", "));
+			MessageBox.alert(I18N.CONSTANTS.error(), I18N.MESSAGES.adminErrorDeleteDefaultFlexible(notDeletableNames), null);
+		}
 	}	
 	
 	private void onAdd() {	
