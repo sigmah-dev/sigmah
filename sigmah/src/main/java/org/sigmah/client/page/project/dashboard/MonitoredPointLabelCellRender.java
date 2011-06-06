@@ -130,6 +130,13 @@ public class MonitoredPointLabelCellRender implements GridCellRenderer<Monitored
 										//Refresh the grid 
 									    ListStore<MonitoredPointDTO> pointDTOStore = view.getMonitoredPointsGrid().getStore();
 									    pointDTOStore.update(model);
+									    
+									    
+										   Notification.show(
+												I18N.CONSTANTS
+														.infoConfirmation(),
+												I18N.CONSTANTS
+														.monitoredPointUpdateConfirm());
 									       
 									}
 								});
@@ -168,9 +175,9 @@ public class MonitoredPointLabelCellRender implements GridCellRenderer<Monitored
 													
 													  MessageBox.alert(
 																	I18N.CONSTANTS
-																			.monitoredPointUpdateError(),
+																			.deletionError(),
 																	I18N.CONSTANTS
-																			.monitoredPointUpdateErrorDetails(),
+																			.monitoredPointDeletionErrorDetails(),
 																	null);
 												  
 													}
@@ -188,7 +195,7 @@ public class MonitoredPointLabelCellRender implements GridCellRenderer<Monitored
 																	I18N.CONSTANTS
 																			.infoConfirmation(),
 																	I18N.CONSTANTS
-																			.monitoredPointUpdateConfirm());
+																			.monitoredPointDeletionConfirm());
 													}
 												});
 					        		   

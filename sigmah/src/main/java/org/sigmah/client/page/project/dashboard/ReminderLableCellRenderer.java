@@ -181,9 +181,9 @@ public class ReminderLableCellRenderer implements GridCellRenderer<ReminderDTO> 
 														Log.error("[execute] Error while updating the reminder.",caught);
 														MessageBox.alert(
 																I18N.CONSTANTS
-																		.reminderUpdateError(),
+																		.deletionError(),
 																I18N.CONSTANTS
-																		.reminderUpdateErrorDetails(),
+																		.reminderDeletionErrorDetails(),
 																null);
 														
 													}
@@ -202,7 +202,7 @@ public class ReminderLableCellRenderer implements GridCellRenderer<ReminderDTO> 
 																	I18N.CONSTANTS
 																			.infoConfirmation(),
 																	I18N.CONSTANTS
-																			.reminderUpdateConfirm());
+																			.reminderDeletionConfirm());
 														
 													}					
 								        	
