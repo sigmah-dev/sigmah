@@ -127,7 +127,7 @@ public class UserDatabase implements java.io.Serializable, Deleteable, SchemaEle
      * 
      * @return The full name of the database
      */
-    @Column(name = "FullName", length = 50)
+    @Column(name = "FullName", length = 500)
     public String getFullName() {
         return this.fullName;
     }

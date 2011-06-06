@@ -63,6 +63,7 @@ import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 import com.extjs.gxt.ui.client.widget.layout.HBoxLayout;
 import com.extjs.gxt.ui.client.widget.layout.HBoxLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.VBoxLayoutData;
+import com.extjs.gxt.ui.client.widget.tips.ToolTipConfig;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -314,8 +315,22 @@ public class ProjectPresenter implements Frame, TabPage {
 
         // Panel.
         final ContentPanel panel = view.getPanelProjectBanner();
+        
+        //Set the heading of panel
+        String projectTitle = currentProjectDTO.getFullName();
+        String titleToDisplay="";        
+        if(projectTitle!=null && !projectTitle.isEmpty())
+        	titleToDisplay=projectTitle.length()>110?projectTitle.substring(0,110)+"...":projectTitle;
+        	
         panel.setHeading(I18N.CONSTANTS.projectMainTabTitle() + ' ' + currentProjectDTO.getName() + " ("
-                + currentProjectDTO.getFullName() + ")");
+                + titleToDisplay + ")");
+        
+        //Set the tool tip
+      	ToolTipConfig panelToolTipconfig = new ToolTipConfig();
+      	panelToolTipconfig.setMaxWidth(500);
+      	panelToolTipconfig.setText(projectTitle);
+        panel.setToolTip(panelToolTipconfig);
+        
         panel.removeAll();
 
         final Grid gridPanel = new Grid(1, 2);
@@ -388,9 +403,33 @@ public class ProjectPresenter implements Frame, TabPage {
                         defaultElement.setCurrentContainerDTO(currentProjectDTO);
 
                         final Component component = defaultElement.getElementComponent(null, false);
-
-                        if (component != null) {
-                            groupPanel.add(component);
+                        
+                        if (component != null) {     
+                        	
+                        	if(component instanceof LabelField)
+                        	{                   	
+                        	 LabelField lableFieldComponent =(LabelField)component;
+                        	 //Get the text of the field
+                        	 String textValue = lableFieldComponent.getText();
+                        	 
+                        	 //Set the tool tip                       	
+                        	 ToolTipConfig config = new ToolTipConfig();
+                        	 config.setMaxWidth(500);
+                        	 config.setText(textValue);
+                        	 lableFieldComponent.setToolTip(config);
+                        	 
+                        	 //Clip the text if it is longer than 30
+                        	 if(textValue!=null && !textValue.isEmpty())
+                        	   {
+                        	    String newTextValue = textValue.length()>30?textValue.substring(0, 29)+"...":textValue;
+                        	    lableFieldComponent.setText(newTextValue);
+                        	   }
+                             groupPanel.add(lableFieldComponent);
+                        	}
+                        	else{
+                             groupPanel.add(component);
+                        	}
+                           
                         }
 
                         // Only one element per cell.
@@ -608,4 +647,6 @@ public class ProjectPresenter implements Frame, TabPage {
     public AsyncMonitor showLoadingPlaceHolder(PageId pageId, PageState loadingPlace) {
         return null;
     }
+      
+    
 }

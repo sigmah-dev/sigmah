@@ -120,8 +120,8 @@ public class ProjectPolicy implements EntityPolicy<Project> {
         // Considers name length constraints.
         final String fullName = properties.<String> get("fullName");
         if (fullName != null) {
-            if (fullName.length() > 50) {
-                project.setFullName(fullName.substring(0, 50));
+            if (fullName.length() > 500) {
+                project.setFullName(fullName.substring(0, 500));
             } else {
                 project.setFullName(fullName);
             }

@@ -91,6 +91,7 @@ public class DashboardPresenter implements Page {
 
             @Override
             public void handleEvent(BaseEvent be) {
+            if(view.getOrgUnitsStore().getRootItems().size()>0)
                 view.getOrgUnitsTree().setExpanded(view.getOrgUnitsStore().getRootItems().get(0), true, false);
             }
         });

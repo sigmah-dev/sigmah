@@ -137,7 +137,7 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 
             // Builds the field and sets its value.
             if (enabled) {
-                final TextField<String> textField = createStringField(50, false);
+                final TextField<String> textField = createStringField(500, false);
                 textField.setValue(container.getFullName());
                 field = textField;
 
@@ -963,7 +963,7 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 
             // Builds the field and sets its value.
             if (enabled) {
-                final TextField<String> textField = createStringField(50, false);
+                final TextField<String> textField = createStringField(500, false);
                 textField.setValue(valueResult.getValueObject());
                 field = textField;
 
