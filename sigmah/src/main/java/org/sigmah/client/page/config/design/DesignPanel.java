@@ -12,6 +12,7 @@ import java.util.Map;
 
 import org.sigmah.client.EventBus;
 import org.sigmah.client.dispatch.Dispatcher;
+import org.sigmah.client.dispatch.monitor.MaskingAsyncMonitor;
 import org.sigmah.client.event.IndicatorEvent;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.page.common.dialog.FormDialogCallback;
@@ -22,9 +23,11 @@ import org.sigmah.client.page.common.toolbar.ActionListener;
 import org.sigmah.client.page.common.toolbar.UIActions;
 import org.sigmah.client.page.entry.IndicatorNumberFormats;
 import org.sigmah.shared.command.CreateEntity;
+import org.sigmah.shared.command.Delete;
 import org.sigmah.shared.command.GetIndicators;
 import org.sigmah.shared.command.result.CreateResult;
 import org.sigmah.shared.command.result.IndicatorListResult;
+import org.sigmah.shared.command.result.VoidResult;
 import org.sigmah.shared.dto.IndicatorDTO;
 import org.sigmah.shared.dto.IndicatorGroup;
 
@@ -40,8 +43,11 @@ import com.extjs.gxt.ui.client.event.DNDListener;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.store.TreeStore;
+import com.extjs.gxt.ui.client.widget.Info;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.form.NumberField;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.grid.CellEditor;
@@ -165,6 +171,7 @@ public class DesignPanel extends DesignPanelBase implements ActionListener {
 		toolBar.setListener(this);
 		toolBar.addButton("newIndicatorGroup", I18N.CONSTANTS.newIndicatorGroup(), null);
 		toolBar.addButton("newIndicator", I18N.CONSTANTS.newIndicator(), null);
+		toolBar.addButton("delete", I18N.CONSTANTS.delete(), null);
 		toolBar.addRefreshButton();
 		
 		eventBus.addListener(IndicatorEvent.CHANGED, new Listener<IndicatorEvent>() {
@@ -193,8 +200,14 @@ public class DesignPanel extends DesignPanelBase implements ActionListener {
 			
 		} else if("newIndicatorGroup".equals(actionId)) {
 			onNewIndicatorGroup();
+		
+		} else if("delete".equals(actionId)) {
+			onDelete();
 		}
 	}
+
+
+
 
 
 	@Override
@@ -371,6 +384,39 @@ public class DesignPanel extends DesignPanelBase implements ActionListener {
 				treeStore.add(group, false);
 			}
 		});
+	}
+	
+	private void onDelete() {
+		final ModelData selected = treeGrid.getSelectionModel().getSelectedItem();
+		if(selected instanceof IndicatorDTO) {
+			MessageBox.confirm(I18N.CONSTANTS.delete(), I18N.CONSTANTS.confirmDeleteIndicator(), new Listener<MessageBoxEvent>() {
+				
+				@Override
+				public void handleEvent(MessageBoxEvent be) {
+					if(be.getButtonClicked().getItemId().equals("yes")) {
+						deleteIndicator((IndicatorDTO) selected);
+					}
+				}
+			});
+		} else if(selected instanceof IndicatorGroup) {
+			
+		}
+	
+	}
+
+	private void deleteIndicator(final IndicatorDTO selected) {
+		service.execute(new Delete(selected), new MaskingAsyncMonitor(this, I18N.CONSTANTS.deleting()), new AsyncCallback<VoidResult>() {
+
+			@Override
+			public void onFailure(Throwable caught) {
+				// handled by monitor			
+				}
+
+			@Override
+			public void onSuccess(VoidResult result) {
+				treeGrid.getTreeStore().remove(selected);
+			}
+		});		
 	}
 	
 	private void showIndicatorForm(IndicatorDTO model) {

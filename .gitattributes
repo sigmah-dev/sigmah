@@ -29,6 +29,7 @@ dotnet/app.config -text
 /pom.xml -text
 sigmah/pom.xml -text
 sigmah/release.properties -text
+sigmah/sigmah.sql.gz -text
 sigmah/sigmahtest.sql -text
 sigmah/src/main/java/org/sigmah/ActivityInfo.gwt.xml -text
 sigmah/src/main/java/org/sigmah/ActivityInfoFFTest.gwt.xml -text
@@ -2200,6 +2201,7 @@ sigmah/src/test/resources/report-def/parse-test/report-elements.xml -text
 sigmah/src/test/resources/report-def/parse-test/report.xml -text
 sigmah/src/test/resources/report-def/parse-test/static.xml -text
 sigmah/src/test/resources/report-def/parse-test/table.xml -text
+sigmah/war/WEB-INF/deploy/Login/rpcPolicyManifest/manifest.txt -text
 sigmah/war/WEB-INF/sigmah.client.js -text
 sigmah/war/WEB-INF/sigmah.properties -text
 sigmah/war/WEB-INF/web.xml -text

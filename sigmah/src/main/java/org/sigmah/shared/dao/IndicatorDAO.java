@@ -53,6 +53,7 @@ public class IndicatorDAO  {
 			.leftJoin("ReportingPeriod p").on("s.siteId = p.SiteId")
 			.leftJoin("IndicatorValue v").on("p.ReportingPeriodId = v.ReportingPeriodId and v.IndicatorId=i.indicatorId")
 		.whereTrue("i.databaseId=" + databaseId)
+		.whereTrue("i.dateDeleted is null")
 		.groupBy("i.indicatorId, i.name, i.aggregation, i.units, i.category, i.description, i.listheader,i.objective," +
 				"i.sourceOfVerification,i.sortOrder")
 		.orderBy("i.sortOrder")
