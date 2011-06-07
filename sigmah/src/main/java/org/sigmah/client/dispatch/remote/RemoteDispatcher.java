@@ -18,6 +18,7 @@ import com.google.inject.Singleton;
 import org.sigmah.client.EventBus;
 import org.sigmah.client.dispatch.*;
 import org.sigmah.client.dispatch.remote.cache.ProxyResult;
+import org.sigmah.client.i18n.I18N;
 import org.sigmah.shared.command.Command;
 import org.sigmah.shared.command.RemoteCommandServiceAsync;
 import org.sigmah.shared.command.result.CommandResult;
@@ -175,7 +176,7 @@ public class RemoteDispatcher implements Dispatcher, DispatchEventSource {
     private void onRetriesMaxedOut(CommandRequest cmd) {
         Log.debug("RemoteDispatcher: The monitor " +
                 " has denied a retry attempt after " + cmd.retries +
-                " retries, the command is removed from the queue.");
+                " retries, the command is rem••••••oved from the queue.");
         cmd.fireRetriesMaxedOut();
     }
 
@@ -322,7 +323,7 @@ public class RemoteDispatcher implements Dispatcher, DispatchEventSource {
         // AsyncCallback.onFailure(Throwable) method is to get the application into
         //  a state where a browser refresh can be done.
         // TODO: this needs to be handled by the user interface somewhere
-        Window.alert("A new version of ActivityInfo has been posted to the server. You will need to refresh before continuing.");
+        Window.alert(I18N.CONSTANTS.incompatibleRemoteServiceException());
     }
 
     private void onAuthenticationExpired() {
