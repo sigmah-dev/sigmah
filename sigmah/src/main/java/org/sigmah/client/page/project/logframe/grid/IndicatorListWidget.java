@@ -4,6 +4,7 @@ import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.page.common.dialog.FormDialogCallback;
 import org.sigmah.client.page.common.dialog.FormDialogImpl;
+import org.sigmah.client.page.common.dialog.FormDialogTether;
 import org.sigmah.client.page.config.design.IndicatorForm;
 import org.sigmah.shared.dto.IndicatorDTO;
 import org.sigmah.shared.dto.logframe.LogFrameElementDTO;
@@ -84,7 +85,7 @@ public class IndicatorListWidget extends Composite  {
 		indicatorList.addListener(Events.Select, new Listener<ListViewEvent<IndicatorDTO>>() {
 			@Override
 			public void handleEvent(ListViewEvent<IndicatorDTO> be) {
-				
+				onIndicatorClicked(be.getModel());
 			}
 		});
 
@@ -102,28 +103,42 @@ public class IndicatorListWidget extends Composite  {
 		newIndicator.setCollectIntervention(true);
 		newIndicator.setAggregation(IndicatorDTO.AGGREGATE_SUM);
 		newIndicator.setDatabaseId(databaseId);
-		newIndicator.setCategory(element.getGroup().getLabel());
+		newIndicator.setCategory( (element.getFormattedCode() + " " + element.getDescription()).trim() );
 		
+		showDialog(newIndicator, new FormDialogCallback() {
+
+			@Override
+			public void onValidated(FormDialogTether dlg) {
+				dlg.hide();
+				element.getIndicators().add(newIndicator);
+				indicatorList.getStore().add(newIndicator);			
+			}
+		});
+	}
+	
+	private void onIndicatorClicked(IndicatorDTO model) {
+		showDialog(model, new FormDialogCallback() {
+
+			@Override
+			public void onValidated(FormDialogTether dlg) {
+				dlg.hide();
+				indicatorList.refresh();
+			}
+		});
+	}
+	
+	private void showDialog(IndicatorDTO indicator, FormDialogCallback callback) {
 		final IndicatorForm form = new IndicatorForm(dispatcher);
-		form.getBinding().bind(newIndicator);
+		form.getBinding().bind(indicator);
 		form.setIdVisible(false);
 		form.setCategoryVisible(false);
 		
 		final FormDialogImpl<IndicatorForm> dialog = new FormDialogImpl<IndicatorForm>(form);
-		dialog.setHeading(I18N.CONSTANTS.newIndicatorGroup());
+		dialog.setHeading(indicator.getName() == null ? 
+				I18N.CONSTANTS.newIndicator() : indicator.getName());
 		dialog.setWidth(form.getPreferredDialogWidth());
 		dialog.setHeight(form.getPreferredDialogHeight());
 		dialog.setScrollMode(Scroll.AUTOY);
-		dialog.show(new FormDialogCallback() {
-
-			@Override
-			public void onValidated() {
-				dialog.hide();
-				element.getIndicators().add(newIndicator);
-				indicatorList.getStore().add(newIndicator);
-			}
-		});
-
+		dialog.show(callback);
 	}
-
 }

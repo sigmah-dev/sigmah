@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+import org.sigmah.client.page.project.logframe.CodePolicy;
 import org.sigmah.client.page.project.logframe.grid.Row.Positionable;
 import org.sigmah.shared.dto.EntityDTO;
 
@@ -68,6 +69,7 @@ public class SpecificObjectiveDTO extends LogFrameElementDTO implements EntityDT
         set("label", label);
     }
 
+    @Override
     public String getLabel() {
         return get("label");
     }
@@ -163,4 +165,19 @@ public class SpecificObjectiveDTO extends LogFrameElementDTO implements EntityDT
     public boolean removeExpectedResult(ExpectedResultDTO result) {
     	return getExpectedResults().remove(result);
     }
+
+    @Override
+    public String getFormattedCode() {
+    	final StringBuilder sb = new StringBuilder();
+    	sb.append(CodePolicy.getLetter(getCode(), true, 1));
+    	sb.append(".");
+
+    	return sb.toString();
+    }
+    
+    @Override
+    public String getDescription() {
+    	return getInterventionLogic();
+    }
+    
 }

@@ -72,6 +72,7 @@ public class ExpectedResultDTO extends LogFrameElementDTO {
         set("label", label);
     }
 
+    @Override
     public String getLabel() {
         return get("label");
     }
@@ -168,4 +169,27 @@ public class ExpectedResultDTO extends LogFrameElementDTO {
     public boolean removeActivity(LogFrameActivityDTO activity) {
         return getActivities().remove(activity);
     }
+
+	@Override
+	public String getFormattedCode() {
+
+	    final StringBuilder sb = new StringBuilder();
+
+	    final SpecificObjectiveDTO parent;
+	    if ((parent = getParentSpecificObjective()) != null) {
+	        sb.append(parent.getFormattedCode());
+	    }
+
+	    sb.append(getCode());
+	    sb.append(".");
+
+	    return sb.toString();
+	}
+
+	@Override
+	public String getDescription() {
+		return getInterventionLogic();
+	}
+	
+	
 }

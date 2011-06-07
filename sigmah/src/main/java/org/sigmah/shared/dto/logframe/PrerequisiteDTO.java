@@ -174,4 +174,13 @@ public class PrerequisiteDTO extends BaseModelData implements EntityDTO, Positio
         final PrerequisiteDTO other = (PrerequisiteDTO) obj;
         return getClientSideId() == other.getClientSideId();
     }
+    
+    public String getFormattedCode() {
+
+	    final StringBuilder sb = new StringBuilder();
+	    sb.append(getCode());
+	    sb.append(".");
+
+	    return sb.toString();
+    }
 }

@@ -167,26 +167,6 @@ public class ProjectLogFrameGrid {
      */
     private FlexTableView prerequisitesView;
 
-    /**
-     * The codes displayer for the specific objectives.
-     */
-    private CodePolicy<SpecificObjectiveDTO> specificObjectivesPolicy;
-
-    /**
-     * The codes displayer for the expected results.
-     */
-    private CodePolicy<ExpectedResultDTO> expectedResultsPolicy;
-
-    /**
-     * The codes displayer for the activities.
-     */
-    private CodePolicy<LogFrameActivityDTO> activitiesPolicy;
-
-    /**
-     * The codes displayer for the prerequisites.
-     */
-    private CodePolicy<PrerequisiteDTO> prerequisitesPolicy;
-
 	private int databaseId;
 	
 	private final Dispatcher dispatcher;
@@ -610,80 +590,6 @@ public class ProjectLogFrameGrid {
     }
 
     /**
-     * Initializes the codes policies.Project
-     */
-    private void initCodePolicies() {
-
-        // Defines how the specific objectives codes are shown.
-        specificObjectivesPolicy = new CodePolicy<SpecificObjectiveDTO>() {
-
-            @Override
-            public String getCode(int code, SpecificObjectiveDTO userObject) {
-
-                final StringBuilder sb = new StringBuilder();
-                sb.append(CodePolicy.getLetter(code, true, 1));
-                sb.append(".");
-
-                return sb.toString();
-            }
-        };
-
-        // Defines how the expected results codes are shown.
-        expectedResultsPolicy = new CodePolicy<ExpectedResultDTO>() {
-
-            @Override
-            public String getCode(int code, ExpectedResultDTO userObject) {
-
-                final StringBuilder sb = new StringBuilder();
-
-                final SpecificObjectiveDTO parent;
-                if ((parent = userObject.getParentSpecificObjective()) != null) {
-                    sb.append(specificObjectivesPolicy.getCode(parent.getCode(), parent));
-                }
-
-                sb.append(code);
-                sb.append(".");
-
-                return sb.toString();
-            }
-        };
-
-        // Defines how the activities codes are shown.
-        activitiesPolicy = new CodePolicy<LogFrameActivityDTO>() {
-
-            @Override
-            public String getCode(int code, LogFrameActivityDTO userObject) {
-
-                final StringBuilder sb = new StringBuilder();
-
-                final ExpectedResultDTO parent;
-                if ((parent = userObject.getParentExpectedResult()) != null) {
-                    sb.append(expectedResultsPolicy.getCode(parent.getCode(), parent));
-                }
-
-                sb.append(code);
-                sb.append(".");
-
-                return sb.toString();
-            }
-        };
-
-        // Defines how the prerequisites codes are shown.
-        prerequisitesPolicy = new CodePolicy<PrerequisiteDTO>() {
-
-            @Override
-            public String getCode(int code, PrerequisiteDTO userObject) {
-
-                final StringBuilder sb = new StringBuilder();
-                sb.append(code);
-                sb.append(".");
-
-                return sb.toString();
-            }
-        };
-    }
-
-    /**
      * Displays the log frame content in the log frame grid (specific
      * objectives, expected results, prerequisites, activities);
      * 
@@ -717,7 +623,6 @@ public class ProjectLogFrameGrid {
 
         resetTable();
         initTable();
-        initCodePolicies();
 
         // Displays all the groups (even the empty ones).
         for (final LogFrameGroupDTO group : logFrame.getGroups()) {
@@ -992,7 +897,7 @@ public class ProjectLogFrameGrid {
         final StringBuilder sb = new StringBuilder();
         sb.append(I18N.CONSTANTS.logFrameSpecificObjectivesCode());
         sb.append(" ");
-        sb.append(specificObjectivesPolicy.getCode(specificObjective.getCode(), specificObjective));
+        sb.append(specificObjective.getFormattedCode());
         specificObjective.setLabel(sb.toString());
 
         // Sets the position the last if it doesn't exist.
@@ -1396,7 +1301,7 @@ public class ProjectLogFrameGrid {
         final StringBuilder sb = new StringBuilder();
         sb.append(I18N.CONSTANTS.logFrameExceptedResultsCode());
         sb.append(" ");
-        sb.append(expectedResultsPolicy.getCode(result.getCode(), result));
+        sb.append(result.getFormattedCode());
         result.setLabel(sb.toString());
 
         // Sets the position the last if it doesn't exist.
@@ -1441,7 +1346,7 @@ public class ProjectLogFrameGrid {
                                 sb.append(" (");
                                 sb.append(I18N.CONSTANTS.logFrameSpecificObjectivesCode());
                                 sb.append(" ");
-                                sb.append(specificObjectivesPolicy.getCode(parent.getCode(), parent));
+                                sb.append(parent.getFormattedCode());
                                 sb.append(")");
 
                                 parentCodeLabel.setText(sb.toString());
@@ -1851,7 +1756,7 @@ public class ProjectLogFrameGrid {
         final StringBuilder sb = new StringBuilder();
         sb.append(I18N.CONSTANTS.logFrameActivitiesCode());
         sb.append(" ");
-        sb.append(activitiesPolicy.getCode(activity.getCode(), activity));
+        sb.append(activity.getFormattedCode());
         activity.setLabel(sb.toString());
 
         // Sets the position the last if it doesn't exist.
@@ -1896,7 +1801,7 @@ public class ProjectLogFrameGrid {
                                 sb.append(" (");
                                 sb.append(I18N.CONSTANTS.logFrameExceptedResultsCode());
                                 sb.append(" ");
-                                sb.append(expectedResultsPolicy.getCode(parent.getCode(), parent));
+                                sb.append(parent.getFormattedCode());
                                 sb.append(")");
 
                                 parentCodeLabel.setText(sb.toString());
@@ -1926,9 +1831,6 @@ public class ProjectLogFrameGrid {
                             return grid;
                             
                         case 2:
-                        	return new IndicatorListWidget(dispatcher, databaseId, userObject);
-
-                        case 5:
 
                             // Activity content.
                             final TextArea contentTextBox = new TextArea();
@@ -1951,6 +1853,16 @@ public class ProjectLogFrameGrid {
                             });
 
                             return contentTextBox;
+                            
+                        case 3:
+                        	return new IndicatorListWidget(dispatcher, databaseId, userObject);
+                        	
+                        case 4:
+                        	return new Label();
+                        	
+                        case 5:
+                        	return new Label();
+
                         default:
                             return null;
                         }
@@ -2180,7 +2092,7 @@ public class ProjectLogFrameGrid {
         final StringBuilder sb = new StringBuilder();
         sb.append(I18N.CONSTANTS.logFramePrerequisitesCode());
         sb.append(" ");
-        sb.append(prerequisitesPolicy.getCode(prerequisite.getCode(), prerequisite));
+        sb.append(prerequisite.getFormattedCode());
         prerequisite.setLabel(sb.toString());
 
         // Sets the position the last if it doesn't exist.
@@ -2189,8 +2101,7 @@ public class ProjectLogFrameGrid {
         }
 
         // Adds the row.
-        prerequisitesView.insertRow(prerequisite.getPosition(), group.getClientSideId(), new Row<PrerequisiteDTO>(
-                prerequisite) {
+        prerequisitesView.insertRow(prerequisite.getPosition(), group.getClientSideId(), new Row<PrerequisiteDTO>(prerequisite) {
 
             @Override
             public boolean isSimilar(int column, PrerequisiteDTO userObject, PrerequisiteDTO other) {

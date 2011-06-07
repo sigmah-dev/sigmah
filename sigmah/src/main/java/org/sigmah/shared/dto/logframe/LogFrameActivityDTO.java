@@ -18,15 +18,6 @@ public class LogFrameActivityDTO extends LogFrameElementDTO  {
 
     private static final long serialVersionUID = 6134012388369233491L;
 
-    /**
-     * Returns the prefix code to identify an activity.
-     * 
-     * @return The prefix code to identify an activity.
-     */
-    public static String getPrefixCode() {
-        return I18N.CONSTANTS.logFrameActivitiesCode();
-    }
-
     @Override
     public String getEntityName() {
         return "logframe.Activity";
@@ -86,6 +77,7 @@ public class LogFrameActivityDTO extends LogFrameElementDTO  {
         set("label", label);
     }
 
+    @Override
     public String getLabel() {
         return get("label");
     }
@@ -132,4 +124,25 @@ public class LogFrameActivityDTO extends LogFrameElementDTO  {
         final LogFrameActivityDTO other = (LogFrameActivityDTO) obj;
         return getClientSideId() == other.getClientSideId();
     }
+
+	@Override
+	public String getFormattedCode() {
+
+	    final StringBuilder sb = new StringBuilder();
+
+	    final ExpectedResultDTO parent;
+	    if ((parent = getParentExpectedResult()) != null) {
+	        sb.append(getParentExpectedResult().getFormattedCode());
+	    }
+
+	    sb.append(getCode());
+	    sb.append(".");
+
+	    return sb.toString();
+	}
+
+	@Override
+	public String getDescription() {
+		return getTitle();
+	}
 }

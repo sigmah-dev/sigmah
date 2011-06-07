@@ -18,7 +18,6 @@ public abstract class LogFrameElementDTO extends BaseModelData implements Entity
 	public LogFrameElementDTO() {
 		indicators = new ArrayList<IndicatorDTO>();
 	}
-	
 
     // Objective id.
     @Override
@@ -87,13 +86,31 @@ public abstract class LogFrameElementDTO extends BaseModelData implements Entity
 		this.indicators = indicators;
 	}
 
+	/**
+	 * 
+	 * @return formatted rendering of this element's code
+	 */
+	public abstract String getFormattedCode();
+	
+	/**
+	 * 
+	 * @return localised, formatted label for this element
+	 */
+	public abstract String getLabel();
+	
+	/**
+	 * 
+	 * @return a string that describes this element (either a title or 'intervention logic') 
+	 */
+	public abstract String getDescription();	
+	
 
 	/**
      * Gets the client-side id for this entity. If this entity has a server-id
      * id, it's returned. Otherwise, a temporary id is generated and returned.
      * 
      * @return The client-side id.
-     */
+     */// TODO Auto-generated method stub
     public int getClientSideId() {
 
         // Server-side id.
@@ -113,7 +130,7 @@ public abstract class LogFrameElementDTO extends BaseModelData implements Entity
         return id;
     }
     
-    /**
+    /**addActivity(
      * Generate a client-side unique id for this entity and stores it in the
      * <code>temporaryId</code> attribute.
      */
