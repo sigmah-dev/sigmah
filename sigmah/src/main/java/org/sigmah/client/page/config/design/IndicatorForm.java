@@ -90,7 +90,7 @@ public class IndicatorForm extends AbstractDesignForm {
         typeGroup.setFieldLabel(I18N.CONSTANTS.type());
         typeGroup.setOrientation(Orientation.HORIZONTAL);
         typeGroup.add(quantRadio = newRadio(I18N.CONSTANTS.quantitative()));
-        typeGroup.add(qualRadio = newRadio(I18N.CONSTANTS.qualitative()));
+        typeGroup.add(qualRadio = newRadio(I18N.CONSIndicatorForm TANTS.qualitative()));
         this.add(typeGroup);
         
         typeGroup.addListener(Events.Change, new Listener<FieldEvent>() {
@@ -105,6 +105,7 @@ public class IndicatorForm extends AbstractDesignForm {
 				updateFormLayout();
 			}
 		});
+        
         
         
         labelsField = new ValueLabelField();
@@ -136,11 +137,6 @@ public class IndicatorForm extends AbstractDesignForm {
         objectiveField.setFieldLabel(I18N.CONSTANTS.targetValue());
         binding.addFieldBinding(new FieldBinding(objectiveField, "objective"));
         this.add(objectiveField);
-     
-        datasourceField = new DatasourceField(dispatcher);
-        datasourceField.setFieldLabel("Datasources");
-        binding.addFieldBinding(new FieldBinding(datasourceField, "dataSourceIds"));
-        this.add(datasourceField);
         
         TextArea verification = new TextArea();
         verification.setFieldLabel(I18N.CONSTANTS.sourceOfVerification());
@@ -151,6 +147,12 @@ public class IndicatorForm extends AbstractDesignForm {
         descField.setFieldLabel(I18N.CONSTANTS.indicatorComments());
         binding.addFieldBinding(new FieldBinding(descField, "description"));
         this.add(descField);
+                
+        
+        datasourceField = new DatasourceField(dispatcher);
+        datasourceField.setFieldLabel("Datasources");
+        binding.addFieldBinding(new FieldBinding(datasourceField, "dataSourceIds"));
+        this.add(datasourceField);
         
         binding.addListener(Events.Bind, new Listener<BindingEvent>() {
 
@@ -208,6 +210,11 @@ public class IndicatorForm extends AbstractDesignForm {
 		unitsField.setAllowBlank(typeGroup.getValue() == qualRadio);
 		aggregationGroup.setVisible(typeGroup.getValue() != qualRadio);
 		objectiveField.setVisible(typeGroup.getValue() != qualRadio);
-
 	}
+
+	@Override
+	public int getPreferredDialogHeight() {
+		return 450;
+	}
+   
 }
