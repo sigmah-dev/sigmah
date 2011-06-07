@@ -69,6 +69,10 @@ public class BaseEntityHandler {
         if (changes.containsKey("units")) {
             indicator.setUnits((String) changes.get("units"));
         }
+        
+        if (changes.containsKey("objective")) {
+        	indicator.setObjective((Double)changes.get("objective"));
+        }
 
         if (changes.containsKey("sortOrder")) {
             indicator.setSortOrder((Integer) changes.get("sortOrder"));

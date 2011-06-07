@@ -102,6 +102,7 @@
 				units="menages"
 				aggregation="0"
 				category="inputs"
+				objective="10000"
 				description="falling in lve"
 				listHeader="no header really"
 				collectIntervention="1"
