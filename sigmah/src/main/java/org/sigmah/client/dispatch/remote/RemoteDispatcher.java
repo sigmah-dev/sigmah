@@ -176,7 +176,7 @@ public class RemoteDispatcher implements Dispatcher, DispatchEventSource {
     private void onRetriesMaxedOut(CommandRequest cmd) {
         Log.debug("RemoteDispatcher: The monitor " +
                 " has denied a retry attempt after " + cmd.retries +
-                " retries, the command is rem••••••oved from the queue.");
+                " retries, the command is removed from the queue.");
         cmd.fireRetriesMaxedOut();
     }
 
