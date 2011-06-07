@@ -78,7 +78,6 @@ public class IndicatorForm extends AbstractDesignForm {
         categoryField = new TextField<String>();
         categoryField.setFieldLabel(I18N.CONSTANTS.group());
         categoryField.setMaxLength(50);
-        categoryField.setReadOnly(true);
         binding.addFieldBinding(new FieldBinding(categoryField, "category"));
         this.add(categoryField);
         
@@ -90,7 +89,7 @@ public class IndicatorForm extends AbstractDesignForm {
         typeGroup.setFieldLabel(I18N.CONSTANTS.type());
         typeGroup.setOrientation(Orientation.HORIZONTAL);
         typeGroup.add(quantRadio = newRadio(I18N.CONSTANTS.quantitative()));
-        typeGroup.add(qualRadio = newRadio(I18N.CONSIndicatorForm TANTS.qualitative()));
+        typeGroup.add(qualRadio = newRadio(I18N.CONSTANTS.qualitative()));
         this.add(typeGroup);
         
         typeGroup.addListener(Events.Change, new Listener<FieldEvent>() {
