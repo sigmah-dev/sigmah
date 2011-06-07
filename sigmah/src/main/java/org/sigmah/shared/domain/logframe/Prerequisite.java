@@ -94,7 +94,7 @@ public class Prerequisite implements Serializable {
     }
 
     @ManyToOne(optional = true)
-    @JoinColumn(name = "id_group", nullable = false)
+    @JoinColumn(name = "id_group", nullable = true)
     public LogFrameGroup getGroup() {
         return group;
     }
