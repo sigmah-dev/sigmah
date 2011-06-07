@@ -16,6 +16,8 @@ import org.sigmah.shared.command.handler.CommandHandler;
 import org.sigmah.shared.command.result.CommandResult;
 import org.sigmah.shared.domain.Deleteable;
 import org.sigmah.shared.domain.Project;
+import org.sigmah.shared.domain.ProjectModel;
+import org.sigmah.shared.domain.ProjectModelStatus;
 import org.sigmah.shared.domain.User;
 import org.sigmah.shared.domain.UserDatabase;
 import org.sigmah.shared.domain.report.ProjectReport;
@@ -45,19 +47,27 @@ public class DeleteHandler implements CommandHandler<Delete> {
         // These handler should redirect to one of the Entity policy classes.
     	Class entityClass = entityClassForEntityName(cmd.getEntityName());
     	
+    	
     	if(Mode.TEST.equals(cmd.getMode())){
+    		//Delete test project
     		Project entity = (Project)em.find(entityClass, cmd.getId());
     		deleteTestProject(entity);
+    	}else if(ProjectModelStatus.DRAFT.equals(cmd.getProjectModelStatus()))
+    	{   //Delete draft project model
+    		ProjectModel projectModel =(ProjectModel)em.find(entityClass, new Long(cmd.getId()));
+    		deleteDraftProjectModel(projectModel);
+    		
     	}else{
             Deleteable entity = (Deleteable) em.find(entityClass, cmd.getId());
-
             entity.delete();
     	}
 
         return null;
     }
 
-    private Class<Deleteable> entityClassForEntityName(String entityName) {
+ 
+
+	private Class<Deleteable> entityClassForEntityName(String entityName) {
         try {
             return (Class<Deleteable>) Class.forName(UserDatabase.class.getPackage().getName() + "." + entityName);
         } catch (ClassNotFoundException e) {
@@ -81,6 +91,21 @@ public class DeleteHandler implements CommandHandler<Delete> {
     	em.remove(project);
     }
    
+    /**
+	 * Delete the project object.
+	 * 
+	 * @param project
+	 *            the object to delete.
+	 */
+    private void deleteProject(Project project){
+    	//delete the project flexible elements 
+    	deleteProjectFlexibleElement(project);
+    	
+    	//delete the test project
+    	em.remove(project);
+    }
+    
+    
     /**
      * Delete the values of the test project.
      * @param project
@@ -119,5 +144,32 @@ public class DeleteHandler implements CommandHandler<Delete> {
     		}
     	}
     }
-        
+
+    
+    /**
+     * Method to delete a project model. Only draft project model is 
+     * allowed to delete.
+     * 
+     * @param projectModel
+     * 
+     * @author HUZHE(zhe.hu32@gmail.com)
+     */
+    private void deleteDraftProjectModel(ProjectModel projectModel) {
+	
+    //------STEP 1: Get all projects using this project model and delete them------------
+     final Query query = em.createQuery("SELECT p FROM Project p WHERE p.projectModel=:model");
+     query.setParameter("model", projectModel);     
+     List<Project> projects = (List<Project>) query.getResultList();
+     
+     for(Project p: projects)
+     {
+    	 deleteProject(p);
+     }
+     
+   // ------STEP 2: Delete the project mode and related objects will be deleted automatically 
+     em.remove(projectModel);
+     
+     em.flush();
+		
+	}
 }

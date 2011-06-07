@@ -7,6 +7,7 @@ package org.sigmah.shared.command;
 
 import org.sigmah.client.page.dashboard.CreateProjectWindow.Mode;
 import org.sigmah.shared.command.result.VoidResult;
+import org.sigmah.shared.domain.ProjectModelStatus;
 import org.sigmah.shared.dto.EntityDTO;
 
 
@@ -27,6 +28,7 @@ public class Delete implements Command<VoidResult> {
 	private int id;
 	
 	private Mode mode;
+	private ProjectModelStatus projectModelStatus;
 
     protected Delete() {}
 	
@@ -62,6 +64,20 @@ public class Delete implements Command<VoidResult> {
 
 	public void setMode(Mode mode) {
 		this.mode = mode;
+	}
+
+	/**
+	 * @return the projectModelStatus
+	 */
+	public ProjectModelStatus getProjectModelStatus() {
+		return projectModelStatus;
+	}
+
+	/**
+	 * @param projectModelStatus the projectModelStatus to set
+	 */
+	public void setProjectModelStatus(ProjectModelStatus projectModelStatus) {
+		this.projectModelStatus = projectModelStatus;
 	}
 	
 }

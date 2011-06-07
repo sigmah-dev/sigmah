@@ -148,9 +148,47 @@ public class AdminProjectModelsView extends View {
 		});
 		configs.add(column); 
 	    
-	   
+		
+		
 		column = new ColumnConfig();
-		column.setWidth(40);
+		column.setWidth(50);
+		column.setAlignment(Style.HorizontalAlignment.CENTER);
+		column.setRenderer(new GridCellRenderer<ProjectModelDTOLight>() {
+			@Override
+			public Object render(final ProjectModelDTOLight model,
+					final String property, ColumnData config, int rowIndex,
+					int colIndex, ListStore<ProjectModelDTOLight> store,
+					Grid<ProjectModelDTOLight> grid) {
+
+				Button buttonDelete = new Button(I18N.CONSTANTS.delete());
+				buttonDelete.setItemId(UIActions.deleteModel);
+				buttonDelete.disable();
+				buttonDelete.addListener(Events.OnClick,
+						new Listener<ButtonEvent>() {
+							@Override
+							public void handleEvent(ButtonEvent be) {
+								AdminModelActionListener listener = new AdminModelActionListener(
+										AdminProjectModelsView.this,
+										dispatcher, true);
+								listener.setModelId(model.getId());
+								listener.setProjectModel(model);
+								listener.setIsOrgUnit(false);
+								listener.setIsReport(false);
+								listener.onUIAction(UIActions.deleteModel);
+							}
+						});
+				
+				//Only allow to delete a project model with "Draft" status
+				if(model.getStatus()==ProjectModelStatus.DRAFT)
+					buttonDelete.enable();
+				
+				return buttonDelete;
+			}
+		});
+		configs.add(column);
+		
+		column = new ColumnConfig();
+		column.setWidth(50);
 		column.setAlignment(Style.HorizontalAlignment.CENTER);
 		column.setRenderer(new GridCellRenderer<ProjectModelDTOLight>() {
 			@Override
@@ -181,7 +219,7 @@ public class AdminProjectModelsView extends View {
 		
 		
 		column = new ColumnConfig();
-		column.setWidth(40);
+		column.setWidth(50);
 		column.setAlignment(Style.HorizontalAlignment.CENTER);
 		column.setRenderer(new GridCellRenderer<ProjectModelDTOLight>() {
 			@Override
@@ -272,5 +310,7 @@ public class AdminProjectModelsView extends View {
 	public void setCurrentState(AdminPageState currentState) {
 		this.currentState = currentState;
 	}
+
+
 	
 }

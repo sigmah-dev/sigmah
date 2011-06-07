@@ -10,9 +10,11 @@ import org.sigmah.client.page.admin.report.AdminReportModelPresenter;
 import org.sigmah.client.page.common.toolbar.ActionListener;
 import org.sigmah.client.page.common.toolbar.UIActions;
 import org.sigmah.client.util.Notification;
+import org.sigmah.shared.command.Delete;
 import org.sigmah.shared.command.GetOrgUnitModelCopy;
 import org.sigmah.shared.command.GetProjectModelCopy;
 import org.sigmah.shared.command.result.CreateResult;
+import org.sigmah.shared.command.result.VoidResult;
 import org.sigmah.shared.domain.ProjectModelStatus;
 import org.sigmah.shared.domain.ProjectModelType;
 import org.sigmah.shared.dto.OrgUnitModelDTO;
@@ -24,6 +26,7 @@ import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FormEvent;
 import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Dialog;
@@ -32,9 +35,9 @@ import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.form.FileUploadField;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
-import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.FormPanel.Encoding;
 import com.extjs.gxt.ui.client.widget.form.FormPanel.Method;
+import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.http.client.URL;
@@ -54,7 +57,25 @@ public class AdminModelActionListener implements ActionListener {
 	private Boolean isOrgUnit;
 
 	private int modelId;
+		
+	private ProjectModelDTOLight projectModel;
 	
+	/**
+	 * @return the projectModel
+	 */
+	public ProjectModelDTOLight getProjectModel() {
+		return projectModel;
+	}
+
+	/**
+	 * @param projectModel the projectModel to set
+	 */
+	public void setProjectModel(ProjectModelDTOLight projectModel) {
+		this.projectModel = projectModel;
+	}
+
+
+
 	public Boolean getIsRepport() {
 		return isReport;
 	}
@@ -105,7 +126,80 @@ public class AdminModelActionListener implements ActionListener {
         if(UIActions.copyModel.equals(actionId)){
         	onCopyModel();
         }
+        if(UIActions.deleteModel.equals(actionId)){
+        	onDeleteModel();
+        }
 		
+	}
+	
+	/**
+	 * Method to try to delete a project model 
+	 * 
+	 * @author HUZHE(zhe.hu32@gmail.com)
+	 */
+	private void onDeleteModel() {
+		
+		//If the status of the project model is not "Draft", can not be deleted
+		if(getProjectModel()==null || !ProjectModelStatus.DRAFT.equals(getProjectModel().getStatus()))
+		{
+			MessageBox.alert(I18N.CONSTANTS.deletionError(), I18N.CONSTANTS.deleteNotDraftProjectModelError(), null);
+			return;
+		}
+		
+		//Show confirm window		
+		Listener<MessageBoxEvent> l=new Listener<MessageBoxEvent>() {
+			@Override
+			public void handleEvent(
+					MessageBoxEvent be) {
+				if (Dialog.YES.equals(be
+						.getButtonClicked()
+						.getItemId())) {
+					deleteProjectModel();
+				}
+			}
+		};
+		
+		MessageBox deleteConfirmMsgBox = MessageBox.confirm(I18N.CONSTANTS.deleteConfirm(), I18N.CONSTANTS.deleteDraftProjectModelConfirm(), l);		
+		deleteConfirmMsgBox.show();
+		
+		
+	}
+
+	/**
+	 * RPC to execute the deletion of a project model
+	 * 
+	 * @author HUZHE(zhe.hu32@gmail.com)
+	 */
+	private void deleteProjectModel()
+	{
+		
+		//RPC to try to delete the project model
+		Delete deleteCommand = new Delete("ProjectModel", getModelId());
+		deleteCommand.setProjectModelStatus(getProjectModel().getStatus());
+		dispatcher.execute(deleteCommand, null, new AsyncCallback<VoidResult>(){
+
+			@Override
+			public void onFailure(Throwable caught) {
+				
+				MessageBox.alert(I18N.CONSTANTS.deletionError(), I18N.MESSAGES.entityDeleteEventError(getProjectModel().getName()), null);
+				
+			}
+
+			@Override
+			public void onSuccess(VoidResult result) {
+				
+				//Remove the project locally
+				((AdminProjectModelsPresenter.View) view).getAdminModelsStore().remove(getProjectModel());
+				((AdminProjectModelsPresenter.View) view).getAdminModelsStore().commitChanges();
+
+				// Show notification.
+				Notification.show(I18N.CONSTANTS
+						.adminProjectModelDelete(),
+						I18N.CONSTANTS
+								.adminProjectModelDeleteDetail());
+			}
+			
+		});
 	}
 	
 	/*protected void onDeleteConfirmed(final List<PrivacyGroupDTO> selection) {
