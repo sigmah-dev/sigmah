@@ -41,6 +41,7 @@ public class GetIndicatorsHandlerTest extends CommandTestCase {
         assertThat(i1.getName(), equalTo("beneficiaries"));
         assertThat(i1.getId(), equalTo(1));
         assertThat(i1.getCurrentValue(), equalTo(15100d));
+        assertThat(i1.getObjective(), equalTo(10000d));
 
         assertThat(i2.getName(), equalTo("Nb. of distributions"));
     }
