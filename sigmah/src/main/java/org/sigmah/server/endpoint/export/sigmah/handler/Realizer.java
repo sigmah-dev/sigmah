@@ -109,6 +109,9 @@ public class Realizer {
 
                             destinationValue = set;
 
+                        } else if(sourceValue.getClass().getSimpleName().contains("javassist")) {
+                            destinationValue = null;
+
                         } else if (sourceValue.getClass().getName().startsWith("java.")
                                 || sourceValue.getClass().isEnum()) {
                             // Simple copy if the current field is a jdk type or an enum
