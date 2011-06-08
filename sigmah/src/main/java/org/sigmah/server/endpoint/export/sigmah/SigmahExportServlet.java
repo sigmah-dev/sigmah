@@ -50,6 +50,8 @@ public class SigmahExportServlet extends HttpServlet {
 
         try {
 
+            //TODO: Verify the identity and the rights of the current user.
+
             // The exported entity type.
             final String typeString = request.getParameter(ExportUtils.PARAM_EXPORT_TYPE);
             final ExportUtils.ExportType type = ExportUtils.ExportType.valueOfOrNull(typeString);

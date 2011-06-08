@@ -24,6 +24,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.persistence.EntityManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -54,7 +56,12 @@ public class ProjectReportExporter extends Exporter {
     @Override
     public String getFileName() {
         final SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
-        
+        try {
+            loadReport();
+        } catch (ExportException e) {
+            LOG.debug("The project report cannot be found.", e);
+        }
+
         final String name;
         if(report != null)
             name = report.getName();
@@ -69,19 +76,35 @@ public class ProjectReportExporter extends Exporter {
         return ExportFormat.MSWORD;
     }
 
+    /**
+     * Loads the project report from the database.
+     * @throws ExportException If the ID parameter is missing or
+     * if the report cannot be found.
+     */
+    private void loadReport() throws ExportException {
+
+        if(report == null) {
+            
+            final String idAsString = requireParameter(ExportUtils.PARAM_EXPORT_PROJECT_ID);
+            final Integer id;
+            try {
+                id = Integer.parseInt(idAsString);
+            } catch (NumberFormatException e) {
+                LOG.error("[export] The id '" + idAsString + "' is invalid.", e);
+                throw new ExportException("The id '" + idAsString + "' is invalid.", e);
+            }
+
+            report = em.find(ProjectReport.class, id);
+        }
+    }
+
     @Override
     public void export(OutputStream output) throws ExportException {
         
-        final String idAsString = requireParameter(ExportUtils.PARAM_EXPORT_PROJECT_ID);
-        final Integer id;
-        try {
-            id = Integer.parseInt(idAsString);
-        } catch (NumberFormatException e) {
-            LOG.error("[export] The id '" + idAsString + "' is invalid.", e);
-            throw new ExportException("The id '" + idAsString + "' is invalid.", e);
-        }
+        loadReport();
 
-        report = em.find(ProjectReport.class, id);
+        // Label displayed instead of the Table of Contents during the export.
+        final String tocLabel = requireParameter(ExportUtils.PARAM_EXPORT_LABELS_LIST);
 
         if(report != null) {
             final ProjectReportVersion version = report.getCurrentVersion();
@@ -107,7 +130,7 @@ public class ProjectReportExporter extends Exporter {
 
                 // Table of contents
                 final Paragraph tocParagraph = new Paragraph();
-                final RtfTableOfContents toc = new RtfTableOfContents(idAsString);
+                final RtfTableOfContents toc = new RtfTableOfContents(tocLabel);
                 tocParagraph.add(toc);
                 document.add(tocParagraph);
                 
@@ -134,6 +157,8 @@ public class ProjectReportExporter extends Exporter {
             }
             
         } else {
+            final String idAsString = requireParameter(ExportUtils.PARAM_EXPORT_PROJECT_ID);
+            
             LOG.error("[export] No project report is identified by '" + idAsString + "'.");
             throw new ExportException("[export] No project report is identified by '" + idAsString + "'.");
         }
