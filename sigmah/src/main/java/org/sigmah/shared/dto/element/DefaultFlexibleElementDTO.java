@@ -43,7 +43,6 @@ import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import org.sigmah.shared.dto.ProjectDTO;
 
 /**
  * DTO mapping class for entity element.DefaultFlexibleElement.
@@ -225,10 +224,8 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
             ratioLabel.addStyleName("flexibility-label");
 
             // Planned budget.
-            final NumberField plannedBudgetNumberField = createNumberField(false);
-            plannedBudgetNumberField.setFieldLabel(I18N.CONSTANTS.projectPlannedBudget());
-            plannedBudgetField = plannedBudgetNumberField;
-            plannedBudgetNumberField.setValue(pb);
+            // Final reference to the "planned budget" field (needed by the listener).
+            final NumberField[] plannedBudgetReference = new NumberField[] {null};
 
             // Spent budget.
             final NumberField spendBudgetNumberField = createNumberField(false);
@@ -236,8 +233,11 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
             spendBudgetField = spendBudgetNumberField;
             spendBudgetNumberField.setValue(sb);
 
-            // Final reference to the "received budget" field (needed by the listener).
-            final NumberField[] receivedBudgetReference = new NumberField[] {null};
+            // Received budget.
+            final NumberField receivedBudgetNumberField = createNumberField(false);
+            receivedBudgetNumberField.setFieldLabel(I18N.CONSTANTS.projectReceivedBudget());
+            receivedBudgetField = receivedBudgetNumberField;
+            receivedBudgetNumberField.setValue(rb);
 
             // Listener.
             final Listener<BaseEvent> listener = new Listener<BaseEvent>() {
@@ -248,22 +248,22 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
                 public void handleEvent(BaseEvent be) {
 
                     // Retrieves values.
-                    final Number plannedBudget = plannedBudgetNumberField.getValue();
-                    final Double plannedBudgetAsDouble = plannedBudget.doubleValue();
+                    final Double plannedBudgetAsDouble;
+                    if(plannedBudgetReference[0] != null) {
+                        // If the field exists, retrieving its value.
+                        final Number plannedBudget = plannedBudgetReference[0].getValue();
+                        plannedBudgetAsDouble = plannedBudget.doubleValue();
+
+                    } else {
+                        // Otherwise, using the default value.
+                        plannedBudgetAsDouble = pb;
+                    }
 
                     final Number spendBudget = spendBudgetNumberField.getValue();
                     final Double spendBudgetAsDouble = spendBudget.doubleValue();
 
-                    final Double receivedBudgetAsDouble;
-                    if(receivedBudgetReference[0] != null) {
-                        // If the field exists, retrieving its value.
-                        final Number receivedBudget = receivedBudgetReference[0].getValue();
-                        receivedBudgetAsDouble = receivedBudget.doubleValue();
-                        
-                    } else {
-                        // Otherwise, using the default value.
-                        receivedBudgetAsDouble = rb;
-                    }
+                    final Number receivedBudget = receivedBudgetNumberField.getValue();
+                    final Double receivedBudgetAsDouble = receivedBudget.doubleValue();
 
                     // Checks the numbers intervals.
                     final boolean isValueOn = plannedBudgetAsDouble >= minValue && spendBudgetAsDouble >= minValue
@@ -283,32 +283,32 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
                 }
             };
 
-            plannedBudgetNumberField.addListener(Events.Change, listener);
             spendBudgetNumberField.addListener(Events.Change, listener);
+            receivedBudgetNumberField.addListener(Events.Change, listener);
 
             if (enabled) {
 
-                // Received budget.
-                final NumberField receivedBudgetNumberField = createNumberField(false);
-                receivedBudgetNumberField.setFieldLabel(I18N.CONSTANTS.projectReceivedBudget());
+                // Planned budget.
+                final NumberField plannedBudgetNumberField = createNumberField(false);
+                plannedBudgetNumberField.setFieldLabel(I18N.CONSTANTS.projectPlannedBudget());
 
-                receivedBudgetNumberField.addListener(Events.Change, listener);
+                plannedBudgetNumberField.addListener(Events.Change, listener);
 
                 // Sets the value to the fields.
-                receivedBudgetNumberField.setValue(rb);
+                plannedBudgetNumberField.setValue(pb);
 
-                receivedBudgetReference[0] = receivedBudgetNumberField;
-                receivedBudgetField = receivedBudgetNumberField;
+                plannedBudgetReference[0] = plannedBudgetNumberField;
+                plannedBudgetField = plannedBudgetNumberField;
 
             } else {
 
-                final LabelField receivedBudgetLabelField = createLabelField();
-                receivedBudgetLabelField.setFieldLabel(I18N.CONSTANTS.projectReceivedBudget());
+                final LabelField plannedBudgetLabelField = createLabelField();
+                plannedBudgetLabelField.setFieldLabel(I18N.CONSTANTS.projectPlannedBudget());
 
                 // Sets the value to the fields.
-                receivedBudgetLabelField.setValue(rb);
+                plannedBudgetLabelField.setValue(pb);
 
-                receivedBudgetField = receivedBudgetLabelField;
+                plannedBudgetField = plannedBudgetLabelField;
             }
 
 
@@ -1289,19 +1289,6 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 
     @Override
     public boolean isCorrectRequiredValue(ValueResult result) {
-
-        if(getType() == DefaultFlexibleElementType.BUDGET &&
-                currentContainerDTO instanceof ProjectDTO) {
-
-            Log.debug("YO YO VALUE IS "+result.getValueObject()+" CHECK IT OUT!");
-
-            ProjectDTO projectDTO = (ProjectDTO) currentContainerDTO;
-            if(projectDTO.getCurrentAmendment() != null) {
-                
-
-            }
-        }
-
         // These elements don't have any value.
         return true;
     }
