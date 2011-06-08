@@ -194,10 +194,10 @@ public class AdminFlexibleElementsView extends View {
 					window.hide();
 					if(projectModel != null){
 						ProjectModelDTO modelUpdated = (ProjectModelDTO)result.getEntity();
-						AdminFlexibleElementsView.this.setProjectModel(modelUpdated);
+						AdminFlexibleElementsView.this.refreshProjectModel(modelUpdated);
 					}else{
 						OrgUnitModelDTO modelUpdated = (OrgUnitModelDTO)result.getEntity();
-						AdminFlexibleElementsView.this.setOrgUnitModel(modelUpdated);
+						AdminFlexibleElementsView.this.refreshOrgUnitModel(modelUpdated);
 					}					
 					AdminFlexibleElementsView.this.getFieldsStore().remove(model);
 					AdminFlexibleElementsView.this.getFieldsStore().add((FlexibleElementDTO)result.getAnnexEntity());

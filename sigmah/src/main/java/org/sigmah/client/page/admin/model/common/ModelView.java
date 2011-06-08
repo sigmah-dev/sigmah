@@ -34,4 +34,12 @@ public abstract class ModelView extends ContentPanel {
 	}
 	
 	public abstract void enableToolBar();
+	
+	public void refreshProjectModel(ProjectModelDTO model) {
+		this.projectModel = model;
+	}
+	
+	public void refreshOrgUnitModel(OrgUnitModelDTO model) {
+		this.orgUnitModel = model;
+	}
 }

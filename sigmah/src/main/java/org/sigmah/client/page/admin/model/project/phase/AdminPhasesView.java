@@ -237,10 +237,5 @@ public class AdminPhasesView extends View {
 			phases.put(phase.getName(), phase);
 		}
 	}
-
-
-	@Override
-	public void refreshProjectModel(ProjectModelDTO model) {
-		this.projectModel = model;
-	}
+	
 }
