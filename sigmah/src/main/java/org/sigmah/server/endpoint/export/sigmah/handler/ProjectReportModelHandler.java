@@ -20,6 +20,7 @@ import org.apache.commons.logging.LogFactory;
 
 import org.sigmah.server.domain.Authentication;
 import org.sigmah.server.endpoint.export.sigmah.ExportException;
+import org.sigmah.shared.domain.Organization;
 import org.sigmah.shared.domain.quality.QualityCriterion;
 import org.sigmah.shared.domain.quality.QualityFramework;
 import org.sigmah.shared.domain.report.KeyQuestion;
@@ -53,6 +54,7 @@ public class ProjectReportModelHandler implements ModelHandler {
 			ProjectReportModel projectReportModel = (ProjectReportModel) objectInputStream.readObject();
 			projectReportModel.resetImport(modelesReset, modelesImport);
 			saveProjectReportModelElement(projectReportModel, em);
+			projectReportModel.setOrganization(authentication.getUser().getOrganization());
 			em.persist(projectReportModel);
 			em.getTransaction().commit();
 		} catch (IOException e) {
@@ -72,7 +74,7 @@ public class ProjectReportModelHandler implements ModelHandler {
             final Integer projectReportModelId = Integer.parseInt(identifier);
 
             final ProjectReportModel hibernateModel = em.find(ProjectReportModel.class, projectReportModelId);
-
+            
             if(hibernateModel == null)
                 throw new ExportException("No project report model is associated with the identifier '"+identifier+"'.");
 

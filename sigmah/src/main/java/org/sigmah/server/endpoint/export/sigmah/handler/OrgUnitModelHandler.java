@@ -61,7 +61,7 @@ public class OrgUnitModelHandler implements ModelHandler {
 			
 			//Set the staus to DRAFT
 			orgUnitModel.setStatus(ProjectModelStatus.DRAFT);
-			
+			orgUnitModel.setOrganization(authentication.getUser().getOrganization());
 			em.persist(orgUnitModel);
 			em.getTransaction().commit();
 		} catch (IOException e) {
