@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import javax.persistence.EntityManager;
 
@@ -41,14 +42,23 @@ public class UserPolicy implements EntityPolicy<User> {
 	private final Mailer<Invitation> inviteMailer;
 	private static final Log log = LogFactory.getLog(UserPolicy.class);
 	
+    //The key for reading the value from sigmah.properties 
+    final public static String KEY_NEWUSER_CONFIRM_URL= "newUserConfirm.host.url";
+    
+    //The default value if the key above does not existe in sigmah.properties
+    final public static String DEFAULT_CONFIRM_URL= "www.sigmah.org/newuser/confirm?";
+    
+    private final Properties properties;
+	
 	
 	@Inject
-    public UserPolicy(EntityManager em, UserDAO userDAO, UserUnitDAO userUnitDAO, Mailer<Invitation> inviteMailer, Mapper mapper) {
+    public UserPolicy(EntityManager em, UserDAO userDAO, UserUnitDAO userUnitDAO, Mailer<Invitation> inviteMailer, Mapper mapper,Properties properties) {
         this.em = em;
         this.userDAO = userDAO;
         this.userUnitDAO = userUnitDAO;
         this.inviteMailer = inviteMailer;
         this.mapper = mapper;
+        this.properties = properties;
     }
 
 	@Override
@@ -96,9 +106,15 @@ public class UserPolicy implements EntityPolicy<User> {
 				if(!userDAO.doesUserExist(email)){
 					userDAO.persist(userToPersist);
 					try {
-			    		inviteMailer.send(new Invitation(userToPersist, executingUser), LocaleHelper.getLocaleObject(executingUser), true);
+						log.debug("Send the eamil after creating the new user.: "+userToPersist.getEmail());
+						log.debug("The url is : "+this.properties.getProperty(KEY_NEWUSER_CONFIRM_URL,DEFAULT_CONFIRM_URL));
+						String confirmUrl = this.properties.getProperty(KEY_NEWUSER_CONFIRM_URL,DEFAULT_CONFIRM_URL);
+			    		inviteMailer.send(new Invitation(userToPersist, executingUser,confirmUrl), LocaleHelper.getLocaleObject(executingUser), true);
 			        } catch (Exception e) {
 			            // ignore, don't abort because mail didn't work
+			        	log.debug("Exception happens here: \n");
+			        	log.debug(e.getMessage());
+			        	System.out.println(e.getStackTrace());
 			        }
 				}else{
 					return null;

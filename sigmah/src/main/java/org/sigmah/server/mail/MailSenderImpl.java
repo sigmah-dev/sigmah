@@ -5,12 +5,13 @@
 
 package org.sigmah.server.mail;
 
-import com.google.inject.Inject;
 import java.util.Map;
 import java.util.Properties;
 import org.apache.commons.mail.Email;
 import org.apache.commons.mail.EmailException;
 import org.sigmah.server.util.logging.LogException;
+
+import com.google.inject.Inject;
 
 public class MailSenderImpl implements MailSender {
     final public static String HOST_NAME_KEY = "mail.hostname";
@@ -31,7 +32,7 @@ public class MailSenderImpl implements MailSender {
             System.out.println("PROPS "+entry.getKey().toString()+" = "+entry.getValue().toString());
 
         email.setHostName(properties.getProperty(HOST_NAME_KEY, DEFAULT_HOST_NAME));
-        email.setFrom(properties.getProperty(FROM_ADDRESS_KEY, DEFAULT_ADDRESS), properties.getProperty(FROM_ADDRESS_KEY, DEFAULT_NAME));
+        email.setFrom(properties.getProperty(FROM_ADDRESS_KEY, DEFAULT_ADDRESS), properties.getProperty(FROM_NAME_KEY, DEFAULT_NAME));
         email.send();
     }
 
