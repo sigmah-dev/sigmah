@@ -2032,6 +2032,7 @@ sigmah/src/main/resources/org/sigmah/server/mail/MailMessages.properties -text
 sigmah/src/main/resources/org/sigmah/server/mail/MailMessages_en.properties -text
 sigmah/src/main/resources/org/sigmah/server/mail/MailMessages_fr.properties -text
 sigmah/src/main/resources/report-def.xsd -text
+sigmah/src/main/resources/sigmah.client.js -text
 sigmah/src/main/resources/sigmah.properties -text
 sigmah/src/main/resources/template/mail/Invite.ftl -text
 sigmah/src/main/resources/template/mail/Invite_fr.ftl -text
@@ -2202,7 +2203,6 @@ sigmah/src/test/resources/report-def/parse-test/report.xml -text
 sigmah/src/test/resources/report-def/parse-test/static.xml -text
 sigmah/src/test/resources/report-def/parse-test/table.xml -text
 sigmah/war/WEB-INF/deploy/Login/rpcPolicyManifest/manifest.txt -text
-sigmah/war/WEB-INF/sigmah.client.js -text
 sigmah/war/WEB-INF/sigmah.properties -text
 sigmah/war/WEB-INF/web.xml -text
 sigmah/war/apitest.html -text
