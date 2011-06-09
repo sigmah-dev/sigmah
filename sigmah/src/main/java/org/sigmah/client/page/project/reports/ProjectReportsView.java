@@ -693,46 +693,47 @@ public class ProjectReportsView extends LayoutContainer {
                     });
                 }
             });
+
+            final Button exportReportButton = new Button(I18N.CONSTANTS.exportToWord(), icons.msword());
+            toolBar.add(exportReportButton);
+
+            exportReportButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+                @Override
+                public void componentSelected(ButtonEvent ce) {
+                    final FormElement form = FormElement.as(DOM.createForm());
+                    form.setAction(GWT.getModuleBaseURL() + "export");
+                    form.setTarget("_downloadFrame");
+                    form.setMethod("POST");
+
+                    final InputElement typeField = InputElement.as(DOM.createInputText());
+                    typeField.setAttribute("type", "hidden");
+                    typeField.setName(ExportUtils.PARAM_EXPORT_TYPE);
+                    typeField.setValue(ExportUtils.ExportType.PROJECT_REPORT.toString());
+                    form.appendChild(typeField);
+
+                    final InputElement idField = InputElement.as(DOM.createInputText());
+                    idField.setAttribute("type", "hidden");
+                    idField.setName(ExportUtils.PARAM_EXPORT_PROJECT_ID);
+                    idField.setAttribute("value", report.getId().toString());
+                    form.appendChild(idField);
+
+                    final InputElement labelField = InputElement.as(DOM.createInputText());
+                    labelField.setAttribute("type", "hidden");
+                    labelField.setName(ExportUtils.PARAM_EXPORT_LABELS_LIST);
+                    labelField.setAttribute("value", I18N.CONSTANTS.projectReportTableOfContents());
+                    form.appendChild(labelField);
+
+                    RootPanel.getBodyElement().appendChild(form);
+
+                    form.submit();
+                    form.removeFromParent();
+                }
+            });
+            
+            toolBar.add(new SeparatorToolItem());
         }
-
-        final Button exportReportButton = new Button(I18N.CONSTANTS.exportToWord(), icons.msword());
-        toolBar.add(exportReportButton);
-
-        exportReportButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
-
-            @Override
-            public void componentSelected(ButtonEvent ce) {
-                final FormElement form = FormElement.as(DOM.createForm());
-                form.setAction(GWT.getModuleBaseURL() + "export");
-                form.setTarget("_downloadFrame");
-                form.setMethod("POST");
-
-                final InputElement typeField = InputElement.as(DOM.createInputText());
-                typeField.setAttribute("type", "hidden");
-                typeField.setName(ExportUtils.PARAM_EXPORT_TYPE);
-                typeField.setValue(ExportUtils.ExportType.PROJECT_REPORT.toString());
-                form.appendChild(typeField);
-
-                final InputElement idField = InputElement.as(DOM.createInputText());
-                idField.setAttribute("type", "hidden");
-                idField.setName(ExportUtils.PARAM_EXPORT_PROJECT_ID);
-                idField.setAttribute("value", report.getId().toString());
-                form.appendChild(idField);
-
-                final InputElement labelField = InputElement.as(DOM.createInputText());
-                labelField.setAttribute("type", "hidden");
-                labelField.setName(ExportUtils.PARAM_EXPORT_LABELS_LIST);
-                labelField.setAttribute("value", I18N.CONSTANTS.projectReportTableOfContents());
-                form.appendChild(labelField);
-
-                RootPanel.getBodyElement().appendChild(form);
-
-                form.submit();
-                form.removeFromParent();
-            }
-        });
-
-        toolBar.add(new SeparatorToolItem());
+        
 
         // Key question info
         final Label keyQuestionLabel = keyQuestionState.getLabel();
