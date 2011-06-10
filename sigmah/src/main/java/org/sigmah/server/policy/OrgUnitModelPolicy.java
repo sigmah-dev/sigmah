@@ -70,6 +70,7 @@ public class OrgUnitModelPolicy implements EntityPolicy<OrgUnitModel>  {
 				oMDetails.setOrgUnitModel(oM);
 				
 				LayoutGroup detailsGroup = new LayoutGroup();
+				detailsGroup.setTitle("Default informations group");
 				detailsGroup.setColumn(0);
 				detailsGroup.setRow(0);
 				detailsGroup.setParentLayout(oMDetailsLayout);
@@ -77,9 +78,11 @@ public class OrgUnitModelPolicy implements EntityPolicy<OrgUnitModel>  {
 				//Default flexible elements all in default details group
 				int order = 0;
 				for(DefaultFlexibleElementType e : DefaultFlexibleElementType.values()){
-					if(!DefaultFlexibleElementType.START_DATE.equals(e) && 
+					if(!DefaultFlexibleElementType.OWNER.equals(e) &&
+							!DefaultFlexibleElementType.START_DATE.equals(e) && 
 							!DefaultFlexibleElementType.END_DATE.equals(e)
-							&& !(DefaultFlexibleElementType.BUDGET.equals(e) && Boolean.FALSE.equals(oM.getHasBudget()))
+							&& !(DefaultFlexibleElementType.BUDGET.equals(e) 
+									&& Boolean.FALSE.equals(oM.getHasBudget()))
 							){
 						DefaultFlexibleElement defaultElement = new DefaultFlexibleElement();
 						defaultElement.setType(e);
@@ -98,6 +101,7 @@ public class OrgUnitModelPolicy implements EntityPolicy<OrgUnitModel>  {
 				detailsGroups.add(detailsGroup);
 				oMDetailsLayout.setGroups(detailsGroups);
 				
+				//Banner and groups for banner
 				OrgUnitBanner oMBanner = new OrgUnitBanner();
 				Layout oMBannerLayout = new Layout();
 				oMBannerLayout.setColumnsCount(3);
@@ -105,13 +109,19 @@ public class OrgUnitModelPolicy implements EntityPolicy<OrgUnitModel>  {
 				oMBanner.setLayout(oMBannerLayout);
 				oMBanner.setOrgUnitModel(oM);
 				
-				LayoutGroup bannerGroup = new LayoutGroup();
-				bannerGroup.setColumn(0);
-				bannerGroup.setRow(0);
-				bannerGroup.setParentLayout(oMBannerLayout);
+				
 				
 				List<LayoutGroup> bannerGroups = new ArrayList<LayoutGroup>();
-				bannerGroups.add(bannerGroup);
+				for(int i=0; i<3 ; i++){
+					for(int j=0; j<2; j++){
+						LayoutGroup bannerGroup = new LayoutGroup();
+						bannerGroup.setColumn(i);
+						bannerGroup.setRow(j);
+						bannerGroup.setParentLayout(oMBannerLayout);
+						bannerGroups.add(bannerGroup);
+					}					
+				}
+				
 				oMBannerLayout.setGroups(bannerGroups);
 				
 				

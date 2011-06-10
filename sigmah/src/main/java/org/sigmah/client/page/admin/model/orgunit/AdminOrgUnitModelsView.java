@@ -90,12 +90,6 @@ public class AdminOrgUnitModelsView extends View {
 		column = new ColumnConfig("canContainProjects",I18N.CONSTANTS.adminOrgUnitsModelContainProjects(), 75);   
 		configs.add(column);
 		
-		column = new ColumnConfig("minLevel",I18N.CONSTANTS.adminOrgUnitsModelMinLevel(), 100);   
-		configs.add(column);
-		
-		column = new ColumnConfig("maxLevel",I18N.CONSTANTS.adminOrgUnitsModelMaxLevel(), 100);   
-		configs.add(column);
-		
 		column = new ColumnConfig("status",I18N.CONSTANTS.adminProjectModelsStatus(), 200);   
 		column.setRenderer(new GridCellRenderer<OrgUnitModelDTO>(){
 

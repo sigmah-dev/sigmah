@@ -109,7 +109,7 @@ public class ProjectModelPolicy implements EntityPolicy<ProjectModel>  {
 				pMDetails.setProjectModel(pM);
 				
 				LayoutGroup detailsGroup = new LayoutGroup();
-				detailsGroup.setTitle("Details");
+				detailsGroup.setTitle("Default details group");
 				detailsGroup.setColumn(0);
 				detailsGroup.setRow(0);
 				detailsGroup.setParentLayout(pMDetailsLayout);

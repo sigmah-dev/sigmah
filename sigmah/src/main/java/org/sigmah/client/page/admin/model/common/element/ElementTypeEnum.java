@@ -63,7 +63,7 @@ public enum ElementTypeEnum{
 		nameMap.put(I18N.CONSTANTS.flexibleElementTextArea(), ElementTypeEnum.TEXT_AREA);
 		nameMap.put(I18N.CONSTANTS.flexibleElementTripletsList(), ElementTypeEnum.TRIPLETS);
 		
-		String name = "default";
+		String name = I18N.CONSTANTS.flexibleElementDefault();
 		
 		for(Map.Entry<String, ElementTypeEnum> entry : nameMap.entrySet()){
 			if(entry.getValue().equals(e)){

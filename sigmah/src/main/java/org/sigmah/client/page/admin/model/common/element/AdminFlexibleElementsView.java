@@ -128,7 +128,7 @@ public class AdminFlexibleElementsView extends View {
 	public void showNewGroupForm(final FlexibleElementDTO model,
 			final boolean isUpdate) {
 		int width = 400;
-		int height = 250;
+		int height = 200;
 		String title = I18N.CONSTANTS.adminFlexibleGroup();
 		final Window window = new Window();		
 		window.setHeading(title);
@@ -168,7 +168,7 @@ public class AdminFlexibleElementsView extends View {
 	public void showNewFlexibleElementForm(final FlexibleElementDTO model,
 			final boolean isUpdate) {
 		int width = 700;
-		int height = 450;
+		int height = 350;
 		String title = I18N.CONSTANTS.adminFlexible();
 		final Window window = new Window();		
 		window.setHeading(title);
@@ -253,7 +253,7 @@ public class AdminFlexibleElementsView extends View {
         });
 		configs.add(column);
 		
-		column = new ColumnConfig("type",I18N.CONSTANTS.adminFlexibleType(), 100);   
+		column = new ColumnConfig("type",I18N.CONSTANTS.adminFlexibleType(), 125);   
 		column.setRenderer(new GridCellRenderer<FlexibleElementDTO>(){
 
 			@Override
@@ -280,7 +280,7 @@ public class AdminFlexibleElementsView extends View {
 	    }); 
 		configs.add(column);
 		
-		column = new ColumnConfig("privacyGroup",I18N.CONSTANTS.adminProfilesPrivacyGroups(), 100);   
+		column = new ColumnConfig("privacyGroup",I18N.CONSTANTS.adminProfilesPrivacyGroups(), 125);   
 		column.setRenderer(new GridCellRenderer<FlexibleElementDTO>(){
 
 			@Override
@@ -336,7 +336,7 @@ public class AdminFlexibleElementsView extends View {
 					ColumnData config, int rowIndex, int colIndex,
 					ListStore<FlexibleElementDTO> store, Grid<FlexibleElementDTO> grid) {					
 				if(model.getBannerConstraint()!=null){
-					int order = model.getConstraint().getSortOrder();
+					int order = model.getBannerConstraint().getSortOrder();
 					return AdminUtil.createGridText(String.valueOf(order));
 				}
 				return AdminUtil.createGridText("");
@@ -356,20 +356,6 @@ public class AdminFlexibleElementsView extends View {
 				return AdminUtil.createGridText((String)container.get("name"));
 			}
 	    	
-	    }); 
-		configs.add(column);
-		
-		column = new ColumnConfig("groupId",I18N.CONSTANTS.adminFlexibleGroupId(), 50);   
-		column.setRenderer(new GridCellRenderer<FlexibleElementDTO>(){
-
-			@Override
-			public Object render(FlexibleElementDTO model, String property,
-					ColumnData config, int rowIndex, int colIndex,
-					ListStore<FlexibleElementDTO> store, Grid<FlexibleElementDTO> grid) {	
-				LayoutGroupDTO group = model.getGroup();
-				
-				return AdminUtil.createGridText(String.valueOf((Integer)group.get("id")));
-			}	    	
 	    }); 
 		configs.add(column);
 		

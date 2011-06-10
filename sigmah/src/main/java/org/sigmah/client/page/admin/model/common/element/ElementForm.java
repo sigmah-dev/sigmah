@@ -147,7 +147,7 @@ public class ElementForm extends ContentPanel {
 		this.projectModelToUpdate = projectModelToUpdate;
 		this.orgUnitModelToUpdate = orgUnitModelToUpdate;
 		this.flexibleElementToUpdate = flexibleElement;
-		
+		UIConstants constants = GWT.create(UIConstants.class);
 		
 		//**********************************************Specific attributes component *******************************************/
 		specificsPanel = new FormPanel();
@@ -356,8 +356,50 @@ public class ElementForm extends ContentPanel {
 			}
 		});
         
-		//initSpecifics(flexibleElement);
+        //Only for default elements
+        posBanner = new SimpleComboBox<Integer>();
+		posBanner.setTriggerAction(TriggerAction.ALL);
+		posBanner.setEditable(false);
+		posBanner.setFieldLabel(constants.adminFlexibleBannerPosition());
+		posBanner.removeAll();
+		for(int i=1;i<7;i++){			
+			posBanner.add(i);
+		}
+		posBanner.setAllowBlank(true);
+		posBanner.setEnabled(false);
+		posBanner.hide();
 		
+		isBanner = new CheckBox();
+		isBanner.setFieldLabel(constants.Admin_BANNER());
+		isBanner.setBoxLabel(" ");//constants.Admin_BANNER());
+		isBanner.setValue(false);
+		isBanner.addListener(Events.Change, new Listener<BaseEvent>(){
+
+			@Override
+			public void handleEvent(BaseEvent be) {
+				if(isBanner.getValue()){
+					posBanner.removeAll();
+					for(int i=1;i<7;i++){
+						posBanner.add(i);
+					}
+					posBanner.setEnabled(true);
+					posBanner.setAllowBlank(false);
+				}					
+				else{
+					posBanner.removeAll();
+					posBanner.setValue(null);
+					posBanner.setAllowBlank(true);
+					posBanner.setEnabled(false);
+				}
+					
+			}
+			
+		});
+		isBanner.hide();
+        
+		//initSpecifics(flexibleElement);
+		specificsPanel.add(isBanner);		
+		specificsPanel.add(posBanner);
 		specificsPanel.add(reportModelList);
 		specificsPanel.add(textAreaTypeList);
 		specificsPanel.add(lengthField);
@@ -378,7 +420,7 @@ public class ElementForm extends ContentPanel {
 		commonPanel = new FormPanel();
 		commonPanel.setHeaderVisible(false);
 		
-		UIConstants constants = GWT.create(UIConstants.class);
+		
 		
 		htmlArea = new HtmlEditor();
 		htmlArea.hide();
@@ -441,7 +483,7 @@ public class ElementForm extends ContentPanel {
 		typeList.setTriggerAction(TriggerAction.ALL);	
 		List<String> values = new ArrayList<String>();  
 		for(ElementTypeEnum e : ElementTypeEnum.values()){
-			if(!ElementTypeEnum.DEFAULT.equals(e))
+			if(!ElementTypeEnum.DEFAULT.equals(e) && !ElementTypeEnum.TRIPLETS.equals(e))
 				values.add(ElementTypeEnum.getName(e));
 		}
 		typeList.add(values);
@@ -449,7 +491,7 @@ public class ElementForm extends ContentPanel {
 			
 			String typeOfElement = ElementTypeEnum.getName(flexibleElement.getElementType());
 			typeList.setSimpleValue(typeOfElement);
-			showSpecificAttributes(typeList.getSimpleValue(), flexibleElement, false);
+			showSpecificAttributes(typeOfElement, flexibleElement, false);
 			oldFieldProperties.put(AdminUtil.PROP_FX_TYPE,flexibleElement.getElementType());
 			if(ElementTypeEnum.DEFAULT.equals(flexibleElement.getElementType())){
 				typeList.setEnabled(false);
@@ -481,43 +523,7 @@ public class ElementForm extends ContentPanel {
 		groupList.setValueField("id");		
 		groupList.setTriggerAction(TriggerAction.ALL);
 		
-		posBanner = new SimpleComboBox<Integer>();
-		posBanner.setTriggerAction(TriggerAction.ALL);
-		posBanner.setEditable(false);
-		posBanner.setFieldLabel(constants.adminFlexibleBannerPosition());
-		posBanner.removeAll();
-		for(int i=1;i<7;i++){			
-			posBanner.add(i);
-		}
-		posBanner.setAllowBlank(true);
-		posBanner.setEnabled(false);
 		
-		isBanner = new CheckBox();
-		isBanner.setFieldLabel(constants.Admin_BANNER());
-		isBanner.setBoxLabel(" ");//constants.Admin_BANNER());
-		isBanner.setValue(false);
-		isBanner.addListener(Events.Change, new Listener<BaseEvent>(){
-
-			@Override
-			public void handleEvent(BaseEvent be) {
-				if(isBanner.getValue()){
-					posBanner.removeAll();
-					for(int i=1;i<7;i++){
-						posBanner.add(i);
-					}
-					posBanner.setEnabled(true);
-					posBanner.setAllowBlank(false);
-				}					
-				else{
-					posBanner.removeAll();
-					posBanner.setValue(null);
-					posBanner.setAllowBlank(true);
-					posBanner.setEnabled(false);
-				}
-					
-			}
-			
-		});
 				
 		//groupList depends on container layout
 		containerList.addListener(Events.Select, new Listener<BaseEvent>() {
@@ -634,8 +640,7 @@ public class ElementForm extends ContentPanel {
 		commonPanel.add(groupList);		
 		commonPanel.add(orderField);
 		
-		commonPanel.add(isBanner);		
-		commonPanel.add(posBanner);
+		
 		
 		validates = new CheckBox();
 		validates.setFieldLabel(constants.adminFlexibleCompulsory());
@@ -747,12 +752,18 @@ public class ElementForm extends ContentPanel {
 		lengthField.hide();
 		isDecimal.hide();
 		reportModelList.hide();
+		isBanner.hide();
+		posBanner.hide();
 		specificsPanel.hide();
 	}
 	
 	private void showSpecificAttributes(String type, FlexibleElementDTO flexibleElement, boolean onSelectAction){
 		initSpecifics(flexibleElement);
-		if(ElementTypeEnum.getName(ElementTypeEnum.CHECKBOX).equals(type)){
+		if(ElementTypeEnum.getName(ElementTypeEnum.DEFAULT).equals(type)){
+			isBanner.show();
+			posBanner.show();
+			specificsPanel.show();
+		}else if(ElementTypeEnum.getName(ElementTypeEnum.CHECKBOX).equals(type)){
 			//no additional fields
 		}else if(ElementTypeEnum.getName(ElementTypeEnum.FILES_LIST).equals(type)){
 			if(onSelectAction){
@@ -813,15 +824,16 @@ public class ElementForm extends ContentPanel {
 		 Integer order = null;
 		 if(orderField.getValue() != null)
 			 order = new Integer(orderField.getValue().intValue());
-		 Boolean inBanner = isBanner.getValue();
-		 Integer posB = null;
-		 if(posBanner.getValue() != null)
-			 posB = posBanner.getValue().getValue();
+		 
 		 Boolean isCompulsory = validates.getValue();
 		 PrivacyGroupDTO pg =  privacyGroupsListCombo.getValue();
 		 Boolean amend = isAmendable.getValue();
 		 
 		 //specific attributes
+		 Boolean inBanner = isBanner.getValue();
+		 Integer posB = null;
+		 if(posBanner.getValue() != null)
+			 posB = posBanner.getValue().getValue();
 		 String textType = null;
 		 if(textAreaTypeList.getValue() != null)
 			 textType = textAreaTypeList.getSimpleValue();

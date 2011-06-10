@@ -71,8 +71,12 @@ public class ModelUtil {
 			if(changes.get(AdminUtil.PROP_FX_IN_BANNER)!=null)
 				inBanner = (Boolean) changes.get(AdminUtil.PROP_FX_IN_BANNER);
 			Integer posB = null;
-			if(changes.get(AdminUtil.PROP_FX_POS_IN_BANNER)!=null)
+			if(changes.get(AdminUtil.PROP_FX_POS_IN_BANNER)!=null){
 				posB = (Integer) changes.get(AdminUtil.PROP_FX_POS_IN_BANNER);
+				posB = posB - 1;
+			}
+				
+				
 			
 			//FIXME
 			HashMap<String, Object> oldLayoutFields = (HashMap<String, Object>) changes.get(AdminUtil.PROP_FX_OLD_FIELDS);
@@ -184,6 +188,7 @@ public class ModelUtil {
 				}else{//delete from banner
 					if(oldBannerLayoutConstraintDTO != null){
 						LayoutConstraint oldBannerLayoutConstraint = mapper.map(oldBannerLayoutConstraintDTO, LayoutConstraint.class);
+						oldBannerLayoutConstraint = em.find(LayoutConstraint.class, oldBannerLayoutConstraint.getId());
 						em.remove(oldBannerLayoutConstraint);
 					}					
 				}
@@ -422,7 +427,7 @@ public class ModelUtil {
 			
 			newLayoutConstraint.setElement(flexibleElt);
 			newLayoutConstraint.setParentLayoutGroup(bannerGroup);
-			newLayoutConstraint.setSortOrder(new Integer(posB));
+			newLayoutConstraint.setSortOrder(new Integer(posB + 1));
 			
 			em.persist(newLayoutConstraint);
 		}
@@ -442,7 +447,7 @@ public class ModelUtil {
 		}
 		oldBannerLayoutConstraint.setElement(flexibleElt);
 		oldBannerLayoutConstraint.setParentLayoutGroup(bannerGroup);
-		oldBannerLayoutConstraint.setSortOrder(new Integer(posB));
+		oldBannerLayoutConstraint.setSortOrder(new Integer(posB + 1));
 		em.merge(oldBannerLayoutConstraint);
 	}
 	
