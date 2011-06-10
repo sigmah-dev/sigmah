@@ -78,6 +78,22 @@ public class OrgUnitState implements PageState, TabPage, HasTab {
         return Collections.singletonList(OrgUnitPresenter.PAGE_ID);
     }
 
+    public PageId getManualPageId() {
+
+        StringBuilder tokenBuilder = new StringBuilder();
+
+        tokenBuilder.append(OrgUnitPresenter.PAGE_ID.toString());
+        tokenBuilder.append("/");
+        
+        if (currentSection != null) {
+            tokenBuilder.append(currentSection.toString());
+        } else {
+            tokenBuilder.append("0");
+        }
+
+        return new PageId(tokenBuilder.toString());
+    }
+
     public int getOrgUnitId() {
         return orgUnitId;
     }

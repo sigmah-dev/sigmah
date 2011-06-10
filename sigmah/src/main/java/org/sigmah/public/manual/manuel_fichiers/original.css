@@ -1,0 +1,66 @@
+/* $Id: original.css,v 1.1.2.4.2.6 2010/07/25 10:37:46 alexiswilke Exp $ */
+
+.simplemenu-block {
+  height: 21px;
+}
+#simplemenu {
+  background: #ddd;
+  border-bottom: 1px solid #999;
+  color: #333;
+  font: 11px Verdana, Helvetica, sans-serif;
+  width: 100%;
+  text-align: left;
+}
+#simplemenu .simplemenu-separator {
+  display: block;
+  margin: 0;
+  border-left: 1px solid #eee;
+  border-right: 1px solid #999;
+  border-top: 1px solid #999;
+  border-bottom: 1px solid #ddd;
+  height: 2px;
+}
+#simplemenu a {
+  color: #333;
+  text-decoration: none;
+  background: #ddd;
+  border-right: 1px solid #999;
+  border-left: 1px solid #eee;
+  padding: 2px 6px 3px 6px;
+  width: auto;
+}
+#simplemenu li {
+  background: #ddd;
+  text-align: left;
+}
+#simplemenu li.expanded > a {
+  background: url(right-green.gif) no-repeat 97%;
+  padding-right: 2em;
+}
+#simplemenu li.root > a {
+  font-weight: 700;
+  background: url(down-green.gif) no-repeat 97%;
+}
+#simplemenu li:hover,
+#simplemenu li.sfHover,
+#simplemenu a:focus,
+#simplemenu a:hover,
+#simplemenu a:active {
+  background: #3875d7;
+  color: #fff;
+}
+#simplemenu li:hover .simplemenu-separator,
+#simplemenu li.sfHover .simplemenu-separator {
+  background: #ddd;
+}
+#simplemenu li:hover ul,
+ul#simplemenu li.sfHover ul {
+  border-top: 1px solid white;
+  border-bottom: 1px solid #999;
+}
+#simplemenu li ul a {
+  height: auto;
+}
+
+/* vim: ts=2 sw=2 et syntax=css
+*/

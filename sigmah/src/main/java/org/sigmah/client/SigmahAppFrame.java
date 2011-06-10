@@ -11,6 +11,10 @@ import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.dispatch.remote.Authentication;
 import org.sigmah.client.event.NavigationEvent;
 import org.sigmah.client.i18n.I18N;
+import org.sigmah.client.inject.SigmahAuthProvider;
+import org.sigmah.client.offline.sigmah.DispatchOperator;
+import org.sigmah.client.offline.sigmah.OfflineLabelFactory;
+import org.sigmah.client.offline.sigmah.OnlineMode;
 import org.sigmah.client.page.Frame;
 import org.sigmah.client.page.HasTab;
 import org.sigmah.client.page.NavigationCallback;
@@ -49,10 +53,6 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
-import org.sigmah.client.inject.SigmahAuthProvider;
-import org.sigmah.client.offline.sigmah.DispatchOperator;
-import org.sigmah.client.offline.sigmah.OfflineLabelFactory;
-import org.sigmah.client.offline.sigmah.OnlineMode;
 
 /**
  * Main frame of Sigmah.
@@ -69,9 +69,8 @@ public class SigmahAppFrame implements Frame {
     private PageState activePageState;
 
     @Inject
-    public SigmahAppFrame(EventBus eventBus, final Authentication auth, 
-            final TabModel tabModel, final Dispatcher dispatcher,
-            final UserLocalCache cache, final OnlineMode onlineMode) {
+    public SigmahAppFrame(EventBus eventBus, final Authentication auth, final TabModel tabModel,
+            final Dispatcher dispatcher, final UserLocalCache cache, final OnlineMode onlineMode) {
 
         if (auth == null) {
             RootPanel.get().add(new LoginView());
@@ -89,14 +88,12 @@ public class SigmahAppFrame implements Frame {
             configureReportAnchor(reportButton);
             RootPanel.get("bugreport").add(reportButton);
 
-
-
             final Anchor helpButton = new Anchor(I18N.CONSTANTS.help());
             helpButton.addClickHandler(new ClickHandler() {
 
                 @Override
                 public void onClick(ClickEvent event) {
-                    SigmahHelpWindow.show(activePageState.getPageId());
+                    SigmahHelpWindow.show(activePageState);
                 }
             });
             RootPanel.get("help").add(helpButton);
@@ -115,8 +112,9 @@ public class SigmahAppFrame implements Frame {
             }
 
             // Offline
-            if(dispatcher instanceof DispatchOperator && Factory.getInstance() != null)
-                RootPanel.get("offline-status").add(OfflineLabelFactory.getLabel((DispatchOperator)dispatcher, onlineMode));
+            if (dispatcher instanceof DispatchOperator && Factory.getInstance() != null)
+                RootPanel.get("offline-status").add(
+                        OfflineLabelFactory.getLabel((DispatchOperator) dispatcher, onlineMode));
 
             // Credit
             final Anchor creditButton = new Anchor(I18N.CONSTANTS.credits());
@@ -238,22 +236,20 @@ public class SigmahAppFrame implements Frame {
 
     private void configureReportAnchor(final Anchor reportButton) {
 
-        final String versionNumber = Dictionary.getDictionary(SigmahAuthProvider.DICTIONARY_NAME).get(SigmahAuthProvider.VERSION_NUMBER);
+        final String versionNumber = Dictionary.getDictionary(SigmahAuthProvider.DICTIONARY_NAME).get(
+                SigmahAuthProvider.VERSION_NUMBER);
 
         final StringBuilder hrefBuilder = new StringBuilder("mailto:");
-        hrefBuilder.
-                append(I18N.CONSTANTS.bugReportSupportAddress()).
-                append("?subject=").
-                append(URL.encodeComponent(I18N.CONSTANTS.bugReportMailObject(), false)).
-                append("&body=").
-                append(URL.encodeComponent(I18N.MESSAGES.bugReportBody(getUserAgent(), versionNumber), false));
+        hrefBuilder.append(I18N.CONSTANTS.bugReportSupportAddress()).append("?subject=")
+                .append(URL.encodeComponent(I18N.CONSTANTS.bugReportMailObject(), false)).append("&body=")
+                .append(URL.encodeComponent(I18N.MESSAGES.bugReportBody(getUserAgent(), versionNumber), false));
 
         reportButton.setHref(hrefBuilder.toString());
     }
 
     private native String getUserAgent() /*-{
-        return navigator.userAgent;
-    }-*/;
+                                         return navigator.userAgent;
+                                         }-*/;
 
     @Override
     public void setActivePage(Page page) {

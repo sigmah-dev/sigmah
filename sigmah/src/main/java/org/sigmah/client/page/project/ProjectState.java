@@ -40,10 +40,10 @@ public class ProjectState implements PageState, TabPage, HasTab {
 
             final ProjectState state = new ProjectState(Integer.parseInt(tokens[0]));
 
-            if(tokens.length > 1) {
+            if (tokens.length > 1) {
                 state.setCurrentSection(Integer.parseInt(tokens[1]));
 
-                if(tokens.length > 2) {
+                if (tokens.length > 2) {
                     state.setArgument(tokens[2]);
                 } else {
                     state.argument = null;
@@ -59,22 +59,24 @@ public class ProjectState implements PageState, TabPage, HasTab {
     public String serializeAsHistoryToken() {
         StringBuilder tokenBuilder = new StringBuilder();
 
-        if(currentSection != null)
+        if (currentSection != null)
             tokenBuilder.append(currentSection.toString());
 
-        if(argument != null)
+        if (argument != null)
             tokenBuilder.append('/').append(argument);
 
-        if(tokenBuilder.length() == 0)
+        if (tokenBuilder.length() == 0)
             return null;
         else
             return tokenBuilder.toString();
     }
 
     /**
-     * Creates a new <code>ProjectState</code> object using the same project but with a different section.
-     * The argument is also setted to null.
-     * @param section Id of the section.
+     * Creates a new <code>ProjectState</code> object using the same project but
+     * with a different section. The argument is also setted to null.
+     * 
+     * @param section
+     *            Id of the section.
      * @return A new <code>ProjectState</code> object.
      */
     public ProjectState deriveTo(int section) {
@@ -93,6 +95,22 @@ public class ProjectState implements PageState, TabPage, HasTab {
         return Collections.singletonList(ProjectPresenter.PAGE_ID);
     }
 
+    public PageId getManualPageId() {
+
+        StringBuilder tokenBuilder = new StringBuilder();
+
+        tokenBuilder.append(ProjectPresenter.PAGE_ID.toString());
+        tokenBuilder.append("/");
+
+        if (currentSection != null) {
+            tokenBuilder.append(currentSection.toString());
+        } else {
+            tokenBuilder.append("0");
+        }
+
+        return new PageId(tokenBuilder.toString());
+    }
+
     public int getProjectId() {
         return projectId;
     }
@@ -102,7 +120,7 @@ public class ProjectState implements PageState, TabPage, HasTab {
     }
 
     public int getCurrentSection() {
-        if(currentSection == null)
+        if (currentSection == null)
             return 0;
         else
             return currentSection;
@@ -154,7 +172,8 @@ public class ProjectState implements PageState, TabPage, HasTab {
         if (this.projectId != other.projectId) {
             return false;
         }
-        if (this.currentSection != other.currentSection && (this.currentSection == null || !this.currentSection.equals(other.currentSection))) {
+        if (this.currentSection != other.currentSection
+                && (this.currentSection == null || !this.currentSection.equals(other.currentSection))) {
             return false;
         }
         if ((this.argument == null) ? (other.argument != null) : !this.argument.equals(other.argument)) {
