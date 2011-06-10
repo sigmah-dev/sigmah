@@ -54,7 +54,13 @@ public enum GlobalPermissionEnum {
     /**
      * View the ActivityInfo menu.
      */
-    VIEW_ACTIVITYINFO;
+    VIEW_ACTIVITYINFO,
+    
+ 
+    /**
+     * View the ActivityInfo menu.
+     */
+    VALID_AMENDEMENT;
     
     public static String getName(GlobalPermissionEnum gp){
 		String gpName = "default";
@@ -68,6 +74,7 @@ public enum GlobalPermissionEnum {
 		case MANAGE_UNIT : gpName = I18N.CONSTANTS.MANAGE_UNIT(); break;
 		case REMOVE_FILE : gpName = I18N.CONSTANTS.REMOVE_FILE(); break;
 		case VIEW_ACTIVITYINFO : gpName = I18N.CONSTANTS.VIEW_ACTIVITYINFO(); break;
+		case  VALID_AMENDEMENT : gpName = I18N.CONSTANTS. VALIDER_AMENDEMENT(); break;
 		default : gpName = null;
 		}
 		

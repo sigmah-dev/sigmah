@@ -527,7 +527,10 @@ public class ProjectPresenter implements Frame, TabPage {
 
         amendmentBox.add(amendmentListContainer, new VBoxLayoutData(0, 0, 3, 0));
 
-        // Displaying the available actions
+        
+        
+        
+      // Displaying the available actions
         final Amendment.Action[] actions;
         if (currentProjectDTO.getAmendmentState() != null)
             actions = currentProjectDTO.getAmendmentState().getActions();
@@ -535,10 +538,22 @@ public class ProjectPresenter implements Frame, TabPage {
             actions = new Amendment.Action[0];
         final Anchor[] anchors = new Anchor[actions.length];
 
-        for (int index = 0; index < actions.length; index++) {
+       for (int index = 0; index < actions.length; index++) {
             final Amendment.Action action = actions[index];
             Log.debug("Adding the " + action + " amendment action.");
-
+            
+         if(action==Amendment.Action.VALIDATE || action==Amendment.Action.REJECT)
+         {
+          if(!ProfileUtils.isGranted(authentication, GlobalPermissionEnum.VALID_AMENDEMENT))
+          {
+        	Log.debug("You can not validate !");
+        	continue;  
+          }
+          
+         }   
+         
+         Log.debug("You can  validate !");
+         
             final Anchor actionAnchor = new Anchor(amendmentActionDisplayNames.get(action));
             actionAnchor.addStyleName("amendment-action");
 
@@ -549,7 +564,12 @@ public class ProjectPresenter implements Frame, TabPage {
                     amendmentBox.mask(I18N.CONSTANTS.loading());
 
                     for (final Anchor anchor : anchors)
-                        anchor.setEnabled(false);
+                    {
+                    	if(anchor==null)
+                    		Log.debug("anchor is null");
+                        if(anchor!=null)
+                            anchor.setEnabled(false);
+                    }
 
                     final AmendmentAction amendmentAction = new AmendmentAction(currentProjectDTO.getId(), action);
                     dispatcher.execute(amendmentAction, null, new AsyncCallback<ProjectDTO>() {
@@ -570,7 +590,10 @@ public class ProjectPresenter implements Frame, TabPage {
                         @Override
                         public void onSuccess(ProjectDTO result) {
                             for (final Anchor anchor : anchors)
+                            {
+                              if(anchor!=null)
                                 anchor.setEnabled(true);
+                            }
 
                             // Updating the current project
                             currentProjectDTO = result;
@@ -586,12 +609,19 @@ public class ProjectPresenter implements Frame, TabPage {
                     });
                 }
             });
+           
+         
 
-            // TOM: This is were the amendment actions are added to the view
-            amendmentBox.add(actionAnchor, new VBoxLayoutData());
-            anchors[index] = actionAnchor;
-        }
+          amendmentBox.add(actionAnchor, new VBoxLayoutData());
+          anchors[index] = actionAnchor;
 
+         
+            
+     }
+
+   
+        
+        
         amendmentBox.layout();
     }
 
