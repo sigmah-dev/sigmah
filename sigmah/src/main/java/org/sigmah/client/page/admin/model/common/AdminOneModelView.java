@@ -112,15 +112,15 @@ public class AdminOneModelView extends LayoutContainer implements AdminOneModelP
 		topPanel.setBorders(true);
 		
 		topLeftFormPanel = new FormPanel();
-		topLeftFormPanel.setWidth(400);
+		topLeftFormPanel.setWidth(300);
 		topLeftFormPanel.setHeaderVisible(false);
 		
 		topCenterFormPanel = new FormPanel();
-		topCenterFormPanel.setWidth(400);
+		topCenterFormPanel.setWidth(300);
 		topCenterFormPanel.setHeaderVisible(false);
 		
 		topRightFormPanel = new FormPanel();
-		topRightFormPanel.setWidth(400);
+		topRightFormPanel.setWidth(600);
 		topRightFormPanel.setHeaderVisible(false);
 				
 		name = new TextField<String>();

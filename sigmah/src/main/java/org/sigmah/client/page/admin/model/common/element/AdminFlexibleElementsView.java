@@ -14,6 +14,7 @@ import org.sigmah.shared.command.result.CreateResult;
 import org.sigmah.shared.command.result.UpdateModelResult;
 import org.sigmah.shared.domain.ProjectModelStatus;
 import org.sigmah.shared.domain.element.DefaultFlexibleElementType;
+import org.sigmah.shared.dto.IndicatorDTO;
 import org.sigmah.shared.dto.OrgUnitModelDTO;
 import org.sigmah.shared.dto.ProjectModelDTO;
 import org.sigmah.shared.dto.element.DefaultFlexibleElementDTO;
@@ -26,9 +27,11 @@ import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.Component;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
@@ -419,7 +422,31 @@ public class AdminFlexibleElementsView extends View {
 	}
 	
 	@Override
-	public void confirmDeleteSelected(ConfirmCallback confirmCallback) {
-		confirmCallback.confirmed();		
+	public void confirmDeleteSelected(final ConfirmCallback confirmCallback) {
+		List<FlexibleElementDTO> deleteElements = getDeleteSelection();
+		String names = "";
+		for(FlexibleElementDTO s : deleteElements){			
+			if(s instanceof DefaultFlexibleElementDTO){
+				names += DefaultFlexibleElementType.getName(((DefaultFlexibleElementDTO)s).getType()) + ", ";
+			}else{
+				names += s.getLabel() + ", ";
+			}
+		}
+		if(names.isEmpty()){
+			MessageBox.alert(I18N.CONSTANTS.delete(), I18N.MESSAGES.adminFlexibleDeleteNone(), null);
+		}else{
+			names = names.substring(0, names.lastIndexOf(", "));
+			MessageBox.confirm(I18N.CONSTANTS.delete(), I18N.MESSAGES.adminFlexibleConfirmDelete(names), new Listener<MessageBoxEvent>() {
+				
+				@Override
+				public void handleEvent(MessageBoxEvent be) {
+					if(be.getButtonClicked().getItemId().equals("yes")) {
+						confirmCallback.confirmed();
+					}
+				}
+			});
+		}
+		
+				
 	}
 }
