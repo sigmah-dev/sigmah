@@ -111,7 +111,7 @@ public class IndicatorDialog extends Dialog {
 
 			@Override
 			public void onSuccess(BatchResult result) {
-				IndicatorEvent event = new IndicatorEvent(IndicatorEvent.INDICATOR_CHANGED, IndicatorDialog.this);
+				IndicatorEvent event = new IndicatorEvent(IndicatorEvent.CHANGED, IndicatorDialog.this);
 				event.setEntityId(indicator.getId());
 				event.setChangeType(ChangeType.UPDATED);
 				event.setChanges(indicator.getProperties());

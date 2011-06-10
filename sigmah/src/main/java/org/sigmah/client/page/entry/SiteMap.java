@@ -13,7 +13,7 @@ import java.util.Map;
 import org.sigmah.client.EventBus;
 import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.dispatch.monitor.MaskingAsyncMonitor;
-import org.sigmah.client.event.EntityEvent;
+import org.sigmah.client.event.SiteEvent;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.icon.IconImageBundle;
 import org.sigmah.client.map.AdminBoundsHelper;
@@ -97,7 +97,7 @@ public class SiteMap extends ContentPanel implements Shutdownable {
      */
     private Map<Integer, Marker> sites;
 
-    private Listener<EntityEvent<SiteDTO>> siteListener; 
+    private Listener<SiteEvent> siteListener; 
 
     private Marker currentHighlightedMarker;
     private Marker highlitMarker;
@@ -150,7 +150,7 @@ public class SiteMap extends ContentPanel implements Shutdownable {
 
     }
 
-    private void onSiteSelected(EntityEvent<SiteDTO> se) {
+    private void onSiteSelected(SiteEvent se) {
         if (se.getSource() != this) {
             if (se.getEntity() != null && !se.getEntity().hasCoords()) {
                 BoundingBoxDTO bounds = AdminBoundsHelper.calculate(country, se.getEntity());
@@ -171,9 +171,9 @@ public class SiteMap extends ContentPanel implements Shutdownable {
 
 
     public void shutdown() {
-        eventBus.removeListener(EntityEvent.SELECTED, siteListener);
-        eventBus.removeListener(EntityEvent.CREATED, siteListener);
-        eventBus.removeListener(EntityEvent.UPDATED, siteListener);
+        eventBus.removeListener(SiteEvent.SELECTED, siteListener);
+        eventBus.removeListener(SiteEvent.CREATED, siteListener);
+        eventBus.removeListener(SiteEvent.UPDATED, siteListener);
     }
 
     public void onSiteDropped(Record record, double lat, double lng) {
@@ -276,21 +276,21 @@ public class SiteMap extends ContentPanel implements Shutdownable {
         	
             	addSitesToMap(points);
 
-                siteListener = new Listener<EntityEvent<SiteDTO>>() {
-                    public void handleEvent(EntityEvent<SiteDTO> be) {
-                        if (be.getType() == EntityEvent.SELECTED) {
+                siteListener = new Listener<SiteEvent>() {
+                    public void handleEvent(SiteEvent be) {
+                        if (be.getType() == SiteEvent.SELECTED) {
                             onSiteSelected(be);
-                        } else if (be.getType() == EntityEvent.CREATED) {
+                        } else if (be.getType() == SiteEvent.CREATED) {
                             onSiteCreated(be.getEntity());
-                        } else if (be.getType() == EntityEvent.UPDATED) {
+                        } else if (be.getType() == SiteEvent.UPDATED) {
                             onSiteChanged(be.getEntity());
                         }
                     }
                 };
 
-                eventBus.addListener(EntityEvent.SELECTED, siteListener);
-                eventBus.addListener(EntityEvent.CREATED, siteListener);
-                eventBus.addListener(EntityEvent.UPDATED, siteListener);
+                eventBus.addListener(SiteEvent.SELECTED, siteListener);
+                eventBus.addListener(SiteEvent.CREATED, siteListener);
+                eventBus.addListener(SiteEvent.UPDATED, siteListener);
             }
         });
 	}

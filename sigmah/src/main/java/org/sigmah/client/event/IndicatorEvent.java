@@ -3,8 +3,7 @@ package org.sigmah.client.event;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.sigmah.shared.dto.IndicatorDTO;
-
+import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.EventType;
 
@@ -18,7 +17,7 @@ import com.extjs.gxt.ui.client.event.EventType;
 public class IndicatorEvent extends BaseEvent {
 	
 
-	public static final EventType INDICATOR_CHANGED = new EventType();
+	public static final EventType CHANGED = new EventType();
 	
 	
 	public enum ChangeType {
@@ -64,7 +63,7 @@ public class IndicatorEvent extends BaseEvent {
 		return changes;
 	}
 	
-	public void applyChanges(IndicatorDTO indicator) {
+	public void applyChanges(ModelData indicator) {
 		for(Entry<String, Object> change : changes.entrySet()) {
 			indicator.set(change.getKey(), change.getValue());
 		}

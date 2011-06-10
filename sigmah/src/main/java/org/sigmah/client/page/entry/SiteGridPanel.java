@@ -13,7 +13,8 @@ import java.util.List;
 import org.sigmah.client.EventBus;
 import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.dispatch.monitor.MaskingAsyncMonitor;
-import org.sigmah.client.event.EntityEvent;
+import org.sigmah.client.event.DownloadRequestEvent;
+import org.sigmah.client.event.SiteEvent;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.icon.IconImageBundle;
 import org.sigmah.client.page.common.Shutdownable;
@@ -21,8 +22,6 @@ import org.sigmah.client.page.common.grid.SavingHelper;
 import org.sigmah.client.page.common.toolbar.ActionListener;
 import org.sigmah.client.page.common.toolbar.ActionToolBar;
 import org.sigmah.client.page.common.toolbar.UIActions;
-import org.sigmah.client.page.entry.editor.SiteForm;
-import org.sigmah.client.page.entry.editor.SiteFormDialog;
 import org.sigmah.client.util.state.IStateManager;
 import org.sigmah.shared.command.Delete;
 import org.sigmah.shared.command.GetSchema;
@@ -78,8 +77,8 @@ import com.google.inject.Inject;
  */
 public class SiteGridPanel extends ContentPanel implements ActionListener, SelectionProvider<SiteDTO> {
 
-	private Listener<EntityEvent<SiteDTO>> siteChangedListener;
-	private Listener<EntityEvent<SiteDTO>> siteCreatedListener;
+	private Listener<SiteEvent> siteChangedListener;
+	private Listener<SiteEvent> siteCreatedListener;
 	private List<Shutdownable> subComponents = new ArrayList<Shutdownable>();
 
 	public static final int PAGE_SIZE = 25;
@@ -112,19 +111,19 @@ public class SiteGridPanel extends ContentPanel implements ActionListener, Selec
 		initToolBar();
 		initPagingToolBar();
 		
-		eventBus.addListener(EntityEvent.CREATED, new Listener<EntityEvent<SiteDTO>>() {
+		eventBus.addListener(SiteEvent.CREATED, new Listener<SiteEvent>() {
 
 			@Override
-			public void handleEvent(EntityEvent<SiteDTO> be) {
+			public void handleEvent(SiteEvent be) {
 				if(be.getEntityName().equals("Site")) {
 					onSiteCreated(be);
 				}
 			}
 		});
-		eventBus.addListener(EntityEvent.UPDATED, new Listener<EntityEvent<SiteDTO>>() {
+		eventBus.addListener(SiteEvent.UPDATED, new Listener<SiteEvent>() {
 
 			@Override
-			public void handleEvent(EntityEvent<SiteDTO> be) {
+			public void handleEvent(SiteEvent be) {
 				if(be.getEntityName().equals("Site")) {
 					onSiteUpdated(be);
 				}
@@ -250,7 +249,7 @@ public class SiteGridPanel extends ContentPanel implements ActionListener, Selec
 
 		toolBar.add(new SeparatorToolItem());
 
-		toolBar.addExcelExportButton();
+		//toolBar.addExcelExportButton();
 		
 		setTopComponent(toolBar);
 	}
@@ -355,6 +354,9 @@ public class SiteGridPanel extends ContentPanel implements ActionListener, Selec
 				for(Record record : dirty) {
 					record.commit(false);
 				}
+				for(Record record : dirty) {
+					eventBus.fireEvent(new SiteEvent(SiteEvent.UPDATED, SiteGridPanel.this, (SiteDTO)record.getModel()));
+				}
 			}
 		});
 	}
@@ -383,7 +385,7 @@ public class SiteGridPanel extends ContentPanel implements ActionListener, Selec
 		});
 	}
 
-	private void onSiteCreated(EntityEvent<SiteDTO> se) {
+	private void onSiteCreated(SiteEvent se) {
 		if (store.getCount() < PAGE_SIZE) {
 			// there is only one page, so we can save some time by justing adding this model to directly to
 			//  the store
@@ -396,15 +398,19 @@ public class SiteGridPanel extends ContentPanel implements ActionListener, Selec
 		}
 	}
 	
-	private void onSiteUpdated(EntityEvent<SiteDTO> se) {
-		// find the mo
+	private void onSiteUpdated(SiteEvent se) {
+		SiteDTO site = store.findModel("id", se.getSiteId());
+		if(site != null) {
+			site.setProperties(se.getEntity().getProperties());
+			store.update(site);
+		}
 	}
 
 
 	public void shutdown() {
 
-		eventBus.removeListener(EntityEvent.UPDATED, siteChangedListener);
-		eventBus.removeListener(EntityEvent.CREATED, siteCreatedListener);
+		eventBus.removeListener(SiteEvent.UPDATED, siteChangedListener);
+		eventBus.removeListener(SiteEvent.CREATED, siteCreatedListener);
 
 		for (Shutdownable subComponet : subComponents) {
 			subComponet.shutdown();
@@ -470,22 +476,7 @@ public class SiteGridPanel extends ContentPanel implements ActionListener, Selec
 	}
 
 
-////
-////	@Override
-////	protected void onDeleteConfirmed(final SiteDTO site) {
-////
-////		service.execute(new Delete(site), view.getDeletingMonitor(), new AsyncCallback<VoidResult>() {
-////
-////			public void onFailure(Throwable caught) {
-////
-////			}
-////
-////			public void onSuccess(VoidResult result) {
-////				store.remove(site);seekToSiteId
-////			}
-////		});
-////	}
-//
+// TODO: update export module to work for databases to
 //	private void onExport() {
 //		String url = GWT.getModuleBaseURL() + "export?auth=#AUTH#&a=" + currentActivity.getId();
 //		eventBus.fireEvent(new DownloadRequestEvent("siteExport", url));

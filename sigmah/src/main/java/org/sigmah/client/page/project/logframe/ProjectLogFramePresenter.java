@@ -237,7 +237,7 @@ public class ProjectLogFramePresenter implements SubPresenter {
                         view.getSaveButton().setEnabled(false);
                         
                         // broadcast an indicator change event to be safe
-                        eventBus.fireEvent(new IndicatorEvent(IndicatorEvent.INDICATOR_CHANGED, ProjectLogFramePresenter.this));
+                        eventBus.fireEvent(new IndicatorEvent(IndicatorEvent.CHANGED, ProjectLogFramePresenter.this));
                     }
                 });
             }

@@ -97,7 +97,7 @@ public class IndicatorListWidget extends Composite  {
 		new ListViewDropTarget(indicatorList)
 			.setGroup(DRAG_AND_DROP_GROUP);
 		
-		eventBus.addListener(IndicatorEvent.INDICATOR_CHANGED, new Listener<IndicatorEvent>() {
+		eventBus.addListener(IndicatorEvent.CHANGED, new Listener<IndicatorEvent>() {
 
 			@Override
 			public void handleEvent(IndicatorEvent event) {

@@ -15,7 +15,7 @@ import com.extjs.gxt.ui.client.util.DateWrapper;
 import org.sigmah.client.EventBus;
 import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.dispatch.loader.ListCmdLoader;
-import org.sigmah.client.event.EntityEvent;
+import org.sigmah.client.event.SiteEvent;
 import org.sigmah.client.page.PageId;
 import org.sigmah.client.page.PageState;
 import org.sigmah.client.page.common.grid.AbstractEditorGridPresenter;
@@ -52,7 +52,7 @@ public class MonthlyPresenter extends AbstractEditorGridPresenter<IndicatorRowDT
     private ListStore<IndicatorRowDTO> store;
     private ListCmdLoader<MonthlyReportResult> loader;
 
-    private Listener<EntityEvent<SiteDTO>> siteListener;
+    private Listener<SiteEvent> siteListener;
 
     private int currentSiteId = -1;
     private Month startMonth;
@@ -75,14 +75,14 @@ public class MonthlyPresenter extends AbstractEditorGridPresenter<IndicatorRowDT
         store.setMonitorChanges(true);
         this.view.init(this, store);
 
-        siteListener = new Listener<EntityEvent<SiteDTO>>() {
-            public void handleEvent(EntityEvent<SiteDTO> be) {
-                if (be.getType() == EntityEvent.SELECTED) {
+        siteListener = new Listener<SiteEvent>() {
+            public void handleEvent(SiteEvent be) {
+                if (be.getType() == SiteEvent.SELECTED) {
                     onSiteSelected(be.getEntity());
                 }
             }
         };
-        eventBus.addListener(EntityEvent.SELECTED, siteListener);
+        eventBus.addListener(SiteEvent.SELECTED, siteListener);
 
         getInitialStartMonth(stateMgr);
 
@@ -90,7 +90,7 @@ public class MonthlyPresenter extends AbstractEditorGridPresenter<IndicatorRowDT
     }
 
     public void shutdown() {
-        eventBus.removeListener(EntityEvent.SELECTED, siteListener);
+        eventBus.removeListener(SiteEvent.SELECTED, siteListener);
     }
 
     private void getInitialStartMonth(IStateManager stateMgr) {

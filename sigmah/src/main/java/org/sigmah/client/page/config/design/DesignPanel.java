@@ -173,7 +173,7 @@ public class DesignPanel extends DesignPanelBase implements ActionListener {
 		toolBar.addButton("delete", I18N.CONSTANTS.delete(), null);
 		toolBar.addRefreshButton();
 		
-		eventBus.addListener(IndicatorEvent.INDICATOR_CHANGED, new Listener<IndicatorEvent>() {
+		eventBus.addListener(IndicatorEvent.CHANGED, new Listener<IndicatorEvent>() {
 
 			@Override
 			public void handleEvent(IndicatorEvent be) {
@@ -345,7 +345,7 @@ public class DesignPanel extends DesignPanelBase implements ActionListener {
 					public void onSuccess(CreateResult result) {
 						dialog.hide();
 						treeStore.add(parent, newIndicator, false);
-						eventBus.fireEvent(new IndicatorEvent(IndicatorEvent.INDICATOR_CHANGED, DesignPanel.this));
+						eventBus.fireEvent(new IndicatorEvent(IndicatorEvent.CHANGED, DesignPanel.this));
 					}
 				});
 			}
@@ -415,7 +415,7 @@ public class DesignPanel extends DesignPanelBase implements ActionListener {
 			public void onSuccess(VoidResult result) {
 				treeGrid.getTreeStore().remove(selected);
 				
-				IndicatorEvent event = new IndicatorEvent(IndicatorEvent.INDICATOR_CHANGED, DesignPanel.this);
+				IndicatorEvent event = new IndicatorEvent(IndicatorEvent.CHANGED, DesignPanel.this);
 				event.setEntityId(selected.getId());
 				event.setChangeType(ChangeType.DELETED);
 				

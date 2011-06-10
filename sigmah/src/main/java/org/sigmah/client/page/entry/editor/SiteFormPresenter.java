@@ -11,7 +11,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.sigmah.client.EventBus;
 import org.sigmah.client.dispatch.AsyncMonitor;
 import org.sigmah.client.dispatch.Dispatcher;
-import org.sigmah.client.event.EntityEvent;
+import org.sigmah.client.event.SiteEvent;
 import org.sigmah.client.page.common.toolbar.UIActions;
 import org.sigmah.shared.command.CreateEntity;
 import org.sigmah.shared.command.UpdateEntity;
@@ -132,7 +132,7 @@ public class SiteFormPresenter implements SiteFormLeash {
                         currentSite.set(change.getKey(), change.getValue());
                     }
 
-                    eventBus.fireEvent(new EntityEvent(EntityEvent.UPDATED, SiteFormPresenter.this, currentSite));
+                    eventBus.fireEvent(new SiteEvent(SiteEvent.UPDATED, SiteFormPresenter.this, currentSite));
                     view.hide();
                 }
             });
@@ -153,7 +153,7 @@ public class SiteFormPresenter implements SiteFormLeash {
                     currentSite.setProperties(properties);
                     currentSite.setId(result.getNewId());
 
-                    eventBus.fireEvent(new EntityEvent(EntityEvent.CREATED, SiteFormPresenter.this, currentSite));
+                    eventBus.fireEvent(new SiteEvent(SiteEvent.CREATED, SiteFormPresenter.this, currentSite));
                     view.hide();
                 }
             });

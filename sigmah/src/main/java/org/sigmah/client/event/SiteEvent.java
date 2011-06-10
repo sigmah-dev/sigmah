@@ -19,10 +19,10 @@ import org.sigmah.shared.dto.SiteDTO;
  *
  * @author Alex Bertram
  */
-public class EntityEvent<T extends EntityDTO> extends BaseEvent {
+public class SiteEvent extends BaseEvent {
     private int id;
     private String entityName;
-    private T entity;
+    private SiteDTO entity;
 
 	public static final EventType CREATED = new EventBus.NamedEventType("SiteCreated");
     public static final EventType UPDATED = new EventBus.NamedEventType("SiteChanged");
@@ -34,7 +34,7 @@ public class EntityEvent<T extends EntityDTO> extends BaseEvent {
      * @param source the component which fired the event
      * @param site
      */
-    public EntityEvent(EventType type, Object source, T site) {
+    public SiteEvent(EventType type, Object source, SiteDTO site) {
         super(type);
         this.setSource(source);
         this.entity = site;
@@ -42,7 +42,7 @@ public class EntityEvent<T extends EntityDTO> extends BaseEvent {
         this.id = site.getId();
     }
 
-    public EntityEvent(EventType type, Object source, String entityName, int entityId) {
+    public SiteEvent(EventType type, Object source, String entityName, int entityId) {
         super(type);
         this.setSource(source);
         this.entityName = entityName;
@@ -57,7 +57,7 @@ public class EntityEvent<T extends EntityDTO> extends BaseEvent {
      * 
      * @return the affected entity. May be {@code null} if only the {@code id} was available.
      */
-    public T getEntity() {
+    public SiteDTO getEntity() {
         return entity;
     }
 

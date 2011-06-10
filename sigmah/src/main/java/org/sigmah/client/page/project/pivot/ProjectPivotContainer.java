@@ -5,6 +5,7 @@ import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.dispatch.monitor.MaskingAsyncMonitor;
 import org.sigmah.client.event.IndicatorEvent;
 import org.sigmah.client.event.ProjectEvent;
+import org.sigmah.client.event.SiteEvent;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.page.common.toolbar.ActionListener;
 import org.sigmah.client.page.common.toolbar.ActionToolBar;
@@ -35,6 +36,7 @@ import org.sigmah.shared.report.model.PivotTableElement;
 
 import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FieldEvent;
 import com.extjs.gxt.ui.client.event.Listener;
@@ -84,6 +86,13 @@ public class ProjectPivotContainer extends ContentPanel implements ProjectSubPre
 	private PivotLayout currentLayout;
 	private PivotTableElement currentPivot;
 	private CheckBox defaultViewCheckBox;
+	
+	private Listener<BaseEvent> changeListener;
+	private EventType[] changeEventTypes = new EventType[] { 
+			IndicatorEvent.CHANGED,
+			SiteEvent.CREATED,
+			SiteEvent.UPDATED, 
+			ProjectEvent.CHANGED };
 	
 	@Inject
 	public ProjectPivotContainer(EventBus eventBus, Dispatcher dispatcher, PivotGridPanel gridPanel, 
@@ -192,27 +201,30 @@ public class ProjectPivotContainer extends ContentPanel implements ProjectSubPre
 		toolBar.setDirty(false);
 		setTopComponent(toolBar);
 		
-		eventBus.addListener(IndicatorEvent.INDICATOR_CHANGED, new Listener<IndicatorEvent>() {
+		registerChangeListeners();
+	}
+
+	private void registerChangeListeners() {
+		changeListener = new Listener<BaseEvent>() {
 
 			@Override
-			public void handleEvent(IndicatorEvent be) {
+			public void handleEvent(BaseEvent be) {
 				if(be.getSource() != ProjectPivotContainer.this) {
 					refresh();
 				}
 			}
-		});
-			
-		eventBus.addListener(ProjectEvent.CHANGED, new Listener<ProjectEvent>() {
-
-			@Override
-			public void handleEvent(ProjectEvent event) {
-				if(event.getProjectId()== currentDatabaseId) {
-					onProjectChanged();
-				}
-			}
-		});
+		};	
+		for(EventType eventType : changeEventTypes) {
+			eventBus.addListener(eventType, changeListener);
+		}
 	}
 
+	private void unregisterChangeListeners() {
+		for(EventType eventType : changeEventTypes) {
+			eventBus.removeListener(eventType, changeListener);
+		}
+	}
+	
 	@Override
 	public void loadProject(ProjectDTO project) {
 		this.currentDatabaseId = project.getId();
@@ -531,7 +543,7 @@ public class ProjectPivotContainer extends ContentPanel implements ProjectSubPre
 				gridPanel.getStore().commitChanges();
 				toolBar.setDirty(false);
 				eventBus.fireEvent(new IndicatorEvent(
-						IndicatorEvent.INDICATOR_CHANGED, 
+						IndicatorEvent.CHANGED, 
 						ProjectPivotContainer.this));
 			}
 		});
@@ -549,7 +561,7 @@ public class ProjectPivotContainer extends ContentPanel implements ProjectSubPre
 
 	@Override
 	public void discardView() {
-
+		unregisterChangeListeners();
 	}
 
 	@Override

@@ -9,7 +9,7 @@ import java.util.Map;
 
 import org.sigmah.client.EventBus;
 import org.sigmah.client.dispatch.Dispatcher;
-import org.sigmah.client.event.EntityEvent;
+import org.sigmah.client.event.SiteEvent;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.page.common.dialog.FormDialogCallback;
 import org.sigmah.client.page.common.dialog.FormDialogImpl;
@@ -70,7 +70,7 @@ public class SiteFormDialog extends FormDialogImpl<SiteForm>  {
 						Info.display(I18N.CONSTANTS.saved(), I18N.CONSTANTS.saved());
 						SiteDTO newSite = new SiteDTO(result.getNewId());
 						newSite.setProperties(props);
-						eventBus.fireEvent(new EntityEvent<SiteDTO>(EntityEvent.CREATED, this, newSite ));
+						eventBus.fireEvent(new SiteEvent(SiteEvent.CREATED, this, newSite ));
 					}
 				});
 			}
@@ -104,7 +104,7 @@ public class SiteFormDialog extends FormDialogImpl<SiteForm>  {
 						hide();
 						Info.display(I18N.CONSTANTS.saved(), I18N.CONSTANTS.saved());
 						site.setProperties(modified);
-						eventBus.fireEvent(new EntityEvent<SiteDTO>(EntityEvent.UPDATED, this, site ));
+						eventBus.fireEvent(new SiteEvent(SiteEvent.UPDATED, this, site ));
 					}
 				});
 			}

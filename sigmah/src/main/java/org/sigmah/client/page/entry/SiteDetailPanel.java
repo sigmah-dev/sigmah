@@ -6,7 +6,7 @@
 package org.sigmah.client.page.entry;
 
 import org.sigmah.client.EventBus;
-import org.sigmah.client.event.EntityEvent;
+import org.sigmah.client.event.SiteEvent;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.i18n.UIConstants;
 import org.sigmah.client.page.common.Shutdownable;
@@ -59,16 +59,16 @@ public class SiteDetailPanel extends ContentPanel implements Shutdownable {
         html.setStyleName("details");
         add(html);
 
-		Listener siteListener = new Listener<EntityEvent<SiteDTO>>() {
-			public void handleEvent(EntityEvent<SiteDTO> be) {
-				if (be.getType() == EntityEvent.UPDATED) {
+		Listener siteListener = new Listener<SiteEvent>() {
+			public void handleEvent(SiteEvent be) {
+				if (be.getType() == SiteEvent.UPDATED) {
 					if (currentSite != null && currentSite.getId() == be.getEntity().getId()) {
 						updateHtml(be.getEntity());
 					}
 				}
 			}
 		};
-		eventBus.addListener(EntityEvent.UPDATED, siteListener);
+		eventBus.addListener(SiteEvent.UPDATED, siteListener);
 	}
 
 	/**
@@ -85,7 +85,7 @@ public class SiteDetailPanel extends ContentPanel implements Shutdownable {
 	
 	
 	public void shutdown() {
-		eventBus.removeListener(EntityEvent.UPDATED, siteListener);
+		eventBus.removeListener(SiteEvent.UPDATED, siteListener);
 	}
 
 	private void updateHtml(SiteDTO site) {
