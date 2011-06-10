@@ -1,6 +1,8 @@
 package org.sigmah.client.page.project.logframe.grid;
 
+import org.sigmah.client.EventBus;
 import org.sigmah.client.dispatch.Dispatcher;
+import org.sigmah.client.event.IndicatorEvent;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.page.common.dialog.FormDialogCallback;
 import org.sigmah.client.page.common.dialog.FormDialogImpl;
@@ -9,10 +11,10 @@ import org.sigmah.client.page.config.design.IndicatorForm;
 import org.sigmah.shared.dto.IndicatorDTO;
 import org.sigmah.shared.dto.logframe.LogFrameElementDTO;
 
-import com.extjs.gxt.ui.client.Style;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.dnd.ListViewDragSource;
 import com.extjs.gxt.ui.client.dnd.ListViewDropTarget;
+import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.ListViewEvent;
 import com.extjs.gxt.ui.client.event.Listener;
@@ -58,16 +60,17 @@ public class IndicatorListWidget extends Composite  {
 	ListView<IndicatorDTO> indicatorList;
 	
 	@UiField Style style;
+	private ListStore<IndicatorDTO> store;
 
 		
-	public IndicatorListWidget(Dispatcher dispatcher, int databaseId, LogFrameElementDTO element) {
+	public IndicatorListWidget(EventBus eventBus, Dispatcher dispatcher, int databaseId, LogFrameElementDTO element) {
 		this.dispatcher = dispatcher;
 		this.databaseId = databaseId;
 		this.element = element;
 
 		initWidget(uiBinder.createAndBindUi(this));
 		
-		ListStore<IndicatorDTO> store = new ListStore<IndicatorDTO>();
+		store = new ListStore<IndicatorDTO>();
 		store.add(element.getIndicators());
 		
 		indicatorList.setTemplate("<tpl for=\".\"><div class=" + style.indicator() + ">" +
@@ -94,6 +97,13 @@ public class IndicatorListWidget extends Composite  {
 		new ListViewDropTarget(indicatorList)
 			.setGroup(DRAG_AND_DROP_GROUP);
 		
+		eventBus.addListener(IndicatorEvent.INDICATOR_CHANGED, new Listener<IndicatorEvent>() {
+
+			@Override
+			public void handleEvent(IndicatorEvent event) {
+				onIndicatorChanged(event);			
+			}
+		});
 
 	}
 
@@ -141,4 +151,23 @@ public class IndicatorListWidget extends Composite  {
 		dialog.setScrollMode(Scroll.AUTOY);
 		dialog.show(callback);
 	}
+
+
+	private void onIndicatorChanged(IndicatorEvent event) {
+		IndicatorDTO indicator = store.findModel("id", event.getEntityId());
+		if(indicator != null) {
+			switch(event.getChangeType()) {
+			case DELETED:
+				store.remove(indicator);
+				break;
+			case UPDATED:
+				if(event.getChanges() != null) {
+					event.applyChanges(indicator);
+					store.update(indicator);
+				}
+			}
+		}
+		
+	}
+
 }

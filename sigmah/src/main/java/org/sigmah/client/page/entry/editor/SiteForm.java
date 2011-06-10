@@ -123,6 +123,8 @@ public class SiteForm extends ModelFormPanel  {
      
         mapPresenter = new MapPresenter(mapView);
         add((FieldSet) mapView);
+        
+        mapPresenter.setBounds(country.getName(), country.getBounds());
 
         registerField(((MapFieldSet) mapView).getLngField());
         registerField(((MapFieldSet) mapView).getLatField());

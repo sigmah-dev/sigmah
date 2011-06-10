@@ -14,6 +14,7 @@ import org.sigmah.client.EventBus;
 import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.dispatch.monitor.MaskingAsyncMonitor;
 import org.sigmah.client.event.IndicatorEvent;
+import org.sigmah.client.event.IndicatorEvent.ChangeType;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.page.common.dialog.FormDialogCallback;
 import org.sigmah.client.page.common.dialog.FormDialogImpl;
@@ -46,7 +47,6 @@ import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.store.TreeStore;
-import com.extjs.gxt.ui.client.widget.Info;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.form.NumberField;
 import com.extjs.gxt.ui.client.widget.form.TextField;
@@ -58,7 +58,6 @@ import com.extjs.gxt.ui.client.widget.grid.EditorGrid;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
-import com.extjs.gxt.ui.client.widget.tips.QuickTip;
 import com.extjs.gxt.ui.client.widget.treegrid.CellTreeGridSelectionModel;
 import com.extjs.gxt.ui.client.widget.treegrid.EditorTreeGrid;
 import com.extjs.gxt.ui.client.widget.treegrid.TreeGrid;
@@ -174,7 +173,7 @@ public class DesignPanel extends DesignPanelBase implements ActionListener {
 		toolBar.addButton("delete", I18N.CONSTANTS.delete(), null);
 		toolBar.addRefreshButton();
 		
-		eventBus.addListener(IndicatorEvent.CHANGED, new Listener<IndicatorEvent>() {
+		eventBus.addListener(IndicatorEvent.INDICATOR_CHANGED, new Listener<IndicatorEvent>() {
 
 			@Override
 			public void handleEvent(IndicatorEvent be) {
@@ -346,7 +345,7 @@ public class DesignPanel extends DesignPanelBase implements ActionListener {
 					public void onSuccess(CreateResult result) {
 						dialog.hide();
 						treeStore.add(parent, newIndicator, false);
-						eventBus.fireEvent(new IndicatorEvent(DesignPanel.this));
+						eventBus.fireEvent(new IndicatorEvent(IndicatorEvent.INDICATOR_CHANGED, DesignPanel.this));
 					}
 				});
 			}
@@ -415,6 +414,12 @@ public class DesignPanel extends DesignPanelBase implements ActionListener {
 			@Override
 			public void onSuccess(VoidResult result) {
 				treeGrid.getTreeStore().remove(selected);
+				
+				IndicatorEvent event = new IndicatorEvent(IndicatorEvent.INDICATOR_CHANGED, DesignPanel.this);
+				event.setEntityId(selected.getId());
+				event.setChangeType(ChangeType.DELETED);
+				
+				eventBus.fireEvent(event);
 			}
 		});		
 	}

@@ -192,7 +192,7 @@ public class ProjectPivotContainer extends ContentPanel implements ProjectSubPre
 		toolBar.setDirty(false);
 		setTopComponent(toolBar);
 		
-		eventBus.addListener(IndicatorEvent.CHANGED, new Listener<IndicatorEvent>() {
+		eventBus.addListener(IndicatorEvent.INDICATOR_CHANGED, new Listener<IndicatorEvent>() {
 
 			@Override
 			public void handleEvent(IndicatorEvent be) {
@@ -530,7 +530,9 @@ public class ProjectPivotContainer extends ContentPanel implements ProjectSubPre
 			public void onSuccess(BatchResult result) {
 				gridPanel.getStore().commitChanges();
 				toolBar.setDirty(false);
-				eventBus.fireEvent(IndicatorEvent.CHANGED, new IndicatorEvent(ProjectPivotContainer.this));
+				eventBus.fireEvent(new IndicatorEvent(
+						IndicatorEvent.INDICATOR_CHANGED, 
+						ProjectPivotContainer.this));
 			}
 		});
 	}

@@ -95,6 +95,9 @@ public abstract class LogFrameElement implements Serializable, Comparable<LogFra
 
 	@ManyToMany(cascade=CascadeType.MERGE)
 	@JoinTable(name = "log_frame_indicators")
+    @org.hibernate.annotations.Filter(
+            name = "hideDeleted",
+            condition = "DateDeleted is null")
 	public Set<Indicator> getIndicators() {
 		return indicators;
 	}

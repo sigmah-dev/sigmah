@@ -1,8 +1,10 @@
 package org.sigmah.client.page.project.logframe;
 
+import org.sigmah.client.EventBus;
 import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.dispatch.monitor.MaskingAsyncMonitor;
 import org.sigmah.client.dispatch.remote.Authentication;
+import org.sigmah.client.event.IndicatorEvent;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.page.common.dialog.FormDialogCallback;
 import org.sigmah.client.page.project.ProjectPresenter;
@@ -83,6 +85,9 @@ public class ProjectLogFramePresenter implements SubPresenter {
      */
     private final Dispatcher dispatcher;
 
+    
+	private final EventBus eventBus;
+	
     /**
      * The authentication.
      */
@@ -111,9 +116,11 @@ public class ProjectLogFramePresenter implements SubPresenter {
      */
     private LogFrameDTO logFrame;
 
-    public ProjectLogFramePresenter(Dispatcher dispatcher, Authentication authentication,
+
+
+    public ProjectLogFramePresenter(EventBus eventBus, Dispatcher dispatcher, Authentication authentication,
             ProjectPresenter projectPresenter) {
-    	
+    	this.eventBus = eventBus;
         this.dispatcher = dispatcher;
         this.authentication = authentication;
         this.projectPresenter = projectPresenter;
@@ -124,7 +131,7 @@ public class ProjectLogFramePresenter implements SubPresenter {
     public Component getView() {
    	
         if (view == null) {
-            view = new ProjectLogFrameView(dispatcher);
+            view = new ProjectLogFrameView(eventBus, dispatcher);
             if (projectPresenter.getCurrentProjectDTO().getCurrentAmendment() == null)
                 logFrame = projectPresenter.getCurrentProjectDTO().getLogFrameDTO();
             else
@@ -228,6 +235,9 @@ public class ProjectLogFramePresenter implements SubPresenter {
                         // Informs of the success.
                         Notification.show(I18N.CONSTANTS.infoConfirmation(), I18N.CONSTANTS.saveConfirm());
                         view.getSaveButton().setEnabled(false);
+                        
+                        // broadcast an indicator change event to be safe
+                        eventBus.fireEvent(new IndicatorEvent(IndicatorEvent.INDICATOR_CHANGED, ProjectLogFramePresenter.this));
                     }
                 });
             }

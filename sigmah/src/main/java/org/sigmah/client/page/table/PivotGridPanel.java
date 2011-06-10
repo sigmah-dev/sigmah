@@ -291,7 +291,6 @@ public class PivotGridPanel extends ContentPanel implements HasValue<PivotElemen
                 for(PivotTableRow row : store.getRootItems()) {
                     grid.setExpanded(row, true, true);
                 }
-
             }
         }).delay(1);
 

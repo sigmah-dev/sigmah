@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.sigmah.client.EventBus;
 import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.page.project.logframe.FormWindow.FormSubmitListener;
@@ -171,11 +172,15 @@ public class ProjectLogFrameGrid {
 	
 	private final Dispatcher dispatcher;
 
+	private final EventBus eventBus;
+
     /**
      * Builds an empty grid.
      */
-    public ProjectLogFrameGrid(Dispatcher dispatcher) {
+    public ProjectLogFrameGrid(EventBus eventBus, Dispatcher dispatcher) {
     	this.dispatcher = dispatcher;
+    	this.eventBus = eventBus;
+    	
         listeners = new ArrayList<LogFrameGridListener>();
         table = new FlexTable();
         formWindow = new FormWindow();
@@ -978,7 +983,7 @@ public class ProjectLogFrameGrid {
                         case 3:
 
                             // Indicators.
-                            return new IndicatorListWidget(dispatcher, databaseId, specificObjective);
+                            return new IndicatorListWidget(eventBus, dispatcher, databaseId, specificObjective);
 
                         case 4:
 
@@ -1402,7 +1407,7 @@ public class ProjectLogFrameGrid {
                         case 3:
 
                             // Indicators.
-                            return new IndicatorListWidget(dispatcher, databaseId, result);
+                            return new IndicatorListWidget(eventBus, dispatcher, databaseId, result);
 
                         case 4:
 
@@ -1855,7 +1860,7 @@ public class ProjectLogFrameGrid {
                             return contentTextBox;
                             
                         case 3:
-                        	return new IndicatorListWidget(dispatcher, databaseId, userObject);
+                        	return new IndicatorListWidget(eventBus, dispatcher, databaseId, userObject);
                         	
                         case 4:
                         	return new Label();

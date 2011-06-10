@@ -4,6 +4,7 @@ import org.sigmah.client.EventBus;
 import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.dispatch.monitor.MaskingAsyncMonitor;
 import org.sigmah.client.event.IndicatorEvent;
+import org.sigmah.client.event.IndicatorEvent.ChangeType;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.page.common.dialog.FormDialogCallback;
 import org.sigmah.shared.command.BatchCommand;
@@ -110,7 +111,11 @@ public class IndicatorDialog extends Dialog {
 
 			@Override
 			public void onSuccess(BatchResult result) {
-				eventBus.fireEvent(IndicatorEvent.CHANGED, new IndicatorEvent(IndicatorDialog.this));
+				IndicatorEvent event = new IndicatorEvent(IndicatorEvent.INDICATOR_CHANGED, IndicatorDialog.this);
+				event.setEntityId(indicator.getId());
+				event.setChangeType(ChangeType.UPDATED);
+				event.setChanges(indicator.getProperties());
+				eventBus.fireEvent(event);
 				hide();
 			}
 		});

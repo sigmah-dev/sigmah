@@ -1,5 +1,6 @@
 package org.sigmah.client.page.project.logframe;
 
+import org.sigmah.client.EventBus;
 import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.icon.IconImageBundle;
@@ -54,7 +55,7 @@ public class ProjectLogFrameView extends ProjectLogFramePresenter.View {
      * 
      * @return The log frame main component.
      */
-    public ProjectLogFrameView(Dispatcher dispatcher) {
+    public ProjectLogFrameView(EventBus eventBus, Dispatcher dispatcher) {
     	this.dispatcher = dispatcher;
     	    	
         // Configuration
@@ -83,7 +84,7 @@ public class ProjectLogFrameView extends ProjectLogFramePresenter.View {
         final ContentPanel mainObjectivePanel = buildMainObjectivePanel();
 
         // Flex table.
-        logFrameGrid = new ProjectLogFrameGrid(dispatcher);
+        logFrameGrid = new ProjectLogFrameGrid(eventBus, dispatcher);
 
         // Toolbar.
         final ToolBar toolBar = buildToolbar();
