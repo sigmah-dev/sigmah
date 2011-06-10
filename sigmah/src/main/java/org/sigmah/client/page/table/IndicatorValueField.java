@@ -43,6 +43,24 @@ public class IndicatorValueField extends ComboBox<IndicatorValue> {
 		this.indicator = indicator;
 		this.format = IndicatorNumberFormats.forIndicator(indicator);
 		
+		store.removeAll();
+		
+		
+		if(indicator.getAggregation() == IndicatorDTO.AGGREGATE_MULTINOMIAL) {
+			setEditable(false);
+			setForceSelection(true);
+			setHideTrigger(false);
+			setDisplayField("label");
+			populateLabels(indicator);
+		} else {
+			setEditable(true);
+			setForceSelection(false);
+			setHideTrigger(true);
+			setDisplayField("value");
+		}
+	}
+
+	private void populateLabels(IndicatorDTO indicator) {
 		List<IndicatorValue> list = new ArrayList<IndicatorValue>();
 		List<String> labels = indicator.getLabels();
 		if(labels != null) {
@@ -51,20 +69,7 @@ public class IndicatorValueField extends ComboBox<IndicatorValue> {
 			}
 		}
 		list.add(new IndicatorValue(null, "---" + I18N.CONSTANTS.empty() + "---"));
-		store.removeAll();
 		store.add(list);
-		
-		if(indicator.getAggregation() == IndicatorDTO.AGGREGATE_MULTINOMIAL) {
-			setEditable(false);
-			setForceSelection(true);
-			setHideTrigger(false);
-			setDisplayField("label");
-		} else {
-			setEditable(true);
-			setForceSelection(false);
-			setHideTrigger(true);
-			setDisplayField("value");
-		}
 	}
 	
 	@Override
