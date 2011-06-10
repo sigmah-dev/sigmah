@@ -5,11 +5,28 @@
 
 package org.sigmah.client.page.config.design;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import com.extjs.gxt.ui.client.Style;
+import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
+import com.extjs.gxt.ui.client.data.ModelData;
+import com.extjs.gxt.ui.client.data.TreeModel;
+import com.extjs.gxt.ui.client.dnd.DND;
+import com.extjs.gxt.ui.client.dnd.TreeGridDragSource;
+import com.extjs.gxt.ui.client.dnd.TreeGridDropTarget;
+import com.extjs.gxt.ui.client.event.*;
+import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.store.TreeStore;
+import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.form.NumberField;
+import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.grid.*;
+import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.extjs.gxt.ui.client.widget.treegrid.CellTreeGridSelectionModel;
+import com.extjs.gxt.ui.client.widget.treegrid.EditorTreeGrid;
+import com.extjs.gxt.ui.client.widget.treegrid.TreeGrid;
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.inject.Inject;
+import com.google.inject.Provider;
 import org.sigmah.client.EventBus;
 import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.dispatch.monitor.MaskingAsyncMonitor;
@@ -32,39 +49,10 @@ import org.sigmah.shared.command.result.VoidResult;
 import org.sigmah.shared.dto.IndicatorDTO;
 import org.sigmah.shared.dto.IndicatorGroup;
 
-import com.extjs.gxt.ui.client.Style;
-import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
-import com.extjs.gxt.ui.client.data.ModelData;
-import com.extjs.gxt.ui.client.data.TreeModel;
-import com.extjs.gxt.ui.client.dnd.DND;
-import com.extjs.gxt.ui.client.dnd.TreeGridDragSource;
-import com.extjs.gxt.ui.client.dnd.TreeGridDropTarget;
-import com.extjs.gxt.ui.client.event.DNDEvent;
-import com.extjs.gxt.ui.client.event.DNDListener;
-import com.extjs.gxt.ui.client.event.Events;
-import com.extjs.gxt.ui.client.event.GridEvent;
-import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.MessageBoxEvent;
-import com.extjs.gxt.ui.client.store.ListStore;
-import com.extjs.gxt.ui.client.store.TreeStore;
-import com.extjs.gxt.ui.client.widget.MessageBox;
-import com.extjs.gxt.ui.client.widget.form.NumberField;
-import com.extjs.gxt.ui.client.widget.form.TextField;
-import com.extjs.gxt.ui.client.widget.grid.CellEditor;
-import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
-import com.extjs.gxt.ui.client.widget.grid.ColumnData;
-import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
-import com.extjs.gxt.ui.client.widget.grid.EditorGrid;
-import com.extjs.gxt.ui.client.widget.grid.Grid;
-import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
-import com.extjs.gxt.ui.client.widget.layout.FitLayout;
-import com.extjs.gxt.ui.client.widget.treegrid.CellTreeGridSelectionModel;
-import com.extjs.gxt.ui.client.widget.treegrid.EditorTreeGrid;
-import com.extjs.gxt.ui.client.widget.treegrid.TreeGrid;
-import com.google.gwt.core.client.GWT;
-import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.inject.Inject;
-import com.google.inject.Provider;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class DesignPanel extends DesignPanelBase implements ActionListener {
 	
@@ -113,7 +101,25 @@ public class DesignPanel extends DesignPanelBase implements ActionListener {
 				}
 			}
 		});
-		
+        treeGrid.addListener(Events.BeforeEdit, new Listener<GridEvent>() {
+            @Override
+            public void handleEvent(GridEvent be) {
+                if(be.getModel() instanceof IndicatorGroup &&
+                        be.getColIndex() > 0) {
+                    // only the first cell of an indicator group is editable
+                    be.setCancelled(true);
+                }
+            }
+        });
+		treeGrid.addListener(Events.AfterEdit, new Listener<GridEvent>() {
+            @Override
+            public void handleEvent(GridEvent be) {
+                if(be.getColIndex() == 0 && be.getModel() instanceof IndicatorGroup) {
+                    onGroupRenamed((IndicatorGroup)be.getModel());
+                }
+            }
+        });
+
 		// Setup context menu
 			
 		TreeGridDragSource source = new TreeGridDragSource(treeGrid);
@@ -183,6 +189,7 @@ public class DesignPanel extends DesignPanelBase implements ActionListener {
 			}
 		});
 	}
+
 	
 	
 	
@@ -252,6 +259,8 @@ public class DesignPanel extends DesignPanelBase implements ActionListener {
 	 */
 	public void load(int databaseId) {
 		this.currentDatabaseId = databaseId;
+        treeGrid.setStateful(true);
+        treeGrid.setStateId("indicatorDesign" + databaseId);
 		doLoad();
 	}
 	
@@ -307,8 +316,6 @@ public class DesignPanel extends DesignPanelBase implements ActionListener {
 		}
 		return null;
 	}
-
-
 
 	private void onNewIndicator() {
 		final IndicatorDTO newIndicator = new IndicatorDTO();
@@ -398,12 +405,23 @@ public class DesignPanel extends DesignPanelBase implements ActionListener {
 				}
 			});
 		} else if(selected instanceof IndicatorGroup) {
-			
+		    deleteIndicatorGroup((IndicatorGroup)selected);
 		}
 	
 	}
 
-	private void deleteIndicator(final IndicatorDTO selected) {
+    private void deleteIndicatorGroup(IndicatorGroup selected) {
+        List<ModelData> children = treeStore.getChildren(selected);
+        treeStore.remove(selected);
+
+        // we don't delete the indicators, just move them out of the group
+        for(ModelData child : children) {
+            treeStore.add(child, false);
+            treeStore.getRecord(child).set("category", null);
+        }
+    }
+
+    private void deleteIndicator(final IndicatorDTO selected) {
 		service.execute(new Delete(selected), new MaskingAsyncMonitor(this, I18N.CONSTANTS.deleting()), new AsyncCallback<VoidResult>() {
 
 			@Override
@@ -423,18 +441,30 @@ public class DesignPanel extends DesignPanelBase implements ActionListener {
 			}
 		});		
 	}
-	
+
+    private void onGroupRenamed(IndicatorGroup model) {
+        List<ModelData> children = treeStore.getChildren(model);
+        for(ModelData child : children) {
+            treeStore.getRecord(child).set("category", model.getName());
+        }
+    }
+
 	private void showIndicatorForm(IndicatorDTO model) {
 	    IndicatorDialog dialog = indicatorDialog.get();
 	    dialog.show(currentDatabaseId, model);
 	}
+
 	
 	protected ColumnModel createColumnModel() {
 		List<ColumnConfig> columns = new ArrayList<ColumnConfig>();
-		
+
+        TextField<String> nameEditor = new TextField<String>();
+        nameEditor.setAllowBlank(false);
+
 		ColumnConfig nameColumn = new ColumnConfig("name",
 				I18N.CONSTANTS.name(), 150);
 		nameColumn.setRenderer(new DesignTreeGridCellRenderer(mappedIndicator));
+        nameColumn.setEditor(new CellEditor(nameEditor));
 		columns.add(nameColumn);
 
 		ColumnConfig codeColumn = new ColumnConfig("code", I18N.CONSTANTS.code(), 75);

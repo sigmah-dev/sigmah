@@ -6,10 +6,6 @@
 package org.sigmah.client.page.config.design;
 
 
-import org.sigmah.client.dispatch.Dispatcher;
-import org.sigmah.client.i18n.I18N;
-import org.sigmah.shared.dto.IndicatorDTO;
-
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.binding.FieldBinding;
@@ -18,12 +14,10 @@ import com.extjs.gxt.ui.client.event.BindingEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FieldEvent;
 import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.widget.form.HiddenField;
-import com.extjs.gxt.ui.client.widget.form.NumberField;
-import com.extjs.gxt.ui.client.widget.form.Radio;
-import com.extjs.gxt.ui.client.widget.form.RadioGroup;
-import com.extjs.gxt.ui.client.widget.form.TextArea;
-import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.form.*;
+import org.sigmah.client.dispatch.Dispatcher;
+import org.sigmah.client.i18n.I18N;
+import org.sigmah.shared.dto.IndicatorDTO;
 
 public class IndicatorForm extends AbstractDesignForm {
 
@@ -31,7 +25,7 @@ public class IndicatorForm extends AbstractDesignForm {
 	
     private FormBinding binding;
 	private NumberField idField;
-	private TextField<String> categoryField;
+	private IndicatorGroupCombo groupField;
 	private TextField<String> unitsField;
 	private ValueLabelField labelsField;
 	private RadioGroup typeGroup;
@@ -75,11 +69,11 @@ public class IndicatorForm extends AbstractDesignForm {
         binding.addFieldBinding(new FieldBinding(nameField, "name"));
         this.add(nameField);
 
-        categoryField = new TextField<String>();
-        categoryField.setFieldLabel(I18N.CONSTANTS.group());
-        categoryField.setMaxLength(50);
-        binding.addFieldBinding(new FieldBinding(categoryField, "category"));
-        this.add(categoryField);
+        groupField = new IndicatorGroupCombo(dispatcher);
+        groupField.setFieldLabel(I18N.CONSTANTS.group());
+        groupField.setMaxLength(50);
+        binding.addFieldBinding(new IndicatorGroupCombo.Binding(groupField, "category"));
+        this.add(groupField);
         
         aggregation = new HiddenField<Integer>();
         aggregation.setFireChangeEventOnSetValue(true);
@@ -163,8 +157,10 @@ public class IndicatorForm extends AbstractDesignForm {
 					typeGroup.setValue(quantRadio);
 					aggregationGroup.setValue(aggregation.getValue() == IndicatorDTO.AGGREGATE_AVG ? avgRadio : sumRadio);
 				}
-				updateDatasources((IndicatorDTO) be.getModel());
+                IndicatorDTO indicator = (IndicatorDTO) be.getModel();
+                updateDatasources(indicator);
 				updateFormLayout();
+                groupField.loadGroups(indicator.getDatabaseId());
 			}
         	
 		});
@@ -187,7 +183,7 @@ public class IndicatorForm extends AbstractDesignForm {
     }
     
     public void setCategoryVisible(boolean visible) {
-    	categoryField.setVisible(visible);
+    	groupField.setVisible(visible);
     }
     
     private int quantAggSelection() {

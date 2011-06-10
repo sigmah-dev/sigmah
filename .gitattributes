@@ -395,6 +395,7 @@ sigmah/src/main/java/org/sigmah/client/page/config/design/IndicatorBrowseDialog.
 sigmah/src/main/java/org/sigmah/client/page/config/design/IndicatorDialog.java -text
 sigmah/src/main/java/org/sigmah/client/page/config/design/IndicatorFolder.java -text
 sigmah/src/main/java/org/sigmah/client/page/config/design/IndicatorForm.java -text
+sigmah/src/main/java/org/sigmah/client/page/config/design/IndicatorGroupCombo.java -text
 sigmah/src/main/java/org/sigmah/client/page/config/design/IndicatorGroupForm.java -text
 sigmah/src/main/java/org/sigmah/client/page/config/design/IndicatorPivotPanel.java -text
 sigmah/src/main/java/org/sigmah/client/page/config/design/MappedIndicatorSelection.java -text
