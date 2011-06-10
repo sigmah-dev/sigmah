@@ -88,7 +88,7 @@ public class CreateProjectWindow {
          * project.
          */
         FUNDED,
-        
+
         /**
          * Create a test project.
          */
@@ -133,7 +133,7 @@ public class CreateProjectWindow {
          *            The funding percentage.
          */
         public void projectCreatedAsFunded(ProjectDTOLight project, double percentage);
-        
+
         /**
          * Method called when a test project is created in the {@link Mode#TEST}
          * mode.
@@ -142,15 +142,15 @@ public class CreateProjectWindow {
          *            The new test project.
          */
         public void projectCreatedAsTest(ProjectDTOLight project);
-        
-		/**
-		 * Method called when a test project is deleted.
-		 * 
-		 * @param project
-		 *            The test project to delete.
-		 */
+
+        /**
+         * Method called when a test project is deleted.
+         * 
+         * @param project
+         *            The test project to delete.
+         */
         public void projectDeletedAsTest(ProjectDTOLight project);
-        
+
     }
 
     private final ArrayList<CreateProjectListener> listeners;
@@ -318,7 +318,7 @@ public class CreateProjectWindow {
                             percentageField.setText("0.0 %");
                             return;
                         }
-                        
+
                         double min;
                         if (budget <= 0) {
                             amountField.setValue(0);
@@ -332,10 +332,10 @@ public class CreateProjectWindow {
                                 fundingBudget));
                     }
                         break;
-                        
-                    case TEST :
-                    	budgetField.setValue(0);
-                    	break;
+
+                    case TEST:
+                        budgetField.setValue(0);
+                        break;
                     default:
                         percentageField.setText(I18N.CONSTANTS.createProjectPercentageNotAvailable());
                         break;
@@ -386,7 +386,7 @@ public class CreateProjectWindow {
                 createProject();
             }
         });
-        
+
         // Form panel.
         formPanel = new FormPanel();
         formPanel.setBodyBorder(false);
@@ -404,26 +404,26 @@ public class CreateProjectWindow {
         formPanel.add(amountField);
         formPanel.add(percentageField);
         formPanel.addButton(createButton);
-        
+
         testProjectPanel = new FormPanel();
         testProjectPanel.setPadding(0);
         testProjectPanel.setHeading(I18N.CONSTANTS.createTestProjectListe());
         testProjectPanel.setHeaderVisible(true);
-        testProjectStore = new ListStore<ProjectDTOLight>();   
+        testProjectStore = new ListStore<ProjectDTOLight>();
         testProjectGrid = buildTestProjectPanel();
         testProjectPanel.add(testProjectGrid);
         testProjectPanel.setVisible(false);
-        
+
         projectPanel = new FormPanel();
         projectPanel.setBodyBorder(false);
         projectPanel.setHeaderVisible(false);
         projectPanel.setPadding(5);
         projectPanel.add(formPanel);
         projectPanel.add(testProjectPanel);
-        
+
         // Main window panel.
         mainPanel = new VerticalPanel();
-        mainPanel.setLayout(new FitLayout()); 
+        mainPanel.setLayout(new FitLayout());
         mainPanel.add(projectPanel);
         mainPanel.setAutoHeight(true);
 
@@ -431,7 +431,7 @@ public class CreateProjectWindow {
         window = new Window();
         window.setWidth(560);
         window.setAutoHeight(true);
-       
+
         window.setPlain(true);
         window.setModal(true);
         window.setBlinkModal(true);
@@ -439,104 +439,92 @@ public class CreateProjectWindow {
         window.add(mainPanel);
     }
 
-    
     /**
      * Builds the test projects panel.
      * 
      * @return The panel.
      */
-    private com.extjs.gxt.ui.client.widget.grid.Grid<ProjectDTOLight>  buildTestProjectPanel() {
-    	ColumnModel cm = buildColumnModelTestProject(); 
-    	testProjectStore.setMonitorChanges(true);
-    	com.extjs.gxt.ui.client.widget.grid.Grid<ProjectDTOLight> grid = new com.extjs.gxt.ui.client.widget.grid.Grid<ProjectDTOLight>(testProjectStore, cm);  
-    	grid.setAutoExpandColumn("fullName");
-    	grid.setHeight(200);
+    private com.extjs.gxt.ui.client.widget.grid.Grid<ProjectDTOLight> buildTestProjectPanel() {
+        ColumnModel cm = buildColumnModelTestProject();
+        testProjectStore.setMonitorChanges(true);
+        com.extjs.gxt.ui.client.widget.grid.Grid<ProjectDTOLight> grid = new com.extjs.gxt.ui.client.widget.grid.Grid<ProjectDTOLight>(
+                testProjectStore, cm);
+        grid.setAutoExpandColumn("fullName");
+        grid.setHeight(200);
         grid.getView().setForceFit(true);
-    	return grid;
+        return grid;
     }
-    
+
     /**
      * Build the columns for the test project grid.
+     * 
      * @return the columns for the test project grid.
      */
-    private ColumnModel buildColumnModelTestProject(){
-    	List<ColumnConfig> columns = new ArrayList<ColumnConfig>();   	
-    	
-    	//set name column
-    	ColumnConfig column = new ColumnConfig("name",I18N.CONSTANTS.projectName(),50);  
-    	column.setDataIndex("name");
-    	column.setWidth(135);
-    	column.setAlignment(HorizontalAlignment.RIGHT);
-    	columns.add(column);  
-   
-    	//set full name column
-	    column = new ColumnConfig("fullName", I18N.CONSTANTS.projectFullName(), 100);  
-	    column.setDataIndex("fullName");
-	    column.setWidth(320);
-	    columns.add(column); 
-	    
-		// set delete button for each row
-		column = new ColumnConfig();
-		column.setWidth(30);
-		column.setId("id");
-		column.setDataIndex("id");
-		column.setAlignment(HorizontalAlignment.CENTER);
-		column.setRenderer(new GridCellRenderer<ProjectDTOLight>() {
-			public Object render(
-					ProjectDTOLight model,
-					String property,
-					ColumnData config,
-					int rowIndex,
-					int colIndex,
-					ListStore<ProjectDTOLight> store,
-					com.extjs.gxt.ui.client.widget.grid.Grid<ProjectDTOLight> grid) {
-				Button deleteBouton = new Button("", IconImageBundle.ICONS
-						.delete());
-				final ProjectDTOLight selectedTestptoject = model;
-				deleteBouton.setData("testProjectId", model.getId());
-				deleteBouton.addListener(Events.OnClick,
-						new Listener<ButtonEvent>() {
-							@Override
-							public void handleEvent(ButtonEvent be) {
-								// Request confirm test project delete
-								MessageBox.confirm(I18N.CONSTANTS
-										.deleteTestProjectHeader(), I18N.CONSTANTS
-										.deleteTestProjectConfirm(),
-										new Listener<MessageBoxEvent>() {
-											@Override
-											public void handleEvent(
-													MessageBoxEvent be) {
-												if (Dialog.YES.equals(be
-														.getButtonClicked()
-														.getItemId())) {
-													deleteTestProject(selectedTestptoject);
-												}
-											}
-										});
-							}
-						});
-				return deleteBouton;
-			}
-		});
-		columns.add(column);
-		return new ColumnModel(columns);
-    }
-    
+    private ColumnModel buildColumnModelTestProject() {
+        List<ColumnConfig> columns = new ArrayList<ColumnConfig>();
 
-	/**
-	 * Delete a test project from the user's test projects list.    		     
-	 * @param testProject the test project to delete.
-	 */
-    private void deleteTestProject(final ProjectDTOLight testProject){
-    
-    	Delete cmd = new Delete("Project", testProject.getId());
-    	cmd.setMode(Mode.TEST);
-    	dispatcher.execute(cmd, null, new AsyncCallback<VoidResult>() {
+        // set name column
+        ColumnConfig column = new ColumnConfig("name", I18N.CONSTANTS.projectName(), 50);
+        column.setDataIndex("name");
+        column.setWidth(135);
+        column.setAlignment(HorizontalAlignment.RIGHT);
+        columns.add(column);
+
+        // set full name column
+        column = new ColumnConfig("fullName", I18N.CONSTANTS.projectFullName(), 100);
+        column.setDataIndex("fullName");
+        column.setWidth(320);
+        columns.add(column);
+
+        // set delete button for each row
+        column = new ColumnConfig();
+        column.setWidth(30);
+        column.setId("id");
+        column.setDataIndex("id");
+        column.setAlignment(HorizontalAlignment.CENTER);
+        column.setRenderer(new GridCellRenderer<ProjectDTOLight>() {
+            public Object render(ProjectDTOLight model, String property, ColumnData config, int rowIndex, int colIndex,
+                    ListStore<ProjectDTOLight> store, com.extjs.gxt.ui.client.widget.grid.Grid<ProjectDTOLight> grid) {
+                Button deleteBouton = new Button("", IconImageBundle.ICONS.delete());
+                final ProjectDTOLight selectedTestptoject = model;
+                deleteBouton.setData("testProjectId", model.getId());
+                deleteBouton.addListener(Events.OnClick, new Listener<ButtonEvent>() {
+                    @Override
+                    public void handleEvent(ButtonEvent be) {
+                        // Request confirm test project delete
+                        MessageBox.confirm(I18N.CONSTANTS.deleteTestProjectHeader(),
+                                I18N.CONSTANTS.deleteTestProjectConfirm(), new Listener<MessageBoxEvent>() {
+                                    @Override
+                                    public void handleEvent(MessageBoxEvent be) {
+                                        if (Dialog.YES.equals(be.getButtonClicked().getItemId())) {
+                                            deleteTestProject(selectedTestptoject);
+                                        }
+                                    }
+                                });
+                    }
+                });
+                return deleteBouton;
+            }
+        });
+        columns.add(column);
+        return new ColumnModel(columns);
+    }
+
+    /**
+     * Delete a test project from the user's test projects list.
+     * 
+     * @param testProject
+     *            the test project to delete.
+     */
+    private void deleteTestProject(final ProjectDTOLight testProject) {
+
+        Delete cmd = new Delete("Project", testProject.getId());
+        cmd.setMode(Mode.TEST);
+        dispatcher.execute(cmd, null, new AsyncCallback<VoidResult>() {
 
             @Override
             public void onFailure(Throwable arg0) {
-                MessageBox.alert(I18N.CONSTANTS.createProjectFailed(), I18N.CONSTANTS.deleteTestProject(),
-                        null);
+                MessageBox.alert(I18N.CONSTANTS.createProjectFailed(), I18N.CONSTANTS.deleteTestProject(), null);
             }
 
             @Override
@@ -546,11 +534,11 @@ public class CreateProjectWindow {
                 }
                 testProjectStore.remove(testProject);
                 testProjectStore.commitChanges();
-                fireProjectDeletedAsTest(testProject);           
+                fireProjectDeletedAsTest(testProject);
             }
-        });  
+        });
     }
-  
+
     /**
      * Creates a project for the given fields.
      */
@@ -567,19 +555,18 @@ public class CreateProjectWindow {
         final String name = nameField.getValue();
         final String fullName = fullNameField.getValue();
         Double budget = 0.0;
-        if( !Mode.TEST.equals(currentMode)){
-        	budget = budgetField.getValue().doubleValue();
+        if (!Mode.TEST.equals(currentMode)) {
+            budget = budgetField.getValue().doubleValue();
         }
-        
+
         final long modelId = modelsField.getValue().getId();
         // final int countryId = countriesField.getValue().getId();
-       
+
         String orgUnitId = null;
-        //No organizational unit for a test project
-        if(orgUnitsField.getValue()!=null){
-        	orgUnitId =String.valueOf(orgUnitsField.getValue().getId());
+        // No organizational unit for a test project
+        if (orgUnitsField.getValue() != null) {
+            orgUnitId = String.valueOf(orgUnitsField.getValue().getId());
         }
-         
 
         if (Log.isDebugEnabled()) {
 
@@ -595,7 +582,7 @@ public class CreateProjectWindow {
             sb.append(modelId);
             sb.append(" ; org unit id=");
             sb.append(orgUnitId);
-            
+
             Log.debug(sb.toString());
         }
 
@@ -634,11 +621,11 @@ public class CreateProjectWindow {
                     fireProjectCreatedAsFunded((ProjectDTOLight) result.getEntity(), amountField.getValue()
                             .doubleValue());
                     break;
-                case TEST:{
-                	fireProjectCreatedAsTest((ProjectDTOLight) result.getEntity());
-                	testProjectStore.add(((ProjectDTOLight)result.getEntity()));
-                	formPanel.clear();
-                	break;
+                case TEST: {
+                    fireProjectCreatedAsTest((ProjectDTOLight) result.getEntity());
+                    testProjectStore.add(((ProjectDTOLight) result.getEntity()));
+                    formPanel.clear();
+                    break;
                 }
                 default:
                     fireProjectCreated((ProjectDTOLight) result.getEntity());
@@ -646,9 +633,9 @@ public class CreateProjectWindow {
                 }
             }
         });
-        if(!Mode.TEST.equals(currentMode)){
-        	   window.hide();
-        }     
+        if (!Mode.TEST.equals(currentMode)) {
+            window.hide();
+        }
     }
 
     /**
@@ -684,7 +671,7 @@ public class CreateProjectWindow {
     public void showProjectTest() {
         show(Mode.TEST, null);
     }
-    
+
     /**
      * Initializes and show the window.
      * 
@@ -716,8 +703,8 @@ public class CreateProjectWindow {
             amountField.setVisible(true);
             amountField.setValue(0);
             amountField.setAllowBlank(false);
-            amountField.setFieldLabel(I18N.MESSAGES.projectFundedByDetails(this.currentFunding.getName()) + " (" + I18N.CONSTANTS.currencyEuro()
-                    + ')');
+            amountField.setFieldLabel(I18N.MESSAGES.projectFundedByDetails(this.currentFunding.getName()) + " ("
+                    + I18N.CONSTANTS.currencyEuro() + ')');
             percentageField.setVisible(true);
             orgUnitsField.setAllowBlank(false);
             orgUnitsField.setVisible(true);
@@ -728,28 +715,28 @@ public class CreateProjectWindow {
             amountField.setVisible(true);
             amountField.setValue(0);
             amountField.setAllowBlank(false);
-            amountField.setFieldLabel(I18N.MESSAGES.projectFinancesDetails(this.currentFunding.getName()) + " (" + I18N.CONSTANTS.currencyEuro()
-                    + ')');
+            amountField.setFieldLabel(I18N.MESSAGES.projectFinancesDetails(this.currentFunding.getName()) + " ("
+                    + I18N.CONSTANTS.currencyEuro() + ')');
             percentageField.setVisible(true);
             orgUnitsField.setAllowBlank(false);
             orgUnitsField.setVisible(true);
             testProjectPanel.setVisible(false);
             testProjectGrid.setVisible(false);
             break;
-        case TEST :
-        	 amountField.setVisible(false);
-             amountField.setValue(0);
-             amountField.setAllowBlank(true);
-             percentageField.setVisible(false);
-             orgUnitsField.setAllowBlank(true);
-             orgUnitsField.setVisible(false);
-             budgetField.setVisible(false);
-             budgetField.setAllowBlank(true);
-             testProjectPanel.setVisible(true);
-             testProjectGrid.setVisible(true);
-             window.setHeading(I18N.CONSTANTS.createProjectTest());
-//             window.setSize(550, 450);
-        	break;
+        case TEST:
+            amountField.setVisible(false);
+            amountField.setValue(0);
+            amountField.setAllowBlank(true);
+            percentageField.setVisible(false);
+            orgUnitsField.setAllowBlank(true);
+            orgUnitsField.setVisible(false);
+            budgetField.setVisible(false);
+            budgetField.setAllowBlank(true);
+            testProjectPanel.setVisible(true);
+            testProjectGrid.setVisible(true);
+            window.setHeading(I18N.CONSTANTS.createProjectTest());
+            // window.setSize(550, 450);
+            break;
         default:
             amountField.setVisible(false);
             amountField.setAllowBlank(true);
@@ -760,14 +747,14 @@ public class CreateProjectWindow {
             testProjectGrid.setVisible(false);
             break;
         }
-        
+
         // There are three remote calls
         countBeforeShow = 3;
-        
-//        // There are three remote calls for the TEST MODE
-//        if(Mode.TEST.equals(currentMode)){
-//        	  countBeforeShow = 3;
-//        }
+
+        // // There are three remote calls for the TEST MODE
+        // if(Mode.TEST.equals(currentMode)){
+        // countBeforeShow = 3;
+        // }
 
         if (orgUnitsStore.getCount() == 0) {
 
@@ -799,13 +786,13 @@ public class CreateProjectWindow {
         if (modelsStore.getCount() == 0) {
 
             // Retrieves project models (with an optional filter on the type).
-        	GetProjectModels cmdGetProjectModels = new GetProjectModels();
-        	
-        	if(Mode.TEST.equals(currentMode)){
-        		//Retrieves the test projectModel
-        		cmdGetProjectModels.setProjectModelStatus(ProjectModelStatus.DRAFT);
-        	}
-        	
+            GetProjectModels cmdGetProjectModels = new GetProjectModels();
+
+            if (Mode.TEST.equals(currentMode)) {
+                // Retrieves the test projectModel
+                cmdGetProjectModels.setProjectModelStatus(ProjectModelStatus.DRAFT);
+            }
+
             dispatcher.execute(cmdGetProjectModels, null, new AsyncCallback<ProjectModelListResult>() {
 
                 @Override
@@ -821,33 +808,42 @@ public class CreateProjectWindow {
                         missingRequiredData(I18N.CONSTANTS.createProjectDisableModel());
                         return;
                     }
-                    for(ProjectModelDTOLight projectModelLight : result.getList()){
-                    	if(!Mode.TEST.equals(currentMode)){
-                    		/*if(!ProjectModelStatus.DRAFT.equals(projectModelLight.getStatus())
-                        			&& !ProjectModelStatus.UNAVAILABLE.equals(projectModelLight.getStatus())){*/
-                        		 modelsStore.add(projectModelLight);
-                        	//}
-                    	}else{
-                    		/*TODO enable if(!ProjectModelStatus.DRAFT.equals(projectModelLight.getStatus())
-                			&& !ProjectModelStatus.UNAVAILABLE.equals(projectModelLight.getStatus())){*/
-                    		modelsStore.add(projectModelLight);
-                    		//}
-                    	}
-                    	
-                    }                   
+                    for (ProjectModelDTOLight projectModelLight : result.getList()) {
+                        if (!Mode.TEST.equals(currentMode)) {
+                            /*
+                             * if(!ProjectModelStatus.DRAFT.equals(projectModelLight
+                             * .getStatus()) &&
+                             * !ProjectModelStatus.UNAVAILABLE.equals
+                             * (projectModelLight.getStatus())){
+                             */
+                            modelsStore.add(projectModelLight);
+                            // }
+                        } else {
+                            /*
+                             * TODO enable
+                             * if(!ProjectModelStatus.DRAFT.equals(projectModelLight
+                             * .getStatus()) &&
+                             * !ProjectModelStatus.UNAVAILABLE.equals
+                             * (projectModelLight.getStatus())){
+                             */
+                            modelsStore.add(projectModelLight);
+                            // }
+                        }
+
+                    }
                     modelsStore.commitChanges();
 
                     countBeforeShow();
                 }
-            });         
-            
+            });
+
         } else {
             countBeforeShow();
         }
-        
-        if(testProjectStore.getCount()==0){
-        	GetTestProjects cmdgetGetTestProjects = new GetTestProjects(ProjectModelStatus.DRAFT);
-        	dispatcher.execute(cmdgetGetTestProjects, null, new AsyncCallback<ProjectDTOLightListResult>() {
+
+        if (testProjectStore.getCount() == 0) {
+            GetTestProjects cmdgetGetTestProjects = new GetTestProjects(ProjectModelStatus.DRAFT);
+            dispatcher.execute(cmdgetGetTestProjects, null, new AsyncCallback<ProjectDTOLightListResult>() {
 
                 @Override
                 public void onFailure(Throwable caught) {
@@ -857,19 +853,20 @@ public class CreateProjectWindow {
                 @Override
                 public void onSuccess(ProjectDTOLightListResult result) {
 
-//                    if (result.getList() == null || result.getList().isEmpty()) {
-//                        Log.error("[missingRequiredData] No available project model.");
-//                        missingRequiredData(I18N.CONSTANTS.createProjectDisableModel());
-//                        return;
-//                    }
-   
-                    testProjectStore.add(result.getList());                        
+                    // if (result.getList() == null ||
+                    // result.getList().isEmpty()) {
+                    // Log.error("[missingRequiredData] No available project model.");
+                    // missingRequiredData(I18N.CONSTANTS.createProjectDisableModel());
+                    // return;
+                    // }
+
+                    testProjectStore.add(result.getList());
                     countBeforeShow();
                 }
             });
-        	
-        }else{
-        	 countBeforeShow();
+
+        } else {
+            countBeforeShow();
         }
     }
 
@@ -893,9 +890,12 @@ public class CreateProjectWindow {
      */
     private void fillOrgUnitsList(OrgUnitDTOLight root) {
 
-        for (final OrgUnitDTOLight child : root.getChildrenDTO()) {
-            recursiveFillOrgUnitsList(child);
-        }
+        // for (final OrgUnitDTOLight child : root.getChildrenDTO()) {
+        // recursiveFillOrgUnitsList(child);
+        // }
+
+        // The root org unit can now contain projects.
+        recursiveFillOrgUnitsList(root);
     }
 
     /**
@@ -962,28 +962,27 @@ public class CreateProjectWindow {
             l.projectCreatedAsFunded(project, percentage);
         }
     }
-    
-	/**
-	 * Method called when a test project is created.
-	 * 
-	 * @param project
-	 *            The new test project.
-	 * 
-	 */
+
+    /**
+     * Method called when a test project is created.
+     * 
+     * @param project
+     *            The new test project.
+     * 
+     */
     public void fireProjectCreatedAsTest(ProjectDTOLight project) {
         for (final CreateProjectListener l : listeners) {
             l.projectCreatedAsTest(project);
         }
     }
-    
-    
+
     /**
-	 * Method called when a test project is deleted.
-	 * 
-	 * @param project
-	 *            The deleted project.
-	 * 
-	 */
+     * Method called when a test project is deleted.
+     * 
+     * @param project
+     *            The deleted project.
+     * 
+     */
     public void fireProjectDeletedAsTest(ProjectDTOLight project) {
         for (final CreateProjectListener l : listeners) {
             l.projectDeletedAsTest(project);
