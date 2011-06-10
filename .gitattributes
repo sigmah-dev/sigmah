@@ -290,6 +290,7 @@ sigmah/src/main/java/org/sigmah/client/page/admin/model/project/logframe/AdminLo
 sigmah/src/main/java/org/sigmah/client/page/admin/model/project/logframe/AdminLogFrameView.java -text
 sigmah/src/main/java/org/sigmah/client/page/admin/model/project/phase/AdminPhasesPresenter.java -text
 sigmah/src/main/java/org/sigmah/client/page/admin/model/project/phase/AdminPhasesView.java -text
+sigmah/src/main/java/org/sigmah/client/page/admin/model/project/phase/DeletePhaseListener.java -text
 sigmah/src/main/java/org/sigmah/client/page/admin/model/project/phase/PhaseSigmahForm.java -text
 sigmah/src/main/java/org/sigmah/client/page/admin/orgunit/AddOrgUnitWindow.java -text
 sigmah/src/main/java/org/sigmah/client/page/admin/orgunit/AdminOrgUnitPresenter.java -text

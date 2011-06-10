@@ -17,6 +17,7 @@ import org.sigmah.shared.dto.PhaseModelDTO;
 import org.sigmah.shared.dto.ProjectModelDTO;
 
 import com.allen_sauer.gwt.log.client.Log;
+import com.extjs.gxt.ui.client.Style;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
@@ -93,11 +94,13 @@ public class AdminPhasesView extends View {
 		configs.add(column); 
 		
 		//Guide URL
-		column = new ColumnConfig("guide",I18N.CONSTANTS.projectPhaseGuideHeader(),300);
+		column = new ColumnConfig("guide",I18N.CONSTANTS.projectPhaseGuideHeader(),250);
 		configs.add(column);
 		
+		//Edit button
 		column = new ColumnConfig();
-		column.setWidth(200);   		
+		column.setWidth(70);
+		column.setAlignment(Style.HorizontalAlignment.CENTER);
 		column.setRenderer(new GridCellRenderer<PhaseModelDTO>(){
 
 			@Override
@@ -122,6 +125,31 @@ public class AdminPhasesView extends View {
 	    	
 	    }); 
 		configs.add(column); 
+		
+		//Delete button
+		column = new ColumnConfig();
+		column.setWidth(70);  
+		column.setAlignment(Style.HorizontalAlignment.CENTER);
+		column.setRenderer(new GridCellRenderer<PhaseModelDTO>(){
+
+			@Override
+			public Object render(final PhaseModelDTO model, String property,
+					ColumnData config, int rowIndex, int colIndex,
+					ListStore<PhaseModelDTO> store, Grid<PhaseModelDTO> grid) {		
+				
+				Button button = new Button(I18N.CONSTANTS.delete());
+				button.disable();
+				if((projectModel != null && ProjectModelStatus.DRAFT.equals(projectModel.getStatus())))
+					button.enable();
+		        button.setItemId(UIActions.delete);
+		        DeletePhaseListener l = new DeletePhaseListener(model,dispatcher,AdminPhasesView.this);
+		        button.addListener(Events.OnClick, l);  
+		        
+				return button;			
+			}
+	    	
+	    }); 
+		configs.add(column);
 		
 		ColumnModel cm = new ColumnModel(configs);		
 		phaseStore.setSortField("displayOrder");

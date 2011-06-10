@@ -15,6 +15,8 @@ import org.sigmah.shared.command.Delete;
 import org.sigmah.shared.command.handler.CommandHandler;
 import org.sigmah.shared.command.result.CommandResult;
 import org.sigmah.shared.domain.Deleteable;
+import org.sigmah.shared.domain.Phase;
+import org.sigmah.shared.domain.PhaseModel;
 import org.sigmah.shared.domain.Project;
 import org.sigmah.shared.domain.ProjectModel;
 import org.sigmah.shared.domain.ProjectModelStatus;
@@ -56,8 +58,14 @@ public class DeleteHandler implements CommandHandler<Delete> {
     	{   //Delete draft project model
     		ProjectModel projectModel =(ProjectModel)em.find(entityClass, new Long(cmd.getId()));
     		deleteDraftProjectModel(projectModel);
-    		
-    	}else{
+
+    	}else if("PhaseModel".endsWith(cmd.getEntityName()))
+    	{
+    		PhaseModel phaseModel = (PhaseModel)em.find(PhaseModel.class,new Long( cmd.getId()));
+    		deletePhaseModel(phaseModel);
+    	}
+    
+    	else{
             Deleteable entity = (Deleteable) em.find(entityClass, cmd.getId());
             entity.delete();
     	}
@@ -66,6 +74,54 @@ public class DeleteHandler implements CommandHandler<Delete> {
     }
 
  
+
+	private void deletePhaseModel(PhaseModel phaseModel) {
+		
+			
+		
+ //----STEP1: delete the successor relation---------------------------
+		
+		//If this model is the successor of other phase model, 
+		//this relation should be removed first
+		
+		Query query = em.createQuery("FROM PhaseModel ");
+		List<PhaseModel> models = (List<PhaseModel>)query.getResultList();
+		for(PhaseModel p:models)
+		{ 
+		  if(p.getSuccessors()!=null)
+		  {
+			if(p.getSuccessors().contains(phaseModel))
+			{
+			   p.getSuccessors().remove(phaseModel);
+			   em.merge(p);
+			}
+		  }
+
+		}		
+
+//----STEP2: delete all child phases using this phase model-----------
+		Query query1 = em.createQuery("SELECT p FROM Phase p WHERE p.model.id=:phaseModelId");
+		query1.setParameter("phaseModelId", phaseModel.getId());
+		List<Phase> phases = (List<Phase>)query1.getResultList();
+		for(Phase p : phases)
+		{
+			if(p.getParentProject()!=null && p.getParentProject().getCurrentPhase()!=null && p.getParentProject().getCurrentPhase()==p)
+			{
+			  Project parentProject = em.find(Project.class, p.getParentProject().getId());
+			  parentProject.setCurrentPhase(null);
+			  em.merge(parentProject);
+			}
+			em.remove(p);
+		}
+		
+
+//-----STEP3: delete the phase model-------------------------------------------
+		
+		em.remove(phaseModel);
+		em.flush();
+		em.clear();
+		
+	}
 
 	private Class<Deleteable> entityClassForEntityName(String entityName) {
         try {
