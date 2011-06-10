@@ -163,10 +163,10 @@ public class ModelUtil {
 				if(parentLayoutGroup != null){						
 					newLayoutConstraint.setElement(flexibleElt);
 					newLayoutConstraint.setParentLayoutGroup(parentLayoutGroup);
-					if(order != null)
-						newLayoutConstraint.setSortOrder(order);
 					if(oldOrder != null)
 						newLayoutConstraint.setSortOrder(oldOrder);
+					if(order != null)
+						newLayoutConstraint.setSortOrder(order);		
 					if(order == null && oldOrder == null)
 						newLayoutConstraint.setSortOrder(new Integer(parentLayoutGroup.getConstraints().size()));
 					if(oldLayoutConstraintDTO!=null){//Merge

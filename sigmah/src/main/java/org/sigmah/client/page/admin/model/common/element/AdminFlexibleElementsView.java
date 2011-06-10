@@ -10,7 +10,11 @@ import org.sigmah.client.page.admin.AdminUtil;
 import org.sigmah.client.page.admin.model.common.element.AdminFlexibleElementsPresenter.View;
 import org.sigmah.client.page.common.grid.ConfirmCallback;
 import org.sigmah.client.page.common.toolbar.UIActions;
+import org.sigmah.shared.command.GetOrgUnitModel;
+import org.sigmah.shared.command.GetOrgUnitModels;
+import org.sigmah.shared.command.GetProjectModel;
 import org.sigmah.shared.command.result.CreateResult;
+import org.sigmah.shared.command.result.OrgUnitModelListResult;
 import org.sigmah.shared.command.result.UpdateModelResult;
 import org.sigmah.shared.domain.ProjectModelStatus;
 import org.sigmah.shared.domain.element.DefaultFlexibleElementType;
@@ -56,6 +60,7 @@ public class AdminFlexibleElementsView extends View {
 	private final Dispatcher dispatcher;
 	private final Grid<FlexibleElementDTO> flexGrid;
 	private final List<LayoutGroupDTO> addedGroups = new ArrayList<LayoutGroupDTO>();
+	private final static Boolean alert = false;
 
 	public AdminFlexibleElementsView(Dispatcher dispatcher){	
 		this.dispatcher = dispatcher;
@@ -148,19 +153,63 @@ public class AdminFlexibleElementsView extends View {
 			}
 
 			@Override
-			public void onSuccess(CreateResult result) {
-				//FIXME add new group and update model
+			public void onSuccess(CreateResult layoutGroupResult) {
 				window.hide();
-				if(result != null){
+				if(layoutGroupResult != null){
+					if(projectModel != null){
+						GetProjectModel refreshModel = new GetProjectModel();
+						refreshModel.setId(projectModel.getId());
+						dispatcher.execute(refreshModel, 
+								null,
+				        		new AsyncCallback<ProjectModelDTO>() {
+				        	@Override
+				            public void onFailure(Throwable arg0) {
+				        		AdminUtil.alertPbmData(alert);
+				            }
+
+				            @Override
+				            public void onSuccess(ProjectModelDTO modelResult) {
+				            	if(modelResult != null){
+				            		AdminFlexibleElementsView.this.getFieldsStore().removeAll();
+				            		projectModel = modelResult;
+					            	AdminFlexibleElementsView.this.getFieldsStore().add(projectModel.getAllElements());
+				            	}
+				            	
+				            }
+				        });
+					}else if(orgUnitModel != null){
+						GetOrgUnitModel refreshModel = new GetOrgUnitModel();
+						refreshModel.setId(orgUnitModel.getId());
+						dispatcher.execute(refreshModel, 
+								null,
+				        		new AsyncCallback<OrgUnitModelDTO>() {
+				        	@Override
+				            public void onFailure(Throwable arg0) {
+				        		AdminUtil.alertPbmData(alert);
+				            }
+
+				            @Override
+				            public void onSuccess(OrgUnitModelDTO modelResult) {
+				            	if(modelResult != null){
+				            		AdminFlexibleElementsView.this.getFieldsStore().removeAll();
+				            		orgUnitModel = modelResult;
+					            	AdminFlexibleElementsView.this.getFieldsStore().add(orgUnitModel.getAllElements());
+				            	}
+				            	
+				            }
+				        });
+					}
+					
+					
 					if(isUpdate){						
 						List<FlexibleElementDTO> modifiedFlexs = AdminFlexibleElementsView.this.getFieldsStore().findModels("group", model.getGroup());
 						for(FlexibleElementDTO modifiedFlex : modifiedFlexs){
-							modifiedFlex.setGroup((LayoutGroupDTO) result.getEntity());
+							modifiedFlex.setGroup((LayoutGroupDTO) layoutGroupResult.getEntity());
 							AdminFlexibleElementsView.this.getFieldsStore().update(modifiedFlex);							
 						}			
 						AdminFlexibleElementsView.this.getFieldsStore().commitChanges();						
 					}
-					addedGroups.add((LayoutGroupDTO) result.getEntity());
+					addedGroups.add((LayoutGroupDTO) layoutGroupResult.getEntity());
 				}				
 			}			
 		}, model , projectModel, orgUnitModel);
@@ -210,7 +259,7 @@ public class AdminFlexibleElementsView extends View {
 
 
 			
-		}, model, projectModel, orgUnitModel, addedGroups);
+		}, model, projectModel, orgUnitModel);
 		window.add(form);
         window.show();
 	}

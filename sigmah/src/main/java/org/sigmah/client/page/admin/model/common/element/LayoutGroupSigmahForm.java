@@ -129,6 +129,7 @@ public class LayoutGroupSigmahForm extends FormPanel {
 					 for(int i=0; i<container.getRowsCount();i++){						 						 
 						 rowField.add(i);
 					 }
+					 rowField.add(container.getRowsCount());
 				}
 				 
 			 }
@@ -153,6 +154,7 @@ public class LayoutGroupSigmahForm extends FormPanel {
 					 for(int i=0; i<container.getRowsCount();i++){						 						 
 						 rowField.add(i);
 					 }
+					 rowField.add(container.getRowsCount());
 				 }				 
 			}
 		});

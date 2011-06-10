@@ -131,7 +131,7 @@ public class ElementForm extends ContentPanel {
 	
 	public ElementForm(Dispatcher dispatcher, 
 			final AsyncCallback<UpdateModelResult> callback, final FlexibleElementDTO flexibleElement, ProjectModelDTO projectModelToUpdate,
-			OrgUnitModelDTO orgUnitModelToUpdate, final List<LayoutGroupDTO> addedGroups) {
+			OrgUnitModelDTO orgUnitModelToUpdate) {
 		
 		final VBoxLayout mainPanelLayout = new VBoxLayout();
         mainPanelLayout.setVBoxLayoutAlign(VBoxLayout.VBoxLayoutAlign.STRETCH);
@@ -519,7 +519,7 @@ public class ElementForm extends ContentPanel {
 		groupList = new ComboBox<LayoutGroupDTO>();
 		groupList.setEditable(false);
 		groupList.setFieldLabel(constants.adminFlexibleGroup());
-		groupList.setDisplayField("id");
+		groupList.setDisplayField("title");
 		groupList.setValueField("id");		
 		groupList.setTriggerAction(TriggerAction.ALL);
 		
@@ -551,7 +551,7 @@ public class ElementForm extends ContentPanel {
 					 for(LayoutGroupDTO lg : container.getLayoutGroupsDTO()){
 						 groupsStore.add(lg);
 					 }
-					 addNewGroupsToStore(container, groupsStore, addedGroups);
+					 //addNewGroupsToStore(container, groupsStore, addedGroups);
 					 groupList.setValue(groupsStore.getAt(0));
 				 }				 
 			}
@@ -579,12 +579,12 @@ public class ElementForm extends ContentPanel {
 					for(LayoutGroupDTO groupChoice : ((PhaseModelDTO)container).getLayoutDTO().getLayoutGroupsDTO()){
 						 groupsStore.add(groupChoice);
 					}
-					addNewGroupsToStore(((PhaseModelDTO)container).getLayoutDTO(), groupsStore, addedGroups);
+					//addNewGroupsToStore(((PhaseModelDTO)container).getLayoutDTO(), groupsStore, addedGroups);
 				}else{
 					for(LayoutGroupDTO groupChoice : ((ProjectDetailsDTO)container).getLayoutDTO().getLayoutGroupsDTO()){
 						 groupsStore.add(groupChoice);
 					}
-					addNewGroupsToStore(((ProjectDetailsDTO)container).getLayoutDTO(), groupsStore, addedGroups);
+					//addNewGroupsToStore(((ProjectDetailsDTO)container).getLayoutDTO(), groupsStore, addedGroups);
 				}
 				if(flexibleElement.getBannerConstraint() != null){
 					posBanner.setSimpleValue(flexibleElement.getBannerConstraint().getSortOrder());
@@ -615,7 +615,7 @@ public class ElementForm extends ContentPanel {
 				for(LayoutGroupDTO groupChoice : ((OrgUnitDetailsDTO)container).getLayout().getLayoutGroupsDTO()){
 					 groupsStore.add(groupChoice);
 				}
-				addNewGroupsToStore(((OrgUnitDetailsDTO)container).getLayout(), groupsStore, addedGroups);
+				//addNewGroupsToStore(((OrgUnitDetailsDTO)container).getLayout(), groupsStore, addedGroups);
 				if(flexibleElement.getBannerConstraint() != null){
 					posBanner.setSimpleValue(flexibleElement.getBannerConstraint().getSortOrder());
 					isBanner.setValue(true);

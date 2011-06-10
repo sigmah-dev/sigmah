@@ -65,7 +65,7 @@ public class OrgUnitModelPolicy implements EntityPolicy<OrgUnitModel>  {
 				
 				Layout oMDetailsLayout = new Layout();
 				oMDetailsLayout.setColumnsCount(1);
-				oMDetailsLayout.setRowsCount(4);
+				oMDetailsLayout.setRowsCount(1);
 				oMDetails.setLayout(oMDetailsLayout);	
 				oMDetails.setOrgUnitModel(oM);
 				

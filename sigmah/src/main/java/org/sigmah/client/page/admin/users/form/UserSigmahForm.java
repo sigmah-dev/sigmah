@@ -400,6 +400,8 @@ public class UserSigmahForm extends FormPanel {
      *            The root org unit.
      */
     private void fillOrgUnitsList(OrgUnitDTOLight root) {
+    	
+    	orgUnitsStore.add(root);
 
         for (final OrgUnitDTOLight child : root.getChildrenDTO()) {
             recursiveFillOrgUnitsList(child);

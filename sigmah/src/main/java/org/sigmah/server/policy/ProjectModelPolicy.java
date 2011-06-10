@@ -104,7 +104,7 @@ public class ProjectModelPolicy implements EntityPolicy<ProjectModel>  {
 				
 				Layout pMDetailsLayout = new Layout();
 				pMDetailsLayout.setColumnsCount(1);
-				pMDetailsLayout.setRowsCount(4);
+				pMDetailsLayout.setRowsCount(1);
 				pMDetails.setLayout(pMDetailsLayout);	
 				pMDetails.setProjectModel(pM);
 				
@@ -168,7 +168,7 @@ public class ProjectModelPolicy implements EntityPolicy<ProjectModel>  {
 				defaultRootPhase.setDisplayOrder(0);
 				Layout phaseLayout = new Layout();
 				phaseLayout.setColumnsCount(1);
-				phaseLayout.setRowsCount(4);					
+				phaseLayout.setRowsCount(1);					
 				
 				LayoutGroup phaseGroup = new LayoutGroup();
 				phaseGroup.setTitle("Default phase group");
@@ -361,7 +361,7 @@ public class ProjectModelPolicy implements EntityPolicy<ProjectModel>  {
 					if(numRows != null)
 						phaseLayout.setRowsCount(numRows);	
 					else
-						phaseLayout.setRowsCount(4);
+						phaseLayout.setRowsCount(1);
 					
 					LayoutGroup phaseGroup = new LayoutGroup();
 					phaseGroup.setTitle(phaseToSave.getName() + " default group");

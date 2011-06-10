@@ -52,7 +52,12 @@ public class LayoutGroupPolicy implements EntityPolicy<LayoutGroup> {
 		OrgUnitModelDTO orgUnitModelDTO = (OrgUnitModelDTO) properties.get(AdminUtil.ADMIN_ORG_UNIT_MODEL);
 		
 		groupToPersist = mapper.map(layoutGroupDTOToPersist, LayoutGroup.class);
-		
+
+		if(groupToPersist.getParentLayout().getRowsCount() <= groupToPersist.getRow()){
+			Layout layout = groupToPersist.getParentLayout();
+			layout.setRowsCount(groupToPersist.getRow() + 1);
+			em.merge(layout);
+		}
 		//update
 		if(layoutGroupDTOToPersist.getId() > 0){
 			groupToPersist = em.merge(groupToPersist);
