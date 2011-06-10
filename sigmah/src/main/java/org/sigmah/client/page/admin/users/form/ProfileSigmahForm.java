@@ -141,8 +141,9 @@ public class ProfileSigmahForm extends FormPanel {
 			j++;
 			PrivacyGroupPermDTO perm =  new PrivacyGroupPermDTO();
 			perm.setId(j);
-			perm.setPermission(PrivacyGroupPermissionEnum.getName(enumItem));			
-			permsStore.add(perm);			
+			perm.setPermission(PrivacyGroupPermissionEnum.getName(enumItem));		
+			if(!PrivacyGroupPermissionEnum.NONE.equals(enumItem))
+				permsStore.add(perm);			
 		}
 		privacyGroupsPermissionsListCombo.setStore(permsStore );		
 		

@@ -427,7 +427,7 @@ public class AdminUsersView extends View {
 		column = new ColumnConfig("locale",I18N.CONSTANTS.adminUsersLocale(),50);      
 		configs.add(column); 
 		
-		column = new ColumnConfig("orgUnit",I18N.CONSTANTS.adminUsersOrgUnit(),75);
+		column = new ColumnConfig("orgUnit",I18N.CONSTANTS.adminUsersOrgUnit(),110);
 		column.setRenderer(new GridCellRenderer<UserDTO>() {
             @Override
             public Object render(UserDTO model, String property, ColumnData config, int rowIndex, int colIndex,
@@ -438,9 +438,6 @@ public class AdminUsersView extends View {
             }
         });
 		configs.add(column); 
-		
-		column = new ColumnConfig("pwdChangeKey",I18N.CONSTANTS.adminUsersPasswordChange(),120);   
-		configs.add(column);
 		
 		column = new ColumnConfig("pwdChangeDate",I18N.CONSTANTS.adminUsersDatePasswordChange(),120);  
 		final DateTimeFormat format = DateTimeFormat.getFormat(I18N.CONSTANTS.flexibleElementDateFormat());  
