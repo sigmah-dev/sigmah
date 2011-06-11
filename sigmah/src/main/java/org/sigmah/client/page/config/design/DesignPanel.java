@@ -75,7 +75,12 @@ public class DesignPanel extends DesignPanelBase implements ActionListener {
 		mappedIndicator = new MappedIndicatorSelection();
 		
 		// setup grid
-		treeGrid = new EditorTreeGrid<ModelData>(treeStore, createColumnModel());
+		treeGrid = new EditorTreeGrid<ModelData>(treeStore, createColumnModel()) {
+            @Override
+            protected boolean hasChildren(ModelData model) {
+                return model instanceof IndicatorGroup;
+            }
+        };
 		treeGrid.setSelectionModel(new ImprovedCellTreeGridSelectionModel<ModelData>());
 		treeGrid.setClicksToEdit(EditorGrid.ClicksToEdit.TWO);
 		treeGrid.setAutoExpandColumn("name");
