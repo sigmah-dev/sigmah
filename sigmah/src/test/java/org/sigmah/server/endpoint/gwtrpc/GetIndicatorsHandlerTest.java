@@ -1,8 +1,5 @@
 package org.sigmah.server.endpoint.gwtrpc;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sigmah.server.dao.OnDataSet;
@@ -11,6 +8,9 @@ import org.sigmah.shared.command.result.IndicatorListResult;
 import org.sigmah.shared.dto.IndicatorDTO;
 import org.sigmah.shared.exception.CommandException;
 import org.sigmah.test.InjectionSupport;
+
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertThat;
 
 @RunWith(InjectionSupport.class)
 @OnDataSet("/dbunit/sites-simple1.db.xml")
@@ -68,11 +68,19 @@ public class GetIndicatorsHandlerTest extends CommandTestCase {
         assertThat(construction.getLabels().get(0), equalTo("Good"));
         assertThat(construction.getLabels().get(1), equalTo("Bad"));
         assertThat(construction.getLabels().get(2), equalTo("Ugly"));
-        
+
+        assertThat(construction.getLabelCounts().size(), equalTo(3));
+        assertThat(construction.getLabelCounts().get(0), equalTo(1));
+        assertThat(construction.getLabelCounts().get(1), equalTo(2));
+        assertThat(construction.getLabelCounts().get(2), equalTo(1));
+
+        assertThat(construction.formatMode(), equalTo("Bad (50%)"));
+
         assertThat(service.getLabels().size(), equalTo(3));
         assertThat(service.getLabels().get(0), equalTo("Mediocre"));
         assertThat(service.getLabels().get(1), equalTo("Pretty bad"));
         assertThat(service.getLabels().get(2), equalTo("Terrible"));
+
 
     }
 

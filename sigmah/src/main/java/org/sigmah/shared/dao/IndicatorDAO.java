@@ -1,6 +1,9 @@
 
 package org.sigmah.shared.dao;
 
+import org.sigmah.shared.dao.SqlQueryBuilder.ResultHandler;
+import org.sigmah.shared.dto.IndicatorDTO;
+
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -8,9 +11,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.sigmah.shared.dao.SqlQueryBuilder.ResultHandler;
-import org.sigmah.shared.dto.IndicatorDTO;
 
 /**
  * Data Access Object for {@link org.sigmah.shared.domain.Indicator} domain objects. 
@@ -123,13 +123,13 @@ public class IndicatorDAO  {
 						dto.setLabels(new ArrayList<String>());
 					}
 					dto.getLabels().add(label);
-					
+
+                    if(dto.getLabelCounts() == null) {
+                        dto.setLabelCounts(new ArrayList<Integer>());
+                    }
+                    dto.getLabelCounts().add(count);
 				}
 			});		
-			
-			
-    	
-    	
     	return list;
     }
 	

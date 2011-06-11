@@ -343,18 +343,18 @@ public class DesignPanel extends DesignPanelBase implements ActionListener {
 			public void onValidated() {
 				service.execute(new CreateEntity(newIndicator), dialog, new AsyncCallback<CreateResult>() {
 
-					@Override
-					public void onFailure(Throwable caught) {
-						// handled by dialog
-					}
+                    @Override
+                    public void onFailure(Throwable caught) {
+                        // handled by dialog
+                    }
 
-					@Override
-					public void onSuccess(CreateResult result) {
-						dialog.hide();
-						treeStore.add(parent, newIndicator, false);
-						eventBus.fireEvent(new IndicatorEvent(IndicatorEvent.CHANGED, DesignPanel.this));
-					}
-				});
+                    @Override
+                    public void onSuccess(CreateResult result) {
+                        dialog.hide();
+                        treeStore.add(parent, newIndicator, false);
+                        eventBus.fireEvent(new IndicatorEvent(IndicatorEvent.CHANGED, DesignPanel.this));
+                    }
+                });
 			}
 		});
 	}
@@ -472,20 +472,31 @@ public class DesignPanel extends DesignPanelBase implements ActionListener {
 		columns.add(codeColumn);		
 
 		ColumnConfig objectiveColumn = new ColumnConfig("objective", I18N.CONSTANTS.targetValue(), 75);
-		objectiveColumn.setRenderer(new IndicatorValueRenderer());
+		objectiveColumn.setRenderer(new IndicatorObjectiveValueRenderer());
 		objectiveColumn.setEditor(new CellEditor(new NumberField()));
 		objectiveColumn.setAlignment(HorizontalAlignment.RIGHT);
 		columns.add(objectiveColumn);
 		
 		ColumnConfig valueColumn = new ColumnConfig("currentValue", I18N.CONSTANTS.value(), 75);
-		valueColumn.setRenderer(new IndicatorValueRenderer());
+		valueColumn.setRenderer(new CurrentIndicatorValueRenderer());
 		valueColumn.setAlignment(HorizontalAlignment.RIGHT);
 		columns.add(valueColumn);
 		
 		return new ColumnModel(columns);
 	}
 
-	private class IndicatorValueRenderer implements GridCellRenderer {
+    private String formatIndicatorValue(ModelData model, String property) {
+        Double value = model.get(property);
+        if(value != null) {
+            return IndicatorNumberFormats
+                .forIndicator((IndicatorDTO)model)
+                    .format(value);
+        } else {
+            return "";
+        }
+    }
+
+	private class IndicatorObjectiveValueRenderer implements GridCellRenderer {
 
 		@Override
 		public Object render(ModelData model, String property,
@@ -493,16 +504,28 @@ public class DesignPanel extends DesignPanelBase implements ActionListener {
 				Grid grid) {
 			
 			if(model instanceof IndicatorDTO) {
-				Double value = model.get(property);
-				if(value != null) {
-					return IndicatorNumberFormats
-						.forIndicator((IndicatorDTO)model)
-							.format(value);
-				}
-			}
-			return "";
+			    return formatIndicatorValue(model, property);
+            } else {
+			    return "";
+            }
 		}
 	}
+
+    private class CurrentIndicatorValueRenderer extends IndicatorObjectiveValueRenderer {
+        @Override
+        public Object render(ModelData model, String property, ColumnData config, int rowIndex, int colIndex, ListStore store, Grid grid) {
+            if(model instanceof IndicatorDTO) {
+                IndicatorDTO indicator = (IndicatorDTO) model;
+                if(indicator.getLabelCounts() != null) {
+                    return indicator.formatMode();
+                } else {
+                    return formatIndicatorValue(model, property);
+                }
+            } else {
+                return "";
+            }
+        }
+    }
 
 	public MappedIndicatorSelection getMappedIndicator() {
 		return mappedIndicator;

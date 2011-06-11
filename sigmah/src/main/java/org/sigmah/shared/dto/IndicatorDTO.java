@@ -5,10 +5,9 @@
 
 package	org.sigmah.shared.dto;
 
-import java.util.List;
-
-
 import com.extjs.gxt.ui.client.data.BaseModelData;
+
+import java.util.List;
 
 
 /**
@@ -205,6 +204,10 @@ public final class IndicatorDTO extends BaseModelData implements EntityDTO {
 	public List<Integer> getLabelCounts() {
 		return (List<Integer>)get("labelCounts");
 	}
+
+    public int getLabelCount(int index) {
+        return getLabelCounts().get(index);
+    }
 	
 	public void setLabelCounts(List<Integer> counts) {
 		set("labelCounts", counts);
@@ -277,5 +280,45 @@ public final class IndicatorDTO extends BaseModelData implements EntityDTO {
 		set("sourceOfVerification", source);
 	}
 
-    
+    /**
+     * @return for indicators with multinomial aggregation,
+     * computes the total result count across categories (denominator)
+     */
+    private int totalResultCount() {
+        int sum = 0;
+        for(Integer count : getLabelCounts()) {
+            sum += count;
+        }
+        return sum;
+    }
+
+    /**
+     * @return for indicators with multinomial aggregation,
+     * finds the category that occurs most frequently
+     */
+    private int modeIndex() {
+        int max = 0;
+        int modeIndex = -1;
+        for(int i=0;i!=getLabelCounts().size();++i) {
+            if(getLabelCount(i) > max) {
+                max = getLabelCount(i);
+                modeIndex = i;
+            }
+        }
+        return modeIndex;
+    }
+
+    /**
+     *
+     * @return a formatted description of the mode
+     */
+    public String formatMode() {
+        int modeIndex = modeIndex();
+        if(modeIndex >= 0) {
+            double percentage = getLabelCount(modeIndex) / (double)totalResultCount() * 100d;
+            return getLabels().get(modeIndex) + " (" + (int)percentage + "%)";
+        } else {
+            return "";
+        }
+    }
 }

@@ -261,6 +261,21 @@
 	
 	<indicatorValue reportingPeriodId="4" indicatorId="1" value="940"/>
 		
-		
+    <site siteId="5" databaseId="2" locationId="4" partnerId="2" Status="1" target="0" Date1="2008-10-05" Date2="2008-10-06" DateCreated="2009-02-01" DateEdited="2009-02-01"/>
+
+    <reportingPeriod siteId="5" reportingPeriodId="5" date1="2010-01-01" date2="2010-01-31" DateCreated="2009-02-01" DateEdited="2009-02-01" monitoring="0"/>
+    <indicatorValue reportingPeriodId="5" indicatorId="5" value="1"/>
+
+    <reportingPeriod siteId="5" reportingPeriodId="6" date1="2010-02-01" date2="2010-02-28" DateCreated="2009-02-01" DateEdited="2009-02-01" monitoring="0"/>
+    <indicatorValue reportingPeriodId="6" indicatorId="5" value="2"/>
+
+    <reportingPeriod siteId="5" reportingPeriodId="7" date1="2010-02-01" date2="2010-02-28" DateCreated="2009-02-01" DateEdited="2009-02-01" monitoring="0"/>
+    <indicatorValue reportingPeriodId="7" indicatorId="5" value="2"/>
+
+
+    <reportingPeriod siteId="5" reportingPeriodId="8" date1="2010-03-01" date2="2010-03-30" DateCreated="2009-02-01" DateEdited="2009-02-01" monitoring="0"/>
+    <indicatorValue reportingPeriodId="8" indicatorId="5" value="3"/>
+
+
     
 </dataset>
