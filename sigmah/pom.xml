@@ -5,7 +5,7 @@
     <groupId>org.sigmah</groupId>
     <artifactId>sigmah</artifactId>
     <packaging>war</packaging>
-    <version>0.9.1-SNAPSHOT</version>
+    <version>1.0-RC3</version>
     <name>Sigmah</name>
     <description>Web-based database platform for program monitoring and reporting for the UN,
         NGOs, and others working in humanitarian, development, and post-conflict contexts.</description>
@@ -19,9 +19,9 @@
     </ciManagement>
     <inceptionYear>2009</inceptionYear>
     <scm>
-        <connection>scm:svn:http://sigma-h.googlecode.com/svn/trunk</connection>
-        <developerConnection>scm:svn:https://sigma-h.googlecode.com/svn/trunk</developerConnection>
-        <url>http://code.google.com/p/sigmah/source/browse/trunk</url>
+        <connection>scm:svn:http://sigma-h.googlecode.com/svn/tags/sigmah-1.0-RC3</connection>
+        <developerConnection>scm:svn:https://sigma-h.googlecode.com/svn/tags/sigmah-1.0-RC3</developerConnection>
+        <url>http://code.google.com/p/sigmah/source/browse/tags/sigmah-1.0-RC3</url>
     </scm>
     <developers>
         <developer>
