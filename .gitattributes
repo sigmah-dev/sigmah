@@ -38,6 +38,7 @@ sigmah/src/main/java/org/sigmah/ActivityInfoProduction.gwt.xml -text
 sigmah/src/main/java/org/sigmah/ActivityInfoSafariTest.gwt.xml -text
 sigmah/src/main/java/org/sigmah/ActivityInfoSoyc.gwt.xml -text
 sigmah/src/main/java/org/sigmah/Sigmah.gwt.xml -text
+sigmah/src/main/java/org/sigmah/SigmahProduction.gwt.xml -text
 sigmah/src/main/java/org/sigmah/SigmahSoyc.gwt.xml -text
 sigmah/src/main/java/org/sigmah/client/ActivityInfoEntryPoint.java -text
 sigmah/src/main/java/org/sigmah/client/AppEvents.java -text

@@ -12,6 +12,7 @@ import org.sigmah.server.bootstrap.model.HostPageModel;
 
 import javax.servlet.ServletException;
 import java.io.IOException;
+import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -20,7 +21,7 @@ public class HostControllerTest extends ControllerTestCase {
 
     @Before
     public void setupController() {
-        controller = new HostController(injector, templateCfg);
+        controller = new HostController(injector, templateCfg, new Properties());
         req.setRequestURL("http://www.activityinfo.org");
     }
 

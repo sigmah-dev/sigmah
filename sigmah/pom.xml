@@ -574,7 +574,6 @@
                 <configuration>
                     <warSourceDirectory>${basedir}/war</warSourceDirectory>
                     <warSourceExcludes>ActivityInfo/compile-report</warSourceExcludes>
-             		<attachClasses>true</attachClasses>
                 </configuration>
             </plugin>
 
@@ -872,6 +871,35 @@
                         <configuration>
                             <skipTests>true</skipTests>
                         </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>sigmah-production</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>gwt-maven-plugin</artifactId>
+                        <version>1.2</version>
+                        <configuration>
+                            <module>org.sigmah.Sigmah</module>
+                            <logLevel>INFO</logLevel>
+                            <runTarget>Sigmah</runTarget>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>gwt-compile</id>
+                                <configuration>
+                                    <module>org.sigmah.SigmahProduction</module>
+                                    <soyc>false</soyc>
+                                </configuration>
+                                <goals>
+                                    <goal>compile</goal>
+                                </goals>
+                            </execution>
+                        </executions>
                     </plugin>
                 </plugins>
             </build>

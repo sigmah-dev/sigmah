@@ -21,6 +21,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Properties;
 
 import static org.sigmah.server.util.StringUtil.isEmpty;
 
@@ -28,14 +29,22 @@ import static org.sigmah.server.util.StringUtil.isEmpty;
 public class HostController extends AbstractController {
     public static final String ENDPOINT = "";
 
+    private final Properties config;
+
     @Inject
-    public HostController(Injector injector, Configuration templateCfg) {
+    public HostController(Injector injector, Configuration templateCfg, Properties config) {
         super(injector, templateCfg);
+        this.config = config;
     }
 
     @Override
     @LogException(emailAlert = true)
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+
+        if("Sigmah".equals(config.getProperty("default.interface"))) {
+            resp.sendRedirect("Sigmah/");
+            return;
+        }
 
         if (requestIsFromIE6OnPort80(req)) {
             redirectToPort(req, resp, 8080);
