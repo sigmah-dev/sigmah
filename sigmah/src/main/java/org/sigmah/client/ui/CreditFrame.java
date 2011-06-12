@@ -96,7 +96,10 @@ public final class CreditFrame {
     private static Widget getVersionPanel() {
 
         final Image logo = new Image("image/logo.png");
-        final Label version = new Label(info.getVersionName() + " (v" + info.getVersionNumber() + ")");
+        //Version with version name (not used yet)
+        //final Label version = new Label(info.getVersionName() + " (v" + info.getVersionNumber() + ")");
+        //Version without version name (currently used)
+        final Label version = new Label("v" + info.getVersionNumber());
         version.addStyleName("credits-version");
         final Label date = new Label(info.getVersionReleaseDate());
         date.addStyleName("credits-version-date");

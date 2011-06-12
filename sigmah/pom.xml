@@ -5,13 +5,13 @@
     <groupId>org.sigmah</groupId>
     <artifactId>sigmah</artifactId>
     <packaging>war</packaging>
-    <version>1.0-RC4-SNAPSHOT</version>
+    <version>1.0</version>
     <name>Sigmah</name>
     <description>Web-based database platform for program monitoring and reporting for the UN,
         NGOs, and others working in humanitarian, development, and post-conflict contexts.</description>
     <issueManagement>
-        <system>mantis</system>
-        <url>http://mantis.activityinfo.org</url>
+        <system>MantisBT</system>
+        <url>http://www.sigmah.org/issues/</url>
     </issueManagement>
     <ciManagement>
         <system>mikeci</system>
@@ -21,15 +21,24 @@
     <scm>
         <connection>scm:svn:http://sigma-h.googlecode.com/svn/trunk</connection>
         <developerConnection>scm:svn:https://sigma-h.googlecode.com/svn/trunk</developerConnection>
-        <url>http://code.google.com/p/sigmah/source/browse/trunk</url>
+        <url>http://code.google.com/p/sigma-h/source/browse/trunk</url>
     </scm>
     <developers>
+    <!--  Representatives of the two organizations co-authors of Sigmah
+					(for full developers list, see: http://code.google.com/p/sigma-h/people/list) -->
         <developer>
             <id>akbertram</id>
             <name>Alex Bertram</name>
             <email>alex@bedatadriven.com</email>
             <organization>bedatadriven</organization>
             <organizationUrl>http://www.bedatadriven.com</organizationUrl>
+        </developer>
+        <developer>
+            <id>olivier.sarrat</id>
+            <name>Olivier Sarrat</name>
+            <email>osarrat@urd.org</email>
+            <organization>Groupe URD</organization>
+            <organizationUrl>http://www.urd.org</organizationUrl>
         </developer>
     </developers>
     <licenses>
