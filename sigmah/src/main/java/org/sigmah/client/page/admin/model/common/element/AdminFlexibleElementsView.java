@@ -11,14 +11,11 @@ import org.sigmah.client.page.admin.model.common.element.AdminFlexibleElementsPr
 import org.sigmah.client.page.common.grid.ConfirmCallback;
 import org.sigmah.client.page.common.toolbar.UIActions;
 import org.sigmah.shared.command.GetOrgUnitModel;
-import org.sigmah.shared.command.GetOrgUnitModels;
 import org.sigmah.shared.command.GetProjectModel;
 import org.sigmah.shared.command.result.CreateResult;
-import org.sigmah.shared.command.result.OrgUnitModelListResult;
 import org.sigmah.shared.command.result.UpdateModelResult;
 import org.sigmah.shared.domain.ProjectModelStatus;
 import org.sigmah.shared.domain.element.DefaultFlexibleElementType;
-import org.sigmah.shared.dto.IndicatorDTO;
 import org.sigmah.shared.dto.OrgUnitModelDTO;
 import org.sigmah.shared.dto.ProjectModelDTO;
 import org.sigmah.shared.dto.element.DefaultFlexibleElementDTO;
@@ -26,7 +23,6 @@ import org.sigmah.shared.dto.element.FlexibleElementDTO;
 import org.sigmah.shared.dto.layout.LayoutGroupDTO;
 import org.sigmah.shared.dto.profile.PrivacyGroupDTO;
 
-import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
@@ -284,7 +280,7 @@ public class AdminFlexibleElementsView extends View {
 						nameHyperlink = new Anchor(DefaultFlexibleElementType.getName(((DefaultFlexibleElementDTO)model).getType()), true);	
 					}			
 					else
-						nameHyperlink = new Anchor(model.getLabel().replace("?", ""), true);
+						nameHyperlink = new Anchor(model.getLabel(), true);
 	                nameHyperlink.addStyleName("credits-partner-url");
 	                nameHyperlink.addClickHandler(new ClickHandler(){
 
@@ -297,9 +293,9 @@ public class AdminFlexibleElementsView extends View {
 	                return nameHyperlink;
 				}else{				
 					if(ElementTypeEnum.DEFAULT.equals(model.getElementType()))
-						return AdminUtil.createGridText(DefaultFlexibleElementType.getName(((DefaultFlexibleElementDTO)model).getType()).replace("?", ""));
+						return AdminUtil.createGridText(DefaultFlexibleElementType.getName(((DefaultFlexibleElementDTO)model).getType()));
 					else
-						return AdminUtil.createGridText(model.getLabel().replace("?", ""));					
+						return AdminUtil.createGridText(model.getLabel());					
 				}
 			}
         });

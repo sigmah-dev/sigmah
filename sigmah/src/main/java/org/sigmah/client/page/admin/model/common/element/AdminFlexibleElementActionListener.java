@@ -51,7 +51,7 @@ public class AdminFlexibleElementActionListener implements ActionListener {
 			ids.add(s.getId());
 			names = s.getLabel() + ", " + names;
 			if(s instanceof DefaultFlexibleElementDTO){
-				notDeletableNames += DefaultFlexibleElementType.getName(((DefaultFlexibleElementDTO)s).getType()).replace("?", "") + ", ";
+				notDeletableNames += DefaultFlexibleElementType.getName(((DefaultFlexibleElementDTO)s).getType()) + ", ";
 			}
 		}
 		

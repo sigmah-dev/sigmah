@@ -37,7 +37,6 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Grid;
-
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.i18n.UIConstants;
 import org.sigmah.client.icon.IconImageBundle;
@@ -420,8 +419,6 @@ public class ElementForm extends ContentPanel {
 		commonPanel = new FormPanel();
 		commonPanel.setHeaderVisible(false);
 		
-		
-		
 		htmlArea = new HtmlEditor();
 		htmlArea.hide();
 		htmlArea.setEnableAlignments(false);
@@ -551,7 +548,6 @@ public class ElementForm extends ContentPanel {
 					 for(LayoutGroupDTO lg : container.getLayoutGroupsDTO()){
 						 groupsStore.add(lg);
 					 }
-					 //addNewGroupsToStore(container, groupsStore, addedGroups);
 					 groupList.setValue(groupsStore.getAt(0));
 				 }				 
 			}
@@ -579,12 +575,10 @@ public class ElementForm extends ContentPanel {
 					for(LayoutGroupDTO groupChoice : ((PhaseModelDTO)container).getLayoutDTO().getLayoutGroupsDTO()){
 						 groupsStore.add(groupChoice);
 					}
-					//addNewGroupsToStore(((PhaseModelDTO)container).getLayoutDTO(), groupsStore, addedGroups);
 				}else{
 					for(LayoutGroupDTO groupChoice : ((ProjectDetailsDTO)container).getLayoutDTO().getLayoutGroupsDTO()){
 						 groupsStore.add(groupChoice);
 					}
-					//addNewGroupsToStore(((ProjectDetailsDTO)container).getLayoutDTO(), groupsStore, addedGroups);
 				}
 				if(flexibleElement.getBannerConstraint() != null){
 					posBanner.setSimpleValue(flexibleElement.getBannerConstraint().getSortOrder());
@@ -805,17 +799,31 @@ public class ElementForm extends ContentPanel {
 		}
 	}
 
-	private void createFlexibleElement(final AsyncCallback<UpdateModelResult> callback) {
-		
-		 if (!commonPanel.isValid() || htmlArea.getValue() != null && htmlArea.getValue().isEmpty() || "?".equals(htmlArea.getValue()) ) {
+	private void createFlexibleElement(final AsyncCallback<UpdateModelResult> callback) {		 
+		 
+		 //common attributes
+		String send = "";
+		if (htmlArea.getValue() != null && !htmlArea.getValue().isEmpty() ) {
+			 String a = htmlArea.getValue();
+			 
+			 if(a != null && !a.isEmpty()){
+				 String[] e = a.split("[^\\p{Punct}\\p{L}\\w\\s]");
+				 for(String e1 : e){			 
+					 send = send + e1;
+				 }
+				 //Log.debug("Sending originally " + a);
+			 }
+		}
+		 if (!commonPanel.isValid() || htmlArea.getValue() != null && htmlArea.getValue().isEmpty() 
+				 || "".equals(send) ) {
 	            MessageBox.alert(I18N.CONSTANTS.createFormIncomplete(),
 	                    I18N.MESSAGES.createFormIncompleteDetails(I18N.CONSTANTS.adminStandardFlexibleName()), null);
 	            return;
 		 }
 		 
+		 final String name = send;
+		 //Log.debug("Sending final " + name);
 		 
-		 //common attributes FIXME
-		 final String name = htmlArea.getValue().replace("?", "");
 		 String type = null;
 		 if(typeList.getSimpleValue() != null)
 			 type = typeList.getSimpleValue();
@@ -866,7 +874,7 @@ public class ElementForm extends ContentPanel {
 		 Boolean multipleQ = isMultipleQ.getValue();		 
 		 CategoryTypeDTO category = linkedCategory.getValue();
 		 
-		 HashMap<String, Object> newFieldProperties = new HashMap<String, Object>();
+		 Map<String, Object> newFieldProperties = new HashMap<String, Object>();
 		 	 
 		 newFieldProperties.put(AdminUtil.PROP_FX_NAME, name);
 		 newFieldProperties.put(AdminUtil.PROP_FX_TYPE, ElementTypeEnum.getType(type));
@@ -936,11 +944,12 @@ public class ElementForm extends ContentPanel {
 			 newFieldProperties.put(AdminUtil.PROP_FX_GROUP, group);
 		 }
 		 
-		 if(flexibleElementToUpdate != null)
+		 if(flexibleElementToUpdate != null){
 			 newFieldProperties.put(AdminUtil.PROP_FX_FLEXIBLE_ELEMENT, flexibleElementToUpdate);
-		 else
-			 newFieldProperties.put(AdminUtil.PROP_FX_FLEXIBLE_ELEMENT, new TextAreaElementDTO());
-		 
+		 }else{
+			 TextAreaElementDTO t = new TextAreaElementDTO();
+			 newFieldProperties.put(AdminUtil.PROP_FX_FLEXIBLE_ELEMENT, t);
+		 }
 		 newFieldProperties.put(AdminUtil.ADMIN_PROJECT_MODEL, projectModelToUpdate);
 		 newFieldProperties.put(AdminUtil.ADMIN_ORG_UNIT_MODEL, orgUnitModelToUpdate);
 		 newFieldProperties.put(AdminUtil.PROP_FX_OLD_FIELDS, oldFieldProperties);

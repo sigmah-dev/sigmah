@@ -11,10 +11,8 @@ import org.sigmah.shared.dto.OrgUnitModelDTO;
 import org.sigmah.shared.dto.ProjectModelDTO;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
 
-import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Component;
-import com.extjs.gxt.ui.client.widget.ContentPanel;
 
 public class AdminFlexibleElementsPresenter implements AdminModelSubPresenter {
 

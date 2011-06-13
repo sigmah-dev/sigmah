@@ -42,12 +42,11 @@ public class ModelUtil {
 
 	@SuppressWarnings("unchecked")
 	public static void persistFlexibleElement(EntityManager em, Mapper mapper, PropertyMap changes, Object model){
-		
+
 		FlexibleElementDTO flexibleEltDTO = null;
 		if(changes.get(AdminUtil.PROP_FX_FLEXIBLE_ELEMENT) != null){
-			
 			//Common attributes
-			String name = changes.get(AdminUtil.PROP_FX_NAME);		
+			String name = (String) changes.get(AdminUtil.PROP_FX_NAME);		
 			ElementTypeEnum type = (ElementTypeEnum) changes.get(AdminUtil.PROP_FX_TYPE);
 			Boolean isCompulsory = null;
 			if(changes.get(AdminUtil.PROP_FX_IS_COMPULSARY)!=null)
