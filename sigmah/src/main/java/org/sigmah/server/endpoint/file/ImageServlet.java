@@ -4,6 +4,8 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URL;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
@@ -67,22 +69,17 @@ public class ImageServlet extends HttpServlet {
         }
 
         // Retrieves the image.
-        final File image = imageRepository.getImage(url);
+        final URI image = imageRepository.getImage(url);
         
         
-        final BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(image));
+        final BufferedInputStream inputStream = new BufferedInputStream(image.toURL().openStream());
 
         try {
 
             // Writes image content to the HTTP response.
             final ServletOutputStream outputStream = response.getOutputStream();
-
-            int b = inputStream.read();
-            while (b != -1) {
-                outputStream.write(b);
-                b = inputStream.read();
-            }
-
+            IOUtil.copy(inputStream, outputStream);
+           
             inputStream.close();
             outputStream.close();
         } catch (IOException e) {

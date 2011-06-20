@@ -1,6 +1,11 @@
 package org.sigmah.server.endpoint.file;
 
+import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Properties;
+
+import org.apache.log4j.Logger;
 
 import com.google.inject.Inject;
 
@@ -9,7 +14,7 @@ public class ImageRepository {
     /**
      * Directory's path name where the images are stored.
      */
-    private final String IMAGES_REPOSITORY;
+    private URI rootUri;
 
     /**
      * The property's name expected in the properties file to set the images
@@ -18,17 +23,32 @@ public class ImageRepository {
     // @VisibleForTesting
     static final String IMAGES_REPOSITORY_NAME = "repository.images";
 
+    private static final Logger logger = Logger.getLogger(ImageRepository.class);
+    
        
 	@Inject
 	public ImageRepository(Properties configProperties) {
 
         // Initializes images repository path.
-        IMAGES_REPOSITORY = configProperties.getProperty(IMAGES_REPOSITORY_NAME);
+        String root = configProperties.getProperty(IMAGES_REPOSITORY_NAME);
 
-        if (IMAGES_REPOSITORY == null) {
-            throw new IllegalStateException("Missing reqquired property '" + IMAGES_REPOSITORY_NAME
+        if (root == null) {
+            throw new IllegalStateException("Missing required property '" + IMAGES_REPOSITORY_NAME
                     + "' in the upload properties file.");
         }
+        
+        try {
+        	this.rootUri = new URI(root);
+        	if(!rootUri.isAbsolute()) {
+        		this.rootUri = new URI("file:///").resolve(root);
+        	}
+        } catch(URISyntaxException e) {
+        	// automatically convert windows paths
+        	File rootFile = new File(root);
+        	this.rootUri = rootFile.toURI();
+        }
+        
+        logger.info("Images repository = " + rootUri.toString());
 	}
 	
     /**
@@ -38,15 +58,12 @@ public class ImageRepository {
      *            The image's name.
      * @return The image as a file.
      */
-    public java.io.File getImage(String name) {
+    public URI getImage(String name) {
 
-        // Images repository.
-        final java.io.File repository = new java.io.File(IMAGES_REPOSITORY);
-
-        // Image file.
-        final java.io.File imageFile = new java.io.File(repository, name);
-
-        return imageFile;
+    	return rootUri.resolve(name);    
     }
 	
+    public URI getRootUri() {
+    	return rootUri;
+    }
 }
