@@ -15,7 +15,10 @@ import javax.servlet.http.HttpServletResponse;
 import org.sigmah.server.auth.impl.BCrypt;
 import org.sigmah.server.dao.Transactional;
 import org.sigmah.shared.domain.OrgUnit;
+import org.sigmah.shared.domain.OrgUnitBanner;
+import org.sigmah.shared.domain.OrgUnitModel;
 import org.sigmah.shared.domain.Organization;
+import org.sigmah.shared.domain.ProjectModelStatus;
 import org.sigmah.shared.domain.User;
 import org.sigmah.shared.domain.profile.GlobalPermission;
 import org.sigmah.shared.domain.profile.GlobalPermissionEnum;
@@ -95,10 +98,20 @@ public class SignupServlet extends HttpServlet {
 		org.setName(req.getParameter("organizationName"));
 		entityManager.get().persist(org);
 		
+		OrgUnitModel orgUnitModel = new OrgUnitModel();
+		orgUnitModel.setCanContainProjects(true);
+		orgUnitModel.setTitle("Modèle de zone d'intervention");
+		orgUnitModel.setName("Zone d'Intervention");
+		orgUnitModel.setHasBudget(true);
+		orgUnitModel.setStatus(ProjectModelStatus.READY);
+		orgUnitModel.setOrganization(org);
+		entityManager.get().persist(orgUnitModel);
+		
 		OrgUnit rootOrgUnit = new OrgUnit();
 		rootOrgUnit.setOrganization(org);
 		rootOrgUnit.setName("HQ");
 		rootOrgUnit.setFullName("Empty Headquarters");
+		rootOrgUnit.setOrgUnitModel(orgUnitModel);
 		org.setRoot(rootOrgUnit);		
 		
 		entityManager.get().persist(rootOrgUnit);
