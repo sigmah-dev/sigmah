@@ -1505,6 +1505,9 @@ sigmah/src/main/java/org/sigmah/server/domain/ReportSubscription.java -text
 sigmah/src/main/java/org/sigmah/server/domain/ReportSubscriptionId.java -text
 sigmah/src/main/java/org/sigmah/server/domain/SiteData.java -text
 sigmah/src/main/java/org/sigmah/server/domain/UserDatabaseTemplate.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/account/AccountAlreadyExistsException.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/account/AccountModule.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/account/SignupServlet.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/export/Export.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/export/ExportModule.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/export/ExportServlet.java -text
@@ -2324,6 +2327,7 @@ sigmah/src/test/java/org/sigmah/server/dao/hibernate/LoadDataSet.java -text
 sigmah/src/test/java/org/sigmah/server/dao/hibernate/PivotHibernateDAOTest.java -text
 sigmah/src/test/java/org/sigmah/server/dao/hibernate/TransactionalInterceptorTest.java -text
 sigmah/src/test/java/org/sigmah/server/dao/hibernate/UserDAOImplTest.java -text
+sigmah/src/test/java/org/sigmah/server/endpoint/account/SignupServletTest.java -text
 sigmah/src/test/java/org/sigmah/server/endpoint/file/FileManagerTest.java -text
 sigmah/src/test/java/org/sigmah/server/endpoint/file/FileManagerTestConfigModule.java -text
 sigmah/src/test/java/org/sigmah/server/endpoint/file/ImageRepositoryTest.java -text

@@ -893,7 +893,7 @@
                         <artifactId>gwt-maven-plugin</artifactId>
                         <version>1.2</version>
                         <configuration>
-                            <module>org.sigmah.Sigmah</module>
+                            <module>org.sigmah.SigmahProduction</module>
                             <logLevel>INFO</logLevel>
                             <runTarget>Sigmah</runTarget>
                         </configuration>

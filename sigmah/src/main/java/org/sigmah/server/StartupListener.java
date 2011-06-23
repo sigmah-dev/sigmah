@@ -13,6 +13,7 @@ import org.sigmah.server.auth.AuthenticationModule;
 import org.sigmah.server.bootstrap.BootstrapModule;
 import org.sigmah.server.bootstrap.SigmahBootstrapModule;
 import org.sigmah.server.dao.hibernate.HibernateModule;
+import org.sigmah.server.endpoint.account.AccountModule;
 import org.sigmah.server.endpoint.export.ExportModule;
 import org.sigmah.server.endpoint.file.FileModule;
 import org.sigmah.server.endpoint.gwtrpc.GwtRpcModule;
@@ -69,6 +70,7 @@ public class StartupListener extends GuiceServletContextListener {
                 new GwtRpcModule(),
                 new ExportModule(),
                 new WfsModule(),
+                new AccountModule(),
                 new JsonRpcModule(),
                 new KmlModule());
 
