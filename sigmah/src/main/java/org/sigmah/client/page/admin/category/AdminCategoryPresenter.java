@@ -23,6 +23,7 @@ import org.sigmah.shared.dto.category.CategoryTypeDTO;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
 import org.sigmah.shared.dto.element.QuestionElementDTO;
 
+import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
@@ -80,12 +81,11 @@ public class AdminCategoryPresenter implements AdminModelSubPresenter {
 	            public void onSuccess(CategoriesListResult result) {
 	            	view.getCategoriesStore().removeAll();
 	            	view.getCategoriesStore().clearFilters();
-	                if (result.getList() == null || result.getList().isEmpty()) {
-	                	AdminUtil.alertPbmData(alert);
-	                    return;
+	                if (result.getList() !=null && !result.getList().isEmpty()) {
+	                	view.getCategoriesStore().add(result.getList());
+		                view.getCategoriesStore().commitChanges();
 	                }
-	                view.getCategoriesStore().add(result.getList());
-	                view.getCategoriesStore().commitChanges();
+	                
 	            }		
 		});
 		

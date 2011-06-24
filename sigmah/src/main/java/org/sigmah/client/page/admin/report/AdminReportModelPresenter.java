@@ -85,15 +85,13 @@ public class AdminReportModelPresenter implements AdminModelSubPresenter {
 	
 	            @Override
 	            public void onSuccess(ReportModelsListResult result) {
-	            	Log.debug("id for report " + (ReportModelDTO) result.getList().get(0));
 	            	view.getReportModelsStore().removeAll();
 	            	view.getReportModelsStore().clearFilters();
-	                if (result.getList() == null || result.getList().isEmpty()) {
-	                	 AdminUtil.alertPbmData(alert);
-	                    return;
+	                if (result.getList() != null && !result.getList().isEmpty()) {
+	                	view.getReportModelsStore().add(result.getList());
+		                view.getReportModelsStore().commitChanges();
 	                }
-	                view.getReportModelsStore().add(result.getList());
-	                view.getReportModelsStore().commitChanges();
+	                
 	            }		
 		});
 		
