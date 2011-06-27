@@ -82,19 +82,21 @@ public class AdminReportModelView extends View {
 		setBorders(false);
 		setBodyBorder(false);
 
-		ContentPanel sidePanel = new ContentPanel(new VBoxLayout());
+		ContentPanel sidePanel = new ContentPanel(new FitLayout());
 		sidePanel.setHeaderVisible(false);
 		sidePanel.setWidth(350);
-		sidePanel.setScrollMode(Scroll.NONE);
+		sidePanel.setScrollMode(Scroll.AUTOY);
 		reportModelsGrid = buildModelsListGrid();
 		sidePanel.add(reportModelsGrid);
 		sidePanel.setTopComponent(reportModelToolBar());
+		
 
 		reportPanel = new ContentPanel(new FitLayout());
 		reportPanel.setHeaderVisible(false);
 		reportPanel.setBorders(true);
 		reportPanel.add(buildReportSectionsGrid());
 		reportPanel.setTopComponent(reportSectionToolBar());
+		reportPanel.setScrollMode(Scroll.AUTOY);
 
 		final BorderLayoutData leftLayoutData = new BorderLayoutData(
 				LayoutRegion.WEST, 350);
