@@ -22,6 +22,7 @@ import com.extjs.gxt.ui.client.widget.layout.HBoxLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.VBoxLayout;
 import com.extjs.gxt.ui.client.widget.layout.VBoxLayout.VBoxLayoutAlign;
 import com.extjs.gxt.ui.client.widget.layout.VBoxLayoutData;
+import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.core.client.GWT;
@@ -169,11 +170,13 @@ public class ProjectLogFrameView extends ProjectLogFramePresenter.View {
         // Save button.
         saveButton = new Button(I18N.CONSTANTS.save(), IconImageBundle.ICONS.save());
         saveButton.setEnabled(false);
+       // saveButton.addStyleName("project-logframe-saveButton");
+
 
         // Copy button.
         copyButton = new Button(I18N.CONSTANTS.copy());
         copyButton.setEnabled(true);
-
+        
         // Paste button.
         pasteButton = new Button(I18N.CONSTANTS.paste());
         pasteButton.setEnabled(false);
@@ -192,10 +195,11 @@ public class ProjectLogFrameView extends ProjectLogFramePresenter.View {
 
         // Actions toolbar.
         final ToolBar toolBar = new ToolBar();
-        toolBar.setAlignment(HorizontalAlignment.LEFT);
         toolBar.setBorders(false);
-
+              
         toolBar.add(saveButton);
+        //Use FillToolItem to align the left 3 buttons on the right
+        toolBar.add(new FillToolItem());
         toolBar.add(copyButton);
         toolBar.add(pasteButton);
         toolBar.add(new SeparatorToolItem());
