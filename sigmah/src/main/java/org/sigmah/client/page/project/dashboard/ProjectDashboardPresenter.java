@@ -1619,7 +1619,7 @@ public class ProjectDashboardPresenter implements SubPresenter {
 
                         // Adds fields.
                         final ComboBox<ProjectDTOLight> projects = window.addChoicesList(
-                                I18N.CONSTANTS.createProjectTypeFunding(), resultList, false, "completeName");
+                                I18N.CONSTANTS.createProjectTypePartner(), resultList, false, "completeName");
 
                         final LabelField modelTypeLabel = window.addLabelField(I18N.CONSTANTS.createProjectType());
                         modelTypeLabel.setHeight(25);
