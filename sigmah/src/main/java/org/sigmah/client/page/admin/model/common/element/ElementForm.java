@@ -480,8 +480,8 @@ public class ElementForm extends ContentPanel {
 		typeList.setTriggerAction(TriggerAction.ALL);	
 		List<String> values = new ArrayList<String>();  
 		for(ElementTypeEnum e : ElementTypeEnum.values()){
-			//Hide the types: "DEFAULT","TRIPLETS" and "INDICATOR LIST"
-			if(!ElementTypeEnum.DEFAULT.equals(e) && !ElementTypeEnum.TRIPLETS.equals(e) && !ElementTypeEnum.INDICATORS.equals(e))
+			//Hide the types: "DEFAULT" and "INDICATOR LIST"
+			if(!ElementTypeEnum.DEFAULT.equals(e) && !ElementTypeEnum.INDICATORS.equals(e))
 				values.add(ElementTypeEnum.getName(e));
 		}
 		typeList.add(values);
