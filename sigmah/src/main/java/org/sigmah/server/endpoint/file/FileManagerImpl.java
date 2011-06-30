@@ -493,6 +493,8 @@ public class FileManagerImpl implements FileManager {
         point.setLabel(label);
         point.setExpectedDate(expectedDate);
         point.setFile(em.find(File.class, fileId));
+        point.setCompletionDate(null);
+        point.setDeleted(false);
 
         // Adds the point to the list.
         list.addMonitoredPoint(point);
