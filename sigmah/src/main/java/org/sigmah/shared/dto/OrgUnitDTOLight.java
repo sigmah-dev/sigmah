@@ -101,6 +101,16 @@ public class OrgUnitDTOLight extends DeRpcSafeBaseTreeModel implements EntityDTO
             return b;
         }
     }
+    
+    
+    // Model
+    public OrgUnitModelDTO getOrgUnitModel() {
+        return get("oum");
+    }
+
+    public void setOrgUnitModel(OrgUnitModelDTO oum) {
+        set("oum", oum);
+    }
 
     public void setCanContainProjects(Boolean canContainProjects) {
         set("canContainProjects", canContainProjects);
@@ -121,4 +131,7 @@ public class OrgUnitDTOLight extends DeRpcSafeBaseTreeModel implements EntityDTO
 
         set("children", l);
     }
+    
+
+    
 }

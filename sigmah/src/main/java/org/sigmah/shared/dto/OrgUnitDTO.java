@@ -229,6 +229,9 @@ public class OrgUnitDTO extends BaseModelData implements EntityDTO, DefaultFlexi
         }
         light.setChildrenDTO(children);
         light.setDeleted(getDeleted());
+        
+        //Set the orgunit model
+        light.setOrgUnitModel(getOrgUnitModel());
 
         return light;
     }

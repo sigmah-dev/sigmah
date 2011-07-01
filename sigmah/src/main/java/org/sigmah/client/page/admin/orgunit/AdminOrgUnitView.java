@@ -8,6 +8,7 @@ import org.sigmah.client.page.orgunit.OrgUnitImageBundle;
 import org.sigmah.client.util.TreeGridCheckboxSelectionModel;
 import org.sigmah.shared.dto.CountryDTO;
 import org.sigmah.shared.dto.OrgUnitDTOLight;
+import org.sigmah.shared.dto.OrgUnitModelDTO;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.SortDir;
@@ -57,16 +58,19 @@ public class AdminOrgUnitView extends AdminOrgUnitPresenter.View {
 
         final ArrayList<ColumnConfig> columns = new ArrayList<ColumnConfig>();
 
+        //Code
         final ColumnConfig nameColumn = new ColumnConfig();
         nameColumn.setId("name");
         nameColumn.setHeader(I18N.CONSTANTS.projectName());
         nameColumn.setRenderer(new TreeGridCellRenderer<OrgUnitDTOLight>());
         nameColumn.setWidth(150);
 
+        //Title
         final ColumnConfig fullNameColumn = new ColumnConfig();
         fullNameColumn.setId("fullName");
         fullNameColumn.setHeader(I18N.CONSTANTS.projectFullName());
 
+        //Country
         final ColumnConfig countryColumn = new ColumnConfig();
         countryColumn.setId("country");
         countryColumn.setHeader(I18N.CONSTANTS.projectCountry());
@@ -87,6 +91,37 @@ public class AdminOrgUnitView extends AdminOrgUnitPresenter.View {
             }
         });
 
+        //OrgUnitModel
+        final ColumnConfig modelColumn = new ColumnConfig();
+        modelColumn.setId("oum");
+        modelColumn.setHeader(I18N.CONSTANTS.projectModel());
+        modelColumn.setWidth(200);
+        modelColumn.setRenderer(new GridCellRenderer<OrgUnitDTOLight>(){
+
+			@Override
+			public Object render(OrgUnitDTOLight model, String property,
+					ColumnData config, int rowIndex, int colIndex,
+					ListStore<OrgUnitDTOLight> store, Grid<OrgUnitDTOLight> grid) {
+				
+				
+			   final OrgUnitModelDTO orgUnitModel = (OrgUnitModelDTO)model.get(property);
+			   
+			   if(orgUnitModel==null)
+			   {
+				   return "";
+			   }
+			   else
+			   {
+				   return orgUnitModel.getName();
+			   }
+			   
+				
+			}
+        	
+        });
+   
+        
+        
         // Tree store
         final TreeStore<OrgUnitDTOLight> store = new TreeStore<OrgUnitDTOLight>();
         store.setSortInfo(new SortInfo("name", SortDir.ASC));
@@ -112,6 +147,7 @@ public class AdminOrgUnitView extends AdminOrgUnitPresenter.View {
         columns.add(nameColumn);
         columns.add(fullNameColumn);
         columns.add(countryColumn);
+        columns.add(modelColumn);
 
         // Tree grid
         tree = new TreeGrid<OrgUnitDTOLight>(store, new ColumnModel(columns));
