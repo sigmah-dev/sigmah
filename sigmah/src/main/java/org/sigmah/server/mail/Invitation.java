@@ -10,17 +10,17 @@ import org.sigmah.shared.domain.User;
 public class Invitation {
     private User newUser;
     private User invitingUser;
-    private String userConfirmServerUrl;
+    private String hostUrl;
     
     public Invitation(User newUser, User invitingUser) {
         this.newUser = newUser;
         this.invitingUser = invitingUser;
     }
      
-    public Invitation(User newUser, User invitingUser,String userConfirmServerUrl) {
+    public Invitation(User newUser, User invitingUser,String hostUrl) {
         this.newUser = newUser;
         this.invitingUser = invitingUser;
-        this.userConfirmServerUrl = userConfirmServerUrl;
+        this.hostUrl = hostUrl;
     }
 
     public User getNewUser() {
@@ -32,16 +32,18 @@ public class Invitation {
     }
 
 	/**
-	 * @return the userConfirmServerUrl
+	 * @return the hostUrl
 	 */
-	public String getUserConfirmServerUrl() {
-		return userConfirmServerUrl;
+	public String getHostUrl() {
+		return hostUrl;
 	}
 
 	/**
-	 * @param userConfirmServerUrl the userConfirmServerUrl to set
+	 * @param hostUrl the hostUrl to set
 	 */
-	public void setUserConfirmServerUrl(String userConfirmServerUrl) {
-		this.userConfirmServerUrl = userConfirmServerUrl;
+	public void setHostUrl(String hostUrl) {
+		this.hostUrl = hostUrl;
 	}
+
+	
 }

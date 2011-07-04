@@ -7,6 +7,8 @@ package org.sigmah.server.mail;
 
 import java.util.Map;
 import java.util.Properties;
+
+import org.apache.commons.mail.DefaultAuthenticator;
 import org.apache.commons.mail.Email;
 import org.apache.commons.mail.EmailException;
 import org.sigmah.server.util.logging.LogException;
@@ -32,6 +34,17 @@ public class MailSenderImpl implements MailSender {
             System.out.println("PROPS "+entry.getKey().toString()+" = "+entry.getValue().toString());
 
         email.setHostName(properties.getProperty(HOST_NAME_KEY, DEFAULT_HOST_NAME));
+        
+        //------------------------------------TEST LOCAL---------------------------------------
+        /*
+        email.setHostName("smtp.gmail.com");
+        email.setSmtpPort(587);
+        email.setAuthenticator(new DefaultAuthenticator("TEST@gmail.com", "PASSWORD"));
+        email.setTLS(true);
+        email.setFrom("TEST@gmail.com");
+        */
+        //----------------END TEST--------------------------------------------------------------
+        
         email.setFrom(properties.getProperty(FROM_ADDRESS_KEY, DEFAULT_ADDRESS), properties.getProperty(FROM_NAME_KEY, DEFAULT_NAME));
         email.send();
     }

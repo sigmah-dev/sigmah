@@ -42,11 +42,11 @@ public class UserPolicy implements EntityPolicy<User> {
 	private final Mailer<Invitation> inviteMailer;
 	private static final Log log = LogFactory.getLog(UserPolicy.class);
 	
-    //The key for reading the value from sigmah.properties 
-    final public static String KEY_NEWUSER_CONFIRM_URL= "newUserConfirm.host.url";
+    //The key for reading the host url value from sigmah.properties 
+    final public static String KEY_HOST_URL= "newUserConfirm.host.url";
     
-    //The default value if the key above does not existe in sigmah.properties
-    final public static String DEFAULT_CONFIRM_URL= "www.sigmah.org/newuser/confirm?";
+    //The default value if the key above does not exist in sigmah.properties
+    final public static String DEFAULT_HOST_URL= "http://www.sigmah.org";
     
     private final Properties properties;
 	
@@ -107,8 +107,8 @@ public class UserPolicy implements EntityPolicy<User> {
 					userDAO.persist(userToPersist);
 					try {
 						log.debug("Send the eamil after creating the new user.: "+userToPersist.getEmail());
-						log.debug("The url is : "+this.properties.getProperty(KEY_NEWUSER_CONFIRM_URL,DEFAULT_CONFIRM_URL));
-						String confirmUrl = this.properties.getProperty(KEY_NEWUSER_CONFIRM_URL,DEFAULT_CONFIRM_URL);
+						log.debug("The url is : "+this.properties.getProperty(KEY_HOST_URL,DEFAULT_HOST_URL));
+						String confirmUrl = this.properties.getProperty(KEY_HOST_URL,DEFAULT_HOST_URL);
 			    		inviteMailer.send(new Invitation(userToPersist, executingUser,confirmUrl), LocaleHelper.getLocaleObject(executingUser), true);
 			        } catch (Exception e) {
 			            // ignore, don't abort because mail didn't work
