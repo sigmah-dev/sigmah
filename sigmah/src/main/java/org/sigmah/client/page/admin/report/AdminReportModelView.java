@@ -84,7 +84,7 @@ public class AdminReportModelView extends View {
 
 		ContentPanel sidePanel = new ContentPanel(new FitLayout());
 		sidePanel.setHeaderVisible(false);
-		sidePanel.setWidth(350);
+		sidePanel.setWidth(370);
 		sidePanel.setScrollMode(Scroll.AUTOY);
 		reportModelsGrid = buildModelsListGrid();
 		sidePanel.add(reportModelsGrid);
@@ -99,7 +99,7 @@ public class AdminReportModelView extends View {
 		reportPanel.setScrollMode(Scroll.AUTOY);
 
 		final BorderLayoutData leftLayoutData = new BorderLayoutData(
-				LayoutRegion.WEST, 350);
+				LayoutRegion.WEST, 370);
 		leftLayoutData.setMargins(new Margins(0, 4, 0, 0));
 		add(sidePanel, leftLayoutData);
 		final BorderLayoutData mainLayoutData = new BorderLayoutData(
@@ -139,7 +139,7 @@ public class AdminReportModelView extends View {
 
 		column = new ColumnConfig();
 		column.setId("name");
-		column.setWidth(400);
+		column.setWidth(280);
 		column.setHeader(I18N.CONSTANTS.adminReportSectionName());
 		TextField<String> name = new TextField<String>();
 		name.setAllowBlank(false);
@@ -165,7 +165,7 @@ public class AdminReportModelView extends View {
 
 		column = new ColumnConfig();
 		column.setId("parentSectionModelName");
-		column.setWidth(400);
+		column.setWidth(280);
 		column.setHeader(I18N.CONSTANTS.adminReportSectionParentSection());
 		parentSectionsCombo = new ComboBox<ProjectReportModelSectionDTO>();
 		parentSectionsCombo.setTriggerAction(TriggerAction.ALL);
@@ -209,7 +209,7 @@ public class AdminReportModelView extends View {
 
 		column = new ColumnConfig();
 		column.setWidth(75);
-		column.setAlignment(Style.HorizontalAlignment.RIGHT);
+		column.setAlignment(Style.HorizontalAlignment.LEFT);
 		column.setRenderer(new GridCellRenderer<ProjectReportModelSectionDTO>() {
 
 			@Override

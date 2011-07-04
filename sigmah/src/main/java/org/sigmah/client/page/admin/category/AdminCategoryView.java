@@ -78,7 +78,7 @@ public class AdminCategoryView extends View {
         
         ContentPanel sidePanel = new ContentPanel(new VBoxLayout());
         sidePanel.setHeaderVisible(false);
-        sidePanel.setWidth(425);
+        sidePanel.setWidth(450);
         sidePanel.setScrollMode(Scroll.NONE);
         categoriesGrid = buildCategoriesListGrid();
         sidePanel.add(categoriesGrid);
@@ -91,7 +91,7 @@ public class AdminCategoryView extends View {
         categoryPanel.add(categoryElementsGrid);
         categoryPanel.setTopComponent(categoryElementToolBar());
         
-        final BorderLayoutData leftLayoutData = new BorderLayoutData(LayoutRegion.WEST, 425);
+        final BorderLayoutData leftLayoutData = new BorderLayoutData(LayoutRegion.WEST, 450);
         leftLayoutData.setMargins(new Margins(0, 4, 0, 0));
 		add(sidePanel, leftLayoutData);	
 		 final BorderLayoutData mainLayoutData = new BorderLayoutData(LayoutRegion.CENTER);
@@ -235,7 +235,7 @@ public class AdminCategoryView extends View {
 		grid.setAutoHeight(true);
 		grid.getView().setForceFit(true);
 		grid.setAutoWidth(false);
-		grid.setWidth(425);
+		grid.setWidth(450);
 		return grid;
 	}
 	
