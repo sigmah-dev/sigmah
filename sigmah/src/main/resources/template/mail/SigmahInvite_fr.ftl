@@ -4,7 +4,7 @@ Bonjour ${newUser.name},
 ${invitingUser.name} (${invitingUser.email}) vous invite Ã  acceder au Sigmah. Pour confirmer
 votre adresse et connecter au systÃ¨me, visitez le lien suivante:
 
-${userConfirmServerUrl}${newUser.changePasswordKey}
+${hostUrl}/NewUserConfirm?${newUser.changePasswordKey}
 
 Cordialement,
 

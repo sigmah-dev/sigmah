@@ -4,7 +4,7 @@ Hi ${newUser.name},
 ${invitingUser.name} (${invitingUser.email}) has invited you to access Sigmah. To
 complete your user registration, click on the following link:
 
-${userConfirmServerUrl}${newUser.changePasswordKey}
+${hostUrl}/NewUserConfirm?${newUser.changePasswordKey}
 
 Best regards,
 
