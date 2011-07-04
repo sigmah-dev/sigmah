@@ -69,8 +69,6 @@ import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.ui.Hyperlink;
 import com.google.gwt.user.client.ui.Image;
 
-
-
 /**
  * 
  * @author Denis Colliot (dcolliot@ideia.fr)
@@ -106,17 +104,16 @@ public class ProjectDashboardView extends ProjectDashboardPresenter.View {
     private Grid<ReminderDTO> remindersGrid;
 
     private ContentPanel panelMonitoredPoints;
-	private Button addMonitoredPointButton;
+    private Button addMonitoredPointButton;
     private Grid<MonitoredPointDTO> monitoredPointsGrid;
-    
+
     private Image editIcon;
-    
+
     private final ProjectPresenter projectPresenter;
-    
-    private  ContentPanel requiredElementContentPanel;
 
+    private ContentPanel requiredElementContentPanel;
 
-    public ProjectDashboardView(Authentication authentication, Dispatcher dispatcher,ProjectPresenter projectPresenter) {
+    public ProjectDashboardView(Authentication authentication, Dispatcher dispatcher, ProjectPresenter projectPresenter) {
 
         this.authentication = authentication;
         this.dispatcher = dispatcher;
@@ -128,14 +125,16 @@ public class ProjectDashboardView extends ProjectDashboardPresenter.View {
 
         /* Center panel */
         ListStore<FlexibleElementDTO> storeRequiredElements = new ListStore<FlexibleElementDTO>();
-      
+
         gridRequiredElements = new Grid<FlexibleElementDTO>(storeRequiredElements, getRequiredElementsColumModel());
         gridRequiredElements.setAutoExpandColumn("label");
         gridRequiredElements.getView().setForceFit(true);
 
         // Phases tab panel
         tabPanelPhases = new TabPanel();
-        tabPanelPhases.setPlain(true);      
+        tabPanelPhases.setPlain(true);
+        tabPanelPhases.setTabScroll(true);
+        tabPanelPhases.setAnimScroll(true);
 
         // Toolbar
         toolBar = new ToolBar();
@@ -166,7 +165,7 @@ public class ProjectDashboardView extends ProjectDashboardPresenter.View {
         final BorderLayoutData wd = new BorderLayoutData(LayoutRegion.WEST, 250);
         wd.setMargins(new Margins(0, 4, 4, 4));
 
-        requiredElementContentPanel = new ContentPanel(new FitLayout());     
+        requiredElementContentPanel = new ContentPanel(new FitLayout());
 
         requiredElementContentPanel.add(gridRequiredElements);
         panelProjectModel.add(requiredElementContentPanel, wd);
@@ -239,7 +238,6 @@ public class ProjectDashboardView extends ProjectDashboardPresenter.View {
         final ColumnConfig labelColumn = new ColumnConfig("label", I18N.CONSTANTS.projectRequiredElementsGridLabel(),
                 150);
 
-    
         // Element's completion.
         final CheckColumnConfig filledInColumn = new CheckColumnConfig("filledIn",
                 I18N.CONSTANTS.projectRequiredElementsGridChecked(), 40);
@@ -267,7 +265,7 @@ public class ProjectDashboardView extends ProjectDashboardPresenter.View {
                 return FlexibleElementType.getFlexibleElementTypeName(model);
             }
         });
-               
+
         return new ColumnModel(Arrays.asList(filledInColumn, labelColumn, typeColumn));
     }
 
@@ -400,13 +398,11 @@ public class ProjectDashboardView extends ProjectDashboardPresenter.View {
     public Button getAddMonitoredPointButton() {
         return addMonitoredPointButton;
     }
-    
+
     @Override
-    public Image getEditIcon()
-    {
-    	return editIcon;
+    public Image getEditIcon() {
+        return editIcon;
     }
-    
 
     /**
      * Builds the grid to display financial projects.
@@ -619,18 +615,17 @@ public class ProjectDashboardView extends ProjectDashboardPresenter.View {
                 return percentageLabel;
             }
         });
-        
-        
+
         // Edit icon.
         final ColumnConfig editButtonColumn = new ColumnConfig();
         editButtonColumn.setId("editButton");
         editButtonColumn.setSortable(false);
         editButtonColumn.setWidth(30);
         editButtonColumn.setAlignment(HorizontalAlignment.LEFT);
-        editButtonColumn.setRenderer(new FinancialProjectEditButtonGridCellRender(this,dispatcher,projectPresenter));
+        editButtonColumn.setRenderer(new FinancialProjectEditButtonGridCellRender(this, dispatcher, projectPresenter));
 
-
-        return new ColumnConfig[] { iconColumn, nameColumn, fullNameColumn, amountColumn, percentageColumn,editButtonColumn};
+        return new ColumnConfig[] { iconColumn, nameColumn, fullNameColumn, amountColumn, percentageColumn,
+                editButtonColumn };
     }
 
     /**
@@ -719,16 +714,18 @@ public class ProjectDashboardView extends ProjectDashboardPresenter.View {
                 return percentageLabel;
             }
         });
-        
+
         // Edit icon.
         final ColumnConfig editButtonColumn = new ColumnConfig();
         editButtonColumn.setId("editButton");
         editButtonColumn.setSortable(false);
         editButtonColumn.setWidth(30);
         editButtonColumn.setAlignment(HorizontalAlignment.LEFT);
-        editButtonColumn.setRenderer(new LocalPartnerProjectEditButtonGridCellRender(this,dispatcher,projectPresenter));
+        editButtonColumn
+                .setRenderer(new LocalPartnerProjectEditButtonGridCellRender(this, dispatcher, projectPresenter));
 
-        return new ColumnConfig[] { iconColumn, nameColumn, fullNameColumn, amountColumn, percentageColumn,editButtonColumn };
+        return new ColumnConfig[] { iconColumn, nameColumn, fullNameColumn, amountColumn, percentageColumn,
+                editButtonColumn };
     }
 
     /**
@@ -1074,7 +1071,7 @@ public class ProjectDashboardView extends ProjectDashboardPresenter.View {
         labelColumn.setId("label");
         labelColumn.setHeader(I18N.CONSTANTS.monitoredPointLabel());
         labelColumn.setWidth(60);
-        labelColumn.setRenderer(new MonitoredPointLabelCellRender(this,this.dispatcher));
+        labelColumn.setRenderer(new MonitoredPointLabelCellRender(this, this.dispatcher));
 
         // Expected date.
         final ColumnConfig expectedDateColumn = new ColumnConfig();
@@ -1151,9 +1148,8 @@ public class ProjectDashboardView extends ProjectDashboardPresenter.View {
         labelColumn.setId("label");
         labelColumn.setHeader(I18N.CONSTANTS.monitoredPointLabel());
         labelColumn.setWidth(60);
-        labelColumn.setRenderer(new ReminderLableCellRenderer(this,this.dispatcher));
-             
-       
+        labelColumn.setRenderer(new ReminderLableCellRenderer(this, this.dispatcher));
+
         // Expected date.
         final ColumnConfig expectedDateColumn = new ColumnConfig();
         expectedDateColumn.setId("expectedDate");
@@ -1181,16 +1177,13 @@ public class ProjectDashboardView extends ProjectDashboardPresenter.View {
         completionDateColumn.setWidth(60);
         completionDateColumn.setDateTimeFormat(format);
 
-        return new ColumnConfig[] { completedColumn, iconColumn,labelColumn, expectedDateColumn, completionDateColumn };
+        return new ColumnConfig[] { completedColumn, iconColumn, labelColumn, expectedDateColumn, completionDateColumn };
     }
 
-	@Override
-	public ContentPanel getRequiredElementContentPanel() {
-		
-		return requiredElementContentPanel;
-	}
-    
-    
+    @Override
+    public ContentPanel getRequiredElementContentPanel() {
 
-    
+        return requiredElementContentPanel;
+    }
+
 }
