@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.sigmah.client.i18n.I18N;
+import org.sigmah.client.util.DateUtils;
 import org.sigmah.client.util.HistoryTokenText;
 import org.sigmah.client.util.NumberUtils;
 import org.sigmah.shared.command.GetCountries;
@@ -101,7 +102,7 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
                     "The flexible elements container isn't an instance of DefaultFlexibleElementContainer. The default flexible element connot be instanciated.");
         }
 
-        final DateTimeFormat DATE_FORMAT = DateTimeFormat.getFormat(I18N.CONSTANTS.flexibleElementDateFormat());
+        final DateTimeFormat DATE_FORMAT = DateUtils.DATE_SHORT;
         final Component component;
 
         switch (getType()) {
@@ -224,8 +225,9 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
             ratioLabel.addStyleName("flexibility-label");
 
             // Planned budget.
-            // Final reference to the "planned budget" field (needed by the listener).
-            final NumberField[] plannedBudgetReference = new NumberField[] {null};
+            // Final reference to the "planned budget" field (needed by the
+            // listener).
+            final NumberField[] plannedBudgetReference = new NumberField[] { null };
 
             // Spent budget.
             final NumberField spendBudgetNumberField = createNumberField(false);
@@ -249,7 +251,7 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 
                     // Retrieves values.
                     final Double plannedBudgetAsDouble;
-                    if(plannedBudgetReference[0] != null) {
+                    if (plannedBudgetReference[0] != null) {
                         // If the field exists, retrieving its value.
                         final Number plannedBudget = plannedBudgetReference[0].getValue();
                         plannedBudgetAsDouble = plannedBudget.doubleValue();
@@ -273,8 +275,8 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
                     final String plannedBudgetRawValue = String.valueOf(plannedBudgetAsDouble);
                     final String spendBudgetRawValue = String.valueOf(spendBudgetAsDouble);
                     final String receivedBudgetRawValue = String.valueOf(receivedBudgetAsDouble);
-                    final String rawValue = ValueResultUtils.mergeElements(plannedBudgetRawValue,
-                            spendBudgetRawValue, receivedBudgetRawValue);
+                    final String rawValue = ValueResultUtils.mergeElements(plannedBudgetRawValue, spendBudgetRawValue,
+                            receivedBudgetRawValue);
 
                     ratioLabel.setText(I18N.CONSTANTS.flexibleElementBudgetDistributionRatio() + ": "
                             + NumberUtils.ratioAsString(spendBudgetAsDouble, plannedBudgetAsDouble));
@@ -310,7 +312,6 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 
                 plannedBudgetField = plannedBudgetLabelField;
             }
-
 
             ratioLabel.setText(I18N.CONSTANTS.flexibleElementBudgetDistributionRatio() + ": "
                     + NumberUtils.ratioAsString(sb, pb));
@@ -928,7 +929,7 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 
     protected Component getComponentWithValue(ValueResult valueResult, boolean enabled) {
 
-        final DateTimeFormat DATE_FORMAT = DateTimeFormat.getFormat(I18N.CONSTANTS.flexibleElementDateFormat());
+        final DateTimeFormat DATE_FORMAT = DateUtils.DATE_SHORT;
         final Component component;
 
         switch (getType()) {
@@ -1363,7 +1364,7 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
      */
     private DateField createDateField(final boolean allowBlank) {
 
-        final DateTimeFormat DATE_FORMAT = DateTimeFormat.getFormat(I18N.CONSTANTS.flexibleElementDateFormat());
+        final DateTimeFormat DATE_FORMAT = DateUtils.DATE_SHORT;
 
         // Creates a date field which manages date picker selections and
         // manual selections.
@@ -1520,7 +1521,7 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
                         I18N.CONSTANTS.projectSpendBudget() + ": " + spendBudget);
             case START_DATE:
             case END_DATE:
-                final DateTimeFormat format = DateTimeFormat.getFormat(I18N.CONSTANTS.flexibleElementDateFormat());
+                final DateTimeFormat format = DateUtils.DATE_SHORT;
                 final long time = Long.valueOf(value);
                 return new HistoryTokenText(format.format(new Date(time)));
             case MANAGER:

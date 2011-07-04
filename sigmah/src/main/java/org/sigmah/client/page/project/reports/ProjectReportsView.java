@@ -21,6 +21,7 @@ import org.sigmah.client.page.NavigationHandler;
 import org.sigmah.client.page.project.ProjectState;
 import org.sigmah.client.page.project.reports.images.ToolbarImages;
 import org.sigmah.client.ui.FoldPanel;
+import org.sigmah.client.util.DateUtils;
 import org.sigmah.client.util.Notification;
 import org.sigmah.shared.command.CreateEntity;
 import org.sigmah.shared.command.GetProjectReport;
@@ -30,6 +31,7 @@ import org.sigmah.shared.command.UpdateEntity;
 import org.sigmah.shared.command.result.CreateResult;
 import org.sigmah.shared.command.result.VoidResult;
 import org.sigmah.shared.domain.profile.GlobalPermissionEnum;
+import org.sigmah.shared.dto.ExportUtils;
 import org.sigmah.shared.dto.profile.ProfileUtils;
 import org.sigmah.shared.dto.report.KeyQuestionDTO;
 import org.sigmah.shared.dto.report.ProjectReportContent;
@@ -76,7 +78,6 @@ import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.FormElement;
-import com.google.gwt.dom.client.IFrameElement;
 import com.google.gwt.dom.client.InputElement;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
@@ -99,7 +100,6 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.RichTextArea;
 import com.google.gwt.user.client.ui.RootPanel;
-import org.sigmah.shared.dto.ExportUtils;
 
 /**
  * Displays the reports attached to a project.
@@ -125,7 +125,7 @@ public class ProjectReportsView extends LayoutContainer {
     private LayoutContainer mainPanel;
     private RichTextArea.Formatter[] globalFormatterArray = new RichTextArea.Formatter[1];
 
-//    private ProjectReportDTO currentReport;
+    // private ProjectReportDTO currentReport;
     private int currentReportId = -1;
     private HashMap<Integer, RichTextArea> textAreas;
     private KeyQuestionState keyQuestionState;
@@ -134,7 +134,6 @@ public class ProjectReportsView extends LayoutContainer {
     private Button createReportButton;
 
     private Timer autoSaveTimer;
-
 
     public ProjectReportsView(Authentication authentication, EventBus eventBus, Dispatcher dispatcher,
             ListStore<ReportReference> store) {
@@ -198,7 +197,7 @@ public class ProjectReportsView extends LayoutContainer {
 
         // Report list
         final ColumnConfig editDate = new ColumnConfig("lastEditDate", I18N.CONSTANTS.reportLastEditDate(), 200);
-        editDate.setDateTimeFormat(DateTimeFormat.getShortDateFormat());
+        editDate.setDateTimeFormat(DateUtils.DATE_SHORT);
         final ColumnConfig editorName = new ColumnConfig("editorName", I18N.CONSTANTS.reportEditor(), 200);
         final ColumnConfig iconColumn = new ColumnConfig("icon", "", 20);
         final ColumnConfig reportName = new ColumnConfig("name", I18N.CONSTANTS.reportName(), 200);
@@ -210,9 +209,8 @@ public class ProjectReportsView extends LayoutContainer {
         iconColumn.setRenderer(new GridCellRenderer<ReportReference>() {
 
             @Override
-            public Object render(ReportReference model, String property, ColumnData config,
-                    int rowIndex, int colIndex, ListStore<ReportReference> store,
-                    Grid<ReportReference> grid) {
+            public Object render(ReportReference model, String property, ColumnData config, int rowIndex, int colIndex,
+                    ListStore<ReportReference> store, Grid<ReportReference> grid) {
 
                 if (model.isDocument()) {
                     return IconImageBundle.ICONS.attach().createImage();
@@ -224,8 +222,8 @@ public class ProjectReportsView extends LayoutContainer {
 
         reportName.setRenderer(new GridCellRenderer<ReportReference>() {
             @Override
-            public Object render(final ReportReference model, String property, ColumnData config,
-                    int rowIndex, int colIndex, ListStore store, Grid grid) {
+            public Object render(final ReportReference model, String property, ColumnData config, int rowIndex,
+                    int colIndex, ListStore store, Grid grid) {
 
                 if (model.isDocument()) {
 
@@ -286,7 +284,7 @@ public class ProjectReportsView extends LayoutContainer {
                         public void onClick(ClickEvent event) {
                             // Opening a report
 
-                            if(model.getId() != currentReportId) {
+                            if (model.getId() != currentReportId) {
                                 setReport(null); // Closing the current report
                                 mainPanel.mask(I18N.CONSTANTS.loading());
 
@@ -295,9 +293,10 @@ public class ProjectReportsView extends LayoutContainer {
                                 state.setArgument(model.getId().toString());
 
                                 eventBus.fireEvent(new NavigationEvent(NavigationHandler.NavigationRequested, state));
-                                
+
                             } else {
-                                Notification.show(I18N.CONSTANTS.projectTabReports(), I18N.CONSTANTS.reportAlreadyOpened());
+                                Notification.show(I18N.CONSTANTS.projectTabReports(),
+                                        I18N.CONSTANTS.reportAlreadyOpened());
                             }
                         }
                     });
@@ -307,8 +306,7 @@ public class ProjectReportsView extends LayoutContainer {
             }
         });
 
-        final Grid<ReportReference> documentGrid = new Grid<ReportReference>(store,
-                reportColumnModel);
+        final Grid<ReportReference> documentGrid = new Grid<ReportReference>(store, reportColumnModel);
         documentGrid.setAutoExpandColumn("name");
         documentGrid.getView().setForceFit(true);
 
@@ -425,7 +423,7 @@ public class ProjectReportsView extends LayoutContainer {
 
     public void setReport(final ProjectReportDTO report) {
         mainPanel.removeAll();
-//        currentReport = report;
+        // currentReport = report;
 
         if (autoSaveTimer != null) {
             autoSaveTimer.cancel();
@@ -489,24 +487,24 @@ public class ProjectReportsView extends LayoutContainer {
 
         if (report.isDraft()) {
             // Draft banner
-            final HorizontalPanel  header = new HorizontalPanel();
+            final HorizontalPanel header = new HorizontalPanel();
             header.addStyleName("project-report-draft");
-                   
-            //The "Personal Draft" 
-            final Label personalDraft = new Label (I18N.MESSAGES.personalDraft());
+
+            // The "Personal Draft"
+            final Label personalDraft = new Label(I18N.MESSAGES.personalDraft());
             personalDraft.addStyleName("project-report-personalDraft");
-            
+
             final DateTimeFormat dateFormat = DateTimeFormat.getMediumDateFormat();
             final DateTimeFormat timeFormat = DateTimeFormat.getMediumTimeFormat();
-            
-            //The label showing the last changed time
-            final Label draftLastChangedTime = new Label (I18N.MESSAGES.reportDraftLastChanged(dateFormat.format(report.getLastEditDate()),
-                    timeFormat.format(report.getLastEditDate())));
 
-            //Add the two labels
-           header.add(personalDraft);
-           header.add(draftLastChangedTime);
-            
+            // The label showing the last changed time
+            final Label draftLastChangedTime = new Label(I18N.MESSAGES.reportDraftLastChanged(
+                    dateFormat.format(report.getLastEditDate()), timeFormat.format(report.getLastEditDate())));
+
+            // Add the two labels
+            header.add(personalDraft);
+            header.add(draftLastChangedTime);
+
             final Button cancelButton = new Button(I18N.CONSTANTS.delete());
             final Button sendButton = new Button(I18N.CONSTANTS.sendReportDraft());
 
@@ -578,7 +576,7 @@ public class ProjectReportsView extends LayoutContainer {
             buttons.add(sendButton);
 
             header.add(buttons);
-            header.setCellHorizontalAlignment(buttons,  HasHorizontalAlignment.ALIGN_RIGHT);
+            header.setCellHorizontalAlignment(buttons, HasHorizontalAlignment.ALIGN_RIGHT);
 
             flowPanel.add(header);
 
@@ -609,7 +607,8 @@ public class ProjectReportsView extends LayoutContainer {
 
                             final Date now = new Date();
                             header.clear();
-                            draftLastChangedTime.setText(I18N.MESSAGES.reportDraftLastChanged(dateFormat.format(now), timeFormat.format(now)));
+                            draftLastChangedTime.setText(I18N.MESSAGES.reportDraftLastChanged(dateFormat.format(now),
+                                    timeFormat.format(now)));
                             personalDraft.setText(I18N.MESSAGES.personalDraft());
                             header.add(personalDraft);
                             header.add(draftLastChangedTime);
@@ -730,10 +729,9 @@ public class ProjectReportsView extends LayoutContainer {
                     form.removeFromParent();
                 }
             });
-            
+
             toolBar.add(new SeparatorToolItem());
         }
-        
 
         // Key question info
         final Label keyQuestionLabel = keyQuestionState.getLabel();

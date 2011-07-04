@@ -8,6 +8,7 @@ package org.sigmah.shared.dto.element;
 import java.util.Date;
 
 import org.sigmah.client.i18n.I18N;
+import org.sigmah.client.util.DateUtils;
 import org.sigmah.client.util.HistoryTokenText;
 import org.sigmah.shared.command.result.ValueResult;
 import org.sigmah.shared.dto.element.handler.RequiredValueEvent;
@@ -90,7 +91,7 @@ public class TextAreaElementDTO extends FlexibleElementDTO {
     @Override
     protected Component getComponent(ValueResult valueResult, boolean enabled) {
 
-        final DateTimeFormat DATE_FORMAT = DateTimeFormat.getFormat(I18N.CONSTANTS.flexibleElementDateFormat());
+        final DateTimeFormat DATE_FORMAT = DateUtils.DATE_SHORT;
 
         final TextField<?> field;
 
@@ -528,7 +529,7 @@ public class TextAreaElementDTO extends FlexibleElementDTO {
         if (getType() != null && getType() == 'D') {
             final String value = token.getTokens().get(0).getValue();
             if (value != null) {
-                final DateTimeFormat format = DateTimeFormat.getFormat(I18N.CONSTANTS.flexibleElementDateFormat());
+                final DateTimeFormat format = DateUtils.DATE_SHORT;
                 return new HistoryTokenText(format.format(new Date(Long.valueOf(value))));
             } else {
                 return new HistoryTokenText("");

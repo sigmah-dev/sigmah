@@ -1033,7 +1033,7 @@ public class ProjectDashboardView extends ProjectDashboardPresenter.View {
      */
     private ColumnConfig[] getMonitoredPointsColumnModel() {
 
-        final DateTimeFormat format = DateTimeFormat.getFormat(I18N.CONSTANTS.monitoredPointDateFormat());
+        final DateTimeFormat format = DateUtils.DATE_SHORT;
         final Date now = new Date();
 
         // Completed ?
@@ -1110,7 +1110,7 @@ public class ProjectDashboardView extends ProjectDashboardPresenter.View {
      */
     private ColumnConfig[] getRemindersColumnModel() {
 
-        final DateTimeFormat format = DateTimeFormat.getFormat(I18N.CONSTANTS.monitoredPointDateFormat());
+        final DateTimeFormat format = DateUtils.DATE_SHORT;
         final Date now = new Date();
 
         // Completed ?

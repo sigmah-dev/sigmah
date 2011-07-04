@@ -219,17 +219,15 @@ public class DashboardView extends ContentPanel implements DashboardPresenter.Vi
                                     // nothing to do (must not be called).
                                 }
 
-								@Override
-								public void projectCreatedAsTest(
-										ProjectDTOLight project) {
-									// nothing to do (must not be called).
-								}
+                                @Override
+                                public void projectCreatedAsTest(ProjectDTOLight project) {
+                                    // nothing to do (must not be called).
+                                }
 
-								@Override
-								public void projectDeletedAsTest(
-										ProjectDTOLight project) {
-									// nothing to do (must not be called).									
-								}
+                                @Override
+                                public void projectDeletedAsTest(ProjectDTOLight project) {
+                                    // nothing to do (must not be called).
+                                }
                             });
                         }
 
@@ -252,7 +250,7 @@ public class DashboardView extends ContentPanel implements DashboardPresenter.Vi
 
                                 @Override
                                 public void projectCreated(ProjectDTOLight project) {
-                                	// nothing to do (must not be called).
+                                    // nothing to do (must not be called).
                                 }
 
                                 @Override
@@ -265,64 +263,60 @@ public class DashboardView extends ContentPanel implements DashboardPresenter.Vi
                                     // nothing to do (must not be called).
                                 }
 
-								
-								public void projectCreatedAsTest(
-										ProjectDTOLight project) {
-									projectsListPanel.getProjectsStore().clearFilters();
-	                                projectsListPanel.getProjectsStore().add(project, false);
-	                                projectsListPanel.getProjectsStore().commitChanges();
-	                                projectsListPanel.getProjectsStore().applyFilters(null);
-	                                
+                                public void projectCreatedAsTest(ProjectDTOLight project) {
+                                    projectsListPanel.getProjectsStore().clearFilters();
+                                    projectsListPanel.getProjectsStore().add(project, false);
+                                    projectsListPanel.getProjectsStore().commitChanges();
+                                    projectsListPanel.getProjectsStore().applyFilters(null);
 
-									  // Show notification.
+                                    // Show notification.
                                     Notification.show(I18N.CONSTANTS.createProjectSucceeded(),
                                             I18N.CONSTANTS.createTestProjectSucceededDetails());
-									
-								}
 
-								@Override
-								public void projectDeletedAsTest(
-										ProjectDTOLight project) {
-									
-									menuPanel.mask(I18N.CONSTANTS.loadingDeleteProject());
-									
-									ProjectStore store = projectsListPanel.getProjectsStore();		
-									store.clearFilters();	
-									
-									final int projectId = project.getId();
-									
-									//inspect root elements
-									List<ProjectDTOLight> parents = store.getRootItems();
-									for(ProjectDTOLight parent : parents){
-										List<ProjectDTOLight> childrens = parent.getChildrenProjects();
-										for(ProjectDTOLight child: childrens){
-											//delete children if equals to project
-											if(child.getId() == projectId || child.getProjectId() == projectId){
-												store.remove(parent, child);
-											}
-										}			
-									}
-									
-									// delete the parent that corresponds to project
-									if(store.findModel("pid", projectId) != null)	{
-										//deletes childrens links
-										store.removeAll(store.findModel("pid", projectId));
-										store.remove(store.findModel("pid", projectId));
-									}else{
-										//deletes childrens links
-										store.removeAll(store.findModel("id", projectId));
-										store.remove(store.findModel("id", projectId));
-									}
-									
-									store.applyFilters(null);									
-									menuPanel.unmask();
-									// Show notification.
-									Notification
-											.show(
-													I18N.CONSTANTS.deleteTestProjectHeader(),
-													I18N.CONSTANTS.deleteTestProjectSucceededDetails());
-								}
-							});
+                                }
+
+                                @Override
+                                public void projectDeletedAsTest(ProjectDTOLight project) {
+
+                                    menuPanel.mask(I18N.CONSTANTS.loadingDeleteProject());
+
+                                    ProjectStore store = projectsListPanel.getProjectsStore();
+                                    store.clearFilters();
+
+                                    final int projectId = project.getId();
+
+                                    // inspect root elements
+                                    List<ProjectDTOLight> parents = store.getRootItems();
+                                    for (ProjectDTOLight parent : parents) {
+                                        List<ProjectDTOLight> childrens = parent.getChildrenProjects();
+                                        for (ProjectDTOLight child : childrens) {
+                                            // delete children if equals to
+                                            // project
+                                            if (child.getId() == projectId || child.getProjectId() == projectId) {
+                                                store.remove(parent, child);
+                                            }
+                                        }
+                                    }
+
+                                    // delete the parent that corresponds to
+                                    // project
+                                    if (store.findModel("pid", projectId) != null) {
+                                        // deletes childrens links
+                                        store.removeAll(store.findModel("pid", projectId));
+                                        store.remove(store.findModel("pid", projectId));
+                                    } else {
+                                        // deletes childrens links
+                                        store.removeAll(store.findModel("id", projectId));
+                                        store.remove(store.findModel("id", projectId));
+                                    }
+
+                                    store.applyFilters(null);
+                                    menuPanel.unmask();
+                                    // Show notification.
+                                    Notification.show(I18N.CONSTANTS.deleteTestProjectHeader(),
+                                            I18N.CONSTANTS.deleteTestProjectSucceededDetails());
+                                }
+                            });
                         }
 
                         @Override
@@ -331,7 +325,7 @@ public class DashboardView extends ContentPanel implements DashboardPresenter.Vi
                         }
                     });
         }
-        
+
         if (ProfileUtils.isGranted(authentication, GlobalPermissionEnum.VIEW_ADMIN)) {
             addNavLink(eventBus, menuPanel, I18N.CONSTANTS.adminboard(), IconImageBundle.ICONS.setup(),
                     new AdminPageState());
@@ -455,7 +449,7 @@ public class DashboardView extends ContentPanel implements DashboardPresenter.Vi
     }
 
     private List<ColumnConfig> createReminderGridColumnConfigs() {
-        final DateTimeFormat format = DateTimeFormat.getFormat(I18N.CONSTANTS.monitoredPointDateFormat());
+        final DateTimeFormat format = DateUtils.DATE_SHORT;
         final Date now = new Date();
 
         // Icon
@@ -522,7 +516,7 @@ public class DashboardView extends ContentPanel implements DashboardPresenter.Vi
     }
 
     private List<ColumnConfig> createMonitoredPointGridColumnConfigs() {
-        final DateTimeFormat format = DateTimeFormat.getFormat(I18N.CONSTANTS.monitoredPointDateFormat());
+        final DateTimeFormat format = DateUtils.DATE_SHORT;
         final Date now = new Date();
 
         // Icon

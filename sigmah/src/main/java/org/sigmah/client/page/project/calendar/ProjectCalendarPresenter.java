@@ -17,6 +17,7 @@ import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.page.project.SubPresenter;
 import org.sigmah.client.page.project.ProjectPresenter;
 import org.sigmah.client.ui.CalendarWidget;
+import org.sigmah.client.util.DateUtils;
 import org.sigmah.shared.command.GetCalendar;
 import org.sigmah.shared.domain.calendar.ActivityCalendarIdentifier;
 import org.sigmah.shared.domain.calendar.Calendar;
@@ -187,7 +188,7 @@ public class ProjectCalendarPresenter implements SubPresenter {
             final ReminderCalendarIdentifier reminderIdentifier = new ReminderCalendarIdentifier(currentProjectDTO
                     .getRemindersList().getId(), I18N.CONSTANTS.reminderPoints(),
                     I18N.CONSTANTS.monitoredPointClosed(), I18N.CONSTANTS.monitoredPointExpectedDate(),
-                    I18N.CONSTANTS.monitoredPointDateFormat());
+                    DateUtils.DATE_SHORT.getPattern());
             final GetCalendar getReminderCalendar = new GetCalendar(CalendarType.Reminder, reminderIdentifier);
             dispatcher.execute(getReminderCalendar, null, callback);
 
@@ -195,7 +196,7 @@ public class ProjectCalendarPresenter implements SubPresenter {
             final MonitoredPointCalendarIdentifier monitoredPointIdentifier = new MonitoredPointCalendarIdentifier(
                     currentProjectDTO.getPointsList().getId(), I18N.CONSTANTS.monitoredPoints(),
                     I18N.CONSTANTS.monitoredPointClosed(), I18N.CONSTANTS.monitoredPointExpectedDate(),
-                    I18N.CONSTANTS.monitoredPointDateFormat());
+                    DateUtils.DATE_SHORT.getPattern());
             final GetCalendar getMonitoredPointCalendar = new GetCalendar(CalendarType.MonitoredPoint,
                     monitoredPointIdentifier);
             dispatcher.execute(getMonitoredPointCalendar, null, callback);

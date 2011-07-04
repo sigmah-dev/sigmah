@@ -16,6 +16,7 @@ import org.sigmah.client.page.project.logframe.FormWindow;
 import org.sigmah.client.page.project.logframe.FormWindow.FormSubmitListener;
 import org.sigmah.client.ui.ButtonFileUploadField;
 import org.sigmah.client.ui.FlexibleGrid;
+import org.sigmah.client.util.DateUtils;
 import org.sigmah.client.util.Notification;
 import org.sigmah.shared.command.Delete;
 import org.sigmah.shared.command.GetValue;
@@ -234,7 +235,7 @@ public class FilesListElementDTO extends FlexibleElementDTO {
             @Override
             public void handleEvent(BaseEvent be) {
 
-                //mainPanel.mask(I18N.CONSTANTS.loading());
+                // mainPanel.mask(I18N.CONSTANTS.loading());
 
                 // Set hidden fields values.
                 elementIdHidden.setValue(String.valueOf(getId()));
@@ -520,7 +521,7 @@ public class FilesListElementDTO extends FlexibleElementDTO {
         dateColumn.setWidth(60);
         dateColumn.setRenderer(new GridCellRenderer<FileDTO>() {
 
-            final DateTimeFormat format = DateTimeFormat.getFormat("dd/MM/yyyy");
+            final DateTimeFormat format = DateUtils.DATE_SHORT;
 
             @Override
             public Object render(FileDTO model, String property, ColumnData config, int rowIndex, int colIndex,
@@ -924,7 +925,7 @@ public class FilesListElementDTO extends FlexibleElementDTO {
             dateColumn.setId("addedDate");
             dateColumn.setHeader(I18N.CONSTANTS.flexibleElementFilesListDate());
             dateColumn.setWidth(110);
-            dateColumn.setDateTimeFormat(DateTimeFormat.getFormat("dd/MM/yyyy HH:mm"));
+            dateColumn.setDateTimeFormat(DateUtils.DATE_TIME_SHORT);
 
             // Version's author.
             final ColumnConfig authorColumn = new ColumnConfig();

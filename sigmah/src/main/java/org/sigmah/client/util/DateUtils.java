@@ -3,6 +3,8 @@ package org.sigmah.client.util;
 import java.util.Comparator;
 import java.util.Date;
 
+import com.google.gwt.i18n.client.DateTimeFormat;
+
 /**
  * Utility class to manipulates dates.
  * 
@@ -13,6 +15,10 @@ public final class DateUtils {
 
     private DateUtils() {
     }
+
+    public static final DateTimeFormat DATE_SHORT = DateTimeFormat.getShortDateFormat();
+
+    public static final DateTimeFormat DATE_TIME_SHORT = DateTimeFormat.getShortDateTimeFormat();
 
     /**
      * Compare two dates. The comparison ignores hours, minutes and seconds.

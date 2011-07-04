@@ -23,6 +23,7 @@ import org.sigmah.client.page.project.reports.KeyQuestionDialog;
 import org.sigmah.client.page.project.reports.KeyQuestionState;
 import org.sigmah.client.page.project.reports.images.ToolbarImages;
 import org.sigmah.client.ui.FoldPanel;
+import org.sigmah.client.util.DateUtils;
 import org.sigmah.client.util.Notification;
 import org.sigmah.shared.command.CreateEntity;
 import org.sigmah.shared.command.GetProjectReport;
@@ -121,7 +122,7 @@ public class OrgUnitReportsView extends LayoutContainer {
     private LayoutContainer mainPanel;
     private RichTextArea.Formatter[] globalFormatterArray = new RichTextArea.Formatter[1];
 
-//    private ProjectReportDTO currentReport;
+    // private ProjectReportDTO currentReport;
     private HashMap<Integer, RichTextArea> textAreas;
     private KeyQuestionState keyQuestionState;
 
@@ -192,7 +193,7 @@ public class OrgUnitReportsView extends LayoutContainer {
 
         // Report list
         final ColumnConfig editDate = new ColumnConfig("lastEditDate", I18N.CONSTANTS.reportLastEditDate(), 200);
-        editDate.setDateTimeFormat(DateTimeFormat.getShortDateFormat());
+        editDate.setDateTimeFormat(DateUtils.DATE_SHORT);
         final ColumnConfig editorName = new ColumnConfig("editorName", I18N.CONSTANTS.reportEditor(), 200);
         final ColumnConfig iconColumn = new ColumnConfig("icon", "", 20);
         final ColumnConfig reportName = new ColumnConfig("name", I18N.CONSTANTS.reportName(), 200);
@@ -203,9 +204,8 @@ public class OrgUnitReportsView extends LayoutContainer {
         iconColumn.setRenderer(new GridCellRenderer<ReportReference>() {
 
             @Override
-            public Object render(ReportReference model, String property, ColumnData config,
-                    int rowIndex, int colIndex, ListStore<ReportReference> store,
-                    Grid<ReportReference> grid) {
+            public Object render(ReportReference model, String property, ColumnData config, int rowIndex, int colIndex,
+                    ListStore<ReportReference> store, Grid<ReportReference> grid) {
 
                 if (model.isDocument()) {
                     return IconImageBundle.ICONS.attach().createImage();
@@ -217,8 +217,8 @@ public class OrgUnitReportsView extends LayoutContainer {
 
         reportName.setRenderer(new GridCellRenderer<ReportReference>() {
             @Override
-            public Object render(final ReportReference model, String property, ColumnData config,
-                    int rowIndex, int colIndex, ListStore store, Grid grid) {
+            public Object render(final ReportReference model, String property, ColumnData config, int rowIndex,
+                    int colIndex, ListStore store, Grid grid) {
 
                 if (model.isDocument()) {
 
@@ -295,8 +295,7 @@ public class OrgUnitReportsView extends LayoutContainer {
             }
         });
 
-        final Grid<ReportReference> documentGrid = new Grid<ReportReference>(store,
-                reportColumnModel);
+        final Grid<ReportReference> documentGrid = new Grid<ReportReference>(store, reportColumnModel);
         documentGrid.setAutoExpandColumn("name");
         documentGrid.getView().setForceFit(true);
 
@@ -413,7 +412,7 @@ public class OrgUnitReportsView extends LayoutContainer {
 
     public void setReport(final ProjectReportDTO report) {
         mainPanel.removeAll();
-//        currentReport = report;
+        // currentReport = report;
 
         if (autoSaveTimer != null) {
             autoSaveTimer.cancel();
@@ -473,23 +472,23 @@ public class OrgUnitReportsView extends LayoutContainer {
 
         if (report.isDraft()) {
             // Draft banner
-            final HorizontalPanel  header = new HorizontalPanel();
+            final HorizontalPanel header = new HorizontalPanel();
             header.addStyleName("project-report-draft");
-                   
-            //The "Personal Draft" 
-            final Label personalDraft = new Label (I18N.MESSAGES.personalDraft());
+
+            // The "Personal Draft"
+            final Label personalDraft = new Label(I18N.MESSAGES.personalDraft());
             personalDraft.addStyleName("project-report-personalDraft");
-            
+
             final DateTimeFormat dateFormat = DateTimeFormat.getMediumDateFormat();
             final DateTimeFormat timeFormat = DateTimeFormat.getMediumTimeFormat();
-            
-            //The label showing the last changed time
-            final Label draftLastChangedTime = new Label (I18N.MESSAGES.reportDraftLastChanged(dateFormat.format(report.getLastEditDate()),
-                    timeFormat.format(report.getLastEditDate())));
-           
-            //Add the two labels 
-           header.add(personalDraft);
-           header.add(draftLastChangedTime);
+
+            // The label showing the last changed time
+            final Label draftLastChangedTime = new Label(I18N.MESSAGES.reportDraftLastChanged(
+                    dateFormat.format(report.getLastEditDate()), timeFormat.format(report.getLastEditDate())));
+
+            // Add the two labels
+            header.add(personalDraft);
+            header.add(draftLastChangedTime);
 
             final Button cancelButton = new Button(I18N.CONSTANTS.delete());
             final Button sendButton = new Button(I18N.CONSTANTS.sendReportDraft());
@@ -562,7 +561,7 @@ public class OrgUnitReportsView extends LayoutContainer {
             buttons.add(sendButton);
 
             header.add(buttons);
-            header.setCellHorizontalAlignment(buttons,  HasHorizontalAlignment.ALIGN_RIGHT);
+            header.setCellHorizontalAlignment(buttons, HasHorizontalAlignment.ALIGN_RIGHT);
 
             flowPanel.add(header);
 
@@ -593,7 +592,8 @@ public class OrgUnitReportsView extends LayoutContainer {
 
                             final Date now = new Date();
                             header.clear();
-                            draftLastChangedTime.setText(I18N.MESSAGES.reportDraftLastChanged(dateFormat.format(now), timeFormat.format(now)));
+                            draftLastChangedTime.setText(I18N.MESSAGES.reportDraftLastChanged(dateFormat.format(now),
+                                    timeFormat.format(now)));
                             personalDraft.setText(I18N.MESSAGES.personalDraft());
                             header.add(personalDraft);
                             header.add(draftLastChangedTime);

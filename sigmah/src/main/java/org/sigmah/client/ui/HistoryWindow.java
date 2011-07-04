@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.sigmah.client.i18n.I18N;
+import org.sigmah.client.util.DateUtils;
 import org.sigmah.shared.dto.history.HistoryTokenListDTO;
 import org.sigmah.shared.dto.history.HistoryTokenManager;
 
@@ -125,7 +126,7 @@ public final class HistoryWindow {
      */
     private ColumnConfig[] getColumnModel(RowNumberer countColumn) {
 
-        final DateTimeFormat format = DateTimeFormat.getFormat(I18N.CONSTANTS.historyDateFormat());
+        final DateTimeFormat format = DateUtils.DATE_TIME_SHORT;
 
         // Date.
         final ColumnConfig dateColumn = new ColumnConfig();
