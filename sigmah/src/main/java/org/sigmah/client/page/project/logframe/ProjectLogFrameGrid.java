@@ -26,6 +26,7 @@ import org.sigmah.shared.dto.logframe.LogFrameModelDTO;
 import org.sigmah.shared.dto.logframe.PrerequisiteDTO;
 import org.sigmah.shared.dto.logframe.SpecificObjectiveDTO;
 
+import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
@@ -69,7 +70,7 @@ public class ProjectLogFrameGrid {
      * @author tmi
      * 
      */
-	
+
     public static interface LogFrameGridListener {
 
         /**
@@ -168,19 +169,19 @@ public class ProjectLogFrameGrid {
      */
     private FlexTableView prerequisitesView;
 
-	private int databaseId;
-	
-	private final Dispatcher dispatcher;
+    private int databaseId;
 
-	private final EventBus eventBus;
+    private final Dispatcher dispatcher;
+
+    private final EventBus eventBus;
 
     /**
      * Builds an empty grid.
      */
     public ProjectLogFrameGrid(EventBus eventBus, Dispatcher dispatcher) {
-    	this.dispatcher = dispatcher;
-    	this.eventBus = eventBus;
-    	
+        this.dispatcher = dispatcher;
+        this.eventBus = eventBus;
+
         listeners = new ArrayList<LogFrameGridListener>();
         table = new FlexTable();
         formWindow = new FormWindow();
@@ -1050,7 +1051,7 @@ public class ProjectLogFrameGrid {
         for (final ExpectedResultDTO result : specificObjective.getExpectedResults()) {
             addExpectedResult(result);
         }
-        
+
     }
 
     // ------------------------------------------------------------------------
@@ -1246,8 +1247,8 @@ public class ProjectLogFrameGrid {
 
             // Sets the form window.
             formWindow.clear();
-            formWindow.addChoicesList(I18N.CONSTANTS.logFrameSpecificObjective(),
-                    logFrame.getSpecificObjectives(), false, "label");
+            formWindow.addChoicesList(I18N.CONSTANTS.logFrameSpecificObjective(), logFrame.getSpecificObjectives(),
+                    false, "label");
             formWindow.addFormSubmitListener(new FormSubmitListener() {
 
                 @Override
@@ -1474,7 +1475,7 @@ public class ProjectLogFrameGrid {
         for (final LogFrameActivityDTO activity : result.getActivities()) {
             addActivity(activity);
         }
-        
+
     }
 
     // ------------------------------------------------------------------------
@@ -1526,7 +1527,7 @@ public class ProjectLogFrameGrid {
                             final LogFrameGroupDTO group = logFrame.addGroup(label, LogFrameGroupType.ACTIVITY);
 
                             // Displays it.
-                            addActivitiesGroup(group);	
+                            addActivitiesGroup(group);
                         }
                     }
                 });
@@ -1674,7 +1675,8 @@ public class ProjectLogFrameGrid {
                     activity.setGroup(group);
                     activity.setStartDate(startDate);
                     activity.setEndDate(endDate);
-                    activity.setAdvancement(0); // advancement set to 0 at the begin
+                    activity.setAdvancement(0); // advancement set to 0 at the
+                                                // begin
                     addActivity(activity);
                 }
             });
@@ -1702,7 +1704,7 @@ public class ProjectLogFrameGrid {
                     }
 
                     final Object element1 = elements[1];
-                    
+
                     if (element1 != null && !(element1 instanceof Date)) {
                         return;
                     }
@@ -1723,7 +1725,8 @@ public class ProjectLogFrameGrid {
                     activity.setGroup(group);
                     activity.setStartDate(startDate);
                     activity.setEndDate(endDate);
-                    activity.setAdvancement(0); // advancement set to 0 at the begin
+                    activity.setAdvancement(0); // advancement set to 0 at the
+                                                // begin
                     addActivity(activity);
                 }
             });
@@ -1789,7 +1792,7 @@ public class ProjectLogFrameGrid {
 
                     @Override
                     public Widget getWidgetAt(int column, final LogFrameActivityDTO userObject) {
-                    	
+
                         switch (column) {
                         case 0:
 
@@ -1834,7 +1837,7 @@ public class ProjectLogFrameGrid {
                             }
 
                             return grid;
-                            
+
                         case 2:
 
                             // Activity content.
@@ -1858,15 +1861,15 @@ public class ProjectLogFrameGrid {
                             });
 
                             return contentTextBox;
-                            
+
                         case 3:
-                        	return new IndicatorListWidget(eventBus, dispatcher, databaseId, userObject);
-                        	
+                            return new IndicatorListWidget(eventBus, dispatcher, databaseId, userObject);
+
                         case 4:
-                        	return new Label();
-                        	
+                            return new Label();
+
                         case 5:
-                        	return new Label();
+                            return new Label();
 
                         default:
                             return null;
@@ -2106,7 +2109,8 @@ public class ProjectLogFrameGrid {
         }
 
         // Adds the row.
-        prerequisitesView.insertRow(prerequisite.getPosition(), group.getClientSideId(), new Row<PrerequisiteDTO>(prerequisite) {
+        prerequisitesView.insertRow(prerequisite.getPosition(), group.getClientSideId(), new Row<PrerequisiteDTO>(
+                prerequisite) {
 
             @Override
             public boolean isSimilar(int column, PrerequisiteDTO userObject, PrerequisiteDTO other) {
@@ -2299,9 +2303,9 @@ public class ProjectLogFrameGrid {
                 return true;
             }
 
-			@Override
-			public void buidModifyActionPopUp() {
-			}
+            @Override
+            public void buidModifyActionPopUp() {
+            }
         }, label);
     }
 
@@ -2368,82 +2372,81 @@ public class ProjectLogFrameGrid {
                 return true;
             }
 
-			@Override
-			public void buidModifyActionPopUp() {
-			}
+            @Override
+            public void buidModifyActionPopUp() {
+            }
         }, label);
     }
 
-	/**
-	 * Builds an actions menu for an activity.
-	 * 
-	 * @param row
-	 *            The activity row.
-	 * @param label
-	 *            The label beside this menu.
-	 * @return The menu.
-	 */
-	private Widget buildActivityMenu(final Row<LogFrameActivityDTO> row,
-			final Label label) {
+    /**
+     * Builds an actions menu for an activity.
+     * 
+     * @param row
+     *            The activity row.
+     * @param label
+     *            The label beside this menu.
+     * @return The menu.
+     */
+    private Widget buildActivityMenu(final Row<LogFrameActivityDTO> row, final Label label) {
 
         // Actions menu.
         return buildMenuWidget(new RowActionsMenu(activitiesView, row, true) {
 
-			@Override
-			public boolean canBeRemoved() {
-				// No functional restriction.
-				return true;
-			}
+            @Override
+            public boolean canBeRemoved() {
+                // No functional restriction.
+                return true;
+            }
 
-			@Override
-			public boolean beforeRemove() {
+            @Override
+            public boolean beforeRemove() {
 
-				final boolean removed = row.getUserObject()
-						.getParentExpectedResult()
-						.removeActivity(row.getUserObject());
+                final boolean removed = row.getUserObject().getParentExpectedResult()
+                        .removeActivity(row.getUserObject());
 
-				if (removed) {
-					fireLogFrameEdited();
-				}
+                if (removed) {
+                    fireLogFrameEdited();
+                }
 
-				return removed;
-			}
+                return removed;
+            }
 
-			@Override
-			public boolean canBeMovedUp() {
-				// No functional restriction (the view
-				// manages the row bounds itself).
-				return true;
-			}
+            @Override
+            public boolean canBeMovedUp() {
+                // No functional restriction (the view
+                // manages the row bounds itself).
+                return true;
+            }
 
-			@Override
-			public boolean beforeMoveUp() {
-
-				// The view updates the position itself, nothing to do.
-				fireLogFrameEdited();
-				return true;
-			}
-
-			@Override
-			public boolean canBeMovedDown() {
-				// No functional restriction (the view
-				// manages the row bounds itself).
-				return true;
-			}
-
-			@Override
-			public boolean beforeMoveDown() {
+            @Override
+            public boolean beforeMoveUp() {
 
                 // The view updates the position itself, nothing to do.
                 fireLogFrameEdited();
                 return true;
             }
+
             @Override
-            public void buidModifyActionPopUp(){
-            	final LogFrameActivityDTO activity = row.getUserObject();
-            	
-            	final Window updateWindow = new Window();
-            	updateWindow.setAutoHeight(true);
+            public boolean canBeMovedDown() {
+                // No functional restriction (the view
+                // manages the row bounds itself).
+                return true;
+            }
+
+            @Override
+            public boolean beforeMoveDown() {
+
+                // The view updates the position itself, nothing to do.
+                fireLogFrameEdited();
+                return true;
+            }
+
+            @Override
+            public void buidModifyActionPopUp() {
+                final LogFrameActivityDTO activity = row.getUserObject();
+
+                final Window updateWindow = new Window();
+                updateWindow.setAutoHeight(true);
                 updateWindow.setPlain(true);
                 updateWindow.setModal(true);
                 updateWindow.setBlinkModal(true);
@@ -2451,83 +2454,92 @@ public class ProjectLogFrameGrid {
                 updateWindow.setLayout(new FitLayout());
                 updateWindow.setWidth(380);
                 updateWindow.setAutoHeight(true);
-                
-            	final FormPanel updatePanel = new FormPanel();
-            	updatePanel.setBodyBorder(false);
-            	updatePanel.setHeaderVisible(false);
-            	updatePanel.setPadding(5);
-            	updatePanel.setLabelWidth(100);
-            	updatePanel.setFieldWidth(250);
-            	updatePanel.setSize(380, 250);
-            	
-            	//titre
-            	if(activity.getTitle()!=null && !activity.getTitle().trim().isEmpty()){
-            		final TextField<String> titre = new TextField<String>();
-                	titre.setFieldLabel(I18N.CONSTANTS.logFrameActivityTitle());
-                	titre.setValue(activity.getTitle());
-                	titre.setEnabled(false);
-                	updatePanel.add(titre);
-            	}
-                          	
-            	//group 
-            	final TextField<String> expectedResult = new TextField<String>();
-            	expectedResult.setFieldLabel(I18N.CONSTANTS.logFrameExceptedResult());
-            	expectedResult.setValue(activity.getParentExpectedResult().getLabel());
-            	expectedResult.setEnabled(false);
-            	updatePanel.add(expectedResult);
-            	
-                //advancement value
-            	final TextField<String> advancementValue = new TextField<String>();
-            	advancementValue.setFieldLabel(I18N.CONSTANTS.logFrameActivityAdvancement());
-            	advancementValue.setValue(String.valueOf(activity.getAdvancement() != null ? activity.getAdvancement() : 0) + " %");
-            	advancementValue.setEnabled(false);
-            	updatePanel.add(advancementValue);
-            	
-            	//advancement slider
-            	final Slider sliderAdvancment = new Slider();  
-            	sliderAdvancment.setIncrement(1);
-            	sliderAdvancment.setAriaLabelledBy("Avancement");
-            	sliderAdvancment.setMessage("{0}%");              	
-            	Integer activityAdvancement = activity.getAdvancement();
-				sliderAdvancment.setValue(activityAdvancement != null ? activityAdvancement : 0);
-            	sliderAdvancment.setMaxValue(100);
-            	sliderAdvancment.setMinValue(0);
-            	updatePanel.add(sliderAdvancment);            	
-            	
-            	//Start date
-        		final DateField startDate = new DateField();
+
+                final FormPanel updatePanel = new FormPanel();
+                updatePanel.setBodyBorder(false);
+                updatePanel.setHeaderVisible(false);
+                updatePanel.setPadding(5);
+                updatePanel.setLabelWidth(100);
+                updatePanel.setFieldWidth(250);
+                updatePanel.setSize(380, 250);
+
+                // titre
+                if (activity.getTitle() != null && !activity.getTitle().trim().isEmpty()) {
+                    final TextField<String> titre = new TextField<String>();
+                    titre.setFieldLabel(I18N.CONSTANTS.logFrameActivityTitle());
+                    titre.setValue(activity.getTitle());
+                    titre.setEnabled(false);
+                    updatePanel.add(titre);
+                }
+
+                // group
+                final TextField<String> expectedResult = new TextField<String>();
+                expectedResult.setFieldLabel(I18N.CONSTANTS.logFrameExceptedResult());
+                expectedResult.setValue(activity.getParentExpectedResult().getLabel());
+                expectedResult.setEnabled(false);
+                updatePanel.add(expectedResult);
+
+                // advancement value
+                final TextField<String> advancementValue = new TextField<String>();
+                advancementValue.setFieldLabel(I18N.CONSTANTS.logFrameActivityAdvancement());
+                advancementValue.setValue(String.valueOf(activity.getAdvancement() != null ? activity.getAdvancement()
+                        : 0) + " %");
+                advancementValue.setEnabled(false);
+                updatePanel.add(advancementValue);
+
+                // advancement slider
+                final Slider sliderAdvancment = new Slider();
+                sliderAdvancment.setIncrement(1);
+                sliderAdvancment.setAriaLabelledBy("Avancement");
+                sliderAdvancment.setMessage("{0}%");
+                Integer activityAdvancement = activity.getAdvancement();
+                sliderAdvancment.setValue(activityAdvancement != null ? activityAdvancement : 0);
+                sliderAdvancment.setMaxValue(100);
+                sliderAdvancment.setMinValue(0);
+                updatePanel.add(sliderAdvancment);
+
+                // Updates dynamically the text field.
+                sliderAdvancment.addListener(Events.Change, new Listener<BaseEvent>() {
+                    @Override
+                    public void handleEvent(BaseEvent be) {
+                        advancementValue.setValue(sliderAdvancment.getValue() + " %");
+                    }
+                });
+
+                // Start date
+                final DateField startDate = new DateField();
                 startDate.setAllowBlank(true);
                 startDate.setValue(activity.getStartDate());
                 startDate.setFieldLabel(I18N.CONSTANTS.logFrameActivityStartDate());
                 updatePanel.add(startDate);
-                
-                //End date
+
+                // End date
                 final DateField endDate = new DateField();
                 endDate.setAllowBlank(true);
                 endDate.setValue(activity.getEndDate());
                 endDate.setFieldLabel(I18N.CONSTANTS.logFrameActivityEndDate());
                 updatePanel.add(endDate);
-                
-                //save button
+
+                // save button
                 final Button saveButton = new Button(I18N.CONSTANTS.ok());
                 saveButton.addListener(Events.OnClick, new Listener<ButtonEvent>() {
                     @Override
-                    public void handleEvent(ButtonEvent be) {	
-                    	//get the new values for the selected activity
-                       activity.setStartDate(startDate.getValue());
-                       activity.setEndDate(endDate.getValue());
-                       activity.setAdvancement(sliderAdvancment.getValue());			
-                   
-                       updateWindow.hide();                       
-                       fireLogFrameEdited();
-                   }
+                    public void handleEvent(ButtonEvent be) {
+                        // get the new values for the selected activity
+                        activity.setStartDate(startDate.getValue());
+                        activity.setEndDate(endDate.getValue());
+                        activity.setAdvancement(sliderAdvancment.getValue());
+
+                        updateWindow.hide();
+                        fireLogFrameEdited();
+                    }
                 });
                 updatePanel.addButton(saveButton);
-              
-                updateWindow.add(updatePanel);                
+
+                updateWindow.add(updatePanel);
                 updateWindow.show();
             }
-        }, label);      
+        }, label);
     }
 
     /**
@@ -2592,9 +2604,9 @@ public class ProjectLogFrameGrid {
                 return true;
             }
 
-			@Override
-			public void buidModifyActionPopUp() {
-			}
+            @Override
+            public void buidModifyActionPopUp() {
+            }
         }, label);
     }
 
@@ -2639,40 +2651,39 @@ public class ProjectLogFrameGrid {
                         });
             }
 
-			@Override
-			public boolean beforeRemove() {
-				// Delete the group from LogFrameDTO
-				boolean removed = logFrame.removeGroup(group.getUserObject());
-	          
-				if(removed)
-				{
-				//Notify that the logframe has been modified
-                fireLogFrameEdited();
-				}
-				
-				return removed;
-			}
+            @Override
+            public boolean beforeRemove() {
+                // Delete the group from LogFrameDTO
+                boolean removed = logFrame.removeGroup(group.getUserObject());
 
-			@Override
-			public boolean canBeRemoved() {
-				if(view.getGroupsCount()==1)
-				{//If this is the last group in the view,can not be deleted
-					return false;
-				}
-				if(group.getRowsCount()!=0)
-				{//If this group is not empty,can not be deleted
-					
-					return false;
-				}
-               
-			    return true;
-			}
+                if (removed) {
+                    // Notify that the logframe has been modified
+                    fireLogFrameEdited();
+                }
 
-			@Override
-			public boolean canBeRemaned() {
-				// No restriction for renaming.
-				return true;
-			}
+                return removed;
+            }
+
+            @Override
+            public boolean canBeRemoved() {
+                if (view.getGroupsCount() == 1) {// If this is the last group in
+                                                 // the view,can not be deleted
+                    return false;
+                }
+                if (group.getRowsCount() != 0) {// If this group is not
+                                                // empty,can not be deleted
+
+                    return false;
+                }
+
+                return true;
+            }
+
+            @Override
+            public boolean canBeRemaned() {
+                // No restriction for renaming.
+                return true;
+            }
         }, label);
     }
 }
