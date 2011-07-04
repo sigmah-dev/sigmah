@@ -276,7 +276,7 @@ public class AdminLogFrameView extends View {
         resultsPanel.add(resultsFirstPanel, new HBoxLayoutData(0, 4, 0, 0));
         
         results_max_groups = new SimpleComboBox<String>();
-        results_max_groups.setFieldLabel(I18N.CONSTANTS.adminLogFrameMaxRA());
+        results_max_groups.setFieldLabel(I18N.CONSTANTS.adminLogFrameMaxRAGroups());
 		results_max_groups.add(values);
 		results_max_groups.setTriggerAction(TriggerAction.ALL);
 		
