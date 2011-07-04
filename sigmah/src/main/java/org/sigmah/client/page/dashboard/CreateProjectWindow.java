@@ -756,118 +756,120 @@ public class CreateProjectWindow {
         // countBeforeShow = 3;
         // }
 
-        if (orgUnitsStore.getCount() == 0) {
+        // --------------------
+        // Reloads the org unit.
+        // --------------------
 
-            cache.getOrganizationCache().get(new AsyncCallback<OrgUnitDTOLight>() {
+        orgUnitsStore.removeAll();
 
-                @Override
-                public void onSuccess(OrgUnitDTOLight result) {
-                    fillOrgUnitsList(result);
+        cache.getOrganizationCache().get(new AsyncCallback<OrgUnitDTOLight>() {
 
-                    if (orgUnitsStore.getCount() == 0) {
-                        Log.error("[show] No available org unit.");
-                        missingRequiredData(I18N.CONSTANTS.createProjectDisableOrgUnit());
-                        return;
-                    }
+            @Override
+            public void onSuccess(OrgUnitDTOLight result) {
+                fillOrgUnitsList(result);
 
-                    countBeforeShow();
+                if (orgUnitsStore.getCount() == 0) {
+                    Log.error("[show] No available org unit.");
+                    missingRequiredData(I18N.CONSTANTS.createProjectDisableOrgUnit());
+                    return;
                 }
 
-                @Override
-                public void onFailure(Throwable caught) {
-                    Log.error("[show] Error while getting the org units.", caught);
-                    missingRequiredData(I18N.CONSTANTS.createProjectDisableOrgUnitError());
-                }
-            });
-        } else {
-            countBeforeShow();
-        }
-
-        if (modelsStore.getCount() == 0) {
-
-            // Retrieves project models (with an optional filter on the type).
-            GetProjectModels cmdGetProjectModels = new GetProjectModels();
-
-            if (Mode.TEST.equals(currentMode)) {
-                // Retrieves the test projectModel
-                cmdGetProjectModels.setProjectModelStatus(ProjectModelStatus.DRAFT);
+                countBeforeShow();
             }
 
-            dispatcher.execute(cmdGetProjectModels, null, new AsyncCallback<ProjectModelListResult>() {
+            @Override
+            public void onFailure(Throwable caught) {
+                Log.error("[show] Error while getting the org units.", caught);
+                missingRequiredData(I18N.CONSTANTS.createProjectDisableOrgUnitError());
+            }
+        });
 
-                @Override
-                public void onFailure(Throwable caught) {
-                    missingRequiredData(I18N.CONSTANTS.createProjectDisableModelError());
-                }
+        // --------------------
+        // Reloads the projects models.
+        // --------------------
 
-                @Override
-                public void onSuccess(ProjectModelListResult result) {
+        modelsStore.removeAll();
 
-                    if (result.getList() == null || result.getList().isEmpty()) {
-                        Log.error("[missingRequiredData] No available project model.");
-                        missingRequiredData(I18N.CONSTANTS.createProjectDisableModel());
-                        return;
-                    }
-                    for (ProjectModelDTOLight projectModelLight : result.getList()) {
-                        if (!Mode.TEST.equals(currentMode)) {
-                            /*
-                             * if(!ProjectModelStatus.DRAFT.equals(projectModelLight
-                             * .getStatus()) &&
-                             * !ProjectModelStatus.UNAVAILABLE.equals
-                             * (projectModelLight.getStatus())){
-                             */
-                            modelsStore.add(projectModelLight);
-                            // }
-                        } else {
-                            /*
-                             * TODO enable
-                             * if(!ProjectModelStatus.DRAFT.equals(projectModelLight
-                             * .getStatus()) &&
-                             * !ProjectModelStatus.UNAVAILABLE.equals
-                             * (projectModelLight.getStatus())){
-                             */
-                            modelsStore.add(projectModelLight);
-                            // }
-                        }
+        // Retrieves project models (with an optional filter on the type).
+        GetProjectModels cmdGetProjectModels = new GetProjectModels();
 
-                    }
-                    modelsStore.commitChanges();
-
-                    countBeforeShow();
-                }
-            });
-
-        } else {
-            countBeforeShow();
+        if (Mode.TEST.equals(currentMode)) {
+            // Retrieves the test projectModel
+            cmdGetProjectModels.setProjectModelStatus(ProjectModelStatus.DRAFT);
         }
 
-        if (testProjectStore.getCount() == 0) {
-            GetTestProjects cmdgetGetTestProjects = new GetTestProjects(ProjectModelStatus.DRAFT);
-            dispatcher.execute(cmdgetGetTestProjects, null, new AsyncCallback<ProjectDTOLightListResult>() {
+        dispatcher.execute(cmdGetProjectModels, null, new AsyncCallback<ProjectModelListResult>() {
 
-                @Override
-                public void onFailure(Throwable caught) {
-                    missingRequiredData(I18N.CONSTANTS.createProjectDisableModelError());
+            @Override
+            public void onFailure(Throwable caught) {
+                missingRequiredData(I18N.CONSTANTS.createProjectDisableModelError());
+            }
+
+            @Override
+            public void onSuccess(ProjectModelListResult result) {
+
+                if (result.getList() == null || result.getList().isEmpty()) {
+                    Log.error("[missingRequiredData] No available project model.");
+                    missingRequiredData(I18N.CONSTANTS.createProjectDisableModel());
+                    return;
                 }
+                for (ProjectModelDTOLight projectModelLight : result.getList()) {
+                    if (!Mode.TEST.equals(currentMode)) {
+                        /*
+                         * if(!ProjectModelStatus.DRAFT.equals(projectModelLight
+                         * .getStatus()) &&
+                         * !ProjectModelStatus.UNAVAILABLE.equals
+                         * (projectModelLight.getStatus())){
+                         */
+                        modelsStore.add(projectModelLight);
+                        // }
+                    } else {
+                        /*
+                         * TODO enable
+                         * if(!ProjectModelStatus.DRAFT.equals(projectModelLight
+                         * .getStatus()) &&
+                         * !ProjectModelStatus.UNAVAILABLE.equals
+                         * (projectModelLight.getStatus())){
+                         */
+                        modelsStore.add(projectModelLight);
+                        // }
+                    }
 
-                @Override
-                public void onSuccess(ProjectDTOLightListResult result) {
-
-                    // if (result.getList() == null ||
-                    // result.getList().isEmpty()) {
-                    // Log.error("[missingRequiredData] No available project model.");
-                    // missingRequiredData(I18N.CONSTANTS.createProjectDisableModel());
-                    // return;
-                    // }
-
-                    testProjectStore.add(result.getList());
-                    countBeforeShow();
                 }
-            });
+                modelsStore.commitChanges();
 
-        } else {
-            countBeforeShow();
-        }
+                countBeforeShow();
+            }
+        });
+
+        // --------------------
+        // Reloads the test projects.
+        // --------------------
+
+        testProjectStore.removeAll();
+
+        GetTestProjects cmdgetGetTestProjects = new GetTestProjects(ProjectModelStatus.DRAFT);
+        dispatcher.execute(cmdgetGetTestProjects, null, new AsyncCallback<ProjectDTOLightListResult>() {
+
+            @Override
+            public void onFailure(Throwable caught) {
+                missingRequiredData(I18N.CONSTANTS.createProjectDisableModelError());
+            }
+
+            @Override
+            public void onSuccess(ProjectDTOLightListResult result) {
+
+                // if (result.getList() == null ||
+                // result.getList().isEmpty()) {
+                // Log.error("[missingRequiredData] No available project model.");
+                // missingRequiredData(I18N.CONSTANTS.createProjectDisableModel());
+                // return;
+                // }
+
+                testProjectStore.add(result.getList());
+                countBeforeShow();
+            }
+        });
     }
 
     /**
