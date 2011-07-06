@@ -12,6 +12,7 @@ public class GetProjectModelCopy implements Command<ProjectModelDTOLight>{
 	private static final long serialVersionUID = 7408913560700433111L;
 	
 	private long projectModelId;
+	private String newModelName;
 	
 	public GetProjectModelCopy(long projectModelId){
 		this.projectModelId = projectModelId;
@@ -28,5 +29,21 @@ public class GetProjectModelCopy implements Command<ProjectModelDTOLight>{
 	public void setProjectModelId(long projectModelId) {
 		this.projectModelId = projectModelId;
 	}
+
+	/**
+	 * @return the newModelName
+	 */
+	public String getNewModelName() {
+		return newModelName;
+	}
+
+	/**
+	 * @param newModelName the newModelName to set
+	 */
+	public void setNewModelName(String newModelName) {
+		this.newModelName = newModelName;
+	}
+	
+	
 	
 }

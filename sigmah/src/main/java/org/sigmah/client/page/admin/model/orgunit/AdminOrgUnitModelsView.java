@@ -185,6 +185,7 @@ public class AdminOrgUnitModelsView extends View {
 										dispatcher, false);
 								listener.setModelId(model.getId());
 								listener.setIsOrgUnit(true);
+								listener.setOrgUnit(model);
 								listener.onUIAction(UIActions.copyModel);
 							}
 						});

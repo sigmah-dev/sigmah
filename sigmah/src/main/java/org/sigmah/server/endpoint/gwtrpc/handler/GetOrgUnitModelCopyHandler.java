@@ -78,6 +78,7 @@ public class GetOrgUnitModelCopyHandler implements CommandHandler<GetOrgUnitMode
         	copyOrgUnitModel.resetImport();
         	copyOrgUnitModel.setStatus(ProjectModelStatus.DRAFT);
     		saveFlexibleElement(copyOrgUnitModel, em);
+    		copyOrgUnitModel.setName(cmd.getNewModelName());
     		em.persist(copyOrgUnitModel);
 
         	return mapper.map(copyOrgUnitModel, OrgUnitModelDTO.class);      

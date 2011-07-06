@@ -239,6 +239,7 @@ public class AdminProjectModelsView extends View {
 										dispatcher, true);
 								listener.setModelId(model.getId());
 								listener.setIsOrgUnit(false);
+								listener.setProjectModel(model);
 								listener.onUIAction(UIActions.copyModel);
 							}
 						});

@@ -60,6 +60,24 @@ public class AdminModelActionListener implements ActionListener {
 		
 	private ProjectModelDTOLight projectModel;
 	
+	private OrgUnitModelDTO orgUnit;
+	
+	
+	
+	/**
+	 * @return the orgUnit
+	 */
+	public OrgUnitModelDTO getOrgUnit() {
+		return orgUnit;
+	}
+
+	/**
+	 * @param orgUnit the orgUnit to set
+	 */
+	public void setOrgUnit(OrgUnitModelDTO orgUnit) {
+		this.orgUnit = orgUnit;
+	}
+
 	/**
 	 * @return the projectModel
 	 */
@@ -475,7 +493,9 @@ public class AdminModelActionListener implements ActionListener {
 	 */
 	private void onCopyModel() {
 		if (isProject) {
-			dispatcher.execute(new GetProjectModelCopy(getModelId()), null,
+			GetProjectModelCopy copyProjectModelCommand = new GetProjectModelCopy(getModelId());
+			copyProjectModelCommand.setNewModelName(I18N.MESSAGES.copyOf(getProjectModel().getName()));
+			dispatcher.execute(copyProjectModelCommand, null,
 					new AsyncCallback<ProjectModelDTOLight>() {
 
 						@Override
@@ -504,7 +524,9 @@ public class AdminModelActionListener implements ActionListener {
 		}
 
 		if (isOrgUnit) {
-			dispatcher.execute(new GetOrgUnitModelCopy(getModelId()), null,
+			GetOrgUnitModelCopy copyOrgUnitModelCommand = new GetOrgUnitModelCopy(getModelId());
+			copyOrgUnitModelCommand.setNewModelName(I18N.MESSAGES.copyOf(getOrgUnit().getName()));
+			dispatcher.execute(copyOrgUnitModelCommand, null,
 					new AsyncCallback<OrgUnitModelDTO>() {
 
 						@Override

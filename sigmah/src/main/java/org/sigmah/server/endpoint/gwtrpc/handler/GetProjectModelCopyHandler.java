@@ -103,6 +103,8 @@ public class GetProjectModelCopyHandler  implements CommandHandler<GetProjectMod
     		//Save project elements
     		saveFlexibleElement(copyProjectModel, em) ;	
     		
+    		copyProjectModel.setName(cmd.getNewModelName());
+    		
     		em.persist(copyProjectModel);
 
         	return mapper.map(copyProjectModel, ProjectModelDTOLight.class);      

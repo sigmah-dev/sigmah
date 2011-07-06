@@ -12,7 +12,22 @@ public class GetOrgUnitModelCopy implements Command<OrgUnitModelDTO>{
 	private static final long serialVersionUID = 3848729293364156448L;
 	
 	private long orgUnitModelId;
+	private String newModelName;
 	
+	/**
+	 * @return the newModelName
+	 */
+	public String getNewModelName() {
+		return newModelName;
+	}
+
+	/**
+	 * @param newModelName the newModelName to set
+	 */
+	public void setNewModelName(String newModelName) {
+		this.newModelName = newModelName;
+	}
+
 	public GetOrgUnitModelCopy(long orgUnitModelId){
 		this.orgUnitModelId = orgUnitModelId;
 	}
