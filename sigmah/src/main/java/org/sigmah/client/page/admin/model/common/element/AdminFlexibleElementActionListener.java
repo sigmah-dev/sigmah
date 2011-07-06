@@ -9,6 +9,7 @@ import org.sigmah.client.page.common.grid.ConfirmCallback;
 import org.sigmah.client.page.common.toolbar.ActionListener;
 import org.sigmah.client.page.common.toolbar.UIActions;
 import org.sigmah.client.page.admin.model.common.element.AdminFlexibleElementsPresenter.View;
+import org.sigmah.client.util.Notification;
 import org.sigmah.shared.command.DeleteFlexibleElements;
 import org.sigmah.shared.command.result.VoidResult;
 import org.sigmah.shared.domain.element.DefaultFlexibleElementType;
@@ -71,6 +72,14 @@ public class AdminFlexibleElementActionListener implements ActionListener {
 	            	for(FlexibleElementDTO s : selection){
 	            		view.getFieldsStore().remove(s);
 	            	}
+	            	
+	            	//Feedback 
+	            	 Notification.show(
+								I18N.CONSTANTS
+										.infoConfirmation(),
+								I18N.CONSTANTS
+										 .adminFlexibleDeleteFlexibleElementsConfirm());
+	            	
 	            	//FIXME update model
 	            }
 	        });
