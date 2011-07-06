@@ -81,18 +81,18 @@ public class AddOrgUnitWindow {
         // Name field.
         nameField = new TextField<String>();
         nameField.setMaxLength(16);
-        nameField.setFieldLabel(I18N.CONSTANTS.projectName());
+        nameField.setFieldLabel(I18N.CONSTANTS.adminOrgUnitCode());
         nameField.setAllowBlank(false);
 
         // Full name field.
         fullNameField = new TextField<String>();
         fullNameField.setMaxLength(50);
-        fullNameField.setFieldLabel(I18N.CONSTANTS.projectFullName());
+        fullNameField.setFieldLabel(I18N.CONSTANTS.adminOrgUnitTitle());
         fullNameField.setAllowBlank(false);
 
         // Countries list.
         countriesField = new ComboBox<CountryDTO>();
-        countriesField.setFieldLabel(I18N.CONSTANTS.projectCountry());
+        countriesField.setFieldLabel(I18N.CONSTANTS.adminOrgUnitCountry());
         countriesField.setAllowBlank(false);
         countriesField.setValueField("id");
         countriesField.setDisplayField("name");
@@ -120,12 +120,12 @@ public class AddOrgUnitWindow {
 
         // Models list.
         modelsField = new ComboBox<OrgUnitModelDTO>();
-        modelsField.setFieldLabel(I18N.CONSTANTS.projectModel());
+        modelsField.setFieldLabel(I18N.CONSTANTS.adminOrgUnitModel());
         modelsField.setAllowBlank(false);
         modelsField.setValueField("id");
         modelsField.setDisplayField("name");
         modelsField.setEditable(true);
-        modelsField.setEmptyText(I18N.CONSTANTS.projectModelEmptyChoice());
+        modelsField.setEmptyText(I18N.CONSTANTS.adminOrgUnitModelEmptyChoice());
         modelsField.setTriggerAction(TriggerAction.ALL);
 
         modelsStore = new ListStore<OrgUnitModelDTO>();
@@ -151,7 +151,7 @@ public class AddOrgUnitWindow {
         parentField.setName("parentId");
 
         // Create button.
-        final Button createButton = new Button(I18N.CONSTANTS.createProjectCreateButton());
+        final Button createButton = new Button(I18N.CONSTANTS.adminOrgUnitCreateButton());
         createButton.addListener(Events.OnClick, new Listener<ButtonEvent>() {
             @Override
             public void handleEvent(ButtonEvent be) {

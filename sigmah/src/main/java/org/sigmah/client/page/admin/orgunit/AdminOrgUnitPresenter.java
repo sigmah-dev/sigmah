@@ -6,6 +6,7 @@ import org.sigmah.client.dispatch.remote.Authentication;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.page.admin.AdminPageState;
 import org.sigmah.client.page.admin.AdminSubPresenter;
+import org.sigmah.client.util.Notification;
 import org.sigmah.shared.command.RemoveOrgUnit;
 import org.sigmah.shared.command.result.VoidResult;
 import org.sigmah.shared.dto.OrgUnitDTOLight;
@@ -70,6 +71,8 @@ public class AdminOrgUnitPresenter implements AdminSubPresenter {
 
                         @Override
                         public void orgUnitCreated() {
+                            Notification.show(I18N.CONSTANTS.infoConfirmation(),
+                                    I18N.CONSTANTS.adminOrgUnitAddSucceed());
                             refreshCache();
                         }
                     });
@@ -115,6 +118,8 @@ public class AdminOrgUnitPresenter implements AdminSubPresenter {
 
                                                         @Override
                                                         public void onSuccess(VoidResult result) {
+                                                            Notification.show(I18N.CONSTANTS.infoConfirmation(),
+                                                                    I18N.CONSTANTS.adminOrgUnitRemoveSucceed());
                                                             refreshCache();
                                                         }
                                                     });
@@ -140,6 +145,8 @@ public class AdminOrgUnitPresenter implements AdminSubPresenter {
 
                         @Override
                         public void orgUnitMoved() {
+                            Notification.show(I18N.CONSTANTS.infoConfirmation(),
+                                    I18N.CONSTANTS.adminOrgUnitMoveSucceed());
                             refreshCache();
                         }
                     });
@@ -167,7 +174,7 @@ public class AdminOrgUnitPresenter implements AdminSubPresenter {
 
             @Override
             public void handleEvent(BaseEvent be) {
-                view.getTree().setExpanded(view.getStore().getRootItems().get(0), true, false);
+                view.getTree().expandAll();
             }
         });
 
@@ -223,7 +230,7 @@ public class AdminOrgUnitPresenter implements AdminSubPresenter {
                 if (result != null) {
                     view.getStore().removeAll();
                     view.getStore().add(result, true);
-                    view.getTree().setExpanded(result, true, false);
+                    view.getTree().expandAll();
                 }
             }
         });
