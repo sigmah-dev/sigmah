@@ -145,6 +145,7 @@ public class OrgUnitModelPolicy implements EntityPolicy<OrgUnitModel>  {
 			if(changes.get(AdminUtil.PROP_OM_NAME) != null){//Update model
 				model = createOrgUnitModel(model, changes, user);
 				model = em.merge(model);
+				modelToUpdate = em.find(OrgUnitModel.class, model.getId());	
 			}			
 			/* ***********************************Flexible Element******************************************************/
 			if(changes.get(AdminUtil.PROP_FX_FLEXIBLE_ELEMENT) != null){
