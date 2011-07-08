@@ -258,4 +258,9 @@ public class AdminOrgUnitModelsView extends View {
 	public void setCurrentState(AdminPageState currentState) {
 		this.currentState = currentState;
 	}
+
+	@Override
+	public Grid<OrgUnitModelDTO> getOrgUnitModelGrid() {
+		return this.grid;
+	}
 }

@@ -40,6 +40,7 @@ import com.extjs.gxt.ui.client.widget.form.FormPanel.Method;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.Element;
 import com.google.gwt.http.client.URL;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.ListBox;
@@ -278,6 +279,12 @@ public class AdminModelActionListener implements ActionListener {
 					pMLight.setVisibilities(pM.getVisibilities());
 					((AdminProjectModelsPresenter.View)view).getAdminModelsStore().add(pMLight);
 					((AdminProjectModelsPresenter.View)view).getAdminModelsStore().commitChanges();
+					
+					//Focus the new created model cell in the grid						
+					int rowIndex =((AdminProjectModelsPresenter.View)view).getAdminModelsStore().indexOf(pMLight);	
+					Element addedRow =((AdminProjectModelsPresenter.View)view).getProjectModelGrid().getView().getRow(rowIndex);							
+					addedRow.scrollIntoView();	
+					addedRow.focus();
 				}			
 			});
 			window.add(form);
@@ -306,6 +313,14 @@ public class AdminModelActionListener implements ActionListener {
 					OrgUnitModelDTO oM = (OrgUnitModelDTO)result.getEntity();
 					((AdminOrgUnitModelsPresenter.View)view).getAdminModelsStore().add(oM);
 					((AdminOrgUnitModelsPresenter.View)view).getAdminModelsStore().commitChanges();
+					
+					//Focus the new created model cell in the grid						
+					int rowIndex =((AdminOrgUnitModelsPresenter.View)view).getAdminModelsStore().indexOf(oM);	
+					Element addedRow =((AdminOrgUnitModelsPresenter.View)view).getOrgUnitModelGrid().getView().getRow(rowIndex);							
+					addedRow.scrollIntoView();	
+					addedRow.focus();
+					
+					
 				}			
 			});
 			window.add(form);

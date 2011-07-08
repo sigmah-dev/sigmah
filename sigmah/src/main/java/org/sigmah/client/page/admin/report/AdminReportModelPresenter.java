@@ -22,7 +22,6 @@ import org.sigmah.shared.dto.ProjectModelDTO;
 import org.sigmah.shared.dto.report.ProjectReportModelSectionDTO;
 import org.sigmah.shared.dto.report.ReportModelDTO;
 
-import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.GridEvent;
@@ -34,6 +33,8 @@ import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.grid.EditorGrid;
+import com.extjs.gxt.ui.client.widget.grid.Grid;
+import com.google.gwt.dom.client.Element;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class AdminReportModelPresenter implements AdminModelSubPresenter {
@@ -60,6 +61,8 @@ public class AdminReportModelPresenter implements AdminModelSubPresenter {
 		public abstract ListStore<ProjectReportModelSectionDTO> getReportSectionsComboStore();	
 		public abstract Button getAddReportSectionButton();
 		public abstract List<ProjectReportModelSectionDTO> getSectionsToBeSaved();
+		public abstract Grid<ReportModelDTO> getReportModelsGrid();
+
 
 	}
 	
@@ -149,11 +152,23 @@ public class AdminReportModelPresenter implements AdminModelSubPresenter {
 							//RPC successfull
 							
 							if(result != null){
+								
+								//Refresh the report model grid
 								view.getModelsStore().add((ReportModelDTO) result.getEntity());
 								view.getModelsStore().commitChanges();
 								Notification.show(I18N.CONSTANTS.adminReportModelCreationBox(), 
 										I18N.MESSAGES.adminStandardUpdateSuccess(I18N.CONSTANTS.adminReportModelStandard()
 												+ " '" + result.getEntity().get("name")+"'"));
+							    
+								//Focus the new created model cell in the grid		
+								
+								int rowIndex = view.getModelsStore().indexOf((ReportModelDTO) result.getEntity());								
+								Element addedRow =view.getReportModelsGrid().getView().getRow(rowIndex);							
+								addedRow.scrollIntoView();	
+								addedRow.focus();								
+							
+							    
+								
 							}					
 							else{
 								MessageBox.alert(I18N.CONSTANTS.adminReportModelCreationBox(), 

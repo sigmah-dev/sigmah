@@ -48,6 +48,7 @@ import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.VBoxLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
+import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -76,15 +77,16 @@ public class AdminCategoryView extends View {
         setBorders(false);
         setBodyBorder(false);
         
-        ContentPanel sidePanel = new ContentPanel(new VBoxLayout());
+        ContentPanel sidePanel = new ContentPanel(new FitLayout());
         sidePanel.setHeaderVisible(false);
         sidePanel.setWidth(450);
-        sidePanel.setScrollMode(Scroll.NONE);
+        sidePanel.setScrollMode(Scroll.AUTO);
         categoriesGrid = buildCategoriesListGrid();
         sidePanel.add(categoriesGrid);
         sidePanel.setTopComponent(categoryTypeToolBar());
         
         ContentPanel categoryPanel = new ContentPanel(new FitLayout());
+        categoryPanel.setScrollMode(Scroll.AUTOY);
         categoryPanel.setHeaderVisible(false);
         categoryPanel.setBorders(true);
         categoryElementsGrid = buildCategoryElementsGrid();
@@ -285,7 +287,14 @@ public class AdminCategoryView extends View {
 									categoriesStore.add((CategoryTypeDTO) result.getEntity());
 									categoriesStore.commitChanges();
 									Notification.show(I18N.CONSTANTS.adminCategoryTypeCreationBox(), I18N.MESSAGES.adminStandardUpdateSuccessF(I18N.CONSTANTS.adminCategoryTypeStandard()
-											+ " '" + categoryName.getValue() +"'"));					
+											+ " '" + categoryName.getValue() +"'"));
+									
+									//Focus and scroll to the new created category
+									int rowIndex = categoriesStore.indexOf((CategoryTypeDTO) result.getEntity());
+									Element addedRow =categoriesGrid.getView().getRow(rowIndex);
+									addedRow.scrollIntoView();
+									addedRow.focus();
+									
 								}					
 								else{
 									MessageBox.alert(I18N.CONSTANTS.adminCategoryTypeCreationBox(), 

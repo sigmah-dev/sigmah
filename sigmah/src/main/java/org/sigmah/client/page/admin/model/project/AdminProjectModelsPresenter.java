@@ -16,6 +16,7 @@ import org.sigmah.shared.dto.ProjectModelDTOLight;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
@@ -36,6 +37,7 @@ public class AdminProjectModelsPresenter implements AdminSubPresenter {
 		public abstract MaskingAsyncMonitor getProjectModelsLoadingMonitor();
 		public abstract Component getMainPanel(int id);
 		public abstract void setCurrentState(AdminPageState currentState);
+		public abstract Grid<ProjectModelDTOLight> getProjectModelGrid();
 	}
 	public static class AdminModelsStore extends ListStore<ProjectModelDTOLight> {
     }

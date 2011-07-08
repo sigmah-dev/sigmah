@@ -312,6 +312,11 @@ public class AdminProjectModelsView extends View {
 		this.currentState = currentState;
 	}
 
+	@Override
+	public Grid<ProjectModelDTOLight> getProjectModelGrid() {
+		return this.grid;
+	}
+
 
 	
 }

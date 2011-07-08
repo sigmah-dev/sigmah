@@ -15,7 +15,6 @@ import org.sigmah.shared.command.DeleteReportModels;
 import org.sigmah.shared.command.GetReportElements;
 import org.sigmah.shared.command.result.ProjectReportModelResult;
 import org.sigmah.shared.command.result.ReportElementsResult;
-import org.sigmah.shared.command.result.VoidResult;
 import org.sigmah.shared.dto.element.ReportElementDTO;
 import org.sigmah.shared.dto.element.ReportListElementDTO;
 import org.sigmah.shared.dto.report.ProjectReportModelSectionDTO;
@@ -49,7 +48,6 @@ import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
-import com.extjs.gxt.ui.client.widget.layout.VBoxLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -73,6 +71,7 @@ public class AdminReportModelView extends View {
 	private TextField<String> reportName;
     private List<ProjectReportModelSectionDTO> sectionsToBeSaved = new ArrayList<ProjectReportModelSectionDTO>();
 
+    
 	public AdminReportModelView(Dispatcher dispatcher) {
 
 		this.dispatcher = dispatcher;
@@ -85,11 +84,11 @@ public class AdminReportModelView extends View {
 		ContentPanel sidePanel = new ContentPanel(new FitLayout());
 		sidePanel.setHeaderVisible(false);
 		sidePanel.setWidth(370);
-		sidePanel.setScrollMode(Scroll.AUTOY);
+		sidePanel.setScrollMode(Scroll.AUTO);
 		reportModelsGrid = buildModelsListGrid();
 		sidePanel.add(reportModelsGrid);
 		sidePanel.setTopComponent(reportModelToolBar());
-		
+        
 
 		reportPanel = new ContentPanel(new FitLayout());
 		reportPanel.setHeaderVisible(false);
@@ -789,6 +788,12 @@ public class AdminReportModelView extends View {
 		return this.sectionsToBeSaved;
 	}
 
+	@Override
+	public Grid<ReportModelDTO> getReportModelsGrid() {
+		return this.reportModelsGrid;
+	}
+
+	
 
 
 }

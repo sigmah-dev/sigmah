@@ -14,6 +14,7 @@ import org.sigmah.shared.dto.OrgUnitModelDTO;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
@@ -34,6 +35,7 @@ public class AdminOrgUnitModelsPresenter implements AdminSubPresenter {
 		public abstract MaskingAsyncMonitor getOrgUnitModelsLoadingMonitor();
 		public abstract Component getMainPanel(int id);
 		public abstract void setCurrentState(AdminPageState currentState);
+		public abstract Grid<OrgUnitModelDTO> getOrgUnitModelGrid();
 	}
 	public static class AdminModelsStore extends ListStore<OrgUnitModelDTO> {
     }
