@@ -2269,8 +2269,6 @@ sigmah/src/main/resources/sigmah.client.js -text
 sigmah/src/main/resources/sigmah.properties -text
 sigmah/src/main/resources/template/mail/Invite.ftl -text
 sigmah/src/main/resources/template/mail/Invite_fr.ftl -text
-sigmah/src/main/resources/template/mail/SigmahInvite.ftl -text
-sigmah/src/main/resources/template/mail/SigmahInvite_fr.ftl -text
 sigmah/src/main/resources/template/page/Application.css -text
 sigmah/src/main/resources/template/page/ConfirmInvite.ftl -text
 sigmah/src/main/resources/template/page/Host.ftl -text
