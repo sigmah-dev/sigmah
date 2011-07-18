@@ -165,7 +165,7 @@ public class AdminOneModelView extends LayoutContainer implements AdminOneModelP
 
 							@Override
 							public void handleEvent(MessageBoxEvent be) {
-								if (Dialog.YES.equals(be.getButtonClicked().getItemId())) {
+								if (Dialog.NO.equals(be.getButtonClicked().getItemId())) {
 									statusList.setSimpleValue(ProjectModelStatus.getName(currentOrgUnitModel.getStatus()));
 	                            }
 							}

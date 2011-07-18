@@ -173,14 +173,23 @@ public class OrgUnitModelPolicy implements EntityPolicy<OrgUnitModel>  {
 		Boolean containsProjects = null;
 		if(properties.get(AdminUtil.PROP_OM_CONTAINS_PROJECTS) != null)
 			containsProjects = (Boolean) properties.get(AdminUtil.PROP_OM_CONTAINS_PROJECTS);
-
 		
-		oM.setName(oMName);
-		oM.setStatus(ProjectModelStatus.DRAFT);
+		
+		oM.setName(oMName);		
 		oM.setTitle(oMTitle);
 		oM.setHasBudget(hasBudget);
 		oM.setOrganization(user.getOrganization());
 		oM.setCanContainProjects(containsProjects);
+        //Status
+		if(properties.get(AdminUtil.PROP_OM_STATUS) !=null)
+		{
+			oM.setStatus((ProjectModelStatus)properties.get(AdminUtil.PROP_OM_STATUS));
+		}
+		else
+		{
+		    oM.setStatus(ProjectModelStatus.DRAFT);
+		}
+		
 		return oM;
 	}
 }
