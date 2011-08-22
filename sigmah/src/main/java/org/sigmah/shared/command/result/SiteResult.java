@@ -19,6 +19,13 @@ import java.util.List;
  */
 public class SiteResult extends PagingResult<SiteDTO> {
     
+	private int siteCount;
+	
+	public SiteResult(int siteCount)
+	{
+		this.siteCount = siteCount;
+	}
+	
     public SiteResult() {
 
     }
@@ -34,4 +41,21 @@ public class SiteResult extends PagingResult<SiteDTO> {
     public SiteResult(List<SiteDTO> data, int offset, int totalCount) {
         super(data, offset, totalCount);
     }
+
+	/**
+	 * @return the siteCount
+	 */
+	public int getSiteCount() {
+		return siteCount;
+	}
+
+	/**
+	 * @param siteCount the siteCount to set
+	 */
+	public void setSiteCount(int siteCount) {
+		this.siteCount = siteCount;
+	}
+    
+    
+        
 }

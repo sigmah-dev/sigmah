@@ -1597,6 +1597,7 @@ sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetReportElements
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetReportModelsHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetReportTemplatesHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetSitePointsHandler.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetSitesCountHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetSyncRegionUpdatesHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetSyncRegionsHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetTestProjectsHandler.java -text
@@ -1847,6 +1848,7 @@ sigmah/src/main/java/org/sigmah/shared/command/GetReportTemplates.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetSchema.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetSitePoints.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetSites.java -text
+sigmah/src/main/java/org/sigmah/shared/command/GetSitesCount.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetSyncRegionUpdates.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetSyncRegions.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetTestProjects.java -text

@@ -9,29 +9,37 @@ import org.sigmah.client.util.HistoryTokenText;
 import org.sigmah.client.util.NumberUtils;
 import org.sigmah.shared.command.GetCountries;
 import org.sigmah.shared.command.GetCountry;
+import org.sigmah.shared.command.GetSitesCount;
 import org.sigmah.shared.command.GetUsersByOrganization;
 import org.sigmah.shared.command.result.CountryResult;
+import org.sigmah.shared.command.result.SiteResult;
 import org.sigmah.shared.command.result.UserListResult;
 import org.sigmah.shared.command.result.ValueResult;
 import org.sigmah.shared.command.result.ValueResultUtils;
+import org.sigmah.shared.dao.Filter;
 import org.sigmah.shared.domain.element.DefaultFlexibleElementType;
 import org.sigmah.shared.dto.CountryDTO;
 import org.sigmah.shared.dto.OrgUnitDTOLight;
+import org.sigmah.shared.dto.ProjectDTO;
 import org.sigmah.shared.dto.UserDTO;
 import org.sigmah.shared.dto.element.handler.RequiredValueEvent;
 import org.sigmah.shared.dto.element.handler.ValueEvent;
 import org.sigmah.shared.dto.history.HistoryTokenListDTO;
+import org.sigmah.shared.report.model.DimensionType;
 
 import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.DatePickerEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Component;
+import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.Label;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.DateField;
@@ -335,191 +343,21 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
             break;
         case COUNTRY: {
 
+        	//COUNTRY of project should not be changeable
+        	
             final Field<?> field;
             final CountryDTO c = container.getCountry();
+                      
+            final LabelField labelField = createLabelField();
 
-            if (enabled) {
-                final ComboBox<CountryDTO> comboBox = new ComboBox<CountryDTO>();
-                comboBox.setEmptyText(I18N.CONSTANTS.flexibleElementDefaultSelectCountry());
-
-                if (countriesStore == null) {
-                    countriesStore = new ListStore<CountryDTO>();
-                }
-
-                comboBox.setStore(countriesStore);
-                comboBox.setDisplayField("name");
-                comboBox.setValueField("id");
-                comboBox.setTriggerAction(TriggerAction.ALL);
-                comboBox.setEditable(true);
-                comboBox.setAllowBlank(true);
-
-                // Retrieves the county list.
-                if (countriesStore.getCount() == 0) {
-
-                    if (cache != null) {
-
-                        cache.getCountryCache().get(new AsyncCallback<List<CountryDTO>>() {
-
-                            @Override
-                            public void onFailure(Throwable e) {
-                                Log.error("[getComponent] Error while getting countries list.", e);
-                            }
-
-                            @Override
-                            public void onSuccess(List<CountryDTO> result) {
-
-                                // Fills the store.
-                                countriesStore.add(result);
-
-                                // Sets the value to the field.
-                                if (c != null) {
-                                    comboBox.setValue(c);
-                                }
-
-                                // Listens to the selection changes.
-                                comboBox.addSelectionChangedListener(new SelectionChangedListener<CountryDTO>() {
-
-                                    @Override
-                                    public void selectionChanged(SelectionChangedEvent<CountryDTO> se) {
-
-                                        String value = null;
-                                        final boolean isValueOn;
-
-                                        // Gets the selected choice.
-                                        final CountryDTO choice = se.getSelectedItem();
-
-                                        // Checks if the choice isn't the
-                                        // default empty choice.
-                                        isValueOn = choice != null && choice.getId() != -1;
-
-                                        if (choice != null) {
-                                            value = String.valueOf(choice.getId());
-                                        }
-
-                                        if (value != null) {
-                                            // Fires value change event.
-                                            handlerManager.fireEvent(new ValueEvent(DefaultFlexibleElementDTO.this,
-                                                    value));
-                                        }
-
-                                        // Required element ?
-                                        if (getValidates()) {
-                                            handlerManager.fireEvent(new RequiredValueEvent(isValueOn));
-                                        }
-                                    }
-                                });
-                            }
-                        });
-
-                    } else {
-
-                        dispatcher.execute(new GetCountries(), null, new AsyncCallback<CountryResult>() {
-
-                            @Override
-                            public void onFailure(Throwable e) {
-                                Log.error("[getComponent] Error while getting countries list.", e);
-                            }
-
-                            @Override
-                            public void onSuccess(CountryResult result) {
-
-                                // Fills the store.
-                                countriesStore.add(result.getData());
-
-                                // Sets the value to the field.
-                                if (c != null) {
-                                    comboBox.setValue(c);
-                                }
-
-                                // Listens to the selection changes.
-                                comboBox.addSelectionChangedListener(new SelectionChangedListener<CountryDTO>() {
-
-                                    @Override
-                                    public void selectionChanged(SelectionChangedEvent<CountryDTO> se) {
-
-                                        String value = null;
-                                        final boolean isValueOn;
-
-                                        // Gets the selected choice.
-                                        final CountryDTO choice = se.getSelectedItem();
-
-                                        // Checks if the choice isn't the
-                                        // default empty choice.
-                                        isValueOn = choice != null && choice.getId() != -1;
-
-                                        if (choice != null) {
-                                            value = String.valueOf(choice.getId());
-                                        }
-
-                                        if (value != null) {
-                                            // Fires value change event.
-                                            handlerManager.fireEvent(new ValueEvent(DefaultFlexibleElementDTO.this,
-                                                    value));
-                                        }
-
-                                        // Required element ?
-                                        if (getValidates()) {
-                                            handlerManager.fireEvent(new RequiredValueEvent(isValueOn));
-                                        }
-                                    }
-                                });
-                            }
-                        });
-                    }
-                } else {
-
-                    // Sets the value to the field.
-                    if (c != null) {
-                        comboBox.setValue(c);
-                    }
-
-                    // Listens to the selection changes.
-                    comboBox.addSelectionChangedListener(new SelectionChangedListener<CountryDTO>() {
-
-                        @Override
-                        public void selectionChanged(SelectionChangedEvent<CountryDTO> se) {
-
-                            String value = null;
-                            final boolean isValueOn;
-
-                            // Gets the selected choice.
-                            final CountryDTO choice = se.getSelectedItem();
-
-                            // Checks if the choice isn't the default empty
-                            // choice.
-                            isValueOn = choice != null && choice.getId() != -1;
-
-                            if (choice != null) {
-                                value = String.valueOf(choice.getId());
-                            }
-
-                            if (value != null) {
-                                // Fires value change event.
-                                handlerManager.fireEvent(new ValueEvent(DefaultFlexibleElementDTO.this, value));
-                            }
-
-                            // Required element ?
-                            if (getValidates()) {
-                                handlerManager.fireEvent(new RequiredValueEvent(isValueOn));
-                            }
-                        }
-                    });
-                }
-
-                field = comboBox;
+            if (c == null) {
+                labelField.setValue("-");
             } else {
-
-                final LabelField labelField = createLabelField();
-
-                if (c == null) {
-                    labelField.setValue("-");
-                } else {
-                    labelField.setValue(c.getName());
-                }
-
-                field = labelField;
+                labelField.setValue(c.getName());
             }
 
+            field = labelField;
+                      
             // Sets the field label.
             setLabel(I18N.CONSTANTS.projectCountry());
             field.setFieldLabel(getLabel());
@@ -813,31 +651,165 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
                             comboBox.addSelectionChangedListener(new SelectionChangedListener<OrgUnitDTOLight>() {
 
                                 @Override
-                                public void selectionChanged(SelectionChangedEvent<OrgUnitDTOLight> se) {
+                                public void selectionChanged(final SelectionChangedEvent<OrgUnitDTOLight> se) {
 
-                                    String value = null;
-                                    final boolean isValueOn;
+                                  if(container instanceof ProjectDTO)
+                                  {//If the container is a project, before changing the OrgUnit, 
+                                   //should check if there are sites created for indicators.If 
+                                   //there are some sites created for this project, should inform users 
+                                   //the sites already created and the future sites will be also connected
+                                   //to the country of project not the country of the new OrgUnit
+                                	
+                                	Log.debug("OrgUnit in project details.");
+                                	  
+                                	final ProjectDTO currentProject = (ProjectDTO) container;
+                                	
+                                	Filter filter = new Filter();
+                                	filter.addRestriction(DimensionType.Database,currentProject.getId());
+                                	
+                                	GetSitesCount getSitesCountCmd = new GetSitesCount(filter);
+                                	
+                                	dispatcher.execute(getSitesCountCmd, null, new AsyncCallback<SiteResult>(){
 
-                                    // Gets the selected choice.
-                                    final OrgUnitDTOLight choice = se.getSelectedItem();
+                            			@Override
+                            			public void onFailure(Throwable caught) {
+                            				
+                            				 Log.error("[getSitesCountCmd] Error while getting the count of sites.", caught);
+                            				
+                            			}
 
-                                    // Checks if the choice isn't the
-                                    // default empty choice.
-                                    isValueOn = choice != null && choice.getId() != -1;
+                            			@Override
+                            			public void onSuccess(SiteResult result) {
+                            			
+                            				// Gets the selected choice.
+                            				final OrgUnitDTOLight choice = se.getSelectedItem();
+                            				
+                            				//Current poject's country
+                            				final CountryDTO projectCountry = currentProject.getCountry();
+                            				
+                            				//New OrgUnit's country
+                            				final CountryDTO orgUnitCountry = choice.getOfficeLocationCountry();
+                            				
+                            				Log.debug("geting site result: "+result.getSiteCount());
+                            				
+                            				if(result!=null && result.getSiteCount()>0 &&  projectCountry!=null && orgUnitCountry !=null
+                            				   && projectCountry != orgUnitCountry)
+                            				{//If the new OrgUnit's country is different from the current country of project
+                            				 //Inform users that it will continue use the country of project not new OrgUnit's
+                            					
+                            					Log.debug("[getSitesCountCmd]-Site count is: "+result.getSiteCount());
+                            					
+                            					MessageBox.confirm(I18N.CONSTANTS.changeOrgUnit(), I18N.CONSTANTS.changeOrgUnitDetails(),new Listener<MessageBoxEvent>(){
 
-                                    if (choice != null) {
-                                        value = String.valueOf(choice.getId());
-                                    }
+													@Override
+													public void handleEvent(
+															MessageBoxEvent be) {
+														
+														if(Dialog.NO.equals(be.getBoxComponent().getItemId()))
+														{
+															//Rollback the value
+															Log.debug("Cancle changing OrgUnit.");
+															comboBox.setValue(orgUnitsStore.findModel("id", currentProject.getOrgUnitId()));
+															
+														
+														}
+														else
+														{
+															  String value = null;
+					                                             final boolean isValueOn;
 
-                                    if (value != null) {
-                                        // Fires value change event.
-                                        handlerManager.fireEvent(new ValueEvent(DefaultFlexibleElementDTO.this, value));
-                                    }
+					                                             // Checks if the choice isn't the
+					                                             // default empty choice.
+					                                             isValueOn = choice != null && choice.getId() != -1;
 
-                                    // Required element ?
-                                    if (getValidates()) {
-                                        handlerManager.fireEvent(new RequiredValueEvent(isValueOn));
-                                    }
+					                                             if (choice != null) {
+					                                                 value = String.valueOf(choice.getId());
+					                                             }
+
+					                                             if (value != null) {
+					                                                 // Fires value change event.
+					                                                 handlerManager.fireEvent(new ValueEvent(DefaultFlexibleElementDTO.this, value));
+					                                             }
+
+					                                             // Required element ?
+					                                             if (getValidates()) {
+					                                                 handlerManager.fireEvent(new RequiredValueEvent(isValueOn));
+					                                             }
+					                            				
+														}
+														
+														
+													}});
+                            				 
+                            				}
+                            				else
+                            				{
+                            					
+                            					  String value = null;
+                                                  final boolean isValueOn;
+
+                                                  // Checks if the choice isn't the
+                                                  // default empty choice.
+                                                  isValueOn = choice != null && choice.getId() != -1;
+
+                                                  if (choice != null) {
+                                                      value = String.valueOf(choice.getId());
+                                                  }
+
+                                                  if (value != null) {
+                                                      // Fires value change event.
+                                                      handlerManager.fireEvent(new ValueEvent(DefaultFlexibleElementDTO.this, value));
+                                                  }
+
+                                                  // Required element ?
+                                                  if (getValidates()) {
+                                                      handlerManager.fireEvent(new RequiredValueEvent(isValueOn));
+                                                  }
+                                 				                         					
+                            					
+                            				}
+                            				                            				                         		       
+                            				
+                            				
+                            			}
+                                	
+                                	});
+                                  }	
+                                  else
+                                  {//Non project container
+                                	 
+                                    Log.debug("OrgUnit in non-project.");
+                                	  
+                                	  String value = null;
+                                      final boolean isValueOn;
+
+                                   // Gets the selected choice.
+                      				final OrgUnitDTOLight choice = se.getSelectedItem();
+                                      
+                                      // Checks if the choice isn't the
+                                      // default empty choice.
+                                      isValueOn = choice != null && choice.getId() != -1;
+
+                                      if (choice != null) {
+                                          value = String.valueOf(choice.getId());
+                                      }
+
+                                      if (value != null) {
+                                          // Fires value change event.
+                                          handlerManager.fireEvent(new ValueEvent(DefaultFlexibleElementDTO.this, value));
+                                      }
+
+                                      // Required element ?
+                                      if (getValidates()) {
+                                          handlerManager.fireEvent(new RequiredValueEvent(isValueOn));
+                                      }
+                     				
+                                  }
+                                
+                                  
+                                 
+                                  
+                                  
                                 }
                             });
                         }
@@ -858,31 +830,159 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
                     comboBox.addSelectionChangedListener(new SelectionChangedListener<OrgUnitDTOLight>() {
 
                         @Override
-                        public void selectionChanged(SelectionChangedEvent<OrgUnitDTOLight> se) {
+                        public void selectionChanged(final SelectionChangedEvent<OrgUnitDTOLight> se) {
 
-                            String value = null;
-                            final boolean isValueOn;
+                            if(container instanceof ProjectDTO)
+                            {//If the container is a project, before changing the OrgUnit, 
+                             //should check if there are sites created for indicators.If 
+                             //there are some sites created for this project, should inform users 
+                             //the sites already created and the future sites will be also connected
+                             //to the country of project not the country of the new OrgUnit
+                          	
+                             Log.debug("OrgUnit in project details 2.");
+                            	
+                          	final ProjectDTO currentProject = (ProjectDTO) container;
+                          	
+                          	Filter filter = new Filter();
+                          	filter.addRestriction(DimensionType.Database, currentProject.getId());
+                          	
+                          	GetSitesCount getSitesCountCmd = new GetSitesCount(filter);
+                          	
+                          	dispatcher.execute(getSitesCountCmd, null, new AsyncCallback<SiteResult>(){
 
-                            // Gets the selected choice.
-                            final OrgUnitDTOLight choice = se.getSelectedItem();
+                      			@Override
+                      			public void onFailure(Throwable caught) {
+                      				
+                      				 Log.error("[getSitesCountCmd] Error while getting the count of sites.", caught);
+                      				
+                      			}
 
-                            // Checks if the choice isn't the
-                            // default empty choice.
-                            isValueOn = choice != null && choice.getId() != -1;
+                      			@Override
+                      			public void onSuccess(SiteResult result) {
+                      			
+                      				// Gets the selected choice.
+                      				final OrgUnitDTOLight choice = se.getSelectedItem();
+                      				
+                      				//Current poject's country
+                      				final CountryDTO projectCountry = currentProject.getCountry();
+                      				
+                      				//New OrgUnit's country
+                      				final CountryDTO orgUnitCountry = choice.getOfficeLocationCountry();
+                      				
+                      				Log.debug("geting site result 2: "+result.getSiteCount());
+                      				
+                      				if(result!=null && result.getSiteCount()>0 &&  projectCountry!=null && orgUnitCountry !=null
+                      				   && projectCountry != orgUnitCountry)
+                      				{//If the new OrgUnit's country is different from the current country of project
+                      				 //Inform users that it will continue use the country of project not new OrgUnit's
+                      					
+                      					MessageBox.confirm(I18N.CONSTANTS.changeOrgUnit(), I18N.CONSTANTS.changeOrgUnitDetails(),new Listener<MessageBoxEvent>(){
 
-                            if (choice != null) {
-                                value = String.valueOf(choice.getId());
+												@Override
+												public void handleEvent(
+														MessageBoxEvent be) {
+													
+													if(Dialog.NO.equals(be.getBoxComponent().getItemId()))
+													{
+														//Rollback the value
+														Log.debug("Cancle changing OrgUnit.");
+														comboBox.setValue(orgUnitsStore.findModel("id", currentProject.getOrgUnitId()));
+														
+													}
+													else
+													{
+														  String value = null;
+				                                             final boolean isValueOn;
+
+				                                             // Checks if the choice isn't the
+				                                             // default empty choice.
+				                                             isValueOn = choice != null && choice.getId() != -1;
+
+				                                             if (choice != null) {
+				                                                 value = String.valueOf(choice.getId());
+				                                             }
+
+				                                             if (value != null) {
+				                                                 // Fires value change event.
+				                                                 handlerManager.fireEvent(new ValueEvent(DefaultFlexibleElementDTO.this, value));
+				                                             }
+
+				                                             // Required element ?
+				                                             if (getValidates()) {
+				                                                 handlerManager.fireEvent(new RequiredValueEvent(isValueOn));
+				                                             }
+				                            				
+													}
+													
+													
+												}});
+                      				 
+                      				}
+                      				else
+                      				{
+                      					
+                      					  String value = null;
+                                            final boolean isValueOn;
+
+                                            // Checks if the choice isn't the
+                                            // default empty choice.
+                                            isValueOn = choice != null && choice.getId() != -1;
+
+                                            if (choice != null) {
+                                                value = String.valueOf(choice.getId());
+                                            }
+
+                                            if (value != null) {
+                                                // Fires value change event.
+                                                handlerManager.fireEvent(new ValueEvent(DefaultFlexibleElementDTO.this, value));
+                                            }
+
+                                            // Required element ?
+                                            if (getValidates()) {
+                                                handlerManager.fireEvent(new RequiredValueEvent(isValueOn));
+                                            }
+                           				                         					
+                      					
+                      				}
+                      				                            				                         		       
+                      				
+                      				
+                      			}
+                          	
+                          	});
+                            }	
+                            else
+                            {//Non project container
+                          	  
+                              Log.debug("OrgUnit in non-project 2.");
+                            	
+                          	  String value = null;
+                                final boolean isValueOn;
+
+                             // Gets the selected choice.
+                				final OrgUnitDTOLight choice = se.getSelectedItem();
+                                
+                                // Checks if the choice isn't the
+                                // default empty choice.
+                                isValueOn = choice != null && choice.getId() != -1;
+
+                                if (choice != null) {
+                                    value = String.valueOf(choice.getId());
+                                }
+
+                                if (value != null) {
+                                    // Fires value change event.
+                                    handlerManager.fireEvent(new ValueEvent(DefaultFlexibleElementDTO.this, value));
+                                }
+
+                                // Required element ?
+                                if (getValidates()) {
+                                    handlerManager.fireEvent(new RequiredValueEvent(isValueOn));
+                                }
+               				
                             }
-
-                            if (value != null) {
-                                // Fires value change event.
-                                handlerManager.fireEvent(new ValueEvent(DefaultFlexibleElementDTO.this, value));
-                            }
-
-                            // Required element ?
-                            if (getValidates()) {
-                                handlerManager.fireEvent(new RequiredValueEvent(isValueOn));
-                            }
+                            
+                            
                         }
                     });
                 }
@@ -1159,18 +1259,15 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
             break;
         case COUNTRY: {
 
+        //COUNTRY of project should not be changeable
+        	
             final Field<Object> field;
             final int countryId = Integer.parseInt(valueResult.getValueObject());
 
-            // Builds the field and sets its value.
-            if (enabled) {
-                final TextField<Object> textField = new TextField<Object>();
-                field = textField;
-
-            } else {
-                final LabelField labelField = createLabelField();
-                field = labelField;
-            }
+            // Builds the field and sets its value.          
+            final LabelField labelField = createLabelField();
+            field = labelField;
+            
 
             dispatcher.execute(new GetCountry(countryId), null, new AsyncCallback<CountryDTO>() {
 
@@ -1304,7 +1401,9 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
      *            If the value is correct.
      */
     private void fireEvents(String value, boolean isValueOn) {
-
+        
+    	Log.debug("raw Value is : "+value+"  isValueOn is :"+isValueOn);
+    	
         handlerManager.fireEvent(new ValueEvent(this, value));
 
         // Required element ?
