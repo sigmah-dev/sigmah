@@ -37,6 +37,9 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.VBoxLayout;
 import com.extjs.gxt.ui.client.widget.layout.VBoxLayoutData;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.ui.Anchor;
 import com.google.inject.Inject;
 
 public class AdminOrgUnitModelsView extends View {
@@ -78,8 +81,45 @@ public class AdminOrgUnitModelsView extends View {
 		
         List<ColumnConfig> configs = new ArrayList<ColumnConfig>();  
 		  
-        ColumnConfig column = new ColumnConfig("name",I18N.CONSTANTS.adminOrgUnitsModelName(), 200);   
+        ColumnConfig column = new ColumnConfig("name",I18N.CONSTANTS.adminOrgUnitsModelName(), 200);  
+        column.setRenderer(new GridCellRenderer<OrgUnitModelDTO>(){
+
+			@Override
+			public Object render(final OrgUnitModelDTO model, String property,
+					ColumnData config, int rowIndex, int colIndex,
+					ListStore<OrgUnitModelDTO> store, Grid<OrgUnitModelDTO> grid) {
+				
+
+				//Name hyperlink
+				final Anchor nameHyperlink ;
+				nameHyperlink = new Anchor(model.getName(), true);
+		        nameHyperlink.setStyleName("hyperlink");
+		       // nameHyperlink.addStyleName("project-grid-leaf");
+		        nameHyperlink.addClickHandler(new ClickHandler(){
+
+					@Override
+					public void onClick(ClickEvent event) {
+					
+						final AdminPageState derivation = new AdminPageState(AdminOrgUnitModelsView.this.currentState.getCurrentSection());
+						derivation.setModel(model.getId());
+						//FIXME
+						derivation.setSubModel(I18N.CONSTANTS.adminProjectModelFields());
+						derivation.setIsProject(false);
+						AdminOrgUnitModelsView.this.eventBus.fireEvent(new NavigationEvent(
+								NavigationHandler.NavigationRequested, derivation));
+					}
+		        	
+		        });
+				
+				
+				return nameHyperlink;
+			}
+        	
+        });
 		configs.add(column); 
+		
+		
+		
 		
 		column = new ColumnConfig("title",I18N.CONSTANTS.adminOrgUnitsModelTitle(), 200);   
 		configs.add(column); 
@@ -112,20 +152,16 @@ public class AdminOrgUnitModelsView extends View {
 					ColumnData config, int rowIndex, int colIndex,
 					ListStore<OrgUnitModelDTO> store, Grid<OrgUnitModelDTO> grid) {
 				
-				Button button = new Button(I18N.CONSTANTS.edit());
-		        button.setItemId(UIActions.edit);
+				Button button = new Button(I18N.CONSTANTS.delete());
+		        button.setItemId(UIActions.delete);
 		        button.addListener(Events.OnClick, new Listener<ButtonEvent>(){
 
 					@Override
 					public void handleEvent(ButtonEvent be) {
 						
-						final AdminPageState derivation = new AdminPageState(AdminOrgUnitModelsView.this.currentState.getCurrentSection());
-						derivation.setModel(model.getId());
-						//FIXME
-						derivation.setSubModel(I18N.CONSTANTS.adminProjectModelFields());
-						derivation.setIsProject(false);
-						AdminOrgUnitModelsView.this.eventBus.fireEvent(new NavigationEvent(
-								NavigationHandler.NavigationRequested, derivation));					
+						//Do deletion
+						
+						//Not implementation
 					}		        	
 		        });		        		        
 				return button;				
