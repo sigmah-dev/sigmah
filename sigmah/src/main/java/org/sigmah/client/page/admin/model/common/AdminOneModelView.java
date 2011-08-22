@@ -7,16 +7,20 @@ import java.util.List;
 
 import org.sigmah.client.cache.UserLocalCache;
 import org.sigmah.client.dispatch.Dispatcher;
+import org.sigmah.client.dispatch.monitor.MaskingAsyncMonitor;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.page.admin.AdminUtil;
 import org.sigmah.client.page.project.dashboard.funding.FundingIconProvider;
 import org.sigmah.client.page.project.dashboard.funding.FundingIconProvider.IconSize;
 import org.sigmah.client.util.Notification;
 import org.sigmah.shared.command.CreateEntity;
+import org.sigmah.shared.command.GetProjectsByModel;
 import org.sigmah.shared.command.result.CreateResult;
+import org.sigmah.shared.command.result.ProjectListResult;
 import org.sigmah.shared.domain.ProjectModelStatus;
 import org.sigmah.shared.domain.ProjectModelType;
 import org.sigmah.shared.dto.OrgUnitModelDTO;
+import org.sigmah.shared.dto.ProjectDTOLight;
 import org.sigmah.shared.dto.ProjectModelDTO;
 
 import com.allen_sauer.gwt.log.client.Log;
@@ -100,7 +104,7 @@ public class AdminOneModelView extends LayoutContainer implements AdminOneModelP
     private final Dispatcher dispatcher;
     
 	@Inject
-    public AdminOneModelView(UserLocalCache cache, Dispatcher dispatcher) { 
+    public AdminOneModelView(UserLocalCache cache, final Dispatcher dispatcher) { 
 		this.dispatcher = dispatcher;
 		this.cache = cache;
 		
@@ -146,6 +150,9 @@ public class AdminOneModelView extends LayoutContainer implements AdminOneModelP
 				if(statusList.getValue()!=null && 
 						!ProjectModelStatus.getName(ProjectModelStatus.DRAFT).equals(statusList.getValue().getValue())){
 					if(isProject){
+						
+						//For project model
+						
 						MessageBox.confirm(I18N.MESSAGES.adminModelStatusChangeBox(), 
 								I18N.MESSAGES.adminModelStatusChange(ProjectModelStatus.getName(currentProjectModel.getStatus()), 
 										statusList.getValue().getValue()), new Listener<MessageBoxEvent>(){
@@ -155,10 +162,75 @@ public class AdminOneModelView extends LayoutContainer implements AdminOneModelP
 								if (Dialog.NO.equals(be.getButtonClicked().getItemId())) {
 									statusList.setSimpleValue(ProjectModelStatus.getName(currentProjectModel.getStatus()));
 	                            }
+								else 
+								{
+									GetProjectsByModel cmdGetProjectsByModel = new GetProjectsByModel();
+									cmdGetProjectsByModel.setProjectModelId(new Long((long)currentProjectModel.getId()));
+									
+									dispatcher.execute(cmdGetProjectsByModel, new MaskingAsyncMonitor(topPanel, I18N.CONSTANTS.loading()), new AsyncCallback<ProjectListResult>(){
+
+										@Override
+										public void onFailure(Throwable caught) {
+											
+											//RPC failed
+							        		 MessageBox.alert(I18N.CONSTANTS.error(), I18N.CONSTANTS.serverError(), null);       		
+											
+										}
+
+										@Override
+										public void onSuccess(
+												ProjectListResult result) {
+											
+											List<ProjectDTOLight> testProjects = result.getListProjectsLightDTO();
+											if(result!=null && testProjects!=null && testProjects.size()>0 )
+											{
+												
+												
+												String testProjectNames ="";
+												for(ProjectDTOLight p : testProjects)
+												{
+													testProjectNames+="["+p.getName()+"] ";
+												}										
+											
+												
+												String waringMessage = I18N.MESSAGES.projectChangeStatusDetails(testProjectNames);
+											
+												
+												Listener<MessageBoxEvent> l = new Listener<MessageBoxEvent>(){
+
+													@Override
+													public void handleEvent(
+															MessageBoxEvent be) {
+														
+														if(be.getButtonClicked().getItemId().equals(Dialog.NO))
+														{
+															statusList.setSimpleValue(ProjectModelStatus.getName(currentProjectModel.getStatus()));
+														}
+														
+													}
+													
+												};
+												
+												MessageBox.confirm(I18N.CONSTANTS.projectChangeStatus(), waringMessage, l);
+												
+												
+											}
+											
+											
+										}
+										
+									});
+									
+								}
+								
 							}
 
 						});
+						
+						
 					}else{
+						
+						//For OrgUnit model
 						MessageBox.confirm(I18N.MESSAGES.adminModelStatusChangeBox(), 
 								I18N.MESSAGES.adminModelStatusChange(ProjectModelStatus.getName(currentOrgUnitModel.getStatus()), 
 										statusList.getValue().getValue()), new Listener<MessageBoxEvent>(){

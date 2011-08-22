@@ -1589,6 +1589,7 @@ sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetProjectModelsH
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetProjectReportHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetProjectReportModelsHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetProjectReportsHandler.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetProjectsByModelHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetProjectsFromIdHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetProjectsHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetRemindersHandler.java -text
@@ -1839,6 +1840,7 @@ sigmah/src/main/java/org/sigmah/shared/command/GetProjectReportModel.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetProjectReportModels.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetProjectReports.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetProjects.java -text
+sigmah/src/main/java/org/sigmah/shared/command/GetProjectsByModel.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetProjectsFromId.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetReminders.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetReportDef.java -text
