@@ -160,9 +160,9 @@ public class ProjectDashboardPresenter implements SubPresenter {
         public abstract Button getAddReminderButton();
 
         public abstract com.extjs.gxt.ui.client.widget.grid.Grid<ReminderDTO> getRemindersGrid();
-        
+
         public abstract Image getEditIcon();
-        
+
         public abstract ContentPanel getRequiredElementContentPanel();
     }
 
@@ -196,7 +196,6 @@ public class ProjectDashboardPresenter implements SubPresenter {
      * The counter before the main panel is unmasked.
      */
     private int maskCount;
-     
 
     public ProjectDashboardPresenter(Dispatcher dispatcher, EventBus eventBus, Authentication authentication,
             ProjectPresenter projectPresenter, UserLocalCache cache) {
@@ -213,23 +212,20 @@ public class ProjectDashboardPresenter implements SubPresenter {
     public View getView() {
 
         if (view == null) {
-            view = new ProjectDashboardView(authentication,this.dispatcher,projectPresenter);
+            view = new ProjectDashboardView(authentication, this.dispatcher, projectPresenter);
             addLinkedProjectsListeners();
             addMonitoredPointsListeners();
-            addRemindersListeners();         
+            addRemindersListeners();
         }
 
         valueChanges.clear();
         view.getButtonSavePhase().disable();
         loadProjectDashboard(projectPresenter.getCurrentProjectDTO());
 
-        
         return view;
     }
 
-   
-
-	@Override
+    @Override
     public void discardView() {
         this.view = null;
     }
@@ -310,7 +306,6 @@ public class ProjectDashboardPresenter implements SubPresenter {
                                                                                // bar
                 }
             });
-                       
 
             // If the phase is the active one.
             if (isActivePhase(phaseDTO)) {
@@ -423,8 +418,8 @@ public class ProjectDashboardPresenter implements SubPresenter {
                                             if (isActivePhase(projectPresenter.getCurrentDisplayedPhaseDTO())) {
                                                 activePhaseRequiredElements.clearState();
                                             }
-                                        }                                       
-                                       loadPhaseOnTab(toDisplayPhase);
+                                        }
+                                        loadPhaseOnTab(toDisplayPhase);
                                     }
                                 });
                     } else {
@@ -471,14 +466,13 @@ public class ProjectDashboardPresenter implements SubPresenter {
         final MonitoredPointListDTO list = projectDTO.getPointsList();
         if (list != null) {
             for (final MonitoredPointDTO point : list.getPoints()) {
-            	
-            	//Only show the undeleted points
-            	Boolean isDeleted = (Boolean)point.isDeleted();
-            	if(isDeleted==null || isDeleted==Boolean.FALSE)
-            	{
-                point.setIsCompleted();
-                view.getMonitoredPointsGrid().getStore().add(point);
-            	}
+
+                // Only show the undeleted points
+                Boolean isDeleted = (Boolean) point.isDeleted();
+                if (isDeleted == null || isDeleted == Boolean.FALSE) {
+                    point.setIsCompleted();
+                    view.getMonitoredPointsGrid().getStore().add(point);
+                }
             }
         }
 
@@ -498,16 +492,15 @@ public class ProjectDashboardPresenter implements SubPresenter {
         final ReminderListDTO list = projectDTO.getRemindersList();
         if (list != null) {
             for (final ReminderDTO reminder : list.getReminders()) {
-            	
-            	//Only show the undeleted reminders
-            	Boolean isDeleted = (Boolean) reminder.isDeleted();
-            	Log.debug("The boolean value is : "+isDeleted+" Name: "+reminder.getLabel());
-            	
-               if(isDeleted==null || isDeleted==Boolean.FALSE)
-               {
-                reminder.setIsCompleted();
-                view.getRemindersGrid().getStore().add(reminder);
-               }
+
+                // Only show the undeleted reminders
+                Boolean isDeleted = (Boolean) reminder.isDeleted();
+                Log.debug("The boolean value is : " + isDeleted + " Name: " + reminder.getLabel());
+
+                if (isDeleted == null || isDeleted == Boolean.FALSE) {
+                    reminder.setIsCompleted();
+                    view.getRemindersGrid().getStore().add(reminder);
+                }
             }
         }
 
@@ -522,12 +515,13 @@ public class ProjectDashboardPresenter implements SubPresenter {
      */
     private void loadPhaseOnTab(final PhaseDTO phaseDTO) {
 
-        /*if (Log.isDebugEnabled()) {
-            Log.debug("[loadPhaseOnTab] Loading phase #" + phaseDTO.getId() + " with model #"
-                    + phaseDTO.getPhaseModelDTO().getId() + " and definition #"
-                    + phaseDTO.getPhaseModelDTO().getDefinitionDTO().getId() + ".");
-        }*/
-    	
+        /*
+         * if (Log.isDebugEnabled()) {
+         * Log.debug("[loadPhaseOnTab] Loading phase #" + phaseDTO.getId() +
+         * " with model #" + phaseDTO.getPhaseModelDTO().getId() +
+         * " and definition #" +
+         * phaseDTO.getPhaseModelDTO().getDefinitionDTO().getId() + "."); }
+         */
 
         // If the element are read only.
         final boolean readOnly = isEndedPhase(phaseDTO)
@@ -538,7 +532,10 @@ public class ProjectDashboardPresenter implements SubPresenter {
         for (final LayoutGroupDTO groupDTO : phaseDTO.getPhaseModelDTO().getLayoutDTO().getLayoutGroupsDTO()) {
             count += groupDTO.getLayoutConstraintsDTO().size();
         }
-        mask(count);
+
+        if (count > 0) {
+            mask(count);
+        }
 
         // Sets current project status.
         projectPresenter.setCurrentDisplayedPhaseDTO(phaseDTO);
@@ -560,17 +557,16 @@ public class ProjectDashboardPresenter implements SubPresenter {
         view.getPanelSelectedPhase().removeAll();
         view.getGridRequiredElements().getStore().removeAll();
         view.getTabPanelPhases().getSelectedItem().add(view.getPanelProjectModel());
-        
-        //Store required elements
+
+        // Store required elements
         final List<FlexibleElementDTO> requiredElemetsList = new ArrayList<FlexibleElementDTO>();
-   
+
         // --
         // -- PHASE LAYOUT
         // --
 
         final Grid layoutGrid = (Grid) phaseDTO.getPhaseModelDTO().getWidget();
         view.getPanelSelectedPhase().add(layoutGrid);
-          
 
         // For each layout group.
         for (final LayoutGroupDTO groupDTO : phaseDTO.getPhaseModelDTO().getLayoutDTO().getLayoutGroupsDTO()) {
@@ -640,7 +636,7 @@ public class ProjectDashboardPresenter implements SubPresenter {
 
                         if (elementComponent != null) {
                             formPanel.add(elementComponent, formData);
-                            
+
                         }
 
                         formPanel.layout();
@@ -657,24 +653,23 @@ public class ProjectDashboardPresenter implements SubPresenter {
 
                             // Adds a specific handler.
                             elementDTO.addRequiredValueHandler(new RequiredValueHandlerImpl(elementDTO));
-                                         
-                            //Set the groupDTO into the element
+
+                            // Set the groupDTO into the element
                             elementDTO.setGroup(groupDTO);
-                            
+
                             elementDTO.setConstraint(constraintDTO);
-                                                                              
-                            // Adds the element to the tmp list for sorting                         
-                            requiredElemetsList.add(elementDTO);                                             
-                            
-                            //Clear the store
+
+                            // Adds the element to the tmp list for sorting
+                            requiredElemetsList.add(elementDTO);
+
+                            // Clear the store
                             view.getGridRequiredElements().getStore().removeAll();
-                            
-                            //Sorting and add the list to the view
-                            view.getGridRequiredElements().getStore().add(sortRequiredElements(requiredElemetsList));                                                   
-                            
-                            //Refresh header
+
+                            // Sorting and add the list to the view
+                            view.getGridRequiredElements().getStore().add(sortRequiredElements(requiredElemetsList));
+
+                            // Refresh header
                             refreshRequiredElementContentPanelHeader();
-                                                      
 
                             // Map the required element for the current
                             // displayed phase.
@@ -691,18 +686,14 @@ public class ProjectDashboardPresenter implements SubPresenter {
                     }
                 });
             }
-                                   
-            
+
         }
-        
-     
-                     
+
         // View layouts update.
         // FIXME: This should be done by Ext, not be the developer!
         view.getTabPanelPhases().addStyleName("x-border-panel");
         view.layout();
-        
-       
+
     }
 
     /**
@@ -755,8 +746,8 @@ public class ProjectDashboardPresenter implements SubPresenter {
             if (event.isImmediate()) {
                 view.getButtonSavePhase().fireEvent(Events.OnClick);
             }
-            
-            //Refresh the panel's header
+
+            // Refresh the panel's header
             refreshRequiredElementContentPanelHeader();
         }
     }
@@ -1374,8 +1365,9 @@ public class ProjectDashboardPresenter implements SubPresenter {
                         final LabelField modelTypeLabel = window.addLabelField(I18N.CONSTANTS.createProjectType());
                         modelTypeLabel.setHeight(25);
 
-                        final NumberField amountField = window.addNumberField(I18N.MESSAGES.projectFundedByDetails(projectPresenter.getCurrentProjectDTO().getName())
-                                + " (" + I18N.CONSTANTS.currencyEuro() + ')', true);
+                        final NumberField amountField = window.addNumberField(
+                                I18N.MESSAGES.projectFundedByDetails(projectPresenter.getCurrentProjectDTO().getName())
+                                        + " (" + I18N.CONSTANTS.currencyEuro() + ')', true);
 
                         final LabelField percentageField = window.addLabelField(I18N.CONSTANTS
                                 .createProjectPercentage());
@@ -1548,15 +1540,15 @@ public class ProjectDashboardPresenter implements SubPresenter {
                         // nothing to do (must not be called).
                     }
 
-					@Override
-					public void projectCreatedAsTest(ProjectDTOLight project) {
-						 // nothing to do (must not be called).
-					}
+                    @Override
+                    public void projectCreatedAsTest(ProjectDTOLight project) {
+                        // nothing to do (must not be called).
+                    }
 
-					@Override
-					public void projectDeletedAsTest(ProjectDTOLight project) {
-						 // nothing to do (must not be called).
-					}
+                    @Override
+                    public void projectDeletedAsTest(ProjectDTOLight project) {
+                        // nothing to do (must not be called).
+                    }
                 });
             }
 
@@ -1624,8 +1616,9 @@ public class ProjectDashboardPresenter implements SubPresenter {
                         final LabelField modelTypeLabel = window.addLabelField(I18N.CONSTANTS.createProjectType());
                         modelTypeLabel.setHeight(25);
 
-                        final NumberField amountField = window.addNumberField(I18N.MESSAGES.projectFinancesDetails(projectPresenter.getCurrentProjectDTO().getName())
-                                + " (" + I18N.CONSTANTS.currencyEuro() + ')', true);
+                        final NumberField amountField = window.addNumberField(
+                                I18N.MESSAGES.projectFinancesDetails(projectPresenter.getCurrentProjectDTO().getName())
+                                        + " (" + I18N.CONSTANTS.currencyEuro() + ')', true);
 
                         final LabelField percentageField = window.addLabelField(I18N.CONSTANTS
                                 .createProjectPercentage());
@@ -1804,15 +1797,15 @@ public class ProjectDashboardPresenter implements SubPresenter {
                                 });
                     }
 
-					@Override
-					public void projectCreatedAsTest(ProjectDTOLight project) {
-						 // nothing to do (must not be called).						
-					}
+                    @Override
+                    public void projectCreatedAsTest(ProjectDTOLight project) {
+                        // nothing to do (must not be called).
+                    }
 
-					@Override
-					public void projectDeletedAsTest(ProjectDTOLight project) {
-						 // nothing to do (must not be called).						
-					}
+                    @Override
+                    public void projectDeletedAsTest(ProjectDTOLight project) {
+                        // nothing to do (must not be called).
+                    }
                 });
             }
 
@@ -1854,15 +1847,15 @@ public class ProjectDashboardPresenter implements SubPresenter {
 
                         final Date pointExpectedDate = (Date) element0;
                         final String pointLabel = (String) element1;
-                      
-                        if(pointExpectedDate!=null && pointLabel!=null){
-                        	final HashMap<String, Object> properties = new HashMap<String, Object>();
+
+                        if (pointExpectedDate != null && pointLabel != null) {
+                            final HashMap<String, Object> properties = new HashMap<String, Object>();
                             properties.put("expectedDate", pointExpectedDate.getTime());
                             properties.put("label", pointLabel);
                             properties.put("projectId", projectPresenter.getCurrentProjectDTO().getId());
 
-                            dispatcher.execute(new CreateEntity("MonitoredPoint", properties),
-                                    new MaskingAsyncMonitor(view.getMonitoredPointsGrid(), I18N.CONSTANTS.loading()),
+                            dispatcher.execute(new CreateEntity("MonitoredPoint", properties), new MaskingAsyncMonitor(
+                                    view.getMonitoredPointsGrid(), I18N.CONSTANTS.loading()),
                                     new AsyncCallback<CreateResult>() {
 
                                         @Override
@@ -1881,7 +1874,8 @@ public class ProjectDashboardPresenter implements SubPresenter {
                                             // Gets the created point.
                                             final MonitoredPointDTO point = (MonitoredPointDTO) result.getEntity();
 
-                                            // Gets the project list and creates it
+                                            // Gets the project list and creates
+                                            // it
                                             // if needed.
                                             MonitoredPointListDTO list = projectPresenter.getCurrentProjectDTO()
                                                     .getPointsList();
@@ -1897,7 +1891,8 @@ public class ProjectDashboardPresenter implements SubPresenter {
                                                 projectPresenter.getCurrentProjectDTO().setPointsList(list);
                                             }
 
-                                            // Forces the default completion state.
+                                            // Forces the default completion
+                                            // state.
                                             point.setCompletionDate(null);
 
                                             // Adds the point locally.
@@ -2129,127 +2124,108 @@ public class ProjectDashboardPresenter implements SubPresenter {
             }
         });
     }
-          
-    
-  /**
- * This method is to update the herder of requiredElementContentPanel's header text.
- * 
- * It computes the numbers of all filled elements and then updates.
- * 
- * @author HUZHE (zhe.hu32@gmail.com)
- */
 
-private void refreshRequiredElementContentPanelHeader()
-  {
-	  //The local sotre of all elements
-	  ListStore<FlexibleElementDTO> listSotre = view.getGridRequiredElements().getStore();
-	  
-	  //The number of all element in the store
-	  int requiredElementsCount=listSotre.getCount();
-	  	  
-	  //The number of all element that are filled in the store
-	  int filledRequiredElements=0;
-	  
-	  for(FlexibleElementDTO elementDTO:listSotre.getModels())
-	  {
-	    if(elementDTO.isFilledIn())
-	    	filledRequiredElements++;
-	   	    
-	  }
-	  
-	  view.getRequiredElementContentPanel().setHeading(I18N.CONSTANTS.projectRequiredElements()+" ("+filledRequiredElements+"/"+requiredElementsCount+")");
-	  
-	  
-  }
- 
-/**
- * Method to sort the list of all required elements list
- * 
- * @param list  
- *         List to be sorted
- * @return List 
- *         List sorted
- * 
- * @author HUZHE (zhe.hu32@gmail.com)
- */
-private List<FlexibleElementDTO> sortRequiredElements(List<FlexibleElementDTO> list)
-{	   
-   if(list.size()<2)
-	{
-		return list;
-	}
-	   
-	Collections.sort(list, new Comparator<FlexibleElementDTO>(){
+    /**
+     * This method is to update the herder of requiredElementContentPanel's
+     * header text.
+     * 
+     * It computes the numbers of all filled elements and then updates.
+     * 
+     * @author HUZHE (zhe.hu32@gmail.com)
+     */
 
-		@Override
-		public int compare(FlexibleElementDTO arg0, FlexibleElementDTO arg1) {
-			
-			return comparePosition(arg0,arg1);
-		}
-		
-	});
-	
-  return list;
-  
-}
+    private void refreshRequiredElementContentPanelHeader() {
+        // The local sotre of all elements
+        ListStore<FlexibleElementDTO> listSotre = view.getGridRequiredElements().getStore();
 
-/**
- * Method to compare the exact position of the two flexible elements.
- * 
- * @param o1
- * @param o2
- * @return
- * 
- * @author HUZHE (zhe.hu32@gmail.com)
- */
-private int comparePosition(FlexibleElementDTO o1,FlexibleElementDTO o2)
-{		
-	 int groupRow1 = o1.getGroup().getRow();
-	 int groupColumn1 = o1.getGroup().getColumn();
-	 int groupRow2 = o2.getGroup().getRow();
-	 int groupColumn2 = o2.getGroup().getColumn();
-	 
-	//First,compare the row of group of the element
-	 if(groupRow1>groupRow2)
-	 {
-		 return 1;
-	 }
-	 else if(groupRow1<groupRow2)
-	 {
-		 return -1;
-	 }
-	 else {//The row of group is the same,compare the column of group
-		 
-		 if(groupColumn1>groupColumn2)
-		 {
-			 return 1;
-		 }
-		 else if(groupColumn1<groupColumn2)
-		 {
-			 return -1;
-		 }
-	 }
-	 
-	 
-     //If goes this far,m2 and m2 in the same group, compare the their positions in the group 			 
-	 int elementPosition1 = o1.getConstraint().getSortOrder();
-	 int elementPosition2 = o2.getConstraint().getSortOrder();
-	 
-	 if(elementPosition1>elementPosition2)
-	 {
-		 return 1;
-	 }
-	 else if(elementPosition1<elementPosition2)
-	 {
-		 return -1;
-	 }
-	 else
-	 {
-		 return 0;
-	 }  
-	
-}
+        // The number of all element in the store
+        int requiredElementsCount = listSotre.getCount();
 
+        // The number of all element that are filled in the store
+        int filledRequiredElements = 0;
 
-    
+        for (FlexibleElementDTO elementDTO : listSotre.getModels()) {
+            if (elementDTO.isFilledIn())
+                filledRequiredElements++;
+
+        }
+
+        view.getRequiredElementContentPanel().setHeading(
+                I18N.CONSTANTS.projectRequiredElements() + " (" + filledRequiredElements + "/" + requiredElementsCount
+                        + ")");
+
+    }
+
+    /**
+     * Method to sort the list of all required elements list
+     * 
+     * @param list
+     *            List to be sorted
+     * @return List List sorted
+     * 
+     * @author HUZHE (zhe.hu32@gmail.com)
+     */
+    private List<FlexibleElementDTO> sortRequiredElements(List<FlexibleElementDTO> list) {
+        if (list.size() < 2) {
+            return list;
+        }
+
+        Collections.sort(list, new Comparator<FlexibleElementDTO>() {
+
+            @Override
+            public int compare(FlexibleElementDTO arg0, FlexibleElementDTO arg1) {
+
+                return comparePosition(arg0, arg1);
+            }
+
+        });
+
+        return list;
+
+    }
+
+    /**
+     * Method to compare the exact position of the two flexible elements.
+     * 
+     * @param o1
+     * @param o2
+     * @return
+     * 
+     * @author HUZHE (zhe.hu32@gmail.com)
+     */
+    private int comparePosition(FlexibleElementDTO o1, FlexibleElementDTO o2) {
+        int groupRow1 = o1.getGroup().getRow();
+        int groupColumn1 = o1.getGroup().getColumn();
+        int groupRow2 = o2.getGroup().getRow();
+        int groupColumn2 = o2.getGroup().getColumn();
+
+        // First,compare the row of group of the element
+        if (groupRow1 > groupRow2) {
+            return 1;
+        } else if (groupRow1 < groupRow2) {
+            return -1;
+        } else {// The row of group is the same,compare the column of group
+
+            if (groupColumn1 > groupColumn2) {
+                return 1;
+            } else if (groupColumn1 < groupColumn2) {
+                return -1;
+            }
+        }
+
+        // If goes this far,m2 and m2 in the same group, compare the their
+        // positions in the group
+        int elementPosition1 = o1.getConstraint().getSortOrder();
+        int elementPosition2 = o2.getConstraint().getSortOrder();
+
+        if (elementPosition1 > elementPosition2) {
+            return 1;
+        } else if (elementPosition1 < elementPosition2) {
+            return -1;
+        } else {
+            return 0;
+        }
+
+    }
+
 }
