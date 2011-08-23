@@ -151,7 +151,22 @@ public abstract class FlexibleElementDTO extends BaseModelData implements Entity
      *         <code>null</code> if the user cannot see this element).
      */
     public Component getElementComponent(ValueResult valueResult) {
-        return getComponentWithHistory(valueResult, true);
+        return getComponentWithHistory(valueResult, true, false);
+    }
+
+    /**
+     * Gets the widget of a flexible element with its value to be displayed in
+     * the banner.
+     * 
+     * @param valueResult
+     *            value of the flexible element, or {@code null} to display the
+     *            element without its value.
+     * 
+     * @return The widget corresponding to the flexible element (can be
+     *         <code>null</code> if the user cannot see this element).
+     */
+    public Component getElementComponentInBanner(ValueResult valueResult) {
+        return getComponentWithHistory(valueResult, false, true);
     }
 
     /**
@@ -167,7 +182,7 @@ public abstract class FlexibleElementDTO extends BaseModelData implements Entity
      *         <code>null</code> if the user cannot see this element).
      */
     public Component getElementComponent(ValueResult valueResult, boolean enabled) {
-        return getComponentWithHistory(valueResult, enabled);
+        return getComponentWithHistory(valueResult, enabled, false);
     }
 
     /**
@@ -179,25 +194,27 @@ public abstract class FlexibleElementDTO extends BaseModelData implements Entity
      *            element without its value.
      * @param enabled
      *            If the component is enabled.
+     * @param inBanner
+     *            If the component will be displayed in the banner.
      * @return
      */
-    private Component getComponentWithHistory(ValueResult valueResult, boolean enabled) {
+    private Component getComponentWithHistory(ValueResult valueResult, boolean enabled, boolean inBanner) {
 
         // Checking the amendment state.
         if (enabled && // This element is in an editable state
-                Boolean.TRUE.equals(getAmendable())){// This element is part
-                                                       // of the amendment
-               if( currentContainerDTO instanceof ProjectDTO && // This element is
+                Boolean.TRUE.equals(getAmendable())) {// This element is part
+                                                      // of the amendment
+            if (currentContainerDTO instanceof ProjectDTO && // This element is
                                                              // displayed in a
                                                              // project
-                (((ProjectDTO) currentContainerDTO).getAmendmentState() != Amendment.State.DRAFT || ((ProjectDTO) currentContainerDTO)
-                        .getCurrentAmendment() != null)) {
-            enabled = false;
-        }else{
-        	if(currentContainerDTO instanceof OrgUnitDTO ){
-        		enabled = false;	
-        	}
-        }
+                    (((ProjectDTO) currentContainerDTO).getAmendmentState() != Amendment.State.DRAFT || ((ProjectDTO) currentContainerDTO)
+                            .getCurrentAmendment() != null)) {
+                enabled = false;
+            } else {
+                if (currentContainerDTO instanceof OrgUnitDTO) {
+                    enabled = false;
+                }
+            }
         }
 
         // The permission for this element.
@@ -223,7 +240,8 @@ public abstract class FlexibleElementDTO extends BaseModelData implements Entity
             break;
         }
 
-        final Component component = getComponent(valueResult, enabled);
+        final Component component = inBanner ? getComponentInBanner(valueResult, enabled) : getComponent(valueResult,
+                enabled);
 
         // Adds the history menu if needed.
         if (isHistorable()) {
@@ -265,6 +283,23 @@ public abstract class FlexibleElementDTO extends BaseModelData implements Entity
         }
 
         return component;
+    }
+
+    /**
+     * Gets the widget of a flexible element with its value to be displayed in
+     * the banner. The default implementation uses the
+     * {@link #getComponent(ValueResult, boolean)} method.
+     * 
+     * @param valueResult
+     *            value of the flexible element, or {@code null} to display the
+     *            element without its value.
+     * @param enabled
+     *            If the component is enabled.
+     * 
+     * @return the widget corresponding to the flexible element.
+     */
+    protected Component getComponentInBanner(ValueResult valueResult, boolean enabled) {
+        return getComponent(valueResult, enabled);
     }
 
     /**
@@ -312,10 +347,10 @@ public abstract class FlexibleElementDTO extends BaseModelData implements Entity
     // Flexible element id
     @Override
     public int getId() {
-    	if(get("id") != null)
-    		return (Integer) get("id");
-    	else 
-    		return 0;
+        if (get("id") != null)
+            return (Integer) get("id");
+        else
+            return 0;
     }
 
     public void setId(int id) {
@@ -409,37 +444,38 @@ public abstract class FlexibleElementDTO extends BaseModelData implements Entity
         ensureHistorable();
         return new HistoryTokenText(token);
     }
-    
+
     public ElementTypeEnum getElementType() {
-    	ElementTypeEnum type = null;
-    	if(this instanceof TextAreaElementDTO){
-    		type = ElementTypeEnum.TEXT_AREA;
-    	}/*else if(this instanceof BudgetDistributionElementDTO){
-    		type = ElementTypeEnum.BUDGET;
-    	}*/else if(this instanceof CheckboxElementDTO){
-    		type = ElementTypeEnum.CHECKBOX;
-    	}else if(this instanceof DefaultFlexibleElementDTO){
-    		type = ElementTypeEnum.DEFAULT;
-    	}else if(this instanceof FilesListElementDTO){
-    		type = ElementTypeEnum.FILES_LIST;
-    	}else if(this instanceof IndicatorsListElementDTO){
-    		type = ElementTypeEnum.INDICATORS;
-    	}else if(this instanceof MessageElementDTO){
-    		type = ElementTypeEnum.MESSAGE;
-    	}else if(this instanceof QuestionElementDTO){
-    		type = ElementTypeEnum.QUESTION;
-    	}else if(this instanceof ReportElementDTO){
-    		type = ElementTypeEnum.REPORT;
-    	}else if(this instanceof ReportListElementDTO){
-    		type = ElementTypeEnum.REPORT_LIST;
-    	}else if(this instanceof MessageElementDTO){
-    		type = ElementTypeEnum.MESSAGE;
-    	}else if(this instanceof TripletsListElementDTO){
-    		type = ElementTypeEnum.TRIPLETS;
-    	}
+        ElementTypeEnum type = null;
+        if (this instanceof TextAreaElementDTO) {
+            type = ElementTypeEnum.TEXT_AREA;
+        }/*
+          * else if(this instanceof BudgetDistributionElementDTO){ type =
+          * ElementTypeEnum.BUDGET; }
+          */else if (this instanceof CheckboxElementDTO) {
+            type = ElementTypeEnum.CHECKBOX;
+        } else if (this instanceof DefaultFlexibleElementDTO) {
+            type = ElementTypeEnum.DEFAULT;
+        } else if (this instanceof FilesListElementDTO) {
+            type = ElementTypeEnum.FILES_LIST;
+        } else if (this instanceof IndicatorsListElementDTO) {
+            type = ElementTypeEnum.INDICATORS;
+        } else if (this instanceof MessageElementDTO) {
+            type = ElementTypeEnum.MESSAGE;
+        } else if (this instanceof QuestionElementDTO) {
+            type = ElementTypeEnum.QUESTION;
+        } else if (this instanceof ReportElementDTO) {
+            type = ElementTypeEnum.REPORT;
+        } else if (this instanceof ReportListElementDTO) {
+            type = ElementTypeEnum.REPORT_LIST;
+        } else if (this instanceof MessageElementDTO) {
+            type = ElementTypeEnum.MESSAGE;
+        } else if (this instanceof TripletsListElementDTO) {
+            type = ElementTypeEnum.TRIPLETS;
+        }
         return type;
     }
-    
+
     public LayoutGroupDTO getGroup() {
         return get("group");
     }
@@ -447,7 +483,7 @@ public abstract class FlexibleElementDTO extends BaseModelData implements Entity
     public void setGroup(LayoutGroupDTO group) {
         set("group", group);
     }
-    
+
     public BaseModelData getContainerModel() {
         return get("container");
     }
@@ -455,7 +491,7 @@ public abstract class FlexibleElementDTO extends BaseModelData implements Entity
     public void setContainerModel(BaseModelData model) {
         set("container", model);
     }
-    
+
     public LayoutConstraintDTO getConstraint() {
         return get("constraint");
     }
@@ -463,7 +499,7 @@ public abstract class FlexibleElementDTO extends BaseModelData implements Entity
     public void setConstraint(LayoutConstraintDTO constraint) {
         set("constraint", constraint);
     }
-    
+
     public LayoutConstraintDTO getBannerConstraint() {
         return get("banner");
     }

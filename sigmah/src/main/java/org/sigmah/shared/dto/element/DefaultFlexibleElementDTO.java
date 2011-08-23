@@ -7,11 +7,9 @@ import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.util.DateUtils;
 import org.sigmah.client.util.HistoryTokenText;
 import org.sigmah.client.util.NumberUtils;
-import org.sigmah.shared.command.GetCountries;
 import org.sigmah.shared.command.GetCountry;
 import org.sigmah.shared.command.GetSitesCount;
 import org.sigmah.shared.command.GetUsersByOrganization;
-import org.sigmah.shared.command.result.CountryResult;
 import org.sigmah.shared.command.result.SiteResult;
 import org.sigmah.shared.command.result.UserListResult;
 import org.sigmah.shared.command.result.ValueResult;
@@ -99,6 +97,37 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
             return getComponentWithValue(valueResult, enabled);
         else
             return getComponent(enabled);
+    }
+
+    @Override
+    protected Component getComponentInBanner(ValueResult valueResult, boolean enabled) {
+
+        if (currentContainerDTO instanceof DefaultFlexibleElementContainer) {
+            container = (DefaultFlexibleElementContainer) currentContainerDTO;
+        } else {
+            throw new IllegalArgumentException(
+                    "The flexible elements container isn't an instance of DefaultFlexibleElementContainer. The default flexible element connot be instanciated.");
+        }
+        
+        switch (getType()) {
+        case BUDGET:
+
+            final Double pb = container.getPlannedBudget();
+            final Double sb = container.getSpendBudget();
+
+            final LabelField budgetLabelField = createLabelField();
+            budgetLabelField.setFieldLabel(I18N.CONSTANTS.projectBannerBudget());
+
+            budgetLabelField.setValue(sb + " / " + pb);
+
+            return budgetLabelField;
+
+        default:
+
+            return super.getComponentInBanner(valueResult, enabled);
+
+        }
+
     }
 
     protected Component getComponent(final boolean enabled) {
@@ -343,11 +372,11 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
             break;
         case COUNTRY: {
 
-        	//COUNTRY of project should not be changeable
-        	
+            // COUNTRY of project should not be changeable
+
             final Field<?> field;
             final CountryDTO c = container.getCountry();
-                      
+
             final LabelField labelField = createLabelField();
 
             if (c == null) {
@@ -357,7 +386,7 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
             }
 
             field = labelField;
-                      
+
             // Sets the field label.
             setLabel(I18N.CONSTANTS.projectCountry());
             field.setFieldLabel(getLabel());
@@ -653,163 +682,249 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
                                 @Override
                                 public void selectionChanged(final SelectionChangedEvent<OrgUnitDTOLight> se) {
 
-                                  if(container instanceof ProjectDTO)
-                                  {//If the container is a project, before changing the OrgUnit, 
-                                   //should check if there are sites created for indicators.If 
-                                   //there are some sites created for this project, should inform users 
-                                   //the sites already created and the future sites will be also connected
-                                   //to the country of project not the country of the new OrgUnit
-                                	
-                                	Log.debug("OrgUnit in project details.");
-                                	  
-                                	final ProjectDTO currentProject = (ProjectDTO) container;
-                                	
-                                	Filter filter = new Filter();
-                                	filter.addRestriction(DimensionType.Database,currentProject.getId());
-                                	
-                                	GetSitesCount getSitesCountCmd = new GetSitesCount(filter);
-                                	
-                                	dispatcher.execute(getSitesCountCmd, null, new AsyncCallback<SiteResult>(){
+                                    if (container instanceof ProjectDTO) {// If
+                                                                          // the
+                                                                          // container
+                                                                          // is
+                                                                          // a
+                                                                          // project,
+                                                                          // before
+                                                                          // changing
+                                                                          // the
+                                                                          // OrgUnit,
+                                                                          // should
+                                                                          // check
+                                                                          // if
+                                                                          // there
+                                                                          // are
+                                                                          // sites
+                                                                          // created
+                                                                          // for
+                                                                          // indicators.If
+                                                                          // there
+                                                                          // are
+                                                                          // some
+                                                                          // sites
+                                                                          // created
+                                                                          // for
+                                                                          // this
+                                                                          // project,
+                                                                          // should
+                                                                          // inform
+                                                                          // users
+                                                                          // the
+                                                                          // sites
+                                                                          // already
+                                                                          // created
+                                                                          // and
+                                                                          // the
+                                                                          // future
+                                                                          // sites
+                                                                          // will
+                                                                          // be
+                                                                          // also
+                                                                          // connected
+                                                                          // to
+                                                                          // the
+                                                                          // country
+                                                                          // of
+                                                                          // project
+                                                                          // not
+                                                                          // the
+                                                                          // country
+                                                                          // of
+                                                                          // the
+                                                                          // new
+                                                                          // OrgUnit
 
-                            			@Override
-                            			public void onFailure(Throwable caught) {
-                            				
-                            				 Log.error("[getSitesCountCmd] Error while getting the count of sites.", caught);
-                            				
-                            			}
+                                        Log.debug("OrgUnit in project details.");
 
-                            			@Override
-                            			public void onSuccess(SiteResult result) {
-                            			
-                            				// Gets the selected choice.
-                            				final OrgUnitDTOLight choice = se.getSelectedItem();
-                            				
-                            				//Current poject's country
-                            				final CountryDTO projectCountry = currentProject.getCountry();
-                            				
-                            				//New OrgUnit's country
-                            				final CountryDTO orgUnitCountry = choice.getOfficeLocationCountry();
-                            				
-                            				Log.debug("geting site result: "+result.getSiteCount());
-                            				
-                            				if(result!=null && result.getSiteCount()>0 &&  projectCountry!=null && orgUnitCountry !=null
-                            				   && projectCountry != orgUnitCountry)
-                            				{//If the new OrgUnit's country is different from the current country of project
-                            				 //Inform users that it will continue use the country of project not new OrgUnit's
-                            					
-                            					Log.debug("[getSitesCountCmd]-Site count is: "+result.getSiteCount());
-                            					
-                            					MessageBox.confirm(I18N.CONSTANTS.changeOrgUnit(), I18N.CONSTANTS.changeOrgUnitDetails(),new Listener<MessageBoxEvent>(){
+                                        final ProjectDTO currentProject = (ProjectDTO) container;
 
-													@Override
-													public void handleEvent(
-															MessageBoxEvent be) {
-														
-														if(Dialog.NO.equals(be.getBoxComponent().getItemId()))
-														{
-															//Rollback the value
-															Log.debug("Cancle changing OrgUnit.");
-															comboBox.setValue(orgUnitsStore.findModel("id", currentProject.getOrgUnitId()));
-															
-														
-														}
-														else
-														{
-															  String value = null;
-					                                             final boolean isValueOn;
+                                        Filter filter = new Filter();
+                                        filter.addRestriction(DimensionType.Database, currentProject.getId());
 
-					                                             // Checks if the choice isn't the
-					                                             // default empty choice.
-					                                             isValueOn = choice != null && choice.getId() != -1;
+                                        GetSitesCount getSitesCountCmd = new GetSitesCount(filter);
 
-					                                             if (choice != null) {
-					                                                 value = String.valueOf(choice.getId());
-					                                             }
+                                        dispatcher.execute(getSitesCountCmd, null, new AsyncCallback<SiteResult>() {
 
-					                                             if (value != null) {
-					                                                 // Fires value change event.
-					                                                 handlerManager.fireEvent(new ValueEvent(DefaultFlexibleElementDTO.this, value));
-					                                             }
+                                            @Override
+                                            public void onFailure(Throwable caught) {
 
-					                                             // Required element ?
-					                                             if (getValidates()) {
-					                                                 handlerManager.fireEvent(new RequiredValueEvent(isValueOn));
-					                                             }
-					                            				
-														}
-														
-														
-													}});
-                            				 
-                            				}
-                            				else
-                            				{
-                            					
-                            					  String value = null;
-                                                  final boolean isValueOn;
+                                                Log.error("[getSitesCountCmd] Error while getting the count of sites.",
+                                                        caught);
 
-                                                  // Checks if the choice isn't the
-                                                  // default empty choice.
-                                                  isValueOn = choice != null && choice.getId() != -1;
+                                            }
 
-                                                  if (choice != null) {
-                                                      value = String.valueOf(choice.getId());
-                                                  }
+                                            @Override
+                                            public void onSuccess(SiteResult result) {
 
-                                                  if (value != null) {
-                                                      // Fires value change event.
-                                                      handlerManager.fireEvent(new ValueEvent(DefaultFlexibleElementDTO.this, value));
-                                                  }
+                                                // Gets the selected choice.
+                                                final OrgUnitDTOLight choice = se.getSelectedItem();
 
-                                                  // Required element ?
-                                                  if (getValidates()) {
-                                                      handlerManager.fireEvent(new RequiredValueEvent(isValueOn));
-                                                  }
-                                 				                         					
-                            					
-                            				}
-                            				                            				                         		       
-                            				
-                            				
-                            			}
-                                	
-                                	});
-                                  }	
-                                  else
-                                  {//Non project container
-                                	 
-                                    Log.debug("OrgUnit in non-project.");
-                                	  
-                                	  String value = null;
-                                      final boolean isValueOn;
+                                                // Current poject's country
+                                                final CountryDTO projectCountry = currentProject.getCountry();
 
-                                   // Gets the selected choice.
-                      				final OrgUnitDTOLight choice = se.getSelectedItem();
-                                      
-                                      // Checks if the choice isn't the
-                                      // default empty choice.
-                                      isValueOn = choice != null && choice.getId() != -1;
+                                                // New OrgUnit's country
+                                                final CountryDTO orgUnitCountry = choice.getOfficeLocationCountry();
 
-                                      if (choice != null) {
-                                          value = String.valueOf(choice.getId());
-                                      }
+                                                Log.debug("geting site result: " + result.getSiteCount());
 
-                                      if (value != null) {
-                                          // Fires value change event.
-                                          handlerManager.fireEvent(new ValueEvent(DefaultFlexibleElementDTO.this, value));
-                                      }
+                                                if (result != null && result.getSiteCount() > 0
+                                                        && projectCountry != null && orgUnitCountry != null
+                                                        && projectCountry != orgUnitCountry) {// If
+                                                                                              // the
+                                                                                              // new
+                                                                                              // OrgUnit's
+                                                                                              // country
+                                                                                              // is
+                                                                                              // different
+                                                                                              // from
+                                                                                              // the
+                                                                                              // current
+                                                                                              // country
+                                                                                              // of
+                                                                                              // project
+                                                                                              // Inform
+                                                                                              // users
+                                                                                              // that
+                                                                                              // it
+                                                                                              // will
+                                                                                              // continue
+                                                                                              // use
+                                                                                              // the
+                                                                                              // country
+                                                                                              // of
+                                                                                              // project
+                                                                                              // not
+                                                                                              // new
+                                                                                              // OrgUnit's
 
-                                      // Required element ?
-                                      if (getValidates()) {
-                                          handlerManager.fireEvent(new RequiredValueEvent(isValueOn));
-                                      }
-                     				
-                                  }
-                                
-                                  
-                                 
-                                  
-                                  
+                                                    Log.debug("[getSitesCountCmd]-Site count is: "
+                                                            + result.getSiteCount());
+
+                                                    MessageBox.confirm(I18N.CONSTANTS.changeOrgUnit(),
+                                                            I18N.CONSTANTS.changeOrgUnitDetails(),
+                                                            new Listener<MessageBoxEvent>() {
+
+                                                                @Override
+                                                                public void handleEvent(MessageBoxEvent be) {
+
+                                                                    if (Dialog.NO.equals(be.getBoxComponent()
+                                                                            .getItemId())) {
+                                                                        // Rollback
+                                                                        // the
+                                                                        // value
+                                                                        Log.debug("Cancle changing OrgUnit.");
+                                                                        comboBox.setValue(orgUnitsStore.findModel("id",
+                                                                                currentProject.getOrgUnitId()));
+
+                                                                    } else {
+                                                                        String value = null;
+                                                                        final boolean isValueOn;
+
+                                                                        // Checks
+                                                                        // if
+                                                                        // the
+                                                                        // choice
+                                                                        // isn't
+                                                                        // the
+                                                                        // default
+                                                                        // empty
+                                                                        // choice.
+                                                                        isValueOn = choice != null
+                                                                                && choice.getId() != -1;
+
+                                                                        if (choice != null) {
+                                                                            value = String.valueOf(choice.getId());
+                                                                        }
+
+                                                                        if (value != null) {
+                                                                            // Fires
+                                                                            // value
+                                                                            // change
+                                                                            // event.
+                                                                            handlerManager.fireEvent(new ValueEvent(
+                                                                                    DefaultFlexibleElementDTO.this,
+                                                                                    value));
+                                                                        }
+
+                                                                        // Required
+                                                                        // element
+                                                                        // ?
+                                                                        if (getValidates()) {
+                                                                            handlerManager
+                                                                                    .fireEvent(new RequiredValueEvent(
+                                                                                            isValueOn));
+                                                                        }
+
+                                                                    }
+
+                                                                }
+                                                            });
+
+                                                } else {
+
+                                                    String value = null;
+                                                    final boolean isValueOn;
+
+                                                    // Checks if the choice
+                                                    // isn't the
+                                                    // default empty choice.
+                                                    isValueOn = choice != null && choice.getId() != -1;
+
+                                                    if (choice != null) {
+                                                        value = String.valueOf(choice.getId());
+                                                    }
+
+                                                    if (value != null) {
+                                                        // Fires value change
+                                                        // event.
+                                                        handlerManager.fireEvent(new ValueEvent(
+                                                                DefaultFlexibleElementDTO.this, value));
+                                                    }
+
+                                                    // Required element ?
+                                                    if (getValidates()) {
+                                                        handlerManager.fireEvent(new RequiredValueEvent(isValueOn));
+                                                    }
+
+                                                }
+
+                                            }
+
+                                        });
+                                    } else {// Non project container
+
+                                        Log.debug("OrgUnit in non-project.");
+
+                                        String value = null;
+                                        final boolean isValueOn;
+
+                                        // Gets the selected choice.
+                                        final OrgUnitDTOLight choice = se.getSelectedItem();
+
+                                        // Checks if the choice isn't the
+                                        // default empty choice.
+                                        isValueOn = choice != null && choice.getId() != -1;
+
+                                        if (choice != null) {
+                                            value = String.valueOf(choice.getId());
+                                        }
+
+                                        if (value != null) {
+                                            // Fires value change event.
+                                            handlerManager.fireEvent(new ValueEvent(DefaultFlexibleElementDTO.this,
+                                                    value));
+                                        }
+
+                                        // Required element ?
+                                        if (getValidates()) {
+                                            handlerManager.fireEvent(new RequiredValueEvent(isValueOn));
+                                        }
+
+                                    }
+
                                 }
                             });
                         }
@@ -832,96 +947,156 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
                         @Override
                         public void selectionChanged(final SelectionChangedEvent<OrgUnitDTOLight> se) {
 
-                            if(container instanceof ProjectDTO)
-                            {//If the container is a project, before changing the OrgUnit, 
-                             //should check if there are sites created for indicators.If 
-                             //there are some sites created for this project, should inform users 
-                             //the sites already created and the future sites will be also connected
-                             //to the country of project not the country of the new OrgUnit
-                          	
-                             Log.debug("OrgUnit in project details 2.");
-                            	
-                          	final ProjectDTO currentProject = (ProjectDTO) container;
-                          	
-                          	Filter filter = new Filter();
-                          	filter.addRestriction(DimensionType.Database, currentProject.getId());
-                          	
-                          	GetSitesCount getSitesCountCmd = new GetSitesCount(filter);
-                          	
-                          	dispatcher.execute(getSitesCountCmd, null, new AsyncCallback<SiteResult>(){
+                            if (container instanceof ProjectDTO) {// If the
+                                                                  // container
+                                                                  // is a
+                                                                  // project,
+                                                                  // before
+                                                                  // changing
+                                                                  // the
+                                                                  // OrgUnit,
+                                                                  // should
+                                                                  // check if
+                                                                  // there are
+                                                                  // sites
+                                                                  // created for
+                                                                  // indicators.If
+                                                                  // there are
+                                                                  // some sites
+                                                                  // created for
+                                                                  // this
+                                                                  // project,
+                                                                  // should
+                                                                  // inform
+                                                                  // users
+                                                                  // the sites
+                                                                  // already
+                                                                  // created and
+                                                                  // the future
+                                                                  // sites will
+                                                                  // be also
+                                                                  // connected
+                                                                  // to the
+                                                                  // country of
+                                                                  // project not
+                                                                  // the country
+                                                                  // of the new
+                                                                  // OrgUnit
 
-                      			@Override
-                      			public void onFailure(Throwable caught) {
-                      				
-                      				 Log.error("[getSitesCountCmd] Error while getting the count of sites.", caught);
-                      				
-                      			}
+                                Log.debug("OrgUnit in project details 2.");
 
-                      			@Override
-                      			public void onSuccess(SiteResult result) {
-                      			
-                      				// Gets the selected choice.
-                      				final OrgUnitDTOLight choice = se.getSelectedItem();
-                      				
-                      				//Current poject's country
-                      				final CountryDTO projectCountry = currentProject.getCountry();
-                      				
-                      				//New OrgUnit's country
-                      				final CountryDTO orgUnitCountry = choice.getOfficeLocationCountry();
-                      				
-                      				Log.debug("geting site result 2: "+result.getSiteCount());
-                      				
-                      				if(result!=null && result.getSiteCount()>0 &&  projectCountry!=null && orgUnitCountry !=null
-                      				   && projectCountry != orgUnitCountry)
-                      				{//If the new OrgUnit's country is different from the current country of project
-                      				 //Inform users that it will continue use the country of project not new OrgUnit's
-                      					
-                      					MessageBox.confirm(I18N.CONSTANTS.changeOrgUnit(), I18N.CONSTANTS.changeOrgUnitDetails(),new Listener<MessageBoxEvent>(){
+                                final ProjectDTO currentProject = (ProjectDTO) container;
 
-												@Override
-												public void handleEvent(
-														MessageBoxEvent be) {
-													
-													if(Dialog.NO.equals(be.getBoxComponent().getItemId()))
-													{
-														//Rollback the value
-														Log.debug("Cancle changing OrgUnit.");
-														comboBox.setValue(orgUnitsStore.findModel("id", currentProject.getOrgUnitId()));
-														
-													}
-													else
-													{
-														  String value = null;
-				                                             final boolean isValueOn;
+                                Filter filter = new Filter();
+                                filter.addRestriction(DimensionType.Database, currentProject.getId());
 
-				                                             // Checks if the choice isn't the
-				                                             // default empty choice.
-				                                             isValueOn = choice != null && choice.getId() != -1;
+                                GetSitesCount getSitesCountCmd = new GetSitesCount(filter);
 
-				                                             if (choice != null) {
-				                                                 value = String.valueOf(choice.getId());
-				                                             }
+                                dispatcher.execute(getSitesCountCmd, null, new AsyncCallback<SiteResult>() {
 
-				                                             if (value != null) {
-				                                                 // Fires value change event.
-				                                                 handlerManager.fireEvent(new ValueEvent(DefaultFlexibleElementDTO.this, value));
-				                                             }
+                                    @Override
+                                    public void onFailure(Throwable caught) {
 
-				                                             // Required element ?
-				                                             if (getValidates()) {
-				                                                 handlerManager.fireEvent(new RequiredValueEvent(isValueOn));
-				                                             }
-				                            				
-													}
-													
-													
-												}});
-                      				 
-                      				}
-                      				else
-                      				{
-                      					
-                      					  String value = null;
+                                        Log.error("[getSitesCountCmd] Error while getting the count of sites.", caught);
+
+                                    }
+
+                                    @Override
+                                    public void onSuccess(SiteResult result) {
+
+                                        // Gets the selected choice.
+                                        final OrgUnitDTOLight choice = se.getSelectedItem();
+
+                                        // Current poject's country
+                                        final CountryDTO projectCountry = currentProject.getCountry();
+
+                                        // New OrgUnit's country
+                                        final CountryDTO orgUnitCountry = choice.getOfficeLocationCountry();
+
+                                        Log.debug("geting site result 2: " + result.getSiteCount());
+
+                                        if (result != null && result.getSiteCount() > 0 && projectCountry != null
+                                                && orgUnitCountry != null && projectCountry != orgUnitCountry) {// If
+                                                                                                                // the
+                                                                                                                // new
+                                                                                                                // OrgUnit's
+                                                                                                                // country
+                                                                                                                // is
+                                                                                                                // different
+                                                                                                                // from
+                                                                                                                // the
+                                                                                                                // current
+                                                                                                                // country
+                                                                                                                // of
+                                                                                                                // project
+                                                                                                                // Inform
+                                                                                                                // users
+                                                                                                                // that
+                                                                                                                // it
+                                                                                                                // will
+                                                                                                                // continue
+                                                                                                                // use
+                                                                                                                // the
+                                                                                                                // country
+                                                                                                                // of
+                                                                                                                // project
+                                                                                                                // not
+                                                                                                                // new
+                                                                                                                // OrgUnit's
+
+                                            MessageBox.confirm(I18N.CONSTANTS.changeOrgUnit(),
+                                                    I18N.CONSTANTS.changeOrgUnitDetails(),
+                                                    new Listener<MessageBoxEvent>() {
+
+                                                        @Override
+                                                        public void handleEvent(MessageBoxEvent be) {
+
+                                                            if (Dialog.NO.equals(be.getBoxComponent().getItemId())) {
+                                                                // Rollback the
+                                                                // value
+                                                                Log.debug("Cancle changing OrgUnit.");
+                                                                comboBox.setValue(orgUnitsStore.findModel("id",
+                                                                        currentProject.getOrgUnitId()));
+
+                                                            } else {
+                                                                String value = null;
+                                                                final boolean isValueOn;
+
+                                                                // Checks if the
+                                                                // choice isn't
+                                                                // the
+                                                                // default empty
+                                                                // choice.
+                                                                isValueOn = choice != null && choice.getId() != -1;
+
+                                                                if (choice != null) {
+                                                                    value = String.valueOf(choice.getId());
+                                                                }
+
+                                                                if (value != null) {
+                                                                    // Fires
+                                                                    // value
+                                                                    // change
+                                                                    // event.
+                                                                    handlerManager.fireEvent(new ValueEvent(
+                                                                            DefaultFlexibleElementDTO.this, value));
+                                                                }
+
+                                                                // Required
+                                                                // element ?
+                                                                if (getValidates()) {
+                                                                    handlerManager.fireEvent(new RequiredValueEvent(
+                                                                            isValueOn));
+                                                                }
+
+                                                            }
+
+                                                        }
+                                                    });
+
+                                        } else {
+
+                                            String value = null;
                                             final boolean isValueOn;
 
                                             // Checks if the choice isn't the
@@ -934,34 +1109,30 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 
                                             if (value != null) {
                                                 // Fires value change event.
-                                                handlerManager.fireEvent(new ValueEvent(DefaultFlexibleElementDTO.this, value));
+                                                handlerManager.fireEvent(new ValueEvent(DefaultFlexibleElementDTO.this,
+                                                        value));
                                             }
 
                                             // Required element ?
                                             if (getValidates()) {
                                                 handlerManager.fireEvent(new RequiredValueEvent(isValueOn));
                                             }
-                           				                         					
-                      					
-                      				}
-                      				                            				                         		       
-                      				
-                      				
-                      			}
-                          	
-                          	});
-                            }	
-                            else
-                            {//Non project container
-                          	  
-                              Log.debug("OrgUnit in non-project 2.");
-                            	
-                          	  String value = null;
+
+                                        }
+
+                                    }
+
+                                });
+                            } else {// Non project container
+
+                                Log.debug("OrgUnit in non-project 2.");
+
+                                String value = null;
                                 final boolean isValueOn;
 
-                             // Gets the selected choice.
-                				final OrgUnitDTOLight choice = se.getSelectedItem();
-                                
+                                // Gets the selected choice.
+                                final OrgUnitDTOLight choice = se.getSelectedItem();
+
                                 // Checks if the choice isn't the
                                 // default empty choice.
                                 isValueOn = choice != null && choice.getId() != -1;
@@ -979,10 +1150,9 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
                                 if (getValidates()) {
                                     handlerManager.fireEvent(new RequiredValueEvent(isValueOn));
                                 }
-               				
+
                             }
-                            
-                            
+
                         }
                     });
                 }
@@ -1259,15 +1429,14 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
             break;
         case COUNTRY: {
 
-        //COUNTRY of project should not be changeable
-        	
+            // COUNTRY of project should not be changeable
+
             final Field<Object> field;
             final int countryId = Integer.parseInt(valueResult.getValueObject());
 
-            // Builds the field and sets its value.          
+            // Builds the field and sets its value.
             final LabelField labelField = createLabelField();
             field = labelField;
-            
 
             dispatcher.execute(new GetCountry(countryId), null, new AsyncCallback<CountryDTO>() {
 
@@ -1401,9 +1570,9 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
      *            If the value is correct.
      */
     private void fireEvents(String value, boolean isValueOn) {
-        
-    	Log.debug("raw Value is : "+value+"  isValueOn is :"+isValueOn);
-    	
+
+        Log.debug("raw Value is : " + value + "  isValueOn is :" + isValueOn);
+
         handlerManager.fireEvent(new ValueEvent(this, value));
 
         // Required element ?

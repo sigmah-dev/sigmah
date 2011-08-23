@@ -48,7 +48,7 @@ import com.google.inject.Inject;
 public class OrgUnitPresenter implements Frame, TabPage {
 
     public static final PageId PAGE_ID = new PageId("orgunit");
-    
+
     public static final int REPORT_TAB_INDEX = 3;
 
     /**
@@ -78,8 +78,9 @@ public class OrgUnitPresenter implements Frame, TabPage {
     private OrgUnitDTO currentOrgUnitDTO;
     private final SubPresenter[] presenters;
 
-    private final static String[] MAIN_TABS = { I18N.CONSTANTS.orgUnitTabOverview(), I18N.CONSTANTS.orgUnitTabInformations(),
-            I18N.CONSTANTS.projectTabCalendar(), I18N.CONSTANTS.projectTabReports() };
+    private final static String[] MAIN_TABS = { I18N.CONSTANTS.orgUnitTabOverview(),
+            I18N.CONSTANTS.orgUnitTabInformations(), I18N.CONSTANTS.projectTabCalendar(),
+            I18N.CONSTANTS.projectTabReports() };
 
     @Inject
     public OrgUnitPresenter(final Dispatcher dispatcher, View view, Authentication authentication,
@@ -93,9 +94,8 @@ public class OrgUnitPresenter implements Frame, TabPage {
         this.presenters = new SubPresenter[] {
                 new OrgUnitDashboardPresenter(dispatcher, eventBus, authentication, this),
                 new OrgUnitDetailsPresenter(dispatcher, authentication, this, cache, eventBus),
-                new OrgUnitCalendarPresenter(dispatcher, authentication, this), 
-                new OrgUnitReportsPresenter(authentication, dispatcher, eventBus, this)
-        };
+                new OrgUnitCalendarPresenter(dispatcher, authentication, this),
+                new OrgUnitReportsPresenter(authentication, dispatcher, eventBus, this) };
 
         for (int i = 0; i < MAIN_TABS.length; i++) {
             final int index = i;
@@ -127,9 +127,9 @@ public class OrgUnitPresenter implements Frame, TabPage {
         if (currentTab != anchor) {
             if (currentTab != null)
                 currentTab.toggleAnchorMode();
-            
-            	anchor.toggleAnchorMode();
-                currentTab = anchor;
+
+            anchor.toggleAnchorMode();
+            currentTab = anchor;
 
             OrgUnitPresenter.this.view.setMainPanel(presenters[index].getView());
             presenters[index].viewDidAppear();
@@ -287,7 +287,7 @@ public class OrgUnitPresenter implements Frame, TabPage {
                         defaultElement.setCache(cache);
                         defaultElement.setCurrentContainerDTO(currentOrgUnitDTO);
 
-                        final Component component = defaultElement.getElementComponent(null, false);
+                        final Component component = defaultElement.getElementComponentInBanner(null);
 
                         if (component != null) {
                             groupPanel.add(component);

@@ -136,15 +136,16 @@ public class ProjectPresenter implements Frame, TabPage {
 
     private final static String[] MAIN_TABS = { I18N.CONSTANTS.projectTabDashboard(), I18N.CONSTANTS.projectDetails(),
             I18N.CONSTANTS.projectTabLogFrame(), I18N.CONSTANTS.projectTabIndicators(),
-            I18N.CONSTANTS.projectTabDataEntry(),
-            I18N.CONSTANTS.projectTabCalendar(), I18N.CONSTANTS.projectTabReports()
-            /*, I18N.CONSTANTS.projectTabSecurityIncident()*/ // TO DO 
+            I18N.CONSTANTS.projectTabDataEntry(), I18N.CONSTANTS.projectTabCalendar(),
+            I18N.CONSTANTS.projectTabReports()
+    /* , I18N.CONSTANTS.projectTabSecurityIncident() */// TO DO
     };
 
-    // TODO: the sub presenters all probably need to be notified of when the project is to be loaded
-    // into view. Maybe a SubProjectPresenter interface? Then projectIndicators field can be removed below
+    // TODO: the sub presenters all probably need to be notified of when the
+    // project is to be loaded
+    // into view. Maybe a SubProjectPresenter interface? Then projectIndicators
+    // field can be removed below
     private final SubPresenter[] presenters;
-    
 
     @Inject
     public ProjectPresenter(final Dispatcher dispatcher, View view, Authentication authentication,
@@ -155,17 +156,16 @@ public class ProjectPresenter implements Frame, TabPage {
         this.authentication = authentication;
         this.cache = cache;
 
-        final DummyPresenter dummyPresenter = new DummyPresenter(); // For
-                                                                   // development       	
+        // For development.
+        // final DummyPresenter dummyPresenter = new DummyPresenter();
+
         this.presenters = new SubPresenter[] {
                 new ProjectDashboardPresenter(dispatcher, eventBus, authentication, this, cache), // Dashboard
                 new ProjectDetailsPresenter(eventBus, dispatcher, authentication, this, cache), // Details,
                 new ProjectLogFramePresenter(eventBus, dispatcher, authentication, this), // Logic
-                projectIndicators,
-                pivot,
-                new ProjectCalendarPresenter(dispatcher, authentication, this), // Calendar
+                projectIndicators, pivot, new ProjectCalendarPresenter(dispatcher, authentication, this), // Calendar
                 new ProjectReportsPresenter(authentication, dispatcher, eventBus, this) // Reports
-                /*,dummyPresenter*/ // Security incidents TO DO
+        /* ,dummyPresenter */// Security incidents TO DO
         };
 
         for (int i = 0; i < MAIN_TABS.length; i++) {
@@ -180,7 +180,7 @@ public class ProjectPresenter implements Frame, TabPage {
             anchor.setAnchorMode(true);
 
             anchor.addClickHandler(new ClickHandler() {
- 
+
                 @Override
                 public void onClick(ClickEvent event) {
                     eventBus.fireEvent(new NavigationEvent(NavigationHandler.NavigationRequested, currentState
@@ -275,7 +275,8 @@ public class ProjectPresenter implements Frame, TabPage {
      * Loads a {@link ProjectDTO} object on the view.
      * 
      * @param projectDTO
-     *            the {@link ProjectDTO} object loaded on the viewprojectIndicators
+     *            the {@link ProjectDTO} object loaded on the
+     *            viewprojectIndicators
      */
     private void loadProjectOnView(ProjectDTO projectDTO) {
         currentProjectDTO = projectDTO;
@@ -284,12 +285,12 @@ public class ProjectPresenter implements Frame, TabPage {
         refreshBanner();
         refreshAmendment();
 
-        for(SubPresenter presenter : presenters) {
-        	if(presenter instanceof ProjectSubPresenter) {
-        		((ProjectSubPresenter) presenter).loadProject(projectDTO);
-        	}
+        for (SubPresenter presenter : presenters) {
+            if (presenter instanceof ProjectSubPresenter) {
+                ((ProjectSubPresenter) presenter).loadProject(projectDTO);
+            }
         }
-        
+
     }
 
     public ProjectDTO getCurrentProjectDTO() {
@@ -315,22 +316,22 @@ public class ProjectPresenter implements Frame, TabPage {
 
         // Panel.
         final ContentPanel panel = view.getPanelProjectBanner();
-        
-        //Set the heading of panel
+
+        // Set the heading of panel
         String projectTitle = currentProjectDTO.getFullName();
-        String titleToDisplay="";        
-        if(projectTitle!=null && !projectTitle.isEmpty())
-        	titleToDisplay=projectTitle.length()>110?projectTitle.substring(0,110)+"...":projectTitle;
-        	
+        String titleToDisplay = "";
+        if (projectTitle != null && !projectTitle.isEmpty())
+            titleToDisplay = projectTitle.length() > 110 ? projectTitle.substring(0, 110) + "..." : projectTitle;
+
         panel.setHeading(I18N.CONSTANTS.projectMainTabTitle() + ' ' + currentProjectDTO.getName() + " ("
                 + titleToDisplay + ")");
-        
-        //Set the tool tip
-      	ToolTipConfig panelToolTipconfig = new ToolTipConfig();
-      	panelToolTipconfig.setMaxWidth(500);
-      	panelToolTipconfig.setText(projectTitle);
+
+        // Set the tool tip
+        ToolTipConfig panelToolTipconfig = new ToolTipConfig();
+        panelToolTipconfig.setMaxWidth(500);
+        panelToolTipconfig.setText(projectTitle);
         panel.setToolTip(panelToolTipconfig);
-        
+
         panel.removeAll();
 
         final Grid gridPanel = new Grid(1, 2);
@@ -402,34 +403,32 @@ public class ProjectPresenter implements Frame, TabPage {
                         defaultElement.setCache(cache);
                         defaultElement.setCurrentContainerDTO(currentProjectDTO);
 
-                        final Component component = defaultElement.getElementComponent(null, false);
-                        
-                        if (component != null) {     
-                        	
-                        	if(component instanceof LabelField)
-                        	{                   	
-                        	 LabelField lableFieldComponent =(LabelField)component;
-                        	 //Get the text of the field
-                        	 String textValue = lableFieldComponent.getText();
-                        	 
-                        	 //Set the tool tip                       	
-                        	 ToolTipConfig config = new ToolTipConfig();
-                        	 config.setMaxWidth(500);
-                        	 config.setText(textValue);
-                        	 lableFieldComponent.setToolTip(config);
-                        	 
-                        	 //Clip the text if it is longer than 30
-                        	 if(textValue!=null && !textValue.isEmpty())
-                        	   {
-                        	    String newTextValue = textValue.length()>30?textValue.substring(0, 29)+"...":textValue;
-                        	    lableFieldComponent.setText(newTextValue);
-                        	   }
-                             groupPanel.add(lableFieldComponent);
-                        	}
-                        	else{
-                             groupPanel.add(component);
-                        	}
-                           
+                        final Component component = defaultElement.getElementComponentInBanner(null);
+
+                        if (component != null) {
+
+                            if (component instanceof LabelField) {
+                                LabelField lableFieldComponent = (LabelField) component;
+                                // Get the text of the field
+                                String textValue = lableFieldComponent.getText();
+
+                                // Set the tool tip
+                                ToolTipConfig config = new ToolTipConfig();
+                                config.setMaxWidth(500);
+                                config.setText(textValue);
+                                lableFieldComponent.setToolTip(config);
+
+                                // Clip the text if it is longer than 30
+                                if (textValue != null && !textValue.isEmpty()) {
+                                    String newTextValue = textValue.length() > 30 ? textValue.substring(0, 29) + "..."
+                                            : textValue;
+                                    lableFieldComponent.setText(newTextValue);
+                                }
+                                groupPanel.add(lableFieldComponent);
+                            } else {
+                                groupPanel.add(component);
+                            }
+
                         }
 
                         // Only one element per cell.
@@ -527,10 +526,7 @@ public class ProjectPresenter implements Frame, TabPage {
 
         amendmentBox.add(amendmentListContainer, new VBoxLayoutData(0, 0, 3, 0));
 
-        
-        
-        
-      // Displaying the available actions
+        // Displaying the available actions
         final Amendment.Action[] actions;
         if (currentProjectDTO.getAmendmentState() != null)
             actions = currentProjectDTO.getAmendmentState().getActions();
@@ -538,22 +534,20 @@ public class ProjectPresenter implements Frame, TabPage {
             actions = new Amendment.Action[0];
         final Anchor[] anchors = new Anchor[actions.length];
 
-       for (int index = 0; index < actions.length; index++) {
+        for (int index = 0; index < actions.length; index++) {
             final Amendment.Action action = actions[index];
             Log.debug("Adding the " + action + " amendment action.");
-            
-         if(action==Amendment.Action.VALIDATE || action==Amendment.Action.REJECT)
-         {
-          if(!ProfileUtils.isGranted(authentication, GlobalPermissionEnum.VALID_AMENDEMENT))
-          {
-        	Log.debug("You can not validate !");
-        	continue;  
-          }
-          
-         }   
-         
-         Log.debug("You can  validate !");
-         
+
+            if (action == Amendment.Action.VALIDATE || action == Amendment.Action.REJECT) {
+                if (!ProfileUtils.isGranted(authentication, GlobalPermissionEnum.VALID_AMENDEMENT)) {
+                    Log.debug("You can not validate !");
+                    continue;
+                }
+
+            }
+
+            Log.debug("You can  validate !");
+
             final Anchor actionAnchor = new Anchor(amendmentActionDisplayNames.get(action));
             actionAnchor.addStyleName("amendment-action");
 
@@ -563,11 +557,10 @@ public class ProjectPresenter implements Frame, TabPage {
                     // Disabling every actions before sending the request
                     amendmentBox.mask(I18N.CONSTANTS.loading());
 
-                    for (final Anchor anchor : anchors)
-                    {
-                    	if(anchor==null)
-                    		Log.debug("anchor is null");
-                        if(anchor!=null)
+                    for (final Anchor anchor : anchors) {
+                        if (anchor == null)
+                            Log.debug("anchor is null");
+                        if (anchor != null)
                             anchor.setEnabled(false);
                     }
 
@@ -589,10 +582,9 @@ public class ProjectPresenter implements Frame, TabPage {
 
                         @Override
                         public void onSuccess(ProjectDTO result) {
-                            for (final Anchor anchor : anchors)
-                            {
-                              if(anchor!=null)
-                                anchor.setEnabled(true);
+                            for (final Anchor anchor : anchors) {
+                                if (anchor != null)
+                                    anchor.setEnabled(true);
                             }
 
                             // Updating the current project
@@ -609,19 +601,12 @@ public class ProjectPresenter implements Frame, TabPage {
                     });
                 }
             });
-           
-         
 
-          amendmentBox.add(actionAnchor, new VBoxLayoutData());
-          anchors[index] = actionAnchor;
+            amendmentBox.add(actionAnchor, new VBoxLayoutData());
+            anchors[index] = actionAnchor;
 
-         
-            
-     }
+        }
 
-   
-        
-        
         amendmentBox.layout();
     }
 
@@ -677,6 +662,5 @@ public class ProjectPresenter implements Frame, TabPage {
     public AsyncMonitor showLoadingPlaceHolder(PageId pageId, PageState loadingPlace) {
         return null;
     }
-      
-    
+
 }
