@@ -26,9 +26,6 @@ import org.sigmah.shared.dto.reminder.MonitoredPointDTO;
 import org.sigmah.shared.dto.reminder.ReminderDTO;
 
 import com.allen_sauer.gwt.log.client.Log;
-import com.extjs.gxt.ui.client.event.BaseEvent;
-import com.extjs.gxt.ui.client.event.Events;
-import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.store.TreeStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
@@ -86,15 +83,6 @@ public class DashboardPresenter implements Page {
         this.dispatcher = dispatcher;
         this.view = view;
         this.cache = cache;
-
-        view.getOrgUnitsTree().addListener(Events.Attach, new Listener<BaseEvent>() {
-
-            @Override
-            public void handleEvent(BaseEvent be) {
-            if(view.getOrgUnitsStore().getRootItems().size()>0)
-                view.getOrgUnitsTree().setExpanded(view.getOrgUnitsStore().getRootItems().get(0), true, false);
-            }
-        });
     }
 
     @Override
@@ -140,6 +128,8 @@ public class DashboardPresenter implements Page {
 
                     view.getProjectsListPanel().refresh(true, result.getId());
                     view.getOrgUnitsStore().add(result, true);
+
+                    view.getOrgUnitsTree().setExpanded(view.getOrgUnitsStore().getRootItems().get(0), true, false);
                 }
             }
         });
@@ -160,9 +150,9 @@ public class DashboardPresenter implements Page {
                         List<ReminderDTO> reminderListToLoad = new ArrayList<ReminderDTO>();
                         // Only show the undeleted reminders
                         for (ReminderDTO r : result.getList()) {
-                        	Boolean isDeleted =(Boolean)r.isDeleted();
-                        	Log.debug("The reminder is deleted ? :"+isDeleted+" Value original: "+r.isDeleted());
-                            if (isDeleted==null || isDeleted==Boolean.FALSE) {
+                            Boolean isDeleted = (Boolean) r.isDeleted();
+                            Log.debug("The reminder is deleted ? :" + isDeleted + " Value original: " + r.isDeleted());
+                            if (isDeleted == null || isDeleted == Boolean.FALSE) {
                                 reminderListToLoad.add(r);
                             }
                         }
@@ -184,9 +174,9 @@ public class DashboardPresenter implements Page {
                 List<MonitoredPointDTO> pointListToLoad = new ArrayList<MonitoredPointDTO>();
                 // Only show the undeleted monitored points
                 for (MonitoredPointDTO p : result.getList()) {
-                	Boolean isDeleted = (Boolean) p.isDeleted();
-                	Log.debug("The reminder is deleted ? :"+isDeleted+" Value original: "+p.isDeleted());
-                    if (isDeleted==null || isDeleted==Boolean.FALSE) {
+                    Boolean isDeleted = (Boolean) p.isDeleted();
+                    Log.debug("The reminder is deleted ? :" + isDeleted + " Value original: " + p.isDeleted());
+                    if (isDeleted == null || isDeleted == Boolean.FALSE) {
                         pointListToLoad.add(p);
                     }
                 }
