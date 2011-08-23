@@ -129,50 +129,58 @@ public final class ProfileUtils {
 
                 // Splits the main fieldS.
                 final String[] fields = profileAsString.split(FIELD_SEPARATOR);
-                if (fields.length >= 3) {
+
+                if (fields.length >= 1) {
 
                     // Name.
                     profile.setName(fields[0]);
 
-                    // Global permissions.
-                    profile.setGlobalPermissions(new HashSet<GlobalPermissionEnum>());
-                    final String[] globalPermissions = fields[1].split(GLOBAL_PERMISSION_SEPARATOR);
-                    for (final String global : globalPermissions) {
-                        if (global != null) {
-                            try {
-                                profile.getGlobalPermissions().add(GlobalPermissionEnum.valueOf(global));
-                            } catch (IllegalArgumentException e) {
-                                // The enum with this name does'nt exists.
-                                continue;
-                            }
-                        }
-                    }
+                    if (fields.length >= 2) {
 
-                    // Privacy groups.
-                    profile.setPrivacyGroups(new HashMap<PrivacyGroupDTO, PrivacyGroupPermissionEnum>());
-                    final String[] privacyGroups = fields[2].split(PRIVACY_GROUP_SEPARATOR);
-                    for (final String group : privacyGroups) {
-                        if (group != null) {
-                            final String[] groupProperties = group.split(PRIVACY_GROUP_FIELD_SEPARATOR);
-
-                            if (groupProperties.length >= 4) {
+                        // Global permissions.
+                        profile.setGlobalPermissions(new HashSet<GlobalPermissionEnum>());
+                        final String[] globalPermissions = fields[1].split(GLOBAL_PERMISSION_SEPARATOR);
+                        for (final String global : globalPermissions) {
+                            if (global != null) {
                                 try {
-                                    final PrivacyGroupDTO newGroup = new PrivacyGroupDTO();
-                                    newGroup.setId(Integer.valueOf(groupProperties[0]));
-                                    newGroup.setCode(Integer.valueOf(groupProperties[1]));
-                                    newGroup.setTitle(groupProperties[2]);
-                                    final PrivacyGroupPermissionEnum permission = PrivacyGroupPermissionEnum
-                                            .valueOf(groupProperties[3]);
-                                    profile.getPrivacyGroups().put(newGroup, permission);
-                                } catch (NumberFormatException e) {
-                                    // The id or code isn't a number.
-                                    continue;
+                                    profile.getGlobalPermissions().add(GlobalPermissionEnum.valueOf(global));
                                 } catch (IllegalArgumentException e) {
                                     // The enum with this name does'nt exists.
                                     continue;
-                                } catch (NullPointerException e) {
-                                    // The enum name is null.
-                                    continue;
+                                }
+                            }
+                        }
+
+                        if (fields.length >= 3) {
+
+                            // Privacy groups.
+                            profile.setPrivacyGroups(new HashMap<PrivacyGroupDTO, PrivacyGroupPermissionEnum>());
+                            final String[] privacyGroups = fields[2].split(PRIVACY_GROUP_SEPARATOR);
+                            for (final String group : privacyGroups) {
+                                if (group != null) {
+                                    final String[] groupProperties = group.split(PRIVACY_GROUP_FIELD_SEPARATOR);
+
+                                    if (groupProperties.length >= 4) {
+                                        try {
+                                            final PrivacyGroupDTO newGroup = new PrivacyGroupDTO();
+                                            newGroup.setId(Integer.valueOf(groupProperties[0]));
+                                            newGroup.setCode(Integer.valueOf(groupProperties[1]));
+                                            newGroup.setTitle(groupProperties[2]);
+                                            final PrivacyGroupPermissionEnum permission = PrivacyGroupPermissionEnum
+                                                    .valueOf(groupProperties[3]);
+                                            profile.getPrivacyGroups().put(newGroup, permission);
+                                        } catch (NumberFormatException e) {
+                                            // The id or code isn't a number.
+                                            continue;
+                                        } catch (IllegalArgumentException e) {
+                                            // The enum with this name does'nt
+                                            // exists.
+                                            continue;
+                                        } catch (NullPointerException e) {
+                                            // The enum name is null.
+                                            continue;
+                                        }
+                                    }
                                 }
                             }
                         }
