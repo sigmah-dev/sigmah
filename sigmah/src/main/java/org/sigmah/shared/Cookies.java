@@ -7,6 +7,7 @@ package org.sigmah.shared;
 
 /**
  * List of the cookies used by the application.
+ * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
 public class Cookies {
@@ -20,5 +21,26 @@ public class Cookies {
      */
     public static final String LOCALE_COOKIE = "locale";
 
-    protected Cookies() {}
+    /**
+     * Sigmah default locale.
+     */
+    public static final String DEFAULT_LOCALE = "fr";
+
+    /**
+     * Gets the current user locale.
+     * 
+     * @return The current user locale.
+     */
+    public static String getUserLocale() {
+
+        String userLocale = com.google.gwt.user.client.Cookies.getCookie(LOCALE_COOKIE);
+        if (userLocale == null) {
+            userLocale = DEFAULT_LOCALE;
+        }
+
+        return userLocale;
+    }
+
+    protected Cookies() {
+    }
 }

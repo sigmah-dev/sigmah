@@ -27,12 +27,12 @@ import com.google.inject.Singleton;
 
 /**
  * Serve the Sigmah main page (that handles both the login and the application).
+ * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
 @Singleton
 public class SigmahHostController extends HttpServlet {
     public static final String ENDPOINT = "Sigmah/";
-    public static final String DEFAULT_LOCALE = "fr";
 
     private static final String charset = "UTF-8";
 
@@ -47,33 +47,32 @@ public class SigmahHostController extends HttpServlet {
     private String template;
 
     @Override
-	public void init(ServletConfig config) throws ServletException {
-    	try {
-    					
-			template = readAll(getClass().getResourceAsStream("SigmahHostController.html"))
-				.replaceAll("<!--Version-->", properties.getProperty("version.number"))
-				.replace("<!--ClientDictionaries-->",  readClientDictionaries(config));
-			
-		} catch (IOException e) {
-			throw new ServletException(e);
-		}
-	}
+    public void init(ServletConfig config) throws ServletException {
+        try {
 
-	@Override
+            template = readAll(getClass().getResourceAsStream("SigmahHostController.html")).replaceAll(
+                    "<!--Version-->", properties.getProperty("version.number")).replace("<!--ClientDictionaries-->",
+                    readClientDictionaries(config));
+
+        } catch (IOException e) {
+            throw new ServletException(e);
+        }
+    }
+
+    @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
         resp.setContentType("text/html");
         resp.setCharacterEncoding(charset);
-        resp.getWriter().write( template.replace("<!--Locale-->", getLocaleTag(req) ) );
+        resp.getWriter().write(template.replace("<!--Locale-->", getLocaleTag(req)));
     }
 
-    
     private String getLocaleTag(HttpServletRequest req) {
-    	return "<meta name='gwt:property' content='locale=" + getLocale(req.getCookies()) + "'>"; 
+        return "<meta name='gwt:property' content='locale=" + getLocale(req.getCookies()) + "'>";
     }
 
     private String getLocale(Cookie[] cookies) {
-        if(cookies != null) {
+        if (cookies != null) {
             for (final Cookie cookie : cookies) {
                 if (Cookies.LOCALE_COOKIE.equals(cookie.getName())) {
                     return cookie.getValue();
@@ -81,15 +80,15 @@ public class SigmahHostController extends HttpServlet {
             }
         }
 
-        return DEFAULT_LOCALE;
+        return Cookies.DEFAULT_LOCALE;
     }
-    
+
     private String readAll(InputStream in) throws IOException {
         StringBuilder sb = new StringBuilder();
         BufferedReader reader = new BufferedReader(new InputStreamReader(in));
         String line;
-        while( (line=reader.readLine()) != null) {
-                sb.append(line);
+        while ((line = reader.readLine()) != null) {
+            sb.append(line);
         }
         return sb.toString();
     }
