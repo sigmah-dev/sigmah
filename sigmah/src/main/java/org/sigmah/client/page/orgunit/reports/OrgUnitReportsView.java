@@ -33,6 +33,7 @@ import org.sigmah.shared.command.UpdateEntity;
 import org.sigmah.shared.command.result.CreateResult;
 import org.sigmah.shared.command.result.VoidResult;
 import org.sigmah.shared.domain.profile.GlobalPermissionEnum;
+import org.sigmah.shared.dto.ExportUtils;
 import org.sigmah.shared.dto.profile.ProfileUtils;
 import org.sigmah.shared.dto.report.KeyQuestionDTO;
 import org.sigmah.shared.dto.report.ProjectReportContent;
@@ -78,6 +79,8 @@ import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.FormElement;
+import com.google.gwt.dom.client.InputElement;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -86,6 +89,7 @@ import com.google.gwt.event.dom.client.FocusEvent;
 import com.google.gwt.event.dom.client.FocusHandler;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.resources.client.ImageResource;
+import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
@@ -97,6 +101,7 @@ import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.RichTextArea;
+import com.google.gwt.user.client.ui.RootPanel;
 
 /**
  * Displays the reports attached to a organizational unit.
@@ -677,6 +682,45 @@ public class OrgUnitReportsView extends LayoutContainer {
                     });
                 }
             });
+
+            final Button exportReportButton = new Button(I18N.CONSTANTS.exportToWord(), icons.msword());
+            toolBar.add(exportReportButton);
+
+            exportReportButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+                @Override
+                public void componentSelected(ButtonEvent ce) {
+                    final FormElement form = FormElement.as(DOM.createForm());
+                    form.setAction(GWT.getModuleBaseURL() + "export");
+                    form.setTarget("_downloadFrame");
+                    form.setMethod("POST");
+
+                    final InputElement typeField = InputElement.as(DOM.createInputText());
+                    typeField.setAttribute("type", "hidden");
+                    typeField.setName(ExportUtils.PARAM_EXPORT_TYPE);
+                    typeField.setValue(ExportUtils.ExportType.PROJECT_REPORT.toString());
+                    form.appendChild(typeField);
+
+                    final InputElement idField = InputElement.as(DOM.createInputText());
+                    idField.setAttribute("type", "hidden");
+                    idField.setName(ExportUtils.PARAM_EXPORT_PROJECT_ID);
+                    idField.setAttribute("value", report.getId().toString());
+                    form.appendChild(idField);
+
+                    final InputElement labelField = InputElement.as(DOM.createInputText());
+                    labelField.setAttribute("type", "hidden");
+                    labelField.setName(ExportUtils.PARAM_EXPORT_LABELS_LIST);
+                    labelField.setAttribute("value", I18N.CONSTANTS.projectReportTableOfContents());
+                    form.appendChild(labelField);
+
+                    RootPanel.getBodyElement().appendChild(form);
+
+                    form.submit();
+                    form.removeFromParent();
+                }
+            });
+
+            toolBar.add(new SeparatorToolItem());
         }
 
         // Key question info
