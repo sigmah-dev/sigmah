@@ -13,6 +13,7 @@ import org.sigmah.shared.command.result.CreateResult;
 import org.sigmah.shared.domain.Country;
 import org.sigmah.shared.domain.OrgUnit;
 import org.sigmah.shared.domain.OrgUnitModel;
+import org.sigmah.shared.domain.ProjectModelStatus;
 import org.sigmah.shared.domain.User;
 import org.sigmah.shared.domain.calendar.PersonalCalendar;
 import org.sigmah.shared.dto.OrgUnitDTO;
@@ -84,6 +85,10 @@ public class AddOrgUnitHandler implements CommandHandler<AddOrgUnit> {
         newOrgUnit.setReceivedBudget(0.0);
 
         newOrgUnit = em.merge(newOrgUnit);
+
+        // Updates the model status.
+        model.setStatus(ProjectModelStatus.USED);
+        em.merge(model);
 
         final CreateResult result = new CreateResult(newOrgUnit.getId());
         result.setEntity(mapper.map(newOrgUnit, OrgUnitDTO.class).light());

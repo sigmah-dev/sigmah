@@ -48,14 +48,11 @@ public class AdminOrgUnitPresenter implements AdminSubPresenter {
         public abstract ContentPanel getMainPanel();
     }
 
-    public AdminOrgUnitPresenter(Dispatcher dispatcher, UserLocalCache cache, Authentication authentication) {
+    public AdminOrgUnitPresenter(final Dispatcher dispatcher, final UserLocalCache cache, Authentication authentication) {
+
         this.view = new AdminOrgUnitView();
         this.dispatcher = dispatcher;
         this.cache = cache;
-    }
-
-    @Override
-    public Component getView() {
 
         // Add.
         view.getAddButton().addListener(Events.OnClick, new Listener<ButtonEvent>() {
@@ -177,6 +174,11 @@ public class AdminOrgUnitPresenter implements AdminSubPresenter {
                 view.getTree().expandAll();
             }
         });
+
+    }
+
+    @Override
+    public Component getView() {
 
         view.getAddButton().setEnabled(false);
         view.getMoveButton().setEnabled(false);

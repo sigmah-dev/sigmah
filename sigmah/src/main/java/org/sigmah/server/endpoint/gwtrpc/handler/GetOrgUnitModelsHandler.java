@@ -9,12 +9,13 @@ import javax.persistence.Query;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dozer.Mapper;
-import org.sigmah.shared.domain.OrgUnitModel;
-import org.sigmah.shared.domain.User;
 import org.sigmah.shared.command.GetOrgUnitModels;
 import org.sigmah.shared.command.handler.CommandHandler;
 import org.sigmah.shared.command.result.CommandResult;
 import org.sigmah.shared.command.result.OrgUnitModelListResult;
+import org.sigmah.shared.domain.OrgUnitModel;
+import org.sigmah.shared.domain.ProjectModelStatus;
+import org.sigmah.shared.domain.User;
 import org.sigmah.shared.dto.OrgUnitModelDTO;
 import org.sigmah.shared.exception.CommandException;
 
@@ -44,10 +45,21 @@ public class GetOrgUnitModelsHandler implements CommandHandler<GetOrgUnitModels>
 
         final ArrayList<OrgUnitModelDTO> orgUnitModelDTOList = new ArrayList<OrgUnitModelDTO>();
 
+        final ProjectModelStatus status = cmd.getStatus();
+
         // Creates selection query.
-        final Query query = em.createQuery("SELECT m FROM OrgUnitModel m WHERE m.organization.id = :orgid ORDER BY m.name");
-        query.setParameter("orgid", user.getOrganization().getId());
-        
+        final Query query;
+
+        if (status == null) {
+            query = em.createQuery("SELECT m FROM OrgUnitModel m WHERE m.organization.id = :orgid ORDER BY m.name");
+            query.setParameter("orgid", user.getOrganization().getId());
+        } else {
+            query = em
+                    .createQuery("SELECT m FROM OrgUnitModel m WHERE m.organization.id = :orgid AND m.status = :availableStatus ORDER BY m.name");
+            query.setParameter("orgid", user.getOrganization().getId());
+            query.setParameter("availableStatus", status);
+        }
+
         // Gets all project models entities.
         @SuppressWarnings("unchecked")
         final List<OrgUnitModel> models = (List<OrgUnitModel>) query.getResultList();

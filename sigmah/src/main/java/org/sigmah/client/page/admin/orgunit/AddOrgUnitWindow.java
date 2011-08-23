@@ -9,6 +9,7 @@ import org.sigmah.shared.command.AddOrgUnit;
 import org.sigmah.shared.command.GetOrgUnitModels;
 import org.sigmah.shared.command.result.CreateResult;
 import org.sigmah.shared.command.result.OrgUnitModelListResult;
+import org.sigmah.shared.domain.ProjectModelStatus;
 import org.sigmah.shared.dto.CountryDTO;
 import org.sigmah.shared.dto.OrgUnitDTOLight;
 import org.sigmah.shared.dto.OrgUnitModelDTO;
@@ -240,24 +241,25 @@ public class AddOrgUnitWindow {
         alert = false;
 
         // Retrieves the models.
-        dispatcher.execute(new GetOrgUnitModels(), null, new AsyncCallback<OrgUnitModelListResult>() {
+        dispatcher.execute(new GetOrgUnitModels(ProjectModelStatus.READY), null,
+                new AsyncCallback<OrgUnitModelListResult>() {
 
-            @Override
-            public void onFailure(Throwable e) {
-                missingRequiredData(I18N.CONSTANTS.adminOrgUnitAddMissingModel());
-            }
+                    @Override
+                    public void onFailure(Throwable e) {
+                        missingRequiredData(I18N.CONSTANTS.adminOrgUnitAddMissingModel());
+                    }
 
-            @Override
-            public void onSuccess(OrgUnitModelListResult result) {
+                    @Override
+                    public void onSuccess(OrgUnitModelListResult result) {
 
-                if (result.getList() != null && !result.getList().isEmpty()) {
-                    modelsStore.add(result.getList());
-                    countBeforeShow();
-                } else {
-                    missingRequiredData(I18N.CONSTANTS.adminOrgUnitAddMissingModel());
-                }
-            }
-        });
+                        if (result.getList() != null && !result.getList().isEmpty()) {
+                            modelsStore.add(result.getList());
+                            countBeforeShow();
+                        } else {
+                            missingRequiredData(I18N.CONSTANTS.adminOrgUnitAddMissingModel());
+                        }
+                    }
+                });
 
         // Retrieves the countries.
         countriesStore.add(cache.getCountryCache().get());
