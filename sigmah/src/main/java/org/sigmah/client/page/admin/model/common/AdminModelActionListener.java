@@ -455,15 +455,26 @@ public class AdminModelActionListener implements ActionListener {
 				refreshDataModelList();
 				importDialog.hide();
 				
-				//Show notification
-				if(isProject)
-					Notification.show(I18N.CONSTANTS.adminProjectModelImport(), I18N.CONSTANTS.adminProjectModelImportDetail());
-				else if(isOrgUnit)
-						Notification.show(I18N.CONSTANTS.adminOrgUnitsModelImport(), I18N.CONSTANTS.adminOrgUnitsModelImportDetail());
-					else if(isReport)
-							Notification.show(I18N.CONSTANTS.adminReportModelImport(), I18N.CONSTANTS.adminReportModelImportDetail());
-						else
-							Notification.show(I18N.CONSTANTS.adminCategoryImport(), I18N.CONSTANTS.adminCategoryImportDetailt());		
+				final String result = be.getResultHtml();
+				
+				// Import failed.
+				if(result.indexOf("HTTP ERROR") != -1) {
+				    MessageBox.alert(I18N.CONSTANTS.error(), 
+				            I18N.CONSTANTS.adminProjectModelImportError(), null);
+				}
+				// Import succeed.
+				else {
+				  //Show notification
+	                if(isProject)
+	                    Notification.show(I18N.CONSTANTS.adminProjectModelImport(), I18N.CONSTANTS.adminProjectModelImportDetail());
+	                else if(isOrgUnit)
+	                        Notification.show(I18N.CONSTANTS.adminOrgUnitsModelImport(), I18N.CONSTANTS.adminOrgUnitsModelImportDetail());
+	                    else if(isReport)
+	                            Notification.show(I18N.CONSTANTS.adminReportModelImport(), I18N.CONSTANTS.adminReportModelImportDetail());
+	                        else
+	                            Notification.show(I18N.CONSTANTS.adminCategoryImport(), I18N.CONSTANTS.adminCategoryImportDetailt());   
+				}
+				
 			}
 
 		});

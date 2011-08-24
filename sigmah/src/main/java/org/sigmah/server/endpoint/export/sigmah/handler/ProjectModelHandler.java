@@ -34,30 +34,34 @@ import org.sigmah.shared.domain.element.QuestionElement;
 import org.sigmah.shared.domain.layout.LayoutConstraint;
 import org.sigmah.shared.domain.layout.LayoutGroup;
 
-
 /**
  * Exports and imports project models.
+ * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
 public class ProjectModelHandler implements ModelHandler {
 
     private final static Log LOG = LogFactory.getLog(ProjectModelHandler.class);
-	
+
     private ProjectModelType projectModelType = ProjectModelType.NGO;
-	
+
     @Override
-    public void importModel(InputStream inputStream, EntityManager em, Authentication authentication) throws ExportException {
-    	ObjectInputStream objectInputStream;
-    	em.getTransaction().begin();
+    public void importModel(InputStream inputStream, EntityManager em, Authentication authentication)
+            throws ExportException {
+        ObjectInputStream objectInputStream;
+        em.getTransaction().begin();
         try {
             objectInputStream = new ObjectInputStream(inputStream);
             ProjectModel projectModel = (ProjectModel) objectInputStream.readObject();
+
+            // Sets the new model as a draft.
+            projectModel.setStatus(ProjectModelStatus.DRAFT);
 
             final HashMap<Object, Object> modelesReset = new HashMap<Object, Object>();
             final HashSet<Object> modelesImport = new HashSet<Object>();
 
             projectModel.resetImport(modelesReset, modelesImport);
-            saveProjectFlexibleElement(projectModel, em, modelesReset, modelesImport) ;
+            saveProjectFlexibleElement(projectModel, em, modelesReset, modelesImport);
 
             // Attaching the new model to the current user's organization
             final ProjectModelVisibility visibility = new ProjectModelVisibility();
@@ -69,33 +73,45 @@ public class ProjectModelHandler implements ModelHandler {
             visibilities.add(visibility);
             projectModel.setVisibilities(visibilities);
 
-            //Set the staus to DRAFT
+            // Set the staus to DRAFT
             projectModel.setStatus(ProjectModelStatus.DRAFT);
+
+            for (PhaseModel pm : projectModel.getPhases()) {
+                for (LayoutGroup lg : pm.getLayout().getGroups()) {
+                    for (LayoutConstraint lc : lg.getConstraints()) {
+                        FlexibleElement fe = lc.getElement();
+                        System.out.println(fe.getClass() + " id " + fe.getId());
+                        if (fe instanceof QuestionElement) {
+                            for (QuestionChoiceElement qce : ((QuestionElement) fe).getChoices()) {
+                                System.out.println(qce.getClass() + " id " + qce.getId());
+                            }
+                        }
+                    }
+                }
+            }
 
             em.merge(projectModel);
             em.getTransaction().commit();
-            LOG.debug("The project model '"+projectModel.getName()+"' has been imported successfully.");
+            LOG.debug("The project model '" + projectModel.getName() + "' has been imported successfully.");
 
-        } catch (IOException e) {
+        } catch (Throwable e) {
             LOG.debug("Error while importing a project model.", e);
-        } catch (ClassNotFoundException e) {
-            LOG.debug("Error while importing a project model.", e);
+            throw new ExportException("Error while importing a project model.", e);
         }
     }
 
     @Override
-    public String exportModel(OutputStream outputStream, String identifier,
-            EntityManager em) throws ExportException {
+    public String exportModel(OutputStream outputStream, String identifier, EntityManager em) throws ExportException {
 
-        String name ="";
+        String name = "";
 
-        if(identifier != null) {
+        if (identifier != null) {
             final Long projectModelId = Long.parseLong(identifier);
 
             final ProjectModel hibernateModel = em.find(ProjectModel.class, projectModelId);
 
-            if(hibernateModel == null)
-                throw new ExportException("No project model is associated with the identifier '"+identifier+"'.");
+            if (hibernateModel == null)
+                throw new ExportException("No project model is associated with the identifier '" + identifier + "'.");
 
             name = hibernateModel.getName();
 
@@ -109,9 +125,9 @@ public class ProjectModelHandler implements ModelHandler {
             try {
                 final ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream);
                 objectOutputStream.writeObject(realModel);
-                
+
             } catch (IOException ex) {
-                throw new ExportException("An error occured while serializing the project model "+projectModelId, ex);
+                throw new ExportException("An error occured while serializing the project model " + projectModelId, ex);
             }
 
         } else {
@@ -120,40 +136,37 @@ public class ProjectModelHandler implements ModelHandler {
 
         return name;
     }
-    
+
     /**
-     * Define the default project model type used when importing a project model.
+     * Define the default project model type used when importing a project
+     * model.
+     * 
      * @param projectModelType
      */
     public void setProjectModelType(ProjectModelType projectModelType) {
-		this.projectModelType = projectModelType;
-	}
-    
+        this.projectModelType = projectModelType;
+    }
+
     /**
      * Save the flexible elements of imported project model.
-     *
+     * 
      * @param projectModel
      *            the imported project model
      * @param em
      *            the entity manager
      */
-    private void saveProjectFlexibleElement (
-            ProjectModel projectModel,
-            EntityManager em,
-            HashMap<Object, Object> modelesReset,
-            HashSet<Object> modelesImport) {
-        
+    private void saveProjectFlexibleElement(ProjectModel projectModel, EntityManager em,
+            HashMap<Object, Object> modelesReset, HashSet<Object> modelesImport) {
+
         // ProjectModel --> Banner --> Layout --> Groups --> Constraints
-        if (projectModel.getProjectBanner() != null
-                && projectModel.getProjectBanner().getLayout() != null) {
+        if (projectModel.getProjectBanner() != null && projectModel.getProjectBanner().getLayout() != null) {
 
             final List<LayoutGroup> bannerLayoutGroups = projectModel.getProjectBanner().getLayout().getGroups();
             saveLayoutGroups(bannerLayoutGroups, em, modelesReset, modelesImport);
         }
 
         // ProjectModel --> Detail --> Layout --> Groups --> Constraints
-        if (projectModel.getProjectDetails() != null
-                && projectModel.getProjectDetails().getLayout() != null) {
+        if (projectModel.getProjectDetails() != null && projectModel.getProjectDetails().getLayout() != null) {
 
             final List<LayoutGroup> detailLayoutGroups = projectModel.getProjectDetails().getLayout().getGroups();
             saveLayoutGroups(detailLayoutGroups, em, modelesReset, modelesImport);
@@ -180,17 +193,14 @@ public class ProjectModelHandler implements ModelHandler {
         }
     }
 
-    private void saveLayoutGroups (
-            final List<LayoutGroup> layoutGroups,
-            EntityManager em,
-            HashMap<Object, Object> modelesReset,
-            HashSet<Object> modelesImport) {
+    private void saveLayoutGroups(final List<LayoutGroup> layoutGroups, EntityManager em,
+            HashMap<Object, Object> modelesReset, HashSet<Object> modelesImport) {
 
         if (layoutGroups != null) {
             for (LayoutGroup layoutGroup : layoutGroups) {
 
                 final List<LayoutConstraint> layoutConstraints;
-                if(layoutGroup != null)
+                if (layoutGroup != null)
                     layoutConstraints = layoutGroup.getConstraints();
                 else
                     layoutConstraints = null;
@@ -200,9 +210,15 @@ public class ProjectModelHandler implements ModelHandler {
                     for (LayoutConstraint layoutConstraint : layoutConstraints) {
                         if (layoutConstraint != null && layoutConstraint.getElement() != null) {
 
+                            // Do not persist an element twice.
+                            if (em.contains(layoutConstraint.getElement())) {
+                                continue;
+                            }
+
                             // If the current element is a QuestionElement
                             if (layoutConstraint.getElement() instanceof QuestionElement) {
-                                List<QuestionChoiceElement> questionChoiceElements = ((QuestionElement) layoutConstraint.getElement()).getChoices();
+                                List<QuestionChoiceElement> questionChoiceElements = ((QuestionElement) layoutConstraint
+                                        .getElement()).getChoices();
                                 CategoryType type = ((QuestionElement) layoutConstraint.getElement()).getCategoryType();
                                 if (questionChoiceElements != null || type != null) {
 
@@ -211,18 +227,21 @@ public class ProjectModelHandler implements ModelHandler {
                                     ((QuestionElement) parent).setCategoryType(null);
                                     em.persist(parent);
 
-                                    // Save QuestionChoiceElement with their QuestionElement parent(saved above)
+                                    // Save QuestionChoiceElement with their
+                                    // QuestionElement parent(saved above)
                                     if (questionChoiceElements != null) {
                                         for (QuestionChoiceElement questionChoiceElement : questionChoiceElements) {
                                             if (questionChoiceElement != null) {
                                                 questionChoiceElement.setId(null);
                                                 questionChoiceElement.setParentQuestion((QuestionElement) parent);
-                                                CategoryElement categoryElement = questionChoiceElement.getCategoryElement();
+                                                CategoryElement categoryElement = questionChoiceElement
+                                                        .getCategoryElement();
                                                 if (categoryElement != null) {
                                                     questionChoiceElement.setCategoryElement(null);
 
                                                     em.persist(questionChoiceElement);
-                                                    saveProjectModelCategoryElement(categoryElement, em, modelesReset, modelesImport);
+                                                    saveProjectModelCategoryElement(categoryElement, em, modelesReset,
+                                                            modelesImport);
                                                     questionChoiceElement.setCategoryElement(categoryElement);
                                                     em.merge(questionChoiceElement);
                                                 } else {
@@ -230,11 +249,13 @@ public class ProjectModelHandler implements ModelHandler {
                                                 }
                                             }
                                         }
-                                        // Set saved QuestionChoiceElement to QuestionElement parent and update it
+                                        // Set saved QuestionChoiceElement to
+                                        // QuestionElement parent and update it
                                         ((QuestionElement) parent).setChoices(questionChoiceElements);
                                     }
 
-                                    // Save the Category type of QuestionElement parent(saved above)
+                                    // Save the Category type of QuestionElement
+                                    // parent(saved above)
                                     if (type != null) {
                                         if (em.find(CategoryType.class, type.getId()) == null) {
                                             List<CategoryElement> typeElements = type.getElements();
@@ -244,17 +265,19 @@ public class ProjectModelHandler implements ModelHandler {
                                                 for (CategoryElement element : typeElements) {
                                                     if (em.find(CategoryElement.class, element.getId()) == null) {
                                                         element.setParentType(type);
-                                                        saveProjectModelCategoryElement(element, em, modelesReset, modelesImport);
+                                                        saveProjectModelCategoryElement(element, em, modelesReset,
+                                                                modelesImport);
                                                     }
                                                 }
                                                 type.setElements(typeElements);
                                                 em.merge(type);
                                             }
                                         }
-                                        //Set the saved CategoryType to QuestionElement parent and update it
+                                        // Set the saved CategoryType to
+                                        // QuestionElement parent and update it
                                         ((QuestionElement) parent).setCategoryType(type);
                                     }
-                                    //Update the QuestionElement parent
+                                    // Update the QuestionElement parent
                                     em.merge(parent);
                                 } else {
                                     em.persist(layoutConstraint.getElement());
@@ -270,55 +293,55 @@ public class ProjectModelHandler implements ModelHandler {
 
     }
 
-	
-	/**
-	 * Save the category element of a question choice element.
-	 * 
-	 * @param categoryElement
-	 *            the category element to save.
-	 * @param em
-	 *            the entity manager.
-	 */
-	private void saveProjectModelCategoryElement(CategoryElement categoryElement, EntityManager em, HashMap<Object, Object> modelesReset, HashSet<Object> modelesImport){
-		if(!modelesImport.contains(categoryElement)){
-			modelesImport.add(categoryElement);
-			
-			if(!modelesReset.containsKey(categoryElement)){
-				CategoryElement key = categoryElement;
-				categoryElement.setId(null);
-				
-				CategoryType parentType = categoryElement.getParentType();
-				if(!modelesImport.contains(parentType)){
-					modelesImport.add(parentType);
-					
-					if(!modelesReset.containsKey(parentType)){
-						CategoryType parentKey = parentType;
-						parentType.setId(null);
-						
-						List<CategoryElement> elements = parentType.getElements();
-						if(elements!=null){
-							parentType.setElements(null);
-							em.persist(parentType);
-							for(CategoryElement element : elements){
-								categoryElement.setParentType(parentType);
-								saveProjectModelCategoryElement(element, em, modelesReset, modelesImport);
-							}
-							parentType.setElements(elements);
-							em.merge(parentType);
-						}else{
-							em.persist(parentType);
-						}						
-						modelesReset.put(parentKey, parentType);
-					}else{
-						parentType = (CategoryType)modelesReset.get(parentType);
-					}
-				}
-				categoryElement.setParentType(parentType);
-				em.persist(categoryElement);
-				modelesReset.put(key, categoryElement);
-			}else{
-				categoryElement = (CategoryElement)modelesReset.get(categoryElement);
-			}
-		}
-	}	
+    /**
+     * Save the category element of a question choice element.
+     * 
+     * @param categoryElement
+     *            the category element to save.
+     * @param em
+     *            the entity manager.
+     */
+    private void saveProjectModelCategoryElement(CategoryElement categoryElement, EntityManager em,
+            HashMap<Object, Object> modelesReset, HashSet<Object> modelesImport) {
+        if (!modelesImport.contains(categoryElement)) {
+            modelesImport.add(categoryElement);
+
+            if (!modelesReset.containsKey(categoryElement)) {
+                CategoryElement key = categoryElement;
+                categoryElement.setId(null);
+
+                CategoryType parentType = categoryElement.getParentType();
+                if (!modelesImport.contains(parentType)) {
+                    modelesImport.add(parentType);
+
+                    if (!modelesReset.containsKey(parentType)) {
+                        CategoryType parentKey = parentType;
+                        parentType.setId(null);
+
+                        List<CategoryElement> elements = parentType.getElements();
+                        if (elements != null) {
+                            parentType.setElements(null);
+                            em.persist(parentType);
+                            for (CategoryElement element : elements) {
+                                categoryElement.setParentType(parentType);
+                                saveProjectModelCategoryElement(element, em, modelesReset, modelesImport);
+                            }
+                            parentType.setElements(elements);
+                            em.merge(parentType);
+                        } else {
+                            em.persist(parentType);
+                        }
+                        modelesReset.put(parentKey, parentType);
+                    } else {
+                        parentType = (CategoryType) modelesReset.get(parentType);
+                    }
+                }
+                categoryElement.setParentType(parentType);
+                em.persist(categoryElement);
+                modelesReset.put(key, categoryElement);
+            } else {
+                categoryElement = (CategoryElement) modelesReset.get(categoryElement);
+            }
+        }
+    }
 }
