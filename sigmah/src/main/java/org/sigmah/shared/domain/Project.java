@@ -8,6 +8,7 @@ package org.sigmah.shared.domain;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -16,6 +17,7 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
@@ -24,7 +26,6 @@ import javax.persistence.OrderBy;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
-import org.hibernate.annotations.Cascade;
 import org.sigmah.shared.domain.Amendment.State;
 import org.sigmah.shared.domain.logframe.LogFrame;
 import org.sigmah.shared.domain.reminder.MonitoredPointList;
@@ -48,15 +49,32 @@ public class Project extends UserDatabase {
     private Date closeDate;
     private MonitoredPointList pointsList;
     private ReminderList remindersList;
-    private Boolean starred = false;
     private Amendment.State amendmentState;
     private List<Amendment> amendments = new ArrayList<Amendment>();
     private Integer amendmentVersion;
     private Integer amendmentRevision;
     private User manager;
     private Integer activityAdvancement;
+    
+    protected Set<User> favoriteUsers;
 
-    @Temporal(TemporalType.DATE)
+    /**
+	 * @return the favoriteUsers
+	 */
+    @ManyToMany(cascade=CascadeType.MERGE)
+    @JoinTable(name="project_userlogin")
+	public Set<User> getFavoriteUsers() {
+		return favoriteUsers;
+	}
+
+	/**
+	 * @param favoriteUsers the favoriteUsers to set
+	 */
+	public void setFavoriteUsers(Set<User> favoriteUsers) {
+		this.favoriteUsers = favoriteUsers;
+	}
+
+	@Temporal(TemporalType.DATE)
     @Column(name = "end_date", length = 23)
     public Date getEndDate() {
         return this.endDate;
@@ -241,14 +259,7 @@ public class Project extends UserDatabase {
         return getId();
     }
 
-    public void setStarred(Boolean starred) {
-        this.starred = starred;
-    }
 
-    @Column(name = "starred", nullable = true)
-    public Boolean getStarred() {
-        return starred;
-    }
 
     public void setCloseDate(Date closeDate) {
         this.closeDate = closeDate;
@@ -306,5 +317,7 @@ public class Project extends UserDatabase {
 	public void setActivityAdvancement(Integer activityAdvancement) {
 		this.activityAdvancement = activityAdvancement;
 	}
+	
+	
     
 }

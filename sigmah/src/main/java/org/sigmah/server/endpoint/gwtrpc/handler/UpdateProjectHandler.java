@@ -91,14 +91,7 @@ public class UpdateProjectHandler implements CommandHandler<UpdateProject> {
             // like other values. These values impact directly the project.
             if (source instanceof DefaultFlexibleElementDTO) {
 
-                // Starred case.
-                if (source.getId() == -1) {
-                    if (project != null) {
-                        project.setStarred(Boolean.valueOf(valueEvent.getSingleValue()));
-                        em.merge(project);
-                        continue;
-                    }
-                }
+              
 
                 final DefaultFlexibleElementDTO defaultElement = (DefaultFlexibleElementDTO) source;
 

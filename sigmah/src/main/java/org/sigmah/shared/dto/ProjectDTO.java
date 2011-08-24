@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 import org.sigmah.shared.dto.element.DefaultFlexibleElementContainer;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
@@ -364,14 +365,7 @@ public final class ProjectDTO extends BaseModelData implements EntityDTO, Defaul
         set("remindersList", remindersList);
     }
 
-    public void setStarred(Boolean starred) {
-        set("starred", starred);
-    }
 
-    public Boolean getStarred() {
-        final Boolean b = (Boolean) get("starred");
-        return b == null ? false : b;
-    }
 
     public void setCloseDate(Date closeDate) {
         set("closeDate", closeDate);
@@ -538,7 +532,6 @@ public final class ProjectDTO extends BaseModelData implements EntityDTO, Defaul
 
         final ProjectDTOLight light = new ProjectDTOLight();
         light.setId(getId());
-        light.setStarred(getStarred());
         light.setStartDate(getStartDate());
         light.setEndDate(getEndDate());
         light.setName(getName());
@@ -550,6 +543,7 @@ public final class ProjectDTO extends BaseModelData implements EntityDTO, Defaul
         light.setSpendBudget(getSpendBudget());
         light.setReceivedBudget(getReceivedBudget());
         light.setCloseDate(getCloseDate());
+        light.setFavoriteUsers(getFavoriteUsers());
 
         return light;
     }
@@ -597,5 +591,17 @@ public final class ProjectDTO extends BaseModelData implements EntityDTO, Defaul
         }
 
         return mappedPhases.get(model);
+    }
+    
+    
+    //Users who choose this project for their favorite project
+    public Set<UserDTO> getFavoriteUsers()
+    {
+ 	   return get("favoriteUsers");
+    }
+     
+    public void setFavoriteUsers(Set<UserDTO> favoriteUsers)
+    {
+ 	   set("favoriteUsers",favoriteUsers);
     }
 }

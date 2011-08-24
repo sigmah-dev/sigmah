@@ -207,15 +207,6 @@ public class ProjectDTOLight extends DeRpcSafeBaseTreeModel implements EntityDTO
         set("endDate", endDate);
     }
 
-    // Starred project.
-    public void setStarred(Boolean starred) {
-        set("starred", starred);
-    }
-
-    public Boolean getStarred() {
-        final Boolean b = (Boolean) get("starred");
-        return b == null ? false : b;
-    }
 
     // Closed date.
     public void setCloseDate(Date closeDate) {
@@ -356,4 +347,16 @@ public class ProjectDTOLight extends DeRpcSafeBaseTreeModel implements EntityDTO
 
         return NumberUtils.adjustRatio(ratio);
     }
+    
+    
+   //Users who choose this project for their favorite project
+   public Set<UserDTO> getFavoriteUsers()
+   {
+	   return get("favoriteUsers");
+   }
+    
+   public void setFavoriteUsers(Set<UserDTO> favoriteUsers)
+   {
+	   set("favoriteUsers",favoriteUsers);
+   }
 }

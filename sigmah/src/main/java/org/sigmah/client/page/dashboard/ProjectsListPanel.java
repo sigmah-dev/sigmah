@@ -21,11 +21,14 @@ import org.sigmah.client.util.Notification;
 import org.sigmah.client.util.NumberUtils;
 import org.sigmah.shared.command.GetProjects;
 import org.sigmah.shared.command.UpdateProject;
+import org.sigmah.shared.command.UpdateProjectFavorite;
+import org.sigmah.shared.command.result.CreateResult;
 import org.sigmah.shared.command.result.ProjectListResult;
 import org.sigmah.shared.command.result.VoidResult;
 import org.sigmah.shared.domain.ProjectModelType;
 import org.sigmah.shared.domain.profile.GlobalPermissionEnum;
 import org.sigmah.shared.dto.ProjectDTOLight;
+import org.sigmah.shared.dto.UserDTO;
 import org.sigmah.shared.dto.category.CategoryElementDTO;
 import org.sigmah.shared.dto.element.DefaultFlexibleElementDTO;
 import org.sigmah.shared.dto.element.handler.ValueEvent;
@@ -446,50 +449,89 @@ public class ProjectsListPanel {
             @Override
             public Object render(final ProjectDTOLight model, String property, ColumnData config, int rowIndex,
                     int colIndex, final ListStore<ProjectDTOLight> store, final Grid<ProjectDTOLight> grid) {
+            	
+            	//A star icon
                 final Image icon;
-
-                if (model.getStarred()) {
+                                             
+                if (isFavoriteProject(authentication.getUserId(),model)) {
+                	//star
                     icon = imageBundle.star().createImage();
+                    icon.setTitle("Favorite");
                 } else {
+                	//empty start
                     icon = imageBundle.emptyStar().createImage();
+                    icon.setTitle("Non-favorite");
                 }
 
+                //Star icon click-handler
                 icon.addClickHandler(new ClickHandler() {
 
                     @Override
                     public void onClick(ClickEvent event) {
 
-                        final ArrayList<ValueEvent> events = new ArrayList<ValueEvent>();
-                        final DefaultFlexibleElementDTO dto = new DefaultFlexibleElementDTO();
-                        dto.setId(-1);
-                        final ValueEvent starredEvent = new ValueEvent(dto, String.valueOf(!model.getStarred()));
-                        events.add(starredEvent);
-                        int modelId = model.getId();
-                        if (modelId < 0)
-                            modelId = model.getProjectId();
+                    	UpdateProjectFavorite updateCmd ;
+                    	
+                    	//Get the project's id
+                    	int projectId = model.getId();
+                		if(projectId<0)
+                			projectId = model.get("pid");
+                    	
+                    	
+                    	if(isFavoriteProject(authentication.getUserId(),model))
+                    	{//Remove the favorite user from project favorite user list
+                    	              	   
+                    		 updateCmd = new UpdateProjectFavorite(projectId,UpdateProjectFavorite.UpdateType.REMOVE);
+                    		                    		
+                    	}
+                    	else
+                    	{//Add current user into the favorite user list of the project
+                    		
+                    		 updateCmd = new UpdateProjectFavorite(projectId,UpdateProjectFavorite.UpdateType.ADD);                   		
+                    		
+                    	}
+                    	
+                    	//RPC to change the favorite tag
+                    	dispatcher.execute(updateCmd, new MaskingAsyncMonitor(projectTreePanel, I18N.CONSTANTS.loading()), new AsyncCallback<CreateResult>(){
 
-                        dispatcher.execute(new UpdateProject(modelId, events), new MaskingAsyncMonitor(
-                                projectTreePanel, I18N.CONSTANTS.loading()), new AsyncCallback<VoidResult>() {
+							@Override
+							public void onFailure(Throwable caught) {
+								
+								  Log.error(
+	                                        "[execute] Error while setting the favorite status of the project #"
+	                                                + model.getId(), caught);
+	                                MessageBox.alert(I18N.CONSTANTS.projectStarredError(),
+	                                        I18N.CONSTANTS.projectStarredErrorDetails(), null);
+	                            
+								
+							}
 
-                            @Override
-                            public void onFailure(Throwable e) {
-                                Log.error(
-                                        "[execute] Error while setting the favorite status of the project #"
-                                                + model.getId(), e);
-                                MessageBox.alert(I18N.CONSTANTS.projectStarredError(),
-                                        I18N.CONSTANTS.projectStarredErrorDetails(), null);
-                            }
-
-                            @Override
-                            public void onSuccess(VoidResult result) {
-                                model.setStarred(!model.getStarred());
-                                store.update(model);
-                                if (model.getStarred()) {
-                                    Notification.show(I18N.CONSTANTS.infoConfirmation(),
+							@Override
+							public void onSuccess(CreateResult result) {
+								
+								if(result==null || result.getEntity()==null)
+								{
+		                                MessageBox.alert(I18N.CONSTANTS.projectStarredError(),
+		                                        I18N.CONSTANTS.projectStarredErrorDetails(), null);
+								}
+								else
+								{
+									//Update local store
+									ProjectDTOLight resultProject =(ProjectDTOLight) result.getEntity();
+									model.setFavoriteUsers(resultProject.getFavoriteUsers());
+									store.update(model);
+									
+									Notification.show(I18N.CONSTANTS.infoConfirmation(),
                                             I18N.CONSTANTS.projectStarred());
-                                }
-                            }
-                        });
+								 
+																													
+								}
+								
+								
+							}
+                			
+                		});
+                    	                    	
+                 
                     }
                 });
 
@@ -979,4 +1021,33 @@ public class ProjectsListPanel {
             isLoaded = true;
         }
     }
+    
+    /**
+     * 
+     * Check if the project is a favorite project of the current user.
+     * 
+     * @param userId
+     * 
+     * @param project
+     * 
+     * @return 
+     * 
+     * @author  HUZHE(zhe.hu32@gmail.com)	  
+     */
+    public boolean isFavoriteProject(int userId,ProjectDTOLight project)
+    {
+       if(project.getFavoriteUsers()==null)
+    	   return false;
+    	
+    	for(UserDTO u : project.getFavoriteUsers())
+    	{
+    		if(u.getId()==userId)   		
+    			return true;
+    		
+    	}
+    	
+    	return false;
+    }
+    
+    
 }

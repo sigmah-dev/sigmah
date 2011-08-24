@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -16,12 +17,14 @@ import org.sigmah.shared.domain.Phase;
 import org.sigmah.shared.domain.Project;
 import org.sigmah.shared.domain.ProjectFunding;
 import org.sigmah.shared.domain.ProjectModelVisibility;
+import org.sigmah.shared.domain.User;
 import org.sigmah.shared.domain.category.CategoryElement;
 import org.sigmah.shared.domain.category.CategoryType;
 import org.sigmah.shared.domain.element.QuestionChoiceElement;
 import org.sigmah.shared.domain.value.Value;
 import org.sigmah.shared.dto.ProjectDTOLight;
 import org.sigmah.shared.dto.ProjectModelVisibilityDTO;
+import org.sigmah.shared.dto.UserDTO;
 import org.sigmah.shared.dto.category.CategoryElementDTO;
 import org.sigmah.shared.dto.category.CategoryTypeDTO;
 
@@ -40,6 +43,7 @@ public class ProjectMapper {
     private final Query orgUnitQuery;
     private final Query categoriesQuery;
     private final Query choicesQuery;
+    
 
     @Inject
     public ProjectMapper(EntityManager em) {
@@ -49,6 +53,7 @@ public class ProjectMapper {
         categoriesQuery = em.createQuery("SELECT v FROM Value v JOIN v.element e WHERE v.containerId = :projectId AND "
                 + "e.id IN (SELECT q.id FROM QuestionElement q WHERE q.categoryType IS NOT NULL)");
         choicesQuery = em.createQuery("SELECT c FROM QuestionChoiceElement c WHERE c.id IN (:ids)");
+              
     }
 
     /**
@@ -82,7 +87,6 @@ public class ProjectMapper {
         pLight.setSpendBudget(project.getSpendBudget());
         pLight.setStartDate(project.getStartDate());
         pLight.setEndDate(project.getEndDate());
-        pLight.setStarred(project.getStarred());
         pLight.setCloseDate(project.getCloseDate());
         pLight.setActivityAdvancement(project.getActivityAdvancement());
         pLight.setOrgUnitName(project.getCountry().getName());
@@ -219,6 +223,50 @@ public class ProjectMapper {
 
         pLight.setChildrenProjects(children);
 
+        
+       
+        // ------------------
+        // -- FAVORITE USERS
+        // ------------------
+        
+       if(project.getFavoriteUsers()!=null)
+       {
+        Set<UserDTO> favoriteUsesSet = new HashSet<UserDTO>();
+        for(User u : project.getFavoriteUsers())
+        {
+        	//favoriteUsesSet.add(dozerMapper.map(u, UserDTO.class));
+        	UserDTO uDTO = new UserDTO();
+        	uDTO.setId(u.getId());
+        	uDTO.setChangePasswordKey(u.getChangePasswordKey());
+        	uDTO.setDateChangePasswordKeyIssued(u.getDateChangePasswordKeyIssued());
+        	uDTO.setEmail(u.getEmail());
+        	uDTO.setFirstName(u.getFirstName());
+        	uDTO.setLocale(u.getLocale());
+        	if(u.isActive()==null)
+        	{
+        	  uDTO.setActive(true);
+        	}
+        	else
+        	{
+        	  uDTO.setActive(u.isActive().booleanValue());
+        	}
+        	
+        	favoriteUsesSet.add(uDTO);
+        	
+        	
+        	
+        }
+        
+        pLight.setFavoriteUsers(favoriteUsesSet);
+        
+       }
+       else
+       {
+    	   pLight.setFavoriteUsers(null);
+       }
+        
+       // ---END----
+        
         sb.append("- CHILDREN: ");
         sb.append(new Date().getTime() - start);
         sb.append("ms.\n");

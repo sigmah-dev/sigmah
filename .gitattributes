@@ -1621,6 +1621,7 @@ sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/UpdateEntityHandl
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/UpdateLogFrameHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/UpdateMonitoredPointsHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/UpdateMonthlyReportsHandler.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/UpdateProjectFavoriteHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/UpdateProjectHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/UpdateProjectReportModelHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/UpdateRemindersHandler.java -text
@@ -1878,6 +1879,7 @@ sigmah/src/main/java/org/sigmah/shared/command/UpdateLogFrame.java -text
 sigmah/src/main/java/org/sigmah/shared/command/UpdateMonitoredPoints.java -text
 sigmah/src/main/java/org/sigmah/shared/command/UpdateMonthlyReports.java -text
 sigmah/src/main/java/org/sigmah/shared/command/UpdateProject.java -text
+sigmah/src/main/java/org/sigmah/shared/command/UpdateProjectFavorite.java -text
 sigmah/src/main/java/org/sigmah/shared/command/UpdateProjectReportModel.java -text
 sigmah/src/main/java/org/sigmah/shared/command/UpdateReminders.java -text
 sigmah/src/main/java/org/sigmah/shared/command/UpdateReportDef.java -text
