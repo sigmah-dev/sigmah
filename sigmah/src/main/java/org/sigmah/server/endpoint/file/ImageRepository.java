@@ -9,6 +9,7 @@ import org.apache.log4j.Logger;
 
 import com.google.inject.Inject;
 
+@Deprecated
 public class ImageRepository {
 
     /**

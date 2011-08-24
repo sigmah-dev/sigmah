@@ -1,11 +1,8 @@
 package org.sigmah.server.endpoint.file;
 
 import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URL;
+import java.util.Properties;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
@@ -18,7 +15,6 @@ import org.apache.commons.logging.LogFactory;
 import org.sigmah.shared.dto.value.FileUploadUtils;
 
 import com.google.inject.Inject;
-import com.google.inject.Injector;
 import com.google.inject.Singleton;
 
 /**
@@ -35,13 +31,28 @@ public class ImageServlet extends HttpServlet {
     private static final Log log = LogFactory.getLog(ImageServlet.class);
 
     /**
-     * To get the images manager.
+     * To get the images.
      */
-    private final ImageRepository imageRepository;
+    private final FileStorageProvider fileStorageProvider;
+
+    /**
+     * The root directory where images are stored.
+     */
+    private final String imageRepositoryRoot;
 
     @Inject
-    public ImageServlet(ImageRepository imageRepository) {
-        this.imageRepository = imageRepository;
+    public ImageServlet(Properties configProperties, FileStorageProvider fileStorageProvider) {
+        this.fileStorageProvider = fileStorageProvider;
+
+        // Initializes images repository path.
+        String root = configProperties.getProperty(FileModule.REPOSITORY_LOGOS);
+
+        // No prefix.
+        if (root == null) {
+            root = "";
+        }
+
+        imageRepositoryRoot = root;
     }
 
     @Override
@@ -69,17 +80,19 @@ public class ImageServlet extends HttpServlet {
         }
 
         // Retrieves the image.
-        final URI image = imageRepository.getImage(url);
-        
-        
-        final BufferedInputStream inputStream = new BufferedInputStream(image.toURL().openStream());
+        // final URI image = imageRepository.getImage(url);
+        // final BufferedInputStream inputStream = new
+        // BufferedInputStream(image.toURL().openStream());
+
+        final BufferedInputStream inputStream = new BufferedInputStream(fileStorageProvider.open(imageRepositoryRoot
+                + "/" + url));
 
         try {
 
             // Writes image content to the HTTP response.
             final ServletOutputStream outputStream = response.getOutputStream();
             IOUtil.copy(inputStream, outputStream);
-           
+
             inputStream.close();
             outputStream.close();
         } catch (IOException e) {
@@ -91,5 +104,4 @@ public class ImageServlet extends HttpServlet {
             log.debug("[doGet] Ends providing image.");
         }
     }
-
 }

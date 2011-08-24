@@ -40,42 +40,48 @@ public class ConfigModule extends AbstractModule {
         // Load version.properties.
         tryToLoadFrom(properties, versionFromClassesDirectory());
 
-        //loadFromBeanstalkEnvironment(properties);
-        
+        // loadFromBeanstalkEnvironment(properties);
+
         // Debug
         if (logger.isDebugEnabled()) {
-            logger.debug("Properties 'repository.files' [sigmah.properties] = "
-                    + properties.getProperty("repository.files"));
-            logger.debug("Properties 'repository.images' [sigmah.properties] = "
-                    + properties.getProperty("repository.images"));
-            logger.debug("Properties 'version.number' [sigmah.properties] = "
-                    + properties.getProperty("version.number"));
+
+            final StringBuilder sb = new StringBuilder();
+            sb.append("Properties set:\n");
+
+            for (final Object key : properties.keySet()) {
+                sb.append(key);
+                sb.append(" = ");
+                sb.append(properties.get(key));
+                sb.append("\n");
+            }
+
+            logger.debug(sb.toString());
         }
 
         return properties;
     }
 
     /**
-     * Reads properties from Beanstalk environment, if present.
-     * Facilitates deployment. 
+     * Reads properties from Beanstalk environment, if present. Facilitates
+     * deployment.
      * 
      * @param properties
      */
     private void loadFromBeanstalkEnvironment(Properties properties) {
 
         // read properties from Beanstalk environment
-        if(System.getProperty("JDBC_CONNECTION_STRING") != null) {
-        	properties.setProperty("hibernate.connection.url", System.getProperty("JDBC_CONNECTION_STRING"));
+        if (System.getProperty("JDBC_CONNECTION_STRING") != null) {
+            properties.setProperty("hibernate.connection.url", System.getProperty("JDBC_CONNECTION_STRING"));
         }
-        if(System.getProperty("PARAM1") != null) {
-        	properties.setProperty("hibernate.connection.username", System.getProperty("PARAM1"));
+        if (System.getProperty("PARAM1") != null) {
+            properties.setProperty("hibernate.connection.username", System.getProperty("PARAM1"));
         }
-        if(System.getProperty("PARAM2") != null) {
-        	properties.setProperty("hibernate.connection.password", System.getProperty("PARAM2"));
-        }		
-	}
+        if (System.getProperty("PARAM2") != null) {
+            properties.setProperty("hibernate.connection.password", System.getProperty("PARAM2"));
+        }
+    }
 
-	private boolean tryToLoadFrom(Properties properties, File file) {
+    private boolean tryToLoadFrom(Properties properties, File file) {
         try {
             logger.info("Trying to read properties from: " + file.getAbsolutePath());
             if (file.exists()) {
