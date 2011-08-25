@@ -153,18 +153,31 @@ public class AdminOrgUnitModelsView extends View {
 					ListStore<OrgUnitModelDTO> store, Grid<OrgUnitModelDTO> grid) {
 				
 				Button button = new Button(I18N.CONSTANTS.delete());
-		        button.setItemId(UIActions.delete);
+		        button.setItemId(UIActions.deleteModel);
+		        button.disable();
 		        button.addListener(Events.OnClick, new Listener<ButtonEvent>(){
 
 					@Override
 					public void handleEvent(ButtonEvent be) {
 						
 						//Do deletion
+						AdminModelActionListener listener = new AdminModelActionListener(
+								AdminOrgUnitModelsView.this,
+								dispatcher, false);
+						listener.setModelId(model.getId());
+						listener.setIsOrgUnit(true);
+						listener.setOrgUnit(model);
+						listener.onUIAction(UIActions.deleteModel);
 						
-						//Not implementation
+						
 					}		        	
 		        });		        		        
-				return button;				
+				
+		        //Only the OrgUnit model with status "Draft" can be deleted.
+		        if(model.getStatus().equals(ProjectModelStatus.DRAFT))
+		        	button.enable();
+		        
+		        return button;				
 			}	    	
 	    }); 
 	    configs.add(column); 

@@ -22,6 +22,7 @@ import org.sigmah.shared.dto.ProjectModelDTO;
 import org.sigmah.shared.dto.ProjectModelDTOLight;
 import org.sigmah.shared.dto.value.FileUploadUtils;
 
+import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FormEvent;
@@ -152,12 +153,15 @@ public class AdminModelActionListener implements ActionListener {
 	}
 	
 	/**
-	 * Method to try to delete a project model 
+	 * Method to try to delete a draft project model or a draft orgunit model
 	 * 
 	 * @author HUZHE(zhe.hu32@gmail.com)
 	 */
 	private void onDeleteModel() {
 		
+	  if(isProject)
+	  {//Delete draft project model
+		  
 		//If the status of the project model is not "Draft", can not be deleted
 		if(getProjectModel()==null || !ProjectModelStatus.DRAFT.equals(getProjectModel().getStatus()))
 		{
@@ -181,11 +185,45 @@ public class AdminModelActionListener implements ActionListener {
 		MessageBox deleteConfirmMsgBox = MessageBox.confirm(I18N.CONSTANTS.deleteConfirm(), I18N.CONSTANTS.deleteDraftProjectModelConfirm(), l);		
 		deleteConfirmMsgBox.show();
 		
+	  }
+	  else if(isOrgUnit)
+	  {//Delete draft OrgUnit model
+		  
+		 
+		  //Check the status of OrgUnit model to delete
+		  if(getOrgUnit()==null || !ProjectModelStatus.DRAFT.equals(getOrgUnit().getStatus()))
+		  {
+			 
+			  MessageBox.alert(I18N.CONSTANTS.deletionError(), I18N.CONSTANTS.deleteNotDraftOrgUnitModelError(), null);
+			  return;
+		  }
+		  
+		  //Show confirm window		
+			Listener<MessageBoxEvent> l=new Listener<MessageBoxEvent>() {
+				@Override
+				public void handleEvent(
+						MessageBoxEvent be) {
+					if (Dialog.YES.equals(be
+							.getButtonClicked()
+							.getItemId())) {
+						
+						deleteOrgUnitModel();
+					}
+				}
+			};
+			
+			MessageBox deleteConfirmMsgBox = MessageBox.confirm(I18N.CONSTANTS.deleteConfirm(), I18N.CONSTANTS.deleteDraftOrgUnitModelConfirm(), l);		
+			deleteConfirmMsgBox.show();
+		  
+		  
+	  }
 		
 	}
 
 	/**
 	 * RPC to execute the deletion of a project model
+	 * 
+	 * Note: Only "Draft" is allowed to delete
 	 * 
 	 * @author HUZHE(zhe.hu32@gmail.com)
 	 */
@@ -220,6 +258,50 @@ public class AdminModelActionListener implements ActionListener {
 			
 		});
 	}
+	
+	/**
+	 * RPC to execute the deletion of a OrgUnit model
+	 * 
+	 * Note: Only "Draft" is allowed to delete
+	 * 
+	 * @author HUZHE(zhe.hu32@gmail.com)	
+	 */
+	private void deleteOrgUnitModel()
+	{
+		
+		Log.debug("DeleteOrgUnitModel: Id is "+getOrgUnit().getId());
+		
+		Delete deleteCommand = new Delete("OrgUnitModel", getOrgUnit().getId());
+		deleteCommand.setProjectModelStatus(getOrgUnit().getStatus());
+		
+		dispatcher.execute(deleteCommand, null, new AsyncCallback<VoidResult>(){
+
+			@Override
+			public void onFailure(Throwable caught) {
+				
+				MessageBox.alert(I18N.CONSTANTS.deletionError(), I18N.MESSAGES.entityDeleteEventError(getOrgUnit().getName()), null);
+				
+			}
+
+			@Override
+			public void onSuccess(VoidResult result) {
+				
+				//Remove the project locally
+				((AdminOrgUnitModelsPresenter.View) view).getAdminModelsStore().remove(getOrgUnit());
+				((AdminOrgUnitModelsPresenter.View) view).getAdminModelsStore().commitChanges();
+
+				// Show notification.
+				Notification.show(I18N.CONSTANTS
+						.adminOrgUnitModelDelete(),
+						I18N.CONSTANTS
+								.adminOrgUnitModelDeleteDetail());
+			}
+			
+		});
+		
+			}
+	
+	
 	
 	/*protected void onDeleteConfirmed(final List<PrivacyGroupDTO> selection) {
 		

@@ -15,6 +15,7 @@ import org.sigmah.shared.command.Delete;
 import org.sigmah.shared.command.handler.CommandHandler;
 import org.sigmah.shared.command.result.CommandResult;
 import org.sigmah.shared.domain.Deleteable;
+import org.sigmah.shared.domain.OrgUnitModel;
 import org.sigmah.shared.domain.Phase;
 import org.sigmah.shared.domain.PhaseModel;
 import org.sigmah.shared.domain.Project;
@@ -22,6 +23,9 @@ import org.sigmah.shared.domain.ProjectModel;
 import org.sigmah.shared.domain.ProjectModelStatus;
 import org.sigmah.shared.domain.User;
 import org.sigmah.shared.domain.UserDatabase;
+import org.sigmah.shared.domain.element.QuestionElement;
+import org.sigmah.shared.domain.layout.LayoutConstraint;
+import org.sigmah.shared.domain.layout.LayoutGroup;
 import org.sigmah.shared.domain.report.ProjectReport;
 import org.sigmah.shared.domain.report.ProjectReportVersion;
 import org.sigmah.shared.domain.report.RichTextElement;
@@ -54,16 +58,20 @@ public class DeleteHandler implements CommandHandler<Delete> {
     		//Delete test project
     		Project entity = (Project)em.find(entityClass, cmd.getId());
     		deleteTestProject(entity);
-    	}else if(ProjectModelStatus.DRAFT.equals(cmd.getProjectModelStatus()))
+    	}else if(ProjectModelStatus.DRAFT.equals(cmd.getProjectModelStatus()) && "ProjectModel".equals(cmd.getEntityName()))
     	{   //Delete draft project model
     		ProjectModel projectModel =(ProjectModel)em.find(entityClass, new Long(cmd.getId()));
     		deleteDraftProjectModel(projectModel);
 
-    	}else if("PhaseModel".endsWith(cmd.getEntityName()))
+    	}else if("PhaseModel".equals(cmd.getEntityName()))
     	{
     		PhaseModel phaseModel = (PhaseModel)em.find(PhaseModel.class,new Long( cmd.getId()));
     		deletePhaseModel(phaseModel);
-    	}
+    	}else if(ProjectModelStatus.DRAFT.equals(cmd.getProjectModelStatus())&& "OrgUnitModel".equals(cmd.getEntityName()))
+    	{    //Delete draft OrgUnit model
+    		 OrgUnitModel orgUnitModel = (OrgUnitModel)em.find(OrgUnitModel.class, new Integer(cmd.getId()));
+    		 deleteDraftOrgUnitModel(orgUnitModel);
+    	}    
     
     	else{
             Deleteable entity = (Deleteable) em.find(entityClass, cmd.getId());
@@ -228,4 +236,82 @@ public class DeleteHandler implements CommandHandler<Delete> {
      em.flush();
 		
 	}
+
+
+    /**
+     * Delete a draft orgunit model
+     * 
+     * @param orgUnitModel
+     *  
+     *          orgUnit model to delete
+     */
+    private void deleteDraftOrgUnitModel(OrgUnitModel orgUnitModel)
+    {
+    	// -------STEP1: Delete all fields (FlexibleElement) in this model ----------
+    	
+    	  // OrgUnitModel --> Banner --> Layout --> Groups --> Constraints
+    	  if(orgUnitModel.getBanner()!=null && orgUnitModel.getBanner().getLayout()!=null)
+    	  {
+    		  List<LayoutGroup> bannerLayoutGroup = orgUnitModel.getBanner().getLayout().getGroups();
+    		  
+    		  if(bannerLayoutGroup!=null)
+    		  {
+    			  for(LayoutGroup layoutGroup : bannerLayoutGroup)
+    			  {
+    				  List<LayoutConstraint> layoutConstraints = layoutGroup
+						.getConstraints();
+    				  if(layoutConstraints!=null)
+    				  {
+    					  for(LayoutConstraint layoutConstraint :layoutConstraints)
+    					  {
+    						  if(layoutConstraint.getElement()!=null)
+    						  {				  
+    								  em.remove(layoutConstraint.getElement());
+    								  
+					  
+    						  }
+    					  }
+    				  }
+    			  }
+    		  }
+    		  
+    	  }
+    	  
+    	// OrgUnitModel --> Detail --> Layout --> Groups --> Constraints
+    	if(orgUnitModel.getDetails()!=null && orgUnitModel.getDetails().getLayout()!=null)
+    	{
+    		List<LayoutGroup>detailLayoutGroups  = orgUnitModel.getDetails().getLayout().getGroups();
+    		
+    		if(detailLayoutGroups!=null)
+    		{
+    			for(LayoutGroup detailLayoutGroup: detailLayoutGroups)
+    			{
+    			   			
+    			List<LayoutConstraint> layoutConstraints = detailLayoutGroup.getConstraints();
+    			 
+    			  if(layoutConstraints !=null)
+    			  {
+    				  for(LayoutConstraint layoutConstraint: layoutConstraints)
+    				  {
+    					  if(layoutConstraint.getElement()!=null)
+    					  {
+    						  em.remove(layoutConstraint.getElement());
+    					  }
+    				  }
+    			  }
+    			
+    			}
+    		}
+    	}
+    	
+    	  em.flush();
+    	
+    	// -------SETP1: Delete this model -------------------------------------------
+    	  
+    	  em.remove(orgUnitModel);
+    	  em.flush();
+    	
+    }
+
+
 }
