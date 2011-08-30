@@ -682,61 +682,9 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
                                 @Override
                                 public void selectionChanged(final SelectionChangedEvent<OrgUnitDTOLight> se) {
 
-                                    if (container instanceof ProjectDTO) {// If
-                                                                          // the
-                                                                          // container
-                                                                          // is
-                                                                          // a
-                                                                          // project,
-                                                                          // before
-                                                                          // changing
-                                                                          // the
-                                                                          // OrgUnit,
-                                                                          // should
-                                                                          // check
-                                                                          // if
-                                                                          // there
-                                                                          // are
-                                                                          // sites
-                                                                          // created
-                                                                          // for
-                                                                          // indicators.If
-                                                                          // there
-                                                                          // are
-                                                                          // some
-                                                                          // sites
-                                                                          // created
-                                                                          // for
-                                                                          // this
-                                                                          // project,
-                                                                          // should
-                                                                          // inform
-                                                                          // users
-                                                                          // the
-                                                                          // sites
-                                                                          // already
-                                                                          // created
-                                                                          // and
-                                                                          // the
-                                                                          // future
-                                                                          // sites
-                                                                          // will
-                                                                          // be
-                                                                          // also
-                                                                          // connected
-                                                                          // to
-                                                                          // the
-                                                                          // country
-                                                                          // of
-                                                                          // project
-                                                                          // not
-                                                                          // the
-                                                                          // country
-                                                                          // of
-                                                                          // the
-                                                                          // new
-                                                                          // OrgUnit
-
+                                    if (container instanceof ProjectDTO) {
+                                    	
+                                    	
                                         Log.debug("OrgUnit in project details.");
 
                                         final ProjectDTO currentProject = (ProjectDTO) container;
@@ -772,33 +720,8 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 
                                                 if (result != null && result.getSiteCount() > 0
                                                         && projectCountry != null && orgUnitCountry != null
-                                                        && projectCountry != orgUnitCountry) {// If
-                                                                                              // the
-                                                                                              // new
-                                                                                              // OrgUnit's
-                                                                                              // country
-                                                                                              // is
-                                                                                              // different
-                                                                                              // from
-                                                                                              // the
-                                                                                              // current
-                                                                                              // country
-                                                                                              // of
-                                                                                              // project
-                                                                                              // Inform
-                                                                                              // users
-                                                                                              // that
-                                                                                              // it
-                                                                                              // will
-                                                                                              // continue
-                                                                                              // use
-                                                                                              // the
-                                                                                              // country
-                                                                                              // of
-                                                                                              // project
-                                                                                              // not
-                                                                                              // new
-                                                                                              // OrgUnit's
+                                                        && projectCountry != orgUnitCountry) {// If the new OrgUnit's country different from the current country of project 
+                                                	                                          //inform users that it will continue use the country of project not new OrgUnit's
 
                                                     Log.debug("[getSitesCountCmd]-Site count is: "
                                                             + result.getSiteCount());
@@ -810,28 +733,26 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
                                                                 @Override
                                                                 public void handleEvent(MessageBoxEvent be) {
 
-                                                                    if (Dialog.NO.equals(be.getBoxComponent()
+                                                                
+                                                                	
+                                                                    if (Dialog.NO.equals(be.getButtonClicked()
                                                                             .getItemId())) {
-                                                                        // Rollback
-                                                                        // the
-                                                                        // value
-                                                                        Log.debug("Cancle changing OrgUnit.");
+                                                                        // Rollback the value
+              
                                                                         comboBox.setValue(orgUnitsStore.findModel("id",
                                                                                 currentProject.getOrgUnitId()));
-
+                                                                                                                                                                                                       
+                                                                         return;
+                                                                         
                                                                     } else {
+                                                                    	
+                                                                    	
+                                                                    	Log.debug("You choose the Yes to change !");
+                                                                    	
                                                                         String value = null;
                                                                         final boolean isValueOn;
 
-                                                                        // Checks
-                                                                        // if
-                                                                        // the
-                                                                        // choice
-                                                                        // isn't
-                                                                        // the
-                                                                        // default
-                                                                        // empty
-                                                                        // choice.
+                                                                        // Checks if the choice isn't the default empty choice.
                                                                         isValueOn = choice != null
                                                                                 && choice.getId() != -1;
 
@@ -840,10 +761,7 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
                                                                         }
 
                                                                         if (value != null) {
-                                                                            // Fires
-                                                                            // value
-                                                                            // change
-                                                                            // event.
+                                                                            // Fires value change event.
                                                                             handlerManager.fireEvent(new ValueEvent(
                                                                                     DefaultFlexibleElementDTO.this,
                                                                                     value));
@@ -947,44 +865,8 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
                         @Override
                         public void selectionChanged(final SelectionChangedEvent<OrgUnitDTOLight> se) {
 
-                            if (container instanceof ProjectDTO) {// If the
-                                                                  // container
-                                                                  // is a
-                                                                  // project,
-                                                                  // before
-                                                                  // changing
-                                                                  // the
-                                                                  // OrgUnit,
-                                                                  // should
-                                                                  // check if
-                                                                  // there are
-                                                                  // sites
-                                                                  // created for
-                                                                  // indicators.If
-                                                                  // there are
-                                                                  // some sites
-                                                                  // created for
-                                                                  // this
-                                                                  // project,
-                                                                  // should
-                                                                  // inform
-                                                                  // users
-                                                                  // the sites
-                                                                  // already
-                                                                  // created and
-                                                                  // the future
-                                                                  // sites will
-                                                                  // be also
-                                                                  // connected
-                                                                  // to the
-                                                                  // country of
-                                                                  // project not
-                                                                  // the country
-                                                                  // of the new
-                                                                  // OrgUnit
-
-                                Log.debug("OrgUnit in project details 2.");
-
+                            if (container instanceof ProjectDTO) {
+                            
                                 final ProjectDTO currentProject = (ProjectDTO) container;
 
                                 Filter filter = new Filter();
@@ -1012,37 +894,10 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 
                                         // New OrgUnit's country
                                         final CountryDTO orgUnitCountry = choice.getOfficeLocationCountry();
-
-                                        Log.debug("geting site result 2: " + result.getSiteCount());
+                                    
 
                                         if (result != null && result.getSiteCount() > 0 && projectCountry != null
-                                                && orgUnitCountry != null && projectCountry != orgUnitCountry) {// If
-                                                                                                                // the
-                                                                                                                // new
-                                                                                                                // OrgUnit's
-                                                                                                                // country
-                                                                                                                // is
-                                                                                                                // different
-                                                                                                                // from
-                                                                                                                // the
-                                                                                                                // current
-                                                                                                                // country
-                                                                                                                // of
-                                                                                                                // project
-                                                                                                                // Inform
-                                                                                                                // users
-                                                                                                                // that
-                                                                                                                // it
-                                                                                                                // will
-                                                                                                                // continue
-                                                                                                                // use
-                                                                                                                // the
-                                                                                                                // country
-                                                                                                                // of
-                                                                                                                // project
-                                                                                                                // not
-                                                                                                                // new
-                                                                                                                // OrgUnit's
+                                                && orgUnitCountry != null && projectCountry != orgUnitCountry) {
 
                                             MessageBox.confirm(I18N.CONSTANTS.changeOrgUnit(),
                                                     I18N.CONSTANTS.changeOrgUnitDetails(),
@@ -1051,12 +906,12 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
                                                         @Override
                                                         public void handleEvent(MessageBoxEvent be) {
 
-                                                            if (Dialog.NO.equals(be.getBoxComponent().getItemId())) {
+                                                            if (Dialog.NO.equals(be.getButtonClicked().getItemId())) {
                                                                 // Rollback the
                                                                 // value
-                                                                Log.debug("Cancle changing OrgUnit.");
                                                                 comboBox.setValue(orgUnitsStore.findModel("id",
                                                                         currentProject.getOrgUnitId()));
+                                                                return;
 
                                                             } else {
                                                                 String value = null;
