@@ -806,15 +806,20 @@ public class ElementForm extends ContentPanel {
 		String send = "";
 		if (htmlArea.getValue() != null && !htmlArea.getValue().isEmpty() ) {
 			 String a = htmlArea.getValue();
-			 
-			 if(a != null && !a.isEmpty()){
-				 String[] e = a.split("[^\\p{Punct}\\p{L}\\w\\s]");
-				 for(String e1 : e){			 
-					 send = send + e1;
-				 }
-				 //Log.debug("Sending originally " + a);
+		    			 			 
+			 if(a.endsWith("<br>"))
+			 {
+				//Log.debug("The name ends with br: "+a);
+				 send=a.substring(0, a.length()-4);			 }
+			 else
+			 { 
+				//Log.debug("The name ends without br: "+a);
+				 send =a;
 			 }
+			 
 		}
+		
+		
 		 if (!commonPanel.isValid() || htmlArea.getValue() != null && htmlArea.getValue().isEmpty() 
 				 || "".equals(send) ) {
 	            MessageBox.alert(I18N.CONSTANTS.createFormIncomplete(),
@@ -822,9 +827,11 @@ public class ElementForm extends ContentPanel {
 	            return;
 		 }
 		 
-		 final String name = send;
-		 //Log.debug("Sending final " + name);
+		final String name = send;
 		 
+		 
+		// Log.debug("Sending final " + name);
+			 
 		 String type = null;
 		 if(typeList.getSimpleValue() != null)
 			 type = typeList.getSimpleValue();
