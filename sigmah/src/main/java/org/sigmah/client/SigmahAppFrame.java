@@ -5,6 +5,8 @@
 
 package org.sigmah.client;
 
+import java.util.Date;
+
 import org.sigmah.client.cache.UserLocalCache;
 import org.sigmah.client.dispatch.AsyncMonitor;
 import org.sigmah.client.dispatch.Dispatcher;
@@ -32,18 +34,22 @@ import org.sigmah.client.ui.Tab;
 import org.sigmah.client.ui.TabBar;
 import org.sigmah.client.ui.TabModel;
 import org.sigmah.shared.command.GetApplicationInfo;
+import org.sigmah.shared.command.GetHostServerInfo;
 import org.sigmah.shared.command.result.ApplicationInfo;
+import org.sigmah.shared.command.result.HostServerInfo;
 import org.sigmah.shared.dto.OrganizationDTO;
 import org.sigmah.shared.dto.value.FileUploadUtils;
 
 import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.gears.client.Factory;
 import com.google.gwt.http.client.URL;
+import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.Dictionary;
 import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.Window;
@@ -60,247 +66,302 @@ import com.google.inject.Inject;
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
 public class SigmahAppFrame implements Frame {
-    public static final int HEADER_DEFAULT_HEIGHT = 90;
+	public static final int HEADER_DEFAULT_HEIGHT = 90;
 
-    private Page activePage;
+	private Page activePage;
 
-    private SigmahViewport view;
+	private SigmahViewport view;
 
-    private PageState activePageState;
+	private PageState activePageState;
 
-    @Inject
-    public SigmahAppFrame(EventBus eventBus, final Authentication auth, final TabModel tabModel,
-            final Dispatcher dispatcher, final UserLocalCache cache, final OnlineMode onlineMode) {
+	@Inject
+	public SigmahAppFrame(EventBus eventBus, final Authentication auth,
+			final TabModel tabModel, final Dispatcher dispatcher,
+			final UserLocalCache cache, final OnlineMode onlineMode) {
 
-        if (auth == null) {
-            RootPanel.get().add(new LoginView());
-            RootPanel.get("loading").getElement().removeFromParent();
+		if (auth == null) {
+			RootPanel.get().add(new LoginView());
+			RootPanel.get("loading").getElement().removeFromParent();
 
-        } else {
+		} else {
 
-            // Init cache first.
-            cache.init();
+			// Init cache first.
+			cache.init();
 
-            // The user is already logged in
-            RootPanel.get("username").add(new Label(auth.getEmail()));
+			// The user is already logged in
+			RootPanel.get("username").add(new Label(auth.getEmail()));
+			
+			final Anchor reportButton = new Anchor(I18N.CONSTANTS.bugReport());			
+								
+			dispatcher.execute(new GetHostServerInfo(), null, new AsyncCallback<HostServerInfo>(){
 
-            final Anchor reportButton = new Anchor(I18N.CONSTANTS.bugReport());
-            configureReportAnchor(reportButton);
-            RootPanel.get("bugreport").add(reportButton);
+						@Override
+						public void onFailure(Throwable caught) {
+							//Do nothing
+							
+						}
 
-            final Anchor helpButton = new Anchor(I18N.CONSTANTS.help());
-            helpButton.addClickHandler(new ClickHandler() {
+						@Override
+						public void onSuccess(HostServerInfo result) {							
+							
+							configureReportAnchor(reportButton,auth,result.getHostUrl());
+							
+						}
+						
+			});
+					
+						
+			RootPanel.get("bugreport").add(reportButton);
+		
 
-                @Override
-                public void onClick(ClickEvent event) {
-                    SigmahHelpWindow.show(activePageState);
-                }
-            });
-            RootPanel.get("help").add(helpButton);
+			final Anchor helpButton = new Anchor(I18N.CONSTANTS.help());
+			helpButton.addClickHandler(new ClickHandler() {
 
-            // Logout action
-            final Anchor logoutButton = new Anchor(I18N.CONSTANTS.logout());
-            logoutButton.addClickHandler(new ClickHandler() {
-                @Override
-                public void onClick(ClickEvent event) {
-                    Cookies.removeCookie(org.sigmah.shared.Cookies.AUTH_TOKEN_COOKIE, "/");
-                    Window.Location.reload();
-                }
-            });
-            if (RootPanel.get("logout") != null) {
-                RootPanel.get("logout").add(logoutButton);
-            }
+				@Override
+				public void onClick(ClickEvent event) {
+					SigmahHelpWindow.show(activePageState);
+				}
+			});
+			RootPanel.get("help").add(helpButton);
 
-            // Offline
-            if (dispatcher instanceof DispatchOperator && Factory.getInstance() != null)
-                RootPanel.get("offline-status").add(
-                        OfflineLabelFactory.getLabel((DispatchOperator) dispatcher, onlineMode));
+			// Logout action
+			final Anchor logoutButton = new Anchor(I18N.CONSTANTS.logout());
+			logoutButton.addClickHandler(new ClickHandler() {
+				@Override
+				public void onClick(ClickEvent event) {
+					Cookies.removeCookie(
+							org.sigmah.shared.Cookies.AUTH_TOKEN_COOKIE, "/");
+					Window.Location.reload();
+				}
+			});
+			if (RootPanel.get("logout") != null) {
+				RootPanel.get("logout").add(logoutButton);
+			}
 
-            // Credit
-            final Anchor creditButton = new Anchor(I18N.CONSTANTS.credits());
-            creditButton.addClickHandler(new ClickHandler() {
+			// Offline
+			if (dispatcher instanceof DispatchOperator
+					&& Factory.getInstance() != null)
+				RootPanel.get("offline-status").add(
+						OfflineLabelFactory.getLabel(
+								(DispatchOperator) dispatcher, onlineMode));
 
-                boolean initalized = false;
+			// Credit
+			final Anchor creditButton = new Anchor(I18N.CONSTANTS.credits());
+			creditButton.addClickHandler(new ClickHandler() {
 
-                @Override
-                public void onClick(ClickEvent event) {
+				boolean initalized = false;
 
-                    if (initalized) {
-                        CreditFrame.show();
-                    } else {
-                        dispatcher.execute(new GetApplicationInfo(), null, new AsyncCallback<ApplicationInfo>() {
+				@Override
+				public void onClick(ClickEvent event) {
 
-                            @Override
-                            public void onFailure(Throwable caught) {
-                                // nothing.
-                            }
+					if (initalized) {
+						CreditFrame.show();
+					} else {
+						dispatcher.execute(new GetApplicationInfo(), null,
+								new AsyncCallback<ApplicationInfo>() {
 
-                            @Override
-                            public void onSuccess(ApplicationInfo result) {
-                                CreditFrame.init(result);
-                                CreditFrame.show();
-                            }
-                        });
-                    }
-                }
-            });
+									@Override
+									public void onFailure(Throwable caught) {
+										// nothing.
+									}
 
-            if (RootPanel.get("credit") != null) {
-                RootPanel.get("credit").add(creditButton);
-            }
+									@Override
+									public void onSuccess(ApplicationInfo result) {
+										CreditFrame.init(result);
+										CreditFrame.show();
+									}
+								});
+					}
+				}
+			});
 
-            // Tab bar
-            final TabBar tabBar = new TabBar(tabModel, eventBus);
-            activePageState = new DashboardPageState();
-            final Tab dashboardTab = tabModel.add(I18N.CONSTANTS.dashboard(), activePageState, false);
-            tabBar.addTabStyleName(tabModel.indexOf(dashboardTab), "home");
+			if (RootPanel.get("credit") != null) {
+				RootPanel.get("credit").add(creditButton);
+			}
 
-            final RootPanel tabs = RootPanel.get("tabs");
-            tabs.add(tabBar);
+			// Tab bar
+			final TabBar tabBar = new TabBar(tabModel, eventBus);
+			activePageState = new DashboardPageState();
+			final Tab dashboardTab = tabModel.add(I18N.CONSTANTS.dashboard(),
+					activePageState, false);
+			tabBar.addTabStyleName(tabModel.indexOf(dashboardTab), "home");
 
-            eventBus.addListener(NavigationHandler.NavigationAgreed, new Listener<NavigationEvent>() {
-                @Override
-                public void handleEvent(NavigationEvent be) {
-                    final PageState state = be.getPlace();
-                    activePageState = state;
-                    final String title;
-                    if (state instanceof TabPage)
-                        title = ((TabPage) state).getTabTitle();
-                    else
-                        title = I18N.CONSTANTS.title();
+			final RootPanel tabs = RootPanel.get("tabs");
+			tabs.add(tabBar);
 
-                    final Tab tab = tabModel.add(title, be.getPlace(), true);
+			eventBus.addListener(NavigationHandler.NavigationAgreed,
+					new Listener<NavigationEvent>() {
+						@Override
+						public void handleEvent(NavigationEvent be) {
+							final PageState state = be.getPlace();
+							activePageState = state;
+							final String title;
+							if (state instanceof TabPage)
+								title = ((TabPage) state).getTabTitle();
+							else
+								title = I18N.CONSTANTS.title();
 
-                    if (state instanceof HasTab)
-                        ((HasTab) state).setTab(tab);
-                }
-            });
+							final Tab tab = tabModel.add(title, be.getPlace(),
+									true);
 
-            int clutterHeight = getDecorationHeight(HEADER_DEFAULT_HEIGHT);
+							if (state instanceof HasTab)
+								((HasTab) state).setTab(tab);
+						}
+					});
 
-            // Configure Ext-GWT viewport
-            this.view = new SigmahViewport(0, clutterHeight);
-            this.view.setLayout(new FitLayout());
-            this.view.syncSize();
-            this.view.setBorders(true);
+			int clutterHeight = getDecorationHeight(HEADER_DEFAULT_HEIGHT);
 
-            RootPanel.get("content").add(this.view);
+			// Configure Ext-GWT viewport
+			this.view = new SigmahViewport(0, clutterHeight);
+			this.view.setLayout(new FitLayout());
+			this.view.syncSize();
+			this.view.setBorders(true);
 
-            cache.getOrganizationCache().getOrganization(new AsyncCallback<OrganizationDTO>() {
+			RootPanel.get("content").add(this.view);
 
-                @Override
-                public void onSuccess(OrganizationDTO result) {
+			cache.getOrganizationCache().getOrganization(
+					new AsyncCallback<OrganizationDTO>() {
 
-                    if (result != null) {
-                        // Sets organization parameters.
-                        RootPanel.get("orgname").getElement().setInnerHTML(result.getName().toUpperCase());
-                        RootPanel
-                                .get("orglogo")
-                                .getElement()
-                                .setAttribute(
-                                        "style",
-                                        "background-image: url(" + GWT.getModuleBaseURL() + "image-provider?"
-                                                + FileUploadUtils.IMAGE_URL + "=" + result.getLogo() + ")");
-                    }
-                }
+						@Override
+						public void onSuccess(OrganizationDTO result) {
 
-                @Override
-                public void onFailure(Throwable e) {
-                    Log.error("[execute] Error while getting the organization for user #id " + auth.getUserId() + ".",
-                            e);
-                }
-            });
-        }
-    }
+							if (result != null) {
+								// Sets organization parameters.
+								RootPanel
+										.get("orgname")
+										.getElement()
+										.setInnerHTML(
+												result.getName().toUpperCase());
+								RootPanel
+										.get("orglogo")
+										.getElement()
+										.setAttribute(
+												"style",
+												"background-image: url("
+														+ GWT.getModuleBaseURL()
+														+ "image-provider?"
+														+ FileUploadUtils.IMAGE_URL
+														+ "="
+														+ result.getLogo()
+														+ ")");
+							}
+						}
 
-    private native int getDecorationHeight(int defaultHeight) /*-{
-                                                              var height = 0;
+						@Override
+						public void onFailure(Throwable e) {
+							Log.error(
+									"[execute] Error while getting the organization for user #id "
+											+ auth.getUserId() + ".", e);
+						}
+					});
+		}
+	}
 
-                                                              if(!$wnd.document.getElementsByClassName && !$wnd.getComputedStyle)
-                                                              return defaultHeight;
+	private native int getDecorationHeight(int defaultHeight) /*-{
+																var height = 0;
 
-                                                              var elements = $wnd.document.getElementsByClassName("decoration");
-                                                              for(var index = 0; index < elements.length; index++) {
-                                                              var style = $wnd.getComputedStyle(elements[index], null);
-                                                              height += parseInt(style.height) +
-                                                              parseInt(style.borderTopWidth) +
-                                                              parseInt(style.borderBottomWidth) +
-                                                              parseInt(style.marginTop) +
-                                                              parseInt(style.marginBottom) +
-                                                              parseInt(style.paddingTop) +
-                                                              parseInt(style.paddingBottom);
-                                                              }
+																if(!$wnd.document.getElementsByClassName && !$wnd.getComputedStyle)
+																return defaultHeight;
 
-                                                              return height;
-                                                              }-*/;
+																var elements = $wnd.document.getElementsByClassName("decoration");
+																for(var index = 0; index < elements.length; index++) {
+																var style = $wnd.getComputedStyle(elements[index], null);
+																height += parseInt(style.height) +
+																parseInt(style.borderTopWidth) +
+																parseInt(style.borderBottomWidth) +
+																parseInt(style.marginTop) +
+																parseInt(style.marginBottom) +
+																parseInt(style.paddingTop) +
+																parseInt(style.paddingBottom);
+																}
 
-    private void configureReportAnchor(final Anchor reportButton) {
+																return height;
+																}-*/;
 
-        final String versionNumber = Dictionary.getDictionary(SigmahAuthProvider.DICTIONARY_NAME).get(
-                SigmahAuthProvider.VERSION_NUMBER);
+	private void configureReportAnchor(final Anchor reportButton,
+			final Authentication auth, String hostUrl) {
 
-        final StringBuilder hrefBuilder = new StringBuilder("mailto:");
-        hrefBuilder.append(I18N.CONSTANTS.bugReportSupportAddress()).append("?subject=")
-                .append(URL.encodeComponent(I18N.CONSTANTS.bugReportMailObject(), false)).append("&body=")
-                .append(URL.encodeComponent(I18N.MESSAGES.bugReportBody(getUserAgent(), versionNumber), false));
+		final String versionNumber = Dictionary.getDictionary(
+				SigmahAuthProvider.DICTIONARY_NAME).get(
+				SigmahAuthProvider.VERSION_NUMBER);
 
-        reportButton.setHref(hrefBuilder.toString());
-    }
+		// The current date
+		Date now = new Date();
+		DateTimeFormat dtf = DateTimeFormat.getFormat("dd-MM-yyyy");
+		final String dateString = dtf.format(now);
 
-    private native String getUserAgent() /*-{
-                                         return navigator.userAgent;
-                                         }-*/;
+		String subject = I18N.MESSAGES.bugReportMailObject(auth.getEmail(),
+				hostUrl, dateString);
 
-    @Override
-    public void setActivePage(Page page) {
-        final Widget widget = (Widget) page.getWidget();
-        view.removeAll();
-        view.add(widget);
-        view.layout();
+		final StringBuilder hrefBuilder = new StringBuilder("mailto:");
+		hrefBuilder
+				.append(I18N.CONSTANTS.bugReportSupportAddress())
+				.append("?subject=")
+				.append(URL.encodeComponent(subject, false))
+				.append("&body=")
+				.append(URL.encodeComponent(I18N.MESSAGES.bugReportBody(
+						getUserAgent(), versionNumber), false));
 
-        activePage = page;
-    }
+		reportButton.setHref(hrefBuilder.toString());
 
-    @Override
-    public Page getActivePage() {
-        return activePage;
-    }
+	}
 
-    @Override
-    public AsyncMonitor showLoadingPlaceHolder(PageId pageId, PageState loadingPlace) {
-        activePage = null;
-        LoadingPlaceHolder placeHolder = new LoadingPlaceHolder();
-        return placeHolder;
-    }
+	private native String getUserAgent() /*-{
+											return navigator.userAgent;
+											}-*/;
 
-    @Override
-    public PageId getPageId() {
-        return null;
-    }
+	@Override
+	public void setActivePage(Page page) {
+		final Widget widget = (Widget) page.getWidget();
+		view.removeAll();
+		view.add(widget);
+		view.layout();
 
-    @Override
-    public Object getWidget() {
-        return view;
-    }
+		activePage = page;
+	}
 
-    @Override
-    public void requestToNavigateAway(PageState place, NavigationCallback callback) {
-        callback.onDecided(true);
-    }
+	@Override
+	public Page getActivePage() {
+		return activePage;
+	}
 
-    @Override
-    public String beforeWindowCloses() {
-        return null;
-    }
+	@Override
+	public AsyncMonitor showLoadingPlaceHolder(PageId pageId,
+			PageState loadingPlace) {
+		activePage = null;
+		LoadingPlaceHolder placeHolder = new LoadingPlaceHolder();
+		return placeHolder;
+	}
 
-    @Override
-    public boolean navigate(PageState place) {
-        return true;
-    }
+	@Override
+	public PageId getPageId() {
+		return null;
+	}
 
-    @Override
-    public void shutdown() {
+	@Override
+	public Object getWidget() {
+		return view;
+	}
 
-    }
+	@Override
+	public void requestToNavigateAway(PageState place,
+			NavigationCallback callback) {
+		callback.onDecided(true);
+	}
+
+	@Override
+	public String beforeWindowCloses() {
+		return null;
+	}
+
+	@Override
+	public boolean navigate(PageState place) {
+		return true;
+	}
+
+	@Override
+	public void shutdown() {
+
+	}
 
 }

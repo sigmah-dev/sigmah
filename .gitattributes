@@ -1567,6 +1567,7 @@ sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetCategoriesHand
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetCountriesHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetCountryHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetHistoryHandler.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetHostServerInfoHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetIndicatorDataSourcesHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetIndicatorsHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetInvitationListHandler.java -text
@@ -1816,6 +1817,7 @@ sigmah/src/main/java/org/sigmah/shared/command/GetCategories.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetCountries.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetCountry.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetHistory.java -text
+sigmah/src/main/java/org/sigmah/shared/command/GetHostServerInfo.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetIndicatorDataSources.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetIndicators.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetInvitationList.java -text
@@ -1897,6 +1899,7 @@ sigmah/src/main/java/org/sigmah/shared/command/result/CommandResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/CountryResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/CreateResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/HistoryResult.java -text
+sigmah/src/main/java/org/sigmah/shared/command/result/HostServerInfo.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/HtmlResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/IndicatorDataSourceList.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/IndicatorListResult.java -text

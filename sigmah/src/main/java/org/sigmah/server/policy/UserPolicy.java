@@ -42,10 +42,10 @@ public class UserPolicy implements EntityPolicy<User> {
 	private final Mailer<Invitation> inviteMailer;
 	private static final Log log = LogFactory.getLog(UserPolicy.class);
 	
-    //The key for reading the host url value from sigmah.properties 
-    final public static String KEY_HOST_URL= "newUserConfirm.host.url";
+    //The key for reading the host url value from src/main/resources/sigmah.properties 
+    final public static String KEY_HOST_URL= "host.url";
     
-    //The default value if the key above does not exist in sigmah.properties
+    //The default value if the key above does not exist in src/main/resources/sigmah.properties
     final public static String DEFAULT_HOST_URL= "http://www.sigmah.org";
     
     private final Properties properties;
