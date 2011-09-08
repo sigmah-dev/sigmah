@@ -285,13 +285,17 @@ public class ModelUtil {
 				}
 				
 			}else if(ElementTypeEnum.QUESTION.equals(type) || (ElementTypeEnum.QUESTION.equals(oldType) && type == null)){
+								
+				
 				QuestionElement questionElement = em.find(QuestionElement.class, flexibleElt.getId());
 				if(questionElement != null){
+														
 					if(isMultiple != null){
 						((QuestionElement)flexibleElt).setIsMultiple(isMultiple);
 						specificChanges = true;
 					}
 					if(category != null){
+																	
 						for(QuestionChoiceElement choiceElt : ((QuestionElement)flexibleElt).getChoices()){
 							em.remove(choiceElt);
 						}
@@ -312,7 +316,8 @@ public class ModelUtil {
 							((QuestionElement)flexibleElt).setChoices(choices);							
 							specificChanges = true;
 						}						
-					}else if(qChoices != null){
+					}else if(qChoices != null && qChoices.size()>0){
+																
 						for(QuestionChoiceElement choiceElt : ((QuestionElement)flexibleElt).getChoices()){
 							em.remove(choiceElt);
 						}
@@ -329,7 +334,7 @@ public class ModelUtil {
 						((QuestionElement)flexibleElt).setChoices(choices);
 						specificChanges = true;
 					}
-					
+										
 					if(specificChanges){
 						flexibleElt = em.merge((QuestionElement)flexibleElt);						
 					}						
