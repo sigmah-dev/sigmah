@@ -365,7 +365,20 @@ public class ModelUtil {
 	
 	private static void changeOldType(EntityManager em, ElementTypeEnum type, FlexibleElement flexibleElement){			
 		String oldflexTable = retrieveTable(ElementTypeEnum.getClassName(type));
+		
+		
 		if(oldflexTable != null){
+			
+			//If it is a question element, should delete the child choices
+			if(oldflexTable.equals("question_element"))
+			{
+				em.createNativeQuery("Delete from "+ "question_choice_element"  + " where " +
+			            "id_question = :flexId")
+			            .setParameter("flexId", flexibleElement.getId())
+			            .executeUpdate();
+			}
+						
+			
 			em.createNativeQuery("Delete from "+ oldflexTable  + " where " +
             "id_flexible_element = :flexId")
             .setParameter("flexId", flexibleElement.getId())
