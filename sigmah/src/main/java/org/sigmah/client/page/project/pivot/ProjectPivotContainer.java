@@ -486,7 +486,24 @@ public class ProjectPivotContainer extends ContentPanel implements ProjectSubPre
 
 
 	private void onDefaultCheck(FieldEvent event) {
-		if(defaultViewCheckBox.getValue()) {
+	
+		final boolean newValue = defaultViewCheckBox.getValue();
+		
+		MessageBox.confirm(I18N.CONSTANTS.defaultView(), I18N.CONSTANTS.confirmDefaultViewChange(), new Listener<MessageBoxEvent>() {
+			
+			@Override
+			public void handleEvent(MessageBoxEvent be) {
+				if(be.getButtonClicked().getItemId().equals("yes")) {
+					persistDefaultView(newValue);
+				} else {
+					defaultViewCheckBox.setValue(!newValue);
+				}
+			}
+		});
+	}
+
+	private void persistDefaultView(boolean newValue) {
+		if(newValue) {
 			stateManager.set(defaultPivotStateKey(), currentLayout.serialize());
 			Info.display(I18N.CONSTANTS.saved(), I18N.CONSTANTS.defaultViewChanged());
 		} else {
@@ -508,7 +525,7 @@ public class ProjectPivotContainer extends ContentPanel implements ProjectSubPre
 			@Override
 			public void onFailure(Throwable caught) {
 				gridPanel.clear();
-				MessageBox.alert("Pivot", "Pivot failed: " + caught.getMessage(), null);
+				Log.debug("Pivot failed", caught);
 			}
 
 			@Override

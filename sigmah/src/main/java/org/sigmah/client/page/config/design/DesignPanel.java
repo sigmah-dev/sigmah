@@ -358,6 +358,7 @@ public class DesignPanel extends DesignPanelBase implements ActionListener {
                         dialog.hide();
                         treeStore.add(parent, newIndicator, false);
                         eventBus.fireEvent(new IndicatorEvent(IndicatorEvent.CHANGED, DesignPanel.this));
+                        doLoad();
                     }
                 });
 			}
