@@ -473,9 +473,10 @@ public class ProjectsListPanel {
                     	
                     	//Get the project's id
                     	int projectId = model.getId();
-                		if(projectId<0)
-                			projectId = model.get("pid");
-                    	
+                		if(projectId<0) {
+                			projectId = (Integer) model.get("pid");
+                		}
+                		
                     	
                     	if(isFavoriteProject(authentication.getUserId(),model))
                     	{//Remove the favorite user from project favorite user list
