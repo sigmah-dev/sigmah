@@ -82,9 +82,7 @@ public final class ProjectDTO extends BaseModelData implements EntityDTO, Defaul
 
     @Override
     public String toString() {
-        return "ProjectDTO id:" + getId() + ", name:" + getName() + ", projectModelDTO: " + getProjectModelDTO()
-                + ", owner:" + getOwnerName() + ", phaseDTO:" + getPhasesDTO() + ", valueDTO:" + getValuesDTO()
-                + ", currentPhaseDTO:" + getCurrentPhaseDTO();
+        return "ProjectDTO " + getProperties().toString();
     }
 
     @Override
