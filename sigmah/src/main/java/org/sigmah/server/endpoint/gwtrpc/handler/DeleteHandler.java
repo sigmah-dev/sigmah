@@ -5,6 +5,7 @@
 
 package org.sigmah.server.endpoint.gwtrpc.handler;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -30,6 +31,7 @@ import org.sigmah.shared.domain.report.ProjectReport;
 import org.sigmah.shared.domain.report.ProjectReportVersion;
 import org.sigmah.shared.domain.report.RichTextElement;
 import org.sigmah.shared.domain.value.Value;
+import org.sigmah.shared.domain.element.FlexibleElement;
 
 import com.google.inject.Inject;
 
@@ -247,7 +249,9 @@ public class DeleteHandler implements CommandHandler<Delete> {
      */
     private void deleteDraftOrgUnitModel(OrgUnitModel orgUnitModel)
     {
-    	// -------STEP1: Delete all fields (FlexibleElement) in this model ----------
+    	// -------STEP1: Get all fields (FlexibleElement) in this model ----------
+    	
+    	 List<FlexibleElement> elements = new ArrayList<FlexibleElement>();
     	
     	  // OrgUnitModel --> Banner --> Layout --> Groups --> Constraints
     	  if(orgUnitModel.getBanner()!=null && orgUnitModel.getBanner().getLayout()!=null)
@@ -266,9 +270,9 @@ public class DeleteHandler implements CommandHandler<Delete> {
     					  {
     						  if(layoutConstraint.getElement()!=null)
     						  {				  
-    								  em.remove(layoutConstraint.getElement());
-    								  
-					  
+    							
+    							  elements.add(layoutConstraint.getElement());
+					            
     						  }
     					  }
     				  }
@@ -295,7 +299,7 @@ public class DeleteHandler implements CommandHandler<Delete> {
     				  {
     					  if(layoutConstraint.getElement()!=null)
     					  {
-    						  em.remove(layoutConstraint.getElement());
+    						  elements.add(layoutConstraint.getElement());
     					  }
     				  }
     			  }
@@ -304,12 +308,19 @@ public class DeleteHandler implements CommandHandler<Delete> {
     		}
     	}
     	
-    	  em.flush();
-    	
-    	// -------SETP1: Delete this model -------------------------------------------
+             	
+    	// -------SETP2: Delete this model -----------------------------------------------------
     	  
-    	  em.remove(orgUnitModel);
-    	  em.flush();
+    	em.remove(orgUnitModel);
+    	
+    	// -------SETP3: Delete all flexible elements-------------------------------------------
+    	for(FlexibleElement e:elements)
+    	{
+    		em.remove(e);
+    	}
+    	
+    	//update
+    	em.flush();
     	
     }
 
