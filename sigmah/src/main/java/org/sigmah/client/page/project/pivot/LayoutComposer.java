@@ -74,7 +74,7 @@ public class LayoutComposer {
 		PivotTableElement pivot = new PivotTableElement();
 		pivot.setShowEmptyCells(true);
 
-		pivot.addRowDimension(new Dimension(DimensionType.IndicatorCategory));
+		pivot.addRowDimension(new Dimension(DimensionType.Activity));
 		pivot.addRowDimension(new Dimension(DimensionType.Indicator));
 		
 		pivot.addColDimension(new DateDimension(DateUnit.YEAR));
@@ -97,11 +97,11 @@ public class LayoutComposer {
 			pivot.addColDimensions(adminDimensions);
 			pivot.addColDimension(new Dimension(DimensionType.Site));	
 
-			pivot.addRowDimension(new Dimension(DimensionType.IndicatorCategory));
+			pivot.addRowDimension(new Dimension(DimensionType.Activity));
 			pivot.addRowDimension(new Dimension(DimensionType.Indicator));
 			
 		} else {
-			pivot.addColDimension(new Dimension(DimensionType.IndicatorCategory));
+			pivot.addColDimension(new Dimension(DimensionType.Activity));
 			pivot.addColDimension(new Dimension(DimensionType.Indicator));
 			
 			pivot.addRowDimensions(adminDimensions);

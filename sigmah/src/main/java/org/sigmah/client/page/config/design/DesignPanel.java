@@ -8,6 +8,7 @@ package org.sigmah.client.page.config.design;
 import com.extjs.gxt.ui.client.Style;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.data.ModelData;
+import com.extjs.gxt.ui.client.data.ModelKeyProvider;
 import com.extjs.gxt.ui.client.data.TreeModel;
 import com.extjs.gxt.ui.client.dnd.DND;
 import com.extjs.gxt.ui.client.dnd.TreeGridDragSource;
@@ -66,6 +67,16 @@ public class DesignPanel extends DesignPanelBase implements ActionListener {
 	public DesignPanel(EventBus eventBus, Dispatcher dispatcher, Provider<IndicatorDialog> indicatorDialog) {
 		super(eventBus, dispatcher);
 		treeStore = new TreeStore<ModelData>();
+		treeStore.setKeyProvider(new ModelKeyProvider<ModelData>() {
+			@Override
+			public String getKey(ModelData model) {
+				if(model instanceof IndicatorGroup) {
+					return "group" + model.get("id");
+				} else {
+					return "i" + model.get("id");
+				}
+			}
+		});
 		this.indicatorDialog = indicatorDialog;
 
 		DesignPanelResources.INSTANCE.css().ensureInjected();
@@ -197,7 +208,6 @@ public class DesignPanel extends DesignPanelBase implements ActionListener {
 
 	
 	
-	
 	@Override
 	public void onUIAction(String actionId) {
 		if(UIActions.save.equals(actionId)) {
@@ -217,10 +227,6 @@ public class DesignPanel extends DesignPanelBase implements ActionListener {
 		}
 	}
 
-
-
-
-
 	@Override
 	protected void onNodeDropped(ModelData source) {
 		// update sortOrder
@@ -228,7 +234,7 @@ public class DesignPanel extends DesignPanelBase implements ActionListener {
 		if(source instanceof IndicatorDTO && newParent instanceof IndicatorGroup) {
 			IndicatorDTO indicator = (IndicatorDTO) source;
 			IndicatorGroup group = (IndicatorGroup) newParent;
-			treeStore.getRecord(indicator).set("category", group.getName());
+			treeStore.getRecord(indicator).set("groupId", group.getId());
 		}
 		renumberRecursively(treeStore.getRootItems(), 1);
 	}
@@ -281,23 +287,17 @@ public class DesignPanel extends DesignPanelBase implements ActionListener {
 			@Override
 			public void onSuccess(IndicatorListResult result) {
 				treeStore.removeAll();
+				if(!result.getUngroupedIndicators().isEmpty()) {
+					treeStore.add((List)result.getUngroupedIndicators(), false);
+				}
 				
-				Map<String, TreeModel> groupNodes = new HashMap<String, TreeModel>();
-				for(IndicatorDTO indicator : result.getData()) {
-										
-					if(indicator.getCategory() != null) {
-						TreeModel groupNode = groupNodes.get(indicator.getCategory());
-						if(groupNode == null) {
-							groupNode = new IndicatorGroup();
-							groupNode.set("name", indicator.getCategory());
-							treeStore.add(groupNode, false);
-							groupNodes.put(indicator.getCategory(), groupNode);
-						} 
-						treeStore.add(groupNode, indicator, false);
-					} else {
-						treeStore.add(indicator, false);
+				for(IndicatorGroup group : result.getGroups()) {
+					treeStore.add(group, false);
+					for(IndicatorDTO indicator : group.getIndicators()) {
+						treeStore.add(group, indicator, false);
 					}
 				}
+				
 				onLoaded();
 			}
 
@@ -335,7 +335,6 @@ public class DesignPanel extends DesignPanelBase implements ActionListener {
 		final IndicatorForm form = new IndicatorForm(service);
 		form.getBinding().bind(newIndicator);
 		form.setIdVisible(false);
-		form.setCategoryVisible(false);
 				
 		final FormDialogImpl<IndicatorForm> dialog = new FormDialogImpl<IndicatorForm>(form);
 		dialog.setHeading(I18N.CONSTANTS.newIndicator());
@@ -392,8 +391,20 @@ public class DesignPanel extends DesignPanelBase implements ActionListener {
 
 			@Override
 			public void onValidated() {
-				dialog.hide();
-				treeStore.add(group, false);
+			
+				service.execute(CreateEntity.IndicatorGroup(currentDatabaseId, group), null, new AsyncCallback<CreateResult>() {
+
+					@Override
+					public void onFailure(Throwable caught) {
+					}
+
+					@Override
+					public void onSuccess(CreateResult result) {
+						dialog.hide();
+						doLoad();
+					}
+					
+				});
 			}
 		});
 	}

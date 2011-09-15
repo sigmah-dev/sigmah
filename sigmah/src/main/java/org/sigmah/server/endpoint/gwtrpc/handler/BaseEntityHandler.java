@@ -86,13 +86,17 @@ public class BaseEntityHandler {
         	indicator.setSourceOfVerification((String)changes.get("sourceOfVerification"));
         }
         
+        if (changes.containsKey("groupId")) {
+        	indicator.setActivity( em.getReference(Activity.class, (Integer)changes.get("groupId")));
+        }
+        
         if (changes.containsKey("dataSourceIds")) {
         	Set<Integer> ids = (Set<Integer>) changes.get("dataSourceIds");
         	List<Indicator> dataSources = em.createQuery("select i from Indicator i where i.id in (:ids)")
         	.setParameter("ids", ids)
         	.getResultList();
         	indicator.setDataSources(new HashSet<Indicator>(dataSources));
-        }
+        } 
 
         if (indicator.getActivity() != null) {
         	indicator.getActivity().getDatabase().setLastSchemaUpdate(new Date());

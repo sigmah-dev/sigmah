@@ -222,6 +222,14 @@ public final class IndicatorDTO extends BaseModelData implements EntityDTO {
 		return (Double)get("objective");
 	}
 	
+	public Integer getGroupId() {
+		return (Integer)get("groupId");
+	}
+	
+	public void setGroupId(Integer id) {
+		set("groupId", id);
+	}
+	
     /**
      *
      * @return the name of the property in which values for this indicator are stored, for

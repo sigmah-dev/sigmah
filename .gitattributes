@@ -1657,6 +1657,7 @@ sigmah/src/main/java/org/sigmah/server/policy/AmendmentPolicy.java -text
 sigmah/src/main/java/org/sigmah/server/policy/CategoryPolicy.java -text
 sigmah/src/main/java/org/sigmah/server/policy/EntityPolicy.java -text
 sigmah/src/main/java/org/sigmah/server/policy/LayoutGroupPolicy.java -text
+sigmah/src/main/java/org/sigmah/server/policy/LocationUtil.java -text
 sigmah/src/main/java/org/sigmah/server/policy/OrgUnitModelPolicy.java -text
 sigmah/src/main/java/org/sigmah/server/policy/PersonalEventPolicy.java -text
 sigmah/src/main/java/org/sigmah/server/policy/PrivacyGroupPolicy.java -text

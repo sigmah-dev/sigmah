@@ -138,6 +138,23 @@
 	<adminEntity adminLevelId="2" adminEntityId="13" adminEntityParentId="2" name="Kalehe" code="203" x1="0" y1="0" x2="0" y2="0"/>
 	<adminEntity adminLevelId="2" adminEntityId="21" adminEntityParentId="4" name="Irumu" code="203" x1="0" y1="0" x2="0" y2="0"/>
     
+   	<activity activityId="81"
+			databaseId="1"
+			name="Distributions NFI"
+			reportingFrequency="0"
+			allowEdit="1"
+			isAssessment="0"
+			sortOrder="1"
+			locationTypeId="1"/>
+    
+   	<activity activityId="82"
+			databaseId="1"
+			name="Distributions Scolaires"
+			reportingFrequency="0"
+			allowEdit="1"
+			isAssessment="0"
+			sortOrder="1"
+			locationTypeId="1"/>
     
     <!-- NFI Indicator 1: Beneficiaries -->
 				
@@ -146,7 +163,7 @@
 		name="Nombre de menages ayant recu une kit nfi"
 		units="menages"
 		aggregation="0"
-		category="Distributions NFI"
+		activityId="81"
 		listHeader="Kits"
 		collectIntervention="1"
 		collectMonitoring="1"
@@ -161,7 +178,7 @@
 		aggregation="0"
 		collectIntervention="1"  
 		collectMonitoring="1"  
-		category="Distributions NFI"  
+		activityId="81" 
 		listHeader="Baches"  
 		description="desc"  
 		sortOrder="1"/>
@@ -173,7 +190,7 @@
 		aggregation="0"
 		collectIntervention="1"  
 		collectMonitoring="1"  
-		category="Distributions Scolaires"  
+		activityId="82"
 		listHeader="Kits Total"  
 		description="desc"  
 		sortOrder="1"/>
@@ -185,7 +202,7 @@
 		aggregation="0"
 		collectIntervention="1"  
 		collectMonitoring="1"  
-		category="Distributions Scolaires"  
+		activityId="82"
 		listHeader="Kits Total"  
 		description="desc"  
 		sortOrder="1"/>

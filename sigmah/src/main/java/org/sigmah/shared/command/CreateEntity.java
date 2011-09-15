@@ -92,6 +92,12 @@ public class CreateEntity implements Command<CreateResult> {
         cmd.properties.put("databaseId", db.getId());
         return cmd;
     }
+    
+    public static Command<CreateResult> IndicatorGroup(int databaseId, IndicatorGroup indicatorGroup) {
+    	CreateEntity cmd = new CreateEntity(IndicatorGroup.ENTITY_NAME, indicatorGroup.getProperties());
+    	cmd.properties.put("databaseId", databaseId);
+    	return cmd;
+    }
 
     public static CreateEntity Site(SiteDTO newSite) {
         CreateEntity cmd = new CreateEntity("Site", newSite.getProperties());

@@ -141,7 +141,7 @@ public class IndicatorListWidget extends Composite  {
 		final IndicatorForm form = new IndicatorForm(dispatcher);
 		form.getBinding().bind(indicator);
 		form.setIdVisible(false);
-		form.setCategoryVisible(false);
+		form.setGroupVisible(false);
 		
 		final FormDialogImpl<IndicatorForm> dialog = new FormDialogImpl<IndicatorForm>(form);
 		dialog.setHeading(indicator.getName() == null ? 

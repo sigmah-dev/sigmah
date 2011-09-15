@@ -6,6 +6,7 @@ import org.sigmah.server.dao.OnDataSet;
 import org.sigmah.shared.command.GetIndicators;
 import org.sigmah.shared.command.result.IndicatorListResult;
 import org.sigmah.shared.dto.IndicatorDTO;
+import org.sigmah.shared.dto.IndicatorGroup;
 import org.sigmah.shared.exception.CommandException;
 import org.sigmah.test.InjectionSupport;
 
@@ -42,8 +43,16 @@ public class GetIndicatorsHandlerTest extends CommandTestCase {
         assertThat(i1.getId(), equalTo(1));
         assertThat(i1.getCurrentValue(), equalTo(15100d));
         assertThat(i1.getObjective(), equalTo(10000d));
-
+        assertThat(i1.getGroupId(), equalTo(1));
+        
         assertThat(i2.getName(), equalTo("Nb. of distributions"));
+        
+        assertThat(result.getGroups().size(), equalTo(2));
+        
+        IndicatorGroup g1 = result.getGroups().get(0);
+        assertThat(g1.getId(), equalTo(1));
+        assertThat(g1.getName(), equalTo("NFI"));
+        assertThat(g1.getIndicators().size(), equalTo(3));
     }
     
     

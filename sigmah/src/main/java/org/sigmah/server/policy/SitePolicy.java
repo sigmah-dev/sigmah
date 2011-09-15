@@ -26,7 +26,6 @@ import org.sigmah.shared.dto.*;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 import javax.persistence.EntityManager;
 
@@ -71,7 +70,7 @@ public class SitePolicy implements EntityPolicy<Site> {
     		    		
     	} else if(properties.containsKey("databaseId")) {
     		database = userDatabaseDAO.findById((Integer)properties.get("databaseId"));
-    		locationType = locationTypeFromDatabase(database);
+    		locationType = LocationUtil.locationTypeFromDatabase(entityManager, database);
 			if(user.getOrganization() != null) {
 				partner = user.getOrganization().getRoot();
 			}
@@ -141,26 +140,7 @@ public class SitePolicy implements EntityPolicy<Site> {
 
     }
 
-	private LocationType locationTypeFromDatabase(UserDatabase database) {
-
-		Set<LocationType> locationTypes = database.getCountry().getLocationTypes();
-		for(LocationType type : locationTypes) {
-			if(type.getName().equals(LocationType.DEFAULT)) {
-				return type;
-			}
-		}
-		// still need to create the default location type for this country
-		LocationType defaultType = new LocationType();
-		defaultType.setName(LocationType.DEFAULT);
-		defaultType.setCountry(database.getCountry());
-		
-		entityManager.persist(defaultType);
-		
-		return defaultType;
-	}
-
-
-    public void update(User user, Object id, PropertyMap changes)  {
+	public void update(User user, Object id, PropertyMap changes)  {
 
         Site site = siteDAO.findById((Integer)id);
 

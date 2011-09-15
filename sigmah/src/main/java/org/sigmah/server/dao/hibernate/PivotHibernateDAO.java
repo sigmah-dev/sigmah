@@ -348,7 +348,7 @@ public class PivotHibernateDAO implements PivotDAO {
 					 "LEFT JOIN Partner ON (Site.PartnerId = Partner.PartnerId) " +
 					 "LEFT JOIN Location ON (Location.LocationId = Site.LocationId) " +
 					 "LEFT JOIN UserDatabase ON (Indicator.DatabaseId = UserDatabase.DatabaseId) " +
-					 "LEFT JOIN Activity ON (Activity.ActivityId = Site.ActivityId) ");
+					 "LEFT JOIN Activity ON (Activity.ActivityId = Indicator.ActivityId) ");
 
 			 // Retrieve only AVERAGES (of any value), SUMs (non zero), And Multinomial (value labels)
 			 where.append("( (V.value <> 0 and Indicator.Aggregation=0) or Indicator.Aggregation=1 or Indicator.Aggregation=3) ");
@@ -408,9 +408,10 @@ public class PivotHibernateDAO implements PivotDAO {
 			// TODO: partners 
 			 from.append(" UserDatabase " +
 					"LEFT JOIN Site ON (Site.DatabaseId = UserDatabase.DatabaseId) " +
-					"LEFT JOIN Activity ON (Activity.ActivityId = Site.ActivityId) " +
 			 		"LEFT JOIN Location ON (Location.LocationId = Site.LocationId) " +
-			 		"LEFT JOIN Indicator ON (Indicator.DatabaseId = UserDatabase.DatabaseId) ");
+			 		"LEFT JOIN Indicator ON (Indicator.DatabaseId = UserDatabase.DatabaseId)" +
+			 		"LEFT JOIN Activity ON (Activity.ActivityId = Indicator.ActivityId) ");
+			 
 			
 			 where.append(" 1=1 ");
 			 nextColumnIndex = 1;
@@ -428,7 +429,7 @@ public class PivotHibernateDAO implements PivotDAO {
 			for (Dimension dimension : dimensions) {
 
 				if (dimension.getType() == DimensionType.Activity) {
-					dimColumns.append(", Site.ActivityId, Activity.Name, Activity.SortOrder");
+					dimColumns.append(", Activity.ActivityId, Activity.Name, Activity.SortOrder");
 					bundlers.add(new OrderedEntityBundler(dimension, nextColumnIndex));
 					nextColumnIndex += 3;
 

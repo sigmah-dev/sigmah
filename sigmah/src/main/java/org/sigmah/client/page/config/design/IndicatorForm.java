@@ -72,7 +72,7 @@ public class IndicatorForm extends AbstractDesignForm {
         groupField = new IndicatorGroupCombo(dispatcher);
         groupField.setFieldLabel(I18N.CONSTANTS.group());
         groupField.setMaxLength(50);
-        binding.addFieldBinding(new IndicatorGroupCombo.Binding(groupField, "category"));
+        binding.addFieldBinding(groupField.newBinding("groupId"));
         this.add(groupField);
         
         aggregation = new HiddenField<Integer>();
@@ -98,7 +98,6 @@ public class IndicatorForm extends AbstractDesignForm {
 				updateFormLayout();
 			}
 		});
-        
         
         
         labelsField = new ValueLabelField();
@@ -141,7 +140,6 @@ public class IndicatorForm extends AbstractDesignForm {
         binding.addFieldBinding(new FieldBinding(descField, "description"));
         this.add(descField);
                 
-        
         datasourceField = new DatasourceField(dispatcher);
         datasourceField.setFieldLabel("Datasources");
         binding.addFieldBinding(new FieldBinding(datasourceField, "dataSourceIds"));
@@ -160,9 +158,8 @@ public class IndicatorForm extends AbstractDesignForm {
                 IndicatorDTO indicator = (IndicatorDTO) be.getModel();
                 updateDatasources(indicator);
 				updateFormLayout();
-                groupField.loadGroups(indicator.getDatabaseId());
+                groupField.loadGroups(indicator);
 			}
-        	
 		});
     }
     
@@ -182,7 +179,7 @@ public class IndicatorForm extends AbstractDesignForm {
     	idField.setVisible(visible);
     }
     
-    public void setCategoryVisible(boolean visible) {
+    public void setGroupVisible(boolean visible) {
     	groupField.setVisible(visible);
     }
     

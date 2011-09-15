@@ -5,11 +5,10 @@
 
 package org.sigmah.shared.dto;
 
-import com.extjs.gxt.ui.client.data.BaseModelData;
-import com.extjs.gxt.ui.client.data.BaseTreeModel;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import com.extjs.gxt.ui.client.data.BaseModelData;
 
 /**
  * Convenience class for groups of Indicators, which are currently not modeled as
@@ -19,14 +18,27 @@ import java.util.List;
  *
  * @author Alex Bertram (akbertram@gmail.com)
  */
-public final class IndicatorGroup extends BaseTreeModel {
+public final class IndicatorGroup extends BaseModelData implements EntityDTO {
 
     private static final long serialVersionUID = -4402642905140940245L;
+    
+    public static final String ENTITY_NAME = "Activity";
+    
+    private List<IndicatorDTO> indicators = new ArrayList<IndicatorDTO>();
     
     public IndicatorGroup(){}
     
     public IndicatorGroup(String name) {
         set("name", name);
+    }
+    
+    @Override
+    public int getId() {
+    	return (Integer)get("id");
+    }
+    
+    public void setId(int id) {
+    	set("id", id);
     }
 
     /**
@@ -38,14 +50,21 @@ public final class IndicatorGroup extends BaseTreeModel {
     public String getName() {
         return get("name");
     }
-
+    
+    public void setName(String value) {
+    	set("name" , value);
+    }
+    
     public List<IndicatorDTO> getIndicators() {
-        return (List)getChildren();         
+        return indicators;         
     }
 
     public void addIndicator(IndicatorDTO indicator) {
-        getChildren().add(indicator);
+        indicators.add(indicator);
     }
 
- 
+	@Override
+	public String getEntityName() {
+		return ENTITY_NAME;
+	}    
 }

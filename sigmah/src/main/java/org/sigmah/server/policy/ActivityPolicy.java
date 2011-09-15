@@ -41,7 +41,7 @@ public class ActivityPolicy implements EntityPolicy<Activity> {
         Activity activity = new Activity();
         activity.setDatabase(database);
         activity.setSortOrder(calculateNextSortOrderIndex(database.getId()));
-        activity.setLocationType(getLocationType(properties));
+        activity.setLocationType(getLocationType(database, properties));
 
         applyProperties(activity, properties);
 
@@ -72,10 +72,15 @@ public class ActivityPolicy implements EntityPolicy<Activity> {
         return database;
     }
 
-    private LocationType getLocationType(PropertyMap properties) {
-        int locationTypeId = ((Integer) properties.get("locationTypeId"));
-        LocationType type = em.getReference(LocationType.class, locationTypeId);
-        return type;
+    private LocationType getLocationType(UserDatabase database, PropertyMap properties) {
+    	// normally in activityinfo, location types are associated with activities/indicatorgroups,
+    	// but sigmah does not enforce this rule yet 
+        Integer locationTypeId = ((Integer) properties.get("locationTypeId"));
+        if(locationTypeId != null) {
+        	return em.getReference(LocationType.class, locationTypeId);	
+        } else {
+        	return LocationUtil.locationTypeFromDatabase(em, database);
+        }
     }
 
     private Integer calculateNextSortOrderIndex(int databaseId) {
