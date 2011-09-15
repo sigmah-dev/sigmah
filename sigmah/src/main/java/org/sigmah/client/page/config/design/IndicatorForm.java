@@ -165,7 +165,7 @@ public class IndicatorForm extends AbstractDesignForm {
     
     protected void updateDatasources(IndicatorDTO indicator) {
     	if(indicator.get("id") != null) {
-    		datasourceField.load(indicator.getId());
+    		datasourceField.load(indicator);
     	}
 	}
 

@@ -1,6 +1,7 @@
 package org.sigmah.client.page.config.design;
 
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -10,19 +11,29 @@ import org.sigmah.client.dispatch.monitor.MaskingAsyncMonitor;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.icon.IconImageBundle;
 import org.sigmah.client.page.common.dialog.FormDialogCallback;
+import org.sigmah.shared.command.BatchCommand;
 import org.sigmah.shared.command.GetIndicatorDataSources;
+import org.sigmah.shared.command.GetProject;
+import org.sigmah.shared.command.result.BatchResult;
 import org.sigmah.shared.command.result.IndicatorDataSourceList;
+import org.sigmah.shared.dto.IndicatorDTO;
 import org.sigmah.shared.dto.IndicatorDataSourceDTO;
+import org.sigmah.shared.dto.ProjectDTO;
 
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.FieldEvent;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.ListView;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.AdapterField;
+import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -42,12 +53,42 @@ public class DatasourceField extends AdapterField {
 	private ListView<IndicatorDataSourceDTO> listView;
 	private Button removeButton;
 
-	public DatasourceField(Dispatcher dispatcher) {
-		super(new ContentPanel());
-		this.dispatcher = dispatcher;
-		ContentPanel panel = (ContentPanel) getWidget();
-		panel.setHeaderVisible(false);
+	private CheckBox directBox;
+	private CheckBox otherIndicatorsBox;
+	private ContentPanel panel;
+	private LayoutContainer container;
 	
+	// Collections.emptySet is not serializable :-(
+	private static final Set<Integer> EMPTY_SET = new HashSet<Integer>();
+	
+	private Set<Integer> oldValue = EMPTY_SET;
+	
+	public DatasourceField(Dispatcher dispatcher) {
+		super(new LayoutContainer());
+		this.dispatcher = dispatcher;
+
+		container = (LayoutContainer)getWidget();
+
+		directBox = new CheckBox();
+		directBox.setBoxLabel(I18N.MESSAGES.indicatorDatasourceDirect(I18N.CONSTANTS.loading()));
+		container.add(directBox);
+		
+		otherIndicatorsBox = new CheckBox();
+		otherIndicatorsBox.setBoxLabel(I18N.CONSTANTS.indicatorDataSourceOther());
+		otherIndicatorsBox.addListener(Events.Change, new Listener<FieldEvent>() {
+			@Override
+			public void handleEvent(FieldEvent event) {
+				boolean checked = event.getValue() == Boolean.TRUE;
+				showGrid(checked);
+				
+				onChange();
+			}
+		});
+		container.add(otherIndicatorsBox);
+		
+		panel = new ContentPanel();
+		panel.setHeaderVisible(false); 
+		
 		ToolBar toolBar = new ToolBar();
 		toolBar.add(new Button(I18N.CONSTANTS.addIndicator(), IconImageBundle.ICONS.add(), new SelectionListener<ButtonEvent>() {
 			@Override
@@ -82,6 +123,8 @@ public class DatasourceField extends AdapterField {
 		panel.setLayout(new FitLayout());
 		panel.add(listView);
 		panel.setHeight(150);
+		panel.setVisible(false);
+		container.add(panel);
 		
 	}
 	
@@ -91,17 +134,22 @@ public class DatasourceField extends AdapterField {
 
 			@Override
 			public void onValidated() {
-				Set<Integer> oldValue = getValue();
 				for(IndicatorDataSourceDTO datasource : dialog.getSelectionAsDataSources()) {
 					if(!alreadyIncluded(datasource)) {
 						listView.getStore().add(datasource);
 					}
 				}
 				dialog.hide();
-				fireChangeEvent(oldValue, getValue());
+				onChange();
 			}
 		});
 	}
+
+	private void onChange() {
+		fireChangeEvent(oldValue, getValue());
+		oldValue = getValue();
+	}
+
 	
 	private void removeSelected() {
 		List<IndicatorDataSourceDTO> selection = listView.getSelectionModel().getSelection();
@@ -124,10 +172,15 @@ public class DatasourceField extends AdapterField {
 		return false;
 	}
 
-	public void load(int indicatorId) {
+	public void load(IndicatorDTO indicator) {
 		listView.getStore().removeAll();
-		dispatcher.execute(new GetIndicatorDataSources(indicatorId), new MaskingAsyncMonitor(listView, I18N.CONSTANTS.loading()), 
-				new AsyncCallback<IndicatorDataSourceList>() {
+
+		BatchCommand batch = new BatchCommand();
+		batch.add(new GetIndicatorDataSources(indicator.getId()));
+		batch.add(new GetProject(indicator.getDatabaseId()));
+		
+		dispatcher.execute(batch, new MaskingAsyncMonitor(container, I18N.CONSTANTS.loading()), 
+				new AsyncCallback<BatchResult>() {
 
 			@Override
 			public void onFailure(Throwable caught) {
@@ -135,8 +188,18 @@ public class DatasourceField extends AdapterField {
 			}
 
 			@Override
-			public void onSuccess(IndicatorDataSourceList result) {
-				listView.getStore().add(result.getData());
+			public void onSuccess(BatchResult result) {
+				List<IndicatorDataSourceDTO> indicators = ((IndicatorDataSourceList)result.getResults().get(0)).getData();
+				ProjectDTO project = ((ProjectDTO)result.getResults().get(1));
+				
+				listView.getStore().add(indicators);
+				otherIndicatorsBox.disableEvents(true);
+				otherIndicatorsBox.setValue(!indicators.isEmpty());
+				showGrid(!indicators.isEmpty());
+				otherIndicatorsBox.disableEvents(false);
+				directBox.setBoxLabel(I18N.MESSAGES.indicatorDatasourceDirect(project.getName()));
+				
+				oldValue = getValue();
 			}
 		});
 	}
@@ -144,10 +207,23 @@ public class DatasourceField extends AdapterField {
 	
 	@Override
 	public Set<Integer> getValue() {
+		if(otherIndicatorsBox.getValue()) {
+			return getSelectedIds();
+		} else {
+			return EMPTY_SET;
+		}
+	}
+
+	private Set<Integer> getSelectedIds() {
 		Set<Integer> ids = new HashSet<Integer>();
 		for(IndicatorDataSourceDTO datasource : listView.getStore().getModels()) {
 			ids.add(datasource.getIndicatorId());
 		}
 		return ids;
+	}
+
+	private void showGrid(boolean visible) {
+		panel.setVisible(visible);
+		container.layout(true);
 	}
 }

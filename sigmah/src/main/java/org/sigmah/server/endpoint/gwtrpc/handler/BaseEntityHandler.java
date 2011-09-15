@@ -5,6 +5,7 @@
 
 package org.sigmah.server.endpoint.gwtrpc.handler;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -92,10 +93,14 @@ public class BaseEntityHandler {
         
         if (changes.containsKey("dataSourceIds")) {
         	Set<Integer> ids = (Set<Integer>) changes.get("dataSourceIds");
-        	List<Indicator> dataSources = em.createQuery("select i from Indicator i where i.id in (:ids)")
-        	.setParameter("ids", ids)
-        	.getResultList();
-        	indicator.setDataSources(new HashSet<Indicator>(dataSources));
+        	if(ids.isEmpty()) {
+        		indicator.setDataSources(Collections.<Indicator>emptySet());
+        	} else {
+	        	List<Indicator> dataSources = em.createQuery("select i from Indicator i where i.id in (:ids)")
+	        	.setParameter("ids", ids)
+	        	.getResultList();
+	        	indicator.setDataSources(new HashSet<Indicator>(dataSources));
+        	}
         } 
 
         if (indicator.getActivity() != null) {
