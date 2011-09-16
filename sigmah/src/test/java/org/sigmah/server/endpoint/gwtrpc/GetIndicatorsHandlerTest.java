@@ -1,5 +1,8 @@
 package org.sigmah.server.endpoint.gwtrpc;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertThat;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sigmah.server.dao.OnDataSet;
@@ -9,9 +12,6 @@ import org.sigmah.shared.dto.IndicatorDTO;
 import org.sigmah.shared.dto.IndicatorGroup;
 import org.sigmah.shared.exception.CommandException;
 import org.sigmah.test.InjectionSupport;
-
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
 
 @RunWith(InjectionSupport.class)
 @OnDataSet("/dbunit/sites-simple1.db.xml")
@@ -89,8 +89,18 @@ public class GetIndicatorsHandlerTest extends CommandTestCase {
         assertThat(service.getLabels().get(0), equalTo("Mediocre"));
         assertThat(service.getLabels().get(1), equalTo("Pretty bad"));
         assertThat(service.getLabels().get(2), equalTo("Terrible"));
-
-
     }
 
+    @Test
+    @OnDataSet("/dbunit/project-indicator-linked.db.xml")
+    public void valuesFromDataSourcesAreIncludedInAggregates_Issue359() throws Exception {
+    	
+    	IndicatorListResult result = execute(GetIndicators.forDatabase(1));
+    	
+    	IndicatorDTO indicator2 = result.getIndicatorById(2);
+    	
+    	assertThat(indicator2.getCurrentValue(), equalTo(2644d));
+    	
+    }
+    
 }

@@ -34,6 +34,15 @@ public class IndicatorListResult extends ListResult<IndicatorDTO> {
 	public void setUngroupedIndicators(List<IndicatorDTO> ungroupedIndicators) {
 		this.ungroupedIndicators = ungroupedIndicators;
 	}
+
+	public IndicatorDTO getIndicatorById(int id) {
+		for(IndicatorDTO indicator : getData()) {
+			if(indicator.getId() == id) {
+				return indicator;
+			}
+		}
+		throw new IllegalArgumentException();
+	}
 	
 	
 }
