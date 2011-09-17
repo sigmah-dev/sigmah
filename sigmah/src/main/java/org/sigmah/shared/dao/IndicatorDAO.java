@@ -141,10 +141,12 @@ public class IndicatorDAO  {
     		.appendField("l.element")
     		.appendField("COUNT(v.Value)")
 			.from("Indicator i")
-				.leftJoin("Site s").on("s.databaseId=i.databaseId")
-				.leftJoin("Indicator_labels l").on("i.IndicatorId = l.Indicator_IndicatorId")
-				.leftJoin("ReportingPeriod p").on("s.siteId = p.SiteId")
-				.leftJoin("IndicatorValue v").on("p.ReportingPeriodId = v.ReportingPeriodId and v.IndicatorId=i.indicatorId and v.Value=l.code")
+   				.leftJoin("Indicator_labels l").on("i.IndicatorId = l.Indicator_IndicatorId")
+			    .leftJoin("(SELECT pv.indicatorid, pv.value FROM indicatorvalue pv " +
+						" UNION ALL " +
+					   "SELECT ds.indicatorid, dsv.value FROM indicator_datasource ds " +
+					            "LEFT JOIN indicatorvalue dsv ON (ds.indicatorsourceid = dsv.indicatorid)) AS v")
+	  		    .on("v.indicatorId=i.indicatorId AND v.value=l.code")
 			.whereTrue("i.databaseId=" + databaseId)
 			.where("i.aggregation").equalTo(IndicatorDTO.AGGREGATE_MULTINOMIAL)
 			.groupBy("i.indicatorId, l.element, l.code")

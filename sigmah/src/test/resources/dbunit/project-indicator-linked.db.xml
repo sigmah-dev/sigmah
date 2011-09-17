@@ -192,6 +192,32 @@
 		description="desc"  
 		sortOrder="1"/>
 		
+		
+	<indicator indicatorId="90"
+		databaseId="2"
+		name="Quality of Work" 
+		units="kits"   
+		aggregation="3"
+		collectIntervention="1"  
+		collectMonitoring="1"  
+		sortOrder="1"/>
+	
+		
+	<indicator indicatorId="91"
+		databaseId="1"
+		name="Quality of Work" 
+		units="kits"   
+		aggregation="3"
+		collectIntervention="1"  
+		collectMonitoring="1"  
+		sortOrder="1"/>
+		
+	<indicator_labels indicator_IndicatorId="91" code="1" element="Good"/>
+	<indicator_labels indicator_IndicatorId="91" code="2" element="Bad"/>
+	<indicator_labels indicator_IndicatorId="91" code="3" element="Ugly"/>		
+    <indicator_datasource indicatorId="91" indicatorSourceId="90"/> 
+		
+		
 	<!-- Database 2 -->
 
 	<indicator indicatorId="5"
@@ -250,12 +276,14 @@
 	<reportingPeriod siteId="4" reportingPeriodId="4" date1="2010-01-01" date2="2010-01-31" DateCreated="2009-02-01" DateEdited="2009-02-01" monitoring="0"/>
 	
 	<indicatorValue reportingPeriodId="4" indicatorId="1" value="940"/>
+	<indicatorValue reportingPeriodId="4" indicatorId="91" value="2"/>
 		
 	
 	<site siteId="5" databaseId="2" locationId="4" partnerId="2" Status="1" target="0" Date1="2008-10-05" Date2="2008-10-06" DateCreated="2009-02-01" DateEdited="2009-02-01"/>
 	<reportingPeriod siteId="5" reportingPeriodId="5" date1="2010-01-01" date2="2010-01-31" DateCreated="2009-02-01" DateEdited="2009-02-01" monitoring="0"/>
 	
 	<indicatorValue reportingPeriodId="5" indicatorId="5" value="444"/>
+	<indicatorValue reportingPeriodId="5" indicatorId="90" value="1"/>
 	
 		    
 </dataset>

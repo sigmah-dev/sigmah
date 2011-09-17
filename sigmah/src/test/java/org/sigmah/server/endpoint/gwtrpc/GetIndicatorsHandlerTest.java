@@ -99,9 +99,15 @@ public class GetIndicatorsHandlerTest extends CommandTestCase {
     	IndicatorListResult result = execute(GetIndicators.forDatabase(1));
     	
     	IndicatorDTO indicator2 = result.getIndicatorById(2);
-    	
     	assertThat(indicator2.getCurrentValue(), equalTo(2644d));
+
+    	IndicatorDTO indicator91 = result.getIndicatorById(91);
+    	assertThat(indicator91.getLabelCounts().get(0), equalTo(1));
+    	assertThat(indicator91.getLabelCounts().get(1), equalTo(1));
     	
     }
+    
+
+    
     
 }
