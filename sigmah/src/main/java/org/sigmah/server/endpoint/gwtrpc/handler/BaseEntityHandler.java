@@ -91,6 +91,10 @@ public class BaseEntityHandler {
         	indicator.setActivity( em.getReference(Activity.class, (Integer)changes.get("groupId")));
         }
         
+        if (changes.containsKey("directDataEntryEnabled")) {
+        	indicator.setDirectDataEntryEnabled( (Boolean)changes.get("directDataEntryEnabled"));
+        }
+        
         if (changes.containsKey("dataSourceIds")) {
         	Set<Integer> ids = (Set<Integer>) changes.get("dataSourceIds");
         	if(ids.isEmpty()) {

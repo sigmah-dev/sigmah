@@ -1,7 +1,6 @@
 package org.sigmah.client.page.config.design;
 
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -128,6 +127,10 @@ public class DatasourceField extends AdapterField {
 		
 	}
 	
+	public CheckBox getDirectBox() {
+		return directBox;
+	}
+	
 	private void addSource() {
 		final IndicatorBrowseDialog dialog = new IndicatorBrowseDialog(dispatcher);
 		dialog.show(new FormDialogCallback() {
@@ -172,7 +175,7 @@ public class DatasourceField extends AdapterField {
 		return false;
 	}
 
-	public void load(IndicatorDTO indicator) {
+	public void load(final IndicatorDTO indicator) {
 		listView.getStore().removeAll();
 
 		BatchCommand batch = new BatchCommand();
@@ -197,6 +200,7 @@ public class DatasourceField extends AdapterField {
 				otherIndicatorsBox.setValue(!indicators.isEmpty());
 				showGrid(!indicators.isEmpty());
 				otherIndicatorsBox.disableEvents(false);
+				directBox.setValue(indicator.isDirectDataEntryEnabled());
 				directBox.setBoxLabel(I18N.MESSAGES.indicatorDatasourceDirect(project.getName()));
 				
 				oldValue = getValue();

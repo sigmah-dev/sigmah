@@ -74,6 +74,7 @@ public class IndicatorDAO  {
 	    		.appendField("COUNT(v.Value)")
 	    		.appendField("i.SourceOfVerification")
 	    		.appendField("i.activityId as groupId")
+	    		.appendField("i.directDataEntryEnabled")
 		.from("Indicator i")
 			.leftJoin("(SELECT pv.indicatorid, pv.value FROM indicatorvalue pv " +
 						" UNION ALL " +
@@ -83,7 +84,7 @@ public class IndicatorDAO  {
 		.whereTrue("i.databaseId=" + databaseId)
 		.whereTrue("i.dateDeleted is null")
 		.groupBy("i.indicatorId, i.name, i.aggregation, i.units, i.category, i.description, i.listheader,i.objective," +
-				"i.sourceOfVerification,i.sortOrder,i.activityId")
+				"i.sourceOfVerification,i.sortOrder,i.activityId,i.directDataEntryEnabled")
 		.orderBy("i.sortOrder")
 		.forEachResult(connection, new ResultHandler() {
 			
@@ -99,7 +100,7 @@ public class IndicatorDAO  {
 				dto.setCode(rs.getString(7));
 				dto.setDatabaseId(databaseId);
 				dto.setSourceOfVerification(rs.getString(11));
-								
+				
 				double objective = rs.getDouble(8);
 				if(!rs.wasNull()) {
 					dto.setObjective(objective);
@@ -126,6 +127,8 @@ public class IndicatorDAO  {
 					group.addIndicator(dto);
 					dto.setGroupId(group.getId());
 				}
+
+				dto.setDirectDataEntryEnabled(rs.getBoolean(13));				
 				
 				allIndicators.add(dto);
 				indicatorMap.put(dto.getId(), dto);

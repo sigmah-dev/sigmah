@@ -72,7 +72,9 @@ public class Indicator implements java.io.Serializable, Orderable, Deleteable, S
 	private Set<Indicator> dataSources = new HashSet<Indicator>(0);
 	
 	private String sourceOfVerification;
-
+	
+	private boolean directDataEntryEnabled;
+	
 	public Indicator() {
 
 	}
@@ -108,9 +110,7 @@ public class Indicator implements java.io.Serializable, Orderable, Deleteable, S
 	 */
 	public void setName(String name) {
 		this.name = name;
-
 	}
-
 
 	/**
 	 * Gets a description of the units in which this Indicator is expressed. Note that this
@@ -216,6 +216,20 @@ public class Indicator implements java.io.Serializable, Orderable, Deleteable, S
 	 */
 	public void setAggregation(int aggregation) {
 		this.aggregation = aggregation;
+	}
+
+	/**
+	 * 
+	 * @return true if the user can associate indicator values with this project,
+	 * or false if this indicator takes its value exclusively from its data sources
+	 */
+	@Column(columnDefinition="boolean not null default true")
+	public boolean isDirectDataEntryEnabled() {
+		return directDataEntryEnabled;
+	}
+
+	public void setDirectDataEntryEnabled(boolean directDataEntryEnabled) {
+		this.directDataEntryEnabled = directDataEntryEnabled;
 	}
 
 	/**

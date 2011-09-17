@@ -327,7 +327,8 @@ public class DesignPanel extends DesignPanelBase implements ActionListener {
 		newIndicator.setCollectIntervention(true);
 		newIndicator.setAggregation(IndicatorDTO.AGGREGATE_SUM);
 		newIndicator.set("databaseId", currentDatabaseId);
-	
+		newIndicator.setDirectDataEntryEnabled(true);
+		
 		final IndicatorGroup parent = computeIndicatorParent(newIndicator); 
 		if(parent != null) {
 			newIndicator.setCategory(parent.getName());

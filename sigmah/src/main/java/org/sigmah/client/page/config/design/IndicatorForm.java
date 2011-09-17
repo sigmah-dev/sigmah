@@ -143,6 +143,7 @@ public class IndicatorForm extends AbstractDesignForm {
         datasourceField = new DatasourceField(dispatcher);
         datasourceField.setFieldLabel("Datasources");
         binding.addFieldBinding(new FieldBinding(datasourceField, "dataSourceIds"));
+        binding.addFieldBinding(new FieldBinding(datasourceField.getDirectBox(), "directDataEntryEnabled"));
         this.add(datasourceField);
         
         binding.addListener(Events.Bind, new Listener<BindingEvent>() {
@@ -208,5 +209,4 @@ public class IndicatorForm extends AbstractDesignForm {
 	public int getPreferredDialogHeight() {
 		return 450;
 	}
-   
 }

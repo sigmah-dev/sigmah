@@ -5,9 +5,9 @@
 
 package	org.sigmah.shared.dto;
 
-import com.extjs.gxt.ui.client.data.BaseModelData;
-
 import java.util.List;
+
+import com.extjs.gxt.ui.client.data.BaseModelData;
 
 
 /**
@@ -117,6 +117,20 @@ public final class IndicatorDTO extends BaseModelData implements EntityDTO {
      */
 	public String getDescription() {
 		return get("description");
+	}
+	
+
+	/**
+	 * 
+	 * @return true if the user can associate indicator values with this project,
+	 * or false if this indicator takes its value exclusively from its data sources
+	 */
+	public boolean isDirectDataEntryEnabled() {
+		return (Boolean)get("directDataEntryEnabled", true);
+	}
+
+	public void setDirectDataEntryEnabled(boolean directDataEntryEnabled) {
+		set("directDataEntryEnabled", directDataEntryEnabled);
 	}
 
     /**

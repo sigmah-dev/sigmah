@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import org.bouncycastle.asn1.x509.NoticeReference;
 import org.sigmah.client.AppEvents;
 import org.sigmah.client.EventBus;
 import org.sigmah.client.dispatch.AsyncMonitor;
@@ -51,6 +52,7 @@ import com.extjs.gxt.ui.client.store.Store;
 import com.extjs.gxt.ui.client.store.TreeStore;
 import com.extjs.gxt.ui.client.util.DelayedTask;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.Info;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.treegrid.EditorTreeGrid;
@@ -267,7 +269,13 @@ public class PivotGridPanel extends ContentPanel implements HasValue<PivotElemen
 					be.setCancelled(true);
 				}
 				PivotGridCellEvent pivotEvent = new PivotGridCellEvent(be, columnMapping.columnAxisForIndex(be.getColIndex()));
-				prepareEditor(pivotEvent);
+				IndicatorDTO indicator = indicators.get(pivotEvent.getIndicatorId());
+				if(indicator.isDirectDataEntryEnabled()) {
+					prepareEditor(pivotEvent, indicator);
+				} else {
+					be.setCancelled(true);
+					Info.display(I18N.CONSTANTS.dataEntry(), I18N.CONSTANTS.indicatorDirectEntry());
+				}
 			}
         });
         grid.addListener(Events.AfterEdit, new Listener<GridEvent<PivotTableRow>>() {
@@ -296,12 +304,16 @@ public class PivotGridPanel extends ContentPanel implements HasValue<PivotElemen
 
     } 
 
-    protected void prepareEditor(PivotGridCellEvent event) {
+    private IndicatorDTO indicatorForCell(PivotGridCellEvent event) {
     	int indicatorId = event.getIndicatorId();
-    	if(indicatorId != -1) {
+    	return indicators.get(indicatorId);
+    }
+    
+    protected void prepareEditor(PivotGridCellEvent event, IndicatorDTO indicator) {
+    	if(indicator != null) {
         	ColumnConfig config = grid.getColumnModel().getColumn(event.getColIndex());
     		IndicatorValueField field = (IndicatorValueField) config.getEditor().getField();	
-    		field.setIndicator(indicators.get(indicatorId));
+    		field.setIndicator(indicator);
     	}
 	}
 

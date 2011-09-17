@@ -38,6 +38,7 @@ public class GetIndicatorsHandlerTest extends CommandTestCase {
         IndicatorDTO i2 = result.getData().get(2);
         
         assertThat(i0.getName(), equalTo("baches"));
+        assertThat(i0.isDirectDataEntryEnabled(), equalTo(true));
         
         assertThat(i1.getName(), equalTo("beneficiaries"));
         assertThat(i1.getId(), equalTo(1));
