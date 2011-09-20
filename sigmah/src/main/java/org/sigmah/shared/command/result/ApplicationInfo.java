@@ -192,6 +192,7 @@ public class ApplicationInfo implements CommandResult {
     private String versionName;
     private String versionNumber;
     private String versionReleaseDate;
+    private String versionRef;
     private List<ApplicationManager> managers;
     private List<ApplicationPartner> partners;
     private List<ApplicationDeveloper> developpers;
@@ -223,6 +224,14 @@ public class ApplicationInfo implements CommandResult {
 
     public void setVersionReleaseDate(String versionReleaseDate) {
         this.versionReleaseDate = versionReleaseDate;
+    }
+
+    public String getVersionRef() {
+        return versionRef;
+    }
+
+    public void setVersionRef(String versionRef) {
+        this.versionRef = versionRef;
     }
 
     public List<ApplicationManager> getManagers() {

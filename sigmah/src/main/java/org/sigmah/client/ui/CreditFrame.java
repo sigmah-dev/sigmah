@@ -96,13 +96,22 @@ public final class CreditFrame {
     private static Widget getVersionPanel() {
 
         final Image logo = new Image("image/logo.png");
-        //Version with version name (not used yet)
-        //final Label version = new Label(info.getVersionName() + " (v" + info.getVersionNumber() + ")");
-        //Version without version name (currently used)
-        final Label version = new Label("v" + info.getVersionNumber());
+
+        // Version name.
+        final String vName = info.getVersionName();
+        final Label version;
+        if (vName != null && !"".equals(vName.trim())) {
+            version = new Label(vName + " (v" + info.getVersionNumber() + ")");
+        } else {
+            version = new Label("v" + info.getVersionNumber());
+        }
         version.addStyleName("credits-version");
+
         final Label date = new Label(info.getVersionReleaseDate());
         date.addStyleName("credits-version-date");
+        
+        final Label ref = new Label(info.getVersionRef());
+        ref.addStyleName("credits-version-ref");
 
         final VerticalPanel p = new VerticalPanel();
         p.setSpacing(0);
@@ -113,6 +122,8 @@ public final class CreditFrame {
         p.setCellHorizontalAlignment(version, HasHorizontalAlignment.ALIGN_CENTER);
         p.add(date);
         p.setCellHorizontalAlignment(date, HasHorizontalAlignment.ALIGN_CENTER);
+        p.add(ref);
+        p.setCellHorizontalAlignment(ref, HasHorizontalAlignment.ALIGN_CENTER);
 
         return p;
     }

@@ -1102,8 +1102,15 @@ body {
 }
 
 .credits-version-date {
-	padding-top: 10px;
+	padding-top: 2px;
 }
+
+.credits-version-ref {
+	padding-top: 2px;
+	font-style: italic;
+	font-size: 10px;
+}
+
 
 .credits-manager-header {
 	font-weight: bold;

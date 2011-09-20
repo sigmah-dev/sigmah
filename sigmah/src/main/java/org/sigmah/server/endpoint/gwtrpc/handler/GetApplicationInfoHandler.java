@@ -30,7 +30,8 @@ public class GetApplicationInfoHandler implements CommandHandler<GetApplicationI
         info.setVersionName(configProperties.getProperty("version.name"));
         info.setVersionNumber(configProperties.getProperty("version.number"));
         info.setVersionReleaseDate(configProperties.getProperty("version.date"));
-
+        info.setVersionRef(configProperties.getProperty("version.reference"));
+        
         // Managers.
         info.setManagers(new ArrayList<ApplicationInfo.ApplicationManager>());
         final String managers = configProperties.getProperty("version.managers");
