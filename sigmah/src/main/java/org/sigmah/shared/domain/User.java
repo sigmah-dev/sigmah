@@ -131,15 +131,15 @@ public class User implements java.io.Serializable {
     public void setChangePasswordKey(String changePasswordKey) {
         this.changePasswordKey = changePasswordKey;
     }
-    
+
     @Column(name = "Active", nullable = true)
     public void setActive(Boolean isActive) {
-		this.isActive = isActive;
-	}
+        this.isActive = isActive;
+    }
 
-	public Boolean isActive() {
-		return isActive;
-	}
+    public Boolean isActive() {
+        return isActive;
+    }
 
     /**
      * Gets the date on which the password key was issued; the application
@@ -233,12 +233,15 @@ public class User implements java.io.Serializable {
     public static String getUserCompleteName(final User user) {
 
         final StringBuilder sb = new StringBuilder();
-        if (user.firstName != null) {
-            sb.append(user.firstName);
-            sb.append(' ');
-        }
-        if (user.name != null) {
-            sb.append(user.name);
+
+        if (user != null) {
+            if (user.firstName != null) {
+                sb.append(user.firstName);
+                sb.append(' ');
+            }
+            if (user.name != null) {
+                sb.append(user.name);
+            }
         }
 
         return sb.toString();
@@ -335,5 +338,4 @@ public class User implements java.io.Serializable {
         return sb.toString();
     }
 
-	
 }

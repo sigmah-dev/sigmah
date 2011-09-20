@@ -5,9 +5,9 @@
 
 package org.sigmah.server.mail;
 
-import java.util.Map;
 import java.util.Properties;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.mail.DefaultAuthenticator;
 import org.apache.commons.mail.Email;
 import org.apache.commons.mail.EmailException;
@@ -16,9 +16,12 @@ import org.sigmah.server.util.logging.LogException;
 import com.google.inject.Inject;
 
 public class MailSenderImpl implements MailSender {
+
     final public static String HOST_NAME_KEY = "mail.hostname";
     final public static String FROM_ADDRESS_KEY = "mail.from.address";
     final public static String FROM_NAME_KEY = "mail.from.name";
+    final public static String FROM_AUTH_USERNAME_KEY = "mail.auth.username";
+    final public static String FROM_AUTH_PASSWORD_KEY = "mail.auth.password";
 
     final private static String DEFAULT_HOST_NAME = "localhost";
     final private static String DEFAULT_ADDRESS = "mailer@sigmah.org";
@@ -30,22 +33,18 @@ public class MailSenderImpl implements MailSender {
     @LogException
     @Override
     public void send(Email email) throws EmailException {
-        for(final Map.Entry<Object, Object> entry : properties.entrySet())
-            System.out.println("PROPS "+entry.getKey().toString()+" = "+entry.getValue().toString());
 
         email.setHostName(properties.getProperty(HOST_NAME_KEY, DEFAULT_HOST_NAME));
-        
-        //------------------------------------TEST LOCAL---------------------------------------
-        /*
-        email.setHostName("smtp.gmail.com");
-        email.setSmtpPort(587);
-        email.setAuthenticator(new DefaultAuthenticator("TEST@gmail.com", "PASSWORD"));
-        email.setTLS(true);
-        email.setFrom("TEST@gmail.com");
-        */
-        //----------------END TEST--------------------------------------------------------------
-        
-        email.setFrom(properties.getProperty(FROM_ADDRESS_KEY, DEFAULT_ADDRESS), properties.getProperty(FROM_NAME_KEY, DEFAULT_NAME));
+        email.setFrom(properties.getProperty(FROM_ADDRESS_KEY, DEFAULT_ADDRESS),
+                properties.getProperty(FROM_NAME_KEY, DEFAULT_NAME));
+
+        // Authentication if specified.
+        final String authUsername = properties.getProperty(FROM_AUTH_USERNAME_KEY, StringUtils.EMPTY);
+        final String authPassword = properties.getProperty(FROM_AUTH_PASSWORD_KEY, StringUtils.EMPTY);
+        if (!StringUtils.EMPTY.equals(authUsername) && !StringUtils.EMPTY.equals(authPassword)) {
+            email.setAuthenticator(new DefaultAuthenticator(authUsername, authPassword));
+        }
+
         email.send();
     }
 

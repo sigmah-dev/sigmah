@@ -13,9 +13,9 @@ import java.util.ResourceBundle;
 
 import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.SimpleEmail;
-import org.sigmah.server.util.LocaleHelper;
 import org.sigmah.server.util.logging.LogException;
 import org.sigmah.server.util.logging.Trace;
+import org.sigmah.shared.domain.User;
 
 import com.google.inject.Inject;
 
@@ -76,8 +76,8 @@ public class InvitationMailer implements Mailer<Invitation> {
 
 		//Create the string of message subject
 		Object[] messageArguments = {
-			    model.getNewUser().getName(),
-			    model.getInvitingUser().getName(),
+		        User.getUserCompleteName(model.getNewUser()),
+		        User.getUserCompleteName(model.getInvitingUser()),
 			    model.getInvitingUser().getEmail(),
 			    model.getHostUrl(),
 			    model.getNewUser().getChangePasswordKey()

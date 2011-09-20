@@ -106,10 +106,12 @@ public class UserPolicy implements EntityPolicy<User> {
 				if(!userDAO.doesUserExist(email)){
 					userDAO.persist(userToPersist);
 					try {
-						log.debug("Send the eamil after creating the new user.: "+userToPersist.getEmail());
-						log.debug("The url is : "+this.properties.getProperty(KEY_HOST_URL,DEFAULT_HOST_URL));
-						String confirmUrl = this.properties.getProperty(KEY_HOST_URL,DEFAULT_HOST_URL);
-			    		inviteMailer.send(new Invitation(userToPersist, executingUser,confirmUrl), LocaleHelper.getLocaleObject(userToPersist), true);
+						final String confirmUrl = this.properties.getProperty(KEY_HOST_URL, DEFAULT_HOST_URL);
+						if(log.isDebugEnabled()) {
+						    log.debug("Send the email after creating the new user: " + userToPersist.getEmail());
+						    log.debug("The url is : " + confirmUrl);
+						}
+			    		inviteMailer.send(new Invitation(userToPersist, executingUser, confirmUrl), LocaleHelper.getLocaleObject(userToPersist), true);
 			        } catch (Exception e) {
 			            // ignore, don't abort because mail didn't work
 			        	log.debug("Exception happens here: \n");
