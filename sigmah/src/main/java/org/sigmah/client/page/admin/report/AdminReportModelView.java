@@ -171,7 +171,8 @@ public class AdminReportModelView extends View {
 		parentSectionsCombo.setEditable(false);
 		reportSectionsComboStore = new ListStore<ProjectReportModelSectionDTO>();
 		parentSectionsCombo.setStore(reportSectionsComboStore);
-		parentSectionsCombo.setDisplayField("name");
+		parentSectionsCombo.setDisplayField("compositeName");
+
 		column.setEditor(new CellEditor(parentSectionsCombo) {
 			@Override
 			// Get the ProjectReportModelSection equivalent to the value
@@ -236,7 +237,8 @@ public class AdminReportModelView extends View {
 									sectionsGrid.getStore().commitChanges();
 									
 									//Clear
-									sectionsToBeSaved.clear();
+									if(sectionsToBeSaved!=null&&sectionsToBeSaved.contains(model))
+									   sectionsToBeSaved.remove(model);
 									return;
 								}		
 								
@@ -319,22 +321,30 @@ public class AdminReportModelView extends View {
 												
 												//Refresh the section grid
 												reportSectionsStore.removeAll();
-												//Reload all sections
-												 for(ProjectReportModelSectionDTO sectionDTO : result.getReportModelDTO().getSectionsDTO()){
+												
+												//Reload all sections if this report has sections
+												
+												List<ProjectReportModelSectionDTO> sectionsWithCompositeNames =  AdminReportModelPresenter.setCompositeNames( result.getReportModelDTO().getSectionsDTO());
+												
+												if(result.getReportModelDTO().getSectionsDTO()!=null && sectionsWithCompositeNames!=null)
+												{
+												 for(ProjectReportModelSectionDTO sectionDTO : sectionsWithCompositeNames){
 					                                    sectionDTO.setParentSectionModelName(I18N.CONSTANTS.adminReportSectionRoot());
 					                                    recursiveFillSectionsList(sectionDTO);
-					                            }											
+					                             }	
+												}
 												reportSectionsStore.commitChanges();
 												
 												//Refresh 
 												sectionsToBeSaved.clear();
 												fillComboSections();
 												
-												//Reset the report model
+												//Reset the report model												
 												reportModelsGrid.getStore().remove(currentReportModel);
 												currentReportModel = result.getReportModelDTO();
-												reportModelsGrid.getStore().add(result.getReportModelDTO());
+												reportModelsGrid.getStore().add(result.getReportModelDTO());											
 												reportModelsGrid.getStore().commitChanges();
+												
 																						
 												
 												
@@ -401,8 +411,8 @@ public class AdminReportModelView extends View {
 						reportSectionsStore.removeAll();			
 						
 						//Load all sections 
-						if(model.getSectionsDTO() != null){
-                            for(ProjectReportModelSectionDTO sectionDTO : model.getSectionsDTO()){
+						if(model.getSectionsDTO() != null && model.getSectionsDTO().size()>0){
+                            for(ProjectReportModelSectionDTO sectionDTO : AdminReportModelPresenter.setCompositeNames(model.getSectionsDTO())){
                                     sectionDTO.setParentSectionModelName(I18N.CONSTANTS.adminReportSectionRoot());
                                     recursiveFillSectionsList(sectionDTO);
                             }
@@ -412,7 +422,7 @@ public class AdminReportModelView extends View {
 
 						for(ProjectReportModelSectionDTO p:reportSectionsStore.getModels())
 						{
-							Log.debug("After loading all sections ID: "+p.getId()+" Name: "+p.getName()+"\n");
+							Log.debug("After loading all sections ID: "+p.getId()+" Name: "+p.getName()+" CompositeName: "+p.getCompositeName()+"\n");
 						}
 						
 						//Clear the sectionsToBeSaved
@@ -715,14 +725,16 @@ public class AdminReportModelView extends View {
 	    if(rootSection.getSubSectionsDTO()==null)
 	    	return;
 	    
-		for (final ProjectReportModelSectionDTO child : rootSection
-				.getSubSectionsDTO()) {
-			child.setParentSectionModelName(rootSection.getName());
+		for (final ProjectReportModelSectionDTO child : AdminReportModelPresenter.setCompositeNames(rootSection
+				.getSubSectionsDTO())) {
+			child.setParentSectionModelName(rootSection.getCompositeName());
 			recursiveFillSectionsList(child);
 			
 		}
 	}
 
+	
+	
 	@Override
 	public MaskingAsyncMonitor getReportModelsLoadingMonitor() {
 		return new MaskingAsyncMonitor(reportModelsGrid,
@@ -791,6 +803,11 @@ public class AdminReportModelView extends View {
 	@Override
 	public Grid<ReportModelDTO> getReportModelsGrid() {
 		return this.reportModelsGrid;
+	}
+
+	@Override
+	public ComboBox<ProjectReportModelSectionDTO> getParentSectionsCombo() {
+		return this.parentSectionsCombo;
 	}
 
 	

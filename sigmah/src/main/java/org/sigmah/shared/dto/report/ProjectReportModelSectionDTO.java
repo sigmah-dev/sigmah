@@ -108,4 +108,16 @@ public class ProjectReportModelSectionDTO extends BaseModelData implements Entit
     public void setSubSectionsDTO(List<ProjectReportModelSectionDTO> subSections) {
         this.set("subSections", subSections);
     }
+    
+    //name (id)
+    public String getCompositeName()
+    {
+    	//return getName()+"<i>("+getId()+")</i>";
+    	return (String) get("compositeName");
+    }
+    
+    public void setCompositeName(String compositeName)
+    {
+    	set("compositeName",compositeName);
+    }
 }

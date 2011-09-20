@@ -1,5 +1,7 @@
 package org.sigmah.client.page.admin.report;
 
+import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +24,7 @@ import org.sigmah.shared.dto.ProjectModelDTO;
 import org.sigmah.shared.dto.report.ProjectReportModelSectionDTO;
 import org.sigmah.shared.dto.report.ReportModelDTO;
 
+import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.GridEvent;
@@ -31,6 +34,7 @@ import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.grid.EditorGrid;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
@@ -62,6 +66,7 @@ public class AdminReportModelPresenter implements AdminModelSubPresenter {
 		public abstract Button getAddReportSectionButton();
 		public abstract List<ProjectReportModelSectionDTO> getSectionsToBeSaved();
 		public abstract Grid<ReportModelDTO> getReportModelsGrid();
+		public abstract ComboBox<ProjectReportModelSectionDTO> getParentSectionsCombo();
 
 
 	}
@@ -291,46 +296,17 @@ public class AdminReportModelPresenter implements AdminModelSubPresenter {
 	            	
 	            	//Get the section being edited
 	            	ProjectReportModelSectionDTO sectionToBeSaved = be.getModel();
-	            	           
-
-                    //The name of section that users input	            	
-	            	String name = sectionToBeSaved.getName();	            	
+  		           	
+	            
 	            	
-	            	List<ProjectReportModelSectionDTO> sectionAreadyExisted = view.getReportSectionsStore().findModels("name", name);
-	            	
-	            	if(sectionAreadyExisted.size()>1)
-	            	{//The name of section already exists
-	            		
-	            		MessageBox.alert(I18N.CONSTANTS.adminReportSectionInvalidInput(), I18N.MESSAGES.adminReportSecionInvalidName(sectionToBeSaved.getName()), null);
-	            		
-	            		//Disable save and add button to force users to change the name
-	            		view.getSaveReportSectionButton().disable();
-	            		
-	            		
-	            		//Rollback the changese
-	            		sectionToBeSaved.setName((String)be.getStartValue());
-	            		be.setModel(sectionToBeSaved);
-	            		view.getReportSectionsStore().update(be.getModel());
-	            		view.getReportSectionsStore().commitChanges();
-	            		
-	            		return;
-	            	}
-	              
-	            	
-	            	//Set the parent report model for the section
-	        		//sectionToBeSaved.setProjectModelId(view.getCurrentReportModel().getId());
-	        		//sectionToBeSaved.setReportModelName(view.getCurrentReportModel().getName());
-	        		
-	           		//set the row of the section
-	            	//sectionToBeSaved.setRow(be.getRowIndex());
-        		           	
 	            	if(sectionToBeSaved!=null)
 	            	{
+	            		Log.debug("Update a section model");
 	            	
 	            		//Set the row index to record the position
 	            		sectionToBeSaved.setRow(be.getRowIndex());
 	            		
-	            		//When users are editing other fields,not parent selection name field
+	            		//When users are editing other fields,not parent selection name field for a new section
 	            		if(sectionToBeSaved.getParentSectionModelName().equals(""))
 	            		{
 	            			//Do nothing
@@ -347,44 +323,85 @@ public class AdminReportModelPresenter implements AdminModelSubPresenter {
 
 	            		}
 	            		//When users have edited the parent selections fields and select non-root section's name
-	            		else
+	            		else if(view.getParentSectionsCombo().getSelection()!=null && view.getParentSectionsCombo().getSelection().size()>0)
 	            		{
+	            			Log.debug("The size of selection is :"+view.getParentSectionsCombo().getSelection().size());
+	            			
 	            			//Non-root section
 	            			
 	            			//Get the parent section DTO object
-	            			ProjectReportModelSectionDTO parentSection = view.getReportSectionsComboStore().findModel("name", sectionToBeSaved.getParentSectionModelName());
+	            				            			
+	            			ProjectReportModelSectionDTO parentSection = view.getParentSectionsCombo().getSelection().get(0);
 	            			
-     				        //Set null to report model 
+	            			Log.debug("You choose the section of parent : "+parentSection.getId()+" name : "+parentSection.getName()+" CopositeName : "+parentSection.getCompositeName());
+	            			
+     				        //Set null to report model ComboBox<ProjectReportModelSectionDTO> parentSectionsCombo
 	            			sectionToBeSaved.setProjectModelId(null);
 	            			//Set parent section id
 	                		sectionToBeSaved.setParentSectionModelId(parentSection.getId());
 	            			
 	            		}
+	            	
 	            	           			         		
 	            	}
 	            	        	
-	            		            		    
-	            	//Check if the section is already in the list
-	            	Boolean alreadyIn = false;
-	            	for(ProjectReportModelSectionDTO sectionI : view.getSectionsToBeSaved()){
-	            		if(sectionI.getRow().equals(sectionToBeSaved.getRow())){
-	            			view.getSectionsToBeSaved().remove(sectionI);
-	            			view.getSectionsToBeSaved().add(sectionToBeSaved);
-	            			alreadyIn = true;
-	            		}
-	            	}
-	            	if(!alreadyIn){
-	            		view.getSectionsToBeSaved().add(sectionToBeSaved);
+	            	
+	            	
+	            boolean alreadyIn=false;	            
+	             
+	            //Check if it is already in the list
+	            alreadyIn = isAlreadyIn(sectionToBeSaved);
+	            	
+	            if(!alreadyIn)
+	            {
+	              view.getSectionsToBeSaved().add(sectionToBeSaved);
 	            		
-	            	}	            	
+	            }	            	
 	            	//enable the save button
-	            	view.getSaveReportSectionButton().enable();
+	            view.getSaveReportSectionButton().enable();
 	            	
 	            	
 	            }
 	        });
 			
 
+	}
+	
+	
+	/**
+	 * 
+	 * Check if the section editing is already recored in the list.
+	 * 
+	 * If it already exists, update it and return true. Or return false.
+	 * 
+	 * @param sectionToBeSaved
+	 * 
+	 * @return
+	 */
+	private boolean isAlreadyIn(ProjectReportModelSectionDTO sectionToBeSaved) 
+	{
+		if(view.getSectionsToBeSaved().size()>0)
+    	{
+		
+		 try{
+    	     for(ProjectReportModelSectionDTO sectionI : view.getSectionsToBeSaved())  //Raise ConcurrentModificationException sometimes
+    	      { 
+    		     if(sectionI.getRow().equals(sectionToBeSaved.getRow()))
+    		     {
+    			  view.getSectionsToBeSaved().remove(sectionI);
+    			  view.getSectionsToBeSaved().add(sectionToBeSaved);
+    			  return true;
+    		     }
+    	      }
+		   }catch (ConcurrentModificationException e)
+		 {
+			Log.debug(" Catche a ConcurrentModificationException, recall the method isAlreadyIn ! ");
+			return isAlreadyIn(sectionToBeSaved);
+		 }
+		 
+    }
+		
+	return false;
 	}
 
 	@Override
@@ -431,9 +448,9 @@ private void recursiveFillSectionsList(ProjectReportModelSectionDTO rootSection)
 	if(rootSection.getSubSectionsDTO()==null)
 		return;
 	
-	for (final ProjectReportModelSectionDTO child : rootSection
-			.getSubSectionsDTO()) {
-		child.setParentSectionModelName(rootSection.getName());
+	for (final ProjectReportModelSectionDTO child : setCompositeNames(rootSection
+			.getSubSectionsDTO())) {
+		child.setParentSectionModelName(rootSection.getCompositeName());
 		recursiveFillSectionsList(child);
 		
 	}
@@ -464,9 +481,9 @@ private void recursiveFillSectionsList(ProjectReportModelSectionDTO rootSection)
   private void refreshReportModelSectionsPanel(ReportModelDTO reportModel)
   {
 	  //Load all sections into the grid
-		if(reportModel.getSectionsDTO() != null)
+		if(reportModel.getSectionsDTO() != null && reportModel.getSectionsDTO().size()>0)
 		{
-          for(ProjectReportModelSectionDTO sectionDTO : reportModel.getSectionsDTO())
+          for(ProjectReportModelSectionDTO sectionDTO : setCompositeNames(reportModel.getSectionsDTO()))
           {
                   sectionDTO.setParentSectionModelName(I18N.CONSTANTS.adminReportSectionRoot());
                   recursiveFillSectionsList(sectionDTO);
@@ -476,4 +493,42 @@ private void recursiveFillSectionsList(ProjectReportModelSectionDTO rootSection)
 	//Update the section store
 		view.getReportSectionsStore().commitChanges();	
   }
+  
+  
+  
+
+	/**
+	 * Set the composite name for each sectionDTO to display in comboBox
+	 * 
+	 * @author HUZHE (zhe.hu32@gmail.com)
+	 * 
+	 */
+	public static List<ProjectReportModelSectionDTO> setCompositeNames(List<ProjectReportModelSectionDTO> sections)
+	{
+		if(sections!=null && sections.size()>0)
+		{
+			List<ProjectReportModelSectionDTO>sectionsReturn = new ArrayList<ProjectReportModelSectionDTO>();
+			
+			for(ProjectReportModelSectionDTO s:sections)
+			{
+				//name(id)
+				s.setCompositeName(s.getName()+"<i>("+s.getId()+")</i>");
+				sectionsReturn.add(s);
+			}
+			
+			return sectionsReturn;
+		}
+		else if(sections.size()==0)
+		{
+			return sections;
+		}
+			
+		else
+		{
+			return null;
+		}
+		
+	}
+	
+  
 }
