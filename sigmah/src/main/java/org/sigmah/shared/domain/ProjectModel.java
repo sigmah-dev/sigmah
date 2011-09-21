@@ -1,6 +1,5 @@
 package org.sigmah.shared.domain;
 
-import com.allen_sauer.gwt.log.client.Log;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -128,14 +127,15 @@ public class ProjectModel extends BaseModelData implements Serializable {
     }
 
     public void setStatus(ProjectModelStatus status) {
-		this.status = status;
-	}
+        this.status = status;
+    }
 
-    @Column(name = "status", nullable=false)
+    @Column(name = "status", nullable = false)
     @Enumerated(EnumType.STRING)
-	public  ProjectModelStatus getStatus() {
-		return status;
-	}
+    public ProjectModelStatus getStatus() {
+        return status;
+    }
+
     /**
      * Gets the type of this model for the given organization. If this model
      * isn't visible for this organization, <code>null</code> is returned.

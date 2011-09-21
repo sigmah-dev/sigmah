@@ -16,9 +16,9 @@ import java.util.HashSet;
 import java.util.List;
 
 import javax.persistence.EntityManager;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.sigmah.server.domain.Authentication;
 import org.sigmah.server.endpoint.export.sigmah.ExportException;
 import org.sigmah.shared.domain.PhaseModel;
@@ -31,8 +31,11 @@ import org.sigmah.shared.domain.category.CategoryType;
 import org.sigmah.shared.domain.element.FlexibleElement;
 import org.sigmah.shared.domain.element.QuestionChoiceElement;
 import org.sigmah.shared.domain.element.QuestionElement;
+import org.sigmah.shared.domain.element.ReportElement;
+import org.sigmah.shared.domain.element.ReportListElement;
 import org.sigmah.shared.domain.layout.LayoutConstraint;
 import org.sigmah.shared.domain.layout.LayoutGroup;
+import org.sigmah.shared.domain.report.ProjectReportModel;
 
 /**
  * Exports and imports project models.
@@ -61,7 +64,7 @@ public class ProjectModelHandler implements ModelHandler {
             final HashSet<Object> modelesImport = new HashSet<Object>();
 
             projectModel.resetImport(modelesReset, modelesImport);
-            saveProjectFlexibleElement(projectModel, em, modelesReset, modelesImport);
+            saveProjectFlexibleElement(projectModel, em, modelesReset, modelesImport, authentication);
 
             // Attaching the new model to the current user's organization
             final ProjectModelVisibility visibility = new ProjectModelVisibility();
@@ -156,20 +159,20 @@ public class ProjectModelHandler implements ModelHandler {
      *            the entity manager
      */
     private void saveProjectFlexibleElement(ProjectModel projectModel, EntityManager em,
-            HashMap<Object, Object> modelesReset, HashSet<Object> modelesImport) {
+            HashMap<Object, Object> modelesReset, HashSet<Object> modelesImport, Authentication authentication) {
 
         // ProjectModel --> Banner --> Layout --> Groups --> Constraints
         if (projectModel.getProjectBanner() != null && projectModel.getProjectBanner().getLayout() != null) {
 
             final List<LayoutGroup> bannerLayoutGroups = projectModel.getProjectBanner().getLayout().getGroups();
-            saveLayoutGroups(bannerLayoutGroups, em, modelesReset, modelesImport);
+            saveLayoutGroups(bannerLayoutGroups, em, modelesReset, modelesImport, authentication);
         }
 
         // ProjectModel --> Detail --> Layout --> Groups --> Constraints
         if (projectModel.getProjectDetails() != null && projectModel.getProjectDetails().getLayout() != null) {
 
             final List<LayoutGroup> detailLayoutGroups = projectModel.getProjectDetails().getLayout().getGroups();
-            saveLayoutGroups(detailLayoutGroups, em, modelesReset, modelesImport);
+            saveLayoutGroups(detailLayoutGroups, em, modelesReset, modelesImport, authentication);
         }
 
         // ProjectModel --> Phases --> Layout --> Groups --> Constraints
@@ -182,7 +185,7 @@ public class ProjectModelHandler implements ModelHandler {
                 if (phase.getLayout() != null) {
 
                     final List<LayoutGroup> phaseLayoutGroups = phase.getLayout().getGroups();
-                    saveLayoutGroups(phaseLayoutGroups, em, modelesReset, modelesImport);
+                    saveLayoutGroups(phaseLayoutGroups, em, modelesReset, modelesImport, authentication);
                 }
                 if (phase.getDefinition() != null) {
                     em.persist(phase.getDefinition());
@@ -194,7 +197,9 @@ public class ProjectModelHandler implements ModelHandler {
     }
 
     private void saveLayoutGroups(final List<LayoutGroup> layoutGroups, EntityManager em,
-            HashMap<Object, Object> modelesReset, HashSet<Object> modelesImport) {
+            HashMap<Object, Object> modelesReset, HashSet<Object> modelesImport, Authentication authentication) {
+
+        final HashSet<Integer> reportModelsId = new HashSet<Integer>();
 
         if (layoutGroups != null) {
             for (LayoutGroup layoutGroup : layoutGroups) {
@@ -282,7 +287,70 @@ public class ProjectModelHandler implements ModelHandler {
                                 } else {
                                     em.persist(layoutConstraint.getElement());
                                 }
-                            } else {
+                            }
+                            // Report element
+                            else if (layoutConstraint.getElement() instanceof ReportElement) {
+
+                                final ReportElement element = (ReportElement) layoutConstraint.getElement();
+                                final ProjectReportModel oldModel = element.getModel();
+
+                                if (oldModel != null) {
+
+                                    final int oldModelId = oldModel.getId();
+                                    final ProjectReportModel newModel;
+
+                                    if (!reportModelsId.contains(oldModelId)) {
+                                        oldModel.resetImport(new HashMap<Object, Object>(), new HashSet<Object>());
+                                        oldModel.setOrganization(authentication.getUser().getOrganization());
+                                        newModel = oldModel;
+                                        ProjectReportModelHandler.saveProjectReportModelElement(newModel, em);
+                                        em.persist(newModel);
+                                        element.setModel(newModel);
+                                        em.persist(element);
+                                        reportModelsId.add(element.getModel().getId());
+                                    }
+                                    // If the report model has been already
+                                    // saved, it is re-used.
+                                    else {
+                                        newModel = em.find(ProjectReportModel.class, oldModelId);
+                                        element.setModel(newModel);
+                                        em.persist(element);
+                                    }
+
+                                }
+
+                            }
+                            // Reports list element
+                            else if (layoutConstraint.getElement() instanceof ReportListElement) {
+
+                                final ReportListElement element = (ReportListElement) layoutConstraint.getElement();
+                                final ProjectReportModel oldModel = element.getModel();
+
+                                if (oldModel != null) {
+
+                                    final int oldModelId = oldModel.getId();
+                                    final ProjectReportModel newModel;
+
+                                    if (!reportModelsId.contains(oldModelId)) {
+                                        oldModel.resetImport(new HashMap<Object, Object>(), new HashSet<Object>());
+                                        oldModel.setOrganization(authentication.getUser().getOrganization());
+                                        newModel = oldModel;
+                                        em.persist(element);
+                                        reportModelsId.add(element.getModel().getId());
+                                    }
+                                    // If the report model has been already
+                                    // saved, it is re-used.
+                                    else {
+                                        newModel = em.find(ProjectReportModel.class, oldModelId);
+                                        element.setModel(newModel);
+                                        em.persist(element);
+                                    }
+
+                                }
+
+                            }
+                            // Others elements
+                            else {
                                 em.persist(layoutConstraint.getElement());
                             }
                         }

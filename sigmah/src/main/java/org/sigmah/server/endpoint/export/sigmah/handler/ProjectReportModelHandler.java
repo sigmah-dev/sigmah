@@ -20,7 +20,6 @@ import org.apache.commons.logging.LogFactory;
 
 import org.sigmah.server.domain.Authentication;
 import org.sigmah.server.endpoint.export.sigmah.ExportException;
-import org.sigmah.shared.domain.Organization;
 import org.sigmah.shared.domain.quality.QualityCriterion;
 import org.sigmah.shared.domain.quality.QualityFramework;
 import org.sigmah.shared.domain.report.KeyQuestion;
@@ -107,7 +106,7 @@ public class ProjectReportModelHandler implements ModelHandler {
 	 * @param em
 	 *            the entity manager
 	 */
-	private void saveProjectReportModelElement(
+	public static void saveProjectReportModelElement(
 			ProjectReportModel projectReportModel, EntityManager em) {
 
 		//Save the sections on the project report model
@@ -154,7 +153,7 @@ public class ProjectReportModelHandler implements ModelHandler {
 	 * @param em
 	 *            the entity manager
 	 */
-	private void saveSectionSubSectionKeyQuestions(ProjectReportModelSection section,
+	private static void saveSectionSubSectionKeyQuestions(ProjectReportModelSection section,
 			List<ProjectReportModelSection> subSections, List<KeyQuestion> keyQuestions, EntityManager em) {
 		if(keyQuestions!=null){
 			saveSectionKeyQuestion(section, keyQuestions, em);
@@ -196,7 +195,7 @@ public class ProjectReportModelHandler implements ModelHandler {
 	 * @param em
 	 *            the entity manager
 	 */
-	private void saveSectionKeyQuestion(ProjectReportModelSection section,List<KeyQuestion> keyQuestions, EntityManager em){
+	private static void saveSectionKeyQuestion(ProjectReportModelSection section,List<KeyQuestion> keyQuestions, EntityManager em){
 		for(KeyQuestion keyQuestion : keyQuestions){
 			keyQuestion.setSectionId(section.getId());
 			if(keyQuestion.getQualityCriterion()!=null){
@@ -215,7 +214,7 @@ public class ProjectReportModelHandler implements ModelHandler {
 	 * @param em
 	 *            the entity manager
 	 */
-	private void saveKeyQuestionQualityCriterion(QualityCriterion qualityCriterion, EntityManager em){
+	private static void saveKeyQuestionQualityCriterion(QualityCriterion qualityCriterion, EntityManager em){
 		List<QualityCriterion> qualityCriterions = qualityCriterion.getSubCriteria();
 		QualityFramework qualityFramework = qualityCriterion.getQualityFramework();
 		if(qualityCriterions !=null || qualityFramework!=null){

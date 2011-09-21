@@ -67,6 +67,7 @@ import org.sigmah.shared.dto.element.FlexibleElementDTO;
 import org.sigmah.shared.dto.element.QuestionChoiceElementDTO;
 import org.sigmah.shared.dto.element.QuestionElementDTO;
 import org.sigmah.shared.dto.element.ReportElementDTO;
+import org.sigmah.shared.dto.element.ReportListElementDTO;
 import org.sigmah.shared.dto.element.TextAreaElementDTO;
 import org.sigmah.shared.dto.layout.LayoutDTO;
 import org.sigmah.shared.dto.layout.LayoutGroupDTO;
@@ -184,8 +185,6 @@ public class ElementForm extends ContentPanel {
 		                if(flexibleElement != null){
 		        			if(flexibleElement instanceof ReportElementDTO){
 		        				if(((ReportElementDTO)flexibleElement).getModelId() != null){
-		        					//Log.debug("Init specifics for Report " + ((ReportElementDTO)flexibleElement).getModelId() + " store "
-		        					//		+ reportModelsStore.getModels().size());
 		        					for(ReportModelDTO reportModel : reportModelsStore.getModels()){
 		        						if(reportModel.getId() == ((ReportElementDTO)flexibleElement).getModelId()){
 		        							reportModelList.setValue(reportModel);
@@ -194,6 +193,18 @@ public class ElementForm extends ContentPanel {
 		        				}
 		        			}
 		                }
+		                
+		                if(flexibleElement != null){
+                            if(flexibleElement instanceof ReportListElementDTO){
+                                if(((ReportListElementDTO)flexibleElement).getModelId() != null){
+                                    for(ReportModelDTO reportModel : reportModelsStore.getModels()){
+                                        if(reportModel.getId() == ((ReportListElementDTO)flexibleElement).getModelId()){
+                                            reportModelList.setValue(reportModel);
+                                        }
+                                    }
+                                }
+                            }
+                        }
 					}			
 		});
 		

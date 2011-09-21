@@ -65,7 +65,7 @@ public class GetReportElementsHandler implements CommandHandler<GetReportElement
 		 for(ReportElement r:reportElements)
 		 {
 			 ReportElementDTO reportElementDTO = mapper.map(r, ReportElementDTO.class);
-			 reportElementDTO.setModelId(r.getModelId());
+			 reportElementDTO.setModelId(r.getModel().getId());
 			 reportElementsDTOs.add(reportElementDTO);
 			 log.debug("Id after mapping is ID: "+reportElementDTO.getModelId());
 		 }
@@ -73,7 +73,7 @@ public class GetReportElementsHandler implements CommandHandler<GetReportElement
 		 for(ReportListElement r:reportListElements)
 		 {
 			 ReportListElementDTO reportListElementDTO = mapper.map(r, ReportListElementDTO.class);
-			 reportListElementDTO.setModelId(r.getModelId());
+			 reportListElementDTO.setModelId(r.getModel().getId());
 			 reportListElementsDTOs.add(reportListElementDTO);
 			 log.debug("Id after mapping is ID: "+reportListElementDTO.getModelId());
 			 

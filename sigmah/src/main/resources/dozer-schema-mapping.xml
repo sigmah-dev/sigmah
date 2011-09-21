@@ -586,4 +586,24 @@
         </field>
     </mapping>
 	
+	
+	<mapping wildcard="true">
+		<class-a>org.sigmah.shared.domain.element.ReportElement</class-a>
+		<class-b>org.sigmah.shared.dto.element.ReportElementDTO</class-b>
+		
+		<field>
+		 <a>model.id</a>
+		 <b>modelId</b>
+		</field>
+	</mapping>
+	
+	<mapping wildcard="true">
+		<class-a>org.sigmah.shared.domain.element.ReportListElement</class-a>
+		<class-b>org.sigmah.shared.dto.element.ReportListElementDTO</class-b>
+		
+		<field>
+		 <a>model.id</a>
+		 <b>modelId</b>
+		</field>
+	</mapping>
 </mappings>
