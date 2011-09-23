@@ -75,7 +75,7 @@ public class ProjectModelPolicy implements EntityPolicy<ProjectModel>  {
     	
     	projectModel = (ProjectModelDTO) properties.get(AdminUtil.ADMIN_PROJECT_MODEL);
     	//Only draft models can be changed
-    	if(projectModel != null && ProjectModelStatus.DRAFT.equals(projectModel.getStatus())){
+    	if(projectModel != null){
     		if(projectModel.getId() !=  -1){
 	    		//properties can only contain actual changes between old version and new one as verification has already been done
 	    		update(user, projectModel, properties);
@@ -196,6 +196,9 @@ public class ProjectModelPolicy implements EntityPolicy<ProjectModel>  {
 
 	@Override
 	public void update(User user, Object entity, PropertyMap changes) {
+		
+		log.debug("Begins update the model");
+		
 		ProjectModel model = null;
 		if(projectModel != null){
 			model = em.find(ProjectModel.class, new Integer(projectModel.getId()).longValue());		
@@ -215,6 +218,7 @@ public class ProjectModelPolicy implements EntityPolicy<ProjectModel>  {
 				}	    		
 			}
 			model = em.merge(model);
+			modelToUpdate = model;
 			/* ***********************************Log Frame Model*******************************************************/
 			if(changes.get(AdminUtil.PROP_LOG_FRAME) != null && (Boolean)changes.get(AdminUtil.PROP_LOG_FRAME)){
 				

@@ -2,57 +2,42 @@ package org.sigmah.client.page.admin.model.common;
 
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import org.sigmah.client.cache.UserLocalCache;
-import org.sigmah.client.dispatch.Dispatcher;
-import org.sigmah.client.dispatch.monitor.MaskingAsyncMonitor;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.page.admin.AdminUtil;
 import org.sigmah.client.page.project.dashboard.funding.FundingIconProvider;
 import org.sigmah.client.page.project.dashboard.funding.FundingIconProvider.IconSize;
-import org.sigmah.client.util.Notification;
-import org.sigmah.shared.command.CreateEntity;
-import org.sigmah.shared.command.GetProjectsByModel;
-import org.sigmah.shared.command.result.CreateResult;
-import org.sigmah.shared.command.result.ProjectListResult;
 import org.sigmah.shared.domain.ProjectModelStatus;
 import org.sigmah.shared.domain.ProjectModelType;
 import org.sigmah.shared.dto.OrgUnitModelDTO;
-import org.sigmah.shared.dto.ProjectDTOLight;
 import org.sigmah.shared.dto.ProjectModelDTO;
 
 import com.allen_sauer.gwt.log.client.Log;
-import com.extjs.gxt.ui.client.event.BaseEvent;
-import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FieldEvent;
 import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.extjs.gxt.ui.client.widget.WidgetComponent;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.Radio;
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.TextField;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.HBoxLayout;
 import com.extjs.gxt.ui.client.widget.layout.HBoxLayoutData;
-import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
@@ -101,11 +86,11 @@ public class AdminOneModelView extends LayoutContainer implements AdminOneModelP
     private Boolean isProject = true;
     
     private final UserLocalCache cache;
-    private final Dispatcher dispatcher;
+  
     
 	@Inject
-    public AdminOneModelView(UserLocalCache cache, final Dispatcher dispatcher) { 
-		this.dispatcher = dispatcher;
+    public AdminOneModelView(UserLocalCache cache) { 
+		
 		this.cache = cache;
 		
 		final HBoxLayout hPanelLayout = new HBoxLayout();
@@ -139,116 +124,10 @@ public class AdminOneModelView extends LayoutContainer implements AdminOneModelP
 		statusList.setTriggerAction(TriggerAction.ALL);	
 		List<String> values = new ArrayList<String>();  
 		for(ProjectModelStatus e : ProjectModelStatus.values()){
-			if(!ProjectModelStatus.USED.equals(e))//Technical status
 				values.add(ProjectModelStatus.getName(e));
 		}
 		statusList.add(values);
-		statusList.addListener(Events.Select, new Listener<BaseEvent>() {
-
-			@Override
-			public void handleEvent(BaseEvent be) {
-				if(statusList.getValue()!=null && 
-						!ProjectModelStatus.getName(ProjectModelStatus.DRAFT).equals(statusList.getValue().getValue())){
-					if(isProject){
-						
-						//For project model
-						
-						MessageBox.confirm(I18N.MESSAGES.adminModelStatusChangeBox(), 
-								I18N.MESSAGES.adminModelStatusChange(ProjectModelStatus.getName(currentProjectModel.getStatus()), 
-										statusList.getValue().getValue()), new Listener<MessageBoxEvent>(){
-
-							@Override
-							public void handleEvent(MessageBoxEvent be) {
-								if (Dialog.NO.equals(be.getButtonClicked().getItemId())) {
-									statusList.setSimpleValue(ProjectModelStatus.getName(currentProjectModel.getStatus()));
-	                            }
-								else 
-								{
-									GetProjectsByModel cmdGetProjectsByModel = new GetProjectsByModel();
-									cmdGetProjectsByModel.setProjectModelId(new Long((long)currentProjectModel.getId()));
-									
-									dispatcher.execute(cmdGetProjectsByModel, new MaskingAsyncMonitor(topPanel, I18N.CONSTANTS.loading()), new AsyncCallback<ProjectListResult>(){
-
-										@Override
-										public void onFailure(Throwable caught) {
-											
-											//RPC failed
-							        		 MessageBox.alert(I18N.CONSTANTS.error(), I18N.CONSTANTS.serverError(), null);       		
-											
-										}
-
-										@Override
-										public void onSuccess(
-												ProjectListResult result) {
-											
-											List<ProjectDTOLight> testProjects = result.getListProjectsLightDTO();
-											if(result!=null && testProjects!=null && testProjects.size()>0 )
-											{
-												
-												
-												String testProjectNames ="";
-												for(ProjectDTOLight p : testProjects)
-												{
-													testProjectNames+="["+p.getName()+"] ";
-												}										
-											
-												
-												String waringMessage = I18N.MESSAGES.projectChangeStatusDetails(testProjectNames);
-											
-												
-												Listener<MessageBoxEvent> l = new Listener<MessageBoxEvent>(){
-
-													@Override
-													public void handleEvent(
-															MessageBoxEvent be) {
-														
-														if(be.getButtonClicked().getItemId().equals(Dialog.NO))
-														{
-															statusList.setSimpleValue(ProjectModelStatus.getName(currentProjectModel.getStatus()));
-														}
-														
-													}
-													
-												};
-												
-												MessageBox.confirm(I18N.CONSTANTS.projectChangeStatus(), waringMessage, l);
-												
-												
-											}
-											
-											
-										}
-										
-									});
-									
-								}
-								
-							}
-
-						});
-						
-						
-					}else{
-						
-						//For OrgUnit model
-						MessageBox.confirm(I18N.MESSAGES.adminModelStatusChangeBox(), 
-								I18N.MESSAGES.adminModelStatusChange(ProjectModelStatus.getName(currentOrgUnitModel.getStatus()), 
-										statusList.getValue().getValue()), new Listener<MessageBoxEvent>(){
-
-							@Override
-							public void handleEvent(MessageBoxEvent be) {
-								if (Dialog.NO.equals(be.getButtonClicked().getItemId())) {
-									statusList.setSimpleValue(ProjectModelStatus.getName(currentOrgUnitModel.getStatus()));
-	                            }
-							}
-
-						});
-					}
-					
-				}
-			}
-			
-		});
+		
         
        
         
@@ -405,7 +284,7 @@ public class AdminOneModelView extends LayoutContainer implements AdminOneModelP
         
         tabPanelParameters = new TabPanel();
         tabPanelParameters.setPlain(true);
-        
+
         panelSelectedTab = new LayoutContainer(new BorderLayout());
         panelSelectedTab.setBorders(false);
         panelSelectedTab.addStyleName("project-current-phase-panel");
@@ -415,13 +294,7 @@ public class AdminOneModelView extends LayoutContainer implements AdminOneModelP
         
         saveButton = new Button(I18N.CONSTANTS.save());
         saveButton.disable();
-        saveButton.addListener(Events.OnClick, new Listener<ButtonEvent>(){
-
-			@Override
-			public void handleEvent(ButtonEvent be) {
-				updateModel();
-			}
-        });
+       
         topRightFormPanel.add(saveButton);
 
         topPanel.add(topLeftFormPanel, new HBoxLayoutData(0, 4, 0, 4));
@@ -433,97 +306,7 @@ public class AdminOneModelView extends LayoutContainer implements AdminOneModelP
 	}
 
 	
-	private void updateModel(){
-		
-		if(isProject){
-			if(name.getValue() == null || statusList.getValue() == null || currentModelType == null ){
-				MessageBox.alert(I18N.CONSTANTS.createFormIncomplete(),
-	                    I18N.MESSAGES.createFormIncompleteDetails(I18N.CONSTANTS.adminStandardModel()), null);
-	            return;
-			}
-			
-			HashMap<String, Object> modelProperties = new HashMap<String, Object>();
-			modelProperties.put(AdminUtil.ADMIN_PROJECT_MODEL, currentProjectModel);
-			modelProperties.put(AdminUtil.PROP_PM_NAME, name.getValue());
-			
-			if(statusList.getValue() != null){
-				String status = statusList.getValue().getValue();
-				ProjectModelStatus statusEnum = ProjectModelStatus.getStatus(status);
-				modelProperties.put(AdminUtil.PROP_PM_STATUS, statusEnum);
-			}			
-			
-			modelProperties.put(AdminUtil.PROP_PM_USE, currentModelType);
-			
-			dispatcher.execute(new CreateEntity("ProjectModel", modelProperties), null, new AsyncCallback<CreateResult>(){
-	            public void onFailure(Throwable caught) {  
-	            	MessageBox.alert(I18N.CONSTANTS.adminProjectModelUpdateBox(), 
-	              			I18N.MESSAGES.adminStandardCreationFailure(I18N.CONSTANTS.adminProjectModelStandard()
-	 								+ " '" + name.getValue() + "'"), null);
-	            }
 
-				@Override
-				public void onSuccess(CreateResult result) {
-					if(result != null && result.getEntity() != null){
-						MessageBox.alert(I18N.CONSTANTS.adminProjectModelUpdateBox(), 
-		              			I18N.MESSAGES.adminStandardCreationNull(I18N.CONSTANTS.adminProjectModelStandard()
-		 								+ " '" + name.getValue() + "'"), null);
-					}else{
-						Notification.show(I18N.CONSTANTS.adminProjectModelUpdateBox(), I18N.MESSAGES.adminStandardUpdateSuccess(I18N.CONSTANTS.adminProjectModelStandard()
-								+ " '" + name.getValue()+"'"));
-					}				
-				}
-			});
-		}else{
-			if(!topLeftFormPanel.isValid()){
-				MessageBox.alert(I18N.CONSTANTS.createFormIncomplete(),
-	                    I18N.MESSAGES.createFormIncompleteDetails(I18N.CONSTANTS.adminStandardModel()), null);
-	            return;
-			}
-			
-			final String nameValue = name.getValue();
-			final String title = titleField.getValue();
-			final Boolean hasBudget = hasBudgetCheckBox.getValue(); 
-			final Boolean containsProjects = canContainProjectsCheckBox.getValue();
-					
-			HashMap<String, Object> modelProperties = new HashMap<String, Object>();
-			modelProperties.put(AdminUtil.PROP_OM_NAME, name.getValue());
-			if(statusList.getValue() != null){
-				String status = statusList.getValue().getValue();
-				ProjectModelStatus statusEnum = ProjectModelStatus.getStatus(status);
-				modelProperties.put(AdminUtil.PROP_OM_STATUS, statusEnum);
-			}
-			modelProperties.put(AdminUtil.ADMIN_ORG_UNIT_MODEL, currentOrgUnitModel);
-			modelProperties.put(AdminUtil.PROP_OM_NAME, nameValue);
-			modelProperties.put(AdminUtil.PROP_OM_TITLE, title);
-			modelProperties.put(AdminUtil.PROP_OM_HAS_BUDGET, hasBudget);
-			modelProperties.put(AdminUtil.PROP_OM_CONTAINS_PROJECTS, containsProjects);
-			 
-	        dispatcher.execute(new CreateEntity("OrgUnitModel", modelProperties), null, new AsyncCallback<CreateResult>(){
-
-	       	 public void onFailure(Throwable caught) {
-	       		MessageBox.alert(I18N.CONSTANTS.adminOrgUnitsModelCreationBox(), 
-	          			I18N.MESSAGES.adminStandardCreationFailure(I18N.CONSTANTS.adminOrgUnitsModelStandard()
-									+ " '" + name.getValue() + "'"), null);
-	             }
-
-				@Override
-				public void onSuccess(CreateResult result) {
-					if(result != null && result.getEntity() != null){								
-						
-						Notification.show(I18N.CONSTANTS.adminOrgUnitsModelCreationBox(), I18N.MESSAGES.adminStandardUpdateSuccess(I18N.CONSTANTS.adminOrgUnitsModelStandard()
-								+ " '" + name.getValue() +"'"));					
-					}					
-					else{
-						MessageBox.alert(I18N.CONSTANTS.adminOrgUnitsModelCreationBox(), 
-			          			I18N.MESSAGES.adminStandardCreationNull(I18N.CONSTANTS.adminOrgUnitsModelStandard()
-											+ " '" + name.getValue() + "'"), null);
-					}		
-				}
-	        });
-		}
-		
-		
-	}
 	
 	@Override
 	public Widget getMainPanel() {
@@ -566,7 +349,7 @@ public class AdminOneModelView extends LayoutContainer implements AdminOneModelP
 
 			fundingGrid.setVisible(true);
 			partnerGrid.setVisible(true);
-			if(ProjectModelStatus.DRAFT.equals(((ProjectModelDTO) model).getStatus())){
+			
 				name.enable();
 				statusList.enable();
 				saveButton.enable();
@@ -574,7 +357,7 @@ public class AdminOneModelView extends LayoutContainer implements AdminOneModelP
 				fundingGrid.setVisible(true);
 				partnerGrid.setVisible(true);
 				radioGroup.setFireChangeEventOnSetValue(true);
-			}
+			
 				
 			
 			isProject = true;
@@ -623,15 +406,14 @@ public class AdminOneModelView extends LayoutContainer implements AdminOneModelP
 			hasBudgetCheckBox.disable();
 			canContainProjectsCheckBox.disable();	
 
-			if(ProjectModelStatus.DRAFT.equals(((OrgUnitModelDTO) model).getStatus())){
-				name.enable();
+			
 				statusList.enable();
 				radioGroup.setFireChangeEventOnSetValue(true);
 				saveButton.enable();
 				titleField.enable();
 				hasBudgetCheckBox.enable();
 				canContainProjectsCheckBox.enable();
-			}
+		
 				
 			
 			
@@ -652,4 +434,99 @@ public class AdminOneModelView extends LayoutContainer implements AdminOneModelP
 		
 		
 	}
+
+
+
+@Override
+public SimpleComboBox<String> getStatusList() {
+	return this.statusList;
 }
+
+
+@Override
+public ContentPanel getTopPanel() {
+	
+	return this.topPanel;
+}
+
+
+@Override
+public Boolean isProject() {
+	return this.isProject;
+}
+
+
+@Override
+public Button getSaveButton() {
+	return this.saveButton;
+}
+
+
+
+
+@Override
+public TextField<String> getNameField() {
+	return this.name;
+}
+
+
+
+
+@Override
+public ProjectModelType getCurrentModelType() {
+	return this.currentModelType;
+}
+
+
+
+
+@Override
+public TextField<String> getTitleField() {
+	return this.titleField;
+}
+
+
+
+
+@Override
+public CheckBox getHasBudgetCheckBox() {
+	return this.hasBudgetCheckBox;
+}
+
+
+
+
+@Override
+public CheckBox getCanContainProjectsCheckBox() {
+	return this.canContainProjectsCheckBox;
+}
+
+
+
+
+@Override
+public FormPanel getTopLeftFormPanel() {
+	return this.topLeftFormPanel;
+}
+
+
+
+
+@Override
+public ProjectModelDTO getCurrentProjectModel() {
+	return this.currentProjectModel;
+}
+
+
+
+
+@Override
+public OrgUnitModelDTO getCurrentOrgUnitModel() {
+	return this.currentOrgUnitModel;
+}
+	
+	
+}
+
+
+

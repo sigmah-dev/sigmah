@@ -276,6 +276,7 @@ sigmah/src/main/java/org/sigmah/client/page/admin/model/common/AdminOneModelPres
 sigmah/src/main/java/org/sigmah/client/page/admin/model/common/AdminOneModelView.java -text
 sigmah/src/main/java/org/sigmah/client/page/admin/model/common/ModelView.java -text
 sigmah/src/main/java/org/sigmah/client/page/admin/model/common/ProjectModelForm.java -text
+sigmah/src/main/java/org/sigmah/client/page/admin/model/common/StatusChangeAction.java -text svneol=unset#text/plain
 sigmah/src/main/java/org/sigmah/client/page/admin/model/common/element/AdminFlexibleElementActionListener.java -text
 sigmah/src/main/java/org/sigmah/client/page/admin/model/common/element/AdminFlexibleElementsPresenter.java -text
 sigmah/src/main/java/org/sigmah/client/page/admin/model/common/element/AdminFlexibleElementsView.java -text
@@ -1549,6 +1550,7 @@ sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/AmendmentActionHa
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/BaseEntityHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/BatchCommandHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/ChangePhaseHandler.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/CheckModelUsageHandler.java -text svneol=unset#text/plain
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/CommandHandlerModule.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/CopyLogFrameHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/CreateEntityHandler.java -text
@@ -1800,6 +1802,7 @@ sigmah/src/main/java/org/sigmah/shared/command/AddPartner.java -text
 sigmah/src/main/java/org/sigmah/shared/command/AmendmentAction.java -text
 sigmah/src/main/java/org/sigmah/shared/command/BatchCommand.java -text
 sigmah/src/main/java/org/sigmah/shared/command/ChangePhase.java -text
+sigmah/src/main/java/org/sigmah/shared/command/CheckModelUsage.java -text svneol=unset#text/plain
 sigmah/src/main/java/org/sigmah/shared/command/Command.java -text
 sigmah/src/main/java/org/sigmah/shared/command/CopyLogFrame.java -text
 sigmah/src/main/java/org/sigmah/shared/command/CreateEntity.java -text
@@ -1908,6 +1911,7 @@ sigmah/src/main/java/org/sigmah/shared/command/result/InvitationList.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/ListResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/LogFrameResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/MapIconResult.java -text
+sigmah/src/main/java/org/sigmah/shared/command/result/ModelCheckResult.java -text svneol=unset#text/plain
 sigmah/src/main/java/org/sigmah/shared/command/result/ModelElementListResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/MonitoredPointsResultList.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/MonthlyReportResult.java -text

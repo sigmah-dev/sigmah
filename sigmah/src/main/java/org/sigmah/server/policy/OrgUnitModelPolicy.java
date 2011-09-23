@@ -49,7 +49,7 @@ public class OrgUnitModelPolicy implements EntityPolicy<OrgUnitModel>  {
     	
     	orgUnitModel = (OrgUnitModelDTO) properties.get(AdminUtil.ADMIN_ORG_UNIT_MODEL);
     	//Only draft models can be changed
-    	if(orgUnitModel != null && ProjectModelStatus.DRAFT.equals(orgUnitModel.getStatus())){
+    	if(orgUnitModel != null ){
     		if(orgUnitModel.getId() !=  -1){
 	    		//properties can only contain actual changes between old version and new one as verification has already been done
 	    		update(user, orgUnitModel, properties);
