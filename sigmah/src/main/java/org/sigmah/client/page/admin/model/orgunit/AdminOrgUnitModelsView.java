@@ -92,9 +92,8 @@ public class AdminOrgUnitModelsView extends View {
 
 				//Name hyperlink
 				final Anchor nameHyperlink ;
-				nameHyperlink = new Anchor(model.getName(), true);
-		        nameHyperlink.setStyleName("hyperlink");
-		       // nameHyperlink.addStyleName("project-grid-leaf");
+				nameHyperlink = new Anchor(model.getName(), true);	
+		        nameHyperlink.setStyleName("orgunitModel-grid-nameLink");
 		        nameHyperlink.addClickHandler(new ClickHandler(){
 
 					@Override
