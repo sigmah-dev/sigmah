@@ -13,7 +13,6 @@ import org.sigmah.shared.command.Delete;
 import org.sigmah.shared.command.result.VoidResult;
 import org.sigmah.shared.domain.ProjectModelStatus;
 import org.sigmah.shared.dto.PhaseModelDTO;
-import org.sigmah.shared.dto.ProjectDTOLight;
 import org.sigmah.shared.dto.ProjectModelDTO;
 
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -85,11 +84,14 @@ public class DeletePhaseListener implements Listener<ButtonEvent>{
 		
 		String confirmMessageDetials=I18N.CONSTANTS.deletePhaseModelConfirm();
 		
-		ProjectModelDTO parentProjectModel = model.getParentProjectModelDTO();
+		//ProjectModelDTO parentProjectModel = model.getParentProjectModelDTO();
+		
+		ProjectModelDTO parentProjectModel = view.getProjectModel();
+		
 	    if(parentProjectModel!=null && (parentProjectModel.getPhaseModelsDTO()==null ||parentProjectModel.getPhaseModelsDTO().size()==1))
 	    {//In that case, this is the last phase
 	    	
-	    	confirmMessageDetials = I18N.CONSTANTS.deleteRootPhaseModelConfirm();
+	    	confirmMessageDetials = I18N.CONSTANTS.deleteLastPhaseModelConfirm();
 	    }
 		
 		MessageBox deleteConfirmMsgBox = MessageBox.confirm(I18N.CONSTANTS.deleteConfirm(), confirmMessageDetials, l);		
