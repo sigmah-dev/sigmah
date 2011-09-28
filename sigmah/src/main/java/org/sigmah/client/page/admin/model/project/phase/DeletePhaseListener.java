@@ -91,7 +91,7 @@ public class DeletePhaseListener implements Listener<ButtonEvent>{
 	    if(parentProjectModel!=null && (parentProjectModel.getPhaseModelsDTO()==null ||parentProjectModel.getPhaseModelsDTO().size()==1))
 	    {//In that case, this is the last phase
 	    	
-	    	confirmMessageDetials = I18N.CONSTANTS.deleteLastPhaseModelConfirm();
+	    	confirmMessageDetials = I18N.CONSTANTS.deleteRootPhaseModelConfirm();
 	    }
 		
 		MessageBox deleteConfirmMsgBox = MessageBox.confirm(I18N.CONSTANTS.deleteConfirm(), confirmMessageDetials, l);		
