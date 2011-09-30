@@ -8,6 +8,7 @@ import org.sigmah.client.i18n.I18N;
 import org.sigmah.shared.command.MoveOrgUnit;
 import org.sigmah.shared.command.result.VoidResult;
 import org.sigmah.shared.dto.OrgUnitDTOLight;
+import org.sigmah.shared.exception.MoveException;
 
 import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -25,6 +26,7 @@ import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.HiddenField;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.HTML;
 
 public class MoveOrgUnitWindow {
 
@@ -50,6 +52,7 @@ public class MoveOrgUnitWindow {
     private final Window window;
 
     private final ComboBox<OrgUnitDTOLight> orgUnitsField;
+    private final HTML alertLabel;
     private final ListStore<OrgUnitDTOLight> orgUnitsStore;
     private final HiddenField<String> unitField;
 
@@ -71,7 +74,7 @@ public class MoveOrgUnitWindow {
 
         // Models list.
         orgUnitsField = new ComboBox<OrgUnitDTOLight>();
-        orgUnitsField.setFieldLabel(I18N.CONSTANTS.orgunit());
+        orgUnitsField.setFieldLabel(I18N.CONSTANTS.adminOrgUnitMoveNewParent());
         orgUnitsField.setAllowBlank(false);
         orgUnitsField.setValueField("id");
         orgUnitsField.setDisplayField("completeName");
@@ -99,6 +102,8 @@ public class MoveOrgUnitWindow {
 
         orgUnitsField.setStore(orgUnitsStore);
 
+        alertLabel = new HTML();
+
         // Parent id.
         unitField = new HiddenField<String>();
         unitField.setName("parentId");
@@ -121,6 +126,7 @@ public class MoveOrgUnitWindow {
         formPanel.setFieldWidth(350);
 
         formPanel.add(orgUnitsField);
+        formPanel.add(alertLabel);
         formPanel.add(unitField);
         formPanel.addButton(createButton);
 
@@ -132,7 +138,6 @@ public class MoveOrgUnitWindow {
 
         // Window.
         window = new Window();
-        window.setHeading(I18N.CONSTANTS.adminOrgUnitMove());
         window.setWidth(560);
         window.setAutoHeight(true);
 
@@ -157,8 +162,27 @@ public class MoveOrgUnitWindow {
 
                     @Override
                     public void onFailure(Throwable caught) {
-                        MessageBox.alert(I18N.CONSTANTS.adminOrgUnitMoveFailed(),
-                                I18N.CONSTANTS.adminOrgUnitMoveFailedDetails(), null);
+
+                        String msg = I18N.CONSTANTS.adminOrgUnitMoveFailedDetails();
+
+                        if (caught instanceof MoveException) {
+                            final MoveException e = (MoveException) caught;
+                            switch (e.getCode()) {
+                            case MoveException.ROOT_ERR_CODE:
+                                msg = I18N.CONSTANTS.adminOrgUnitMoveErrorRoot();
+                                break;
+                            case MoveException.CYCLE_ERR_CODE:
+                                msg = I18N.CONSTANTS.adminOrgUnitMoveErrorCycle();
+                                break;
+                            case MoveException.ITSELF_ERR_CODE: {
+                                msg = I18N.CONSTANTS.adminOrgUnitMoveErrorItself();
+                                break;
+                            }
+                            }
+                        }
+
+                        MessageBox.alert(I18N.CONSTANTS.adminOrgUnitMoveFailed(), msg, null);
+
                     }
 
                     @Override
@@ -169,12 +193,19 @@ public class MoveOrgUnitWindow {
                 });
     }
 
-    public void show(int id) {
+    public void show(OrgUnitDTOLight moved) {
 
         // Reset.
         orgUnitsField.reset();
         orgUnitsStore.removeAll();
-        unitField.setValue(String.valueOf(id));
+        unitField.setValue(String.valueOf(moved.getId()));
+        window.setHeading(I18N.CONSTANTS.adminOrgUnitMove() + " " + moved.getName() + " - " + moved.getFullName());
+
+        // if (moved.getParent() == null) {
+        // alertLabel.setHTML(I18N.CONSTANTS.adminOrgUnitMoveRoot());
+        // } else {
+        // alertLabel.setHTML(null);
+        // }
 
         // There are three remote calls
         countBeforeShow = 1;
@@ -185,7 +216,7 @@ public class MoveOrgUnitWindow {
 
             @Override
             public void onSuccess(OrgUnitDTOLight result) {
-                
+
                 recursiveFillOrgUnitsList(result);
 
                 if (orgUnitsStore.getCount() == 0) {

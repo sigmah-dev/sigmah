@@ -30,6 +30,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 public class AdminOrgUnitPresenter implements AdminSubPresenter {
 
     private final View view;
+    @SuppressWarnings("unused")
     private final Dispatcher dispatcher;
     private final UserLocalCache cache;
 
@@ -148,7 +149,7 @@ public class AdminOrgUnitPresenter implements AdminSubPresenter {
                         }
                     });
 
-                    window.show(moved.getId());
+                    window.show(moved);
                 }
             }
         });
@@ -159,11 +160,14 @@ public class AdminOrgUnitPresenter implements AdminSubPresenter {
             public void selectionChanged(SelectionChangedEvent<OrgUnitDTOLight> se) {
 
                 final OrgUnitDTOLight selection = view.getTree().getSelectionModel().getSelectedItem();
-                final boolean enabled = selection != null;
+                
+                final boolean addEnabled = selection != null;
+                final boolean moveEnabled = selection != null;
+                final boolean removeEnabled = selection != null;
 
-                view.getAddButton().setEnabled(enabled);
-                view.getMoveButton().setEnabled(enabled);
-                view.getRemoveButton().setEnabled(enabled);
+                view.getAddButton().setEnabled(addEnabled);
+                view.getMoveButton().setEnabled(moveEnabled);
+                view.getRemoveButton().setEnabled(removeEnabled);
             }
         });
 

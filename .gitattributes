@@ -2198,6 +2198,7 @@ sigmah/src/main/java/org/sigmah/shared/exception/DuplicateException.java -text
 sigmah/src/main/java/org/sigmah/shared/exception/IllegalAccessCommandException.java -text
 sigmah/src/main/java/org/sigmah/shared/exception/InvalidAuthTokenException.java -text
 sigmah/src/main/java/org/sigmah/shared/exception/InvalidLoginException.java -text
+sigmah/src/main/java/org/sigmah/shared/exception/MoveException.java -text
 sigmah/src/main/java/org/sigmah/shared/exception/ParseException.java -text
 sigmah/src/main/java/org/sigmah/shared/exception/PartnerHasSitesException.java -text
 sigmah/src/main/java/org/sigmah/shared/exception/ReportModelException.java -text
