@@ -43,22 +43,46 @@ public class GetOrgUnitModelsHandler implements CommandHandler<GetOrgUnitModels>
     @Override
     public CommandResult execute(GetOrgUnitModels cmd, User user) throws CommandException {
 
-        final ArrayList<OrgUnitModelDTO> orgUnitModelDTOList = new ArrayList<OrgUnitModelDTO>();
+        final ArrayList<OrgUnitModelDTO> orgUnitModelDTOList;
 
-        final ProjectModelStatus status = cmd.getStatus();
+        final ProjectModelStatus[] status = cmd.getStatus();
 
         // Creates selection query.
-        final Query query;
+        Query query;
 
         if (status == null) {
             query = em.createQuery("SELECT m FROM OrgUnitModel m WHERE m.organization.id = :orgid ORDER BY m.name");
             query.setParameter("orgid", user.getOrganization().getId());
+
+            orgUnitModelDTOList = queryModels(query);
+
         } else {
-            query = em
-                    .createQuery("SELECT m FROM OrgUnitModel m WHERE m.organization.id = :orgid AND m.status = :availableStatus ORDER BY m.name");
-            query.setParameter("orgid", user.getOrganization().getId());
-            query.setParameter("availableStatus", status);
+
+            orgUnitModelDTOList = new ArrayList<OrgUnitModelDTO>();
+
+            for (final ProjectModelStatus s : status) {
+
+                query = em
+                        .createQuery("SELECT m FROM OrgUnitModel m WHERE m.organization.id = :orgid AND m.status = :availableStatus ORDER BY m.name");
+                query.setParameter("orgid", user.getOrganization().getId());
+                query.setParameter("availableStatus", s);
+
+                orgUnitModelDTOList.addAll(queryModels(query));
+
+            }
+
         }
+
+        if (log.isDebugEnabled()) {
+            log.debug("[execute] Found " + orgUnitModelDTOList.size() + " org unit models.");
+        }
+
+        return new OrgUnitModelListResult(orgUnitModelDTOList);
+    }
+
+    private ArrayList<OrgUnitModelDTO> queryModels(Query query) {
+
+        final ArrayList<OrgUnitModelDTO> orgUnitModelDTOList = new ArrayList<OrgUnitModelDTO>();
 
         // Gets all project models entities.
         @SuppressWarnings("unchecked")
@@ -71,11 +95,7 @@ public class GetOrgUnitModelsHandler implements CommandHandler<GetOrgUnitModels>
             }
         }
 
-        if (log.isDebugEnabled()) {
-            log.debug("[execute] Found " + orgUnitModelDTOList.size() + " org unit models.");
-        }
+        return orgUnitModelDTOList;
 
-        return new OrgUnitModelListResult(orgUnitModelDTOList);
     }
-
 }

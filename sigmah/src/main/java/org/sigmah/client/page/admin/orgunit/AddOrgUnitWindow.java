@@ -241,7 +241,7 @@ public class AddOrgUnitWindow {
         alert = false;
 
         // Retrieves the models.
-        dispatcher.execute(new GetOrgUnitModels(ProjectModelStatus.READY), null,
+        dispatcher.execute(new GetOrgUnitModels(ProjectModelStatus.READY, ProjectModelStatus.USED), null,
                 new AsyncCallback<OrgUnitModelListResult>() {
 
                     @Override

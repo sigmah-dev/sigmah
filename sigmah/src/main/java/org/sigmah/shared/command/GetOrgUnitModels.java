@@ -13,21 +13,21 @@ public class GetOrgUnitModels implements Command<OrgUnitModelListResult> {
 
     private static final long serialVersionUID = 6533084223987010888L;
 
-    private ProjectModelStatus status;
+    private ProjectModelStatus[] status;
 
     public GetOrgUnitModels() {
         // serialization.
     }
 
-    public GetOrgUnitModels(ProjectModelStatus status) {
+    public GetOrgUnitModels(ProjectModelStatus... status) {
         this.status = status;
     }
 
-    public ProjectModelStatus getStatus() {
+    public ProjectModelStatus[] getStatus() {
         return status;
     }
 
-    public void setStatus(ProjectModelStatus status) {
+    public void setStatus(ProjectModelStatus[] status) {
         this.status = status;
     }
 
