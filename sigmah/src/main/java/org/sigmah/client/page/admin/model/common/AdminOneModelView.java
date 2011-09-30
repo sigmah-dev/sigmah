@@ -406,7 +406,7 @@ public class AdminOneModelView extends LayoutContainer implements AdminOneModelP
 			hasBudgetCheckBox.disable();
 			canContainProjectsCheckBox.disable();	
 
-			
+			    name.enable();
 				statusList.enable();
 				radioGroup.setFireChangeEventOnSetValue(true);
 				saveButton.enable();
