@@ -335,6 +335,9 @@ public class ProjectModelHandler implements ModelHandler {
                                         oldModel.resetImport(new HashMap<Object, Object>(), new HashSet<Object>());
                                         oldModel.setOrganization(authentication.getUser().getOrganization());
                                         newModel = oldModel;
+                                        ProjectReportModelHandler.saveProjectReportModelElement(newModel, em);
+                                        em.persist(newModel);
+                                        element.setModel(newModel);
                                         em.persist(element);
                                         reportModelsId.add(element.getModel().getId());
                                     }
