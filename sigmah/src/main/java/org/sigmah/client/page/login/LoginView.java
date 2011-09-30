@@ -56,9 +56,7 @@ public class LoginView extends Composite {
         final LinkedHashMap<String, String> map = new LinkedHashMap<String, String>();
         map.put(I18N.CONSTANTS.languageFrench(), "fr");
         map.put(I18N.CONSTANTS.languageEnglish(), "en");
-        
-      //Hide this choice, because the spanish is not ready. It should be supported in the future.
-        //map.put(I18N.CONSTANTS.languageSpanish(), "es");
+        map.put(I18N.CONSTANTS.languageSpanish(), "es");
 
         languageMap = map;
     }
