@@ -25,6 +25,7 @@ import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.treegrid.TreeGrid;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class AdminOrgUnitPresenter implements AdminSubPresenter {
@@ -160,7 +161,7 @@ public class AdminOrgUnitPresenter implements AdminSubPresenter {
             public void selectionChanged(SelectionChangedEvent<OrgUnitDTOLight> se) {
 
                 final OrgUnitDTOLight selection = view.getTree().getSelectionModel().getSelectedItem();
-                
+
                 final boolean addEnabled = selection != null;
                 final boolean moveEnabled = selection != null;
                 final boolean removeEnabled = selection != null;
@@ -236,7 +237,15 @@ public class AdminOrgUnitPresenter implements AdminSubPresenter {
                 if (result != null) {
                     view.getStore().removeAll();
                     view.getStore().add(result, true);
-                    view.getTree().expandAll();
+
+                    new Timer() {
+
+                        @Override
+                        public void run() {
+                            view.getTree().expandAll();
+                        }
+                    }.schedule(2000);
+
                 }
             }
         });
