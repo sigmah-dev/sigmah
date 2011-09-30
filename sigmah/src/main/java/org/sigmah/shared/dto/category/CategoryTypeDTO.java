@@ -19,7 +19,7 @@ public class CategoryTypeDTO extends BaseModelData implements EntityDTO {
     // Type id
     @Override
     public int getId() {
-        return (Integer) get("id");
+        return (Integer) (get("id") != null ? get("id") : -1);
     }
 
     public void setId(int id) {
