@@ -5,7 +5,6 @@
 
 
 
-
 <module rename-to="Sigmah">
 
     <!-- Inherit the core Web Toolkit stuff. -->
@@ -53,6 +52,6 @@
     <entry-point class='org.sigmah.client.SigmahEntryPoint' />
 
     <!-- Enable other locales -->
-    <extend-property name="locale" values="en,fr" />
+    <extend-property name="locale" values="en,fr,es" />
     <set-property-fallback name="locale" value="en"/>
 </module>
