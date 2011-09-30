@@ -1,14 +1,16 @@
 package org.sigmah.client.page.admin.model.common;
 
-
 import java.util.ArrayList;
-import java.util.List;
 
 import org.sigmah.client.cache.UserLocalCache;
+import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.page.admin.AdminUtil;
 import org.sigmah.client.page.project.dashboard.funding.FundingIconProvider;
 import org.sigmah.client.page.project.dashboard.funding.FundingIconProvider.IconSize;
+import org.sigmah.shared.command.CheckModelUsage;
+import org.sigmah.shared.command.GetAvailableStatusForModel;
+import org.sigmah.shared.command.result.ProjectModelStatusListResult;
 import org.sigmah.shared.domain.ProjectModelStatus;
 import org.sigmah.shared.domain.ProjectModelType;
 import org.sigmah.shared.dto.OrgUnitModelDTO;
@@ -22,6 +24,7 @@ import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.extjs.gxt.ui.client.widget.WidgetComponent;
 import com.extjs.gxt.ui.client.widget.button.Button;
@@ -38,6 +41,7 @@ import com.extjs.gxt.ui.client.widget.layout.HBoxLayout;
 import com.extjs.gxt.ui.client.widget.layout.HBoxLayoutData;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
@@ -49,20 +53,20 @@ import com.google.inject.Inject;
  * @author nrebiai
  * 
  */
-public class AdminOneModelView extends LayoutContainer implements AdminOneModelPresenter.View{
-	
-	private final static int BORDER = 8;
+public class AdminOneModelView extends LayoutContainer implements AdminOneModelPresenter.View {
+
+    private final static int BORDER = 8;
 
     private TabPanel tabPanelParameters;
     private LayoutContainer panelSelectedTab;
     private ContentPanel topPanel;
     private FormPanel topLeftFormPanel;
-   
+
     private FormPanel topRightFormPanel;
     private final TextField<String> name;
     private final SimpleComboBox<String> statusList;
-    
-    //Project Model
+
+    // Project Model
     private FormPanel topCenterFormPanel;
     private final Radio ngoRadio;
     private final Radio fundingRadio;
@@ -72,69 +76,65 @@ public class AdminOneModelView extends LayoutContainer implements AdminOneModelP
     private final Grid fundingGrid;
     private final Grid partnerGrid;
     private ProjectModelType currentModelType = ProjectModelType.NGO;
-    
-    //Org unit model
+
+    // Org unit model
     private final TextField<String> titleField;
-	private final CheckBox hasBudgetCheckBox;
-	private final CheckBox canContainProjectsCheckBox;	
-	
-	private final Button saveButton;
-	
-    private ProjectModelDTO currentProjectModel;   
+    private final CheckBox hasBudgetCheckBox;
+    private final CheckBox canContainProjectsCheckBox;
+
+    private final Button saveButton;
+
+    private ProjectModelDTO currentProjectModel;
     private OrgUnitModelDTO currentOrgUnitModel;
-    
+
     private Boolean isProject = true;
-    
+
     private final UserLocalCache cache;
-  
-    
-	@Inject
-    public AdminOneModelView(UserLocalCache cache) { 
-		
-		this.cache = cache;
-		
-		final HBoxLayout hPanelLayout = new HBoxLayout();
+
+    private final Dispatcher dispatcher;
+
+    @Inject
+    public AdminOneModelView(UserLocalCache cache, Dispatcher dispatcher) {
+
+        this.cache = cache;
+        this.dispatcher = dispatcher;
+
+        final HBoxLayout hPanelLayout = new HBoxLayout();
         hPanelLayout.setHBoxLayoutAlign(HBoxLayout.HBoxLayoutAlign.STRETCH);
-		topPanel = new ContentPanel(hPanelLayout);
-		topPanel.setHeaderVisible(false);
-		topPanel.setWidth(1200);
-		topPanel.setBorders(true);
-		
-		topLeftFormPanel = new FormPanel();
-		topLeftFormPanel.setWidth(300);
-		topLeftFormPanel.setHeaderVisible(false);
-		
-		topCenterFormPanel = new FormPanel();
-		topCenterFormPanel.setWidth(300);
-		topCenterFormPanel.setHeaderVisible(false);
-		
-		topRightFormPanel = new FormPanel();
-		topRightFormPanel.setWidth(600);
-		topRightFormPanel.setHeaderVisible(false);
-				
-		name = new TextField<String>();
-		name.disable();
+        topPanel = new ContentPanel(hPanelLayout);
+        topPanel.setHeaderVisible(false);
+        topPanel.setWidth(1200);
+        topPanel.setBorders(true);
+
+        topLeftFormPanel = new FormPanel();
+        topLeftFormPanel.setWidth(300);
+        topLeftFormPanel.setHeaderVisible(false);
+
+        topCenterFormPanel = new FormPanel();
+        topCenterFormPanel.setWidth(300);
+        topCenterFormPanel.setHeaderVisible(false);
+
+        topRightFormPanel = new FormPanel();
+        topRightFormPanel.setWidth(600);
+        topRightFormPanel.setHeaderVisible(false);
+
+        name = new TextField<String>();
+        name.disable();
         name.setAllowBlank(false);
         name.setFieldLabel(I18N.CONSTANTS.adminProjectModelsName());
-        
+
         statusList = new SimpleComboBox<String>();
         statusList.disable();
         statusList.setFieldLabel(I18N.CONSTANTS.adminProjectModelsStatus());
-		statusList.setAllowBlank(false);
-		statusList.setTriggerAction(TriggerAction.ALL);	
-		List<String> values = new ArrayList<String>();  
-		for(ProjectModelStatus e : ProjectModelStatus.values()){
-				values.add(ProjectModelStatus.getName(e));
-		}
-		statusList.add(values);
-		
-        
-       
-        
-        /* *******************************************ProjectModel ***********************/
-        
+        statusList.setAllowBlank(false);
+        statusList.setTriggerAction(TriggerAction.ALL);
+
+        /*
+         * *******************************************ProjectModel
+         * **********************
+         */
+
         radioGroup = new RadioGroup("projectTypeFilter");
-        
 
         ngoRadio = new Radio();
         ngoRadio.setFireChangeEventOnSetValue(true);
@@ -153,7 +153,7 @@ public class AdminOneModelView extends LayoutContainer implements AdminOneModelP
 
             @Override
             public void onClick(ClickEvent event) {
-            	currentModelType = ProjectModelType.NGO;
+                currentModelType = ProjectModelType.NGO;
                 ngoRadio.setValue(true);
                 fundingRadio.setValue(false);
                 partnerRadio.setValue(false);
@@ -205,62 +205,64 @@ public class AdminOneModelView extends LayoutContainer implements AdminOneModelP
                 currentModelType = ProjectModelType.LOCAL_PARTNER;
             }
         });
-        
+
         radioGroup.add(ngoRadio);
         radioGroup.add(fundingRadio);
         radioGroup.add(partnerRadio);
-        
-        ngoGrid = new Grid(1,3);
+
+        ngoGrid = new Grid(1, 3);
         ngoGrid.setVisible(false);
         ngoGrid.setBorderWidth(0);
         ngoGrid.setWidget(0, 0, ngoIcon);
         ngoGrid.setWidget(0, 1, ngoRadio);
         ngoGrid.setWidget(0, 2, AdminUtil.createGridText(ProjectModelType.getName(ProjectModelType.NGO)));
         topCenterFormPanel.add(ngoGrid);
-        
-        fundingGrid = new Grid(1,3);
+
+        fundingGrid = new Grid(1, 3);
         fundingGrid.setVisible(false);
         fundingGrid.setBorderWidth(0);
         fundingGrid.setWidget(0, 0, fundingIcon);
-        fundingGrid.setWidget(0, 1, fundingRadio);		
-        fundingGrid.setWidget(0, 2,AdminUtil.createGridText(ProjectModelType.getName(ProjectModelType.FUNDING)));
+        fundingGrid.setWidget(0, 1, fundingRadio);
+        fundingGrid.setWidget(0, 2, AdminUtil.createGridText(ProjectModelType.getName(ProjectModelType.FUNDING)));
         topCenterFormPanel.add(fundingGrid);
-        
-        partnerGrid = new Grid(1,3);
+
+        partnerGrid = new Grid(1, 3);
         partnerGrid.setVisible(false);
         partnerGrid.setBorderWidth(0);
         partnerGrid.setWidget(0, 0, partnerIcon);
         partnerGrid.setWidget(0, 1, partnerRadio);
         partnerGrid.setWidget(0, 2, AdminUtil.createGridText(ProjectModelType.getName(ProjectModelType.LOCAL_PARTNER)));
         topCenterFormPanel.add(partnerGrid);
-        
-        /* *******************************************OrgUnitModel ***********************/
+
+        /*
+         * *******************************************OrgUnitModel
+         * **********************
+         */
         titleField = new TextField<String>();
-		titleField.setFieldLabel(I18N.CONSTANTS.adminOrgUnitsModelTitle());
-		titleField.setAllowBlank(false);
-		titleField.hide();		
-		
-		topLeftFormPanel.add(name);
-		topLeftFormPanel.add(titleField);
-	    topLeftFormPanel.add(statusList);
-		
-		hasBudgetCheckBox = new CheckBox();
-		hasBudgetCheckBox.hide();
-		hasBudgetCheckBox.setBoxLabel(I18N.CONSTANTS.adminOrgUnitsModelHasBudget());
-		hasBudgetCheckBox.setFieldLabel("      ");
-		hasBudgetCheckBox.setLabelSeparator(" ");
-		hasBudgetCheckBox.setValue(false);
-		topCenterFormPanel.add(hasBudgetCheckBox);
-		
-		canContainProjectsCheckBox = new CheckBox();
-		canContainProjectsCheckBox.hide();
-		canContainProjectsCheckBox.setBoxLabel(I18N.CONSTANTS.adminOrgUnitsModelContainProjects());
-		canContainProjectsCheckBox.setFieldLabel("      ");
-		canContainProjectsCheckBox.setLabelSeparator(" ");
-		canContainProjectsCheckBox.setValue(false);
-		topCenterFormPanel.add(canContainProjectsCheckBox);
-        
-		
+        titleField.setFieldLabel(I18N.CONSTANTS.adminOrgUnitsModelTitle());
+        titleField.setAllowBlank(false);
+        titleField.hide();
+
+        topLeftFormPanel.add(name);
+        topLeftFormPanel.add(titleField);
+        topLeftFormPanel.add(statusList);
+
+        hasBudgetCheckBox = new CheckBox();
+        hasBudgetCheckBox.hide();
+        hasBudgetCheckBox.setBoxLabel(I18N.CONSTANTS.adminOrgUnitsModelHasBudget());
+        hasBudgetCheckBox.setFieldLabel("      ");
+        hasBudgetCheckBox.setLabelSeparator(" ");
+        hasBudgetCheckBox.setValue(false);
+        topCenterFormPanel.add(hasBudgetCheckBox);
+
+        canContainProjectsCheckBox = new CheckBox();
+        canContainProjectsCheckBox.hide();
+        canContainProjectsCheckBox.setBoxLabel(I18N.CONSTANTS.adminOrgUnitsModelContainProjects());
+        canContainProjectsCheckBox.setFieldLabel("      ");
+        canContainProjectsCheckBox.setLabelSeparator(" ");
+        canContainProjectsCheckBox.setValue(false);
+        topCenterFormPanel.add(canContainProjectsCheckBox);
+
         // Adds actions on filter by model type.
         for (final ProjectModelType type : ProjectModelType.values()) {
             getRadioFilter(type).addListener(Events.Change, new Listener<FieldEvent>() {
@@ -273,57 +275,55 @@ public class AdminOneModelView extends LayoutContainer implements AdminOneModelP
                 }
             });
         }
-		
-		final BorderLayoutData topLayoutData = new BorderLayoutData(LayoutRegion.NORTH, 150);
-		topLayoutData.setCollapsible(true);
-		topLayoutData.setMargins(new Margins(BORDER / 2, 0, BORDER / 2, 0));
-        
-		final BorderLayout borderLayout = new BorderLayout();
-        //borderLayout.setContainerStyle("x-border-layout-ct " + STYLE_MAIN_BACKGROUND);
+
+        final BorderLayoutData topLayoutData = new BorderLayoutData(LayoutRegion.NORTH, 150);
+        topLayoutData.setCollapsible(true);
+        topLayoutData.setMargins(new Margins(BORDER / 2, 0, BORDER / 2, 0));
+
+        final BorderLayout borderLayout = new BorderLayout();
+        // borderLayout.setContainerStyle("x-border-layout-ct " +
+        // STYLE_MAIN_BACKGROUND);
         setLayout(borderLayout);
-        
+
         tabPanelParameters = new TabPanel();
         tabPanelParameters.setPlain(true);
 
         panelSelectedTab = new LayoutContainer(new BorderLayout());
         panelSelectedTab.setBorders(false);
         panelSelectedTab.addStyleName("project-current-phase-panel");
-        
+
         final BorderLayoutData centerData = new BorderLayoutData(LayoutRegion.CENTER);
         centerData.setMargins(new Margins(0, 0, 4, 4));
-        
+
         saveButton = new Button(I18N.CONSTANTS.save());
         saveButton.disable();
-       
+
         topRightFormPanel.add(saveButton);
 
         topPanel.add(topLeftFormPanel, new HBoxLayoutData(0, 4, 0, 4));
-		topPanel.add(topCenterFormPanel, new HBoxLayoutData(0, 4, 0, 4));
-		topPanel.add(topRightFormPanel, new HBoxLayoutData(0, 4, 0, 4));
-		
+        topPanel.add(topCenterFormPanel, new HBoxLayoutData(0, 4, 0, 4));
+        topPanel.add(topRightFormPanel, new HBoxLayoutData(0, 4, 0, 4));
+
         add(tabPanelParameters, centerData);
         add(topPanel, topLayoutData);
-	}
+    }
 
-	
+    @Override
+    public Widget getMainPanel() {
+        return this;
+    }
 
-	
-	@Override
-	public Widget getMainPanel() {
-		return this;
-	}
+    @Override
+    public TabPanel getTabPanelParameters() {
+        return tabPanelParameters;
+    }
 
-	@Override
-	public TabPanel getTabPanelParameters() {
-		return tabPanelParameters;
-	}
-	
-	@Override
+    @Override
     public LayoutContainer getPanelSelectedTab() {
         return panelSelectedTab;
     }
-	
-	private Radio getRadioFilter(ProjectModelType type) {
+
+    private Radio getRadioFilter(ProjectModelType type) {
 
         if (type != null) {
             switch (type) {
@@ -339,194 +339,200 @@ public class AdminOneModelView extends LayoutContainer implements AdminOneModelP
         return null;
     }
 
-	@Override
-	public void initModelView(Object model) {
-		
-		if(model instanceof ProjectModelDTO){
-			ngoGrid.setVisible(true);
-			fundingGrid.setVisible(true);
-			partnerGrid.setVisible(true);
+    @Override
+    public void initModelView(Object model) {
 
-			fundingGrid.setVisible(true);
-			partnerGrid.setVisible(true);
-			
-				name.enable();
-				statusList.enable();
-				saveButton.enable();
-				ngoGrid.setVisible(true);
-				fundingGrid.setVisible(true);
-				partnerGrid.setVisible(true);
-				radioGroup.setFireChangeEventOnSetValue(true);
-			
-				
-			
-			isProject = true;
-			
-			currentProjectModel = (ProjectModelDTO) model;
-			if(currentProjectModel != null){
-				
-				name.setValue(currentProjectModel.getName());
-				
-				statusList.setSimpleValue(ProjectModelStatus.getName(currentProjectModel.getStatus()));
-				Log.debug("Original project model status : " + ProjectModelStatus.getName(currentProjectModel.getStatus()));
-				
-				currentProjectModel.getStatus();
-				ProjectModelType type = currentProjectModel.getVisibility(cache.getOrganizationCache().getOrganization().getId());
-				switch (type) {
-		            case NGO:
-		            	ngoRadio.setValue(true);
-		                fundingRadio.setValue(false);
-		                partnerRadio.setValue(false);
-		                currentModelType = ProjectModelType.NGO;
-		                break;
-		            case FUNDING:
-		            	ngoRadio.setValue(false);
-		                fundingRadio.setValue(true);
-		                partnerRadio.setValue(false);
-		                currentModelType = ProjectModelType.FUNDING;
-		                break;
-		            case LOCAL_PARTNER:
-		            	ngoRadio.setValue(false);
-		                fundingRadio.setValue(false);
-		                partnerRadio.setValue(true);
-		                currentModelType = ProjectModelType.LOCAL_PARTNER;
-		                break;
-		        }
-				
-				
-			}
-		}else if(model instanceof OrgUnitModelDTO){
-			isProject = false;
-			
-			titleField.show();
-			hasBudgetCheckBox.show();
-			canContainProjectsCheckBox.show();	
-			
-			titleField.disable();
-			hasBudgetCheckBox.disable();
-			canContainProjectsCheckBox.disable();	
+        if (model instanceof ProjectModelDTO) {
+            ngoGrid.setVisible(true);
+            fundingGrid.setVisible(true);
+            partnerGrid.setVisible(true);
 
-			    name.enable();
-				statusList.enable();
-				radioGroup.setFireChangeEventOnSetValue(true);
-				saveButton.enable();
-				titleField.enable();
-				hasBudgetCheckBox.enable();
-				canContainProjectsCheckBox.enable();
-		
-				
-			
-			
-			currentOrgUnitModel = (OrgUnitModelDTO) model;
-			if(currentOrgUnitModel != null){
-				
-				name.setValue(currentOrgUnitModel.getName());				
-				statusList.setSimpleValue(ProjectModelStatus.getName(currentOrgUnitModel.getStatus()));
-				
-				titleField.setValue(currentOrgUnitModel.getTitle());
-				hasBudgetCheckBox.setValue(currentOrgUnitModel.getHasBudget());
-				canContainProjectsCheckBox.setValue(currentOrgUnitModel.getCanContainProjects());
-				
-				Log.debug("Original org unit model status : " + currentOrgUnitModel.getName() + " " + ProjectModelStatus.getName(currentOrgUnitModel.getStatus()));
-			}
-				
-		}
-		
-		
-	}
+            fundingGrid.setVisible(true);
+            partnerGrid.setVisible(true);
 
+            name.enable();
+            statusList.enable();
+            saveButton.enable();
+            ngoGrid.setVisible(true);
+            fundingGrid.setVisible(true);
+            partnerGrid.setVisible(true);
+            radioGroup.setFireChangeEventOnSetValue(true);
 
+            isProject = true;
 
-@Override
-public SimpleComboBox<String> getStatusList() {
-	return this.statusList;
+            currentProjectModel = (ProjectModelDTO) model;
+            if (currentProjectModel != null) {
+
+                name.setValue(currentProjectModel.getName());
+
+                // statusList.setSimpleValue(ProjectModelStatus.getName(currentProjectModel.getStatus()));
+                updateStatusList(currentProjectModel.getStatus());
+
+                Log.debug("Original project model status : "
+                        + ProjectModelStatus.getName(currentProjectModel.getStatus()));
+
+                currentProjectModel.getStatus();
+                ProjectModelType type = currentProjectModel.getVisibility(cache.getOrganizationCache()
+                        .getOrganization().getId());
+                switch (type) {
+                case NGO:
+                    ngoRadio.setValue(true);
+                    fundingRadio.setValue(false);
+                    partnerRadio.setValue(false);
+                    currentModelType = ProjectModelType.NGO;
+                    break;
+                case FUNDING:
+                    ngoRadio.setValue(false);
+                    fundingRadio.setValue(true);
+                    partnerRadio.setValue(false);
+                    currentModelType = ProjectModelType.FUNDING;
+                    break;
+                case LOCAL_PARTNER:
+                    ngoRadio.setValue(false);
+                    fundingRadio.setValue(false);
+                    partnerRadio.setValue(true);
+                    currentModelType = ProjectModelType.LOCAL_PARTNER;
+                    break;
+                }
+
+            }
+        } else if (model instanceof OrgUnitModelDTO) {
+            isProject = false;
+
+            titleField.show();
+            hasBudgetCheckBox.show();
+            canContainProjectsCheckBox.show();
+
+            titleField.disable();
+            hasBudgetCheckBox.disable();
+            canContainProjectsCheckBox.disable();
+
+            name.enable();
+            statusList.enable();
+            radioGroup.setFireChangeEventOnSetValue(true);
+            saveButton.enable();
+            titleField.enable();
+            hasBudgetCheckBox.enable();
+            canContainProjectsCheckBox.enable();
+
+            currentOrgUnitModel = (OrgUnitModelDTO) model;
+            if (currentOrgUnitModel != null) {
+
+                name.setValue(currentOrgUnitModel.getName());
+
+                // statusList.setSimpleValue(ProjectModelStatus.getName(currentOrgUnitModel.getStatus()));
+                updateStatusList(currentOrgUnitModel.getStatus());
+
+                titleField.setValue(currentOrgUnitModel.getTitle());
+                hasBudgetCheckBox.setValue(currentOrgUnitModel.getHasBudget());
+                canContainProjectsCheckBox.setValue(currentOrgUnitModel.getCanContainProjects());
+
+                Log.debug("Original org unit model status : " + currentOrgUnitModel.getName() + " "
+                        + ProjectModelStatus.getName(currentOrgUnitModel.getStatus()));
+            }
+
+        }
+
+    }
+
+    private void updateStatusList(final ProjectModelStatus status) {
+
+        statusList.clear();
+        final GetAvailableStatusForModel cmd = new GetAvailableStatusForModel();
+        cmd.setStatus(status);
+        if (isProject()) {// Project model
+            cmd.setModelType(CheckModelUsage.ModelType.ProjectModel);
+            cmd.setProjectModelId(new Long(getCurrentProjectModel().getId()));
+        } else {// OrgUnit model
+            cmd.setModelType(CheckModelUsage.ModelType.OrgUnitModel);
+            cmd.setOrgUnitModelId(new Integer(getCurrentOrgUnitModel().getId()));
+        }
+        
+        dispatcher.execute(cmd, null,
+                new AsyncCallback<ProjectModelStatusListResult>() {
+
+                    @Override
+                    public void onFailure(Throwable caught) {
+                        MessageBox.alert(I18N.CONSTANTS.adminModelCheckError(),
+                                I18N.CONSTANTS.adminModelCheckErrorDetails(), null);
+                    }
+
+                    @Override
+                    public void onSuccess(ProjectModelStatusListResult result) {
+
+                        final ArrayList<String> values = new ArrayList<String>();
+                        for (ProjectModelStatus e : result.getStatus()) {
+                            values.add(ProjectModelStatus.getName(e));
+                        }
+
+                        statusList.add(values);
+                        statusList.setSimpleValue(ProjectModelStatus.getName(status));
+
+                    }
+
+                });
+
+    }
+
+    @Override
+    public SimpleComboBox<String> getStatusList() {
+        return this.statusList;
+    }
+
+    @Override
+    public ContentPanel getTopPanel() {
+
+        return this.topPanel;
+    }
+
+    @Override
+    public Boolean isProject() {
+        return this.isProject;
+    }
+
+    @Override
+    public Button getSaveButton() {
+        return this.saveButton;
+    }
+
+    @Override
+    public TextField<String> getNameField() {
+        return this.name;
+    }
+
+    @Override
+    public ProjectModelType getCurrentModelType() {
+        return this.currentModelType;
+    }
+
+    @Override
+    public TextField<String> getTitleField() {
+        return this.titleField;
+    }
+
+    @Override
+    public CheckBox getHasBudgetCheckBox() {
+        return this.hasBudgetCheckBox;
+    }
+
+    @Override
+    public CheckBox getCanContainProjectsCheckBox() {
+        return this.canContainProjectsCheckBox;
+    }
+
+    @Override
+    public FormPanel getTopLeftFormPanel() {
+        return this.topLeftFormPanel;
+    }
+
+    @Override
+    public ProjectModelDTO getCurrentProjectModel() {
+        return this.currentProjectModel;
+    }
+
+    @Override
+    public OrgUnitModelDTO getCurrentOrgUnitModel() {
+        return this.currentOrgUnitModel;
+    }
+
 }
-
-
-@Override
-public ContentPanel getTopPanel() {
-	
-	return this.topPanel;
-}
-
-
-@Override
-public Boolean isProject() {
-	return this.isProject;
-}
-
-
-@Override
-public Button getSaveButton() {
-	return this.saveButton;
-}
-
-
-
-
-@Override
-public TextField<String> getNameField() {
-	return this.name;
-}
-
-
-
-
-@Override
-public ProjectModelType getCurrentModelType() {
-	return this.currentModelType;
-}
-
-
-
-
-@Override
-public TextField<String> getTitleField() {
-	return this.titleField;
-}
-
-
-
-
-@Override
-public CheckBox getHasBudgetCheckBox() {
-	return this.hasBudgetCheckBox;
-}
-
-
-
-
-@Override
-public CheckBox getCanContainProjectsCheckBox() {
-	return this.canContainProjectsCheckBox;
-}
-
-
-
-
-@Override
-public FormPanel getTopLeftFormPanel() {
-	return this.topLeftFormPanel;
-}
-
-
-
-
-@Override
-public ProjectModelDTO getCurrentProjectModel() {
-	return this.currentProjectModel;
-}
-
-
-
-
-@Override
-public OrgUnitModelDTO getCurrentOrgUnitModel() {
-	return this.currentOrgUnitModel;
-}
-	
-	
-}
-
-
-

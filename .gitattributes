@@ -1563,6 +1563,7 @@ sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/DeleteReportModel
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GenerateElementHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetAdminEntitiesHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetApplicationInfoHandler.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetAvailableStatusForModelHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetBaseMapsHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetCalendarHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetCategoriesHandler.java -text
@@ -1815,6 +1816,7 @@ sigmah/src/main/java/org/sigmah/shared/command/DeleteReportModels.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GenerateElement.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetAdminEntities.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetApplicationInfo.java -text
+sigmah/src/main/java/org/sigmah/shared/command/GetAvailableStatusForModel.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetBaseMaps.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetCalendar.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetCategories.java -text
@@ -1923,6 +1925,7 @@ sigmah/src/main/java/org/sigmah/shared/command/result/ProfileWithDetailsListResu
 sigmah/src/main/java/org/sigmah/shared/command/result/ProjectDTOLightListResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/ProjectListResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/ProjectModelListResult.java -text
+sigmah/src/main/java/org/sigmah/shared/command/result/ProjectModelStatusListResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/ProjectReportListResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/ProjectReportModelListResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/ProjectReportModelResult.java -text
