@@ -165,12 +165,21 @@ public class AdminReportModelPresenter implements AdminModelSubPresenter {
 										I18N.MESSAGES.adminStandardUpdateSuccess(I18N.CONSTANTS.adminReportModelStandard()
 												+ " '" + result.getEntity().get("name")+"'"));
 							    
+								//Create a selected model list
+								List<ReportModelDTO> selectedModel = new ArrayList<ReportModelDTO>();
+								selectedModel.add((ReportModelDTO) result.getEntity());
+								
+								
 								//Focus the new created model cell in the grid		
 								
 								int rowIndex = view.getModelsStore().indexOf((ReportModelDTO) result.getEntity());								
-								Element addedRow =view.getReportModelsGrid().getView().getRow(rowIndex);							
+								Element addedRow =view.getReportModelsGrid().getView().getRow(rowIndex);	
+								
+								view.getReportModelsGrid().getSelectionModel().setSelection(selectedModel);
+								
+								addedRow.setScrollTop(addedRow.getScrollTop());
 								addedRow.scrollIntoView();	
-								addedRow.focus();								
+																
 							
 							    
 								

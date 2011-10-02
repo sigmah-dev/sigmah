@@ -1,5 +1,8 @@
 package org.sigmah.client.page.admin.model.common;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.page.admin.category.AdminCategoryPresenter;
@@ -362,11 +365,23 @@ public class AdminModelActionListener implements ActionListener {
 					((AdminProjectModelsPresenter.View)view).getAdminModelsStore().add(pMLight);
 					((AdminProjectModelsPresenter.View)view).getAdminModelsStore().commitChanges();
 					
-					//Focus the new created model cell in the grid						
+					//Create a list of selected models
+					List<ProjectModelDTOLight> selectedModels = new ArrayList<ProjectModelDTOLight>();
+					selectedModels.add(pMLight);
+					
+					//Focus the new created model cell in the grid	
+					
+					  //First,get row element 
 					int rowIndex =((AdminProjectModelsPresenter.View)view).getAdminModelsStore().indexOf(pMLight);	
-					Element addedRow =((AdminProjectModelsPresenter.View)view).getProjectModelGrid().getView().getRow(rowIndex);							
-					addedRow.scrollIntoView();	
-					addedRow.focus();
+					Element addedRow =((AdminProjectModelsPresenter.View)view).getProjectModelGrid().getView().getRow(rowIndex);
+					
+					 //Second,set the selected model
+					((AdminProjectModelsPresenter.View)view).getProjectModelGrid().getSelectionModel().setSelection(selectedModels);	
+					
+					//Focus
+					addedRow.setScrollTop(addedRow.getScrollHeight());
+					addedRow.scrollIntoView();
+					
 				}			
 			});
 			window.add(form);
@@ -396,11 +411,25 @@ public class AdminModelActionListener implements ActionListener {
 					((AdminOrgUnitModelsPresenter.View)view).getAdminModelsStore().add(oM);
 					((AdminOrgUnitModelsPresenter.View)view).getAdminModelsStore().commitChanges();
 					
-					//Focus the new created model cell in the grid						
+					
+					//Create a list of selected models
+					List<OrgUnitModelDTO> selectedModels = new ArrayList<OrgUnitModelDTO>();
+					selectedModels.add(oM);
+					
+					//Focus the new created model cell in the grid		
+					
+					 //First,get the row element
 					int rowIndex =((AdminOrgUnitModelsPresenter.View)view).getAdminModelsStore().indexOf(oM);	
-					Element addedRow =((AdminOrgUnitModelsPresenter.View)view).getOrgUnitModelGrid().getView().getRow(rowIndex);							
-					addedRow.scrollIntoView();	
-					addedRow.focus();
+					Element addedRow =((AdminOrgUnitModelsPresenter.View)view).getOrgUnitModelGrid().getView().getRow(rowIndex);	
+					
+					 //Second,set the selected model
+					((AdminOrgUnitModelsPresenter.View)view).getOrgUnitModelGrid().getSelectionModel().setSelection(selectedModels);	
+					
+					//Focus
+					addedRow.setScrollTop(addedRow.getScrollHeight());
+					addedRow.scrollIntoView();
+					
+					
 					
 					
 				}			
@@ -625,6 +654,23 @@ public class AdminModelActionListener implements ActionListener {
 										.adminProjectModelCopy(),
 										I18N.CONSTANTS
 												.adminProjectModelCopyDetail());
+								
+								//Create a list of selected models
+								List<ProjectModelDTOLight> selectedModels = new ArrayList<ProjectModelDTOLight>();
+								selectedModels.add(result);
+								
+								//Focus the new created model cell in the grid		
+								
+								 //First, get the row element
+								int rowIndex =((AdminProjectModelsPresenter.View)view).getAdminModelsStore().indexOf(result);	
+								Element addedRow =((AdminProjectModelsPresenter.View)view).getProjectModelGrid().getView().getRow(rowIndex);
+								
+								//Second, set the selected model
+								((AdminProjectModelsPresenter.View)view).getProjectModelGrid().getSelectionModel().setSelection(selectedModels);
+								
+								//Focus
+								addedRow.setScrollTop(addedRow.getScrollHeight());
+								addedRow.scrollIntoView();
 							}
 
 						}
@@ -655,6 +701,31 @@ public class AdminModelActionListener implements ActionListener {
 								Notification.show(
 												I18N.CONSTANTS.adminOrgUnitsModelCopy(),
 												I18N.CONSTANTS.adminOrgUnitsModelCopyDetail());
+								
+								
+								
+								
+								//Create a list of selected models
+								List<OrgUnitModelDTO> selectedModels = new ArrayList<OrgUnitModelDTO>();
+								selectedModels.add(result);
+								
+								
+								//Focus the new created model cell in the grid		
+								
+								 //First,get the row element
+								int rowIndex =((AdminOrgUnitModelsPresenter.View)view).getAdminModelsStore().indexOf(result);	
+								Element addedRow =((AdminOrgUnitModelsPresenter.View)view).getOrgUnitModelGrid().getView().getRow(rowIndex);	
+								
+								 //Second,set the selected model
+								((AdminOrgUnitModelsPresenter.View)view).getOrgUnitModelGrid().getSelectionModel().setSelection(selectedModels);	
+								
+								//Focus
+								addedRow.setScrollTop(addedRow.getScrollHeight());
+								addedRow.scrollIntoView();
+								
+								
+								
+								
 							}
 						}
 					});

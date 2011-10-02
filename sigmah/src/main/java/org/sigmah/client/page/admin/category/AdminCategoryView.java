@@ -289,11 +289,19 @@ public class AdminCategoryView extends View {
 									Notification.show(I18N.CONSTANTS.adminCategoryTypeCreationBox(), I18N.MESSAGES.adminStandardUpdateSuccessF(I18N.CONSTANTS.adminCategoryTypeStandard()
 											+ " '" + categoryName.getValue() +"'"));
 									
+									//Create selected category list
+									List<CategoryTypeDTO> selectedCategory = new ArrayList<CategoryTypeDTO>();
+									selectedCategory.add((CategoryTypeDTO) result.getEntity());
+									
 									//Focus and scroll to the new created category
 									int rowIndex = categoriesStore.indexOf((CategoryTypeDTO) result.getEntity());
 									Element addedRow =categoriesGrid.getView().getRow(rowIndex);
+									
+									categoriesGrid.getSelectionModel().setSelection(selectedCategory);
+									
+									addedRow.setScrollTop(addedRow.getScrollTop());
 									addedRow.scrollIntoView();
-									addedRow.focus();
+									
 									
 								}					
 								else{
