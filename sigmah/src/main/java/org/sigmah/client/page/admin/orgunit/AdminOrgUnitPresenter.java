@@ -10,6 +10,7 @@ import org.sigmah.client.util.Notification;
 import org.sigmah.shared.command.RemoveOrgUnit;
 import org.sigmah.shared.command.result.VoidResult;
 import org.sigmah.shared.dto.OrgUnitDTOLight;
+import org.sigmah.shared.exception.RemoveException;
 
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -102,6 +103,9 @@ public class AdminOrgUnitPresenter implements AdminSubPresenter {
                                         if (removed.getChildCount() != 0) {
                                             MessageBox.alert(I18N.CONSTANTS.adminOrgUnitRemoveUnavailable(),
                                                     I18N.CONSTANTS.adminOrgUnitRemoveHasChildren(), null);
+                                        } else if (removed.getParent() == null) {
+                                            MessageBox.alert(I18N.CONSTANTS.adminOrgUnitRemoveUnavailable(),
+                                                    I18N.CONSTANTS.adminOrgUnitRemoveIsRoot(), null);
                                         } else {
 
                                             dispatcher.execute(new RemoveOrgUnit(removed.getId()), null,
@@ -109,9 +113,31 @@ public class AdminOrgUnitPresenter implements AdminSubPresenter {
 
                                                         @Override
                                                         public void onFailure(Throwable caught) {
-                                                            MessageBox.alert(I18N.CONSTANTS
-                                                                    .adminOrgUnitRemoveUnavailable(), I18N.CONSTANTS
-                                                                    .adminOrgUnitRemoveHasChildrenOrProjects(), null);
+
+                                                            String msg = I18N.CONSTANTS
+                                                                    .adminOrgUnitRemoveHasChildrenOrProjects();
+
+                                                            if (caught instanceof RemoveException) {
+                                                                final RemoveException e = (RemoveException) caught;
+                                                                switch (e.getCode()) {
+                                                                case RemoveException.HAS_CHILDREN_ERR_CODE:
+                                                                    msg = I18N.CONSTANTS
+                                                                            .adminOrgUnitRemoveHasChildren();
+                                                                    break;
+                                                                case RemoveException.HAS_PROJECTS_ERR_CODE:
+                                                                    msg = I18N.CONSTANTS
+                                                                            .adminOrgUnitRemoveHasProjects();
+                                                                    break;
+                                                                case RemoveException.IS_ROOT_ERR_CODE:
+                                                                    msg = I18N.CONSTANTS.adminOrgUnitRemoveIsRoot();
+                                                                    break;
+                                                                }
+                                                            }
+
+                                                            MessageBox.alert(
+                                                                    I18N.CONSTANTS.adminOrgUnitRemoveUnavailable(),
+                                                                    msg, null);
+
                                                             refreshCache();
                                                         }
 
@@ -164,11 +190,23 @@ public class AdminOrgUnitPresenter implements AdminSubPresenter {
 
                 final boolean addEnabled = selection != null;
                 final boolean moveEnabled = selection != null;
-                final boolean removeEnabled = selection != null;
+                final boolean removeEnabled = selection != null && selection.getParent() != null
+                        && selection.getChildCount() == 0;
 
                 view.getAddButton().setEnabled(addEnabled);
                 view.getMoveButton().setEnabled(moveEnabled);
                 view.getRemoveButton().setEnabled(removeEnabled);
+
+                view.getRemoveButton().setTitle(" ");
+                view.getRemoveButton().removeToolTip();
+                if (!removeEnabled && selection != null) {
+                    if (selection.getParent() == null) {
+                        view.getRemoveButton().setTitle(I18N.CONSTANTS.adminOrgUnitRemoveIsRoot());
+                    } else if (selection.getChildCount() != 0) {
+                        view.getRemoveButton().setTitle(I18N.CONSTANTS.adminOrgUnitRemoveHasChildren());
+                    }
+                }
+
             }
         });
 

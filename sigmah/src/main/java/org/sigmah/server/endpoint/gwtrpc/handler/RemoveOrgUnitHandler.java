@@ -14,6 +14,7 @@ import org.sigmah.shared.domain.OrgUnit;
 import org.sigmah.shared.domain.Project;
 import org.sigmah.shared.domain.User;
 import org.sigmah.shared.exception.CommandException;
+import org.sigmah.shared.exception.RemoveException;
 
 import com.google.inject.Inject;
 
@@ -37,9 +38,16 @@ public class RemoveOrgUnitHandler implements CommandHandler<RemoveOrgUnit> {
             throw new CommandException("The org unit with id '" + id + "' doesn't exist.");
         }
 
+        // Is root.
+        if (removed.getParent() == null) {
+            throw new RemoveException("The org unit with id '" + id + "' is the root unit and cannot be removed.",
+                    RemoveException.IS_ROOT_ERR_CODE);
+        }
+
         // Has children.
         if (removed.getChildren() != null && removed.getChildren().size() > 0) {
-            throw new CommandException("The org unit with id '" + id + "' has children and cannot be removed.");
+            throw new RemoveException("The org unit with id '" + id + "' has children and cannot be removed.",
+                    RemoveException.HAS_CHILDREN_ERR_CODE);
         }
 
         // Has projects.
@@ -47,7 +55,8 @@ public class RemoveOrgUnitHandler implements CommandHandler<RemoveOrgUnit> {
         query.setParameter("unit", removed);
         final List<Project> listResults = (List<Project>) query.getResultList();
         if (listResults != null && listResults.size() > 0) {
-            throw new CommandException("The org unit with id '" + id + "' has projects and cannot be removed.");
+            throw new RemoveException("The org unit with id '" + id + "' has projects and cannot be removed.",
+                    RemoveException.HAS_PROJECTS_ERR_CODE);
         }
 
         // Remove.

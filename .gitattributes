@@ -2204,6 +2204,7 @@ sigmah/src/main/java/org/sigmah/shared/exception/InvalidLoginException.java -tex
 sigmah/src/main/java/org/sigmah/shared/exception/MoveException.java -text
 sigmah/src/main/java/org/sigmah/shared/exception/ParseException.java -text
 sigmah/src/main/java/org/sigmah/shared/exception/PartnerHasSitesException.java -text
+sigmah/src/main/java/org/sigmah/shared/exception/RemoveException.java -text
 sigmah/src/main/java/org/sigmah/shared/exception/ReportModelException.java -text
 sigmah/src/main/java/org/sigmah/shared/exception/SchemaElementDeletedException.java -text
 sigmah/src/main/java/org/sigmah/shared/exception/UnexpectedCommandException.java -text
