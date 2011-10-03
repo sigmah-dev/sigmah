@@ -317,7 +317,7 @@ public final class ProjectDTO extends BaseModelData implements EntityDTO, Defaul
             return;
         }
 
-        List<ProjectFundingDTO> fundeds = getFunding();
+        List<ProjectFundingDTO> fundeds = getFunded();
 
         if (fundeds == null) {
             fundeds = new ArrayList<ProjectFundingDTO>();
