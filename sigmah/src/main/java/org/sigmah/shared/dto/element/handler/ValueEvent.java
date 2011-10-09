@@ -15,6 +15,11 @@ import com.google.gwt.event.shared.GwtEvent;
  * @author Denis Colliot (dcolliot@ideia.fr)
  * 
  */
+/**
+ * @author HUZHE
+ *
+ */
+
 public class ValueEvent extends GWTImmortalEvent<ValueHandler> implements Serializable {
 
     private static final long serialVersionUID = -6920472009097129066L;
@@ -26,11 +31,34 @@ public class ValueEvent extends GWTImmortalEvent<ValueHandler> implements Serial
     private String singleValue;
     // Only used for the elements part of a list.
     private ChangeType changeType;
+    boolean isProjectCountryChanged=false;
 
     public ValueEvent(FlexibleElementDTO sourceElement, String singleValue) {
         this.sourceElement = sourceElement;
         this.singleValue = singleValue;
     }
+    
+    
+    /**
+     * 
+     * ValueEvent that is unique for OrgUnit DefaultFlexibleElement 
+     * 
+     * @param orgUnitElement
+     *          OrgUnit DefaultFlxibleElement
+     *          
+     * @param singleValue
+     *          Name of OrgUnit
+     * 
+     * @param isProjectCountryChanged
+     *          If the OrgUnit element is attached to a project,specify if you want to change the OrgUnit of the project
+     *          by the new orgunit's country,or just change the OrgUnit without touching the country of project.
+     */
+    public ValueEvent(FlexibleElementDTO orgUnitElement, String singleValue,boolean isProjectCountryChanged) {
+        this.sourceElement = orgUnitElement;
+        this.singleValue = singleValue;
+        this.isProjectCountryChanged=isProjectCountryChanged;
+    }
+
 
     public ValueEvent(FlexibleElementDTO sourceElement, ListEntityDTO listValue) {
         this.sourceElement = sourceElement;
@@ -94,7 +122,25 @@ public class ValueEvent extends GWTImmortalEvent<ValueHandler> implements Serial
         this.singleValue = singleValue;
     }
 
-    @Override
+    
+    
+    /**
+	 * @return the isProjectCountryChanged
+	 */
+	public boolean isProjectCountryChanged() {
+		return isProjectCountryChanged;
+	}
+
+
+	/**
+	 * @param isProjectCountryChanged the isProjectCountryChanged to set
+	 */
+	public void setProjectCountryChanged(boolean isProjectCountryChanged) {
+		this.isProjectCountryChanged = isProjectCountryChanged;
+	}
+
+
+	@Override
     public String toString() {
         final StringBuilder sb = new StringBuilder();
         sb.append("ValueEvent [");

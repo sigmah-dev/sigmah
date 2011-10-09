@@ -13,12 +13,14 @@ import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.page.project.ProjectPresenter;
 import org.sigmah.client.page.project.SubPresenter;
 import org.sigmah.client.util.Notification;
+import org.sigmah.shared.command.GetOrgUnit;
 import org.sigmah.shared.command.GetValue;
 import org.sigmah.shared.command.UpdateProject;
 import org.sigmah.shared.command.result.ValueResult;
 import org.sigmah.shared.command.result.VoidResult;
 import org.sigmah.shared.domain.profile.GlobalPermissionEnum;
 import org.sigmah.shared.dto.CountryDTO;
+import org.sigmah.shared.dto.OrgUnitDTO;
 import org.sigmah.shared.dto.ProjectDTO;
 import org.sigmah.shared.dto.ProjectDetailsDTO;
 import org.sigmah.shared.dto.UserDTO;
@@ -159,10 +161,15 @@ public class ProjectDetailsPresenter implements SubPresenter {
                                 // Checks if there is any update needed to the
                                 // local project instance.
                                 boolean refreshBanner = false;
-                                for (ValueEvent event : valueChanges) {
+                                ProjectDTO newProject=null;
+                                
+                           
+								for (ValueEvent event : valueChanges) {
                                     if (event.getSource() instanceof DefaultFlexibleElementDTO) {
-                                        updateCurrentProject(((DefaultFlexibleElementDTO) event.getSource()),
-                                                event.getSingleValue());
+                                         newProject=updateCurrentProject(((DefaultFlexibleElementDTO) event.getSource()),
+                                                event.getSingleValue(),event.isProjectCountryChanged());
+                                        projectPresenter.setCurrentProjectDTO(newProject);
+                                        projectPresenter.ReloadProjectOnView(newProject);
                                         refreshBanner = true;
                                     }
                                 }
@@ -175,6 +182,11 @@ public class ProjectDetailsPresenter implements SubPresenter {
                                
                                 // avoid tight coupling with other project events
                                 eventBus.fireEvent(new ProjectEvent(ProjectEvent.CHANGED, projectPresenter.getCurrentProjectDTO().getId()));
+                                
+                                if(newProject!=null)
+                                {
+                                load(newProject.getProjectModelDTO().getProjectDetailsDTO());
+                                }
                             }
                         });
             }
@@ -344,7 +356,7 @@ public class ProjectDetailsPresenter implements SubPresenter {
      * @param value
      *            The new value.
      */
-    private void updateCurrentProject(DefaultFlexibleElementDTO element, String value) {
+    private ProjectDTO  updateCurrentProject(DefaultFlexibleElementDTO element, String value,boolean isProjectCountryChanged) {
 
         final ProjectDTO currentProjectDTO = projectPresenter.getCurrentProjectDTO();
 
@@ -417,11 +429,37 @@ public class ProjectDetailsPresenter implements SubPresenter {
             break;
         case ORG_UNIT:
             currentProjectDTO.setOrgUnit(Integer.parseInt(value));
+            if(isProjectCountryChanged==true)
+            {
+             GetOrgUnit getOrgUnitCmd = new GetOrgUnit(currentProjectDTO.getOrgUnitId());
+              dispatcher.execute(getOrgUnitCmd, null, new AsyncCallback<OrgUnitDTO>(){
+
+				@Override
+				public void onFailure(Throwable caught) {
+					// TODO Auto-generated method stub
+					
+				}
+
+				@Override
+				public void onSuccess(OrgUnitDTO result) {
+					
+					if(result!=null)
+					{
+					currentProjectDTO.setCountry(result.getCountry());
+					}
+					
+				}
+            	  
+              });
+            }
+            	
             break;
         default:
             // Nothing, unknown type.
             break;
         }
+        
+        return currentProjectDTO;
     }
 
     /**

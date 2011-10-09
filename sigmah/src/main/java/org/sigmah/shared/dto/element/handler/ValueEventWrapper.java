@@ -14,8 +14,24 @@ public class ValueEventWrapper implements Serializable {
     private ListEntityDTO listValue;
     private String singleValue;
     private ValueEvent.ChangeType changeType;
+    private boolean isProjectCountryChanged;
+    
 
-    public ValueEventWrapper() {
+    /**
+	 * @return the isProjectCountryChanged
+	 */
+	public boolean isProjectCountryChanged() {
+		return isProjectCountryChanged;
+	}
+
+	/**
+	 * @param isProjectCountryChanged the isProjectCountryChanged to set
+	 */
+	public void setProjectCountryChanged(boolean isProjectCountryChanged) {
+		this.isProjectCountryChanged = isProjectCountryChanged;
+	}
+
+	public ValueEventWrapper() {
     }
 
     public FlexibleElementDTO getSourceElement() {

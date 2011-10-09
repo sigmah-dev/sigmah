@@ -799,7 +799,7 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
                                                         // Fires value change
                                                         // event.
                                                         handlerManager.fireEvent(new ValueEvent(
-                                                                DefaultFlexibleElementDTO.this, value));
+                                                                DefaultFlexibleElementDTO.this, value,true));
                                                     }
 
                                                     // Required element ?
@@ -965,7 +965,7 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
                                             if (value != null) {
                                                 // Fires value change event.
                                                 handlerManager.fireEvent(new ValueEvent(DefaultFlexibleElementDTO.this,
-                                                        value));
+                                                        value,true));
                                             }
 
                                             // Required element ?
@@ -1286,7 +1286,7 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 
             // COUNTRY of project should not be changeable
 
-            final Field<Object> field;
+            final Field<Object> field; 
             final int countryId = Integer.parseInt(valueResult.getValueObject());
 
             // Builds the field and sets its value.

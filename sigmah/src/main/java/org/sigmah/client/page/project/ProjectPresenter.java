@@ -292,6 +292,22 @@ public class ProjectPresenter implements Frame, TabPage {
         }
 
     }
+    
+    public void ReloadProjectOnView(ProjectDTO projectDTO)
+    {
+    	currentProjectDTO = projectDTO;
+        currentDisplayedPhaseDTO = projectDTO.getCurrentPhaseDTO();
+
+        refreshBanner();
+        refreshAmendment();
+
+        for (SubPresenter presenter : presenters) {
+            if (presenter instanceof ProjectSubPresenter) {
+                ((ProjectSubPresenter) presenter).loadProject(projectDTO);
+            }
+        }
+    }
+    
 
     public ProjectDTO getCurrentProjectDTO() {
         return currentProjectDTO;

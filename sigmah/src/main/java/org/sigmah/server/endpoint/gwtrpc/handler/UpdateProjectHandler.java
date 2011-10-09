@@ -80,7 +80,9 @@ public class UpdateProjectHandler implements CommandHandler<UpdateProject> {
             final FlexibleElement element = em.find(FlexibleElement.class, (long) source.getId());
             final ListEntityDTO updateListValue = valueEvent.getListValue();
             final String updateSingleValue = valueEvent.getSingleValue();
+            final boolean isProjectCountryChanged = valueEvent.isProjectCountryChanged();
 
+            
             if (LOG.isDebugEnabled()) {
                 LOG.debug("[execute] Updates value of element #" + source.getId() + " (" + source.getEntityName() + ')');
                 LOG.debug("[execute] Event of type " + valueEvent.getChangeType() + " with value " + updateSingleValue
@@ -101,7 +103,7 @@ public class UpdateProjectHandler implements CommandHandler<UpdateProject> {
 
                 // Saves the value and switch to the next value.
                 final String oldValue = saveDefaultElement(cmd.getProjectId(), defaultElement.getType(),
-                        updateSingleValue);
+                        updateSingleValue,isProjectCountryChanged);
 
                 // Checks if the first value as been already historized or not.
                 List<Object> results = null;                
@@ -382,7 +384,7 @@ public class UpdateProjectHandler implements CommandHandler<UpdateProject> {
      *            The new value.
      * @return The old value.
      */
-    private String saveDefaultElement(int id, DefaultFlexibleElementType type, String value) {
+    private String saveDefaultElement(int id, DefaultFlexibleElementType type, String value,boolean isProjectCountryChanged) {
 
         // All default values are managed as strings.
         // See DefaultFlexibleElementDTO.getComponent();
@@ -580,6 +582,16 @@ public class UpdateProjectHandler implements CommandHandler<UpdateProject> {
                 final OrgUnit o = em.find(OrgUnit.class, Integer.valueOf(stringValue));
                 project.getPartners().clear();
                 project.getPartners().add(o);
+                
+                if(isProjectCountryChanged==true)
+                {
+                	LOG.debug("Changing country is true.");
+                   project.setCountry(o.getOfficeLocationCountry());
+                }
+                else
+                {
+                	LOG.debug("Changing country is false.");
+                }
 
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("[saveDefaultElement] Set container org unit to '" + o.getFullName() + "'.");

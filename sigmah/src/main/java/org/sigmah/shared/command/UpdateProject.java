@@ -78,7 +78,7 @@ public class UpdateProject implements Command<VoidResult> {
                                 event);
                         break;
                     default:
-                        this.values.add(wrapEvent(event));
+                        this.values.add(wrapEvent(event,event.isProjectCountryChanged()));
                         break;
                     }
                 }
@@ -86,17 +86,17 @@ public class UpdateProject implements Command<VoidResult> {
         }
 
         for (ValueEvent event : basicValues.values()) {
-            this.values.add(wrapEvent(event));
+            this.values.add(wrapEvent(event,event.isProjectCountryChanged()));
         }
 
         // Store each event for new elements as an 'add' event with the last
         // state of the element.
         for (ValueEvent event : listValues.values()) {
-            this.values.add(wrapEvent(new ValueEvent(event.getSourceElement(), event.getListValue(), ChangeType.ADD)));
+            this.values.add(wrapEvent(new ValueEvent(event.getSourceElement(), event.getListValue(), ChangeType.ADD),event.isProjectCountryChanged()));
         }
 
         for (ValueEvent event : editedValues.values()) {
-            this.values.add(wrapEvent(new ValueEvent(event.getSourceElement(), event.getListValue(), ChangeType.EDIT)));
+            this.values.add(wrapEvent(new ValueEvent(event.getSourceElement(), event.getListValue(), ChangeType.EDIT),event.isProjectCountryChanged()));
         }
     }
 
@@ -127,7 +127,7 @@ public class UpdateProject implements Command<VoidResult> {
     private static List<ValueEventWrapper> wrapEvents(List<ValueEvent> events) {
         final ArrayList<ValueEventWrapper> wrappers = new ArrayList<ValueEventWrapper>();
         for (ValueEvent event : events) {
-            wrappers.add(wrapEvent(event));
+            wrappers.add(wrapEvent(event,event.isProjectCountryChanged()));
         }
         return wrappers;
     }
@@ -139,12 +139,14 @@ public class UpdateProject implements Command<VoidResult> {
      *            The event.
      * @return The event wrapped.
      */
-    private static ValueEventWrapper wrapEvent(ValueEvent event) {
+    private static ValueEventWrapper wrapEvent(ValueEvent event,boolean isProjectCountryChange) {
         final ValueEventWrapper wrapper = new ValueEventWrapper();
         wrapper.setSourceElement(event.getSourceElement());
         wrapper.setSingleValue(event.getSingleValue());
         wrapper.setListValue(event.getListValue());
         wrapper.setChangeType(event.getChangeType());
+        wrapper.setProjectCountryChanged(isProjectCountryChange);
+        
         return wrapper;
     }
 
