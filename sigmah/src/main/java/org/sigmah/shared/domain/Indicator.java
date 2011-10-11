@@ -175,7 +175,7 @@ public class Indicator implements java.io.Serializable, Orderable, Deleteable, S
 	/**
 	 * @return the Activity which is implemented at this Site
 	 */
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.LAZY, cascade={CascadeType.PERSIST, CascadeType.MERGE})
 	@JoinColumn(name = "ActivityId", nullable = true)
 	public Activity getActivity() {
 		return this.activity;
@@ -397,6 +397,7 @@ public class Indicator implements java.io.Serializable, Orderable, Deleteable, S
 	public Indicator copy(UserDatabase databaseCopy) {
 		Indicator copy = new Indicator();
 		copy.name = this.name;
+		copy.code = this.code;
 		copy.units = this.units;
 		copy.objective = this.objective;
 		copy.description = this.description;
@@ -407,6 +408,7 @@ public class Indicator implements java.io.Serializable, Orderable, Deleteable, S
 		copy.sortOrder = this.sortOrder;
 		copy.database = databaseCopy;
 		copy.labels = this.labels;
+		copy.sourceOfVerification = this.sourceOfVerification;
 		
 		return copy;
 	}

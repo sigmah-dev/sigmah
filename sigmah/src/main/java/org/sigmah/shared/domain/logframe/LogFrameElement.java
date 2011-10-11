@@ -20,6 +20,7 @@ import javax.persistence.Table;
 
 import org.sigmah.shared.domain.Indicator;
 
+
 /**
  * Base class for all LogFrame elements, such as SpecificObjective, Activity, etc
  */
@@ -118,6 +119,7 @@ public abstract class LogFrameElement implements Serializable, Comparable<LogFra
 		Set<Indicator> copies = new HashSet<Indicator>();
 		for(Indicator indicator : indicators) {
 			if(!indicator.isDeleted()) {
+				
 				switch(context.getIndicatorStrategy()) {
 				case REFERENCE:
 					if(context.getDestinationProjet().getId() != indicator.getDatabase().getId()) {
@@ -131,7 +133,7 @@ public abstract class LogFrameElement implements Serializable, Comparable<LogFra
 					break;
 					
 				case DUPLICATE:
-					copies.add(indicator.copy(context.getDestinationProjet()));
+					copies.add(copy(indicator, context));
 					break;
 				}
 			}
@@ -139,10 +141,16 @@ public abstract class LogFrameElement implements Serializable, Comparable<LogFra
 		return copies;
 	}
 
+	private Indicator copy(Indicator indicator, LogFrameCopyContext context) {
+		Indicator copy = indicator.copy(context.getDestinationProjet());
+		copy.setActivity(context.getActivityCopy(indicator.getActivity()));
+		return copy;
+	}
+
 	private Indicator copyAndLink(Indicator indicator,
 			LogFrameCopyContext context) {
 		
-		Indicator copy = indicator.copy(context.getDestinationProjet());
+		Indicator copy = copy(indicator, context);
 		copy.getDataSources().add(indicator);
 		return copy;
 	}
