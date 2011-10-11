@@ -8,6 +8,10 @@ import org.sigmah.client.page.common.dialog.FormDialogCallback;
 import org.sigmah.client.page.common.dialog.FormDialogImpl;
 import org.sigmah.client.page.common.dialog.FormDialogTether;
 import org.sigmah.client.page.config.design.IndicatorForm;
+import org.sigmah.shared.command.CreateEntity;
+import org.sigmah.shared.command.UpdateEntity;
+import org.sigmah.shared.command.result.CreateResult;
+import org.sigmah.shared.command.result.VoidResult;
 import org.sigmah.shared.dto.IndicatorDTO;
 import org.sigmah.shared.dto.logframe.LogFrameElementDTO;
 
@@ -22,15 +26,20 @@ import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.ListView;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.logical.shared.HasValueChangeHandlers;
+import com.google.gwt.event.logical.shared.ValueChangeEvent;
+import com.google.gwt.event.logical.shared.ValueChangeHandler;
+import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
 
-public class IndicatorListWidget extends Composite  {
+public class IndicatorListWidget extends Composite implements HasValueChangeHandlers<Void> {
 
 	private static final String DRAG_AND_DROP_GROUP = "logframeIndicators";
 	private static IndicatorListWidgetUiBinder uiBinder = GWT
@@ -61,6 +70,7 @@ public class IndicatorListWidget extends Composite  {
 	
 	@UiField Style style;
 	private ListStore<IndicatorDTO> store;
+	private FormDialogImpl<IndicatorForm> dialog;
 
 		
 	public IndicatorListWidget(EventBus eventBus, Dispatcher dispatcher, int databaseId, LogFrameElementDTO element) {
@@ -101,7 +111,7 @@ public class IndicatorListWidget extends Composite  {
 
 			@Override
 			public void handleEvent(IndicatorEvent event) {
-				onIndicatorChanged(event);			
+				onIndicatorChangedExternally(event);			
 			}
 		});
 
@@ -119,20 +129,49 @@ public class IndicatorListWidget extends Composite  {
 
 			@Override
 			public void onValidated(FormDialogTether dlg) {
-				dlg.hide();
-				element.getIndicators().add(newIndicator);
-				indicatorList.getStore().add(newIndicator);			
+				
+				dispatcher.execute(new CreateEntity(newIndicator), dialog, new AsyncCallback<CreateResult>() {
+
+					@Override
+					public void onFailure(Throwable caught) {
+						// handled by dialog
+					}
+
+					@Override
+					public void onSuccess(CreateResult result) {
+						newIndicator.setId(result.getNewId());
+						dialog.hide();
+						element.getIndicators().add(newIndicator);
+						indicatorList.getStore().add(newIndicator);			
+					
+						ValueChangeEvent.fire(IndicatorListWidget.this, null);				
+					}
+				});
 			}
 		});
 	}
 	
-	private void onIndicatorClicked(IndicatorDTO model) {
+	private void onIndicatorClicked(final IndicatorDTO model) {
 		showDialog(model, new FormDialogCallback() {
 
 			@Override
 			public void onValidated(FormDialogTether dlg) {
-				dlg.hide();
-				indicatorList.refresh();
+				
+				dispatcher.execute(new UpdateEntity(model, model.getProperties()), dialog, new AsyncCallback<VoidResult>() {
+
+					@Override
+					public void onFailure(Throwable caught) {
+						// handled by monitor
+					}
+
+					@Override
+					public void onSuccess(VoidResult result) {
+						dialog.hide();
+						indicatorList.refresh();
+
+						ValueChangeEvent.fire(IndicatorListWidget.this, null);				
+					}
+				});
 			}
 		});
 	}
@@ -143,7 +182,7 @@ public class IndicatorListWidget extends Composite  {
 		form.setIdVisible(false);
 		form.setGroupVisible(false);
 		
-		final FormDialogImpl<IndicatorForm> dialog = new FormDialogImpl<IndicatorForm>(form);
+		dialog = new FormDialogImpl<IndicatorForm>(form);
 		dialog.setHeading(indicator.getName() == null ? 
 				I18N.CONSTANTS.newIndicator() : indicator.getName());
 		dialog.setWidth(form.getPreferredDialogWidth());
@@ -153,7 +192,10 @@ public class IndicatorListWidget extends Composite  {
 	}
 
 
-	private void onIndicatorChanged(IndicatorEvent event) {
+	/**
+	 * Update our view in the event that an indicator is changed in another tab open somewhere.
+	 */
+	private void onIndicatorChangedExternally(IndicatorEvent event) {
 		IndicatorDTO indicator = store.findModel("id", event.getEntityId());
 		if(indicator != null) {
 			switch(event.getChangeType()) {
@@ -168,6 +210,12 @@ public class IndicatorListWidget extends Composite  {
 			}
 		}
 		
+	}
+
+	@Override
+	public HandlerRegistration addValueChangeHandler(
+			ValueChangeHandler<Void> handler) {
+		return addHandler(handler, ValueChangeEvent.getType());
 	}
 
 }

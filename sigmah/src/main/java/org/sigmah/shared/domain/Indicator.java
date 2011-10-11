@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -59,6 +60,7 @@ public class Indicator implements java.io.Serializable, Orderable, Deleteable, S
 
 	private Activity activity;
 
+	
 	private int aggregation;
 
 	private int sortOrder;
@@ -361,11 +363,11 @@ public class Indicator implements java.io.Serializable, Orderable, Deleteable, S
 		this.labels = labels;
 	}
 
-	@ManyToMany
+	@ManyToMany(cascade=CascadeType.ALL)
 	@JoinTable(name = "indicator_datasource",
 			joinColumns = { @JoinColumn(name = "IndicatorId", nullable = false, updatable = false) },
 			inverseJoinColumns = { @JoinColumn(name = "IndicatorSourceId", nullable = false, updatable = false) })
-			public Set<Indicator> getDataSources() {
+	public Set<Indicator> getDataSources() {
 		return dataSources;
 	}
 

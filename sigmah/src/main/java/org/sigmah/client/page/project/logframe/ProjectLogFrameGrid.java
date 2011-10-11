@@ -48,6 +48,8 @@ import com.google.gwt.event.dom.client.MouseOutEvent;
 import com.google.gwt.event.dom.client.MouseOutHandler;
 import com.google.gwt.event.dom.client.MouseOverEvent;
 import com.google.gwt.event.dom.client.MouseOverHandler;
+import com.google.gwt.event.logical.shared.ValueChangeEvent;
+import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.FlexTable;
@@ -984,7 +986,15 @@ public class ProjectLogFrameGrid {
                         case 3:
 
                             // Indicators.
-                            return new IndicatorListWidget(eventBus, dispatcher, databaseId, specificObjective);
+                            IndicatorListWidget indicatorListWidget = new IndicatorListWidget(eventBus, dispatcher, databaseId, specificObjective);
+							indicatorListWidget.addValueChangeHandler(new ValueChangeHandler<Void>() {
+								
+								@Override
+								public void onValueChange(ValueChangeEvent<Void> event) {
+									fireLogFrameEdited();	
+								}
+							});
+                            return indicatorListWidget;
 
                         case 4:
 
@@ -1408,7 +1418,15 @@ public class ProjectLogFrameGrid {
                         case 3:
 
                             // Indicators.
-                            return new IndicatorListWidget(eventBus, dispatcher, databaseId, result);
+                            IndicatorListWidget indicatorListWidget = new IndicatorListWidget(eventBus, dispatcher, databaseId, result);
+                            indicatorListWidget.addValueChangeHandler(new ValueChangeHandler<Void>() {
+								
+								@Override
+								public void onValueChange(ValueChangeEvent<Void> event) {
+									fireLogFrameEdited();
+								}
+							});
+							return indicatorListWidget;
 
                         case 4:
 
@@ -1863,7 +1881,14 @@ public class ProjectLogFrameGrid {
                             return contentTextBox;
 
                         case 3:
-                            return new IndicatorListWidget(eventBus, dispatcher, databaseId, userObject);
+                            IndicatorListWidget indicatorListWidget = new IndicatorListWidget(eventBus, dispatcher, databaseId, userObject);
+							indicatorListWidget.addValueChangeHandler(new ValueChangeHandler<Void>() {
+								@Override
+								public void onValueChange(ValueChangeEvent<Void> event) {
+									fireLogFrameEdited();
+								}
+							});
+                            return indicatorListWidget;
 
                         case 4:
                             return new Label();
