@@ -165,9 +165,7 @@ public class IndicatorForm extends AbstractDesignForm {
     }
     
     protected void updateDatasources(IndicatorDTO indicator) {
-    	if(indicator.get("id") != null) {
-    		datasourceField.load(indicator);
-    	}
+		datasourceField.load(indicator);
 	}
 
 	private Radio newRadio(String label) {
@@ -203,6 +201,13 @@ public class IndicatorForm extends AbstractDesignForm {
 		unitsField.setAllowBlank(typeGroup.getValue() == qualRadio);
 		aggregationGroup.setVisible(typeGroup.getValue() != qualRadio);
 		objectiveField.setVisible(typeGroup.getValue() != qualRadio);
+	}
+
+    
+    
+	@Override
+	public int getPreferredDialogWidth() {
+		return 500;
 	}
 
 	@Override

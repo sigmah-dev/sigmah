@@ -1,6 +1,8 @@
 package org.sigmah.client.page.config.design;
 
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -179,8 +181,10 @@ public class DatasourceField extends AdapterField {
 		listView.getStore().removeAll();
 
 		BatchCommand batch = new BatchCommand();
-		batch.add(new GetIndicatorDataSources(indicator.getId()));
 		batch.add(new GetProject(indicator.getDatabaseId()));
+		if(indicator.get("id")!=null) {
+			batch.add(new GetIndicatorDataSources(indicator.getId()));
+		}
 		
 		dispatcher.execute(batch, new MaskingAsyncMonitor(container, I18N.CONSTANTS.loading()), 
 				new AsyncCallback<BatchResult>() {
@@ -192,8 +196,14 @@ public class DatasourceField extends AdapterField {
 
 			@Override
 			public void onSuccess(BatchResult result) {
-				List<IndicatorDataSourceDTO> indicators = ((IndicatorDataSourceList)result.getResults().get(0)).getData();
-				ProjectDTO project = ((ProjectDTO)result.getResults().get(1));
+				ProjectDTO project = ((ProjectDTO)result.getResults().get(0));
+
+				List<IndicatorDataSourceDTO> indicators;
+				if(result.getResults().size() >= 2) {
+					indicators = ((IndicatorDataSourceList)result.getResults().get(1)).getData();
+				} else {
+					indicators = Collections.emptyList();
+				}
 				
 				listView.getStore().add(indicators);
 				otherIndicatorsBox.disableEvents(true);
