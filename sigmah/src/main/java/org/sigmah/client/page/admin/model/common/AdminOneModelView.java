@@ -447,30 +447,37 @@ public class AdminOneModelView extends LayoutContainer implements AdminOneModelP
             cmd.setModelType(CheckModelUsage.ModelType.OrgUnitModel);
             cmd.setOrgUnitModelId(new Integer(getCurrentOrgUnitModel().getId()));
         }
-        
-        dispatcher.execute(cmd, null,
-                new AsyncCallback<ProjectModelStatusListResult>() {
 
-                    @Override
-                    public void onFailure(Throwable caught) {
-                        MessageBox.alert(I18N.CONSTANTS.adminModelCheckError(),
-                                I18N.CONSTANTS.adminModelCheckErrorDetails(), null);
-                    }
+        dispatcher.execute(cmd, null, new AsyncCallback<ProjectModelStatusListResult>() {
 
-                    @Override
-                    public void onSuccess(ProjectModelStatusListResult result) {
+            @Override
+            public void onFailure(Throwable caught) {
+                MessageBox.alert(I18N.CONSTANTS.adminModelCheckError(), I18N.CONSTANTS.adminModelCheckErrorDetails(),
+                        null);
+            }
 
-                        final ArrayList<String> values = new ArrayList<String>();
-                        for (ProjectModelStatus e : result.getStatus()) {
-                            values.add(ProjectModelStatus.getName(e));
-                        }
+            @Override
+            public void onSuccess(ProjectModelStatusListResult result) {
 
-                        statusList.add(values);
-                        statusList.setSimpleValue(ProjectModelStatus.getName(status));
+                boolean onlyDraft = true;
+                final ArrayList<String> values = new ArrayList<String>();
+                for (ProjectModelStatus e : result.getStatus()) {
+                    values.add(ProjectModelStatus.getName(e));
+                    onlyDraft = onlyDraft && e == ProjectModelStatus.DRAFT;
+                }
 
-                    }
+                statusList.add(values);
+                statusList.setSimpleValue(ProjectModelStatus.getName(status));
 
-                });
+                if (onlyDraft) {
+                    statusList.setTitle(I18N.CONSTANTS.adminOrgUnitModelOfRoot());
+                } else {
+                    statusList.setTitle(null);
+                }
+
+            }
+
+        });
 
     }
 

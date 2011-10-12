@@ -38,9 +38,15 @@ public class GetAvailableStatusForModelHandler implements CommandHandler<GetAvai
         if (status != null) {
             switch (status) {
             case DRAFT:
+
                 availableStatus.add(ProjectModelStatus.DRAFT);
-                availableStatus.add(ProjectModelStatus.READY);
-                availableStatus.add(ProjectModelStatus.UNAVAILABLE);
+
+                // Manages the case of the model of the default root org unit.
+                if (!isTopOrgUnitModel(cmd.getModelType(), cmd.getOrgUnitModelId())) {
+                    availableStatus.add(ProjectModelStatus.READY);
+                    availableStatus.add(ProjectModelStatus.UNAVAILABLE);
+                }
+
                 break;
             case READY:
                 availableStatus.add(ProjectModelStatus.DRAFT);
@@ -61,7 +67,7 @@ public class GetAvailableStatusForModelHandler implements CommandHandler<GetAvai
                 Boolean used = null;
 
                 if (type != null) {
-                    switch (cmd.getModelType()) {
+                    switch (type) {
                     case ProjectModel: {
                         if (idP != null) {
                             final String queryStr = "SELECT p FROM Project p WHERE p.projectModel.id =:projectModelId";
@@ -75,11 +81,11 @@ public class GetAvailableStatusForModelHandler implements CommandHandler<GetAvai
                     }
                     case OrgUnitModel: {
                         if (idO != null) {
-                            String queryStr = "SELECT o FROM OrgUnit o WHERE o.orgUnitModel.id =:orgUnitModelId";
-                            Query query = em.createQuery(queryStr);
+                            final String queryStr = "SELECT o FROM OrgUnit o WHERE o.orgUnitModel.id =:orgUnitModelId";
+                            final Query query = em.createQuery(queryStr);
                             query.setParameter("orgUnitModelId", idO);
 
-                            List<OrgUnit> orgUnits = (List<OrgUnit>) query.getResultList();
+                            final List<OrgUnit> orgUnits = (List<OrgUnit>) query.getResultList();
                             used = orgUnits != null && orgUnits.size() > 0;
                         }
                         break;
@@ -103,6 +109,39 @@ public class GetAvailableStatusForModelHandler implements CommandHandler<GetAvai
         }
 
         return new ProjectModelStatusListResult(availableStatus.toArray(new ProjectModelStatus[availableStatus.size()]));
+
+    }
+
+    @SuppressWarnings("unchecked")
+    private boolean isTopOrgUnitModel(ModelType type, Integer id) {
+
+        boolean rootModel = false;
+
+        if (type == ModelType.OrgUnitModel) {
+
+            if (id != null) {
+
+                final String queryStr = "SELECT o FROM OrgUnit o WHERE o.orgUnitModel.id =:orgUnitModelId";
+                final Query query = em.createQuery(queryStr);
+                query.setParameter("orgUnitModelId", id);
+
+                final List<OrgUnit> orgUnits = (List<OrgUnit>) query.getResultList();
+
+                if (orgUnits != null) {
+                    for (final OrgUnit orgUnit : orgUnits) {
+                        if (orgUnit.getParent() == null) {
+                            // Root org unit case.
+                            rootModel = true;
+                            break;
+                        }
+                    }
+                }
+
+            }
+
+        }
+
+        return rootModel;
 
     }
 
