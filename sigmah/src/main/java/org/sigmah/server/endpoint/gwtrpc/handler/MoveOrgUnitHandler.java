@@ -45,60 +45,54 @@ public class MoveOrgUnitHandler implements CommandHandler<MoveOrgUnit> {
         }
 
         // Checks that my new parent is not already one of my child !
-        if (!theKidIsNotMySon(moved, parentId)) {
+        final boolean theKidIsMySon = theKidIsMySon(moved, parentId);
+        if (theKidIsMySon) {
             throw new MoveException("Cycle detected : cannot move an org unit as a child of one of its children.",
                     MoveException.CYCLE_ERR_CODE);
         }
 
+        // Performs the move.
         moved.setParent(parent);
         moved = em.merge(moved);
-
-        // // If the moved org unit is the root.
-        // if (moved.getParent() == null) {
-        //
-        // final Organization organization = moved.getOrganization();
-        //
-        // parent.setParent(null);
-        // parent.setOrganization(moved.getOrganization());
-        // parent = em.merge(parent);
-        //
-        // moved.setParent(parent);
-        // moved.setOrganization(null);
-        // moved = em.merge(moved);
-        //
-        // organization.setRoot(parent);
-        // em.merge(organization);
-        //
-        // }
-        // // Classic move.
-        // else {
-        //
-        // moved.setParent(parent);
-        // moved = em.merge(moved);
-        //
-        // }
 
         return new VoidResult();
     }
 
     /**
-     * Let's sing.
+     * Let's sing...
      * 
-     * @see Mickael J.
+     * @param me
+     *            Mickael J.
+     * @param theKidName
+     *            Billie Jean son's name.
+     * @see Thriller
+     * @since 1982
      */
-    private boolean theKidIsNotMySon(OrgUnit me, int id) {
+    private boolean theKidIsMySon(OrgUnit me, int theKidName) {
 
-        boolean sheSaysIAmTheOne = true;
+        boolean sheSaysIAmTheOne = false;
 
         if (me.getChildren() != null) {
-            for (OrgUnit child : me.getChildren()) {
-                if (child.getId() == id) {
-                    // Billie Jean was right...
-                    sheSaysIAmTheOne = false;
-                } else {
-                    sheSaysIAmTheOne = sheSaysIAmTheOne || theKidIsNotMySon(child, id);
+
+            // For each of my sons.
+            for (final OrgUnit son : me.getChildren()) {
+
+                // My son ?
+                if (son.getId() == theKidName) {
+                    sheSaysIAmTheOne = true;
                 }
+                // Son of my son ?
+                else {
+                    sheSaysIAmTheOne = theKidIsMySon(son, theKidName);
+                }
+
+                // Damn it, Billie Jean was right...
+                if (sheSaysIAmTheOne) {
+                    break;
+                }
+
             }
+
         }
 
         return sheSaysIAmTheOne;
