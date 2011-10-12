@@ -2282,6 +2282,7 @@ sigmah/src/main/resources/manifest/Permutation.manifest -text
 sigmah/src/main/resources/org/sigmah/server/bootstrap/SigmahHostController.html -text
 sigmah/src/main/resources/org/sigmah/server/mail/MailMessages.properties -text
 sigmah/src/main/resources/org/sigmah/server/mail/MailMessages_en.properties -text
+sigmah/src/main/resources/org/sigmah/server/mail/MailMessages_es.properties -text
 sigmah/src/main/resources/org/sigmah/server/mail/MailMessages_fr.properties -text
 sigmah/src/main/resources/report-def.xsd -text
 sigmah/src/main/resources/sigmah.client.js -text

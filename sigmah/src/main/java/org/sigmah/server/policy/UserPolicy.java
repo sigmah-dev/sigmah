@@ -109,7 +109,13 @@ public class UserPolicy implements EntityPolicy<User> {
                 if (!userDAO.doesUserExist(email)) {
                     userDAO.persist(userToPersist);
                     try {
-                        final String confirmUrl = this.properties.getProperty(KEY_HOST_URL, DEFAULT_HOST_URL);
+
+                        final StringBuilder sb = new StringBuilder();
+                        sb.append(this.properties.getProperty(KEY_HOST_URL, DEFAULT_HOST_URL));
+                        sb.append("/NewUserConfirm?");
+                        sb.append(userToPersist.getChangePasswordKey());
+                        final String confirmUrl = sb.toString();
+
                         if (log.isDebugEnabled()) {
                             log.debug("Send the email after creating the new user: " + userToPersist.getEmail());
                             log.debug("The url is : " + confirmUrl);

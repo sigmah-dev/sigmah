@@ -72,7 +72,30 @@ public class InvitationMailer implements Mailer<Invitation> {
     public void send(Invitation model, Locale locale, boolean sendBySigmah) throws EmailException, TemplateException,
             IOException {
 
-        final String bundleName = "org.sigmah.client.i18n/UIMessages";
+        final ResourceBundle mailMessages = getResourceBundle(locale);
+
+        SimpleEmail mail = new SimpleEmail();
+        mail.addTo(model.getNewUser().getEmail(), model.getNewUser().getName());
+
+        MessageFormat formatter = new MessageFormat(mailMessages.getString("newUserInvitationMailSubject"), locale);
+        mail.setSubject(formatter.format(null));
+
+        // Create the string of message subject
+        final Object[] messageArguments = { User.getUserCompleteName(model.getNewUser()),
+                User.getUserCompleteName(model.getInvitingUser()), model.getInvitingUser().getEmail(),
+                model.getHostUrl() };
+
+        formatter = new MessageFormat(mailMessages.getString("newUserInvitationMailMessage"), locale);
+        String messageSubject = formatter.format(messageArguments);
+
+        mail.setMsg(messageSubject);
+
+        sender.send(mail);
+    }
+
+    private ResourceBundle getResourceBundle(Locale locale) {
+
+        final String bundleName = "org.sigmah.server.mail.MailMessages";
 
         ResourceBundle mailMessages;
         try {
@@ -84,28 +107,7 @@ public class InvitationMailer implements Mailer<Invitation> {
             mailMessages = ResourceBundle.getBundle(bundleName, locale);
         }
 
-        SimpleEmail mail = new SimpleEmail();
-        mail.addTo(model.getNewUser().getEmail(), model.getNewUser().getName());
-        mail.setSubject(mailMessages.getString("newUserInvitationMailSubject"));
-
-        // Create the string of message subject
-        Object[] messageArguments = { User.getUserCompleteName(model.getNewUser()),
-                User.getUserCompleteName(model.getInvitingUser()), model.getInvitingUser().getEmail(),
-                model.getHostUrl(), model.getNewUser().getChangePasswordKey() };
-
-        MessageFormat formatter = new MessageFormat("");
-        formatter.setLocale(locale);
-        formatter.applyPattern(mailMessages.getString("newUserInvitationMailMessage"));
-        String messageSubject = formatter.format(messageArguments);
-
-        mail.setMsg(messageSubject);
-
-        sender.send(mail);
-    }
-
-    private ResourceBundle getResourceBundle(Locale locale) {
-
-        return ResourceBundle.getBundle("org.sigmah.server.mail.MailMessages", locale);
+        return mailMessages;
 
     }
 
