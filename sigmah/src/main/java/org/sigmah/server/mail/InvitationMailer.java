@@ -81,9 +81,13 @@ public class InvitationMailer implements Mailer<Invitation> {
         mail.setSubject(formatter.format(null));
 
         // Create the string of message subject
-        final Object[] messageArguments = { User.getUserCompleteName(model.getNewUser()),
-                User.getUserCompleteName(model.getInvitingUser()), model.getInvitingUser().getEmail(),
-                model.getHostUrl() };
+        final Object[] messageArguments = { 
+                User.getUserCompleteName(model.getNewUser()),
+                User.getUserCompleteName(model.getInvitingUser()), 
+                model.getInvitingUser().getEmail(),
+                model.getHostUrl(),
+                model.getNewUser().getEmail(),
+                model.getNewUserPassword() };
 
         formatter = new MessageFormat(mailMessages.getString("newUserInvitationMailMessage"), locale);
         String messageSubject = formatter.format(messageArguments);

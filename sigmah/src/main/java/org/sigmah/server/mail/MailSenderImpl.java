@@ -25,7 +25,7 @@ public class MailSenderImpl implements MailSender {
     final public static String FROM_AUTH_PASSWORD_KEY = "mail.auth.password";
 
     final private static String DEFAULT_HOST_NAME = "localhost";
-    final private static String DEFAULT_PORT = 25;
+    final private static String DEFAULT_PORT = "25";
     final private static String DEFAULT_ADDRESS = "mailer@sigmah.org";
     final private static String DEFAULT_NAME = "Sigmah";
 
@@ -37,7 +37,7 @@ public class MailSenderImpl implements MailSender {
     public void send(Email email) throws EmailException {
 
         email.setHostName(properties.getProperty(HOST_NAME_KEY, DEFAULT_HOST_NAME));
-        email.setSmtpPort(properties.getProperty(PORT_KEY, DEFAULT_PORT));
+        email.setSmtpPort(Integer.parseInt(properties.getProperty(PORT_KEY, DEFAULT_PORT)));
         email.setFrom(properties.getProperty(FROM_ADDRESS_KEY, DEFAULT_ADDRESS),
                 properties.getProperty(FROM_NAME_KEY, DEFAULT_NAME));
 

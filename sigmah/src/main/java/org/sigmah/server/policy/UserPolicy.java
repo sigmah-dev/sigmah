@@ -28,6 +28,8 @@ import org.sigmah.shared.dto.UserDTO;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.google.inject.Inject;
 
+import org.sigmah.server.endpoint.gwtrpc.RetrievePasswordServlet;
+
 /**
  * Create user policy.
  * 
@@ -107,9 +109,13 @@ public class UserPolicy implements EntityPolicy<User> {
             } else {
                 // create new user
                 if (!userDAO.doesUserExist(email)) {
+                    password = PasswordHelper.generatePassword();
+                    userToPersist.setHashedPassword(PasswordHelper.hashPassword(password));                    
                     userDAO.persist(userToPersist);
                     try {
 
+                    /*
+                        //osarrat 2011-10-17 : commented until confirm url are managed
                         final StringBuilder sb = new StringBuilder();
                         sb.append(this.properties.getProperty(KEY_HOST_URL, DEFAULT_HOST_URL));
                         sb.append("/NewUserConfirm?");
@@ -120,11 +126,13 @@ public class UserPolicy implements EntityPolicy<User> {
                             log.debug("Send the email after creating the new user: " + userToPersist.getEmail());
                             log.debug("The url is : " + confirmUrl);
                         }
-
+                      */
+                        final String confirmUrl = this.properties.getProperty(KEY_HOST_URL, DEFAULT_HOST_URL); 
+                      
                         // final Locale userLocale =
                         // LocaleHelper.getLocaleObject(userToPersist);
                         final Locale userLocale = new Locale(locale);
-                        inviteMailer.send(new Invitation(userToPersist, executingUser, confirmUrl), userLocale, true);
+                        inviteMailer.send(new Invitation(userToPersist, executingUser, confirmUrl, password), userLocale, true);
 
                     } catch (Exception e) {
                         // ignore, don't abort because mail didn't work
