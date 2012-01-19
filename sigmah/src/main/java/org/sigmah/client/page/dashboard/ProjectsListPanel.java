@@ -20,18 +20,14 @@ import org.sigmah.client.util.DateUtils;
 import org.sigmah.client.util.Notification;
 import org.sigmah.client.util.NumberUtils;
 import org.sigmah.shared.command.GetProjects;
-import org.sigmah.shared.command.UpdateProject;
 import org.sigmah.shared.command.UpdateProjectFavorite;
 import org.sigmah.shared.command.result.CreateResult;
 import org.sigmah.shared.command.result.ProjectListResult;
-import org.sigmah.shared.command.result.VoidResult;
 import org.sigmah.shared.domain.ProjectModelType;
 import org.sigmah.shared.domain.profile.GlobalPermissionEnum;
 import org.sigmah.shared.dto.ProjectDTOLight;
 import org.sigmah.shared.dto.UserDTO;
 import org.sigmah.shared.dto.category.CategoryElementDTO;
-import org.sigmah.shared.dto.element.DefaultFlexibleElementDTO;
-import org.sigmah.shared.dto.element.handler.ValueEvent;
 import org.sigmah.shared.dto.profile.ProfileUtils;
 
 import com.allen_sauer.gwt.log.client.Log;
@@ -442,7 +438,7 @@ public class ProjectsListPanel {
         final DateTimeFormat format = DateUtils.DATE_SHORT;
 
         // Starred icon
-        final ColumnConfig starredIconColumn = new ColumnConfig("starred", "", 24);
+        final ColumnConfig starredIconColumn = new ColumnConfig("starred", "", 30);
         starredIconColumn.setRenderer(new GridCellRenderer<ProjectDTOLight>() {
             private final DashboardImageBundle imageBundle = GWT.create(DashboardImageBundle.class);
 
