@@ -121,6 +121,15 @@ public class OrgUnitModelDTO extends BaseModelData implements EntityDTO {
         set("status", status);
     }
     
+    public void setTopOrgUnitModel(boolean is) {
+        set("topModel", is);
+    }
+    
+    public boolean isTopOrgUnitModel() {
+        final Boolean b = get("topModel");
+        return b != null ? b : false;
+    }
+    
     public List<FlexibleElementDTO> getAllElements(){
     	List<FlexibleElementDTO> allElements = new ArrayList<FlexibleElementDTO>();
     	List<FlexibleElementDTO> bannerElements = new ArrayList<FlexibleElementDTO>();

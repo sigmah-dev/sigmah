@@ -15,7 +15,6 @@ import org.sigmah.client.page.admin.AdminPageState;
 import org.sigmah.client.page.admin.model.common.AdminModelActionListener;
 import org.sigmah.client.page.admin.model.orgunit.AdminOrgUnitModelsPresenter.AdminModelsStore;
 import org.sigmah.client.page.admin.model.orgunit.AdminOrgUnitModelsPresenter.View;
-import org.sigmah.client.page.admin.model.project.AdminProjectModelsView;
 import org.sigmah.client.page.common.toolbar.UIActions;
 import org.sigmah.shared.domain.ProjectModelStatus;
 import org.sigmah.shared.dto.OrgUnitModelDTO;
@@ -34,8 +33,6 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
-import com.extjs.gxt.ui.client.widget.layout.VBoxLayout;
-import com.extjs.gxt.ui.client.widget.layout.VBoxLayoutData;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -49,13 +46,12 @@ public class AdminOrgUnitModelsView extends View {
 	private final AdminModelsStore modelsStore;
 	private final EventBus eventBus;
 	private AdminPageState currentState;
-	private final UserLocalCache cache;
 	private final Dispatcher dispatcher;
 	
 	@Inject
 	public AdminOrgUnitModelsView(Dispatcher dispatcher, UserLocalCache cache, EventBus eventBus) {
 		this.dispatcher = dispatcher;
-		this.cache = cache;
+		// this.cache = cache;
 		this.eventBus = eventBus;
 		
 		mainPanel = new ContentPanel(new FitLayout());
@@ -172,8 +168,8 @@ public class AdminOrgUnitModelsView extends View {
 					}		        	
 		        });		        		        
 				
-		        //Only the OrgUnit model with status "Draft" can be deleted.
-		        if(model.getStatus().equals(ProjectModelStatus.DRAFT))
+		        // Only the OrgUnit model with status "Draft" can be deleted.
+		        if(!model.isTopOrgUnitModel() && model.getStatus().equals(ProjectModelStatus.DRAFT))
 		        	button.enable();
 		        
 		        return button;				

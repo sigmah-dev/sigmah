@@ -47,6 +47,8 @@ public class GetOrgUnitModelsHandler implements CommandHandler<GetOrgUnitModels>
 
         final ProjectModelStatus[] status = cmd.getStatus();
 
+        final int topModelId = user.getOrganization().getRoot().getOrgUnitModel().getId();
+
         // Creates selection query.
         Query query;
 
@@ -54,7 +56,7 @@ public class GetOrgUnitModelsHandler implements CommandHandler<GetOrgUnitModels>
             query = em.createQuery("SELECT m FROM OrgUnitModel m WHERE m.organization.id = :orgid ORDER BY m.name");
             query.setParameter("orgid", user.getOrganization().getId());
 
-            orgUnitModelDTOList = queryModels(query);
+            orgUnitModelDTOList = queryModels(query, topModelId);
 
         } else {
 
@@ -67,7 +69,7 @@ public class GetOrgUnitModelsHandler implements CommandHandler<GetOrgUnitModels>
                 query.setParameter("orgid", user.getOrganization().getId());
                 query.setParameter("availableStatus", s);
 
-                orgUnitModelDTOList.addAll(queryModels(query));
+                orgUnitModelDTOList.addAll(queryModels(query, topModelId));
 
             }
 
@@ -80,7 +82,7 @@ public class GetOrgUnitModelsHandler implements CommandHandler<GetOrgUnitModels>
         return new OrgUnitModelListResult(orgUnitModelDTOList);
     }
 
-    private ArrayList<OrgUnitModelDTO> queryModels(Query query) {
+    private ArrayList<OrgUnitModelDTO> queryModels(Query query, int topModelId) {
 
         final ArrayList<OrgUnitModelDTO> orgUnitModelDTOList = new ArrayList<OrgUnitModelDTO>();
 
@@ -91,7 +93,9 @@ public class GetOrgUnitModelsHandler implements CommandHandler<GetOrgUnitModels>
         // Mapping (entity -> dto).
         if (models != null) {
             for (final OrgUnitModel model : models) {
-                orgUnitModelDTOList.add(mapper.map(model, OrgUnitModelDTO.class));
+                final OrgUnitModelDTO dto = mapper.map(model, OrgUnitModelDTO.class);
+                dto.setTopOrgUnitModel(model.getId() == topModelId);
+                orgUnitModelDTOList.add(dto);
             }
         }
 

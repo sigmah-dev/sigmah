@@ -20,82 +20,84 @@ import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
 
 public class AdminOrgUnitModelsPresenter implements AdminSubPresenter {
-	
-	private final View view;
-	private static boolean alert = false;
-	private final Dispatcher dispatcher;
-    private final UserLocalCache cache;
-    private Authentication authentication;
+
+    private final View view;
+    private static boolean alert = false;
+    private final Dispatcher dispatcher;
     private AdminPageState currentState;
     private int modelId = -1;
-	
-	@ImplementedBy(AdminOrgUnitModelsView.class)
-	public static abstract class View extends ContentPanel {
-		public abstract AdminModelsStore getAdminModelsStore();
-		public abstract MaskingAsyncMonitor getOrgUnitModelsLoadingMonitor();
-		public abstract Component getMainPanel(int id);
-		public abstract void setCurrentState(AdminPageState currentState);
-		public abstract Grid<OrgUnitModelDTO> getOrgUnitModelGrid();
-	}
-	public static class AdminModelsStore extends ListStore<OrgUnitModelDTO> {
+
+    @ImplementedBy(AdminOrgUnitModelsView.class)
+    public static abstract class View extends ContentPanel {
+        public abstract AdminModelsStore getAdminModelsStore();
+
+        public abstract MaskingAsyncMonitor getOrgUnitModelsLoadingMonitor();
+
+        public abstract Component getMainPanel(int id);
+
+        public abstract void setCurrentState(AdminPageState currentState);
+
+        public abstract Grid<OrgUnitModelDTO> getOrgUnitModelGrid();
     }
 
-	@Inject
-	public AdminOrgUnitModelsPresenter(Dispatcher dispatcher, UserLocalCache cache, 
-			final Authentication authentication, EventBus eventBus, final AdminPageState currentState) {
-		this.currentState = currentState;
-		this.cache = cache;
+    public static class AdminModelsStore extends ListStore<OrgUnitModelDTO> {
+    }
+
+    @Inject
+    public AdminOrgUnitModelsPresenter(Dispatcher dispatcher, UserLocalCache cache,
+            final Authentication authentication, EventBus eventBus, final AdminPageState currentState) {
+        this.currentState = currentState;
+        // this.cache = cache;
         this.dispatcher = dispatcher;
-        this.authentication = authentication;        
+        // this.authentication = authentication;
         this.view = new AdminOrgUnitModelsView(dispatcher, cache, eventBus);
-	}
-	
-	public static void refreshOrgUnitModelsPanel(Dispatcher dispatcher, final View view){
-		dispatcher.execute(new GetOrgUnitModels(), 
-				view.getOrgUnitModelsLoadingMonitor(),
-        		new AsyncCallback<OrgUnitModelListResult>() {
-        	@Override
-            public void onFailure(Throwable arg0) {
-        		AdminUtil.alertPbmData(alert);
-            }
+    }
 
-            @Override
-            public void onSuccess(OrgUnitModelListResult result) {
-            	if (result.getList() != null && !result.getList().isEmpty()) {
-            		view.getAdminModelsStore().removeAll();
-            		view.getAdminModelsStore().add(result.getList());
-                	view.getAdminModelsStore().commitChanges();
-            	}
-            	
+    public static void refreshOrgUnitModelsPanel(Dispatcher dispatcher, final View view) {
+        dispatcher.execute(new GetOrgUnitModels(), view.getOrgUnitModelsLoadingMonitor(),
+                new AsyncCallback<OrgUnitModelListResult>() {
+                    @Override
+                    public void onFailure(Throwable arg0) {
+                        AdminUtil.alertPbmData(alert);
+                    }
+
+                    @Override
+                    public void onSuccess(OrgUnitModelListResult result) {
+                        if (result.getList() != null && !result.getList().isEmpty()) {
+                            view.getAdminModelsStore().removeAll();
+                            view.getAdminModelsStore().add(result.getList());
+                            view.getAdminModelsStore().commitChanges();
+                        }
+
+                    }
+                });
+    }
+
+    @Override
+    public Component getView() {
+        refreshOrgUnitModelsPanel(dispatcher, view);
+        if (currentState != null) {
+            final Integer mod = currentState.getModel();
+            if (mod != null) {
+                modelId = mod;
             }
-        });
-	}
-	
-	@Override
-	public Component getView() {		
-		refreshOrgUnitModelsPanel(dispatcher, view);
-		if(currentState != null){
-			final Integer mod = currentState.getModel();
-	        if (mod != null){
-	        	modelId = mod;
-	        }	            
-		}		
-        
+        }
+
         return view.getMainPanel(modelId);
-	}
-	
-	@Override
-	public void setCurrentState(AdminPageState currentState){
-		this.currentState = currentState;
-		view.setCurrentState(currentState);
-	}
+    }
 
-	@Override
-	public void discardView() {
-	}
+    @Override
+    public void setCurrentState(AdminPageState currentState) {
+        this.currentState = currentState;
+        view.setCurrentState(currentState);
+    }
 
-	@Override
-	public void viewDidAppear() {		
-	}
+    @Override
+    public void discardView() {
+    }
+
+    @Override
+    public void viewDidAppear() {
+    }
 
 }
