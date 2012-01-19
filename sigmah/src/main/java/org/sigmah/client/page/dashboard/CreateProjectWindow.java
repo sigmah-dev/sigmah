@@ -42,11 +42,11 @@ import com.extjs.gxt.ui.client.widget.VerticalPanel;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.LabelField;
 import com.extjs.gxt.ui.client.widget.form.NumberField;
 import com.extjs.gxt.ui.client.widget.form.TextField;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
@@ -486,6 +486,7 @@ public class CreateProjectWindow {
             public Object render(ProjectDTOLight model, String property, ColumnData config, int rowIndex, int colIndex,
                     ListStore<ProjectDTOLight> store, com.extjs.gxt.ui.client.widget.grid.Grid<ProjectDTOLight> grid) {
                 Button deleteBouton = new Button("", IconImageBundle.ICONS.delete());
+                deleteBouton.setWidth(24);
                 final ProjectDTOLight selectedTestptoject = model;
                 deleteBouton.setData("testProjectId", model.getId());
                 deleteBouton.addListener(Events.OnClick, new Listener<ButtonEvent>() {
