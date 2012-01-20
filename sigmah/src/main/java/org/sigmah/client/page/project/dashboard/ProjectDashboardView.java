@@ -769,7 +769,9 @@ public class ProjectDashboardView extends ProjectDashboardPresenter.View {
         remindersGrid.getView().setForceFit(true);
         remindersGrid.setBorders(false);
 
-        remindersGrid.addPlugin((CheckColumnConfig) remindersGrid.getColumnModel().getColumn(0));
+        if (ProfileUtils.isGranted(authentication, GlobalPermissionEnum.EDIT_PROJECT)) {
+            remindersGrid.addPlugin((CheckColumnConfig) remindersGrid.getColumnModel().getColumn(0));
+        }
         remindersGrid.setAutoExpandColumn("label");
 
         // Filter menu.
@@ -893,7 +895,9 @@ public class ProjectDashboardView extends ProjectDashboardPresenter.View {
         monitoredPointsGrid.getView().setForceFit(true);
         monitoredPointsGrid.setBorders(false);
 
-        monitoredPointsGrid.addPlugin((CheckColumnConfig) monitoredPointsGrid.getColumnModel().getColumn(0));
+        if (ProfileUtils.isGranted(authentication, GlobalPermissionEnum.EDIT_PROJECT)) {
+            monitoredPointsGrid.addPlugin((CheckColumnConfig) monitoredPointsGrid.getColumnModel().getColumn(0));
+        }
         monitoredPointsGrid.setAutoExpandColumn("label");
 
         // Filter menu.
@@ -1045,7 +1049,7 @@ public class ProjectDashboardView extends ProjectDashboardPresenter.View {
         final CellEditor checkBoxEditor = new CellEditor(new CheckBox());
         completedColumn.setEditor(checkBoxEditor);
 
-        // Icojn
+        // Icon
         final ColumnConfig iconColumn = new ColumnConfig();
         iconColumn.setId("icon");
         iconColumn.setHeader("");
@@ -1071,7 +1075,9 @@ public class ProjectDashboardView extends ProjectDashboardPresenter.View {
         labelColumn.setId("label");
         labelColumn.setHeader(I18N.CONSTANTS.monitoredPointLabel());
         labelColumn.setWidth(60);
-        labelColumn.setRenderer(new MonitoredPointLabelCellRender(this, this.dispatcher));
+        if (ProfileUtils.isGranted(authentication, GlobalPermissionEnum.EDIT_PROJECT)) {
+            labelColumn.setRenderer(new MonitoredPointLabelCellRender(this, this.dispatcher));
+        }
 
         // Expected date.
         final ColumnConfig expectedDateColumn = new ColumnConfig();
@@ -1148,7 +1154,9 @@ public class ProjectDashboardView extends ProjectDashboardPresenter.View {
         labelColumn.setId("label");
         labelColumn.setHeader(I18N.CONSTANTS.monitoredPointLabel());
         labelColumn.setWidth(60);
-        labelColumn.setRenderer(new ReminderLableCellRenderer(this, this.dispatcher));
+        if (ProfileUtils.isGranted(authentication, GlobalPermissionEnum.EDIT_PROJECT)) {
+            labelColumn.setRenderer(new ReminderLableCellRenderer(this, this.dispatcher));
+        }
 
         // Expected date.
         final ColumnConfig expectedDateColumn = new ColumnConfig();

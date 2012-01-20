@@ -292,10 +292,9 @@ public class ProjectPresenter implements Frame, TabPage {
         }
 
     }
-    
-    public void ReloadProjectOnView(ProjectDTO projectDTO)
-    {
-    	currentProjectDTO = projectDTO;
+
+    public void ReloadProjectOnView(ProjectDTO projectDTO) {
+        currentProjectDTO = projectDTO;
         currentDisplayedPhaseDTO = projectDTO.getCurrentPhaseDTO();
 
         refreshBanner();
@@ -307,7 +306,6 @@ public class ProjectPresenter implements Frame, TabPage {
             }
         }
     }
-    
 
     public ProjectDTO getCurrentProjectDTO() {
         return currentProjectDTO;
@@ -542,84 +540,90 @@ public class ProjectPresenter implements Frame, TabPage {
 
         amendmentBox.add(amendmentListContainer, new VBoxLayoutData(0, 0, 3, 0));
 
-        // Displaying the available actions
-        final Amendment.Action[] actions;
-        if (currentProjectDTO.getAmendmentState() != null)
-            actions = currentProjectDTO.getAmendmentState().getActions();
-        else
-            actions = new Amendment.Action[0];
-        final Anchor[] anchors = new Anchor[actions.length];
+        if (ProfileUtils.isGranted(authentication, GlobalPermissionEnum.EDIT_PROJECT)) {
 
-        for (int index = 0; index < actions.length; index++) {
-            final Amendment.Action action = actions[index];
-            Log.debug("Adding the " + action + " amendment action.");
+            // Displaying the available actions
+            final Amendment.Action[] actions;
+            if (currentProjectDTO.getAmendmentState() != null)
+                actions = currentProjectDTO.getAmendmentState().getActions();
+            else
+                actions = new Amendment.Action[0];
+            final Anchor[] anchors = new Anchor[actions.length];
 
-            if (action == Amendment.Action.VALIDATE || action == Amendment.Action.REJECT) {
-                if (!ProfileUtils.isGranted(authentication, GlobalPermissionEnum.VALID_AMENDEMENT)) {
-                    Log.debug("You can not validate !");
-                    continue;
-                }
+            for (int index = 0; index < actions.length; index++) {
+                final Amendment.Action action = actions[index];
+                Log.debug("Adding the " + action + " amendment action.");
 
-            }
-
-            Log.debug("You can  validate !");
-
-            final Anchor actionAnchor = new Anchor(amendmentActionDisplayNames.get(action));
-            actionAnchor.addStyleName("amendment-action");
-
-            actionAnchor.addClickHandler(new ClickHandler() {
-                @Override
-                public void onClick(ClickEvent event) {
-                    // Disabling every actions before sending the request
-                    amendmentBox.mask(I18N.CONSTANTS.loading());
-
-                    for (final Anchor anchor : anchors) {
-                        if (anchor == null)
-                            Log.debug("anchor is null");
-                        if (anchor != null)
-                            anchor.setEnabled(false);
+                if (action == Amendment.Action.VALIDATE || action == Amendment.Action.REJECT) {
+                    if (!ProfileUtils.isGranted(authentication, GlobalPermissionEnum.VALID_AMENDEMENT)) {
+                        Log.debug("You can not validate !");
+                        continue;
                     }
 
-                    final AmendmentAction amendmentAction = new AmendmentAction(currentProjectDTO.getId(), action);
-                    dispatcher.execute(amendmentAction, null, new AsyncCallback<ProjectDTO>() {
+                }
 
-                        @Override
-                        public void onFailure(Throwable caught) {
-                            // Failures may happen if an other user changes the
-                            // amendment state.
-                            // TODO: we should maybe refresh the project or tell
-                            // the user to refresh the page.
-                            MessageBox.alert(amendmentActionDisplayNames.get(action),
-                                    I18N.CONSTANTS.amendmentActionError(), null);
-                            for (final Anchor anchor : anchors)
-                                anchor.setEnabled(true);
-                            amendmentBox.unmask();
+                Log.debug("You can  validate !");
+
+                final Anchor actionAnchor = new Anchor(amendmentActionDisplayNames.get(action));
+                actionAnchor.addStyleName("amendment-action");
+
+                actionAnchor.addClickHandler(new ClickHandler() {
+                    @Override
+                    public void onClick(ClickEvent event) {
+                        // Disabling every actions before sending the request
+                        amendmentBox.mask(I18N.CONSTANTS.loading());
+
+                        for (final Anchor anchor : anchors) {
+                            if (anchor == null)
+                                Log.debug("anchor is null");
+                            if (anchor != null)
+                                anchor.setEnabled(false);
                         }
 
-                        @Override
-                        public void onSuccess(ProjectDTO result) {
-                            for (final Anchor anchor : anchors) {
-                                if (anchor != null)
+                        final AmendmentAction amendmentAction = new AmendmentAction(currentProjectDTO.getId(), action);
+                        dispatcher.execute(amendmentAction, null, new AsyncCallback<ProjectDTO>() {
+
+                            @Override
+                            public void onFailure(Throwable caught) {
+                                // Failures may happen if an other user changes
+                                // the
+                                // amendment state.
+                                // TODO: we should maybe refresh the project or
+                                // tell
+                                // the user to refresh the page.
+                                MessageBox.alert(amendmentActionDisplayNames.get(action),
+                                        I18N.CONSTANTS.amendmentActionError(), null);
+                                for (final Anchor anchor : anchors)
                                     anchor.setEnabled(true);
+                                amendmentBox.unmask();
                             }
 
-                            // Updating the current project
-                            currentProjectDTO = result;
+                            @Override
+                            public void onSuccess(ProjectDTO result) {
+                                for (final Anchor anchor : anchors) {
+                                    if (anchor != null)
+                                        anchor.setEnabled(true);
+                                }
 
-                            // Refreshing the whole view
-                            discardAllViews();
-                            selectTab(currentState.getCurrentSection(), true);
-                            refreshAmendment();
+                                // Updating the current project
+                                currentProjectDTO = result;
 
-                            amendmentBox.unmask();
-                        }
+                                // Refreshing the whole view
+                                discardAllViews();
+                                selectTab(currentState.getCurrentSection(), true);
+                                refreshAmendment();
 
-                    });
-                }
-            });
+                                amendmentBox.unmask();
+                            }
 
-            amendmentBox.add(actionAnchor, new VBoxLayoutData());
-            anchors[index] = actionAnchor;
+                        });
+                    }
+                });
+
+                amendmentBox.add(actionAnchor, new VBoxLayoutData());
+                anchors[index] = actionAnchor;
+
+            }
 
         }
 
