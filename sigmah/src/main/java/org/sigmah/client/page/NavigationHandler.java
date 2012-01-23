@@ -9,9 +9,12 @@ import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.i18n.client.Dictionary;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.RootPanel;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.sigmah.client.EventBus;
@@ -22,12 +25,13 @@ import org.sigmah.client.inject.Root;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.MissingResourceException;
 
 /**
- *  Coordinates navigation between pages.
- *
- *  PageManager listens for NavigationEvents, fired either by an individual component, or
- * from the HistoryManager, and
+ * Coordinates navigation between pages.
+ * 
+ * PageManager listens for NavigationEvents, fired either by an individual
+ * component, or from the HistoryManager, and
  */
 @Singleton
 public class NavigationHandler {
@@ -56,7 +60,7 @@ public class NavigationHandler {
     }
 
     private void onNavigationRequested(NavigationEvent be) {
-        if(activeNavigation ==null || !activeNavigation.getPlace().equals(be.getPlace())) {
+        if (activeNavigation == null || !activeNavigation.getPlace().equals(be.getPlace())) {
             activeNavigation = new NavigationAttempt(be.getPlace());
             activeNavigation.go();
         }
@@ -70,10 +74,11 @@ public class NavigationHandler {
     private PageLoader getPageLoader(PageId pageId) {
         // Looks for an ID separator
         int index = pageId.toString().indexOf('!');
-        if(index != -1)
-            // Removes the ID from the PageId in order to retrieves the correct PageLoader from the map.
+        if (index != -1)
+            // Removes the ID from the PageId in order to retrieves the correct
+            // PageLoader from the map.
             pageId = new PageId(pageId.toString().substring(0, index));
-        
+
         PageLoader loader = pageLoaders.get(pageId);
         if (loader == null) {
             Log.debug("PageManager: no loader for " + pageId);
@@ -81,7 +86,6 @@ public class NavigationHandler {
         }
         return loader;
     }
-
 
     /**
      * Encapsulates a single navigation attempt.
@@ -123,15 +127,15 @@ public class NavigationHandler {
             currentPage = frame.getActivePage();
         }
 
-
         /**
          * After each asynchronous call we need to check that the user has not
          * requested to navigate elsewhere.
-         *
-         * For example, a page loader may make an asynchronous call, which means that an additional
-         * JavaScript fragment has to be downloaded from the server and parsed before we can continue.
-         * During that time, the user may have grown tired of waiting and hit the back button or
-         * chosen another place to go to.
+         * 
+         * For example, a page loader may make an asynchronous call, which means
+         * that an additional JavaScript fragment has to be downloaded from the
+         * server and parsed before we can continue. During that time, the user
+         * may have grown tired of waiting and hit the back button or chosen
+         * another place to go to.
          */
         private boolean isStillActive() {
             return this == activeNavigation;
@@ -157,16 +161,17 @@ public class NavigationHandler {
         }
 
         /**
-         * We need to give the current page an opportunity to cancel the navigation.
-         * For example, the user may have made changes to the page and we don't want
-         * to navigate away until we're sure that they can be saved.
+         * We need to give the current page an opportunity to cancel the
+         * navigation. For example, the user may have made changes to the page
+         * and we don't want to navigate away until we're sure that they can be
+         * saved.
          */
         private void askPermissionToChange() {
             currentPage.requestToNavigateAway(place, new NavigationCallback() {
                 @Override
                 public void onDecided(boolean allowed) {
                     if (allowed) {
-                        if(isStillActive()) {
+                        if (isStillActive()) {
                             proceedWithNavigation();
                         }
                     } else {
@@ -189,7 +194,7 @@ public class NavigationHandler {
         }
 
         private void proceedWithNavigation() {
-            if(isStillActive()) {
+            if (isStillActive()) {
                 fireAgreedEvent();
                 startAtRoot();
                 changePage();
@@ -201,13 +206,14 @@ public class NavigationHandler {
         }
 
         protected void changePage() {
+
+            refreshMessage();
+
             /*
-               * First see if this view is already the active view,
-               * in wehich case we can just descend in the path
-               */
-            if (!thereIsNoCurrentPage() &&
-                 targetPageIsAlreadyActive() &&
-                  currentPage.navigate(place)) {
+             * First see if this view is already the active view, in wehich case
+             * we can just descend in the path
+             */
+            if (!thereIsNoCurrentPage() && targetPageIsAlreadyActive() && currentPage.navigate(place)) {
 
                 changeChildPageIfNecessary();
 
@@ -215,6 +221,27 @@ public class NavigationHandler {
                 shutDownCurrentPageIfThereIsOne();
                 showPlaceHolder();
                 schedulePageLoadAfterEventProcessing();
+            }
+        }
+
+        private void refreshMessage() {
+            final String id = "alert";
+            if (RootPanel.get(id) != null) {
+                Dictionary d = null;
+                try {
+                    d = Dictionary.getDictionary("AlertMessage");
+                } catch (MissingResourceException e) {
+                    d = null;
+                }
+                RootPanel.get(id).clear();
+                if (d != null && Boolean.valueOf(d.get("active"))) {
+                    RootPanel.get(id).setVisible(true);
+                    final HTML html = new HTML(d.get("message"));
+                    html.addStyleName("message");
+                    RootPanel.get(id).add(html);
+                } else {
+                    RootPanel.get(id).setVisible(false);
+                }
             }
         }
 
@@ -230,15 +257,15 @@ public class NavigationHandler {
 
         /**
          * Schedules the loadPage() after all UI events in the browser have had
-         * a chance to run. This assures that the loading placeholder has a chance to
-         * be added to the page.
+         * a chance to run. This assures that the loading placeholder has a
+         * chance to be added to the page.
          */
         private void schedulePageLoadAfterEventProcessing() {
-            if(GWT.isClient()) {
+            if (GWT.isClient()) {
                 DeferredCommand.addCommand(new Command() {
                     @Override
                     public void execute() {
-                        if(isStillActive()) {
+                        if (isStillActive()) {
                             loadPage();
                         }
                     }
@@ -249,8 +276,8 @@ public class NavigationHandler {
         }
 
         /**
-         * Delegates the creation of the Page component to a registered
-         * page loader.
+         * Delegates the creation of the Page component to a registered page
+         * loader.
          */
         private void loadPage() {
             PageLoader loader = getPageLoader(targetPage);
@@ -259,9 +286,10 @@ public class NavigationHandler {
                 public void onFailure(Throwable caught) {
                     onPageFailedToLoad(caught);
                 }
+
                 @Override
                 public void onSuccess(Page page) {
-                    if(isStillActive()) {
+                    if (isStillActive()) {
                         onPageLoaded(page);
                     }
                 }
@@ -295,9 +323,8 @@ public class NavigationHandler {
         }
 
         private void assertPageIsFrame(Page page) {
-            assert page instanceof Frame :
-                    "Cannot load page " + pageHierarchyIt.next() + " into " + page.toString() + " because " +
-                            page.getClass().getName() + " does not implement the PageFrame interface.";
+            assert page instanceof Frame : "Cannot load page " + pageHierarchyIt.next() + " into " + page.toString()
+                    + " because " + page.getClass().getName() + " does not implement the PageFrame interface.";
         }
     }
 }

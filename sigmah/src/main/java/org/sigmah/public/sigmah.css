@@ -34,6 +34,20 @@ body {
 	background: url(image/bg-name.jpg) no-repeat;
 }
 
+#alert {
+	clear: both;
+    overflow: hidden;
+    padding: 10px 15px 0;
+}
+
+.message {
+	background: #FFFAE0 url(image/exclamation.png) 5px 3px no-repeat;
+	border: 1px solid #EBAE7F;
+	padding: 4px 0 3px 30px;
+	color: #D85D01;
+	font: 11px arial,tahoma,helvetica,sans-serif;
+}
+
 #username {
 	height: 16px;
 	width: 340px;

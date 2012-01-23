@@ -1155,6 +1155,7 @@ sigmah/src/main/java/org/sigmah/public/image/context_menu_icon_orange.png -text
 sigmah/src/main/java/org/sigmah/public/image/credits.png -text
 sigmah/src/main/java/org/sigmah/public/image/deconnexion.png -text
 sigmah/src/main/java/org/sigmah/public/image/default-logo.png -text
+sigmah/src/main/java/org/sigmah/public/image/exclamation.png -text
 sigmah/src/main/java/org/sigmah/public/image/filter.png -text
 sigmah/src/main/java/org/sigmah/public/image/fold-collapse.png -text
 sigmah/src/main/java/org/sigmah/public/image/fold-expand.png -text
