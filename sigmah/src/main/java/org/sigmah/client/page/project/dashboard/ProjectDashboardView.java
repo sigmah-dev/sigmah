@@ -240,7 +240,7 @@ public class ProjectDashboardView extends ProjectDashboardPresenter.View {
 
         // Element's completion.
         final CheckColumnConfig filledInColumn = new CheckColumnConfig("filledIn",
-                I18N.CONSTANTS.projectRequiredElementsGridChecked(), 40);
+                I18N.CONSTANTS.projectRequiredElementsGridChecked(), 50);
         filledInColumn.setMenuDisabled(false);
         filledInColumn.setSortable(false);
         filledInColumn.setRenderer(new GridCellRenderer<FlexibleElementDTO>() {
