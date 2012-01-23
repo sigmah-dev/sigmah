@@ -79,7 +79,8 @@ public class GetProjectModelsHandler implements CommandHandler<GetProjectModels>
 						// Filters with the command type is any ans the project
 						// status different form DRAFT.
 						if ((cmd.getModelType() == null || type == cmd.getModelType())
-								&& !ProjectModelStatus.DRAFT.equals(model.getStatus())) {
+								&& !ProjectModelStatus.DRAFT.equals(model.getStatus())
+								&& !ProjectModelStatus.UNAVAILABLE.equals(model.getStatus())) {
 							projectModelDTOList.add(mapper.map(model, ProjectModelDTOLight.class));
 						}
 					}
