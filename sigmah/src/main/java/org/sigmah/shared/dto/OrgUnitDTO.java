@@ -200,7 +200,8 @@ public class OrgUnitDTO extends BaseModelData implements EntityDTO, DefaultFlexi
 
     @Override
     public int getOrgUnitId() {
-        return -1;
+        final OrgUnitDTO parent = getParent();
+        return parent != null ? parent.getId() : getId();
     }
 
     /**
@@ -229,8 +230,8 @@ public class OrgUnitDTO extends BaseModelData implements EntityDTO, DefaultFlexi
         }
         light.setChildrenDTO(children);
         light.setDeleted(getDeleted());
-        
-        //Set the orgunit model
+
+        // Set the orgunit model
         light.setOrgUnitModel(getOrgUnitModel());
 
         return light;

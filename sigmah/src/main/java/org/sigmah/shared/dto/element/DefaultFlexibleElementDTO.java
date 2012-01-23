@@ -17,6 +17,7 @@ import org.sigmah.shared.command.result.ValueResultUtils;
 import org.sigmah.shared.dao.Filter;
 import org.sigmah.shared.domain.element.DefaultFlexibleElementType;
 import org.sigmah.shared.dto.CountryDTO;
+import org.sigmah.shared.dto.OrgUnitDTO;
 import org.sigmah.shared.dto.OrgUnitDTOLight;
 import org.sigmah.shared.dto.ProjectDTO;
 import org.sigmah.shared.dto.UserDTO;
@@ -108,7 +109,7 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
             throw new IllegalArgumentException(
                     "The flexible elements container isn't an instance of DefaultFlexibleElementContainer. The default flexible element connot be instanciated.");
         }
-        
+
         switch (getType()) {
         case BUDGET:
 
@@ -130,7 +131,7 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 
     }
 
-    protected Component getComponent(final boolean enabled) {
+    protected Component getComponent(boolean enabled) {
 
         if (currentContainerDTO instanceof DefaultFlexibleElementContainer) {
             container = (DefaultFlexibleElementContainer) currentContainerDTO;
@@ -615,6 +616,9 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
             final Field<?> field;
             final int id = container.getOrgUnitId();
 
+            // Org unit field is always read-only for org unit.
+            enabled &= !(container instanceof OrgUnitDTO);
+
             if (enabled) {
 
                 final ComboBox<OrgUnitDTOLight> comboBox = new ComboBox<OrgUnitDTOLight>();
@@ -683,8 +687,7 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
                                 public void selectionChanged(final SelectionChangedEvent<OrgUnitDTOLight> se) {
 
                                     if (container instanceof ProjectDTO) {
-                                    	
-                                    	
+
                                         Log.debug("OrgUnit in project details.");
 
                                         final ProjectDTO currentProject = (ProjectDTO) container;
@@ -720,8 +723,32 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 
                                                 if (result != null && result.getSiteCount() > 0
                                                         && projectCountry != null && orgUnitCountry != null
-                                                        && projectCountry != orgUnitCountry) {// If the new OrgUnit's country different from the current country of project 
-                                                	                                          //inform users that it will continue use the country of project not new OrgUnit's
+                                                        && projectCountry != orgUnitCountry) {// If
+                                                                                              // the
+                                                                                              // new
+                                                                                              // OrgUnit's
+                                                                                              // country
+                                                                                              // different
+                                                                                              // from
+                                                                                              // the
+                                                                                              // current
+                                                                                              // country
+                                                                                              // of
+                                                                                              // project
+                                                                                              // inform
+                                                                                              // users
+                                                                                              // that
+                                                                                              // it
+                                                                                              // will
+                                                                                              // continue
+                                                                                              // use
+                                                                                              // the
+                                                                                              // country
+                                                                                              // of
+                                                                                              // project
+                                                                                              // not
+                                                                                              // new
+                                                                                              // OrgUnit's
 
                                                     Log.debug("[getSitesCountCmd]-Site count is: "
                                                             + result.getSiteCount());
@@ -733,26 +760,33 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
                                                                 @Override
                                                                 public void handleEvent(MessageBoxEvent be) {
 
-                                                                
-                                                                	
                                                                     if (Dialog.NO.equals(be.getButtonClicked()
                                                                             .getItemId())) {
-                                                                        // Rollback the value
-              
+                                                                        // Rollback
+                                                                        // the
+                                                                        // value
+
                                                                         comboBox.setValue(orgUnitsStore.findModel("id",
                                                                                 currentProject.getOrgUnitId()));
-                                                                                                                                                                                                       
-                                                                         return;
-                                                                         
+
+                                                                        return;
+
                                                                     } else {
-                                                                    	
-                                                                    	
-                                                                    	Log.debug("You choose the Yes to change !");
-                                                                    	
+
+                                                                        Log.debug("You choose the Yes to change !");
+
                                                                         String value = null;
                                                                         final boolean isValueOn;
 
-                                                                        // Checks if the choice isn't the default empty choice.
+                                                                        // Checks
+                                                                        // if
+                                                                        // the
+                                                                        // choice
+                                                                        // isn't
+                                                                        // the
+                                                                        // default
+                                                                        // empty
+                                                                        // choice.
                                                                         isValueOn = choice != null
                                                                                 && choice.getId() != -1;
 
@@ -761,7 +795,10 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
                                                                         }
 
                                                                         if (value != null) {
-                                                                            // Fires value change event.
+                                                                            // Fires
+                                                                            // value
+                                                                            // change
+                                                                            // event.
                                                                             handlerManager.fireEvent(new ValueEvent(
                                                                                     DefaultFlexibleElementDTO.this,
                                                                                     value));
@@ -799,7 +836,7 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
                                                         // Fires value change
                                                         // event.
                                                         handlerManager.fireEvent(new ValueEvent(
-                                                                DefaultFlexibleElementDTO.this, value,true));
+                                                                DefaultFlexibleElementDTO.this, value, true));
                                                     }
 
                                                     // Required element ?
@@ -866,7 +903,7 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
                         public void selectionChanged(final SelectionChangedEvent<OrgUnitDTOLight> se) {
 
                             if (container instanceof ProjectDTO) {
-                            
+
                                 final ProjectDTO currentProject = (ProjectDTO) container;
 
                                 Filter filter = new Filter();
@@ -894,7 +931,6 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 
                                         // New OrgUnit's country
                                         final CountryDTO orgUnitCountry = choice.getOfficeLocationCountry();
-                                    
 
                                         if (result != null && result.getSiteCount() > 0 && projectCountry != null
                                                 && orgUnitCountry != null && projectCountry != orgUnitCountry) {
@@ -965,7 +1001,7 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
                                             if (value != null) {
                                                 // Fires value change event.
                                                 handlerManager.fireEvent(new ValueEvent(DefaultFlexibleElementDTO.this,
-                                                        value,true));
+                                                        value, true));
                                             }
 
                                             // Required element ?
@@ -1286,7 +1322,7 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 
             // COUNTRY of project should not be changeable
 
-            final Field<Object> field; 
+            final Field<Object> field;
             final int countryId = Integer.parseInt(valueResult.getValueObject());
 
             // Builds the field and sets its value.
