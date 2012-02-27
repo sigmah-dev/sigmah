@@ -45,7 +45,8 @@ public class GetTestProjectsHandler implements CommandHandler<GetTestProjects> {
         final ArrayList<ProjectDTOLight> projectDTOList = new ArrayList<ProjectDTOLight>();
 
         // Creates selection query.
-        final Query query = em.createQuery("SELECT p FROM Project p where p.owner.id = "+user.getId()+" ORDER BY p.fullName");
+        final Query query = em.createQuery("SELECT p FROM Project p where p.owner.id = " + user.getId()
+                + " ORDER BY p.fullName");
 
         // Gets all project models entities.
         @SuppressWarnings("unchecked")
@@ -54,14 +55,15 @@ public class GetTestProjectsHandler implements CommandHandler<GetTestProjects> {
         // Mapping (entity -> dto).
         if (projects != null) {
             for (final Project project : projects) {
-            	      	
-				final ProjectModel model = project.getProjectModel();
-				// Filters with the project status DRAFT.
-				if (model.getStatus() != null && ProjectModelStatus.DRAFT.equals(model.getStatus())) {
-					projectDTOList.add(mapper.map(project, ProjectDTOLight.class));
-				}
+
+                final ProjectModel model = project.getProjectModel();
+                // Filters with the project status DRAFT.
+                if (project.getDateDeleted() == null && model.getStatus() != null
+                        && ProjectModelStatus.DRAFT.equals(model.getStatus())) {
+                    projectDTOList.add(mapper.map(project, ProjectDTOLight.class));
+                }
             }
-		}
+        }
 
         if (log.isDebugEnabled()) {
             log.debug("[execute] Found " + projectDTOList.size() + " project models.");
