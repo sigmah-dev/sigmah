@@ -2,9 +2,13 @@ package org.sigmah.client.page.admin.orgunit;
 
 import java.util.ArrayList;
 
+import org.sigmah.client.EventBus;
+import org.sigmah.client.event.NavigationEvent;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.icon.IconImageBundle;
+import org.sigmah.client.page.NavigationHandler;
 import org.sigmah.client.page.orgunit.OrgUnitImageBundle;
+import org.sigmah.client.page.orgunit.OrgUnitState;
 import org.sigmah.client.util.TreeGridCheckboxSelectionModel;
 import org.sigmah.shared.dto.CountryDTO;
 import org.sigmah.shared.dto.OrgUnitDTOLight;
@@ -31,6 +35,8 @@ import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.extjs.gxt.ui.client.widget.treegrid.TreeGrid;
 import com.extjs.gxt.ui.client.widget.treegrid.TreeGridCellRenderer;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 
 public class AdminOrgUnitView extends AdminOrgUnitPresenter.View {
 
@@ -42,9 +48,9 @@ public class AdminOrgUnitView extends AdminOrgUnitPresenter.View {
     private Button moveButton;
     private Button removeButton;
 
-    public AdminOrgUnitView() {
+    public AdminOrgUnitView(final EventBus eventBus) {
 
-        buildTree();
+        buildTree(eventBus);
         buildToolbar();
 
         mainPanel = new ContentPanel(new FitLayout());
@@ -54,7 +60,7 @@ public class AdminOrgUnitView extends AdminOrgUnitPresenter.View {
         mainPanel.add(tree);
     }
 
-    private void buildTree() {
+    private void buildTree(final EventBus eventBus) {
 
         final ArrayList<ColumnConfig> columns = new ArrayList<ColumnConfig>();
 
@@ -69,7 +75,28 @@ public class AdminOrgUnitView extends AdminOrgUnitPresenter.View {
         final ColumnConfig fullNameColumn = new ColumnConfig();
         fullNameColumn.setId("fullName");
         fullNameColumn.setHeader(I18N.CONSTANTS.projectFullName());
+         fullNameColumn.setRenderer(new GridCellRenderer<OrgUnitDTOLight>() {
 
+            @Override
+            public Object render(final OrgUnitDTOLight model, String property, ColumnData config, int rowIndex,
+                    int colIndex, ListStore<OrgUnitDTOLight> store, Grid<OrgUnitDTOLight> grid) {
+
+                final com.google.gwt.user.client.ui.Label visitButton = new com.google.gwt.user.client.ui.Label(
+                        (String) model.get(property));
+                visitButton.addStyleName("flexibility-action");
+                visitButton.setWidth("250px");
+                visitButton.addClickHandler(new ClickHandler() {
+                    @Override
+                    public void onClick(ClickEvent e) {
+                        eventBus.fireEvent(new NavigationEvent(NavigationHandler.NavigationRequested, new OrgUnitState(
+                                model.getId())));
+                    }
+                });
+
+                return visitButton;
+            }
+        });
+        
         //Country
         final ColumnConfig countryColumn = new ColumnConfig();
         countryColumn.setId("country");

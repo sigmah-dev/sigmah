@@ -8,7 +8,9 @@ import org.sigmah.client.util.DateUtils;
 import org.sigmah.client.util.HistoryTokenText;
 import org.sigmah.client.util.NumberUtils;
 import org.sigmah.shared.command.GetCountry;
+import org.sigmah.shared.command.GetCountries;
 import org.sigmah.shared.command.GetSitesCount;
+import org.sigmah.shared.command.result.CountryResult;
 import org.sigmah.shared.command.GetUsersByOrganization;
 import org.sigmah.shared.command.result.SiteResult;
 import org.sigmah.shared.command.result.UserListResult;
@@ -130,6 +132,7 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
         }
 
     }
+    
 
     protected Component getComponent(boolean enabled) {
 
@@ -372,21 +375,113 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
         }
             break;
         case COUNTRY: {
-
-            // COUNTRY of project should not be changeable
-
-            final Field<?> field;
+ 
+        	// COUNTRY of project should not be changeable except OrgUnit's
+            enabled &= !(container instanceof ProjectDTO);
+                        
+        	final Field<?> field;
             final CountryDTO c = container.getCountry();
 
-            final LabelField labelField = createLabelField();
+			if (enabled) {
+				final ComboBox<CountryDTO> comboBox = new ComboBox<CountryDTO>();
+				comboBox.setEmptyText(I18N.CONSTANTS.flexibleElementDefaultSelectCountry());
 
-            if (c == null) {
-                labelField.setValue("-");
-            } else {
-                labelField.setValue(c.getName());
-            }
+				if (countriesStore == null) {
+					countriesStore = new ListStore<CountryDTO>();
+				}
 
-            field = labelField;
+				comboBox.setStore(countriesStore);
+				comboBox.setDisplayField("name");
+				comboBox.setValueField("id");
+				comboBox.setTriggerAction(TriggerAction.ALL);
+				comboBox.setEditable(true);
+				comboBox.setAllowBlank(true);
+
+				// if country store is empty
+				if (countriesStore.getCount() == 0) {
+
+					if (cache != null) {
+						cache.getCountryCache().get(new AsyncCallback<List<CountryDTO>>() {
+
+                            @Override
+                            public void onFailure(Throwable e) {
+                                Log.error("[getComponent] Error while getting countries list.", e);
+                            }
+
+                            @Override
+                            public void onSuccess(List<CountryDTO> result) {
+                                // Fills the store.
+                                countriesStore.add(result);
+                            }
+                        });
+					} else /* cache is null */{
+						dispatcher.execute(new GetCountries(), null, new AsyncCallback<CountryResult>() {
+
+                            @Override
+                            public void onFailure(Throwable e) {
+                                Log.error("[getComponent] Error while getting countries list.", e);
+                            }
+
+                            @Override
+                            public void onSuccess(CountryResult result) {
+
+                                // Fills the store.
+                                countriesStore.add(result.getData());                               
+                            }
+                        });
+					}
+					
+				} 
+				
+				 // Listens to the selection changes.
+		        comboBox.addSelectionChangedListener(new SelectionChangedListener<CountryDTO>() {
+
+		            @Override
+		            public void selectionChanged(SelectionChangedEvent<CountryDTO> se) {
+
+		                String value = null;
+		                final boolean isValueOn;
+
+		                // Gets the selected choice.
+		                final CountryDTO choice = se.getSelectedItem();
+
+		                // Checks if the choice isn't the default empty
+		                // choice.
+		                isValueOn = choice != null && choice.getId() != -1;
+
+		                if (choice != null) {
+		                    value = String.valueOf(choice.getId());
+		                }
+
+		                if (value != null) {
+		                    // Fires value change event.
+		                    handlerManager.fireEvent(new ValueEvent(DefaultFlexibleElementDTO.this, value));
+		                }
+
+		                // Required element ?
+		                if (getValidates()) {
+		                    handlerManager.fireEvent(new RequiredValueEvent(isValueOn));
+		                }
+		            }
+		        });
+
+				if (c != null) {
+					 comboBox.setValue(c);
+				}
+
+				field = comboBox;
+			} else /* not enabled */{
+
+				final LabelField labelField = createLabelField();
+
+				if (c == null) {
+					labelField.setValue("-");
+				} else {
+					labelField.setValue(c.getName());
+				}
+
+				field = labelField;
+			}
 
             // Sets the field label.
             setLabel(I18N.CONSTANTS.projectCountry());
@@ -1087,7 +1182,9 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 
         return component;
     }
-
+ 
+    
+    
     protected Component getComponentWithValue(ValueResult valueResult, boolean enabled) {
 
         final DateTimeFormat DATE_FORMAT = DateUtils.DATE_SHORT;

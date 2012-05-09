@@ -1,5 +1,6 @@
 package org.sigmah.client.page.admin.orgunit;
 
+import org.sigmah.client.EventBus;
 import org.sigmah.client.cache.UserLocalCache;
 import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.dispatch.remote.Authentication;
@@ -51,9 +52,9 @@ public class AdminOrgUnitPresenter implements AdminSubPresenter {
         public abstract ContentPanel getMainPanel();
     }
 
-    public AdminOrgUnitPresenter(final Dispatcher dispatcher, final UserLocalCache cache, Authentication authentication) {
+    public AdminOrgUnitPresenter(final Dispatcher dispatcher, final UserLocalCache cache, Authentication authentication, final EventBus eventBus) {
 
-        this.view = new AdminOrgUnitView();
+        this.view = new AdminOrgUnitView(eventBus);
         this.dispatcher = dispatcher;
         this.cache = cache;
 

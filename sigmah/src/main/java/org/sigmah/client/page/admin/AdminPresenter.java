@@ -73,7 +73,7 @@ public class AdminPresenter implements TabPage, Frame {
         this.injector = injector;
         this.view = view;
         this.presenters = new AdminSubPresenter[] { new AdminUsersPresenter(dispatcher, cache, authentication),
-                new AdminOrgUnitPresenter(dispatcher, cache, authentication),
+                new AdminOrgUnitPresenter(dispatcher, cache, authentication,eventBus),
                 new AdminProjectModelsPresenter(dispatcher, cache, authentication, eventBus, currentState),
                 new AdminOrgUnitModelsPresenter(dispatcher, cache, authentication, eventBus, currentState),
                 new AdminReportModelPresenter(dispatcher), new AdminCategoryPresenter(dispatcher) };

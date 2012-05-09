@@ -64,7 +64,8 @@ public class UpdateProjectHandler implements CommandHandler<UpdateProject> {
             LOG.debug("[execute] Updates project #" + cmd.getProjectId() + " with following values #"
                     + cmd.getValues().size() + " : " + cmd.getValues());
         }
-
+        
+        
         final Project project = em.find(Project.class, cmd.getProjectId());
 
         // This date must be the same for all the saved values !
@@ -80,8 +81,7 @@ public class UpdateProjectHandler implements CommandHandler<UpdateProject> {
             final FlexibleElement element = em.find(FlexibleElement.class, (long) source.getId());
             final ListEntityDTO updateListValue = valueEvent.getListValue();
             final String updateSingleValue = valueEvent.getSingleValue();
-            final boolean isProjectCountryChanged = valueEvent.isProjectCountryChanged();
-
+            final boolean isProjectCountryChanged = valueEvent.isProjectCountryChanged();         
             
             if (LOG.isDebugEnabled()) {
                 LOG.debug("[execute] Updates value of element #" + source.getId() + " (" + source.getEntityName() + ')');
@@ -104,6 +104,7 @@ public class UpdateProjectHandler implements CommandHandler<UpdateProject> {
                 // Saves the value and switch to the next value.
                 final String oldValue = saveDefaultElement(cmd.getProjectId(), defaultElement.getType(),
                         updateSingleValue,isProjectCountryChanged);
+                
 
                 // Checks if the first value as been already historized or not.
                 List<Object> results = null;                
@@ -530,21 +531,19 @@ public class UpdateProjectHandler implements CommandHandler<UpdateProject> {
             }
         }
             break;
-        case COUNTRY: {
+        case COUNTRY: {        	
+        	
+            if (orgUnit != null) {
+            	 oldValue = String.valueOf(orgUnit.getOfficeLocationCountry().getId());
+                 // Retrieves country.
+                 final Country country = em.find(Country.class, Integer.valueOf(stringValue));
+                 orgUnit.setOfficeLocationCountry(country);
 
-            if (project != null) {
-
-                oldValue = String.valueOf(project.getCountry().getId());
-
-                // Retrieves country.
-                final Country country = em.find(Country.class, Integer.valueOf(stringValue));
-                project.setCountry(country);
-
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("[saveDefaultElement] Set container country to '" + country.getName() + "'.");
-                }
-            } else {
-                oldValue = null;
+                 if (LOG.isDebugEnabled()) {
+                     LOG.debug("[saveDefaultElement] Set container country to '" + country.getName() + "'.");
+                 }
+            }else{
+            	oldValue= null;
             }
         }
             break;
