@@ -27,6 +27,11 @@ dotnet/Sync/LocalDb.cs -text
 dotnet/Sync/SyncLogger.cs -text
 dotnet/app.config -text
 /pom.xml -text
+scripts/sql/0-structure.postgresql.sql -text
+scripts/sql/1-actinfo-data-withoutUser.postgresql.sql -text
+scripts/sql/2-compas_quality_framework.postgresql.sql -text
+scripts/sql/3-DRC-adminentities.postgresql.sql -text
+scripts/sql/newOrganizationLaunchScript-1.1.1+.postgresql.sql -text
 sigmah/pom.xml -text
 sigmah/release.properties -text
 sigmah/sigmah.sql.gz -text
