@@ -506,9 +506,18 @@ public class UpdateProjectHandler implements CommandHandler<UpdateProject> {
             final double plannedBudget = Double.parseDouble(budgets.get(0));
             final double spendBudget = Double.parseDouble(budgets.get(1));
             final double receivedBudget = Double.parseDouble(budgets.get(2));
-
+            
             if (project != null) {
 
+            	if(project.getPlannedBudget() == null)
+            		project.setPlannedBudget(new Double(0.0d));
+
+            	if(project.getSpendBudget() == null)
+            		project.setSpendBudget(new Double(0.0d));
+
+            	if(project.getReceivedBudget() == null)
+            		project.setReceivedBudget(new Double(0.0d));
+            	
                 oldValue = ValueResultUtils.mergeElements(project.getPlannedBudget(), project.getSpendBudget(),
                         project.getReceivedBudget());
 
@@ -517,6 +526,15 @@ public class UpdateProjectHandler implements CommandHandler<UpdateProject> {
                 project.setReceivedBudget(receivedBudget);
             } else {
 
+            	if(orgUnit.getPlannedBudget() == null)
+            		orgUnit.setPlannedBudget(new Double(0.0d));
+
+            	if(orgUnit.getSpendBudget() == null)
+            		orgUnit.setSpendBudget(new Double(0.0d));
+
+            	if(orgUnit.getReceivedBudget() == null)
+            		orgUnit.setReceivedBudget(new Double(0.0d));
+            	
                 oldValue = ValueResultUtils.mergeElements(orgUnit.getPlannedBudget(), orgUnit.getSpendBudget(),
                         orgUnit.getReceivedBudget());
 
