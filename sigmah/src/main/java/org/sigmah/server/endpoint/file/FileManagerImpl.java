@@ -247,22 +247,7 @@ public class FileManagerImpl implements FileManager {
         if (log.isDebugEnabled()) {
             log.debug("[save] New file version.");
         }
-
-        // Manages version number.
-        String versionNumberProp = properties.get(FileUploadUtils.DOCUMENT_VERSION);
-        int versionNumber;
-
-        try {
-
-            if (versionNumberProp == null) {
-                versionNumber = 0;
-            } else {
-                versionNumber = Integer.valueOf(versionNumberProp);
-            }
-        } catch (NumberFormatException e) {
-            versionNumber = 0;
-        }
-
+    
         // Gets the details of the name of the file.
         final String fullName = properties.get(FileUploadUtils.DOCUMENT_NAME);
         final String name = getFileCanonicalName(fullName);
@@ -273,6 +258,15 @@ public class FileManagerImpl implements FileManager {
 
         if (log.isDebugEnabled()) {
             log.debug("[save] Found file: " + file.getName() + ".");
+        }
+
+        Integer versionNumber;
+        
+        Query query = em.createQuery("SELECT max(fv.versionNumber)+1 AS newVersionNumber FROM FileVersion AS fv WHERE parentFile=:parentFile");
+        query.setParameter("parentFile", file);
+        versionNumber = (Integer) query.getSingleResult();
+        if(versionNumber == null){
+        	versionNumber = 0;
         }
 
         final FileVersion version = createVersion(versionNumber, name, extension, authorId, content);

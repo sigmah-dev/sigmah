@@ -857,6 +857,7 @@ public class FilesListElementDTO extends FlexibleElementDTO {
 
             grid = new FlexibleGrid<FileVersionDTO>(store, null, 10, getColumnModel(enabled));
             grid.setAutoExpandColumn("name");
+            grid.setAutoHeight(true);
 
             store.setStoreSorter(new StoreSorter<FileVersionDTO>() {
                 @Override
