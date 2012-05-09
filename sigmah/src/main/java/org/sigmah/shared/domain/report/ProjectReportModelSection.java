@@ -91,7 +91,7 @@ public class ProjectReportModelSection implements Serializable {
 
     @OneToMany(mappedBy = "parentSectionModelId")  
     @Cascade(value=org.hibernate.annotations.CascadeType.DELETE_ORPHAN) 
-    @OrderBy("index ASC")
+    @OrderBy("index ASC, id ASC")
     public List<ProjectReportModelSection> getSubSections() {
         return subSections;
     }
@@ -101,7 +101,7 @@ public class ProjectReportModelSection implements Serializable {
     }
 
     @OneToMany(mappedBy = "sectionId")
-    @OrderBy("index ASC")
+    @OrderBy("index ASC, id ASC")
     public List<KeyQuestion> getKeyQuestions() {
         return keyQuestions;
     }

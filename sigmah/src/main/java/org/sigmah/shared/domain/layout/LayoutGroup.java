@@ -86,7 +86,7 @@ public class LayoutGroup implements Serializable {
     }
 
     @OneToMany(mappedBy = "parentLayoutGroup", cascade = CascadeType.ALL)
-    @OrderBy("sortOrder asc")
+    @OrderBy("sortOrder asc, id asc")
     public List<LayoutConstraint> getConstraints() {
         return constraints;
     }
