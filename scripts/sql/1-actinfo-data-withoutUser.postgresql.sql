@@ -34,7 +34,7 @@ INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (277, -180, 1
 INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (278, -180, 180, -90, 180, 'BV', 'Bouvet Island');
 INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (279, -180, 180, -90, 180, 'BR', 'Brazil');
 INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (280, -180, 180, -90, 180, 'IO', 'British Indian Ocean Territory');
-INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (281, -180, 180, -90, 180, 'B', 'Brunei Darussalam');
+INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (281, -180, 180, -90, 180, 'BN', 'Brunei Darussalam');
 INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (282, -180, 180, -90, 180, 'BG', 'Bulgaria');
 INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (283, -180, 180, -90, 180, 'BF', 'Burkina Faso');
 INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (284, -180, 180, -90, 180, 'BI', 'Burundi');
@@ -46,7 +46,7 @@ INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (289, -180, 1
 INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (290, -180, 180, -90, 180, 'CF', 'Central African Republic');
 INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (291, -180, 180, -90, 180, 'TD', 'Chad');
 INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (292, -180, 180, -90, 180, 'CL', 'Chile');
-INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (293, -180, 180, -90, 180, 'C', 'China');
+INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (293, -180, 180, -90, 180, 'CN', 'China');
 INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (294, -180, 180, -90, 180, 'CX', 'Christmas Island');
 INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (295, -180, 180, -90, 180, 'CC', 'Cocos (Keeling) Islands');
 INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (296, -180, 180, -90, 180, 'CO', 'Colombia');
@@ -91,17 +91,17 @@ INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (335, -180, 1
 INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (336, -180, 180, -90, 180, 'GU', 'Guam');
 INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (337, -180, 180, -90, 180, 'GT', 'Guatemala');
 INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (338, -180, 180, -90, 180, 'GG', 'Guernsey');
-INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (339, -180, 180, -90, 180, 'G', 'Guinea');
+INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (339, -180, 180, -90, 180, 'GN', 'Guinea');
 INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (340, -180, 180, -90, 180, 'GW', 'Guinea-Bissau');
 INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (341, -180, 180, -90, 180, 'GY', 'Guyana');
 INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (342, -180, 180, -90, 180, 'HT', 'Haiti');
 INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (343, -180, 180, -90, 180, 'HM', 'Heard Island and Mcdonald Islands');
 INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (344, -180, 180, -90, 180, 'VA', 'Vatican City');
-INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (345, -180, 180, -90, 180, 'H', 'Honduras');
+INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (345, -180, 180, -90, 180, 'HN', 'Honduras');
 INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (346, -180, 180, -90, 180, 'HK', 'Hong Kong');
 INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (347, -180, 180, -90, 180, 'HU', 'Hungary');
 INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (348, -180, 180, -90, 180, 'IS', 'Iceland');
-INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (349, -180, 180, -90, 180, 'I', 'India');
+INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (349, -180, 180, -90, 180, 'IN', 'India');
 INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (350, -180, 180, -90, 180, 'ID', 'Indonesia');
 INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (351, -180, 180, -90, 180, 'IR', 'Iran');
 INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (352, -180, 180, -90, 180, 'IQ', 'Iraq');
@@ -146,7 +146,7 @@ INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (390, -180, 1
 INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (391, -180, 180, -90, 180, 'FM', 'Micronesia');
 INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (392, -180, 180, -90, 180, 'MD', 'Moldova');
 INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (393, -180, 180, -90, 180, 'MC', 'Monaco');
-INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (394, -180, 180, -90, 180, 'M', 'Mongolia');
+INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (394, -180, 180, -90, 180, 'MN', 'Mongolia');
 INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (395, -180, 180, -90, 180, 'ME', 'Montenegro');
 INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (396, -180, 180, -90, 180, 'MS', 'Montserrat');
 INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (397, -180, 180, -90, 180, 'MA', 'Morocco');
@@ -156,7 +156,7 @@ INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (400, -180, 1
 INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (401, -180, 180, -90, 180, 'NR', 'Nauru');
 INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (402, -180, 180, -90, 180, 'NP', 'Nepal');
 INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (403, -180, 180, -90, 180, 'NL', 'Netherlands');
-INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (404, -180, 180, -90, 180, 'A', 'Netherlands Antilles');
+INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (404, -180, 180, -90, 180, 'AN', 'Netherlands Antilles');
 INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (405, -180, 180, -90, 180, 'NC', 'New Caledonia');
 INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (406, -180, 180, -90, 180, 'NZ', 'New Zealand');
 INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (407, -180, 180, -90, 180, 'NI', 'Nicaragua');
@@ -175,7 +175,7 @@ INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (419, -180, 1
 INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (420, -180, 180, -90, 180, 'PY', 'Paraguay');
 INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (421, -180, 180, -90, 180, 'PE', 'Peru');
 INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (422, -180, 180, -90, 180, 'PH', 'Philippines');
-INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (423, -180, 180, -90, 180, 'P', 'Pitcair');
+INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (423, -180, 180, -90, 180, 'PN', 'Pitcair');
 INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (424, -180, 180, -90, 180, 'PL', 'Poland');
 INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (425, -180, 180, -90, 180, 'PT', 'Portugal');
 INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (426, -180, 180, -90, 180, 'PR', 'Puerto Rico');
@@ -186,7 +186,7 @@ INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (430, -180, 1
 INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (431, -180, 180, -90, 180, 'RW', 'Rwanda');
 INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (432, -180, 180, -90, 180, 'BL', 'Saint Barthélemy');
 INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (433, -180, 180, -90, 180, 'SH', 'Saint Helena');
-INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (434, -180, 180, -90, 180, 'K', 'Saint Kitts And Nevis');
+INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (434, -180, 180, -90, 180, 'KN', 'Saint Kitts And Nevis');
 INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (435, -180, 180, -90, 180, 'LC', 'Saint Lucia');
 INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (436, -180, 180, -90, 180, 'MF', 'Saint Martin');
 INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (437, -180, 180, -90, 180, 'PM', 'Saint Pierre And Miquelon');
@@ -195,7 +195,7 @@ INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (439, -180, 1
 INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (440, -180, 180, -90, 180, 'SM', 'San Marino');
 INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (441, -180, 180, -90, 180, 'ST', 'Sao Tome And Principe');
 INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (442, -180, 180, -90, 180, 'SA', 'Saudi Arabia');
-INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (443, -180, 180, -90, 180, 'S', 'Senegal');
+INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (443, -180, 180, -90, 180, 'SN', 'Senegal');
 INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (444, -180, 180, -90, 180, 'RS', 'Serbia');
 INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (445, -180, 180, -90, 180, 'SC', 'Seychelles');
 INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (446, -180, 180, -90, 180, 'SL', 'Sierra Leone');
@@ -224,7 +224,7 @@ INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (468, -180, 1
 INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (469, -180, 180, -90, 180, 'TK', 'Tokelau');
 INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (470, -180, 180, -90, 180, 'TO', 'Tonga');
 INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (471, -180, 180, -90, 180, 'TT', 'Trinidad And Tobago');
-INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (472, -180, 180, -90, 180, 'T', 'Tunisia');
+INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (472, -180, 180, -90, 180, 'TN', 'Tunisia');
 INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (473, -180, 180, -90, 180, 'TR', 'Turkey');
 INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (474, -180, 180, -90, 180, 'TM', 'Turkmenistan');
 INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (475, -180, 180, -90, 180, 'TC', 'Turks And Caicos Islands');
@@ -239,7 +239,7 @@ INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (483, -180, 1
 INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (484, -180, 180, -90, 180, 'UZ', 'Uzbekistan');
 INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (485, -180, 180, -90, 180, 'VU', 'Vanuatu');
 INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (486, -180, 180, -90, 180, 'VE', 'Venezuela, Bolivarian Republic Of');
-INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (487, -180, 180, -90, 180, 'V', 'Viet Nam');
+INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (487, -180, 180, -90, 180, 'VN', 'Viet Nam');
 INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (488, -180, 180, -90, 180, 'VG', 'Virgin Islands, British');
 INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (489, -180, 180, -90, 180, 'VI', 'Virgin Islands, U.S.');
 INSERT INTO Country (CountryId, x1, x2, y1, y2, ISO2, Name) VALUES (490, -180, 180, -90, 180, 'WF', 'Wallis And Futuna');
