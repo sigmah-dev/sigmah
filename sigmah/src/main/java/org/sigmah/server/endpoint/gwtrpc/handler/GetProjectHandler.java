@@ -21,6 +21,7 @@ import org.sigmah.shared.command.handler.CommandHandler;
 import org.sigmah.shared.command.result.CommandResult;
 import org.sigmah.shared.domain.OrgUnit;
 import org.sigmah.shared.domain.Project;
+import org.sigmah.shared.domain.ProjectModelStatus;
 import org.sigmah.shared.domain.User;
 import org.sigmah.shared.domain.reminder.MonitoredPoint;
 import org.sigmah.shared.domain.reminder.Reminder;
@@ -32,7 +33,6 @@ import org.sigmah.shared.exception.CommandException;
 import com.google.inject.Inject;
 
 /**
- * 
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
 public class GetProjectHandler implements CommandHandler<GetProject> {
@@ -83,23 +83,21 @@ public class GetProjectHandler implements CommandHandler<GetProject> {
                     dto.setOrgUnit(orgUnit.getId());
                     break;
                 }
-                List<ReminderDTO>reminderDTOs = new ArrayList<ReminderDTO>();
-                List<MonitoredPointDTO>pointDTOs = new ArrayList<MonitoredPointDTO>();
+                List<ReminderDTO> reminderDTOs = new ArrayList<ReminderDTO>();
+                List<MonitoredPointDTO> pointDTOs = new ArrayList<MonitoredPointDTO>();
 
-                for(final Reminder r:project.getRemindersList().getReminders())
-                {               	
-                	ReminderDTO reminderDTO = new ReminderDTO();
-                	reminderDTO = mapper.map(r, ReminderDTO.class);
-                	reminderDTO.setDeleted(r.isDeleted());
-                	reminderDTOs.add(reminderDTO);
+                for (final Reminder r : project.getRemindersList().getReminders()) {
+                    ReminderDTO reminderDTO = new ReminderDTO();
+                    reminderDTO = mapper.map(r, ReminderDTO.class);
+                    reminderDTO.setDeleted(r.isDeleted());
+                    reminderDTOs.add(reminderDTO);
                 }
-                for(final MonitoredPoint p:project.getPointsList().getPoints())
-                {
-                	LOG.debug("Point is deleted ?"+p.isDeleted());
-                	MonitoredPointDTO pointDTO = new MonitoredPointDTO();
-                	pointDTO = mapper.map(p, MonitoredPointDTO.class);
-                	pointDTO.setDeleted(p.isDeleted());
-                	pointDTOs.add(pointDTO);
+                for (final MonitoredPoint p : project.getPointsList().getPoints()) {
+                    LOG.debug("Point is deleted ?" + p.isDeleted());
+                    MonitoredPointDTO pointDTO = new MonitoredPointDTO();
+                    pointDTO = mapper.map(p, MonitoredPointDTO.class);
+                    pointDTO.setDeleted(p.isDeleted());
+                    pointDTOs.add(pointDTO);
                 }
                 dto.getRemindersList().setReminders(reminderDTOs);
                 dto.getPointsList().setPoints(pointDTOs);
@@ -158,21 +156,23 @@ public class GetProjectHandler implements CommandHandler<GetProject> {
             }
         }
 
-        // Manager.
-        if (project.getManager() != null) {
-            if (project.getManager().getId() == user.getId()) {
-                return true;
-            }
-        }
-
-        // Checks that the user can see this project.
-        final HashSet<OrgUnit> units = new HashSet<OrgUnit>();
-        GetProjectHandler.crawlUnits(user.getOrgUnitWithProfiles().getOrgUnit(), units, true);
-
-        for (final OrgUnit partner : project.getPartners()) {
-            for (final OrgUnit unit : units) {
-                if (partner.getId() == unit.getId()) {
+        if (project.getProjectModel().getStatus() != ProjectModelStatus.DRAFT) {
+            // Manager.
+            if (project.getManager() != null) {
+                if (project.getManager().getId() == user.getId()) {
                     return true;
+                }
+            }
+
+            // Checks that the user can see this project.
+            final HashSet<OrgUnit> units = new HashSet<OrgUnit>();
+            GetProjectHandler.crawlUnits(user.getOrgUnitWithProfiles().getOrgUnit(), units, true);
+
+            for (final OrgUnit partner : project.getPartners()) {
+                for (final OrgUnit unit : units) {
+                    if (partner.getId() == unit.getId()) {
+                        return true;
+                    }
                 }
             }
         }

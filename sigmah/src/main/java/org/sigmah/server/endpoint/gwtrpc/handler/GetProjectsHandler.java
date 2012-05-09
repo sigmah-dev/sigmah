@@ -71,8 +71,8 @@ public class GetProjectsHandler implements CommandHandler<GetProjects> {
         // ---------------
 
         if (cmd.getViewOwnOrManage()) {
-            final Query ownerManagerQuery = em
-                    .createQuery("SELECT p FROM Project p WHERE p.owner = :ouser OR p.manager = :muser");
+            final Query ownerManagerQuery =
+                    em.createQuery("SELECT p FROM Project p WHERE p.owner = :ouser OR (p.manager = :muser AND p.projectModel.status != 'DRAFT')");
             ownerManagerQuery.setParameter("ouser", user);
             ownerManagerQuery.setParameter("muser", user);
             for (final Project p : (List<Project>) ownerManagerQuery.getResultList()) {
@@ -112,7 +112,8 @@ public class GetProjectsHandler implements CommandHandler<GetProjects> {
         for (final OrgUnit unit : units) {
 
             // Builds and executes the query.
-            final Query query = em.createQuery("SELECT p FROM Project p WHERE :unit MEMBER OF p.partners");
+            final Query query =
+                    em.createQuery("SELECT p FROM Project p WHERE :unit MEMBER OF p.partners AND p.projectModel.status != 'DRAFT'");
             query.setParameter("unit", unit);
 
             int count = 0;
@@ -133,8 +134,13 @@ public class GetProjectsHandler implements CommandHandler<GetProjects> {
             }
 
             if (LOG.isDebugEnabled()) {
-                LOG.debug("[execute] Found " + count + "/" + listResults.size() + " projects for org unit #"
-                        + unit.getName() + ".");
+                LOG.debug("[execute] Found "
+                    + count
+                    + "/"
+                    + listResults.size()
+                    + " projects for org unit #"
+                    + unit.getName()
+                    + ".");
             }
         }
 
@@ -145,31 +151,31 @@ public class GetProjectsHandler implements CommandHandler<GetProjects> {
         final ProjectListResult result = new ProjectListResult();
 
         switch (cmd.getReturnType()) {
-        case PROJECT:
-            // Not implemented.
-            break;
-        case ID:
+            case PROJECT:
+                // Not implemented.
+                break;
+            case ID:
 
-            final ArrayList<Integer> projectsIds = new ArrayList<Integer>();
-            for (final Project project : projects) {
-                projectsIds.add(project.getId());
-            }
+                final ArrayList<Integer> projectsIds = new ArrayList<Integer>();
+                for (final Project project : projects) {
+                    projectsIds.add(project.getId());
+                }
 
-            result.setListProjectsIds(projectsIds);
-            break;
+                result.setListProjectsIds(projectsIds);
+                break;
 
-        case PROJECT_LIGHT:
-        default:
+            case PROJECT_LIGHT:
+            default:
 
-            // Mapping into DTO objects
-            final ArrayList<ProjectDTOLight> projectDTOList = new ArrayList<ProjectDTOLight>();
-            for (final Project project : projects) {
-                final ProjectDTOLight pLight = mapper.map(project, true);
-                projectDTOList.add(pLight);
-            }
+                // Mapping into DTO objects
+                final ArrayList<ProjectDTOLight> projectDTOList = new ArrayList<ProjectDTOLight>();
+                for (final Project project : projects) {
+                    final ProjectDTOLight pLight = mapper.map(project, true);
+                    projectDTOList.add(pLight);
+                }
 
-            result.setListProjectsLightDTO(projectDTOList);
-            break;
+                result.setListProjectsLightDTO(projectDTOList);
+                break;
         }
 
         if (LOG.isDebugEnabled()) {
