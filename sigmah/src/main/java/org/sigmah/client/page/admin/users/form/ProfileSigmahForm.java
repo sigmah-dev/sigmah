@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
+import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
@@ -82,6 +83,7 @@ public class ProfileSigmahForm extends FormPanel {
 		FormLayout layout = new FormLayout();
 		layout.setLabelWidth(LABEL_WIDTH);
 		setLayout(layout);
+		setScrollMode(Scroll.AUTOY);
 		
 		nameField = new TextField<String>();
 		nameField.setFieldLabel(constants.adminProfilesName());

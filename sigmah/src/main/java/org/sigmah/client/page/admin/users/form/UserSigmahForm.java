@@ -25,6 +25,7 @@ import org.sigmah.shared.dto.UserDTO;
 import org.sigmah.shared.dto.profile.ProfileDTO;
 import org.sigmah.shared.dto.profile.ProfileDTOLight;
 
+import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.Events;
@@ -85,6 +86,7 @@ public class UserSigmahForm extends FormPanel {
         FormLayout layout = new FormLayout();
         layout.setLabelWidth(LABEL_WIDTH);
         setLayout(layout);
+		setScrollMode(Scroll.AUTOY);
         if (userToUpdate != null)
             userToUpdateId = userToUpdate.getId();
         else
