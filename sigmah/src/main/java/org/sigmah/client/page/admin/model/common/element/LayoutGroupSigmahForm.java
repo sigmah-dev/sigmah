@@ -108,10 +108,10 @@ public class LayoutGroupSigmahForm extends FormPanel {
 		
 		rowField = new SimpleComboBox<Integer>();
 		rowField.setEditable(false);
+		rowField.setAllowBlank(false);
+		rowField.setTriggerAction(TriggerAction.ALL);
 		rowField.setFieldLabel(constants.adminFlexibleGroupVPosition());
-		if(fxToUpdate != null){
-			rowField.setSimpleValue(layoutGroupToUpdate.getRow());
-		}
+		
 		
 		if(fxToUpdate != null){
 			containerList.setValue(fxToUpdate.getContainerModel());
@@ -126,10 +126,10 @@ public class LayoutGroupSigmahForm extends FormPanel {
 				}
 				if(container != null){
 					rowField.removeAll();
-					 for(int i=0; i<container.getRowsCount();i++){						 						 
+					 for(int i=0; i<=container.getRowsCount();i++){						 						 
 						 rowField.add(i);
 					 }
-					 rowField.add(container.getRowsCount());
+					 rowField.setSimpleValue(layoutGroupToUpdate.getRow());
 				}
 				 
 			 }
@@ -151,10 +151,9 @@ public class LayoutGroupSigmahForm extends FormPanel {
 				 }
 				 if(container != null){
 					 rowField.removeAll();
-					 for(int i=0; i<container.getRowsCount();i++){						 						 
+					 for(int i=0; i<=container.getRowsCount();i++){						 						 
 						 rowField.add(i);
 					 }
-					 rowField.add(container.getRowsCount());
 				 }				 
 			}
 		});
