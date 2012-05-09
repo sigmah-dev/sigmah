@@ -74,7 +74,7 @@ public class Project extends UserDatabase {
 		this.favoriteUsers = favoriteUsers;
 	}
 
-	@Temporal(TemporalType.DATE)
+	@Temporal(TemporalType.TIMESTAMP)
     @Column(name = "end_date", length = 23)
     public Date getEndDate() {
         return this.endDate;
@@ -265,7 +265,7 @@ public class Project extends UserDatabase {
         this.closeDate = closeDate;
     }
 
-    @Temporal(TemporalType.DATE)
+    @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "close_date", length = 23)
     public Date getCloseDate() {
         return closeDate;

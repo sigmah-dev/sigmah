@@ -113,7 +113,7 @@ public class UserDatabase implements java.io.Serializable, Deleteable, SchemaEle
      *         started. I.e. provides a minimum bound for the dates of
      *         activities.
      */
-    @Temporal(TemporalType.DATE)
+    @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "StartDate", length = 23)
     public Date getStartDate() {
         return this.startDate;
