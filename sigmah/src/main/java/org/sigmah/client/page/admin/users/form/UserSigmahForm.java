@@ -86,7 +86,7 @@ public class UserSigmahForm extends FormPanel {
         FormLayout layout = new FormLayout();
         layout.setLabelWidth(LABEL_WIDTH);
         setLayout(layout);
-		setScrollMode(Scroll.AUTOY);
+        setScrollMode(Scroll.AUTOY);
         if (userToUpdate != null)
             userToUpdateId = userToUpdate.getId();
         else
@@ -324,9 +324,13 @@ public class UserSigmahForm extends FormPanel {
     }
 
     private void createUser(final AsyncCallback<CreateResult> callback) {
+
+        mask(I18N.CONSTANTS.saving());
+
         if (!this.isValid()) {
             MessageBox.alert(I18N.CONSTANTS.createFormIncomplete(),
                     I18N.MESSAGES.createFormIncompleteDetails(I18N.MESSAGES.adminStandardUser()), null);
+            unmask();
             return;
         }
 
@@ -351,6 +355,7 @@ public class UserSigmahForm extends FormPanel {
         if ((orgUnit != 0 && profiles.isEmpty()) || (orgUnit == 0 && !profiles.isEmpty())) {
             MessageBox.alert(I18N.CONSTANTS.createFormIncomplete(), I18N.MESSAGES.createUserFormIncompleteDetails(),
                     null);
+            unmask();
             return;
         }
 
@@ -370,6 +375,7 @@ public class UserSigmahForm extends FormPanel {
                 MessageBox.alert(I18N.CONSTANTS.adminUserCreationBox(),
                         I18N.MESSAGES.adminUserCreationFailure(firstName + " " + name), null);
                 callback.onFailure(caught);
+                unmask();
             }
 
             @Override
@@ -388,6 +394,7 @@ public class UserSigmahForm extends FormPanel {
                     MessageBox.alert(I18N.CONSTANTS.adminUserCreationBox(),
                             I18N.MESSAGES.adminUserCreationNull(firstName + " " + name), null);
                 }
+                unmask();
             }
         });
 
