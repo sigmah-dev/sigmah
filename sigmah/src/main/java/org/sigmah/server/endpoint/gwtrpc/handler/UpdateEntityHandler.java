@@ -132,7 +132,8 @@ public class UpdateEntityHandler extends BaseEntityHandler implements CommandHan
 		}
 
 		assertDesignPriviledges(user, db);
-
+		if(indicator.getName().length() > 1024)
+            indicator.setName(indicator.getName().substring(0, 1024));
 		updateIndicatorProperties(indicator, changes);
 	}
 

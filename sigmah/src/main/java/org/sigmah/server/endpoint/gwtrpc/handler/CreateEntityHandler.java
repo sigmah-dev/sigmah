@@ -296,6 +296,8 @@ public class CreateEntityHandler extends BaseEntityHandler implements CommandHan
         }
     
         updateIndicatorProperties(indicator, properties);
+        if(indicator.getName().length() > 1024)
+            indicator.setName(indicator.getName().substring(0, 1024));
         em.persist(indicator);
 
         return new CreateResult(indicator.getId());

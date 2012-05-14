@@ -65,7 +65,7 @@ public class IndicatorForm extends AbstractDesignForm {
         TextField<String> nameField = new TextField<String>();
         nameField.setFieldLabel(I18N.CONSTANTS.name());
         nameField.setAllowBlank(false);
-        nameField.setMaxLength(128);
+        nameField.setMaxLength(1024);
         binding.addFieldBinding(new FieldBinding(nameField, "name"));
         this.add(nameField);
 

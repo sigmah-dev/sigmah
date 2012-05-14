@@ -102,7 +102,7 @@ public class Indicator implements java.io.Serializable, Orderable, Deleteable, S
 	/**
 	 * @return the name of this Indicator
 	 */
-	@Column(name = "Name", nullable = false, length = 128)
+	@Column(name = "Name", nullable = false, length = 1024)
 	public String getName() {
 		return this.name;
 	}
