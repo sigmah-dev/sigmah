@@ -118,6 +118,9 @@ public class ActivityPolicy implements EntityPolicy<Activity> {
         if (changes.containsKey("sortOrder")) {
             activity.setSortOrder((Integer) changes.get("sortOrder"));
         }
+        if (changes.containsKey("isDeleted")) {        	
+        	activity.delete();          
+        }
 
         activity.getDatabase().setLastSchemaUpdate(new Date());
     }

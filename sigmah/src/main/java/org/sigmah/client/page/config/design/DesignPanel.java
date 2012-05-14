@@ -287,15 +287,17 @@ public class DesignPanel extends DesignPanelBase implements ActionListener {
 			@Override
 			public void onSuccess(IndicatorListResult result) {
 				treeStore.removeAll();
-				if(!result.getUngroupedIndicators().isEmpty()) {
-					treeStore.add((List)result.getUngroupedIndicators(), false);
-				}
+				
 				
 				for(IndicatorGroup group : result.getGroups()) {
 					treeStore.add(group, false);
 					for(IndicatorDTO indicator : group.getIndicators()) {
 						treeStore.add(group, indicator, false);
 					}
+				}
+				
+				if(!result.getUngroupedIndicators().isEmpty()) {
+					treeStore.add((List)result.getUngroupedIndicators(), false);
 				}
 				
 				onLoaded();
@@ -431,11 +433,11 @@ public class DesignPanel extends DesignPanelBase implements ActionListener {
     private void deleteIndicatorGroup(IndicatorGroup selected) {
         List<ModelData> children = treeStore.getChildren(selected);
         treeStore.remove(selected);
-
+        treeStore.getRecord(selected).set("isDeleted",true);
         // we don't delete the indicators, just move them out of the group
         for(ModelData child : children) {
             treeStore.add(child, false);
-            treeStore.getRecord(child).set("category", null);
+            treeStore.getRecord(child).set("groupId",null);
         }
     }
 
