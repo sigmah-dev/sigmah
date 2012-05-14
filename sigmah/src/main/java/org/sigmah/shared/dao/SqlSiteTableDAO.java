@@ -58,7 +58,13 @@ public class SqlSiteTableDAO implements SiteTableDAO {
             int limit) {
 
         try {
-            BaseQueryBuilder builder = new BaseQueryBuilder(user.getId())
+        	Integer databaseId = null;
+        	for(Integer restriction : filter.getRestrictions(DimensionType.Database)){
+        		databaseId = restriction;
+        		break;
+        	}
+        	
+            BaseQueryBuilder builder = new BaseQueryBuilder(databaseId)
                     .appendFieldList(SiteTableColumn.values());
 
             if(orderings != null) {
@@ -225,7 +231,7 @@ public class SqlSiteTableDAO implements SiteTableDAO {
         }
     }
 
-    @SuppressWarnings("unchecked")
+
     protected <SiteT> void joinIndicatorValues(Map<Integer, SiteT> siteMap, SiteProjectionBinder<SiteT> binder) throws SQLException {
 
         ResultSet rs =
@@ -283,7 +289,7 @@ public class SqlSiteTableDAO implements SiteTableDAO {
     private class BaseQueryBuilder extends SqlQueryBuilder {
         private String[] aliases;
 
-        private BaseQueryBuilder(int userId) {
+        private BaseQueryBuilder(int databaseId) {
             from("Site  " +
                     " LEFT JOIN Activity ON (Site.ActivityId = Activity.ActivityId) " +
                     " LEFT JOIN UserDatabase ON (Site.DatabaseId = UserDatabase.DatabaseId) " +
@@ -296,16 +302,8 @@ public class SqlSiteTableDAO implements SiteTableDAO {
 
             // Permissions
             if(!GWT.isClient()) {    
-                whereClause.append(
-                        "AND (UserDatabase.OwnerUserId = ? OR " +
-                                "UserDatabase.DatabaseId in "  +
-                                "(SELECT p.DatabaseId from UserPermission p where p.UserId = ? and p.AllowViewAll) or " +
-                                "UserDatabase.DatabaseId in " +
-                                "(select p.DatabaseId from UserPermission p where p.UserId = ? and p.AllowView and p.PartnerId = Site.PartnerId))");
-
-                parameters.add(userId);
-                parameters.add(userId);
-                parameters.add(userId);
+            	whereClause.append(" AND UserDatabase.DatabaseId=?");               
+                parameters.add(databaseId);
             }
         }
 
@@ -377,19 +375,13 @@ public class SqlSiteTableDAO implements SiteTableDAO {
 
         @Override
 		protected void addIndicatorFilter(Filter filter, DimensionType type) {
-			
-        	StringBuilder idList = new StringBuilder("");
-        	for(Integer id : filter.getRestrictions(DimensionType.Indicator)) {
-        		if(idList.length() > 0) {
-        			idList.append(",");
-        		} 
-        		idList.append(id);
-        	}
-        	
-        	where("Site.SiteId in (select s.SiteId FROM IndicatorValue v " +
-        			"LEFT JOIN ReportingPeriod p on (v.ReportingPeriodId = p.ReportingPeriodId) " +
-        			"LEFT JOIN Site s on (p.SiteId=s.SiteId) " +
-        			"WHERE v.IndicatorId IN (" + idList.toString() + "))");
+            String alias = "IndicatorLJ";
+            leftJoin(
+                select("P.SiteId as SiteId").from("Site")
+                        .leftJoin("ReportingPeriod P").on("P.SiteId = Site.SiteId")
+                        .leftJoin("IndicatorValue V").on("V.ReportingPeriodId = P.ReportingPeriodId")
+                , alias)
+                .on(alias + ".SiteId = Site.SiteId");
 		}
 
 		public String[] aliases() {

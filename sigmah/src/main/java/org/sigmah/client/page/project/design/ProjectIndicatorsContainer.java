@@ -153,6 +153,7 @@ public class ProjectIndicatorsContainer extends LayoutContainer implements Proje
 	private void onMappedIndicatorChanged(IndicatorDTO value) {
 		Filter filter = new Filter();
 		filter.addRestriction(DimensionType.Indicator, value.getId());
+		filter.addRestriction(DimensionType.Database, project.getId());
 		
 		siteMap.loadSites(project.getCountry(),	filter);
 	}

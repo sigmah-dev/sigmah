@@ -11,9 +11,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.EntityManager;
@@ -25,9 +23,6 @@ import org.sigmah.server.dao.PivotDAO;
 import org.sigmah.server.domain.AggregationMethod;
 import org.sigmah.shared.dao.Filter;
 import org.sigmah.shared.dao.SQLDialect;
-import org.sigmah.shared.dao.SqlQueryBuilder;
-import org.sigmah.shared.dao.SqlQueryBuilder.ResultHandler;
-import org.sigmah.shared.report.content.DimensionCategory;
 import org.sigmah.shared.report.content.EntityCategory;
 import org.sigmah.shared.report.content.MonthCategory;
 import org.sigmah.shared.report.content.QuarterCategory;
@@ -548,7 +543,12 @@ public class PivotHibernateDAO implements PivotDAO {
 			"UserDatabase.dateDeleted is null ");
 
 			// and only allow results that are visible to this user.
-			appendVisibilityFilter(where, userId);
+			Integer databaseId = null;
+        	for(Integer restriction : filter.getRestrictions(DimensionType.Database)){
+        		databaseId = restriction;
+        		break;
+        	}
+			appendVisibilityFilter(where, databaseId);
 
 
 
@@ -611,12 +611,8 @@ public class PivotHibernateDAO implements PivotDAO {
 	}
 	
 
-	public void appendVisibilityFilter(StringBuilder where, int userId) {
-		where.append(" AND ");
-		where.append("(UserDatabase.OwnerUserId = ").append(userId).append(" OR ")
-		.append(userId).append(" in (select p.UserId from UserPermission p " +
-				"where p.AllowView and " +
-		"p.UserId=").append(userId).append(" AND p.DatabaseId = UserDatabase.DatabaseId))");
+	public void appendVisibilityFilter(StringBuilder where, int databaseId) {
+		where.append("AND UserDatabase.DatabaseId = ").append(databaseId);
 	}
 
 	public static void appendDimensionRestrictions(StringBuilder where, Filter filter, List<Object> parameters) {

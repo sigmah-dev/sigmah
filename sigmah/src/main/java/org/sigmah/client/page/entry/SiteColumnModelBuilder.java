@@ -148,11 +148,12 @@ public class SiteColumnModelBuilder {
 
 	private void addGeographicColumns(UserDatabaseDTO database) {
    
-
+	if(database!=null){	
        for (AdminLevelDTO level : database.getCountry().getAdminLevels()) {
            ColumnConfig adminColumn = new ColumnConfig(level.getPropertyName(), level.getName(), 75);
            columns.add(adminColumn);
        }
+	}
        
        callback.onSuccess(new ColumnModel(columns));
 	}
