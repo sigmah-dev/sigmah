@@ -123,7 +123,11 @@ public class IndicatorListWidget extends Composite implements HasValueChangeHand
 		newIndicator.setCollectIntervention(true);
 		newIndicator.setAggregation(IndicatorDTO.AGGREGATE_SUM);
 		newIndicator.setDatabaseId(databaseId);
-		newIndicator.setCategory( (element.getFormattedCode() + " " + element.getDescription()).trim() );
+		
+		String category = (element.getFormattedCode() + " " + element.getDescription()).trim();
+        if(category.length() > 1024)
+            category = category.substring(0,1024);        
+		newIndicator.setCategory(category);
 		
 		showDialog(newIndicator, new FormDialogCallback() {
 

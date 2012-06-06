@@ -47,6 +47,10 @@ public class BaseEntityHandler {
             indicator.setAggregation((Integer) changes.get("aggregation"));
         }       
 
+        if(changes.containsKey("category")) {
+            indicator.setCategory((String) changes.get("category"));
+        }
+        
         if (changes.containsKey("collectIntervention")) {
             indicator.setCollectIntervention((Boolean) changes.get("collectIntervention"));
         }

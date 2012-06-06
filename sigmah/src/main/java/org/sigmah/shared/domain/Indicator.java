@@ -288,7 +288,7 @@ public class Indicator implements java.io.Serializable, Orderable, Deleteable, S
 	 *
 	 * @return the name of the category
 	 */
-	@Column(name = "Category", length = 50)
+	@Column(name = "Category", length = 1024)
 	public String getCategory() {
 		return this.category;
 	}
