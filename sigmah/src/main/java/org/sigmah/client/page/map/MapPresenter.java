@@ -1,17 +1,14 @@
 /*
- * All Sigmah code is released under the GNU General Public License v3
- * See COPYRIGHT.txt and LICENSE.txt.
+ * All Sigmah code is released under the GNU General Public License v3 See COPYRIGHT.txt and LICENSE.txt.
  */
 
 package org.sigmah.client.page.map;
 
-import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.inject.ImplementedBy;
-import com.google.inject.Inject;
 import org.sigmah.client.EventBus;
 import org.sigmah.client.dispatch.AsyncMonitor;
 import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.dispatch.callback.DownloadCallback;
+import org.sigmah.client.event.NavigationEvent.NavigationError;
 import org.sigmah.client.page.NavigationCallback;
 import org.sigmah.client.page.Page;
 import org.sigmah.client.page.PageId;
@@ -24,9 +21,13 @@ import org.sigmah.shared.command.RenderElement;
 import org.sigmah.shared.report.content.Content;
 import org.sigmah.shared.report.model.ReportElement;
 
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.inject.ImplementedBy;
+import com.google.inject.Inject;
+
 /**
  * Map page Presenter
- *
+ * 
  * @author Alex Bertram
  */
 public class MapPresenter implements Page, ExportCallback, ActionListener {
@@ -35,10 +36,15 @@ public class MapPresenter implements Page, ExportCallback, ActionListener {
 
     @ImplementedBy(MapPage.class)
     public interface View {
+
         void bindPresenter(MapPresenter presenter);
+
         AsyncMonitor getMapLoadingMonitor();
+
         ReportElement getMapElement();
+
         void setContent(ReportElement element, Content result);
+
         boolean validate();
     }
 
@@ -71,8 +77,10 @@ public class MapPresenter implements Page, ExportCallback, ActionListener {
         if (view.validate()) {
             final ReportElement element = this.view.getMapElement();
             service.execute(new GenerateElement(element), view.getMapLoadingMonitor(), new AsyncCallback<Content>() {
+
                 public void onFailure(Throwable caught) {
                 }
+
                 public void onSuccess(Content result) {
                     view.setContent(element, result);
                 }
@@ -91,8 +99,8 @@ public class MapPresenter implements Page, ExportCallback, ActionListener {
     }
 
     @Override
-    public void requestToNavigateAway(PageState place, NavigationCallback callback) {
-        callback.onDecided(true);
+    public void requestToNavigateAway(PageState place, final NavigationCallback callback) {
+        callback.onDecided(NavigationError.NONE);
     }
 
     @Override
@@ -104,7 +112,7 @@ public class MapPresenter implements Page, ExportCallback, ActionListener {
     public void export(RenderElement.Format format) {
         if (view.validate()) {
             service.execute(new RenderElement(view.getMapElement(), format), view.getMapLoadingMonitor(),
-                    new DownloadCallback(eventBus, "map"));
+                new DownloadCallback(eventBus, "map"));
         }
     }
 

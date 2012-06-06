@@ -1,6 +1,5 @@
 /*
- * All Sigmah code is released under the GNU General Public License v3
- * See COPYRIGHT.txt and LICENSE.txt.
+ * All Sigmah code is released under the GNU General Public License v3 See COPYRIGHT.txt and LICENSE.txt.
  */
 
 package org.sigmah.client.page.orgunit.reports;
@@ -49,10 +48,12 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
  * @see ReportElementDTO
  */
 public class AttachReportHandler implements AttachMenuBuilder.AttachDocumentHandler {
+
     private Dialog dialog;
 
     /**
      * Creates a new and empty "Attach Report" dialog.
+     * 
      * @return The new dialog.
      */
     private Dialog createDialog() {
@@ -92,7 +93,9 @@ public class AttachReportHandler implements AttachMenuBuilder.AttachDocumentHand
 
     /**
      * Extracts the name field from the given dialog box.
-     * @param dialog A dialog created with the {@link #createDialog()} method.
+     * 
+     * @param dialog
+     *            A dialog created with the {@link #createDialog()} method.
      * @return The name text field.
      */
     private TextField<String> getNameField(Dialog dialog) {
@@ -101,7 +104,9 @@ public class AttachReportHandler implements AttachMenuBuilder.AttachDocumentHand
 
     /**
      * Extracts the flexible element name field from the given dialog box.
-     * @param dialog A dialog created with the {@link #createDialog()} method.
+     * 
+     * @param dialog
+     *            A dialog created with the {@link #createDialog()} method.
      * @return The flexible element name text field.
      */
     private LabelField getElementNameField(Dialog dialog) {
@@ -109,21 +114,15 @@ public class AttachReportHandler implements AttachMenuBuilder.AttachDocumentHand
     }
 
     @Override
-    public Dialog getDialog(
-            final ListStore<ReportReference> documentsStore,
-            final OrgUnitDTO orgUnit,
-            final FlexibleElementDTO flexibleElement,
-            final MenuItem menuItem,
-            final String phaseName,
-            final Authentication authentication,
-            final Dispatcher dispatcher,
-            final EventBus eventBus) {
-        
-        if(dialog == null) {
+    public Dialog getDialog(final ListStore<ReportReference> documentsStore, final OrgUnitDTO orgUnit,
+            final FlexibleElementDTO flexibleElement, final MenuItem menuItem, final String phaseName,
+            final Authentication authentication, final Dispatcher dispatcher, final EventBus eventBus) {
+
+        if (dialog == null) {
             dialog = createDialog();
         }
 
-//        final ReportElementDTO reportElementDTO = (ReportElementDTO) flexibleElement;
+        // final ReportElementDTO reportElementDTO = (ReportElementDTO) flexibleElement;
 
         // Clearing the name field
         final TextField<String> nameField = getNameField(dialog);
@@ -147,10 +146,9 @@ public class AttachReportHandler implements AttachMenuBuilder.AttachDocumentHand
                 properties.put("containerId", orgUnit.getId());
                 properties.put("flexibleElementId", flexibleElement.getId());
 
-                if(flexibleElement instanceof ReportElementDTO) {
+                if (flexibleElement instanceof ReportElementDTO) {
                     properties.put("reportModelId", ((ReportElementDTO) flexibleElement).getModelId());
-                }
-                else if(flexibleElement instanceof ReportListElementDTO) {
+                } else if (flexibleElement instanceof ReportListElementDTO) {
                     properties.put("reportModelId", ((ReportListElementDTO) flexibleElement).getModelId());
                     properties.put("multiple", true);
                 }
@@ -176,7 +174,7 @@ public class AttachReportHandler implements AttachMenuBuilder.AttachDocumentHand
 
                         documentsStore.add(reportReference);
 
-                        if(flexibleElement instanceof ReportElementDTO)
+                        if (flexibleElement instanceof ReportElementDTO)
                             menuItem.setEnabled(false);
 
                         dialog.hide();
@@ -185,11 +183,12 @@ public class AttachReportHandler implements AttachMenuBuilder.AttachDocumentHand
 
                         // Open the new report
                         final OrgUnitState targetPage = new OrgUnitState(orgUnit.getId());
-                        //TO DO
+                        // TO DO
                         targetPage.setCurrentSection(OrgUnitPresenter.REPORT_TAB_INDEX);
                         targetPage.setArgument(Integer.toString(result.getNewId()));
 
-                        eventBus.fireEvent(new NavigationEvent(NavigationHandler.NavigationRequested, targetPage));
+                        eventBus
+                            .fireEvent(new NavigationEvent(NavigationHandler.NavigationRequested, targetPage, null));
                     }
                 });
             }
@@ -198,40 +197,38 @@ public class AttachReportHandler implements AttachMenuBuilder.AttachDocumentHand
         return dialog;
     }
 
-	@Override
-	public boolean shouldEnableMenuItem(final MenuItem menuItem,
-			int containerId, final LocalizedElement element,
-			Dispatcher dispatcher) {
+    @Override
+    public boolean shouldEnableMenuItem(final MenuItem menuItem, int containerId, final LocalizedElement element,
+            Dispatcher dispatcher) {
 
-		final GetValue getValue = new GetValue(containerId, element
-				.getElement().getId(), element.getElement().getEntityName());
+        final GetValue getValue =
+                new GetValue(containerId, element.getElement().getId(), element.getElement().getEntityName());
 
-		// If the current flexible element is a report list, then the menu item
-		// is always enabled.
-		if (element.getElement() instanceof ReportListElementDTO)
-			return true;
+        // If the current flexible element is a report list, then the menu item
+        // is always enabled.
+        if (element.getElement() instanceof ReportListElementDTO)
+            return true;
 
-		// Checking the value of the report element to decide if the state of
-		// the menu item.
-		dispatcher.execute(getValue, null, new AsyncCallback<ValueResult>() {
+        // Checking the value of the report element to decide if the state of
+        // the menu item.
+        dispatcher.execute(getValue, null, new AsyncCallback<ValueResult>() {
 
-			@Override
-			public void onFailure(Throwable caught) {
-				Log.error("Could not retrieves the value for element "
-						+ element.toString());
-			}
+            @Override
+            public void onFailure(Throwable caught) {
+                Log.error("Could not retrieves the value for element " + element.toString());
+            }
 
-			@Override
-			public void onSuccess(ValueResult result) {
-				if (result == null || !result.isValueDefined())
-					menuItem.setEnabled(true);
-				else
-					menuItem.setTitle(I18N.CONSTANTS.reportNoCreate());
-			}
+            @Override
+            public void onSuccess(ValueResult result) {
+                if (result == null || !result.isValueDefined())
+                    menuItem.setEnabled(true);
+                else
+                    menuItem.setTitle(I18N.CONSTANTS.reportNoCreate());
+            }
 
-		});
+        });
 
-		return false;
-	}
+        return false;
+    }
 
 }

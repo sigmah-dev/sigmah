@@ -1,6 +1,5 @@
 /*
- * All Sigmah code is released under the GNU General Public License v3
- * See COPYRIGHT.txt and LICENSE.txt.
+ * All Sigmah code is released under the GNU General Public License v3 See COPYRIGHT.txt and LICENSE.txt.
  */
 
 package org.sigmah.client.page.orgunit.dashboard;
@@ -18,7 +17,6 @@ import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 
 /**
- * 
  * @author tmi
  */
 public class OrgUnitDashboardPresenter implements SubPresenter {
@@ -44,8 +42,7 @@ public class OrgUnitDashboardPresenter implements SubPresenter {
     private final Dispatcher dispatcher;
     private final Authentication authentication;
 
-    public OrgUnitDashboardPresenter(Dispatcher dispatcher, EventBus eventBus, Authentication authentication,
-            OrgUnitPresenter mainPresenter) {
+    public OrgUnitDashboardPresenter(Dispatcher dispatcher, EventBus eventBus, Authentication authentication, OrgUnitPresenter mainPresenter) {
         this.eventBus = eventBus;
         this.mainPresenter = mainPresenter;
         this.dispatcher = dispatcher;
@@ -83,5 +80,14 @@ public class OrgUnitDashboardPresenter implements SubPresenter {
     @Override
     public void viewDidAppear() {
         // nothing
+    }
+
+    @Override
+    public boolean hasValueChanged() {
+        return false;
+    }
+
+    @Override
+    public void forgetAllChangedValues() {
     }
 }

@@ -1,9 +1,13 @@
 /*
- * All Sigmah code is released under the GNU General Public License v3
- * See COPYRIGHT.txt and LICENSE.txt.
+ * All Sigmah code is released under the GNU General Public License v3 See COPYRIGHT.txt and LICENSE.txt.
  */
 
 package org.sigmah.client.page.common;
+
+import org.sigmah.client.EventBus;
+import org.sigmah.client.event.NavigationEvent;
+import org.sigmah.client.page.NavigationHandler;
+import org.sigmah.client.page.PageState;
 
 import com.extjs.gxt.ui.client.Style;
 import com.extjs.gxt.ui.client.data.BaseModelData;
@@ -17,10 +21,6 @@ import com.extjs.gxt.ui.client.widget.ListView;
 import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
 import com.google.gwt.core.client.GWT;
 import com.google.inject.Inject;
-import org.sigmah.client.EventBus;
-import org.sigmah.client.event.NavigationEvent;
-import org.sigmah.client.page.NavigationHandler;
-import org.sigmah.client.page.PageState;
 
 /**
  * @author Alex Bertram (akbertram@gmail.com)
@@ -75,14 +75,13 @@ public class GalleryPage extends LayoutContainer implements GalleryView {
         view.setItemSelector("dd");
         view.setOverStyle("over");
 
-        view.addListener(Events.Select,
-            new Listener<ListViewEvent<GalleryModel>>() {
+        view.addListener(Events.Select, new Listener<ListViewEvent<GalleryModel>>() {
 
-                public void handleEvent(ListViewEvent<GalleryModel> event) {
-                    eventBus.fireEvent(new NavigationEvent(NavigationHandler.NavigationRequested,
-                            event.getModel().getPlace()));
-                }
-            });
+            public void handleEvent(ListViewEvent<GalleryModel> event) {
+                eventBus.fireEvent(new NavigationEvent(NavigationHandler.NavigationRequested, event.getModel()
+                    .getPlace(), null));
+            }
+        });
         add(view);
     }
 
@@ -101,14 +100,11 @@ public class GalleryPage extends LayoutContainer implements GalleryView {
     }
 
     private native String getTemplate(String base) /*-{
-              return ['<dl><tpl for=".">',
-              '<dd>',
-              '<img src="' + base + 'thumbs/{path}" title="{name}">',
-              '<div>',
-              '<h4>{name}</h4><p>{desc}</p></div>',
-              '</tpl>',
-              '<div style="clear:left;"></div></dl>'].join("");
+		return [ '<dl><tpl for=".">', '<dd>',
+				'<img src="' + base + 'thumbs/{path}" title="{name}">',
+				'<div>', '<h4>{name}</h4><p>{desc}</p></div>', '</tpl>',
+				'<div style="clear:left;"></div></dl>' ].join("");
 
-              }-*/;
+    }-*/;
 
 }

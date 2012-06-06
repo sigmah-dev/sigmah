@@ -1,11 +1,12 @@
 /*
- * All Sigmah code is released under the GNU General Public License v3
- * See COPYRIGHT.txt and LICENSE.txt.
+ * All Sigmah code is released under the GNU General Public License v3 See COPYRIGHT.txt and LICENSE.txt.
  */
 
 package org.sigmah.client.page.welcome;
 
 import com.google.inject.Inject;
+
+import org.sigmah.client.event.NavigationEvent.NavigationError;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.page.NavigationCallback;
 import org.sigmah.client.page.Page;
@@ -16,12 +17,12 @@ import org.sigmah.client.page.common.GalleryView;
 import org.sigmah.client.page.entry.SiteGridPageState;
 import org.sigmah.client.page.map.MapPageState;
 import org.sigmah.client.page.table.PivotPageState;
+
 /*
  * @author Alex Bertram
  */
 
 public class Welcome implements Page {
-
 
     private GalleryView view;
     public static final PageId Welcome = new PageId("welcome");
@@ -67,8 +68,9 @@ public class Welcome implements Page {
         return view;
     }
 
-    public void requestToNavigateAway(PageState place, NavigationCallback callback) {
-        callback.onDecided(true);
+    @Override
+    public void requestToNavigateAway(PageState place, final NavigationCallback callback) {
+        callback.onDecided(NavigationError.NONE);
     }
 
     public String beforeWindowCloses() {

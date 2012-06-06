@@ -1,18 +1,15 @@
 /*
- * All Sigmah code is released under the GNU General Public License v3
- * See COPYRIGHT.txt and LICENSE.txt.
+ * All Sigmah code is released under the GNU General Public License v3 See COPYRIGHT.txt and LICENSE.txt.
  */
 
 package org.sigmah.client.page.report;
 
-import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.inject.ImplementedBy;
-import com.google.inject.Inject;
 import org.sigmah.client.EventBus;
 import org.sigmah.client.dispatch.AsyncMonitor;
 import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.dispatch.callback.Got;
 import org.sigmah.client.event.DownloadRequestEvent;
+import org.sigmah.client.event.NavigationEvent.NavigationError;
 import org.sigmah.client.page.NavigationCallback;
 import org.sigmah.client.page.Page;
 import org.sigmah.client.page.PageId;
@@ -32,20 +29,30 @@ import org.sigmah.shared.command.result.XmlResult;
 import org.sigmah.shared.dto.ReportDefinitionDTO;
 import org.sigmah.shared.report.model.DateRange;
 
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.inject.ImplementedBy;
+import com.google.inject.Inject;
+
 /**
  * Report Preview Page Presenter
- *
+ * 
  * @author Alex Bertram
  */
 public class ReportPreviewPresenter implements Page, ActionListener, ExportCallback {
+
     public static final PageId ReportPreview = new PageId("report");
 
     @ImplementedBy(ReportPreview.class)
     public interface View {
+
         void init(ReportPreviewPresenter presenter, ReportDefinitionDTO template);
+
         DateRange getDateRange();
+
         void setPreviewHtml(String html);
+
         AsyncMonitor getLoadingMonitor();
+
         void setActionEnabled(String actionId, boolean enabled);
     }
 
@@ -77,8 +84,9 @@ public class ReportPreviewPresenter implements Page, ActionListener, ExportCallb
         return view;
     }
 
-    public void requestToNavigateAway(PageState place, NavigationCallback callback) {
-        callback.onDecided(true);
+    @Override
+    public void requestToNavigateAway(PageState place, final NavigationCallback callback) {
+        callback.onDecided(NavigationError.NONE);
     }
 
     public String beforeWindowCloses() {
@@ -96,9 +104,8 @@ public class ReportPreviewPresenter implements Page, ActionListener, ExportCallb
     @Override
     public void export(RenderElement.Format format) {
         StringBuilder url = new StringBuilder();
-        url.append("report?auth=#AUTH#")
-                .append("&id=").append(template.getId())
-                .append("&format=").append(format.toString());
+        url.append("report?auth=#AUTH#").append("&id=").append(template.getId()).append("&format=")
+            .append(format.toString());
 
         DateRange range = view.getDateRange();
         if (range.getMinDate() != null) {
@@ -115,6 +122,7 @@ public class ReportPreviewPresenter implements Page, ActionListener, ExportCallb
 
             RenderReportHtml command = new RenderReportHtml(template.getId(), view.getDateRange());
             service.execute(command, view.getLoadingMonitor(), new Got<HtmlResult>() {
+
                 @Override
                 public void got(HtmlResult result) {
                     view.setPreviewHtml(result.getHtml());
@@ -124,6 +132,7 @@ public class ReportPreviewPresenter implements Page, ActionListener, ExportCallb
         } else if (UIActions.edit.equals(actionId)) {
 
             service.execute(new GetReportDef(template.getId()), view.getLoadingMonitor(), new Got<XmlResult>() {
+
                 @Override
                 public void got(XmlResult result) {
 
@@ -134,19 +143,22 @@ public class ReportPreviewPresenter implements Page, ActionListener, ExportCallb
                     dlg.setWidth(400);
                     dlg.setHeight(400);
                     dlg.show(new FormDialogCallback() {
+
                         @Override
                         public void onValidated() {
 
-                            service.execute(new UpdateReportDef(template.getId(), form.getXml()), dlg, new AsyncCallback<VoidResult>() {
-                                public void onFailure(Throwable caught) {
-                                    dlg.onServerError();
-                                }
+                            service.execute(new UpdateReportDef(template.getId(), form.getXml()), dlg,
+                                new AsyncCallback<VoidResult>() {
 
-                                public void onSuccess(VoidResult result) {
-                                    dlg.hide();
+                                    public void onFailure(Throwable caught) {
+                                        dlg.onServerError();
+                                    }
 
-                                }
-                            });
+                                    public void onSuccess(VoidResult result) {
+                                        dlg.hide();
+
+                                    }
+                                });
 
                         }
                     });

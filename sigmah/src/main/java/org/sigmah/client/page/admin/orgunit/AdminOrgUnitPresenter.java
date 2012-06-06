@@ -73,7 +73,7 @@ public class AdminOrgUnitPresenter implements AdminSubPresenter {
                         @Override
                         public void orgUnitCreated() {
                             Notification.show(I18N.CONSTANTS.infoConfirmation(),
-                                    I18N.CONSTANTS.adminOrgUnitAddSucceed());
+                                I18N.CONSTANTS.adminOrgUnitAddSucceed());
                             refreshCache();
                         }
                     });
@@ -93,66 +93,62 @@ public class AdminOrgUnitPresenter implements AdminSubPresenter {
                 if (removed != null) {
 
                     MessageBox.confirm(I18N.CONSTANTS.adminOrgUnitRemove(),
-                            I18N.MESSAGES.adminOrgUnitRemoveConfirm(removed.getName()),
-                            new Listener<MessageBoxEvent>() {
+                        I18N.MESSAGES.adminOrgUnitRemoveConfirm(removed.getName()), new Listener<MessageBoxEvent>() {
 
-                                @Override
-                                public void handleEvent(MessageBoxEvent be) {
+                            @Override
+                            public void handleEvent(MessageBoxEvent be) {
 
-                                    if (Dialog.YES.equals(be.getButtonClicked().getItemId())) {
+                                if (Dialog.YES.equals(be.getButtonClicked().getItemId())) {
 
-                                        if (removed.getChildCount() != 0) {
-                                            MessageBox.alert(I18N.CONSTANTS.adminOrgUnitRemoveUnavailable(),
-                                                    I18N.CONSTANTS.adminOrgUnitRemoveHasChildren(), null);
-                                        } else if (removed.getParent() == null) {
-                                            MessageBox.alert(I18N.CONSTANTS.adminOrgUnitRemoveUnavailable(),
-                                                    I18N.CONSTANTS.adminOrgUnitRemoveIsRoot(), null);
-                                        } else {
+                                    if (removed.getChildCount() != 0) {
+                                        MessageBox.alert(I18N.CONSTANTS.adminOrgUnitRemoveUnavailable(),
+                                            I18N.CONSTANTS.adminOrgUnitRemoveHasChildren(), null);
+                                    } else if (removed.getParent() == null) {
+                                        MessageBox.alert(I18N.CONSTANTS.adminOrgUnitRemoveUnavailable(),
+                                            I18N.CONSTANTS.adminOrgUnitRemoveIsRoot(), null);
+                                    } else {
 
-                                            dispatcher.execute(new RemoveOrgUnit(removed.getId()), null,
-                                                    new AsyncCallback<VoidResult>() {
+                                        dispatcher.execute(new RemoveOrgUnit(removed.getId()), null,
+                                            new AsyncCallback<VoidResult>() {
 
-                                                        @Override
-                                                        public void onFailure(Throwable caught) {
+                                                @Override
+                                                public void onFailure(Throwable caught) {
 
-                                                            String msg = I18N.CONSTANTS
-                                                                    .adminOrgUnitRemoveHasChildrenOrProjects();
+                                                    String msg =
+                                                            I18N.CONSTANTS.adminOrgUnitRemoveHasChildrenOrProjects();
 
-                                                            if (caught instanceof RemoveException) {
-                                                                final RemoveException e = (RemoveException) caught;
-                                                                switch (e.getCode()) {
-                                                                case RemoveException.HAS_CHILDREN_ERR_CODE:
-                                                                    msg = I18N.CONSTANTS
-                                                                            .adminOrgUnitRemoveHasChildren();
-                                                                    break;
-                                                                case RemoveException.HAS_PROJECTS_ERR_CODE:
-                                                                    msg = I18N.CONSTANTS
-                                                                            .adminOrgUnitRemoveHasProjects();
-                                                                    break;
-                                                                case RemoveException.IS_ROOT_ERR_CODE:
-                                                                    msg = I18N.CONSTANTS.adminOrgUnitRemoveIsRoot();
-                                                                    break;
-                                                                }
-                                                            }
-
-                                                            MessageBox.alert(
-                                                                    I18N.CONSTANTS.adminOrgUnitRemoveUnavailable(),
-                                                                    msg, null);
-
-                                                            refreshCache();
+                                                    if (caught instanceof RemoveException) {
+                                                        final RemoveException e = (RemoveException) caught;
+                                                        switch (e.getCode()) {
+                                                            case RemoveException.HAS_CHILDREN_ERR_CODE:
+                                                                msg = I18N.CONSTANTS.adminOrgUnitRemoveHasChildren();
+                                                                break;
+                                                            case RemoveException.HAS_PROJECTS_ERR_CODE:
+                                                                msg = I18N.CONSTANTS.adminOrgUnitRemoveHasProjects();
+                                                                break;
+                                                            case RemoveException.IS_ROOT_ERR_CODE:
+                                                                msg = I18N.CONSTANTS.adminOrgUnitRemoveIsRoot();
+                                                                break;
                                                         }
+                                                    }
 
-                                                        @Override
-                                                        public void onSuccess(VoidResult result) {
-                                                            Notification.show(I18N.CONSTANTS.infoConfirmation(),
-                                                                    I18N.CONSTANTS.adminOrgUnitRemoveSucceed());
-                                                            refreshCache();
-                                                        }
-                                                    });
-                                        }
+                                                    MessageBox.alert(I18N.CONSTANTS.adminOrgUnitRemoveUnavailable(),
+                                                        msg, null);
+
+                                                    refreshCache();
+                                                }
+
+                                                @Override
+                                                public void onSuccess(VoidResult result) {
+                                                    Notification.show(I18N.CONSTANTS.infoConfirmation(),
+                                                        I18N.CONSTANTS.adminOrgUnitRemoveSucceed());
+                                                    refreshCache();
+                                                }
+                                            });
                                     }
                                 }
-                            });
+                            }
+                        });
                 }
             }
         });
@@ -172,7 +168,7 @@ public class AdminOrgUnitPresenter implements AdminSubPresenter {
                         @Override
                         public void orgUnitMoved() {
                             Notification.show(I18N.CONSTANTS.infoConfirmation(),
-                                    I18N.CONSTANTS.adminOrgUnitMoveSucceed());
+                                I18N.CONSTANTS.adminOrgUnitMoveSucceed());
                             refreshCache();
                         }
                     });
@@ -191,8 +187,8 @@ public class AdminOrgUnitPresenter implements AdminSubPresenter {
 
                 final boolean addEnabled = selection != null;
                 final boolean moveEnabled = selection != null;
-                final boolean removeEnabled = selection != null && selection.getParent() != null
-                        && selection.getChildCount() == 0;
+                final boolean removeEnabled =
+                        selection != null && selection.getParent() != null && selection.getChildCount() == 0;
 
                 view.getAddButton().setEnabled(addEnabled);
                 view.getMoveButton().setEnabled(moveEnabled);
@@ -239,6 +235,15 @@ public class AdminOrgUnitPresenter implements AdminSubPresenter {
 
     @Override
     public void viewDidAppear() {
+    }
+
+    @Override
+    public boolean hasValueChanged() {
+        return false;
+    }
+
+    @Override
+    public void forgetAllChangedValues() {
     }
 
     @Override

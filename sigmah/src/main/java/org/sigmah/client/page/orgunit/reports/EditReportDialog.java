@@ -1,6 +1,5 @@
 /*
- * All Sigmah code is released under the GNU General Public License v3
- * See COPYRIGHT.txt and LICENSE.txt.
+ * All Sigmah code is released under the GNU General Public License v3 See COPYRIGHT.txt and LICENSE.txt.
  */
 
 package org.sigmah.client.page.orgunit.reports;
@@ -34,14 +33,14 @@ import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
- * 
  * @author Kristela Macaj (kmacaj@ideia.fr)
  */
 public class EditReportDialog {
+
     private static Dialog editReportDialog;
 
     private static Dialog getDialog() {
-        if(editReportDialog == null) {
+        if (editReportDialog == null) {
             final Dialog dialog = new Dialog();
             dialog.setButtons(Dialog.OKCANCEL);
             dialog.setHeading(I18N.CONSTANTS.reportCreateReport());
@@ -61,6 +60,7 @@ public class EditReportDialog {
 
             // Cancel button
             dialog.getButtonById(Dialog.CANCEL).addSelectionListener(new SelectionListener<ButtonEvent>() {
+
                 @Override
                 public void componentSelected(ButtonEvent ce) {
                     dialog.hide();
@@ -74,15 +74,16 @@ public class EditReportDialog {
 
     /**
      * Dialog used to <b>create</b> a report from outside the "Report & Documents" page.
-     * @param properties Base properties of the new report (should contain the report model id).
+     * 
+     * @param properties
+     *            Base properties of the new report (should contain the report model id).
      * @param reportButton
      * @param eventBus
      * @param dispatcher
      * @return The create report dialog.
      */
     public static Dialog getDialog(final Map<String, Serializable> properties,
-            final com.google.gwt.user.client.ui.Button reportButton,
-            final HandlerRegistration[] registrations,
+            final com.google.gwt.user.client.ui.Button reportButton, final HandlerRegistration[] registrations,
             final EventBus eventBus, final Dispatcher dispatcher) {
         final Dialog dialog = getDialog();
 
@@ -112,13 +113,16 @@ public class EditReportDialog {
                         registrations[0].removeHandler();
 
                         reportButton.addClickHandler(new ClickHandler() {
+
                             @Override
                             public void onClick(ClickEvent event) {
-                                final OrgUnitState targetState = new OrgUnitState((Integer) properties.get("orgUnitId"));
+                                final OrgUnitState targetState =
+                                        new OrgUnitState((Integer) properties.get("orgUnitId"));
                                 targetState.setCurrentSection(OrgUnitPresenter.REPORT_TAB_INDEX);
                                 targetState.setArgument(Integer.toString(result.getNewId()));
-                                
-                                eventBus.fireEvent(new NavigationEvent(NavigationHandler.NavigationRequested, targetState));
+
+                                eventBus.fireEvent(new NavigationEvent(NavigationHandler.NavigationRequested,
+                                    targetState, null));
                             }
                         });
 
@@ -136,7 +140,9 @@ public class EditReportDialog {
 
     /**
      * Dialog used to <b>rename</b> a report from the "Report & Documents" page.
-     * @param properties Base properties of the report (may be empty but not null).
+     * 
+     * @param properties
+     *            Base properties of the report (may be empty but not null).
      * @param dispatcher
      * @return The rename report dialog.
      */
@@ -156,7 +162,8 @@ public class EditReportDialog {
 
                 properties.put("name", name);
 
-                final UpdateEntity updateEntity = new UpdateEntity("ProjectReport", reportId, (Map<String, Object>) (Map<String, ?>) properties);
+                final UpdateEntity updateEntity =
+                        new UpdateEntity("ProjectReport", reportId, (Map<String, Object>) (Map<String, ?>) properties);
                 dispatcher.execute(updateEntity, null, callback);
 
                 dialog.hide();

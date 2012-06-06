@@ -1,21 +1,14 @@
 /*
- * All Sigmah code is released under the GNU General Public License v3
- * See COPYRIGHT.txt and LICENSE.txt.
+ * All Sigmah code is released under the GNU General Public License v3 See COPYRIGHT.txt and LICENSE.txt.
  */
 
 package org.sigmah.client.page.project.calendar;
 
-import com.allen_sauer.gwt.log.client.Log;
-import com.extjs.gxt.ui.client.data.BaseModel;
-import com.extjs.gxt.ui.client.store.ListStore;
-import com.extjs.gxt.ui.client.widget.Component;
-import com.extjs.gxt.ui.client.widget.grid.CheckBoxSelectionModel;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.dispatch.remote.Authentication;
 import org.sigmah.client.i18n.I18N;
-import org.sigmah.client.page.project.SubPresenter;
 import org.sigmah.client.page.project.ProjectPresenter;
+import org.sigmah.client.page.project.SubPresenter;
 import org.sigmah.client.ui.CalendarWidget;
 import org.sigmah.client.util.DateUtils;
 import org.sigmah.shared.command.GetCalendar;
@@ -26,11 +19,18 @@ import org.sigmah.shared.domain.calendar.MonitoredPointCalendarIdentifier;
 import org.sigmah.shared.domain.calendar.ReminderCalendarIdentifier;
 import org.sigmah.shared.dto.ProjectDTO;
 
+import com.allen_sauer.gwt.log.client.Log;
+import com.extjs.gxt.ui.client.data.BaseModel;
+import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.widget.Component;
+import com.extjs.gxt.ui.client.widget.grid.CheckBoxSelectionModel;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+
 /**
- * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
 public class ProjectCalendarPresenter implements SubPresenter {
+
     private final ProjectPresenter projectPresenter;
     private ProjectDTO currentProjectDTO;
 
@@ -52,8 +52,7 @@ public class ProjectCalendarPresenter implements SubPresenter {
     }
 
     /**
-     * Wrapper class that allow the use of {@link Calendar}s objects with
-     * Ext-GWT.
+     * Wrapper class that allow the use of {@link Calendar}s objects with Ext-GWT.
      */
     public static class CalendarWrapper extends BaseModel {
 
@@ -112,7 +111,7 @@ public class ProjectCalendarPresenter implements SubPresenter {
 
     public ProjectCalendarPresenter(Dispatcher dispatcher, Authentication authentication, ProjectPresenter projectPresenter) {
         this.dispatcher = dispatcher;
-        this.authentication=authentication;
+        this.authentication = authentication;
         this.projectPresenter = projectPresenter;
     }
 
@@ -146,6 +145,7 @@ public class ProjectCalendarPresenter implements SubPresenter {
         // Fetching the calendars
         if (calendarStore.getCount() == 0 || needsRefresh) {
             final AsyncCallback<Calendar> callback = new AsyncCallback<Calendar>() {
+
                 @Override
                 public void onSuccess(Calendar result) {
                     if (needsRefresh) {
@@ -172,8 +172,9 @@ public class ProjectCalendarPresenter implements SubPresenter {
             };
 
             // Retrieving the activities
-            final ActivityCalendarIdentifier identifier = new ActivityCalendarIdentifier(currentProjectDTO.getId(),
-                    I18N.CONSTANTS.logFrameActivities(), I18N.CONSTANTS.logFrameActivitiesCode());
+            final ActivityCalendarIdentifier identifier =
+                    new ActivityCalendarIdentifier(currentProjectDTO.getId(), I18N.CONSTANTS.logFrameActivities(),
+                        I18N.CONSTANTS.logFrameActivitiesCode());
             final GetCalendar getActivityCalendar = new GetCalendar(CalendarType.Activity, identifier);
             dispatcher.execute(getActivityCalendar, null, callback);
 
@@ -185,22 +186,31 @@ public class ProjectCalendarPresenter implements SubPresenter {
             }
 
             // Retrieving the reminders
-            final ReminderCalendarIdentifier reminderIdentifier = new ReminderCalendarIdentifier(currentProjectDTO
-                    .getRemindersList().getId(), I18N.CONSTANTS.reminderPoints(),
-                    I18N.CONSTANTS.monitoredPointClosed(), I18N.CONSTANTS.monitoredPointExpectedDate(),
-                    DateUtils.DATE_SHORT.getPattern());
+            final ReminderCalendarIdentifier reminderIdentifier =
+                    new ReminderCalendarIdentifier(currentProjectDTO.getRemindersList().getId(),
+                        I18N.CONSTANTS.reminderPoints(), I18N.CONSTANTS.monitoredPointClosed(),
+                        I18N.CONSTANTS.monitoredPointExpectedDate(), DateUtils.DATE_SHORT.getPattern());
             final GetCalendar getReminderCalendar = new GetCalendar(CalendarType.Reminder, reminderIdentifier);
             dispatcher.execute(getReminderCalendar, null, callback);
 
             // Retrieving the monitored points
-            final MonitoredPointCalendarIdentifier monitoredPointIdentifier = new MonitoredPointCalendarIdentifier(
-                    currentProjectDTO.getPointsList().getId(), I18N.CONSTANTS.monitoredPoints(),
-                    I18N.CONSTANTS.monitoredPointClosed(), I18N.CONSTANTS.monitoredPointExpectedDate(),
-                    DateUtils.DATE_SHORT.getPattern());
-            final GetCalendar getMonitoredPointCalendar = new GetCalendar(CalendarType.MonitoredPoint,
-                    monitoredPointIdentifier);
+            final MonitoredPointCalendarIdentifier monitoredPointIdentifier =
+                    new MonitoredPointCalendarIdentifier(currentProjectDTO.getPointsList().getId(),
+                        I18N.CONSTANTS.monitoredPoints(), I18N.CONSTANTS.monitoredPointClosed(),
+                        I18N.CONSTANTS.monitoredPointExpectedDate(), DateUtils.DATE_SHORT.getPattern());
+            final GetCalendar getMonitoredPointCalendar =
+                    new GetCalendar(CalendarType.MonitoredPoint, monitoredPointIdentifier);
             dispatcher.execute(getMonitoredPointCalendar, null, callback);
         }
+    }
+
+    @Override
+    public boolean hasValueChanged() {
+        return false;
+    }
+
+    @Override
+    public void forgetAllChangedValues() {
     }
 
 }

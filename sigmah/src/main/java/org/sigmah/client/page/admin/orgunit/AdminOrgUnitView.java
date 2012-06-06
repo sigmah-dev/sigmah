@@ -64,40 +64,41 @@ public class AdminOrgUnitView extends AdminOrgUnitPresenter.View {
 
         final ArrayList<ColumnConfig> columns = new ArrayList<ColumnConfig>();
 
-        //Code
+        // Code
         final ColumnConfig nameColumn = new ColumnConfig();
         nameColumn.setId("name");
         nameColumn.setHeader(I18N.CONSTANTS.projectName());
         nameColumn.setRenderer(new TreeGridCellRenderer<OrgUnitDTOLight>());
         nameColumn.setWidth(150);
 
-        //Title
+        // Title
         final ColumnConfig fullNameColumn = new ColumnConfig();
         fullNameColumn.setId("fullName");
         fullNameColumn.setHeader(I18N.CONSTANTS.projectFullName());
-         fullNameColumn.setRenderer(new GridCellRenderer<OrgUnitDTOLight>() {
+        fullNameColumn.setRenderer(new GridCellRenderer<OrgUnitDTOLight>() {
 
             @Override
             public Object render(final OrgUnitDTOLight model, String property, ColumnData config, int rowIndex,
                     int colIndex, ListStore<OrgUnitDTOLight> store, Grid<OrgUnitDTOLight> grid) {
 
-                final com.google.gwt.user.client.ui.Label visitButton = new com.google.gwt.user.client.ui.Label(
-                        (String) model.get(property));
+                final com.google.gwt.user.client.ui.Label visitButton =
+                        new com.google.gwt.user.client.ui.Label((String) model.get(property));
                 visitButton.addStyleName("flexibility-action");
                 visitButton.setWidth("250px");
                 visitButton.addClickHandler(new ClickHandler() {
+
                     @Override
                     public void onClick(ClickEvent e) {
                         eventBus.fireEvent(new NavigationEvent(NavigationHandler.NavigationRequested, new OrgUnitState(
-                                model.getId())));
+                            model.getId()), null));
                     }
                 });
 
                 return visitButton;
             }
         });
-        
-        //Country
+
+        // Country
         final ColumnConfig countryColumn = new ColumnConfig();
         countryColumn.setId("country");
         countryColumn.setHeader(I18N.CONSTANTS.projectCountry());
@@ -118,37 +119,29 @@ public class AdminOrgUnitView extends AdminOrgUnitPresenter.View {
             }
         });
 
-        //OrgUnitModel
+        // OrgUnitModel
         final ColumnConfig modelColumn = new ColumnConfig();
         modelColumn.setId("oum");
         modelColumn.setHeader(I18N.CONSTANTS.projectModel());
         modelColumn.setWidth(200);
-        modelColumn.setRenderer(new GridCellRenderer<OrgUnitDTOLight>(){
+        modelColumn.setRenderer(new GridCellRenderer<OrgUnitDTOLight>() {
 
-			@Override
-			public Object render(OrgUnitDTOLight model, String property,
-					ColumnData config, int rowIndex, int colIndex,
-					ListStore<OrgUnitDTOLight> store, Grid<OrgUnitDTOLight> grid) {
-				
-				
-			   final OrgUnitModelDTO orgUnitModel = (OrgUnitModelDTO)model.get(property);
-			   
-			   if(orgUnitModel==null)
-			   {
-				   return "";
-			   }
-			   else
-			   {
-				   return orgUnitModel.getName();
-			   }
-			   
-				
-			}
-        	
+            @Override
+            public Object render(OrgUnitDTOLight model, String property, ColumnData config, int rowIndex, int colIndex,
+                    ListStore<OrgUnitDTOLight> store, Grid<OrgUnitDTOLight> grid) {
+
+                final OrgUnitModelDTO orgUnitModel = (OrgUnitModelDTO) model.get(property);
+
+                if (orgUnitModel == null) {
+                    return "";
+                } else {
+                    return orgUnitModel.getName();
+                }
+
+            }
+
         });
-   
-        
-        
+
         // Tree store
         final TreeStore<OrgUnitDTOLight> store = new TreeStore<OrgUnitDTOLight>();
         store.setSortInfo(new SortInfo("name", SortDir.ASC));
@@ -160,7 +153,7 @@ public class AdminOrgUnitView extends AdminOrgUnitPresenter.View {
 
                 if ("country".equals(property)) {
                     return ((CountryDTO) m1.get(property)).getName().compareToIgnoreCase(
-                            ((CountryDTO) m2.get(property)).getName());
+                        ((CountryDTO) m2.get(property)).getName());
                 } else {
                     return super.compare(store, m1, m2, property);
                 }
@@ -191,24 +184,26 @@ public class AdminOrgUnitView extends AdminOrgUnitPresenter.View {
     private void buildToolbar() {
 
         // Expand all button.
-        final Button expandButton = new Button(I18N.CONSTANTS.expandAll(), IconImageBundle.ICONS.expand(),
-                new SelectionListener<ButtonEvent>() {
+        final Button expandButton =
+                new Button(I18N.CONSTANTS.expandAll(), IconImageBundle.ICONS.expand(),
+                    new SelectionListener<ButtonEvent>() {
 
-                    @Override
-                    public void componentSelected(ButtonEvent ce) {
-                        tree.expandAll();
-                    }
-                });
+                        @Override
+                        public void componentSelected(ButtonEvent ce) {
+                            tree.expandAll();
+                        }
+                    });
 
         // Collapse all button.
-        final Button collapseButton = new Button(I18N.CONSTANTS.collapseAll(), IconImageBundle.ICONS.collapse(),
-                new SelectionListener<ButtonEvent>() {
+        final Button collapseButton =
+                new Button(I18N.CONSTANTS.collapseAll(), IconImageBundle.ICONS.collapse(),
+                    new SelectionListener<ButtonEvent>() {
 
-                    @Override
-                    public void componentSelected(ButtonEvent ce) {
-                        tree.collapseAll();
-                    }
-                });
+                        @Override
+                        public void componentSelected(ButtonEvent ce) {
+                            tree.collapseAll();
+                        }
+                    });
 
         // Actions buttons.
         addButton = new Button(I18N.CONSTANTS.addItem(), IconImageBundle.ICONS.add());

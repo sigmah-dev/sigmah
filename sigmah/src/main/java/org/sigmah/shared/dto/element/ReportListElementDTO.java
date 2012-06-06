@@ -57,7 +57,9 @@ import com.google.gwt.user.client.ui.Image;
  * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
-@SuppressWarnings({ "rawtypes", "unchecked" })
+@SuppressWarnings({
+                   "rawtypes",
+                   "unchecked" })
 public class ReportListElementDTO extends FlexibleElementDTO {
 
     private static final long serialVersionUID = 4984099670087438625L;
@@ -86,8 +88,8 @@ public class ReportListElementDTO extends FlexibleElementDTO {
         component.setTopComponent(createToolbar(enabled, store));
 
         // Creating the grid
-        final FlexibleGrid<ReportReference> reportGrid = new FlexibleGrid<ReportReference>(store, null,
-                createColumnModel(enabled));
+        final FlexibleGrid<ReportReference> reportGrid =
+                new FlexibleGrid<ReportReference>(store, null, createColumnModel(enabled));
         reportGrid.setAutoExpandColumn("name");
         reportGrid.setVisibleElementsCount(5);
 
@@ -126,8 +128,9 @@ public class ReportListElementDTO extends FlexibleElementDTO {
             targetState = state;
 
         } else {
-            Log.debug("ReportElementDTO does not know how to render properly from a '" + currentContainerDTO.getClass()
-                    + "' container.");
+            Log.debug("ReportElementDTO does not know how to render properly from a '"
+                + currentContainerDTO.getClass()
+                + "' container.");
             targetState = null;
         }
 
@@ -135,18 +138,16 @@ public class ReportListElementDTO extends FlexibleElementDTO {
     }
 
     /**
-     * Creates and configure the column model for the grid contained in this
-     * component.
+     * Creates and configure the column model for the grid contained in this component.
      * 
      * @param enabled
-     *            <code>true</code> to enable the delete column,
-     *            <code>false</code> to disable it.
+     *            <code>true</code> to enable the delete column, <code>false</code> to disable it.
      * @return A new array of column configs.
      */
     private ColumnConfig[] createColumnModel(final boolean enabled) {
         // Creating columns
-        final ColumnConfig lastEditDateColumn = new ColumnConfig("lastEditDate", I18N.CONSTANTS.reportLastEditDate(),
-                60);
+        final ColumnConfig lastEditDateColumn =
+                new ColumnConfig("lastEditDate", I18N.CONSTANTS.reportLastEditDate(), 60);
         final ColumnConfig nameColumn = new ColumnConfig("name", I18N.CONSTANTS.reportName(), 100);
         final ColumnConfig editorNameColumn = new ColumnConfig("editorName", I18N.CONSTANTS.reportEditor(), 100);
         final ColumnConfig deleteColumn = new ColumnConfig("delete", "", 10);
@@ -156,16 +157,18 @@ public class ReportListElementDTO extends FlexibleElementDTO {
 
         // Name column specificities
         nameColumn.setRenderer(new GridCellRenderer<ReportReference>() {
+
             @Override
             public Object render(final ReportReference model, String property, ColumnData config, int rowIndex,
                     int colIndex, ListStore store, Grid grid) {
                 final Anchor anchor = new Anchor((String) model.get(property));
                 anchor.addStyleName("flexibility-link");
                 anchor.addClickHandler(new ClickHandler() {
+
                     @Override
                     public void onClick(ClickEvent event) {
                         eventBus.fireEvent(new NavigationEvent(NavigationHandler.NavigationRequested,
-                                createPageState(model.getId())));
+                            createPageState(model.getId()), null));
                     }
                 });
                 return anchor;
@@ -175,6 +178,7 @@ public class ReportListElementDTO extends FlexibleElementDTO {
         // Delete column specificities
         deleteColumn.setSortable(false);
         deleteColumn.setRenderer(new GridCellRenderer<ReportReference>() {
+
             @Override
             public Object render(final ReportReference model, String property, ColumnData config, int rowIndex,
                     int colIndex, final ListStore store, Grid grid) {
@@ -189,31 +193,31 @@ public class ReportListElementDTO extends FlexibleElementDTO {
                         @Override
                         public void onClick(ClickEvent event) {
                             MessageBox.confirm(I18N.CONSTANTS.remove(),
-                                    I18N.MESSAGES.reportRemoveConfirm(model.getName()),
-                                    new Listener<MessageBoxEvent>() {
-                                        @Override
-                                        public void handleEvent(MessageBoxEvent be) {
-                                            if (Dialog.YES.equals(be.getButtonClicked().getItemId())) {
-                                                // TODO: Delete the report
-                                                Log.debug("Removing '" + model.getName() + "'...");
-                                                final Delete delete = new Delete("report.ProjectReport", model.getId());
-                                                dispatcher.execute(delete, null, new AsyncCallback<VoidResult>() {
+                                I18N.MESSAGES.reportRemoveConfirm(model.getName()), new Listener<MessageBoxEvent>() {
 
-                                                    @Override
-                                                    public void onSuccess(VoidResult result) {
-                                                        store.remove(model);
-                                                        Notification.show("OK", "OK");
-                                                    }
+                                    @Override
+                                    public void handleEvent(MessageBoxEvent be) {
+                                        if (Dialog.YES.equals(be.getButtonClicked().getItemId())) {
+                                            // TODO: Delete the report
+                                            Log.debug("Removing '" + model.getName() + "'...");
+                                            final Delete delete = new Delete("report.ProjectReport", model.getId());
+                                            dispatcher.execute(delete, null, new AsyncCallback<VoidResult>() {
 
-                                                    @Override
-                                                    public void onFailure(Throwable caught) {
-                                                        MessageBox.alert("ERROR", "ERROR", null);
-                                                    }
+                                                @Override
+                                                public void onSuccess(VoidResult result) {
+                                                    store.remove(model);
+                                                    Notification.show("OK", "OK");
+                                                }
 
-                                                });
-                                            }
+                                                @Override
+                                                public void onFailure(Throwable caught) {
+                                                    MessageBox.alert("ERROR", "ERROR", null);
+                                                }
+
+                                            });
                                         }
-                                    });
+                                    }
+                                });
                         }
                     });
 
@@ -224,15 +228,18 @@ public class ReportListElementDTO extends FlexibleElementDTO {
             }
         });
 
-        return new ColumnConfig[] { lastEditDateColumn, nameColumn, editorNameColumn, deleteColumn };
+        return new ColumnConfig[] {
+                                   lastEditDateColumn,
+                                   nameColumn,
+                                   editorNameColumn,
+                                   deleteColumn };
     }
 
     /**
      * Creates the toolbar of this component.
      * 
      * @param enabled
-     *            <code>true</code> to enable the buttons of this toolbar,
-     *            <code>false</code> to disable them.
+     *            <code>true</code> to enable the buttons of this toolbar, <code>false</code> to disable them.
      * @return A new toolbar.
      */
     private ToolBar createToolbar(final boolean enabled, final ListStore<ReportReference> store) {
@@ -247,60 +254,60 @@ public class ReportListElementDTO extends FlexibleElementDTO {
             @Override
             public void componentSelected(ButtonEvent ce) {
                 MessageBox.prompt(I18N.CONSTANTS.reportCreateReport(), I18N.CONSTANTS.reportName(),
-                        new Listener<MessageBoxEvent>() {
+                    new Listener<MessageBoxEvent>() {
 
-                            @Override
-                            public void handleEvent(MessageBoxEvent be) {
-                                if (Dialog.OK.equals(be.getButtonClicked().getItemId())) {
-                                    final String name = be.getValue();
+                        @Override
+                        public void handleEvent(MessageBoxEvent be) {
+                            if (Dialog.OK.equals(be.getButtonClicked().getItemId())) {
+                                final String name = be.getValue();
 
-                                    final HashMap<String, Serializable> properties = new HashMap<String, Serializable>();
-                                    properties.put("name", name);
-                                    properties.put("flexibleElementId", getId());
-                                    properties.put("reportModelId", getModelId());
-                                    properties.put("containerId", currentContainerDTO.getId());
-                                    if (currentContainerDTO instanceof ProjectDTO)
-                                        properties.put("projectId", currentContainerDTO.getId());
+                                final HashMap<String, Serializable> properties = new HashMap<String, Serializable>();
+                                properties.put("name", name);
+                                properties.put("flexibleElementId", getId());
+                                properties.put("reportModelId", getModelId());
+                                properties.put("containerId", currentContainerDTO.getId());
+                                if (currentContainerDTO instanceof ProjectDTO)
+                                    properties.put("projectId", currentContainerDTO.getId());
 
-                                    if (currentContainerDTO instanceof OrgUnitDTO)
-                                        properties.put("orgUnitId", currentContainerDTO.getId());
+                                if (currentContainerDTO instanceof OrgUnitDTO)
+                                    properties.put("orgUnitId", currentContainerDTO.getId());
 
-                                    properties.put("multiple", true);
+                                properties.put("multiple", true);
 
-                                    if (currentContainerDTO instanceof ProjectDTO)
-                                        properties.put("phaseName", ((ProjectDTO) currentContainerDTO)
-                                                .getCurrentPhaseDTO().getPhaseModelDTO().getName());
+                                if (currentContainerDTO instanceof ProjectDTO)
+                                    properties.put("phaseName", ((ProjectDTO) currentContainerDTO).getCurrentPhaseDTO()
+                                        .getPhaseModelDTO().getName());
 
-                                    if (currentContainerDTO instanceof OrgUnitDTO)
-                                        properties.put("phaseName", null);
+                                if (currentContainerDTO instanceof OrgUnitDTO)
+                                    properties.put("phaseName", null);
 
-                                    final CreateEntity createEntity = new CreateEntity("ProjectReport", properties);
+                                final CreateEntity createEntity = new CreateEntity("ProjectReport", properties);
 
-                                    dispatcher.execute(createEntity, null, new AsyncCallback<CreateResult>() {
+                                dispatcher.execute(createEntity, null, new AsyncCallback<CreateResult>() {
 
-                                        @Override
-                                        public void onFailure(Throwable caught) {
-                                            MessageBox.alert(I18N.CONSTANTS.projectTabReports(),
-                                                    I18N.CONSTANTS.reportCreateError(), null);
-                                        }
+                                    @Override
+                                    public void onFailure(Throwable caught) {
+                                        MessageBox.alert(I18N.CONSTANTS.projectTabReports(),
+                                            I18N.CONSTANTS.reportCreateError(), null);
+                                    }
 
-                                        @Override
-                                        public void onSuccess(CreateResult result) {
-                                            final ReportReference reference = new ReportReference();
-                                            reference.setId(result.getNewId());
-                                            reference.setName(name);
-                                            reference.setLastEditDate(new Date());
-                                            reference.setEditorName(authentication.getUserShortName());
-                                            store.add(reference);
+                                    @Override
+                                    public void onSuccess(CreateResult result) {
+                                        final ReportReference reference = new ReportReference();
+                                        reference.setId(result.getNewId());
+                                        reference.setName(name);
+                                        reference.setLastEditDate(new Date());
+                                        reference.setEditorName(authentication.getUserShortName());
+                                        store.add(reference);
 
-                                            Notification.show(I18N.CONSTANTS.projectTabReports(),
-                                                    I18N.CONSTANTS.reportCreateSuccess());
-                                        }
+                                        Notification.show(I18N.CONSTANTS.projectTabReports(),
+                                            I18N.CONSTANTS.reportCreateSuccess());
+                                    }
 
-                                    });
-                                }
+                                });
                             }
-                        });
+                        }
+                    });
             }
         });
 

@@ -13,6 +13,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sigmah.client.dispatch.monitor.NullAsyncMonitor;
 import org.sigmah.client.event.NavigationEvent;
+import org.sigmah.client.event.NavigationEvent.NavigationError;
 import org.sigmah.client.mock.MockEventBus;
 
 import java.util.Arrays;
@@ -185,7 +186,7 @@ public class NavigationHandlerTest {
     }
 
     private void requestNavigationTo(PageState place) {
-        eventBus.fireEvent(new NavigationEvent(NavigationHandler.NavigationRequested, place));
+        eventBus.fireEvent(new NavigationEvent(NavigationHandler.NavigationRequested, place, null));
     }
 
     private void thereIsNoActivePageIn(Frame rootFrameSet) {
@@ -242,7 +243,10 @@ public class NavigationHandlerTest {
         expectLastCall().andAnswer(new IAnswer<Void>() {
             @Override
             public Void answer() throws Throwable {
-                ((NavigationCallback)(getCurrentArguments()[1])).onDecided(allowed);
+                if(allowed)
+                    ((NavigationCallback)(getCurrentArguments()[1])).onDecided(NavigationError.NONE);
+                else
+                    ((NavigationCallback)(getCurrentArguments()[1])).onDecided(NavigationError.EXECUTION_ERROR);
                 return null;
             }
         });

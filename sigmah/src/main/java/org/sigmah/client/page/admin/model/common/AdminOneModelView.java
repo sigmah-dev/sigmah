@@ -51,7 +51,6 @@ import com.google.inject.Inject;
  * Displays models administration screen.
  * 
  * @author nrebiai
- * 
  */
 public class AdminOneModelView extends LayoutContainer implements AdminOneModelPresenter.View {
 
@@ -130,8 +129,7 @@ public class AdminOneModelView extends LayoutContainer implements AdminOneModelP
         statusList.setTriggerAction(TriggerAction.ALL);
 
         /*
-         * *******************************************ProjectModel
-         * **********************
+         * *******************************************ProjectModel **********************
          */
 
         radioGroup = new RadioGroup("projectTypeFilter");
@@ -142,8 +140,9 @@ public class AdminOneModelView extends LayoutContainer implements AdminOneModelP
         ngoRadio.setFieldLabel(ProjectModelType.getName(ProjectModelType.NGO));
         ngoRadio.addStyleName("toolbar-radio");
 
-        final WidgetComponent ngoIcon = new WidgetComponent(FundingIconProvider.getProjectTypeIcon(
-                ProjectModelType.NGO, IconSize.SMALL).createImage());
+        final WidgetComponent ngoIcon =
+                new WidgetComponent(FundingIconProvider.getProjectTypeIcon(ProjectModelType.NGO, IconSize.SMALL)
+                    .createImage());
         ngoIcon.addStyleName("toolbar-icon");
 
         final Label ngoLabel = new Label(ProjectModelType.getName(ProjectModelType.NGO));
@@ -165,8 +164,9 @@ public class AdminOneModelView extends LayoutContainer implements AdminOneModelP
         fundingRadio.setFieldLabel(ProjectModelType.getName(ProjectModelType.FUNDING));
         fundingRadio.addStyleName("toolbar-radio");
 
-        final WidgetComponent fundingIcon = new WidgetComponent(FundingIconProvider.getProjectTypeIcon(
-                ProjectModelType.FUNDING, IconSize.SMALL).createImage());
+        final WidgetComponent fundingIcon =
+                new WidgetComponent(FundingIconProvider.getProjectTypeIcon(ProjectModelType.FUNDING, IconSize.SMALL)
+                    .createImage());
         fundingIcon.addStyleName("toolbar-icon");
 
         final Label fundingLabel = new Label(ProjectModelType.getName(ProjectModelType.FUNDING));
@@ -188,8 +188,9 @@ public class AdminOneModelView extends LayoutContainer implements AdminOneModelP
         partnerRadio.setFieldLabel(ProjectModelType.getName(ProjectModelType.LOCAL_PARTNER));
         partnerRadio.addStyleName("toolbar-radio");
 
-        final WidgetComponent partnerIcon = new WidgetComponent(FundingIconProvider.getProjectTypeIcon(
-                ProjectModelType.LOCAL_PARTNER, IconSize.SMALL).createImage());
+        final WidgetComponent partnerIcon =
+                new WidgetComponent(FundingIconProvider.getProjectTypeIcon(ProjectModelType.LOCAL_PARTNER,
+                    IconSize.SMALL).createImage());
         partnerIcon.addStyleName("toolbar-icon");
 
         final Label partnerLabel = new Label(ProjectModelType.getName(ProjectModelType.LOCAL_PARTNER));
@@ -235,8 +236,7 @@ public class AdminOneModelView extends LayoutContainer implements AdminOneModelP
         topCenterFormPanel.add(partnerGrid);
 
         /*
-         * *******************************************OrgUnitModel
-         * **********************
+         * *******************************************OrgUnitModel **********************
          */
         titleField = new TextField<String>();
         titleField.setFieldLabel(I18N.CONSTANTS.adminOrgUnitsModelTitle());
@@ -323,16 +323,20 @@ public class AdminOneModelView extends LayoutContainer implements AdminOneModelP
         return panelSelectedTab;
     }
 
+    public RadioGroup getProjectTypeRadioGroup() {
+        return radioGroup;
+    }
+
     private Radio getRadioFilter(ProjectModelType type) {
 
         if (type != null) {
             switch (type) {
-            case NGO:
-                return ngoRadio;
-            case FUNDING:
-                return fundingRadio;
-            case LOCAL_PARTNER:
-                return partnerRadio;
+                case NGO:
+                    return ngoRadio;
+                case FUNDING:
+                    return fundingRadio;
+                case LOCAL_PARTNER:
+                    return partnerRadio;
             }
         }
 
@@ -369,30 +373,30 @@ public class AdminOneModelView extends LayoutContainer implements AdminOneModelP
                 updateStatusList(currentProjectModel.getStatus());
 
                 Log.debug("Original project model status : "
-                        + ProjectModelStatus.getName(currentProjectModel.getStatus()));
+                    + ProjectModelStatus.getName(currentProjectModel.getStatus()));
 
                 currentProjectModel.getStatus();
-                ProjectModelType type = currentProjectModel.getVisibility(cache.getOrganizationCache()
-                        .getOrganization().getId());
+                ProjectModelType type =
+                        currentProjectModel.getVisibility(cache.getOrganizationCache().getOrganization().getId());
                 switch (type) {
-                case NGO:
-                    ngoRadio.setValue(true);
-                    fundingRadio.setValue(false);
-                    partnerRadio.setValue(false);
-                    currentModelType = ProjectModelType.NGO;
-                    break;
-                case FUNDING:
-                    ngoRadio.setValue(false);
-                    fundingRadio.setValue(true);
-                    partnerRadio.setValue(false);
-                    currentModelType = ProjectModelType.FUNDING;
-                    break;
-                case LOCAL_PARTNER:
-                    ngoRadio.setValue(false);
-                    fundingRadio.setValue(false);
-                    partnerRadio.setValue(true);
-                    currentModelType = ProjectModelType.LOCAL_PARTNER;
-                    break;
+                    case NGO:
+                        ngoRadio.setValue(true);
+                        fundingRadio.setValue(false);
+                        partnerRadio.setValue(false);
+                        currentModelType = ProjectModelType.NGO;
+                        break;
+                    case FUNDING:
+                        ngoRadio.setValue(false);
+                        fundingRadio.setValue(true);
+                        partnerRadio.setValue(false);
+                        currentModelType = ProjectModelType.FUNDING;
+                        break;
+                    case LOCAL_PARTNER:
+                        ngoRadio.setValue(false);
+                        fundingRadio.setValue(false);
+                        partnerRadio.setValue(true);
+                        currentModelType = ProjectModelType.LOCAL_PARTNER;
+                        break;
                 }
 
             }
@@ -427,8 +431,10 @@ public class AdminOneModelView extends LayoutContainer implements AdminOneModelP
                 hasBudgetCheckBox.setValue(currentOrgUnitModel.getHasBudget());
                 canContainProjectsCheckBox.setValue(currentOrgUnitModel.getCanContainProjects());
 
-                Log.debug("Original org unit model status : " + currentOrgUnitModel.getName() + " "
-                        + ProjectModelStatus.getName(currentOrgUnitModel.getStatus()));
+                Log.debug("Original org unit model status : "
+                    + currentOrgUnitModel.getName()
+                    + " "
+                    + ProjectModelStatus.getName(currentOrgUnitModel.getStatus()));
             }
 
         }
@@ -453,7 +459,7 @@ public class AdminOneModelView extends LayoutContainer implements AdminOneModelP
             @Override
             public void onFailure(Throwable caught) {
                 MessageBox.alert(I18N.CONSTANTS.adminModelCheckError(), I18N.CONSTANTS.adminModelCheckErrorDetails(),
-                        null);
+                    null);
             }
 
             @Override

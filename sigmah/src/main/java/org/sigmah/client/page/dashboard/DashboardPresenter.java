@@ -1,6 +1,5 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ * To change this template, choose Tools | Templates and open the template in the editor.
  */
 
 package org.sigmah.client.page.dashboard;
@@ -12,6 +11,7 @@ import org.sigmah.client.cache.UserLocalCache;
 import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.dispatch.monitor.MaskingAsyncMonitor;
 import org.sigmah.client.dispatch.remote.Authentication;
+import org.sigmah.client.event.NavigationEvent.NavigationError;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.page.NavigationCallback;
 import org.sigmah.client.page.Page;
@@ -78,8 +78,7 @@ public class DashboardPresenter implements Page {
     private final UserLocalCache cache;
 
     @Inject
-    public DashboardPresenter(final View view, final UserLocalCache cache, final Authentication authentication,
-            final Dispatcher dispatcher) {
+    public DashboardPresenter(final View view, final UserLocalCache cache, final Authentication authentication, final Dispatcher dispatcher) {
         this.dispatcher = dispatcher;
         this.view = view;
         this.cache = cache;
@@ -96,8 +95,8 @@ public class DashboardPresenter implements Page {
     }
 
     @Override
-    public void requestToNavigateAway(PageState place, NavigationCallback callback) {
-        callback.onDecided(true);
+    public void requestToNavigateAway(PageState place, final NavigationCallback callback) {
+        callback.onDecided(NavigationError.NONE);
     }
 
     @Override
@@ -121,10 +120,8 @@ public class DashboardPresenter implements Page {
 
                 if (result != null) {
                     view.getOrgUnitsStore().removeAll();
-                    view.getOrgUnitsPanel()
-                            .setHeading(
-                                    I18N.CONSTANTS.orgunitTree() + " - " + result.getName() + " ("
-                                            + result.getFullName() + ")");
+                    view.getOrgUnitsPanel().setHeading(
+                        I18N.CONSTANTS.orgunitTree() + " - " + result.getName() + " (" + result.getFullName() + ")");
 
                     view.getProjectsListPanel().refresh(true, result.getId());
                     view.getOrgUnitsStore().add(result, true);
@@ -137,32 +134,34 @@ public class DashboardPresenter implements Page {
         // Reloads the reminders/moniroted points.
 
         dispatcher.execute(new GetReminders(),
-                new MaskingAsyncMonitor(view.getReminderListPanel(), I18N.CONSTANTS.loading()),
-                new AsyncCallback<RemindersResultList>() {
-                    @Override
-                    public void onFailure(Throwable caught) {
-                        Log.error("[navigate] Error while retrieving reminders.", caught);
-                    }
+            new MaskingAsyncMonitor(view.getReminderListPanel(), I18N.CONSTANTS.loading()),
+            new AsyncCallback<RemindersResultList>() {
 
-                    @Override
-                    public void onSuccess(RemindersResultList result) {
+                @Override
+                public void onFailure(Throwable caught) {
+                    Log.error("[navigate] Error while retrieving reminders.", caught);
+                }
 
-                        List<ReminderDTO> reminderListToLoad = new ArrayList<ReminderDTO>();
-                        // Only show the undeleted reminders
-                        for (ReminderDTO r : result.getList()) {
-                            Boolean isDeleted = (Boolean) r.isDeleted();
-                            Log.debug("The reminder is deleted ? :" + isDeleted + " Value original: " + r.isDeleted());
-                            if (isDeleted == null || isDeleted == Boolean.FALSE) {
-                                reminderListToLoad.add(r);
-                            }
+                @Override
+                public void onSuccess(RemindersResultList result) {
+
+                    List<ReminderDTO> reminderListToLoad = new ArrayList<ReminderDTO>();
+                    // Only show the undeleted reminders
+                    for (ReminderDTO r : result.getList()) {
+                        Boolean isDeleted = (Boolean) r.isDeleted();
+                        Log.debug("The reminder is deleted ? :" + isDeleted + " Value original: " + r.isDeleted());
+                        if (isDeleted == null || isDeleted == Boolean.FALSE) {
+                            reminderListToLoad.add(r);
                         }
-                        view.getReminderStore().removeAll();
-                        view.getReminderStore().add(reminderListToLoad);
                     }
-                });
+                    view.getReminderStore().removeAll();
+                    view.getReminderStore().add(reminderListToLoad);
+                }
+            });
 
         dispatcher.execute(new GetMonitoredPoints(), new MaskingAsyncMonitor(view.getMonitoredPointListPanel(),
-                I18N.CONSTANTS.loading()), new AsyncCallback<MonitoredPointsResultList>() {
+            I18N.CONSTANTS.loading()), new AsyncCallback<MonitoredPointsResultList>() {
+
             @Override
             public void onFailure(Throwable caught) {
                 Log.error("[navigate] Error while retrieving monitored points.", caught);

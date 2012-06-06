@@ -1,17 +1,13 @@
 /*
- * All Sigmah code is released under the GNU General Public License v3
- * See COPYRIGHT.txt and LICENSE.txt.
+ * All Sigmah code is released under the GNU General Public License v3 See COPYRIGHT.txt and LICENSE.txt.
  */
 
 package org.sigmah.client.page.charts;
 
-import com.allen_sauer.gwt.log.client.Log;
-import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.inject.ImplementedBy;
-import com.google.inject.Inject;
 import org.sigmah.client.EventBus;
 import org.sigmah.client.dispatch.AsyncMonitor;
 import org.sigmah.client.dispatch.Dispatcher;
+import org.sigmah.client.event.NavigationEvent.NavigationError;
 import org.sigmah.client.page.NavigationCallback;
 import org.sigmah.client.page.Page;
 import org.sigmah.client.page.PageId;
@@ -24,6 +20,11 @@ import org.sigmah.shared.command.RenderElement;
 import org.sigmah.shared.report.content.Content;
 import org.sigmah.shared.report.content.PivotChartContent;
 import org.sigmah.shared.report.model.PivotChartElement;
+
+import com.allen_sauer.gwt.log.client.Log;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.inject.ImplementedBy;
+import com.google.inject.Inject;
 
 /**
  * @author Alex Bertram (akbertram@gmail.com)
@@ -73,8 +74,8 @@ public class ChartPagePresenter implements Page, ActionListener, ExportCallback 
     }
 
     @Override
-    public void requestToNavigateAway(PageState place, NavigationCallback callback) {
-        callback.onDecided(true);
+    public void requestToNavigateAway(PageState place, final NavigationCallback callback) {
+        callback.onDecided(NavigationError.NONE);
     }
 
     @Override
@@ -87,20 +88,19 @@ public class ChartPagePresenter implements Page, ActionListener, ExportCallback 
         if (UIActions.refresh.equals(actionId)) {
 
             final PivotChartElement element = view.getChartElement();
-            service.execute(new GenerateElement(element), view.getMonitor(),
-                    new AsyncCallback<Content>() {
+            service.execute(new GenerateElement(element), view.getMonitor(), new AsyncCallback<Content>() {
 
-                        @Override
-                        public void onFailure(Throwable throwable) {
-                            Log.error("chart request failed", throwable);
-                        }
+                @Override
+                public void onFailure(Throwable throwable) {
+                    Log.error("chart request failed", throwable);
+                }
 
-                        @Override
-                        public void onSuccess(Content content) {
-                            element.setContent((PivotChartContent) content);
-                            view.setData(element);
-                        }
-                    });
+                @Override
+                public void onSuccess(Content content) {
+                    element.setContent((PivotChartContent) content);
+                    view.setData(element);
+                }
+            });
         }
     }
 

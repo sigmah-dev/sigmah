@@ -7,6 +7,7 @@ import org.sigmah.client.dispatch.AsyncMonitor;
 import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.dispatch.remote.Authentication;
 import org.sigmah.client.event.NavigationEvent;
+import org.sigmah.client.event.NavigationEvent.NavigationError;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.page.Frame;
 import org.sigmah.client.page.NavigationCallback;
@@ -22,13 +23,18 @@ import org.sigmah.client.page.admin.model.project.AdminProjectModelsPresenter;
 import org.sigmah.client.page.admin.orgunit.AdminOrgUnitPresenter;
 import org.sigmah.client.page.admin.report.AdminReportModelPresenter;
 import org.sigmah.client.page.admin.users.AdminUsersPresenter;
+import org.sigmah.client.page.project.SubPresenter;
 import org.sigmah.client.ui.ToggleAnchor;
 import org.sigmah.shared.domain.profile.GlobalPermissionEnum;
 import org.sigmah.shared.dto.profile.ProfileUtils;
 
 import com.allen_sauer.gwt.log.client.Log;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.Dialog;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.layout.VBoxLayoutData;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -41,13 +47,16 @@ import com.google.inject.Inject;
  * Loads data for administration screen.
  * 
  * @author nrebiai
- * 
  */
 public class AdminPresenter implements TabPage, Frame {
 
-    private final static String[] MAIN_TABS = { I18N.CONSTANTS.adminUsers(), I18N.CONSTANTS.adminOrgUnit(),
-            I18N.CONSTANTS.adminProjectModels(), I18N.CONSTANTS.adminOrgUnitsModels(),
-            I18N.CONSTANTS.adminProjectModelReports(), I18N.CONSTANTS.adminCategories() };
+    private final static String[] MAIN_TABS = {
+                                               I18N.CONSTANTS.adminUsers(),
+                                               I18N.CONSTANTS.adminOrgUnit(),
+                                               I18N.CONSTANTS.adminProjectModels(),
+                                               I18N.CONSTANTS.adminOrgUnitsModels(),
+                                               I18N.CONSTANTS.adminProjectModelReports(),
+                                               I18N.CONSTANTS.adminCategories() };
     public static final PageId PAGE_ID = new PageId(I18N.CONSTANTS.adminboard());
 
     private final View view;
@@ -57,6 +66,7 @@ public class AdminPresenter implements TabPage, Frame {
     private AdminPageState currentState;
     private Page activePage;
     private final Authentication authentication;
+    private AdminOneModelPresenter adminModelPresenter;
 
     @ImplementedBy(AdminView.class)
     public interface View {
@@ -68,15 +78,19 @@ public class AdminPresenter implements TabPage, Frame {
     }
 
     @Inject
-    public AdminPresenter(SigmahInjector injector, final EventBus eventBus, final Dispatcher dispatcher,
-            final View view, final UserLocalCache cache, final Authentication authentication) {
+    public AdminPresenter(SigmahInjector injector, final EventBus eventBus, final Dispatcher dispatcher, final View view, final UserLocalCache cache, final Authentication authentication) {
         this.injector = injector;
         this.view = view;
-        this.presenters = new AdminSubPresenter[] { new AdminUsersPresenter(dispatcher, cache, authentication),
-                new AdminOrgUnitPresenter(dispatcher, cache, authentication,eventBus),
-                new AdminProjectModelsPresenter(dispatcher, cache, authentication, eventBus, currentState),
-                new AdminOrgUnitModelsPresenter(dispatcher, cache, authentication, eventBus, currentState),
-                new AdminReportModelPresenter(dispatcher), new AdminCategoryPresenter(dispatcher) };
+        this.presenters =
+                new AdminSubPresenter[] {
+                                         new AdminUsersPresenter(dispatcher, cache, authentication),
+                                         new AdminOrgUnitPresenter(dispatcher, cache, authentication, eventBus),
+                                         new AdminProjectModelsPresenter(dispatcher, cache, authentication, eventBus,
+                                             currentState),
+                                         new AdminOrgUnitModelsPresenter(dispatcher, cache, authentication, eventBus,
+                                             currentState),
+                                         new AdminReportModelPresenter(dispatcher),
+                                         new AdminCategoryPresenter(dispatcher) };
         this.authentication = authentication;
         for (int i = 0; i < MAIN_TABS.length; i++) {
             final int index = i;
@@ -94,7 +108,7 @@ public class AdminPresenter implements TabPage, Frame {
                 @Override
                 public void onClick(ClickEvent event) {
                     eventBus.fireEvent(new NavigationEvent(NavigationHandler.NavigationRequested, currentState
-                            .deriveTo(index)));
+                        .deriveTo(index), null));
                 }
             });
 
@@ -125,8 +139,37 @@ public class AdminPresenter implements TabPage, Frame {
     }
 
     @Override
-    public void requestToNavigateAway(PageState place, NavigationCallback callback) {
-        callback.onDecided(true);
+    public void requestToNavigateAway(PageState place, final NavigationCallback callback) {
+        NavigationError navigationError = NavigationError.NONE;
+        for (SubPresenter subPresenter : presenters) {
+            if (subPresenter.hasValueChanged()) {
+                navigationError = NavigationError.WORK_NOT_SAVED;
+            }
+        }
+        if (adminModelPresenter != null && adminModelPresenter.hasValueChanged()) {
+            navigationError = NavigationError.WORK_NOT_SAVED;
+        }
+
+        Listener<MessageBoxEvent> listener = new Listener<MessageBoxEvent>() {
+
+            @Override
+            public void handleEvent(MessageBoxEvent be) {
+                if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
+                    for (SubPresenter subPresenter : presenters) {
+                        subPresenter.forgetAllChangedValues();
+                    }
+                    if (adminModelPresenter != null)
+                        adminModelPresenter.forgetAllChangedValues();
+                    callback.onDecided(NavigationError.NONE);
+                }
+            }
+        };
+
+        if (navigationError == NavigationError.WORK_NOT_SAVED) {
+            MessageBox.confirm(I18N.CONSTANTS.unsavedDataTitle(), I18N.CONSTANTS.unsavedDataMessage(), listener);
+        }
+
+        callback.onDecided(navigationError);
     }
 
     @Override
@@ -163,7 +206,7 @@ public class AdminPresenter implements TabPage, Frame {
         Log.debug("AdminPresenter : navigate normal" + currentState.isProject());
 
         if (currentState.getModel() != null && currentState.getSubModel() != null) {
-            final AdminOneModelPresenter adminModelPresenter = injector.getAdminModelPresenter();
+            adminModelPresenter = injector.getAdminModelPresenter();
             navigate(currentState, adminModelPresenter);
         } else {
             selectTab(currentState.getCurrentSection(), false);

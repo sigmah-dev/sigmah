@@ -1,6 +1,5 @@
 /*
- * All Sigmah code is released under the GNU General Public License v3
- * See COPYRIGHT.txt and LICENSE.txt.
+ * All Sigmah code is released under the GNU General Public License v3 See COPYRIGHT.txt and LICENSE.txt.
  */
 
 package org.sigmah.client.page.dashboard;
@@ -94,8 +93,7 @@ public class DashboardView extends ContentPanel implements DashboardPresenter.Vi
     private ListStore<MonitoredPointDTO> monitoredPointStore;
 
     @Inject
-    public DashboardView(final EventBus eventBus, final Dispatcher dispatcher, final Authentication authentication,
-            final UserLocalCache cache) {
+    public DashboardView(final EventBus eventBus, final Dispatcher dispatcher, final Authentication authentication, final UserLocalCache cache) {
 
         this.dispatcher = dispatcher;
         this.eventBus = eventBus;
@@ -189,162 +187,162 @@ public class DashboardView extends ContentPanel implements DashboardPresenter.Vi
         // Menu
         if (ProfileUtils.isGranted(authentication, GlobalPermissionEnum.CREATE_PROJECT)) {
             addNavLink(eventBus, menuPanel, I18N.CONSTANTS.createProjectNewProject(), IconImageBundle.ICONS.add(),
-                    new Listener<ButtonEvent>() {
+                new Listener<ButtonEvent>() {
 
-                        private final CreateProjectWindow window = new CreateProjectWindow(dispatcher, authentication,
-                                cache);
+                    private final CreateProjectWindow window = new CreateProjectWindow(dispatcher, authentication,
+                        cache);
 
-                        {
-                            window.addListener(new CreateProjectListener() {
+                    {
+                        window.addListener(new CreateProjectListener() {
 
-                                @Override
-                                public void projectCreated(ProjectDTOLight project) {
+                            @Override
+                            public void projectCreated(ProjectDTOLight project) {
 
-                                    projectsListPanel.getProjectsStore().clearFilters();
-                                    projectsListPanel.getProjectsStore().add(project, false);
-                                    projectsListPanel.getProjectsStore().applyFilters(null);
+                                projectsListPanel.getProjectsStore().clearFilters();
+                                projectsListPanel.getProjectsStore().add(project, false);
+                                projectsListPanel.getProjectsStore().applyFilters(null);
 
-                                    // Show notification.
-                                    Notification.show(I18N.CONSTANTS.createProjectSucceeded(),
-                                            I18N.CONSTANTS.createProjectSucceededDetails());
-                                }
+                                // Show notification.
+                                Notification.show(I18N.CONSTANTS.createProjectSucceeded(),
+                                    I18N.CONSTANTS.createProjectSucceededDetails());
+                            }
 
-                                @Override
-                                public void projectCreatedAsFunded(ProjectDTOLight project, double percentage) {
-                                    // nothing to do (must not be called).
-                                }
+                            @Override
+                            public void projectCreatedAsFunded(ProjectDTOLight project, double percentage) {
+                                // nothing to do (must not be called).
+                            }
 
-                                @Override
-                                public void projectCreatedAsFunding(ProjectDTOLight project, double percentage) {
-                                    // nothing to do (must not be called).
-                                }
+                            @Override
+                            public void projectCreatedAsFunding(ProjectDTOLight project, double percentage) {
+                                // nothing to do (must not be called).
+                            }
 
-                                @Override
-                                public void projectCreatedAsTest(ProjectDTOLight project) {
-                                    // nothing to do (must not be called).
-                                }
+                            @Override
+                            public void projectCreatedAsTest(ProjectDTOLight project) {
+                                // nothing to do (must not be called).
+                            }
 
-                                @Override
-                                public void projectDeletedAsTest(ProjectDTOLight project) {
-                                    // nothing to do (must not be called).
-                                }
-                            });
-                        }
+                            @Override
+                            public void projectDeletedAsTest(ProjectDTOLight project) {
+                                // nothing to do (must not be called).
+                            }
+                        });
+                    }
 
-                        @Override
-                        public void handleEvent(ButtonEvent be) {
-                            window.show();
-                        }
-                    });
+                    @Override
+                    public void handleEvent(ButtonEvent be) {
+                        window.show();
+                    }
+                });
         }
 
         if (ProfileUtils.isGranted(authentication, GlobalPermissionEnum.VIEW_ADMIN)) {
             addNavLink(eventBus, menuPanel, I18N.CONSTANTS.createTestProject(), IconImageBundle.ICONS.add(),
-                    new Listener<ButtonEvent>() {
+                new Listener<ButtonEvent>() {
 
-                        private final CreateProjectWindow window = new CreateProjectWindow(dispatcher, authentication,
-                                cache);
+                    private final CreateProjectWindow window = new CreateProjectWindow(dispatcher, authentication,
+                        cache);
 
-                        {
-                            window.addListener(new CreateProjectListener() {
+                    {
+                        window.addListener(new CreateProjectListener() {
 
-                                @Override
-                                public void projectCreated(ProjectDTOLight project) {
-                                    // nothing to do (must not be called).
-                                }
+                            @Override
+                            public void projectCreated(ProjectDTOLight project) {
+                                // nothing to do (must not be called).
+                            }
 
-                                @Override
-                                public void projectCreatedAsFunded(ProjectDTOLight project, double percentage) {
-                                    // nothing to do (must not be called).
-                                }
+                            @Override
+                            public void projectCreatedAsFunded(ProjectDTOLight project, double percentage) {
+                                // nothing to do (must not be called).
+                            }
 
-                                @Override
-                                public void projectCreatedAsFunding(ProjectDTOLight project, double percentage) {
-                                    // nothing to do (must not be called).
-                                }
+                            @Override
+                            public void projectCreatedAsFunding(ProjectDTOLight project, double percentage) {
+                                // nothing to do (must not be called).
+                            }
 
-                                public void projectCreatedAsTest(ProjectDTOLight project) {
-                                    projectsListPanel.getProjectsStore().clearFilters();
-                                    projectsListPanel.getProjectsStore().add(project, false);
-                                    projectsListPanel.getProjectsStore().commitChanges();
-                                    projectsListPanel.getProjectsStore().applyFilters(null);
+                            public void projectCreatedAsTest(ProjectDTOLight project) {
+                                projectsListPanel.getProjectsStore().clearFilters();
+                                projectsListPanel.getProjectsStore().add(project, false);
+                                projectsListPanel.getProjectsStore().commitChanges();
+                                projectsListPanel.getProjectsStore().applyFilters(null);
 
-                                    // Show notification.
-                                    Notification.show(I18N.CONSTANTS.createProjectSucceeded(),
-                                            I18N.CONSTANTS.createTestProjectSucceededDetails());
+                                // Show notification.
+                                Notification.show(I18N.CONSTANTS.createProjectSucceeded(),
+                                    I18N.CONSTANTS.createTestProjectSucceededDetails());
 
-                                }
+                            }
 
-                                @Override
-                                public void projectDeletedAsTest(ProjectDTOLight project) {
+                            @Override
+                            public void projectDeletedAsTest(ProjectDTOLight project) {
 
-                                    menuPanel.mask(I18N.CONSTANTS.loadingDeleteProject());
+                                menuPanel.mask(I18N.CONSTANTS.loadingDeleteProject());
 
-                                    ProjectStore store = projectsListPanel.getProjectsStore();
-                                    store.clearFilters();
+                                ProjectStore store = projectsListPanel.getProjectsStore();
+                                store.clearFilters();
 
-                                    final int projectId = project.getId();
+                                final int projectId = project.getId();
 
-                                    // inspect root elements
-                                    List<ProjectDTOLight> parents = store.getRootItems();
-                                    for (ProjectDTOLight parent : parents) {
-                                        List<ProjectDTOLight> childrens = parent.getChildrenProjects();
-                                        for (ProjectDTOLight child : childrens) {
-                                            // delete children if equals to
-                                            // project
-                                            if (child.getId() == projectId || child.getProjectId() == projectId) {
-                                                store.remove(parent, child);
-                                            }
+                                // inspect root elements
+                                List<ProjectDTOLight> parents = store.getRootItems();
+                                for (ProjectDTOLight parent : parents) {
+                                    List<ProjectDTOLight> childrens = parent.getChildrenProjects();
+                                    for (ProjectDTOLight child : childrens) {
+                                        // delete children if equals to
+                                        // project
+                                        if (child.getId() == projectId || child.getProjectId() == projectId) {
+                                            store.remove(parent, child);
                                         }
                                     }
-
-                                    // delete the parent that corresponds to
-                                    // project
-                                    if (store.findModel("pid", projectId) != null) {
-                                        // deletes childrens links
-                                        store.removeAll(store.findModel("pid", projectId));
-                                        store.remove(store.findModel("pid", projectId));
-                                    } else {
-                                        // deletes childrens links
-                                        store.removeAll(store.findModel("id", projectId));
-                                        store.remove(store.findModel("id", projectId));
-                                    }
-
-                                    store.applyFilters(null);
-                                    menuPanel.unmask();
-                                    // Show notification.
-                                    Notification.show(I18N.CONSTANTS.deleteTestProjectHeader(),
-                                            I18N.CONSTANTS.deleteTestProjectSucceededDetails());
                                 }
-                            });
-                        }
 
-                        @Override
-                        public void handleEvent(ButtonEvent be) {
-                            window.showProjectTest();
-                        }
-                    });
+                                // delete the parent that corresponds to
+                                // project
+                                if (store.findModel("pid", projectId) != null) {
+                                    // deletes childrens links
+                                    store.removeAll(store.findModel("pid", projectId));
+                                    store.remove(store.findModel("pid", projectId));
+                                } else {
+                                    // deletes childrens links
+                                    store.removeAll(store.findModel("id", projectId));
+                                    store.remove(store.findModel("id", projectId));
+                                }
+
+                                store.applyFilters(null);
+                                menuPanel.unmask();
+                                // Show notification.
+                                Notification.show(I18N.CONSTANTS.deleteTestProjectHeader(),
+                                    I18N.CONSTANTS.deleteTestProjectSucceededDetails());
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void handleEvent(ButtonEvent be) {
+                        window.showProjectTest();
+                    }
+                });
         }
 
         if (ProfileUtils.isGranted(authentication, GlobalPermissionEnum.VIEW_ADMIN)) {
             addNavLink(eventBus, menuPanel, I18N.CONSTANTS.adminboard(), IconImageBundle.ICONS.setup(),
-                    new AdminPageState());
+                new AdminPageState());
         }
 
         // There are two ways to show these menus (authentication / profile).
         if (authentication.isShowMenus()
-                || ProfileUtils.isGranted(authentication, GlobalPermissionEnum.VIEW_ACTIVITYINFO)) {
+            || ProfileUtils.isGranted(authentication, GlobalPermissionEnum.VIEW_ACTIVITYINFO)) {
             addNavLink(eventBus, menuPanel, I18N.CONSTANTS.dataEntry(), IconImageBundle.ICONS.dataEntry(),
-                    new SiteGridPageState());
+                new SiteGridPageState());
             addNavLink(eventBus, menuPanel, I18N.CONSTANTS.reports(), IconImageBundle.ICONS.report(),
-                    new ReportListPageState());
+                new ReportListPageState());
             addNavLink(eventBus, menuPanel, I18N.CONSTANTS.charts(), IconImageBundle.ICONS.barChart(),
-                    new ChartPageState());
+                new ChartPageState());
             addNavLink(eventBus, menuPanel, I18N.CONSTANTS.maps(), IconImageBundle.ICONS.map(), new MapPageState());
             addNavLink(eventBus, menuPanel, I18N.CONSTANTS.tables(), IconImageBundle.ICONS.table(),
-                    new PivotPageState());
+                new PivotPageState());
             addNavLink(eventBus, menuPanel, I18N.CONSTANTS.setup(), IconImageBundle.ICONS.setup(),
-                    new DbListPageState());
+                new DbListPageState());
         }
     }
 
@@ -365,9 +363,10 @@ public class DashboardView extends ContentPanel implements DashboardPresenter.Vi
     private void addNavLink(final EventBus eventBus, final ContentPanel panel, final String text,
             final AbstractImagePrototype icon, final PageState place) {
         final Button button = new Button(text, icon, new SelectionListener<ButtonEvent>() {
+
             @Override
             public void componentSelected(ButtonEvent ce) {
-                eventBus.fireEvent(new NavigationEvent(NavigationHandler.NavigationRequested, place));
+                eventBus.fireEvent(new NavigationEvent(NavigationHandler.NavigationRequested, place, null));
             }
         });
 
@@ -428,8 +427,9 @@ public class DashboardView extends ContentPanel implements DashboardPresenter.Vi
      */
     private Component buildProjectPanel() {
 
-        projectsListPanel = new ProjectsListPanel(dispatcher, authentication, ProjectsListPanel.RefreshMode.BOTH,
-                ProjectsListPanel.LoadingMode.CHUNK);
+        projectsListPanel =
+                new ProjectsListPanel(dispatcher, authentication, ProjectsListPanel.RefreshMode.BOTH,
+                    ProjectsListPanel.LoadingMode.CHUNK);
         return projectsListPanel.getProjectsPanel();
     }
 
@@ -438,8 +438,8 @@ public class DashboardView extends ContentPanel implements DashboardPresenter.Vi
         remindersPanel.setHeading(I18N.CONSTANTS.reminderPoints());
 
         reminderStore = new ListStore<ReminderDTO>();
-        final Grid<ReminderDTO> reminderGrid = new Grid<ReminderDTO>(reminderStore, new ColumnModel(
-                createReminderGridColumnConfigs()));
+        final Grid<ReminderDTO> reminderGrid =
+                new Grid<ReminderDTO>(reminderStore, new ColumnModel(createReminderGridColumnConfigs()));
         reminderGrid.getView().setForceFit(true);
         reminderGrid.setAutoExpandColumn("label");
 
@@ -497,7 +497,10 @@ public class DashboardView extends ContentPanel implements DashboardPresenter.Vi
             }
         });
 
-        return Arrays.asList(new ColumnConfig[] { iconColumn, labelColumn, expectedDateColumn });
+        return Arrays.asList(new ColumnConfig[] {
+                                                 iconColumn,
+                                                 labelColumn,
+                                                 expectedDateColumn });
     }
 
     private ContentPanel createMonitoredPointListPanel() {
@@ -505,8 +508,9 @@ public class DashboardView extends ContentPanel implements DashboardPresenter.Vi
         monitoredPointsPanel.setHeading(I18N.CONSTANTS.monitoredPoints());
 
         monitoredPointStore = new ListStore<MonitoredPointDTO>();
-        final Grid<MonitoredPointDTO> reminderGrid = new Grid<MonitoredPointDTO>(monitoredPointStore, new ColumnModel(
-                createMonitoredPointGridColumnConfigs()));
+        final Grid<MonitoredPointDTO> reminderGrid =
+                new Grid<MonitoredPointDTO>(monitoredPointStore, new ColumnModel(
+                    createMonitoredPointGridColumnConfigs()));
         reminderGrid.getView().setForceFit(true);
         reminderGrid.setAutoExpandColumn("label");
 
@@ -564,7 +568,10 @@ public class DashboardView extends ContentPanel implements DashboardPresenter.Vi
             }
         });
 
-        return Arrays.asList(new ColumnConfig[] { iconColumn, labelColumn, expectedDateColumn });
+        return Arrays.asList(new ColumnConfig[] {
+                                                 iconColumn,
+                                                 labelColumn,
+                                                 expectedDateColumn });
     }
 
     @Override

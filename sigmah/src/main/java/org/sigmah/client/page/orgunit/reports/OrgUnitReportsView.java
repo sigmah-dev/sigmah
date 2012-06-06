@@ -1,6 +1,5 @@
 /*
- * All Sigmah code is released under the GNU General Public License v3
- * See COPYRIGHT.txt and LICENSE.txt.
+ * All Sigmah code is released under the GNU General Public License v3 See COPYRIGHT.txt and LICENSE.txt.
  */
 package org.sigmah.client.page.orgunit.reports;
 
@@ -108,7 +107,9 @@ import com.google.gwt.user.client.ui.RootPanel;
  * 
  * @author Kristela Macaj(kmacaj@ideia.fr)
  */
-@SuppressWarnings({ "unchecked", "rawtypes" })
+@SuppressWarnings({
+                   "unchecked",
+                   "rawtypes" })
 public class OrgUnitReportsView extends LayoutContainer {
 
     /**
@@ -127,8 +128,8 @@ public class OrgUnitReportsView extends LayoutContainer {
     private LayoutContainer mainPanel;
     private RichTextArea.Formatter[] globalFormatterArray = new RichTextArea.Formatter[1];
 
-    // private ProjectReportDTO currentReport;
     private HashMap<Integer, RichTextArea> textAreas;
+    private HashMap<Integer, String> oldContents;
     private KeyQuestionState keyQuestionState;
 
     private Button attachButton;
@@ -136,13 +137,13 @@ public class OrgUnitReportsView extends LayoutContainer {
 
     private Timer autoSaveTimer;
 
-    public OrgUnitReportsView(Authentication authentication, EventBus eventBus, Dispatcher dispatcher,
-            ListStore<ReportReference> store) {
+    public OrgUnitReportsView(Authentication authentication, EventBus eventBus, Dispatcher dispatcher, ListStore<ReportReference> store) {
 
         this.authentication = authentication;
         this.eventBus = eventBus;
         this.dispatcher = dispatcher;
         this.textAreas = new HashMap<Integer, RichTextArea>();
+        this.oldContents = new HashMap<Integer, String>();
 
         this.store = store;
 
@@ -203,8 +204,8 @@ public class OrgUnitReportsView extends LayoutContainer {
         final ColumnConfig iconColumn = new ColumnConfig("icon", "", 20);
         final ColumnConfig reportName = new ColumnConfig("name", I18N.CONSTANTS.reportName(), 200);
         final ColumnConfig typeColumn = new ColumnConfig("flexibleElementLabel", I18N.CONSTANTS.reportType(), 200);
-        final ColumnModel reportColumnModel = new ColumnModel(Arrays.asList(editDate, editorName, iconColumn,
-                reportName, typeColumn));
+        final ColumnModel reportColumnModel =
+                new ColumnModel(Arrays.asList(editDate, editorName, iconColumn, reportName, typeColumn));
 
         iconColumn.setRenderer(new GridCellRenderer<ReportReference>() {
 
@@ -221,6 +222,7 @@ public class OrgUnitReportsView extends LayoutContainer {
         });
 
         reportName.setRenderer(new GridCellRenderer<ReportReference>() {
+
             @Override
             public Object render(final ReportReference model, String property, ColumnData config, int rowIndex,
                     int colIndex, ListStore store, Grid grid) {
@@ -237,8 +239,8 @@ public class OrgUnitReportsView extends LayoutContainer {
                     downloadFormPanel.setMethod(Method.GET);
                     downloadFormPanel.setAction(GWT.getModuleBaseURL() + "download");
 
-                    final com.google.gwt.user.client.ui.Label downloadButton = new com.google.gwt.user.client.ui.Label(
-                            (String) model.get(property));
+                    final com.google.gwt.user.client.ui.Label downloadButton =
+                            new com.google.gwt.user.client.ui.Label((String) model.get(property));
                     downloadButton.addStyleName("flexibility-action");
 
                     // File's id.
@@ -257,13 +259,14 @@ public class OrgUnitReportsView extends LayoutContainer {
 
                             if (!"".equals(be.getResultHtml())) {
                                 MessageBox.info(I18N.CONSTANTS.flexibleElementFilesListDownloadError(),
-                                        I18N.CONSTANTS.flexibleElementFilesListDownloadErrorDetails(), null);
+                                    I18N.CONSTANTS.flexibleElementFilesListDownloadErrorDetails(), null);
                             }
                         }
                     });
 
                     // Buttons listeners.
                     downloadButton.addClickHandler(new ClickHandler() {
+
                         @Override
                         public void onClick(ClickEvent e) {
 
@@ -280,6 +283,7 @@ public class OrgUnitReportsView extends LayoutContainer {
                     link.addStyleName("flexibility-action");
 
                     link.addClickHandler(new ClickHandler() {
+
                         @Override
                         public void onClick(ClickEvent event) {
                             // Opening a report
@@ -291,7 +295,7 @@ public class OrgUnitReportsView extends LayoutContainer {
                             state.setCurrentSection(currentState.getCurrentSection());
                             state.setArgument(model.getId().toString());
 
-                            eventBus.fireEvent(new NavigationEvent(NavigationHandler.NavigationRequested, state));
+                            eventBus.fireEvent(new NavigationEvent(NavigationHandler.NavigationRequested, state, null));
                         }
                     });
 
@@ -352,6 +356,7 @@ public class OrgUnitReportsView extends LayoutContainer {
 
                     sectionPanel.add(textArea);
                     textAreas.put(((RichTextElementDTO) object).getId(), textArea);
+                    oldContents.put(((RichTextElementDTO) object).getId(), textArea.getText());
 
                 } else {
                     final HTML html = new HTML();
@@ -381,6 +386,7 @@ public class OrgUnitReportsView extends LayoutContainer {
                 if (richTextElementDTO != null) {
                     textArea.setHTML(richTextElementDTO.getText());
                     textAreas.put(richTextElementDTO.getId(), textArea);
+                    oldContents.put(richTextElementDTO.getId(), textArea.getText());
 
                 } else {
                     Log.error("No text area is attached to the key question #" + keyQuestion.getId());
@@ -400,10 +406,11 @@ public class OrgUnitReportsView extends LayoutContainer {
                 final int toolButtonIndex = sectionPanel.getToolButtonCount();
 
                 sectionPanel.addToolButton(icon, new ClickHandler() {
+
                     @Override
                     public void onClick(ClickEvent event) {
                         KeyQuestionDialog.getDialog(keyQuestion, textArea, sectionPanel, toolButtonIndex,
-                                keyQuestionState, draftMode).show();
+                            keyQuestionState, draftMode).show();
                     }
                 });
 
@@ -429,6 +436,7 @@ public class OrgUnitReportsView extends LayoutContainer {
 
         // Preparing the view for the new report
         textAreas.clear();
+        oldContents.clear();
         keyQuestionState.clear();
 
         // Title bar
@@ -445,7 +453,7 @@ public class OrgUnitReportsView extends LayoutContainer {
                 state.setCurrentSection(currentState.getCurrentSection());
                 state.setArgument("-1");
 
-                eventBus.fireEvent(new NavigationEvent(NavigationHandler.NavigationRequested, state));
+                eventBus.fireEvent(new NavigationEvent(NavigationHandler.NavigationRequested, state, null));
             }
         });
         reportPanel.getHeader().addTool(closeButton);
@@ -488,8 +496,9 @@ public class OrgUnitReportsView extends LayoutContainer {
             final DateTimeFormat timeFormat = DateTimeFormat.getMediumTimeFormat();
 
             // The label showing the last changed time
-            final Label draftLastChangedTime = new Label(I18N.MESSAGES.reportDraftLastChanged(
-                    dateFormat.format(report.getLastEditDate()), timeFormat.format(report.getLastEditDate())));
+            final Label draftLastChangedTime =
+                    new Label(I18N.MESSAGES.reportDraftLastChanged(dateFormat.format(report.getLastEditDate()),
+                        timeFormat.format(report.getLastEditDate())));
 
             // Add the two labels
             header.add(personalDraft);
@@ -517,7 +526,7 @@ public class OrgUnitReportsView extends LayoutContainer {
                         @Override
                         public void onSuccess(ProjectReportDTO result) {
                             Notification.show(I18N.CONSTANTS.projectTabReports(),
-                                    I18N.CONSTANTS.reportEditCancelSuccess());
+                                I18N.CONSTANTS.reportEditCancelSuccess());
                             setReport(result);
                         }
 
@@ -536,8 +545,8 @@ public class OrgUnitReportsView extends LayoutContainer {
                         changes.put(entry.getKey().toString(), entry.getValue().getHTML());
 
                     final UpdateEntity updateEntity = new UpdateEntity("ProjectReport", report.getVersionId(), changes);
-                    final PromoteProjectReportDraft promoteDraft = new PromoteProjectReportDraft(report.getId(), report
-                            .getVersionId());
+                    final PromoteProjectReportDraft promoteDraft =
+                            new PromoteProjectReportDraft(report.getId(), report.getVersionId());
 
                     final AsyncCallback<VoidResult> callback = AsyncCallbacks.emptyCallback();
                     dispatcher.execute(updateEntity, null, callback);
@@ -582,8 +591,9 @@ public class OrgUnitReportsView extends LayoutContainer {
                     for (final Map.Entry<Integer, RichTextArea> entry : textAreas.entrySet())
                         changes.put(entry.getKey().toString(), entry.getValue().getHTML());
 
-                    final UpdateEntity updateEntity = new UpdateEntity("ProjectReport", report.getVersionId(),
-                            (Map<String, Object>) (Map<String, ?>) changes);
+                    final UpdateEntity updateEntity =
+                            new UpdateEntity("ProjectReport", report.getVersionId(),
+                                (Map<String, Object>) (Map<String, ?>) changes);
                     dispatcher.execute(updateEntity, null, new AsyncCallback<VoidResult>() {
 
                         @Override
@@ -598,7 +608,7 @@ public class OrgUnitReportsView extends LayoutContainer {
                             final Date now = new Date();
                             header.clear();
                             draftLastChangedTime.setText(I18N.MESSAGES.reportDraftLastChanged(dateFormat.format(now),
-                                    timeFormat.format(now)));
+                                timeFormat.format(now)));
                             personalDraft.setText(I18N.MESSAGES.personalDraft());
                             header.add(personalDraft);
                             header.add(draftLastChangedTime);
@@ -638,6 +648,7 @@ public class OrgUnitReportsView extends LayoutContainer {
 
             // Auto save timer
             autoSaveTimer = new Timer() {
+
                 @Override
                 public void run() {
                     saveListener.handleEvent(null);
@@ -784,6 +795,7 @@ public class OrgUnitReportsView extends LayoutContainer {
         fontListBox.addItem("Trebuchet");
         fontListBox.addItem("Verdana");
         fontListBox.addChangeHandler(new ChangeHandler() {
+
             @Override
             public void onChange(ChangeEvent event) {
                 formatter[0].setFontName(fontListBox.getValue(fontListBox.getSelectedIndex()));
@@ -917,6 +929,7 @@ public class OrgUnitReportsView extends LayoutContainer {
         final Button imageAddButton = new Button();
         imageAddButton.setIcon(AbstractImagePrototype.create(images.imageAdd()));
         imageAddButton.addListener(Events.Select, new Listener<BaseEvent>() {
+
             private Dialog imageAddDialog;
             private TextField<String> imageURLField;
 
@@ -943,6 +956,7 @@ public class OrgUnitReportsView extends LayoutContainer {
 
                     // OK button
                     imageAddDialog.getButtonById(Dialog.OK).addSelectionListener(new SelectionListener<ButtonEvent>() {
+
                         @Override
                         public void componentSelected(ButtonEvent ce) {
                             formatter[0].insertImage(imageURLField.getValue());
@@ -952,12 +966,13 @@ public class OrgUnitReportsView extends LayoutContainer {
 
                     // Cancel button
                     imageAddDialog.getButtonById(Dialog.CANCEL).addSelectionListener(
-                            new SelectionListener<ButtonEvent>() {
-                                @Override
-                                public void componentSelected(ButtonEvent ce) {
-                                    imageAddDialog.hide();
-                                }
-                            });
+                        new SelectionListener<ButtonEvent>() {
+
+                            @Override
+                            public void componentSelected(ButtonEvent ce) {
+                                imageAddDialog.hide();
+                            }
+                        });
                 }
 
                 imageURLField.setValue(null);
@@ -981,5 +996,21 @@ public class OrgUnitReportsView extends LayoutContainer {
 
     public Button getCreateReportButton() {
         return createReportButton;
+    }
+
+    public boolean isTextAreaChanged() {
+        boolean changed = false;
+        if (textAreas != null) {
+            for (Map.Entry<Integer, String> entry : oldContents.entrySet()) {
+                RichTextArea textArea = textAreas.get(entry.getKey());
+                if (!textArea.getText().equals(entry.getValue()))
+                    changed = true;
+            }
+        }
+        return changed;
+    }
+
+    public void eraseChanges() {
+        oldContents.clear();
     }
 }

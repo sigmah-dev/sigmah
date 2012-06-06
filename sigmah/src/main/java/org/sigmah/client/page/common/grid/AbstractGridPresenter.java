@@ -1,18 +1,16 @@
 /*
- * All Sigmah code is released under the GNU General Public License v3
- * See COPYRIGHT.txt and LICENSE.txt.
+ * All Sigmah code is released under the GNU General Public License v3 See COPYRIGHT.txt and LICENSE.txt.
  */
 
 package org.sigmah.client.page.common.grid;
 
-import com.extjs.gxt.ui.client.Style;
-import com.extjs.gxt.ui.client.data.*;
-import com.extjs.gxt.ui.client.event.LoadListener;
-import com.extjs.gxt.ui.client.store.Record;
-import com.extjs.gxt.ui.client.store.Store;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.sigmah.client.EventBus;
 import org.sigmah.client.dispatch.loader.CommandLoadEvent;
 import org.sigmah.client.event.NavigationEvent;
+import org.sigmah.client.event.NavigationEvent.NavigationError;
 import org.sigmah.client.page.NavigationCallback;
 import org.sigmah.client.page.NavigationHandler;
 import org.sigmah.client.page.Page;
@@ -21,14 +19,20 @@ import org.sigmah.client.page.common.toolbar.UIActions;
 import org.sigmah.client.util.SortInfoEqualityChecker;
 import org.sigmah.client.util.state.IStateManager;
 
-import java.util.HashMap;
-import java.util.Map;
-/*
- * @author Alex Bertram
- */
+import com.extjs.gxt.ui.client.Style;
+import com.extjs.gxt.ui.client.data.ListLoadConfig;
+import com.extjs.gxt.ui.client.data.ListLoader;
+import com.extjs.gxt.ui.client.data.LoadEvent;
+import com.extjs.gxt.ui.client.data.Loader;
+import com.extjs.gxt.ui.client.data.ModelData;
+import com.extjs.gxt.ui.client.data.PagingLoadConfig;
+import com.extjs.gxt.ui.client.data.PagingLoader;
+import com.extjs.gxt.ui.client.data.SortInfo;
+import com.extjs.gxt.ui.client.event.LoadListener;
+import com.extjs.gxt.ui.client.store.Record;
+import com.extjs.gxt.ui.client.store.Store;
 
-public abstract class AbstractGridPresenter<ModelT extends ModelData>
-        implements GridPresenter<ModelT>, Page {
+public abstract class AbstractGridPresenter<ModelT extends ModelData> implements GridPresenter<ModelT>, Page {
 
     private final EventBus eventBus;
     private final IStateManager stateMgr;
@@ -48,6 +52,7 @@ public abstract class AbstractGridPresenter<ModelT extends ModelData>
     protected void initListeners(Store store, Loader loader) {
         if (loader != null) {
             loader.addLoadListener(new LoadListener() {
+
                 @Override
                 public void loaderLoad(LoadEvent le) {
                     onLoaded(le);
@@ -68,6 +73,7 @@ public abstract class AbstractGridPresenter<ModelT extends ModelData>
     public void onUIAction(String actionId) {
         if (UIActions.delete.equals(actionId)) {
             view.confirmDeleteSelected(new ConfirmCallback() {
+
                 public void confirmed() {
                     onDeleteConfirmed(view.getSelection());
                 }
@@ -94,8 +100,7 @@ public abstract class AbstractGridPresenter<ModelT extends ModelData>
             loader.setSortDir(place.getSortInfo().getSortDir());
         } else if (stateMap.containsKey("sortField")) {
             loader.setSortField((String) stateMap.get("sortField"));
-            loader.setSortDir("DESC".equals(stateMap.get("sortDir")) ?
-                    Style.SortDir.DESC : Style.SortDir.ASC);
+            loader.setSortDir("DESC".equals(stateMap.get("sortDir")) ? Style.SortDir.DESC : Style.SortDir.ASC);
         } else {
             loader.setSortField(defaultSort.getSortField());
             loader.setSortDir(defaultSort.getSortDir());
@@ -111,7 +116,6 @@ public abstract class AbstractGridPresenter<ModelT extends ModelData>
             loader.setOffset(0);
         }
     }
-
 
     protected void onDeleteConfirmed(ModelT model) {
 
@@ -175,16 +179,16 @@ public abstract class AbstractGridPresenter<ModelT extends ModelData>
             ((AbstractPagingGridPageState) place).setPageNum(pageFromOffset(offset));
         }
 
-        eventBus.fireEvent(new NavigationEvent(NavigationHandler.NavigationAgreed, place));
+        eventBus.fireEvent(new NavigationEvent(NavigationHandler.NavigationAgreed, place, null));
     }
-
 
     protected void handleGridNavigation(ListLoader loader, AbstractGridPageState gridPlace) {
 
         boolean reloadRequired = false;
 
-        if (gridPlace.getSortInfo() != null &&
-                !SortInfoEqualityChecker.equals(gridPlace.getSortInfo(), new SortInfo(loader.getSortField(), loader.getSortDir()))) {
+        if (gridPlace.getSortInfo() != null
+            && !SortInfoEqualityChecker.equals(gridPlace.getSortInfo(),
+                new SortInfo(loader.getSortField(), loader.getSortDir()))) {
 
             loader.setSortField(gridPlace.getSortInfo().getSortField());
             loader.setSortDir(gridPlace.getSortInfo().getSortDir());
@@ -208,8 +212,9 @@ public abstract class AbstractGridPresenter<ModelT extends ModelData>
         }
     }
 
-    public void requestToNavigateAway(PageState place, NavigationCallback callback) {
-        callback.onDecided(true);
+    @Override
+    public void requestToNavigateAway(PageState place, final NavigationCallback callback) {
+        callback.onDecided(NavigationError.NONE);
 
     }
 

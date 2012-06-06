@@ -1,11 +1,11 @@
 /*
- * All Sigmah code is released under the GNU General Public License v3
- * See COPYRIGHT.txt and LICENSE.txt.
+ * All Sigmah code is released under the GNU General Public License v3 See COPYRIGHT.txt and LICENSE.txt.
  */
 package org.sigmah.client.page.project.dashboard;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -101,10 +101,8 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.Image;
-import java.util.*;
 
 /**
- * 
  * @author Denis Colliot (dcolliot@ideia.fr)
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  * @author HUZHE (zhe.hu32@gmail.com)
@@ -197,8 +195,7 @@ public class ProjectDashboardPresenter implements SubPresenter {
      */
     private int maskCount;
 
-    public ProjectDashboardPresenter(Dispatcher dispatcher, EventBus eventBus, Authentication authentication,
-            ProjectPresenter projectPresenter, UserLocalCache cache) {
+    public ProjectDashboardPresenter(Dispatcher dispatcher, EventBus eventBus, Authentication authentication, ProjectPresenter projectPresenter, UserLocalCache cache) {
         this.authentication = authentication;
         this.dispatcher = dispatcher;
         this.eventBus = eventBus;
@@ -234,6 +231,16 @@ public class ProjectDashboardPresenter implements SubPresenter {
     public void viewDidAppear() {
     }
 
+    @Override
+    public boolean hasValueChanged() {
+        return !valueChanges.isEmpty();
+    }
+
+    @Override
+    public void forgetAllChangedValues() {
+        valueChanges.clear();
+    }
+
     /**
      * Mask the main panel and set the mask counter.
      * 
@@ -246,8 +253,7 @@ public class ProjectDashboardPresenter implements SubPresenter {
     }
 
     /**
-     * Decrements the mask counter and unmask the main panel if the counter
-     * reaches <code>0</code>.
+     * Decrements the mask counter and unmask the main panel if the counter reaches <code>0</code>.
      */
     private void unmask() {
         maskCount--;
@@ -293,6 +299,7 @@ public class ProjectDashboardPresenter implements SubPresenter {
             view.getTabPanelPhases().add(tabItem);
 
             view.getTabPanelPhases().addListener(Events.Resize, new Listener<BoxComponentEvent>() {
+
                 @Override
                 public void handleEvent(BoxComponentEvent event) {
                     tabItem.setSize(event.getWidth(), event.getHeight() - 25); // 25
@@ -365,8 +372,8 @@ public class ProjectDashboardPresenter implements SubPresenter {
 
                 /**
                  * Id of the phase to display. <br/>
-                 * Important: it's better to manipulate the id instead of the
-                 * phases instances to keep coherence after a project update.
+                 * Important: it's better to manipulate the id instead of the phases instances to keep coherence after a
+                 * project update.
                  */
                 private int phaseDTOId = phaseDTO.getId();
 
@@ -390,38 +397,38 @@ public class ProjectDashboardPresenter implements SubPresenter {
                     // If the current phase has been modified and it isn't
                     // ended.
                     if (view.getButtonSavePhase().isEnabled()
-                            && !isEndedPhase(projectPresenter.getCurrentDisplayedPhaseDTO())) {
+                        && !isEndedPhase(projectPresenter.getCurrentDisplayedPhaseDTO())) {
 
                         // Asks the client to save the unsaved elements before
                         // switching phases.
                         MessageBox.confirm(I18N.CONSTANTS.projectPhaseChangeAlert(),
-                                I18N.CONSTANTS.projectPhaseChangeAlertDetails(), new Listener<MessageBoxEvent>() {
+                            I18N.CONSTANTS.projectPhaseChangeAlertDetails(), new Listener<MessageBoxEvent>() {
 
-                                    @Override
-                                    public void handleEvent(MessageBoxEvent ce) {
+                                @Override
+                                public void handleEvent(MessageBoxEvent ce) {
 
-                                        // If 'YES' is clicked, saves the
-                                        // modifications.
-                                        if (Dialog.YES.equals(ce.getButtonClicked().getItemId())) {
-                                            view.getButtonSavePhase().fireEvent(Events.OnClick);
-                                            if (isActivePhase(projectPresenter.getCurrentDisplayedPhaseDTO())) {
-                                                activePhaseRequiredElements.saveState();
+                                    // If 'YES' is clicked, saves the
+                                    // modifications.
+                                    if (Dialog.YES.equals(ce.getButtonClicked().getItemId())) {
+                                        view.getButtonSavePhase().fireEvent(Events.OnClick);
+                                        if (isActivePhase(projectPresenter.getCurrentDisplayedPhaseDTO())) {
+                                            activePhaseRequiredElements.saveState();
 
-                                            }
-                                        } else if (Dialog.NO.equals(ce.getButtonClicked().getItemId())) {
-                                            // If the last displayed phase was
-                                            // the active one, modifications are
-                                            // discarded then the required
-                                            // elements map is cleared (to
-                                            // prevent inconsistent successor
-                                            // activation).
-                                            if (isActivePhase(projectPresenter.getCurrentDisplayedPhaseDTO())) {
-                                                activePhaseRequiredElements.clearState();
-                                            }
                                         }
-                                        loadPhaseOnTab(toDisplayPhase);
+                                    } else if (Dialog.NO.equals(ce.getButtonClicked().getItemId())) {
+                                        // If the last displayed phase was
+                                        // the active one, modifications are
+                                        // discarded then the required
+                                        // elements map is cleared (to
+                                        // prevent inconsistent successor
+                                        // activation).
+                                        if (isActivePhase(projectPresenter.getCurrentDisplayedPhaseDTO())) {
+                                            activePhaseRequiredElements.clearState();
+                                        }
                                     }
-                                });
+                                    loadPhaseOnTab(toDisplayPhase);
+                                }
+                            });
                     } else {
                         loadPhaseOnTab(toDisplayPhase);
                     }
@@ -516,16 +523,14 @@ public class ProjectDashboardPresenter implements SubPresenter {
     private void loadPhaseOnTab(final PhaseDTO phaseDTO) {
 
         /*
-         * if (Log.isDebugEnabled()) {
-         * Log.debug("[loadPhaseOnTab] Loading phase #" + phaseDTO.getId() +
-         * " with model #" + phaseDTO.getPhaseModelDTO().getId() +
-         * " and definition #" +
+         * if (Log.isDebugEnabled()) { Log.debug("[loadPhaseOnTab] Loading phase #" + phaseDTO.getId() + " with model #"
+         * + phaseDTO.getPhaseModelDTO().getId() + " and definition #" +
          * phaseDTO.getPhaseModelDTO().getDefinitionDTO().getId() + "."); }
          */
 
         // If the element are read only.
-        final boolean readOnly = isEndedPhase(phaseDTO)
-                || !ProfileUtils.isGranted(authentication, GlobalPermissionEnum.EDIT_PROJECT);
+        final boolean readOnly =
+                isEndedPhase(phaseDTO) || !ProfileUtils.isGranted(authentication, GlobalPermissionEnum.EDIT_PROJECT);
 
         // Masks the main panel.
         int count = 0;
@@ -591,8 +596,9 @@ public class ProjectDashboardPresenter implements SubPresenter {
                     amendmentId = projectPresenter.getCurrentProjectDTO().getCurrentAmendment().getId();
 
                 // Remote call to ask for this element value.
-                final GetValue command = new GetValue(projectPresenter.getCurrentProjectDTO().getId(),
-                        elementDTO.getId(), elementDTO.getEntityName(), amendmentId);
+                final GetValue command =
+                        new GetValue(projectPresenter.getCurrentProjectDTO().getId(), elementDTO.getId(),
+                            elementDTO.getEntityName(), amendmentId);
                 dispatcher.execute(command, null, new AsyncCallback<ValueResult>() {
 
                     @Override
@@ -623,8 +629,8 @@ public class ProjectDashboardPresenter implements SubPresenter {
 
                         // Generates element component (with the value).
                         elementDTO.init();
-                        final Component elementComponent = elementDTO.getElementComponent(valueResult, !readOnly
-                                && !valueResult.isAmendment());
+                        final Component elementComponent =
+                                elementDTO.getElementComponent(valueResult, !readOnly && !valueResult.isAmendment());
 
                         // Component width.
                         final FormData formData;
@@ -798,8 +804,9 @@ public class ProjectDashboardPresenter implements SubPresenter {
             // current displayed one.
             final Menu successorsMenu = new Menu();
 
-            final List<PhaseDTO> successors = projectPresenter.getCurrentProjectDTO().getSuccessors(
-                    projectPresenter.getCurrentDisplayedPhaseDTO());
+            final List<PhaseDTO> successors =
+                    projectPresenter.getCurrentProjectDTO().getSuccessors(
+                        projectPresenter.getCurrentDisplayedPhaseDTO());
 
             // If the current displayed phase hasn't successor, the close action
             // ends the project.
@@ -822,8 +829,9 @@ public class ProjectDashboardPresenter implements SubPresenter {
 
                 for (final PhaseDTO successor : successors) {
 
-                    final MenuItem successorItem = new MenuItem(I18N.MESSAGES.projectActivate(successor
-                            .getPhaseModelDTO().getName()), IconImageBundle.ICONS.activate());
+                    final MenuItem successorItem =
+                            new MenuItem(I18N.MESSAGES.projectActivate(successor.getPhaseModelDTO().getName()),
+                                IconImageBundle.ICONS.activate());
                     successorItem.addListener(Events.Select, new Listener<MenuEvent>() {
 
                         @Override
@@ -922,8 +930,10 @@ public class ProjectDashboardPresenter implements SubPresenter {
     public boolean isActivePhase(PhaseDTO phaseDTO) {
         final ProjectDTO currentProjectDTO = projectPresenter.getCurrentProjectDTO();
 
-        return currentProjectDTO != null && currentProjectDTO.getCurrentPhaseDTO() != null && phaseDTO != null
-                && currentProjectDTO.getCurrentPhaseDTO().getId() == phaseDTO.getId();
+        return currentProjectDTO != null
+            && currentProjectDTO.getCurrentPhaseDTO() != null
+            && phaseDTO != null
+            && currentProjectDTO.getCurrentPhaseDTO().getId() == phaseDTO.getId();
     }
 
     /**
@@ -955,7 +965,7 @@ public class ProjectDashboardPresenter implements SubPresenter {
     private void enableSuccessorsTabs() {
 
         for (final PhaseModelDTO successor : projectPresenter.getCurrentProjectDTO().getCurrentPhaseDTO()
-                .getPhaseModelDTO().getSuccessorsDTO()) {
+            .getPhaseModelDTO().getSuccessorsDTO()) {
             final TabItem successorTabItem = tabItemsMap.get(successor.getId());
             if (successorTabItem != null) {
                 successorTabItem.setEnabled(true);
@@ -977,7 +987,7 @@ public class ProjectDashboardPresenter implements SubPresenter {
         // alert and returns.
         if (!isActivePhaseFilledIn()) {
             MessageBox.alert(I18N.CONSTANTS.projectPhaseActivationError(),
-                    I18N.CONSTANTS.projectPhaseActivationErrorDetails(), null);
+                I18N.CONSTANTS.projectPhaseActivationErrorDetails(), null);
             return;
         }
 
@@ -987,25 +997,25 @@ public class ProjectDashboardPresenter implements SubPresenter {
 
             // Confirms that the user wants to end the project.
             MessageBox.confirm(
-                    I18N.CONSTANTS.projectEnd(),
-                    I18N.MESSAGES.projectEnd(projectPresenter.getCurrentProjectDTO().getCurrentPhaseDTO()
-                            .getPhaseModelDTO().getName()), new Listener<MessageBoxEvent>() {
+                I18N.CONSTANTS.projectEnd(),
+                I18N.MESSAGES.projectEnd(projectPresenter.getCurrentProjectDTO().getCurrentPhaseDTO()
+                    .getPhaseModelDTO().getName()), new Listener<MessageBoxEvent>() {
 
-                        @Override
-                        public void handleEvent(MessageBoxEvent be) {
+                    @Override
+                    public void handleEvent(MessageBoxEvent be) {
 
-                            if (Dialog.YES.equals(be.getButtonClicked().getItemId())) {
+                        if (Dialog.YES.equals(be.getButtonClicked().getItemId())) {
 
-                                // Activates the current displayed phase.
-                                dispatcher.execute(new ChangePhase(projectPresenter.getCurrentProjectDTO().getId(),
-                                        null), null, new AsyncCallback<ProjectDTO>() {
+                            // Activates the current displayed phase.
+                            dispatcher.execute(new ChangePhase(projectPresenter.getCurrentProjectDTO().getId(), null),
+                                null, new AsyncCallback<ProjectDTO>() {
 
                                     @Override
                                     public void onFailure(Throwable e) {
 
                                         Log.error("[activatePhase] The project hasn't be ended.", e);
                                         MessageBox.alert(I18N.CONSTANTS.projectEndError(),
-                                                I18N.CONSTANTS.projectEndErrorDetails(), null);
+                                            I18N.CONSTANTS.projectEndErrorDetails(), null);
                                     }
 
                                     @Override
@@ -1022,7 +1032,7 @@ public class ProjectDashboardPresenter implements SubPresenter {
                                         // Sets the new current displayed phase
                                         // (not necessary the active one).
                                         for (final PhaseDTO phase : projectPresenter.getCurrentProjectDTO()
-                                                .getPhasesDTO()) {
+                                            .getPhasesDTO()) {
                                             if (phase.getId() == projectPresenter.getCurrentDisplayedPhaseDTO().getId()) {
                                                 projectPresenter.setCurrentDisplayedPhaseDTO(phase);
                                             }
@@ -1031,9 +1041,9 @@ public class ProjectDashboardPresenter implements SubPresenter {
                                         refreshDashboardAfterUpdate(reload);
                                     }
                                 });
-                            }
                         }
-                    });
+                    }
+                });
         }
         // Else the active will be closed and the new phase will be activated.
         else {
@@ -1041,35 +1051,38 @@ public class ProjectDashboardPresenter implements SubPresenter {
             // Confirms that the user wants to close the active phase and
             // activate the given one.
             MessageBox.confirm(
-                    I18N.CONSTANTS.projectCloseAndActivate(),
-                    I18N.MESSAGES.projectCloseAndActivate(projectPresenter.getCurrentProjectDTO().getCurrentPhaseDTO()
-                            .getPhaseModelDTO().getName(), phase.getPhaseModelDTO().getName()),
-                    new Listener<MessageBoxEvent>() {
+                I18N.CONSTANTS.projectCloseAndActivate(),
+                I18N.MESSAGES.projectCloseAndActivate(projectPresenter.getCurrentProjectDTO().getCurrentPhaseDTO()
+                    .getPhaseModelDTO().getName(), phase.getPhaseModelDTO().getName()),
+                new Listener<MessageBoxEvent>() {
 
-                        @Override
-                        public void handleEvent(MessageBoxEvent be) {
+                    @Override
+                    public void handleEvent(MessageBoxEvent be) {
 
-                            if (Dialog.YES.equals(be.getButtonClicked().getItemId())) {
+                        if (Dialog.YES.equals(be.getButtonClicked().getItemId())) {
 
-                                // Activates the current displayed phase.
-                                dispatcher.execute(new ChangePhase(projectPresenter.getCurrentProjectDTO().getId(),
-                                        phase.getId()), null, new AsyncCallback<ProjectDTO>() {
+                            // Activates the current displayed phase.
+                            dispatcher.execute(
+                                new ChangePhase(projectPresenter.getCurrentProjectDTO().getId(), phase.getId()), null,
+                                new AsyncCallback<ProjectDTO>() {
 
                                     @Override
                                     public void onFailure(Throwable e) {
 
-                                        Log.error("[activatePhase] The phase #" + phase.getId()
-                                                + " hasn't be activated.", e);
+                                        Log.error("[activatePhase] The phase #"
+                                            + phase.getId()
+                                            + " hasn't be activated.", e);
                                         MessageBox.alert(I18N.CONSTANTS.projectActivatePhaseError(),
-                                                I18N.CONSTANTS.projectActivatePhaseErrorDetails(), null);
+                                            I18N.CONSTANTS.projectActivatePhaseErrorDetails(), null);
                                     }
 
                                     @Override
                                     public void onSuccess(ProjectDTO result) {
 
                                         if (Log.isDebugEnabled()) {
-                                            Log.debug("[activatePhase] Phase #" + phase.getId()
-                                                    + " successfully activated.");
+                                            Log.debug("[activatePhase] Phase #"
+                                                + phase.getId()
+                                                + " successfully activated.");
                                         }
 
                                         // Sets the new current project (after
@@ -1079,7 +1092,7 @@ public class ProjectDashboardPresenter implements SubPresenter {
                                         // Sets the new current displayed phase
                                         // (not necessary the active one).
                                         for (final PhaseDTO phase : projectPresenter.getCurrentProjectDTO()
-                                                .getPhasesDTO()) {
+                                            .getPhasesDTO()) {
                                             if (phase.getId() == projectPresenter.getCurrentDisplayedPhaseDTO().getId()) {
                                                 projectPresenter.setCurrentDisplayedPhaseDTO(phase);
                                             }
@@ -1088,9 +1101,9 @@ public class ProjectDashboardPresenter implements SubPresenter {
                                         refreshDashboardAfterUpdate(reload);
                                     }
                                 });
-                            }
                         }
-                    });
+                    }
+                });
         }
     }
 
@@ -1163,54 +1176,54 @@ public class ProjectDashboardPresenter implements SubPresenter {
         @Override
         public void handleEvent(ButtonEvent be) {
             view.getButtonSavePhase().disable();
-            final UpdateProject updateProject = new UpdateProject(projectPresenter.getCurrentProjectDTO().getId(),
-                    valueChanges);
+            final UpdateProject updateProject =
+                    new UpdateProject(projectPresenter.getCurrentProjectDTO().getId(), valueChanges);
 
             dispatcher.execute(updateProject,
-                    new MaskingAsyncMonitor(view.getTabPanelPhases(), I18N.CONSTANTS.loading()),
-                    new AsyncCallback<VoidResult>() {
+                new MaskingAsyncMonitor(view.getTabPanelPhases(), I18N.CONSTANTS.loading()),
+                new AsyncCallback<VoidResult>() {
 
-                        @Override
-                        public void onFailure(Throwable caught) {
-                            MessageBox.alert(I18N.CONSTANTS.save(), I18N.CONSTANTS.saveError(), null);
+                    @Override
+                    public void onFailure(Throwable caught) {
+                        MessageBox.alert(I18N.CONSTANTS.save(), I18N.CONSTANTS.saveError(), null);
 
-                            currentPhaseRequiredElements.clearState();
+                        currentPhaseRequiredElements.clearState();
 
-                            if (isActivePhase(projectPresenter.getCurrentDisplayedPhaseDTO())) {
-                                activePhaseRequiredElements.clearState();
+                        if (isActivePhase(projectPresenter.getCurrentDisplayedPhaseDTO())) {
+                            activePhaseRequiredElements.clearState();
+                        }
+                    }
+
+                    @Override
+                    public void onSuccess(VoidResult result) {
+
+                        Notification.show(I18N.CONSTANTS.infoConfirmation(), I18N.CONSTANTS.saveConfirm());
+
+                        // Checks if there is any update needed to the local
+                        // project instance.
+                        boolean refreshBanner = false;
+                        for (ValueEvent event : valueChanges) {
+                            if (event.getSource() instanceof DefaultFlexibleElementDTO) {
+                                updateCurrentProject(((DefaultFlexibleElementDTO) event.getSource()),
+                                    event.getSingleValue());
+                                refreshBanner = true;
                             }
                         }
 
-                        @Override
-                        public void onSuccess(VoidResult result) {
+                        valueChanges.clear();
 
-                            Notification.show(I18N.CONSTANTS.infoConfirmation(), I18N.CONSTANTS.saveConfirm());
+                        currentPhaseRequiredElements.saveState();
 
-                            // Checks if there is any update needed to the local
-                            // project instance.
-                            boolean refreshBanner = false;
-                            for (ValueEvent event : valueChanges) {
-                                if (event.getSource() instanceof DefaultFlexibleElementDTO) {
-                                    updateCurrentProject(((DefaultFlexibleElementDTO) event.getSource()),
-                                            event.getSingleValue());
-                                    refreshBanner = true;
-                                }
-                            }
-
-                            valueChanges.clear();
-
-                            currentPhaseRequiredElements.saveState();
-
-                            if (isActivePhase(projectPresenter.getCurrentDisplayedPhaseDTO())) {
-                                activePhaseRequiredElements.saveState();
-                            }
-
-                            refreshActionsToolbar();
-                            if (refreshBanner) {
-                                projectPresenter.refreshBanner();
-                            }
+                        if (isActivePhase(projectPresenter.getCurrentDisplayedPhaseDTO())) {
+                            activePhaseRequiredElements.saveState();
                         }
-                    });
+
+                        refreshActionsToolbar();
+                        if (refreshBanner) {
+                            projectPresenter.refreshBanner();
+                        }
+                    }
+                });
         }
     }
 
@@ -1227,83 +1240,82 @@ public class ProjectDashboardPresenter implements SubPresenter {
         final ProjectDTO currentProjectDTO = projectPresenter.getCurrentProjectDTO();
 
         switch (element.getType()) {
-        case CODE:
-            currentProjectDTO.setName(value);
-            break;
-        case TITLE:
-            currentProjectDTO.setFullName(value);
-            break;
-        case START_DATE:
-            if ("".equals(value)) {
-                currentProjectDTO.setStartDate(null);
-            } else {
-                try {
-                    final long timestamp = Long.parseLong(value);
-                    currentProjectDTO.setStartDate(new Date(timestamp));
-                } catch (NumberFormatException e) {
-                    // nothing, invalid date.
+            case CODE:
+                currentProjectDTO.setName(value);
+                break;
+            case TITLE:
+                currentProjectDTO.setFullName(value);
+                break;
+            case START_DATE:
+                if ("".equals(value)) {
+                    currentProjectDTO.setStartDate(null);
+                } else {
+                    try {
+                        final long timestamp = Long.parseLong(value);
+                        currentProjectDTO.setStartDate(new Date(timestamp));
+                    } catch (NumberFormatException e) {
+                        // nothing, invalid date.
+                    }
                 }
-            }
-            break;
-        case END_DATE:
-            if ("".equals(value)) {
-                currentProjectDTO.setEndDate(null);
-            } else {
-                try {
-                    final long timestamp = Long.parseLong(value);
-                    currentProjectDTO.setEndDate(new Date(timestamp));
-                } catch (NumberFormatException e) {
-                    // nothing, invalid date.
+                break;
+            case END_DATE:
+                if ("".equals(value)) {
+                    currentProjectDTO.setEndDate(null);
+                } else {
+                    try {
+                        final long timestamp = Long.parseLong(value);
+                        currentProjectDTO.setEndDate(new Date(timestamp));
+                    } catch (NumberFormatException e) {
+                        // nothing, invalid date.
+                    }
                 }
-            }
-            break;
-        case BUDGET:
-            try {
+                break;
+            case BUDGET:
+                try {
 
-                final String[] budgets = value.split("\\|");
-                final double plannedBudget = Double.parseDouble(budgets[0]);
-                final double spendBudget = Double.parseDouble(budgets[1]);
-                final double receivedBudget = Double.parseDouble(budgets[2]);
+                    final String[] budgets = value.split("\\|");
+                    final double plannedBudget = Double.parseDouble(budgets[0]);
+                    final double spendBudget = Double.parseDouble(budgets[1]);
+                    final double receivedBudget = Double.parseDouble(budgets[2]);
 
-                currentProjectDTO.setPlannedBudget(plannedBudget);
-                currentProjectDTO.setSpendBudget(spendBudget);
-                currentProjectDTO.setReceivedBudget(receivedBudget);
+                    currentProjectDTO.setPlannedBudget(plannedBudget);
+                    currentProjectDTO.setSpendBudget(spendBudget);
+                    currentProjectDTO.setReceivedBudget(receivedBudget);
 
-            } catch (Exception e) {
-                // nothing, invalid budget.
-            }
-            break;
-        case COUNTRY:
-            final CountryDTO country = element.getCountriesStore().findModel("id", Integer.parseInt(value));
-            if (country != null) {
-                currentProjectDTO.setCountry(country);
-            } else {
-                // nothing, invalid country.
-            }
-            break;
-        case OWNER:
-            // The owner component doesn't fire any event for now.
-            break;
-        case MANAGER:
-            final UserDTO manager = element.getManagersStore().findModel("id", Integer.parseInt(value));
-            if (manager != null) {
-                currentProjectDTO.setManager(manager);
-            } else {
-                // nothing, invalid user.
-            }
-            break;
-        case ORG_UNIT:
-            currentProjectDTO.setOrgUnit(Integer.parseInt(value));
-            break;
-        default:
-            // Nothing, unknown type.
-            break;
+                } catch (Exception e) {
+                    // nothing, invalid budget.
+                }
+                break;
+            case COUNTRY:
+                final CountryDTO country = element.getCountriesStore().findModel("id", Integer.parseInt(value));
+                if (country != null) {
+                    currentProjectDTO.setCountry(country);
+                } else {
+                    // nothing, invalid country.
+                }
+                break;
+            case OWNER:
+                // The owner component doesn't fire any event for now.
+                break;
+            case MANAGER:
+                final UserDTO manager = element.getManagersStore().findModel("id", Integer.parseInt(value));
+                if (manager != null) {
+                    currentProjectDTO.setManager(manager);
+                } else {
+                    // nothing, invalid user.
+                }
+                break;
+            case ORG_UNIT:
+                currentProjectDTO.setOrgUnit(Integer.parseInt(value));
+                break;
+            default:
+                // Nothing, unknown type.
+                break;
         }
     }
 
     /**
-     * Create the actions to add and create financial projects and local partner
-     * projects.
+     * Create the actions to add and create financial projects and local partner projects.
      */
     private void addLinkedProjectsListeners() {
 
@@ -1329,14 +1341,14 @@ public class ProjectDashboardPresenter implements SubPresenter {
 
                         Log.error("[execute] Error while getting the projects list with type " + null + ".", e);
                         MessageBox.alert(I18N.CONSTANTS.createProjectTypeError(),
-                                I18N.CONSTANTS.createProjectTypeErrorDetails(), null);
+                            I18N.CONSTANTS.createProjectTypeErrorDetails(), null);
                     }
 
                     @Override
                     public void onSuccess(ProjectListResult result) {
 
-                        final List<ProjectDTOLight> resultList = result
-                                .getOrderedList(ProjectListResult.CODE_COMPARATOR);
+                        final List<ProjectDTOLight> resultList =
+                                result.getOrderedList(ProjectListResult.CODE_COMPARATOR);
 
                         // Filters the project itself.
                         resultList.remove(projectPresenter.getCurrentProjectDTO().light());
@@ -1345,7 +1357,7 @@ public class ProjectDashboardPresenter implements SubPresenter {
                         // project available.
                         if (resultList.isEmpty()) {
                             MessageBox.alert(I18N.CONSTANTS.createProjectTypeFundingSelectNone(),
-                                    I18N.CONSTANTS.createProjectTypeFundingSelectNoneDetails(), null);
+                                I18N.CONSTANTS.createProjectTypeFundingSelectNoneDetails(), null);
                             return;
                         }
 
@@ -1359,18 +1371,20 @@ public class ProjectDashboardPresenter implements SubPresenter {
                         window.clear();
 
                         // Adds fields.
-                        final ComboBox<ProjectDTOLight> projects = window.addChoicesList(
-                                I18N.CONSTANTS.createProjectTypeFunding(), resultList, false, "completeName");
+                        final ComboBox<ProjectDTOLight> projects =
+                                window.addChoicesList(I18N.CONSTANTS.createProjectTypeFunding(), resultList, false,
+                                    "completeName");
 
                         final LabelField modelTypeLabel = window.addLabelField(I18N.CONSTANTS.createProjectType());
                         modelTypeLabel.setHeight(25);
 
-                        final NumberField amountField = window.addNumberField(
-                                I18N.MESSAGES.projectFundedByDetails(projectPresenter.getCurrentProjectDTO().getName())
-                                        + " (" + I18N.CONSTANTS.currencyEuro() + ')', true);
+                        final NumberField amountField =
+                                window.addNumberField(
+                                    I18N.MESSAGES.projectFundedByDetails(projectPresenter.getCurrentProjectDTO()
+                                        .getName()) + " (" + I18N.CONSTANTS.currencyEuro() + ')', true);
 
-                        final LabelField percentageField = window.addLabelField(I18N.CONSTANTS
-                                .createProjectPercentage());
+                        final LabelField percentageField =
+                                window.addLabelField(I18N.CONSTANTS.createProjectPercentage());
                         percentageField.setValue("0 %");
 
                         projects.addListener(Events.Select, new Listener<BaseEvent>() {
@@ -1378,19 +1392,20 @@ public class ProjectDashboardPresenter implements SubPresenter {
                             @Override
                             public void handleEvent(BaseEvent be) {
 
-                                final ProjectModelType type = projects.getSelection().get(0)
-                                        .getProjectModelType(authentication.getOrganizationId());
+                                final ProjectModelType type =
+                                        projects.getSelection().get(0)
+                                            .getProjectModelType(authentication.getOrganizationId());
 
                                 final Grid iconGrid = new Grid(1, 2);
                                 iconGrid.setCellPadding(0);
                                 iconGrid.setCellSpacing(0);
 
                                 iconGrid.setWidget(0, 0, FundingIconProvider.getProjectTypeIcon(type, IconSize.MEDIUM)
-                                        .createImage());
+                                    .createImage());
                                 DOM.setStyleAttribute(iconGrid.getCellFormatter().getElement(0, 0), "paddingTop", "2px");
                                 iconGrid.setText(0, 1, ProjectModelType.getName(type));
                                 DOM.setStyleAttribute(iconGrid.getCellFormatter().getElement(0, 1), "paddingLeft",
-                                        "5px");
+                                    "5px");
 
                                 modelTypeLabel.setText(iconGrid.getElement().getString());
                             }
@@ -1406,7 +1421,7 @@ public class ProjectDashboardPresenter implements SubPresenter {
                                 }
 
                                 percentageField.setText(NumberUtils.ratioAsString(amountField.getValue(),
-                                        projectPresenter.getCurrentProjectDTO().getPlannedBudget()));
+                                    projectPresenter.getCurrentProjectDTO().getPlannedBudget()));
                             }
                         });
 
@@ -1443,43 +1458,44 @@ public class ProjectDashboardPresenter implements SubPresenter {
 
                                 // Create the new funding.
                                 dispatcher.execute(new CreateEntity("ProjectFunding", parameters), null,
-                                        new AsyncCallback<CreateResult>() {
+                                    new AsyncCallback<CreateResult>() {
 
-                                            @Override
-                                            public void onFailure(Throwable e) {
-                                                Log.error("[execute] Error while creating a new funding.", e);
-                                                MessageBox.alert(
-                                                        I18N.CONSTANTS.createProjectTypeFundingCreationError(),
-                                                        I18N.CONSTANTS.createProjectTypeFundingCreationDetails(), null);
+                                        @Override
+                                        public void onFailure(Throwable e) {
+                                            Log.error("[execute] Error while creating a new funding.", e);
+                                            MessageBox.alert(I18N.CONSTANTS.createProjectTypeFundingCreationError(),
+                                                I18N.CONSTANTS.createProjectTypeFundingCreationDetails(), null);
+                                        }
+
+                                        @Override
+                                        public void onSuccess(CreateResult result) {
+
+                                            Notification.show(I18N.CONSTANTS.infoConfirmation(),
+                                                I18N.CONSTANTS.createProjectTypeFundingSelectOk());
+
+                                            final ProjectFundingDTO r = (ProjectFundingDTO) result.getEntity();
+
+                                            // Updates.
+                                            if (result.getNewId() != -1) {
+                                                view.getFinancialProjectGrid().getStore().update(r);
+                                            }
+                                            // Creates.
+                                            else {
+                                                view.getFinancialProjectGrid().getStore().add(r);
                                             }
 
-                                            @Override
-                                            public void onSuccess(CreateResult result) {
-
-                                                Notification.show(I18N.CONSTANTS.infoConfirmation(),
-                                                        I18N.CONSTANTS.createProjectTypeFundingSelectOk());
-
-                                                final ProjectFundingDTO r = (ProjectFundingDTO) result.getEntity();
-
-                                                // Updates.
-                                                if (result.getNewId() != -1) {
-                                                    view.getFinancialProjectGrid().getStore().update(r);
-                                                }
-                                                // Creates.
-                                                else {
-                                                    view.getFinancialProjectGrid().getStore().add(r);
-                                                }
-
-                                                projectPresenter.getCurrentProjectDTO().addFunding(r);
-                                            }
-                                        });
+                                            projectPresenter.getCurrentProjectDTO().addFunding(r);
+                                        }
+                                    });
                             }
                         });
 
                         // Show the selection window.
                         window.show(I18N.CONSTANTS.createProjectTypeFunding(),
-                                I18N.CONSTANTS.createProjectTypeFundingSelectDetails() + " '"
-                                        + projectPresenter.getCurrentProjectDTO().getName() + "'.");
+                            I18N.CONSTANTS.createProjectTypeFundingSelectDetails()
+                                + " '"
+                                + projectPresenter.getCurrentProjectDTO().getName()
+                                + "'.");
                     }
                 });
             };
@@ -1509,30 +1525,30 @@ public class ProjectDashboardPresenter implements SubPresenter {
 
                         // Create the new funding.
                         dispatcher.execute(new CreateEntity("ProjectFunding", parameters), null,
-                                new AsyncCallback<CreateResult>() {
+                            new AsyncCallback<CreateResult>() {
 
-                                    @Override
-                                    public void onFailure(Throwable e) {
-                                        Log.error("[execute] Error while creating a new funding.", e);
-                                        MessageBox.alert(I18N.CONSTANTS.createProjectTypeFundingCreationError(),
-                                                I18N.CONSTANTS.createProjectTypeFundingCreationDetails(), null);
-                                    }
+                                @Override
+                                public void onFailure(Throwable e) {
+                                    Log.error("[execute] Error while creating a new funding.", e);
+                                    MessageBox.alert(I18N.CONSTANTS.createProjectTypeFundingCreationError(),
+                                        I18N.CONSTANTS.createProjectTypeFundingCreationDetails(), null);
+                                }
 
-                                    @Override
-                                    public void onSuccess(CreateResult result) {
+                                @Override
+                                public void onSuccess(CreateResult result) {
 
-                                        Notification.show(I18N.CONSTANTS.infoConfirmation(),
-                                                I18N.CONSTANTS.createProjectTypeFundingSelectOk());
+                                    Notification.show(I18N.CONSTANTS.infoConfirmation(),
+                                        I18N.CONSTANTS.createProjectTypeFundingSelectOk());
 
-                                        final ProjectFundingDTO r = (ProjectFundingDTO) result.getEntity();
+                                    final ProjectFundingDTO r = (ProjectFundingDTO) result.getEntity();
 
-                                        // Adds the just created funding to the
-                                        // list.
-                                        view.getFinancialProjectGrid().getStore().add(r);
+                                    // Adds the just created funding to the
+                                    // list.
+                                    view.getFinancialProjectGrid().getStore().add(r);
 
-                                        projectPresenter.getCurrentProjectDTO().addFunding(r);
-                                    }
-                                });
+                                    projectPresenter.getCurrentProjectDTO().addFunding(r);
+                                }
+                            });
                     }
 
                     @Override
@@ -1580,14 +1596,14 @@ public class ProjectDashboardPresenter implements SubPresenter {
 
                         Log.error("[execute] Error while getting the projects list with type " + null + ".", e);
                         MessageBox.alert(I18N.CONSTANTS.createProjectTypeError(),
-                                I18N.CONSTANTS.createProjectTypeErrorDetails(), null);
+                            I18N.CONSTANTS.createProjectTypeErrorDetails(), null);
                     }
 
                     @Override
                     public void onSuccess(ProjectListResult result) {
 
-                        final List<ProjectDTOLight> resultList = result
-                                .getOrderedList(ProjectListResult.CODE_COMPARATOR);
+                        final List<ProjectDTOLight> resultList =
+                                result.getOrderedList(ProjectListResult.CODE_COMPARATOR);
 
                         // Filters the project itself.
                         resultList.remove(projectPresenter.getCurrentProjectDTO().light());
@@ -1596,7 +1612,7 @@ public class ProjectDashboardPresenter implements SubPresenter {
                         // project available.
                         if (resultList.isEmpty()) {
                             MessageBox.alert(I18N.CONSTANTS.createProjectTypePartnerSelectNone(),
-                                    I18N.CONSTANTS.createProjectTypePartnerSelectNoneDetails(), null);
+                                I18N.CONSTANTS.createProjectTypePartnerSelectNoneDetails(), null);
                             return;
                         }
 
@@ -1610,18 +1626,20 @@ public class ProjectDashboardPresenter implements SubPresenter {
                         window.clear();
 
                         // Adds fields.
-                        final ComboBox<ProjectDTOLight> projects = window.addChoicesList(
-                                I18N.CONSTANTS.createProjectTypePartner(), resultList, false, "completeName");
+                        final ComboBox<ProjectDTOLight> projects =
+                                window.addChoicesList(I18N.CONSTANTS.createProjectTypePartner(), resultList, false,
+                                    "completeName");
 
                         final LabelField modelTypeLabel = window.addLabelField(I18N.CONSTANTS.createProjectType());
                         modelTypeLabel.setHeight(25);
 
-                        final NumberField amountField = window.addNumberField(
-                                I18N.MESSAGES.projectFinancesDetails(projectPresenter.getCurrentProjectDTO().getName())
-                                        + " (" + I18N.CONSTANTS.currencyEuro() + ')', true);
+                        final NumberField amountField =
+                                window.addNumberField(
+                                    I18N.MESSAGES.projectFinancesDetails(projectPresenter.getCurrentProjectDTO()
+                                        .getName()) + " (" + I18N.CONSTANTS.currencyEuro() + ')', true);
 
-                        final LabelField percentageField = window.addLabelField(I18N.CONSTANTS
-                                .createProjectPercentage());
+                        final LabelField percentageField =
+                                window.addLabelField(I18N.CONSTANTS.createProjectPercentage());
                         percentageField.setValue("0 %");
 
                         projects.addListener(Events.Select, new Listener<BaseEvent>() {
@@ -1629,19 +1647,20 @@ public class ProjectDashboardPresenter implements SubPresenter {
                             @Override
                             public void handleEvent(BaseEvent be) {
 
-                                final ProjectModelType type = projects.getSelection().get(0)
-                                        .getProjectModelType(authentication.getOrganizationId());
+                                final ProjectModelType type =
+                                        projects.getSelection().get(0)
+                                            .getProjectModelType(authentication.getOrganizationId());
 
                                 final Grid iconGrid = new Grid(1, 2);
                                 iconGrid.setCellPadding(0);
                                 iconGrid.setCellSpacing(0);
 
                                 iconGrid.setWidget(0, 0, FundingIconProvider.getProjectTypeIcon(type, IconSize.MEDIUM)
-                                        .createImage());
+                                    .createImage());
                                 DOM.setStyleAttribute(iconGrid.getCellFormatter().getElement(0, 0), "paddingTop", "2px");
                                 iconGrid.setText(0, 1, ProjectModelType.getName(type));
                                 DOM.setStyleAttribute(iconGrid.getCellFormatter().getElement(0, 1), "paddingLeft",
-                                        "5px");
+                                    "5px");
 
                                 modelTypeLabel.setText(iconGrid.getElement().getString());
                             }
@@ -1662,7 +1681,7 @@ public class ProjectDashboardPresenter implements SubPresenter {
                                     percentageField.setText(I18N.CONSTANTS.createProjectPercentageNotAvailable());
                                 } else {
                                     percentageField.setText(NumberUtils.ratioAsString(amountField.getValue(), selection
-                                            .get(0).getPlannedBudget()));
+                                        .get(0).getPlannedBudget()));
                                 }
                             }
                         });
@@ -1700,43 +1719,44 @@ public class ProjectDashboardPresenter implements SubPresenter {
 
                                 // Create the new funding.
                                 dispatcher.execute(new CreateEntity("ProjectFunding", parameters), null,
-                                        new AsyncCallback<CreateResult>() {
+                                    new AsyncCallback<CreateResult>() {
 
-                                            @Override
-                                            public void onFailure(Throwable e) {
-                                                Log.error("[execute] Error while creating a new funding.", e);
-                                                MessageBox.alert(
-                                                        I18N.CONSTANTS.createProjectTypeFundingCreationError(),
-                                                        I18N.CONSTANTS.createProjectTypeFundingCreationDetails(), null);
+                                        @Override
+                                        public void onFailure(Throwable e) {
+                                            Log.error("[execute] Error while creating a new funding.", e);
+                                            MessageBox.alert(I18N.CONSTANTS.createProjectTypeFundingCreationError(),
+                                                I18N.CONSTANTS.createProjectTypeFundingCreationDetails(), null);
+                                        }
+
+                                        @Override
+                                        public void onSuccess(CreateResult result) {
+
+                                            Notification.show(I18N.CONSTANTS.infoConfirmation(),
+                                                I18N.CONSTANTS.createProjectTypePartnerSelectOk());
+
+                                            final ProjectFundingDTO r = (ProjectFundingDTO) result.getEntity();
+
+                                            // Updates.
+                                            if (result.getNewId() != -1) {
+                                                view.getLocalPartnerProjectGrid().getStore().update(r);
+                                            }
+                                            // Creates.
+                                            else {
+                                                view.getLocalPartnerProjectGrid().getStore().add(r);
                                             }
 
-                                            @Override
-                                            public void onSuccess(CreateResult result) {
-
-                                                Notification.show(I18N.CONSTANTS.infoConfirmation(),
-                                                        I18N.CONSTANTS.createProjectTypePartnerSelectOk());
-
-                                                final ProjectFundingDTO r = (ProjectFundingDTO) result.getEntity();
-
-                                                // Updates.
-                                                if (result.getNewId() != -1) {
-                                                    view.getLocalPartnerProjectGrid().getStore().update(r);
-                                                }
-                                                // Creates.
-                                                else {
-                                                    view.getLocalPartnerProjectGrid().getStore().add(r);
-                                                }
-
-                                                projectPresenter.getCurrentProjectDTO().addFunded(r);
-                                            }
-                                        });
+                                            projectPresenter.getCurrentProjectDTO().addFunded(r);
+                                        }
+                                    });
                             }
                         });
 
                         // Show the selection window.
                         window.show(I18N.CONSTANTS.createProjectTypePartner(),
-                                I18N.CONSTANTS.createProjectTypePartnerSelectDetails() + " '"
-                                        + projectPresenter.getCurrentProjectDTO().getName() + "'.");
+                            I18N.CONSTANTS.createProjectTypePartnerSelectDetails()
+                                + " '"
+                                + projectPresenter.getCurrentProjectDTO().getName()
+                                + "'.");
                     }
                 });
             }
@@ -1771,30 +1791,30 @@ public class ProjectDashboardPresenter implements SubPresenter {
 
                         // Create the new funding.
                         dispatcher.execute(new CreateEntity("ProjectFunding", parameters), null,
-                                new AsyncCallback<CreateResult>() {
+                            new AsyncCallback<CreateResult>() {
 
-                                    @Override
-                                    public void onFailure(Throwable e) {
-                                        Log.error("[execute] Error while creating a new funding.", e);
-                                        MessageBox.alert(I18N.CONSTANTS.createProjectTypeFundingCreationError(),
-                                                I18N.CONSTANTS.createProjectTypeFundingCreationDetails(), null);
-                                    }
+                                @Override
+                                public void onFailure(Throwable e) {
+                                    Log.error("[execute] Error while creating a new funding.", e);
+                                    MessageBox.alert(I18N.CONSTANTS.createProjectTypeFundingCreationError(),
+                                        I18N.CONSTANTS.createProjectTypeFundingCreationDetails(), null);
+                                }
 
-                                    @Override
-                                    public void onSuccess(CreateResult result) {
+                                @Override
+                                public void onSuccess(CreateResult result) {
 
-                                        Notification.show(I18N.CONSTANTS.infoConfirmation(),
-                                                I18N.CONSTANTS.createProjectTypePartnerSelectOk());
+                                    Notification.show(I18N.CONSTANTS.infoConfirmation(),
+                                        I18N.CONSTANTS.createProjectTypePartnerSelectOk());
 
-                                        final ProjectFundingDTO r = (ProjectFundingDTO) result.getEntity();
+                                    final ProjectFundingDTO r = (ProjectFundingDTO) result.getEntity();
 
-                                        // Adds the just created local partner
-                                        // to the list.
-                                        view.getLocalPartnerProjectGrid().getStore().add(r);
+                                    // Adds the just created local partner
+                                    // to the list.
+                                    view.getLocalPartnerProjectGrid().getStore().add(r);
 
-                                        projectPresenter.getCurrentProjectDTO().addFunded(r);
-                                    }
-                                });
+                                    projectPresenter.getCurrentProjectDTO().addFunded(r);
+                                }
+                            });
                     }
 
                     @Override
@@ -1855,51 +1875,51 @@ public class ProjectDashboardPresenter implements SubPresenter {
                             properties.put("projectId", projectPresenter.getCurrentProjectDTO().getId());
 
                             dispatcher.execute(new CreateEntity("MonitoredPoint", properties), new MaskingAsyncMonitor(
-                                    view.getMonitoredPointsGrid(), I18N.CONSTANTS.loading()),
-                                    new AsyncCallback<CreateResult>() {
+                                view.getMonitoredPointsGrid(), I18N.CONSTANTS.loading()),
+                                new AsyncCallback<CreateResult>() {
 
-                                        @Override
-                                        public void onFailure(Throwable e) {
-                                            Log.error("[execute] Error while creating the monitored points.", e);
-                                            MessageBox.alert(I18N.CONSTANTS.monitoredPointAddError(),
-                                                    I18N.CONSTANTS.monitoredPointAddErrorDetails(), null);
-                                        }
+                                    @Override
+                                    public void onFailure(Throwable e) {
+                                        Log.error("[execute] Error while creating the monitored points.", e);
+                                        MessageBox.alert(I18N.CONSTANTS.monitoredPointAddError(),
+                                            I18N.CONSTANTS.monitoredPointAddErrorDetails(), null);
+                                    }
 
-                                        @Override
-                                        public void onSuccess(CreateResult result) {
+                                    @Override
+                                    public void onSuccess(CreateResult result) {
 
-                                            Notification.show(I18N.CONSTANTS.infoConfirmation(),
-                                                    I18N.CONSTANTS.monitoredPointAddConfirm());
+                                        Notification.show(I18N.CONSTANTS.infoConfirmation(),
+                                            I18N.CONSTANTS.monitoredPointAddConfirm());
 
-                                            // Gets the created point.
-                                            final MonitoredPointDTO point = (MonitoredPointDTO) result.getEntity();
+                                        // Gets the created point.
+                                        final MonitoredPointDTO point = (MonitoredPointDTO) result.getEntity();
 
-                                            // Gets the project list and creates
-                                            // it
-                                            // if needed.
-                                            MonitoredPointListDTO list = projectPresenter.getCurrentProjectDTO()
-                                                    .getPointsList();
+                                        // Gets the project list and creates
+                                        // it
+                                        // if needed.
+                                        MonitoredPointListDTO list =
+                                                projectPresenter.getCurrentProjectDTO().getPointsList();
 
-                                            if (list == null) {
+                                        if (list == null) {
 
-                                                if (Log.isDebugEnabled()) {
-                                                    Log.debug("[execute] The project points list doesn't exist, creates it.");
-                                                }
-
-                                                list = new MonitoredPointListDTO();
-                                                list.setPoints(new ArrayList<MonitoredPointDTO>());
-                                                projectPresenter.getCurrentProjectDTO().setPointsList(list);
+                                            if (Log.isDebugEnabled()) {
+                                                Log.debug("[execute] The project points list doesn't exist, creates it.");
                                             }
 
-                                            // Forces the default completion
-                                            // state.
-                                            point.setCompletionDate(null);
-
-                                            // Adds the point locally.
-                                            list.getPoints().add(point);
-                                            view.getMonitoredPointsGrid().getStore().add(point);
+                                            list = new MonitoredPointListDTO();
+                                            list.setPoints(new ArrayList<MonitoredPointDTO>());
+                                            projectPresenter.getCurrentProjectDTO().setPointsList(list);
                                         }
-                                    });
+
+                                        // Forces the default completion
+                                        // state.
+                                        point.setCompletionDate(null);
+
+                                        // Adds the point locally.
+                                        list.getPoints().add(point);
+                                        view.getMonitoredPointsGrid().getStore().add(point);
+                                    }
+                                });
                         }
 
                     }
@@ -1914,63 +1934,63 @@ public class ProjectDashboardPresenter implements SubPresenter {
         });
 
         view.getMonitoredPointsGrid().getStore()
-                .addListener(Store.Update, new Listener<StoreEvent<MonitoredPointDTO>>() {
+            .addListener(Store.Update, new Listener<StoreEvent<MonitoredPointDTO>>() {
 
-                    @Override
-                    public void handleEvent(StoreEvent<MonitoredPointDTO> se) {
+                @Override
+                public void handleEvent(StoreEvent<MonitoredPointDTO> se) {
 
-                        // Manages only edit event.
-                        if (se.getOperation() == RecordUpdate.EDIT) {
+                    // Manages only edit event.
+                    if (se.getOperation() == RecordUpdate.EDIT) {
 
-                            final Date editedDate = new Date();
+                        final Date editedDate = new Date();
 
-                            final ArrayList<MonitoredPointDTO> editedModels = new ArrayList<MonitoredPointDTO>();
+                        final ArrayList<MonitoredPointDTO> editedModels = new ArrayList<MonitoredPointDTO>();
 
-                            // The 'completed' field has been edited by the grid
-                            // editor, but the actual property which is saved in
-                            // data-layer is 'completionDate'. we have to do the
-                            // changes manually.
-                            final MonitoredPointDTO edited = se.getModel();
-                            if (edited.getIsCompleted()) {
-                                edited.setCompletionDate(editedDate);
-                            } else {
-                                edited.setCompletionDate(null);
-                            }
-
-                            editedModels.add(edited);
-
-                            // Updates points.
-                            dispatcher.execute(new UpdateMonitoredPoints(editedModels),
-                                    new MaskingAsyncMonitor(view.getMonitoredPointsGrid(), I18N.CONSTANTS.loading()),
-                                    new AsyncCallback<MonitoredPointsResultList>() {
-
-                                        @Override
-                                        public void onFailure(Throwable e) {
-
-                                            view.getMonitoredPointsGrid().getStore().rejectChanges();
-
-                                            Log.error("[execute] Error while merging the monitored points.", e);
-                                            MessageBox.alert(I18N.CONSTANTS.monitoredPointUpdateError(),
-                                                    I18N.CONSTANTS.monitoredPointUpdateErrorDetails(), null);
-                                        }
-
-                                        @Override
-                                        public void onSuccess(MonitoredPointsResultList result) {
-
-                                            view.getMonitoredPointsGrid().getStore().commitChanges();
-
-                                            for (MonitoredPointDTO point : result.getList()) {
-                                                point.setIsCompleted();
-                                                view.getMonitoredPointsGrid().getStore().update(point);
-                                            }
-
-                                            Notification.show(I18N.CONSTANTS.infoConfirmation(),
-                                                    I18N.CONSTANTS.monitoredPointUpdateConfirm());
-                                        }
-                                    });
+                        // The 'completed' field has been edited by the grid
+                        // editor, but the actual property which is saved in
+                        // data-layer is 'completionDate'. we have to do the
+                        // changes manually.
+                        final MonitoredPointDTO edited = se.getModel();
+                        if (edited.getIsCompleted()) {
+                            edited.setCompletionDate(editedDate);
+                        } else {
+                            edited.setCompletionDate(null);
                         }
+
+                        editedModels.add(edited);
+
+                        // Updates points.
+                        dispatcher.execute(new UpdateMonitoredPoints(editedModels),
+                            new MaskingAsyncMonitor(view.getMonitoredPointsGrid(), I18N.CONSTANTS.loading()),
+                            new AsyncCallback<MonitoredPointsResultList>() {
+
+                                @Override
+                                public void onFailure(Throwable e) {
+
+                                    view.getMonitoredPointsGrid().getStore().rejectChanges();
+
+                                    Log.error("[execute] Error while merging the monitored points.", e);
+                                    MessageBox.alert(I18N.CONSTANTS.monitoredPointUpdateError(),
+                                        I18N.CONSTANTS.monitoredPointUpdateErrorDetails(), null);
+                                }
+
+                                @Override
+                                public void onSuccess(MonitoredPointsResultList result) {
+
+                                    view.getMonitoredPointsGrid().getStore().commitChanges();
+
+                                    for (MonitoredPointDTO point : result.getList()) {
+                                        point.setIsCompleted();
+                                        view.getMonitoredPointsGrid().getStore().update(point);
+                                    }
+
+                                    Notification.show(I18N.CONSTANTS.infoConfirmation(),
+                                        I18N.CONSTANTS.monitoredPointUpdateConfirm());
+                                }
+                            });
                     }
-                });
+                }
+            });
     }
 
     /**
@@ -2012,49 +2032,48 @@ public class ProjectDashboardPresenter implements SubPresenter {
                         properties.put("projectId", projectPresenter.getCurrentProjectDTO().getId());
 
                         dispatcher.execute(new CreateEntity("Reminder", properties),
-                                new MaskingAsyncMonitor(view.getRemindersGrid(), I18N.CONSTANTS.loading()),
-                                new AsyncCallback<CreateResult>() {
+                            new MaskingAsyncMonitor(view.getRemindersGrid(), I18N.CONSTANTS.loading()),
+                            new AsyncCallback<CreateResult>() {
 
-                                    @Override
-                                    public void onFailure(Throwable e) {
-                                        Log.error("[execute] Error while creating the reminder.", e);
-                                        MessageBox.alert(I18N.CONSTANTS.monitoredPointAddError(),
-                                                I18N.CONSTANTS.reminderAddErrorDetails(), null);
-                                    }
+                                @Override
+                                public void onFailure(Throwable e) {
+                                    Log.error("[execute] Error while creating the reminder.", e);
+                                    MessageBox.alert(I18N.CONSTANTS.monitoredPointAddError(),
+                                        I18N.CONSTANTS.reminderAddErrorDetails(), null);
+                                }
 
-                                    @Override
-                                    public void onSuccess(CreateResult result) {
+                                @Override
+                                public void onSuccess(CreateResult result) {
 
-                                        Notification.show(I18N.CONSTANTS.infoConfirmation(),
-                                                I18N.CONSTANTS.reminderAddConfirm());
+                                    Notification.show(I18N.CONSTANTS.infoConfirmation(),
+                                        I18N.CONSTANTS.reminderAddConfirm());
 
-                                        // Gets the created point.
-                                        final ReminderDTO reminder = (ReminderDTO) result.getEntity();
+                                    // Gets the created point.
+                                    final ReminderDTO reminder = (ReminderDTO) result.getEntity();
 
-                                        // Gets the project list and creates it
-                                        // if needed.
-                                        ReminderListDTO list = projectPresenter.getCurrentProjectDTO()
-                                                .getRemindersList();
+                                    // Gets the project list and creates it
+                                    // if needed.
+                                    ReminderListDTO list = projectPresenter.getCurrentProjectDTO().getRemindersList();
 
-                                        if (list == null) {
+                                    if (list == null) {
 
-                                            if (Log.isDebugEnabled()) {
-                                                Log.debug("[execute] The project reminders list doesn't exist, creates it.");
-                                            }
-
-                                            list = new ReminderListDTO();
-                                            list.setReminders(new ArrayList<ReminderDTO>());
-                                            projectPresenter.getCurrentProjectDTO().setRemindersList(list);
+                                        if (Log.isDebugEnabled()) {
+                                            Log.debug("[execute] The project reminders list doesn't exist, creates it.");
                                         }
 
-                                        // Forces the default completion state.
-                                        reminder.setCompletionDate(null);
-
-                                        // Adds the point locally.
-                                        list.getReminders().add(reminder);
-                                        view.getRemindersGrid().getStore().add(reminder);
+                                        list = new ReminderListDTO();
+                                        list.setReminders(new ArrayList<ReminderDTO>());
+                                        projectPresenter.getCurrentProjectDTO().setRemindersList(list);
                                     }
-                                });
+
+                                    // Forces the default completion state.
+                                    reminder.setCompletionDate(null);
+
+                                    // Adds the point locally.
+                                    list.getReminders().add(reminder);
+                                    view.getRemindersGrid().getStore().add(reminder);
+                                }
+                            });
                     }
                 });
             }
@@ -2093,43 +2112,41 @@ public class ProjectDashboardPresenter implements SubPresenter {
 
                     // Updates points.
                     dispatcher.execute(new UpdateReminders(editedModels),
-                            new MaskingAsyncMonitor(view.getRemindersGrid(), I18N.CONSTANTS.loading()),
-                            new AsyncCallback<RemindersResultList>() {
+                        new MaskingAsyncMonitor(view.getRemindersGrid(), I18N.CONSTANTS.loading()),
+                        new AsyncCallback<RemindersResultList>() {
 
-                                @Override
-                                public void onFailure(Throwable e) {
+                            @Override
+                            public void onFailure(Throwable e) {
 
-                                    view.getRemindersGrid().getStore().rejectChanges();
+                                view.getRemindersGrid().getStore().rejectChanges();
 
-                                    Log.error("[execute] Error while merging the reminders.", e);
-                                    MessageBox.alert(I18N.CONSTANTS.monitoredPointUpdateError(),
-                                            I18N.CONSTANTS.reminderUpdateErrorDetails(), null);
+                                Log.error("[execute] Error while merging the reminders.", e);
+                                MessageBox.alert(I18N.CONSTANTS.monitoredPointUpdateError(),
+                                    I18N.CONSTANTS.reminderUpdateErrorDetails(), null);
+                            }
+
+                            @Override
+                            public void onSuccess(RemindersResultList result) {
+
+                                view.getRemindersGrid().getStore().commitChanges();
+
+                                for (ReminderDTO reminder : result.getList()) {
+                                    reminder.setIsCompleted();
+                                    view.getRemindersGrid().getStore().update(reminder);
                                 }
 
-                                @Override
-                                public void onSuccess(RemindersResultList result) {
-
-                                    view.getRemindersGrid().getStore().commitChanges();
-
-                                    for (ReminderDTO reminder : result.getList()) {
-                                        reminder.setIsCompleted();
-                                        view.getRemindersGrid().getStore().update(reminder);
-                                    }
-
-                                    Notification.show(I18N.CONSTANTS.infoConfirmation(),
-                                            I18N.CONSTANTS.reminderUpdateConfirm());
-                                }
-                            });
+                                Notification.show(I18N.CONSTANTS.infoConfirmation(),
+                                    I18N.CONSTANTS.reminderUpdateConfirm());
+                            }
+                        });
                 }
             }
         });
     }
 
     /**
-     * This method is to update the herder of requiredElementContentPanel's
-     * header text.
-     * 
-     * It computes the numbers of all filled elements and then updates.
+     * This method is to update the herder of requiredElementContentPanel's header text. It computes the numbers of all
+     * filled elements and then updates.
      * 
      * @author HUZHE (zhe.hu32@gmail.com)
      */
@@ -2151,8 +2168,12 @@ public class ProjectDashboardPresenter implements SubPresenter {
         }
 
         view.getRequiredElementContentPanel().setHeading(
-                I18N.CONSTANTS.projectRequiredElements() + " (" + filledRequiredElements + "/" + requiredElementsCount
-                        + ")");
+            I18N.CONSTANTS.projectRequiredElements()
+                + " ("
+                + filledRequiredElements
+                + "/"
+                + requiredElementsCount
+                + ")");
 
     }
 
@@ -2162,7 +2183,6 @@ public class ProjectDashboardPresenter implements SubPresenter {
      * @param list
      *            List to be sorted
      * @return List List sorted
-     * 
      * @author HUZHE (zhe.hu32@gmail.com)
      */
     private List<FlexibleElementDTO> sortRequiredElements(List<FlexibleElementDTO> list) {
@@ -2190,7 +2210,6 @@ public class ProjectDashboardPresenter implements SubPresenter {
      * @param o1
      * @param o2
      * @return
-     * 
      * @author HUZHE (zhe.hu32@gmail.com)
      */
     private int comparePosition(FlexibleElementDTO o1, FlexibleElementDTO o2) {

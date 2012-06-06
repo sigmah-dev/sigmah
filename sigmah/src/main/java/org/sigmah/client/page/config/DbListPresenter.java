@@ -1,17 +1,12 @@
 /*
- * All Sigmah code is released under the GNU General Public License v3
- * See COPYRIGHT.txt and LICENSE.txt.
+ * All Sigmah code is released under the GNU General Public License v3 See COPYRIGHT.txt and LICENSE.txt.
  */
 
 package org.sigmah.client.page.config;
 
-import com.extjs.gxt.ui.client.data.*;
-import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.MessageBoxEvent;
-import com.extjs.gxt.ui.client.store.ListStore;
-import com.extjs.gxt.ui.client.widget.MessageBox;
-import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.inject.Inject;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.sigmah.client.AppEvents;
 import org.sigmah.client.EventBus;
 import org.sigmah.client.dispatch.AsyncMonitor;
@@ -34,15 +29,26 @@ import org.sigmah.shared.command.GetSchema;
 import org.sigmah.shared.dto.SchemaDTO;
 import org.sigmah.shared.dto.UserDatabaseDTO;
 
-import java.util.HashMap;
-import java.util.Map;
+import com.extjs.gxt.ui.client.data.BaseListLoadResult;
+import com.extjs.gxt.ui.client.data.BaseListLoader;
+import com.extjs.gxt.ui.client.data.DataProxy;
+import com.extjs.gxt.ui.client.data.DataReader;
+import com.extjs.gxt.ui.client.data.ListLoadResult;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.MessageBoxEvent;
+import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.inject.Inject;
 
 public class DbListPresenter implements ActionListener {
+
     public static final PageId DatabaseList = new PageId("dblist");
 
+    public interface View {
 
-    public interface View  {
         void setActionEnabled(String id, boolean enabled);
+
         AsyncMonitor getDeletingMonitor();
     }
 
@@ -84,7 +90,7 @@ public class DbListPresenter implements ActionListener {
     }
 
     private void enableActions() {
-        if(selection == null) {
+        if (selection == null) {
             view.setActionEnabled(UIActions.delete, false);
             view.setActionEnabled(UIActions.edit, false);
         } else {
@@ -103,28 +109,29 @@ public class DbListPresenter implements ActionListener {
 
     @Override
     public void onUIAction(String actionId) {
-        if(UIActions.delete.equals(actionId)) {
+        if (UIActions.delete.equals(actionId)) {
             onDelete();
-        } else if(UIActions.edit.equals(actionId)){
+        } else if (UIActions.edit.equals(actionId)) {
             onEdit();
-        } else if(UIActions.add.equals(actionId)) {
+        } else if (UIActions.add.equals(actionId)) {
             onAdd();
         }
     }
 
     private void onDelete() {
-        MessageBox.confirm(I18N.CONSTANTS.appTitle(),
-                I18N.MESSAGES.confirmDeleteDb(selection.getName()),
-                new Listener<MessageBoxEvent>() {
-                    @Override
-                    public void handleEvent(MessageBoxEvent be) {
-                        deleteSelection();
-                    }
-                });
+        MessageBox.confirm(I18N.CONSTANTS.appTitle(), I18N.MESSAGES.confirmDeleteDb(selection.getName()),
+            new Listener<MessageBoxEvent>() {
+
+                @Override
+                public void handleEvent(MessageBoxEvent be) {
+                    deleteSelection();
+                }
+            });
     }
 
     private void deleteSelection() {
         dispatcher.execute(new Delete(selection), view.getDeletingMonitor(), new Deleted() {
+
             @Override
             public void deleted() {
                 store.remove(selection);
@@ -149,6 +156,7 @@ public class DbListPresenter implements ActionListener {
         dialog.setHeading(I18N.CONSTANTS.newDatabase());
 
         dialog.show(new FormDialogCallback() {
+
             @Override
             public void onValidated() {
                 save(db, dialog);
@@ -164,6 +172,7 @@ public class DbListPresenter implements ActionListener {
         properties.put("countryId", db.getCountry().getId());
 
         dispatcher.execute(new CreateEntity("UserDatabase", properties), dialog, new Created() {
+
             @Override
             public void created(int newId) {
                 eventBus.fireEvent(AppEvents.SchemaChanged);
@@ -174,16 +183,19 @@ public class DbListPresenter implements ActionListener {
     }
 
     private void requestNavigationToDatabaseEditPage() {
-        eventBus.fireEvent(new NavigationEvent(NavigationHandler.NavigationRequested,
-                new DbPageState(DbConfigPresenter.DatabaseConfig, selection.getId())));
+        eventBus.fireEvent(new NavigationEvent(NavigationHandler.NavigationRequested, new DbPageState(
+            DbConfigPresenter.DatabaseConfig, selection.getId()), null));
     }
 
     protected class Proxy implements DataProxy {
+
         public void load(DataReader dataReader, Object loadConfig, final AsyncCallback callback) {
             dispatcher.execute(new GetSchema(), null, new AsyncCallback<SchemaDTO>() {
+
                 public void onFailure(Throwable caught) {
                     callback.onFailure(caught);
                 }
+
                 public void onSuccess(SchemaDTO schema) {
                     callback.onSuccess(new BaseListLoadResult<UserDatabaseDTO>(schema.getDatabases()));
                 }

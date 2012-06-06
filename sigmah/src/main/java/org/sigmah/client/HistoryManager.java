@@ -120,7 +120,7 @@ public class HistoryManager {
         PageState place = placeSerializer.deserialize(token);
         if(place != null) {
 
-            eventBus.fireEvent(new NavigationEvent(NavigationHandler.NavigationRequested, place));
+            eventBus.fireEvent(new NavigationEvent(NavigationHandler.NavigationRequested, place, null));
 
         } else {
             Log.debug("HistoryManager: Could not deserialize '" + token + "', no action taken.");

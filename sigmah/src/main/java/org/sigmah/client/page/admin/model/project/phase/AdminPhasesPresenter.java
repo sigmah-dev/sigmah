@@ -15,51 +15,64 @@ import com.extjs.gxt.ui.client.widget.Component;
 
 public class AdminPhasesPresenter implements AdminModelSubPresenter {
 
-	private final View view;
-	private ProjectModelDTO model;
-	
-	public static abstract class View extends ModelView {
-		public abstract Component getMainPanel();
-		public abstract ListStore<PhaseModelDTO> getPhaseStore();
-		public abstract Map<String, PhaseModelDTO> getPhases();
-		public abstract List<String> getSuccessorsPhases();
-	}
-	
-	public AdminPhasesPresenter(Dispatcher dispatcher){
-		this.view = new AdminPhasesView(dispatcher);
-	}
+    private final View view;
+    private ProjectModelDTO model;
 
-	@Override
-	public Component getView() {
-		
-		assert this.model != null;
-		view.setProjectModel(model);
+    public static abstract class View extends ModelView {
 
-		view.getPhaseStore().add(model.getPhaseModelsDTO());
-		view.getPhaseStore().commitChanges();
-		this.model = view.getProjectModel();
-		return view.getMainPanel();
-	}
+        public abstract Component getMainPanel();
 
-	@Override
-	public void discardView() {
-	}
+        public abstract ListStore<PhaseModelDTO> getPhaseStore();
 
-	@Override
-	public void viewDidAppear() {
-	}
+        public abstract Map<String, PhaseModelDTO> getPhases();
 
-	@Override
-	public void setCurrentState(AdminPageState currentState) {
-	}
+        public abstract List<String> getSuccessorsPhases();
+    }
 
-	@Override
-	public void setModel(Object model) {
-		this.model = (ProjectModelDTO) model;
-	}
+    public AdminPhasesPresenter(Dispatcher dispatcher) {
+        this.view = new AdminPhasesView(dispatcher);
+    }
 
-	@Override
-	public Object getModel() {
-		return model;
-	}
+    @Override
+    public Component getView() {
+
+        assert this.model != null;
+        view.setProjectModel(model);
+
+        view.getPhaseStore().add(model.getPhaseModelsDTO());
+        view.getPhaseStore().commitChanges();
+        this.model = view.getProjectModel();
+        return view.getMainPanel();
+    }
+
+    @Override
+    public void discardView() {
+    }
+
+    @Override
+    public void viewDidAppear() {
+    }
+
+    @Override
+    public boolean hasValueChanged() {
+        return false;
+    }
+
+    @Override
+    public void forgetAllChangedValues() {
+    }
+
+    @Override
+    public void setCurrentState(AdminPageState currentState) {
+    }
+
+    @Override
+    public void setModel(Object model) {
+        this.model = (ProjectModelDTO) model;
+    }
+
+    @Override
+    public Object getModel() {
+        return model;
+    }
 }

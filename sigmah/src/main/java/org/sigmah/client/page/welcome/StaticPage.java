@@ -1,12 +1,14 @@
 /*
- * All Sigmah code is released under the GNU General Public License v3
- * See COPYRIGHT.txt and LICENSE.txt.
+ * All Sigmah code is released under the GNU General Public License v3 See COPYRIGHT.txt and LICENSE.txt.
  */
 
 package org.sigmah.client.page.welcome;
 
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+
+import org.sigmah.client.event.NavigationEvent.NavigationError;
 import org.sigmah.client.page.*;
+
 /*
  * @author Alex Bertram
  */
@@ -29,8 +31,9 @@ public class StaticPage extends ContentPanel implements Page {
         return this;
     }
 
-    public void requestToNavigateAway(PageState place, NavigationCallback callback) {
-        callback.onDecided(true);
+    @Override
+    public void requestToNavigateAway(PageState place, final NavigationCallback callback) {
+        callback.onDecided(NavigationError.NONE);
     }
 
     public String beforeWindowCloses() {

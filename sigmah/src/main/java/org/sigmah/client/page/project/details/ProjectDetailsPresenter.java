@@ -2,6 +2,7 @@ package org.sigmah.client.page.project.details;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import org.sigmah.client.EventBus;
 import org.sigmah.client.cache.UserLocalCache;
@@ -17,6 +18,7 @@ import org.sigmah.shared.command.GetOrgUnit;
 import org.sigmah.shared.command.GetValue;
 import org.sigmah.shared.command.UpdateProject;
 import org.sigmah.shared.command.result.ValueResult;
+import org.sigmah.shared.command.result.ValueResultUtils;
 import org.sigmah.shared.command.result.VoidResult;
 import org.sigmah.shared.domain.profile.GlobalPermissionEnum;
 import org.sigmah.shared.dto.CountryDTO;
@@ -46,8 +48,6 @@ import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Grid;
-import java.util.List;
-import org.sigmah.shared.command.result.ValueResultUtils;
 
 public class ProjectDetailsPresenter implements SubPresenter {
 
@@ -70,7 +70,7 @@ public class ProjectDetailsPresenter implements SubPresenter {
      * The dispatcher.
      */
     private final Dispatcher dispatcher;
-    
+
     private final EventBus eventBus;
 
     private final Authentication authentication;
@@ -92,10 +92,9 @@ public class ProjectDetailsPresenter implements SubPresenter {
      */
     private int maskCount;
 
-    public ProjectDetailsPresenter(EventBus eventBus, Dispatcher dispatcher, Authentication authentication,
-            ProjectPresenter projectPresenter, UserLocalCache cache) {
+    public ProjectDetailsPresenter(EventBus eventBus, Dispatcher dispatcher, Authentication authentication, ProjectPresenter projectPresenter, UserLocalCache cache) {
         this.eventBus = eventBus;
-    	this.dispatcher = dispatcher;
+        this.dispatcher = dispatcher;
         this.projectPresenter = projectPresenter;
         this.authentication = authentication;
         this.cache = cache;
@@ -127,6 +126,16 @@ public class ProjectDetailsPresenter implements SubPresenter {
         // nothing to do.
     }
 
+    @Override
+    public boolean hasValueChanged() {
+        return !valueChanges.isEmpty();
+    }
+
+    @Override
+    public void forgetAllChangedValues() {
+        valueChanges.clear();
+    }
+
     /**
      * Initializes the presenter.
      */
@@ -140,55 +149,55 @@ public class ProjectDetailsPresenter implements SubPresenter {
 
                 view.getSaveButton().disable();
 
-                final UpdateProject updateProject = new UpdateProject(projectPresenter.getCurrentProjectDTO().getId(),
-                        valueChanges);
+                final UpdateProject updateProject =
+                        new UpdateProject(projectPresenter.getCurrentProjectDTO().getId(), valueChanges);
 
                 dispatcher.execute(updateProject,
-                        new MaskingAsyncMonitor(view.getMainPanel(), I18N.CONSTANTS.loading()),
-                        new AsyncCallback<VoidResult>() {
+                    new MaskingAsyncMonitor(view.getMainPanel(), I18N.CONSTANTS.loading()),
+                    new AsyncCallback<VoidResult>() {
 
-                            @Override
-                            public void onFailure(Throwable caught) {
+                        @Override
+                        public void onFailure(Throwable caught) {
 
-                                MessageBox.alert(I18N.CONSTANTS.save(), I18N.CONSTANTS.saveError(), null);
+                            MessageBox.alert(I18N.CONSTANTS.save(), I18N.CONSTANTS.saveError(), null);
+                        }
+
+                        @Override
+                        public void onSuccess(VoidResult result) {
+
+                            Notification.show(I18N.CONSTANTS.infoConfirmation(), I18N.CONSTANTS.saveConfirm());
+
+                            // Checks if there is any update needed to the
+                            // local project instance.
+                            boolean refreshBanner = false;
+                            ProjectDTO newProject = null;
+
+                            for (ValueEvent event : valueChanges) {
+                                if (event.getSource() instanceof DefaultFlexibleElementDTO) {
+                                    newProject =
+                                            updateCurrentProject(((DefaultFlexibleElementDTO) event.getSource()),
+                                                event.getSingleValue(), event.isProjectCountryChanged());
+                                    projectPresenter.setCurrentProjectDTO(newProject);
+                                    projectPresenter.ReloadProjectOnView(newProject);
+                                    refreshBanner = true;
+                                }
                             }
 
-                            @Override
-                            public void onSuccess(VoidResult result) {
+                            valueChanges.clear();
 
-                                Notification.show(I18N.CONSTANTS.infoConfirmation(), I18N.CONSTANTS.saveConfirm());
+                            if (refreshBanner) {
+                                projectPresenter.refreshBanner();
+                            }
 
-                                // Checks if there is any update needed to the
-                                // local project instance.
-                                boolean refreshBanner = false;
-                                ProjectDTO newProject=null;
-                                
-                           
-								for (ValueEvent event : valueChanges) {
-                                    if (event.getSource() instanceof DefaultFlexibleElementDTO) {
-                                         newProject=updateCurrentProject(((DefaultFlexibleElementDTO) event.getSource()),
-                                                event.getSingleValue(),event.isProjectCountryChanged());
-                                        projectPresenter.setCurrentProjectDTO(newProject);
-                                        projectPresenter.ReloadProjectOnView(newProject);
-                                        refreshBanner = true;
-                                    }
-                                }
+                            // avoid tight coupling with other project events
+                            eventBus.fireEvent(new ProjectEvent(ProjectEvent.CHANGED, projectPresenter
+                                .getCurrentProjectDTO().getId()));
 
-                                valueChanges.clear();
-
-                                if (refreshBanner) {
-                                    projectPresenter.refreshBanner();
-                                }
-                               
-                                // avoid tight coupling with other project events
-                                eventBus.fireEvent(new ProjectEvent(ProjectEvent.CHANGED, projectPresenter.getCurrentProjectDTO().getId()));
-                                
-                                if(newProject!=null)
-                                {
+                            if (newProject != null) {
                                 load(newProject.getProjectModelDTO().getProjectDetailsDTO());
-                                }
                             }
-                        });
+                        }
+                    });
             }
         });
     }
@@ -247,8 +256,9 @@ public class ProjectDetailsPresenter implements SubPresenter {
                             amendmentId = projectPresenter.getCurrentProjectDTO().getCurrentAmendment().getId();
 
                         // Remote call to ask for this element value.
-                        final GetValue command = new GetValue(projectPresenter.getCurrentProjectDTO().getId(),
-                                elementDTO.getId(), elementDTO.getEntityName(), amendmentId);
+                        final GetValue command =
+                                new GetValue(projectPresenter.getCurrentProjectDTO().getId(), elementDTO.getId(),
+                                    elementDTO.getEntityName(), amendmentId);
                         dispatcher.execute(command, null, new AsyncCallback<ValueResult>() {
 
                             @Override
@@ -279,8 +289,9 @@ public class ProjectDetailsPresenter implements SubPresenter {
 
                                 // Generates element component (with the value).
                                 elementDTO.init();
-                                final Component elementComponent = elementDTO.getElementComponent(valueResult,
-                                        !readOnly && !valueResult.isAmendment());
+                                final Component elementComponent =
+                                        elementDTO.getElementComponent(valueResult,
+                                            !readOnly && !valueResult.isAmendment());
 
                                 // Component width.
                                 final FormData formData;
@@ -338,8 +349,7 @@ public class ProjectDetailsPresenter implements SubPresenter {
     }
 
     /**
-     * Decrements the mask counter and unmask the main panel if the counter
-     * reaches <code>0</code>.
+     * Decrements the mask counter and unmask the main panel if the counter reaches <code>0</code>.
      */
     private void unmask() {
         maskCount--;
@@ -356,109 +366,108 @@ public class ProjectDetailsPresenter implements SubPresenter {
      * @param value
      *            The new value.
      */
-    private ProjectDTO  updateCurrentProject(DefaultFlexibleElementDTO element, String value,boolean isProjectCountryChanged) {
+    private ProjectDTO updateCurrentProject(DefaultFlexibleElementDTO element, String value,
+            boolean isProjectCountryChanged) {
 
         final ProjectDTO currentProjectDTO = projectPresenter.getCurrentProjectDTO();
 
         switch (element.getType()) {
-        case CODE:
-            currentProjectDTO.setName(value);
-            break;
-        case TITLE:
-            currentProjectDTO.setFullName(value);
-            break;
-        case START_DATE:
-            if ("".equals(value)) {
-                currentProjectDTO.setStartDate(null);
-            } else {
-                try {
-                    final long timestamp = Long.parseLong(value);
-                    currentProjectDTO.setStartDate(new Date(timestamp));
-                } catch (NumberFormatException e) {
-                    // nothing, invalid date.
+            case CODE:
+                currentProjectDTO.setName(value);
+                break;
+            case TITLE:
+                currentProjectDTO.setFullName(value);
+                break;
+            case START_DATE:
+                if ("".equals(value)) {
+                    currentProjectDTO.setStartDate(null);
+                } else {
+                    try {
+                        final long timestamp = Long.parseLong(value);
+                        currentProjectDTO.setStartDate(new Date(timestamp));
+                    } catch (NumberFormatException e) {
+                        // nothing, invalid date.
+                    }
                 }
-            }
-            break;
-        case END_DATE:
-            if ("".equals(value)) {
-                currentProjectDTO.setEndDate(null);
-            } else {
-                try {
-                    final long timestamp = Long.parseLong(value);
-                    currentProjectDTO.setEndDate(new Date(timestamp));
-                } catch (NumberFormatException e) {
-                    // nothing, invalid date.
+                break;
+            case END_DATE:
+                if ("".equals(value)) {
+                    currentProjectDTO.setEndDate(null);
+                } else {
+                    try {
+                        final long timestamp = Long.parseLong(value);
+                        currentProjectDTO.setEndDate(new Date(timestamp));
+                    } catch (NumberFormatException e) {
+                        // nothing, invalid date.
+                    }
                 }
-            }
-            break;
-        case BUDGET:
-            try {
+                break;
+            case BUDGET:
+                try {
 
-                final List<String> budgets = ValueResultUtils.splitElements(value);
-                
-                final double plannedBudget = Double.parseDouble(budgets.get(0));
-                final double spendBudget = Double.parseDouble(budgets.get(1));
-                final double receivedBudget = Double.parseDouble(budgets.get(2));
+                    final List<String> budgets = ValueResultUtils.splitElements(value);
 
-                currentProjectDTO.setPlannedBudget(plannedBudget);
-                currentProjectDTO.setSpendBudget(spendBudget);
-                currentProjectDTO.setReceivedBudget(receivedBudget);
+                    final double plannedBudget = Double.parseDouble(budgets.get(0));
+                    final double spendBudget = Double.parseDouble(budgets.get(1));
+                    final double receivedBudget = Double.parseDouble(budgets.get(2));
 
-            } catch (Exception e) {
-                // nothing, invalid budget.
-            }
-            break;
-        case COUNTRY:
-            final CountryDTO country = element.getCountriesStore().findModel("id", Integer.parseInt(value));
-            if (country != null) {
-                currentProjectDTO.setCountry(country);
-            } else {
-                // nothing, invalid country.
-            }
-            break;
-        case OWNER:
-            // The owner component doesn't fire any event for now.
-            break;
-        case MANAGER:
-            final UserDTO manager = element.getManagersStore().findModel("id", Integer.parseInt(value));
-            if (manager != null) {
-                currentProjectDTO.setManager(manager);
-            } else {
-                // nothing, invalid user.
-            }
-            break;
-        case ORG_UNIT:
-            currentProjectDTO.setOrgUnit(Integer.parseInt(value));
-            if(isProjectCountryChanged==true)
-            {
-             GetOrgUnit getOrgUnitCmd = new GetOrgUnit(currentProjectDTO.getOrgUnitId());
-              dispatcher.execute(getOrgUnitCmd, null, new AsyncCallback<OrgUnitDTO>(){
+                    currentProjectDTO.setPlannedBudget(plannedBudget);
+                    currentProjectDTO.setSpendBudget(spendBudget);
+                    currentProjectDTO.setReceivedBudget(receivedBudget);
 
-				@Override
-				public void onFailure(Throwable caught) {
-					// TODO Auto-generated method stub
-					
-				}
+                } catch (Exception e) {
+                    // nothing, invalid budget.
+                }
+                break;
+            case COUNTRY:
+                final CountryDTO country = element.getCountriesStore().findModel("id", Integer.parseInt(value));
+                if (country != null) {
+                    currentProjectDTO.setCountry(country);
+                } else {
+                    // nothing, invalid country.
+                }
+                break;
+            case OWNER:
+                // The owner component doesn't fire any event for now.
+                break;
+            case MANAGER:
+                final UserDTO manager = element.getManagersStore().findModel("id", Integer.parseInt(value));
+                if (manager != null) {
+                    currentProjectDTO.setManager(manager);
+                } else {
+                    // nothing, invalid user.
+                }
+                break;
+            case ORG_UNIT:
+                currentProjectDTO.setOrgUnit(Integer.parseInt(value));
+                if (isProjectCountryChanged == true) {
+                    GetOrgUnit getOrgUnitCmd = new GetOrgUnit(currentProjectDTO.getOrgUnitId());
+                    dispatcher.execute(getOrgUnitCmd, null, new AsyncCallback<OrgUnitDTO>() {
 
-				@Override
-				public void onSuccess(OrgUnitDTO result) {
-					
-					if(result!=null)
-					{
-					currentProjectDTO.setCountry(result.getCountry());
-					}
-					
-				}
-            	  
-              });
-            }
-            	
-            break;
-        default:
-            // Nothing, unknown type.
-            break;
+                        @Override
+                        public void onFailure(Throwable caught) {
+                            // TODO Auto-generated method stub
+
+                        }
+
+                        @Override
+                        public void onSuccess(OrgUnitDTO result) {
+
+                            if (result != null) {
+                                currentProjectDTO.setCountry(result.getCountry());
+                            }
+
+                        }
+
+                    });
+                }
+
+                break;
+            default:
+                // Nothing, unknown type.
+                break;
         }
-        
+
         return currentProjectDTO;
     }
 

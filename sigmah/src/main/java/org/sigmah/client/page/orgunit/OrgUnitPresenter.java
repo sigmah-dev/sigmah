@@ -6,6 +6,7 @@ import org.sigmah.client.dispatch.AsyncMonitor;
 import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.dispatch.remote.Authentication;
 import org.sigmah.client.event.NavigationEvent;
+import org.sigmah.client.event.NavigationEvent.NavigationError;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.page.Frame;
 import org.sigmah.client.page.NavigationCallback;
@@ -30,9 +31,13 @@ import org.sigmah.shared.dto.layout.LayoutDTO;
 import org.sigmah.shared.dto.layout.LayoutGroupDTO;
 
 import com.allen_sauer.gwt.log.client.Log;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.Dialog;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.form.LabelField;
 import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 import com.extjs.gxt.ui.client.widget.layout.HBoxLayoutData;
@@ -78,24 +83,26 @@ public class OrgUnitPresenter implements Frame, TabPage {
     private OrgUnitDTO currentOrgUnitDTO;
     private final SubPresenter[] presenters;
 
-    private final static String[] MAIN_TABS = { I18N.CONSTANTS.orgUnitTabOverview(),
-            I18N.CONSTANTS.orgUnitTabInformations(), I18N.CONSTANTS.projectTabCalendar(),
-            I18N.CONSTANTS.projectTabReports() };
+    private final static String[] MAIN_TABS = {
+                                               I18N.CONSTANTS.orgUnitTabOverview(),
+                                               I18N.CONSTANTS.orgUnitTabInformations(),
+                                               I18N.CONSTANTS.projectTabCalendar(),
+                                               I18N.CONSTANTS.projectTabReports() };
 
     @Inject
-    public OrgUnitPresenter(final Dispatcher dispatcher, View view, Authentication authentication,
-            final EventBus eventBus, final UserLocalCache cache) {
+    public OrgUnitPresenter(final Dispatcher dispatcher, View view, Authentication authentication, final EventBus eventBus, final UserLocalCache cache) {
 
         this.dispatcher = dispatcher;
         this.view = view;
         this.authentication = authentication;
         this.cache = cache;
 
-        this.presenters = new SubPresenter[] {
-                new OrgUnitDashboardPresenter(dispatcher, eventBus, authentication, this),
-                new OrgUnitDetailsPresenter(dispatcher, authentication, this, cache, eventBus),
-                new OrgUnitCalendarPresenter(dispatcher, authentication, this),
-                new OrgUnitReportsPresenter(authentication, dispatcher, eventBus, this) };
+        this.presenters =
+                new SubPresenter[] {
+                                    new OrgUnitDashboardPresenter(dispatcher, eventBus, authentication, this),
+                                    new OrgUnitDetailsPresenter(dispatcher, authentication, this, cache, eventBus),
+                                    new OrgUnitCalendarPresenter(dispatcher, authentication, this),
+                                    new OrgUnitReportsPresenter(authentication, dispatcher, eventBus, this) };
 
         for (int i = 0; i < MAIN_TABS.length; i++) {
             final int index = i;
@@ -113,7 +120,7 @@ public class OrgUnitPresenter implements Frame, TabPage {
                 @Override
                 public void onClick(ClickEvent event) {
                     eventBus.fireEvent(new NavigationEvent(NavigationHandler.NavigationRequested, currentState
-                            .deriveTo(index)));
+                        .deriveTo(index), null));
                 }
             });
 
@@ -216,8 +223,12 @@ public class OrgUnitPresenter implements Frame, TabPage {
 
         // Panel.
         final ContentPanel panel = view.getPanelBanner();
-        panel.setHeading(currentOrgUnitDTO.getOrgUnitModel().getTitle() + ' ' + currentOrgUnitDTO.getName() + " ("
-                + currentOrgUnitDTO.getFullName() + ")");
+        panel.setHeading(currentOrgUnitDTO.getOrgUnitModel().getTitle()
+            + ' '
+            + currentOrgUnitDTO.getName()
+            + " ("
+            + currentOrgUnitDTO.getFullName()
+            + ")");
         panel.removeAll();
 
         final Grid gridPanel = new Grid(1, 2);
@@ -237,8 +248,10 @@ public class OrgUnitPresenter implements Frame, TabPage {
         final LayoutDTO layout = banner.getLayout();
 
         // Executes layout.
-        if (banner != null && layout != null && layout.getLayoutGroupsDTO() != null
-                && !layout.getLayoutGroupsDTO().isEmpty()) {
+        if (banner != null
+            && layout != null
+            && layout.getLayoutGroupsDTO() != null
+            && !layout.getLayoutGroupsDTO().isEmpty()) {
 
             // For visibility constraints, the banner accept a maximum of 2 rows
             // and 4 columns.
@@ -343,8 +356,32 @@ public class OrgUnitPresenter implements Frame, TabPage {
     }
 
     @Override
-    public void requestToNavigateAway(PageState place, NavigationCallback callback) {
-        callback.onDecided(true);
+    public void requestToNavigateAway(PageState place, final NavigationCallback callback) {
+        NavigationError navigationError = NavigationError.NONE;
+        for (SubPresenter subPresenter : presenters) {
+            if (subPresenter.hasValueChanged()) {
+                navigationError = NavigationError.WORK_NOT_SAVED;
+            }
+        }
+
+        Listener<MessageBoxEvent> listener = new Listener<MessageBoxEvent>() {
+
+            @Override
+            public void handleEvent(MessageBoxEvent be) {
+                if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
+                    for (SubPresenter subPresenter : presenters) {
+                        subPresenter.forgetAllChangedValues();
+                    }
+                    callback.onDecided(NavigationError.NONE);
+                }
+            }
+        };
+
+        if (navigationError == NavigationError.WORK_NOT_SAVED) {
+            MessageBox.confirm(I18N.CONSTANTS.unsavedDataTitle(), I18N.CONSTANTS.unsavedDataMessage(), listener);
+        }
+
+        callback.onDecided(navigationError);
     }
 
     @Override

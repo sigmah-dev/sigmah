@@ -1,6 +1,5 @@
 /*
- * All Sigmah code is released under the GNU General Public License v3
- * See COPYRIGHT.txt and LICENSE.txt.
+ * All Sigmah code is released under the GNU General Public License v3 See COPYRIGHT.txt and LICENSE.txt.
  */
 
 package org.sigmah.client.page.project.reports;
@@ -21,16 +20,16 @@ import org.sigmah.shared.command.result.ProjectReportListResult;
 import org.sigmah.shared.dto.ProjectDTO;
 import org.sigmah.shared.dto.ProjectDTO.LocalizedElement;
 import org.sigmah.shared.dto.element.FilesListElementDTO;
+import org.sigmah.shared.dto.element.ReportElementDTO;
+import org.sigmah.shared.dto.element.ReportListElementDTO;
 import org.sigmah.shared.dto.report.ProjectReportDTO;
+import org.sigmah.shared.dto.report.ReportReference;
 
 import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.Style.SortDir;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import org.sigmah.shared.dto.report.ReportReference;
-import org.sigmah.shared.dto.element.ReportElementDTO;
-import org.sigmah.shared.dto.element.ReportListElementDTO;
 
 /**
  * Sub presenter that manage the "reports" view from the project page.
@@ -38,6 +37,7 @@ import org.sigmah.shared.dto.element.ReportListElementDTO;
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
 public class ProjectReportsPresenter implements SubPresenter {
+
     private Dispatcher dispatcher;
     private EventBus eventBus;
     private Authentication authentication;
@@ -50,8 +50,7 @@ public class ProjectReportsPresenter implements SubPresenter {
 
     int currentReportId = -1;
 
-    public ProjectReportsPresenter(Authentication authentication, Dispatcher dispatcher, EventBus eventBus,
-            ProjectPresenter projectPresenter) {
+    public ProjectReportsPresenter(Authentication authentication, Dispatcher dispatcher, EventBus eventBus, ProjectPresenter projectPresenter) {
         this.authentication = authentication;
         this.dispatcher = dispatcher;
         this.eventBus = eventBus;
@@ -86,11 +85,12 @@ public class ProjectReportsPresenter implements SubPresenter {
         if (currentReportId != reportId) {
             currentReportId = reportId;
 
-            if(reportId != -1) {
+            if (reportId != -1) {
                 // Configuring the view to display the given report
                 Log.debug("Loading report #" + reportId);
                 final GetProjectReport getProjectReport = new GetProjectReport(reportId);
                 dispatcher.execute(getProjectReport, null, new AsyncCallback<ProjectReportDTO>() {
+
                     @Override
                     public void onFailure(Throwable caught) {
                         throw new UnsupportedOperationException("Not supported yet.");
@@ -122,22 +122,22 @@ public class ProjectReportsPresenter implements SubPresenter {
         view.setPhaseName(projectPresenter.getCurrentProjectDTO().getCurrentPhaseDTO().getPhaseModelDTO().getName());
 
         // Reset the attach documents menu.
-        AttachMenuBuilder.createMenu(currentProjectDTO, FilesListElementDTO.class,
-                view.getAttachButton(), reportStore, authentication, dispatcher, eventBus);
+        AttachMenuBuilder.createMenu(currentProjectDTO, FilesListElementDTO.class, view.getAttachButton(), reportStore,
+            authentication, dispatcher, eventBus);
 
         // TODO: Do something to add the report list elements too
         final List<LocalizedElement> reportElements = currentProjectDTO.getLocalizedElements(ReportElementDTO.class);
         reportElements.addAll(currentProjectDTO.getLocalizedElements(ReportListElementDTO.class));
 
-        AttachMenuBuilder.createMenu(currentProjectDTO, reportElements,
-                view.getCreateReportButton(), reportStore, authentication, dispatcher, eventBus);
+        AttachMenuBuilder.createMenu(currentProjectDTO, reportElements, view.getCreateReportButton(), reportStore,
+            authentication, dispatcher, eventBus);
 
-        
         // Updates the report & document list
-        
+
         // Retrieves reports.
         GetProjectReports getProjectReports = new GetProjectReports(currentProjectDTO.getId(), null);
         dispatcher.execute(getProjectReports, null, new AsyncCallback<ProjectReportListResult>() {
+
             @Override
             public void onSuccess(ProjectReportListResult result) {
                 if (reportStore.getCount() > 0) {
@@ -154,28 +154,45 @@ public class ProjectReportsPresenter implements SubPresenter {
         });
 
         // Retrieves all the files lists elements in the current project.
-        final List<GetProjectDocuments.FilesListElement> filesLists = new ArrayList<GetProjectDocuments.FilesListElement>();
-        final List<LocalizedElement> filesLists2 = currentProjectDTO
-                .getLocalizedElements(FilesListElementDTO.class);
+        final List<GetProjectDocuments.FilesListElement> filesLists =
+                new ArrayList<GetProjectDocuments.FilesListElement>();
+        final List<LocalizedElement> filesLists2 = currentProjectDTO.getLocalizedElements(FilesListElementDTO.class);
         for (LocalizedElement e : filesLists2) {
-            filesLists.add(new GetProjectDocuments.FilesListElement((long) e.getElement().getId(), e
-                    .getPhaseModel() != null ? e.getPhaseModel().getName() : I18N.CONSTANTS.projectDetails(), e
+            filesLists.add(new GetProjectDocuments.FilesListElement((long) e.getElement().getId(),
+                e.getPhaseModel() != null ? e.getPhaseModel().getName() : I18N.CONSTANTS.projectDetails(), e
                     .getElement().getLabel()));
         }
 
         // Retrieves documents.
         dispatcher.execute(new GetProjectDocuments(currentProjectDTO.getId(), filesLists), null,
-                new AsyncCallback<ProjectReportListResult>() {
-                    @Override
-                    public void onSuccess(ProjectReportListResult result) {
-                        reportStore.add(result.getData());
-                        reportStore.sort("name", SortDir.ASC);
-                    }
+            new AsyncCallback<ProjectReportListResult>() {
 
-                    @Override
-                    public void onFailure(Throwable caught) {
-                        throw new UnsupportedOperationException("Not supported yet.");
-                    }
-                });
+                @Override
+                public void onSuccess(ProjectReportListResult result) {
+                    reportStore.add(result.getData());
+                    reportStore.sort("name", SortDir.ASC);
+                }
+
+                @Override
+                public void onFailure(Throwable caught) {
+                    throw new UnsupportedOperationException("Not supported yet.");
+                }
+            });
+    }
+
+    @Override
+    public boolean hasValueChanged() {
+        if (view == null) {
+            return false;
+        } else {
+            return view.isTextAreaChanged();
+        }
+    }
+
+    @Override
+    public void forgetAllChangedValues() {
+        if (view != null) {
+            view.eraseChanges();
+        }
     }
 }

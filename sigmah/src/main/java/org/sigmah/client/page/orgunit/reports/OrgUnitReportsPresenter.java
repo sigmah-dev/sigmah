@@ -1,6 +1,5 @@
 /*
- * All Sigmah code is released under the GNU General Public License v3
- * See COPYRIGHT.txt and LICENSE.txt.
+ * All Sigmah code is released under the GNU General Public License v3 See COPYRIGHT.txt and LICENSE.txt.
  */
 
 package org.sigmah.client.page.orgunit.reports;
@@ -33,12 +32,12 @@ import com.extjs.gxt.ui.client.widget.Component;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
- * Sub presenter that manage the "reports" view from the organizational unit
- * page.
+ * Sub presenter that manage the "reports" view from the organizational unit page.
  * 
  * @author Kristela Macaj(kmacaj@ideia.fr)
  */
 public class OrgUnitReportsPresenter implements SubPresenter {
+
     private Dispatcher dispatcher;
     private EventBus eventBus;
     private Authentication authentication;
@@ -51,8 +50,7 @@ public class OrgUnitReportsPresenter implements SubPresenter {
 
     int currentReportId = -1;
 
-    public OrgUnitReportsPresenter(Authentication authentication, Dispatcher dispatcher, EventBus eventBus,
-            OrgUnitPresenter orgUnitPresenter) {
+    public OrgUnitReportsPresenter(Authentication authentication, Dispatcher dispatcher, EventBus eventBus, OrgUnitPresenter orgUnitPresenter) {
         this.authentication = authentication;
         this.dispatcher = dispatcher;
         this.eventBus = eventBus;
@@ -87,11 +85,12 @@ public class OrgUnitReportsPresenter implements SubPresenter {
         if (currentReportId != reportId) {
             currentReportId = reportId;
 
-            if(reportId != -1) {
+            if (reportId != -1) {
                 // Configuring the view to display the given report
                 Log.debug("Loading report #" + reportId);
                 final GetProjectReport getProjectReport = new GetProjectReport(reportId);
                 dispatcher.execute(getProjectReport, null, new AsyncCallback<ProjectReportDTO>() {
+
                     @Override
                     public void onFailure(Throwable caught) {
                         throw new UnsupportedOperationException("Not supported yet.");
@@ -115,31 +114,31 @@ public class OrgUnitReportsPresenter implements SubPresenter {
     public void discardView() {
         this.view = null;
     }
-    
+
     @Override
     public void viewDidAppear() {
         // Updating the current state
         view.setCurrentState(orgUnitPresenter.getCurrentState());
-        //organizational unit dont have phase element
+        // organizational unit dont have phase element
         view.setPhaseName(null);
 
         // Reset the attach documents menu.
-        AttachMenuBuilder.createMenu(currentOrgUnitDTO, FilesListElementDTO.class,
-                view.getAttachButton(), reportStore, authentication, dispatcher, eventBus);
+        AttachMenuBuilder.createMenu(currentOrgUnitDTO, FilesListElementDTO.class, view.getAttachButton(), reportStore,
+            authentication, dispatcher, eventBus);
 
         // TODO: Do something to add the report list elements too
         final List<LocalizedElement> reportElements = currentOrgUnitDTO.getLocalizedElements(ReportElementDTO.class);
         reportElements.addAll(currentOrgUnitDTO.getLocalizedElements(ReportListElementDTO.class));
 
-        AttachMenuBuilder.createMenu(currentOrgUnitDTO, reportElements,
-                view.getCreateReportButton(), reportStore, authentication, dispatcher, eventBus);
+        AttachMenuBuilder.createMenu(currentOrgUnitDTO, reportElements, view.getCreateReportButton(), reportStore,
+            authentication, dispatcher, eventBus);
 
-        
         // Updates the report & document list
-        
+
         // Retrieves reports.
         GetProjectReports getProjectReports = new GetProjectReports(null, currentOrgUnitDTO.getId());
         dispatcher.execute(getProjectReports, null, new AsyncCallback<ProjectReportListResult>() {
+
             @Override
             public void onSuccess(ProjectReportListResult result) {
                 if (reportStore.getCount() > 0) {
@@ -156,26 +155,44 @@ public class OrgUnitReportsPresenter implements SubPresenter {
         });
 
         // Retrieves all the files lists elements in the current project.
-        final List<GetProjectDocuments.FilesListElement> filesLists = new ArrayList<GetProjectDocuments.FilesListElement>();
+        final List<GetProjectDocuments.FilesListElement> filesLists =
+                new ArrayList<GetProjectDocuments.FilesListElement>();
         final List<LocalizedElement> filesLists2 = currentOrgUnitDTO.getLocalizedElements(FilesListElementDTO.class);
         for (LocalizedElement e : filesLists2) {
-            filesLists.add(new GetProjectDocuments.FilesListElement((long) e.getElement().getId(), I18N.CONSTANTS.projectDetails(), e
-                    .getElement().getLabel()));
+            filesLists.add(new GetProjectDocuments.FilesListElement((long) e.getElement().getId(), I18N.CONSTANTS
+                .projectDetails(), e.getElement().getLabel()));
         }
 
         // Retrieves documents.
         dispatcher.execute(new GetProjectDocuments(currentOrgUnitDTO.getId(), filesLists), null,
-                new AsyncCallback<ProjectReportListResult>() {
-                    @Override
-                    public void onSuccess(ProjectReportListResult result) {
-                        reportStore.add(result.getData());
-                        reportStore.sort("name", SortDir.ASC);
-                    }
+            new AsyncCallback<ProjectReportListResult>() {
 
-                    @Override
-                    public void onFailure(Throwable caught) {
-                        throw new UnsupportedOperationException("Not supported yet.");
-                    }
-                });
+                @Override
+                public void onSuccess(ProjectReportListResult result) {
+                    reportStore.add(result.getData());
+                    reportStore.sort("name", SortDir.ASC);
+                }
+
+                @Override
+                public void onFailure(Throwable caught) {
+                    throw new UnsupportedOperationException("Not supported yet.");
+                }
+            });
+    }
+
+    @Override
+    public boolean hasValueChanged() {
+        if (view == null) {
+            return false;
+        } else {
+            return view.isTextAreaChanged();
+        }
+    }
+
+    @Override
+    public void forgetAllChangedValues() {
+        if (view != null) {
+            view.eraseChanges();
+        }
     }
 }

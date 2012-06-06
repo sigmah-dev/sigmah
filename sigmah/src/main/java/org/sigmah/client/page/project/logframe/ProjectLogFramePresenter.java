@@ -26,10 +26,8 @@ import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.Label;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
@@ -42,7 +40,6 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
  * Presenter for the project log frame.
  * 
  * @author tmi
- * 
  */
 public class ProjectLogFramePresenter implements SubPresenter {
 
@@ -69,7 +66,7 @@ public class ProjectLogFramePresenter implements SubPresenter {
         public abstract FormPanel getExcelExportForm();
 
         public abstract Label getLogFrameTitleContentLabel();
-        
+
         public abstract TextField<String> getLogFrameMainObjectiveTextBox();
     }
 
@@ -85,13 +82,14 @@ public class ProjectLogFramePresenter implements SubPresenter {
      */
     private final Dispatcher dispatcher;
 
-    
-	private final EventBus eventBus;
-	
+    private final EventBus eventBus;
+
     /**
      * The authentication.
      */
     private final Authentication authentication;
+
+    private boolean logFrameUpdated;
 
     /**
      * The main project presenter.
@@ -99,14 +97,14 @@ public class ProjectLogFramePresenter implements SubPresenter {
     private final ProjectPresenter projectPresenter;
 
     public ProjectDTO getCurrentProjectDTO() {
-		return currentProjectDTO;
-	}
+        return currentProjectDTO;
+    }
 
-	public void setCurrentProjectDTO(ProjectDTO currentProjectDTO) {
-		this.currentProjectDTO = currentProjectDTO;
-	}
+    public void setCurrentProjectDTO(ProjectDTO currentProjectDTO) {
+        this.currentProjectDTO = currentProjectDTO;
+    }
 
-	/**
+    /**
      * The current displayed project.
      */
     private ProjectDTO currentProjectDTO;
@@ -116,20 +114,18 @@ public class ProjectLogFramePresenter implements SubPresenter {
      */
     private LogFrameDTO logFrame;
 
-
-
-    public ProjectLogFramePresenter(EventBus eventBus, Dispatcher dispatcher, Authentication authentication,
-            ProjectPresenter projectPresenter) {
-    	this.eventBus = eventBus;
+    public ProjectLogFramePresenter(EventBus eventBus, Dispatcher dispatcher, Authentication authentication, ProjectPresenter projectPresenter) {
+        this.eventBus = eventBus;
         this.dispatcher = dispatcher;
         this.authentication = authentication;
         this.projectPresenter = projectPresenter;
-        this.currentProjectDTO = projectPresenter.getCurrentProjectDTO();      
+        this.currentProjectDTO = projectPresenter.getCurrentProjectDTO();
+        this.logFrameUpdated = false;
     }
 
     @Override
     public Component getView() {
-   	
+
         if (view == null) {
             view = new ProjectLogFrameView(eventBus, dispatcher);
             if (projectPresenter.getCurrentProjectDTO().getCurrentAmendment() == null)
@@ -141,7 +137,7 @@ public class ProjectLogFramePresenter implements SubPresenter {
             fillAndInit();
             addListeners();
         }
-            
+
         // If the current project has changed, clear the view
         if (projectPresenter.getCurrentProjectDTO() != currentProjectDTO) {
             if (projectPresenter.getCurrentProjectDTO().getCurrentAmendment() == null)
@@ -163,10 +159,20 @@ public class ProjectLogFramePresenter implements SubPresenter {
 
     @Override
     public void viewDidAppear() {
-    	
+
         // Make sure when the currentProjectDTO's title is changed, reset the log title's value
-    		 view.getLogFrameTitleContentLabel().setText(projectPresenter.getCurrentProjectDTO().getFullName());        
-		
+        view.getLogFrameTitleContentLabel().setText(projectPresenter.getCurrentProjectDTO().getFullName());
+
+    }
+
+    @Override
+    public boolean hasValueChanged() {
+        return logFrameUpdated;
+    }
+
+    @Override
+    public void forgetAllChangedValues() {
+        logFrameUpdated = false;
     }
 
     /**
@@ -179,6 +185,7 @@ public class ProjectLogFramePresenter implements SubPresenter {
 
             @Override
             public void logFrameEdited() {
+                logFrameUpdated = true;
                 view.getSaveButton().setEnabled(true);
             }
         });
@@ -190,6 +197,7 @@ public class ProjectLogFramePresenter implements SubPresenter {
             public void handleEvent(BaseEvent be) {
                 if (logFrame != null) {
                     logFrame.setMainObjective(view.getLogFrameMainObjectiveTextBox().getValue());
+                    logFrameUpdated = true;
                     view.getSaveButton().setEnabled(true);
                 }
             }
@@ -208,7 +216,7 @@ public class ProjectLogFramePresenter implements SubPresenter {
 
                 // Sends the merge action to the server.
                 dispatcher.execute(new UpdateLogFrame(logFrame, currentProjectDTO.getId()), new MaskingAsyncMonitor(
-                        view, I18N.CONSTANTS.loading()), new AsyncCallback<LogFrameResult>() {
+                    view, I18N.CONSTANTS.loading()), new AsyncCallback<LogFrameResult>() {
 
                     @Override
                     public void onFailure(Throwable e) {
@@ -220,7 +228,6 @@ public class ProjectLogFramePresenter implements SubPresenter {
 
                     @Override
                     public void onSuccess(LogFrameResult r) {
-
                         if (Log.isDebugEnabled()) {
                             Log.debug("[execute] Log frame successfully saved.");
                         }
@@ -234,8 +241,9 @@ public class ProjectLogFramePresenter implements SubPresenter {
 
                         // Informs of the success.
                         Notification.show(I18N.CONSTANTS.infoConfirmation(), I18N.CONSTANTS.saveConfirm());
+                        logFrameUpdated = false;
                         view.getSaveButton().setEnabled(false);
-                        
+
                         // broadcast an indicator change event to be safe
                         eventBus.fireEvent(new IndicatorEvent(IndicatorEvent.CHANGED, ProjectLogFramePresenter.this));
                     }
@@ -258,42 +266,41 @@ public class ProjectLogFramePresenter implements SubPresenter {
         // Paste action.
         view.getPasteButton().addListener(Events.OnClick, new Listener<BaseEvent>() {
 
-        	@Override
-        	public void handleEvent(BaseEvent be) {
-        		final ConfirmPasteDialog dialog = new ConfirmPasteDialog();
-        		dialog.show(new FormDialogCallback() {
+            @Override
+            public void handleEvent(BaseEvent be) {
+                final ConfirmPasteDialog dialog = new ConfirmPasteDialog();
+                dialog.show(new FormDialogCallback() {
 
-        			@Override
-        			public void onValidated() {
-        				final CopyLogFrame copyLogFrame = CopyLogFrame
-        				.from(logFrameIdCopySource)
-        				.to(currentProjectDTO)
-        				.with(dialog.isLinkIndicatorsChecked() ?
-        						IndicatorCopyStrategy.DUPLICATE_AND_LINK :
-        						IndicatorCopyStrategy.DUPLICATE);
+                    @Override
+                    public void onValidated() {
+                        final CopyLogFrame copyLogFrame =
+                                CopyLogFrame
+                                    .from(logFrameIdCopySource)
+                                    .to(currentProjectDTO)
+                                    .with(
+                                        dialog.isLinkIndicatorsChecked() ? IndicatorCopyStrategy.DUPLICATE_AND_LINK : IndicatorCopyStrategy.DUPLICATE);
 
-        				dispatcher.execute(copyLogFrame, null, new AsyncCallback<LogFrameDTO>() {
+                        dispatcher.execute(copyLogFrame, null, new AsyncCallback<LogFrameDTO>() {
 
-        					@Override
-        					public void onFailure(Throwable caught) {
-        						MessageBox.alert(I18N.CONSTANTS.paste(),
-        								I18N.CONSTANTS.logFramePasteError(), null);
-        					}
+                            @Override
+                            public void onFailure(Throwable caught) {
+                                MessageBox.alert(I18N.CONSTANTS.paste(), I18N.CONSTANTS.logFramePasteError(), null);
+                            }
 
-        					@Override
-        					public void onSuccess(LogFrameDTO result) {
-        						logFrame = result;
-        						currentProjectDTO.setLogFrameDTO(result);
+                            @Override
+                            public void onSuccess(LogFrameDTO result) {
+                                logFrame = result;
+                                currentProjectDTO.setLogFrameDTO(result);
 
-        						fillAndInit();
-        						Notification.show(I18N.CONSTANTS.paste(), I18N.CONSTANTS.logFramePasted());
-        					}
+                                fillAndInit();
+                                Notification.show(I18N.CONSTANTS.paste(), I18N.CONSTANTS.logFramePasted());
+                            }
 
-        				});
-        			}
+                        });
+                    }
 
-        		});
-            
+                });
+
             }
         });
 
@@ -331,9 +338,10 @@ public class ProjectLogFramePresenter implements SubPresenter {
     }
 
     private boolean isEditable() {
-        return logFrame != null && currentProjectDTO.getAmendmentState() == Amendment.State.DRAFT
-                && currentProjectDTO.getCurrentAmendment() == null
-                && ProfileUtils.isGranted(authentication, GlobalPermissionEnum.EDIT_PROJECT);
+        return logFrame != null
+            && currentProjectDTO.getAmendmentState() == Amendment.State.DRAFT
+            && currentProjectDTO.getCurrentAmendment() == null
+            && ProfileUtils.isGranted(authentication, GlobalPermissionEnum.EDIT_PROJECT);
     }
 
     /**
@@ -343,7 +351,7 @@ public class ProjectLogFramePresenter implements SubPresenter {
 
         // Fill the log frame title with the project's title
         view.getLogFrameTitleContentLabel().setText(currentProjectDTO.getFullName());
-        
+
         if (logFrame != null) {
             // Fill the log frame main objective.
             view.getLogFrameMainObjectiveTextBox().setValue(logFrame.getMainObjective());
@@ -362,10 +370,8 @@ public class ProjectLogFramePresenter implements SubPresenter {
         view.getSaveButton().setEnabled(false);
         view.getCopyButton().setEnabled(true);
         view.getPasteButton().setEnabled(
-                isEditable() && logFrameIdCopySource != null && currentProjectDTO.getCurrentAmendment() == null);
+            isEditable() && logFrameIdCopySource != null && currentProjectDTO.getCurrentAmendment() == null);
         view.getExcelExportButton().setEnabled(false);
     }
-    
-    
-   
+
 }

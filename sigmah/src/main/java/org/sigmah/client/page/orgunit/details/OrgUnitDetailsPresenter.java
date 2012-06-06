@@ -64,7 +64,7 @@ public class OrgUnitDetailsPresenter implements SubPresenter {
     private final Authentication authentication;
 
     private final UserLocalCache cache;
-    
+
     private final EventBus eventBus;
 
     /**
@@ -82,8 +82,7 @@ public class OrgUnitDetailsPresenter implements SubPresenter {
      */
     private int maskCount;
 
-    public OrgUnitDetailsPresenter(Dispatcher dispatcher, Authentication authentication, OrgUnitPresenter mainPrsenter,
-            UserLocalCache cache, EventBus eventBus) {
+    public OrgUnitDetailsPresenter(Dispatcher dispatcher, Authentication authentication, OrgUnitPresenter mainPrsenter, UserLocalCache cache, EventBus eventBus) {
         this.dispatcher = dispatcher;
         this.mainPresenter = mainPrsenter;
         this.authentication = authentication;
@@ -117,6 +116,16 @@ public class OrgUnitDetailsPresenter implements SubPresenter {
         // nothing to do.
     }
 
+    @Override
+    public boolean hasValueChanged() {
+        return !valueChanges.isEmpty();
+    }
+
+    @Override
+    public void forgetAllChangedValues() {
+        valueChanges.clear();
+    }
+
     /**
      * Initializes the presenter.
      */
@@ -130,42 +139,42 @@ public class OrgUnitDetailsPresenter implements SubPresenter {
 
                 view.getSaveButton().disable();
 
-                final UpdateProject updateProject = new UpdateProject(mainPresenter.getCurrentOrgUnitDTO().getId(),
-                        valueChanges);
+                final UpdateProject updateProject =
+                        new UpdateProject(mainPresenter.getCurrentOrgUnitDTO().getId(), valueChanges);
 
                 dispatcher.execute(updateProject,
-                        new MaskingAsyncMonitor(view.getMainPanel(), I18N.CONSTANTS.loading()),
-                        new AsyncCallback<VoidResult>() {
+                    new MaskingAsyncMonitor(view.getMainPanel(), I18N.CONSTANTS.loading()),
+                    new AsyncCallback<VoidResult>() {
 
-                            @Override
-                            public void onFailure(Throwable caught) {
+                        @Override
+                        public void onFailure(Throwable caught) {
 
-                                MessageBox.alert(I18N.CONSTANTS.save(), I18N.CONSTANTS.saveError(), null);
-                            }
+                            MessageBox.alert(I18N.CONSTANTS.save(), I18N.CONSTANTS.saveError(), null);
+                        }
 
-                            @Override
-                            public void onSuccess(VoidResult result) {
+                        @Override
+                        public void onSuccess(VoidResult result) {
 
-                                Notification.show(I18N.CONSTANTS.infoConfirmation(), I18N.CONSTANTS.saveConfirm());
+                            Notification.show(I18N.CONSTANTS.infoConfirmation(), I18N.CONSTANTS.saveConfirm());
 
-                                // Checks if there is any update needed to the
-                                // local project instance.
-                                boolean refreshBanner = false;
-                                for (ValueEvent event : valueChanges) {
-                                    if (event.getSource() instanceof DefaultFlexibleElementDTO) {
-                                        updateCurrentProject(((DefaultFlexibleElementDTO) event.getSource()),
-                                                event.getSingleValue());
-                                        refreshBanner = true;
-                                    }
-                                }
-
-                                valueChanges.clear();
-
-                                if (refreshBanner) {
-                                    mainPresenter.refreshBanner();
+                            // Checks if there is any update needed to the
+                            // local project instance.
+                            boolean refreshBanner = false;
+                            for (ValueEvent event : valueChanges) {
+                                if (event.getSource() instanceof DefaultFlexibleElementDTO) {
+                                    updateCurrentProject(((DefaultFlexibleElementDTO) event.getSource()),
+                                        event.getSingleValue());
+                                    refreshBanner = true;
                                 }
                             }
-                        });
+
+                            valueChanges.clear();
+
+                            if (refreshBanner) {
+                                mainPresenter.refreshBanner();
+                            }
+                        }
+                    });
             }
         });
     }
@@ -219,8 +228,9 @@ public class OrgUnitDetailsPresenter implements SubPresenter {
                         // --
 
                         // Remote call to ask for this element value.
-                        final GetValue command = new GetValue(mainPresenter.getCurrentOrgUnitDTO().getId(),
-                                elementDTO.getId(), elementDTO.getEntityName());
+                        final GetValue command =
+                                new GetValue(mainPresenter.getCurrentOrgUnitDTO().getId(), elementDTO.getId(),
+                                    elementDTO.getEntityName());
                         dispatcher.execute(command, null, new AsyncCallback<ValueResult>() {
 
                             @Override
@@ -310,8 +320,7 @@ public class OrgUnitDetailsPresenter implements SubPresenter {
     }
 
     /**
-     * Decrements the mask counter and unmask the main panel if the counter
-     * reaches <code>0</code>.
+     * Decrements the mask counter and unmask the main panel if the counter reaches <code>0</code>.
      */
     private void unmask() {
         maskCount--;
@@ -333,31 +342,31 @@ public class OrgUnitDetailsPresenter implements SubPresenter {
         final OrgUnitDTO currentOrgUnitDTO = mainPresenter.getCurrentOrgUnitDTO();
 
         switch (element.getType()) {
-        case CODE:
-            currentOrgUnitDTO.setName(value);
-            break;
-        case TITLE:
-            currentOrgUnitDTO.setFullName(value);
-            break;
-        case BUDGET:
-            try {
+            case CODE:
+                currentOrgUnitDTO.setName(value);
+                break;
+            case TITLE:
+                currentOrgUnitDTO.setFullName(value);
+                break;
+            case BUDGET:
+                try {
 
-                final String[] budgets = value.split("\\|");
-                final double plannedBudget = Double.parseDouble(budgets[0]);
-                final double spendBudget = Double.parseDouble(budgets[1]);
-                final double receivedBudget = Double.parseDouble(budgets[2]);
+                    final String[] budgets = value.split("\\|");
+                    final double plannedBudget = Double.parseDouble(budgets[0]);
+                    final double spendBudget = Double.parseDouble(budgets[1]);
+                    final double receivedBudget = Double.parseDouble(budgets[2]);
 
-                currentOrgUnitDTO.setPlannedBudget(plannedBudget);
-                currentOrgUnitDTO.setSpendBudget(spendBudget);
-                currentOrgUnitDTO.setReceivedBudget(receivedBudget);
+                    currentOrgUnitDTO.setPlannedBudget(plannedBudget);
+                    currentOrgUnitDTO.setSpendBudget(spendBudget);
+                    currentOrgUnitDTO.setReceivedBudget(receivedBudget);
 
-            } catch (Exception e) {
-                // nothing, invalid budget.
-            }
-            break;
-        default:
-            // Nothing, non managed type.
-            break;
+                } catch (Exception e) {
+                    // nothing, invalid budget.
+                }
+                break;
+            default:
+                // Nothing, non managed type.
+                break;
         }
     }
 

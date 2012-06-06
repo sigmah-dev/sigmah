@@ -11,27 +11,35 @@ import com.google.inject.Inject;
 
 public class ProjectSiteGridPanel extends SiteGridPanel implements SubPresenter {
 
-	@Inject
-	public ProjectSiteGridPanel(EventBus eventBus, Dispatcher service,
-			IStateManager stateMgr) {
-		super(eventBus, service, stateMgr);
-		setHeaderVisible(false);
-		
-	}
+    @Inject
+    public ProjectSiteGridPanel(EventBus eventBus, Dispatcher service, IStateManager stateMgr) {
+        super(eventBus, service, stateMgr);
+        setHeaderVisible(false);
 
-	@Override
-	public Component getView() {
-		return this;
-	}
+    }
 
-	@Override
-	public void discardView() {
-		
-	}
+    @Override
+    public Component getView() {
+        return this;
+    }
 
-	@Override
-	public void viewDidAppear() {
-				
-	}
+    @Override
+    public void discardView() {
+
+    }
+
+    @Override
+    public void viewDidAppear() {
+
+    }
+
+    @Override
+    public boolean hasValueChanged() {
+        return isSiteUpdated();
+    }
+
+    @Override
+    public void forgetAllChangedValues() {
+    }
 
 }

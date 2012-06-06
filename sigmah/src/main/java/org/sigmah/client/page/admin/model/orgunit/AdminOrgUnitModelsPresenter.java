@@ -11,6 +11,7 @@ import org.sigmah.client.page.admin.AdminUtil;
 import org.sigmah.shared.command.GetOrgUnitModels;
 import org.sigmah.shared.command.result.OrgUnitModelListResult;
 import org.sigmah.shared.dto.OrgUnitModelDTO;
+
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
@@ -29,6 +30,7 @@ public class AdminOrgUnitModelsPresenter implements AdminSubPresenter {
 
     @ImplementedBy(AdminOrgUnitModelsView.class)
     public static abstract class View extends ContentPanel {
+
         public abstract AdminModelsStore getAdminModelsStore();
 
         public abstract MaskingAsyncMonitor getOrgUnitModelsLoadingMonitor();
@@ -44,8 +46,7 @@ public class AdminOrgUnitModelsPresenter implements AdminSubPresenter {
     }
 
     @Inject
-    public AdminOrgUnitModelsPresenter(Dispatcher dispatcher, UserLocalCache cache,
-            final Authentication authentication, EventBus eventBus, final AdminPageState currentState) {
+    public AdminOrgUnitModelsPresenter(Dispatcher dispatcher, UserLocalCache cache, final Authentication authentication, EventBus eventBus, final AdminPageState currentState) {
         this.currentState = currentState;
         // this.cache = cache;
         this.dispatcher = dispatcher;
@@ -55,22 +56,23 @@ public class AdminOrgUnitModelsPresenter implements AdminSubPresenter {
 
     public static void refreshOrgUnitModelsPanel(Dispatcher dispatcher, final View view) {
         dispatcher.execute(new GetOrgUnitModels(), view.getOrgUnitModelsLoadingMonitor(),
-                new AsyncCallback<OrgUnitModelListResult>() {
-                    @Override
-                    public void onFailure(Throwable arg0) {
-                        AdminUtil.alertPbmData(alert);
+            new AsyncCallback<OrgUnitModelListResult>() {
+
+                @Override
+                public void onFailure(Throwable arg0) {
+                    AdminUtil.alertPbmData(alert);
+                }
+
+                @Override
+                public void onSuccess(OrgUnitModelListResult result) {
+                    if (result.getList() != null && !result.getList().isEmpty()) {
+                        view.getAdminModelsStore().removeAll();
+                        view.getAdminModelsStore().add(result.getList());
+                        view.getAdminModelsStore().commitChanges();
                     }
 
-                    @Override
-                    public void onSuccess(OrgUnitModelListResult result) {
-                        if (result.getList() != null && !result.getList().isEmpty()) {
-                            view.getAdminModelsStore().removeAll();
-                            view.getAdminModelsStore().add(result.getList());
-                            view.getAdminModelsStore().commitChanges();
-                        }
-
-                    }
-                });
+                }
+            });
     }
 
     @Override
@@ -98,6 +100,15 @@ public class AdminOrgUnitModelsPresenter implements AdminSubPresenter {
 
     @Override
     public void viewDidAppear() {
+    }
+
+    @Override
+    public boolean hasValueChanged() {
+        return false;
+    }
+
+    @Override
+    public void forgetAllChangedValues() {
     }
 
 }

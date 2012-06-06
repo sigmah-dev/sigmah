@@ -1,21 +1,14 @@
 /*
- * All Sigmah code is released under the GNU General Public License v3
- * See COPYRIGHT.txt and LICENSE.txt.
+ * All Sigmah code is released under the GNU General Public License v3 See COPYRIGHT.txt and LICENSE.txt.
  */
 
 package org.sigmah.client.page.report;
 
-import com.extjs.gxt.ui.client.store.GroupingStore;
-import com.extjs.gxt.ui.client.store.ListStore;
-import com.extjs.gxt.ui.client.store.Record;
-import com.extjs.gxt.ui.client.store.Store;
-import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.inject.ImplementedBy;
-import com.google.inject.Inject;
 import org.sigmah.client.EventBus;
 import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.dispatch.loader.ListCmdLoader;
 import org.sigmah.client.event.NavigationEvent;
+import org.sigmah.client.event.NavigationEvent.NavigationError;
 import org.sigmah.client.page.NavigationCallback;
 import org.sigmah.client.page.NavigationHandler;
 import org.sigmah.client.page.PageId;
@@ -25,20 +18,34 @@ import org.sigmah.client.page.common.dialog.FormDialogImpl;
 import org.sigmah.client.page.common.grid.AbstractEditorGridPresenter;
 import org.sigmah.client.page.common.grid.GridView;
 import org.sigmah.client.util.state.IStateManager;
-import org.sigmah.shared.command.*;
+import org.sigmah.shared.command.BatchCommand;
+import org.sigmah.shared.command.Command;
+import org.sigmah.shared.command.CreateReportDef;
+import org.sigmah.shared.command.GetReportTemplates;
+import org.sigmah.shared.command.UpdateSubscription;
 import org.sigmah.shared.command.result.CreateResult;
 import org.sigmah.shared.dto.ReportDefinitionDTO;
 
+import com.extjs.gxt.ui.client.store.GroupingStore;
+import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.store.Record;
+import com.extjs.gxt.ui.client.store.Store;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.inject.ImplementedBy;
+import com.google.inject.Inject;
+
 /**
  * Page which presents the list of reports visible to the user
- *
+ * 
  * @author Alex Bertram
  */
 public class ReportListPagePresenter extends AbstractEditorGridPresenter<ReportDefinitionDTO> {
+
     public static final PageId ReportHome = new PageId("reports");
 
     @ImplementedBy(ReportListPageView.class)
     public interface View extends GridView<ReportListPagePresenter, ReportDefinitionDTO> {
+
         public void init(ReportListPagePresenter presenter, ListStore<ReportDefinitionDTO> store);
     }
 
@@ -72,15 +79,12 @@ public class ReportListPagePresenter extends AbstractEditorGridPresenter<ReportD
 
     }
 
-
     @Override
     protected Command createSaveCommand() {
         BatchCommand batch = new BatchCommand();
         for (Record record : store.getModifiedRecords()) {
             ReportDefinitionDTO report = (ReportDefinitionDTO) record.getModel();
-            batch.add(new UpdateSubscription(
-                    report.getId(),
-                    report.isSubscribed()));
+            batch.add(new UpdateSubscription(report.getId(), report.isSubscribed()));
         }
         return batch;
     }
@@ -107,8 +111,9 @@ public class ReportListPagePresenter extends AbstractEditorGridPresenter<ReportD
         return view;
     }
 
-    public void requestToNavigateAway(PageState place, NavigationCallback callback) {
-        callback.onDecided(true);
+    @Override
+    public void requestToNavigateAway(PageState place, final NavigationCallback callback) {
+        callback.onDecided(NavigationError.NONE);
     }
 
     public String beforeWindowCloses() {
@@ -116,8 +121,8 @@ public class ReportListPagePresenter extends AbstractEditorGridPresenter<ReportD
     }
 
     public void onTemplateSelected(ReportDefinitionDTO dto) {
-        eventBus.fireEvent(new NavigationEvent(NavigationHandler.NavigationRequested,
-                new ReportPreviewPageState(dto.getId())));
+        eventBus.fireEvent(new NavigationEvent(NavigationHandler.NavigationRequested, new ReportPreviewPageState(dto
+            .getId()), null));
     }
 
     public void onNewReport(final int dbId) {
@@ -129,10 +134,12 @@ public class ReportListPagePresenter extends AbstractEditorGridPresenter<ReportD
         dlg.setWidth(400);
         dlg.setHeight(400);
         dlg.show(new FormDialogCallback() {
+
             @Override
             public void onValidated() {
 
                 service.execute(new CreateReportDef(dbId, form.getXml()), dlg, new AsyncCallback<CreateResult>() {
+
                     public void onFailure(Throwable caught) {
                         dlg.onServerError();
                     }

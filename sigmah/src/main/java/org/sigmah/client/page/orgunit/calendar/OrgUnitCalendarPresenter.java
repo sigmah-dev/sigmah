@@ -1,6 +1,5 @@
 /*
- * All Sigmah code is released under the GNU General Public License v3
- * See COPYRIGHT.txt and LICENSE.txt.
+ * All Sigmah code is released under the GNU General Public License v3 See COPYRIGHT.txt and LICENSE.txt.
  */
 
 package org.sigmah.client.page.orgunit.calendar;
@@ -24,7 +23,6 @@ import com.extjs.gxt.ui.client.widget.grid.CheckBoxSelectionModel;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
- * 
  * @author tmi
  */
 public class OrgUnitCalendarPresenter implements SubPresenter {
@@ -81,6 +79,7 @@ public class OrgUnitCalendarPresenter implements SubPresenter {
         // Fetching the calendars
         if (calendarStore.getCount() == 0) {
             final AsyncCallback<Calendar> callback = new AsyncCallback<Calendar>() {
+
                 @Override
                 public void onSuccess(Calendar result) {
                     // Defines the color index of the calendar
@@ -107,6 +106,15 @@ public class OrgUnitCalendarPresenter implements SubPresenter {
                 dispatcher.execute(getPersonalCalendar, null, callback);
             }
         }
+    }
+
+    @Override
+    public boolean hasValueChanged() {
+        return false;
+    }
+
+    @Override
+    public void forgetAllChangedValues() {
     }
 
 }

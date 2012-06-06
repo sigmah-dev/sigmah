@@ -1,13 +1,13 @@
 /*
- * All Sigmah code is released under the GNU General Public License v3
- * See COPYRIGHT.txt and LICENSE.txt.
+ * All Sigmah code is released under the GNU General Public License v3 See COPYRIGHT.txt and LICENSE.txt.
  */
 
 package org.sigmah.client.event;
 
+import org.sigmah.client.page.PageState;
+
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.EventType;
-import org.sigmah.client.page.PageState;
 
 /**
  * Encapsulates information related to page navigation events.
@@ -16,17 +16,51 @@ import org.sigmah.client.page.PageState;
  */
 public class NavigationEvent extends BaseEvent {
 
-    private final PageState place;
+    public enum NavigationError {
+        WORK_NOT_SAVED,
+        EXECUTION_ERROR,
+        NONE
+    }
 
-    public NavigationEvent(EventType type, PageState place) {
+    private final PageState place;
+    // An event can be created from another event, so this event is the parent of the first one
+    private final NavigationEvent parentEvent;
+    private NavigationError navigationError;
+    private Object parentObject;
+
+    public NavigationEvent(EventType type, PageState place, NavigationEvent parentEvent) {
         super(type);
         this.place = place;
-
         assert this.place != null;
+        this.parentEvent = parentEvent;
+        this.parentObject = null;
+    }
+
+    public NavigationEvent(EventType type, PageState place, NavigationEvent parentEvent, Object parentObject) {
+        this(type, place, parentEvent);
+        this.parentObject = parentObject;
     }
 
     public PageState getPlace() {
         return place;
+    }
+
+    public NavigationError getNavigationError() {
+        if (navigationError == null)
+            return NavigationError.EXECUTION_ERROR;
+        return navigationError;
+    }
+
+    public void setNavigationError(NavigationError navigationError) {
+        this.navigationError = navigationError;
+    }
+
+    public NavigationEvent getParentEvent() {
+        return parentEvent;
+    }
+
+    public Object getParentObject() {
+        return parentObject;
     }
 
     @Override

@@ -39,7 +39,6 @@ import com.google.gwt.event.dom.client.ClickHandler;
  * Widget to represents the organizational chart of an org unit.
  * 
  * @author tmi
- * 
  */
 public class OrgUnitTreeGrid {
 
@@ -49,8 +48,7 @@ public class OrgUnitTreeGrid {
     private final TreeGrid<OrgUnitDTOLight> tree;
 
     /**
-     * The selection model (can be <code>null</code> if the tree doesn't manage
-     * a selection model).
+     * The selection model (can be <code>null</code> if the tree doesn't manage a selection model).
      */
     private TreeGridCheckboxSelectionModel<OrgUnitDTOLight> selectionModel;
 
@@ -81,14 +79,15 @@ public class OrgUnitTreeGrid {
             public Object render(final OrgUnitDTOLight model, String property, ColumnData config, int rowIndex,
                     int colIndex, ListStore<OrgUnitDTOLight> store, Grid<OrgUnitDTOLight> grid) {
 
-                final com.google.gwt.user.client.ui.Label visitButton = new com.google.gwt.user.client.ui.Label(
-                        (String) model.get(property));
+                final com.google.gwt.user.client.ui.Label visitButton =
+                        new com.google.gwt.user.client.ui.Label((String) model.get(property));
                 visitButton.addStyleName("flexibility-action");
                 visitButton.addClickHandler(new ClickHandler() {
+
                     @Override
                     public void onClick(ClickEvent e) {
                         eventBus.fireEvent(new NavigationEvent(NavigationHandler.NavigationRequested, new OrgUnitState(
-                                model.getId())));
+                            model.getId()), null));
                     }
                 });
 
@@ -139,7 +138,7 @@ public class OrgUnitTreeGrid {
 
                 if ("country".equals(property)) {
                     return ((CountryDTO) m1.get(property)).getName().compareToIgnoreCase(
-                            ((CountryDTO) m2.get(property)).getName());
+                        ((CountryDTO) m2.get(property)).getName());
                 } else {
                     return super.compare(store, m1, m2, property);
                 }
@@ -160,24 +159,26 @@ public class OrgUnitTreeGrid {
         }
 
         // Expand all button.
-        final Button expandButton = new Button(I18N.CONSTANTS.expandAll(), IconImageBundle.ICONS.expand(),
-                new SelectionListener<ButtonEvent>() {
+        final Button expandButton =
+                new Button(I18N.CONSTANTS.expandAll(), IconImageBundle.ICONS.expand(),
+                    new SelectionListener<ButtonEvent>() {
 
-                    @Override
-                    public void componentSelected(ButtonEvent ce) {
-                        tree.expandAll();
-                    }
-                });
+                        @Override
+                        public void componentSelected(ButtonEvent ce) {
+                            tree.expandAll();
+                        }
+                    });
 
         // Collapse all button.
-        final Button collapseButton = new Button(I18N.CONSTANTS.collapseAll(), IconImageBundle.ICONS.collapse(),
-                new SelectionListener<ButtonEvent>() {
+        final Button collapseButton =
+                new Button(I18N.CONSTANTS.collapseAll(), IconImageBundle.ICONS.collapse(),
+                    new SelectionListener<ButtonEvent>() {
 
-                    @Override
-                    public void componentSelected(ButtonEvent ce) {
-                        tree.collapseAll();
-                    }
-                });
+                        @Override
+                        public void componentSelected(ButtonEvent ce) {
+                            tree.collapseAll();
+                        }
+                    });
 
         // Toolbar
         toolbar = new ToolBar();

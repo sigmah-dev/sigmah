@@ -1,6 +1,5 @@
 /*
- * All Sigmah code is released under the GNU General Public License v3
- * See COPYRIGHT.txt and LICENSE.txt.
+ * All Sigmah code is released under the GNU General Public License v3 See COPYRIGHT.txt and LICENSE.txt.
  */
 
 package org.sigmah.client;
@@ -12,6 +11,7 @@ import org.sigmah.client.dispatch.AsyncMonitor;
 import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.dispatch.remote.Authentication;
 import org.sigmah.client.event.NavigationEvent;
+import org.sigmah.client.event.NavigationEvent.NavigationError;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.inject.SigmahAuthProvider;
 import org.sigmah.client.offline.sigmah.DispatchOperator;
@@ -32,6 +32,7 @@ import org.sigmah.client.ui.CreditFrame;
 import org.sigmah.client.ui.SigmahViewport;
 import org.sigmah.client.ui.Tab;
 import org.sigmah.client.ui.TabBar;
+import org.sigmah.client.ui.TabBar.TabAction;
 import org.sigmah.client.ui.TabModel;
 import org.sigmah.shared.command.GetApplicationInfo;
 import org.sigmah.shared.command.GetHostServerInfo;
@@ -42,7 +43,6 @@ import org.sigmah.shared.dto.value.FileUploadUtils;
 
 import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -66,302 +66,322 @@ import com.google.inject.Inject;
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
 public class SigmahAppFrame implements Frame {
-	public static final int HEADER_DEFAULT_HEIGHT = 90;
 
-	private Page activePage;
+    public static final int HEADER_DEFAULT_HEIGHT = 90;
 
-	private SigmahViewport view;
+    private Page activePage;
 
-	private PageState activePageState;
+    private SigmahViewport view;
 
-	@Inject
-	public SigmahAppFrame(EventBus eventBus, final Authentication auth,
-			final TabModel tabModel, final Dispatcher dispatcher,
-			final UserLocalCache cache, final OnlineMode onlineMode) {
+    private PageState activePageState;
 
-		if (auth == null) {
-			RootPanel.get().add(new LoginView());
-			RootPanel.get("loading").getElement().removeFromParent();
+    @Inject
+    public SigmahAppFrame(final EventBus eventBus, final Authentication auth, final TabModel tabModel, final Dispatcher dispatcher, final UserLocalCache cache, final OnlineMode onlineMode) {
 
-		} else {
+        if (auth == null) {
+            RootPanel.get().add(new LoginView());
+            RootPanel.get("loading").getElement().removeFromParent();
 
-			// Init cache first.
-			cache.init();
+        } else {
 
-			// The user is already logged in
-			RootPanel.get("username").add(new Label(auth.getEmail()));
-			
-			final Anchor reportButton = new Anchor(I18N.CONSTANTS.bugReport());			
-								
-			dispatcher.execute(new GetHostServerInfo(), null, new AsyncCallback<HostServerInfo>(){
+            // Init cache first.
+            cache.init();
 
-						@Override
-						public void onFailure(Throwable caught) {
-							//Do nothing
-							
-						}
+            // The user is already logged in
+            RootPanel.get("username").add(new Label(auth.getEmail()));
 
-						@Override
-						public void onSuccess(HostServerInfo result) {							
-							
-							configureReportAnchor(reportButton,auth,result.getHostUrl());
-							
-						}
-						
-			});
-					
-						
-			RootPanel.get("bugreport").add(reportButton);
-		
+            final Anchor reportButton = new Anchor(I18N.CONSTANTS.bugReport());
 
-			final Anchor helpButton = new Anchor(I18N.CONSTANTS.help());
-			helpButton.addClickHandler(new ClickHandler() {
+            dispatcher.execute(new GetHostServerInfo(), null, new AsyncCallback<HostServerInfo>() {
 
-				@Override
-				public void onClick(ClickEvent event) {
-					SigmahHelpWindow.show(activePageState);
-				}
-			});
-			RootPanel.get("help").add(helpButton);
+                @Override
+                public void onFailure(Throwable caught) {
+                    // Do nothing
 
-			// Logout action
-			final Anchor logoutButton = new Anchor(I18N.CONSTANTS.logout());
-			logoutButton.addClickHandler(new ClickHandler() {
-				@Override
-				public void onClick(ClickEvent event) {
-					Cookies.removeCookie(
-							org.sigmah.shared.Cookies.AUTH_TOKEN_COOKIE, "/");
-					Window.Location.reload();
-				}
-			});
-			if (RootPanel.get("logout") != null) {
-				RootPanel.get("logout").add(logoutButton);
-			}
+                }
 
-			// Offline
-			if (dispatcher instanceof DispatchOperator
-					&& Factory.getInstance() != null)
-				RootPanel.get("offline-status").add(
-						OfflineLabelFactory.getLabel(
-								(DispatchOperator) dispatcher, onlineMode));
+                @Override
+                public void onSuccess(HostServerInfo result) {
 
-			// Credit
-			final Anchor creditButton = new Anchor(I18N.CONSTANTS.credits());
-			creditButton.addClickHandler(new ClickHandler() {
+                    configureReportAnchor(reportButton, auth, result.getHostUrl());
 
-				boolean initalized = false;
+                }
 
-				@Override
-				public void onClick(ClickEvent event) {
+            });
 
-					if (initalized) {
-						CreditFrame.show();
-					} else {
-						dispatcher.execute(new GetApplicationInfo(), null,
-								new AsyncCallback<ApplicationInfo>() {
+            RootPanel.get("bugreport").add(reportButton);
 
-									@Override
-									public void onFailure(Throwable caught) {
-										// nothing.
-									}
+            final Anchor helpButton = new Anchor(I18N.CONSTANTS.help());
+            helpButton.addClickHandler(new ClickHandler() {
 
-									@Override
-									public void onSuccess(ApplicationInfo result) {
-										CreditFrame.init(result);
-										CreditFrame.show();
-									}
-								});
-					}
-				}
-			});
+                @Override
+                public void onClick(ClickEvent event) {
+                    SigmahHelpWindow.show(activePageState);
+                }
+            });
+            RootPanel.get("help").add(helpButton);
 
-			if (RootPanel.get("credit") != null) {
-				RootPanel.get("credit").add(creditButton);
-			}
+            // Logout action
+            final Anchor logoutButton = new Anchor(I18N.CONSTANTS.logout());
 
-			// Tab bar
-			final TabBar tabBar = new TabBar(tabModel, eventBus);
-			activePageState = new DashboardPageState();
-			final Tab dashboardTab = tabModel.add(I18N.CONSTANTS.dashboard(),
-					activePageState, false);
-			tabBar.addTabStyleName(tabModel.indexOf(dashboardTab), "home");
+            if (RootPanel.get("logout") != null) {
+                RootPanel.get("logout").add(logoutButton);
+            }
 
-			final RootPanel tabs = RootPanel.get("tabs");
-			tabs.add(tabBar);
+            // Offline
+            if (dispatcher instanceof DispatchOperator && Factory.getInstance() != null)
+                RootPanel.get("offline-status").add(
+                    OfflineLabelFactory.getLabel((DispatchOperator) dispatcher, onlineMode));
 
-			eventBus.addListener(NavigationHandler.NavigationAgreed,
-					new Listener<NavigationEvent>() {
-						@Override
-						public void handleEvent(NavigationEvent be) {
-							final PageState state = be.getPlace();
-							activePageState = state;
-							final String title;
-							if (state instanceof TabPage)
-								title = ((TabPage) state).getTabTitle();
-							else
-								title = I18N.CONSTANTS.title();
+            // Credit
+            final Anchor creditButton = new Anchor(I18N.CONSTANTS.credits());
+            creditButton.addClickHandler(new ClickHandler() {
 
-							final Tab tab = tabModel.add(title, be.getPlace(),
-									true);
+                boolean initalized = false;
 
-							if (state instanceof HasTab)
-								((HasTab) state).setTab(tab);
-						}
-					});
+                @Override
+                public void onClick(ClickEvent event) {
 
-			int clutterHeight = getDecorationHeight(HEADER_DEFAULT_HEIGHT);
+                    if (initalized) {
+                        CreditFrame.show();
+                    } else {
+                        dispatcher.execute(new GetApplicationInfo(), null, new AsyncCallback<ApplicationInfo>() {
 
-			// Configure Ext-GWT viewport
-			this.view = new SigmahViewport(0, clutterHeight);
-			this.view.setLayout(new FitLayout());
-			this.view.syncSize();
-			this.view.setBorders(true);
+                            @Override
+                            public void onFailure(Throwable caught) {
+                                // nothing.
+                            }
 
-			RootPanel.get("content").add(this.view);
+                            @Override
+                            public void onSuccess(ApplicationInfo result) {
+                                CreditFrame.init(result);
+                                CreditFrame.show();
+                            }
+                        });
+                    }
+                }
+            });
 
-			cache.getOrganizationCache().getOrganization(
-					new AsyncCallback<OrganizationDTO>() {
+            if (RootPanel.get("credit") != null) {
+                RootPanel.get("credit").add(creditButton);
+            }
 
-						@Override
-						public void onSuccess(OrganizationDTO result) {
+            // Tab bar
+            final TabBar tabBar = new TabBar(tabModel, eventBus);
+            activePageState = new DashboardPageState();
+            final Tab dashboardTab = tabModel.add(I18N.CONSTANTS.dashboard(), activePageState, false);
+            tabBar.addTabStyleName(tabModel.indexOf(dashboardTab), "home");
 
-							if (result != null) {
-								// Sets organization parameters.
-								RootPanel
-										.get("orgname")
-										.getElement()
-										.setInnerHTML(
-												result.getName().toUpperCase());
-								RootPanel
-										.get("orglogo")
-										.getElement()
-										.setAttribute(
-												"style",
-												"background-image: url("
-														+ GWT.getModuleBaseURL()
-														+ "image-provider?"
-														+ FileUploadUtils.IMAGE_URL
-														+ "="
-														+ result.getLogo()
-														+ ")");
-							}
-						}
+            final RootPanel tabs = RootPanel.get("tabs");
+            tabs.add(tabBar);
 
-						@Override
-						public void onFailure(Throwable e) {
-							Log.error(
-									"[execute] Error while getting the organization for user #id "
-											+ auth.getUserId() + ".", e);
-						}
-					});
+            eventBus.addListener(NavigationHandler.NavigationAgreed, new Listener<NavigationEvent>() {
+
+                @Override
+                public void handleEvent(NavigationEvent be) {
+                    if (be.getParentObject() instanceof TabBar
+                        && be.getNavigationError() == NavigationError.NONE
+                        && be.getParentEvent().getNavigationError() == NavigationError.WORK_NOT_SAVED) {
+                        if (tabBar.getLastAction() == TabAction.REMOVE) {
+                            final Tab currentTab = tabModel.get(tabBar.getSelectedIndex());
+                            tabModel.remove(currentTab);
+                        } else if (tabBar.getLastAction() == TabAction.NAVIGATE) {
+                            final Tab targetTab = tabModel.get(be.getPlace());
+                            NavigationError navigationError = tabBar.displayTab(targetTab);
+                            if (navigationError == NavigationError.NONE) {
+                                tabBar.setSelectedIndex(tabModel.indexOf(targetTab));
+                            }
+                        }
+                    } else if (be.getParentObject() == logoutButton
+                        && be.getNavigationError() == NavigationError.NONE
+                        && be.getParentEvent().getNavigationError() == NavigationError.WORK_NOT_SAVED) {
+                        logOut();
+                    } else {
+                        final PageState state = be.getPlace();
+                        activePageState = state;
+                        final String title;
+                        if (state instanceof TabPage)
+                            title = ((TabPage) state).getTabTitle();
+                        else
+                            title = I18N.CONSTANTS.title();
+
+                        final Tab targetTab = tabModel.add(title, be.getPlace(), true);
+
+                        if (state instanceof HasTab)
+                            ((HasTab) state).setTab(targetTab);
+                    }
+
+                }
+            });
+
+            // ClickHandler for the logout button
+            logoutButton.addClickHandler(new ClickHandler() {
+
+                @Override
+                public void onClick(ClickEvent event) {
+                    Tab targetTab = null;
+                    if (tabBar.getSelectedIndex() > 0) {
+                        targetTab = tabModel.get(tabBar.getSelectedIndex() - 1);
+                    } else if (tabModel.size() > 1) {
+                        targetTab = tabModel.get(tabBar.getSelectedIndex() - 1);
+                    } // else the actual page is the main page that does not require to verify if there are data that
+                      // should be saved
+
+                    if (targetTab != null) {
+                        NavigationEvent navigationEvent =
+                                new NavigationEvent(NavigationHandler.NavigationRequested, targetTab.getState(), null,
+                                    logoutButton);
+                        eventBus.fireEvent(navigationEvent);
+                        if (navigationEvent.getNavigationError() == NavigationError.NONE) {
+                            logOut();
+                        }
+                    } else {
+                        logOut();
+                    }
+                }
+            });
+
+            int clutterHeight = getDecorationHeight(HEADER_DEFAULT_HEIGHT);
+
+            // Configure Ext-GWT viewport
+            this.view = new SigmahViewport(0, clutterHeight);
+            this.view.setLayout(new FitLayout());
+            this.view.syncSize();
+            this.view.setBorders(true);
+
+            RootPanel.get("content").add(this.view);
+
+            cache.getOrganizationCache().getOrganization(new AsyncCallback<OrganizationDTO>() {
+
+                @Override
+                public void onSuccess(OrganizationDTO result) {
+
+                    if (result != null) {
+                        // Sets organization parameters.
+                        RootPanel.get("orgname").getElement().setInnerHTML(result.getName().toUpperCase());
+                        RootPanel
+                            .get("orglogo")
+                            .getElement()
+                            .setAttribute(
+                                "style",
+                                "background-image: url("
+                                    + GWT.getModuleBaseURL()
+                                    + "image-provider?"
+                                    + FileUploadUtils.IMAGE_URL
+                                    + "="
+                                    + result.getLogo()
+                                    + ")");
+                    }
+                }
+
+                @Override
+                public void onFailure(Throwable e) {
+                    Log.error("[execute] Error while getting the organization for user #id " + auth.getUserId() + ".",
+                        e);
+                }
+            });
+        }
+    }
+
+    private native int getDecorationHeight(int defaultHeight) /*-{
+		var height = 0;
+
+		if (!$wnd.document.getElementsByClassName && !$wnd.getComputedStyle)
+			return defaultHeight;
+
+		var elements = $wnd.document.getElementsByClassName("decoration");
+		for ( var index = 0; index < elements.length; index++) {
+			var style = $wnd.getComputedStyle(elements[index], null);
+			height += parseInt(style.height) + parseInt(style.borderTopWidth)
+					+ parseInt(style.borderBottomWidth)
+					+ parseInt(style.marginTop) + parseInt(style.marginBottom)
+					+ parseInt(style.paddingTop)
+					+ parseInt(style.paddingBottom);
 		}
-	}
 
-	private native int getDecorationHeight(int defaultHeight) /*-{
-																var height = 0;
+		return height;
+    }-*/;
 
-																if(!$wnd.document.getElementsByClassName && !$wnd.getComputedStyle)
-																return defaultHeight;
+    private void configureReportAnchor(final Anchor reportButton, final Authentication auth, String hostUrl) {
 
-																var elements = $wnd.document.getElementsByClassName("decoration");
-																for(var index = 0; index < elements.length; index++) {
-																var style = $wnd.getComputedStyle(elements[index], null);
-																height += parseInt(style.height) +
-																parseInt(style.borderTopWidth) +
-																parseInt(style.borderBottomWidth) +
-																parseInt(style.marginTop) +
-																parseInt(style.marginBottom) +
-																parseInt(style.paddingTop) +
-																parseInt(style.paddingBottom);
-																}
+        final String versionNumber =
+                Dictionary.getDictionary(SigmahAuthProvider.DICTIONARY_NAME).get(SigmahAuthProvider.VERSION_NUMBER);
 
-																return height;
-																}-*/;
+        // The current date
+        Date now = new Date();
+        DateTimeFormat dtf = DateTimeFormat.getFormat("dd-MM-yyyy");
+        final String dateString = dtf.format(now);
 
-	private void configureReportAnchor(final Anchor reportButton,
-			final Authentication auth, String hostUrl) {
+        String subject = I18N.MESSAGES.bugReportMailObject(auth.getEmail(), hostUrl, dateString);
 
-		final String versionNumber = Dictionary.getDictionary(
-				SigmahAuthProvider.DICTIONARY_NAME).get(
-				SigmahAuthProvider.VERSION_NUMBER);
+        final StringBuilder hrefBuilder = new StringBuilder("mailto:");
+        hrefBuilder.append(I18N.CONSTANTS.bugReportSupportAddress()).append("?subject=")
+            .append(URL.encodeComponent(subject, false)).append("&body=")
+            .append(URL.encodeComponent(I18N.MESSAGES.bugReportBody(getUserAgent(), versionNumber), false));
 
-		// The current date
-		Date now = new Date();
-		DateTimeFormat dtf = DateTimeFormat.getFormat("dd-MM-yyyy");
-		final String dateString = dtf.format(now);
+        reportButton.setHref(hrefBuilder.toString());
 
-		String subject = I18N.MESSAGES.bugReportMailObject(auth.getEmail(),
-				hostUrl, dateString);
+    }
 
-		final StringBuilder hrefBuilder = new StringBuilder("mailto:");
-		hrefBuilder
-				.append(I18N.CONSTANTS.bugReportSupportAddress())
-				.append("?subject=")
-				.append(URL.encodeComponent(subject, false))
-				.append("&body=")
-				.append(URL.encodeComponent(I18N.MESSAGES.bugReportBody(
-						getUserAgent(), versionNumber), false));
+    private native String getUserAgent() /*-{
+		return navigator.userAgent;
+    }-*/;
 
-		reportButton.setHref(hrefBuilder.toString());
+    private void logOut() {
+        Cookies.removeCookie(org.sigmah.shared.Cookies.AUTH_TOKEN_COOKIE, "/");
+        Window.Location.reload();
+    }
 
-	}
+    @Override
+    public void setActivePage(Page page) {
+        final Widget widget = (Widget) page.getWidget();
+        view.removeAll();
+        view.add(widget);
+        view.layout();
 
-	private native String getUserAgent() /*-{
-											return navigator.userAgent;
-											}-*/;
+        activePage = page;
+    }
 
-	@Override
-	public void setActivePage(Page page) {
-		final Widget widget = (Widget) page.getWidget();
-		view.removeAll();
-		view.add(widget);
-		view.layout();
+    @Override
+    public Page getActivePage() {
+        return activePage;
+    }
 
-		activePage = page;
-	}
+    @Override
+    public AsyncMonitor showLoadingPlaceHolder(PageId pageId, PageState loadingPlace) {
+        activePage = null;
+        LoadingPlaceHolder placeHolder = new LoadingPlaceHolder();
+        return placeHolder;
+    }
 
-	@Override
-	public Page getActivePage() {
-		return activePage;
-	}
+    @Override
+    public PageId getPageId() {
+        return null;
+    }
 
-	@Override
-	public AsyncMonitor showLoadingPlaceHolder(PageId pageId,
-			PageState loadingPlace) {
-		activePage = null;
-		LoadingPlaceHolder placeHolder = new LoadingPlaceHolder();
-		return placeHolder;
-	}
+    @Override
+    public Object getWidget() {
+        return view;
+    }
 
-	@Override
-	public PageId getPageId() {
-		return null;
-	}
+    @Override
+    public void requestToNavigateAway(PageState place, final NavigationCallback callback) {
+        callback.onDecided(NavigationError.NONE);
+    }
 
-	@Override
-	public Object getWidget() {
-		return view;
-	}
+    @Override
+    public String beforeWindowCloses() {
+        return null;
+    }
 
-	@Override
-	public void requestToNavigateAway(PageState place,
-			NavigationCallback callback) {
-		callback.onDecided(true);
-	}
+    @Override
+    public boolean navigate(PageState place) {
+        return true;
+    }
 
-	@Override
-	public String beforeWindowCloses() {
-		return null;
-	}
+    @Override
+    public void shutdown() {
 
-	@Override
-	public boolean navigate(PageState place) {
-		return true;
-	}
-
-	@Override
-	public void shutdown() {
-
-	}
+    }
 
 }

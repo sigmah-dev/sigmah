@@ -1,6 +1,5 @@
 /*
- * All Sigmah code is released under the GNU General Public License v3
- * See COPYRIGHT.txt and LICENSE.txt.
+ * All Sigmah code is released under the GNU General Public License v3 See COPYRIGHT.txt and LICENSE.txt.
  */
 package org.sigmah.client.page.project;
 
@@ -13,6 +12,7 @@ import org.sigmah.client.dispatch.AsyncMonitor;
 import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.dispatch.remote.Authentication;
 import org.sigmah.client.event.NavigationEvent;
+import org.sigmah.client.event.NavigationEvent.NavigationError;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.page.Frame;
 import org.sigmah.client.page.NavigationCallback;
@@ -47,6 +47,8 @@ import org.sigmah.shared.dto.profile.ProfileUtils;
 
 import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
@@ -54,6 +56,7 @@ import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
@@ -134,12 +137,16 @@ public class ProjectPresenter implements Frame, TabPage {
         amendmentActionDisplayNames = map;
     }
 
-    private final static String[] MAIN_TABS = { I18N.CONSTANTS.projectTabDashboard(), I18N.CONSTANTS.projectDetails(),
-            I18N.CONSTANTS.projectTabLogFrame(), I18N.CONSTANTS.projectTabIndicators(),
-            I18N.CONSTANTS.projectTabDataEntry(), I18N.CONSTANTS.projectTabCalendar(),
-            I18N.CONSTANTS.projectTabReports()
+    private final static String[] MAIN_TABS = {
+                                               I18N.CONSTANTS.projectTabDashboard(),
+                                               I18N.CONSTANTS.projectDetails(),
+                                               I18N.CONSTANTS.projectTabLogFrame(),
+                                               I18N.CONSTANTS.projectTabIndicators(),
+                                               I18N.CONSTANTS.projectTabDataEntry(),
+                                               I18N.CONSTANTS.projectTabCalendar(),
+                                               I18N.CONSTANTS.projectTabReports()
     /* , I18N.CONSTANTS.projectTabSecurityIncident() */// TO DO
-    };
+            };
 
     // TODO: the sub presenters all probably need to be notified of when the
     // project is to be loaded
@@ -148,9 +155,7 @@ public class ProjectPresenter implements Frame, TabPage {
     private final SubPresenter[] presenters;
 
     @Inject
-    public ProjectPresenter(final Dispatcher dispatcher, View view, Authentication authentication,
-            final EventBus eventBus, final UserLocalCache cache, ProjectIndicatorsContainer projectIndicators,
-            ProjectPivotContainer pivot) {
+    public ProjectPresenter(final Dispatcher dispatcher, View view, Authentication authentication, final EventBus eventBus, final UserLocalCache cache, ProjectIndicatorsContainer projectIndicators, ProjectPivotContainer pivot) {
         this.dispatcher = dispatcher;
         this.view = view;
         this.authentication = authentication;
@@ -159,14 +164,17 @@ public class ProjectPresenter implements Frame, TabPage {
         // For development.
         // final DummyPresenter dummyPresenter = new DummyPresenter();
 
-        this.presenters = new SubPresenter[] {
-                new ProjectDashboardPresenter(dispatcher, eventBus, authentication, this, cache), // Dashboard
-                new ProjectDetailsPresenter(eventBus, dispatcher, authentication, this, cache), // Details,
-                new ProjectLogFramePresenter(eventBus, dispatcher, authentication, this), // Logic
-                projectIndicators, pivot, new ProjectCalendarPresenter(dispatcher, authentication, this), // Calendar
-                new ProjectReportsPresenter(authentication, dispatcher, eventBus, this) // Reports
-        /* ,dummyPresenter */// Security incidents TO DO
-        };
+        this.presenters =
+                new SubPresenter[] {
+                                    new ProjectDashboardPresenter(dispatcher, eventBus, authentication, this, cache), // Dashboard
+                                    new ProjectDetailsPresenter(eventBus, dispatcher, authentication, this, cache), // Details,
+                                    new ProjectLogFramePresenter(eventBus, dispatcher, authentication, this), // Logic
+                                    projectIndicators,
+                                    pivot,
+                                    new ProjectCalendarPresenter(dispatcher, authentication, this), // Calendar
+                                    new ProjectReportsPresenter(authentication, dispatcher, eventBus, this) // Reports
+                /* ,dummyPresenter */// Security incidents TO DO
+                };
 
         for (int i = 0; i < MAIN_TABS.length; i++) {
             final int index = i;
@@ -184,7 +192,7 @@ public class ProjectPresenter implements Frame, TabPage {
                 @Override
                 public void onClick(ClickEvent event) {
                     eventBus.fireEvent(new NavigationEvent(NavigationHandler.NavigationRequested, currentState
-                            .deriveTo(index)));
+                        .deriveTo(index), null));
                 }
             });
 
@@ -201,7 +209,6 @@ public class ProjectPresenter implements Frame, TabPage {
 
             anchor.toggleAnchorMode();
             currentTab = anchor;
-
             ProjectPresenter.this.view.setMainPanel(presenters[index].getView());
             presenters[index].viewDidAppear();
         } else if (force) {
@@ -275,8 +282,7 @@ public class ProjectPresenter implements Frame, TabPage {
      * Loads a {@link ProjectDTO} object on the view.
      * 
      * @param projectDTO
-     *            the {@link ProjectDTO} object loaded on the
-     *            viewprojectIndicators
+     *            the {@link ProjectDTO} object loaded on the viewprojectIndicators
      */
     private void loadProjectOnView(ProjectDTO projectDTO) {
         currentProjectDTO = projectDTO;
@@ -337,8 +343,12 @@ public class ProjectPresenter implements Frame, TabPage {
         if (projectTitle != null && !projectTitle.isEmpty())
             titleToDisplay = projectTitle.length() > 110 ? projectTitle.substring(0, 110) + "..." : projectTitle;
 
-        panel.setHeading(I18N.CONSTANTS.projectMainTabTitle() + ' ' + currentProjectDTO.getName() + " ("
-                + titleToDisplay + ")");
+        panel.setHeading(I18N.CONSTANTS.projectMainTabTitle()
+            + ' '
+            + currentProjectDTO.getName()
+            + " ("
+            + titleToDisplay
+            + ")");
 
         // Set the tool tip
         ToolTipConfig panelToolTipconfig = new ToolTipConfig();
@@ -356,9 +366,10 @@ public class ProjectPresenter implements Frame, TabPage {
         gridPanel.setHeight("100%");
 
         // Logo.
-        final Image logo = FundingIconProvider.getProjectTypeIcon(
-                currentProjectDTO.getProjectModelDTO().getVisibility(authentication.getOrganizationId()),
-                FundingIconProvider.IconSize.LARGE).createImage();
+        final Image logo =
+                FundingIconProvider.getProjectTypeIcon(
+                    currentProjectDTO.getProjectModelDTO().getVisibility(authentication.getOrganizationId()),
+                    FundingIconProvider.IconSize.LARGE).createImage();
         gridPanel.setWidget(0, 0, logo);
         gridPanel.getCellFormatter().addStyleName(0, 0, "banner-logo");
 
@@ -367,8 +378,10 @@ public class ProjectPresenter implements Frame, TabPage {
         final LayoutDTO layout = banner.getLayoutDTO();
 
         // Executes layout.
-        if (banner != null && layout != null && layout.getLayoutGroupsDTO() != null
-                && !layout.getLayoutGroupsDTO().isEmpty()) {
+        if (banner != null
+            && layout != null
+            && layout.getLayoutGroupsDTO() != null
+            && !layout.getLayoutGroupsDTO().isEmpty()) {
 
             // For visibility constraints, the banner accept a maximum of 2 rows
             // and 4 columns.
@@ -434,8 +447,8 @@ public class ProjectPresenter implements Frame, TabPage {
 
                                 // Clip the text if it is longer than 30
                                 if (textValue != null && !textValue.isEmpty()) {
-                                    String newTextValue = textValue.length() > 30 ? textValue.substring(0, 29) + "..."
-                                            : textValue;
+                                    String newTextValue =
+                                            textValue.length() > 30 ? textValue.substring(0, 29) + "..." : textValue;
                                     lableFieldComponent.setText(newTextValue);
                                 }
                                 groupPanel.add(lableFieldComponent);
@@ -503,6 +516,7 @@ public class ProjectPresenter implements Frame, TabPage {
         displayAmendmentButton.setEnabled(false);
 
         versionList.addSelectionChangedListener(new SelectionChangedListener<AmendmentDTO>() {
+
             @Override
             public void selectionChanged(SelectionChangedEvent<AmendmentDTO> se) {
                 int currentAmendmentId = 0;
@@ -519,18 +533,28 @@ public class ProjectPresenter implements Frame, TabPage {
 
             @Override
             public void componentSelected(ButtonEvent ce) {
-                AmendmentDTO amendmentDTO = versionList.getSelection().get(0);
-                if (amendmentDTO.getId() == 0)
-                    amendmentDTO = null;
-                else
-                    Log.debug("Back to " + amendmentDTO.getId());
+                NavigationCallback navigationCallback = new NavigationCallback() {
 
-                currentProjectDTO.setCurrentAmendment(amendmentDTO);
+                    @Override
+                    public void onDecided(NavigationError navigationError) {
+                        if (navigationError == NavigationError.NONE) {
+                            AmendmentDTO amendmentDTO = versionList.getSelection().get(0);
+                            if (amendmentDTO.getId() == 0)
+                                amendmentDTO = null;
+                            else
+                                Log.debug("Back to " + amendmentDTO.getId());
 
-                // Refreshing the whole view
-                discardAllViews();
-                selectTab(currentState.getCurrentSection(), true);
-                displayAmendmentButton.setEnabled(false);
+                            currentProjectDTO.setCurrentAmendment(amendmentDTO);
+
+                            // Refreshing the whole view
+                            discardAllViews();
+                            selectTab(currentState.getCurrentSection(), true);
+                            displayAmendmentButton.setEnabled(false);
+                        }
+                    }
+
+                };
+                requestToNavigateAway(null, navigationCallback);
             }
         });
 
@@ -568,56 +592,69 @@ public class ProjectPresenter implements Frame, TabPage {
                 actionAnchor.addStyleName("amendment-action");
 
                 actionAnchor.addClickHandler(new ClickHandler() {
+
                     @Override
                     public void onClick(ClickEvent event) {
                         // Disabling every actions before sending the request
-                        amendmentBox.mask(I18N.CONSTANTS.loading());
 
-                        for (final Anchor anchor : anchors) {
-                            if (anchor == null)
-                                Log.debug("anchor is null");
-                            if (anchor != null)
-                                anchor.setEnabled(false);
-                        }
-
-                        final AmendmentAction amendmentAction = new AmendmentAction(currentProjectDTO.getId(), action);
-                        dispatcher.execute(amendmentAction, null, new AsyncCallback<ProjectDTO>() {
+                        NavigationCallback navigationCallback = new NavigationCallback() {
 
                             @Override
-                            public void onFailure(Throwable caught) {
-                                // Failures may happen if an other user changes
-                                // the
-                                // amendment state.
-                                // TODO: we should maybe refresh the project or
-                                // tell
-                                // the user to refresh the page.
-                                MessageBox.alert(amendmentActionDisplayNames.get(action),
-                                        I18N.CONSTANTS.amendmentActionError(), null);
-                                for (final Anchor anchor : anchors)
-                                    anchor.setEnabled(true);
-                                amendmentBox.unmask();
-                            }
+                            public void onDecided(NavigationError navigationError) {
+                                // TODO Auto-generated method stub
+                                if (navigationError == NavigationError.NONE) {
+                                    amendmentBox.mask(I18N.CONSTANTS.loading());
 
-                            @Override
-                            public void onSuccess(ProjectDTO result) {
-                                for (final Anchor anchor : anchors) {
-                                    if (anchor != null)
-                                        anchor.setEnabled(true);
+                                    for (final Anchor anchor : anchors) {
+                                        if (anchor == null)
+                                            Log.debug("anchor is null");
+                                        if (anchor != null)
+                                            anchor.setEnabled(false);
+                                    }
+
+                                    final AmendmentAction amendmentAction =
+                                            new AmendmentAction(currentProjectDTO.getId(), action);
+                                    dispatcher.execute(amendmentAction, null, new AsyncCallback<ProjectDTO>() {
+
+                                        @Override
+                                        public void onFailure(Throwable caught) {
+                                            // Failures may happen if an other user changes
+                                            // the
+                                            // amendment state.
+                                            // TODO: we should maybe refresh the project or
+                                            // tell
+                                            // the user to refresh the page.
+                                            MessageBox.alert(amendmentActionDisplayNames.get(action),
+                                                I18N.CONSTANTS.amendmentActionError(), null);
+                                            for (final Anchor anchor : anchors)
+                                                anchor.setEnabled(true);
+                                            amendmentBox.unmask();
+                                        }
+
+                                        @Override
+                                        public void onSuccess(ProjectDTO result) {
+                                            for (final Anchor anchor : anchors) {
+                                                if (anchor != null)
+                                                    anchor.setEnabled(true);
+                                            }
+
+                                            // Updating the current project
+                                            currentProjectDTO = result;
+
+                                            // Refreshing the whole view
+                                            discardAllViews();
+                                            selectTab(currentState.getCurrentSection(), true);
+                                            refreshAmendment();
+
+                                            amendmentBox.unmask();
+                                        }
+                                    });
                                 }
-
-                                // Updating the current project
-                                currentProjectDTO = result;
-
-                                // Refreshing the whole view
-                                discardAllViews();
-                                selectTab(currentState.getCurrentSection(), true);
-                                refreshAmendment();
-
-                                amendmentBox.unmask();
                             }
-
-                        });
+                        };
+                        requestToNavigateAway(null, navigationCallback);
                     }
+
                 });
 
                 amendmentBox.add(actionAnchor, new VBoxLayoutData());
@@ -651,8 +688,32 @@ public class ProjectPresenter implements Frame, TabPage {
     }
 
     @Override
-    public void requestToNavigateAway(PageState place, NavigationCallback callback) {
-        callback.onDecided(true);
+    public void requestToNavigateAway(PageState place, final NavigationCallback callback) {
+        NavigationError navigationError = NavigationError.NONE;
+        for (SubPresenter subPresenter : presenters) {
+            if (subPresenter.hasValueChanged()) {
+                navigationError = NavigationError.WORK_NOT_SAVED;
+            }
+        }
+
+        Listener<MessageBoxEvent> listener = new Listener<MessageBoxEvent>() {
+
+            @Override
+            public void handleEvent(MessageBoxEvent be) {
+                if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
+                    for (SubPresenter subPresenter : presenters) {
+                        subPresenter.forgetAllChangedValues();
+                    }
+                    callback.onDecided(NavigationError.NONE);
+                }
+            }
+        };
+
+        if (navigationError == NavigationError.WORK_NOT_SAVED) {
+            MessageBox.confirm(I18N.CONSTANTS.unsavedDataTitle(), I18N.CONSTANTS.unsavedDataMessage(), listener);
+        }
+
+        callback.onDecided(navigationError);
     }
 
     @Override

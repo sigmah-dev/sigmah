@@ -1,9 +1,32 @@
 /*
- * All Sigmah code is released under the GNU General Public License v3
- * See COPYRIGHT.txt and LICENSE.txt.
+ * All Sigmah code is released under the GNU General Public License v3 See COPYRIGHT.txt and LICENSE.txt.
  */
 
 package org.sigmah.client.page.app;
+
+import org.sigmah.client.EventBus;
+import org.sigmah.client.dispatch.AsyncMonitor;
+import org.sigmah.client.dispatch.remote.Authentication;
+import org.sigmah.client.event.NavigationEvent;
+import org.sigmah.client.event.NavigationEvent.NavigationError;
+import org.sigmah.client.i18n.I18N;
+import org.sigmah.client.icon.IconImageBundle;
+import org.sigmah.client.offline.ui.AppCacheMenu;
+import org.sigmah.client.offline.ui.OfflineView;
+import org.sigmah.client.page.Frame;
+import org.sigmah.client.page.NavigationCallback;
+import org.sigmah.client.page.NavigationHandler;
+import org.sigmah.client.page.Page;
+import org.sigmah.client.page.PageId;
+import org.sigmah.client.page.PageState;
+import org.sigmah.client.page.charts.ChartPageState;
+import org.sigmah.client.page.common.widget.LoadingPlaceHolder;
+import org.sigmah.client.page.config.DbListPageState;
+import org.sigmah.client.page.entry.SiteGridPageState;
+import org.sigmah.client.page.map.MapPageState;
+import org.sigmah.client.page.report.ReportListPageState;
+import org.sigmah.client.page.table.PivotPageState;
+import org.sigmah.client.page.welcome.WelcomePageState;
 
 import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -23,25 +46,6 @@ import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import org.sigmah.client.EventBus;
-import org.sigmah.client.dispatch.AsyncMonitor;
-import org.sigmah.client.dispatch.remote.Authentication;
-import org.sigmah.client.event.NavigationEvent;
-import org.sigmah.client.i18n.I18N;
-import org.sigmah.client.icon.IconImageBundle;
-import org.sigmah.client.offline.ui.AppCacheMenu;
-import org.sigmah.client.offline.ui.OfflineView;
-import org.sigmah.client.page.*;
-import org.sigmah.client.page.charts.ChartPageState;
-import org.sigmah.client.page.common.widget.LoadingPlaceHolder;
-import org.sigmah.client.page.config.DbListPageState;
-import org.sigmah.client.page.entry.SiteGridPageState;
-import org.sigmah.client.page.map.MapPageState;
-import org.sigmah.client.page.report.ReportListPageState;
-import org.sigmah.client.page.table.PivotPageState;
-import org.sigmah.client.page.welcome.WelcomePageState;
-
-
 
 @Singleton
 public class AppFrameSet implements Frame {
@@ -55,7 +59,6 @@ public class AppFrameSet implements Frame {
 
     private Widget activeWidget;
     private Page activePage;
-
 
     @Inject
     public AppFrameSet(EventBus eventBus, Authentication auth, OfflineView offlineMenu) {
@@ -105,6 +108,7 @@ public class AppFrameSet implements Frame {
         topBar.add(offlineMenu);
 
         Button logoutTool = new Button(I18N.CONSTANTS.logout(), new SelectionListener<ButtonEvent>() {
+
             @Override
             public void componentSelected(ButtonEvent ce) {
                 // TODO: this needs to go elsewhere
@@ -120,9 +124,10 @@ public class AppFrameSet implements Frame {
 
     private void addNavLink(String text, AbstractImagePrototype icon, final PageState place) {
         Button button = new Button(text, icon, new SelectionListener<ButtonEvent>() {
+
             @Override
             public void componentSelected(ButtonEvent ce) {
-                eventBus.fireEvent(new NavigationEvent(NavigationHandler.NavigationRequested, place));
+                eventBus.fireEvent(new NavigationEvent(NavigationHandler.NavigationRequested, place, null));
             }
         });
         topBar.add(button);
@@ -168,11 +173,11 @@ public class AppFrameSet implements Frame {
     }
 
     @Override
-    public void requestToNavigateAway(PageState place, NavigationCallback callback) {
-        callback.onDecided(true);
+    public void requestToNavigateAway(PageState place, final NavigationCallback callback) {
+        callback.onDecided(NavigationError.NONE);
     }
 
-    @Override                          
+    @Override
     public String beforeWindowCloses() {
         return null;
     }
