@@ -279,7 +279,7 @@ public class LogFrameIntegrationTest extends CommandTestCase {
     	newInd.setName("Number of children vaccinated");
     	newInd.setAggregation(IndicatorDTO.AGGREGATE_SUM);
     	newInd.setUnits("children");
-    	newInd.setObjective(1000);
+    	newInd.setObjective(1000.0d);
     	
     	project.getLogFrameDTO()
     		.getSpecificObjectives().get(0)

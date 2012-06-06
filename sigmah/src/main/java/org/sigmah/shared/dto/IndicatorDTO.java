@@ -194,7 +194,7 @@ public final class IndicatorDTO extends BaseModelData implements EntityDTO {
 	/**
      * Sets this Indicator's objective
      */
-	public void setObjective(double objective) {
+	public void setObjective(Double objective) {
 		set("objective", objective);
 	}
 
