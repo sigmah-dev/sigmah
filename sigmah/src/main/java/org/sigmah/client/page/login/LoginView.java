@@ -142,6 +142,7 @@ public class LoginView extends Composite {
         label.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
+            	
                 MessageBox.prompt(I18N.CONSTANTS.loginPasswordForgotten(), I18N.CONSTANTS.loginLoginField(), new Listener<MessageBoxEvent>() {
 
                     @Override
@@ -158,8 +159,11 @@ public class LoginView extends Composite {
 
                             final String email = be.getValue();
 
-                            final RetrievePasswordServiceAsync service = GWT.create(RetrievePasswordService.class);
-                            service.retrievePassword(email, languageListBox.getValue(languageListBox.getSelectedIndex()), new AsyncCallback<Void>() {
+                            final PasswordManagementServiceAsync service = GWT.create(PasswordManagementService.class);
+                            service.forgotPassword(email, 
+                            		languageListBox.getValue(languageListBox.getSelectedIndex()),
+                            		GWT.getModuleBaseURL(),
+                            		new AsyncCallback<Void>() {
 
                                 @Override
                                 public void onFailure(Throwable caught) {
@@ -170,7 +174,7 @@ public class LoginView extends Composite {
                                 @Override
                                 public void onSuccess(Void result) {
                                     waitDialog.hide();
-                                    MessageBox.alert(I18N.CONSTANTS.loginPasswordForgotten(), I18N.MESSAGES.loginRetrievePasswordSuccessfull(email), null);
+                                    MessageBox.alert(I18N.CONSTANTS.loginPasswordForgotten(), I18N.MESSAGES.loginResetPasswordSuccessfull(email), null);
                                 }
                             });
                         }
@@ -211,8 +215,7 @@ public class LoginView extends Composite {
             @Override
             public void onKeyDown(KeyDownEvent event) {
                 if(event.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
-                    Cookies.setCookie(org.sigmah.shared.Cookies.LOCALE_COOKIE, languageListBox.getValue(languageListBox.getSelectedIndex()));
-                    doLogin(loginTextBox.getText(), passwordTextBox.getText(), loginButton, loader);
+                	loginButton.fireEvent(Events.Select);
                 }
             }
         };

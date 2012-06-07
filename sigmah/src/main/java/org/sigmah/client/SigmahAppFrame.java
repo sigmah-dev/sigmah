@@ -79,7 +79,13 @@ public class SigmahAppFrame implements Frame {
     public SigmahAppFrame(final EventBus eventBus, final Authentication auth, final TabModel tabModel, final Dispatcher dispatcher, final UserLocalCache cache, final OnlineMode onlineMode) {
 
         if (auth == null) {
-            RootPanel.get().add(new LoginView());
+			this.view = new SigmahViewport(0, 0);
+			this.view.setLayout(new FitLayout());
+			this.view.syncSize();
+			this.view.setBorders(false);
+			this.view.add(new LoginView());
+			this.view.layout();
+			RootPanel.get().add(this.view);
             RootPanel.get("loading").getElement().removeFromParent();
 
         } else {

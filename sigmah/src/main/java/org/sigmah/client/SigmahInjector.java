@@ -39,6 +39,8 @@ import org.sigmah.client.page.map.SigmahMapLoader;
 import org.sigmah.client.page.orgunit.OrgUnitModule;
 import org.sigmah.client.page.orgunit.OrgUnitPageLoader;
 import org.sigmah.client.page.orgunit.OrgUnitPresenter;
+import org.sigmah.client.page.passwordreset.PasswordResetPageLoader;
+import org.sigmah.client.page.passwordreset.PasswordResetPresenter;
 import org.sigmah.client.page.project.ProjectModule;
 import org.sigmah.client.page.project.ProjectPageLoader;
 import org.sigmah.client.page.project.ProjectPresenter;
@@ -128,4 +130,8 @@ public interface SigmahInjector extends Ginjector {
     // Cache
     SchemaCache createSchemaCache();
     AdminEntityCache createAdminCache();
+    
+    // Required by the 'Password Reset' page
+    PasswordResetPresenter getPasswordResetPresenter();
+    PasswordResetPageLoader registerPasswordResetPageLoader();
 }

@@ -28,7 +28,7 @@ import org.sigmah.shared.dto.UserDTO;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.google.inject.Inject;
 
-import org.sigmah.server.endpoint.gwtrpc.RetrievePasswordServlet;
+import org.sigmah.server.endpoint.gwtrpc.PasswordManagementServlet;
 
 /**
  * Create user policy.

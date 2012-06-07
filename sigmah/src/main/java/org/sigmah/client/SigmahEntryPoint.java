@@ -68,6 +68,10 @@ public class SigmahEntryPoint implements EntryPoint {
             injector.registerPivotLoader();
             injector.registerReportLoader();
         }
+        
+        // Password reset
+        injector.registerPasswordResetPageLoader();
+      
 
         Log.info("Application: everyone plugged, firing Init event");
 

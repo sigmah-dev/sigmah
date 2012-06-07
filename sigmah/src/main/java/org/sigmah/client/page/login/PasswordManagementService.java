@@ -10,9 +10,11 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 
 /**
  * Service that allows users to retrieves their passwords.
- * @author Raphaël Calabro (rcalabro@ideia.fr)
+ * @author RaphaÃ«l Calabro (rcalabro@ideia.fr)
  */
 @RemoteServiceRelativePath("password")
-public interface RetrievePasswordService extends RemoteService {
-    void retrievePassword(String email, String language) throws Exception;
+public interface PasswordManagementService extends RemoteService {
+    void forgotPassword(String email, String language, String hostUrl) throws Exception;
+    String validateAndGetUserEmailByToken(String token) throws Exception;
+    void updatePassword(String email,String password) throws Exception;
 }

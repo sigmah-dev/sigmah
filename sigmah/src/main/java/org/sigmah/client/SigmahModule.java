@@ -28,6 +28,8 @@ import org.sigmah.client.page.charts.ChartPage;
 import org.sigmah.client.page.charts.ChartPagePresenter;
 import org.sigmah.client.page.common.GalleryPage;
 import org.sigmah.client.page.common.GalleryView;
+import org.sigmah.client.page.passwordreset.PasswordResetPresenter;
+import org.sigmah.client.page.passwordreset.PasswordResetView;
 import org.sigmah.client.util.state.GXTStateManager;
 import org.sigmah.client.util.state.IStateManager;
 import org.sigmah.shared.command.GetCountries;
@@ -67,6 +69,8 @@ public class SigmahModule extends AbstractGinModule {
         // Required by the 'Charts' page
         bind(ChartPagePresenter.View.class).to(ChartPage.class);
 
+     // Required by the 'Password Reset' page
+        bind(PasswordResetPresenter.View.class).to(PasswordResetView.class);
 
         //DAOs for off-line
 //        bind(SQLDialect.class).to(SqliteDialect.class).in(Singleton.class);
