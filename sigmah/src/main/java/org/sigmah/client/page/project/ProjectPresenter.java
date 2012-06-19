@@ -213,7 +213,6 @@ public class ProjectPresenter implements Frame, TabPage {
             deleteLayoutData.setMargins(new Margins(0, 0, 0, 0));
 
             final ToggleAnchor deleteAnchor = new ToggleAnchor(I18N.CONSTANTS.deleteProjectAnchor());
-            deleteAnchor.addStyleName("delete-div");
             deleteAnchor.setClassName("delete-anchor");
             deleteAnchor.setAnchorMode(true);
             deleteAnchor.addClickHandler(new ClickHandler() {

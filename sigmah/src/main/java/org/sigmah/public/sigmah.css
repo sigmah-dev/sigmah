@@ -1191,13 +1191,6 @@ a.credits-partner-url,a.credits-partner-url:link,a.credits-partner-url:visited,a
 	color: #4B3E2D;
 }
 
-.delete-div{
-	text-align: right;
-	width: 100%;
-	left: 0px !important;
-	background-image
-}
-
 .delete-anchor{
 	background: url("image/remove.png") no-repeat;
 	padding-left: 20px;
