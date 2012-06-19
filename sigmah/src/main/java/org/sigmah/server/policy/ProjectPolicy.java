@@ -27,6 +27,7 @@ import org.sigmah.shared.domain.ProjectFunding;
 import org.sigmah.shared.domain.ProjectModel;
 import org.sigmah.shared.domain.ProjectModelStatus;
 import org.sigmah.shared.domain.User;
+import org.sigmah.shared.domain.UserDatabase;
 import org.sigmah.shared.domain.calendar.PersonalCalendar;
 import org.sigmah.shared.domain.logframe.LogFrame;
 import org.sigmah.shared.domain.logframe.LogFrameGroup;
@@ -357,6 +358,15 @@ public class ProjectPolicy implements EntityPolicy<Project> {
              	em.remove(projectFunding); 
             
                 
+             } else if("dateDeleted".equals(entry.getKey())) {
+                 //Get the current project
+                 UserDatabase project = em.find(UserDatabase.class, entityId); 
+                 
+                 //Mark the project in the state "deleted" (but don't delete it really)
+                 project.delete();   
+                 
+                 //Save
+                 em.merge(project); 
              }
     	
     	   }

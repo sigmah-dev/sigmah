@@ -149,29 +149,33 @@ public class GetProjectHandler implements CommandHandler<GetProject> {
      */
     public static boolean isProjectVisible(Project project, User user) {
 
-        // Owner.
-        if (project.getOwner() != null) {
-            if (project.getOwner().getId() == user.getId()) {
-                return true;
-            }
-        }
-
-        if (project.getProjectModel().getStatus() != ProjectModelStatus.DRAFT) {
-            // Manager.
-            if (project.getManager() != null) {
-                if (project.getManager().getId() == user.getId()) {
+        // Checks that the project is not deleted
+        if(!project.isDeleted()) {
+        
+            // Owner.
+            if (project.getOwner() != null) {
+                if (project.getOwner().getId() == user.getId()) {
                     return true;
                 }
             }
-
-            // Checks that the user can see this project.
-            final HashSet<OrgUnit> units = new HashSet<OrgUnit>();
-            GetProjectHandler.crawlUnits(user.getOrgUnitWithProfiles().getOrgUnit(), units, true);
-
-            for (final OrgUnit partner : project.getPartners()) {
-                for (final OrgUnit unit : units) {
-                    if (partner.getId() == unit.getId()) {
+            
+            if (project.getProjectModel().getStatus() != ProjectModelStatus.DRAFT) {
+                // Manager.
+                if (project.getManager() != null) {
+                    if (project.getManager().getId() == user.getId()) {
                         return true;
+                    }
+                }
+    
+                // Checks that the user can see this project.
+                final HashSet<OrgUnit> units = new HashSet<OrgUnit>();
+                GetProjectHandler.crawlUnits(user.getOrgUnitWithProfiles().getOrgUnit(), units, true);
+    
+                for (final OrgUnit partner : project.getPartners()) {
+                    for (final OrgUnit unit : units) {
+                        if (partner.getId() == unit.getId()) {
+                            return true;
+                        }
                     }
                 }
             }

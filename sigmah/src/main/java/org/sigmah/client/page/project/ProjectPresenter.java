@@ -3,9 +3,12 @@
  */
 package org.sigmah.client.page.project;
 
+import java.util.Date;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.Map;
 
+import org.sigmah.client.AppEvents;
 import org.sigmah.client.EventBus;
 import org.sigmah.client.cache.UserLocalCache;
 import org.sigmah.client.dispatch.AsyncMonitor;
@@ -13,6 +16,7 @@ import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.dispatch.remote.Authentication;
 import org.sigmah.client.event.NavigationEvent;
 import org.sigmah.client.event.NavigationEvent.NavigationError;
+import org.sigmah.client.event.ProjectEvent;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.page.Frame;
 import org.sigmah.client.page.NavigationCallback;
@@ -30,8 +34,11 @@ import org.sigmah.client.page.project.logframe.ProjectLogFramePresenter;
 import org.sigmah.client.page.project.pivot.ProjectPivotContainer;
 import org.sigmah.client.page.project.reports.ProjectReportsPresenter;
 import org.sigmah.client.ui.ToggleAnchor;
+import org.sigmah.client.util.Notification;
 import org.sigmah.shared.command.AmendmentAction;
 import org.sigmah.shared.command.GetProject;
+import org.sigmah.shared.command.UpdateEntity;
+import org.sigmah.shared.command.result.VoidResult;
 import org.sigmah.shared.domain.Amendment;
 import org.sigmah.shared.domain.profile.GlobalPermissionEnum;
 import org.sigmah.shared.dto.AmendmentDTO;
@@ -111,6 +118,7 @@ public class ProjectPresenter implements Frame, TabPage {
     private final Dispatcher dispatcher;
     private final Authentication authentication;
     private final UserLocalCache cache;
+    private final EventBus eventBus;
     private Page activePage;
 
     private ProjectState currentState;
@@ -160,6 +168,7 @@ public class ProjectPresenter implements Frame, TabPage {
         this.view = view;
         this.authentication = authentication;
         this.cache = cache;
+        this.eventBus = eventBus;
 
         // For development.
         // final DummyPresenter dummyPresenter = new DummyPresenter();
@@ -197,6 +206,54 @@ public class ProjectPresenter implements Frame, TabPage {
             });
 
             this.view.getTabPanel().add(anchor, layoutData);
+        }
+
+        if (ProfileUtils.isGranted(authentication, GlobalPermissionEnum.DELETE_PROJECT)) {
+            final HBoxLayoutData deleteLayoutData = new HBoxLayoutData();
+            deleteLayoutData.setMargins(new Margins(0, 0, 0, 0));
+
+            final ToggleAnchor deleteAnchor = new ToggleAnchor(I18N.CONSTANTS.deleteProjectAnchor());
+            deleteAnchor.addStyleName("delete-div");
+            deleteAnchor.setClassName("delete-anchor");
+            deleteAnchor.setAnchorMode(true);
+            deleteAnchor.addClickHandler(new ClickHandler() {
+
+                @Override
+                public void onClick(ClickEvent event) {
+                    MessageBox.confirm(I18N.CONSTANTS.confirmDeleteProjectMessageBoxTitle(), I18N.CONSTANTS.confirmDeleteProjectMessageBoxContent(),
+                        new Listener<MessageBoxEvent>() {
+
+                            @Override
+                            public void handleEvent(MessageBoxEvent be) {
+                                Button selectedButton = be.getButtonClicked();
+                                if (selectedButton.getItemId().equals(Dialog.YES)) {
+                                    Map<String, Object> changes = new HashMap<String, Object>();
+                                    changes.put("dateDeleted", new Date());
+                                    UpdateEntity updateEntity = new UpdateEntity(currentProjectDTO, changes);
+                                    dispatcher.execute(updateEntity, null, new AsyncCallback<VoidResult>() {
+
+                                        @Override
+                                        public void onFailure(Throwable arg0) {
+                                            // TODO Auto-generated method stub
+
+                                        }
+
+                                        @Override
+                                        public void onSuccess(VoidResult arg0) {
+                                            ProjectPresenter.this.eventBus.fireEvent(AppEvents.DeleteProject,
+                                                new ProjectEvent(AppEvents.DeleteProject,
+                                                    ProjectPresenter.this.currentProjectDTO.getId()));
+                                            Notification.show(I18N.CONSTANTS.deleteProjectNotificationTitle(), I18N.CONSTANTS.deleteProjectNotificationContent());
+                                        }
+                                    });
+                                }
+
+                            }
+                        });
+                }
+            });
+
+            this.view.getTabPanel().add(deleteAnchor);
         }
     }
 

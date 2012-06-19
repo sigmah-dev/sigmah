@@ -428,7 +428,7 @@ public class DashboardView extends ContentPanel implements DashboardPresenter.Vi
     private Component buildProjectPanel() {
 
         projectsListPanel =
-                new ProjectsListPanel(dispatcher, authentication, ProjectsListPanel.RefreshMode.BOTH,
+                new ProjectsListPanel(dispatcher, authentication, eventBus, ProjectsListPanel.RefreshMode.BOTH,
                     ProjectsListPanel.LoadingMode.CHUNK);
         return projectsListPanel.getProjectsPanel();
     }

@@ -12,6 +12,7 @@ import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.dispatch.remote.Authentication;
 import org.sigmah.client.event.NavigationEvent;
 import org.sigmah.client.event.NavigationEvent.NavigationError;
+import org.sigmah.client.event.ProjectEvent;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.inject.SigmahAuthProvider;
 import org.sigmah.client.offline.sigmah.DispatchOperator;
@@ -217,6 +218,15 @@ public class SigmahAppFrame implements Frame {
                             ((HasTab) state).setTab(targetTab);
                     }
 
+                }
+            });
+            
+            eventBus.addListener(AppEvents.DeleteProject, new Listener<ProjectEvent>() {
+
+                @Override
+                public void handleEvent(ProjectEvent pe) {
+                    final Tab currentTab = tabModel.get(tabBar.getSelectedIndex());
+                    tabModel.remove(currentTab);
                 }
             });
 

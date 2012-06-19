@@ -25,6 +25,11 @@ public enum GlobalPermissionEnum {
      * Create a new project or a new funding.
      */
     CREATE_PROJECT,
+    
+    /**
+     * Delete a project 
+     */
+    DELETE_PROJECT,
 
     /**
      * Close or activate a phase.
@@ -72,6 +77,9 @@ public enum GlobalPermissionEnum {
             break;
         case CREATE_PROJECT:
             gpName = I18N.CONSTANTS.CREATE_PROJECT();
+            break;
+        case DELETE_PROJECT:
+            gpName = I18N.CONSTANTS.DELETE_PROJECT();
             break;
         case CHANGE_PHASE:
             gpName = I18N.CONSTANTS.CHANGE_PHASE();

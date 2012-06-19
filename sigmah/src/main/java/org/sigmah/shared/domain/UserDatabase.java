@@ -357,7 +357,7 @@ public class UserDatabase implements java.io.Serializable, Deleteable, SchemaEle
     @Override
     @Transient
     public boolean isDeleted() {
-        return getDateDeleted() == null;
+        return getDateDeleted() != null;
     }
 
     /**

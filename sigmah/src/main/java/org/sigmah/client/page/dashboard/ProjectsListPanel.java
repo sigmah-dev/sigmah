@@ -6,9 +6,12 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
+import org.sigmah.client.AppEvents;
+import org.sigmah.client.EventBus;
 import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.dispatch.monitor.MaskingAsyncMonitor;
 import org.sigmah.client.dispatch.remote.Authentication;
+import org.sigmah.client.event.ProjectEvent;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.icon.IconImageBundle;
 import org.sigmah.client.page.project.ProjectPresenter;
@@ -179,8 +182,8 @@ public class ProjectsListPanel {
      * @param authentication
      *            The current authentication.
      */
-    public ProjectsListPanel(Dispatcher dispatcher, Authentication authentication) {
-        this(dispatcher, authentication, RefreshMode.AUTOMATIC, LoadingMode.ONE_TIME);
+    public ProjectsListPanel(Dispatcher dispatcher, Authentication authentication, EventBus eventBus) {
+        this(dispatcher, authentication, eventBus, RefreshMode.AUTOMATIC, LoadingMode.ONE_TIME);
     }
 
     /**
@@ -193,8 +196,8 @@ public class ProjectsListPanel {
      * @param refreshMode
      *            The refreshing mode.
      */
-    public ProjectsListPanel(Dispatcher dispatcher, Authentication authentication, RefreshMode refreshMode) {
-        this(dispatcher, authentication, refreshMode, LoadingMode.ONE_TIME);
+    public ProjectsListPanel(Dispatcher dispatcher, Authentication authentication, EventBus eventBus, RefreshMode refreshMode) {
+        this(dispatcher, authentication, eventBus, refreshMode, LoadingMode.ONE_TIME);
     }
 
     /**
@@ -209,7 +212,7 @@ public class ProjectsListPanel {
      * @param loadingMode
      *            The loading mode.
      */
-    public ProjectsListPanel(Dispatcher dispatcher, Authentication authentication, RefreshMode refreshMode,
+    public ProjectsListPanel(Dispatcher dispatcher, Authentication authentication, EventBus eventBus, RefreshMode refreshMode,
             LoadingMode loadingMode) {
 
         this.dispatcher = dispatcher;
@@ -388,6 +391,14 @@ public class ProjectsListPanel {
 
         // Refresh date.
         refreshDateLabel = new com.extjs.gxt.ui.client.widget.Label();
+        
+        eventBus.addListener(AppEvents.DeleteProject, new Listener<ProjectEvent>() {
+
+            @Override
+            public void handleEvent(ProjectEvent be) {
+                refreshProjectGrid(command);
+            }
+        });
 
         final ToolBar toolbar = new ToolBar();
         if (refreshMode == RefreshMode.BUTTON || refreshMode == RefreshMode.BOTH) {

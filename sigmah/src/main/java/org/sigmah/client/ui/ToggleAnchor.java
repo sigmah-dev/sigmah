@@ -14,6 +14,7 @@ import com.google.gwt.user.client.ui.HTML;
 public class ToggleAnchor extends HTML {
     private String label;
     private String target;
+    private String className;
     private boolean anchorMode;
 
     /**
@@ -24,6 +25,7 @@ public class ToggleAnchor extends HTML {
         this.label = html;
         this.target = "javascript:;";
         this.anchorMode = false;
+        this.className = "";
     }
 
     /**
@@ -41,6 +43,23 @@ public class ToggleAnchor extends HTML {
     public void setLabel(String label) {
         this.label = label;
         setAnchorMode(anchorMode);
+    }
+    
+
+    /**
+     * Get the class of the anchor
+     * @return
+     */
+    public String getClassName() {
+        return className;
+    }
+
+    /**
+     * Set the class of the anchor
+     * @param className
+     */
+    public void setClassName(String className) {
+        this.className = className;
     }
 
     /**
@@ -76,7 +95,7 @@ public class ToggleAnchor extends HTML {
         this.anchorMode = anchorMode;
 
         if(anchorMode) {
-            setHTML("<a href=\""+target+"\">"+label+"</a>");
+            setHTML("<a href=\""+target+"\" class=\""+className+"\">"+label+"</a>");
         } else {
             setHTML(label);
         }

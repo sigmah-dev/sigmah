@@ -7,6 +7,7 @@ package org.sigmah.client.page.dashboard;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.sigmah.client.EventBus;
 import org.sigmah.client.cache.UserLocalCache;
 import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.dispatch.monitor.MaskingAsyncMonitor;
@@ -78,10 +79,11 @@ public class DashboardPresenter implements Page {
     private final UserLocalCache cache;
 
     @Inject
-    public DashboardPresenter(final View view, final UserLocalCache cache, final Authentication authentication, final Dispatcher dispatcher) {
+    public DashboardPresenter(final View view, final UserLocalCache cache, final Authentication authentication, final Dispatcher dispatcher, final EventBus eventBus) {
         this.dispatcher = dispatcher;
         this.view = view;
         this.cache = cache;
+
     }
 
     @Override

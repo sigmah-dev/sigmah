@@ -34,7 +34,7 @@ public class OrgUnitDashboardView extends OrgUnitDashboardPresenter.View {
     public OrgUnitDashboardView(EventBus eventBus, Dispatcher dispatcher, Authentication authentication) {
 
         tree = new OrgUnitTreeGrid(eventBus, false);
-        projectsListPanel = new ProjectsListPanel(dispatcher, authentication);
+        projectsListPanel = new ProjectsListPanel(dispatcher, authentication, eventBus);
 
         setHeading(I18N.CONSTANTS.orgunitTree());
 

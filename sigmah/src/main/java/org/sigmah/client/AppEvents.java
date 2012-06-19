@@ -25,4 +25,6 @@ public class AppEvents {
 
     public static EventType ShowOfflineStatus = new EventBus.NamedEventType("ShowOfflineStatus");
     public static EventType DisableOfflineMode = new EventBus.NamedEventType("DisableOfflineMode");
+    
+    public static EventType DeleteProject = new EventBus.NamedEventType("DeleteProject");
 }
