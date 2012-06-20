@@ -537,8 +537,10 @@ public class ProjectPivotContainer extends ContentPanel implements ProjectSubPre
     public void onUIAction(String actionId) {
         if (UIActions.save.equals(actionId)) {
             save();
+            this.updated = false; 
         } else if (UIActions.discardChanges.equals(actionId)) {
             discard();
+            this.updated = false; 
         }
     }
 

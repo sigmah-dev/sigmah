@@ -53,6 +53,7 @@ import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
+import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
@@ -143,8 +144,8 @@ public class AdminOneModelPresenter {
 
             @Override
             public void handleEvent(ButtonEvent be) {
-                updateModel();
                 dataChanged = false;
+                updateModel();
             }
         });
 
@@ -160,8 +161,9 @@ public class AdminOneModelPresenter {
         view.getHasBudgetCheckBox().addListener(Events.OnClick, dataChangedListener);
         view.getTitleField().addListener(Events.Change, dataChangedListener);
         view.getNameField().addListener(Events.Change, dataChangedListener);
-        // FIXME
-        view.getProjectTypeRadioGroup().addListener(Events.Change, dataChangedListener);
+        for(Field<?> radio : view.getProjectTypeRadioGroup().getAll()){
+            radio.addListener(Events.OnClick, dataChangedListener);
+        }
     }
 
     private void addStatusListListener() {
