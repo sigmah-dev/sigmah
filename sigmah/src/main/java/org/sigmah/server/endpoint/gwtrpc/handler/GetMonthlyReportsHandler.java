@@ -1,11 +1,12 @@
 /*
- * All Sigmah code is released under the GNU General Public License v3
- * See COPYRIGHT.txt and LICENSE.txt.
+ * All Sigmah code is released under the GNU General Public License v3 See COPYRIGHT.txt and LICENSE.txt.
  */
 
 package org.sigmah.server.endpoint.gwtrpc.handler;
 
 import com.google.inject.Inject;
+
+import org.sigmah.server.util.ReportingPeriodValidation;
 import org.sigmah.shared.command.GetMonthlyReports;
 import org.sigmah.shared.command.Month;
 import org.sigmah.shared.command.handler.CommandHandler;
@@ -24,11 +25,10 @@ import java.util.List;
 
 /**
  * See GetMonthlyReports
- *
+ * 
  * @author Alex Bertram
  */
 public class GetMonthlyReportsHandler implements CommandHandler<GetMonthlyReports> {
-
 
     private final EntityManager em;
 
@@ -39,16 +39,15 @@ public class GetMonthlyReportsHandler implements CommandHandler<GetMonthlyReport
 
     public CommandResult execute(GetMonthlyReports cmd, User user) throws CommandException {
 
+        List<ReportingPeriod> periods =
+                em.createQuery("select p from ReportingPeriod p where p.site.id = ?1").setParameter(1, cmd.getSiteId())
+                    .getResultList();
 
-        List<ReportingPeriod> periods = em.createQuery("select p from ReportingPeriod p where p.site.id = ?1")
-                .setParameter(1, cmd.getSiteId())
-                .getResultList();
-
-        List<Indicator> indicators = em.createQuery("select i from Indicator i where i.activity.id =" +
-                "(select s.activity.id from Site s where s.id = ?1)")
-                .setParameter(1, cmd.getSiteId())
-                .getResultList();
-
+        List<Indicator> indicators =
+                em.createQuery(
+                    "select i from Indicator i where i.activity.id ="
+                        + "(select s.activity.id from Site s where s.id = ?1)").setParameter(1, cmd.getSiteId())
+                    .getResultList();
 
         List<IndicatorRowDTO> list = new ArrayList<IndicatorRowDTO>();
 
@@ -60,11 +59,15 @@ public class GetMonthlyReportsHandler implements CommandHandler<GetMonthlyReport
             dto.setIndicatorName(indicator.getName());
 
             for (ReportingPeriod period : periods) {
+                boolean wasValid = ReportingPeriodValidation.validate(period);
+                if (!wasValid) {
+                    em.merge(period);
+                }
 
                 Month month = HandlerUtil.monthFromRange(period.getDate1(), period.getDate2());
-                if (month != null &&
-                        month.compareTo(cmd.getStartMonth()) >= 0 &&
-                        month.compareTo(cmd.getEndMonth()) <= 0) {
+                if (month != null
+                    && month.compareTo(cmd.getStartMonth()) >= 0
+                    && month.compareTo(cmd.getEndMonth()) <= 0) {
 
                     for (IndicatorValue value : period.getIndicatorValues()) {
                         if (value.getIndicator().getId() == indicator.getId()) {

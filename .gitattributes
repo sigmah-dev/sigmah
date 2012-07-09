@@ -2299,6 +2299,7 @@ sigmah/src/main/java/org/sigmah/server/util/DateUtilCalendarImpl.java -text
 sigmah/src/main/java/org/sigmah/server/util/DozerMapper.java -text
 sigmah/src/main/java/org/sigmah/server/util/KMLNamespace.java -text
 sigmah/src/main/java/org/sigmah/server/util/LocaleHelper.java -text
+sigmah/src/main/java/org/sigmah/server/util/ReportingPeriodValidation.java -text svneol=unset#text/plain
 sigmah/src/main/java/org/sigmah/server/util/SimpleXmlElement.java -text
 sigmah/src/main/java/org/sigmah/server/util/StringUtil.java -text
 sigmah/src/main/java/org/sigmah/server/util/TemplateModule.java -text
