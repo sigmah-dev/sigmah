@@ -183,7 +183,8 @@ public class ProjectModelPolicy implements EntityPolicy<ProjectModel>  {
 				defaultRootPhase.setLayout(phaseLayout);
 				em.persist(defaultRootPhase);
 				
-				LogFrameModel defaultLogFrame =  createLogFrame(pM);
+				LogFrameModel defaultLogFrame =  createDefaultLogFrameModel(pM);
+				em.persist(defaultLogFrame);
 				
 				pM.setRootPhase(defaultRootPhase);
 				pM.setLogFrameModel(defaultLogFrame);
@@ -391,7 +392,7 @@ public class ProjectModelPolicy implements EntityPolicy<ProjectModel>  {
 			
 	}
 	
-	private LogFrameModel createLogFrame(ProjectModel model){
+	public static LogFrameModel createDefaultLogFrameModel(ProjectModel model){
 		LogFrameModel logFrameModel = new LogFrameModel();
 		logFrameModel.setName("Default log frame");
 		logFrameModel.setActivitiesGroupsMax(3);
@@ -418,7 +419,7 @@ public class ProjectModelPolicy implements EntityPolicy<ProjectModel>  {
 		
 		logFrameModel.setProjectModel(model);
 		
-		em.persist(logFrameModel);
+		
 		return logFrameModel;
 	}
 }

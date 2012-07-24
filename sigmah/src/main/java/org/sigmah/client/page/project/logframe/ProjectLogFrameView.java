@@ -39,8 +39,8 @@ public class ProjectLogFrameView extends ProjectLogFramePresenter.View {
     private Button saveButton;
     private Button copyButton;
     private Button pasteButton;
-    private Button excelButton;
-    private FormPanel excelForm;
+    private Button exportButton;
+    private FormPanel exportForm;
 
     //Title lable
     private Label titleContentLabel;
@@ -182,16 +182,15 @@ public class ProjectLogFrameView extends ProjectLogFramePresenter.View {
         pasteButton.setEnabled(false);
 
         // Export to Excel button.
-        excelButton = new Button(I18N.CONSTANTS.exportToExcel(), IconImageBundle.ICONS.excel());
-        excelButton.hide();
+        exportButton = new Button(I18N.CONSTANTS.export(), IconImageBundle.ICONS.excel());
         // Export form.
-        excelForm = new FormPanel();
-        excelForm.setBodyBorder(false);
-        excelForm.setHeaderVisible(false);
-        excelForm.setPadding(0);
-        excelForm.setEncoding(Encoding.URLENCODED);
-        excelForm.setMethod(Method.POST);
-        excelForm.setAction(GWT.getModuleBaseURL() + "export");
+        exportForm = new FormPanel();
+        exportForm.setBodyBorder(false);
+        exportForm.setHeaderVisible(false);
+        exportForm.setPadding(0);
+        exportForm.setEncoding(Encoding.URLENCODED);
+        exportForm.setMethod(Method.POST);
+        exportForm.setAction(GWT.getModuleBaseURL() + "export");
 
         // Actions toolbar.
         final ToolBar toolBar = new ToolBar();
@@ -203,8 +202,8 @@ public class ProjectLogFrameView extends ProjectLogFramePresenter.View {
         toolBar.add(copyButton);
         toolBar.add(pasteButton);
         toolBar.add(new SeparatorToolItem());
-        toolBar.add(excelButton);
-        toolBar.add(excelForm);
+        toolBar.add(exportButton);
+        toolBar.add(exportForm);
 
         return toolBar;
     }
@@ -231,12 +230,12 @@ public class ProjectLogFrameView extends ProjectLogFramePresenter.View {
 
     @Override
     public Button getExcelExportButton() {
-        return excelButton;
+        return exportButton;
     }
 
     @Override
-    public FormPanel getExcelExportForm() {
-        return excelForm;
+    public FormPanel getExportForm() {
+        return exportForm;
     }
 
     

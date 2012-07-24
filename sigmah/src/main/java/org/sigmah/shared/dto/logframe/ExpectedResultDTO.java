@@ -98,10 +98,8 @@ public class ExpectedResultDTO extends LogFrameElementDTO {
         sb.append(" ; date deleted = ");
         sb.append(" ; intervention logic = ");
         sb.append(getInterventionLogic());
-        sb.append(" ; risks = ");
-        sb.append(getRisks());
-        sb.append(" ; assumptions = ");
-        sb.append(getAssumptions());
+        sb.append(" ; risksAndAssumptions = ");
+        sb.append(getRisksAndAssumptions());
         sb.append(" ; activities = (\n");
         if (getActivities() != null) {
             for (final LogFrameActivityDTO a : getActivities()) {

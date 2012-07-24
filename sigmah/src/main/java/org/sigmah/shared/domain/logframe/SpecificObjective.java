@@ -36,8 +36,7 @@ public class SpecificObjective extends LogFrameElement {
         final SpecificObjective copy = new SpecificObjective();
         copy.code = this.code;
         copy.interventionLogic = this.interventionLogic;
-        copy.risks = this.risks;
-        copy.assumptions = this.assumptions;
+        copy.risksAndAssumptions = this.risksAndAssumptions;
         copy.parentLogFrame = parentLogFrame;
 
         copy.expectedResults = new ArrayList<ExpectedResult>();

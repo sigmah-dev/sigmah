@@ -32,8 +32,7 @@ public abstract class LogFrameElement implements Serializable, Comparable<LogFra
 	protected Integer code;
 	protected Integer position;
 	protected LogFrameGroup group;
-	protected String risks;
-	protected String assumptions;
+	protected String risksAndAssumptions;
 	protected Set<Indicator> indicators = new HashSet<Indicator>(0);
 	
 	@Id
@@ -76,22 +75,14 @@ public abstract class LogFrameElement implements Serializable, Comparable<LogFra
 		this.group = group;
 	}
 
-	@Column(name = "risks", columnDefinition = "TEXT")
-	public String getRisks() {
-		return risks;
+	 
+	@Column(name = "risksAndAssumptions", columnDefinition = "TEXT")
+	public String getRisksAndAssumptions() {
+		return risksAndAssumptions;
 	}
 
-	public void setRisks(String risks) {
-		this.risks = risks;
-	}
-
-	@Column(name = "assumptions", columnDefinition = "TEXT")
-	public String getAssumptions() {
-		return assumptions;
-	}
-
-	public void setAssumptions(String assumptions) {
-		this.assumptions = assumptions;
+	public void setRisksAndAssumptions(String risksAndAssumptions) {
+		this.risksAndAssumptions = risksAndAssumptions;
 	}
 
 	@ManyToMany(cascade=CascadeType.MERGE)

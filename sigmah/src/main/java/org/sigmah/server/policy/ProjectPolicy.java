@@ -250,15 +250,19 @@ public class ProjectPolicy implements EntityPolicy<Project> {
         logFrame.setGroups(groups);
 
         // Links to the log frame model.
-        LogFrameModel model = project.getProjectModel().getLogFrameModel();
+        ProjectModel projectModel=project.getProjectModel();
+        LogFrameModel logFrameModel = projectModel.getLogFrameModel();
 
-        if (model == null) {
-            model = new LogFrameModel();
-            model.setName("Auto-created default model at " + new Date());
-            logFrame.setLogFrameModel(model);
+        if (logFrameModel == null) {
+        	logFrameModel = ProjectModelPolicy.createDefaultLogFrameModel(projectModel);
+        	logFrameModel.setName("Auto-created default model at " + new Date());
+        	em.persist(logFrameModel);
+        	
+            projectModel.setLogFrameModel(logFrameModel);
+            em.merge(projectModel);
         }
 
-        logFrame.setLogFrameModel(model);
+        logFrame.setLogFrameModel(logFrameModel);
 
         em.persist(logFrame);
 

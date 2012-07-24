@@ -11,6 +11,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sigmah.server.endpoint.export.sigmah.exporter.LogFrameExporter;
+import org.sigmah.server.endpoint.export.sigmah.exporter.ProjectReportExporter;
 import org.sigmah.shared.dto.ExportUtils;
 
 import com.google.inject.Inject;
@@ -65,13 +67,12 @@ public class SigmahExportServlet extends HttpServlet {
             final Exporter exporter;
             switch (type) {
             case PROJECT_LOG_FRAME:
-                exporter = new LogFrameExporter(injector.getInstance(EntityManager.class),
-                        (Map<String, Object>) request.getParameterMap());
+                exporter = new LogFrameExporter(injector,request);
                 break;
                 
             case PROJECT_REPORT:
                 exporter = new ProjectReportExporter(injector.getInstance(EntityManager.class),
-                        (Map<String, Object>) request.getParameterMap());
+                		request);
                 break;
             default:
                 log.error("[doGet] The export type '" + type + "' is unknown.");
@@ -79,7 +80,7 @@ public class SigmahExportServlet extends HttpServlet {
             }
 
             // Configures response.
-            resp.setContentType(exporter.getFormat().getContentType());
+            resp.setContentType(exporter.getContentType());
             if (request.getHeader("User-Agent").indexOf("MSIE") != -1) {
                 resp.addHeader("Content-Disposition", "attachment; filename=" + exporter.getFileName());
             } else {

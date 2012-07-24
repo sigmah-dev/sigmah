@@ -157,7 +157,7 @@ public class LogFrameIntegrationTest extends CommandTestCase {
     	
 		assertThat(soCopy.getCode(), equalTo(soOriginal.getCode()));
 		assertThat(soCopy.getId(), not(equalTo(soOriginal.getId())));
-		assertThat(soCopy.getAssumptions(), equalTo(soOriginal.getAssumptions()));
+		assertThat(soCopy.getRisksAndAssumptions(), equalTo(soOriginal.getRisksAndAssumptions()));
 		assertThat(soCopy.getExpectedResults().size(), equalTo(soOriginal.getExpectedResults().size()));
 		
 		ExpectedResultDTO erCopy = soCopy.getExpectedResults().get(0);
@@ -239,9 +239,8 @@ public class LogFrameIntegrationTest extends CommandTestCase {
     	
     	SpecificObjectiveDTO so1 = logFrame.addSpecificObjective();
     	so1.setCode(1);
-    	so1.setAssumptions("The community is open to vaccinating their children");
+    	so1.setRisksAndAssumptions("The community is open to vaccinating their children");
     	so1.setInterventionLogic("Assure that all children are vaccinated");
-    	so1.setRisks("A resumption of hostilities could disrupt the vaccination program");
     	so1.setParentLogFrame(logFrame);
     	so1.setGroup(soGroup);
     	
@@ -307,9 +306,8 @@ public class LogFrameIntegrationTest extends CommandTestCase {
     	
     	SpecificObjectiveDTO so1 = logFrame.addSpecificObjective();
     	so1.setCode(1);
-    	so1.setAssumptions("The community is open to vaccinating their children");
+    	so1.setRisksAndAssumptions("The community is open to vaccinating their children");
     	so1.setInterventionLogic("Assure that all children are vaccinated");
-    	so1.setRisks("A resumption of hostilities could disrupt the vaccination program");
     	so1.setParentLogFrame(logFrame);
     	so1.setGroup(soGroup);
     	

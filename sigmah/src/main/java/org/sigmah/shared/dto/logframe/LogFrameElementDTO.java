@@ -49,25 +49,15 @@ public abstract class LogFrameElementDTO extends BaseModelData implements Entity
         set("position", position);
     }
 
+    // Result risks and assumptions
+    public String getRisksAndAssumptions() {
+    	 return get("risksAndAssumptions");
+	}
 
-    // Result risks.
-    public String getRisks() {
-        return get("risks");
-    }
-
-    public void setRisks(String risks) {
-        set("risks", risks);
-    }
-
-    // Result assumptions.
-    public String getAssumptions() {
-        return get("assumptions");
-    }
-
-    public void setAssumptions(String assumptions) {
-        set("assumptions", assumptions);
-    }
-    
+	public void setRisksAndAssumptions(String risksAndAssumptions) {
+		 set("risksAndAssumptions", risksAndAssumptions);
+	}
+  
 
     // Objective group.
     public LogFrameGroupDTO getGroup() {

@@ -16,204 +16,215 @@ import org.sigmah.shared.dto.IndicatorDTO;
 import org.sigmah.shared.dto.logframe.LogFrameElementDTO;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
-import com.extjs.gxt.ui.client.dnd.ListViewDragSource;
-import com.extjs.gxt.ui.client.dnd.ListViewDropTarget;
-import com.extjs.gxt.ui.client.event.BaseEvent;
-import com.extjs.gxt.ui.client.event.Events;
-import com.extjs.gxt.ui.client.event.ListViewEvent;
 import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.store.ListStore;
-import com.extjs.gxt.ui.client.widget.ListView;
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.MouseOutEvent;
+import com.google.gwt.event.dom.client.MouseOutHandler;
+import com.google.gwt.event.dom.client.MouseOverEvent;
+import com.google.gwt.event.dom.client.MouseOverHandler;
 import com.google.gwt.event.logical.shared.HasValueChangeHandlers;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.event.shared.HandlerRegistration;
-import com.google.gwt.resources.client.CssResource;
-import com.google.gwt.uibinder.client.UiBinder;
-import com.google.gwt.uibinder.client.UiField;
-import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.FlexTable;
+import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.Widget;
 
-public class IndicatorListWidget extends Composite implements HasValueChangeHandlers<Void> {
+public class IndicatorListWidget extends Composite implements
+		HasValueChangeHandlers<Void> {
 
-	private static final String DRAG_AND_DROP_GROUP = "logframeIndicators";
-	private static IndicatorListWidgetUiBinder uiBinder = GWT
-			.create(IndicatorListWidgetUiBinder.class);
-
-	interface IndicatorListWidgetUiBinder extends
-			UiBinder<Widget, IndicatorListWidget> {
-	}
-	
-	interface Style extends CssResource {
-		String indicator();
-		String indicatorLabel();
-		String indicatorOver();
-		String indicatorSelected();
-		String sourceOfVerification();
-	}
-		
-	private int databaseId;
-	private LogFrameElementDTO element;
-	
 	private final Dispatcher dispatcher;
-
-	@UiField
-	Label newIndicatorLink;
-
-	@UiField()
-	ListView<IndicatorDTO> indicatorList;
+	private final LogFrameElementDTO element;
+	private final int databaseId;
 	
-	@UiField Style style;
-	private ListStore<IndicatorDTO> store;
+	private final String clickAbleStyle = "logframe-grid-code-label-active";
 	private FormDialogImpl<IndicatorForm> dialog;
-
-		
-	public IndicatorListWidget(EventBus eventBus, Dispatcher dispatcher, int databaseId, LogFrameElementDTO element) {
+	private final FlexTable table;
+	
+	public IndicatorListWidget(EventBus eventBus, final Dispatcher dispatcher,
+			final int databaseId, final LogFrameElementDTO element) {
 		this.dispatcher = dispatcher;
-		this.databaseId = databaseId;
-		this.element = element;
-
-		initWidget(uiBinder.createAndBindUi(this));
+		this.element=element;	
+		this.databaseId=databaseId;
 		
-		store = new ListStore<IndicatorDTO>();
-		store.add(element.getIndicators());
+		table = new FlexTable();
+		table.setWidth("100%");
+		table.setStyleName("log-frame-indicators-table");
+		updateTable();
 		
-		indicatorList.setTemplate("<tpl for=\".\"><div class=" + style.indicator() + ">" +
-				"<div><span class=" + style.indicatorLabel() + ">{name}</span></div>" + 
-				"<tpl if=\"values.sourceOfVerification\">" +
-				"<div class=" + style.sourceOfVerification() + ">" + 
-					I18N.CONSTANTS.sourceOfVerification() + ": " + "{sourceOfVerification}</div>" +
-				"</tpl></div></tpl>");
-		indicatorList.setStore(store);
-		indicatorList.setBorders(false);
-		indicatorList.setOverStyle(style.indicatorOver());
-		indicatorList.setSelectStyle(style.indicatorSelected());
-		indicatorList.setItemSelector("." + style.indicator());
-		
-		indicatorList.addListener(Events.Select, new Listener<ListViewEvent<IndicatorDTO>>() {
+		final Label newIndicatorLink = new Label(I18N.CONSTANTS.newIndicator());
+		newIndicatorLink.addStyleName(clickAbleStyle);
+		newIndicatorLink.addClickHandler(new ClickHandler() {
 			@Override
-			public void handleEvent(ListViewEvent<IndicatorDTO> be) {
-				onIndicatorClicked(be.getModel());
+			public void onClick(ClickEvent event) {
+				showNewIndicatorForm();
 			}
 		});
-
-		new ListViewDragSource(indicatorList)
-			.setGroup(DRAG_AND_DROP_GROUP);
-		new ListViewDropTarget(indicatorList)
-			.setGroup(DRAG_AND_DROP_GROUP);
 		
-		eventBus.addListener(IndicatorEvent.CHANGED, new Listener<IndicatorEvent>() {
+		final Grid grid=new Grid(2, 1); 
+		grid.setCellSpacing(0);
+ 		grid.setWidget(0, 0, table);
+		grid.setWidget(1, 0, newIndicatorLink);
+		
+		initWidget(grid);
 
-			@Override
-			public void handleEvent(IndicatorEvent event) {
-				onIndicatorChangedExternally(event);			
-			}
-		});
+		eventBus.addListener(IndicatorEvent.CHANGED,
+				new Listener<IndicatorEvent>() {
+
+					@Override
+					public void handleEvent(IndicatorEvent event) {
+						onIndicatorChangedExternally(event);
+					}
+				});
 
 	}
-
-	@UiHandler("newIndicatorLink")
-	void onClick(ClickEvent e) {
+	
+	private void showNewIndicatorForm(){
 		final IndicatorDTO newIndicator = new IndicatorDTO();
 		newIndicator.setCollectIntervention(true);
 		newIndicator.setAggregation(IndicatorDTO.AGGREGATE_SUM);
 		newIndicator.setDatabaseId(databaseId);
-		
+
 		String category = (element.getFormattedCode() + " " + element.getDescription()).trim();
-        if(category.length() > 1024)
-            category = category.substring(0,1024);        
+		if (category.length() > 1024)
+			category = category.substring(0, 1024);
 		newIndicator.setCategory(category);
-		
+
 		showDialog(newIndicator, new FormDialogCallback() {
 
 			@Override
 			public void onValidated(FormDialogTether dlg) {
-				
-				dispatcher.execute(new CreateEntity(newIndicator), dialog, new AsyncCallback<CreateResult>() {
 
-					@Override
-					public void onFailure(Throwable caught) {
-						// handled by dialog
-					}
+				dispatcher.execute(new CreateEntity(newIndicator),
+						dialog, new AsyncCallback<CreateResult>() {
 
-					@Override
-					public void onSuccess(CreateResult result) {
-						newIndicator.setId(result.getNewId());
-						dialog.hide();
-						element.getIndicators().add(newIndicator);
-						indicatorList.getStore().add(newIndicator);			
-					
-						ValueChangeEvent.fire(IndicatorListWidget.this, null);				
-					}
-				});
+							@Override
+							public void onFailure(Throwable caught) {
+								// handled by dialog
+							}
+
+							@Override
+							public void onSuccess(CreateResult result) {
+								newIndicator.setId(result.getNewId());
+								dialog.hide();
+								element.getIndicators().add(newIndicator);
+								updateTable();
+								ValueChangeEvent.fire(IndicatorListWidget.this, null);
+							}
+						});
 			}
 		});
 	}
 	
-	private void onIndicatorClicked(final IndicatorDTO model) {
-		showDialog(model, new FormDialogCallback() {
+	private void updateTable(){
+		int rowIndex = 0;
+		for (final IndicatorDTO indicator : element.getIndicators()) {
+			updateRow(rowIndex, indicator);
+			rowIndex++;
+		}
+	}
+	
+	private void updateRow(final int rowIndex,final IndicatorDTO indicator){
+
+		final Label label = new Label(indicator.getName());
+		
+		label.addClickHandler(new ClickHandler() {
+
+			@Override
+			public void onClick(ClickEvent event) {
+				onIndicatorClicked(rowIndex,indicator);
+			}
+		});
+		label.addMouseOverHandler(new MouseOverHandler() {
+
+			@Override
+			public void onMouseOver(MouseOverEvent event) {
+				label.addStyleName(clickAbleStyle);
+			}
+		});
+		label.addMouseOutHandler(new MouseOutHandler() {
+
+			@Override
+			public void onMouseOut(MouseOutEvent event) {
+				label.removeStyleName(clickAbleStyle);
+			}
+		});
+		table.setWidget(rowIndex, 0, label);
+		table.getFlexCellFormatter().setStyleName(rowIndex, 0,
+		"log-frame-indicators-table-cell");
+		
+		table.setHTML(rowIndex, 1, indicator.getSourceOfVerification());		
+		table.getFlexCellFormatter().setStyleName(rowIndex, 1,
+				"log-frame-indicators-table-cell");
+	}
+
+	private void onIndicatorClicked(final int rowIndex,final IndicatorDTO indicator) {
+		showDialog(indicator, new FormDialogCallback() {
 
 			@Override
 			public void onValidated(FormDialogTether dlg) {
-				
-				dispatcher.execute(new UpdateEntity(model, model.getProperties()), dialog, new AsyncCallback<VoidResult>() {
 
-					@Override
-					public void onFailure(Throwable caught) {
-						// handled by monitor
-					}
+				dispatcher.execute(
+						new UpdateEntity(indicator, indicator.getProperties()), dialog,
+						new AsyncCallback<VoidResult>() {
 
-					@Override
-					public void onSuccess(VoidResult result) {
-						dialog.hide();
-						indicatorList.refresh();
+							@Override
+							public void onFailure(Throwable caught) {
+								// handled by monitor
+							}
 
-						ValueChangeEvent.fire(IndicatorListWidget.this, null);				
-					}
-				});
+							@Override
+							public void onSuccess(VoidResult result) {
+								dialog.hide();
+								updateRow(rowIndex, indicator);
+								ValueChangeEvent.fire(IndicatorListWidget.this,null);
+							}
+						});
 			}
 		});
 	}
-	
+
 	private void showDialog(IndicatorDTO indicator, FormDialogCallback callback) {
 		final IndicatorForm form = new IndicatorForm(dispatcher);
 		form.getBinding().bind(indicator);
 		form.setIdVisible(false);
 		form.setGroupVisible(false);
-		
+
 		dialog = new FormDialogImpl<IndicatorForm>(form);
-		dialog.setHeading(indicator.getName() == null ? 
-				I18N.CONSTANTS.newIndicator() : indicator.getName());
+		dialog.setHeading(indicator.getName() == null ? I18N.CONSTANTS
+				.newIndicator() : indicator.getName());
 		dialog.setWidth(form.getPreferredDialogWidth());
 		dialog.setHeight(form.getPreferredDialogHeight());
 		dialog.setScrollMode(Scroll.AUTOY);
 		dialog.show(callback);
 	}
 
-
 	/**
-	 * Update our view in the event that an indicator is changed in another tab open somewhere.
+	 * Update our view in the event that an indicator is changed in another tab
+	 * open somewhere.
 	 */
 	private void onIndicatorChangedExternally(IndicatorEvent event) {
-		IndicatorDTO indicator = store.findModel("id", event.getEntityId());
-		if(indicator != null) {
-			switch(event.getChangeType()) {
+		IndicatorDTO indicator = null;
+		for(IndicatorDTO dto:element.getIndicators()){
+			if(dto.getId()==event.getEntityId())
+				indicator=dto;
+		} 
+		if (indicator != null) {
+			switch (event.getChangeType()) {
 			case DELETED:
-				store.remove(indicator);
-				break;
+				element.getIndicators().remove(indicator);
+ 				break;
 			case UPDATED:
-				if(event.getChanges() != null) {
+				if (event.getChanges() != null) {
 					event.applyChanges(indicator);
-					store.update(indicator);
 				}
 			}
+			updateTable();
 		}
-		
+
 	}
 
 	@Override

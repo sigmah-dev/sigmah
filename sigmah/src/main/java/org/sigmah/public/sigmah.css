@@ -827,6 +827,17 @@ body {
 	background-image: url(./image/context_menu_icon_orange.png);
 }
 
+.log-frame-indicators-table{
+table-layout: fixed;
+margin-bottom: 8px;
+}
+.log-frame-indicators-table-cell{
+white-space: normal;
+width: 50%;
+overflow:hidden;
+border-bottom: solid 1px #EDEDED;
+padding: 5px 0 2px 2px;
+}
 /* --------------------------------------------- Reports */
 .project-report {
 	padding-top: 4px;

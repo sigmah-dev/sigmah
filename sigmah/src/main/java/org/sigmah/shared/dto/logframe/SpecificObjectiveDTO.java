@@ -94,10 +94,8 @@ public class SpecificObjectiveDTO extends LogFrameElementDTO implements EntityDT
         sb.append(getCode());
         sb.append(" ; intervention logic = ");
         sb.append(getInterventionLogic());
-        sb.append(" ; risks = ");
-        sb.append(getRisks());
-        sb.append(" ; assumptions = ");
-        sb.append(getAssumptions());
+        sb.append(" ; risksAndAssumptions = ");
+        sb.append(getRisksAndAssumptions());
         sb.append(" ; expected results = (\n");
         if (getExpectedResults() != null) {
             for (final ExpectedResultDTO r : getExpectedResults()) {

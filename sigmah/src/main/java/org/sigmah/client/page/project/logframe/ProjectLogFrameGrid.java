@@ -253,7 +253,7 @@ public class ProjectLogFrameGrid {
     protected void initTable() {
 
         resetTable();
-
+       
         // Table parameters.
         table.setCellPadding(0);
         table.setCellSpacing(0);
@@ -262,21 +262,22 @@ public class ProjectLogFrameGrid {
         table.getColumnFormatter().setWidth(0, "100px");
         table.getColumnFormatter().setWidth(1, "50px");
         table.getColumnFormatter().setWidth(2, "50px");
-        table.getColumnFormatter().setWidth(3, "25%");
-        table.getColumnFormatter().setWidth(5, "20%");
-        table.getColumnFormatter().setWidth(6, "20%");
+        table.getColumnFormatter().setWidth(3, "22%");
+        table.getColumnFormatter().setWidth(4, "18%");
+        table.getColumnFormatter().setWidth(5, "18%");
+        table.getColumnFormatter().setWidth(6, "22%");
 
         // Columns headers labels.
         final Label interventionLogicLabel = new Label(I18N.CONSTANTS.logFrameInterventionLogic());
-        final Label indicatorsLabel = new Label(I18N.CONSTANTS.logFrameIndicators());
-        final Label risksLabel = new Label(I18N.CONSTANTS.logFrameRisks());
-        final Label assumptionsLabel = new Label(I18N.CONSTANTS.logFrameAssumptions());
+        final Label indicatorsLabel = new Label(I18N.CONSTANTS.indicators());
+        final Label meansOfVerificationLabel = new Label(I18N.CONSTANTS.logFrameMeansOfVerification());
+        final Label risksAndAssumptionsLabel = new Label(I18N.CONSTANTS.logFrameRisksAndAssumptions());
 
         table.getFlexCellFormatter().setColSpan(0, 1, 2);
         table.setWidget(0, 2, interventionLogicLabel);
         table.setWidget(0, 3, indicatorsLabel);
-        table.setWidget(0, 4, risksLabel);
-        table.setWidget(0, 5, assumptionsLabel);
+        table.setWidget(0, 4, meansOfVerificationLabel);
+        table.setWidget(0, 5, risksAndAssumptionsLabel);
 
         // Rows headers labels (and actions).
 
@@ -983,7 +984,7 @@ public class ProjectLogFrameGrid {
 
                             return interventionLogicTextBox;
 
-                        case 3:
+                        case 4:
 
                             // Indicators.
                             IndicatorListWidget indicatorListWidget = new IndicatorListWidget(eventBus, dispatcher, databaseId, specificObjective);
@@ -994,55 +995,31 @@ public class ProjectLogFrameGrid {
 									fireLogFrameEdited();	
 								}
 							});
-                            return indicatorListWidget;
-
-                        case 4:
-
-                            // Risks.
-                            final TextArea risksTextBox = new TextArea();
-                            risksTextBox.setWidth("100%");
-                            risksTextBox.setHeight("100%");
-                            risksTextBox.setVisibleLines(3);
-                            risksTextBox.addStyleName("html-textbox");
-                            risksTextBox.setEnabled(!readOnly);
-
-                            if (userObject != null) {
-                                risksTextBox.setText(userObject.getRisks());
-                            }
-
-                            risksTextBox.addChangeHandler(new ChangeHandler() {
-                                @Override
-                                public void onChange(ChangeEvent e) {
-                                    userObject.setRisks(risksTextBox.getText());
-                                    fireLogFrameEdited();
-                                }
-                            });
-
-                            return risksTextBox;
+                            return indicatorListWidget;                        
 
                         case 5:
 
-                            // Assumptions.
-                            final TextArea assumptionsTextBox = new TextArea();
-                            assumptionsTextBox.setWidth("100%");
-                            assumptionsTextBox.setHeight("100%");
-                            assumptionsTextBox.setVisibleLines(3);
-                            assumptionsTextBox.addStyleName("html-textbox");
-                            assumptionsTextBox.setEnabled(!readOnly);
+                            // Risks and Assumptions.
+                            final TextArea risksAssumptionsTextBox = new TextArea();
+                            risksAssumptionsTextBox.setWidth("100%");
+                            risksAssumptionsTextBox.setHeight("100%");
+                            risksAssumptionsTextBox.setVisibleLines(3);
+                            risksAssumptionsTextBox.addStyleName("html-textbox");
+                            risksAssumptionsTextBox.setEnabled(!readOnly);
 
                             if (userObject != null) {
-                                assumptionsTextBox.setText(userObject.getAssumptions());
+                            	risksAssumptionsTextBox.setText(userObject.getRisksAndAssumptions());
                             }
 
-                            assumptionsTextBox.addChangeHandler(new ChangeHandler() {
+                            risksAssumptionsTextBox.addChangeHandler(new ChangeHandler() {
                                 @Override
                                 public void onChange(ChangeEvent e) {
-                                    userObject.setAssumptions(assumptionsTextBox.getText());
+                                    userObject.setRisksAndAssumptions(risksAssumptionsTextBox.getText());
                                     fireLogFrameEdited();
                                 }
                             });
 
-                            return assumptionsTextBox;
+                            return risksAssumptionsTextBox;
 
                         default:
                             return null;
@@ -1415,7 +1392,7 @@ public class ProjectLogFrameGrid {
 
                             return interventionLogicTextBox;
 
-                        case 3:
+                        case 4:
 
                             // Indicators.
                             IndicatorListWidget indicatorListWidget = new IndicatorListWidget(eventBus, dispatcher, databaseId, result);
@@ -1427,54 +1404,31 @@ public class ProjectLogFrameGrid {
 								}
 							});
 							return indicatorListWidget;
-
-                        case 4:
-
-                            // Risks.
-                            final TextArea risksTextBox = new TextArea();
-                            risksTextBox.setWidth("100%");
-                            risksTextBox.setHeight("100%");
-                            risksTextBox.setVisibleLines(3);
-                            risksTextBox.addStyleName("html-textbox");
-                            risksTextBox.setEnabled(!readOnly);
-
-                            if (userObject != null) {
-                                risksTextBox.setText(userObject.getRisks());
-                            }
-
-                            risksTextBox.addChangeHandler(new ChangeHandler() {
-                                @Override
-                                public void onChange(ChangeEvent e) {
-                                    userObject.setRisks(risksTextBox.getText());
-                                    fireLogFrameEdited();
-                                }
-                            });
-
-                            return risksTextBox;
+                       
 
                         case 5:
 
-                            // Assumptions.
-                            final TextArea assumptionsTextBox = new TextArea();
-                            assumptionsTextBox.setWidth("100%");
-                            assumptionsTextBox.setHeight("100%");
-                            assumptionsTextBox.setVisibleLines(3);
-                            assumptionsTextBox.addStyleName("html-textbox");
-                            assumptionsTextBox.setEnabled(!readOnly);
+                        	 // Risks and Assumptions.
+                            final TextArea risksAssumptionsTextBox = new TextArea();
+                            risksAssumptionsTextBox.setWidth("100%");
+                            risksAssumptionsTextBox.setHeight("100%");
+                            risksAssumptionsTextBox.setVisibleLines(3);
+                            risksAssumptionsTextBox.addStyleName("html-textbox");
+                            risksAssumptionsTextBox.setEnabled(!readOnly);
 
                             if (userObject != null) {
-                                assumptionsTextBox.setText(userObject.getAssumptions());
+                            	risksAssumptionsTextBox.setText(userObject.getRisksAndAssumptions());
                             }
 
-                            assumptionsTextBox.addChangeHandler(new ChangeHandler() {
+                            risksAssumptionsTextBox.addChangeHandler(new ChangeHandler() {
                                 @Override
                                 public void onChange(ChangeEvent e) {
-                                    userObject.setAssumptions(assumptionsTextBox.getText());
+                                    userObject.setRisksAndAssumptions(risksAssumptionsTextBox.getText());
                                     fireLogFrameEdited();
                                 }
                             });
 
-                            return assumptionsTextBox;
+                            return risksAssumptionsTextBox;
 
                         default:
                             return null;
@@ -1880,7 +1834,7 @@ public class ProjectLogFrameGrid {
 
                             return contentTextBox;
 
-                        case 3:
+                        case 4:
                             IndicatorListWidget indicatorListWidget = new IndicatorListWidget(eventBus, dispatcher, databaseId, userObject);
 							indicatorListWidget.addValueChangeHandler(new ValueChangeHandler<Void>() {
 								@Override
@@ -1889,9 +1843,7 @@ public class ProjectLogFrameGrid {
 								}
 							});
                             return indicatorListWidget;
-
-                        case 4:
-                            return new Label();
+                       
 
                         case 5:
                             return new Label();

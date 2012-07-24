@@ -1,5 +1,8 @@
 package org.sigmah.shared.dto;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Constants to manage exports.
  * 
@@ -41,24 +44,60 @@ public final class ExportUtils {
             }
         }
     }
+       
+    /*
+     * Maps to specify document type and extension
+     */
+	private final static Map<ExportFormat, String> contentTypeMap = new HashMap<ExportFormat, String>();
+	private final static Map<ExportFormat, String> extensionMap = new HashMap<ExportFormat, String>();
+	
+	static {
+		contentTypeMap.put(ExportFormat.MS_EXCEL, "application/vnd.ms-excel");
+		contentTypeMap.put(ExportFormat.OPEN_DOCUMENT_SPREADSHEET, "application/vnd.oasis.opendocument.spreadsheet");
+		contentTypeMap.put(ExportFormat.MS_WORD, "application/msword");
+		
+		extensionMap.put(ExportFormat.MS_EXCEL, ".xls");
+		extensionMap.put(ExportFormat.OPEN_DOCUMENT_SPREADSHEET, ".ods");
+		extensionMap.put(ExportFormat.MS_WORD, ".rtf");
+	}
+ 
+	public static String getContentType(ExportFormat format) {
+		return contentTypeMap.get(format);
+	}
+	
+	public static String getExtension(ExportFormat format) {
+		return extensionMap.get(format);
+	}
+
+	public static enum ExportFormat {
+		MS_EXCEL, OPEN_DOCUMENT_SPREADSHEET, MS_WORD;		
+		
+		  public static ExportFormat valueOfOrNull(String name) {
+	            try {
+	                return ExportFormat.valueOf(name.toUpperCase());
+	            } catch (IllegalArgumentException e) {
+	                return null;
+	            } catch (NullPointerException e) {
+	                return null;
+	            }
+	        }
+	}
 
     /**
      * The parameter name to identify the entity to export.
      */
     public static final String PARAM_EXPORT_TYPE = "type";
+    
+
+    /**
+     * Document format such as MS Excel, MS Word, Open document spreadsheet
+     */
+    public static final String PARAM_EXPORT_FORMAT = "format";
 
     /**
      * The parameter name to identify the id of the project during an export.
      */
     public static final String PARAM_EXPORT_PROJECT_ID = "id";
+   
 
-    /**
-     * The parameter name to identify the labels list during an export.
-     */
-    public static final String PARAM_EXPORT_LABELS_LIST = "labels";
-
-    /**
-     * The separator to merge/split the labels list.
-     */
-    public static final String PARAM_EXPORT_LABELS_LIST_SEPARATOR = "~";
 }

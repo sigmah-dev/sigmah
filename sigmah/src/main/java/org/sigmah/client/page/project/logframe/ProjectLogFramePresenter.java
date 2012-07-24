@@ -22,18 +22,24 @@ import org.sigmah.shared.dto.logframe.LogFrameDTO;
 import org.sigmah.shared.dto.profile.ProfileUtils;
 
 import com.allen_sauer.gwt.log.client.Log;
+import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Label;
 import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.HiddenField;
+import com.extjs.gxt.ui.client.widget.form.Radio;
+import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
@@ -63,7 +69,7 @@ public class ProjectLogFramePresenter implements SubPresenter {
 
         public abstract Button getExcelExportButton();
 
-        public abstract FormPanel getExcelExportForm();
+        public abstract FormPanel getExportForm();
 
         public abstract Label getLogFrameTitleContentLabel();
 
@@ -305,37 +311,82 @@ public class ProjectLogFramePresenter implements SubPresenter {
         });
 
         // Excel action.
-        view.getExcelExportButton().addListener(Events.OnClick, new Listener<ButtonEvent>() {
+		view.getExcelExportButton().addListener(Events.OnClick,
+				new Listener<ButtonEvent>() {
 
-            @Override
-            public void handleEvent(ButtonEvent be) {
+					@Override
+					public void handleEvent(ButtonEvent be) {
+						final Window w = new Window();
+						w.setPlain(true);
+						w.setModal(true);
+						w.setBlinkModal(true);
+						w.setLayout(new FitLayout());
+						w.setSize(350, 180);
+						w.setHeading(I18N.CONSTANTS.exportData());
 
-                // Clears the form.
-                view.getExcelExportForm().removeAll();
+						FormPanel panel = new FormPanel();
 
-                // Adds parameters.
-                final HiddenField<String> exportTypeHidden = new HiddenField<String>();
-                exportTypeHidden.setName(ExportUtils.PARAM_EXPORT_TYPE);
-                exportTypeHidden.setValue(ExportUtils.ExportType.PROJECT_LOG_FRAME.name());
-                view.getExcelExportForm().add(exportTypeHidden);
+						final Radio calcChoice = new Radio();
+						calcChoice.setBoxLabel(I18N.CONSTANTS.openDocumentSpreadsheet());
+						calcChoice.setName("type");
 
-                final HiddenField<String> projectIdHidden = new HiddenField<String>();
-                projectIdHidden.setName(ExportUtils.PARAM_EXPORT_PROJECT_ID);
-                projectIdHidden.setValue(String.valueOf(currentProjectDTO.getId()));
-                view.getExcelExportForm().add(projectIdHidden);
+						final Radio excelChoice = new Radio();
+						excelChoice.setValue(true);
+						excelChoice.setBoxLabel(I18N.CONSTANTS.msExcel());
+						excelChoice.setName("type");
 
-                final HiddenField<String> labelsHidden = new HiddenField<String>();
-                labelsHidden.setName(ExportUtils.PARAM_EXPORT_LABELS_LIST);
-                labelsHidden.setValue(ProjectLogFrameLabels.merge());
-                view.getExcelExportForm().add(labelsHidden);
+						RadioGroup radioGroup = new RadioGroup();
+						radioGroup.setOrientation(Orientation.VERTICAL);
+						radioGroup.setFieldLabel(I18N.CONSTANTS.chooseFileType());
+						radioGroup.add(excelChoice);
+						radioGroup.add(calcChoice);
 
-                view.getExcelExportForm().layout();
+						final Button export = new Button(I18N.CONSTANTS.export());
+						panel.getButtonBar().add(export);
+						export.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
-                // Submits the form.
-                view.getExcelExportForm().submit();
-            }
-        });
-    }
+							@Override
+							public void componentSelected(ButtonEvent ce) {
+								// Clears the form.
+								view.getExportForm().removeAll();
+
+								// Adds parameters.
+								final HiddenField<String> exportTypeHidden = new HiddenField<String>();
+								exportTypeHidden.setName(ExportUtils.PARAM_EXPORT_TYPE);
+								exportTypeHidden.setValue(ExportUtils.ExportType.PROJECT_LOG_FRAME.name());
+								view.getExportForm().add(exportTypeHidden);
+								
+								final HiddenField<String> exportFormatHidden = new HiddenField<String>();
+								exportFormatHidden.setName(ExportUtils.PARAM_EXPORT_FORMAT);
+								if(excelChoice.getValue()){
+									exportFormatHidden.setValue(ExportUtils.ExportFormat.MS_EXCEL.name());
+								}else{
+									exportFormatHidden.setValue(ExportUtils.ExportFormat.OPEN_DOCUMENT_SPREADSHEET.name());
+								}
+								
+								view.getExportForm().add(exportFormatHidden);
+
+								final HiddenField<String> projectIdHidden = new HiddenField<String>();
+								projectIdHidden.setName(ExportUtils.PARAM_EXPORT_PROJECT_ID);
+								projectIdHidden.setValue(String.valueOf(currentProjectDTO.getId()));
+								view.getExportForm().add(projectIdHidden);
+
+								view.getExportForm().layout();
+
+								// Submits the form.
+								view.getExportForm().submit();
+								
+								w.hide();
+							}
+						});
+
+						panel.add(radioGroup);
+						w.add(panel);
+						w.show();
+
+					}
+				});
+	}
 
     private boolean isEditable() {
         return logFrame != null
@@ -371,7 +422,6 @@ public class ProjectLogFramePresenter implements SubPresenter {
         view.getCopyButton().setEnabled(true);
         view.getPasteButton().setEnabled(
             isEditable() && logFrameIdCopySource != null && currentProjectDTO.getCurrentAmendment() == null);
-        view.getExcelExportButton().setEnabled(false);
     }
 
 }

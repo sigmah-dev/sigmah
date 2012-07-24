@@ -724,18 +724,18 @@ public class ProjectReportsView extends LayoutContainer {
                     typeField.setName(ExportUtils.PARAM_EXPORT_TYPE);
                     typeField.setValue(ExportUtils.ExportType.PROJECT_REPORT.toString());
                     form.appendChild(typeField);
+                    
+                    final InputElement formatField = InputElement.as(DOM.createInputText());
+                    formatField.setAttribute("type", "hidden");
+                    formatField.setName(ExportUtils.PARAM_EXPORT_FORMAT);
+                    formatField.setValue(ExportUtils.ExportFormat.MS_WORD.name());
+                    form.appendChild(formatField);
 
                     final InputElement idField = InputElement.as(DOM.createInputText());
                     idField.setAttribute("type", "hidden");
                     idField.setName(ExportUtils.PARAM_EXPORT_PROJECT_ID);
                     idField.setAttribute("value", report.getId().toString());
                     form.appendChild(idField);
-
-                    final InputElement labelField = InputElement.as(DOM.createInputText());
-                    labelField.setAttribute("type", "hidden");
-                    labelField.setName(ExportUtils.PARAM_EXPORT_LABELS_LIST);
-                    labelField.setAttribute("value", I18N.CONSTANTS.projectReportTableOfContents());
-                    form.appendChild(labelField);
 
                     RootPanel.getBodyElement().appendChild(form);
 

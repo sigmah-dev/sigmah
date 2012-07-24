@@ -40,8 +40,7 @@ public class ExpectedResult extends LogFrameElement {
         final ExpectedResult copy = new ExpectedResult();
         copy.code = this.code;
         copy.interventionLogic = this.interventionLogic;
-        copy.risks = this.risks;
-        copy.assumptions = this.assumptions;
+        copy.risksAndAssumptions = this.risksAndAssumptions;
         copy.parentSpecificObjective = parentSpecificObjective;
         copy.indicators = copyIndicators(context);
 
