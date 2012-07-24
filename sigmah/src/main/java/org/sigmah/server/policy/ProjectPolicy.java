@@ -37,16 +37,19 @@ import org.sigmah.shared.domain.reminder.MonitoredPointList;
 import org.sigmah.shared.domain.reminder.ReminderList;
 
 import com.google.inject.Inject;
+import com.google.inject.Injector;
 
 public class ProjectPolicy implements EntityPolicy<Project> {
 
     private static final Log log = LogFactory.getLog(ProjectPolicy.class);
 
     private final EntityManager em;
+    private final Injector injector;
 
     @Inject
-    public ProjectPolicy(EntityManager em) {
+    public ProjectPolicy(EntityManager em,Injector injector) {
         this.em = em;
+        this.injector=injector;
     }
 
     @Override
@@ -366,7 +369,12 @@ public class ProjectPolicy implements EntityPolicy<Project> {
                  project.delete();   
                  
                  //Save
-                 em.merge(project); 
+                 em.merge(project);
+                 
+                 /* [UserPermission trigger] 
+         		 * Deletes related entries in UserPermission table after project deleted */
+             	 UserPermissionPolicy policy=injector.getInstance(UserPermissionPolicy.class);
+             	 policy.deleteUserPemissionByProject((Integer)entityId);
              }
     	
     	   }

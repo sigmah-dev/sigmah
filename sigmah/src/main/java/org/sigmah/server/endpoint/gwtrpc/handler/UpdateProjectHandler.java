@@ -14,6 +14,7 @@ import javax.persistence.Query;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dozer.Mapper;
+import org.sigmah.server.policy.UserPermissionPolicy;
 import org.sigmah.shared.command.UpdateProject;
 import org.sigmah.shared.command.handler.CommandHandler;
 import org.sigmah.shared.command.result.CommandResult;
@@ -37,6 +38,7 @@ import org.sigmah.shared.dto.value.ListEntityDTO;
 import org.sigmah.shared.exception.CommandException;
 
 import com.google.inject.Inject;
+import com.google.inject.Injector;
 
 /**
  * Updates the values of the flexible elements for a specific project.
@@ -49,11 +51,13 @@ public class UpdateProjectHandler implements CommandHandler<UpdateProject> {
 
     private final EntityManager em;
     private final Mapper mapper;
+    private final Injector injector;
 
     @Inject
-    public UpdateProjectHandler(EntityManager em, Mapper mapper) {
+    public UpdateProjectHandler(EntityManager em, Mapper mapper, Injector injector) {
         this.em = em;
         this.mapper = mapper;
+        this.injector=injector;
     }
 
     @Override
@@ -67,7 +71,7 @@ public class UpdateProjectHandler implements CommandHandler<UpdateProject> {
         
         
         final Project project = em.find(Project.class, cmd.getProjectId());
-
+       
         // This date must be the same for all the saved values !
         final Date historyDate = new Date();
         final Integer historableId = cmd.getProjectId();
@@ -284,6 +288,16 @@ public class UpdateProjectHandler implements CommandHandler<UpdateProject> {
             em.merge(currentValue);
         }
 
+        Project updatedProject = em.find(Project.class, cmd.getProjectId());
+        OrgUnit newOrgUnit = null;
+        for (OrgUnit orgUnit : updatedProject.getPartners()) {
+        	newOrgUnit = orgUnit;
+            break;
+        }
+        final UserPermissionPolicy permissionPolicy=injector.getInstance(UserPermissionPolicy.class);
+        permissionPolicy.deleteUserPemissionByProject(cmd.getProjectId());
+        permissionPolicy.updateUserPermissionByOrgUnit(newOrgUnit);
+        
         return null;
     }
 

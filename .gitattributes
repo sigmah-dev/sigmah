@@ -2000,6 +2000,7 @@ sigmah/src/main/java/org/sigmah/server/dao/hibernate/SQLDialectProvider.java -te
 sigmah/src/main/java/org/sigmah/server/dao/hibernate/SiteHibernateDAO.java -text
 sigmah/src/main/java/org/sigmah/server/dao/hibernate/TransactionalInterceptor.java -text
 sigmah/src/main/java/org/sigmah/server/dao/hibernate/UserDAOImpl.java -text
+sigmah/src/main/java/org/sigmah/server/dao/hibernate/UserPermissionHibernateDAO.java -text
 sigmah/src/main/java/org/sigmah/server/dao/hibernate/UserUnitDAOImpl.java -text
 sigmah/src/main/java/org/sigmah/server/dao/hibernate/criterion/SiteAdminOrder.java -text
 sigmah/src/main/java/org/sigmah/server/dao/hibernate/criterion/SiteIndicatorOrder.java -text
@@ -2184,6 +2185,7 @@ sigmah/src/main/java/org/sigmah/server/policy/ProjectReportPolicy.java -text
 sigmah/src/main/java/org/sigmah/server/policy/PropertyMap.java -text
 sigmah/src/main/java/org/sigmah/server/policy/SitePolicy.java -text
 sigmah/src/main/java/org/sigmah/server/policy/UserDatabasePolicy.java -text
+sigmah/src/main/java/org/sigmah/server/policy/UserPermissionPolicy.java -text
 sigmah/src/main/java/org/sigmah/server/policy/UserPolicy.java -text
 sigmah/src/main/java/org/sigmah/server/policy/admin/ModelUtil.java -text
 sigmah/src/main/java/org/sigmah/server/report/MapIconPathProvider.java -text

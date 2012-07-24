@@ -2,6 +2,7 @@ package org.sigmah.server.endpoint.gwtrpc.handler;
 
 import javax.persistence.EntityManager;
 
+import org.sigmah.server.policy.UserPermissionPolicy;
 import org.sigmah.shared.command.MoveOrgUnit;
 import org.sigmah.shared.command.handler.CommandHandler;
 import org.sigmah.shared.command.result.CommandResult;
@@ -12,14 +13,17 @@ import org.sigmah.shared.exception.CommandException;
 import org.sigmah.shared.exception.MoveException;
 
 import com.google.inject.Inject;
+import com.google.inject.Injector;
 
 public class MoveOrgUnitHandler implements CommandHandler<MoveOrgUnit> {
 
     private final EntityManager em;
+    private final Injector injector;
 
     @Inject
-    public MoveOrgUnitHandler(EntityManager em) {
+    public MoveOrgUnitHandler(EntityManager em,Injector injector) {
         this.em = em;
+        this.injector=injector;
     }
 
     @Override
@@ -54,7 +58,13 @@ public class MoveOrgUnitHandler implements CommandHandler<MoveOrgUnit> {
         // Performs the move.
         moved.setParent(parent);
         moved = em.merge(moved);
-
+        
+        /* [UserPermission trigger] 
+		 * Updates UserPermission table when orgnit changes its parent*/ 
+        UserPermissionPolicy permissionPolicy= injector.getInstance(UserPermissionPolicy.class);
+        permissionPolicy.deleteUserPermssionByOrgUnit(moved);
+        permissionPolicy.updateUserPermissionByOrgUnit(moved);
+       
         return new VoidResult();
     }
 

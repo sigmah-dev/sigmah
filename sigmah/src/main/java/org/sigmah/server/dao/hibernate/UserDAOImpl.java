@@ -5,12 +5,15 @@
 
 package org.sigmah.server.dao.hibernate;
 
-import com.google.inject.Inject;
+import java.util.List;
+
+import javax.persistence.EntityManager;
+
 import org.sigmah.server.auth.SecureTokenGenerator;
 import org.sigmah.shared.dao.UserDAO;
 import org.sigmah.shared.domain.User;
 
-import javax.persistence.EntityManager;
+import com.google.inject.Inject;
 
 /**
  * @author Alex Bertram
@@ -57,4 +60,17 @@ public class UserDAOImpl extends GenericDAO<User, Integer> implements UserDAO {
         user.setChangePasswordKey(SecureTokenGenerator.generate());
         return user;
     }
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Integer> getUserIdsByProfile(Integer profileId) {
+		StringBuilder query=new StringBuilder();
+		query.append("SELECT uu.id_user ");
+		query.append("FROM user_unit_profiles uup,user_unit uu ");
+		query.append("WHERE uu.id_user_unit=uup.id_user_unit and uup.id_profile=?1");
+		
+		return (List<Integer>) em.createNativeQuery(query.toString())
+		.setParameter(1, profileId)
+		.getResultList();
+	}
 }

@@ -5,8 +5,11 @@
 
 package org.sigmah.server.dao.hibernate;
 
+import java.util.List;
+
 import com.google.inject.Inject;
 import org.sigmah.shared.dao.UserUnitDAO;
+import org.sigmah.shared.domain.OrgUnit;
 import org.sigmah.shared.domain.User;
 import org.sigmah.shared.domain.profile.OrgUnitProfile;
 
@@ -35,6 +38,15 @@ public class UserUnitDAOImpl extends GenericDAO<OrgUnitProfile, Integer> impleme
         return (OrgUnitProfile) em.createNamedQuery("findOrgUnitProfileByUser")
                 .setParameter("user", user)
                 .getSingleResult();
+    }
+    
+    @SuppressWarnings("unchecked")
+	@Override
+    public List<User> findUsersByOrgUnit(List<OrgUnit> orgUnits){
+
+        return (List<User>) em.createNamedQuery("findUsersByOrgUnits")
+                .setParameter("orgUnits", orgUnits)
+                .getResultList();
     }
 
 }

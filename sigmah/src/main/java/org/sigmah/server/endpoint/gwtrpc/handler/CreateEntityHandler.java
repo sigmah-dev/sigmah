@@ -31,6 +31,7 @@ import org.sigmah.server.policy.ProjectReportPolicy;
 import org.sigmah.server.policy.PropertyMap;
 import org.sigmah.server.policy.SitePolicy;
 import org.sigmah.server.policy.UserDatabasePolicy;
+import org.sigmah.server.policy.UserPermissionPolicy;
 import org.sigmah.server.policy.UserPolicy;
 import org.sigmah.shared.command.CreateEntity;
 import org.sigmah.shared.command.handler.CommandHandler;
@@ -40,6 +41,7 @@ import org.sigmah.shared.domain.Activity;
 import org.sigmah.shared.domain.Attribute;
 import org.sigmah.shared.domain.AttributeGroup;
 import org.sigmah.shared.domain.Indicator;
+import org.sigmah.shared.domain.OrgUnit;
 import org.sigmah.shared.domain.Project;
 import org.sigmah.shared.domain.ProjectFunding;
 import org.sigmah.shared.domain.User;
@@ -106,6 +108,17 @@ public class CreateEntityHandler extends BaseEntityHandler implements CommandHan
         } else if ("Project".equals(cmd.getEntityName())) {
             final ProjectPolicy policy = injector.getInstance(ProjectPolicy.class);
             final Project createdProject = (Project) policy.create(user, propertyMap);
+            
+            /* [UserPermission trigger] 
+    		 * Updates UserPermission table after project creation */
+             if(createdProject.getPartners()!=null){
+            	 UserPermissionPolicy permissionPolicy=injector.getInstance(UserPermissionPolicy.class);
+            	 for (OrgUnit orgUnit : createdProject.getPartners()) {
+            		 permissionPolicy.updateUserPermissionByOrgUnit(orgUnit);
+                     break;
+                 }
+             }    		     		
+            
             final ProjectDTOLight mappedProject = mapper.map(createdProject, false);
             return new CreateResult(mappedProject);
         } else if ("Site".equals(cmd.getEntityName())) {
@@ -219,10 +232,15 @@ public class CreateEntityHandler extends BaseEntityHandler implements CommandHan
     		return null;
     }
     
-    private CommandResult createProfile(User user, PropertyMap propertyMap) {
+    private CommandResult createProfile(User user, PropertyMap propertyMap) throws CommandException {
     	ProfilePolicy policy = injector.getInstance(ProfilePolicy.class);
     	ProfileDTO newProfile = (ProfileDTO) policy.create(user, propertyMap);
     	if(newProfile != null){
+    		
+    		/* [UserPermission trigger] 
+    		 * Updates UserPermission table after profile modification */
+    		 injector.getInstance(UserPermissionPolicy.class).updateUserPermissionByProfile(newProfile.getId());
+    		 
     		CreateResult c = new CreateResult(newProfile.getId());
     		c.setEntity(newProfile);
     		return c;
@@ -243,10 +261,15 @@ public class CreateEntityHandler extends BaseEntityHandler implements CommandHan
     		return null;
     }
 
-    private CommandResult createUser(User user, PropertyMap propertyMap) {
+    private CommandResult createUser(User user, PropertyMap propertyMap) throws CommandException {
     	UserPolicy policy = injector.getInstance(UserPolicy.class);
     	UserDTO newUser = (UserDTO) policy.create(user, propertyMap);
     	if(newUser != null){
+    		
+    		/* [UserPermission trigger] 
+    		 * Updates UserPermission table after user creation/modification */
+    		 injector.getInstance(UserPermissionPolicy.class).updateUserPermissionByUser(newUser.getIdd());
+    		
     		CreateResult c = new CreateResult(newUser.getIdd());
     		c.setEntity(newUser);
     		return c;

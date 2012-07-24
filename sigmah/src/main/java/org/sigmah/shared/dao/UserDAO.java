@@ -5,6 +5,8 @@
 
 package org.sigmah.shared.dao;
 
+import java.util.List;
+
 import org.sigmah.shared.domain.User;
 
 
@@ -20,6 +22,8 @@ public interface UserDAO extends DAO<User, Integer> {
     User findUserByEmail(String email);
 
     User findUserByChangePasswordKey(String key);
+    
+    List<Integer> getUserIdsByProfile(Integer profileId);
 
    
 }

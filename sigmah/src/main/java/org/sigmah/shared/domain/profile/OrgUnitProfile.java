@@ -29,7 +29,8 @@ import org.sigmah.shared.domain.User;
 @Entity
 @Table(name = "user_unit")
 @NamedQueries({
-        @NamedQuery(name = "findOrgUnitProfileByUser", query = "select o from OrgUnitProfile o where o.user = :user")})
+        @NamedQuery(name = "findOrgUnitProfileByUser", query = "select o from OrgUnitProfile o where o.user = :user"),
+        @NamedQuery(name = "findUsersByOrgUnits", query = "SELECT o.user FROM OrgUnitProfile o WHERE o.orgUnit IN (:orgUnits)")})
 public class OrgUnitProfile implements Serializable {
 
     private static final long serialVersionUID = 1736608073907371468L;
