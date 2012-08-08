@@ -42,6 +42,7 @@ public abstract class FlexibleElement implements Serializable, Historable {
     private Boolean validates = false;
     private PrivacyGroup privacyGroup;
     private Boolean amendable = false;
+    private Boolean exportable = true;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -90,6 +91,17 @@ public abstract class FlexibleElement implements Serializable, Historable {
     public void setAmendable(boolean amendable) {
         this.amendable = amendable;
     }
+    
+    @Column(name = "exportable", nullable = false)
+    public boolean isExportable() {
+        return exportable;
+    }
+
+    public void setExportable(boolean exportable) {
+        this.exportable = exportable;
+    }
+    
+    
 
     @Override
     @Transient
@@ -132,4 +144,5 @@ public abstract class FlexibleElement implements Serializable, Historable {
     	//remove the privacy group from imported flexible elements.
     	this.privacyGroup = null;
     }
+ 
 }

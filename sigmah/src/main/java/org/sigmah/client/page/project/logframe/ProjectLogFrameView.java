@@ -4,6 +4,7 @@ import org.sigmah.client.EventBus;
 import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.icon.IconImageBundle;
+import org.sigmah.client.ui.ExportSpreadsheetFormButton;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.core.El;
@@ -39,8 +40,7 @@ public class ProjectLogFrameView extends ProjectLogFramePresenter.View {
     private Button saveButton;
     private Button copyButton;
     private Button pasteButton;
-    private Button exportButton;
-    private FormPanel exportForm;
+    private ExportSpreadsheetFormButton exportFormButton;
 
     //Title lable
     private Label titleContentLabel;
@@ -181,17 +181,9 @@ public class ProjectLogFrameView extends ProjectLogFramePresenter.View {
         pasteButton = new Button(I18N.CONSTANTS.paste());
         pasteButton.setEnabled(false);
 
-        // Export to Excel button.
-        exportButton = new Button(I18N.CONSTANTS.export(), IconImageBundle.ICONS.excel());
-        // Export form.
-        exportForm = new FormPanel();
-        exportForm.setBodyBorder(false);
-        exportForm.setHeaderVisible(false);
-        exportForm.setPadding(0);
-        exportForm.setEncoding(Encoding.URLENCODED);
-        exportForm.setMethod(Method.POST);
-        exportForm.setAction(GWT.getModuleBaseURL() + "export");
-
+        // ExportForm button 
+        exportFormButton = new ExportSpreadsheetFormButton();
+        
         // Actions toolbar.
         final ToolBar toolBar = new ToolBar();
         toolBar.setBorders(false);
@@ -202,8 +194,8 @@ public class ProjectLogFrameView extends ProjectLogFramePresenter.View {
         toolBar.add(copyButton);
         toolBar.add(pasteButton);
         toolBar.add(new SeparatorToolItem());
-        toolBar.add(exportButton);
-        toolBar.add(exportForm);
+        toolBar.add(exportFormButton.getButton());
+        toolBar.add(exportFormButton.getExportForm());
 
         return toolBar;
     }
@@ -229,16 +221,10 @@ public class ProjectLogFrameView extends ProjectLogFramePresenter.View {
     }
 
     @Override
-    public Button getExcelExportButton() {
-        return exportButton;
+    public ExportSpreadsheetFormButton getExcelExportFormButton() {
+        return exportFormButton;
     }
-
-    @Override
-    public FormPanel getExportForm() {
-        return exportForm;
-    }
-
-    
+ 
   @Override
     public Label getLogFrameTitleContentLabel() {
         return titleContentLabel;

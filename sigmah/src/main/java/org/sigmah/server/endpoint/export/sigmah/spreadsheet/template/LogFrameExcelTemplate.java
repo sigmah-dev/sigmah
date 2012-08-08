@@ -8,6 +8,7 @@ import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.sigmah.server.endpoint.export.sigmah.spreadsheet.ExcelUtils;
 import org.sigmah.server.endpoint.export.sigmah.spreadsheet.ExportConstants;
@@ -40,10 +41,14 @@ public class LogFrameExcelTemplate implements ExportTemplate {
 	private StringBuilder builder;
 	
 	public LogFrameExcelTemplate(final LogFrameExportData data) throws Throwable {
+		this(data,new HSSFWorkbook());
+	}
+	
+	public LogFrameExcelTemplate(final LogFrameExportData data,final HSSFWorkbook wb) throws Throwable {
+		this.wb=wb;
 		this.data=data;
-		wb = new HSSFWorkbook();
-		sheet = wb.createSheet();
-		utils = new ExcelUtils();
+ 		sheet = wb.createSheet(data.getLocalizedVersion("logFrame"));
+		utils = new ExcelUtils(wb);
 		defHeight=sheet.getDefaultRowHeightInPoints();
 		int rowIndex = -1;
 		int cellIndex = 0;
@@ -53,22 +58,21 @@ public class LogFrameExcelTemplate implements ExportTemplate {
 
 		// empty row
 		utils.putEmptyRow(sheet, ++rowIndex, 8.65f);
-
-		// title
-		row = sheet.createRow(++rowIndex);
-		row.setHeightInPoints(ExportConstants.HEADER_ROW_HEIGHT);
-		cell = row.createCell(++cellIndex);
-		cell.setCellValue(data.getLocalizedVersion("logFrame").toUpperCase());
-		cell.setCellStyle(utils.getTopicStyle(wb));
-		sheet.addMergedRegion(new CellRangeAddress(rowIndex, rowIndex,
-				cellIndex, LogFrameExportData.NUMBER_OF_COLS));
-
+		
+		//title
+		utils.putMainTitle(sheet,++rowIndex,
+				data.getLocalizedVersion("logFrame").toUpperCase(),data.getNumbOfCols());
+ 
 		// empty row
 		utils.putEmptyRow(sheet, ++rowIndex,ExportConstants.EMPTY_ROW_HEIGHT);
 
 		// info
-		putInfoRow(++rowIndex, data.getLocalizedVersion("logFrameActionTitle"), data.getTitleOfAction());
-		putInfoRow(++rowIndex, data.getLocalizedVersion("logFrameMainObjective"), data.getMainObjective());
+		utils.putInfoRow(sheet,++rowIndex, 
+				data.getLocalizedVersion("logFrameActionTitle"), 
+				data.getTitleOfAction(),data.getNumbOfCols());
+		utils.putInfoRow(sheet,++rowIndex, 
+				data.getLocalizedVersion("logFrameMainObjective"), 
+				data.getMainObjective(),data.getNumbOfCols());
 
 		// empty row
 		utils.putEmptyRow(sheet, ++rowIndex,ExportConstants.EMPTY_ROW_HEIGHT);
@@ -77,10 +81,10 @@ public class LogFrameExcelTemplate implements ExportTemplate {
 		row = sheet.createRow(++rowIndex);
 		row.setHeightInPoints(ExportConstants.TITLE_ROW_HEIGHT);
 		cellIndex = 3;
-		putHeader(++cellIndex, data.getLocalizedVersion("logFrameInterventionLogic"));
-		putHeader(++cellIndex,  data.getLocalizedVersion("indicators"));
-		putHeader(++cellIndex,data.getLocalizedVersion("logFrameMeansOfVerification"));
-		putHeader(++cellIndex, data.getLocalizedVersion("logFrameRisksAndAssumptions"));
+		utils.putHeader(row,++cellIndex, data.getLocalizedVersion("logFrameInterventionLogic"));
+		utils.putHeader(row,++cellIndex,  data.getLocalizedVersion("indicators"));
+		utils.putHeader(row,++cellIndex,data.getLocalizedVersion("logFrameMeansOfVerification"));
+		utils.putHeader(row,++cellIndex, data.getLocalizedVersion("logFrameRisksAndAssumptions"));
 
 		// empty row
 		utils.putEmptyRow(sheet, ++rowIndex,ExportConstants.EMPTY_ROW_HEIGHT);
@@ -291,11 +295,11 @@ public class LogFrameExcelTemplate implements ExportTemplate {
 		
 			cellTextFormat=utils.formatCellText(p.getContent(), 18+2*(colWidthDesc+colWidthIndicator));
 			textAreaLines=cellTextFormat.dividedlines;
-			putBasicCell(rowIndex, 3,cellTextFormat.formattedText);
+			utils.putBorderedBasicCell(sheet,rowIndex, 3,cellTextFormat.formattedText);
 				 
 			row.setHeightInPoints(textAreaLines*defHeight);
 			
-			mergeCell(rowIndex, rowIndex, 3, LogFrameExportData.NUMBER_OF_COLS); 				
+			mergeCell(rowIndex, rowIndex, 3, data.getNumbOfCols()); 				
 		}
 		return rowIndex;
 	}
@@ -331,9 +335,9 @@ public class LogFrameExcelTemplate implements ExportTemplate {
 								
 			cellTextFormat=utils.formatCellText(a.getTitle(), colWidthDesc);
 			textAreaLines=cellTextFormat.dividedlines;
-			putBasicCell(rowIndex, 4,cellTextFormat.formattedText);
+			utils.putBorderedBasicCell(sheet,rowIndex, 4,cellTextFormat.formattedText);
 			
-			putBasicCell(rowIndex, 7,null);
+			utils.putBorderedBasicCell(sheet,rowIndex, 7,null);
 			
 			row.setHeightInPoints(textAreaLines*defHeight);
 
@@ -369,11 +373,11 @@ public class LogFrameExcelTemplate implements ExportTemplate {
 			
 			cellTextFormat=utils.formatCellText(er.getInterventionLogic(), colWidthDesc);
 			textAreaLines=cellTextFormat.dividedlines;
-			putBasicCell(rowIndex, 4,cellTextFormat.formattedText);
+			utils.putBorderedBasicCell(sheet,rowIndex, 4,cellTextFormat.formattedText);
 			
 			cellTextFormat=utils.formatCellText(er.getRisksAndAssumptions(), colWidthDesc);
 			textAreaLines=Math.max(textAreaLines, cellTextFormat.dividedlines);
-			putBasicCell(rowIndex, 7,cellTextFormat.formattedText);
+			utils.putBorderedBasicCell(sheet,rowIndex, 7,cellTextFormat.formattedText);
 
 			row.setHeightInPoints(textAreaLines*defHeight);
 
@@ -399,11 +403,11 @@ public class LogFrameExcelTemplate implements ExportTemplate {
 			
 			cellTextFormat=utils.formatCellText(so.getInterventionLogic(), colWidthDesc);
 			textAreaLines=cellTextFormat.dividedlines;
-			putBasicCell(rowIndex, 4,cellTextFormat.formattedText);
+			utils.putBorderedBasicCell(sheet,rowIndex, 4,cellTextFormat.formattedText);
 			
 			cellTextFormat=utils.formatCellText(so.getRisksAndAssumptions(), colWidthDesc);
 			textAreaLines=Math.max(textAreaLines, cellTextFormat.dividedlines);
-			putBasicCell(rowIndex, 7,cellTextFormat.formattedText);
+			utils.putBorderedBasicCell(sheet,rowIndex, 7,cellTextFormat.formattedText);
 
 			row.setHeightInPoints(textAreaLines*defHeight);
 			
@@ -423,16 +427,22 @@ public class LogFrameExcelTemplate implements ExportTemplate {
 				if (startIndex != rowIndex) {
 					row = sheet.createRow(rowIndex);
 					
-				}								
-				cellTextFormat=utils.formatCellText(
-						data.getDetailedIndicatorName(indicator.getId()), 
-						colWidthIndicator);				
-				indiTextLines=cellTextFormat.dividedlines;
-				putBasicCell(rowIndex, 5, cellTextFormat.formattedText);
+				}		
+				indiTextLines=0;
+				if(data.isIndicatorsSheetExist()){
+					utils.createLinkCell(row.createCell(5), indicator.getName(), indicator.getName(),true);
+				}else{
+					cellTextFormat=utils.formatCellText(
+							data.getDetailedIndicatorName(indicator.getId()), 
+							colWidthIndicator);				
+					indiTextLines=cellTextFormat.dividedlines;
+					utils.putBorderedBasicCell(sheet,rowIndex, 5, cellTextFormat.formattedText);
+				}
+				
 				
 				cellTextFormat=utils.formatCellText(indicator.getSourceOfVerification(), colWidthIndicator);
 				indiTextLines=Math.max(indiTextLines, cellTextFormat.dividedlines);				
-				putBasicCell(rowIndex, 6,cellTextFormat.formattedText);
+				utils.putBorderedBasicCell(sheet,rowIndex, 6,cellTextFormat.formattedText);
 				
 				indiTextLinesSum+=indiTextLines;
 				row.setHeightInPoints(indiTextLines*defHeight);
@@ -464,8 +474,8 @@ public class LogFrameExcelTemplate implements ExportTemplate {
 			sheet.addMergedRegion(utils.getBorderedRegion(region, sheet, wb));
 
 		} else {
-			putBasicCell(rowIndex, 5, "");
-			putBasicCell(rowIndex, 6, "");
+			utils.putBorderedBasicCell(sheet,rowIndex, 5, "");
+			utils.putBorderedBasicCell(sheet,rowIndex, 6, "");
 			if(mergeCodeCells){
 				region = new CellRangeAddress(rowIndex, rowIndex, 2, 3);
 				sheet.addMergedRegion(utils.getBorderedRegion(region,sheet, wb));				
@@ -483,14 +493,12 @@ public class LogFrameExcelTemplate implements ExportTemplate {
 		return rowIndex;
 	}
 	
-	private void putTypeCell(String typeLabel,String code){
-		cell = row.createCell(1);
+	private void putTypeCell(String typeLabel,String code){	
 		StringBuilder builder = new StringBuilder(typeLabel);
 		builder.append(" (");
 		builder.append(code);
-		builder.append(")");
-		cell.setCellValue(builder.toString());
-		cell.setCellStyle(utils.getHeaderStyle(wb));
+		builder.append(")"); 
+		utils.putHeader(row, 1, builder.toString());				
 	}
 	
 	private void putGroupCell(int rowIndex,String groupType,String code,String groupLabel){
@@ -501,45 +509,18 @@ public class LogFrameExcelTemplate implements ExportTemplate {
 		builder.append(") - ");
 		builder.append(groupLabel);
 		cell.setCellValue(builder.toString());
-		CellRangeAddress region = new CellRangeAddress(rowIndex,rowIndex, 2,LogFrameExportData.NUMBER_OF_COLS);
+		CellRangeAddress region = new CellRangeAddress(rowIndex,rowIndex, 2,data.getNumbOfCols());
 		sheet.addMergedRegion(utils.getBorderedRegion(region, sheet, wb));
 		cell.setCellStyle(utils.getGroupStyle(wb));
 	} 
-
-	private void putBasicCell(int rowIndex, int cellIndex, String text) {
-		cell = sheet.getRow(rowIndex).createCell(cellIndex);
-		cell.setCellValue(text);
-		cell.setCellStyle(utils.getBasicStyle(wb,false));
-	}
 	
 	private void putCenteredBasicCell(int rowIndex, int cellIndex, String text) {
-		cell = sheet.getRow(rowIndex).createCell(cellIndex);
-		cell.setCellValue(text);
-		cell.setCellStyle(utils.getBasicStyle(wb,true));
+		cell = utils.putBorderedBasicCell(sheet, rowIndex, cellIndex, text);
+		cell.getCellStyle().setAlignment(CellStyle.ALIGN_CENTER);
 	}
 
-	private void putHeader(int cellIndex, String header) {
-		cell = row.createCell(cellIndex);
-		cell.setCellValue(header);
-		cell.setCellStyle(utils.getHeaderStyle(wb));
-	}
-
-	private void putInfoRow(int rowIndex, String key, String value) {
-		int cellIndex = 0;
-		row = sheet.createRow(rowIndex);
-		row.setHeightInPoints(ExportConstants.TITLE_ROW_HEIGHT);
-		cell = row.createCell(++cellIndex);
-		cell.setCellValue(key);
-		cell.setCellStyle(utils.getInfoStyle(wb, true));
-
-		cell = row.createCell(++cellIndex);
-		cell.setCellValue(value);
-		cell.setCellStyle(utils.getInfoStyle(wb, false));
-		sheet.addMergedRegion(new CellRangeAddress(rowIndex, rowIndex,
-				cellIndex, LogFrameExportData.NUMBER_OF_COLS));
-	}
-		
-
+	
+	
 	@Override
 	public void write(OutputStream output) throws Throwable {
 		wb.write(output);

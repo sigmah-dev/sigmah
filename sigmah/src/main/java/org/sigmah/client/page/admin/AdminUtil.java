@@ -61,6 +61,7 @@ public class AdminUtil {
 	public final static String PROP_FX_IS_COMPULSARY = "isCompulsory";
 	public final static String PROP_FX_PRIVACY_GROUP = "privacyGroup";
 	public final static String PROP_FX_AMENDABLE = "amendable";
+	public final static String PROP_FX_EXPORTABLE = "exportable";
 	
 	public final static String PROP_FX_LC_BANNER = "layoutConstraintBanner";
 	public final static String PROP_FX_LC = "layoutConstraint";

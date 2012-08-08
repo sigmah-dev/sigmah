@@ -23,6 +23,7 @@ import org.odftoolkit.simple.table.Cell;
 import org.odftoolkit.simple.table.CellRange;
 import org.odftoolkit.simple.table.Row;
 import org.odftoolkit.simple.table.Table;
+import org.sigmah.server.endpoint.export.sigmah.spreadsheet.CalcUtils;
 import org.sigmah.server.endpoint.export.sigmah.spreadsheet.ExportConstants;
 import org.sigmah.server.endpoint.export.sigmah.spreadsheet.data.LogFrameExportData;
 import org.sigmah.shared.domain.Indicator;
@@ -41,9 +42,6 @@ public class LogFrameCalcTemplate implements ExportTemplate {
 
 	private final LogFrameExportData data;
 	
-	private final VerticalAlignmentType verCenter = VerticalAlignmentType.MIDDLE;
-	private final HorizontalAlignmentType horCenter = HorizontalAlignmentType.CENTER;
-	private final HorizontalAlignmentType horLeft = HorizontalAlignmentType.LEFT;
 	private Row row;
 	private Cell cell;
  	private CellRange cellRange;
@@ -55,10 +53,17 @@ public class LogFrameCalcTemplate implements ExportTemplate {
  	private final Color lightOrange = Color.valueOf(ExportConstants.LIGHTORANGE_HEX);
 	private String coreCellStyle;
 
-	public LogFrameCalcTemplate(final LogFrameExportData data) throws Throwable {
+	public LogFrameCalcTemplate(final LogFrameExportData data,final SpreadsheetDocument exDoc) throws Throwable {
 		this.data=data;
-		doc = SpreadsheetDocument.newSpreadsheetDocument();
-		table = doc.getSheetByIndex(0);
+		if(exDoc==null){
+			doc = SpreadsheetDocument.newSpreadsheetDocument();
+			table = doc.getSheetByIndex(0);
+			table.setTableName(data.getLocalizedVersion("logFrame").replace(" ", "_"));
+		}else{
+			doc=exDoc;
+			table=doc.appendSheet(data.getLocalizedVersion("logFrame").replace(" ", "_"));
+		}
+		
 		setUpCoreStyle();
 		
 		int rowIndex = -1;
@@ -74,10 +79,10 @@ public class LogFrameCalcTemplate implements ExportTemplate {
 		cell.setStringValue(data.getLocalizedVersion("logFrame").toUpperCase());
 		cell.setTextWrapped(true);
 		cell.setFont(getBoldFont(14));
-		cell.setVerticalAlignment(verCenter);
-		cell.setHorizontalAlignment(horCenter);
+		cell.setVerticalAlignment(ExportConstants.ALIGN_VER_MIDDLE);
+		cell.setHorizontalAlignment(ExportConstants.ALIGH_HOR_CENTER);
 		cellRange = table.getCellRangeByPosition(1, rowIndex,
-				LogFrameExportData.NUMBER_OF_COLS, rowIndex);
+				data.getNumbOfCols(), rowIndex);
 		cellRange.merge();
 		row.setHeight(7, false);
 
@@ -290,19 +295,20 @@ public class LogFrameCalcTemplate implements ExportTemplate {
 			builder.append(p.getCode());
 			builder.append(".");				
 			cell = createBasicCell(2, rowIndex,builder.toString());
-			cell.setHorizontalAlignment(horCenter);
+			cell.setHorizontalAlignment(ExportConstants.ALIGH_HOR_CENTER);
 			
 			 
 			cell = createBasicCell(3, rowIndex,p.getContent());
 				
 			cellRange = table.getCellRangeByPosition(3, rowIndex,
-					LogFrameExportData.NUMBER_OF_COLS,rowIndex);
+					data.getNumbOfCols(),rowIndex);
 			cellRange.merge();	
 		}
 		return rowIndex;
 	}
 	
-	private int putAcItems(int rowIndex,boolean skipFirst,List<LogFrameActivity> acList){
+	private int putAcItems(int rowIndex,boolean skipFirst,List<LogFrameActivity> acList)
+	throws Throwable{
 		for (final LogFrameActivity a : acList) {
 			if(!skipFirst){
 				++rowIndex;			
@@ -317,7 +323,7 @@ public class LogFrameCalcTemplate implements ExportTemplate {
 			builder.append(".");
 			builder.append(")");				
 			cell = createBasicCell(2, rowIndex,builder.toString());
-			cell.setHorizontalAlignment(horCenter);
+			cell.setHorizontalAlignment(ExportConstants.ALIGH_HOR_CENTER);
 			
 			builder = new StringBuilder(data.getLocalizedVersion("logFrameActivitiesCode"));
 			builder.append(" ");
@@ -327,7 +333,7 @@ public class LogFrameCalcTemplate implements ExportTemplate {
 			builder.append(a.getCode());
 			builder.append(".");
 			cell = createBasicCell(3, rowIndex,builder.toString());
-			cell.setHorizontalAlignment(horCenter);
+			cell.setHorizontalAlignment(ExportConstants.ALIGH_HOR_CENTER);
 			
 			createBasicCell(4, rowIndex, a.getTitle());
 			createBasicCell(7, rowIndex,"");
@@ -338,7 +344,8 @@ public class LogFrameCalcTemplate implements ExportTemplate {
 		return rowIndex;
 	}
 	
-	private int putERItems(int rowIndex,boolean skipFirst,List<ExpectedResult> erList){
+	private int putERItems(int rowIndex,boolean skipFirst,List<ExpectedResult> erList)
+	throws Throwable{
 		for (final ExpectedResult er : erList) {
 			if(!skipFirst){
 				++rowIndex;			
@@ -352,7 +359,7 @@ public class LogFrameCalcTemplate implements ExportTemplate {
 			builder.append(data.getFormattedCode(er.getParentSpecificObjective().getCode()));
 			builder.append(")");					
 			cell = createBasicCell(2, rowIndex,builder.toString());
-			cell.setHorizontalAlignment(horCenter);
+			cell.setHorizontalAlignment(ExportConstants.ALIGH_HOR_CENTER);
 			
 			builder = new StringBuilder(data.getLocalizedVersion("logFrameExceptedResultsCode"));
 			builder.append(" ");
@@ -360,7 +367,7 @@ public class LogFrameCalcTemplate implements ExportTemplate {
 			builder.append(er.getCode());
 			builder.append(".");
 			cell = createBasicCell(3, rowIndex,builder.toString());
-			cell.setHorizontalAlignment(horCenter);
+			cell.setHorizontalAlignment(ExportConstants.ALIGH_HOR_CENTER);
 			
 			createBasicCell(4, rowIndex, er.getInterventionLogic());
 			createBasicCell(7, rowIndex,er.getRisksAndAssumptions());
@@ -371,7 +378,8 @@ public class LogFrameCalcTemplate implements ExportTemplate {
 		return rowIndex;
 	}
 	
-	private int putSOItems(int rowIndex,boolean skipFirst,List<SpecificObjective> soList){
+	private int putSOItems(int rowIndex,boolean skipFirst,List<SpecificObjective> soList)
+	throws Throwable{
 		for (final SpecificObjective so :soList) {
 			if(!skipFirst){
 				++rowIndex;			
@@ -383,7 +391,7 @@ public class LogFrameCalcTemplate implements ExportTemplate {
 			builder.append(data.getFormattedCode(so.getCode()));
 			
 			cell = createBasicCell(2, rowIndex,builder.toString());
-			cell.setHorizontalAlignment(horCenter);
+			cell.setHorizontalAlignment(ExportConstants.ALIGH_HOR_CENTER);
 			createBasicCell(4, rowIndex, so.getInterventionLogic());
 			createBasicCell(7, rowIndex,so.getRisksAndAssumptions());
 
@@ -423,11 +431,17 @@ public class LogFrameCalcTemplate implements ExportTemplate {
 		coreCellStyle = style.getStyleNameAttribute();
 	}
 	
-	private int putIndicators(final Set<Indicator> indicators, int rowIndex,boolean mergeCodeCells){
+	private int putIndicators(final Set<Indicator> indicators, int rowIndex,boolean mergeCodeCells) 
+		throws Throwable{
 		if (indicators.size() > 0) {
 			int startIndex = rowIndex;
 			for (final Indicator indicator : indicators) {
-				cell = createBasicCell(5, rowIndex, data.getDetailedIndicatorName(indicator.getId()));
+				if(data.isIndicatorsSheetExist()){
+					cell=createBasicCell(5, rowIndex, null);
+					CalcUtils.applyLink(cell, indicator.getName(), indicator.getName());
+				}else{
+					cell = createBasicCell(5, rowIndex, data.getDetailedIndicatorName(indicator.getId()));
+				}
 				cell = createBasicCell(6, rowIndex, indicator.getSourceOfVerification());
 				rowIndex++;
 			}
@@ -478,7 +492,7 @@ public class LogFrameCalcTemplate implements ExportTemplate {
 		cell = createBasicCell(1, rowIndex,builder.toString());
 		cell.setCellBackgroundColor(gray);
 		cell.setFont(getBoldFont(10));
-		cell.setHorizontalAlignment(horCenter);
+		cell.setHorizontalAlignment(ExportConstants.ALIGH_HOR_CENTER);
 	}
 	
 	private void putGroupCell(int rowIndex,String groupType,String code,String groupLabel){
@@ -491,9 +505,9 @@ public class LogFrameCalcTemplate implements ExportTemplate {
 		cell = createBasicCell(2, rowIndex, builder.toString());
 		cell.setCellBackgroundColor(lightOrange);
 		cell.setFont(getFont(10, false, true));
-		cell.setHorizontalAlignment(horLeft);
+		cell.setHorizontalAlignment(ExportConstants.ALIGH_HOR_LEFT);
 		cellRange = table.getCellRangeByPosition(2, rowIndex,
-				LogFrameExportData.NUMBER_OF_COLS, rowIndex);
+				data.getNumbOfCols(), rowIndex);
 		cellRange.merge();
 	}
 	
@@ -512,8 +526,8 @@ public class LogFrameCalcTemplate implements ExportTemplate {
 		cell.setBorders(CellBordersType.ALL_FOUR, getBorder());
 		cell.setCellBackgroundColor(gray);
 		cell.setFont(getBoldFont(10));
-		cell.setVerticalAlignment(verCenter);
-		cell.setHorizontalAlignment(horCenter);
+		cell.setVerticalAlignment(ExportConstants.ALIGN_VER_MIDDLE);
+		cell.setHorizontalAlignment(ExportConstants.ALIGH_HOR_CENTER);
 		cell.setTextWrapped(true);
 	}
 
@@ -534,16 +548,17 @@ public class LogFrameCalcTemplate implements ExportTemplate {
 		cell.setStringValue(space + key);
 		cell.setFont(getBoldFont(11));
 		cell.setTextWrapped(true);
-		cell.setVerticalAlignment(verCenter);
-		cell.setHorizontalAlignment(horLeft);
+		cell.setVerticalAlignment(ExportConstants.ALIGN_VER_MIDDLE);
+		cell.setHorizontalAlignment(ExportConstants.ALIGH_HOR_LEFT);
 
 		cell = row.getCellByIndex(2);
-		cell.setStringValue(space + value);
+		if(value!=null)
+			cell.setStringValue(space + value);
 		cell.setFont(getRegFont(11));
-		cell.setVerticalAlignment(verCenter);
-		cell.setHorizontalAlignment(horLeft);
+		cell.setVerticalAlignment(ExportConstants.ALIGN_VER_MIDDLE);
+		cell.setHorizontalAlignment(ExportConstants.ALIGH_HOR_LEFT);
 		cellRange = table.getCellRangeByPosition(2, rowIndex,
-				LogFrameExportData.NUMBER_OF_COLS, rowIndex);
+				data.getNumbOfCols(), rowIndex);
 		cellRange.merge();
 		row.setHeight(6, false);
 	}

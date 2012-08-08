@@ -1,5 +1,9 @@
 package org.sigmah.server.endpoint.export.sigmah.spreadsheet;
 
+import org.odftoolkit.odfdom.type.Color;
+import org.odftoolkit.simple.style.StyleTypeDefinitions.HorizontalAlignmentType;
+import org.odftoolkit.simple.style.StyleTypeDefinitions.VerticalAlignmentType;
+
 
 /*
  * Constants used only in exporting classes
@@ -31,5 +35,14 @@ public class ExportConstants {
 	
 	//White
 	public final static String WHITE_HEX= "#FFFFFF";
+	
+	//Calc
+	public static final VerticalAlignmentType ALIGN_VER_MIDDLE = VerticalAlignmentType.MIDDLE;
+	public static final HorizontalAlignmentType ALIGH_HOR_CENTER = HorizontalAlignmentType.CENTER;
+	public static final HorizontalAlignmentType ALIGH_HOR_LEFT = HorizontalAlignmentType.LEFT;
+	public static final HorizontalAlignmentType ALIGH_HOR_RIGHT = HorizontalAlignmentType.RIGHT;
+	
+	public static final Color CALC_COL_GRAY = Color.valueOf(ExportConstants.GRAY_10_HEX);
+	public static final Color CALC_COL_ORANGE = Color.valueOf(ExportConstants.LIGHTORANGE_HEX);
  
 }

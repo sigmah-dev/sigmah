@@ -102,6 +102,7 @@ public class ElementForm extends ContentPanel {
 	private final CheckBox validates;
 	private final ComboBox<PrivacyGroupDTO> privacyGroupsListCombo;
 	private final CheckBox isAmendable;
+	private final CheckBox isExportable=new CheckBox();
 		
 	//Specific attributes
 	private final FormPanel specificsPanel;
@@ -707,6 +708,17 @@ public class ElementForm extends ContentPanel {
 			
 		commonPanel.add(isAmendable);
 		
+		//exported in a synthesis sheet
+ 		isExportable.setBoxLabel(" ");
+		isExportable.setFieldLabel(constants.adminFlexibleExportable());
+		isExportable.setValue(true);
+		if(flexibleElement != null){
+			isExportable.setValue(flexibleElement.getExportable());
+			oldFieldProperties.put(AdminUtil.PROP_FX_EXPORTABLE,flexibleElement.getExportable());
+		}
+			
+		commonPanel.add(isExportable);
+		
 		// Create button.
         final Button createButton = new Button(I18N.CONSTANTS.save(), IconImageBundle.ICONS.save());
         createButton.addListener(Events.OnClick, new Listener<ButtonEvent>() {
@@ -717,7 +729,7 @@ public class ElementForm extends ContentPanel {
         });
         
         final ContentPanel form  = new ContentPanel();
-        form.setHeight(450);
+        form.setHeight(470);
         form.setHeaderVisible(false);
         form.setLayout(new BorderLayout());
         final BorderLayoutData leftLayoutData = new BorderLayoutData(LayoutRegion.WEST);
@@ -777,8 +789,10 @@ public class ElementForm extends ContentPanel {
 			}
 			maxLimitField.show();
 			specificsPanel.show();
+			isExportable.hide();
 		}else if(ElementTypeEnum.getName(ElementTypeEnum.INDICATORS).equals(type)){
 			//no additional fields
+			isExportable.hide();
 		}else if(ElementTypeEnum.getName(ElementTypeEnum.MESSAGE).equals(type)){
 			//no additional fields
 		}else if(ElementTypeEnum.getName(ElementTypeEnum.QUESTION).equals(type)){
@@ -798,6 +812,7 @@ public class ElementForm extends ContentPanel {
 				|| ElementTypeEnum.getName(ElementTypeEnum.REPORT_LIST).equals(type)){
 			reportModelList.show();
 			specificsPanel.show();
+			isExportable.hide();
 		}else if(ElementTypeEnum.getName(ElementTypeEnum.TEXT_AREA).equals(type)){				
 			if(onSelectAction){
 				maxLimitField.clear();
@@ -855,6 +870,7 @@ public class ElementForm extends ContentPanel {
 		 Boolean isCompulsory = validates.getValue();
 		 PrivacyGroupDTO pg =  privacyGroupsListCombo.getValue();
 		 Boolean amend = isAmendable.getValue();
+		 Boolean export = isExportable.getValue();
 		 
 		 //specific attributes
 		 Boolean inBanner = isBanner.getValue();
@@ -904,6 +920,7 @@ public class ElementForm extends ContentPanel {
 		 newFieldProperties.put(AdminUtil.PROP_FX_IS_COMPULSARY, isCompulsory);
 		 newFieldProperties.put(AdminUtil.PROP_FX_PRIVACY_GROUP, pg);
 		 newFieldProperties.put(AdminUtil.PROP_FX_AMENDABLE, amend);
+		 newFieldProperties.put(AdminUtil.PROP_FX_EXPORTABLE, export);
 		 
 		 if(textTypeC != null)
 			 newFieldProperties.put(AdminUtil.PROP_FX_TEXT_TYPE, textTypeC);
@@ -1093,7 +1110,8 @@ public class ElementForm extends ContentPanel {
 		
 		isDecimal.setValue(false);
 		isMultipleQ.setValue(false);
-		
+		isExportable.show();
+ 		
 		linkedCategory.setValue(defaultNoCategory);
 		isLinkedToQuality.setValue(false);
 		//Question Multiple/Choices implications

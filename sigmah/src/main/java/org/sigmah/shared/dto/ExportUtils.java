@@ -31,8 +31,27 @@ public final class ExportUtils {
         /**
          * Project report.
          */
-        PROJECT_REPORT;
-
+        PROJECT_REPORT,        
+        /**
+         * INDICATORS
+         */
+        PROJECT_INDICATOR_LIST,
+        /**
+         * PROJECT SYNTHESIS 
+         */
+        PROJECT_SYNTHESIS,
+        /**
+         * PROJECT SYNTHESIS with Log frame
+         */
+        PROJECT_SYNTHESIS_LOGFRAME,
+        /**
+         * PROJECT SYNTHESIS with indicators 
+         */
+        PROJECT_SYNTHESIS_INDICATORS,
+        /**
+         * PROJECT SYNTHESIS with logframe and indicators
+         */
+        PROJECT_SYNTHESIS_LOGFRAME_INDICATORS;
 
         public static ExportType valueOfOrNull(String name) {
             try {

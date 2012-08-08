@@ -13,6 +13,7 @@ import org.sigmah.client.event.ProjectEvent;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.page.project.ProjectPresenter;
 import org.sigmah.client.page.project.SubPresenter;
+import org.sigmah.client.ui.ExportSpreadsheetFormButton;
 import org.sigmah.client.util.Notification;
 import org.sigmah.shared.command.GetOrgUnit;
 import org.sigmah.shared.command.GetValue;
@@ -22,6 +23,7 @@ import org.sigmah.shared.command.result.ValueResultUtils;
 import org.sigmah.shared.command.result.VoidResult;
 import org.sigmah.shared.domain.profile.GlobalPermissionEnum;
 import org.sigmah.shared.dto.CountryDTO;
+import org.sigmah.shared.dto.ExportUtils;
 import org.sigmah.shared.dto.OrgUnitDTO;
 import org.sigmah.shared.dto.ProjectDTO;
 import org.sigmah.shared.dto.ProjectDetailsDTO;
@@ -36,16 +38,21 @@ import org.sigmah.shared.dto.layout.LayoutGroupDTO;
 import org.sigmah.shared.dto.profile.ProfileUtils;
 
 import com.allen_sauer.gwt.log.client.Log;
+import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.FieldEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Label;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.form.CheckBox;
+import com.extjs.gxt.ui.client.widget.form.CheckBoxGroup;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Grid;
 
@@ -57,6 +64,8 @@ public class ProjectDetailsPresenter implements SubPresenter {
     public static abstract class View extends ContentPanel {
 
         public abstract Button getSaveButton();
+        
+        public abstract ExportSpreadsheetFormButton getExcelExportFormButton();
 
         public abstract ContentPanel getMainPanel();
     }
@@ -91,13 +100,18 @@ public class ProjectDetailsPresenter implements SubPresenter {
      * The counter before the main panel is unmasked.
      */
     private int maskCount;
+    
+    /*
+     * Project id to be used for excel export
+     */
+    private int projectId;
 
     public ProjectDetailsPresenter(EventBus eventBus, Dispatcher dispatcher, Authentication authentication, ProjectPresenter projectPresenter, UserLocalCache cache) {
         this.eventBus = eventBus;
         this.dispatcher = dispatcher;
         this.projectPresenter = projectPresenter;
         this.authentication = authentication;
-        this.cache = cache;
+        this.cache = cache;       
     }
 
     @Override
@@ -110,9 +124,9 @@ public class ProjectDetailsPresenter implements SubPresenter {
 
         valueChanges.clear();
         view.getSaveButton().disable();
-
+        
         load(projectPresenter.getCurrentProjectDTO().getProjectModelDTO().getProjectDetailsDTO());
-
+        projectId=projectPresenter.getCurrentProjectDTO().getId();
         return view;
     }
 
@@ -200,6 +214,65 @@ public class ProjectDetailsPresenter implements SubPresenter {
                     });
             }
         });
+        
+        //Export action
+        view.getExcelExportFormButton().getButton().addListener(Events.OnClick, new Listener<ButtonEvent>() {
+
+			@Override
+			public void handleEvent(ButtonEvent be) {
+				final CheckBoxGroup options = new CheckBoxGroup();
+				options.setOrientation(Orientation.VERTICAL);
+				options.setFieldLabel(I18N.CONSTANTS.exportOptions());
+				final CheckBox synthesisBox=createCheckBox(I18N.CONSTANTS.projectSynthesis());
+				synthesisBox.setValue(true);
+				synthesisBox.setEnabled(false);
+				final CheckBox indicatorBox=createCheckBox(I18N.CONSTANTS.flexibleElementIndicatorsList());
+				final CheckBox logFrameBox=createCheckBox(I18N.CONSTANTS.logFrame());
+				options.add(synthesisBox); 				
+				options.add(logFrameBox);
+				options.add(indicatorBox);
+															
+ 				indicatorBox.addListener(Events.OnClick, new Listener<FieldEvent>() {
+			            public void handleEvent(FieldEvent fe) {
+			             onOptionBoxClicked(indicatorBox, logFrameBox);
+			            }
+			        });
+ 				logFrameBox.addListener(Events.OnClick, new Listener<FieldEvent>() {
+ 						public void handleEvent(FieldEvent fe) {
+ 							onOptionBoxClicked(indicatorBox, logFrameBox);
+ 						}
+		        });
+				
+ 				view.getExcelExportFormButton().getOptionWidgets().clear();
+ 				view.getExcelExportFormButton().getOptionWidgets().add(options);
+							
+ 				 view.getExcelExportFormButton().getFieldMap().put(ExportUtils.PARAM_EXPORT_TYPE,
+ 			       		   ExportUtils.ExportType.PROJECT_SYNTHESIS.name());
+				view.getExcelExportFormButton().getFieldMap().put(ExportUtils.PARAM_EXPORT_PROJECT_ID, 
+		        		String.valueOf(projectId));
+				
+		        view.getExcelExportFormButton().exportButtonClicked();
+			}
+		});
+    }
+    
+    private void onOptionBoxClicked(final CheckBox indicatorBox,final CheckBox logFrameBox){
+    	  ExportUtils.ExportType type=ExportUtils.ExportType.PROJECT_SYNTHESIS;
+          if(indicatorBox.getValue() && logFrameBox.getValue()){
+       	   type=ExportUtils.ExportType.PROJECT_SYNTHESIS_LOGFRAME_INDICATORS;
+          }else if(indicatorBox.getValue() && !logFrameBox.getValue()){
+       	   type=ExportUtils.ExportType.PROJECT_SYNTHESIS_INDICATORS;
+          }else if(!indicatorBox.getValue() && logFrameBox.getValue()){
+       	   type=ExportUtils.ExportType.PROJECT_SYNTHESIS_LOGFRAME;
+          }          
+          view.getExcelExportFormButton().getFieldMap().put(
+       		   ExportUtils.PARAM_EXPORT_TYPE,type.name());
+    }
+    
+    protected CheckBox createCheckBox( String label) {
+        CheckBox box = new CheckBox();
+         box.setBoxLabel(label);
+        return box;
     }
 
     /**

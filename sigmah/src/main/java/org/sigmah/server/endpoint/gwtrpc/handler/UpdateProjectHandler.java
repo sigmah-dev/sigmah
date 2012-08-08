@@ -294,9 +294,11 @@ public class UpdateProjectHandler implements CommandHandler<UpdateProject> {
         	newOrgUnit = orgUnit;
             break;
         }
-        final UserPermissionPolicy permissionPolicy=injector.getInstance(UserPermissionPolicy.class);
-        permissionPolicy.deleteUserPemissionByProject(cmd.getProjectId());
-        permissionPolicy.updateUserPermissionByOrgUnit(newOrgUnit);
+        if(newOrgUnit!=null){
+	        final UserPermissionPolicy permissionPolicy=injector.getInstance(UserPermissionPolicy.class);        
+	        permissionPolicy.deleteUserPemissionByProject(cmd.getProjectId());
+	        permissionPolicy.updateUserPermissionByOrgUnit(newOrgUnit);
+        }
         
         return null;
     }

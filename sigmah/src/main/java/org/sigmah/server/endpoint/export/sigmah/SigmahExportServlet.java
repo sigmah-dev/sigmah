@@ -1,9 +1,8 @@
 package org.sigmah.server.endpoint.export.sigmah;
 
 import java.io.IOException;
-import java.util.Map;
+import java.io.OutputStream;
 
-import javax.persistence.EntityManager;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -11,14 +10,15 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sigmah.server.endpoint.export.sigmah.exporter.IndicatorEntryExporter;
 import org.sigmah.server.endpoint.export.sigmah.exporter.LogFrameExporter;
 import org.sigmah.server.endpoint.export.sigmah.exporter.ProjectReportExporter;
+import org.sigmah.server.endpoint.export.sigmah.exporter.ProjectSynthesisExporter;
 import org.sigmah.shared.dto.ExportUtils;
 
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
-import java.io.OutputStream;
 
 /**
  * Manages exports.
@@ -66,17 +66,24 @@ public class SigmahExportServlet extends HttpServlet {
             // Builds the exporter.
             final Exporter exporter;
             switch (type) {
-            case PROJECT_LOG_FRAME:
-                exporter = new LogFrameExporter(injector,request);
-                break;
-                
-            case PROJECT_REPORT:
-                exporter = new ProjectReportExporter(injector.getInstance(EntityManager.class),
-                		request);
-                break;
-            default:
-                log.error("[doGet] The export type '" + type + "' is unknown.");
-                throw new ServletException("The export type '" + type + "' is unknown.");
+	            case PROJECT_SYNTHESIS:
+	            case PROJECT_SYNTHESIS_LOGFRAME:
+	            case PROJECT_SYNTHESIS_INDICATORS:		           	
+	            case PROJECT_SYNTHESIS_LOGFRAME_INDICATORS:	
+	                exporter = new ProjectSynthesisExporter(injector,request);
+	                break;
+	            case PROJECT_LOG_FRAME:
+	                exporter = new LogFrameExporter(injector,request);
+	                break;
+	            case PROJECT_INDICATOR_LIST:
+	                exporter = new IndicatorEntryExporter(injector,request);
+	                break;           
+	            case PROJECT_REPORT:
+	                exporter = new ProjectReportExporter(injector,request);
+	                break;
+	            default:
+	                log.error("[doGet] The export type '" + type + "' is unknown.");
+	                throw new ServletException("The export type '" + type + "' is unknown.");
             }
 
             // Configures response.

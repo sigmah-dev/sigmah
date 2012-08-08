@@ -57,6 +57,9 @@ public class ModelUtil {
             Boolean amend = null;
             if (changes.get(AdminUtil.PROP_FX_AMENDABLE) != null)
                 amend = (Boolean) changes.get(AdminUtil.PROP_FX_AMENDABLE);
+            Boolean exportable = null;
+            if (changes.get(AdminUtil.PROP_FX_EXPORTABLE) != null)
+            	exportable = (Boolean) changes.get(AdminUtil.PROP_FX_EXPORTABLE);
 
             // Position
             LayoutGroupDTO group = null;
@@ -123,7 +126,7 @@ public class ModelUtil {
             }
 
             log.debug("Saving : (" + name + "," + type + "," + group + "," + order + "," + inBanner + "," + posB + ","
-                    + isCompulsory + "," + pg + "," + amend + ")");
+                    + isCompulsory + "," + pg + "," + amend +"," + exportable + ")");
             log.debug("Also Saving : (" + maxLimit + "," + minLimit + "," + textType + "," + length + "," + decimal
                     + "," + reportModel + ")");
 
@@ -136,6 +139,10 @@ public class ModelUtil {
                 }
                 if (amend != null) {
                     flexibleElt.setAmendable(amend);
+                    basicChanges = true;
+                }
+                if (exportable != null) {
+                    flexibleElt.setExportable(exportable);
                     basicChanges = true;
                 }
                 if (isCompulsory != null) {
@@ -405,6 +412,7 @@ public class ModelUtil {
                 ((FlexibleElement) newElement).setPrivacyGroup(flexibleElement.getPrivacyGroup());
                 ((FlexibleElement) newElement).setValidates(flexibleElement.isValidates());
                 ((FlexibleElement) newElement).setAmendable(flexibleElement.isAmendable());
+                ((FlexibleElement) newElement).setExportable(flexibleElement.isExportable());
                 ((FlexibleElement) newElement).setId(flexibleElement.getId());
                 flexTable = retrieveTable(c.getName());
                 // Update Type

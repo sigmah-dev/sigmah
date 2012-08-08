@@ -20,12 +20,14 @@ import org.sigmah.client.page.common.grid.SavingHelper;
 import org.sigmah.client.page.common.toolbar.ActionListener;
 import org.sigmah.client.page.common.toolbar.UIActions;
 import org.sigmah.client.page.entry.IndicatorNumberFormats;
+import org.sigmah.client.ui.ExportSpreadsheetFormButton;
 import org.sigmah.shared.command.CreateEntity;
 import org.sigmah.shared.command.Delete;
 import org.sigmah.shared.command.GetIndicators;
 import org.sigmah.shared.command.result.CreateResult;
 import org.sigmah.shared.command.result.IndicatorListResult;
 import org.sigmah.shared.command.result.VoidResult;
+import org.sigmah.shared.dto.ExportUtils;
 import org.sigmah.shared.dto.IndicatorDTO;
 import org.sigmah.shared.dto.IndicatorGroup;
 
@@ -37,6 +39,7 @@ import com.extjs.gxt.ui.client.data.TreeModel;
 import com.extjs.gxt.ui.client.dnd.DND;
 import com.extjs.gxt.ui.client.dnd.TreeGridDragSource;
 import com.extjs.gxt.ui.client.dnd.TreeGridDropTarget;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.DNDEvent;
 import com.extjs.gxt.ui.client.event.DNDListener;
 import com.extjs.gxt.ui.client.event.Events;
@@ -56,6 +59,8 @@ import com.extjs.gxt.ui.client.widget.grid.EditorGrid;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
+import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.treegrid.CellTreeGridSelectionModel;
 import com.extjs.gxt.ui.client.widget.treegrid.EditorTreeGrid;
 import com.extjs.gxt.ui.client.widget.treegrid.TreeGrid;
@@ -209,7 +214,24 @@ public class DesignPanel extends DesignPanelBase implements ActionListener {
         toolBar.addButton("newIndicator", I18N.CONSTANTS.newIndicator(), null);
         toolBar.addButton("delete", I18N.CONSTANTS.delete(), null);
         toolBar.addRefreshButton();
+        
+        //Export form button
+        final ExportSpreadsheetFormButton exportFormButton = new ExportSpreadsheetFormButton();  
+        exportFormButton.getButton().addListener(Events.OnClick, new Listener<ButtonEvent>() {
 
+			@Override
+			public void handleEvent(ButtonEvent be) {
+			     exportFormButton.getFieldMap().put(ExportUtils.PARAM_EXPORT_TYPE, 
+						 ExportUtils.ExportType.PROJECT_INDICATOR_LIST.name());
+			     exportFormButton.getFieldMap().put(ExportUtils.PARAM_EXPORT_PROJECT_ID, 
+			    		 String.valueOf(currentDatabaseId));
+			     exportFormButton.exportButtonClicked();
+			}
+		});
+        toolBar.add(new FillToolItem());
+        toolBar.add(exportFormButton.getButton());
+        toolBar.add(exportFormButton.getExportForm());
+        
         eventBus.addListener(IndicatorEvent.CHANGED, new Listener<IndicatorEvent>() {
 
             @Override

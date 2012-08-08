@@ -1,6 +1,7 @@
 package org.sigmah.server.endpoint.export.sigmah;
 
 import java.io.OutputStream;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -11,7 +12,13 @@ import javax.servlet.http.HttpServletRequest;
 import org.sigmah.server.Cookies;
 import org.sigmah.server.Translator;
 import org.sigmah.server.UIConstantsTranslator;
+import org.sigmah.server.endpoint.gwtrpc.CommandServlet;
+import org.sigmah.shared.command.Command;
+import org.sigmah.shared.command.RemoteCommandService;
+import org.sigmah.shared.command.result.CommandResult;
 import org.sigmah.shared.dto.ExportUtils;
+
+import com.google.inject.Injector;
 
 /**
  * Represents an exporter.
@@ -26,25 +33,39 @@ public abstract class Exporter {
     protected final Map<String, Object> parametersMap;
 
     /**
-     * The entity manager.
+     * The injector.
      */
-    protected final EntityManager em;
-       
-    
-    /*
+    protected final Injector injector;
+           
+    /**
      * Export format
      */
     protected final ExportUtils.ExportFormat exportFormat;
     
-    /*
+    /**
      * Locale to be used to load a proper i18n properties
+     */     
+    
+    /**
+     * Server side command service link{CommandServlet}
+     */
+    private RemoteCommandService serverSideCommandService=null;	
+    
+    /**
+     * String id of authtoken
+     */
+    private final String authToken;
+    
+    /**
+     *  User's locale
      */
     private final Locale locale;
     
-    /*
+    /**
      * Server size localization interface
      */
     private final Translator translator;
+       
     
     /**
      * Builds an new exporter.
@@ -53,10 +74,11 @@ public abstract class Exporter {
      *            The export parameters.
      */
     @SuppressWarnings("unchecked")
-	public Exporter(final EntityManager em, final HttpServletRequest req) throws Throwable {
-        this.em = em;
+	public Exporter(final Injector injector, final HttpServletRequest req) throws Throwable {
+        this.injector = injector;
         this.parametersMap = (Map<String, Object>) req.getParameterMap();
         
+        // set up user's locale
         String localeString=Cookies.getCookieValue(Cookies.LOCALE_COOKIE, req);
         if(localeString==null){
         	localeString=Cookies.DEFAULT_LOCALE;
@@ -70,9 +92,13 @@ public abstract class Exporter {
 
         if (format == null) {
             throw new ServletException("The export format '" + formatString + "' is unknown.");
-        }
-        
+        }        
         this.exportFormat=format;
+        
+        // get auth token from cookie
+        this.authToken=Cookies.getCookieValue(Cookies.AUTH_TOKEN_COOKIE, req);
+        if(this.authToken==null)
+        	throw new ServletException("Auth token obtained from request cookie is null ");
     }
 
     /**
@@ -124,6 +150,20 @@ public abstract class Exporter {
     		localized = translator.translate(key, null);
     	return localized;
     }
+    
+	@SuppressWarnings("rawtypes")
+	public CommandResult executeCommands(final List<Command> commands)
+			throws Throwable {
+		if (serverSideCommandService == null) {
+			serverSideCommandService = injector.getInstance(CommandServlet.class);
+		}
+		List<CommandResult> results = serverSideCommandService.execute(authToken, commands);
+		CommandResult result = results.get(0);
+		if (result instanceof Throwable) {
+			throw (Throwable) result;
+		}
+		return result;
+	}
 
     /**
      * Performs the export into the output stream.

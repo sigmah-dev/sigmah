@@ -4,6 +4,30 @@
  */
 package org.sigmah.server.endpoint.export.sigmah.exporter;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.StringReader;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+
+import javax.persistence.EntityManager;
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.sigmah.server.endpoint.export.sigmah.ExportException;
+import org.sigmah.server.endpoint.export.sigmah.Exporter;
+import org.sigmah.server.endpoint.gwtrpc.handler.GetProjectReportHandler;
+import org.sigmah.shared.domain.report.ProjectReport;
+import org.sigmah.shared.domain.report.ProjectReportVersion;
+import org.sigmah.shared.dto.ExportUtils;
+import org.sigmah.shared.dto.report.ProjectReportContent;
+import org.sigmah.shared.dto.report.ProjectReportDTO;
+import org.sigmah.shared.dto.report.ProjectReportSectionDTO;
+import org.sigmah.shared.dto.report.RichTextElementDTO;
+
+import com.google.inject.Injector;
 import com.lowagie.text.Chapter;
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
@@ -17,33 +41,6 @@ import com.lowagie.text.html.simpleparser.HTMLWorker;
 import com.lowagie.text.html.simpleparser.StyleSheet;
 import com.lowagie.text.rtf.RtfWriter2;
 import com.lowagie.text.rtf.field.RtfTableOfContents;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.StringReader;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.persistence.EntityManager;
-import javax.servlet.http.HttpServletRequest;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.sigmah.server.Translator;
-import org.sigmah.server.UIConstantsTranslator;
-import org.sigmah.server.endpoint.export.sigmah.ExportException;
-import org.sigmah.server.endpoint.export.sigmah.Exporter;
-import org.sigmah.server.endpoint.gwtrpc.handler.GetProjectReportHandler;
-import org.sigmah.shared.domain.report.ProjectReport;
-import org.sigmah.shared.domain.report.ProjectReportVersion;
-import org.sigmah.shared.dto.ExportUtils;
-import org.sigmah.shared.dto.report.ProjectReportContent;
-import org.sigmah.shared.dto.report.ProjectReportDTO;
-import org.sigmah.shared.dto.report.ProjectReportSectionDTO;
-import org.sigmah.shared.dto.report.RichTextElementDTO;
 
 /**
  * Export project reports as RTF files.
@@ -56,8 +53,8 @@ public class ProjectReportExporter extends Exporter {
     private ProjectReport report;
     
     
-    public ProjectReportExporter(EntityManager em,final HttpServletRequest req) throws Throwable  {
-        super(em, req);
+    public ProjectReportExporter(final Injector injector,final HttpServletRequest req) throws Throwable  {
+        super(injector, req);
     }
 
     @Override
@@ -96,7 +93,7 @@ public class ProjectReportExporter extends Exporter {
                 throw new ExportException("The id '" + idAsString + "' is invalid.", e);
             }
 
-            report = em.find(ProjectReport.class, id);
+            report = injector.getInstance(EntityManager.class).find(ProjectReport.class, id);
         }
     }
 

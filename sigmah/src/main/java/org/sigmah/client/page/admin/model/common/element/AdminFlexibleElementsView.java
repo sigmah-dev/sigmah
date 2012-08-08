@@ -216,7 +216,7 @@ public class AdminFlexibleElementsView extends View {
 	public void showNewFlexibleElementForm(final FlexibleElementDTO model,
 			final boolean isUpdate) {
 		int width = 700;
-		int height = 350;
+		int height = 375;
 		String title = I18N.CONSTANTS.adminFlexible();
 		final Window window = new Window();		
 		window.setHeading(title);
@@ -265,7 +265,7 @@ public class AdminFlexibleElementsView extends View {
 		
         List<ColumnConfig> configs = new ArrayList<ColumnConfig>();  
 		  
-        ColumnConfig column = new ColumnConfig("label",I18N.CONSTANTS.adminFlexibleName(), 300);   
+        ColumnConfig column = new ColumnConfig("label",I18N.CONSTANTS.adminFlexibleName(), 250);   
         column.setRenderer(new GridCellRenderer<FlexibleElementDTO>(){
 
 			@Override
@@ -355,6 +355,21 @@ public class AdminFlexibleElementsView extends View {
 				amendable.setValue(model.getAmendable());
 				amendable.disable();
 				return amendable;
+			}	    	
+	    });
+		configs.add(column);
+		
+		column = new ColumnConfig("exportable",I18N.CONSTANTS.adminFlexibleExportable(), 50);   
+		column.setRenderer(new GridCellRenderer<FlexibleElementDTO>(){
+
+			@Override
+			public Object render(FlexibleElementDTO model, String property,
+					ColumnData config, int rowIndex, int colIndex,
+					ListStore<FlexibleElementDTO> store, Grid<FlexibleElementDTO> grid) {	
+				CheckBox exportable = AdminUtil.createCheckBox(I18N.CONSTANTS.adminFlexibleExportable(), null);
+				exportable.setValue(model.getExportable());
+				exportable.disable();
+				return exportable;
 			}	    	
 	    });
 		configs.add(column);

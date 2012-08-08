@@ -1,5 +1,8 @@
 package org.sigmah.client.page.project.logframe;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.sigmah.client.EventBus;
 import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.dispatch.monitor.MaskingAsyncMonitor;
@@ -9,6 +12,7 @@ import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.page.common.dialog.FormDialogCallback;
 import org.sigmah.client.page.project.ProjectPresenter;
 import org.sigmah.client.page.project.SubPresenter;
+import org.sigmah.client.ui.ExportSpreadsheetFormButton;
 import org.sigmah.client.util.Notification;
 import org.sigmah.shared.command.CopyLogFrame;
 import org.sigmah.shared.command.UpdateLogFrame;
@@ -67,9 +71,7 @@ public class ProjectLogFramePresenter implements SubPresenter {
 
         public abstract Button getPasteButton();
 
-        public abstract Button getExcelExportButton();
-
-        public abstract FormPanel getExportForm();
+        public abstract ExportSpreadsheetFormButton getExcelExportFormButton();
 
         public abstract Label getLogFrameTitleContentLabel();
 
@@ -310,83 +312,20 @@ public class ProjectLogFramePresenter implements SubPresenter {
             }
         });
 
-        // Excel action.
-		view.getExcelExportButton().addListener(Events.OnClick,
-				new Listener<ButtonEvent>() {
+        // Excel action.  
+        view.getExcelExportFormButton().getButton().addListener(Events.OnClick, new Listener<ButtonEvent>() {
 
-					@Override
-					public void handleEvent(ButtonEvent be) {
-						final Window w = new Window();
-						w.setPlain(true);
-						w.setModal(true);
-						w.setBlinkModal(true);
-						w.setLayout(new FitLayout());
-						w.setSize(350, 180);
-						w.setHeading(I18N.CONSTANTS.exportData());
-
-						FormPanel panel = new FormPanel();
-
-						final Radio calcChoice = new Radio();
-						calcChoice.setBoxLabel(I18N.CONSTANTS.openDocumentSpreadsheet());
-						calcChoice.setName("type");
-
-						final Radio excelChoice = new Radio();
-						excelChoice.setValue(true);
-						excelChoice.setBoxLabel(I18N.CONSTANTS.msExcel());
-						excelChoice.setName("type");
-
-						RadioGroup radioGroup = new RadioGroup();
-						radioGroup.setOrientation(Orientation.VERTICAL);
-						radioGroup.setFieldLabel(I18N.CONSTANTS.chooseFileType());
-						radioGroup.add(excelChoice);
-						radioGroup.add(calcChoice);
-
-						final Button export = new Button(I18N.CONSTANTS.export());
-						panel.getButtonBar().add(export);
-						export.addSelectionListener(new SelectionListener<ButtonEvent>() {
-
-							@Override
-							public void componentSelected(ButtonEvent ce) {
-								// Clears the form.
-								view.getExportForm().removeAll();
-
-								// Adds parameters.
-								final HiddenField<String> exportTypeHidden = new HiddenField<String>();
-								exportTypeHidden.setName(ExportUtils.PARAM_EXPORT_TYPE);
-								exportTypeHidden.setValue(ExportUtils.ExportType.PROJECT_LOG_FRAME.name());
-								view.getExportForm().add(exportTypeHidden);
-								
-								final HiddenField<String> exportFormatHidden = new HiddenField<String>();
-								exportFormatHidden.setName(ExportUtils.PARAM_EXPORT_FORMAT);
-								if(excelChoice.getValue()){
-									exportFormatHidden.setValue(ExportUtils.ExportFormat.MS_EXCEL.name());
-								}else{
-									exportFormatHidden.setValue(ExportUtils.ExportFormat.OPEN_DOCUMENT_SPREADSHEET.name());
-								}
-								
-								view.getExportForm().add(exportFormatHidden);
-
-								final HiddenField<String> projectIdHidden = new HiddenField<String>();
-								projectIdHidden.setName(ExportUtils.PARAM_EXPORT_PROJECT_ID);
-								projectIdHidden.setValue(String.valueOf(currentProjectDTO.getId()));
-								view.getExportForm().add(projectIdHidden);
-
-								view.getExportForm().layout();
-
-								// Submits the form.
-								view.getExportForm().submit();
-								
-								w.hide();
-							}
-						});
-
-						panel.add(radioGroup);
-						w.add(panel);
-						w.show();
-
-					}
-				});
-	}
+			@Override
+			public void handleEvent(ButtonEvent be) {
+				view.getExcelExportFormButton().getFieldMap().put(ExportUtils.PARAM_EXPORT_TYPE, 
+						ExportUtils.ExportType.PROJECT_LOG_FRAME.name());
+				view.getExcelExportFormButton().getFieldMap().put(ExportUtils.PARAM_EXPORT_PROJECT_ID, 
+		        		String.valueOf(currentProjectDTO.getId()));
+		        view.getExcelExportFormButton().exportButtonClicked();
+			}
+		});
+       
+    }
 
     private boolean isEditable() {
         return logFrame != null

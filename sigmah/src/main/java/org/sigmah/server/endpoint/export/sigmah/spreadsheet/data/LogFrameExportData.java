@@ -27,16 +27,13 @@ import org.sigmah.shared.dto.IndicatorDTO;
  * @author sherzod
  * 
  */
-public class LogFrameExportData {
+public class LogFrameExportData  extends ExportData{
+	 
+	public static final NumberFormat AGGR_SUM_FORMATTER = new DecimalFormat("#,###");
+	public static final NumberFormat AGGR_AVG_FORMATTER = new DecimalFormat("0.00");
 	
-	
-	public final static int NUMBER_OF_COLS = 7;
-	
-	private final NumberFormat AGGR_SUM_FORMATTER = new DecimalFormat("#,###");
-	private final NumberFormat AGGR_AVG_FORMATTER = new DecimalFormat("0.00");
 	
 	private final Project project;
-	private final Exporter exporter;
 	private final LogFrame logFrame; 
 	private final LogFrameModel logFrameModel; 
 	
@@ -50,6 +47,8 @@ public class LogFrameExportData {
 	private final ArrayList<ExpectedResult> erMainList;
 	private final ArrayList<LogFrameActivity> acMainList;
 	private final ArrayList<Prerequisite> prMainList;
+	
+	private boolean isIndicatorsSheetExist = false;
 
 	private class LogFrameGroupComparator implements Comparator<LogFrameGroup>{
 
@@ -60,10 +59,10 @@ public class LogFrameExportData {
 		
 	}
 	
-	public LogFrameExportData(final Project project,final Exporter exporter) {
-		
+	public LogFrameExportData(final Project project,
+			final Exporter exporter) {
+		super(exporter,7);
 		this.project=project;
-		this.exporter=exporter;
 		this.logFrame=project.getLogFrame();
 		this.logFrameModel = logFrame.getLogFrameModel();
 
@@ -86,6 +85,7 @@ public class LogFrameExportData {
  		sortAll();
 	}
 	
+
 	private void fillCollection(){
 		// SO
 		for (final SpecificObjective so : logFrame.getSpecificObjectives()) {
@@ -267,11 +267,7 @@ public class LogFrameExportData {
 
 		return builder.toString();
 	}
-
-	public String getLocalizedVersion(String key) {
-		return exporter.localize(key);
-	}
-
+ 
 	public String getTitleOfAction() {
 		return project.getFullName();
 	}
@@ -333,5 +329,17 @@ public class LogFrameExportData {
 	public boolean getEnablePrerequisitesGroups() {
 		return logFrameModel.getEnablePrerequisitesGroups();
 	}
+
+
+	public boolean isIndicatorsSheetExist() {
+		return isIndicatorsSheetExist;
+	}
+
+
+	public void setIndicatorsSheetExist(boolean isIndicatorsSheetExist) {
+		this.isIndicatorsSheetExist = isIndicatorsSheetExist;
+	}
+	
+	
 
 }

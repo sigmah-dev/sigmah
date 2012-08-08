@@ -2,52 +2,54 @@ package org.sigmah.server.endpoint.export.sigmah.exporter;
 
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
-import javax.persistence.EntityManager;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sigmah.client.page.project.pivot.LayoutComposer;
 import org.sigmah.server.endpoint.export.sigmah.ExportException;
 import org.sigmah.server.endpoint.export.sigmah.Exporter;
-import org.sigmah.server.endpoint.export.sigmah.spreadsheet.data.LogFrameExportData;
+import org.sigmah.server.endpoint.export.sigmah.spreadsheet.data.IndicatorEntryData;
 import org.sigmah.server.endpoint.export.sigmah.spreadsheet.data.SpreadsheetDataUtil;
 import org.sigmah.server.endpoint.export.sigmah.spreadsheet.template.ExportTemplate;
-import org.sigmah.server.endpoint.export.sigmah.spreadsheet.template.LogFrameCalcTemplate;
-import org.sigmah.server.endpoint.export.sigmah.spreadsheet.template.LogFrameExcelTemplate;
-import org.sigmah.shared.domain.Project;
+import org.sigmah.server.endpoint.export.sigmah.spreadsheet.template.IndicatorEntryCalcTemplate;
+import org.sigmah.server.endpoint.export.sigmah.spreadsheet.template.IndicatorEntryExcelTemplate;
+import org.sigmah.server.util.DateUtilCalendarImpl;
+import org.sigmah.shared.command.Command;
+import org.sigmah.shared.command.GenerateElement;
+import org.sigmah.shared.command.GetIndicators;
+import org.sigmah.shared.command.GetProject;
+import org.sigmah.shared.command.result.IndicatorListResult;
 import org.sigmah.shared.dto.ExportUtils;
+import org.sigmah.shared.dto.IndicatorDTO;
+import org.sigmah.shared.dto.IndicatorGroup;
+import org.sigmah.shared.dto.ProjectDTO;
+import org.sigmah.shared.report.content.PivotContent;
+import org.sigmah.shared.report.model.PivotTableElement;
 
 import com.google.inject.Injector;
 
-/**
- * Exports logical frameworks.
- * 
- * @author tmi
- */
-public class LogFrameExporter extends Exporter {
+public class IndicatorEntryExporter extends Exporter{
 
-	/**
-	 * Logger.
-	 */
-	private static final Log log = LogFactory.getLog(LogFrameExporter.class);
-
- 	public LogFrameExporter(final Injector injector,final HttpServletRequest req) throws Throwable  {
+	private static final Log log = LogFactory.getLog(IndicatorEntryExporter.class);
+	
+	public IndicatorEntryExporter(final Injector injector,final HttpServletRequest req) throws Throwable  {
 		super(injector, req);
- 	}
- 
-
+	}
+	
 	@Override
 	public String getFileName() {
 		SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
-		return localize("logFrame") + "_" + format.format(new Date()) + getExtention();
+		return localize("projectTabDataEntry") + "_" + format.format(new Date()) + getExtention();
 	}
 
 	@Override
 	public void export(OutputStream output) throws ExportException {
-
 		// The project id.
 		final String idString = requireParameter(ExportUtils.PARAM_EXPORT_PROJECT_ID);
 		final Integer id;
@@ -57,23 +59,16 @@ public class LogFrameExporter extends Exporter {
 			log.error("[export] The id '" + idString + "' is invalid.", e);
 			throw new ExportException("The id '" + idString + "' is invalid.",e);
 		}
-		
-		// Retrieves the project 
-		final Project project = injector.getInstance(EntityManager.class).find(Project.class, id);
-
-		if (project == null) {
-			log.error("[export] The project #" + id + " doesn't exist.");
-			throw new ExportException("The project #" + id + " doesn't exist.");
-		}
+				 
 		try {			
-			final LogFrameExportData data = SpreadsheetDataUtil.prepareLogFrameData(project, this);			
+			final IndicatorEntryData data = SpreadsheetDataUtil.prepareIndicatorsData(id, this);				
 			ExportTemplate template = null;
 			switch (exportFormat) {
 			case MS_EXCEL:
-				template = new LogFrameExcelTemplate(data);
+				template = new IndicatorEntryExcelTemplate(data);
 				break;
 			case OPEN_DOCUMENT_SPREADSHEET:
-				template = new LogFrameCalcTemplate(data,null);
+				template = new IndicatorEntryCalcTemplate(data,null);
 				break;
 			default:
 				log.error("[export] The export format '" + exportFormat + "' is unknown.");
@@ -84,9 +79,7 @@ public class LogFrameExporter extends Exporter {
 			log.error("[export] Error during the workbook writing.", e);
 			throw new ExportException("Error during the workbook writing.");
 		}
-
 	}
- 
-
-
+	
+	 
 }
