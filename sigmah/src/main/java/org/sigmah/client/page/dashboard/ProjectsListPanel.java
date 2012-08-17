@@ -18,6 +18,7 @@ import org.sigmah.client.page.project.ProjectPresenter;
 import org.sigmah.client.page.project.category.CategoryIconProvider;
 import org.sigmah.client.page.project.dashboard.funding.FundingIconProvider;
 import org.sigmah.client.page.project.dashboard.funding.FundingIconProvider.IconSize;
+import org.sigmah.client.ui.GlobalExportForm;
 import org.sigmah.client.ui.RatioBar;
 import org.sigmah.client.util.DateUtils;
 import org.sigmah.client.util.Notification;
@@ -64,6 +65,7 @@ import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FlowData;
 import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
+import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.extjs.gxt.ui.client.widget.treegrid.TreeGrid;
@@ -212,7 +214,7 @@ public class ProjectsListPanel {
      * @param loadingMode
      *            The loading mode.
      */
-    public ProjectsListPanel(Dispatcher dispatcher, Authentication authentication, EventBus eventBus, RefreshMode refreshMode,
+    public ProjectsListPanel(Dispatcher dispatcher, final Authentication authentication, EventBus eventBus, RefreshMode refreshMode,
             LoadingMode loadingMode) {
 
         this.dispatcher = dispatcher;
@@ -399,6 +401,8 @@ public class ProjectsListPanel {
                 refreshProjectGrid(command);
             }
         });
+        
+        
 
         final ToolBar toolbar = new ToolBar();
         if (refreshMode == RefreshMode.BUTTON || refreshMode == RefreshMode.BOTH) {
@@ -419,7 +423,16 @@ public class ProjectsListPanel {
         toolbar.add(new WidgetComponent(fundingLabel));
         toolbar.add(partnerRadio);
         toolbar.add(partnerIcon);
-        toolbar.add(new WidgetComponent(partnerLabel));
+        toolbar.add(new WidgetComponent(partnerLabel));       
+        
+        if(ProfileUtils.isGranted(authentication, GlobalPermissionEnum.GLOBAL_EXPORT)){
+        	 final GlobalExportForm globalExportForm=
+             	new GlobalExportForm(authentication.getOrganizationId(),dispatcher);
+        	 toolbar.add(new FillToolItem());
+             toolbar.add(globalExportForm.getButton());
+             toolbar.add(globalExportForm.getExportForm());
+        }
+       
 
         // Panel
         projectTreePanel = new ContentPanel(new FitLayout());

@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.util.CellRangeAddress;
 import org.odftoolkit.simple.SpreadsheetDocument;
 import org.odftoolkit.simple.table.Cell;
 import org.odftoolkit.simple.table.CellRange;
@@ -14,6 +16,7 @@ import org.odftoolkit.simple.table.Row;
 import org.odftoolkit.simple.table.Table;
 import org.sigmah.server.endpoint.export.sigmah.spreadsheet.CalcUtils;
 import org.sigmah.server.endpoint.export.sigmah.spreadsheet.ExportConstants;
+import org.sigmah.server.endpoint.export.sigmah.spreadsheet.ExportConstants.MultiItemText;
 import org.sigmah.server.endpoint.export.sigmah.spreadsheet.data.IndicatorEntryData;
 import org.sigmah.shared.dto.IndicatorDTO;
 import org.sigmah.shared.dto.IndicatorGroup;
@@ -85,13 +88,11 @@ public class IndicatorEntryCalcTemplate implements ExportTemplate {
 				row = table.getRowByIndex(++rowIndex);
 				//ind name
 				cell=CalcUtils.createBasicCell(table, 1, rowIndex, null);
-				CalcUtils.applyLink(cell, indicator.getName(), indicator.getName());
+				CalcUtils.applyLink(cell, indicator.getName(), ExportConstants.INDICATOR_SHEET_PREFIX+indicator.getName());
  				//code
 			    CalcUtils.createBasicCell(table, 2, rowIndex,  indicator.getCode());
- 				String targetVal="";
-				if(indicator.getObjective()!=null) targetVal+=indicator.getObjective();
-				//target
-				putValueCell(table,rowIndex,3,targetVal,true);
+ 			 	//target
+				putValueCell(table,rowIndex,3,indicator.getObjective(),true);
  				//current value
 				putValueCell(table,rowIndex,4,data.getFormattedValue(indicator),true);
  			}
@@ -109,10 +110,10 @@ public class IndicatorEntryCalcTemplate implements ExportTemplate {
 	
 	private void createDetailSheet(final IndicatorDTO indicator) throws Throwable{
 		final boolean isQualitative=indicator.getAggregation() == IndicatorDTO.AGGREGATE_MULTINOMIAL;
-		final Table tableEx = doc.appendSheet(indicator.getName().replace(" ", "_"));			
+		final Table tableEx = doc.appendSheet(
+				CalcUtils.normalizeAsLink(ExportConstants.INDICATOR_SHEET_PREFIX+indicator.getName()));			
 		int rowIndex=-1;
-		int startRowIndex=0;
-		
+ 		
 		List<PivotTableData.Axis> leaves= 
 			data.getEntryMap().get(indicator.getId()).getRootColumn().getLeaves();
 		int numbOfLeaves=leaves.size();
@@ -121,7 +122,7 @@ public class IndicatorEntryCalcTemplate implements ExportTemplate {
 		//back to list link
 		row = tableEx.getRowByIndex(++rowIndex);
 		cell=tableEx.getCellByPosition(1, rowIndex); 
-		CalcUtils.applyLink(cell, data.getLocalizedVersion("backToList"),
+		CalcUtils.applyLink(cell, data.getLocalizedVersion("goToIndicatorsList"),
 				data.getLocalizedVersion("flexibleElementIndicatorsList"));
 		CalcUtils.mergeCell(tableEx, 1, rowIndex, data.getNumbOfCols(), rowIndex);
 		 		
@@ -133,14 +134,10 @@ public class IndicatorEntryCalcTemplate implements ExportTemplate {
 		
 		//put details
 		putBasicInfo(tableEx,++rowIndex, data.getLocalizedVersion("code"),
-				indicator.getCode(), numbOfCols,null);	
+				indicator.getCode(), numbOfCols);	
 		
-		List<String> groupList=new ArrayList<String>();
-		for(String item:data.getGroupMap().values()){
-			groupList.add(item);
-		}
-		 putBasicInfo(tableEx,++rowIndex, data.getLocalizedVersion("group"),
-				data.getGroupMap().get(indicator.getGroupId()), numbOfCols,groupList);	
+	 	 putBasicInfo(tableEx,++rowIndex, data.getLocalizedVersion("group"),
+				data.getGroupMap().get(indicator.getGroupId()), numbOfCols);	
 		
  		
 		//type
@@ -153,8 +150,7 @@ public class IndicatorEntryCalcTemplate implements ExportTemplate {
 			type=data.getLocalizedVersion("quantitative");
 		}		
 		putBasicInfo(tableEx,++rowIndex, data.getLocalizedVersion("type"),
-				type, numbOfCols,Arrays.asList(data.getLocalizedVersion("quantitative"),
-		    			data.getLocalizedVersion("qualitative")));
+				type, numbOfCols);
 		  	
 		//conditional
 		if(isQualitative){
@@ -164,22 +160,15 @@ public class IndicatorEntryCalcTemplate implements ExportTemplate {
 			row = tableEx.getRowByIndex(++rowIndex);
 			
 			//key
-			startRowIndex=rowIndex;
 			cell=CalcUtils.putHeader(row,1,  data.getLocalizedVersion("possibleValues"));
-			cell.setHorizontalAlignment(ExportConstants.ALIGH_HOR_RIGHT);
-		 
-			//value
-			boolean first=true;
-			for(String label:indicator.getLabels()){
-				if(!first){
-					row = tableEx.getRowByIndex(++rowIndex);			
-				}
-				first=false;
-				CalcUtils.createBasicCell(tableEx, 2, rowIndex, label);
-				CalcUtils.mergeCell(tableEx, 2, rowIndex, numbOfCols, rowIndex);
-				 
-			}	
-			CalcUtils.mergeCell(tableEx, 1, startRowIndex, 1, rowIndex);			
+			cell.setHorizontalAlignment(ExportConstants.ALIGH_HOR_RIGHT);	 
+
+ 			//value
+			final MultiItemText itemText=data.formatPossibleValues(indicator.getLabels());
+			CalcUtils.createBasicCell(tableEx, 2, rowIndex, itemText.text);
+			CalcUtils.mergeCell(tableEx, 2, rowIndex, numbOfCols, rowIndex);
+			
+			 		
 		}else{
 			//quantitative
 			
@@ -190,30 +179,27 @@ public class IndicatorEntryCalcTemplate implements ExportTemplate {
 			else
 				aggrMethod=data.getLocalizedVersion("sum");
 			putBasicInfo(tableEx,++rowIndex, data.getLocalizedVersion("aggregationMethod"),
-					aggrMethod, numbOfCols,Arrays.asList(data.getLocalizedVersion("sum"),
-			    			data.getLocalizedVersion("average")));
+					aggrMethod, numbOfCols);
 		 	//units
 			putBasicInfo(tableEx,++rowIndex, data.getLocalizedVersion("units"),
-					indicator.getUnits(), numbOfCols,null);
+					indicator.getUnits(), numbOfCols);
 			
-			//target value
-			String targetVal="";
-			if(indicator.getObjective()!=null) targetVal+=indicator.getObjective();
+			//target value 
 			putBasicInfo(tableEx,++rowIndex, data.getLocalizedVersion("targetValue"),
-					targetVal, numbOfCols,null);	
+					indicator.getObjective(), numbOfCols);	
 		}	
 		
 		//source of ver 
 		putBasicInfo(tableEx,++rowIndex, data.getLocalizedVersion("sourceOfVerification"),
-				indicator.getSourceOfVerification(), numbOfCols,null);
+				indicator.getSourceOfVerification(), numbOfCols);
 		
 		//comment 
 		putBasicInfo(tableEx,++rowIndex, data.getLocalizedVersion("indicatorComments"),
-				indicator.getDescription(), numbOfCols,null);
+				indicator.getDescription(), numbOfCols);
 		
 		//value
  		putBasicInfo(tableEx,++rowIndex, data.getLocalizedVersion("value"),
- 				data.getFormattedValue(indicator), numbOfCols,null);	
+ 				data.getFormattedValue(indicator), numbOfCols);	
  		//empty row
  		CalcUtils.putEmptyRow(tableEx,++rowIndex);	
 		
@@ -235,36 +221,29 @@ public class IndicatorEntryCalcTemplate implements ExportTemplate {
 		}
 		
 		//rows	
-		startRowIndex=rowIndex+1;
- 		for(PivotTableData.Axis axis : data.getEntryMap().get(indicator.getId()).getRootRow().getChildren()) {
+  		for(PivotTableData.Axis axis : data.getEntryMap().get(indicator.getId()).getRootRow().getChildren()) {
  			row = tableEx.getRowByIndex(++rowIndex);
   			CalcUtils.putHeader(row,1,  axis.getLabel());
  			//populate empty cells
  			for(int i=0;i<numbOfLeaves;i++){
  				cell=CalcUtils.createBasicCell(tableEx, i+2, rowIndex, "");
- 				//cell.setValidityList(indicator.getLabels());
   			}
  			
  			//insert values
  			for(Map.Entry<PivotTableData.Axis, PivotTableData.Cell> entry : axis.getCells().entrySet()) { 				
                 cellIndex= columnIndexMap.get(entry.getKey().getLabel());
-                String value="";
+                Object value=null;
                 boolean rightAligned=false;
                 if(isQualitative){
                 	value=data.getLabelByIndex(indicator.getLabels(), entry.getValue().getValue());                	 
                 }else{
-                	value=String.valueOf(Math.round(entry.getValue().getValue()));
+                	value=new Long(Math.round(entry.getValue().getValue()));
                 	rightAligned=true;
                 }
                 putValueCell(tableEx,rowIndex, cellIndex,value,rightAligned);
  			}
          }
- 		
- 		if(isQualitative){
- 			//utils.addDropDownList(sheetEx, startRowIndex, rowIndex, 2, numbOfLeaves+1, indicator.getLabels());
- 		}
- 		
-		//col width
+ 	 	//col width
  		tableEx.getColumnByIndex(0).setWidth(3.8);	
  		tableEx.getColumnByIndex(1).setWidth(60);
 		for(int i=2;i<2+numbOfLeaves;i++){
@@ -273,23 +252,21 @@ public class IndicatorEntryCalcTemplate implements ExportTemplate {
 	} 
 	
 	private void putValueCell(Table table,int rowIndex, 
-			int cellIndex, String value,boolean rightAligned) {
+			int cellIndex, Object value,boolean rightAligned) {
 		cell=CalcUtils.createBasicCell(table, cellIndex, rowIndex, value);
  		if(rightAligned)
  			cell.setHorizontalAlignment(ExportConstants.ALIGH_HOR_RIGHT);
 	}
 	
 	private void putBasicInfo(Table table,int rowIndex,
-			String key,String value,int numbOfCols,List<String> validList){
+			String key,Object value,int numbOfCols){
 		row = table.getRowByIndex(rowIndex);
 		row.getCellByIndex(1).setCellStyleName(null);
 		row.getCellByIndex(2).setCellStyleName(null);
 		cell=CalcUtils.putHeader(row, 1, key);
 		cell.setHorizontalAlignment(ExportConstants.ALIGH_HOR_RIGHT);
 		
-		cell=CalcUtils.createBasicCell(table, 2, rowIndex, value);   
-		//if(validList!=null)
-			//cell.setValidityList(validList);
+		cell=CalcUtils.createBasicCell(table, 2, rowIndex, value); 
 		CalcUtils.mergeCell(table, 2, rowIndex,numbOfCols, rowIndex); 
 		
  	}

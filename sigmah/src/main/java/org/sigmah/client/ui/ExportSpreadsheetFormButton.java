@@ -24,6 +24,13 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.Widget;
 
+
+/*
+ * Utility class that provide button to export spreadsheet documents
+ * from UI
+ * 
+ * @author sherzod
+ */
 public class ExportSpreadsheetFormButton {
 
 	private final Button button;

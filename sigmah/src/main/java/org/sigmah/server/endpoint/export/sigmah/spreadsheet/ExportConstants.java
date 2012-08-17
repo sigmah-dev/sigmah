@@ -1,5 +1,8 @@
 package org.sigmah.server.endpoint.export.sigmah.spreadsheet;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+
 import org.odftoolkit.odfdom.type.Color;
 import org.odftoolkit.simple.style.StyleTypeDefinitions.HorizontalAlignmentType;
 import org.odftoolkit.simple.style.StyleTypeDefinitions.VerticalAlignmentType;
@@ -11,13 +14,26 @@ import org.odftoolkit.simple.style.StyleTypeDefinitions.VerticalAlignmentType;
  *  @author sherzod
  */
 public class ExportConstants {
-	
+		
 	private ExportConstants(){}
+	
+	public static final String DATE_FORMAT_PATTERN="M/d/yy";
+	
+	public final static DateFormat EXPORT_DATE_FORMAT=new SimpleDateFormat(DATE_FORMAT_PATTERN); 
+	
+	public static class MultiItemText{
+		public final String text;
+		public final int lineCount;
+		public MultiItemText(String text,int lineCount){
+			this.text=text;
+			this.lineCount=lineCount;
+		}
+	}
 	
 	/*
 	 * Measures
 	 */
- 	public final static float TITLE_ROW_HEIGHT = 18.15f;
+ 	public final static float TITLE_ROW_HEIGHT = 16.15f;
 	public final static float EMPTY_ROW_HEIGHT = 12.15f;
 	public final static float HEADER_ROW_HEIGHT = 20.15f;
 	
@@ -44,5 +60,12 @@ public class ExportConstants {
 	
 	public static final Color CALC_COL_GRAY = Color.valueOf(ExportConstants.GRAY_10_HEX);
 	public static final Color CALC_COL_ORANGE = Color.valueOf(ExportConstants.LIGHTORANGE_HEX);
+
  
+	/*
+	 * Mix
+	 * 
+	 */
+	
+	public static final String INDICATOR_SHEET_PREFIX="IND_";
 }

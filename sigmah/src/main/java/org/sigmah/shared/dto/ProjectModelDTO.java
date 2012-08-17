@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import org.sigmah.client.page.admin.model.common.element.ElementTypeEnum;
 import org.sigmah.shared.domain.ProjectModelStatus;
 import org.sigmah.shared.domain.ProjectModelType;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
@@ -171,6 +172,40 @@ public class ProjectModelDTO extends BaseModelData implements EntityDTO {
     	return get("status");
 	}
 
+   public List<FlexibleElementDTO> getGlobalExportElements(){
+    	List<FlexibleElementDTO> allElements = new ArrayList<FlexibleElementDTO>();
+    	
+    	List<LayoutGroupDTO> layoutGroupDTOs=new ArrayList<LayoutGroupDTO>();
+    	//add phase groups
+    	for(PhaseModelDTO phaseDTO : getPhaseModelsDTO()){
+    		layoutGroupDTOs.addAll(phaseDTO.getLayoutDTO().getLayoutGroupsDTO());
+			 
+    	}
+    	//add details groups
+    	if(getProjectDetailsDTO().getLayoutDTO()!=null){
+    		layoutGroupDTOs.addAll(getProjectDetailsDTO().getLayoutDTO().getLayoutGroupsDTO());
+    	}
+    	
+    	//gather elements
+    	for(LayoutGroupDTO lg : layoutGroupDTOs){
+			for(LayoutConstraintDTO lc : lg.getLayoutConstraintsDTO()){
+				FlexibleElementDTO element = lc.getFlexibleElementDTO();
+				ElementTypeEnum type=element.getElementType();
+				
+ 				if(ElementTypeEnum.DEFAULT.equals(type)||
+ 						ElementTypeEnum.CHECKBOX.equals(type)||
+ 						ElementTypeEnum.TEXT_AREA.equals(type)||
+ 						ElementTypeEnum.TRIPLETS.equals(type)||
+ 						ElementTypeEnum.QUESTION.equals(type)){                	
+					allElements.add(element);
+				}
+			     
+				
+			}
+		}
+    	    	 	
+		return allElements;		      
+    }
     public List<FlexibleElementDTO> getAllElements(){
     	List<FlexibleElementDTO> allElements = new ArrayList<FlexibleElementDTO>();
     	List<FlexibleElementDTO> bannerElements = new ArrayList<FlexibleElementDTO>();

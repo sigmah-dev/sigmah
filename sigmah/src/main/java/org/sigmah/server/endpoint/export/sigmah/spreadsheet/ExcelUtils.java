@@ -2,6 +2,7 @@ package org.sigmah.server.endpoint.export.sigmah.spreadsheet;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -16,6 +17,8 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.hssf.util.HSSFRegionUtil;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.CreationHelper;
+import org.apache.poi.ss.usermodel.DataFormat;
 import org.apache.poi.ss.usermodel.DataValidation;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.IndexedColors;
@@ -23,6 +26,8 @@ import org.apache.poi.ss.usermodel.PrintSetup;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.CellRangeAddressList;
+
+import com.google.gwt.dom.client.LIElement;
 
 /*
  * MS Excel specific common functions 
@@ -36,24 +41,48 @@ public class ExcelUtils {
 	private final HSSFWorkbook wb;
 	private HSSFRow row = null;
 	private HSSFCell cell = null;
+	private final CreationHelper createHelper;
+	private final DataFormat numberFormat;
  	
 	public ExcelUtils(final HSSFWorkbook wb){
 		this.wb=wb;
+		createHelper = wb.getCreationHelper();
+		numberFormat = wb.createDataFormat();
 	}
 	
-	public HSSFCell putBorderedBasicCell(HSSFSheet sheet,int rowIndex, int cellIndex, String text) {
+	
+	public int calculateLineCount(String text,int cellLength){
+		if(text==null) return 1;
+		int lineCount=text.length()/cellLength;		
+		return ++lineCount;
+	}
+	
+	public HSSFCell putBorderedBasicCell(HSSFSheet sheet,int rowIndex, int cellIndex, Object value) {
 		cell = sheet.getRow(rowIndex).createCell(cellIndex);
-		cell.setCellValue(text);
 		cell.setCellStyle(getBoderedBasicStyle(wb));
+ 		
+		if(value==null){
+			cell.setCellValue("");
+		}else if(value instanceof String){
+			cell.setCellValue((String)value);
+		}else if(value instanceof Double){
+			Double d=(Double)value;
+			cell.setCellValue(d.doubleValue());
+			cell.getCellStyle().setDataFormat(numberFormat.getFormat("0.00"));
+		}else if(value instanceof Long){
+			Long l=(Long)value;
+			cell.setCellValue(l.doubleValue());
+			
+			cell.getCellStyle().setDataFormat(numberFormat.getFormat("#"));
+		}else{ //date  
+			cell.setCellValue((Date)value);
+			cell.getCellStyle().setDataFormat(
+			        createHelper.createDataFormat().getFormat(ExportConstants.DATE_FORMAT_PATTERN));
+ 		}
+		cell.getCellStyle().setAlignment(CellStyle.ALIGN_LEFT);
 		return cell;
 	}
-	
-	public HSSFCell putBasicCell(HSSFSheet sheet,int rowIndex, int cellIndex, String text) {
-		cell = sheet.getRow(rowIndex).createCell(cellIndex);
-		cell.setCellValue(text);
-		cell.setCellStyle(getBasicStyle(wb));
-		return cell;
-	}
+ 
 	
 	public HSSFCell putHeader(HSSFRow row,int cellIndex, String header) {
 		cell = row.createCell(cellIndex);
@@ -61,32 +90,7 @@ public class ExcelUtils {
 		cell.setCellStyle(getHeaderStyle(wb));
 		return cell;
 	}
- 
-	public void addDropDownList(HSSFSheet sheet,
-			int firstRow, 
-			int lastRow, 
-			int firstCol,
-			int lastCol, 
-			Collection<String> list) {
-		
-		String[] listArray=new String[list.size()];
-		int i=0;
-		for(String s:list){
-			listArray[i++]=s;
-		}
-		CellRangeAddressList addressList = new CellRangeAddressList(
-				firstRow,
-				lastRow, 
-				firstCol, 
-				lastCol);
-		DVConstraint dvConstraint = DVConstraint
-				.createExplicitListConstraint(listArray);
-		DataValidation dataValidation = new HSSFDataValidation(addressList,
-				dvConstraint);
-		dataValidation.setSuppressDropDownArrow(false);
-		sheet.addValidationData(dataValidation);
-	}
-	
+  
 	public void putMainTitle(final HSSFSheet sheet,int rowIndex,String text,int maxCols){		
 		// title
 		row = sheet.createRow(rowIndex);
@@ -112,65 +116,13 @@ public class ExcelUtils {
 		sheet.addMergedRegion(new CellRangeAddress(rowIndex, rowIndex,
 				cellIndex, maxCols));
 	}
-	 
-	public static class CellTextFormat {
-		public final String formattedText;
-		public final int dividedlines;
-
-		CellTextFormat(String formattedText, int devidedlines) {
-			this.formattedText = formattedText;
-			this.dividedlines = devidedlines;
-		}
-	}
-
-	public CellTextFormat formatCellText(String text, int maxCellCharCount) {
-		StringBuilder builder = new StringBuilder();
-		int rows = 0;
-		if(text!=null && text.length()>0){
-			char[] chars = text.toCharArray();
-			int i = 0;		
-			int lastIndex = 0;
-			StringBuilder lastPart = null;
-			for (char ch : chars) {
-				lastPart = new StringBuilder();
-				boolean devidedWord = false;
-				if (++i == maxCellCharCount) {
-					lastIndex = builder.length() - 1;
-					// reverse trip
-					lastPart = new StringBuilder();
-					boolean spaceFound = false;
-					for (int j = 0; j < 10; j++) {
-						char c = builder.charAt(lastIndex - j);
-						if (c == ' ') {
-							builder = builder.delete(lastIndex - j, lastIndex + 1);
-							spaceFound = true;
-							break;
-						}
-						lastPart.append(c);
-					}
-	
-					lastPart = lastPart.reverse();
-					if (!spaceFound) {
-						lastPart = new StringBuilder();
-						devidedWord = true;
-					}
-					i = lastPart.length() + 1;
-					builder.append("\n");
-					rows++;
-				}
-				builder.append(lastPart);
-				if (devidedWord && ch == ' ')
-					continue;
-				builder.append(ch);
-			}
-		}
-		return new CellTextFormat(builder.toString(), ++rows);
-	}
-
+  
 	public void putEmptyRow(HSSFSheet sheet, int index, float height) {
 		sheet.createRow(index).setHeightInPoints(height);
 	}
 
+	//TODO when same method implemented for calc this method
+	// can be used
 	public void formatPrinableSheet(HSSFSheet sheet) {
 
 		// turn off gridlines
@@ -262,15 +214,7 @@ public class ExcelUtils {
 		style.setWrapText(true);
 		return style;
 	}
-	
-	public CellStyle getBasicStyle(Workbook wb) {
-		CellStyle style = wb.createCellStyle();
-		style.setIndention((short) 1);
-		style.setVerticalAlignment(CellStyle.VERTICAL_CENTER);
-		style.setWrapText(true);
-		return style;
-	}
-	
+ 
 	
 	public void createLinkCell(HSSFCell cell, String value, 
 			String target,

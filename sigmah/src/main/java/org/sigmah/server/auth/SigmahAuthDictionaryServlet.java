@@ -7,8 +7,11 @@ package org.sigmah.server.auth;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
@@ -19,21 +22,13 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.dozer.Mapper;
 import org.sigmah.client.inject.SigmahAuthProvider;
 import org.sigmah.server.dao.AuthenticationDAO;
 import org.sigmah.server.domain.Authentication;
+import org.sigmah.server.schedule.export.GlobalExportJobActivator;
 import org.sigmah.shared.Cookies;
 import org.sigmah.shared.domain.User;
-import org.sigmah.shared.dto.profile.ProfileDTO;
-import org.sigmah.shared.dto.profile.ProfileUtils;
-
-import com.google.inject.Inject;
-import com.google.inject.Injector;
-import com.google.inject.Singleton;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.Properties;
-import org.dozer.Mapper;
 import org.sigmah.shared.domain.profile.GlobalPermission;
 import org.sigmah.shared.domain.profile.GlobalPermissionEnum;
 import org.sigmah.shared.domain.profile.PrivacyGroupPermission;
@@ -41,6 +36,12 @@ import org.sigmah.shared.domain.profile.PrivacyGroupPermissionEnum;
 import org.sigmah.shared.domain.profile.Profile;
 import org.sigmah.shared.dto.UserInfoDTO;
 import org.sigmah.shared.dto.profile.PrivacyGroupDTO;
+import org.sigmah.shared.dto.profile.ProfileDTO;
+import org.sigmah.shared.dto.profile.ProfileUtils;
+
+import com.google.inject.Inject;
+import com.google.inject.Injector;
+import com.google.inject.Singleton;
 
 /**
  * Creates and returns the current user informations.
@@ -71,6 +72,13 @@ public class SigmahAuthDictionaryServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    	
+    	/*
+    	 * Initialize quartz scheduler here, because it needs link{EntityManager}
+    	 * which can only accessed in request scope. 
+    	 */    	    
+    	injector.getInstance(GlobalExportJobActivator.class);
+    	
         if (req.getParameter("remove") != null) {
             final Cookie cookie = new Cookie("authToken", "");
             cookie.setPath("/");

@@ -64,7 +64,12 @@ public enum GlobalPermissionEnum {
     /**
      * Validate the amendement.
      */
-    VALID_AMENDEMENT;
+    VALID_AMENDEMENT,
+    
+    /**
+     * Show global export button in projects list
+     */
+    GLOBAL_EXPORT;
 
     public static String getName(GlobalPermissionEnum gp) {
         String gpName = "default";
@@ -101,6 +106,9 @@ public enum GlobalPermissionEnum {
             break;
         case VALID_AMENDEMENT:
             gpName = I18N.CONSTANTS.VALIDER_AMENDEMENT();
+            break;
+        case GLOBAL_EXPORT:
+            gpName = I18N.CONSTANTS.globalExport();
             break;
         default:
             gpName = null;

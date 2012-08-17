@@ -1206,3 +1206,10 @@ a.credits-partner-url,a.credits-partner-url:link,a.credits-partner-url:visited,a
 	background: url("image/remove.png") no-repeat;
 	padding-left: 20px;
 }
+
+
+.global-export-fields-table {
+	border: 1px solid lightgrey;
+	margin-bottom: 13px;
+    margin-top: 5px;	
+}

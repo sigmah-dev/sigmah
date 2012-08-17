@@ -11,6 +11,7 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.sigmah.server.endpoint.export.sigmah.spreadsheet.ExcelUtils;
 import org.sigmah.server.endpoint.export.sigmah.spreadsheet.ExportConstants;
+import org.sigmah.server.endpoint.export.sigmah.spreadsheet.ExportConstants.MultiItemText;
 import org.sigmah.server.endpoint.export.sigmah.spreadsheet.data.ProjectSynthesisData;
 import org.sigmah.shared.command.result.ValueResult;
 import org.sigmah.shared.command.result.ValueResultUtils;
@@ -24,14 +25,16 @@ import org.sigmah.shared.dto.layout.LayoutGroupDTO;
 import org.sigmah.shared.dto.value.ListableValue;
 import org.sigmah.shared.dto.value.TripletValueDTO;
 
+import com.google.gwt.dom.client.LIElement;
+import com.sun.tools.javac.resources.legacy;
+
 public class ProjectSynthesisExcelTemplate implements ExportTemplate {
 
 	private final ProjectSynthesisData data;
 	private final HSSFWorkbook wb;
 	private HSSFRow row = null;
 	private HSSFCell cell = null;
-	private ExcelUtils.CellTextFormat cellTextFormat;	
-	private final ExcelUtils utils;
+ 	private final ExcelUtils utils;
 	private CellRangeAddress region;
  	private final float defHeight=ExportConstants.TITLE_ROW_HEIGHT; 
  	private final int labelColWidth=60;
@@ -43,10 +46,7 @@ public class ProjectSynthesisExcelTemplate implements ExportTemplate {
 	    final HSSFSheet sheet = wb.createSheet(data.getLocalizedVersion("projectSynthesis"));
 		utils = new ExcelUtils(wb);
  		int rowIndex = -1;
-		int cellIndex = 0;
- 	 	// formatting sheet
-		//utils.formatPrinableSheet(sheet);
-
+  	  
 		// empty row
 		utils.putEmptyRow(sheet, ++rowIndex, 8.65f);
 
@@ -60,10 +60,8 @@ public class ProjectSynthesisExcelTemplate implements ExportTemplate {
 		
 		// column headers
 		row = sheet.createRow(++rowIndex);
- 		cellIndex = 0;
-		utils.putHeader(row,++cellIndex,  data.getLocalizedVersion("adminFlexibleContainer"));
-		utils.putHeader(row,++cellIndex,data.getLocalizedVersion("adminFlexibleName"));
-		utils.putHeader(row,++cellIndex, data.getLocalizedVersion("value"));
+ 		utils.putHeader(row,2,data.getLocalizedVersion("adminFlexibleName"));
+		utils.putHeader(row,3, data.getLocalizedVersion("value"));
 		
 		// empty row
 		utils.putEmptyRow(sheet, ++rowIndex,ExportConstants.EMPTY_ROW_HEIGHT);
@@ -77,6 +75,9 @@ public class ProjectSynthesisExcelTemplate implements ExportTemplate {
    		rowIndex=putLayout(sheet,
    				data.getProject().getProjectModelDTO().getProjectDetailsDTO().getLayoutDTO(), rowIndex); 
  		
+   		// empty row
+		utils.putEmptyRow(sheet, ++rowIndex,ExportConstants.EMPTY_ROW_HEIGHT);
+		
 		//run through project phases to get synthesis data
         for(final PhaseDTO phase : data.getProject().getPhasesDTO()){
         	
@@ -132,50 +133,23 @@ public class ProjectSynthesisExcelTemplate implements ExportTemplate {
                 }else /*CHECKBOX*/ if(element.getEntityName().equals("element.CheckboxElement")){
                 	pair=data.getCheckboxElementPair(valueResult, element);
                 	putElement(sheet,++rowIndex,pair.label,pair.value);
-                	utils.addDropDownList(sheet, rowIndex, rowIndex, 3, 3,
-            				Arrays.asList(data.getLocalizedVersion("yes"),data.getLocalizedVersion("no")));
-                }else /* MESSAGE */ if(element.getEntityName().equals("element.MessageElement")){
-                	/*cellTextFormat=utils.formatCellText(element.getLabel(), 2*valueColWidth);
-                	row = sheet.createRow(++rowIndex);
-         		    utils.putBorderedBasicCell(sheet,rowIndex, 2,cellTextFormat.formattedText);
-                    region = new CellRangeAddress(rowIndex,rowIndex, 2,data.getNumbOfCols());
-              		sheet.addMergedRegion(utils.getBorderedRegion(region, sheet, wb));              		
-                	row.setHeightInPoints(cellTextFormat.dividedlines*defHeight); */
-                } else /* TEXT AREA */ if(element.getEntityName().equals("element.TextAreaElement")){
-                	
-                	pair=data.getTextAreaElementPair(valueResult, element);
-                	
-                  	row = sheet.createRow(++rowIndex);
-                  	int textAreaLines=0;                  	
-                  	cellTextFormat=utils.formatCellText(pair.label, labelColWidth);
-        			textAreaLines=cellTextFormat.dividedlines;
-        			utils.putBorderedBasicCell(sheet,rowIndex, 2,cellTextFormat.formattedText);        		
-        			
-        			cellTextFormat=utils.formatCellText(pair.value, valueColWidth);
-        			textAreaLines=Math.max(textAreaLines, cellTextFormat.dividedlines);
-        			utils.putBorderedBasicCell(sheet,rowIndex, 3,cellTextFormat.formattedText);
-
-        			row.setHeightInPoints(textAreaLines*defHeight);
+                }else /* MESSAGE */ if(element.getEntityName().equals("element.MessageElement")){                	 
+                	putElement(sheet,++rowIndex,
+                			data.getLocalizedVersion("flexibleElementMessage"),
+                			data.clearHtmlFormatting(element.getLabel()),true);; 
+                } else /* TEXT AREA */ if(element.getEntityName().equals("element.TextAreaElement")){                	
+                	pair=data.getTextAreaElementPair(valueResult, element);                	
+                	putElement(sheet,++rowIndex,pair.label,pair.value); 
+                  	
                 }/* TRIPLET */ if(element.getEntityName().equals("element.TripletsListElement")){
                 	 
                 	 if (valueResult != null && valueResult.isValueDefined()) {
                 			row = sheet.createRow(++rowIndex);
-                			row.setHeightInPoints(ExportConstants.TITLE_ROW_HEIGHT);
-                		    utils.putBorderedBasicCell(sheet,rowIndex, 2,element.getLabel());
-                            region = new CellRangeAddress(rowIndex,rowIndex, 2,data.getNumbOfCols());
-                      		sheet.addMergedRegion(utils.getBorderedRegion(region, sheet, wb));
-                      	
-                         for (ListableValue s : valueResult.getValuesObject()) {
-                        	 final TripletValueDTO tripletValue=(TripletValueDTO) s;
-                        	 row = sheet.createRow(++rowIndex);
-                        	 StringBuilder builder=new StringBuilder(tripletValue.getName());
-                        	 builder.append("(");
-                        	 builder.append(tripletValue.getCode());
-                        	 builder.append(")");
-                        	 putElement(sheet, rowIndex, builder.toString(), tripletValue.getPeriod());
-                        	 row.getCell(2).getCellStyle().setIndention((short)2);
-                        	 row.getCell(3).getCellStyle().setIndention((short)2);
-                          }
+                 		    utils.putBorderedBasicCell(sheet,rowIndex, 2,data.clearHtmlFormatting(element.getLabel()));                         
+                      		
+                            final MultiItemText item=data.formatTripletValues(valueResult.getValuesObject());
+                      		utils.putBorderedBasicCell(sheet,rowIndex, 3,item.text);
+                            row.setHeightInPoints(item.lineCount*defHeight); 
                        
                      } 
                  }/* CHOICE */ if(element.getEntityName().equals("element.QuestionElement")){
@@ -184,47 +158,25 @@ public class ProjectSynthesisExcelTemplate implements ExportTemplate {
                 		 
                 		 	final QuestionElementDTO questionElement=(QuestionElementDTO)element;
                 		 	if(questionElement.getIsMultiple()){
-                		 		row = sheet.createRow(++rowIndex);
-                	        	row.setHeightInPoints(ExportConstants.TITLE_ROW_HEIGHT);
-                	        	utils.putBorderedBasicCell(sheet,rowIndex, 2,element.getLabel());
-                	        	int choiceStart=rowIndex;
-                                final List<Long> selectedChoicesId =
-                                	ValueResultUtils.splitValuesAsLong(valueResult.getValueObject());
-                                boolean firstChoice=true;
-                                for(QuestionChoiceElementDTO choice:questionElement.getChoicesDTO()){
-                                	String prefix="[-] ";
-                                	 for (Long id : selectedChoicesId) {
-                                		 if (id == choice.getId()) {
-                                             prefix="[+] ";
-                                         }
-                                	 }
-                                	 if(!firstChoice){
-                                		row = sheet.createRow(++rowIndex);
-                         	        	row.setHeightInPoints(ExportConstants.TITLE_ROW_HEIGHT);
-                                	 }
-                                	 firstChoice=false;
-                                	utils.putBorderedBasicCell(sheet,rowIndex, 3,prefix+choice.getLabel()); 
-                		 		}
+                		 		row = sheet.createRow(++rowIndex);                	        	
+                	        	utils.putBorderedBasicCell(sheet,rowIndex, 2,data.clearHtmlFormatting(element.getLabel()));                	        
                                 
-                                region = new CellRangeAddress(choiceStart, rowIndex, 2, 2);
-                        		sheet.addMergedRegion(utils.getBorderedRegion(region, sheet, wb));  
+                	        	final MultiItemText item=data.formatMultipleChoices(
+                                		questionElement.getChoicesDTO(),valueResult.getValueObject());
+                                utils.putBorderedBasicCell(sheet,rowIndex, 3,item.text);
+                                row.setHeightInPoints(item.lineCount*defHeight);                                 
                                 
                 		 	}else{
                 		 		String value=null;
                 		 		final String idChoice = (String) valueResult.getValueObject();                                                       		 	
-                		 		String[] choices=new String[questionElement.getChoicesDTO().size()];
-                		 		int index=0;
+                 		 		int index=0;
                 		 		for(QuestionChoiceElementDTO choice:questionElement.getChoicesDTO()){
-                		 			choices[index++]=choice.getLabel();
-                		 			 if (idChoice.equals(String.valueOf(choice.getId()))) {
+                 		 			 if (idChoice.equals(String.valueOf(choice.getId()))) {
                                          value=choice.getLabel();
+                                         break;
                                      }
                 		 		}
-                		 		row = sheet.createRow(++rowIndex);
-                		 		putElement(sheet, rowIndex, element.getLabel(), value);
-                            	utils.addDropDownList(sheet, rowIndex, rowIndex, 3, 3,
-                        				Arrays.asList(choices));                                	
-
+                		 		putElement(sheet, ++rowIndex, element.getLabel(), value);                            	
                 		 	}                                
                      } 
                  }
@@ -239,13 +191,27 @@ public class ProjectSynthesisExcelTemplate implements ExportTemplate {
 	}
 	
 	
-	private void putElement(HSSFSheet sheet,int rowIndex,String label,String value){
-		row = sheet.createRow(rowIndex);
-		row.setHeightInPoints(ExportConstants.TITLE_ROW_HEIGHT);
-    	utils.putBorderedBasicCell(sheet,rowIndex, 2,label);
-    	utils.putBorderedBasicCell(sheet,rowIndex, 3,value);
+	private void putElement(HSSFSheet sheet,int rowIndex,String label,Object value){
+		putElement(sheet,rowIndex,label,value,false);
 	}
 	
+	private void putElement(HSSFSheet sheet,int rowIndex,String label,Object value,boolean isMessage){
+		row = sheet.createRow(rowIndex);
+    	utils.putBorderedBasicCell(sheet,rowIndex, 2,data.clearHtmlFormatting(label));
+    	utils.putBorderedBasicCell(sheet,rowIndex, 3,value);
+    	
+    	if(isMessage){
+    		row.getCell(3).getCellStyle().setFont(utils.getItalicFont(wb,(short) 11));
+    	}
+    	
+    	int lineCount = utils.calculateLineCount(label, labelColWidth);   
+    	
+    	if(value instanceof String){
+    		lineCount=Math.max(lineCount, utils.calculateLineCount((String)value, labelColWidth));	
+    	}
+    	
+		row.setHeightInPoints(lineCount*defHeight);
+	}
 	
 	
 	@Override

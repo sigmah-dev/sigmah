@@ -51,7 +51,11 @@ public final class ExportUtils {
         /**
          * PROJECT SYNTHESIS with logframe and indicators
          */
-        PROJECT_SYNTHESIS_LOGFRAME_INDICATORS;
+        PROJECT_SYNTHESIS_LOGFRAME_INDICATORS,
+        /**
+         * Global export
+         */
+        GLOBAL_EXPORT;
 
         public static ExportType valueOfOrNull(String name) {
             try {
@@ -101,22 +105,32 @@ public final class ExportUtils {
 	            }
 	        }
 	}
-
-    /**
-     * The parameter name to identify the entity to export.
-     */
-    public static final String PARAM_EXPORT_TYPE = "type";
+	
+	public static enum ExportDataVersion {
+		LIVE_DATA, BACKED_UP_DATA;		
+		
+		  public static ExportDataVersion valueOfOrNull(String name) {
+	            try {
+	                return ExportDataVersion.valueOf(name.toUpperCase());
+	            } catch (IllegalArgumentException e) {
+	                return null;
+	            } catch (NullPointerException e) {
+	                return null;
+	            }
+	        }
+	}
+ 
+    public static final String PARAM_EXPORT_TYPE = "type";    
+ 
+    public static final String PARAM_EXPORT_DATA_VERSION = "version";
     
-
-    /**
-     * Document format such as MS Excel, MS Word, Open document spreadsheet
-     */
     public static final String PARAM_EXPORT_FORMAT = "format";
-
-    /**
-     * The parameter name to identify the id of the project during an export.
-     */
+ 
     public static final String PARAM_EXPORT_PROJECT_ID = "id";
+   
+    public static final String PARAM_EXPORT_ORGANIZATION_ID = "org_id";
+    
+    public static final String PARAM_EXPORT_GLOBAL_EXPORT_ID = "export_id";
    
 
 }

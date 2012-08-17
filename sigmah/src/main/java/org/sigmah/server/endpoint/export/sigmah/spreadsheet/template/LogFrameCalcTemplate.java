@@ -438,7 +438,7 @@ public class LogFrameCalcTemplate implements ExportTemplate {
 			for (final Indicator indicator : indicators) {
 				if(data.isIndicatorsSheetExist()){
 					cell=createBasicCell(5, rowIndex, null);
-					CalcUtils.applyLink(cell, indicator.getName(), indicator.getName());
+					CalcUtils.applyLink(cell, indicator.getName(),ExportConstants.INDICATOR_SHEET_PREFIX+ indicator.getName());
 				}else{
 					cell = createBasicCell(5, rowIndex, data.getDetailedIndicatorName(indicator.getId()));
 				}

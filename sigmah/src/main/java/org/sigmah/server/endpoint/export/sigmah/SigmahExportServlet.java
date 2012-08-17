@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sigmah.server.endpoint.export.sigmah.exporter.GlobalExportExporter;
 import org.sigmah.server.endpoint.export.sigmah.exporter.IndicatorEntryExporter;
 import org.sigmah.server.endpoint.export.sigmah.exporter.LogFrameExporter;
 import org.sigmah.server.endpoint.export.sigmah.exporter.ProjectReportExporter;
@@ -80,6 +81,9 @@ public class SigmahExportServlet extends HttpServlet {
 	                break;           
 	            case PROJECT_REPORT:
 	                exporter = new ProjectReportExporter(injector,request);
+	                break;
+	            case GLOBAL_EXPORT:
+	                exporter = new GlobalExportExporter(injector,request);
 	                break;
 	            default:
 	                log.error("[doGet] The export type '" + type + "' is unknown.");

@@ -1,38 +1,37 @@
 package org.sigmah.server.endpoint.export.sigmah.spreadsheet.data;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.persistence.EntityManager;
 
 import org.sigmah.server.endpoint.export.sigmah.Exporter;
+import org.sigmah.server.endpoint.export.sigmah.spreadsheet.ExportConstants.MultiItemText;
 import org.sigmah.shared.command.Command;
-import org.sigmah.shared.command.GetCountry;
 import org.sigmah.shared.command.GetValue;
 import org.sigmah.shared.command.result.ValueResult;
+import org.sigmah.shared.command.result.ValueResultUtils;
 import org.sigmah.shared.domain.Country;
 import org.sigmah.shared.domain.OrgUnit;
 import org.sigmah.shared.domain.User;
-import org.sigmah.shared.dto.CountryDTO;
-import org.sigmah.shared.dto.ExportUtils;
 import org.sigmah.shared.dto.ProjectDTO;
 import org.sigmah.shared.dto.UserDTO;
 import org.sigmah.shared.dto.element.DefaultFlexibleElementContainer;
 import org.sigmah.shared.dto.element.DefaultFlexibleElementDTO;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
+import org.sigmah.shared.dto.element.QuestionChoiceElementDTO;
 import org.sigmah.shared.dto.element.TextAreaElementDTO;
+import org.sigmah.shared.dto.value.ListableValue;
+import org.sigmah.shared.dto.value.TripletValueDTO;
 
 public class ProjectSynthesisData extends ExportData{
  
 
 	public static class ElementPair{
 		public String label;
-		public String value;
-		public ElementPair(String label,String value){
+		public Object value;
+		public ElementPair(String label,Object value){
 			this.label=label;
 			this.value=value;
 		}
@@ -42,7 +41,6 @@ public class ProjectSynthesisData extends ExportData{
 	 private final ProjectDTO project;
 	 private final EntityManager entityManager;
 	 private final List<Command> commands= new ArrayList<Command>(1);
-	 private final SimpleDateFormat dateFormat=new SimpleDateFormat("M/d/yy");
  	 private final DefaultFlexibleElementContainer defaultContainer;
 	 
 	public ProjectSynthesisData(			
@@ -57,6 +55,60 @@ public class ProjectSynthesisData extends ExportData{
 
 	public ProjectDTO getProject() {
 		return project;
+	}
+	
+	public String clearHtmlFormatting(String text){
+		if(text!=null && text.length()>0){
+			text = text.replaceAll("<br>", " ");
+			text = text.replaceAll("<[^>]+>|\\n", "");
+			text = text.trim().replaceAll(" +", " ");
+		}
+		return text;
+	}
+	
+	public MultiItemText formatTripletValues(List<ListableValue> list){
+		int lines=list.size()+1;
+  		final StringBuilder builder=new StringBuilder();
+  		for (ListableValue s : list) {
+        	 final TripletValueDTO tripletValue=(TripletValueDTO) s;
+        	 builder.append(" - ");                       	 
+        	 builder.append(tripletValue.getCode());
+        	 builder.append(" - ");
+        	 builder.append(tripletValue.getName());
+        	 builder.append(" : ");
+        	 builder.append(tripletValue.getPeriod());
+        	 builder.append("\n");
+   		}
+  		 String value=null;
+         if(lines>1){
+         	value= builder.substring(0, builder.length()-2);
+         	lines--;       
+         }
+         
+         return new MultiItemText(value, lines);
+	}
+	
+	public MultiItemText formatMultipleChoices(List<QuestionChoiceElementDTO> list,String values){
+		  final List<Long> selectedChoicesId =
+          	ValueResultUtils.splitValuesAsLong(values);
+           final StringBuffer builder=new StringBuffer();
+           int lines=1;
+           for(QuestionChoiceElementDTO choice:list){
+           	 for (Long id : selectedChoicesId) {
+          		 if (id == choice.getId()) {
+          			 builder.append(" - ");
+          			 builder.append(choice.getLabel());
+          			 builder.append("\n");
+          			 lines++;
+                   }
+          	 }                                	                                 	
+           }
+          String value=null;
+          if(lines>1){
+          	value = builder.substring(0, builder.length()-2);
+          	lines--;       
+          }
+          return new MultiItemText(value, lines);
 	}
 	
 	public ValueResult getValue(int elementId, String entityName)
@@ -93,18 +145,14 @@ public class ProjectSynthesisData extends ExportData{
 			name =orgUnit.getName() + " - " + orgUnit.getFullName();
 		return name;		
 	}
-
-	public SimpleDateFormat getDateFormat() {
-		return dateFormat;
-	}
-
+ 
 	public DefaultFlexibleElementContainer getDefaultContainer() {
 		return defaultContainer;
 	}
 
 	public ElementPair getTextAreaElementPair(final ValueResult valueResult,
 			final FlexibleElementDTO element){
-		String value=null;
+		Object value=null;
 
 		final TextAreaElementDTO textAreaElement=
     		(TextAreaElementDTO)element;
@@ -115,16 +163,14 @@ public class ProjectSynthesisData extends ExportData{
                   // Number
                       case 'N': {    	                        	  
                           if(textAreaElement.getIsDecimal()){		                        		  
-                    		  value=LogFrameExportData.
-                    		  AGGR_AVG_FORMATTER.format(Double.parseDouble(strValue));
+                    		  value=Double.parseDouble(strValue);
                     	  }else{
-                    		  value=LogFrameExportData.
-                    		  AGGR_SUM_FORMATTER.format(Long.parseLong(strValue)); 
+                    		  value=Long.parseLong(strValue); 
                     		  
                     	  }    	                        	 
                       }break;
                       case 'D': {    	                        	  
-                    	  value=getDateFormat().format(new Date(Long.parseLong(strValue)));                       	 
+                    	  value=new Date(Long.parseLong(strValue));                       	 
                       }break;    	                          
                       default : {    	                        	  
                     	  value=strValue;                       	 
@@ -154,8 +200,8 @@ public class ProjectSynthesisData extends ExportData{
 	public ElementPair getDefElementPair(final ValueResult valueResult,
 			final FlexibleElementDTO element) throws Throwable{
 
-		String value=null;
-     	String label=null;
+		Object value=null;
+		String label=null;
      	
     	final DefaultFlexibleElementDTO defaultElement=
     		(DefaultFlexibleElementDTO)element;
@@ -182,19 +228,19 @@ public class ProjectSynthesisData extends ExportData{
 	    	case START_DATE:{
 	     		label=getLocalizedVersion("projectStartDate");
 	    		if(hasValue){
-	    			value=getDateFormat().format(new Date(Long.parseLong(valueResult.getValueObject())));
+	    			value=new Date(Long.parseLong(valueResult.getValueObject()));
 	    		}else{
-	    			value=getDateFormat().format(getDefaultContainer().getStartDate());
+	    			value=getDefaultContainer().getStartDate();
 	    		}
 	    	}break;
 	    	case END_DATE:{
 	    		label=getLocalizedVersion("projectEndDate");
 	    		if(hasValue){
-	    			value=getDateFormat().format(new Date(Long.parseLong(valueResult.getValueObject())));
+	    			value=new Date(Long.parseLong(valueResult.getValueObject()));
 	    		}else{
 	    			value="";
 	    			if(getDefaultContainer().getEndDate()!=null)
-	    				value=getDateFormat().format(getDefaultContainer().getEndDate());
+	    				value=getDefaultContainer().getEndDate();
 	    		}
 	    	}break;
 	    	case BUDGET:{

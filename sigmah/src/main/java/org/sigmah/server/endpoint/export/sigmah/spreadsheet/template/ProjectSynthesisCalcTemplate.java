@@ -11,6 +11,7 @@ import org.odftoolkit.simple.table.Row;
 import org.odftoolkit.simple.table.Table;
 import org.sigmah.server.endpoint.export.sigmah.spreadsheet.CalcUtils;
 import org.sigmah.server.endpoint.export.sigmah.spreadsheet.ExportConstants;
+import org.sigmah.server.endpoint.export.sigmah.spreadsheet.ExportConstants.MultiItemText;
 import org.sigmah.server.endpoint.export.sigmah.spreadsheet.data.ProjectSynthesisData;
 import org.sigmah.shared.command.result.ValueResult;
 import org.sigmah.shared.command.result.ValueResultUtils;
@@ -34,18 +35,15 @@ public class ProjectSynthesisCalcTemplate implements ExportTemplate {
 	private Cell cell;
  	private CellRange cellRange;
 	private String coreCellStyle;
-	private String tripletElementStyle;
- 
+  
 	public ProjectSynthesisCalcTemplate(final ProjectSynthesisData data,final SpreadsheetDocument doc) throws Throwable {
 		this.data=data;
  		this.doc=doc;
 		table = doc.getSheetByIndex(0);
 		table.setTableName(data.getLocalizedVersion("projectSynthesis").replace(" ", "_"));
 		coreCellStyle = CalcUtils.prepareCoreStyle(doc);
-		tripletElementStyle=CalcUtils.getTripletElementStyle(doc);
-		int rowIndex = -1;
-		int cellIndex = 0;		
-
+ 		int rowIndex = -1;
+ 
 		//skip row
 		++rowIndex;		 
 
@@ -58,10 +56,8 @@ public class ProjectSynthesisCalcTemplate implements ExportTemplate {
 
 		// column headers
 		row = table.getRowByIndex(++rowIndex);
-		cellIndex = 0;
-		CalcUtils.putHeader(row,++cellIndex, data.getLocalizedVersion("adminFlexibleContainer"));
-		CalcUtils.putHeader(row,++cellIndex,  data.getLocalizedVersion("adminFlexibleName"));
-		CalcUtils.putHeader(row,++cellIndex,data.getLocalizedVersion("value"));
+ 		CalcUtils.putHeader(row,2,  data.getLocalizedVersion("adminFlexibleName"));
+		CalcUtils.putHeader(row,3,data.getLocalizedVersion("value"));
  		row.setHeight(5, false);
 
 		//empty row
@@ -76,6 +72,13 @@ public class ProjectSynthesisCalcTemplate implements ExportTemplate {
 		CalcUtils.putHeader(row,1,data.getLocalizedVersion("projectDetails"));
 		rowIndex=putLayout(table, 
 				data.getProject().getProjectModelDTO().getProjectDetailsDTO().getLayoutDTO(), rowIndex);
+		
+		//empty row
+		row = table.getRowByIndex(++rowIndex);
+		row.setHeight(3.8, false);
+		row.getCellByIndex(1).setCellStyleName(null);
+		row.getCellByIndex(2).setCellStyleName(null);
+		row.getCellByIndex(3).setCellStyleName(null);
 		
 		//run through project phases to get synthesis data
         for(final PhaseDTO phase : data.getProject().getPhasesDTO()){
@@ -125,90 +128,45 @@ public class ProjectSynthesisCalcTemplate implements ExportTemplate {
                 	
                 }else /*CHECKBOX*/ if(element.getEntityName().equals("element.CheckboxElement")){
                 	pair=data.getCheckboxElementPair(valueResult, element);
-                 	row = table.getRowByIndex(++rowIndex);
-                 	row.getCellByIndex(2).setCellStyleName(null);
-            		row.getCellByIndex(3).setCellStyleName(null);
-            		CalcUtils.createBasicCell(table, 2, rowIndex, pair.label);
-            		cell=CalcUtils.createBasicCell(table, 3, rowIndex, pair.value);   
-                	cell.setValidityList(Arrays.asList(data.getLocalizedVersion("yes"),
-                			data.getLocalizedVersion("no")));
-                	
-                }else /* MESSAGE */ if(element.getEntityName().equals("element.MessageElement")){                	                	
-                	/*row = table.getRowByIndex(++rowIndex);
-                	cell=CalcUtils.createBasicCell(table, 2, rowIndex, element.getLabel());  
-           		 	CalcUtils.mergeCell(table, 2, rowIndex, data.getNumbOfCols(), rowIndex);*/
-                } else /* TEXT AREA */ if(element.getEntityName().equals("element.TextAreaElement")){
-                	
+                	putElement(table,++rowIndex,pair.label,pair.value);                	                
+                }else /* MESSAGE */ if(element.getEntityName().equals("element.MessageElement")){  
+                	putElement(table,++rowIndex,
+                			data.getLocalizedVersion("flexibleElementMessage"),
+                			data.clearHtmlFormatting(element.getLabel()),true);                     	 
+                } else /* TEXT AREA */ if(element.getEntityName().equals("element.TextAreaElement")){                	
                 	pair=data.getTextAreaElementPair(valueResult, element);                	
-                	putElement(table,++rowIndex,pair.label,pair.value);
-                	                  
+                	putElement(table,++rowIndex,pair.label,pair.value);                	                  
                 }/* TRIPLET */ if(element.getEntityName().equals("element.TripletsListElement")){
-                	 
                 	 if (valueResult != null && valueResult.isValueDefined()) {
                 		 row = table.getRowByIndex(++rowIndex);
-                		 cell=CalcUtils.createBasicCell(table, 2, rowIndex, element.getLabel());  
-                		 CalcUtils.mergeCell(table, 2, rowIndex, data.getNumbOfCols(), rowIndex);
-                      	
-                         for (ListableValue s : valueResult.getValuesObject()) {
-                        	 final TripletValueDTO tripletValue=(TripletValueDTO) s;
-                        	 StringBuilder builder=new StringBuilder(tripletValue.getName());
-                        	 builder.append("(");
-                        	 builder.append(tripletValue.getCode());
-                        	 builder.append(")");                        	 
-                        	 putElement(table,++rowIndex,
-                        			 builder.toString(),tripletValue.getPeriod());
-                        	 row.getCellByIndex(2).setCellStyleName(tripletElementStyle);
-                        	 row.getCellByIndex(3).setCellStyleName(tripletElementStyle);
-                          }
-                       
-                     } 
+                		 CalcUtils.createBasicCell(table, 2, rowIndex, data.clearHtmlFormatting(element.getLabel()));
+                    		
+                         final MultiItemText item=data.formatTripletValues(valueResult.getValuesObject());
+                         CalcUtils.createBasicCell(table, 3, rowIndex, item.text);                    		                     
+                	 }                	
                  }/* CHOICE */ if(element.getEntityName().equals("element.QuestionElement")){
                 	 
                 	 if (valueResult != null && valueResult.isValueDefined()) {
                 		 
-                		 	final QuestionElementDTO questionElement=(QuestionElementDTO)element;
-                		 	if(questionElement.getIsMultiple()){
-                		 		row = table.getRowByIndex(++rowIndex);
-                		 		row.getCellByIndex(2).setCellStyleName(null);
-                	    		row.getCellByIndex(3).setCellStyleName(null);
-                		 		CalcUtils.createBasicCell(table, 2, rowIndex, element.getLabel());  
-                	        	int choiceStart=rowIndex;
-                                final List<Long> selectedChoicesId =
-                                	ValueResultUtils.splitValuesAsLong(valueResult.getValueObject());
-                                boolean firstChoice=true;
-                                for(QuestionChoiceElementDTO choice:questionElement.getChoicesDTO()){
-                                	String prefix="[-] ";
-                                	 for (Long id : selectedChoicesId) {
-                                		 if (id == choice.getId()) {
-                                             prefix="[+] ";
-                                         }
-                                	 }
-                                	 if(!firstChoice){
-                                		 row = table.getRowByIndex(++rowIndex);
-                                	 }
-                                	 firstChoice=false;
-                                	 CalcUtils.createBasicCell(table, 3, rowIndex, prefix+choice.getLabel());  
-                		 		}
-                                
-                                CalcUtils.mergeCell(table, 2, choiceStart, 2, rowIndex);                                                              
-                		 	}else{
+                		 final QuestionElementDTO questionElement=(QuestionElementDTO)element;
+             		 	if(questionElement.getIsMultiple()){
+             		 		row = table.getRowByIndex(++rowIndex);  
+             		 		CalcUtils.createBasicCell(table, 2, rowIndex, data.clearHtmlFormatting(element.getLabel()));
+                              
+             	        	final MultiItemText item=data.formatMultipleChoices(
+                             		questionElement.getChoicesDTO(),valueResult.getValueObject());
+             	        	 CalcUtils.createBasicCell(table, 3, rowIndex, item.text);                                  
+                             
+             		 	}else{
                 		 		String value=null;
                 		 		final String idChoice = (String) valueResult.getValueObject();                                                       		 	
-                		 		String[] choices=new String[questionElement.getChoicesDTO().size()];
-                		 		int index=0;
                 		 		for(QuestionChoiceElementDTO choice:questionElement.getChoicesDTO()){
-                		 			choices[index++]=choice.getLabel();
-                		 			 if (idChoice.equals(String.valueOf(choice.getId()))) {
+                 		 			 if (idChoice.equals(String.valueOf(choice.getId()))) {
                                          value=choice.getLabel();
                                      }
                 		 		}
-                		 		row = table.getRowByIndex(++rowIndex);
-                		 		row.getCellByIndex(2).setCellStyleName(null);
-                	    		row.getCellByIndex(3).setCellStyleName(null);
-                		 		CalcUtils.createBasicCell(table, 2, rowIndex, element.getLabel());
-                        		cell=CalcUtils.createBasicCell(table, 3, rowIndex,value);   
-                            	cell.setValidityList(Arrays.asList(choices));                           	
-                		 	}                                
+                		 		putElement(table,++rowIndex,element.getLabel(),value);    
+                 		 	}                                
                      } 
                  }
              
@@ -220,12 +178,18 @@ public class ProjectSynthesisCalcTemplate implements ExportTemplate {
 		
 	}
 	
-	private void putElement(Table table,int rowIndex,String label,String value){
+	private void putElement(Table table,int rowIndex,String label,Object value){
+		putElement(table, rowIndex, label, value,false);  	
+	}
+	
+	private void putElement(Table table,int rowIndex,String label,Object value,boolean isMessage){
 		row = table.getRowByIndex(rowIndex);
 		row.getCellByIndex(2).setCellStyleName(null);
 		row.getCellByIndex(3).setCellStyleName(null);
-		CalcUtils.createBasicCell(table, 2, rowIndex, label);
-		CalcUtils.createBasicCell(table, 3, rowIndex, value);     	
+		CalcUtils.createBasicCell(table, 2, rowIndex, data.clearHtmlFormatting(label));
+		CalcUtils.createBasicCell(table, 3, rowIndex, value);
+		if(isMessage)
+			row.getCellByIndex(3).setFont(CalcUtils.getFont(11, false, true));
 	}		
 
 	@Override

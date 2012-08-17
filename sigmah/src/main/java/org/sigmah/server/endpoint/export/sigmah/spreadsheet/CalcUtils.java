@@ -1,5 +1,7 @@
 package org.sigmah.server.endpoint.export.sigmah.spreadsheet;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,6 +23,7 @@ import org.odftoolkit.simple.table.Cell;
 import org.odftoolkit.simple.table.CellRange;
 import org.odftoolkit.simple.table.Row;
 import org.odftoolkit.simple.table.Table;
+import org.sigmah.server.endpoint.export.sigmah.spreadsheet.data.LogFrameExportData;
 
 public class CalcUtils {
 
@@ -42,8 +45,8 @@ public class CalcUtils {
 		styleMap.put(OdfParagraphProperties.MarginTop, "0.15cm");
 		styleMap.put(OdfTableCellProperties.PaddingTop, "0.15cm");
 		styleMap.put(OdfTableCellProperties.PaddingBottom, "0.15cm");
-		styleMap.put(OdfTableCellProperties.PaddingLeft, "0.2cm");
-		styleMap.put(OdfTableCellProperties.PaddingRight, "0.2cm");
+		styleMap.put(OdfTableCellProperties.PaddingLeft, "0.25cm");
+		styleMap.put(OdfTableCellProperties.PaddingRight, "0.25cm");
 		styleMap.put(OdfTextProperties.FontWeight, "Regular");
 		styleMap.put(OdfTextProperties.FontSize, "10pt");
 	}
@@ -58,18 +61,7 @@ public static String prepareCoreStyle(final SpreadsheetDocument doc) throws Thro
 		coreStyleName = style.getStyleNameAttribute();
 		return coreStyleName;
 	}
-
-public static String getTripletElementStyle(final SpreadsheetDocument doc) throws Throwable{
-	
-	OdfOfficeAutomaticStyles styles = doc.getContentDom().getOrCreateAutomaticStyles();
-	OdfStyle style = styles.newStyle(OdfStyleFamily.TableCell);
-
-	for(OdfStyleProperty property:styleMap.keySet()){
-		style.setProperty(property,styleMap.get(property));
-	}		 
-	style.setProperty(OdfTableCellProperties.PaddingLeft, "0.4cm");
- 	return style.getStyleNameAttribute();
-}
+ 
 
 public  static Cell putHeader(final Row row,int cellIndex, String header) {
 
@@ -84,13 +76,14 @@ public  static Cell putHeader(final Row row,int cellIndex, String header) {
 	return cell;
 }
 
-  public  static void mergeCell(final Table table,int startCol, int startRow, int endCol, int endRow){
+  public  static CellRange mergeCell(final Table table,int startCol, int startRow, int endCol, int endRow){
 	 CellRange cellRange = table.getCellRangeByPosition(
 			startCol,
 			startRow, 
 			endCol, 
 			endRow);
 	cellRange.merge();
+	return cellRange;
 }
   
   public  static void putGroupCell(final Table table,int colIndex,int rowIndex,String value){
@@ -100,12 +93,25 @@ public  static Cell putHeader(final Row row,int cellIndex, String header) {
 		cell.setHorizontalAlignment(ExportConstants.ALIGH_HOR_LEFT);	
   }
   
-  public  static Cell createBasicCell(final Table table,int colIndex, int rowIndex, String value) {
+  public  static Cell createBasicCell(final Table table,int colIndex, int rowIndex, Object value) {
 	  	final Cell cell = table.getCellByPosition(colIndex, rowIndex);
-	  	if(value!=null)
-	  		cell.setStringValue(value);
-		cell.setCellStyleName(coreStyleName);
-		
+	  	String strValue; 
+		if(value==null){
+			strValue="";
+		}else if(value instanceof String){
+	  		strValue=(String)value;
+		}else if(value instanceof Double){
+			Double d=(Double)value;	
+			strValue = LogFrameExportData.AGGR_AVG_FORMATTER.format(d.doubleValue());			
+		}else if(value instanceof Long){	
+			Long l=(Long)value;
+			strValue = LogFrameExportData.AGGR_SUM_FORMATTER.format(l.longValue());			 			
+ 		}else{ //date    			  		
+ 			strValue=ExportConstants.EXPORT_DATE_FORMAT.format((Date)value); 			
+ 		}
+	  	
+	  	cell.setStringValue(strValue);
+	  	cell.setCellStyleName(coreStyleName);
 		return cell;
 	}
 
@@ -132,10 +138,17 @@ public  static Cell putHeader(final Row row,int cellIndex, String header) {
 		row.setHeight(3.8, false);
 	}
 
-	public static void applyLink(final Cell cell,String linkName,String target) throws Throwable{
-		target=target.replace(" ", "_");
-		java.net.URI uri=new java.net.URI("#"+target);
+	public static void applyLink(final Cell cell,String linkName,String target) throws Throwable{		
+		java.net.URI uri=new java.net.URI("#"+normalizeAsLink(target));
 		cell.addParagraph(linkName).applyHyperlink(uri);
+	}
+	
+	public static String normalizeAsLink(String linkName){
+		linkName=linkName.replace(" ", "_");
+		if(linkName.length()>25){
+			linkName = linkName.substring(0, 25);
+		}
+		return linkName;
 	}
 	
 	public static void putMainTitle(final Table table,int rowIndex,int maxCols,String title){

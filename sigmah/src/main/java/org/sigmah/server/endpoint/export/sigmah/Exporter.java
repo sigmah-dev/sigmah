@@ -59,7 +59,7 @@ public abstract class Exporter {
     /**
      *  User's locale
      */
-    private final Locale locale;
+    protected final Locale locale;
     
     /**
      * Server size localization interface

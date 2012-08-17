@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.sigmah.server.endpoint.export.sigmah.Exporter;
+import org.sigmah.server.endpoint.export.sigmah.spreadsheet.ExportConstants.MultiItemText;
 import org.sigmah.shared.command.result.IndicatorListResult;
 import org.sigmah.shared.dto.IndicatorDTO;
 import org.sigmah.shared.report.content.PivotTableData;
@@ -24,21 +25,40 @@ public class IndicatorEntryData extends ExportData{
 		this.projectName=projectName;
 	}
  	
- 	public String getFormattedValue(IndicatorDTO dto) {
- 		String formatted="";
+ 	public Object getFormattedValue(IndicatorDTO dto) {
+ 		Object formatted=null;
  		if (dto.getLabelCounts() != null) {
  			formatted=dto.formatMode();
 		} else {
-			if (dto.getCurrentValue() == null)
+ 			if (dto.getCurrentValue() == null)
 				dto.setCurrentValue(0.0);
 			if (dto.getAggregation() == IndicatorDTO.AGGREGATE_AVG) {
-				formatted=LogFrameExportData.AGGR_AVG_FORMATTER.format(dto.getCurrentValue());
+				formatted=dto.getCurrentValue();
 			} else {
-				formatted=LogFrameExportData.AGGR_SUM_FORMATTER.format(dto.getCurrentValue());
+				formatted=new Long(dto.getCurrentValue().longValue());
 			}		
 		}
 		return formatted;
 	}
+ 	
+ 	
+ 	public MultiItemText formatPossibleValues(List<String> list){
+ 		final StringBuffer builder=new StringBuffer();
+        int lines=1;
+        for(String text:list){
+        	 builder.append(" - ");
+			 builder.append(text);
+			 builder.append("\n");
+			 lines++;
+        }
+        String value=null;
+        if(lines>1){
+        	value= builder.substring(0, builder.length()-2);
+        	lines--;       
+        }
+        
+ 		return new MultiItemText(value, lines);
+ 	}
  
 
  	public String getLabelByIndex(List<String> labels,Double doubleIndex){

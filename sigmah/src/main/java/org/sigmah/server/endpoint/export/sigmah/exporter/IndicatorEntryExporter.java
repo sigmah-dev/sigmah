@@ -2,16 +2,13 @@ package org.sigmah.server.endpoint.export.sigmah.exporter;
 
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sigmah.client.page.project.pivot.LayoutComposer;
 import org.sigmah.server.endpoint.export.sigmah.ExportException;
 import org.sigmah.server.endpoint.export.sigmah.Exporter;
 import org.sigmah.server.endpoint.export.sigmah.spreadsheet.data.IndicatorEntryData;
@@ -19,18 +16,7 @@ import org.sigmah.server.endpoint.export.sigmah.spreadsheet.data.SpreadsheetData
 import org.sigmah.server.endpoint.export.sigmah.spreadsheet.template.ExportTemplate;
 import org.sigmah.server.endpoint.export.sigmah.spreadsheet.template.IndicatorEntryCalcTemplate;
 import org.sigmah.server.endpoint.export.sigmah.spreadsheet.template.IndicatorEntryExcelTemplate;
-import org.sigmah.server.util.DateUtilCalendarImpl;
-import org.sigmah.shared.command.Command;
-import org.sigmah.shared.command.GenerateElement;
-import org.sigmah.shared.command.GetIndicators;
-import org.sigmah.shared.command.GetProject;
-import org.sigmah.shared.command.result.IndicatorListResult;
 import org.sigmah.shared.dto.ExportUtils;
-import org.sigmah.shared.dto.IndicatorDTO;
-import org.sigmah.shared.dto.IndicatorGroup;
-import org.sigmah.shared.dto.ProjectDTO;
-import org.sigmah.shared.report.content.PivotContent;
-import org.sigmah.shared.report.model.PivotTableElement;
 
 import com.google.inject.Injector;
 
@@ -53,6 +39,7 @@ public class IndicatorEntryExporter extends Exporter{
 		// The project id.
 		final String idString = requireParameter(ExportUtils.PARAM_EXPORT_PROJECT_ID);
 		final Integer id;
+				
 		try {
 			id = Integer.parseInt(idString);
 		} catch (NumberFormatException e) {

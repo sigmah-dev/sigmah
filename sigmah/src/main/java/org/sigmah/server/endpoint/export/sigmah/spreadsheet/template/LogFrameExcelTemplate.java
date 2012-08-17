@@ -34,8 +34,7 @@ public class LogFrameExcelTemplate implements ExportTemplate {
 	private final HSSFSheet sheet;
 	private final ExcelUtils utils;
 	private CellRangeAddress region;
-	private ExcelUtils.CellTextFormat cellTextFormat;	
-	private final float defHeight;
+	private final float defHeight=ExportConstants.TITLE_ROW_HEIGHT; 
 	private final int colWidthDesc = 35;
 	private final int colWidthIndicator=25;
 	private StringBuilder builder;
@@ -49,13 +48,9 @@ public class LogFrameExcelTemplate implements ExportTemplate {
 		this.data=data;
  		sheet = wb.createSheet(data.getLocalizedVersion("logFrame"));
 		utils = new ExcelUtils(wb);
-		defHeight=sheet.getDefaultRowHeightInPoints();
-		int rowIndex = -1;
+ 		int rowIndex = -1;
 		int cellIndex = 0;
-		
-	 	// formatting sheet
-		utils.formatPrinableSheet(sheet);
-
+	 
 		// empty row
 		utils.putEmptyRow(sheet, ++rowIndex, 8.65f);
 		
@@ -278,7 +273,7 @@ public class LogFrameExcelTemplate implements ExportTemplate {
 	}
 	
 	private int putPrItems(int rowIndex,boolean skipFirst,List<Prerequisite> prList){
-		int textAreaLines=0;
+		int lineCount=0;
 		for (final Prerequisite p : prList) {
 
 
@@ -292,12 +287,11 @@ public class LogFrameExcelTemplate implements ExportTemplate {
 			builder.append(p.getCode());
 			builder.append(".");
 			putCenteredBasicCell(rowIndex, 2, builder.toString());					
+								
+			utils.putBorderedBasicCell(sheet,rowIndex, 3,p.getContent());
+			lineCount = utils.calculateLineCount(p.getContent(), 18+2*(colWidthDesc+colWidthIndicator));	 
 		
-			cellTextFormat=utils.formatCellText(p.getContent(), 18+2*(colWidthDesc+colWidthIndicator));
-			textAreaLines=cellTextFormat.dividedlines;
-			utils.putBorderedBasicCell(sheet,rowIndex, 3,cellTextFormat.formattedText);
-				 
-			row.setHeightInPoints(textAreaLines*defHeight);
+			row.setHeightInPoints(lineCount*defHeight);
 			
 			mergeCell(rowIndex, rowIndex, 3, data.getNumbOfCols()); 				
 		}
@@ -305,7 +299,7 @@ public class LogFrameExcelTemplate implements ExportTemplate {
 	}
 	
 	private int putAcItems(int rowIndex,boolean skipFirst,List<LogFrameActivity> acList){
-		int textAreaLines=0;
+		int lineCount=0;
 		for (final LogFrameActivity a : acList) {
 
 
@@ -333,22 +327,21 @@ public class LogFrameExcelTemplate implements ExportTemplate {
 			builder.append(".");
 			putCenteredBasicCell(rowIndex, 3, builder.toString());
 								
-			cellTextFormat=utils.formatCellText(a.getTitle(), colWidthDesc);
-			textAreaLines=cellTextFormat.dividedlines;
-			utils.putBorderedBasicCell(sheet,rowIndex, 4,cellTextFormat.formattedText);
 			
+			utils.putBorderedBasicCell(sheet,rowIndex, 4,a.getTitle());			
 			utils.putBorderedBasicCell(sheet,rowIndex, 7,null);
 			
-			row.setHeightInPoints(textAreaLines*defHeight);
+			lineCount = utils.calculateLineCount(a.getTitle(), colWidthDesc);
+			row.setHeightInPoints(lineCount*defHeight);
 
 			// indicators and their means of verifications
-			rowIndex = putIndicators(a.getIndicators(),rowIndex,false,textAreaLines);						
+			rowIndex = putIndicators(a.getIndicators(),rowIndex,false,lineCount);						
 		}
 		
 		return rowIndex;
 	}
 	private int putERItems(int rowIndex,boolean skipFirst,List<ExpectedResult> erList){
-		int textAreaLines=0;
+		int lineCount=0;
 		for (final ExpectedResult er : erList) {
 
 			if(!skipFirst){
@@ -371,24 +364,22 @@ public class LogFrameExcelTemplate implements ExportTemplate {
 			builder.append(".");
 			putCenteredBasicCell(rowIndex, 3, builder.toString());					 
 			
-			cellTextFormat=utils.formatCellText(er.getInterventionLogic(), colWidthDesc);
-			textAreaLines=cellTextFormat.dividedlines;
-			utils.putBorderedBasicCell(sheet,rowIndex, 4,cellTextFormat.formattedText);
+			lineCount=utils.calculateLineCount(er.getInterventionLogic(), colWidthDesc);
+ 			utils.putBorderedBasicCell(sheet,rowIndex, 4,er.getInterventionLogic());
 			
-			cellTextFormat=utils.formatCellText(er.getRisksAndAssumptions(), colWidthDesc);
-			textAreaLines=Math.max(textAreaLines, cellTextFormat.dividedlines);
-			utils.putBorderedBasicCell(sheet,rowIndex, 7,cellTextFormat.formattedText);
+ 			lineCount=Math.max(lineCount, utils.calculateLineCount(er.getRisksAndAssumptions(), colWidthDesc));
+			utils.putBorderedBasicCell(sheet,rowIndex, 7,er.getRisksAndAssumptions());
 
-			row.setHeightInPoints(textAreaLines*defHeight);
+			row.setHeightInPoints(lineCount*defHeight);
 
 			// indicators and their means of verifications
-			rowIndex = putIndicators(er.getIndicators(),rowIndex,false,textAreaLines);				
+			rowIndex = putIndicators(er.getIndicators(),rowIndex,false,lineCount);				
 		}
 		return rowIndex;
 	}
 	
 	private int putSOItems(int rowIndex,boolean skipFirst,List<SpecificObjective> soList){
-		int textAreaLines=0;
+		int lineCount=0;
  		for (final SpecificObjective so : soList) {
 			
 			if(!skipFirst){
@@ -401,58 +392,56 @@ public class LogFrameExcelTemplate implements ExportTemplate {
 			builder.append(data.getFormattedCode(so.getCode()));
 			putCenteredBasicCell(rowIndex, 2, builder.toString());
 			
-			cellTextFormat=utils.formatCellText(so.getInterventionLogic(), colWidthDesc);
-			textAreaLines=cellTextFormat.dividedlines;
-			utils.putBorderedBasicCell(sheet,rowIndex, 4,cellTextFormat.formattedText);
+			lineCount=utils.calculateLineCount(so.getInterventionLogic(), colWidthDesc);
+ 			utils.putBorderedBasicCell(sheet,rowIndex, 4,so.getInterventionLogic());
 			
-			cellTextFormat=utils.formatCellText(so.getRisksAndAssumptions(), colWidthDesc);
-			textAreaLines=Math.max(textAreaLines, cellTextFormat.dividedlines);
-			utils.putBorderedBasicCell(sheet,rowIndex, 7,cellTextFormat.formattedText);
-
-			row.setHeightInPoints(textAreaLines*defHeight);
+ 			lineCount=Math.max(lineCount, utils.calculateLineCount(so.getRisksAndAssumptions(), colWidthDesc));
+			utils.putBorderedBasicCell(sheet,rowIndex, 7,so.getRisksAndAssumptions());
+			 
+			row.setHeightInPoints(lineCount*defHeight);
 			
 			// indicators and their means of verifications
-			rowIndex = putIndicators(so.getIndicators(),rowIndex,true,textAreaLines);				
+			rowIndex = putIndicators(so.getIndicators(),rowIndex,true,lineCount);				
 		}
 		return rowIndex;
 	}
  
-	private int putIndicators(final Set<Indicator> indicators, int rowIndex,boolean mergeCodeCells,int textAreaLines){
+	private int putIndicators(final Set<Indicator> indicators, int rowIndex,boolean mergeCodeCells,int lineCount){
 		if (indicators.size() > 0) {
 			int startIndex = rowIndex;			
 			int indiTextLinesSum=0;
-			int indiTextLines=0;
+			int indiLineCount=0;
 			
 			for (final Indicator indicator : indicators) {
 				if (startIndex != rowIndex) {
 					row = sheet.createRow(rowIndex);
 					
 				}		
-				indiTextLines=0;
+				indiLineCount=0;
 				if(data.isIndicatorsSheetExist()){
-					utils.createLinkCell(row.createCell(5), indicator.getName(), indicator.getName(),true);
+					utils.createLinkCell(row.createCell(5), 
+							indicator.getName(), ExportConstants.INDICATOR_SHEET_PREFIX+indicator.getName(),true);
+					indiLineCount=utils.calculateLineCount(indicator.getName(), colWidthIndicator);
 				}else{
-					cellTextFormat=utils.formatCellText(
-							data.getDetailedIndicatorName(indicator.getId()), 
-							colWidthIndicator);				
-					indiTextLines=cellTextFormat.dividedlines;
-					utils.putBorderedBasicCell(sheet,rowIndex, 5, cellTextFormat.formattedText);
+					String indiName=data.getDetailedIndicatorName(indicator.getId());					
+					utils.putBorderedBasicCell(sheet,rowIndex, 5, indiName);
+					indiLineCount=utils.calculateLineCount(indiName, colWidthIndicator);					 		
 				}
+								
+ 				indiLineCount=Math.max(indiLineCount, 
+ 						utils.calculateLineCount(indicator.getSourceOfVerification(), colWidthIndicator)
+ 				);				
+				utils.putBorderedBasicCell(sheet,rowIndex, 6,indicator.getSourceOfVerification());
 				
-				
-				cellTextFormat=utils.formatCellText(indicator.getSourceOfVerification(), colWidthIndicator);
-				indiTextLines=Math.max(indiTextLines, cellTextFormat.dividedlines);				
-				utils.putBorderedBasicCell(sheet,rowIndex, 6,cellTextFormat.formattedText);
-				
-				indiTextLinesSum+=indiTextLines;
-				row.setHeightInPoints(indiTextLines*defHeight);
+				indiTextLinesSum+=indiLineCount;
+				row.setHeightInPoints(indiLineCount*defHeight);
 				rowIndex++;
 			}
 			rowIndex--;
 			
-			if(indiTextLinesSum<textAreaLines){
-				indiTextLines+=(textAreaLines-indiTextLinesSum);
-				row.setHeightInPoints(indiTextLines*defHeight);
+			if(indiTextLinesSum<lineCount){
+				indiLineCount+=(lineCount-indiTextLinesSum);
+				row.setHeightInPoints(indiLineCount*defHeight);
 			}
 
 			if(mergeCodeCells){

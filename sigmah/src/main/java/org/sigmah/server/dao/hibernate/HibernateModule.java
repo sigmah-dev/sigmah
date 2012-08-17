@@ -13,6 +13,7 @@ import javax.persistence.Persistence;
 
 import org.hibernate.ejb.HibernateEntityManager;
 import org.sigmah.server.dao.AuthenticationDAO;
+import org.sigmah.server.dao.GlobalExportDAO;
 import org.sigmah.server.dao.IndicatorDAO;
 import org.sigmah.server.dao.LocationDAO;
 import org.sigmah.server.dao.PartnerDAO;
@@ -96,6 +97,7 @@ public class HibernateModule extends AbstractModule {
         bind(UserUnitDAO.class).to(UserUnitDAOImpl.class);
         bind(PersonalEventDAO.class).to(PersonalEventHibernateDAO.class);
         bind(ProjectReportDAO.class).to(ProjectReportHibernateDAO.class);
+        bind(GlobalExportDAO.class).to(GlobalExportHibernateDAO.class);
     }
 
     private <T extends DAO> void bindDAOProxy(Class<T> daoClass) {

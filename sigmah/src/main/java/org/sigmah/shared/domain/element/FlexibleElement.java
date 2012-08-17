@@ -42,7 +42,8 @@ public abstract class FlexibleElement implements Serializable, Historable {
     private Boolean validates = false;
     private PrivacyGroup privacyGroup;
     private Boolean amendable = false;
-    private Boolean exportable = true;
+    private Boolean exportable = true; // exported to project synthesis sheet 
+    private Boolean globallyExportable = false; // exported to a global projects list
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -101,9 +102,17 @@ public abstract class FlexibleElement implements Serializable, Historable {
         this.exportable = exportable;
     }
     
-    
+     
+    @Column(name = "globally_exportable", nullable = false)
+    public boolean isGloballyExportable() {
+		return globallyExportable;
+	}
 
-    @Override
+	public void setGloballyExportable(boolean globallyExportable) {
+		this.globallyExportable = globallyExportable;
+	}
+
+	@Override
     @Transient
     public boolean isHistorable() {
         // Doesn't manage history by default.

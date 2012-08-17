@@ -699,6 +699,8 @@ sigmah/src/main/java/org/sigmah/client/ui/CreditFrame.java -text
 sigmah/src/main/java/org/sigmah/client/ui/ExportSpreadsheetFormButton.java -text
 sigmah/src/main/java/org/sigmah/client/ui/FlexibleGrid.java -text
 sigmah/src/main/java/org/sigmah/client/ui/FoldPanel.java -text
+sigmah/src/main/java/org/sigmah/client/ui/GlobalExportForm.java -text
+sigmah/src/main/java/org/sigmah/client/ui/GlobalExportSettingsForm.java -text
 sigmah/src/main/java/org/sigmah/client/ui/HistoryWindow.java -text
 sigmah/src/main/java/org/sigmah/client/ui/RatioBar.java -text
 sigmah/src/main/java/org/sigmah/client/ui/SigmahTheme.java -text
@@ -1975,6 +1977,7 @@ sigmah/src/main/java/org/sigmah/server/bootstrap/model/ResetPasswordPageModel.ja
 sigmah/src/main/java/org/sigmah/server/dao/AuthenticationDAO.java -text
 sigmah/src/main/java/org/sigmah/server/dao/BaseMapDAO.java -text
 sigmah/src/main/java/org/sigmah/server/dao/BaseMapFsDAO.java -text
+sigmah/src/main/java/org/sigmah/server/dao/GlobalExportDAO.java -text
 sigmah/src/main/java/org/sigmah/server/dao/IndicatorDAO.java -text
 sigmah/src/main/java/org/sigmah/server/dao/LocationDAO.java -text
 sigmah/src/main/java/org/sigmah/server/dao/PartnerDAO.java -text
@@ -1989,6 +1992,7 @@ sigmah/src/main/java/org/sigmah/server/dao/hibernate/AdminHibernateDAO.java -tex
 sigmah/src/main/java/org/sigmah/server/dao/hibernate/DAOInvocationHandler.java -text
 sigmah/src/main/java/org/sigmah/server/dao/hibernate/FilterCriterionBridge.java -text
 sigmah/src/main/java/org/sigmah/server/dao/hibernate/GenericDAO.java -text
+sigmah/src/main/java/org/sigmah/server/dao/hibernate/GlobalExportHibernateDAO.java -text
 sigmah/src/main/java/org/sigmah/server/dao/hibernate/HibernateDAOProvider.java -text
 sigmah/src/main/java/org/sigmah/server/dao/hibernate/HibernateModule.java -text
 sigmah/src/main/java/org/sigmah/server/dao/hibernate/HibernateSiteTableDAO.java -text
@@ -2032,6 +2036,7 @@ sigmah/src/main/java/org/sigmah/server/endpoint/export/sigmah/ExportException.ja
 sigmah/src/main/java/org/sigmah/server/endpoint/export/sigmah/ExportModelServlet.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/export/sigmah/Exporter.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/export/sigmah/SigmahExportServlet.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/export/sigmah/exporter/GlobalExportExporter.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/export/sigmah/exporter/IndicatorEntryExporter.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/export/sigmah/exporter/LogFrameExporter.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/export/sigmah/exporter/ProjectReportExporter.java -text
@@ -2043,14 +2048,19 @@ sigmah/src/main/java/org/sigmah/server/endpoint/export/sigmah/handler/ProjectMod
 sigmah/src/main/java/org/sigmah/server/endpoint/export/sigmah/handler/ProjectReportModelHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/export/sigmah/handler/Realizer.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/export/sigmah/spreadsheet/CalcUtils.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/export/sigmah/spreadsheet/CsvBuilder.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/export/sigmah/spreadsheet/CsvParser.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/export/sigmah/spreadsheet/ExcelUtils.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/export/sigmah/spreadsheet/ExportConstants.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/export/sigmah/spreadsheet/GlobalExportDataProvider.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/export/sigmah/spreadsheet/data/ExportData.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/export/sigmah/spreadsheet/data/GlobalExportData.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/export/sigmah/spreadsheet/data/IndicatorEntryData.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/export/sigmah/spreadsheet/data/LogFrameExportData.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/export/sigmah/spreadsheet/data/ProjectSynthesisData.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/export/sigmah/spreadsheet/data/SpreadsheetDataUtil.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/export/sigmah/spreadsheet/template/ExportTemplate.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/export/sigmah/spreadsheet/template/GlobalExportExcelTemplate.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/export/sigmah/spreadsheet/template/IndicatorEntryCalcTemplate.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/export/sigmah/spreadsheet/template/IndicatorEntryExcelTemplate.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/export/sigmah/spreadsheet/template/LogFrameCalcTemplate.java -text
@@ -2100,6 +2110,8 @@ sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetCalendarHandle
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetCategoriesHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetCountriesHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetCountryHandler.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetGlobalExportSettingsHandler.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetGlobalExportsHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetHistoryHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetHostServerInfoHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetIndicatorDataSourcesHandler.java -text
@@ -2153,6 +2165,7 @@ sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/RemoveProjectRepo
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/RenderElementHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/RenderReportHtmlHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/UpdateEntityHandler.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/UpdateGlobalExportSettingsHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/UpdateLogFrameHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/UpdateMonitoredPointsHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/UpdateMonthlyReportsHandler.java -text
@@ -2306,6 +2319,12 @@ sigmah/src/main/java/org/sigmah/server/report/util/MismatchedTagError.java -text
 sigmah/src/main/java/org/sigmah/server/schedule/Jobs.java -text
 sigmah/src/main/java/org/sigmah/server/schedule/ReportMailerHelper.java -text
 sigmah/src/main/java/org/sigmah/server/schedule/ReportMailerJob.java -text
+sigmah/src/main/java/org/sigmah/server/schedule/export/AutoDeleteJob.java -text
+sigmah/src/main/java/org/sigmah/server/schedule/export/AutoExportJob.java -text
+sigmah/src/main/java/org/sigmah/server/schedule/export/GlobalExportJobActivator.java -text
+sigmah/src/main/java/org/sigmah/server/schedule/export/GuiceJobFactory.java -text
+sigmah/src/main/java/org/sigmah/server/schedule/export/QuartzScheduler.java -text
+sigmah/src/main/java/org/sigmah/server/schedule/export/SchedulerModule.java -text
 sigmah/src/main/java/org/sigmah/server/sync/AdminLocalState.java -text
 sigmah/src/main/java/org/sigmah/server/sync/AdminUpdateBuilder.java -text
 sigmah/src/main/java/org/sigmah/server/sync/LocationUpdateBuilder.java -text
@@ -2355,6 +2374,8 @@ sigmah/src/main/java/org/sigmah/shared/command/GetCalendar.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetCategories.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetCountries.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetCountry.java -text
+sigmah/src/main/java/org/sigmah/shared/command/GetGlobalExportSettings.java -text
+sigmah/src/main/java/org/sigmah/shared/command/GetGlobalExports.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetHistory.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetHostServerInfo.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetIndicatorDataSources.java -text
@@ -2437,6 +2458,7 @@ sigmah/src/main/java/org/sigmah/shared/command/result/CategoriesListResult.java 
 sigmah/src/main/java/org/sigmah/shared/command/result/CommandResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/CountryResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/CreateResult.java -text
+sigmah/src/main/java/org/sigmah/shared/command/result/GlobalExportListResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/HistoryResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/HostServerInfo.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/HtmlResult.java -text
@@ -2566,6 +2588,10 @@ sigmah/src/main/java/org/sigmah/shared/domain/element/ReportElement.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/element/ReportListElement.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/element/TextAreaElement.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/element/TripletsListElement.java -text
+sigmah/src/main/java/org/sigmah/shared/domain/export/GlobalExport.java -text
+sigmah/src/main/java/org/sigmah/shared/domain/export/GlobalExportContent.java -text
+sigmah/src/main/java/org/sigmah/shared/domain/export/GlobalExportFormat.java -text
+sigmah/src/main/java/org/sigmah/shared/domain/export/GlobalExportSettings.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/history/Historable.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/history/HistoryToken.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/layout/Layout.java -text
@@ -2627,6 +2653,8 @@ sigmah/src/main/java/org/sigmah/shared/dto/DeRpcSafeBaseTreeModel.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/DimensionFolder.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/EntityDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/ExportUtils.java -text
+sigmah/src/main/java/org/sigmah/shared/dto/GlobalExportDTO.java -text
+sigmah/src/main/java/org/sigmah/shared/dto/GlobalExportSettingsDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/IndicatorDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/IndicatorDataSourceDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/IndicatorGroup.java -text
@@ -2656,6 +2684,7 @@ sigmah/src/main/java/org/sigmah/shared/dto/ReportSubscriptionDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/SchemaDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/SiteDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/SitePointDTO.java -text
+sigmah/src/main/java/org/sigmah/shared/dto/UpdateGlobalExportSettings.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/UserDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/UserDatabaseDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/UserInfoDTO.java -text
