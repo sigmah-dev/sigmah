@@ -56,7 +56,8 @@ public class AdminPresenter implements TabPage, Frame {
                                                I18N.CONSTANTS.adminProjectModels(),
                                                I18N.CONSTANTS.adminOrgUnitsModels(),
                                                I18N.CONSTANTS.adminProjectModelReports(),
-                                               I18N.CONSTANTS.adminCategories() };
+                                               I18N.CONSTANTS.adminCategories(),
+                                               I18N.CONSTANTS.adminManagementTitle()};
     public static final PageId PAGE_ID = new PageId(I18N.CONSTANTS.adminboard());
 
     private final View view;
@@ -90,7 +91,9 @@ public class AdminPresenter implements TabPage, Frame {
                                          new AdminOrgUnitModelsPresenter(dispatcher, cache, authentication, eventBus,
                                              currentState),
                                          new AdminReportModelPresenter(dispatcher),
-                                         new AdminCategoryPresenter(dispatcher) };
+                                         new AdminCategoryPresenter(dispatcher),
+                                         injector.getAdminManagementPresenter()
+                                         };
         this.authentication = authentication;
         for (int i = 0; i < MAIN_TABS.length; i++) {
             final int index = i;

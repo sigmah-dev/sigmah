@@ -85,4 +85,25 @@ public class Organization implements Serializable {
     public void setOrgUnit(List<OrgUnit> orgUnit) {
         this.orgUnit = orgUnit;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+
+        if (obj == null) {
+            return false;
+        }
+
+        if (!(obj instanceof Organization)) {
+            return false;
+        }
+
+        final Organization other = (Organization) obj;
+
+        return id == other.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return id;
+    }
 }

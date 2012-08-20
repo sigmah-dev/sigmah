@@ -14,6 +14,10 @@ import org.sigmah.client.page.NavigationHandler;
 import org.sigmah.client.page.admin.AdminModule;
 import org.sigmah.client.page.admin.AdminPageLoader;
 import org.sigmah.client.page.admin.AdminPresenter;
+import org.sigmah.client.page.admin.management.AdminBackupManagementPresenter;
+import org.sigmah.client.page.admin.management.AdminCoreManagementPresenter;
+import org.sigmah.client.page.admin.management.AdminExportManagementPresenter;
+import org.sigmah.client.page.admin.management.AdminManagementPresenter;
 import org.sigmah.client.page.admin.model.common.AdminOneModelPresenter;
 import org.sigmah.client.page.charts.ChartPagePresenter;
 import org.sigmah.client.page.charts.SigmahChartLoader;
@@ -94,6 +98,11 @@ public interface SigmahInjector extends Ginjector {
     AdminPageLoader registerAdminPageLoader();
     	// Required by the 'AdminModel' page
     AdminOneModelPresenter getAdminModelPresenter();
+    //Required by the 'AdminManagement' page
+    AdminManagementPresenter getAdminManagementPresenter();
+    AdminCoreManagementPresenter getAdminCoreManagementPresenter();
+    AdminBackupManagementPresenter getAdminBackupManagementPresenter();
+    AdminExportManagementPresenter getAdminExportManagementPresenter();
     
     // Pages from ActivityInfo
     DataEntryLoader registerDataEntryLoader();

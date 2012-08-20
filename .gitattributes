@@ -321,6 +321,14 @@ sigmah/src/main/java/org/sigmah/client/page/admin/AdminView.java -text
 sigmah/src/main/java/org/sigmah/client/page/admin/category/AdminCategoryPresenter.java -text
 sigmah/src/main/java/org/sigmah/client/page/admin/category/AdminCategoryView.java -text
 sigmah/src/main/java/org/sigmah/client/page/admin/category/DeletionError.java -text
+sigmah/src/main/java/org/sigmah/client/page/admin/management/AdminBackupManagementPresenter.java -text svneol=unset#text/plain
+sigmah/src/main/java/org/sigmah/client/page/admin/management/AdminBackupManagementView.java -text svneol=unset#text/plain
+sigmah/src/main/java/org/sigmah/client/page/admin/management/AdminCoreManagementPresenter.java -text svneol=unset#text/plain
+sigmah/src/main/java/org/sigmah/client/page/admin/management/AdminCoreManagementView.java -text svneol=unset#text/plain
+sigmah/src/main/java/org/sigmah/client/page/admin/management/AdminExportManagementPresenter.java -text svneol=unset#text/plain
+sigmah/src/main/java/org/sigmah/client/page/admin/management/AdminExportManagementView.java -text svneol=unset#text/plain
+sigmah/src/main/java/org/sigmah/client/page/admin/management/AdminManagementPresenter.java -text svneol=unset#text/plain
+sigmah/src/main/java/org/sigmah/client/page/admin/management/AdminManagementView.java -text svneol=unset#text/plain
 sigmah/src/main/java/org/sigmah/client/page/admin/model/AdminModelSubPresenter.java -text
 sigmah/src/main/java/org/sigmah/client/page/admin/model/common/AdminModelActionListener.java -text
 sigmah/src/main/java/org/sigmah/client/page/admin/model/common/AdminOneModelPresenter.java -text
@@ -2073,10 +2081,13 @@ sigmah/src/main/java/org/sigmah/server/endpoint/file/FileManagerImpl.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/file/FileModule.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/file/FileStorageProvider.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/file/FileUploadServlet.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/file/FilesBackupServlet.java -text svneol=unset#text/plain
 sigmah/src/main/java/org/sigmah/server/endpoint/file/IOUtil.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/file/ImageRepository.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/file/ImageServlet.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/file/LocalStorageProvider.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/file/LogoManager.java -text svneol=unset#text/plain
+sigmah/src/main/java/org/sigmah/server/endpoint/file/LogoManagerImpl.java -text svneol=unset#text/plain
 sigmah/src/main/java/org/sigmah/server/endpoint/file/S3StorageProvider.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/CacheFilter.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/CommandServlet.java -text
@@ -2169,6 +2180,7 @@ sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/UpdateGlobalExpor
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/UpdateLogFrameHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/UpdateMonitoredPointsHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/UpdateMonthlyReportsHandler.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/UpdateOrganizationHandler.java -text svneol=unset#text/plain
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/UpdateProjectFavoriteHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/UpdateProjectHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/UpdateProjectReportModelHandler.java -text
@@ -2190,6 +2202,7 @@ sigmah/src/main/java/org/sigmah/server/endpoint/jsonrpc/serde/SyncRegionUpdateSe
 sigmah/src/main/java/org/sigmah/server/endpoint/kml/KmlDataServlet.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/kml/KmlLinkServlet.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/kml/KmlModule.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/management/ManagementServlet.java -text svneol=unset#text/plain
 sigmah/src/main/java/org/sigmah/server/endpoint/wfs/Capabilities.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/wfs/WfsModule.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/wfs/WfsServlet.java -text
@@ -2440,6 +2453,7 @@ sigmah/src/main/java/org/sigmah/shared/command/UpdateEntity.java -text
 sigmah/src/main/java/org/sigmah/shared/command/UpdateLogFrame.java -text
 sigmah/src/main/java/org/sigmah/shared/command/UpdateMonitoredPoints.java -text
 sigmah/src/main/java/org/sigmah/shared/command/UpdateMonthlyReports.java -text
+sigmah/src/main/java/org/sigmah/shared/command/UpdateOrganization.java -text svneol=unset#text/plain
 sigmah/src/main/java/org/sigmah/shared/command/UpdateProject.java -text
 sigmah/src/main/java/org/sigmah/shared/command/UpdateProjectFavorite.java -text
 sigmah/src/main/java/org/sigmah/shared/command/UpdateProjectReportModel.java -text
@@ -2473,6 +2487,7 @@ sigmah/src/main/java/org/sigmah/shared/command/result/ModelElementListResult.jav
 sigmah/src/main/java/org/sigmah/shared/command/result/MonitoredPointsResultList.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/MonthlyReportResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/OrgUnitModelListResult.java -text
+sigmah/src/main/java/org/sigmah/shared/command/result/OrganizationResult.java -text svneol=unset#text/plain
 sigmah/src/main/java/org/sigmah/shared/command/result/PagingResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/PrivacyGroupsListResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/ProfileListResult.java -text

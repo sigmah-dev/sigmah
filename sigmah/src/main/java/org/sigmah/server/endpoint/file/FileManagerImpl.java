@@ -3,9 +3,12 @@ package org.sigmah.server.endpoint.file;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.persistence.EntityManager;
@@ -15,9 +18,13 @@ import javax.persistence.Query;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sigmah.server.dao.Transactional;
+import org.sigmah.server.endpoint.gwtrpc.handler.GetOrgUnitHandler;
+import org.sigmah.server.endpoint.gwtrpc.handler.GetProjectHandler;
 import org.sigmah.shared.command.result.ValueResultUtils;
+import org.sigmah.shared.domain.OrgUnit;
 import org.sigmah.shared.domain.Project;
 import org.sigmah.shared.domain.User;
+import org.sigmah.shared.domain.element.FilesListElement;
 import org.sigmah.shared.domain.element.FlexibleElement;
 import org.sigmah.shared.domain.reminder.MonitoredPoint;
 import org.sigmah.shared.domain.reminder.MonitoredPointList;
@@ -33,24 +40,23 @@ import com.google.inject.Provider;
  * Manages files (upload and download).
  * 
  * @author tmi
- * 
+ * @author Aurélien Ponçon
  */
 public class FileManagerImpl implements FileManager {
-
 
     /**
      * Logger.
      */
     private static final Log log = LogFactory.getLog(FileManagerImpl.class);
-	
+
     private final Provider<EntityManager> entityManager;
-    
+
     private final FileStorageProvider fileStorageProvider;
-    
+
     @Inject
     public FileManagerImpl(Provider<EntityManager> entityManager, FileStorageProvider storageProvider) {
-    	this.entityManager = entityManager;
-    	this.fileStorageProvider = storageProvider;
+        this.entityManager = entityManager;
+        this.fileStorageProvider = storageProvider;
     }
 
     @Override
@@ -89,8 +95,7 @@ public class FileManagerImpl implements FileManager {
      * Saves a new file.
      * 
      * @param properties
-     *            The properties map of the uploaded file (see
-     *            {@link FileUploadUtils}).
+     *            The properties map of the uploaded file (see {@link FileUploadUtils}).
      * @param content
      *            The uploaded file content.
      * @param authorId
@@ -128,8 +133,6 @@ public class FileManagerImpl implements FileManager {
         file.addVersion(createVersion(1, name, extension, authorId, content));
 
         em.persist(file);
-        
-        
 
         // --------------------------------------------------------------------
         // STEP 2 : gets the current value for this list of files.
@@ -164,8 +167,8 @@ public class FileManagerImpl implements FileManager {
         }
 
         // Retrieving the current value
-        final Query query = em
-                .createQuery("SELECT v FROM Value v WHERE v.containerId = :projectId and v.element.id = :elementId");
+        final Query query =
+                em.createQuery("SELECT v FROM Value v WHERE v.containerId = :projectId and v.element.id = :elementId");
         query.setParameter("projectId", projectId);
         query.setParameter("elementId", elementId);
 
@@ -188,8 +191,9 @@ public class FileManagerImpl implements FileManager {
             currentValue.setLastModificationAction('U');
 
             // Sets the value (adds a new file id).
-            currentValue.setValue(currentValue.getValue() + ValueResultUtils.DEFAULT_VALUE_SEPARATOR
-                    + String.valueOf(file.getId()));
+            currentValue.setValue(currentValue.getValue()
+                + ValueResultUtils.DEFAULT_VALUE_SEPARATOR
+                + String.valueOf(file.getId()));
         }
         // The value for this list of files doesn't exist already, must
         // create it.
@@ -219,7 +223,7 @@ public class FileManagerImpl implements FileManager {
 
         // Saves or updates the new value.
         em.merge(currentValue);
-       
+
         return String.valueOf(file.getId());
     }
 
@@ -227,8 +231,7 @@ public class FileManagerImpl implements FileManager {
      * Saves a new file.
      * 
      * @param properties
-     *            The properties map of the uploaded file (see
-     *            {@link FileUploadUtils}).
+     *            The properties map of the uploaded file (see {@link FileUploadUtils}).
      * @param content
      *            The uploaded file content.
      * @param id
@@ -247,7 +250,7 @@ public class FileManagerImpl implements FileManager {
         if (log.isDebugEnabled()) {
             log.debug("[save] New file version.");
         }
-    
+
         // Gets the details of the name of the file.
         final String fullName = properties.get(FileUploadUtils.DOCUMENT_NAME);
         final String name = getFileCanonicalName(fullName);
@@ -261,12 +264,13 @@ public class FileManagerImpl implements FileManager {
         }
 
         Integer versionNumber;
-        
-        Query query = em.createQuery("SELECT max(fv.versionNumber)+1 AS newVersionNumber FROM FileVersion AS fv WHERE parentFile=:parentFile");
+
+        Query query =
+                em.createQuery("SELECT max(fv.versionNumber)+1 AS newVersionNumber FROM FileVersion AS fv WHERE parentFile=:parentFile");
         query.setParameter("parentFile", file);
         versionNumber = (Integer) query.getSingleResult();
-        if(versionNumber == null){
-        	versionNumber = 0;
+        if (versionNumber == null) {
+            versionNumber = 0;
         }
 
         final FileVersion version = createVersion(versionNumber, name, extension, authorId, content);
@@ -337,7 +341,7 @@ public class FileManagerImpl implements FileManager {
             final String uniqueName = generateUniqueName();
 
             // Streams.
-			output = fileStorageProvider.create(uniqueName);
+            output = fileStorageProvider.create(uniqueName);
 
             // Writes content as bytes.
             output.write(content);
@@ -350,7 +354,7 @@ public class FileManagerImpl implements FileManager {
         }
     }
 
-	/**
+    /**
      * Computes and returns a unique string identifier to name files.
      * 
      * @return A unique string identifier.
@@ -358,6 +362,129 @@ public class FileManagerImpl implements FileManager {
     private static String generateUniqueName() {
         // Adds the timestamp to ensure the id uniqueness.
         return UUID.randomUUID().toString() + new Date().getTime();
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public RepositoryElement getRepository(OrgUnit orgunit, User user, boolean allVersions) {
+        final EntityManager em = entityManager.get();
+
+        if (GetOrgUnitHandler.isOrgUnitVisible(orgunit, user)) {
+
+            FolderElement root = new FolderElement("root", "root");
+
+            Set<OrgUnit> orgUnitTree = new HashSet<OrgUnit>();
+            GetProjectHandler.crawlUnits(orgunit, orgUnitTree, true);
+
+            Query filesQuery;
+
+            final Query valuesQuery =
+                    em.createQuery("SELECT v "
+                        + "FROM Value v "
+                        + "WHERE v.containerId IN ("
+                        + "SELECT ud.id "
+                        + "FROM OrgUnit o "
+                        + "INNER JOIN o.databases ud "
+                        + "WHERE o IN (:units)"
+                        + ")");
+
+            if (allVersions) {
+                // All versions of each file
+                filesQuery =
+                        em.createQuery("SELECT fv "
+                            + "FROM File f "
+                            + "INNER JOIN f.versions fv "
+                            + "WHERE f.id IN (:idsList)");
+            } else {
+                // Just the last version of each file
+                filesQuery =
+                        em.createQuery("SELECT fv "
+                            + "FROM File f "
+                            + "INNER JOIN f.versions fv "
+                            + "WHERE f.id IN (:idsList) "
+                            + "AND fv.versionNumber IN "
+                            + "(SELECT max(fv2.versionNumber) "
+                            + "FROM FileVersion fv2 "
+                            + "WHERE fv2.parentFile = f)");
+            }
+            
+            valuesQuery.setParameter("units", orgUnitTree);
+            List<Value> values = valuesQuery.getResultList();
+
+            for (Value v : values) {
+                if (v.getElement() instanceof FilesListElement) {
+                    Project ud = new Project();
+
+                    ud.setId(v.getContainerId());
+                    ud = em.merge(ud);
+                    Collection<OrgUnit> orgUnitSet = ud.getPartners();
+                    OrgUnit o = (OrgUnit) orgUnitSet.toArray()[0];
+                    
+
+                    filesQuery.setParameter("idsList", ValueResultUtils.splitValuesAsInteger(v.getValue()));
+
+                    List<FileVersion> versions = filesQuery.getResultList();
+
+                    FolderElement orgUnitRepository = (FolderElement) root.getById("o" + o.getId());
+                    if (orgUnitRepository == null) {
+                        orgUnitRepository = new FolderElement("o" + o.getId(), validateFileName(o.getFullName()));
+                        root.appendChild(orgUnitRepository);
+                    }
+
+                    FolderElement userDatabaseRepository = (FolderElement) orgUnitRepository.getById("p" + ud.getId());
+                    if (userDatabaseRepository == null) {
+                        userDatabaseRepository =
+                                new FolderElement("p" + ud.getId(), validateFileName(ud.getFullName()));
+                        orgUnitRepository.appendChild(userDatabaseRepository);
+                    }
+
+                    for (FileVersion version : versions) {
+                        if (allVersions) {
+                            FolderElement fileRepository =
+                                    (FolderElement) userDatabaseRepository.getById("f"
+                                        + version.getParentFile().getId());
+                            if (fileRepository == null) {
+                                fileRepository =
+                                        new FolderElement("f" + version.getParentFile().getId(),
+                                            validateFileName(version.getParentFile().getName())
+                                                + "_f"
+                                                + version.getParentFile().getId());
+                                userDatabaseRepository.appendChild(fileRepository);
+                            }
+
+                            FileElement file =
+                                    new FileElement("fv" + version.getId(), validateFileName(version.getName())
+                                        + "_v"
+                                        + version.getId()
+                                        + "."
+                                        + version.getExtension(), version.getPath());
+                            fileRepository.appendChild(file);
+                        } else {
+                            FileElement file =
+                                    new FileElement("f" + version.getId(), validateFileName(version.getName())
+                                        + "_f"
+                                        + version.getId()
+                                        + "."
+                                        + version.getExtension(), version.getPath());
+                            userDatabaseRepository.appendChild(file);
+                        }
+                    }
+                }
+            }
+            return root;
+        } else {
+            return null;
+        }
+    }
+
+    /*
+     * It deletes the string "C:\fakepath\" which come from an issue in Google Chrome 
+     * It replaces also all wrong characters that can't be displayed in a file name or a directory name by "_"
+     * @param fileName name to validate
+     * @return string the name validated
+     */
+    private String validateFileName(String fileName) {
+        return fileName.replace("[cC]:\\fakepath\\", "").replaceAll("[\\/:*?\"<>|]", "_");
     }
 
     @Override
@@ -455,10 +582,8 @@ public class FileManagerImpl implements FileManager {
             log.debug("[getFile] Found version with number=" + lastVersion.getVersionNumber() + ".");
         }
 
-
         return new DownloadableFile(lastVersion.getName() + '.' + lastVersion.getExtension(), lastVersion.getPath());
     }
-
 
     @Transactional
     @Override
@@ -558,5 +683,22 @@ public class FileManagerImpl implements FileManager {
         }
 
         return fullName.substring(index + 1);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public boolean isGrantedToDownload(User user, File file) {
+        EntityManager em = entityManager.get();
+        Query query =
+                em.createQuery("SELECT o FROM OrgUnit o"
+                    + "WHERE o.databases.pointsList.points.file = :file AND o=:user.orgUnitWithProfiles.orgUnit");
+        query.setParameter("file", file);
+        query.setParameter("user", user);
+        List<OrgUnit> units = query.getResultList();
+        if (units.isEmpty()) {
+            return false;
+        } else {
+            return true;
+        }
     }
 }

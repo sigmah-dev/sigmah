@@ -24,6 +24,11 @@ public final class FileUploadUtils {
      * Max size for each uploaded file (20 Mb).
      */
     public static final int MAX_UPLOAD_FILE_SIZE = 20971520;
+    
+    /**
+     * Max size for each uploaded logo image (256 Kb)
+     */
+    public static final int MAX_UPLOAD_IMAGE_SIZE = 262144;
 
     // ! \\
     // A tag code is used to parse the response of the HTTP request.

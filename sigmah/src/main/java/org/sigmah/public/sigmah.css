@@ -355,12 +355,41 @@ body {
 	background-color: #494748;
 }
 
+.secondary-background {
+	background-color: #EFE2C2 !important;
+}
+
+.module-background {
+	background-color: #FFFFFF !important;
+	overflow : visible !important;
+}
+
 .panel-background {
 	background-color: white;
 }
 
 .join-background {
 	background-color: rgb(167, 143, 100);
+}
+
+.width-of-parent {
+	width : inherit !important;
+}
+
+.height-of-parent {
+	height : inherit !important;	
+}
+
+.form-radio label {
+    padding-left: 6px;
+}
+
+.form-text {
+	font: 12px tahoma,arial,helvetica,sans-serif;
+}
+
+.form-radio > input {
+	margin-left : 7px;
 }
 
 .hyperlink a,.hyperlink a:active,.hyperlink a:hover,.hyperlink a:focus,.hyperlink a:link,.hyperlink a:visited

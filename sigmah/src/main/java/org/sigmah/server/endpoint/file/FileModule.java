@@ -18,6 +18,7 @@ public class FileModule extends AbstractModule {
     @Override
     protected void configure() {
         bind(FileManager.class).to(FileManagerImpl.class).in(Singleton.class);
+        bind(LogoManager.class).to(LogoManagerImpl.class).in(Singleton.class);
         bind(FileStorageProvider.class).toProvider(FileStorageProviderProvider.class);
     }
 

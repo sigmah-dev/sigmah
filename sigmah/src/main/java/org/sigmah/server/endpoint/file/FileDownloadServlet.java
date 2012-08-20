@@ -1,6 +1,5 @@
 package org.sigmah.server.endpoint.file;
 
-import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -12,6 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sigmah.server.Cookies;
 import org.sigmah.server.endpoint.file.FileManager.DownloadableFile;
 import org.sigmah.shared.dto.value.FileUploadUtils;
 
@@ -22,7 +22,6 @@ import com.google.inject.Singleton;
  * Servlet responsible for the downloaded files.
  * 
  * @author tmi
- * 
  */
 @Singleton
 public class FileDownloadServlet extends HttpServlet {
@@ -35,27 +34,22 @@ public class FileDownloadServlet extends HttpServlet {
      * To get the download manager.
      */
     private final FileManager fileManager;
-    
+
     private final FileStorageProvider fileStorageProvider;
-    
+
     @Inject
-    public FileDownloadServlet(FileManager fileManager,
-			FileStorageProvider fileStorageProvider) {
-		super();
-		this.fileManager = fileManager;
-		this.fileStorageProvider = fileStorageProvider;
-	}
+    public FileDownloadServlet(FileManager fileManager, FileStorageProvider fileStorageProvider) {
+        super();
+        this.fileManager = fileManager;
+        this.fileStorageProvider = fileStorageProvider;
+    }
 
-
-
-	/**
-     * Download a version of a file.
-     * 
-     * The following parameters must be specified in the HTTP request:
+    /**
+     * Download a version of a file. The following parameters must be specified in the HTTP request:
      * <ul>
      * <li>{@link FileUploadUtils#DOCUMENT_ID} : (required) the id of the file.</li>
-     * <li>{@link FileUploadUtils#DOCUMENT_VERSION} : (optional) the version
-     * number of the file. If not specified, the last version is downloaded.</li>
+     * <li>{@link FileUploadUtils#DOCUMENT_VERSION} : (optional) the version number of the file. If not specified, the
+     * last version is downloaded.</li>
      * </ul>
      * 
      * @param request
@@ -73,6 +67,12 @@ public class FileDownloadServlet extends HttpServlet {
         }
 
         try {
+
+            final String authToken = Cookies.getCookieValue(Cookies.AUTH_TOKEN_COOKIE, request);
+            if (authToken == null) {
+                log.error("[doGet] You need to be authenticated");
+                throw new ServletException("You need to be authenticated");
+            }
 
             // Gets the request parameters.
             final String id = request.getParameter(FileUploadUtils.DOCUMENT_ID);
@@ -101,7 +101,7 @@ public class FileDownloadServlet extends HttpServlet {
             response.setContentType("application/octet-stream");
             response.setCharacterEncoding("UTF-8");
             response.setHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
-                       
+
             final InputStream inputStream = fileStorageProvider.open(file.getStorageId());
 
             try {

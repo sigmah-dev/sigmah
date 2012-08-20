@@ -8,7 +8,9 @@ package org.sigmah.server.endpoint.gwtrpc;
 import org.sigmah.server.auth.SigmahAuthDictionaryServlet;
 import org.sigmah.server.endpoint.file.FileDownloadServlet;
 import org.sigmah.server.endpoint.file.FileUploadServlet;
+import org.sigmah.server.endpoint.file.FilesBackupServlet;
 import org.sigmah.server.endpoint.file.ImageServlet;
+import org.sigmah.server.endpoint.management.ManagementServlet;
 
 import com.google.inject.servlet.ServletModule;
 import org.sigmah.server.endpoint.export.sigmah.ExportModelServlet;
@@ -39,6 +41,8 @@ public class GwtRpcModule extends ServletModule {
         serve("/SigmahAuthToken").with(SigmahAuthDictionaryServlet.class); // Authentication.
         serve("/Sigmah/upload").with(FileUploadServlet.class); // Files upload.
         serve("/Sigmah/download").with(FileDownloadServlet.class); // Files download.
+        serve("/Sigmah/backup").with(FilesBackupServlet.class);
+        serve("/Sigmah/management").with(ManagementServlet.class);
         serve("/Sigmah/image-provider").with(ImageServlet.class); // Image provider.
         serve("/Sigmah/password").with(PasswordManagementServlet.class); // Password lost service.
         serve("/Sigmah/models").with(ExportModelServlet.class); // Model export/import
