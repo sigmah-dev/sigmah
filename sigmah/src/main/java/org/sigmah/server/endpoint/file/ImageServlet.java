@@ -20,6 +20,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sigmah.server.Cookies;
 import org.sigmah.server.dao.AuthenticationDAO;
+import org.sigmah.server.dao.Transactional;
 import org.sigmah.server.domain.Authentication;
 import org.sigmah.shared.domain.Organization;
 import org.sigmah.shared.domain.User;
@@ -83,16 +84,16 @@ public class ImageServlet extends HttpServlet {
         }
 
         // Gets the image url.
-        final String url = request.getParameter(FileUploadUtils.IMAGE_URL);
+        String url = request.getParameter(FileUploadUtils.IMAGE_URL);
 
         // Checks if the url is correct.
-        if (url == null) {
+        if (url == null || url.equals("null")) {
 
             if (log.isWarnEnabled()) {
-                log.warn("[doGet] No image url specified.");
+                log.warn("[doGet] No image url specified. Return teh default image.");
             }
 
-            return;
+            url = FileUploadUtils.DEFAULT_LOGO_FILE_NAME;
         }
 
         if (log.isDebugEnabled()) {
@@ -125,6 +126,7 @@ public class ImageServlet extends HttpServlet {
         }
     }
 
+    @Transactional
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         if (log.isDebugEnabled()) {
@@ -186,7 +188,15 @@ public class ImageServlet extends HttpServlet {
                                 log.debug("[doPost] Reads image content from the field ; name: " + name + ".");
                             }
 
+                            
+                            
                             final LogoManager logoManager = injector.getInstance(LogoManager.class);
+                            
+                            if(userOrganization.getLogo() == null) {
+                                userOrganization.setLogo(userOrganization.getName() + item.getName().substring(item.getName().lastIndexOf(".")));
+                                em.flush();
+                            }
+                            
                             logoManager.updateLogo(stream, imageRepositoryRoot + "/" + userOrganization.getLogo());
 
                             stream.close();

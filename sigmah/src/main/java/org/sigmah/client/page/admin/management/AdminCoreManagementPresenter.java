@@ -76,14 +76,24 @@ public class AdminCoreManagementPresenter implements AdminManagementSubPresenter
         organization = cache.getOrganizationCache().getOrganization();
         view.getOrganizationNameTextBox().setText(organization.getName());
 
-        view.getLogoImage().setUrl(
-            GWT.getModuleBaseURL()
-                + "image-provider?"
-                + FileUploadUtils.IMAGE_URL
-                + "="
-                + organization.getLogo()
-                + "&tmstmp="
-                + System.currentTimeMillis());
+        if (organization.getLogo() != null) {
+            view.getLogoImage().setUrl(
+                GWT.getModuleBaseURL()
+                    + "image-provider?"
+                    + FileUploadUtils.IMAGE_URL
+                    + "="
+                    + organization.getLogo()
+                    + "&tmstmp="
+                    + System.currentTimeMillis());
+        } else {
+
+            view.getLogoImage().setUrl(
+                GWT.getModuleBaseURL()
+                    + "image-provider?"
+                    + FileUploadUtils.IMAGE_URL
+                    + "="
+                    + FileUploadUtils.DEFAULT_LOGO_FILE_NAME);
+        }
 
         view.getFileFormPanel().setAction(
             GWT.getModuleBaseURL() + "image-provider?organization=" + organization.getId());

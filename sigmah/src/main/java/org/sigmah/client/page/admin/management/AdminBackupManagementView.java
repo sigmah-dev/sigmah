@@ -56,13 +56,13 @@ public class AdminBackupManagementView extends ContentPanel implements View {
         formFlexTable.getFlexCellFormatter().setColSpan(y, 0, 2);
         formFlexTable.getCellFormatter().setHorizontalAlignment(y, 0, HasHorizontalAlignment.ALIGN_RIGHT);
         y++;
-
-        int height = 37 * y;
+        
+        int height = 37 * y < 180 ? 180 : 37 * y;
         formFlexTable.setHeight(height + "px");
 
         this.add(formFlexTable);
         this.setHeading(I18N.CONSTANTS.backupManagementTitle());
-        this.setBodyStyleName("width-of-parent");
+        this.setBodyStyleName("width-of-parent height-of-parent");
     }
 
     @Override

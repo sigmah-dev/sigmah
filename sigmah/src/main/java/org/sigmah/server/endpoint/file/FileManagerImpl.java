@@ -123,7 +123,7 @@ public class FileManagerImpl implements FileManager {
         final File file = new File();
 
         // Gets the details of the name of the file.
-        final String fullName = properties.get(FileUploadUtils.DOCUMENT_NAME);
+        final String fullName = validateFileName(properties.get(FileUploadUtils.DOCUMENT_NAME));
         final String name = getFileCanonicalName(fullName);
         final String extension = getFileExtension(fullName);
 
@@ -252,7 +252,7 @@ public class FileManagerImpl implements FileManager {
         }
 
         // Gets the details of the name of the file.
-        final String fullName = properties.get(FileUploadUtils.DOCUMENT_NAME);
+        final String fullName = validateFileName(properties.get(FileUploadUtils.DOCUMENT_NAME));
         final String name = getFileCanonicalName(fullName);
         final String extension = getFileExtension(fullName);
 
@@ -386,7 +386,7 @@ public class FileManagerImpl implements FileManager {
                         + "FROM OrgUnit o "
                         + "INNER JOIN o.databases ud "
                         + "WHERE o IN (:units)"
-                        + ")");
+                        + ") OR v.containerId IN (:units)");
 
             if (allVersions) {
                 // All versions of each file
@@ -407,19 +407,21 @@ public class FileManagerImpl implements FileManager {
                             + "FROM FileVersion fv2 "
                             + "WHERE fv2.parentFile = f)");
             }
-            
+
             valuesQuery.setParameter("units", orgUnitTree);
             List<Value> values = valuesQuery.getResultList();
 
             for (Value v : values) {
                 if (v.getElement() instanceof FilesListElement) {
-                    Project ud = new Project();
+                    Project ud = em.find(Project.class, v.getContainerId());
+                    OrgUnit o = null;
 
-                    ud.setId(v.getContainerId());
-                    ud = em.merge(ud);
-                    Collection<OrgUnit> orgUnitSet = ud.getPartners();
-                    OrgUnit o = (OrgUnit) orgUnitSet.toArray()[0];
-                    
+                    if (ud != null) {
+                        Collection<OrgUnit> orgUnitSet = ud.getPartners();
+                        o = (OrgUnit) orgUnitSet.toArray()[0];
+                    } else {
+                        o = em.find(OrgUnit.class, v.getContainerId());
+                    }
 
                     filesQuery.setParameter("idsList", ValueResultUtils.splitValuesAsInteger(v.getValue()));
 
@@ -431,17 +433,23 @@ public class FileManagerImpl implements FileManager {
                         root.appendChild(orgUnitRepository);
                     }
 
-                    FolderElement userDatabaseRepository = (FolderElement) orgUnitRepository.getById("p" + ud.getId());
-                    if (userDatabaseRepository == null) {
-                        userDatabaseRepository =
-                                new FolderElement("p" + ud.getId(), validateFileName(ud.getFullName()));
-                        orgUnitRepository.appendChild(userDatabaseRepository);
+                    FolderElement fileFolderElementParent = null;
+
+                    if (ud != null) {
+                        fileFolderElementParent = (FolderElement) orgUnitRepository.getById("p" + ud.getId());
+                        if (fileFolderElementParent == null) {
+                            fileFolderElementParent =
+                                    new FolderElement("p" + ud.getId(), validateFileName(ud.getFullName()));
+                            orgUnitRepository.appendChild(fileFolderElementParent);
+                        }
+                    } else {
+                        fileFolderElementParent = orgUnitRepository;
                     }
 
                     for (FileVersion version : versions) {
                         if (allVersions) {
                             FolderElement fileRepository =
-                                    (FolderElement) userDatabaseRepository.getById("f"
+                                    (FolderElement) fileFolderElementParent.getById("f"
                                         + version.getParentFile().getId());
                             if (fileRepository == null) {
                                 fileRepository =
@@ -449,7 +457,7 @@ public class FileManagerImpl implements FileManager {
                                             validateFileName(version.getParentFile().getName())
                                                 + "_f"
                                                 + version.getParentFile().getId());
-                                userDatabaseRepository.appendChild(fileRepository);
+                                fileFolderElementParent.appendChild(fileRepository);
                             }
 
                             FileElement file =
@@ -466,7 +474,7 @@ public class FileManagerImpl implements FileManager {
                                         + version.getId()
                                         + "."
                                         + version.getExtension(), version.getPath());
-                            userDatabaseRepository.appendChild(file);
+                            fileFolderElementParent.appendChild(file);
                         }
                     }
                 }
@@ -477,14 +485,16 @@ public class FileManagerImpl implements FileManager {
         }
     }
 
-    /*
-     * It deletes the string "C:\fakepath\" which come from an issue in Google Chrome 
-     * It replaces also all wrong characters that can't be displayed in a file name or a directory name by "_"
-     * @param fileName name to validate
+    /**
+     * It deletes the string "C:\fakepath\" which come from an issue in Google Chrome It replaces also all wrong
+     * characters that can't be displayed in a file name or a directory name by "_"
+     * 
+     * @param fileName
+     *            name to validate
      * @return string the name validated
      */
     private String validateFileName(String fileName) {
-        return fileName.replace("[cC]:\\fakepath\\", "").replaceAll("[\\/:*?\"<>|]", "_");
+        return fileName.replaceFirst("[cC]:\\\\fakepath\\\\", "").replaceAll("[\\/:*?\"<>|]", "_");
     }
 
     @Override

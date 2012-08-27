@@ -54,12 +54,12 @@ public class AdminManagementPresenter implements AdminSubPresenter {
                                                            injector.getAdminBackupManagementPresenter(),
                                                            injector.getAdminExportManagementPresenter()};        
         
-        subPresenters[0].getContentPanel().setWidth("55%");
-        subPresenters[1].getContentPanel().setWidth("45%");
+        subPresenters[0].getContentPanel().setWidth("45%");
+        subPresenters[1].getContentPanel().setWidth("55%");
         subPresenters[2].getContentPanel().setWidth("100%");
 
-        subPresenters[0].getContentPanel().setHeight(400);
-        subPresenters[1].getContentPanel().setHeight(400);
+        subPresenters[0].getContentPanel().setHeight(250);
+        subPresenters[1].getContentPanel().setHeight(250);
         subPresenters[2].getContentPanel().setHeight(5000);
         view.addPanelToMainContainer(subPresenters[0].getContentPanel());
         view.addPanelToMainContainer(subPresenters[1].getContentPanel());

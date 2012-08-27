@@ -75,7 +75,7 @@ public class AdminCoreManagementView extends ContentPanel implements View {
         formFlexTable.getCellFormatter().setHorizontalAlignment(y, 0, HasHorizontalAlignment.ALIGN_RIGHT);
         y++;
 
-        int height = 33 * y;
+        int height = 33 * y < 180 ? 180 : 33 * y;
         formFlexTable.setHeight(height + "px");
 
         this.add(formFlexTable);

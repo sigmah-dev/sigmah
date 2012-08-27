@@ -137,7 +137,12 @@ public final class FileUploadUtils {
      * The label of a monitored point.
      */
     public static final String MONITORED_POINT_LABEL = "mplabel";
-
+    
+    /**
+     * Default filename of the logo
+     */
+    public static final String DEFAULT_LOGO_FILE_NAME = "default-logo.png";
+    
     /**
      * Parses the HTTP response from the server after a file upload. The
      * response contains the id of the just saved file if the upload worked
