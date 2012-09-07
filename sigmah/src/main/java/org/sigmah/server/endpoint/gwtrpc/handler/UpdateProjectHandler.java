@@ -288,18 +288,21 @@ public class UpdateProjectHandler implements CommandHandler<UpdateProject> {
             em.merge(currentValue);
         }
 
-        Project updatedProject = em.find(Project.class, cmd.getProjectId());
-        OrgUnit newOrgUnit = null;
-        for (OrgUnit orgUnit : updatedProject.getPartners()) {
-        	newOrgUnit = orgUnit;
-            break;
+        // Update user permissions
+        Project updatedProject = em.find(Project.class, cmd.getProjectId());       
+        if(updatedProject!=null){
+        	 OrgUnit newOrgUnit = null;
+        	 for (OrgUnit orgUnit : updatedProject.getPartners()) {
+             	newOrgUnit = orgUnit;
+                 break;
+             }
+             if(newOrgUnit!=null){
+     	        final UserPermissionPolicy permissionPolicy=injector.getInstance(UserPermissionPolicy.class);        
+     	        permissionPolicy.deleteUserPemissionByProject(cmd.getProjectId());
+     	        permissionPolicy.updateUserPermissionByOrgUnit(newOrgUnit);
+             }
         }
-        if(newOrgUnit!=null){
-	        final UserPermissionPolicy permissionPolicy=injector.getInstance(UserPermissionPolicy.class);        
-	        permissionPolicy.deleteUserPemissionByProject(cmd.getProjectId());
-	        permissionPolicy.updateUserPermissionByOrgUnit(newOrgUnit);
-        }
-        
+               
         return null;
     }
 

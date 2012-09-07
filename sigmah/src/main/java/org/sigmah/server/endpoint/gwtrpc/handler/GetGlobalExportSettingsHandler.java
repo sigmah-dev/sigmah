@@ -1,3 +1,7 @@
+/*
+ * All Sigmah code is released under the GNU General Public License v3
+ * See COPYRIGHT.txt and LICENSE.txt.
+ */
 package org.sigmah.server.endpoint.gwtrpc.handler;
 
 import java.util.ArrayList;
@@ -22,6 +26,10 @@ import org.sigmah.shared.exception.CommandException;
 
 import com.google.inject.Inject;
 
+/*
+ * Provides link{GlobalExportSettingsDTO} for given organization
+ * @author sherzod
+ */
 public class GetGlobalExportSettingsHandler implements CommandHandler<GetGlobalExportSettings> {
 
 	private static final Log log = LogFactory.getLog(GetGlobalExportSettingsHandler.class);

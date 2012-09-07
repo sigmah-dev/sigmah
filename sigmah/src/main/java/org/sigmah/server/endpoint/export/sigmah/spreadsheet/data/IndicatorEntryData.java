@@ -1,3 +1,7 @@
+/*
+ * All Sigmah code is released under the GNU General Public License v3
+ * See COPYRIGHT.txt and LICENSE.txt.
+ */
 package org.sigmah.server.endpoint.export.sigmah.spreadsheet.data;
 
 import java.util.HashMap;
@@ -10,6 +14,10 @@ import org.sigmah.shared.command.result.IndicatorListResult;
 import org.sigmah.shared.dto.IndicatorDTO;
 import org.sigmah.shared.report.content.PivotTableData;
 
+
+/*
+ * @author sherzod
+ */
 public class IndicatorEntryData extends ExportData{
 	 
 	private final String projectName;

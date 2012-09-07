@@ -1,3 +1,7 @@
+/*
+ * All Sigmah code is released under the GNU General Public License v3
+ * See COPYRIGHT.txt and LICENSE.txt.
+ */
 package org.sigmah.client.ui;
 
 import java.util.ArrayList;
@@ -10,11 +14,11 @@ import org.sigmah.client.dispatch.monitor.MaskingAsyncMonitor;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.page.admin.AdminUtil;
 import org.sigmah.client.page.admin.model.common.element.ElementTypeEnum;
+import org.sigmah.client.util.Notification;
 import org.sigmah.shared.command.GetGlobalExportSettings;
 import org.sigmah.shared.command.result.VoidResult;
 import org.sigmah.shared.domain.element.DefaultFlexibleElementType;
-import org.sigmah.shared.domain.export.GlobalExportFormat;
-import org.sigmah.shared.dto.GlobalExportDTO;
+import org.sigmah.shared.dto.ExportUtils;
 import org.sigmah.shared.dto.GlobalExportSettingsDTO;
 import org.sigmah.shared.dto.ProjectModelDTO;
 import org.sigmah.shared.dto.UpdateGlobalExportSettings;
@@ -22,25 +26,24 @@ import org.sigmah.shared.dto.element.DefaultFlexibleElementDTO;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
-import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.data.BaseModelData;
-import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FieldEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Text;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.LabelField;
 import com.extjs.gxt.ui.client.widget.form.Radio;
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
@@ -62,7 +65,9 @@ import com.google.gwt.user.client.ui.HasVerticalAlignment;
 public class GlobalExportSettingsForm {
   
 	static class SimpleComboBoxData extends BaseModelData{
-		
+		 
+		private static final long serialVersionUID = 3241619100800404244L;
+
 		public SimpleComboBoxData(Integer value,String label){
 			setValue(value);
 			setLabel(label);
@@ -140,18 +145,18 @@ public class GlobalExportSettingsForm {
         // file format
         final Radio calcChoice = new Radio();
 		calcChoice.setBoxLabel(I18N.CONSTANTS.openDocumentSpreadsheet());
+		calcChoice.setValue(true);
 		calcChoice.setName("type");
 
 		final Radio excelChoice = new Radio();
-		excelChoice.setValue(true);
-		excelChoice.setBoxLabel(I18N.CONSTANTS.msExcel());
+ 		excelChoice.setBoxLabel(I18N.CONSTANTS.msExcel());
 		excelChoice.setName("type");
 
 		RadioGroup radioGroup = new RadioGroup();
 		radioGroup.setOrientation(Orientation.VERTICAL);
 		radioGroup.setFieldLabel(I18N.CONSTANTS.chooseFileType());
-		radioGroup.add(excelChoice);
 		radioGroup.add(calcChoice);
+		radioGroup.add(excelChoice);		
 		panel.add(radioGroup);
 		
 		//configure fields
@@ -208,23 +213,21 @@ public class GlobalExportSettingsForm {
 			public void componentSelected(ButtonEvent ce) {
 				UpdateGlobalExportSettings settings= new UpdateGlobalExportSettings(fieldsMap);
 				if(excelChoice.getValue()){
-					settings.setExportFormat(GlobalExportFormat.XLS);
+					settings.setExportFormat(ExportUtils.ExportFormat.XLS);
 				}else{
-					settings.setExportFormat(GlobalExportFormat.ODS);
+					settings.setExportFormat(ExportUtils.ExportFormat.ODS);
 				}
-				if(exportSchedulesBox.getValue()!=null){					
-					if(exportSchedulesBox.getValue().getValue()==0){
-						settings.setAutoExportFrequency(null);
-					}else{
-						settings.setAutoExportFrequency(exportSchedulesBox.getValue().getValue());
-					}
+				if(exportSchedulesBox.getValue()==null ||
+						exportSchedulesBox.getValue().getValue()==0){	
+					settings.setAutoExportFrequency(null);					 
+				}else{
+					settings.setAutoExportFrequency(exportSchedulesBox.getValue().getValue());
 				}
-				if(deleteSchedulesBox.getValue()!=null){
-					if(deleteSchedulesBox.getValue().getValue()==0){
-						settings.setAutoDeleteFrequency(null);
-					}else{
-						settings.setAutoDeleteFrequency(deleteSchedulesBox.getValue().getValue());
-					}
+				if(deleteSchedulesBox.getValue()==null || 
+						deleteSchedulesBox.getValue().getValue()==0){
+					settings.setAutoDeleteFrequency(null);
+				}else{
+					settings.setAutoDeleteFrequency(deleteSchedulesBox.getValue().getValue());
 				}
 					
 				settings.setOrganizationId(organizationId);
@@ -234,13 +237,17 @@ public class GlobalExportSettingsForm {
 
 							@Override
 							public void onFailure(Throwable caught) {
-								// TODO Auto-generated method stub
-								
+								 MessageBox.alert(I18N.CONSTANTS.saveExportConfiguration(),
+					                        I18N.MESSAGES.adminStandardCreationFailure(
+					                        		I18N.CONSTANTS.globalExportConfiguration()), null);
 							}
 
 							@Override
 							public void onSuccess(VoidResult result) {
 								w.hide();
+								 Notification.show(I18N.CONSTANTS.saveExportConfiguration(),
+			                                I18N.MESSAGES.adminStandardUpdateSuccess(
+			                                		I18N.CONSTANTS.globalExportConfiguration()));
 							}
 						});
 			}
@@ -258,22 +265,26 @@ public class GlobalExportSettingsForm {
 
 					@Override
 					public void onFailure(Throwable caught) {
-
-					}
+						 MessageBox.alert(I18N.CONSTANTS.globalExportConfiguration(),
+								 I18N.CONSTANTS.serverError(), null);
+ 					}
 
 					@Override
 					public void onSuccess(GlobalExportSettingsDTO result) {
 						// set export format
-						switch (result.getExportFormat()) {
-						case XLS:
-							excelChoice.setValue(true);
-							break;
+						if(result.getExportFormat()!=null){
+							switch (result.getExportFormat()) {
+							case XLS:
+								excelChoice.setValue(true);
+								break;
 
-						case ODS:
-							calcChoice.setValue(true);
-							break;
+							case ODS:
+								calcChoice.setValue(true);
+								break;
+							}
+
 						}
-
+						
 						// set pmodels
 						modelsStore.add(result.getProjectModelsDTO());
 						modelsStore.commitChanges();
@@ -334,7 +345,7 @@ public class GlobalExportSettingsForm {
 		List<ColumnConfig> configs = new ArrayList<ColumnConfig>();  	 
  		
 		//checkbox
-		ColumnConfig column = new ColumnConfig("globallyExportable",I18N.CONSTANTS.globalExport(), 50);   
+		ColumnConfig column = new ColumnConfig("globallyExportable",I18N.CONSTANTS.export()+"?", 70);   
 		column.setRenderer(new GridCellRenderer<FlexibleElementDTO>(){
 
 			@Override
@@ -356,7 +367,7 @@ public class GlobalExportSettingsForm {
 		configs.add(column);
 		
 		//name
-		 column = new ColumnConfig("label",I18N.CONSTANTS.adminFlexibleName(), 200);   
+		 column = new ColumnConfig("label",I18N.CONSTANTS.adminFlexibleName(), 180);   
         column.setRenderer(new GridCellRenderer<FlexibleElementDTO>(){
 
 			@Override

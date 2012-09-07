@@ -1,11 +1,16 @@
+/*
+ * All Sigmah code is released under the GNU General Public License v3
+ * See COPYRIGHT.txt and LICENSE.txt.
+ */
 package org.sigmah.shared.dto;
 
 import java.util.List;
 
-import org.sigmah.shared.domain.export.GlobalExportFormat;
-
 import com.extjs.gxt.ui.client.data.BaseModelData;
 
+/*
+ * @author sherzod
+ */
 public class GlobalExportSettingsDTO extends BaseModelData implements EntityDTO{
 
 	@Override
@@ -18,14 +23,24 @@ public class GlobalExportSettingsDTO extends BaseModelData implements EntityDTO{
 		set("id", id);
 	}
 	
-	public GlobalExportFormat getExportFormat() {
+	public ExportUtils.ExportFormat getExportFormat() {
 		return get("exportFormat");
 	}
 
 	public void setExportFormat(
-			GlobalExportFormat exportFormat) {
+			ExportUtils.ExportFormat exportFormat) {
 		set("exportFormat", exportFormat);
 	} 
+	
+	
+	public ExportUtils.ExportFormat getDefaultOrganizationExportFormat() {
+		return get("defaultOrganizationExportFormat");
+	}
+
+	public void setDefaultOrganizationExportFormat(
+			ExportUtils.ExportFormat defaultOrganizationExportFormat) {
+		set("defaultOrganizationExportFormat", defaultOrganizationExportFormat);
+	}
 	
 	public Integer getAutoExportFrequency() {
  		return get("autoExportFrequency");

@@ -69,10 +69,10 @@ public class LogFrameExporter extends Exporter {
 			final LogFrameExportData data = SpreadsheetDataUtil.prepareLogFrameData(project, this);			
 			ExportTemplate template = null;
 			switch (exportFormat) {
-			case MS_EXCEL:
+			case XLS:
 				template = new LogFrameExcelTemplate(data);
 				break;
-			case OPEN_DOCUMENT_SPREADSHEET:
+			case ODS:
 				template = new LogFrameCalcTemplate(data,null);
 				break;
 			default:

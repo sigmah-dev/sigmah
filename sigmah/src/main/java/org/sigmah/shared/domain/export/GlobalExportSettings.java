@@ -1,3 +1,7 @@
+/*
+ * All Sigmah code is released under the GNU General Public License v3
+ * See COPYRIGHT.txt and LICENSE.txt.
+ */
 package org.sigmah.shared.domain.export;
 
 import java.io.Serializable;
@@ -15,6 +19,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import org.sigmah.shared.domain.Organization;
+import org.sigmah.shared.dto.ExportUtils;
 
 /*
  * Global export settings per organization
@@ -28,7 +33,8 @@ public class GlobalExportSettings implements Serializable {
 	private static final long serialVersionUID = -2722884637221828205L;
 
 	private Long id;
-	private GlobalExportFormat exportFormat ; //xls, ods
+	private ExportUtils.ExportFormat exportFormat ; //used only for global level exports
+	private ExportUtils.ExportFormat defaultOrganizationExportFormat ;//used for all levels of exports
 	private Date lastExportDate;
 	private Integer autoExportFrequency; // days
 	private Integer autoDeleteFrequency; //months                
@@ -39,14 +45,25 @@ public class GlobalExportSettings implements Serializable {
 	
 	@Column(name = "export_format", nullable = true)
 	@Enumerated(EnumType.STRING)
-	public GlobalExportFormat getExportFormat() {
+	public ExportUtils.ExportFormat getExportFormat() {
 		return exportFormat;
 	}
 
-	public void setExportFormat(
-			GlobalExportFormat exportFormat) {
+	public void setExportFormat(ExportUtils.ExportFormat exportFormat) {
 		this.exportFormat = exportFormat;
 	} 
+	
+	
+	@Column(name = "default_organization_export_format", nullable = true)
+	@Enumerated(EnumType.STRING)
+	public ExportUtils.ExportFormat getDefaultOrganizationExportFormat() {
+		return defaultOrganizationExportFormat;
+	}
+
+	public void setDefaultOrganizationExportFormat(
+			ExportUtils.ExportFormat defaultOrganizationExportFormat) {
+		this.defaultOrganizationExportFormat = defaultOrganizationExportFormat;
+	}
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)

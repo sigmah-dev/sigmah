@@ -1,3 +1,7 @@
+/*
+ * All Sigmah code is released under the GNU General Public License v3
+ * See COPYRIGHT.txt and LICENSE.txt.
+ */
 package org.sigmah.server.endpoint.export.sigmah.spreadsheet;
 
 import java.text.DateFormat;
@@ -42,7 +46,9 @@ public class ExportConstants {
 	 * Colors
 	 */
 	//Table headers  GRAY 10 %
+	public final static byte[] GRAY_5_RGB={(byte) 252,(byte) 252, (byte) 252}; //RGB
 	public final static byte[] GRAY_10_RGB={(byte) 245,(byte) 245, (byte) 245}; //RGB
+	public final static String GRAY_5_HEX= "#FCFCFC"; //Hexadecimal color code
 	public final static String GRAY_10_HEX= "#F5F5F5"; //Hexadecimal color code
 	
 	//Secondary or inner table headers LIGHT ORAGANGE
@@ -58,7 +64,8 @@ public class ExportConstants {
 	public static final HorizontalAlignmentType ALIGH_HOR_LEFT = HorizontalAlignmentType.LEFT;
 	public static final HorizontalAlignmentType ALIGH_HOR_RIGHT = HorizontalAlignmentType.RIGHT;
 	
-	public static final Color CALC_COL_GRAY = Color.valueOf(ExportConstants.GRAY_10_HEX);
+	public static final Color CALC_COL_GRAY5 = Color.valueOf(ExportConstants.GRAY_5_HEX);
+	public static final Color CALC_COL_GRAY10 = Color.valueOf(ExportConstants.GRAY_10_HEX);
 	public static final Color CALC_COL_ORANGE = Color.valueOf(ExportConstants.LIGHTORANGE_HEX);
 
  

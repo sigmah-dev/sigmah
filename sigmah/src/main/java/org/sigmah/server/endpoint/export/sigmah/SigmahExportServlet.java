@@ -13,6 +13,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sigmah.server.endpoint.export.sigmah.exporter.GlobalExportExporter;
 import org.sigmah.server.endpoint.export.sigmah.exporter.IndicatorEntryExporter;
 import org.sigmah.server.endpoint.export.sigmah.exporter.LogFrameExporter;
+import org.sigmah.server.endpoint.export.sigmah.exporter.OrgUnitSynthesisExporter;
 import org.sigmah.server.endpoint.export.sigmah.exporter.ProjectReportExporter;
 import org.sigmah.server.endpoint.export.sigmah.exporter.ProjectSynthesisExporter;
 import org.sigmah.shared.dto.ExportUtils;
@@ -85,19 +86,22 @@ public class SigmahExportServlet extends HttpServlet {
 	            case GLOBAL_EXPORT:
 	                exporter = new GlobalExportExporter(injector,request);
 	                break;
+	            case ORGUNIT_SYNTHESIS:
+	                exporter = new OrgUnitSynthesisExporter(injector,request);
+	                break;
 	            default:
 	                log.error("[doGet] The export type '" + type + "' is unknown.");
 	                throw new ServletException("The export type '" + type + "' is unknown.");
             }
 
-            // Configures response.
-            resp.setContentType(exporter.getContentType());
+            // Configures response.           
             if (request.getHeader("User-Agent").indexOf("MSIE") != -1) {
                 resp.addHeader("Content-Disposition", "attachment; filename=" + exporter.getFileName());
             } else {
                 resp.addHeader("Content-Disposition",
                         "attachment; filename=" + (exporter.getFileName()).replace(" ", "_"));
             }
+            resp.setContentType(exporter.getContentType());
 
             // Exports.
             try {

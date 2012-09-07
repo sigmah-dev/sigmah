@@ -1,3 +1,7 @@
+/*
+ * All Sigmah code is released under the GNU General Public License v3
+ * See COPYRIGHT.txt and LICENSE.txt.
+ */
 package org.sigmah.server.schedule.export;
 
 import java.text.ParseException;
@@ -10,6 +14,11 @@ import org.quartz.SchedulerFactory;
 
 import com.google.inject.Inject;
 
+
+/*
+ * Setting up quartz with guice 
+ * @author sherzod
+ */
 public class QuartzScheduler {
 
 	private final static Log log = LogFactory.getLog(QuartzScheduler.class);

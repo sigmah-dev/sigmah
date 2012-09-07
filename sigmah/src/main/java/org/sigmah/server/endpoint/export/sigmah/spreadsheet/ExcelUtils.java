@@ -1,14 +1,12 @@
+/*
+ * All Sigmah code is released under the GNU General Public License v3
+ * See COPYRIGHT.txt and LICENSE.txt.
+ */
 package org.sigmah.server.endpoint.export.sigmah.spreadsheet;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
-import java.util.List;
-import java.util.Set;
 
-import org.apache.poi.hssf.usermodel.DVConstraint;
 import org.apache.poi.hssf.usermodel.HSSFCell;
-import org.apache.poi.hssf.usermodel.HSSFDataValidation;
 import org.apache.poi.hssf.usermodel.HSSFHyperlink;
 import org.apache.poi.hssf.usermodel.HSSFPalette;
 import org.apache.poi.hssf.usermodel.HSSFRow;
@@ -19,15 +17,10 @@ import org.apache.poi.hssf.util.HSSFRegionUtil;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.ss.usermodel.DataFormat;
-import org.apache.poi.ss.usermodel.DataValidation;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.IndexedColors;
-import org.apache.poi.ss.usermodel.PrintSetup;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
-import org.apache.poi.ss.util.CellRangeAddressList;
-
-import com.google.gwt.dom.client.LIElement;
 
 /*
  * MS Excel specific common functions 
@@ -89,6 +82,30 @@ public class ExcelUtils {
 		cell.setCellValue(header);
 		cell.setCellStyle(getHeaderStyle(wb));
 		return cell;
+	}
+	
+	public HSSFCell putGlobalExportHeader(HSSFRow row,int cellIndex, String header) {
+		cell = row.createCell(cellIndex);
+		cell.setCellValue(header);
+		cell.setCellStyle(getGlobalExportHeaderStyle(wb));
+		return cell;
+	}
+	
+	public CellStyle getGlobalExportHeaderStyle(HSSFWorkbook wb) {
+		CellStyle style = createBorderedStyle(wb);
+ 		style.setVerticalAlignment(CellStyle.VERTICAL_CENTER);
+
+		HSSFPalette palette = wb.getCustomPalette();
+		palette.setColorAtIndex(HSSFColor.GREY_25_PERCENT.index,
+				ExportConstants.GRAY_5_RGB[0],
+				ExportConstants.GRAY_5_RGB[1],
+				ExportConstants.GRAY_5_RGB[2]);
+		style.setFillForegroundColor(HSSFColor.GREY_25_PERCENT.index);
+		style.setFillPattern(CellStyle.SOLID_FOREGROUND);
+		style.setFont(getItalicFont(wb, (short) 10));
+		style.setWrapText(true);
+		style.setIndention((short) 1);
+		return style;
 	}
   
 	public void putMainTitle(final HSSFSheet sheet,int rowIndex,String text,int maxCols){		

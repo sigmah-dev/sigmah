@@ -1,3 +1,7 @@
+/*
+ * All Sigmah code is released under the GNU General Public License v3
+ * See COPYRIGHT.txt and LICENSE.txt.
+ */
 package org.sigmah.server.endpoint.export.sigmah.spreadsheet;
 
 import java.util.ArrayList;
@@ -63,10 +67,17 @@ public class GlobalExportDataProvider {
 	public static class ValueLabel{
 		private String label;
 		private Object value;
+		private int lines=1;
 		public ValueLabel(String label,Object value){
 			this.label=label;
 			this.value=value;
 		}
+		public ValueLabel(String label,Object value,int lines){
+			this.label=label;
+			this.value=value;
+			this.lines=lines;
+		}
+		
 		public String getFormattedLabel() {
 			return clearHtmlFormatting(label);
 		}
@@ -78,7 +89,11 @@ public class GlobalExportDataProvider {
 		}
 		public void setValue(Object value) {
 			this.value = value;
-		}				
+		}
+		public int getLines() {
+			return lines;
+		}		
+		
 	}
 	
 	private final Injector injector;
@@ -294,7 +309,7 @@ public class GlobalExportDataProvider {
          int lines=1;
          for(QuestionChoiceElement choice:list){
          	 for (Long id : selectedChoicesId) {
-        		 if (id == choice.getId()) {
+        		 if (id.equals(choice.getId())) {
         			 builder.append(" - ");
         			 builder.append(choice.getLabel());
         			 builder.append("\n");
@@ -304,7 +319,7 @@ public class GlobalExportDataProvider {
          }
         String value=null;
         if(lines>1){
-        	value = builder.substring(0, builder.length()-2);
+        	value = builder.substring(0, builder.length()-1);
         	lines--;       
         }
         return new MultiItemText(value, lines);
@@ -335,16 +350,19 @@ public class GlobalExportDataProvider {
 	
 	public ValueLabel getTripletPair(final FlexibleElement element,final ValueResult valueResult){
 		String value=null;
+		int lines=1;
 		
 		if (valueResult != null && valueResult.isValueDefined()) {		                		
    		 final MultiItemText item=formatTripletValues(valueResult.getValuesObject());
-   		 value = item.text;		                				                       
+   		 value = item.text;
+   		 lines=item.lineCount;   		 
         }
 		
-		return new ValueLabel(element.getLabel(), value);
+		return new ValueLabel(element.getLabel(), value,lines);
 	}
 	public ValueLabel getChoicePair(final FlexibleElement element,final ValueResult valueResult){
 		String value=null;
+		int lines=1;
 		
 		if (valueResult != null && valueResult.isValueDefined()) {
 			final QuestionElement questionElement=(QuestionElement)element;
@@ -352,6 +370,7 @@ public class GlobalExportDataProvider {
 	        	final MultiItemText item=formatMultipleChoices(
 	            		questionElement.getChoices(),valueResult.getValueObject());   		                                
 	        	value = item.text;	
+	        	lines=item.lineCount;  
 	            
 		 	}else{
  		 		final String idChoice = (String) valueResult.getValueObject();                                                       		 	
@@ -364,7 +383,7 @@ public class GlobalExportDataProvider {
  		 	}
 		}
 		
-		return new ValueLabel(element.getLabel(), value);		
+		return new ValueLabel(element.getLabel(), value,lines);		
 	}
 	
 	public ValueLabel getTextAreaElementPair(
@@ -426,6 +445,32 @@ public class GlobalExportDataProvider {
 	
 		return name; 
 	}
+	
+	public ValueLabel getDefElementPair(
+			final ValueResult valueResult,
+			final FlexibleElement element,
+			final Object object,
+			final Class clazz,
+			final EntityManager entityManager,
+			final Locale locale,
+			final Translator translator){
+		if(clazz.equals(Project.class)){
+			return getDefElementPair(valueResult, 
+					element, 
+					(Project)object, 
+					entityManager, 
+					locale, 
+					translator);
+		}else{
+			return getDefElementPair(valueResult, 
+					element, 
+					(OrgUnit)object, 
+					entityManager, 
+					locale, 
+					translator);
+		}
+	}
+	
 	public ValueLabel getDefElementPair(
 			final ValueResult valueResult,
 			final FlexibleElement element,
@@ -534,6 +579,86 @@ public class GlobalExportDataProvider {
 	    		if(orgUnit!=null)
 	    			value =orgUnit.getName() + " - " + orgUnit.getFullName();
 	    		
+	    	}break;
+    	
+    	} 
+    	return new ValueLabel(label, value);
+	}
+	
+	
+	public ValueLabel getDefElementPair(
+			final ValueResult valueResult,
+			final FlexibleElement element,
+			final OrgUnit orgUnit,
+			final EntityManager entityManager,
+			final Locale locale,
+			final Translator translator) {
+
+		Object value=null;
+		String label=null;
+     	
+    	final DefaultFlexibleElement defaultElement=
+    		(DefaultFlexibleElement)element;
+    	                    	
+    	boolean hasValue= valueResult != null && valueResult.isValueDefined();
+    	
+    	switch(defaultElement.getType()){
+	    	case CODE:{
+	    		
+	    		label=translator.translate("projectName",locale);
+	    		if(hasValue){
+	    			value=valueResult.getValueObject();
+	    		}else{
+	    			value=orgUnit.getName();
+	    		}
+	    	}break;
+	    	case TITLE:{
+ 	    		label=translator.translate("projectFullName",locale);
+	    		if(hasValue){
+	    			value=valueResult.getValueObject();
+	    		}else{
+	    			value=orgUnit.getFullName();
+	    		}
+	    	}break;
+	    	 
+	    	case BUDGET:{
+ 				label=translator.translate("projectBudget",locale);
+				Double pb = 0d;
+				Double sb = 0d;
+	
+				if (hasValue) {
+					final String[] parts = valueResult.getValueObject().split("~");
+					pb = Double.parseDouble(parts[0]);
+					sb = Double.parseDouble(parts[1]);
+				} else {
+					pb = orgUnit.getPlannedBudget();
+					sb = orgUnit.getSpendBudget();
+				}
+				value = sb + " / " + pb;
+	    	}break;
+	    	case COUNTRY:{
+ 	    		label=translator.translate("projectCountry",locale);
+	     		if(hasValue){
+	    			int countryId = Integer.parseInt(valueResult.getValueObject());
+	    			value = entityManager.find(Country.class, countryId).getName();
+	     		}else{
+	     			value = orgUnit.getOfficeLocationCountry().getName();
+	    		}
+	    	}break;
+	    	case MANAGER:{
+ 	    		label=translator.translate("projectManager",locale);
+	     		if(hasValue){
+	     			int userId = Integer.parseInt(valueResult.getValueObject()); 
+	     			value= getUserName(entityManager.find(User.class, userId));
+ 	     		}else{
+	     			 value ="";			 
+	    		}
+	    	}break;
+	    	case ORG_UNIT:{
+ 	    		label=translator.translate("orgunit",locale);
+ 	    		OrgUnit parentOrgUnit=orgUnit.getParent();
+ 	    		if(parentOrgUnit==null) parentOrgUnit=orgUnit;
+	    		value =parentOrgUnit.getName() + " - " + parentOrgUnit.getFullName();	    		
 	    	}break;
     	
     	} 

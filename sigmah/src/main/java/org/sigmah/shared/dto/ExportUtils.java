@@ -1,3 +1,7 @@
+/*
+ * All Sigmah code is released under the GNU General Public License v3
+ * See COPYRIGHT.txt and LICENSE.txt.
+ */
 package org.sigmah.shared.dto;
 
 import java.util.HashMap;
@@ -53,6 +57,10 @@ public final class ExportUtils {
          */
         PROJECT_SYNTHESIS_LOGFRAME_INDICATORS,
         /**
+         * ORGUNIT SYNTHESIS 
+         */
+        ORGUNIT_SYNTHESIS,
+        /**
          * Global export
          */
         GLOBAL_EXPORT;
@@ -75,12 +83,12 @@ public final class ExportUtils {
 	private final static Map<ExportFormat, String> extensionMap = new HashMap<ExportFormat, String>();
 	
 	static {
-		contentTypeMap.put(ExportFormat.MS_EXCEL, "application/vnd.ms-excel");
-		contentTypeMap.put(ExportFormat.OPEN_DOCUMENT_SPREADSHEET, "application/vnd.oasis.opendocument.spreadsheet");
+		contentTypeMap.put(ExportFormat.XLS, "application/vnd.ms-excel");
+		contentTypeMap.put(ExportFormat.ODS, "application/vnd.oasis.opendocument.spreadsheet");
 		contentTypeMap.put(ExportFormat.MS_WORD, "application/msword");
 		
-		extensionMap.put(ExportFormat.MS_EXCEL, ".xls");
-		extensionMap.put(ExportFormat.OPEN_DOCUMENT_SPREADSHEET, ".ods");
+		extensionMap.put(ExportFormat.XLS, ".xls");
+		extensionMap.put(ExportFormat.ODS, ".ods");
 		extensionMap.put(ExportFormat.MS_WORD, ".rtf");
 	}
  
@@ -93,7 +101,18 @@ public final class ExportUtils {
 	}
 
 	public static enum ExportFormat {
-		MS_EXCEL, OPEN_DOCUMENT_SPREADSHEET, MS_WORD;		
+		/*
+		 * MS Excel 2003
+		 */
+		XLS, 
+		/*
+		 * Open document spreadsheet
+		 */
+		ODS, 
+		/*
+		 * MS Word  
+		 */
+		MS_WORD;		
 		
 		  public static ExportFormat valueOfOrNull(String name) {
 	            try {
@@ -126,7 +145,9 @@ public final class ExportUtils {
     
     public static final String PARAM_EXPORT_FORMAT = "format";
  
-    public static final String PARAM_EXPORT_PROJECT_ID = "id";
+    public static final String PARAM_EXPORT_PROJECT_ID = "project_id";
+    
+    public static final String PARAM_EXPORT_ORGUNIT_ID = "orgunit_id";
    
     public static final String PARAM_EXPORT_ORGANIZATION_ID = "org_id";
     

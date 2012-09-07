@@ -5,18 +5,19 @@
 package org.sigmah.server.endpoint.export.sigmah.spreadsheet.template;
 
 import org.odftoolkit.simple.SpreadsheetDocument;
-import org.sigmah.server.endpoint.export.sigmah.spreadsheet.data.ProjectSynthesisData;
-import org.sigmah.shared.domain.Project;
+import org.sigmah.server.endpoint.export.sigmah.spreadsheet.data.OrgUnitSynthesisData;
+import org.sigmah.shared.domain.OrgUnit;
+
 
 /*
  * @author sherzod
  */
-public class ProjectSynthesisCalcTemplate extends BaseSynthesisCalcTemplate { 
+public class OrgUnitSynthesisCalcTemplate extends BaseSynthesisCalcTemplate { 
   
-	public ProjectSynthesisCalcTemplate(
-			final ProjectSynthesisData data,
+	public OrgUnitSynthesisCalcTemplate(
+			final OrgUnitSynthesisData data,
 			final SpreadsheetDocument doc) throws Throwable {
-		 	super(data,doc,Project.class);
+		 	super(data,doc,OrgUnit.class);
 	}
  
 }

@@ -1,6 +1,9 @@
+/*
+ * All Sigmah code is released under the GNU General Public License v3
+ * See COPYRIGHT.txt and LICENSE.txt.
+ */
 package org.sigmah.server.endpoint.export.sigmah.spreadsheet;
 
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -25,6 +28,10 @@ import org.odftoolkit.simple.table.Row;
 import org.odftoolkit.simple.table.Table;
 import org.sigmah.server.endpoint.export.sigmah.spreadsheet.data.LogFrameExportData;
 
+
+/*
+ * @author sherzod
+ */
 public class CalcUtils {
 
 	private CalcUtils(){}
@@ -51,14 +58,13 @@ public class CalcUtils {
 		styleMap.put(OdfTextProperties.FontSize, "10pt");
 	}
 public static String prepareCoreStyle(final SpreadsheetDocument doc) throws Throwable{
-		
 		OdfOfficeAutomaticStyles styles = doc.getContentDom().getOrCreateAutomaticStyles();
 		OdfStyle style = styles.newStyle(OdfStyleFamily.TableCell);
-	
+
 		for(OdfStyleProperty property:styleMap.keySet()){
 			style.setProperty(property,styleMap.get(property));
 		}		 
-		coreStyleName = style.getStyleNameAttribute();
+		coreStyleName = style.getStyleNameAttribute();	
 		return coreStyleName;
 	}
  
@@ -68,11 +74,21 @@ public  static Cell putHeader(final Row row,int cellIndex, String header) {
 	Cell cell = row.getCellByIndex(cellIndex);
 	cell.setStringValue(header);
 	cell.setBorders(CellBordersType.ALL_FOUR, getBlackBorder());
-	cell.setCellBackgroundColor(ExportConstants.CALC_COL_GRAY);
+	cell.setCellBackgroundColor(ExportConstants.CALC_COL_GRAY10);
 	cell.setFont(getBoldFont(10));
 	cell.setVerticalAlignment(ExportConstants.ALIGN_VER_MIDDLE);
 	cell.setHorizontalAlignment(ExportConstants.ALIGH_HOR_CENTER);
 	cell.setTextWrapped(true);
+	return cell;
+}
+
+public  static Cell putGlobalExportHeader(final Row row,int cellIndex, String header) {
+
+	Cell cell = row.getCellByIndex(cellIndex);
+	cell.setStringValue(header);
+	cell.setCellStyleName(coreStyleName);
+	cell.setCellBackgroundColor(ExportConstants.CALC_COL_GRAY5);
+	cell.setFont(getFont(10, false, true));
 	return cell;
 }
 

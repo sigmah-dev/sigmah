@@ -1,3 +1,7 @@
+/*
+ * All Sigmah code is released under the GNU General Public License v3
+ * See COPYRIGHT.txt and LICENSE.txt.
+ */
 package org.sigmah.server.endpoint.gwtrpc.handler;
 
 import java.util.Map;
@@ -18,6 +22,11 @@ import org.sigmah.shared.exception.CommandException;
 
 import com.google.inject.Inject;
 
+
+/*
+ * Updates link{GlobalExportSettings} by from link{UpdateGlobalExportSettings} 
+ * @author sherzod
+ */
 public class UpdateGlobalExportSettingsHandler implements CommandHandler<UpdateGlobalExportSettings> {
 
 	private static final Log log = LogFactory.getLog(UpdateGlobalExportSettingsHandler.class);
@@ -43,19 +52,23 @@ public class UpdateGlobalExportSettingsHandler implements CommandHandler<UpdateG
 		final GlobalExportSettings settings=
 			dao.getGlobalExportSettingsByOrganization(cmd.getOrganizationId());	
 		
-		settings.setAutoDeleteFrequency(cmd.getAutoDeleteFrequency());
-		settings.setAutoExportFrequency(cmd.getAutoExportFrequency());
-		settings.setExportFormat(cmd.getExportFormat());
-		em.merge(settings);
-		
-		final Map<Integer,Boolean> fieldsMap=cmd.getFieldsMap();
-		for(Integer elementid:fieldsMap.keySet()){
-			FlexibleElement element=em.find(FlexibleElement.class, new Long(elementid.longValue()));
-			element.setGloballyExportable(fieldsMap.get(elementid));
-			em.merge(element);
+		// only updates default global export format
+		if(cmd.getUpdateDefaultExportFormat()){
+			settings.setDefaultOrganizationExportFormat(cmd.getDefaultOrganizationExportFormat());
+			em.merge(settings);			
+		}else{		
+			settings.setAutoDeleteFrequency(cmd.getAutoDeleteFrequency());
+			settings.setAutoExportFrequency(cmd.getAutoExportFrequency());
+			settings.setExportFormat(cmd.getExportFormat());
+			em.merge(settings);
+			
+			final Map<Integer,Boolean> fieldsMap=cmd.getFieldsMap();
+			for(Integer elementid:fieldsMap.keySet()){
+				FlexibleElement element=em.find(FlexibleElement.class, new Long(elementid.longValue()));
+				element.setGloballyExportable(fieldsMap.get(elementid));
+				em.merge(element);
+			}			 			
 		}
-		 
-		
 		return null;
 	}
 }

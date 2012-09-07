@@ -2,6 +2,7 @@ package org.sigmah.client.page.orgunit.details;
 
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.icon.IconImageBundle;
+import org.sigmah.client.ui.ExportSpreadsheetFormButton;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.core.El;
@@ -11,12 +12,14 @@ import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.layout.VBoxLayout;
 import com.extjs.gxt.ui.client.widget.layout.VBoxLayout.VBoxLayoutAlign;
+import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 
 public class OrgUnitDetailsView extends OrgUnitDetailsPresenter.View {
 
     // Toolbar buttons.
     private Button saveButton;
+    private ExportSpreadsheetFormButton exportFormButton;
 
     /**
      * Builds the details main panel.
@@ -42,7 +45,7 @@ public class OrgUnitDetailsView extends OrgUnitDetailsPresenter.View {
 
         // Toolbar.
         final ToolBar toolBar = buildToolbar();
-
+        
         setTopComponent(toolBar);
     }
 
@@ -63,6 +66,12 @@ public class OrgUnitDetailsView extends OrgUnitDetailsPresenter.View {
         toolBar.setBorders(false);
 
         toolBar.add(saveButton);
+        
+        // ExportForm button 
+        exportFormButton = new ExportSpreadsheetFormButton();       
+        toolBar.add(new FillToolItem());
+        toolBar.add(exportFormButton.getButton());
+        toolBar.add(exportFormButton.getExportForm());
 
         return toolBar;
     }
@@ -74,4 +83,9 @@ public class OrgUnitDetailsView extends OrgUnitDetailsPresenter.View {
     public ContentPanel getMainPanel() {
         return this;
     }
+
+	@Override
+	public ExportSpreadsheetFormButton getExcelExportFormButton() {
+ 		return exportFormButton;
+	}
 }

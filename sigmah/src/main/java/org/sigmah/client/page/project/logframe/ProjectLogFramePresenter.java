@@ -321,7 +321,7 @@ public class ProjectLogFramePresenter implements SubPresenter {
 						ExportUtils.ExportType.PROJECT_LOG_FRAME.name());
 				view.getExcelExportFormButton().getFieldMap().put(ExportUtils.PARAM_EXPORT_PROJECT_ID, 
 		        		String.valueOf(currentProjectDTO.getId()));
-		        view.getExcelExportFormButton().exportButtonClicked();
+		        view.getExcelExportFormButton().triggerExport();
 			}
 		});
        

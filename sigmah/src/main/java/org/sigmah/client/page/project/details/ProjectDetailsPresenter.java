@@ -43,16 +43,19 @@ import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FieldEvent;
 import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Label;
 import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.CheckBoxGroup;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
+import com.extjs.gxt.ui.client.widget.form.FormPanel;
+import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Grid;
 
@@ -220,6 +223,16 @@ public class ProjectDetailsPresenter implements SubPresenter {
 
 			@Override
 			public void handleEvent(ButtonEvent be) {
+				final Window w = new Window();
+				w.setPlain(true);
+				w.setModal(true);
+				w.setBlinkModal(true);
+				w.setLayout(new FitLayout());
+				w.setSize(350,180);
+				w.setHeading(I18N.CONSTANTS.exportData());
+
+				final FormPanel panel=new FormPanel();		 
+				
 				final CheckBoxGroup options = new CheckBoxGroup();
 				options.setOrientation(Orientation.VERTICAL);
 				options.setFieldLabel(I18N.CONSTANTS.exportOptions());
@@ -231,44 +244,43 @@ public class ProjectDetailsPresenter implements SubPresenter {
 				options.add(synthesisBox); 				
 				options.add(logFrameBox);
 				options.add(indicatorBox);
-															
- 				indicatorBox.addListener(Events.OnClick, new Listener<FieldEvent>() {
-			            public void handleEvent(FieldEvent fe) {
-			             onOptionBoxClicked(indicatorBox, logFrameBox);
-			            }
-			        });
- 				logFrameBox.addListener(Events.OnClick, new Listener<FieldEvent>() {
- 						public void handleEvent(FieldEvent fe) {
- 							onOptionBoxClicked(indicatorBox, logFrameBox);
- 						}
-		        });
-				
- 				view.getExcelExportFormButton().getOptionWidgets().clear();
- 				view.getExcelExportFormButton().getOptionWidgets().add(options);
-							
- 				 view.getExcelExportFormButton().getFieldMap().put(ExportUtils.PARAM_EXPORT_TYPE,
- 			       		   ExportUtils.ExportType.PROJECT_SYNTHESIS.name());
+				 
+ 				
+ 				panel.add(options);
+ 				
+				final Button export = new Button(I18N.CONSTANTS.export());
+		 		panel.getButtonBar().add(export); 	
+				export.addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+					@Override
+					public void componentSelected(ButtonEvent ce) {
+						 ExportUtils.ExportType type=ExportUtils.ExportType.PROJECT_SYNTHESIS;
+				          if(indicatorBox.getValue() && logFrameBox.getValue()){
+				       	   type=ExportUtils.ExportType.PROJECT_SYNTHESIS_LOGFRAME_INDICATORS;
+				          }else if(indicatorBox.getValue() && !logFrameBox.getValue()){
+				       	   type=ExportUtils.ExportType.PROJECT_SYNTHESIS_INDICATORS;
+				          }else if(!indicatorBox.getValue() && logFrameBox.getValue()){
+				       	   type=ExportUtils.ExportType.PROJECT_SYNTHESIS_LOGFRAME;
+				          }          
+				          view.getExcelExportFormButton().getFieldMap().put(
+				       		   ExportUtils.PARAM_EXPORT_TYPE,type.name());
+				          
+						view.getExcelExportFormButton().triggerExport();
+						w.hide();
+					}
+				});		
+			 
+				w.add(panel);
+				w.show();
+				 
 				view.getExcelExportFormButton().getFieldMap().put(ExportUtils.PARAM_EXPORT_PROJECT_ID, 
 		        		String.valueOf(projectId));
 				
-		        view.getExcelExportFormButton().exportButtonClicked();
-			}
+ 			}
 		});
     }
     
-    private void onOptionBoxClicked(final CheckBox indicatorBox,final CheckBox logFrameBox){
-    	  ExportUtils.ExportType type=ExportUtils.ExportType.PROJECT_SYNTHESIS;
-          if(indicatorBox.getValue() && logFrameBox.getValue()){
-       	   type=ExportUtils.ExportType.PROJECT_SYNTHESIS_LOGFRAME_INDICATORS;
-          }else if(indicatorBox.getValue() && !logFrameBox.getValue()){
-       	   type=ExportUtils.ExportType.PROJECT_SYNTHESIS_INDICATORS;
-          }else if(!indicatorBox.getValue() && logFrameBox.getValue()){
-       	   type=ExportUtils.ExportType.PROJECT_SYNTHESIS_LOGFRAME;
-          }          
-          view.getExcelExportFormButton().getFieldMap().put(
-       		   ExportUtils.PARAM_EXPORT_TYPE,type.name());
-    }
-    
+   
     protected CheckBox createCheckBox( String label) {
         CheckBox box = new CheckBox();
          box.setBoxLabel(label);

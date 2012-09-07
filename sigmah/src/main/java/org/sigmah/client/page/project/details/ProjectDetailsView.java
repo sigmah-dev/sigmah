@@ -62,7 +62,7 @@ public class ProjectDetailsView extends ProjectDetailsPresenter.View {
         saveButton.setEnabled(false);
 
         // ExportForm button 
-        exportFormButton = new ExportSpreadsheetFormButton(390, 260);
+        exportFormButton = new ExportSpreadsheetFormButton();
         
         // Actions toolbar.
         final ToolBar toolBar = new ToolBar();

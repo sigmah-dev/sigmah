@@ -1,3 +1,7 @@
+/*
+ * All Sigmah code is released under the GNU General Public License v3
+ * See COPYRIGHT.txt and LICENSE.txt.
+ */
 package org.sigmah.client.ui;
 
 import java.util.HashMap;
@@ -68,7 +72,8 @@ public class GlobalExportForm {
 		final Map<String,String> fieldMap=new HashMap<String, String>();
 		fieldMap.put(ExportUtils.PARAM_EXPORT_TYPE,
  				ExportUtils.ExportType.GLOBAL_EXPORT.name());
- 		
+		fieldMap.put(ExportUtils.PARAM_EXPORT_ORGANIZATION_ID,
+				String.valueOf(organizationId));
 				
 		button.addSelectionListener(new SelectionListener<ButtonEvent>() {
 			
@@ -79,7 +84,7 @@ public class GlobalExportForm {
 				w.setModal(true);
 				w.setBlinkModal(true);
 				w.setLayout(new FitLayout());
-				w.setSize(420,160);
+				w.setSize(420,140);
 				w.setHeading(I18N.CONSTANTS.globalExport());
 
 				final FormPanel panel=new FormPanel();
@@ -141,7 +146,7 @@ public class GlobalExportForm {
 			            public void handleEvent(FieldEvent fe) {			            	 
 					        periods.setAllowBlank(false);
 					        periodTable.setVisible(true);
-					        w.setSize(500,240);
+					        w.setSize(500,220);
 					        
 			           }
 			     });
@@ -152,7 +157,7 @@ public class GlobalExportForm {
 				        periods.setAllowBlank(true);
 				        periods.clear();
 				        periodTable.setVisible(false);
-				        w.setSize(420,160);
+				        w.setSize(420,140);
 		           }
 		     });
 			 
@@ -202,9 +207,7 @@ public class GlobalExportForm {
 						exportForm.removeAll();
 						
 						// set version
-						if (liveChoice.getValue()) {
-							fieldMap.put(ExportUtils.PARAM_EXPORT_ORGANIZATION_ID,
-									String.valueOf(organizationId));
+						if (liveChoice.getValue()) {							
 							fieldMap.put(ExportUtils.PARAM_EXPORT_DATA_VERSION,
 									ExportUtils.ExportDataVersion.LIVE_DATA.name());
 						} else {
@@ -216,11 +219,7 @@ public class GlobalExportForm {
 									String.valueOf(periods.getValue().getId()));	
 						}
 						
-						// file type (it can be different in organization's export settings)
-						// it is required by servlet 
-						fieldMap.put(ExportUtils.PARAM_EXPORT_FORMAT,
-								ExportUtils.ExportFormat.MS_EXCEL.name());
-						
+						 	
 						// Adds parameters.
 						for (String name : fieldMap.keySet()) {
 							final HiddenField<String> hiddenField = new HiddenField<String>();

@@ -1,3 +1,7 @@
+/*
+ * All Sigmah code is released under the GNU General Public License v3
+ * See COPYRIGHT.txt and LICENSE.txt.
+ */
 package org.sigmah.server.endpoint.gwtrpc.handler;
 
 import java.text.DateFormat;
@@ -20,6 +24,10 @@ import org.sigmah.shared.exception.CommandException;
 
 import com.google.inject.Inject;
 
+/*
+ * Provides list of link{GlobalExportDTO} for given date range
+ * @author sherzod
+ */
 public class GetGlobalExportsHandler implements CommandHandler<GetGlobalExports> {
 
 	private static final Log log = LogFactory.getLog(GetGlobalExportsHandler.class);

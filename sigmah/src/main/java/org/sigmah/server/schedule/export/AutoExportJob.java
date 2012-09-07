@@ -1,11 +1,13 @@
+/*
+ * All Sigmah code is released under the GNU General Public License v3
+ * See COPYRIGHT.txt and LICENSE.txt.
+ */
 package org.sigmah.server.schedule.export;
 
 import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Map;
-import java.util.TimeZone;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
@@ -18,13 +20,20 @@ import org.quartz.JobExecutionException;
 import org.sigmah.server.dao.GlobalExportDAO;
 import org.sigmah.server.dao.hibernate.GlobalExportHibernateDAO;
 import org.sigmah.server.endpoint.export.sigmah.spreadsheet.GlobalExportDataProvider;
-import org.sigmah.shared.domain.Organization;
 import org.sigmah.shared.domain.export.GlobalExport;
 import org.sigmah.shared.domain.export.GlobalExportSettings;
 
-import com.google.inject.Inject;
 import com.google.inject.Injector;
 
+/*
+ * Scheduled (in link{GlobalExportJobActivator}) job to generate global exports 
+ * by check export frequency of each organization 
+ * 
+ * Runs in a separate thread
+ *  
+ * ATTENTION: This job must not run at the same time with link{AutoDeleteJob}
+ * @author sherzod
+ */
 public class AutoExportJob implements Job {
 
 	public void execute(JobExecutionContext executionContext)

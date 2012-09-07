@@ -16,6 +16,7 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.odftoolkit.simple.SpreadsheetDocument;
 import org.sigmah.server.endpoint.export.sigmah.ExportException;
 import org.sigmah.server.endpoint.export.sigmah.Exporter;
+import org.sigmah.server.endpoint.export.sigmah.spreadsheet.GlobalExportDataProvider;
 import org.sigmah.server.endpoint.export.sigmah.spreadsheet.data.IndicatorEntryData;
 import org.sigmah.server.endpoint.export.sigmah.spreadsheet.data.LogFrameExportData;
 import org.sigmah.server.endpoint.export.sigmah.spreadsheet.data.ProjectSynthesisData;
@@ -89,7 +90,7 @@ public class ProjectSynthesisExporter extends Exporter{
 			 }
 			ExportTemplate template = null;
 			switch (exportFormat) {
-			case MS_EXCEL:{
+			case XLS:{
 				final HSSFWorkbook wb=new HSSFWorkbook();
 				template = new ProjectSynthesisExcelTemplate(synthesisData,wb);
 				if(logFrameData!=null)
@@ -97,7 +98,7 @@ public class ProjectSynthesisExporter extends Exporter{
 				if(indicatorData!=null)
 					template=new IndicatorEntryExcelTemplate(indicatorData,wb);
 			}break;
-			case OPEN_DOCUMENT_SPREADSHEET:{
+			case ODS:{
 				final SpreadsheetDocument doc=SpreadsheetDocument.newSpreadsheetDocument();
 				template = new ProjectSynthesisCalcTemplate(synthesisData,doc);
 				if(logFrameData!=null)
@@ -118,13 +119,9 @@ public class ProjectSynthesisExporter extends Exporter{
 	
  	@SuppressWarnings("rawtypes")
 	private ProjectSynthesisData prepareSynthesisData(Integer projectId)throws Throwable {
-		 		
-  		final List<Command> commands= new ArrayList<Command>(1);
-		
-		//get project
-		commands.add(new GetProject(projectId));
-        final ProjectDTO project=(ProjectDTO)executeCommands(commands);                
-		return new ProjectSynthesisData(this,project,injector.getInstance(EntityManager.class));
+ 		
+		return new ProjectSynthesisData(this,projectId,injector,locale);
+				 
 	}
 
 }

@@ -1,3 +1,7 @@
+/*
+ * All Sigmah code is released under the GNU General Public License v3
+ * See COPYRIGHT.txt and LICENSE.txt.
+ */
 package org.sigmah.server.endpoint.export.sigmah.exporter;
 
 import java.io.OutputStream;
@@ -12,6 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sigmah.server.dao.GlobalExportDAO;
 import org.sigmah.server.endpoint.export.sigmah.ExportException;
 import org.sigmah.server.endpoint.export.sigmah.Exporter;
 import org.sigmah.server.endpoint.export.sigmah.spreadsheet.GlobalExportDataProvider;
@@ -19,9 +24,11 @@ import org.sigmah.server.endpoint.export.sigmah.spreadsheet.data.GlobalExportDat
 import org.sigmah.server.endpoint.export.sigmah.spreadsheet.data.LogFrameExportData;
 import org.sigmah.server.endpoint.export.sigmah.spreadsheet.data.SpreadsheetDataUtil;
 import org.sigmah.server.endpoint.export.sigmah.spreadsheet.template.ExportTemplate;
+import org.sigmah.server.endpoint.export.sigmah.spreadsheet.template.GlobalExportCalcTemplate;
 import org.sigmah.server.endpoint.export.sigmah.spreadsheet.template.GlobalExportExcelTemplate;
 import org.sigmah.server.endpoint.export.sigmah.spreadsheet.template.LogFrameCalcTemplate;
 import org.sigmah.server.endpoint.export.sigmah.spreadsheet.template.LogFrameExcelTemplate;
+import org.sigmah.shared.domain.export.GlobalExportSettings;
 import org.sigmah.shared.dto.ExportUtils;
 
 import com.google.inject.Injector;
@@ -52,11 +59,13 @@ public class GlobalExportExporter extends Exporter{
 			
 			ExportTemplate template = null;
 			switch (exportFormat) {
-			case MS_EXCEL:
+			case XLS:{
 				template = new GlobalExportExcelTemplate(data);
+ 			}
 				break;
-			case OPEN_DOCUMENT_SPREADSHEET:
-				template = new GlobalExportExcelTemplate(data);
+			case ODS:{
+				template = new GlobalExportCalcTemplate(data);
+ 			}
 				break;
 			default:
 				log.error("[export] The export format '" + exportFormat + "' is unknown.");
@@ -69,6 +78,28 @@ public class GlobalExportExporter extends Exporter{
 		}
 	}
 	
+	
+	
+	@Override
+	public String getExtention() {
+		 
+		try{
+			Integer organizationId =
+				Integer.parseInt(requireParameter(ExportUtils.PARAM_EXPORT_ORGANIZATION_ID));
+			// data format
+			final GlobalExportDAO exportDAO=injector.getInstance(GlobalExportDAO.class);
+			final GlobalExportSettings settings =
+				exportDAO.getGlobalExportSettingsByOrganization(organizationId);
+			
+			exportFormat=settings.getExportFormat();
+			if(exportFormat==null) exportFormat=settings.getDefaultOrganizationExportFormat();			 
+				
+		}catch (Exception e) {
+			log.error("[export] Error during the workbook writing.", e);
+ 		}
+ 		return super.getExtention();
+	}
+
 	private GlobalExportData prepareData() throws ExportException {
 
 		Map<String, List<String[]>> exportData = null;
@@ -76,6 +107,10 @@ public class GlobalExportExporter extends Exporter{
 			injector.getInstance(GlobalExportDataProvider.class);
 		final EntityManager em = injector.getInstance(EntityManager.class);
 
+		 
+		Integer organizationId =
+			Integer.parseInt(requireParameter(ExportUtils.PARAM_EXPORT_ORGANIZATION_ID));
+		 
 		// data version
 		final String versionStr = requireParameter(ExportUtils.PARAM_EXPORT_DATA_VERSION);
 		final ExportUtils.ExportDataVersion version = 
@@ -84,8 +119,7 @@ public class GlobalExportExporter extends Exporter{
 		switch (version) {
 		case LIVE_DATA: {
 			try {
-				Integer organizationId =
-					Integer.parseInt(requireParameter(ExportUtils.PARAM_EXPORT_ORGANIZATION_ID));
+				
 				exportData = dataProvider.generateGlobalExportData(
 						organizationId, em, locale.getLanguage());
 			} catch (Exception e) {
@@ -104,7 +138,7 @@ public class GlobalExportExporter extends Exporter{
 		}
 			break;
 		}
-
+		
 		return new GlobalExportData(exportData);
 
 	}

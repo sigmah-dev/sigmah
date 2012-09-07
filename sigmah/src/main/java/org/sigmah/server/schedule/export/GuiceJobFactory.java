@@ -1,3 +1,7 @@
+/*
+ * All Sigmah code is released under the GNU General Public License v3
+ * See COPYRIGHT.txt and LICENSE.txt.
+ */
 package org.sigmah.server.schedule.export;
 
 import org.quartz.Job;
@@ -9,6 +13,10 @@ import org.quartz.spi.TriggerFiredBundle;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 
+/*
+ * Setting up quartz with guice 
+ * @author sherzod
+ */
 public class GuiceJobFactory implements JobFactory {
 
 	public final Injector injector;

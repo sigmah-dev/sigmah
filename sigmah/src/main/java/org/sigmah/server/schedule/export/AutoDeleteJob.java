@@ -1,3 +1,7 @@
+/*
+ * All Sigmah code is released under the GNU General Public License v3
+ * See COPYRIGHT.txt and LICENSE.txt.
+ */
 package org.sigmah.server.schedule.export;
 
 import java.util.Calendar;
@@ -20,6 +24,17 @@ import org.sigmah.shared.domain.export.GlobalExportSettings;
 
 import com.google.inject.Injector;
 
+
+/*
+ * Scheduled(in link{GlobalExportJobActivator}) job to delete old link{GlobalExport} entities
+ * Uses link{GlobalExportSettings} to check delete frequency 
+ * for each organization
+ * 
+ * Runs in a separate thread
+ * 
+ * ATTENTION: This job must not run at the same time with link{AutoExportJob}
+ * @author sherzod
+ */
 public class AutoDeleteJob implements Job {
 
 	public void execute(JobExecutionContext executionContext)

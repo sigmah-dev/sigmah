@@ -1,3 +1,7 @@
+/*
+ * All Sigmah code is released under the GNU General Public License v3
+ * See COPYRIGHT.txt and LICENSE.txt.
+ */
 package org.sigmah.server.endpoint.export.sigmah;
 
 import java.io.OutputStream;
@@ -12,10 +16,15 @@ import javax.servlet.http.HttpServletRequest;
 import org.sigmah.server.Cookies;
 import org.sigmah.server.Translator;
 import org.sigmah.server.UIConstantsTranslator;
+import org.sigmah.server.dao.AuthenticationDAO;
+import org.sigmah.server.dao.GlobalExportDAO;
+import org.sigmah.server.domain.Authentication;
 import org.sigmah.server.endpoint.gwtrpc.CommandServlet;
 import org.sigmah.shared.command.Command;
 import org.sigmah.shared.command.RemoteCommandService;
 import org.sigmah.shared.command.result.CommandResult;
+import org.sigmah.shared.domain.User;
+import org.sigmah.shared.domain.export.GlobalExportSettings;
 import org.sigmah.shared.dto.ExportUtils;
 
 import com.google.inject.Injector;
@@ -40,7 +49,7 @@ public abstract class Exporter {
     /**
      * Export format
      */
-    protected final ExportUtils.ExportFormat exportFormat;
+    protected ExportUtils.ExportFormat exportFormat;
     
     /**
      * Locale to be used to load a proper i18n properties
@@ -62,7 +71,7 @@ public abstract class Exporter {
     protected final Locale locale;
     
     /**
-     * Server size localization interface
+     * Server side localization interface
      */
     private final Translator translator;
        
@@ -85,20 +94,27 @@ public abstract class Exporter {
         }
         this.locale=new Locale(localeString);        
         this.translator = new UIConstantsTranslator(new Locale(""));
+                        
+        // get auth token from cookie
+         authToken=Cookies.getCookieValue(Cookies.AUTH_TOKEN_COOKIE, req);
+        if(authToken==null)
+        	throw new ServletException("Auth token obtained from request cookie is null ");
         
         //Set the export format
         final String formatString = req.getParameter(ExportUtils.PARAM_EXPORT_FORMAT);
-        final ExportUtils.ExportFormat format = ExportUtils.ExportFormat.valueOfOrNull(formatString);
-
-        if (format == null) {
-            throw new ServletException("The export format '" + formatString + "' is unknown.");
-        }        
-        this.exportFormat=format;
-        
-        // get auth token from cookie
-        this.authToken=Cookies.getCookieValue(Cookies.AUTH_TOKEN_COOKIE, req);
-        if(this.authToken==null)
-        	throw new ServletException("Auth token obtained from request cookie is null ");
+        if(formatString!=null){
+        	this.exportFormat = ExportUtils.ExportFormat.valueOfOrNull(formatString);
+        }else{
+ 			final AuthenticationDAO authDAO = injector.getInstance(AuthenticationDAO.class);
+			final Authentication auth = authDAO.findById(authToken);
+			final Integer organizationId = auth.getUser().getOrganization().getId();
+			
+			final GlobalExportDAO exportDao = injector.getInstance(GlobalExportDAO.class);
+			final GlobalExportSettings exportSettings = exportDao
+					.getGlobalExportSettingsByOrganization(organizationId);
+			
+			this.exportFormat = exportSettings.getDefaultOrganizationExportFormat();
+        }
     }
 
     /**

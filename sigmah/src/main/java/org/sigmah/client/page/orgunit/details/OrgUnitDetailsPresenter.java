@@ -10,11 +10,13 @@ import org.sigmah.client.dispatch.remote.Authentication;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.page.orgunit.OrgUnitPresenter;
 import org.sigmah.client.page.project.SubPresenter;
+import org.sigmah.client.ui.ExportSpreadsheetFormButton;
 import org.sigmah.client.util.Notification;
 import org.sigmah.shared.command.GetValue;
 import org.sigmah.shared.command.UpdateProject;
 import org.sigmah.shared.command.result.ValueResult;
 import org.sigmah.shared.command.result.VoidResult;
+import org.sigmah.shared.dto.ExportUtils;
 import org.sigmah.shared.dto.OrgUnitDTO;
 import org.sigmah.shared.dto.OrgUnitDetailsDTO;
 import org.sigmah.shared.dto.element.DefaultFlexibleElementDTO;
@@ -49,6 +51,8 @@ public class OrgUnitDetailsPresenter implements SubPresenter {
         public abstract Button getSaveButton();
 
         public abstract ContentPanel getMainPanel();
+        
+        public abstract ExportSpreadsheetFormButton getExcelExportFormButton();
     }
 
     /**
@@ -177,6 +181,20 @@ public class OrgUnitDetailsPresenter implements SubPresenter {
                     });
             }
         });
+        
+        
+        // Excel action.  
+        view.getExcelExportFormButton().getButton().addListener(Events.OnClick, new Listener<ButtonEvent>() {
+
+			@Override
+			public void handleEvent(ButtonEvent be) {
+				view.getExcelExportFormButton().getFieldMap().put(ExportUtils.PARAM_EXPORT_TYPE, 
+						ExportUtils.ExportType.ORGUNIT_SYNTHESIS.name());
+				view.getExcelExportFormButton().getFieldMap().put(ExportUtils.PARAM_EXPORT_ORGUNIT_ID, 
+		        		String.valueOf(mainPresenter.getCurrentOrgUnitDTO().getId()));
+		        view.getExcelExportFormButton().triggerExport();
+			}
+		});
     }
 
     /**

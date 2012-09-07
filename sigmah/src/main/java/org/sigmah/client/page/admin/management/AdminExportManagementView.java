@@ -24,18 +24,14 @@ import com.google.inject.Inject;
  */
 public class AdminExportManagementView extends ContentPanel implements View {
 
-    private final Map<Integer, Boolean> fieldsMap;
     private final Radio calcChoice;
     private final Radio excelChoice;
     private final Button saveButton;
 
     @Inject
     public AdminExportManagementView() {
-        this.setHeading(I18N.CONSTANTS.globalExportConfiguration());
-
-        fieldsMap = new HashMap<Integer, Boolean>();
-
-        final FormPanel panel = new FormPanel();
+        this.setHeading(I18N.CONSTANTS.defaultExportFormat());
+       final FormPanel panel = new FormPanel();
         panel.setHeaderVisible(false);
         FormLayout layout = new FormLayout();
         layout.setLabelWidth(150);
@@ -54,8 +50,8 @@ public class AdminExportManagementView extends ContentPanel implements View {
         RadioGroup radioGroup = new RadioGroup();
         radioGroup.setOrientation(Orientation.VERTICAL);
         radioGroup.setFieldLabel(I18N.CONSTANTS.chooseFileType());
-        radioGroup.add(excelChoice);
         radioGroup.add(calcChoice);
+        radioGroup.add(excelChoice);        
         panel.add(radioGroup);
 
         // button
@@ -82,12 +78,7 @@ public class AdminExportManagementView extends ContentPanel implements View {
     public Radio getCalcRadioButton() {
         return calcChoice;
     }
-
-    @Override
-    public Map<Integer, Boolean> getFieldsMap() {
-        return fieldsMap;
-    }
-
+ 
     @Override
     public Button getSaveButton() {
         return saveButton;

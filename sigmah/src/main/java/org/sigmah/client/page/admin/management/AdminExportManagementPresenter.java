@@ -9,7 +9,7 @@ import org.sigmah.client.page.admin.management.AdminManagementPresenter.AdminMan
 import org.sigmah.client.util.Notification;
 import org.sigmah.shared.command.GetGlobalExportSettings;
 import org.sigmah.shared.command.result.VoidResult;
-import org.sigmah.shared.domain.export.GlobalExportFormat;
+import org.sigmah.shared.dto.ExportUtils;
 import org.sigmah.shared.dto.GlobalExportSettingsDTO;
 import org.sigmah.shared.dto.UpdateGlobalExportSettings;
 
@@ -19,6 +19,7 @@ import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.Radio;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -38,8 +39,6 @@ public class AdminExportManagementPresenter implements AdminManagementSubPresent
         Radio getExcelRadioButton();
 
         Radio getCalcRadioButton();
-
-        Map<Integer, Boolean> getFieldsMap();
 
         Button getSaveButton();
     }
@@ -63,7 +62,7 @@ public class AdminExportManagementPresenter implements AdminManagementSubPresent
             @Override
             public void onSuccess(GlobalExportSettingsDTO result) {
                 // set export format
-                switch (result.getExportFormat()) {
+                switch (result.getDefaultOrganizationExportFormat()) {
                     case XLS:
                         view.getExcelRadioButton().setValue(true);
                         break;
@@ -79,18 +78,22 @@ public class AdminExportManagementPresenter implements AdminManagementSubPresent
 
             @Override
             public void componentSelected(ButtonEvent ce) {
-                UpdateGlobalExportSettings settings = new UpdateGlobalExportSettings(view.getFieldsMap());
+                UpdateGlobalExportSettings settings = new UpdateGlobalExportSettings();
+                settings.setUpdateDefaultExportFormat(true);
                 if (view.getExcelRadioButton().getValue()) {
-                    settings.setExportFormat(GlobalExportFormat.XLS);
+                    settings.setDefaultOrganizationExportFormat(ExportUtils.ExportFormat.XLS);
                 } else {
-                    settings.setExportFormat(GlobalExportFormat.ODS);
-                }
-
+                    settings.setDefaultOrganizationExportFormat(ExportUtils.ExportFormat.ODS);
+                }                
                 settings.setOrganizationId(cache.getOrganizationCache().getOrganization().getId());
+                
                 dispatcher.execute(settings, null, new AsyncCallback<VoidResult>() {
 
                     @Override
                     public void onFailure(Throwable caught) {
+                    	MessageBox.alert(I18N.CONSTANTS.saveExportConfiguration(),
+		                        I18N.MESSAGES.adminStandardCreationFailure(
+		                        		I18N.CONSTANTS.defaultExportFormat()), null);
                     }
 
                     @Override
@@ -108,7 +111,6 @@ public class AdminExportManagementPresenter implements AdminManagementSubPresent
             @Override
             public void handleEvent(BaseEvent be) {
                 valueChanged = true;
-
             }
         };
 
@@ -138,7 +140,7 @@ public class AdminExportManagementPresenter implements AdminManagementSubPresent
 
     @Override
     public String getName() {
-        return I18N.CONSTANTS.globalExportConfiguration();
+        return I18N.CONSTANTS.defaultExportFormat();
     }
 
 }

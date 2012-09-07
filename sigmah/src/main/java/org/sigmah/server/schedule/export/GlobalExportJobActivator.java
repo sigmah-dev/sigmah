@@ -1,3 +1,7 @@
+/*
+ * All Sigmah code is released under the GNU General Public License v3
+ * See COPYRIGHT.txt and LICENSE.txt.
+ */
 package org.sigmah.server.schedule.export;
 
 import java.util.Calendar;
@@ -21,6 +25,17 @@ import com.google.inject.Injector;
 import com.google.inject.Singleton;
  
 
+/*
+ * Schedules jobs link{AutoDeleteJob}, link{AutoExportJob}
+ * To see details of schedule read comments for corresponding jobs
+ * 
+ * Activator itself instantiated by link{SigmahAuthDictionaryServlet} to obtain
+ * access to EntityManager object which is request scoped and inaccessable by
+ * other server side threads like jobs 
+ * 
+ * ATTENTION: This job must not run at the same time with link{AutoExportJob}
+ * @author sherzod
+ */
 @Singleton
 public class GlobalExportJobActivator {
 	

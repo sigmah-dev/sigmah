@@ -225,7 +225,7 @@ public class DesignPanel extends DesignPanelBase implements ActionListener {
 						 ExportUtils.ExportType.PROJECT_INDICATOR_LIST.name());
 			     exportFormButton.getFieldMap().put(ExportUtils.PARAM_EXPORT_PROJECT_ID, 
 			    		 String.valueOf(currentDatabaseId));
-			     exportFormButton.exportButtonClicked();
+			     exportFormButton.triggerExport();
 			}
 		});
         toolBar.add(new FillToolItem());
