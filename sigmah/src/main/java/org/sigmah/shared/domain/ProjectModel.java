@@ -2,6 +2,7 @@ package org.sigmah.shared.domain;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -18,6 +19,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 import org.sigmah.shared.domain.logframe.LogFrameModel;
 
@@ -30,6 +33,8 @@ import com.extjs.gxt.ui.client.data.BaseModelData;
  */
 @Entity
 @Table(name = "project_model")
+@org.hibernate.annotations.FilterDefs({ @org.hibernate.annotations.FilterDef(name = "hideDeleted") })
+@org.hibernate.annotations.Filters({ @org.hibernate.annotations.Filter(name = "hideDeleted", condition = "date_deleted is null") })
 public class ProjectModel extends BaseModelData implements Serializable {
 
     private static final long serialVersionUID = -1266259112071917788L;
@@ -43,6 +48,7 @@ public class ProjectModel extends BaseModelData implements Serializable {
     private List<ProjectModelVisibility> visibilities;
     private ProjectModelStatus status;
     private LogFrameModel logFrameModel;
+    private Date dateDeleted;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -134,6 +140,30 @@ public class ProjectModel extends BaseModelData implements Serializable {
     @Enumerated(EnumType.STRING)
     public ProjectModelStatus getStatus() {
         return status;
+    }
+    
+    /**
+     * 
+     * @return The date on which this project model was deleted by the user, or null
+     *         if this project model is not deleted.
+     */
+    @Column(name="date_deleted")
+    @Temporal(value = TemporalType.TIMESTAMP)
+    public Date getDateDeleted() {
+        return this.dateDeleted;
+    }
+
+    protected void setDateDeleted(Date date) {
+        this.dateDeleted = date;
+    }
+
+    /**
+     * Marks this database as deleted. (Though the row is not removed from the
+     * database)
+     */
+    public void delete() {
+        Date now = new Date();
+        setDateDeleted(now);
     }
 
     /**

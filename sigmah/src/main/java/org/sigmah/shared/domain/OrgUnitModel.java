@@ -1,6 +1,7 @@
 package org.sigmah.shared.domain;
 
 import java.io.Serializable;
+import java.util.Date;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -14,6 +15,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 /**
  * Defines the model for an org unit.
@@ -23,6 +26,8 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "org_unit_model")
+@org.hibernate.annotations.FilterDefs({ @org.hibernate.annotations.FilterDef(name = "hideDeleted") })
+@org.hibernate.annotations.Filters({ @org.hibernate.annotations.Filter(name = "hideDeleted", condition = "date_deleted is null") })
 public class OrgUnitModel implements Serializable {
 
     private static final long serialVersionUID = -722132644240828016L;
@@ -38,6 +43,7 @@ public class OrgUnitModel implements Serializable {
     private Boolean canContainProjects = true;
     private ProjectModelStatus status = ProjectModelStatus.DRAFT;
     private Organization organization;
+    private Date dateDeleted;
     
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -124,6 +130,30 @@ public class OrgUnitModel implements Serializable {
 		this.organization = organization;
 	}
 
+	/**
+     * 
+     * @return The date on which this project model was deleted by the user, or null
+     *         if this project model is not deleted.
+     */
+    @Column(name="date_deleted")
+    @Temporal(value = TemporalType.TIMESTAMP)
+    public Date getDateDeleted() {
+        return this.dateDeleted;
+    }
+
+    protected void setDateDeleted(Date date) {
+        this.dateDeleted = date;
+    }
+
+    /**
+     * Marks this database as deleted. (Though the row is not removed from the
+     * database)
+     */
+    public void delete() {
+        Date now = new Date();
+        setDateDeleted(now);
+    }
+	
 	/**
      * Reset the identifiers of the object.
      */

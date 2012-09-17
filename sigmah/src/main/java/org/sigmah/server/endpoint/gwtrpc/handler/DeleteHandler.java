@@ -1,5 +1,5 @@
 /*
- * All Sigmah code is released under the GNU General Public License v3
+ * All Sigmah code is released under the GNU General Public License v3 
  * See COPYRIGHT.txt and LICENSE.txt.
  */
 
@@ -41,6 +41,7 @@ import com.google.inject.Inject;
  */
 @SuppressWarnings("unchecked")
 public class DeleteHandler implements CommandHandler<Delete> {
+
     private EntityManager em;
 
     @Inject
@@ -61,21 +62,23 @@ public class DeleteHandler implements CommandHandler<Delete> {
             Project entity = (Project) em.find(entityClass, cmd.getId());
             deleteProjectWithDate(entity);
         } else if (ProjectModelStatus.DRAFT.equals(cmd.getProjectModelStatus())
-                && "ProjectModel".equals(cmd.getEntityName())) { // Delete draft
-                                                                 // project
-                                                                 // model
+            && "ProjectModel".equals(cmd.getEntityName())) { // Delete draft
+                                                             // project
+                                                             // model
             ProjectModel projectModel = (ProjectModel) em.find(entityClass, new Long(cmd.getId()));
+
+            deleteProjectModelWithDate(projectModel);
             deleteDraftProjectModel(projectModel);
 
         } else if ("PhaseModel".equals(cmd.getEntityName())) {
             PhaseModel phaseModel = (PhaseModel) em.find(PhaseModel.class, new Long(cmd.getId()));
             deletePhaseModel(phaseModel);
         } else if (ProjectModelStatus.DRAFT.equals(cmd.getProjectModelStatus())
-                && "OrgUnitModel".equals(cmd.getEntityName())) { // Delete draft
-                                                                 // OrgUnit
-                                                                 // model
+            && "OrgUnitModel".equals(cmd.getEntityName())) { // Delete draft
+                                                             // OrgUnit
+                                                             // model
             OrgUnitModel orgUnitModel = (OrgUnitModel) em.find(OrgUnitModel.class, new Integer(cmd.getId()));
-            deleteDraftOrgUnitModel(orgUnitModel);
+            deleteOrgUnitModelWithDate(orgUnitModel);
         }
 
         else {
@@ -110,8 +113,9 @@ public class DeleteHandler implements CommandHandler<Delete> {
         query1.setParameter("phaseModelId", phaseModel.getId());
         List<Phase> phases = (List<Phase>) query1.getResultList();
         for (Phase p : phases) {
-            if (p.getParentProject() != null && p.getParentProject().getCurrentPhase() != null
-                    && p.getParentProject().getCurrentPhase() == p) {
+            if (p.getParentProject() != null
+                && p.getParentProject().getCurrentPhase() != null
+                && p.getParentProject().getCurrentPhase() == p) {
                 Project parentProject = em.find(Project.class, p.getParentProject().getId());
                 parentProject.setCurrentPhase(null);
                 em.merge(parentProject);
@@ -183,6 +187,26 @@ public class DeleteHandler implements CommandHandler<Delete> {
     }
 
     /**
+     * Sets the deleted date of the given project model.
+     * 
+     * @param projectModel
+     *            the project model to delete.
+     */
+    private void deleteProjectModelWithDate(ProjectModel projectModel) {
+        projectModel.delete();
+    }
+
+    /**
+     * Sets the deleted date of the given org unit model.
+     * 
+     * @param orgUnitModel
+     *            the org unit model to delete.
+     */
+    private void deleteOrgUnitModelWithDate(OrgUnitModel orgUnitModel) {
+        orgUnitModel.delete();
+    }
+
+    /**
      * Delete the values of the test project.
      * 
      * @param project
@@ -225,11 +249,9 @@ public class DeleteHandler implements CommandHandler<Delete> {
     }
 
     /**
-     * Method to delete a project model. Only draft project model is allowed to
-     * delete.
+     * Method to delete a project model. Only draft project model is allowed to delete.
      * 
      * @param projectModel
-     * 
      * @author HUZHE(zhe.hu32@gmail.com)
      */
     private void deleteDraftProjectModel(ProjectModel projectModel) {
@@ -244,19 +266,13 @@ public class DeleteHandler implements CommandHandler<Delete> {
             deleteProjectWithDate(p);
         }
 
-        // ------STEP 2: Delete the project mode and related objects will be
-        // deleted automatically
-        em.remove(projectModel);
-
         em.flush();
-
     }
 
     /**
      * Delete a draft orgunit model
      * 
      * @param orgUnitModel
-     * 
      *            orgUnit model to delete
      */
     private void deleteDraftOrgUnitModel(OrgUnitModel orgUnitModel) {
