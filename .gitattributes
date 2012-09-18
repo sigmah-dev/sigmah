@@ -2894,6 +2894,49 @@ sigmah/src/main/resources/template/page/Host.ftl -text
 sigmah/src/main/resources/template/page/InvalidInvite.ftl -text
 sigmah/src/main/resources/template/page/Login.ftl -text
 sigmah/src/main/resources/version.properties -text
+sigmah/src/main/webapp/WEB-INF/web.xml -text svneol=unset#text/plain
+sigmah/src/main/webapp/apitest.html -text svneol=unset#text/plain
+sigmah/src/main/webapp/favicon.ico -text
+sigmah/src/main/webapp/ftl/kml/NetworkLink.kml.ftl -text
+sigmah/src/main/webapp/ftl/kml/Sites.kml.ftl -text
+sigmah/src/main/webapp/ftl/wfs/Capabilities.ftl -text
+sigmah/src/main/webapp/ftl/wfs/FeatureType.ftl -text
+sigmah/src/main/webapp/learnmore_fr.html -text svneol=unset#text/plain
+sigmah/src/main/webapp/login-problem.html -text svneol=unset#text/plain
+sigmah/src/main/webapp/login.html -text svneol=unset#text/plain
+sigmah/src/main/webapp/mapicons/bread.png -text
+sigmah/src/main/webapp/mapicons/doctor.png -text
+sigmah/src/main/webapp/mapicons/educ-building-emergency.png -text
+sigmah/src/main/webapp/mapicons/educ-building.png -text
+sigmah/src/main/webapp/mapicons/educ.png -text
+sigmah/src/main/webapp/mapicons/emergency-shelter.png -text
+sigmah/src/main/webapp/mapicons/fire.png -text
+sigmah/src/main/webapp/mapicons/foodsec.png -text
+sigmah/src/main/webapp/mapicons/health.png -text
+sigmah/src/main/webapp/mapicons/msa.png -text
+sigmah/src/main/webapp/mapicons/nfi.png -text
+sigmah/src/main/webapp/mapicons/ra.png -text
+sigmah/src/main/webapp/mapicons/vaccination.png -text
+sigmah/src/main/webapp/mapicons/wash.jpg -text
+sigmah/src/main/webapp/mapicons/wash.png -text
+sigmah/src/main/webapp/mapicons/water.png -text
+sigmah/src/main/webapp/mapicons/watertrucking.png -text
+sigmah/src/main/webapp/report.css -text svneol=unset#text/plain
+sigmah/src/main/webapp/static/activityinfo.png -text
+sigmah/src/main/webapp/static/box_bottom.png -text
+sigmah/src/main/webapp/static/box_mid.png -text
+sigmah/src/main/webapp/static/box_top.png -text
+sigmah/src/main/webapp/static/learnmore.xcf -text
+sigmah/src/main/webapp/static/learnmore_fr.png -text
+sigmah/src/main/webapp/static/login.css -text svneol=unset#text/plain
+sigmah/src/main/webapp/static/login.xcf -text
+sigmah/src/main/webapp/static/login_fr.png -text
+sigmah/src/main/webapp/static/note_bg.png -text
+sigmah/src/main/webapp/static/note_bg.xcf -text
+sigmah/src/main/webapp/static/note_bg_fr.png -text
+sigmah/src/main/webapp/static/unicef-120.png -text
+sigmah/src/main/webapp/static/unicef.png -text
+sigmah/src/main/webapp/webcachetool.html -text svneol=unset#text/plain
 sigmah/src/test/java/org/sigmah/MockDb.java -text
 sigmah/src/test/java/org/sigmah/client/dispatch/remote/CommandRequestTest.java -text
 sigmah/src/test/java/org/sigmah/client/dispatch/remote/RemoteDispatcherTest.java -text
@@ -3054,52 +3097,6 @@ sigmah/src/test/resources/report-def/parse-test/report-elements.xml -text
 sigmah/src/test/resources/report-def/parse-test/report.xml -text
 sigmah/src/test/resources/report-def/parse-test/static.xml -text
 sigmah/src/test/resources/report-def/parse-test/table.xml -text
-sigmah/war/WEB-INF/deploy/Login/rpcPolicyManifest/manifest.txt -text
-sigmah/war/WEB-INF/sigmah.properties -text
-sigmah/war/WEB-INF/web.xml -text
-sigmah/war/apitest.html -text
-sigmah/war/favicon.ico -text
-sigmah/war/ftl/kml/NetworkLink.kml.ftl -text
-sigmah/war/ftl/kml/Sites.kml.ftl -text
-sigmah/war/ftl/wfs/Capabilities.ftl -text
-sigmah/war/ftl/wfs/FeatureType.ftl -text
-sigmah/war/learnmore_fr.html -text
-sigmah/war/login-problem.html -text
-sigmah/war/login.html -text
-sigmah/war/mapicons/bread.png -text
-sigmah/war/mapicons/doctor.png -text
-sigmah/war/mapicons/educ-building-emergency.png -text
-sigmah/war/mapicons/educ-building.png -text
-sigmah/war/mapicons/educ.png -text
-sigmah/war/mapicons/emergency-shelter.png -text
-sigmah/war/mapicons/fire.png -text
-sigmah/war/mapicons/foodsec.png -text
-sigmah/war/mapicons/health.png -text
-sigmah/war/mapicons/msa.png -text
-sigmah/war/mapicons/nfi.png -text
-sigmah/war/mapicons/ra.png -text
-sigmah/war/mapicons/vaccination.png -text
-sigmah/war/mapicons/wash.jpg -text
-sigmah/war/mapicons/wash.png -text
-sigmah/war/mapicons/water.png -text
-sigmah/war/mapicons/watertrucking.png -text
-sigmah/war/report.css -text
-sigmah/war/static/activityinfo.png -text
-sigmah/war/static/box_bottom.png -text
-sigmah/war/static/box_mid.png -text
-sigmah/war/static/box_top.png -text
-sigmah/war/static/learnmore.xcf -text
-sigmah/war/static/learnmore_fr.png -text
-sigmah/war/static/login.css -text
-sigmah/war/static/login.xcf -text
-sigmah/war/static/login_fr.png -text
-sigmah/war/static/note_bg.png -text
-sigmah/war/static/note_bg.xcf -text
-sigmah/war/static/note_bg_fr.png -text
-sigmah/war/static/unicef-120.png -text
-sigmah/war/static/unicef.png -text
-sigmah/war/style.css -text
-sigmah/war/webcachetool.html -text
 tests/pom.xml -text
 tests/src/test/java/org/sigmah/endtoend/ApiServiceJsonIT.java -text
 tests/src/test/java/org/sigmah/endtoend/CreateDatabaseTest.java -text
