@@ -770,7 +770,8 @@ td.x-grid3-hd-over,td.sort-desc,td.sort-asc,td.x-grid3-hd-menu-open {
 }
 
 .x-progress-text-back {
-  color:#574A3A
+  color:#574A3A;
+  display:none;
 }
 .x-list-header{
     background-color:#fff;
