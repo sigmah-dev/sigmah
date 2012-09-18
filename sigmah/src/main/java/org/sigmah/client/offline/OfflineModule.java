@@ -6,8 +6,8 @@
 package org.sigmah.client.offline;
 
 import com.bedatadriven.rebar.sql.client.GearsConnectionFactory;
-import com.bedatadriven.rebar.sync.client.BulkUpdaterAsync;
-import com.bedatadriven.rebar.sync.client.impl.GearsBulkUpdater;
+//import com.bedatadriven.rebar.sync.client.BulkUpdaterAsync;
+//import com.bedatadriven.rebar.sync.client.impl.GearsBulkUpdater;
 import com.google.gwt.inject.client.AbstractGinModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
@@ -39,7 +39,7 @@ public class OfflineModule extends AbstractGinModule {
 
         bind(OfflinePresenter.View.class).to(OfflineView.class);
         bind(OfflineGateway.class).to(OfflineImpl.class);
-        bind(BulkUpdaterAsync.class).to(GearsBulkUpdater.class);
+        //bind(BulkUpdaterAsync.class).to(GearsBulkUpdater.class);
 
         //DAOs for off-line
         bind(SQLDialect.class).to(SqliteDialect.class).in(Singleton.class);

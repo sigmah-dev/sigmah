@@ -2068,6 +2068,7 @@ public class ProjectDashboardPresenter implements SubPresenter {
 
                                     // Forces the default completion state.
                                     reminder.setCompletionDate(null);
+                                    reminder.setDeleted(false);
 
                                     // Adds the point locally.
                                     list.getReminders().add(reminder);

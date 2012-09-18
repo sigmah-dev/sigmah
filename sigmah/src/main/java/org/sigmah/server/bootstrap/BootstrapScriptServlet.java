@@ -5,7 +5,7 @@
 
 package org.sigmah.server.bootstrap;
 
-import com.bedatadriven.rebar.appcache.server.BootstrapServlet;
+//import com.bedatadriven.rebar.appcache.server.BootstrapServlet;
 import com.bedatadriven.rebar.appcache.server.PropertyProvider;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -17,12 +17,12 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
 @Singleton
-public class BootstrapScriptServlet extends BootstrapServlet {
+public class BootstrapScriptServlet { //extends BootstrapServlet {
 
     @Inject
     public BootstrapScriptServlet(Provider<EntityManager> entityManager) {
-        registerProvider("locale", new LocaleProvider(entityManager));
-        registerProvider("log_level", new LogLevelProvider());
+        //registerProvider("locale", new LocaleProvider(entityManager));
+       // registerProvider("log_level", new LogLevelProvider());
     }
 
     private class LocaleProvider implements PropertyProvider {

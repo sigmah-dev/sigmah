@@ -29,8 +29,8 @@ import org.sigmah.shared.command.result.SyncRegionUpdate;
 import org.sigmah.shared.domain.User;
 
 import com.allen_sauer.gwt.log.client.Log;
-import com.bedatadriven.rebar.sync.client.BulkUpdaterAsync;
-import com.bedatadriven.rebar.sync.mock.MockBulkUpdater;
+//import com.bedatadriven.rebar.sync.client.BulkUpdaterAsync;
+//import com.bedatadriven.rebar.sync.mock.MockBulkUpdater;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 
@@ -54,7 +54,7 @@ public abstract class LocalHandlerTestCase {
     protected Authentication localAuth;
     protected LocalDispatcher localDispatcher;
     protected Connection localConnection;
-    private BulkUpdaterAsync updater;
+    //private BulkUpdaterAsync updater;
 
     @Before
     public void setUp() throws SQLException, ClassNotFoundException {
@@ -71,7 +71,7 @@ public abstract class LocalHandlerTestCase {
         }
         
         localConnection = DriverManager.getConnection("jdbc:sqlite:synctest");
-        updater = new MockBulkUpdater(localConnection);
+       // updater = new MockBulkUpdater(localConnection);
 
         Log.setCurrentLogLevel(Log.LOG_LEVEL_DEBUG);
     }
@@ -83,9 +83,9 @@ public abstract class LocalHandlerTestCase {
     }
 
     protected void synchronize() {
-        Synchronizer syncr = new Synchronizer(new MockEventBus(), remoteDispatcher, localConnection, updater,
+     /*   Synchronizer syncr = new Synchronizer(new MockEventBus(), remoteDispatcher, localConnection, updater,
                 localAuth);
-        syncr.start();
+        syncr.start();*/
     }
 
     protected void newRequest() {

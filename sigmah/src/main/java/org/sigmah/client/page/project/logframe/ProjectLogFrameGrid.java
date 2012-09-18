@@ -2467,7 +2467,7 @@ public class ProjectLogFrameGrid {
                 // advancement slider
                 final Slider sliderAdvancment = new Slider();
                 sliderAdvancment.setIncrement(1);
-                sliderAdvancment.setAriaLabelledBy("Avancement");
+                sliderAdvancment.getAriaSupport().setLabelledBy("Avancement");
                 sliderAdvancment.setMessage("{0}%");
                 Integer activityAdvancement = activity.getAdvancement();
                 sliderAdvancment.setValue(activityAdvancement != null ? activityAdvancement : 0);

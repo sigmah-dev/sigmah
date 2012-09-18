@@ -15,6 +15,7 @@ import org.sigmah.shared.dto.OrgUnitDTOLight;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.SortDir;
+import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.data.SortInfo;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
@@ -28,6 +29,10 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
+import com.extjs.gxt.ui.client.widget.grid.filters.DateFilter;
+import com.extjs.gxt.ui.client.widget.grid.filters.GridFilters;
+import com.extjs.gxt.ui.client.widget.grid.filters.NumericFilter;
+import com.extjs.gxt.ui.client.widget.grid.filters.StringFilter;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.extjs.gxt.ui.client.widget.treegrid.TreeGrid;
@@ -152,6 +157,7 @@ public class OrgUnitTreeGrid {
         tree.getStyle().setNodeCloseIcon(OrgUnitImageBundle.ICONS.orgUnitSmall());
         tree.getStyle().setNodeOpenIcon(OrgUnitImageBundle.ICONS.orgUnitSmallTransparent());
         tree.setTrackMouseOver(false);
+        tree.addPlugin(createOrgUnitFilters());
 
         if (hasSelectionModel) {
             tree.setSelectionModel(selectionModel);
@@ -187,6 +193,28 @@ public class OrgUnitTreeGrid {
         toolbar.add(expandButton);
         toolbar.add(collapseButton);
     }
+    
+    
+    private GridFilters createOrgUnitFilters(){
+		 
+        final GridFilters filters = new GridFilters();
+        filters.setLocal(true);
+        // Data index of each filter should be identical with column id in ColumnModel of TreeGrid  
+        filters.addFilter(new StringFilter("name"));
+        filters.addFilter(new StringFilter("fullName"));
+        filters.addFilter(new StringFilter("country"){
+			@Override
+			@SuppressWarnings("unchecked")
+			protected <X> X getModelValue(ModelData model) {
+				CountryDTO country=(CountryDTO)super.getModelValue(model);
+				return (X)(country == null ? "" : (country.getName() + " (" + country.getCodeISO() + ')'));
+			}
+
+			
+        	
+        });              
+        return filters;
+   }
 
     public TreeGrid<OrgUnitDTOLight> getTreeGrid() {
         return tree;

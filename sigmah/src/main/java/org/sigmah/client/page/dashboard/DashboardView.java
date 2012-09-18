@@ -63,6 +63,9 @@ import com.extjs.gxt.ui.client.widget.treegrid.TreeGrid;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.inject.Inject;
+import com.extjs.gxt.ui.client.widget.grid.filters.DateFilter;
+import com.extjs.gxt.ui.client.widget.grid.filters.GridFilters;
+import com.extjs.gxt.ui.client.widget.grid.filters.StringFilter;
 
 /**
  * Displays the dashboard.
@@ -442,6 +445,7 @@ public class DashboardView extends ContentPanel implements DashboardPresenter.Vi
                 new Grid<ReminderDTO>(reminderStore, new ColumnModel(createReminderGridColumnConfigs()));
         reminderGrid.getView().setForceFit(true);
         reminderGrid.setAutoExpandColumn("label");
+        reminderGrid.addPlugin(createToDoFilters());
 
         remindersPanel.add(reminderGrid);
 
@@ -514,6 +518,7 @@ public class DashboardView extends ContentPanel implements DashboardPresenter.Vi
         reminderGrid.getView().setForceFit(true);
         reminderGrid.setAutoExpandColumn("label");
 
+        reminderGrid.addPlugin(createToDoFilters());
         monitoredPointsPanel.add(reminderGrid);
 
         return monitoredPointsPanel;
@@ -572,6 +577,14 @@ public class DashboardView extends ContentPanel implements DashboardPresenter.Vi
                                                  iconColumn,
                                                  labelColumn,
                                                  expectedDateColumn });
+    }
+
+    private GridFilters createToDoFilters() {
+        GridFilters filters = new GridFilters();
+        filters.setLocal(true);
+        filters.addFilter(new StringFilter("label"));
+        filters.addFilter(new DateFilter("expectedDate"));
+        return filters;
     }
 
     @Override

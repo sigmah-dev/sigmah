@@ -21,15 +21,12 @@
     <inherits name="com.google.gwt.inject.Inject"/>
     <inherits name="com.extjs.gxt.charts.Chart"/>
     <inherits name="com.google.code.gaxb.Annotations"/>
+    
+    	<!-- Configure Logging -->
+	<define-property name="log_level" values="TRACE" />
     <inherits name="com.bedatadriven.rebar.sql.Sql"/>
-    <inherits name="com.bedatadriven.rebar.sync.Sync"/>
-    <inherits name="com.allen_sauer.gwt.log.gwt-log"/>
-
-	<!-- Configure Logging -->
-    <extend-property name="log_level" values="TRACE"/>
-    <set-property name="log_level" value="TRACE"/>
-    <set-property name="log_DivLogger" value="DISABLED" />
-                                              
+	 <set-property name="log_DivLogger" value="DISABLED" />
+                                                 
     <!-- Include generated sources -->
     <source path='client'>
         <exclude name="offline/*" />
@@ -51,6 +48,8 @@
     <!-- Specify the app entry point class. -->
     <entry-point class='org.sigmah.client.SigmahEntryPoint' />
 
+ 	
+ 
     <!-- Enable other locales -->
     <extend-property name="locale" values="en,fr,es" />
     <set-property-fallback name="locale" value="en"/>

@@ -62,6 +62,10 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
+import com.extjs.gxt.ui.client.widget.grid.filters.DateFilter;
+import com.extjs.gxt.ui.client.widget.grid.filters.GridFilters;
+import com.extjs.gxt.ui.client.widget.grid.filters.NumericFilter;
+import com.extjs.gxt.ui.client.widget.grid.filters.StringFilter;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FlowData;
 import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
@@ -241,7 +245,8 @@ public class ProjectsListPanel {
         projectTreeGrid.getStyle().setLeafIcon(null);
         projectTreeGrid.setAutoExpandColumn("fullName");
         projectTreeGrid.setTrackMouseOver(false);
-        projectTreeGrid.setAutoExpand(true);
+        projectTreeGrid.setAutoExpand(true);               
+        projectTreeGrid.addPlugin(createProjectFilters());  
 
         // Store.
         projectStore.setStoreSorter(new StoreSorter<ProjectDTOLight>() {
@@ -616,12 +621,12 @@ public class ProjectsListPanel {
         });
 
         // Current phase
-        final ColumnConfig currentPhaseName = new ColumnConfig("phase", I18N.CONSTANTS.projectActivePhase(), 150);
+        final ColumnConfig currentPhaseName = new ColumnConfig("currentPhaseName", I18N.CONSTANTS.projectActivePhase(), 150);
         currentPhaseName.setRenderer(new GridCellRenderer<ProjectDTOLight>() {
             @Override
             public Object render(ProjectDTOLight model, String property, ColumnData config, int rowIndex, int colIndex,
                     ListStore<ProjectDTOLight> store, Grid<ProjectDTOLight> grid) {
-                return createProjectGridText(model, model.getCurrentPhaseName());
+                return createProjectGridText(model, (String) model.get(property));
             }
         });
 
@@ -753,6 +758,27 @@ public class ProjectsListPanel {
         return new ColumnModel(Arrays.asList(starredIconColumn, codeColumn, titleColumn, currentPhaseName,
                 orgUnitColumn, spentBudgetColumn, plannedBudgetColumn, spendBudgetColumn, receivedBudgetColumn,
                 startDateColumn, endDateColumn, closeDateColumn, timeColumn, activityColumn, categoryColumn));
+    }
+    
+    /*
+     * Method provide plugin of filters for project TreeGrid  
+     */
+    private GridFilters createProjectFilters(){
+    		 
+         final GridFilters filters = new GridFilters();
+         filters.setLocal(true);
+         // Data index of each filter should be identical with column id in ColumnModel of TreeGrid  
+         filters.addFilter(new StringFilter("name"));
+         filters.addFilter(new StringFilter("fullName"));
+         filters.addFilter(new StringFilter("currentPhaseName"));
+         filters.addFilter(new StringFilter("orgUnitName"));        
+         filters.addFilter(new NumericFilter("spendBudget"));
+         filters.addFilter(new NumericFilter("receivedBudget"));
+         filters.addFilter(new NumericFilter("plannedBudget"));
+         filters.addFilter(new DateFilter("startDate"));
+         filters.addFilter(new DateFilter("endDate"));
+         filters.addFilter(new DateFilter("closeDate"));                  
+         return filters;
     }
 
     private Object createProjectGridText(ProjectDTOLight model, String content) {

@@ -9,11 +9,10 @@ import com.google.inject.Key;
 import com.google.inject.OutOfScopeException;
 import com.google.inject.Provider;
 import com.google.inject.Scope;
-import com.google.inject.internal.Maps;
 
 import java.util.Map;
 
-import static com.google.inject.internal.Preconditions.checkState;
+import static com.google.common.base.Preconditions.checkState;
 
 /**
  * Scopes a single execution of a block of code. Apply this scope with a
@@ -62,7 +61,7 @@ public class SimpleScope implements Scope {
 
     public void enter() {
         checkState(values.get() == null, "A scoping block is already in progress");
-        values.set(Maps.<Key<?>, Object>newHashMap());
+        values.set(com.google.inject.internal.util.$Maps.<Key<?>, Object>newHashMap());
     }
 
     public void exit() {

@@ -1,8 +1,3 @@
-/*
- * All Sigmah code is released under the GNU General Public License v3
- * See COPYRIGHT.txt and LICENSE.txt.
- */
-
 .x-panel {
     border-style: solid;
     border-color: #d0d0d0;
@@ -210,8 +205,8 @@
 .x-toolbar .x-btn-click .x-btn-center, .x-toolbar .x-btn-pressed .x-btn-center, .x-toolbar .x-btn-menu-active .x-btn-center{
 	background-image:url(../images/gray/toolbar/tb-btn-sprite.gif);
 }
-.x-toolbar .ytb-sep {
-	background-image: url(../images/default/grid/grid-split.gif);
+.x-toolbar .xtb-sep {
+	background-image: url(../images/gray/grid/grid-split.gif);
 }
 
 /* Tabs */
@@ -348,6 +343,9 @@ ul.x-tab-strip-bottom{
     border:1px solid #d0d0d0;
     background:#e8e8e8;
 }
+.ext-ie .x-window-plain .x-window-mc {
+    background-color: #e3e3e3;
+}
 
 .x-window-ml {
 	background-image:url(../images/gray/window/left-right.png);
@@ -440,6 +438,13 @@ body.x-body-masked .x-window-mc, body.x-body-masked .x-window-plain .x-window-mc
 .x-tab-panel-tbar-noborder .x-toolbar {
     border-width:0;
     border-bottom:1px solid #d0d0d0;
+}
+
+.x-spinner-field .x-form-spinner-up {
+  background-image: url('../images/gray/form/spinner.gif');
+}
+.x-spinner-field .x-form-spinner-down {
+  background-image: url('../images/gray/form/spinner.gif');
 }.x-accordion-hd {
 	background-color: #e5e5e5;
 }.x-border {
@@ -457,8 +462,20 @@ body.x-body-masked .x-window-mc, body.x-body-masked .x-window-plain .x-window-mc
 
 .x-view {
   border:1px solid #D0D0D0;
-}.my-info {
-  background: url(../images/gray/info/info-bg.gif) no-repeat;
+}
+
+.x-menubar {
+  border-color: #D0D0D0;
+  background-color: #F0F0F0;
+  background-image: url(../images/gray/toolbar/bg.gif);
+}
+
+.x-menubar-item-active {
+  background-color: #D9E8FB;
+}
+
+.x-menubar-item-active {
+  background-color: #D9E8FB;
 }.x-date-right-icon {
   background-image: url(../images/default/shared/right-btn.gif);
   margin-right: 2px;

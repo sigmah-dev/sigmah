@@ -7,7 +7,7 @@ package org.sigmah.client.offline.sync;
 
 import com.allen_sauer.gwt.log.client.Log;
 import com.bedatadriven.rebar.sql.client.DatabaseLockedException;
-import com.bedatadriven.rebar.sync.client.BulkUpdaterAsync;
+//import com.bedatadriven.rebar.sync.client.BulkUpdaterAsync;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
@@ -37,7 +37,7 @@ public class Synchronizer {
     private final Dispatcher dispatch;
     private final EventBus eventBus;
     private final Connection conn;
-    private final BulkUpdaterAsync updater;
+    //private final BulkUpdaterAsync updater;
     private final Authentication auth;
 
     private ProgressTrackingIterator<SyncRegion> regionIt;
@@ -52,12 +52,12 @@ public class Synchronizer {
     public Synchronizer(EventBus eventBus,
                         @Direct Dispatcher dispatch,
                         Connection conn,
-                        BulkUpdaterAsync updater,
+                        //BulkUpdaterAsync updater,
                         Authentication auth) {
         this.eventBus = eventBus;
         this.conn = conn;
         this.dispatch = dispatch;
-        this.updater = updater;
+    //    this.updater = updater;
         this.auth = auth;
         createSyncMetaTables();
    }
@@ -164,7 +164,7 @@ public class Synchronizer {
         }
 
         Log.debug("Synchronizer: persisting updates for region " + region.getId());
-        updater.executeUpdates(auth.getLocalDbName(), update.getSql(), new AsyncCallback<Integer>() {
+        /*updater.executeUpdates(auth.getLocalDbName(), update.getSql(), new AsyncCallback<Integer>() {
             @Override
             public void onFailure(Throwable throwable) {
                 handleException("Synchronizer: Async execution of region updates failed. \nSQL=" + update.getSql() +
@@ -177,7 +177,7 @@ public class Synchronizer {
                 rowsUpdated += rows;
                 afterUpdatesArePersisted(region, update);
             }
-        });
+        }); */
     }
 
     private void afterUpdatesArePersisted(final SyncRegion region, final SyncRegionUpdate update) {

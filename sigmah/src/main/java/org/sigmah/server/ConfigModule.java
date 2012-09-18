@@ -21,19 +21,19 @@ import java.util.Properties;
 public class ConfigModule extends AbstractModule {
     private static Logger logger = Logger.getLogger(ConfigModule.class);
 
-    @Override
+	@Override
     protected void configure() {
     }
 
     @Provides
     @Singleton
     @Trace
-    public Properties provideConfigProperties(ServletContext context) {
+    public Properties provideConfigProperties() {
 
         final Properties properties = new Properties();
 
         // Load sigmah.properties.
-        tryToLoadFrom(properties, sigmahFromWebInfDirectory(context));
+        tryToLoadFrom(properties, sigmahFromWebInfDirectory());
         tryToLoadFrom(properties, sigmahFromTomcatConfigurationDirectory());
         tryToLoadFrom(properties, sigmahFromClassesDirectory());
 
@@ -106,8 +106,8 @@ public class ConfigModule extends AbstractModule {
         }
     }
 
-    private File sigmahFromWebInfDirectory(ServletContext context) {
-        return new File(context.getRealPath("WEB-INF") + File.separator + "sigmah.properties");
+    private File sigmahFromWebInfDirectory() {
+        return new File(StartupListener.webInfRealPath + File.separator + "sigmah.properties");
     }
 
     private File sigmahFromTomcatConfigurationDirectory() {
