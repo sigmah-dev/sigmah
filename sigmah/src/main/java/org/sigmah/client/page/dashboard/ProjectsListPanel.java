@@ -23,8 +23,10 @@ import org.sigmah.client.ui.RatioBar;
 import org.sigmah.client.util.DateUtils;
 import org.sigmah.client.util.Notification;
 import org.sigmah.client.util.NumberUtils;
+import org.sigmah.shared.command.GetCategories;
 import org.sigmah.shared.command.GetProjects;
 import org.sigmah.shared.command.UpdateProjectFavorite;
+import org.sigmah.shared.command.result.CategoriesListResult;
 import org.sigmah.shared.command.result.CreateResult;
 import org.sigmah.shared.command.result.ProjectListResult;
 import org.sigmah.shared.domain.ProjectModelType;
@@ -32,10 +34,13 @@ import org.sigmah.shared.domain.profile.GlobalPermissionEnum;
 import org.sigmah.shared.dto.ProjectDTOLight;
 import org.sigmah.shared.dto.UserDTO;
 import org.sigmah.shared.dto.category.CategoryElementDTO;
+import org.sigmah.shared.dto.category.CategoryTypeDTO;
 import org.sigmah.shared.dto.profile.ProfileUtils;
 
 import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.Style.SortDir;
+import com.extjs.gxt.ui.client.data.BaseModelData;
+import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.data.SortInfo;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
@@ -64,6 +69,7 @@ import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.grid.filters.DateFilter;
 import com.extjs.gxt.ui.client.widget.grid.filters.GridFilters;
+import com.extjs.gxt.ui.client.widget.grid.filters.ListFilter;
 import com.extjs.gxt.ui.client.widget.grid.filters.NumericFilter;
 import com.extjs.gxt.ui.client.widget.grid.filters.StringFilter;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
@@ -158,7 +164,8 @@ public class ProjectsListPanel {
     private final Radio fundingRadio;
     private final Radio partnerRadio;
     private final Button filterButton;
-
+    private final GridFilters gridFilters;
+    
     /** Current projects grid parameters. */
     private ProjectModelType currentModelType;
     private final ArrayList<Integer> orgUnitsIds;
@@ -246,7 +253,10 @@ public class ProjectsListPanel {
         projectTreeGrid.setAutoExpandColumn("fullName");
         projectTreeGrid.setTrackMouseOver(false);
         projectTreeGrid.setAutoExpand(true);               
-        projectTreeGrid.addPlugin(createProjectFilters());  
+
+     // Apply grid filters
+        gridFilters = new GridFilters();       
+        projectTreeGrid.addPlugin(createGridFilters());  
 
         // Store.
         projectStore.setStoreSorter(new StoreSorter<ProjectDTOLight>() {
@@ -273,7 +283,7 @@ public class ProjectsListPanel {
                     return d1.compareTo(d2);
                 } else if ("activity".equals(property)) {
                     return 0;
-                } else if ("category".equals(property)) {
+                } else if ("categoryElements".equals(property)) {
                     return 0;
                 } else {
                     return super.compare(store, m1, m2, property);
@@ -732,7 +742,7 @@ public class ProjectsListPanel {
         });
 
         // Category
-        final ColumnConfig categoryColumn = new ColumnConfig("category", I18N.CONSTANTS.category(), 150);
+        final ColumnConfig categoryColumn = new ColumnConfig("categoryElements", I18N.CONSTANTS.category(), 150);
         categoryColumn.setSortable(false);
         categoryColumn.setRenderer(new GridCellRenderer<ProjectDTOLight>() {
 
@@ -761,25 +771,105 @@ public class ProjectsListPanel {
     }
     
     /*
-     * Method provide plugin of filters for project TreeGrid  
+     * Grid filters for projects' TreeGrid  
      */
-    private GridFilters createProjectFilters(){
-    		 
-         final GridFilters filters = new GridFilters();
-         filters.setLocal(true);
-         // Data index of each filter should be identical with column id in ColumnModel of TreeGrid  
-         filters.addFilter(new StringFilter("name"));
-         filters.addFilter(new StringFilter("fullName"));
-         filters.addFilter(new StringFilter("currentPhaseName"));
-         filters.addFilter(new StringFilter("orgUnitName"));        
-         filters.addFilter(new NumericFilter("spendBudget"));
-         filters.addFilter(new NumericFilter("receivedBudget"));
-         filters.addFilter(new NumericFilter("plannedBudget"));
-         filters.addFilter(new DateFilter("startDate"));
-         filters.addFilter(new DateFilter("endDate"));
-         filters.addFilter(new DateFilter("closeDate"));                  
-         return filters;
-    }
+	private GridFilters createGridFilters() {
+
+		gridFilters.setLocal(true);
+
+		/*		 
+		 * Data index of each filter should be identical with column id 
+		 * in ColumnConfig of TreeGrid
+		 */
+		
+		//Common filters
+		gridFilters.addFilter(new StringFilter("name"));
+		gridFilters.addFilter(new StringFilter("fullName"));
+		gridFilters.addFilter(new StringFilter("currentPhaseName"));
+		gridFilters.addFilter(new StringFilter("orgUnitName"));
+		gridFilters.addFilter(new NumericFilter("spendBudget"));
+		gridFilters.addFilter(new NumericFilter("receivedBudget"));
+		gridFilters.addFilter(new NumericFilter("plannedBudget"));
+		gridFilters.addFilter(new DateFilter("startDate"));
+		gridFilters.addFilter(new DateFilter("endDate"));
+		gridFilters.addFilter(new DateFilter("closeDate"));
+
+		// Custom filter for category elements' list
+		ListFilter categoryListFilter = new ListFilter("categoryElements",new ListStore<ModelData>()) {
+			@SuppressWarnings("unchecked")
+			@Override
+			public boolean validateModel(ModelData model) {
+
+				final Set<CategoryElementDTO> elementsPerProject = getModelValue(model);
+				final List<String> filterLabels = (ArrayList<String>) getValue();
+
+				if (elementsPerProject != null) {
+					String label = null;
+					for (final CategoryElementDTO element : elementsPerProject) {
+						label = element.getLabel() + " ("+ element.getParentCategoryDTO().getLabel()+ ")";
+						if (filterLabels.contains(label)) {
+							return true;
+						}
+					}
+				}
+
+				return filterLabels.size() == 0;
+
+			}
+
+		};
+		categoryListFilter.setDisplayProperty("categoryFilter");
+		gridFilters.addFilter(categoryListFilter);
+		
+		return gridFilters;
+	}
+	
+
+	/*
+	 * Fetches categories in active user's organization and
+	 * fills {@link ListFilter} store of a category column  
+	 */
+	private void reloadCategoryListFilterStore() {
+		dispatcher.execute(new GetCategories(), null,
+				new AsyncCallback<CategoriesListResult>() {
+
+					@Override
+					public void onFailure(Throwable e) {
+						Log.error("[GetCategories command] Error while getting categories.",e);
+					}
+
+					@SuppressWarnings("unchecked")
+					@Override
+					public void onSuccess(CategoriesListResult result) {
+						ListFilter categoryListFilter = (ListFilter) gridFilters.getFilter("categoryElements");
+						ListStore<ModelData> filterStore = categoryListFilter.getStore();						
+ 						List<CategoryTypeDTO> categories = result.getList();
+						
+						for (CategoryTypeDTO category : categories) {
+							List<CategoryElementDTO> categoryElements = category.getCategoryElementsDTO();
+							for (CategoryElementDTO element : categoryElements) {
+								String filterLabel = element.getLabel() + " ("+ category.getLabel() + ")";
+								boolean exist=false;
+ 								 for(ModelData model : filterStore.getModels()){
+										if(model.get("categoryFilter").equals(filterLabel)){
+											exist=true;
+											break;
+										}
+								  }
+ 								 if(!exist){
+ 									 filterStore.add(getFilterModelData(filterLabel));
+ 								 }
+							}
+						} 
+					}
+				});
+	}
+
+	private ModelData getFilterModelData(String filterLabel) {
+		ModelData model = new BaseModelData();
+		model.set("categoryFilter", filterLabel);
+		return model;
+	}
 
     private Object createProjectGridText(ProjectDTOLight model, String content) {
         final Text label = new Text(content);
@@ -902,6 +992,9 @@ public class ProjectsListPanel {
             return;
         }
 
+        //Reload filter labels for category filter list store
+        reloadCategoryListFilterStore();
+        
         if (loadingMode == LoadingMode.ONE_TIME) {
 
             dispatcher.execute(cmd, new MaskingAsyncMonitor(projectTreePanel, I18N.CONSTANTS.loading()),
