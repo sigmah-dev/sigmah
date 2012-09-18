@@ -6,6 +6,7 @@ sigmah/src/main/java/org/sigmah/client/i18n/UIConstants.java
 sigmah/src/main/java/org/sigmah/client/i18n/UIMessages.java
 sigmah/src/main/java/org/sigmah/client/page/dashboard/MenuStoreFilter.java
 sigmah/src/main/java/org/sigmah/client/page/dashboard/ValueStoreFilter.java
+sigmah/src/main/webapp/Sigmah
 sigmah/synctest
 sigmah/target
 sigmah/war/ActivityInfo
