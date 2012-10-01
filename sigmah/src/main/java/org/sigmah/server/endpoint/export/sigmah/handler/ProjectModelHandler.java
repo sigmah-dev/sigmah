@@ -219,6 +219,9 @@ public class ProjectModelHandler implements ModelHandler {
                             if (em.contains(layoutConstraint.getElement())) {
                                 continue;
                             }
+                            
+                            //Initialize export flags of flexible element
+                            layoutConstraint.getElement().initializeExportFlags();
 
                             // If the current element is a QuestionElement
                             if (layoutConstraint.getElement() instanceof QuestionElement) {

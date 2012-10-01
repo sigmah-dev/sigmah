@@ -153,5 +153,15 @@ public abstract class FlexibleElement implements Serializable, Historable {
     	//remove the privacy group from imported flexible elements.
     	this.privacyGroup = null;
     }
+    
+    
+    /*
+     * When importing a project model from old releases, its flexible elements 
+     * do not have export flags. Thus, they should be initialized, before element is persisted
+     */
+    public void initializeExportFlags(){
+    	if(exportable==null) exportable=true;
+    	if(globallyExportable==null) globallyExportable=false;
+    }
  
 }

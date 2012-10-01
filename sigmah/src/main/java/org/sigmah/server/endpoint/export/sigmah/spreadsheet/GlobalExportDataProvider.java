@@ -196,6 +196,10 @@ public class GlobalExportDataProvider {
 		
 		// collect export data
 		for(final String pModelName : pModelElementsMap.keySet()){
+			
+			//if no project for a given project model, skip even headers for flexible elements 
+			if(pModelProjectsMap.get(pModelName)==null) continue;
+			
 			final List<FlexibleElement> elements = pModelElementsMap.get(pModelName);
 			final List<String[]> exportData=new ArrayList<String[]>();
 			pModelExportDataMap.put(pModelName, exportData);
