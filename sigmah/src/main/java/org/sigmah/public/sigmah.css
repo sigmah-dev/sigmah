@@ -1236,6 +1236,11 @@ a.credits-partner-url,a.credits-partner-url:link,a.credits-partner-url:visited,a
 	padding-left: 20px;
 }
 
+.export-spreadsheet-anchor{
+	background: url("image/excel.png") no-repeat;
+	padding-left: 20px;
+}
+
 
 .global-export-fields-table {
 	border: 1px solid lightgrey;

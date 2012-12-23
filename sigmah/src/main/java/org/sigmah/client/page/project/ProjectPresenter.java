@@ -33,6 +33,7 @@ import org.sigmah.client.page.project.details.ProjectDetailsPresenter;
 import org.sigmah.client.page.project.logframe.ProjectLogFramePresenter;
 import org.sigmah.client.page.project.pivot.ProjectPivotContainer;
 import org.sigmah.client.page.project.reports.ProjectReportsPresenter;
+import org.sigmah.client.ui.ExportSpreadsheetFormButton;
 import org.sigmah.client.ui.ToggleAnchor;
 import org.sigmah.client.util.Notification;
 import org.sigmah.shared.command.AmendmentAction;
@@ -42,6 +43,7 @@ import org.sigmah.shared.command.result.VoidResult;
 import org.sigmah.shared.domain.Amendment;
 import org.sigmah.shared.domain.profile.GlobalPermissionEnum;
 import org.sigmah.shared.dto.AmendmentDTO;
+import org.sigmah.shared.dto.ExportUtils;
 import org.sigmah.shared.dto.PhaseDTO;
 import org.sigmah.shared.dto.ProjectBannerDTO;
 import org.sigmah.shared.dto.ProjectDTO;
@@ -53,6 +55,7 @@ import org.sigmah.shared.dto.layout.LayoutGroupDTO;
 import org.sigmah.shared.dto.profile.ProfileUtils;
 
 import com.allen_sauer.gwt.log.client.Log;
+import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
@@ -66,9 +69,14 @@ import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.form.CheckBox;
+import com.extjs.gxt.ui.client.widget.form.CheckBoxGroup;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.LabelField;
+import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 import com.extjs.gxt.ui.client.widget.layout.HBoxLayout;
 import com.extjs.gxt.ui.client.widget.layout.HBoxLayoutData;
@@ -207,6 +215,78 @@ public class ProjectPresenter implements Frame, TabPage {
 
             this.view.getTabPanel().add(anchor, layoutData);
         }
+        
+        //Export excel button
+        final ToggleAnchor exportAnchor = new ToggleAnchor(I18N.CONSTANTS.export());
+        exportAnchor.setClassName("export-spreadsheet-anchor");
+        exportAnchor.setAnchorMode(true);
+        
+        final HBoxLayoutData layoutData = new HBoxLayoutData();
+        layoutData.setMargins(new Margins(0, 10, 0, 0));
+                        
+        final ExportSpreadsheetFormButton exportForm = new ExportSpreadsheetFormButton();
+        exportAnchor.addClickHandler(new ClickHandler() {
+			
+			@Override
+			public void onClick(ClickEvent arg0) {
+				final Window w = new Window();
+				w.setPlain(true);
+				w.setModal(true);
+				w.setBlinkModal(true);
+				w.setLayout(new FitLayout());
+				w.setSize(350,180);
+				w.setHeading(I18N.CONSTANTS.exportData());
+
+				final FormPanel panel=new FormPanel();		 
+				
+				final CheckBoxGroup options = new CheckBoxGroup();
+				options.setOrientation(Orientation.VERTICAL);
+				options.setFieldLabel(I18N.CONSTANTS.exportOptions());
+				final CheckBox synthesisBox=createCheckBox(I18N.CONSTANTS.projectSynthesis());
+				synthesisBox.setValue(true);
+				synthesisBox.setEnabled(false);
+				final CheckBox indicatorBox=createCheckBox(I18N.CONSTANTS.flexibleElementIndicatorsList());
+				final CheckBox logFrameBox=createCheckBox(I18N.CONSTANTS.logFrame());
+				options.add(synthesisBox); 				
+				options.add(logFrameBox);
+				options.add(indicatorBox);
+				 
+ 				
+ 				panel.add(options);
+ 				
+				final Button export = new Button(I18N.CONSTANTS.export());
+		 		panel.getButtonBar().add(export); 	
+				export.addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+					@Override
+					public void componentSelected(ButtonEvent ce) {
+						 ExportUtils.ExportType type=ExportUtils.ExportType.PROJECT_SYNTHESIS;
+				          if(indicatorBox.getValue() && logFrameBox.getValue()){
+				       	   type=ExportUtils.ExportType.PROJECT_SYNTHESIS_LOGFRAME_INDICATORS;
+				          }else if(indicatorBox.getValue() && !logFrameBox.getValue()){
+				       	   type=ExportUtils.ExportType.PROJECT_SYNTHESIS_INDICATORS;
+				          }else if(!indicatorBox.getValue() && logFrameBox.getValue()){
+				       	   type=ExportUtils.ExportType.PROJECT_SYNTHESIS_LOGFRAME;
+				          }          
+				          exportForm.getFieldMap().put(
+				       		   ExportUtils.PARAM_EXPORT_TYPE,type.name());
+				          
+						exportForm.triggerExport();
+						w.hide();
+					}
+				});		
+			 
+				w.add(panel);
+				w.show();
+				 
+				exportForm.getFieldMap().put(ExportUtils.PARAM_EXPORT_PROJECT_ID, 
+		        		String.valueOf(currentProjectDTO.getId()));				
+			}
+		});
+        
+        this.view.getTabPanel().add(exportAnchor,layoutData);  
+        this.view.getTabPanel().add(exportForm.getExportForm());  
+        
 
         if (ProfileUtils.isGranted(authentication, GlobalPermissionEnum.DELETE_PROJECT)) {
             final HBoxLayoutData deleteLayoutData = new HBoxLayoutData();
@@ -255,6 +335,13 @@ public class ProjectPresenter implements Frame, TabPage {
             this.view.getTabPanel().add(deleteAnchor);
         }
     }
+    
+    private CheckBox createCheckBox( String label) {
+        CheckBox box = new CheckBox();
+         box.setBoxLabel(label);
+        return box;
+    }
+
 
     private void selectTab(int index, boolean force) {
         final ToggleAnchor anchor = (ToggleAnchor) this.view.getTabPanel().getWidget(index);

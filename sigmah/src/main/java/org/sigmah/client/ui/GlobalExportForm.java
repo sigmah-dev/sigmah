@@ -4,6 +4,7 @@
  */
 package org.sigmah.client.ui;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -42,7 +43,6 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.FlexTable;
-import com.google.gwt.user.client.ui.HTML;
 
 
 /*
@@ -58,7 +58,7 @@ public class GlobalExportForm {
    
 	public GlobalExportForm(final Integer organizationId,final Dispatcher dispatcher) {
 		 
-		button = new Button(I18N.CONSTANTS.export(),
+		button = new Button(I18N.CONSTANTS.exportAll(),
 				IconImageBundle.ICONS.excel());
 		exportForm = new FormPanel();
 		exportForm.setBodyBorder(false);
@@ -84,7 +84,7 @@ public class GlobalExportForm {
 				w.setModal(true);
 				w.setBlinkModal(true);
 				w.setLayout(new FitLayout());
-				w.setSize(420,140);
+				w.setSize(420,150);
 				w.setHeading(I18N.CONSTANTS.globalExport());
 
 				final FormPanel panel=new FormPanel();
@@ -113,7 +113,8 @@ public class GlobalExportForm {
 
 				// period				
 			    final DateField fromDate=getDateField();
- 		        final DateField toDate=getDateField();		   
+ 		        final DateField toDate=getDateField();		 
+ 		        toDate.setValue(new Date());
  		        final Button search = new Button(I18N.CONSTANTS.search());
  		       
 		        
@@ -157,7 +158,7 @@ public class GlobalExportForm {
 				        periods.setAllowBlank(true);
 				        periods.clear();
 				        periodTable.setVisible(false);
-				        w.setSize(420,140);
+				        w.setSize(420,150);
 		           }
 		     });
 			 

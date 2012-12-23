@@ -68,8 +68,6 @@ public class ProjectDetailsPresenter implements SubPresenter {
 
         public abstract Button getSaveButton();
         
-        public abstract ExportSpreadsheetFormButton getExcelExportFormButton();
-
         public abstract ContentPanel getMainPanel();
     }
 
@@ -217,76 +215,8 @@ public class ProjectDetailsPresenter implements SubPresenter {
                     });
             }
         });
-        
-        //Export action
-        view.getExcelExportFormButton().getButton().addListener(Events.OnClick, new Listener<ButtonEvent>() {
-
-			@Override
-			public void handleEvent(ButtonEvent be) {
-				final Window w = new Window();
-				w.setPlain(true);
-				w.setModal(true);
-				w.setBlinkModal(true);
-				w.setLayout(new FitLayout());
-				w.setSize(350,180);
-				w.setHeading(I18N.CONSTANTS.exportData());
-
-				final FormPanel panel=new FormPanel();		 
-				
-				final CheckBoxGroup options = new CheckBoxGroup();
-				options.setOrientation(Orientation.VERTICAL);
-				options.setFieldLabel(I18N.CONSTANTS.exportOptions());
-				final CheckBox synthesisBox=createCheckBox(I18N.CONSTANTS.projectSynthesis());
-				synthesisBox.setValue(true);
-				synthesisBox.setEnabled(false);
-				final CheckBox indicatorBox=createCheckBox(I18N.CONSTANTS.flexibleElementIndicatorsList());
-				final CheckBox logFrameBox=createCheckBox(I18N.CONSTANTS.logFrame());
-				options.add(synthesisBox); 				
-				options.add(logFrameBox);
-				options.add(indicatorBox);
-				 
- 				
- 				panel.add(options);
- 				
-				final Button export = new Button(I18N.CONSTANTS.export());
-		 		panel.getButtonBar().add(export); 	
-				export.addSelectionListener(new SelectionListener<ButtonEvent>() {
-
-					@Override
-					public void componentSelected(ButtonEvent ce) {
-						 ExportUtils.ExportType type=ExportUtils.ExportType.PROJECT_SYNTHESIS;
-				          if(indicatorBox.getValue() && logFrameBox.getValue()){
-				       	   type=ExportUtils.ExportType.PROJECT_SYNTHESIS_LOGFRAME_INDICATORS;
-				          }else if(indicatorBox.getValue() && !logFrameBox.getValue()){
-				       	   type=ExportUtils.ExportType.PROJECT_SYNTHESIS_INDICATORS;
-				          }else if(!indicatorBox.getValue() && logFrameBox.getValue()){
-				       	   type=ExportUtils.ExportType.PROJECT_SYNTHESIS_LOGFRAME;
-				          }          
-				          view.getExcelExportFormButton().getFieldMap().put(
-				       		   ExportUtils.PARAM_EXPORT_TYPE,type.name());
-				          
-						view.getExcelExportFormButton().triggerExport();
-						w.hide();
-					}
-				});		
-			 
-				w.add(panel);
-				w.show();
-				 
-				view.getExcelExportFormButton().getFieldMap().put(ExportUtils.PARAM_EXPORT_PROJECT_ID, 
-		        		String.valueOf(projectId));
-				
- 			}
-		});
-    }
-    
+    }       
    
-    protected CheckBox createCheckBox( String label) {
-        CheckBox box = new CheckBox();
-         box.setBoxLabel(label);
-        return box;
-    }
-
     /**
      * Loads the presenter with the project details.
      * 
