@@ -13,78 +13,108 @@ import org.sigmah.shared.command.result.CommandResult;
 import org.sigmah.shared.command.result.ProjectReportListResult;
 import org.sigmah.shared.command.result.ValueResultUtils;
 import org.sigmah.shared.domain.User;
+import org.sigmah.shared.domain.profile.PrivacyGroup;
+import org.sigmah.shared.domain.profile.PrivacyGroupPermission;
+import org.sigmah.shared.domain.profile.PrivacyGroupPermissionEnum;
+import org.sigmah.shared.domain.profile.Profile;
 import org.sigmah.shared.domain.value.File;
 import org.sigmah.shared.domain.value.FileVersion;
 import org.sigmah.shared.domain.value.Value;
 import org.sigmah.shared.exception.CommandException;
 
+import com.allen_sauer.gwt.log.client.Log;
 import com.google.inject.Inject;
 
 public class GetProjectDocumentsHandler implements CommandHandler<GetProjectDocuments> {
 
-    private EntityManager em;
+	private EntityManager em;
 
-    @Inject
-    public GetProjectDocumentsHandler(EntityManager em) {
-        this.em = em;
-    }
+	@Inject
+	public GetProjectDocumentsHandler(EntityManager em) {
+		this.em = em;
+	}
 
-    @Override
-    @SuppressWarnings("unchecked")
-    public CommandResult execute(GetProjectDocuments cmd, User user) throws CommandException {
+	@Override
+	@SuppressWarnings("unchecked")
+	public CommandResult execute(GetProjectDocuments cmd, User user) throws CommandException {
 
-        final ArrayList<ReportReference> references = new ArrayList<ReportReference>();
+		final ArrayList<ReportReference> references = new ArrayList<ReportReference>();
 
-        if (cmd.getProjectId() == null || cmd.getElements() == null) {
-            throw new IllegalArgumentException(
-                    "GetProjectDocuments should specify a project id and a element ids list.");
-        }
+		if (cmd.getProjectId() == null || cmd.getElements() == null) {
+			throw new IllegalArgumentException(
+					"GetProjectDocuments should specify a project id and a element ids list.");
+		}
 
-        // Query to retrieves the value of a files list element in this project.
-        final Query valuesQuery = em
-                .createQuery("SELECT v FROM Value v WHERE v.containerId = :projectId AND v.element.id = :elementId");
+		// Query to retrieves the value of a files list element in this project.
+		final Query valuesQuery = em
+				.createQuery("SELECT v FROM Value v WHERE v.containerId = :projectId AND v.element.id = :elementId");
 
-        // Query to retrieves all the files of a list.
-        final Query filesQuery = em.createQuery("SELECT f FROM File f WHERE f.id IN (:idsList)");
+		// Query to retrieves all the files of a list.
+		final Query filesQuery = em.createQuery("SELECT f FROM File f WHERE f.id IN (:idsList)");
 
-        // For each files list.
-        for (final GetProjectDocuments.FilesListElement fle : cmd.getElements()) {
+		// For each files list.
+		for (final GetProjectDocuments.FilesListElement fle : cmd.getElements()) {
 
-            valuesQuery.setParameter("projectId", cmd.getProjectId());
-            valuesQuery.setParameter("elementId", fle.getId());
+			valuesQuery.setParameter("projectId", cmd.getProjectId());
+			valuesQuery.setParameter("elementId", fle.getId());
 
-            final List<Value> values = (List<Value>) valuesQuery.getResultList();
+			final List<Value> values = (List<Value>) valuesQuery.getResultList();
 
-            if (values != null) {
+			if (values != null) {
 
-                // For each value, retrieves the files list.
-                for (final Value v : values) {
+				// For each value, retrieves the files list.
+				for (final Value v : values) {
+					if(isViewableByUser(v, user)) {
+						filesQuery.setParameter("idsList", ValueResultUtils.splitValuesAsInteger(v.getValue()));
 
-                    filesQuery.setParameter("idsList", ValueResultUtils.splitValuesAsInteger(v.getValue()));
+						final List<File> documents = (List<File>) filesQuery.getResultList();
 
-                    final List<File> documents = (List<File>) filesQuery.getResultList();
+						if (documents != null) {
+							for (final File document : documents) {
 
-                    if (documents != null) {
-                        for (final File document : documents) {
+								final FileVersion lastVersion = document.getLastVersion();
 
-                            final FileVersion lastVersion = document.getLastVersion();
+								final ReportReference r = new ReportReference();
+								r.setId(document.getId());
+								r.setDocument(true);
+								r.setName(lastVersion.getName() + '.' + lastVersion.getExtension());
+								r.setLastEditDate(lastVersion.getAddedDate());
+								r.setEditorName(User.getUserShortName(lastVersion.getAuthor()));
+								r.setPhaseName(fle.getPhaseName());
+								r.setFlexibleElementLabel(fle.getElementLabel());
 
-                            final ReportReference r = new ReportReference();
-                            r.setId(document.getId());
-                            r.setDocument(true);
-                            r.setName(lastVersion.getName() + '.' + lastVersion.getExtension());
-                            r.setLastEditDate(lastVersion.getAddedDate());
-                            r.setEditorName(User.getUserShortName(lastVersion.getAuthor()));
-                            r.setPhaseName(fle.getPhaseName());
-                            r.setFlexibleElementLabel(fle.getElementLabel());
+								references.add(r);
+							}
+						}
+					}
+				}
+			}
+		}
 
-                            references.add(r);
-                        }
-                    }
-                }
-            }
-        }
+		return new ProjectReportListResult(references);
+	}
 
-        return new ProjectReportListResult(references);
-    }
+	/***
+	 * Check if the user has the right to see the document
+	 * @param value
+	 * @param user
+	 * @return boolean indicating the right of the user regarding the document
+	 */
+	public boolean isViewableByUser(Value value, User user) {
+		boolean right = false;
+		final PrivacyGroup documentPG = value.getElement().getPrivacyGroup();
+		if(documentPG == null) {
+			right = true;
+		} else {
+			for(Profile profile : user.getOrgUnitWithProfiles().getProfiles()) {
+				for( PrivacyGroupPermission pgp : profile.getPrivacyGroupPermissions()){
+					if(pgp.getPrivacyGroup() == documentPG) {
+						right = true;
+						return right;
+					}
+				}
+			}
+		}
+		return right;
+	}
 }

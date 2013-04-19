@@ -17,7 +17,11 @@ import org.sigmah.shared.command.handler.CommandHandler;
 import org.sigmah.shared.command.result.CommandResult;
 import org.sigmah.shared.command.result.ProjectReportListResult;
 import org.sigmah.shared.domain.User;
+import org.sigmah.shared.domain.profile.PrivacyGroup;
+import org.sigmah.shared.domain.profile.PrivacyGroupPermission;
+import org.sigmah.shared.domain.profile.Profile;
 import org.sigmah.shared.domain.report.ProjectReport;
+import org.sigmah.shared.domain.value.Value;
 import org.sigmah.shared.exception.CommandException;
 
 /**
@@ -55,8 +59,12 @@ public class GetProjectReportsHandler implements CommandHandler<GetProjectReport
         try {
             final List<ProjectReport> reports = query.getResultList();
 
-            for(final ProjectReport report : reports)
-                references.add(new ReportReference(report));
+            for(final ProjectReport report : reports){
+            	if(isViewableByUser(report, user)) {
+            		references.add(new ReportReference(report));
+            	}
+            }
+               
 
         } catch (NoResultException e) {
             // No reports in the current project
@@ -65,4 +73,28 @@ public class GetProjectReportsHandler implements CommandHandler<GetProjectReport
         return new ProjectReportListResult(references);
     }
 
+    
+    /***
+	 * Check if the user has the right to see the report
+	 * @param pr the project report
+	 * @param user the user
+	 * @return boolean indicating the right of the user regarding the report
+	 */
+    public boolean isViewableByUser(ProjectReport pr, User user) {
+		boolean right = false;
+		final PrivacyGroup documentPG = pr.getFlexibleElement().getPrivacyGroup();
+		if(documentPG == null) {
+			right = true;
+		} else {
+			for(Profile profile : user.getOrgUnitWithProfiles().getProfiles()) {
+				for( PrivacyGroupPermission pgp : profile.getPrivacyGroupPermissions()){
+					if(pgp.getPrivacyGroup() == documentPG) {
+						right = true;
+						return right;
+					}
+				}
+			}
+		}
+		return right;
+	}
 }
