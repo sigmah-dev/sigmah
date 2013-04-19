@@ -18,6 +18,7 @@ import org.sigmah.client.event.NavigationEvent;
 import org.sigmah.client.event.NavigationEvent.NavigationError;
 import org.sigmah.client.event.ProjectEvent;
 import org.sigmah.client.i18n.I18N;
+import org.sigmah.client.icon.IconImageBundle;
 import org.sigmah.client.page.Frame;
 import org.sigmah.client.page.NavigationCallback;
 import org.sigmah.client.page.NavigationHandler;
@@ -199,7 +200,7 @@ public class ProjectPresenter implements Frame, TabPage {
             String tabTitle = MAIN_TABS[i];
 
             final HBoxLayoutData layoutData = new HBoxLayoutData();
-            layoutData.setMargins(new Margins(0, 10, 0, 0));
+            layoutData.setMargins(new Margins(2, 10, 0, 0));
 
             final ToggleAnchor anchor = new ToggleAnchor(tabTitle);
             anchor.setAnchorMode(true);
@@ -217,18 +218,17 @@ public class ProjectPresenter implements Frame, TabPage {
         }
         
         //Export excel button
-        final ToggleAnchor exportAnchor = new ToggleAnchor(I18N.CONSTANTS.export());
-        exportAnchor.setClassName("export-spreadsheet-anchor");
-        exportAnchor.setAnchorMode(true);
+        final Button exportAnchor = new Button(I18N.CONSTANTS.export(), IconImageBundle.ICONS.excel());
+        exportAnchor.setHeight("22px");
         
         final HBoxLayoutData layoutData = new HBoxLayoutData();
-        layoutData.setMargins(new Margins(0, 10, 0, 0));
+        layoutData.setMargins(new Margins(0, 3, 0, 0));
                         
         final ExportSpreadsheetFormButton exportForm = new ExportSpreadsheetFormButton();
-        exportAnchor.addClickHandler(new ClickHandler() {
+        exportAnchor.addSelectionListener(new SelectionListener<ButtonEvent>() {
 			
 			@Override
-			public void onClick(ClickEvent arg0) {
+			public void componentSelected(ButtonEvent arg0) {
 				final Window w = new Window();
 				w.setPlain(true);
 				w.setModal(true);
@@ -284,6 +284,11 @@ public class ProjectPresenter implements Frame, TabPage {
 			}
 		});
         
+        //Creates a blank space between the tabs'links and the buttons
+        final HBoxLayoutData flex = new HBoxLayoutData();
+        flex.setFlex(1);
+        this.view.getTabPanel().add(new Anchor(), flex);
+        
         this.view.getTabPanel().add(exportAnchor,layoutData);  
         this.view.getTabPanel().add(exportForm.getExportForm());  
         
@@ -292,13 +297,12 @@ public class ProjectPresenter implements Frame, TabPage {
             final HBoxLayoutData deleteLayoutData = new HBoxLayoutData();
             deleteLayoutData.setMargins(new Margins(0, 0, 0, 0));
 
-            final ToggleAnchor deleteAnchor = new ToggleAnchor(I18N.CONSTANTS.deleteProjectAnchor());
-            deleteAnchor.setClassName("delete-anchor");
-            deleteAnchor.setAnchorMode(true);
-            deleteAnchor.addClickHandler(new ClickHandler() {
+            final Button deleteAnchor = new Button(I18N.CONSTANTS.deleteProjectAnchor(), IconImageBundle.ICONS.remove());
+            deleteAnchor.setHeight("22px");
+            deleteAnchor.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
                 @Override
-                public void onClick(ClickEvent event) {
+                public void componentSelected(ButtonEvent event) {
                     MessageBox.confirm(I18N.CONSTANTS.confirmDeleteProjectMessageBoxTitle(), I18N.CONSTANTS.confirmDeleteProjectMessageBoxContent(),
                         new Listener<MessageBoxEvent>() {
 

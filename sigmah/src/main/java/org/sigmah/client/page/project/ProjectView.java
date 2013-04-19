@@ -77,7 +77,7 @@ public class ProjectView extends LayoutContainer implements ProjectPresenter.Vie
         tabPanel.setBodyBorder(false);
         tabPanel.setBorders(false);
 
-        bottomPanel.add(tabPanel, new BorderLayoutData(LayoutRegion.NORTH, 20));
+        bottomPanel.add(tabPanel, new BorderLayoutData(LayoutRegion.NORTH, 27));
 
         insufficient = new HTML(I18N.CONSTANTS.permViewProjectInsufficient());
         insufficient.addStyleName("important-label-white");
