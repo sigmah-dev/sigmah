@@ -33,6 +33,7 @@ import org.sigmah.shared.domain.Organization;
 import org.sigmah.shared.domain.PhaseModel;
 import org.sigmah.shared.domain.Project;
 import org.sigmah.shared.domain.ProjectModel;
+import org.sigmah.shared.domain.ProjectModelStatus;
 import org.sigmah.shared.domain.User;
 import org.sigmah.shared.domain.element.DefaultFlexibleElement;
 import org.sigmah.shared.domain.element.FlexibleElement;
@@ -47,7 +48,7 @@ import org.sigmah.shared.domain.layout.LayoutGroup;
 import org.sigmah.shared.domain.value.TripletValue;
 import org.sigmah.shared.dto.value.ListableValue;
 import org.sigmah.shared.dto.value.TripletValueDTO;
- import org.sigmah.shared.exception.CommandException;
+import org.sigmah.shared.exception.CommandException;
 
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.inject.Inject;
@@ -158,14 +159,16 @@ public class GlobalExportDataProvider {
 		final Map<String,List<Project>> pModelProjectsMap=
 			new HashMap<String,List<Project>>();
 		for(final Project project:projects){
-			final String pModelName=project.getProjectModel().getName();			
-			
-			List<Project> pModelProjects=pModelProjectsMap.get(pModelName);
-			if(pModelProjects==null){
-				pModelProjects=new ArrayList<Project>();
-				pModelProjectsMap.put(pModelName, pModelProjects);
+			if(project.getDateDeleted() == null) {
+				final String pModelName=project.getProjectModel().getName();			
+				
+				List<Project> pModelProjects=pModelProjectsMap.get(pModelName);
+				if(pModelProjects==null){
+					pModelProjects=new ArrayList<Project>();
+					pModelProjectsMap.put(pModelName, pModelProjects);
+				}
+				pModelProjects.add(project);
 			}
-			pModelProjects.add(project);				
 		}
 						
 		
@@ -173,17 +176,19 @@ public class GlobalExportDataProvider {
 		final Map<String,List<FlexibleElement>> pModelElementsMap=
 			new HashMap<String,List<FlexibleElement>>();
 		for(final ProjectModel projectModel : pModels){
-			final String pModelName=projectModel.getName();
-			
-			final List<FlexibleElement> pModelElements=new ArrayList<FlexibleElement>();			
-			pModelElementsMap.put(pModelName, pModelElements);				
-			
-			//detail elements
-			fillElementList(pModelElements, projectModel.getProjectDetails().getLayout());
-			 
-			//phase elements
-			for(final PhaseModel phaseModel:projectModel.getPhases()){
-				fillElementList(pModelElements, phaseModel.getLayout());
+			if(projectModel.getStatus() != ProjectModelStatus.DRAFT){
+				final String pModelName=projectModel.getName();
+				
+				final List<FlexibleElement> pModelElements=new ArrayList<FlexibleElement>();			
+				pModelElementsMap.put(pModelName, pModelElements);				
+				
+				//detail elements
+				fillElementList(pModelElements, projectModel.getProjectDetails().getLayout());
+				 
+				//phase elements
+				for(final PhaseModel phaseModel:projectModel.getPhases()){
+					fillElementList(pModelElements, phaseModel.getLayout());
+				}
 			}
 		}
 		

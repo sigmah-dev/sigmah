@@ -18,6 +18,7 @@ import org.sigmah.shared.command.handler.CommandHandler;
 import org.sigmah.shared.command.result.CommandResult;
 import org.sigmah.shared.domain.Organization;
 import org.sigmah.shared.domain.ProjectModel;
+import org.sigmah.shared.domain.ProjectModelStatus;
 import org.sigmah.shared.domain.User;
 import org.sigmah.shared.domain.export.GlobalExportSettings;
 import org.sigmah.shared.dto.GlobalExportSettingsDTO;
@@ -63,7 +64,9 @@ public class GetGlobalExportSettingsHandler implements CommandHandler<GetGlobalE
 		final List<ProjectModelDTO> pModelDTOs=
 			new ArrayList<ProjectModelDTO>();
 		for(ProjectModel model:pModels){
-			pModelDTOs.add(mapper.map(model, ProjectModelDTO.class));			
+			if(model.getStatus() != ProjectModelStatus.DRAFT) {
+				pModelDTOs.add(mapper.map(model, ProjectModelDTO.class));
+			}
 		}
 		result.setProjectModelsDTO(pModelDTOs);
 		
