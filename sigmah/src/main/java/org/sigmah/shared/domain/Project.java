@@ -26,12 +26,19 @@ import javax.persistence.OrderBy;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import org.hibernate.annotations.FilterDef;
+import org.hibernate.annotations.FilterDefs;
+import org.hibernate.annotations.FilterJoinTable;
 import org.sigmah.shared.domain.Amendment.State;
 import org.sigmah.shared.domain.logframe.LogFrame;
 import org.sigmah.shared.domain.reminder.MonitoredPointList;
 import org.sigmah.shared.domain.reminder.ReminderList;
 
 @Entity
+@FilterDefs({
+		@FilterDef(name="hideDeletedFunding"),
+		@FilterDef(name="hideDeletedFunded")
+})
 public class Project extends UserDatabase {
     private static final long serialVersionUID = 3838595995254049090L;
 
@@ -184,6 +191,11 @@ public class Project extends UserDatabase {
         this.receivedBudget = receivedBudget;
     }
 
+
+    @FilterJoinTable(name="hideDeletedFunding", condition = "exists(select p.DatabaseId from Project p, UserDatabase ub where p.DatabaseId = id_project_funded AND " 
+		+ "p.DatabaseId = ub.DatabaseId AND ub.DateDeleted is null) AND "
+		+ "exists(select p.DatabaseId from Project p, UserDatabase ub where p.DatabaseId = id_project_funding AND " 
+		+ "p.DatabaseId = ub.DatabaseId AND ub.DateDeleted is null)")
     @ManyToMany(mappedBy = "funded", cascade = CascadeType.ALL)
     public List<ProjectFunding> getFunding() {
         return funding;
@@ -193,6 +205,10 @@ public class Project extends UserDatabase {
         this.funding = funding;
     }
 
+    @FilterJoinTable(name="hideDeletedFunded", condition = "exists(select p.DatabaseId from Project p, UserDatabase ub where p.DatabaseId = id_project_funded AND " 
+		+ "p.DatabaseId = ub.DatabaseId AND ub.DateDeleted is null) AND "
+		+ "exists(select p.DatabaseId from Project p, UserDatabase ub where p.DatabaseId = id_project_funding AND " 
+		+ "p.DatabaseId = ub.DatabaseId AND ub.DateDeleted is null)")
     @ManyToMany(mappedBy = "funding", cascade = CascadeType.ALL)
     public List<ProjectFunding> getFunded() {
         return funded;

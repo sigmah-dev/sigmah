@@ -28,6 +28,8 @@ public class DomainFilters {
 
         /* Hide entities deleted by users  */
         session.enableFilter("hideDeleted");
+        session.enableFilter("hideDeletedFunded");
+        session.enableFilter("hideDeletedFunding");
 
     }
 
