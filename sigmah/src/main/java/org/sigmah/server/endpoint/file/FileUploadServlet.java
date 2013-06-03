@@ -20,6 +20,8 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.fileupload.util.Streams;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sigmah.server.Configurator;
+import org.sigmah.server.ConstantsPropertiesEnum;
 import org.sigmah.shared.domain.reminder.MonitoredPoint;
 import org.sigmah.shared.dto.value.FileUploadUtils;
 
@@ -40,8 +42,8 @@ public class FileUploadServlet extends HttpServlet {
     private static final long serialVersionUID = -199302354477098512L;
 
     private static final Log log = LogFactory.getLog(FileUploadServlet.class);
-
-    /**
+    
+	/**
      * Encode a string to UTF-8.
      * 
      * @param string
@@ -61,10 +63,14 @@ public class FileUploadServlet extends HttpServlet {
      * To get the upload manager.
      */
     private final Injector injector;
+    
+    private final Configurator configurator;
+	
 
     @Inject
     public FileUploadServlet(Injector injector) {
         this.injector = injector;
+        this.configurator = injector.getInstance(Configurator.class);
     }
 
     /**
@@ -136,9 +142,38 @@ public class FileUploadServlet extends HttpServlet {
             if (ServletFileUpload.isMultipartContent(request)) {
 
                 boolean addIt = true;
-
+                int maxUploadSize ;
+                final String maxUploadProperty = ConstantsPropertiesEnum.UPLOAD_MAX_SIZE.getValue();
+                if(configurator.getProperty(maxUploadProperty) == null){
+                	maxUploadSize = FileUploadUtils.MAX_UPLOAD_FILE_SIZE;
+                	if(log.isWarnEnabled()) {
+                		final StringBuilder sb = new StringBuilder();
+                		sb.append("Property ");
+                		sb.append(maxUploadProperty);
+                		sb.append( " has not been found. The default value is used.");
+                		log.warn(sb.toString());
+                	}
+                } else {
+                	try {
+                		maxUploadSize = Integer.parseInt(configurator.getProperty(maxUploadProperty));
+                	} catch  ( NumberFormatException nfe) {
+                		maxUploadSize = FileUploadUtils.MAX_UPLOAD_FILE_SIZE;
+                		if(log.isWarnEnabled()) {
+                			final StringBuilder sb = new StringBuilder();
+                    		sb.append("Property ");
+                    		sb.append(maxUploadProperty);
+                    		sb.append( " is not a number. The default value is used.");
+                    		log.warn(sb.toString());
+               			 }
+                	}
+                }
+                
+                if(log.isDebugEnabled()) {
+                	log.debug("The upload maximum size is " + maxUploadSize + " bytes.");
+                }
+                
                 // Checks uploaded file size.
-                if (request.getContentLength() > FileUploadUtils.MAX_UPLOAD_FILE_SIZE) {
+                if (request.getContentLength() > maxUploadSize) {
 
                     if (log.isDebugEnabled()) {
                         log.debug("[doPost] File too big to be uploaded (size: " + request.getContentLength() + ").");

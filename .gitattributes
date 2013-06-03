@@ -1968,7 +1968,12 @@ sigmah/src/main/java/org/sigmah/public/manuals/fr/manuel_fichiers/user.css -text
 sigmah/src/main/java/org/sigmah/public/manuals/fr/manuel_fichiers/views.css -text
 sigmah/src/main/java/org/sigmah/public/sigmah.css -text
 sigmah/src/main/java/org/sigmah/server/ConfigModule.java -text
+sigmah/src/main/java/org/sigmah/server/Configurator.java -text
+sigmah/src/main/java/org/sigmah/server/ConstantsPropertiesEnum.java -text
 sigmah/src/main/java/org/sigmah/server/Cookies.java -text
+sigmah/src/main/java/org/sigmah/server/PropertiesFilesSet.java -text
+sigmah/src/main/java/org/sigmah/server/ReloadConfiguratorPeriod.java -text
+sigmah/src/main/java/org/sigmah/server/ReloadPropertiesConfigurator.java -text
 sigmah/src/main/java/org/sigmah/server/StartupListener.java -text
 sigmah/src/main/java/org/sigmah/server/Translator.java -text
 sigmah/src/main/java/org/sigmah/server/UIConstantsTranslator.java -text

@@ -11,7 +11,6 @@ import com.google.inject.Singleton;
 import org.apache.log4j.Logger;
 import org.sigmah.server.util.logging.Trace;
 
-import javax.servlet.ServletContext;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -23,6 +22,14 @@ public class ConfigModule extends AbstractModule {
 
 	@Override
     protected void configure() {
+		// Binds the properties.
+        final PropertiesFilesSet propertiesFilesSet = new PropertiesFilesSet();
+        propertiesFilesSet.add("sigmah.properties");
+        bind(PropertiesFilesSet.class).toInstance(propertiesFilesSet);
+        
+        bindConstant().annotatedWith(ReloadConfiguratorPeriod.class).to(60);
+        bind(Configurator.class).to(ReloadPropertiesConfigurator.class).in(Singleton.class);
+        
     }
 
     @Provides
