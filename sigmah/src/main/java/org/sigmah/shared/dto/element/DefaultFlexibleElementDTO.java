@@ -152,7 +152,7 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 
                 // Builds the field and sets its value.
                 if (enabled) {
-                    final TextField<String> textField = createStringField(16, false);
+                    final TextField<String> textField = createStringField(50, false);
                     textField.setValue(container.getName());
                     field = textField;
 

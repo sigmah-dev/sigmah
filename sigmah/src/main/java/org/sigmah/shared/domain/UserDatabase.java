@@ -140,7 +140,7 @@ public class UserDatabase implements java.io.Serializable, Deleteable, SchemaEle
      * 
      * @return The short name of the database (generally an acronym)
      */
-    @Column(name = "Name", length = 16, nullable = false)
+    @Column(name = "Name", length = 50, nullable = false)
     public String getName() {
         return this.name;
     }

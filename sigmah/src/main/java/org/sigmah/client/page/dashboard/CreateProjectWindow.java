@@ -196,7 +196,7 @@ public class CreateProjectWindow {
 
         // Name field.
         nameField = new TextField<String>();
-        nameField.setMaxLength(16);
+        nameField.setMaxLength(50);
         nameField.setFieldLabel(I18N.CONSTANTS.projectName());
         nameField.setAllowBlank(false);
 
