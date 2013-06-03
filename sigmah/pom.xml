@@ -80,6 +80,16 @@
 				<enabled>true</enabled>
 			</snapshots>
 		</repository>
+    <repository>
+      <id>ideia-central-releases</id>
+      <name>Central Repository IDEIA</name>
+      <url>http://maven3.ideia.fr/content/repositories/releases</url>
+    </repository>
+    <repository>
+      <id>ideia-central-snapshots</id>
+      <name>Central Repository IDEIA - SNAPSHOTS</name>
+      <url>http://maven3.ideia.fr/content/repositories/snapshots</url>
+    </repository>
 	</repositories>
 
 	<pluginRepositories>
@@ -278,12 +288,6 @@
             <artifactId>itext-rtf</artifactId>
             <version>2.1.7</version>
         </dependency>
-		
-		<dependency>
-			<groupId>org.apache.odftoolkit</groupId>
-			<artifactId>odfdom-java</artifactId>
-			<version>0.8.8-incubating</version>
-		</dependency>
 		<dependency>
 			<groupId>org.apache.odftoolkit</groupId>
 			<artifactId>simple-odf</artifactId>
@@ -372,12 +376,6 @@
 			<groupId>net.sf.dozer</groupId>
 			<artifactId>dozer</artifactId>
 			<version>5.1</version>
-		</dependency>
-
-		<dependency>
-			<groupId>xerces</groupId>
-			<artifactId>xercesImpl</artifactId>
-			<version>2.4.0</version>
 		</dependency>
 
 		<dependency>
@@ -472,6 +470,7 @@
 				</configuration>
 			</plugin>
 			
+      <!--
 			<plugin>
 				<groupId>com.google.code.maven-svn-revision-number-plugin</groupId>
 				<artifactId>maven-svn-revision-number-plugin</artifactId>
@@ -491,7 +490,8 @@
 					</entries>
 				</configuration>
 			</plugin>
-			
+			-->
+      
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-resources-plugin</artifactId>
