@@ -16,6 +16,7 @@ import org.sigmah.shared.command.GetValue;
 import org.sigmah.shared.command.UpdateProject;
 import org.sigmah.shared.command.result.ValueResult;
 import org.sigmah.shared.command.result.VoidResult;
+import org.sigmah.shared.domain.profile.GlobalPermissionEnum;
 import org.sigmah.shared.dto.ExportUtils;
 import org.sigmah.shared.dto.OrgUnitDTO;
 import org.sigmah.shared.dto.OrgUnitDetailsDTO;
@@ -26,6 +27,7 @@ import org.sigmah.shared.dto.element.handler.ValueHandler;
 import org.sigmah.shared.dto.layout.LayoutConstraintDTO;
 import org.sigmah.shared.dto.layout.LayoutDTO;
 import org.sigmah.shared.dto.layout.LayoutGroupDTO;
+import org.sigmah.shared.dto.profile.ProfileUtils;
 
 import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -70,7 +72,7 @@ public class OrgUnitDetailsPresenter implements SubPresenter {
     private final UserLocalCache cache;
 
     private final EventBus eventBus;
-
+    
     /**
      * The main presenter.
      */
@@ -211,6 +213,9 @@ public class OrgUnitDetailsPresenter implements SubPresenter {
         // Layout.
         final LayoutDTO layout = details.getLayout();
 
+     // If the user has the right to modify the element
+        final boolean enabled = ProfileUtils.isGranted(authentication, GlobalPermissionEnum.MANAGE_UNIT);
+        
         // Counts elements.
         int count = 0;
         for (final LayoutGroupDTO groupDTO : layout.getLayoutGroupsDTO()) {
@@ -280,7 +285,7 @@ public class OrgUnitDetailsPresenter implements SubPresenter {
 
                                 // Generates element component (with the value).
                                 elementDTO.init();
-                                final Component elementComponent = elementDTO.getElementComponent(valueResult);
+                                final Component elementComponent = elementDTO.getElementComponent(valueResult, enabled);
 
                                 // Component width.
                                 final FormData formData;
