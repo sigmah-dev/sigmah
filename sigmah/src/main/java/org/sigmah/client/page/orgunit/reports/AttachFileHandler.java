@@ -12,8 +12,6 @@ import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.dispatch.remote.Authentication;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.icon.IconImageBundle;
-import org.sigmah.client.page.project.logframe.FormWindow;
-import org.sigmah.client.page.project.logframe.FormWindow.FormSubmitListener;
 import org.sigmah.client.ui.ButtonFileUploadField;
 import org.sigmah.client.util.Notification;
 import org.sigmah.shared.dto.OrgUnitDTO;
@@ -28,7 +26,6 @@ import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FormEvent;
 import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.MessageBox;
@@ -122,62 +119,8 @@ public class AttachFileHandler implements AttachMenuBuilder.AttachDocumentHandle
 
                     Log.debug(sb.toString());
                 }
-
-                MessageBox.confirm(I18N.CONSTANTS.monitoredPointAdd(),
-                        I18N.MESSAGES.monitoredPointAddWithFile(uploadField.getValue()),
-                        new Listener<MessageBoxEvent>() {
-
-                            // Builds the monitored points window.
-                            final FormWindow window = new FormWindow();
-
-                            {
-                                window.addTextField(I18N.CONSTANTS.monitoredPointLabel(), false);
-                                window.addDateField(I18N.CONSTANTS.monitoredPointExpectedDate(), false);
-
-                                window.addFormSubmitListener(new FormSubmitListener() {
-
-                                    @Override
-                                    public void formSubmitted(Object... values) {
-
-                                        // Checks that the values are
-                                        // correct.
-                                        final Object element0 = values[1];
-                                        if (!(element0 instanceof Date)) {
-                                            return;
-                                        }
-
-                                        final Object element1 = values[0];
-                                        if (!(element1 instanceof String)) {
-                                            return;
-                                        }
-
-                                        final Date pointExpectedDate = (Date) element0;
-                                        final String pointLabel = (String) element1;
-
-                                        pointDateHidden.setValue(String.valueOf(pointExpectedDate.getTime()));
-                                        pointLabelHidden.setValue(pointLabel);
-
-                                        // Submits the form.
-                                        uploadFormPanel.submit();
-                                    }
-                                });
-                            }
-
-                            @Override
-                            public void handleEvent(MessageBoxEvent be) {
-
-                                if (Dialog.YES.equals(be.getButtonClicked().getItemId())) {
-                                    monitoredPointGenerated = true;
-                                    window.show(I18N.CONSTANTS.monitoredPointAdd(),
-                                            I18N.CONSTANTS.monitoredPointAddDetails());
-                                } else {
-                                    pointDateHidden.setValue(null);
-                                    pointLabelHidden.setValue(null);
-                                    // Submits the form.
-                                    uploadFormPanel.submit();
-                                }
-                            }
-                        });
+                uploadFormPanel.submit();
+               
             }
         });
 
