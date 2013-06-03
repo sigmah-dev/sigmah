@@ -28,8 +28,6 @@ import org.sigmah.shared.dto.UserDTO;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.google.inject.Inject;
 
-import org.sigmah.server.endpoint.gwtrpc.PasswordManagementServlet;
-
 /**
  * Create user policy.
  * 
@@ -100,6 +98,8 @@ public class UserPolicy implements EntityPolicy<User> {
                 userToPersist.setHashedPassword(PasswordHelper.hashPassword(password));
                 userToPersist.setChangePasswordKey(null);
                 userToPersist.setDateChangePasswordKeyIssued(new Date());
+            } else if (userFound != null){
+            	userToPersist.setHashedPassword(userFound.getHashedPassword());
             }
 
             if (userFound != null && userFound.getId() > 0) {
