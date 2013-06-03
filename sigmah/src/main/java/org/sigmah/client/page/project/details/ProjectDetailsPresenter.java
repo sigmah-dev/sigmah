@@ -13,7 +13,6 @@ import org.sigmah.client.event.ProjectEvent;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.page.project.ProjectPresenter;
 import org.sigmah.client.page.project.SubPresenter;
-import org.sigmah.client.ui.ExportSpreadsheetFormButton;
 import org.sigmah.client.util.Notification;
 import org.sigmah.shared.command.GetOrgUnit;
 import org.sigmah.shared.command.GetValue;
@@ -23,10 +22,11 @@ import org.sigmah.shared.command.result.ValueResultUtils;
 import org.sigmah.shared.command.result.VoidResult;
 import org.sigmah.shared.domain.profile.GlobalPermissionEnum;
 import org.sigmah.shared.dto.CountryDTO;
-import org.sigmah.shared.dto.ExportUtils;
 import org.sigmah.shared.dto.OrgUnitDTO;
 import org.sigmah.shared.dto.ProjectDTO;
+import org.sigmah.shared.dto.ProjectDTOLight;
 import org.sigmah.shared.dto.ProjectDetailsDTO;
+import org.sigmah.shared.dto.ProjectFundingDTO;
 import org.sigmah.shared.dto.UserDTO;
 import org.sigmah.shared.dto.element.DefaultFlexibleElementDTO;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
@@ -38,23 +38,15 @@ import org.sigmah.shared.dto.layout.LayoutGroupDTO;
 import org.sigmah.shared.dto.profile.ProfileUtils;
 
 import com.allen_sauer.gwt.log.client.Log;
-import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
-import com.extjs.gxt.ui.client.event.FieldEvent;
 import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Label;
 import com.extjs.gxt.ui.client.widget.MessageBox;
-import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.form.CheckBox;
-import com.extjs.gxt.ui.client.widget.form.CheckBoxGroup;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
-import com.extjs.gxt.ui.client.widget.form.FormPanel;
-import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Grid;
@@ -105,6 +97,7 @@ public class ProjectDetailsPresenter implements SubPresenter {
     /*
      * Project id to be used for excel export
      */
+    @SuppressWarnings("unused")
     private int projectId;
 
     public ProjectDetailsPresenter(EventBus eventBus, Dispatcher dispatcher, Authentication authentication, ProjectPresenter projectPresenter, UserLocalCache cache) {
@@ -429,7 +422,27 @@ public class ProjectDetailsPresenter implements SubPresenter {
                     currentProjectDTO.setPlannedBudget(plannedBudget);
                     currentProjectDTO.setSpendBudget(spendBudget);
                     currentProjectDTO.setReceivedBudget(receivedBudget);
-
+                    
+                    /** 
+                     * Update funding projects - Reflect to funded project in funding projects
+                     * 
+	                  * currentProjectDTO
+	                  * |-- getFunding() 				--> <ProjectFundingDTO>		// list of funding projects
+	                  * 		|-- getPercentage()									// no updates from here
+	                  *      |-- getFunded()			--> ProjectDTOLight			// funded project details light
+	                  *      	|--getPlannedBudget()								// update budget details
+	                  */
+                    List<ProjectFundingDTO> fundingProjects = currentProjectDTO.getFunding();
+    				if (fundingProjects != null && !fundingProjects.isEmpty()) {
+    					for (ProjectFundingDTO projectFundingDTO : fundingProjects) {
+    						ProjectDTOLight fundedProject = projectFundingDTO.getFunded();
+    						if (fundedProject != null && fundedProject.getId() == currentProjectDTO.getId()) {
+    							fundedProject.setPlannedBudget(plannedBudget);
+    							fundedProject.setSpendBudget(spendBudget);
+    							fundedProject.setReceivedBudget(receivedBudget);
+    						}
+    					}
+    				}
                 } catch (Exception e) {
                     // nothing, invalid budget.
                 }
