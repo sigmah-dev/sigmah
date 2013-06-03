@@ -160,6 +160,7 @@ public class ElementForm extends ContentPanel {
 		reportModelList = new ComboBox<ReportModelDTO>();
 		reportModelList.setEditable(false);
 		reportModelList.hide();
+		reportModelList.setAllowBlank(false);
 		reportModelList.setFieldLabel(I18N.CONSTANTS.adminReportName());
 		reportModelList.setDisplayField("name");
 		reportModelList.setValueField("id");	
@@ -845,9 +846,10 @@ public class ElementForm extends ContentPanel {
 			 
 		}
 		
-		
+		//If the type chosen is a report or a report list and the report model is not given
 		 if (!commonPanel.isValid() || htmlArea.getValue() != null && htmlArea.getValue().isEmpty() 
-				 || "".equals(send) ) {
+				 || "".equals(send) || ((ElementTypeEnum.getName(ElementTypeEnum.REPORT).equals(typeList.getSimpleValue())
+					|| ElementTypeEnum.getName(ElementTypeEnum.REPORT_LIST).equals(typeList.getSimpleValue())) && !reportModelList.isValid())) {
 	            MessageBox.alert(I18N.CONSTANTS.createFormIncomplete(),
 	                    I18N.MESSAGES.createFormIncompleteDetails(I18N.CONSTANTS.adminStandardFlexibleName()), null);
 	            return;
