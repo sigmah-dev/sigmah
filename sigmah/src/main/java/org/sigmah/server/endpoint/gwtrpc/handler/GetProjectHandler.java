@@ -21,7 +21,6 @@ import org.sigmah.shared.command.handler.CommandHandler;
 import org.sigmah.shared.command.result.CommandResult;
 import org.sigmah.shared.domain.OrgUnit;
 import org.sigmah.shared.domain.Project;
-import org.sigmah.shared.domain.ProjectModelStatus;
 import org.sigmah.shared.domain.User;
 import org.sigmah.shared.domain.reminder.MonitoredPoint;
 import org.sigmah.shared.domain.reminder.Reminder;
@@ -37,150 +36,148 @@ import com.google.inject.Inject;
  */
 public class GetProjectHandler implements CommandHandler<GetProject> {
 
-    private final static Log LOG = LogFactory.getLog(GetProjectHandler.class);
+	private final static Log LOG = LogFactory.getLog(GetProjectHandler.class);
 
-    private final EntityManager em;
-    private final Mapper mapper;
+	private final EntityManager em;
+	private final Mapper mapper;
 
-    @Inject
-    public GetProjectHandler(EntityManager em, Mapper mapper) {
-        this.em = em;
-        this.mapper = mapper;
-    }
+	@Inject
+	public GetProjectHandler(EntityManager em, Mapper mapper) {
+		this.em = em;
+		this.mapper = mapper;
+	}
 
-    /**
-     * Gets a project from the database and maps it into a {@link ProjectDTO}
-     * object.
-     * 
-     * @param cmd
-     *            command containing the project id
-     * @param user
-     *            user connected
-     * 
-     * @return the {@link ProjectDTO} object.
-     */
-    @Override
-    public CommandResult execute(GetProject cmd, User user) throws CommandException {
+	/**
+	 * Gets a project from the database and maps it into a {@link ProjectDTO}
+	 * object.
+	 * 
+	 * @param cmd
+	 *            command containing the project id
+	 * @param user
+	 *            user connected
+	 * 
+	 * @return the {@link ProjectDTO} object.
+	 */
+	@Override
+	public CommandResult execute(GetProject cmd, User user) throws CommandException {
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("[execute] Getting projet id#" + cmd.getProjectId() + " from the database.");
-        }
+		if (LOG.isDebugEnabled()) {
+			LOG.debug("[execute] Getting projet id#" + cmd.getProjectId() + " from the database.");
+		}
 
-        final Project project = em.find(Project.class, cmd.getProjectId());
+		final Project project = em.find(Project.class, cmd.getProjectId());
 
-        if (project == null) {
+		if (project == null) {
 
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("[execute] Projet id#" + cmd.getProjectId() + " doesn't exist.");
-            }
+			if (LOG.isDebugEnabled()) {
+				LOG.debug("[execute] Projet id#" + cmd.getProjectId() + " doesn't exist.");
+			}
 
-            return null;
-        } else {
+			return null;
+		} else {
 
-            if (isProjectVisible(project, user)) {
-                final ProjectDTO dto = mapper.map(project, ProjectDTO.class);
-                for (final OrgUnit orgUnit : project.getPartners()) {
-                    dto.setOrgUnit(orgUnit.getId());
-                    break;
-                }
-                List<ReminderDTO> reminderDTOs = new ArrayList<ReminderDTO>();
-                List<MonitoredPointDTO> pointDTOs = new ArrayList<MonitoredPointDTO>();
+			if (isProjectVisible(project, user)) {
+				final ProjectDTO dto = mapper.map(project, ProjectDTO.class);
+				for (final OrgUnit orgUnit : project.getPartners()) {
+					dto.setOrgUnit(orgUnit.getId());
+					break;
+				}
+				List<ReminderDTO> reminderDTOs = new ArrayList<ReminderDTO>();
+				List<MonitoredPointDTO> pointDTOs = new ArrayList<MonitoredPointDTO>();
 
-                for (final Reminder r : project.getRemindersList().getReminders()) {
-                    ReminderDTO reminderDTO = new ReminderDTO();
-                    reminderDTO = mapper.map(r, ReminderDTO.class);
-                    reminderDTO.setDeleted(r.isDeleted());
-                    reminderDTOs.add(reminderDTO);
-                }
-                for (final MonitoredPoint p : project.getPointsList().getPoints()) {
-                    LOG.debug("Point is deleted ?" + p.isDeleted());
-                    MonitoredPointDTO pointDTO = new MonitoredPointDTO();
-                    pointDTO = mapper.map(p, MonitoredPointDTO.class);
-                    pointDTO.setDeleted(p.isDeleted());
-                    pointDTOs.add(pointDTO);
-                }
-                dto.getRemindersList().setReminders(reminderDTOs);
-                dto.getPointsList().setPoints(pointDTOs);
-                return dto;
-            }
-            // The user cannot see this project.
-            else {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("[execute] User cannot see projet id#" + cmd.getProjectId() + ".");
-                }
+				for (final Reminder r : project.getRemindersList().getReminders()) {
+					ReminderDTO reminderDTO = new ReminderDTO();
+					reminderDTO = mapper.map(r, ReminderDTO.class);
+					reminderDTO.setDeleted(r.isDeleted());
+					reminderDTOs.add(reminderDTO);
+				}
+				for (final MonitoredPoint p : project.getPointsList().getPoints()) {
+					LOG.debug("Point is deleted ?" + p.isDeleted());
+					MonitoredPointDTO pointDTO = new MonitoredPointDTO();
+					pointDTO = mapper.map(p, MonitoredPointDTO.class);
+					pointDTO.setDeleted(p.isDeleted());
+					pointDTOs.add(pointDTO);
+				}
+				dto.getRemindersList().setReminders(reminderDTOs);
+				dto.getPointsList().setPoints(pointDTOs);
+				return dto;
+			}
+			// The user cannot see this project.
+			else {
+				if (LOG.isDebugEnabled()) {
+					LOG.debug("[execute] User cannot see projet id#" + cmd.getProjectId() + ".");
+				}
 
-                return null;
-            }
-        }
-    }
+				return null;
+			}
+		}
+	}
 
-    /**
-     * Adds recursively all the children of an unit in a collection.
-     * 
-     * @param root
-     *            The root unit from which the hierarchy is traversed.
-     * @param units
-     *            The current collection in which the units are added.
-     * @param addRoot
-     *            If the root must be added too.
-     */
-    public static void crawlUnits(OrgUnit root, Collection<OrgUnit> units, boolean addRoot) {
+	/**
+	 * Adds recursively all the children of an unit in a collection.
+	 * 
+	 * @param root
+	 *            The root unit from which the hierarchy is traversed.
+	 * @param units
+	 *            The current collection in which the units are added.
+	 * @param addRoot
+	 *            If the root must be added too.
+	 */
+	public static void crawlUnits(OrgUnit root, Collection<OrgUnit> units, boolean addRoot) {
 
-        if (addRoot) {
-            units.add(root);
-        }
+		if (addRoot) {
+			units.add(root);
+		}
 
-        final Set<OrgUnit> children = root.getChildren();
-        if (children != null) {
-            for (OrgUnit child : children) {
-                crawlUnits(child, units, true);
-            }
-        }
-    }
+		final Set<OrgUnit> children = root.getChildren();
+		if (children != null) {
+			for (OrgUnit child : children) {
+				crawlUnits(child, units, true);
+			}
+		}
+	}
 
-    /**
-     * Returns if the project is visible for the given user.
-     * 
-     * @param project
-     *            The project.
-     * @param user
-     *            The user.
-     * @return If the project is visible for the user.
-     */
-    public static boolean isProjectVisible(Project project, User user) {
+	/**
+	 * Returns if the project is visible for the given user.
+	 * 
+	 * @param project
+	 *            The project.
+	 * @param user
+	 *            The user.
+	 * @return If the project is visible for the user.
+	 */
+	public static boolean isProjectVisible(Project project, User user) {
 
-        // Checks that the project is not deleted
-        if(!project.isDeleted()) {
-        
-            // Owner.
-            if (project.getOwner() != null) {
-                if (project.getOwner().getId() == user.getId()) {
-                    return true;
-                }
-            }
-            
-            if (project.getProjectModel().getStatus() != ProjectModelStatus.DRAFT) {
-                // Manager.
-                if (project.getManager() != null) {
-                    if (project.getManager().getId() == user.getId()) {
-                        return true;
-                    }
-                }
-    
-                // Checks that the user can see this project.
-                final HashSet<OrgUnit> units = new HashSet<OrgUnit>();
-                GetProjectHandler.crawlUnits(user.getOrgUnitWithProfiles().getOrgUnit(), units, true);
-    
-                for (final OrgUnit partner : project.getPartners()) {
-                    for (final OrgUnit unit : units) {
-                        if (partner.getId() == unit.getId()) {
-                            return true;
-                        }
-                    }
-                }
-            }
-        }
+		// Checks that the project is not deleted
+		if(!project.isDeleted()) {
 
-        return false;
-    }
+			// Owner.
+			if (project.getOwner() != null) {
+				if (project.getOwner().getId() == user.getId()) {
+					return true;
+				}
+			}
+
+			// Manager.
+			if (project.getManager() != null) {
+				if (project.getManager().getId() == user.getId()) {
+					return true;
+				}
+			}
+
+			// Checks that the user can see this project.
+			final HashSet<OrgUnit> units = new HashSet<OrgUnit>();
+			GetProjectHandler.crawlUnits(user.getOrgUnitWithProfiles().getOrgUnit(), units, true);
+
+			for (final OrgUnit partner : project.getPartners()) {
+				for (final OrgUnit unit : units) {
+					if (partner.getId() == unit.getId()) {
+						return true;
+					}
+				}
+			}
+		}
+
+		return false;
+	}
 }

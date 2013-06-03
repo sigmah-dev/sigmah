@@ -72,7 +72,7 @@ public class GetProjectsHandler implements CommandHandler<GetProjects> {
 
         if (cmd.getViewOwnOrManage()) {
             final Query ownerManagerQuery =
-                    em.createQuery("SELECT p FROM Project p WHERE p.owner = :ouser OR (p.manager = :muser AND p.projectModel.status != 'DRAFT')");
+                    em.createQuery("SELECT p FROM Project p WHERE p.owner = :ouser OR p.manager = :muser");
             ownerManagerQuery.setParameter("ouser", user);
             ownerManagerQuery.setParameter("muser", user);
             for (final Project p : (List<Project>) ownerManagerQuery.getResultList()) {
@@ -113,7 +113,7 @@ public class GetProjectsHandler implements CommandHandler<GetProjects> {
 
             // Builds and executes the query.
             final Query query =
-                    em.createQuery("SELECT p FROM Project p WHERE :unit MEMBER OF p.partners AND p.projectModel.status != 'DRAFT'");
+                    em.createQuery("SELECT p FROM Project p WHERE :unit MEMBER OF p.partners");
             query.setParameter("unit", unit);
 
             int count = 0;
