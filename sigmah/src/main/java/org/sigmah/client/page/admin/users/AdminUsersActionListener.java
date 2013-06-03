@@ -36,7 +36,7 @@ public class AdminUsersActionListener implements ActionListener {
                 public void confirmed() {
                     onDeleteConfirmed(view.getUsersSelection());
                 }
-            });
+            }, "User");
         } else if (UIActions.add.equals(actionId)) {
             onAdd();
         } else if(UIActions.refresh.equals(actionId)){

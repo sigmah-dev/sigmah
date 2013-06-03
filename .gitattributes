@@ -2140,6 +2140,8 @@ sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/DeactivateUsersHa
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/DeleteCategoriesHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/DeleteFlexibleElementsHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/DeleteHandler.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/DeletePrivacyGroupsHandler.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/DeleteProfilesHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/DeleteReportModelsHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GenerateElementHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetAdminEntitiesHandler.java -text
@@ -2406,6 +2408,8 @@ sigmah/src/main/java/org/sigmah/shared/command/DeactivateUsers.java -text
 sigmah/src/main/java/org/sigmah/shared/command/Delete.java -text
 sigmah/src/main/java/org/sigmah/shared/command/DeleteCategories.java -text
 sigmah/src/main/java/org/sigmah/shared/command/DeleteFlexibleElements.java -text
+sigmah/src/main/java/org/sigmah/shared/command/DeletePrivacyGroups.java -text
+sigmah/src/main/java/org/sigmah/shared/command/DeleteProfiles.java -text
 sigmah/src/main/java/org/sigmah/shared/command/DeleteReportModels.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GenerateElement.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetAdminEntities.java -text

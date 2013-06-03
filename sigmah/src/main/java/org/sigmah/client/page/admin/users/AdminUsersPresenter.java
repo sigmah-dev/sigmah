@@ -76,7 +76,7 @@ public class AdminUsersPresenter implements AdminSubPresenter {
 
         public abstract List<UserDTO> getUsersSelection();
 
-        public abstract void confirmDeleteSelected(ConfirmCallback confirmCallback);
+        public abstract void confirmDeleteSelected(ConfirmCallback confirmCallback, String type);
 
         public abstract List<ProfileDTO> getProfilesSelection();
 
