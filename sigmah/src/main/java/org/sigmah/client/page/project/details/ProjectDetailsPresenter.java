@@ -291,6 +291,7 @@ public class ProjectDetailsPresenter implements SubPresenter {
                                 // its component.
                                 elementDTO.setService(dispatcher);
                                 elementDTO.setAuthentication(authentication);
+                                elementDTO.setEventBus(eventBus);
                                 elementDTO.setCache(cache);
                                 elementDTO.setCurrentContainerDTO(projectPresenter.getCurrentProjectDTO());
                                 elementDTO.assignValue(valueResult);
