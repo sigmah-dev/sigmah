@@ -10,25 +10,20 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.bouncycastle.asn1.x509.NoticeReference;
 import org.sigmah.client.AppEvents;
 import org.sigmah.client.EventBus;
-import org.sigmah.client.dispatch.AsyncMonitor;
 import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.dispatch.monitor.MaskingAsyncMonitor;
-import org.sigmah.client.event.IndicatorEvent;
 import org.sigmah.client.event.PivotCellEvent;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.icon.IconUtil;
-import org.sigmah.client.page.project.pivot.ProjectPivotContainer;
 import org.sigmah.client.util.DateUtilGWTImpl;
+import org.sigmah.client.util.Notification;
 import org.sigmah.shared.command.BatchCommand;
 import org.sigmah.shared.command.GetIndicators;
 import org.sigmah.shared.command.Month;
 import org.sigmah.shared.command.UpdateMonthlyReports;
-import org.sigmah.shared.command.result.BatchResult;
 import org.sigmah.shared.command.result.IndicatorListResult;
-import org.sigmah.shared.command.result.VoidResult;
 import org.sigmah.shared.date.DateUtil;
 import org.sigmah.shared.dto.IndicatorDTO;
 import org.sigmah.shared.report.content.DimensionCategory;
@@ -52,7 +47,6 @@ import com.extjs.gxt.ui.client.store.Store;
 import com.extjs.gxt.ui.client.store.TreeStore;
 import com.extjs.gxt.ui.client.util.DelayedTask;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.Info;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.treegrid.EditorTreeGrid;
@@ -274,7 +268,7 @@ public class PivotGridPanel extends ContentPanel implements HasValue<PivotElemen
 					prepareEditor(pivotEvent, indicator);
 				} else {
 					be.setCancelled(true);
-					Info.display(I18N.CONSTANTS.dataEntry(), I18N.CONSTANTS.indicatorDirectEntry());
+					Notification.show(I18N.CONSTANTS.dataEntry(), I18N.CONSTANTS.indicatorDirectEntry());
 				}
 			}
         });
