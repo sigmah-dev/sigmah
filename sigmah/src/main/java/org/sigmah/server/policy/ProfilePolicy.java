@@ -11,7 +11,6 @@ import javax.persistence.Query;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.dozer.Mapper;
 import org.sigmah.shared.domain.User;
 import org.sigmah.shared.domain.profile.GlobalPermission;
 import org.sigmah.shared.domain.profile.GlobalPermissionEnum;
@@ -21,6 +20,7 @@ import org.sigmah.shared.domain.profile.PrivacyGroupPermissionEnum;
 import org.sigmah.shared.domain.profile.Profile;
 import org.sigmah.shared.dto.profile.PrivacyGroupDTO;
 import org.sigmah.shared.dto.profile.ProfileDTO;
+
 import com.google.inject.Inject;
 
 /**
@@ -100,6 +100,8 @@ public class ProfilePolicy implements EntityPolicy<Profile>  {
         }else{
         	em.persist(profileToPersist);
         }
+        
+        profileDTO.setId(profileToPersist.getId());
         
         /*profileDTO = mapper.map(profileToPersist, ProfileDTO.class);      
 
