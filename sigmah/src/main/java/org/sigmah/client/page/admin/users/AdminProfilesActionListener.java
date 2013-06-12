@@ -4,30 +4,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.sigmah.client.dispatch.Dispatcher;
-import org.sigmah.client.dispatch.monitor.MaskingAsyncMonitor;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.page.admin.users.AdminUsersPresenter.View;
+import org.sigmah.client.page.admin.users.form.ProfileSigmahForm;
 import org.sigmah.client.page.common.grid.ConfirmCallback;
 import org.sigmah.client.page.common.toolbar.ActionListener;
 import org.sigmah.client.page.common.toolbar.UIActions;
-import org.sigmah.client.page.admin.users.form.ProfileSigmahForm;
 import org.sigmah.client.util.Notification;
-import org.sigmah.shared.command.Delete;
 import org.sigmah.shared.command.DeleteProfiles;
-import org.sigmah.shared.command.GetProfiles;
-import org.sigmah.shared.command.GetReportElements;
 import org.sigmah.shared.command.GetUsersWithProfiles;
-import org.sigmah.shared.command.result.CommandResult;
 import org.sigmah.shared.command.result.CreateResult;
-import org.sigmah.shared.command.result.ProfileListResult;
-import org.sigmah.shared.command.result.ReportElementsResult;
 import org.sigmah.shared.command.result.UserListResult;
 import org.sigmah.shared.command.result.VoidResult;
-import org.sigmah.shared.domain.profile.Profile;
 import org.sigmah.shared.dto.UserDTO;
-import org.sigmah.shared.dto.profile.PrivacyGroupDTO;
 import org.sigmah.shared.dto.profile.ProfileDTO;
-import org.sigmah.shared.dto.profile.ProfileDTOLight;
 
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
@@ -68,7 +58,7 @@ public class AdminProfilesActionListener implements ActionListener {
 			sbnames.append(", ");
 		}
 		
-		dispatcher.execute(new GetUsersWithProfiles(), null, new AsyncCallback<UserListResult>() {
+		dispatcher.execute(new GetUsersWithProfiles(), view.getProfilesLoadingMonitor(), new AsyncCallback<UserListResult>() {
 			final List<ProfileDTO> profilesToDelete = new ArrayList<ProfileDTO>();
 			final StringBuilder sb = new StringBuilder();
 			@Override
@@ -86,9 +76,13 @@ public class AdminProfilesActionListener implements ActionListener {
 						for(ProfileDTO usersProfile : user.getProfilesDTO()){
 							if( usersProfile.getId() == selectedProfile.getId()){
 								canBeDeleted = false;
-								message += ", " + user.getName();
+								message += user.getName() + ", " ;
 							} 
 						}
+					}
+					
+					if(!message.isEmpty()){
+						message = message.substring(0, message.lastIndexOf(", "));
 					}
 					
 					if( canBeDeleted) {

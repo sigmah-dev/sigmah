@@ -1,8 +1,8 @@
 package org.sigmah.client.page.admin.users;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
 
@@ -13,26 +13,21 @@ import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.icon.IconImageBundle;
 import org.sigmah.client.page.admin.users.AdminUsersPresenter.AdminPrivacyGroupsStore;
 import org.sigmah.client.page.admin.users.AdminUsersPresenter.AdminProfilesStore;
-import org.sigmah.client.page.admin.users.AdminUsersActionListener;
 import org.sigmah.client.page.admin.users.AdminUsersPresenter.AdminUsersStore;
 import org.sigmah.client.page.admin.users.AdminUsersPresenter.View;
-import org.sigmah.client.page.common.grid.ConfirmCallback;
-import org.sigmah.client.page.common.toolbar.ActionToolBar;
-import org.sigmah.client.page.common.toolbar.UIActions;
 import org.sigmah.client.page.admin.users.form.PrivacyGroupSigmahForm;
 import org.sigmah.client.page.admin.users.form.ProfileSigmahForm;
 import org.sigmah.client.page.admin.users.form.UserSigmahForm;
+import org.sigmah.client.page.common.grid.ConfirmCallback;
+import org.sigmah.client.page.common.toolbar.ActionToolBar;
+import org.sigmah.client.page.common.toolbar.UIActions;
 import org.sigmah.client.ui.StylableVBoxLayout;
 import org.sigmah.client.util.DateUtils;
 import org.sigmah.shared.command.result.CreateResult;
-import org.sigmah.shared.domain.element.DefaultFlexibleElementType;
 import org.sigmah.shared.domain.profile.GlobalPermissionEnum;
 import org.sigmah.shared.domain.profile.PrivacyGroupPermissionEnum;
-import org.sigmah.shared.dto.EntityDTO;
 import org.sigmah.shared.dto.OrgUnitDTO;
 import org.sigmah.shared.dto.UserDTO;
-import org.sigmah.shared.dto.element.DefaultFlexibleElementDTO;
-import org.sigmah.shared.dto.element.FlexibleElementDTO;
 import org.sigmah.shared.dto.profile.PrivacyGroupDTO;
 import org.sigmah.shared.dto.profile.ProfileDTO;
 
@@ -736,7 +731,7 @@ public class AdminUsersView extends View {
 			} else {
 				String profilesNamesList = "";
 				for( ProfileDTO profile : getProfilesSelection()) {
-					profilesNamesList += profile.getName() + ",";
+					profilesNamesList += profile.getName() + ", ";
 				}
 				if(!profilesNamesList.isEmpty()){
 					profilesNamesList = profilesNamesList.substring(0, profilesNamesList.lastIndexOf(", "));
