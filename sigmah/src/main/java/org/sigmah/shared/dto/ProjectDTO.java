@@ -42,10 +42,12 @@ public final class ProjectDTO extends BaseModelData implements EntityDTO, Defaul
     public static final class LocalizedElement extends ProjectModelDTO.LocalizedElement {
 
         private final PhaseDTO phase;
+        private final int projectId;
 
-        private LocalizedElement(ProjectModelDTO.LocalizedElement localized, PhaseDTO phase) {
+        private LocalizedElement(ProjectModelDTO.LocalizedElement localized, PhaseDTO phase, int projectId) {
             super(localized.getPhaseModel(), localized.getElement());
             this.phase = phase;
+            this.projectId = projectId;
         }
 
         /**
@@ -56,6 +58,10 @@ public final class ProjectDTO extends BaseModelData implements EntityDTO, Defaul
          */
         public PhaseDTO getPhase() {
             return phase;
+        }
+
+		public int getProjectId() {
+	        return projectId;
         }
     }
 
@@ -565,7 +571,7 @@ public final class ProjectDTO extends BaseModelData implements EntityDTO, Defaul
 
         if (localizedElements != null) {
             for (final ProjectModelDTO.LocalizedElement localized : localizedElements) {
-                elements.add(new LocalizedElement(localized, getPhaseFromModel(localized.getPhaseModel())));
+                elements.add(new LocalizedElement(localized, getPhaseFromModel(localized.getPhaseModel()), getId()));
             }
         }
 

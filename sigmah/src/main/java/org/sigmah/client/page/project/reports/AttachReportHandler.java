@@ -201,12 +201,12 @@ public class AttachReportHandler implements AttachMenuBuilder.AttachDocumentHand
             final Dispatcher dispatcher) {
     	// If the current flexible element is a report list, then the menu item
         // is always enabled.
-        if (element.getElement() instanceof ReportListElementDTO ||
-        	element.getElement() instanceof ReportElementDTO)
+        if (element.getElement() instanceof ReportListElementDTO )
             return true;
     	
+        
         final GetValue getValue =
-                new GetValue(element.getPhase().getParentProjectDTO().getId(), element.getElement().getId(), element
+                new GetValue(element.getProjectId(), element.getElement().getId(), element
                     .getElement().getEntityName());
 
         // Checking the value of the report element to decide if the state of the menu item.
