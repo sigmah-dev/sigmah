@@ -185,6 +185,11 @@ public class FileUploadServlet extends HttpServlet {
                     responseBuilder.append(FileUploadUtils.TAG_START_CODE);
                     responseBuilder.append(FileUploadUtils.TOO_BIG_DOC_ERROR_CODE);
                     responseBuilder.append(FileUploadUtils.TAG_END_CODE);
+                    responseBuilder.append(FileUploadUtils.TAG_TOO_BIG_DOC_START_CODE);
+                    responseBuilder.append(request.getContentLength());
+                    responseBuilder.append(FileUploadUtils.TAG_TOO_BIG_DOC_SEPARATOR);
+                    responseBuilder.append(maxUploadSize);
+                    responseBuilder.append(FileUploadUtils.TAG_TOO_BIG_DOC_END_CODE);
 
                     try {
 

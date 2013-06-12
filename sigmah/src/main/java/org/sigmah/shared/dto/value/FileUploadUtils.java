@@ -14,254 +14,293 @@ import com.allen_sauer.gwt.log.client.Log;
  */
 public final class FileUploadUtils {
 
-    /**
-     * Provides only static methods.
-     */
-    protected FileUploadUtils() {
-    }
+	/**
+	 * Provides only static methods.
+	 */
+	protected FileUploadUtils() {
+	}
 
-    /**
-     * Max size for each uploaded file (20 Mb).
-     */
-    public static final int MAX_UPLOAD_FILE_SIZE = 20971520;
-    
-    /**
-     * Max size for each uploaded logo image (256 Kb)
-     */
-    public static final int MAX_UPLOAD_IMAGE_SIZE = 262144;
+	/**
+	 * Max size for each uploaded file (20 Mb).
+	 */
+	public static final int MAX_UPLOAD_FILE_SIZE = 20971520;
 
-    // ! \\
-    // A tag code is used to parse the response of the HTTP request.
-    //
-    // Each code which is printed is this response should not contain entirely
-    // another code to avoid collisions in regular expressions.
-    // Bad example: code 1 = BAD ; code 2 = ITSBAD
-    // ! \\
+	/**
+	 * Max size for each uploaded logo image (256 Kb)
+	 */
+	public static final int MAX_UPLOAD_IMAGE_SIZE = 262144;
 
-    /**
-     * HTTP response start tag for the response code.
-     */
-    public static final String TAG_START_CODE = "START:";
+	// ! \\
+	// A tag code is used to parse the response of the HTTP request.
+	//
+	// Each code which is printed is this response should not contain entirely
+	// another code to avoid collisions in regular expressions.
+	// Bad example: code 1 = BAD ; code 2 = ITSBAD
+	// ! \\
 
-    /**
-     * HTTP response end tag for the response code.
-     */
-    public static final String TAG_END_CODE = "?END";
+	/**
+	 * HTTP response start tag for the response code.
+	 */
+	public static final String TAG_START_CODE = "START:";
 
-    /**
-     * HTTP response start tag for the monitored point.
-     */
-    public static final String TAG_START_MONITORED_POINT = "MPST:";
+	/**
+	 * HTTP response end tag for the response code.
+	 */
+	public static final String TAG_END_CODE = "?END";
 
-    /**
-     * HTTP response separator.
-     */
-    public static final String TAG_SEPARATOR_MONITORED_POINT = "%~%~%~%";
+	/**
+	 * HTTP response start tag for the monitored point.
+	 */
+	public static final String TAG_START_MONITORED_POINT = "MPST:";
 
-    /**
-     * HTTP response end tag for the monitored point.
-     */
-    public static final String TAG_END_MONITORED_POINT = "?MPEN";
+	/**
+	 * HTTP response separator.
+	 */
+	public static final String TAG_SEPARATOR_MONITORED_POINT = "%~%~%~%";
 
-    /**
-     * Error code: empty file.
-     */
-    public static final String EMPTY_DOC_ERROR_CODE = "-1";
+	/**
+	 * HTTP response end tag for the monitored point.
+	 */
+	public static final String TAG_END_MONITORED_POINT = "?MPEN";
 
-    /**
-     * Error code: file too big.
-     */
-    public static final String TOO_BIG_DOC_ERROR_CODE = "-2";
+	/**
+	 * Error code: empty file.
+	 */
+	public static final String EMPTY_DOC_ERROR_CODE = "-1";
 
-    /**
-     * If empty file can be uploaded.
-     */
-    public static final String CHECK_EMPTY = "empty";
+	/**
+	 * Error code: file too big.
+	 */
+	public static final String TOO_BIG_DOC_ERROR_CODE = "-2";
 
-    /**
-     * Uploaded file id.
-     */
-    public static final String DOCUMENT_ID = "id";
+	/**
+	 * HTTP response start tag for the too big error detail.
+	 */
+	public static final String TAG_TOO_BIG_DOC_START_CODE = "STARTBD:";
 
-    /**
-     * Uploaded file content.
-     */
-    public static final String DOCUMENT_CONTENT = "file";
+	/**
+	 * HTTP response end tag for the too big error detail.
+	 */
+	public static final String TAG_TOO_BIG_DOC_END_CODE = "?BDEND";
 
-    /**
-     * If the notification mechanism is active.
-     */
-    public static final String NOTIFY = "notify";
+	/**
+	 * Separator for too big error detail.
+	 */
+	public static final String TAG_TOO_BIG_DOC_SEPARATOR = ";";
 
-    /**
-     * Uploaded file name.
-     */
-    public static final String DOCUMENT_NAME = "name";
+	/**
+	 * If empty file can be uploaded.
+	 */
+	public static final String CHECK_EMPTY = "empty";
 
-    /**
-     * Version d'un document.
-     */
-    public static final String DOCUMENT_VERSION = "version";
+	/**
+	 * Uploaded file id.
+	 */
+	public static final String DOCUMENT_ID = "id";
 
-    /**
-     * Uploaded file author.
-     */
-    public static final String DOCUMENT_AUTHOR = "author";
+	/**
+	 * Uploaded file content.
+	 */
+	public static final String DOCUMENT_CONTENT = "file";
 
-    /**
-     * Flexible element id to which the uploaded file belongs.
-     */
-    public static final String DOCUMENT_FLEXIBLE_ELEMENT = "element";
+	/**
+	 * If the notification mechanism is active.
+	 */
+	public static final String NOTIFY = "notify";
 
-    /**
-     * Project id to which the uploaded file belongs.
-     */
-    public static final String DOCUMENT_PROJECT = "project";
+	/**
+	 * Uploaded file name.
+	 */
+	public static final String DOCUMENT_NAME = "name";
 
-    /**
-     * Comments of a version.
-     */
-    public static final String DOCUMENT_COMMENTS = "comments";
+	/**
+	 * Version d'un document.
+	 */
+	public static final String DOCUMENT_VERSION = "version";
 
-    /**
-     * The url of an image.
-     */
-    public static final String IMAGE_URL = "url";
+	/**
+	 * Uploaded file author.
+	 */
+	public static final String DOCUMENT_AUTHOR = "author";
 
-    /**
-     * The expected date of a monitored point.
-     */
-    public static final String MONITORED_POINT_DATE = "mpdate";
+	/**
+	 * Flexible element id to which the uploaded file belongs.
+	 */
+	public static final String DOCUMENT_FLEXIBLE_ELEMENT = "element";
 
-    /**
-     * The label of a monitored point.
-     */
-    public static final String MONITORED_POINT_LABEL = "mplabel";
-    
-    /**
-     * Default filename of the logo
-     */
-    public static final String DEFAULT_LOGO_FILE_NAME = "default-logo.png";
-    
-    /**
-     * Parses the HTTP response from the server after a file upload. The
-     * response contains the id of the just saved file if the upload worked
-     * fine, or an error code if it didn't.
-     * 
-     * @param results
-     *            The HTTP response.
-     * @return The id of the just saved file or an error code.
-     */
-    public static String parseUploadResultCode(String results) {
+	/**
+	 * Project id to which the uploaded file belongs.
+	 */
+	public static final String DOCUMENT_PROJECT = "project";
 
-        int beginIndex = results.indexOf(TAG_START_CODE);
-        if (beginIndex != -1) {
-            int endIndex = results.lastIndexOf(TAG_END_CODE);
-            return results.substring(beginIndex + TAG_START_CODE.length(), endIndex);
-        } else {
-            return null;
-        }
-    }
+	/**
+	 * Comments of a version.
+	 */
+	public static final String DOCUMENT_COMMENTS = "comments";
 
-    /**
-     * Parses the HTTP response from the server after a file upload and
-     * retrieves the generated monitored point if any.
-     * 
-     * @param results
-     *            The HTTP response.
-     * @return The monitored point or <code>null</code>.
-     */
-    public static MonitoredPointDTO parseUploadResultMonitoredPoint(String results) {
+	/**
+	 * The url of an image.
+	 */
+	public static final String IMAGE_URL = "url";
 
-        MonitoredPointDTO point = null;
+	/**
+	 * The expected date of a monitored point.
+	 */
+	public static final String MONITORED_POINT_DATE = "mpdate";
 
-        int beginIndex = results.indexOf(TAG_START_MONITORED_POINT);
-        if (beginIndex != -1) {
+	/**
+	 * The label of a monitored point.
+	 */
+	public static final String MONITORED_POINT_LABEL = "mplabel";
 
-            if (Log.isDebugEnabled()) {
-                Log.debug("[parseUploadResultMonitoredPoint] Tag '" + TAG_START_MONITORED_POINT + "' found.");
-            }
+	/**
+	 * Default filename of the logo
+	 */
+	public static final String DEFAULT_LOGO_FILE_NAME = "default-logo.png";
 
-            try {
+	/**
+	 * Parses the HTTP response from the server after a file upload. The
+	 * response contains the id of the just saved file if the upload worked
+	 * fine, or an error code if it didn't.
+	 * 
+	 * @param results
+	 *            The HTTP response.
+	 * @return The id of the just saved file or an error code.
+	 */
+	public static String parseUploadResultCode(String results) {
 
-                int endIndex = results.lastIndexOf(TAG_END_MONITORED_POINT);
+		int beginIndex = results.indexOf(TAG_START_CODE);
+		if (beginIndex != -1) {
+			int endIndex = results.lastIndexOf(TAG_END_CODE);
+			return results.substring(beginIndex + TAG_START_CODE.length(), endIndex);
+		} else {
+			return null;
+		}
+	}
 
-                if (endIndex == -1) {
-                    if (Log.isDebugEnabled()) {
-                        Log.debug("[parseUploadResultMonitoredPoint] Tag '" + TAG_END_MONITORED_POINT + "' not found.");
-                    }
-                }
+	/**
+	 * Parses the detail of the too big document error
+	 * 
+	 * @param results
+	 *            error detail
+	 * @return the file size and the maximum upload size
+	 */
+	public static String[] parseTooBigDocDetail(String results) {
 
-                final String content = results.substring(beginIndex + TAG_START_MONITORED_POINT.length(), endIndex);
+		int beginIndex = results.indexOf(TAG_TOO_BIG_DOC_START_CODE);
+		if (beginIndex != -1) {
+			int endIndex = results.lastIndexOf(TAG_TOO_BIG_DOC_END_CODE);
+			final String detail = results.substring(beginIndex + TAG_TOO_BIG_DOC_START_CODE.length(), endIndex);
+			if (detail != null && !detail.isEmpty()) {
+				return detail.split(TAG_TOO_BIG_DOC_SEPARATOR);
+			} else {
+				return null;
+			}
 
-                if (Log.isDebugEnabled()) {
-                    Log.debug("[parseUploadResultMonitoredPoint] Substring '" + content + "'.");
-                }
+		} else {
+			return null;
+		}
+	}
 
-                final String[] tokens = content.split(TAG_SEPARATOR_MONITORED_POINT);
+	/**
+	 * Parses the HTTP response from the server after a file upload and
+	 * retrieves the generated monitored point if any.
+	 * 
+	 * @param results
+	 *            The HTTP response.
+	 * @return The monitored point or <code>null</code>.
+	 */
+	public static MonitoredPointDTO parseUploadResultMonitoredPoint(String results) {
 
-                if (Log.isDebugEnabled()) {
-                    Log.debug("[parseUploadResultMonitoredPoint] Splited tokens (" + tokens.length + ") '" + tokens
-                            + "'.");
-                }
+		MonitoredPointDTO point = null;
 
-                point = new MonitoredPointDTO();
+		int beginIndex = results.indexOf(TAG_START_MONITORED_POINT);
+		if (beginIndex != -1) {
 
-                if (Log.isDebugEnabled()) {
-                    Log.debug("[parseUploadResultMonitoredPoint] Point id -> '" + tokens[0] + "'.");
-                }
+			if (Log.isDebugEnabled()) {
+				Log.debug("[parseUploadResultMonitoredPoint] Tag '" + TAG_START_MONITORED_POINT + "' found.");
+			}
 
-                point.setId(Integer.valueOf(tokens[0]));
+			try {
 
-                if (Log.isDebugEnabled()) {
-                    Log.debug("[parseUploadResultMonitoredPoint] Point label -> '" + tokens[1] + "'.");
-                }
+				int endIndex = results.lastIndexOf(TAG_END_MONITORED_POINT);
 
-                point.setLabel(tokens[1]);
+				if (endIndex == -1) {
+					if (Log.isDebugEnabled()) {
+						Log.debug("[parseUploadResultMonitoredPoint] Tag '" + TAG_END_MONITORED_POINT + "' not found.");
+					}
+				}
 
-                if (Log.isDebugEnabled()) {
-                    Log.debug("[parseUploadResultMonitoredPoint] Point date -> '" + tokens[2] + "'.");
-                }
+				final String content = results.substring(beginIndex + TAG_START_MONITORED_POINT.length(), endIndex);
 
-                point.setExpectedDate(new Date(Long.valueOf(tokens[2])));
+				if (Log.isDebugEnabled()) {
+					Log.debug("[parseUploadResultMonitoredPoint] Substring '" + content + "'.");
+				}
 
-                if (Log.isDebugEnabled()) {
-                    Log.debug("[parseUploadResultMonitoredPoint] Point label -> '" + point.getId()
-                            + "' ; point id -> '" + point.getLabel() + "' ; point date -> '" + point.getExpectedDate()
-                            + "'.");
-                }
-            } catch (Throwable e) {
-                // digest exception.
-                if (Log.isDebugEnabled()) {
-                    Log.debug("[parseUploadResultMonitoredPoint] Error while parsing the http result.", e);
-                }
-                point = null;
-            }
-        } else {
-            if (Log.isDebugEnabled()) {
-                Log.debug("[parseUploadResultMonitoredPoint] Tag '" + TAG_START_MONITORED_POINT + "' not found.");
-            }
-        }
+				final String[] tokens = content.split(TAG_SEPARATOR_MONITORED_POINT);
 
-        return point;
-    }
+				if (Log.isDebugEnabled()) {
+					Log.debug("[parseUploadResultMonitoredPoint] Splited tokens (" + tokens.length + ") '" + tokens
+					                + "'.");
+				}
 
-    /**
-     * Returns if a returned code can be considered as an uploading error.
-     * 
-     * @param code
-     *            The returned code.
-     * @return If the code can be considered as an error.
-     */
-    public static boolean isError(String code) {
-        if (code == null) {
-            return true;
-        } else if (TOO_BIG_DOC_ERROR_CODE.equals(code)) {
-            return true;
-        } else if (EMPTY_DOC_ERROR_CODE.equals(code)) {
-            return true;
-        } else {
-            return false;
-        }
-    }
+				point = new MonitoredPointDTO();
+
+				if (Log.isDebugEnabled()) {
+					Log.debug("[parseUploadResultMonitoredPoint] Point id -> '" + tokens[0] + "'.");
+				}
+
+				point.setId(Integer.valueOf(tokens[0]));
+
+				if (Log.isDebugEnabled()) {
+					Log.debug("[parseUploadResultMonitoredPoint] Point label -> '" + tokens[1] + "'.");
+				}
+
+				point.setLabel(tokens[1]);
+
+				if (Log.isDebugEnabled()) {
+					Log.debug("[parseUploadResultMonitoredPoint] Point date -> '" + tokens[2] + "'.");
+				}
+
+				point.setExpectedDate(new Date(Long.valueOf(tokens[2])));
+
+				if (Log.isDebugEnabled()) {
+					Log.debug("[parseUploadResultMonitoredPoint] Point label -> '" + point.getId()
+					                + "' ; point id -> '" + point.getLabel() + "' ; point date -> '"
+					                + point.getExpectedDate() + "'.");
+				}
+			} catch (Throwable e) {
+				// digest exception.
+				if (Log.isDebugEnabled()) {
+					Log.debug("[parseUploadResultMonitoredPoint] Error while parsing the http result.", e);
+				}
+				point = null;
+			}
+		} else {
+			if (Log.isDebugEnabled()) {
+				Log.debug("[parseUploadResultMonitoredPoint] Tag '" + TAG_START_MONITORED_POINT + "' not found.");
+			}
+		}
+
+		return point;
+	}
+
+	/**
+	 * Returns if a returned code can be considered as an uploading error.
+	 * 
+	 * @param code
+	 *            The returned code.
+	 * @return If the code can be considered as an error.
+	 */
+	public static boolean isError(String code) {
+		if (code == null) {
+			return true;
+		} else if (TOO_BIG_DOC_ERROR_CODE.equals(code)) {
+			return true;
+		} else if (EMPTY_DOC_ERROR_CODE.equals(code)) {
+			return true;
+		} else {
+			return false;
+		}
+	}
 }

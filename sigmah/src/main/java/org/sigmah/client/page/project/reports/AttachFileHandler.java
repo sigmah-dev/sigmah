@@ -44,256 +44,268 @@ import org.sigmah.shared.dto.value.FileUploadUtils;
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
 public class AttachFileHandler implements AttachMenuBuilder.AttachDocumentHandler {
-    private Dialog dialog;
+	private Dialog dialog;
 
-    private FormPanel uploadFormPanel;
-    private ButtonFileUploadField uploadField;
-    private LabelField phaseField;
-    private LabelField elementField;
+	private FormPanel uploadFormPanel;
+	private ButtonFileUploadField uploadField;
+	private LabelField phaseField;
+	private LabelField elementField;
 
-    private ReportReference currentCreatedDocument;
-    private boolean monitoredPointGenerated;
+	private ReportReference currentCreatedDocument;
+	private boolean monitoredPointGenerated;
 
-    private HiddenField<String> elementIdHidden;
-    private HiddenField<String> projectIdHidden;
-    private HiddenField<String> nameHidden;
-    private HiddenField<String> authorHidden;
-    private HiddenField<String> emptyHidden;
-    private HiddenField<String> pointDateHidden;
-    private HiddenField<String> pointLabelHidden;
+	private HiddenField<String> elementIdHidden;
+	private HiddenField<String> projectIdHidden;
+	private HiddenField<String> nameHidden;
+	private HiddenField<String> authorHidden;
+	private HiddenField<String> emptyHidden;
+	private HiddenField<String> pointDateHidden;
+	private HiddenField<String> pointLabelHidden;
 
-    @Override
-    public Dialog getDialog(final ListStore<ReportReference> documentsStore,
-            final ProjectDTO project, final FlexibleElementDTO flexibleElement, final MenuItem menuItem,
-            final String phaseName, final Authentication authentication, final Dispatcher dispatcher,
-            final EventBus eventBus) {
+	@Override
+	public Dialog getDialog(final ListStore<ReportReference> documentsStore, final ProjectDTO project,
+	                final FlexibleElementDTO flexibleElement, final MenuItem menuItem, final String phaseName,
+	                final Authentication authentication, final Dispatcher dispatcher, final EventBus eventBus) {
 
-        if (dialog == null) {
-            dialog = createDialog();
-        }
+		if (dialog == null) {
+			dialog = createDialog();
+		}
 
-        uploadFormPanel.reset();
-        phaseField.setText(phaseName);
-        elementField.setText(flexibleElement.getLabel());
+		uploadFormPanel.reset();
+		phaseField.setText(phaseName);
+		elementField.setText(flexibleElement.getLabel());
 
-        // Upload the selected file immediately after it's selected.
-        uploadField.removeAllListeners();
-        uploadField.addListener(Events.OnChange, new Listener<BaseEvent>() {
-            @Override
-            public void handleEvent(BaseEvent be) {
+		// Upload the selected file immediately after it's selected.
+		uploadField.removeAllListeners();
+		uploadField.addListener(Events.OnChange, new Listener<BaseEvent>() {
+			@Override
+			public void handleEvent(BaseEvent be) {
 
-                dialog.mask(I18N.CONSTANTS.loading());
+				dialog.mask(I18N.CONSTANTS.loading());
 
-                // Set hidden fields values.
-                elementIdHidden.setValue(String.valueOf(flexibleElement.getId()));
-                projectIdHidden.setValue(String.valueOf(project.getId()));
-                nameHidden.setValue(uploadField.getValue());
-                authorHidden.setValue(String.valueOf(authentication.getUserId()));
-                emptyHidden.setValue("true");
+				// Set hidden fields values.
+				elementIdHidden.setValue(String.valueOf(flexibleElement.getId()));
+				projectIdHidden.setValue(String.valueOf(project.getId()));
+				nameHidden.setValue(uploadField.getValue());
+				authorHidden.setValue(String.valueOf(authentication.getUserId()));
+				emptyHidden.setValue("true");
 
-                // Create the local document.
-                currentCreatedDocument = new ReportReference();
-                currentCreatedDocument.setName(uploadField.getValue());
-                currentCreatedDocument.setLastEditDate(new Date());
-                currentCreatedDocument.setEditorName(authentication.getUserShortName());
-                currentCreatedDocument.setDocument(true);
-                currentCreatedDocument.setFlexibleElementLabel(elementField.getText());
-                currentCreatedDocument.setPhaseName(phaseField.getText());
+				// Create the local document.
+				currentCreatedDocument = new ReportReference();
+				currentCreatedDocument.setName(uploadField.getValue());
+				currentCreatedDocument.setLastEditDate(new Date());
+				currentCreatedDocument.setEditorName(authentication.getUserShortName());
+				currentCreatedDocument.setDocument(true);
+				currentCreatedDocument.setFlexibleElementLabel(elementField.getText());
+				currentCreatedDocument.setPhaseName(phaseField.getText());
 
-                // Debug form hidden values.
-                if (Log.isDebugEnabled()) {
+				// Debug form hidden values.
+				if (Log.isDebugEnabled()) {
 
-                    final StringBuilder sb = new StringBuilder();
-                    sb.append("Upload a new file with parameters: ");
-                    sb.append("name=");
-                    sb.append(nameHidden.getValue());
-                    sb.append(" ; author id=");
-                    sb.append(authorHidden.getValue());
-                    sb.append(" ; project id=");
-                    sb.append(projectIdHidden.getValue());
-                    sb.append(" ; element id=");
-                    sb.append(elementIdHidden.getValue());
-                    sb.append(" ; allow empty=");
-                    sb.append(emptyHidden.getValue());
+					final StringBuilder sb = new StringBuilder();
+					sb.append("Upload a new file with parameters: ");
+					sb.append("name=");
+					sb.append(nameHidden.getValue());
+					sb.append(" ; author id=");
+					sb.append(authorHidden.getValue());
+					sb.append(" ; project id=");
+					sb.append(projectIdHidden.getValue());
+					sb.append(" ; element id=");
+					sb.append(elementIdHidden.getValue());
+					sb.append(" ; allow empty=");
+					sb.append(emptyHidden.getValue());
 
-                    Log.debug(sb.toString());
-                }
-                uploadFormPanel.submit();
-              
-            }
-        });
+					Log.debug(sb.toString());
+				}
+				uploadFormPanel.submit();
 
-        uploadFormPanel.removeAllListeners();
-        uploadFormPanel.addListener(Events.Submit, new Listener<FormEvent>() {
+			}
+		});
 
-            @Override
-            public void handleEvent(FormEvent be) {
+		uploadFormPanel.removeAllListeners();
+		uploadFormPanel.addListener(Events.Submit, new Listener<FormEvent>() {
 
-                // Updates the widget for the new value.
-                updateComponentAfterUpload(be, project, documentsStore);
+			@Override
+			public void handleEvent(FormEvent be) {
 
-                // Reset upload fields.
-                uploadField.reset();
+				// Updates the widget for the new value.
+				updateComponentAfterUpload(be, project, documentsStore);
 
-                dialog.unmask();
-            }
-        });
+				// Reset upload fields.
+				uploadField.reset();
 
-        return dialog;
-    }
+				dialog.unmask();
+			}
+		});
 
-    /**
-     * Builds the dialog box.
-     */
-    private Dialog createDialog() {
+		return dialog;
+	}
 
-        // Phase name field.
-        phaseField = new LabelField();
-        phaseField.setFieldLabel(I18N.CONSTANTS.reportPhase());
+	/**
+	 * Builds the dialog box.
+	 */
+	private Dialog createDialog() {
 
-        // Flexible element label field.
-        elementField = new LabelField();
-        elementField.setFieldLabel(I18N.CONSTANTS.flexibleElementFilesList());
+		// Phase name field.
+		phaseField = new LabelField();
+		phaseField.setFieldLabel(I18N.CONSTANTS.reportPhase());
 
-        // Creates the upload button (with a hidden form panel).
-        uploadField = new ButtonFileUploadField();
-        uploadField.setButtonCaption(I18N.CONSTANTS.flexibleElementFilesListAddDocument());
-        uploadField.setName(FileUploadUtils.DOCUMENT_CONTENT);
-        uploadField.setButtonIcon(IconImageBundle.ICONS.attach());
+		// Flexible element label field.
+		elementField = new LabelField();
+		elementField.setFieldLabel(I18N.CONSTANTS.flexibleElementFilesList());
 
-        elementIdHidden = new HiddenField<String>();
-        elementIdHidden.setName(FileUploadUtils.DOCUMENT_FLEXIBLE_ELEMENT);
+		// Creates the upload button (with a hidden form panel).
+		uploadField = new ButtonFileUploadField();
+		uploadField.setButtonCaption(I18N.CONSTANTS.flexibleElementFilesListAddDocument());
+		uploadField.setName(FileUploadUtils.DOCUMENT_CONTENT);
+		uploadField.setButtonIcon(IconImageBundle.ICONS.attach());
 
-        projectIdHidden = new HiddenField<String>();
-        projectIdHidden.setName(FileUploadUtils.DOCUMENT_PROJECT);
+		elementIdHidden = new HiddenField<String>();
+		elementIdHidden.setName(FileUploadUtils.DOCUMENT_FLEXIBLE_ELEMENT);
 
-        nameHidden = new HiddenField<String>();
-        nameHidden.setName(FileUploadUtils.DOCUMENT_NAME);
+		projectIdHidden = new HiddenField<String>();
+		projectIdHidden.setName(FileUploadUtils.DOCUMENT_PROJECT);
 
-        authorHidden = new HiddenField<String>();
-        authorHidden.setName(FileUploadUtils.DOCUMENT_AUTHOR);
+		nameHidden = new HiddenField<String>();
+		nameHidden.setName(FileUploadUtils.DOCUMENT_NAME);
 
-        emptyHidden = new HiddenField<String>();
-        emptyHidden.setName(FileUploadUtils.CHECK_EMPTY);
+		authorHidden = new HiddenField<String>();
+		authorHidden.setName(FileUploadUtils.DOCUMENT_AUTHOR);
 
-        pointDateHidden = new HiddenField<String>();
-        pointDateHidden.setName(FileUploadUtils.MONITORED_POINT_DATE);
+		emptyHidden = new HiddenField<String>();
+		emptyHidden.setName(FileUploadUtils.CHECK_EMPTY);
 
-        pointLabelHidden = new HiddenField<String>();
-        pointLabelHidden.setName(FileUploadUtils.MONITORED_POINT_LABEL);
+		pointDateHidden = new HiddenField<String>();
+		pointDateHidden.setName(FileUploadUtils.MONITORED_POINT_DATE);
 
-        uploadFormPanel = new FormPanel() {
+		pointLabelHidden = new HiddenField<String>();
+		pointLabelHidden.setName(FileUploadUtils.MONITORED_POINT_LABEL);
 
-            @Override
-            public void reset() {
-                phaseField.reset();
-                elementField.reset();
-                nameHidden.reset();
-                authorHidden.reset();
-                elementIdHidden.reset();
-                projectIdHidden.reset();
-                emptyHidden.reset();
-                pointDateHidden.reset();
-                pointLabelHidden.reset();
-            }
-        };
+		uploadFormPanel = new FormPanel() {
 
-        uploadFormPanel.setLayout(new FitLayout());
-        uploadFormPanel.setBodyBorder(false);
-        uploadFormPanel.setHeaderVisible(false);
-        uploadFormPanel.setPadding(0);
-        uploadFormPanel.setEncoding(Encoding.MULTIPART);
-        uploadFormPanel.setMethod(Method.POST);
-        uploadFormPanel.setAction(GWT.getModuleBaseURL() + "upload");
+			@Override
+			public void reset() {
+				phaseField.reset();
+				elementField.reset();
+				nameHidden.reset();
+				authorHidden.reset();
+				elementIdHidden.reset();
+				projectIdHidden.reset();
+				emptyHidden.reset();
+				pointDateHidden.reset();
+				pointLabelHidden.reset();
+			}
+		};
 
-        uploadFormPanel.add(uploadField);
-        uploadFormPanel.add(nameHidden);
-        uploadFormPanel.add(authorHidden);
-        uploadFormPanel.add(elementIdHidden);
-        uploadFormPanel.add(projectIdHidden);
-        uploadFormPanel.add(emptyHidden);
-        uploadFormPanel.add(pointDateHidden);
-        uploadFormPanel.add(pointLabelHidden);
+		uploadFormPanel.setLayout(new FitLayout());
+		uploadFormPanel.setBodyBorder(false);
+		uploadFormPanel.setHeaderVisible(false);
+		uploadFormPanel.setPadding(0);
+		uploadFormPanel.setEncoding(Encoding.MULTIPART);
+		uploadFormPanel.setMethod(Method.POST);
+		uploadFormPanel.setAction(GWT.getModuleBaseURL() + "upload");
 
-        // Dialog box.
-        final Dialog dialogBox = new Dialog();
-        dialogBox.setButtons(Dialog.CLOSE);
-        dialogBox.setHeading(I18N.CONSTANTS.flexibleElementFilesListAddDocumentDetails());
-        dialogBox.setModal(true);
+		uploadFormPanel.add(uploadField);
+		uploadFormPanel.add(nameHidden);
+		uploadFormPanel.add(authorHidden);
+		uploadFormPanel.add(elementIdHidden);
+		uploadFormPanel.add(projectIdHidden);
+		uploadFormPanel.add(emptyHidden);
+		uploadFormPanel.add(pointDateHidden);
+		uploadFormPanel.add(pointLabelHidden);
 
-        dialogBox.setResizable(false);
-        dialogBox.setWidth("340px");
+		// Dialog box.
+		final Dialog dialogBox = new Dialog();
+		dialogBox.setButtons(Dialog.CLOSE);
+		dialogBox.setHeading(I18N.CONSTANTS.flexibleElementFilesListAddDocumentDetails());
+		dialogBox.setModal(true);
 
-        dialogBox.setLayout(new FormLayout());
-        dialogBox.add(phaseField);
-        dialogBox.add(elementField);
-        dialogBox.add(uploadFormPanel);
+		dialogBox.setResizable(false);
+		dialogBox.setWidth("340px");
 
-        return dialogBox;
-    }
+		dialogBox.setLayout(new FormLayout());
+		dialogBox.add(phaseField);
+		dialogBox.add(elementField);
+		dialogBox.add(uploadFormPanel);
 
-    /**
-     * Update files list after an upload.
-     * 
-     * @param be
-     *            Form event after the upload.
-     */
-    private void updateComponentAfterUpload(FormEvent be, final ProjectDTO project,
-            final ListStore<ReportReference> documentsStore) {
+		return dialogBox;
+	}
 
-        final String code = FileUploadUtils.parseUploadResultCode(be.getResultHtml());
+	/**
+	 * Update files list after an upload.
+	 * 
+	 * @param be
+	 *            Form event after the upload.
+	 */
+	private void updateComponentAfterUpload(FormEvent be, final ProjectDTO project,
+	                final ListStore<ReportReference> documentsStore) {
 
-        if (FileUploadUtils.isError(code)) {
+		final String code = FileUploadUtils.parseUploadResultCode(be.getResultHtml());
 
-            // If an error occurred, informs the user.
-            final StringBuilder sb = new StringBuilder();
-            sb.append(I18N.CONSTANTS.flexibleElementFilesListUploadErrorDetails());
+		if (FileUploadUtils.isError(code)) {
 
-            if (FileUploadUtils.EMPTY_DOC_ERROR_CODE.equals(code)) {
-                sb.append("\n");
-                sb.append(I18N.CONSTANTS.flexibleElementFilesListUploadErrorEmpty());
-            } else if (FileUploadUtils.TOO_BIG_DOC_ERROR_CODE.equals(code)) {
-                sb.append("\n");
-                sb.append(I18N.CONSTANTS.flexibleElementFilesListUploadErrorTooBig());
-            }
+			// If an error occurred, informs the user.
+			final StringBuilder sb = new StringBuilder();
+			sb.append(I18N.CONSTANTS.flexibleElementFilesListUploadErrorDetails());
 
-            MessageBox.alert(I18N.CONSTANTS.flexibleElementFilesListUploadError(), sb.toString(), null);
-        } else {
+			if (FileUploadUtils.EMPTY_DOC_ERROR_CODE.equals(code)) {
+				sb.append("\n");
+				sb.append(I18N.CONSTANTS.flexibleElementFilesListUploadErrorEmpty());
+			} else if (FileUploadUtils.TOO_BIG_DOC_ERROR_CODE.equals(code)) {
+				final String[] errorDetail = FileUploadUtils.parseTooBigDocDetail(be.getResultHtml());
+				String message = I18N.CONSTANTS.flexibleElementFilesListUploadErrorTooBig();
+				if (errorDetail != null && errorDetail.length >= 2) {
+					try {
+						String fileSize = String.valueOf(Integer.parseInt(errorDetail[0]) / (1024 * 1024));
+						String fileMaxSize = String.valueOf(Integer.parseInt(errorDetail[1]) / (1024 * 1024));
+						message = I18N.MESSAGES.flexibleElementFilesListUploadErrorTooBig(fileSize, fileMaxSize);
+					} catch (NumberFormatException nf) {
+						message = I18N.CONSTANTS.flexibleElementFilesListUploadErrorTooBig();
+					} catch (NullPointerException np) {
+						message = I18N.CONSTANTS.flexibleElementFilesListUploadErrorTooBig();
+					}
+				}
+				sb.append("\n");
+				sb.append(message);
+			}
 
-            dialog.hide();
+			MessageBox.alert(I18N.CONSTANTS.flexibleElementFilesListUploadError(), sb.toString(), null);
+		} else {
 
-            currentCreatedDocument.setId(Integer.valueOf(code));
+			dialog.hide();
 
-            Notification.show(I18N.CONSTANTS.infoConfirmation(),
-                    I18N.CONSTANTS.flexibleElementFilesListUploadFileConfirm());
+			currentCreatedDocument.setId(Integer.valueOf(code));
 
-            // Adds the monitored point.
-            if (monitoredPointGenerated) {
+			Notification.show(I18N.CONSTANTS.infoConfirmation(),
+			                I18N.CONSTANTS.flexibleElementFilesListUploadFileConfirm());
 
-                final MonitoredPointDTO point = FileUploadUtils.parseUploadResultMonitoredPoint(be.getResultHtml());
+			// Adds the monitored point.
+			if (monitoredPointGenerated) {
 
-                if (point != null) {
-                    if (Log.isDebugEnabled()) {
-                        Log.debug("[updateComponentAfterUpload] Adds a monitored point '" + point.getLabel() + "'");
-                    }
+				final MonitoredPointDTO point = FileUploadUtils.parseUploadResultMonitoredPoint(be.getResultHtml());
 
-                    Notification.show(I18N.CONSTANTS.infoConfirmation(), I18N.CONSTANTS.monitoredPointAddConfirm());
+				if (point != null) {
+					if (Log.isDebugEnabled()) {
+						Log.debug("[updateComponentAfterUpload] Adds a monitored point '" + point.getLabel() + "'");
+					}
 
-                    project.addMonitoredPoint(point);
-                }
+					Notification.show(I18N.CONSTANTS.infoConfirmation(), I18N.CONSTANTS.monitoredPointAddConfirm());
 
-                monitoredPointGenerated = false;
-            }
+					project.addMonitoredPoint(point);
+				}
 
-            // Refreshes files list
-            documentsStore.add(currentCreatedDocument);
-        }
+				monitoredPointGenerated = false;
+			}
 
-        currentCreatedDocument = null;
-    }
+			// Refreshes files list
+			documentsStore.add(currentCreatedDocument);
+		}
 
-    @Override
-    public boolean shouldEnableMenuItem(MenuItem menuItem, LocalizedElement element, Dispatcher dispatcher) {
-        return true;
-    }
+		currentCreatedDocument = null;
+	}
+
+	@Override
+	public boolean shouldEnableMenuItem(MenuItem menuItem, LocalizedElement element, Dispatcher dispatcher) {
+		return true;
+	}
 }
