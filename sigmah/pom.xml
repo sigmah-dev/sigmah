@@ -453,6 +453,12 @@
 				<directory>src/main/resources</directory>
 				<filtering>true</filtering>
 			</resource>
+			<resource>
+				<directory>src/main/java/org/sigmah/java/client/i18n</directory>
+				<includes>
+					<include>**/*.properties</include>
+				</includes>
+			</resource>
 		</resources>
 	
 		<outputDirectory>${basedir}/src/main/webapp/WEB-INF/classes</outputDirectory>
