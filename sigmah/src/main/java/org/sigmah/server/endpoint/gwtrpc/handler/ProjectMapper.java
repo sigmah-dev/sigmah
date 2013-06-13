@@ -38,244 +38,235 @@ import com.google.inject.Inject;
  */
 public class ProjectMapper {
 
-    private final static Log LOG = LogFactory.getLog(GetProjectsHandler.class);
+	private final static Log LOG = LogFactory.getLog(GetProjectsHandler.class);
 
-    private final Query orgUnitQuery;
-    private final Query categoriesQuery;
-    private final Query choicesQuery;
-    
+	private final Query orgUnitQuery;
+	private final Query categoriesQuery;
+	private final Query choicesQuery;
 
-    @Inject
-    public ProjectMapper(EntityManager em) {
+	@Inject
+	public ProjectMapper(EntityManager em) {
 
-        // Queries.
-        orgUnitQuery = em.createQuery("SELECT o FROM OrgUnit o WHERE :project MEMBER OF o.databases");
-        categoriesQuery = em.createQuery("SELECT v FROM Value v JOIN v.element e WHERE v.containerId = :projectId AND "
-                + "e.id IN (SELECT q.id FROM QuestionElement q WHERE q.categoryType IS NOT NULL)");
-        choicesQuery = em.createQuery("SELECT c FROM QuestionChoiceElement c WHERE c.id IN (:ids)");
-              
-    }
+		// Queries.
+		orgUnitQuery = em.createQuery("SELECT o FROM OrgUnit o WHERE :project MEMBER OF o.databases");
+		categoriesQuery = em.createQuery("SELECT v FROM Value v JOIN v.element e WHERE v.containerId = :projectId AND "
+		                + "e.id IN (SELECT q.id FROM QuestionElement q WHERE q.categoryType IS NOT NULL)");
+		choicesQuery = em.createQuery("SELECT c FROM QuestionChoiceElement c WHERE c.id IN (:ids)");
 
-    /**
-     * Map a project into a project light DTO.
-     * 
-     * @param project
-     *            The project.
-     * @param mapChildren
-     *            If the children projects must be retrieved.
-     * @return The light DTO.
-     */
-    @SuppressWarnings("unchecked")
-    public ProjectDTOLight map(final Project project, final boolean mapChildren) {
+	}
 
-        final StringBuilder sb = new StringBuilder();
-        sb.append("Project light mapping:\n");
+	/**
+	 * Map a project into a project light DTO.
+	 * 
+	 * @param project
+	 *            The project.
+	 * @param mapChildren
+	 *            If the children projects must be retrieved.
+	 * @return The light DTO.
+	 */
+	@SuppressWarnings("unchecked")
+	public ProjectDTOLight map(final Project project, final boolean mapChildren) {
 
-        final ProjectDTOLight pLight = new ProjectDTOLight();
+		final StringBuilder sb = new StringBuilder();
+		sb.append("Project light mapping:\n");
 
-        // ---------------
-        // -- SIMPLE FIELDS
-        // ---------------
+		final ProjectDTOLight pLight = new ProjectDTOLight();
 
-        long start = new Date().getTime();
+		// ---------------
+		// -- SIMPLE FIELDS
+		// ---------------
 
-        pLight.setId(project.getId());
-        pLight.setName(project.getName());
-        pLight.setFullName(project.getFullName());
-        pLight.setPlannedBudget(project.getPlannedBudget());
-        pLight.setReceivedBudget(project.getReceivedBudget());
-        pLight.setSpendBudget(project.getSpendBudget());
-        pLight.setStartDate(project.getStartDate());
-        pLight.setEndDate(project.getEndDate());
-        pLight.setCloseDate(project.getCloseDate());
-        pLight.setActivityAdvancement(project.getActivityAdvancement());
-        pLight.setOrgUnitName(project.getCountry().getName());
-        sb.append("- SIMPLE FIELDS: ");
-        sb.append(new Date().getTime() - start);
-        sb.append("ms.\n");
+		long start = new Date().getTime();
 
-        // ---------------
-        // -- CURRENT PHASE
-        // ---------------
+		pLight.setId(project.getId());
+		pLight.setName(project.getName());
+		pLight.setFullName(project.getFullName());
+		pLight.setPlannedBudget(project.getPlannedBudget());
+		pLight.setReceivedBudget(project.getReceivedBudget());
+		pLight.setSpendBudget(project.getSpendBudget());
+		pLight.setStartDate(project.getStartDate());
+		pLight.setEndDate(project.getEndDate());
+		pLight.setCloseDate(project.getCloseDate());
+		pLight.setActivityAdvancement(project.getActivityAdvancement());
+		pLight.setOrgUnitName(project.getCountry().getName());
+		sb.append("- SIMPLE FIELDS: ");
+		sb.append(new Date().getTime() - start);
+		sb.append("ms.\n");
 
-        start = new Date().getTime();
+		// ---------------
+		// -- CURRENT PHASE
+		// ---------------
 
-        final Phase currentPhase = project.getCurrentPhase();
-        if (currentPhase != null) {
-            pLight.setCurrentPhaseName(currentPhase.getModel().getName());
-        }
+		start = new Date().getTime();
 
-        sb.append("- CURRENT PHASE: ");
-        sb.append(new Date().getTime() - start);
-        sb.append("ms.\n");
+		final Phase currentPhase = project.getCurrentPhase();
+		if (currentPhase != null) {
+			pLight.setCurrentPhaseName(currentPhase.getModel().getName());
+		}
 
-        // ---------------
-        // -- VISIBILITIES
-        // ---------------
+		sb.append("- CURRENT PHASE: ");
+		sb.append(new Date().getTime() - start);
+		sb.append("ms.\n");
 
-        start = new Date().getTime();
+		// ---------------
+		// -- VISIBILITIES
+		// ---------------
 
-        final ArrayList<ProjectModelVisibilityDTO> visibilities = new ArrayList<ProjectModelVisibilityDTO>();
-        for (final ProjectModelVisibility v : project.getProjectModel().getVisibilities()) {
-            final ProjectModelVisibilityDTO vDTO = new ProjectModelVisibilityDTO();
-            vDTO.setId(v.getId());
-            vDTO.setType(v.getType());
-            vDTO.setOrganizationId(v.getOrganization().getId());
-            visibilities.add(vDTO);
-        }
-        pLight.setVisibilities(visibilities);
+		start = new Date().getTime();
 
-        sb.append("- VISIBILITIES: ");
-        sb.append(new Date().getTime() - start);
-        sb.append("ms.\n");
+		final ArrayList<ProjectModelVisibilityDTO> visibilities = new ArrayList<ProjectModelVisibilityDTO>();
+		for (final ProjectModelVisibility v : project.getProjectModel().getVisibilities()) {
+			final ProjectModelVisibilityDTO vDTO = new ProjectModelVisibilityDTO();
+			vDTO.setId(v.getId());
+			vDTO.setType(v.getType());
+			vDTO.setOrganizationId(v.getOrganization().getId());
+			visibilities.add(vDTO);
+		}
+		pLight.setVisibilities(visibilities);
 
-        // ---------------
-        // -- ORG UNIT
-        // ---------------
+		sb.append("- VISIBILITIES: ");
+		sb.append(new Date().getTime() - start);
+		sb.append("ms.\n");
 
-        start = new Date().getTime();
+		// ---------------
+		// -- ORG UNIT
+		// ---------------
 
-        // Fill the org unit.
-        orgUnitQuery.setParameter("project", project);
+		start = new Date().getTime();
 
-        for (final OrgUnit orgUnit : (List<OrgUnit>) orgUnitQuery.getResultList()) {
-            pLight.setOrgUnitName(orgUnit.getName() + " - " + orgUnit.getFullName());
-            break;
-        }
+		// Fill the org unit.
+		orgUnitQuery.setParameter("project", project);
 
-        sb.append("- ORG UNIT: ");
-        sb.append(new Date().getTime() - start);
-        sb.append("ms.\n");
+		for (final OrgUnit orgUnit : (List<OrgUnit>) orgUnitQuery.getResultList()) {
+			pLight.setOrgUnitName(orgUnit.getName() + " - " + orgUnit.getFullName());
+			break;
+		}
 
-        // ---------------
-        // -- CATEGORIES
-        // ---------------
+		sb.append("- ORG UNIT: ");
+		sb.append(new Date().getTime() - start);
+		sb.append("ms.\n");
 
-        start = new Date().getTime();
+		// ---------------
+		// -- CATEGORIES
+		// ---------------
 
-        categoriesQuery.setParameter("projectId", project.getId());
+		start = new Date().getTime();
 
-        final HashSet<CategoryElementDTO> elements = new HashSet<CategoryElementDTO>();
+		categoriesQuery.setParameter("projectId", project.getId());
 
-        for (final Value value : (List<Value>) categoriesQuery.getResultList()) {
+		final HashSet<CategoryElementDTO> elements = new HashSet<CategoryElementDTO>();
 
-            choicesQuery.setParameter("ids", ValueResultUtils.splitValuesAsLong(value.getValue()));
+		for (final Value value : (List<Value>) categoriesQuery.getResultList()) {
 
-            for (final QuestionChoiceElement choice : (List<QuestionChoiceElement>) choicesQuery.getResultList()) {
+			List<Long> values = ValueResultUtils.splitValuesAsLong(value.getValue());
+			if (!values.isEmpty()) {
+				choicesQuery.setParameter("ids", ValueResultUtils.splitValuesAsLong(value.getValue()));
 
-                final CategoryType parent = choice.getCategoryElement().getParentType();
-                final CategoryTypeDTO parentDTO = new CategoryTypeDTO();
-                parentDTO.setId(parent.getId());
-                parentDTO.setLabel(parent.getLabel());
-                parentDTO.setIcon(parent.getIcon());
+				for (final QuestionChoiceElement choice : (List<QuestionChoiceElement>) choicesQuery.getResultList()) {
 
-                final CategoryElement element = choice.getCategoryElement();
-                final CategoryElementDTO elementDTO = new CategoryElementDTO();
-                elementDTO.setId(element.getId());
-                elementDTO.setLabel(element.getLabel());
-                elementDTO.setColor(element.getColor());
-                elementDTO.setParentCategoryDTO(parentDTO);
+					final CategoryType parent = choice.getCategoryElement().getParentType();
+					final CategoryTypeDTO parentDTO = new CategoryTypeDTO();
+					parentDTO.setId(parent.getId());
+					parentDTO.setLabel(parent.getLabel());
+					parentDTO.setIcon(parent.getIcon());
 
-                elements.add(elementDTO);
-            }
-        }
-        pLight.setCategoryElements(elements);
+					final CategoryElement element = choice.getCategoryElement();
+					final CategoryElementDTO elementDTO = new CategoryElementDTO();
+					elementDTO.setId(element.getId());
+					elementDTO.setLabel(element.getLabel());
+					elementDTO.setColor(element.getColor());
+					elementDTO.setParentCategoryDTO(parentDTO);
 
-        sb.append("- CATEGORIES: ");
-        sb.append(new Date().getTime() - start);
-        sb.append("ms.\n");
+					elements.add(elementDTO);
+				}
+			}
+		}
+		pLight.setCategoryElements(elements);
 
-        // ---------------
-        // -- CHILDREN
-        // ---------------
+		sb.append("- CATEGORIES: ");
+		sb.append(new Date().getTime() - start);
+		sb.append("ms.\n");
 
-        start = new Date().getTime();
+		// ---------------
+		// -- CHILDREN
+		// ---------------
 
-        final ArrayList<ProjectDTOLight> children = new ArrayList<ProjectDTOLight>();
+		start = new Date().getTime();
 
-        // Maps the funding projects.
-        if (mapChildren && project.getFunding() != null) {
-            for (final ProjectFunding funding : project.getFunding()) {
+		final ArrayList<ProjectDTOLight> children = new ArrayList<ProjectDTOLight>();
 
-                final Project pFunding = funding.getFunding();
+		// Maps the funding projects.
+		if (mapChildren && project.getFunding() != null) {
+			for (final ProjectFunding funding : project.getFunding()) {
 
-                if (pFunding != null) {
-                    // Recursive call to retrieve the child (without its
-                    // children).
-                    children.add(map(pFunding, false));
-                }
-            }
-        }
+				final Project pFunding = funding.getFunding();
 
-        // Maps the funded projects.
-        if (mapChildren && project.getFunded() != null) {
-            for (final ProjectFunding funded : project.getFunded()) {
+				if (pFunding != null) {
+					// Recursive call to retrieve the child (without its
+					// children).
+					children.add(map(pFunding, false));
+				}
+			}
+		}
 
-                final Project pFunded = funded.getFunded();
+		// Maps the funded projects.
+		if (mapChildren && project.getFunded() != null) {
+			for (final ProjectFunding funded : project.getFunded()) {
 
-                if (pFunded != null) {
-                    // Recursive call to retrieve the child (without its
-                    // children).
-                    children.add(map(pFunded, false));
-                }
-            }
-        }
+				final Project pFunded = funded.getFunded();
 
-        pLight.setChildrenProjects(children);
+				if (pFunded != null) {
+					// Recursive call to retrieve the child (without its
+					// children).
+					children.add(map(pFunded, false));
+				}
+			}
+		}
 
-        
-       
-        // ------------------
-        // -- FAVORITE USERS
-        // ------------------
-        
-       if(project.getFavoriteUsers()!=null)
-       {
-        Set<UserDTO> favoriteUsesSet = new HashSet<UserDTO>();
-        for(User u : project.getFavoriteUsers())
-        {
-        	//favoriteUsesSet.add(dozerMapper.map(u, UserDTO.class));
-        	UserDTO uDTO = new UserDTO();
-        	uDTO.setId(u.getId());
-        	uDTO.setChangePasswordKey(u.getChangePasswordKey());
-        	uDTO.setDateChangePasswordKeyIssued(u.getDateChangePasswordKeyIssued());
-        	uDTO.setEmail(u.getEmail());
-        	uDTO.setFirstName(u.getFirstName());
-        	uDTO.setLocale(u.getLocale());
-        	if(u.isActive()==null)
-        	{
-        	  uDTO.setActive(true);
-        	}
-        	else
-        	{
-        	  uDTO.setActive(u.isActive().booleanValue());
-        	}
-        	
-        	favoriteUsesSet.add(uDTO);
-        	
-        	
-        	
-        }
-        
-        pLight.setFavoriteUsers(favoriteUsesSet);
-        
-       }
-       else
-       {
-    	   pLight.setFavoriteUsers(null);
-       }
-        
-       // ---END----
-        
-        sb.append("- CHILDREN: ");
-        sb.append(new Date().getTime() - start);
-        sb.append("ms.\n");
+		pLight.setChildrenProjects(children);
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug(sb.toString());
-        }
+		// ------------------
+		// -- FAVORITE USERS
+		// ------------------
 
-        return pLight;
-    }
+		if (project.getFavoriteUsers() != null) {
+			Set<UserDTO> favoriteUsesSet = new HashSet<UserDTO>();
+			for (User u : project.getFavoriteUsers()) {
+				// favoriteUsesSet.add(dozerMapper.map(u, UserDTO.class));
+				UserDTO uDTO = new UserDTO();
+				uDTO.setId(u.getId());
+				uDTO.setChangePasswordKey(u.getChangePasswordKey());
+				uDTO.setDateChangePasswordKeyIssued(u.getDateChangePasswordKeyIssued());
+				uDTO.setEmail(u.getEmail());
+				uDTO.setFirstName(u.getFirstName());
+				uDTO.setLocale(u.getLocale());
+				if (u.isActive() == null) {
+					uDTO.setActive(true);
+				} else {
+					uDTO.setActive(u.isActive().booleanValue());
+				}
+
+				favoriteUsesSet.add(uDTO);
+
+			}
+
+			pLight.setFavoriteUsers(favoriteUsesSet);
+
+		} else {
+			pLight.setFavoriteUsers(null);
+		}
+
+		// ---END----
+
+		sb.append("- CHILDREN: ");
+		sb.append(new Date().getTime() - start);
+		sb.append("ms.\n");
+
+		if (LOG.isDebugEnabled()) {
+			LOG.debug(sb.toString());
+		}
+
+		return pLight;
+	}
 
 }
