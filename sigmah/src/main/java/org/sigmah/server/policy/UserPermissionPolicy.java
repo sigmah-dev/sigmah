@@ -144,7 +144,9 @@ public class UserPermissionPolicy {
 	public void deleteUserPermssionByOrgUnit(OrgUnit orgUnit){	 	
 		UserPermissionDAO permissionDAO = injector.getInstance(UserPermissionDAO.class);
 		List<Project> projects =  permissionDAO.getOrgUnitProjects(orgUnit);
-		permissionDAO.deleteByProjects(projects);		
+		if(!projects.isEmpty()) {
+			permissionDAO.deleteByProjects(projects);		
+		}
 	}
 	
 	/*
