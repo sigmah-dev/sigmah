@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.httpclient.util.URIUtil;
 import org.odftoolkit.odfdom.dom.style.OdfStyleFamily;
 import org.odftoolkit.odfdom.dom.style.props.OdfParagraphProperties;
 import org.odftoolkit.odfdom.dom.style.props.OdfStyleProperty;
@@ -155,7 +156,7 @@ public  static Cell putGlobalExportHeader(final Row row,int cellIndex, String he
 	}
 
 	public static void applyLink(final Cell cell,String linkName,String target) throws Throwable{		
-		java.net.URI uri=new java.net.URI("#"+normalizeAsLink(target));
+		java.net.URI uri=new java.net.URI(URIUtil.encodeQuery("#"+normalizeAsLink(target)));
 		cell.addParagraph(linkName).applyHyperlink(uri);
 	}
 	

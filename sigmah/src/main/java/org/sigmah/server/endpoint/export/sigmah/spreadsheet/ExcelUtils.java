@@ -256,6 +256,10 @@ public class ExcelUtils {
 	}
 	
 	public String normalizeAsLink(String linkName){
+		//Escape characters which can't be included in a sheet's name
+		linkName = linkName.replaceAll("('|\\?|\\/|\\[|\\]|\\:)", "_");
+		linkName = linkName.replace("\\", "_");
+		linkName = linkName.replace("*", "_");
 		if(linkName.length()>25){
 			linkName = linkName.substring(0, 25);
 		}
