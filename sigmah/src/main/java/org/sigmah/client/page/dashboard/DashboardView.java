@@ -333,8 +333,7 @@ public class DashboardView extends ContentPanel implements DashboardPresenter.Vi
         }
 
         // There are two ways to show these menus (authentication / profile).
-        if (authentication.isShowMenus()
-            || ProfileUtils.isGranted(authentication, GlobalPermissionEnum.VIEW_ACTIVITYINFO)) {
+        if (authentication.isShowMenus()) {
             addNavLink(eventBus, menuPanel, I18N.CONSTANTS.dataEntry(), IconImageBundle.ICONS.dataEntry(),
                 new SiteGridPageState());
             addNavLink(eventBus, menuPanel, I18N.CONSTANTS.reports(), IconImageBundle.ICONS.report(),
