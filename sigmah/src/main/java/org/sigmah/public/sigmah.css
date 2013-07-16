@@ -1255,3 +1255,9 @@ a.credits-partner-url,a.credits-partner-url:link,a.credits-partner-url:visited,a
 	margin-bottom: 13px;
     margin-top: 5px;	
 }
+
+/*------------------------------------------------------ Linked Project Form*/
+.x-combo-list-item-disabled {
+	font-weight:bold !important;
+	text-align:center;
+}
