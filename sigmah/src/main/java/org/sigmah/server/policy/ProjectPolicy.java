@@ -7,6 +7,7 @@ package org.sigmah.server.policy;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 import javax.persistence.EntityManager;
@@ -372,9 +373,27 @@ public class ProjectPolicy implements EntityPolicy<Project> {
                  //Mark the project in the state "deleted" (but don't delete it really)
                  project.delete();   
                  
+            	 final List<ProjectFunding> listfundingsToDelete = new ArrayList<ProjectFunding>();
+                
+
+                 //Saves all the projectFundings that need to be deleted
+            	 // before deleting them from the deleted project
+            	 if(project instanceof Project){
+            		 Project pr = (Project)project;
+            		 
+            		 listfundingsToDelete.addAll(pr.getFunded());
+            		 listfundingsToDelete.addAll(pr.getFunding());
+            		 
+                	 ((Project)project).getFunded().clear();
+                	 ((Project)project).getFunding().clear();
+                 }
+                 
                  //Save
                  em.merge(project);
                  
+                 for(ProjectFunding pf : listfundingsToDelete){
+                	 em.remove(pf);
+                 }
                  /* [UserPermission trigger] 
          		 * Deletes related entries in UserPermission table after project deleted */
              	 UserPermissionPolicy policy=injector.getInstance(UserPermissionPolicy.class);
