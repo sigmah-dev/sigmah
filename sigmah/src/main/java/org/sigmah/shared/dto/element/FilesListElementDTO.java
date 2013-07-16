@@ -8,6 +8,7 @@ import java.util.ArrayList;
 
 import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.dispatch.monitor.MaskingAsyncMonitor;
+import org.sigmah.client.dispatch.remote.Authentication;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.icon.IconImageBundle;
 import org.sigmah.client.ui.ButtonFileUploadField;
@@ -650,7 +651,7 @@ public class FilesListElementDTO extends FlexibleElementDTO {
 					@Override
 					public void onClick(ClickEvent e) {
 
-						final FileDetailsWindow versionsWindow = new FileDetailsWindow(dispatcher, enabled);
+						final FileDetailsWindow versionsWindow = new FileDetailsWindow(authentication, dispatcher, enabled);
 						versionsWindow.addListener(new FileDetailsWindow.FileDetailsWindowListener() {
 
 							@Override
@@ -767,6 +768,8 @@ public class FilesListElementDTO extends FlexibleElementDTO {
 		}
 
 		private final Dispatcher dispatcher;
+		
+		private final Authentication authentication;
 
 		/**
 		 * GXT window.
@@ -805,8 +808,9 @@ public class FilesListElementDTO extends FlexibleElementDTO {
 		 * @param enabled
 		 *            If the component is enabled.
 		 */
-		public FileDetailsWindow(final Dispatcher dispatcher, boolean enabled) {
+		public FileDetailsWindow(final Authentication authentication, final Dispatcher dispatcher, boolean enabled) {
 
+			this.authentication = authentication;
 			this.dispatcher = dispatcher;
 
 			store = new ListStore<FileVersionDTO>();
@@ -1002,7 +1006,11 @@ public class FilesListElementDTO extends FlexibleElementDTO {
 				}
 			});
 
-			return new ColumnConfig[] { versionColumn, dateColumn, authorColumn, nameColumn, sizeColumn, deleteColumn };
+			if (ProfileUtils.isGranted(authentication, GlobalPermissionEnum.REMOVE_FILE)) {
+				return new ColumnConfig[] {versionColumn, dateColumn, authorColumn, nameColumn, sizeColumn, deleteColumn };
+			} else {
+				return new ColumnConfig[] { versionColumn, dateColumn, authorColumn, nameColumn, sizeColumn };
+			}
 		}
 
 		/**
