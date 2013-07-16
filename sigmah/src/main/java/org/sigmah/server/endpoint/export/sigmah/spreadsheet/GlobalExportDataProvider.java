@@ -45,7 +45,6 @@ import org.sigmah.shared.domain.export.GlobalExportContent;
 import org.sigmah.shared.domain.layout.Layout;
 import org.sigmah.shared.domain.layout.LayoutConstraint;
 import org.sigmah.shared.domain.layout.LayoutGroup;
-import org.sigmah.shared.domain.value.TripletValue;
 import org.sigmah.shared.dto.value.ListableValue;
 import org.sigmah.shared.dto.value.TripletValueDTO;
 import org.sigmah.shared.exception.CommandException;
@@ -55,8 +54,7 @@ import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
 
-
-/*
+/**
  * Utility class
  * Provides global export data
  * 
@@ -64,634 +62,608 @@ import com.google.inject.Singleton;
  */
 @Singleton
 public class GlobalExportDataProvider {
-  
-	public static class ValueLabel{
+
+	public static class ValueLabel {
 		private String label;
 		private Object value;
-		private int lines=1;
-		public ValueLabel(String label,Object value){
-			this.label=label;
-			this.value=value;
+		private int lines = 1;
+
+		public ValueLabel(String label, Object value) {
+			this.label = label;
+			this.value = value;
 		}
-		public ValueLabel(String label,Object value,int lines){
-			this.label=label;
-			this.value=value;
-			this.lines=lines;
+
+		public ValueLabel(String label, Object value, int lines) {
+			this.label = label;
+			this.value = value;
+			this.lines = lines;
 		}
-		
+
 		public String getFormattedLabel() {
 			return clearHtmlFormatting(label);
 		}
+
 		public void setLabel(String label) {
 			this.label = label;
 		}
+
 		public Object getValue() {
 			return value;
 		}
+
 		public void setValue(Object value) {
 			this.value = value;
 		}
+
 		public int getLines() {
 			return lines;
-		}		
-		
+		}
+
 	}
-	
+
 	private final Injector injector;
 	private final CsvBuilder csvBuilder;
 	private final CsvParser csvParser;
-	
-	
+
 	@Inject
-	public GlobalExportDataProvider(final Injector injector){
-		this.injector=injector;
-		this.csvBuilder=new CsvBuilder();
-		this.csvParser=new CsvParser();
+	public GlobalExportDataProvider(final Injector injector) {
+		this.injector = injector;
+		this.csvBuilder = new CsvBuilder();
+		this.csvParser = new CsvParser();
 	}
-	
-	 	
-	public void persistGlobalExportDataAsCsv(
-			final GlobalExport globalExport,
-			EntityManager em,
-			Map<String,List<String[]>> exportData
-			) throws SchedulerException{
-		 for(final String pModelName : exportData.keySet()){
-			 final GlobalExportContent content=new GlobalExportContent();
-			 content.setGlobalExport(globalExport);
-			 content.setProjectModelName(pModelName);
-			 content.setCsvContent(csvBuilder.buildCsv(exportData.get(pModelName)));
-			 em.persist(content);
-		 }
+
+	public void persistGlobalExportDataAsCsv(final GlobalExport globalExport, EntityManager em,
+	                Map<String, List<String[]>> exportData) throws SchedulerException {
+		for (final String pModelName : exportData.keySet()) {
+			final GlobalExportContent content = new GlobalExportContent();
+			content.setGlobalExport(globalExport);
+			content.setProjectModelName(pModelName);
+			content.setCsvContent(csvBuilder.buildCsv(exportData.get(pModelName)));
+			em.persist(content);
+		}
 	}
-	
-	public Map<String,List<String[]>> getBackedupGlobalExportData(EntityManager em,Integer gExportId){
-		final Map<String,List<String[]>> exportData = new TreeMap<String, List<String[]>>();		
-		final GlobalExport export=em.find(GlobalExport.class, new Long(gExportId.longValue()));
-		final List<GlobalExportContent> contents=export.getContents();
-		for(final GlobalExportContent content:contents){
-			final List<String[]> csvData =  csvParser.parseCsv(content.getCsvContent());
-			exportData.put(content.getProjectModelName(),csvData);
+
+	public Map<String, List<String[]>> getBackedupGlobalExportData(EntityManager em, Integer gExportId) {
+		final Map<String, List<String[]>> exportData = new TreeMap<String, List<String[]>>();
+		final GlobalExport export = em.find(GlobalExport.class, new Long(gExportId.longValue()));
+		final List<GlobalExportContent> contents = export.getContents();
+		for (final GlobalExportContent content : contents) {
+			final List<String[]> csvData = csvParser.parseCsv(content.getCsvContent());
+			exportData.put(content.getProjectModelName(), csvData);
 		}
 		return exportData;
 	}
-	 
-	public Map<String,List<String[]>> generateGlobalExportData(
-			final Integer organizationId,
-			EntityManager entityManager,
-			final String localeString) throws SchedulerException{
-		if(entityManager==null){
+
+	public Map<String, List<String[]>> generateGlobalExportData(final Integer organizationId,
+	                EntityManager entityManager, final String localeString) throws SchedulerException {
+		if (entityManager == null) {
 			entityManager = injector.getInstance(EntityManager.class);
 		}
-		
-		 Locale locale=null;
-		 if(localeString!=null)
-			 locale = new Locale(localeString);   
- 	     Translator translator= new UIConstantsTranslator(new Locale(""));
-	        
-	        
-		final GlobalExportDAO exportDAO=new GlobalExportHibernateDAO(entityManager);
-		final Organization organization=entityManager.find(Organization.class, organizationId);
+
+		Locale locale = null;
+		if (localeString != null)
+			locale = new Locale(localeString);
+		Translator translator = new UIConstantsTranslator(new Locale(""));
+
+		final GlobalExportDAO exportDAO = new GlobalExportHibernateDAO(entityManager);
+		final Organization organization = entityManager.find(Organization.class, organizationId);
 		final List<ProjectModel> pModels = exportDAO.getProjectModelsByOrganization(organization);
-		final List<Project> projects=exportDAO.getProjects(pModels);
-				
-		
-		//project model and its projects
-		final Map<String,List<Project>> pModelProjectsMap=
-			new HashMap<String,List<Project>>();
-		for(final Project project:projects){
-			if(project.getDateDeleted() == null) {
-				final String pModelName=project.getProjectModel().getName();			
-				
-				List<Project> pModelProjects=pModelProjectsMap.get(pModelName);
-				if(pModelProjects==null){
-					pModelProjects=new ArrayList<Project>();
+		final List<Project> projects = exportDAO.getProjects(pModels);
+
+		// project model and its projects
+		final Map<String, List<Project>> pModelProjectsMap = new HashMap<String, List<Project>>();
+		for (final Project project : projects) {
+			if (project.getDateDeleted() == null) {
+				final String pModelName = project.getProjectModel().getName();
+
+				List<Project> pModelProjects = pModelProjectsMap.get(pModelName);
+				if (pModelProjects == null) {
+					pModelProjects = new ArrayList<Project>();
 					pModelProjectsMap.put(pModelName, pModelProjects);
 				}
 				pModelProjects.add(project);
 			}
 		}
-						
-		
+
 		// project model and its globally exportable fields
-		final Map<String,List<FlexibleElement>> pModelElementsMap=
-			new HashMap<String,List<FlexibleElement>>();
-		for(final ProjectModel projectModel : pModels){
-			if(projectModel.getStatus() != ProjectModelStatus.DRAFT){
-				final String pModelName=projectModel.getName();
-				
-				final List<FlexibleElement> pModelElements=new ArrayList<FlexibleElement>();			
-				pModelElementsMap.put(pModelName, pModelElements);				
-				
-				//detail elements
+		final Map<String, List<FlexibleElement>> pModelElementsMap = new HashMap<String, List<FlexibleElement>>();
+		for (final ProjectModel projectModel : pModels) {
+			if (projectModel.getStatus() != ProjectModelStatus.DRAFT) {
+				final String pModelName = projectModel.getName();
+
+				final List<FlexibleElement> pModelElements = new ArrayList<FlexibleElement>();
+				pModelElementsMap.put(pModelName, pModelElements);
+
+				// detail elements
 				fillElementList(pModelElements, projectModel.getProjectDetails().getLayout());
-				 
-				//phase elements
-				for(final PhaseModel phaseModel:projectModel.getPhases()){
+
+				// phase elements
+				for (final PhaseModel phaseModel : projectModel.getPhases()) {
 					fillElementList(pModelElements, phaseModel.getLayout());
 				}
 			}
 		}
-		
-		
-		final CommandHandler<GetValue> handler=new GetValueHandler(entityManager,
-				injector.getInstance(Mapper.class));
-		 
-		
-		final Map<String,List<String[]>> pModelExportDataMap=new TreeMap<String, List<String[]>>();
-		
+
+		final CommandHandler<GetValue> handler = new GetValueHandler(entityManager, injector.getInstance(Mapper.class));
+
+		final Map<String, List<String[]>> pModelExportDataMap = new TreeMap<String, List<String[]>>();
+
 		// collect export data
-		for(final String pModelName : pModelElementsMap.keySet()){
-			
-			//if no project for a given project model, skip even headers for flexible elements 
-			if(pModelProjectsMap.get(pModelName)==null) continue;
-			
+		for (final String pModelName : pModelElementsMap.keySet()) {
+
+			// if no project for a given project model, skip even headers for
+			// flexible elements
+			if (pModelProjectsMap.get(pModelName) == null)
+				continue;
+
 			final List<FlexibleElement> elements = pModelElementsMap.get(pModelName);
-			final List<String[]> exportData=new ArrayList<String[]>();
+			final List<String[]> exportData = new ArrayList<String[]>();
 			pModelExportDataMap.put(pModelName, exportData);
-			
+
 			// field titles
-			final String[] titles=new String[elements.size()];
-			
+			final String[] titles = new String[elements.size()];
+
 			boolean isFirstLine = true;
-			//projects
-			for(final Project project : pModelProjectsMap.get(pModelName)){
-				
-				final String[] values=new String[elements.size()];
-				
-				int titleIndex=0;
-				int valueIndex=0;
-				 
-				//fields
-				for(final FlexibleElement element:elements ){					
-					
+			// projects
+			for (final Project project : pModelProjectsMap.get(pModelName)) {
+
+				final String[] values = new String[elements.size()];
+
+				int titleIndex = 0;
+				int valueIndex = 0;
+
+				// fields
+				for (final FlexibleElement element : elements) {
+
 					// command to get element value
-					final String elementName="element."+ element.getClass().getSimpleName();
-					final GetValue command = new GetValue(project.getId(),
-							element.getId(), elementName, null); 
-					try{
-						final ValueResult valueResult = (ValueResult)handler.execute(command, null);
-						
-						//prepare value and label
-						ValueLabel pair=null;
-						/*DEF FLEXIBLE*/
-		            	if(elementName.equals("element.DefaultFlexibleElement")){                	
-		                	pair=getDefElementPair(
-		                			valueResult, 
-		                			element,
-		                			project,
-		                			entityManager,
-		                			locale,
-		                			translator);
-			                	
-		                }else /*CHECKBOX*/ if(elementName.equals("element.CheckboxElement")){
-		                	pair=getCheckboxElementPair(
-		                			valueResult, 
-		                			element,
-		                			locale,
-		                			translator);
-			                } else /* TEXT AREA */ if(elementName.equals("element.TextAreaElement")){                	
-		                	pair=getTextAreaElementPair(valueResult, element);                	
-			                  	
-		                }/* TRIPLET */ if(elementName.equals("element.TripletsListElement")){
-		                	 pair=getTripletPair(element, valueResult);
-		                	  
-		                 }/* CHOICE */ if(elementName.equals("element.QuestionElement")){		                	 
-		                	 pair=getChoicePair(element, valueResult); 
-		                 }
-		                 
-		                 //titles
-		                
-		                 if(isFirstLine){
-		                	 titles[titleIndex++]=pair!=null ? pair.getFormattedLabel() : null;
-		                 }
-		                 
-		                 //values
-		                String valueStr=null;
-		                if(pair!=null){
-		                	Object value=pair.getValue();
-			                if(value==null){
-			                	valueStr=null;
-			                }else if(value instanceof String){
-			                	valueStr=(String)value;
-			         		}else if(value instanceof Double){
-			         			Double d=(Double)value;	
-			         			valueStr = LogFrameExportData.AGGR_AVG_FORMATTER.format(d.doubleValue());			
-			         		}else if(value instanceof Long){	
-			         			Long l=(Long)value;
-			         			valueStr = LogFrameExportData.AGGR_SUM_FORMATTER.format(l.longValue());			 			
-			          		}else{ //date    			  		
-			          			valueStr=ExportConstants.EXPORT_DATE_FORMAT.format((Date)value); 			
-			          		}
-		                }		                
-		                 
-		                 values[valueIndex++]=valueStr;
-						
-					}catch (CommandException e) {
+					final String elementName = "element." + element.getClass().getSimpleName();
+					final GetValue command = new GetValue(project.getId(), element.getId(), elementName, null);
+					try {
+						final ValueResult valueResult = (ValueResult) handler.execute(command, null);
+
+						// prepare value and label
+						ValueLabel pair = null;
+						/* DEF FLEXIBLE */
+						if (elementName.equals("element.DefaultFlexibleElement")) {
+							pair = getDefElementPair(valueResult, element, project, entityManager, locale, translator);
+
+						} else /* CHECKBOX */if (elementName.equals("element.CheckboxElement")) {
+							pair = getCheckboxElementPair(valueResult, element, locale, translator);
+						} else /* TEXT AREA */if (elementName.equals("element.TextAreaElement")) {
+							pair = getTextAreaElementPair(valueResult, element);
+
+						}/* TRIPLET */
+						if (elementName.equals("element.TripletsListElement")) {
+							pair = getTripletPair(element, valueResult);
+
+						}/* CHOICE */
+						if (elementName.equals("element.QuestionElement")) {
+							pair = getChoicePair(element, valueResult);
+						}
+
+						// titles
+
+						if (isFirstLine) {
+							titles[titleIndex++] = pair != null ? pair.getFormattedLabel() : null;
+						}
+
+						// values
+						String valueStr = null;
+						if (pair != null) {
+							Object value = pair.getValue();
+							if (value == null) {
+								valueStr = null;
+							} else if (value instanceof String) {
+								valueStr = (String) value;
+							} else if (value instanceof Double) {
+								Double d = (Double) value;
+								valueStr = LogFrameExportData.AGGR_AVG_FORMATTER.format(d.doubleValue());
+							} else if (value instanceof Long) {
+								Long l = (Long) value;
+								valueStr = LogFrameExportData.AGGR_SUM_FORMATTER.format(l.longValue());
+							} else { // date
+								valueStr = ExportConstants.EXPORT_DATE_FORMAT.format((Date) value);
+							}
+						}
+
+						values[valueIndex++] = valueStr;
+
+					} catch (CommandException e) {
 						Log.error("Failed to get element value" + e.getMessage());
 					}
-										
+
 				}
-				
-				//add titles
-				if(isFirstLine){
+
+				// add titles
+				if (isFirstLine) {
 					exportData.add(titles);
-					isFirstLine=false;
+					isFirstLine = false;
 				}
-				
-				//add values
-				exportData.add(values);								
-				
-			}//projects
-		 						
+
+				// add values
+				exportData.add(values);
+
+			}// projects
+
 		}
-		
-	
-		 
+
 		return pModelExportDataMap;
 	}
-	
-	
-	public MultiItemText formatMultipleChoices(List<QuestionChoiceElement> list,String values){
-		  final List<Long> selectedChoicesId =
-        	ValueResultUtils.splitValuesAsLong(values);
-         final StringBuffer builder=new StringBuffer();
-         int lines=1;
-         for(QuestionChoiceElement choice:list){
-         	 for (Long id : selectedChoicesId) {
-        		 if (id.equals(choice.getId())) {
-        			 builder.append(" - ");
-        			 builder.append(choice.getLabel());
-        			 builder.append("\n");
-        			 lines++;
-                 }
-        	 }                                	                                 	
-         }
-        String value=null;
-        if(lines>1){
-        	value = builder.substring(0, builder.length()-1);
-        	lines--;       
-        }
-        return new MultiItemText(value, lines);
+
+	public MultiItemText formatMultipleChoices(List<QuestionChoiceElement> list, String values) {
+		final List<Long> selectedChoicesId = ValueResultUtils.splitValuesAsLong(values);
+		final StringBuffer builder = new StringBuffer();
+		int lines = 1;
+		for (QuestionChoiceElement choice : list) {
+			for (Long id : selectedChoicesId) {
+				if (id.equals(choice.getId())) {
+					builder.append(" - ");
+					if (choice.getCategoryElement() != null) {
+						builder.append(choice.getCategoryElement().getLabel());
+					} else {
+						builder.append(choice.getLabel());
+					}
+					builder.append("\n");
+					lines++;
+				}
+			}
+		}
+		String value = null;
+		if (lines > 1) {
+			value = builder.substring(0, builder.length() - 1);
+			lines--;
+		}
+		return new MultiItemText(value, lines);
 	}
-	
-	
-	public MultiItemText formatTripletValues(List<ListableValue> list){
-		int lines=list.size()+1;
-  		final StringBuilder builder=new StringBuilder();
-  		for (ListableValue s : list) {
-        	 final TripletValueDTO tripletValue=(TripletValueDTO) s;
-        	 builder.append(" - ");                       	 
-        	 builder.append(tripletValue.getCode());
-        	 builder.append(" - ");
-        	 builder.append(tripletValue.getName());
-        	 builder.append(" : ");
-        	 builder.append(tripletValue.getPeriod());
-        	 builder.append("\n");
-   		}
-  		 String value=null;
-         if(lines>1){
-         	value= builder.substring(0, builder.length()-2);
-         	lines--;       
-         }
-         
-         return new MultiItemText(value, lines);
+
+	public MultiItemText formatTripletValues(List<ListableValue> list) {
+		int lines = list.size() + 1;
+		final StringBuilder builder = new StringBuilder();
+		for (ListableValue s : list) {
+			final TripletValueDTO tripletValue = (TripletValueDTO) s;
+			builder.append(" - ");
+			builder.append(tripletValue.getCode());
+			builder.append(" - ");
+			builder.append(tripletValue.getName());
+			builder.append(" : ");
+			builder.append(tripletValue.getPeriod());
+			builder.append("\n");
+		}
+		String value = null;
+		if (lines > 1) {
+			value = builder.substring(0, builder.length() - 2);
+			lines--;
+		}
+
+		return new MultiItemText(value, lines);
 	}
-	
-	public ValueLabel getTripletPair(final FlexibleElement element,final ValueResult valueResult){
-		String value=null;
-		int lines=1;
-		
-		if (valueResult != null && valueResult.isValueDefined()) {		                		
-   		 final MultiItemText item=formatTripletValues(valueResult.getValuesObject());
-   		 value = item.text;
-   		 lines=item.lineCount;   		 
-        }
-		
-		return new ValueLabel(element.getLabel(), value,lines);
-	}
-	public ValueLabel getChoicePair(final FlexibleElement element,final ValueResult valueResult){
-		String value=null;
-		int lines=1;
-		
+
+	public ValueLabel getTripletPair(final FlexibleElement element, final ValueResult valueResult) {
+		String value = null;
+		int lines = 1;
+
 		if (valueResult != null && valueResult.isValueDefined()) {
-			final QuestionElement questionElement=(QuestionElement)element;
-		 	if(questionElement.getIsMultiple()){		                		 		 
-	        	final MultiItemText item=formatMultipleChoices(
-	            		questionElement.getChoices(),valueResult.getValueObject());   		                                
-	        	value = item.text;	
-	        	lines=item.lineCount;  
-	            
-		 	}else{
- 		 		final String idChoice = (String) valueResult.getValueObject();                                                       		 	
-			 		for(QuestionChoiceElement choice:questionElement.getChoices()){
-			 			 if (idChoice.equals(String.valueOf(choice.getId()))) {
-	                     value=choice.getLabel();
-	                     break;
-	                 }
-		 		}
- 		 	}
+			final MultiItemText item = formatTripletValues(valueResult.getValuesObject());
+			value = item.text;
+			lines = item.lineCount;
 		}
-		
-		return new ValueLabel(element.getLabel(), value,lines);		
+
+		return new ValueLabel(element.getLabel(), value, lines);
 	}
-	
-	public ValueLabel getTextAreaElementPair(
-			final ValueResult valueResult,
-			final FlexibleElement element){
-		
-		Object value=null;
-		final TextAreaElement textAreaElement=
-    		(TextAreaElement)element;
-		
-      	  if (valueResult != null && valueResult.isValueDefined()) {
-    		  String strValue=(String) valueResult.getValueObject();
-    		  if(textAreaElement.getType()!=null){
-    			  switch (textAreaElement.getType()) {
-                  // Number
-                      case 'N': {    	                        	  
-                          if(textAreaElement.getIsDecimal()){		                        		  
-                    		  value=Double.parseDouble(strValue);
-                    	  }else{
-                    		  value=Long.parseLong(strValue); 
-                    		  
-                    	  }    	                        	 
-                      }break;
-                      case 'D': {    	                        	  
-                    	  value=new Date(Long.parseLong(strValue));                       	 
-                      }break;    	                          
-                      default : {    	                        	  
-                    	  value=strValue;                       	 
-                      }break;    	                         
-            	  }  
-    		  }else{
-    			  value=strValue; 
-    		  }
-    		   
-    	  }
-		
-     	return new ValueLabel(element.getLabel(), value);
+
+	public ValueLabel getChoicePair(final FlexibleElement element, final ValueResult valueResult) {
+		String value = null;
+		int lines = 1;
+
+		if (valueResult != null && valueResult.isValueDefined()) {
+			final QuestionElement questionElement = (QuestionElement) element;
+			if (questionElement.getIsMultiple()) {
+				final MultiItemText item = formatMultipleChoices(questionElement.getChoices(),
+				                valueResult.getValueObject());
+				value = item.text;
+				lines = item.lineCount;
+
+			} else {
+				final String idChoice = (String) valueResult.getValueObject();
+				for (QuestionChoiceElement choice : questionElement.getChoices()) {
+					if (idChoice.equals(String.valueOf(choice.getId()))) {
+						if (choice.getCategoryElement() != null) {
+							value = choice.getCategoryElement().getLabel();
+						} else {
+							value = choice.getLabel();
+						}
+						break;
+					}
+				}
+			}
+		}
+
+		return new ValueLabel(element.getLabel(), value, lines);
 	}
-	
-	public ValueLabel getCheckboxElementPair(final ValueResult valueResult,
-			final FlexibleElement element,
-			final Locale locale,
-			final Translator translator){
-		String value=translator.translate("no",locale);
-     	if (valueResult != null && valueResult.getValueObject() != null) {
-            if(((String) valueResult.getValueObject()).equalsIgnoreCase("true"))
-            	value=translator.translate("yes",locale);
-            	
-    	}
-     	return new ValueLabel(element.getLabel(), value);
+
+	public ValueLabel getTextAreaElementPair(final ValueResult valueResult, final FlexibleElement element) {
+
+		Object value = null;
+		final TextAreaElement textAreaElement = (TextAreaElement) element;
+
+		if (valueResult != null && valueResult.isValueDefined()) {
+			String strValue = (String) valueResult.getValueObject();
+			if (textAreaElement.getType() != null) {
+				switch (textAreaElement.getType()) {
+				// Number
+				case 'N': {
+					if (textAreaElement.getIsDecimal()) {
+						value = Double.parseDouble(strValue);
+					} else {
+						value = Long.parseLong(strValue);
+
+					}
+				}
+					break;
+				case 'D': {
+					value = new Date(Long.parseLong(strValue));
+				}
+					break;
+				default: {
+					value = strValue;
+				}
+					break;
+				}
+			} else {
+				value = strValue;
+			}
+
+		}
+
+		return new ValueLabel(element.getLabel(), value);
 	}
-	
-	 
-	private String getUserName(User u){
-		
-		String name ="";
-		if(u!=null)
-			name=u.getFirstName() != null ?u.getFirstName() + " " + u.getName() : u.getName();
-	
-		return name; 
+
+	public ValueLabel getCheckboxElementPair(final ValueResult valueResult, final FlexibleElement element,
+	                final Locale locale, final Translator translator) {
+		String value = translator.translate("no", locale);
+		if (valueResult != null && valueResult.getValueObject() != null) {
+			if (((String) valueResult.getValueObject()).equalsIgnoreCase("true"))
+				value = translator.translate("yes", locale);
+
+		}
+		return new ValueLabel(element.getLabel(), value);
 	}
-	
-	public ValueLabel getDefElementPair(
-			final ValueResult valueResult,
-			final FlexibleElement element,
-			final Object object,
-			final Class clazz,
-			final EntityManager entityManager,
-			final Locale locale,
-			final Translator translator){
-		if(clazz.equals(Project.class)){
-			return getDefElementPair(valueResult, 
-					element, 
-					(Project)object, 
-					entityManager, 
-					locale, 
-					translator);
-		}else{
-			return getDefElementPair(valueResult, 
-					element, 
-					(OrgUnit)object, 
-					entityManager, 
-					locale, 
-					translator);
+
+	private String getUserName(User u) {
+
+		String name = "";
+		if (u != null)
+			name = u.getFirstName() != null ? u.getFirstName() + " " + u.getName() : u.getName();
+
+		return name;
+	}
+
+	public ValueLabel getDefElementPair(final ValueResult valueResult, final FlexibleElement element,
+	                final Object object, final Class clazz, final EntityManager entityManager, final Locale locale,
+	                final Translator translator) {
+		if (clazz.equals(Project.class)) {
+			return getDefElementPair(valueResult, element, (Project) object, entityManager, locale, translator);
+		} else {
+			return getDefElementPair(valueResult, element, (OrgUnit) object, entityManager, locale, translator);
 		}
 	}
-	
-	public ValueLabel getDefElementPair(
-			final ValueResult valueResult,
-			final FlexibleElement element,
-			final Project project,
-			final EntityManager entityManager,
-			final Locale locale,
-			final Translator translator) {
 
-		Object value=null;
-		String label=null;
-     	
-    	final DefaultFlexibleElement defaultElement=
-    		(DefaultFlexibleElement)element;
-    	                    	
-    	boolean hasValue= valueResult != null && valueResult.isValueDefined();
-    	
-    	switch(defaultElement.getType()){
-	    	case CODE:{
-	    		
-	    		label=translator.translate("projectName",locale);
-	    		if(hasValue){
-	    			value=valueResult.getValueObject();
-	    		}else{
-	    			value=project.getName();
-	    		}
-	    	}break;
-	    	case TITLE:{
- 	    		label=translator.translate("projectFullName",locale);
-	    		if(hasValue){
-	    			value=valueResult.getValueObject();
-	    		}else{
-	    			value=project.getFullName();
-	    		}
-	    	}break;
-	    	case START_DATE:{
- 	     		label=translator.translate("projectStartDate",locale);
-	    		if(hasValue){
-	    			value=new Date(Long.parseLong(valueResult.getValueObject()));
-	    		}else{
-	    			value=project.getStartDate();
-	    		}
-	    	}break;
-	    	case END_DATE:{
- 	    		label=translator.translate("projectEndDate",locale);
-	    		if(hasValue){
-	    			value=new Date(Long.parseLong(valueResult.getValueObject()));
-	    		}else{
-	    			value="";
-	    			if(project.getEndDate()!=null)
-	    				value=project.getEndDate();
-	    		}
-	    	}break;
-	    	case BUDGET:{
- 				label=translator.translate("projectBudget",locale);
-				Double pb = 0d;
-				Double sb = 0d;
-	
-				if (hasValue) {
-					final String[] parts = valueResult.getValueObject().split("~");
-					pb = Double.parseDouble(parts[0]);
-					sb = Double.parseDouble(parts[1]);
-				} else {
-					pb = project.getPlannedBudget();
-					sb = project.getSpendBudget();
-				}
-				value = sb + " / " + pb;
-	    	}break;
-	    	case COUNTRY:{
- 	    		label=translator.translate("projectCountry",locale);
-	     		if(hasValue){
-	    			int countryId = Integer.parseInt(valueResult.getValueObject());
-	    			value = entityManager.find(Country.class, countryId).getName();
-	     		}else{
-	     			value = project.getCountry().getName();
-	    		}
-	    	}break;
-	    	case OWNER:{
- 	    		label=translator.translate("projectOwner",locale);
-	     		if(hasValue){
-	     			value=valueResult.getValueObject();
-	     		}else{
-	     			value= getUserName(project.getOwner());
-	    		}
-	    	}break;
-	    	case MANAGER:{
- 	    		label=translator.translate("projectManager",locale);
-	     		if(hasValue){
-	     			int userId = Integer.parseInt(valueResult.getValueObject()); 
-	     			value= getUserName(entityManager.find(User.class, userId));
- 	     		}else{
-	     			 value = getUserName(project.getManager());			 
-	    		}
-	    	}break;
-	    	case ORG_UNIT:{
- 	    		label=translator.translate("orgunit",locale);
-	    		int orgUnitId=-1;
-	     		if(hasValue){
-	     			  orgUnitId = Integer.parseInt(valueResult.getValueObject());                     			                      			
-	     		}else{
-	     			for(final OrgUnit orgUnit: project.getPartners()){
-	     				orgUnitId=orgUnit.getId();
-	     				break;
-	     			}
-	    		}
-	     		OrgUnit orgUnit = entityManager.find(OrgUnit.class, orgUnitId);
-	    		if(orgUnit!=null)
-	    			value =orgUnit.getName() + " - " + orgUnit.getFullName();
-	    		
-	    	}break;
-    	
-    	} 
-    	return new ValueLabel(label, value);
-	}
-	
-	
-	public ValueLabel getDefElementPair(
-			final ValueResult valueResult,
-			final FlexibleElement element,
-			final OrgUnit orgUnit,
-			final EntityManager entityManager,
-			final Locale locale,
-			final Translator translator) {
+	public ValueLabel getDefElementPair(final ValueResult valueResult, final FlexibleElement element,
+	                final Project project, final EntityManager entityManager, final Locale locale,
+	                final Translator translator) {
 
-		Object value=null;
-		String label=null;
-     	
-    	final DefaultFlexibleElement defaultElement=
-    		(DefaultFlexibleElement)element;
-    	                    	
-    	boolean hasValue= valueResult != null && valueResult.isValueDefined();
-    	
-    	switch(defaultElement.getType()){
-	    	case CODE:{
-	    		
-	    		label=translator.translate("projectName",locale);
-	    		if(hasValue){
-	    			value=valueResult.getValueObject();
-	    		}else{
-	    			value=orgUnit.getName();
-	    		}
-	    	}break;
-	    	case TITLE:{
- 	    		label=translator.translate("projectFullName",locale);
-	    		if(hasValue){
-	    			value=valueResult.getValueObject();
-	    		}else{
-	    			value=orgUnit.getFullName();
-	    		}
-	    	}break;
-	    	 
-	    	case BUDGET:{
- 				label=translator.translate("projectBudget",locale);
-				Double pb = 0d;
-				Double sb = 0d;
-	
-				if (hasValue) {
-					final String[] parts = valueResult.getValueObject().split("~");
-					pb = Double.parseDouble(parts[0]);
-					sb = Double.parseDouble(parts[1]);
-				} else {
-					pb = orgUnit.getPlannedBudget();
-					sb = orgUnit.getSpendBudget();
+		Object value = null;
+		String label = null;
+
+		final DefaultFlexibleElement defaultElement = (DefaultFlexibleElement) element;
+
+		boolean hasValue = valueResult != null && valueResult.isValueDefined();
+
+		switch (defaultElement.getType()) {
+		case CODE: {
+
+			label = translator.translate("projectName", locale);
+			if (hasValue) {
+				value = valueResult.getValueObject();
+			} else {
+				value = project.getName();
+			}
+		}
+			break;
+		case TITLE: {
+			label = translator.translate("projectFullName", locale);
+			if (hasValue) {
+				value = valueResult.getValueObject();
+			} else {
+				value = project.getFullName();
+			}
+		}
+			break;
+		case START_DATE: {
+			label = translator.translate("projectStartDate", locale);
+			if (hasValue) {
+				value = new Date(Long.parseLong(valueResult.getValueObject()));
+			} else {
+				value = project.getStartDate();
+			}
+		}
+			break;
+		case END_DATE: {
+			label = translator.translate("projectEndDate", locale);
+			if (hasValue) {
+				value = new Date(Long.parseLong(valueResult.getValueObject()));
+			} else {
+				value = "";
+				if (project.getEndDate() != null)
+					value = project.getEndDate();
+			}
+		}
+			break;
+		case BUDGET: {
+			label = translator.translate("projectBudget", locale);
+			Double pb = 0d;
+			Double sb = 0d;
+
+			if (hasValue) {
+				final String[] parts = valueResult.getValueObject().split("~");
+				pb = Double.parseDouble(parts[0]);
+				sb = Double.parseDouble(parts[1]);
+			} else {
+				pb = project.getPlannedBudget();
+				sb = project.getSpendBudget();
+			}
+			value = sb + " / " + pb;
+		}
+			break;
+		case COUNTRY: {
+			label = translator.translate("projectCountry", locale);
+			if (hasValue) {
+				int countryId = Integer.parseInt(valueResult.getValueObject());
+				value = entityManager.find(Country.class, countryId).getName();
+			} else {
+				value = project.getCountry().getName();
+			}
+		}
+			break;
+		case OWNER: {
+			label = translator.translate("projectOwner", locale);
+			if (hasValue) {
+				value = valueResult.getValueObject();
+			} else {
+				value = getUserName(project.getOwner());
+			}
+		}
+			break;
+		case MANAGER: {
+			label = translator.translate("projectManager", locale);
+			if (hasValue) {
+				int userId = Integer.parseInt(valueResult.getValueObject());
+				value = getUserName(entityManager.find(User.class, userId));
+			} else {
+				value = getUserName(project.getManager());
+			}
+		}
+			break;
+		case ORG_UNIT: {
+			label = translator.translate("orgunit", locale);
+			int orgUnitId = -1;
+			if (hasValue) {
+				orgUnitId = Integer.parseInt(valueResult.getValueObject());
+			} else {
+				for (final OrgUnit orgUnit : project.getPartners()) {
+					orgUnitId = orgUnit.getId();
+					break;
 				}
-				value = sb + " / " + pb;
-	    	}break;
-	    	case COUNTRY:{
- 	    		label=translator.translate("projectCountry",locale);
-	     		if(hasValue){
-	    			int countryId = Integer.parseInt(valueResult.getValueObject());
-	    			value = entityManager.find(Country.class, countryId).getName();
-	     		}else{
-	     			value = orgUnit.getOfficeLocationCountry().getName();
-	    		}
-	    	}break;
-	    	case MANAGER:{
- 	    		label=translator.translate("projectManager",locale);
-	     		if(hasValue){
-	     			int userId = Integer.parseInt(valueResult.getValueObject()); 
-	     			value= getUserName(entityManager.find(User.class, userId));
- 	     		}else{
-	     			 value ="";			 
-	    		}
-	    	}break;
-	    	case ORG_UNIT:{
- 	    		label=translator.translate("orgunit",locale);
- 	    		OrgUnit parentOrgUnit=orgUnit.getParent();
- 	    		if(parentOrgUnit==null) parentOrgUnit=orgUnit;
-	    		value =parentOrgUnit.getName() + " - " + parentOrgUnit.getFullName();	    		
-	    	}break;
-    	
-    	} 
-    	return new ValueLabel(label, value);
+			}
+			OrgUnit orgUnit = entityManager.find(OrgUnit.class, orgUnitId);
+			if (orgUnit != null)
+				value = orgUnit.getName() + " - " + orgUnit.getFullName();
+
+		}
+			break;
+
+		}
+		return new ValueLabel(label, value);
 	}
-	
-	public static String clearHtmlFormatting(String text){
-		if(text!=null && text.length()>0){
+
+	public ValueLabel getDefElementPair(final ValueResult valueResult, final FlexibleElement element,
+	                final OrgUnit orgUnit, final EntityManager entityManager, final Locale locale,
+	                final Translator translator) {
+
+		Object value = null;
+		String label = null;
+
+		final DefaultFlexibleElement defaultElement = (DefaultFlexibleElement) element;
+
+		boolean hasValue = valueResult != null && valueResult.isValueDefined();
+
+		switch (defaultElement.getType()) {
+		case CODE: {
+
+			label = translator.translate("projectName", locale);
+			if (hasValue) {
+				value = valueResult.getValueObject();
+			} else {
+				value = orgUnit.getName();
+			}
+		}
+			break;
+		case TITLE: {
+			label = translator.translate("projectFullName", locale);
+			if (hasValue) {
+				value = valueResult.getValueObject();
+			} else {
+				value = orgUnit.getFullName();
+			}
+		}
+			break;
+
+		case BUDGET: {
+			label = translator.translate("projectBudget", locale);
+			Double pb = 0d;
+			Double sb = 0d;
+
+			if (hasValue) {
+				final String[] parts = valueResult.getValueObject().split("~");
+				pb = Double.parseDouble(parts[0]);
+				sb = Double.parseDouble(parts[1]);
+			} else {
+				pb = orgUnit.getPlannedBudget();
+				sb = orgUnit.getSpendBudget();
+			}
+			value = sb + " / " + pb;
+		}
+			break;
+		case COUNTRY: {
+			label = translator.translate("projectCountry", locale);
+			if (hasValue) {
+				int countryId = Integer.parseInt(valueResult.getValueObject());
+				value = entityManager.find(Country.class, countryId).getName();
+			} else {
+				value = orgUnit.getOfficeLocationCountry().getName();
+			}
+		}
+			break;
+		case MANAGER: {
+			label = translator.translate("projectManager", locale);
+			if (hasValue) {
+				int userId = Integer.parseInt(valueResult.getValueObject());
+				value = getUserName(entityManager.find(User.class, userId));
+			} else {
+				value = "";
+			}
+		}
+			break;
+		case ORG_UNIT: {
+			label = translator.translate("orgunit", locale);
+			OrgUnit parentOrgUnit = orgUnit.getParent();
+			if (parentOrgUnit == null)
+				parentOrgUnit = orgUnit;
+			value = parentOrgUnit.getName() + " - " + parentOrgUnit.getFullName();
+		}
+			break;
+
+		}
+		return new ValueLabel(label, value);
+	}
+
+	public static String clearHtmlFormatting(String text) {
+		if (text != null && text.length() > 0) {
 			text = text.replaceAll("<br>", " ");
 			text = text.replaceAll("<[^>]+>|\\n", "");
 			text = text.trim().replaceAll(" +", " ");
 		}
 		return text;
 	}
-	
-	private void fillElementList(final List<FlexibleElement> elements,final Layout layout){
-		for(final LayoutGroup group:layout.getGroups()){
-			for(final LayoutConstraint constraint:group.getConstraints()){
+
+	private void fillElementList(final List<FlexibleElement> elements, final Layout layout) {
+		for (final LayoutGroup group : layout.getGroups()) {
+			for (final LayoutConstraint constraint : group.getConstraints()) {
 				final FlexibleElement element = constraint.getElement();
-				if(element.isGloballyExportable())
-					 elements.add(element);
+				if (element.isGloballyExportable())
+					elements.add(element);
 			}
 		}
 	}
-	
-		
+
 }
