@@ -1212,6 +1212,8 @@ a.credits-partner-url,a.credits-partner-url:link,a.credits-partner-url:visited,a
 
 .credits-developers {
 	margin-top: 20px;
+	display: block;
+	overflow: auto;
 }
 
 .credits-developers-header {
@@ -1221,7 +1223,13 @@ a.credits-partner-url,a.credits-partner-url:link,a.credits-partner-url:visited,a
 .credits-developer {
 	margin-left: 15px;
 	padding-top: 3px;
+	font-weight:bold;
 }
+
+.credits-developer-email {
+	margin-left: 50px;
+}
+
 .backup-label{
 	background-color: F5F5DC	
 }

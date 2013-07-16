@@ -48,7 +48,8 @@ public final class CreditFrame {
         vPanel.setCellVerticalAlignment(rolesPanel, HasVerticalAlignment.ALIGN_TOP);
         vPanel.add(devConPanel);
         vPanel.setCellVerticalAlignment(devConPanel, HasVerticalAlignment.ALIGN_TOP);
-
+        vPanel.setWidth("100%");
+        
         // Top h panel.
         final HorizontalPanel hPanel = new HorizontalPanel();
         hPanel.setSpacing(0);
@@ -61,7 +62,8 @@ public final class CreditFrame {
 
         hPanel.add(vPanel);
         hPanel.setCellVerticalAlignment(vPanel, HasVerticalAlignment.ALIGN_TOP);
-
+        hPanel.setWidth("100%");
+        
         // Main panel.
         final VerticalPanel mainPanel = new VerticalPanel();
         mainPanel.setSpacing(10);
@@ -216,6 +218,7 @@ public final class CreditFrame {
         grid.setCellPadding(0);
         grid.setCellSpacing(0);
         grid.addStyleName("credits-developers");
+        grid.setHeight("130px");
 
         grid.setText(0, 0, I18N.CONSTANTS.sigmah_developers());
         grid.getCellFormatter().addStyleName(0, 0, "credits-developers-header");
@@ -226,10 +229,11 @@ public final class CreditFrame {
         for (final ApplicationInfo.ApplicationDeveloper dev : info.getDeveloppers()) {
             sb.append("<div class=\"credits-developer\">");
             sb.append(dev.getName());
-            sb.append("&nbsp;(");
+            sb.append("</div><div class=\"credits-developer-email\"><a href=\"mailto:");
             sb.append(dev.getEmail());
-            sb.append(')');
-            sb.append("</div>");
+            sb.append("\">");
+            sb.append(dev.getEmail());
+            sb.append("</a></div>");
         }
         grid.setHTML(1, 0, sb.toString());
         grid.getCellFormatter().setVerticalAlignment(1, 0, HasVerticalAlignment.ALIGN_TOP);
@@ -238,10 +242,11 @@ public final class CreditFrame {
         for (final ApplicationInfo.ApplicationContributor con : info.getContributors()) {
             sb.append("<div class=\"credits-developer\">");
             sb.append(con.getName());
-            sb.append("&nbsp;(");
+            sb.append("</div><div class=\"credits-developer-email\"><a href=\"mailto:");
             sb.append(con.getEmail());
-            sb.append(')');
-            sb.append("</div>");
+            sb.append("\">");
+            sb.append(con.getEmail());
+            sb.append("</a></div>");
         }
         grid.setHTML(1, 1, sb.toString());
         grid.getCellFormatter().setVerticalAlignment(1, 1, HasVerticalAlignment.ALIGN_TOP);
