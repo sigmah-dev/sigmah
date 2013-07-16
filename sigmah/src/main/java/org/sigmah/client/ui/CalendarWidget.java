@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.TreeSet;
 
 import org.sigmah.client.i18n.I18N;
+import org.sigmah.shared.domain.calendar.ActivityCalendarIdentifier;
 import org.sigmah.shared.domain.calendar.Calendar;
 import org.sigmah.shared.domain.calendar.Event;
 
@@ -365,10 +366,10 @@ public class CalendarWidget extends Composite {
 		grid.clear();
 		grid.removeAllRows();
 	}
-	
+
 	/**
 	 * 
-	 * @param date1 
+	 * @param date1
 	 * @param date2
 	 * @return boolean indicating if date1 and date2 are on the same day
 	 */
@@ -377,23 +378,32 @@ public class CalendarWidget extends Composite {
 		return fmt.format(date1).equals(fmt.format(date2));
 	}
 
-	
 	/**
-	 * Normalizes the event's map
-	 * (needed particularly when there is a timezone difference between the client and the server)
-	 * @param eventMap map of the events
+	 * Normalizes the event's map (needed particularly when there is a timezone
+	 * difference between the client and the server)
+	 * 
+	 * @param eventMap
+	 *            map of the events
 	 * @return the map with each event with the right key
 	 */
-	public static Map<Date, List<Event>> normalize(Map<Date, List<Event>> eventMap) {
+	public static Map<Date, List<Event>> normalize(Calendar calendar) {
+		Map<Date, List<Event>> eventMap = calendar.getEvents();
 		Map<Date, List<Event>> eventMapNormalized = new HashMap<Date, List<Event>>();
+		boolean isActivityCalendar = false;
+		if (calendar.getIdentifier() instanceof ActivityCalendarIdentifier) {
+			isActivityCalendar = true;
+		}
 		for (Date key : eventMap.keySet()) {
 			for (Event event : eventMap.get(key)) {
 				Date normalizedKeyDate = new Date(key.getYear(), key.getMonth(), key.getDate());
-				
-				if (!isSameDay(normalizedKeyDate, event.getDtstart())){
-					normalizedKeyDate = new Date(event.getDtstart().getYear(), event.getDtstart().getMonth(), event.getDtstart().getDate());
+
+				// Activities events have different startDate from the key date
+				// They shouldn't be placed in their startDate list
+				if (!isSameDay(normalizedKeyDate, event.getDtstart()) && !isActivityCalendar) {
+					normalizedKeyDate = new Date(event.getDtstart().getYear(), event.getDtstart().getMonth(), event
+					                .getDtstart().getDate());
 				}
-				
+
 				if (eventMapNormalized.get(normalizedKeyDate) == null) {
 					eventMapNormalized.put(normalizedKeyDate, new ArrayList<Event>());
 				}
@@ -633,7 +643,8 @@ public class CalendarWidget extends Composite {
 		});
 
 		for (final Calendar calendar : calendars) {
-			final Map<Date, List<Event>> eventMap = normalize(calendar.getEvents());
+			final Map<Date, List<Event>> eventMap = normalize(calendar);
+
 			final List<Event> events = eventMap.get(date);
 
 			if (events != null) {
@@ -803,8 +814,8 @@ public class CalendarWidget extends Composite {
 
 		final Date januaryFourth = new Date(thursday.getYear(), 0, 4);
 		final int daysToMonday = 1 - januaryFourth.getDay(); // Essayer avec le
-															 // 1er jour de la
-															 // semaine
+		                                                     // 1er jour de la
+		                                                     // semaine
 		final Date monday = new Date(thursday.getYear(), 0, 4 + daysToMonday);
 
 		final double diff = Math.floor((thursday.getTime() - monday.getTime()) / (1000 * 60 * 60 * 24));

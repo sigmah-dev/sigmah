@@ -430,9 +430,9 @@ public class ProjectCalendarView extends LayoutContainer {
 					}
 
 				}
-				
 
-				//Adds date information in end time and start time for timezone difference purpose
+				// Adds date information in end time and start time for timezone
+				// difference purpose
 				if (properties.get("date") != null) {
 					final Date date = (Date) properties.get("date");
 
@@ -442,7 +442,7 @@ public class ProjectCalendarView extends LayoutContainer {
 						endDate.setYear(date.getYear());
 						endDate.setMonth(date.getMonth());
 						endDate.setDate(date.getDate());
-						
+
 						properties.put("endDate", endDate.getTime());
 					}
 					if (properties.get("startDate") != null) {
@@ -451,10 +451,10 @@ public class ProjectCalendarView extends LayoutContainer {
 						startDate.setYear(date.getYear());
 						startDate.setMonth(date.getMonth());
 						startDate.setDate(date.getDate());
-						
+
 						properties.put("startDate", startDate.getTime());
 					}
-					
+
 				}
 
 				if (valid) {
@@ -540,8 +540,8 @@ public class ProjectCalendarView extends LayoutContainer {
 			@Override
 			public void onSuccess(VoidResult result) {
 				final Calendar calendar = event.getParent();
-				
-				final List<Event> oldEventList = CalendarWidget.normalize(calendar.getEvents()).get(
+
+				final List<Event> oldEventList = CalendarWidget.normalize(calendar).get(
 				                new Date(event.getDtstart().getYear(), event.getDtstart().getMonth(), event
 				                                .getDtstart().getDate()));
 				oldEventList.remove(event);
