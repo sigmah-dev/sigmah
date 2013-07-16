@@ -16,12 +16,14 @@ public class GetGlobalExports implements Command<GlobalExportListResult>{
 	private static final long serialVersionUID = -4625058899560747321L;
 	private Date fromData;
 	private Date toDate;
+	private String dateFormat;
 	
 	public GetGlobalExports(){}
 	
-	public GetGlobalExports(Date fromDate, Date toData){
+	public GetGlobalExports(Date fromDate, Date toData, String dateFormat){
 		this.fromData=fromDate;
 		this.toDate=toData;
+		this.dateFormat = dateFormat;
 	}
 
 	public Date getFromData() {
@@ -38,6 +40,14 @@ public class GetGlobalExports implements Command<GlobalExportListResult>{
 
 	public void setToDate(Date toDate) {
 		this.toDate = toDate;
+	}
+
+	public String getDateFormat() {
+		return dateFormat;
+	}
+
+	public void setDateFormat(String dateFormat) {
+		this.dateFormat = dateFormat;
 	}
 	
 	

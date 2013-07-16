@@ -47,7 +47,7 @@ public class GetGlobalExportsHandler implements CommandHandler<GetGlobalExports>
 	 	
 		final List<GlobalExport> globalExports=dao.getGlobalExports(cmd.getFromData(), cmd.getToDate());
 	
-		final DateFormat dateFormat=new SimpleDateFormat("M.d.yyyy, h a");
+		final DateFormat dateFormat=new SimpleDateFormat(cmd.getDateFormat());
 		
 		if(globalExports != null){
 			for(final GlobalExport export : globalExports){
