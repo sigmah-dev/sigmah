@@ -21,8 +21,8 @@ INSERT INTO quality_criterion (id_quality_criterion, code, label, id_quality_fra
 INSERT INTO quality_criterion (id_quality_criterion, code, label, id_quality_framework) VALUES ((SELECT MAX(id_quality_criterion)+1 FROM quality_criterion), 'L', 'The agency uses lessons drawn from experience', 1);
 
 -- Quality key processes
-INSERT INTO quality_criterion (id_quality_criterion, code, label, id_quality_framework) VALUES ((SELECT MAX(id_quality_criterion)+1 FROM quality_criterion), 'A1', 'People\'s needs are identified and monitored', 1);
-INSERT INTO quality_criterion (id_quality_criterion, code, label, id_quality_framework) VALUES ((SELECT MAX(id_quality_criterion)+1 FROM quality_criterion), 'A2', 'The origins of people\'s needs are analysed and tak', 1);
+INSERT INTO quality_criterion (id_quality_criterion, code, label, id_quality_framework) VALUES ((SELECT MAX(id_quality_criterion)+1 FROM quality_criterion), 'A1', 'People''s needs are identified and monitored', 1);
+INSERT INTO quality_criterion (id_quality_criterion, code, label, id_quality_framework) VALUES ((SELECT MAX(id_quality_criterion)+1 FROM quality_criterion), 'A2', 'The origins of people''s needs are analysed and tak', 1);
 INSERT INTO quality_criterion (id_quality_criterion, code, label, id_quality_framework) VALUES ((SELECT MAX(id_quality_criterion)+1 FROM quality_criterion), 'A3', 'The project responds to clearly defined needs', 1);
 INSERT INTO quality_criterion (id_quality_criterion, code, label, id_quality_framework) VALUES ((SELECT MAX(id_quality_criterion)+1 FROM quality_criterion), 'A4', 'The decision not to address all of the identified ', 1);
 INSERT INTO quality_criterion (id_quality_criterion, code, label, id_quality_framework) VALUES ((SELECT MAX(id_quality_criterion)+1 FROM quality_criterion), 'B1', 'Several operational strategies are explored', 1);
@@ -31,13 +31,13 @@ INSERT INTO quality_criterion (id_quality_criterion, code, label, id_quality_fra
 INSERT INTO quality_criterion (id_quality_criterion, code, label, id_quality_framework) VALUES ((SELECT MAX(id_quality_criterion)+1 FROM quality_criterion), 'C1', 'The risk of negative impacts on the environment is', 1);
 INSERT INTO quality_criterion (id_quality_criterion, code, label, id_quality_framework) VALUES ((SELECT MAX(id_quality_criterion)+1 FROM quality_criterion), 'C2', 'The risk of negative impacts on local economy and ', 1);
 INSERT INTO quality_criterion (id_quality_criterion, code, label, id_quality_framework) VALUES ((SELECT MAX(id_quality_criterion)+1 FROM quality_criterion), 'C3', 'The risk of negative impacts on the social and pol', 1);
-INSERT INTO quality_criterion (id_quality_criterion, code, label, id_quality_framework) VALUES ((SELECT MAX(id_quality_criterion)+1 FROM quality_criterion), 'C4', 'The risk of negative impacts on people\'s security ', 1);
+INSERT INTO quality_criterion (id_quality_criterion, code, label, id_quality_framework) VALUES ((SELECT MAX(id_quality_criterion)+1 FROM quality_criterion), 'C4', 'The risk of negative impacts on people''s security ', 1);
 INSERT INTO quality_criterion (id_quality_criterion, code, label, id_quality_framework) VALUES ((SELECT MAX(id_quality_criterion)+1 FROM quality_criterion), 'D1', 'The project purpose is identified', 1);
-INSERT INTO quality_criterion (id_quality_criterion, code, label, id_quality_framework) VALUES ((SELECT MAX(id_quality_criterion)+1 FROM quality_criterion), 'D2', 'The project strengthens people\'s capacity to cope ', 1);
+INSERT INTO quality_criterion (id_quality_criterion, code, label, id_quality_framework) VALUES ((SELECT MAX(id_quality_criterion)+1 FROM quality_criterion), 'D2', 'The project strengthens people''s capacity to cope ', 1);
 INSERT INTO quality_criterion (id_quality_criterion, code, label, id_quality_framework) VALUES ((SELECT MAX(id_quality_criterion)+1 FROM quality_criterion), 'D3', 'The post-project period is thought about and plann', 1);
 INSERT INTO quality_criterion (id_quality_criterion, code, label, id_quality_framework) VALUES ((SELECT MAX(id_quality_criterion)+1 FROM quality_criterion), 'D4', 'Where appropriate, disaster-preparedness and/or pr', 1);
 INSERT INTO quality_criterion (id_quality_criterion, code, label, id_quality_framework) VALUES ((SELECT MAX(id_quality_criterion)+1 FROM quality_criterion), 'D5', 'Where appropriate, the project aims for economic a', 1);
-INSERT INTO quality_criterion (id_quality_criterion, code, label, id_quality_framework) VALUES ((SELECT MAX(id_quality_criterion)+1 FROM quality_criterion), 'E1', 'The agency\'s mandate and principles are clearly de', 1);
+INSERT INTO quality_criterion (id_quality_criterion, code, label, id_quality_framework) VALUES ((SELECT MAX(id_quality_criterion)+1 FROM quality_criterion), 'E1', 'The agency''s mandate and principles are clearly de', 1);
 INSERT INTO quality_criterion (id_quality_criterion, code, label, id_quality_framework) VALUES ((SELECT MAX(id_quality_criterion)+1 FROM quality_criterion), 'E2', 'Political and legal issues relating to the crisis ', 1);
 INSERT INTO quality_criterion (id_quality_criterion, code, label, id_quality_framework) VALUES ((SELECT MAX(id_quality_criterion)+1 FROM quality_criterion), 'E3', 'The agency makes its position on the crisis clear', 1);
 INSERT INTO quality_criterion (id_quality_criterion, code, label, id_quality_framework) VALUES ((SELECT MAX(id_quality_criterion)+1 FROM quality_criterion), 'E4', 'The risk of the project being manipulated is ident', 1);

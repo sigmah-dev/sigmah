@@ -124,7 +124,7 @@ INSERT INTO global_permission (id_global_permission, permission, id_profile) SEL
 INSERT INTO global_permission (id_global_permission, permission, id_profile) SELECT nextval('hibernate_sequence'), 'MANAGE_UNIT', id_profile FROM profile WHERE name = 'PioneerAdministrator' AND id_organization = (SELECT MAX(id_organization) FROM organization WHERE logo = '§OrganizationLogoFilename§');
 INSERT INTO global_permission (id_global_permission, permission, id_profile) SELECT nextval('hibernate_sequence'), 'MANAGE_USER', id_profile FROM profile WHERE name = 'PioneerAdministrator' AND id_organization = (SELECT MAX(id_organization) FROM organization WHERE logo = '§OrganizationLogoFilename§');
 INSERT INTO global_permission (id_global_permission, permission, id_profile) SELECT nextval('hibernate_sequence'), 'VALID_AMENDEMENT', id_profile FROM profile WHERE name = 'PioneerAdministrator' AND id_organization = (SELECT MAX(id_organization) FROM organization WHERE logo = '§OrganizationLogoFilename§');
-
+INSERT INTO global_permission (id_global_permission, permission, id_profile) SELECT nextval('hibernate_sequence'), 'GLOBAL_EXPORT', id_profile FROM profile   WHERE name = 'PioneerAdministrator' AND id_organization = (SELECT MAX(id_organization) FROM organization WHERE logo = '§OrganizationLogoFilename§');
 
 INSERT INTO privacy_group (id_privacy_group, code, title, id_organization)
 SELECT nextval('hibernate_sequence'), 0, 'Pioneer Administrator exclusive data', MAX(id_organization)
@@ -167,6 +167,12 @@ WHERE user_unit.id_user=(SELECT UserId FROM UserLogin WHERE Email = '§UserEmail
   AND profile.name = 'PioneerAdministrator'
   AND profile.id_organization = (SELECT MAX(id_organization) FROM organization WHERE logo = '§OrganizationLogoFilename§');
 
+-- Add basic default settings for Global Export
+INSERT INTO global_export_settings(
+            id, auto_delete_frequency, auto_export_frequency, default_organization_export_format, 
+            export_format, last_export_date, locale_string, organization_id)
+SELECT nextval('hibernate_sequence'), NULL, NULL, 'XLS', 'XLS', NULL, 'fr', MAX(id_organization) 
+FROM organization WHERE logo = '§OrganizationLogoFilename§' ;
 
 
 COMMIT;
