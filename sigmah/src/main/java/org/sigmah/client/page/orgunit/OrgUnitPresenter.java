@@ -22,8 +22,11 @@ import org.sigmah.client.page.orgunit.reports.OrgUnitReportsPresenter;
 import org.sigmah.client.page.project.SubPresenter;
 import org.sigmah.client.ui.ToggleAnchor;
 import org.sigmah.shared.command.GetOrgUnit;
+import org.sigmah.shared.command.GetValue;
+import org.sigmah.shared.command.result.ValueResult;
 import org.sigmah.shared.dto.OrgUnitBannerDTO;
 import org.sigmah.shared.dto.OrgUnitDTO;
+import org.sigmah.shared.dto.element.BudgetElementDTO;
 import org.sigmah.shared.dto.element.DefaultFlexibleElementDTO;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
 import org.sigmah.shared.dto.layout.LayoutConstraintDTO;
@@ -299,12 +302,39 @@ public class OrgUnitPresenter implements Frame, TabPage {
                         defaultElement.setAuthentication(authentication);
                         defaultElement.setCache(cache);
                         defaultElement.setCurrentContainerDTO(currentOrgUnitDTO);
+                        
+                        final GetValue command = new GetValue(currentOrgUnitDTO.getId(), defaultElement.getId(),
+										defaultElement.getEntityName(), null);
+						dispatcher.execute(command, null, new AsyncCallback<ValueResult>() {
 
-                        final Component component = defaultElement.getElementComponentInBanner(null);
+							@Override
+							public void onFailure(Throwable throwable) {
+								Log.error("Error, element value not loaded.");
+							}
 
-                        if (component != null) {
-                            groupPanel.add(component);
-                        }
+							@Override
+							public void onSuccess(ValueResult valueResult) {
+
+								if (Log.isDebugEnabled()) {
+									Log.debug("Element value(s) object : " + valueResult);
+								}
+
+								final Component component;
+								if (defaultElement instanceof BudgetElementDTO) {
+									component = defaultElement.getElementComponentInBanner(valueResult);
+
+								} else {
+									component = defaultElement.getElementComponentInBanner(null);
+								}
+
+		                        if (component != null) {
+		                            groupPanel.add(component);
+		                        }
+		                        groupPanel.layout();
+
+							}
+						});
+
 
                         // Only one element per cell.
                         break;

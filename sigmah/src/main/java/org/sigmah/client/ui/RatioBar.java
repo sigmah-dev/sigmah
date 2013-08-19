@@ -23,6 +23,11 @@ public class RatioBar extends Widget {
         setElement(outterDiv);
         setTitle(r + "%");
     }
+    
+    public RatioBar(final double ratio, String titleRatioLabel) {
+    	this(ratio);
+    	setTitle(getTitle() + titleRatioLabel);
+    }
 
     private int updateRatioStyle(double ratio) {
 

@@ -30,6 +30,7 @@ import org.sigmah.shared.command.result.CategoriesListResult;
 import org.sigmah.shared.command.result.CreateResult;
 import org.sigmah.shared.command.result.ProjectListResult;
 import org.sigmah.shared.domain.ProjectModelType;
+import org.sigmah.shared.domain.element.BudgetSubFieldType;
 import org.sigmah.shared.domain.profile.GlobalPermissionEnum;
 import org.sigmah.shared.dto.ProjectDTOLight;
 import org.sigmah.shared.dto.UserDTO;
@@ -658,7 +659,25 @@ public class ProjectsListPanel {
             @Override
             public Object render(ProjectDTOLight model, String property, ColumnData config, int rowIndex, int colIndex,
                     ListStore<ProjectDTOLight> store, Grid<ProjectDTOLight> grid) {
-                return new RatioBar(NumberUtils.ratio(model.getSpendBudget(), model.getPlannedBudget()));
+            	String ratioDividendLabel = null;
+            	String ratioDivisorLabel = null;
+            	if(model.getRatioDividendType() != null){
+            		ratioDividendLabel = BudgetSubFieldType.getName(model.getRatioDividendType());
+            	} else {
+            		ratioDividendLabel = model.getRatioDividendLabel();
+            	}
+            	if(model.getRatioDivisorType() != null){
+            		ratioDivisorLabel = BudgetSubFieldType.getName(model.getRatioDivisorType());
+            	} else {
+            		ratioDivisorLabel =model.getRatioDivisorLabel();
+            	}
+            	String titleRatioLabel = "(" + ratioDividendLabel + "/" +  ratioDivisorLabel+ ")";
+            	if(model.getRatioDividendValue() != null || model.getRatioDivisorValue() != null){
+            		return new RatioBar(NumberUtils.ratio(model.getRatioDividendValue(), model.getRatioDivisorValue()),titleRatioLabel);
+            	}else {
+            		return new RatioBar(0.0);
+            	}
+                
             }
         });
 

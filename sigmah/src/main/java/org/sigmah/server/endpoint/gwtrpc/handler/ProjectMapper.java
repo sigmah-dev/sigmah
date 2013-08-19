@@ -3,7 +3,9 @@ package org.sigmah.server.endpoint.gwtrpc.handler;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.EntityManager;
@@ -20,6 +22,8 @@ import org.sigmah.shared.domain.ProjectModelVisibility;
 import org.sigmah.shared.domain.User;
 import org.sigmah.shared.domain.category.CategoryElement;
 import org.sigmah.shared.domain.category.CategoryType;
+import org.sigmah.shared.domain.element.BudgetElement;
+import org.sigmah.shared.domain.element.BudgetSubField;
 import org.sigmah.shared.domain.element.QuestionChoiceElement;
 import org.sigmah.shared.domain.value.Value;
 import org.sigmah.shared.dto.ProjectDTOLight;
@@ -43,6 +47,8 @@ public class ProjectMapper {
 	private final Query orgUnitQuery;
 	private final Query categoriesQuery;
 	private final Query choicesQuery;
+	private final Query budgetValueQuery;
+	private final Query budgetElementsQuery;
 
 	@Inject
 	public ProjectMapper(EntityManager em) {
@@ -50,7 +56,12 @@ public class ProjectMapper {
 		// Queries.
 		orgUnitQuery = em.createQuery("SELECT o FROM OrgUnit o WHERE :project MEMBER OF o.databases");
 		categoriesQuery = em.createQuery("SELECT v FROM Value v JOIN v.element e WHERE v.containerId = :projectId AND "
-		                + "e.id IN (SELECT q.id FROM QuestionElement q WHERE q.categoryType IS NOT NULL)");
+						+ "e.id IN (SELECT q.id FROM QuestionElement q WHERE q.categoryType IS NOT NULL)");
+		budgetElementsQuery = em
+						.createQuery("SELECT b.id FROM BudgetElement b");
+		budgetValueQuery = em
+						.createQuery("SELECT v, e FROM Value v JOIN v.element e WHERE v.containerId = :projectId AND "
+										+ "e.id IN (:ids)");
 		choicesQuery = em.createQuery("SELECT c FROM QuestionChoiceElement c WHERE c.id IN (:ids)");
 
 	}
@@ -81,15 +92,13 @@ public class ProjectMapper {
 		pLight.setId(project.getId());
 		pLight.setName(project.getName());
 		pLight.setFullName(project.getFullName());
-		pLight.setPlannedBudget(project.getPlannedBudget());
-		pLight.setReceivedBudget(project.getReceivedBudget());
-		pLight.setSpendBudget(project.getSpendBudget());
 		pLight.setStartDate(project.getStartDate());
 		pLight.setEndDate(project.getEndDate());
 		pLight.setCloseDate(project.getCloseDate());
 		pLight.setActivityAdvancement(project.getActivityAdvancement());
 		pLight.setCountryName(project.getCountry().getName());
 		pLight.setOrgUnitName(project.getCountry().getName());
+
 		sb.append("- SIMPLE FIELDS: ");
 		sb.append(new Date().getTime() - start);
 		sb.append("ms.\n");
@@ -183,6 +192,62 @@ public class ProjectMapper {
 			}
 		}
 		pLight.setCategoryElements(elements);
+
+		
+		budgetValueQuery.setParameter("projectId", project.getId());
+		budgetValueQuery.setParameter("ids", budgetElementsQuery.getResultList());
+
+		Iterator<?> i = budgetValueQuery.getResultList().iterator();
+		if (i.hasNext()) {
+			Object[] result = (Object[]) i.next();
+			Value budgetValue = (Value) result[0];
+			BudgetElement budgetElement = (BudgetElement) result[1];
+			final Map<Integer, String> values = ValueResultUtils.splitMapElements(budgetValue.getValue());
+
+			if(budgetElement.getRatioDividend() != null) {
+				if(budgetElement.getRatioDividend().getType() != null){
+					pLight.setRatioDividendType(budgetElement.getRatioDividend().getType());
+				} else {
+					pLight.setRatioDividendLabel(budgetElement.getRatioDividend().getLabel());
+				}
+				if(values.get(budgetElement.getRatioDividend().getId().intValue()) != null){
+					pLight.setRatioDividendValue(Double.parseDouble(values.get(budgetElement.getRatioDividend().getId().intValue())));
+				}
+			}
+			
+			if(budgetElement.getRatioDivisor() != null) {
+				if(budgetElement.getRatioDivisor().getType() != null){
+					pLight.setRatioDivisorType(budgetElement.getRatioDivisor().getType());
+				} else {
+					pLight.setRatioDivisorLabel(budgetElement.getRatioDivisor().getLabel());
+				}
+				if(values.get(budgetElement.getRatioDivisor().getId().intValue()) != null){
+					pLight.setRatioDivisorValue(Double.parseDouble(values.get(budgetElement.getRatioDivisor().getId().intValue())));
+				}
+			}
+			
+			for(BudgetSubField budgetSubField : budgetElement.getBudgetSubFields()){
+				if (budgetSubField.getType() != null) {
+					if (values.get(budgetSubField.getId().intValue()) != null) {
+						switch (budgetSubField.getType()) {
+						case PLANNED:
+							pLight.setPlannedBudget(Double.parseDouble(values.get(budgetSubField.getId().intValue())));
+							break;
+						case RECEIVED:
+							pLight.setReceivedBudget(Double.parseDouble(values.get(budgetSubField.getId().intValue())));
+							break;
+						case SPENT:
+							pLight.setSpendBudget(Double.parseDouble(values.get(budgetSubField.getId().intValue())));
+							break;
+						default:
+							break;
+
+						}
+					}
+
+				}
+			}
+		}
 
 		sb.append("- CATEGORIES: ");
 		sb.append(new Date().getTime() - start);

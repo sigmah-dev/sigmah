@@ -29,6 +29,8 @@ import org.sigmah.server.policy.ProjectPolicy;
 import org.sigmah.server.policy.ProjectReportModelPolicy;
 import org.sigmah.server.policy.ProjectReportPolicy;
 import org.sigmah.server.policy.PropertyMap;
+import org.sigmah.server.policy.ImportationSchemeModelPolicy;
+import org.sigmah.server.policy.ImportationSchemePolicy;
 import org.sigmah.server.policy.SitePolicy;
 import org.sigmah.server.policy.UserDatabasePolicy;
 import org.sigmah.server.policy.UserPermissionPolicy;
@@ -57,6 +59,8 @@ import org.sigmah.shared.dto.ProjectModelDTO;
 import org.sigmah.shared.dto.UserDTO;
 import org.sigmah.shared.dto.category.CategoryElementDTO;
 import org.sigmah.shared.dto.category.CategoryTypeDTO;
+import org.sigmah.shared.dto.importation.ImportationSchemeDTO;
+import org.sigmah.shared.dto.importation.ImportationSchemeModelDTO;
 import org.sigmah.shared.dto.layout.LayoutGroupDTO;
 import org.sigmah.shared.dto.profile.PrivacyGroupDTO;
 import org.sigmah.shared.dto.profile.ProfileDTO;
@@ -155,12 +159,40 @@ public class CreateEntityHandler extends BaseEntityHandler implements CommandHan
             return createLayoutGroupModel(user, propertyMap);
         }else if ("CategoryType".equals(cmd.getEntityName())) {
             return createCategoryType(user, propertyMap);
+        }else if ("ImportationScheme".equals(cmd.getEntityName())) {
+            return createImportationScheme(user, propertyMap);
+        }else if ("ImportationSchemeModel".equals(cmd.getEntityName())) {
+            return createImportationSchemeModel(user, propertyMap);
         }else {
             throw new CommandException("Invalid entity class " + cmd.getEntityName());
         }
     }
     
-    private CommandResult createCategoryType(User user, PropertyMap propertyMap) {
+    private CommandResult createImportationSchemeModel(User user, PropertyMap propertyMap) {
+    	ImportationSchemeModelPolicy policy = injector.getInstance(ImportationSchemeModelPolicy.class);
+    	ImportationSchemeModelDTO newImportationSchemeModel = (ImportationSchemeModelDTO) policy.create(user, propertyMap);
+    	if(newImportationSchemeModel != null){
+    		CreateResult c = new CreateResult(newImportationSchemeModel.getId());
+    		c.setEntity(newImportationSchemeModel);
+    		return c;
+    	}   		
+    	else
+    		return null;
+    }
+
+	private CommandResult createImportationScheme(User user, PropertyMap propertyMap) {
+    	ImportationSchemePolicy policy = injector.getInstance(ImportationSchemePolicy.class);
+    	ImportationSchemeDTO newSchema = (ImportationSchemeDTO) policy.create(user, propertyMap);
+    	if(newSchema != null){
+    		CreateResult c = new CreateResult(newSchema.getId());
+    		c.setEntity(newSchema);
+    		return c;
+    	}   		
+    	else
+    		return null;
+    }
+
+	private CommandResult createCategoryType(User user, PropertyMap propertyMap) {
     	CategoryPolicy policy = injector.getInstance(CategoryPolicy.class);
     	if(propertyMap.get(AdminUtil.PROP_CATEGORY_TYPE) == null){
     		CategoryTypeDTO newCategoryType = (CategoryTypeDTO) policy.create(user, propertyMap);

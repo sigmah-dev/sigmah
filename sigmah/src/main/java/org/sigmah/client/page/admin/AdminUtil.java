@@ -19,6 +19,8 @@ public class AdminUtil {
 	
 	public final static String ADMIN_PROJECT_MODEL = "projectModel";
 	public final static String ADMIN_ORG_UNIT_MODEL = "orgUnitModel";
+	public final static String ADMIN_SCHEMA = "schema";
+	public static final String ADMIN_IMPORTATION_SCHEME_MODEL = "importationSchemeModel";
 	public static final String PROP_LOG_FRAME = "log_frame";
 	
 	public static final String PROP_LOG_FRAME_NAME = "logframe name";
@@ -51,6 +53,9 @@ public class AdminUtil {
 	public final static String PROP_FX_Q_QUALITY = "FlexibleElementQuestionQuality";
 	public final static String PROP_FX_Q_CATEGORY = "FlexibleElementQuestionCategory";
 	public final static String PROP_FX_Q_CHOICES = "FlexibleElementQuestionChoices";
+	public final static String PROP_FX_B_BUDGETSUBFIELDS = "FlexibleElementBudgetSubFields";	
+	public final static String PROP_FX_B_BUDGET_RATIO_DIVIDEND = "FlexibleElementBudgetRatioDividend";	
+	public final static String PROP_FX_B_BUDGET_RATIO_DIVISOR = "FlexibleElementBudgetRatioDivisor";	
 	
 	public final static String PROP_FX_NAME = "name";
 	public final static String PROP_FX_TYPE = "type";
@@ -62,6 +67,8 @@ public class AdminUtil {
 	public final static String PROP_FX_PRIVACY_GROUP = "privacyGroup";
 	public final static String PROP_FX_AMENDABLE = "amendable";
 	public final static String PROP_FX_EXPORTABLE = "exportable";
+	public final static String PROP_FX_BUDGET_SUBFIELD = "budgetSubField";
+	public final static String PROP_FX_BUDGET_SUBFIELD_NAME = "name";
 	
 	public final static String PROP_FX_LC_BANNER = "layoutConstraintBanner";
 	public final static String PROP_FX_LC = "layoutConstraint";
@@ -98,6 +105,18 @@ public class AdminUtil {
 	public final static String PROP_OM_HAS_BUDGET = "OrgUnitModelBudget";
 	public final static String PROP_OM_HAS_SITE = "OrgUnitModelSite";
 	public final static String PROP_OM_CONTAINS_PROJECTS = "OrgUnitModelContainProjects";
+	
+	public final static String PROP_SCH_NAME = "importationSchemeName";
+	public final static String PROP_SCH_FILE_FORMAT = "importationSchemeFileFormat";
+	public final static String PROP_SCH_IMPORT_TYPE = "importationSchemeImportType";
+	public final static String PROP_SCH_SHEET_NAME = "importationSchemeSheetName";
+	public final static String PROP_SCH_FIRST_ROW = "importationSchemeFirstRow";
+	
+	public final static String PROP_VAR_VARIABLE = "variable";
+	public final static String PROP_VAR_NAME = "name";
+	public final static String PROP_VAR_REFERENCE = "reference";
+	public final static String PROP_VAR_FLE_ID_KEY = "importationSchemeIdKEy";
+	
 	
 	public static void alertPbmData(boolean alert) {
         if (alert)

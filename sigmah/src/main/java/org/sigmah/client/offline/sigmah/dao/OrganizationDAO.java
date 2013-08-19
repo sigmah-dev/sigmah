@@ -105,6 +105,7 @@ public class OrganizationDAO {
         final LinkedHashSet<OrgUnitDTO> children = new LinkedHashSet<OrgUnitDTO>();
 
         while(resultSet.isValidRow()) {
+        	 
             final OrgUnitDTO orgUnitDTO = asOrgUnitDTO(resultSet);
             Log.debug("OrgUnit, parent : "+parentOrgUnitId+", child : "+orgUnitDTO.getId());
             
@@ -133,9 +134,6 @@ public class OrganizationDAO {
                 + "name TEXT,"
                 + "fullname TEXT,"
                 + "orgUnitModel INTEGER,"
-                + "plannedBudget REAL,"
-                + "spendBudget REAL,"
-                + "receivedBudget REAL,"
                 + "organization INTEGER,"
                 + "parent INTEGER,"
                 + "calendarId INTEGER,"
@@ -156,7 +154,7 @@ public class OrganizationDAO {
     }
 
     private static Query asQuery(OrgUnitDTO orgUnitDTO) {
-        final Query query = new Query("INSERT OR REPLACE INTO orgUnit (id, name, fullname, orgUnitModel, plannedBudget, spendBudget, receivedBudget, organization, parent, calendarId, country) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        final Query query = new Query("INSERT OR REPLACE INTO orgUnit (id, name, fullname, orgUnitModel, organization, parent, calendarId, country) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
         query.setArgument(0, orgUnitDTO.getId());
         query.setArgument(1, orgUnitDTO.getName());
         query.setArgument(2, orgUnitDTO.getFullName());
@@ -165,9 +163,6 @@ public class OrganizationDAO {
         if(model != null)
             query.setArgument(3, model.getId());
 
-        query.setArgument(4, orgUnitDTO.getPlannedBudget());
-        query.setArgument(5, orgUnitDTO.getSpendBudget());
-        query.setArgument(6, orgUnitDTO.getReceivedBudget());
 
         final OrganizationDTO organization = orgUnitDTO.getOrganization();
         if(organization != null)
@@ -213,9 +208,6 @@ public class OrganizationDAO {
         orgUnitDTO.setName(resultSet.getFieldAsString(1));
         orgUnitDTO.setFullName(resultSet.getFieldAsString(2));
         orgUnitDTO.setOrgUnitModel(getDummyOrgUnitModel(resultSet.getFieldAsInt(3)));
-        orgUnitDTO.setPlannedBudget(resultSet.getFieldAsDouble(4));
-        orgUnitDTO.setSpendBudget(resultSet.getFieldAsDouble(5));
-        orgUnitDTO.setReceivedBudget(resultSet.getFieldAsDouble(6));
         orgUnitDTO.setOrganization(null);
         orgUnitDTO.setParent(null);
         orgUnitDTO.setCalendarId(resultSet.getFieldAsInt(9));

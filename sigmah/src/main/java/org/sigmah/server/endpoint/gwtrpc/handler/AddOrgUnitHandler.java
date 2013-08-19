@@ -80,9 +80,6 @@ public class AddOrgUnitHandler implements CommandHandler<AddOrgUnit> {
         newOrgUnit.setOfficeLocationCountry(country);
         newOrgUnit.setOrganization(null);
         newOrgUnit.setOrgUnitModel(model);
-        newOrgUnit.setPlannedBudget(0.0);
-        newOrgUnit.setSpendBudget(0.0);
-        newOrgUnit.setReceivedBudget(0.0);
 
         newOrgUnit = em.merge(newOrgUnit);
 

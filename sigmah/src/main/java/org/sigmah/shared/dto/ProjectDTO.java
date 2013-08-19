@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
+import org.sigmah.shared.dto.element.BudgetElementDTO;
 import org.sigmah.shared.dto.element.DefaultFlexibleElementContainer;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
 import org.sigmah.shared.dto.logframe.LogFrameDTO;
@@ -21,6 +22,7 @@ import org.sigmah.shared.dto.reminder.ReminderListDTO;
 import org.sigmah.shared.dto.value.ValueDTO;
 
 import com.extjs.gxt.ui.client.data.BaseModelData;
+
 import org.sigmah.shared.domain.Amendment;
 
 /**
@@ -543,9 +545,6 @@ public final class ProjectDTO extends BaseModelData implements EntityDTO, Defaul
         light.generateCompleteName();
         light.setCurrentPhaseName(getCurrentPhaseDTO().getPhaseModelDTO().getName());
         light.setVisibilities(getProjectModelDTO().getVisibilities());
-        light.setPlannedBudget(getPlannedBudget());
-        light.setSpendBudget(getSpendBudget());
-        light.setReceivedBudget(getReceivedBudget());
         light.setCloseDate(getCloseDate());
         light.setFavoriteUsers(getFavoriteUsers());
 
@@ -608,4 +607,15 @@ public final class ProjectDTO extends BaseModelData implements EntityDTO, Defaul
     {
  	   set("favoriteUsers",favoriteUsers);
     }
+
+	public BudgetElementDTO getBudgetElement() {
+		if( getProjectModelDTO().getAllElements() != null){
+			for(FlexibleElementDTO fleElmt : getProjectModelDTO().getAllElements()){
+				if(fleElmt instanceof BudgetElementDTO){
+					return (BudgetElementDTO)fleElmt;
+				}
+			}
+		}
+		return null;
+	}
 }

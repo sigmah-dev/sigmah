@@ -4,6 +4,7 @@
 package org.sigmah.client.page.project.dashboard;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.dispatch.monitor.MaskingAsyncMonitor;
@@ -13,9 +14,15 @@ import org.sigmah.client.page.project.ProjectPresenter;
 import org.sigmah.client.page.project.dashboard.EditFormWindow.FormSubmitListener;
 import org.sigmah.client.util.Notification;
 import org.sigmah.client.util.NumberUtils;
+import org.sigmah.shared.command.GetValue;
 import org.sigmah.shared.command.UpdateEntity;
+import org.sigmah.shared.command.result.ValueResult;
+import org.sigmah.shared.command.result.ValueResultUtils;
 import org.sigmah.shared.command.result.VoidResult;
 import org.sigmah.shared.dto.ProjectFundingDTO;
+import org.sigmah.shared.dto.element.BudgetElementDTO;
+import org.sigmah.shared.dto.element.BudgetSubFieldDTO;
+import org.sigmah.shared.dto.element.FlexibleElementDTO;
 
 import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.event.BaseEvent;
@@ -85,186 +92,222 @@ public class FinancialProjectEditButtonGridCellRender implements GridCellRendere
 
 			@Override
 			public void onClick(ClickEvent event) {
-								
-																	
-				//Create a window to edit the information
-				final EditFormWindow window = new EditFormWindow();
-									
-			    //Add amountField into window									
-		        final NumberField amountField = window.addNumberField(I18N.MESSAGES.projectFundedByDetails(projectPresenter.getCurrentProjectDTO().getName())
-		                + " (" + I18N.CONSTANTS.currencyEuro() + ')', model.getPercentage(),true);
-               
-		        //Add a label to signal the percentage into window
-		        final LabelField percentageField = window.addLabelField(I18N.CONSTANTS
-		                .createProjectPercentage(),NumberUtils.ratioAsString(model.getPercentage(),
-		                        projectPresenter.getCurrentProjectDTO().getPlannedBudget()));
-	       
-
-		        //Add a listener for the event fired when the amountField's value is changed
-		        amountField.addListener(Events.Change, new Listener<BaseEvent>() {
-
-		            @Override
-		            public void handleEvent(BaseEvent be) {
-
-		                if (amountField.getValue() == null) {
-		                    amountField.setValue(0);
-		                }
-
-		                percentageField.setText(NumberUtils.ratioAsString(amountField.getValue(),
-		                        projectPresenter.getCurrentProjectDTO().getPlannedBudget()));
-		            }
-		        });
-
-		        //SubmitLister, see the definition of EditFormWindow for details
-		       window.addFormSubmitListener(new FormSubmitListener(){
-
-		    	   
-		    	   
-		    	// ---------Updating Handler-------------------------
-				// --------------------------------------------------	
-		    	   
-				@Override
-				public void formSubmitted(Object... values) {
 				
-					//Check the input
-					 final Object value1 = values[0];
-                     if (!(value1 instanceof Number)) {
-                         return;
-                     }
-					
-					//Store the properties changed
-                     final HashMap<String, Object> changes = new HashMap<String, Object>();
-                     changes.put("percentage", ((Number) value1).doubleValue());
-                    
-					//Update 
-                     dispatcher.execute(new UpdateEntity("ProjectFunding",model.getId(),changes), new MaskingAsyncMonitor(view.getFinancialProjectGrid(), I18N.CONSTANTS.loading()),  new AsyncCallback<VoidResult>(){
-
-						@Override
-						public void onFailure(Throwable caught) {
-							
-							Log.error("[execute] Error while updating the linked project.",caught);
-							MessageBox.alert(
-									I18N.CONSTANTS
-											 .linkedProjectUpdateError(),
-									I18N.CONSTANTS
-											 .linkedProjectUpdateErrorDetails(),
-									null);
-							
-						}
-
-						@Override
-						public void onSuccess(VoidResult result) {
-							
-							//After the RPC,update the local store refresh the grid
-							model.setPercentage( ((Number) value1).doubleValue());
-													
-							view.getFinancialProjectGrid().getStore().update(model);												
-						
-							Notification.show(
-										I18N.CONSTANTS
-												.infoConfirmation(),
-										I18N.CONSTANTS
-												.linkedProjectUpdateConfirm());
-							
-						}
-                    	 
-                     
-                     });
+				BudgetSubFieldDTO plannedBudgetField = null;
+				BudgetElementDTO budgetElementDTO = null;
+				//Get budget Element 
+				for(FlexibleElementDTO fleDTO : projectPresenter.getCurrentProjectDTO().getProjectModelDTO().getGlobalExportElements()){
+					if(fleDTO instanceof BudgetElementDTO){
+						budgetElementDTO = (BudgetElementDTO) fleDTO;
+						plannedBudgetField = budgetElementDTO.getPlannedBudget();
+					}
 				}
-                
-				// ---------Updating End-----------------------------
 				
-				
-				// ---------Deletion Handler-------------------------
-			    // --------------------------------------------------	
-		       
-				@Override
-				public void deleteModelObject() {
-					
-				     //Create a listener for the confirm message box
-				    Listener<MessageBoxEvent> confirmListener =new Listener<MessageBoxEvent>() {  
-				           public void handleEvent(MessageBoxEvent be) {  
-				             
-				        	   Button btn = be.getButtonClicked();				        	 		       	   
-				        	   //If user clicks the Yes button,begin to delete
-				        	   if(btn.getText().equals(I18N.CONSTANTS.yes()))
-				        	    {				        		            
-				        		   HashMap<String, Object> properties = new HashMap <String,Object>();			                   
-			                    	  
-			                       if( projectPresenter.getCurrentProjectDTO().getFunding().remove(model))
-			                    	{		                   		   
-			                    	  properties.put("fundingId", model.getId());		                    	    
-			                        }
-			                       else
-			                    	{//Delete locally failed
-			                    	  MessageBox.alert(I18N.CONSTANTS.linkedProjectUpdateError(),I18N.CONSTANTS
-															.linkedProjectUpdateErrorDetails(),
-													null);
-			                    		  
-			                    	  return;
-			                    	}			                    	 			                       		                 
-				        		   
-			                       //RPC
-							        dispatcher.execute(new UpdateEntity("Project",projectPresenter.getCurrentProjectDTO().getId(),properties),new MaskingAsyncMonitor(view.getFinancialProjectGrid(), I18N.CONSTANTS.loading()),
-							        		new AsyncCallback<VoidResult>(){
+				//To be accessible in the asynccallback
+				final BudgetSubFieldDTO plannedBudgetFieldFound =  plannedBudgetField;
+				final GetValue cmd = new GetValue(projectPresenter.getCurrentProjectDTO().getId(), Long.valueOf(budgetElementDTO.getId()), budgetElementDTO.getEntityName());
+				dispatcher.execute(cmd, null, new AsyncCallback<ValueResult>() {
 
-												@Override
-												public void onFailure(Throwable caught) {
-													
-													
-													Log.error("[execute] Error while updating the linked projects.",caught);
-													MessageBox.alert(
-															I18N.CONSTANTS
-																	.linkedProjectUpdateError(),
-															I18N.CONSTANTS
+					@Override
+                    public void onFailure(Throwable caught) {
+	                    // TODO Auto-generated method stub
+	                    
+                    }
+
+					@Override
+                    public void onSuccess(ValueResult result) {
+						
+						
+						
+	                    Double plannedBudget = 0d;
+						Map<Integer, String> values = ValueResultUtils.splitMapElements(result.getValueObject());
+						if(values.get(plannedBudgetFieldFound.getId()) != null) {
+							plannedBudget =  Double.valueOf(values.get(plannedBudgetFieldFound.getId()) );
+						} 
+						
+						final Double plannedBudgetfinal = plannedBudget;
+	                    
+						//Create a window to edit the information
+						final EditFormWindow window = new EditFormWindow();
+											
+					    //Add amountField into window									
+				        final NumberField amountField = window.addNumberField(I18N.MESSAGES.projectFundedByDetails(projectPresenter.getCurrentProjectDTO().getName())
+				                + " (" + I18N.CONSTANTS.currencyEuro() + ')', model.getPercentage(),true);
+
+				        //Add a label to signal the percentage into window
+				        final LabelField percentageField = window.addLabelField(I18N.CONSTANTS
+				                .createProjectPercentage(),NumberUtils.ratioAsString(model.getPercentage(),
+				                				plannedBudget));
+			       
+
+				        //Add a listener for the event fired when the amountField's value is changed
+				        amountField.addListener(Events.Change, new Listener<BaseEvent>() {
+
+				            @Override
+				            public void handleEvent(BaseEvent be) {
+
+				                if (amountField.getValue() == null) {
+				                    amountField.setValue(0);
+				                }
+
+				                percentageField.setText(NumberUtils.ratioAsString(amountField.getValue(),
+				                				plannedBudgetfinal));
+				            }
+				        });
+
+				        //SubmitLister, see the definition of EditFormWindow for details
+				       window.addFormSubmitListener(new FormSubmitListener(){
+
+				    	   
+				    	   
+				    	// ---------Updating Handler-------------------------
+						// --------------------------------------------------	
+				    	   
+						@Override
+						public void formSubmitted(Object... values) {
+						
+							//Check the input
+							 final Object value1 = values[0];
+		                     if (!(value1 instanceof Number)) {
+		                         return;
+		                     }
+							
+							//Store the properties changed
+		                     final HashMap<String, Object> changes = new HashMap<String, Object>();
+		                     changes.put("percentage", ((Number) value1).doubleValue());
+		                    
+							//Update 
+		                     dispatcher.execute(new UpdateEntity("ProjectFunding",model.getId(),changes), new MaskingAsyncMonitor(view.getFinancialProjectGrid(), I18N.CONSTANTS.loading()),  new AsyncCallback<VoidResult>(){
+
+								@Override
+								public void onFailure(Throwable caught) {
+									
+									Log.error("[execute] Error while updating the linked project.",caught);
+									MessageBox.alert(
+											I18N.CONSTANTS
+													 .linkedProjectUpdateError(),
+											I18N.CONSTANTS
+													 .linkedProjectUpdateErrorDetails(),
+											null);
+									
+								}
+
+								@Override
+								public void onSuccess(VoidResult result) {
+									
+									//After the RPC,update the local store refresh the grid
+									model.setPercentage( ((Number) value1).doubleValue());
+															
+									view.getFinancialProjectGrid().getStore().update(model);												
+								
+									Notification.show(
+												I18N.CONSTANTS
+														.infoConfirmation(),
+												I18N.CONSTANTS
+														.linkedProjectUpdateConfirm());
+									
+								}
+		                    	 
+		                     
+		                     });
+						}
+		                
+						// ---------Updating End-----------------------------
+						
+						
+						// ---------Deletion Handler-------------------------
+					    // --------------------------------------------------	
+				       
+						@Override
+						public void deleteModelObject() {
+							
+						     //Create a listener for the confirm message box
+						    Listener<MessageBoxEvent> confirmListener =new Listener<MessageBoxEvent>() {  
+						           public void handleEvent(MessageBoxEvent be) {  
+						             
+						        	   Button btn = be.getButtonClicked();				        	 		       	   
+						        	   //If user clicks the Yes button,begin to delete
+						        	   if(btn.getText().equals(I18N.CONSTANTS.yes()))
+						        	    {				        		            
+						        		   HashMap<String, Object> properties = new HashMap <String,Object>();			                   
+					                    	  
+					                       if( projectPresenter.getCurrentProjectDTO().getFunding().remove(model))
+					                    	{		                   		   
+					                    	  properties.put("fundingId", model.getId());		                    	    
+					                        }
+					                       else
+					                    	{//Delete locally failed
+					                    	  MessageBox.alert(I18N.CONSTANTS.linkedProjectUpdateError(),I18N.CONSTANTS
 																	.linkedProjectUpdateErrorDetails(),
 															null);
-													
-												}
+					                    		  
+					                    	  return;
+					                    	}			                    	 			                       		                 
+						        		   
+					                       //RPC
+									        dispatcher.execute(new UpdateEntity("Project",projectPresenter.getCurrentProjectDTO().getId(),properties),new MaskingAsyncMonitor(view.getFinancialProjectGrid(), I18N.CONSTANTS.loading()),
+									        		new AsyncCallback<VoidResult>(){
 
-												@Override
-												public void onSuccess(VoidResult result) {
-													
-													//After RPC, refresh the view	
-													view.getFinancialProjectGrid().getStore().remove(model);																																															     
-												     window.hide();
-												     Notification.show(
-																I18N.CONSTANTS
-																		.infoConfirmation(),
-																I18N.CONSTANTS
-																		.linkedProjectUpdateConfirm());
-													
-												}					
-							        	
-							        });
-				        		   
-				        	    }
-				        	   	        	   
-				           }  
-				         }; 
-			       
-			       
-		            //Create a confirm messagebox with the listener
-					MessageBox confirmMessageBox = MessageBox.confirm(I18N.CONSTANTS.deleteConfirm(), I18N.CONSTANTS.deleteConfirmMessage(), confirmListener);
-				    confirmMessageBox.setButtons(MessageBox.YESNO);
-					((Button)confirmMessageBox.getDialog().getButtonBar().getItem(0)).setText(I18N.CONSTANTS.yes());
-					((Button)confirmMessageBox.getDialog().getButtonBar().getItem(1)).setText(I18N.CONSTANTS.no());
-					confirmMessageBox.setIcon(MessageBox.WARNING);
-					confirmMessageBox.show();						       													
-					
-				}	
-				 
-				// ---------Deletion End-----------------------------
-				
-		       });
-				
-		       				    		       		          	       
-				
-		    //Show the edit window
-		    window.show(I18N.CONSTANTS.createProjectTypeFunding(),
-	                       I18N.CONSTANTS.createProjectFundingProjectEditDetails() + " '"	                               + projectPresenter.getCurrentProjectDTO().getName() + "'.");	                       
-               
-			}			
+														@Override
+														public void onFailure(Throwable caught) {
+															
+															
+															Log.error("[execute] Error while updating the linked projects.",caught);
+															MessageBox.alert(
+																	I18N.CONSTANTS
+																			.linkedProjectUpdateError(),
+																	I18N.CONSTANTS
+																			.linkedProjectUpdateErrorDetails(),
+																	null);
+															
+														}
+
+														@Override
+														public void onSuccess(VoidResult result) {
+															
+															//After RPC, refresh the view	
+															view.getFinancialProjectGrid().getStore().remove(model);																																															     
+														     window.hide();
+														     Notification.show(
+																		I18N.CONSTANTS
+																				.infoConfirmation(),
+																		I18N.CONSTANTS
+																				.linkedProjectUpdateConfirm());
+															
+														}					
+									        	
+									        });
+						        		   
+						        	    }
+						        	   	        	   
+						           }  
+						         }; 
+					       
+					       
+				            //Create a confirm messagebox with the listener
+							MessageBox confirmMessageBox = MessageBox.confirm(I18N.CONSTANTS.deleteConfirm(), I18N.CONSTANTS.deleteConfirmMessage(), confirmListener);
+						    confirmMessageBox.setButtons(MessageBox.YESNO);
+							((Button)confirmMessageBox.getDialog().getButtonBar().getItem(0)).setText(I18N.CONSTANTS.yes());
+							((Button)confirmMessageBox.getDialog().getButtonBar().getItem(1)).setText(I18N.CONSTANTS.no());
+							confirmMessageBox.setIcon(MessageBox.WARNING);
+							confirmMessageBox.show();						       													
+							
+						}	
+						 
+						// ---------Deletion End-----------------------------
+						
+				       });
+						
+				       				    		       		          	       
+						
+				    //Show the edit window
+				    window.show(I18N.CONSTANTS.createProjectTypeFunding(),
+			                       I18N.CONSTANTS.createProjectFundingProjectEditDetails() + " '"	                               + projectPresenter.getCurrentProjectDTO().getName() + "'.");	                       
+		               
+					}	
+                    });
+																	
+		}		
 		};
 		       
 		editButton.addClickHandler(handler);	

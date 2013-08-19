@@ -34,199 +34,169 @@ import javax.persistence.Table;
 @Table(name = "Partner")
 public class OrgUnit implements java.io.Serializable, SchemaElement {
 
-    private static final long serialVersionUID = -5985734789552797994L;
+	private static final long serialVersionUID = -5985734789552797994L;
 
-    private int id;
-    private String name;
-    private String fullName;
-    private Set<UserDatabase> databases = new HashSet<UserDatabase>(0);
-    private Location location;
-    private OrgUnit parent;
-    private Set<OrgUnit> children = new HashSet<OrgUnit>(0);
-    private Organization organization;
-    private Double plannedBudget;
-    private Double spendBudget;
-    private Double receivedBudget;
-    private OrgUnitModel orgUnitModel;
-    private Integer calendarId;
-    private Country officeLocationCountry;
-    private Date deleted;
+	private int id;
+	private String name;
+	private String fullName;
+	private Set<UserDatabase> databases = new HashSet<UserDatabase>(0);
+	private Location location;
+	private OrgUnit parent;
+	private Set<OrgUnit> children = new HashSet<OrgUnit>(0);
+	private Organization organization;
+	private OrgUnitModel orgUnitModel;
+	private Integer calendarId;
+	private Country officeLocationCountry;
+	private Date deleted;
 
-    public OrgUnit() {
-    }
+	public OrgUnit() {
+	}
 
-    @OneToOne(fetch = FetchType.LAZY, optional = true)
-    @JoinColumn(name = "id_org_unit_model")
-    public OrgUnitModel getOrgUnitModel() {
-        return orgUnitModel;
-    }
+	@OneToOne(fetch = FetchType.LAZY, optional = true)
+	@JoinColumn(name = "id_org_unit_model")
+	public OrgUnitModel getOrgUnitModel() {
+		return orgUnitModel;
+	}
 
-    public void setOrgUnitModel(OrgUnitModel orgUnitModel) {
-        this.orgUnitModel = orgUnitModel;
-    }
+	public void setOrgUnitModel(OrgUnitModel orgUnitModel) {
+		this.orgUnitModel = orgUnitModel;
+	}
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "PartnerId", unique = true, nullable = false)
-    public int getId() {
-        return this.id;
-    }
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	@Column(name = "PartnerId", unique = true, nullable = false)
+	public int getId() {
+		return this.id;
+	}
 
-    public void setId(int id) {
-        this.id = id;
-    }
+	public void setId(int id) {
+		this.id = id;
+	}
 
-    @Column(name = "Name", nullable = false, length = 16)
-    public String getName() {
-        return this.name;
-    }
+	@Column(name = "Name", nullable = false, length = 16)
+	public String getName() {
+		return this.name;
+	}
 
-    public void setName(String name) {
-        this.name = name;
-    }
+	public void setName(String name) {
+		this.name = name;
+	}
 
-    @Column(name = "FullName", length = 64)
-    public String getFullName() {
-        return this.fullName;
-    }
+	@Column(name = "FullName", length = 64)
+	public String getFullName() {
+		return this.fullName;
+	}
 
-    public void setFullName(String fullName) {
-        this.fullName = fullName;
-    }
+	public void setFullName(String fullName) {
+		this.fullName = fullName;
+	}
 
-    @Override
-    public String toString() {
-        return getName();
-    }
+	@Override
+	public String toString() {
+		return getName();
+	}
 
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinTable(name = "PartnerInDatabase", joinColumns = { @JoinColumn(name = "PartnerId", nullable = false, updatable = false) }, inverseJoinColumns = { @JoinColumn(name = "DatabaseId", nullable = false, updatable = false) })
-    public Set<UserDatabase> getDatabases() {
-        return this.databases;
-    }
+	@ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	@JoinTable(name = "PartnerInDatabase", joinColumns = { @JoinColumn(name = "PartnerId", nullable = false, updatable = false) }, inverseJoinColumns = { @JoinColumn(name = "DatabaseId", nullable = false, updatable = false) })
+	public Set<UserDatabase> getDatabases() {
+		return this.databases;
+	}
 
-    public void setDatabases(Set<UserDatabase> databases) {
-        this.databases = databases;
-    }
+	public void setDatabases(Set<UserDatabase> databases) {
+		this.databases = databases;
+	}
 
-    @ManyToOne
-    public Organization getOrganization() {
-        return organization;
-    }
+	@ManyToOne
+	public Organization getOrganization() {
+		return organization;
+	}
 
-    public void setOrganization(Organization organization) {
-        this.organization = organization;
-    }
+	public void setOrganization(Organization organization) {
+		this.organization = organization;
+	}
 
-    /**
-     * The point location of the OrgUnit, generally the city of its head office.
-     * 
-     */
-    @ManyToOne
-    public Location getLocation() {
-        return location;
-    }
+	/**
+	 * The point location of the OrgUnit, generally the city of its head office.
+	 * 
+	 */
+	@ManyToOne
+	public Location getLocation() {
+		return location;
+	}
 
-    public void setLocation(Location location) {
-        this.location = location;
-    }
+	public void setLocation(Location location) {
+		this.location = location;
+	}
 
-    /**
-     * The parent OrgUnit that manages this OrgUnit
-     */
-    @ManyToOne
-    public OrgUnit getParent() {
-        return parent;
-    }
+	/**
+	 * The parent OrgUnit that manages this OrgUnit
+	 */
+	@ManyToOne
+	public OrgUnit getParent() {
+		return parent;
+	}
 
-    public void setParent(OrgUnit parent) {
-        this.parent = parent;
-    }
+	public void setParent(OrgUnit parent) {
+		this.parent = parent;
+	}
 
-    /**
-     * The children OrgUnits that are managed by this OrgUnit
-     */
-    @OneToMany(mappedBy = "parent")
-    @OrderBy("name asc")
-    public Set<OrgUnit> getChildren() {
-        return children;
-    }
+	/**
+	 * The children OrgUnits that are managed by this OrgUnit
+	 */
+	@OneToMany(mappedBy = "parent")
+	@OrderBy("name asc")
+	public Set<OrgUnit> getChildren() {
+		return children;
+	}
 
-    public void setChildren(Set<OrgUnit> children) {
-        this.children = children;
-    }
+	public void setChildren(Set<OrgUnit> children) {
+		this.children = children;
+	}
 
-    @Column(name = "planned_budget", nullable = true)
-    public Double getPlannedBudget() {
-        return plannedBudget;
-    }
+	public Integer getCalendarId() {
+		return calendarId;
+	}
 
-    public void setPlannedBudget(Double plannedBudget) {
-        this.plannedBudget = plannedBudget;
-    }
+	public void setCalendarId(Integer calendarId) {
+		this.calendarId = calendarId;
+	}
 
-    @Column(name = "spend_budget", nullable = true)
-    public Double getSpendBudget() {
-        return spendBudget;
-    }
+	@ManyToOne(optional = true)
+	@JoinColumn(name = "office_country_id", nullable = true)
+	public Country getOfficeLocationCountry() {
+		return officeLocationCountry;
+	}
 
-    public void setSpendBudget(Double spendBudget) {
-        this.spendBudget = spendBudget;
-    }
+	public void setOfficeLocationCountry(Country officeLocationCountry) {
+		this.officeLocationCountry = officeLocationCountry;
+	}
 
-    @Column(name = "received_budget", nullable = true)
-    public Double getReceivedBudget() {
-        return receivedBudget;
-    }
+	@Override
+	public boolean equals(Object obj) {
 
-    public void setReceivedBudget(Double receivedBudget) {
-        this.receivedBudget = receivedBudget;
-    }
+		if (obj == null) {
+			return false;
+		}
 
-    public Integer getCalendarId() {
-        return calendarId;
-    }
+		if (!(obj instanceof OrgUnit)) {
+			return false;
+		}
 
-    public void setCalendarId(Integer calendarId) {
-        this.calendarId = calendarId;
-    }
+		final OrgUnit other = (OrgUnit) obj;
 
-    @ManyToOne(optional = true)
-    @JoinColumn(name = "office_country_id", nullable = true)
-    public Country getOfficeLocationCountry() {
-        return officeLocationCountry;
-    }
+		return id == other.id;
+	}
 
-    public void setOfficeLocationCountry(Country officeLocationCountry) {
-        this.officeLocationCountry = officeLocationCountry;
-    }
+	@Override
+	public int hashCode() {
+		return id;
+	}
 
-    @Override
-    public boolean equals(Object obj) {
+	public void setDeleted(Date deleted) {
+		this.deleted = deleted;
+	}
 
-        if (obj == null) {
-            return false;
-        }
-
-        if (!(obj instanceof OrgUnit)) {
-            return false;
-        }
-
-        final OrgUnit other = (OrgUnit) obj;
-
-        return id == other.id;
-    }
-
-    @Override
-    public int hashCode() {
-        return id;
-    }
-
-    public void setDeleted(Date deleted) {
-        this.deleted = deleted;
-    }
-
-    public Date getDeleted() {
-        return deleted;
-    }
+	public Date getDeleted() {
+		return deleted;
+	}
 }

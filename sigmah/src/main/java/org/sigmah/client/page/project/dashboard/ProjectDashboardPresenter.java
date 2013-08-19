@@ -42,6 +42,7 @@ import org.sigmah.shared.command.result.MonitoredPointsResultList;
 import org.sigmah.shared.command.result.ProjectListResult;
 import org.sigmah.shared.command.result.RemindersResultList;
 import org.sigmah.shared.command.result.ValueResult;
+import org.sigmah.shared.command.result.ValueResultUtils;
 import org.sigmah.shared.command.result.VoidResult;
 import org.sigmah.shared.domain.ProjectModelType;
 import org.sigmah.shared.domain.profile.GlobalPermissionEnum;
@@ -52,6 +53,8 @@ import org.sigmah.shared.dto.ProjectDTO;
 import org.sigmah.shared.dto.ProjectDTOLight;
 import org.sigmah.shared.dto.ProjectFundingDTO;
 import org.sigmah.shared.dto.UserDTO;
+import org.sigmah.shared.dto.element.BudgetElementDTO;
+import org.sigmah.shared.dto.element.BudgetSubFieldDTO;
 import org.sigmah.shared.dto.element.DefaultFlexibleElementDTO;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
 import org.sigmah.shared.dto.element.handler.RequiredValueEvent;
@@ -1287,10 +1290,32 @@ public class ProjectDashboardPresenter implements SubPresenter {
 		case BUDGET:
 			try {
 
-				final String[] budgets = value.split("\\|");
-				final double plannedBudget = Double.parseDouble(budgets[0]);
-				final double spendBudget = Double.parseDouble(budgets[1]);
-				final double receivedBudget = Double.parseDouble(budgets[2]);
+				BudgetElementDTO budgetElement = (BudgetElementDTO) element;
+				final Map<Integer, String> values = ValueResultUtils.splitMapElements(value);
+
+				double plannedBudget = 0.0;
+				double spendBudget = 0.0;
+				double receivedBudget = 0.0;
+
+				for (BudgetSubFieldDTO bf : budgetElement.getBudgetSubFieldsDTO()) {
+					if (bf.getType() != null) {
+						switch (bf.getType()) {
+						case PLANNED:
+							plannedBudget = Double.parseDouble(values.get(bf.getId()));
+							break;
+						case RECEIVED:
+							receivedBudget = Double.parseDouble(values.get(bf.getId()));
+							break;
+						case SPENT:
+							spendBudget = Double.parseDouble(values.get(bf.getId()));
+							break;
+						default:
+							break;
+
+						}
+
+					}
+				}
 
 				currentProjectDTO.setPlannedBudget(plannedBudget);
 				currentProjectDTO.setSpendBudget(spendBudget);
@@ -1462,13 +1487,47 @@ public class ProjectDashboardPresenter implements SubPresenter {
 
 							@Override
 							public void handleEvent(BaseEvent be) {
-
-								if (amountField.getValue() == null) {
-									amountField.setValue(0);
+								BudgetSubFieldDTO plannedBudgetField = null;
+								BudgetElementDTO budgetElementDTO = null;
+								// Get budget Element
+								for (FlexibleElementDTO fleDTO : projectPresenter.getCurrentProjectDTO()
+								                .getProjectModelDTO().getGlobalExportElements()) {
+									if (fleDTO instanceof BudgetElementDTO) {
+										budgetElementDTO = (BudgetElementDTO) fleDTO;
+										plannedBudgetField = budgetElementDTO.getPlannedBudget();
+									}
 								}
 
-								percentageField.setText(NumberUtils.ratioAsString(amountField.getValue(),
-								                projectPresenter.getCurrentProjectDTO().getPlannedBudget()));
+								// To be accessible in the asynccallback
+								final BudgetSubFieldDTO plannedBudgetFieldFound = plannedBudgetField;
+								final GetValue cmd = new GetValue(projectPresenter.getCurrentProjectDTO().getId(), Long
+								                .valueOf(budgetElementDTO.getId()), budgetElementDTO.getEntityName());
+								dispatcher.execute(cmd, null, new AsyncCallback<ValueResult>() {
+
+									@Override
+									public void onFailure(Throwable caught) {
+										// TODO Auto-generated method stub
+
+									}
+
+									@Override
+									public void onSuccess(ValueResult result) {
+
+										Double plannedBudget = 0d;
+										Map<Integer, String> values = ValueResultUtils.splitMapElements(result
+										                .getValueObject());
+										if (values.get(plannedBudgetFieldFound.getId()) != null) {
+											plannedBudget = Double.valueOf(values.get(plannedBudgetFieldFound.getId()));
+										}
+
+										if (amountField.getValue() == null) {
+											amountField.setValue(0);
+										}
+
+										percentageField.setText(NumberUtils.ratioAsString(amountField.getValue(),
+										                plannedBudget));
+									}
+								});
 							}
 						});
 

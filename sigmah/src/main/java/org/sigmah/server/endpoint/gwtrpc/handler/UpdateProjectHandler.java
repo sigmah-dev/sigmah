@@ -95,12 +95,12 @@ public class UpdateProjectHandler implements CommandHandler<UpdateProject> {
 
             // Case of the default flexible element which values arent't stored
             // like other values. These values impact directly the project.
-            if (source instanceof DefaultFlexibleElementDTO) {
+            if (source instanceof DefaultFlexibleElementDTO &&  !((DefaultFlexibleElementType.BUDGET.equals(((DefaultFlexibleElementDTO) source).getType()) ))) {
 
               
 
                 final DefaultFlexibleElementDTO defaultElement = (DefaultFlexibleElementDTO) source;
-
+                
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("[execute] Default element case '" + defaultElement.getType() + "'.");
                 }
@@ -519,7 +519,8 @@ public class UpdateProjectHandler implements CommandHandler<UpdateProject> {
             }
         }
             break;
-        case BUDGET: {
+            // Budget is automatically saved when modified
+       /* case BUDGET: {
             // Decodes doubles.
             final List<String> budgets = ValueResultUtils.splitElements(value);
             final double plannedBudget = Double.parseDouble(budgets.get(0));
@@ -567,7 +568,7 @@ public class UpdateProjectHandler implements CommandHandler<UpdateProject> {
                         + receivedBudget + "'.");
             }
         }
-            break;
+            break;*/
         case COUNTRY: {        	
         	
             if (orgUnit != null) {

@@ -18,6 +18,10 @@ import org.sigmah.shared.domain.OrgUnitModel;
 import org.sigmah.shared.domain.ProjectModel;
 import org.sigmah.shared.domain.category.CategoryElement;
 import org.sigmah.shared.domain.category.CategoryType;
+import org.sigmah.shared.domain.element.BudgetElement;
+import org.sigmah.shared.domain.element.BudgetSubField;
+import org.sigmah.shared.domain.element.DefaultFlexibleElement;
+import org.sigmah.shared.domain.element.DefaultFlexibleElementType;
 import org.sigmah.shared.domain.element.FilesListElement;
 import org.sigmah.shared.domain.element.FlexibleElement;
 import org.sigmah.shared.domain.element.QuestionChoiceElement;
@@ -30,6 +34,7 @@ import org.sigmah.shared.domain.layout.LayoutGroup;
 import org.sigmah.shared.domain.profile.PrivacyGroup;
 import org.sigmah.shared.domain.report.ProjectReportModel;
 import org.sigmah.shared.dto.category.CategoryTypeDTO;
+import org.sigmah.shared.dto.element.BudgetSubFieldDTO;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
 import org.sigmah.shared.dto.layout.LayoutConstraintDTO;
 import org.sigmah.shared.dto.layout.LayoutGroupDTO;
@@ -38,458 +43,512 @@ import org.sigmah.shared.dto.report.ReportModelDTO;
 
 public class ModelUtil {
 
-    private final static Log log = LogFactory.getLog(ModelUtil.class);
+	private final static Log log = LogFactory.getLog(ModelUtil.class);
 
-    @SuppressWarnings("unchecked")
-    public static void persistFlexibleElement(EntityManager em, Mapper mapper, PropertyMap changes, Object model) {
+	@SuppressWarnings("unchecked")
+	public static void persistFlexibleElement(EntityManager em, Mapper mapper, PropertyMap changes, Object model) {
 
-        FlexibleElementDTO flexibleEltDTO = null;
-        if (changes.get(AdminUtil.PROP_FX_FLEXIBLE_ELEMENT) != null) {
-            // Common attributes
-            String name = (String) changes.get(AdminUtil.PROP_FX_NAME);
-            ElementTypeEnum type = (ElementTypeEnum) changes.get(AdminUtil.PROP_FX_TYPE);
-            Boolean isCompulsory = null;
-            if (changes.get(AdminUtil.PROP_FX_IS_COMPULSARY) != null)
-                isCompulsory = (Boolean) changes.get(AdminUtil.PROP_FX_IS_COMPULSARY);
-            PrivacyGroupDTO pg = null;
-            if (changes.get(AdminUtil.PROP_FX_PRIVACY_GROUP) != null)
-                pg = (PrivacyGroupDTO) changes.get(AdminUtil.PROP_FX_PRIVACY_GROUP);
-            Boolean amend = null;
-            if (changes.get(AdminUtil.PROP_FX_AMENDABLE) != null)
-                amend = (Boolean) changes.get(AdminUtil.PROP_FX_AMENDABLE);
-            Boolean exportable = null;
-            if (changes.get(AdminUtil.PROP_FX_EXPORTABLE) != null)
-            	exportable = (Boolean) changes.get(AdminUtil.PROP_FX_EXPORTABLE);
+		FlexibleElementDTO flexibleEltDTO = null;
+		if (changes.get(AdminUtil.PROP_FX_FLEXIBLE_ELEMENT) != null) {
+			// Common attributes
+			String name = (String) changes.get(AdminUtil.PROP_FX_NAME);
+			ElementTypeEnum type = (ElementTypeEnum) changes.get(AdminUtil.PROP_FX_TYPE);
+			Boolean isCompulsory = null;
+			if (changes.get(AdminUtil.PROP_FX_IS_COMPULSARY) != null)
+				isCompulsory = (Boolean) changes.get(AdminUtil.PROP_FX_IS_COMPULSARY);
+			PrivacyGroupDTO pg = null;
+			if (changes.get(AdminUtil.PROP_FX_PRIVACY_GROUP) != null)
+				pg = (PrivacyGroupDTO) changes.get(AdminUtil.PROP_FX_PRIVACY_GROUP);
+			Boolean amend = null;
+			if (changes.get(AdminUtil.PROP_FX_AMENDABLE) != null)
+				amend = (Boolean) changes.get(AdminUtil.PROP_FX_AMENDABLE);
+			Boolean exportable = null;
+			if (changes.get(AdminUtil.PROP_FX_EXPORTABLE) != null)
+				exportable = (Boolean) changes.get(AdminUtil.PROP_FX_EXPORTABLE);
 
-            // Position
-            LayoutGroupDTO group = null;
-            if (changes.get(AdminUtil.PROP_FX_GROUP) != null)
-                group = (LayoutGroupDTO) changes.get(AdminUtil.PROP_FX_GROUP);
-            Integer order = null;
-            if (changes.get(AdminUtil.PROP_FX_ORDER_IN_GROUP) != null)
-                order = (Integer) changes.get(AdminUtil.PROP_FX_ORDER_IN_GROUP);
-            Boolean inBanner = null;
-            if (changes.get(AdminUtil.PROP_FX_IN_BANNER) != null)
-                inBanner = (Boolean) changes.get(AdminUtil.PROP_FX_IN_BANNER);
-            Integer posB = null;
-            if (changes.get(AdminUtil.PROP_FX_POS_IN_BANNER) != null) {
-                posB = (Integer) changes.get(AdminUtil.PROP_FX_POS_IN_BANNER);
-                posB = posB - 1;
-            }
+			// Position
+			LayoutGroupDTO group = null;
+			if (changes.get(AdminUtil.PROP_FX_GROUP) != null)
+				group = (LayoutGroupDTO) changes.get(AdminUtil.PROP_FX_GROUP);
+			Integer order = null;
+			if (changes.get(AdminUtil.PROP_FX_ORDER_IN_GROUP) != null)
+				order = (Integer) changes.get(AdminUtil.PROP_FX_ORDER_IN_GROUP);
+			Boolean inBanner = null;
+			if (changes.get(AdminUtil.PROP_FX_IN_BANNER) != null)
+				inBanner = (Boolean) changes.get(AdminUtil.PROP_FX_IN_BANNER);
+			Integer posB = null;
+			if (changes.get(AdminUtil.PROP_FX_POS_IN_BANNER) != null) {
+				posB = (Integer) changes.get(AdminUtil.PROP_FX_POS_IN_BANNER);
+				posB = posB - 1;
+			}
 
-            // FIXME
-            HashMap<String, Object> oldLayoutFields = (HashMap<String, Object>) changes
-                    .get(AdminUtil.PROP_FX_OLD_FIELDS);
-            LayoutConstraintDTO oldLayoutConstraintDTO = (LayoutConstraintDTO) oldLayoutFields
-                    .get(AdminUtil.PROP_FX_LC);
-            LayoutConstraintDTO oldBannerLayoutConstraintDTO = (LayoutConstraintDTO) oldLayoutFields
-                    .get(AdminUtil.PROP_FX_LC_BANNER);
-            ElementTypeEnum oldType = (ElementTypeEnum) oldLayoutFields.get(AdminUtil.PROP_FX_TYPE);
-            Integer oldOrder = (Integer) oldLayoutFields.get(AdminUtil.PROP_FX_ORDER_IN_GROUP);
+			// FIXME
+			HashMap<String, Object> oldLayoutFields = (HashMap<String, Object>) changes
+							.get(AdminUtil.PROP_FX_OLD_FIELDS);
+			LayoutConstraintDTO oldLayoutConstraintDTO = (LayoutConstraintDTO) oldLayoutFields
+							.get(AdminUtil.PROP_FX_LC);
+			LayoutConstraintDTO oldBannerLayoutConstraintDTO = (LayoutConstraintDTO) oldLayoutFields
+							.get(AdminUtil.PROP_FX_LC_BANNER);
+			ElementTypeEnum oldType = (ElementTypeEnum) oldLayoutFields.get(AdminUtil.PROP_FX_TYPE);
+			Integer oldOrder = (Integer) oldLayoutFields.get(AdminUtil.PROP_FX_ORDER_IN_GROUP);
 
-            // Specific attributes
-            Character textType = (Character) changes.get(AdminUtil.PROP_FX_TEXT_TYPE);
-            Integer maxLimit = null;
-            if (changes.get(AdminUtil.PROP_FX_MAX_LIMIT) != null)
-                maxLimit = (Integer) changes.get(AdminUtil.PROP_FX_MAX_LIMIT);
-            Integer minLimit = null;
-            if (changes.get(AdminUtil.PROP_FX_MIN_LIMIT) != null)
-                minLimit = (Integer) changes.get(AdminUtil.PROP_FX_MIN_LIMIT);
-            Integer length = null;
-            if (changes.get(AdminUtil.PROP_FX_LENGTH) != null)
-                length = (Integer) changes.get(AdminUtil.PROP_FX_LENGTH);
-            Boolean decimal = null;
-            if (changes.get(AdminUtil.PROP_FX_DECIMAL) != null)
-                decimal = (Boolean) changes.get(AdminUtil.PROP_FX_DECIMAL);
+			// Specific attributes
+			Character textType = (Character) changes.get(AdminUtil.PROP_FX_TEXT_TYPE);
+			Integer maxLimit = null;
+			if (changes.get(AdminUtil.PROP_FX_MAX_LIMIT) != null)
+				maxLimit = (Integer) changes.get(AdminUtil.PROP_FX_MAX_LIMIT);
+			Integer minLimit = null;
+			if (changes.get(AdminUtil.PROP_FX_MIN_LIMIT) != null)
+				minLimit = (Integer) changes.get(AdminUtil.PROP_FX_MIN_LIMIT);
+			Integer length = null;
+			if (changes.get(AdminUtil.PROP_FX_LENGTH) != null)
+				length = (Integer) changes.get(AdminUtil.PROP_FX_LENGTH);
+			Boolean decimal = null;
+			if (changes.get(AdminUtil.PROP_FX_DECIMAL) != null)
+				decimal = (Boolean) changes.get(AdminUtil.PROP_FX_DECIMAL);
 
-            ReportModelDTO reportModel = null;
-            if (changes.get(AdminUtil.PROP_FX_REPORT_MODEL) != null)
-                reportModel = (ReportModelDTO) changes.get(AdminUtil.PROP_FX_REPORT_MODEL);
+			ReportModelDTO reportModel = null;
+			if (changes.get(AdminUtil.PROP_FX_REPORT_MODEL) != null)
+				reportModel = (ReportModelDTO) changes.get(AdminUtil.PROP_FX_REPORT_MODEL);
 
-            Boolean isMultiple = null;
-            if (changes.get(AdminUtil.PROP_FX_Q_MULTIPLE) != null)
-                isMultiple = (Boolean) changes.get(AdminUtil.PROP_FX_Q_MULTIPLE);
-            CategoryTypeDTO category = null;
-            if (changes.get(AdminUtil.PROP_FX_Q_CATEGORY) != null)
-                category = (CategoryTypeDTO) changes.get(AdminUtil.PROP_FX_Q_CATEGORY);
-            List<String> qChoices = null;
-            if (changes.get(AdminUtil.PROP_FX_Q_CHOICES) != null)
-                qChoices = (List<String>) changes.get(AdminUtil.PROP_FX_Q_CHOICES);
+			Boolean isMultiple = null;
+			if (changes.get(AdminUtil.PROP_FX_Q_MULTIPLE) != null)
+				isMultiple = (Boolean) changes.get(AdminUtil.PROP_FX_Q_MULTIPLE);
+			CategoryTypeDTO category = null;
+			if (changes.get(AdminUtil.PROP_FX_Q_CATEGORY) != null)
+				category = (CategoryTypeDTO) changes.get(AdminUtil.PROP_FX_Q_CATEGORY);
+			List<String> qChoices = null;
+			if (changes.get(AdminUtil.PROP_FX_Q_CHOICES) != null)
+				qChoices = (List<String>) changes.get(AdminUtil.PROP_FX_Q_CHOICES);
+			List<BudgetSubFieldDTO> bSubFields = null;
+			if (changes.get(AdminUtil.PROP_FX_B_BUDGETSUBFIELDS) != null)
+				bSubFields = (List<BudgetSubFieldDTO>) changes.get(AdminUtil.PROP_FX_B_BUDGETSUBFIELDS);
 
-            flexibleEltDTO = (FlexibleElementDTO) changes.get(AdminUtil.PROP_FX_FLEXIBLE_ELEMENT);
+			BudgetSubFieldDTO ratioDividend = null;
+			if (changes.get(AdminUtil.PROP_FX_B_BUDGET_RATIO_DIVIDEND) != null)
+				ratioDividend = (BudgetSubFieldDTO) changes.get(AdminUtil.PROP_FX_B_BUDGET_RATIO_DIVIDEND);
+			BudgetSubFieldDTO ratioDivisor = null;
+			if (changes.get(AdminUtil.PROP_FX_B_BUDGET_RATIO_DIVISOR) != null)
+				ratioDivisor = (BudgetSubFieldDTO) changes.get(AdminUtil.PROP_FX_B_BUDGET_RATIO_DIVISOR);
 
-            FlexibleElement flexibleElt = null;
-            if (flexibleEltDTO.getId() != 0) {
-                flexibleElt = em.find(FlexibleElement.class, new Integer(flexibleEltDTO.getId()).longValue());
-            } else {
-                flexibleElt = (FlexibleElement) createNewFlexibleElement(em, oldType, type, flexibleElt);
-            }
+			flexibleEltDTO = (FlexibleElementDTO) changes.get(AdminUtil.PROP_FX_FLEXIBLE_ELEMENT);
 
-            log.debug("Saving : (" + name + "," + type + "," + group + "," + order + "," + inBanner + "," + posB + ","
-                    + isCompulsory + "," + pg + "," + amend +"," + exportable + ")");
-            log.debug("Also Saving : (" + maxLimit + "," + minLimit + "," + textType + "," + length + "," + decimal
-                    + "," + reportModel + ")");
+			FlexibleElement flexibleElt = null;
+			if (flexibleEltDTO.getId() != 0) {
+				flexibleElt = em.find(FlexibleElement.class, new Integer(flexibleEltDTO.getId()).longValue());
+			} else {
+				flexibleElt = (FlexibleElement) createNewFlexibleElement(em, oldType, type, flexibleElt);
+			}
 
-            Boolean basicChanges = false;
-            if (flexibleElt != null) {// update flexible element
-                // //////////////// First, basic attributes
-                if (name != null) {
-                    flexibleElt.setLabel(name);
-                    basicChanges = true;
-                }
-                if (amend != null) {
-                    flexibleElt.setAmendable(amend);
-                    basicChanges = true;
-                }
-                if (exportable != null) {
-                    flexibleElt.setExportable(exportable);
-                    basicChanges = true;
-                }
-                if (isCompulsory != null) {
-                    flexibleElt.setValidates(isCompulsory);
-                    basicChanges = true;
-                }
-                if (pg != null) {
-                    PrivacyGroup pgToPersist = em.find(PrivacyGroup.class, pg.getId());
-                    if (pgToPersist != null) {
-                        flexibleElt.setPrivacyGroup(pgToPersist);
-                        basicChanges = true;
-                    }
-                }
-                if (basicChanges && flexibleElt.getId() != null)
-                    flexibleElt = em.merge(flexibleElt);
-                else
-                    em.persist(flexibleElt);
-            }
+			log.debug("Saving : (" + name + "," + type + "," + group + "," + order + "," + inBanner + "," + posB + ","
+							+ isCompulsory + "," + pg + "," + amend + "," + exportable + ")");
+			log.debug("Also Saving : (" + maxLimit + "," + minLimit + "," + textType + "," + length + "," + decimal
+							+ "," + reportModel + ")");
 
-            // ////////////////Position : Change layout_constraint, reorder
-            // LayoutGroup parentLayoutGroup = em.find(LayoutGroup.class, new
-            // Integer(oldGroup.getId()).longValue());
-            if (group != null) { // group changed
-                LayoutGroup parentLayoutGroup = em.find(LayoutGroup.class, new Integer(group.getId()).longValue());
-                LayoutConstraint newLayoutConstraint = new LayoutConstraint();
-                if (parentLayoutGroup != null) {
-                    newLayoutConstraint.setElement(flexibleElt);
-                    newLayoutConstraint.setParentLayoutGroup(parentLayoutGroup);
-                    if (oldOrder != null)
-                        newLayoutConstraint.setSortOrder(oldOrder);
-                    if (order != null)
-                        newLayoutConstraint.setSortOrder(order);
-                    if (order == null && oldOrder == null)
-                        newLayoutConstraint.setSortOrder(new Integer(parentLayoutGroup.getConstraints().size()));
-                    if (oldLayoutConstraintDTO != null) {// Merge
-                        newLayoutConstraint.setId(new Integer(oldLayoutConstraintDTO.getId()).longValue());
-                        newLayoutConstraint = em.merge(newLayoutConstraint);
-                    } else {// Persist
-                        em.persist(newLayoutConstraint);
-                    }
-                }
-            }
+			Boolean basicChanges = false;
+			if (flexibleElt != null) {// update flexible element
+				// //////////////// First, basic attributes
+				if (name != null) {
+					flexibleElt.setLabel(name);
+					basicChanges = true;
+				}
+				if (amend != null) {
+					flexibleElt.setAmendable(amend);
+					basicChanges = true;
+				}
+				if (exportable != null) {
+					flexibleElt.setExportable(exportable);
+					basicChanges = true;
+				}
+				if (isCompulsory != null) {
+					flexibleElt.setValidates(isCompulsory);
+					basicChanges = true;
+				}
+				if (pg != null) {
+					PrivacyGroup pgToPersist = em.find(PrivacyGroup.class, pg.getId());
+					if (pgToPersist != null) {
+						flexibleElt.setPrivacyGroup(pgToPersist);
+						basicChanges = true;
+					}
+				}
+				if (basicChanges && flexibleElt.getId() != null)
+					flexibleElt = em.merge(flexibleElt);
+				else
+					em.persist(flexibleElt);
+			}
 
-            // ////////////////Banner
-            if (inBanner != null) {// Fact of being or not in banner has changed
-                if (inBanner) {// New to banner
-                    if (model instanceof ProjectModel)
-                        changeBanner(em, posB, (ProjectModel) model, flexibleElt);
-                    else if (model instanceof OrgUnitModel)
-                        changeBanner(em, posB, (OrgUnitModel) model, flexibleElt);
-                } else {// delete from banner
-                    if (oldBannerLayoutConstraintDTO != null) {
-                        LayoutConstraint oldBannerLayoutConstraint = mapper.map(oldBannerLayoutConstraintDTO,
-                                LayoutConstraint.class);
-                        oldBannerLayoutConstraint = em.find(LayoutConstraint.class, oldBannerLayoutConstraint.getId());
-                        em.remove(oldBannerLayoutConstraint);
-                    }
-                }
-            } else {// same state on banner
-                if (posB != null) {// Position has changed means surely element
-                                   // was already in banner so there's an old
-                                   // banner layout constraint
-                    LayoutConstraint oldBannerLayoutConstraint = mapper.map(oldBannerLayoutConstraintDTO,
-                            LayoutConstraint.class);
-                    if (model instanceof ProjectModel)
-                        changePositionInBanner(em, posB, (ProjectModel) model, flexibleElt, oldBannerLayoutConstraint);
-                    else if (model instanceof OrgUnitModel)
-                        changePositionInBanner(em, posB, (OrgUnitModel) model, flexibleElt, oldBannerLayoutConstraint);
-                }
-            }
+			// ////////////////Position : Change layout_constraint, reorder
+			// LayoutGroup parentLayoutGroup = em.find(LayoutGroup.class, new
+			// Integer(oldGroup.getId()).longValue());
+			if (group != null) { // group changed
+				LayoutGroup parentLayoutGroup = em.find(LayoutGroup.class, new Integer(group.getId()).longValue());
+				LayoutConstraint newLayoutConstraint = new LayoutConstraint();
+				if (parentLayoutGroup != null) {
+					newLayoutConstraint.setElement(flexibleElt);
+					newLayoutConstraint.setParentLayoutGroup(parentLayoutGroup);
+					if (oldOrder != null)
+						newLayoutConstraint.setSortOrder(oldOrder);
+					if (order != null)
+						newLayoutConstraint.setSortOrder(order);
+					if (order == null && oldOrder == null)
+						newLayoutConstraint.setSortOrder(new Integer(parentLayoutGroup.getConstraints().size()));
+					if (oldLayoutConstraintDTO != null) {// Merge
+						newLayoutConstraint.setId(new Integer(oldLayoutConstraintDTO.getId()).longValue());
+						newLayoutConstraint = em.merge(newLayoutConstraint);
+					} else {// Persist
+						em.persist(newLayoutConstraint);
+					}
+				}
+			}
 
-            // ////////////////Type
-            if (oldType != null && type != null) {
-                flexibleElt = (FlexibleElement) createNewFlexibleElement(em, oldType, type, flexibleElt);
-                log.debug("changed type " + flexibleElt.getClass());
-            }
-            em.flush();
-            em.clear();
-            flexibleElt = em.find(FlexibleElement.class, flexibleElt.getId());
-            // ////////////////Specific changes
-            Boolean specificChanges = false;
+			// ////////////////Banner
+			if (inBanner != null) {// Fact of being or not in banner has changed
+				if (inBanner) {// New to banner
+					if (model instanceof ProjectModel)
+						changeBanner(em, posB, (ProjectModel) model, flexibleElt);
+					else if (model instanceof OrgUnitModel)
+						changeBanner(em, posB, (OrgUnitModel) model, flexibleElt);
+				} else {// delete from banner
+					if (oldBannerLayoutConstraintDTO != null) {
+						LayoutConstraint oldBannerLayoutConstraint = mapper.map(oldBannerLayoutConstraintDTO,
+										LayoutConstraint.class);
+						oldBannerLayoutConstraint = em.find(LayoutConstraint.class, oldBannerLayoutConstraint.getId());
+						em.remove(oldBannerLayoutConstraint);
+					}
+				}
+			} else {// same state on banner
+				if (posB != null) {// Position has changed means surely element
+									// was already in banner so there's an old
+									// banner layout constraint
+					LayoutConstraint oldBannerLayoutConstraint = mapper.map(oldBannerLayoutConstraintDTO,
+									LayoutConstraint.class);
+					if (model instanceof ProjectModel)
+						changePositionInBanner(em, posB, (ProjectModel) model, flexibleElt, oldBannerLayoutConstraint);
+					else if (model instanceof OrgUnitModel)
+						changePositionInBanner(em, posB, (OrgUnitModel) model, flexibleElt, oldBannerLayoutConstraint);
+				}
+			}
 
-            if (ElementTypeEnum.FILES_LIST.equals(type) || (ElementTypeEnum.FILES_LIST.equals(oldType) && type == null)) {
-                FilesListElement filesListElement = (FilesListElement) flexibleElt;
-                // FilesListElement filesListElement =
-                // em.find(FilesListElement.class, flexibleElt.getId());
-                if (filesListElement != null) {
-                    if (maxLimit != null) {
-                        filesListElement.setLimit(maxLimit);
-                        specificChanges = true;
-                    }
-                    if (specificChanges) {
-                        filesListElement = em.merge(filesListElement);
-                        flexibleElt = filesListElement;
-                    }
-                }
-            } else if (ElementTypeEnum.TEXT_AREA.equals(type)
-                    || (ElementTypeEnum.TEXT_AREA.equals(oldType) && type == null)) {
-                TextAreaElement textAreaElement = (TextAreaElement) flexibleElt;
-                if (textAreaElement != null) {
-                    if (maxLimit != null) {
-                        ((TextAreaElement) flexibleElt).setMaxValue(new Integer(maxLimit).longValue());
-                        specificChanges = true;
-                    }
-                    if (minLimit != null) {
-                        ((TextAreaElement) flexibleElt).setMinValue(new Integer(minLimit).longValue());
-                        specificChanges = true;
-                    }
-                    if (length != null) {
-                        ((TextAreaElement) flexibleElt).setLength(length);
-                        specificChanges = true;
-                    }
-                    if (decimal != null) {
-                        ((TextAreaElement) flexibleElt).setIsDecimal(decimal);
-                        specificChanges = true;
-                    }
-                    if (textType != null) {
-                        ((TextAreaElement) flexibleElt).setType(textType);
-                        specificChanges = true;
-                    }
-                    if (specificChanges) {
-                        flexibleElt = em.merge((TextAreaElement) flexibleElt);
-                    }
-                }
+			// ////////////////Type
+			if (oldType != null && type != null) {
+				flexibleElt = (FlexibleElement) createNewFlexibleElement(em, oldType, type, flexibleElt);
+				log.debug("changed type " + flexibleElt.getClass());
+			}
+			em.flush();
+			em.clear();
+			flexibleElt = em.find(FlexibleElement.class, flexibleElt.getId());
+			// ////////////////Specific changes
+			Boolean specificChanges = false;
 
-            } else if (ElementTypeEnum.REPORT.equals(type) || (ElementTypeEnum.REPORT.equals(oldType) && type == null)) {
-                ReportElement reportElement = em.find(ReportElement.class, flexibleElt.getId());
-                if (reportElement != null) {
-                    if (reportModel != null) {
-                        if (reportModel.getName() != null) {
-                            ProjectReportModel reportId = findReportModel(em, reportModel.getName());
-                            ((ReportElement) flexibleElt).setModel(reportId);
-                            specificChanges = true;
-                        }
+			if ((ElementTypeEnum.DEFAULT.equals(oldType) && type == null)
+							&& DefaultFlexibleElementType.BUDGET.equals(((DefaultFlexibleElement) flexibleElt)
+											.getType())) {
+				List<BudgetSubField> budgetFieldsToDelete = new ArrayList<BudgetSubField>();
+				BudgetElement budgetElement = (BudgetElement) flexibleElt;
+				budgetFieldsToDelete.addAll(budgetElement.getBudgetSubFields());
+				budgetElement.getBudgetSubFields().clear();
+				for (BudgetSubFieldDTO budgetFieldDTO : bSubFields) {
+					if (budgetFieldDTO.getId() > 0) {
+						BudgetSubField b = em.find(BudgetSubField.class, Long.valueOf(budgetFieldDTO.getId()));
+						if (b != null) {
+							budgetFieldsToDelete.remove(b);
+							b.setLabel(budgetFieldDTO.getLabel());
+							b = em.merge(b);
+							budgetElement.getBudgetSubFields().add(b);
+						}
+					} else {
+						BudgetSubField budgetSubFieldToPersist = new BudgetSubField();
+						budgetSubFieldToPersist.setLabel(budgetFieldDTO.getLabel());
+						budgetSubFieldToPersist.setBudgetElement(budgetElement);
+						em.persist(budgetSubFieldToPersist);
+						budgetElement.getBudgetSubFields().add(budgetSubFieldToPersist);
+					}
 
-                    }
+				}
+				for (BudgetSubField budgetFieldTODelete : budgetFieldsToDelete) {
+					budgetFieldTODelete.setBudgetElement(null);
+					em.remove(budgetFieldTODelete);
+					
+				}
 
-                    if (specificChanges) {
-                        flexibleElt = em.merge((ReportElement) flexibleElt);
-                    }
-                }
-            } else if (ElementTypeEnum.REPORT_LIST.equals(type)
-                    || (ElementTypeEnum.REPORT_LIST.equals(oldType) && type == null)) {
-                ReportListElement reportElement = em.find(ReportListElement.class, flexibleElt.getId());
-                if (reportElement != null) {
-                    if (reportModel.getName() != null) {
-                        ProjectReportModel reportId = findReportModel(em, reportModel.getName());
-                        ((ReportListElement) flexibleElt).setModel(reportId);
-                        specificChanges = true;
-                    }
+				if (ratioDividend != null) {
+					BudgetSubField budgetRatio = new BudgetSubField();
+					budgetRatio.setId(Long.valueOf(ratioDividend.getId()));
+					budgetElement.setRatioDividend(budgetRatio);
+				}
+				if (ratioDivisor != null) {
+					BudgetSubField budgetRatio = new BudgetSubField();
+					budgetRatio.setId(Long.valueOf(ratioDivisor.getId()));
+					budgetElement.setRatioDivisor(budgetRatio);
+				}
 
-                    if (specificChanges) {
-                        flexibleElt = em.merge((ReportListElement) flexibleElt);
-                    }
-                }
+				flexibleElt = em.merge(budgetElement);
+			} else if (ElementTypeEnum.FILES_LIST.equals(type)
+							|| (ElementTypeEnum.FILES_LIST.equals(oldType) && type == null)) {
+				FilesListElement filesListElement = (FilesListElement) flexibleElt;
+				// FilesListElement filesListElement =
+				// em.find(FilesListElement.class, flexibleElt.getId());
+				if (filesListElement != null) {
+					if (maxLimit != null) {
+						filesListElement.setLimit(maxLimit);
+						specificChanges = true;
+					}
+					if (specificChanges) {
+						filesListElement = em.merge(filesListElement);
+						flexibleElt = filesListElement;
+					}
+				}
+			} else if (ElementTypeEnum.TEXT_AREA.equals(type)
+							|| (ElementTypeEnum.TEXT_AREA.equals(oldType) && type == null)) {
+				TextAreaElement textAreaElement = (TextAreaElement) flexibleElt;
+				if (textAreaElement != null) {
+					if (maxLimit != null) {
+						((TextAreaElement) flexibleElt).setMaxValue(new Integer(maxLimit).longValue());
+						specificChanges = true;
+					}
+					if (minLimit != null) {
+						((TextAreaElement) flexibleElt).setMinValue(new Integer(minLimit).longValue());
+						specificChanges = true;
+					}
+					if (length != null) {
+						((TextAreaElement) flexibleElt).setLength(length);
+						specificChanges = true;
+					}
+					if (decimal != null) {
+						((TextAreaElement) flexibleElt).setIsDecimal(decimal);
+						specificChanges = true;
+					}
+					if (textType != null) {
+						((TextAreaElement) flexibleElt).setType(textType);
+						specificChanges = true;
+					}
+					if (specificChanges) {
+						flexibleElt = em.merge((TextAreaElement) flexibleElt);
+					}
+				}
 
-            } else if (ElementTypeEnum.QUESTION.equals(type)
-                    || (ElementTypeEnum.QUESTION.equals(oldType) && type == null)) {
+			} else if (ElementTypeEnum.REPORT.equals(type) || (ElementTypeEnum.REPORT.equals(oldType) && type == null)) {
+				ReportElement reportElement = em.find(ReportElement.class, flexibleElt.getId());
+				if (reportElement != null) {
+					if (reportModel != null) {
+						if (reportModel.getName() != null) {
+							ProjectReportModel reportId = findReportModel(em, reportModel.getName());
+							((ReportElement) flexibleElt).setModel(reportId);
+							specificChanges = true;
+						}
 
-                QuestionElement questionElement = em.find(QuestionElement.class, flexibleElt.getId());
-                if (questionElement != null) {
+					}
 
-                    if (isMultiple != null) {
-                        ((QuestionElement) flexibleElt).setIsMultiple(isMultiple);
-                        specificChanges = true;
-                    }
-                    if (category != null) {
+					if (specificChanges) {
+						flexibleElt = em.merge((ReportElement) flexibleElt);
+					}
+				}
+			} else if (ElementTypeEnum.REPORT_LIST.equals(type)
+							|| (ElementTypeEnum.REPORT_LIST.equals(oldType) && type == null)) {
+				ReportListElement reportElement = em.find(ReportListElement.class, flexibleElt.getId());
+				if (reportElement != null) {
+					if (reportModel.getName() != null) {
+						ProjectReportModel reportId = findReportModel(em, reportModel.getName());
+						((ReportListElement) flexibleElt).setModel(reportId);
+						specificChanges = true;
+					}
 
-                        for (QuestionChoiceElement choiceElt : ((QuestionElement) flexibleElt).getChoices()) {
-                            em.remove(choiceElt);
-                        }
-                        CategoryType categoryType = em.find(CategoryType.class, category.getId());
-                        if (categoryType != null) {
-                            ((QuestionElement) flexibleElt).setCategoryType(categoryType);
+					if (specificChanges) {
+						flexibleElt = em.merge((ReportListElement) flexibleElt);
+					}
+				}
 
-                            List<QuestionChoiceElement> choices = new ArrayList<QuestionChoiceElement>();
-                            int i = 0;
-                            for (CategoryElement catElt : categoryType.getElements()) {
-                                QuestionChoiceElement qChoice = new QuestionChoiceElement();
-                                qChoice.setLabel("");
-                                qChoice.setCategoryElement(catElt);
-                                qChoice.setParentQuestion(questionElement);
-                                qChoice.setSortOrder(i++);
-                                choices.add(qChoice);
-                            }
-                            ((QuestionElement) flexibleElt).setChoices(choices);
-                            specificChanges = true;
-                        }
-                    } else if (qChoices != null && qChoices.size() > 0) {
+			} else if (ElementTypeEnum.QUESTION.equals(type)
+							|| (ElementTypeEnum.QUESTION.equals(oldType) && type == null)) {
 
-                        for (QuestionChoiceElement choiceElt : ((QuestionElement) flexibleElt).getChoices()) {
-                            em.remove(choiceElt);
-                        }
-                        ((QuestionElement) flexibleElt).setCategoryType(null);
-                        List<QuestionChoiceElement> choices = new ArrayList<QuestionChoiceElement>();
-                        int i = 0;
-                        for (String choiceLabel : qChoices) {
-                            QuestionChoiceElement qChoice = new QuestionChoiceElement();
-                            qChoice.setLabel(choiceLabel);
-                            qChoice.setParentQuestion(questionElement);
-                            qChoice.setSortOrder(i++);
-                            choices.add(qChoice);
-                        }
-                        ((QuestionElement) flexibleElt).setChoices(choices);
-                        specificChanges = true;
-                    }
+				QuestionElement questionElement = em.find(QuestionElement.class, flexibleElt.getId());
+				if (questionElement != null) {
 
-                    if (specificChanges) {
-                        flexibleElt = em.merge((QuestionElement) flexibleElt);
-                    }
-                }
-            }
-            em.flush();
-            em.clear();
-        }
-    }
+					if (isMultiple != null) {
+						((QuestionElement) flexibleElt).setIsMultiple(isMultiple);
+						specificChanges = true;
+					}
+					if (category != null) {
 
-    public static String retrieveTable(String className) {
-        String table = null;
-        int bI = className.lastIndexOf(".") + 1;
-        table = className.substring(bI);
+						for (QuestionChoiceElement choiceElt : ((QuestionElement) flexibleElt).getChoices()) {
+							em.remove(choiceElt);
+						}
+						CategoryType categoryType = em.find(CategoryType.class, category.getId());
+						if (categoryType != null) {
+							((QuestionElement) flexibleElt).setCategoryType(categoryType);
 
-        try {
-            @SuppressWarnings({ "unchecked", "rawtypes" })
-            Class c = (Class<FlexibleElement>) Class.forName(className);
-            @SuppressWarnings("unchecked")
-            Table a = (Table) c.getAnnotation(Table.class);
-            table = a.name();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+							List<QuestionChoiceElement> choices = new ArrayList<QuestionChoiceElement>();
+							int i = 0;
+							for (CategoryElement catElt : categoryType.getElements()) {
+								QuestionChoiceElement qChoice = new QuestionChoiceElement();
+								qChoice.setLabel("");
+								qChoice.setCategoryElement(catElt);
+								qChoice.setParentQuestion(questionElement);
+								qChoice.setSortOrder(i++);
+								choices.add(qChoice);
+							}
+							((QuestionElement) flexibleElt).setChoices(choices);
+							specificChanges = true;
+						}
+					} else if (qChoices != null && qChoices.size() > 0) {
 
-        return table;
-    }
+						for (QuestionChoiceElement choiceElt : ((QuestionElement) flexibleElt).getChoices()) {
+							em.remove(choiceElt);
+						}
+						((QuestionElement) flexibleElt).setCategoryType(null);
+						List<QuestionChoiceElement> choices = new ArrayList<QuestionChoiceElement>();
+						int i = 0;
+						for (String choiceLabel : qChoices) {
+							QuestionChoiceElement qChoice = new QuestionChoiceElement();
+							qChoice.setLabel(choiceLabel);
+							qChoice.setParentQuestion(questionElement);
+							qChoice.setSortOrder(i++);
+							choices.add(qChoice);
+						}
+						((QuestionElement) flexibleElt).setChoices(choices);
+						specificChanges = true;
+					}
 
-    private static void changeOldType(EntityManager em, ElementTypeEnum type, FlexibleElement flexibleElement) {
-        String oldflexTable = retrieveTable(ElementTypeEnum.getClassName(type));
+					if (specificChanges) {
+						flexibleElt = em.merge((QuestionElement) flexibleElt);
+					}
+				}
+			}
+			em.flush();
+			em.clear();
+		}
+	}
 
-        if (oldflexTable != null) {
+	public static String retrieveTable(String className) {
+		String table = null;
+		int bI = className.lastIndexOf(".") + 1;
+		table = className.substring(bI);
 
-            // If it is a question element, should delete the child choices
-            if (oldflexTable.equals("question_element")) {
-                em.createNativeQuery("Delete from " + "question_choice_element" + " where " + "id_question = :flexId")
-                        .setParameter("flexId", flexibleElement.getId()).executeUpdate();
-            }
+		try {
+			@SuppressWarnings({ "unchecked", "rawtypes" })
+			Class c = (Class<FlexibleElement>) Class.forName(className);
+			@SuppressWarnings("unchecked")
+			Table a = (Table) c.getAnnotation(Table.class);
+			table = a.name();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
-            em.createNativeQuery("Delete from " + oldflexTable + " where " + "id_flexible_element = :flexId")
-                    .setParameter("flexId", flexibleElement.getId()).executeUpdate();
-        }
-    }
+		return table;
+	}
 
-    private static Object createNewFlexibleElement(EntityManager em, ElementTypeEnum oldType, ElementTypeEnum type,
-            FlexibleElement flexibleElement) {
+	private static void changeOldType(EntityManager em, ElementTypeEnum type, FlexibleElement flexibleElement) {
+		String oldflexTable = retrieveTable(ElementTypeEnum.getClassName(type));
 
-        String flexTable = null;
+		if (oldflexTable != null) {
 
-        @SuppressWarnings("rawtypes")
-        Class c;
-        Object newElement = null;
-        try {
-            c = Class.forName(ElementTypeEnum.getClassName(type));
-            newElement = c.newInstance();
+			// If it is a question element, should delete the child choices
+			if (oldflexTable.equals("question_element")) {
+				em.createNativeQuery("Delete from " + "question_choice_element" + " where " + "id_question = :flexId")
+								.setParameter("flexId", flexibleElement.getId()).executeUpdate();
+			}
 
-            if (flexibleElement != null && flexibleElement.getId() != null && oldType != null) {
-                log.debug("Old Type " + oldType + " " + flexibleElement.getClass());
-                ((FlexibleElement) newElement).setLabel(flexibleElement.getLabel());
-                ((FlexibleElement) newElement).setPrivacyGroup(flexibleElement.getPrivacyGroup());
-                ((FlexibleElement) newElement).setValidates(flexibleElement.isValidates());
-                ((FlexibleElement) newElement).setAmendable(flexibleElement.isAmendable());
-                ((FlexibleElement) newElement).setExportable(flexibleElement.isExportable());
-                ((FlexibleElement) newElement).setId(flexibleElement.getId());
-                flexTable = retrieveTable(c.getName());
-                // Update Type
-                if (flexTable != null) {
-                    changeOldType(em, oldType, flexibleElement);
-                    em.createNativeQuery("INSERT INTO " + flexTable + " (id_flexible_element) " + "Values (:flexId)")
-                            .setParameter("flexId", flexibleElement.getId()).executeUpdate();
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return newElement;
-    }
+			em.createNativeQuery("Delete from " + oldflexTable + " where " + "id_flexible_element = :flexId")
+							.setParameter("flexId", flexibleElement.getId()).executeUpdate();
+		}
+	}
 
-    private static void changeBanner(EntityManager em, Integer posB, Object model, FlexibleElement flexibleElt) {
-        LayoutGroup bannerGroup = null;
-        if (model instanceof ProjectModel)
-            bannerGroup = ((ProjectModel) model).getProjectBanner().getLayout().getGroups().get(posB);
-        else if (model instanceof OrgUnitModel)
-            bannerGroup = ((OrgUnitModel) model).getBanner().getLayout().getGroups().get(posB);
+	private static Object createNewFlexibleElement(EntityManager em, ElementTypeEnum oldType, ElementTypeEnum type,
+					FlexibleElement flexibleElement) {
 
-        LayoutConstraint newLayoutConstraint = null;
-        boolean positionTaken = false;
-        for (LayoutConstraint lc : bannerGroup.getConstraints()) {
-            if (posB.equals(lc.getSortOrder())) {
-                positionTaken = true;
-                newLayoutConstraint = lc;
-                lc.setElement(flexibleElt);
+		String flexTable = null;
 
-                newLayoutConstraint = em.merge(lc);
-            }
-        }
-        if (!positionTaken) {
+		@SuppressWarnings("rawtypes")
+		Class c;
+		Object newElement = null;
+		try {
+			c = Class.forName(ElementTypeEnum.getClassName(type));
+			newElement = c.newInstance();
 
-            newLayoutConstraint = new LayoutConstraint();
+			if (flexibleElement != null && flexibleElement.getId() != null && oldType != null) {
+				log.debug("Old Type " + oldType + " " + flexibleElement.getClass());
+				((FlexibleElement) newElement).setLabel(flexibleElement.getLabel());
+				((FlexibleElement) newElement).setPrivacyGroup(flexibleElement.getPrivacyGroup());
+				((FlexibleElement) newElement).setValidates(flexibleElement.isValidates());
+				((FlexibleElement) newElement).setAmendable(flexibleElement.isAmendable());
+				((FlexibleElement) newElement).setExportable(flexibleElement.isExportable());
+				((FlexibleElement) newElement).setId(flexibleElement.getId());
+				flexTable = retrieveTable(c.getName());
+				// Update Type
+				if (flexTable != null) {
+					changeOldType(em, oldType, flexibleElement);
+					em.createNativeQuery("INSERT INTO " + flexTable + " (id_flexible_element) " + "Values (:flexId)")
+									.setParameter("flexId", flexibleElement.getId()).executeUpdate();
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return newElement;
+	}
 
-            newLayoutConstraint.setElement(flexibleElt);
-            newLayoutConstraint.setParentLayoutGroup(bannerGroup);
-            newLayoutConstraint.setSortOrder(new Integer(posB + 1));
+	private static void changeBanner(EntityManager em, Integer posB, Object model, FlexibleElement flexibleElt) {
+		LayoutGroup bannerGroup = null;
+		if (model instanceof ProjectModel)
+			bannerGroup = ((ProjectModel) model).getProjectBanner().getLayout().getGroups().get(posB);
+		else if (model instanceof OrgUnitModel)
+			bannerGroup = ((OrgUnitModel) model).getBanner().getLayout().getGroups().get(posB);
 
-            em.persist(newLayoutConstraint);
-        }
-    }
+		LayoutConstraint newLayoutConstraint = null;
+		boolean positionTaken = false;
+		for (LayoutConstraint lc : bannerGroup.getConstraints()) {
+			if (posB.equals(lc.getSortOrder())) {
+				positionTaken = true;
+				newLayoutConstraint = lc;
+				lc.setElement(flexibleElt);
 
-    private static void changePositionInBanner(EntityManager em, Integer posB, Object model,
-            FlexibleElement flexibleElt, LayoutConstraint oldBannerLayoutConstraint) {
+				newLayoutConstraint = em.merge(lc);
+			}
+		}
+		if (!positionTaken) {
 
-        LayoutGroup bannerGroup = null;
-        if (model instanceof ProjectModel)
-            bannerGroup = ((ProjectModel) model).getProjectBanner().getLayout().getGroups().get(posB);
-        else if (model instanceof OrgUnitModel)
-            bannerGroup = ((OrgUnitModel) model).getBanner().getLayout().getGroups().get(posB);
+			newLayoutConstraint = new LayoutConstraint();
 
-        // Delete any constraint that places another flexible element in the
-        // same position
-        for (LayoutConstraint lc : bannerGroup.getConstraints()) {
-            em.remove(lc);
-        }
-        oldBannerLayoutConstraint.setElement(flexibleElt);
-        oldBannerLayoutConstraint.setParentLayoutGroup(bannerGroup);
-        oldBannerLayoutConstraint.setSortOrder(new Integer(posB + 1));
-        em.merge(oldBannerLayoutConstraint);
-    }
+			newLayoutConstraint.setElement(flexibleElt);
+			newLayoutConstraint.setParentLayoutGroup(bannerGroup);
+			newLayoutConstraint.setSortOrder(new Integer(posB + 1));
 
-    private static ProjectReportModel findReportModel(EntityManager em, String reportName) {
-        final Query query = em.createQuery("Select r from ProjectReportModel r Where r.name = :name").setParameter(
-                "name", reportName);
+			em.persist(newLayoutConstraint);
+		}
+	}
 
-        try {
-            if (query.getSingleResult() != null) {
-                ProjectReportModel report = (ProjectReportModel) query.getSingleResult();
-                return report;
-            } else
-                return null;
-        } catch (Exception e) {
-            return null;
-        }
-    }
+	private static void changePositionInBanner(EntityManager em, Integer posB, Object model,
+					FlexibleElement flexibleElt, LayoutConstraint oldBannerLayoutConstraint) {
+
+		LayoutGroup bannerGroup = null;
+		if (model instanceof ProjectModel)
+			bannerGroup = ((ProjectModel) model).getProjectBanner().getLayout().getGroups().get(posB);
+		else if (model instanceof OrgUnitModel)
+			bannerGroup = ((OrgUnitModel) model).getBanner().getLayout().getGroups().get(posB);
+
+		// Delete any constraint that places another flexible element in the
+		// same position
+		for (LayoutConstraint lc : bannerGroup.getConstraints()) {
+			em.remove(lc);
+		}
+		oldBannerLayoutConstraint.setElement(flexibleElt);
+		oldBannerLayoutConstraint.setParentLayoutGroup(bannerGroup);
+		oldBannerLayoutConstraint.setSortOrder(new Integer(posB + 1));
+		em.merge(oldBannerLayoutConstraint);
+	}
+
+	private static ProjectReportModel findReportModel(EntityManager em, String reportName) {
+		final Query query = em.createQuery("Select r from ProjectReportModel r Where r.name = :name").setParameter(
+						"name", reportName);
+
+		try {
+			if (query.getSingleResult() != null) {
+				ProjectReportModel report = (ProjectReportModel) query.getSingleResult();
+				return report;
+			} else
+				return null;
+		} catch (Exception e) {
+			return null;
+		}
+	}
 }

@@ -339,6 +339,7 @@ sigmah/src/main/java/org/sigmah/client/page/admin/model/common/StatusChangeActio
 sigmah/src/main/java/org/sigmah/client/page/admin/model/common/element/AdminFlexibleElementActionListener.java -text
 sigmah/src/main/java/org/sigmah/client/page/admin/model/common/element/AdminFlexibleElementsPresenter.java -text
 sigmah/src/main/java/org/sigmah/client/page/admin/model/common/element/AdminFlexibleElementsView.java -text
+sigmah/src/main/java/org/sigmah/client/page/admin/model/common/element/BudgetSubFieldForm.java -text svneol=unset#text/plain
 sigmah/src/main/java/org/sigmah/client/page/admin/model/common/element/ElementForm.java -text
 sigmah/src/main/java/org/sigmah/client/page/admin/model/common/element/ElementTypeEnum.java -text
 sigmah/src/main/java/org/sigmah/client/page/admin/model/common/element/LayoutGroupSigmahForm.java -text
@@ -2111,6 +2112,7 @@ sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetOrgUnitHandler
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetOrgUnitModelCopyHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetOrgUnitModelHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetOrgUnitModelsHandler.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetOrgUnitsByModelHandler.java -text svneol=unset#text/plain
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetOrganizationHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetPrivacyGroupsHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetProfilesHandler.java -text
@@ -2568,6 +2570,9 @@ sigmah/src/main/java/org/sigmah/shared/domain/category/CategoryElement.java -tex
 sigmah/src/main/java/org/sigmah/shared/domain/category/CategoryIcon.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/category/CategoryType.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/element/BudgetDistributionElement.java -text
+sigmah/src/main/java/org/sigmah/shared/domain/element/BudgetElement.java -text svneol=unset#text/plain
+sigmah/src/main/java/org/sigmah/shared/domain/element/BudgetSubField.java -text svneol=unset#text/plain
+sigmah/src/main/java/org/sigmah/shared/domain/element/BudgetSubFieldType.java -text svneol=unset#text/plain
 sigmah/src/main/java/org/sigmah/shared/domain/element/CheckboxElement.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/element/DefaultFlexibleElement.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/element/DefaultFlexibleElementType.java -text
@@ -2684,6 +2689,8 @@ sigmah/src/main/java/org/sigmah/shared/dto/UserPermissionDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/category/CategoryElementDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/category/CategoryTypeDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/element/BudgetDistributionElementDTO.java -text
+sigmah/src/main/java/org/sigmah/shared/dto/element/BudgetElementDTO.java -text svneol=unset#text/plain
+sigmah/src/main/java/org/sigmah/shared/dto/element/BudgetSubFieldDTO.java -text svneol=unset#text/plain
 sigmah/src/main/java/org/sigmah/shared/dto/element/CheckboxElementDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/element/DefaultFlexibleElementContainer.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/element/DefaultFlexibleElementDTO.java -text

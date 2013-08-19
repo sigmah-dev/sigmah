@@ -145,9 +145,6 @@ public class ProjectPolicy implements EntityPolicy<Project> {
         model = em.merge(model);
         project.setProjectModel(model);
         project.setLogFrame(null);
-        project.setPlannedBudget(properties.<Double> get("budget"));
-        project.setSpendBudget(0.0d);
-        project.setReceivedBudget(0.0d);
         
         // Creates and adds phases.
         for (final PhaseModel phaseModel : model.getPhases()) {

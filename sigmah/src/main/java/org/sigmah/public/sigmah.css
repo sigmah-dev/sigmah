@@ -1261,3 +1261,16 @@ a.credits-partner-url,a.credits-partner-url:link,a.credits-partner-url:visited,a
 	font-weight:bold !important;
 	text-align:center;
 }
+
+/* ---------------------------------------------- Budget Sub Fields */
+.budget-sub-fields-title {
+	font-weight: bold;
+}
+
+.budget-sub-fields-table {
+	padding:5px;
+}
+
+.budget-sub-fields-text {
+	margin-left:20px;
+}

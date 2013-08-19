@@ -1,6 +1,7 @@
 package org.sigmah.client.page.orgunit.details;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 import org.sigmah.client.EventBus;
 import org.sigmah.client.cache.UserLocalCache;
@@ -15,11 +16,14 @@ import org.sigmah.client.util.Notification;
 import org.sigmah.shared.command.GetValue;
 import org.sigmah.shared.command.UpdateProject;
 import org.sigmah.shared.command.result.ValueResult;
+import org.sigmah.shared.command.result.ValueResultUtils;
 import org.sigmah.shared.command.result.VoidResult;
 import org.sigmah.shared.domain.profile.GlobalPermissionEnum;
 import org.sigmah.shared.dto.ExportUtils;
 import org.sigmah.shared.dto.OrgUnitDTO;
 import org.sigmah.shared.dto.OrgUnitDetailsDTO;
+import org.sigmah.shared.dto.element.BudgetElementDTO;
+import org.sigmah.shared.dto.element.BudgetSubFieldDTO;
 import org.sigmah.shared.dto.element.DefaultFlexibleElementDTO;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
 import org.sigmah.shared.dto.element.handler.ValueEvent;
@@ -374,14 +378,37 @@ public class OrgUnitDetailsPresenter implements SubPresenter {
             case BUDGET:
                 try {
 
-                    final String[] budgets = value.split("\\|");
-                    final double plannedBudget = Double.parseDouble(budgets[0]);
-                    final double spendBudget = Double.parseDouble(budgets[1]);
-                    final double receivedBudget = Double.parseDouble(budgets[2]);
+                	BudgetElementDTO budgetElement = (BudgetElementDTO) element;
+    				final Map<Integer, String> values = ValueResultUtils.splitMapElements(value);
 
-                    currentOrgUnitDTO.setPlannedBudget(plannedBudget);
-                    currentOrgUnitDTO.setSpendBudget(spendBudget);
-                    currentOrgUnitDTO.setReceivedBudget(receivedBudget);
+    				double plannedBudget = 0.0;
+    				double spendBudget = 0.0;
+    				double receivedBudget = 0.0;
+
+    				for (BudgetSubFieldDTO bf : budgetElement.getBudgetSubFieldsDTO()) {
+    					if (bf.getType() != null) {
+    						switch (bf.getType()) {
+    						case PLANNED:
+    							plannedBudget = Double.parseDouble(values.get(bf.getId()));
+    							break;
+    						case RECEIVED:
+    							receivedBudget = Double.parseDouble(values.get(bf.getId()));
+    							break;
+    						case SPENT:
+    							spendBudget = Double.parseDouble(values.get(bf.getId()));
+    							break;
+    						default:
+    							break;
+
+    						}
+
+    					}
+    				}
+
+    				currentOrgUnitDTO.setPlannedBudget(plannedBudget);
+    				currentOrgUnitDTO.setSpendBudget(spendBudget);
+    				currentOrgUnitDTO.setReceivedBudget(receivedBudget);
+
 
                 } catch (Exception e) {
                     // nothing, invalid budget.

@@ -10,6 +10,7 @@ import org.sigmah.client.page.project.dashboard.funding.FundingIconProvider.Icon
 import org.sigmah.client.util.DateUtils;
 import org.sigmah.client.util.NumberUtils;
 import org.sigmah.shared.domain.ProjectModelType;
+import org.sigmah.shared.domain.element.BudgetSubFieldType;
 import org.sigmah.shared.dto.category.CategoryElementDTO;
 
 import com.extjs.gxt.ui.client.data.ChangeEvent;
@@ -383,4 +384,53 @@ public class ProjectDTOLight extends DeRpcSafeBaseTreeModel implements EntityDTO
 		                .createImage();
 		setTypeIconHtml(img.getElement().getString());
 	}
+
+	public Double getRatioDividendValue() {
+		return get("ratioDividendValue");
+	}
+
+	public void setRatioDividendValue(Double ratioDividendValue) {
+		set("ratioDividendValue", ratioDividendValue);
+	}
+
+	public String getRatioDividendLabel() {
+		return get("ratioDividendLabel");
+	}
+
+	public void setRatioDividendLabel(String ratioDividendLabel) {
+		set("ratioDividendLabel", ratioDividendLabel);
+	}
+	
+	public BudgetSubFieldType getRatioDividendType() {
+		return get("ratioDividendType");
+	}
+
+	public void setRatioDividendType(BudgetSubFieldType ratioDividendType) {
+		set("ratioDividendType", ratioDividendType);
+	}
+
+	public Double getRatioDivisorValue() {
+		return get("ratioDivisorValue");
+	}
+
+	public void setRatioDivisorValue(Double ratioDivisorValue) {
+		set("ratioDivisorValue", ratioDivisorValue);
+	}
+
+	public String getRatioDivisorLabel() {
+		return get("ratioDivisorLabel");
+	}
+
+	public void setRatioDivisorLabel(String ratioDivisorLabel) {
+		set("ratioDivisorLabel", ratioDivisorLabel);
+	}
+	
+	public BudgetSubFieldType getRatioDivisorType() {
+		return get("ratioDivisorType");
+	}
+
+	public void setRatioDivisorType(BudgetSubFieldType ratioDivisorType) {
+		set("ratioDivisorType", ratioDivisorType);
+	}
+
 }
