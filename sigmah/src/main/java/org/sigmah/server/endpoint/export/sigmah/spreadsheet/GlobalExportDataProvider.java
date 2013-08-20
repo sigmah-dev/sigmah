@@ -35,6 +35,7 @@ import org.sigmah.shared.domain.Project;
 import org.sigmah.shared.domain.ProjectModel;
 import org.sigmah.shared.domain.ProjectModelStatus;
 import org.sigmah.shared.domain.User;
+import org.sigmah.shared.domain.element.BudgetElement;
 import org.sigmah.shared.domain.element.DefaultFlexibleElement;
 import org.sigmah.shared.domain.element.FlexibleElement;
 import org.sigmah.shared.domain.element.QuestionChoiceElement;
@@ -55,8 +56,7 @@ import com.google.inject.Injector;
 import com.google.inject.Singleton;
 
 /**
- * Utility class
- * Provides global export data
+ * Utility class Provides global export data
  * 
  * @author sherzod
  */
@@ -224,7 +224,8 @@ public class GlobalExportDataProvider {
 						// prepare value and label
 						ValueLabel pair = null;
 						/* DEF FLEXIBLE */
-						if (elementName.equals("element.DefaultFlexibleElement")) {
+						if (elementName.equals("element.DefaultFlexibleElement")
+						                || elementName.equals("element.BudgetElement")) {
 							pair = getDefElementPair(valueResult, element, project, entityManager, locale, translator);
 
 						} else /* CHECKBOX */if (elementName.equals("element.CheckboxElement")) {
@@ -501,16 +502,26 @@ public class GlobalExportDataProvider {
 			break;
 		case BUDGET: {
 			label = translator.translate("projectBudget", locale);
+			BudgetElement budgetElement = (BudgetElement) element;
+
 			Double pb = 0d;
 			Double sb = 0d;
-
 			if (hasValue) {
-				final String[] parts = valueResult.getValueObject().split("~");
-				pb = Double.parseDouble(parts[0]);
-				sb = Double.parseDouble(parts[1]);
-			} else {
-				pb = project.getPlannedBudget();
-				sb = project.getSpendBudget();
+				final Map<Integer, String> values = ValueResultUtils.splitMapElements(valueResult.getValueObject());
+
+				if (budgetElement.getRatioDividend() != null) {
+					if (values.get(budgetElement.getRatioDividend().getId().intValue()) != null) {
+						pb = Double.valueOf(values.get(budgetElement.getRatioDividend().getId().intValue()));
+
+					}
+				}
+
+				if (budgetElement.getRatioDivisor() != null) {
+					if (values.get(budgetElement.getRatioDivisor().getId().intValue()) != null) {
+						sb = Double.valueOf(values.get(budgetElement.getRatioDivisor().getId().intValue()));
+
+					}
+				}
 			}
 			value = sb + " / " + pb;
 		}
@@ -600,16 +611,26 @@ public class GlobalExportDataProvider {
 
 		case BUDGET: {
 			label = translator.translate("projectBudget", locale);
+			BudgetElement budgetElement = (BudgetElement) element;
+
 			Double pb = 0d;
 			Double sb = 0d;
-
 			if (hasValue) {
-				final String[] parts = valueResult.getValueObject().split("~");
-				pb = Double.parseDouble(parts[0]);
-				sb = Double.parseDouble(parts[1]);
-			} else {
-				pb = orgUnit.getPlannedBudget();
-				sb = orgUnit.getSpendBudget();
+				final Map<Integer, String> values = ValueResultUtils.splitMapElements(valueResult.getValueObject());
+
+				if (budgetElement.getRatioDividend() != null) {
+					if (values.get(budgetElement.getRatioDividend().getId()) != null) {
+						pb = Double.valueOf(values.get(budgetElement.getRatioDividend().getId()));
+
+					}
+				}
+
+				if (budgetElement.getRatioDivisor() != null) {
+					if (values.get(budgetElement.getRatioDivisor().getId()) != null) {
+						pb = Double.valueOf(values.get(budgetElement.getRatioDivisor().getId()));
+
+					}
+				}
 			}
 			value = sb + " / " + pb;
 		}

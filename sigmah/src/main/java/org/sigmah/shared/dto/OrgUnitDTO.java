@@ -7,7 +7,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.sigmah.shared.dto.element.BudgetElementDTO;
 import org.sigmah.shared.dto.element.DefaultFlexibleElementContainer;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
 
@@ -278,14 +277,4 @@ public class OrgUnitDTO extends BaseModelData implements EntityDTO, DefaultFlexi
 		return elements;
 	}
 
-	public BudgetElementDTO getBudgetElement() {
-		if (getOrgUnitModel().getAllElements() != null) {
-			for (FlexibleElementDTO fleElmt : getOrgUnitModel().getAllElements()) {
-				if (fleElmt instanceof BudgetElementDTO) {
-					return (BudgetElementDTO) fleElmt;
-				}
-			}
-		}
-		return null;
-	}
 }

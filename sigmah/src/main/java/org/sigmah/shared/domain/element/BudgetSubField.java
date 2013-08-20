@@ -36,7 +36,7 @@ public class BudgetSubField implements Serializable {
 	 */
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	@Column(name = "id_budget_field", nullable = false)
+	@Column(name = "id_budget_sub_field", nullable = false)
 	public Long getId() {
 		return id;
 	}
@@ -49,7 +49,7 @@ public class BudgetSubField implements Serializable {
 		this.id = id;
 	}
 
-	@ManyToOne (cascade = CascadeType.ALL)
+	@ManyToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "id_budget_element", nullable = false)
 	public BudgetElement getBudgetElement() {
 		return budgetElement;
@@ -93,6 +93,5 @@ public class BudgetSubField implements Serializable {
 	public void setType(BudgetSubFieldType type) {
 		this.type = type;
 	}
-
 
 }

@@ -2,7 +2,9 @@ package org.sigmah.shared.command.result;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.sigmah.shared.dto.EntityDTO;
 
@@ -14,205 +16,263 @@ import org.sigmah.shared.dto.EntityDTO;
  */
 public final class ValueResultUtils {
 
-    public static final String DEFAULT_VALUE_SEPARATOR = "~";
+	public static final String DEFAULT_VALUE_SEPARATOR = "~";
 
-    /**
-     * Provides only static methods.
-     */
-    private ValueResultUtils() {
+	public static final String BUDGET_VALUE_SEPARATOR = "%";
 
-    }
+	/**
+	 * Provides only static methods.
+	 */
+	private ValueResultUtils() {
 
-    /**
-     * Split a list of values (manages entities with Long type id).
-     * 
-     * @param values
-     *            The values list as a single string.
-     * @return The values.
-     */
-    public static List<Long> splitValuesAsLong(Object values) {
+	}
 
-        final ArrayList<Long> list = new ArrayList<Long>();
+	/**
+	 * Split a list of values (manages entities with Long type id).
+	 * 
+	 * @param values
+	 *            The values list as a single string.
+	 * @return The values.
+	 */
+	public static List<Long> splitValuesAsLong(Object values) {
 
-        try {
-            if (values != null) {
+		final ArrayList<Long> list = new ArrayList<Long>();
 
-                final String valuesAsString = (String) values;
+		try {
+			if (values != null) {
 
-                final String[] split = valuesAsString.trim().split(ValueResultUtils.DEFAULT_VALUE_SEPARATOR);
+				final String valuesAsString = (String) values;
 
-                if (split != null && split.length != 0) {
-                    for (final String value : split) {
-                        if (value != null && !value.trim().equals("")) {
-                            list.add(Long.valueOf(value));
-                        }
-                    }
-                }
-            }
-        } catch (ClassCastException e) {
-            // digest exception.
-        }
+				final String[] split = valuesAsString.trim().split(ValueResultUtils.DEFAULT_VALUE_SEPARATOR);
 
-        return list;
-    }
+				if (split != null && split.length != 0) {
+					for (final String value : split) {
+						if (value != null && !value.trim().equals("")) {
+							list.add(Long.valueOf(value));
+						}
+					}
+				}
+			}
+		} catch (ClassCastException e) {
+			// digest exception.
+		}
 
-    /**
-     * Split a list of values (manages entities with Integer type id).
-     * 
-     * @param values
-     *            The values list as a single string.
-     * @return The values.
-     */
-    public static List<Integer> splitValuesAsInteger(Serializable values) {
+		return list;
+	}
 
-        final ArrayList<Integer> list = new ArrayList<Integer>();
+	/**
+	 * Split a list of values (manages entities with Integer type id).
+	 * 
+	 * @param values
+	 *            The values list as a single string.
+	 * @return The values.
+	 */
+	public static List<Integer> splitValuesAsInteger(Serializable values) {
 
-        try {
-            if (values != null) {
+		final ArrayList<Integer> list = new ArrayList<Integer>();
 
-                final String valuesAsString = (String) values;
+		try {
+			if (values != null) {
 
-                final String[] split = valuesAsString.trim().split(DEFAULT_VALUE_SEPARATOR);
+				final String valuesAsString = (String) values;
 
-                if (split != null && split.length != 0) {
-                    for (final String value : split) {
-                        if (value != null) {
-                            list.add(Integer.valueOf(value));
-                        }
-                    }
-                }
-            }
-        } catch (ClassCastException e) {
-            // digest exception.
-        }
+				final String[] split = valuesAsString.trim().split(DEFAULT_VALUE_SEPARATOR);
 
-        return list;
-    }
+				if (split != null && split.length != 0) {
+					for (final String value : split) {
+						if (value != null) {
+							list.add(Integer.valueOf(value));
+						}
+					}
+				}
+			}
+		} catch (ClassCastException e) {
+			// digest exception.
+		}
 
-    /**
-     * Merges a list of values as a single string.<br/>
-     * <br/>
-     * The <code>null</code> values are ignored.
-     * 
-     * @param <T>
-     *            The type of the values.
-     * @param values
-     *            The values list.
-     * @return The values list as a single string.
-     */
-    public static <T extends EntityDTO> String mergeValues(List<T> values) {
+		return list;
+	}
 
-        final StringBuilder sb = new StringBuilder();
+	/**
+	 * Merges a list of values as a single string.<br/>
+	 * <br/>
+	 * The <code>null</code> values are ignored.
+	 * 
+	 * @param <T>
+	 *            The type of the values.
+	 * @param values
+	 *            The values list.
+	 * @return The values list as a single string.
+	 */
+	public static <T extends EntityDTO> String mergeValues(List<T> values) {
 
-        if (values != null && values.size() > 0) {
-            for (int i = 0; i < values.size(); i++) {
+		final StringBuilder sb = new StringBuilder();
 
-                final T value = values.get(i);
+		if (values != null && values.size() > 0) {
+			for (int i = 0; i < values.size(); i++) {
 
-                if (value != null) {
-                    sb.append(String.valueOf(value.getId()));
-                    if (i < values.size() - 1) {
-                        sb.append(DEFAULT_VALUE_SEPARATOR);
-                    }
-                }
-            }
-        }
+				final T value = values.get(i);
 
-        return sb.toString();
-    }
+				if (value != null) {
+					sb.append(String.valueOf(value.getId()));
+					if (i < values.size() - 1) {
+						sb.append(DEFAULT_VALUE_SEPARATOR);
+					}
+				}
+			}
+		}
 
-    /**
-     * Merges a list of elements as a single string.<br/>
-     * <br/>
-     * The <code>null</code> values are ignored.
-     * 
-     * @param <T>
-     *            The type of the elements.
-     * @param values
-     *            The values list.
-     * @return The values list as a single string.
-     */
-    public static <T extends Serializable> String mergeElements(List<T> values) {
+		return sb.toString();
+	}
 
-        final StringBuilder sb = new StringBuilder();
+	/**
+	 * Merges a list of elements as a single string.<br/>
+	 * <br/>
+	 * The <code>null</code> values are ignored.
+	 * 
+	 * @param <T>
+	 *            The type of the elements.
+	 * @param values
+	 *            The values list.
+	 * @return The values list as a single string.
+	 */
+	public static <T extends Serializable> String mergeElements(List<T> values) {
 
-        if (values != null && values.size() > 0) {
-            for (int i = 0; i < values.size(); i++) {
+		final StringBuilder sb = new StringBuilder();
 
-                final T value = values.get(i);
+		if (values != null && values.size() > 0) {
+			for (int i = 0; i < values.size(); i++) {
 
-                if (value != null) {
-                    sb.append(String.valueOf(value));
-                    if (i < values.size() - 1) {
-                        sb.append(DEFAULT_VALUE_SEPARATOR);
-                    }
-                }
-            }
-        }
+				final T value = values.get(i);
 
-        return sb.toString();
-    }
+				if (value != null) {
+					sb.append(String.valueOf(value));
+					if (i < values.size() - 1) {
+						sb.append(DEFAULT_VALUE_SEPARATOR);
+					}
+				}
+			}
+		}
 
-    /**
-     * Merges a list of elements as a single string.<br/>
-     * <br/>
-     * The <code>null</code> values are ignored.
-     * 
-     * @param <T>
-     *            The type of the elements.
-     * @param values
-     *            The values list.
-     * @return The values list as a single string.
-     */
-    public static <T extends Serializable> String mergeElements(T... values) {
+		return sb.toString();
+	}
 
-        final StringBuilder sb = new StringBuilder();
+	/**
+	 * Merges a map into a single string <br/>
+	 * The <code>null</code> values are ignored.
+	 * 
+	 * @param values
+	 *            The values map
+	 * @return The map as a single string
+	 */
+	public static <T extends EntityDTO, E extends Serializable> String mergeElements(Map<T, E> values) {
 
-        if (values != null && values.length > 0) {
-            for (int i = 0; i < values.length; i++) {
+		final StringBuilder sb = new StringBuilder();
 
-                final T value = values[i];
+		if (values != null && values.size() > 0) {
+			int i = 0;
+			for (T key : values.keySet()) {
+				final E value = values.get(key);
 
-                if (value != null) {
-                    sb.append(String.valueOf(value));
-                    if (i < values.length - 1) {
-                        sb.append(DEFAULT_VALUE_SEPARATOR);
-                    }
-                }
-            }
-        }
+				if (value != null) {
+					sb.append(key.getId());
+					sb.append(BUDGET_VALUE_SEPARATOR);
+					sb.append(String.valueOf(value));
+					if (i < values.size() - 1) {
+						sb.append(DEFAULT_VALUE_SEPARATOR);
+					}
+				}
+				i++;
+			}
+		}
 
-        return sb.toString();
-    }
+		return sb.toString();
+	}
 
-    /**
-     * Split a list of values.
-     * 
-     * @param values
-     *            The values list as a single string.
-     * @return The values.
-     */
-    public static List<String> splitElements(String values) {
+	/**
+	 * Merges a list of elements as a single string.<br/>
+	 * <br/>
+	 * The <code>null</code> values are ignored.
+	 * 
+	 * @param <T>
+	 *            The type of the elements.
+	 * @param values
+	 *            The values list.
+	 * @return The values list as a single string.
+	 */
+	public static <T extends Serializable> String mergeElements(T... values) {
 
-        final ArrayList<String> list = new ArrayList<String>();
+		final StringBuilder sb = new StringBuilder();
 
-        try {
-            if (values != null) {
+		if (values != null && values.length > 0) {
+			for (int i = 0; i < values.length; i++) {
 
-                final String[] split = values.trim().split(DEFAULT_VALUE_SEPARATOR);
+				final T value = values[i];
 
-                if (split != null && split.length != 0) {
-                    for (final String value : split) {
-                        if (value != null) {
-                            list.add(String.valueOf(value));
-                        }
-                    }
-                }
-            }
-        } catch (ClassCastException e) {
-            // digest exception.
-        }
+				if (value != null) {
+					sb.append(String.valueOf(value));
+					if (i < values.length - 1) {
+						sb.append(DEFAULT_VALUE_SEPARATOR);
+					}
+				}
+			}
+		}
 
-        return list;
-    }
+		return sb.toString();
+	}
+
+	/**
+	 * Split a list of values.
+	 * 
+	 * @param values
+	 *            The values list as a single string.
+	 * @return The values.
+	 */
+	public static List<String> splitElements(String values) {
+
+		final ArrayList<String> list = new ArrayList<String>();
+
+		try {
+			if (values != null) {
+
+				final String[] split = values.trim().split(DEFAULT_VALUE_SEPARATOR);
+
+				if (split != null && split.length != 0) {
+					for (final String value : split) {
+						if (value != null) {
+							list.add(String.valueOf(value));
+						}
+					}
+				}
+			}
+		} catch (ClassCastException e) {
+			// digest exception.
+		}
+
+		return list;
+	}
+
+	public static Map<Integer, String> splitMapElements(String values) {
+		Map<Integer, String> returnedMap = new HashMap<Integer, String>();
+
+		try {
+			if (values != null) {
+
+				final String[] split = values.trim().split(DEFAULT_VALUE_SEPARATOR);
+
+				if (split != null && split.length != 0) {
+					for (final String value : split) {
+						final String[] splited = value.trim().split(BUDGET_VALUE_SEPARATOR);
+						if (splited.length == 2 && splited[0] != null && splited[1] != null) {
+							returnedMap.put(Integer.valueOf(splited[0]), String.valueOf(splited[1]));
+						}
+					}
+				}
+			}
+		} catch (ClassCastException e) {
+			// digest exception.
+		}
+		return returnedMap;
+	}
+
 }
