@@ -69,6 +69,19 @@ public enum GlobalPermissionEnum {
 	VALID_AMENDEMENT,
 
 	/**
+	 * for viewing the logframe sub-tab
+	 */
+	VIEW_LOGFRAME,
+	
+
+	/**
+	 * for creating/modifying/deleting objectives, expected results, activities,
+	 * hypothesis or linking/unlinking indicators to the logframe
+	 */
+	EDIT_LOGFRAME,
+
+
+	/**
 	 * Show global export button in projects list
 	 */
 	GLOBAL_EXPORT;
@@ -111,6 +124,12 @@ public enum GlobalPermissionEnum {
 			break;
 		case GLOBAL_EXPORT:
 			gpName = I18N.CONSTANTS.globalExport();
+			break;
+		case VIEW_LOGFRAME:
+			gpName = I18N.CONSTANTS.VIEW_LOGFRAME();
+			break;
+		case EDIT_LOGFRAME:
+			gpName = I18N.CONSTANTS.EDIT_LOGFRAME();
 			break;
 		default:
 			gpName = null;

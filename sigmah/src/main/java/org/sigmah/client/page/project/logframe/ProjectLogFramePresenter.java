@@ -1,8 +1,5 @@
 package org.sigmah.client.page.project.logframe;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.sigmah.client.EventBus;
 import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.dispatch.monitor.MaskingAsyncMonitor;
@@ -26,24 +23,16 @@ import org.sigmah.shared.dto.logframe.LogFrameDTO;
 import org.sigmah.shared.dto.profile.ProfileUtils;
 
 import com.allen_sauer.gwt.log.client.Log;
-import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Label;
 import com.extjs.gxt.ui.client.widget.MessageBox;
-import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.form.FormPanel;
-import com.extjs.gxt.ui.client.widget.form.HiddenField;
-import com.extjs.gxt.ui.client.widget.form.Radio;
-import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.extjs.gxt.ui.client.widget.form.TextField;
-import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
@@ -53,314 +42,317 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
  */
 public class ProjectLogFramePresenter implements SubPresenter {
 
-    /**
-     * The label used for the no-name groups.
-     */
-    public static final String DEFAULT_GROUP_LABEL = "-";
+	/**
+	 * The label used for the no-name groups.
+	 */
+	public static final String DEFAULT_GROUP_LABEL = "-";
 
-    /**
-     * Description of the view managed by this presenter.
-     */
-    public static abstract class View extends ContentPanel {
+	/**
+	 * Description of the view managed by this presenter.
+	 */
+	public static abstract class View extends ContentPanel {
 
-        public abstract ProjectLogFrameGrid getLogFrameGrid();
+		public abstract ProjectLogFrameGrid getLogFrameGrid();
 
-        public abstract Button getSaveButton();
+		public abstract Button getSaveButton();
 
-        public abstract Button getCopyButton();
+		public abstract Button getCopyButton();
 
-        public abstract Button getPasteButton();
+		public abstract Button getPasteButton();
 
-        public abstract ExportSpreadsheetFormButton getExcelExportFormButton();
+		public abstract ExportSpreadsheetFormButton getExcelExportFormButton();
 
-        public abstract Label getLogFrameTitleContentLabel();
+		public abstract Label getLogFrameTitleContentLabel();
 
-        public abstract TextField<String> getLogFrameMainObjectiveTextBox();
-    }
+		public abstract TextField<String> getLogFrameMainObjectiveTextBox();
+	}
 
-    private static Integer logFrameIdCopySource;
+	private static Integer logFrameIdCopySource;
 
-    /**
-     * This presenter view.
-     */
-    private View view;
+	/**
+	 * This presenter view.
+	 */
+	private View view;
 
-    /**
-     * The dispatcher.
-     */
-    private final Dispatcher dispatcher;
+	/**
+	 * The dispatcher.
+	 */
+	private final Dispatcher dispatcher;
 
-    private final EventBus eventBus;
+	private final EventBus eventBus;
 
-    /**
-     * The authentication.
-     */
-    private final Authentication authentication;
+	/**
+	 * The authentication.
+	 */
+	private final Authentication authentication;
 
-    private boolean logFrameUpdated;
+	private boolean logFrameUpdated;
 
-    /**
-     * The main project presenter.
-     */
-    private final ProjectPresenter projectPresenter;
+	/**
+	 * The main project presenter.
+	 */
+	private final ProjectPresenter projectPresenter;
 
-    public ProjectDTO getCurrentProjectDTO() {
-        return currentProjectDTO;
-    }
+	public ProjectDTO getCurrentProjectDTO() {
+		return currentProjectDTO;
+	}
 
-    public void setCurrentProjectDTO(ProjectDTO currentProjectDTO) {
-        this.currentProjectDTO = currentProjectDTO;
-    }
+	public void setCurrentProjectDTO(ProjectDTO currentProjectDTO) {
+		this.currentProjectDTO = currentProjectDTO;
+	}
 
-    /**
-     * The current displayed project.
-     */
-    private ProjectDTO currentProjectDTO;
+	/**
+	 * The current displayed project.
+	 */
+	private ProjectDTO currentProjectDTO;
 
-    /**
-     * The displayed log frame.
-     */
-    private LogFrameDTO logFrame;
+	/**
+	 * The displayed log frame.
+	 */
+	private LogFrameDTO logFrame;
 
-    public ProjectLogFramePresenter(EventBus eventBus, Dispatcher dispatcher, Authentication authentication, ProjectPresenter projectPresenter) {
-        this.eventBus = eventBus;
-        this.dispatcher = dispatcher;
-        this.authentication = authentication;
-        this.projectPresenter = projectPresenter;
-        this.currentProjectDTO = projectPresenter.getCurrentProjectDTO();
-        this.logFrameUpdated = false;
-    }
+	public ProjectLogFramePresenter(EventBus eventBus, Dispatcher dispatcher, Authentication authentication,
+	                ProjectPresenter projectPresenter) {
+		this.eventBus = eventBus;
+		this.dispatcher = dispatcher;
+		this.authentication = authentication;
+		this.projectPresenter = projectPresenter;
+		this.currentProjectDTO = projectPresenter.getCurrentProjectDTO();
+		this.logFrameUpdated = false;
 
-    @Override
-    public Component getView() {
+	}
 
-        if (view == null) {
-            view = new ProjectLogFrameView(eventBus, dispatcher);
-            if (projectPresenter.getCurrentProjectDTO().getCurrentAmendment() == null)
-                logFrame = projectPresenter.getCurrentProjectDTO().getLogFrameDTO();
-            else
-                logFrame = projectPresenter.getCurrentProjectDTO().getCurrentAmendment().getLogFrameDTO();
+	@Override
+	public Component getView() {
 
-            currentProjectDTO = projectPresenter.getCurrentProjectDTO();
-            fillAndInit();
-            addListeners();
-        }
+		if (view == null) {
+			view = new ProjectLogFrameView(eventBus, dispatcher);
+			if (projectPresenter.getCurrentProjectDTO().getCurrentAmendment() == null)
+				logFrame = projectPresenter.getCurrentProjectDTO().getLogFrameDTO();
+			else
+				logFrame = projectPresenter.getCurrentProjectDTO().getCurrentAmendment().getLogFrameDTO();
 
-        // If the current project has changed, clear the view
-        if (projectPresenter.getCurrentProjectDTO() != currentProjectDTO) {
-            if (projectPresenter.getCurrentProjectDTO().getCurrentAmendment() == null)
-                logFrame = projectPresenter.getCurrentProjectDTO().getLogFrameDTO();
-            else
-                logFrame = projectPresenter.getCurrentProjectDTO().getCurrentAmendment().getLogFrameDTO();
+			currentProjectDTO = projectPresenter.getCurrentProjectDTO();
+			fillAndInit();
+			addListeners();
+		}
 
-            currentProjectDTO = projectPresenter.getCurrentProjectDTO();
-            fillAndInit();
-        }
+		// If the current project has changed, clear the view
+		if (projectPresenter.getCurrentProjectDTO() != currentProjectDTO) {
+			if (projectPresenter.getCurrentProjectDTO().getCurrentAmendment() == null)
+				logFrame = projectPresenter.getCurrentProjectDTO().getLogFrameDTO();
+			else
+				logFrame = projectPresenter.getCurrentProjectDTO().getCurrentAmendment().getLogFrameDTO();
 
-        return view;
-    }
+			currentProjectDTO = projectPresenter.getCurrentProjectDTO();
+			fillAndInit();
+		}
 
-    @Override
-    public void discardView() {
-        this.view = null;
-    }
+		return view;
+	}
 
-    @Override
-    public void viewDidAppear() {
+	@Override
+	public void discardView() {
+		this.view = null;
+	}
 
-        // Make sure when the currentProjectDTO's title is changed, reset the log title's value
-        view.getLogFrameTitleContentLabel().setText(projectPresenter.getCurrentProjectDTO().getFullName());
+	@Override
+	public void viewDidAppear() {
 
-    }
+		// Make sure when the currentProjectDTO's title is changed, reset the
+		// log title's value
+		view.getLogFrameTitleContentLabel().setText(projectPresenter.getCurrentProjectDTO().getFullName());
 
-    @Override
-    public boolean hasValueChanged() {
-        return logFrameUpdated;
-    }
+	}
 
-    @Override
-    public void forgetAllChangedValues() {
-        logFrameUpdated = false;
-    }
+	@Override
+	public boolean hasValueChanged() {
+		return logFrameUpdated;
+	}
 
-    /**
-     * Initializes the presenter.
-     */
-    private void addListeners() {
+	@Override
+	public void forgetAllChangedValues() {
+		logFrameUpdated = false;
+	}
 
-        // Enable the save button when the log frame is edited.
-        view.getLogFrameGrid().addListener(new ProjectLogFrameGrid.LogFrameGridListener() {
+	/**
+	 * Initializes the presenter.
+	 */
+	private void addListeners() {
 
-            @Override
-            public void logFrameEdited() {
-                logFrameUpdated = true;
-                view.getSaveButton().setEnabled(true);
-            }
-        });
+		// Enable the save button when the log frame is edited.
+		view.getLogFrameGrid().addListener(new ProjectLogFrameGrid.LogFrameGridListener() {
 
-        // Log frame main objective box listener.
-        view.getLogFrameMainObjectiveTextBox().addListener(Events.OnKeyUp, new Listener<BaseEvent>() {
+			@Override
+			public void logFrameEdited() {
+				logFrameUpdated = true;
+				view.getSaveButton().setEnabled(true);
+			}
+		});
 
-            @Override
-            public void handleEvent(BaseEvent be) {
-                if (logFrame != null) {
-                    logFrame.setMainObjective(view.getLogFrameMainObjectiveTextBox().getValue());
-                    logFrameUpdated = true;
-                    view.getSaveButton().setEnabled(true);
-                }
-            }
-        });
+		// Log frame main objective box listener.
+		view.getLogFrameMainObjectiveTextBox().addListener(Events.OnKeyUp, new Listener<BaseEvent>() {
 
-        // Save action.
-        view.getSaveButton().addListener(Events.OnClick, new Listener<BaseEvent>() {
+			@Override
+			public void handleEvent(BaseEvent be) {
+				if (logFrame != null) {
+					logFrame.setMainObjective(view.getLogFrameMainObjectiveTextBox().getValue());
+					logFrameUpdated = true;
+					view.getSaveButton().setEnabled(true);
+				}
+			}
+		});
 
-            @Override
-            public void handleEvent(BaseEvent be) {
+		// Save action.
+		view.getSaveButton().addListener(Events.OnClick, new Listener<BaseEvent>() {
 
-                // Logs the modified log frame.
-                if (Log.isDebugEnabled()) {
-                    Log.debug("[handleEvent] Merges the log frame : \n" + logFrame.toString());
-                }
+			@Override
+			public void handleEvent(BaseEvent be) {
 
-                // Sends the merge action to the server.
-                dispatcher.execute(new UpdateLogFrame(logFrame, currentProjectDTO.getId()), new MaskingAsyncMonitor(
-                    view, I18N.CONSTANTS.loading()), new AsyncCallback<LogFrameResult>() {
+				// Logs the modified log frame.
+				if (Log.isDebugEnabled()) {
+					Log.debug("[handleEvent] Merges the log frame : \n" + logFrame.toString());
+				}
 
-                    @Override
-                    public void onFailure(Throwable e) {
+				// Sends the merge action to the server.
+				dispatcher.execute(new UpdateLogFrame(logFrame, currentProjectDTO.getId()), new MaskingAsyncMonitor(
+				                view, I18N.CONSTANTS.loading()), new AsyncCallback<LogFrameResult>() {
 
-                        // Informs of the error.
-                        Log.error("[execute] Error when saving the log frame.", e);
-                        MessageBox.alert(I18N.CONSTANTS.save(), I18N.CONSTANTS.saveError(), null);
-                    }
+					@Override
+					public void onFailure(Throwable e) {
 
-                    @Override
-                    public void onSuccess(LogFrameResult r) {
-                        if (Log.isDebugEnabled()) {
-                            Log.debug("[execute] Log frame successfully saved.");
-                        }
+						// Informs of the error.
+						Log.error("[execute] Error when saving the log frame.", e);
+						MessageBox.alert(I18N.CONSTANTS.save(), I18N.CONSTANTS.saveError(), null);
+					}
 
-                        // Updates local entities with the new returned log
-                        // frame (to get the generated ids).
-                        final LogFrameDTO updated = r.getLogFrame();
-                        currentProjectDTO.setLogFrameDTO(updated);
-                        view.getLogFrameGrid().updateLogFrame(updated);
-                        logFrame = updated;
+					@Override
+					public void onSuccess(LogFrameResult r) {
+						if (Log.isDebugEnabled()) {
+							Log.debug("[execute] Log frame successfully saved.");
+						}
 
-                        // Informs of the success.
-                        Notification.show(I18N.CONSTANTS.infoConfirmation(), I18N.CONSTANTS.saveConfirm());
-                        logFrameUpdated = false;
-                        view.getSaveButton().setEnabled(false);
+						// Updates local entities with the new returned log
+						// frame (to get the generated ids).
+						final LogFrameDTO updated = r.getLogFrame();
+						currentProjectDTO.setLogFrameDTO(updated);
+						view.getLogFrameGrid().updateLogFrame(updated);
+						logFrame = updated;
 
-                        // broadcast an indicator change event to be safe
-                        eventBus.fireEvent(new IndicatorEvent(IndicatorEvent.CHANGED, ProjectLogFramePresenter.this));
-                    }
-                });
-            }
-        });
+						// Informs of the success.
+						Notification.show(I18N.CONSTANTS.infoConfirmation(), I18N.CONSTANTS.saveConfirm());
+						logFrameUpdated = false;
+						view.getSaveButton().setEnabled(false);
 
-        // Copy action.
-        view.getCopyButton().addListener(Events.OnClick, new Listener<BaseEvent>() {
+						// broadcast an indicator change event to be safe
+						eventBus.fireEvent(new IndicatorEvent(IndicatorEvent.CHANGED, ProjectLogFramePresenter.this));
+					}
+				});
+			}
+		});
 
-            @Override
-            public void handleEvent(BaseEvent be) {
-                logFrameIdCopySource = logFrame.getId();
-                view.getPasteButton().setEnabled(isEditable() && currentProjectDTO.getCurrentAmendment() == null);
+		// Copy action.
+		view.getCopyButton().addListener(Events.OnClick, new Listener<BaseEvent>() {
 
-                Notification.show(I18N.CONSTANTS.copy(), I18N.CONSTANTS.logFrameCopied());
-            }
-        });
+			@Override
+			public void handleEvent(BaseEvent be) {
+				logFrameIdCopySource = logFrame.getId();
+				view.getPasteButton().setEnabled(isEditable() && currentProjectDTO.getCurrentAmendment() == null);
 
-        // Paste action.
-        view.getPasteButton().addListener(Events.OnClick, new Listener<BaseEvent>() {
+				Notification.show(I18N.CONSTANTS.copy(), I18N.CONSTANTS.logFrameCopied());
+			}
+		});
 
-            @Override
-            public void handleEvent(BaseEvent be) {
-                final ConfirmPasteDialog dialog = new ConfirmPasteDialog();
-                dialog.show(new FormDialogCallback() {
+		// Paste action.
+		view.getPasteButton().addListener(Events.OnClick, new Listener<BaseEvent>() {
 
-                    @Override
-                    public void onValidated() {
-                        final CopyLogFrame copyLogFrame =
-                                CopyLogFrame
-                                    .from(logFrameIdCopySource)
-                                    .to(currentProjectDTO)
-                                    .with(
-                                        dialog.isLinkIndicatorsChecked() ? IndicatorCopyStrategy.DUPLICATE_AND_LINK : IndicatorCopyStrategy.DUPLICATE);
+			@Override
+			public void handleEvent(BaseEvent be) {
+				final ConfirmPasteDialog dialog = new ConfirmPasteDialog();
+				dialog.show(new FormDialogCallback() {
 
-                        dispatcher.execute(copyLogFrame, null, new AsyncCallback<LogFrameDTO>() {
+					@Override
+					public void onValidated() {
+						final CopyLogFrame copyLogFrame = CopyLogFrame
+						                .from(logFrameIdCopySource)
+						                .to(currentProjectDTO)
+						                .with(dialog.isLinkIndicatorsChecked() ? IndicatorCopyStrategy.DUPLICATE_AND_LINK
+						                                : IndicatorCopyStrategy.DUPLICATE);
 
-                            @Override
-                            public void onFailure(Throwable caught) {
-                                MessageBox.alert(I18N.CONSTANTS.paste(), I18N.CONSTANTS.logFramePasteError(), null);
-                            }
+						dispatcher.execute(copyLogFrame, null, new AsyncCallback<LogFrameDTO>() {
 
-                            @Override
-                            public void onSuccess(LogFrameDTO result) {
-                                logFrame = result;
-                                currentProjectDTO.setLogFrameDTO(result);
+							@Override
+							public void onFailure(Throwable caught) {
+								MessageBox.alert(I18N.CONSTANTS.paste(), I18N.CONSTANTS.logFramePasteError(), null);
+							}
 
-                                fillAndInit();
-                                Notification.show(I18N.CONSTANTS.paste(), I18N.CONSTANTS.logFramePasted());
-                            }
+							@Override
+							public void onSuccess(LogFrameDTO result) {
+								logFrame = result;
+								currentProjectDTO.setLogFrameDTO(result);
 
-                        });
-                    }
+								fillAndInit();
+								Notification.show(I18N.CONSTANTS.paste(), I18N.CONSTANTS.logFramePasted());
+							}
 
-                });
+						});
+					}
 
-            }
-        });
+				});
 
-        // Excel action.  
-        view.getExcelExportFormButton().getButton().addListener(Events.OnClick, new Listener<ButtonEvent>() {
+			}
+		});
+
+		// Excel action.
+		view.getExcelExportFormButton().getButton().addListener(Events.OnClick, new Listener<ButtonEvent>() {
 
 			@Override
 			public void handleEvent(ButtonEvent be) {
-				view.getExcelExportFormButton().getFieldMap().put(ExportUtils.PARAM_EXPORT_TYPE, 
-						ExportUtils.ExportType.PROJECT_LOG_FRAME.name());
-				view.getExcelExportFormButton().getFieldMap().put(ExportUtils.PARAM_EXPORT_PROJECT_ID, 
-		        		String.valueOf(currentProjectDTO.getId()));
-		        view.getExcelExportFormButton().triggerExport();
+				view.getExcelExportFormButton().getFieldMap()
+				                .put(ExportUtils.PARAM_EXPORT_TYPE, ExportUtils.ExportType.PROJECT_LOG_FRAME.name());
+				view.getExcelExportFormButton().getFieldMap()
+				                .put(ExportUtils.PARAM_EXPORT_PROJECT_ID, String.valueOf(currentProjectDTO.getId()));
+				view.getExcelExportFormButton().triggerExport();
 			}
 		});
-       
-    }
 
-    private boolean isEditable() {
-        return logFrame != null
-            && currentProjectDTO.getAmendmentState() == Amendment.State.DRAFT
-            && currentProjectDTO.getCurrentAmendment() == null
-            && ProfileUtils.isGranted(authentication, GlobalPermissionEnum.EDIT_PROJECT);
-    }
+	}
 
-    /**
-     * Fills the view with the current log frame and initializes buttons state.
-     */
-    private void fillAndInit() {
+	private boolean isEditable() {
+		return logFrame != null && currentProjectDTO.getAmendmentState() == Amendment.State.DRAFT
+		                && currentProjectDTO.getCurrentAmendment() == null
+		                && ProfileUtils.isGranted(authentication, GlobalPermissionEnum.EDIT_PROJECT)
+		                && ProfileUtils.isGranted(authentication, GlobalPermissionEnum.EDIT_LOGFRAME);
+	}
 
-        // Fill the log frame title with the project's title
-        view.getLogFrameTitleContentLabel().setText(currentProjectDTO.getFullName());
+	/**
+	 * Fills the view with the current log frame and initializes buttons state.
+	 */
+	private void fillAndInit() {
 
-        if (logFrame != null) {
-            // Fill the log frame main objective.
-            view.getLogFrameMainObjectiveTextBox().setValue(logFrame.getMainObjective());
+		// Fill the log frame title with the project's title
+		view.getLogFrameTitleContentLabel().setText(currentProjectDTO.getFullName());
 
-            final boolean editable = isEditable();
+		if (logFrame != null) {
+			// Fill the log frame main objective.
+			view.getLogFrameMainObjectiveTextBox().setValue(logFrame.getMainObjective());
 
-            if (!editable) {
-                view.getLogFrameMainObjectiveTextBox().setEnabled(false);
-            }
+			final boolean editable = isEditable();
 
-            // Fill the grid.
-            view.getLogFrameGrid().displayLogFrame(currentProjectDTO.getId(), logFrame, editable);
-        }
+			if (!editable) {
+				view.getLogFrameMainObjectiveTextBox().setEnabled(false);
+			}
 
-        // Default buttons states.
-        view.getSaveButton().setEnabled(false);
-        view.getCopyButton().setEnabled(true);
-        view.getPasteButton().setEnabled(
-            isEditable() && logFrameIdCopySource != null && currentProjectDTO.getCurrentAmendment() == null);
-    }
+			// Fill the grid.
+			view.getLogFrameGrid().displayLogFrame(currentProjectDTO.getId(), logFrame, editable);
+		}
+
+		// Default buttons states.
+		view.getSaveButton().setEnabled(false);
+		view.getCopyButton().setEnabled(true);
+		view.getPasteButton()
+		                .setEnabled(isEditable() && logFrameIdCopySource != null
+		                                && currentProjectDTO.getCurrentAmendment() == null);
+	}
 
 }
