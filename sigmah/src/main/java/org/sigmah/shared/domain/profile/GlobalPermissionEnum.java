@@ -72,7 +72,6 @@ public enum GlobalPermissionEnum {
 	 * for viewing the logframe sub-tab
 	 */
 	VIEW_LOGFRAME,
-	
 
 	/**
 	 * for creating/modifying/deleting objectives, expected results, activities,
@@ -80,6 +79,16 @@ public enum GlobalPermissionEnum {
 	 */
 	EDIT_LOGFRAME,
 
+	/**
+	 * for viewing the agenda sub-tab
+	 */
+	VIEW_AGENDA,
+
+	/**
+	 * 
+	 * for creating/deleting/modifying events in the agenda
+	 */
+	EDIT_AGENDA,
 
 	/**
 	 * Show global export button in projects list
@@ -122,15 +131,22 @@ public enum GlobalPermissionEnum {
 		case VALID_AMENDEMENT:
 			gpName = I18N.CONSTANTS.VALIDER_AMENDEMENT();
 			break;
-		case GLOBAL_EXPORT:
-			gpName = I18N.CONSTANTS.globalExport();
-			break;
 		case VIEW_LOGFRAME:
 			gpName = I18N.CONSTANTS.VIEW_LOGFRAME();
 			break;
 		case EDIT_LOGFRAME:
 			gpName = I18N.CONSTANTS.EDIT_LOGFRAME();
 			break;
+		case VIEW_AGENDA:
+			gpName = I18N.CONSTANTS.VIEW_AGENDA();
+			break;
+		case EDIT_AGENDA:
+			gpName = I18N.CONSTANTS.EDIT_AGENDA();
+			break;
+		case GLOBAL_EXPORT:
+			gpName = I18N.CONSTANTS.globalExport();
+			break;
+
 		default:
 			gpName = null;
 		}

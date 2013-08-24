@@ -168,8 +168,8 @@ public class ProjectPresenter implements Frame, TabPage {
 
 	@Inject
 	public ProjectPresenter(final Dispatcher dispatcher, View view, Authentication authentication,
-	                final EventBus eventBus, final UserLocalCache cache, ProjectIndicatorsContainer projectIndicators,
-	                ProjectPivotContainer pivot) {
+					final EventBus eventBus, final UserLocalCache cache, ProjectIndicatorsContainer projectIndicators,
+					ProjectPivotContainer pivot) {
 
 		if (MAIN_TABS.isEmpty()) {
 			MAIN_TABS.add(I18N.CONSTANTS.projectTabDashboard());
@@ -178,7 +178,8 @@ public class ProjectPresenter implements Frame, TabPage {
 				MAIN_TABS.add(I18N.CONSTANTS.projectTabLogFrame());
 			MAIN_TABS.add(I18N.CONSTANTS.projectTabIndicators());
 			MAIN_TABS.add(I18N.CONSTANTS.projectTabDataEntry());
-			MAIN_TABS.add(I18N.CONSTANTS.projectTabCalendar());
+			if (ProfileUtils.isGranted(authentication, GlobalPermissionEnum.VIEW_AGENDA))
+				MAIN_TABS.add(I18N.CONSTANTS.projectTabCalendar());
 			MAIN_TABS.add(I18N.CONSTANTS.projectTabReports());
 		}
 
@@ -192,13 +193,14 @@ public class ProjectPresenter implements Frame, TabPage {
 		// final DummyPresenter dummyPresenter = new DummyPresenter();
 
 		ProjectPresenter.presenters
-		                .add(new ProjectDashboardPresenter(dispatcher, eventBus, authentication, this, cache));
+						.add(new ProjectDashboardPresenter(dispatcher, eventBus, authentication, this, cache));
 		ProjectPresenter.presenters.add(new ProjectDetailsPresenter(eventBus, dispatcher, authentication, this, cache));
 		if (ProfileUtils.isGranted(authentication, GlobalPermissionEnum.VIEW_LOGFRAME))
 			ProjectPresenter.presenters.add(new ProjectLogFramePresenter(eventBus, dispatcher, authentication, this));
 		ProjectPresenter.presenters.add(projectIndicators);
 		ProjectPresenter.presenters.add(pivot);
-		ProjectPresenter.presenters.add(new ProjectCalendarPresenter(dispatcher, authentication, this));
+		if (ProfileUtils.isGranted(authentication, GlobalPermissionEnum.VIEW_AGENDA))
+			ProjectPresenter.presenters.add(new ProjectCalendarPresenter(dispatcher, authentication, this));
 		ProjectPresenter.presenters.add(new ProjectReportsPresenter(authentication, dispatcher, eventBus, this));
 
 		for (int i = 0; i < MAIN_TABS.size(); i++) {
@@ -217,7 +219,7 @@ public class ProjectPresenter implements Frame, TabPage {
 				@Override
 				public void onClick(ClickEvent event) {
 					eventBus.fireEvent(new NavigationEvent(NavigationHandler.NavigationRequested, currentState
-					                .deriveTo(index), null));
+									.deriveTo(index), null));
 				}
 			});
 
@@ -285,7 +287,7 @@ public class ProjectPresenter implements Frame, TabPage {
 				w.show();
 
 				exportForm.getFieldMap().put(ExportUtils.PARAM_EXPORT_PROJECT_ID,
-				                String.valueOf(currentProjectDTO.getId()));
+								String.valueOf(currentProjectDTO.getId()));
 			}
 		});
 
@@ -308,42 +310,42 @@ public class ProjectPresenter implements Frame, TabPage {
 				@Override
 				public void componentSelected(ButtonEvent event) {
 					MessageBox.confirm(I18N.CONSTANTS.confirmDeleteProjectMessageBoxTitle(),
-					                I18N.CONSTANTS.confirmDeleteProjectMessageBoxContent(),
-					                new Listener<MessageBoxEvent>() {
+									I18N.CONSTANTS.confirmDeleteProjectMessageBoxContent(),
+									new Listener<MessageBoxEvent>() {
 
-						                @Override
-						                public void handleEvent(MessageBoxEvent be) {
-							                Button selectedButton = be.getButtonClicked();
-							                if (selectedButton.getItemId().equals(Dialog.YES)) {
-								                Map<String, Object> changes = new HashMap<String, Object>();
-								                changes.put("dateDeleted", new Date());
-								                UpdateEntity updateEntity = new UpdateEntity(currentProjectDTO, changes);
-								                dispatcher.execute(updateEntity, null, new AsyncCallback<VoidResult>() {
+										@Override
+										public void handleEvent(MessageBoxEvent be) {
+											Button selectedButton = be.getButtonClicked();
+											if (selectedButton.getItemId().equals(Dialog.YES)) {
+												Map<String, Object> changes = new HashMap<String, Object>();
+												changes.put("dateDeleted", new Date());
+												UpdateEntity updateEntity = new UpdateEntity(currentProjectDTO, changes);
+												dispatcher.execute(updateEntity, null, new AsyncCallback<VoidResult>() {
 
-									                @Override
-									                public void onFailure(Throwable arg0) {
-										                // TODO Auto-generated
-										                // method stub
+													@Override
+													public void onFailure(Throwable arg0) {
+														// TODO Auto-generated
+														// method stub
 
-									                }
+													}
 
-									                @Override
-									                public void onSuccess(VoidResult arg0) {
-										                ProjectPresenter.this.eventBus
-										                                .fireEvent(AppEvents.DeleteProject,
-										                                                new ProjectEvent(
-										                                                                AppEvents.DeleteProject,
-										                                                                ProjectPresenter.this.currentProjectDTO
-										                                                                                .getId()));
-										                Notification.show(
-										                                I18N.CONSTANTS.deleteProjectNotificationTitle(),
-										                                I18N.CONSTANTS.deleteProjectNotificationContent());
-									                }
-								                });
-							                }
+													@Override
+													public void onSuccess(VoidResult arg0) {
+														ProjectPresenter.this.eventBus
+																		.fireEvent(AppEvents.DeleteProject,
+																						new ProjectEvent(
+																										AppEvents.DeleteProject,
+																										ProjectPresenter.this.currentProjectDTO
+																														.getId()));
+														Notification.show(
+																		I18N.CONSTANTS.deleteProjectNotificationTitle(),
+																		I18N.CONSTANTS.deleteProjectNotificationContent());
+													}
+												});
+											}
 
-						                }
-					                });
+										}
+									});
 				}
 			});
 
@@ -506,7 +508,7 @@ public class ProjectPresenter implements Frame, TabPage {
 			titleToDisplay = projectTitle.length() > 110 ? projectTitle.substring(0, 110) + "..." : projectTitle;
 
 		panel.setHeading(I18N.CONSTANTS.projectMainTabTitle() + ' ' + currentProjectDTO.getName() + " ("
-		                + titleToDisplay + ")");
+						+ titleToDisplay + ")");
 
 		// Set the tool tip
 		ToolTipConfig panelToolTipconfig = new ToolTipConfig();
@@ -525,8 +527,8 @@ public class ProjectPresenter implements Frame, TabPage {
 
 		// Logo.
 		final Image logo = FundingIconProvider.getProjectTypeIcon(
-		                currentProjectDTO.getProjectModelDTO().getVisibility(authentication.getOrganizationId()),
-		                FundingIconProvider.IconSize.LARGE).createImage();
+						currentProjectDTO.getProjectModelDTO().getVisibility(authentication.getOrganizationId()),
+						FundingIconProvider.IconSize.LARGE).createImage();
 		gridPanel.setWidget(0, 0, logo);
 		gridPanel.getCellFormatter().addStyleName(0, 0, "banner-logo");
 
@@ -536,7 +538,7 @@ public class ProjectPresenter implements Frame, TabPage {
 
 		// Executes layout.
 		if (banner != null && layout != null && layout.getLayoutGroupsDTO() != null
-		                && !layout.getLayoutGroupsDTO().isEmpty()) {
+						&& !layout.getLayoutGroupsDTO().isEmpty()) {
 
 			// For visibility constraints, the banner accept a maximum of 2 rows
 			// and 4 columns.
@@ -591,7 +593,7 @@ public class ProjectPresenter implements Frame, TabPage {
 
 						// Remote call to ask for this element value.
 						final GetValue command = new GetValue(currentProjectDTO.getId(), element.getId(),
-						                element.getEntityName(), amendmentId);
+										element.getEntityName(), amendmentId);
 
 						dispatcher.execute(command, null, new AsyncCallback<ValueResult>() {
 
@@ -631,7 +633,7 @@ public class ProjectPresenter implements Frame, TabPage {
 										// Clip the text if it is longer than 30
 										if (textValue != null && !textValue.isEmpty()) {
 											String newTextValue = textValue.length() > 30 ? textValue.substring(0, 29)
-											                + "..." : textValue;
+															+ "..." : textValue;
 											lableFieldComponent.setText(newTextValue);
 										}
 
@@ -695,7 +697,7 @@ public class ProjectPresenter implements Frame, TabPage {
 		versionList.setTriggerAction(ComboBox.TriggerAction.ALL);
 
 		versionList.setValue(currentAmendment); // Selecting the
-		                                        // currentAmendment
+												// currentAmendment
 
 		Log.debug(store.getCount() + " amendment(s).");
 
@@ -800,7 +802,7 @@ public class ProjectPresenter implements Frame, TabPage {
 									}
 
 									final AmendmentAction amendmentAction = new AmendmentAction(currentProjectDTO
-									                .getId(), action);
+													.getId(), action);
 									dispatcher.execute(amendmentAction, null, new AsyncCallback<ProjectDTO>() {
 
 										@Override
@@ -814,7 +816,7 @@ public class ProjectPresenter implements Frame, TabPage {
 											// tell
 											// the user to refresh the page.
 											MessageBox.alert(amendmentActionDisplayNames.get(action),
-											                I18N.CONSTANTS.amendmentActionError(), null);
+															I18N.CONSTANTS.amendmentActionError(), null);
 											for (final Anchor anchor : anchors)
 												anchor.setEnabled(true);
 											amendmentBox.unmask();

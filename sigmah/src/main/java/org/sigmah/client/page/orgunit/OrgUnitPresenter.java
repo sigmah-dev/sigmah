@@ -1,5 +1,7 @@
 package org.sigmah.client.page.orgunit;
 
+import java.util.ArrayList;
+
 import org.sigmah.client.EventBus;
 import org.sigmah.client.cache.UserLocalCache;
 import org.sigmah.client.dispatch.AsyncMonitor;
@@ -24,6 +26,7 @@ import org.sigmah.client.ui.ToggleAnchor;
 import org.sigmah.shared.command.GetOrgUnit;
 import org.sigmah.shared.command.GetValue;
 import org.sigmah.shared.command.result.ValueResult;
+import org.sigmah.shared.domain.profile.GlobalPermissionEnum;
 import org.sigmah.shared.dto.OrgUnitBannerDTO;
 import org.sigmah.shared.dto.OrgUnitDTO;
 import org.sigmah.shared.dto.element.BudgetElementDTO;
@@ -32,6 +35,7 @@ import org.sigmah.shared.dto.element.FlexibleElementDTO;
 import org.sigmah.shared.dto.layout.LayoutConstraintDTO;
 import org.sigmah.shared.dto.layout.LayoutDTO;
 import org.sigmah.shared.dto.layout.LayoutGroupDTO;
+import org.sigmah.shared.dto.profile.ProfileUtils;
 
 import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.event.Listener;
@@ -55,255 +59,259 @@ import com.google.inject.Inject;
 
 public class OrgUnitPresenter implements Frame, TabPage {
 
-    public static final PageId PAGE_ID = new PageId("orgunit");
+	public static final PageId PAGE_ID = new PageId("orgunit");
 
-    public static final int REPORT_TAB_INDEX = 3;
+	public static final int REPORT_TAB_INDEX = 3;
 
-    /**
-     * Description of the view managed by this presenter.
-     */
-    @ImplementedBy(OrgUnitView.class)
-    public interface View {
+	/**
+	 * Description of the view managed by this presenter.
+	 */
+	@ImplementedBy(OrgUnitView.class)
+	public interface View {
 
-        public ContentPanel getPanelBanner();
+		public ContentPanel getPanelBanner();
 
-        public ContentPanel getTabPanel();
+		public ContentPanel getTabPanel();
 
-        public void setMainPanel(Widget widget);
+		public void setMainPanel(Widget widget);
 
-        public void insufficient();
+		public void insufficient();
 
-        public void sufficient();
-    }
+		public void sufficient();
+	}
 
-    private final View view;
-    private final Dispatcher dispatcher;
-    private final Authentication authentication;
-    private final UserLocalCache cache;
-    private Page activePage;
-    private OrgUnitState currentState;
-    private ToggleAnchor currentTab;
-    private OrgUnitDTO currentOrgUnitDTO;
-    private final SubPresenter[] presenters;
+	private final View view;
+	private final Dispatcher dispatcher;
+	private final Authentication authentication;
+	private final UserLocalCache cache;
+	private Page activePage;
+	private OrgUnitState currentState;
+	private ToggleAnchor currentTab;
+	private OrgUnitDTO currentOrgUnitDTO;
 
-    private final static String[] MAIN_TABS = {
-                                               I18N.CONSTANTS.orgUnitTabOverview(),
-                                               I18N.CONSTANTS.orgUnitTabInformations(),
-                                               I18N.CONSTANTS.projectTabCalendar(),
-                                               I18N.CONSTANTS.projectTabReports() };
+	private final static ArrayList<String> MAIN_TABS = new ArrayList<String>();
 
-    @Inject
-    public OrgUnitPresenter(final Dispatcher dispatcher, View view, Authentication authentication, final EventBus eventBus, final UserLocalCache cache) {
+	private final static ArrayList<SubPresenter> presenters = new ArrayList<SubPresenter>();
 
-        this.dispatcher = dispatcher;
-        this.view = view;
-        this.authentication = authentication;
-        this.cache = cache;
+	@Inject
+	public OrgUnitPresenter(final Dispatcher dispatcher, View view, Authentication authentication,
+					final EventBus eventBus, final UserLocalCache cache) {
 
-        this.presenters =
-                new SubPresenter[] {
-                                    new OrgUnitDashboardPresenter(dispatcher, eventBus, authentication, this),
-                                    new OrgUnitDetailsPresenter(dispatcher, authentication, this, cache, eventBus),
-                                    new OrgUnitCalendarPresenter(dispatcher, authentication, this),
-                                    new OrgUnitReportsPresenter(authentication, dispatcher, eventBus, this) };
+		this.dispatcher = dispatcher;
+		this.view = view;
+		this.authentication = authentication;
+		this.cache = cache;
 
-        for (int i = 0; i < MAIN_TABS.length; i++) {
-            final int index = i;
+		if (MAIN_TABS.isEmpty()) {
+			MAIN_TABS.add(I18N.CONSTANTS.orgUnitTabOverview());
+			MAIN_TABS.add(I18N.CONSTANTS.orgUnitTabInformations());
 
-            String tabTitle = MAIN_TABS[i];
+			if (ProfileUtils.isGranted(authentication, GlobalPermissionEnum.VIEW_AGENDA))
+				MAIN_TABS.add(I18N.CONSTANTS.projectTabCalendar());
+			MAIN_TABS.add(I18N.CONSTANTS.projectTabReports());
+		}
 
-            final HBoxLayoutData layoutData = new HBoxLayoutData();
-            layoutData.setMargins(new Margins(0, 10, 0, 0));
+		presenters.add(new OrgUnitDashboardPresenter(dispatcher, eventBus, authentication, this));
+		presenters.add(new OrgUnitDetailsPresenter(dispatcher, authentication, this, cache, eventBus));
 
-            final ToggleAnchor anchor = new ToggleAnchor(tabTitle);
-            anchor.setAnchorMode(true);
+		if (ProfileUtils.isGranted(authentication, GlobalPermissionEnum.VIEW_AGENDA))
+			presenters.add(new OrgUnitCalendarPresenter(dispatcher, authentication, this));
+		presenters.add(new OrgUnitReportsPresenter(authentication, dispatcher, eventBus, this));
 
-            anchor.addClickHandler(new ClickHandler() {
+		for (int i = 0; i < MAIN_TABS.size(); i++) {
+			final int index = i;
 
-                @Override
-                public void onClick(ClickEvent event) {
-                    eventBus.fireEvent(new NavigationEvent(NavigationHandler.NavigationRequested, currentState
-                        .deriveTo(index), null));
-                }
-            });
+			String tabTitle = MAIN_TABS.get(i);
 
-            this.view.getTabPanel().add(anchor, layoutData);
-        }
-    }
+			final HBoxLayoutData layoutData = new HBoxLayoutData();
+			layoutData.setMargins(new Margins(0, 10, 0, 0));
 
-    private void selectTab(int index, boolean force) {
-        final ToggleAnchor anchor = (ToggleAnchor) this.view.getTabPanel().getWidget(index);
+			final ToggleAnchor anchor = new ToggleAnchor(tabTitle);
+			anchor.setAnchorMode(true);
 
-        if (currentTab != anchor) {
-            if (currentTab != null)
-                currentTab.toggleAnchorMode();
+			anchor.addClickHandler(new ClickHandler() {
 
-            anchor.toggleAnchorMode();
-            currentTab = anchor;
+				@Override
+				public void onClick(ClickEvent event) {
+					eventBus.fireEvent(new NavigationEvent(NavigationHandler.NavigationRequested, currentState
+									.deriveTo(index), null));
+				}
+			});
 
-            OrgUnitPresenter.this.view.setMainPanel(presenters[index].getView());
-            presenters[index].viewDidAppear();
-        } else if (force) {
-            OrgUnitPresenter.this.view.setMainPanel(presenters[index].getView());
-            presenters[index].viewDidAppear();
-        }
-    }
+			this.view.getTabPanel().add(anchor, layoutData);
+		}
+	}
 
-    @Override
-    public boolean navigate(final PageState place) {
+	private void selectTab(int index, boolean force) {
 
-        final OrgUnitState state = (OrgUnitState) place;
-        final int id = state.getOrgUnitId();
+		if (index >= presenters.size())
+			return;
+		final ToggleAnchor anchor = (ToggleAnchor) this.view.getTabPanel().getWidget(index);
 
-        view.sufficient();
+		if (currentTab != anchor) {
+			if (currentTab != null)
+				currentTab.toggleAnchorMode();
 
-        if (currentOrgUnitDTO == null || id != currentOrgUnitDTO.getId()) {
+			anchor.toggleAnchorMode();
+			currentTab = anchor;
 
-            if (Log.isDebugEnabled()) {
-                Log.debug("Loading org unit #" + id + "...");
-            }
+			OrgUnitPresenter.this.view.setMainPanel(presenters.get(index).getView());
+			presenters.get(index).viewDidAppear();
+		} else if (force) {
+			OrgUnitPresenter.this.view.setMainPanel(presenters.get(index).getView());
+			presenters.get(index).viewDidAppear();
+		}
+	}
 
-            dispatcher.execute(new GetOrgUnit(id), null, new AsyncCallback<OrgUnitDTO>() {
+	@Override
+	public boolean navigate(final PageState place) {
 
-                @Override
-                public void onFailure(Throwable throwable) {
-                    Log.error("Error, org unit #" + id + " not loaded.");
-                }
+		final OrgUnitState state = (OrgUnitState) place;
+		final int id = state.getOrgUnitId();
 
-                @Override
-                public void onSuccess(OrgUnitDTO orgUnitDTO) {
+		view.sufficient();
 
-                    if (orgUnitDTO == null) {
-                        Log.error("Org unit not loaded : " + id);
-                        view.insufficient();
-                    } else {
+		if (currentOrgUnitDTO == null || id != currentOrgUnitDTO.getId()) {
 
-                        if (Log.isDebugEnabled()) {
-                            Log.debug("Org unit loaded : " + orgUnitDTO.getName());
-                        }
+			if (Log.isDebugEnabled()) {
+				Log.debug("Loading org unit #" + id + "...");
+			}
 
-                        currentState = state;
+			dispatcher.execute(new GetOrgUnit(id), null, new AsyncCallback<OrgUnitDTO>() {
 
-                        boolean orgUnitChanged = !orgUnitDTO.equals(currentOrgUnitDTO);
+				@Override
+				public void onFailure(Throwable throwable) {
+					Log.error("Error, org unit #" + id + " not loaded.");
+				}
 
-                        state.setTabTitle(orgUnitDTO.getName());
-                        loadOrgUnitOnView(orgUnitDTO);
+				@Override
+				public void onSuccess(OrgUnitDTO orgUnitDTO) {
 
-                        selectTab(state.getCurrentSection(), orgUnitChanged);
-                    }
-                }
-            });
-        } else {
-            boolean change = false;
+					if (orgUnitDTO == null) {
+						Log.error("Org unit not loaded : " + id);
+						view.insufficient();
+					} else {
 
-            if (!currentState.equals(state)) {
-                change = true;
-                currentState = state;
-            }
+						if (Log.isDebugEnabled()) {
+							Log.debug("Org unit loaded : " + orgUnitDTO.getName());
+						}
 
-            selectTab(state.getCurrentSection(), change);
-        }
+						currentState = state;
 
-        return true;
-    }
+						boolean orgUnitChanged = !orgUnitDTO.equals(currentOrgUnitDTO);
 
-    /**
-     * Loads a {@link OrgUnitDTO} object on the view.
-     * 
-     * @param orgUnitDTO
-     *            the {@link OrgUnitDTO} object loaded on the view
-     */
-    private void loadOrgUnitOnView(OrgUnitDTO orgUnitDTO) {
+						state.setTabTitle(orgUnitDTO.getName());
+						loadOrgUnitOnView(orgUnitDTO);
 
-        currentOrgUnitDTO = orgUnitDTO;
-        refreshBanner();
-    }
+						selectTab(state.getCurrentSection(), orgUnitChanged);
+					}
+				}
+			});
+		} else {
+			boolean change = false;
 
-    /**
-     * Refreshes the org unit banner for the current org unit.
-     */
-    public void refreshBanner() {
+			if (!currentState.equals(state)) {
+				change = true;
+				currentState = state;
+			}
 
-        // Panel.
-        final ContentPanel panel = view.getPanelBanner();
-        panel.setHeading(currentOrgUnitDTO.getOrgUnitModel().getTitle()
-            + ' '
-            + currentOrgUnitDTO.getName()
-            + " ("
-            + currentOrgUnitDTO.getFullName()
-            + ")");
-        panel.removeAll();
+			selectTab(state.getCurrentSection(), change);
+		}
 
-        final Grid gridPanel = new Grid(1, 2);
-        gridPanel.addStyleName("banner");
-        gridPanel.setCellPadding(0);
-        gridPanel.setCellSpacing(0);
-        gridPanel.setWidth("100%");
-        gridPanel.setHeight("100%");
+		return true;
+	}
 
-        // Logo.
-        final Image logo = OrgUnitImageBundle.ICONS.orgUnitLarge().createImage();
-        gridPanel.setWidget(0, 0, logo);
-        gridPanel.getCellFormatter().addStyleName(0, 0, "banner-logo");
+	/**
+	 * Loads a {@link OrgUnitDTO} object on the view.
+	 * 
+	 * @param orgUnitDTO
+	 *            the {@link OrgUnitDTO} object loaded on the view
+	 */
+	private void loadOrgUnitOnView(OrgUnitDTO orgUnitDTO) {
 
-        // Banner.
-        final OrgUnitBannerDTO banner = currentOrgUnitDTO.getOrgUnitModel().getBanner();
-        final LayoutDTO layout = banner.getLayout();
+		currentOrgUnitDTO = orgUnitDTO;
+		refreshBanner();
+	}
 
-        // Executes layout.
-        if (banner != null
-            && layout != null
-            && layout.getLayoutGroupsDTO() != null
-            && !layout.getLayoutGroupsDTO().isEmpty()) {
+	/**
+	 * Refreshes the org unit banner for the current org unit.
+	 */
+	public void refreshBanner() {
 
-            // For visibility constraints, the banner accept a maximum of 2 rows
-            // and 4 columns.
-            final int rows = layout.getRowsCount() > 2 ? 2 : layout.getRowsCount();
-            final int cols = layout.getColumnsCount() > 4 ? 4 : layout.getColumnsCount();
+		// Panel.
+		final ContentPanel panel = view.getPanelBanner();
+		panel.setHeading(currentOrgUnitDTO.getOrgUnitModel().getTitle() + ' ' + currentOrgUnitDTO.getName() + " ("
+						+ currentOrgUnitDTO.getFullName() + ")");
+		panel.removeAll();
 
-            final Grid gridLayout = new Grid(rows, cols);
-            gridLayout.addStyleName("banner-flex");
-            gridLayout.setCellPadding(0);
-            gridLayout.setCellSpacing(0);
-            gridLayout.setWidth("100%");
-            gridLayout.setHeight("100%");
+		final Grid gridPanel = new Grid(1, 2);
+		gridPanel.addStyleName("banner");
+		gridPanel.setCellPadding(0);
+		gridPanel.setCellSpacing(0);
+		gridPanel.setWidth("100%");
+		gridPanel.setHeight("100%");
 
-            for (int i = 0; i < gridLayout.getColumnCount() - 1; i++) {
-                gridLayout.getColumnFormatter().setWidth(i, "325px");
-            }
+		// Logo.
+		final Image logo = OrgUnitImageBundle.ICONS.orgUnitLarge().createImage();
+		gridPanel.setWidget(0, 0, logo);
+		gridPanel.getCellFormatter().addStyleName(0, 0, "banner-logo");
 
-            for (final LayoutGroupDTO groupLayout : layout.getLayoutGroupsDTO()) {
+		// Banner.
+		final OrgUnitBannerDTO banner = currentOrgUnitDTO.getOrgUnitModel().getBanner();
+		final LayoutDTO layout = banner.getLayout();
 
-                // Checks group bounds.
-                if (groupLayout.getRow() + 1 > rows || groupLayout.getColumn() + 1 > cols) {
-                    continue;
-                }
+		// Executes layout.
+		if (banner != null && layout != null && layout.getLayoutGroupsDTO() != null
+						&& !layout.getLayoutGroupsDTO().isEmpty()) {
 
-                final ContentPanel groupPanel = new ContentPanel();
-                groupPanel.setLayout(new FormLayout());
-                groupPanel.setTopComponent(null);
-                groupPanel.setHeaderVisible(false);
+			// For visibility constraints, the banner accept a maximum of 2 rows
+			// and 4 columns.
+			final int rows = layout.getRowsCount() > 2 ? 2 : layout.getRowsCount();
+			final int cols = layout.getColumnsCount() > 4 ? 4 : layout.getColumnsCount();
 
-                gridLayout.setWidget(groupLayout.getRow(), groupLayout.getColumn(), groupPanel);
+			final Grid gridLayout = new Grid(rows, cols);
+			gridLayout.addStyleName("banner-flex");
+			gridLayout.setCellPadding(0);
+			gridLayout.setCellSpacing(0);
+			gridLayout.setWidth("100%");
+			gridLayout.setHeight("100%");
 
-                if (groupLayout.getLayoutConstraintsDTO() != null) {
-                    for (final LayoutConstraintDTO constraint : groupLayout.getLayoutConstraintsDTO()) {
+			for (int i = 0; i < gridLayout.getColumnCount() - 1; i++) {
+				gridLayout.getColumnFormatter().setWidth(i, "325px");
+			}
 
-                        final FlexibleElementDTO element = constraint.getFlexibleElementDTO();
+			for (final LayoutGroupDTO groupLayout : layout.getLayoutGroupsDTO()) {
 
-                        // Only default elements are allowed.
-                        if (!(element instanceof DefaultFlexibleElementDTO)) {
-                            continue;
-                        }
+				// Checks group bounds.
+				if (groupLayout.getRow() + 1 > rows || groupLayout.getColumn() + 1 > cols) {
+					continue;
+				}
 
-                        // Builds the graphic component
-                        final DefaultFlexibleElementDTO defaultElement = (DefaultFlexibleElementDTO) element;
-                        defaultElement.setService(dispatcher);
-                        defaultElement.setAuthentication(authentication);
-                        defaultElement.setCache(cache);
-                        defaultElement.setCurrentContainerDTO(currentOrgUnitDTO);
-                        
-                        final GetValue command = new GetValue(currentOrgUnitDTO.getId(), defaultElement.getId(),
+				final ContentPanel groupPanel = new ContentPanel();
+				groupPanel.setLayout(new FormLayout());
+				groupPanel.setTopComponent(null);
+				groupPanel.setHeaderVisible(false);
+
+				gridLayout.setWidget(groupLayout.getRow(), groupLayout.getColumn(), groupPanel);
+
+				if (groupLayout.getLayoutConstraintsDTO() != null) {
+					for (final LayoutConstraintDTO constraint : groupLayout.getLayoutConstraintsDTO()) {
+
+						final FlexibleElementDTO element = constraint.getFlexibleElementDTO();
+
+						// Only default elements are allowed.
+						if (!(element instanceof DefaultFlexibleElementDTO)) {
+							continue;
+						}
+
+						// Builds the graphic component
+						final DefaultFlexibleElementDTO defaultElement = (DefaultFlexibleElementDTO) element;
+						defaultElement.setService(dispatcher);
+						defaultElement.setAuthentication(authentication);
+						defaultElement.setCache(cache);
+						defaultElement.setCurrentContainerDTO(currentOrgUnitDTO);
+
+						final GetValue command = new GetValue(currentOrgUnitDTO.getId(), defaultElement.getId(),
 										defaultElement.getEntityName(), null);
 						dispatcher.execute(command, null, new AsyncCallback<ValueResult>() {
 
@@ -327,118 +335,117 @@ public class OrgUnitPresenter implements Frame, TabPage {
 									component = defaultElement.getElementComponentInBanner(null);
 								}
 
-		                        if (component != null) {
-		                            groupPanel.add(component);
-		                        }
-		                        groupPanel.layout();
+								if (component != null) {
+									groupPanel.add(component);
+								}
+								groupPanel.layout();
 
 							}
 						});
 
+						// Only one element per cell.
+						break;
+					}
+				}
+			}
 
-                        // Only one element per cell.
-                        break;
-                    }
-                }
-            }
+			gridPanel.setWidget(0, 1, gridLayout);
+		}
+		// Default banner.
+		else {
 
-            gridPanel.setWidget(0, 1, gridLayout);
-        }
-        // Default banner.
-        else {
+			panel.setLayout(new FormLayout());
 
-            panel.setLayout(new FormLayout());
+			final LabelField codeField = new LabelField();
+			codeField.setReadOnly(true);
+			codeField.setFieldLabel(I18N.CONSTANTS.projectName());
+			codeField.setLabelSeparator(":");
+			codeField.setValue(currentOrgUnitDTO.getName());
 
-            final LabelField codeField = new LabelField();
-            codeField.setReadOnly(true);
-            codeField.setFieldLabel(I18N.CONSTANTS.projectName());
-            codeField.setLabelSeparator(":");
-            codeField.setValue(currentOrgUnitDTO.getName());
+			gridPanel.setWidget(0, 1, codeField);
+		}
 
-            gridPanel.setWidget(0, 1, codeField);
-        }
+		panel.add(gridPanel);
+		panel.layout();
+	}
 
-        panel.add(gridPanel);
-        panel.layout();
-    }
+	public OrgUnitDTO getCurrentOrgUnitDTO() {
+		return currentOrgUnitDTO;
+	}
 
-    public OrgUnitDTO getCurrentOrgUnitDTO() {
-        return currentOrgUnitDTO;
-    }
+	public void setCurrentOrgUnitDTO(OrgUnitDTO currentOrgUnitDTO) {
+		this.currentOrgUnitDTO = currentOrgUnitDTO;
+	}
 
-    public void setCurrentOrgUnitDTO(OrgUnitDTO currentOrgUnitDTO) {
-        this.currentOrgUnitDTO = currentOrgUnitDTO;
-    }
+	@Override
+	public String getTabTitle() {
+		return I18N.CONSTANTS.orgunit();
+	}
 
-    @Override
-    public String getTabTitle() {
-        return I18N.CONSTANTS.orgunit();
-    }
+	@Override
+	public PageId getPageId() {
+		return PAGE_ID;
+	}
 
-    @Override
-    public PageId getPageId() {
-        return PAGE_ID;
-    }
+	@Override
+	public Object getWidget() {
+		return view;
+	}
 
-    @Override
-    public Object getWidget() {
-        return view;
-    }
+	@Override
+	public void requestToNavigateAway(PageState place, final NavigationCallback callback) {
+		NavigationError navigationError = NavigationError.NONE;
+		for (SubPresenter subPresenter : presenters) {
+			if (subPresenter.hasValueChanged()) {
+				navigationError = NavigationError.WORK_NOT_SAVED;
+			}
+		}
 
-    @Override
-    public void requestToNavigateAway(PageState place, final NavigationCallback callback) {
-        NavigationError navigationError = NavigationError.NONE;
-        for (SubPresenter subPresenter : presenters) {
-            if (subPresenter.hasValueChanged()) {
-                navigationError = NavigationError.WORK_NOT_SAVED;
-            }
-        }
+		Listener<MessageBoxEvent> listener = new Listener<MessageBoxEvent>() {
 
-        Listener<MessageBoxEvent> listener = new Listener<MessageBoxEvent>() {
+			@Override
+			public void handleEvent(MessageBoxEvent be) {
+				if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
+					for (SubPresenter subPresenter : presenters) {
+						subPresenter.forgetAllChangedValues();
+					}
+					callback.onDecided(NavigationError.NONE);
+				}
+			}
+		};
 
-            @Override
-            public void handleEvent(MessageBoxEvent be) {
-                if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
-                    for (SubPresenter subPresenter : presenters) {
-                        subPresenter.forgetAllChangedValues();
-                    }
-                    callback.onDecided(NavigationError.NONE);
-                }
-            }
-        };
+		if (navigationError == NavigationError.WORK_NOT_SAVED) {
+			MessageBox.confirm(I18N.CONSTANTS.unsavedDataTitle(), I18N.CONSTANTS.unsavedDataMessage(), listener);
+		}
 
-        if (navigationError == NavigationError.WORK_NOT_SAVED) {
-            MessageBox.confirm(I18N.CONSTANTS.unsavedDataTitle(), I18N.CONSTANTS.unsavedDataMessage(), listener);
-        }
+		callback.onDecided(navigationError);
+	}
 
-        callback.onDecided(navigationError);
-    }
+	@Override
+	public String beforeWindowCloses() {
+		return null;
+	}
 
-    @Override
-    public String beforeWindowCloses() {
-        return null;
-    }
+	@Override
+	public void shutdown() {
+	}
 
-    @Override
-    public void shutdown() {
-    }
+	@Override
+	public void setActivePage(Page page) {
+		this.activePage = page;
+	}
 
-    @Override
-    public void setActivePage(Page page) {
-        this.activePage = page;
-    }
+	@Override
+	public Page getActivePage() {
+		return this.activePage;
+	}
 
-    @Override
-    public Page getActivePage() {
-        return this.activePage;
-    }
+	public OrgUnitState getCurrentState() {
+		return currentState;
+	}
 
-    public OrgUnitState getCurrentState() {
-        return currentState;
-    }
-
-    @Override
-    public AsyncMonitor showLoadingPlaceHolder(PageId pageId, PageState loadingPlace) {
-        return null;
-    }
+	@Override
+	public AsyncMonitor showLoadingPlaceHolder(PageId pageId, PageState loadingPlace) {
+		return null;
+	}
 }

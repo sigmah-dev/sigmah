@@ -82,8 +82,8 @@ public class ProjectCalendarView extends LayoutContainer {
 
 	@SuppressWarnings("rawtypes")
 	public ProjectCalendarView(final CalendarWidget calendar, final ListStore<CalendarWrapper> calendarStore,
-	                final CheckBoxSelectionModel<CalendarWrapper> selectionModel, final Dispatcher dispatcher,
-	                final Authentication authentication) {
+					final CheckBoxSelectionModel<CalendarWrapper> selectionModel, final Dispatcher dispatcher,
+					final Authentication authentication) {
 
 		final BorderLayout borderLayout = new BorderLayout();
 		borderLayout.setContainerStyle("x-border-layout-ct main-background");
@@ -102,7 +102,7 @@ public class ProjectCalendarView extends LayoutContainer {
 		calendarColor.setRenderer(new GridCellRenderer() {
 			@Override
 			public Object render(ModelData model, String property, ColumnData config, int rowIndex, int colIndex,
-			                ListStore store, Grid grid) {
+							ListStore store, Grid grid) {
 				final CalendarWrapper calendarWrapper = (CalendarWrapper) model;
 				final SimplePanel panel = new SimplePanel();
 				panel.setPixelSize(14, 14);
@@ -114,7 +114,7 @@ public class ProjectCalendarView extends LayoutContainer {
 		});
 
 		final ColumnModel calendarColumnModel = new ColumnModel(Arrays.asList(selectionModel.getColumn(), calendarName,
-		                calendarColor));
+						calendarColor));
 
 		final Grid<CalendarWrapper> calendarGrid = new Grid<CalendarWrapper>(calendarStore, calendarColumnModel);
 		calendarGrid.setAutoExpandColumn("name");
@@ -231,7 +231,8 @@ public class ProjectCalendarView extends LayoutContainer {
 			}
 		});
 
-		if (ProfileUtils.isGranted(authentication, GlobalPermissionEnum.EDIT_PROJECT)) {
+		if (ProfileUtils.isGranted(authentication, GlobalPermissionEnum.EDIT_PROJECT)
+						&& ProfileUtils.isGranted(authentication, GlobalPermissionEnum.EDIT_AGENDA)) {
 			toolbar.add(addEventButton);
 		}
 
@@ -262,10 +263,10 @@ public class ProjectCalendarView extends LayoutContainer {
 					@Override
 					public void onSuccess(VoidResult result) {
 						final List<Event> oldEventList = event
-						                .getParent()
-						                .getEvents()
-						                .get(new Date(event.getDtstart().getYear(), event.getDtstart().getMonth(),
-						                                event.getDtstart().getDate()));
+										.getParent()
+										.getEvents()
+										.get(new Date(event.getDtstart().getYear(), event.getDtstart().getMonth(),
+														event.getDtstart().getDate()));
 						oldEventList.remove(event);
 
 						calendarWidget.refresh();
@@ -285,7 +286,7 @@ public class ProjectCalendarView extends LayoutContainer {
 	}
 
 	public Dialog getEditPersonalEventDialog(final Event event, final ListStore<CalendarWrapper> calendarStore,
-	                final CalendarWidget calendarWidget, final Dispatcher dispatcher) {
+					final CalendarWidget calendarWidget, final Dispatcher dispatcher) {
 		if (addPersonalEventDialog == null) {
 			final Dialog dialog = new Dialog();
 			dialog.setButtons(Dialog.OKCANCEL);
@@ -367,22 +368,22 @@ public class ProjectCalendarView extends LayoutContainer {
 			}
 		} else {
 			boolean fullDayEvent = event.getDtend() != null
-			                && (event.getDtstart().getDate() != event.getDtend().getDate()
-			                                || event.getDtstart().getMonth() != event.getDtend().getMonth() || event
-			                                .getDtstart().getYear() != event.getDtend().getYear());
+							&& (event.getDtstart().getDate() != event.getDtend().getDate()
+											|| event.getDtstart().getMonth() != event.getDtend().getMonth() || event
+											.getDtstart().getYear() != event.getDtend().getYear());
 
 			((ComboBox<CalendarWrapper>) addPersonalEventDialog.getWidget(0)).setValue(new CalendarWrapper(event
-			                .getParent()));
+							.getParent()));
 			((TextField<String>) addPersonalEventDialog.getWidget(1)).setValue(event.getSummary());
 			((DateField) addPersonalEventDialog.getWidget(2)).setValue(new Date(event.getDtstart().getYear(), event
-			                .getDtstart().getMonth(), event.getDtstart().getDate()));
+							.getDtstart().getMonth(), event.getDtstart().getDate()));
 			if (!fullDayEvent) {
 				((TimeField) addPersonalEventDialog.getWidget(3)).setValue(((TimeField) addPersonalEventDialog
-				                .getWidget(3)).findModel(event.getDtstart()));
+								.getWidget(3)).findModel(event.getDtstart()));
 
 				if (event.getDtend() != null) {
 					((TimeField) addPersonalEventDialog.getWidget(4)).setValue(((TimeField) addPersonalEventDialog
-					                .getWidget(4)).findModel(event.getDtend()));
+									.getWidget(4)).findModel(event.getDtend()));
 				} else {
 					((TimeField) addPersonalEventDialog.getWidget(4)).setValue(null);
 				}
@@ -421,7 +422,7 @@ public class ProjectCalendarView extends LayoutContainer {
 					if (addPersonalEventDialog.getWidget(index) instanceof TimeField) {
 						final TimeField field = (TimeField) addPersonalEventDialog.getWidget(index);
 						properties.put(field.getName(), field.getDateValue() != null ? field.getDateValue().getTime()
-						                : null);
+										: null);
 					} else {
 
 						final Field<Serializable> field = (Field<Serializable>) addPersonalEventDialog.getWidget(index);
@@ -497,7 +498,7 @@ public class ProjectCalendarView extends LayoutContainer {
 	 * @param callback
 	 */
 	private void addPersonalEvent(final Map<String, Serializable> properties, final Dispatcher dispatcher,
-	                final AsyncCallback<Event> callback) {
+					final AsyncCallback<Event> callback) {
 		final CreateEntity createEntity = new CreateEntity("PersonalEvent", properties);
 		dispatcher.execute(createEntity, null, new AsyncCallback<CreateResult>() {
 
@@ -527,9 +528,9 @@ public class ProjectCalendarView extends LayoutContainer {
 	 * @param callback
 	 */
 	private void editPersonalEvent(final Event event, final Map<String, ?> properties, final Dispatcher dispatcher,
-	                final AsyncCallback<Event> callback) {
+					final AsyncCallback<Event> callback) {
 		final UpdateEntity updateEntity = new UpdateEntity("PersonalEvent", (Integer) event.getIdentifier(),
-		                (Map<String, Object>) properties);
+						(Map<String, Object>) properties);
 		dispatcher.execute(updateEntity, null, new AsyncCallback<VoidResult>() {
 
 			@Override
@@ -542,8 +543,8 @@ public class ProjectCalendarView extends LayoutContainer {
 				final Calendar calendar = event.getParent();
 
 				final List<Event> oldEventList = CalendarWidget.normalize(calendar).get(
-				                new Date(event.getDtstart().getYear(), event.getDtstart().getMonth(), event
-				                                .getDtstart().getDate()));
+								new Date(event.getDtstart().getYear(), event.getDtstart().getMonth(), event
+												.getDtstart().getDate()));
 				oldEventList.remove(event);
 
 				updateEvent(event, properties);

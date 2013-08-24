@@ -9,10 +9,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 
+import org.sigmah.client.dispatch.remote.Authentication;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.shared.domain.calendar.ActivityCalendarIdentifier;
 import org.sigmah.shared.domain.calendar.Calendar;
 import org.sigmah.shared.domain.calendar.Event;
+import org.sigmah.shared.domain.profile.GlobalPermissionEnum;
+import org.sigmah.shared.dto.profile.ProfileUtils;
 
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -197,10 +200,13 @@ public class CalendarWidget extends Composite {
 	private CalendarListener listener;
 	private Delegate delegate;
 
-	public CalendarWidget(int displayHeaders, boolean displayWeekNumber) {
+	private final Authentication authentication;
+
+	public CalendarWidget(int displayHeaders, boolean displayWeekNumber, Authentication authentication) {
 		this.calendars = new ArrayList<Calendar>();
 		this.displayHeaders = displayHeaders;
 		this.displayWeekNumber = displayWeekNumber;
+		this.authentication = authentication;
 
 		// final SimplePanel container;
 
@@ -401,7 +407,7 @@ public class CalendarWidget extends Composite {
 				// They shouldn't be placed in their startDate list
 				if (!isSameDay(normalizedKeyDate, event.getDtstart()) && !isActivityCalendar) {
 					normalizedKeyDate = new Date(event.getDtstart().getYear(), event.getDtstart().getMonth(), event
-					                .getDtstart().getDate());
+									.getDtstart().getDate());
 				}
 
 				if (eventMapNormalized.get(normalizedKeyDate) == null) {
@@ -437,18 +443,18 @@ public class CalendarWidget extends Composite {
 	 * @return height of a cell.
 	 */
 	private native int getCellHeight(int defaultHeight) /*-{
-	                                                    var height = 0;
+														var height = 0;
 
-	                                                    if(!$wnd.getComputedStyle)
-	                                                    return defaultHeight;
+														if(!$wnd.getComputedStyle)
+														return defaultHeight;
 
-	                                                    var row = $wnd.document.getElementById('calendar-row-calibration');
+														var row = $wnd.document.getElementById('calendar-row-calibration');
 
-	                                                    var style = $wnd.getComputedStyle(row, null);
-	                                                    height += parseInt(style.height);
+														var style = $wnd.getComputedStyle(row, null);
+														height += parseInt(style.height);
 
-	                                                    return height;
-	                                                    }-*/;
+														return height;
+														}-*/;
 
 	/**
 	 * Calculates the width of the cell identified by
@@ -457,18 +463,18 @@ public class CalendarWidget extends Composite {
 	 * @return width of a cell.
 	 */
 	private native int getCellWidth(int defaultWidth) /*-{
-	                                                  var width = 0;
+														var width = 0;
 
-	                                                  if(!$wnd.getComputedStyle)
-	                                                  return defaultWidth;
+														if(!$wnd.getComputedStyle)
+														return defaultWidth;
 
-	                                                  var cell = $wnd.document.getElementById('calendar-cell-calibration');
+														var cell = $wnd.document.getElementById('calendar-cell-calibration');
 
-	                                                  var style = $wnd.getComputedStyle(cell, null);
-	                                                  width += parseInt(style.width);
+														var style = $wnd.getComputedStyle(cell, null);
+														width += parseInt(style.width);
 
-	                                                  return width;
-	                                                  }-*/;
+														return width;
+														}-*/;
 
 	/**
 	 * Retrieves the current heading of the calendar.
@@ -668,8 +674,8 @@ public class CalendarWidget extends Composite {
 				eventDate.append(hourFormatter.format(event.getDtend()));
 
 				if (event.getDtstart().getDate() != event.getDtend().getDate()
-				                || event.getDtstart().getMonth() != event.getDtend().getMonth()
-				                || event.getDtstart().getYear() != event.getDtend().getYear()) {
+								|| event.getDtstart().getMonth() != event.getDtend().getMonth()
+								|| event.getDtstart().getYear() != event.getDtend().getYear()) {
 					fullDayEvent = true;
 					flowPanel.addStyleName("calendar-fullday-event");
 				}
@@ -709,7 +715,9 @@ public class CalendarWidget extends Composite {
 			} else
 				popupContent.setText(2, 0, "");
 
-			if (event.getParent().isEditable()) {
+			if (event.getParent().isEditable()
+							&& ProfileUtils.isGranted(authentication, GlobalPermissionEnum.EDIT_PROJECT,
+											GlobalPermissionEnum.EDIT_AGENDA)) {
 				final Anchor editAnchor = new Anchor(I18N.CONSTANTS.calendarEditEvent());
 				editAnchor.addClickHandler(new ClickHandler() {
 					@Override
@@ -814,8 +822,9 @@ public class CalendarWidget extends Composite {
 
 		final Date januaryFourth = new Date(thursday.getYear(), 0, 4);
 		final int daysToMonday = 1 - januaryFourth.getDay(); // Essayer avec le
-		                                                     // 1er jour de la
-		                                                     // semaine
+																// 1er jour de
+																// la
+																// semaine
 		final Date monday = new Date(thursday.getYear(), 0, 4 + daysToMonday);
 
 		final double diff = Math.floor((thursday.getTime() - monday.getTime()) / (1000 * 60 * 60 * 24));
