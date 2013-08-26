@@ -5,13 +5,18 @@ import java.util.HashMap;
 
 import org.sigmah.client.dispatch.Dispatcher;
 import org.sigmah.client.dispatch.monitor.MaskingAsyncMonitor;
+import org.sigmah.client.dispatch.remote.Authentication;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.page.project.dashboard.EditFormWindow.FormSubmitListener;
 import org.sigmah.client.page.project.dashboard.ProjectDashboardPresenter.View;
 import org.sigmah.client.util.Notification;
 import org.sigmah.shared.command.UpdateEntity;
 import org.sigmah.shared.command.result.VoidResult;
+import org.sigmah.shared.domain.profile.GlobalPermissionEnum;
+import org.sigmah.shared.domain.reminder.ReminderChangeType;
+import org.sigmah.shared.dto.profile.ProfileUtils;
 import org.sigmah.shared.dto.reminder.MonitoredPointDTO;
+import org.sigmah.shared.dto.reminder.MonitoredPointHistoryDTO;
 
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
@@ -26,42 +31,60 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
- * A cell renderer for label column in a monitored point grid 
+ * A cell renderer for label column in a monitored point grid
  * 
  * @author HUZHE
- *
+ * 
  */
 public class MonitoredPointLabelCellRender implements GridCellRenderer<MonitoredPointDTO> {
 
-	
 	private ProjectDashboardPresenter.View view;
 	private Dispatcher dispatcher;
-	
+	private final Authentication authentication;
+
 	/**
 	 * @param view
 	 * @param dispatcher
 	 */
-	public MonitoredPointLabelCellRender(View view, Dispatcher dispatcher) {
+	public MonitoredPointLabelCellRender(View view, Dispatcher dispatcher, Authentication authentication) {
 		super();
 		this.view = view;
 		this.dispatcher = dispatcher;
+		this.authentication = authentication;
 	}
 
 	@Override
-	public Object render(final MonitoredPointDTO model, String property,
-			ColumnData config, int rowIndex, int colIndex,
-			ListStore<MonitoredPointDTO> store, Grid<MonitoredPointDTO> grid) {
-		
-		
-		//Create a lable with a hyperlink style 
-		com.google.gwt.user.client.ui.Label l = new com.google.gwt.user.client.ui.Label(model.getLabel());
-		l.addStyleName("hyperlink_style_label");
-		if (model.isCompleted()) {
-			//When the monitored point is completed,change the label style
-			l.addStyleName("points-completed");
+	public Object render(final MonitoredPointDTO model, String property, ColumnData config, int rowIndex, int colIndex,
+	                ListStore<MonitoredPointDTO> store, Grid<MonitoredPointDTO> grid) {
+
+		boolean creator = false;
+		for (MonitoredPointHistoryDTO hist : model.getHistory()) {
+			if (hist.getType() == ReminderChangeType.CREATED)
+				creator = (authentication.getUserId() == hist.getUserId() ? true : false);
 		}
-		
-		//Add a click handler to response a cleck event
+
+		// Create a lable with a hyperlink style
+		com.google.gwt.user.client.ui.Label l = new com.google.gwt.user.client.ui.Label(model.getLabel());
+
+		if (creator && ProfileUtils.isGranted(authentication, GlobalPermissionEnum.EDIT_OWN_REMINDERS)
+		                || ProfileUtils.isGranted(authentication, GlobalPermissionEnum.EDIT_ALL_REMINDERS)) {
+
+			l.addStyleName("hyperlink_style_label");
+			if (model.isCompleted()) {
+				// When the monitored point is completed,change the label style
+				l.addStyleName("points-completed");
+			}
+		} else {
+			if (model.isCompleted()) {
+				// When the monitored point is completed,change the label style
+				l.addStyleName("points-completed");
+			}
+
+			return l;
+
+		}
+
+		// Add a click handler to response a cleck event
 		l.addClickHandler(new ClickHandler() {
 
 			@Override
@@ -69,18 +92,17 @@ public class MonitoredPointLabelCellRender implements GridCellRenderer<Monitored
 
 				// Create a new FormWindow to edit the monitred point
 				final EditFormWindow window = new EditFormWindow();
-				window.addTextField(I18N.CONSTANTS.monitoredPointLabel(),model.getLabel(), false);
-				window.addDateField(I18N.CONSTANTS.monitoredPointExpectedDate(),model.getExpectedDate(), false);
+				window.addTextField(I18N.CONSTANTS.monitoredPointLabel(), model.getLabel(), false);
+				window.addDateField(I18N.CONSTANTS.monitoredPointExpectedDate(), model.getExpectedDate(), false);
 
-				window.show(I18N.CONSTANTS.monitoredPointUpdate(),I18N.CONSTANTS.monitoredPointUpdateDetails());
-				
-				//SubmitLister, see the definition of FormWindow for details
+				window.show(I18N.CONSTANTS.monitoredPointUpdate(), I18N.CONSTANTS.monitoredPointUpdateDetails());
+
+				// SubmitLister, see the definition of FormWindow for details
 				window.addFormSubmitListener(new FormSubmitListener() {
 
-					
 					// ---------Updating Handler-------------------------
-					// --------------------------------------------------	
-					
+					// --------------------------------------------------
+
 					@Override
 					public void formSubmitted(Object... values) {
 
@@ -95,139 +117,126 @@ public class MonitoredPointLabelCellRender implements GridCellRenderer<Monitored
 							return;
 						}
 
-						//Retrive all values 
+						// Retrive all values
 						final Date expectedDate = (Date) element0;
 						final String label = (String) element1;
 						final HashMap<String, Object> properties = new HashMap<String, Object>();
-						properties.put("expectedDate",
-								expectedDate.getTime());
+						properties.put("expectedDate", expectedDate.getTime());
 						properties.put("label", label);
 						properties.put("deleted", model.isDeleted());
 
 						// RPC to update by using the command UpdateEntity
-						dispatcher.execute(new UpdateEntity(model, properties),new MaskingAsyncMonitor(view.getMonitoredPointsGrid(), I18N.CONSTANTS.loading()),
-								new AsyncCallback<VoidResult>() {
+						dispatcher.execute(
+						                new UpdateEntity(model, properties),
+						                new MaskingAsyncMonitor(view.getMonitoredPointsGrid(), I18N.CONSTANTS.loading()),
+						                new AsyncCallback<VoidResult>() {
 
-									@Override
-									public void onFailure(Throwable caught) {						 
-									
-									  MessageBox.alert(
-													I18N.CONSTANTS
-															.monitoredPointUpdateError(),
-													I18N.CONSTANTS
-															.monitoredPointUpdateErrorDetails(),
-													null);
-								  
-									}
+							                @Override
+							                public void onFailure(Throwable caught) {
 
-									@Override
-									public void onSuccess(VoidResult result) {
+								                MessageBox.alert(I18N.CONSTANTS.monitoredPointUpdateError(),
+								                                I18N.CONSTANTS.monitoredPointUpdateErrorDetails(), null);
 
-										// After the RPC,modify the DTO model of the grid
-										model.setExpectedDate(expectedDate);
-										model.setLabel(label);
-										
-										//Refresh the grid 
-									    ListStore<MonitoredPointDTO> pointDTOStore = view.getMonitoredPointsGrid().getStore();
-									    pointDTOStore.update(model);
-									    
-									    
-										   Notification.show(
-												I18N.CONSTANTS
-														.infoConfirmation(),
-												I18N.CONSTANTS
-														.monitoredPointUpdateConfirm());
-									       
-									}
-								});
+							                }
+
+							                @Override
+							                public void onSuccess(VoidResult result) {
+
+								                // After the RPC,modify the DTO
+								                // model of the grid
+								                model.setExpectedDate(expectedDate);
+								                model.setLabel(label);
+
+								                // Refresh the grid
+								                ListStore<MonitoredPointDTO> pointDTOStore = view
+								                                .getMonitoredPointsGrid().getStore();
+								                pointDTOStore.update(model);
+
+								                Notification.show(I18N.CONSTANTS.infoConfirmation(),
+								                                I18N.CONSTANTS.monitoredPointUpdateConfirm());
+
+							                }
+						                });
 
 					}
 
 					// ---------Updating End-----------------------------
-					
+
 					// ---------Deletion Handler-------------------------
-				    // --------------------------------------------------	
-					
+					// --------------------------------------------------
+
 					@Override
 					public void deleteModelObject() {
-					
-						
-					     //Create a listener for the confirm message box
-					    Listener<MessageBoxEvent> confirmListener =new Listener<MessageBoxEvent>() {  
-					           public void handleEvent(MessageBoxEvent be) {  
-					             
-					        	   Button btn = be.getButtonClicked();
-					        	   
-					        	   //If user clicks the Yes button,begin to delete
-					        	   if(btn.getText().equals(I18N.CONSTANTS.yes()))
-					        	    {				        		            
-					        		   HashMap<String, Object> properties = new HashMap <String,Object>();
-				                       properties.put("expectedDate",model.getExpectedDate().getTime());
-									   properties.put("label", model.getLabel());
-								       properties.put("deleted", true);
-					        		   
-										// RPC to update by using the command UpdateEntity
-										dispatcher.execute(new UpdateEntity(model, properties),new MaskingAsyncMonitor(view.getMonitoredPointsGrid(), I18N.CONSTANTS.loading()),
-												new AsyncCallback<VoidResult>() {
 
-													@Override
-													public void onFailure(Throwable caught) {						 
-													
-													  MessageBox.alert(
-																	I18N.CONSTANTS
-																			.deletionError(),
-																	I18N.CONSTANTS
-																			.monitoredPointDeletionErrorDetails(),
-																	null);
-												  
-													}
+						// Create a listener for the confirm message box
+						Listener<MessageBoxEvent> confirmListener = new Listener<MessageBoxEvent>() {
+							public void handleEvent(MessageBoxEvent be) {
 
-													@Override
-													public void onSuccess(VoidResult result) {
-														
-														//Refresh the grid 
-														model.setDeleted(true);
-													    ListStore<MonitoredPointDTO> pointDTOStore = view.getMonitoredPointsGrid().getStore();
-													    pointDTOStore.remove(model);
-													    
-													    window.hide();
-													     Notification.show(
-																	I18N.CONSTANTS
-																			.infoConfirmation(),
-																	I18N.CONSTANTS
-																			.monitoredPointDeletionConfirm());
-													}
-												});
-					        		   
-					        	    }
-					        	   	        	   
-					           }  
-					         };  
-					       							
-				       //Create a confirm messagebox with the listener
-				       MessageBox confirmMessageBox = MessageBox.confirm(I18N.CONSTANTS.deleteConfirm(),I18N.CONSTANTS.deleteConfirmMessage(), confirmListener);
-				       confirmMessageBox.setButtons(MessageBox.YESNO);
-				       ((Button)confirmMessageBox.getDialog().getButtonBar().getItem(0)).setText(I18N.CONSTANTS.yes());
-				       ((Button)confirmMessageBox.getDialog().getButtonBar().getItem(1)).setText(I18N.CONSTANTS.no());
-				       confirmMessageBox.setIcon(MessageBox.WARNING);
-				       confirmMessageBox.show();		
-						
+								Button btn = be.getButtonClicked();
+
+								// If user clicks the Yes button,begin to delete
+								if (btn.getText().equals(I18N.CONSTANTS.yes())) {
+									HashMap<String, Object> properties = new HashMap<String, Object>();
+									properties.put("expectedDate", model.getExpectedDate().getTime());
+									properties.put("label", model.getLabel());
+									properties.put("deleted", true);
+
+									// RPC to update by using the command
+									// UpdateEntity
+									dispatcher.execute(new UpdateEntity(model, properties), new MaskingAsyncMonitor(
+									                view.getMonitoredPointsGrid(), I18N.CONSTANTS.loading()),
+									                new AsyncCallback<VoidResult>() {
+
+										                @Override
+										                public void onFailure(Throwable caught) {
+
+											                MessageBox.alert(
+											                                I18N.CONSTANTS.deletionError(),
+											                                I18N.CONSTANTS.monitoredPointDeletionErrorDetails(),
+											                                null);
+
+										                }
+
+										                @Override
+										                public void onSuccess(VoidResult result) {
+
+											                // Refresh the grid
+											                model.setDeleted(true);
+											                ListStore<MonitoredPointDTO> pointDTOStore = view
+											                                .getMonitoredPointsGrid().getStore();
+											                pointDTOStore.remove(model);
+
+											                window.hide();
+											                Notification.show(
+											                                I18N.CONSTANTS.infoConfirmation(),
+											                                I18N.CONSTANTS.monitoredPointDeletionConfirm());
+										                }
+									                });
+
+								}
+
+							}
+						};
+
+						// Create a confirm messagebox with the listener
+						MessageBox confirmMessageBox = MessageBox.confirm(I18N.CONSTANTS.deleteConfirm(),
+						                I18N.CONSTANTS.deleteConfirmMessage(), confirmListener);
+						confirmMessageBox.setButtons(MessageBox.YESNO);
+						((Button) confirmMessageBox.getDialog().getButtonBar().getItem(0)).setText(I18N.CONSTANTS.yes());
+						((Button) confirmMessageBox.getDialog().getButtonBar().getItem(1)).setText(I18N.CONSTANTS.no());
+						confirmMessageBox.setIcon(MessageBox.WARNING);
+						confirmMessageBox.show();
+
 					}
 
 					// ---------Deletion End-----------------------------
-					
+
 				});
-				
-			
 
 			}
 		});
 		return l;
-		
-		
-		
-		
-		
+
 	}
 
 }

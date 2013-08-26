@@ -47,8 +47,11 @@ import org.sigmah.shared.domain.ProjectFunding;
 import org.sigmah.shared.domain.User;
 import org.sigmah.shared.domain.UserDatabase;
 import org.sigmah.shared.domain.reminder.MonitoredPoint;
+import org.sigmah.shared.domain.reminder.MonitoredPointHistory;
 import org.sigmah.shared.domain.reminder.MonitoredPointList;
 import org.sigmah.shared.domain.reminder.Reminder;
+import org.sigmah.shared.domain.reminder.ReminderChangeType;
+import org.sigmah.shared.domain.reminder.ReminderHistory;
 import org.sigmah.shared.domain.reminder.ReminderList;
 import org.sigmah.shared.dto.OrgUnitModelDTO;
 import org.sigmah.shared.dto.ProjectDTOLight;
@@ -138,9 +141,9 @@ public class CreateEntityHandler extends BaseEntityHandler implements CommandHan
 			ProjectReportPolicy policy = injector.getInstance(ProjectReportPolicy.class);
 			return new CreateResult(policy.createDraft(user, propertyMap));
 		} else if ("MonitoredPoint".equals(cmd.getEntityName())) {
-			return createMonitoredPoint(properties);
+			return createMonitoredPoint(user, properties);
 		} else if ("Reminder".equals(cmd.getEntityName())) {
-			return createReminder(properties);
+			return createReminder(user, properties);
 		} else if ("User".equals(cmd.getEntityName())) {
 			return createUser(user, propertyMap);
 		} else if ("PrivacyGroup".equals(cmd.getEntityName())) {
@@ -368,7 +371,7 @@ public class CreateEntityHandler extends BaseEntityHandler implements CommandHan
 		return result;
 	}
 
-	private CommandResult createMonitoredPoint(Map<String, Object> properties) {
+	private CommandResult createMonitoredPoint(User user, Map<String, Object> properties) {
 
 		if (log.isDebugEnabled()) {
 			log.debug("[createMonitoredPoint] Starts monitored point creation.");
@@ -413,6 +416,13 @@ public class CreateEntityHandler extends BaseEntityHandler implements CommandHan
 		// Adds it to the list.
 		list.addMonitoredPoint(point);
 
+		MonitoredPointHistory hist = new MonitoredPointHistory();
+		hist.setDate(new Date());
+		hist.setType(ReminderChangeType.CREATED);
+		hist.setUserId(user.getId());
+		hist.setValue(user.getName() + ", " + user.getFirstName() + " <" + user.getEmail() + ">");
+		point.addHistory(hist);
+
 		// Saves it.
 		em.persist(project);
 
@@ -424,7 +434,7 @@ public class CreateEntityHandler extends BaseEntityHandler implements CommandHan
 		return new CreateResult(injector.getInstance(Mapper.class).map(point, MonitoredPointDTO.class));
 	}
 
-	private CommandResult createReminder(Map<String, Object> properties) {
+	private CommandResult createReminder(User user, Map<String, Object> properties) {
 
 		if (log.isDebugEnabled()) {
 			log.debug("[createReminder] Starts reminder creation.");
@@ -467,6 +477,13 @@ public class CreateEntityHandler extends BaseEntityHandler implements CommandHan
 
 		// Adds it to the list.
 		list.addReminder(reminder);
+
+		ReminderHistory hist = new ReminderHistory();
+		hist.setDate(new Date());
+		hist.setType(ReminderChangeType.CREATED);
+		hist.setUserId(user.getId());
+		hist.setValue(user.getName() + ", " + user.getFirstName() + " <" + user.getEmail() + ">");
+		reminder.addHistory(hist);
 
 		// Saves it.
 		em.persist(project);

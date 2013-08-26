@@ -1,8 +1,11 @@
 package org.sigmah.shared.domain.reminder;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -10,6 +13,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -19,71 +23,73 @@ import javax.persistence.Transient;
 @Table(name = "reminder")
 public class Reminder implements Serializable {
 
-    private static final long serialVersionUID = 2360748872630231054L;
+	private static final long serialVersionUID = 2360748872630231054L;
 
-    private Integer id;
-    private String label;
-    private Date expectedDate;
-    private Date completionDate;
-    private ReminderList parentList;
-    private Boolean deleted;
+	private Integer id;
+	private String label;
+	private Date expectedDate;
+	private Date completionDate;
+	private ReminderList parentList;
+	private Boolean deleted;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id_reminder")
-    public Integer getId() {
-        return id;
-    }
+	private List<ReminderHistory> history = new ArrayList<ReminderHistory>(0);
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	@Column(name = "id_reminder")
+	public Integer getId() {
+		return id;
+	}
 
-    @Column(name = "label", length = 8192, nullable = false)
-    public String getLabel() {
-        return label;
-    }
+	public void setId(Integer id) {
+		this.id = id;
+	}
 
-    public void setLabel(String label) {
-        this.label = label;
-    }
+	@Column(name = "label", length = 8192, nullable = false)
+	public String getLabel() {
+		return label;
+	}
 
-    @Column(name = "expected_date", nullable = false)
-    @Temporal(value = TemporalType.TIMESTAMP)
-    public Date getExpectedDate() {
-        return expectedDate;
-    }
+	public void setLabel(String label) {
+		this.label = label;
+	}
 
-    public void setExpectedDate(Date expectedDate) {
-        this.expectedDate = expectedDate;
-    }
+	@Column(name = "expected_date", nullable = false)
+	@Temporal(value = TemporalType.TIMESTAMP)
+	public Date getExpectedDate() {
+		return expectedDate;
+	}
 
-    @Column(name = "completion_date", nullable = true)
-    @Temporal(value = TemporalType.TIMESTAMP)
-    public Date getCompletionDate() {
-        return completionDate;
-    }
+	public void setExpectedDate(Date expectedDate) {
+		this.expectedDate = expectedDate;
+	}
 
-    public void setCompletionDate(Date completionDate) {
-        this.completionDate = completionDate;
-    }
+	@Column(name = "completion_date", nullable = true)
+	@Temporal(value = TemporalType.TIMESTAMP)
+	public Date getCompletionDate() {
+		return completionDate;
+	}
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "id_list", nullable = false)
-    public ReminderList getParentList() {
-        return parentList;
-    }
+	public void setCompletionDate(Date completionDate) {
+		this.completionDate = completionDate;
+	}
 
-    public void setParentList(ReminderList parentList) {
-        this.parentList = parentList;
-    }
+	@ManyToOne(optional = false)
+	@JoinColumn(name = "id_list", nullable = false)
+	public ReminderList getParentList() {
+		return parentList;
+	}
 
-    @Transient
-    public boolean isCompleted() {
-        return completionDate != null;
-    }
-   
-    @Column(name="deleted")
+	public void setParentList(ReminderList parentList) {
+		this.parentList = parentList;
+	}
+
+	@Transient
+	public boolean isCompleted() {
+		return completionDate != null;
+	}
+
+	@Column(name = "deleted")
 	public Boolean isDeleted() {
 		return deleted;
 	}
@@ -92,8 +98,18 @@ public class Reminder implements Serializable {
 		this.deleted = deleted;
 	}
 
+	@OneToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE }, mappedBy = "reminder")
+	public List<ReminderHistory> getHistory() {
+		return history;
+	}
 
-    
-    
-   
+	public void addHistory(ReminderHistory hist) {
+		hist.setReminder(this);
+		history.add(hist);
+	}
+
+	public void setHistory(List<ReminderHistory> history) {
+		this.history = history;
+	}
+
 }

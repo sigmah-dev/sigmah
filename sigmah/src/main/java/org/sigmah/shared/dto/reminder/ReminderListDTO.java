@@ -14,30 +14,30 @@ import com.extjs.gxt.ui.client.data.BaseModelData;
  */
 public class ReminderListDTO extends BaseModelData implements EntityDTO {
 
-    private static final long serialVersionUID = 6658962865288286355L;
+	private static final long serialVersionUID = 6658962865288286355L;
 
-    @Override
-    public String getEntityName() {
-        return "reminder.ReminderList";
-    }
+	@Override
+	public String getEntityName() {
+		return "reminder.ReminderList";
+	}
 
-    // Id.
-    @Override
-    public int getId() {
-        final Integer id = (Integer) get("id");
-        return id != null ? id : -1;
-    }
+	// Id.
+	@Override
+	public int getId() {
+		final Integer id = (Integer) get("id");
+		return id != null ? id : -1;
+	}
 
-    public void setId(int id) {
-        set("id", id);
-    }
+	public void setId(int id) {
+		set("id", id);
+	}
 
-    // Reminders
-    public List<ReminderDTO> getReminders() {
-        return get("reminders");
-    }
+	// Reminders
+	public List<ReminderDTO> getReminders() {
+		return get("reminders");
+	}
 
-    public void setReminders(List<ReminderDTO> reminders) {
-        set("reminders", reminders);
-    }
+	public void setReminders(List<ReminderDTO> reminders) {
+		set("reminders", reminders);
+	}
 }

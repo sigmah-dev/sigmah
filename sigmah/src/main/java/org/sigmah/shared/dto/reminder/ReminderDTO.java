@@ -1,6 +1,7 @@
 package org.sigmah.shared.dto.reminder;
 
 import java.util.Date;
+import java.util.List;
 
 import org.sigmah.shared.dto.EntityDTO;
 
@@ -14,88 +15,97 @@ import com.extjs.gxt.ui.client.data.BaseModelData;
  */
 public class ReminderDTO extends BaseModelData implements EntityDTO {
 
-    private static final long serialVersionUID = 6733872261309621888L;
+	private static final long serialVersionUID = 6733872261309621888L;
 
-    @Override
-    public String getEntityName() {
-        return "reminder.Reminder";
-    }
+	@Override
+	public String getEntityName() {
+		return "reminder.Reminder";
+	}
 
-    // Id.
-    @Override
-    public int getId() {
-        final Integer id = (Integer) get("id");
-        return id != null ? id : -1;
-    }
+	// Id.
+	@Override
+	public int getId() {
+		final Integer id = (Integer) get("id");
+		return id != null ? id : -1;
+	}
 
-    public void setId(int id) {
-        set("id", id);
-    }
+	public void setId(int id) {
+		set("id", id);
+	}
 
-    // Label
-    public String getLabel() {
-        return get("label");
-    }
+	// Label
+	public String getLabel() {
+		return get("label");
+	}
 
-    public void setLabel(String label) {
-        set("label", label);
-    }
+	public void setLabel(String label) {
+		set("label", label);
+	}
 
-    // Expected date
-    public Date getExpectedDate() {
-        return get("expectedDate");
-    }
+	// Expected date
+	public Date getExpectedDate() {
+		return get("expectedDate");
+	}
 
-    public void setExpectedDate(Date expectedDate) {
-        set("expectedDate", expectedDate);
-    }
+	public void setExpectedDate(Date expectedDate) {
+		set("expectedDate", expectedDate);
+	}
 
-    // Completion date
-    public Date getCompletionDate() {
-        return get("completionDate");
-    }
+	// Completion date
+	public Date getCompletionDate() {
+		return get("completionDate");
+	}
 
-    public void setCompletionDate(Date completionDate) {
-        set("completionDate", completionDate);
-        setIsCompleted();
-    }
-    
-    //Deleted
-    public Boolean isDeleted()
-    {
-    	return (Boolean) get("deleted");
-    }
-    
-    public void setDeleted(Boolean isDeleted)
-    {
-    	set("deleted",isDeleted);
-    }
+	public void setCompletionDate(Date completionDate) {
+		set("completionDate", completionDate);
+		setIsCompleted();
+	}
 
-    public void setIsCompleted() {
-        set("completed", getCompletionDate() != null);
-    }
+	// Deleted
+	public Boolean isDeleted() {
+		return (Boolean) get("deleted");
+	}
 
-    public boolean getIsCompleted() {
-        return (Boolean) get("completed");
-    }
+	public void setDeleted(Boolean isDeleted) {
+		set("deleted", isDeleted);
+	}
 
-    public boolean isCompleted() {
-        return getCompletionDate() != null;
-    }
+	public void setIsCompleted() {
+		set("completed", getCompletionDate() != null);
+	}
 
-    @Override
-    public boolean equals(Object obj) {
+	public boolean getIsCompleted() {
+		return (Boolean) get("completed");
+	}
 
-        if (obj == null) {
-            return false;
-        }
+	public boolean isCompleted() {
+		return getCompletionDate() != null;
+	}
 
-        if (!(obj instanceof ReminderDTO)) {
-            return false;
-        }
+	// History
+	public List<ReminderHistoryDTO> getHistory() {
 
-        final ReminderDTO other = (ReminderDTO) obj;
+		return get("history");
+	}
 
-        return getId() == other.getId();
-    }
+	public void setHistory(List<ReminderHistoryDTO> history) {
+
+		set("history", history);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+
+		if (obj == null) {
+			return false;
+		}
+
+		if (!(obj instanceof ReminderDTO)) {
+			return false;
+		}
+
+		final ReminderDTO other = (ReminderDTO) obj;
+
+		return getId() == other.getId();
+	}
 }

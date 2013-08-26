@@ -2615,8 +2615,11 @@ sigmah/src/main/java/org/sigmah/shared/domain/quality/CriterionType.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/quality/QualityCriterion.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/quality/QualityFramework.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/reminder/MonitoredPoint.java -text
+sigmah/src/main/java/org/sigmah/shared/domain/reminder/MonitoredPointHistory.java -text svneol=unset#text/plain
 sigmah/src/main/java/org/sigmah/shared/domain/reminder/MonitoredPointList.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/reminder/Reminder.java -text
+sigmah/src/main/java/org/sigmah/shared/domain/reminder/ReminderChangeType.java -text svneol=unset#text/plain
+sigmah/src/main/java/org/sigmah/shared/domain/reminder/ReminderHistory.java -text svneol=unset#text/plain
 sigmah/src/main/java/org/sigmah/shared/domain/reminder/ReminderList.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/report/KeyQuestion.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/report/ProjectReport.java -text
@@ -2736,8 +2739,10 @@ sigmah/src/main/java/org/sigmah/shared/dto/quality/CriterionTypeDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/quality/QualityCriterionDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/quality/QualityFrameworkDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/reminder/MonitoredPointDTO.java -text
+sigmah/src/main/java/org/sigmah/shared/dto/reminder/MonitoredPointHistoryDTO.java -text svneol=unset#text/plain
 sigmah/src/main/java/org/sigmah/shared/dto/reminder/MonitoredPointListDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/reminder/ReminderDTO.java -text
+sigmah/src/main/java/org/sigmah/shared/dto/reminder/ReminderHistoryDTO.java -text svneol=unset#text/plain
 sigmah/src/main/java/org/sigmah/shared/dto/reminder/ReminderListDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/report/KeyQuestionDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/report/ProjectReportContent.java -text

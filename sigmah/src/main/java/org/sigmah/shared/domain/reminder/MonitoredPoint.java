@@ -1,8 +1,11 @@
 package org.sigmah.shared.domain.reminder;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -10,6 +13,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -21,89 +25,104 @@ import org.sigmah.shared.domain.value.File;
 @Table(name = "monitored_point")
 public class MonitoredPoint implements Serializable {
 
-    private static final long serialVersionUID = 3600773298461293280L;
+	private static final long serialVersionUID = 3600773298461293280L;
 
-    private Integer id;
-    private String label;
-    private Date expectedDate;
-    private Date completionDate;
-    private File file;
-    private MonitoredPointList parentList;
-    private Boolean deleted;
+	private Integer id;
+	private String label;
+	private Date expectedDate;
+	private Date completionDate;
+	private File file;
+	private MonitoredPointList parentList;
+	private Boolean deleted;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id_monitored_point")
-    public Integer getId() {
-        return id;
-    }
+	private List<MonitoredPointHistory> history = new ArrayList<MonitoredPointHistory>(0);
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	@Column(name = "id_monitored_point")
+	public Integer getId() {
+		return id;
+	}
 
-    @Column(name = "label", length = 8192, nullable = false)
-    public String getLabel() {
-        return label;
-    }
+	public void setId(Integer id) {
+		this.id = id;
+	}
 
-    public void setLabel(String label) {
-        this.label = label;
-    }
+	@Column(name = "label", length = 8192, nullable = false)
+	public String getLabel() {
+		return label;
+	}
 
-    @Column(name = "expected_date", nullable = false)
-    @Temporal(value = TemporalType.TIMESTAMP)
-    public Date getExpectedDate() {
-        return expectedDate;
-    }
+	public void setLabel(String label) {
+		this.label = label;
+	}
 
-    public void setExpectedDate(Date expectedDate) {
-        this.expectedDate = expectedDate;
-    }
+	@Column(name = "expected_date", nullable = false)
+	@Temporal(value = TemporalType.TIMESTAMP)
+	public Date getExpectedDate() {
+		return expectedDate;
+	}
 
-    @Column(name = "completion_date", nullable = true)
-    @Temporal(value = TemporalType.TIMESTAMP)
-    public Date getCompletionDate() {
-        return completionDate;
-    }
+	public void setExpectedDate(Date expectedDate) {
+		this.expectedDate = expectedDate;
+	}
 
-    public void setCompletionDate(Date completionDate) {
-        this.completionDate = completionDate;
-    }
+	@Column(name = "completion_date", nullable = true)
+	@Temporal(value = TemporalType.TIMESTAMP)
+	public Date getCompletionDate() {
+		return completionDate;
+	}
 
-    @ManyToOne(optional = true)
-    @JoinColumn(name = "id_file", nullable = true)
-    public File getFile() {
-        return file;
-    }
+	public void setCompletionDate(Date completionDate) {
+		this.completionDate = completionDate;
+	}
 
-    public void setFile(File file) {
-        this.file = file;
-    }
+	@ManyToOne(optional = true)
+	@JoinColumn(name = "id_file", nullable = true)
+	public File getFile() {
+		return file;
+	}
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "id_list", nullable = false)
-    public MonitoredPointList getParentList() {
-        return parentList;
-    }
+	public void setFile(File file) {
+		this.file = file;
+	}
 
-    public void setParentList(MonitoredPointList parentList) {
-        this.parentList = parentList;
-    }
+	@ManyToOne(optional = false)
+	@JoinColumn(name = "id_list", nullable = false)
+	public MonitoredPointList getParentList() {
+		return parentList;
+	}
 
-    @Transient
-    public boolean isCompleted() {
-        return completionDate != null;
-    }
-    
-    @Column(name="deleted")
+	public void setParentList(MonitoredPointList parentList) {
+		this.parentList = parentList;
+	}
+
+	@Transient
+	public boolean isCompleted() {
+		return completionDate != null;
+	}
+
+	@Column(name = "deleted")
 	public Boolean isDeleted() {
 		return deleted;
 	}
 
-	public  void setDeleted(Boolean deleted) {
+	public void setDeleted(Boolean deleted) {
 		this.deleted = deleted;
 	}
-    
-    
+
+	@OneToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE }, mappedBy = "monitoredPoint")
+	public List<MonitoredPointHistory> getHistory() {
+		return history;
+	}
+
+	public void addHistory(MonitoredPointHistory hist) {
+		hist.setMonitoredPoint(this);
+		history.add(hist);
+	}
+
+	public void setHistory(List<MonitoredPointHistory> history) {
+		this.history = history;
+	}
+
 }

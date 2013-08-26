@@ -85,7 +85,7 @@
 			<a>id</a>
 			<b>id</b>
 		</field>
-		
+
 		<field>
 			<a>database.id</a>
 			<b>databaseId</b>
@@ -191,7 +191,7 @@
 			<a>projectDetails</a>
 			<b>projectDetailsDTO</b>
 		</field>
-		
+
 		<field>
 			<a>logFrameModel</a>
 			<b>logFrameModelDTO</b>
@@ -204,10 +204,10 @@
 	<mapping wildcard="true">
 		<class-a>org.sigmah.shared.domain.report.ProjectReportModel</class-a>
 		<class-b>org.sigmah.shared.dto.report.ReportModelDTO</class-b>
-		
+
 		<field>
-		 <a>organization.id</a>
-		 <b>organizationId</b>
+			<a>organization.id</a>
+			<b>organizationId</b>
 		</field>
 		<field>
 			<a>sections</a>
@@ -215,9 +215,11 @@
 		</field>
 	</mapping>
 	<mapping wildcard="true">
-		<class-a>org.sigmah.shared.domain.report.ProjectReportModelSection</class-a>
-		<class-b>org.sigmah.shared.dto.report.ProjectReportModelSectionDTO</class-b>
-		
+		<class-a>org.sigmah.shared.domain.report.ProjectReportModelSection
+		</class-a>
+		<class-b>org.sigmah.shared.dto.report.ProjectReportModelSectionDTO
+		</class-b>
+
 		<field>
 			<a>subSections</a>
 			<b>subSectionsDTO</b>
@@ -289,7 +291,7 @@
 		<field>
 			<a>element</a>
 			<b>flexibleElementDTO</b>
-			<a-hint>org.sigmah.shared.domain.element.DefaultFlexibleElement,org.sigmah.shared.domain.element.MessageElement,org.sigmah.shared.domain.element.CheckboxElement,org.sigmah.shared.domain.element.TextAreaElement,org.sigmah.shared.domain.element.QuestionElement,org.sigmah.shared.domain.element.TripletsListElement,org.sigmah.shared.domain.element.FilesListElement,org.sigmah.shared.domain.element.IndicatorsListElement,org.sigmah.shared.domain.element.BudgetDistributionElement,org.sigmah.shared.domain.element.ReportElement,org.sigmah.shared.domain.element.ReportListElement,org.sigmah.shared.domain.element.BudgetElement 
+			<a-hint>org.sigmah.shared.domain.element.DefaultFlexibleElement,org.sigmah.shared.domain.element.MessageElement,org.sigmah.shared.domain.element.CheckboxElement,org.sigmah.shared.domain.element.TextAreaElement,org.sigmah.shared.domain.element.QuestionElement,org.sigmah.shared.domain.element.TripletsListElement,org.sigmah.shared.domain.element.FilesListElement,org.sigmah.shared.domain.element.IndicatorsListElement,org.sigmah.shared.domain.element.BudgetDistributionElement,org.sigmah.shared.domain.element.ReportElement,org.sigmah.shared.domain.element.ReportListElement,org.sigmah.shared.domain.element.BudgetElement
 			</a-hint>
 			<b-hint>org.sigmah.shared.dto.element.DefaultFlexibleElementDTO,org.sigmah.shared.dto.element.MessageElementDTO,org.sigmah.shared.dto.element.CheckboxElementDTO,org.sigmah.shared.dto.element.TextAreaElementDTO,org.sigmah.shared.dto.element.QuestionElementDTO,org.sigmah.shared.dto.element.TripletsListElementDTO,org.sigmah.shared.dto.element.FilesListElementDTO,org.sigmah.shared.dto.element.IndicatorsListElementDTO,org.sigmah.shared.dto.element.BudgetDistributionElementDTO,org.sigmah.shared.dto.element.ReportElementDTO,org.sigmah.shared.dto.element.ReportListElementDTO,org.sigmah.shared.dto.element.BudgetElementDTO
 			</b-hint>
@@ -455,9 +457,9 @@
 			<b>parentCategoryDTO</b>
 		</field>
 	</mapping>
-	
 
-	
+
+
 	<!-- BudgetElement/BudgetElementDTO Mapping -->
 	<mapping wildcard="true">
 		<class-a>org.sigmah.shared.domain.element.BudgetElement
@@ -478,8 +480,8 @@
 			<b>ratioDivisor</b>
 		</field>
 	</mapping>
-	
-		<!-- BudgetSubField/BudgetSubFieldDTO mapping -->
+
+	<!-- BudgetSubField/BudgetSubFieldDTO mapping -->
 	<mapping wildcard="true">
 		<class-a>org.sigmah.shared.domain.element.BudgetSubField</class-a>
 		<class-b>org.sigmah.shared.dto.element.BudgetSubFieldDTO</class-b>
@@ -527,7 +529,7 @@
 		<class-a>org.sigmah.shared.domain.Amendment</class-a>
 		<class-b>org.sigmah.shared.dto.AmendmentDTO</class-b>
 
-                <field>
+		<field>
 			<a>logFrame</a>
 			<b>logFrameDTO</b>
 		</field>
@@ -553,18 +555,18 @@
 			<b>phaseName</b>
 		</field>
 	</mapping>
-	
+
 	<!-- User/UserDTO Mapping -->
 	<mapping wildcard="true">
 		<class-a>org.sigmah.shared.domain.User</class-a>
 		<class-b>org.sigmah.shared.dto.UserDTO</class-b>
-		
+
 		<field-exclude>
 			<a>orgUnitWithProfiles</a>
 			<b>orgUnitWithProfiles</b>
 		</field-exclude>
 	</mapping>
-	
+
 	<mapping wildcard="true">
 		<class-a>org.sigmah.shared.domain.profile.Profile</class-a>
 		<class-b>org.sigmah.shared.dto.profile.ProfileDTOLight</class-b>
@@ -584,17 +586,17 @@
 		</field-exclude>
 
 	</mapping>
-	
+
 	<mapping wildcard="true">
 
 		<class-a>org.sigmah.shared.domain.profile.PrivacyGroup</class-a>
 		<class-b>org.sigmah.shared.dto.profile.PrivacyGroupDTO</class-b>
 
 	</mapping>
-	
-    <mapping wildcard="true">
-        <class-a>org.sigmah.shared.domain.Indicator</class-a>
-        <class-b>org.sigmah.shared.dto.IndicatorDataSourceDTO</class-b>
+
+	<mapping wildcard="true">
+		<class-a>org.sigmah.shared.domain.Indicator</class-a>
+		<class-b>org.sigmah.shared.dto.IndicatorDataSourceDTO</class-b>
 
 		<field>
 			<a>id</a>
@@ -605,38 +607,97 @@
 			<a>name</a>
 			<b>indicatorName</b>
 		</field>
-        <field>
-            <a>code</a>
-            <b>indicatorCode</b>
-        </field>
+		<field>
+			<a>code</a>
+			<b>indicatorCode</b>
+		</field>
 		<field>
 			<a>database.id</a>
 			<b>databaseId</b>
 		</field>
-        <field>
-            <a>database.name</a>
-            <b>databaseName</b>
-        </field>
-    </mapping>
-	
-	
+		<field>
+			<a>database.name</a>
+			<b>databaseName</b>
+		</field>
+	</mapping>
+
+
 	<mapping wildcard="true">
 		<class-a>org.sigmah.shared.domain.element.ReportElement</class-a>
 		<class-b>org.sigmah.shared.dto.element.ReportElementDTO</class-b>
-		
+
 		<field>
-		 <a>model.id</a>
-		 <b>modelId</b>
+			<a>model.id</a>
+			<b>modelId</b>
 		</field>
 	</mapping>
-	
+
 	<mapping wildcard="true">
 		<class-a>org.sigmah.shared.domain.element.ReportListElement</class-a>
 		<class-b>org.sigmah.shared.dto.element.ReportListElementDTO</class-b>
-		
+
 		<field>
-		 <a>model.id</a>
-		 <b>modelId</b>
+			<a>model.id</a>
+			<b>modelId</b>
+		</field>
+	</mapping>
+
+	<mapping wildcard="true">
+		<class-a>org.sigmah.shared.domain.reminder.ReminderHistory</class-a>
+		<class-b>org.sigmah.shared.dto.reminder.ReminderHistoryDTO</class-b>
+		<field>
+			<a>id</a>
+			<b>id</b>
+		</field>
+		<field>
+			<a>userId</a>
+			<b>userId</b>
+		</field>
+		<field>
+			<a>value</a>
+			<b>value</b>
+		</field>
+		<field>
+			<a>date</a>
+			<b>date</b>
+		</field>
+		<field>
+			<a>reminder</a>
+			<b>reminder</b>
+		</field>
+		<field>
+			<a>type</a>
+			<b>type</b>
+		</field>
+	</mapping>
+	<mapping wildcard="true">
+		<class-a>org.sigmah.shared.domain.reminder.MonitoredPointHistory
+		</class-a>
+		<class-b>org.sigmah.shared.dto.reminder.MonitoredPointHistoryDTO
+		</class-b>
+		<field>
+			<a>id</a>
+			<b>id</b>
+		</field>
+		<field>
+			<a>userId</a>
+			<b>userId</b>
+		</field>
+		<field>
+			<a>value</a>
+			<b>value</b>
+		</field>
+		<field>
+			<a>date</a>
+			<b>date</b>
+		</field>
+		<field>
+			<a>monitoredPoint</a>
+			<b>monitoredPoint</b>
+		</field>
+		<field>
+			<a>type</a>
+			<b>type</b>
 		</field>
 	</mapping>
 

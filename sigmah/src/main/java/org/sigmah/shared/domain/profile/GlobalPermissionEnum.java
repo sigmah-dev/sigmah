@@ -91,6 +91,21 @@ public enum GlobalPermissionEnum {
 	EDIT_AGENDA,
 
 	/**
+	 * 
+	 * for creating/deleting/modifying/closing reminders created by the user
+	 */
+
+	EDIT_OWN_REMINDERS,
+
+	/**
+	 * 
+	 * for creating/deleting/modifying/closing reminders created by the user or
+	 * by other users
+	 */
+
+	EDIT_ALL_REMINDERS,
+
+	/**
 	 * Show global export button in projects list
 	 */
 	GLOBAL_EXPORT;
@@ -142,6 +157,12 @@ public enum GlobalPermissionEnum {
 			break;
 		case EDIT_AGENDA:
 			gpName = I18N.CONSTANTS.EDIT_AGENDA();
+			break;
+		case EDIT_ALL_REMINDERS:
+			gpName = I18N.CONSTANTS.EDIT_ALL_REMINDERS();
+			break;
+		case EDIT_OWN_REMINDERS:
+			gpName = I18N.CONSTANTS.EDIT_OWN_REMINDERS();
 			break;
 		case GLOBAL_EXPORT:
 			gpName = I18N.CONSTANTS.globalExport();

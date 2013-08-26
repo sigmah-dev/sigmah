@@ -65,8 +65,10 @@ import org.sigmah.shared.domain.quality.CriterionType;
 import org.sigmah.shared.domain.quality.QualityCriterion;
 import org.sigmah.shared.domain.quality.QualityFramework;
 import org.sigmah.shared.domain.reminder.MonitoredPoint;
+import org.sigmah.shared.domain.reminder.MonitoredPointHistory;
 import org.sigmah.shared.domain.reminder.MonitoredPointList;
 import org.sigmah.shared.domain.reminder.Reminder;
+import org.sigmah.shared.domain.reminder.ReminderHistory;
 import org.sigmah.shared.domain.reminder.ReminderList;
 import org.sigmah.shared.domain.value.File;
 import org.sigmah.shared.domain.value.FileVersion;
@@ -74,86 +76,28 @@ import org.sigmah.shared.domain.value.Value;
 
 /**
  * List of persistent classes managed by Hibernate.
- *
+ * 
  * IMPORTANT: the order of these classes is important:
- *
+ * 
  */
 public class PersistentClasses {
-    public static final Class<?>[] LIST = {
-            OrgUnitProfile.class,
-            PrivacyGroupPermission.class,
-            PrivacyGroup.class,
-            GlobalPermission.class,
-            Profile.class,
-            FileVersion.class,
-            File.class,
-            MonitoredPoint.class,
-            MonitoredPointList.class,
-            Reminder.class,
-            ReminderList.class,
-            IndicatorValue.class,
-            AttributeValue.class,
-            ReportingPeriod.class,
-            Site.class,
-            OrgUnitPermission.class,
-            Organization.class,
-            UserPermission.class,
-            OrgUnitBanner.class,
-            OrgUnitDetails.class,
-            OrgUnitModel.class,
-            OrgUnit.class,
-            Location.class,
-            Indicator.class,
-            Attribute.class,
-            AttributeGroup.class,
-            Activity.class,
-            ReportSubscription.class,
-            ReportDefinition.class,
-            Phase.class,
-            Value.class,
-            UserDatabase.class,
-            Authentication.class,
-            User.class,
-            LocationType.class,
-            AdminEntity.class,
-            AdminLevel.class,
-            Country.class,
-            ProjectBanner.class,
-            ProjectDetails.class,
-            ProjectModelVisibility.class,
-            ProjectFunding.class,
-            Project.class,
-            PhaseModelDefinition.class,
-            PhaseModel.class,
-            LayoutConstraint.class,
-            LayoutGroup.class,
-            Layout.class,
-            QuestionChoiceElement.class,
-            QualityCriterion.class,
-            CriterionType.class,
-            QualityFramework.class,
-            FlexibleElement.class,
-            ProjectModel.class,
-            MessageElement.class,
-            CheckboxElement.class,
-            QuestionElement.class,
-            TextAreaElement.class,
-            ReportElement.class,
-            ReportListElement.class,
-            DefaultFlexibleElement.class,
-            Prerequisite.class,
-            LogFrameActivity.class,
-            LogFrameElement.class,
-            ExpectedResult.class,
-            SpecificObjective.class,
-            LogFrame.class,
-            LogFrameGroup.class,
-            LogFrameModel.class,
-            CategoryElement.class,
-            CategoryType.class,
-            PersonalCalendar.class,
-            PersonalEvent.class,
-            HistoryToken.class,
-            Amendment.class
-    };
+	public static final Class<?>[] LIST = { OrgUnitProfile.class, PrivacyGroupPermission.class, PrivacyGroup.class,
+	                GlobalPermission.class, Profile.class, FileVersion.class, File.class, MonitoredPoint.class,
+	                MonitoredPointList.class, MonitoredPointHistory.class, Reminder.class, ReminderList.class,
+	                ReminderHistory.class, IndicatorValue.class, AttributeValue.class, ReportingPeriod.class,
+	                Site.class, OrgUnitPermission.class, Organization.class, UserPermission.class, OrgUnitBanner.class,
+	                OrgUnitDetails.class, OrgUnitModel.class, OrgUnit.class, Location.class, Indicator.class,
+	                Attribute.class, AttributeGroup.class, Activity.class, ReportSubscription.class,
+	                ReportDefinition.class, Phase.class, Value.class, UserDatabase.class, Authentication.class,
+	                User.class, LocationType.class, AdminEntity.class, AdminLevel.class, Country.class,
+	                ProjectBanner.class, ProjectDetails.class, ProjectModelVisibility.class, ProjectFunding.class,
+	                Project.class, PhaseModelDefinition.class, PhaseModel.class, LayoutConstraint.class,
+	                LayoutGroup.class, Layout.class, QuestionChoiceElement.class, QualityCriterion.class,
+	                CriterionType.class, QualityFramework.class, FlexibleElement.class, ProjectModel.class,
+	                MessageElement.class, CheckboxElement.class, QuestionElement.class, TextAreaElement.class,
+	                ReportElement.class, ReportListElement.class, DefaultFlexibleElement.class, Prerequisite.class,
+	                LogFrameActivity.class, LogFrameElement.class, ExpectedResult.class, SpecificObjective.class,
+	                LogFrame.class, LogFrameGroup.class, LogFrameModel.class, CategoryElement.class,
+	                CategoryType.class, PersonalCalendar.class, PersonalEvent.class, HistoryToken.class,
+	                Amendment.class };
 }
