@@ -106,6 +106,21 @@ public enum GlobalPermissionEnum {
 	EDIT_ALL_REMINDERS,
 
 	/**
+	 * for viewing the two indicator sub-tabs
+	 */
+	VIEW_INDICATOR,
+
+	/**
+	 * for creating/deleting/modifying indicator definitions
+	 */
+	MANAGE_INDICATOR,
+
+	/**
+	 * for editing values of existing indicators
+	 */
+	EDIT_INDICATOR,
+
+	/**
 	 * Show global export button in projects list
 	 */
 	GLOBAL_EXPORT;
@@ -163,6 +178,15 @@ public enum GlobalPermissionEnum {
 			break;
 		case EDIT_OWN_REMINDERS:
 			gpName = I18N.CONSTANTS.EDIT_OWN_REMINDERS();
+			break;
+		case VIEW_INDICATOR:
+			gpName = I18N.CONSTANTS.VIEW_INDICATOR();
+			break;
+		case MANAGE_INDICATOR:
+			gpName = I18N.CONSTANTS.MANAGE_INDICATOR();
+			break;
+		case EDIT_INDICATOR:
+			gpName = I18N.CONSTANTS.EDIT_INDICATOR();
 			break;
 		case GLOBAL_EXPORT:
 			gpName = I18N.CONSTANTS.globalExport();

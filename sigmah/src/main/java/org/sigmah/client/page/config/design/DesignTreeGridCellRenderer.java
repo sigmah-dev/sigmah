@@ -2,7 +2,6 @@ package org.sigmah.client.page.config.design;
 
 import org.sigmah.client.icon.IconUtil;
 import org.sigmah.shared.dto.IndicatorDTO;
-import org.sigmah.shared.dto.IndicatorGroup;
 
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.ModelData;
@@ -14,12 +13,11 @@ import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.treegrid.TreeGridCellRenderer;
 import com.google.gwt.dom.client.Element;
 
-
 /**
  * Renders the first column of the TreeGrid in the DesignPanel
  * 
  * @author alexander
- *
+ * 
  */
 class DesignTreeGridCellRenderer extends TreeGridCellRenderer {
 
@@ -29,13 +27,14 @@ class DesignTreeGridCellRenderer extends TreeGridCellRenderer {
 
 	private final static String EMPTY_STAR_ICON = IconUtil.iconHtml(CSS.emptyStarIcon());
 	private final static String STAR_ICON = IconUtil.iconHtml(CSS.emptyStarIcon());
-	
+
 	private MappedIndicatorSelection mappedSelection;
-	
-	
-	public DesignTreeGridCellRenderer(MappedIndicatorSelection mappedSelection) {
+	private Boolean enabled;
+
+	public DesignTreeGridCellRenderer(MappedIndicatorSelection mappedSelection, Boolean enabled) {
 		super();
 		this.mappedSelection = mappedSelection;
+		modelWrapper = new ModelWrapper(enabled);
 	}
 
 	/**
@@ -43,27 +42,33 @@ class DesignTreeGridCellRenderer extends TreeGridCellRenderer {
 	 * html for the contents of the tree grid cell.
 	 * 
 	 * @author alexander
-	 *
+	 * 
 	 */
 	private class ModelWrapper extends BaseModelData {
 		IndicatorDTO indicator;
+		Boolean enabled;
 
+		public ModelWrapper(Boolean enabled) {
+			this.enabled = enabled;
+		}
 
 		@Override
 		public <X> X get(String property) {
-			if(property.equals("name")) {
+			if (property.equals("name")) {
 				StringBuilder html = new StringBuilder();
-				//html.append(EMPTY_STAR_ICON); // to be readded once Project Dashboard displays indicators
+				// html.append(EMPTY_STAR_ICON); // to be readded once Project
+				// Dashboard displays indicators
 				html.append(indicator == mappedSelection.getValue() ? MAP_ICON : EMPTY_MAP_ICON);
-				html.append("<span class='" + CSS.indicatorLabel() + "'>");
+				if (enabled)
+					html.append("<span class='" + CSS.indicatorLabel() + "'>");
 				html.append(Format.htmlEncode(indicator.getName()));
-				html.append("</span>");
-				return (X)html.toString();
+				if (enabled)
+					html.append("</span>");
+				return (X) html.toString();
 			} else {
-				return indicator.<X>get(property);
+				return indicator.<X> get(property);
 			}
 		}
-
 
 		@Override
 		public boolean equals(Object obj) {
@@ -75,15 +80,13 @@ class DesignTreeGridCellRenderer extends TreeGridCellRenderer {
 			return indicator.hashCode();
 		}
 	}
-	
 
-	private ModelWrapper modelWrapper = new ModelWrapper();
+	private ModelWrapper modelWrapper;
 
 	@Override
-	public Object render(ModelData model, String property,
-			ColumnData config, int rowIndex, int colIndex, ListStore store,
-			Grid grid) {
-		if(model instanceof IndicatorDTO) {
+	public Object render(ModelData model, String property, ColumnData config, int rowIndex, int colIndex,
+	                ListStore store, Grid grid) {
+		if (model instanceof IndicatorDTO) {
 			modelWrapper.indicator = (IndicatorDTO) model;
 			return super.render(modelWrapper, property, config, rowIndex, colIndex, store, grid);
 		} else {
@@ -92,23 +95,21 @@ class DesignTreeGridCellRenderer extends TreeGridCellRenderer {
 	}
 
 	public enum Target {
-		MAP_ICON,
-		STAR_ICON,
-		LABEL,
-		NONE
+		MAP_ICON, STAR_ICON, LABEL, NONE
 	}
-	
+
 	public static Target computeTarget(GridEvent ge) {
-		Element targetElement =  ge.getEvent().getEventTarget().cast();
+		Element targetElement = ge.getEvent().getEventTarget().cast();
 		String targetClass = targetElement.getClassName();
-		if(CSS.indicatorLabel().equals(targetClass)) {
+		if (CSS.indicatorLabel().equals(targetClass)) {
 			return Target.LABEL;
-		} else if(CSS.mapIcon().equals(targetClass) || CSS.emptyMapIcon().equals(targetClass)) {
+		} else if (CSS.mapIcon().equals(targetClass) || CSS.emptyMapIcon().equals(targetClass)) {
 			return Target.MAP_ICON;
-		} else if(CSS.emptyStarIcon().equals(targetClass) || CSS.starIcon().equals(targetClass)) {
+		} else if (CSS.emptyStarIcon().equals(targetClass) || CSS.starIcon().equals(targetClass)) {
 			return Target.STAR_ICON;
 		} else {
 			return Target.NONE;
 		}
 	}
+
 }

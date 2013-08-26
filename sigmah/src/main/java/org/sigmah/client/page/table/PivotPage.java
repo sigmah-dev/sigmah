@@ -97,543 +97,543 @@ import com.google.inject.Inject;
  */
 public class PivotPage extends LayoutContainer implements Page {
 
-    protected EventBus eventBus;
-    protected Dispatcher service;
-    protected IStateManager stateMgr;
-
-    protected ListStore<Dimension> rowDims;
-    protected ListStore<Dimension> colDims;
-
-    protected TreeLoader<ModelData> loader;
-    protected TreeStore<ModelData> dimensionStore;
-    protected TreePanel<ModelData> treePanel;
-
-    protected ContentPanel filterPane;
-    protected IndicatorTreePanel indicatorPanel;
-    protected AdminFilterPanel adminPanel;
-    protected DateRangePanel datePanel;
-    protected PartnerFilterPanel partnerPanel;
-    protected LayoutContainer center;
-    protected PivotGridPanel gridContainer;
-    protected ToolBar gridToolBar;
-    private Listener<PivotCellEvent> initialDrillDownListener;
-    public static final PageId PAGE_ID = new PageId("pivot");
-
-    @Inject
-    public PivotPage(EventBus eventBus, Dispatcher service, IStateManager stateMgr) {
-
-        this.eventBus = eventBus;
-        this.service = service;
-        this.stateMgr = stateMgr;
-
-        BorderLayout borderLayout = new BorderLayout();
-        borderLayout.setEnableState(true);
-        setStateId("pivotPage");
-        setLayout(borderLayout);
-
-        createPane();
-        createFilterPane();
-        createIndicatorPanel();
-        createAdminFilter();
-        createDateFilter();
-        createPartnerFilter();
-        createGridContainer();
-
-        initialDrillDownListener = new Listener<PivotCellEvent>() {
-
-            public void handleEvent(PivotCellEvent be) {
-                createDrilldownPanel(be);
-            }
-        };
-        eventBus.addListener(AppEvents.Drilldown, initialDrillDownListener);
-    }
-
-    public void createPane() {
-
-        VBoxLayout layout = new VBoxLayout();
-        layout.setPadding(new Padding(5));
-        layout.setVBoxLayoutAlign(VBoxLayout.VBoxLayoutAlign.STRETCH);
-
-        ContentPanel pane = new ContentPanel();
-        pane.setHeading(I18N.CONSTANTS.dimensions());
-        pane.setScrollMode(Style.Scroll.NONE);
-        pane.setIcon(null);
-        pane.setLayout(layout);
-
-        VBoxLayoutData labelLayout = new VBoxLayoutData();
-        VBoxLayoutData listLayout = new VBoxLayoutData();
-        listLayout.setFlex(1.0);
-
-        createDimsTree();
-        pane.add(treePanel, listLayout);
-        pane.add(new Text(I18N.CONSTANTS.rows()), labelLayout);
-
-        rowDims = createStore();
-        rowDims.add(new Dimension(I18N.CONSTANTS.database(), DimensionType.Database));
-        rowDims.add(new Dimension(I18N.CONSTANTS.activity(), DimensionType.Activity));
-        rowDims.add(new Dimension(I18N.CONSTANTS.indicators(), DimensionType.Indicator));
-        pane.add(createList(rowDims), listLayout);
-        pane.add(new Text(I18N.CONSTANTS.columns()), labelLayout);
-
-        colDims = createStore();
-        colDims.add(new Dimension(I18N.CONSTANTS.partner(), DimensionType.Partner));
-        pane.add(createList(colDims), listLayout);
-
-        BorderLayoutData east = new BorderLayoutData(Style.LayoutRegion.EAST);
-        east.setCollapsible(true);
-        east.setSplit(true);
-        east.setMargins(new Margins(0, 5, 0, 0));
-
-        add(pane, east);
-
-    }
-
-    private void createDimsTree() {
-        // tree loader
-        loader = new BaseTreeLoader<ModelData>(new Proxy()) {
-
-            @Override
-            public boolean hasChildren(ModelData parent) {
-                if (parent instanceof AttributeGroupDTO) {
-                    return !((AttributeGroupDTO) parent).isEmpty();
-                }
-                return parent instanceof DimensionFolder || parent instanceof AttributeGroupDTO;
-            }
-        };
-
-        // tree store
-        dimensionStore = new TreeStore<ModelData>(loader);
-        dimensionStore.setKeyProvider(new ModelKeyProvider<ModelData>() {
-
-            public String getKey(ModelData model) {
-                return "node_" + model.get("id");
-            }
-        });
-
-        treePanel = new TreePanel<ModelData>(dimensionStore);
-        treePanel.setBorders(true);
-        treePanel.setCheckable(true);
-        treePanel.setCheckNodes(TreePanel.CheckNodes.LEAF);
-        treePanel.setCheckStyle(TreePanel.CheckCascade.NONE);
-        treePanel.getStyle().setNodeCloseIcon(null);
-        treePanel.getStyle().setNodeOpenIcon(null);
-
-        treePanel.setStateful(true);
-        treePanel.setLabelProvider(new ModelStringProvider<ModelData>() {
-
-            public String getStringValue(ModelData model, String property) {
-                return trim((String) model.get("caption"));
-            }
-        });
-
-        /* enable drag and drop for dev */
-        // TreePanelDragSource source = new TreePanelDragSource(treePanel);
-        // source.setTreeSource(DND.TreeSource.LEAF);
-        /* end enable drag and drop for dev */
-
-        treePanel.setId("statefullavaildims");
-        treePanel.collapseAll();
-
-        final ArrayList<ModelData> list = new ArrayList<ModelData>(4);
-        list.add(new Dimension(I18N.CONSTANTS.database(), DimensionType.Database));
-        list.add(new Dimension(I18N.CONSTANTS.activity(), DimensionType.Activity));
-        list.add(new Dimension(I18N.CONSTANTS.indicators(), DimensionType.Indicator));
-        list.add(new Dimension(I18N.CONSTANTS.partner(), DimensionType.Partner));
-
-        list.add(new DimensionFolder(I18N.CONSTANTS.geography(), DimensionType.AdminLevel, 0, 0));
-        list.add(new DimensionFolder(I18N.CONSTANTS.time(), DimensionType.Date, 0, 0));
-        list.add(new DimensionFolder(I18N.CONSTANTS.attributes(), DimensionType.AttributeGroup, 0, 0));
-
-        dimensionStore.add(list, false);
-
-        setDimensionChecked(list.get(0), true);
-        setDimensionChecked(list.get(1), true);
-        setDimensionChecked(list.get(2), true);
-        setDimensionChecked(list.get(3), true);
-
-        treePanel.addCheckListener(new CheckChangedListener<ModelData>() {
-
-            public void checkChanged(CheckChangedEvent<ModelData> event) {
-                List<ModelData> checked = event.getCheckedSelection();
-                for (ModelData r : rowDims.getModels()) {
-                    if (checked.contains(r)) {
-                        checked.remove(r);
-                    } else {
-                        rowDims.remove((Dimension) r);
-                    }
-                }
-
-                for (ModelData c : colDims.getModels()) {
-                    if (checked.contains(c)) {
-                        checked.remove(c);
-                    } else {
-                        colDims.remove((Dimension) c);
-                    }
-                }
-
-                for (ModelData newItem : checked) {
-                    if (rowDims.getModels().size() > colDims.getModels().size()) {
-                        colDims.add((Dimension) newItem);
-                    } else {
-                        rowDims.add((Dimension) newItem);
-                    }
-                }
-            }
-        });
-    }
-
-    private ListStore<Dimension> createStore() {
-        ListStore<Dimension> store = new ListStore<Dimension>();
-        store.addStoreListener(new StoreListener<Dimension>() {
-
-            @Override
-            public void storeDataChanged(StoreEvent<Dimension> se) {
-                onDimensionsChanged();
-            }
-        });
-        return store;
-    }
-
-    private ListView createList(ListStore<Dimension> store) {
-        ListView<Dimension> list = new ListView<Dimension>(store);
-        list.setDisplayProperty("caption");
-        ListViewDragSource source = new ListViewDragSource(list);
-        ListViewDropTarget target = new ListViewDropTarget(list);
-        target.setFeedback(DND.Feedback.INSERT);
-        target.setAllowSelfAsSource(true);
-        return list;
-    }
-
-    private void createFilterPane() {
-        filterPane = new ContentPanel();
-        filterPane.setHeading(I18N.CONSTANTS.filter());
-        filterPane.setIcon(IconImageBundle.ICONS.filter());
-        filterPane.setLayout(new AccordionLayout());
-
-        BorderLayoutData west = new BorderLayoutData(Style.LayoutRegion.WEST);
-        west.setMinSize(250);
-        west.setSize(250);
-        west.setCollapsible(true);
-        west.setSplit(true);
-        west.setMargins(new Margins(0, 0, 0, 0));
-        add(filterPane, west);
-    }
-
-    private void createIndicatorPanel() {
-        indicatorPanel = new IndicatorTreePanel(service, true, getMonitor());
-        indicatorPanel.setHeaderVisible(true);
-        indicatorPanel.setHeading(I18N.CONSTANTS.indicators());
-        indicatorPanel.setIcon(IconImageBundle.ICONS.indicator());
-        filterPane.add(indicatorPanel);
-    }
-
-    private void createAdminFilter() {
-        adminPanel = new AdminFilterPanel(service);
-        adminPanel.setHeading(I18N.CONSTANTS.filterByGeography());
-        adminPanel.setIcon(IconImageBundle.ICONS.filter());
-        filterPane.add(adminPanel);
-    }
-
-    private void createDateFilter() {
-        datePanel = new DateRangePanel();
-        filterPane.add(datePanel);
-    }
-
-    private void createPartnerFilter() {
-        partnerPanel = new PartnerFilterPanel(service);
-        filterPane.add(partnerPanel);
-    }
-
-    private void onDimensionsChanged() {
-        // TODO Auto-generated method stub
-
-    }
-
-    private void createGridContainer() {
-
-        center = new LayoutContainer();
-        center.setLayout(new BorderLayout());
-        add(center, new BorderLayoutData(Style.LayoutRegion.CENTER));
-
-        gridContainer = new PivotGridPanel(eventBus, service);
-        gridContainer.setHeaderVisible(true);
-        gridContainer.setHeading(I18N.CONSTANTS.preview());
-
-        gridToolBar = new ToolBar();
-        gridContainer.setTopComponent(gridToolBar);
-
-        SelectionListener<ButtonEvent> listener = new SelectionListener<ButtonEvent>() {
-
-            @Override
-            public void componentSelected(ButtonEvent ce) {
-                if (ce.getButton().getItemId() != null) {
-                    onUIAction(ce.getButton().getItemId());
-                }
-            }
-        };
-
-        Button refresh = new Button(I18N.CONSTANTS.refreshPreview(), IconImageBundle.ICONS.refresh(), listener);
-        refresh.setItemId(UIActions.refresh);
-        gridToolBar.add(refresh);
-
-        Button export = new Button(I18N.CONSTANTS.export(), IconImageBundle.ICONS.excel(), listener);
-        export.setItemId(UIActions.export);
-        gridToolBar.add(export);
-
-        center.add(gridContainer, new BorderLayoutData(Style.LayoutRegion.CENTER));
-    }
-
-    protected void createDrilldownPanel(PivotCellEvent event) {
-
-        BorderLayoutData layout = new BorderLayoutData(Style.LayoutRegion.SOUTH);
-        layout.setSplit(true);
-        layout.setCollapsible(true);
-
-        DrillDownEditor drilldownEditor = new DrillDownEditor(eventBus, service, stateMgr, new DateUtilGWTImpl());
-        drilldownEditor.onDrillDown(event);
-
-        center.add(drilldownEditor, layout);
-
-        // disconnect our initial drilldown listener;
-        // subsequent events will be handled by the DrillDownEditor's listener
-        eventBus.removeListener(AppEvents.Drilldown, initialDrillDownListener);
-
-        layout();
-
-    }
-
-    public ListStore<Dimension> getRowStore() {
-        return rowDims;
-    }
-
-    public ListStore<Dimension> getColStore() {
-        return colDims;
-    }
-
-    public void setSchema(SchemaDTO result) {
-        // indicatorPanel.setSchema(result);
-    }
-
-    @Override
-    public PageId getPageId() {
-        return PAGE_ID;
-    }
-
-    @Override
-    public Object getWidget() {
-        return this;
-    }
-
-    @Override
-    public void requestToNavigateAway(PageState place, final NavigationCallback callback) {
-        callback.onDecided(NavigationError.NONE);
-    }
-
-    @Override
-    public String beforeWindowCloses() {
-        return null;
-    }
-
-    public boolean navigate(PageState place) {
-        return true;
-    }
-
-    public void enableUIAction(String actionId, boolean enabled) {
-        Component button = gridToolBar.getItemByItemId(actionId);
-        if (button != null) {
-            button.setEnabled(enabled);
-        }
-    }
-
-    public void setDimensionChecked(ModelData d, boolean checked) {
-        treePanel.setChecked(d, checked);
-    }
-
-    public void setContent(PivotTableElement element) {
-        gridContainer.setData(element);
-    }
-
-    public AsyncMonitor getMonitor() {
-        return new MaskingAsyncMonitor(this, I18N.CONSTANTS.loading());
-    }
-
-    public List<IndicatorDTO> getSelectedIndicators() {
-        return indicatorPanel.getSelection();
-    }
-
-    public List<AdminEntityDTO> getAdminRestrictions() {
-        return adminPanel.getSelection();
-    }
-
-    public Date getMinDate() {
-        return datePanel.getMinDate();
-    }
-
-    public Date getMaxDate() {
-        return datePanel.getMaxDate();
-    }
-
-    public List<PartnerDTO> getPartnerRestrictions() {
-        return partnerPanel.getSelection();
-    }
-
-    public TreeStore<ModelData> getDimensionStore() {
-        return this.dimensionStore;
-    }
-
-    private String trim(String s) {
-        if (s == null || "".equals(s)) {
-            return "NO_NAME";
-        }
-        s = s.trim();
-        if (s.length() > 20) {
-            return s.substring(0, 19) + "...";
-        } else {
-            return s;
-        }
-    }
-
-    private class Proxy implements DataProxy<List<ModelData>> {
-
-        private SchemaDTO schema;
-
-        public void load(DataReader<List<ModelData>> listDataReader, final Object parent,
-                final AsyncCallback<List<ModelData>> callback) {
-
-            if (schema == null) {
-                service.execute(new GetSchema(), getMonitor(), new AsyncCallback<SchemaDTO>() {
-
-                    public void onFailure(Throwable caught) {
-                        callback.onFailure(caught);
-                    }
-
-                    public void onSuccess(SchemaDTO result) {
-                        schema = result;
-                        loadChildren(parent, callback);
-                    }
-                });
-            } else {
-                loadChildren(parent, callback);
-            }
-        }
-
-        public void loadChildren(Object parent, final AsyncCallback<List<ModelData>> callback) {
-            if (parent != null && parent instanceof DimensionFolder) {
-
-                DimensionFolder folder = (DimensionFolder) parent;
-                DimensionType type = folder.getType();
-                final ArrayList<ModelData> dims = new ArrayList<ModelData>();
-
-                if (type == DimensionType.Date) {
-                    // add time dimension
-                    int idSeq = 0;
-                    dims.add(new DateDimension(I18N.CONSTANTS.year(), idSeq++, DateUnit.YEAR, null));
-                    dims.add(new DateDimension(I18N.CONSTANTS.quarter(), idSeq++, DateUnit.QUARTER, null));
-                    dims.add(new DateDimension(I18N.CONSTANTS.month(), idSeq++, DateUnit.MONTH, null));
-
-                } else if (type == DimensionType.AdminLevel) {
-                    // add geo dimensions
-                    for (CountryDTO country : schema.getCountries()) {
-                        for (AdminLevelDTO level : country.getAdminLevels()) {
-                            dims.add(new AdminDimension(level.getName(), level.getId()));
-                        }
-                    }
-
-                } else if (type == DimensionType.AttributeGroup) {
-                    if (folder.getDepth() == 0) {
-                        // folders for database names
-                        for (UserDatabaseDTO db : schema.getDatabases()) {
-                            for (ActivityDTO act : db.getActivities()) {
-                                if (act.getAttributeGroups() != null && act.getAttributeGroups().size() > 0) {
-                                    dims.add(new DimensionFolder(db.getName(), DimensionType.AttributeGroup, folder
-                                        .getDepth() + 1, db.getId()));
-                                    break;
-                                }
-                            }
-                        }
-
-                    } else if (folder.getDepth() == 1) {
-                        // folders for activity names
-                        UserDatabaseDTO db = schema.getDatabaseById(folder.getId());
-                        for (ActivityDTO act : db.getActivities()) {
-                            if (act.getAttributeGroups() != null && act.getAttributeGroups().size() > 0) {
-                                dims.add(new DimensionFolder(act.getName(), DimensionType.AttributeGroup, folder
-                                    .getDepth() + 1, act.getId()));
-                                break;
-                            }
-                        }
-
-                    } else if (folder.getDepth() == 2) {
-                        // attribute groups
-                        ActivityDTO act = schema.getActivityById(folder.getId());
-                        for (AttributeGroupDTO attrGroup : act.getAttributeGroups()) {
-                            dims.add(new AttributeGroupDimension(attrGroup.getName(), attrGroup.getId()));
-                        }
-
-                    } else {
-                        assert false;
-                    }
-                } else {
-                    assert false;
-                }
-                callback.onSuccess(dims);
-            }
-        }
-    }
-
-    private PivotTableElement createElement() {
-        PivotTableElement table = new PivotTableElement();
-        table.setRowDimensions(getRowStore().getModels());
-        table.setColumnDimensions(getColStore().getModels());
-
-        List<IndicatorDTO> selectedIndicators = getSelectedIndicators();
-        for (IndicatorDTO indicator : selectedIndicators) {
-            table.getFilter().addRestriction(DimensionType.Indicator, indicator.getId());
-        }
-
-        List<AdminEntityDTO> entities = getAdminRestrictions();
-        for (AdminEntityDTO entity : entities) {
-            table.getFilter().addRestriction(DimensionType.AdminLevel, entity.getId());
-        }
-
-        List<PartnerDTO> partners = getPartnerRestrictions();
-        for (PartnerDTO entity : partners) {
-            table.getFilter().addRestriction(DimensionType.Partner, entity.getId());
-        }
-
-        if (getMinDate() != null) {
-            table.getFilter().setMinDate(getMinDate());
-        }
-
-        if (getMaxDate() != null) {
-            table.getFilter().setMaxDate(getMaxDate());
-        }
-        return table;
-    }
-
-    public void onUIAction(String itemId) {
-        if (UIActions.refresh.equals(itemId)) {
-            final PivotTableElement element = createElement();
-            service.execute(new GenerateElement(element), getMonitor(), new AsyncCallback<Content>() {
-
-                public void onFailure(Throwable throwable) {
-                    MessageBox.alert(I18N.CONSTANTS.error(), I18N.CONSTANTS.errorOnServer(), null);
-                }
-
-                public void onSuccess(Content content) {
-                    element.setContent((PivotContent) content);
-                    setContent(element);
-                }
-            });
-
-        } else if (UIActions.export.equals(itemId)) {
-            service.execute(new RenderElement(createElement(), RenderElement.Format.Excel), getMonitor(),
-                new DownloadCallback(eventBus, "pivotTable"));
-        }
-    }
-
-    @Override
-    public void shutdown() {
-
-    }
+	protected EventBus eventBus;
+	protected Dispatcher service;
+	protected IStateManager stateMgr;
+
+	protected ListStore<Dimension> rowDims;
+	protected ListStore<Dimension> colDims;
+
+	protected TreeLoader<ModelData> loader;
+	protected TreeStore<ModelData> dimensionStore;
+	protected TreePanel<ModelData> treePanel;
+
+	protected ContentPanel filterPane;
+	protected IndicatorTreePanel indicatorPanel;
+	protected AdminFilterPanel adminPanel;
+	protected DateRangePanel datePanel;
+	protected PartnerFilterPanel partnerPanel;
+	protected LayoutContainer center;
+	protected PivotGridPanel gridContainer;
+	protected ToolBar gridToolBar;
+	private Listener<PivotCellEvent> initialDrillDownListener;
+	public static final PageId PAGE_ID = new PageId("pivot");
+
+	@Inject
+	public PivotPage(EventBus eventBus, Dispatcher service, IStateManager stateMgr) {
+
+		this.eventBus = eventBus;
+		this.service = service;
+		this.stateMgr = stateMgr;
+
+		BorderLayout borderLayout = new BorderLayout();
+		borderLayout.setEnableState(true);
+		setStateId("pivotPage");
+		setLayout(borderLayout);
+
+		createPane();
+		createFilterPane();
+		createIndicatorPanel();
+		createAdminFilter();
+		createDateFilter();
+		createPartnerFilter();
+		createGridContainer();
+
+		initialDrillDownListener = new Listener<PivotCellEvent>() {
+
+			public void handleEvent(PivotCellEvent be) {
+				createDrilldownPanel(be);
+			}
+		};
+		eventBus.addListener(AppEvents.Drilldown, initialDrillDownListener);
+	}
+
+	public void createPane() {
+
+		VBoxLayout layout = new VBoxLayout();
+		layout.setPadding(new Padding(5));
+		layout.setVBoxLayoutAlign(VBoxLayout.VBoxLayoutAlign.STRETCH);
+
+		ContentPanel pane = new ContentPanel();
+		pane.setHeading(I18N.CONSTANTS.dimensions());
+		pane.setScrollMode(Style.Scroll.NONE);
+		pane.setIcon(null);
+		pane.setLayout(layout);
+
+		VBoxLayoutData labelLayout = new VBoxLayoutData();
+		VBoxLayoutData listLayout = new VBoxLayoutData();
+		listLayout.setFlex(1.0);
+
+		createDimsTree();
+		pane.add(treePanel, listLayout);
+		pane.add(new Text(I18N.CONSTANTS.rows()), labelLayout);
+
+		rowDims = createStore();
+		rowDims.add(new Dimension(I18N.CONSTANTS.database(), DimensionType.Database));
+		rowDims.add(new Dimension(I18N.CONSTANTS.activity(), DimensionType.Activity));
+		rowDims.add(new Dimension(I18N.CONSTANTS.indicators(), DimensionType.Indicator));
+		pane.add(createList(rowDims), listLayout);
+		pane.add(new Text(I18N.CONSTANTS.columns()), labelLayout);
+
+		colDims = createStore();
+		colDims.add(new Dimension(I18N.CONSTANTS.partner(), DimensionType.Partner));
+		pane.add(createList(colDims), listLayout);
+
+		BorderLayoutData east = new BorderLayoutData(Style.LayoutRegion.EAST);
+		east.setCollapsible(true);
+		east.setSplit(true);
+		east.setMargins(new Margins(0, 5, 0, 0));
+
+		add(pane, east);
+
+	}
+
+	private void createDimsTree() {
+		// tree loader
+		loader = new BaseTreeLoader<ModelData>(new Proxy()) {
+
+			@Override
+			public boolean hasChildren(ModelData parent) {
+				if (parent instanceof AttributeGroupDTO) {
+					return !((AttributeGroupDTO) parent).isEmpty();
+				}
+				return parent instanceof DimensionFolder || parent instanceof AttributeGroupDTO;
+			}
+		};
+
+		// tree store
+		dimensionStore = new TreeStore<ModelData>(loader);
+		dimensionStore.setKeyProvider(new ModelKeyProvider<ModelData>() {
+
+			public String getKey(ModelData model) {
+				return "node_" + model.get("id");
+			}
+		});
+
+		treePanel = new TreePanel<ModelData>(dimensionStore);
+		treePanel.setBorders(true);
+		treePanel.setCheckable(true);
+		treePanel.setCheckNodes(TreePanel.CheckNodes.LEAF);
+		treePanel.setCheckStyle(TreePanel.CheckCascade.NONE);
+		treePanel.getStyle().setNodeCloseIcon(null);
+		treePanel.getStyle().setNodeOpenIcon(null);
+
+		treePanel.setStateful(true);
+		treePanel.setLabelProvider(new ModelStringProvider<ModelData>() {
+
+			public String getStringValue(ModelData model, String property) {
+				return trim((String) model.get("caption"));
+			}
+		});
+
+		/* enable drag and drop for dev */
+		// TreePanelDragSource source = new TreePanelDragSource(treePanel);
+		// source.setTreeSource(DND.TreeSource.LEAF);
+		/* end enable drag and drop for dev */
+
+		treePanel.setId("statefullavaildims");
+		treePanel.collapseAll();
+
+		final ArrayList<ModelData> list = new ArrayList<ModelData>(4);
+		list.add(new Dimension(I18N.CONSTANTS.database(), DimensionType.Database));
+		list.add(new Dimension(I18N.CONSTANTS.activity(), DimensionType.Activity));
+		list.add(new Dimension(I18N.CONSTANTS.indicators(), DimensionType.Indicator));
+		list.add(new Dimension(I18N.CONSTANTS.partner(), DimensionType.Partner));
+
+		list.add(new DimensionFolder(I18N.CONSTANTS.geography(), DimensionType.AdminLevel, 0, 0));
+		list.add(new DimensionFolder(I18N.CONSTANTS.time(), DimensionType.Date, 0, 0));
+		list.add(new DimensionFolder(I18N.CONSTANTS.attributes(), DimensionType.AttributeGroup, 0, 0));
+
+		dimensionStore.add(list, false);
+
+		setDimensionChecked(list.get(0), true);
+		setDimensionChecked(list.get(1), true);
+		setDimensionChecked(list.get(2), true);
+		setDimensionChecked(list.get(3), true);
+
+		treePanel.addCheckListener(new CheckChangedListener<ModelData>() {
+
+			public void checkChanged(CheckChangedEvent<ModelData> event) {
+				List<ModelData> checked = event.getCheckedSelection();
+				for (ModelData r : rowDims.getModels()) {
+					if (checked.contains(r)) {
+						checked.remove(r);
+					} else {
+						rowDims.remove((Dimension) r);
+					}
+				}
+
+				for (ModelData c : colDims.getModels()) {
+					if (checked.contains(c)) {
+						checked.remove(c);
+					} else {
+						colDims.remove((Dimension) c);
+					}
+				}
+
+				for (ModelData newItem : checked) {
+					if (rowDims.getModels().size() > colDims.getModels().size()) {
+						colDims.add((Dimension) newItem);
+					} else {
+						rowDims.add((Dimension) newItem);
+					}
+				}
+			}
+		});
+	}
+
+	private ListStore<Dimension> createStore() {
+		ListStore<Dimension> store = new ListStore<Dimension>();
+		store.addStoreListener(new StoreListener<Dimension>() {
+
+			@Override
+			public void storeDataChanged(StoreEvent<Dimension> se) {
+				onDimensionsChanged();
+			}
+		});
+		return store;
+	}
+
+	private ListView createList(ListStore<Dimension> store) {
+		ListView<Dimension> list = new ListView<Dimension>(store);
+		list.setDisplayProperty("caption");
+		ListViewDragSource source = new ListViewDragSource(list);
+		ListViewDropTarget target = new ListViewDropTarget(list);
+		target.setFeedback(DND.Feedback.INSERT);
+		target.setAllowSelfAsSource(true);
+		return list;
+	}
+
+	private void createFilterPane() {
+		filterPane = new ContentPanel();
+		filterPane.setHeading(I18N.CONSTANTS.filter());
+		filterPane.setIcon(IconImageBundle.ICONS.filter());
+		filterPane.setLayout(new AccordionLayout());
+
+		BorderLayoutData west = new BorderLayoutData(Style.LayoutRegion.WEST);
+		west.setMinSize(250);
+		west.setSize(250);
+		west.setCollapsible(true);
+		west.setSplit(true);
+		west.setMargins(new Margins(0, 0, 0, 0));
+		add(filterPane, west);
+	}
+
+	private void createIndicatorPanel() {
+		indicatorPanel = new IndicatorTreePanel(service, true, getMonitor());
+		indicatorPanel.setHeaderVisible(true);
+		indicatorPanel.setHeading(I18N.CONSTANTS.indicators());
+		indicatorPanel.setIcon(IconImageBundle.ICONS.indicator());
+		filterPane.add(indicatorPanel);
+	}
+
+	private void createAdminFilter() {
+		adminPanel = new AdminFilterPanel(service);
+		adminPanel.setHeading(I18N.CONSTANTS.filterByGeography());
+		adminPanel.setIcon(IconImageBundle.ICONS.filter());
+		filterPane.add(adminPanel);
+	}
+
+	private void createDateFilter() {
+		datePanel = new DateRangePanel();
+		filterPane.add(datePanel);
+	}
+
+	private void createPartnerFilter() {
+		partnerPanel = new PartnerFilterPanel(service);
+		filterPane.add(partnerPanel);
+	}
+
+	private void onDimensionsChanged() {
+		// TODO Auto-generated method stub
+
+	}
+
+	private void createGridContainer() {
+
+		center = new LayoutContainer();
+		center.setLayout(new BorderLayout());
+		add(center, new BorderLayoutData(Style.LayoutRegion.CENTER));
+
+		gridContainer = new PivotGridPanel(eventBus, service);
+		gridContainer.setHeaderVisible(true);
+		gridContainer.setHeading(I18N.CONSTANTS.preview());
+
+		gridToolBar = new ToolBar();
+		gridContainer.setTopComponent(gridToolBar);
+
+		SelectionListener<ButtonEvent> listener = new SelectionListener<ButtonEvent>() {
+
+			@Override
+			public void componentSelected(ButtonEvent ce) {
+				if (ce.getButton().getItemId() != null) {
+					onUIAction(ce.getButton().getItemId());
+				}
+			}
+		};
+
+		Button refresh = new Button(I18N.CONSTANTS.refreshPreview(), IconImageBundle.ICONS.refresh(), listener);
+		refresh.setItemId(UIActions.refresh);
+		gridToolBar.add(refresh);
+
+		Button export = new Button(I18N.CONSTANTS.export(), IconImageBundle.ICONS.excel(), listener);
+		export.setItemId(UIActions.export);
+		gridToolBar.add(export);
+
+		center.add(gridContainer, new BorderLayoutData(Style.LayoutRegion.CENTER));
+	}
+
+	protected void createDrilldownPanel(PivotCellEvent event) {
+
+		BorderLayoutData layout = new BorderLayoutData(Style.LayoutRegion.SOUTH);
+		layout.setSplit(true);
+		layout.setCollapsible(true);
+
+		DrillDownEditor drilldownEditor = new DrillDownEditor(eventBus, service, stateMgr, new DateUtilGWTImpl());
+		drilldownEditor.onDrillDown(event);
+
+		center.add(drilldownEditor, layout);
+
+		// disconnect our initial drilldown listener;
+		// subsequent events will be handled by the DrillDownEditor's listener
+		eventBus.removeListener(AppEvents.Drilldown, initialDrillDownListener);
+
+		layout();
+
+	}
+
+	public ListStore<Dimension> getRowStore() {
+		return rowDims;
+	}
+
+	public ListStore<Dimension> getColStore() {
+		return colDims;
+	}
+
+	public void setSchema(SchemaDTO result) {
+		// indicatorPanel.setSchema(result);
+	}
+
+	@Override
+	public PageId getPageId() {
+		return PAGE_ID;
+	}
+
+	@Override
+	public Object getWidget() {
+		return this;
+	}
+
+	@Override
+	public void requestToNavigateAway(PageState place, final NavigationCallback callback) {
+		callback.onDecided(NavigationError.NONE);
+	}
+
+	@Override
+	public String beforeWindowCloses() {
+		return null;
+	}
+
+	public boolean navigate(PageState place) {
+		return true;
+	}
+
+	public void enableUIAction(String actionId, boolean enabled) {
+		Component button = gridToolBar.getItemByItemId(actionId);
+		if (button != null) {
+			button.setEnabled(enabled);
+		}
+	}
+
+	public void setDimensionChecked(ModelData d, boolean checked) {
+		treePanel.setChecked(d, checked);
+	}
+
+	public void setContent(PivotTableElement element) {
+		gridContainer.setData(element);
+	}
+
+	public AsyncMonitor getMonitor() {
+		return new MaskingAsyncMonitor(this, I18N.CONSTANTS.loading());
+	}
+
+	public List<IndicatorDTO> getSelectedIndicators() {
+		return indicatorPanel.getSelection();
+	}
+
+	public List<AdminEntityDTO> getAdminRestrictions() {
+		return adminPanel.getSelection();
+	}
+
+	public Date getMinDate() {
+		return datePanel.getMinDate();
+	}
+
+	public Date getMaxDate() {
+		return datePanel.getMaxDate();
+	}
+
+	public List<PartnerDTO> getPartnerRestrictions() {
+		return partnerPanel.getSelection();
+	}
+
+	public TreeStore<ModelData> getDimensionStore() {
+		return this.dimensionStore;
+	}
+
+	private String trim(String s) {
+		if (s == null || "".equals(s)) {
+			return "NO_NAME";
+		}
+		s = s.trim();
+		if (s.length() > 20) {
+			return s.substring(0, 19) + "...";
+		} else {
+			return s;
+		}
+	}
+
+	private class Proxy implements DataProxy<List<ModelData>> {
+
+		private SchemaDTO schema;
+
+		public void load(DataReader<List<ModelData>> listDataReader, final Object parent,
+		                final AsyncCallback<List<ModelData>> callback) {
+
+			if (schema == null) {
+				service.execute(new GetSchema(), getMonitor(), new AsyncCallback<SchemaDTO>() {
+
+					public void onFailure(Throwable caught) {
+						callback.onFailure(caught);
+					}
+
+					public void onSuccess(SchemaDTO result) {
+						schema = result;
+						loadChildren(parent, callback);
+					}
+				});
+			} else {
+				loadChildren(parent, callback);
+			}
+		}
+
+		public void loadChildren(Object parent, final AsyncCallback<List<ModelData>> callback) {
+			if (parent != null && parent instanceof DimensionFolder) {
+
+				DimensionFolder folder = (DimensionFolder) parent;
+				DimensionType type = folder.getType();
+				final ArrayList<ModelData> dims = new ArrayList<ModelData>();
+
+				if (type == DimensionType.Date) {
+					// add time dimension
+					int idSeq = 0;
+					dims.add(new DateDimension(I18N.CONSTANTS.year(), idSeq++, DateUnit.YEAR, null));
+					dims.add(new DateDimension(I18N.CONSTANTS.quarter(), idSeq++, DateUnit.QUARTER, null));
+					dims.add(new DateDimension(I18N.CONSTANTS.month(), idSeq++, DateUnit.MONTH, null));
+
+				} else if (type == DimensionType.AdminLevel) {
+					// add geo dimensions
+					for (CountryDTO country : schema.getCountries()) {
+						for (AdminLevelDTO level : country.getAdminLevels()) {
+							dims.add(new AdminDimension(level.getName(), level.getId()));
+						}
+					}
+
+				} else if (type == DimensionType.AttributeGroup) {
+					if (folder.getDepth() == 0) {
+						// folders for database names
+						for (UserDatabaseDTO db : schema.getDatabases()) {
+							for (ActivityDTO act : db.getActivities()) {
+								if (act.getAttributeGroups() != null && act.getAttributeGroups().size() > 0) {
+									dims.add(new DimensionFolder(db.getName(), DimensionType.AttributeGroup, folder
+									                .getDepth() + 1, db.getId()));
+									break;
+								}
+							}
+						}
+
+					} else if (folder.getDepth() == 1) {
+						// folders for activity names
+						UserDatabaseDTO db = schema.getDatabaseById(folder.getId());
+						for (ActivityDTO act : db.getActivities()) {
+							if (act.getAttributeGroups() != null && act.getAttributeGroups().size() > 0) {
+								dims.add(new DimensionFolder(act.getName(), DimensionType.AttributeGroup, folder
+								                .getDepth() + 1, act.getId()));
+								break;
+							}
+						}
+
+					} else if (folder.getDepth() == 2) {
+						// attribute groups
+						ActivityDTO act = schema.getActivityById(folder.getId());
+						for (AttributeGroupDTO attrGroup : act.getAttributeGroups()) {
+							dims.add(new AttributeGroupDimension(attrGroup.getName(), attrGroup.getId()));
+						}
+
+					} else {
+						assert false;
+					}
+				} else {
+					assert false;
+				}
+				callback.onSuccess(dims);
+			}
+		}
+	}
+
+	private PivotTableElement createElement() {
+		PivotTableElement table = new PivotTableElement();
+		table.setRowDimensions(getRowStore().getModels());
+		table.setColumnDimensions(getColStore().getModels());
+
+		List<IndicatorDTO> selectedIndicators = getSelectedIndicators();
+		for (IndicatorDTO indicator : selectedIndicators) {
+			table.getFilter().addRestriction(DimensionType.Indicator, indicator.getId());
+		}
+
+		List<AdminEntityDTO> entities = getAdminRestrictions();
+		for (AdminEntityDTO entity : entities) {
+			table.getFilter().addRestriction(DimensionType.AdminLevel, entity.getId());
+		}
+
+		List<PartnerDTO> partners = getPartnerRestrictions();
+		for (PartnerDTO entity : partners) {
+			table.getFilter().addRestriction(DimensionType.Partner, entity.getId());
+		}
+
+		if (getMinDate() != null) {
+			table.getFilter().setMinDate(getMinDate());
+		}
+
+		if (getMaxDate() != null) {
+			table.getFilter().setMaxDate(getMaxDate());
+		}
+		return table;
+	}
+
+	public void onUIAction(String itemId) {
+		if (UIActions.refresh.equals(itemId)) {
+			final PivotTableElement element = createElement();
+			service.execute(new GenerateElement(element), getMonitor(), new AsyncCallback<Content>() {
+
+				public void onFailure(Throwable throwable) {
+					MessageBox.alert(I18N.CONSTANTS.error(), I18N.CONSTANTS.errorOnServer(), null);
+				}
+
+				public void onSuccess(Content content) {
+					element.setContent((PivotContent) content);
+					setContent(element);
+				}
+			});
+
+		} else if (UIActions.export.equals(itemId)) {
+			service.execute(new RenderElement(createElement(), RenderElement.Format.Excel), getMonitor(),
+			                new DownloadCallback(eventBus, "pivotTable"));
+		}
+	}
+
+	@Override
+	public void shutdown() {
+
+	}
 }

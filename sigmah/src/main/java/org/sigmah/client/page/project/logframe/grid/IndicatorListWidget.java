@@ -33,28 +33,27 @@ import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.Label;
 
-public class IndicatorListWidget extends Composite implements
-		HasValueChangeHandlers<Void> {
+public class IndicatorListWidget extends Composite implements HasValueChangeHandlers<Void> {
 
 	private final Dispatcher dispatcher;
 	private final LogFrameElementDTO element;
 	private final int databaseId;
-	
+
 	private final String clickAbleStyle = "logframe-grid-code-label-active";
 	private FormDialogImpl<IndicatorForm> dialog;
 	private final FlexTable table;
-	
-	public IndicatorListWidget(EventBus eventBus, final Dispatcher dispatcher,
-			final int databaseId, final LogFrameElementDTO element) {
+
+	public IndicatorListWidget(EventBus eventBus, final Dispatcher dispatcher, final int databaseId,
+	                final LogFrameElementDTO element) {
 		this.dispatcher = dispatcher;
-		this.element=element;	
-		this.databaseId=databaseId;
-		
+		this.element = element;
+		this.databaseId = databaseId;
+
 		table = new FlexTable();
 		table.setWidth("100%");
 		table.setStyleName("log-frame-indicators-table");
 		updateTable();
-		
+
 		final Label newIndicatorLink = new Label(I18N.CONSTANTS.newIndicator());
 		newIndicatorLink.addStyleName(clickAbleStyle);
 		newIndicatorLink.addClickHandler(new ClickHandler() {
@@ -63,26 +62,25 @@ public class IndicatorListWidget extends Composite implements
 				showNewIndicatorForm();
 			}
 		});
-		
-		final Grid grid=new Grid(2, 1); 
+
+		final Grid grid = new Grid(2, 1);
 		grid.setCellSpacing(0);
- 		grid.setWidget(0, 0, table);
+		grid.setWidget(0, 0, table);
 		grid.setWidget(1, 0, newIndicatorLink);
-		
+
 		initWidget(grid);
 
-		eventBus.addListener(IndicatorEvent.CHANGED,
-				new Listener<IndicatorEvent>() {
+		eventBus.addListener(IndicatorEvent.CHANGED, new Listener<IndicatorEvent>() {
 
-					@Override
-					public void handleEvent(IndicatorEvent event) {
-						onIndicatorChangedExternally(event);
-					}
-				});
+			@Override
+			public void handleEvent(IndicatorEvent event) {
+				onIndicatorChangedExternally(event);
+			}
+		});
 
 	}
-	
-	private void showNewIndicatorForm(){
+
+	private void showNewIndicatorForm() {
 		final IndicatorDTO newIndicator = new IndicatorDTO();
 		newIndicator.setCollectIntervention(true);
 		newIndicator.setAggregation(IndicatorDTO.AGGREGATE_SUM);
@@ -98,44 +96,43 @@ public class IndicatorListWidget extends Composite implements
 			@Override
 			public void onValidated(FormDialogTether dlg) {
 
-				dispatcher.execute(new CreateEntity(newIndicator),
-						dialog, new AsyncCallback<CreateResult>() {
+				dispatcher.execute(new CreateEntity(newIndicator), dialog, new AsyncCallback<CreateResult>() {
 
-							@Override
-							public void onFailure(Throwable caught) {
-								// handled by dialog
-							}
+					@Override
+					public void onFailure(Throwable caught) {
+						// handled by dialog
+					}
 
-							@Override
-							public void onSuccess(CreateResult result) {
-								newIndicator.setId(result.getNewId());
-								dialog.hide();
-								element.getIndicators().add(newIndicator);
-								updateTable();
-								ValueChangeEvent.fire(IndicatorListWidget.this, null);
-							}
-						});
+					@Override
+					public void onSuccess(CreateResult result) {
+						newIndicator.setId(result.getNewId());
+						dialog.hide();
+						element.getIndicators().add(newIndicator);
+						updateTable();
+						ValueChangeEvent.fire(IndicatorListWidget.this, null);
+					}
+				});
 			}
 		});
 	}
-	
-	private void updateTable(){
+
+	private void updateTable() {
 		int rowIndex = 0;
 		for (final IndicatorDTO indicator : element.getIndicators()) {
 			updateRow(rowIndex, indicator);
 			rowIndex++;
 		}
 	}
-	
-	private void updateRow(final int rowIndex,final IndicatorDTO indicator){
+
+	private void updateRow(final int rowIndex, final IndicatorDTO indicator) {
 
 		final Label label = new Label(indicator.getName());
-		
+
 		label.addClickHandler(new ClickHandler() {
 
 			@Override
 			public void onClick(ClickEvent event) {
-				onIndicatorClicked(rowIndex,indicator);
+				onIndicatorClicked(rowIndex, indicator);
 			}
 		});
 		label.addMouseOverHandler(new MouseOverHandler() {
@@ -153,36 +150,33 @@ public class IndicatorListWidget extends Composite implements
 			}
 		});
 		table.setWidget(rowIndex, 0, label);
-		table.getFlexCellFormatter().setStyleName(rowIndex, 0,
-		"log-frame-indicators-table-cell");
-		
-		table.setHTML(rowIndex, 1, indicator.getSourceOfVerification());		
-		table.getFlexCellFormatter().setStyleName(rowIndex, 1,
-				"log-frame-indicators-table-cell");
+		table.getFlexCellFormatter().setStyleName(rowIndex, 0, "log-frame-indicators-table-cell");
+
+		table.setHTML(rowIndex, 1, indicator.getSourceOfVerification());
+		table.getFlexCellFormatter().setStyleName(rowIndex, 1, "log-frame-indicators-table-cell");
 	}
 
-	private void onIndicatorClicked(final int rowIndex,final IndicatorDTO indicator) {
+	private void onIndicatorClicked(final int rowIndex, final IndicatorDTO indicator) {
 		showDialog(indicator, new FormDialogCallback() {
 
 			@Override
 			public void onValidated(FormDialogTether dlg) {
 
-				dispatcher.execute(
-						new UpdateEntity(indicator, indicator.getProperties()), dialog,
-						new AsyncCallback<VoidResult>() {
+				dispatcher.execute(new UpdateEntity(indicator, indicator.getProperties()), dialog,
+				                new AsyncCallback<VoidResult>() {
 
-							@Override
-							public void onFailure(Throwable caught) {
-								// handled by monitor
-							}
+					                @Override
+					                public void onFailure(Throwable caught) {
+						                // handled by monitor
+					                }
 
-							@Override
-							public void onSuccess(VoidResult result) {
-								dialog.hide();
-								updateRow(rowIndex, indicator);
-								ValueChangeEvent.fire(IndicatorListWidget.this,null);
-							}
-						});
+					                @Override
+					                public void onSuccess(VoidResult result) {
+						                dialog.hide();
+						                updateRow(rowIndex, indicator);
+						                ValueChangeEvent.fire(IndicatorListWidget.this, null);
+					                }
+				                });
 			}
 		});
 	}
@@ -194,8 +188,7 @@ public class IndicatorListWidget extends Composite implements
 		form.setGroupVisible(false);
 
 		dialog = new FormDialogImpl<IndicatorForm>(form);
-		dialog.setHeading(indicator.getName() == null ? I18N.CONSTANTS
-				.newIndicator() : indicator.getName());
+		dialog.setHeading(indicator.getName() == null ? I18N.CONSTANTS.newIndicator() : indicator.getName());
 		dialog.setWidth(form.getPreferredDialogWidth());
 		dialog.setHeight(form.getPreferredDialogHeight());
 		dialog.setScrollMode(Scroll.AUTOY);
@@ -208,15 +201,15 @@ public class IndicatorListWidget extends Composite implements
 	 */
 	private void onIndicatorChangedExternally(IndicatorEvent event) {
 		IndicatorDTO indicator = null;
-		for(IndicatorDTO dto:element.getIndicators()){
-			if(dto.getId()==event.getEntityId())
-				indicator=dto;
-		} 
+		for (IndicatorDTO dto : element.getIndicators()) {
+			if (dto.getId() == event.getEntityId())
+				indicator = dto;
+		}
 		if (indicator != null) {
 			switch (event.getChangeType()) {
 			case DELETED:
 				element.getIndicators().remove(indicator);
- 				break;
+				break;
 			case UPDATED:
 				if (event.getChanges() != null) {
 					event.applyChanges(indicator);
@@ -228,8 +221,7 @@ public class IndicatorListWidget extends Composite implements
 	}
 
 	@Override
-	public HandlerRegistration addValueChangeHandler(
-			ValueChangeHandler<Void> handler) {
+	public HandlerRegistration addValueChangeHandler(ValueChangeHandler<Void> handler) {
 		return addHandler(handler, ValueChangeEvent.getType());
 	}
 
