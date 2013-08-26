@@ -36,8 +36,8 @@ body {
 
 #alert {
 	clear: both;
-    overflow: hidden;
-    padding: 10px 15px 0;
+	overflow: hidden;
+	padding: 10px 15px 0;
 }
 
 .message {
@@ -45,7 +45,7 @@ body {
 	border: 1px solid #EBAE7F;
 	padding: 4px 0 3px 30px;
 	color: #D85D01;
-	font: 11px arial,tahoma,helvetica,sans-serif;
+	font: 11px arial, tahoma, helvetica, sans-serif;
 }
 
 #username {
@@ -361,7 +361,7 @@ body {
 
 .module-background {
 	background-color: #FFFFFF !important;
-	overflow : visible !important;
+	overflow: visible !important;
 }
 
 .panel-background {
@@ -373,23 +373,23 @@ body {
 }
 
 .width-of-parent {
-	width : inherit !important;
+	width: inherit !important;
 }
 
 .height-of-parent {
-	height : inherit !important;	
+	height: inherit !important;
 }
 
 .form-radio label {
-    padding-left: 6px;
+	padding-left: 6px;
 }
 
 .form-text {
-	font: 12px tahoma,arial,helvetica,sans-serif;
+	font: 12px tahoma, arial, helvetica, sans-serif;
 }
 
-.form-radio > input {
-	margin-left : 7px;
+.form-radio>input {
+	margin-left: 7px;
 }
 
 .hyperlink a,.hyperlink a:active,.hyperlink a:hover,.hyperlink a:focus,.hyperlink a:link,.hyperlink a:visited
@@ -443,31 +443,26 @@ body {
 
 .project-linkedProject-editButton {
 	width: 13px;
-    Height: 13px;
+	Height: 13px;
 }
 
 .project-linkedProject-editButton-down-hovering {
-    border: border-width : 1px;
+	border: border-width:                                1px;
 	border-style: solid;
-	border-bottom-color:#FFFCEC;
+	border-bottom-color: #FFFCEC;
 	border-right-color: #FFFCEC;
 	border-top-color: #FFF8D7;
-	border-left-color:#FFF8D7;
-	
+	border-left-color: #FFF8D7;
 }
 
 .project-linkedProject-editButton-up-hovering {
-	
-	border: border-width : 1px;
+	border: border-width:                                1px;
 	border-style: solid;
 	border-bottom-color: #FFF8D7;
 	border-right-color: #FFF8D7;
 	border-top-color: #FFFCEC;
 	border-left-color: #FFFCEC;
 }
-
-
-
 
 .toolbar-title {
 	font-weight: bold !important;
@@ -856,16 +851,17 @@ body {
 	background-image: url(./image/context_menu_icon_orange.png);
 }
 
-.log-frame-indicators-table{
-table-layout: fixed;
-margin-bottom: 8px;
+.log-frame-indicators-table {
+	table-layout: fixed;
+	margin-bottom: 8px;
 }
-.log-frame-indicators-table-cell{
-white-space: normal;
-width: 50%;
-overflow:hidden;
-border-bottom: solid 1px #EDEDED;
-padding: 5px 0 2px 2px;
+
+.log-frame-indicators-table-cell {
+	white-space: normal;
+	width: 50%;
+	overflow: hidden;
+	border-bottom: solid 1px #EDEDED;
+	padding: 5px 0 2px 2px;
 }
 /* --------------------------------------------- Reports */
 .project-report {
@@ -879,14 +875,14 @@ padding: 5px 0 2px 2px;
 	font-size: 10pt;
 	color: white;
 	width: 100%;
-	margin: 0 ;
+	margin: 0;
 	background-color: rgb(74, 63, 43);
 	padding-left: 8px;
 	padding-right: 24px;
 	line-height: 32px;
 }
 
-.project-report-personalDraft {	
+.project-report-personalDraft {
 	font-weight: bold;
 }
 
@@ -1060,20 +1056,19 @@ padding: 5px 0 2px 2px;
 	height: 8px;
 }
 
-
 /*----------------------------------------------- Password reset*/
-.update-form-message-title{
-font-family: tahoma, arial, helvetica, sans-serif;
+.update-form-message-title {
+	font-family: tahoma, arial, helvetica, sans-serif;
 	font-size: 13px;
 	font-weight: bold;
 	color: white;
-	padding:0 0 8px 8px;
+	padding: 0 0 8px 8px;
 }
 
-.update-form-message-content{
-font-family: tahoma, arial, helvetica, sans-serif;
+.update-form-message-content {
+	font-family: tahoma, arial, helvetica, sans-serif;
 	font-size: 12px;
- 	color: white;
+	color: white;
 	text-align: justify;
 }
 
@@ -1110,7 +1105,8 @@ font-family: tahoma, arial, helvetica, sans-serif;
 .blockStat {
 	border: 1px solid #B9A48F;
 	padding: 1px;
-	background: transparent url(image/ratio-bar-bg.png) repeat-x scroll 0 1px;
+	background: transparent url(image/ratio-bar-bg.png) repeat-x scroll 0
+		1px;
 }
 
 .blockStat div {
@@ -1182,7 +1178,6 @@ font-family: tahoma, arial, helvetica, sans-serif;
 	font-size: 10px;
 }
 
-
 .credits-manager-header {
 	font-weight: bold;
 }
@@ -1223,43 +1218,50 @@ a.credits-partner-url,a.credits-partner-url:link,a.credits-partner-url:visited,a
 .credits-developer {
 	margin-left: 15px;
 	padding-top: 3px;
-	font-weight:bold;
+	font-weight: bold;
 }
 
 .credits-developer-email {
 	margin-left: 50px;
 }
 
-.backup-label{
-	background-color: F5F5DC	
+.backup-label {
+	background-color: F5F5DC
 }
-.orgunitModel-grid-nameLink{
+
+.orgunitModel-grid-nameLink {
 	text-decoration: underline;
 	cursor: pointer;
 	color: #4B3E2D;
 }
 
-.delete-anchor{
+.delete-anchor {
 	background: url("image/remove.png") no-repeat;
 	padding-left: 20px;
 }
 
-.export-spreadsheet-anchor{
+.export-spreadsheet-anchor {
 	background: url("image/excel.png") no-repeat;
 	padding-left: 20px;
 }
 
-
 .global-export-fields-table {
 	border: 1px solid lightgrey;
 	margin-bottom: 13px;
-    margin-top: 5px;	
+	margin-top: 5px;
+}
+
+.filtered-column-header {
+	font-weight: bold;
+	font-style: italic;
+	background: url("image/filter.png") no-repeat left;
+	padding-left: 20px;
 }
 
 /*------------------------------------------------------ Linked Project Form*/
 .x-combo-list-item-disabled {
-	font-weight:bold !important;
-	text-align:center;
+	font-weight: bold !important;
+	text-align: center;
 }
 
 /* ---------------------------------------------- Budget Sub Fields */

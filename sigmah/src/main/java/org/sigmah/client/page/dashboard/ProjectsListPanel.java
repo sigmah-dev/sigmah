@@ -39,14 +39,20 @@ import org.sigmah.shared.dto.category.CategoryTypeDTO;
 import org.sigmah.shared.dto.profile.ProfileUtils;
 
 import com.allen_sauer.gwt.log.client.Log;
+import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.Style.SortDir;
 import com.extjs.gxt.ui.client.data.BaseModelData;
+import com.extjs.gxt.ui.client.data.FilterConfig;
+import com.extjs.gxt.ui.client.data.Loader;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.data.SortInfo;
+import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FieldEvent;
+import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.MenuEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.store.Store;
@@ -54,6 +60,7 @@ import com.extjs.gxt.ui.client.store.StoreEvent;
 import com.extjs.gxt.ui.client.store.StoreFilter;
 import com.extjs.gxt.ui.client.store.StoreSorter;
 import com.extjs.gxt.ui.client.store.TreeStore;
+import com.extjs.gxt.ui.client.util.DelayedTask;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
@@ -65,10 +72,13 @@ import com.extjs.gxt.ui.client.widget.form.Radio;
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
+import com.extjs.gxt.ui.client.widget.grid.ColumnHeader;
+import com.extjs.gxt.ui.client.widget.grid.ColumnHeader.Head;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.grid.filters.DateFilter;
+import com.extjs.gxt.ui.client.widget.grid.filters.Filter;
 import com.extjs.gxt.ui.client.widget.grid.filters.GridFilters;
 import com.extjs.gxt.ui.client.widget.grid.filters.ListFilter;
 import com.extjs.gxt.ui.client.widget.grid.filters.NumericFilter;
@@ -76,6 +86,10 @@ import com.extjs.gxt.ui.client.widget.grid.filters.StringFilter;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FlowData;
 import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
+import com.extjs.gxt.ui.client.widget.menu.CheckMenuItem;
+import com.extjs.gxt.ui.client.widget.menu.DateMenu;
+import com.extjs.gxt.ui.client.widget.menu.Menu;
+import com.extjs.gxt.ui.client.widget.menu.SeparatorMenuItem;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
@@ -92,6 +106,7 @@ import com.google.gwt.user.client.ui.Hyperlink;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.datepicker.client.CalendarUtil;
 
 /**
  * A widget which display a list of projects.
@@ -256,7 +271,116 @@ public class ProjectsListPanel {
         projectTreeGrid.setAutoExpand(true);               
 
      // Apply grid filters
-        gridFilters = new GridFilters();       
+		gridFilters = new GridFilters() {
+
+			private CheckMenuItem checkItem;
+			private SeparatorMenuItem seperator;
+			private Menu filterMenuO;
+			private StoreFilter<ModelData> currentFilterO;
+
+			private DelayedTask deferredUpdateO = new DelayedTask(new Listener<BaseEvent>() {
+				public void handleEvent(BaseEvent be) {
+					reload();
+				}
+			});
+
+			@Override
+			protected void onContextMenu(GridEvent<?> be) {
+				int column = be.getColIndex();
+
+				if (seperator == null) {
+					seperator = new SeparatorMenuItem();
+				}
+				seperator.removeFromParent();
+
+				if (checkItem == null) {
+					checkItem = new CheckMenuItem(getMessages().getFilterText());
+
+					checkItem.addListener(Events.CheckChange, new Listener<MenuEvent>() {
+						public void handleEvent(MenuEvent me) {
+							onCheckChange(me);
+						}
+					});
+					checkItem.addListener(Events.BeforeCheckChange, new Listener<MenuEvent>() {
+						public void handleEvent(MenuEvent me) {
+							onBeforeCheck(me);
+						}
+					});
+				}
+				checkItem.removeFromParent();
+				checkItem.setData("index", column);
+
+				Filter f = getFilter(grid.getColumnModel().getColumn(column).getDataIndex());
+				if (f != null) {
+					checkItem.show();
+
+					filterMenuO = f.getMenu();
+					checkItem.setChecked(f.isActive(), true);
+					checkItem.setSubMenu(filterMenuO);
+
+					Menu menu = be.getMenu();
+					menu.add(seperator);
+					if (columnModel.getDataIndex(column).equals("time"))
+						checkItem.setText(I18N.CONSTANTS.closedProjectsFilterText());
+					else
+						checkItem.setText(GXT.MESSAGES.gridFilters_filterText());
+					menu.add(checkItem);
+				}
+			}
+
+			@Override
+			protected void onStateChange(Filter filter) {
+				if (checkItem != null && checkItem.isAttached()) {
+					checkItem.setChecked(filter.isActive(), true);
+				}
+				if ((isAutoReload() || isLocal())) {
+					deferredUpdateO.delay(getUpdateBuffer());
+				}
+				updateColumnHeadings();
+			}
+
+			@Override
+			protected void reload() {
+				if (isLocal()) {
+					if (currentFilterO != null) {
+						getStore().removeFilter(currentFilterO);
+					}
+					currentFilterO = getModelFilter();
+					getStore().addFilter(currentFilterO);
+					if (!getStore().isFiltered()) {
+						getStore().applyFilters("");
+					}
+				} else {
+					deferredUpdateO.cancel();
+
+					Loader<?> l = getLoader(getStore());
+					if (l != null) {
+						l.load();
+					}
+				}
+			}
+
+			@Override
+			public void updateColumnHeadings() {
+				int cols = grid.getColumnModel().getColumnCount();
+				for (int i = 0; i < cols; i++) {
+					ColumnConfig config = grid.getColumnModel().getColumn(i);
+					if (!config.isHidden()) {
+						ColumnHeader header = grid.getView().getHeader();
+						if (header != null) {
+							Head h = header.getHead(i);
+							if (h != null && h.isRendered()) {
+								Filter f = getFilter(config.getDataIndex());
+								if (f != null) {
+									h.el().setStyleName("filtered-column-header", f.isActive());
+								}
+							}
+						}
+					}
+				}
+			}
+		};
+
         projectTreeGrid.addPlugin(createGridFilters());  
 
         // Store.
@@ -466,6 +590,16 @@ public class ProjectsListPanel {
 
         addListeners();
         addFilters();
+
+		getProjectsPanel().addListener(Events.AfterLayout, new Listener<BaseEvent>() {
+
+			@Override
+			public void handleEvent(BaseEvent be) {
+				gridFilters.getFilter("time").setActive(true, false);
+
+			}
+		});
+
     }
 
     /**
@@ -702,7 +836,10 @@ public class ProjectsListPanel {
             @Override
             public Object render(ProjectDTOLight model, String property, ColumnData config, int rowIndex, int colIndex,
                     ListStore<ProjectDTOLight> store, Grid<ProjectDTOLight> grid) {
+				if (!model.isClosed())
                 return new RatioBar(model.getElapsedTime());
+				else
+					return new Label(I18N.CONSTANTS.projectClosedLabel());
             }
         });
 
@@ -814,7 +951,7 @@ public class ProjectsListPanel {
 		gridFilters.addFilter(new DateFilter("closeDate"));
 
 		// Custom filter for category elements' list
-		ListFilter categoryListFilter = new ListFilter("categoryElements",new ListStore<ModelData>()) {
+		ListFilter categoryListFilter = new ListFilter("categoryElements", new ListStore<ModelData>()) {
 			@SuppressWarnings("unchecked")
 			@Override
 			public boolean validateModel(ModelData model) {
@@ -825,7 +962,7 @@ public class ProjectsListPanel {
 				if (elementsPerProject != null) {
 					String label = null;
 					for (final CategoryElementDTO element : elementsPerProject) {
-						label = element.getLabel() + " ("+ element.getParentCategoryDTO().getLabel()+ ")";
+						label = element.getLabel() + " (" + element.getParentCategoryDTO().getLabel() + ")";
 						if (filterLabels.contains(label)) {
 							return true;
 						}
@@ -839,49 +976,78 @@ public class ProjectsListPanel {
 		};
 		categoryListFilter.setDisplayProperty("categoryFilter");
 		gridFilters.addFilter(categoryListFilter);
-		
+
+		ClosedFilter closed = new ClosedFilter("time");
+		gridFilters.addFilter(closed);
+
+		// gridFilters.addFilter(new DateFilter("time"));
+
+		// closed.addListener(Events.Activate, new Listener<BaseEvent>() {
+		//
+		// @Override
+		// public void handleEvent(BaseEvent be) {
+		// if (getProjectsStore().getFilters().contains(closedFilter)) {
+		// getProjectsStore().removeFilter(closedFilter);
+		// applyProjectFilters();
+		//
+		// }
+		//
+		// }
+		// });
+
+		// closed.addListener(Events.Deactivate, new Listener<BaseEvent>() {
+		//
+		// @Override
+		// public void handleEvent(BaseEvent be) {
+		// if (!getProjectsStore().getFilters().contains(closedFilter)) {
+		// getProjectsStore().addFilter(closedFilter);
+		// applyProjectFilters();
+		//
+		// }
+		//
+		// }
+		// });
+
 		return gridFilters;
 	}
-	
 
 	/*
-	 * Fetches categories in active user's organization and
-	 * fills {@link ListFilter} store of a category column  
+	 * Fetches categories in active user's organization and fills {@link
+	 * ListFilter} store of a category column
 	 */
 	private void reloadCategoryListFilterStore() {
-		dispatcher.execute(new GetCategories(), null,
-				new AsyncCallback<CategoriesListResult>() {
+		dispatcher.execute(new GetCategories(), null, new AsyncCallback<CategoriesListResult>() {
 
-					@Override
-					public void onFailure(Throwable e) {
-						Log.error("[GetCategories command] Error while getting categories.",e);
-					}
+			@Override
+			public void onFailure(Throwable e) {
+				Log.error("[GetCategories command] Error while getting categories.", e);
+			}
 
-					@SuppressWarnings("unchecked")
-					@Override
-					public void onSuccess(CategoriesListResult result) {
-						ListFilter categoryListFilter = (ListFilter) gridFilters.getFilter("categoryElements");
-						ListStore<ModelData> filterStore = categoryListFilter.getStore();						
- 						List<CategoryTypeDTO> categories = result.getList();
-						
-						for (CategoryTypeDTO category : categories) {
-							List<CategoryElementDTO> categoryElements = category.getCategoryElementsDTO();
-							for (CategoryElementDTO element : categoryElements) {
-								String filterLabel = element.getLabel() + " ("+ category.getLabel() + ")";
-								boolean exist=false;
- 								 for(ModelData model : filterStore.getModels()){
-										if(model.get("categoryFilter").equals(filterLabel)){
-											exist=true;
-											break;
-										}
-								  }
- 								 if(!exist){
- 									 filterStore.add(getFilterModelData(filterLabel));
- 								 }
+			@SuppressWarnings("unchecked")
+			@Override
+			public void onSuccess(CategoriesListResult result) {
+				ListFilter categoryListFilter = (ListFilter) gridFilters.getFilter("categoryElements");
+				ListStore<ModelData> filterStore = categoryListFilter.getStore();
+				List<CategoryTypeDTO> categories = result.getList();
+
+				for (CategoryTypeDTO category : categories) {
+					List<CategoryElementDTO> categoryElements = category.getCategoryElementsDTO();
+					for (CategoryElementDTO element : categoryElements) {
+						String filterLabel = element.getLabel() + " (" + category.getLabel() + ")";
+						boolean exist = false;
+						for (ModelData model : filterStore.getModels()) {
+							if (model.get("categoryFilter").equals(filterLabel)) {
+								exist = true;
+								break;
 							}
-						} 
+						}
+						if (!exist) {
+							filterStore.add(getFilterModelData(filterLabel));
+						}
 					}
-				});
+				}
+			}
+		});
 	}
 
 	private ModelData getFilterModelData(String filterLabel) {
@@ -890,323 +1056,495 @@ public class ProjectsListPanel {
 		return model;
 	}
 
-    private Object createProjectGridText(ProjectDTOLight model, String content) {
-        final Text label = new Text(content);
-        if (!model.isLeaf()) {
-            label.addStyleName("project-grid-node");
-        } else {
-            label.addStyleName("project-grid-leaf");
-        }
-        return label;
-    }
+	private Object createProjectGridText(ProjectDTOLight model, String content) {
+		final Text label = new Text(content);
+		if (!model.isLeaf()) {
+			label.addStyleName("project-grid-node");
+		} else {
+			label.addStyleName("project-grid-leaf");
+		}
+		return label;
+	}
 
-    private void addListeners() {
+	private void addListeners() {
 
-        // Updates the projects grid heading when the store is filtered.
-        projectTreeGrid.getTreeStore().addListener(Store.Filter, new Listener<StoreEvent<ProjectDTOLight>>() {
+		// Updates the projects grid heading when the store is filtered.
+		projectTreeGrid.getTreeStore().addListener(Store.Filter, new Listener<StoreEvent<ProjectDTOLight>>() {
 
-            @Override
-            public void handleEvent(StoreEvent<ProjectDTOLight> be) {
-                projectTreePanel.setHeading(I18N.CONSTANTS.projects() + " ("
-                        + projectTreeGrid.getTreeStore().getChildCount() + ')');
-            }
-        });
+			@Override
+			public void handleEvent(StoreEvent<ProjectDTOLight> be) {
+				projectTreePanel.setHeading(I18N.CONSTANTS.projects() + " ("
+								+ projectTreeGrid.getTreeStore().getChildCount() + ')');
+			}
+		});
 
-        // Adds actions on filter by model type.
-        for (final ProjectModelType type : ProjectModelType.values()) {
-            getRadioFilter(type).addListener(Events.Change, new Listener<FieldEvent>() {
+		// Adds actions on filter by model type.
+		for (final ProjectModelType type : ProjectModelType.values()) {
+			getRadioFilter(type).addListener(Events.Change, new Listener<FieldEvent>() {
 
-                @Override
-                public void handleEvent(FieldEvent be) {
-                    if (Boolean.TRUE.equals(be.getValue())) {
-                        currentModelType = type;
-                        applyProjectFilters();
-                    }
-                }
-            });
-        }
-    }
+				@Override
+				public void handleEvent(FieldEvent be) {
+					if (Boolean.TRUE.equals(be.getValue())) {
+						currentModelType = type;
+						applyProjectFilters();
+					}
+				}
+			});
+		}
 
-    private void addFilters() {
+	}
 
-        // The filter by model type.
-        final StoreFilter<ProjectDTOLight> typeFilter = new StoreFilter<ProjectDTOLight>() {
+	private void addFilters() {
 
-            @Override
-            public boolean select(Store<ProjectDTOLight> store, ProjectDTOLight parent, ProjectDTOLight item,
-                    String property) {
+		// The filter by model type.
+		final StoreFilter<ProjectDTOLight> typeFilter = new StoreFilter<ProjectDTOLight>() {
 
-                boolean selected = false;
+			@Override
+			public boolean select(Store<ProjectDTOLight> store, ProjectDTOLight parent, ProjectDTOLight item,
+							String property) {
 
-                // Root item.
-                if (item.getParent() == null) {
-                    // A root item is filtered if its type doesn't match the
-                    // current type.
-                    selected = item.getVisibility(authentication.getOrganizationId()) == currentModelType;
-                }
-                // Child item
-                else {
-                    // A child item is filtered if its parent is filtered.
-                    selected = ((ProjectDTOLight) item.getParent()).getVisibility(authentication.getOrganizationId()) == currentModelType;
-                }
+				boolean selected = false;
 
-                return selected;
-            }
-        };
+				// Root item.
+				if (item.getParent() == null) {
+					// A root item is filtered if its type doesn't match the
+					// current type.
+					selected = item.getVisibility(authentication.getOrganizationId()) == currentModelType;
+				}
+				// Child item
+				else {
+					// A child item is filtered if its parent is filtered.
+					selected = ((ProjectDTOLight) item.getParent()).getVisibility(authentication.getOrganizationId()) == currentModelType;
+				}
 
-        getProjectsStore().addFilter(typeFilter);
+				return selected;
+			}
+		};
 
-        // Filters aren't used for the moment.
-        filterButton.setVisible(false);
-    }
+		getProjectsStore().addFilter(typeFilter);
 
-    private void applyProjectFilters() {
-        getProjectsStore().applyFilters(null);
-    }
+		// Filters aren't used for the moment.
+		filterButton.setVisible(false);
+	}
 
-    private Radio getRadioFilter(ProjectModelType type) {
+	private void applyProjectFilters() {
+		getProjectsStore().applyFilters(null);
+	}
 
-        if (type != null) {
-            switch (type) {
-            case NGO:
-                return ngoRadio;
-            case FUNDING:
-                return fundingRadio;
-            case LOCAL_PARTNER:
-                return partnerRadio;
-            }
-        }
+	private Radio getRadioFilter(ProjectModelType type) {
 
-        return null;
-    }
+		if (type != null) {
+			switch (type) {
+			case NGO:
+				return ngoRadio;
+			case FUNDING:
+				return fundingRadio;
+			case LOCAL_PARTNER:
+				return partnerRadio;
+			}
+		}
 
-    /**
-     * Display the given date as the last refreshed date.
-     * 
-     * @param date
-     *            The last refreshed date.
-     */
-    @SuppressWarnings("deprecation")
-    private void updateRefreshingDate(Date date) {
-        if (date != null) {
-            refreshDateLabel.setText("(" + (date.getHours() < 10 ? "0" + date.getHours() : date.getHours()) + "h"
-                    + (date.getMinutes() < 10 ? "0" + date.getMinutes() : date.getMinutes()) + ")");
-        }
-    }
+		return null;
+	}
 
-    /**
-     * Refreshes the projects grid with the current parameters.
-     * 
-     * @param cmd
-     *            The {@link GetProjects} command to execute.
-     */
-    private void refreshProjectGrid(GetProjects cmd) {
+	/**
+	 * Display the given date as the last refreshed date.
+	 * 
+	 * @param date
+	 *            The last refreshed date.
+	 */
+	@SuppressWarnings("deprecation")
+	private void updateRefreshingDate(Date date) {
+		if (date != null) {
+			refreshDateLabel.setText("(" + (date.getHours() < 10 ? "0" + date.getHours() : date.getHours()) + "h"
+							+ (date.getMinutes() < 10 ? "0" + date.getMinutes() : date.getMinutes()) + ")");
+		}
+	}
 
-        // Checks that the user can view projects.
-        if (!ProfileUtils.isGranted(authentication, GlobalPermissionEnum.VIEW_PROJECT)) {
-            return;
-        }
+	/**
+	 * Refreshes the projects grid with the current parameters.
+	 * 
+	 * @param cmd
+	 *            The {@link GetProjects} command to execute.
+	 */
+	private void refreshProjectGrid(GetProjects cmd) {
 
-        if (cmd == null) {
-            return;
-        }
+		// Checks that the user can view projects.
+		if (!ProfileUtils.isGranted(authentication, GlobalPermissionEnum.VIEW_PROJECT)) {
+			return;
+		}
 
-        //Reload filter labels for category filter list store
-        reloadCategoryListFilterStore();
-        
-        if (loadingMode == LoadingMode.ONE_TIME) {
+		if (cmd == null) {
+			return;
+		}
 
-            dispatcher.execute(cmd, new MaskingAsyncMonitor(projectTreePanel, I18N.CONSTANTS.loading()),
-                    new AsyncCallback<ProjectListResult>() {
+		// Reload filter labels for category filter list store
+		reloadCategoryListFilterStore();
 
-                        @Override
-                        public void onFailure(Throwable e) {
-                            Log.error("[GetProjects command] Error while getting projects.", e);
-                            // nothing
-                        }
+		if (loadingMode == LoadingMode.ONE_TIME) {
 
-                        @Override
-                        public void onSuccess(ProjectListResult result) {
+			dispatcher.execute(cmd, new MaskingAsyncMonitor(projectTreePanel, I18N.CONSTANTS.loading()),
+							new AsyncCallback<ProjectListResult>() {
 
-                            getProjectsStore().removeAll();
-                            getProjectsStore().clearFilters();
+								@Override
+								public void onFailure(Throwable e) {
+									Log.error("[GetProjects command] Error while getting projects.", e);
+									// nothing
+								}
 
-                            if (result != null) {
-                                final List<ProjectDTOLight> resultList = result.getListProjectsLightDTO();
-                                int i = -1;
-                                for (final ProjectDTOLight p : resultList) {
-                                    try {
-                                        // Project id.
-                                        p.setProjectId(p.getId());
-                                        // Tree id.
-                                        p.setId(i--);
+								@Override
+								public void onSuccess(ProjectListResult result) {
 
-                                        for (final ProjectDTOLight c : p.getChildrenProjects()) {
-                                            // Project id.
-                                            if (c != null) {
+									getProjectsStore().removeAll();
+									getProjectsStore().clearFilters();
 
-                                                c.setProjectId(c.getId());
-                                                // Tree id.
-                                                c.setId(i--);
+									if (result != null) {
+										final List<ProjectDTOLight> resultList = result.getListProjectsLightDTO();
+										int i = -1;
+										for (final ProjectDTOLight p : resultList) {
+											try {
+												// Project id.
+												p.setProjectId(p.getId());
+												// Tree id.
+												p.setId(i--);
 
-                                            }
-                                        }
-                                    } catch (Exception e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-                                getProjectsStore().add(resultList, true);
-                            }
+												for (final ProjectDTOLight c : p.getChildrenProjects()) {
+													// Project id.
+													if (c != null) {
 
-                            applyProjectFilters();
-                            updateRefreshingDate(new Date());
-                        }
-                    });
-        } else if (loadingMode == LoadingMode.CHUNK) {
+														c.setProjectId(c.getId());
+														// Tree id.
+														c.setId(i--);
 
-            // Builds a new chunks worker.
+													}
+												}
+											} catch (Exception e) {
+												e.printStackTrace();
+											}
+										}
+										getProjectsStore().add(resultList, true);
+									}
 
-            int chunSize = 2;
-            try {
-                chunSize = Integer.parseInt(Window.Location.getParameter("chunk"));
-                if (chunSize <= 0) {
-                    chunSize = 2;
-                }
-            } catch (Throwable e) {
-                // swallow exception.
-            }
+									applyProjectFilters();
+									updateRefreshingDate(new Date());
+								}
+							});
+		} else if (loadingMode == LoadingMode.CHUNK) {
 
-            final GetProjectsWorker worker = new GetProjectsWorker(dispatcher, cmd, projectTreePanel, chunSize);
-            worker.addWorkerListener(new GetProjectsWorker.WorkerListener() {
+			// Builds a new chunks worker.
 
-                private int index = -1;
+			int chunSize = 2;
+			try {
+				chunSize = Integer.parseInt(Window.Location.getParameter("chunk"));
+				if (chunSize <= 0) {
+					chunSize = 2;
+				}
+			} catch (Throwable e) {
+				// swallow exception.
+			}
 
-                @Override
-                public void serverError(Throwable error) {
-                    Log.error("[GetProjectsWorker] Error while getting projects by chunks.", error);
-                    applyProjectFilters();
-                    updateRefreshingDate(new Date());
-                    MessageBox.alert(I18N.CONSTANTS.error(), I18N.CONSTANTS.refreshProjectListError(), null);
-                }
+			final GetProjectsWorker worker = new GetProjectsWorker(dispatcher, cmd, projectTreePanel, chunSize);
+			worker.addWorkerListener(new GetProjectsWorker.WorkerListener() {
 
-                @Override
-                public void chunkRetrieved(List<ProjectDTOLight> projects) {
+				private int index = -1;
 
-                    if (projects != null) {
-                        for (final ProjectDTOLight p : projects) {
-                            try {
-                                // Project id.
-                                p.setProjectId(p.getId());
-                                // Tree id.
-                                p.setId(index--);
+				@Override
+				public void serverError(Throwable error) {
+					Log.error("[GetProjectsWorker] Error while getting projects by chunks.", error);
+					applyProjectFilters();
+					updateRefreshingDate(new Date());
+					MessageBox.alert(I18N.CONSTANTS.error(), I18N.CONSTANTS.refreshProjectListError(), null);
+				}
 
-                                for (final ProjectDTOLight c : p.getChildrenProjects()) {
-                                    // Project id.
-                                    if (c != null) {
+				@Override
+				public void chunkRetrieved(List<ProjectDTOLight> projects) {
 
-                                        c.setProjectId(c.getId());
-                                        // Tree id.
-                                        c.setId(index--);
+					if (projects != null) {
+						for (final ProjectDTOLight p : projects) {
+							try {
+								// Project id.
+								p.setProjectId(p.getId());
+								// Tree id.
+								p.setId(index--);
 
-                                    }
-                                }
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        }
-                        getProjectsStore().add(projects, true);
-                    }
-                }
+								for (final ProjectDTOLight c : p.getChildrenProjects()) {
+									// Project id.
+									if (c != null) {
 
-                @Override
-                public void ended() {
-                    applyProjectFilters();
-                    updateRefreshingDate(new Date());
-                }
-            });
+										c.setProjectId(c.getId());
+										// Tree id.
+										c.setId(index--);
 
-            // Runs the worker.
-            getProjectsStore().removeAll();
-            getProjectsStore().clearFilters();
-            worker.run();
-        }
-    }
+									}
+								}
+							} catch (Exception e) {
+								e.printStackTrace();
+							}
+						}
+						getProjectsStore().add(projects, true);
+					}
+				}
 
-    public ContentPanel getProjectsPanel() {
-        return projectTreePanel;
-    }
+				@Override
+				public void ended() {
+					applyProjectFilters();
+					updateRefreshingDate(new Date());
+				}
+			});
 
-    public TreeGrid<ProjectDTOLight> getProjectsTreeGrid() {
-        return projectTreeGrid;
-    }
+			// Runs the worker.
+			getProjectsStore().removeAll();
+			getProjectsStore().clearFilters();
 
-    public ProjectStore getProjectsStore() {
-        return (ProjectStore) projectTreeGrid.getTreeStore();
-    }
+			worker.run();
+		}
+	}
 
-    public RefreshMode getRefreshMode() {
-        return refreshMode;
-    }
+	public ContentPanel getProjectsPanel() {
+		return projectTreePanel;
+	}
 
-    /**
-     * Asks for a refresh of the projects list. If the refreshing mode is set to
-     * {@link RefreshMode#AUTOMATIC}, the list will be refreshed immediately.
-     * Otherwise, the list will be refreshed depending on the selected
-     * refreshing mode.
-     * 
-     * @param viewOwnOrManage
-     *            If the projects that the user own or manage must be included
-     *            in the list (no matter of their organizational units).
-     * @param orgUnitsIds
-     *            The list of ids of the organizational units for which the
-     *            projects will be retrieved. The projects of each the
-     *            sub-organizational units are retrieved automatically.
-     */
-    public void refresh(boolean viewOwnOrManage, Integer... orgUnitsIds) {
+	public TreeGrid<ProjectDTOLight> getProjectsTreeGrid() {
+		return projectTreeGrid;
+	}
 
-        final List<Integer> orgUnitsIdsAsList = Arrays.asList(orgUnitsIds);
+	public ProjectStore getProjectsStore() {
+		return (ProjectStore) projectTreeGrid.getTreeStore();
+	}
 
-        this.orgUnitsIds.clear();
-        this.orgUnitsIds.addAll(orgUnitsIdsAsList);
+	public RefreshMode getRefreshMode() {
+		return refreshMode;
+	}
 
-        // Builds the next refresh command.
-        command = new GetProjects();
-        command.setOrgUnitsIds(orgUnitsIdsAsList);
-        command.setViewOwnOrManage(viewOwnOrManage);
+	/**
+	 * Asks for a refresh of the projects list. If the refreshing mode is set to
+	 * {@link RefreshMode#AUTOMATIC}, the list will be refreshed immediately.
+	 * Otherwise, the list will be refreshed depending on the selected
+	 * refreshing mode.
+	 * 
+	 * @param viewOwnOrManage
+	 *            If the projects that the user own or manage must be included
+	 *            in the list (no matter of their organizational units).
+	 * @param orgUnitsIds
+	 *            The list of ids of the organizational units for which the
+	 *            projects will be retrieved. The projects of each the
+	 *            sub-organizational units are retrieved automatically.
+	 */
+	public void refresh(boolean viewOwnOrManage, Integer... orgUnitsIds) {
 
-        // If the mode is automatic, the list is refreshed immediately.
-        if (refreshMode == RefreshMode.AUTOMATIC || (refreshMode == RefreshMode.BOTH && !isLoaded)) {
-            refreshProjectGrid(command);
-            isLoaded = true;
-        }
-    }
-    
-    /**
-     * 
-     * Check if the project is a favorite project of the current user.
-     * 
-     * @param userId
-     * 
-     * @param project
-     * 
-     * @return 
-     * 
-     * @author  HUZHE(zhe.hu32@gmail.com)	  
-     */
-    public boolean isFavoriteProject(int userId,ProjectDTOLight project)
-    {
-       if(project.getFavoriteUsers()==null)
-    	   return false;
-    	
-    	for(UserDTO u : project.getFavoriteUsers())
-    	{
-    		if(u.getId()==userId)   		
-    			return true;
-    		
-    	}
-    	
-    	return false;
-    }
-    
-    
+		final List<Integer> orgUnitsIdsAsList = Arrays.asList(orgUnitsIds);
+
+		this.orgUnitsIds.clear();
+		this.orgUnitsIds.addAll(orgUnitsIdsAsList);
+
+		// Builds the next refresh command.
+		command = new GetProjects();
+		command.setOrgUnitsIds(orgUnitsIdsAsList);
+		command.setViewOwnOrManage(viewOwnOrManage);
+
+		// If the mode is automatic, the list is refreshed immediately.
+		if (refreshMode == RefreshMode.AUTOMATIC || (refreshMode == RefreshMode.BOTH && !isLoaded)) {
+			refreshProjectGrid(command);
+			isLoaded = true;
+		}
+	}
+
+	/**
+	 * 
+	 * Check if the project is a favorite project of the current user.
+	 * 
+	 * @param userId
+	 * 
+	 * @param project
+	 * 
+	 * @return
+	 * 
+	 * @author HUZHE(zhe.hu32@gmail.com)
+	 */
+	public boolean isFavoriteProject(int userId, ProjectDTOLight project) {
+		if (project.getFavoriteUsers() == null)
+			return false;
+
+		for (UserDTO u : project.getFavoriteUsers()) {
+			if (u.getId() == userId)
+				return true;
+
+		}
+
+		return false;
+	}
+
+	private class ClosedFilter extends Filter {
+
+		private CheckMenuItem noneFilter, sixMonthsFilter, twelveMonthsFilter, customFilter;
+		private DateMenu dateMenu;
+
+		private CheckMenuItem currentItem;
+
+		private Listener<MenuEvent> handler = new Listener<MenuEvent>() {
+			@Override
+			public void handleEvent(MenuEvent be) {
+
+				currentItem = (CheckMenuItem) be.getItem();
+				fireUpdate();
+
+			}
+
+		};
+
+		private Listener<MenuEvent> menuListener = new Listener<MenuEvent>() {
+			public void handleEvent(MenuEvent be) {
+				// if (be.getType() == Events.CheckChange) {
+				// onCheckChange(be);
+				// } else
+
+				if (be.getType() == Events.Select) {
+					onMenuSelect(be);
+				}
+			}
+		};
+
+		public ClosedFilter(String dataIndex) {
+			super(dataIndex);
+
+			menu = new Menu();
+
+			noneFilter = new CheckMenuItem(I18N.CONSTANTS.noneFilter());
+			noneFilter.setGroup("radios");
+			noneFilter.setChecked(true);
+			menu.add(noneFilter);
+
+			sixMonthsFilter = new CheckMenuItem(I18N.CONSTANTS.sixMonthsFilter());
+			sixMonthsFilter.setGroup("radios");
+			menu.add(sixMonthsFilter);
+
+			twelveMonthsFilter = new CheckMenuItem(I18N.CONSTANTS.twelveMonthsFilter());
+			twelveMonthsFilter.setGroup("radios");
+			menu.add(twelveMonthsFilter);
+
+			customFilter = new CheckMenuItem(I18N.CONSTANTS.customFilter());
+			customFilter.setGroup("radios");
+			menu.add(customFilter);
+
+			dateMenu = new DateMenu();
+
+			dateMenu.setDate(new Date());
+			dateMenu.addListener(Events.Select, menuListener);
+			// hidden.setSubMenu(dateMenu);
+			//
+			// menu.add(hidden);
+			// hidden.hide();
+
+			customFilter.setSubMenu(dateMenu);
+
+			customFilter.addListener(Events.Select, handler);
+			sixMonthsFilter.addListener(Events.Select, handler);
+			twelveMonthsFilter.addListener(Events.Select, handler);
+			noneFilter.addListener(Events.Select, handler);
+			// // menu.addListener(Events.Select, handler);
+			// menu.addListener(Events.Change, handler);
+			// menu.addListener(Events.CheckChange, handler);
+			// menu.addListener(Events.CheckChanged, handler);
+			// menu.addListener(Events.SelectionChange, handler);
+			currentItem = noneFilter;
+
+		}
+
+		protected void onMenuSelect(MenuEvent be) {
+
+			// MessageBox.alert("Menulistener", be.getType().toString(), null);
+
+			DateMenu d = null;
+
+			if (currentItem != null) {
+				currentItem.setChecked(false, true);
+			} else {
+
+				MessageBox.alert("Null", "current item null", null);
+
+			}
+			currentItem = customFilter;
+			customFilter.setChecked(true, true);
+
+			if (be.getMenu() == dateMenu) {
+				d = (DateMenu) be.getMenu();
+				d.hide(true);
+
+				fireUpdate();
+			}
+
+		}
+
+		@Override
+		public List<FilterConfig> getSerialArgs() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public Object getValue() {
+			// TODO Auto-generated method stub
+
+			return null;
+		}
+
+		@Override
+		public void setValue(Object value) {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public boolean isActivatable() {
+
+			return true;
+		}
+
+		@Override
+		public boolean validateModel(ModelData model) {
+
+			Date d = model.get("closeDate");
+			if (d == null) {
+				return true;
+			} else {
+
+				if (currentItem == customFilter) {
+					if (d.before(dateMenu.getDate()))
+						return false;
+					else
+						return true;
+
+				}
+
+				if (currentItem == sixMonthsFilter) {
+
+					Date dateTemp = new Date();
+					CalendarUtil.addMonthsToDate(dateTemp, -6);
+					if (d.before(dateTemp))
+						return false;
+					else
+						return true;
+
+				}
+
+				if (currentItem == noneFilter) {
+					return false;
+				}
+
+				if (currentItem == twelveMonthsFilter) {
+					Date dateTemp = new Date();
+					CalendarUtil.addMonthsToDate(dateTemp, -12);
+					if (d.before(dateTemp))
+						return false;
+					else
+						return true;
+
+				}
+			}
+
+			return false;
+
+		}
+
+	}
 }
