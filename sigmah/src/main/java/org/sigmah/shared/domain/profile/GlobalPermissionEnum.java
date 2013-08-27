@@ -198,4 +198,50 @@ public enum GlobalPermissionEnum {
 
 		return gpName;
 	}
+
+	public static String getCategory(GlobalPermissionEnum gp) {
+		String gpCategory = I18N.CONSTANTS.categoryNotMapped();
+		switch (gp) {
+		case VIEW_PROJECT:
+			gpCategory = I18N.CONSTANTS.categoryProject();
+			break;
+		case EDIT_PROJECT:
+			gpCategory = I18N.CONSTANTS.categoryProject();
+			break;
+		case CREATE_PROJECT:
+			gpCategory = I18N.CONSTANTS.categoryProject();
+			break;
+		case DELETE_PROJECT:
+			gpCategory = I18N.CONSTANTS.categoryProject();
+			break;
+		case CHANGE_PHASE:
+			gpCategory = I18N.CONSTANTS.categoryProject();
+			break;
+		case VIEW_ADMIN:
+			gpCategory = I18N.CONSTANTS.categoryAdministration();
+			break;
+		case MANAGE_USER:
+			gpCategory = I18N.CONSTANTS.categoryAdministration();
+			break;
+		case MANAGE_UNIT:
+			gpCategory = I18N.CONSTANTS.categoryAdministration();
+			break;
+		case REMOVE_FILE:
+			gpCategory = I18N.CONSTANTS.categoryOthers();
+			break;
+		// case VIEW_ACTIVITYINFO:
+		// gpName = I18N.CONSTANTS.VIEW_ACTIVITYINFO();
+		// break;
+		case VALID_AMENDEMENT:
+			gpCategory = I18N.CONSTANTS.categoryProject();
+			break;
+		case GLOBAL_EXPORT:
+			gpCategory = I18N.CONSTANTS.categoryOthers();
+			break;
+		default:
+			break;
+		}
+
+		return gpCategory;
+	}
 }
