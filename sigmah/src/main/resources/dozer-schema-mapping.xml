@@ -700,5 +700,106 @@
 			<b>type</b>
 		</field>
 	</mapping>
+	
+	<!-- Importation ImportationScheme/ImportationSchemeDTO mapping -->
+	<mapping wildcard="true">
+		<class-a>org.sigmah.shared.domain.importation.ImportationScheme</class-a>
+		<class-b>org.sigmah.shared.dto.importation.ImportationSchemeDTO</class-b>
+		<field>
+			<a>variables</a>
+			<b>variablesDTO</b>
+		</field>
+	</mapping>
+	
+	<!-- Importation Variable/VariableDTO mapping -->
+	<mapping wildcard="true">
+		<class-a>org.sigmah.shared.domain.importation.Variable</class-a>
+		<class-b>org.sigmah.shared.dto.importation.VariableDTO</class-b>
+		<field>
+		<a>importationScheme</a>
+		<b>importationSchemeDTO</b>
+		</field>
+	</mapping>
+
+	<!-- Importation ImportationSchemeModel/ImportationSchemeModelDTO mapping -->
+	<mapping wildcard="true">
+		<class-a>org.sigmah.shared.domain.importation.ImportationSchemeModel</class-a>
+		<class-b>org.sigmah.shared.dto.importation.ImportationSchemeModelDTO</class-b>
+		<field>
+			<a>variableFlexibleElements</a>
+			<b>variableFlexibleElementsDTO</b>
+			<a-hint>org.sigmah.shared.domain.importation.VariableFlexibleElement, org.sigmah.shared.domain.importation.VariableBudgetElement</a-hint>
+  			<b-hint>org.sigmah.shared.dto.importation.VariableFlexibleElementDTO, org.sigmah.shared.dto.importation.VariableBudgetElementDTO</b-hint>
+		</field>
+		<field>
+			<a>importationScheme</a>
+			<b>importationSchemeDTO</b>
+		</field>
+		<field>
+			<a>projectModel</a>
+			<b>projectModelDTO</b>
+		</field>
+		<field>
+			<a>orgUnitModel</a>
+			<b>orgUnitModelDTO</b>
+		</field>
+	</mapping>
+	
+	<!-- Importation VariableFlexibleElement/VariableFlexibleElementDTO mapping -->
+	<mapping wildcard="true">
+		<class-a>org.sigmah.shared.domain.importation.VariableFlexibleElement</class-a>
+		<class-b>org.sigmah.shared.dto.importation.VariableFlexibleElementDTO</class-b>
+		<field>
+			<a>importationSchemeModel</a>
+			<b>importationSchemeModelDTO</b>
+		</field>
+		<field>
+			<a>variable</a>
+			<b>variableDTO</b>
+		</field>
+		<field>
+			<a>flexibleElement</a>
+			<b>flexibleElementDTO</b>
+			<a-hint>org.sigmah.shared.domain.element.DefaultFlexibleElement,org.sigmah.shared.domain.element.MessageElement,org.sigmah.shared.domain.element.CheckboxElement,org.sigmah.shared.domain.element.TextAreaElement,org.sigmah.shared.domain.element.QuestionElement,org.sigmah.shared.domain.element.TripletsListElement,org.sigmah.shared.domain.element.FilesListElement,org.sigmah.shared.domain.element.IndicatorsListElement,org.sigmah.shared.domain.element.BudgetDistributionElement,org.sigmah.shared.domain.element.ReportElement,org.sigmah.shared.domain.element.ReportListElement,org.sigmah.shared.domain.element.BudgetElement 
+			</a-hint>
+			<b-hint>org.sigmah.shared.dto.element.DefaultFlexibleElementDTO,org.sigmah.shared.dto.element.MessageElementDTO,org.sigmah.shared.dto.element.CheckboxElementDTO,org.sigmah.shared.dto.element.TextAreaElementDTO,org.sigmah.shared.dto.element.QuestionElementDTO,org.sigmah.shared.dto.element.TripletsListElementDTO,org.sigmah.shared.dto.element.FilesListElementDTO,org.sigmah.shared.dto.element.IndicatorsListElementDTO,org.sigmah.shared.dto.element.BudgetDistributionElementDTO,org.sigmah.shared.dto.element.ReportElementDTO,org.sigmah.shared.dto.element.ReportListElementDTO,org.sigmah.shared.dto.element.BudgetElementDTO
+			</b-hint>
+		</field>
+		</mapping>
+		
+		<!-- Importation VariableBudgetElement/VariableBudgetElementDTO mapping -->
+		<mapping wildcard="true">
+			<class-a>org.sigmah.shared.domain.importation.VariableBudgetElement</class-a>
+			<class-b>org.sigmah.shared.dto.importation.VariableBudgetElementDTO</class-b>
+			<field>
+				<a>variableBudgetSubFields</a>
+				<b>variableBudgetSubFieldsDTO</b>
+			</field>
+		</mapping>
+		
+			<!-- Importation VariableBudgetSubField/VariableBudgetSubFieldDTO mapping -->
+		<mapping wildcard="true">
+			<class-a>org.sigmah.shared.domain.importation.VariableBudgetSubField</class-a>
+			<class-b>org.sigmah.shared.dto.importation.VariableBudgetSubFieldDTO</class-b>
+			<field-exclude> 
+			  <a>id</a> 
+			  <b>id</b> 
+			</field-exclude>
+			<field>
+				<a>variableBudgetElement</a>
+				<b>variableBudgetElementDTO</b>
+				<a-hint>org.sigmah.shared.domain.importation.VariableBudgetElement</a-hint>
+				<b-hint>org.sigmah.shared.dto.importation.VariableBudgetElementDTO</b-hint>
+			</field>
+			<field>
+				<a>variable</a>
+				<b>variableDTO</b>
+			</field>
+			<field>
+				<a>budgetSubField</a>
+				<b>budgetSubFieldDTO</b>
+			</field>
+			
+		</mapping>
 
 </mappings>

@@ -199,4 +199,8 @@ public interface IconImageBundle extends ImageBundle {
     
     @Resource(value = "control_rewind.png")
     AbstractImagePrototype back();
+    
+    AbstractImagePrototype ods();
+    
+    AbstractImagePrototype csv();
 }

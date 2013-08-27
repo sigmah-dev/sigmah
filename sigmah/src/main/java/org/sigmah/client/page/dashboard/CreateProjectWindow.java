@@ -664,6 +664,20 @@ public class CreateProjectWindow {
 	}
 
 	/**
+	 * @return the nameField
+	 */
+	public TextField<String> getNameField() {
+		return nameField;
+	}
+
+	/**
+	 * @return the fullNameField
+	 */
+	public TextField<String> getFullNameField() {
+		return fullNameField;
+	}
+
+	/**
 	 * Initializes and show the window.
 	 */
 	public void show() {

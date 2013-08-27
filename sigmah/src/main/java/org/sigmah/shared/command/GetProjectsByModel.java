@@ -3,9 +3,7 @@
  */
 package org.sigmah.shared.command;
 
-import org.sigmah.shared.command.result.ListResult;
 import org.sigmah.shared.command.result.ProjectListResult;
-import org.sigmah.shared.dto.ProjectDTO;
 
 /**
  * 
@@ -23,6 +21,7 @@ public class GetProjectsByModel implements Command<ProjectListResult>{
 	
 	
 	private Long projectModelId;
+	private Boolean asProjectDTOs;
 
 	
 	/**
@@ -50,6 +49,20 @@ public class GetProjectsByModel implements Command<ProjectListResult>{
 		super();
 		this.projectModelId = projectModelId;
 	}
+
+	/**
+	 * @return the asProjectDTOs
+	 */
+    public Boolean getAsProjectDTOs() {
+	    return asProjectDTOs;
+    }
+
+	/**
+	 * @param asProjectDTOs the asProjectDTOs to set
+	 */
+    public void setAsProjectDTOs(Boolean asProjectDTOs) {
+	    this.asProjectDTOs = asProjectDTOs;
+    }
 	
 	
 	

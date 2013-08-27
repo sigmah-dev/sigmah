@@ -176,6 +176,7 @@ sigmah/src/main/java/org/sigmah/client/icon/cog.png -text
 sigmah/src/main/java/org/sigmah/client/icon/collapse.png -text
 sigmah/src/main/java/org/sigmah/client/icon/control_fastforward.png -text
 sigmah/src/main/java/org/sigmah/client/icon/control_rewind.png -text
+sigmah/src/main/java/org/sigmah/client/icon/csv.png -text
 sigmah/src/main/java/org/sigmah/client/icon/curveChart.png -text
 sigmah/src/main/java/org/sigmah/client/icon/database.png -text
 sigmah/src/main/java/org/sigmah/client/icon/delete.png -text
@@ -208,6 +209,7 @@ sigmah/src/main/java/org/sigmah/client/icon/link_edit.png -text
 sigmah/src/main/java/org/sigmah/client/icon/map.png -text
 sigmah/src/main/java/org/sigmah/client/icon/mapped.png -text
 sigmah/src/main/java/org/sigmah/client/icon/msword.png -text
+sigmah/src/main/java/org/sigmah/client/icon/ods.png -text
 sigmah/src/main/java/org/sigmah/client/icon/offline.png -text
 sigmah/src/main/java/org/sigmah/client/icon/onlineSynced.png -text
 sigmah/src/main/java/org/sigmah/client/icon/onlineSyncing.png -text
@@ -321,6 +323,12 @@ sigmah/src/main/java/org/sigmah/client/page/admin/AdminView.java -text
 sigmah/src/main/java/org/sigmah/client/page/admin/category/AdminCategoryPresenter.java -text
 sigmah/src/main/java/org/sigmah/client/page/admin/category/AdminCategoryView.java -text
 sigmah/src/main/java/org/sigmah/client/page/admin/category/DeletionError.java -text
+sigmah/src/main/java/org/sigmah/client/page/admin/importation/AdminImportPresenter.java -text svneol=unset#text/plain
+sigmah/src/main/java/org/sigmah/client/page/admin/importation/AdminImportSchemeActionListener.java -text svneol=unset#text/plain
+sigmah/src/main/java/org/sigmah/client/page/admin/importation/AdminImportVariableActionListener.java -text svneol=unset#text/plain
+sigmah/src/main/java/org/sigmah/client/page/admin/importation/AdminImportView.java -text svneol=unset#text/plain
+sigmah/src/main/java/org/sigmah/client/page/admin/importation/ImportationSchemeForm.java -text svneol=unset#text/plain
+sigmah/src/main/java/org/sigmah/client/page/admin/importation/VariableForm.java -text svneol=unset#text/plain
 sigmah/src/main/java/org/sigmah/client/page/admin/management/AdminBackupManagementPresenter.java -text svneol=unset#text/plain
 sigmah/src/main/java/org/sigmah/client/page/admin/management/AdminBackupManagementView.java -text svneol=unset#text/plain
 sigmah/src/main/java/org/sigmah/client/page/admin/management/AdminCoreManagementPresenter.java -text svneol=unset#text/plain
@@ -343,6 +351,10 @@ sigmah/src/main/java/org/sigmah/client/page/admin/model/common/element/BudgetSub
 sigmah/src/main/java/org/sigmah/client/page/admin/model/common/element/ElementForm.java -text
 sigmah/src/main/java/org/sigmah/client/page/admin/model/common/element/ElementTypeEnum.java -text
 sigmah/src/main/java/org/sigmah/client/page/admin/model/common/element/LayoutGroupSigmahForm.java -text
+sigmah/src/main/java/org/sigmah/client/page/admin/model/common/importation/AdminImportationSchemeModelsPresenter.java -text svneol=unset#text/plain
+sigmah/src/main/java/org/sigmah/client/page/admin/model/common/importation/AdminImportationSchemeModelsView.java -text svneol=unset#text/plain
+sigmah/src/main/java/org/sigmah/client/page/admin/model/common/importation/ImportationSchemeModelForm.java -text svneol=unset#text/plain
+sigmah/src/main/java/org/sigmah/client/page/admin/model/common/importation/VariableFlexibleElementForm.java -text svneol=unset#text/plain
 sigmah/src/main/java/org/sigmah/client/page/admin/model/orgunit/AdminOrgUnitModelsPresenter.java -text
 sigmah/src/main/java/org/sigmah/client/page/admin/model/orgunit/AdminOrgUnitModelsView.java -text
 sigmah/src/main/java/org/sigmah/client/page/admin/model/orgunit/OrgUnitModelForm.java -text
@@ -480,7 +492,10 @@ sigmah/src/main/java/org/sigmah/client/page/dashboard/DashboardPageLoader.java -
 sigmah/src/main/java/org/sigmah/client/page/dashboard/DashboardPageState.java -text
 sigmah/src/main/java/org/sigmah/client/page/dashboard/DashboardPresenter.java -text
 sigmah/src/main/java/org/sigmah/client/page/dashboard/DashboardView.java -text
+sigmah/src/main/java/org/sigmah/client/page/dashboard/ElementExtractedValueGrid.java -text svneol=unset#text/plain
 sigmah/src/main/java/org/sigmah/client/page/dashboard/GetProjectsWorker.java -text
+sigmah/src/main/java/org/sigmah/client/page/dashboard/ImportDetailsGrid.java -text svneol=unset#text/plain
+sigmah/src/main/java/org/sigmah/client/page/dashboard/ImportWindow.java -text svneol=unset#text/plain
 sigmah/src/main/java/org/sigmah/client/page/dashboard/OrgUnitTreeGrid.java -text
 sigmah/src/main/java/org/sigmah/client/page/dashboard/ProjectsListPanel.java -text
 sigmah/src/main/java/org/sigmah/client/page/dashboard/emptyStar.png -text
@@ -2010,7 +2025,9 @@ sigmah/src/main/java/org/sigmah/server/endpoint/export/ReportServlet.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/export/sigmah/ExportException.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/export/sigmah/ExportModelServlet.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/export/sigmah/Exporter.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/export/sigmah/Importer.java -text svneol=unset#text/plain
 sigmah/src/main/java/org/sigmah/server/endpoint/export/sigmah/SigmahExportServlet.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/export/sigmah/SigmahImportServlet.java -text svneol=unset#text/plain
 sigmah/src/main/java/org/sigmah/server/endpoint/export/sigmah/exporter/GlobalExportExporter.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/export/sigmah/exporter/IndicatorEntryExporter.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/export/sigmah/exporter/LogFrameExporter.java -text
@@ -2023,6 +2040,9 @@ sigmah/src/main/java/org/sigmah/server/endpoint/export/sigmah/handler/OrgUnitMod
 sigmah/src/main/java/org/sigmah/server/endpoint/export/sigmah/handler/ProjectModelHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/export/sigmah/handler/ProjectReportModelHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/export/sigmah/handler/Realizer.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/export/sigmah/importer/CsvImporter.java -text svneol=unset#text/plain
+sigmah/src/main/java/org/sigmah/server/endpoint/export/sigmah/importer/ExcelImporter.java -text svneol=unset#text/plain
+sigmah/src/main/java/org/sigmah/server/endpoint/export/sigmah/importer/OdsImporter.java -text svneol=unset#text/plain
 sigmah/src/main/java/org/sigmah/server/endpoint/export/sigmah/spreadsheet/CalcUtils.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/export/sigmah/spreadsheet/CsvBuilder.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/export/sigmah/spreadsheet/CsvParser.java -text
@@ -2086,6 +2106,8 @@ sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/DeactivateUsersHa
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/DeleteCategoriesHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/DeleteFlexibleElementsHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/DeleteHandler.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/DeleteImportationSchemeModelsHandler.java -text svneol=unset#text/plain
+sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/DeleteImportationSchemesHandler.java -text svneol=unset#text/plain
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/DeletePrivacyGroupsHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/DeleteProfilesHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/DeleteReportModelsHandler.java -text
@@ -2102,6 +2124,9 @@ sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetGlobalExportSe
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetGlobalExportsHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetHistoryHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetHostServerInfoHandler.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetImportInformationHandler.java -text svneol=unset#text/plain
+sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetImportationSchemeModelsHandler.java -text svneol=unset#text/plain
+sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetImportationSchemesHandler.java -text svneol=unset#text/plain
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetIndicatorDataSourcesHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetIndicatorsHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetInvitationListHandler.java -text
@@ -2112,6 +2137,7 @@ sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetOrgUnitHandler
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetOrgUnitModelCopyHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetOrgUnitModelHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetOrgUnitModelsHandler.java -text
+sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetOrgUnitsByModelHandler.java -text svneol=unset#text/plain
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetOrganizationHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetPrivacyGroupsHandler.java -text
 sigmah/src/main/java/org/sigmah/server/endpoint/gwtrpc/handler/GetProfilesHandler.java -text
@@ -2193,6 +2219,8 @@ sigmah/src/main/java/org/sigmah/server/policy/ActivityPolicy.java -text
 sigmah/src/main/java/org/sigmah/server/policy/AmendmentPolicy.java -text
 sigmah/src/main/java/org/sigmah/server/policy/CategoryPolicy.java -text
 sigmah/src/main/java/org/sigmah/server/policy/EntityPolicy.java -text
+sigmah/src/main/java/org/sigmah/server/policy/ImportationSchemeModelPolicy.java -text svneol=unset#text/plain
+sigmah/src/main/java/org/sigmah/server/policy/ImportationSchemePolicy.java -text svneol=unset#text/plain
 sigmah/src/main/java/org/sigmah/server/policy/LayoutGroupPolicy.java -text
 sigmah/src/main/java/org/sigmah/server/policy/LocationUtil.java -text
 sigmah/src/main/java/org/sigmah/server/policy/OrgUnitModelPolicy.java -text
@@ -2354,6 +2382,8 @@ sigmah/src/main/java/org/sigmah/shared/command/DeactivateUsers.java -text
 sigmah/src/main/java/org/sigmah/shared/command/Delete.java -text
 sigmah/src/main/java/org/sigmah/shared/command/DeleteCategories.java -text
 sigmah/src/main/java/org/sigmah/shared/command/DeleteFlexibleElements.java -text
+sigmah/src/main/java/org/sigmah/shared/command/DeleteImportationSchemeModels.java -text svneol=unset#text/plain
+sigmah/src/main/java/org/sigmah/shared/command/DeleteImportationSchemes.java -text svneol=unset#text/plain
 sigmah/src/main/java/org/sigmah/shared/command/DeletePrivacyGroups.java -text
 sigmah/src/main/java/org/sigmah/shared/command/DeleteProfiles.java -text
 sigmah/src/main/java/org/sigmah/shared/command/DeleteReportModels.java -text
@@ -2370,6 +2400,9 @@ sigmah/src/main/java/org/sigmah/shared/command/GetGlobalExportSettings.java -tex
 sigmah/src/main/java/org/sigmah/shared/command/GetGlobalExports.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetHistory.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetHostServerInfo.java -text
+sigmah/src/main/java/org/sigmah/shared/command/GetImportInformation.java -text svneol=unset#text/plain
+sigmah/src/main/java/org/sigmah/shared/command/GetImportationSchemeModels.java -text svneol=unset#text/plain
+sigmah/src/main/java/org/sigmah/shared/command/GetImportationSchemes.java -text svneol=unset#text/plain
 sigmah/src/main/java/org/sigmah/shared/command/GetIndicatorDataSources.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetIndicators.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetInvitationList.java -text
@@ -2381,6 +2414,7 @@ sigmah/src/main/java/org/sigmah/shared/command/GetOrgUnit.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetOrgUnitModel.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetOrgUnitModelCopy.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetOrgUnitModels.java -text
+sigmah/src/main/java/org/sigmah/shared/command/GetOrgUnitsByModel.java -text svneol=unset#text/plain
 sigmah/src/main/java/org/sigmah/shared/command/GetOrganization.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetPrivacyGroups.java -text
 sigmah/src/main/java/org/sigmah/shared/command/GetProfiles.java -text
@@ -2455,6 +2489,9 @@ sigmah/src/main/java/org/sigmah/shared/command/result/GlobalExportListResult.jav
 sigmah/src/main/java/org/sigmah/shared/command/result/HistoryResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/HostServerInfo.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/HtmlResult.java -text
+sigmah/src/main/java/org/sigmah/shared/command/result/ImportInformationResult.java -text svneol=unset#text/plain
+sigmah/src/main/java/org/sigmah/shared/command/result/ImportationSchemeListResult.java -text svneol=unset#text/plain
+sigmah/src/main/java/org/sigmah/shared/command/result/ImportationSchemeModelListResult.java -text svneol=unset#text/plain
 sigmah/src/main/java/org/sigmah/shared/command/result/IndicatorDataSourceList.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/IndicatorListResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/InvitationList.java -text
@@ -2465,6 +2502,7 @@ sigmah/src/main/java/org/sigmah/shared/command/result/ModelCheckResult.java -tex
 sigmah/src/main/java/org/sigmah/shared/command/result/ModelElementListResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/MonitoredPointsResultList.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/MonthlyReportResult.java -text
+sigmah/src/main/java/org/sigmah/shared/command/result/OrgUnitListResult.java -text svneol=unset#text/plain
 sigmah/src/main/java/org/sigmah/shared/command/result/OrgUnitModelListResult.java -text
 sigmah/src/main/java/org/sigmah/shared/command/result/OrganizationResult.java -text svneol=unset#text/plain
 sigmah/src/main/java/org/sigmah/shared/command/result/PagingResult.java -text
@@ -2527,6 +2565,8 @@ sigmah/src/main/java/org/sigmah/shared/domain/AttributeValueId.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/Bounds.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/Country.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/Deleteable.java -text
+sigmah/src/main/java/org/sigmah/shared/domain/ElementExtractedValue.java -text svneol=unset#text/plain
+sigmah/src/main/java/org/sigmah/shared/domain/ImportDetails.java -text svneol=unset#text/plain
 sigmah/src/main/java/org/sigmah/shared/domain/Indicator.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/IndicatorCategory.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/IndicatorValue.java -text
@@ -2590,6 +2630,15 @@ sigmah/src/main/java/org/sigmah/shared/domain/export/GlobalExportContent.java -t
 sigmah/src/main/java/org/sigmah/shared/domain/export/GlobalExportSettings.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/history/Historable.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/history/HistoryToken.java -text
+sigmah/src/main/java/org/sigmah/shared/domain/importation/ImportationScheme.java -text svneol=unset#text/plain
+sigmah/src/main/java/org/sigmah/shared/domain/importation/ImportationSchemeFileFormat.java -text svneol=unset#text/plain
+sigmah/src/main/java/org/sigmah/shared/domain/importation/ImportationSchemeImportType.java -text svneol=unset#text/plain
+sigmah/src/main/java/org/sigmah/shared/domain/importation/ImportationSchemeModel.java -text svneol=unset#text/plain
+sigmah/src/main/java/org/sigmah/shared/domain/importation/Variable.java -text svneol=unset#text/plain
+sigmah/src/main/java/org/sigmah/shared/domain/importation/VariableBudgetElement.java -text svneol=unset#text/plain
+sigmah/src/main/java/org/sigmah/shared/domain/importation/VariableBudgetSubField.java -text svneol=unset#text/plain
+sigmah/src/main/java/org/sigmah/shared/domain/importation/VariableBudgetSubFieldId.java -text svneol=unset#text/plain
+sigmah/src/main/java/org/sigmah/shared/domain/importation/VariableFlexibleElement.java -text svneol=unset#text/plain
 sigmah/src/main/java/org/sigmah/shared/domain/layout/Layout.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/layout/LayoutConstraint.java -text
 sigmah/src/main/java/org/sigmah/shared/domain/layout/LayoutGroup.java -text
@@ -2654,6 +2703,7 @@ sigmah/src/main/java/org/sigmah/shared/dto/EntityDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/ExportUtils.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/GlobalExportDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/GlobalExportSettingsDTO.java -text
+sigmah/src/main/java/org/sigmah/shared/dto/ImportUtils.java -text svneol=unset#text/plain
 sigmah/src/main/java/org/sigmah/shared/dto/IndicatorDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/IndicatorDataSourceDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/IndicatorGroup.java -text
@@ -2717,6 +2767,12 @@ sigmah/src/main/java/org/sigmah/shared/dto/element/handler/ValueHandler.java -te
 sigmah/src/main/java/org/sigmah/shared/dto/history/HistoryTokenDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/history/HistoryTokenListDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/history/HistoryTokenManager.java -text
+sigmah/src/main/java/org/sigmah/shared/dto/importation/ImportationSchemeDTO.java -text svneol=unset#text/plain
+sigmah/src/main/java/org/sigmah/shared/dto/importation/ImportationSchemeModelDTO.java -text svneol=unset#text/plain
+sigmah/src/main/java/org/sigmah/shared/dto/importation/VariableBudgetElementDTO.java -text svneol=unset#text/plain
+sigmah/src/main/java/org/sigmah/shared/dto/importation/VariableBudgetSubFieldDTO.java -text svneol=unset#text/plain
+sigmah/src/main/java/org/sigmah/shared/dto/importation/VariableDTO.java -text svneol=unset#text/plain
+sigmah/src/main/java/org/sigmah/shared/dto/importation/VariableFlexibleElementDTO.java -text svneol=unset#text/plain
 sigmah/src/main/java/org/sigmah/shared/dto/layout/LayoutConstraintDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/layout/LayoutDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/layout/LayoutGroupDTO.java -text

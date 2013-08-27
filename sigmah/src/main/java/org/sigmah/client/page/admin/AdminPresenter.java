@@ -17,6 +17,7 @@ import org.sigmah.client.page.PageId;
 import org.sigmah.client.page.PageState;
 import org.sigmah.client.page.TabPage;
 import org.sigmah.client.page.admin.category.AdminCategoryPresenter;
+import org.sigmah.client.page.admin.importation.AdminImportPresenter;
 import org.sigmah.client.page.admin.model.common.AdminOneModelPresenter;
 import org.sigmah.client.page.admin.model.orgunit.AdminOrgUnitModelsPresenter;
 import org.sigmah.client.page.admin.model.project.AdminProjectModelsPresenter;
@@ -50,198 +51,189 @@ import com.google.inject.Inject;
  */
 public class AdminPresenter implements TabPage, Frame {
 
-    private final static String[] MAIN_TABS = {
-                                               I18N.CONSTANTS.adminUsers(),
-                                               I18N.CONSTANTS.adminOrgUnit(),
-                                               I18N.CONSTANTS.adminProjectModels(),
-                                               I18N.CONSTANTS.adminOrgUnitsModels(),
-                                               I18N.CONSTANTS.adminProjectModelReports(),
-                                               I18N.CONSTANTS.adminCategories(),
-                                               I18N.CONSTANTS.adminManagementTitle()};
-    public static final PageId PAGE_ID = new PageId(I18N.CONSTANTS.adminboard());
+	private final static String[] MAIN_TABS = { I18N.CONSTANTS.adminUsers(), I18N.CONSTANTS.adminOrgUnit(),
+	                I18N.CONSTANTS.adminProjectModels(), I18N.CONSTANTS.adminOrgUnitsModels(),
+	                I18N.CONSTANTS.adminProjectModelReports(), I18N.CONSTANTS.adminCategories(),
+	                I18N.CONSTANTS.adminImport(), I18N.CONSTANTS.adminManagementTitle() };
+	public static final PageId PAGE_ID = new PageId(I18N.CONSTANTS.adminboard());
 
-    private final View view;
-    private final SigmahInjector injector;
-    private final AdminSubPresenter[] presenters;
-    private ToggleAnchor currentTab;
-    private AdminPageState currentState;
-    private Page activePage;
-    private final Authentication authentication;
-    private AdminOneModelPresenter adminModelPresenter;
+	private final View view;
+	private final SigmahInjector injector;
+	private final AdminSubPresenter[] presenters;
+	private ToggleAnchor currentTab;
+	private AdminPageState currentState;
+	private Page activePage;
+	private final Authentication authentication;
+	private AdminOneModelPresenter adminModelPresenter;
 
-    @ImplementedBy(AdminView.class)
-    public interface View {
+	@ImplementedBy(AdminView.class)
+	public interface View {
 
-        public void setMainPanel(Widget widget);
+		public void setMainPanel(Widget widget);
 
-        public ContentPanel getTabPanel();
+		public ContentPanel getTabPanel();
 
-    }
+	}
 
-    @Inject
-    public AdminPresenter(SigmahInjector injector, final EventBus eventBus, final Dispatcher dispatcher, final View view, final UserLocalCache cache, final Authentication authentication) {
-        this.injector = injector;
-        this.view = view;
-        this.presenters =
-                new AdminSubPresenter[] {
-                                         new AdminUsersPresenter(dispatcher, cache, authentication),
-                                         new AdminOrgUnitPresenter(dispatcher, cache, authentication, eventBus),
-                                         new AdminProjectModelsPresenter(dispatcher, cache, authentication, eventBus,
-                                             currentState),
-                                         new AdminOrgUnitModelsPresenter(dispatcher, cache, authentication, eventBus,
-                                             currentState),
-                                         new AdminReportModelPresenter(dispatcher),
-                                         new AdminCategoryPresenter(dispatcher),
-                                         injector.getAdminManagementPresenter()
-                                         };
-        this.authentication = authentication;
-        for (int i = 0; i < MAIN_TABS.length; i++) {
-            final int index = i;
+	@Inject
+	public AdminPresenter(SigmahInjector injector, final EventBus eventBus, final Dispatcher dispatcher,
+	                final View view, final UserLocalCache cache, final Authentication authentication) {
+		this.injector = injector;
+		this.view = view;
+		this.presenters = new AdminSubPresenter[] { new AdminUsersPresenter(dispatcher, cache, authentication),
+		                new AdminOrgUnitPresenter(dispatcher, cache, authentication, eventBus),
+		                new AdminProjectModelsPresenter(dispatcher, cache, authentication, eventBus, currentState),
+		                new AdminOrgUnitModelsPresenter(dispatcher, cache, authentication, eventBus, currentState),
+		                new AdminReportModelPresenter(dispatcher), new AdminCategoryPresenter(dispatcher),
+		                new AdminImportPresenter(dispatcher), injector.getAdminManagementPresenter() };
+		this.authentication = authentication;
+		for (int i = 0; i < MAIN_TABS.length; i++) {
+			final int index = i;
 
-            String tabTitle = MAIN_TABS[i];
+			String tabTitle = MAIN_TABS[i];
 
-            final VBoxLayoutData layoutData = new VBoxLayoutData();
-            layoutData.setMargins(new Margins(0, 0, 10, 0));
+			final VBoxLayoutData layoutData = new VBoxLayoutData();
+			layoutData.setMargins(new Margins(0, 0, 10, 0));
 
-            final ToggleAnchor anchor = new ToggleAnchor(tabTitle);
-            anchor.setAnchorMode(true);
+			final ToggleAnchor anchor = new ToggleAnchor(tabTitle);
+			anchor.setAnchorMode(true);
 
-            anchor.addClickHandler(new ClickHandler() {
+			anchor.addClickHandler(new ClickHandler() {
 
-                @Override
-                public void onClick(ClickEvent event) {
-                    eventBus.fireEvent(new NavigationEvent(NavigationHandler.NavigationRequested, currentState
-                        .deriveTo(index), null));
-                }
-            });
+				@Override
+				public void onClick(ClickEvent event) {
+					eventBus.fireEvent(new NavigationEvent(NavigationHandler.NavigationRequested, currentState
+					                .deriveTo(index), null));
+				}
+			});
 
-            this.view.getTabPanel().add(anchor, layoutData);
-        }
-    }
+			this.view.getTabPanel().add(anchor, layoutData);
+		}
+	}
 
-    @Override
-    public void shutdown() {
-    }
+	@Override
+	public void shutdown() {
+	}
 
-    @Override
-    public PageId getPageId() {
-        return PAGE_ID;
-    }
+	@Override
+	public PageId getPageId() {
+		return PAGE_ID;
+	}
 
-    @Override
-    public Object getWidget() {
-        if (!ProfileUtils.isGranted(authentication, GlobalPermissionEnum.VIEW_ADMIN)) {
-            ContentPanel insufficientView = new ContentPanel();
-            final HTML insufficient = new HTML(I18N.CONSTANTS.permAdminInsufficient());
-            insufficient.addStyleName("important-label");
-            insufficientView.add(insufficient);
-            return insufficientView;
-        }
-        return view;
+	@Override
+	public Object getWidget() {
+		if (!ProfileUtils.isGranted(authentication, GlobalPermissionEnum.VIEW_ADMIN)) {
+			ContentPanel insufficientView = new ContentPanel();
+			final HTML insufficient = new HTML(I18N.CONSTANTS.permAdminInsufficient());
+			insufficient.addStyleName("important-label");
+			insufficientView.add(insufficient);
+			return insufficientView;
+		}
+		return view;
 
-    }
+	}
 
-    @Override
-    public void requestToNavigateAway(PageState place, final NavigationCallback callback) {
-        NavigationError navigationError = NavigationError.NONE;
-        for (SubPresenter subPresenter : presenters) {
-            if (subPresenter.hasValueChanged()) {
-                navigationError = NavigationError.WORK_NOT_SAVED;
-            }
-        }
-        if (adminModelPresenter != null && adminModelPresenter.hasValueChanged()) {
-            navigationError = NavigationError.WORK_NOT_SAVED;
-        }
+	@Override
+	public void requestToNavigateAway(PageState place, final NavigationCallback callback) {
+		NavigationError navigationError = NavigationError.NONE;
+		for (SubPresenter subPresenter : presenters) {
+			if (subPresenter.hasValueChanged()) {
+				navigationError = NavigationError.WORK_NOT_SAVED;
+			}
+		}
+		if (adminModelPresenter != null && adminModelPresenter.hasValueChanged()) {
+			navigationError = NavigationError.WORK_NOT_SAVED;
+		}
 
-        Listener<MessageBoxEvent> listener = new Listener<MessageBoxEvent>() {
+		Listener<MessageBoxEvent> listener = new Listener<MessageBoxEvent>() {
 
-            @Override
-            public void handleEvent(MessageBoxEvent be) {
-                if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
-                    for (SubPresenter subPresenter : presenters) {
-                        subPresenter.forgetAllChangedValues();
-                    }
-                    if (adminModelPresenter != null)
-                        adminModelPresenter.forgetAllChangedValues();
-                    callback.onDecided(NavigationError.NONE);
-                }
-            }
-        };
+			@Override
+			public void handleEvent(MessageBoxEvent be) {
+				if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
+					for (SubPresenter subPresenter : presenters) {
+						subPresenter.forgetAllChangedValues();
+					}
+					if (adminModelPresenter != null)
+						adminModelPresenter.forgetAllChangedValues();
+					callback.onDecided(NavigationError.NONE);
+				}
+			}
+		};
 
-        if (navigationError == NavigationError.WORK_NOT_SAVED) {
-            MessageBox.confirm(I18N.CONSTANTS.unsavedDataTitle(), I18N.CONSTANTS.unsavedDataMessage(), listener);
-        }
+		if (navigationError == NavigationError.WORK_NOT_SAVED) {
+			MessageBox.confirm(I18N.CONSTANTS.unsavedDataTitle(), I18N.CONSTANTS.unsavedDataMessage(), listener);
+		}
 
-        callback.onDecided(navigationError);
-    }
+		callback.onDecided(navigationError);
+	}
 
-    @Override
-    public String beforeWindowCloses() {
-        return null;
-    }
+	@Override
+	public String beforeWindowCloses() {
+		return null;
+	}
 
-    @Override
-    public void setActivePage(Page page) {
-        this.activePage = page;
+	@Override
+	public void setActivePage(Page page) {
+		this.activePage = page;
 
-    }
+	}
 
-    @Override
-    public Page getActivePage() {
-        return this.activePage;
-    }
+	@Override
+	public Page getActivePage() {
+		return this.activePage;
+	}
 
-    @Override
-    public AsyncMonitor showLoadingPlaceHolder(PageId pageId, PageState loadingPlace) {
-        return null;
-    }
+	@Override
+	public AsyncMonitor showLoadingPlaceHolder(PageId pageId, PageState loadingPlace) {
+		return null;
+	}
 
-    @Override
-    public String getTabTitle() {
-        return I18N.CONSTANTS.adminboard();
-    }
+	@Override
+	public String getTabTitle() {
+		return I18N.CONSTANTS.adminboard();
+	}
 
-    @Override
-    public boolean navigate(PageState place) {
+	@Override
+	public boolean navigate(PageState place) {
 
-        final AdminPageState adminPageState = (AdminPageState) place;
-        currentState = adminPageState;
-        Log.debug("AdminPresenter : navigate normal" + currentState.isProject());
+		final AdminPageState adminPageState = (AdminPageState) place;
+		currentState = adminPageState;
+		Log.debug("AdminPresenter : navigate normal" + currentState.isProject());
 
-        if (currentState.getModel() != null && currentState.getSubModel() != null) {
-            adminModelPresenter = injector.getAdminModelPresenter();
-            navigate(currentState, adminModelPresenter);
-        } else {
-            selectTab(currentState.getCurrentSection(), false);
-        }
+		if (currentState.getModel() != null && currentState.getSubModel() != null) {
+			adminModelPresenter = injector.getAdminModelPresenter();
+			navigate(currentState, adminModelPresenter);
+		} else {
+			selectTab(currentState.getCurrentSection(), false);
+		}
 
-        return true;
-    }
+		return true;
+	}
 
-    public boolean navigate(PageState place, AdminOneModelPresenter adminOneModelPresenter) {
-        if (place != null)
-            Log.debug("AdminPresenter : navigate special " + ((AdminPageState) place).serializeAsHistoryToken());
-        adminOneModelPresenter.navigate(place, view);
-        return true;
-    }
+	public boolean navigate(PageState place, AdminOneModelPresenter adminOneModelPresenter) {
+		if (place != null)
+			Log.debug("AdminPresenter : navigate special " + ((AdminPageState) place).serializeAsHistoryToken());
+		adminOneModelPresenter.navigate(place, view);
+		return true;
+	}
 
-    private void selectTab(int index, boolean force) {
+	private void selectTab(int index, boolean force) {
 
-        final ToggleAnchor anchor = (ToggleAnchor) view.getTabPanel().getWidget(index);
-        if (currentTab != anchor) {
-            if (currentTab != null)
-                currentTab.toggleAnchorMode();
+		final ToggleAnchor anchor = (ToggleAnchor) view.getTabPanel().getWidget(index);
+		if (currentTab != anchor) {
+			if (currentTab != null)
+				currentTab.toggleAnchorMode();
 
-            anchor.toggleAnchorMode();
-            currentTab = anchor;
+			anchor.toggleAnchorMode();
+			currentTab = anchor;
 
-            view.setMainPanel(presenters[index].getView());
-            presenters[index].viewDidAppear();
-            presenters[index].setCurrentState(currentState);
-        } else if (force) {
-            view.setMainPanel(presenters[index].getView());
-            presenters[index].viewDidAppear();
-            presenters[index].setCurrentState(currentState);
-        }
-    }
+			view.setMainPanel(presenters[index].getView());
+			presenters[index].viewDidAppear();
+			presenters[index].setCurrentState(currentState);
+		} else if (force) {
+			view.setMainPanel(presenters[index].getView());
+			presenters[index].viewDidAppear();
+			presenters[index].setCurrentState(currentState);
+		}
+	}
 }

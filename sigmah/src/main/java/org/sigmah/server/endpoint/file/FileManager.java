@@ -19,6 +19,17 @@ import org.sigmah.shared.dto.value.FileUploadUtils;
  * @author Aurélien Ponçon
  */
 public interface FileManager {
+	
+	
+	/**
+     * Writes the file content.
+     * 
+     * @param content
+     *            The content as bytes array.
+     * @return The unique string identifier to identify the just saved file.
+     * @throws IOException
+     */
+    public String writeContent(byte[] content) throws IOException;
 
     /**
      * Saves and stores a new file version. If the file doesn't exist already, creates it.
@@ -117,7 +128,7 @@ public interface FileManager {
      * This abstract class is used for representing a repository It needs an id to retrieve it in the hierarchy and a
      * name for naming it
      * 
-     * @author AurÃ©lien PonÃ§on
+     * @author AurÃƒÂ©lien PonÃƒÂ§on
      */
     public static abstract class RepositoryElement {
 

@@ -258,6 +258,13 @@
    		 	 <version>1.0</version>
 		</dependency>
 
+		 <!-- Apache commons Archiving and Compressing -->
+		<dependency>
+   			<groupId>org.apache.commons</groupId>
+    		<artifactId>commons-compress</artifactId>
+   			<version>1.5</version>
+		</dependency>
+		
 		<!-- Report creation dependencies -->
 
         <dependency>
@@ -277,7 +284,11 @@
             <artifactId>poi-scratchpad</artifactId>
             <version>3.8</version>
         </dependency>
-
+	   <dependency>
+		    <groupId>org.apache.poi</groupId>
+		    <artifactId>poi-ooxml</artifactId>
+		    <version>3.8</version>
+	    </dependency>
         <dependency>
             <groupId>com.lowagie</groupId>
             <artifactId>itext</artifactId>
@@ -426,6 +437,11 @@
 		</dependency>
 
 		<!-- Apache Commons File Upload -->
+		 <dependency>
+	      <groupId>commons-io</groupId>
+		  <artifactId>commons-io</artifactId>
+	      <version>1.4</version>
+    	</dependency>
 		<dependency>
 			<groupId>commons-fileupload</groupId>
 			<artifactId>commons-fileupload</artifactId>

@@ -115,7 +115,8 @@ public class AdminUtil {
 	public final static String PROP_VAR_VARIABLE = "variable";
 	public final static String PROP_VAR_NAME = "name";
 	public final static String PROP_VAR_REFERENCE = "reference";
-	public final static String PROP_VAR_FLE_ID_KEY = "importationSchemeIdKEy";
+	public final static String PROP_VAR_FLE_ID_KEY = "importationSchemeIdKey";
+	public final static String PROP_VAR_FLE_BUDGETSUBFIELDS = "variableBudgetSubFields";
 	
 	
 	public static void alertPbmData(boolean alert) {
