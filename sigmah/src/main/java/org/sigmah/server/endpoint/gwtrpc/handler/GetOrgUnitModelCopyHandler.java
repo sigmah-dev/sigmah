@@ -18,6 +18,8 @@ import org.sigmah.shared.domain.ProjectModelStatus;
 import org.sigmah.shared.domain.User;
 import org.sigmah.shared.domain.category.CategoryElement;
 import org.sigmah.shared.domain.category.CategoryType;
+import org.sigmah.shared.domain.element.BudgetElement;
+import org.sigmah.shared.domain.element.BudgetSubField;
 import org.sigmah.shared.domain.element.FlexibleElement;
 import org.sigmah.shared.domain.element.QuestionChoiceElement;
 import org.sigmah.shared.domain.element.QuestionElement;
@@ -157,7 +159,47 @@ public class GetOrgUnitModelCopyHandler implements CommandHandler<GetOrgUnitMode
 									} else {
 										em.persist(layoutConstraint.getElement());
 									}
-								} else {
+								} else if (layoutConstraint.getElement() instanceof BudgetElement) {
+									List<BudgetSubField> budgetSubFields = ((BudgetElement) layoutConstraint
+									                .getElement()).getBudgetSubFields();
+									if (budgetSubFields != null) {
+										FlexibleElement parent = (FlexibleElement) layoutConstraint
+										                .getElement();
+										((BudgetElement) parent).setBudgetSubFields(null);
+										((BudgetElement) parent).setRatioDividend(null);
+										((BudgetElement) parent).setRatioDivisor(null);
+
+										for (BudgetSubField budgetSubField : budgetSubFields) {
+											if (budgetSubField != null) {
+												budgetSubField.setId(null);
+												if (budgetSubField.getType() != null) {
+													switch (budgetSubField.getType()) {
+													case PLANNED:
+														((BudgetElement) parent)
+														                .setRatioDivisor(budgetSubField);
+														break;
+													case RECEIVED:
+														break;
+													case SPENT:
+														((BudgetElement) parent)
+														                .setRatioDividend(budgetSubField);
+														break;
+													default:
+														break;
+
+													}
+												}
+												budgetSubField.setBudgetElement((BudgetElement) parent);
+
+												em.persist(budgetSubField);
+											}
+										}
+										em.persist(parent);
+									} else {
+										em.persist(layoutConstraint.getElement());
+									}
+
+								}  else {
 									em.persist(layoutConstraint.getElement());
 								}
 							}
@@ -226,7 +268,47 @@ public class GetOrgUnitModelCopyHandler implements CommandHandler<GetOrgUnitMode
 									} else {
 										em.persist(layoutConstraint.getElement());
 									}
-								} else {
+								} else if (layoutConstraint.getElement() instanceof BudgetElement) {
+									List<BudgetSubField> budgetSubFields = ((BudgetElement) layoutConstraint
+									                .getElement()).getBudgetSubFields();
+									if (budgetSubFields != null) {
+										FlexibleElement parent = (FlexibleElement) layoutConstraint
+										                .getElement();
+										((BudgetElement) parent).setBudgetSubFields(null);
+										((BudgetElement) parent).setRatioDividend(null);
+										((BudgetElement) parent).setRatioDivisor(null);
+
+										for (BudgetSubField budgetSubField : budgetSubFields) {
+											if (budgetSubField != null) {
+												budgetSubField.setId(null);
+												if (budgetSubField.getType() != null) {
+													switch (budgetSubField.getType()) {
+													case PLANNED:
+														((BudgetElement) parent)
+														                .setRatioDivisor(budgetSubField);
+														break;
+													case RECEIVED:
+														break;
+													case SPENT:
+														((BudgetElement) parent)
+														                .setRatioDividend(budgetSubField);
+														break;
+													default:
+														break;
+
+													}
+												}
+												budgetSubField.setBudgetElement((BudgetElement) parent);
+
+												em.persist(budgetSubField);
+											}
+										}
+										em.persist(parent);
+									} else {
+										em.persist(layoutConstraint.getElement());
+									}
+
+								}  else {
 									em.persist(layoutConstraint.getElement());
 								}
 							}
