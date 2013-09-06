@@ -55,18 +55,19 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class AdminImportView extends View {
-	private final Dispatcher dispatcher;
-	final private Grid<ImportationSchemeDTO> schemasGrid;
-	final private Grid<VariableDTO> variablesGrid;
+	private Dispatcher dispatcher;
+	
+	private final Grid<ImportationSchemeDTO> schemesGrid;
+	private final Grid<VariableDTO> variablesGrid;
+	private final ContentPanel schemePanel;
+	private final ContentPanel variablePanel;
 	private ListStore<VariableDTO> variablesStore;
-	private ListStore<ImportationSchemeDTO> schemasStore;
-	final private ContentPanel schemaPanel;
-	final private ContentPanel variablePanel;
-	private ImportationSchemeDTO currentSchema;
+	private ListStore<ImportationSchemeDTO> schemesStore;
+	private ImportationSchemeDTO currentSchemeDTO;
 	private Button addVariableButton;
 	private Button deleteVariableButton;
-	private Button deleteSchemaButton;
-	private Button addSchemaButton;
+	private Button deleteSchemeButton;
+	private Button addSchemeButton;
 	private NumberField firstRow;
 	private TextField<String> sheetName;
 	private Button saveSheetNameFirstRowButton;
@@ -75,19 +76,19 @@ public class AdminImportView extends View {
 
 	public AdminImportView(Dispatcher dispatcher) {
 		this.dispatcher = dispatcher;
-
+		
 		setLayout(new BorderLayout());
 		setHeaderVisible(false);
 		setBorders(false);
 		setBodyBorder(false);
 
-		schemaPanel = new ContentPanel(new FitLayout());
-		schemaPanel.setHeaderVisible(false);
-		schemaPanel.setWidth(450);
-		schemaPanel.setScrollMode(Scroll.AUTO);
-		schemasGrid = buildSchemasGrid();
-		schemaPanel.add(schemasGrid);
-		schemaPanel.setTopComponent(importationSchemeToolBar());
+		schemePanel = new ContentPanel(new FitLayout());
+		schemePanel.setHeaderVisible(false);
+		schemePanel.setWidth(450);
+		schemePanel.setScrollMode(Scroll.AUTO);
+		schemesGrid = buildSchemasGrid();
+		schemePanel.add(schemesGrid);
+		schemePanel.setTopComponent(importationSchemeToolBar());
 
 		variablePanel = new ContentPanel(new FitLayout());
 		variablePanel.setScrollMode(Scroll.AUTOY);
@@ -96,10 +97,11 @@ public class AdminImportView extends View {
 		variablesGrid = buildVariablesGrid();
 		variablePanel.add(variablesGrid);
 		variablePanel.setTopComponent(variableToolBar());
+		
 
 		final BorderLayoutData leftLayoutData = new BorderLayoutData(LayoutRegion.WEST, 450);
 		leftLayoutData.setMargins(new Margins(0, 4, 0, 0));
-		add(schemaPanel, leftLayoutData);
+		add(schemePanel, leftLayoutData);
 		final BorderLayoutData mainLayoutData = new BorderLayoutData(LayoutRegion.CENTER);
 		mainLayoutData.setMargins(new Margins(0, 0, 0, 4));
 		add(variablePanel, mainLayoutData);
@@ -134,7 +136,7 @@ public class AdminImportView extends View {
 					@Override
 					public void handleEvent(ButtonEvent be) {
 						AdminImportVariableActionListener actionListener = new AdminImportVariableActionListener(
-						                AdminImportView.this, dispatcher, model, currentSchema);
+						                AdminImportView.this, dispatcher, model, currentSchemeDTO);
 						actionListener.onUIAction(UIActions.edit);
 					}
 				});
@@ -142,7 +144,7 @@ public class AdminImportView extends View {
 			}
 		});
 		configs.add(column);
-
+		
 		ColumnModel cm = new ColumnModel(configs);
 
 		Grid<VariableDTO> variablesDTOGrid = new Grid<VariableDTO>(variablesStore, cm);
@@ -154,7 +156,7 @@ public class AdminImportView extends View {
 	}
 
 	private Grid<ImportationSchemeDTO> buildSchemasGrid() {
-		schemasStore = new ListStore<ImportationSchemeDTO>();
+		schemesStore = new ListStore<ImportationSchemeDTO>();
 
 		List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
 
@@ -174,21 +176,21 @@ public class AdminImportView extends View {
 
 					@Override
 					public void onClick(ClickEvent event) {
-						currentSchema = model;
+						currentSchemeDTO = model;
 
-						if (currentSchema.getFirstRow() != null) {
-							firstRow.setValue(currentSchema.getFirstRow());
+						if (currentSchemeDTO.getFirstRow() != null) {
+							firstRow.setValue(currentSchemeDTO.getFirstRow());
 						} else {
 							firstRow.clear();
 						}
-						if (currentSchema.getSheetName() != null) {
-							sheetName.setValue(currentSchema.getSheetName());
+						if (currentSchemeDTO.getSheetName() != null) {
+							sheetName.setValue(currentSchemeDTO.getSheetName());
 						} else {
 							sheetName.clear();
 						}
 						hideSheetNameFirstRow();
 
-						switch (currentSchema.getImportType()) {
+						switch (currentSchemeDTO.getImportType()) {
 						case ROW:
 							variablesGrid.getColumnModel().getColumnById("reference")
 							                .setHeader(I18N.CONSTANTS.adminImportReferenceColumn());
@@ -207,9 +209,7 @@ public class AdminImportView extends View {
 						}
 						variablesGrid.show();
 						variablesStore.removeAll();
-						for (VariableDTO variableDTO : model.getVariablesDTO()) {
-							variablesStore.add(variableDTO);
-						}
+						variablesStore.add(model.getVariablesDTO());
 						variablesStore.commitChanges();
 						addVariableButton.enable();
 					}
@@ -241,8 +241,7 @@ public class AdminImportView extends View {
 		});
 		configs.add(column);
 
-		column = new ColumnConfig();
-		column.setWidth(70);
+		column = new ColumnConfig("actions", 70);
 		column.setAlignment(HorizontalAlignment.CENTER);
 		column.setRenderer(new GridCellRenderer<ImportationSchemeDTO>() {
 
@@ -266,7 +265,7 @@ public class AdminImportView extends View {
 
 		ColumnModel cm = new ColumnModel(configs);
 
-		Grid<ImportationSchemeDTO> grid = new Grid<ImportationSchemeDTO>(schemasStore, cm);
+		Grid<ImportationSchemeDTO> grid = new Grid<ImportationSchemeDTO>(schemesStore, cm);
 		grid.setAutoHeight(true);
 		grid.getView().setForceFit(true);
 		grid.setAutoWidth(false);
@@ -277,32 +276,12 @@ public class AdminImportView extends View {
 	private ToolBar importationSchemeToolBar() {
 		ToolBar toolbar = new ToolBar();
 
-		addSchemaButton = new Button(I18N.CONSTANTS.addItem(), IconImageBundle.ICONS.add());
-		addSchemaButton.setItemId(UIActions.add);
-		addSchemaButton.addListener(Events.OnClick, new Listener<ButtonEvent>() {
+		addSchemeButton = new Button(I18N.CONSTANTS.addItem(), IconImageBundle.ICONS.add());
+		addSchemeButton.setItemId(UIActions.add);
+		toolbar.add(addSchemeButton);
 
-			@Override
-			public void handleEvent(ButtonEvent be) {
-				AdminImportSchemeActionListener actionListener = new AdminImportSchemeActionListener(
-				                AdminImportView.this, dispatcher, new ImportationSchemeDTO());
-				actionListener.onUIAction(UIActions.add);
-			}
-
-		});
-		toolbar.add(addSchemaButton);
-
-		deleteSchemaButton = new Button(I18N.CONSTANTS.delete(), IconImageBundle.ICONS.delete());
-		deleteSchemaButton.addListener(Events.OnClick, new Listener<BaseEvent>() {
-
-			@Override
-			public void handleEvent(BaseEvent be) {
-				AdminImportSchemeActionListener actionListener = new AdminImportSchemeActionListener(
-				                AdminImportView.this, dispatcher, null);
-				actionListener.onUIAction(UIActions.delete);
-
-			}
-		});
-		toolbar.add(deleteSchemaButton);
+		deleteSchemeButton = new Button(I18N.CONSTANTS.delete(), IconImageBundle.ICONS.delete());
+		toolbar.add(deleteSchemeButton);
 
 		return toolbar;
 	}
@@ -327,6 +306,7 @@ public class AdminImportView extends View {
 		sheetName = new TextField<String>();
 		sheetName.setAllowBlank(false);
 		sheetName.setWidth(100);
+	
 		toolbar.add(sheetName);
 
 		saveSheetNameFirstRowButton = new Button(I18N.CONSTANTS.save());
@@ -336,8 +316,8 @@ public class AdminImportView extends View {
 			@Override
 			public void handleEvent(BaseEvent be) {
 				Map<String, Object> newSchemaProperties = new HashMap<String, Object>();
-				if (sheetName.isValid() && firstRow.isValid()) {
-					newSchemaProperties.put(AdminUtil.ADMIN_SCHEMA, currentSchema);
+				if (isFirstRowSheetNameValid()) {
+					newSchemaProperties.put(AdminUtil.ADMIN_SCHEMA, currentSchemeDTO);
 					newSchemaProperties.put(AdminUtil.PROP_SCH_FIRST_ROW, firstRow.getValue().intValue());
 
 					newSchemaProperties.put(AdminUtil.PROP_SCH_SHEET_NAME, sheetName.getValue());
@@ -349,8 +329,10 @@ public class AdminImportView extends View {
 							Notification.show(I18N.CONSTANTS.infoConfirmation(),
 							                I18N.CONSTANTS.adminImportationSchemeUpdateConfirm());
 							ImportationSchemeDTO schemaUpdated = (ImportationSchemeDTO) result.getEntity();
-							schemasStore.update(schemaUpdated);
-							schemasStore.commitChanges();
+							currentSchemeDTO.setFirstRow(schemaUpdated.getFirstRow());
+							currentSchemeDTO.setSheetName(schemaUpdated.getSheetName());
+							schemesStore.update(currentSchemeDTO);
+							schemesStore.commitChanges();
 						}
 
 						@Override
@@ -363,52 +345,50 @@ public class AdminImportView extends View {
 			}
 		});
 		saveSheetNameFirstRowButton.setWidth(80);
+		
+		sheetName.addListener(Events.OnKeyUp, new Listener<BaseEvent>() {
+
+			@Override
+            public void handleEvent(BaseEvent be) {
+				saveSheetNameFirstRowButton.enable();
+	            
+            }
+		});
+		firstRow.addListener(Events.OnKeyUp, new Listener<BaseEvent>() {
+
+			@Override
+            public void handleEvent(BaseEvent be) {
+				saveSheetNameFirstRowButton.enable();
+            }
+		});
+		saveSheetNameFirstRowButton.disable();
 		toolbar.add(saveSheetNameFirstRowButton);
 
 		hideSheetNameFirstRow();
 		addVariableButton = new Button(I18N.CONSTANTS.addItem(), IconImageBundle.ICONS.add());
 		addVariableButton.setItemId(UIActions.add);
-		addVariableButton.addListener(Events.OnClick, new Listener<ButtonEvent>() {
 
-			@Override
-			public void handleEvent(ButtonEvent be) {
-				AdminImportVariableActionListener actionListener = new AdminImportVariableActionListener(
-				                AdminImportView.this, dispatcher, new VariableDTO(), currentSchema);
-				actionListener.onUIAction(UIActions.add);
-			}
-
-		});
 		toolbar.add(addVariableButton);
 
 		deleteVariableButton = new Button(I18N.CONSTANTS.delete(), IconImageBundle.ICONS.delete());
-		deleteVariableButton.addListener(Events.OnClick, new Listener<BaseEvent>() {
-
-			@Override
-			public void handleEvent(BaseEvent be) {
-				AdminImportVariableActionListener actionListener = new AdminImportVariableActionListener(
-				                AdminImportView.this, dispatcher, null, null);
-				actionListener.onUIAction(UIActions.delete);
-
-			}
-		});
 
 		toolbar.add(deleteVariableButton);
 		return toolbar;
 	}
 
 	@Override
-	public void confirmDeleteSchemasSelected(final ConfirmCallback confirmCallback) {
-		if (getSchemasSelection().size() == 0) {
+	public void confirmDeleteSchemesSelected(final ConfirmCallback confirmCallback) {
+		if (getSchemesSelection().size() == 0) {
 			MessageBox.alert(I18N.CONSTANTS.delete(), I18N.CONSTANTS.adminImportationSchemesDeleteNone(), null);
 		} else {
 			String confirmMessage = "";
-			for (ImportationSchemeDTO schemaToDelete : getSchemasSelection()) {
+			for (ImportationSchemeDTO schemaToDelete : getSchemesSelection()) {
 				confirmMessage += schemaToDelete.getName() + ", ";
 			}
 			if (!confirmMessage.isEmpty()) {
 				confirmMessage = confirmMessage.substring(0, confirmMessage.lastIndexOf(", "));
 			}
-			confirmMessage = I18N.MESSAGES.confirmDeleteSchemas(confirmMessage);
+			confirmMessage = I18N.MESSAGES.confirmDeleteSchemes(confirmMessage);
 			MessageBox.confirm(I18N.CONSTANTS.delete(), confirmMessage, new Listener<MessageBoxEvent>() {
 
 				@Override
@@ -447,6 +427,47 @@ public class AdminImportView extends View {
 
 	}
 
+	/**
+	 * @return the addVariableButton
+	 */
+	@Override
+	public Button getAddVariableButton() {
+		return addVariableButton;
+	}
+
+	/**
+	 * @return the deleteVariableButton
+	 */
+	@Override
+	public Button getDeleteVariableButton() {
+		return deleteVariableButton;
+	}
+
+	/**
+	 * @return the deleteSchemaButton
+	 */
+	@Override
+	public Button getDeleteSchemeButton() {
+		return deleteSchemeButton;
+	}
+
+	/**
+	 * @return the addSchemaButton
+	 */
+	@Override
+	public Button getAddSchemeButton() {
+		return addSchemeButton;
+	}
+
+	/**
+	 * @return the saveSheetNameFirstRowButton
+	 */
+	@Override
+	public Button getSaveSheetNameFirstRowButton() {
+		return saveSheetNameFirstRowButton;
+	}
+
+	
 	@Override
 	public List<VariableDTO> getVariablesSelection() {
 		GridSelectionModel<VariableDTO> sm = variablesGrid.getSelectionModel();
@@ -454,8 +475,8 @@ public class AdminImportView extends View {
 	}
 
 	@Override
-	public List<ImportationSchemeDTO> getSchemasSelection() {
-		GridSelectionModel<ImportationSchemeDTO> sm = schemasGrid.getSelectionModel();
+	public List<ImportationSchemeDTO> getSchemesSelection() {
+		GridSelectionModel<ImportationSchemeDTO> sm = schemesGrid.getSelectionModel();
 		return sm.getSelectedItems();
 	}
 
@@ -470,16 +491,28 @@ public class AdminImportView extends View {
 	}
 
 	@Override
-	public MaskingAsyncMonitor getSchemasLoadingMonitor() {
-		return new MaskingAsyncMonitor(schemasGrid, I18N.CONSTANTS.loading());
+	public MaskingAsyncMonitor getSchemesLoadingMonitor() {
+		return new MaskingAsyncMonitor(schemesGrid, I18N.CONSTANTS.loading());
 	}
 
 	/**
 	 * @return the currentSchema
 	 */
-	public ImportationSchemeDTO getCurrentSchema() {
-		return currentSchema;
+	@Override
+	public ImportationSchemeDTO getCurrentSchemeDTO() {
+		return currentSchemeDTO;
 	}
+	
+
+	/**
+	 * @param currentSchemeDTO
+	 *            the currentSchema to set
+	 */
+	@Override
+	public void setCurrentSchemeDTO(ImportationSchemeDTO currentSchemeDTO) {
+		this.currentSchemeDTO = currentSchemeDTO;
+	}
+
 
 	@Override
 	public ListStore<VariableDTO> getVariablesStore() {
@@ -487,19 +520,35 @@ public class AdminImportView extends View {
 	}
 
 	@Override
-	public ListStore<ImportationSchemeDTO> getSchemasStore() {
-		return schemasStore;
+	public ListStore<ImportationSchemeDTO> getSchemesStore() {
+		return schemesStore;
+	}
+
+	/**
+	 * @return the schemesGrid
+	 */
+	@Override
+	public Grid<ImportationSchemeDTO> getSchemesGrid() {
+		return schemesGrid;
+	}
+
+	/**
+	 * @return the variablesGrid
+	 */
+	@Override
+	public Grid<VariableDTO> getVariablesGrid() {
+		return variablesGrid;
 	}
 
 	/**
 	 * Hides the specific fields for the ROW import type
 	 */
 	public void hideSheetNameFirstRow() {
-		if (currentSchema != null && ImportationSchemeImportType.ROW.equals(currentSchema.getImportType())) {
+		if (currentSchemeDTO != null && ImportationSchemeImportType.ROW.equals(currentSchemeDTO.getImportType())) {
 			saveSheetNameFirstRowButton.show();
 			firstRow.show();
 			firstRowLabel.show();
-			if (!ImportationSchemeFileFormat.CSV.equals(currentSchema.getFileFormat())) {
+			if (!ImportationSchemeFileFormat.CSV.equals(currentSchemeDTO.getFileFormat())) {
 				sheetNameLabel.show();
 				sheetName.show();
 			}
@@ -512,4 +561,7 @@ public class AdminImportView extends View {
 		}
 	}
 
+	public boolean isFirstRowSheetNameValid() {
+		return sheetName.isValid() && firstRow.isValid();
+	}
 }

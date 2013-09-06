@@ -57,8 +57,7 @@ public class CsvImporter extends Importer {
 
 	@Override
 	public String getValueFromVariable(String reference, Integer lineNumber, String sheetName) throws ServletException {
-		// Get the cell value
-		// Get the variable value in the document
+	
 		String columnValue = "";
 		if (reference != null && !reference.isEmpty()) {
 			switch (scheme.getImportType()) {
@@ -68,11 +67,9 @@ public class CsvImporter extends Importer {
 					try {
 						columnValue = lines.get(lineNumber)[Integer.valueOf(reference)];
 					} catch(NumberFormatException nfe){
-						throw new ServletException("The variable's reference : " + reference + " is malformed for the Csv file format type");
+						throw new ServletException("The variable's reference : " + reference + " is invalid for the Csv file format type");
 					}
-					
 				}
-				// TODO
 				break;
 			case SEVERAL:
 				logWarnFormatImportTypeIncoherence();
@@ -85,7 +82,6 @@ public class CsvImporter extends Importer {
 
 			}
 		}
-
 		return columnValue;
 	}
 

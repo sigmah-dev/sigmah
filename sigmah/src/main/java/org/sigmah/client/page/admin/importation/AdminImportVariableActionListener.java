@@ -134,8 +134,8 @@ public class AdminImportVariableActionListener implements ActionListener {
 				                view.getVariablesStore().removeAll();
 				                view.getVariablesStore().clearFilters();
 				                ImportationSchemeDTO schemaDTOUpdated = (ImportationSchemeDTO) result.getEntity();
-				                view.getSchemasStore().update(schemaDTOUpdated);
-				                view.getSchemasStore().commitChanges();
+				                view.getSchemesStore().update(schemaDTOUpdated);
+				                view.getSchemesStore().commitChanges();
 				                view.getVariablesStore().add(schemaDTOUpdated.getVariablesDTO());
 				                view.getVariablesStore().commitChanges();
 			                }

@@ -49,11 +49,11 @@ public class AdminImportSchemeActionListener implements ActionListener {
 			onEdit();
 		}
 		if (UIActions.delete.equals(actionId)) {
-			view.confirmDeleteSchemasSelected(new ConfirmCallback() {
+			view.confirmDeleteSchemesSelected(new ConfirmCallback() {
 
 				@Override
 				public void confirmed() {
-					onDeleteConfirmed(view.getSchemasSelection());
+					onDeleteConfirmed(view.getSchemesSelection());
 				}
 			});
 		}
@@ -77,7 +77,7 @@ public class AdminImportSchemeActionListener implements ActionListener {
 	protected void onDeleteConfirmed(final List<ImportationSchemeDTO> importationSchemesSelection) {
 
 		final GetImportationSchemeModels cmdGet = new GetImportationSchemeModels();
-		dispatcher.execute(cmdGet, view.getSchemasLoadingMonitor(),
+		dispatcher.execute(cmdGet, view.getSchemesLoadingMonitor(),
 		                new AsyncCallback<ImportationSchemeModelListResult>() {
 
 			                @Override
@@ -114,7 +114,7 @@ public class AdminImportSchemeActionListener implements ActionListener {
 						                }
 						                final DeleteImportationSchemes cmdDelete = new DeleteImportationSchemes();
 						                cmdDelete.setSchemaIdsList(schemaIdsToDelete);
-						                dispatcher.execute(cmdDelete, view.getSchemasLoadingMonitor(),
+						                dispatcher.execute(cmdDelete, view.getSchemesLoadingMonitor(),
 						                                new AsyncCallback<VoidResult>() {
 
 							                                @Override
@@ -131,7 +131,7 @@ public class AdminImportSchemeActionListener implements ActionListener {
 								                                                I18N.CONSTANTS.infoConfirmation(),
 								                                                I18N.CONSTANTS.adminImportationSchemesDeleteConfirm());
 								                                for (ImportationSchemeDTO importationSchemeDTO : importationSchemesSelection) {
-									                                view.getSchemasStore().remove(importationSchemeDTO);
+									                                view.getSchemesStore().remove(importationSchemeDTO);
 								                                }
 							                                }
 						                                });
@@ -152,7 +152,7 @@ public class AdminImportSchemeActionListener implements ActionListener {
 		window.setBlinkModal(true);
 		window.setLayout(new FitLayout());
 
-		final ImportationSchemeForm form = new ImportationSchemeForm(dispatcher, view.getSchemasLoadingMonitor(),
+		final ImportationSchemeForm form = new ImportationSchemeForm(dispatcher, view.getSchemesLoadingMonitor(),
 		                new AsyncCallback<CreateResult>() {
 
 			                @Override
@@ -162,10 +162,10 @@ public class AdminImportSchemeActionListener implements ActionListener {
 				                window.hide();
 				                ImportationSchemeDTO schemaUpdated = (ImportationSchemeDTO) result.getEntity();
 				                if (schema.getId() > 0) {
-					                view.getSchemasStore().remove(schema);
+					                view.getSchemesStore().remove(schema);
 				                }
-				                view.getSchemasStore().add(schemaUpdated);
-				                view.getSchemasStore().commitChanges();
+				                view.getSchemesStore().add(schemaUpdated);
+				                view.getSchemesStore().commitChanges();
 			                }
 
 			                @Override

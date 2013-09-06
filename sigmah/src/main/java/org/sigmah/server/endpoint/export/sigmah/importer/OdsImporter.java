@@ -41,8 +41,22 @@ public class OdsImporter extends Importer {
 
 			switch (scheme.getImportType()) {
 			case ROW:
-				// FirstRowSheetName TODO
-				getCorrespondancePerSheetOrLine(schemeModelDTO, null, scheme.getSheetName());
+				Table sheetTable = null;
+				if(scheme.getSheetName() != null && !scheme.getSheetName().isEmpty()) {
+					sheetTable = doc.getTableByName(scheme.getSheetName());
+				} else if(doc.getTableList().size() > 0){
+					sheetTable = doc.getTableList().get(0);
+				}
+				if(sheetTable != null) {
+					int firstRow = 0;
+					if(scheme.getFirstRow() != null) {
+						firstRow = scheme.getFirstRow();
+					}
+				
+					for (int i = firstRow; i < sheetTable.getRowCount() ; i++) {
+						getCorrespondancePerSheetOrLine(schemeModelDTO, i, scheme.getSheetName());
+					}
+				}
 				break;
 			case SEVERAL:
 				for (Table sheet : doc.getTableList()) {
@@ -78,7 +92,7 @@ public class OdsImporter extends Importer {
 						if (row != null) {
 							Integer collNumber;
 							try {
-								collNumber = Integer.valueOf(reference);
+								collNumber = getColumnFromReference(reference);
 							} catch (NumberFormatException e) {
 								return null;
 							}

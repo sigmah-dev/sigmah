@@ -12,22 +12,20 @@ import org.sigmah.client.page.admin.model.common.importation.AdminImportationSch
 import org.sigmah.client.page.common.grid.ConfirmCallback;
 import org.sigmah.client.page.common.toolbar.UIActions;
 import org.sigmah.client.ui.ToggleAnchor;
-import org.sigmah.client.util.Notification;
-import org.sigmah.shared.command.DeleteImportationSchemeModels;
+import org.sigmah.shared.command.GetImportationSchemes;
 import org.sigmah.shared.command.result.CreateResult;
-import org.sigmah.shared.command.result.VoidResult;
+import org.sigmah.shared.command.result.ImportationSchemeListResult;
 import org.sigmah.shared.domain.element.DefaultFlexibleElementType;
 import org.sigmah.shared.dto.EntityDTO;
+import org.sigmah.shared.dto.OrgUnitDTO;
 import org.sigmah.shared.dto.element.DefaultFlexibleElementDTO;
+import org.sigmah.shared.dto.importation.ImportationSchemeDTO;
 import org.sigmah.shared.dto.importation.ImportationSchemeModelDTO;
 import org.sigmah.shared.dto.importation.VariableBudgetElementDTO;
 import org.sigmah.shared.dto.importation.VariableBudgetSubFieldDTO;
 import org.sigmah.shared.dto.importation.VariableFlexibleElementDTO;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
-import com.extjs.gxt.ui.client.event.BaseEvent;
-import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.store.ListStore;
@@ -67,7 +65,7 @@ public class AdminImportationSchemeModelsView extends View {
 	private Button deleteVariableFlexibleElementButton;
 	private Button addImportationSchemeModelButton;
 	private Button deleteImportationSchemeModelButton;
-	private ImportationSchemeModelDTO currentImportationSchemeModel;
+	private ImportationSchemeModelDTO currentImportationSchemeModelDTO;
 
 	public AdminImportationSchemeModelsView(Dispatcher dispatcher) {
 		this.dispatcher = dispatcher;
@@ -88,6 +86,7 @@ public class AdminImportationSchemeModelsView extends View {
 		importationSchemeModelsPanel.setBorders(false);
 
 		importationSchemeModelsGrid = buildImportationSchemeModelsGrid();
+		
 		importationSchemeModelsPanel.add(importationSchemeModelsGrid, topVBoxLayoutData2);
 		importationSchemeModelsPanel.setTopComponent(importationSchemeModelToolBar());
 		importationSchemeModelsPanel.layout();
@@ -122,30 +121,11 @@ public class AdminImportationSchemeModelsView extends View {
 
 		addImportationSchemeModelButton = new Button(I18N.CONSTANTS.addItem(), IconImageBundle.ICONS.add());
 		addImportationSchemeModelButton.setItemId(UIActions.add);
-		addImportationSchemeModelButton.addListener(Events.OnClick, new Listener<ButtonEvent>() {
 
-			@Override
-			public void handleEvent(ButtonEvent be) {
-				showNewImportationSchemeModelForm(true);
-			}
-
-		});
 		toolbar.add(addImportationSchemeModelButton);
 
 		deleteImportationSchemeModelButton = new Button(I18N.CONSTANTS.delete(), IconImageBundle.ICONS.delete());
-		deleteImportationSchemeModelButton.addListener(Events.OnClick, new Listener<BaseEvent>() {
 
-			@Override
-			public void handleEvent(BaseEvent be) {
-				confirmDeleteSelected(new ConfirmCallback() {
-
-					@Override
-					public void confirmed() {
-						deleteImportationSchemeModels();
-					}
-				});
-			}
-		});
 		toolbar.add(deleteImportationSchemeModelButton);
 
 		return toolbar;
@@ -156,25 +136,11 @@ public class AdminImportationSchemeModelsView extends View {
 
 		addVariableFlexibleElementButton = new Button(I18N.CONSTANTS.addItem(), IconImageBundle.ICONS.add());
 		addVariableFlexibleElementButton.setItemId(UIActions.add);
-		addVariableFlexibleElementButton.addListener(Events.OnClick, new Listener<ButtonEvent>() {
 
-			@Override
-			public void handleEvent(ButtonEvent be) {
-				showNewVariableFlexibleElementForm(false);
-			}
-		});
 		addVariableFlexibleElementButton.disable();
 		toolbar.add(addVariableFlexibleElementButton);
 
 		deleteVariableFlexibleElementButton = new Button(I18N.CONSTANTS.delete(), IconImageBundle.ICONS.delete());
-		deleteVariableFlexibleElementButton.addListener(Events.OnClick, new Listener<BaseEvent>() {
-
-			@Override
-			public void handleEvent(BaseEvent be) {
-				deleteVariableFlexibleElements();
-
-			}
-		});
 
 		toolbar.add(deleteVariableFlexibleElementButton);
 		return toolbar;
@@ -229,7 +195,7 @@ public class AdminImportationSchemeModelsView extends View {
 					String variableNames = "";
 					VariableBudgetElementDTO variableBudgetElement = (VariableBudgetElementDTO) model;
 					for (VariableBudgetSubFieldDTO varSubField : variableBudgetElement.getVariableBudgetSubFieldsDTO()) {
-						variableNames += varSubField.getVariableDTO().getName();
+						variableNames += varSubField.getVariableDTO().getName() + "; ";
 					}
 					return variableNames;
 				} else {
@@ -245,6 +211,7 @@ public class AdminImportationSchemeModelsView extends View {
 		                variableFlexibleElementStore, cm);
 		variableFlexibleElementsDTOGrid.setAutoHeight(true);
 		variableFlexibleElementsDTOGrid.setAutoWidth(true);
+		variableFlexibleElementsDTOGrid.addStyleName("importation-scheme-models-grid");
 		variableFlexibleElementsDTOGrid.getView().setForceFit(true);
 
 		return variableFlexibleElementsDTOGrid;
@@ -272,15 +239,13 @@ public class AdminImportationSchemeModelsView extends View {
 
 					@Override
 					public void onClick(ClickEvent event) {
-						currentImportationSchemeModel = model;
+						currentImportationSchemeModelDTO = model;
 						variableFlexibleElementsGrid.show();
 						variableFlexibleElementStore.removeAll();
-						for (VariableFlexibleElementDTO variableFleDTO : model.getVariableFlexibleElementsDTO()) {
-							variableFlexibleElementStore.add(variableFleDTO);
-						}
+						variableFlexibleElementStore.add(model.getVariableFlexibleElementsDTO());
 						variableFlexibleElementStore.commitChanges();
 						addVariableFlexibleElementButton.enable();
-						if (currentImportationSchemeModel.getIdKey() == null) {
+						if (currentImportationSchemeModelDTO.getIdKey() == null) {
 							showNewVariableFlexibleElementForm(true);
 						}
 					}
@@ -299,7 +264,7 @@ public class AdminImportationSchemeModelsView extends View {
 		                importationSchemeModelsStore, cm);
 		importationSchemeModelsDTOGrid.getView().setForceFit(true);
 		importationSchemeModelsDTOGrid.setAutoHeight(true);
-
+		importationSchemeModelsDTOGrid.addStyleName("importation-scheme-models-grid");
 		return importationSchemeModelsDTOGrid;
 	}
 
@@ -327,12 +292,12 @@ public class AdminImportationSchemeModelsView extends View {
 				                getVariableFlexibleElementsStore().clearFilters();
 				                ImportationSchemeModelDTO importationSchemeDTO = (ImportationSchemeModelDTO) result
 				                                .getEntity();
-				                currentImportationSchemeModel = importationSchemeDTO;
-				                getImportationSchemeModelsStore().update(currentImportationSchemeModel);
+				                currentImportationSchemeModelDTO.setVariableFlexibleElementsDTO(importationSchemeDTO.getVariableFlexibleElementsDTO());
+				                getImportationSchemeModelsStore().update(currentImportationSchemeModelDTO);
 				                getImportationSchemeModelsStore().commitChanges();
-				                importationSchemeModelsGrid.getSelectionModel().select(importationSchemeDTO, false);
+				                importationSchemeModelsGrid.getSelectionModel().select(currentImportationSchemeModelDTO, false);
 				                getVariableFlexibleElementsStore().add(
-				                                importationSchemeDTO.getVariableFlexibleElementsDTO());
+				                				currentImportationSchemeModelDTO.getVariableFlexibleElementsDTO());
 				                getVariableFlexibleElementsStore().commitChanges();
 
 			                }
@@ -341,7 +306,7 @@ public class AdminImportationSchemeModelsView extends View {
 			                public void onFailure(Throwable caught) {
 				                window.hide();
 			                }
-		                }, currentImportationSchemeModel, forKey);
+		                }, currentImportationSchemeModelDTO, forKey);
 		window.add(variableFlexibleElementForm);
 		window.show();
 	}
@@ -371,47 +336,10 @@ public class AdminImportationSchemeModelsView extends View {
 				                                .getEntity();
 				                getImportationSchemeModelsStore().add(schemaDTOUpdated);
 				                getImportationSchemeModelsStore().commitChanges();
+				                currentImportationSchemeModelDTO = schemaDTOUpdated;
 				                getVariableFlexibleElementsStore().removeAll();
 				                getVariableFlexibleElementsStore().clearFilters();
-
-				                final Window windowVarFle = new Window();
-				                // TODO Add title
-				                windowVarFle.setSize(400, 200);
-				                windowVarFle.setPlain(true);
-				                windowVarFle.setModal(true);
-				                windowVarFle.setBlinkModal(true);
-				                windowVarFle.setLayout(new FitLayout());
-				                final VariableFlexibleElementForm variableFlexibleElementForm = new VariableFlexibleElementForm(
-				                                dispatcher, getVariableFlexibleElementsLoadingMonitor(),
-				                                new AsyncCallback<CreateResult>() {
-
-					                                @Override
-					                                public void onSuccess(CreateResult result) {
-						                                windowVarFle.hide();
-						                                getVariableFlexibleElementsStore().removeAll();
-						                                getVariableFlexibleElementsStore().clearFilters();
-						                                ImportationSchemeModelDTO importationSchemeDTO = (ImportationSchemeModelDTO) result
-						                                                .getEntity();
-						                                schemaDTOUpdated.setVariableFlexibleElementsDTO(importationSchemeDTO
-						                                                .getVariableFlexibleElementsDTO());
-						                                getImportationSchemeModelsStore().update(schemaDTOUpdated);
-						                                getImportationSchemeModelsStore().commitChanges();
-						                                importationSchemeModelsGrid.getSelectionModel().select(
-						                                                schemaDTOUpdated, false);
-						                                getVariableFlexibleElementsStore()
-						                                                .add(importationSchemeDTO
-						                                                                .getVariableFlexibleElementsDTO());
-						                                getVariableFlexibleElementsStore().commitChanges();
-
-					                                }
-
-					                                @Override
-					                                public void onFailure(Throwable caught) {
-						                                windowVarFle.hide();
-					                                }
-				                                }, schemaDTOUpdated, forKey);
-				                windowVarFle.add(variableFlexibleElementForm);
-				                windowVarFle.show();
+				                showNewVariableFlexibleElementForm(forKey);
 
 			                }
 
@@ -420,8 +348,41 @@ public class AdminImportationSchemeModelsView extends View {
 				                window.hide();
 			                }
 		                }, model);
-		window.add(importationSchemeModelForm);
-		window.show();
+		
+		GetImportationSchemes cmd = new GetImportationSchemes();
+		if (model instanceof OrgUnitDTO) {
+			cmd.setOrgUnitModelId(Long.valueOf(model.getId()));
+		} else {
+			cmd.setProjectModelId(Long.valueOf(model.getId()));
+		}
+		cmd.setExcludeExistent(true);
+		MaskingAsyncMonitor formMaskingMonitor = new MaskingAsyncMonitor(this, I18N.CONSTANTS.loading());
+		dispatcher.execute(cmd, formMaskingMonitor, new AsyncCallback<ImportationSchemeListResult>() {
+
+			@Override
+			public void onFailure(Throwable caught) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void onSuccess(ImportationSchemeListResult result) {
+				if (result.getList() != null && !result.getList().isEmpty()) {
+					for (ImportationSchemeDTO importationScheme : result.getList()) {
+						if (importationScheme.getVariablesDTO().size() > 0) {
+							importationSchemeModelForm.getSchemasCombo().getStore().add(importationScheme);
+						}
+					}
+					if (importationSchemeModelForm.getSchemasCombo().getStore().getModels().size() != 0) {
+						window.add(importationSchemeModelForm);
+						window.show();
+					} else {
+						MessageBox.alert(I18N.CONSTANTS.adminAddImportationSchemeModel(), "No importation schemes available.", null);
+					}
+				}
+			}
+		});
+		
 
 	}
 
@@ -432,13 +393,48 @@ public class AdminImportationSchemeModelsView extends View {
 	}
 
 	@Override
-	public void confirmDeleteSelected(final ConfirmCallback confirmCallback) {
+	public void confirmDeleteSchemeModelsSelected(final ConfirmCallback confirmCallback) {
 		if (getImportationSchemeModelsSelection().size() == 0) {
 			MessageBox.alert(I18N.CONSTANTS.delete(), I18N.CONSTANTS.adminVariablesDeleteNone(), null);
 		} else {
 			String confirmMessage = "";
 			for (ImportationSchemeModelDTO importationSchemeModelToDelete : getImportationSchemeModelsSelection()) {
 				confirmMessage += importationSchemeModelToDelete.getImportationSchemeDTO().getName() + ", ";
+			}
+			if (!confirmMessage.isEmpty()) {
+				confirmMessage = confirmMessage.substring(0, confirmMessage.lastIndexOf(", "));
+			}
+			confirmMessage = I18N.MESSAGES.confirmDeleteVariables(confirmMessage);
+			MessageBox.confirm(I18N.CONSTANTS.delete(), confirmMessage, new Listener<MessageBoxEvent>() {
+
+				@Override
+				public void handleEvent(MessageBoxEvent be) {
+					if (be.getButtonClicked().getItemId().equals("yes")) {
+						confirmCallback.confirmed();
+					}
+				}
+			});
+		}
+
+	}
+
+	@Override
+	public void confirmDeleteVariableFlexibleElementsSelected(final ConfirmCallback confirmCallback) {
+		if (getVariableFlexibleElementsSelection().size() == 0) {
+			MessageBox.alert(I18N.CONSTANTS.delete(), I18N.CONSTANTS.adminVariablesDeleteNone(), null);
+		} else {
+			String confirmMessage = "";
+			for (VariableFlexibleElementDTO variableFlexibleElementsToDelete : getVariableFlexibleElementsSelection()) {
+				String elementLabel = "";
+				if (ElementTypeEnum.DEFAULT.equals(variableFlexibleElementsToDelete.getFlexibleElementDTO()
+				                .getElementType())) {
+					elementLabel = DefaultFlexibleElementType
+					                .getName(((DefaultFlexibleElementDTO) variableFlexibleElementsToDelete
+					                                .getFlexibleElementDTO()).getType());
+				} else {
+					elementLabel = variableFlexibleElementsToDelete.getFlexibleElementDTO().getElementLabel();
+				}
+				confirmMessage += elementLabel + ", ";
 			}
 			if (!confirmMessage.isEmpty()) {
 				confirmMessage = confirmMessage.substring(0, confirmMessage.lastIndexOf(", "));
@@ -468,6 +464,46 @@ public class AdminImportationSchemeModelsView extends View {
 		return importationSchemeModelsStore;
 	}
 
+	/**
+	 * @return the addVariableFlexibleElementButton
+	 */
+	@Override
+	public Button getAddVariableFlexibleElementButton() {
+		return addVariableFlexibleElementButton;
+	}
+
+	/**
+	 * @return the deleteVariableFlexibleElementButton
+	 */
+	@Override
+	public Button getDeleteVariableFlexibleElementButton() {
+		return deleteVariableFlexibleElementButton;
+	}
+
+	/**
+	 * @return the addImportationSchemeModelButton
+	 */
+	@Override
+	public Button getAddImportationSchemeModelButton() {
+		return addImportationSchemeModelButton;
+	}
+
+	/**
+	 * @return the deleteImportationSchemeModelButton
+	 */
+	@Override
+	public Button getDeleteImportationSchemeModelButton() {
+		return deleteImportationSchemeModelButton;
+	}
+
+	/**
+	 * @param deleteImportationSchemeModelButton
+	 *            the deleteImportationSchemeModelButton to set
+	 */
+	public void setDeleteImportationSchemeModelButton(Button deleteImportationSchemeModelButton) {
+		this.deleteImportationSchemeModelButton = deleteImportationSchemeModelButton;
+	}
+
 	@Override
 	public ListStore<VariableFlexibleElementDTO> getVariableFlexibleElementsStore() {
 		return variableFlexibleElementStore;
@@ -489,63 +525,20 @@ public class AdminImportationSchemeModelsView extends View {
 		return new MaskingAsyncMonitor(importationSchemeModelsGrid, I18N.CONSTANTS.loading());
 	}
 
-	protected void deleteImportationSchemeModels() {
-		List<Long> schemeModelIdsToDelete = new ArrayList<Long>();
-		final List<ImportationSchemeModelDTO> importationSchemeSelection = getImportationSchemeModelsSelection();
-		for (ImportationSchemeModelDTO importationSchemeModel : importationSchemeSelection) {
-			schemeModelIdsToDelete.add(Long.valueOf(importationSchemeModel.getId()));
-		}
-		final DeleteImportationSchemeModels cmdDelete = new DeleteImportationSchemeModels();
-		cmdDelete.setImportationSchemeIdsList(schemeModelIdsToDelete);
-		dispatcher.execute(cmdDelete, getImportationSchemeModelsLoadingMonitor(), new AsyncCallback<VoidResult>() {
-
-			@Override
-			public void onFailure(Throwable caught) {
-				// TODO
-				// Auto-generated
-				// method stub
-
-			}
-
-			@Override
-			public void onSuccess(VoidResult result) {
-				Notification.show(I18N.CONSTANTS.infoConfirmation(),
-				                I18N.CONSTANTS.adminImportationSchemesDeleteConfirm());
-				for (ImportationSchemeModelDTO importationSchemeModelDTO : importationSchemeSelection) {
-					importationSchemeModelsStore.remove(importationSchemeModelDTO);
-				}
-			}
-		});
-
+	/**
+	 * @return the currentImportationSchemeModel
+	 */
+	@Override
+	public ImportationSchemeModelDTO getCurrentImportationSchemeModelDTO() {
+		return currentImportationSchemeModelDTO;
 	}
 
-	protected void deleteVariableFlexibleElements() {
-		List<Long> variableFlexibleElementIdsToDelete = new ArrayList<Long>();
-		final List<VariableFlexibleElementDTO> variableFlexibleElementsSelection = getVariableFlexibleElementsSelection();
-		for (VariableFlexibleElementDTO variableFlexibleElement : variableFlexibleElementsSelection) {
-			variableFlexibleElementIdsToDelete.add(Long.valueOf(variableFlexibleElement.getId()));
-		}
-		final DeleteImportationSchemeModels cmdDelete = new DeleteImportationSchemeModels();
-		cmdDelete.setImportationSchemeIdsList(variableFlexibleElementIdsToDelete);
-		dispatcher.execute(cmdDelete, getImportationSchemeModelsLoadingMonitor(), new AsyncCallback<VoidResult>() {
-
-			@Override
-			public void onFailure(Throwable caught) {
-				// TODO
-				// Auto-generated
-				// method stub
-
-			}
-
-			@Override
-			public void onSuccess(VoidResult result) {
-				Notification.show(I18N.CONSTANTS.infoConfirmation(), I18N.CONSTANTS.adminVariableDeleteConfirm());
-				for (VariableFlexibleElementDTO variableFlexibleElement : variableFlexibleElementsSelection) {
-					variableFlexibleElementStore.remove(variableFlexibleElement);
-				}
-			}
-		});
-
+	/**
+	 * @param currentImportationSchemeModel the currentImportationSchemeModel to set
+	 */
+	@Override
+	public void setCurrentImportationSchemeModelDTO(ImportationSchemeModelDTO currentImportationSchemeModel) {
+		this.currentImportationSchemeModelDTO = currentImportationSchemeModel;
 	}
 
 }

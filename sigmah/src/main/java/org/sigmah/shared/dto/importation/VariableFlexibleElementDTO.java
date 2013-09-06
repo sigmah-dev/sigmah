@@ -11,10 +11,14 @@ public class VariableFlexibleElementDTO extends BaseModelData implements EntityD
 
 	@Override
 	public int getId() {
-		return (Integer) get("id");
+		if (get("id") != null) {
+			return (Integer) get("id");
+		} else {
+			return -1;
+		}
 	}
 
-	public void setId(Integer id) {
+	public void setId(int id) {
 		set("id", id);
 	}
 

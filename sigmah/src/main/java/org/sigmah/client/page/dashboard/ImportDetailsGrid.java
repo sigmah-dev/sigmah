@@ -23,15 +23,19 @@ import org.sigmah.shared.domain.Amendment.Action;
 import org.sigmah.shared.domain.ElementExtractedValue;
 import org.sigmah.shared.domain.ImportDetails;
 import org.sigmah.shared.domain.ProjectModelStatus;
+import org.sigmah.shared.domain.element.BudgetSubFieldType;
 import org.sigmah.shared.domain.element.DefaultFlexibleElementType;
 import org.sigmah.shared.dto.EntityDTO;
-import org.sigmah.shared.dto.ImportUtils.ImportStatusCode;
+import org.sigmah.shared.dto.ImportStatusCode;
 import org.sigmah.shared.dto.OrgUnitDTOLight;
 import org.sigmah.shared.dto.ProjectDTO;
 import org.sigmah.shared.dto.ProjectDTOLight;
+import org.sigmah.shared.dto.element.BudgetElementDTO;
 import org.sigmah.shared.dto.element.BudgetSubFieldDTO;
 import org.sigmah.shared.dto.element.DefaultFlexibleElementDTO;
+import org.sigmah.shared.dto.element.TextAreaElementDTO;
 import org.sigmah.shared.dto.element.handler.ValueEvent;
+import org.sigmah.shared.dto.value.TripletValueDTO;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.event.BaseEvent;
@@ -61,12 +65,15 @@ public class ImportDetailsGrid extends ContentPanel {
 	private ListStore<ImportDetails> entitiesStore;
 	private Authentication authentication;
 	private UserLocalCache cache;
+	private Map<Integer, List<ElementExtractedValue>> selectElementExtractedValue;
 
 	public ImportDetailsGrid(final Dispatcher dispatcher, Authentication authentication, UserLocalCache cache,
 	                List<ImportDetails> entitiesExtracted) {
 		this.dispatcher = dispatcher;
 		this.authentication = authentication;
 		this.cache = cache;
+		
+		selectElementExtractedValue = new HashMap<Integer, List<ElementExtractedValue>>();
 		grid = buildImportGrid();
 		grid.setAutoHeight(true);
 		grid.getView().setForceFit(true);
@@ -232,7 +239,6 @@ public class ImportDetailsGrid extends ContentPanel {
 								public void projectCreatedAsTest(ProjectDTOLight project) {
 									entitiesStore.remove(model);
 									entitiesStore.commitChanges();
-									// Show notification.
 									Notification.show(I18N.CONSTANTS.createProjectSucceeded(),
 									                I18N.CONSTANTS.createProjectSucceededDetails());
 								}
@@ -258,6 +264,17 @@ public class ImportDetailsGrid extends ContentPanel {
 									} else if (DefaultFlexibleElementType.TITLE.equals(defaultElementDTO.getType())) {
 										createProjectWindow.getFullNameField().setValue(
 										                elementExtractedValue.getNewValue().toString());
+									}else if (DefaultFlexibleElementType.BUDGET.equals(defaultElementDTO.getType())) {
+										
+										BudgetElementDTO budgetElement = (BudgetElementDTO) defaultElementDTO;
+										for (BudgetSubFieldDTO budgetSubField : budgetElement.getBudgetSubFieldsDTO()) {
+											if (budgetSubField.getType() != null 
+															&& BudgetSubFieldType.PLANNED.equals(budgetSubField.getType())
+															&& elementExtractedValue.getNewBudgetValues().containsKey(budgetSubField.getId())) {
+												createProjectWindow.getBudgetField().setValue(Double.valueOf(elementExtractedValue.getNewBudgetValues().get(budgetSubField.getId()).toString()));
+											}
+										}
+										
 									}
 								}
 							}
@@ -267,33 +284,33 @@ public class ImportDetailsGrid extends ContentPanel {
 				} else if (ImportStatusCode.PROJECT_FOUND_CODE.equals(model.getEntityStatus())
 				                || ImportStatusCode.ORGUNIT_FOUND_CODE.equals(model.getEntityStatus())) {
 					grid.getSelectionModel().select(model, true);
+					Iterator<EntityDTO> it = model.getEntitiesToImport().keySet().iterator();
+					final EntityDTO foundEntity = (EntityDTO) it.next();
+					selectElementExtractedValue.put(foundEntity.getId(), model.getEntitiesToImport().get(foundEntity));
 					Button confirmButton = new Button(I18N.CONSTANTS.importButtonConfirmDetails());
 					confirmButton.addListener(Events.OnClick, new Listener<BaseEvent>() {
 
 						@Override
 						public void handleEvent(BaseEvent be) {
 							if (model.getEntitiesToImport().keySet().size() != 0) {
-								Iterator<EntityDTO> it = model.getEntitiesToImport().keySet().iterator();
-								final EntityDTO foundEntity = (EntityDTO) it.next();
+								
 								final Window window = new Window();
 								window.setWidth(900);
 								final ElementExtractedValueGrid imw = new ElementExtractedValueGrid(dispatcher,
 								                correspondancesFleValue.get(foundEntity), foundEntity);
-
+								imw.getElementExtractedValuegrid().getSelectionModel().select(selectElementExtractedValue.get(foundEntity.getId()), false);
 								imw.getConfirmButton().addListener(Events.OnClick, new Listener<BaseEvent>() {
 
 									@Override
 									public void handleEvent(BaseEvent be) {
-
+										selectElementExtractedValue.put(foundEntity.getId(), imw.getElementExtractedValuegrid().getSelectionModel().getSelectedItems());
 										window.hide();
-
-										// FIXME
-										// UpdateElements
+										
 									}
 								});
 								window.add(imw);
 								window.setAutoHeight(true);
-
+								window.setResizable(true);
 								window.setPlain(true);
 								window.setModal(true);
 								window.setBlinkModal(true);
@@ -319,14 +336,6 @@ public class ImportDetailsGrid extends ContentPanel {
 
 								@Override
 								public void onFailure(Throwable caught) {
-									// Failures may happen if an other
-									// user changes
-									// the
-									// amendment state.
-									// TODO: we should maybe refresh the
-									// project or
-									// tell
-									// the user to refresh the page.
 									MessageBox.alert(I18N.CONSTANTS.amendmentUnlock(),
 									                I18N.CONSTANTS.amendmentActionError(), null);
 								}
@@ -343,7 +352,8 @@ public class ImportDetailsGrid extends ContentPanel {
 
 					});
 					return unlockButton;
-				} else {
+				} else if (ImportStatusCode.SEVERAL_ORGUNITS_FOUND_CODE.equals(model.getEntityStatus())
+				                || ImportStatusCode.SEVERAL_PROJECTS_FOUND_CODE.equals(model.getEntityStatus())) {
 					Button chooseButton = new Button("CHOOSE");
 
 					final ComboBox<EntityDTO> projectsCombo = new ComboBox<EntityDTO>();
@@ -387,7 +397,8 @@ public class ImportDetailsGrid extends ContentPanel {
 						}
 					});
 					return panel;
-				}
+				} 
+				return null;
 			}
 		});
 
@@ -396,7 +407,6 @@ public class ImportDetailsGrid extends ContentPanel {
 		ColumnModel cm = new ColumnModel(configs);
 		Grid<ImportDetails> entitiesToImportGrid = new Grid<ImportDetails>(entitiesStore, cm);
 		entitiesToImportGrid.setSelectionModel(checkBoxColumn);
-		entitiesToImportGrid.setBorders(true);
 		entitiesToImportGrid.setBorders(true);
 		entitiesToImportGrid.setAutoHeight(true);
 		entitiesToImportGrid.setAutoWidth(false);
@@ -415,16 +425,18 @@ public class ImportDetailsGrid extends ContentPanel {
 				List<ImportDetails> selectedImportDetails = grid.getSelectionModel().getSelectedItems();
 				if (selectedImportDetails.size() > 0) {
 					for (ImportDetails importDetails : selectedImportDetails) {
-						if (importDetails.getEntitiesToImport().keySet().size() != 0) {
+						if (importDetails.getEntitiesToImport().keySet().size() != 0 && ImportStatusCode.isFound(importDetails.getEntityStatus())) {
 							Iterator<EntityDTO> it = importDetails.getEntitiesToImport().keySet().iterator();
 							EntityDTO selectedEntity = (EntityDTO) it.next();
 							List<ValueEvent> eventValues = new ArrayList<ValueEvent>();
-							for (ElementExtractedValue entry : importDetails.getEntitiesToImport().get(selectedEntity)) {
+							for (ElementExtractedValue entry : selectElementExtractedValue.get(selectedEntity.getId())) {
 								if (entry.getElement() != null
 								                && (entry.getNewValue() != null || entry.getNewBudgetValues() != null)) {
 									switch (entry.getElement().getElementType()) {
 									case CHECKBOX:
-										// TODO Not implemented yet
+										if(entry.getNewValue() instanceof Boolean) {
+											eventValues.add(new ValueEvent(entry.getElement(), String.valueOf(entry.getNewValue())));
+										}
 										break;
 									case DEFAULT:
 										DefaultFlexibleElementDTO defaultElementDTO = (DefaultFlexibleElementDTO) entry
@@ -472,16 +484,30 @@ public class ImportDetailsGrid extends ContentPanel {
 										}
 										break;
 									case MESSAGE:
-										// TODO Not implemented yet
+										//Cannot be updated
 										break;
 									case QUESTION:
-										// TODO Not implemented yet
+										eventValues.add(new ValueEvent(entry.getElement(), String.valueOf(entry.getNewValue())));
 										break;
 									case TEXT_AREA:
-										// TODO Not implemented yet
+										if(((TextAreaElementDTO)entry.getElement()).getType().equals('D')){
+											eventValues.add(new ValueEvent(entry.getElement(), String.valueOf(((Date)entry.getNewValue()).getTime())));
+										} else {
+											eventValues.add(new ValueEvent(entry.getElement(), String.valueOf(entry.getNewValue())));
+										}
+										
 										break;
 									case TRIPLETS:
-										// TODO Not implemented yet
+										String[] tripletValues = (String[]) entry.getNewValue();
+										TripletValueDTO addedValue = new TripletValueDTO();
+						                addedValue.setCode(tripletValues[0]);
+						                addedValue.setName(tripletValues[1]);
+						                addedValue.setPeriod(tripletValues[2]);
+
+
+						                // Fires the value change event.
+						                eventValues.add(new ValueEvent(entry.getElement(), addedValue,
+						                        ValueEvent.ChangeType.ADD));
 										break;
 									default:
 										break;

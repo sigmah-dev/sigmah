@@ -85,6 +85,8 @@ public class GetImportInformationHandler implements CommandHandler<GetImportInfo
 						break;
 
 					}
+					inputStream.close();
+					storageProvider.delete(cmd.getFileName());
 					if (importer != null) {
 						ImportInformationResult result = new ImportInformationResult();
 						result.setEntitiesToImport(importer.getEntitiesToImport());

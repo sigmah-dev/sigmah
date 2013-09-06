@@ -32,9 +32,18 @@ public class ImportationSchemePolicy implements EntityPolicy<ImportationScheme> 
 	@Override
 	public Object create(User user, PropertyMap properties) {
 		ImportationSchemeDTO schemaToUpdate = properties.get(AdminUtil.ADMIN_SCHEMA);
-		String name = properties.get(AdminUtil.PROP_SCH_NAME);
-		ImportationSchemeImportType importationSchemeImportType = (ImportationSchemeImportType) properties.get(AdminUtil.PROP_SCH_IMPORT_TYPE);
-		ImportationSchemeFileFormat fileFormat = (ImportationSchemeFileFormat) properties.get(AdminUtil.PROP_SCH_FILE_FORMAT);
+		String name = null;
+		if (properties.containsKey(AdminUtil.PROP_SCH_NAME)) {
+			name = (String) properties.get(AdminUtil.PROP_SCH_NAME);
+		}
+		ImportationSchemeImportType schImportType = null;
+		ImportationSchemeFileFormat schFileFormat = null;
+		if (properties.containsKey(AdminUtil.PROP_SCH_FILE_FORMAT)) {
+			schFileFormat = (ImportationSchemeFileFormat) properties.get(AdminUtil.PROP_SCH_FILE_FORMAT);
+		}
+		if (properties.containsKey(AdminUtil.PROP_SCH_IMPORT_TYPE)) {
+			schImportType = (ImportationSchemeImportType) properties.get(AdminUtil.PROP_SCH_IMPORT_TYPE);
+		}
 		if (schemaToUpdate.getId() > 0) {
 			importationScheme = em.find(ImportationScheme.class, new Integer(schemaToUpdate.getId()).longValue());
 			if (importationScheme != null) {
@@ -43,8 +52,9 @@ public class ImportationSchemePolicy implements EntityPolicy<ImportationScheme> 
 		} else {
 			importationScheme = new ImportationScheme();
 			importationScheme.setName(name);
-			importationScheme.setFileFormat(fileFormat);
-			importationScheme.setImportType(importationSchemeImportType);
+			importationScheme.setFileFormat(schFileFormat);
+			importationScheme.setImportType(schImportType);
+			importationScheme.setFirstRow(0);
 			em.persist(importationScheme);
 		}
 		ImportationSchemeDTO importationSchemeDTO = mapper.map(importationScheme, ImportationSchemeDTO.class);
@@ -61,17 +71,11 @@ public class ImportationSchemePolicy implements EntityPolicy<ImportationScheme> 
 				String schName = changes.get(AdminUtil.PROP_SCH_NAME);
 				importationScheme.setName(schName);
 			}
-			if (changes.containsKey(AdminUtil.PROP_SCH_FILE_FORMAT)) {
-				ImportationSchemeFileFormat schFileFormat = (ImportationSchemeFileFormat) changes.get(AdminUtil.PROP_SCH_FILE_FORMAT);
-				importationScheme.setFileFormat(schFileFormat);
-			}
-			if (changes.containsKey(AdminUtil.PROP_SCH_IMPORT_TYPE)) {
-				ImportationSchemeImportType schImportType = (ImportationSchemeImportType) changes.get(AdminUtil.PROP_SCH_IMPORT_TYPE);
-				importationScheme.setImportType(schImportType);
-			}
 			if (changes.containsKey(AdminUtil.PROP_SCH_FIRST_ROW)) {
 				Integer schFirstRow = (Integer) changes.get(AdminUtil.PROP_SCH_FIRST_ROW);
 				importationScheme.setFirstRow(schFirstRow);;
+			} else {
+				importationScheme.setFirstRow(0);
 			}
 			if (changes.containsKey(AdminUtil.PROP_SCH_SHEET_NAME)) {
 				String schSheetName = (String) changes.get(AdminUtil.PROP_SCH_SHEET_NAME);

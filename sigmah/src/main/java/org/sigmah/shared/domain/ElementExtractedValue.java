@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.sigmah.shared.dto.ElementExtractedValueStatus;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
 
 import com.extjs.gxt.ui.client.data.BaseModel;
@@ -25,6 +26,7 @@ public class ElementExtractedValue extends BaseModel implements Serializable {
 	private FlexibleElementDTO element;
 	private Serializable oldValue;
 	private Serializable newValue;
+	private ElementExtractedValueStatus status;
 	private Map<Integer, String> oldBudgetValues = new HashMap<Integer, String>();
 	private Map<Integer, Serializable> newBudgetValues = new HashMap<Integer, Serializable>();
 
@@ -46,6 +48,20 @@ public class ElementExtractedValue extends BaseModel implements Serializable {
 	public void setElement(FlexibleElementDTO element) {
 		this.element = element;
 	}
+
+	/**
+	 * @return the status
+	 */
+    public ElementExtractedValueStatus getStatus() {
+	    return status;
+    }
+
+	/**
+	 * @param status the status to set
+	 */
+    public void setStatus(ElementExtractedValueStatus status) {
+	    this.status = status;
+    }
 
 	/**
 	 * @return the oldValue

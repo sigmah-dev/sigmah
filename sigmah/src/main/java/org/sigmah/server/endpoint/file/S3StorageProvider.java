@@ -73,4 +73,11 @@ public class S3StorageProvider implements FileStorageProvider {
         }
     }
 
+	@Override
+    public Boolean delete(String storageId) {
+		AmazonS3Client client = new AmazonS3Client(credentials);
+		client.deleteObject(bucketName, storageId);
+	    return true;
+    }
+
 }

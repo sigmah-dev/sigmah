@@ -41,55 +41,27 @@ public class ImportationSchemeModelForm extends FormPanel {
 
 		setWidth(400);
 		setLabelWidth(120);
-		GetImportationSchemes cmd = new GetImportationSchemes();
-		if (model instanceof OrgUnitDTO) {
-			cmd.setOrgUnitModelId(Long.valueOf(model.getId()));
-		} else {
-			cmd.setProjectModelId(Long.valueOf(model.getId()));
-		}
-		cmd.setExcludeExistent(true);
-		MaskingAsyncMonitor formMaskingMonitor = new MaskingAsyncMonitor(this, I18N.CONSTANTS.loading());
-		dispatcher.execute(cmd, formMaskingMonitor, new AsyncCallback<ImportationSchemeListResult>() {
+
+		schemasCombo = new ComboBox<ImportationSchemeDTO>(); 
+		schemasCombo.setFieldLabel(I18N.CONSTANTS.adminImportationScheme());
+		
+		add(schemasCombo);
+		schemasCombo.setDisplayField("name");
+		
+		final ListStore<ImportationSchemeDTO> schemasStore = new ListStore<ImportationSchemeDTO>();
+		schemasCombo.setStore(schemasStore);
+		
+		submitButton = new Button(I18N.CONSTANTS.save());
+		submitButton.addListener(Events.OnClick, new Listener<ButtonEvent>() {
 
 			@Override
-			public void onFailure(Throwable caught) {
-				// TODO Auto-generated method stub
+			public void handleEvent(ButtonEvent be) {
+				createImporationSchemeModel(maskingAsyncMonitor, callback);
 
-			}
-
-			@Override
-			public void onSuccess(ImportationSchemeListResult result) {
-				schemasCombo = new ComboBox<ImportationSchemeDTO>();
-				schemasCombo.setFieldLabel(I18N.CONSTANTS.adminImportationScheme());
-				if (result.getList() != null && !result.getList().isEmpty()) {
-					ListStore<ImportationSchemeDTO> schemasStore = new ListStore<ImportationSchemeDTO>();
-					for (ImportationSchemeDTO importationScheme : result.getList()) {
-						if (importationScheme.getVariablesDTO().size() > 0) {
-							schemasStore.add(importationScheme);
-						}
-					}
-					if (schemasStore.getModels().size() != 0) {
-						schemasCombo.setStore(schemasStore);
-						ImportationSchemeModelForm.this.add(schemasCombo);
-						schemasCombo.setDisplayField("name");
-
-						submitButton = new Button(I18N.CONSTANTS.save());
-						submitButton.addListener(Events.OnClick, new Listener<ButtonEvent>() {
-
-							@Override
-							public void handleEvent(ButtonEvent be) {
-								createImporationSchemeModel(maskingAsyncMonitor, callback);
-
-							}
-						});
-						add(submitButton);
-
-					} else {
-						add(new Text("No importation schemes available."));
-					}
-				}
 			}
 		});
+		add(submitButton);
+		
 
 	}
 
@@ -112,4 +84,12 @@ public class ImportationSchemeModelForm extends FormPanel {
 		CreateEntity cmd = new CreateEntity("ImportationSchemeModel", newImportationSchemeModelProperties);
 		dispatcher.execute(cmd, maskingAsyncMonitor, callback);
 	}
+	
+	/**
+	 * @return the schemasCombo
+	 */
+	public ComboBox<ImportationSchemeDTO> getSchemasCombo() {
+		return schemasCombo;
+	}
+
 }

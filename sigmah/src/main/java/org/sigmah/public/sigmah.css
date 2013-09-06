@@ -1276,3 +1276,9 @@ a.credits-partner-url,a.credits-partner-url:link,a.credits-partner-url:visited,a
 .budget-sub-fields-text {
 	margin-left:20px;
 }
+
+/* --------------------------------------------Importation Scheme Models Grid */
+.importation-scheme-models-grid .x-grid3-row {
+    height: 23px;
+    padding:2px;
+}

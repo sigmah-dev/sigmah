@@ -678,6 +678,13 @@ public class CreateProjectWindow {
 	}
 
 	/**
+	 * @return the budgetField
+	 */
+	public NumberField getBudgetField() {
+		return budgetField;
+	}
+
+	/**
 	 * Initializes and show the window.
 	 */
 	public void show() {

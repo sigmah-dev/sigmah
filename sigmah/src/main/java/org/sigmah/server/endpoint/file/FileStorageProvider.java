@@ -34,4 +34,10 @@ public interface FileStorageProvider {
 	InputStream open(String storageId) throws IOException;
 	
 	
+	/**
+	 * Delete the file of the given id
+	 * @param storageId the unique storage id of the file
+	 * @return boolean indicating if the deletion was succesful
+	 */
+	Boolean delete(String storageId);
 }

@@ -5,8 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.sigmah.shared.domain.importation.ImportationSchemeModel;
 import org.sigmah.shared.dto.EntityDTO;
-import org.sigmah.shared.dto.ImportUtils.ImportStatusCode;
+import org.sigmah.shared.dto.ImportStatusCode;
 
 import com.extjs.gxt.ui.client.data.BaseModel;
 

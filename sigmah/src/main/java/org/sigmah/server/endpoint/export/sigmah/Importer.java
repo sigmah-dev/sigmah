@@ -1,12 +1,16 @@
 package org.sigmah.server.endpoint.export.sigmah;
 
 import java.io.Serializable;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.persistence.EntityManager;
 import javax.servlet.ServletException;
@@ -47,8 +51,9 @@ import org.sigmah.shared.domain.element.TextAreaElement;
 import org.sigmah.shared.domain.element.TripletsListElement;
 import org.sigmah.shared.domain.importation.ImportationSchemeFileFormat;
 import org.sigmah.shared.domain.importation.ImportationSchemeImportType;
+import org.sigmah.shared.dto.ElementExtractedValueStatus;
 import org.sigmah.shared.dto.EntityDTO;
-import org.sigmah.shared.dto.ImportUtils.ImportStatusCode;
+import org.sigmah.shared.dto.ImportStatusCode;
 import org.sigmah.shared.dto.OrgUnitDTO;
 import org.sigmah.shared.dto.OrgUnitDTOLight;
 import org.sigmah.shared.dto.OrgUnitModelDTO;
@@ -57,6 +62,8 @@ import org.sigmah.shared.dto.ProjectModelDTO;
 import org.sigmah.shared.dto.element.BudgetElementDTO;
 import org.sigmah.shared.dto.element.DefaultFlexibleElementDTO;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
+import org.sigmah.shared.dto.element.QuestionChoiceElementDTO;
+import org.sigmah.shared.dto.element.QuestionElementDTO;
 import org.sigmah.shared.dto.element.TextAreaElementDTO;
 import org.sigmah.shared.dto.importation.ImportationSchemeDTO;
 import org.sigmah.shared.dto.importation.ImportationSchemeModelDTO;
@@ -178,10 +185,15 @@ public abstract class Importer {
 				VariableBudgetElementDTO varBudgetElement = (VariableBudgetElementDTO) varfle;
 				for (VariableBudgetSubFieldDTO varBsfDTO : varBudgetElement.getVariableBudgetSubFieldsDTO()) {
 					cellValue = getValueFromVariable(varBsfDTO.getVariableDTO().getReference(), lineNumber, sheetName);
-					Serializable valueForFle = getValueFormatForFlexibleElement(varfle.getFlexibleElementDTO(),
+					Object[] valueStatus = getValueFormatForFlexibleElement(varfle.getFlexibleElementDTO(),
 					                cellValue);
-					elementExtractedValue.getNewBudgetValues().put(varBsfDTO.getBudgetSubFieldDTO().getId(),
-					                valueForFle);
+					if(valueStatus[0] != null) {
+						elementExtractedValue.getNewBudgetValues().put(varBsfDTO.getBudgetSubFieldDTO().getId(),
+										(Serializable) valueStatus[0]);
+					}
+					if(valueStatus[1] != null) {
+						elementExtractedValue.setStatus((ElementExtractedValueStatus) valueStatus[1]);
+					}
 					if (entityDTO != null) {
 						elementExtractedValue.setOldBudgetValues(getBudgetElementValue(varfle.getFlexibleElementDTO(),
 						                entityDTO));
@@ -189,8 +201,14 @@ public abstract class Importer {
 				}
 			} else {
 				cellValue = getValueFromVariable(varfle.getVariableDTO().getReference(), lineNumber, sheetName);
-				Serializable valueForFle = getValueFormatForFlexibleElement(varfle.getFlexibleElementDTO(), cellValue);
-				elementExtractedValue.setNewValue(valueForFle);
+				Object[] valueStatus = getValueFormatForFlexibleElement(varfle.getFlexibleElementDTO(),
+				                cellValue);
+				if(valueStatus[0] != null) {
+					elementExtractedValue.setNewValue((Serializable) valueStatus[0]);
+				}
+				if(valueStatus[1] != null) {
+					elementExtractedValue.setStatus((ElementExtractedValueStatus) valueStatus[1]);
+				}
 			}
 			elementExtractedValue.setElement(varfle.getFlexibleElementDTO());
 			if (entityDTO != null) {
@@ -370,6 +388,8 @@ public abstract class Importer {
 					}
 				}
 
+				// Initializes the importEntity according to the number of
+				// orgUnits found
 				importEntity.setKeyIdentification(fleName + " : " + cellValue);
 				if (mapEntityCorrespondances.size() == 0) {
 					importEntity.setEntityStatus(ImportStatusCode.ORGUNIT_NOT_FOUND_CODE);
@@ -391,7 +411,7 @@ public abstract class Importer {
 				ProjectModelDTO projectModelDTO = schemeModelDTO.getProjectModelDTO();
 
 				if (Log.isDebugEnabled()) {
-					Log.debug("Import for org unit model : " + projectModelDTO.getName());
+					Log.debug("Import for project model : " + projectModelDTO.getName());
 				}
 
 				importEntity.setModelName(projectModelDTO.getName());
@@ -425,6 +445,8 @@ public abstract class Importer {
 
 				}
 
+				// Initializes the importEntity according to the number of
+				// projects found
 				importEntity.setKeyIdentification(fleName + " : " + cellValue);
 				if (mapEntityCorrespondances.size() == 0) {
 					if (mapLockedEntityCorrespondances.size() != 0) {
@@ -460,77 +482,231 @@ public abstract class Importer {
 	 * @param value
 	 * @return
 	 */
-	public Serializable getValueFormatForFlexibleElement(FlexibleElementDTO fleDTO, Object value) {
+	public Object[] getValueFormatForFlexibleElement(FlexibleElementDTO fleDTO, Object value) {
+		Object[] valueStatus = new Object[2];
 		Serializable formattedValue = null;
+		ElementExtractedValueStatus statusCode = null;
+		String stringValue = String.valueOf(value);
 		if (value != null) {
 			switch (fleDTO.getElementType()) {
 			case CHECKBOX:
 				if (value instanceof Boolean) {
 					formattedValue = (Serializable) value;
+					statusCode = ElementExtractedValueStatus.VALID_VALUE;
 				} else if (value instanceof String) {
-					String stringValue = (String) value;
+					String noValue = translator.translate("no", locale);
+					String yesValue = translator.translate("yes", locale);
 					if ("true".equalsIgnoreCase(stringValue) || "false".equalsIgnoreCase(stringValue)) {
 						formattedValue = Boolean.valueOf(stringValue);
+					} else if (noValue.equalsIgnoreCase(stringValue)) {
+						formattedValue = false;
+						statusCode = ElementExtractedValueStatus.VALID_VALUE;
+					} else if (yesValue.equalsIgnoreCase(stringValue)) {
+						formattedValue = true;
+						statusCode = ElementExtractedValueStatus.VALID_VALUE;
 					}
 				}
 				break;
 			case DEFAULT:
 				DefaultFlexibleElementDTO dfDTO = (DefaultFlexibleElementDTO) fleDTO;
-				if (!value.toString().isEmpty()) {
+				if (!stringValue.isEmpty()) {
 					if (DefaultFlexibleElementType.START_DATE.equals(dfDTO.getType())
 					                || DefaultFlexibleElementType.END_DATE.equals(dfDTO.getType())) {
 						if (value instanceof Number) {
-							Long time = Double.valueOf(value.toString()).longValue();
+							Long time = Double.valueOf(stringValue).longValue();
 							formattedValue = new Date(time);
+							statusCode = ElementExtractedValueStatus.VALID_VALUE;
 						} else if (value instanceof Date) {
 							formattedValue = (Date) value;
+							statusCode = ElementExtractedValueStatus.VALID_VALUE;
+						}else if (value instanceof String) {
+							SimpleDateFormat defaultFormat = new SimpleDateFormat("dd/MM/yy");
+							try {
+								formattedValue = defaultFormat.parse(stringValue);
+								statusCode = ElementExtractedValueStatus.VALID_VALUE;
+							} catch (ParseException e) {
+								statusCode = ElementExtractedValueStatus.INVALID_DATE_VALUE;
+							}
 						}
-					} else if (!DefaultFlexibleElementType.BUDGET.equals(dfDTO.getType())) {
-						formattedValue = value.toString();
+					} else if (DefaultFlexibleElementType.BUDGET.equals(dfDTO.getType())) {
+						if(value instanceof String) {
+							try{
+								formattedValue = Double.valueOf(stringValue);
+								statusCode = ElementExtractedValueStatus.VALID_VALUE;
+							} catch(NumberFormatException nfe) {
+								statusCode = ElementExtractedValueStatus.INVALID_NUMBER_VALUE;
+							}
+						} else if (value instanceof Number) {
+							formattedValue = ((Number)value).doubleValue();
+							statusCode = ElementExtractedValueStatus.VALID_VALUE;
+						} else {
+							statusCode = ElementExtractedValueStatus.INVALID_NUMBER_VALUE;
+						}
 					} else {
-						formattedValue = Double.valueOf(value.toString());
+						formattedValue = stringValue;
+						statusCode = ElementExtractedValueStatus.VALID_VALUE;
 					}
 				}
 
 				break;
-			case MESSAGE:
-				formattedValue = String.valueOf(value);
-				break;
 			case QUESTION:
-				// TODO Not implemented yet
+				QuestionElementDTO questionElement = (QuestionElementDTO) fleDTO;
+				if (questionElement.getIsMultiple()) {
+					String[] extractedQuestionValues = stringValue.split("-");
+					List<QuestionChoiceElementDTO> choices = new ArrayList<QuestionChoiceElementDTO>();
+					for (QuestionChoiceElementDTO choice : questionElement.getChoicesDTO()) {
+						String choiceLabel = "";
+						if (choice.getCategoryElementDTO() != null) {
+							choiceLabel = choice.getCategoryElementDTO().getLabel();
+						} else {
+							choiceLabel = choice.getLabel();
+						}
+						for (String questionValue : extractedQuestionValues) {
+							if (choiceLabel.trim().equals(questionValue.trim())) {
+								choices.add(choice);
+							}
+
+						}
+					}
+					if(!choices.isEmpty()){
+						formattedValue = ValueResultUtils.mergeValues(choices);
+						statusCode = ElementExtractedValueStatus.VALID_VALUE;
+					} else {
+						statusCode = ElementExtractedValueStatus.INVALID_QUESTION_VALUE;
+					}
+				} else {
+					for (QuestionChoiceElementDTO choice : questionElement.getChoicesDTO()) {
+						String choiceLabel = "";
+						if (choice.getCategoryElementDTO() != null) {
+							choiceLabel = choice.getCategoryElementDTO().getLabel();
+						} else {
+							choiceLabel = choice.getLabel();
+						}
+						if (choiceLabel.equals(stringValue)) {
+							formattedValue = choice.getId();
+							statusCode = ElementExtractedValueStatus.VALID_VALUE;
+							break;
+						}
+
+					}
+				}
 				break;
 			case TEXT_AREA:
 				TextAreaElementDTO textAreaElementDTO = (TextAreaElementDTO) fleDTO;
 				switch (textAreaElementDTO.getType()) {
 				case 'D': {
 					if (value instanceof Date) {
-						return (Date) value;
+						formattedValue = (Date) value;
+						statusCode = ElementExtractedValueStatus.VALID_VALUE;
+					} else if (value instanceof String) {
+						SimpleDateFormat defaultFormat = new SimpleDateFormat("dd/MM/yyyy");
+						try {
+							formattedValue = defaultFormat.parse(stringValue);
+							statusCode = ElementExtractedValueStatus.VALID_VALUE;
+						} catch (ParseException e) {
+							statusCode = ElementExtractedValueStatus.INVALID_DATE_VALUE;
+						}
+					}
+					
+					if( ElementExtractedValueStatus.VALID_VALUE.equals(statusCode)){
+						Date dateValue  = (Date) formattedValue;
+						Date minValue = textAreaElementDTO.getMinValue() != null ?  new Date(textAreaElementDTO.getMinValue()) : null;
+						Date maxValue =textAreaElementDTO.getMaxValue() != null ?  new Date(textAreaElementDTO.getMaxValue()) : null;
+						boolean isValueCorrect = !((minValue != null && dateValue.before(minValue)) || (maxValue != null && dateValue.after(minValue)));
+						if(!isValueCorrect) {
+							statusCode = ElementExtractedValueStatus.FORBIDDEN_VALUE;
+						}
 					}
 				}
 					break;
 				case 'N': {
-					if (value instanceof Double) {
-						return (Double) value;
+					if (textAreaElementDTO.getIsDecimal()) {
+						if(value instanceof String) {
+							try{
+								formattedValue = Double.valueOf(stringValue);
+								statusCode = ElementExtractedValueStatus.VALID_VALUE;
+							} catch(NumberFormatException nfe) {
+								statusCode = ElementExtractedValueStatus.INVALID_NUMBER_VALUE;
+							}
+						} else if (value instanceof Number) {
+							formattedValue = ((Number)value).doubleValue();
+							statusCode = ElementExtractedValueStatus.VALID_VALUE;
+						} else {
+							statusCode = ElementExtractedValueStatus.INVALID_NUMBER_VALUE;
+						}
+						
+						if( ElementExtractedValueStatus.VALID_VALUE.equals(statusCode)){
+							Double numberValue  = (Double) formattedValue;
+							Long minValue = textAreaElementDTO.getMinValue() != null ?  textAreaElementDTO.getMinValue() : null;
+							Long maxValue =textAreaElementDTO.getMaxValue() != null ?  textAreaElementDTO.getMaxValue() : null;
+							boolean isValueCorrect = !((minValue != null && numberValue < minValue) || (maxValue != null && numberValue > maxValue));
+							if(!isValueCorrect) {
+								statusCode = ElementExtractedValueStatus.FORBIDDEN_VALUE;
+							}
+						}
+					} else {
+						if(value instanceof String) {
+							try{
+								formattedValue = Long.valueOf(stringValue);
+								statusCode = ElementExtractedValueStatus.VALID_VALUE;
+							} catch(NumberFormatException nfe) {
+								statusCode = ElementExtractedValueStatus.INVALID_NUMBER_VALUE;
+							}
+						} else if (value instanceof Number) {
+							formattedValue = ((Number)value).longValue();
+							statusCode = ElementExtractedValueStatus.VALID_VALUE;
+						} else {
+							statusCode = ElementExtractedValueStatus.INVALID_NUMBER_VALUE;
+						}
+						
+						if( ElementExtractedValueStatus.VALID_VALUE.equals(statusCode)){
+							Long numberValue  = (Long) formattedValue;
+							Long minValue = textAreaElementDTO.getMinValue() != null ?  textAreaElementDTO.getMinValue() : null;
+							Long maxValue =textAreaElementDTO.getMaxValue() != null ?  textAreaElementDTO.getMaxValue() : null;
+							boolean isValueCorrect = !((minValue != null && numberValue < minValue) || (maxValue != null && numberValue > maxValue));
+							if(!isValueCorrect) {
+								statusCode = ElementExtractedValueStatus.FORBIDDEN_VALUE;
+							}
+						}
 					}
 				}
 					break;
 				case 'T': {
 					value = String.valueOf(value);
+					statusCode = ElementExtractedValueStatus.VALID_VALUE;
 				}
 				default:
 					break;
 				}
 				break;
 			case TRIPLETS:
-				// TODO Not implemented yet
+				String[] extractedTripletValues = stringValue.split("-");
+				if(extractedTripletValues.length == 3){
+					String[] namePeriod = extractedTripletValues[2].split(":");
+					if(namePeriod.length == 2) {
+						String[] arrayTripletValues = new String[3];
+						arrayTripletValues[0] = extractedTripletValues[1];
+						arrayTripletValues[1] = namePeriod[0];
+						arrayTripletValues[2] = namePeriod[1];
+						formattedValue = arrayTripletValues;
+						statusCode = ElementExtractedValueStatus.VALID_VALUE;
+					} else {
+						formattedValue = extractedTripletValues;
+						statusCode = ElementExtractedValueStatus.VALID_VALUE;
+					}
+					
+				} else {
+					statusCode = ElementExtractedValueStatus.INVALID_TRIPLET_VALUE;
+				}
 				break;
 			default:
 				break;
 
 			}
 		}
-
-		return formattedValue;
+		valueStatus[0] = formattedValue;
+		valueStatus[1] = statusCode;
+		return valueStatus;
 
 	}
 
@@ -605,4 +781,34 @@ public abstract class Importer {
 		return fleName;
 	}
 
+	
+
+	protected int getColumnFromReference(String reference) {
+		int column = 0;
+		Pattern MY_PATTERN = Pattern.compile("[a-zA-Z]+\\.?");
+		Matcher m = MY_PATTERN.matcher(reference);
+		if (m.find()) {
+			String letters = m.group(0);
+			column = 0;
+			for (int i = 0; i < letters.length(); i++) {
+				column = column * 26 + (getNumericValuefromCharacter(letters.charAt(i)) + 1);
+			}
+			if(column > 0) {
+				column -= 1;
+			}
+		}
+
+		return column;
+	}
+
+	protected int getRowFromReference(String reference) {
+		int row = 0;
+		Pattern MY_PATTERN = Pattern.compile("[0-9]+\\.?");
+		Matcher m = MY_PATTERN.matcher(reference);
+		if (m.find()) {
+			String numbers = m.group(0);
+			row = Integer.valueOf(numbers) - 1;
+		}
+		return row;
+	}
 }

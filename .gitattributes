@@ -2699,10 +2699,12 @@ sigmah/src/main/java/org/sigmah/shared/dto/DTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/DTOMapper.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/DeRpcSafeBaseTreeModel.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/DimensionFolder.java -text
+sigmah/src/main/java/org/sigmah/shared/dto/ElementExtractedValueStatus.java -text svneol=unset#text/plain
 sigmah/src/main/java/org/sigmah/shared/dto/EntityDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/ExportUtils.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/GlobalExportDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/GlobalExportSettingsDTO.java -text
+sigmah/src/main/java/org/sigmah/shared/dto/ImportStatusCode.java -text svneol=unset#text/plain
 sigmah/src/main/java/org/sigmah/shared/dto/ImportUtils.java -text svneol=unset#text/plain
 sigmah/src/main/java/org/sigmah/shared/dto/IndicatorDTO.java -text
 sigmah/src/main/java/org/sigmah/shared/dto/IndicatorDataSourceDTO.java -text

@@ -56,5 +56,11 @@ public class LocalStorageProvider implements FileStorageProvider {
         final java.io.File contentFile = new java.io.File(repository, storageId);
         return contentFile;
     }
+    
+    @Override
+    public Boolean delete(String storageId) {
+    	File contentFile = fileForId(storageId);
+    	return contentFile.delete();
+    }
 
 }

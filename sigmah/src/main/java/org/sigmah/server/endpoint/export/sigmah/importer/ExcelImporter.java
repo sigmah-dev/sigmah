@@ -7,6 +7,7 @@ import javax.servlet.ServletException;
 
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -40,7 +41,23 @@ public class ExcelImporter extends Importer {
 
 			switch (scheme.getImportType()) {
 			case ROW:
-				// TODO Not implemented yet
+				Sheet sheet = null;
+				if (scheme.getSheetName() != null && !scheme.getSheetName().isEmpty()) {
+					sheet = workbook.getSheet(scheme.getSheetName());
+				} else if (workbook.getNumberOfSheets() > 0) {
+					sheet = workbook.getSheetAt(0);
+				}
+				if (sheet != null) {
+					int firstRow = 0;
+					if (scheme.getFirstRow() != null) {
+						firstRow = scheme.getFirstRow();
+					}
+
+					for (int i = firstRow; i < sheet.getLastRowNum(); i++) {
+						getCorrespondancePerSheetOrLine(schemeModelDTO, i, scheme.getSheetName());
+					}
+				}
+
 				break;
 			case SEVERAL:
 				for (int i = 0; i < workbook.getNumberOfSheets(); i++) {
@@ -59,41 +76,40 @@ public class ExcelImporter extends Importer {
 	}
 
 	@Override
-	public Object getValueFromVariable(String reference, Integer lineNumber, String sheetName) {
+	public Object getValueFromVariable(String reference, Integer rowNumber, String sheetName) {
 		// Get the cell value
 		// Get the variable value in the document
 		Object cellValue = null;
 		Integer row = 0;
-		Integer cell = 0;
+		Integer column = 0;
 		Sheet hssfsheet;
 		Row excelRow;
 		Cell cellObject;
 		if (reference != null && !reference.isEmpty()) {
 			switch (scheme.getImportType()) {
 			case ROW:
+				if (sheetName != null) {
+					hssfsheet = workbook.getSheet(sheetName);
+					if (hssfsheet != null) {
+						excelRow = hssfsheet.getRow(rowNumber);
+						column = getColumnFromReference(reference);
+						if (excelRow != null) {
+							cellObject = excelRow.getCell(column);
+							cellValue = getCellValue(cellObject);
+						}
+					}
+				}
 				break;
 			case SEVERAL:
-				hssfsheet = workbook.getSheet(sheetName);
-				row = Integer.valueOf(Character.toString(reference.charAt(1))) - 1;
-				cell = getNumericValuefromCharacter(reference.charAt(0));
-				excelRow = hssfsheet.getRow(row);
-				if (excelRow != null) {
-					cellObject = excelRow.getCell(cell);
-					if (cellObject != null) {
-						switch (cellObject.getCellType()) {
-						case HSSFCell.CELL_TYPE_BOOLEAN:
-							cellValue = cellObject.getBooleanCellValue();
-							break;
-
-						case HSSFCell.CELL_TYPE_STRING:
-							cellValue = cellObject.getStringCellValue();
-							break;
-						case HSSFCell.CELL_TYPE_NUMERIC:
-							cellValue = cellObject.getNumericCellValue();
-							break;
-
-						default:
-							break;
+				if (sheetName != null) {
+					hssfsheet = workbook.getSheet(sheetName);
+					if (hssfsheet != null) {
+						row = getRowFromReference(reference);
+						column = getColumnFromReference(reference);
+						excelRow = hssfsheet.getRow(row);
+						if (excelRow != null) {
+							cellObject = excelRow.getCell(column);
+							cellValue = getCellValue(cellObject);
 						}
 					}
 				}
@@ -102,31 +118,25 @@ public class ExcelImporter extends Importer {
 			case UNIQUE:
 				String[] references = reference.trim().split(ImportUtils.SHEET_CELL_SEPARATOR);
 				if (references.length == 2) {
-					hssfsheet = workbook.getSheet(references[0]);
-					row = Integer.valueOf(Character.toString(references[1].charAt(1))) - 1;
-					cell = getNumericValuefromCharacter(references[1].charAt(0));
-					excelRow = hssfsheet.getRow(row);
-					if (excelRow != null) {
-						cellObject = excelRow.getCell(cell);
-						if (cellObject != null) {
-							switch (cellObject.getCellType()) {
-							case HSSFCell.CELL_TYPE_BOOLEAN:
-								cellValue = cellObject.getBooleanCellValue();
-								break;
+					if(references[0] != null) {
+						hssfsheet = workbook.getSheet(references[0]);
+						if(hssfsheet != null) {
+							row = getRowFromReference(references[1]);
+							column = getColumnFromReference(references[1]);
 
-							case HSSFCell.CELL_TYPE_STRING:
-								cellValue = cellObject.getStringCellValue();
-								break;
-							case HSSFCell.CELL_TYPE_NUMERIC:
-								cellValue = cellObject.getNumericCellValue();
-								break;
+							excelRow = hssfsheet.getRow(row);
 
-							default:
-								break;
+							if (excelRow != null) {
+								cellObject = excelRow.getCell(column);
+								cellValue = getCellValue(cellObject);
 							}
 						}
+						
 					}
+					
+					
 				}
+
 				break;
 			default:
 				break;
@@ -135,4 +145,32 @@ public class ExcelImporter extends Importer {
 		}
 		return cellValue;
 	}
+
+	private Object getCellValue(Cell cellObject) {
+		Object cellValue = null;
+		if (cellObject != null) {
+			switch (cellObject.getCellType()) {
+			case HSSFCell.CELL_TYPE_BOOLEAN:
+				cellValue = cellObject.getBooleanCellValue();
+				break;
+
+			case HSSFCell.CELL_TYPE_STRING:
+				cellValue = cellObject.getStringCellValue();
+				break;
+			case HSSFCell.CELL_TYPE_NUMERIC:
+				if (DateUtil.isCellDateFormatted(cellObject)) {
+					cellValue = cellObject.getDateCellValue();
+				} else {
+					cellValue = cellObject.getNumericCellValue();
+				}
+				break;
+
+			default:
+				break;
+			}
+		}
+
+		return cellValue;
+	}
+
 }

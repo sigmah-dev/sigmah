@@ -18,6 +18,7 @@ import org.sigmah.shared.dto.element.BudgetElementDTO;
 import org.sigmah.shared.dto.element.BudgetSubFieldDTO;
 import org.sigmah.shared.dto.element.DefaultFlexibleElementDTO;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
+import org.sigmah.shared.dto.element.MessageElementDTO;
 import org.sigmah.shared.dto.importation.ImportationSchemeModelDTO;
 import org.sigmah.shared.dto.importation.VariableBudgetSubFieldDTO;
 import org.sigmah.shared.dto.importation.VariableDTO;
@@ -46,17 +47,17 @@ public class VariableFlexibleElementForm extends FormPanel {
 	private CheckBox isKeyCheckBox;
 	private Text idKeyText;
 	private Button submitButton;
-	private FlexTable budgetSubFieldspanel;
+	private FlexTable budgetSubFlexTable;
 
 	public VariableFlexibleElementForm(Dispatcher dispatcher, final MaskingAsyncMonitor maskingAsyncMonitor,
-					final AsyncCallback<CreateResult> callback, ImportationSchemeModelDTO importationSchemeModel,
-					final Boolean forKey) {
+	                final AsyncCallback<CreateResult> callback, ImportationSchemeModelDTO importationSchemeModel,
+	                final Boolean forKey) {
 		this.dispatcher = dispatcher;
 		this.importationSchemeModel = importationSchemeModel;
 		setHeaderVisible(false);
 		setWidth(400);
-		
-		budgetSubFieldspanel = new FlexTable();
+
+		budgetSubFlexTable = new FlexTable();
 
 		flexibleElementsCombo = new ComboBox<FlexibleElementDTO>();
 		flexibleElementsCombo.setFieldLabel(I18N.CONSTANTS.adminFlexible());
@@ -72,9 +73,9 @@ public class VariableFlexibleElementForm extends FormPanel {
 		for (FlexibleElementDTO fle : allElements) {
 			if (fle instanceof DefaultFlexibleElementDTO) {
 				((DefaultFlexibleElementDTO) fle).setLabel(DefaultFlexibleElementType
-								.getName(((DefaultFlexibleElementDTO) fle).getType()));
+				                .getName(((DefaultFlexibleElementDTO) fle).getType()));
 				if (fle instanceof BudgetElementDTO) {
-					
+
 					BudgetElementDTO budgetElementDTO = (BudgetElementDTO) fle;
 					int y = 0;
 					for (BudgetSubFieldDTO bsfDTO : budgetElementDTO.getBudgetSubFieldsDTO()) {
@@ -82,35 +83,37 @@ public class VariableFlexibleElementForm extends FormPanel {
 						ListStore<VariableDTO> variableStore = new ListStore<VariableDTO>();
 						variableStore.add(importationSchemeModel.getImportationSchemeDTO().getVariablesDTO());
 						variablesCombo.setStore(variableStore);
-						variablesCombo.setEditable(false);
+						variablesCombo.setEditable(true);
 						variablesCombo.setAllowBlank(false);
 						variablesCombo.setDisplayField("name");
-						
+
 						String budgetSubFieldName = bsfDTO.getLabel();
 						if (bsfDTO.getType() != null) {
 							budgetSubFieldName = BudgetSubFieldType.getName(bsfDTO.getType());
 						}
 						Text budgetText = new Text(budgetSubFieldName);
-						budgetSubFieldspanel.setWidget(y, 0, budgetText);
-						budgetSubFieldspanel.setWidget(y, 1, variablesCombo);
+						budgetSubFlexTable.setWidget(y, 0, budgetText);
+						budgetSubFlexTable.setWidget(y, 1, variablesCombo);
 						CheckBox checkBox = new CheckBox();
 						checkBox.setData("budgetSubFieldId", bsfDTO.getId());
 						budgetText.setVisible(true);
-						budgetSubFieldspanel.setWidget(y, 2, checkBox);
-						
+						budgetSubFlexTable.setWidget(y, 2, checkBox);
+
 						y++;
 					}
-					
+					budgetSubFlexTable.setCellPadding(2);
 				}
 			}
-			if(fle instanceof DefaultFlexibleElementDTO){
+			if (fle instanceof DefaultFlexibleElementDTO) {
 				DefaultFlexibleElementDTO defaultElement = (DefaultFlexibleElementDTO) fle;
-				if(!(DefaultFlexibleElementType.COUNTRY.equals(defaultElement.getType())
-								|| DefaultFlexibleElementType.ORG_UNIT.equals(defaultElement.getType())
-								|| DefaultFlexibleElementType.MANAGER.equals(defaultElement.getType()))
-								|| DefaultFlexibleElementType.OWNER.equals(defaultElement.getType())){
+				if (!(DefaultFlexibleElementType.COUNTRY.equals(defaultElement.getType())
+				                || DefaultFlexibleElementType.ORG_UNIT.equals(defaultElement.getType()) || DefaultFlexibleElementType.MANAGER
+				                    .equals(defaultElement.getType()))
+				                || DefaultFlexibleElementType.OWNER.equals(defaultElement.getType())) {
 					flexibleElementStore.add(fle);
 				}
+			} else if (!(fle instanceof MessageElementDTO)) {
+				flexibleElementStore.add(fle);
 			}
 		}
 
@@ -130,7 +133,6 @@ public class VariableFlexibleElementForm extends FormPanel {
 		variablesCombo.setDisplayField("name");
 
 		for (VariableFlexibleElementDTO varfle : importationSchemeModel.getVariableFlexibleElementsDTO()) {
-			variableStore.remove(varfle.getVariableDTO());
 			flexibleElementStore.remove(varfle.getFlexibleElementDTO());
 		}
 
@@ -139,11 +141,11 @@ public class VariableFlexibleElementForm extends FormPanel {
 			@Override
 			public void handleEvent(BaseEvent be) {
 				if (flexibleElementsCombo.getValue() instanceof BudgetElementDTO) {
-					budgetSubFieldspanel.setVisible(true);
+					budgetSubFlexTable.setVisible(true);
 					variablesCombo.hide();
 					variablesCombo.setAllowBlank(true);
 				} else {
-					budgetSubFieldspanel.setVisible(false);
+					budgetSubFlexTable.setVisible(false);
 					variablesCombo.show();
 					variablesCombo.setAllowBlank(false);
 				}
@@ -155,11 +157,10 @@ public class VariableFlexibleElementForm extends FormPanel {
 		add(flexibleElementsCombo);
 
 		add(variablesCombo);
-		
 
-		add(budgetSubFieldspanel);
-		budgetSubFieldspanel.setVisible(false);
-		
+		add(budgetSubFlexTable);
+		budgetSubFlexTable.setVisible(false);
+
 		isKeyCheckBox = new CheckBox();
 		isKeyCheckBox.setBoxLabel(I18N.CONSTANTS.adminImportKeyIdentification());
 		isKeyCheckBox.disable();
@@ -176,10 +177,10 @@ public class VariableFlexibleElementForm extends FormPanel {
 
 				@Override
 				public void handleEvent(BaseEvent be) {
-					if (flexibleElementsCombo.getValue() != null &&
-									(ElementTypeEnum.DEFAULT.equals(flexibleElementsCombo.getValue().getElementType())
-									|| ElementTypeEnum.TEXT_AREA.equals(flexibleElementsCombo.getValue()
-													.getElementType()))) {
+					if (flexibleElementsCombo.getValue() != null
+					                && (ElementTypeEnum.DEFAULT.equals(flexibleElementsCombo.getValue()
+					                                .getElementType()) || ElementTypeEnum.TEXT_AREA
+					                                .equals(flexibleElementsCombo.getValue().getElementType()))) {
 						isKeyCheckBox.setValue(true);
 					} else {
 						isKeyCheckBox.disable();
@@ -200,7 +201,7 @@ public class VariableFlexibleElementForm extends FormPanel {
 						createVariableFlexibleElement(maskingAsyncMonitor, callback, forKey);
 					} else {
 						MessageBox.alert(I18N.CONSTANTS.adminImportKeyIdentification(),
-										I18N.CONSTANTS.adminImportKeyIdentificationMessage(), null);
+						                I18N.CONSTANTS.adminImportKeyIdentificationMessage(), null);
 
 					}
 				} else {
@@ -215,28 +216,29 @@ public class VariableFlexibleElementForm extends FormPanel {
 	}
 
 	private void createVariableFlexibleElement(MaskingAsyncMonitor maskingAsyncMonitor,
-					AsyncCallback<CreateResult> callback, Boolean forKey) {
+	                AsyncCallback<CreateResult> callback, Boolean forKey) {
 		if (!this.isValid()) {
 			MessageBox.alert(I18N.CONSTANTS.createFormIncomplete(),
-							I18N.MESSAGES.createFormIncompleteDetails(I18N.CONSTANTS.adminImportVariable()), null);
+			                I18N.MESSAGES.createFormIncompleteDetails(I18N.CONSTANTS.adminImportVariable()), null);
 			return;
 		}
 		Map<String, Object> newVariableFlexibleElementProperties = new HashMap<String, Object>();
 		newVariableFlexibleElementProperties.put(AdminUtil.ADMIN_IMPORTATION_SCHEME_MODEL, importationSchemeModel);
 		newVariableFlexibleElementProperties.put(AdminUtil.PROP_FX_FLEXIBLE_ELEMENT, flexibleElementsCombo.getValue());
-		if(flexibleElementsCombo.getValue() instanceof BudgetElementDTO){
+		if (flexibleElementsCombo.getValue() instanceof BudgetElementDTO) {
 			List<VariableBudgetSubFieldDTO> listBudgetSubFields = new ArrayList<VariableBudgetSubFieldDTO>();
-			for (int i = 0; i < budgetSubFieldspanel.getRowCount(); i++) {
-				if (budgetSubFieldspanel.getWidget(i, 1) != null) {
-					CheckBox budgetSubFieldCheckbox = (CheckBox) budgetSubFieldspanel.getWidget(i, 2);
-					if(budgetSubFieldCheckbox.getValue()){
+			for (int i = 0; i < budgetSubFlexTable.getRowCount(); i++) {
+				if (budgetSubFlexTable.getWidget(i, 1) != null) {
+					CheckBox budgetSubFieldCheckbox = (CheckBox) budgetSubFlexTable.getWidget(i, 2);
+					if (budgetSubFieldCheckbox.getValue()) {
 						Integer budgetSubFieldId = budgetSubFieldCheckbox.getData("budgetSubFieldId");
 						if (budgetSubFieldId != null) {
 							VariableBudgetSubFieldDTO vbsf = new VariableBudgetSubFieldDTO();
 							BudgetSubFieldDTO bsf = new BudgetSubFieldDTO();
 							bsf.setId(budgetSubFieldId);
 							vbsf.setBudgetSubFieldDTO(bsf);
-							ComboBox<VariableDTO> budgetSubFieldCombo = (ComboBox<VariableDTO>) budgetSubFieldspanel.getWidget(i, 1);
+							ComboBox<VariableDTO> budgetSubFieldCombo = (ComboBox<VariableDTO>) budgetSubFlexTable
+							                .getWidget(i, 1);
 							vbsf.setVariableDTO(budgetSubFieldCombo.getValue());
 							listBudgetSubFields.add(vbsf);
 						}
