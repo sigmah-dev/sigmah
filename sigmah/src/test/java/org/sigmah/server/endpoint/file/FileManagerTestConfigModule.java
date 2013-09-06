@@ -2,18 +2,13 @@ package org.sigmah.server.endpoint.file;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 
 import com.google.inject.AbstractModule;
-import com.google.inject.Provides;
-import com.google.inject.Singleton;
 
 public class FileManagerTestConfigModule extends AbstractModule {
 
@@ -39,6 +34,16 @@ public class FileManagerTestConfigModule extends AbstractModule {
 		public InputStream open(String storageId) throws IOException {
 			return new ByteArrayInputStream(files.get(storageId).toByteArray());
 		}
+
+		@Override
+        public Boolean delete(String storageId) {
+			ByteArrayOutputStream baos = files.remove(storageId);
+			Boolean deleted = false;
+			if(baos != null) {
+				deleted = true;
+			} 
+	        return deleted;
+        }
 		
 		
 		
