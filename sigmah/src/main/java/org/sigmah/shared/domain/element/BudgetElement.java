@@ -10,6 +10,7 @@ import javax.persistence.InheritanceType;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.OrderBy;
 import javax.persistence.Table;
 /**
  * 
@@ -31,6 +32,7 @@ public class BudgetElement extends DefaultFlexibleElement {
     private BudgetSubField ratioDivisor;
 
     @OneToMany(mappedBy = "budgetElement", cascade = CascadeType.ALL)
+    @OrderBy("fieldOrder")
 	public List<BudgetSubField> getBudgetSubFields() {
 	    return budgetSubFields;
     }

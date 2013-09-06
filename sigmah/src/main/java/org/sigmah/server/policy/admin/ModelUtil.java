@@ -253,12 +253,14 @@ public class ModelUtil {
 						if (b != null) {
 							budgetFieldsToDelete.remove(b);
 							b.setLabel(budgetFieldDTO.getLabel());
+							b.setFieldOrder(budgetFieldDTO.getFieldOrder());
 							b = em.merge(b);
 							budgetElement.getBudgetSubFields().add(b);
 						}
 					} else {
 						BudgetSubField budgetSubFieldToPersist = new BudgetSubField();
 						budgetSubFieldToPersist.setLabel(budgetFieldDTO.getLabel());
+						budgetSubFieldToPersist.setFieldOrder(budgetFieldDTO.getFieldOrder());
 						budgetSubFieldToPersist.setBudgetElement(budgetElement);
 						em.persist(budgetSubFieldToPersist);
 						budgetElement.getBudgetSubFields().add(budgetSubFieldToPersist);

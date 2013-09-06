@@ -571,7 +571,7 @@ public class ElementForm extends ContentPanel {
 												@Override
 												public void onClick(ClickEvent arg0) {
 													final Window window = new Window();
-													window.setSize(300, 200);
+													window.setSize(400, 200);
 													window.setPlain(true);
 													window.setModal(true);
 													window.setBlinkModal(true);
@@ -1151,6 +1151,7 @@ public class ElementForm extends ContentPanel {
 				if (budgetFields.getWidget(i, 0) != null) {
 					Object budgetFieldData = ((Text) budgetFields.getWidget(i, 0)).getData("budgetField");
 					if (budgetFieldData != null) {
+						((BudgetSubFieldDTO) budgetFieldData).setFieldOrder(i);
 						budgetSubFieldsToUpdate.add((BudgetSubFieldDTO) budgetFieldData);
 					}
 				}
@@ -1515,7 +1516,7 @@ public class ElementForm extends ContentPanel {
 					@Override
 					public void onClick(ClickEvent arg0) {
 						final Window window = new Window();
-						window.setSize(300, 200);
+						window.setSize(400, 200);
 						window.setPlain(true);
 						window.setModal(true);
 						window.setBlinkModal(true);

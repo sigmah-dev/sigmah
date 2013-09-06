@@ -806,7 +806,7 @@ public class ProjectsListPanel {
             		ratioDivisorLabel =model.getRatioDivisorLabel();
             	}
             	String titleRatioLabel = "(" + ratioDividendLabel + "/" +  ratioDivisorLabel+ ")";
-            	if(model.getRatioDividendValue() != null || model.getRatioDivisorValue() != null){
+            	if(model.getRatioDividendValue() != null && model.getRatioDivisorValue() != null){
             		return new RatioBar(NumberUtils.ratio(model.getRatioDividendValue(), model.getRatioDivisorValue()),titleRatioLabel);
             	}else {
             		return new RatioBar(0.0);

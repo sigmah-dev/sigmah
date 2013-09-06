@@ -128,16 +128,19 @@ public class ProjectModelPolicy implements EntityPolicy<ProjectModel> {
 
 						List<BudgetSubField> budgetSubFields = new ArrayList<BudgetSubField>();
 						// Adds the 3 default budget sub fields
+						int y = 1;
 						for (BudgetSubFieldType type : BudgetSubFieldType.values()) {
 							BudgetSubField b = new BudgetSubField();
 							b.setBudgetElement(((BudgetElement) defaultElement));
 							b.setType(type);
+							b.setFieldOrder(y);
 							if (BudgetSubFieldType.PLANNED.equals(type)) {
-								((BudgetElement) defaultElement).setRatioDividend(b);
-							} else if (BudgetSubFieldType.SPENT.equals(type)) {
 								((BudgetElement) defaultElement).setRatioDivisor(b);
+							} else if (BudgetSubFieldType.SPENT.equals(type)) {
+								((BudgetElement) defaultElement).setRatioDividend(b);
 							}
 							budgetSubFields.add(b);
+							y++;
 						}
 						((BudgetElement) defaultElement).setBudgetSubFields(budgetSubFields);
 					} else {
