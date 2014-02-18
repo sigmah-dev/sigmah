@@ -164,7 +164,7 @@ public class ProjectPresenter implements Frame, TabPage {
 	// project is to be loaded
 	// into view. Maybe a SubProjectPresenter interface? Then projectIndicators
 	// field can be removed below
-	private final static ArrayList<SubPresenter> presenters = new ArrayList<SubPresenter>();
+	private final ArrayList<SubPresenter> presenters = new ArrayList<SubPresenter>();
 
 	@Inject
 	public ProjectPresenter(final Dispatcher dispatcher, View view, Authentication authentication,
@@ -194,18 +194,18 @@ public class ProjectPresenter implements Frame, TabPage {
 		// For development.
 		// final DummyPresenter dummyPresenter = new DummyPresenter();
 
-		ProjectPresenter.presenters
+		this.presenters
 		                .add(new ProjectDashboardPresenter(dispatcher, eventBus, authentication, this, cache));
-		ProjectPresenter.presenters.add(new ProjectDetailsPresenter(eventBus, dispatcher, authentication, this, cache));
+		this.presenters.add(new ProjectDetailsPresenter(eventBus, dispatcher, authentication, this, cache));
 		if (ProfileUtils.isGranted(authentication, GlobalPermissionEnum.VIEW_LOGFRAME))
-			ProjectPresenter.presenters.add(new ProjectLogFramePresenter(eventBus, dispatcher, authentication, this));
+			this.presenters.add(new ProjectLogFramePresenter(eventBus, dispatcher, authentication, this));
 		if (ProfileUtils.isGranted(authentication, GlobalPermissionEnum.VIEW_INDICATOR)) {
-			ProjectPresenter.presenters.add(projectIndicators);
-			ProjectPresenter.presenters.add(pivot);
+			this.presenters.add(projectIndicators);
+			this.presenters.add(pivot);
 		}
 		if (ProfileUtils.isGranted(authentication, GlobalPermissionEnum.VIEW_AGENDA))
-			ProjectPresenter.presenters.add(new ProjectCalendarPresenter(dispatcher, authentication, this));
-		ProjectPresenter.presenters.add(new ProjectReportsPresenter(authentication, dispatcher, eventBus, this));
+			this.presenters.add(new ProjectCalendarPresenter(dispatcher, authentication, this));
+		this.presenters.add(new ProjectReportsPresenter(authentication, dispatcher, eventBus, this));
 
 		for (int i = 0; i < MAIN_TABS.size(); i++) {
 			final int index = i;
