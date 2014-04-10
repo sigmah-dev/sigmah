@@ -547,7 +547,7 @@
 					<gwtVersion>${com.google.gwt.version}</gwtVersion>
 					<port>9090</port>
 					<module>org.sigmah.ActivityInfoProduction</module>
-					<extraJvmArgs>-Xmx512M -Xss1M</extraJvmArgs>
+					<extraJvmArgs>-Xmx512M -Xss1M -XX:MaxPermSize=512M</extraJvmArgs>
 				</configuration>
 
 				<executions>
