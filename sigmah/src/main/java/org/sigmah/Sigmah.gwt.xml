@@ -48,7 +48,9 @@
     <!-- Specify the app entry point class. -->
     <entry-point class='org.sigmah.client.SigmahEntryPoint' />
 
- 	
+	<!-- Generating HTML5 manifest -->
+	<define-linker class="org.sigmah.linker.ManifestGenerationLinker" name="manifest_generation" />
+	<add-linker name="manifest_generation" />
  
     <!-- Enable other locales -->
     <extend-property name="locale" values="en,fr,es" />

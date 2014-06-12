@@ -746,6 +746,7 @@ sigmah/src/main/java/org/sigmah/client/util/SortInfoEqualityChecker.java -text
 sigmah/src/main/java/org/sigmah/client/util/TreeGridCheckboxSelectionModel.java -text
 sigmah/src/main/java/org/sigmah/client/util/state/GXTStateManager.java -text
 sigmah/src/main/java/org/sigmah/client/util/state/IStateManager.java -text
+sigmah/src/main/java/org/sigmah/linker/ManifestGenerationLinker.java -text
 sigmah/src/main/java/org/sigmah/login/Login.gwt.xml -text
 sigmah/src/main/java/org/sigmah/login/client/LoginEntryPoint.java -text
 sigmah/src/main/java/org/sigmah/login/client/LoginException.java -text

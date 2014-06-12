@@ -20,6 +20,7 @@ import org.sigmah.shared.command.RemoteCommandServiceAsync;
 @Singleton
 public class RemoteServiceProvider implements Provider<RemoteCommandServiceAsync> {
 
+	@Override
     public RemoteCommandServiceAsync get() {
         RemoteCommandServiceAsync remoteService = (RemoteCommandServiceAsync)
                 GWT.create(RemoteCommandService.class);
