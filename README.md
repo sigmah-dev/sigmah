@@ -3,8 +3,11 @@ Sigmah
 
 Sigmah is an initiative by a group of NGOs to develop open source project management software for the international aid sector. (www.sigmah.org)
 
+
 Sigmah codebase is released with the GPL license and is available on GitHub: https://github.com/sigmah-dev/sigmah/.
-Sigmah issues (bugs and feature requests) are centralized on Sigmah Mantis Issue tracker: http://www.sigmah.org/
+
+Sigmah issues (bugs and feature requests) are centralized on Sigmah Mantis Issue tracker: http://www.sigmah.org/issues/
+
 Sigmah technical documentation is available currently in past Google Code forge wiki: https://code.google.com/p/sigma-h/wiki/Index
 
 
