@@ -1,11 +1,17 @@
 Sigmah
 ====
 
-Sigmah is an open source, web-based project monitoring and management system for the UN, NGOs, and other actors working in emergency relief, post-conflict, and development fields.
+Sigmah is an initiative by a group of NGOs to develop open source project management software for the international aid sector. (www.sigmah.org)
 
-Sigmah is based on ActivityInfo v0.6 and succeeds Dynamic COMPAS.
+Sigmah codebase is released with the GPL license and is available on GitHub: https://github.com/sigmah-dev/sigmah/.
+Sigmah issues (bugs and feature requests) are centralized on Sigmah Mantis Issue tracker: http://www.sigmah.org/
+Sigmah technical documentation is available currently in past Google Code forge wiki: https://code.google.com/p/sigma-h/wiki/Index
 
-For more information about Sigmah and its evolution, please visit www.sigmah.org.
+
+New to Sigmah?
+===
+Welcome!
+If you are new and want to contribute to Sigmah, please start by reading the Contributor Guide https://code.google.com/p/sigma-h/wiki/ContributorGuide .
 
 
 Index of Sigmah's technical documentation
@@ -24,5 +30,4 @@ Project planning management
    
    
    
-Mantis Integration Testing ## Delete this line. This should not be here 
 
