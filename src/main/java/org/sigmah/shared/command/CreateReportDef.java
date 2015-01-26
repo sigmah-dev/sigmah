@@ -1,28 +1,21 @@
-/*
- * All Sigmah code is released under the GNU General Public License v3
- * See COPYRIGHT.txt and LICENSE.txt.
- */
-
 package org.sigmah.shared.command;
 
+import org.sigmah.shared.command.base.AbstractCommand;
 import org.sigmah.shared.command.result.CreateResult;
 
-
 /**
- *
  * Creates a new Report Definition
  *
- * Returns {@link org.sigmah.shared.command.result.CreateResult}
- *
  * @author Alex Bertram
+ * @author Denis Colliot (dcolliot@ideia.fr)
  */
-public class CreateReportDef implements Command<CreateResult>{
-	
+public class CreateReportDef extends AbstractCommand<CreateResult> {
+
 	private String xml;
 	private Integer databaseId;
-	
+
 	protected CreateReportDef() {
-		
+		// Serialization.
 	}
 
 	public CreateReportDef(int databaseId, String xml) {

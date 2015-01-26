@@ -2,35 +2,35 @@ package org.sigmah.shared.command;
 
 import java.util.List;
 
+import org.sigmah.shared.command.base.AbstractCommand;
 import org.sigmah.shared.command.result.VoidResult;
 
-public class DeleteImportationSchemes implements Command<VoidResult>{
+/**
+ * @author Denis Colliot (dcolliot@ideia.fr)
+ */
+public class DeleteImportationSchemes extends AbstractCommand<VoidResult> {
 
-	/**
-	 * 
-	 */
-    private static final long serialVersionUID = 371315467160738977L;
-    
-    private List<Long> schemaIdsList;
-    private List<Long> variableIdsList;
-    
-    public DeleteImportationSchemes(){}
-    
-    
-	public List<Long> getSchemaIdsList() {
-	    return schemaIdsList;
-    }
-	
-	public void setSchemaIdsList(List<Long> schemaIdsList) {
-	    this.schemaIdsList = schemaIdsList;
-    }
+	private List<Integer> schemaIdsList;
+	private List<Integer> variableIdsList;
 
-	public List<Long> getVariableIdsList() {
-	    return variableIdsList;
-    }
+	public DeleteImportationSchemes() {
+		// Serialization.
+	}
 
-	public void setVariableIdsList(List<Long> variableIdsList) {
-	    this.variableIdsList = variableIdsList;
-    }
+	public List<Integer> getSchemaIdsList() {
+		return schemaIdsList;
+	}
+
+	public void setSchemaIdsList(List<Integer> schemaIdsList) {
+		this.schemaIdsList = schemaIdsList;
+	}
+
+	public List<Integer> getVariableIdsList() {
+		return variableIdsList;
+	}
+
+	public void setVariableIdsList(List<Integer> variableIdsList) {
+		this.variableIdsList = variableIdsList;
+	}
 
 }

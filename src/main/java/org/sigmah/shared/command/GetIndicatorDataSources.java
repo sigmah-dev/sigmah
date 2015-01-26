@@ -1,30 +1,31 @@
-/*
- * All Sigmah code is released under the GNU General Public License v3
- * See COPYRIGHT.txt and LICENSE.txt.
- */
-
 package org.sigmah.shared.command;
 
-import org.sigmah.shared.command.result.IndicatorDataSourceList;
+import org.sigmah.shared.command.base.AbstractCommand;
+import org.sigmah.shared.command.result.ListResult;
+import org.sigmah.shared.dto.IndicatorDataSourceDTO;
 
 /**
- * Retrieves the indicator DataSources for the given indicator
+ * Retrieves the indicator DataSources for the given indicator.
+ * 
+ * @author Denis Colliot (dcolliot@ideia.fr)
  */
-public class GetIndicatorDataSources implements Command<IndicatorDataSourceList> {
-    private int indicatorId;
+public class GetIndicatorDataSources extends AbstractCommand<ListResult<IndicatorDataSourceDTO>> {
 
-    public GetIndicatorDataSources() {
-    }
+	private int indicatorId;
 
-    public GetIndicatorDataSources(int indicatorId) {
-        this.indicatorId = indicatorId;
-    }
+	public GetIndicatorDataSources() {
+		// Serialization.
+	}
 
-    public int getIndicatorId() {
-        return indicatorId;
-    }
+	public GetIndicatorDataSources(int indicatorId) {
+		this.indicatorId = indicatorId;
+	}
 
-    public void setIndicatorId(int indicatorId) {
-        this.indicatorId = indicatorId;
-    }
+	public int getIndicatorId() {
+		return indicatorId;
+	}
+
+	public void setIndicatorId(int indicatorId) {
+		this.indicatorId = indicatorId;
+	}
 }

@@ -1,26 +1,46 @@
-/*
- * All Sigmah code is released under the GNU General Public License v3
- * See COPYRIGHT.txt and LICENSE.txt.
- */
-
 package org.sigmah.server.domain;
-
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
+import javax.validation.constraints.NotNull;
+
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.sigmah.server.domain.base.EmbeddableEntity;
+import org.sigmah.server.domain.util.EntityConstants;
 
 /**
+ * <p>
+ * Attribute value id - Composite primary key for {@link AttributeValue}.<br/>
+ * Not an entity.
+ * </p>
  * 
  * @author Alex Bertram
- *
+ * @author Denis Colliot (dcolliot@ideia.fr)
  */
 @Embeddable
-public class AttributeValueId implements java.io.Serializable {
+public class AttributeValueId implements EmbeddableEntity {
 
+	/**
+	 * Serial version UID.
+	 */
+	private static final long serialVersionUID = 8255967204777550586L;
+
+	@Column(name = EntityConstants.SITE_COLUMN_ID, nullable = false)
+	@NotNull
 	private int siteId;
+
+	@Column(name = EntityConstants.ATTRIBUTE_COLUMN_ID, nullable = false)
+	@NotNull
 	private int attributeId;
 
+	// --------------------------------------------------------------------------------
+	//
+	// METHODS.
+	//
+	// --------------------------------------------------------------------------------
+
 	public AttributeValueId() {
+		// Required empty constructor.
 	}
 
 	public AttributeValueId(int siteId, int attributeId) {
@@ -28,7 +48,61 @@ public class AttributeValueId implements java.io.Serializable {
 		this.attributeId = attributeId;
 	}
 
-	@Column(name = "SiteId", nullable = false)
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String toString() {
+		final ToStringBuilder builder = new ToStringBuilder(this);
+
+		builder.append("siteId", siteId);
+		builder.append("attributeId", attributeId);
+
+		return builder.toString();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + attributeId;
+		result = prime * result + siteId;
+		return result;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (!(obj instanceof AttributeValueId)) {
+			return false;
+		}
+		AttributeValueId other = (AttributeValueId) obj;
+		if (attributeId != other.attributeId) {
+			return false;
+		}
+		if (siteId != other.siteId) {
+			return false;
+		}
+		return true;
+	}
+
+	// --------------------------------------------------------------------------------
+	//
+	// GETTERS & SETTERS.
+	//
+	// --------------------------------------------------------------------------------
+
 	public int getSiteId() {
 		return this.siteId;
 	}
@@ -37,37 +111,12 @@ public class AttributeValueId implements java.io.Serializable {
 		this.siteId = siteId;
 	}
 
-	@Column(name = "AttributeId", nullable = false)
 	public int getAttributeId() {
 		return this.attributeId;
 	}
 
 	public void setAttributeId(int attributeId) {
 		this.attributeId = attributeId;
-	}
-
-	public boolean equals(Object other) {
-		if ((this == other)) {
-            return true;
-        }
-		if ((other == null)) {
-            return false;
-        }
-		if (!(other instanceof AttributeValueId)) {
-            return false;
-        }
-		AttributeValueId castOther = (AttributeValueId) other;
-
-		return (this.getSiteId() == castOther.getSiteId())
-		&& (this.getAttributeId() == castOther.getAttributeId());
-	}
-
-	public int hashCode() {
-		int result = 17;
-
-		result = 37 * result + this.getSiteId();
-		result = 37 * result + this.getAttributeId();
-		return result;
 	}
 
 }

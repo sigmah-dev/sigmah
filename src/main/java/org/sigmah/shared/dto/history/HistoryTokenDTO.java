@@ -2,37 +2,40 @@ package org.sigmah.shared.dto.history;
 
 import java.io.Serializable;
 
-import org.sigmah.shared.dto.element.handler.ValueEvent.ChangeType;
+import org.sigmah.shared.dto.referential.ValueEventChangeType;
 
 public class HistoryTokenDTO implements Serializable {
 
-    private static final long serialVersionUID = -2644629638564832900L;
+	/**
+	 * Serial version UID.
+	 */
+	private static final long serialVersionUID = -2644629638564832900L;
 
-    private String value;
-    private ChangeType type;
+	private String value;
+	private ValueEventChangeType type;
 
-    public HistoryTokenDTO() {
-    }
+	public HistoryTokenDTO() {
+	}
 
-    public HistoryTokenDTO(String value, ChangeType type) {
-        this.value = value;
-        this.type = type;
-    }
+	public HistoryTokenDTO(String value, ValueEventChangeType type) {
+		this.value = value;
+		this.type = type;
+	}
 
-    public String getValue() {
-        return value;
-    }
+	public String getValue() {
+		return value;
+	}
 
-    public void setValue(String value) {
-        this.value = value;
-    }
+	public void setValue(String value) {
+		this.value = value;
+	}
 
-    public ChangeType getType() {
-        return type;
-    }
+	public ValueEventChangeType getType() {
+		return type;
+	}
 
-    public void setType(ChangeType type) {
-        this.type = type;
-    }
+	public void setType(ValueEventChangeType type) {
+		this.type = type;
+	}
 
 }

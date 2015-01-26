@@ -1,39 +1,44 @@
-/*
- * All Sigmah code is released under the GNU General Public License v3
- * See COPYRIGHT.txt and LICENSE.txt.
- */
-
 package org.sigmah.client.event;
 
-import com.extjs.gxt.ui.client.event.BaseEvent;
-import com.extjs.gxt.ui.client.event.EventType;
-import org.sigmah.shared.report.content.PivotTableData;
-import org.sigmah.shared.report.model.PivotElement;
+import com.google.gwt.event.shared.GwtEvent;
+import org.sigmah.client.event.handler.PivotCellHandler;
+import org.sigmah.shared.dto.pivot.model.PivotElement;
+import org.sigmah.shared.dto.pivot.content.PivotTableData;
 
 /**
  * Event fired when a pivot cell is double-clicked. Other listening components may 
  * show details, drill-downs, etc.
  */
-public class PivotCellEvent extends BaseEvent {
+public class PivotCellEvent extends GwtEvent<PivotCellHandler> {
+	
+	private static Type<PivotCellHandler> TYPE;
 
-    private PivotElement element;
-    private PivotTableData.Axis row;
-    private PivotTableData.Axis column;
+	private final Action action;
+    private final PivotElement element;
+    private final PivotTableData.Axis row;
+    private final PivotTableData.Axis column;
+	
+	public static enum Action {
+		DRILLDOWN,
+	}
 
     /**
      * 
-     * @param type
      * @param element the enclosing {@link org.sigmah.shared.report.model.PivotTableElement} or 
      * {@link org.sigmah.shared.report.model.PivotChartElement}
      * @param row  the clicked row
      * @param column  the clicked column
      */
-    public PivotCellEvent(EventType type, PivotElement element, PivotTableData.Axis row, PivotTableData.Axis column) {
-        super(type);
+    public PivotCellEvent(Action action, PivotElement element, PivotTableData.Axis row, PivotTableData.Axis column) {
+		this.action = action;
         this.element = element;
         this.row = row;
         this.column = column;
     }
+
+	public Action getAction() {
+		return action;
+	}
 
     public PivotElement getElement() {
         return element;
@@ -46,4 +51,25 @@ public class PivotCellEvent extends BaseEvent {
     public PivotTableData.Axis getColumn() {
         return column;
     }
+
+	// --
+	// GWT event method
+	// --
+	
+	public static Type<PivotCellHandler> getType() {
+		if (TYPE == null) {
+			TYPE = new Type<PivotCellHandler>();
+		}
+		return TYPE;
+	}
+	
+	@Override
+	public Type<PivotCellHandler> getAssociatedType() {
+		return getType();
+	}
+
+	@Override
+	protected void dispatch(PivotCellHandler handler) {
+		handler.handleEvent(this);
+	}
 }

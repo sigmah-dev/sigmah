@@ -1,67 +1,62 @@
-/*
- * All Sigmah code is released under the GNU General Public License v3
- * See COPYRIGHT.txt and LICENSE.txt.
- */
-
 package org.sigmah.shared.command;
 
-import org.sigmah.shared.command.result.MonthlyReportResult;
+import org.sigmah.shared.command.result.ListResult;
+import org.sigmah.shared.dto.IndicatorRowDTO;
+import org.sigmah.shared.util.Month;
 
 /**
- * Returns {@link org.sigmah.shared.dto.IndicatorRowDTO} for a given site and for a given
- * range of months.
+ * Returns {@link org.sigmah.shared.dto.IndicatorRowDTO} for a given site and for a given range of months.
  *
  * @author Alex Bertram
+ * @author Denis Colliot (dcolliot@ideia.fr)
  */
-public class GetMonthlyReports extends GetListCommand<MonthlyReportResult> {
+public class GetMonthlyReports extends GetListCommand<ListResult<IndicatorRowDTO>> {
 
-    private int siteId;
-    private Month startMonth;
-    private Month endMonth;
+	private int siteId;
+	private Month startMonth;
+	private Month endMonth;
 
+	public GetMonthlyReports() {
+		// Serialization.
+	}
 
+	public GetMonthlyReports(int siteId) {
+		this.siteId = siteId;
+	}
 
-    public GetMonthlyReports() {
-    }
+	public GetMonthlyReports(int siteId, Month startMonth, int monthCount) {
+		this.siteId = siteId;
+		this.startMonth = startMonth;
+		this.endMonth = new Month(startMonth.getYear(), startMonth.getMonth() + monthCount - 1);
+	}
 
-    public GetMonthlyReports(int siteId) {
-        this.siteId = siteId;
-    }
+	public GetMonthlyReports(int siteId, Month startMonth, Month endMonth) {
+		this.siteId = siteId;
+		this.startMonth = startMonth;
+		this.endMonth = endMonth;
+	}
 
-    public GetMonthlyReports(int siteId, Month startMonth, int monthCount) {
-        this.siteId = siteId;
-        this.startMonth = startMonth;
-        this.endMonth = new Month(startMonth.getYear(), startMonth.getMonth()+monthCount-1);
-    }
+	public int getSiteId() {
+		return siteId;
+	}
 
-    public GetMonthlyReports(int siteId, Month startMonth, Month endMonth) {
-        this.siteId = siteId;
-        this.startMonth = startMonth;
-        this.endMonth = endMonth;
-    }
+	public void setSiteId(int siteId) {
+		this.siteId = siteId;
+	}
 
-    public int getSiteId() {
-        return siteId;
-    }
+	public Month getStartMonth() {
+		return startMonth;
+	}
 
-    public void setSiteId(int siteId) {
-        this.siteId = siteId;
-    }
+	public void setStartMonth(Month startMonth) {
+		this.startMonth = startMonth;
+	}
 
-    public Month getStartMonth() {
-        return startMonth;
-    }
+	public Month getEndMonth() {
+		return endMonth;
+	}
 
-    public void setStartMonth(Month startMonth) {
-        this.startMonth = startMonth;
-    }
-
-    public Month getEndMonth() {
-        return endMonth;
-    }
-
-    public void setEndMonth(Month endMonth) {
-        this.endMonth = endMonth;
-    }
+	public void setEndMonth(Month endMonth) {
+		this.endMonth = endMonth;
+	}
 }
-

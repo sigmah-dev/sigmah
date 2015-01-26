@@ -5,13 +5,10 @@
 
 package org.sigmah.server.domain;
 
-import org.sigmah.shared.dao.SiteTableColumn;
-import org.sigmah.shared.domain.AdminEntity;
-import org.sigmah.shared.map.HasLatLng;
-
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import org.sigmah.server.dao.util.SiteTableColumn;
 
 /**
  * A non-tabular representation of sites used by 
@@ -20,7 +17,7 @@ import java.util.Map;
  * @author Alex Bertram
  *
  */
-public class SiteData implements HasLatLng {
+public class SiteData {
 
 	public Object[] values;
 	public Map<Integer, String> adminNames = new HashMap<Integer,String>(0);
@@ -54,7 +51,6 @@ public class SiteData implements HasLatLng {
     /**
      * @return the longitude of this Site
      */
-	@Override
 	public double getLongitude() {
 		return (Double)getValue(SiteTableColumn.x);
 	}
@@ -63,7 +59,6 @@ public class SiteData implements HasLatLng {
      *
      * @return the latitude of this Site
      */
-	@Override
 	public double getLatitude() {
 		return (Double) getValue(SiteTableColumn.y);
 	}
@@ -80,7 +75,6 @@ public class SiteData implements HasLatLng {
      *
      * @return true if this Site has non-null lat and long
      */
-	@Override
 	public boolean hasLatLong() {
 		return  getValue(SiteTableColumn.y) != null &&
                 getValue(SiteTableColumn.x) != null;

@@ -1,66 +1,72 @@
-/*
- * All Sigmah code is released under the GNU General Public License v3
- * See COPYRIGHT.txt and LICENSE.txt.
- */
-
 package org.sigmah.shared.dto.layout;
 
-import org.sigmah.shared.dto.EntityDTO;
+import org.sigmah.client.util.ToStringBuilder;
+import org.sigmah.shared.dto.base.AbstractModelDataEntityDTO;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
 
-import com.extjs.gxt.ui.client.data.BaseModelData;
-
 /**
+ * LayoutConstraintDTO.
  * 
  * @author Denis Colliot (dcolliot@ideia.fr)
- * 
  */
-public class LayoutConstraintDTO extends BaseModelData implements EntityDTO {
+public class LayoutConstraintDTO extends AbstractModelDataEntityDTO<Integer> {
 
-    private static final long serialVersionUID = 8520711106031085130L;
+	/**
+	 * Serial version UID.
+	 */
+	private static final long serialVersionUID = 8520711106031085130L;
 
-    @Override
-    public String getEntityName() {
-        // Gets the entity name mapped by the current DTO starting from the
-        // "server.domain" package name.
-        return "layout.LayoutConstraint";
-    }
+	/**
+	 * DTO corresponding entity name.
+	 */
+	public static final String ENTITY_NAME = "layout.LayoutConstraint";
 
-    // Layout group constraint id
-    @Override
-    public int getId() {
-        return (Integer) get("id");
-    }
+	// DTO attributes keys.
+	public static final String SORT_ORDER = "sortOrder";
+	public static final String PARENT_LAYOUT_GROUP = "parentLayoutGroup";
+	public static final String FLEXIBLE_ELEMENT_DTO = "flexibleElementDTO";
 
-    public void setId(int id) {
-        set("id", id);
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getEntityName() {
+		return ENTITY_NAME;
+	}
 
-    // Sort order
-    public int getSortOrder() {
-        return (Integer) get("sortOrder");
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void appendToString(final ToStringBuilder builder) {
+		builder.append(SORT_ORDER, getSortOrder());
+	}
 
-    public void setSortOrder(int sortOrder) {
-        set("sortOrder", sortOrder);
-    }
+	// Sort order
+	public int getSortOrder() {
+		return (Integer) get(SORT_ORDER);
+	}
 
-    // Reference to the layout group parent
-    public LayoutGroupDTO getParentLayoutGroupDTO() {
-        return get("parentLayoutGroupDTO");
-    }
+	public void setSortOrder(int sortOrder) {
+		set(SORT_ORDER, sortOrder);
+	}
 
-    public void setParentLayoutGroupDTO(LayoutGroupDTO parentLayoutGroupDTO) {
-        set("parentLayoutGroupDTO", parentLayoutGroupDTO);
-    }
+	// Reference to the layout group parent
+	public LayoutGroupDTO getParentLayoutGroup() {
+		return get(PARENT_LAYOUT_GROUP);
+	}
 
-    // Reference to the flexible element
-    public FlexibleElementDTO getFlexibleElementDTO() {
-        return get("flexibleElementDTO");
-    }
+	public void setParentLayoutGroup(LayoutGroupDTO parentLayoutGroup) {
+		set(PARENT_LAYOUT_GROUP, parentLayoutGroup);
+	}
 
-    public void setFlexibleElementDTO(FlexibleElementDTO flexibleElementDTO) {
-        set("flexibleElementDTO", flexibleElementDTO);
-    }
+	// Reference to the flexible element
+	public FlexibleElementDTO getFlexibleElementDTO() {
+		return get(FLEXIBLE_ELEMENT_DTO);
+	}
+
+	public void setFlexibleElementDTO(FlexibleElementDTO flexibleElementDTO) {
+		set(FLEXIBLE_ELEMENT_DTO, flexibleElementDTO);
+	}
 
 }

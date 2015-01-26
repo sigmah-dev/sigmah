@@ -2,102 +2,133 @@ package org.sigmah.shared.dto.importation;
 
 import java.util.List;
 
-import org.sigmah.client.icon.IconImageBundle;
-import org.sigmah.shared.domain.importation.ImportationSchemeFileFormat;
-import org.sigmah.shared.domain.importation.ImportationSchemeImportType;
-import org.sigmah.shared.dto.EntityDTO;
+import org.sigmah.client.ui.res.icon.IconImageBundle;
+import org.sigmah.client.util.ToStringBuilder;
+import org.sigmah.shared.dto.base.AbstractModelDataEntityDTO;
+import org.sigmah.shared.dto.referential.ImportationSchemeFileFormat;
+import org.sigmah.shared.dto.referential.ImportationSchemeImportType;
 
-import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.google.gwt.user.client.ui.Image;
 
-public class ImportationSchemeDTO extends BaseModelData implements EntityDTO {
+/**
+ * ImportationSchemeDTO.
+ * 
+ * @author Denis Colliot (dcolliot@ideia.fr)
+ */
+public class ImportationSchemeDTO extends AbstractModelDataEntityDTO<Integer> {
 
 	/**
-	 * 
+	 * Serial version UID.
 	 */
 	private static final long serialVersionUID = 1360714480030529929L;
 
-	@Override
-	public int getId() {
-		if (get("id") != null)
-			return (Integer) get("id");
-		else
-			return -1;
-	}
+	/**
+	 * DTO corresponding entity name.
+	 */
+	public static final String ENTITY_NAME = "importation.ImportationScheme";
 
-	public void setId(int id) {
-		set("id", id);
-	}
+	// DTO attributes keys.
+	public static final String NAME = "name";
+	public static final String IMPORT_TYPE = "importType";
+	public static final String FILE_FORMAT = "fileFormat";
+	public static final String FIRST_ROW = "firstRow";
+	public static final String SHEET_NAME = "sheetName";
+	public static final String VARIABLES = "variables";
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String getEntityName() {
-		return "importation.ImportationScheme";
+		return ENTITY_NAME;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void appendToString(final ToStringBuilder builder) {
+		builder.append(NAME, getName());
+		builder.append(IMPORT_TYPE, getImportType());
+		builder.append(FILE_FORMAT, getFileFormat());
+		builder.append(FIRST_ROW, getFirstRow());
+		builder.append(SHEET_NAME, getSheetName());
+	}
+
+	/**
+	 * Returns the given {@code importationScheme} corresponding file format icon.
+	 * 
+	 * @param importationScheme
+	 *          The importation scheme instance.
+	 * @return The given {@code importationScheme} corresponding file format icon, or {@code null}.
+	 */
+	public static Image getFileFormatIcon(final ImportationSchemeDTO importationScheme) {
+
+		if (importationScheme == null || importationScheme.getFileFormat() == null) {
+			return null;
+		}
+
+		switch (importationScheme.getFileFormat()) {
+			case CSV:
+				return IconImageBundle.ICONS.csv().createImage();
+
+			case MS_EXCEL:
+				return IconImageBundle.ICONS.excel().createImage();
+
+			case ODS:
+				return IconImageBundle.ICONS.ods().createImage();
+
+			default:
+				return null;
+		}
 	}
 
 	public String getName() {
-		return get("name");
+		return get(NAME);
 	}
 
 	public void setName(String name) {
-		set("name", name);
+		set(NAME, name);
 	}
 
 	public ImportationSchemeImportType getImportType() {
-		return get("importType");
+		return get(IMPORT_TYPE);
 	}
 
 	public void setImportType(ImportationSchemeImportType importType) {
-		set("importType", importType);
+		set(IMPORT_TYPE, importType);
 	}
 
 	public ImportationSchemeFileFormat getFileFormat() {
-		return get("fileFormat");
+		return get(FILE_FORMAT);
 	}
 
 	public void setFileFormat(ImportationSchemeFileFormat fileFormat) {
-		set("fileFormat", fileFormat);
+		set(FILE_FORMAT, fileFormat);
 	}
 
-	public List<VariableDTO> getVariablesDTO() {
-		return get("variablesDTO");
+	public List<VariableDTO> getVariables() {
+		return get(VARIABLES);
 	}
 
-	public void setVariablesDTO(List<VariableDTO> variablesDTO) {
-		set("variablesDTO", variablesDTO);
+	public void setVariables(List<VariableDTO> variables) {
+		set(VARIABLES, variables);
 	}
 
 	public Integer getFirstRow() {
-		return get("firstRow");
+		return get(FIRST_ROW);
 	}
 
 	public void setFirstRow(Integer firstRow) {
-		set("firstRow", firstRow);
+		set(FIRST_ROW, firstRow);
 	}
 
 	public String getSheetName() {
-		return get("sheetName");
+		return get(SHEET_NAME);
 	}
 
 	public void setSheetName(String sheetName) {
-		set("sheetName", sheetName);
-	}
-
-	public Image getFileFormatIcon() {
-		Image iconHTML = null;
-		switch (getFileFormat()) {
-		case CSV:
-			iconHTML = IconImageBundle.ICONS.csv().createImage();
-			break;
-		case MS_EXCEL:
-			iconHTML = IconImageBundle.ICONS.excel().createImage();
-			break;
-		case ODS:
-			iconHTML = IconImageBundle.ICONS.ods().createImage();
-			break;
-		default:
-			break;
-		}
-		return iconHTML;
+		set(SHEET_NAME, sheetName);
 	}
 
 }

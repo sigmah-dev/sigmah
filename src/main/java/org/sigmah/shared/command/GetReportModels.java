@@ -1,12 +1,18 @@
 package org.sigmah.shared.command;
 
-import org.sigmah.shared.command.result.ReportModelsListResult;
+import org.sigmah.shared.command.base.AbstractCommand;
+import org.sigmah.shared.command.result.ListResult;
+import org.sigmah.shared.dto.report.ReportModelDTO;
 
-public class GetReportModels implements Command<ReportModelsListResult> {
-
-	private static final long serialVersionUID = -7407792244262630446L;
+/**
+ * GetReportModels command.
+ * 
+ * @author Denis Colliot (dcolliot@ideia.fr) (v2.0)
+ */
+public class GetReportModels extends AbstractCommand<ListResult<ReportModelDTO>> {
 
 	public GetReportModels() {
-        // serialization.
-    }
+		// Serialization.
+	}
+
 }

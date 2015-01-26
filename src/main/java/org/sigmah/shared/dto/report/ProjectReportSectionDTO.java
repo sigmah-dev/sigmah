@@ -1,44 +1,55 @@
-/*
- * All Sigmah code is released under the GNU General Public License v3
- * See COPYRIGHT.txt and LICENSE.txt.
- */
-
 package org.sigmah.shared.dto.report;
 
 import java.util.List;
 
+import org.sigmah.client.util.ToStringBuilder;
+
 /**
  * Section of a project report.
+ * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
+ * @author Denis Colliot (dcolliot@ideia.fr)
  */
 public class ProjectReportSectionDTO implements ProjectReportContent {
-    public final static long serialVersionUID = 1L;
-    
-    private Integer id;
-    private String name;
-    private List<ProjectReportContent> children;
 
-    public List<ProjectReportContent> getChildren() {
-        return children;
-    }
+	private Integer id;
+	private String name;
+	private List<ProjectReportContent> children;
 
-    public void setChildren(List<ProjectReportContent> children) {
-        this.children = children;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String toString() {
+		final ToStringBuilder builder = new ToStringBuilder(this);
 
-    public Integer getId() {
-        return id;
-    }
+		builder.append("id", getId());
+		builder.append("name", getName());
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
+		return builder.toString();
+	}
 
-    public String getName() {
-        return name;
-    }
+	public List<ProjectReportContent> getChildren() {
+		return children;
+	}
 
-    public void setName(String name) {
-        this.name = name;
-    }
+	public void setChildren(List<ProjectReportContent> children) {
+		this.children = children;
+	}
+
+	public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
 }

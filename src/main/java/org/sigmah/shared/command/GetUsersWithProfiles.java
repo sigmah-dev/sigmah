@@ -1,25 +1,17 @@
 package org.sigmah.shared.command;
 
-import org.sigmah.shared.command.result.UserListResult;
+import org.sigmah.shared.command.base.AbstractCommand;
+import org.sigmah.shared.command.result.ListResult;
+import org.sigmah.shared.dto.UserDTO;
+import org.sigmah.shared.dto.orgunit.OrgUnitDTO;
+import org.sigmah.shared.dto.profile.ProfileDTO;
 
 /**
- * Retrieves the organization users list.
+ * Retrieves the organization's users list with their {@link ProfileDTO}(s) and {@link OrgUnitDTO}.
  * 
- * @author nrebiai
- * 
+ * @author nrebiai (v1.3)
+ * @author Denis Colliot (dcolliot@ideia.fr) (v2.0)
  */
-public class GetUsersWithProfiles implements Command<UserListResult> {
+public class GetUsersWithProfiles extends AbstractCommand<ListResult<UserDTO>> {
 
-    /**
-	 * 
-	 */
-	private static final long serialVersionUID = -3006666313649601894L;
-
-	/**
-     * The type of model of the models for the current user organization (set to
-     * <code>null</code> to ignore this filter).
-     */
-    public GetUsersWithProfiles() {
-        // serialization.
-    }
 }

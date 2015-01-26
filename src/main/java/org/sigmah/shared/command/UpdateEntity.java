@@ -1,76 +1,71 @@
-/*
- * All Sigmah code is released under the GNU General Public License v3
- * See COPYRIGHT.txt and LICENSE.txt.
- */
-
 package org.sigmah.shared.command;
-
-import com.extjs.gxt.ui.client.data.RpcMap;
-import org.sigmah.shared.command.result.VoidResult;
-import org.sigmah.shared.dto.EntityDTO;
 
 import java.util.Map;
 
+import org.sigmah.client.util.ToStringBuilder;
+import org.sigmah.shared.command.base.AbstractCommand;
+import org.sigmah.shared.command.result.VoidResult;
+import org.sigmah.shared.dto.base.EntityDTO;
+
+import com.extjs.gxt.ui.client.data.RpcMap;
+
 /**
- *
+ * <p>
  * Updates a domain entity on the server.
- *
+ * </p>
+ * <p>
  * Some entities require specialized commands to create or update. See:
  * <ul>
  * <li>{@link org.sigmah.shared.command.AddPartner}</li>
- * <li>{@link UpdateUserPermissions}</li>
+ * <li>{@link org.sigmah.shared.command.UpdateUserPermissions}</li>
  * <li>{@link org.sigmah.shared.command.UpdateSubscription}</li>
  * </ul>
+ * </p>
  *
  * @author Alex Bertram (akbertram@gmail.com)
+ * @author Denis Colliot (dcolliot@ideia.fr)
  */
-public class UpdateEntity implements Command<VoidResult> {
+public class UpdateEntity extends AbstractCommand<VoidResult> {
 
-	private int id;
+	private Integer id;
 	private String entityName;
 	private RpcMap changes;
 
-    protected UpdateEntity() {
-		
+	protected UpdateEntity() {
+		// Serialization.
 	}
 
-    public UpdateEntity(String entityName, int id, Map<String, Object> changes) {
-        this.entityName = entityName;
-        this.id = id;
-        this.changes = new RpcMap();
-        this.changes.putAll(changes);
-    }
+	public UpdateEntity(final EntityDTO<?> model, final Map<String, Object> changes) {
+		this(model.getEntityName(), (Integer)model.getId(), changes);
+	}
 
-	public UpdateEntity(EntityDTO model, Map<String, Object> changes) {
-		this.id = model.getId();
-        this.entityName = model.getEntityName();
+	public UpdateEntity(final String entityName, final Integer id, final Map<String, Object> changes) {
+		this.entityName = entityName;
+		this.id = id;
 		this.changes = new RpcMap();
 		this.changes.putAll(changes);
 	}
 
-    public int getId() {
-		return id;
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void appendToString(final ToStringBuilder builder) {
+		builder.append("id", id);
+		builder.append("entityName", entityName);
+		builder.append("changes", changes);
 	}
 
-	public void setId(int id) {
-		this.id = id;
+	public Integer getId() {
+		return id;
 	}
 
 	public String getEntityName() {
 		return entityName;
 	}
 
-	public void setEntityName(String entityName) {
-		this.entityName = entityName;
-	}
-
 	public RpcMap getChanges() {
 		return changes;
 	}
-
-	public void setChanges(RpcMap changes) {
-		this.changes = changes;
-	}
-
 
 }

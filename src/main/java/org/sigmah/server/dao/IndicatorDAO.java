@@ -1,21 +1,24 @@
-/*
- * All Sigmah code is released under the GNU General Public License v3
- * See COPYRIGHT.txt and LICENSE.txt.
- */
-
 package org.sigmah.server.dao;
 
-import org.sigmah.shared.dao.DAO;
-import org.sigmah.shared.domain.Indicator;
+import java.sql.Connection;
+
+import org.sigmah.server.dao.base.DAO;
+import org.sigmah.server.domain.Indicator;
+import org.sigmah.shared.command.result.IndicatorListResult;
 
 /**
- * Data Access Object for {@link org.sigmah.shared.domain.Indicator} domain objects. Implemented
- * by {@link org.sigmah.server.dao.hibernate.DAOInvocationHandler proxy}.
- *
+ * Data Access Object for {@link org.sigmah.server.domain.Indicator} domain objects.
+ * 
  * @author Alex Bertram
- * @param <IndicatorDTO>
+ * @author Denis Colliot (dcolliot@ideia.fr)
+ * @author Maxime Lombard (mlombard@ideia.fr)
  */
 public interface IndicatorDAO extends DAO<Indicator, Integer> {
-	
-	
+
+	public void queryIndicatorGroups(Connection connection, final int databaseId);
+
+	public void queryIndicatorsByDatabaseWithCurrentValues(Connection connection, final int databaseId);
+
+	public IndicatorListResult getResult();
+
 }

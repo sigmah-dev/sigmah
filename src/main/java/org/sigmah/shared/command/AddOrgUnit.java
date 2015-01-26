@@ -1,58 +1,64 @@
 package org.sigmah.shared.command;
 
+import org.sigmah.client.util.ToStringBuilder;
+import org.sigmah.shared.command.base.AbstractCommand;
 import org.sigmah.shared.command.result.CreateResult;
-import org.sigmah.shared.dto.OrgUnitDTOLight;
+import org.sigmah.shared.dto.orgunit.OrgUnitDTO;
 
-public class AddOrgUnit implements Command<CreateResult> {
+/**
+ * AddOrgUnit command.
+ * 
+ * @author Denis Colliot (dcolliot@ideia.fr) (v2.0)
+ */
+public class AddOrgUnit extends AbstractCommand<CreateResult> {
 
-    private static final long serialVersionUID = 1L;
+	private Integer parentId;
+	private Integer modelId;
+	private String calendarName;
+	private OrgUnitDTO unit;
+	private OrgUnitDTO.Mode mappingMode;
 
-    private int parentId;
-    private int modelId;
-    private String calendarName;
-    private OrgUnitDTOLight unit;
+	protected AddOrgUnit() {
+		// Serialization.
+	}
 
-    public AddOrgUnit() {
-        // serialization.
-    }
+	public AddOrgUnit(Integer parentId, Integer modelId, String calendarName, OrgUnitDTO unit, OrgUnitDTO.Mode mappingMode) {
+		this.parentId = parentId;
+		this.modelId = modelId;
+		this.calendarName = calendarName;
+		this.unit = unit;
+		this.mappingMode = mappingMode;
+	}
 
-    public AddOrgUnit(int parentId, int modelId, String calendarName, OrgUnitDTOLight unit) {
-        super();
-        this.parentId = parentId;
-        this.modelId = modelId;
-        this.calendarName = calendarName;
-        this.unit = unit;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void appendToString(final ToStringBuilder builder) {
+		builder.append("parentId", parentId);
+		builder.append("modelId", modelId);
+		builder.append("calendarName", calendarName);
+		builder.append("unit", unit);
+		builder.append("mappingMode", mappingMode);
+	}
 
-    public int getParentId() {
-        return parentId;
-    }
+	public Integer getParentId() {
+		return parentId;
+	}
 
-    public void setParentId(int parentId) {
-        this.parentId = parentId;
-    }
+	public OrgUnitDTO getUnit() {
+		return unit;
+	}
 
-    public OrgUnitDTOLight getUnit() {
-        return unit;
-    }
+	public Integer getModelId() {
+		return modelId;
+	}
 
-    public void setUnit(OrgUnitDTOLight unit) {
-        this.unit = unit;
-    }
+	public String getCalendarName() {
+		return calendarName;
+	}
 
-    public void setModelId(int modelId) {
-        this.modelId = modelId;
-    }
-
-    public int getModelId() {
-        return modelId;
-    }
-
-    public void setCalendarName(String calendarName) {
-        this.calendarName = calendarName;
-    }
-
-    public String getCalendarName() {
-        return calendarName;
-    }
+	public OrgUnitDTO.Mode getMappingMode() {
+		return mappingMode;
+	}
 }

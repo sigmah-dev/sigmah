@@ -1,36 +1,43 @@
 package org.sigmah.shared.command;
 
+import org.sigmah.shared.command.base.AbstractCommand;
 import org.sigmah.shared.dto.ProjectModelDTO;
 
-public class GetProjectModel implements Command<ProjectModelDTO> {
+/**
+ * Retrieves a project model.
+ * 
+ * @author Denis Colliot (dcolliot@ideia.fr) (v2.0)
+ */
+public class GetProjectModel extends AbstractCommand<ProjectModelDTO> {
 
-	private static final long serialVersionUID = 5341195938784834326L;
-	
-	private int id;
-	
+	private Integer modelId;
 	private String status;
+	private ProjectModelDTO.Mode mappingMode;
 
-	public GetProjectModel() {
-        // serialization.
-    }
-	
-	public GetProjectModel(int id) {
-        this.id = id;
-    }
+	protected GetProjectModel() {
+		// Serialization.
+	}
 
-    public int getId() {
-        return id;
-    }
+	public GetProjectModel(Integer modelId, ProjectModelDTO.Mode mappingMode) {
+		this(modelId, null, mappingMode);
+	}
 
-    public void setId(int id) {
-        this.id = id;
-    }
+	public GetProjectModel(Integer modelId, String status, ProjectModelDTO.Mode mappingMode) {
+		this.modelId = modelId;
+		this.status = status;
+		this.mappingMode = mappingMode;
+	}
+
+	public Integer getModelId() {
+		return modelId;
+	}
 
 	public String getStatus() {
 		return status;
 	}
 
-	public void setStatus(String status) {
-		this.status = status;
+	public ProjectModelDTO.Mode getMappingMode() {
+		return mappingMode;
 	}
+
 }

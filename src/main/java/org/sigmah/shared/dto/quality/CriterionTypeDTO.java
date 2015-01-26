@@ -1,70 +1,73 @@
 package org.sigmah.shared.dto.quality;
 
-import org.sigmah.shared.dto.EntityDTO;
-
-import com.extjs.gxt.ui.client.data.BaseModelData;
+import org.sigmah.client.util.ToStringBuilder;
+import org.sigmah.shared.dto.base.AbstractModelDataEntityDTO;
 
 /**
  * DTO mapping class for entity quality.CriterionType.
  * 
  * @author tmi
- * 
+ * @author Denis Colliot (dcolliot@ideia.fr)
  */
-public class CriterionTypeDTO extends BaseModelData implements EntityDTO {
+public class CriterionTypeDTO extends AbstractModelDataEntityDTO<Integer> {
 
-    private static final long serialVersionUID = 9171979198420463751L;
+	/**
+	 * Serial version UID.
+	 */
+	private static final long serialVersionUID = 9171979198420463751L;
 
-    @Override
-    public String getEntityName() {
-        return "quality.CriterionType";
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getEntityName() {
+		return "quality.CriterionType";
+	}
 
-    // Type id.
-    @Override
-    public int getId() {
-        final Integer id = (Integer) get("id");
-        return id != null ? id : -1;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void appendToString(final ToStringBuilder builder) {
+		builder.append("label", getLabel());
+		builder.append("level", getLevel());
+	}
 
-    public void setId(int id) {
-        set("id", id);
-    }
+	// Type id.
+	@Override
+	public Integer getId() {
+		return get("id");
+	}
 
-    // Type label.
-    public String getLabel() {
-        return get("label");
-    }
+	public void setId(Integer id) {
+		set("id", id);
+	}
 
-    public void setLabel(String label) {
-        set("label", label);
-    }
+	// Type label.
+	public String getLabel() {
+		return get("label");
+	}
 
-    // Type framework.
-    public QualityFrameworkDTO getQualityFramework() {
-        return get("qualityFramework");
-    }
+	public void setLabel(String label) {
+		set("label", label);
+	}
 
-    public void setQualityFramework(QualityFrameworkDTO qualityFramework) {
-        set("qualityFramework", qualityFramework);
-    }
+	// Type framework.
+	public QualityFrameworkDTO getQualityFramework() {
+		return get("qualityFramework");
+	}
 
-    // Type level.
-    public Integer getLevel() {
-        return (Integer) get("level");
-    }
+	public void setQualityFramework(QualityFrameworkDTO qualityFramework) {
+		set("qualityFramework", qualityFramework);
+	}
 
-    public void setLevel(Integer level) {
-        set("level", level);
-    }
+	// Type level.
+	public Integer getLevel() {
+		return (Integer) get("level");
+	}
 
-    @Override
-    public String toString() {
-        final StringBuilder sb = new StringBuilder();
-        sb.append("[CriterionTypeDTO] ");
-        sb.append("label: ");
-        sb.append(getLabel());
-        sb.append(" ; level: ");
-        sb.append(getLevel());
-        return sb.toString();
-    }
+	public void setLevel(Integer level) {
+		set("level", level);
+	}
+
 }

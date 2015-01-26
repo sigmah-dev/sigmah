@@ -1,33 +1,47 @@
 package org.sigmah.shared.command;
 
-import org.sigmah.shared.command.result.OrganizationResult;
-import org.sigmah.shared.dto.OrganizationDTO;
+import org.sigmah.client.util.ToStringBuilder;
+import org.sigmah.shared.command.base.AbstractCommand;
+import org.sigmah.shared.dto.organization.OrganizationDTO;
 
 /**
+ * <p>
  * Update organization command.
+ * </p>
+ * <p>
+ * Updates organization's name and logo properties.
+ * </p>
  * 
  * @author Aurélien Ponçon
+ * @author Denis Colliot (dcolliot@ideia.fr)
  */
-public class UpdateOrganization implements Command<OrganizationResult> {
+public class UpdateOrganization extends AbstractCommand<OrganizationDTO> {
 
-    private static final long serialVersionUID = 8702867672468516230L;
+	private OrganizationDTO organization;
 
-    private OrganizationDTO organization;
-    private String newName;
+	public UpdateOrganization() {
+		// Serialization.
+	}
 
-    public UpdateOrganization() {
-    }
+	/**
+	 * Initializes a new command.
+	 * 
+	 * @param organization
+	 *          The {@link OrganizationDTO} (id, name and logo filename should be set).
+	 */
+	public UpdateOrganization(final OrganizationDTO organization) {
+		this.organization = organization;
+	}
 
-    public UpdateOrganization(OrganizationDTO organization, String newName) {
-        this.organization = organization;
-        this.newName = newName;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void appendToString(final ToStringBuilder builder) {
+		builder.append("organization", organization);
+	}
 
-    public OrganizationDTO getOrganization() {
-        return organization;
-    }
-
-    public String getNewName() {
-        return newName;
-    }
+	public OrganizationDTO getOrganization() {
+		return organization;
+	}
 }

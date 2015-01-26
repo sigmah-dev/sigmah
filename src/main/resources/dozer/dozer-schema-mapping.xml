@@ -1,0 +1,375 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings xmlns="http://dozer.sourceforge.net" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://dozer.sourceforge.net beanmapping.xsd">
+	
+	<!-- =========================================================================================== -->
+	<!-- -->
+	<!-- CUSTOM CONVERTERS. -->
+	<!-- -->
+	<!-- =========================================================================================== -->
+	
+	<!-- Custom fields for 'Profile' to 'ProfileDTO' mapping. -->
+	<mapping wildcard="true">
+		<class-a>org.sigmah.server.domain.profile.Profile</class-a>
+		<class-b>org.sigmah.shared.dto.profile.ProfileDTO</class-b>
+		
+		<field custom-converter="org.sigmah.server.mapper.converters.GlobalPermissionsConverter">
+			<a>globalPermissions</a>
+			<b>globalPermissions</b>
+		</field>
+		
+		<field custom-converter="org.sigmah.server.mapper.converters.PrivacyGroupsConverter">
+			<a>privacyGroupPermissions</a>
+			<b>privacyGroups</b>
+		</field>
+	</mapping>
+	
+	<!-- =========================================================================================== -->
+	<!-- -->
+	<!-- OTHER MAPPINGS. -->
+	<!-- -->
+	<!-- =========================================================================================== -->
+	
+	<mapping wildcard="true">
+		<class-a>org.sigmah.server.domain.UserDatabase</class-a>
+		<class-b>org.sigmah.shared.dto.UserDatabaseDTO</class-b>
+
+		<field>
+			<a>owner.name</a>
+			<b>ownerName</b>
+		</field>
+
+		<field>
+			<a>owner.email</a>
+			<b>ownerEmail</b>
+		</field>
+	</mapping>
+
+	<mapping wildcard="true">
+
+		<class-a>org.sigmah.server.domain.Activity</class-a>
+		<class-b>org.sigmah.shared.dto.ActivityDTO</class-b>
+
+		<field-exclude>
+			<a>database</a>
+			<b>database</b>
+		</field-exclude>
+
+		<field>
+			<a>locationType.id</a>
+			<b>locationTypeId</b>
+		</field>
+	</mapping>
+
+	<mapping wildcard="true">
+		<class-a>org.sigmah.server.domain.UserPermission</class-a>
+		<class-b>org.sigmah.shared.dto.UserPermissionDTO</class-b>
+
+		<field>
+			<a>user.name</a>
+			<b>name</b>
+		</field>
+
+		<field>
+			<a>user.firstName</a>
+			<b>firstName</b>
+		</field>
+
+		<field>
+			<a>user.email</a>
+			<b>email</b>
+		</field>
+	</mapping>
+
+	<mapping wildcard="true">
+		<class-a>org.sigmah.server.domain.Indicator</class-a>
+		<class-b>org.sigmah.shared.dto.IndicatorDTO</class-b>
+
+		<field>
+			<a>database.id</a>
+			<b>databaseId</b>
+		</field>
+	</mapping>
+
+	<mapping wildcard="true">
+		<class-a>org.sigmah.server.domain.report.ProjectReportModel</class-a>
+		<class-b>org.sigmah.shared.dto.report.ReportModelDTO</class-b>
+
+		<field>
+			<a>organization.id</a>
+			<b>organizationId</b>
+		</field>
+	</mapping>
+
+	<!-- LayoutConstraint/LayoutContraintDTO Mapping -->
+	<mapping wildcard="true">
+		<class-a>org.sigmah.server.domain.layout.LayoutConstraint</class-a>
+		<class-b>org.sigmah.shared.dto.layout.LayoutConstraintDTO</class-b>
+
+		<field>
+			<a>element</a>
+			<b>flexibleElementDTO</b>
+			<a-hint>org.sigmah.server.domain.element.DefaultFlexibleElement,org.sigmah.server.domain.element.MessageElement,org.sigmah.server.domain.element.CheckboxElement,org.sigmah.server.domain.element.TextAreaElement,org.sigmah.server.domain.element.QuestionElement,org.sigmah.server.domain.element.TripletsListElement,org.sigmah.server.domain.element.FilesListElement,org.sigmah.server.domain.element.IndicatorsListElement,org.sigmah.server.domain.element.BudgetDistributionElement,org.sigmah.server.domain.element.ReportElement,org.sigmah.server.domain.element.ReportListElement,org.sigmah.server.domain.element.BudgetElement
+			</a-hint>
+			<b-hint>org.sigmah.shared.dto.element.DefaultFlexibleElementDTO,org.sigmah.shared.dto.element.MessageElementDTO,org.sigmah.shared.dto.element.CheckboxElementDTO,org.sigmah.shared.dto.element.TextAreaElementDTO,org.sigmah.shared.dto.element.QuestionElementDTO,org.sigmah.shared.dto.element.TripletsListElementDTO,org.sigmah.shared.dto.element.FilesListElementDTO,org.sigmah.shared.dto.element.IndicatorsListElementDTO,org.sigmah.shared.dto.element.BudgetDistributionElementDTO,org.sigmah.shared.dto.element.ReportElementDTO,org.sigmah.shared.dto.element.ReportListElementDTO,org.sigmah.shared.dto.element.BudgetElementDTO
+			</b-hint>
+		</field>
+	</mapping>
+
+	<!-- IndicatorsListValue/IndicatorsListValueDTO Mapping -->
+	<mapping wildcard="true">
+		<class-a>org.sigmah.server.domain.value.IndicatorsListValue</class-a>
+		<class-b>org.sigmah.shared.dto.value.IndicatorsListValueDTO</class-b>
+
+		<field>
+			<a>id.idList</a>
+			<b>idList</b>
+		</field>
+
+		<field>
+			<a>id.indicatorId</a>
+			<b>id</b>
+		</field>
+
+		<field>
+			<a>indicator</a>
+			<b>indicatorDTO</b>
+		</field>
+	</mapping>
+
+	<!-- FilesVersion/FilesVersionDTO Mapping -->
+	<mapping wildcard="true">
+		<class-a>org.sigmah.server.domain.value.FileVersion</class-a>
+		<class-b>org.sigmah.shared.dto.value.FileVersionDTO</class-b>
+
+		<field>
+			<a>author.name</a>
+			<b>authorName</b>
+		</field>
+
+		<field>
+			<a>author.firstName</a>
+			<b>authorFirstName</b>
+		</field>
+	</mapping>
+
+	<!-- CategoryType/CategoryTypeDTO Mapping -->
+	<mapping wildcard="true">
+		<class-a>org.sigmah.server.domain.category.CategoryType</class-a>
+		<class-b>org.sigmah.shared.dto.category.CategoryTypeDTO</class-b>
+
+		<field>
+			<a>elements</a>
+			<b>categoryElementsDTO</b>
+		</field>
+	</mapping>
+
+	<!-- CategoryElement/CategoryElementDTO Mapping -->
+	<mapping wildcard="true">
+		<class-a>org.sigmah.server.domain.category.CategoryElement
+		</class-a>
+		<class-b>org.sigmah.shared.dto.category.CategoryElementDTO
+		</class-b>
+
+		<field>
+			<a>parentType</a>
+			<b>parentCategoryDTO</b>
+		</field>
+	</mapping>
+
+	<!-- ProjectModelVisibility/ProjectModelVisibilityDTO Mapping -->
+	<mapping wildcard="true">
+		<class-a>org.sigmah.server.domain.ProjectModelVisibility
+		</class-a>
+		<class-b>org.sigmah.shared.dto.ProjectModelVisibilityDTO
+		</class-b>
+
+		<field>
+			<a>organization.id</a>
+			<b>organizationId</b>
+		</field>
+	</mapping>
+
+	<!-- ProjectReport/GetProjectReports.ReportReference mapping -->
+	<mapping wildcard="true">
+		<class-a>org.sigmah.server.domain.report.ProjectReport</class-a>
+		<class-b>org.sigmah.shared.dto.report.ReportReference</class-b>
+
+		<field>
+			<a>currentVersion.editDate</a>
+			<b>lastEditDate</b>
+		</field>
+
+		<field>
+			<a>currentVersion.editorShortName</a>
+			<b>editorName</b>
+		</field>
+
+		<field>
+			<a>currentVersion.phaseName</a>
+			<b>phaseName</b>
+		</field>
+	</mapping>
+
+	<mapping wildcard="true">
+		<class-a>org.sigmah.server.domain.Indicator</class-a>
+		<class-b>org.sigmah.shared.dto.IndicatorDataSourceDTO</class-b>
+
+		<field>
+			<a>id</a>
+			<b>indicatorId</b>
+		</field>
+
+		<field>
+			<a>name</a>
+			<b>indicatorName</b>
+		</field>
+		<field>
+			<a>code</a>
+			<b>indicatorCode</b>
+		</field>
+		<field>
+			<a>database.id</a>
+			<b>databaseId</b>
+		</field>
+		<field>
+			<a>database.name</a>
+			<b>databaseName</b>
+		</field>
+	</mapping>
+
+	<mapping wildcard="true">
+		<class-a>org.sigmah.server.domain.element.ReportElement</class-a>
+		<class-b>org.sigmah.shared.dto.element.ReportElementDTO</class-b>
+
+		<field>
+			<a>model.id</a>
+			<b>modelId</b>
+		</field>
+	</mapping>
+
+	<mapping wildcard="true">
+		<class-a>org.sigmah.server.domain.element.ReportListElement</class-a>
+		<class-b>org.sigmah.shared.dto.element.ReportListElementDTO</class-b>
+
+		<field>
+			<a>model.id</a>
+			<b>modelId</b>
+		</field>
+	</mapping>
+
+	<!-- Importation ImportationSchemeModel/ImportationSchemeModelDTO mapping -->
+	<mapping wildcard="true">
+		<class-a>org.sigmah.server.domain.importation.ImportationSchemeModel
+		</class-a>
+		<class-b>org.sigmah.shared.dto.importation.ImportationSchemeModelDTO
+		</class-b>
+		<field>
+			<a>variableFlexibleElements</a>
+			<b>variableFlexibleElementsDTO</b>
+			<a-hint>org.sigmah.server.domain.importation.VariableFlexibleElement,
+				org.sigmah.server.domain.importation.VariableBudgetElement
+			</a-hint>
+			<b-hint>org.sigmah.shared.dto.importation.VariableFlexibleElementDTO,
+				org.sigmah.shared.dto.importation.VariableBudgetElementDTO
+			</b-hint>
+		</field>
+		<field>
+			<a>importationScheme</a>
+			<b>importationSchemeDTO</b>
+		</field>
+		<field>
+			<a>projectModel</a>
+			<b>projectModelDTO</b>
+		</field>
+		<field>
+			<a>orgUnitModel</a>
+			<b>orgUnitModelDTO</b>
+		</field>
+	</mapping>
+	
+	<!-- Importation VariableFlexibleElement/VariableFlexibleElementDTO mapping -->
+	<mapping wildcard="true">
+		<class-a>org.sigmah.server.domain.importation.VariableFlexibleElement
+		</class-a>
+		<class-b>org.sigmah.shared.dto.importation.VariableFlexibleElementDTO
+		</class-b>
+		<field>
+			<a>importationSchemeModel</a>
+			<b>importationSchemeModelDTO</b>
+		</field>
+		<field>
+			<a>variable</a>
+			<b>variableDTO</b>
+		</field>
+		<field>
+			<a>flexibleElement</a>
+			<b>flexibleElementDTO</b>
+			<a-hint>org.sigmah.server.domain.element.DefaultFlexibleElement,org.sigmah.server.domain.element.MessageElement,org.sigmah.server.domain.element.CheckboxElement,org.sigmah.server.domain.element.TextAreaElement,org.sigmah.server.domain.element.QuestionElement,org.sigmah.server.domain.element.TripletsListElement,org.sigmah.server.domain.element.FilesListElement,org.sigmah.server.domain.element.IndicatorsListElement,org.sigmah.server.domain.element.BudgetDistributionElement,org.sigmah.server.domain.element.ReportElement,org.sigmah.server.domain.element.ReportListElement,org.sigmah.server.domain.element.BudgetElement
+			</a-hint>
+			<b-hint>org.sigmah.shared.dto.element.DefaultFlexibleElementDTO,org.sigmah.shared.dto.element.MessageElementDTO,org.sigmah.shared.dto.element.CheckboxElementDTO,org.sigmah.shared.dto.element.TextAreaElementDTO,org.sigmah.shared.dto.element.QuestionElementDTO,org.sigmah.shared.dto.element.TripletsListElementDTO,org.sigmah.shared.dto.element.FilesListElementDTO,org.sigmah.shared.dto.element.IndicatorsListElementDTO,org.sigmah.shared.dto.element.BudgetDistributionElementDTO,org.sigmah.shared.dto.element.ReportElementDTO,org.sigmah.shared.dto.element.ReportListElementDTO,org.sigmah.shared.dto.element.BudgetElementDTO
+			</b-hint>
+		</field>
+	</mapping>
+		
+	<!-- Importation VariableBudgetElement/VariableBudgetElementDTO mapping -->
+	<mapping wildcard="true">
+		<class-a>org.sigmah.server.domain.importation.VariableBudgetElement
+		</class-a>
+		<class-b>org.sigmah.shared.dto.importation.VariableBudgetElementDTO
+		</class-b>
+		<field>
+			<a>variableBudgetSubFields</a>
+			<b>variableBudgetSubFieldsDTO</b>
+		</field>
+	</mapping>
+		
+	<!-- Importation VariableBudgetSubField/VariableBudgetSubFieldDTO mapping -->
+	<mapping wildcard="true">
+		<class-a>org.sigmah.server.domain.importation.VariableBudgetSubField
+		</class-a>
+		<class-b>org.sigmah.shared.dto.importation.VariableBudgetSubFieldDTO
+		</class-b>
+		<field-exclude>
+			<a>id</a>
+			<b>id</b>
+		</field-exclude>
+		<field>
+			<a>variableBudgetElement</a>
+			<b>variableBudgetElementDTO</b>
+			<a-hint>org.sigmah.server.domain.importation.VariableBudgetElement
+			</a-hint>
+			<b-hint>org.sigmah.shared.dto.importation.VariableBudgetElementDTO
+			</b-hint>
+		</field>
+		<field>
+			<a>variable</a>
+			<b>variableDTO</b>
+		</field>
+		<field>
+			<a>budgetSubField</a>
+			<b>budgetSubFieldDTO</b>
+		</field>
+	</mapping>
+	
+	<!-- MonitoredPoint/MonitoredPointDTO mapping -->
+	<mapping wildcard="true">
+		<class-a>org.sigmah.server.domain.reminder.MonitoredPoint</class-a>
+		<class-b>org.sigmah.shared.dto.reminder.MonitoredPointDTO</class-b>
+		<field>
+			<a>parentList.id</a>
+			<b>parentListId</b>
+		</field>
+	</mapping>
+	
+	<!-- Reminder/ReminderDTO mapping -->
+	<mapping wildcard="true">
+		<class-a>org.sigmah.server.domain.reminder.Reminder</class-a>
+		<class-b>org.sigmah.shared.dto.reminder.ReminderDTO</class-b>
+		<field>
+			<a>parentList.id</a>
+			<b>parentListId</b>
+		</field>
+	</mapping>
+	
+</mappings>

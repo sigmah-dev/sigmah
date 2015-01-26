@@ -1,41 +1,44 @@
 package org.sigmah.shared.command;
 
-import org.sigmah.shared.command.result.UserListResult;
+import org.sigmah.shared.command.base.AbstractCommand;
+import org.sigmah.shared.command.result.ListResult;
+import org.sigmah.shared.dto.UserDTO;
 
-public class GetUsersByOrganization implements Command<UserListResult> {
+/**
+ * GetUsersByOrganization command.
+ * 
+ * @author Denis Colliot (dcolliot@ideia.fr) (v2.0)
+ */
+public class GetUsersByOrganization extends AbstractCommand<ListResult<UserDTO>> {
 
-    private static final long serialVersionUID = 7100250221434383156L;
+	private int organizationId;
+	private Integer userId;
+	private UserDTO.Mode mappingMode;
 
-    public int organizationId;
+	protected GetUsersByOrganization() {
+		// Serialization.
+	}
 
-    public Integer userId;
+	public GetUsersByOrganization(int organizationId, UserDTO.Mode mappingMode) {
+		this(organizationId, null, mappingMode);
+	}
 
-    public GetUsersByOrganization() {
-        // serialization.
-    }
+	public GetUsersByOrganization(int organizationId, Integer userId, UserDTO.Mode mappingMode) {
+		this.organizationId = organizationId;
+		this.userId = userId;
+		this.mappingMode = mappingMode;
+	}
 
-    public GetUsersByOrganization(int organizationId) {
-        this.organizationId = organizationId;
-    }
+	public int getOrganizationId() {
+		return organizationId;
+	}
 
-    public GetUsersByOrganization(int organizationId, Integer userId) {
-        this.organizationId = organizationId;
-        this.userId = userId;
-    }
+	public Integer getUserId() {
+		return userId;
+	}
 
-    public int getOrganizationId() {
-        return organizationId;
-    }
+	public UserDTO.Mode getMappingMode() {
+		return mappingMode;
+	}
 
-    public void setOrganizationId(int organizationId) {
-        this.organizationId = organizationId;
-    }
-
-    public Integer getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Integer userId) {
-        this.userId = userId;
-    }
 }

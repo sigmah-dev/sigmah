@@ -1,8 +1,0 @@
-{
- "name" : "ActivityInfo",
- "betaManifestVersion" : 1,
- "version" : 1,
- "entries" : [
-     __ENTRIES__
-    ]
-}

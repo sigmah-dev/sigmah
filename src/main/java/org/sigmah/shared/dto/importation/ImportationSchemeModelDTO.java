@@ -2,32 +2,43 @@ package org.sigmah.shared.dto.importation;
 
 import java.util.List;
 
-import org.sigmah.shared.dto.EntityDTO;
 import org.sigmah.shared.dto.OrgUnitModelDTO;
 import org.sigmah.shared.dto.ProjectModelDTO;
+import org.sigmah.shared.dto.base.AbstractModelDataEntityDTO;
 
-import com.extjs.gxt.ui.client.data.BaseModelData;
+/**
+ * ImportationSchemeModelDTO.
+ * 
+ * @author Denis Colliot (dcolliot@ideia.fr)
+ */
+public class ImportationSchemeModelDTO extends AbstractModelDataEntityDTO<Integer> {
 
-public class ImportationSchemeModelDTO extends BaseModelData implements EntityDTO {
-
+	/**
+	 * Serial version UID.
+	 */
 	private static final long serialVersionUID = 8661322283680779114L;
 
-	@Override
-	public int getId() {
-		if (get("id") != null) {
-			return (Integer) get("id");
-		} else {
-			return -1;
-		}
-	}
+	private static final String ENTITY_NAME = "importation.ImportationSchemeModel";
+	private static final String IMPORTATION_SCHEME = "importationSchemeDTO";
+	private static final String PROJECT_MODEL = "projectModelDTO";
+	private static final String ORGUNIT_MODEL = "orgUnitModelDTO";
+	private static final String VARIABLES = "variableFlexibleElementsDTO";
 
-	public void setId(int id) {
-		set("id", id);
-	}
-
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String getEntityName() {
 		return "importation.ImportationSchemeModel";
+	}
+
+	public VariableFlexibleElementDTO getIdKey() {
+		for (VariableFlexibleElementDTO varfleDTO : getVariableFlexibleElementsDTO()) {
+			if (varfleDTO.getIsKey()) {
+				return varfleDTO;
+			}
+		}
+		return null;
 	}
 
 	public ImportationSchemeDTO getImportationSchemeDTO() {
@@ -62,12 +73,4 @@ public class ImportationSchemeModelDTO extends BaseModelData implements EntityDT
 		set("variableFlexibleElementsDTO", variableFlexibleElementsDTO);
 	}
 
-	public VariableFlexibleElementDTO getIdKey() {
-		for (VariableFlexibleElementDTO varfleDTO : getVariableFlexibleElementsDTO()) {
-			if (varfleDTO.getIsKey()) {
-				return varfleDTO;
-			}
-		}
-		return null;
-	}
 }

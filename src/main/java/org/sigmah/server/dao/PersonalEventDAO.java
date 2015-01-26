@@ -1,17 +1,16 @@
-/*
- * All Sigmah code is released under the GNU General Public License v3
- * See COPYRIGHT.txt and LICENSE.txt.
- */
-
 package org.sigmah.server.dao;
 
-import org.sigmah.shared.dao.DAO;
-import org.sigmah.shared.domain.calendar.PersonalEvent;
+import org.sigmah.server.dao.base.DAO;
+import org.sigmah.server.domain.calendar.PersonalEvent;
 
 /**
- *
+ * Personal even DAO interface.
+ * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
+ * @author Denis Colliot (dcolliot@ideia.fr)
  */
 public interface PersonalEventDAO extends DAO<PersonalEvent, Integer> {
-    void merge(PersonalEvent event);
+
+	void merge(PersonalEvent event);
+
 }

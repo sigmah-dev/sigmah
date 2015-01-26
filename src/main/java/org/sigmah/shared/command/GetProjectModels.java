@@ -1,105 +1,69 @@
 package org.sigmah.shared.command;
 
-import org.sigmah.shared.command.result.ProjectModelListResult;
-import org.sigmah.shared.domain.ProjectModelStatus;
-import org.sigmah.shared.domain.ProjectModelType;
+import org.sigmah.client.util.ToStringBuilder;
+import org.sigmah.shared.command.base.AbstractCommand;
+import org.sigmah.shared.command.result.ListResult;
+import org.sigmah.shared.dto.ProjectModelDTO;
+import org.sigmah.shared.dto.referential.ProjectModelStatus;
 
 /**
  * Retrieves the list of project models available to the user.
  * 
- * @author tmi
- * 
+ * @author tmi (v1.3)
+ * @author Denis Colliot (dcolliot@ideia.fr) (v2.0)
  */
-public class GetProjectModels implements Command<ProjectModelListResult> {
+public class GetProjectModels extends AbstractCommand<ListResult<ProjectModelDTO>> {
 
-    private static final long serialVersionUID = 6533084223987010888L;
-
-    /**
-     * The type of model of the models for the current user organization (set to
-     * <code>null</code> to ignore this filter).
-     */
-    private ProjectModelType modelType;
-    
 	/**
-	 * The status of the project set to <code>DRAFT</code> for the test
-	 * projects.
+	 * The mapping mode (may be {@code null}).
 	 */
-    private ProjectModelStatus projectModelStatus;
-    
-    private Boolean allProjectModelStatus = false;
-    
-    private Boolean fullVersion=false;
+	private ProjectModelDTO.Mode mappingMode;
 
-    /**
-	 * @return the fullVersion
+	/**
+	 * The filtered status (may be {@code null}).<br>
+	 * If {@code null}, a default filter is set.
 	 */
-	public Boolean getFullVersion() {
-		return fullVersion;
+	private ProjectModelStatus[] statusFilters;
+
+	protected GetProjectModels() {
+		// Serialization.
 	}
 
 	/**
-	 * @param fullVersion the fullVersion to set
+	 * <p>
+	 * Retrieves the {@link ProjectModelDTO} of the authenticated user's organization.
+	 * </p>
+	 * <p>
+	 * If no {@code statusFilters} is set, a default filter will only retrieve project models with status
+	 * {@link ProjectModelStatus#READY} or {@link ProjectModelStatus#USED}.
+	 * </p>
+	 * 
+	 * @param mappingMode
+	 *          The mapping mode. If {@code null}, default mapping is processed.
+	 * @param statusFilters
+	 *          Only retrieves project models which status is included into the given {@code statusFilters}. If
+	 *          {@code null} or empty, default filter is set.
 	 */
-	public void setFullVersion(Boolean fullVersion) {
-		this.fullVersion = fullVersion;
+	public GetProjectModels(ProjectModelDTO.Mode mappingMode, ProjectModelStatus... statusFilters) {
+		this.mappingMode = mappingMode;
+		this.statusFilters = statusFilters;
 	}
 
-	public GetProjectModels() {
-        // serialization.
-    }
-    
-    public GetProjectModels(ProjectModelStatus projectModelStatus) {
-    	//Test projects
-        this.projectModelStatus = projectModelStatus;
-    }
-
-    public GetProjectModels(ProjectModelType modelType) {
-        this.modelType = modelType;
-    }
-
-    public ProjectModelType getModelType() {
-        return modelType;
-    }
-
-    public void setModelType(ProjectModelType modelType) {
-        this.modelType = modelType;
-    }
-
-    public ProjectModelStatus getProjectModelStatus() {
-		return projectModelStatus;
-	}
-
-	public void setProjectModelStatus(ProjectModelStatus projectModelStatus) {
-		this.projectModelStatus = projectModelStatus;
-	}
-	
-	public Boolean getAllProjectModelStatus() {
-		return allProjectModelStatus;
-	}
-
-	public void allProjectModelStatus() {
-		this.allProjectModelStatus = true;
-	}
-
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((modelType == null) ? 0 : modelType.hashCode());
-        return result;
-    }
+	protected void appendToString(final ToStringBuilder builder) {
+		builder.append("mappingMode", mappingMode);
+		builder.append("statusFilters", statusFilters);
+	}
 
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        GetProjectModels other = (GetProjectModels) obj;
-        if (modelType != other.modelType)
-            return false;
-        return true;
-    }
+	public ProjectModelDTO.Mode getMappingMode() {
+		return mappingMode;
+	}
+
+	public ProjectModelStatus[] getStatusFilters() {
+		return statusFilters;
+	}
+
 }

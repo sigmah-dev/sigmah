@@ -2,21 +2,20 @@ package org.sigmah.shared.command.result;
 
 import java.util.List;
 
-import org.sigmah.shared.domain.ImportDetails;
+import org.sigmah.shared.dto.ImportDetails;
 
 /**
- * Result for command {@link GetImportInformation}
+ * Result for command {@link org.sigmah.shared.command.GetImportInformation GetImportInformation}.
+ * 
  * @author Guerline Jean-Baptiste (gjbaptiste@ideia.fr)
+ * @author Denis Colliot (dcolliot@ideia.fr)
  */
-public class ImportInformationResult implements CommandResult {
+public class ImportInformationResult implements Result {
 
-	
-	private static final long serialVersionUID = 7846128691191021492L;
-
-	List<ImportDetails> entitiesToImport;
+	private List<ImportDetails> entitiesToImport;
 
 	public ImportInformationResult() {
-
+		// Serialization.
 	}
 
 	/**
@@ -28,7 +27,7 @@ public class ImportInformationResult implements CommandResult {
 
 	/**
 	 * @param entitiesToImport
-	 *            the entitiesToImport to set
+	 *          the entitiesToImport to set
 	 */
 	public void setEntitiesToImport(List<ImportDetails> entitiesToImport) {
 		this.entitiesToImport = entitiesToImport;

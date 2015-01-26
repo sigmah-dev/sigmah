@@ -1,33 +1,25 @@
 package org.sigmah.shared.dto.importation;
 
-import org.sigmah.shared.dto.EntityDTO;
+import org.sigmah.shared.dto.base.AbstractModelDataEntityDTO;
 import org.sigmah.shared.dto.element.BudgetSubFieldDTO;
 
-import com.extjs.gxt.ui.client.data.BaseModelData;
-
-public class VariableBudgetSubFieldDTO extends BaseModelData implements EntityDTO {
+/**
+ * VariableBudgetSubFieldDTO.
+ * 
+ * @author Denis Colliot (dcolliot@ideia.fr)
+ */
+public class VariableBudgetSubFieldDTO extends AbstractModelDataEntityDTO<Integer> {
 
 	/**
-	 * 
+	 * Serial version UID.
 	 */
 	private static final long serialVersionUID = -171871913478215607L;
 
-	@Override
-	public int getId() {
-		if (get("id") != null)
-			return (Integer) get("id");
-		else
-			return -1;
-	}
-
-	public void setId(int id) {
-		// TODO Auto-generated method stub
-		set("id", id);
-	}
-
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String getEntityName() {
-		// TODO Auto-generated method stub
 		return "importation.VariableBudgetSubField";
 	}
 
@@ -40,7 +32,7 @@ public class VariableBudgetSubFieldDTO extends BaseModelData implements EntityDT
 
 	/**
 	 * @param variableDTO
-	 *            the variableDTO to set
+	 *          the variableDTO to set
 	 */
 	public void setVariableDTO(VariableDTO variableDTO) {
 		set("variableDTO", variableDTO);
@@ -55,7 +47,7 @@ public class VariableBudgetSubFieldDTO extends BaseModelData implements EntityDT
 
 	/**
 	 * @param budgetSubFieldDTO
-	 *            the budgetSubFieldDTO to set
+	 *          the budgetSubFieldDTO to set
 	 */
 	public void setBudgetSubFieldDTO(BudgetSubFieldDTO budgetSubFieldDTO) {
 		set("budgetSubFieldDTO", budgetSubFieldDTO);
@@ -70,7 +62,7 @@ public class VariableBudgetSubFieldDTO extends BaseModelData implements EntityDT
 
 	/**
 	 * @param variableBudgetElementDTO
-	 *            the variableBudgetElementDTO to set
+	 *          the variableBudgetElementDTO to set
 	 */
 	public void setVariableBudgetElementDTO(VariableBudgetElementDTO variableBudgetElementDTO) {
 		set("variableBudgetElementDTO", variableBudgetElementDTO);

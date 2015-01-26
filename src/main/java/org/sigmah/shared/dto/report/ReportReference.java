@@ -1,82 +1,135 @@
 package org.sigmah.shared.dto.report;
 
-import com.extjs.gxt.ui.client.data.BaseModelData;
 import java.util.Date;
-import org.sigmah.shared.domain.report.ProjectReport;
+
+import org.sigmah.client.util.ToStringBuilder;
+import org.sigmah.shared.dto.base.AbstractModelDataDTO;
+import org.sigmah.shared.dto.value.FileVersionDTO;
 import org.sigmah.shared.dto.value.ListableValue;
 
-public class ReportReference extends BaseModelData implements ListableValue {
+/**
+ * <p>
+ * ReportReference.
+ * </p>
+ * <p>
+ * This DTO represents either:
+ * <ul>
+ * <li>a {@link FileVersionDTO} instance.</li>
+ * <li>a {@link ProjectReportDTO} instance.</li>
+ * </ul>
+ * </p>
+ * 
+ * @author Denis Colliot (dcolliot@ideia.fr)
+ */
+public class ReportReference extends AbstractModelDataDTO implements ListableValue {
 
-    private static final long serialVersionUID = 1736989091550004973L;
+	/**
+	 * Serial version UID.
+	 */
+	private static final long serialVersionUID = 1736989091550004973L;
 
-    public ReportReference() {
-    }
+	// DTO attributes keys.
+	public static final String ID = "id";
+	public static final String NAME = "name";
+	public static final String PHASE_NAME = "phaseName";
+	public static final String FLEXIBLE_ELEMENT_LABEL = "flexibleElementLabel";
+	public static final String LAST_EDIT_DATE = "lastEditDate";
+	public static final String EDITOR_NAME = "editorName";
 
-    public ReportReference(ProjectReport report) {
-        this.set("id", report.getId());
-        this.set("name", report.getName());
-        this.set("lastEditDate", report.getCurrentVersion().getEditDate());
-        this.set("editorName", report.getCurrentVersion().getEditorShortName());
-        this.set("phaseName", report.getCurrentVersion().getPhaseName());
-        if (report.getFlexibleElement() != null) {
-            this.set("flexibleElementLabel", report.getFlexibleElement().getLabel());
-        }
-    }
+	/**
+	 * If the {@link ReportReference} represents an attached document, this attribute contains the corresponding file
+	 * version data.
+	 */
+	private FileVersionDTO fileVersion;
 
-    public Integer getId() {
-        return get("id");
-    }
+	public ReportReference() {
+		// Serialization.
+	}
 
-    public void setId(Integer id) {
-        this.set("id", id);
-    }
+	public ReportReference(final FileVersionDTO fileVersion) {
+		this.fileVersion = fileVersion;
+	}
 
-    public String getName() {
-        return get("name");
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void appendToString(final ToStringBuilder builder) {
+		builder.append(ID, getId());
+		builder.append(NAME, getName());
+		builder.append(PHASE_NAME, getPhaseName());
+		builder.append(FLEXIBLE_ELEMENT_LABEL, getFlexibleElementLabel());
+		builder.append(LAST_EDIT_DATE, getLastEditDate());
+		builder.append(EDITOR_NAME, getEditorName());
+		builder.append("document", isDocument());
+	}
 
-    public void setName(String name) {
-        this.set("name", name);
-    }
+	/**
+	 * Returns if the current report reference represents a file version document.
+	 * 
+	 * @return {@code true} if the current report reference represents a file version document, {@code false} if it
+	 *         represents a project report.
+	 */
+	public boolean isDocument() {
+		return getFileVersion() != null;
+	}
 
-    public String getPhaseName() {
-        return get("phaseName");
-    }
+	/**
+	 * Returns the current {@link ReportReference} file version data.
+	 * 
+	 * @return The current report reference file version data, or {@code null} if this {@link ReportReference} represents
+	 *         a {@link ProjectReportDTO}.
+	 */
+	public FileVersionDTO getFileVersion() {
+		return fileVersion;
+	}
 
-    public void setPhaseName(String phaseName) {
-        this.set("phaseName", phaseName);
-    }
+	public Integer getId() {
+		return get(ID);
+	}
 
-    public String getFlexibleElementLabel() {
-        return get("flexibleElementLabel");
-    }
+	public void setId(Integer id) {
+		this.set(ID, id);
+	}
 
-    public void setFlexibleElementLabel(String label) {
-        this.set("flexibleElementLabel", label);
-    }
+	public String getName() {
+		return get(NAME);
+	}
 
-    public Date getLastEditDate() {
-        return get("lastEditDate");
-    }
+	public void setName(String name) {
+		this.set(NAME, name);
+	}
 
-    public void setLastEditDate(Date date) {
-        this.set("lastEditDate", date);
-    }
+	public String getPhaseName() {
+		return get(PHASE_NAME);
+	}
 
-    public String getEditorName() {
-        return get("editorName");
-    }
+	public void setPhaseName(String phaseName) {
+		this.set(PHASE_NAME, phaseName);
+	}
 
-    public void setEditorName(String editorName) {
-        this.set("editorName", editorName);
-    }
+	public String getFlexibleElementLabel() {
+		return get(FLEXIBLE_ELEMENT_LABEL);
+	}
 
-    public boolean isDocument() {
-        final Boolean is = (Boolean) get("isDocument");
-        return is == null ? false : is;
-    }
+	public void setFlexibleElementLabel(String label) {
+		this.set(FLEXIBLE_ELEMENT_LABEL, label);
+	}
 
-    public void setDocument(boolean isDocument) {
-        this.set("isDocument", isDocument);
-    }
+	public Date getLastEditDate() {
+		return get(LAST_EDIT_DATE);
+	}
+
+	public void setLastEditDate(Date date) {
+		this.set(LAST_EDIT_DATE, date);
+	}
+
+	public String getEditorName() {
+		return get(EDITOR_NAME);
+	}
+
+	public void setEditorName(String editorName) {
+		this.set(EDITOR_NAME, editorName);
+	}
+
 }

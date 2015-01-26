@@ -1,33 +1,32 @@
-/*
- * All Sigmah code is released under the GNU General Public License v3
- * See COPYRIGHT.txt and LICENSE.txt.
- */
-
 package org.sigmah.shared.command;
 
+import org.sigmah.shared.command.base.AbstractCommand;
 import org.sigmah.shared.command.result.SitePointList;
-import org.sigmah.shared.dao.Filter;
-import org.sigmah.shared.report.model.DimensionType;
+import org.sigmah.shared.dto.referential.DimensionType;
+import org.sigmah.shared.util.Filter;
 
 /**
+ * GetSitePoints Command.
+ * 
  * @author Alex Bertram (akbertram@gmail.com)
+ * @author Denis Colliot (dcolliot@ideia.fr)
  */
-public class GetSitePoints implements Command<SitePointList> {
+public class GetSitePoints extends AbstractCommand<SitePointList> {
 
-    private Filter filter;
+	private Filter filter;
 
-    private GetSitePoints() {
+	protected GetSitePoints() {
+		// Serialization.
+	}
 
-    }
-    
-    public GetSitePoints(Filter filter) {
-    	this.filter = filter;
-    }
+	public GetSitePoints(Filter filter) {
+		this.filter = filter;
+	}
 
-    public GetSitePoints(int activityId) {
-        this.filter = new Filter();
-        filter.addRestriction(DimensionType.Activity, activityId);
-    }
+	public GetSitePoints(int activityId) {
+		this.filter = new Filter();
+		filter.addRestriction(DimensionType.Activity, activityId);
+	}
 
 	public Filter getFilter() {
 		return filter;
@@ -37,7 +36,4 @@ public class GetSitePoints implements Command<SitePointList> {
 		this.filter = filter;
 	}
 
-    
 }
-
-

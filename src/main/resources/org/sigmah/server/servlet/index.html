@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+
+<html manifest="sigmah/manifest">
+
+	<head>
+
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<!-- ${AppLocale} -->
+
+		<title><!-- ${AppName} --> <!-- ${AppVersion} --></title>
+
+    	<link rel="shortcut icon" href="sigmah/images/icon/favicon.ico" />
+    
+    	<link rel="stylesheet" type="text/css" href="sigmah/css/reset.css" />
+    	<link rel="stylesheet" type="text/css" href="sigmah/themes/css/gxt-all.css" />
+    	<link rel="stylesheet" type="text/css" href="sigmah/css/sigmah.css" />
+		<style type="text/css">
+			#loading{width:100%;height:100%;position:absolute;left:0;top:0;background-color:#494748;z-index:999999}
+			#loading-box{position:absolute;left:50%;top:50%;text-align:center;width:224px;height:90px;margin-left:-112px;margin-top:-45px;z-index:20001;color:#FFF;font-family:tahoma;font-weight:700;font-size:10pt;}
+			#loading-box .version{font-weight:400;font-size:9pt;}
+		</style>		
+
+		<script src="http://www.openlayers.org/api/OpenLayers.js"></script>
+		<script src="http://www.openstreetmap.org/openlayers/OpenStreetMap.js"></script>
+		<script type="text/javascript" src="sigmah/is_online.nocache.js"></script>
+    	<script type="text/javascript" src="sigmah/sigmah.nocache.js"></script>
+    	<script type="text/javascript" src="sigmah/sigmah.extra.nocache.js"></script>
+		<script type="text/javascript">var GoogleMapsAPI = { key : "<!-- ${AppMapsKey} -->" };</script>
+
+	</head>
+
+	<body>
+
+		<!-- GWT History iframe (handling prev and next browser buttons). -->
+		<iframe src="javascript:''" id="__gwt_historyFrame" tabIndex='-1' style="position:absolute;width:0;height:0;border:0"></iframe>
+		<iframe src="javascript:''" id="_downloadFrame" name="_downloadFrame" tabIndex='-1' style="position:absolute;width:0;height:0;border:0"></iframe>
+
+    	<!-- Message displayed when browser JavaScript is disabled. -->
+    	<noscript>
+			<div class="noscript">
+				Your browser must enable JavaScript to allow <!-- ${AppName} --> to display correctly.
+			</div>
+    	</noscript>
+
+		<div id="loading">
+			<div id="loading-box">
+				<img src="sigmah/images/login/login-logo.png" alt="<!-- ${AppName} -->" /><br/>
+				<div>
+					<img src="sigmah/images/loader/loader.gif" alt="Loading..." style="vertical-align: middle" />
+					<span class="version">Version <!-- ${AppVersion} --></span>
+				</div>
+			</div>
+		</div>
+
+	</body>
+
+</html>

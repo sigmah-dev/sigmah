@@ -1,31 +1,21 @@
-/**
- * 
- */
 package org.sigmah.shared.command;
 
+import org.sigmah.shared.command.base.AbstractCommand;
 import org.sigmah.shared.command.result.SiteResult;
-import org.sigmah.shared.dao.Filter;
+import org.sigmah.shared.util.Filter;
 
 /**
- * 
  * A command to get a list of sites for a project by using a filter.
  * 
  * @author HUZHE
- *
+ * @author Denis Colliot (dcolliot@ideia.fr)
  */
-public class GetSitesCount implements Command<SiteResult> {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+public class GetSitesCount extends AbstractCommand<SiteResult> {
 
 	private Filter filter;
-	
-	
 
 	public GetSitesCount() {
-		
+		// Serialization.
 	}
 
 	/**
@@ -44,13 +34,11 @@ public class GetSitesCount implements Command<SiteResult> {
 	}
 
 	/**
-	 * @param filter the filter to set
+	 * @param filter
+	 *          the filter to set
 	 */
 	public void setFilter(Filter filter) {
 		this.filter = filter;
 	}
-	
-	
-	
-	
+
 }

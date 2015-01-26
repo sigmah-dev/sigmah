@@ -1,46 +1,41 @@
-/*
- * All Sigmah code is released under the GNU General Public License v3
- * See COPYRIGHT.txt and LICENSE.txt.
- */
-
 package org.sigmah.shared.command;
 
-import org.sigmah.shared.command.result.ReportTemplateResult;
+import org.sigmah.shared.command.result.ListResult;
+import org.sigmah.shared.dto.ReportDefinitionDTO;
 
-public class GetReportTemplates extends GetListCommand<ReportTemplateResult> {
+/**
+ * @author Denis Colliot (dcolliot@ideia.fr)
+ */
+public class GetReportTemplates extends GetListCommand<ListResult<ReportDefinitionDTO>> {
 
-    private Integer databaseId;
-    private Integer templateId;
+	private Integer databaseId;
+	private Integer templateId;
 
-    public GetReportTemplates() {
-    }
+	public GetReportTemplates() {
+		// Serialization.
+	}
 
+	public Integer getDatabaseId() {
+		return databaseId;
+	}
 
-    public Integer getDatabaseId() {
-        return databaseId;
-    }
+	public void setDatabaseId(Integer databaseId) {
+		this.databaseId = databaseId;
+	}
 
-    public void setDatabaseId(Integer databaseId) {
-        this.databaseId = databaseId;
+	public Integer getTemplateId() {
+		return templateId;
+	}
 
-    }
+	public void setTemplateId(Integer templateId) {
+		this.templateId = templateId;
+	}
 
-    public Integer getTemplateId() {
-        return templateId;
-    }
+	public static GetReportTemplates byTemplateId(int id) {
+		GetReportTemplates cmd = new GetReportTemplates();
+		cmd.setTemplateId(id);
 
-    public void setTemplateId(Integer templateId) {
-        this.templateId = templateId;
-    }
-
-    public static GetReportTemplates byTemplateId(int id) {
-        GetReportTemplates cmd = new GetReportTemplates();
-        cmd.setTemplateId(id);
-
-        return cmd;
-    }
-
-
-
+		return cmd;
+	}
 
 }

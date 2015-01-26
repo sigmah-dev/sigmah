@@ -1,0 +1,43 @@
+package org.sigmah.client.ui.view.pivot.table;
+
+
+import com.extjs.gxt.ui.client.event.GridEvent;
+import com.google.gwt.dom.client.Element;
+import org.sigmah.shared.dto.pivot.content.PivotTableData;
+
+public class PivotGridHeaderEvent extends GridEvent<PivotGridPanel.PivotTableRow> {
+
+	private final PivotTableData.Axis axis;
+	
+	public enum IconTarget {
+		ZOOM,
+		EDIT,
+		SWAP,
+		NONE
+	}
+	
+	public PivotGridHeaderEvent(GridEvent<PivotGridPanel.PivotTableRow> event, PivotTableData.Axis axis) {
+		super(event.getGrid(), event.getEvent());
+		this.axis = axis;
+	}
+
+	public PivotTableData.Axis getAxis() {
+		return axis;
+	}
+	
+	public IconTarget getIconTarget() {
+		Element targetElement = event.getEventTarget().cast();
+		String targetClass = targetElement.getClassName();
+		
+		if(PivotResources.INSTANCE.css().zoomIcon().equals(targetClass)) {
+			return IconTarget.ZOOM;
+		} else if(PivotResources.INSTANCE.css().editIcon().equals(targetClass)) {
+			return IconTarget.EDIT;
+		} else if(PivotResources.INSTANCE.css().swapIcon().equals(targetClass)) {
+			return IconTarget.SWAP;
+		} else {
+			return IconTarget.NONE;
+		}
+	}
+
+}

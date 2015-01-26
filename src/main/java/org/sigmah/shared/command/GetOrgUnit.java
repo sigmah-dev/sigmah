@@ -1,54 +1,51 @@
 package org.sigmah.shared.command;
 
-import org.sigmah.shared.dto.OrgUnitDTO;
+import org.sigmah.client.util.ToStringBuilder;
+import org.sigmah.shared.command.base.AbstractCommand;
+import org.sigmah.shared.dto.orgunit.OrgUnitDTO;
 
 /**
  * Retrieves an org unit with the given id.
  * 
- * @author tmi
- * 
+ * @author Tom Miette (tmiette@ideia.fr) (v2.0)
+ * @author Denis Colliot (dcolliot@ideia.fr) (v2.0)
  */
-public class GetOrgUnit implements Command<OrgUnitDTO> {
+public class GetOrgUnit extends AbstractCommand<OrgUnitDTO> {
 
-    private static final long serialVersionUID = 5675515456984800856L;
+	/**
+	 * Org unit id.
+	 */
+	private Integer id;
 
-    private int id;
+	/**
+	 * Mapping mode.
+	 */
+	private OrgUnitDTO.Mode mode;
 
-    public GetOrgUnit() {
-        // required, or serialization exception
-    }
+	protected GetOrgUnit() {
+		// Serialization.
+	}
 
-    public GetOrgUnit(int id) {
-        this.id = id;
-    }
+	public GetOrgUnit(final Integer orgUnitId, final OrgUnitDTO.Mode mode) {
+		this.id = orgUnitId;
+		this.mode = mode;
+	}
 
-    public int getId() {
-        return id;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void appendToString(final ToStringBuilder builder) {
+		builder.append("orgUnitId", id);
+		builder.append("mappingMode", mode);
+	}
 
-    public void setId(int id) {
-        this.id = id;
-    }
+	public int getId() {
+		return id;
+	}
 
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + id;
-        return result;
-    }
+	public OrgUnitDTO.Mode getMode() {
+		return mode;
+	}
 
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        GetOrgUnit other = (GetOrgUnit) obj;
-        if (id != other.id)
-            return false;
-        return true;
-    }
 }

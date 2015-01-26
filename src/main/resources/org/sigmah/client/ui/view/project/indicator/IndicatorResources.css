@@ -1,0 +1,22 @@
+@sprite .emptyMapIcon {	
+	gwt-image: 'emptyMap'; 
+	vertical-align: -4px;
+}
+@sprite .mapIcon { 
+	gwt-image: 'map'; 
+	vertical-align: -4px;
+}
+@sprite .starIcon { 
+	gwt-image: 'star'; 
+	vertical-align: -4px; 
+}
+@sprite .emptyStarIcon { 
+	gwt-image: 'emptyStar'; 
+	vertical-align: -4px;
+ }
+
+.indicatorLabel {
+	cursor: pointer;
+	text-decoration: underline;
+	padding-left: 5px;
+}

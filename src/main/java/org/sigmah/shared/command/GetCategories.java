@@ -1,18 +1,17 @@
 package org.sigmah.shared.command;
 
-import org.sigmah.shared.command.result.CategoriesListResult;
+import org.sigmah.shared.command.base.AbstractCommand;
+import org.sigmah.shared.command.result.ListResult;
+import org.sigmah.shared.dto.category.CategoryTypeDTO;
 
 /**
- * 
- * @author nrebiai
- * 
+ * @author nrebiai (v1.3)
+ * @author Denis Colliot (dcolliot@ideia.fr) (v2.0)
  */
-
-public class GetCategories implements Command<CategoriesListResult> {
-
-	private static final long serialVersionUID = -5394274506782553515L;
+public class GetCategories extends AbstractCommand<ListResult<CategoryTypeDTO>> {
 
 	public GetCategories() {
-        // serialization.
-    }
+		// Serialization.
+	}
+
 }

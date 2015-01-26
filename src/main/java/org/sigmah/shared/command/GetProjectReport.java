@@ -1,30 +1,28 @@
-/*
- * All Sigmah code is released under the GNU General Public License v3
- * See COPYRIGHT.txt and LICENSE.txt.
- */
-
 package org.sigmah.shared.command;
 
+import org.sigmah.shared.command.base.AbstractCommand;
 import org.sigmah.shared.dto.report.ProjectReportDTO;
 
 /**
- *
+ * Gets a project report from its id.
+ * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
+ * @author Denis Colliot (dcolliot@ideia.fr)
  */
-public class GetProjectReport implements Command<ProjectReportDTO> {
-    private int reportId;
+public class GetProjectReport extends AbstractCommand<ProjectReportDTO> {
 
-    public GetProjectReport() {}
+	private Integer reportId;
 
-    public GetProjectReport(int reportId) {
-        this.reportId = reportId;
-    }
+	protected GetProjectReport() {
+		// Serialization.
+	}
 
-    public int getReportId() {
-        return reportId;
-    }
+	public GetProjectReport(int reportId) {
+		this.reportId = reportId;
+	}
 
-    public void setReportId(int reportId) {
-        this.reportId = reportId;
-    }
+	public Integer getReportId() {
+		return reportId;
+	}
+
 }

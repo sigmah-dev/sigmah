@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence xmlns="http://java.sun.com/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd" version="2.0">
+
+	<persistence-unit name="sigmah-dev" transaction-type="RESOURCE_LOCAL">
+		<provider>org.hibernate.ejb.HibernatePersistence</provider>
+
+		<!-- REQUIRED FOR TESTS (ONLY). -->
+		<!-- Hibernate scans test classpath classes but entities classes are in a different classpath. -->
+		<class>org.sigmah.server.domain.Activity</class>
+		<class>org.sigmah.server.domain.AdminEntity</class>
+		<class>org.sigmah.server.domain.AdminLevel</class>
+		<class>org.sigmah.server.domain.Amendment</class>
+		<class>org.sigmah.server.domain.Attribute</class>
+		<class>org.sigmah.server.domain.AttributeGroup</class>
+		<class>org.sigmah.server.domain.AttributeValue</class>
+		<class>org.sigmah.server.domain.Authentication</class>
+		<class>org.sigmah.server.domain.Country</class>
+		<class>org.sigmah.server.domain.HistoryToken</class>
+		<class>org.sigmah.server.domain.Indicator</class>
+		<class>org.sigmah.server.domain.IndicatorValue</class>
+		<class>org.sigmah.server.domain.Location</class>
+		<class>org.sigmah.server.domain.LocationType</class>
+		<class>org.sigmah.server.domain.Organization</class>
+		<class>org.sigmah.server.domain.OrgUnit</class>
+		<class>org.sigmah.server.domain.OrgUnitBanner</class>
+		<class>org.sigmah.server.domain.OrgUnitDetails</class>
+		<class>org.sigmah.server.domain.OrgUnitModel</class>
+		<class>org.sigmah.server.domain.OrgUnitPermission</class>
+		<class>org.sigmah.server.domain.Phase</class>
+		<class>org.sigmah.server.domain.PhaseModel</class>
+		<class>org.sigmah.server.domain.PhaseModelDefinition</class>
+		<class>org.sigmah.server.domain.Project</class>
+		<class>org.sigmah.server.domain.ProjectBanner</class>
+		<class>org.sigmah.server.domain.ProjectDetails</class>
+		<class>org.sigmah.server.domain.ProjectFunding</class>
+		<class>org.sigmah.server.domain.ProjectModel</class>
+		<class>org.sigmah.server.domain.ProjectModelVisibility</class>
+		<class>org.sigmah.server.domain.ReportDefinition</class>
+		<class>org.sigmah.server.domain.ReportingPeriod</class>
+		<class>org.sigmah.server.domain.ReportSubscription</class>
+		<class>org.sigmah.server.domain.Site</class>
+		<class>org.sigmah.server.domain.User</class>
+		<class>org.sigmah.server.domain.UserDatabase</class>
+		<class>org.sigmah.server.domain.UserPermission</class>
+
+		<!-- calendar package. -->
+		<class>org.sigmah.server.domain.calendar.PersonalCalendar</class>
+		<class>org.sigmah.server.domain.calendar.PersonalEvent</class>
+
+		<!-- category package. -->
+		<class>org.sigmah.server.domain.category.CategoryElement</class>
+		<class>org.sigmah.server.domain.category.CategoryType</class>
+
+		<!-- Element package. -->
+		<class>org.sigmah.server.domain.element.BudgetDistributionElement</class>
+		<class>org.sigmah.server.domain.element.BudgetElement</class>
+		<class>org.sigmah.server.domain.element.BudgetSubField</class>
+		<class>org.sigmah.server.domain.element.CheckboxElement</class>
+		<class>org.sigmah.server.domain.element.DefaultFlexibleElement</class>
+		<class>org.sigmah.server.domain.element.FilesListElement</class>
+		<class>org.sigmah.server.domain.element.FlexibleElement</class>
+		<class>org.sigmah.server.domain.element.IndicatorsListElement</class>
+		<class>org.sigmah.server.domain.element.MessageElement</class>
+		<class>org.sigmah.server.domain.element.QuestionChoiceElement</class>
+		<class>org.sigmah.server.domain.element.QuestionElement</class>
+		<class>org.sigmah.server.domain.element.ReportElement</class>
+		<class>org.sigmah.server.domain.element.ReportListElement</class>
+		<class>org.sigmah.server.domain.element.TextAreaElement</class>
+		<class>org.sigmah.server.domain.element.TripletsListElement</class>
+
+		<!-- export package. -->
+		<class>org.sigmah.server.domain.export.GlobalExport</class>
+		<class>org.sigmah.server.domain.export.GlobalExportContent</class>
+		<class>org.sigmah.server.domain.export.GlobalExportSettings</class>
+
+		<!-- Importation package. -->
+		<class>org.sigmah.server.domain.importation.ImportationScheme</class>
+		<class>org.sigmah.server.domain.importation.ImportationSchemeModel</class>
+		<class>org.sigmah.server.domain.importation.Variable</class>
+		<class>org.sigmah.server.domain.importation.VariableBudgetElement</class>
+		<class>org.sigmah.server.domain.importation.VariableBudgetSubField</class>
+		<class>org.sigmah.server.domain.importation.VariableBudgetSubFieldId</class>
+		<class>org.sigmah.server.domain.importation.VariableFlexibleElement</class>
+
+		<!-- Layout package. -->
+		<class>org.sigmah.server.domain.layout.Layout</class>
+		<class>org.sigmah.server.domain.layout.LayoutConstraint</class>
+		<class>org.sigmah.server.domain.layout.LayoutGroup</class>
+
+		<!-- Logframe package. -->
+		<class>org.sigmah.server.domain.logframe.ExpectedResult</class>
+		<class>org.sigmah.server.domain.logframe.LogFrame</class>
+		<class>org.sigmah.server.domain.logframe.LogFrameActivity</class>
+		<class>org.sigmah.server.domain.logframe.LogFrameCopyContext</class>
+		<class>org.sigmah.server.domain.logframe.LogFrameElement</class>
+		<class>org.sigmah.server.domain.logframe.LogFrameGroup</class>
+		<class>org.sigmah.server.domain.logframe.LogFrameModel</class>
+		<class>org.sigmah.server.domain.logframe.Prerequisite</class>
+		<class>org.sigmah.server.domain.logframe.SpecificObjective</class>
+
+		<!-- Quality package. -->
+		<class>org.sigmah.server.domain.quality.CriterionType</class>
+		<class>org.sigmah.server.domain.quality.QualityCriterion</class>
+		<class>org.sigmah.server.domain.quality.QualityFramework</class>
+
+		<!-- Reminder package. -->
+		<class>org.sigmah.server.domain.reminder.MonitoredPoint</class>
+		<class>org.sigmah.server.domain.reminder.MonitoredPointHistory</class>
+		<class>org.sigmah.server.domain.reminder.MonitoredPointList</class>
+		<class>org.sigmah.server.domain.reminder.Reminder</class>
+		<class>org.sigmah.server.domain.reminder.ReminderHistory</class>
+		<class>org.sigmah.server.domain.reminder.ReminderList</class>
+
+		<!-- report package. -->
+		<class>org.sigmah.server.domain.report.KeyQuestion</class>
+		<class>org.sigmah.server.domain.report.ProjectReport</class>
+		<class>org.sigmah.server.domain.report.ProjectReportModel</class>
+		<class>org.sigmah.server.domain.report.ProjectReportModelSection</class>
+		<class>org.sigmah.server.domain.report.ProjectReportVersion</class>
+		<class>org.sigmah.server.domain.report.RichTextElement</class>
+
+		<!-- value package. -->
+		<class>org.sigmah.server.domain.value.Budget</class>
+		<class>org.sigmah.server.domain.value.BudgetPart</class>
+		<class>org.sigmah.server.domain.value.BudgetPartsListValue</class>
+		<class>org.sigmah.server.domain.value.File</class>
+		<class>org.sigmah.server.domain.value.FileVersion</class>
+		<class>org.sigmah.server.domain.value.IndicatorsListValue</class>
+		<class>org.sigmah.server.domain.value.IndicatorsListValueId</class>
+		<class>org.sigmah.server.domain.value.TripletValue</class>
+		<class>org.sigmah.server.domain.value.Value</class>
+
+		<!-- Profile package. -->
+		<class>org.sigmah.server.domain.profile.GlobalPermission</class>
+		<class>org.sigmah.server.domain.profile.OrgUnitProfile</class>
+		<class>org.sigmah.server.domain.profile.PrivacyGroup</class>
+		<class>org.sigmah.server.domain.profile.PrivacyGroupPermission</class>
+		<class>org.sigmah.server.domain.profile.Profile</class>
+
+		<properties>
+
+			<property name="hibernate.archive.autodetection" value="class" />
+
+			<!-- Loaded from pom configuration. -->
+			<property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect" />
+			<property name="hibernate.connection.driver_class" value="org.postgresql.Driver" />
+			<property name="hibernate.connection.username" value="sigmah" />
+			<property name="hibernate.connection.password" value="sigmah" />
+			<property name="hibernate.connection.url" value="jdbc:postgresql://sigmah-integ.pr.netapsys.fr:5432/sigmah" />
+			<property name="hibernate.show_sql" value="true" />
+			<property name="hibernate.format_sql" value="true" />
+
+			<!-- validate | update | create | create-drop | none -->
+			<property name="hibernate.hbm2ddl.auto" value="" />
+
+			<!-- Important : connection pool. -->
+			<property name="hibernate.connection.provider_class" value="org.hibernate.service.jdbc.connections.internal.C3P0ConnectionProvider" />
+
+			<!-- Connection pool configuration. -->
+			<!-- https://community.jboss.org/wiki/HowToConfigureTheC3P0ConnectionPool -->
+			<!-- http://www.mchange.com/projects/c3p0/ -->
+			<property name="hibernate.c3p0.min_size" value="${jdbc.pool.min_size}" />
+			<property name="hibernate.c3p0.max_size" value="${jdbc.pool.max_size}" />
+			<property name="hibernate.c3p0.max_statements" value="${jdbc.pool.max_statements}" />
+			<property name="hibernate.c3p0.timeout" value="${jdbc.pool.timeout}" />
+			<property name="hibernate.c3p0.acquire_increment" value="${jdbc.pool.acquire_increment}" />
+			<property name="hibernate.c3p0.numHelperThreads" value="6" />
+
+		</properties>
+	</persistence-unit>
+
+</persistence>

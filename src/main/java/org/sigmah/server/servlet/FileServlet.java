@@ -1,0 +1,544 @@
+package org.sigmah.server.servlet;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.NoSuchFileException;
+import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Map;
+import java.util.UUID;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.fileupload.FileUploadException;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.sigmah.client.page.RequestParameter;
+import org.sigmah.client.util.ClientUtils;
+import org.sigmah.server.dao.FileDAO;
+import org.sigmah.server.dao.MonitoredPointDAO;
+import org.sigmah.server.dao.OrganizationDAO;
+import org.sigmah.server.dao.ProjectDAO;
+import org.sigmah.server.domain.Organization;
+import org.sigmah.server.domain.Project;
+import org.sigmah.server.domain.reminder.MonitoredPoint;
+import org.sigmah.server.domain.reminder.MonitoredPointList;
+import org.sigmah.server.domain.value.FileVersion;
+import org.sigmah.server.file.BackupArchiveManager;
+import org.sigmah.server.file.FileStorageProvider;
+import org.sigmah.server.file.LogoManager;
+import org.sigmah.server.file.util.MultipartRequest;
+import org.sigmah.server.file.util.MultipartRequestCallback;
+import org.sigmah.server.servlet.base.AbstractServlet;
+import org.sigmah.server.servlet.base.ServletExecutionContext;
+import org.sigmah.server.servlet.base.StatusServletException;
+import org.sigmah.server.servlet.util.ResponseHelper;
+import org.sigmah.shared.dto.reminder.MonitoredPointDTO;
+import org.sigmah.shared.dto.value.FileUploadUtils;
+import org.sigmah.shared.dto.value.FileVersionDTO;
+import org.sigmah.shared.servlet.FileUploadResponse;
+import org.sigmah.shared.servlet.ServletConstants.ServletMethod;
+import org.sigmah.shared.util.FileType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.gwt.http.client.Response;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+
+/**
+ * File upload and download servlet.
+ * 
+ * @author Denis Colliot (dcolliot@ideia.fr)
+ */
+@Singleton
+public class FileServlet extends AbstractServlet {
+
+	/**
+	 * Serial version UID.
+	 */
+	private static final long serialVersionUID = -8126580127468427311L;
+
+	/**
+	 * Logger.
+	 */
+	private static final Logger LOG = LoggerFactory.getLogger(FileServlet.class);
+
+	/**
+	 * Injected application {@link FileStorageProvider}.
+	 */
+	private final FileStorageProvider fileStorageProvider;
+
+	/**
+	 * Injected application {@link LogoManager}.
+	 */
+	private final LogoManager logoManager;
+
+	/**
+	 * Injected {@link OrganizationDAO}.
+	 */
+	private final OrganizationDAO organizationDAO;
+
+	/**
+	 * Injected {@link FileDAO}.
+	 */
+	private final FileDAO fileDAO;
+
+	/**
+	 * Injected {@link BackupArchiveManager}.
+	 */
+	private final BackupArchiveManager backupArchiveManager;
+
+	/**
+	 * Injected {@link ProjectDAO}.
+	 */
+	private final ProjectDAO projectDAO;
+
+	/**
+	 * Injected {@link MonitoredPointDAO}.
+	 */
+	private final MonitoredPointDAO monitoredPointDAO;
+
+	/**
+	 * Initializes the servlet.
+	 */
+	@Inject
+	protected FileServlet(FileStorageProvider fileStorageProvider, BackupArchiveManager backupArchiveManager, LogoManager logoManager, OrganizationDAO organizationDAO, FileDAO fileDAO, ProjectDAO projectDAO, MonitoredPointDAO monitoredPointDAO) {
+		this.fileStorageProvider = fileStorageProvider;
+		this.backupArchiveManager = backupArchiveManager;
+		this.logoManager = logoManager;
+		this.fileDAO = fileDAO;
+		this.organizationDAO = organizationDAO;
+		this.projectDAO = projectDAO;
+		this.monitoredPointDAO = monitoredPointDAO;
+	}
+
+	// ---------------------------------------------------------------------------------------
+	//
+	// DOWNLOAD METHODS.
+	//
+	// ---------------------------------------------------------------------------------------
+
+	/**
+	 * See {@link ServletMethod#DOWNLOAD_LOGO} for JavaDoc.
+	 * 
+	 * @param request
+	 *          The HTTP request containing the file id parameter.
+	 * @param response
+	 *          The HTTP response on which the file content is written.
+	 * @param context
+	 *          The execution context.
+	 * @throws Exception
+	 *           If an error occurs during process.
+	 */
+	protected void downloadLogo(final HttpServletRequest request, final HttpServletResponse response, final ServletExecutionContext context) throws Exception {
+
+		// Retrieves the file id.
+		final String id = getParameter(request, RequestParameter.ID, false);
+
+		if (LOG.isDebugEnabled()) {
+			LOG.debug("Downloads logo with id '{}'.", id);
+		}
+
+		try {
+
+			download(id, fileStorageProvider.open(id), response);
+
+		} catch (final NoSuchFileException e) {
+			if (LOG.isInfoEnabled()) {
+				LOG.info("No logo found for id '" + id + "'.", e);
+			}
+			throw new StatusServletException(Response.SC_NOT_FOUND);
+		}
+	}
+
+	/**
+	 * See {@link ServletMethod#DOWNLOAD_FILE} for JavaDoc.
+	 * 
+	 * @param request
+	 *          The HTTP request containing the file id parameter.
+	 * @param response
+	 *          The HTTP response on which the file content is written.
+	 * @param context
+	 *          The execution context.
+	 * @throws Exception
+	 *           If an error occurs during process.
+	 */
+	protected void downloadFile(final HttpServletRequest request, final HttpServletResponse response, final ServletExecutionContext context) throws Exception {
+
+		// Retrieves the file version id.
+		final Integer fileVersionId = getIntegerParameter(request, RequestParameter.ID, false);
+
+		LOG.debug("Downloads file with version id '{}'.", fileVersionId);
+
+		try {
+
+			final FileVersion version = fileDAO.getVersion(fileVersionId);
+
+			final String name = version.getName() + '.' + version.getExtension();
+			final String path = version.getPath();
+
+			download(path, name, fileStorageProvider.open(path), response);
+
+		} catch (final NoSuchFileException e) {
+			LOG.info("No file found for version id '" + fileVersionId + "'.", e);
+			throw new StatusServletException(Response.SC_NOT_FOUND, e);
+		}
+	}
+
+	/**
+	 * See {@link ServletMethod#DOWNLOAD_ARCHIVE} for JavaDoc.
+	 * 
+	 * @param request
+	 *          The HTTP request containing the file id parameter.
+	 * @param response
+	 *          The HTTP response on which the file content is written.
+	 * @param context
+	 *          The execution context.
+	 * @throws Exception
+	 *           If an error occurs during process.
+	 */
+	protected void downloadArchive(final HttpServletRequest request, final HttpServletResponse response, final ServletExecutionContext context) throws Exception {
+
+		// Retrieves the file id.
+		final String id = getParameter(request, RequestParameter.ID, false);
+
+		if (LOG.isDebugEnabled()) {
+			LOG.debug("Downloads archive with id '{}'.", id);
+		}
+
+		try {
+
+			download(id, backupArchiveManager.open(id), response);
+
+		} catch (final NoSuchFileException e) {
+			if (LOG.isInfoEnabled()) {
+				LOG.info("No archive found for id '" + id + "'.", e);
+			}
+			throw new StatusServletException(Response.SC_NOT_FOUND);
+		}
+	}
+
+	/**
+	 * Downloads the given {@code id} file on given {@code response} stream.
+	 * 
+	 * @param id
+	 *          The file id.
+	 * @param in
+	 *          The file input stream.
+	 * @param response
+	 *          The HTTP response on which the file content is written.
+	 * @throws Exception
+	 *           If an error occurs during process.
+	 */
+	private static void download(final String id, final InputStream in, final HttpServletResponse response) throws Exception {
+		download(id, "file_" + id, in, response);
+	}
+
+	/**
+	 * Downloads the given {@code id} file on given {@code response} stream.
+	 * 
+	 * @param id
+	 *          The file id.
+	 * @param fileName
+	 *          Name sent in the response header.
+	 * @param in
+	 *          The file input stream.
+	 * @param response
+	 *          The HTTP response on which the file content is written.
+	 * @throws Exception
+	 *           If an error occurs during process.
+	 */
+	private static void download(final String id, String fileName, final InputStream in, final HttpServletResponse response) throws Exception {
+
+		final String extension = FilenameUtils.getExtension(id);
+		final FileType fileType = FileType.fromExtension(extension);
+		ResponseHelper.executeDownload(response, in, fileType != null ? fileType.getContentType() : null, fileName, null);
+
+	}
+
+	// ---------------------------------------------------------------------------------------
+	//
+	// UPLOAD METHODS.
+	//
+	// ---------------------------------------------------------------------------------------
+
+	/**
+	 * See {@link ServletMethod#UPLOAD_ORGANIZATION_LOGO} for JavaDoc.
+	 * 
+	 * @param request
+	 *          The HTTP request containing the Organization id parameter.
+	 * @param response
+	 *          The HTTP response on which the file content is written.
+	 * @param context
+	 *          The execution context.
+	 * @throws java.io.IOException
+	 *           If an error occured while reading or writing to the socket or if an error occured while storing the
+	 *           uploaded file.
+	 * @throws org.sigmah.server.servlet.base.StatusServletException
+	 *           If the id parameter was not found or not parseable or if the request type is not MULTIPART or if the file
+	 *           exceeded the maximum allowed size.
+	 * @throws org.apache.commons.fileupload.FileUploadException
+	 *           If an error occured while reading the uploaded file.
+	 * @throws javax.servlet.ServletException
+	 *           If the given organization could not be found.
+	 */
+	protected void uploadOrganizationLogo(final HttpServletRequest request, final HttpServletResponse response, final ServletExecutionContext context)
+			throws IOException, StatusServletException, ServletException, FileUploadException {
+
+		// --
+		// Retrieving parameters from request.
+		// --
+
+		final Integer organizationId = getIntegerParameter(request, RequestParameter.ID, false);
+
+		// --
+		// Retrieving Organization entity.
+		// --
+
+		final Organization organization = organizationDAO.findById(organizationId);
+		if (organization == null) {
+			throw new ServletException("Cannot find Organization with id '" + organizationId + "'.");
+		}
+
+		final String previousLogoFileName = organization.getLogo();
+
+		// --
+		// Verifying content length.
+		// --
+
+		final int contentLength = request.getContentLength();
+
+		if (contentLength == 0) {
+			LOG.error("Empty logo file.");
+			throw new StatusServletException(Response.SC_NO_CONTENT);
+		}
+
+		if (contentLength > FileUploadUtils.MAX_UPLOAD_IMAGE_SIZE) {
+			LOG.error("Logo file's size is too big to be uploaded (size: {}, maximum : {}).", contentLength, FileUploadUtils.MAX_UPLOAD_IMAGE_SIZE);
+			throw new StatusServletException(Response.SC_REQUEST_ENTITY_TOO_LARGE);
+		}
+
+		// --
+		// Saving new logo.
+		// --
+
+		organization.setLogo(organization.getId() + "_" + new Date().getTime());
+		processUpload(new MultipartRequest(request), response, organization.getLogo(), true);
+		organizationDAO.persist(organization, context.getUser());
+
+		// --
+		// Deleting previous logo file.
+		// --
+
+		if (StringUtils.isNotBlank(previousLogoFileName)) {
+			fileStorageProvider.delete(previousLogoFileName);
+		}
+
+		response.getWriter().write(organization.getLogo());
+	}
+
+	/**
+	 * See {@link ServletMethod#UPLOAD} for JavaDoc.
+	 * 
+	 * @param request
+	 *          The HTTP request containing the file id parameter.
+	 * @param response
+	 *          The HTTP response on which the file content is written.
+	 * @param context
+	 *          The execution context.
+	 * @throws Exception
+	 *           If an error occurs during process.
+	 */
+	protected void upload(final HttpServletRequest request, final HttpServletResponse response, final ServletExecutionContext context) throws Exception {
+
+		// --
+		// Verify content length.
+		// --
+
+		final int contentLength = request.getContentLength();
+
+		if (contentLength == 0) {
+			LOG.error("Empty file.");
+			throw new StatusServletException(Response.SC_NO_CONTENT);
+		}
+
+		if (contentLength > FileUploadUtils.MAX_UPLOAD_FILE_SIZE) {
+			LOG.error("File's size is too big to be uploaded (size: {}, maximum : {}).", contentLength, FileUploadUtils.MAX_UPLOAD_FILE_SIZE);
+			throw new StatusServletException(Response.SC_REQUEST_ENTITY_TOO_LARGE);
+		}
+
+		final String fileName = generateUniqueName();
+
+		// --
+		// Writing the file.
+		// --
+
+		final MultipartRequest multipartRequest = new MultipartRequest(request);
+		final long size = this.processUpload(multipartRequest, response, fileName, false);
+		final Map<String, String> properties = multipartRequest.getProperties();
+
+		// --
+		// Create the associated entries in File and FileVersion tables.
+		// --
+
+		final Integer fileId = fileDAO.saveOrUpdate(properties, fileName, (int) size);
+		final FileVersion fileVersion = fileDAO.getLastVersion(fileId);
+
+		// --
+		// If a monitored point must be created.
+		// --
+
+		final MonitoredPoint monitoredPoint = parseMonitoredPoint(properties);
+
+		if (monitoredPoint != null) {
+
+			final Integer projectId = ClientUtils.asInt(properties.get(FileUploadUtils.DOCUMENT_PROJECT));
+			final Project project = projectDAO.findById(projectId);
+
+			monitoredPoint.setFile(fileDAO.findById(fileId));
+
+			MonitoredPointList list = project.getPointsList();
+
+			if (list == null) {
+				list = new MonitoredPointList();
+				project.setPointsList(list);
+			}
+
+			if (list.getPoints() == null) {
+				list.setPoints(new ArrayList<MonitoredPoint>());
+			}
+
+			// Adds the point to the list.
+			list.addMonitoredPoint(monitoredPoint);
+
+			// Saves monitored point.
+			monitoredPointDAO.persist(monitoredPoint, context.getUser());
+		}
+
+		final MonitoredPointDTO monitoredPointDTO = mapper().map(monitoredPoint, MonitoredPointDTO.class, MonitoredPointDTO.Mode.BASE);
+		final FileVersionDTO fileVersionDTO = mapper().map(fileVersion, FileVersionDTO.class);
+
+		response.setContentType(FileType.HTML.getContentType());
+		response.getWriter().write(FileUploadResponse.serialize(fileVersionDTO, monitoredPointDTO));
+	}
+
+	// ---------------------------------------------------------------------------------------
+	//
+	// UTILITY METHODS.
+	//
+	// ---------------------------------------------------------------------------------------
+
+	/**
+	 * Processes the file upload.
+	 * 
+	 * @param request
+	 *          The HTTP request.
+	 * @param response
+	 *          The HTTP response.
+	 * @param context
+	 *          The execution context.
+	 * @param filename
+	 *          The uploaded physical file name.
+	 * @param logo
+	 *          {@code true} if the upload concerns an organization logo, {@code false} otherwise.
+	 * @throws java.io.IOException
+	 *           If an error occured while reading or writing to the socket or if an error occured while storing the
+	 *           uploaded file.
+	 * @throws org.sigmah.server.servlet.base.StatusServletException
+	 *           if the request type is not MULTIPART or if the file exceeded the maximum allowed size.
+	 * @throws org.apache.commons.fileupload.FileUploadException
+	 *           If an error occured while reading the uploaded file.
+	 */
+	private long processUpload(final MultipartRequest multipartRequest, final HttpServletResponse response, final String filename, final boolean logo)
+			throws StatusServletException, IOException, FileUploadException {
+		LOG.debug("Starting file uploading...");
+
+		final long[] size = { 0L
+		};
+		multipartRequest.parse(new MultipartRequestCallback() {
+
+			@Override
+			public void onInputStream(InputStream inputStream, String itemName, String mimeType) throws IOException {
+				// Retrieving file name.
+				// If a name (id) is provided, we use it. If not, using the name of the uploaded file.
+				final String name = StringUtils.isNotBlank(filename) ? filename : itemName;
+
+				try (final InputStream stream = inputStream) {
+					LOG.debug("Reads image content from the field ; name: '{}'.", name);
+
+					if (logo) {
+						size[0] = logoManager.updateLogo(stream, name);
+					} else {
+						size[0] = fileStorageProvider.copy(stream, name, StandardCopyOption.REPLACE_EXISTING);
+					}
+
+					response.setStatus(Response.SC_ACCEPTED);
+
+					// FIXME : perhaps keep the response above for error catching
+					// response.getWriter().write("ok");
+					LOG.debug("File '{}' upload has been successfully processed.", name);
+				}
+			}
+		});
+
+		return size[0];
+	}
+
+	/**
+	 * Generates a {@link MonitoredPoint} instance from the given {@code properties}.<br>
+	 * Following attributes of the generated monitored point are set:
+	 * <ul>
+	 * <li>{@code label}</li>
+	 * <li>{@code expectedDate}</li>
+	 * <li>{@code deleted} (set to {@code false})</li>
+	 * </ul>
+	 * 
+	 * @param properties
+	 *          The properties.
+	 * @return The monitored point instance.
+	 * @throws UnsupportedOperationException
+	 *           If the {@code properties} cannot be used to generate a <em>valid</em> {@link MonitoredPoint} instance.
+	 */
+	private static MonitoredPoint parseMonitoredPoint(final Map<String, String> properties) {
+
+		if (MapUtils.isEmpty(properties)) {
+			return null;
+		}
+
+		final String label = properties.get(FileUploadUtils.MONITORED_POINT_LABEL);
+		final String expectedDateTime = properties.get(FileUploadUtils.MONITORED_POINT_DATE);
+
+		if (StringUtils.isBlank(label) || StringUtils.isBlank(expectedDateTime)) {
+			return null;
+		}
+
+		try {
+
+			final MonitoredPoint monitoredPoint = new MonitoredPoint();
+
+			monitoredPoint.setLabel(label);
+			monitoredPoint.setExpectedDate(new Date(Long.valueOf(expectedDateTime)));
+			monitoredPoint.setDeleted(false);
+
+			return monitoredPoint;
+
+		} catch (final Exception e) {
+			throw new UnsupportedOperationException("Error occures while generating monitored point from properties.", e);
+		}
+	}
+
+	/**
+	 * Computes and returns a unique string identifier to name files.
+	 * 
+	 * @return A unique string identifier.
+	 */
+	public static String generateUniqueName() {
+		// Adds the timestamp to ensure the id uniqueness.
+		return UUID.randomUUID().toString() + new Date().getTime();
+	}
+}

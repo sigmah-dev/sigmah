@@ -1,14 +1,20 @@
-/*
- * All Sigmah code is released under the GNU General Public License v3
- * See COPYRIGHT.txt and LICENSE.txt.
- */
-
 package org.sigmah.server.mail;
 
-import org.apache.commons.mail.Email;
-import org.apache.commons.mail.EmailException;
-
+/**
+ * Defines a mail sender.
+ * 
+ * @author Maxime Lombard (mlombard@ideia.fr)
+ */
 public interface MailSender {
 
-    public void send(Email message) throws EmailException;
+	/**
+	 * Sends the given email.
+	 * 
+	 * @param email
+	 *          The email.
+	 * @throws Exception
+	 *           If an error occurs during the sending.
+	 */
+	void send(final Email email) throws Exception;
+
 }

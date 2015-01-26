@@ -1,123 +1,143 @@
-/*
- * All Sigmah code is released under the GNU General Public License v3
- * See COPYRIGHT.txt and LICENSE.txt.
- */
-
 package org.sigmah.shared.dto.report;
 
 import java.util.List;
-import org.sigmah.shared.dto.EntityDTO;
 
-import com.extjs.gxt.ui.client.data.BaseModelData;
+import org.sigmah.client.util.ToStringBuilder;
+import org.sigmah.shared.dto.base.AbstractModelDataEntityDTO;
 
 /**
- *
- * @author nrebiai
+ * ProjectReportModelSectionDTO.
+ * 
+ * @author nrebiai (v1.3)
+ * @author Denis Colliot (dcolliot@ideia.fr) (v2.0)
  */
-public class ProjectReportModelSectionDTO extends BaseModelData implements EntityDTO {
+public class ProjectReportModelSectionDTO extends AbstractModelDataEntityDTO<Integer> {
 
+	/**
+	 * Serial version UID.
+	 */
 	private static final long serialVersionUID = 3100003531351081230L;
 
+	/**
+	 * DTO corresponding entity name.
+	 */
+	public static final String ENTITY_NAME = "report.ProjectReportModelSection";
+
+	// DTO attributes keys.
+	public static final String NAME = "name";
+	public static final String PARENT_SECTION_MODEL_ID = "parentSectionModelId";
+	public static final String PARENT_SECTION_MODEL_NAME = "parentSectionModelName";
+	public static final String PROJECT_MODEL_ID = "projectModelId";
+	public static final String REPORT_MODEL_NAME = "reportModelName";
+	public static final String INDEX = "index";
+	public static final String ROW = "row";
+	public static final String NUMBER_OF_TEXTAREA = "numberOfTextarea";
+	public static final String SUB_SECTIONS = "subSections";
+	public static final String COMPOSITE_NAME = "compositeName";
+
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-    public String getEntityName() {
-        return "report.ProjectReportModelSection";
-    }
-    
+	public String getEntityName() {
+		return ENTITY_NAME;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-    public int getId() {
-	
-		if(get("id") != null){
-			final Integer id = (Integer) get("id");
-			return id != null ? id : -1;
-		}
-    	return -1;      
-    
-    }
-    public void setId(Integer id) {
-        this.set("id", id);
-    }
+	protected void appendToString(final ToStringBuilder builder) {
+		builder.append(NAME, getName());
+		builder.append(PARENT_SECTION_MODEL_ID, getParentSectionModelId());
+		builder.append(PARENT_SECTION_MODEL_NAME, getParentSectionModelName());
+		builder.append(PROJECT_MODEL_ID, getProjectModelId());
+		builder.append(REPORT_MODEL_NAME, getReportModelName());
+		builder.append(INDEX, getIndex());
+		builder.append(ROW, getRow());
+		builder.append(NUMBER_OF_TEXTAREA, getNumberOfTextarea());
+		builder.append(COMPOSITE_NAME, getCompositeName());
+	}
 
-    public Integer getParentSectionModelId() {
-        return (Integer) get("parentSectionModelId");
-    }
+	public Integer getParentSectionModelId() {
+		return (Integer) get(PARENT_SECTION_MODEL_ID);
+	}
 
-    public void setParentSectionModelId(Integer parentSectionModelId) {
-        this.set("parentSectionModelId", parentSectionModelId);
-    }
-    
-    public String getParentSectionModelName() {
-        return (String) get("parentSectionModelName");
-    }
+	public void setParentSectionModelId(Integer parentSectionModelId) {
+		this.set(PARENT_SECTION_MODEL_ID, parentSectionModelId);
+	}
 
-    public void setParentSectionModelName(String parentSectionModelName) {
-        this.set("parentSectionModelName", parentSectionModelName);
-    }
+	public String getParentSectionModelName() {
+		return (String) get(PARENT_SECTION_MODEL_NAME);
+	}
 
-    public Integer getProjectModelId() {
-        return (Integer) get("projectModelId");
-    }
+	public void setParentSectionModelName(String parentSectionModelName) {
+		this.set(PARENT_SECTION_MODEL_NAME, parentSectionModelName);
+	}
 
-    public void setProjectModelId(Integer projectModelId) {
-        this.set("projectModelId", projectModelId);
-    }
-    
-    public String getReportModelName() {
-        return (String) get("reportModelName");
-    }
+	public Integer getProjectModelId() {
+		return (Integer) get(PROJECT_MODEL_ID);
+	}
 
-    public void setReportModelName(String name) {
-        this.set("reportModelName", name);
-    }
+	public void setProjectModelId(Integer projectModelId) {
+		this.set(PROJECT_MODEL_ID, projectModelId);
+	}
 
-    public String getName() {
-        return (String) get("name");
-    }
+	public String getReportModelName() {
+		return (String) get(REPORT_MODEL_NAME);
+	}
 
-    public void setName(String name) {
-        this.set("name", name);
-    }
+	public void setReportModelName(String name) {
+		this.set(REPORT_MODEL_NAME, name);
+	}
 
-    public Integer getIndex() {
-        return (Integer) get("index");
-    }
+	public String getName() {
+		return (String) get(NAME);
+	}
 
-    public void setIndex(Integer index) {
-        this.set("index", index);
-    }
-    
-    public Integer getRow() {
-        return (Integer) get("row");
-    }
+	public void setName(String name) {
+		this.set(NAME, name);
+	}
 
-    public void setRow(Integer row) {
-        this.set("row", row);
-    }
+	public Integer getIndex() {
+		return (Integer) get(INDEX);
+	}
 
-    public Integer getNumberOfTextarea() {
-        return (Integer) get("numberOfTextarea");
-    }
+	public void setIndex(Integer index) {
+		this.set(INDEX, index);
+	}
 
-    public void setNumberOfTextarea(Integer numberOfTextarea) {
-        this.set("numberOfTextarea", numberOfTextarea);
-    }
+	public Integer getRow() {
+		return (Integer) get(ROW);
+	}
 
-    public List<ProjectReportModelSectionDTO> getSubSectionsDTO() {
-        return (List<ProjectReportModelSectionDTO>) get("subSections");
-    }
+	public void setRow(Integer row) {
+		this.set(ROW, row);
+	}
 
-    public void setSubSectionsDTO(List<ProjectReportModelSectionDTO> subSections) {
-        this.set("subSections", subSections);
-    }
-    
-    //name (id)
-    public String getCompositeName()
-    {
-    	//return getName()+"<i>("+getId()+")</i>";
-    	return (String) get("compositeName");
-    }
-    
-    public void setCompositeName(String compositeName)
-    {
-    	set("compositeName",compositeName);
-    }
+	public Integer getNumberOfTextarea() {
+		return (Integer) get(NUMBER_OF_TEXTAREA);
+	}
+
+	public void setNumberOfTextarea(Integer numberOfTextarea) {
+		this.set(NUMBER_OF_TEXTAREA, numberOfTextarea);
+	}
+
+	public List<ProjectReportModelSectionDTO> getSubSections() {
+		return get(SUB_SECTIONS);
+	}
+
+	public void setSubSections(List<ProjectReportModelSectionDTO> subSections) {
+		this.set(SUB_SECTIONS, subSections);
+	}
+
+	// name (id)
+	public String getCompositeName() {
+		// return getName()+"<i>("+getId()+")</i>";
+		return (String) get(COMPOSITE_NAME);
+	}
+
+	public void setCompositeName(String compositeName) {
+		set(COMPOSITE_NAME, compositeName);
+	}
 }

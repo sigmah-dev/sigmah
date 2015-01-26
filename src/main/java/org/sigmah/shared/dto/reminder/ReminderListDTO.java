@@ -2,20 +2,24 @@ package org.sigmah.shared.dto.reminder;
 
 import java.util.List;
 
-import org.sigmah.shared.dto.EntityDTO;
-
-import com.extjs.gxt.ui.client.data.BaseModelData;
+import org.sigmah.shared.dto.base.AbstractModelDataEntityDTO;
 
 /**
  * DTO mapping class for entity reminder.ReminderList.
  * 
  * @author tmi
- * 
+ * @author Denis Colliot (dcolliot@ideia.fr)
  */
-public class ReminderListDTO extends BaseModelData implements EntityDTO {
+public class ReminderListDTO extends AbstractModelDataEntityDTO<Integer> {
 
+	/**
+	 * Serial version UID.
+	 */
 	private static final long serialVersionUID = 6658962865288286355L;
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String getEntityName() {
 		return "reminder.ReminderList";
@@ -23,12 +27,11 @@ public class ReminderListDTO extends BaseModelData implements EntityDTO {
 
 	// Id.
 	@Override
-	public int getId() {
-		final Integer id = (Integer) get("id");
-		return id != null ? id : -1;
+	public Integer getId() {
+		return get("id");
 	}
 
-	public void setId(int id) {
+	public void setId(Integer id) {
 		set("id", id);
 	}
 

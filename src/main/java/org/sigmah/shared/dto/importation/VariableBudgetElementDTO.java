@@ -2,22 +2,21 @@ package org.sigmah.shared.dto.importation;
 
 import java.util.List;
 
-import org.sigmah.shared.dto.EntityDTO;
+/**
+ * VariableBudgetElementDTO.
+ * 
+ * @author Denis Colliot (dcolliot@ideia.fr)
+ */
+public class VariableBudgetElementDTO extends VariableFlexibleElementDTO {
 
-public class VariableBudgetElementDTO extends VariableFlexibleElementDTO implements EntityDTO {
 	/**
-	 * 
+	 * Serial version UID.
 	 */
 	private static final long serialVersionUID = 3937014933514084026L;
 
-	@Override
-	public int getId() {
-		if (get("id") != null)
-			return (Integer) get("id");
-		else
-			return -1;
-	}
-
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String getEntityName() {
 		return "importation.VariableBudgetElement";
@@ -31,8 +30,8 @@ public class VariableBudgetElementDTO extends VariableFlexibleElementDTO impleme
 	}
 
 	/**
-	 * @param variableSubFieldsDTO
-	 *            the variableSubFieldsDTO to set
+	 * @param variableBudgetSubFieldsDTO
+	 *          the VariableBudgetSubFieldDTO to set
 	 */
 	public void setVariableBudgetSubFieldsDTO(List<VariableBudgetSubFieldDTO> variableBudgetSubFieldsDTO) {
 		set("variableBudgetSubFieldsDTO", variableBudgetSubFieldsDTO);

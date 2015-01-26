@@ -1,39 +1,33 @@
-/*
- * All Sigmah code is released under the GNU General Public License v3
- * See COPYRIGHT.txt and LICENSE.txt.
- */
-
 package org.sigmah.shared.command.result;
-
-import org.sigmah.shared.map.BaseMap;
 
 import java.util.List;
 
+import org.sigmah.shared.dto.map.BaseMap;
+
 /**
- *
  * List of <code>BaseMap</code>s returned by the <code>GetBaseMaps</code> command.
  *
- * @see org.sigmah.shared.map.BaseMap
- * @see org.sigmah.shared.command.GetBaseMaps
- *
  * @author Alex Bertram
+ * @author Denis Colliot (dcolliot@ideia.fr)
+ * @see org.sigmah.shared.command.GetBaseMaps
  */
-public class BaseMapResult implements CommandResult  {
+public class BaseMapResult implements Result {
 
-    List<BaseMap> baseMaps;
+	private List<BaseMap> baseMaps;
 
-    private BaseMapResult() {
-    }
+	protected BaseMapResult() {
+		// Serialization.
+	}
 
-    public BaseMapResult(List<BaseMap> baseMaps) {
-        this.baseMaps = baseMaps;
-    }
+	public BaseMapResult(List<BaseMap> baseMaps) {
+		this.baseMaps = baseMaps;
+	}
 
-    public List<BaseMap> getBaseMaps() {
-        return baseMaps;
-    }
+	public List<BaseMap> getBaseMaps() {
+		return baseMaps;
+	}
 
-    public void setBaseMaps(List<BaseMap> baseMaps) {
-        this.baseMaps = baseMaps;
-    }
+	public void setBaseMaps(List<BaseMap> baseMaps) {
+		this.baseMaps = baseMaps;
+	}
 }

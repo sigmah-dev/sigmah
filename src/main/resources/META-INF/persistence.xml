@@ -1,15 +1,39 @@
-<persistence xmlns="http://java.sun.com/xml/ns/persistence"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd"
-	version="1.0">
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence xmlns="http://java.sun.com/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd" version="2.0">
 
-	<persistence-unit name="activityInfo">
+	<persistence-unit name="sigmah-dev" transaction-type="RESOURCE_LOCAL">
+		<provider>org.hibernate.ejb.HibernatePersistence</provider>
 		<properties>
+
 			<property name="hibernate.archive.autodetection" value="class" />
+
+			<!-- Loaded from pom configuration. -->
+			<property name="hibernate.dialect" value="${hibernate.dialect}" />
+			<property name="hibernate.connection.driver_class" value="${hibernate.connection.driver_class}" />
+			<property name="hibernate.connection.username" value="${hibernate.connection.username}" />
+			<property name="hibernate.connection.password" value="${hibernate.connection.password}" />
+			<property name="hibernate.connection.url" value="${hibernate.connection.url}" />
+			<property name="hibernate.show_sql" value="${hibernate.show_sql}" />
+			<property name="hibernate.format_sql" value="${hibernate.format_sql}" />
+
+			<!-- validate | update | create | create-drop | {empty} -->
+			<property name="hibernate.hbm2ddl.auto" value="${hibernate.hbm2ddl.auto}" />
+
+			<!-- Important : connection pool. -->
+			<property name="hibernate.connection.provider_class" value="org.hibernate.service.jdbc.connections.internal.C3P0ConnectionProvider" />
+
+			<!-- Connection pool configuration. -->
+			<!-- https://community.jboss.org/wiki/HowToConfigureTheC3P0ConnectionPool -->
+			<!-- http://www.mchange.com/projects/c3p0/ -->
+			<property name="hibernate.c3p0.min_size" value="${jdbc.pool.min_size}" />
+			<property name="hibernate.c3p0.max_size" value="${jdbc.pool.max_size}" />
+			<property name="hibernate.c3p0.max_statements" value="${jdbc.pool.max_statements}" />
+			<property name="hibernate.c3p0.timeout" value="${jdbc.pool.timeout}" />
+			<property name="hibernate.c3p0.acquire_increment" value="${jdbc.pool.acquire_increment}" />
+			<property name="hibernate.c3p0.numHelperThreads" value="6" />
+
 		</properties>
 	</persistence-unit>
-
-    <!-- testing persistence units moved to hibernate.cfg.xml to improve test runtimes -->
-    <!-- (I couldn't figure out how to disable WEB-INF/classes scanning from the persistence.xml file -AB) -->
 
 </persistence>

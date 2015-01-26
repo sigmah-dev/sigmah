@@ -1,43 +1,41 @@
-/*
- * All Sigmah code is released under the GNU General Public License v3
- * See COPYRIGHT.txt and LICENSE.txt.
- */
-
 package org.sigmah.shared.command.result;
 
 /**
  * @author Alex Bertram
+ * @author Denis Colliot (dcolliot@ideia.fr)
  */
-public class SyncRegionUpdate implements CommandResult {
+public class SyncRegionUpdate implements Result {
 
-    String version;
-    boolean complete;
-    String sql;
+	private String version;
+	private boolean complete;
+	private String sql;
 
-    public SyncRegionUpdate() {
-    }
+	public SyncRegionUpdate() {
+		// Serialization.
+	}
 
-    public String getVersion() {
-        return version;
-    }
+	public String getVersion() {
+		return version;
+	}
 
-    public void setVersion(String version) {
-        this.version = version;
-    }
+	public void setVersion(String version) {
+		this.version = version;
+	}
 
-    public String getSql() {
-        return sql;
-    }
+	public String getSql() {
+		return sql;
+	}
 
-    public void setSql(String sql) {
-        this.sql = sql;
-    }
+	public void setSql(String sql) {
+		this.sql = sql;
+	}
 
-    public boolean isComplete() {
-        return complete;
-    }
+	public boolean isComplete() {
+		return complete;
+	}
 
-    public void setComplete(boolean complete) {
-        this.complete = complete;
-    }
+	public void setComplete(boolean complete) {
+		this.complete = complete;
+	}
+
 }

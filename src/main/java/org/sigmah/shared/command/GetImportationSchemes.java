@@ -1,34 +1,33 @@
 package org.sigmah.shared.command;
 
-import org.sigmah.shared.command.result.ImportationSchemeListResult;
+import org.sigmah.shared.command.base.AbstractCommand;
+import org.sigmah.shared.command.result.ListResult;
+import org.sigmah.shared.dto.importation.ImportationSchemeDTO;
 
-public class GetImportationSchemes implements Command<ImportationSchemeListResult>{
+/**
+ * @author Denis Colliot (dcolliot@ideia.fr)
+ */
+public class GetImportationSchemes extends AbstractCommand<ListResult<ImportationSchemeDTO>> {
 
-	/**
-	 * 
-	 */
-    private static final long serialVersionUID = 6141873433871091010L;
-    
-    private Long schemaId;
-    
-    private Long projectModelId;
-    
-    private Long orgUnitModelId;
-    
-    private Boolean excludeExistent = false;
-    
+	private Integer schemaId;
 
-    public GetImportationSchemes() {
-    	//required
-    }
+	private Integer projectModelId;
 
-	public Long getSchemaId() {
-	    return schemaId;
-    }
+	private Integer orgUnitModelId;
 
-	public void setSchemaId(Long schemaId) {
-	    this.schemaId = schemaId;
-    }
+	private Boolean excludeExistent = false;
+
+	public GetImportationSchemes() {
+		// Serialization.
+	}
+
+	public Integer getSchemaId() {
+		return schemaId;
+	}
+
+	public void setSchemaId(Integer schemaId) {
+		this.schemaId = schemaId;
+	}
 
 	/**
 	 * @return the excludeExistent
@@ -38,7 +37,8 @@ public class GetImportationSchemes implements Command<ImportationSchemeListResul
 	}
 
 	/**
-	 * @param excludeExistent the excludeExistent to set
+	 * @param excludeExistent
+	 *          the excludeExistent to set
 	 */
 	public void setExcludeExistent(Boolean excludeExistent) {
 		this.excludeExistent = excludeExistent;
@@ -47,30 +47,31 @@ public class GetImportationSchemes implements Command<ImportationSchemeListResul
 	/**
 	 * @return the modelId
 	 */
-	public Long getProjectModelId() {
+	public Integer getProjectModelId() {
 		return projectModelId;
 	}
 
 	/**
-	 * @param modelId the modelId to set
+	 * @param modelId
+	 *          the modelId to set
 	 */
-	public void setProjectModelId(Long modelId) {
+	public void setProjectModelId(Integer modelId) {
 		this.projectModelId = modelId;
 	}
 
 	/**
 	 * @return the orgUnitModelId
 	 */
-	public Long getOrgUnitModelId() {
+	public Integer getOrgUnitModelId() {
 		return orgUnitModelId;
 	}
 
 	/**
-	 * @param orgUnitModelId the orgUnitModelId to set
+	 * @param orgUnitModelId
+	 *          the orgUnitModelId to set
 	 */
-	public void setOrgUnitModelId(Long orgUnitModelId) {
+	public void setOrgUnitModelId(Integer orgUnitModelId) {
 		this.orgUnitModelId = orgUnitModelId;
 	}
-    
-    
+
 }

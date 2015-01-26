@@ -1,21 +1,20 @@
-/*
- * All Sigmah code is released under the GNU General Public License v3
- * See COPYRIGHT.txt and LICENSE.txt.
- */
-
 package org.sigmah.shared.command;
 
+import org.sigmah.shared.command.base.AbstractCommand;
 import org.sigmah.shared.command.result.VoidResult;
 
-public class UpdateReportDef implements Command<VoidResult> {
+/**
+ * @author Denis Colliot (dcolliot@ideia.fr)
+ */
+public class UpdateReportDef extends AbstractCommand<VoidResult> {
 
 	private int id;
 	private String newXml;
-	
+
 	public UpdateReportDef() {
-	
+		// Serialization.
 	}
-	
+
 	public UpdateReportDef(int id, String newXml) {
 		this.id = id;
 		this.newXml = newXml;
@@ -36,6 +35,5 @@ public class UpdateReportDef implements Command<VoidResult> {
 	public void setNewXml(String newXml) {
 		this.newXml = newXml;
 	}
-	
 
 }

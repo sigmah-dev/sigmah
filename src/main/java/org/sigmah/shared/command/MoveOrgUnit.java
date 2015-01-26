@@ -1,38 +1,40 @@
 package org.sigmah.shared.command;
 
+import org.sigmah.shared.command.base.AbstractCommand;
 import org.sigmah.shared.command.result.VoidResult;
 
-public class MoveOrgUnit implements Command<VoidResult> {
+/**
+ * Move a given {@code OrgUnitDTO} within its hierarchy.
+ * 
+ * @author Denis Colliot (dcolliot@ideia.fr)
+ */
+public class MoveOrgUnit extends AbstractCommand<VoidResult> {
 
-    private static final long serialVersionUID = 1L;
+	/**
+	 * The org unit id to move.
+	 */
+	private Integer id;
 
-    private int id;
+	/**
+	 * The new parent org unit id.
+	 */
+	private Integer parentId;
 
-    private int parentId;
+	public MoveOrgUnit() {
+		// Serialization.
+	}
 
-    public MoveOrgUnit() {
-        // serialization.
-    }
+	public MoveOrgUnit(final Integer id, final Integer parentId) {
+		this.id = id;
+		this.parentId = parentId;
+	}
 
-    public MoveOrgUnit(int id, int parentId) {
-        super();
-        this.id = id;
-        this.parentId = parentId;
-    }
+	public Integer getId() {
+		return id;
+	}
 
-    public void setId(int id) {
-        this.id = id;
-    }
+	public Integer getParentId() {
+		return parentId;
+	}
 
-    public int getId() {
-        return id;
-    }
-
-    public void setParentId(int parentId) {
-        this.parentId = parentId;
-    }
-
-    public int getParentId() {
-        return parentId;
-    }
 }

@@ -1,30 +1,36 @@
-/*
- * All Sigmah code is released under the GNU General Public License v3
- * See COPYRIGHT.txt and LICENSE.txt.
- */
-
 package org.sigmah.server.dao;
 
-import org.sigmah.shared.domain.report.ProjectReport;
-import org.sigmah.shared.domain.report.ProjectReportModel;
-import org.sigmah.shared.domain.report.ProjectReportVersion;
-import org.sigmah.shared.domain.report.RichTextElement;
-import org.sigmah.shared.domain.value.Value;
+import org.sigmah.server.dao.base.DAO;
+import org.sigmah.server.domain.report.ProjectReport;
+import org.sigmah.server.domain.report.ProjectReportModel;
+import org.sigmah.server.domain.report.ProjectReportVersion;
+import org.sigmah.server.domain.report.RichTextElement;
+import org.sigmah.server.domain.value.Value;
 
 /**
- *
+ * Project report DAO interface.
+ * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
+ * @author Denis Colliot (dcolliot@ideia.fr)
  */
-public interface ProjectReportDAO {
-    void persist(ProjectReport report);
-    void persist(ProjectReportVersion version);
-    void merge(ProjectReport report);
-    void merge(ProjectReportVersion version);
-    void merge(RichTextElement element);
-    void merge(Value value);
+public interface ProjectReportDAO extends DAO<ProjectReport, Integer> {
 
-    public ProjectReport findReportById(Integer id);
-    public ProjectReportVersion findReportVersionById(Integer id);
-    public ProjectReportModel findModelById(Integer id);
-    public RichTextElement findRichTextElementById(Integer id);
+	void persist(ProjectReportVersion version);
+
+	void merge(ProjectReport report);
+
+	void merge(ProjectReportVersion version);
+
+	void merge(RichTextElement element);
+
+	void merge(Value value);
+
+	ProjectReport findReportById(Integer id);
+
+	ProjectReportVersion findReportVersionById(Integer id);
+
+	ProjectReportModel findModelById(Integer id);
+
+	RichTextElement findRichTextElementById(Integer id);
+
 }

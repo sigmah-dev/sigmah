@@ -2,75 +2,88 @@ package org.sigmah.shared.dto.category;
 
 import java.util.List;
 
-import org.sigmah.shared.domain.category.CategoryIcon;
-import org.sigmah.shared.dto.EntityDTO;
+import org.sigmah.client.util.ToStringBuilder;
+import org.sigmah.shared.dto.base.AbstractModelDataEntityDTO;
+import org.sigmah.shared.dto.referential.CategoryIcon;
 
-import com.extjs.gxt.ui.client.data.BaseModelData;
+/**
+ * CategoryTypeDTO.
+ * 
+ * @author Denis Colliot (dcolliot@ideia.fr)
+ */
+public class CategoryTypeDTO extends AbstractModelDataEntityDTO<Integer> {
 
-public class CategoryTypeDTO extends BaseModelData implements EntityDTO {
+	/**
+	 * Serial version UID.
+	 */
+	private static final long serialVersionUID = 4190439829705158136L;
 
-    private static final long serialVersionUID = 4190439829705158136L;
+	/**
+	 * DTO corresponding entity name.
+	 */
+	public static final String ENTITY_NAME = "category.CategoryType";
 
-    @Override
-    public String getEntityName() {
-        return "category.CategoryType";
-    }
+	// DTO attributes keys.
+	public static final String LABEL = "label";
+	public static final String ICON = "icon";
+	public static final String CATEGORY_ELEMENTS = "categoryElementsDTO";
 
-    // Type id
-    @Override
-    public int getId() {
-        return (Integer) (get("id") != null ? get("id") : -1);
-    }
+	public CategoryTypeDTO() {
+		// Serialization.
+	}
 
-    public void setId(int id) {
-        set("id", id);
-    }
+	/**
+	 * Initializes a new {@code CategoryTypeDTO} with the given {@code label}.
+	 * 
+	 * @param label
+	 *          The category type label.
+	 */
+	public CategoryTypeDTO(final String label) {
+		setLabel(label);
+	}
 
-    // Type label
-    public String getLabel() {
-        return get("label");
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getEntityName() {
+		return ENTITY_NAME;
+	}
 
-    public void setLabel(String label) {
-        set("label", label);
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void appendToString(final ToStringBuilder builder) {
+		builder.append(LABEL, getLabel());
+		builder.append(ICON, getIcon());
+	}
 
-    // Category elements list
-    public List<CategoryElementDTO> getCategoryElementsDTO() {
-        return get("categoryElementsDTO");
-    }
+	// Type label
+	public String getLabel() {
+		return get(LABEL);
+	}
 
-    public void setCategoryElementsDTO(List<CategoryElementDTO> categoryElementsDTO) {
-        set("categoryElementsDTO", categoryElementsDTO);
-    }
+	public void setLabel(String label) {
+		set(LABEL, label);
+	}
 
-    // Icon name
-    public CategoryIcon getIcon() {
-        return get("icon");
-    }
+	// Icon name
+	public CategoryIcon getIcon() {
+		return get(ICON);
+	}
 
-    public void setIcon(CategoryIcon icon) {
-        set("icon", icon);
-    }
+	public void setIcon(CategoryIcon icon) {
+		set(ICON, icon);
+	}
 
-    @Override
-    public boolean equals(Object obj) {
+	// Category elements list
+	public List<CategoryElementDTO> getCategoryElementsDTO() {
+		return get(CATEGORY_ELEMENTS);
+	}
 
-        if (obj == null) {
-            return false;
-        }
+	public void setCategoryElementsDTO(List<CategoryElementDTO> categoryElementsDTO) {
+		set(CATEGORY_ELEMENTS, categoryElementsDTO);
+	}
 
-        if (!(obj instanceof CategoryTypeDTO)) {
-            return false;
-        }
-
-        final CategoryTypeDTO other = (CategoryTypeDTO) obj;
-
-        return getId() == other.getId();
-    }
-
-    @Override
-    public int hashCode() {
-        return getId();
-    }
 }

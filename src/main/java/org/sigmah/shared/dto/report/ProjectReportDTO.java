@@ -1,68 +1,116 @@
-/*
- * All Sigmah code is released under the GNU General Public License v3
- * See COPYRIGHT.txt and LICENSE.txt.
- */
-
 package org.sigmah.shared.dto.report;
 
-import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
-import org.sigmah.shared.command.result.CommandResult;
+
+import org.sigmah.client.util.ToStringBuilder;
+import org.sigmah.shared.dto.base.EntityDTO;
 
 /**
  * Represents a project report.
+ * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
+ * @author Denis Colliot (dcolliot@ideia.fr)
  */
-public class ProjectReportDTO implements Serializable, CommandResult {
-    public final static long serialVersionUID = 1L;
-    
-    private Integer id;
-    private Integer versionId;
-    private Integer projectId;
-    private Integer orgUnitId;
-    private String name;
-    private String phaseName;
-    private List<ProjectReportSectionDTO> sections;
+public class ProjectReportDTO implements EntityDTO<Integer> {
+	
+	/**
+	 * Project report draft fake entity name.
+	 */
+	public static final String ENTITY_NAME_DRAFT = "ProjectReportDraft";
 
-    private boolean draft;
+	/**
+	 * Entity name.
+	 */
+	public static final String ENTITY_NAME = "report.ProjectReport";
 
-    private Date lastEditDate;
-    private String editorName;
+	public static final String ID = "id";
+	public static final String NAME = "name";
+	public static final String VERSION_ID = "versionId";
+	public static final String PROJECT_ID = "projectId";
+	public static final String ORGUNIT_ID = "orgUnitId";
+	public static final String PHASE_NAME = "phaseName";
+	public static final String DRAFT = "draft";
+	public static final String REPORT_MODEL_ID = "reportModelId";
+	public static final String FLEXIBLE_ELEMENT_ID = "flexibleElementId";
+	public static final String CONTAINER_ID = "containerId";
+	public static final String MULTIPLE = "multiple";
+	public static final String REPORT_ID = "reportId";
+	public static final String CURRENT_PHASE = "currentPhase";
 
-    public Integer getId() {
-        return id;
-    }
+	private Integer id;
+	private Integer versionId;
+	private Integer projectId;
+	private Integer orgUnitId;
+	private String name;
+	private String phaseName;
+	private List<ProjectReportSectionDTO> sections;
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
+	private boolean draft;
 
-    public Integer getVersionId() {
-        return versionId;
-    }
+	private Date lastEditDate;
+	private String editorName;
 
-    public void setVersionId(Integer versionId) {
-        this.versionId = versionId;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getEntityName() {
+		return ENTITY_NAME;
+	}
 
-    public String getName() {
-        return name;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String toString() {
+		final ToStringBuilder builder = new ToStringBuilder(this);
 
-    public void setName(String name) {
-        this.name = name;
-    }
+		builder.append(ID, getId());
+		builder.append(NAME, getName());
+		builder.append(VERSION_ID, getVersionId());
+		builder.append(PHASE_NAME, getPhaseName());
+		builder.append(ORGUNIT_ID, getOrgUnitId());
+		builder.append(PROJECT_ID, getProjectId());
+		builder.append(DRAFT, isDraft());
 
-    public String getPhaseName() {
-        return phaseName;
-    }
+		return builder.toString();
+	}
 
-    public void setPhaseName(String phaseName) {
-        this.phaseName = phaseName;
-    }
-    
-    public Integer getOrgUnitId() {
+	@Override
+	public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	public Integer getVersionId() {
+		return versionId;
+	}
+
+	public void setVersionId(Integer versionId) {
+		this.versionId = versionId;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getPhaseName() {
+		return phaseName;
+	}
+
+	public void setPhaseName(String phaseName) {
+		this.phaseName = phaseName;
+	}
+
+	public Integer getOrgUnitId() {
 		return orgUnitId;
 	}
 
@@ -71,42 +119,42 @@ public class ProjectReportDTO implements Serializable, CommandResult {
 	}
 
 	public Integer getProjectId() {
-        return projectId;
-    }
+		return projectId;
+	}
 
-    public void setProjectId(Integer projectId) {
-        this.projectId = projectId;
-    }
+	public void setProjectId(Integer projectId) {
+		this.projectId = projectId;
+	}
 
-    public List<ProjectReportSectionDTO> getSections() {
-        return sections;
-    }
+	public List<ProjectReportSectionDTO> getSections() {
+		return sections;
+	}
 
-    public void setSections(List<ProjectReportSectionDTO> sections) {
-        this.sections = sections;
-    }
+	public void setSections(List<ProjectReportSectionDTO> sections) {
+		this.sections = sections;
+	}
 
-    public boolean isDraft() {
-        return draft;
-    }
+	public boolean isDraft() {
+		return draft;
+	}
 
-    public void setDraft(boolean draft) {
-        this.draft = draft;
-    }
+	public void setDraft(boolean draft) {
+		this.draft = draft;
+	}
 
-    public Date getLastEditDate() {
-        return lastEditDate;
-    }
+	public Date getLastEditDate() {
+		return lastEditDate;
+	}
 
-    public void setLastEditDate(Date lastEditDate) {
-        this.lastEditDate = lastEditDate;
-    }
+	public void setLastEditDate(Date lastEditDate) {
+		this.lastEditDate = lastEditDate;
+	}
 
-    public String getEditorName() {
-        return editorName;
-    }
+	public String getEditorName() {
+		return editorName;
+	}
 
-    public void setEditorName(String editorName) {
-        this.editorName = editorName;
-    }
+	public void setEditorName(String editorName) {
+		this.editorName = editorName;
+	}
 }

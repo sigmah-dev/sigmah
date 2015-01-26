@@ -1,50 +1,35 @@
-/**
- * 
- */
 package org.sigmah.shared.command.result;
+
 import java.util.List;
 
 import org.sigmah.shared.dto.element.ReportElementDTO;
 import org.sigmah.shared.dto.element.ReportListElementDTO;
 
-
-
 /**
  * @author HUZHE
- *
+ * @author Denis Colliot (dcolliot@ideia.fr)
  */
-public class ReportElementsResult implements CommandResult {
+public class ReportElementsResult implements Result {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-	
 	private List<ReportElementDTO> reportElements;
-	private List<ReportListElementDTO>reportListElements;
-	
-	
+	private List<ReportListElementDTO> reportListElements;
 
 	/**
 	 * 
 	 */
 	public ReportElementsResult() {
-		
+		// Serialization.
 	}
-	
-	
 
 	/**
 	 * @param reportElements
 	 * @param reportListElements
 	 */
-	public ReportElementsResult(List<ReportElementDTO> reportElements,
-			List<ReportListElementDTO> reportListElements) {
+	public ReportElementsResult(List<ReportElementDTO> reportElements, List<ReportListElementDTO> reportListElements) {
 		super();
 		this.reportElements = reportElements;
 		this.reportListElements = reportListElements;
 	}
-
 
 	/**
 	 * @return the reportElements
@@ -53,14 +38,13 @@ public class ReportElementsResult implements CommandResult {
 		return reportElements;
 	}
 
-
 	/**
-	 * @param reportElements the reportElements to set
+	 * @param reportElements
+	 *          the reportElements to set
 	 */
 	public void setReportElements(List<ReportElementDTO> reportElements) {
 		this.reportElements = reportElements;
 	}
-
 
 	/**
 	 * @return the reportListElements
@@ -69,20 +53,12 @@ public class ReportElementsResult implements CommandResult {
 		return reportListElements;
 	}
 
-
 	/**
-	 * @param reportListElements the reportListElements to set
+	 * @param reportListElements
+	 *          the reportListElements to set
 	 */
 	public void setReportListElements(List<ReportListElementDTO> reportListElements) {
 		this.reportListElements = reportListElements;
 	}
-
-
-	
-	
-	
-	
-	
-	
 
 }

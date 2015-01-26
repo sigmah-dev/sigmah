@@ -1,30 +1,35 @@
 package org.sigmah.shared.dto.importation;
 
-import org.sigmah.shared.dto.EntityDTO;
+import org.sigmah.client.util.ToStringBuilder;
+import org.sigmah.shared.dto.base.AbstractModelDataEntityDTO;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
 
-import com.extjs.gxt.ui.client.data.BaseModelData;
+/**
+ * VariableFlexibleElementDTO.
+ * 
+ * @author Denis Colliot (dcolliot@ideia.fr)
+ */
+public class VariableFlexibleElementDTO extends AbstractModelDataEntityDTO<Integer> {
 
-public class VariableFlexibleElementDTO extends BaseModelData implements EntityDTO {
-
+	/**
+	 * Serial version UID.
+	 */
 	private static final long serialVersionUID = 8473344169186271504L;
 
-	@Override
-	public int getId() {
-		if (get("id") != null) {
-			return (Integer) get("id");
-		} else {
-			return -1;
-		}
-	}
-
-	public void setId(int id) {
-		set("id", id);
-	}
-
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String getEntityName() {
 		return "importation.VariableFlexibleElement";
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void appendToString(final ToStringBuilder builder) {
+		builder.append("isKey", getIsKey());
 	}
 
 	public Boolean getIsKey() {

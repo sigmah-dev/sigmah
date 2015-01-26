@@ -1,74 +1,53 @@
-/*
- * All Sigmah code is released under the GNU General Public License v3
- * See COPYRIGHT.txt and LICENSE.txt.
- */
-
 package org.sigmah.shared.command;
 
 import java.util.List;
 
-import org.sigmah.shared.command.result.ProjectListResult;
+import org.sigmah.client.util.ToStringBuilder;
+import org.sigmah.shared.command.base.AbstractCommand;
+import org.sigmah.shared.command.result.ListResult;
+import org.sigmah.shared.dto.ProjectDTO;
 
 /**
- * Retrieves the list of projects with their ids.
+ * Retrieves the given id(s) corresponding project(s) list.
+ * 
+ * @author Denis Colliot (dcolliot@ideia.fr)
  */
-public class GetProjectsFromId implements Command<ProjectListResult> {
+public class GetProjectsFromId extends AbstractCommand<ListResult<ProjectDTO>> {
 
-    private static final long serialVersionUID = -5110073809257246784L;
+	/**
+	 * List of the projects ids.
+	 */
+	private List<Integer> ids;
 
-    /**
-     * List of the projects ids.
-     */
-    private List<Integer> ids;
+	/**
+	 * The mapping mode specifying the scope of data to retrieve.
+	 */
+	private ProjectDTO.Mode mappingMode;
 
-    public GetProjectsFromId() {
-        this(null);
-    }
+	protected GetProjectsFromId() {
+		// Serialization.
+	}
 
-    public GetProjectsFromId(List<Integer> ids) {
-        this.ids = ids;
-    }
+	public GetProjectsFromId(List<Integer> ids, ProjectDTO.Mode mappingMode) {
+		this.ids = ids;
+		this.mappingMode = mappingMode;
+	}
 
-    public List<Integer> getIds() {
-        return ids;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void appendToString(final ToStringBuilder builder) {
+		builder.append("ids", ids);
+		builder.append("mappingMode", mappingMode);
+	}
 
-    public void setIds(List<Integer> ids) {
-        this.ids = ids;
-    }
+	public List<Integer> getIds() {
+		return ids;
+	}
 
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((ids == null) ? 0 : ids.hashCode());
-        return result;
-    }
+	public ProjectDTO.Mode getMappingMode() {
+		return mappingMode;
+	}
 
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        GetProjectsFromId other = (GetProjectsFromId) obj;
-        if (ids == null) {
-            if (other.ids != null)
-                return false;
-        } else if (!ids.equals(other.ids))
-            return false;
-        return true;
-    }
-
-    @Override
-    public String toString() {
-        final StringBuilder sb = new StringBuilder();
-        sb.append("[GetProjectsFromId] command: ");
-        sb.append("ids [");
-        sb.append(ids);
-        sb.append("]");
-        return sb.toString();
-    }
 }

@@ -1,0 +1,497 @@
+package org.sigmah.client.ui.presenter.zone;
+
+import com.allen_sauer.gwt.log.client.Log;
+import com.google.gwt.dom.client.Style;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.shared.HandlerRegistration;
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.Anchor;
+import com.google.gwt.user.client.ui.HTML;
+import org.sigmah.client.inject.Injector;
+import org.sigmah.client.page.RequestParameter;
+import org.sigmah.client.ui.presenter.base.AbstractZonePresenter;
+import org.sigmah.client.ui.view.base.ViewInterface;
+import org.sigmah.client.ui.view.zone.OfflineBannerView;
+import org.sigmah.client.ui.zone.Zone;
+import org.sigmah.client.ui.zone.ZoneRequest;
+import org.sigmah.offline.appcache.ApplicationCache;
+import org.sigmah.offline.appcache.ApplicationCacheManager;
+
+import com.google.gwt.user.client.ui.Panel;
+import com.google.inject.ImplementedBy;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+import java.util.Date;
+import java.util.EnumMap;
+import java.util.Map;
+import org.sigmah.client.i18n.I18N;
+import org.sigmah.client.ui.notif.ConfirmCallback;
+import org.sigmah.client.ui.notif.N10N;
+import org.sigmah.client.ui.widget.RatioBar;
+import org.sigmah.client.util.MessageType;
+import org.sigmah.offline.appcache.ApplicationCacheEventHandler;
+import org.sigmah.offline.dao.RequestManager;
+import org.sigmah.offline.dao.TransfertAsyncDAO;
+import org.sigmah.offline.indexeddb.IndexedDB;
+import org.sigmah.offline.indexeddb.OpenDatabaseRequest;
+import org.sigmah.offline.indexeddb.Request;
+import org.sigmah.offline.js.TransfertJS;
+import org.sigmah.offline.status.ApplicationState;
+import org.sigmah.offline.status.ProgressType;
+import org.sigmah.offline.sync.SynchroProgressListener;
+import org.sigmah.offline.sync.UpdateDates;
+import org.sigmah.offline.view.OfflineMenuPanel;
+import org.sigmah.offline.view.SynchronizePopup;
+import org.sigmah.shared.command.GetFilesFromFavoriteProjects;
+import org.sigmah.shared.command.result.ListResult;
+import org.sigmah.shared.dto.value.FileVersionDTO;
+import org.sigmah.shared.file.HasProgressListeners;
+import org.sigmah.shared.file.ProgressAdapter;
+import org.sigmah.shared.file.TransfertManager;
+import org.sigmah.shared.file.TransfertType;
+
+/**
+ * Offline banner presenter displaying offline status.
+ * 
+ * @author Tom Miette (tmiette@ideia.fr)
+ * @author Raphaël Calabro (rcalabro@ideia.fr)
+ */
+@Singleton
+public class OfflineBannerPresenter extends AbstractZonePresenter<OfflineBannerPresenter.View> {
+    
+    private static final String STYLE_MENU_VISIBLE = "offline-button-active";
+    private static final double PUSH_VALUE = 0.4;
+	private static final double UNDEFINED = -1.0;
+    
+    private HandlerRegistration syncHandlerRegistration;
+    private HandlerRegistration fileHandlerRegistration;
+	private Map<ProgressType, Double> progresses;
+    
+	/**
+	 * View interface.
+	 */
+	@ImplementedBy(OfflineBannerView.class)
+	public static interface View extends ViewInterface {
+
+		Panel getStatusPanel();
+        HTML getStatusLabel();
+        OfflineMenuPanel getMenuPanel();
+        SynchronizePopup getSynchronizePopup();
+
+		void setStatus(ApplicationState state);
+        void setProgress(double progress, boolean undefined);
+        void setSynchronizeAnchorEnabled(boolean enabled);
+        void setTransferFilesAnchorEnabled(boolean enabled);
+        void setWarningIconVisible(boolean visible);
+        void setConnectionIconVisible(boolean visible);
+	}
+    
+	@Inject
+	public OfflineBannerPresenter(View view, Injector injector, TransfertManager transfertManager) {
+		super(view, injector);
+	}
+    
+	@Override
+	public void onBind() {
+        progresses = new EnumMap<ProgressType, Double>(ProgressType.class);
+        view.getSynchronizePopup().initialize();
+        onStateChange(injector.getConnectionStatus().getState());
+        
+        // Application cache progress
+		ApplicationCacheManager.addHandler(createApplicationCacheEventHandler());
+        
+        // File transfer progress
+		final TransfertManager transfertManager = injector.getTransfertManager();
+        if(transfertManager instanceof HasProgressListeners) {
+            ((HasProgressListeners)transfertManager).setProgressListener(TransfertType.DOWNLOAD, createProgressAdapter(ProgressType.DOWNLOAD));
+            ((HasProgressListeners)transfertManager).setProgressListener(TransfertType.UPLOAD, createProgressAdapter(ProgressType.UPLOAD));
+        } else {
+            // Remove file transfer references for unsupported browsers.
+            view.getMenuPanel().removeFileBaseWidgets();
+        }
+        
+        // Toggle visibility of the offline menu
+        view.getStatusLabel().addDomHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                setMenuVisible(!view.getMenuPanel().isVisible());
+            }
+        }, ClickEvent.getType());
+        
+        final OfflineMenuPanel menuPanel = view.getMenuPanel();
+        menuPanel.setSigmahUpdateDate(ApplicationCacheManager.getUpdateDate());
+        menuPanel.setDatabaseUpdateDate(getDatabaseUpdateDate());
+        
+        // Destroy local database
+        menuPanel.getRemoveOfflineDataAnchor().addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                confirmUserDatabaseRemoval();
+            }
+        });
+		
+        updateProgressBars();
+	}
+    
+    /**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void onZoneRequest(ZoneRequest zoneRequest) {
+
+		final ApplicationState state = zoneRequest.getData(RequestParameter.CONTENT);
+		if(state != null) {
+            onStateChange(state);
+		}
+	}
+    
+    private void setMenuVisible(boolean visible) {
+        view.getMenuPanel().setVisible(visible);
+                
+        if(visible) {
+            view.getStatusLabel().addStyleName(STYLE_MENU_VISIBLE);
+        } else {
+            view.getStatusLabel().removeStyleName(STYLE_MENU_VISIBLE);
+        }
+    }
+    
+    private void updateProgressBars() {
+        double total = 0.0;
+		int undefined = 0;
+        
+        for(final ProgressType progressType : ProgressType.values()) {
+            final Double progress = progresses.get(progressType);
+            final RatioBar bar = view.getMenuPanel().getBar(progressType);
+            
+            if(progress != null) {
+				view.getMenuPanel().setBarVisible(progressType, true);
+				
+				if(progress != UNDEFINED) {
+					total += progress;
+					bar.setRatio(progress * 100.0);
+				} else {
+					bar.setRatioUndefined();
+					undefined++;
+				}
+				
+			} else {
+                view.getMenuPanel().setBarVisible(progressType, false);
+            }
+        }
+        
+        final int size = progresses.size();
+        if(size > 0) {
+            total /= (double) size;
+		}
+		
+        view.setProgress(total, undefined > 0 && undefined == size);
+    }
+	
+	private int getPendingTransfers(ProgressType type) {
+		final HasProgressListeners hasProgressListeners = (HasProgressListeners) injector.getTransfertManager();
+		switch(type) {
+			case DOWNLOAD:
+				return hasProgressListeners.getDownloadQueueSize();
+				
+			case UPLOAD:
+				return hasProgressListeners.getUploadQueueSize();
+		}
+		throw new IllegalArgumentException("Progress type '" + type + "' is not supported.");
+	}
+	
+	private ProgressAdapter createProgressAdapter(final ProgressType type) {
+		return new ProgressAdapter() {
+			@Override
+			public void onProgress(double progress, double speed) {
+				if(progress < 1.0) { 
+					progresses.put(type, progress);
+					updateProgressBars();
+					view.getMenuPanel().setPendingsTransfers(type, getPendingTransfers(type));
+				} else {
+					progresses.remove(type);
+					updateProgressBars();
+					view.getMenuPanel().setPendingsTransfers(type, 0);
+				}
+			}
+
+			@Override
+			public void onLoad(String result) {
+				progresses.remove(type);
+				updateProgressBars();
+				view.getMenuPanel().setPendingsTransfers(type, 0);
+			}
+		};
+	}
+	
+    private void confirmUserDatabaseRemoval() {
+        N10N.confirmation(I18N.CONSTANTS.offlineModeHeader(), I18N.CONSTANTS.offlineActionDestroyLocalDataConfirm(), new ConfirmCallback() {
+            @Override
+            public void onAction() {
+                setMenuVisible(false);
+
+                N10N.message(I18N.CONSTANTS.offlineActionDestroyLocalDataWorking(), MessageType.OFFLINE);
+                
+                final OpenDatabaseRequest request = IndexedDB.deleteUserDatabase(auth());
+                request.addCallback(new AsyncCallback<Request>() {
+                    @Override
+                    public void onFailure(Throwable caught) {
+                        N10N.message(I18N.CONSTANTS.offlineActionDestroyLocalDataFailure(), MessageType.OFFLINE);
+                    }
+                    @Override
+                    public void onSuccess(Request result) {
+                        UpdateDates.setDatabaseUpdateDate(auth(), null);
+                        Window.Location.reload();
+                    }
+                });
+            }
+        }, new ConfirmCallback() {
+            @Override
+            public void onAction() {
+                setMenuVisible(false);
+            }
+        });
+    }
+    
+    private ApplicationCacheEventHandler createApplicationCacheEventHandler() {
+        return new ApplicationCacheEventHandler() {
+			@Override
+			public void onStatusChange(ApplicationCache.Status status) {
+				switch (status) {
+					case DOWNLOADING:
+						progresses.put(ProgressType.APPLICATION_CACHE, UNDEFINED);
+						updateProgressBars();
+						break;
+					case UPDATEREADY:
+                        progresses.remove(ProgressType.APPLICATION_CACHE);
+                        updateProgressBars();
+                        view.getMenuPanel().setSigmahUpdateDate(new Date());
+						break;
+					default:
+						break;
+				}
+			}
+
+			@Override
+			public void onProgress(int loaded, int total) {
+                progresses.put(ProgressType.APPLICATION_CACHE, (double)loaded/(double)total);
+                updateProgressBars();
+			}
+		};
+    }
+    
+    private Date getDatabaseUpdateDate() {
+        return UpdateDates.getDatabaseUpdateDate(auth());
+    }
+    
+    private void setDatabaseUpdateDate(Date date) {
+        UpdateDates.setDatabaseUpdateDate(auth(), date);
+        view.getMenuPanel().setDatabaseUpdateDate(date);
+    }
+    
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Zone getZone() {
+		return Zone.OFFLINE_BANNER;
+	}
+
+    private void onStateChange(ApplicationState state) {
+        view.setStatus(state);
+            
+        if(syncHandlerRegistration != null) {
+            syncHandlerRegistration.removeHandler();
+            syncHandlerRegistration = null;
+        }
+		
+		if(fileHandlerRegistration != null) {
+			fileHandlerRegistration.removeHandler();
+			fileHandlerRegistration = null;
+		}
+
+        final Anchor syncAnchor = view.getMenuPanel().getUpdateDatabaseAnchor();
+		final Anchor fileAnchor = view.getMenuPanel().getTransferFilesAnchor();
+		
+        switch(state) {
+            case OFFLINE:
+                syncAnchor.getElement().getStyle().setDisplay(Style.Display.NONE);
+                fileAnchor.getElement().getStyle().setDisplay(Style.Display.NONE);
+                view.setConnectionIconVisible(false);
+                break;
+
+            case READY_TO_SYNCHRONIZE:
+                view.setConnectionIconVisible(true);
+				fileAnchor.getElement().getStyle().setDisplay(Style.Display.NONE);
+                syncAnchor.getElement().getStyle().clearDisplay();
+                syncAnchor.setText(I18N.CONSTANTS.offlineActionSynchronize());
+                syncHandlerRegistration = syncAnchor.addClickHandler(new ClickHandler() {
+                    @Override
+                    public void onClick(ClickEvent event) {
+                        setMenuVisible(false);
+                        pushAndPull();
+                    }
+                });
+                break;
+
+            case ONLINE:
+                view.setConnectionIconVisible(false);
+                syncAnchor.getElement().getStyle().clearDisplay();
+                syncAnchor.setText(I18N.CONSTANTS.offlineActionUpdateDatabase());
+                syncHandlerRegistration = syncAnchor.addClickHandler(new ClickHandler() {
+                    @Override
+                    public void onClick(ClickEvent event) {
+                        setMenuVisible(false);
+                        pull();
+                    }
+                });
+				
+                fileAnchor.getElement().getStyle().clearDisplay();
+				fileHandlerRegistration = fileAnchor.addClickHandler(new ClickHandler() {
+					@Override
+					public void onClick(ClickEvent event) {
+						setMenuVisible(false);
+						pullFiles();
+					}
+				});
+                break;
+
+            default:
+                break;
+        }
+    }
+
+    private void pushAndPull() {
+        view.setSynchronizeAnchorEnabled(false);
+
+        progresses.put(ProgressType.DATABASE, 0.0);
+        view.setWarningIconVisible(false);
+        
+        // Show the modal progress popup
+        view.getSynchronizePopup().setTask(I18N.CONSTANTS.offlineSynchronizePush());
+        view.getSynchronizePopup().center();
+        
+        final RequestManager<Void> requestManager = new RequestManager<Void>(null, new AsyncCallback<Void>() {
+
+            @Override
+            public void onFailure(Throwable caught) {
+                N10N.error(I18N.CONSTANTS.offlineSynchronizePushError());
+                view.setWarningIconVisible(true);
+                view.setSynchronizeAnchorEnabled(true);
+                
+                progresses.remove(ProgressType.DATABASE);
+                updateProgressBars();
+            }
+
+            @Override
+            public void onSuccess(Void result) {
+                view.getSynchronizePopup().setProgress(PUSH_VALUE);
+                view.getSynchronizePopup().setTask(I18N.CONSTANTS.offlineSynchronizePull());
+                progresses.put(ProgressType.DATABASE, PUSH_VALUE);
+
+                injector.getSynchronizer().pull(new SynchroProgressListener() {
+
+                    @Override
+                    public void onProgress(double progress) {
+                        final double total = PUSH_VALUE + progress * (1.0 - PUSH_VALUE);
+                        view.getSynchronizePopup().setProgress(total);
+                        progresses.put(ProgressType.DATABASE, total);
+                        updateProgressBars();
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        view.setSynchronizeAnchorEnabled(true);
+                        progresses.remove(ProgressType.DATABASE);
+                        updateProgressBars();
+                        view.getSynchronizePopup().hide();
+                        setDatabaseUpdateDate(new Date());
+                    }
+
+                    @Override
+                    public void onFailure(Throwable caught) {
+                        progresses.remove(ProgressType.DATABASE);
+                        updateProgressBars();
+                        
+                        view.getSynchronizePopup().hide();
+                        N10N.error(I18N.CONSTANTS.offlineSynchronizePullError());
+                        view.setWarningIconVisible(true);
+                        view.setSynchronizeAnchorEnabled(true);
+                    }
+                });
+            }
+        });
+
+        injector.getSynchronizer().push(requestManager);
+    }
+    
+    private void pull() {
+        view.setSynchronizeAnchorEnabled(false);
+        progresses.put(ProgressType.DATABASE, 0.0);
+        view.setWarningIconVisible(false);
+        
+        injector.getSynchronizer().pull(new SynchroProgressListener() {
+
+            @Override
+            public void onProgress(double progress) {
+                progresses.put(ProgressType.DATABASE, progress);
+                updateProgressBars();
+            }
+
+            @Override
+            public void onComplete() {
+                progresses.remove(ProgressType.DATABASE);
+                updateProgressBars();
+                setDatabaseUpdateDate(new Date());
+                view.setSynchronizeAnchorEnabled(true);
+            }
+
+            @Override
+            public void onFailure(Throwable caught) {
+                N10N.error(I18N.CONSTANTS.offlineSynchronizePullError());
+                view.setWarningIconVisible(true);
+                view.setSynchronizeAnchorEnabled(true);
+                
+                progresses.remove(ProgressType.DATABASE);
+                updateProgressBars();
+            }
+        });
+    }
+	
+	private void pullFiles() {
+		view.setTransferFilesAnchorEnabled(false);
+
+		// Push files
+		final TransfertAsyncDAO transfertAsyncDAO = injector.getTransfertAsyncDAO();
+		transfertAsyncDAO.getAll(TransfertType.UPLOAD, new AsyncCallback<TransfertJS>() {
+
+			@Override
+			public void onFailure(Throwable caught) {
+				Log.error("An error occured while searching for not uploaded files.", caught);
+			}
+
+			@Override
+			public void onSuccess(TransfertJS result) {
+				((HasProgressListeners)injector.getTransfertManager()).resumeUpload(result);
+			}
+		});
+		
+		// Pull all files
+		dispatch.execute(new GetFilesFromFavoriteProjects(), new AsyncCallback<ListResult<FileVersionDTO>>() {
+			@Override
+			public void onFailure(Throwable caught) {
+				view.setTransferFilesAnchorEnabled(true);
+				N10N.error(I18N.CONSTANTS.offlineActionTransferFilesListFilesError());
+			}
+
+			@Override
+			public void onSuccess(ListResult<FileVersionDTO> result) {
+				view.setTransferFilesAnchorEnabled(true);
+				for(final FileVersionDTO fileVersionDTO : result.getList()) {
+					injector.getTransfertManager().cache(fileVersionDTO);
+				}
+			}
+		});
+	}
+}

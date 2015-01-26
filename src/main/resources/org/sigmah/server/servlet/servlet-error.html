@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<title><!-- ${AppName} --> - Error</title>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+
+<style type="text/css">
+<!--
+* {
+	margin: 0;
+	padding: 0;
+}
+
+body {
+	font-family: 'Lucida Grande', Helvetica, Arial, Verdana, sans-serif;
+	font-size: 12px;
+	padding: 10px 20px;
+}
+
+.title {
+	font-size: 18px;
+	font-weight: bold;
+	padding-bottom: 8px;
+	border-bottom: 4px solid #BBB;
+}
+
+.message-wrapper {
+	margin: 25px 0;
+}
+
+.message {
+	font-size: 13px;
+	border: 4px solid #BBB;
+	border-top: none;
+	padding: 7px 15px 7px;
+}
+
+.message-title {
+	font-weight: bold;
+	margin-bottom: 8px;
+}
+
+.message-content {
+	font-style: italic;
+}
+
+.back-button-wrapper {
+	text-align: center;
+	margin-top: 25px;
+}
+
+.back-button, .back-button:visited {
+	margin: 0 auto;
+	display: inline-block;
+	text-decoration: none;
+	border: 1px solid #CCC;
+	border-radius: 5px;
+	padding: 8px 12px;
+	font-style: italic;
+	background-color: #EEE;
+}
+
+.back-button:hover, .back-button:active {
+	text-decoration: underline;
+	border-color: #BBB;
+	background-color: #E5E5E5;
+}
+-->
+</style>
+</head>
+
+<body>
+	<p class="title">An error has occured during process execution.</p>
+
+	<div class="message">
+		<div class="message-title">Error details</div>
+		<div class="message-content">
+			<!-- ${MessageContent} -->
+		</div>
+	</div>
+
+	<div class="back-button-wrapper" style="display: <!-- ${ButtonDisplay} -->">
+		<a class="back-button" href="javascript:history.back();">Back to <!-- ${AppName} --></a>
+	</div>
+</body>
+</html>

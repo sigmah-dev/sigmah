@@ -1,35 +1,37 @@
-/*
- * All Sigmah code is released under the GNU General Public License v3
- * See COPYRIGHT.txt and LICENSE.txt.
- */
-
 package org.sigmah.shared.command.result;
 
 import java.util.Iterator;
 import java.util.List;
 
-public class SyncRegions implements CommandResult, Iterable<SyncRegion> {
+/**
+ * @author Denis Colliot (dcolliot@ideia.fr)
+ */
+public class SyncRegions implements Result, Iterable<SyncRegion> {
 
-    private List<SyncRegion> list;
+	private List<SyncRegion> list;
 
-    public SyncRegions() {
+	public SyncRegions() {
+		// Serialization.
+	}
 
-    }
+	public SyncRegions(List<SyncRegion> list) {
+		this.list = list;
+	}
 
-    public SyncRegions(List<SyncRegion> list) {
-        this.list = list;
-    }
+	public List<SyncRegion> getList() {
+		return list;
+	}
 
-    public List<SyncRegion> getList() {
-        return list;
-    }
+	protected void setList(List<SyncRegion> list) {
+		this.list = list;
+	}
 
-    protected void setList(List<SyncRegion> list) {
-        this.list = list;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Iterator<SyncRegion> iterator() {
+		return list.iterator();
+	}
 
-    @Override
-    public Iterator<SyncRegion> iterator() {
-        return list.iterator();
-    }
 }

@@ -1,43 +1,44 @@
-/*
- * All Sigmah code is released under the GNU General Public License v3
- * See COPYRIGHT.txt and LICENSE.txt.
- */
-
 package org.sigmah.shared.command;
 
-import java.io.Serializable;
-import org.sigmah.shared.domain.calendar.Calendar;
-import org.sigmah.shared.domain.calendar.CalendarType;
+
+import org.sigmah.shared.command.base.AbstractCommand;
+import org.sigmah.shared.command.result.Calendar;
+import org.sigmah.shared.dto.calendar.CalendarIdentifier;
+import org.sigmah.shared.dto.calendar.CalendarType;
 
 /**
  * Command used to ask for events.
+ * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
+ * @author Denis Colliot (dcolliot@ideia.fr)
  */
-public class GetCalendar implements Command<Calendar> {
-    private CalendarType type;
-    private Serializable identifier;
+public class GetCalendar extends AbstractCommand<Calendar> {
 
-    public GetCalendar() {}
+	private CalendarType type;
+	private CalendarIdentifier identifier;
 
-    public GetCalendar(CalendarType type, Serializable identifier) {
-        this.type = type;
-        this.identifier = identifier;
-    }
+	public GetCalendar() {
+		// Serialization.
+	}
 
-    public CalendarType getType() {
-        return type;
-    }
+	public GetCalendar(CalendarType type, CalendarIdentifier identifier) {
+		this.type = type;
+		this.identifier = identifier;
+	}
 
-    public void setType(CalendarType type) {
-        this.type = type;
-    }
+	public CalendarType getType() {
+		return type;
+	}
 
+	public void setType(CalendarType type) {
+		this.type = type;
+	}
 
-    public Serializable getIdentifier() {
-        return identifier;
-    }
+	public CalendarIdentifier getIdentifier() {
+		return identifier;
+	}
 
-    public void setIdentifier(Serializable identifier) {
-        this.identifier = identifier;
-    }
+	public void setIdentifier(CalendarIdentifier identifier) {
+		this.identifier = identifier;
+	}
 }

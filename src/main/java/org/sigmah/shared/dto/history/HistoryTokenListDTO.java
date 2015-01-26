@@ -3,54 +3,76 @@ package org.sigmah.shared.dto.history;
 import java.util.Date;
 import java.util.List;
 
-import com.extjs.gxt.ui.client.data.BaseModelData;
+import org.sigmah.client.util.ToStringBuilder;
+import org.sigmah.shared.dto.base.AbstractModelDataDTO;
 
-public class HistoryTokenListDTO extends BaseModelData {
+public class HistoryTokenListDTO extends AbstractModelDataDTO {
 
-    private static final long serialVersionUID = 9137525003889062584L;
+	/**
+	 * Serial version UID.
+	 */
+	private static final long serialVersionUID = 9137525003889062584L;
 
-    // Token date.
-    public Date getDate() {
-        return get("date");
-    }
+	// DTO attributes keys.
+	public static final String DATE = "date";
+	public static final String EMAIL = "email";
+	public static final String FIRST_NAME = "firstName";
+	public static final String NAME = "name";
+	public static final String TOKENS = "tokens";
 
-    public void setDate(Date date) {
-        set("date", date);
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void appendToString(final ToStringBuilder builder) {
+		builder.append(DATE, getDate());
+		builder.append(EMAIL, getUserEmail());
+		builder.append(FIRST_NAME, getUserFirstName());
+		builder.append(NAME, getUserName());
+	}
 
-    // User email.
-    public String getUserEmail() {
-        return get("email");
-    }
+	// Token date.
+	public Date getDate() {
+		return get(DATE);
+	}
 
-    public void setUserEmail(String email) {
-        set("email", email);
-    }
+	public void setDate(Date date) {
+		set(DATE, date);
+	}
 
-    // User first name.
-    public String getUserFirstName() {
-        return get("firstName");
-    }
+	// User email.
+	public String getUserEmail() {
+		return get(EMAIL);
+	}
 
-    public void setUserFirstName(String firstName) {
-        set("firstName", firstName);
-    }
+	public void setUserEmail(String email) {
+		set(EMAIL, email);
+	}
 
-    // User name.
-    public String getUserName() {
-        return get("name");
-    }
+	// User first name.
+	public String getUserFirstName() {
+		return get(FIRST_NAME);
+	}
 
-    public void setUserName(String name) {
-        set("name", name);
-    }
+	public void setUserFirstName(String firstName) {
+		set(FIRST_NAME, firstName);
+	}
 
-    // Tokens.
-    public List<HistoryTokenDTO> getTokens() {
-        return get("tokens");
-    }
+	// User name.
+	public String getUserName() {
+		return get(NAME);
+	}
 
-    public void setTokens(List<HistoryTokenDTO> tokens) {
-        set("tokens", tokens);
-    }
+	public void setUserName(String name) {
+		set(NAME, name);
+	}
+
+	// Tokens.
+	public List<HistoryTokenDTO> getTokens() {
+		return get(TOKENS);
+	}
+
+	public void setTokens(List<HistoryTokenDTO> tokens) {
+		set(TOKENS, tokens);
+	}
 }

@@ -1,181 +1,145 @@
 package org.sigmah.shared.dto.logframe;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 
-import org.sigmah.client.page.project.logframe.CodePolicy;
-import org.sigmah.client.page.project.logframe.grid.Row.Positionable;
-import org.sigmah.shared.dto.EntityDTO;
-
-import com.extjs.gxt.ui.client.data.BaseModelData;
+import org.sigmah.client.ui.presenter.project.logframe.CodePolicy;
+import org.sigmah.client.ui.view.project.logframe.grid.Row.Positionable;
+import org.sigmah.client.util.ToStringBuilder;
 
 /**
  * DTO mapping class for entity logframe.SpecificObjective.
  * 
  * @author tmi
- * 
+ * @author Denis Colliot (dcolliot@ideia.fr)
  */
-public class SpecificObjectiveDTO extends LogFrameElementDTO implements EntityDTO, Positionable {
+public class SpecificObjectiveDTO extends LogFrameElementDTO implements Positionable {
 
-    private static final long serialVersionUID = -5441820698955180264L;
+	/**
+	 * Serial version UID.
+	 */
+	private static final long serialVersionUID = -5441820698955180264L;
 
-    public SpecificObjectiveDTO() {
-    	setExpectedResults(new ArrayList<ExpectedResultDTO>());
-    }
-    
-    @Override
-    public String getEntityName() {
-        return "logframe.SpecificObjective";
-    }
+	public SpecificObjectiveDTO() {
+		setExpectedResults(new ArrayList<ExpectedResultDTO>());
+	}
 
-    // Objective intervention logic.
-    public String getInterventionLogic() {
-        return get("interventionLogic");
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getEntityName() {
+		return "logframe.SpecificObjective";
+	}
 
-    public void setInterventionLogic(String interventionLogic) {
-        set("interventionLogic", interventionLogic);
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void appendToString(final ToStringBuilder builder) {
+		builder.append("label", getLabel());
+		builder.append("code", getCode());
+		builder.append("groupId", getGroup() != null ? getGroup().getId() != null ? getGroup().getId() : getGroup().getClientSideId() : null);
+		builder.append("interventionLogic", getInterventionLogic());
+		builder.append("risksAndAssumptions", getRisksAndAssumptions());
+		builder.append("expectedResults", getExpectedResults());
+	}
 
-    // Objective parent log frame.
-    public LogFrameDTO getParentLogFrame() {
-        return get("parentLogFrame");
-    }
+	/**
+	 * Adds a new expected result to this log frame.
+	 * 
+	 * @return The new expected result.
+	 */
+	public ExpectedResultDTO addExpectedResult() {
 
-    public void setParentLogFrame(LogFrameDTO parentLogFrameDTO) {
-        set("parentLogFrame", parentLogFrameDTO);
-    }
+		List<ExpectedResultDTO> expectedResults = getExpectedResults();
 
-    
-    // Objective expected results.
-    public List<ExpectedResultDTO> getExpectedResults() {
-        return get("expectedResults");
-    }
+		// Retrieves the higher code.
+		int max = 0;
+		for (final ExpectedResultDTO result : expectedResults) {
+			max = result.getCode() > max ? result.getCode() : max;
+		}
 
-    public void setExpectedResults(List<ExpectedResultDTO> expectedResults) {
-        set("expectedResults", expectedResults);
-    }
+		// Creates the expected result.
+		final ExpectedResultDTO newResult = new ExpectedResultDTO();
+		newResult.setCode(max + 1);
+		newResult.setParentSpecificObjective(this);
 
+		// Adds it to the local list.
+		expectedResults.add(newResult);
 
-    // Display label.
-    /**
-     * Sets the attribute <code>label</code> to display this element in a
-     * selection window.
-     */
-    public void setLabel(String label) {
-        set("label", label);
-    }
+		return newResult;
+	}
 
-    @Override
-    public String getLabel() {
-        return get("label");
-    }
+	/**
+	 * Removes an expected result from this objective.
+	 * 
+	 * @param result
+	 *          The result to remove.
+	 * @return If the result has been removed.
+	 */
+	public boolean removeExpectedResult(ExpectedResultDTO result) {
+		return getExpectedResults().remove(result);
+	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getFormattedCode() {
+		final StringBuilder sb = new StringBuilder();
+		sb.append(CodePolicy.getLetter(getCode(), true, 1));
+		sb.append(".");
 
-    @Override
-    public String toString() {
-        final StringBuilder sb = new StringBuilder();
-        sb.append("SpecificObjectiveDTO [");
-        sb.append("entity name = ");
-        sb.append(getEntityName());
-        sb.append(" ; id = ");
-        sb.append(getId());
-        sb.append(" ; group id = ");
-        if (getGroup() != null) {
-            sb.append(getGroup().getId() != -1 ? getGroup().getId() : getGroup()
-                    .getClientSideId());
-        }
-        sb.append(" ; dlabel = ");
-        sb.append(getLabel());
-        sb.append(" ; code = ");
-        sb.append(getCode());
-        sb.append(" ; intervention logic = ");
-        sb.append(getInterventionLogic());
-        sb.append(" ; risksAndAssumptions = ");
-        sb.append(getRisksAndAssumptions());
-        sb.append(" ; expected results = (\n");
-        if (getExpectedResults() != null) {
-            for (final ExpectedResultDTO r : getExpectedResults()) {
-                sb.append(r);
-                sb.append("\n");
-            }
-        }
-        sb.append(")]");
-        return sb.toString();
-    }
+		return sb.toString();
+	}
 
-    @Override
-    public int hashCode() {
-        return getClientSideId();
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getDescription() {
+		return getInterventionLogic();
+	}
 
-    @Override
-    public boolean equals(Object obj) {
+	// Objective intervention logic.
+	public String getInterventionLogic() {
+		return get("interventionLogic");
+	}
 
-        if (obj == null) {
-            return false;
-        }
+	public void setInterventionLogic(String interventionLogic) {
+		set("interventionLogic", interventionLogic);
+	}
 
-        if (!(obj instanceof SpecificObjectiveDTO)) {
-            return false;
-        }
+	// Objective parent log frame.
+	public LogFrameDTO getParentLogFrame() {
+		return get("parentLogFrame");
+	}
 
-        final SpecificObjectiveDTO other = (SpecificObjectiveDTO) obj;
-        return getClientSideId() == other.getClientSideId();
-    }
+	public void setParentLogFrame(LogFrameDTO parentLogFrameDTO) {
+		set("parentLogFrame", parentLogFrameDTO);
+	}
 
-    /**
-     * Adds a new expected result to this log frame.
-     * 
-     * @return The new expected result.
-     */
-    public ExpectedResultDTO addExpectedResult() {
+	// Objective expected results.
+	public List<ExpectedResultDTO> getExpectedResults() {
+		return get("expectedResults");
+	}
 
-        List<ExpectedResultDTO> expectedResults = getExpectedResults();
+	public void setExpectedResults(List<ExpectedResultDTO> expectedResults) {
+		set("expectedResults", expectedResults);
+	}
 
-        // Retrieves the higher code.
-        int max = 0;
-        for (final ExpectedResultDTO result : expectedResults) {
-            max = result.getCode() > max ? result.getCode() : max;
-        }
+	// Display label.
+	/**
+	 * Sets the attribute <code>label</code> to display this element in a selection window.
+	 */
+	public void setLabel(String label) {
+		set("label", label);
+	}
 
-        // Creates the expected result.
-        final ExpectedResultDTO newResult = new ExpectedResultDTO();
-        newResult.setCode(max + 1);
-        newResult.setParentSpecificObjective(this);
+	@Override
+	public String getLabel() {
+		return get("label");
+	}
 
-        // Adds it to the local list.
-        expectedResults.add(newResult);
-
-        return newResult;
-    }
-
-    /**
-     * Removes an expected result from this objective.
-     * 
-     * @param result
-     *            The result to remove.
-     * @return If the result has been removed.
-     */
-    public boolean removeExpectedResult(ExpectedResultDTO result) {
-    	return getExpectedResults().remove(result);
-    }
-
-    @Override
-    public String getFormattedCode() {
-    	final StringBuilder sb = new StringBuilder();
-    	sb.append(CodePolicy.getLetter(getCode(), true, 1));
-    	sb.append(".");
-
-    	return sb.toString();
-    }
-    
-    @Override
-    public String getDescription() {
-    	return getInterventionLogic();
-    }
-    
 }

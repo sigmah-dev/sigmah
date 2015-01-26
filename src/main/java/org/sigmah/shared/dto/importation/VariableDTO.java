@@ -1,54 +1,68 @@
 package org.sigmah.shared.dto.importation;
 
-import org.sigmah.shared.dto.EntityDTO;
+import org.sigmah.client.util.ToStringBuilder;
+import org.sigmah.shared.dto.base.AbstractModelDataEntityDTO;
 
-import com.extjs.gxt.ui.client.data.BaseModelData;
-
-public class VariableDTO extends BaseModelData implements EntityDTO {
+/**
+ * VariableDTO.
+ * 
+ * @author Denis Colliot (dcolliot@ideia.fr)
+ */
+public class VariableDTO extends AbstractModelDataEntityDTO<Integer> {
 
 	/**
-	 * 
+	 * Serial version UID.
 	 */
 	private static final long serialVersionUID = -3598029403371970959L;
+	
+	/**
+	 * DTO corresponding entity name.
+	 */
+	public static final String ENTITY_NAME = "importation.Variable";
 
-	@Override
-	public int getId() {
-		if (get("id") != null)
-			return (Integer) get("id");
-		else
-			return -1;
-	}
+	// DTO attributes keys.
+	public static final String NAME = "name";
+	public static final String REFERENCE = "reference";
+	public static final String IMPORTATION_SCHEME = "importationScheme";
 
-	public void setId(int id) {
-		set("id", id);
-	}
-
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String getEntityName() {
-		return "importation.Variable";
+		return ENTITY_NAME;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void appendToString(final ToStringBuilder builder) {
+		builder.append(NAME, getName());
+		builder.append(REFERENCE, getReference());
 	}
 
 	public String getName() {
-		return get("name");
+		return get(NAME);
 	}
 
 	public void setName(String name) {
-		set("name", name);
+		set(NAME, name);
 	}
 
 	public String getReference() {
-		return get("reference");
+		return get(REFERENCE);
 	}
 
 	public void setReference(String reference) {
-		set("reference", reference);
+		set(REFERENCE, reference);
 	}
 
-	public ImportationSchemeDTO getImportationSchemeDTO() {
-		return get("importationSchemeDTO");
+	public ImportationSchemeDTO getImportationScheme() {
+		return get(IMPORTATION_SCHEME);
 	}
 
-	public void setImportationSchemeDTO(ImportationSchemeDTO importationSchemeDTO) {
-		set("importationSchemeDTO", importationSchemeDTO);
+	public void setImportationScheme(ImportationSchemeDTO importationScheme) {
+		set(IMPORTATION_SCHEME, importationScheme);
 	}
 }

@@ -1,39 +1,32 @@
-/*
- * All Sigmah code is released under the GNU General Public License v3
- * See COPYRIGHT.txt and LICENSE.txt.
- */
-
 package org.sigmah.shared.command;
 
+import org.sigmah.shared.command.base.AbstractCommand;
 import org.sigmah.shared.command.result.IndicatorListResult;
-import org.sigmah.shared.dto.IndicatorDTO;
+import org.sigmah.shared.dto.ProjectDTO;
 
 /**
  * Retrieves all of a project's indicators
- * @author 
+ * 
+ * @author Denis Colliot (dcolliot@ideia.fr)
  */
-public class GetIndicators implements Command<IndicatorListResult> {
-    
+public class GetIndicators extends AbstractCommand<IndicatorListResult> {
+
 	private int userDatabaseId;
-    
-    public GetIndicators() {
-    }
 
-
-    public void setUserDatabaseId(int userDatabaseId) {
-        this.userDatabaseId = userDatabaseId;
-    }
-
-    public int getUserDatabaseId() {
-        return userDatabaseId;
-    }
-
-
-	public static GetIndicators forDatabase(int userDatabaseId) {
-		GetIndicators command = new GetIndicators();
-		command.setUserDatabaseId(userDatabaseId);
-		
-		return command;
+	protected GetIndicators() {
+		// Serialization.
 	}
 	
+	public GetIndicators(ProjectDTO project) {
+		this(project.getId());
+	}
+	
+	public GetIndicators(int userDatabaseId) {
+		this.userDatabaseId = userDatabaseId;
+	}
+	
+	public int getUserDatabaseId() {
+		return userDatabaseId;
+	}
+
 }

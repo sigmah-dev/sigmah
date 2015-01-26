@@ -1,214 +1,129 @@
-/*
- * All Sigmah code is released under the GNU General Public License v3
- * See COPYRIGHT.txt and LICENSE.txt.
- */
-
 package org.sigmah.shared.command;
 
 import java.util.List;
 
-import org.sigmah.shared.command.result.ProjectListResult;
-import org.sigmah.shared.domain.ProjectModelType;
-import org.sigmah.shared.dto.CountryDTO;
+import org.sigmah.client.util.ToStringBuilder;
+import org.sigmah.shared.command.base.AbstractCommand;
+import org.sigmah.shared.command.result.ListResult;
+import org.sigmah.shared.dto.ProjectDTO;
+import org.sigmah.shared.dto.referential.ProjectModelType;
 
 /**
  * Retrieves the list of projects available to the user.
+ * 
+ * @author Denis Colliot (dcolliot@ideia.fr)
  */
-public class GetProjects implements Command<ProjectListResult> {
+public class GetProjects extends AbstractCommand<ListResult<ProjectDTO>> {
 
-    private static final long serialVersionUID = 4355275610740881552L;
+	/**
+	 * The type of model of the projects for the current user organization (set to <code>null</code> to ignore this
+	 * filter).
+	 */
+	private ProjectModelType modelType;
 
-    /**
-     * Defines the different of returns that that command handles.
-     * 
-     * @author tmi
-     */
-    public static enum ProjectResultType {
-
-        /**
-         * Returns the projects as light DTO.
-         */
-        PROJECT_LIGHT,
-
-        /**
-         * Returns the projects.
-         */
-        PROJECT,
-
-        /**
-         * Returns the projects ids.
-         */
-        ID;
-    }
+	/**
+	 * List of organizational units ids in which the projects will be searched (set to <code>null</code> to ignore this
+	 * filter).
+	 */
+	private List<Integer> orgUnitsIds;
 
     /**
-     * List of countries in which the projects will be searched (set to
-     * <code>null</code> to ignore this filter).
+     * Fetch only the favorites projects.
      */
-    private List<CountryDTO> countries;
+    private boolean favoritesOnly;
+    
+	/**
+	 * If the project that the current user own or manage must be retrieved.
+	 */
+	private boolean viewOwnOrManage;
 
-    /**
-     * The type of model of the projects for the current user organization (set
-     * to <code>null</code> to ignore this filter).
-     */
-    private ProjectModelType modelType;
+	/**
+	 * The mapping mode specifying the scope of data to retrieve.
+	 */
+	private ProjectDTO.Mode mappingMode;
+    
+	public GetProjects() {
+		// Serialization.
+	}
 
-    /**
-     * List of organizational units ids in which the projects will be searched
-     * (set to <code>null</code> to ignore this filter).
-     */
-    private List<Integer> orgUnitsIds;
+	public GetProjects(ProjectModelType modelType, ProjectDTO.Mode mappingMode) {
+		this(null, modelType, mappingMode);
+	}
 
-    /**
-     * If the project that the current user own or manage must be retrieved.
-     */
-    private boolean viewOwnOrManage;
+	public GetProjects(List<Integer> orgUnitsIds, ProjectDTO.Mode mappingMode) {
+		this(orgUnitsIds, null, mappingMode);
+	}
 
-    /**
-     * The command return type (default to
-     * {@link ProjectResultType#PROJECT_LIGHT}).
-     */
-    private ProjectResultType returnType;
+	public GetProjects(List<Integer> orgUnitsIds, ProjectModelType modelType, ProjectDTO.Mode mappingMode) {
+		this.modelType = modelType;
+		this.orgUnitsIds = orgUnitsIds;
+		this.mappingMode = mappingMode;
+	}
 
-    public GetProjects() {
-        this(null, null);
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void appendToString(final ToStringBuilder builder) {
+		builder.append("modelType", modelType);
+		builder.append("orgUnitsIds", orgUnitsIds);
+		builder.append("favoritesOnly", favoritesOnly);
+		builder.append("viewOwnOrManage", viewOwnOrManage);
+		builder.append("mappingMode", mappingMode);
+	}
+
+	public ProjectModelType getModelType() {
+		return modelType;
+	}
+
+	/**
+	 * Sets the type of model of the projects for the current user organization (set to <code>null</code> to ignore this
+	 * filter).
+	 * 
+	 * @param modelType
+	 *          The type.
+	 */
+	public void setModelType(ProjectModelType modelType) {
+		this.modelType = modelType;
+	}
+
+	public List<Integer> getOrgUnitsIds() {
+		return orgUnitsIds;
+	}
+
+    public boolean isFavoritesOnly() {
+        return favoritesOnly;
     }
 
-    public GetProjects(ProjectModelType modelType) {
-        this(null, modelType);
+    public void setFavoritesOnly(boolean favoritesOnly) {
+        this.favoritesOnly = favoritesOnly;
     }
 
-    public GetProjects(List<Integer> orgUnitsIds) {
-        this(orgUnitsIds, null);
-    }
+	public void setViewOwnOrManage(boolean viewOwnOrManage) {
+		this.viewOwnOrManage = viewOwnOrManage;
+	}
 
-    public GetProjects(List<Integer> orgUnitsIds, ProjectModelType modelType) {
-        this.countries = null;
-        this.modelType = modelType;
-        this.orgUnitsIds = orgUnitsIds;
-        this.returnType = ProjectResultType.PROJECT_LIGHT;
-    }
+	public boolean getViewOwnOrManage() {
+		return viewOwnOrManage;
+	}
 
-    public List<CountryDTO> getCountries() {
-        return countries;
-    }
+	public ProjectDTO.Mode getMappingMode() {
+		return mappingMode;
+	}
 
-    /**
-     * Sets the list of countries in which the projects will be searched (set to
-     * <code>null</code> to ignore this filter).
-     * 
-     * @param countries
-     *            The countries.
-     */
-    public void setCountries(List<CountryDTO> countries) {
-        this.countries = countries;
-    }
+	public void setMappingMode(ProjectDTO.Mode mappingMode) {
+		this.mappingMode = mappingMode;
+	}
 
-    public ProjectModelType getModelType() {
-        return modelType;
-    }
+	/**
+	 * Sets the list of organizational units ids in which the projects will be searched (set to <code>null</code> to
+	 * ignore this filter).
+	 * 
+	 * @param orgUnitsIds
+	 *          The list.
+	 */
+	public void setOrgUnitsIds(List<Integer> orgUnitsIds) {
+		this.orgUnitsIds = orgUnitsIds;
+	}
 
-    /**
-     * Sets the type of model of the projects for the current user organization
-     * (set to <code>null</code> to ignore this filter).
-     * 
-     * @param modelType
-     *            The type.
-     */
-    public void setModelType(ProjectModelType modelType) {
-        this.modelType = modelType;
-    }
-
-    public List<Integer> getOrgUnitsIds() {
-        return orgUnitsIds;
-    }
-
-    public void setViewOwnOrManage(boolean viewOwnOrManage) {
-        this.viewOwnOrManage = viewOwnOrManage;
-    }
-
-    public boolean getViewOwnOrManage() {
-        return viewOwnOrManage;
-    }
-
-    public void setReturnType(ProjectResultType returnType) {
-        this.returnType = returnType;
-    }
-
-    public ProjectResultType getReturnType() {
-        return returnType;
-    }
-
-    /**
-     * Sets the list of organizational units ids in which the projects will be
-     * searched (set to <code>null</code> to ignore this filter).
-     * 
-     * @param orgUnits
-     *            The list.
-     */
-    public void setOrgUnitsIds(List<Integer> orgUnitsIds) {
-        this.orgUnitsIds = orgUnitsIds;
-    }
-
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((countries == null) ? 0 : countries.hashCode());
-        result = prime * result + ((modelType == null) ? 0 : modelType.hashCode());
-        result = prime * result + ((orgUnitsIds == null) ? 0 : orgUnitsIds.hashCode());
-        result = prime * result + ((returnType == null) ? 0 : returnType.hashCode());
-        result = prime * result + (viewOwnOrManage ? 1231 : 1237);
-        return result;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        GetProjects other = (GetProjects) obj;
-        if (countries == null) {
-            if (other.countries != null)
-                return false;
-        } else if (!countries.equals(other.countries))
-            return false;
-        if (modelType != other.modelType)
-            return false;
-        if (orgUnitsIds == null) {
-            if (other.orgUnitsIds != null)
-                return false;
-        } else if (!orgUnitsIds.equals(other.orgUnitsIds))
-            return false;
-        if (returnType != other.returnType)
-            return false;
-        if (viewOwnOrManage != other.viewOwnOrManage)
-            return false;
-        return true;
-    }
-
-    @Override
-    public String toString() {
-        final StringBuilder sb = new StringBuilder();
-        sb.append("[GetProjects] command: ");
-        sb.append("countries [");
-        sb.append(countries);
-        sb.append("] ; ");
-        sb.append("model type [");
-        sb.append(modelType);
-        sb.append("] ; ");
-        sb.append("org units ids [");
-        sb.append(orgUnitsIds);
-        sb.append("] ; ");
-        sb.append("view own or manage [");
-        sb.append(viewOwnOrManage);
-        sb.append("] ; ");
-        sb.append("return type [");
-        sb.append(returnType);
-        sb.append("]");
-        return sb.toString();
-    }
 }

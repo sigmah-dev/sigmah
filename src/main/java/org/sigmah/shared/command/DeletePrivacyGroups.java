@@ -1,46 +1,59 @@
 package org.sigmah.shared.command;
 
+import java.util.Collection;
 import java.util.List;
 
-import org.sigmah.shared.command.result.VoidResult;
+import org.sigmah.client.util.ClientUtils;
+import org.sigmah.shared.command.base.AbstractCommand;
+import org.sigmah.shared.command.result.DeleteResult;
 import org.sigmah.shared.dto.profile.PrivacyGroupDTO;
 
 /**
- * Command to delete privacy groups
- * @author gjb
+ * <p>
+ * Command to delete privacy group(s).
+ * </p>
+ * <p>
+ * If the returned map contains values, it means that errors have been detected and some privacy groups have not been
+ * deleted.<br>
+ * Otherwise, no error was detected and all the privacy groups have been deleted.
+ * </p>
+ * 
+ * @author gjb (v1.3)
+ * @author Denis Colliot (dcolliot@ideia.fr) (v2.0)
  */
-public class DeletePrivacyGroups implements Command<VoidResult> {
+public class DeletePrivacyGroups extends AbstractCommand<DeleteResult<PrivacyGroupDTO>> {
 
+	private List<Integer> privacyGroupIds;
 
-	private static final long serialVersionUID = 1L;
-	
-	private List<PrivacyGroupDTO> privacyGroupsList;
-	
 	protected DeletePrivacyGroups() {
-		
+		// Serialization.
 	}
 
 	/**
+	 * Delete the given {@code privacyGroups}.
 	 * 
-	 * @param privacyGroupsList
+	 * @param privacyGroups
+	 *          The privacy group(s).
 	 */
-	public DeletePrivacyGroups(List<PrivacyGroupDTO> privacyGroupsList) {
-		this.setPrivacyGroupsList(privacyGroupsList);
+	public DeletePrivacyGroups(final Collection<PrivacyGroupDTO> privacyGroups) {
+		this(ClientUtils.getEntityIds(privacyGroups));
 	}
 
 	/**
+	 * Delete the given {@code privacyGroupIds}.
 	 * 
-	 * @return the privacy groups
+	 * @param privacyGroupIds
+	 *          The privacy group id(s).
 	 */
-	public List<PrivacyGroupDTO> getPrivacyGroupsList() {
-		return privacyGroupsList;
+	public DeletePrivacyGroups(final List<Integer> privacyGroupIds) {
+		this.privacyGroupIds = privacyGroupIds;
 	}
 
 	/**
-	 * 
-	 * @param privacyGroupsList the privacy groups to set
+	 * @return The privacy group id(s) list.
 	 */
-	public void setPrivacyGroupsList(List<PrivacyGroupDTO> privacyGroupsList) {
-		this.privacyGroupsList = privacyGroupsList;
+	public List<Integer> getPrivacyGroupIds() {
+		return privacyGroupIds;
 	}
+
 }

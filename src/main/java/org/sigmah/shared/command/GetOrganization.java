@@ -1,54 +1,49 @@
 package org.sigmah.shared.command;
 
-import org.sigmah.shared.dto.OrganizationDTO;
+import org.sigmah.shared.command.base.AbstractCommand;
+import org.sigmah.shared.dto.organization.OrganizationDTO;
 
 /**
  * Retrieves an organization with the given id.
  * 
- * @author tmi
- * 
+ * @author Tom Miette (tmiette@ideia.fr)
+ * @author Denis Colliot (dcolliot@ideia.fr)
  */
-public class GetOrganization implements Command<OrganizationDTO> {
+public class GetOrganization extends AbstractCommand<OrganizationDTO> {
 
-    private static final long serialVersionUID = 5675515456984800856L;
+	/**
+	 * Mapping mode.
+	 */
+	private OrganizationDTO.Mode mode;
 
-    private int id;
+	/**
+	 * Organization id.
+	 */
+	private int id;
 
-    public GetOrganization() {
-        // required, or serialization exception
-    }
+	public GetOrganization() {
+		// Serialization.
+	}
 
-    public GetOrganization(int id) {
-        this.id = id;
-    }
+	public GetOrganization(OrganizationDTO.Mode mode, int id) {
+		this.mode = mode;
+		this.id = id;
+	}
 
-    public int getId() {
-        return id;
-    }
+	public int getId() {
+		return id;
+	}
 
-    public void setId(int id) {
-        this.id = id;
-    }
+	public void setId(int id) {
+		this.id = id;
+	}
 
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + id;
-        return result;
-    }
+	public OrganizationDTO.Mode getMode() {
+		return mode;
+	}
 
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        GetOrganization other = (GetOrganization) obj;
-        if (id != other.id)
-            return false;
-        return true;
-    }
+	public void setMode(OrganizationDTO.Mode mode) {
+		this.mode = mode;
+	}
+
 }

@@ -1,49 +1,51 @@
 package org.sigmah.shared.command;
 
-import org.sigmah.shared.dto.ProjectModelDTOLight;
+import org.sigmah.client.util.ToStringBuilder;
+import org.sigmah.shared.command.base.AbstractCommand;
+import org.sigmah.shared.dto.ProjectModelDTO;
 
 /**
- * Retrieves a project model by ID.
+ * Duplicates an existing project model and returns the copy.
  * 
- * @author Kristela Macaj (kmacaj@ideia.fr)
+ * @author Kristela Macaj (kmacaj@ideia.fr) (v1.3)
+ * @author Denis Colliot (dcolliot@ideia.fr) (v2.0)
  */
-public class GetProjectModelCopy implements Command<ProjectModelDTOLight>{
-	
-	private static final long serialVersionUID = 7408913560700433111L;
-	
-	private long projectModelId;
+public class GetProjectModelCopy extends AbstractCommand<ProjectModelDTO> {
+
+	private Integer modelId;
 	private String newModelName;
-	
-	public GetProjectModelCopy(long projectModelId){
-		this.projectModelId = projectModelId;
-	}
-	
-	public GetProjectModelCopy(){
-		// serialization.
+	private ProjectModelDTO.Mode mappingMode;
+
+	protected GetProjectModelCopy() {
+		// Serialization.
 	}
 
-	public long getProjectModelId() {
-		return projectModelId;
-	}
-
-	public void setProjectModelId(long projectModelId) {
-		this.projectModelId = projectModelId;
+	public GetProjectModelCopy(Integer modelId, String newModelName, ProjectModelDTO.Mode mappingMode) {
+		this.modelId = modelId;
+		this.newModelName = newModelName;
+		this.mappingMode = mappingMode;
 	}
 
 	/**
-	 * @return the newModelName
+	 * {@inheritDoc}
 	 */
+	@Override
+	protected void appendToString(final ToStringBuilder builder) {
+		builder.append("modelId", modelId);
+		builder.append("newModelName", newModelName);
+		builder.append("mappingMode", mappingMode);
+	}
+
+	public Integer getModelId() {
+		return modelId;
+	}
+
 	public String getNewModelName() {
 		return newModelName;
 	}
 
-	/**
-	 * @param newModelName the newModelName to set
-	 */
-	public void setNewModelName(String newModelName) {
-		this.newModelName = newModelName;
+	public ProjectModelDTO.Mode getMappingMode() {
+		return mappingMode;
 	}
-	
-	
-	
+
 }

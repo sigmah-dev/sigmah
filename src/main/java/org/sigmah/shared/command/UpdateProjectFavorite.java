@@ -1,38 +1,41 @@
-/**
- * 
- */
 package org.sigmah.shared.command;
 
+import org.sigmah.shared.command.base.AbstractCommand;
 import org.sigmah.shared.command.result.CreateResult;
-import org.sigmah.shared.command.result.VoidResult;
 
 /**
- * 
  * Command to update the list of favorite users of a projet
  * 
- * 
  * @author HUZHE
- *
+ * @author Denis Colliot (dcolliot@ideia.fr)
  */
-public class UpdateProjectFavorite implements Command<CreateResult>{
-	
-	
-	private static final long serialVersionUID = 4546838584718496919L;
-	
-	
+public class UpdateProjectFavorite extends AbstractCommand<CreateResult> {
+
 	public static enum UpdateType {
-		
-		//Remove current user from the favorite user list of a project
+
+		// Remove current user from the favorite user list of a project
 		REMOVE,
-		
-		//Add current user into the favorite user list of a project
+
+		// Add current user into the favorite user list of a project
 		ADD
 	}
-	
 
 	private int projectId;
-    private UpdateType updateType;
-	
+	private UpdateType updateType;
+
+	/**
+	 * Serialization.
+	 */
+	public UpdateProjectFavorite() {
+		// Serialization.
+	}
+
+	public UpdateProjectFavorite(int projectId, UpdateType updateType) {
+		super();
+		this.projectId = projectId;
+		this.updateType = updateType;
+	}
+
 	/**
 	 * @return the updateType
 	 */
@@ -40,34 +43,13 @@ public class UpdateProjectFavorite implements Command<CreateResult>{
 		return updateType;
 	}
 
-
-
 	/**
-	 * @param updateType the updateType to set
+	 * @param updateType
+	 *          the updateType to set
 	 */
 	public void setUpdateType(UpdateType updateType) {
 		this.updateType = updateType;
 	}
-
-
-
-	/**
-	 * 
-	 */
-	public UpdateProjectFavorite() {
-		
-	}
-
-
-
-	public UpdateProjectFavorite(int projectId,UpdateType updateType) {
-		super();
-		this.projectId = projectId;
-		this.updateType = updateType;
-
-	}
-
-
 
 	/**
 	 * @return the projectId
@@ -76,19 +58,12 @@ public class UpdateProjectFavorite implements Command<CreateResult>{
 		return projectId;
 	}
 
-
-
 	/**
-	 * @param projectId the projectId to set
+	 * @param projectId
+	 *          the projectId to set
 	 */
 	public void setProjectId(int projectId) {
 		this.projectId = projectId;
 	}
 
-
-
-	
-	
-	
-	
 }

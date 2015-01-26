@@ -1,27 +1,19 @@
-/*
- * All Sigmah code is released under the GNU General Public License v3
- * See COPYRIGHT.txt and LICENSE.txt.
- */
-
 package org.sigmah.server.dao;
-
-import com.google.inject.ImplementedBy;
-import org.sigmah.shared.map.BaseMap;
 
 import java.util.List;
 
+import org.sigmah.shared.dto.map.BaseMap;
+
 /**
- * Data Access Object for the {@link org.sigmah.shared.map.BaseMap} objects
- * available to the user.
- *
- * @author Alex Bertram
+ * Data Access Object for the {@link BaseMap} objects available to the user.
+ * 
+ * @author Alex Bertram (v1.3)
+ * @author Maxime Lombard (mlombard@ideia.fr) (v2.0)
  */
-@ImplementedBy(BaseMapFsDAO.class)
 public interface BaseMapDAO {
 
-    BaseMap getBaseMap(String id);
+	BaseMap getBaseMap(String id);
 
-    List<BaseMap> getBaseMaps();
-
+	List<BaseMap> getBaseMaps();
 
 }

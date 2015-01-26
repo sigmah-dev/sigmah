@@ -11,13 +11,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.sigmah.server.dao.hibernate.PivotHibernateDAO;
-import org.sigmah.shared.dao.Filter;
-import org.sigmah.shared.report.content.DimensionCategory;
-import org.sigmah.shared.report.model.Dimension;
-import org.sigmah.shared.report.model.DimensionType;
-
-import com.google.inject.ImplementedBy;
+import org.sigmah.shared.dto.pivot.model.Dimension;
+import org.sigmah.shared.dto.pivot.content.DimensionCategory;
+import org.sigmah.shared.dto.referential.DimensionType;
+import org.sigmah.shared.util.Filter;
 
 /**
  * PivotDAO is a reporting data access object that provides aggregation ("or pivoting")
@@ -25,10 +22,7 @@ import com.google.inject.ImplementedBy;
  *
  * @author Alex Bertram
  */
-@ImplementedBy(PivotHibernateDAO.class)
 public interface PivotDAO {
-
-	
 
     /**
      *
@@ -126,8 +120,5 @@ public interface PivotDAO {
         	}
         	return sb.toString();
         }
-
-
-
     }
 }

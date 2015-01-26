@@ -1,81 +1,71 @@
 package org.sigmah.shared.dto.category;
 
-import org.sigmah.shared.dto.EntityDTO;
+import org.sigmah.client.util.ToStringBuilder;
+import org.sigmah.shared.dto.base.AbstractModelDataEntityDTO;
 
-import com.extjs.gxt.ui.client.data.BaseModelData;
+/**
+ * CategoryElementDTO.
+ * 
+ * @author Denis Colliot (dcolliot@ideia.fr)
+ */
+public class CategoryElementDTO extends AbstractModelDataEntityDTO<Integer> {
 
-public class CategoryElementDTO extends BaseModelData implements EntityDTO {
+	/**
+	 * Serial version UID.
+	 */
+	private static final long serialVersionUID = 7879245182808843730L;
 
-    private static final long serialVersionUID = 7879245182808843730L;
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getEntityName() {
+		return "category.CategoryElement";
+	}
 
-    @Override
-    public String getEntityName() {
-        return "category.CategoryElement";
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void appendToString(final ToStringBuilder builder) {
+		builder.append("label", getLabel());
+		builder.append("color", getColor());
+		builder.append("iconHtml", getIconHtml());
+	}
 
-    // Element id
-    @Override
-    public int getId() {
-        return (Integer) get("id");
-    }
+	// Element label
+	public String getLabel() {
+		return get("label");
+	}
 
-    public void setId(int id) {
-        set("id", id);
-    }
+	public void setLabel(String label) {
+		set("label", label);
+	}
 
-    // Element label
-    public String getLabel() {
-        return get("label");
-    }
+	// Reference to the parent category type
+	public CategoryTypeDTO getParentCategoryDTO() {
+		return get("parentCategoryDTO");
+	}
 
-    public void setLabel(String label) {
-        set("label", label);
-    }
+	public void setParentCategoryDTO(CategoryTypeDTO parentCategoryDTO) {
+		set("parentCategoryDTO", parentCategoryDTO);
+	}
 
-    // Reference to the parent category type
-    public CategoryTypeDTO getParentCategoryDTO() {
-        return get("parentCategoryDTO");
-    }
+	// Color
+	public String getColor() {
+		return get("color");
+	}
 
-    public void setParentCategoryDTO(CategoryTypeDTO parentCategoryDTO) {
-        set("parentCategoryDTO", parentCategoryDTO);
-    }
+	public void setColor(String color) {
+		set("color", color);
+	}
 
-    // Color
-    public String getColor() {
-        return get("color");
-    }
+	public void setIconHtml(String iconHtml) {
+		set("iconHtml", iconHtml);
+	}
 
-    public void setColor(String color) {
-        set("color", color);
-    }
+	public String getIconHtml() {
+		return get("iconHtml");
+	}
 
-    public void setIconHtml(String iconHtml) {
-        set("iconHtml", iconHtml);
-    }
-
-    public String getIconHtml() {
-        return get("iconHtml");
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-
-        if (obj == null) {
-            return false;
-        }
-
-        if (!(obj instanceof CategoryElementDTO)) {
-            return false;
-        }
-
-        final CategoryElementDTO other = (CategoryElementDTO) obj;
-
-        return getId() == other.getId();
-    }
-
-    @Override
-    public int hashCode() {
-        return getId();
-    }
 }

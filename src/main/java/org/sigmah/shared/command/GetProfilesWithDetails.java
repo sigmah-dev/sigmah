@@ -1,22 +1,58 @@
 package org.sigmah.shared.command;
 
-import org.sigmah.shared.command.result.ProfileWithDetailsListResult;
+import org.sigmah.shared.command.base.AbstractCommand;
+import org.sigmah.shared.command.result.ListResult;
+import org.sigmah.shared.dto.profile.ProfileDTO;
 
-public class GetProfilesWithDetails implements Command<ProfileWithDetailsListResult> {
+/**
+ * @author Denis Colliot (dcolliot@ideia.fr)
+ */
+public class GetProfilesWithDetails extends AbstractCommand<ListResult<ProfileDTO>> {
 
 	/**
-	 * 
+	 * Profile identifier
 	 */
-	private static final long serialVersionUID = -2841474016895129821L;
+	private Integer profileId;
 
 	/**
-	 * 
+	 * The optional mapping mode.
 	 */
+	private ProfileDTO.Mode mappingMode;
+
+	protected GetProfilesWithDetails() {
+		// Serialization.
+	}
+
 	/**
-     * The type of model of the models for the current user organization (set to
-     * <code>null</code> to ignore this filter).
-     */
-    public GetProfilesWithDetails() {
-        // serialization.
-    }
+	 * Retrieves the authenticated user's organization profile<u>s</u>.<br>
+	 * The command result may contain several profiles.
+	 * 
+	 * @param mappingMode
+	 *          The optional mapping mode. Set to {@code null} to process a default mapping.
+	 */
+	public GetProfilesWithDetails(ProfileDTO.Mode mappingMode) {
+		this(null, mappingMode);
+	}
+
+	/**
+	 * Retrieves the authenticated user's organization profile corresponding to the given {@code profileId}.<br>
+	 * The command result only contains one profile.
+	 * 
+	 * @param profileId
+	 *          The profile id.
+	 * @param mappingMode
+	 *          The optional mapping mode. Set to {@code null} to process a default mapping.
+	 */
+	public GetProfilesWithDetails(Integer profileId, ProfileDTO.Mode mappingMode) {
+		this.profileId = profileId;
+	}
+
+	public Integer getProfileId() {
+		return profileId;
+	}
+
+	public ProfileDTO.Mode getMappingMode() {
+		return mappingMode;
+	}
+
 }

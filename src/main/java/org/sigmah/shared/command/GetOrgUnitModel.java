@@ -1,26 +1,32 @@
 package org.sigmah.shared.command;
 
+import org.sigmah.shared.command.base.AbstractCommand;
 import org.sigmah.shared.dto.OrgUnitModelDTO;
 
-public class GetOrgUnitModel implements Command<OrgUnitModelDTO> {
+/**
+ * @author Denis Colliot (dcolliot@ideia.fr) (v2.0)
+ */
+public class GetOrgUnitModel extends AbstractCommand<OrgUnitModelDTO> {
 
-	private static final long serialVersionUID = 5356854477192668731L;
-	
-	private int id;
+	private Integer id;
 
-	public GetOrgUnitModel() {
-        // serialization.
-    }
-	
-	public GetOrgUnitModel(int id) {
-        this.id = id;
-    }
+	private OrgUnitModelDTO.Mode mappingMode;
 
-    public int getId() {
-        return id;
-    }
+	protected GetOrgUnitModel() {
+		// Serialization.
+	}
 
-    public void setId(int id) {
-        this.id = id;
-    }
+	public GetOrgUnitModel(Integer id, OrgUnitModelDTO.Mode mappingMode) {
+		this.id = id;
+		this.mappingMode = mappingMode;
+	}
+
+	public Integer getId() {
+		return id;
+	}
+
+	public OrgUnitModelDTO.Mode getMappingMode() {
+		return mappingMode;
+	}
+
 }

@@ -1,28 +1,16 @@
-/**
- * 
- */
 package org.sigmah.shared.command;
 
+import org.sigmah.shared.command.base.AbstractCommand;
 import org.sigmah.shared.command.result.ReportElementsResult;
-
 
 /**
  * @author HUZHE
- *
+ * @author Denis Colliot (dcolliot@ideia.fr)
  */
-public class GetReportElements implements Command<ReportElementsResult> {
+public class GetReportElements extends AbstractCommand<ReportElementsResult> {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -3082276028121789219L;
-	
-	
-	public GetReportElements()
-	{
-		
+	public GetReportElements() {
+		// Serialization.
 	}
-	
-	
 
 }

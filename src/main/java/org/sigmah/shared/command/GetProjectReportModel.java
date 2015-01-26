@@ -1,14 +1,14 @@
-/*
- * All Sigmah code is released under the GNU General Public License v3
- * See COPYRIGHT.txt and LICENSE.txt.
- */
-
 package org.sigmah.shared.command;
+
+import org.sigmah.shared.command.base.AbstractCommand;
+import org.sigmah.shared.command.result.ModelReference;
 
 /**
  * Retrieves the report model identified by the given id.
+ * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
+ * @author Denis Colliot (dcolliot@ideia.fr)
  */
-public class GetProjectReportModel implements Command<GetProjectReportModels.ModelReference> {
+public class GetProjectReportModel extends AbstractCommand<ModelReference> {
 
 }

@@ -1,112 +1,160 @@
-/*
- * All Sigmah code is released under the GNU General Public License v3
- * See COPYRIGHT.txt and LICENSE.txt.
- */
-
 package org.sigmah.server.domain;
-
-// Generated Apr 9, 2009 7:58:20 AM by Hibernate Tools 3.2.2.GA
-
-import javax.persistence.*;
-
-import org.sigmah.shared.domain.User;
 
 import java.util.Date;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.persistence.Transient;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
+import org.sigmah.server.domain.base.AbstractEntityId;
+import org.sigmah.server.domain.util.EntityConstants;
+
 /**
+ * <p>
+ * Authentication domain entity.
+ * </p>
+ * 
  * @author Alex Bertram
+ * @author Denis Colliot (dcolliot@ideia.fr)
  */
 @Entity
-public class Authentication implements java.io.Serializable {
+@Table(name = EntityConstants.AUTHENTICATION_TABLE)
+public class Authentication extends AbstractEntityId<String> {
 
-    private String id;
-    private User user;
-    private Date dateCreated;
-    private Date dateLastActive;
+	/**
+	 * Serial version UID.
+	 */
+	private static final long serialVersionUID = 1653320385158332573L;
 
-    public Authentication() {
+	/**
+	 * The secure id of this Authentication, which is a 128-bit random number represented as a 32-character hexadecimal
+	 * string.
+	 */
+	@Id
+	@Column(name = EntityConstants.AUTHENTICATION_COLUMN_ID, unique = true, nullable = false, length = EntityConstants.AUTHENTICATION_ID_MAX_LENGTH)
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SecureSequenceGenerator")
+	@org.hibernate.annotations.GenericGenerator(name = "SecureSequenceGenerator", strategy = "org.sigmah.server.auth.SecureSequenceGenerator")
+	@Size(max = EntityConstants.AUTHENTICATION_ID_MAX_LENGTH)
+	private String id;
 
-    }
+	@Column(name = EntityConstants.COLUMN_DATE_CREATED)
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date dateCreated;
 
-    /**
-     * Creates a new session object for the given user, with
-     * a secure session id and starting at the current time
-     *
-     * @param user
-     */
-    public Authentication(User user) {
-        //	setId(SecureTokenGenerator.generate());
-        setUser(user);
-        setDateCreated(new Date());
-        setDateLastActive(new Date());
-    }
+	@Column(name = EntityConstants.AUTHENTICATION_COLUMN_DATE_LAST_ACTIVE)
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date dateLastActive;
 
-    @Override
-    public String toString() {
-        return User.getUserCompleteName(user);
-    }
+	// --------------------------------------------------------------------------------
+	//
+	// FOREIGN KEYS.
+	//
+	// --------------------------------------------------------------------------------
 
-    /**
-     * Gets the secure id of this Authentication, which is a 128-bit random number
-     * represented as a 32-character hexadecimal string.
-     *
-     * @return the id of this authentication
-     */
-    @Id
-    @Column(name = "AuthToken", unique = true, nullable = false, length = 32)
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SecureSequenceGenerator")
-    @org.hibernate.annotations.GenericGenerator(name = "SecureSequenceGenerator",
-            strategy = "org.sigmah.server.auth.SecureSequenceGenerator")
-    public String getId() {
-        return this.id;
-    }
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = EntityConstants.USER_COLUMN_ID, nullable = false)
+	@NotNull
+	private User user;
 
-    public void setId(String sessionId) {
-        this.id = sessionId;
-    }
+	// --------------------------------------------------------------------------------
+	//
+	// METHODS.
+	//
+	// --------------------------------------------------------------------------------
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "UserId", nullable = false)
-    public User getUser() {
-        return this.user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column
-    public Date getDateCreated() {
-        return this.dateCreated;
-    }
-
-    private void setDateCreated(Date dateCreated) {
-        this.dateCreated = dateCreated;
-    }
-
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column
-    public Date getDateLastActive() {
-        return this.dateLastActive;
-    }
-
-    public void setDateLastActive(Date dateLastActive) {
-        this.dateLastActive = dateLastActive;
-    }
-
-    public long minutesSinceLastActivity() {
-        return ((new Date()).getTime() - getDateLastActive().getTime()) / 1000 / 60;
-    }
-
-    @Transient
-    public boolean isExpired() {
-        // TODO: when do we invalidate tokens?
-        //	return minutesSinceLastActivity() > 30;
-        return false;
-    }
-
-    public void setDateLastActive() {
-        setDateLastActive(new Date());
+	public Authentication() {
+		// Default empty constructor.
 	}
+
+	/**
+	 * Creates a new session object for the given {@code user}, with a secure session id and starting at the current time.
+	 * 
+	 * @param user
+	 *          The user.
+	 */
+	public Authentication(final User user) {
+		// setId(SecureTokenGenerator.generate());
+		final Date now = new Date();
+		setUser(user);
+		setDateCreated(now);
+		setDateLastActive(now);
+	}
+
+	public long minutesSinceLastActivity() {
+		return ((new Date()).getTime() - getDateLastActive().getTime()) / 1000 / 60;
+	}
+
+	@Transient
+	public boolean isExpired() {
+		// TODO: when do we invalidate tokens?
+		// return minutesSinceLastActivity() > 30;
+		return false;
+	}
+
+	public void setDateLastActive() {
+		setDateLastActive(new Date());
+	}
+
+	/**
+	 * <p>
+	 * Overrides default behaviour to only display {@link User#getUserCompleteName(User)} value.
+	 * </p>
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String toString() {
+		return User.getUserCompleteName(user);
+	}
+
+	// --------------------------------------------------------------------------------
+	//
+	// GETTERS & SETTERS.
+	//
+	// --------------------------------------------------------------------------------
+
+	@Override
+	public String getId() {
+		return this.id;
+	}
+
+	@Override
+	public void setId(String sessionId) {
+		this.id = sessionId;
+	}
+
+	public User getUser() {
+		return this.user;
+	}
+
+	public void setUser(User user) {
+		this.user = user;
+	}
+
+	public Date getDateCreated() {
+		return this.dateCreated;
+	}
+
+	private void setDateCreated(Date dateCreated) {
+		this.dateCreated = dateCreated;
+	}
+
+	public Date getDateLastActive() {
+		return this.dateLastActive;
+	}
+
+	public void setDateLastActive(Date dateLastActive) {
+		this.dateLastActive = dateLastActive;
+	}
+
 }

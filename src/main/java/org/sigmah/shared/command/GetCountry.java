@@ -1,31 +1,33 @@
-/*
- * All Sigmah code is released under the GNU General Public License v3
- * See COPYRIGHT.txt and LICENSE.txt.
- */
-
 package org.sigmah.shared.command;
 
-import org.sigmah.shared.dto.CountryDTO;
+import org.sigmah.shared.command.base.AbstractCommand;
+import org.sigmah.shared.dto.country.CountryDTO;
 
 /**
  * Retrieves a country by ID.
+ * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
+ * @author Denis Colliot (dcolliot@ideia.fr)
+ * @author Tom Miette (tmiette@ideia.fr)
  */
-public class GetCountry implements Command<CountryDTO> {
-    private int countryId;
+public class GetCountry extends AbstractCommand<CountryDTO> {
 
-    public GetCountry() {
-    }
+	private int id;
 
-    public GetCountry(int countryId) {
-        this.countryId = countryId;
-    }
+	public GetCountry() {
+		// Serialization.
+	}
 
-    public void setCountryId(int countryId) {
-        this.countryId = countryId;
-    }
+	public GetCountry(int id) {
+		this.id = id;
+	}
 
-    public int getCountryId() {
-        return countryId;
-    }
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
 }

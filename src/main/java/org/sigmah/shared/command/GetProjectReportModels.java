@@ -1,44 +1,19 @@
-/*
- * All Sigmah code is released under the GNU General Public License v3
- * See COPYRIGHT.txt and LICENSE.txt.
- */
-
 package org.sigmah.shared.command;
 
-import com.extjs.gxt.ui.client.data.BaseModelData;
-import org.sigmah.shared.command.result.CommandResult;
-import org.sigmah.shared.command.result.ProjectReportModelListResult;
-import org.sigmah.shared.domain.report.ProjectReportModel;
+import org.sigmah.shared.command.base.AbstractCommand;
+import org.sigmah.shared.command.result.ListResult;
+import org.sigmah.shared.command.result.ModelReference;
 
 /**
  * Retrieves every report model available to the user.
+ * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
+ * @author Denis Colliot (dcolliot@ideia.fr)
  */
-public class GetProjectReportModels implements Command<ProjectReportModelListResult> {
-    public static class ModelReference extends BaseModelData implements CommandResult {
-        public ModelReference() {}
+public class GetProjectReportModels extends AbstractCommand<ListResult<ModelReference>> {
 
-        public ModelReference(ProjectReportModel model) {
-            this.set("id", model.getId());
-            this.set("name", model.getName());
-        }
-
-        public Integer getId() {
-            return get("id");
-        }
-        public void setId(Integer id) {
-            this.set("id", id);
-        }
-
-        public String getName() {
-            return get("name");
-        }
-        public void setName(String name) {
-            this.set("name", name);
-        }
-    }
-
-
-    public GetProjectReportModels() {}
+	public GetProjectReportModels() {
+		// Serialization.
+	}
 
 }

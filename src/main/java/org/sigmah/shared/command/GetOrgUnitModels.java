@@ -1,34 +1,69 @@
 package org.sigmah.shared.command;
 
-import org.sigmah.shared.command.result.OrgUnitModelListResult;
-import org.sigmah.shared.domain.ProjectModelStatus;
+import org.sigmah.client.util.ToStringBuilder;
+import org.sigmah.shared.command.base.AbstractCommand;
+import org.sigmah.shared.command.result.ListResult;
+import org.sigmah.shared.dto.OrgUnitModelDTO;
+import org.sigmah.shared.dto.referential.ProjectModelStatus;
 
 /**
  * Retrieves the list of org unit models available to the user.
  * 
- * @author nrebiai
- * 
+ * @author nrebiai (v1.3)
+ * @author Denis Colliot (dcolliot@ideia.fr) (v2.0)
  */
-public class GetOrgUnitModels implements Command<OrgUnitModelListResult> {
+public class GetOrgUnitModels extends AbstractCommand<ListResult<OrgUnitModelDTO>> {
 
-    private static final long serialVersionUID = 6533084223987010888L;
+	/**
+	 * The mapping mode (may be {@code null}).
+	 */
+	private OrgUnitModelDTO.Mode mappingMode;
 
-    private ProjectModelStatus[] status;
+	/**
+	 * The filtered status (may be {@code null}).<br>
+	 * If {@code null}, a default filter is set.
+	 */
+	private ProjectModelStatus[] statusFilters;
 
-    public GetOrgUnitModels() {
-        // serialization.
-    }
+	protected GetOrgUnitModels() {
+		// Serialization.
+	}
 
-    public GetOrgUnitModels(ProjectModelStatus... status) {
-        this.status = status;
-    }
+	/**
+	 * <p>
+	 * Retrieves the {@link OrgUnitModelDTO} of the authenticated user's organization.
+	 * </p>
+	 * <p>
+	 * If no {@code statusFilters} is set, a default filter will only retrieve OrgUnit models with status
+	 * {@link ProjectModelStatus#READY} or {@link ProjectModelStatus#USED}.
+	 * </p>
+	 * 
+	 * @param mappingMode
+	 *          The mapping mode. If {@code null}, default mapping is processed.
+	 * @param statusFilters
+	 *          Only retrieves OrgUnit models which status is included into the given {@code statusFilters}. If
+	 *          {@code null} or empty, default filter is set.
+	 */
+	public GetOrgUnitModels(OrgUnitModelDTO.Mode mappingMode, ProjectModelStatus... statusFilters) {
+		this.mappingMode = mappingMode;
+		this.statusFilters = statusFilters;
+	}
 
-    public ProjectModelStatus[] getStatus() {
-        return status;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void appendToString(final ToStringBuilder builder) {
+		builder.append("mappingMode", mappingMode);
+		builder.append("statusFilters", statusFilters);
+	}
 
-    public void setStatus(ProjectModelStatus[] status) {
-        this.status = status;
-    }
+	public OrgUnitModelDTO.Mode getMappingMode() {
+		return mappingMode;
+	}
+
+	public ProjectModelStatus[] getStatusFilters() {
+		return statusFilters;
+	}
 
 }

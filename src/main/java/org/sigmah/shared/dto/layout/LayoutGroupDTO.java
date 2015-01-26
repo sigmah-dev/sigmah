@@ -1,104 +1,112 @@
-/*
- * All Sigmah code is released under the GNU General Public License v3
- * See COPYRIGHT.txt and LICENSE.txt.
- */
-
 package org.sigmah.shared.dto.layout;
 
 import java.util.List;
 
-import org.sigmah.shared.dto.EntityDTO;
+import org.sigmah.client.util.ToStringBuilder;
+import org.sigmah.shared.dto.base.AbstractModelDataEntityDTO;
 
-import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 import com.google.gwt.user.client.ui.Widget;
 
 /**
+ * LayoutGroupDTO.
  * 
  * @author Denis Colliot (dcolliot@ideia.fr)
- * 
  */
-public class LayoutGroupDTO extends BaseModelData implements EntityDTO {
+public class LayoutGroupDTO extends AbstractModelDataEntityDTO<Integer> {
 
-    private static final long serialVersionUID = 8520711106031085130L;
+	/**
+	 * Serial version UID.
+	 */
+	private static final long serialVersionUID = 8520711106031085130L;
 
-    @Override
-    public String getEntityName() {
-        // Gets the entity name mapped by the current DTO starting from the
-        // "server.domain" package name.
-        return "layout.LayoutGroup";
-    }
+	/**
+	 * DTO corresponding entity name.
+	 */
+	public static final String ENTITY_NAME = "layout.LayoutGroup";
 
-    // Layout group id
-    @Override
-    public int getId() {
-    	if(get("id") == null)
-    		return -1;
-    	else
-    		return (Integer) get("id");
-    }
+	// DTO attributes keys.
+	public static final String TITLE = "title";
+	public static final String ROW = "row";
+	public static final String COLUMN = "column";
+	public static final String PARENT_LAYOUT = "parentLayout";
+	public static final String CONSTRAINTS = "constraints";
 
-    public void setId(int id) {
-        set("id", id);
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getEntityName() {
+		return ENTITY_NAME;
+	}
 
-    // Layout group title
-    public String getTitle() {
-        return get("title");
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void appendToString(final ToStringBuilder builder) {
+		builder.append(TITLE, getTitle());
+		builder.append(ROW, getRow());
+		builder.append(COLUMN, getColumn());
+	}
 
-    public void setTitle(String title) {
-        set("title", title);
-    }
+	// Layout group title
+	public String getTitle() {
+		return get(TITLE);
+	}
 
-    // Row index
-    public int getRow() {
-        return (Integer) get("row");
-    }
+	public void setTitle(String title) {
+		set(TITLE, title);
+	}
 
-    public void setRow(int row) {
-        set("row", row);
-    }
+	// Row index
+	public Integer getRow() {
+		return (Integer) get(ROW);
+	}
 
-    // Column index
-    public int getColumn() {
-        return (Integer) get("column");
-    }
+	public void setRow(Integer row) {
+		set(ROW, row);
+	}
 
-    public void setColumn(int column) {
-        set("column", column);
-    }
+	// Column index
+	public Integer getColumn() {
+		return (Integer) get(COLUMN);
+	}
 
-    // Reference to layoutDTO
-    public LayoutDTO getParentLayoutDTO() {
-        return get("parentLayoutDTO");
-    }
+	public void setColumn(Integer column) {
+		set(COLUMN, column);
+	}
 
-    public void setParentLayoutDTO(LayoutDTO parentLayoutDTO) {
-        set("parentLayoutDTO", parentLayoutDTO);
-    }
+	// Reference to layoutDTO
+	public LayoutDTO getParentLayout() {
+		return get(PARENT_LAYOUT);
+	}
 
-    // Reference to layout group constraints list
-    public List<LayoutConstraintDTO> getLayoutConstraintsDTO() {
-        return get("layoutConstraintsDTO");
-    }
+	public void setParentLayout(LayoutDTO parentLayout) {
+		set(PARENT_LAYOUT, parentLayout);
+	}
 
-    public void setLayoutConstraintsDTO(List<LayoutConstraintDTO> layoutConstraintsDTO) {
-        set("layoutConstraintsDTO", layoutConstraintsDTO);
-    }
+	// Reference to layout group constraints list
+	public List<LayoutConstraintDTO> getConstraints() {
+		return get(CONSTRAINTS);
+	}
 
-    public Widget getWidget() {
-        final FieldSet fieldSet = new FieldSet();
-        fieldSet.setHeading(getTitle());
-        fieldSet.setCollapsible(true);
+	public void setConstraints(List<LayoutConstraintDTO> constraints) {
+		set(CONSTRAINTS, constraints);
+	}
 
-        final FormLayout formLayout = new FormLayout();
-        formLayout.setLabelWidth(250);
+	public Widget getWidget() {
+		final FieldSet fieldSet = new FieldSet();
+		fieldSet.setHeadingHtml(getTitle());
+		fieldSet.setCollapsible(true);
 
-        fieldSet.setLayout(formLayout);
-        
-        return fieldSet;
-    }
+		final FormLayout formLayout = new FormLayout();
+		formLayout.setLabelWidth(250);
+
+		fieldSet.setLayout(formLayout);
+
+		return fieldSet;
+	}
 
 }

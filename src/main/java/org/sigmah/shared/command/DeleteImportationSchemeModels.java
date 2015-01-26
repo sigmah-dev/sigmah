@@ -2,35 +2,35 @@ package org.sigmah.shared.command;
 
 import java.util.List;
 
+import org.sigmah.shared.command.base.AbstractCommand;
 import org.sigmah.shared.command.result.VoidResult;
 
-public class DeleteImportationSchemeModels implements Command<VoidResult> {
+/**
+ * @author Denis Colliot (dcolliot@ideia.fr)
+ */
+public class DeleteImportationSchemeModels extends AbstractCommand<VoidResult> {
 
-    
-    /**
-	 * 
-	 */
-    private static final long serialVersionUID = 868084969103558611L;
-	private List<Long> importationSchemeIdsList;
-    private List<Long> variableFlexibleElemementIdsList;
-    
-    public DeleteImportationSchemeModels(){}
-    
-    
-	public List<Long> getImportationSchemeIdsList() {
-	    return importationSchemeIdsList;
-    }
-	
-	public void setImportationSchemeIdsList(List<Long> importationSchemeIdsList) {
-	    this.importationSchemeIdsList = importationSchemeIdsList;
-    }
+	private List<Integer> importationSchemeIdsList;
+	private List<Integer> variableFlexibleElemementIdsList;
 
-	public List<Long> getVariableFlexibleElemementIdsList() {
-	    return variableFlexibleElemementIdsList;
-    }
+	public DeleteImportationSchemeModels() {
+		// Serialization.
+	}
 
-	public void setVariableFlexibleElemementIdsList(List<Long> variableFlexibleElemementIdsList) {
-	    this.variableFlexibleElemementIdsList = variableFlexibleElemementIdsList;
-    }
+	public List<Integer> getImportationSchemeIdsList() {
+		return importationSchemeIdsList;
+	}
+
+	public void setImportationSchemeIdsList(List<Integer> importationSchemeIdsList) {
+		this.importationSchemeIdsList = importationSchemeIdsList;
+	}
+
+	public List<Integer> getVariableFlexibleElemementIdsList() {
+		return variableFlexibleElemementIdsList;
+	}
+
+	public void setVariableFlexibleElemementIdsList(List<Integer> variableFlexibleElemementIdsList) {
+		this.variableFlexibleElemementIdsList = variableFlexibleElemementIdsList;
+	}
 
 }

@@ -6,13 +6,18 @@ import java.util.List;
 import org.sigmah.shared.dto.IndicatorDTO;
 import org.sigmah.shared.dto.IndicatorGroup;
 
+/**
+ * IndicatorListResult.
+ * 
+ * @author Denis Colliot (dcolliot@ideia.fr)
+ */
 public class IndicatorListResult extends ListResult<IndicatorDTO> {
 
 	private List<IndicatorGroup> groups = new ArrayList<IndicatorGroup>();
 	private List<IndicatorDTO> ungroupedIndicators = new ArrayList<IndicatorDTO>();
 
 	public IndicatorListResult() {
-		super();
+		super(); // Serialization.
 	}
 
 	public IndicatorListResult(List<IndicatorDTO> data) {
@@ -36,13 +41,12 @@ public class IndicatorListResult extends ListResult<IndicatorDTO> {
 	}
 
 	public IndicatorDTO getIndicatorById(int id) {
-		for(IndicatorDTO indicator : getData()) {
-			if(indicator.getId() == id) {
+		for (final IndicatorDTO indicator : getList()) {
+			if (indicator.getId().equals(id)) {
 				return indicator;
 			}
 		}
 		throw new IllegalArgumentException();
 	}
-	
-	
+
 }

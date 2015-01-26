@@ -2,57 +2,71 @@ package org.sigmah.shared.dto.report;
 
 import java.util.List;
 
-import org.sigmah.shared.dto.EntityDTO;
-
-import com.extjs.gxt.ui.client.data.BaseModelData;
+import org.sigmah.client.util.ToStringBuilder;
+import org.sigmah.shared.dto.base.AbstractModelDataEntityDTO;
 
 /**
  * DTO mapping class for entity report.ProjectReportModel
  * 
  * @author nrebiai
- * 
+ * @author Denis Colliot (dcolliot@ideia.fr)
  */
-public class ReportModelDTO extends BaseModelData implements EntityDTO {
+public class ReportModelDTO extends AbstractModelDataEntityDTO<Integer> {
 
+	/**
+	 * Serial version UID.
+	 */
 	private static final long serialVersionUID = 3300196624126690838L;
 
+	/**
+	 * DTO corresponding entity name.
+	 */
+	public static final String ENTITY_NAME = "report.ProjectReportModel";
+
+	// DTO attributes keys.
+	public static final String NAME = "name";
+	public static final String SECTIONS = "sections";
+	public static final String ORGANIZATION_ID = "organizationId";
+
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-    public String getEntityName() {
-        return "report.ProjectReportModel";
-    }
+	public String getEntityName() {
+		return ENTITY_NAME;
+	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public int getId() {
-		final Integer id = (Integer) get("id");
-        return (id != null) ? id : -1;
-    }
-    public void setId(Integer id) {
-        this.set("id", id);
-    }
+	protected void appendToString(final ToStringBuilder builder) {
+		builder.append("name", getName());
+		builder.append("organizationId", getOrganizationId());
+	}
 
-    public String getName() {
-        return get("name");
-    }
-    public void setName(String name) {
-        this.set("name", name);
-    }
-    
-    public List<ProjectReportModelSectionDTO> getSectionsDTO() {
-        return get("sections");
-    }
+	public String getName() {
+		return get(NAME);
+	}
 
-    public void setSectionsDTO(List<ProjectReportModelSectionDTO> sections) {
-        this.set("sections", sections);
-    }
-    
-    public int getOrganizationId()
-    {
-    	return (Integer)get("organizationId");
-    }
-    
-    public void setOrganizationId(int organizationId)
-    {
-    	this.set("organizationId", organizationId);
-    }
-    
+	public void setName(String name) {
+		this.set(NAME, name);
+	}
+
+	public List<ProjectReportModelSectionDTO> getSections() {
+		return get(SECTIONS);
+	}
+
+	public void setSections(List<ProjectReportModelSectionDTO> sections) {
+		this.set(SECTIONS, sections);
+	}
+
+	public int getOrganizationId() {
+		return (Integer) get(ORGANIZATION_ID);
+	}
+
+	public void setOrganizationId(int organizationId) {
+		this.set(ORGANIZATION_ID, organizationId);
+	}
+
 }

@@ -1,70 +1,35 @@
-/**
- * 
- */
 package org.sigmah.shared.command;
 
-import org.sigmah.shared.command.result.ModelCheckResult;
+import org.sigmah.shared.command.base.AbstractCommand;
+import org.sigmah.shared.command.result.BooleanResult;
+import org.sigmah.shared.dto.IsModel.ModelType;
 
 /**
- * 
  * Command to check if a project model or orgunit model has been ever used.
  * 
- * @author HUZHE (zhe.hu32@gmail.com)
- *
+ * @author HUZHE (zhe.hu32@gmail.com) (v1.3)
+ * @author Denis Colliot (dcolliot@ideia.fr) (v2.0)
  */
+public class CheckModelUsage extends AbstractCommand<BooleanResult> {
 
+	private ModelType modelType;
+	private Integer modelId;
 
-
-
-
-public class CheckModelUsage implements Command<ModelCheckResult>{
-	
-	
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-	
-	public static enum ModelType {
-		
-		ProjectModel,OrgUnitModel
+	protected CheckModelUsage() {
+		// Serialization.
 	}
 
-	private Long ProjectModelId;
-	
-	private Integer orgUnitModelId;
-	
-	private CheckModelUsage.ModelType modelType;
-	
-	public CheckModelUsage()
-	{
-		
+	public CheckModelUsage(final ModelType modelType, final Integer modelId) {
+		this.modelType = modelType;
+		this.modelId = modelId;
 	}
 
-	public Long getProjectModelId() {
-		return ProjectModelId;
-	}
-
-	public void setProjectModelId(Long projectModelId) {
-		ProjectModelId = projectModelId;
-	}
-
-	public Integer getOrgUnitModelId() {
-		return orgUnitModelId;
-	}
-
-	public void setOrgUnitModelId(Integer orgUnitModelId) {
-		this.orgUnitModelId = orgUnitModelId;
-	}
-
-	public CheckModelUsage.ModelType getModelType() {
+	public ModelType getModelType() {
 		return modelType;
 	}
 
-	public void setModelType(CheckModelUsage.ModelType modelType) {
-		this.modelType = modelType;
+	public Integer getModelId() {
+		return modelId;
 	}
-	
-	
 
 }

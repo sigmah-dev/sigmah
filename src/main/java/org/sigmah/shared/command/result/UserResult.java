@@ -1,29 +1,28 @@
-/*
- * All Sigmah code is released under the GNU General Public License v3
- * See COPYRIGHT.txt and LICENSE.txt.
- */
-
 package org.sigmah.shared.command.result;
-
-import org.sigmah.shared.dto.UserPermissionDTO;
 
 import java.util.List;
 
+import org.sigmah.shared.dto.UserPermissionDTO;
+
 /**
- * @see org.sigmah.shared.command.GetUsers
- *
+ * UserResult.
+ * 
  * @author Alex Bertram
+ * @author Denis Colliot (dcolliot@ideia.fr)
+ * @see org.sigmah.shared.command.GetUsers
  */
 public class UserResult extends PagingResult<UserPermissionDTO> {
-    
-    public UserResult() {
-    }
 
-    public UserResult(List<UserPermissionDTO> data) {
-        super(data);
-    }
+	public UserResult() {
+		// Serialization.
+	}
 
-    public UserResult(List<UserPermissionDTO> data, int offset, int totalCount) {
-        super(data, offset, totalCount);
-    }
+	public UserResult(List<UserPermissionDTO> data) {
+		super(data);
+	}
+
+	public UserResult(List<UserPermissionDTO> data, int offset, int totalCount) {
+		super(data, offset, totalCount);
+	}
+
 }

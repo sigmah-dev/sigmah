@@ -1,27 +1,29 @@
 package org.sigmah.shared.command;
 
+import org.sigmah.shared.command.base.AbstractCommand;
 import org.sigmah.shared.command.result.VoidResult;
 
-public class RemoveOrgUnit implements Command<VoidResult> {
+/**
+ * Removes an OrgUnit (unless it has a child).
+ * 
+ * @author Denis Colliot (dcolliot@ideia.fr)
+ */
+public class RemoveOrgUnit extends AbstractCommand<VoidResult> {
 
-    private static final long serialVersionUID = 1L;
+	/**
+	 * The OrgUnit id to remove.
+	 */
+	private Integer id;
 
-    private int id;
+	protected RemoveOrgUnit() {
+		// Serialization.
+	}
 
-    public RemoveOrgUnit() {
-        // serialization.
-    }
+	public RemoveOrgUnit(Integer id) {
+		this.id = id;
+	}
 
-    public RemoveOrgUnit(int id) {
-        super();
-        this.id = id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public int getId() {
-        return id;
-    }
+	public Integer getId() {
+		return id;
+	}
 }

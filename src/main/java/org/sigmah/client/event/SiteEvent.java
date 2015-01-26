@@ -1,54 +1,85 @@
-/*
- * All Sigmah code is released under the GNU General Public License v3
- * See COPYRIGHT.txt and LICENSE.txt.
- */
-
 package org.sigmah.client.event;
 
-import com.extjs.gxt.ui.client.event.BaseEvent;
-import com.extjs.gxt.ui.client.event.EventType;
 
-import org.sigmah.client.EventBus;
-import org.sigmah.client.EventBus.NamedEventType;
-import org.sigmah.shared.dto.EntityDTO;
+import com.google.gwt.event.shared.GwtEvent;
+import org.sigmah.client.event.handler.SiteHandler;
 import org.sigmah.shared.dto.SiteDTO;
 
 /**
- * Application-wide event that signals a change to an entity. 
- * 
+ * Application-wide event that signals a change to a Site. 
  *
- * @author Alex Bertram
+ * @author Alexander Bertram (akbertram@gmail.com)
+ * @author Raphaël Calabro (rcalabro@ideia.fr) v2.0
  */
-public class SiteEvent extends BaseEvent {
+public class SiteEvent extends GwtEvent<SiteHandler> {
+	
+	private static Type<SiteHandler> TYPE;
+
+	public static enum Action {
+		CREATED,
+		UPDATED,
+		SELECTED,
+		DELETED,
+		MAIN_SITE_UPDATED,
+		MAIN_SITE_CREATED
+	}
+	
+	private Action action;
     private int id;
     private String entityName;
     private SiteDTO entity;
 
-	public static final EventType CREATED = new EventBus.NamedEventType("SiteCreated");
-    public static final EventType UPDATED = new EventBus.NamedEventType("SiteChanged");
-	public static final EventType SELECTED = new EventBus.NamedEventType("SiteSelected");
-
     /**
      *
-     * @param type
+     * @param action 
      * @param source the component which fired the event
      * @param site
      */
-    public SiteEvent(EventType type, Object source, SiteDTO site) {
-        super(type);
-        this.setSource(source);
-        this.entity = site;
-        this.entityName = site.getEntityName();
-        this.id = site.getId();
+    public SiteEvent(Action action, Object source, SiteDTO site) {
+		this(action, source, site.getEntityName(), site.getId());
+		this.entity = site;
     }
 
-    public SiteEvent(EventType type, Object source, String entityName, int entityId) {
-        super(type);
+    public SiteEvent(Action action, Object source, String entityName, int entityId) {
+        this.action = action;
         this.setSource(source);
         this.entityName = entityName;
         this.id = entityId;
     }
+	
+	// --
+	// GWT event method
+	// --
+	
+	public static Type<SiteHandler> getType() {
+		if (TYPE == null) {
+			TYPE = new Type<SiteHandler>();
+		}
+		return TYPE;
+	}
+	
+	@Override
+	public Type<SiteHandler> getAssociatedType() {
+		return getType();
+	}
+
+	@Override
+	protected void dispatch(SiteHandler handler) {
+		handler.handleEvent(this);
+	}
     
+	// --
+	// Specific methods
+	// --
+
+	public Action getAction() {
+		return action;
+	}
+	
+	/**
+	 * Get the target entity name.
+	 * @return 
+	 */
     public String getEntityName() {
     	return entityName;
     }

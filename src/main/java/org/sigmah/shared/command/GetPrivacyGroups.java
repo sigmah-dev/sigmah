@@ -1,12 +1,15 @@
 package org.sigmah.shared.command;
 
-import org.sigmah.shared.command.result.PrivacyGroupsListResult;
+import org.sigmah.shared.command.base.AbstractCommand;
+import org.sigmah.shared.command.result.ListResult;
+import org.sigmah.shared.dto.profile.PrivacyGroupDTO;
 
-public class GetPrivacyGroups implements Command<PrivacyGroupsListResult> {
+/**
+ * @author Denis Colliot (dcolliot@ideia.fr)
+ */
+public class GetPrivacyGroups extends AbstractCommand<ListResult<PrivacyGroupDTO>> {
 
-	private static final long serialVersionUID = -5424664211943638388L;
-
-    public GetPrivacyGroups() {
-        // serialization.
-    }
+	public GetPrivacyGroups() {
+		// Serialization.
+	}
 }

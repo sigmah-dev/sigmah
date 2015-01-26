@@ -1,52 +1,74 @@
-/*
- * All Sigmah code is released under the GNU General Public License v3
- * See COPYRIGHT.txt and LICENSE.txt.
- */
-
 package org.sigmah.shared.dto.report;
+
+import org.sigmah.client.util.ToStringBuilder;
+import org.sigmah.shared.dto.base.EntityDTO;
 
 /**
  * Represents a key question associated with a project report section.
+ * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
+ * @author Denis Colliot (dcolliot@ideia.fr)
  */
-public class KeyQuestionDTO implements ProjectReportContent {
-    public final static long serialVersionUID = 1L;
+public class KeyQuestionDTO implements EntityDTO<Integer>, ProjectReportContent {
 
-    private Integer id;
-    private String label;
-    private RichTextElementDTO richTextElementDTO;
-    
-    private int number;
+	private Integer id;
+	private String label;
+	private RichTextElementDTO richTextElementDTO;
+	private int number;
 
-    public Integer getId() {
-        return id;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getEntityName() {
+		return "report.KeyQuestion";
+	}
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String toString() {
+		final ToStringBuilder builder = new ToStringBuilder(this);
 
-    public String getLabel() {
-        return label;
-    }
+		builder.append("id", getId());
+		builder.append("label", getLabel());
+		builder.append("number", getNumber());
 
-    public void setLabel(String label) {
-        this.label = label;
-    }
+		return builder.toString();
+	}
 
-    public RichTextElementDTO getRichTextElementDTO() {
-        return richTextElementDTO;
-    }
+	@Override
+	public Integer getId() {
+		return id;
+	}
 
-    public void setRichTextElementDTO(RichTextElementDTO richTextElementDTO) {
-        this.richTextElementDTO = richTextElementDTO;
-    }
+	public void setId(Integer id) {
+		this.id = id;
+	}
 
-    public int getNumber() {
-        return number;
-    }
+	public String getLabel() {
+		return label;
+	}
 
-    public void setNumber(int number) {
-        this.number = number;
-    }
+	public void setLabel(String label) {
+		this.label = label;
+	}
+
+	public RichTextElementDTO getRichTextElementDTO() {
+		return richTextElementDTO;
+	}
+
+	public void setRichTextElementDTO(RichTextElementDTO richTextElementDTO) {
+		this.richTextElementDTO = richTextElementDTO;
+	}
+
+	public int getNumber() {
+		return number;
+	}
+
+	public void setNumber(int number) {
+		this.number = number;
+	}
+
 }

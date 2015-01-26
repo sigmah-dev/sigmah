@@ -1,49 +1,32 @@
-/**
- * 
- */
 package org.sigmah.shared.command.result;
 
 /**
- * 
- * Contains the server's information
+ * Contains the server's information.
  * 
  * @author HUZHE
- *
+ * @author Denis Colliot (dcolliot@ideia.fr)
  */
-public class HostServerInfo implements CommandResult {
+public class HostServerInfo implements Result {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -9071193754727789431L;
-    
-	private  String hostUrl;
+	private String hostUrl;
 
-	
-
-	/**
-	 * 
-	 */
 	public HostServerInfo() {
-		
+		// Serialization.
 	}
-
 
 	/**
 	 * @return the hostUrl
 	 */
-	public  String getHostUrl() {
+	public String getHostUrl() {
 		return hostUrl;
 	}
 
-
 	/**
-	 * @param hostUrl the hostUrl to set
+	 * @param hostUrl
+	 *          the hostUrl to set
 	 */
-	public  void setHostUrl(String hostUrl) {
+	public void setHostUrl(String hostUrl) {
 		this.hostUrl = hostUrl;
 	}
-	
 
-	
 }

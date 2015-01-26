@@ -3,89 +3,152 @@ package org.sigmah.shared.dto.profile;
 import java.util.Map;
 import java.util.Set;
 
-import org.sigmah.shared.domain.profile.GlobalPermissionEnum;
-import org.sigmah.shared.domain.profile.PrivacyGroupPermissionEnum;
-import org.sigmah.shared.dto.EntityDTO;
-
-import com.extjs.gxt.ui.client.data.BaseModelData;
+import org.sigmah.client.util.ToStringBuilder;
+import org.sigmah.shared.dto.base.AbstractModelDataEntityDTO;
+import org.sigmah.shared.dto.base.mapping.CustomMappingField;
+import org.sigmah.shared.dto.base.mapping.IsMappingMode;
+import org.sigmah.shared.dto.base.mapping.MappingField;
+import org.sigmah.shared.dto.referential.GlobalPermissionEnum;
+import org.sigmah.shared.dto.referential.PrivacyGroupPermissionEnum;
 
 /**
  * DTO mapping class for entity profile.Profile.
  * 
- * @author tmi
- * 
+ * @author tmi (v1.3)
+ * @author Denis Colliot (dcolliot@ideia.fr) (v2.0)
  */
-public class ProfileDTO extends BaseModelData implements EntityDTO {
+public class ProfileDTO extends AbstractModelDataEntityDTO<Integer> {
 
-    private static final long serialVersionUID = 4319548689359747450L;
+	/**
+	 * Serial version UID.
+	 */
+	private static final long serialVersionUID = 4319548689359747450L;
 
-    @Override
-    public String getEntityName() {
-        return "profile.Profile";
-    }
+	/**
+	 * DTO corresponding entity name.
+	 */
+	public static final String ENTITY_NAME = "profile.Profile";
 
-    // Id.
-    @Override
-    public int getId() {
-        final Integer id = (Integer) get("id");
-        return id != null ? id : -1;
-    }
+	// DTO attributes keys.
+	public static final String NAME = "name";
+	public static final String GLOBAL_PERMISSIONS = "globalPermissions";
+	public static final String PRIVACY_GROUPS = "privacyGroups";
+	
+	// Service key.
+	public static final String PROFILE = "profile";
 
-    public void setId(int id) {
-        set("id", id);
-    }
+	/**
+	 * Mapping configurations.
+	 * 
+	 * @author Denis Colliot (dcolliot@ideia.fr)
+	 */
+	public static enum Mode implements IsMappingMode {
 
-    // Name.
-    public String getName() {
-        return get("name");
-    }
+		/**
+		 * Base mapping retrieving only profile base data (only id and name, no related DTO).
+		 */
+		BASE(new MappingField(GLOBAL_PERMISSIONS), new MappingField(PRIVACY_GROUPS)),
 
-    public void setName(String name) {
-        set("name", name);
-    }
+		/**
+		 * In addition to base data, this mapping includes:
+		 * <ul>
+		 * <li>{@link ProfileDTO#GLOBAL_PERMISSIONS}</li>
+		 * </ul>
+		 */
+		WITH_GLOBAL_PERMISSIONS(new MappingField(PRIVACY_GROUPS)),
 
-    // Global permissions.
-    public Set<GlobalPermissionEnum> getGlobalPermissions() {
-        return get("globalPermissions");
-    }
+		/**
+		 * In addition to base data, this mapping includes:
+		 * <ul>
+		 * <li>{@link ProfileDTO#PRIVACY_GROUPS}</li>
+		 * </ul>
+		 */
+		WITH_PRIVACY_GROUPS(new MappingField(GLOBAL_PERMISSIONS)),
 
-    public void setGlobalPermissions(Set<GlobalPermissionEnum> globalPermissions) {
-        set("globalPermissions", globalPermissions);
-    }
+		;
 
-    // Privacy groups.
-    public Map<PrivacyGroupDTO, PrivacyGroupPermissionEnum> getPrivacyGroups() {
-        return get("privacyGroups");
-    }
+		private final CustomMappingField[] customFields;
+		private final MappingField[] excludedFields;
 
-    public void setPrivacyGroups(Map<PrivacyGroupDTO, PrivacyGroupPermissionEnum> privacyGroups) {
-        set("privacyGroups", privacyGroups);
-    }
+		private Mode(final MappingField... excludedFields) {
+			this(null, excludedFields);
+		}
+		
+		private Mode(final CustomMappingField... customFields) {
+			this(customFields, (MappingField[]) null);
+		}
 
-    @Override
-    public String toString() {
+		private Mode(final CustomMappingField[] customFields, final MappingField... excludedFields) {
+			this.customFields = customFields;
+			this.excludedFields = excludedFields;
+		}
 
-        final StringBuilder sb = new StringBuilder();
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public String getMapId() {
+			return name();
+		}
 
-        sb.append("Profile: ");
-        sb.append(getName());
-        sb.append("\n\tGlobal permissions: ");
-        if (getGlobalPermissions() != null) {
-            for (final GlobalPermissionEnum perm : getGlobalPermissions()) {
-                sb.append(perm.name());
-                sb.append(" | ");
-            }
-        }
-        sb.append("\n\tPrivacy groups: ");
-        if (getPrivacyGroups() != null) {
-            for (final Map.Entry<PrivacyGroupDTO, PrivacyGroupPermissionEnum> perm : getPrivacyGroups().entrySet()) {
-                sb.append(perm.getKey().getTitle());
-                sb.append(" - ");
-                sb.append(perm.getValue().name());
-                sb.append(" | ");
-            }
-        }
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public CustomMappingField[] getCustomFields() {
+			return customFields;
+		}
 
-        return sb.toString();
-    }
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public MappingField[] getExcludedFields() {
+			return excludedFields;
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getEntityName() {
+		return ENTITY_NAME;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void appendToString(final ToStringBuilder builder) {
+		builder.append(NAME, getName());
+	}
+
+	// Name.
+	public String getName() {
+		return get(NAME);
+	}
+
+	public void setName(String name) {
+		set(NAME, name);
+	}
+
+	// Global permissions.
+	public Set<GlobalPermissionEnum> getGlobalPermissions() {
+		return get(GLOBAL_PERMISSIONS);
+	}
+
+	public void setGlobalPermissions(Set<GlobalPermissionEnum> globalPermissions) {
+		set(GLOBAL_PERMISSIONS, globalPermissions);
+	}
+
+	// Privacy groups.
+	public Map<PrivacyGroupDTO, PrivacyGroupPermissionEnum> getPrivacyGroups() {
+		return get(PRIVACY_GROUPS);
+	}
+
+	public void setPrivacyGroups(Map<PrivacyGroupDTO, PrivacyGroupPermissionEnum> privacyGroups) {
+		set(PRIVACY_GROUPS, privacyGroups);
+	}
+
 }

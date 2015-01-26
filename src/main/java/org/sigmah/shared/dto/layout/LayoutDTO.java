@@ -1,75 +1,81 @@
-/*
- * All Sigmah code is released under the GNU General Public License v3
- * See COPYRIGHT.txt and LICENSE.txt.
- */
-
 package org.sigmah.shared.dto.layout;
 
 import java.util.List;
 
-import org.sigmah.shared.dto.EntityDTO;
+import org.sigmah.client.util.ToStringBuilder;
+import org.sigmah.shared.dto.base.AbstractModelDataEntityDTO;
 
-import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.Widget;
 
 /**
+ * LayoutDTO.
  * 
  * @author Denis Colliot (dcolliot@ideia.fr)
- * 
  */
-public class LayoutDTO extends BaseModelData implements EntityDTO {
+public class LayoutDTO extends AbstractModelDataEntityDTO<Integer> {
 
-    private static final long serialVersionUID = 8520711106031085130L;
+	/**
+	 * Serial version UID.
+	 */
+	private static final long serialVersionUID = 8520711106031085130L;
 
-    @Override
-    public String getEntityName() {
-        // Gets the entity name mapped by the current DTO starting from the
-        // "server.domain" package name.
-        return "layout.Layout";
-    }
+	/**
+	 * DTO corresponding entity name.
+	 */
+	public static final String ENTITY_NAME = "layout.Layout";
 
-    // Layout id
-    @Override
-    public int getId() {
-        return (Integer) get("id");
-    }
+	// DTO attributes keys.
+	public static final String ROWS_COUNT = "rowsCount";
+	public static final String COLUMNS_COUNT = "columnsCount";
+	public static final String GROUPS = "groups";
 
-    public void setId(int id) {
-        set("id", id);
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getEntityName() {
+		return ENTITY_NAME;
+	}
 
-    // Rows count
-    public int getRowsCount() {
-        return (Integer) get("rowsCount");
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void appendToString(final ToStringBuilder builder) {
+		builder.append(ROWS_COUNT, getRowsCount());
+		builder.append(COLUMNS_COUNT, getColumnsCount());
+	}
 
-    public void setRowsCount(int rowsCount) {
-        set("rowsCount", rowsCount);
-    }
+	// Rows count
+	public Integer getRowsCount() {
+		return (Integer) get(ROWS_COUNT);
+	}
 
-    // Columns count
-    public int getColumnsCount() {
-        return (Integer) get("columnsCount");
-    }
+	public void setRowsCount(Integer rowsCount) {
+		set(ROWS_COUNT, rowsCount);
+	}
 
-    public void setColumnsCount(int columnsCount) {
-        set("columnsCount", columnsCount);
-    }
+	// Columns count
+	public Integer getColumnsCount() {
+		return (Integer) get(COLUMNS_COUNT);
+	}
 
-    // Reference to layout groups list
-    public List<LayoutGroupDTO> getLayoutGroupsDTO() {
-        return get("layoutGroupsDTO");
-    }
+	public void setColumnsCount(Integer columnsCount) {
+		set(COLUMNS_COUNT, columnsCount);
+	}
 
-    public void setLayoutGroupsDTO(List<LayoutGroupDTO> layoutGroupsDTO) {
-        set("layoutGroupsDTO", layoutGroupsDTO);
-    }
+	// Reference to layout groups list
+	public List<LayoutGroupDTO> getGroups() {
+		return get(GROUPS);
+	}
 
-    public Widget getWidget() {
-        final Grid grid = new Grid(getRowsCount(), getColumnsCount());
-        grid.setStyleName("flexibility-layout");
-        return grid;
-    }
+	public void setGroups(List<LayoutGroupDTO> groups) {
+		set(GROUPS, groups);
+	}
+
+	public Widget getWidget() {
+		return new Grid(getRowsCount(), getColumnsCount());
+	}
 
 }

@@ -1,119 +1,124 @@
-/*
- * All Sigmah code is released under the GNU General Public License v3
- * See COPYRIGHT.txt and LICENSE.txt.
- */
-
 package org.sigmah.shared.command;
 
+import org.sigmah.client.util.ToStringBuilder;
 import org.sigmah.shared.command.result.SiteResult;
-import org.sigmah.shared.dao.Filter;
-import org.sigmah.shared.report.model.DimensionType;
+import org.sigmah.shared.dto.referential.DimensionType;
+import org.sigmah.shared.util.Filter;
 
 /**
  * Retrieves a list of sites based on the provided filter and limits.
  * 
- *
  * @author Alex Bertram
- *
+ * @author Denis Colliot (dcolliot@ideia.fr)
  */
-public class GetSites extends PagingGetCommand<SiteResult> implements OfflineSupport {
+public class GetSites extends PagingGetCommand<SiteResult> {
 
-    private Filter filter = new Filter();
+	private Filter filter;
 
-    private Integer seekToSiteId;
+	private Integer seekToSiteId;
 
-    public GetSites() {
-		
+	public GetSites() {
+		// Serialization.
+		filter = new Filter();
+	}
+	
+	public GetSites(Filter filter) {
+		this.filter = filter;
 	}
 
-    public Filter filter() {
-        return filter;
-    }
+	public Filter getFilter() {
+		return filter;
+	}
 
-    public Filter getFilter() {
-        return filter;
-    }
+	public void setFilter(Filter filter) {
+		assert filter != null : "Filter cannot be null! Use new Filter() to create an empty filter";
+		this.filter = filter;
+	}
+	
+	public Integer getSeekToSiteId() {
+		return seekToSiteId;
+	}
 
-    public void setFilter(Filter filter) {
-        assert filter != null : "Filter cannot be null! Use new Filter() to create an empty filter";
-        this.filter = filter;
-    }
+	public void setSeekToSiteId(Integer seekToSiteId) {
+		this.seekToSiteId = seekToSiteId;
+	}
 
-    public GetSites clone() {
-        GetSites c = new GetSites();
-        c.filter = new Filter(filter);
-        c.setLimit(getLimit());
-        c.setOffset(getOffset());
-        c.setSortInfo(getSortInfo());
+	/**
+	 * Make a copy of this command.
+	 * 
+	 * @return A new intance of GetSites with the same values.
+	 */
+	public GetSites createClone() {
+		GetSites c = new GetSites();
+		c.filter = new Filter(filter);
+		c.setLimit(getLimit());
+		c.setOffset(getOffset());
+		c.setSortInfo(getSortInfo());
 
-        return c;
-    }
+		return c;
+	}
 
-
-    public static GetSites byId(int siteId) {
+	public static GetSites byId(int siteId) {
 		GetSites cmd = new GetSites();
-		cmd.filter().addRestriction(DimensionType.Site, siteId);
-		
+		cmd.getFilter().addRestriction(DimensionType.Site, siteId);
+
 		return cmd;
-	}	
+	}
 
 	public static GetSites byActivity(int activityId) {
 		GetSites cmd = new GetSites();
-		cmd.filter().onActivity(activityId);
-		
+		cmd.getFilter().onActivity(activityId);
+
 		return cmd;
 	}
 
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("GetSites: {\nfilter=").append(filter.toString());
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void appendToString(final ToStringBuilder builder) {
+		builder.append("filter", filter);
+		builder.append("seekToSiteId", seekToSiteId);
+	}
 
-        if(seekToSiteId != null) {
-            sb.append(", seektoid=").append(seekToSiteId);
-        }
-        if(filter !=null) {
-            sb.append(", filter=").append(filter.toString());
-        }
-        sb.append("}");
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean equals(Object o) {
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
 
-        return sb.toString();
-    }
+		GetSites getSites = (GetSites) o;
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+		if (!filter.equals(getSites.filter))
+			return false;
+		if (seekToSiteId != null ? !seekToSiteId.equals(getSites.seekToSiteId) : getSites.seekToSiteId != null)
+			return false;
 
-        GetSites getSites = (GetSites) o;
+		return true;
+	}
 
-        if (!filter.equals(getSites.filter)) return false;
-        if (seekToSiteId != null ? !seekToSiteId.equals(getSites.seekToSiteId) : getSites.seekToSiteId != null)
-            return false;
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public int hashCode() {
+		int result = filter.hashCode();
+		result = 31 * result + (seekToSiteId != null ? seekToSiteId.hashCode() : 0);
+		return result;
+	}
 
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = filter.hashCode();
-        result = 31 * result + (seekToSiteId != null ? seekToSiteId.hashCode() : 0);
-        return result;
-    }
-
-    @Override
-    public void setOffset(int offset) {
-        if(offset != getOffset())  {
-            super.setOffset(offset);
-            seekToSiteId = null;
-        }
-    }
-
-    public Integer getSeekToSiteId() {
-        return seekToSiteId;
-    }
-
-    public void setSeekToSiteId(Integer seekToSiteId) {
-        this.seekToSiteId = seekToSiteId;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setOffset(int offset) {
+		if (offset != getOffset()) {
+			super.setOffset(offset);
+			seekToSiteId = null;
+		}
+	}
 }

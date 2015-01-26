@@ -2,148 +2,145 @@ package org.sigmah.shared.dto.quality;
 
 import java.util.List;
 
-import org.sigmah.shared.dto.EntityDTO;
-
-import com.extjs.gxt.ui.client.data.BaseModelData;
+import org.sigmah.client.util.ToStringBuilder;
+import org.sigmah.shared.dto.base.AbstractModelDataEntityDTO;
 
 /**
  * DTO mapping class for entity quality.QualityCriterion.
  * 
  * @author tmi
- * 
+ * @author Denis Colliot (dcolliot@ideia.fr)
  */
-public class QualityCriterionDTO extends BaseModelData implements EntityDTO {
+public class QualityCriterionDTO extends AbstractModelDataEntityDTO<Integer> {
 
-    private static final long serialVersionUID = -49281834964182785L;
+	/**
+	 * Serial version UID.
+	 */
+	private static final long serialVersionUID = -49281834964182785L;
 
-    private transient CriterionTypeDTO type;
+	private transient CriterionTypeDTO type;
 
-    @Override
-    public String getEntityName() {
-        return "quality.QualityCriterion";
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getEntityName() {
+		return "quality.QualityCriterion";
+	}
 
-    // Criterion id.
-    @Override
-    public int getId() {
-        final Integer id = (Integer) get("id");
-        return id != null ? id : -1;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void appendToString(final ToStringBuilder builder) {
+		builder.append("code", getCode());
+		builder.append("label", getLabel());
+		builder.append("children", getSubCriteria());
+	}
 
-    public void setId(int id) {
-        set("id", id);
-    }
+	/**
+	 * Retrieves this criterion type.
+	 * 
+	 * @return The criterion type.
+	 */
+	public CriterionTypeDTO getCriterionType() {
 
-    // Criterion code.
-    public String getCode() {
-        return get("code");
-    }
+		if (type == null) {
 
-    public void setCode(String code) {
-        set("code", code);
-    }
+			int level = 0;
 
-    // Criterion label.
-    public String getLabel() {
-        return get("label");
-    }
+			// Computes the position of this criterion in the hierarchy of the
+			// quality framework.
+			QualityCriterionDTO parent = getParentCriterion();
+			QualityFrameworkDTO framework = null;
+			while (parent != null) {
+				level++;
+				framework = parent.getQualityFramework();
+				parent = parent.getParentCriterion();
+			}
 
-    public void setLabel(String label) {
-        set("label", label);
-    }
+			assert framework != null;
 
-    // Quality framework.
-    public QualityFrameworkDTO getQualityFramework() {
-        return get("qualityFramework");
-    }
+			type = framework.getType(level);
+		}
 
-    public void setQualityFramework(QualityFrameworkDTO qualityFramework) {
-        set("qualityFramework", qualityFramework);
-    }
+		return type;
+	}
 
-    // Criterion parent.
-    public QualityCriterionDTO getParentCriterion() {
-        return get("parentCriterion");
-    }
+	/**
+	 * Returns the info of this criterion as a string.
+	 * 
+	 * @return The info string.
+	 */
+	public String getInfo() {
+		final StringBuilder sb = new StringBuilder();
+		sb.append(getCode());
+		sb.append(" - ");
+		sb.append(getLabel());
+		sb.append(" (");
+		final CriterionTypeDTO type = getCriterionType();
+		if (type != null) {
+			sb.append(getCriterionType().getLabel());
+		} else {
+			sb.append("...");
+		}
+		sb.append(")");
+		return sb.toString();
+	}
 
-    public void setParentCriterion(QualityCriterionDTO parentCriterion) {
-        set("parentCriterion", parentCriterion);
-    }
+	// Criterion id.
+	@Override
+	public Integer getId() {
+		return get("id");
+	}
 
-    // Criterion sub criteria.
-    public List<QualityCriterionDTO> getSubCriteria() {
-        return get("subCriteria");
-    }
+	public void setId(Integer id) {
+		set("id", id);
+	}
 
-    public void setSubCriteria(List<QualityCriterionDTO> subCriteria) {
-        set("subCriteria", subCriteria);
-    }
+	// Criterion code.
+	public String getCode() {
+		return get("code");
+	}
 
-    /**
-     * Retrieves this criterion type.
-     * 
-     * @return The criterion type.
-     */
-    public CriterionTypeDTO getCriterionType() {
+	public void setCode(String code) {
+		set("code", code);
+	}
 
-        if (type == null) {
+	// Criterion label.
+	public String getLabel() {
+		return get("label");
+	}
 
-            int level = 0;
+	public void setLabel(String label) {
+		set("label", label);
+	}
 
-            // Computes the position of this criterion in the hierarchy of the
-            // quality framework.
-            QualityCriterionDTO parent = getParentCriterion();
-            QualityFrameworkDTO framework = null;
-            while (parent != null) {
-                level++;
-                framework = parent.getQualityFramework();
-                parent = parent.getParentCriterion();
-            }
+	// Quality framework.
+	public QualityFrameworkDTO getQualityFramework() {
+		return get("qualityFramework");
+	}
 
-            assert framework != null;
+	public void setQualityFramework(QualityFrameworkDTO qualityFramework) {
+		set("qualityFramework", qualityFramework);
+	}
 
-            type = framework.getType(level);
-        }
+	// Criterion parent.
+	public QualityCriterionDTO getParentCriterion() {
+		return get("parentCriterion");
+	}
 
-        return type;
-    }
+	public void setParentCriterion(QualityCriterionDTO parentCriterion) {
+		set("parentCriterion", parentCriterion);
+	}
 
-    /**
-     * Returns the info of this criterion as a string.
-     * 
-     * @return The info string.
-     */
-    public String getInfo() {
-        final StringBuilder sb = new StringBuilder();
-        sb.append(getCode());
-        sb.append(" - ");
-        sb.append(getLabel());
-        sb.append(" (");
-        final CriterionTypeDTO type = getCriterionType();
-        if (type != null) {
-            sb.append(getCriterionType().getLabel());
-        } else {
-            sb.append("...");
-        }
-        sb.append(")");
-        return sb.toString();
-    }
+	// Criterion sub criteria.
+	public List<QualityCriterionDTO> getSubCriteria() {
+		return get("subCriteria");
+	}
 
-    @Override
-    public String toString() {
-        final StringBuilder sb = new StringBuilder();
-        sb.append("[QualityCriterionDTO] ");
-        sb.append("code: ");
-        sb.append(getCode());
-        sb.append(" ; label: ");
-        sb.append(getLabel());
-        if (getSubCriteria() != null) {
-            sb.append("\nchildren:");
-            for (final QualityCriterionDTO child : getSubCriteria()) {
-                sb.append("\n");
-                sb.append(child);
-            }
-        }
-        return sb.toString();
-    }
+	public void setSubCriteria(List<QualityCriterionDTO> subCriteria) {
+		set("subCriteria", subCriteria);
+	}
+
 }

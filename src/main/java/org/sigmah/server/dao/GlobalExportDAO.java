@@ -1,29 +1,28 @@
-/*
- * All Sigmah code is released under the GNU General Public License v3
- * See COPYRIGHT.txt and LICENSE.txt.
- */
 package org.sigmah.server.dao;
 
 import java.util.Date;
 import java.util.List;
 
-import org.sigmah.shared.domain.Organization;
-import org.sigmah.shared.domain.Project;
-import org.sigmah.shared.domain.ProjectModel;
-import org.sigmah.shared.domain.export.GlobalExport;
-import org.sigmah.shared.domain.export.GlobalExportSettings;
+import org.sigmah.server.dao.base.DAO;
+import org.sigmah.server.domain.Organization;
+import org.sigmah.server.domain.ProjectModel;
+import org.sigmah.server.domain.export.GlobalExport;
+import org.sigmah.server.domain.export.GlobalExportSettings;
 
-/*
- * DAO interface 
+/**
+ * Global Export DAO interface.
  * 
  * @author sherzod
+ * @author Denis Colliot (dcolliot@ideia.fr)
  */
-public interface GlobalExportDAO {
-	
-	public List<ProjectModel> getProjectModelsByOrganization(Organization organization);
-	public List<GlobalExportSettings> getGlobalExportSettings() ;
-	public List<Project> getProjects(List<ProjectModel> pmodels);
-	public List<GlobalExport> getGlobalExports(Date from,Date to);
-	public GlobalExportSettings getGlobalExportSettingsByOrganization(Integer id);
-	public List<GlobalExport> getOlderExports(Date oldDate,Organization organization);
+public interface GlobalExportDAO extends DAO<GlobalExport, Integer> {
+
+	List<ProjectModel> getProjectModelsByOrganization(Organization organization);
+
+	List<GlobalExport> getGlobalExports(Date from, Date to);
+
+	List<GlobalExport> getOlderExports(Date oldDate, Organization organization);
+
+	List<GlobalExportSettings> getGlobalExportSettings();
+
 }

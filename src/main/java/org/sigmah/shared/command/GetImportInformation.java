@@ -1,20 +1,24 @@
 package org.sigmah.shared.command;
 
+import org.sigmah.shared.command.base.AbstractCommand;
 import org.sigmah.shared.command.result.ImportInformationResult;
 import org.sigmah.shared.dto.importation.ImportationSchemeDTO;
 
-public class GetImportInformation implements Command<ImportInformationResult> {
+/**
+ * @author Denis Colliot (dcolliot@ideia.fr)
+ */
+public class GetImportInformation extends AbstractCommand<ImportInformationResult> {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 4956162541695505475L;
-	
 	private String fileName;
 	private ImportationSchemeDTO scheme;
+
+	protected GetImportInformation() {
+		// Serialization.
+	}
 	
-	public GetImportInformation(){
-	
+	public GetImportInformation(String fileName, ImportationSchemeDTO scheme) {
+		this.fileName = fileName;
+		this.scheme = scheme;
 	}
 
 	/**
@@ -25,27 +29,10 @@ public class GetImportInformation implements Command<ImportInformationResult> {
 	}
 
 	/**
-	 * @param fileName the fileName to set
-	 */
-	public void setFileName(String fileName) {
-		this.fileName = fileName;
-	}
-
-	/**
 	 * @return the scheme
 	 */
 	public ImportationSchemeDTO getScheme() {
 		return scheme;
 	}
-
-	/**
-	 * @param scheme the scheme to set
-	 */
-	public void setScheme(ImportationSchemeDTO scheme) {
-		this.scheme = scheme;
-	}
-	
-	
-	
 
 }

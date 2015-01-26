@@ -1,64 +1,58 @@
 package org.sigmah.shared.command;
 
-import org.sigmah.shared.command.result.ImportationSchemeModelListResult;
+import org.sigmah.shared.command.base.AbstractCommand;
+import org.sigmah.shared.command.result.ListResult;
+import org.sigmah.shared.dto.importation.ImportationSchemeModelDTO;
 
-public class GetImportationSchemeModels implements Command< ImportationSchemeModelListResult>{
+/**
+ * @author Denis Colliot (dcolliot@ideia.fr)
+ */
+public class GetImportationSchemeModels extends AbstractCommand<ListResult<ImportationSchemeModelDTO>> {
 
-	/**
-	 * 
-	 */
-    private static final long serialVersionUID = 2094678616370006095L;
-    
-    private Long importationSchemeId;
-    private Long projectModelId;
-    private Long orgUnitModelId;
-    
-    
-    public GetImportationSchemeModels() {
-    	
-    }
+	private Integer importationSchemeId;
+	private Integer projectModelId;
+	private Integer orgUnitModelId;
 
+	public GetImportationSchemeModels() {
+		// Serialization.
+	}
 
 	/**
 	 * @return the schemaId
 	 */
-	public Long getImportationSchemeId() {
+	public Integer getImportationSchemeId() {
 		return importationSchemeId;
 	}
 
-
 	/**
-	 * @param schemaId the schemaId to set
+	 * @param importationSchemeId
+	 *          the schemaId to set
 	 */
-	public void setImportationSchemeId(Long importationSchemeId) {
+	public void setImportationSchemeId(Integer importationSchemeId) {
 		this.importationSchemeId = importationSchemeId;
 	}
-
 
 	/**
 	 * @return the projectModelId
 	 */
-	public Long getProjectModelId() {
+	public Integer getProjectModelId() {
 		return projectModelId;
 	}
 
-
 	/**
-	 * @param projectModelId the projectModelId to set
+	 * @param projectModelId
+	 *          the projectModelId to set
 	 */
-	public void setProjectModelId(Long projectModelId) {
+	public void setProjectModelId(Integer projectModelId) {
 		this.projectModelId = projectModelId;
 	}
 
+	public Integer getOrgUnitModelId() {
+		return orgUnitModelId;
+	}
 
-	public Long getOrgUnitModelId() {
-	    return orgUnitModelId;
-    }
-
-
-	public void setOrgUnitModelId(Long orgUnitModelId) {
-	    this.orgUnitModelId = orgUnitModelId;
-    }
-
+	public void setOrgUnitModelId(Integer orgUnitModelId) {
+		this.orgUnitModelId = orgUnitModelId;
+	}
 
 }

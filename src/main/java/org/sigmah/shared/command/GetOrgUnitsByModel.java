@@ -1,21 +1,26 @@
 package org.sigmah.shared.command;
 
-import org.sigmah.shared.command.result.OrgUnitListResult;
+import org.sigmah.shared.command.base.AbstractCommand;
+import org.sigmah.shared.command.result.ListResult;
+import org.sigmah.shared.dto.orgunit.OrgUnitDTO;
 
-public class GetOrgUnitsByModel implements Command<OrgUnitListResult> {
+/**
+ * GetOrgUnitsByModel command.
+ * 
+ * @author Denis Colliot (dcolliot@ideia.fr) (v2.0)
+ */
+public class GetOrgUnitsByModel extends AbstractCommand<ListResult<OrgUnitDTO>> {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -8956715452312610144L;
 	private Integer orgUnitModelId;
+	private OrgUnitDTO.Mode mappingMode;
 
-	public GetOrgUnitsByModel() {
-
+	protected GetOrgUnitsByModel() {
+		// Serialization.
 	}
 
-	public GetOrgUnitsByModel(Integer orgUnitModelId) {
-		this.setOrgUnitModelId(orgUnitModelId);
+	public GetOrgUnitsByModel(Integer orgUnitModelId, OrgUnitDTO.Mode mappingMode) {
+		this.orgUnitModelId = orgUnitModelId;
+		this.mappingMode = mappingMode;
 	}
 
 	/**
@@ -25,12 +30,8 @@ public class GetOrgUnitsByModel implements Command<OrgUnitListResult> {
 		return orgUnitModelId;
 	}
 
-	/**
-	 * @param orgUnitModelId
-	 *            the orgUnitModelId to set
-	 */
-	public void setOrgUnitModelId(Integer orgUnitModelId) {
-		this.orgUnitModelId = orgUnitModelId;
+	public OrgUnitDTO.Mode getMappingMode() {
+		return mappingMode;
 	}
 
 }
