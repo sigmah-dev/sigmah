@@ -1,24 +1,17 @@
-/*
- * All Sigmah code is released under the GNU General Public License v3
- * See COPYRIGHT.txt and LICENSE.txt.
- */
-
-package org.sigmah.server.report.generator;
+package org.sigmah.server.report.model.generator;
 
 import com.google.inject.Inject;
 import org.sigmah.server.dao.PivotDAO;
-import org.sigmah.server.report.util.DateRangeFormat;
-import org.sigmah.server.util.LocaleHelper;
-import org.sigmah.shared.dao.Filter;
-import org.sigmah.shared.domain.User;
-import org.sigmah.shared.report.content.FilterDescription;
-import org.sigmah.shared.report.model.DateRange;
-import org.sigmah.shared.report.model.DimensionType;
-import org.sigmah.shared.report.model.ReportElement;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import org.sigmah.server.domain.User;
+import org.sigmah.shared.dto.pivot.content.FilterDescription;
+import org.sigmah.shared.dto.pivot.model.ReportElement;
+import org.sigmah.shared.dto.referential.DimensionType;
+import org.sigmah.shared.util.DateRange;
+import org.sigmah.shared.util.Filter;
 
 /**
  * Implements functionality common to all generators.
@@ -27,12 +20,8 @@ import java.util.Set;
  */
 public abstract class BaseGenerator<T extends ReportElement> implements ContentGenerator<T> {
 
-    protected final PivotDAO pivotDAO;
-
-    @Inject
-    public BaseGenerator(PivotDAO pivotDAO) {
-        this.pivotDAO = pivotDAO;
-    }
+	@Inject
+    protected PivotDAO pivotDAO;
 
     /**
      * Resolves an element's filter into a the effective filter, taking into
@@ -74,8 +63,6 @@ public abstract class BaseGenerator<T extends ReportElement> implements ContentG
         return filter;
     }
 
-    //protected Filter resolveEffectiveFilter()
-
     protected List<FilterDescription> generateFilterDescriptions(Filter filter, Set<DimensionType> excludeDims, User user) {
 
         List<FilterDescription> list = new ArrayList<FilterDescription>();
@@ -91,7 +78,7 @@ public abstract class BaseGenerator<T extends ReportElement> implements ContentG
         }
 
         if (filter.getMinDate() != null || filter.getMaxDate() != null) {
-            DateRangeFormat format = new DateRangeFormat(LocaleHelper.getLocaleObject(user));
+            DateRangeFormat format = new DateRangeFormat(user.getLocaleInstance());
 
             list.add(new FilterDescription(
                     DimensionType.Date,
@@ -115,8 +102,8 @@ public abstract class BaseGenerator<T extends ReportElement> implements ContentG
      */
     protected String resolveTemplate(String template, DateRange range, User user) {
 
-        if (template.indexOf("${DATE_RANGE}") != -1) {
-            DateRangeFormat format = new DateRangeFormat(LocaleHelper.getLocaleObject(user));
+        if (template.contains("${DATE_RANGE}")) {
+            DateRangeFormat format = new DateRangeFormat(user.getLocaleInstance());
             String rangeText = format.format(range);
 
             return template.replace("${DATE_RANGE}", rangeText);

@@ -3,29 +3,17 @@
  * See COPYRIGHT.txt and LICENSE.txt.
  */
 
-package org.sigmah.server.report.generator;
+package org.sigmah.server.report.model.generator;
 
 
-import com.google.inject.Inject;
-import org.sigmah.server.dao.PivotDAO;
-import org.sigmah.server.util.LocaleHelper;
-import org.sigmah.shared.dao.Filter;
-import org.sigmah.shared.domain.User;
-import org.sigmah.shared.report.content.PivotContent;
-import org.sigmah.shared.report.content.PivotTableData;
-import org.sigmah.shared.report.model.DateRange;
-import org.sigmah.shared.report.model.Dimension;
-import org.sigmah.shared.report.model.PivotTableElement;
 
-import java.util.Comparator;
-import java.util.Map;
+import org.sigmah.server.domain.User;
+import org.sigmah.shared.dto.pivot.content.PivotContent;
+import org.sigmah.shared.dto.pivot.model.PivotTableElement;
+import org.sigmah.shared.util.DateRange;
+import org.sigmah.shared.util.Filter;
 
 public class PivotTableGenerator extends PivotGenerator<PivotTableElement> {
-
-    @Inject
-    public PivotTableGenerator(PivotDAO pivotDAO) {
-        super(pivotDAO);
-    }
 
     @Override
     public void generate(User user, PivotTableElement element, Filter inheritedFilter,
@@ -40,7 +28,7 @@ public class PivotTableGenerator extends PivotGenerator<PivotTableElement> {
                 generateFilterDescriptions(
                         filter, element.allDimensionTypes(), user));
 
-        content.setData(generateData(user.getId(), LocaleHelper.getLocaleObject(user), element, effectiveFilter,
+        content.setData(generateData(user.getId(), user.getLocaleInstance(), element, effectiveFilter,
                 element.getRowDimensions(), element.getColumnDimensions()));
 
         element.setContent(content);

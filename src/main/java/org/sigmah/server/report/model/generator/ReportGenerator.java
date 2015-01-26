@@ -1,61 +1,52 @@
-/*
- * All Sigmah code is released under the GNU General Public License v3
- * See COPYRIGHT.txt and LICENSE.txt.
- */
-
-package org.sigmah.server.report.generator;
+package org.sigmah.server.report.model.generator;
 
 import com.google.inject.Inject;
-import org.sigmah.server.dao.PivotDAO;
-import org.sigmah.shared.dao.Filter;
-import org.sigmah.shared.domain.User;
-import org.sigmah.shared.report.content.Content;
-import org.sigmah.shared.report.content.ReportContent;
-import org.sigmah.shared.report.model.*;
 
 import java.util.Collections;
+import org.sigmah.server.domain.User;
+import org.sigmah.shared.command.result.Content;
+import org.sigmah.shared.dto.pivot.content.ReportContent;
+import org.sigmah.shared.dto.pivot.model.PivotTableElement;
+import org.sigmah.shared.dto.pivot.model.Report;
+import org.sigmah.shared.dto.pivot.model.ReportElement;
+import org.sigmah.shared.dto.referential.DimensionType;
+import org.sigmah.shared.util.DateRange;
+import org.sigmah.shared.util.Filter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ReportGenerator extends BaseGenerator<Report> {
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(ReportGenerator.class);
 
-    private final PivotTableGenerator pivotTableGenerator;
-    private final PivotChartGenerator pivotChartGenerator;
-    private final TableGenerator tableGenerator;
-    private final MapGenerator mapGenerator;
-
-
-    @Inject
-    public ReportGenerator(PivotDAO pivotDAO,
-                           PivotTableGenerator pivotTableGenerator,
-                           PivotChartGenerator pivotChartGenerator,
-                           TableGenerator tableGenerator, MapGenerator mapGenerator) {
-        super(pivotDAO);
-
-        this.pivotTableGenerator = pivotTableGenerator;
-        this.pivotChartGenerator = pivotChartGenerator;
-        this.tableGenerator = tableGenerator;
-        this.mapGenerator = mapGenerator;
-    }
+	@Inject
+    private PivotTableGenerator pivotTableGenerator;
+//    private PivotChartGenerator pivotChartGenerator;
+//    private TableGenerator tableGenerator;
+//    private MapGenerator mapGenerator;
 
     public Content generateElement(User user, ReportElement element, Filter inheritedFilter,
                                    DateRange dateRange) {
-        if (element instanceof PivotChartElement) {
-            pivotChartGenerator.generate(user, (PivotChartElement) element, inheritedFilter, dateRange);
-            return ((PivotChartElement) element).getContent();
-
-        } else if (element instanceof PivotTableElement) {
+//        if (element instanceof PivotChartElement) {
+//            pivotChartGenerator.generate(user, (PivotChartElement) element, inheritedFilter, dateRange);
+//            return ((PivotChartElement) element).getContent();
+//
+//        } else 
+		if (element instanceof PivotTableElement) {
             pivotTableGenerator.generate(user, (PivotTableElement) element, inheritedFilter, dateRange);
             return ((PivotTableElement) element).getContent();
 
-        } else if (element instanceof MapElement) {
-            mapGenerator.generate(user, (MapElement) element, inheritedFilter, dateRange);
-            return ((MapElement) element).getContent();
-
-        } else if (element instanceof TableElement) {
-            tableGenerator.generate(user, ((TableElement) element), inheritedFilter, dateRange);
-            return ((TableElement) element).getContent();
+//        } else if (element instanceof MapElement) {
+//            mapGenerator.generate(user, (MapElement) element, inheritedFilter, dateRange);
+//            return ((MapElement) element).getContent();
+//
+//        } else if (element instanceof TableElement) {
+//            tableGenerator.generate(user, ((TableElement) element), inheritedFilter, dateRange);
+//            return ((TableElement) element).getContent();
 
         } else {
-            throw new RuntimeException("Unknown element type " + element.getClass().getName());
+			LOGGER.warn("Unsupported element: " + element);
+			return null;
         }
     }
 

@@ -1,17 +1,12 @@
-/*
- * All Sigmah code is released under the GNU General Public License v3
- * See COPYRIGHT.txt and LICENSE.txt.
- */
-
-package org.sigmah.server.report.generator;
+package org.sigmah.server.report.model.generator;
 
 import org.sigmah.server.domain.SiteData;
-import org.sigmah.shared.dao.SiteProjectionBinder;
-import org.sigmah.shared.dao.SiteTableColumn;
-import org.sigmah.shared.domain.AdminEntity;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import org.sigmah.server.dao.util.SiteProjectionBinder;
+import org.sigmah.server.dao.util.SiteTableColumn;
+import org.sigmah.server.domain.AdminEntity;
 
 public class SiteDataBinder implements SiteProjectionBinder<SiteData> {
 

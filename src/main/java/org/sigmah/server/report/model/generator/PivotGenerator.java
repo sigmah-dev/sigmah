@@ -1,9 +1,4 @@
-/*
- * All Sigmah code is released under the GNU General Public License v3
- * See COPYRIGHT.txt and LICENSE.txt.
- */
-
-package org.sigmah.server.report.generator;
+package org.sigmah.server.report.model.generator;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -19,35 +14,31 @@ import java.util.Set;
 
 import org.sigmah.server.dao.PivotDAO;
 import org.sigmah.server.dao.PivotDAO.Bucket;
-import org.sigmah.server.util.DateUtilCalendarImpl;
-import org.sigmah.shared.command.Month;
-import org.sigmah.shared.dao.Filter;
-import org.sigmah.shared.date.DateUtil;
-import org.sigmah.shared.report.content.DimensionCategory;
-import org.sigmah.shared.report.content.LabeledDimensionCategory;
-import org.sigmah.shared.report.content.MonthCategory;
-import org.sigmah.shared.report.content.PivotTableData;
-import org.sigmah.shared.report.content.PivotTableData.Axis;
-import org.sigmah.shared.report.content.QuarterCategory;
-import org.sigmah.shared.report.content.SimpleCategory;
-import org.sigmah.shared.report.content.YearCategory;
-import org.sigmah.shared.report.model.DateDimension;
-import org.sigmah.shared.report.model.DateRange;
-import org.sigmah.shared.report.model.DateUnit;
-import org.sigmah.shared.report.model.Dimension;
-import org.sigmah.shared.report.model.DimensionType;
-import org.sigmah.shared.report.model.PivotElement;
+import org.sigmah.server.util.CalendarDates;
+import org.sigmah.shared.dto.pivot.content.DimensionCategory;
+import org.sigmah.shared.dto.pivot.content.LabeledDimensionCategory;
+import org.sigmah.shared.dto.pivot.content.MonthCategory;
+import org.sigmah.shared.dto.pivot.content.PivotTableData;
+import org.sigmah.shared.dto.pivot.content.QuarterCategory;
+import org.sigmah.shared.dto.pivot.content.SimpleCategory;
+import org.sigmah.shared.dto.pivot.content.YearCategory;
+import org.sigmah.shared.dto.pivot.model.DateDimension;
+import org.sigmah.shared.dto.pivot.model.DateUnit;
+import org.sigmah.shared.dto.pivot.model.Dimension;
+import org.sigmah.shared.dto.pivot.model.PivotElement;
+import org.sigmah.shared.dto.referential.DimensionType;
+import org.sigmah.shared.util.DateRange;
+import org.sigmah.shared.util.Dates;
+import org.sigmah.shared.util.Filter;
+import org.sigmah.shared.util.Month;
 
 /**
  * @author Alex Bertram (akbertram@gmail.com)
+ * @param <T>
  */
 public abstract class PivotGenerator<T extends PivotElement> extends BaseGenerator<T> {
 
-	private DateUtil dateUtil = new DateUtilCalendarImpl();
-
-	public PivotGenerator(PivotDAO pivotDAO) {
-		super(pivotDAO);
-	}
+	private final Dates dates = new CalendarDates();
 
 	protected PivotTableData generateData(int userId, Locale locale,
 			T element,
@@ -278,23 +269,23 @@ public abstract class PivotGenerator<T extends PivotElement> extends BaseGenerat
 		private void addYears(PivotTableData.Axis parent, List<Dimension> dims, List<Bucket> buckets, DateRange dateRange) {
 			DateDimension yearDim = new DateDimension(DateUnit.YEAR);
 			
-			int startYear = dateUtil.getYear(dateRange.getMinDate());
-			int endYear = dateUtil.getYear(dateRange.getMaxDate());
+			int startYear = dates.getYear(dateRange.getMinDate());
+			int endYear = dates.getYear(dateRange.getMaxDate());
 			for(int year = startYear; year<=endYear;++year) {
 				PivotTableData.Axis child = parent.addChild(yearDim, new YearCategory(year), Integer.toString(year), DEFAULT_COMPARATOR);
-				addHeaders(child, dims, buckets, DateRange.intersection(dateRange, dateUtil.yearRange(year)));
+				addHeaders(child, dims, buckets, DateRange.intersection(dateRange, dates.yearRange(year)));
 			}
 		}
 
 		private void addMonths(PivotTableData.Axis parent, List<Dimension> dims, List<Bucket> buckets, DateRange dateRange) {
 			DateDimension monthDim = new DateDimension(DateUnit.MONTH);
 
-			Month startMonth = new Month(dateUtil.getYear(dateRange.getMinDate()), dateUtil.getMonth(dateRange.getMinDate()));
-			Month endMonth =  new Month(dateUtil.getYear(dateRange.getMaxDate()), dateUtil.getMonth(dateRange.getMaxDate()));
+			Month startMonth = new Month(dates.getYear(dateRange.getMinDate()), dates.getMonth(dateRange.getMinDate()));
+			Month endMonth =  new Month(dates.getYear(dateRange.getMaxDate()), dates.getMonth(dateRange.getMaxDate()));
 			for(Month m=startMonth;m.compareTo(endMonth)<=0;m=m.next()) {
 				MonthCategory monthCategory = new MonthCategory(m.getYear(), m.getMonth());
-				Axis child = parent.addChild(monthDim, monthCategory, renderMonthLabel(monthCategory),  DEFAULT_COMPARATOR );
-				addHeaders(child, dims, buckets, DateRange.intersection(dateRange, dateUtil.monthRange(m)));
+				PivotTableData.Axis child = parent.addChild(monthDim, monthCategory, renderMonthLabel(monthCategory),  DEFAULT_COMPARATOR );
+				addHeaders(child, dims, buckets, DateRange.intersection(dateRange, dates.monthRange(m)));
 			}
 		}
 	}

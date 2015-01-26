@@ -3,12 +3,12 @@
  * See COPYRIGHT.txt and LICENSE.txt.
  */
 
-package org.sigmah.server.report.generator;
+package org.sigmah.server.report.model.generator;
 
-import org.sigmah.shared.dao.Filter;
-import org.sigmah.shared.domain.User;
-import org.sigmah.shared.report.model.DateRange;
-import org.sigmah.shared.report.model.ReportElement;
+import org.sigmah.server.domain.User;
+import org.sigmah.shared.dto.pivot.model.ReportElement;
+import org.sigmah.shared.util.DateRange;
+import org.sigmah.shared.util.Filter;
 
 /**
  * Generates the <code>Content</code> for a given <code>ReportElement</code>.
@@ -16,6 +16,7 @@ import org.sigmah.shared.report.model.ReportElement;
  * @see org.sigmah.shared.report.model.ReportElement
  *
  * @param <T> The type of <code>ReportElement</code> accepted by the ContentGenerator implementor.
+ * @author Alexander Bertram (akbertram@gmail.com)
  */
 public interface ContentGenerator<T extends ReportElement> {
 
@@ -33,5 +34,4 @@ public interface ContentGenerator<T extends ReportElement> {
      *      overall date range.
      */
     void generate(User user, T element, Filter inheritedFilter, DateRange range);
-	
 }
