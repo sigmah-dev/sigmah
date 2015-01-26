@@ -6,12 +6,13 @@ import java.util.List;
 import java.util.Map;
 
 import org.sigmah.client.i18n.I18N;
-import org.sigmah.client.util.HistoryTokenText;
+import org.sigmah.client.ui.widget.HistoryTokenText;
+import org.sigmah.client.ui.widget.form.Forms;
 import org.sigmah.client.util.NumberUtils;
 import org.sigmah.shared.command.result.ValueResult;
-import org.sigmah.shared.command.result.ValueResultUtils;
-import org.sigmah.shared.domain.element.BudgetSubFieldType;
 import org.sigmah.shared.dto.history.HistoryTokenListDTO;
+import org.sigmah.shared.dto.referential.BudgetSubFieldType;
+import org.sigmah.shared.util.ValueResultUtils;
 
 import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.event.BaseEvent;
@@ -19,73 +20,90 @@ import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Component;
-import com.extjs.gxt.ui.client.widget.Label;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.form.LabelField;
 import com.extjs.gxt.ui.client.widget.form.NumberField;
-import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 
+/**
+ * BudgetElementDTO.
+ * 
+ * @author Denis Colliot (dcolliot@ideia.fr)
+ */
 public class BudgetElementDTO extends DefaultFlexibleElementDTO {
 
 	/**
-	 * 
+	 * Serial version UID.
 	 */
 	private static final long serialVersionUID = 9066323201865770116L;
 
+	/**
+	 * DTO corresponding entity name.
+	 */
+	public static final String ENTITY_NAME = "element.BudgetElement";
+
+	// DTO attributes keys.
+	public static final String RATIO_DIVIDEND = "ratioDividend";
+	public static final String RATIO_DIVISOR = "ratioDivisor";
+	public static final String BUDGET_SUB_FIELDS = "budgetSubFields";
+
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String getEntityName() {
-		return "element.BudgetElement";
+		return ENTITY_NAME;
 	}
 
-	public List<BudgetSubFieldDTO> getBudgetSubFieldsDTO() {
-		return get("budgetSubFieldsDTO");
+	public List<BudgetSubFieldDTO> getBudgetSubFields() {
+		return get(BUDGET_SUB_FIELDS);
 	}
 
-	public void setBudgetSubFieldsDTO(List<BudgetSubFieldDTO> budgetSubFieldsDTO) {
-		set("budgetSubFieldsDTO", budgetSubFieldsDTO);
+	public void setBudgetSubFields(List<BudgetSubFieldDTO> budgetSubFields) {
+		set(BUDGET_SUB_FIELDS, budgetSubFields);
 	}
 
 	public BudgetSubFieldDTO getRatioDividend() {
-		return get("ratioDividend");
+		return get(RATIO_DIVIDEND);
 	}
 
 	public void setRatioDividend(BudgetSubFieldDTO ratioDividend) {
-		set("ratioDividend", ratioDividend);
+		set(RATIO_DIVIDEND, ratioDividend);
 	}
 
 	public BudgetSubFieldDTO getRatioDivisor() {
-		return get("ratioDivisor");
+		return get(RATIO_DIVISOR);
 	}
 
 	public void setRatioDivisor(BudgetSubFieldDTO ratioDivisor) {
-		set("ratioDivisor", ratioDivisor);
+		set(RATIO_DIVISOR, ratioDivisor);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	protected Component getComponent(ValueResult valueResult, boolean enabled) {
 		if (currentContainerDTO instanceof DefaultFlexibleElementContainer) {
 			container = (DefaultFlexibleElementContainer) currentContainerDTO;
 		} else {
 			throw new IllegalArgumentException(
-			                "The flexible elements container isn't an instance of DefaultFlexibleElementContainer. The default flexible element connot be instanciated.");
+				"The flexible elements container isn't an instance of DefaultFlexibleElementContainer. The default flexible element connot be instanciated.");
 		}
 
 		final Component component;
 
 		// Creates choices store.
 		final ListStore<BudgetSubFieldDTO> store = new ListStore<BudgetSubFieldDTO>();
-		store.add(getBudgetSubFieldsDTO());
+		store.add(getBudgetSubFields());
 
 		final Map<Integer, String> values = ValueResultUtils.splitMapElements(valueResult.getValueObject());
 
 		// Spent ratio.
-		final Label ratioLabel = new Label();
-		ratioLabel.addStyleName("project-label-10");
-		ratioLabel.addStyleName("flexibility-label");
+		final LabelField ratioLabel = Forms.label(I18N.CONSTANTS.adminBudgetRatio());
 
 		final Map<BudgetSubFieldDTO, Field<?>> fields = new HashMap<BudgetSubFieldDTO, Field<?>>();
-		final List<BudgetSubFieldDTO> bdfDTO = getBudgetSubFieldsDTO();
+		final List<BudgetSubFieldDTO> bdfDTO = getBudgetSubFields();
 
 		if (enabled) {
 
@@ -151,24 +169,20 @@ public class BudgetElementDTO extends DefaultFlexibleElementDTO {
 
 		String rationBudgetSubFieldNames = "";
 		if (getRatioDividend() != null && getRatioDivisor() != null) {
-			rationBudgetSubFieldNames = " (" + generateBudgetSubFieldLabel(getRatioDividend()) + " / "
-			                + generateBudgetSubFieldLabel(getRatioDivisor()) + ")";
+			rationBudgetSubFieldNames = " (" + generateBudgetSubFieldLabel(getRatioDividend()) + " / " + generateBudgetSubFieldLabel(getRatioDivisor()) + ")";
 			if (values.get(getRatioDividend().getId()) != null && values.get(getRatioDivisor().getId()) != null) {
-				ratioLabel.setText(I18N.CONSTANTS.adminBudgetRatio()
-				                + ":"
-				                + NumberUtils.ratioAsString(Double.valueOf(values.get(getRatioDividend().getId())),
-				                                Double.valueOf(values.get(getRatioDivisor().getId())))
-				                + rationBudgetSubFieldNames);
+				ratioLabel.setValue(NumberUtils.ratioAsString(Double.valueOf(values.get(getRatioDividend().getId())),
+					Double.valueOf(values.get(getRatioDivisor().getId())))
+					+ rationBudgetSubFieldNames);
 
 			} else {
-				ratioLabel.setText(I18N.CONSTANTS.adminBudgetRatio() + ":" + NumberUtils.ratioAsString(0, 0)
-				                + rationBudgetSubFieldNames);
+				ratioLabel.setValue(NumberUtils.ratioAsString(0, 0) + rationBudgetSubFieldNames);
 			}
 		}
 		// Fieldset.
 		final FieldSet fieldset = new FieldSet();
 		fieldset.setCollapsible(true);
-		fieldset.setLayout(new FormLayout());
+		fieldset.setLayout(Forms.layout(170, null));
 
 		for (Field<?> budgetField : fields.values()) {
 			fieldset.add(budgetField);
@@ -178,7 +192,7 @@ public class BudgetElementDTO extends DefaultFlexibleElementDTO {
 
 		// Sets the field label.
 		setLabel(I18N.CONSTANTS.projectBudget());
-		fieldset.setHeading(getLabel());
+		fieldset.setHeadingHtml(getLabel());
 
 		component = fieldset;
 		return component;
@@ -191,7 +205,7 @@ public class BudgetElementDTO extends DefaultFlexibleElementDTO {
 			container = (DefaultFlexibleElementContainer) currentContainerDTO;
 		} else {
 			throw new IllegalArgumentException(
-			                "The flexible elements container isn't an instance of DefaultFlexibleElementContainer. The default flexible element connot be instanciated.");
+				"The flexible elements container isn't an instance of DefaultFlexibleElementContainer. The default flexible element connot be instanciated.");
 		}
 
 		Map<Integer, String> values = ValueResultUtils.splitMapElements(valueResult.getValueObject());
@@ -206,22 +220,18 @@ public class BudgetElementDTO extends DefaultFlexibleElementDTO {
 		} else {
 			budgetLabelField.setValue("0.0 / 0.0");
 		}
-		final Label ratioLabel = new Label();
+		final LabelField ratioLabel = Forms.label(I18N.CONSTANTS.adminBudgetRatio());
 		String rationBudgetSubFieldNames = "";
 		if (getRatioDividend() != null && getRatioDivisor() != null) {
-			rationBudgetSubFieldNames = " (" + generateBudgetSubFieldLabel(getRatioDividend()) + " / "
-			                + generateBudgetSubFieldLabel(getRatioDivisor()) + ")";
+			rationBudgetSubFieldNames = " (" + generateBudgetSubFieldLabel(getRatioDividend()) + " / " + generateBudgetSubFieldLabel(getRatioDivisor()) + ")";
 		}
 		if (values.get(getRatioDividend().getId()) != null && values.get(getRatioDivisor().getId()) != null) {
-			ratioLabel.setText(I18N.CONSTANTS.adminBudgetRatio()
-			                + ":"
-			                + NumberUtils.ratioAsString(Double.valueOf(values.get(getRatioDividend().getId())),
-			                                Double.valueOf(values.get(getRatioDivisor().getId())))
-			                + rationBudgetSubFieldNames);
+			ratioLabel.setValue(NumberUtils.ratioAsString(Double.valueOf(values.get(getRatioDividend().getId())),
+				Double.valueOf(values.get(getRatioDivisor().getId())))
+				+ rationBudgetSubFieldNames);
 
 		} else {
-			ratioLabel.setText(I18N.CONSTANTS.adminBudgetRatio() + ":" + NumberUtils.ratioAsString(0, 0)
-			                + rationBudgetSubFieldNames);
+			ratioLabel.setValue(NumberUtils.ratioAsString(0, 0) + rationBudgetSubFieldNames);
 		}
 		return budgetLabelField;
 
@@ -245,7 +255,7 @@ public class BudgetElementDTO extends DefaultFlexibleElementDTO {
 			Log.debug("[renderHistoryToken] Case BUDGET ; splitted values (" + budgets.size() + ") '" + budgets + "'.");
 		}
 
-		for (BudgetSubFieldDTO budgetField : getBudgetSubFieldsDTO()) {
+		for (BudgetSubFieldDTO budgetField : getBudgetSubFields()) {
 			String currentBudget = (budgets.size() > 0) ? budgets.get(budgetField.getId()) : "0";
 			if (Log.isDebugEnabled()) {
 				Log.debug("[renderHistoryToken] Case BUDGET ; " + budgetField.getLabel() + "'" + currentBudget + "'.");
@@ -273,7 +283,7 @@ public class BudgetElementDTO extends DefaultFlexibleElementDTO {
 	}
 
 	public BudgetSubFieldDTO getPlannedBudget() {
-		for (BudgetSubFieldDTO budgetSubField : getBudgetSubFieldsDTO()) {
+		for (BudgetSubFieldDTO budgetSubField : getBudgetSubFields()) {
 			if (BudgetSubFieldType.PLANNED.equals(budgetSubField.getType())) {
 				return budgetSubField;
 			}

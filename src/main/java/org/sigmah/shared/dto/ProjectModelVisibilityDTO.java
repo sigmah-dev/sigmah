@@ -1,50 +1,64 @@
 package org.sigmah.shared.dto;
 
-import org.sigmah.shared.domain.ProjectModelType;
-
-import com.extjs.gxt.ui.client.data.BaseModelData;
+import org.sigmah.client.util.ToStringBuilder;
+import org.sigmah.shared.dto.base.AbstractModelDataEntityDTO;
+import org.sigmah.shared.dto.referential.ProjectModelType;
 
 /**
  * DTO mapping class for entity ProjectModelVisibility.
  * 
  * @author tmi
- * 
+ * @author Denis Colliot (dcolliot@ideia.fr)
  */
-public class ProjectModelVisibilityDTO extends BaseModelData implements EntityDTO {
+public class ProjectModelVisibilityDTO extends AbstractModelDataEntityDTO<Integer> {
 
-    private static final long serialVersionUID = -4517698536716727232L;
+	/**
+	 * Serial version UID.
+	 */
+	private static final long serialVersionUID = -4517698536716727232L;
 
-    @Override
-    public String getEntityName() {
-        return "ProjectModelVisibility";
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getEntityName() {
+		return "ProjectModelVisibility";
+	}
 
-    // Visibility id.
-    @Override
-    public int getId() {
-        final Integer id = (Integer) get("id");
-        return id != null ? id : -1;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void appendToString(final ToStringBuilder builder) {
+		builder.append("type", getType());
+		builder.append("organizationId", getOrganizationId());
+	}
 
-    public void setId(int id) {
-        set("id", id);
-    }
+	// Visibility id.
+	@Override
+	public Integer getId() {
+		return get("id");
+	}
 
-    // Visibility type.
-    public ProjectModelType getType() {
-        return get("type");
-    }
+	public void setId(Integer id) {
+		set("id", id);
+	}
 
-    public void setType(ProjectModelType type) {
-        set("type", type);
-    }
+	// Visibility type.
+	public ProjectModelType getType() {
+		return get("type");
+	}
 
-    // Visibility organization id.
-    public Integer getOrganizationId() {
-        return get("organizationId");
-    }
+	public void setType(ProjectModelType type) {
+		set("type", type);
+	}
 
-    public void setOrganizationId(Integer organizationId) {
-        set("organizationId", organizationId);
-    }
+	// Visibility organization id.
+	public Integer getOrganizationId() {
+		return get("organizationId");
+	}
+
+	public void setOrganizationId(Integer organizationId) {
+		set("organizationId", organizationId);
+	}
 }

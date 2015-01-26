@@ -1,29 +1,24 @@
-/*
- * All Sigmah code is released under the GNU General Public License v3 See COPYRIGHT.txt and LICENSE.txt.
- */
-
 package org.sigmah.shared.dto.element;
 
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 
-import org.sigmah.client.event.NavigationEvent;
+import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.i18n.I18N;
-import org.sigmah.client.icon.IconImageBundle;
-import org.sigmah.client.page.NavigationHandler;
-import org.sigmah.client.page.PageState;
-import org.sigmah.client.page.orgunit.OrgUnitPresenter;
-import org.sigmah.client.page.orgunit.OrgUnitState;
-import org.sigmah.client.page.project.ProjectPresenter;
-import org.sigmah.client.page.project.ProjectState;
-import org.sigmah.client.page.project.reports.EditReportDialog;
-import org.sigmah.client.ui.WidgetField;
+import org.sigmah.client.page.Page;
+import org.sigmah.client.page.PageRequest;
+import org.sigmah.client.page.RequestParameter;
+import org.sigmah.client.ui.presenter.reports.EditReportDialog;
+import org.sigmah.client.ui.res.icon.IconImageBundle;
+import org.sigmah.client.ui.widget.form.WidgetField;
+import org.sigmah.client.util.ToStringBuilder;
 import org.sigmah.shared.command.GetProjectReports;
-import org.sigmah.shared.command.result.ProjectReportListResult;
+import org.sigmah.shared.command.result.ListResult;
 import org.sigmah.shared.command.result.ValueResult;
-import org.sigmah.shared.dto.OrgUnitDTO;
 import org.sigmah.shared.dto.ProjectDTO;
+import org.sigmah.shared.dto.orgunit.OrgUnitDTO;
+import org.sigmah.shared.dto.report.ProjectReportDTO;
 import org.sigmah.shared.dto.report.ReportReference;
 
 import com.allen_sauer.gwt.log.client.Log;
@@ -34,7 +29,6 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.History;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Image;
 
@@ -42,153 +36,175 @@ import com.google.gwt.user.client.ui.Image;
  * Field that can hold a project report.
  * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
+ * @author Denis Colliot (dcolliot@ideia.fr)
  */
 public class ReportElementDTO extends FlexibleElementDTO {
 
-    private static final long serialVersionUID = 1L;
+	/**
+	 * Serial version UID.
+	 */
+	private static final long serialVersionUID = 8861816666675419305L;
+	
+	/**
+	 * DTO corresponding entity name.
+	 */
+	public static final String ENTITY_NAME = "element.ReportElement";
 
-    public Integer getModelId() {
-        return get("modelId");
-    }
+	// DTO attributes keys.
+	public static final String MODEL_ID = "modelId";
 
-    public void setModelId(Integer modelId) {
-        set("modelId", modelId);
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getEntityName() {
+		return ENTITY_NAME;
+	}
 
-    @Override
-    protected Component getComponent(ValueResult valueResult, boolean enabled) {
-        final Button button = new Button();
-        final WidgetField<Button, String> field = new WidgetField<Button, String>(button);
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void appendToString(final ToStringBuilder builder) {
+		builder.append(MODEL_ID, getModelId());
+	}
 
-        if (valueResult != null && valueResult.isValueDefined()) {
-            // If a report is attached to this element
-            button.setText(I18N.CONSTANTS.reportOpenReport());
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected Component getComponent(ValueResult valueResult, boolean enabled) {
+		final Button button = new Button();
+		final WidgetField<Button, String> field = new WidgetField<Button, String>(button);
 
-            final String reportId = (String) valueResult.getValueObject();
+		if (valueResult != null && valueResult.isValueDefined()) {
+			// If a report is attached to this element
+			button.setText(I18N.CONSTANTS.reportOpenReport());
 
-            // Retrieving the name of the report attached to this element
-            final GetProjectReports getProjectReports = new GetProjectReports();
-            getProjectReports.setReportId(Integer.parseInt(reportId));
+			final String reportId = valueResult.getValueObject();
 
-            dispatcher.execute(getProjectReports, null, new AsyncCallback<ProjectReportListResult>() {
+			// Retrieving the name of the report attached to this element
+			final GetProjectReports getProjectReports = new GetProjectReports();
+			getProjectReports.setReportId(Integer.parseInt(reportId));
 
-                @Override
-                public void onFailure(Throwable caught) {
-                    // No action
-                }
+			dispatch.execute(getProjectReports, new CommandResultHandler<ListResult<ReportReference>>() {
 
-                @Override
-                public void onSuccess(ProjectReportListResult result) {
-                    final List<ReportReference> results = result.getData();
+				@Override
+				public void onCommandSuccess(final ListResult<ReportReference> result) {
 
-                    if (results.size() == 1)
-                        button.setText(I18N.MESSAGES.reportOpenReport(results.get(0).getName()));
-                }
-            });
+					final List<ReportReference> results = result.getList();
 
-            // Report & Document path
-            final PageState targetState;
+					if (results.size() == 1) {
+						button.setText(I18N.MESSAGES.reportOpenReport(results.get(0).getName()));
+					}
+				}
+			});
 
-            if (currentContainerDTO instanceof ProjectDTO) {
-                // This element is displayed in a project
-                final ProjectState state = new ProjectState(currentContainerDTO.getId());
-                state.setCurrentSection(ProjectPresenter.REPORT_TAB_INDEX);
-                state.setArgument(reportId);
-                targetState = state;
+			// Report & Document path
+			final PageRequest request;
 
-            } else if (currentContainerDTO instanceof OrgUnitDTO) {
-                final OrgUnitState state = new OrgUnitState(currentContainerDTO.getId());
-                state.setCurrentSection(OrgUnitPresenter.REPORT_TAB_INDEX);
-                state.setArgument(reportId);
-                targetState = state;
+			if (currentContainerDTO instanceof ProjectDTO) {
+				// This element is displayed in a project
+				request = new PageRequest(Page.PROJECT_REPORTS);
+				request.addParameter(RequestParameter.ID, currentContainerDTO.getId());
+				request.addParameter(RequestParameter.REPORT_ID, reportId);
 
-            } else {
-                Log.debug("ReportElementDTO does not know how to render properly from a '"
-                    + currentContainerDTO.getClass()
-                    + "' container.");
-                targetState = null;
-            }
+			} else if (currentContainerDTO instanceof OrgUnitDTO) {
+				request = new PageRequest(Page.ORGUNIT_REPORTS);
+				request.addParameter(RequestParameter.ID, currentContainerDTO.getId());
+				request.addParameter(RequestParameter.REPORT_ID, reportId);
 
-            button.addClickHandler(new ClickHandler() {
+			} else {
+				if (Log.isDebugEnabled()) {
+					Log.debug("ReportElementDTO does not know how to render properly from a '" + currentContainerDTO.getClass() + "' container.");
+				}
+				request = null;
+			}
 
-                @Override
-                public void onClick(ClickEvent event) {
-                    eventBus.fireEvent(new NavigationEvent(NavigationHandler.NavigationRequested, targetState, null));
-                }
-            });
+			button.addClickHandler(new ClickHandler() {
 
-        } else {
-            // New report button
-            final IconImageBundle imageBundle = GWT.create(IconImageBundle.class);
+				@Override
+				public void onClick(ClickEvent event) {
+					eventBus.navigateRequest(request);
+				}
+			});
 
-            final Image addIcon = imageBundle.add().createImage();
-            addIcon.getElement().getStyle().setVerticalAlign(VerticalAlign.TEXT_TOP);
-            button.setHTML(addIcon.getElement().getString() + ' ' + I18N.CONSTANTS.reportCreateReport());
+		} else {
+			// New report button
+			final IconImageBundle imageBundle = GWT.create(IconImageBundle.class);
 
-            // Report & Document path
-            if (currentContainerDTO instanceof ProjectDTO) {
-                // This element is displayed in a project
-                final ProjectDTO projectDTO = (ProjectDTO) currentContainerDTO;
+			final Image addIcon = imageBundle.add().createImage();
+			addIcon.getElement().getStyle().setVerticalAlign(VerticalAlign.TEXT_TOP);
+			button.setHTML(addIcon.getElement().getString() + ' ' + I18N.CONSTANTS.reportCreateReport());
 
-                final HandlerRegistration[] registrations = new HandlerRegistration[1];
+			// Report & Document path
+			if (currentContainerDTO instanceof ProjectDTO) {
+				// This element is displayed in a project
+				final ProjectDTO projectDTO = (ProjectDTO) currentContainerDTO;
 
-                registrations[0] = button.addClickHandler(new ClickHandler() {
+				final HandlerRegistration[] registrations = new HandlerRegistration[1];
 
-                    @Override
-                    public void onClick(ClickEvent event) {
-                        final HashMap<String, Serializable> properties = new HashMap<String, Serializable>();
-                        properties.put("flexibleElementId", getId());
-                        properties.put("containerId", currentContainerDTO.getId());
-                        properties.put("reportModelId", getModelId());
-                        properties.put("phaseName", projectDTO.getCurrentPhaseDTO().getPhaseModelDTO().getName());
-                        properties.put("projectId", projectDTO.getId());
+				registrations[0] = button.addClickHandler(new ClickHandler() {
 
-                        EditReportDialog.getDialog(properties, button, registrations, eventBus, dispatcher).show();
-                    }
-                });
+					@Override
+					public void onClick(ClickEvent event) {
+						final HashMap<String, Serializable> properties = new HashMap<String, Serializable>();
+						properties.put(ProjectReportDTO.FLEXIBLE_ELEMENT_ID, getId());
+						properties.put(ProjectReportDTO.FLEXIBLE_ELEMENT_ID, currentContainerDTO.getId());
+						properties.put(ProjectReportDTO.REPORT_MODEL_ID, getModelId());
+						properties.put(ProjectReportDTO.PHASE_NAME, projectDTO.getCurrentPhase().getPhaseModel().getName());
+						properties.put(ProjectReportDTO.PROJECT_ID, projectDTO.getId());
 
-            } else {
-                if (currentContainerDTO instanceof OrgUnitDTO) {
-                    final OrgUnitDTO orgUnitDTO = (OrgUnitDTO) currentContainerDTO;
-                    final HandlerRegistration[] registrations = new HandlerRegistration[1];
+						EditReportDialog.getDialog(properties, button, registrations, eventBus, dispatch).show();
+					}
+				});
 
-                    registrations[0] = button.addClickHandler(new ClickHandler() {
+			} else {
+				if (currentContainerDTO instanceof OrgUnitDTO) {
+					final OrgUnitDTO orgUnitDTO = (OrgUnitDTO) currentContainerDTO;
+					final HandlerRegistration[] registrations = new HandlerRegistration[1];
 
-                        @Override
-                        public void onClick(ClickEvent event) {
-                            final HashMap<String, Serializable> properties = new HashMap<String, Serializable>();
-                            properties.put("flexibleElementId", getId());
-                            properties.put("containerId", currentContainerDTO.getId());
-                            properties.put("reportModelId", getModelId());
-                            properties.put("phaseName", null);
-                            properties.put("orgUnitId", orgUnitDTO.getId());
+					registrations[0] = button.addClickHandler(new ClickHandler() {
 
-                            EditReportDialog.getDialog(properties, button, registrations, eventBus, dispatcher).show();
-                        }
-                    });
-                } else {
-                    Log.debug("ReportElementDTO does not know how to render properly from the '"
-                        + History.getToken()
-                        + "' page.");
-                }
-            }
+						@Override
+						public void onClick(ClickEvent event) {
+							final HashMap<String, Serializable> properties = new HashMap<String, Serializable>();
+							properties.put(ProjectReportDTO.FLEXIBLE_ELEMENT_ID, getId());
+							properties.put(ProjectReportDTO.FLEXIBLE_ELEMENT_ID, currentContainerDTO.getId());
+							properties.put(ProjectReportDTO.REPORT_MODEL_ID, getModelId());
+							properties.put(ProjectReportDTO.PHASE_NAME, null);
+							properties.put(ProjectReportDTO.ORGUNIT_ID, orgUnitDTO.getId());
 
-            field.setEnabled(enabled);
-        }
+							EditReportDialog.getDialog(properties, button, registrations, eventBus, dispatch).show();
+						}
+					});
+				} else {
+					Log.debug("ReportElementDTO does not know how to render properly from the '" + History.getToken() + "' page.");
+				}
+			}
 
-        field.setFieldLabel(getLabel());
+			field.setEnabled(enabled);
+		}
 
-        return field;
-    }
+		field.setFieldLabel(getLabel());
 
-    @Override
-    public boolean isCorrectRequiredValue(ValueResult result) {
-        return result != null && result.isValueDefined();
-    }
+		return field;
+	}
 
-    @Override
-    public String getEntityName() {
-        return "element.ReportElement";
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean isCorrectRequiredValue(ValueResult result) {
+		return result != null && result.isValueDefined();
+	}
+
+	public Integer getModelId() {
+		return get(MODEL_ID);
+	}
+
+	public void setModelId(Integer modelId) {
+		set(MODEL_ID, modelId);
+	}
 
 }

@@ -1,60 +1,76 @@
-/*
- * All Sigmah code is released under the GNU General Public License v3
- * See COPYRIGHT.txt and LICENSE.txt.
- */
-
 package org.sigmah.shared.dto;
 
-import com.extjs.gxt.ui.client.data.BaseModelData;
+import org.sigmah.client.util.ToStringBuilder;
+import org.sigmah.shared.dto.base.AbstractModelDataDTO;
 
 /**
- *  Data transfer object for datasources of Indicators. This is a projection
- *  of the {@link org.sigmah.shared.domain.Indicator} and {@link org.sigmah.shared.domain.UserDatabase}
- *  entities.
+ * <p>
+ * Data transfer object for datasources of Indicators.
+ * </p>
+ * <p>
+ * This is a projection of the {@link org.sigmah.server.domain.Indicator} and
+ * {@link org.sigmah.server.domain.UserDatabase} entities.
+ * </p>
+ * 
+ * @author Denis Colliot (dcolliot@ideia.fr)
  */
-public class IndicatorDataSourceDTO extends BaseModelData  {
+public class IndicatorDataSourceDTO extends AbstractModelDataDTO {
 
+	/**
+	 * Serial version UID.
+	 */
+	private static final long serialVersionUID = 1257058710718562119L;
 
-    public int getIndicatorId() {
-        return (Integer)get("indicatorId");
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void appendToString(final ToStringBuilder builder) {
+		builder.append("indicatorId", getIndicatorId());
+		builder.append("databaseId", getDatabaseId());
+		builder.append("databaseName", getDatabaseName());
+		builder.append("indicatorName", getIndicatorName());
+		builder.append("indicatorCode", getIndicatorCode());
+	}
 
-    public void setIndicatorId(int id) {
-        set("indicatorId", id);
-    }
+	public int getIndicatorId() {
+		return (Integer) get("indicatorId");
+	}
 
-    public int getDatabaseId() {
-        return (Integer)get("databaseId");
-    }
+	public void setIndicatorId(int id) {
+		set("indicatorId", id);
+	}
 
-    public void setDatabaseId(int id) {
-        set("databaseId", id);
-    }
+	public int getDatabaseId() {
+		return (Integer) get("databaseId");
+	}
 
-    public String getDatabaseName() {
-        return get("databaseName");
-    }
+	public void setDatabaseId(int id) {
+		set("databaseId", id);
+	}
 
-    public void setDatabaseName(String name) {
-        set("databaseName", name);
-    }
+	public String getDatabaseName() {
+		return get("databaseName");
+	}
 
-    public String getIndicatorName() {
-        return get("indicatorName");
-    }
+	public void setDatabaseName(String name) {
+		set("databaseName", name);
+	}
 
-    public void setIndicatorName(String name) {
-        set("indicatorName", name);
-    }
+	public String getIndicatorName() {
+		return get("indicatorName");
+	}
 
-    public String getIndicatorCode() {
-        return get("indicatorCode");
-    }
+	public void setIndicatorName(String name) {
+		set("indicatorName", name);
+	}
 
-    public void setIndicatorCode(String code) {
-        set("indicatorCode", code);
-    }
+	public String getIndicatorCode() {
+		return get("indicatorCode");
+	}
+
+	public void setIndicatorCode(String code) {
+		set("indicatorCode", code);
+	}
 
 }
-
-

@@ -1,526 +1,540 @@
-/*
- * All Sigmah code is released under the GNU General Public License v3
- * See COPYRIGHT.txt and LICENSE.txt.
- */
-
 package org.sigmah.shared.dto.element;
 
-import org.sigmah.client.EventBus;
 import org.sigmah.client.cache.UserLocalCache;
-import org.sigmah.client.dispatch.Dispatcher;
-import org.sigmah.client.dispatch.remote.Authentication;
+import org.sigmah.client.dispatch.CommandResultHandler;
+import org.sigmah.client.dispatch.DispatchAsync;
+import org.sigmah.client.event.EventBus;
 import org.sigmah.client.i18n.I18N;
-import org.sigmah.client.icon.IconImageBundle;
-import org.sigmah.client.page.admin.model.common.element.ElementTypeEnum;
-import org.sigmah.client.ui.HistoryWindow;
-import org.sigmah.client.util.HistoryTokenText;
+import org.sigmah.client.security.AuthenticationProvider;
+import org.sigmah.client.ui.notif.N10N;
+import org.sigmah.client.ui.res.icon.IconImageBundle;
+import org.sigmah.client.ui.widget.HistoryTokenText;
+import org.sigmah.client.ui.widget.HistoryWindow;
+import org.sigmah.client.util.ToStringBuilder;
 import org.sigmah.shared.command.GetHistory;
-import org.sigmah.shared.command.result.HistoryResult;
+import org.sigmah.shared.command.result.Authentication;
+import org.sigmah.shared.command.result.ListResult;
 import org.sigmah.shared.command.result.ValueResult;
-import org.sigmah.shared.domain.Amendment;
-import org.sigmah.shared.domain.profile.PrivacyGroupPermissionEnum;
-import org.sigmah.shared.dto.EntityDTO;
-import org.sigmah.shared.dto.OrgUnitDTO;
 import org.sigmah.shared.dto.ProjectDTO;
-import org.sigmah.shared.dto.element.handler.RequiredValueEvent;
-import org.sigmah.shared.dto.element.handler.RequiredValueHandler;
-import org.sigmah.shared.dto.element.handler.ValueEvent;
-import org.sigmah.shared.dto.element.handler.ValueHandler;
+import org.sigmah.shared.dto.base.AbstractModelDataEntityDTO;
+import org.sigmah.shared.dto.element.event.RequiredValueEvent;
+import org.sigmah.shared.dto.element.event.RequiredValueHandler;
+import org.sigmah.shared.dto.element.event.ValueEvent;
+import org.sigmah.shared.dto.element.event.ValueHandler;
 import org.sigmah.shared.dto.history.HistoryTokenListDTO;
 import org.sigmah.shared.dto.history.HistoryTokenManager;
 import org.sigmah.shared.dto.layout.LayoutConstraintDTO;
 import org.sigmah.shared.dto.layout.LayoutGroupDTO;
+import org.sigmah.shared.dto.orgunit.OrgUnitDTO;
 import org.sigmah.shared.dto.profile.PrivacyGroupDTO;
-import org.sigmah.shared.dto.profile.ProfileUtils;
+import org.sigmah.shared.dto.referential.AmendmentState;
+import org.sigmah.shared.dto.referential.ElementTypeEnum;
+import org.sigmah.shared.dto.referential.PrivacyGroupPermissionEnum;
+import org.sigmah.shared.file.TransfertManager;
+import org.sigmah.shared.util.ProfileUtils;
 
 import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.event.MenuEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Component;
-import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.google.gwt.event.shared.HandlerManager;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
+ * Abstract flexible element DTO.
  * 
  * @author Denis Colliot (dcolliot@ideia.fr)
- * 
  */
-public abstract class FlexibleElementDTO extends BaseModelData implements EntityDTO, HistoryTokenManager {
+public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Integer> implements HistoryTokenManager {
 
-    private static final long serialVersionUID = 8520711106031085130L;
+	/**
+	 * Serial version UID.
+	 */
+	private static final long serialVersionUID = 8520711106031085130L;
 
-    protected transient HandlerManager handlerManager;
+	// DTO 'base' attributes keys.
+	public static final String LABEL = "label";
+	public static final String VALIDATES = "validates";
+	public static final String FILLED_IN = "filledIn";
+	public static final String AMENDABLE = "amendable";
+	public static final String EXPORTABLE = "exportable";
+	public static final String GLOBALLY_EXPORTABLE = "globallyExportable";
+	public static final String HISTORABLE = "historable";
+	public static final String PRIVACY_GROUP = "privacyGroup";
+	public static final String GROUP = "group";
+	public static final String CONTAINER = "container";
+	public static final String CONSTRAINT = "constraint";
+	public static final String BANNER = "banner";
 
-    protected transient Dispatcher dispatcher;
+	// Provided elements.
+	protected transient HandlerManager handlerManager;
+	protected transient DispatchAsync dispatch;
+	protected transient EventBus eventBus;
+	protected transient AuthenticationProvider authenticationProvider;
+	protected transient FlexibleElementContainer currentContainerDTO;
+	protected transient TransfertManager transfertManager;
+	protected transient int preferredWidth;
+	private transient Menu historyMenu;
+	protected transient UserLocalCache cache;
 
-    protected transient EventBus eventBus;
+	/**
+	 * Sets the dispatch service to be used in the {@link #getElementComponent(ValueResult)} method.
+	 * 
+	 * @param dispatch
+	 *          The presenter's dispatch service.
+	 */
+	public void setService(DispatchAsync dispatch) {
+		this.dispatch = dispatch;
+	}
 
-    protected transient Authentication authentication;
+	/**
+	 * Sets the event bus to be used by {@link #getElementComponent(ValueResult)}.
+	 * 
+	 * @param eventBus
+	 *          The presenter's event bus.
+	 */
+	public void setEventBus(EventBus eventBus) {
+		this.eventBus = eventBus;
+	}
 
-    protected transient FlexibleElementContainer currentContainerDTO;
+	/**
+	 * Sets the authentication provider to be used in the {@link #getElementComponent(ValueResult)} method.
+	 * 
+	 * @param authenticationProvider
+	 *          The authentication provider.
+	 */
+	public void setAuthenticationProvider(AuthenticationProvider authenticationProvider) {
+		this.authenticationProvider = authenticationProvider;
+	}
 
-    protected transient int preferredWidth;
+	/**
+	 * Sets the current container (not model, but instance) using this flexible element to be used in the
+	 * {@link #getElementComponent(ValueResult)} method.
+	 * 
+	 * @param currentContainerDTO
+	 *          The current container using this flexible element.
+	 */
+	public void setCurrentContainerDTO(FlexibleElementContainer currentContainerDTO) {
+		this.currentContainerDTO = currentContainerDTO;
+	}
 
-    private transient Menu historyMenu;
+	/**
+	 * Sets the current transfert manager to allow download and upload operations from flexible elements.
+	 * 
+	 * @param transfertManager
+	 *          The current transfert manager.
+	 */
+	public void setTransfertManager(TransfertManager transfertManager) {
+		this.transfertManager = transfertManager;
+	}
 
-    protected transient UserLocalCache cache;
+	/**
+	 * Sets the cache to be used in the {@link #getElementComponent(ValueResult)} method.
+	 * 
+	 * @param cache
+	 *          The cache.
+	 */
+	public void setCache(UserLocalCache cache) {
+		this.cache = cache;
+	}
 
-    /**
-     * Sets the dispatcher to be used in the
-     * {@link #getElementComponent(ValueResult)} method.
-     * 
-     * @param dispatcher
-     *            The presenter's dispatcher.
-     */
-    public void setService(Dispatcher dispatcher) {
-        this.dispatcher = dispatcher;
-    }
+	/**
+	 * Method called just before the {@link FlexibleElementDTO#getElementComponent(ValueResult)} method to ensure the
+	 * instantiation of the attributes used by the client-side.<br/>
+	 * This method can be override by subclasses.
+	 */
+	public void init() {
 
-    /**
-     * Sets the event bus to be used by
-     * {@link #getElementComponent(ValueResult)}.
-     * 
-     * @param eventBus
-     *            The presenter's event bus.
-     */
-    public void setEventBus(EventBus eventBus) {
-        this.eventBus = eventBus;
-    }
+		// Checks preconditions.
+		assert dispatch != null;
+		assert authenticationProvider != null;
+		assert currentContainerDTO != null;
+		handlerManager = new HandlerManager(this);
+	}
 
-    /**
-     * Sets the authentication provider to be used in the
-     * {@link #getElementComponent(ValueResult)} method.
-     * 
-     * @param authentication
-     *            The authentication provider.
-     */
-    public void setAuthentication(Authentication authentication) {
-        this.authentication = authentication;
-    }
+	public Authentication auth() {
+		return authenticationProvider.get();
+	}
 
-    /**
-     * Sets the current container (not model, but instance) using this flexible
-     * element to be used in the {@link #getElementComponent(ValueResult)}
-     * method.
-     * 
-     * @param currentContainerDTO
-     *            The current container using this flexible element.
-     */
-    public void setCurrentContainerDTO(FlexibleElementContainer currentContainerDTO) {
-        this.currentContainerDTO = currentContainerDTO;
-    }
+	/**
+	 * Gets the widget of a flexible element with its value.
+	 * 
+	 * @param valueResult
+	 *          value of the flexible element, or {@code null} to display the element without its value.
+	 * @return the widget corresponding to the flexible element (can be <code>null</code> if the user cannot see this
+	 *         element).
+	 */
+	public Component getElementComponent(ValueResult valueResult) {
+		return getComponentWithHistory(valueResult, true, false);
+	}
 
-    /**
-     * Sets the cache to be used in the
-     * {@link #getElementComponent(ValueResult)} method.
-     * 
-     * @param cache
-     *            The cache.
-     */
-    public void setCache(UserLocalCache cache) {
-        this.cache = cache;
-    }
+	/**
+	 * Gets the widget of a flexible element with its value to be displayed in the banner.
+	 * 
+	 * @param valueResult
+	 *          value of the flexible element, or {@code null} to display the element without its value.
+	 * @return The widget corresponding to the flexible element (can be <code>null</code> if the user cannot see this
+	 *         element).
+	 */
+	public Component getElementComponentInBanner(ValueResult valueResult) {
+		return getComponentWithHistory(valueResult, false, true);
+	}
 
-    /**
-     * Method called just before the
-     * {@link FlexibleElementDTO#getElementComponent(ValueResult)} method to
-     * ensure the instantiation of the attributes used by the client-side.<br/>
-     * This method can be override by subclasses.
-     */
-    public void init() {
+	/**
+	 * Gets the widget of a flexible element with its value.
+	 * 
+	 * @param valueResult
+	 *          value of the flexible element, or {@code null} to display the element without its value.
+	 * @param enabled
+	 *          If the component is enabled.
+	 * @return The widget corresponding to the flexible element (can be <code>null</code> if the user cannot see this
+	 *         element).
+	 */
+	public Component getElementComponent(ValueResult valueResult, boolean enabled) {
+		return getComponentWithHistory(valueResult, enabled, false);
+	}
 
-        // Checks preconditions.
-        assert dispatcher != null;
-        assert authentication != null;
-        assert currentContainerDTO != null;
-        handlerManager = new HandlerManager(this);
-    }
+	/**
+	 * Gets the widget of a flexible element with its value. This method manages the history of the element.
+	 * 
+	 * @param valueResult
+	 *          value of the flexible element, or {@code null} to display the element without its value.
+	 * @param enabled
+	 *          If the component is enabled.
+	 * @param inBanner
+	 *          If the component will be displayed in the banner.
+	 * @return The widget component.
+	 */
+	private Component getComponentWithHistory(ValueResult valueResult, boolean enabled, boolean inBanner) {
 
-    /**
-     * Gets the widget of a flexible element with its value.
-     * 
-     * @param valueResult
-     *            value of the flexible element, or {@code null} to display the
-     *            element without its value.
-     * 
-     * @return the widget corresponding to the flexible element (can be
-     *         <code>null</code> if the user cannot see this element).
-     */
-    public Component getElementComponent(ValueResult valueResult) {
-        return getComponentWithHistory(valueResult, true, false);
-    }
+		// Checking the amendment state.
+		if (enabled && // This element is in an editable state
+			Boolean.TRUE.equals(getAmendable())) {// This element is part of the amendment
+			if (currentContainerDTO instanceof ProjectDTO && // This element is displayed in a project
+				(((ProjectDTO) currentContainerDTO).getAmendmentState() != AmendmentState.DRAFT || ((ProjectDTO) currentContainerDTO).getCurrentAmendment() != null)) {
+				enabled = false;
+			} else {
+				if (currentContainerDTO instanceof OrgUnitDTO || currentContainerDTO instanceof org.sigmah.shared.dto.orgunit.OrgUnitDTO) {
+					enabled = false;
+				}
+			}
+		}
 
-    /**
-     * Gets the widget of a flexible element with its value to be displayed in
-     * the banner.
-     * 
-     * @param valueResult
-     *            value of the flexible element, or {@code null} to display the
-     *            element without its value.
-     * 
-     * @return The widget corresponding to the flexible element (can be
-     *         <code>null</code> if the user cannot see this element).
-     */
-    public Component getElementComponentInBanner(ValueResult valueResult) {
-        return getComponentWithHistory(valueResult, false, true);
-    }
+		// The permission for this element.
+		final PrivacyGroupPermissionEnum perm = ProfileUtils.getPermission(auth(), getPrivacyGroup());
 
-    /**
-     * Gets the widget of a flexible element with its value.
-     * 
-     * @param valueResult
-     *            value of the flexible element, or {@code null} to display the
-     *            element without its value.
-     * @param enabled
-     *            If the component is enabled.
-     * 
-     * @return The widget corresponding to the flexible element (can be
-     *         <code>null</code> if the user cannot see this element).
-     */
-    public Component getElementComponent(ValueResult valueResult, boolean enabled) {
-        return getComponentWithHistory(valueResult, enabled, false);
-    }
+		if (Log.isDebugEnabled()) {
+			Log.debug("[getComponentWithHistory] Permission '" + perm + "' for the element '" + getLabel() + "'");
+		}
 
-    /**
-     * Gets the widget of a flexible element with its value. This method manages
-     * the history of the element.
-     * 
-     * @param valueResult
-     *            value of the flexible element, or {@code null} to display the
-     *            element without its value.
-     * @param enabled
-     *            If the component is enabled.
-     * @param inBanner
-     *            If the component will be displayed in the banner.
-     * @return
-     */
-    private Component getComponentWithHistory(ValueResult valueResult, boolean enabled, boolean inBanner) {
+		switch (perm) {
+			case NONE:
+				// Element not visible.
+				return null;
+			case READ:
+				// Read-only mode.
+				enabled = false;
+				break;
+			case WRITE:
+				// Edit mode.
+				enabled = enabled && true;
+				break;
+			default:
+				break;
+		}
 
-        // Checking the amendment state.
-        if (enabled && // This element is in an editable state
-                Boolean.TRUE.equals(getAmendable())) {// This element is part
-                                                      // of the amendment
-            if (currentContainerDTO instanceof ProjectDTO && // This element is
-                                                             // displayed in a
-                                                             // project
-                    (((ProjectDTO) currentContainerDTO).getAmendmentState() != Amendment.State.DRAFT || ((ProjectDTO) currentContainerDTO)
-                            .getCurrentAmendment() != null)) {
-                enabled = false;
-            } else {
-                if (currentContainerDTO instanceof OrgUnitDTO) {
-                    enabled = false;
-                }
-            }
-        }
+		final Component component = inBanner ? getComponentInBanner(valueResult, enabled) : getComponent(valueResult, enabled);
 
-        // The permission for this element.
-        final PrivacyGroupPermissionEnum perm = ProfileUtils.getPermission(authentication, getPrivacyGroup());
+		if(getAmendable() && component instanceof Field) {
+			final Field<?> field = (Field<?>)component;
+			field.setFieldLabel(field.getFieldLabel() + "&nbsp;" + IconImageBundle.ICONS.DNABrownGreen().getHTML());
+		}
+		
+		// Adds the history menu if needed.
+		if (isHistorable()) {
 
-        if (Log.isDebugEnabled()) {
-            Log.debug("[getComponentWithHistory] Permission '" + perm + "' for the element '" + getLabel() + "'");
-        }
+			// Builds the menu.
+			if (historyMenu == null) {
 
-        switch (perm) {
-        case NONE:
-            // Element not visible.
-            return null;
-        case READ:
-            // Read-only mode.
-            enabled = false;
-            break;
-        case WRITE:
-            // Edit mode.
-            enabled = enabled && true;
-            break;
-        default:
-            break;
-        }
+				final MenuItem historyItem = new MenuItem(I18N.CONSTANTS.historyShow(), IconImageBundle.ICONS.history(), new SelectionListener<MenuEvent>() {
 
-        final Component component = inBanner ? getComponentInBanner(valueResult, enabled) : getComponent(valueResult,
-                enabled);
+					@Override
+					public void componentSelected(MenuEvent ce) {
 
-        // Adds the history menu if needed.
-        if (isHistorable()) {
+						dispatch.execute(new GetHistory(getId(), currentContainerDTO.getId()), new CommandResultHandler<ListResult<HistoryTokenListDTO>>() {
 
-            // Builds the menu.
-            if (historyMenu == null) {
+							@Override
+							public void onCommandFailure(final Throwable e) {
 
-                final MenuItem historyItem = new MenuItem(I18N.CONSTANTS.historyShow(),
-                        IconImageBundle.ICONS.history(), new SelectionListener<MenuEvent>() {
+								if (Log.isErrorEnabled()) {
+									Log.error("[execute] The history cannot be fetched.", e);
+								}
+								N10N.warn(I18N.CONSTANTS.historyError(), I18N.CONSTANTS.historyErrorDetails());
+							}
 
-                            @Override
-                            public void componentSelected(MenuEvent ce) {
+							@Override
+							public void onCommandSuccess(final ListResult<HistoryTokenListDTO> result) {
+								HistoryWindow.show(result.getList(), FlexibleElementDTO.this);
+							}
+						});
+					}
+				});
 
-                                dispatcher.execute(new GetHistory(getId(), currentContainerDTO.getId()), null,
-                                        new AsyncCallback<HistoryResult>() {
+				historyMenu = new Menu();
+				historyMenu.add(historyItem);
+			}
 
-                                            @Override
-                                            public void onFailure(Throwable e) {
+			// Attaches it to the element.
+			component.setContextMenu(historyMenu);
+		}
 
-                                                Log.error("[execute] The history cannot be fetched.", e);
-                                                MessageBox.alert(I18N.CONSTANTS.historyError(),
-                                                        I18N.CONSTANTS.historyErrorDetails(), null);
-                                            }
+		return component;
+	}
 
-                                            @Override
-                                            public void onSuccess(HistoryResult result) {
-                                                HistoryWindow.show(result.getTokens(), FlexibleElementDTO.this);
-                                            }
-                                        });
-                            }
-                        });
+	/**
+	 * Gets the widget of a flexible element with its value to be displayed in the banner. The default implementation uses
+	 * the {@link #getComponent(ValueResult, boolean)} method.
+	 * 
+	 * @param valueResult
+	 *          value of the flexible element, or {@code null} to display the element without its value.
+	 * @param enabled
+	 *          If the component is enabled.
+	 * @return the widget corresponding to the flexible element.
+	 */
+	protected Component getComponentInBanner(ValueResult valueResult, boolean enabled) {
+		return getComponent(valueResult, enabled);
+	}
 
-                historyMenu = new Menu();
-                historyMenu.add(historyItem);
-            }
+	/**
+	 * Gets the widget of a flexible element with its value.
+	 * 
+	 * @param valueResult
+	 *          value of the flexible element, or {@code null} to display the element without its value.
+	 * @param enabled
+	 *          If the component is enabled.
+	 * @return the widget corresponding to the flexible element.
+	 */
+	protected abstract Component getComponent(ValueResult valueResult, boolean enabled);
 
-            // Attaches it to the element.
-            component.setContextMenu(historyMenu);
-        }
+	/**
+	 * Adds a {@link ValueHandler} to the flexible element.
+	 * 
+	 * @param handler
+	 *          a {@link ValueHandler} object
+	 */
+	public void addValueHandler(ValueHandler handler) {
+		handlerManager.addHandler(ValueEvent.getType(), handler);
+	}
 
-        return component;
-    }
+	/**
+	 * Adds a {@link RequiredValueHandler} to the flexible element.
+	 * 
+	 * @param handler
+	 *          a {@link RequiredValueHandler} object
+	 */
+	public void addRequiredValueHandler(RequiredValueHandler handler) {
+		handlerManager.addHandler(RequiredValueEvent.getType(), handler);
+	}
 
-    /**
-     * Gets the widget of a flexible element with its value to be displayed in
-     * the banner. The default implementation uses the
-     * {@link #getComponent(ValueResult, boolean)} method.
-     * 
-     * @param valueResult
-     *            value of the flexible element, or {@code null} to display the
-     *            element without its value.
-     * @param enabled
-     *            If the component is enabled.
-     * 
-     * @return the widget corresponding to the flexible element.
-     */
-    protected Component getComponentInBanner(ValueResult valueResult, boolean enabled) {
-        return getComponent(valueResult, enabled);
-    }
+	/**
+	 * Gets the most adapted width to display this component.
+	 * 
+	 * @return The preferred width of this element.
+	 */
+	public int getPreferredWidth() {
+		return preferredWidth;
+	}
 
-    /**
-     * Gets the widget of a flexible element with its value.
-     * 
-     * @param valueResult
-     *            value of the flexible element, or {@code null} to display the
-     *            element without its value.
-     * @param enabled
-     *            If the component is enabled.
-     * 
-     * @return the widget corresponding to the flexible element.
-     */
-    protected abstract Component getComponent(ValueResult valueResult, boolean enabled);
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void appendToString(final ToStringBuilder builder) {
+		builder.append(LABEL, getLabel());
+		builder.append(VALIDATES, getValidates());
+		builder.append(FILLED_IN, isFilledIn());
+		builder.append(AMENDABLE, getAmendable());
+		builder.append(EXPORTABLE, getExportable());
+		builder.append(GLOBALLY_EXPORTABLE, getGloballyExportable());
+		builder.append(HISTORABLE, isHistorable());
+	}
 
-    /**
-     * Adds a {@link ValueHandler} to the flexible element.
-     * 
-     * @param handler
-     *            a {@link ValueHandler} object
-     */
-    public void addValueHandler(ValueHandler handler) {
-        handlerManager.addHandler(ValueEvent.getType(), handler);
-    }
+	/**
+	 * Returns the flexible element's formatted label.<br>
+	 * May be overridden by sub-implementations.
+	 * 
+	 * @return The flexible element's formatted label.
+	 */
+	public String getFormattedLabel() {
+		// May be overridden.
+		return getLabel();
+	}
 
-    /**
-     * Adds a {@link RequiredValueHandler} to the flexible element.
-     * 
-     * @param handler
-     *            a {@link RequiredValueHandler} object
-     */
-    public void addRequiredValueHandler(RequiredValueHandler handler) {
-        handlerManager.addHandler(RequiredValueEvent.getType(), handler);
-    }
+	// Flexible element label
+	public String getLabel() {
+		return get(LABEL);
+	}
 
-    /**
-     * Gets the most adapted width to display this component.
-     * 
-     * @return The preferred width of this element.
-     */
-    public int getPreferredWidth() {
-        return preferredWidth;
-    }
+	public void setLabel(String label) {
+		set(LABEL, label);
+	}
 
-    // Flexible element id
-    @Override
-    public int getId() {
-        if (get("id") != null)
-            return (Integer) get("id");
-        else
-            return 0;
-    }
+	// Flexible element validates
+	public boolean getValidates() {
+		return (Boolean) get(VALIDATES);
+	}
 
-    public void setId(int id) {
-        set("id", id);
-    }
+	public void setValidates(boolean validates) {
+		set(VALIDATES, validates);
+	}
 
-    // Flexible element label
-    public String getLabel() {
-        return get("label");
-    }
+	public boolean isFilledIn() {
+		final Boolean filledIn = (Boolean) get(FILLED_IN);
+		return filledIn != null && filledIn;
+	}
 
-    public void setLabel(String label) {
-        set("label", label);
-    }
+	public void setFilledIn(boolean filledIn) {
+		set(FILLED_IN, filledIn);
+	}
 
-    // Flexible element validates
-    public boolean getValidates() {
-        return (Boolean) get("validates");
-    }
+	public boolean getAmendable() {
+		return (Boolean) get(AMENDABLE);
+	}
 
-    public void setValidates(boolean validates) {
-        set("validates", validates);
-    }
-
-    public boolean isFilledIn() {
-        return (Boolean) get("filledIn");
-    }
-
-    public void setFilledIn(boolean filledIn) {
-        set("filledIn", filledIn);
-    }
-
-    public boolean getAmendable() {
-        return (Boolean) get("amendable");
-    }
-
-    public void setAmendable(boolean amendable) {
-        set("amendable", amendable);
-    }
+	public void setAmendable(boolean amendable) {
+		set(AMENDABLE, amendable);
+	}
 
 	public boolean getExportable() {
-		return  (Boolean) get("exportable");
+		return (Boolean) get(EXPORTABLE);
 	}
 
 	public void setExportable(boolean exportable) {
-		set("exportable", exportable);
+		set(EXPORTABLE, exportable);
 	}
-	
+
 	public boolean getGloballyExportable() {
-		return (Boolean) get("globallyExportable");
+		return (Boolean) get(GLOBALLY_EXPORTABLE);
 	}
 
 	public void setGloballyExportable(boolean globallyExportable) {
-		set("globallyExportable", globallyExportable);
+		set(GLOBALLY_EXPORTABLE, globallyExportable);
 	}
-	
-    public boolean isHistorable() {
-        return (Boolean) get("historable");
-    }
 
-    public void setHistorable(boolean historable) {
-        set("historable", historable);
-    }
+	public boolean isHistorable() {
+		return (Boolean) get(HISTORABLE);
+	}
 
-    public PrivacyGroupDTO getPrivacyGroup() {
-        return get("privacyGroup");
-    }
+	public void setHistorable(boolean historable) {
+		set(HISTORABLE, historable);
+	}
 
-    public void setPrivacyGroup(PrivacyGroupDTO privacyGroup) {
-        set("privacyGroup", privacyGroup);
-    }
+	public PrivacyGroupDTO getPrivacyGroup() {
+		return get(PRIVACY_GROUP);
+	}
 
-    protected void ensureHistorable() {
-        if (!isHistorable()) {
-            throw new IllegalStateException("The current flexible element '" + getClass().getName() + "' #" + getId()
-                    + " doesn't manage an history.");
-        }
-    }
+	public void setPrivacyGroup(PrivacyGroupDTO privacyGroup) {
+		set(PRIVACY_GROUP, privacyGroup);
+	}
 
-    /**
-     * Assigns a value to a flexible element.
-     * 
-     * @param result
-     *            The value.
-     */
-    public void assignValue(ValueResult result) {
-        setFilledIn(isCorrectRequiredValue(result));
-    }
+	protected void ensureHistorable() {
+		if (!isHistorable()) {
+			throw new IllegalStateException("The current flexible element '" + getClass().getName() + "' #" + getId() + " doesn't manage an history.");
+		}
+	}
 
-    /**
-     * Returns if a value can be considered as a correct required value for this
-     * specific flexible element.
-     * 
-     * @param result
-     *            The value.
-     * @return If the value can be considered as a correct required value.
-     */
-    public abstract boolean isCorrectRequiredValue(ValueResult result);
+	/**
+	 * Assigns a value to a flexible element.
+	 * 
+	 * @param result
+	 *          The value.
+	 */
+	public void assignValue(ValueResult result) {
+		setFilledIn(isCorrectRequiredValue(result));
+	}
 
-    @Override
-    public String getElementLabel() {
-        return getLabel();
-    }
+	/**
+	 * Returns if a value can be considered as a correct required value for this specific flexible element.
+	 * 
+	 * @param result
+	 *          The value.
+	 * @return If the value can be considered as a correct required value.
+	 */
+	public abstract boolean isCorrectRequiredValue(ValueResult result);
 
-    @Override
-    public Object renderHistoryToken(HistoryTokenListDTO token) {
-        ensureHistorable();
-        return new HistoryTokenText(token);
-    }
+	@Override
+	public String getElementLabel() {
+		return getLabel();
+	}
 
-    public ElementTypeEnum getElementType() {
-        ElementTypeEnum type = null;
-        if (this instanceof TextAreaElementDTO) {
-            type = ElementTypeEnum.TEXT_AREA;
-        }/*
-          * else if(this instanceof BudgetDistributionElementDTO){ type =
-          * ElementTypeEnum.BUDGET; }
-          */else if (this instanceof CheckboxElementDTO) {
-            type = ElementTypeEnum.CHECKBOX;
-        } else if (this instanceof DefaultFlexibleElementDTO) {
-            type = ElementTypeEnum.DEFAULT;
-        } else if (this instanceof FilesListElementDTO) {
-            type = ElementTypeEnum.FILES_LIST;
-        } else if (this instanceof IndicatorsListElementDTO) {
-            type = ElementTypeEnum.INDICATORS;
-        } else if (this instanceof MessageElementDTO) {
-            type = ElementTypeEnum.MESSAGE;
-        } else if (this instanceof QuestionElementDTO) {
-            type = ElementTypeEnum.QUESTION;
-        } else if (this instanceof ReportElementDTO) {
-            type = ElementTypeEnum.REPORT;
-        } else if (this instanceof ReportListElementDTO) {
-            type = ElementTypeEnum.REPORT_LIST;
-        } else if (this instanceof MessageElementDTO) {
-            type = ElementTypeEnum.MESSAGE;
-        } else if (this instanceof TripletsListElementDTO) {
-            type = ElementTypeEnum.TRIPLETS;
-        }
-        return type;
-    }
+	@Override
+	public Object renderHistoryToken(HistoryTokenListDTO token) {
+		ensureHistorable();
+		return new HistoryTokenText(token);
+	}
 
-    public LayoutGroupDTO getGroup() {
-        return get("group");
-    }
+	public ElementTypeEnum getElementType() {
+		ElementTypeEnum type = null;
+		if (this instanceof TextAreaElementDTO) {
+			type = ElementTypeEnum.TEXT_AREA;
+		}/*
+			 * else if(this instanceof BudgetDistributionElementDTO){ type = ElementTypeEnum.BUDGET; }
+			 */else if (this instanceof CheckboxElementDTO) {
+			type = ElementTypeEnum.CHECKBOX;
+		} else if (this instanceof DefaultFlexibleElementDTO) {
+			type = ElementTypeEnum.DEFAULT;
+		} else if (this instanceof FilesListElementDTO) {
+			type = ElementTypeEnum.FILES_LIST;
+		} else if (this instanceof IndicatorsListElementDTO) {
+			type = ElementTypeEnum.INDICATORS;
+		} else if (this instanceof MessageElementDTO) {
+			type = ElementTypeEnum.MESSAGE;
+		} else if (this instanceof QuestionElementDTO) {
+			type = ElementTypeEnum.QUESTION;
+		} else if (this instanceof ReportElementDTO) {
+			type = ElementTypeEnum.REPORT;
+		} else if (this instanceof ReportListElementDTO) {
+			type = ElementTypeEnum.REPORT_LIST;
+		} else if (this instanceof MessageElementDTO) {
+			type = ElementTypeEnum.MESSAGE;
+		} else if (this instanceof TripletsListElementDTO) {
+			type = ElementTypeEnum.TRIPLETS;
+		}
+		return type;
+	}
 
-    public void setGroup(LayoutGroupDTO group) {
-        set("group", group);
-    }
+	public LayoutGroupDTO getGroup() {
+		return get(GROUP);
+	}
 
-    public BaseModelData getContainerModel() {
-        return get("container");
-    }
+	public void setGroup(LayoutGroupDTO group) {
+		set(GROUP, group);
+	}
 
-    public void setContainerModel(BaseModelData model) {
-        set("container", model);
-    }
+	public BaseModelData getContainerModel() {
+		return get(CONTAINER);
+	}
 
-    public LayoutConstraintDTO getConstraint() {
-        return get("constraint");
-    }
+	public void setContainerModel(BaseModelData model) {
+		set(CONTAINER, model);
+	}
 
-    public void setConstraint(LayoutConstraintDTO constraint) {
-        set("constraint", constraint);
-    }
+	public LayoutConstraintDTO getConstraint() {
+		return get(CONSTRAINT);
+	}
 
-    public LayoutConstraintDTO getBannerConstraint() {
-        return get("banner");
-    }
+	public void setConstraint(LayoutConstraintDTO constraint) {
+		set(CONSTRAINT, constraint);
+	}
 
-    public void setBannerConstraint(LayoutConstraintDTO constraint) {
-        set("banner", constraint);
-    }
+	public LayoutConstraintDTO getBannerConstraint() {
+		return get(BANNER);
+	}
+
+	public void setBannerConstraint(LayoutConstraintDTO constraint) {
+		set(BANNER, constraint);
+	}
 }

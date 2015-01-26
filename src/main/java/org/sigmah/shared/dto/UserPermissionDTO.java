@@ -1,127 +1,143 @@
-/*
- * All Sigmah code is released under the GNU General Public License v3
- * See COPYRIGHT.txt and LICENSE.txt.
- */
-
 package org.sigmah.shared.dto;
 
-import com.extjs.gxt.ui.client.data.BaseModelData;
+import org.sigmah.client.util.ToStringBuilder;
+import org.sigmah.shared.dto.base.AbstractModelDataDTO;
 
 /**
- * Projection DTO of the {@link org.sigmah.shared.domain.UserPermission UserPermission}
- * domain object
+ * Projection DTO of the {@link org.sigmah.server.domain.UserPermission UserPermission} domain object.
  *
  * @author Alex Bertram
+ * @author Denis Colliot (dcolliot@ideia.fr)
  */
-public final class UserPermissionDTO extends BaseModelData implements DTO {
+public final class UserPermissionDTO extends AbstractModelDataDTO {
 
-    private static final long serialVersionUID = -8402651897719157011L;
+	/**
+	 * Serial version UID.
+	 */
+	private static final long serialVersionUID = -8402651897719157011L;
 
-    public UserPermissionDTO() {
-        setAllowView(true);
-        setAllowViewAll(false);
-        setAllowEdit(false);
-        setAllowEditAll(false);
-        setAllowManageUsers(false);
-        setAllowManageAllUsers(false);
-        setAllowDesign(false);
-    }
+	public UserPermissionDTO() {
+		setAllowView(true);
+		setAllowViewAll(false);
+		setAllowEdit(false);
+		setAllowEditAll(false);
+		setAllowManageUsers(false);
+		setAllowManageAllUsers(false);
+		setAllowDesign(false);
+	}
 
-    public void setName(String value) {
-        set("name", value);
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void appendToString(final ToStringBuilder builder) {
+		builder.append("name", getName());
+		builder.append("firstName", getFirstName());
+		builder.append("email", getEmail());
+		builder.append("allowView", getAllowView());
+		builder.append("allowDesign", getAllowDesign());
+		builder.append("allowViewAll", getAllowViewAll());
+		builder.append("allowEdit", getAllowEdit());
+		builder.append("allowEditAll", getAllowEditAll());
+		builder.append("allowManageUsers", getAllowManageUsers());
+		builder.append("allowManageAllUsers", getAllowManageAllUsers());
+	}
 
-    /**
-     * Returns the User's name.
-     *
-     * @return the user's name
-     */
-    public String getName() {
-        return get("name");
-    }
-    
-    public String getFirstName() {
-        return get("firstName");
-    }
+	public void setName(String value) {
+		set("name", value);
+	}
 
-    public void setFirstName(String firstName) {
-        set("firstName", firstName);
-    }
+	/**
+	 * Returns the User's name.
+	 *
+	 * @return the user's name
+	 */
+	public String getName() {
+		return get("name");
+	}
 
-    public void setEmail(String value) {
-        set("email", value);
-    }
+	public String getFirstName() {
+		return get("firstName");
+	}
 
-    /**
-     * Returns the User's email
-     *
-     * @return the User's email
-     */
-    public String getEmail() {
-        return get("email");
-    }
+	public void setFirstName(String firstName) {
+		set("firstName", firstName);
+	}
 
-    public void setAllowView(boolean value) {
-        set("allowView", value);
-    }
+	public void setEmail(String value) {
+		set("email", value);
+	}
 
-    public void setAllowDesign(boolean value) {
-        set("allowDesign", value);
-    }
+	/**
+	 * Returns the User's email
+	 *
+	 * @return the User's email
+	 */
+	public String getEmail() {
+		return get("email");
+	}
 
-    public boolean getAllowDesign() {
-        return (Boolean) get("allowDesign");
-    }
+	public void setAllowView(boolean value) {
+		set("allowView", value);
+	}
 
-    public boolean getAllowView() {
-        return (Boolean) get("allowView");
-    }
+	public void setAllowDesign(boolean value) {
+		set("allowDesign", value);
+	}
 
-    public void setAllowViewAll(boolean value) {
-        set("allowViewAll", value);
-    }
+	public boolean getAllowDesign() {
+		return (Boolean) get("allowDesign");
+	}
 
-    public boolean getAllowViewAll() {
-        return (Boolean) get("allowViewAll");
-    }
+	public boolean getAllowView() {
+		return (Boolean) get("allowView");
+	}
 
-    public void setAllowEdit(boolean value) {
-        set("allowEdit", value);
-    }
+	public void setAllowViewAll(boolean value) {
+		set("allowViewAll", value);
+	}
 
-    public boolean getAllowEdit() {
-        return (Boolean) get("allowEdit");
-    }
+	public boolean getAllowViewAll() {
+		return (Boolean) get("allowViewAll");
+	}
 
-    public void setAllowEditAll(boolean value) {
-        set("allowEditAll", value);
-    }
+	public void setAllowEdit(boolean value) {
+		set("allowEdit", value);
+	}
 
-    public boolean getAllowEditAll() {
-        return (Boolean) get("allowEditAll");
-    }
+	public boolean getAllowEdit() {
+		return (Boolean) get("allowEdit");
+	}
 
-    public boolean getAllowManageUsers() {
-        return (Boolean) get("allowManageUsers");
-    }
+	public void setAllowEditAll(boolean value) {
+		set("allowEditAll", value);
+	}
 
-    public void setAllowManageUsers(boolean allowManageUsers) {
-        set("allowManageUsers", allowManageUsers);
-    }
+	public boolean getAllowEditAll() {
+		return (Boolean) get("allowEditAll");
+	}
 
-    public boolean getAllowManageAllUsers() {
-        return (Boolean) get("allowManageAllUsers");
-    }
+	public boolean getAllowManageUsers() {
+		return (Boolean) get("allowManageUsers");
+	}
 
-    public void setAllowManageAllUsers(boolean allowManageAll) {
-        set("allowManageAllUsers", allowManageAll);
-    }
+	public void setAllowManageUsers(boolean allowManageUsers) {
+		set("allowManageUsers", allowManageUsers);
+	}
 
-    public PartnerDTO getPartner() {
-        return get("partner");
-    }
+	public boolean getAllowManageAllUsers() {
+		return (Boolean) get("allowManageAllUsers");
+	}
 
-    public void setPartner(PartnerDTO value) {
-        set("partner", value);
-    }
+	public void setAllowManageAllUsers(boolean allowManageAll) {
+		set("allowManageAllUsers", allowManageAll);
+	}
+
+	public PartnerDTO getPartner() {
+		return get("partner");
+	}
+
+	public void setPartner(PartnerDTO value) {
+		set("partner", value);
+	}
 }

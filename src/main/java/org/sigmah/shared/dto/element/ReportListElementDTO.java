@@ -1,7 +1,3 @@
-/*
- * See COPYRIGHT.txt and LICENSE.txt.
- */
-
 package org.sigmah.shared.dto.element;
 
 import java.io.Serializable;
@@ -9,25 +5,25 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
-import org.sigmah.client.event.NavigationEvent;
+import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.i18n.I18N;
-import org.sigmah.client.icon.IconImageBundle;
-import org.sigmah.client.page.NavigationHandler;
-import org.sigmah.client.page.PageState;
-import org.sigmah.client.page.orgunit.OrgUnitPresenter;
-import org.sigmah.client.page.orgunit.OrgUnitState;
-import org.sigmah.client.page.project.ProjectPresenter;
-import org.sigmah.client.page.project.ProjectState;
-import org.sigmah.client.ui.FlexibleGrid;
+import org.sigmah.client.page.Page;
+import org.sigmah.client.page.PageRequest;
+import org.sigmah.client.page.RequestParameter;
+import org.sigmah.client.ui.notif.ConfirmCallback;
+import org.sigmah.client.ui.notif.N10N;
+import org.sigmah.client.ui.res.icon.IconImageBundle;
+import org.sigmah.client.ui.widget.FlexibleGrid;
 import org.sigmah.client.util.DateUtils;
-import org.sigmah.client.util.Notification;
+import org.sigmah.client.util.ToStringBuilder;
 import org.sigmah.shared.command.CreateEntity;
 import org.sigmah.shared.command.Delete;
 import org.sigmah.shared.command.result.CreateResult;
 import org.sigmah.shared.command.result.ValueResult;
 import org.sigmah.shared.command.result.VoidResult;
-import org.sigmah.shared.dto.OrgUnitDTO;
 import org.sigmah.shared.dto.ProjectDTO;
+import org.sigmah.shared.dto.orgunit.OrgUnitDTO;
+import org.sigmah.shared.dto.report.ProjectReportDTO;
 import org.sigmah.shared.dto.report.ReportReference;
 
 import com.allen_sauer.gwt.log.client.Log;
@@ -48,7 +44,6 @@ import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Image;
 
@@ -56,268 +51,288 @@ import com.google.gwt.user.client.ui.Image;
  * Flexible element that can contain a list of project reports.
  * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
+ * @author Denis Colliot (dcolliot@ideia.fr)
  */
 @SuppressWarnings({
-                   "rawtypes",
-                   "unchecked" })
+										"rawtypes",
+										"unchecked"
+})
 public class ReportListElementDTO extends FlexibleElementDTO {
 
-    private static final long serialVersionUID = 4984099670087438625L;
+	/**
+	 * Serial version UID.
+	 */
+	private static final long serialVersionUID = 4984099670087438625L;
 
-    public Integer getModelId() {
-        return get("modelId");
-    }
+	/**
+	 * DTO corresponding entity name.
+	 */
+	public static final String ENTITY_NAME = "element.ReportListElement";
 
-    public void setModelId(Integer modelId) {
-        set("modelId", modelId);
-    }
+	// DTO attributes keys.
+	public static final String MODEL_ID = ReportElementDTO.MODEL_ID;
 
-    @Override
-    protected Component getComponent(ValueResult valueResult, boolean enabled) {
-        final ContentPanel component = new ContentPanel();
-        component.setHeading(getLabel());
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getEntityName() {
+		return ENTITY_NAME;
+	}
 
-        // Setting up the report store
-        final List<?> reports = valueResult.getValuesObject();
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void appendToString(final ToStringBuilder builder) {
+		builder.append(MODEL_ID, getModelId());
+	}
 
-        final ListStore<ReportReference> store = new ListStore<ReportReference>();
-        if (reports != null)
-            store.add((List<ReportReference>) reports);
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected Component getComponent(ValueResult valueResult, boolean enabled) {
+		final ContentPanel component = new ContentPanel();
+		component.setHeadingText(getLabel());
 
-        // Creating the toolbar
-        component.setTopComponent(createToolbar(enabled, store));
+		// Setting up the report store
+		final List<?> reports = valueResult.getValuesObject();
 
-        // Creating the grid
-        final FlexibleGrid<ReportReference> reportGrid =
-                new FlexibleGrid<ReportReference>(store, null, createColumnModel(enabled));
-        reportGrid.setAutoExpandColumn("name");
-        reportGrid.setVisibleElementsCount(5);
+		final ListStore<ReportReference> store = new ListStore<ReportReference>();
+		if (reports != null)
+			store.add((List<ReportReference>) reports);
 
-        component.add(reportGrid);
+		// Creating the toolbar
+		component.setTopComponent(createToolbar(enabled, store));
 
-        return component;
-    }
+		// Creating the grid
+		final FlexibleGrid<ReportReference> reportGrid = new FlexibleGrid<ReportReference>(store, null, createColumnModel(enabled));
+		reportGrid.setAutoExpandColumn("name");
+		reportGrid.setVisibleElementsCount(5);
 
-    @Override
-    public boolean isCorrectRequiredValue(ValueResult result) {
-        final List<?> reports = result.getValuesObject();
-        return reports != null && !reports.isEmpty();
-    }
+		component.add(reportGrid);
 
-    @Override
-    public String getEntityName() {
-        return "element.ReportListElement";
-    }
+		return component;
+	}
 
-    private PageState createPageState(final Integer reportId) {
-        // Report & Document path
-        final PageState targetState;
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean isCorrectRequiredValue(ValueResult result) {
+		final List<?> reports = result.getValuesObject();
+		return reports != null && !reports.isEmpty();
+	}
 
-        if (currentContainerDTO instanceof ProjectDTO) {
-            // This element is displayed in a project
-            final ProjectState state = new ProjectState(currentContainerDTO.getId());
-            state.setCurrentSection(ProjectPresenter.REPORT_TAB_INDEX);
-            state.setArgument(reportId.toString());
-            targetState = state;
+	private PageRequest createPageRequest(final Integer reportId) {
+		// Report & Document path
+		final PageRequest request;
 
-        } else if (currentContainerDTO instanceof OrgUnitDTO) {
-            // This element is displayed in a project
-            final OrgUnitState state = new OrgUnitState(currentContainerDTO.getId());
-            state.setCurrentSection(OrgUnitPresenter.REPORT_TAB_INDEX);
-            state.setArgument(reportId.toString());
-            targetState = state;
+		if (currentContainerDTO instanceof ProjectDTO) {
+			// This element is displayed in a project
+			request = new PageRequest(Page.PROJECT_REPORTS);
+			request.addParameter(RequestParameter.ID, currentContainerDTO.getId());
+			request.addParameter(RequestParameter.REPORT_ID, reportId);
 
-        } else {
-            Log.debug("ReportElementDTO does not know how to render properly from a '"
-                + currentContainerDTO.getClass()
-                + "' container.");
-            targetState = null;
-        }
+		} else if (currentContainerDTO instanceof OrgUnitDTO) {
+			// This element is displayed in a project
+			request = new PageRequest(Page.ORGUNIT_REPORTS);
+			request.addParameter(RequestParameter.ID, currentContainerDTO.getId());
+			request.addParameter(RequestParameter.REPORT_ID, reportId);
 
-        return targetState;
-    }
+		} else {
+			if (Log.isDebugEnabled()) {
+				Log.debug("ReportElementDTO does not know how to render properly from a '" + currentContainerDTO.getClass() + "' container.");
+			}
+			request = null;
+		}
 
-    /**
-     * Creates and configure the column model for the grid contained in this component.
-     * 
-     * @param enabled
-     *            <code>true</code> to enable the delete column, <code>false</code> to disable it.
-     * @return A new array of column configs.
-     */
-    private ColumnConfig[] createColumnModel(final boolean enabled) {
-        // Creating columns
-        final ColumnConfig lastEditDateColumn =
-                new ColumnConfig("lastEditDate", I18N.CONSTANTS.reportLastEditDate(), 60);
-        final ColumnConfig nameColumn = new ColumnConfig("name", I18N.CONSTANTS.reportName(), 100);
-        final ColumnConfig editorNameColumn = new ColumnConfig("editorName", I18N.CONSTANTS.reportEditor(), 100);
-        final ColumnConfig deleteColumn = new ColumnConfig("delete", "", 10);
+		return request;
+	}
 
-        // Date column specificities
-        lastEditDateColumn.setDateTimeFormat(DateUtils.DATE_SHORT);
+	/**
+	 * Creates and configure the column model for the grid contained in this component.
+	 * 
+	 * @param enabled
+	 *          <code>true</code> to enable the delete column, <code>false</code> to disable it.
+	 * @return A new array of column configs.
+	 */
+	private ColumnConfig[] createColumnModel(final boolean enabled) {
+		// Creating columns
+		final ColumnConfig lastEditDateColumn = new ColumnConfig("lastEditDate", I18N.CONSTANTS.reportLastEditDate(), 60);
+		final ColumnConfig nameColumn = new ColumnConfig("name", I18N.CONSTANTS.reportName(), 100);
+		final ColumnConfig editorNameColumn = new ColumnConfig("editorName", I18N.CONSTANTS.reportEditor(), 100);
+		final ColumnConfig deleteColumn = new ColumnConfig("delete", "", 10);
 
-        // Name column specificities
-        nameColumn.setRenderer(new GridCellRenderer<ReportReference>() {
+		// Date column specificities
+		lastEditDateColumn.setDateTimeFormat(DateUtils.DATE_SHORT);
 
-            @Override
-            public Object render(final ReportReference model, String property, ColumnData config, int rowIndex,
-                    int colIndex, ListStore store, Grid grid) {
-                final Anchor anchor = new Anchor((String) model.get(property));
-                anchor.addStyleName("flexibility-link");
-                anchor.addClickHandler(new ClickHandler() {
+		// Name column specificities
+		nameColumn.setRenderer(new GridCellRenderer<ReportReference>() {
 
-                    @Override
-                    public void onClick(ClickEvent event) {
-                        eventBus.fireEvent(new NavigationEvent(NavigationHandler.NavigationRequested,
-                            createPageState(model.getId()), null));
-                    }
-                });
-                return anchor;
-            }
-        });
+			@Override
+			public Object render(final ReportReference model, String property, ColumnData config, int rowIndex, int colIndex, ListStore store, Grid grid) {
+				final Anchor anchor = new Anchor((String) model.get(property));
+				anchor.addStyleName("flexibility-link");
+				anchor.addClickHandler(new ClickHandler() {
 
-        // Delete column specificities
-        deleteColumn.setSortable(false);
-        deleteColumn.setRenderer(new GridCellRenderer<ReportReference>() {
+					@Override
+					public void onClick(ClickEvent event) {
+						eventBus.navigateRequest(createPageRequest(model.getId()));
+					}
+				});
+				return anchor;
+			}
+		});
 
-            @Override
-            public Object render(final ReportReference model, String property, ColumnData config, int rowIndex,
-                    int colIndex, final ListStore store, Grid grid) {
-                if (enabled) {
-                    final Image image = IconImageBundle.ICONS.remove().createImage();
-                    image.setTitle(I18N.CONSTANTS.remove());
-                    image.addStyleName("flexibility-action");
+		// Delete column specificities
+		deleteColumn.setSortable(false);
+		deleteColumn.setRenderer(new GridCellRenderer<ReportReference>() {
 
-                    // Action
-                    image.addClickHandler(new ClickHandler() {
+			@Override
+			public Object render(final ReportReference model, String property, ColumnData config, int rowIndex, int colIndex, final ListStore store, Grid grid) {
+				if (enabled) {
+					final Image image = IconImageBundle.ICONS.remove().createImage();
+					image.setTitle(I18N.CONSTANTS.remove());
+					image.addStyleName("flexibility-action");
 
-                        @Override
-                        public void onClick(ClickEvent event) {
-                            MessageBox.confirm(I18N.CONSTANTS.remove(),
-                                I18N.MESSAGES.reportRemoveConfirm(model.getName()), new Listener<MessageBoxEvent>() {
+					// Action
+					image.addClickHandler(new ClickHandler() {
 
-                                    @Override
-                                    public void handleEvent(MessageBoxEvent be) {
-                                        if (Dialog.YES.equals(be.getButtonClicked().getItemId())) {
-                                            // TODO: Delete the report
-                                            Log.debug("Removing '" + model.getName() + "'...");
-                                            final Delete delete = new Delete("report.ProjectReport", model.getId());
-                                            dispatcher.execute(delete, null, new AsyncCallback<VoidResult>() {
+						@Override
+						public void onClick(ClickEvent event) {
+							N10N.confirmation(I18N.CONSTANTS.remove(), I18N.MESSAGES.reportRemoveConfirm(model.getName()), new ConfirmCallback() {
 
-                                                @Override
-                                                public void onSuccess(VoidResult result) {
-                                                    store.remove(model);
-                                                    Notification.show("OK", "OK");
-                                                }
+								@Override
+								public void onAction() {
+									// TODO: Delete the report
+									if (Log.isDebugEnabled()) {
+										Log.debug("Removing '" + model.getName() + "' report...");
+									}
 
-                                                @Override
-                                                public void onFailure(Throwable caught) {
-                                                    MessageBox.alert("ERROR", "ERROR", null);
-                                                }
+									dispatch.execute(new Delete(ProjectReportDTO.ENTITY_NAME, model.getId()), new CommandResultHandler<VoidResult>() {
 
-                                            });
-                                        }
-                                    }
-                                });
-                        }
-                    });
+										@Override
+										public void onCommandSuccess(final VoidResult result) {
+											store.remove(model);
+											N10N.validNotif("OK", "OK");
+										}
 
-                    return image;
-                } else {
-                    return "-";
-                }
-            }
-        });
+										@Override
+										public void onCommandFailure(final Throwable caught) {
+											N10N.warn("ERROR", "ERROR");
+										}
 
-        return new ColumnConfig[] {
-                                   lastEditDateColumn,
-                                   nameColumn,
-                                   editorNameColumn,
-                                   deleteColumn };
-    }
+									});
+								}
+							});
+						}
+					});
 
-    /**
-     * Creates the toolbar of this component.
-     * 
-     * @param enabled
-     *            <code>true</code> to enable the buttons of this toolbar, <code>false</code> to disable them.
-     * @return A new toolbar.
-     */
-    private ToolBar createToolbar(final boolean enabled, final ListStore<ReportReference> store) {
-        final ToolBar toolbar = new ToolBar();
+					return image;
+				} else {
+					return "-";
+				}
+			}
+		});
 
-        // Creating buttons
-        final Button createReportButton = new Button(I18N.CONSTANTS.reportCreateReport(), IconImageBundle.ICONS.add());
+		return new ColumnConfig[] {
+																lastEditDateColumn,
+																nameColumn,
+																editorNameColumn,
+																deleteColumn
+		};
+	}
 
-        // "Create" button action
-        createReportButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+	/**
+	 * Creates the toolbar of this component.
+	 * 
+	 * @param enabled
+	 *          <code>true</code> to enable the buttons of this toolbar, <code>false</code> to disable them.
+	 * @return A new toolbar.
+	 */
+	private ToolBar createToolbar(final boolean enabled, final ListStore<ReportReference> store) {
+		final ToolBar toolbar = new ToolBar();
 
-            @Override
-            public void componentSelected(ButtonEvent ce) {
-                MessageBox.prompt(I18N.CONSTANTS.reportCreateReport(), I18N.CONSTANTS.reportName(),
-                    new Listener<MessageBoxEvent>() {
+		// Creating buttons
+		final Button createReportButton = new Button(I18N.CONSTANTS.reportCreateReport(), IconImageBundle.ICONS.add());
 
-                        @Override
-                        public void handleEvent(MessageBoxEvent be) {
-                            if (Dialog.OK.equals(be.getButtonClicked().getItemId())) {
-                                final String name = be.getValue();
+		// "Create" button action
+		createReportButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
-                                final HashMap<String, Serializable> properties = new HashMap<String, Serializable>();
-                                properties.put("name", name);
-                                properties.put("flexibleElementId", getId());
-                                properties.put("reportModelId", getModelId());
-                                properties.put("containerId", currentContainerDTO.getId());
-                                if (currentContainerDTO instanceof ProjectDTO)
-                                    properties.put("projectId", currentContainerDTO.getId());
+			@Override
+			public void componentSelected(ButtonEvent ce) {
+				MessageBox.prompt(I18N.CONSTANTS.reportCreateReport(), I18N.CONSTANTS.reportName(), new Listener<MessageBoxEvent>() {
 
-                                if (currentContainerDTO instanceof OrgUnitDTO)
-                                    properties.put("orgUnitId", currentContainerDTO.getId());
+					@Override
+					public void handleEvent(MessageBoxEvent be) {
+						if (Dialog.OK.equals(be.getButtonClicked().getItemId())) {
+							final String name = be.getValue();
 
-                                properties.put("multiple", true);
+							final HashMap<String, Serializable> properties = new HashMap<String, Serializable>();
+							properties.put("name", name);
+							properties.put("flexibleElementId", getId());
+							properties.put("reportModelId", getModelId());
+							properties.put("containerId", currentContainerDTO.getId());
+							if (currentContainerDTO instanceof ProjectDTO)
+								properties.put("projectId", currentContainerDTO.getId());
 
-                                if (currentContainerDTO instanceof ProjectDTO)
-                                    properties.put("phaseName", ((ProjectDTO) currentContainerDTO).getCurrentPhaseDTO()
-                                        .getPhaseModelDTO().getName());
+							if (currentContainerDTO instanceof OrgUnitDTO)
+								properties.put("orgUnitId", currentContainerDTO.getId());
 
-                                if (currentContainerDTO instanceof OrgUnitDTO)
-                                    properties.put("phaseName", null);
+							properties.put("multiple", true);
 
-                                final CreateEntity createEntity = new CreateEntity("ProjectReport", properties);
+							if (currentContainerDTO instanceof ProjectDTO)
+								properties.put("phaseName", ((ProjectDTO) currentContainerDTO).getCurrentPhase().getPhaseModel().getName());
 
-                                dispatcher.execute(createEntity, null, new AsyncCallback<CreateResult>() {
+							if (currentContainerDTO instanceof OrgUnitDTO)
+								properties.put("phaseName", null);
 
-                                    @Override
-                                    public void onFailure(Throwable caught) {
-                                        MessageBox.alert(I18N.CONSTANTS.projectTabReports(),
-                                            I18N.CONSTANTS.reportCreateError(), null);
-                                    }
+							dispatch.execute(new CreateEntity(ProjectReportDTO.ENTITY_NAME, properties), new CommandResultHandler<CreateResult>() {
 
-                                    @Override
-                                    public void onSuccess(CreateResult result) {
-                                        final ReportReference reference = new ReportReference();
-                                        reference.setId(result.getNewId());
-                                        reference.setName(name);
-                                        reference.setLastEditDate(new Date());
-                                        reference.setEditorName(authentication.getUserShortName());
-                                        store.add(reference);
+								@Override
+								public void onCommandFailure(final Throwable caught) {
+									N10N.error(I18N.CONSTANTS.projectTabReports(), I18N.CONSTANTS.reportCreateError());
+								}
 
-                                        Notification.show(I18N.CONSTANTS.projectTabReports(),
-                                            I18N.CONSTANTS.reportCreateSuccess());
-                                    }
+								@Override
+								public void onCommandSuccess(final CreateResult result) {
 
-                                });
-                            }
-                        }
-                    });
-            }
-        });
+									final ProjectReportDTO createdProjetReport = (ProjectReportDTO) result.getEntity();
 
-        // Enabling / desabling buttons
-        createReportButton.setEnabled(enabled);
+									final ReportReference reference = new ReportReference();
+									reference.setId(createdProjetReport.getId());
+									reference.setName(name);
+									reference.setLastEditDate(new Date());
+									reference.setEditorName(auth().getUserShortName());
+									store.add(reference);
 
-        // Adding buttons to the toolbar
-        toolbar.add(createReportButton);
+									N10N.validNotif(I18N.CONSTANTS.projectTabReports(), I18N.CONSTANTS.reportCreateSuccess());
+								}
 
-        return toolbar;
-    }
+							});
+						}
+					}
+				});
+			}
+		});
+
+		// Enabling / desabling buttons
+		createReportButton.setEnabled(enabled);
+
+		// Adding buttons to the toolbar
+		toolbar.add(createReportButton);
+
+		return toolbar;
+	}
+
+	public Integer getModelId() {
+		return get(MODEL_ID);
+	}
+
+	public void setModelId(Integer modelId) {
+		set(MODEL_ID, modelId);
+	}
 
 }

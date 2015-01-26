@@ -1,30 +1,35 @@
 package org.sigmah.shared.dto;
 
-import com.extjs.gxt.ui.client.data.BaseModelData;
+import org.sigmah.shared.dto.base.AbstractModelDataEntityDTO;
 
 /**
  * DTO mapping class for entity PhaseModelDefinition.
  * 
  * @author tmi
- * 
+ * @author Denis Colliot (dcolliot@ideia.fr)
  */
-public class PhaseModelDefinitionDTO extends BaseModelData implements EntityDTO {
+public class PhaseModelDefinitionDTO extends AbstractModelDataEntityDTO<Integer> {
 
-    private static final long serialVersionUID = 1745325814814487880L;
+	/**
+	 * Serial version UID.
+	 */
+	private static final long serialVersionUID = 1745325814814487880L;
 
-    @Override
-    public String getEntityName() {
-        return "PhaseModelDefinition";
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getEntityName() {
+		return "PhaseModelDefinition";
+	}
 
-    // Definition id.
-    @Override
-    public int getId() {
-        final Integer id = (Integer) get("id");
-        return id != null ? id : -1;
-    }
+	// Definition id.
+	@Override
+	public Integer getId() {
+		return get("id");
+	}
 
-    public void setId(int id) {
-        set("id", id);
-    }
+	public void setId(Integer id) {
+		set("id", id);
+	}
 }

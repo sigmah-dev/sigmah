@@ -1,167 +1,185 @@
-/*
- * All Sigmah code is released under the GNU General Public License v3
- * See COPYRIGHT.txt and LICENSE.txt.
- */
-
 package org.sigmah.shared.dto;
 
-import com.extjs.gxt.ui.client.data.BaseModelData;
-import org.sigmah.shared.report.model.ReportFrequency;
+import org.sigmah.client.util.ToStringBuilder;
+import org.sigmah.shared.dto.base.AbstractModelDataEntityDTO;
+import org.sigmah.shared.dto.referential.ReportFrequency;
 
 /**
  * One-to-one DTO for the {@link org.sigmah.server.domain.ReportDefinition} domain class
  *
  * @author Alex Bertram
+ * @author Denis Colliot (dcolliot@ideia.fr)
  */
-public final class ReportDefinitionDTO extends BaseModelData implements DTO {
+public final class ReportDefinitionDTO extends AbstractModelDataEntityDTO<Integer> {
 
-    private static final long serialVersionUID = 8176612048620814942L;
-    /**
-     * Dummy reference to assure that GWT includes ReportFrequency is included
-     * in the list of classes to serialize.
-     */
-    @SuppressWarnings("unused")
-    private ReportFrequency freq_;
+	/**
+	 * Serial version UID.
+	 */
+	private static final long serialVersionUID = 8176612048620814942L;
 
-    public ReportDefinitionDTO() {
+	/**
+	 * Dummy reference to assure that GWT includes ReportFrequency is included in the list of classes to serialize.
+	 */
+	@SuppressWarnings("unused")
+	private ReportFrequency freq_;
+
+	public ReportDefinitionDTO() {
 		setFrequency(ReportFrequency.NotDateBound);
 	}
 
-    /**
-     * @return this ReportDefinition's id
-     */
-    public int getId() {
-		return (Integer)get("id");
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getEntityName() {
+		return "ReportDefinition";
 	}
 
-    /**
-     * Sets the id of this ReportDefinition
-     */
-	public void setId(int id) {
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void appendToString(final ToStringBuilder builder) {
+		builder.append("title", getTitle());
+		builder.append("frequency", getFrequency());
+		builder.append("ownerName", getOwnerName());
+	}
+
+	/**
+	 * @return this ReportDefinition's id
+	 */
+	@Override
+	public Integer getId() {
+		return (Integer) get("id");
+	}
+
+	/**
+	 * Sets the id of this ReportDefinition
+	 */
+	public void setId(Integer id) {
 		set("id", id);
 	}
 
-    /**
-     * Sets the title of this ReportDefinition
-     *
-     */
+	/**
+	 * Sets the title of this ReportDefinition
+	 */
 	public void setTitle(String title) {
 		set("title", title);
 	}
 
-    /**
-     * @return the title of this ReportDefinition
-     */
+	/**
+	 * @return the title of this ReportDefinition
+	 */
 	public String getTitle() {
 		return get("title");
 	}
 
-    /**
-     * Sets the description of this ReportDefinition
-     */
+	/**
+	 * Sets the description of this ReportDefinition
+	 */
 	public void setDescription(String description) {
 		set("description", description);
 	}
 
-    /**
-     * @return  the description of this ReportDefinition
-     */
+	/**
+	 * @return the description of this ReportDefinition
+	 */
 	public String getDescription() {
 		return get("description");
 	}
 
-    /**
-     * Sets the name of the UserDatabase which this ReportDefinition references.
-     * If this ReportDefinition references multiple UserDatabases, name should be null.
-     */
-    public void setDatabaseName(String name) {
-        set("databaseName", name);
-    }
-    /**
-     *
-     * @return true if the current user permission to edit this report definition
-     */
-	public boolean isEditAllowed() {
-		return (Boolean)get("editAllowed");
+	/**
+	 * Sets the name of the UserDatabase which this ReportDefinition references. If this ReportDefinition references
+	 * multiple UserDatabases, name should be null.
+	 */
+	public void setDatabaseName(String name) {
+		set("databaseName", name);
 	}
 
-    /**
-     * Sets the permission of the current user to edit this report definition
-     */
+	/**
+	 * @return true if the current user permission to edit this report definition
+	 */
+	public boolean isEditAllowed() {
+		return (Boolean) get("editAllowed");
+	}
+
+	/**
+	 * Sets the permission of the current user to edit this report definition
+	 */
 	public void setEditAllowed(boolean allowed) {
 		set("editAllowed", allowed);
 	}
 
-    /**
-     * @return  the name of the User who owns this ReportDefinition
-     */
+	/**
+	 * @return the name of the User who owns this ReportDefinition
+	 */
 	public String getOwnerName() {
 		return get("ownerName");
 	}
 
-    /**
-     * Sets the name of the User who own this ReportDefinition
-     */
+	/**
+	 * Sets the name of the User who own this ReportDefinition
+	 */
 	public void setOwnerName(String name) {
 		set("ownerName", name);
 	}
 
-    /**
-     * Sets whether the current user is the owner of this ReportDefintion
-     */
-    public void setAmOwner(boolean amOwner) {
+	/**
+	 * Sets whether the current user is the owner of this ReportDefintion
+	 */
+	public void setAmOwner(boolean amOwner) {
 		set("amOwner", amOwner);
 	}
 
-    /**
-     * @return true if the current user is the owner of this ReportDefinition
-     */
+	/**
+	 * @return true if the current user is the owner of this ReportDefinition
+	 */
 	public boolean getAmOwner() {
-		return (Boolean)get("amOwner");
+		return (Boolean) get("amOwner");
 	}
 
-    /**
-     * @return the ReportFrequency of this ReportDefinition
-     */
-    public ReportFrequency getFrequency() {
-        return get("frequency");
-    }
+	/**
+	 * @return the ReportFrequency of this ReportDefinition
+	 */
+	public ReportFrequency getFrequency() {
+		return get("frequency");
+	}
 
-    /**
-     * Sets the ReportFrequency of this ReportDefinition
-     */
-    public void setFrequency(ReportFrequency frequency) {
-        set("frequency", frequency);
-    }
+	/**
+	 * Sets the ReportFrequency of this ReportDefinition
+	 */
+	public void setFrequency(ReportFrequency frequency) {
+		set("frequency", frequency);
+	}
 
-    /**
-     * @return the day of the month [1, 31] on which this ReportDefinition is to be published
-     */
-    public Integer getDay() {
-        return get("day");
-    }
+	/**
+	 * @return the day of the month [1, 31] on which this ReportDefinition is to be published
+	 */
+	public Integer getDay() {
+		return get("day");
+	}
 
-    /**
-     * Sets the day of the month on which this ReportDefinition is to be published.
-     */
-    public void setDay(Integer day) {
-        set("day", day);
-    }
+	/**
+	 * Sets the day of the month on which this ReportDefinition is to be published.
+	 */
+	public void setDay(Integer day) {
+		set("day", day);
+	}
 
-    /**
-     * See {@link org.sigmah.server.domain.ReportSubscription#isSubscribed()}
-     *
-     * @return true if the current user is subscribed to this ReportDefinition
-     */
-    public boolean isSubscribed() {
-        return (Boolean)get("subscribed");
-    }
+	/**
+	 * See {@link org.sigmah.server.domain.ReportSubscription#isSubscribed()}
+	 *
+	 * @return true if the current user is subscribed to this ReportDefinition
+	 */
+	public boolean isSubscribed() {
+		return (Boolean) get("subscribed");
+	}
 
-    /**
-     * Sets whether the current user is subscribed to this ReportDefinition.
-     * See {@link org.sigmah.server.domain.ReportSubscription#setSubscribed(boolean)}
-     */
-    public void setSubscribed(boolean subscribed) {
-        set("subscribed", subscribed);
-    }
+	/**
+	 * Sets whether the current user is subscribed to this ReportDefinition. See
+	 * {@link org.sigmah.server.domain.ReportSubscription#setSubscribed(boolean)}
+	 */
+	public void setSubscribed(boolean subscribed) {
+		set("subscribed", subscribed);
+	}
 }

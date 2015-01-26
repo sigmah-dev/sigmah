@@ -1,23 +1,43 @@
-/*
- * All Sigmah code is released under the GNU General Public License v3
- * See COPYRIGHT.txt and LICENSE.txt.
- */
 package org.sigmah.shared.dto;
 
-import com.extjs.gxt.ui.client.data.BaseModelData;
+import org.sigmah.client.util.ToStringBuilder;
+import org.sigmah.shared.dto.base.AbstractModelDataEntityDTO;
 
-/*
+/**
+ * Global export DTO.
+ * 
  * @author sherzod
+ * @author Denis Colliot (dcolliot@ideia.fr)
  */
-public class GlobalExportDTO extends BaseModelData implements EntityDTO{
+public class GlobalExportDTO extends AbstractModelDataEntityDTO<Integer> {
 
+	/**
+	 * Serial version UID.
+	 */
+	private static final long serialVersionUID = 5703841931268336169L;
+
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public int getId() {
-		final Integer id = (Integer) get("id");
-		return id != null ? id : -1;
+	protected void appendToString(final ToStringBuilder builder) {
+		builder.append("date", getDate());
 	}
 
-	public void setId(int id) {
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getEntityName() {
+		return "GlobalExport";
+	}
+
+	@Override
+	public Integer getId() {
+		return get("id");
+	}
+
+	public void setId(Integer id) {
 		set("id", id);
 	}
 
@@ -27,11 +47,6 @@ public class GlobalExportDTO extends BaseModelData implements EntityDTO{
 
 	public void setDate(String date) {
 		set("date", date);
-	}
-
-	@Override
-	public String getEntityName() {
- 		return "GlobalExport";
 	}
 
 }

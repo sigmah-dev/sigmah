@@ -1,126 +1,131 @@
-/*
- * All Sigmah code is released under the GNU General Public License v3
- * See COPYRIGHT.txt and LICENSE.txt.
- */
-
 package org.sigmah.shared.dto;
 
 import java.util.Date;
 import java.util.List;
 
-import com.extjs.gxt.ui.client.data.BaseModelData;
+import org.sigmah.client.util.ToStringBuilder;
+import org.sigmah.shared.dto.base.AbstractModelDataEntityDTO;
 
-public class PhaseDTO extends BaseModelData implements EntityDTO, Comparable<PhaseDTO> {
+/**
+ * PhaseDTO.
+ * 
+ * @author Denis Colliot (dcolliot@ideia.fr)
+ */
+public class PhaseDTO extends AbstractModelDataEntityDTO<Integer> implements Comparable<PhaseDTO> {
 
-    private static final long serialVersionUID = 8520711106031085130L;
+	/**
+	 * Serial version UID.
+	 */
+	private static final long serialVersionUID = 8520711106031085130L;
 
-    @Override
-    public String getEntityName() {
-        return "Phase";
-    }
+	/**
+	 * DTO corresponding entity name.
+	 */
+	public static final String ENTITY_NAME = "Phase";
 
-    @Override
-    public int getId() {
-        return (Integer) get("id");
-    }
+	// DTO attributes keys.
+	public static final String START_DATE = "startDate";
+	public static final String END_DATE = "endDate";
+	public static final String PARENT_PROJECT = "parentProject";
+	public static final String PHASE_MODEL = "phaseModel";
 
-    public void setId(int id) {
-        set("id", id);
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getEntityName() {
+		return ENTITY_NAME;
+	}
 
-    public Date getStartDate() {
-        return get("startDate");
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void appendToString(final ToStringBuilder builder) {
+		builder.append(START_DATE, getStartDate());
+		builder.append(END_DATE, getEndDate());
+	}
 
-    public void setStartDate(Date startDate) {
-        set("startDate", startDate);
-    }
+	public Date getStartDate() {
+		return get(START_DATE);
+	}
 
-    public Date getEndDate() {
-        return get("endDate");
-    }
+	public void setStartDate(Date startDate) {
+		set(START_DATE, startDate);
+	}
 
-    public void setEndDate(Date endDate) {
-        set("endDate", endDate);
-    }
+	public Date getEndDate() {
+		return get(END_DATE);
+	}
 
-    public ProjectDTO getParentProjectDTO() {
-        return get("parentProjectDTO");
-    }
+	public void setEndDate(Date endDate) {
+		set(END_DATE, endDate);
+	}
 
-    public void setParentProjectDTO(ProjectDTO parentProjectDTO) {
-        set("parentProjectDTO", parentProjectDTO);
-    }
+	public ProjectDTO getParentProject() {
+		return get(PARENT_PROJECT);
+	}
 
-    public PhaseModelDTO getPhaseModelDTO() {
-        return get("phaseModelDTO");
-    }
+	public void setParentProject(ProjectDTO parentProject) {
+		set(PARENT_PROJECT, parentProject);
+	}
 
-    public void setPhaseModelDTO(PhaseModelDTO phaseModelDTO) {
-        set("phaseModelDTO", phaseModelDTO);
-    }
+	public PhaseModelDTO getPhaseModel() {
+		return get(PHASE_MODEL);
+	}
 
-    /**
-     * Returns if the phase id ended.
-     */
-    public boolean isEnded() {
-        return getEndDate() != null;
-    }
+	public void setPhaseModel(PhaseModelDTO phaseModel) {
+		set(PHASE_MODEL, phaseModel);
+	}
 
-    /**
-     * Returns if this phase is a successor of the given phase.
-     * 
-     * @param phase
-     *            The phase.
-     * @return If this phase is a successor of the given phase.
-     */
-    public boolean isSuccessor(PhaseDTO phase) {
+	/**
+	 * Returns if the phase id ended.
+	 */
+	public boolean isEnded() {
+		return getEndDate() != null;
+	}
 
-        if (phase == null) {
-            return false;
-        }
+	/**
+	 * Returns if this phase is a successor of the given phase.
+	 * 
+	 * @param phase
+	 *          The phase.
+	 * @return If this phase is a successor of the given phase.
+	 */
+	public boolean isSuccessor(PhaseDTO phase) {
 
-        final List<PhaseModelDTO> successors = phase.getPhaseModelDTO().getSuccessorsDTO();
-        if (successors != null) {
-            for (final PhaseModelDTO successor : successors) {
-                final PhaseDTO p = getParentProjectDTO().getPhaseFromModel(successor);
-                if (this.equals(p)) {
-                    return true;
-                }
-            }
-        }
+		if (phase == null) {
+			return false;
+		}
 
-        return false;
-    }
+		final List<PhaseModelDTO> successors = phase.getPhaseModel().getSuccessors();
+		if (successors != null) {
+			for (final PhaseModelDTO successor : successors) {
+				final PhaseDTO p = getParentProject().getPhaseFromModel(successor);
+				if (this.equals(p)) {
+					return true;
+				}
+			}
+		}
 
-    @Override
-    public int compareTo(PhaseDTO o) {
-        if (getPhaseModelDTO() != null && o.getPhaseModelDTO() != null) {
-            if (getPhaseModelDTO().getDisplayOrder() == o.getPhaseModelDTO().getDisplayOrder()) {
-                return 0;
-            } else if (getPhaseModelDTO().getDisplayOrder() > o.getPhaseModelDTO().getDisplayOrder()) {
-                return 1;
-            } else {
-                return -1;
-            }
-        }
-        return 0;
-    }
+		return false;
+	}
 
-    @Override
-    public boolean equals(Object obj) {
-
-        if (obj == null) {
-            return false;
-        }
-
-        if (!(obj instanceof PhaseDTO)) {
-            return false;
-        }
-
-        final PhaseDTO other = (PhaseDTO) obj;
-
-        return getId() == other.getId();
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public int compareTo(PhaseDTO o) {
+		if (getPhaseModel() != null && o.getPhaseModel() != null) {
+			if (getPhaseModel().getDisplayOrder() == o.getPhaseModel().getDisplayOrder()) {
+				return 0;
+			} else if (getPhaseModel().getDisplayOrder() > o.getPhaseModel().getDisplayOrder()) {
+				return 1;
+			} else {
+				return -1;
+			}
+		}
+		return 0;
+	}
 
 }

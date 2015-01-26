@@ -1,82 +1,86 @@
-/*
- * All Sigmah code is released under the GNU General Public License v3
- * See COPYRIGHT.txt and LICENSE.txt.
- */
-
 package org.sigmah.shared.dto.element;
 
-import org.sigmah.shared.dto.EntityDTO;
+import org.sigmah.client.util.ToStringBuilder;
+import org.sigmah.shared.dto.base.AbstractModelDataEntityDTO;
 import org.sigmah.shared.dto.category.CategoryElementDTO;
 
-import com.extjs.gxt.ui.client.data.BaseModelData;
-
 /**
+ * QuestionChoiceElementDTO.
  * 
- * @author Denis Colliot (dcolliot@ideia.fr)
- * 
+ * @author Denis Colliot (dcolliot@ideia.fr) (v2.0)
  */
-public class QuestionChoiceElementDTO extends BaseModelData implements EntityDTO {
+public class QuestionChoiceElementDTO extends AbstractModelDataEntityDTO<Integer> {
 
-    private static final long serialVersionUID = 8520711106031085130L;
+	/**
+	 * Serial version UID.
+	 */
+	private static final long serialVersionUID = 8520711106031085130L;
 
-    @Override
-    public String getEntityName() {
-        // Gets the entity name mapped by the current DTO starting from the
-        // "server.domain" package name.
-        return "element.QuestionChoiceElement";
-    }
+	/**
+	 * DTO corresponding entity name.
+	 */
+	public static final String ENTITY_NAME = "element.QuestionChoiceElement";
 
-    // Question choice id
-    @Override
-    public int getId() {
-        return (Integer) get("id");
-    }
+	// DTO attributes keys.
+	public static final String LABEL = "label";
+	public static final String SORT_ORDER = "sortOrder";
+	public static final String PARENT_QUESTION = "parentQuestion";
+	public static final String CATEGORY_ELEMENT = "categoryElement";
 
-    public void setId(int id) {
-        set("id", id);
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getEntityName() {
+		return ENTITY_NAME;
+	}
 
-    // Question choice label
-    public String getLabel() {
-        return get("label");
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void appendToString(final ToStringBuilder builder) {
+		builder.append(LABEL, getLabel());
+		builder.append(SORT_ORDER, getSortOrder());
+	}
 
-    public void setLabel(String label) {
-        if (getCategoryElementDTO() == null) {
-            set("label", label);
-        }
-    }
+	// Question choice label
+	public String getLabel() {
+		return get(LABEL);
+	}
 
-    // Question choice sort order
-    public int getSortOrder() {
-        return (Integer) get("sortOrder");
-    }
+	public void setLabel(String label) {
+		if (getCategoryElement() == null) {
+			set(LABEL, label);
+		}
+	}
 
-    public void setSortOrder(int sortOrder) {
-        set("sortOrder", sortOrder);
-    }
+	// Question choice sort order
+	public Integer getSortOrder() {
+		return (Integer) get(SORT_ORDER);
+	}
 
-    // Reference to the parent question element
-    public QuestionElementDTO getParentQuestionDTO() {
-        return get("parentQuestionDTO");
-    }
+	public void setSortOrder(Integer sortOrder) {
+		set(SORT_ORDER, sortOrder);
+	}
 
-    public void setParentQuestionDTO(QuestionElementDTO parentQuestionDTO) {
-        set("parentQuestionDTO", parentQuestionDTO);
-    }
+	// Reference to the parent question element
+	public QuestionElementDTO getParentQuestion() {
+		return get(PARENT_QUESTION);
+	}
 
-    // Question category type
-    public CategoryElementDTO getCategoryElementDTO() {
-        return get("categoryElementDTO");
-    }
+	public void setParentQuestion(QuestionElementDTO parentQuestion) {
+		set(PARENT_QUESTION, parentQuestion);
+	}
 
-    public void setCategoryElementDTO(CategoryElementDTO categoryElementDTO) {
-        set("categoryElementDTO", categoryElementDTO);
-        set("label", categoryElementDTO.getLabel());
-    }
+	// Question category type
+	public CategoryElementDTO getCategoryElement() {
+		return get(CATEGORY_ELEMENT);
+	}
 
-    @Override
-    public String toString() {
-        return Integer.toString(getId());
-    }
+	public void setCategoryElement(CategoryElementDTO categoryElement) {
+		set(CATEGORY_ELEMENT, categoryElement);
+		setLabel(categoryElement.getLabel());
+	}
+
 }

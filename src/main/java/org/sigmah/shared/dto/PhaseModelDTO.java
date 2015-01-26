@@ -1,140 +1,143 @@
-/*
- * All Sigmah code is released under the GNU General Public License v3
- * See COPYRIGHT.txt and LICENSE.txt.
- */
-
 package org.sigmah.shared.dto;
 
 import java.util.List;
 
+import org.sigmah.client.util.ToStringBuilder;
+import org.sigmah.shared.dto.base.AbstractModelDataEntityDTO;
 import org.sigmah.shared.dto.layout.LayoutDTO;
 
-import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.google.gwt.user.client.ui.Widget;
 
-public class PhaseModelDTO extends BaseModelData implements EntityDTO {
+/**
+ * PhaseModelDTO.
+ * 
+ * @author Denis Colliot (dcolliot@ideia.fr)
+ */
+public class PhaseModelDTO extends AbstractModelDataEntityDTO<Integer> {
 
-    private static final long serialVersionUID = 8520711106031085130L;
+	/**
+	 * Serial version UID.
+	 */
+	private static final long serialVersionUID = 8520711106031085130L;
 
-    @Override
-    public String getEntityName() {
-        return "Phase model";
-    }
+	/**
+	 * DTO corresponding entity name.
+	 */
+	public static final String ENTITY_NAME = "PhaseModel";
 
-    // Phase model id
-    @Override
-    public int getId() {
-    	final Integer id = (Integer) get("id");
-        return id != null ? id : -1;
-    }
+	// DTO attributes keys.
+	public static final String NAME = "name";
+	public static final String DISPLAY_ORDER = "displayOrder";
+	public static final String ROOT = "root";
+	public static final String GUIDE = "guide";
+	public static final String PARENT_PROJECT_MODEL = "parentProjectModel";
+	public static final String LAYOUT = "layout";
+	public static final String SUCCESSORS = "successors";
+	public static final String DEFINITION = "definition";
 
-    public void setId(int id) {
-        set("id", id);
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getEntityName() {
+		return ENTITY_NAME;
+	}
 
-    // Phase model name
-    public String getName() {
-        return get("name");
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void appendToString(final ToStringBuilder builder) {
+		builder.append(NAME, getName());
+		builder.append(DISPLAY_ORDER, getDisplayOrder());
+		builder.append(ROOT, getRoot());
+		builder.append(GUIDE, getGuide());
+	}
 
-    public void setName(String name) {
-        set("name", name);
-    }
+	/**
+	 * Returns if a guide is available for this phase model.
+	 * 
+	 * @return If a guide is available for this phase model.
+	 */
+	public boolean isGuideAvailable() {
+		final String guide = get(GUIDE);
+		return guide != null && !"".equals(guide.trim());
+	}
 
-    // Reference to parent project model DTO
-    public ProjectModelDTO getParentProjectModelDTO() {
-        return get("parentProjectModelDTO");
-    }
+	public Widget getWidget() {
+		return getLayout().getWidget();
+	}
 
-    public void setParentProjectModelDTO(ProjectModelDTO parentProjectModelDTO) {
-        set("parentProjectModelDTO", parentProjectModelDTO);
-    }
+	// Phase model name
+	public String getName() {
+		return get(NAME);
+	}
 
-    // Reference to layout
-    public LayoutDTO getLayoutDTO() {
-        return get("layoutDTO");
-    }
+	public void setName(String name) {
+		set(NAME, name);
+	}
 
-    public void setLayoutDTO(LayoutDTO layoutDTO) {
-        set("layoutDTO", layoutDTO);
-    }
+	// Reference to parent project model DTO
+	public ProjectModelDTO getParentProjectModel() {
+		return get(PARENT_PROJECT_MODEL);
+	}
 
-    // Reference to the phases successors
-    public List<PhaseModelDTO> getSuccessorsDTO() {
-        return get("successorsDTO");
-    }
+	public void setParentProjectModel(ProjectModelDTO parentProjectModel) {
+		set(PARENT_PROJECT_MODEL, parentProjectModel);
+	}
 
-    public void setSuccessorsDTO(List<PhaseModelDTO> successorsDTO) {
-        set("successorsDTO", successorsDTO);
-    }
+	// Reference to layout
+	public LayoutDTO getLayout() {
+		return get(LAYOUT);
+	}
 
-    // Display order
-    public int getDisplayOrder() {
-        return (Integer) get("displayOrder");
-    }
+	public void setLayout(LayoutDTO layout) {
+		set(LAYOUT, layout);
+	}
 
-    public void setDisplayOrder(int displayOrder) {
-        set("displayOrder", displayOrder);
-    }
+	// Reference to the phases successors
+	public List<PhaseModelDTO> getSuccessors() {
+		return get(SUCCESSORS);
+	}
 
-    // Definition
-    public PhaseModelDefinitionDTO getDefinitionDTO() {
-        return get("definitionDTO");
-    }
+	public void setSuccessors(List<PhaseModelDTO> successors) {
+		set(SUCCESSORS, successors);
+	}
 
-    public void setDefinitionDTO(PhaseModelDefinitionDTO definitionDTO) {
-        set("definitionDTO", definitionDTO);
-    }
+	// Display order
+	public Integer getDisplayOrder() {
+		return (Integer) get(DISPLAY_ORDER);
+	}
 
-    // Guide
-    public String getGuide() {
-        return get("guide");
-    }
+	public void setDisplayOrder(Integer displayOrder) {
+		set(DISPLAY_ORDER, displayOrder);
+	}
 
-    public void setGuide(String guide) {
-        set("guide", guide);
-    }
-    
-    public Boolean isRoot(){
-    	return get("root");
-    }
-    
-    public void setIsRoot(Boolean isRoot){
-    	set("root", isRoot);
-    }
+	// Definition
+	public PhaseModelDefinitionDTO getDefinition() {
+		return get(DEFINITION);
+	}
 
-    /**
-     * Returns if a guide is available for this phase model.
-     * 
-     * @return If a guide is available for this phase model.
-     */
-    public boolean isGuideAvailable() {
-        final String guide = get("guide");
-        return guide != null && !"".equals(guide.trim());
-    }
+	public void setDefinition(PhaseModelDefinitionDTO definition) {
+		set(DEFINITION, definition);
+	}
 
-    public Widget getWidget() {
-        return getLayoutDTO().getWidget();
-    }
+	// Guide
+	public String getGuide() {
+		return get(GUIDE);
+	}
 
-    @Override
-    public int hashCode() {
-        return getId();
-    }
+	public void setGuide(String guide) {
+		set(GUIDE, guide);
+	}
 
-    @Override
-    public boolean equals(Object obj) {
+	// Root.
+	public Boolean getRoot() {
+		return get(ROOT);
+	}
 
-        if (obj == null) {
-            return false;
-        }
+	public void setRoot(Boolean root) {
+		set(ROOT, root);
+	}
 
-        if (!(obj instanceof PhaseModelDTO)) {
-            return false;
-        }
-
-        final PhaseModelDTO other = (PhaseModelDTO) obj;
-
-        return getId() == other.getId();
-    }
 }

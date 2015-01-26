@@ -1,88 +1,78 @@
 package org.sigmah.shared.dto.element;
 
+import com.extjs.gxt.ui.client.data.ModelData;
 import java.util.Date;
 
-import org.sigmah.shared.domain.element.DefaultFlexibleElementType;
-import org.sigmah.shared.dto.CountryDTO;
 import org.sigmah.shared.dto.UserDTO;
+import org.sigmah.shared.dto.country.CountryDTO;
+import org.sigmah.shared.dto.referential.DefaultFlexibleElementType;
 
 /**
  * Defines a DTO class that contains default flexible elements.
  * 
  * @author tmi
- * 
+ * @author Denis Colliot (dcolliot@ideia.fr)
  */
-public interface DefaultFlexibleElementContainer extends FlexibleElementContainer {
+public interface DefaultFlexibleElementContainer extends FlexibleElementContainer, ModelData {
 
-    /**
-     * @return the property for the default type
-     *         {@link DefaultFlexibleElementType#CODE}.
-     */
-    public String getName();
+	/**
+	 * @return the property for the default type {@link DefaultFlexibleElementType#CODE}.
+	 */
+	String getName();
 
-    /**
-     * @return the property for the default type
-     *         {@link DefaultFlexibleElementType#TITLE}.
-     */
-    public String getFullName();
+	/**
+	 * @return the property for the default type {@link DefaultFlexibleElementType#TITLE}.
+	 */
+	String getFullName();
 
-    /**
-     * @return the property for the default type
-     *         {@link DefaultFlexibleElementType#START_DATE}.
-     */
-    public Date getStartDate();
+	/**
+	 * @return the property for the default type {@link DefaultFlexibleElementType#START_DATE}.
+	 */
+	Date getStartDate();
 
-    /**
-     * @return the property for the default type
-     *         {@link DefaultFlexibleElementType#END_DATE}.
-     */
-    public Date getEndDate();
+	/**
+	 * @return the property for the default type {@link DefaultFlexibleElementType#END_DATE}.
+	 */
+	Date getEndDate();
 
-    /**
-     * @return the property for the default type
-     *         {@link DefaultFlexibleElementType#BUDGET}.
-     */
-    public Double getPlannedBudget();
+	/**
+	 * @return the property for the default type {@link DefaultFlexibleElementType#BUDGET}.
+	 */
+	Double getPlannedBudget();
 
-    /**
-     * @return the property for the default type
-     *         {@link DefaultFlexibleElementType#BUDGET}.
-     */
-    public Double getSpendBudget();
+	/**
+	 * @return the property for the default type {@link DefaultFlexibleElementType#BUDGET}.
+	 */
+	Double getSpendBudget();
 
-    /**
-     * @return the property for the default type
-     *         {@link DefaultFlexibleElementType#BUDGET}.
-     */
-    public Double getReceivedBudget();
+	/**
+	 * @return the property for the default type {@link DefaultFlexibleElementType#BUDGET}.
+	 */
+	Double getReceivedBudget();
 
-    /**
-     * @return the property for the default type
-     *         {@link DefaultFlexibleElementType#COUNTRY}.
-     */
-    public CountryDTO getCountry();
+	/**
+	 * @return the property for the default type {@link DefaultFlexibleElementType#COUNTRY}.
+	 */
+	CountryDTO getCountry();
 
-    /**
-     * @return the property for the default type
-     *         {@link DefaultFlexibleElementType#OWNER}.
-     */
-    public String getOwnerFirstName();
+	/**
+	 * @return the property for the default type {@link DefaultFlexibleElementType#OWNER}.
+	 */
+	String getOwnerFirstName();
 
-    /**
-     * @return the property for the default type
-     *         {@link DefaultFlexibleElementType#OWNER}.
-     */
-    public String getOwnerName();
+	/**
+	 * @return the property for the default type {@link DefaultFlexibleElementType#OWNER}.
+	 */
+	String getOwnerName();
 
-    /**
-     * @return the property for the default type
-     *         {@link DefaultFlexibleElementType#MANAGER}.
-     */
-    public UserDTO getManager();
+	/**
+	 * @return the property for the default type {@link DefaultFlexibleElementType#MANAGER}.
+	 */
+	UserDTO getManager();
 
-    /**
-     * @return the property for the default type
-     *         {@link DefaultFlexibleElementType#ORG_UNIT}.
-     */
-    public int getOrgUnitId();
+	/**
+	 * @return the property for the default type {@link DefaultFlexibleElementType#ORG_UNIT}.
+	 */
+	Integer getOrgUnitId();
+
 }

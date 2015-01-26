@@ -1,72 +1,121 @@
 package org.sigmah.shared.dto;
 
-import com.extjs.gxt.ui.client.data.BaseModelData;
+import org.sigmah.client.util.ToStringBuilder;
+import org.sigmah.shared.dto.base.AbstractModelDataEntityDTO;
 
 /**
  * Light DTO mapping class for entity ProjectFunding.
  * 
  * @author tmi
- * 
+ * @author Denis Colliot (dcolliot@ideia.fr)
  */
-public class ProjectFundingDTO extends BaseModelData implements EntityDTO {
+public class ProjectFundingDTO extends AbstractModelDataEntityDTO<Integer> {
 
-    private static final long serialVersionUID = -191315535238325514L;
+	/**
+	 * Linked project type.
+	 * 
+	 * @author Denis Colliot (dcolliot@ideia.fr)
+	 */
+	public static enum LinkedProjectType {
 
-    @Override
-    public String getEntityName() {
-        return "ProjectFunding";
-    }
+		/**
+		 * Type of project that is <b>funding</b> another project.
+		 */
+		FUNDING_PROJECT(FUNDING_ID),
 
-    // Funding id
-    @Override
-    public int getId() {
-        return (Integer) get("id");
-    }
+		/**
+		 * Type of project that is <b>funded by</b> another project.
+		 */
+		FUNDED_PROJECT(FUNDED_ID);
 
-    public void setId(int id) {
-        set("id", id);
-    }
+		private final String propertyIdKey;
 
-    // Funding projects
-    public ProjectDTOLight getFunding() {
-        return get("funding");
-    }
+		private LinkedProjectType(final String propertyIdKey) {
+			this.propertyIdKey = propertyIdKey;
+		}
 
-    public void setFunding(ProjectDTOLight funding) {
-        set("funding", funding);
-    }
+		public String getPropertyIdKey() {
+			return propertyIdKey;
+		}
 
-    // Funded projects.
-    public ProjectDTOLight getFunded() {
-        return get("funded");
-    }
+		/**
+		 * Returns the given {@code value} corresponding {@link LinkedProjectType}.
+		 * 
+		 * @param value
+		 *          The value (case insensitive).
+		 * @return The given {@code value} corresponding {@link LinkedProjectType}, or {@code null}.
+		 */
+		public static LinkedProjectType fromString(final String value) {
+			try {
 
-    public void setFunded(ProjectDTOLight funded) {
-        set("funded", funded);
-    }
+				return LinkedProjectType.valueOf(value.toUpperCase());
 
-    // Funding percentage.
-    public Double getPercentage() {
-        return (Double) get("percentage");
-    }
+			} catch (final Exception e) {
+				return null;
+			}
+		}
+	}
 
-    public void setPercentage(Double percentage) {
-        set("percentage", percentage);
-    }
+	/**
+	 * Serial version UID.
+	 */
+	private static final long serialVersionUID = -191315535238325514L;
 
-    @Override
-    public boolean equals(Object obj) {
+	/**
+	 * DTO corresponding entity name.
+	 */
+	public static final String ENTITY_NAME = "ProjectFunding";
 
-        if (obj == null) {
-            return false;
-        }
+	// DTO attributes keys.
+	public static final String PERCENTAGE = "percentage";
+	public static final String FUNDING = "funding";
+	public static final String FUNDED = "funded";
 
-        if (!(obj instanceof ProjectFundingDTO)) {
-            return false;
-        }
+	// Sub projects ids (used by service).
+	public static final String FUNDING_ID = "fundingId";
+	public static final String FUNDED_ID = "fundedId";
 
-        final ProjectFundingDTO other = (ProjectFundingDTO) obj;
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getEntityName() {
+		return ENTITY_NAME;
+	}
 
-        return getId() == other.getId();
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void appendToString(final ToStringBuilder builder) {
+		builder.append(PERCENTAGE, getPercentage());
+	}
+
+	// Funding projects
+	public ProjectDTO getFunding() {
+		return get(FUNDING);
+	}
+
+	public void setFunding(ProjectDTO funding) {
+		set(FUNDING, funding);
+	}
+
+	// Funded projects.
+	public ProjectDTO getFunded() {
+		return get(FUNDED);
+	}
+
+	public void setFunded(ProjectDTO funded) {
+		set(FUNDED, funded);
+	}
+
+	// Funding percentage.
+	public Double getPercentage() {
+		return (Double) get(PERCENTAGE);
+	}
+
+	public void setPercentage(Double percentage) {
+		set(PERCENTAGE, percentage);
+	}
+
 }

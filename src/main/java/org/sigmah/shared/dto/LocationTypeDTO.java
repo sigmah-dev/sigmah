@@ -1,51 +1,67 @@
-/*
- * All Sigmah code is released under the GNU General Public License v3
- * See COPYRIGHT.txt and LICENSE.txt.
- */
-
 package org.sigmah.shared.dto;
 
-import com.extjs.gxt.ui.client.data.BaseModelData;
-
+import org.sigmah.client.util.ToStringBuilder;
+import org.sigmah.shared.dto.base.AbstractModelDataEntityDTO;
 
 /**
- * One-to-one DTO of the {@link org.sigmah.shared.domain.LocationType LocationType}
- * domain object.
+ * One-to-one DTO of the {@link org.sigmah.server.domain.LocationType LocationType} domain object.
  *
  * @author Alex Bertram
+ * @author Denis Colliot (dcolliot@ideia.fr)
  */
-public class LocationTypeDTO extends BaseModelData implements DTO {
+public class LocationTypeDTO extends AbstractModelDataEntityDTO<Integer> {
 
+	/**
+	 * Serial version UID.
+	 */
 	private static final long serialVersionUID = 1187763034988828905L;
 
-    public LocationTypeDTO() {
+	public LocationTypeDTO() {
 	}
 
-    public LocationTypeDTO(int id, String name) {
-        setId(id);
-        setName(name);
-    }
+	public LocationTypeDTO(int id, String name) {
+		setId(id);
+		setName(name);
+	}
 
-    public void setId(int id) {
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getEntityName() {
+		return "LocationType";
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void appendToString(final ToStringBuilder builder) {
+		builder.append("name", getName());
+		builder.append("boundAdminLevelId", getBoundAdminLevelId());
+	}
+
+	public void setId(Integer id) {
 		set("id", id);
 	}
-	
-	public int getId() {
-		return (Integer)get("id");
+
+	@Override
+	public Integer getId() {
+		return (Integer) get("id");
 	}
-	
+
 	public void setName(String value) {
 		set("name", value);
 	}
-	
-	public String getName() { 
+
+	public String getName() {
 		return get("name");
 	}
-	
+
 	public Integer getBoundAdminLevelId() {
 		return get("boundAdminLevelId");
 	}
-	
+
 	public void setBoundAdminLevelId(Integer id) {
 		set("boundAdminLevelId", id);
 	}

@@ -1,50 +1,50 @@
-/*
- * All Sigmah code is released under the GNU General Public License v3 See COPYRIGHT.txt and LICENSE.txt.
- */
-
 package org.sigmah.shared.dto.element;
 
 import java.util.ArrayList;
 
-import org.sigmah.client.dispatch.Dispatcher;
-import org.sigmah.client.dispatch.monitor.MaskingAsyncMonitor;
-import org.sigmah.client.dispatch.remote.Authentication;
+import org.sigmah.client.dispatch.CommandResultHandler;
+import org.sigmah.client.dispatch.DispatchAsync;
+import org.sigmah.client.dispatch.monitor.LoadingMask;
+import org.sigmah.client.event.UpdateEvent;
 import org.sigmah.client.i18n.I18N;
-import org.sigmah.client.icon.IconImageBundle;
-import org.sigmah.client.ui.ButtonFileUploadField;
-import org.sigmah.client.ui.FlexibleGrid;
+import org.sigmah.client.ui.notif.ConfirmCallback;
+import org.sigmah.client.ui.notif.N10N;
+import org.sigmah.client.ui.presenter.reminder.ReminderType;
+import org.sigmah.client.ui.res.icon.IconImageBundle;
+import org.sigmah.client.ui.widget.FlexibleGrid;
+import org.sigmah.client.ui.widget.form.ButtonFileUploadField;
 import org.sigmah.client.util.DateUtils;
-import org.sigmah.client.util.Notification;
 import org.sigmah.shared.command.Delete;
 import org.sigmah.shared.command.GetValue;
+import org.sigmah.shared.command.result.Authentication;
 import org.sigmah.shared.command.result.ValueResult;
 import org.sigmah.shared.command.result.VoidResult;
-import org.sigmah.shared.domain.profile.GlobalPermissionEnum;
 import org.sigmah.shared.dto.ProjectDTO;
-import org.sigmah.shared.dto.element.handler.RequiredValueEvent;
-import org.sigmah.shared.dto.profile.ProfileUtils;
+import org.sigmah.shared.dto.element.event.RequiredValueEvent;
+import org.sigmah.shared.dto.referential.GlobalPermissionEnum;
 import org.sigmah.shared.dto.reminder.MonitoredPointDTO;
 import org.sigmah.shared.dto.value.FileDTO;
 import org.sigmah.shared.dto.value.FileUploadUtils;
 import org.sigmah.shared.dto.value.FileVersionDTO;
 import org.sigmah.shared.dto.value.ListableValue;
+import org.sigmah.shared.file.Cause;
+import org.sigmah.shared.file.ProgressListener;
+import org.sigmah.shared.file.TransfertManager;
+import org.sigmah.shared.servlet.FileUploadResponse;
+import org.sigmah.shared.util.ProfileUtils;
 
 import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.Style.SortDir;
-import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.DomEvent;
 import com.extjs.gxt.ui.client.event.Events;
-import com.extjs.gxt.ui.client.event.FormEvent;
 import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.store.Store;
 import com.extjs.gxt.ui.client.store.StoreSorter;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.Dialog;
-import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.FormPanel.Encoding;
@@ -65,15 +65,24 @@ import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 
 /**
+ * FilesListElementDTO.
+ * 
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
 public class FilesListElementDTO extends FlexibleElementDTO {
 
+	/**
+	 * Serial version UID.
+	 */
 	private static final long serialVersionUID = 8520711106031085130L;
 
 	/**
-	 * Current value result updated after each upload to keep the consistency of
-	 * the widget.
+	 * Entity name mapped by the current DTO starting from the "server.domain" package name.
+	 */
+	public static final String ENTITY_NAME = "element.FilesListElement";
+
+	/**
+	 * Current value result updated after each upload to keep the consistency of the widget.
 	 */
 	private ValueResult currentValueResult;
 
@@ -119,13 +128,17 @@ public class FilesListElementDTO extends FlexibleElementDTO {
 		return limit;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String getEntityName() {
-		// Gets the entity name mapped by the current DTO starting from the
-		// "server.domain" package name.
-		return "element.FilesListElement";
+		return ENTITY_NAME;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public boolean isCorrectRequiredValue(ValueResult result) {
 
@@ -162,12 +175,19 @@ public class FilesListElementDTO extends FlexibleElementDTO {
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void init() {
 		super.init();
+		assert transfertManager != null;
 		store = new ListStore<FileDTO>();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	protected Component getComponent(ValueResult valueResult, boolean enabled) {
 
@@ -201,9 +221,6 @@ public class FilesListElementDTO extends FlexibleElementDTO {
 		final HiddenField<String> authorHidden = new HiddenField<String>();
 		authorHidden.setName(FileUploadUtils.DOCUMENT_AUTHOR);
 
-		final HiddenField<String> emptyHidden = new HiddenField<String>();
-		emptyHidden.setName(FileUploadUtils.CHECK_EMPTY);
-
 		final HiddenField<String> pointDateHidden = new HiddenField<String>();
 		pointDateHidden.setName(FileUploadUtils.MONITORED_POINT_DATE);
 
@@ -215,7 +232,6 @@ public class FilesListElementDTO extends FlexibleElementDTO {
 		uploadFormPanel.add(authorHidden);
 		uploadFormPanel.add(elementIdHidden);
 		uploadFormPanel.add(projectIdHidden);
-		uploadFormPanel.add(emptyHidden);
 		uploadFormPanel.add(pointDateHidden);
 		uploadFormPanel.add(pointLabelHidden);
 
@@ -226,58 +242,41 @@ public class FilesListElementDTO extends FlexibleElementDTO {
 		actionsToolBar.add(uploadFormPanel);
 
 		// Upload the selected file immediately after it's selected.
-		uploadField.addListener(Events.OnChange, new Listener<BaseEvent>() {
+		uploadField.addListener(Events.OnChange, new Listener<DomEvent>() {
 
 			@Override
-			public void handleEvent(BaseEvent be) {
+			public void handleEvent(DomEvent be) {
+				be.getEvent().stopPropagation();
 
-				// mainPanel.mask(I18N.CONSTANTS.loading());
+				if (transfertManager.canUpload()) {
+					// Set hidden fields values.
+					elementIdHidden.setValue(String.valueOf(getId()));
+					projectIdHidden.setValue(String.valueOf(currentContainerDTO.getId()));
+					nameHidden.setValue(uploadField.getValue());
+					authorHidden.setValue(String.valueOf(auth().getUserId()));
 
-				// Set hidden fields values.
-				elementIdHidden.setValue(String.valueOf(getId()));
-				projectIdHidden.setValue(String.valueOf(currentContainerDTO.getId()));
-				nameHidden.setValue(uploadField.getValue());
-				authorHidden.setValue(String.valueOf(authentication.getUserId()));
-				emptyHidden.setValue("true");
+					// Debug form hidden values.
+					if (Log.isDebugEnabled()) {
 
-				// Debug form hidden values.
-				if (Log.isDebugEnabled()) {
+						final StringBuilder sb = new StringBuilder();
+						sb.append("Upload a new file with parameters: ");
+						sb.append("name=");
+						sb.append(nameHidden.getValue());
+						sb.append(" ; author id=");
+						sb.append(authorHidden.getValue());
+						sb.append(" ; project id=");
+						sb.append(projectIdHidden.getValue());
+						sb.append(" ; element id=");
+						sb.append(elementIdHidden.getValue());
 
-					final StringBuilder sb = new StringBuilder();
-					sb.append("Upload a new file with parameters: ");
-					sb.append("name=");
-					sb.append(nameHidden.getValue());
-					sb.append(" ; author id=");
-					sb.append(authorHidden.getValue());
-					sb.append(" ; project id=");
-					sb.append(projectIdHidden.getValue());
-					sb.append(" ; element id=");
-					sb.append(elementIdHidden.getValue());
-					sb.append(" ; allow empty=");
-					sb.append(emptyHidden.getValue());
+						Log.debug(sb.toString());
+					}
 
-					Log.debug(sb.toString());
+					transfertManager.upload(uploadFormPanel, createUploadProgressListener());
+
+				} else {
+					N10N.warn(I18N.CONSTANTS.flexibleElementFilesListUploadUnable());
 				}
-
-				uploadFormPanel.submit();
-
-			}
-		});
-
-		uploadFormPanel.addListener(Events.Submit, new Listener<FormEvent>() {
-
-			@Override
-			public void handleEvent(FormEvent be) {
-
-				// Updates the widget for the new value.
-				updateComponentAfterUpload(be);
-
-				// Reset upload fields.
-				uploadField.reset();
-
-				handlerManager.fireEvent(new RequiredValueEvent(true, true));
-
-				mainPanel.unmask();
 			}
 		});
 
@@ -304,10 +303,8 @@ public class FilesListElementDTO extends FlexibleElementDTO {
 					final FileVersionDTO last1 = m1.getLastVersion();
 					final FileVersionDTO last2 = m2.getLastVersion();
 
-					final String authorM1 = last1.getAuthorFirstName() != null ? last1.getAuthorFirstName() + " "
-					                + last1.getAuthorName() : last1.getAuthorName();
-					final String authorM2 = last2.getAuthorFirstName() != null ? last2.getAuthorFirstName() + " "
-					                + last2.getAuthorName() : last2.getAuthorName();
+					final String authorM1 = last1.getAuthorFirstName() != null ? last1.getAuthorFirstName() + " " + last1.getAuthorName() : last1.getAuthorName();
+					final String authorM2 = last2.getAuthorFirstName() != null ? last2.getAuthorFirstName() + " " + last2.getAuthorName() : last2.getAuthorName();
 
 					return authorM1.compareTo(authorM2);
 				} else if ("version".equals(property)) {
@@ -340,11 +337,9 @@ public class FilesListElementDTO extends FlexibleElementDTO {
 
 		int max = getAdjustedLimit();
 		if (max != -1) {
-			mainPanel.setHeading(getLabel() + " ("
-			                + I18N.MESSAGES.flexibleElementFilesListLimitReached(String.valueOf(getAdjustedLimit()))
-			                + ")");
+			mainPanel.setHeadingText(getLabel() + " (" + I18N.MESSAGES.flexibleElementFilesListLimitReached(String.valueOf(getAdjustedLimit())) + ")");
 		} else {
-			mainPanel.setHeading(getLabel());
+			mainPanel.setHeadingText(getLabel());
 		}
 
 		mainPanel.setTopComponent(actionsToolBar);
@@ -354,103 +349,20 @@ public class FilesListElementDTO extends FlexibleElementDTO {
 	}
 
 	/**
-	 * Update files list after an upload.
-	 * 
-	 * @param be
-	 *            Form event after the upload.
-	 */
-	private void updateComponentAfterUpload(FormEvent be) {
-
-		final String code = FileUploadUtils.parseUploadResultCode(be.getResultHtml());
-
-		if (FileUploadUtils.isError(code)) {
-
-			// If an error occurred, informs the user.
-			final StringBuilder sb = new StringBuilder();
-			sb.append(I18N.CONSTANTS.flexibleElementFilesListUploadErrorDetails());
-
-			if (FileUploadUtils.EMPTY_DOC_ERROR_CODE.equals(code)) {
-				sb.append("\n");
-				sb.append(I18N.CONSTANTS.flexibleElementFilesListUploadErrorEmpty());
-			} else if (FileUploadUtils.TOO_BIG_DOC_ERROR_CODE.equals(code)) {
-				final String[] errorDetail = FileUploadUtils.parseTooBigDocDetail(be.getResultHtml());
-				String message = I18N.CONSTANTS.flexibleElementFilesListUploadErrorTooBig();
-				if (errorDetail != null && errorDetail.length >= 2) {
-					try {
-						String fileSize = String.valueOf(Integer.parseInt(errorDetail[0]) / (1024 * 1024));
-						String fileMaxSize = String.valueOf(Integer.parseInt(errorDetail[1]) / (1024 * 1024));
-						message = I18N.MESSAGES.flexibleElementFilesListUploadErrorTooBig(fileSize, fileMaxSize);
-					} catch (NumberFormatException nf) {
-						message = I18N.CONSTANTS.flexibleElementFilesListUploadErrorTooBig();
-					} catch (NullPointerException np) {
-						message = I18N.CONSTANTS.flexibleElementFilesListUploadErrorTooBig();
-					}
-				}
-				sb.append("\n");
-				sb.append(message);
-			}
-
-			MessageBox.alert(I18N.CONSTANTS.flexibleElementFilesListUploadError(), sb.toString(), null);
-		} else {
-
-			Notification.show(I18N.CONSTANTS.infoConfirmation(),
-			                I18N.CONSTANTS.flexibleElementFilesListUploadFileConfirm());
-
-			if (Log.isDebugEnabled()) {
-				Log.debug("[updateComponentAfterUpload] File successfully uploaded.");
-				Log.debug("[updateComponentAfterUpload] Monitored point generated? -> '" + monitoredPointGenerated
-				                + "' ; current container DTO -> '" + currentContainerDTO
-				                + "' ; container instanceof ProjectDTO? -> '"
-				                + (currentContainerDTO instanceof ProjectDTO) + "'.");
-			}
-
-			// Adds the monitored point.
-			if (monitoredPointGenerated && currentContainerDTO != null && currentContainerDTO instanceof ProjectDTO) {
-
-				if (Log.isDebugEnabled()) {
-					Log.debug("[updateComponentAfterUpload] Adds a monitored point with response '"
-					                + be.getResultHtml() + "'.");
-				}
-
-				final MonitoredPointDTO point = FileUploadUtils.parseUploadResultMonitoredPoint(be.getResultHtml());
-
-				if (point != null) {
-
-					if (Log.isDebugEnabled()) {
-						Log.debug("[updateComponentAfterUpload] Adds a monitored point '" + point.getLabel() + "'");
-					}
-
-					Notification.show(I18N.CONSTANTS.infoConfirmation(), I18N.CONSTANTS.monitoredPointAddConfirm());
-
-					// Forces the default completion state.
-					point.setCompletionDate(null);
-
-					((ProjectDTO) currentContainerDTO).addMonitoredPoint(point);
-				}
-
-				monitoredPointGenerated = false;
-			}
-
-			updateComponent();
-		}
-	}
-
-	/**
 	 * Refreshes files list
 	 */
-	private void updateComponent() {
-		final GetValue command = new GetValue(currentContainerDTO.getId(), getId(), getEntityName());
+	public void updateComponent() {
 
 		// Server call to obtain elements value
-		dispatcher.execute(command, null, new AsyncCallback<ValueResult>() {
+		dispatch.execute(new GetValue(currentContainerDTO.getId(), getId(), getEntityName()), new CommandResultHandler<ValueResult>() {
 
 			@Override
-			public void onFailure(Throwable throwable) {
+			public void onCommandFailure(final Throwable throwable) {
 				// The widget cannot be refreshed for the new value state.
 			}
 
 			@Override
-			public void onSuccess(ValueResult valueResult) {
+			public void onCommandSuccess(final ValueResult valueResult) {
 
 				currentValueResult = valueResult;
 				updateStore();
@@ -458,11 +370,89 @@ public class FilesListElementDTO extends FlexibleElementDTO {
 		});
 	}
 
+	private ProgressListener createUploadProgressListener() {
+		return new ProgressListener() {
+
+			@Override
+			public void onProgress(double progress, double speed) {
+			}
+
+			@Override
+			public void onFailure(Cause cause) {
+				mainPanel.unmask();
+
+				// Displaying an error message.
+				final StringBuilder errorMessageBuilder = new StringBuilder();
+				errorMessageBuilder.append(I18N.CONSTANTS.flexibleElementFilesListUploadErrorDetails()).append("\n");
+
+				switch (cause) {
+					case FILE_TOO_LARGE:
+						errorMessageBuilder.append(I18N.CONSTANTS.flexibleElementFilesListUploadErrorTooBig());
+						break;
+					default:
+						errorMessageBuilder.append(I18N.CONSTANTS.flexibleElementFilesListUploadErrorEmpty());
+						break;
+				}
+
+				N10N.warn(I18N.CONSTANTS.flexibleElementFilesListUploadError(), errorMessageBuilder.toString());
+			}
+
+			@Override
+			public void onLoad(String result) {
+				// Reset upload fields.
+				uploadField.reset();
+				handlerManager.fireEvent(new RequiredValueEvent(true, true));
+				mainPanel.unmask();
+
+				// Displaying a notification of success
+				N10N.validNotif(I18N.CONSTANTS.infoConfirmation(), I18N.CONSTANTS.flexibleElementFilesListUploadFileConfirm());
+
+				// Adds the monitored point.
+				if (monitoredPointGenerated && currentContainerDTO != null && currentContainerDTO instanceof ProjectDTO) {
+					createMonitoredPoint(result);
+				}
+
+				updateComponent();
+			}
+		};
+	}
+
+	/**
+	 * Creates a new monitored point after a successful upload (if needed).
+	 * 
+	 * @param value
+	 *          Result from an upload.
+	 */
+	private void createMonitoredPoint(String value) {
+		Log.debug("[updateComponentAfterUpload] Adds a monitored point with response '" + value + "'.");
+
+		final FileUploadResponse response = FileUploadResponse.parse(value);
+		final MonitoredPointDTO point = response.getMonitoredPoint();
+
+		if (point != null) {
+			if (Log.isDebugEnabled()) {
+				Log.debug("[updateComponentAfterUpload] Adds a monitored point '" + point.getLabel() + "'");
+			}
+
+			N10N.validNotif(I18N.CONSTANTS.infoConfirmation(), I18N.CONSTANTS.monitoredPointAddConfirm());
+
+			// Forces the default completion state.
+			point.setCompletionDate(null);
+
+			if (eventBus != null) {
+				// Sends an event to notify monitored point update.
+				eventBus.fireEvent(new UpdateEvent(UpdateEvent.REMINDER_UPDATED, ReminderType.MONITORED_POINT));
+			}
+		}
+
+		monitoredPointGenerated = false;
+	}
+
 	/**
 	 * Defines the column model for the files list grid.
 	 * 
 	 * @param enabled
-	 *            If the component is enabled.
+	 *          If the component is enabled.
 	 * @return The column model.
 	 */
 	private ColumnConfig[] getColumnModel(final boolean enabled) {
@@ -470,15 +460,14 @@ public class FilesListElementDTO extends FlexibleElementDTO {
 		// File's add date.
 		final ColumnConfig dateColumn = new ColumnConfig();
 		dateColumn.setId("date");
-		dateColumn.setHeader(I18N.CONSTANTS.flexibleElementFilesListDate());
+		dateColumn.setHeaderText(I18N.CONSTANTS.flexibleElementFilesListDate());
 		dateColumn.setWidth(60);
 		dateColumn.setRenderer(new GridCellRenderer<FileDTO>() {
 
 			final DateTimeFormat format = DateUtils.DATE_SHORT;
 
 			@Override
-			public Object render(FileDTO model, String property, ColumnData config, int rowIndex, int colIndex,
-			                ListStore<FileDTO> store, Grid<FileDTO> grid) {
+			public Object render(FileDTO model, String property, ColumnData config, int rowIndex, int colIndex, ListStore<FileDTO> store, Grid<FileDTO> grid) {
 				final FileVersionDTO last = model.getLastVersion();
 				return format.format(last.getAddedDate());
 			}
@@ -487,43 +476,39 @@ public class FilesListElementDTO extends FlexibleElementDTO {
 		// File's name.
 		final ColumnConfig nameColumn = new ColumnConfig();
 		nameColumn.setId("name");
-		nameColumn.setHeader(I18N.CONSTANTS.flexibleElementFilesListName());
+		nameColumn.setHeaderText(I18N.CONSTANTS.flexibleElementFilesListName());
 		nameColumn.setWidth(100);
 		nameColumn.setRenderer(new GridCellRenderer<FileDTO>() {
 
 			@Override
-			public Object render(final FileDTO model, String property, ColumnData config, int rowIndex, int colIndex,
-			                ListStore<FileDTO> store, Grid<FileDTO> grid) {
-				return createDownloadLink(model, null);
+			public Object render(final FileDTO model, String property, ColumnData config, int rowIndex, int colIndex, ListStore<FileDTO> store, Grid<FileDTO> grid) {
+				return createDownloadLink(model, null, transfertManager);
 			}
 		});
 
 		// File's author.
 		final ColumnConfig authorColumn = new ColumnConfig();
 		authorColumn.setId("author");
-		authorColumn.setHeader(I18N.CONSTANTS.flexibleElementFilesListAuthor());
+		authorColumn.setHeaderText(I18N.CONSTANTS.flexibleElementFilesListAuthor());
 		authorColumn.setWidth(100);
 		authorColumn.setRenderer(new GridCellRenderer<FileDTO>() {
 
 			@Override
-			public Object render(FileDTO model, String property, ColumnData config, int rowIndex, int colIndex,
-			                ListStore<FileDTO> store, Grid<FileDTO> grid) {
+			public Object render(FileDTO model, String property, ColumnData config, int rowIndex, int colIndex, ListStore<FileDTO> store, Grid<FileDTO> grid) {
 				final FileVersionDTO last = model.getLastVersion();
-				return last.getAuthorFirstName() != null ? last.getAuthorFirstName() + " " + last.getAuthorName()
-				                : last.getAuthorName();
+				return last.getAuthorFirstName() != null ? last.getAuthorFirstName() + " " + last.getAuthorName() : last.getAuthorName();
 			}
 		});
 
 		// File's last version number.
 		final ColumnConfig versionColumn = new ColumnConfig();
 		versionColumn.setId("version");
-		versionColumn.setHeader(I18N.CONSTANTS.flexibleElementFilesListVersion());
+		versionColumn.setHeaderText(I18N.CONSTANTS.flexibleElementFilesListVersion());
 		versionColumn.setWidth(20);
 		versionColumn.setRenderer(new GridCellRenderer<FileDTO>() {
 
 			@Override
-			public Object render(final FileDTO model, String property, ColumnData config, int rowIndex, int colIndex,
-			                ListStore<FileDTO> store, Grid<FileDTO> grid) {
+			public Object render(final FileDTO model, String property, ColumnData config, int rowIndex, int colIndex, ListStore<FileDTO> store, Grid<FileDTO> grid) {
 				final FileVersionDTO last = model.getLastVersion();
 				return last.getVersionNumber();
 			}
@@ -532,14 +517,13 @@ public class FilesListElementDTO extends FlexibleElementDTO {
 		// Upload new version.
 		final ColumnConfig addVersionColumn = new ColumnConfig();
 		addVersionColumn.setId("addVersion");
-		addVersionColumn.setHeader(null);
+		addVersionColumn.setHeaderText(null);
 		addVersionColumn.setWidth(60);
 		addVersionColumn.setSortable(false);
 		addVersionColumn.setRenderer(new GridCellRenderer<FileDTO>() {
 
 			@Override
-			public Object render(final FileDTO model, String property, ColumnData config, int rowIndex, int colIndex,
-			                ListStore<FileDTO> store, Grid<FileDTO> grid) {
+			public Object render(final FileDTO model, String property, ColumnData config, int rowIndex, int colIndex, ListStore<FileDTO> store, Grid<FileDTO> grid) {
 
 				final ButtonFileUploadField uploadField = new ButtonFileUploadField();
 				uploadField.setButtonCaption(I18N.CONSTANTS.flexibleElementFilesListUploadVersion());
@@ -568,62 +552,48 @@ public class FilesListElementDTO extends FlexibleElementDTO {
 				final HiddenField<String> versionHidden = new HiddenField<String>();
 				versionHidden.setName(FileUploadUtils.DOCUMENT_VERSION);
 
-				final HiddenField<String> emptyHidden = new HiddenField<String>();
-				emptyHidden.setName(FileUploadUtils.CHECK_EMPTY);
-
 				uploadFormPanel.add(uploadField);
 				uploadFormPanel.add(authorHidden);
 				uploadFormPanel.add(idHidden);
 				uploadFormPanel.add(nameHidden);
 				uploadFormPanel.add(versionHidden);
-				uploadFormPanel.add(emptyHidden);
 
-				uploadField.addListener(Events.OnChange, new Listener<BaseEvent>() {
+				uploadField.addListener(Events.OnChange, new Listener<DomEvent>() {
 
 					@Override
-					public void handleEvent(BaseEvent be) {
+					public void handleEvent(DomEvent be) {
+						be.getEvent().stopPropagation();
 
-						// Set hidden fields values.
-						idHidden.setValue(String.valueOf(model.getId()));
-						nameHidden.setValue(uploadField.getValue());
-						authorHidden.setValue(String.valueOf(authentication.getUserId()));
-						versionHidden.setValue(String.valueOf(model.getLastVersion().getVersionNumber() + 1));
-						emptyHidden.setValue("true");
+						if (transfertManager.canUpload()) {
+							// Set hidden fields values.
+							idHidden.setValue(String.valueOf(model.getId()));
+							nameHidden.setValue(uploadField.getValue());
+							authorHidden.setValue(String.valueOf(auth().getUserId()));
+							versionHidden.setValue(String.valueOf(model.getLastVersion().getVersionNumber() + 1));
 
-						// Debug form hidden values.
-						if (Log.isDebugEnabled()) {
+							// Debug form hidden values.
+							if (Log.isDebugEnabled()) {
 
-							final StringBuilder sb = new StringBuilder();
-							sb.append("Upload a new version with parameters: ");
-							sb.append("version number=");
-							sb.append(versionHidden.getValue());
-							sb.append(" ; file id=");
-							sb.append(idHidden.getValue());
-							sb.append(" ; file name=");
-							sb.append(nameHidden.getValue());
-							sb.append(" ; author id=");
-							sb.append(authorHidden.getValue());
-							sb.append(" ; allow empty=");
-							sb.append(emptyHidden.getValue());
+								final StringBuilder sb = new StringBuilder();
+								sb.append("Upload a new version with parameters: ");
+								sb.append("version number=");
+								sb.append(versionHidden.getValue());
+								sb.append(" ; file id=");
+								sb.append(idHidden.getValue());
+								sb.append(" ; file name=");
+								sb.append(nameHidden.getValue());
+								sb.append(" ; author id=");
+								sb.append(authorHidden.getValue());
 
-							Log.debug(sb.toString());
+								Log.debug(sb.toString());
+							}
+
+							// Submits the form.
+							transfertManager.upload(uploadFormPanel, createUploadProgressListener());
+
+						} else {
+							N10N.warn(I18N.CONSTANTS.flexibleElementFilesListUploadUnable());
 						}
-
-						// Submits the form.
-						uploadFormPanel.submit();
-					}
-				});
-
-				uploadFormPanel.addListener(Events.Submit, new Listener<FormEvent>() {
-
-					@Override
-					public void handleEvent(FormEvent be) {
-
-						// Updates the widget for the new value.
-						updateComponentAfterUpload(be);
-
-						// Reset upload fields.
-						uploadField.reset();
 					}
 				});
 
@@ -634,24 +604,22 @@ public class FilesListElementDTO extends FlexibleElementDTO {
 		// Versions list.
 		final ColumnConfig historyColumn = new ColumnConfig();
 		historyColumn.setId("history");
-		historyColumn.setHeader(null);
+		historyColumn.setHeaderText(null);
 		historyColumn.setWidth(20);
 		historyColumn.setSortable(false);
 		historyColumn.setRenderer(new GridCellRenderer<FileDTO>() {
 
 			@Override
-			public Object render(final FileDTO model, String property, ColumnData config, int rowIndex, int colIndex,
-			                ListStore<FileDTO> store, Grid<FileDTO> grid) {
+			public Object render(final FileDTO model, String property, ColumnData config, int rowIndex, int colIndex, ListStore<FileDTO> store, Grid<FileDTO> grid) {
 
-				final com.google.gwt.user.client.ui.Label historyButton = new com.google.gwt.user.client.ui.Label(
-				                I18N.CONSTANTS.flexibleElementFilesListHistory());
+				final com.google.gwt.user.client.ui.Label historyButton = new com.google.gwt.user.client.ui.Label(I18N.CONSTANTS.flexibleElementFilesListHistory());
 				historyButton.addStyleName("flexibility-action");
 				historyButton.addClickHandler(new ClickHandler() {
 
 					@Override
 					public void onClick(ClickEvent e) {
 
-						final FileDetailsWindow versionsWindow = new FileDetailsWindow(authentication, dispatcher, enabled);
+						final FileDetailsWindow versionsWindow = new FileDetailsWindow(auth(), dispatch, transfertManager, enabled);
 						versionsWindow.addListener(new FileDetailsWindow.FileDetailsWindowListener() {
 
 							@Override
@@ -671,76 +639,84 @@ public class FilesListElementDTO extends FlexibleElementDTO {
 		// Delete.
 		final ColumnConfig deleteColumn = new ColumnConfig();
 		deleteColumn.setId("delete");
-		deleteColumn.setHeader(null);
+		deleteColumn.setHeaderText(null);
 		deleteColumn.setWidth(10);
 		deleteColumn.setSortable(false);
 		deleteColumn.setRenderer(new GridCellRenderer<FileDTO>() {
 
 			@Override
-			public Object render(final FileDTO model, String property, ColumnData config, int rowIndex, int colIndex,
-			                final ListStore<FileDTO> store, Grid<FileDTO> grid) {
+			public Object render(final FileDTO model, String property, ColumnData config, int rowIndex, int colIndex, final ListStore<FileDTO> store,
+					Grid<FileDTO> grid) {
 
-				if (enabled) {
-					final Image image = IconImageBundle.ICONS.remove().createImage();
-					image.setTitle(I18N.CONSTANTS.remove());
-					image.addStyleName("flexibility-action");
-					image.addClickHandler(new ClickHandler() {
-
-						@Override
-						public void onClick(ClickEvent event) {
-
-							// Asks the client to confirm the file removal.
-							MessageBox.confirm(I18N.CONSTANTS.flexibleElementFilesListDelete(),
-							                I18N.MESSAGES.flexibleElementFilesListConfirmDelete(model.getName()),
-							                new Listener<MessageBoxEvent>() {
-
-								                @Override
-								                public void handleEvent(MessageBoxEvent ce) {
-
-									                if (Dialog.YES.equals(ce.getButtonClicked().getItemId())) {
-
-										                // Deletes it.
-										                dispatcher.execute(new Delete(model), new MaskingAsyncMonitor(
-										                                mainPanel, I18N.CONSTANTS.loading()),
-										                                new AsyncCallback<VoidResult>() {
-
-											                                public void onFailure(Throwable caught) {
-												                                MessageBox.alert(
-												                                                I18N.CONSTANTS.flexibleElementFilesListDeleteError(),
-												                                                I18N.CONSTANTS.flexibleElementFilesListDeleteErrorDetails(),
-												                                                null);
-											                                }
-
-											                                public void onSuccess(VoidResult result) {
-												                                store.remove(model);
-												                                uploadField.setEnabled(true);
-												                                uploadField.reset();
-												                                if (store.getCount() == 0) {
-													                                handlerManager.fireEvent(new RequiredValueEvent(
-													                                                false, true));
-												                                }
-											                                }
-										                                });
-									                }
-								                }
-							                });
-
-						}
-					});
-
-					return image;
-				} else {
+				if (!enabled) {
 					return new Label("-");
 				}
+
+				final Image image = IconImageBundle.ICONS.remove().createImage();
+				image.setTitle(I18N.CONSTANTS.remove());
+				image.addStyleName("flexibility-action");
+				image.addClickHandler(new ClickHandler() {
+
+					@Override
+					public void onClick(final ClickEvent event) {
+
+						// Asks the client to confirm the file removal.
+						N10N.confirmation(I18N.CONSTANTS.flexibleElementFilesListDelete(), I18N.MESSAGES.flexibleElementFilesListConfirmDelete(model.getName()),
+							new ConfirmCallback() {
+
+								/**
+								 * OK action.
+								 */
+								@Override
+								public void onAction() {
+
+									// Deletes it.
+									dispatch.execute(new Delete(model, currentContainerDTO.getId(), getId()), new CommandResultHandler<VoidResult>() {
+
+										@Override
+										public void onCommandFailure(final Throwable caught) {
+											N10N.error(I18N.CONSTANTS.flexibleElementFilesListDeleteError(), I18N.CONSTANTS.flexibleElementFilesListDeleteErrorDetails());
+										}
+
+										@Override
+										public void onCommandSuccess(final VoidResult result) {
+											store.remove(model);
+											uploadField.setEnabled(true);
+											uploadField.reset();
+											if (store.getCount() == 0) {
+												handlerManager.fireEvent(new RequiredValueEvent(false, true));
+											}
+										}
+									}, new LoadingMask(mainPanel));
+								}
+							});
+
+					}
+				});
+
+				return image;
 			}
 		});
 
-		if (ProfileUtils.isGranted(authentication, GlobalPermissionEnum.REMOVE_FILE)) {
-			return new ColumnConfig[] { dateColumn, nameColumn, authorColumn, versionColumn, addVersionColumn,
-			                historyColumn, deleteColumn };
+		if (ProfileUtils.isGranted(auth(), GlobalPermissionEnum.REMOVE_FILE)) {
+			return new ColumnConfig[] {
+																	dateColumn,
+																	nameColumn,
+																	authorColumn,
+																	versionColumn,
+																	addVersionColumn,
+																	historyColumn,
+																	deleteColumn
+			};
 		} else {
-			return new ColumnConfig[] { dateColumn, nameColumn, authorColumn, versionColumn, addVersionColumn,
-			                historyColumn };
+			return new ColumnConfig[] {
+																	dateColumn,
+																	nameColumn,
+																	authorColumn,
+																	versionColumn,
+																	addVersionColumn,
+																	historyColumn
+			};
 		}
 	}
 
@@ -762,13 +738,13 @@ public class FilesListElementDTO extends FlexibleElementDTO {
 			 * Method called when a version is deleted.
 			 * 
 			 * @param version
-			 *            The deleted version.
+			 *          The deleted version.
 			 */
 			public void versionDeleted(FileVersionDTO version);
 		}
 
-		private final Dispatcher dispatcher;
-		
+		private final DispatchAsync dispatch;
+
 		private final Authentication authentication;
 
 		/**
@@ -801,17 +777,20 @@ public class FilesListElementDTO extends FlexibleElementDTO {
 		 */
 		private final ArrayList<FileDetailsWindowListener> listeners = new ArrayList<FileDetailsWindowListener>();
 
+		private final TransfertManager transfertManager;
+
 		/**
 		 * Builds the window.
 		 * 
-		 * @param dispatcher
+		 * @param dispatch
 		 * @param enabled
-		 *            If the component is enabled.
+		 *          If the component is enabled.
 		 */
-		public FileDetailsWindow(final Authentication authentication, final Dispatcher dispatcher, boolean enabled) {
+		public FileDetailsWindow(final Authentication authentication, final DispatchAsync dispatch, final TransfertManager transfertManager, boolean enabled) {
 
 			this.authentication = authentication;
-			this.dispatcher = dispatcher;
+			this.dispatch = dispatch;
+			this.transfertManager = transfertManager;
 
 			store = new ListStore<FileVersionDTO>();
 
@@ -826,10 +805,8 @@ public class FilesListElementDTO extends FlexibleElementDTO {
 
 					if ("author".equals(property)) {
 
-						final String authorM1 = m1.getAuthorFirstName() != null ? m1.getAuthorFirstName() + " "
-						                + m1.getAuthorName() : m1.getAuthorName();
-						final String authorM2 = m2.getAuthorFirstName() != null ? m2.getAuthorFirstName() + " "
-						                + m2.getAuthorName() : m2.getAuthorName();
+						final String authorM1 = m1.getAuthorFirstName() != null ? m1.getAuthorFirstName() + " " + m1.getAuthorName() : m1.getAuthorName();
+						final String authorM2 = m2.getAuthorFirstName() != null ? m2.getAuthorFirstName() + " " + m2.getAuthorName() : m2.getAuthorName();
 
 						return authorM1.compareTo(authorM2);
 					} else if ("name".equals(property)) {
@@ -871,7 +848,7 @@ public class FilesListElementDTO extends FlexibleElementDTO {
 		 * Defines the column model for the versions list grid.
 		 * 
 		 * @param enabled
-		 *            If the component is enabled.
+		 *          If the component is enabled.
 		 * @return The column model.
 		 */
 		private ColumnConfig[] getColumnModel(final boolean enabled) {
@@ -879,55 +856,54 @@ public class FilesListElementDTO extends FlexibleElementDTO {
 			// Version's number.
 			final ColumnConfig versionColumn = new ColumnConfig();
 			versionColumn.setId("versionNumber");
-			versionColumn.setHeader(I18N.CONSTANTS.flexibleElementFilesListVersionNumber());
+			versionColumn.setHeaderText(I18N.CONSTANTS.flexibleElementFilesListVersionNumber());
 			versionColumn.setWidth(55);
 
 			// Version's add date.
 			final ColumnConfig dateColumn = new ColumnConfig();
 			dateColumn.setId("addedDate");
-			dateColumn.setHeader(I18N.CONSTANTS.flexibleElementFilesListDate());
+			dateColumn.setHeaderText(I18N.CONSTANTS.flexibleElementFilesListDate());
 			dateColumn.setWidth(110);
 			dateColumn.setDateTimeFormat(DateUtils.DATE_TIME_SHORT);
 
 			// Version's author.
 			final ColumnConfig authorColumn = new ColumnConfig();
 			authorColumn.setId("author");
-			authorColumn.setHeader(I18N.CONSTANTS.flexibleElementFilesListAuthor());
+			authorColumn.setHeaderText(I18N.CONSTANTS.flexibleElementFilesListAuthor());
 			authorColumn.setWidth(100);
 			authorColumn.setRenderer(new GridCellRenderer<FileVersionDTO>() {
 
 				@Override
-				public Object render(FileVersionDTO model, String property, ColumnData config, int rowIndex,
-				                int colIndex, ListStore<FileVersionDTO> store, Grid<FileVersionDTO> grid) {
-					return model.getAuthorFirstName() != null ? model.getAuthorFirstName() + " "
-					                + model.getAuthorName() : model.getAuthorName();
+				public Object render(FileVersionDTO model, String property, ColumnData config, int rowIndex, int colIndex, ListStore<FileVersionDTO> store,
+						Grid<FileVersionDTO> grid) {
+					return model.getAuthorFirstName() != null ? model.getAuthorFirstName() + " " + model.getAuthorName() : model.getAuthorName();
 				}
 			});
 
 			// Version's name.
 			final ColumnConfig nameColumn = new ColumnConfig();
 			nameColumn.setId("name");
-			nameColumn.setHeader(I18N.CONSTANTS.flexibleElementFilesListName());
+			nameColumn.setHeaderText(I18N.CONSTANTS.flexibleElementFilesListName());
 			nameColumn.setWidth(100);
 			nameColumn.setRenderer(new GridCellRenderer<FileVersionDTO>() {
 
 				@Override
-				public Object render(FileVersionDTO model, String property, ColumnData config, int rowIndex,
-				                int colIndex, ListStore<FileVersionDTO> store, Grid<FileVersionDTO> grid) {
-					return createDownloadLink(file, model.getVersionNumber());
+				public Object render(FileVersionDTO model, String property, ColumnData config, int rowIndex, int colIndex, ListStore<FileVersionDTO> store,
+						Grid<FileVersionDTO> grid) {
+					return createDownloadLink(file, model.getVersionNumber(), transfertManager);
 				}
 			});
 
 			// Version's size.
 			final ColumnConfig sizeColumn = new ColumnConfig();
 			sizeColumn.setId("size");
-			sizeColumn.setHeader(I18N.CONSTANTS.flexibleElementFilesListSize());
+			sizeColumn.setHeaderText(I18N.CONSTANTS.flexibleElementFilesListSize());
 			sizeColumn.setWidth(60);
 			sizeColumn.setRenderer(new GridCellRenderer<FileVersionDTO>() {
 
 				@Override
-				public Object render(FileVersionDTO model, String property, ColumnData config, int rowIndex,
-				                int colIndex, ListStore<FileVersionDTO> store, Grid<FileVersionDTO> grid) {
+				public Object render(FileVersionDTO model, String property, ColumnData config, int rowIndex, int colIndex, ListStore<FileVersionDTO> store,
+						Grid<FileVersionDTO> grid) {
 					final Size size = Size.convertToBestUnit(new Size(model.getSize(), Size.SizeUnit.BYTE));
 					return Math.round(size.getSize()) + " " + Size.SizeUnit.getTranslation(size.getUnit());
 				}
@@ -936,14 +912,14 @@ public class FilesListElementDTO extends FlexibleElementDTO {
 			// Delete.
 			final ColumnConfig deleteColumn = new ColumnConfig();
 			deleteColumn.setId("delete");
-			deleteColumn.setHeader(null);
+			deleteColumn.setHeaderText(null);
 			deleteColumn.setWidth(25);
 			deleteColumn.setSortable(false);
 			deleteColumn.setRenderer(new GridCellRenderer<FileVersionDTO>() {
 
 				@Override
-				public Object render(final FileVersionDTO model, String property, ColumnData config, int rowIndex,
-				                int colIndex, final ListStore<FileVersionDTO> store, Grid<FileVersionDTO> grid) {
+				public Object render(final FileVersionDTO model, String property, ColumnData config, int rowIndex, int colIndex, final ListStore<FileVersionDTO> store,
+						Grid<FileVersionDTO> grid) {
 
 					if (enabled) {
 						final Image image = IconImageBundle.ICONS.remove().createImage();
@@ -956,45 +932,34 @@ public class FilesListElementDTO extends FlexibleElementDTO {
 
 								// Do not delete a single version.
 								if (store.getCount() <= 1) {
-									MessageBox.alert(
-									                I18N.CONSTANTS.flexibleElementFilesListVersionDeleteForbidden(),
-									                I18N.CONSTANTS.flexibleElementFilesListVersionDeleteForbiddenDetails(),
-									                null);
+									N10N.warn(I18N.CONSTANTS.flexibleElementFilesListVersionDeleteForbidden(),
+										I18N.CONSTANTS.flexibleElementFilesListVersionDeleteForbiddenDetails());
 									return;
 								}
 
-								// Asks the client to confirm the version
-								// deletion.
-								MessageBox.confirm(I18N.CONSTANTS.flexibleElementFilesListVersionDelete(),
-								                I18N.MESSAGES.flexibleElementFilesListConfirmVersionDelete(String
-								                                .valueOf(model.getVersionNumber())),
-								                new Listener<MessageBoxEvent>() {
+								// Asks the client to confirm the version deletion.
+								N10N.confirmation(I18N.CONSTANTS.flexibleElementFilesListVersionDelete(),
+									I18N.MESSAGES.flexibleElementFilesListConfirmVersionDelete(String.valueOf(model.getVersionNumber())), new ConfirmCallback() {
 
-									                public void handleEvent(MessageBoxEvent ce) {
+										@Override
+										public void onAction() {
 
-										                if (Dialog.YES.equals(ce.getButtonClicked().getItemId())) {
+											// Deletes it.
+											dispatch.execute(new Delete(model), new CommandResultHandler<VoidResult>() {
 
-											                // Deletes it.
-											                dispatcher.execute(new Delete(model),
-											                                new MaskingAsyncMonitor(window,
-											                                                I18N.CONSTANTS.loading()),
-											                                new AsyncCallback<VoidResult>() {
+												@Override
+												public void onCommandFailure(final Throwable caught) {
+													N10N.warn(I18N.CONSTANTS.flexibleElementFilesListDeleteError(), I18N.CONSTANTS.flexibleElementFilesListDeleteErrorDetails());
+												}
 
-												                                public void onFailure(Throwable caught) {
-													                                MessageBox.alert(
-													                                                I18N.CONSTANTS.flexibleElementFilesListDeleteError(),
-													                                                I18N.CONSTANTS.flexibleElementFilesListDeleteErrorDetails(),
-													                                                null);
-												                                }
-
-												                                public void onSuccess(VoidResult result) {
-													                                store.remove(model);
-													                                fireVersionDeleted(model);
-												                                }
-											                                });
-										                }
-									                }
-								                });
+												@Override
+												public void onCommandSuccess(final VoidResult result) {
+													store.remove(model);
+													fireVersionDeleted(model);
+												}
+											}, new LoadingMask(window));
+										}
+									});
 
 							}
 						});
@@ -1007,9 +972,22 @@ public class FilesListElementDTO extends FlexibleElementDTO {
 			});
 
 			if (ProfileUtils.isGranted(authentication, GlobalPermissionEnum.REMOVE_FILE)) {
-				return new ColumnConfig[] {versionColumn, dateColumn, authorColumn, nameColumn, sizeColumn, deleteColumn };
+				return new ColumnConfig[] {
+																		versionColumn,
+																		dateColumn,
+																		authorColumn,
+																		nameColumn,
+																		sizeColumn,
+																		deleteColumn
+				};
 			} else {
-				return new ColumnConfig[] { versionColumn, dateColumn, authorColumn, nameColumn, sizeColumn };
+				return new ColumnConfig[] {
+																		versionColumn,
+																		dateColumn,
+																		authorColumn,
+																		nameColumn,
+																		sizeColumn
+				};
 			}
 		}
 
@@ -1017,7 +995,7 @@ public class FilesListElementDTO extends FlexibleElementDTO {
 		 * Shows the windows for the given file.
 		 * 
 		 * @param file
-		 *            The file.
+		 *          The file.
 		 */
 		public void show(FileDTO file) {
 
@@ -1032,16 +1010,14 @@ public class FilesListElementDTO extends FlexibleElementDTO {
 			store.removeAll();
 
 			// Adds each version to the store to be displayed in the grid.
-			for (final FileVersionDTO version : this.file.getVersionsDTO()) {
+			for (final FileVersionDTO version : this.file.getVersions()) {
 				store.add(version);
 			}
 
 			store.sort("versionNumber", SortDir.DESC);
 
-			// Configures the window parameters to be consistent with the new
-			// displayed file.
-			window.setHeading(I18N.CONSTANTS.flexibleElementFilesListHistory() + " - " + lastVersion.getName() + '.'
-			                + lastVersion.getExtension());
+			// Configures the window parameters to be consistent with the new displayed file.
+			window.setHeadingText(I18N.CONSTANTS.flexibleElementFilesListHistory() + " - " + lastVersion.getName() + '.' + lastVersion.getExtension());
 			window.show();
 		}
 
@@ -1049,7 +1025,7 @@ public class FilesListElementDTO extends FlexibleElementDTO {
 		 * Adds a listener to the window.
 		 * 
 		 * @param listener
-		 *            The new listener.
+		 *          The new listener.
 		 */
 		public void addListener(FileDetailsWindowListener listener) {
 			listeners.add(listener);
@@ -1059,7 +1035,7 @@ public class FilesListElementDTO extends FlexibleElementDTO {
 		 * Method called when a version is deleted.
 		 * 
 		 * @param version
-		 *            The deleted version.
+		 *          The deleted version.
 		 */
 		protected void fireVersionDeleted(FileVersionDTO version) {
 			for (final FileDetailsWindowListener listener : listeners) {
@@ -1072,10 +1048,10 @@ public class FilesListElementDTO extends FlexibleElementDTO {
 	 * Create a download link for the given file.
 	 * 
 	 * @param file
-	 *            The file to download.
+	 *          The file to download.
 	 * @return The download link.
 	 */
-	private static Component createDownloadLink(final FileDTO file, final Integer version) {
+	private static com.google.gwt.user.client.ui.Label createDownloadLink(final FileDTO file, final Integer version, final TransfertManager transfertManager) {
 
 		final FileVersionDTO versionDTO;
 		if (version != null) {
@@ -1088,69 +1064,48 @@ public class FilesListElementDTO extends FlexibleElementDTO {
 			return null;
 		}
 
-		// Uses a "hidden form" to manages the downloads to be able to
-		// catch server errors.
-		final FormPanel downloadFormPanel = new FormPanel();
-		downloadFormPanel.setBodyBorder(false);
-		downloadFormPanel.setHeaderVisible(false);
-		downloadFormPanel.setPadding(0);
-		downloadFormPanel.setEncoding(Encoding.URLENCODED);
-		downloadFormPanel.setMethod(Method.GET);
-		downloadFormPanel.setAction(GWT.getModuleBaseURL() + "download");
-
-		final com.google.gwt.user.client.ui.Label downloadButton = new com.google.gwt.user.client.ui.Label(
-		                versionDTO.getName() + '.' + versionDTO.getExtension());
+		final com.google.gwt.user.client.ui.Label downloadButton = new com.google.gwt.user.client.ui.Label(versionDTO.getName() + '.' + versionDTO.getExtension());
 		downloadButton.addStyleName("flexibility-action");
-
-		// File's id.
-		final HiddenField<String> fileIdHidden = new HiddenField<String>();
-		fileIdHidden.setName(FileUploadUtils.DOCUMENT_ID);
-		fileIdHidden.setValue(String.valueOf(file.getId()));
-
-		downloadFormPanel.add(downloadButton);
-		downloadFormPanel.add(fileIdHidden);
-
-		// File's version if any.
-		if (version != null) {
-
-			final HiddenField<String> versionHidden = new HiddenField<String>();
-			versionHidden.setName(FileUploadUtils.DOCUMENT_VERSION);
-			versionHidden.setValue(String.valueOf(version));
-
-			downloadFormPanel.add(versionHidden);
-		} else {
-			// Otherwise use the last version of the file
-			final HiddenField<String> versionHidden = new HiddenField<String>();
-			versionHidden.setName(FileUploadUtils.DOCUMENT_VERSION);
-			versionHidden.setValue(String.valueOf(versionDTO.getVersionNumber()));
-			downloadFormPanel.add(versionHidden);
-		}
-
-		// Submit complete handler to catch server errors.
-		downloadFormPanel.addListener(Events.Submit, new Listener<FormEvent>() {
-
-			@Override
-			public void handleEvent(FormEvent be) {
-
-				if (!"".equals(be.getResultHtml())) {
-					MessageBox.info(I18N.CONSTANTS.flexibleElementFilesListDownloadError(),
-					                I18N.CONSTANTS.flexibleElementFilesListDownloadErrorDetails(), null);
-				}
-			}
-		});
 
 		// Buttons listeners.
 		downloadButton.addClickHandler(new ClickHandler() {
 
 			@Override
 			public void onClick(ClickEvent e) {
+				transfertManager.canDownload(versionDTO, new AsyncCallback<Boolean>() {
 
-				// Submits the form.
-				downloadFormPanel.submit();
+					@Override
+					public void onFailure(Throwable caught) {
+						N10N.error(I18N.CONSTANTS.flexibleElementFilesListDownloadError(), I18N.CONSTANTS.flexibleElementFilesListDownloadErrorDetails());
+					}
+
+					@Override
+					public void onSuccess(Boolean result) {
+						if (result) {
+							transfertManager.download(versionDTO, new ProgressListener() {
+
+								@Override
+								public void onProgress(double progress, double speed) {
+								}
+
+								@Override
+								public void onFailure(Cause cause) {
+									N10N.error(I18N.CONSTANTS.flexibleElementFilesListDownloadError(), I18N.CONSTANTS.flexibleElementFilesListDownloadErrorDetails());
+								}
+
+								@Override
+								public void onLoad(String result) {
+								}
+							});
+						} else {
+							N10N.error(I18N.CONSTANTS.flexibleElementFilesListDownloadError(), I18N.CONSTANTS.flexibleElementFilesListDownloadUnable());
+						}
+					}
+				});
 			}
 		});
 
-		return downloadFormPanel;
+		return downloadButton;
 	}
 
 	/**
@@ -1189,10 +1144,9 @@ public class FilesListElementDTO extends FlexibleElementDTO {
 		 * Converts a size from one unit to another.
 		 * 
 		 * @param size
-		 *            The size (must be <code>positive</code> and not
-		 *            <code>null</code>).
+		 *          The size (must be <code>positive</code> and not <code>null</code>).
 		 * @param targetUnit
-		 *            The desired size unit.
+		 *          The desired size unit.
 		 * @return The size converted.
 		 */
 		public static Size convert(Size size, SizeUnit targetUnit) {
@@ -1225,13 +1179,11 @@ public class FilesListElementDTO extends FlexibleElementDTO {
 		}
 
 		/**
-		 * Converts a size to the best appropriate unit (greater than
-		 * <code>0</code>).
+		 * Converts a size to the best appropriate unit (greater than <code>0</code>).
 		 * 
 		 * @param size
-		 *            The size (must be <code>positive</code> and not
-		 *            <code>null</code>).
-		 * @return
+		 *          The size (must be <code>positive</code> and not <code>null</code>).
+		 * @return The given {@code size} converted to the best appropriate unit (greater than <code>0</code>).
 		 */
 		public static Size convertToBestUnit(Size size) {
 
@@ -1289,7 +1241,11 @@ public class FilesListElementDTO extends FlexibleElementDTO {
 		 */
 		public static enum SizeUnit {
 
-			BYTE(1), KILOBYTE(2), MEGABYTE(3), GIGABYTE(4), TERABYTE(5);
+			BYTE(1),
+			KILOBYTE(2),
+			MEGABYTE(3),
+			GIGABYTE(4),
+			TERABYTE(5);
 
 			private static final int STEP = 1024;
 
@@ -1303,7 +1259,7 @@ public class FilesListElementDTO extends FlexibleElementDTO {
 			 * Gets the next unit (the first greater one).
 			 * 
 			 * @param unit
-			 *            The base unit.
+			 *          The base unit.
 			 * @return The next unit.
 			 */
 			private static SizeUnit getNextUnit(SizeUnit unit) {
@@ -1325,7 +1281,7 @@ public class FilesListElementDTO extends FlexibleElementDTO {
 			 * Gets the previous unit (the first lower one).
 			 * 
 			 * @param unit
-			 *            The base unit.
+			 *          The base unit.
 			 * @return The previous unit.
 			 */
 			private static SizeUnit getPrevUnit(SizeUnit unit) {
@@ -1344,28 +1300,27 @@ public class FilesListElementDTO extends FlexibleElementDTO {
 			}
 
 			/**
-			 * Gets the translation key of this unit specific to the current
-			 * application.
+			 * Gets the translation key of this unit specific to the current application.
 			 * 
 			 * @param unit
-			 *            The unit.
+			 *          The unit.
 			 * @return The translation key.
 			 */
 			public static String getTranslation(SizeUnit unit) {
 
 				switch (unit) {
-				case BYTE:
-					return I18N.CONSTANTS.flexibleElementFilesListSizeByteUnit();
-				case KILOBYTE:
-					return I18N.CONSTANTS.flexibleElementFilesListSizeKByteUnit();
-				case MEGABYTE:
-					return I18N.CONSTANTS.flexibleElementFilesListSizeMByteUnit();
-				case GIGABYTE:
-					return I18N.CONSTANTS.flexibleElementFilesListSizeGByteUnit();
-				case TERABYTE:
-					return I18N.CONSTANTS.flexibleElementFilesListSizeTByteUnit();
-				default:
-					return "";
+					case BYTE:
+						return I18N.CONSTANTS.flexibleElementFilesListSizeByteUnit();
+					case KILOBYTE:
+						return I18N.CONSTANTS.flexibleElementFilesListSizeKByteUnit();
+					case MEGABYTE:
+						return I18N.CONSTANTS.flexibleElementFilesListSizeMByteUnit();
+					case GIGABYTE:
+						return I18N.CONSTANTS.flexibleElementFilesListSizeGByteUnit();
+					case TERABYTE:
+						return I18N.CONSTANTS.flexibleElementFilesListSizeTByteUnit();
+					default:
+						return "";
 				}
 			}
 		}

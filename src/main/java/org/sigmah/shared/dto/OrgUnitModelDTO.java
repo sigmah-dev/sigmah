@@ -4,209 +4,310 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import org.sigmah.shared.domain.ProjectModelStatus;
+import org.sigmah.client.util.ClientUtils;
+import org.sigmah.shared.dto.base.AbstractModelDataEntityDTO;
+import org.sigmah.shared.dto.base.mapping.CustomMappingField;
+import org.sigmah.shared.dto.base.mapping.IsMappingMode;
+import org.sigmah.shared.dto.base.mapping.MappingField;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
 import org.sigmah.shared.dto.layout.LayoutConstraintDTO;
 import org.sigmah.shared.dto.layout.LayoutGroupDTO;
+import org.sigmah.shared.dto.referential.ProjectModelStatus;
 
-import com.extjs.gxt.ui.client.data.BaseModelData;
+/**
+ * OrgUnitModelDTO.
+ * 
+ * @author Denis Colliot (dcolliot@ideia.fr)
+ */
+public class OrgUnitModelDTO extends AbstractModelDataEntityDTO<Integer> implements IsModel {
 
-public class OrgUnitModelDTO extends BaseModelData implements EntityDTO {
+	/**
+	 * Serial version UID.
+	 */
+	private static final long serialVersionUID = -6438355456637422931L;
 
-    private static final long serialVersionUID = -6438355456637422931L;
-    
+	/**
+	 * DTO corresponding entity name.
+	 */
+	public static final String ENTITY_NAME = "OrgUnitModel";
+
+	// DTO attributes keys.
+	public static final String NAME = "name";
+	public static final String TITLE = "title";
+	public static final String HAS_BUDGET = "hasBudget";
+	public static final String CAN_CONTAIN_PROJECTS = "canContainProjects";
+	public static final String STATUS = "status";
+	public static final String TOP_MODEL = "topModel";
+
+	public static final String BANNER = "banner";
+	public static final String DETAILS = "details";
+
+	/**
+	 * Mapping configurations.
+	 * 
+	 * @author Denis Colliot (dcolliot@ideia.fr)
+	 */
+	public static enum Mode implements IsMappingMode {
+
+		/**
+		 * Base mapping that does not map following data:
+		 * <ul>
+		 * <li> {@link OrgUnitModelDTO#BANNER}</li>
+		 * <li> {@link OrgUnitModelDTO#DETAILS}</li>
+		 * </ul>
+		 */
+		BASE(new MappingField(BANNER), new MappingField(DETAILS)),
+
+		/**
+		 * Mapping all data
+		 */
+		ALL();
+
+		private final CustomMappingField[] customFields;
+		private final MappingField[] excludedFields;
+
+		private Mode(final MappingField... excludedFields) {
+			this(null, excludedFields);
+		}
+
+		private Mode(final CustomMappingField... customFields) {
+			this(customFields, (MappingField[]) null);
+		}
+
+		private Mode(final CustomMappingField[] customFields, final MappingField... excludedFields) {
+			this.customFields = customFields;
+			this.excludedFields = excludedFields;
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public String getMapId() {
+			return name();
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public CustomMappingField[] getCustomFields() {
+			return customFields;
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public MappingField[] getExcludedFields() {
+			return excludedFields;
+		}
+	}
+
 	/**
 	 * Localizes an flexible element in the organizational unit model.
 	 * 
-	 * @author kma
-	 * 
+	 * @author kma (1.3)
 	 */
-    protected static class LocalizedElement {
-    	
-        private final FlexibleElementDTO element;
+	public static class LocalizedElement {
 
-        protected LocalizedElement(FlexibleElementDTO element) {
-            this.element = element;
-        }
+		private final FlexibleElementDTO element;
 
-        /**
-         * Gets the flexible element.
-         * 
-         * @return The flexible element.
-         */
-        public FlexibleElementDTO getElement() {
-            return element;
-        }
-    }
-    
-    private transient HashMap<Class<? extends FlexibleElementDTO>, List<LocalizedElement>> localizedElements;
+		public LocalizedElement(FlexibleElementDTO element) {
+			this.element = element;
+		}
 
-    @Override
-    public String getEntityName() {
-        return "OrgUnitModel";
-    }
+		/**
+		 * Gets the flexible element.
+		 * 
+		 * @return The flexible element.
+		 */
+		public FlexibleElementDTO getElement() {
+			return element;
+		}
+	}
 
-    // Id
-    @Override
-    public int getId() {
-    	if(get("id") != null)
-    		return (Integer) get("id");
-    	else
-    		return -1;
-    }
+	/**
+	 * Localized flexible elements.
+	 */
+	private transient HashMap<Class<? extends FlexibleElementDTO>, List<LocalizedElement>> localizedElements;
 
-    public void setId(int id) {
-        set("id", id);
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getEntityName() {
+		return ENTITY_NAME;
+	}
 
-    // Name
-    public String getName() {
-        return get("name");
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public ModelType getModelType() {
+		return ModelType.OrgUnitModel;
+	}
 
-    public void setName(String name) {
-        set("name", name);
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<AbstractModelDataEntityDTO<?>> getHasLayoutElements() {
+		final List<AbstractModelDataEntityDTO<?>> hasLayoutElements = new ArrayList<AbstractModelDataEntityDTO<?>>();
+		hasLayoutElements.add(getDetails());
+		return hasLayoutElements;
+	}
 
-    // Title
-    public String getTitle() {
-        return get("title");
-    }
+	// Name
+	@Override
+	public String getName() {
+		return get(NAME);
+	}
 
-    public void setTitle(String title) {
-        set("title", title);
-    }
+	public void setName(String name) {
+		set(NAME, name);
+	}
 
-    // Banner
-    public OrgUnitBannerDTO getBanner() {
-        return get("banner");
-    }
+	// Title
+	public String getTitle() {
+		return get(TITLE);
+	}
 
-    public void setBanner(OrgUnitBannerDTO banner) {
-        set("banner", banner);
-    }
+	public void setTitle(String title) {
+		set(TITLE, title);
+	}
 
-    // Details
-    public OrgUnitDetailsDTO getDetails() {
-        return get("details");
-    }
+	// Banner
+	public OrgUnitBannerDTO getBanner() {
+		return get(BANNER);
+	}
 
-    public void setDetails(OrgUnitDetailsDTO details) {
-        set("details", details);
-    }
+	public void setBanner(OrgUnitBannerDTO banner) {
+		set(BANNER, banner);
+	}
 
-    // Budget
-    public Boolean getHasBudget() {
-        return (Boolean) get("hasBudget");
-    }
+	// Details
+	public OrgUnitDetailsDTO getDetails() {
+		return get(DETAILS);
+	}
 
-    public void setHasBudget(Boolean hasBudget) {
-        set("hasBudget", hasBudget);
-    }
+	public void setDetails(OrgUnitDetailsDTO details) {
+		set(DETAILS, details);
+	}
 
-    // Can contain projects
-    public Boolean getCanContainProjects() {
-        return (Boolean) get("canContainProjects");
-    }
+	// Budget
+	public Boolean getHasBudget() {
+		return (Boolean) get(HAS_BUDGET);
+	}
 
-    public void setCanContainProjects(Boolean canContainProjects) {
-        set("canContainProjects", canContainProjects);
-    }
-    
-    public ProjectModelStatus getStatus() {
-        return (ProjectModelStatus) get("status");
-    }
+	public void setHasBudget(Boolean hasBudget) {
+		set(HAS_BUDGET, hasBudget);
+	}
 
-    public void setStatus(ProjectModelStatus status) {
-        set("status", status);
-    }
-    
-    public void setTopOrgUnitModel(boolean is) {
-        set("topModel", is);
-    }
-    
-    public boolean isTopOrgUnitModel() {
-        final Boolean b = get("topModel");
-        return b != null ? b : false;
-    }
-    
-    public List<FlexibleElementDTO> getAllElements(){
-    	List<FlexibleElementDTO> allElements = new ArrayList<FlexibleElementDTO>();
-    	List<FlexibleElementDTO> bannerElements = new ArrayList<FlexibleElementDTO>();
-    	
-    	//banner
-		if(this.getBanner().getLayout()!=null){
-			for(LayoutGroupDTO lg : getBanner().getLayout().getLayoutGroupsDTO()){
-				for(LayoutConstraintDTO lc : lg.getLayoutConstraintsDTO()){
+	// Can contain projects
+	public Boolean getCanContainProjects() {
+		return (Boolean) get(CAN_CONTAIN_PROJECTS);
+	}
+
+	public void setCanContainProjects(Boolean canContainProjects) {
+		set(CAN_CONTAIN_PROJECTS, canContainProjects);
+	}
+
+	@Override
+	public ProjectModelStatus getStatus() {
+		return (ProjectModelStatus) get(STATUS);
+	}
+
+	public void setStatus(ProjectModelStatus status) {
+		set(STATUS, status);
+	}
+
+	public void setTopOrgUnitModel(boolean is) {
+		set(TOP_MODEL, is);
+	}
+
+	public boolean isTopOrgUnitModel() {
+		return ClientUtils.isTrue(get(TOP_MODEL));
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<FlexibleElementDTO> getAllElements() {
+		List<FlexibleElementDTO> allElements = new ArrayList<FlexibleElementDTO>();
+		List<FlexibleElementDTO> bannerElements = new ArrayList<FlexibleElementDTO>();
+
+		// banner
+		if (this.getBanner().getLayout() != null) {
+			for (LayoutGroupDTO lg : getBanner().getLayout().getGroups()) {
+				for (LayoutConstraintDTO lc : lg.getConstraints()) {
 					FlexibleElementDTO f = lc.getFlexibleElementDTO();
 					f.setBannerConstraint(lc);
-					bannerElements.add(f);			
+					bannerElements.add(f);
 				}
 			}
 		}
-		
-		//Details
+
+		// Details
 		OrgUnitDetailsDTO d = getDetails();
 		d.setName();
 		setDetails(d);
-		if(getDetails().getLayout()!=null){
-			for(LayoutGroupDTO lg : getDetails().getLayout().getLayoutGroupsDTO()){
-				for(LayoutConstraintDTO lc : lg.getLayoutConstraintsDTO()){
+		if (getDetails().getLayout() != null) {
+			for (LayoutGroupDTO lg : getDetails().getLayout().getGroups()) {
+				for (LayoutConstraintDTO lc : lg.getConstraints()) {
 					FlexibleElementDTO f = lc.getFlexibleElementDTO();
 					f.setGroup(lg);
 					f.setConstraint(lc);
 					f.setContainerModel(getDetails());
-					for(FlexibleElementDTO bf : bannerElements){
-						if(f.getId()== bf.getId()){
+					for (FlexibleElementDTO bf : bannerElements) {
+						if (f.getId().equals(bf.getId())) {
 							f.setBannerConstraint(bf.getBannerConstraint());
 						}
 					}
-					allElements.add(f);					
+					allElements.add(f);
 				}
 			}
 		}
-		
-		
+
 		return allElements;
-    }
-    
+	}
+
 	/**
-	 * Gets all the flexible elements instances of the given class in this model
-	 * (details page). The banner is ignored cause the elements in it are
-	 * read-only.
+	 * Gets all the flexible elements instances of the given class in this model (details page). The banner is ignored
+	 * cause the elements in it are read-only.
 	 * 
 	 * @param clazz
-	 *            The class of the searched flexible elements.
-	 * @return The elements localized for the given class, or <code>null</code>
-	 *         if there is no element of this class.
+	 *          The class of the searched flexible elements.
+	 * @return The elements localized for the given class, or <code>null</code> if there is no element of this class.
 	 */
-    public List<LocalizedElement> getLocalizedElements(Class<? extends FlexibleElementDTO> clazz) {
+	public List<LocalizedElement> getLocalizedElements(Class<? extends FlexibleElementDTO> clazz) {
 
-        if (localizedElements == null) {
+		if (localizedElements == null) {
 
-            localizedElements = new HashMap<Class<? extends FlexibleElementDTO>, List<LocalizedElement>>();
+			localizedElements = new HashMap<Class<? extends FlexibleElementDTO>, List<LocalizedElement>>();
 
-            // Details
-            for (final LayoutGroupDTO group : getDetails().getLayout().getLayoutGroupsDTO()) {
+			// Details
+			for (final LayoutGroupDTO group : getDetails().getLayout().getGroups()) {
 
-                // For each constraint
-                for (final LayoutConstraintDTO constraint : group.getLayoutConstraintsDTO()) {
+				// For each constraint
+				for (final LayoutConstraintDTO constraint : group.getConstraints()) {
 
-                    // Gets the element and its class
-                    final FlexibleElementDTO element = constraint.getFlexibleElementDTO();
-                    List<LocalizedElement> elements = localizedElements.get(element.getClass());
+					// Gets the element and its class
+					final FlexibleElementDTO element = constraint.getFlexibleElementDTO();
+					List<LocalizedElement> elements = localizedElements.get(element.getClass());
 
-                    // First element for this class
-                    if (elements == null) {
-                        elements = new ArrayList<LocalizedElement>();
-                        localizedElements.put(element.getClass(), elements);
-                    }
+					// First element for this class
+					if (elements == null) {
+						elements = new ArrayList<LocalizedElement>();
+						localizedElements.put(element.getClass(), elements);
+					}
 
-                    // Maps the element.
-                    elements.add(new LocalizedElement(element));
-                }
-            }            
-        }
-        return localizedElements.get(clazz);
-    }
+					// Maps the element.
+					elements.add(new LocalizedElement(element));
+				}
+			}
+		}
+		return localizedElements.get(clazz);
+	}
 }

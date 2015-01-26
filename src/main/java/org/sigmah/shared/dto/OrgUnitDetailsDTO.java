@@ -1,51 +1,61 @@
 package org.sigmah.shared.dto;
 
 import org.sigmah.client.i18n.I18N;
+import org.sigmah.shared.dto.base.AbstractModelDataEntityDTO;
 import org.sigmah.shared.dto.layout.LayoutDTO;
 
-import com.extjs.gxt.ui.client.data.BaseModelData;
+/**
+ * OrgUnitDetailsDTO.
+ * 
+ * @author Denis Colliot (dcolliot@ideia.fr)
+ */
+public class OrgUnitDetailsDTO extends AbstractModelDataEntityDTO<Integer> {
 
-public class OrgUnitDetailsDTO extends BaseModelData implements EntityDTO {
+	/**
+	 * Serial version UID.
+	 */
+	private static final long serialVersionUID = 4611350969297280470L;
 
-    private static final long serialVersionUID = 4611350969297280470L;
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getEntityName() {
+		return "OrgUnitDetails";
+	}
 
-    @Override
-    public String getEntityName() {
-        return "OrgUnitDetails";
-    }
+	@Override
+	public Integer getId() {
+		return (Integer) get("id");
+	}
 
-    @Override
-    public int getId() {
-        return (Integer) get("id");
-    }
+	public void setId(Integer id) {
+		set("id", id);
+	}
 
-    public void setId(int id) {
-        set("id", id);
-    }
+	public String getName() {
+		return I18N.CONSTANTS.Admin_ORGUNIT_DETAILS();
+	}
 
-    public String getName(){
-    	return I18N.CONSTANTS.Admin_ORGUNIT_DETAILS();
-    }
-    
-    public void setName() {
-        set("name", I18N.CONSTANTS.Admin_ORGUNIT_DETAILS());
-    }
-    
-    // Layout
-    public LayoutDTO getLayout() {
-        return get("layout");
-    }
+	public void setName() {
+		set("name", I18N.CONSTANTS.Admin_ORGUNIT_DETAILS());
+	}
 
-    public void setLayout(LayoutDTO layout) {
-        set("layout", layout);
-    }
+	// Layout
+	public LayoutDTO getLayout() {
+		return get("layout");
+	}
 
-    // Model
-    public OrgUnitModelDTO getOrgUnitModel() {
-        return get("oum");
-    }
+	public void setLayout(LayoutDTO layout) {
+		set("layout", layout);
+	}
 
-    public void setOrgUnitModel(OrgUnitModelDTO oum) {
-        set("oum", oum);
-    }
+	// Model
+	public OrgUnitModelDTO getOrgUnitModel() {
+		return get("oum");
+	}
+
+	public void setOrgUnitModel(OrgUnitModelDTO oum) {
+		set("oum", oum);
+	}
 }
