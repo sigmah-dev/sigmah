@@ -1,47 +1,51 @@
-/*
- * All Sigmah code is released under the GNU General Public License v3
- * See COPYRIGHT.txt and LICENSE.txt.
- */
-
 package org.sigmah.shared.dto.value;
 
-import org.sigmah.shared.dto.EntityDTO;
-
-import com.extjs.gxt.ui.client.data.BaseModelData;
+import org.sigmah.client.util.ToStringBuilder;
+import org.sigmah.shared.dto.base.AbstractModelDataEntityDTO;
 
 /**
+ * ValueDTO.
  * 
  * @author Denis Colliot (dcolliot@ideia.fr)
- * 
  */
-public class ValueDTO extends BaseModelData implements EntityDTO {
+public class ValueDTO extends AbstractModelDataEntityDTO<Integer> {
 
-    private static final long serialVersionUID = 8520711106031085130L;
+	/**
+	 * Serial version UID.
+	 */
+	private static final long serialVersionUID = 8520711106031085130L;
+	
+	/**
+	 * DTO corresponding entity name.
+	 */
+	public static final String ENTITY_NAME = "value.Value";
 
-    @Override
-    public String getEntityName() {
-        // Gets the entity name mapped by the current DTO starting from the
-        // "server.domain" package name.
-        return "value.Value";
-    }
+	// DTO attributes keys.
+	public static final String VALUE = "value";
 
-    // Value id
-    @Override
-    public int getId() {
-        return (Integer) get("id");
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getEntityName() {
+		return ENTITY_NAME;
+	}
 
-    public void setId(int id) {
-        set("id", id);
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void appendToString(final ToStringBuilder builder) {
+		builder.append(VALUE, getValue());
+	}
 
-    // Value's inner value
-    public String getValue() {
-        return get("value");
-    }
+	// Value's inner value
+	public String getValue() {
+		return get(VALUE);
+	}
 
-    public void setValue(String value) {
-        set("value", value);
-    }
+	public void setValue(String value) {
+		set(VALUE, value);
+	}
 
 }

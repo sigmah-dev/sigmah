@@ -1,57 +1,62 @@
-/*
- * All Sigmah code is released under the GNU General Public License v3
- * See COPYRIGHT.txt and LICENSE.txt.
- */
-
 package org.sigmah.shared.dto.value;
 
-import org.sigmah.shared.dto.EntityDTO;
+import org.sigmah.client.util.ToStringBuilder;
 import org.sigmah.shared.dto.IndicatorDTO;
-
-import com.extjs.gxt.ui.client.data.BaseModelData;
+import org.sigmah.shared.dto.base.AbstractModelDataEntityDTO;
 
 /**
+ * IndicatorsListValueDTO.
  * 
  * @author Denis Colliot (dcolliot@ideia.fr)
- * 
  */
-public class IndicatorsListValueDTO extends BaseModelData implements EntityDTO, ListableValue {
+public class IndicatorsListValueDTO extends AbstractModelDataEntityDTO<Integer> implements ListableValue {
 
-    private static final long serialVersionUID = 8520711106031085130L;
+	/**
+	 * Serial version UID.
+	 */
+	private static final long serialVersionUID = 8520711106031085130L;
+	
+	/**
+	 * DTO corresponding entity name.
+	 */
+	public static final String ENTITY_NAME = "value.IndicatorsListValue";
 
-    @Override
-    public String getEntityName() {
-        // Gets the entity name mapped by the current DTO starting from the
-        // "server.domain" package name.
-        return "value.IndicatorsListValue";
-    }
+	// DTO attributes keys.
+	public static final String ID_LIST = "idList";
+	public static final String INDICATOR = "indicator";
 
-    // Indicators list value id
-    @Override
-    public int getId() {
-        return (Integer) get("id");
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getEntityName() {
+		return ENTITY_NAME;
+	}
 
-    public void setId(int id) {
-        set("id", id);
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void appendToString(final ToStringBuilder builder) {
+		builder.append(ID_LIST, getIdList());
+	}
 
-    // Indicators list value list id
-    public int getIdList() {
-        return (Integer) get("idList");
-    }
+	// Indicators list value list id
+	public int getIdList() {
+		return (Integer) get(ID_LIST);
+	}
 
-    public void setIdList(int idList) {
-        set("idList", idList);
-    }
+	public void setIdList(int idList) {
+		set(ID_LIST, idList);
+	}
 
-    // Indicator's reference
-    public IndicatorDTO getIndicatorDTO() {
-        return (IndicatorDTO) get("indicator");
-    }
+	// Indicator's reference
+	public IndicatorDTO getIndicatorDTO() {
+		return (IndicatorDTO) get(INDICATOR);
+	}
 
-    public void setIndicatorDTO(IndicatorDTO indicator) {
-        set("indicator", indicator);
-    }
+	public void setIndicatorDTO(IndicatorDTO indicator) {
+		set(INDICATOR, indicator);
+	}
 
 }

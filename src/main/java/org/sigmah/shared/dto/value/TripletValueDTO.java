@@ -1,85 +1,96 @@
-/*
- * All Sigmah code is released under the GNU General Public License v3
- * See COPYRIGHT.txt and LICENSE.txt.
- */
-
 package org.sigmah.shared.dto.value;
 
-import org.sigmah.shared.dto.element.handler.ValueEvent.ChangeType;
-
-import com.extjs.gxt.ui.client.data.BaseModelData;
+import org.sigmah.client.util.ToStringBuilder;
+import org.sigmah.shared.dto.base.AbstractModelDataEntityDTO;
+import org.sigmah.shared.dto.referential.ValueEventChangeType;
 
 /**
+ * TripletValueDTO.
  * 
  * @author Denis Colliot (dcolliot@ideia.fr)
- * 
  */
-public class TripletValueDTO extends BaseModelData implements ListEntityDTO, ListableValue {
+public class TripletValueDTO extends AbstractModelDataEntityDTO<Integer> implements ListableValue {
 
-    private static final long serialVersionUID = 8520711106031085130L;
+	/**
+	 * Serial version UID.
+	 */
+	private static final long serialVersionUID = 8520711106031085130L;
 
-    @Override
-    public String getEntityName() {
-        // Gets the entity name mapped by the current DTO starting from the
-        // "server.domain" package name.
-        return "value.TripletValue";
-    }
+	/**
+	 * DTO corresponding entity name.
+	 */
+	public static final String ENTITY_NAME = "value.TripletValue";
 
-    // Triplet value id
-    @Override
-    public int getId() {
-        Integer id = (Integer) get("id");
-        return id == null ? 0 : id;
-    }
+	// DTO attributes keys.
+	public static final String NAME = "name";
+	public static final String CODE = "code";
+	public static final String PERIOD = "period";
+	public static final String TYPE = "type";
+	public static final String INDEX = "index";
 
-    public void setId(int id) {
-        set("id", id);
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getEntityName() {
+		return ENTITY_NAME;
+	}
 
-    // Triplet value code
-    public String getCode() {
-        return get("code");
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void appendToString(final ToStringBuilder builder) {
+		builder.append(NAME, getName());
+		builder.append(CODE, getCode());
+		builder.append(PERIOD, getPeriod());
+		builder.append(TYPE, getType());
+		builder.append(INDEX, getIndex());
+	}
 
-    public void setCode(String code) {
-        set("code", code);
-    }
+	// Triplet value index
+	public int getIndex() {
+		final Object index = get(INDEX);
+		return index != null ? (Integer) index : -1;
+	}
 
-    // Triplet value name
-    public String getName() {
-        return get("name");
-    }
+	public void setIndex(int index) {
+		set(INDEX, index);
+	}
 
-    public void setName(String name) {
-        set("name", name);
-    }
+	// Triplet value code
+	public String getCode() {
+		return get(CODE);
+	}
 
-    // Triplet value period
-    public String getPeriod() {
-        return get("period");
-    }
+	public void setCode(String code) {
+		set(CODE, code);
+	}
 
-    public void setPeriod(String period) {
-        set("period", period);
-    }
+	// Triplet value name
+	public String getName() {
+		return get(NAME);
+	}
 
-    @Override
-    public int getIndex() {
-        final Object index = get("index");
-        return index != null ? (Integer) index : -1;
-    }
+	public void setName(String name) {
+		set(NAME, name);
+	}
 
-    @Override
-    public void setIndex(int index) {
-        set("index", index);
-    }
+	// Triplet value period
+	public String getPeriod() {
+		return get(PERIOD);
+	}
 
-    // Chnage type for history.
-    public ChangeType getType() {
-        return get("type");
-    }
+	public void setPeriod(String period) {
+		set(PERIOD, period);
+	}
 
-    public void setType(ChangeType type) {
-        set("type", type);
-    }
+	// Chnage type for history.
+	public ValueEventChangeType getType() {
+		return get(TYPE);
+	}
+
+	public void setType(ValueEventChangeType type) {
+		set(TYPE, type);
+	}
 }

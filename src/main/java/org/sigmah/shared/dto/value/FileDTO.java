@@ -2,108 +2,187 @@ package org.sigmah.shared.dto.value;
 
 import java.util.List;
 
-import org.sigmah.shared.dto.EntityDTO;
+import org.sigmah.client.i18n.I18N;
+import org.sigmah.client.util.ToStringBuilder;
+import org.sigmah.shared.dto.base.AbstractModelDataEntityDTO;
 
-import com.extjs.gxt.ui.client.data.BaseModelData;
+import com.google.gwt.core.client.GWT;
 
 /**
+ * FileDTO.
  * 
- * @author tmi
- * 
+ * @author tmi (v1.3)
+ * @author Denis Colliot (dcolliot@ideia.fr) (v2.0)
  */
-public class FileDTO extends BaseModelData implements EntityDTO, ListableValue {
+public class FileDTO extends AbstractModelDataEntityDTO<Integer> implements ListableValue {
 
-    private static final long serialVersionUID = -4655699567620520204L;
+	/**
+	 * Serial version UID.
+	 */
+	private static final long serialVersionUID = -4655699567620520204L;
 
-    private FileVersionDTO lastVersion;
+	/**
+	 * File version(s) loading scopes.
+	 * 
+	 * @author Denis Colliot (dcolliot@ideia.fr)
+	 */
+	public static enum LoadingScope {
 
-    @Override
-    public String getEntityName() {
-        // Gets the entity name mapped by the current DTO starting from the
-        // "server.domain" package name.
-        return "value.File";
-    }
+		// Enum values are used in backup archives file names, they should not be modified!
 
-    // File's id
-    @Override
-    public int getId() {
-        return (Integer) get("id");
-    }
+		/**
+		 * Loads all versions a a file.
+		 */
+		ALL_VERSIONS,
 
-    public void setId(int id) {
-        set("id", id);
-    }
+		/**
+		 * Loads only last version of a file.
+		 */
+		LAST_VERSION;
 
-    // File's name
-    public String getName() {
-        return (String) get("name");
-    }
+		/**
+		 * Returns the given {@code value} corresponding {@link LoadingScope}.
+		 * 
+		 * @param value
+		 *          The loading scope string value.
+		 * @return The given {@code value} corresponding {@link LoadingScope}, or {@code null}.
+		 */
+		public static LoadingScope fromString(final String value) {
+			try {
 
-    public void setName(String name) {
-        set("name", name);
-    }
+				return LoadingScope.valueOf(value.toUpperCase());
 
-    // Reference to file's versions list
-    public List<FileVersionDTO> getVersionsDTO() {
-        return get("versionsDTO");
-    }
+			} catch (final Exception e) {
+				return null;
+			}
+		}
 
-    public void setVersionsDTO(List<FileVersionDTO> versionsDTO) {
-        set("versionsDTO", versionsDTO);
-    }
+		/**
+		 * Returns the given {@code scope} corresponding i18n name.<br/>
+		 * This method should be executed from client-side. If executed from server-side, it returns the enum constant name.
+		 * 
+		 * @param scope
+		 *          The loading scope.
+		 * @return the given {@code scope} corresponding i18n name, or {@code null}.
+		 */
+		public static String getName(final LoadingScope scope) {
 
-    /**
-     * Returns the version with the given number or <code>null</code> if there
-     * isn't a version with this number.
-     * 
-     * @return The version with the given number, <code>null</code> otherwise.
-     */
-    public FileVersionDTO getVersion(int versionNumber) {
+			if (scope == null) {
+				return null;
+			}
 
-        final List<FileVersionDTO> versions = getVersionsDTO();
+			if (!GWT.isClient()) {
+				return scope.name();
+			}
 
-        if (versions == null || versions.isEmpty() || versionNumber <= 0) {
-            return null;
-        }
+			switch (scope) {
+				case ALL_VERSIONS:
+					return I18N.CONSTANTS.backupManagementAllVersion();
+				case LAST_VERSION:
+					return I18N.CONSTANTS.backupManagementOneVersion();
+				default:
+					return scope.name();
+			}
+		}
+	}
 
-        // Searches the version number.
-        for (final FileVersionDTO version : versions) {
-            if (version.getVersionNumber() == versionNumber) {
-                return version;
-            }
-        }
+	/**
+	 * DTO corresponding entity name.
+	 */
+	public static final String ENTITY_NAME = "value.File";
 
-        return null;
-    }
+	// DTO attributes keys.
+	public static final String NAME = "name";
+	public static final String VERSIONS = "versions";
 
-    /**
-     * Returns the last version (with the higher version number).
-     * 
-     * @return the last version.
-     */
-    public FileVersionDTO getLastVersion() {
+	private FileVersionDTO lastVersion;
 
-        if (lastVersion == null) {
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getEntityName() {
+		return ENTITY_NAME;
+	}
 
-            final List<FileVersionDTO> versions = getVersionsDTO();
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void appendToString(final ToStringBuilder builder) {
+		builder.append(NAME, getName());
+	}
 
-            if (versions == null || versions.isEmpty()) {
-                lastVersion = null;
-            }
+	/**
+	 * Returns the version with the given number or <code>null</code> if there isn't a version with this number.
+	 * 
+	 * @return The version with the given number, <code>null</code> otherwise.
+	 */
+	public FileVersionDTO getVersion(int versionNumber) {
 
-            // Searches the max version number which identifies the last
-            // version.
-            int index = 0;
-            int maxVersionNumber = versions.get(index).getVersionNumber();
-            for (int i = 1; i < versions.size(); i++) {
-                if (versions.get(i).getVersionNumber() > maxVersionNumber) {
-                    index = i;
-                }
-            }
+		final List<FileVersionDTO> versions = getVersions();
 
-            lastVersion = versions.get(index);
-        }
+		if (versions == null || versions.isEmpty() || versionNumber <= 0) {
+			return null;
+		}
 
-        return lastVersion;
-    }
+		// Searches the version number.
+		for (final FileVersionDTO version : versions) {
+			if (version.getVersionNumber() == versionNumber) {
+				return version;
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Returns the last version (with the higher version number).
+	 * 
+	 * @return the last version.
+	 */
+	public FileVersionDTO getLastVersion() {
+
+		if (lastVersion == null) {
+
+			final List<FileVersionDTO> versions = getVersions();
+
+			if (versions == null || versions.isEmpty()) {
+				lastVersion = null;
+			}
+
+			// Searches the max version number which identifies the last
+			// version.
+			int index = 0;
+			int maxVersionNumber = versions.get(index).getVersionNumber();
+			for (int i = 1; i < versions.size(); i++) {
+				if (versions.get(i).getVersionNumber() > maxVersionNumber) {
+					index = i;
+				}
+			}
+
+			lastVersion = versions.get(index);
+		}
+
+		return lastVersion;
+	}
+
+	// File's name
+	public String getName() {
+		return (String) get(NAME);
+	}
+
+	public void setName(String name) {
+		set(NAME, name);
+	}
+
+	// Reference to file's versions list
+	public List<FileVersionDTO> getVersions() {
+		return get(VERSIONS);
+	}
+
+	public void setVersions(List<FileVersionDTO> versions) {
+		set(VERSIONS, versions);
+	}
+
 }

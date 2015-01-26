@@ -2,106 +2,137 @@ package org.sigmah.shared.dto.value;
 
 import java.util.Date;
 
-import org.sigmah.shared.dto.EntityDTO;
-
-import com.extjs.gxt.ui.client.data.BaseModelData;
+import org.sigmah.client.util.ToStringBuilder;
+import org.sigmah.shared.dto.base.AbstractModelDataEntityDTO;
 
 /**
  * DTO mapping class for entity element.FileVersion.
  * 
  * @author tmi
- * 
+ * @author Denis Colliot (dcolliot@ideia.fr)
  */
-public class FileVersionDTO extends BaseModelData implements EntityDTO {
+public class FileVersionDTO extends AbstractModelDataEntityDTO<Integer> {
 
-    private static final long serialVersionUID = 831743691477321862L;
+	/**
+	 * Serial version UID.
+	 */
+	private static final long serialVersionUID = 831743691477321862L;
 
-    @Override
-    public String getEntityName() {
-        // Gets the entity name mapped by the current DTO starting from the
-        // "server.domain" package name.
-        return "value.FileVersion";
-    }
+	/**
+	 * DTO corresponding entity name.
+	 */
+	public static final String ENTITY_NAME = "value.FileVersion";
 
-    // Version's id
-    @Override
-    public int getId() {
-        return (Integer) get("id");
-    }
+	// DTO 'base' attributes keys.
+	public static final String VERSION_NUMBER = "versionNumber";
+	public static final String PATH = "path";
+	public static final String ADDED_DATE = "addedDate";
+	public static final String SIZE = "size";
+	public static final String AUTHOR_NAME = "authorName";
+	public static final String AUTHOR_FIRST_NAME = "authorFirstName";
+	public static final String NAME = "name";
+	public static final String EXTENSION = "extension";
 
-    public void setId(int id) {
-        set("id", id);
-    }
+	public FileVersionDTO() {
+		// Serialization.
+	}
 
-    // Version's number
-    public int getVersionNumber() {
-        return (Integer) get("versionNumber");
-    }
+	public FileVersionDTO(final Integer id) {
+		setId(id);
+	}
 
-    public void setVersionNumber(int versionNumber) {
-        set("versionNumber", versionNumber);
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getEntityName() {
+		return ENTITY_NAME;
+	}
 
-    // Version's path
-    public String getPath() {
-        return (String) get("path");
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void appendToString(final ToStringBuilder builder) {
+		builder.append(VERSION_NUMBER, getVersionNumber());
+		builder.append(PATH, getPath());
+		builder.append(ADDED_DATE, getAddedDate());
+		builder.append(SIZE, getSize());
+		builder.append(AUTHOR_NAME, getAuthorName());
+		builder.append(AUTHOR_FIRST_NAME, getAuthorFirstName());
+		builder.append(NAME, getName());
+		builder.append(EXTENSION, getExtension());
+	}
 
-    public void setPath(String path) {
-        set("path", path);
-    }
+	// Version's number
+	public int getVersionNumber() {
+		return (Integer) get(VERSION_NUMBER);
+	}
 
-    // Version's added date
-    public Date getAddedDate() {
-        return (Date) get("addedDate");
-    }
+	public void setVersionNumber(int versionNumber) {
+		set(VERSION_NUMBER, versionNumber);
+	}
 
-    public void setAddedDate(Date addedDate) {
-        set("addedDate", addedDate);
-    }
+	// Version's path
+	public String getPath() {
+		return (String) get(PATH);
+	}
 
-    // Version's added date
-    public long getSize() {
-        return (Long) get("size");
-    }
+	public void setPath(String path) {
+		set(PATH, path);
+	}
 
-    public void setSize(long size) {
-        set("size", size);
-    }
+	// Version's added date
+	public Date getAddedDate() {
+		return (Date) get(ADDED_DATE);
+	}
 
-    // Version's author name
-    public String getAuthorName() {
-        return (String) get("authorName");
-    }
+	public void setAddedDate(Date addedDate) {
+		set(ADDED_DATE, addedDate);
+	}
 
-    public void setAuthorName(String authorName) {
-        set("authorName", authorName);
-    }
+	// Version's added date
+	public long getSize() {
+		return (Long) get(SIZE);
+	}
 
-    // Version's author first name
-    public String getAuthorFirstName() {
-        return (String) get("authorFirstName");
-    }
+	public void setSize(long size) {
+		set(SIZE, size);
+	}
 
-    public void setAuthorFirstName(String authorFirstName) {
-        set("authorFirstName", authorFirstName);
-    }
+	// Version's author name
+	public String getAuthorName() {
+		return (String) get(AUTHOR_NAME);
+	}
 
-    // Version's name.
-    public String getName() {
-        return get("name");
-    }
+	public void setAuthorName(String authorName) {
+		set(AUTHOR_NAME, authorName);
+	}
 
-    public void setName(String name) {
-        set("name", name);
-    }
+	// Version's author first name
+	public String getAuthorFirstName() {
+		return (String) get(AUTHOR_FIRST_NAME);
+	}
 
-    // Version's extension.
-    public String getExtension() {
-        return get("extension");
-    }
+	public void setAuthorFirstName(String authorFirstName) {
+		set(AUTHOR_FIRST_NAME, authorFirstName);
+	}
 
-    public void setExtension(String extension) {
-        set("extension", extension);
-    }
+	// Version's name.
+	public String getName() {
+		return get(NAME);
+	}
+
+	public void setName(String name) {
+		set(NAME, name);
+	}
+
+	// Version's extension.
+	public String getExtension() {
+		return get(EXTENSION);
+	}
+
+	public void setExtension(String extension) {
+		set(EXTENSION, extension);
+	}
 }
