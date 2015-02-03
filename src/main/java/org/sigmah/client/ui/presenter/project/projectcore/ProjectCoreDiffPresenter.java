@@ -20,9 +20,6 @@ import org.sigmah.shared.dto.AmendmentDTO;
 import org.sigmah.shared.dto.ProjectDTO;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
 
-import com.extjs.gxt.ui.client.event.BaseEvent;
-import com.extjs.gxt.ui.client.event.Events;
-import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.store.ListStore;
@@ -50,15 +47,15 @@ public class ProjectCoreDiffPresenter extends AbstractPagePresenter<ProjectCoreD
 
 		ComboBox<AmendmentDTO> getAmendmentsComboBox1();
 
-		ListStore<AmendmentDTO> getAmendmentStor1();
+		ListStore<AmendmentDTO> getAmendmentStore1();
 
 		ComboBox<AmendmentDTO> getAmendmentsComboBox2();
 
-		ListStore<AmendmentDTO> getAmendmentStor2();
+		ListStore<AmendmentDTO> getAmendmentStore2();
 
 		Grid<ProjectCoreDiffLigne> getProjectFields();
 
-		ListStore<ProjectCoreDiffLigne> getProjectFieldsValueStor();
+		ListStore<ProjectCoreDiffLigne> getProjectFieldsValueStore();
 
 	}
 
@@ -103,9 +100,9 @@ public class ProjectCoreDiffPresenter extends AbstractPagePresenter<ProjectCoreD
 
 					AmendmentDTO amendment = se.getSelectedItem();
 
-					for (int i = 0; i < view.getProjectFieldsValueStor().getCount(); i++) {
+					for (int i = 0; i < view.getProjectFieldsValueStore().getCount(); i++) {
 
-						final ProjectCoreDiffLigne ligne = view.getProjectFieldsValueStor().getAt(i);
+						final ProjectCoreDiffLigne ligne = view.getProjectFieldsValueStore().getAt(i);
 
 						FlexibleElementDTO field = ligne.getField();
 
@@ -118,7 +115,7 @@ public class ProjectCoreDiffPresenter extends AbstractPagePresenter<ProjectCoreD
 
 								if (result.getValueObject() != null) {
 									ligne.setValue1(result.getValueObject());
-									view.getProjectFieldsValueStor().update(ligne);
+									view.getProjectFieldsValueStore().update(ligne);
 								}
 
 							}
@@ -126,7 +123,7 @@ public class ProjectCoreDiffPresenter extends AbstractPagePresenter<ProjectCoreD
 
 					}
 
-					view.getProjectFieldsValueStor().commitChanges();
+					view.getProjectFieldsValueStore().commitChanges();
 
 				}
 
@@ -142,9 +139,9 @@ public class ProjectCoreDiffPresenter extends AbstractPagePresenter<ProjectCoreD
 
 					AmendmentDTO amendment = se.getSelectedItem();
 
-					for (int i = 0; i < view.getProjectFieldsValueStor().getCount(); i++) {
+					for (int i = 0; i < view.getProjectFieldsValueStore().getCount(); i++) {
 
-						final ProjectCoreDiffLigne ligne = view.getProjectFieldsValueStor().getAt(i);
+						final ProjectCoreDiffLigne ligne = view.getProjectFieldsValueStore().getAt(i);
 
 						FlexibleElementDTO field = ligne.getField();
 
@@ -157,7 +154,7 @@ public class ProjectCoreDiffPresenter extends AbstractPagePresenter<ProjectCoreD
 
 								if (result.getValueObject() != null) {
 									ligne.setValue2(result.getValueObject());
-									view.getProjectFieldsValueStor().update(ligne);
+									view.getProjectFieldsValueStore().update(ligne);
 								}
 
 							}
@@ -165,37 +162,25 @@ public class ProjectCoreDiffPresenter extends AbstractPagePresenter<ProjectCoreD
 
 					}
 
-					view.getProjectFieldsValueStor().commitChanges();
+					view.getProjectFieldsValueStore().commitChanges();
 
 				}
 			}
 
 		});
 
-		view.getAmendmentsComboBox1().addListener(Events.OnClick, new Listener<BaseEvent>() {
-
-			@Override
-			public void handleEvent(BaseEvent be) {
-				view.getAmendmentsComboBox1().reset();
-			};
-		});
-		view.getAmendmentsComboBox2().addListener(Events.OnClick, new Listener<BaseEvent>() {
-
-			@Override
-			public void handleEvent(BaseEvent be) {
-				view.getAmendmentsComboBox2().reset();
-			};
-		});
 	}
 
 	public boolean initView(ProjectDTO project) {
 
-		view.getAmendmentStor1().removeAll();
-		view.getAmendmentStor2().removeAll();
-		view.getProjectFieldsValueStor().removeAll();
+		view.getAmendmentStore1().removeAll();
+		view.getAmendmentStore2().removeAll();
+		view.getProjectFieldsValueStore().removeAll();
 
-		view.getAmendmentStor1().add(project.getAmendments());
-		view.getAmendmentStor2().add(project.getAmendments());
+		view.getAmendmentStore1().add(project.getAmendments());
+		view.getAmendmentStore1().add(new AmendmentDTO(project));
+		view.getAmendmentStore2().add(project.getAmendments());
+		view.getAmendmentStore2().add(new AmendmentDTO(project));
 
 		List<ProjectCoreDiffLigne> listFieldsAmendable = new ArrayList<ProjectCoreDiffLigne>();
 
@@ -207,10 +192,10 @@ public class ProjectCoreDiffPresenter extends AbstractPagePresenter<ProjectCoreD
 			}
 		}
 
-		view.getProjectFieldsValueStor().add(listFieldsAmendable);
-		view.getProjectFieldsValueStor().commitChanges();
-		view.getAmendmentStor1().commitChanges();
-		view.getAmendmentStor2().commitChanges();
+		view.getProjectFieldsValueStore().add(listFieldsAmendable);
+		view.getProjectFieldsValueStore().commitChanges();
+		view.getAmendmentStore1().commitChanges();
+		view.getAmendmentStore2().commitChanges();
 
 		if (listFieldsAmendable.size() > 0) {
 			return true;

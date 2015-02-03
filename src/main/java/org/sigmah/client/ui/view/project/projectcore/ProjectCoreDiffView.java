@@ -63,10 +63,14 @@ public class ProjectCoreDiffView extends AbstractPopupView<PopupWidget> implemen
 		amendmentsComboBox1 = new ComboBox<AmendmentDTO>();
 		amendmentStor1 = new ListStore<AmendmentDTO>();
 		amendmentsComboBox1.setStore(amendmentStor1);
+		amendmentsComboBox1.setDisplayField("name");
+		amendmentsComboBox1.setTriggerAction(ComboBox.TriggerAction.ALL);
 
 		amendmentsComboBox2 = new ComboBox<AmendmentDTO>();
 		amendmentStor2 = new ListStore<AmendmentDTO>();
 		amendmentsComboBox2.setStore(amendmentStor2);
+		amendmentsComboBox2.setDisplayField("name");
+		amendmentsComboBox2.setTriggerAction(ComboBox.TriggerAction.ALL);
 
 		final LayoutContainer container = Layouts.hBox(HBoxLayoutAlign.TOP);
 
@@ -154,7 +158,7 @@ public class ProjectCoreDiffView extends AbstractPopupView<PopupWidget> implemen
 	}
 
 	@Override
-	public ListStore<AmendmentDTO> getAmendmentStor1() {
+	public ListStore<AmendmentDTO> getAmendmentStore1() {
 		return amendmentStor1;
 	}
 
@@ -164,7 +168,7 @@ public class ProjectCoreDiffView extends AbstractPopupView<PopupWidget> implemen
 	}
 
 	@Override
-	public ListStore<AmendmentDTO> getAmendmentStor2() {
+	public ListStore<AmendmentDTO> getAmendmentStore2() {
 		return amendmentStor2;
 	}
 
@@ -174,7 +178,7 @@ public class ProjectCoreDiffView extends AbstractPopupView<PopupWidget> implemen
 	}
 
 	@Override
-	public ListStore<ProjectCoreDiffLigne> getProjectFieldsValueStor() {
+	public ListStore<ProjectCoreDiffLigne> getProjectFieldsValueStore() {
 		return projectFieldsValueStor;
 	}
 

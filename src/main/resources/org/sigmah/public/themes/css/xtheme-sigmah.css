@@ -110,7 +110,7 @@ td.x-grid3-hd-over,td.sort-desc,td.sort-asc,td.x-grid3-hd-menu-open{border-left:
 .x-list-header-inner em.sort-asc,.x-list-header-inner em.sort-desc{background-image:url(../images/sigmah/grid/sort-hd.gif);border-color:#D8D8D8;}
 .x-progress-wrap{border:1px solid #4A3F2B;}
 .x-combo-list{border:1px solid #89a;}
-.x-combo-list .x-combo-selected{border:1px dotted #ccc!important;background:#fbf0d2;}
+.x-combo-list .x-combo-selected:not(.x-combo-unselectable){border:1px dotted #ccc!important;background:#fbf0d2;}
 .x-date-middle,.x-date-left,.x-date-right{background:#494748 url(../images/sigmah/shared/hd-sprite.gif) repeat-x 0 -83px;}
 .x-date-middle .x-btn .x-btn-text{color:#fff;}
 .x-date-middle .x-btn-mc em.x-btn-arrow{background-image:url(../images/sigmah/toolbar/btn-arrow-light.gif);}

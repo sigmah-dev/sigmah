@@ -7,6 +7,8 @@ import org.sigmah.server.domain.Amendment;
 import org.sigmah.shared.dto.base.AbstractModelDataEntityDTO;
 import org.sigmah.shared.dto.logframe.LogFrameDTO;
 import org.sigmah.shared.dto.referential.AmendmentState;
+import org.sigmah.shared.dto.referential.CoreVersionAction;
+import org.sigmah.shared.dto.referential.CoreVersionActionType;
 
 /**
  * DTO mapping class for {@link Amendment}s.
@@ -14,7 +16,7 @@ import org.sigmah.shared.dto.referential.AmendmentState;
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
-public class AmendmentDTO extends AbstractModelDataEntityDTO<Integer> {
+public class AmendmentDTO extends AbstractModelDataEntityDTO<Integer> implements CoreVersionAction {
 
 	/**
 	 * Serial version UID.
@@ -119,6 +121,11 @@ public class AmendmentDTO extends AbstractModelDataEntityDTO<Integer> {
 
 	public Date getDate() {
 		return (Date) get(DATE);
+	}
+
+	@Override
+	public CoreVersionActionType getType() {
+		return CoreVersionActionType.CORE_VERSION;
 	}
 
 	/**

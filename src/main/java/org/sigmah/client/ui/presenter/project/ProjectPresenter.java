@@ -18,7 +18,6 @@ import org.sigmah.client.ui.notif.ConfirmCallback;
 import org.sigmah.client.ui.notif.N10N;
 import org.sigmah.client.ui.presenter.base.AbstractPresenter;
 import org.sigmah.client.ui.presenter.base.HasSubPresenter;
-import org.sigmah.client.ui.res.icon.IconImageBundle;
 import org.sigmah.client.ui.view.base.HasSubView;
 import org.sigmah.client.ui.view.project.ProjectView;
 import org.sigmah.client.ui.widget.SubMenuItem;
@@ -58,19 +57,15 @@ import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.ListView;
-import com.extjs.gxt.ui.client.widget.button.SplitButton;
+import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FormPanel.Method;
 import com.extjs.gxt.ui.client.widget.form.LabelField;
 import com.extjs.gxt.ui.client.widget.layout.FormLayout;
-import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.tips.ToolTipConfig;
 import com.google.gwt.dom.client.FormElement;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.HTMLTable;
@@ -79,6 +74,9 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import java.util.List;
+import org.sigmah.shared.dto.referential.AmendmentState;
+import org.sigmah.shared.dto.referential.CoreVersionAction;
 
 /**
  * <p>
@@ -108,7 +106,7 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 
 		Button getExportButton();
 
-		Button getDeletetButton();
+		Button getDeleteButton();
 
 		void buildExportDialog(ExportActionHandler handler);
 
@@ -141,35 +139,24 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 		HTMLTable buildBannerTable(final int rows, final int cols);
 
 		// --
-		// AMENDMENTS.
+		// PROJECT CORE VERSION.
 		// --
 
-		Component getAmendmentBox();
+		ContentPanel getProjectCoreVersionPanel();
 
-		Button getLockerAmendmentButton();
+		Button getLockProjectCoreButton();
+		
+		Button getUnlockProjectCoreButton();
 
-		Button getValidateVersionProjectCoreButton();
+		Button getValidateVersionButton();
+		
+		Button getBackToWorkingVersionButton();
+		
+		ComboBox<CoreVersionAction> getCoreVersionActionComboBox();
 
-		SplitButton getAmendmentsButton();
-
-		ListStore<AmendmentDTO> getListAmendmentStore();
-
-		ListView<AmendmentDTO> getListAmendments();
-
-		Menu getAmendmentsMenuActions();
-
-		/**
-		 * Adds a new amendment action.
-		 * 
-		 * @param clearFirst
-		 *          {@code true} to clear previous actions, {@code false} to keep them.
-		 * @param action
-		 *          The amendment action.
-		 * @param handler
-		 *          The action handler.
-		 */
-		void addAmendmentAction(boolean clearFirst, AmendmentAction action, ClickHandler handler);
-
+		void setProjectCoreVersionState(AmendmentState state);
+		
+		void setProjectCoreVersions(List<AmendmentDTO> coreVersions);
 	}
 
 	/**
@@ -202,7 +189,7 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 	 */
 	private PhaseDTO displayedPhase;
 
-	private AmendmentDTO currentamendmentDTO;
+	private AmendmentDTO currentCoreVersion;
 
 	/**
 	 * Presenters's initialization.
@@ -226,7 +213,6 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 		// --
 		// SubMenu listener.
 		// --
-
 		view.getSubMenuWidget().addListener(new SubMenuListener() {
 
 			@Override
@@ -238,113 +224,85 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 		});
 
 		// --
-		// Amendement
+		// Project core version.
 		// --
-
-		view.getAmendmentsMenuActions().getItem(0).addListener(Events.OnClick, new Listener<BaseEvent>() {
+		view.getCoreVersionActionComboBox().addSelectionChangedListener(new SelectionChangedListener<CoreVersionAction>() {
 
 			@Override
-			public void handleEvent(BaseEvent be) {
-
-				eventBus.navigateRequest(Page.PROJECT_AMENDMENT_DIFF.request().addData(RequestParameter.DTO, project));
-
-			};
+			public void selectionChanged(SelectionChangedEvent<CoreVersionAction> se) {
+				final CoreVersionAction action = se.getSelectedItem();
+				
+				if(action == currentCoreVersion) {
+					return;
+				}
+				
+				switch(action.getType()) {
+					case FUNCTION_COMPARE:
+						eventBus.navigateRequest(Page.PROJECT_AMENDMENT_DIFF.request().addData(RequestParameter.DTO, project));
+						view.getCoreVersionActionComboBox().setValue(currentCoreVersion);
+						break;
+					case FUNCTION_RENAME:
+						eventBus.navigateRequest(Page.PROJECT_AMENDMENT_RENAME.request().addData(RequestParameter.DTO, project));
+						view.getCoreVersionActionComboBox().setValue(currentCoreVersion);
+						break;
+					case CORE_VERSION:
+						onDisplayCoreVersion((AmendmentDTO) action);
+						break;
+					default:
+						view.getCoreVersionActionComboBox().setValue(currentCoreVersion);
+						break;
+				}
+			}
 		});
-
-		view.getAmendmentsMenuActions().getItem(1).addListener(Events.OnClick, new Listener<BaseEvent>() {
-
-			@Override
-			public void handleEvent(BaseEvent be) {
-
-				eventBus.navigateRequest(Page.PROJECT_AMENDMENT_RENAME.request().addData(RequestParameter.DTO, project));
-
-			};
-		});
-
+		
 		// --
-		// Amendment load button event handler.
+		// Lock project core version button handler.
 		// --
-
-		view.getLockerAmendmentButton().addSelectionListener(new SelectionListener<ButtonEvent>() {
+		view.getLockProjectCoreButton().addSelectionListener(new SelectionListener<ButtonEvent>() {
 
 			@Override
 			public void componentSelected(final ButtonEvent event) {
+				onCoreVersionAction(project, AmendmentAction.LOCK, null);
+			}
+		});
+		
+		// --
+		// Unlock project core version button handler.
+		// --
+		view.getUnlockProjectCoreButton().addSelectionListener(new SelectionListener<ButtonEvent>() {
 
-				// Displays the available actions.
-				final AmendmentAction[] actions;
-
-				if (project.getAmendmentState() != null) {
-
-					actions = project.getAmendmentState().getActions();
-
-				} else {
-
-					actions = new AmendmentAction[0];
-				}
-
-				for (int i = 0; i < actions.length; i++) {
-
-					final AmendmentAction action = actions[i];
-
-					if (Log.isDebugEnabled()) {
-						Log.debug("Adding the '" + action + "' amendment action.");
-					}
-
-					if (action == AmendmentAction.LOCK || action == AmendmentAction.UNLOCK) {
-
-						onAmendmentActionClickEvent(project, action);
-					}
-
-				}
+			@Override
+			public void componentSelected(final ButtonEvent event) {
+				onCoreVersionAction(project, AmendmentAction.UNLOCK, null);
 			}
 		});
 
 		// --
-		// Amendment Validate Version
+		// Validate project core version button handler.
 		// --
-
-		view.getValidateVersionProjectCoreButton().addListener(Events.OnClick, new Listener<BaseEvent>() {
+		view.getValidateVersionButton().addListener(Events.OnClick, new Listener<BaseEvent>() {
 
 			@Override
 			public void handleEvent(BaseEvent be) {
+				onCoreVersionAction(project, AmendmentAction.VALIDATE, null);
+			}
+		});
 
-				// Displays the available actions.
-				final AmendmentAction[] actions;
+		// --
+		// Back to working version button handler.
+		// --
+		view.getBackToWorkingVersionButton().addListener(Events.OnClick, new Listener<BaseEvent>() {
 
-				if (project.getAmendmentState() != null) {
-
-					actions = project.getAmendmentState().getActions();
-
-				} else {
-
-					actions = new AmendmentAction[0];
-				}
-
-				for (int i = 0; i < actions.length; i++) {
-
-					final AmendmentAction action = actions[i];
-
-					if (Log.isDebugEnabled()) {
-						Log.debug("Adding the '" + action + "' amendment action.");
-					}
-
-					if (action == AmendmentAction.VALIDATE) {
-
-						if (ProfileUtils.isGranted(auth(), GlobalPermissionEnum.VALID_AMENDEMENT)) {
-
-							onAmendmentActionClickEvent(project, action);
-
-						}
-					}
-
-				}
+			@Override
+			public void handleEvent(BaseEvent be) {
+				final PageRequest currentPageRequest = injector.getPageManager().getCurrentPageRequest();
+				eventBus.navigateRequest(currentPageRequest.removeParameter(RequestParameter.VERSION), view.getBackToWorkingVersionButton());
 			}
 		});
 
 		// --
 		// Project export button handler.
 		// --
-
 		view.getExportButton().addSelectionListener(new SelectionListener<ButtonEvent>() {
 
 			@Override
@@ -356,8 +314,7 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 		// --
 		// Project delete button handler.
 		// --
-
-		view.getDeletetButton().addSelectionListener(new SelectionListener<ButtonEvent>() {
+		view.getDeleteButton().addSelectionListener(new SelectionListener<ButtonEvent>() {
 
 			@Override
 			public void componentSelected(final ButtonEvent ce) {
@@ -368,7 +325,6 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 		// --
 		// Project banner update event handler.
 		// --
-
 		registerHandler(eventBus.addHandler(UpdateEvent.getType(), new UpdateHandler() {
 
 			@Override
@@ -377,7 +333,7 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 					refreshBanner(project);
 				}
 				if (event.concern(UpdateEvent.AMENDMENT_RENAME)) {
-					loadAmendments(project);
+					loadAmendments(project, currentCoreVersion != null ? currentCoreVersion.getId() : null);
 				}
 			}
 		}));
@@ -394,13 +350,14 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 
 		// Updates delete button enabled state.
 		final boolean canDeleteProject = canDeleteProject();
-		view.getDeletetButton().setEnabled(canDeleteProject);
-		view.getDeletetButton().setVisible(canDeleteProject);
+		view.getDeleteButton().setEnabled(canDeleteProject);
+		view.getDeleteButton().setVisible(canDeleteProject);
 
-		currentamendmentDTO = subPageRequest.getData(RequestParameter.DTO);
+		currentCoreVersion = null;
+		Integer coreVersionId = subPageRequest.getParameterInteger(RequestParameter.VERSION);
 
 		// Updates parent view elements.
-		loadAmendments(project);
+		loadAmendments(project, coreVersionId);
 		refreshBanner(project);
 	}
 
@@ -454,72 +411,28 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 	 * @param project
 	 *          The project.
 	 */
-	private final void loadAmendments(final ProjectDTO project) {
+	private void loadAmendments(ProjectDTO project, Integer coreVersionId) {
 
-		this.project = project;
-
-		if (Log.isDebugEnabled()) {
-			Log.debug("Loading amendments for project '" + project.getName() + "'...");
-		}
-
-		// Prepares the amendment store.
-		final ListStore<AmendmentDTO> listAmendmentsStore = view.getListAmendmentStore();
-		listAmendmentsStore.removeAll();
-
-		for (final AmendmentDTO amendmentDTO : project.getAmendments()) {
-			amendmentDTO.prepareName(buildName(amendmentDTO));
-			listAmendmentsStore.add(amendmentDTO);
-		}
-
-		// Adds the current amendment.
-		final AmendmentDTO currentAmendment = new AmendmentDTO(project);
-		Date date = new Date();
-		currentAmendment.setDate(date);
-		currentAmendment.prepareName(buildName(currentAmendment));
-		listAmendmentsStore.add(currentAmendment);
-
-		view.getListAmendments().getSelectionModel().addSelectionChangedListener(new SelectionChangedListener<AmendmentDTO>() {
-
-			@Override
-			public void selectionChanged(SelectionChangedEvent<AmendmentDTO> se) {
-
-				if (se.getSelectedItem() != null) {
-					view.getAmendmentsButton().setText(se.getSelectedItem().getName());
-					onAmendmentLoadAction();
-				} else {
-					view.getAmendmentsButton().setText(I18N.CONSTANTS.projectCoreNoValidated());
+		Log.debug("Loading amendments for project '" + project.getName() + "'...");
+		
+		if(coreVersionId != null) {
+			for(AmendmentDTO coreVersion : project.getAmendments()) {
+				if(coreVersionId.equals(coreVersion.getId())) {
+					currentCoreVersion = coreVersion;
 				}
-
 			}
-		});
-
-		listAmendmentsStore.commitChanges();
-
-		if (currentamendmentDTO != null) {
-			view.getAmendmentsButton().setText(currentamendmentDTO.getName());
 		}
-
-		switch (project.getAmendmentState()) {
-
-			case LOCKED:
-
-				view.getLockerAmendmentButton().setText(I18N.CONSTANTS.projectCoreUnlockButton());
-				view.getLockerAmendmentButton().setIcon(IconImageBundle.ICONS.unlock());
-				view.getValidateVersionProjectCoreButton().setEnabled(true);
-
-				break;
-
-			case DRAFT:
-
-				view.getValidateVersionProjectCoreButton().setEnabled(false);
-				view.getLockerAmendmentButton().setText(I18N.CONSTANTS.projectCorelockButton());
-				view.getLockerAmendmentButton().setIcon(IconImageBundle.ICONS.lock());
-
-				break;
-
-			default:
-				break;
+		
+		project.setCurrentAmendment(currentCoreVersion);
+		view.getCoreVersionActionComboBox().setValue(currentCoreVersion);
+		
+		if(currentCoreVersion == null) {
+			view.setProjectCoreVersionState(project.getAmendmentState());
+		} else {
+			view.setProjectCoreVersionState(currentCoreVersion.getState());
 		}
+		
+		view.setProjectCoreVersions(project.getAmendments());
 
 	}
 
@@ -531,7 +444,7 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 	 * @param action
 	 *          The selected action.
 	 */
-	private void onAmendmentActionClickEvent(final ProjectDTO project, final AmendmentAction action) {
+	private void onCoreVersionAction(final ProjectDTO project, final AmendmentAction action, final Button source) {
 
 		// Executes form changes detection control.
 		injector.getPageManager().getCurrentPresenter().beforeLeaving(new LeavingCallback() {
@@ -551,16 +464,14 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 					@Override
 					public void onCommandSuccess(final ProjectDTO result) {
 
-						if (Log.isDebugEnabled()) {
-							Log.debug("Amendment action has been successfully processed.");
-						}
+						Log.debug("Amendment action has been successfully processed.");
+						ProjectPresenter.this.project = result;
 
 						// Reloading the page.
-						loadAmendments(result);
-						eventBus.navigateRequest(injector.getPageManager().getCurrentPageRequest(), view.getLockerAmendmentButton());
+						eventBus.navigateRequest(injector.getPageManager().getCurrentPageRequest(), new LoadingMask(view.getProjectCoreVersionPanel()));
 
 					}
-				}, new LoadingMask(view.getAmendmentBox()));
+				}, source);
 
 			}
 
@@ -577,34 +488,28 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 	 * Handles the amendment load action.<br>
 	 * Retrieves the selected amendment value and loads it.
 	 */
-	private void onAmendmentLoadAction() {
+	private void onDisplayCoreVersion(final AmendmentDTO coreVersion) {
+		
+		currentCoreVersion = coreVersion;
 
 		injector.getPageManager().getCurrentPresenter().beforeLeaving(new LeavingCallback() {
 
 			@Override
 			public void leavingOk() {
 
-				final AmendmentDTO amendmentDTO = view.getListAmendments().getSelectionModel().getSelectedItem();
+				Log.debug("Loading amendment with id #" + coreVersion.getId() + "...");
 
-				if (Log.isDebugEnabled()) {
-					Log.debug("Loading amendment with id #" + amendmentDTO.getId() + "...");
-				}
-
-				if (amendmentDTO.getId() != null) {
+				if (coreVersion.getId() != null) {
 					// Reloading the page with the amendment id parameter.
 					final PageRequest currentPageRequest = injector.getPageManager().getCurrentPageRequest();
-					currentPageRequest.addParameter(RequestParameter.VERSION, amendmentDTO.getId());
-					currentPageRequest.addData(RequestParameter.DTO, amendmentDTO);
-					eventBus.navigateRequest(currentPageRequest, view.getLockerAmendmentButton());
-
+					currentPageRequest.addParameter(RequestParameter.VERSION, coreVersion.getId());
+					eventBus.navigateRequest(currentPageRequest, new LoadingMask(view.getProjectCoreVersionPanel()));
 				}
 			}
 
 			@Override
 			public void leavingKo() {
-				if (Log.isDebugEnabled()) {
-					Log.debug("User does not want to leave unsaved page. Nothing to do.");
-				}
+				Log.debug("User does not want to leave unsaved page. Nothing to do.");
 			}
 		});
 	}
@@ -853,7 +758,7 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 
 						N10N.infoNotif(I18N.CONSTANTS.deleteProjectNotificationTitle(), I18N.CONSTANTS.deleteProjectNotificationContent());
 					}
-				}, view.getDeletetButton());
+				}, view.getDeleteButton());
 
 			}
 		});

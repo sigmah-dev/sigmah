@@ -35,6 +35,7 @@ import org.sigmah.shared.util.ProfileUtils;
 
 import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.data.BaseModelData;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.MenuEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Component;
@@ -42,6 +43,7 @@ import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.google.gwt.event.shared.HandlerManager;
+import org.sigmah.client.ui.widget.Loadable;
 
 /**
  * Abstract flexible element DTO.
@@ -246,7 +248,7 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 				break;
 		}
 
-		final Component component = inBanner ? getComponentInBanner(valueResult, enabled) : getComponent(valueResult, enabled);
+		Component component = inBanner ? getComponentInBanner(valueResult, enabled) : getComponent(valueResult, enabled);
 
 		if(getAmendable() && component instanceof Field) {
 			final Field<?> field = (Field<?>)component;
@@ -255,43 +257,73 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 		
 		// Adds the history menu if needed.
 		if (isHistorable()) {
-
-			// Builds the menu.
-			if (historyMenu == null) {
-
-				final MenuItem historyItem = new MenuItem(I18N.CONSTANTS.historyShow(), IconImageBundle.ICONS.history(), new SelectionListener<MenuEvent>() {
+			if(inBanner || !(component instanceof Field)) {
+				createHistoryMenu(component);
+				
+			} else {
+				final HistoryWrapper wrapper = new HistoryWrapper((Field<?>)component);
+				wrapper.getHistoryButton().addSelectionListener(new SelectionListener<ButtonEvent>() {
 
 					@Override
-					public void componentSelected(MenuEvent ce) {
-
-						dispatch.execute(new GetHistory(getId(), currentContainerDTO.getId()), new CommandResultHandler<ListResult<HistoryTokenListDTO>>() {
-
-							@Override
-							public void onCommandFailure(final Throwable e) {
-
-								if (Log.isErrorEnabled()) {
-									Log.error("[execute] The history cannot be fetched.", e);
-								}
-								N10N.warn(I18N.CONSTANTS.historyError(), I18N.CONSTANTS.historyErrorDetails());
-							}
-
-							@Override
-							public void onCommandSuccess(final ListResult<HistoryTokenListDTO> result) {
-								HistoryWindow.show(result.getList(), FlexibleElementDTO.this);
-							}
-						});
+					public void componentSelected(ButtonEvent ce) {
+						loadAndShowHistory(wrapper.getHistoryButton());
 					}
 				});
-
-				historyMenu = new Menu();
-				historyMenu.add(historyItem);
+				component = wrapper;
 			}
-
-			// Attaches it to the element.
-			component.setContextMenu(historyMenu);
 		}
 
 		return component;
+	}
+	
+	/**
+	 * Creates the history menu. Displayed when the user right click a flexible 
+	 * element.
+	 * 
+	 * @param component Where to attach the menu.
+	 */
+	private void createHistoryMenu(Component component) {
+		// Builds the menu.
+		if (historyMenu == null) {
+
+			final MenuItem historyItem = new MenuItem(I18N.CONSTANTS.historyShow(), IconImageBundle.ICONS.history(), new SelectionListener<MenuEvent>() {
+
+				@Override
+				public void componentSelected(MenuEvent ce) {
+					loadAndShowHistory();
+				}
+			});
+
+			historyMenu = new Menu();
+			historyMenu.add(historyItem);
+		}
+
+		// Attaches it to the element.
+		component.setContextMenu(historyMenu);
+	}
+	
+	/**
+	 * Send a GetHistory command to retrieve the history of the current element
+	 * and displays it in a popup.
+	 * 
+	 * @param loadables Element to mask during the load of the history.
+	 */
+	private void loadAndShowHistory(Loadable... loadables) {
+		dispatch.execute(new GetHistory(getId(), currentContainerDTO.getId()), new CommandResultHandler<ListResult<HistoryTokenListDTO>>() {
+
+			@Override
+			public void onCommandFailure(final Throwable e) {
+				if (Log.isErrorEnabled()) {
+					Log.error("[execute] The history cannot be fetched.", e);
+				}
+				N10N.warn(I18N.CONSTANTS.historyError(), I18N.CONSTANTS.historyErrorDetails());
+			}
+
+			@Override
+			public void onCommandSuccess(final ListResult<HistoryTokenListDTO> result) {
+				HistoryWindow.show(result.getList(), FlexibleElementDTO.this);
+			}
+		}, loadables);
 	}
 
 	/**
@@ -498,8 +530,6 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 			type = ElementTypeEnum.REPORT;
 		} else if (this instanceof ReportListElementDTO) {
 			type = ElementTypeEnum.REPORT_LIST;
-		} else if (this instanceof MessageElementDTO) {
-			type = ElementTypeEnum.MESSAGE;
 		} else if (this instanceof TripletsListElementDTO) {
 			type = ElementTypeEnum.TRIPLETS;
 		}

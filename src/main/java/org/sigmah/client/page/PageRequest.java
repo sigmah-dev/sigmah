@@ -235,6 +235,20 @@ public final class PageRequest {
 
 		return this;
 	}
+	
+	/**
+	 * <p>
+	 * Remove an existing parameter to the current {@code PageRequest}.
+	 * </p>
+	 * 
+	 * @param name
+	 *          The name of the parameter to remove.
+	 * @return The {@code PageRequest} instance without the given parameter.
+	 */
+	public PageRequest removeParameter(final RequestParameter name) {
+		parameters.remove(name);
+		return this;
+	}
 
 	/**
 	 * {@inheritDoc}

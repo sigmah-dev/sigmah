@@ -17,45 +17,39 @@ import org.sigmah.client.ui.widget.button.Button;
 import org.sigmah.client.ui.widget.form.FormPanel;
 import org.sigmah.client.ui.widget.form.Forms;
 import org.sigmah.client.ui.widget.layout.Layouts;
-import org.sigmah.client.ui.widget.layout.Layouts.LayoutOptions;
 import org.sigmah.client.ui.widget.layout.Layouts.Margin;
 import org.sigmah.client.ui.widget.panel.Panels;
 import org.sigmah.client.util.ClientUtils;
 import org.sigmah.shared.dto.AmendmentDTO;
-import org.sigmah.shared.dto.referential.AmendmentAction;
 import org.sigmah.shared.dto.referential.ProjectModelType;
 import org.sigmah.shared.util.Pair;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
+import com.extjs.gxt.ui.client.core.XTemplate;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
-import com.extjs.gxt.ui.client.util.Padding;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.ListView;
-import com.extjs.gxt.ui.client.widget.WidgetComponent;
 import com.extjs.gxt.ui.client.widget.Window;
-import com.extjs.gxt.ui.client.widget.button.SplitButton;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.CheckBoxGroup;
+import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
-import com.extjs.gxt.ui.client.widget.layout.HBoxLayout.HBoxLayoutAlign;
-import com.extjs.gxt.ui.client.widget.layout.VBoxLayout.VBoxLayoutAlign;
-import com.extjs.gxt.ui.client.widget.menu.Menu;
-import com.extjs.gxt.ui.client.widget.menu.MenuItem;
-import com.extjs.gxt.ui.client.widget.menu.SeparatorMenuItem;
 import com.extjs.gxt.ui.client.widget.tips.ToolTipConfig;
 import com.google.gwt.dom.client.Style.Float;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
-import com.google.gwt.user.client.ui.Anchor;
+import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTMLTable;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Singleton;
+import java.util.List;
+import org.sigmah.shared.dto.referential.AmendmentState;
+import org.sigmah.shared.dto.referential.CoreVersionAction;
+import org.sigmah.shared.dto.referential.CoreVersionActionType;
 
 /**
  * {@link ProjectPresenter} view.
@@ -89,21 +83,21 @@ public class ProjectView extends AbstractView implements ProjectPresenter.View {
 	private ContentPanel projectBannerPanel;
 	private Grid projectBannerGrid;
 
-	private ContentPanel amendmentsPanel;
-	private Button lockerAmendmentButton;
-	private Button validateVersionProjectCoreButton;
-	private LayoutContainer amendmentActionsContainer;
+	private ContentPanel coreVersionPanel;
+	private FlexTable coreVersionTable;
+	private Button lockProjectCoreButton;
+	private Button unlockProjectCoreButton;
+	private Button validateVersionButton;
+	private Button backToWorkingVersionButton;
+	private ComboBox<CoreVersionAction> coreVersionActionComboBox;
 
 	private SubMenuWidget subMenu;
 	private LayoutContainer subViewPlaceHolder;
 
-	private SplitButton amendmentsButton;
 	private ListStore<AmendmentDTO> listAmendmentStore;
-	private ListView<AmendmentDTO> listAmendments;
-	private Menu amendmentsMenuActions;
 
 	private Button exportButton;
-	private Button deletetButton;
+	private Button deleteButton;
 
 	/**
 	 * {@inheritDoc}
@@ -135,9 +129,9 @@ public class ProjectView extends AbstractView implements ProjectPresenter.View {
 
 		final Grid buttonsGrid = new Grid(1, 2);
 		exportButton = Forms.button(I18N.CONSTANTS.export(), IconImageBundle.ICONS.excel());
-		deletetButton = Forms.button(I18N.CONSTANTS.deleteProjectAnchor(), IconImageBundle.ICONS.remove());
+		deleteButton = Forms.button(I18N.CONSTANTS.deleteProjectAnchor(), IconImageBundle.ICONS.remove());
 		buttonsGrid.setWidget(0, 0, exportButton);
-		buttonsGrid.setWidget(0, 1, deletetButton);
+		buttonsGrid.setWidget(0, 1, deleteButton);
 		buttonsGrid.getElement().getStyle().setFloat(Float.RIGHT);
 
 		subMenu = new SubMenuWidget(Orientation.HORIZONTAL, linksMap);
@@ -245,24 +239,48 @@ public class ProjectView extends AbstractView implements ProjectPresenter.View {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Component getAmendmentBox() {
-		return amendmentsPanel;
+	public ContentPanel getProjectCoreVersionPanel() {
+		return coreVersionPanel;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Button getLockerAmendmentButton() {
-		return lockerAmendmentButton;
+	public Button getLockProjectCoreButton() {
+		return lockProjectCoreButton;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Button getValidateVersionProjectCoreButton() {
-		return validateVersionProjectCoreButton;
+	public Button getUnlockProjectCoreButton() {
+		return unlockProjectCoreButton;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Button getValidateVersionButton() {
+		return validateVersionButton;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Button getBackToWorkingVersionButton() {
+		return backToWorkingVersionButton;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public ComboBox<CoreVersionAction> getCoreVersionActionComboBox() {
+		return coreVersionActionComboBox;
 	}
 
 	/**
@@ -277,8 +295,8 @@ public class ProjectView extends AbstractView implements ProjectPresenter.View {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Button getDeletetButton() {
-		return deletetButton;
+	public Button getDeleteButton() {
+		return deleteButton;
 	}
 
 	/**
@@ -287,56 +305,6 @@ public class ProjectView extends AbstractView implements ProjectPresenter.View {
 	@Override
 	public ContentPanel getProjectBannerPanel() {
 		return projectBannerPanel;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-
-	@Override
-	public SplitButton getAmendmentsButton() {
-		return amendmentsButton;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public ListStore<AmendmentDTO> getListAmendmentStore() {
-		return listAmendmentStore;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public ListView<AmendmentDTO> getListAmendments() {
-		return listAmendments;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public Menu getAmendmentsMenuActions() {
-		return amendmentsMenuActions;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void addAmendmentAction(final boolean clearFirst, final AmendmentAction action, final ClickHandler handler) {
-
-		if (clearFirst) {
-			amendmentActionsContainer.removeAll();
-		}
-
-		final Anchor actionAnchor = new Anchor(AmendmentAction.getName(action));
-		actionAnchor.setStyleName(STYLE_AMENDMENT_ACTION);
-		actionAnchor.addClickHandler(handler);
-
-		amendmentActionsContainer.add(new WidgetComponent(actionAnchor), Layouts.vBoxData());
 	}
 
 	/**
@@ -383,6 +351,76 @@ public class ProjectView extends AbstractView implements ProjectPresenter.View {
 	}
 
 	/**
+	 * Changes the current view to match the given state.
+	 * 
+	 * @param state Current project core version state.
+	 */
+	@Override
+	public void setProjectCoreVersionState(AmendmentState state) {
+		
+		coreVersionTable.clear();
+		coreVersionTable.removeAllRows();
+		
+		final boolean locked = state == AmendmentState.LOCKED;
+		
+		if(state == AmendmentState.DRAFT || locked) {
+			validateVersionButton.setEnabled(locked);
+			
+			coreVersionTable.insertRow(0);
+			coreVersionTable.insertRow(0);
+			coreVersionTable.addCell(0);
+			coreVersionTable.addCell(0);
+			coreVersionTable.addCell(1);
+			
+			coreVersionTable.getFlexCellFormatter().setWidth(0, 0, "50%");
+			coreVersionTable.getFlexCellFormatter().setWidth(0, 1, "50%");
+			coreVersionTable.getFlexCellFormatter().setColSpan(1, 0, 2);
+			
+			coreVersionTable.setWidget(0, 0, locked ? unlockProjectCoreButton : lockProjectCoreButton);
+			coreVersionTable.setWidget(0, 1, validateVersionButton);
+			coreVersionTable.setWidget(1, 0, coreVersionActionComboBox);
+			
+		} else {
+			coreVersionTable.setWidget(0, 0, backToWorkingVersionButton);
+			coreVersionTable.setWidget(1, 0, coreVersionActionComboBox);
+		}
+		
+		coreVersionPanel.layout(true);
+		
+	}
+
+	/**
+	 * Displays the given core versions in the core version combo box.
+	 * 
+	 * @param coreVersions List of project core versions to display.
+	 */
+	@Override
+	public void setProjectCoreVersions(List<AmendmentDTO> coreVersions) {
+		final ListStore<CoreVersionAction> store = coreVersionActionComboBox.getStore();
+		store.removeAll();
+		
+		// Add compare and rename actions.
+		coreVersionActionComboBox.getStore().add(CoreVersionEntry.create(I18N.CONSTANTS.amendmentCompare(), CoreVersionActionType.FUNCTION_COMPARE));
+		coreVersionActionComboBox.getStore().add(CoreVersionEntry.create(I18N.CONSTANTS.amendmentRename(), CoreVersionActionType.FUNCTION_RENAME));
+		
+		// Add the separator if needed.
+		if(!coreVersions.isEmpty()) {
+			coreVersionActionComboBox.setEmptyText("");
+			store.add(CoreVersionEntry.createSeparator());
+			store.add(CoreVersionEntry.createComment(I18N.CONSTANTS.projectCoreDisplayVersion()));
+			
+		} else {
+			coreVersionActionComboBox.setEmptyText(I18N.CONSTANTS.projectCoreNoValidated());
+		}
+		for(final AmendmentDTO coreVersion : coreVersions) {
+			coreVersion.set(CoreVersionEntry.TYPE, CoreVersionActionType.CORE_VERSION.name());
+			store.add(coreVersion);
+		}
+	}
+	
+	
+
+	/**
 	 * Creates the project banner panel.
 	 * 
 	 * @return The project banner panel.
@@ -414,57 +452,69 @@ public class ProjectView extends AbstractView implements ProjectPresenter.View {
 	 * @return The amendments panel component.
 	 */
 	private Component createAmendmentsPanel() {
+		// Lock project core version button.
+		lockProjectCoreButton = Forms.button(I18N.CONSTANTS.projectCorelockButton(), IconImageBundle.ICONS.lock());
+		
+		// Unlock project core version button.
+		unlockProjectCoreButton = Forms.button(I18N.CONSTANTS.projectCoreUnlockButton(), IconImageBundle.ICONS.unlock());
+		
+		// Validate project core version button.
+		validateVersionButton = Forms.button(I18N.CONSTANTS.projectCoreValidateVersion(), IconImageBundle.ICONS.validate());
+		
+		// Back to working version button.
+		backToWorkingVersionButton = Forms.button(I18N.CONSTANTS.projectCoreBackToWorkingVersion(), IconImageBundle.ICONS.amendment());
+		
+		// Core version and actions combo box.
+		coreVersionActionComboBox = new ComboBox<CoreVersionAction>();
+		coreVersionActionComboBox.setDisplayField("name");
+		coreVersionActionComboBox.setValueField("id");
+		coreVersionActionComboBox.setStore(new ListStore<CoreVersionAction>());
+		coreVersionActionComboBox.setTemplate(XTemplate.create(getTemplate()));
+		coreVersionActionComboBox.setItemSelector(".x-combo-list-item");
+		coreVersionActionComboBox.setTriggerAction(ComboBox.TriggerAction.ALL);
+		
+		// Define a width of 100% to all buttons.
+		expandWidth(lockProjectCoreButton, unlockProjectCoreButton, validateVersionButton, backToWorkingVersionButton, coreVersionActionComboBox);
+		
+		// Layout.
+		coreVersionTable = new FlexTable();
+		coreVersionTable.setCellSpacing(6);
+		
+		// Content panel.
+		coreVersionPanel = Panels.content(I18N.CONSTANTS.projectCoreBoxTitle());
+		coreVersionPanel.setIcon(IconImageBundle.ICONS.DNABrownRed());
+		coreVersionPanel.add(coreVersionTable);
 
-		amendmentsPanel = Panels.content(I18N.CONSTANTS.projectCoreBoxTitle());
-		amendmentsPanel.setIcon(IconImageBundle.ICONS.DNABrownRed());
-
-		lockerAmendmentButton = Forms.button(I18N.CONSTANTS.projectCoreUnlockButton(), IconImageBundle.ICONS.unlock());
-		validateVersionProjectCoreButton = Forms.button(I18N.CONSTANTS.projectCoreValidateVersion(), IconImageBundle.ICONS.validate());
-
-		final LayoutContainer container = Layouts.hBox(HBoxLayoutAlign.TOP);
-
-		container.add(lockerAmendmentButton, Layouts.hBoxData(Margin.RIGHT));
-		container.add(validateVersionProjectCoreButton, Layouts.hBoxData(Margin.RIGHT));
-
-		final LayoutContainer mainContainer = Layouts.vBox(new LayoutOptions(new Padding(4)));
-		mainContainer.add(container);
-
-		amendmentsButton = new SplitButton(I18N.CONSTANTS.projectCoreNoValidated());
-		amendmentsMenuActions = createMenuAmendmentActions();
-		amendmentsButton.setMenu(amendmentsMenuActions);
-
-		LayoutContainer vlayout = Layouts.vBox(VBoxLayoutAlign.LEFT);
-		vlayout.add(amendmentsButton);
-
-		mainContainer.add(vlayout, Layouts.vBoxData(Margin.TOP));
-
-		amendmentsPanel.add(mainContainer, Layouts.fitData());
-
-		return amendmentsPanel;
+		return coreVersionPanel;
 	}
-
-	private Menu createMenuAmendmentActions() {
-
-		final Menu menu = new Menu();
-
-		menu.add(new MenuItem(I18N.CONSTANTS.amendmentCompare()));
-		menu.add(new MenuItem(I18N.CONSTANTS.amendmentRename()));
-
-		menu.add(new SeparatorMenuItem());
-
-		MenuItem item = new MenuItem(I18N.CONSTANTS.amendmentDisplayVersion());
-		item.setEnabled(false);
-		menu.add(item);
-
-		listAmendmentStore = new ListStore<AmendmentDTO>();
-		listAmendments = new ListView<AmendmentDTO>();
-
-		listAmendments.setStore(listAmendmentStore);
-
-		menu.add(listAmendments);
-
-		return menu;
-
+	
+	private void expandWidth(Component... components) {
+		for(final Component component : components) {
+			component.setWidth("100%");
+		}
 	}
+	
+	/**
+	 * Creates the XTemplate for the project core version combo box.
+	 * @return The XTemplate used by the project core version combo box.
+	 */
+	private native String getTemplate() /*-{
+		return [
+			'<tpl for=".">',
+			'<tpl if="entry == &quot;CORE_VERSION&quot;">',
+			'<div class="x-combo-list-item" style="position: relative"><span style="font-weight: bold">{version}.</span> {name} <div style="color: #CCC; width: 60px; position: absolute; right: 0; top: 2px">{history_date:date("M/d/yy")}</div></div>',
+			'</tpl>',
+			'<tpl if="entry == &quot;FUNCTION_COMPARE&quot; || entry == &quot;FUNCTION_RENAME&quot;">',
+			'<div class="x-combo-list-item">{name}</div>',
+			'</tpl>',
+			'<tpl if="entry == &quot;SEPARATOR&quot;">',
+			'<div class="x-combo-list-item x-combo-unselectable" style="padding: 0; margin: 0"><hr style="border: 0; border-bottom: 1px solid #CCC"/></div>',
+			'</tpl>',
+			'<tpl if="entry == &quot;COMMENT&quot;">',
+			'<div class="x-combo-list-item x-combo-unselectable" style="font-style: italic; color: #CCC; padding: 2px">{name}</div>',
+			'</tpl>',
+			'</tpl>'
+		].join("");
+	}-*/;
 
 }

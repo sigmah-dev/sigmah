@@ -226,4 +226,6 @@ public interface IconImageBundle extends ImageBundle {
 	AbstractImagePrototype unlock();
 
 	AbstractImagePrototype validate();
+	
+	AbstractImagePrototype history16();
 }
