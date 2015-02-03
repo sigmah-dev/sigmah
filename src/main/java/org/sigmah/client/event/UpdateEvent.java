@@ -305,19 +305,37 @@ public class UpdateEvent extends GwtEvent<UpdateHandler> {
 	/**
 	 * when rename amendment
 	 */
-
 	public static final String AMENDMENT_RENAME = "AMENDMENT_RENAME";
 
 	/**
-	 * After add or edit imporation scheme to update liste of Importation Schemes
+	 * After add or edit importation scheme to update list of Importation Schemes
 	 */
-
-	public static final String UPDATE_LISTE_IMPORTATION_SCHEME = "UPDATE_LISTE_IMPORTATION_SCHEME";
+	public static final String IMPORTATION_SCHEME_UPDATE = "IMPORTATION_SCHEME_UPDATE";
 
 	/**
-	 * After add or edit variable imprtation scheme
+	 * After add or edit variable importation scheme.
 	 */
-	public static final String UPDATE_LISTE_VARIABLE_SCHEME = "UPDATE_LISTE_VARIABLE_SCHEME";
+	public static final String VARIABLE_SCHEME_UPDATE = "VARIABLE_SCHEME_UPDATE";
+
+	/**
+	 * <p>
+	 * After Add Importation Scheme Model.
+	 * </p>
+	 * <ul>
+	 * <li>param[0] = model(ProjectModel / OrgUnitModel)</li>
+	 * <li>param[1] = new importation scheme model</li>
+	 * </ul>
+	 */
+	public static final String IMPORTATION_SCHEME_MODEL_UPDATE = "IMPORTATION_SCHEME_MODEL_UPDATE";
+	
+	/**
+	 * When a matching rule has been added to an importation scheme &lt;-&gt; model
+	 * relationship.
+	 * <ul>
+	 * <li>param[0] = new or edited importation matching rule.</li>
+	 * </ul>
+	 */
+	public static final String IMPORTATION_MATCHING_RULE_UPDATE = "IMPORTATION_MATCHING_RULE_UPDATE";
 
 	// ---------------------------------------------------------------------------------
 	//

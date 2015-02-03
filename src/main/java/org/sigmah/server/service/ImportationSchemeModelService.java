@@ -169,11 +169,8 @@ public class ImportationSchemeModelService extends AbstractEntityService<Importa
 				FlexibleElement fle = em().find(FlexibleElement.class, flexibleElementDTO.getId());
 				varfle.setFlexibleElement(fle);
 
-				if (changes.get(AdminUtil.PROP_VAR_FLE_ID_KEY) != null) {
-					varfle.setIsKey(true);
-				} else {
-					varfle.setIsKey(false);
-				}
+				final Boolean key = changes.get(AdminUtil.PROP_VAR_FLE_ID_KEY);
+				varfle.setIsKey(key != null && key);
 
 				varfle.setImportationSchemeModel(importationSchemeModel);
 

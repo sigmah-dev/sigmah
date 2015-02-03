@@ -43,20 +43,23 @@ public class HistoryToken extends AbstractEntityId<Integer> {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	@Column(name = EntityConstants.HISTORY_TOKEN_COLMUN_ID)
+	@Column(name = EntityConstants.HISTORY_TOKEN_COLUMN_ID)
 	private Integer id;
 
-	@Column(name = EntityConstants.HISTORY_TOKEN_COLMUN_DATE, nullable = false)
+	@Column(name = EntityConstants.HISTORY_TOKEN_COLUMN_DATE, nullable = false)
 	@Temporal(value = TemporalType.TIMESTAMP)
 	@NotNull
 	private Date date;
 
-	@Column(name = EntityConstants.HISTORY_TOKEN_COLMUN_VALUE, nullable = false, columnDefinition = EntityConstants.COLUMN_DEFINITION_TEXT)
+	@Column(name = EntityConstants.HISTORY_TOKEN_COLUMN_VALUE, nullable = false, columnDefinition = EntityConstants.COLUMN_DEFINITION_TEXT)
 	private String value;
 
-	@Column(name = EntityConstants.HISTORY_TOKEN_COLMUN_TYPE, nullable = true)
+	@Column(name = EntityConstants.HISTORY_TOKEN_COLUMN_TYPE, nullable = true)
 	@Enumerated(value = EnumType.STRING)
 	private ValueEventChangeType type;
+	
+	@Column(name = EntityConstants.HISTORY_TOKEN_COLUMN_COMMENT, nullable = true)
+	private String comment;
 
 	// --------------------------------------------------------------------------------
 	//
@@ -64,7 +67,7 @@ public class HistoryToken extends AbstractEntityId<Integer> {
 	//
 	// --------------------------------------------------------------------------------
 
-	@Column(name = EntityConstants.HISTORY_TOKEN_COLMUN_ELEMENT_ID, nullable = false)
+	@Column(name = EntityConstants.HISTORY_TOKEN_COLUMN_ELEMENT_ID, nullable = false)
 	@NotNull
 	private Integer elementId;
 
@@ -157,4 +160,13 @@ public class HistoryToken extends AbstractEntityId<Integer> {
 	public void setType(ValueEventChangeType type) {
 		this.type = type;
 	}
+
+	public String getComment() {
+		return comment;
+	}
+
+	public void setComment(String comment) {
+		this.comment = comment;
+	}
+	
 }

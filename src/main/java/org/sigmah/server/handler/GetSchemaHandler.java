@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.sigmah.server.dao.UserDatabaseDAO;
+import org.sigmah.server.dao.base.AbstractDAO;
 import org.sigmah.server.dispatch.impl.UserDispatch;
 import org.sigmah.server.domain.Activity;
 import org.sigmah.server.domain.User;
@@ -48,7 +49,7 @@ public class GetSchemaHandler extends AbstractCommandHandler<GetSchema, SchemaDT
         final Map<Integer, CountryDTO> countries = new HashMap<Integer, CountryDTO>();
 
         for (final UserDatabase database : databases) {
-
+			
             if (database.getLastSchemaUpdate().after(lastUpdate)) {
                 lastUpdate = database.getLastSchemaUpdate();
             }
@@ -75,7 +76,7 @@ public class GetSchemaHandler extends AbstractCommandHandler<GetSchema, SchemaDT
 			final User user = context.getUser();
             
             databaseDTO.setCountry(country);
-            databaseDTO.setAmOwner(database.getOwner().getId() == user.getId());
+            databaseDTO.setAmOwner(database.getOwner().getId() != null && database.getOwner().getId().equals(user.getId()));
 
             UserPermission permission = null;
             if (!databaseDTO.getAmOwner()) {

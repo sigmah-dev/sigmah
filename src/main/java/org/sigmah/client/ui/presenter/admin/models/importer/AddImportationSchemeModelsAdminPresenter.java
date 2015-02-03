@@ -1,7 +1,11 @@
 package org.sigmah.client.ui.presenter.admin.models.importer;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.dispatch.monitor.LoadingMask;
+import org.sigmah.client.event.UpdateEvent;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.inject.Injector;
 import org.sigmah.client.page.Page;
@@ -11,22 +15,25 @@ import org.sigmah.client.ui.notif.N10N;
 import org.sigmah.client.ui.presenter.base.AbstractPagePresenter;
 import org.sigmah.client.ui.view.admin.models.importer.AddImportationSchemeModelsAdminView;
 import org.sigmah.client.ui.view.base.ViewPopupInterface;
+import org.sigmah.client.util.AdminUtil;
 import org.sigmah.client.util.MessageType;
 import org.sigmah.shared.command.CreateEntity;
 import org.sigmah.shared.command.GetImportationSchemes;
 import org.sigmah.shared.command.result.CreateResult;
 import org.sigmah.shared.command.result.ListResult;
+import org.sigmah.shared.dto.ProjectModelDTO;
 import org.sigmah.shared.dto.base.EntityDTO;
 import org.sigmah.shared.dto.importation.ImportationSchemeDTO;
+import org.sigmah.shared.dto.importation.ImportationSchemeModelDTO;
 import org.sigmah.shared.dto.orgunit.OrgUnitDTO;
 
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.store.ListStore;
-import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -48,7 +55,7 @@ public class AddImportationSchemeModelsAdminPresenter extends AbstractPagePresen
 
 		ComboBox<ImportationSchemeDTO> getSchemasCombo();
 
-		ContentPanel getMainPanel();
+		FormPanel getMainPanel();
 
 		Button getSubmitButton();
 
@@ -91,7 +98,31 @@ public class AddImportationSchemeModelsAdminPresenter extends AbstractPagePresen
 			@Override
 			public void handleEvent(BaseEvent be) {
 
-				CreateEntity cmd = new CreateEntity();
+				// Validate Form
+
+				if (!view.getMainPanel().isValid()) {
+
+					N10N.message(I18N.CONSTANTS.createFormIncomplete(), I18N.MESSAGES.createFormIncompleteDetails(I18N.CONSTANTS.adminImportationScheme()),
+						MessageType.INFO);
+					return;
+
+				}
+
+				// Create the Command
+
+				Map<String, Object> newImportationSchemeModelProperties = new HashMap<String, Object>();
+				newImportationSchemeModelProperties.put(AdminUtil.ADMIN_SCHEMA, view.getSchemasCombo().getValue());
+
+				if (model instanceof ProjectModelDTO) {
+					newImportationSchemeModelProperties.put(AdminUtil.ADMIN_PROJECT_MODEL, model);
+				} else {
+					newImportationSchemeModelProperties.put(AdminUtil.ADMIN_ORG_UNIT_MODEL, model);
+				}
+
+				newImportationSchemeModelProperties.put(AdminUtil.ADMIN_IMPORTATION_SCHEME_MODEL, new ImportationSchemeModelDTO());
+				CreateEntity cmd = new CreateEntity(ImportationSchemeModelDTO.ENTITY_NAME, newImportationSchemeModelProperties);
+
+				// run the command
 
 				dispatch.execute(cmd, new CommandResultHandler<CreateResult>() {
 
@@ -100,15 +131,7 @@ public class AddImportationSchemeModelsAdminPresenter extends AbstractPagePresen
 
 						// update Importation Scheme Store
 
-						/*
-						 * final ImportationSchemeModelDTO schemaDTOUpdated = (ImportationSchemeModelDTO) result.getEntity();
-						 * getImportationSchemeModelsStore().add(schemaDTOUpdated);
-						 * getImportationSchemeModelsStore().commitChanges(); currentImportationSchemeModelDTO = schemaDTOUpdated;
-						 * getVariableFlexibleElementsStore().removeAll(); getVariableFlexibleElementsStore().clearFilters();
-						 */
-
-						// add variable
-						eventBus.navigateRequest(Page.ADMIN_ADD_IMPORTATION_SCHEME_MODEL_MATCHING_RULE.request().addData(RequestParameter.DTO, model));
+						eventBus.fireEvent(new UpdateEvent(UpdateEvent.IMPORTATION_SCHEME_MODEL_UPDATE, model, result.getEntity()));
 
 						// hide PopUp
 
@@ -118,9 +141,7 @@ public class AddImportationSchemeModelsAdminPresenter extends AbstractPagePresen
 
 					@Override
 					protected void onCommandFailure(Throwable caught) {
-
 						hideView();
-
 					}
 
 				}, new LoadingMask(view.getMainPanel()));

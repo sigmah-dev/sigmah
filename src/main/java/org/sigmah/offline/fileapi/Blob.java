@@ -29,7 +29,7 @@ public final class Blob extends JavaScriptObject {
 	protected Blob() {
 	}
 	
-	private static native Blob getBlobFromInputFileElement(InputElement element) /*-{
+	public static native Blob getBlobFromInputFileElement(InputElement element) /*-{
 		return element.files[0];
 	}-*/;
 	

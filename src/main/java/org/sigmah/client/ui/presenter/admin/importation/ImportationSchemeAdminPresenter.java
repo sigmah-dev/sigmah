@@ -28,24 +28,32 @@ import org.sigmah.shared.dto.importation.VariableDTO;
 import org.sigmah.shared.dto.referential.ImportationSchemeFileFormat;
 import org.sigmah.shared.dto.referential.ImportationSchemeImportType;
 
-import com.extjs.gxt.ui.client.event.BaseEvent;
-import com.extjs.gxt.ui.client.event.Events;
-import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.IconButtonEvent;
+import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
+import com.extjs.gxt.ui.client.event.SelectionChangedListener;
+import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Label;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.button.IconButton;
 import com.extjs.gxt.ui.client.widget.form.NumberField;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import java.util.ArrayList;
+import org.sigmah.shared.command.DeleteImportationSchemes;
+import org.sigmah.shared.command.result.VoidResult;
 
 /**
+ * Presenter for the administration page of importation schemes.
+ * 
  * @author Mehdi Benabdeslam (mehdi.benabdeslam@netapsys.fr)
+ * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
-
 @Singleton
 public class ImportationSchemeAdminPresenter extends AbstractAdminPresenter<ImportationSchemeAdminPresenter.View> {
 
@@ -87,6 +95,8 @@ public class ImportationSchemeAdminPresenter extends AbstractAdminPresenter<Impo
 		Button getAddSchemeButton();
 
 		Button getSaveSheetNameFirstRowButton();
+		
+		IconButton getVariablesCloseButton();
 
 		Grid<ImportationSchemeDTO> getSchemesGrid();
 
@@ -143,49 +153,55 @@ public class ImportationSchemeAdminPresenter extends AbstractAdminPresenter<Impo
 	}
 
 	@Override
-	public void onPageRequest(PageRequest request) {
-
-		hideSheetNameFirstRow();
-
-	}
-
-	@Override
 	public void onBind() {
-
-		// LOAD IMPORATATION SCHEMES
-
-		loadImportationShemes();
-
-		// ADD IMPORTATION SHEME BUTTON
-
-		view.getAddSchemeButton().addListener(Events.OnClick, new Listener<BaseEvent>() {
+		// --
+		// Add importation sheme button.
+		// --
+		view.getAddSchemeButton().addSelectionListener(new SelectionListener<ButtonEvent>() {
 
 			@Override
-			public void handleEvent(BaseEvent be) {
+			public void componentSelected(ButtonEvent ce) {
 				eventBus.navigate(Page.ADMIN_ADD_IMPORTATION_SCHEME);
 			}
 		});
 
-		// DELETE IMPORTATIONB SHEME BUTTON
-
-		view.getDeleteSchemeButton().addListener(Events.OnClick, new Listener<BaseEvent>() {
+		// --
+		// Delete importation sheme button.
+		// --
+		view.getSchemesGrid().getSelectionModel().addSelectionChangedListener(new SelectionChangedListener<ImportationSchemeDTO>() {
 
 			@Override
-			public void handleEvent(BaseEvent be) {
-				N10N.message("Delete Importation Scheme", MessageType.ERROR);
+			public void selectionChanged(SelectionChangedEvent<ImportationSchemeDTO> se) {
+				view.getDeleteSchemeButton().setEnabled(se.getSelectedItem() != null);
+			}
+		});
+		
+		view.getDeleteSchemeButton().addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+			@Override
+			public void componentSelected(ButtonEvent ce) {
+				final ImportationSchemeDTO scheme = view.getSchemesGrid().getSelectionModel().getSelectedItem();
+				N10N.confirmation(I18N.CONSTANTS.delete(), I18N.MESSAGES.confirmDeleteSchemes(scheme.getName()), new ConfirmCallback() {
+
+					@Override
+					public void onAction() {
+						deleteImportationScheme(scheme);
+					}
+				});
 			}
 		});
 
-		// ADD VARIBALE IMPORTATION SHEME BUTTON
-
-		view.getAddVariableButton().addListener(Events.OnClick, new Listener<BaseEvent>() {
+		// --
+		// Add importation sheme variable button.
+		// --
+		view.getAddVariableButton().addSelectionListener(new SelectionListener<ButtonEvent>() {
 
 			@Override
-			public void handleEvent(BaseEvent be) {
+			public void componentSelected(ButtonEvent ce) {
 
 				if (currentImportationSchemeDTO != null) {
 					eventBus.navigateRequest(Page.ADMIN_ADD_VARIABLE_IMPORTATION_SCHEME.request()
-						.addData(RequestParameter.IMPORATION_SCHEME, currentImportationSchemeDTO));
+						.addData(RequestParameter.IMPORTATION_SCHEME, currentImportationSchemeDTO));
 				} else {
 					N10N.message(I18N.MESSAGES.importSchemenNoSelected(), MessageType.INFO);
 				}
@@ -194,12 +210,13 @@ public class ImportationSchemeAdminPresenter extends AbstractAdminPresenter<Impo
 
 		});
 
-		// Save sheet name Importation Scheme Variable
-
-		view.getSaveSheetNameFirstRowButton().addListener(Events.OnClick, new Listener<BaseEvent>() {
+		// --
+		// Save sheet name Importation Scheme Variable.
+		// --
+		view.getSaveSheetNameFirstRowButton().addSelectionListener(new SelectionListener<ButtonEvent>() {
 
 			@Override
-			public void handleEvent(BaseEvent be) {
+			public void componentSelected(ButtonEvent ce) {
 
 				Map<String, Object> newSchemaProperties = new HashMap<String, Object>();
 
@@ -227,132 +244,121 @@ public class ImportationSchemeAdminPresenter extends AbstractAdminPresenter<Impo
 
 					});
 				} else {
-
 					N10N.message(I18N.MESSAGES.importationSchemeVariableInvalidValues(), MessageType.ERROR);
-
 				}
-
 			}
-
 		});
 
-		// Delete Variable Importation Scheme
-
-		view.getDeleteVariableButton().addListener(Events.OnClick, new Listener<BaseEvent>() {
+		// --
+		// Delete Variable Importation Scheme.
+		// --
+		view.getVariablesGrid().getSelectionModel().addSelectionChangedListener(new SelectionChangedListener<VariableDTO>() {
 
 			@Override
-			public void handleEvent(BaseEvent be) {
+			public void selectionChanged(SelectionChangedEvent<VariableDTO> se) {
+				view.getDeleteVariableButton().setEnabled(!se.getSelection().isEmpty());
+			}
+		});
+		
+		view.getDeleteVariableButton().addSelectionListener(new SelectionListener<ButtonEvent>() {
 
-				N10N.message("DELETE IMPORATION SCHEME VARIABLE", MessageType.INFO);
+			@Override
+			public void componentSelected(ButtonEvent ce) {
+				final List<VariableDTO> variables = view.getVariablesGrid().getSelectionModel().getSelection();
+				
+				final StringBuilder variableNames = new StringBuilder();
+				for(final VariableDTO variable : variables) {
+					variableNames.append(variable.getName()).append(", ");
+				}
+				if(variableNames.length() > 0) {
+					variableNames.setLength(variableNames.length() - 2);
+				}
+				
+				N10N.confirmation(I18N.CONSTANTS.delete(), I18N.MESSAGES.confirmDeleteVariables(variableNames.toString()), new ConfirmCallback() {
 
+					@Override
+					public void onAction() {
+						deleteVariables(variables);
+					}
+				});
+			}
+		});
+		
+		view.getVariablesCloseButton().addSelectionListener(new SelectionListener<IconButtonEvent>() {
+
+			@Override
+			public void componentSelected(IconButtonEvent ce) {
+				eventBus.navigateRequest(Page.ADMIN_IMPORTATION_SCHEME.request()
+					.addData(RequestParameter.NO_REFRESH, true));
 			}
 		});
 
-		// Presenter Handler
-
+		// --
+		// Presenter Handler.
+		// --
 		view.setImportationSchemePresenterHandler(new ImportationSchemePresenterHandler() {
 
 			// Edit Importation Scheme Button
 			@Override
 			public void onImportationSchemeEdit(ImportationSchemeDTO importationSchemeDTO) {
-				eventBus.navigateRequest(Page.ADMIN_ADD_IMPORTATION_SCHEME.request().addData(RequestParameter.DTO, importationSchemeDTO));
+				eventBus.navigateRequest(Page.ADMIN_IMPORTATION_SCHEME.request()
+					.addParameter(RequestParameter.MODEL, importationSchemeDTO.getId())
+					.addData(RequestParameter.DTO, importationSchemeDTO));
 			}
 
 			// Edit Variable Importation Scheme
 			@Override
 			public void onVariableImportationSchemeEdit(VariableDTO variableDTO) {
-
-				PageRequest request = Page.ADMIN_ADD_VARIABLE_IMPORTATION_SCHEME.request().addData(RequestParameter.IMPORATION_SCHEME, currentImportationSchemeDTO);
+				PageRequest request = Page.ADMIN_ADD_VARIABLE_IMPORTATION_SCHEME.request().addData(RequestParameter.IMPORTATION_SCHEME, currentImportationSchemeDTO);
 				request.addData(RequestParameter.VARIABLE_IMPORTATION_SCHEME, variableDTO);
 				eventBus.navigateRequest(request);
-
 			}
 		});
-
-		// Select Importation Sheme
-		view.getSchemesGrid().addListener(Events.OnClick, new Listener<BaseEvent>() {
-
-			@Override
-			public void handleEvent(BaseEvent be) {
-
-				currentImportationSchemeDTO = view.getSchemesGrid().getSelectionModel().getSelectedItem();
-
-				if (currentImportationSchemeDTO.getFirstRow() != null) {
-
-					view.getFirstRow().setValue(currentImportationSchemeDTO.getFirstRow());
-
-				} else {
-					view.getFirstRow().clear();
-				}
-
-				if (currentImportationSchemeDTO.getSheetName() != null) {
-
-					view.getSheetName().setValue(currentImportationSchemeDTO.getSheetName());
-
-				} else {
-
-					view.getSheetName().clear();
-
-				}
-
-				hideSheetNameFirstRow();
-
-				switch (currentImportationSchemeDTO.getImportType()) {
-
-					case ROW:
-						view.getVariablesGrid().getColumnModel().getColumnById("reference").setHeaderHtml(I18N.CONSTANTS.adminImportReferenceColumn());
-						break;
-					case SEVERAL:
-						view.getVariablesGrid().getColumnModel().getColumnById("reference").setHeaderHtml(I18N.CONSTANTS.adminImportReferenceCell());
-						break;
-					case UNIQUE:
-						view.getVariablesGrid().getColumnModel().getColumnById("reference").setHeaderHtml(I18N.CONSTANTS.adminImportReferenceSheetCell());
-						break;
-					default:
-						break;
-
-				}
-
-				view.getVariablesGrid().show();
-				view.getVariablesStore().removeAll();
-				view.getVariablesStore().add(currentImportationSchemeDTO.getVariables());
-				view.getVariablesStore().commitChanges();
-				view.getAddVariableButton().enable();
-
-			}
-		});
-
-		// register Handler
-
+		
+		// --
+		// Register Handler
+		// --
 		registerHandler(eventBus.addHandler(UpdateEvent.getType(), new UpdateHandler() {
 
 			@Override
 			public void onUpdate(final UpdateEvent event) {
-
-				if (event.concern(UpdateEvent.UPDATE_LISTE_IMPORTATION_SCHEME)) {
-
-					loadImportationShemes();
-
+				
+				if (event.concern(UpdateEvent.IMPORTATION_SCHEME_UPDATE)) {
+					final Integer selection = currentImportationSchemeDTO != null ? currentImportationSchemeDTO.getId() : null;
+					loadImportationShemes(selection);
 				}
 
-				if (event.concern(UpdateEvent.UPDATE_LISTE_VARIABLE_SCHEME)) {
-
+				if (event.concern(UpdateEvent.VARIABLE_SCHEME_UPDATE)) {
 					currentImportationSchemeDTO = event.getParam(0);
+					final Integer selection = currentImportationSchemeDTO != null ? currentImportationSchemeDTO.getId() : null;
 
-					loadImportationShemes();
-
-					view.getSchemesGrid().getSelectionModel().select(currentImportationSchemeDTO, true);
-
-					view.getVariablesGrid().show();
-					view.getVariablesStore().removeAll();
-					view.getVariablesStore().add(currentImportationSchemeDTO.getVariables());
-					view.getVariablesStore().commitChanges();
-
+					loadImportationShemes(selection);
 				}
-
 			}
 		}));
 
+	}
+	
+	@Override
+	public void onPageRequest(PageRequest request) {
+
+		final Integer currentSchemeId = request.getParameterInteger(RequestParameter.MODEL);
+		final ImportationSchemeDTO scheme = request.getData(RequestParameter.DTO);
+		final Boolean dontRefresh = request.getData(RequestParameter.NO_REFRESH);
+		
+		view.getVariablePanel().setVisible(false);
+		
+		if(dontRefresh != null && dontRefresh) {
+			return;
+		}
+		
+		if(scheme == null) {
+			loadImportationShemes(currentSchemeId);
+			
+		} else {
+			loadImportationScheme(scheme);
+		}
+		
 	}
 
 	/**
@@ -386,26 +392,124 @@ public class ImportationSchemeAdminPresenter extends AbstractAdminPresenter<Impo
 	/**
 	 * Load Importation Scheme
 	 */
-	public void loadImportationShemes() {
+	public void loadImportationShemes(final Integer selection) {
+		
+		view.getSchemesStore().removeAll();
+		view.getSchemesStore().clearFilters();
 
 		dispatch.execute(new GetImportationSchemes(), new CommandResultHandler<ListResult<ImportationSchemeDTO>>() {
 
 			@Override
 			public void onCommandSuccess(ListResult<ImportationSchemeDTO> result) {
 
-				view.getSchemesStore().removeAll();
-				view.getSchemesStore().clearFilters();
-
 				if (result.getList() != null && !result.getList().isEmpty()) {
 
 					view.getSchemesStore().add(result.getList());
-					view.getSchemesStore().commitChanges();
 
+					if(selection != null) {
+						for(final ImportationSchemeDTO scheme : result.getList()) {
+							if(selection.equals(scheme.getId())) {
+								loadImportationScheme(scheme);
+							}
+						}
+					}
 				}
 
 			}
 
 		}, view.getSchemesLoadingMonitor());
 
+	}
+	
+	private void loadImportationScheme(ImportationSchemeDTO scheme) {
+		currentImportationSchemeDTO = scheme;
+		view.getSchemesGrid().getSelectionModel().select(scheme, false);
+		
+		view.getVariablePanel().setHeadingText(scheme.getName());
+		
+		hideSheetNameFirstRow();
+
+		if (currentImportationSchemeDTO.getFirstRow() != null) {
+
+			view.getFirstRow().setValue(currentImportationSchemeDTO.getFirstRow());
+
+		} else {
+			view.getFirstRow().clear();
+		}
+
+		if (currentImportationSchemeDTO.getSheetName() != null) {
+
+			view.getSheetName().setValue(currentImportationSchemeDTO.getSheetName());
+
+		} else {
+
+			view.getSheetName().clear();
+
+		}
+
+		hideSheetNameFirstRow();
+
+		switch (currentImportationSchemeDTO.getImportType()) {
+
+			case ROW:
+				view.getVariablesGrid().getColumnModel().getColumnById("reference").setHeaderHtml(I18N.CONSTANTS.adminImportReferenceColumn());
+				break;
+			case SEVERAL:
+				view.getVariablesGrid().getColumnModel().getColumnById("reference").setHeaderHtml(I18N.CONSTANTS.adminImportReferenceCell());
+				break;
+			case UNIQUE:
+				view.getVariablesGrid().getColumnModel().getColumnById("reference").setHeaderHtml(I18N.CONSTANTS.adminImportReferenceSheetCell());
+				break;
+			default:
+				break;
+
+		}
+
+		view.getVariablesGrid().show();
+		view.getVariablesStore().removeAll();
+		view.getVariablesStore().add(currentImportationSchemeDTO.getVariables());
+		view.getVariablesStore().commitChanges();
+		view.getAddVariableButton().enable();
+		
+		view.getVariablePanel().setVisible(true);
+	}
+	
+	private void deleteImportationScheme(final ImportationSchemeDTO scheme) {
+		dispatch.execute(new DeleteImportationSchemes(scheme.getId()), new CommandResultHandler<VoidResult>() {
+
+			@Override
+			protected void onCommandSuccess(VoidResult result) {
+				view.getSchemesStore().remove(scheme);
+				view.getSchemesStore().commitChanges();
+				
+				if(currentImportationSchemeDTO.equals(scheme)) {
+					eventBus.navigateRequest(Page.ADMIN_IMPORTATION_SCHEME.request()
+						.addData(RequestParameter.NO_REFRESH, true));
+				}
+				
+				N10N.infoNotif(I18N.CONSTANTS.infoConfirmation(), I18N.CONSTANTS.adminImportationSchemesDeleteConfirm());
+			}
+		}, view.getSchemesLoadingMonitor());
+	}
+	
+	private void deleteVariables(final List<VariableDTO> variables) {
+		final ArrayList<Integer> ids = new ArrayList<Integer>();
+		for(final VariableDTO variable : variables) {
+			ids.add(variable.getId());
+		}
+		
+		dispatch.execute(new DeleteImportationSchemes(ids), new CommandResultHandler<VoidResult>() {
+
+			@Override
+			protected void onCommandSuccess(VoidResult result) {
+				for(final VariableDTO variable : variables) {
+					view.getVariablesStore().remove(variable);
+				}
+				view.getSchemesStore().commitChanges();
+				
+				N10N.infoNotif(I18N.CONSTANTS.infoConfirmation(), I18N.CONSTANTS.adminVariableDeleteConfirm());
+				eventBus.fireEvent(new UpdateEvent(UpdateEvent.VARIABLE_SCHEME_UPDATE, currentImportationSchemeDTO));
+			}
+		}, view.getSchemesLoadingMonitor());
 	}
 }

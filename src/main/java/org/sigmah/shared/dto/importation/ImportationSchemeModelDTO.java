@@ -18,18 +18,18 @@ public class ImportationSchemeModelDTO extends AbstractModelDataEntityDTO<Intege
 	 */
 	private static final long serialVersionUID = 8661322283680779114L;
 
-	private static final String ENTITY_NAME = "importation.ImportationSchemeModel";
-	private static final String IMPORTATION_SCHEME = "importationSchemeDTO";
-	private static final String PROJECT_MODEL = "projectModelDTO";
-	private static final String ORGUNIT_MODEL = "orgUnitModelDTO";
-	private static final String VARIABLES = "variableFlexibleElementsDTO";
+	public static final String ENTITY_NAME = "importation.ImportationSchemeModel";
+	public static final String IMPORTATION_SCHEME = "importationSchemeDTO";
+	public static final String PROJECT_MODEL = "projectModelDTO";
+	public static final String ORGUNIT_MODEL = "orgUnitModelDTO";
+	public static final String VARIABLES = "variableFlexibleElementsDTO";
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public String getEntityName() {
-		return "importation.ImportationSchemeModel";
+		return ENTITY_NAME;
 	}
 
 	public VariableFlexibleElementDTO getIdKey() {

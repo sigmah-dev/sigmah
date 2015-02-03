@@ -19,13 +19,19 @@ public class UpdateProject extends AbstractCommand<VoidResult> {
 
 	private int projectId;
 	private ArrayList<ValueEventWrapper> values = new ArrayList<ValueEventWrapper>();
+	private String comment;
 
 	public UpdateProject() {
 		// Serialization.
 	}
 
 	public UpdateProject(int projectId, List<ValueEvent> values) {
+		this(projectId, values, null);
+	}
+	
+	public UpdateProject(int projectId, List<ValueEvent> values, String comment) {
 		this.projectId = projectId;
+		this.comment = comment;
 
 		this.values.clear();
 
@@ -117,6 +123,14 @@ public class UpdateProject extends AbstractCommand<VoidResult> {
 		this.values.addAll(values);
 	}
 
+	public String getComment() {
+		return comment;
+	}
+
+	public void setComment(String comment) {
+		this.comment = comment;
+	}
+	
 	/**
 	 * Wraps a list of events.
 	 * 

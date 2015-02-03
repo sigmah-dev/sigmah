@@ -11,16 +11,15 @@ import org.sigmah.client.ui.presenter.admin.importation.ImportationSchemeAdminPr
 import org.sigmah.client.ui.presenter.admin.importation.ImportationSchemeAdminPresenter.ImportationSchemePresenterHandler;
 import org.sigmah.client.ui.res.icon.IconImageBundle;
 import org.sigmah.client.ui.view.base.AbstractView;
-import org.sigmah.client.ui.widget.ToggleAnchor;
 import org.sigmah.shared.dto.importation.ImportationSchemeDTO;
 import org.sigmah.shared.dto.importation.VariableDTO;
 import org.sigmah.shared.dto.referential.ImportationSchemeFileFormat;
 import org.sigmah.shared.dto.referential.ImportationSchemeImportType;
 
 import com.extjs.gxt.ui.client.Style;
-import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Scroll;
+import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
@@ -28,7 +27,10 @@ import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Label;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.button.IconButton;
+import com.extjs.gxt.ui.client.widget.button.ToolButton;
 import com.extjs.gxt.ui.client.widget.form.NumberField;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
@@ -38,23 +40,33 @@ import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.grid.GridSelectionModel;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
-import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.ui.Anchor;
+import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.inject.Singleton;
+import org.sigmah.client.ui.widget.layout.Layouts;
+import org.sigmah.client.ui.widget.panel.Panels;
 
 /**
+ * View for {@link ImportationSchemeAdminPresenter}.
+ * 
  * @author Mehdi Benabdeslam (mehdi.benabdeslam@netapsys.fr)
+ * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
-
 @Singleton
 public class ImportationSchemeAdminView extends AbstractView implements ImportationSchemeAdminPresenter.View {
 
+	// CSS style names.
+	private static final String STYLE_TOOL_CLOSE_ICON = "x-tool-close";
+	private static final String STYLE_LAYOUT = "x-border-layout-ct";
+	
 	private Grid<ImportationSchemeDTO> schemesGrid;
 	private Grid<VariableDTO> variablesGrid;
 	private ContentPanel schemePanel;
 	private ContentPanel variablePanel;
-	private ListStore<VariableDTO> variablesStore;
-	private ListStore<ImportationSchemeDTO> schemesStore;
+	private IconButton closeButton;
 	private Button addVariableButton;
 	private Button deleteVariableButton;
 	private Button deleteSchemeButton;
@@ -69,21 +81,24 @@ public class ImportationSchemeAdminView extends AbstractView implements Importat
 	@Override
 	public void initialize() {
 
-		schemePanel = new ContentPanel(new FitLayout());
-		schemePanel.setHeaderVisible(false);
+		schemePanel = Panels.content(I18N.CONSTANTS.adminImportationSchemes());
 		schemePanel.setWidth(450);
-		schemePanel.setScrollMode(Scroll.AUTO);
+		schemePanel.setScrollMode(Scroll.AUTOY);
 		schemesGrid = buildSchemasGrid();
 		schemePanel.add(schemesGrid);
 		schemePanel.setTopComponent(importationSchemeToolBar());
 
-		variablePanel = new ContentPanel(new FitLayout());
+		variablePanel = Panels.content(I18N.CONSTANTS.edit());
 		variablePanel.setScrollMode(Scroll.AUTOY);
-		variablePanel.setHeaderVisible(false);
-		variablePanel.setBorders(true);
 		variablesGrid = buildVariablesGrid();
 		variablePanel.add(variablesGrid);
 		variablePanel.setTopComponent(variableToolBar());
+		
+		closeButton = new ToolButton(STYLE_TOOL_CLOSE_ICON);
+		variablePanel.getHeader().addTool(closeButton);
+
+		final LayoutContainer details = Layouts.fit(false, STYLE_LAYOUT);
+		details.add(variablePanel);
 
 		final BorderLayoutData leftLayoutData = new BorderLayoutData(LayoutRegion.WEST, 450);
 		leftLayoutData.setMargins(new Margins(0, 4, 0, 0));
@@ -91,7 +106,7 @@ public class ImportationSchemeAdminView extends AbstractView implements Importat
 
 		final BorderLayoutData mainLayoutData = new BorderLayoutData(LayoutRegion.CENTER);
 		mainLayoutData.setMargins(new Margins(0, 0, 0, 4));
-		add(variablePanel, mainLayoutData);
+		add(details, mainLayoutData);
 
 	}
 
@@ -102,48 +117,39 @@ public class ImportationSchemeAdminView extends AbstractView implements Importat
 	 */
 	private Grid<VariableDTO> buildVariablesGrid() {
 
-		variablesStore = new ListStore<VariableDTO>();
+		// Reference column.
+		final ColumnConfig referenceColumn = new ColumnConfig("reference", I18N.CONSTANTS.importVariableReference(), 75);
 
-		List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
-
-		ColumnConfig column = new ColumnConfig();
-
-		column = new ColumnConfig("reference", I18N.CONSTANTS.importVariableReference(), 75);
-		configs.add(column);
-
-		column = new ColumnConfig("name", I18N.CONSTANTS.importVariableName(), 300);
-		configs.add(column);
-
-		column = new ColumnConfig();
-		column.setWidth(50);
-		column.setAlignment(Style.HorizontalAlignment.CENTER);
-
-		column.setRenderer(new GridCellRenderer<VariableDTO>() {
+		// Name column.
+		final ColumnConfig nameColumn = new ColumnConfig("name", I18N.CONSTANTS.importVariableName(), 300);
+		nameColumn.setRenderer(new GridCellRenderer<VariableDTO>() {
 
 			@Override
-			public Object render(final VariableDTO model, final String property, ColumnData config, int rowIndex, int colIndex, ListStore<VariableDTO> store,
-					Grid<VariableDTO> grid) {
-
-				final Button buttonEdit = new Button(I18N.CONSTANTS.edit());
-				buttonEdit.addListener(Events.OnClick, new Listener<BaseEvent>() {
+			public Object render(final VariableDTO variable, String property, ColumnData config, int rowIndex, int colIndex, ListStore store, Grid grid) {
+				final Anchor anchor = new Anchor(variable.getName());
+				anchor.addClickHandler(new ClickHandler() {
 
 					@Override
-					public void handleEvent(BaseEvent be) {
-						importationShemePresenterHandler.onVariableImportationSchemeEdit(model);
+					public void onClick(ClickEvent event) {
+						importationShemePresenterHandler.onVariableImportationSchemeEdit(variable);
 					}
 				});
+				
+				final SimplePanel panel = new SimplePanel();
+				panel.addStyleName("project-grid-code");
+				panel.setWidget(anchor);
 
-				return buttonEdit;
+				return panel;
 			}
 		});
-
-		configs.add(column);
+		
+		final List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
+		configs.add(referenceColumn);
+		configs.add(nameColumn);
 
 		ColumnModel cm = new ColumnModel(configs);
 
-		Grid<VariableDTO> variablesDTOGrid = new Grid<VariableDTO>(variablesStore, cm);
-		variablesDTOGrid.setAutoHeight(true);
-		variablesDTOGrid.setAutoWidth(false);
+		final Grid<VariableDTO> variablesDTOGrid = new Grid<VariableDTO>(new ListStore<VariableDTO>(), cm);
 		variablesDTOGrid.getView().setForceFit(true);
 		variablesDTOGrid.hide();
 		return variablesDTOGrid;
@@ -157,36 +163,38 @@ public class ImportationSchemeAdminView extends AbstractView implements Importat
 	 */
 	private Grid<ImportationSchemeDTO> buildSchemasGrid() {
 
-		schemesStore = new ListStore<ImportationSchemeDTO>();
+		final ColumnConfig nameColumn = new ColumnConfig("name", I18N.CONSTANTS.importSchemeName(), 75);
 
-		List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
-		ColumnConfig column = new ColumnConfig();
-
-		column = new ColumnConfig("name", I18N.CONSTANTS.importSchemeName(), 75);
-
-		column.setRenderer(new GridCellRenderer<ImportationSchemeDTO>() {
+		nameColumn.setRenderer(new GridCellRenderer<ImportationSchemeDTO>() {
 
 			@Override
 			public Object render(final ImportationSchemeDTO model, String property, ColumnData config, int rowIndex, int colIndex,
 					ListStore<ImportationSchemeDTO> store, Grid<ImportationSchemeDTO> grid) {
 
-				final ToggleAnchor anchor = new ToggleAnchor(model.getName());
-				anchor.setAnchorMode(false);
+				final Anchor anchor = new Anchor(model.getName());
+				anchor.addClickHandler(new ClickHandler() {
+
+					@Override
+					public void onClick(ClickEvent event) {
+						importationShemePresenterHandler.onImportationSchemeEdit(model);
+					}
+				});
+				
 				final com.google.gwt.user.client.ui.Grid panel = new com.google.gwt.user.client.ui.Grid(1, 2);
 				panel.setCellPadding(0);
-				panel.setCellSpacing(5);
+				panel.setCellSpacing(0);
 				panel.setWidget(0, 0, ImportationSchemeDTO.getFileFormatIcon(model));
+				panel.getCellFormatter().addStyleName(0, 0, "project-grid-code-icon");
 				panel.setWidget(0, 1, anchor);
+				panel.getCellFormatter().addStyleName(0, 1, "project-grid-code");
 
 				return panel;
 			}
 
 		});
 
-		configs.add(column);
-
-		column = new ColumnConfig("importType", I18N.CONSTANTS.adminImportSchemeFileImportType(), 50);
-		column.setRenderer(new GridCellRenderer<ImportationSchemeDTO>() {
+		final ColumnConfig typeColumn = new ColumnConfig("importType", I18N.CONSTANTS.adminImportSchemeFileImportType(), 50);
+		typeColumn.setRenderer(new GridCellRenderer<ImportationSchemeDTO>() {
 
 			@Override
 			public Object render(final ImportationSchemeDTO model, String property, ColumnData config, int rowIndex, int colIndex,
@@ -195,36 +203,15 @@ public class ImportationSchemeAdminView extends AbstractView implements Importat
 			}
 
 		});
-		configs.add(column);
 
-		column = new ColumnConfig("actions", 70);
-		column.setAlignment(HorizontalAlignment.CENTER);
-		column.setRenderer(new GridCellRenderer<ImportationSchemeDTO>() {
+		final List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
+		configs.add(nameColumn);
+		configs.add(typeColumn);
 
-			@Override
-			public Object render(final ImportationSchemeDTO model, String property, ColumnData config, int rowIndex, int colIndex,
-					ListStore<ImportationSchemeDTO> store, Grid<ImportationSchemeDTO> grid) {
-
-				final Button buttonEdit = new Button(I18N.CONSTANTS.edit());
-
-				buttonEdit.addListener(Events.OnClick, new Listener<BaseEvent>() {
-
-					@Override
-					public void handleEvent(BaseEvent be) {
-						importationShemePresenterHandler.onImportationSchemeEdit(model);
-					}
-				});
-
-				return buttonEdit;
-			}
-		});
-		configs.add(column);
-
-		ColumnModel cm = new ColumnModel(configs);
-		Grid<ImportationSchemeDTO> grid = new Grid<ImportationSchemeDTO>(schemesStore, cm);
-		grid.setAutoHeight(true);
+		final ColumnModel columnModel = new ColumnModel(configs);
+		final Grid<ImportationSchemeDTO> grid = new Grid<ImportationSchemeDTO>(new ListStore<ImportationSchemeDTO>(), columnModel);
+		grid.getSelectionModel().setSelectionMode(Style.SelectionMode.SINGLE);
 		grid.getView().setForceFit(true);
-		grid.setAutoWidth(false);
 		grid.setWidth(450);
 		return grid;
 	}
@@ -241,6 +228,7 @@ public class ImportationSchemeAdminView extends AbstractView implements Importat
 
 		toolbar.add(addSchemeButton);
 		deleteSchemeButton = new Button(I18N.CONSTANTS.delete(), IconImageBundle.ICONS.delete());
+		deleteSchemeButton.setEnabled(false);
 		toolbar.add(deleteSchemeButton);
 
 		return toolbar;
@@ -303,6 +291,7 @@ public class ImportationSchemeAdminView extends AbstractView implements Importat
 		toolbar.add(addVariableButton);
 
 		deleteVariableButton = new Button(I18N.CONSTANTS.delete(), IconImageBundle.ICONS.delete());
+		deleteVariableButton.setEnabled(false);
 		toolbar.add(deleteVariableButton);
 
 		return toolbar;
@@ -402,6 +391,11 @@ public class ImportationSchemeAdminView extends AbstractView implements Importat
 		return addSchemeButton;
 	}
 
+	@Override
+	public IconButton getVariablesCloseButton() {
+		return closeButton;
+	}
+	
 	/**
 	 * @return the saveSheetNameFirstRowButton
 	 */
@@ -434,12 +428,12 @@ public class ImportationSchemeAdminView extends AbstractView implements Importat
 
 	@Override
 	public ListStore<VariableDTO> getVariablesStore() {
-		return variablesStore;
+		return variablesGrid.getStore();
 	}
 
 	@Override
 	public ListStore<ImportationSchemeDTO> getSchemesStore() {
-		return schemesStore;
+		return schemesGrid.getStore();
 	}
 
 	/**

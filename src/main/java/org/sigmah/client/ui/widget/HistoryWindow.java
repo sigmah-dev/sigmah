@@ -22,6 +22,7 @@ import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.grid.RowNumberer;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.i18n.client.DateTimeFormat;
+import org.sigmah.shared.dto.history.HistoryTokenDTO;
 
 /**
  * A simple window to show the history of a field.
@@ -102,7 +103,7 @@ public final class HistoryWindow {
 
 		// Builds the window.
 		window = new Window();
-		window.setWidth(750);
+		window.setWidth(800);
 		window.setHeight(400);
 		window.setPlain(true);
 		window.setModal(true);
@@ -130,7 +131,7 @@ public final class HistoryWindow {
 		final ColumnConfig dateColumn = new ColumnConfig();
 		dateColumn.setId("date");
 		dateColumn.setHeaderText(I18N.CONSTANTS.historyDate());
-		dateColumn.setWidth(125);
+		dateColumn.setWidth(100);
 		dateColumn.setDateTimeFormat(format);
 
 		// User.
@@ -152,7 +153,7 @@ public final class HistoryWindow {
 		valueColumn.setId("tokens");
 		valueColumn.setHeaderText(I18N.CONSTANTS.historyValue());
 		valueColumn.setSortable(false);
-		valueColumn.setWidth(490);
+		valueColumn.setWidth(350);
 		valueColumn.setRenderer(new GridCellRenderer<HistoryTokenListDTO>() {
 
 			@Override
@@ -167,11 +168,32 @@ public final class HistoryWindow {
 			}
 		});
 
+		// Value.
+		final ColumnConfig commentColumn = new ColumnConfig();
+		commentColumn.setId("comment");
+		commentColumn.setHeaderText(I18N.CONSTANTS.comments());
+		commentColumn.setSortable(false);
+		commentColumn.setWidth(200);
+		commentColumn.setRenderer(new GridCellRenderer<HistoryTokenListDTO>() {
+
+			@Override
+			public Object render(HistoryTokenListDTO model, String property, ColumnData config, int rowIndex, int colIndex, ListStore<HistoryTokenListDTO> store,
+					Grid<HistoryTokenListDTO> grid) {
+
+				final StringBuilder stringBuilder = new StringBuilder();
+				for(final HistoryTokenDTO token : model.getTokens()) {
+					stringBuilder.append(token.getComment() != null ? token.getComment() : "").append("<br>");
+				}
+				return stringBuilder.toString();
+			}
+		});
+
 		return new ColumnConfig[] {
-																countColumn,
-																dateColumn,
-																userColumn,
-																valueColumn
+			countColumn,
+			dateColumn,
+			userColumn,
+			valueColumn,
+			commentColumn
 		};
 	}
 

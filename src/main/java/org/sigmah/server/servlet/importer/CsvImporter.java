@@ -9,6 +9,8 @@ import org.sigmah.shared.dto.importation.ImportationSchemeModelDTO;
 import com.google.inject.Injector;
 import org.sigmah.server.dispatch.impl.UserDispatch;
 import org.sigmah.shared.dispatch.CommandException;
+import org.sigmah.shared.dispatch.FunctionalException;
+import org.sigmah.shared.dispatch.FunctionalException.ErrorCode;
 
 /**
  * CSV implementation of {@link Importer}.
@@ -62,17 +64,24 @@ public class CsvImporter extends Importer {
 	}
 
 	@Override
-	public String getValueFromVariable(String reference, Integer lineNumber, String sheetName) {
+	public String getValueFromVariable(String reference, Integer lineNumber, String sheetName) throws FunctionalException {
 	
 		String columnValue = "";
 		if (reference != null && !reference.isEmpty()) {
 			switch (scheme.getImportType()) {
 			case ROW:
 				// Get First Row and sheet name
-				try {
-					columnValue = lines.get(lineNumber)[Integer.valueOf(reference)];
-				} catch(NumberFormatException nfe){
-					throw new IllegalArgumentException("The variable's reference : " + reference + " is invalid for the Csv file format type", nfe);
+				if(lineNumber != null && lineNumber >= 0 && lineNumber < lines.size()) {
+					final String[] line = lines.get(lineNumber);
+					try {
+						final int column = Integer.valueOf(reference);
+						
+						if(column >= 0 && column < line.length) {
+							columnValue = line[column];
+						}
+					} catch(NumberFormatException nfe){
+						throw new FunctionalException(nfe, ErrorCode.IMPORT_INVALID_COLUMN_REFERENCE, reference);
+					}
 				}
 				break;
 			case SEVERAL:

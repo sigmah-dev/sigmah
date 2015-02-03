@@ -19,6 +19,7 @@ public final class HistoryTokenJS extends JavaScriptObject {
 		
 		historyTokenJS.setType(historyTokenDTO.getType());
 		historyTokenJS.setValue(historyTokenDTO.getValue());
+		historyTokenJS.setComment(historyTokenDTO.getComment());
 		
 		return historyTokenJS;
 	}
@@ -28,6 +29,7 @@ public final class HistoryTokenJS extends JavaScriptObject {
 		
 		historyTokenDTO.setType(getTypeEnum());
 		historyTokenDTO.setValue(getValue());
+		historyTokenDTO.setComment(getComment());
 		
 		return historyTokenDTO;
 	}
@@ -59,6 +61,14 @@ public final class HistoryTokenJS extends JavaScriptObject {
 	
 	public native void setType(String type) /*-{
 		this.type = type;
+	}-*/;
+	
+	public native String getComment() /*-{
+		return this.comment;
+	}-*/;
+
+	public native void setComment(String comment) /*-{
+		this.comment = comment;
 	}-*/;
 	
 }

@@ -1,13 +1,14 @@
 package org.sigmah.client.ui.view.admin.models.importer;
 
+import com.extjs.gxt.ui.client.Style;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.ui.presenter.admin.models.importer.ImportationSchemeModelsAdminPresenter;
+import org.sigmah.client.ui.presenter.admin.models.importer.ImportationSchemeModelsAdminPresenter.ImportationSchemeModelsAdminPresenterHandler;
 import org.sigmah.client.ui.res.icon.IconImageBundle;
 import org.sigmah.client.ui.view.base.AbstractView;
-import org.sigmah.client.ui.widget.ToggleAnchor;
 import org.sigmah.client.ui.widget.panel.Panels;
 import org.sigmah.shared.dto.importation.ImportationSchemeModelDTO;
 import org.sigmah.shared.dto.importation.VariableBudgetElementDTO;
@@ -15,8 +16,10 @@ import org.sigmah.shared.dto.importation.VariableBudgetSubFieldDTO;
 import org.sigmah.shared.dto.importation.VariableFlexibleElementDTO;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
+import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.store.ListStore;
-import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.button.Button;
@@ -25,19 +28,21 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
-import com.extjs.gxt.ui.client.widget.layout.FitLayout;
-import com.extjs.gxt.ui.client.widget.layout.VBoxLayoutData;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
-import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.ui.Anchor;
+import com.google.gwt.user.client.ui.SimplePanel;
+import java.util.Collections;
+import org.sigmah.client.ui.widget.layout.Layouts;
 
 /**
+ * View of {@link ImportationSchemeModelsAdminPresenter}.
+ * 
  * @author Mehdi Benabdeslam (mehdi.benabdeslam@netapsys.fr)
+ * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
-
 public class ImportationSchemeModelsAdminView extends AbstractView implements ImportationSchemeModelsAdminPresenter.View {
-
-	private ListStore<ImportationSchemeModelDTO> importationSchemeModelsStore;
-	private ListStore<VariableFlexibleElementDTO> variableFlexibleElementStore;
 
 	private Grid<ImportationSchemeModelDTO> importationSchemeModelsGrid;
 	private Grid<VariableFlexibleElementDTO> variableFlexibleElementsGrid;
@@ -47,70 +52,50 @@ public class ImportationSchemeModelsAdminView extends AbstractView implements Im
 	private Button addImportationSchemeModelButton;
 	private Button deleteImportationSchemeModelButton;
 
+	private ImportationSchemeModelsAdminPresenterHandler importationSchemeModelsAdminPresenterHandler;
+
 	@Override
 	public void initialize() {
 
-		final ContentPanel mainPanel = Panels.content("Importation Scheme");
-
-		// mainPanel.setHeaderVisible(false);
-
-		mainPanel.setLayout(new FitLayout());
-		mainPanel.setBorders(false);
-		mainPanel.setBodyBorder(false);
-
-		final HorizontalPanel panel = new HorizontalPanel();
-
-		final VBoxLayoutData topVBoxLayoutData2 = new VBoxLayoutData();
-		topVBoxLayoutData2.setMargins(new Margins(0, 0, 0, 2));
-		topVBoxLayoutData2.setFlex(1.0);
-
-		final ContentPanel importationSchemeModelsPanel = new ContentPanel(new FitLayout());
-		importationSchemeModelsPanel.setHeaderVisible(false);
+		final ContentPanel importationSchemeModelsPanel = Panels.content(null);
 		importationSchemeModelsPanel.setScrollMode(Scroll.AUTOY);
-		importationSchemeModelsPanel.setBorders(false);
+		importationSchemeModelsPanel.addListener(Events.Render, new Listener<BaseEvent>() {
+
+			@Override
+			public void handleEvent(BaseEvent be) {
+				importationSchemeModelsPanel.getLayoutTarget().setStyleAttribute("overflowX", "hidden");
+			}
+		});
 
 		importationSchemeModelsGrid = buildImportationSchemeModelsGrid();
 
-		importationSchemeModelsPanel.add(importationSchemeModelsGrid, topVBoxLayoutData2);
+		importationSchemeModelsPanel.add(importationSchemeModelsGrid);
 		importationSchemeModelsPanel.setTopComponent(importationSchemeModelToolBar());
-		importationSchemeModelsPanel.layout();
 
-		panel.add(importationSchemeModelsPanel);
-
-		final ContentPanel variableFlexibleElementPanel = new ContentPanel(new FitLayout());
+		final ContentPanel variableFlexibleElementPanel = Panels.content(null);
 		variableFlexibleElementPanel.setScrollMode(Scroll.AUTOY);
-		variableFlexibleElementPanel.setHeaderVisible(false);
-		variableFlexibleElementPanel.setBorders(false);
 		variableFlexibleElementsGrid = buildVariableFlexibleElementsGrid();
 
-		final VBoxLayoutData topVBoxLayoutData = new VBoxLayoutData();
-		topVBoxLayoutData.setMargins(new Margins(0, 0, 0, 2));
-		topVBoxLayoutData.setFlex(1.0);
-
-		variableFlexibleElementPanel.add(variableFlexibleElementsGrid, topVBoxLayoutData);
+		variableFlexibleElementPanel.add(variableFlexibleElementsGrid);
 		variableFlexibleElementPanel.setTopComponent(variableFlexibleElementToolBar());
-		variableFlexibleElementPanel.layout();
 
-		// panel.setWidth("600px");
-
-		panel.add(variableFlexibleElementPanel);
-
-		mainPanel.add(panel);
-
-		add(mainPanel);
+		add(importationSchemeModelsPanel, Layouts.borderLayoutData(Style.LayoutRegion.WEST, 250.0f, Layouts.Margin.RIGHT));
+		add(variableFlexibleElementPanel, Layouts.borderLayoutData(Style.LayoutRegion.CENTER));
 
 	}
 
 	private Component importationSchemeModelToolBar() {
 
-		final ToolBar toolbar = new ToolBar();
-
+		// Add button.
 		addImportationSchemeModelButton = new Button(I18N.CONSTANTS.addItem(), IconImageBundle.ICONS.add());
 
-		toolbar.add(addImportationSchemeModelButton);
-
+		// Delete button.
 		deleteImportationSchemeModelButton = new Button(I18N.CONSTANTS.delete(), IconImageBundle.ICONS.delete());
-
+		deleteImportationSchemeModelButton.disable();
+		
+		// Building the tool bar.
+		final ToolBar toolbar = new ToolBar();
+		toolbar.add(addImportationSchemeModelButton);
 		toolbar.add(deleteImportationSchemeModelButton);
 
 		return toolbar;
@@ -119,15 +104,17 @@ public class ImportationSchemeModelsAdminView extends AbstractView implements Im
 
 	private Component variableFlexibleElementToolBar() {
 
-		final ToolBar toolbar = new ToolBar();
-
+		// Add button.
 		addVariableFlexibleElementButton = new Button(I18N.CONSTANTS.addItem(), IconImageBundle.ICONS.add());
-
 		addVariableFlexibleElementButton.disable();
-		toolbar.add(addVariableFlexibleElementButton);
 
+		// Delete button.
 		deleteVariableFlexibleElementButton = new Button(I18N.CONSTANTS.delete(), IconImageBundle.ICONS.delete());
+		deleteVariableFlexibleElementButton.disable();
 
+		// Building the tool bar.
+		final ToolBar toolbar = new ToolBar();
+		toolbar.add(addVariableFlexibleElementButton);
 		toolbar.add(deleteVariableFlexibleElementButton);
 
 		return toolbar;
@@ -135,40 +122,32 @@ public class ImportationSchemeModelsAdminView extends AbstractView implements Im
 
 	private Grid<VariableFlexibleElementDTO> buildVariableFlexibleElementsGrid() {
 
-		variableFlexibleElementStore = new ListStore<VariableFlexibleElementDTO>();
-
-		List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
-
-		ColumnConfig column = new ColumnConfig();
-
-		column = new ColumnConfig("icon", "", 50);
-		column.setRenderer(new GridCellRenderer<VariableFlexibleElementDTO>() {
+		final ColumnConfig fieldColumn = new ColumnConfig("field", I18N.CONSTANTS.adminFlexible(), 200);
+		fieldColumn.setRenderer(new GridCellRenderer<VariableFlexibleElementDTO>() {
 
 			@Override
 			public Object render(VariableFlexibleElementDTO model, String property, ColumnData config, int rowIndex, int colIndex,
 					ListStore<VariableFlexibleElementDTO> store, Grid<VariableFlexibleElementDTO> grid) {
-				if (model.getIsKey()) {
-					return IconImageBundle.ICONS.login().createImage();
+				
+				final com.google.gwt.user.client.ui.Grid panel = new com.google.gwt.user.client.ui.Grid(1, model.getIsKey() ? 2 : 1);
+				panel.setCellPadding(0);
+				panel.setCellSpacing(0);
+				int column = 0;
+				if(model.getIsKey()) {
+					panel.setWidget(0, column, IconImageBundle.ICONS.login().createImage());
+					panel.getCellFormatter().addStyleName(0, column, "project-grid-code-icon");
+					column++;
 				}
-				return null;
-
+				// TODO: Replace the text by an anchor and add an edit method.
+				panel.setText(0, column, model.getFlexibleElementDTO().getFormattedLabel());
+				panel.getCellFormatter().addStyleName(0, column, "project-grid-code");
+				
+				return panel;
 			}
 		});
-		configs.add(column);
 
-		column = new ColumnConfig("field", I18N.CONSTANTS.adminFlexible(), 200);
-		column.setRenderer(new GridCellRenderer<VariableFlexibleElementDTO>() {
-
-			@Override
-			public Object render(VariableFlexibleElementDTO model, String property, ColumnData config, int rowIndex, int colIndex,
-					ListStore<VariableFlexibleElementDTO> store, Grid<VariableFlexibleElementDTO> grid) {
-				return model.getFlexibleElementDTO().getFormattedLabel();
-			}
-		});
-		configs.add(column);
-
-		column = new ColumnConfig("variable", I18N.CONSTANTS.adminImportationSchemeModelVariableHeading(), 200);
-		column.setRenderer(new GridCellRenderer<VariableFlexibleElementDTO>() {
+		final ColumnConfig variableColumn = new ColumnConfig("variable", I18N.CONSTANTS.adminImportationSchemeModelVariableHeading(), 200);
+		variableColumn.setRenderer(new GridCellRenderer<VariableFlexibleElementDTO>() {
 
 			@Override
 			public Object render(VariableFlexibleElementDTO model, String property, ColumnData config, int rowIndex, int colIndex,
@@ -185,68 +164,71 @@ public class ImportationSchemeModelsAdminView extends AbstractView implements Im
 				}
 			}
 		});
-		configs.add(column);
+		
+		List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
+		configs.add(fieldColumn);
+		configs.add(variableColumn);
 
 		ColumnModel cm = new ColumnModel(configs);
 
-		Grid<VariableFlexibleElementDTO> variableFlexibleElementsDTOGrid = new Grid<VariableFlexibleElementDTO>(variableFlexibleElementStore, cm);
-		variableFlexibleElementsDTOGrid.setAutoHeight(true);
-		variableFlexibleElementsDTOGrid.setAutoWidth(true);
-		variableFlexibleElementsDTOGrid.addStyleName("importation-scheme-models-grid");
+		final Grid<VariableFlexibleElementDTO> variableFlexibleElementsDTOGrid = new Grid<VariableFlexibleElementDTO>(new ListStore<VariableFlexibleElementDTO>(), cm);
 		variableFlexibleElementsDTOGrid.getView().setForceFit(true);
+		variableFlexibleElementsDTOGrid.setAutoHeight(true);
+		variableFlexibleElementsDTOGrid.addStyleName("importation-scheme-models-grid");
 
 		return variableFlexibleElementsDTOGrid;
 	}
 
 	private Grid<ImportationSchemeModelDTO> buildImportationSchemeModelsGrid() {
 
-		importationSchemeModelsStore = new ListStore<ImportationSchemeModelDTO>();
+		final ColumnConfig importationSchemeColumn = new ColumnConfig("importationScheme", I18N.CONSTANTS.adminImportationScheme(), 250);
 
-		List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
-
-		ColumnConfig column = new ColumnConfig();
-
-		column = new ColumnConfig("importationScheme", I18N.CONSTANTS.adminImportationScheme(), 250);
-		column.setRenderer(new GridCellRenderer<ImportationSchemeModelDTO>() {
+		importationSchemeColumn.setRenderer(new GridCellRenderer<ImportationSchemeModelDTO>() {
 
 			@Override
 			public Object render(final ImportationSchemeModelDTO model, String property, ColumnData config, int rowIndex, int colIndex,
 					ListStore<ImportationSchemeModelDTO> store, Grid<ImportationSchemeModelDTO> grid) {
 
-				final ToggleAnchor anchor = new ToggleAnchor(model.getImportationSchemeDTO().getName());
-				anchor.setAnchorMode(true);
-				/*
-				 * anchor.addClickHandler(new ClickHandler() {
-				 * @Override public void onClick(ClickEvent event) { currentImportationSchemeModelDTO = model;
-				 * variableFlexibleElementsGrid.show(); variableFlexibleElementStore.removeAll();
-				 * variableFlexibleElementStore.add(model.getVariableFlexibleElementsDTO());
-				 * variableFlexibleElementStore.commitChanges(); addVariableFlexibleElementButton.enable(); if
-				 * (currentImportationSchemeModelDTO.getIdKey() == null) { showNewVariableFlexibleElementForm(true); } } });
-				 */
-				return anchor;
+				final Anchor anchor = new Anchor(model.getImportationSchemeDTO().getName());
+				anchor.addClickHandler(new ClickHandler() {
+
+					@Override
+					public void onClick(ClickEvent event) {
+						importationSchemeModelsAdminPresenterHandler.onClick(model);
+					}
+				});
+				
+				final SimplePanel panel = new SimplePanel();
+				panel.addStyleName("project-grid-code");
+				panel.setWidget(anchor);
+
+				return panel;
 			}
 
 		});
 
-		configs.add(column);
+		final ColumnModel columnModel = new ColumnModel(Collections.singletonList(importationSchemeColumn));
 
-		ColumnModel cm = new ColumnModel(configs);
+		final Grid<ImportationSchemeModelDTO> importationSchemeModelGrid = new Grid<ImportationSchemeModelDTO>(new ListStore<ImportationSchemeModelDTO>(), columnModel);
+		importationSchemeModelGrid.getView().setForceFit(true);
+		importationSchemeModelGrid.setAutoHeight(true);
+		importationSchemeModelGrid.getSelectionModel().setSelectionMode(Style.SelectionMode.SINGLE);
+		return importationSchemeModelGrid;
+	}
 
-		Grid<ImportationSchemeModelDTO> importationSchemeModelsDTOGrid = new Grid<ImportationSchemeModelDTO>(importationSchemeModelsStore, cm);
-		importationSchemeModelsDTOGrid.getView().setForceFit(true);
-		importationSchemeModelsDTOGrid.setAutoHeight(true);
-		importationSchemeModelsDTOGrid.addStyleName("importation-scheme-models-grid");
-		return importationSchemeModelsDTOGrid;
+	@Override
+	public void setToolbarEnabled(Boolean enable) {
+		// TODO set enable false to all element in in toolbar
 	}
 
 	@Override
 	public ListStore<ImportationSchemeModelDTO> getImportationSchemeModelsStore() {
-		return importationSchemeModelsStore;
+		return importationSchemeModelsGrid.getStore();
 	}
 
 	@Override
 	public ListStore<VariableFlexibleElementDTO> getVariableFlexibleElementStore() {
-		return variableFlexibleElementStore;
+		return variableFlexibleElementsGrid.getStore();
 	}
 
 	@Override
@@ -279,4 +261,10 @@ public class ImportationSchemeModelsAdminView extends AbstractView implements Im
 		return deleteImportationSchemeModelButton;
 	}
 
+	@Override
+	public void setImportationSchemeModelsAdminPresenterHandler(ImportationSchemeModelsAdminPresenterHandler importationSchemeModelsAdminPresenterHandler) {
+
+		this.importationSchemeModelsAdminPresenterHandler = importationSchemeModelsAdminPresenterHandler;
+
+	}
 }

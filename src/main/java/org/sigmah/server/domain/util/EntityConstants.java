@@ -412,14 +412,15 @@ public final class EntityConstants extends org.sigmah.shared.dto.util.EntityCons
 	// --------------------------------------------------------------------------------
 
 	public static final String HISTORY_TOKEN_TABLE = "history_token";
-	public static final String HISTORY_TOKEN_COLMUN_ID = "id_history_token";
-	public static final String HISTORY_TOKEN_COLMUN_TYPE = "change_type";
-	public static final String HISTORY_TOKEN_COLMUN_VALUE = "value";
-	public static final String HISTORY_TOKEN_COLMUN_DATE = "history_date";
+	public static final String HISTORY_TOKEN_COLUMN_ID = "id_history_token";
+	public static final String HISTORY_TOKEN_COLUMN_TYPE = "change_type";
+	public static final String HISTORY_TOKEN_COLUMN_VALUE = "value";
+	public static final String HISTORY_TOKEN_COLUMN_DATE = "history_date";
 	// TODO Replace with 'flexible_element' id colunmn
-	public static final String HISTORY_TOKEN_COLMUN_ELEMENT_ID = "id_element";
+	public static final String HISTORY_TOKEN_COLUMN_ELEMENT_ID = "id_element";
 	// TODO Replace with 'UserLogin' id column.
 	public static final String HISTORY_TOKEN_COLUMN_USER_ID = "id_user";
+	public static final String HISTORY_TOKEN_COLUMN_COMMENT = "comment";
 
 	// --------------------------------------------------------------------------------
 	//

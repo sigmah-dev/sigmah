@@ -6,15 +6,14 @@ import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.ui.presenter.admin.models.importer.AddImportationSchemeModelsAdminPresenter;
 import org.sigmah.client.ui.view.base.AbstractPopupView;
 import org.sigmah.client.ui.widget.form.Forms;
-import org.sigmah.client.ui.widget.panel.Panels;
 import org.sigmah.client.ui.widget.popup.PopupWidget;
 import org.sigmah.shared.dto.base.EntityDTO;
 import org.sigmah.shared.dto.importation.ImportationSchemeDTO;
 
 import com.extjs.gxt.ui.client.store.ListStore;
-import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.google.inject.Singleton;
 
 /**
@@ -24,7 +23,7 @@ import com.google.inject.Singleton;
 @Singleton
 public class AddImportationSchemeModelsAdminView extends AbstractPopupView<PopupWidget> implements AddImportationSchemeModelsAdminPresenter.View {
 
-	private ContentPanel mainPanel;
+	private FormPanel mainPanel;
 	private ComboBox<ImportationSchemeDTO> schemasCombo;
 	private Button submitButton;
 	private ListStore<ImportationSchemeDTO> schemasStore;
@@ -37,7 +36,7 @@ public class AddImportationSchemeModelsAdminView extends AbstractPopupView<Popup
 	@Override
 	public void initialize() {
 
-		mainPanel = Panels.content(null);
+		mainPanel = Forms.panel();
 
 		schemasCombo = Forms.combobox(I18N.CONSTANTS.adminImportationScheme(), true, EntityDTO.ID, ImportationSchemeDTO.NAME);
 		schemasCombo.setFireChangeEventOnSetValue(true);
@@ -64,7 +63,7 @@ public class AddImportationSchemeModelsAdminView extends AbstractPopupView<Popup
 	}
 
 	@Override
-	public ContentPanel getMainPanel() {
+	public FormPanel getMainPanel() {
 		return mainPanel;
 	}
 

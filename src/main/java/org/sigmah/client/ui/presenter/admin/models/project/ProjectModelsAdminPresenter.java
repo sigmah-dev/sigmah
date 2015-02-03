@@ -88,6 +88,8 @@ public class ProjectModelsAdminPresenter extends AbstractModelsAdminPresenter<Pr
 	 *          The {@link PhaseModelsAdminPresenter} provider.
 	 * @param logFrameModelsAdminPresenterProvider
 	 *          The {@link LogFrameModelsAdminPresenter} provider.
+	 * @param importationSchemeModelsAdminPresenterProvider
+	 *			The {@link ImportationSchemeModelsAdminPresenter} provider.
 	 */
 	@Inject
 	protected ProjectModelsAdminPresenter(final View view, final Injector injector, final Provider<FlexibleElementsAdminPresenter<ProjectModelDTO>> flexibleElementsProvider, final Provider<PhaseModelsAdminPresenter> phaseModelsAdminPresenterProvider, final Provider<LogFrameModelsAdminPresenter> logFrameModelsAdminPresenterProvider, final Provider<ImportationSchemeModelsAdminPresenter<ProjectModelDTO>> importationSchemeModelsAdminPresenterProvider) {

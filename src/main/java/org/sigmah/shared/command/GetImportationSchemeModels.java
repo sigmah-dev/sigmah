@@ -2,6 +2,9 @@ package org.sigmah.shared.command;
 
 import org.sigmah.shared.command.base.AbstractCommand;
 import org.sigmah.shared.command.result.ListResult;
+import org.sigmah.shared.dto.IsModel;
+import org.sigmah.shared.dto.OrgUnitModelDTO;
+import org.sigmah.shared.dto.ProjectModelDTO;
 import org.sigmah.shared.dto.importation.ImportationSchemeModelDTO;
 
 /**
@@ -15,6 +18,15 @@ public class GetImportationSchemeModels extends AbstractCommand<ListResult<Impor
 
 	public GetImportationSchemeModels() {
 		// Serialization.
+	}
+	
+	public GetImportationSchemeModels(IsModel model) {
+		if(model instanceof ProjectModelDTO) {
+			this.projectModelId = model.getId();
+			
+		} else if(model instanceof OrgUnitModelDTO) {
+			this.orgUnitModelId = model.getId();
+		}
 	}
 
 	/**

@@ -150,7 +150,7 @@ public class Sigmah implements EntryPoint {
 		injector.getAddOrgUnitModelAdminPresenter();
 		injector.getProjectModelsAdminPresenter();
 		injector.getAddProjectModelAdminPresenter();
-		injector.getReporModelsAdminPresenter();
+		injector.getReportModelsAdminPresenter();
 		injector.getEditPhaseModelAdminPresenter();
 		injector.getEditLayoutGroupAdminPresenter();
 		injector.getEditFlexibleElementAdminPresenter();
@@ -164,7 +164,7 @@ public class Sigmah implements EntryPoint {
 		injector.getOrgUnitCalendarPresenter();
 		injector.getOrgUnitDetailsPresenter();
 		injector.getOrgUnitReportsPresenter();
-		injector.getAddImprortationShemaPresenter();
+		injector.getAddImportationSchemePresenter();
 
 		injector.getAddImportationSchemeModelsAdminPresenter();
 		injector.getAddMatchingRuleImportationShemeModelsAdminPresenter();

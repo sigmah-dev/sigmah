@@ -32,7 +32,10 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 /**
+ * Present the form to add or edit an importation scheme variable.
+ * 
  * @author Mehdi Benabdeslam (mehdi.benabdeslam@netapsys.fr)
+ * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
 @Singleton
 public class AddVariableImporationSchemePresenter extends AbstractPagePresenter<AddVariableImporationSchemePresenter.View> {
@@ -73,11 +76,9 @@ public class AddVariableImporationSchemePresenter extends AbstractPagePresenter<
 	@Override
 	public void onPageRequest(PageRequest request) {
 
-		currentImportationSheme = request.getData(RequestParameter.IMPORATION_SCHEME);
+		currentImportationSheme = request.getData(RequestParameter.IMPORTATION_SCHEME);
 		variableDTO = request.getData(RequestParameter.VARIABLE_IMPORTATION_SCHEME);
 		view.clearForm();
-
-		setPageTitle(I18N.CONSTANTS.addItem());
 
 		if (currentImportationSheme != null) {
 
@@ -107,33 +108,32 @@ public class AddVariableImporationSchemePresenter extends AbstractPagePresenter<
 			@Override
 			public void handleEvent(BaseEvent be) {
 
+				// Validate Form
+
 				if (!view.getMainPanel().isValid()) {
 					N10N.infoNotif(I18N.CONSTANTS.createFormIncomplete(), I18N.MESSAGES.createFormIncompleteDetails(I18N.CONSTANTS.adminImportationScheme()), null);
 					return;
 				}
 
-				Map<String, Object> newSchemaProperties = new HashMap<String, Object>();
+				// Create Command
 
+				Map<String, Object> newSchemaProperties = new HashMap<String, Object>();
 				newSchemaProperties.put(AdminUtil.PROP_VAR_NAME, view.getNameField().getValue());
 				newSchemaProperties.put(AdminUtil.PROP_VAR_REFERENCE, view.getReferenceField().getValue());
-
 				newSchemaProperties.put(AdminUtil.PROP_VAR_VARIABLE, variableDTO);
-
 				newSchemaProperties.put(AdminUtil.ADMIN_SCHEMA, currentImportationSheme);
-				CreateEntity cmd = new CreateEntity("ImportationScheme", newSchemaProperties);
+				CreateEntity cmd = new CreateEntity(ImportationSchemeDTO.ENTITY_NAME, newSchemaProperties);
+
+				// Run Command
 
 				dispatch.execute(cmd, new CommandResultHandler<CreateResult>() {
 
 					@Override
 					protected void onCommandSuccess(CreateResult result) {
-
 						N10N.infoNotif(I18N.CONSTANTS.infoConfirmation(), I18N.CONSTANTS.adminImportVariable() + " " + I18N.CONSTANTS.adminVariableAddConfirm());
-
 						hideView();
-
-						eventBus.fireEvent(new UpdateEvent(UpdateEvent.UPDATE_LISTE_VARIABLE_SCHEME, result.getEntity()));
+						eventBus.fireEvent(new UpdateEvent(UpdateEvent.VARIABLE_SCHEME_UPDATE, result.getEntity()));
 					};
-
 				});
 
 			}
@@ -144,12 +144,12 @@ public class AddVariableImporationSchemePresenter extends AbstractPagePresenter<
 	/**
 	 * Init View
 	 * 
-	 * @param variableDTO2
-	 * @param currentImportationSheme2
+	 * @param variable
+	 * @param importationSheme
 	 */
-	public void initView(VariableDTO variableDTO2, ImportationSchemeDTO currentImportationSheme2) {
+	public void initView(VariableDTO variable, ImportationSchemeDTO importationSheme) {
 
-		switch (currentImportationSheme2.getImportType()) {
+		switch (importationSheme.getImportType()) {
 
 			case ROW:
 				view.getReferenceField().setFieldLabel(I18N.CONSTANTS.adminImportReferenceColumn());
@@ -165,11 +165,14 @@ public class AddVariableImporationSchemePresenter extends AbstractPagePresenter<
 
 		}
 
-		if (variableDTO2 != null) {
-
-			view.getNameField().setValue(variableDTO2.getName());
-			view.getReferenceField().setValue(variableDTO2.getReference());
-
+		if (variable != null) {
+			setPageTitle(I18N.CONSTANTS.edit());
+			
+			view.getNameField().setValue(variable.getName());
+			view.getReferenceField().setValue(variable.getReference());
+			
+		} else {
+			setPageTitle(I18N.CONSTANTS.addItem());
 		}
 
 	}

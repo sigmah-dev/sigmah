@@ -72,6 +72,20 @@ public class FunctionalException extends CommandException {
 		 */
 		ADMIN_USER_DUPLICATE_EMAIL,
 
+		// --
+		// Importation schemes
+		// --
+		
+		/**
+		 * Cannot delete an importation scheme because it is linked to project
+		 * models or org unit models.
+		 */
+		IMPORTATION_SCHEME_IS_LINKED,
+		
+		/**
+		 * A column reference defined for a variable is invalid.
+		 */
+		IMPORT_INVALID_COLUMN_REFERENCE,
 		;
 	}
 
@@ -108,7 +122,13 @@ public class FunctionalException extends CommandException {
 
 			case ADMIN_USER_DUPLICATE_EMAIL:
 				return I18N.MESSAGES.existingEmailAddress(exception.getParameter(0));
-
+				
+			case IMPORTATION_SCHEME_IS_LINKED:
+				return I18N.MESSAGES.adminImportationSchemesWarnModelsLinked(exception.getParameter(0));
+				
+			case IMPORT_INVALID_COLUMN_REFERENCE:
+				return "The variable's reference : " + exception.getParameter(0) + " is invalid for the Csv file format type";
+				
 			default:
 				return errorCode.toString();
 		}
@@ -135,7 +155,7 @@ public class FunctionalException extends CommandException {
 			case ADMIN_REMOVE_ORG_UNIT_HAS_PROJECTS:
 			case ADMIN_REMOVE_ORG_UNIT_IS_ROOT:
 				return I18N.CONSTANTS.adminOrgUnitRemoveUnavailable();
-
+				
 			default:
 				return null; // Default title.
 		}
@@ -174,6 +194,21 @@ public class FunctionalException extends CommandException {
 	 *          See {@link #parameters}.
 	 */
 	public FunctionalException(ErrorCode errorCode, String... parameters) {
+		this(null, errorCode, parameters);
+	}
+	
+	/**
+	 * Builds a {@link FunctionalException} according to the given message-relative {@link ErrorCode}.
+	 * 
+	 * @param cause
+	 *          Exception that triggered this error.
+	 * @param errorCode
+	 *          See {@link #errorCode}.
+	 * @param parameters
+	 *          See {@link #parameters}.
+	 */
+	public FunctionalException(Throwable cause, ErrorCode errorCode, String... parameters) {
+		super(cause);
 		assert errorCode != null : "Error code is required.";
 		this.errorCode = errorCode;
 		this.parameters = parameters;

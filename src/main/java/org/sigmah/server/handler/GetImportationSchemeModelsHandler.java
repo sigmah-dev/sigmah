@@ -16,7 +16,7 @@ import org.sigmah.shared.dto.importation.ImportationSchemeModelDTO;
  * {@link GetImportationSchemeModels} command exectution
  * 
  * @author Guerline Jean-Baptiste (gjbaptiste@ideia.fr)
- * @author Maxime Lombard (mlombard@ideia.fr)
+ * @author Maxime Lombard (mlombard@ideia.fr) v2.0
  */
 public class GetImportationSchemeModelsHandler extends AbstractCommandHandler<GetImportationSchemeModels, ListResult<ImportationSchemeModelDTO>> {
 

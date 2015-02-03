@@ -6,31 +6,35 @@ import org.sigmah.shared.command.base.AbstractCommand;
 import org.sigmah.shared.command.result.VoidResult;
 
 /**
- * @author Denis Colliot (dcolliot@ideia.fr)
+ * Deletes an importation scheme or a list of importation scheme variables.
+ * 
+ * @author Guerline Jean-Baptiste (gjbaptiste@ideia.fr)
+ * @author Denis Colliot (dcolliot@ideia.fr) v2.0
+ * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
 public class DeleteImportationSchemes extends AbstractCommand<VoidResult> {
 
-	private List<Integer> schemaIdsList;
+	private Integer schemaId;
 	private List<Integer> variableIdsList;
 
-	public DeleteImportationSchemes() {
+	protected DeleteImportationSchemes() {
 		// Serialization.
 	}
-
-	public List<Integer> getSchemaIdsList() {
-		return schemaIdsList;
+	
+	public DeleteImportationSchemes(Integer schemaId) {
+		this.schemaId = schemaId;
+	}
+	
+	public DeleteImportationSchemes(List<Integer> variableIdsList) {
+		this.variableIdsList = variableIdsList;
 	}
 
-	public void setSchemaIdsList(List<Integer> schemaIdsList) {
-		this.schemaIdsList = schemaIdsList;
+	public Integer getSchemaId() {
+		return schemaId;
 	}
 
 	public List<Integer> getVariableIdsList() {
 		return variableIdsList;
-	}
-
-	public void setVariableIdsList(List<Integer> variableIdsList) {
-		this.variableIdsList = variableIdsList;
 	}
 
 }

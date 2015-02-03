@@ -56,6 +56,7 @@ import org.sigmah.server.servlet.exporter.utils.ExporterUtil;
 import org.sigmah.shared.Language;
 import org.sigmah.shared.command.result.ListResult;
 import org.sigmah.shared.dispatch.CommandException;
+import org.sigmah.shared.dispatch.FunctionalException;
 import org.sigmah.shared.dto.ElementExtractedValue;
 import org.sigmah.shared.dto.ImportDetails;
 import org.sigmah.shared.dto.base.EntityDTO;
@@ -217,7 +218,7 @@ public abstract class Importer {
 	 * @return
 	 */
 
-	public abstract Object getValueFromVariable(String reference, Integer lineNumber, String sheetName);
+	public abstract Object getValueFromVariable(String reference, Integer lineNumber, String sheetName) throws FunctionalException;
 
 	/**
 	 * Gets the alphabetic position of the provided character (-1)

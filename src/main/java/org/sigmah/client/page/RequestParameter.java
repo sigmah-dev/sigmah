@@ -10,28 +10,35 @@ import org.sigmah.client.util.ClientUtils;
 public enum RequestParameter {
 
 	ID(true),
-	TYPE(false),
-	HEADER(false),
-	CONTENT(false),
-	REPORT_ID(false),
-	GLOBAL_EXPORT_ID(false),
-	LANGUAGE(false),
-	DTO(false),
-	REQUEST(false),
-	VERSION(false),
-	FORMAT(false),
-	NAME(false),
-	SOURCE(false),
-	MODEL(false),
-	CATEGORY(false),
-	IMPORATION_SCHEME(false),
-	VARIABLE_IMPORTATION_SCHEME(false), 
-	CODE(false),
-	TITLE(false),
-	BUDGET(false);
+	TYPE,
+	HEADER,
+	CONTENT,
+	REPORT_ID,
+	GLOBAL_EXPORT_ID,
+	LANGUAGE,
+	DTO,
+	REQUEST,
+	VERSION,
+	FORMAT,
+	NAME,
+	SOURCE,
+	MODEL,
+	CATEGORY,
+	IMPORTATION_SCHEME,
+	VARIABLE_IMPORTATION_SCHEME,
+	IMPORTATION_SCHEME_MODEL,
+	CODE,
+	TITLE,
+	BUDGET,
+	NO_REFRESH,
+	FOR_KEY;
 
 	// If the parameter is part of the tab uniqueness logic.
 	private final boolean unique;
+
+	private RequestParameter() {
+		this(false);
+	}
 
 	private RequestParameter(boolean unique) {
 		this.unique = unique;

@@ -6,31 +6,39 @@ import org.sigmah.shared.command.base.AbstractCommand;
 import org.sigmah.shared.command.result.VoidResult;
 
 /**
+ * Remove the given importation scheme model or some of its variables.
+ * 
  * @author Denis Colliot (dcolliot@ideia.fr)
+ * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
 public class DeleteImportationSchemeModels extends AbstractCommand<VoidResult> {
 
-	private List<Integer> importationSchemeIdsList;
-	private List<Integer> variableFlexibleElemementIdsList;
+	private List<Integer> importationSchemeIds;
+	private List<Integer> variableFlexibleElemementIds;
 
-	public DeleteImportationSchemeModels() {
+	protected DeleteImportationSchemeModels() {
 		// Serialization.
 	}
 
-	public List<Integer> getImportationSchemeIdsList() {
-		return importationSchemeIdsList;
+	public DeleteImportationSchemeModels(List<Integer> importationSchemeIds, List<Integer> variableFlexibleElemementIds) {
+		this.importationSchemeIds = importationSchemeIds;
+		this.variableFlexibleElemementIds = variableFlexibleElemementIds;
 	}
 
-	public void setImportationSchemeIdsList(List<Integer> importationSchemeIdsList) {
-		this.importationSchemeIdsList = importationSchemeIdsList;
+	public List<Integer> getImportationSchemeIds() {
+		return importationSchemeIds;
 	}
 
-	public List<Integer> getVariableFlexibleElemementIdsList() {
-		return variableFlexibleElemementIdsList;
+	public void setImportationSchemeIds(List<Integer> importationSchemeIdsList) {
+		this.importationSchemeIds = importationSchemeIdsList;
 	}
 
-	public void setVariableFlexibleElemementIdsList(List<Integer> variableFlexibleElemementIdsList) {
-		this.variableFlexibleElemementIdsList = variableFlexibleElemementIdsList;
+	public List<Integer> getVariableFlexibleElemementIds() {
+		return variableFlexibleElemementIds;
+	}
+
+	public void setVariableFlexibleElemementIds(List<Integer> variableFlexibleElemementIdsList) {
+		this.variableFlexibleElemementIds = variableFlexibleElemementIdsList;
 	}
 
 }

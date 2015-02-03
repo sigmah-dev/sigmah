@@ -27,8 +27,10 @@ public abstract class DispatchException extends Exception implements Serializabl
 	}
 
 	public DispatchException(final Throwable cause) {
-		super(cause.getMessage());
-		this.causeClassname = cause.getClass().getName();
+		super(cause);
+		if(cause != null) {
+			this.causeClassname = cause.getClass().getName();
+		}
 	}
 
 	public DispatchException(final String message, final Throwable cause) {

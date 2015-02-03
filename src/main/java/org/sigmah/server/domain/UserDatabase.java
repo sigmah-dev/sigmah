@@ -159,7 +159,6 @@ public class UserDatabase extends AbstractEntityId<Integer> implements Deleteabl
 	 * partners).
 	 */
 	@OneToMany(mappedBy = "database", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-	@org.hibernate.annotations.Fetch(org.hibernate.annotations.FetchMode.SUBSELECT)
 	private Set<UserPermission> userPermissions = new HashSet<UserPermission>(0);
 
 	// --------------------------------------------------------------------------------

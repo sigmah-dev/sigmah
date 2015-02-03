@@ -291,8 +291,7 @@ public class DashboardPresenter extends AbstractPagePresenter<DashboardPresenter
 
 		// Import.
 		if (ProfileUtils.isGranted(auth(), GlobalPermissionEnum.EDIT_PROJECT)) {
-			// TODO Page.PROJECT_IMPORT
-			view.addMenuButton(I18N.CONSTANTS.importItem(), null, new ButtonClickHandler((Page)null));
+			view.addMenuButton(I18N.CONSTANTS.importItem(), null, new ButtonClickHandler(Page.IMPORT_VALUES));
 		}
 
 		// TODO Handle other menus buttons.

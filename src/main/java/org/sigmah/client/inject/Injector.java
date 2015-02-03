@@ -16,7 +16,7 @@ import org.sigmah.client.ui.presenter.admin.AdminPresenter;
 import org.sigmah.client.ui.presenter.admin.CategoriesAdminPresenter;
 import org.sigmah.client.ui.presenter.admin.ParametersAdminPresenter;
 import org.sigmah.client.ui.presenter.admin.ReportModelsAdminPresenter;
-import org.sigmah.client.ui.presenter.admin.importation.AddImprortationSchemePresenter;
+import org.sigmah.client.ui.presenter.admin.importation.AddImportationSchemePresenter;
 import org.sigmah.client.ui.presenter.admin.importation.AddVariableImporationSchemePresenter;
 import org.sigmah.client.ui.presenter.admin.importation.ImportationSchemeAdminPresenter;
 import org.sigmah.client.ui.presenter.admin.models.AddBudgetSubFieldPresenter;
@@ -254,9 +254,9 @@ public interface Injector extends Ginjector {
 
 	AddProjectModelAdminPresenter getAddProjectModelAdminPresenter();
 
-	AddImprortationSchemePresenter getAddImprortationShemaPresenter();
+	AddImportationSchemePresenter getAddImportationSchemePresenter();
 
-	ReportModelsAdminPresenter getReporModelsAdminPresenter();
+	ReportModelsAdminPresenter getReportModelsAdminPresenter();
 
 	EditPhaseModelAdminPresenter getEditPhaseModelAdminPresenter();
 

@@ -43,6 +43,7 @@ import org.sigmah.client.ui.view.importation.ImportDetailsPopup;
 import org.sigmah.client.ui.view.importation.ImportationView;
 import org.sigmah.client.ui.widget.button.Button;
 import org.sigmah.client.ui.widget.form.Forms;
+import org.sigmah.offline.fileapi.Blob;
 import org.sigmah.shared.command.AmendmentActionCommand;
 import org.sigmah.shared.command.BatchCommand;
 import org.sigmah.shared.command.GetImportInformation;
@@ -102,6 +103,7 @@ public class ImportationPresenter extends AbstractPagePresenter<ImportationPrese
 	
 	private HandlerRegistration handlerRegistration;
 	private final Map<Integer, List<ElementExtractedValue>> changes;
+	private String fileName;
 	
 	/**
 	 * Presenters's initialization.
@@ -153,6 +155,11 @@ public class ImportationPresenter extends AbstractPagePresenter<ImportationPrese
 			@Override
 			public void componentSelected(ButtonEvent ce) {
 				view.getForms()[0].submit();
+				
+				final Blob blob = Blob.getBlobFromInputFileElement(view.getFileField().getFileInput());
+				if(blob != null) {
+					fileName = blob.getName();
+				}
 			}
 		});
 		
@@ -511,7 +518,8 @@ public class ImportationPresenter extends AbstractPagePresenter<ImportationPrese
 					}
 					
 					// Add the update project to the batch.
-					updates.add(new UpdateProject((Integer) selectedEntity.getId(), values));
+					// TODO: I18N
+					updates.add(new UpdateProject((Integer) selectedEntity.getId(), values, "Imported from file '" + fileName + "'."));
 				}
 			}
 			

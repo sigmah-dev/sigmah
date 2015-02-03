@@ -13,13 +13,15 @@ public class HistoryTokenDTO implements Serializable {
 
 	private String value;
 	private ValueEventChangeType type;
+	private String comment;
 
 	public HistoryTokenDTO() {
 	}
 
-	public HistoryTokenDTO(String value, ValueEventChangeType type) {
+	public HistoryTokenDTO(String value, ValueEventChangeType type, String comment) {
 		this.value = value;
 		this.type = type;
+		this.comment = comment;
 	}
 
 	public String getValue() {
@@ -36,6 +38,14 @@ public class HistoryTokenDTO implements Serializable {
 
 	public void setType(ValueEventChangeType type) {
 		this.type = type;
+	}
+
+	public String getComment() {
+		return comment;
+	}
+
+	public void setComment(String comment) {
+		this.comment = comment;
 	}
 
 }

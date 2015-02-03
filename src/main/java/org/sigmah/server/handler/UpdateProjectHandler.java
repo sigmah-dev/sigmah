@@ -65,29 +65,30 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 	@Override
 	public VoidResult execute(final UpdateProject cmd, final UserExecutionContext context) throws CommandException {
 
-		User user = context.getUser();
-
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("[execute] Updates project #" + cmd.getProjectId() + " with following values #" + cmd.getValues().size() + " : " + cmd.getValues());
 		}
 
-		// Search the given project.
-		final Project project = em().find(Project.class, cmd.getProjectId());
-
-		// This date must be the same for all the saved values !
-		final Date historyDate = new Date();
-		
-		final Integer historableId = cmd.getProjectId();
+		final User user = context.getUser();
 		final List<ValueEventWrapper> values = cmd.getValues();
-		final int projectId = cmd.getProjectId();
+		final Integer projectId = cmd.getProjectId();
+		final String comment = cmd.getComment();
 		
-		updateProject(values, projectId, historableId, project, historyDate, user);
+		updateProject(values, projectId, user, comment);
 
 		return null;
 	}
 
 	@Transactional
-	protected void updateProject(final List<ValueEventWrapper> values, final int projectId, final Integer historableId, final Project project, final Date historyDate, User user) throws CommandException {
+	protected void updateProject(final List<ValueEventWrapper> values, final Integer projectId, User user, String comment) throws CommandException {
+		final Integer historableId = projectId;
+		
+		// This date must be the same for all the saved values !
+		final Date historyDate = new Date();
+		
+		// Search the given project.
+		final Project project = em().find(Project.class, projectId);
+		
 		// Iterating over the value change events
 		for (final ValueEventWrapper valueEvent : values) {
 			
@@ -139,12 +140,12 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 
 					// Historize the first value.
 					if (oldValue != null) {
-						historize(oldDate, element, historableId, oldOwner, ValueEventChangeType.ADD, oldValue, null);
+						historize(oldDate, element, historableId, oldOwner, ValueEventChangeType.ADD, oldValue, null, comment);
 					}
 				}
 
 				// Historize the value.
-				historize(historyDate, element, historableId, user, ValueEventChangeType.EDIT, updateSingleValue, null);
+				historize(historyDate, element, historableId, user, ValueEventChangeType.EDIT, updateSingleValue, null, comment);
 
 				continue;
 			}
@@ -162,7 +163,7 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 				currentValue.setValue(updateSingleValue);
 
 				// Historize the value.
-				historize(historyDate, element, historableId, user, ValueEventChangeType.EDIT, updateSingleValue, null);
+				historize(historyDate, element, historableId, user, ValueEventChangeType.EDIT, updateSingleValue, null, comment);
 			}
 			
 			// Special case : this value is a part of a list which is the true value of the flexible element. (only used for
@@ -196,18 +197,18 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 
 				switch (valueEvent.getChangeType()) {
 					case ADD:
-						onAdd(item, clazz, ids, currentValue, historyDate, element, historableId, user);
+						onAdd(item, clazz, ids, currentValue, historyDate, element, historableId, user, comment);
 						break;
 						
 					case REMOVE:
-						if(!onDelete(item, clazz, ids, currentValue, historyDate, element, historableId, user)) {
+						if(!onDelete(item, clazz, ids, currentValue, historyDate, element, historableId, user, comment)) {
 							// Do not historize, the value hasn't been changed.
 							continue;
 						}
 						break;
 						
 					case EDIT:
-						onEdit(item, clazz, historyDate, element, historableId, user);
+						onEdit(item, clazz, historyDate, element, historableId, user, comment);
 						break;
 						
 					default:
@@ -238,7 +239,7 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 		}
 	}
 
-	protected void onAdd(final TripletValueDTO item, Class<TripletValue> clazz, final List<Integer> ids, final Value currentValue, final Date historyDate, final FlexibleElement element, final Integer historableId, User user) {
+	protected void onAdd(final TripletValueDTO item, Class<TripletValue> clazz, final List<Integer> ids, final Value currentValue, final Date historyDate, final FlexibleElement element, final Integer historableId, User user, String comment) {
 		LOG.debug("[execute] Adds an element to the list.");
 		
 		// Adds the element.
@@ -252,10 +253,10 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 		currentValue.setValue(ValueResultUtils.mergeElements(ids));
 		
 		// Historize the value.
-		historize(historyDate, element, historableId, user, ValueEventChangeType.ADD, null, entity);
+		historize(historyDate, element, historableId, user, ValueEventChangeType.ADD, null, entity, comment);
 	}
 
-	protected boolean onDelete(final TripletValueDTO item, Class<TripletValue> clazz, final List<Integer> ids, final Value currentValue, final Date historyDate, final FlexibleElement element, final Integer historableId, User user) {
+	protected boolean onDelete(final TripletValueDTO item, Class<TripletValue> clazz, final List<Integer> ids, final Value currentValue, final Date historyDate, final FlexibleElement element, final Integer historableId, User user, String comment) {
 		LOG.debug("[execute] Removes a element from the list.");
 
 		// Retrieves the element.
@@ -279,11 +280,11 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 		currentValue.setValue(ValueResultUtils.mergeElements(ids));
 		
 		// Historize the value.
-		historize(historyDate, element, historableId, user, ValueEventChangeType.REMOVE, null, entity);
+		historize(historyDate, element, historableId, user, ValueEventChangeType.REMOVE, null, entity, comment);
 		return true;
 	}
 
-	protected void onEdit(final TripletValueDTO item, Class<TripletValue> clazz, final Date historyDate, final FlexibleElement element, final Integer historableId, User user) {
+	protected void onEdit(final TripletValueDTO item, Class<TripletValue> clazz, final Date historyDate, final FlexibleElement element, final Integer historableId, User user, String comment) {
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("[execute] Edits a element from the list.");
 		}
@@ -297,10 +298,10 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 		}
 		
 		// Historize the value.
-		historize(historyDate, element, historableId, user, ValueEventChangeType.EDIT, null, entity);
+		historize(historyDate, element, historableId, user, ValueEventChangeType.EDIT, null, entity, comment);
 	}
 
-	private void historize(Date date, FlexibleElement element, Integer projectId, User user, ValueEventChangeType type, String singleValue, TripletValue listValue) {
+	private void historize(Date date, FlexibleElement element, Integer projectId, User user, ValueEventChangeType type, String singleValue, TripletValue listValue, String comment) {
 
 		// Manages history.
 		if (element != null && element.isHistorable()) {
@@ -312,6 +313,7 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 			historyToken.setDate(date);
 			historyToken.setUser(user);
 			historyToken.setType(type);
+			historyToken.setComment(comment);
 
 			// Sets the value or list value.
 			if (listValue == null) {

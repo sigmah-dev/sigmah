@@ -110,8 +110,12 @@ public final class NumberUtils {
 		if (in == null) {
 			throw new IllegalArgumentException("in must not be null.");
 		}
-
-		return n.doubleValue() / in.doubleValue() * 100;
+		
+		if(in.doubleValue() == 0.0) {
+			return 0.0;
+		}
+		
+		return Double.valueOf( truncate( n.doubleValue() / in.doubleValue() * 100 ) ); 
 	}
 
 	public static double adjustRatio(Double r) {
@@ -123,7 +127,7 @@ public final class NumberUtils {
 			ratio = 0;
 		} else if (r < 0) {
 			ratio = 0;
-		} else if (r == Double.POSITIVE_INFINITY) {
+		} else if (r == Double.POSITIVE_INFINITY  ) {  
 			ratio = 100;
 		} else if (r == Double.NEGATIVE_INFINITY) {
 			ratio = 0;

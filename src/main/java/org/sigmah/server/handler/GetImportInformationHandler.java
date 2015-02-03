@@ -1,7 +1,6 @@
 package org.sigmah.server.handler;
 
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.List;
 
@@ -12,9 +11,10 @@ import org.odftoolkit.simple.Document;
 import org.odftoolkit.simple.SpreadsheetDocument;
 import org.sigmah.shared.command.GetImportInformation;
 import org.sigmah.shared.command.result.ImportInformationResult;
-import com.google.gwt.thirdparty.guava.common.io.CharStreams;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import org.sigmah.server.dispatch.impl.UserDispatch;
 import org.sigmah.server.file.FileStorageProvider;
 import org.sigmah.server.handler.base.AbstractCommandHandler;
@@ -59,7 +59,7 @@ public class GetImportInformationHandler extends AbstractCommandHandler<GetImpor
 					
 					switch (command.getScheme().getFileFormat()) {
 					case CSV:
-						String stringFromStream = CharStreams.toString(new InputStreamReader(inputStream, "UTF-8"));
+						String stringFromStream = inputStreamToString(inputStream, "UTF-8");
 						List<String[]> csvLines = new CsvParser().parseCsv(stringFromStream);
 						properties.put("importedCsvDocument", csvLines);
 						importer = new CsvImporter(injector, properties, context);
@@ -107,6 +107,30 @@ public class GetImportInformationHandler extends AbstractCommandHandler<GetImpor
 		}
 
 		return null;
+	}
+	
+	/**
+	 * Read fully the given input stream and return it as a <code>String</code>.
+	 * <p/>
+	 * The input stream is not closed by this method.
+	 * 
+	 * @param inputStream Stream to read.
+	 * @param encoding Encoding to use.
+	 * @return The content of the input stream as a <code>String</code>.
+	 * @throws IOException If an error occur while reading the stream.
+	 */
+	private String inputStreamToString(InputStream inputStream, String encoding) throws IOException {
+		final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+		
+		final byte[] bytes = new byte[1024];
+
+		int length = inputStream.read(bytes);
+		while(length > 0) {
+			outputStream.write(bytes, 0, length);
+			length = inputStream.read(bytes);
+		}
+		
+		return outputStream.toString(encoding);
 	}
 
 }
