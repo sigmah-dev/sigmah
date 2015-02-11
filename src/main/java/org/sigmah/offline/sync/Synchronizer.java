@@ -1,6 +1,5 @@
 package org.sigmah.offline.sync;
 
-import org.sigmah.offline.status.ApplicationState;
 import java.util.List;
 import java.util.Map;
 
@@ -24,10 +23,14 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import java.util.ArrayList;
 import java.util.HashSet;
+import org.sigmah.client.dispatch.CommandResultHandler;
+import org.sigmah.client.event.EventBus;
+import org.sigmah.client.event.OfflineEvent;
 import org.sigmah.client.page.Page;
+import org.sigmah.client.ui.notif.N10N;
 import org.sigmah.offline.dao.MonitoredPointAsyncDAO;
 import org.sigmah.offline.dao.ReminderAsyncDAO;
-import org.sigmah.offline.status.ConnectionStatus;
+import org.sigmah.offline.status.ApplicationState;
 import org.sigmah.shared.command.GetCalendar;
 import org.sigmah.shared.command.GetProjectReport;
 import org.sigmah.shared.command.GetProjectReports;
@@ -35,7 +38,6 @@ import org.sigmah.shared.command.SecureNavigationCommand;
 import org.sigmah.shared.command.Synchronize;
 import org.sigmah.shared.command.result.Calendar;
 import org.sigmah.shared.command.result.SecureNavigationResult;
-import org.sigmah.shared.command.result.VoidResult;
 import org.sigmah.shared.dto.ProjectFundingDTO;
 import org.sigmah.shared.dto.calendar.CalendarType;
 import org.sigmah.shared.dto.calendar.PersonalCalendarIdentifier;
@@ -48,7 +50,7 @@ import org.sigmah.shared.dto.report.ReportReference;
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
 @Singleton
-public class Synchronizer {
+public class Synchronizer implements OfflineEvent.Source {
     
     private static final double GET_PROJECT_VALUE = 0.1;
     private static final double ACCESS_RIGHTS_VALUE = 0.1;
@@ -65,36 +67,11 @@ public class Synchronizer {
     
     @Inject
 	private DispatchAsync dispatcher;
-    
-    private ConnectionStatus connectionStatus;
-
-    public void setConnectionStatus(ConnectionStatus connectionStatus) {
-        this.connectionStatus = connectionStatus;
-    }
-    
-    public void getApplicationState(boolean online, final StateListener listener) {
-        if(online) {
-            isPushNeeded(new AsyncCallback<Boolean>() {
-
-                @Override
-                public void onFailure(Throwable caught) {
-                    listener.onStateKnown(ApplicationState.ONLINE);
-                }
-
-                @Override
-                public void onSuccess(Boolean pushNeeded) {
-                    if(pushNeeded) {
-                        listener.onStateKnown(ApplicationState.READY_TO_SYNCHRONIZE);
-                    } else {
-                        listener.onStateKnown(ApplicationState.ONLINE);
-                    }
-                }
-            });
-        } else {
-            listener.onStateKnown(ApplicationState.OFFLINE);
-        }
-    }
 	
+	@Inject
+	private EventBus eventBus;
+    
+    
 	public <T> void push(final RequestManager<T> requestManager) {
         final int removeRequestId = requestManager.prepareRequest();
         
@@ -103,18 +80,27 @@ public class Synchronizer {
             @Override
             public void onRequestSuccess(final Map<Integer, Command> commands) {
                 final Synchronize synchronize = new Synchronize(new ArrayList(commands.values()));
-                dispatcher.execute(synchronize, new RequestManagerCallback<T, VoidResult>(requestManager) {
+                dispatcher.execute(synchronize, new RequestManagerCallback<T, ListResult<String>>(requestManager) {
                     
                     @Override
-                    public void onRequestSuccess(VoidResult result) {
+                    public void onRequestSuccess(ListResult<String> result) {
                         updateDiaryAsyncDAO.removeAll(commands.keySet(), new RequestManagerCallback<T, Void>(requestManager, removeRequestId) {
                             
                             @Override
                             public void onRequestSuccess(Void result) {
                                 // Success
-                                connectionStatus.setState(ApplicationState.ONLINE);
+								eventBus.fireEvent(new OfflineEvent(Synchronizer.this, ApplicationState.ONLINE));
                             }
-                        });
+						});
+						
+						if(!result.isEmpty()) {
+							final StringBuilder errorBuilder = new StringBuilder();
+							for(final String error : result.getList()) {
+								errorBuilder.append(error).append("<br>");
+							}
+						
+							N10N.error(errorBuilder.toString());
+						}
                     }
                 });
                 
@@ -140,25 +126,6 @@ public class Synchronizer {
         requestManager.ready();
 	}
 	
-	public void isPushNeeded(final AsyncCallback<Boolean> callback) {
-		if(updateDiaryAsyncDAO.isAnonymous()) {
-			callback.onSuccess(Boolean.FALSE);
-			
-		} else {
-			updateDiaryAsyncDAO.count(new AsyncCallback<Integer>() {
-				@Override
-				public void onFailure(Throwable caught) {
-					callback.onFailure(caught);
-				}
-
-				@Override
-				public void onSuccess(Integer result) {
-					callback.onSuccess(result > 0);
-				}
-			});
-		}
-	}
-	
 	public void pull(final SynchroProgressListener progressListener) {
 		final GetProjects getProjects = new GetProjects();
 		getProjects.setMappingMode(ProjectDTO.Mode.WITH_RELATED_PROJECTS);
@@ -167,26 +134,26 @@ public class Synchronizer {
         final double[] progress = {0.0};
         
         // Called if the synchronization failed or when it is completed.
-        final RequestManager<Void> manager = new RequestManager<Void>(null, new AsyncCallback<Void>() {
+		final CommandQueue queue = new CommandQueue(new AsyncCallback<Void>() {
 
-            @Override
-            public void onFailure(Throwable caught) {
-                progressListener.onFailure(caught);
-            }
+			@Override
+			public void onFailure(Throwable caught) {
+				progressListener.onFailure(caught);
+			}
 
-            @Override
-            public void onSuccess(Void result) {
-                progressListener.onComplete();
-            }
-        });
-        
+			@Override
+			public void onSuccess(Void result) {
+				progressListener.onComplete();
+			}
+		}, dispatcher);
+		
         // Storing access rights
         final double pageAccessProgress = ACCESS_RIGHTS_VALUE / Page.values().length;
         for(final Page page : Page.values()) {
-            dispatcher.execute(new SecureNavigationCommand(page), new RequestManagerCallback<Void, SecureNavigationResult>(manager) {
+			queue.add(new SecureNavigationCommand(page), new CommandResultHandler<SecureNavigationResult>() {
 
-                @Override
-                public void onRequestSuccess(SecureNavigationResult result) {
+				@Override
+				protected void onCommandSuccess(SecureNavigationResult result) {
                     updateProgress(pageAccessProgress, progress, progressListener);
                 }
                 
@@ -194,10 +161,10 @@ public class Synchronizer {
         }
         
         // Storing favorites projects
-		dispatcher.execute(getProjects, new RequestManagerCallback<Void, ListResult<ProjectDTO>>(manager) {
+		queue.add(getProjects, new CommandResultHandler<ListResult<ProjectDTO>>() {
 			
 			@Override
-			public void onRequestSuccess(ListResult<ProjectDTO> result) {
+			protected void onCommandSuccess(ListResult<ProjectDTO> result) {
                 updateProgress(GET_PROJECT_VALUE, progress, progressListener);
                 final double projectProgress = PROJECT_DETAIL_VALUE / result.getSize();
                 
@@ -217,10 +184,10 @@ public class Synchronizer {
 				for(final ProjectDTO project : projects) {
 					final Integer projectId = project.getId();
 					
-					dispatcher.execute(new GetProject(projectId, null), new RequestManagerCallback<Void, ProjectDTO>(manager) {
+					queue.add(new GetProject(projectId, null), new CommandResultHandler<ProjectDTO>() {
 
 						@Override
-						public void onRequestSuccess(ProjectDTO result) {
+						protected void onCommandSuccess(ProjectDTO result) {
 							// TODO: Fetch remaining objects.
 							final List<FlexibleElementDTO> elements = result.getProjectModel().getAllElements();
                             final double flexibleElementCount = elements.size();
@@ -234,9 +201,9 @@ public class Synchronizer {
 							for(final FlexibleElementDTO element : elements) {
 								// Caching element value
 								final GetValue getValue =  new GetValue(projectId, element.getId(), element.getEntityName());
-								dispatcher.execute(getValue, new RequestManagerCallback<Void, ValueResult>(manager) {
+								queue.add(getValue, new CommandResultHandler<ValueResult>() {
 									@Override
-									public void onRequestSuccess(ValueResult result) {
+									protected void onCommandSuccess(ValueResult result) {
 										// Success
                                         updateProgress(elementProgress, progress, progressListener);
 									}
@@ -244,9 +211,9 @@ public class Synchronizer {
 								
 								// Caching value history
 								final GetHistory getHistory = new GetHistory(element.getId(), projectId);
-								dispatcher.execute(getHistory, new RequestManagerCallback<Void, ListResult<HistoryTokenListDTO>>(manager) {
+								queue.add(getHistory, new CommandResultHandler<ListResult<HistoryTokenListDTO>>() {
 									@Override
-									public void onRequestSuccess(ListResult<HistoryTokenListDTO> result) {
+									protected void onCommandSuccess(ListResult<HistoryTokenListDTO> result) {
 										// Success
                                         updateProgress(elementProgress, progress, progressListener);
 									}
@@ -255,20 +222,20 @@ public class Synchronizer {
                             
 							// Fetching the calendar
 							final PersonalCalendarIdentifier identifier = new PersonalCalendarIdentifier(project.getCalendarId());
-							dispatcher.execute(new GetCalendar(CalendarType.Personal, identifier), new RequestManagerCallback<Void, Calendar>(manager) {
+							queue.add(new GetCalendar(CalendarType.Personal, identifier), new CommandResultHandler<Calendar>() {
 								
 								@Override
-								public void onRequestSuccess(Calendar result) {
+								protected void onCommandSuccess(Calendar result) {
 									// Success
 									updateProgress(elementProgress, progress, progressListener);
 								}
 							});
 							
 							// Fetching project reports
-							dispatcher.execute(new GetProjectReports(projectId, null), new RequestManagerCallback<Void, ListResult<ReportReference>>(manager) {
+							queue.add(new GetProjectReports(projectId, null), new CommandResultHandler<ListResult<ReportReference>>() {
 								
 								@Override
-								public void onRequestSuccess(ListResult<ReportReference> result) {
+								protected void onCommandSuccess(ListResult<ReportReference> result) {
 									if(result == null || result.getSize() == 0) {
 										// No reports
 										updateProgress(elementProgress, progress, progressListener);
@@ -277,10 +244,10 @@ public class Synchronizer {
 										
 										// Fetching actuals reports
 										for(final ReportReference reportReference : result.getList()) {
-											dispatcher.execute(new GetProjectReport(reportReference.getId()), new RequestManagerCallback<Void, ProjectReportDTO>(manager) {
+											queue.add(new GetProjectReport(reportReference.getId()), new CommandResultHandler<ProjectReportDTO>() {
 
 												@Override
-												public void onRequestSuccess(ProjectReportDTO result) {
+												protected void onCommandSuccess(ProjectReportDTO result) {
 													// Success
 													updateProgress(reportProgress, progress, progressListener);
 												}
@@ -292,13 +259,17 @@ public class Synchronizer {
 						}
 					});
 				}
-				manager.ready();
 			}
 		});
+		
+		queue.run();
 	}
     
     private void updateProgress(double progress, double[] total, SynchroProgressListener progressListener) {
         total[0] += progress;
+		if(total[0] > 1.0) {
+			total[0] = 1.0;
+		}
         progressListener.onProgress(total[0]);
     }
 }

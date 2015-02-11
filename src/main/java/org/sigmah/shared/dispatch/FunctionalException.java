@@ -37,53 +37,65 @@ public class FunctionalException extends CommandException {
 		// --
 
 		/**
-		 * Cannot reference an OrgUnit's parent as itself.<br>
+		 * Cannot reference an OrgUnit's parent as itself. <br>
 		 * No parameters.
 		 */
 		ADMIN_MOVE_ORG_UNIT_ITSELF_AS_PARENT,
 
 		/**
-		 * Cycle detected while moving an OrgUnit within its hierarchy.<br>
+		 * Cycle detected while moving an OrgUnit within its hierarchy. <br>
 		 * No parameters.
 		 */
 		ADMIN_MOVE_ORG_UNIT_CYCLE_DETECTED,
 
 		/**
-		 * Cannot remove an OrgUnit with children.<br>
+		 * Cannot remove an OrgUnit with children. <br>
 		 * No parameters.
 		 */
 		ADMIN_REMOVE_ORG_UNIT_HAS_CHILDREN,
 
 		/**
-		 * Cannot remove an OrgUnit with related projects.<br>
+		 * Cannot remove an OrgUnit with related projects. <br>
 		 * No parameters.
 		 */
 		ADMIN_REMOVE_ORG_UNIT_HAS_PROJECTS,
 
 		/**
-		 * Cannot remove a <b>root</b> OrgUnit.<br>
+		 * Cannot remove a <b>root</b> OrgUnit. <br>
 		 * No parameters.
 		 */
 		ADMIN_REMOVE_ORG_UNIT_IS_ROOT,
 
 		/**
-		 * Cannot create a user with an existing email.<br>
+		 * Cannot create a user with an existing email. <br>
 		 * {0} = existing email.
 		 */
 		ADMIN_USER_DUPLICATE_EMAIL,
+		
+		// --
+		// Project updates.
+		// --
+		
+		/**
+		 * Cannot edit an amendable field when the project is locked. <br>
+		 * {0} = field name.
+		 */
+		PROJECT_IS_LOCKED_AMENDABLE_FIELD_IS_READONLY,
 
 		// --
-		// Importation schemes
+		// Importation schemes.
 		// --
 		
 		/**
 		 * Cannot delete an importation scheme because it is linked to project
-		 * models or org unit models.
+		 * models or org unit models. <br>
+		 * No parameters.
 		 */
 		IMPORTATION_SCHEME_IS_LINKED,
 		
 		/**
-		 * A column reference defined for a variable is invalid.
+		 * A column reference defined for a variable is invalid. <br>
+		 * No parameters.
 		 */
 		IMPORT_INVALID_COLUMN_REFERENCE,
 		;
@@ -122,18 +134,21 @@ public class FunctionalException extends CommandException {
 
 			case ADMIN_USER_DUPLICATE_EMAIL:
 				return I18N.MESSAGES.existingEmailAddress(exception.getParameter(0));
+
+			case PROJECT_IS_LOCKED_AMENDABLE_FIELD_IS_READONLY:
+				return I18N.MESSAGES.projectIsLockedAmendableFieldReadOnly(exception.getParameter(0), exception.getParameter(1), exception.getParameter(2));
 				
 			case IMPORTATION_SCHEME_IS_LINKED:
 				return I18N.MESSAGES.adminImportationSchemesWarnModelsLinked(exception.getParameter(0));
 				
 			case IMPORT_INVALID_COLUMN_REFERENCE:
-				return "The variable's reference : " + exception.getParameter(0) + " is invalid for the Csv file format type";
+				return I18N.MESSAGES.importInvalidColumnReference(exception.getParameter(0));
 				
 			default:
 				return errorCode.toString();
 		}
 	}
-
+	
 	/**
 	 * Returns the functional exception title.<br/>
 	 * Method {@link FunctionalException#getParameter(int)} can be used to populate title dynamic parameters.
@@ -234,7 +249,7 @@ public class FunctionalException extends CommandException {
 	 *         provided or {@code index} is out of bounds.
 	 * @see #parameters
 	 */
-	protected final String getParameter(int index) {
+	public final String getParameter(int index) {
 		if (parameters == null || index >= parameters.length || index < 0) {
 			return null;
 		}

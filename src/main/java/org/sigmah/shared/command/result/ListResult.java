@@ -6,7 +6,7 @@ import java.util.List;
 import org.sigmah.client.util.ClientUtils;
 
 import com.extjs.gxt.ui.client.data.ListLoadResult;
-import com.google.gwt.user.client.rpc.IsSerializable;
+import java.io.Serializable;
 
 /**
  * An action result which returns a list or a size.
@@ -15,7 +15,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  * @param <E>
  *          the type of the entities.
  */
-public class ListResult<E extends IsSerializable> implements Result, ListLoadResult<E> {
+public class ListResult<E extends Serializable> implements Result, ListLoadResult<E> {
 
 	/**
 	 * The list.
@@ -105,7 +105,7 @@ public class ListResult<E extends IsSerializable> implements Result, ListLoadRes
 	 *          The {@code ListResult} instance (can be {@code null}).
 	 * @return the given {@code result} inner list data, or {@code null} if {@code result} is {@code null}.
 	 */
-	public static <E extends IsSerializable> List<E> asList(final ListResult<E> result) {
+	public static <E extends Serializable> List<E> asList(final ListResult<E> result) {
 		return result == null ? null : (List<E>) result.getList();
 	}
 
@@ -123,7 +123,7 @@ public class ListResult<E extends IsSerializable> implements Result, ListLoadRes
 	 *         {@code null} if {@code result} is {@code null}.
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T extends IsSerializable, E extends IsSerializable> List<E> asList(final ListResult<T> result, final Class<E> clazz) {
+	public static <T extends Serializable, E extends Serializable> List<E> asList(final ListResult<T> result, final Class<E> clazz) {
 		return result == null ? null : (List<E>) result.getList();
 	}
 

@@ -1,6 +1,7 @@
 package org.sigmah.shared.command.result;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
+import java.io.Serializable;
 
 /**
  * Interface implemented by all dispatch commands results.<br/>
@@ -8,6 +9,6 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  * 
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
-public interface Result extends IsSerializable {
+public interface Result extends IsSerializable, Serializable {
 
 }
