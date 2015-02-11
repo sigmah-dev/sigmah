@@ -259,29 +259,4 @@ public final class Handlers {
 		return false;
 	}
 
-	/**
-	 * Sets the given {@code orgUnit} custom attributes.<br>
-	 * This method is executed recursively on {@code orgUnit} children.
-	 * 
-	 * @param orgUnit
-	 *          The {@link OrgUnit} instance, does nothing if {@code null}.
-	 */
-	public static void setOrgUnitAttributes(final OrgUnit orgUnit) {
-
-		if (orgUnit == null) {
-			return;
-		}
-
-		// Can contains projects ?
-		orgUnit.setCanContainProjects(orgUnit.getOrgUnitModel().getCanContainProjects());
-
-		// Applys the same method to the children.
-		final Set<OrgUnit> children = orgUnit.getChildrenOrgUnits();
-		if (children != null) {
-			for (final OrgUnit child : children) {
-				setOrgUnitAttributes(child);
-			}
-		}
-	}
-
 }

@@ -923,7 +923,7 @@ public class ProjectLogFrameGrid implements IsWidget {
 				switch (column) {
 					case 1:
 						// Code.
-						return userObject.getCode() == other.getCode();
+						return userObject.getCode().equals(other.getCode());
 				}
 				return false;
 			}
@@ -1308,7 +1308,7 @@ public class ProjectLogFrameGrid implements IsWidget {
 						// Parent code.
 						return userObject.getParentSpecificObjective() != null
 							&& other.getParentSpecificObjective() != null
-							&& userObject.getParentSpecificObjective().getCode() == other.getParentSpecificObjective().getCode();
+							&& userObject.getParentSpecificObjective().getCode().equals(other.getParentSpecificObjective().getCode());
 				}
 				return false;
 			}
@@ -1745,7 +1745,7 @@ public class ProjectLogFrameGrid implements IsWidget {
 						// Parent code.
 						return userObject.getParentExpectedResult() != null
 							&& other.getParentExpectedResult() != null
-							&& userObject.getParentExpectedResult().getCode() == other.getParentExpectedResult().getCode();
+							&& userObject.getParentExpectedResult().getCode().equals(other.getParentExpectedResult().getCode());
 				}
 				return false;
 			}

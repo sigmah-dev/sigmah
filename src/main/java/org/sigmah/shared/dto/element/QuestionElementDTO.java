@@ -322,6 +322,30 @@ public class QuestionElementDTO extends FlexibleElementDTO {
 		}
 
 	}
+	
+	private String toLabel(String value) {
+		final QuestionChoiceElementDTO singleChoice = pickChoice(Integer.valueOf(value));
+
+		if (singleChoice != null) {
+			return singleChoice.getLabel();
+		} else {
+			return "";
+		}
+	}
+	
+	private List<String> toLabels(String values) {
+		final List<Integer> selectedChoicesId = ValueResultUtils.splitValuesAsInteger(values);
+
+		final ArrayList<String> labels = new ArrayList<String>();
+		for (final Integer id : selectedChoicesId) {
+			final QuestionChoiceElementDTO choice = pickChoice(id.intValue());
+			if (choice != null) {
+				labels.add(choice.getLabel());
+			}
+		}
+		
+		return labels;
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -329,35 +353,36 @@ public class QuestionElementDTO extends FlexibleElementDTO {
 	@Override
 	public Object renderHistoryToken(HistoryTokenListDTO token) {
 
-		final String value;
-
 		// Single selection case.
 		if (!Boolean.TRUE.equals(getMultiple())) {
-
-			final QuestionChoiceElementDTO singleChoice = pickChoice(Integer.valueOf(token.getTokens().get(0).getValue()));
-
-			if (singleChoice != null) {
-				value = singleChoice.getLabel();
-			} else {
-				value = "";
-			}
-
-			return new HistoryTokenText(value);
+			return new HistoryTokenText(toLabel(token.getTokens().get(0).getValue()));
 		}
 		// Multiple selection case.
 		else {
-			final List<Integer> selectedChoicesId = ValueResultUtils.splitValuesAsInteger(token.getTokens().get(0).getValue());
-
-			final ArrayList<String> labels = new ArrayList<String>();
-			for (final Integer id : selectedChoicesId) {
-				final QuestionChoiceElementDTO choice = pickChoice(id.intValue());
-				if (choice != null) {
-					labels.add(choice.getLabel());
-				}
-			}
-
-			return new HistoryTokenText(labels);
+			return new HistoryTokenText(toLabels(token.getTokens().get(0).getValue()));
 		}
+	}
+
+	@Override
+	public String toHTML(String value) {
+		if(value == null) {
+			return "";
+		}
+		
+		final StringBuilder htmlBuilder = new StringBuilder();
+		
+		// Single selection case.
+		if (!Boolean.TRUE.equals(getMultiple())) {
+			htmlBuilder.append(toLabel(value));
+		}
+		// Multiple selection case.
+		else {
+			for(final String entry : toLabels(value)) {
+				htmlBuilder.append(" -").append(entry).append("<br>");
+			}
+		}
+		
+		return htmlBuilder.toString();
 	}
 
 	/**

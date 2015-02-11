@@ -285,4 +285,18 @@ public class PhasesView extends AbstractView implements PhasesPresenter.View {
 		return requiredElementContentPanel;
 	}
 
+	@Override
+	public void setLoading(boolean loading) {
+		if(loading) {
+			mask(1);
+		} else {
+			unmask();
+		}
+	}
+
+	@Override
+	public boolean isLoading() {
+		return maskCount > 0;
+	}
+
 }

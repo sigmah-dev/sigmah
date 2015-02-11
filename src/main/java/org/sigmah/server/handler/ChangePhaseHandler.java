@@ -49,8 +49,10 @@ public class ChangePhaseHandler extends AbstractCommandHandler<ChangePhase, Proj
 
 		LOG.debug("Closing the current phase #{}.", currentPhase.getId());
 
+		final Date date = new Date();
+		
 		// Closes the current phase.
-		currentPhase.setEndDate(new Date());
+		currentPhase.setEndDate(date);
 
 		// If the id of the phase to activate isn't null, activates it.
 		if (cmd.getPhaseId() != null) {
@@ -74,8 +76,11 @@ public class ChangePhaseHandler extends AbstractCommandHandler<ChangePhase, Proj
 			LOG.debug("Activates the new phase #{}.", cmd.getPhaseId());
 
 			// Activates the new phase.
-			newCurrentPhase.setStartDate(new Date());
+			newCurrentPhase.setStartDate(date);
 			project.setCurrentPhase(newCurrentPhase);
+			
+		} else {
+			project.setCloseDate(date);
 		}
 
 		LOG.debug("Saves modifications.");

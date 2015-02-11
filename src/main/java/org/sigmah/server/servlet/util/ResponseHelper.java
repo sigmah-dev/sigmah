@@ -2,12 +2,15 @@ package org.sigmah.server.servlet.util;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
+import org.bouncycastle.util.encoders.Base64;
 import org.sigmah.shared.util.FileType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +49,8 @@ public final class ResponseHelper {
 	 */
 	public static enum ContentDisposition {
 		INLINE("inline"),
-		ATTACHMENT("attachment");
+		ATTACHMENT("attachment"),
+		BASE64(null);
 
 		private final String value;
 
@@ -139,7 +143,9 @@ public final class ResponseHelper {
 		response.setHeader("Expires", "0");
 		response.setHeader("Cache-Control", "must-revalidate, post-check=0, pre-check=0");
 		response.setHeader("Pragma", "public");
-		response.addHeader("Content-disposition", contentDisposition.value + "; filename=\"" + filename + "\"");
+		if(contentDisposition.value != null) {
+			response.addHeader("Content-disposition", contentDisposition.value + "; filename=\"" + filename + "\"");
+		}
 
 		response.setContentType(fileType.getContentType());
 		if (contentLength != null) {
@@ -202,17 +208,50 @@ public final class ResponseHelper {
 			throw new IllegalArgumentException("Missing required data to process file download.");
 		}
 
-		ResponseHelper.setResponseForDownload(response, filename, FileType.fromContentType(contentType), contentLength, contentDisposition);
+		final FileType fileType;
+		if(contentDisposition == ContentDisposition.BASE64) {
+			fileType = FileType.HTML;
+		} else {
+			fileType = FileType.fromContentType(contentType);
+		}
+		
+		ResponseHelper.setResponseForDownload(response, filename, fileType, contentLength, contentDisposition);
 
 		// Download stream.
 		try (final BufferedInputStream input = new BufferedInputStream(inputStream);
 				final BufferedOutputStream output = new BufferedOutputStream(response.getOutputStream());) {
 
-			final byte[] buffer = new byte[BUFFER_SIZE];
-			for (int length = 0; (length = input.read(buffer)) > 0;) {
-				output.write(buffer, 0, length);
+			if(contentDisposition == ContentDisposition.BASE64) {
+				// Base64 download.
+				final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+				streamToStream(input, buffer);
+				
+				final String url = "data:" + (contentType != null ? contentType : FileType._DEFAULT.getContentType()) + ";base64,";
+				output.write(url.getBytes("ASCII"));
+				Base64.encode(buffer.toByteArray(), output);
+				
+			} else {
+				streamToStream(input, output);
 			}
 		}
 	}
 
+	/**
+	 * Read the content of the given input stream and write all its content to
+	 * the given output stream.
+	 * <p/>
+	 * The streams are not closed by this method.
+	 * 
+	 * @param input Source data.
+	 * @param output Destination.
+	 * @throws IOException If read or write operation failed.
+	 */
+	private static void streamToStream(final InputStream input, final OutputStream output) throws IOException {
+		// Normal download.
+		final byte[] buffer = new byte[BUFFER_SIZE];
+		for (int length; (length = input.read(buffer)) > 0;) {
+			output.write(buffer, 0, length);
+		}
+	}
+	
 }

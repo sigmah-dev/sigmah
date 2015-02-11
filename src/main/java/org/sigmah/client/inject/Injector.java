@@ -83,6 +83,7 @@ import org.sigmah.shared.file.TransfertManager;
 
 import com.google.gwt.inject.client.GinModules;
 import com.google.gwt.inject.client.Ginjector;
+import org.sigmah.offline.status.ApplicationStateManager;
 
 /**
  * GIN injector.
@@ -108,7 +109,7 @@ public interface Injector extends Ginjector {
 
 	AuthenticationProvider getAuthenticationProvider();
 
-	ConnectionStatus getConnectionStatus();
+	ApplicationStateManager getApplicationStateManager();
 
 	TransfertManager getTransfertManager();
 

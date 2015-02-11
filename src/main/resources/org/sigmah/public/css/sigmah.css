@@ -204,8 +204,7 @@ body {font-family:Arial;font-size:8pt}
 /* Offline */
 .offline #header-left{background:none}
 .offline #header-middle{background:none}
-.offline-button{cursor:pointer;display:inline;padding:6px}
-.offline-button:hover{color:#E86F00}
+.offline-button{cursor:pointer;display:inline-block;padding:4px}
 .offline-button-active{background-color:#646263;border-bottom:1px solid #999}
 .offline .bar-decoration-left{background:url(../images/menu/menu-bar-repeat.jpg) repeat-x scroll 0 0 transparent}
 .offline .bar-decoration-left-round{background-image:none !important}
@@ -222,7 +221,7 @@ body {font-family:Arial;font-size:8pt}
 .offline-sync-progress .blockStatBgBlack,.offline-sync-progress .blockStatBgYellow,.offline-sync-progress .blockStatBgOrange,.offline-sync-progress .blockStatBgRed{height:11px;line-height:10px;color:white;font-weight:bold;font-family:tahoma;font-size:11px;text-align:center;background-repeat:repeat-x;background-position:0 0;background-image:url(../images/ratiobar/ratio-bar-bg-black.png)}
 .offline-action{background-color:#FFF;border-radius:4px;color:#000;text-decoration:none;font-weight:bold;font-size:11px;display:block;text-align:center;margin:5px 0;padding:5px;line-height:1}
 .offline-action-disabled{background-color:lightgray;color:gray;cursor:default}
-.offline-action-remove{margin:0;background-color:#E86F00;color:#FFF}
+.offline-action-remove{margin:0}
 .offline-action-separator{border:0;height:1px;background-color:#999}
 .offline-menu-variable{margin-left: 5px}
 .offline-icon{vertical-align:middle}

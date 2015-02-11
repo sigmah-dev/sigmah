@@ -52,10 +52,11 @@ public class AmendmentService extends AbstractEntityService<Amendment, Integer, 
 	@Override
 	public Amendment create(final PropertyMap properties, final UserExecutionContext context) {
 
+		final String name = properties.get("name");
 		final Integer projectId = properties.get("projectId");
 		final Project project = projectDAO.findById(projectId);
 
-		return createAmendment(project);
+		return createAmendment(project, name);
 	}
 
 	/**
@@ -84,16 +85,18 @@ public class AmendmentService extends AbstractEntityService<Amendment, Integer, 
 	 *          The Project instance.
 	 * @return The created {@link Amendment} instance.
 	 */
-	public Amendment createAmendment(final Project project) {
+	public Amendment createAmendment(final Project project, String name) {
 
 		final Amendment amendment = new Amendment();
 		amendment.setParentProject(project);
 		amendment.setLogFrame(project.getLogFrame().copy(LogFrameCopyContext.toProject(project).withStrategy(IndicatorCopyStrategy.REFERENCE)));
 		amendment.setState(project.getAmendmentState());
-		amendment.setName("amendment");
+		amendment.setName(name);
 		amendment.setVersion(project.getAmendmentVersion());
 		amendment.setRevision(project.getAmendmentRevision());
 		amendment.setDate(new Date());
+		
+		em().persist(amendment);
 
 		// Running through every flexible element attached to the project [...] and saving the last history token in the
 		// values property.
@@ -111,32 +114,38 @@ public class AmendmentService extends AbstractEntityService<Amendment, Integer, 
 		for (final LayoutGroup group : groups) {
 			for (final LayoutConstraint constraint : group.getConstraints()) {
 				final FlexibleElement element = constraint.getElement();
-				if (/* element.isAmendable() != null && */element.isAmendable()) {
-					// The value of the current flexible element must be saved.
-					final Query maxDateQuery = em().createQuery("SELECT MAX(h.date) FROM HistoryToken h WHERE h.elementId = :elementId AND h.projectId = :projectId");
-					maxDateQuery.setParameter("projectId", project.getId());
-					maxDateQuery.setParameter("elementId", element.getId());
+				
+				// Since the transformation of amendments into project core
+				// versions, every value has to be saved.
+				
+				// The value of the current flexible element must be saved.
+				final Query maxDateQuery = em().createQuery("SELECT MAX(h.date) FROM HistoryToken h WHERE h.elementId = :elementId AND h.projectId = :projectId");
+				maxDateQuery.setParameter("projectId", project.getId());
+				maxDateQuery.setParameter("elementId", element.getId());
 
-					try {
-						final Date maxDate = (Date) maxDateQuery.getSingleResult();
+				try {
+					final Date maxDate = (Date) maxDateQuery.getSingleResult();
 
-						final Query query =
-								em().createQuery("SELECT h FROM HistoryToken h WHERE h.elementId = :elementId AND h.projectId = :projectId AND h.date = :maxDate");
-						query.setParameter("projectId", project.getId());
-						query.setParameter("elementId", element.getId());
-						query.setParameter("maxDate", maxDate);
+					final Query query =
+							em().createQuery("SELECT h FROM HistoryToken h WHERE h.elementId = :elementId AND h.projectId = :projectId AND h.date = :maxDate");
+					query.setParameter("projectId", project.getId());
+					query.setParameter("elementId", element.getId());
+					query.setParameter("maxDate", maxDate);
 
-						final HistoryToken token = (HistoryToken) query.getSingleResult();
-						historyTokens.add(token);
+					final HistoryToken token = (HistoryToken) query.getSingleResult();
+					token.setCoreVersion(amendment);
+					em().merge(token);
+					
+					historyTokens.add(token);
 
-					} catch (NoResultException e) {
-						// There is no history token for the given element. No action.
-					}
+				} catch (NoResultException e) {
+					// There is no history token for the given element. No action.
 				}
 			}
 		}
 
 		amendment.setValues(historyTokens);
+		em().merge(amendment);
 
 		return amendment;
 	}

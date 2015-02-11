@@ -80,7 +80,9 @@ public class GetHistoryHandler extends AbstractCommandHandler<GetHistory, ListRe
 					list.setTokens(new ArrayList<HistoryTokenDTO>());
 				}
 
-				list.getTokens().add(new HistoryTokenDTO(token.getValue(), token.getType(), token.getComment()));
+				final String coreVersionName = token.getCoreVersion() != null ? token.getCoreVersion().getVersion() + ". " + token.getCoreVersion().getName() : null;
+				
+				list.getTokens().add(new HistoryTokenDTO(token.getValue(), token.getType(), token.getComment(), coreVersionName));
 			}
 		}
 

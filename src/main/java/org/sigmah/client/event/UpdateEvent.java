@@ -336,6 +336,13 @@ public class UpdateEvent extends GwtEvent<UpdateHandler> {
 	 * </ul>
 	 */
 	public static final String IMPORTATION_MATCHING_RULE_UPDATE = "IMPORTATION_MATCHING_RULE_UPDATE";
+	
+	/**
+	 * <p>
+	 * An element part of the core version has been modified.
+	 * </p>
+	 */
+	public static final String CORE_VERSION_UPDATED = "CORE_VERSION_UPDATED";
 
 	// ---------------------------------------------------------------------------------
 	//

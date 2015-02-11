@@ -43,8 +43,16 @@ ALTER TABLE question_choice_element ADD COLUMN is_disabled boolean default false
 ALTER TABLE project ADD COLUMN mainsite int;
 
 -- add column name in amendement (project core)
-
+-- ------
 ALTER TABLE amendment ADD COLUMN name character varying(255);
+
+-- Add column for comment in the history token table.
+-- ------
+ALTER TABLE history_token ADD comment varchar(255);
+
+-- Add column for the core version
+-- ------
+ALTER TABLE history_token ADD core_version int;
 
 -- Deletes all entries from the AdminEntity table which contains only admin entities from the Democratic Republic of the Congo 
 -- ------
@@ -184,3 +192,13 @@ CREATE TABLE importation_variable_budget_sub_field
       REFERENCES budget_sub_field (id_budget_sub_field) MATCH SIMPLE
       ON UPDATE NO ACTION ON DELETE NO ACTION
 );
+
+-- -----
+-- core version element table
+-- -----
+
+CREATE TABLE core_version_element
+(
+  id_flexible_element int primary key
+);
+ALTER TABLE core_version_element OWNER TO sigmah;

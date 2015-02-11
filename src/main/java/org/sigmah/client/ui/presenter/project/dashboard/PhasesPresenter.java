@@ -70,6 +70,8 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
+import org.sigmah.client.ui.presenter.project.ProjectPresenter;
+import org.sigmah.client.ui.widget.Loadable;
 
 /**
  * Phases presenter.
@@ -82,7 +84,7 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> {
 	 * Description of the view managed by this presenter.
 	 */
 	@ImplementedBy(PhasesView.class)
-	public static interface View extends ViewInterface {
+	public static interface View extends ViewInterface, Loadable {
 
 		/**
 		 * Mask the main panel and set the mask counter.
@@ -616,10 +618,17 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> {
 							elementDTO.setTransfertManager(injector.getTransfertManager());
 							elementDTO.assignValue(valueResult);
 
+							final ProjectPresenter projectPresenter = injector.getProjectPresenter();
+							
 							// Generates element component (with the value).
 							elementDTO.init();
-							final Component elementComponent = elementDTO.getElementComponent(valueResult, !readOnly && !valueResult.isAmendment());
-
+							final Component elementComponent = elementDTO.getElementComponent(valueResult, !readOnly && !valueResult.isAmendment(), 
+								projectPresenter.canUnlockProject());
+							
+							if(elementDTO.getAmendable() && projectPresenter.projectIsLocked() && projectPresenter.canUnlockProject()) {
+								projectPresenter.addUnlockProjectPopup(elementDTO, elementComponent, view);
+							}
+							
 							// Component width.
 							final FormData formData;
 							if (elementDTO.getPreferredWidth() == 0) {
@@ -1123,11 +1132,14 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> {
 
 					// Checks if there is any update needed to the local project instance.
 					boolean refreshBanner = false;
+					boolean coreVersionUpdated = false;
+					
 					for (final ValueEvent event : valueChanges) {
 						if (event.getSource() instanceof DefaultFlexibleElementDTO) {
 							updateCurrentProject(((DefaultFlexibleElementDTO) event.getSource()), event.getSingleValue());
 							refreshBanner = true;
 						}
+						coreVersionUpdated |= event.getSourceElement().getAmendable();
 					}
 
 					clearChangedValues();
@@ -1142,6 +1154,10 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> {
 
 					if (refreshBanner) {
 						refreshProjectBanner();
+					}
+					
+					if(coreVersionUpdated) {
+						eventBus.fireEvent(new UpdateEvent(UpdateEvent.CORE_VERSION_UPDATED));
 					}
 				}
 			}, new LoadingMask(view.getTabPanelPhases()));

@@ -488,6 +488,15 @@ public class TextAreaElementDTO extends FlexibleElementDTO {
 		}
 	}
 
+	private String formatDate(String value) {
+		if (value != null) {
+			final DateTimeFormat formatter = DateUtils.DATE_SHORT;
+			return formatter.format(new Date(Long.valueOf(value)));
+		} else {
+			return "";
+		}
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -495,15 +504,22 @@ public class TextAreaElementDTO extends FlexibleElementDTO {
 	public Object renderHistoryToken(HistoryTokenListDTO token) {
 
 		if (getType() != null && getType() == 'D') {
-			final String value = token.getTokens().get(0).getValue();
-			if (value != null) {
-				final DateTimeFormat format = DateUtils.DATE_SHORT;
-				return new HistoryTokenText(format.format(new Date(Long.valueOf(value))));
-			} else {
-				return new HistoryTokenText("");
-			}
+			return new HistoryTokenText(formatDate(token.getTokens().get(0).getValue()));
 		} else {
 			return super.renderHistoryToken(token);
+		}
+	}
+
+	@Override
+	public String toHTML(String value) {
+		if(value == null) {
+			return "";
+		}
+		
+		if (getType() != null && getType() == 'D') {
+			return formatDate(value);
+		} else {
+			return value.replace("\n", "<br>");
 		}
 	}
 

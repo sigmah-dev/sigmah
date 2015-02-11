@@ -33,7 +33,9 @@ public enum ElementTypeEnum {
 
 	TEXT_AREA("TextAreaElement"),
 
-	TRIPLETS("TripletsListElement");
+	TRIPLETS("TripletsListElement"),
+	
+	CORE_VERSION("CoreVersionElement");
 
 	private static Map<String, ElementTypeEnum> nameMap;
 
@@ -83,6 +85,8 @@ public enum ElementTypeEnum {
 				return I18N.CONSTANTS.flexibleElementTextArea();
 			case TRIPLETS:
 				return I18N.CONSTANTS.flexibleElementTripletsList();
+			case CORE_VERSION:
+				return I18N.CONSTANTS.flexibleElementCoreVersion();
 			default:
 				return I18N.CONSTANTS.flexibleElementDefault();
 		}
@@ -101,6 +105,7 @@ public enum ElementTypeEnum {
 			nameMap.put(I18N.CONSTANTS.flexibleElementReportList(), ElementTypeEnum.REPORT_LIST);
 			nameMap.put(I18N.CONSTANTS.flexibleElementTextArea(), ElementTypeEnum.TEXT_AREA);
 			nameMap.put(I18N.CONSTANTS.flexibleElementTripletsList(), ElementTypeEnum.TRIPLETS);
+			nameMap.put(I18N.CONSTANTS.flexibleElementCoreVersion(), ElementTypeEnum.CORE_VERSION);
 		}
 
 		final ElementTypeEnum value = nameMap.get(name);

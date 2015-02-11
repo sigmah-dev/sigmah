@@ -12,7 +12,7 @@ import org.sigmah.shared.command.UpdateReminders;
 import org.sigmah.shared.command.base.Command;
 
 /**
- *
+ * Parent class of the JavaScript versions of {@link Command}s.
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
 public class CommandJS extends JavaScriptObject {
@@ -27,6 +27,17 @@ public class CommandJS extends JavaScriptObject {
 		UPDATE_PROJECT_FAVORITE,
 		UPDATE_REMINDERS
 	}
+	
+	public static final Class[] SUPPORTED_COMMANDS = new Class[] {
+		CreateEntity.class,
+		Delete.class,
+		UpdateEntity.class,
+		UpdateLogFrame.class,
+		UpdateMonitoredPoints.class,
+		UpdateProject.class,
+		UpdateProjectFavorite.class,
+		UpdateReminders.class
+	};
 	
 	protected CommandJS() {
 	}

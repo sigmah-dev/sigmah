@@ -273,6 +273,12 @@ public class ElementExtractedValuePopup extends PopupWidget implements HasGrid<E
 	 */
 	private <V extends Serializable> String formatValue(FlexibleElementDTO element, Serializable value, Map<Integer, Serializable> budgetHaystack, Map<Integer, V> budgetValues) {
 		final String elementValue;
+		
+		if(value instanceof String) {
+			return element.toHTML((String)value);
+		}
+		
+		// TODO: Modify the code to return values as String (instead of Serializable) and allow the use of element.toHTML(...).
 				
 		if (element instanceof BudgetElementDTO && !budgetValues.isEmpty()) {
 			// --

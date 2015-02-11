@@ -146,13 +146,13 @@ public class FileServlet extends AbstractServlet {
 
 		try {
 
-			download(id, fileStorageProvider.open(id), response);
+			downloadBase64(id, fileStorageProvider.open(id), response);
 
 		} catch (final NoSuchFileException e) {
 			if (LOG.isInfoEnabled()) {
 				LOG.info("No logo found for id '" + id + "'.", e);
 			}
-			throw new StatusServletException(Response.SC_NOT_FOUND);
+			throw new StatusServletException(Response.SC_NOT_FOUND, e);
 		}
 	}
 
@@ -219,7 +219,7 @@ public class FileServlet extends AbstractServlet {
 			if (LOG.isInfoEnabled()) {
 				LOG.info("No archive found for id '" + id + "'.", e);
 			}
-			throw new StatusServletException(Response.SC_NOT_FOUND);
+			throw new StatusServletException(Response.SC_NOT_FOUND, e);
 		}
 	}
 
@@ -255,10 +255,19 @@ public class FileServlet extends AbstractServlet {
 	 */
 	private static void download(final String id, String fileName, final InputStream in, final HttpServletResponse response) throws Exception {
 
-		final String extension = FilenameUtils.getExtension(id);
-		final FileType fileType = FileType.fromExtension(extension);
+		final FileType fileType = fileTypeFromFileId(id);
 		ResponseHelper.executeDownload(response, in, fileType != null ? fileType.getContentType() : null, fileName, null);
 
+	}
+	
+	private static void downloadBase64(final String id, final InputStream in, final HttpServletResponse response) throws IOException {
+		final FileType fileType = fileTypeFromFileId(id);
+		ResponseHelper.executeDownload(response, in, fileType != null ? fileType.getContentType() : null, null, null, ResponseHelper.ContentDisposition.BASE64);
+	}
+	
+	private static FileType fileTypeFromFileId(String fileName) {
+		final String extension = FilenameUtils.getExtension(fileName);
+		return FileType.fromExtension(extension);
 	}
 
 	// ---------------------------------------------------------------------------------------

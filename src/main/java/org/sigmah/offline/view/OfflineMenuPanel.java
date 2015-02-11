@@ -116,15 +116,17 @@ public class OfflineMenuPanel extends Composite {
 		rootPanel.getElement().setId("offline-menu");
         
         // Application cache status
-        rootPanel.add(createHeader(I18N.CONSTANTS.offlineModeHeader(), I18N.CONSTANTS.offlineModeAvailability()));
+//        rootPanel.add(createHeader(I18N.CONSTANTS.offlineModeHeader(), I18N.CONSTANTS.offlineModeAvailability()));
         sigmahUpdateVariable = createVariable(I18N.CONSTANTS.offlineDatabaseLastCompleteUpdateNever());
-        rootPanel.add(sigmahUpdateVariable);
+//        rootPanel.add(sigmahUpdateVariable);
         
         final RatioBar applicationCacheRatioBar = new RatioBar(0.0);
         bars.put(ProgressType.APPLICATION_CACHE, applicationCacheRatioBar);
-        rootPanel.add(wrapProgressBar(I18N.CONSTANTS.offlineModeProgress(), applicationCacheRatioBar, ProgressType.APPLICATION_CACHE));
-        
-        rootPanel.add(createSeparator(true));
+//        rootPanel.add(
+		wrapProgressBar(I18N.CONSTANTS.offlineModeProgress(), applicationCacheRatioBar, ProgressType.APPLICATION_CACHE);
+//			);
+//        
+//        rootPanel.add(createSeparator(true));
         
         // Local database status
         rootPanel.add(createHeader(I18N.CONSTANTS.offlineDatabaseHeader(), I18N.CONSTANTS.offlineDatabaseLastCompleteUpdate()));

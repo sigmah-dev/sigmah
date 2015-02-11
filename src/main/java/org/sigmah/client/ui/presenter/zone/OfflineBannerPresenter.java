@@ -4,13 +4,16 @@ import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.MouseOutEvent;
+import com.google.gwt.event.dom.client.MouseOutHandler;
+import com.google.gwt.event.dom.client.MouseOverEvent;
+import com.google.gwt.event.dom.client.MouseOverHandler;
 import com.google.gwt.event.shared.HandlerRegistration;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Anchor;
-import com.google.gwt.user.client.ui.HTML;
 import org.sigmah.client.inject.Injector;
-import org.sigmah.client.page.RequestParameter;
 import org.sigmah.client.ui.presenter.base.AbstractZonePresenter;
 import org.sigmah.client.ui.view.base.ViewInterface;
 import org.sigmah.client.ui.view.zone.OfflineBannerView;
@@ -20,13 +23,17 @@ import org.sigmah.offline.appcache.ApplicationCache;
 import org.sigmah.offline.appcache.ApplicationCacheManager;
 
 import com.google.gwt.user.client.ui.Panel;
+import com.google.gwt.user.client.ui.RootPanel;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import java.util.Date;
 import java.util.EnumMap;
 import java.util.Map;
+import org.sigmah.client.event.OfflineEvent;
+import org.sigmah.client.event.handler.OfflineHandler;
 import org.sigmah.client.i18n.I18N;
+import org.sigmah.client.page.RequestParameter;
 import org.sigmah.client.ui.notif.ConfirmCallback;
 import org.sigmah.client.ui.notif.N10N;
 import org.sigmah.client.ui.widget.RatioBar;
@@ -60,6 +67,9 @@ import org.sigmah.shared.file.TransfertType;
  */
 @Singleton
 public class OfflineBannerPresenter extends AbstractZonePresenter<OfflineBannerPresenter.View> {
+	
+	public static final String SHOW_BRIEFLY = "SHOW_BRIEFLY";
+	private static final int AUTOCLOSE_TIME = 3000;
     
     private static final String STYLE_MENU_VISIBLE = "offline-button-active";
     private static final double PUSH_VALUE = 0.4;
@@ -69,6 +79,10 @@ public class OfflineBannerPresenter extends AbstractZonePresenter<OfflineBannerP
     private HandlerRegistration fileHandlerRegistration;
 	private Map<ProgressType, Double> progresses;
     
+	private boolean linkHover;
+	private boolean menuHover;
+	private boolean forceOpen;
+	
 	/**
 	 * View interface.
 	 */
@@ -76,7 +90,7 @@ public class OfflineBannerPresenter extends AbstractZonePresenter<OfflineBannerP
 	public static interface View extends ViewInterface {
 
 		Panel getStatusPanel();
-        HTML getStatusLabel();
+        Panel getMenuHandle();
         OfflineMenuPanel getMenuPanel();
         SynchronizePopup getSynchronizePopup();
 
@@ -85,7 +99,6 @@ public class OfflineBannerPresenter extends AbstractZonePresenter<OfflineBannerP
         void setSynchronizeAnchorEnabled(boolean enabled);
         void setTransferFilesAnchorEnabled(boolean enabled);
         void setWarningIconVisible(boolean visible);
-        void setConnectionIconVisible(boolean visible);
 	}
     
 	@Inject
@@ -97,7 +110,14 @@ public class OfflineBannerPresenter extends AbstractZonePresenter<OfflineBannerP
 	public void onBind() {
         progresses = new EnumMap<ProgressType, Double>(ProgressType.class);
         view.getSynchronizePopup().initialize();
-        onStateChange(injector.getConnectionStatus().getState());
+		
+		eventBus.addHandler(OfflineEvent.getType(), new OfflineHandler() {
+
+			@Override
+			public void handleEvent(OfflineEvent event) {
+				onStateChange(event.getState());
+			}
+		});
         
         // Application cache progress
 		ApplicationCacheManager.addHandler(createApplicationCacheEventHandler());
@@ -113,14 +133,49 @@ public class OfflineBannerPresenter extends AbstractZonePresenter<OfflineBannerP
         }
         
         // Toggle visibility of the offline menu
-        view.getStatusLabel().addDomHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                setMenuVisible(!view.getMenuPanel().isVisible());
-            }
-        }, ClickEvent.getType());
+		view.getMenuHandle().addDomHandler(new MouseOverHandler() {
+
+			@Override
+			public void onMouseOver(MouseOverEvent event) {
+				linkHover = true;
+				updateMenuVisibility();
+			}
+			
+		}, MouseOverEvent.getType());
+		
+		view.getMenuHandle().addDomHandler(new MouseOutHandler() {
+
+			@Override
+			public void onMouseOut(MouseOutEvent event) {
+				linkHover = false;
+				forceOpen = false;
+				updateMenuVisibility();
+			}
+			
+		}, MouseOutEvent.getType());
         
         final OfflineMenuPanel menuPanel = view.getMenuPanel();
+		menuPanel.addDomHandler(new MouseOverHandler() {
+
+			@Override
+			public void onMouseOver(MouseOverEvent event) {
+				menuHover = true;
+				updateMenuVisibility();
+			}
+			
+		}, MouseOverEvent.getType());
+		
+		menuPanel.addDomHandler(new MouseOutHandler() {
+
+			@Override
+			public void onMouseOut(MouseOutEvent event) {
+				menuHover = false;
+				forceOpen = false;
+				updateMenuVisibility();
+			}
+			
+		}, MouseOutEvent.getType());
+		
         menuPanel.setSigmahUpdateDate(ApplicationCacheManager.getUpdateDate());
         menuPanel.setDatabaseUpdateDate(getDatabaseUpdateDate());
         
@@ -140,20 +195,33 @@ public class OfflineBannerPresenter extends AbstractZonePresenter<OfflineBannerP
 	 */
 	@Override
 	public void onZoneRequest(ZoneRequest zoneRequest) {
+		final String type = zoneRequest.getData(RequestParameter.TYPE);
+		if(SHOW_BRIEFLY.equals(type)) {
+			forceOpen = true;
+			updateMenuVisibility();
+			
+			new Timer() {
 
-		final ApplicationState state = zoneRequest.getData(RequestParameter.CONTENT);
-		if(state != null) {
-            onStateChange(state);
+				@Override
+				public void run() {
+					forceOpen = false;
+					updateMenuVisibility();
+				}
+			}.schedule(AUTOCLOSE_TIME);
 		}
 	}
     
+	private void updateMenuVisibility() {
+		setMenuVisible(linkHover || menuHover || forceOpen);
+	}
+	
     private void setMenuVisible(boolean visible) {
         view.getMenuPanel().setVisible(visible);
                 
         if(visible) {
-            view.getStatusLabel().addStyleName(STYLE_MENU_VISIBLE);
+            view.getMenuHandle().addStyleName(STYLE_MENU_VISIBLE);
         } else {
-            view.getStatusLabel().removeStyleName(STYLE_MENU_VISIBLE);
+            view.getMenuHandle().removeStyleName(STYLE_MENU_VISIBLE);
         }
     }
     
@@ -318,11 +386,10 @@ public class OfflineBannerPresenter extends AbstractZonePresenter<OfflineBannerP
             case OFFLINE:
                 syncAnchor.getElement().getStyle().setDisplay(Style.Display.NONE);
                 fileAnchor.getElement().getStyle().setDisplay(Style.Display.NONE);
-                view.setConnectionIconVisible(false);
+				RootPanel.getBodyElement().addClassName("offline");
                 break;
 
             case READY_TO_SYNCHRONIZE:
-                view.setConnectionIconVisible(true);
 				fileAnchor.getElement().getStyle().setDisplay(Style.Display.NONE);
                 syncAnchor.getElement().getStyle().clearDisplay();
                 syncAnchor.setText(I18N.CONSTANTS.offlineActionSynchronize());
@@ -333,12 +400,13 @@ public class OfflineBannerPresenter extends AbstractZonePresenter<OfflineBannerP
                         pushAndPull();
                     }
                 });
+				RootPanel.getBodyElement().addClassName("offline");
                 break;
 
             case ONLINE:
-                view.setConnectionIconVisible(false);
                 syncAnchor.getElement().getStyle().clearDisplay();
                 syncAnchor.setText(I18N.CONSTANTS.offlineActionUpdateDatabase());
+				RootPanel.getBodyElement().removeClassName("offline");
                 syncHandlerRegistration = syncAnchor.addClickHandler(new ClickHandler() {
                     @Override
                     public void onClick(ClickEvent event) {
@@ -407,6 +475,8 @@ public class OfflineBannerPresenter extends AbstractZonePresenter<OfflineBannerP
                         updateProgressBars();
                         view.getSynchronizePopup().hide();
                         setDatabaseUpdateDate(new Date());
+						
+						pullFiles();
                     }
 
                     @Override
@@ -445,6 +515,8 @@ public class OfflineBannerPresenter extends AbstractZonePresenter<OfflineBannerP
                 updateProgressBars();
                 setDatabaseUpdateDate(new Date());
                 view.setSynchronizeAnchorEnabled(true);
+				
+				pullFilesInvite();
             }
 
             @Override
@@ -458,6 +530,16 @@ public class OfflineBannerPresenter extends AbstractZonePresenter<OfflineBannerP
             }
         });
     }
+	
+	private void pullFilesInvite() {
+		N10N.confirmation(I18N.CONSTANTS.sigmahOfflineAlsoSynchronizeFilesInvite(), new ConfirmCallback() {
+
+			@Override
+			public void onAction() {
+				pullFiles();
+			}
+		});
+	}
 	
 	private void pullFiles() {
 		view.setTransferFilesAnchorEnabled(false);

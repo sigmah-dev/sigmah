@@ -102,4 +102,16 @@ public class CheckboxElementDTO extends FlexibleElementDTO {
 		c.setValue(Boolean.valueOf(token.getTokens().get(0).getValue()));
 		return c;
 	}
+
+	@Override
+	public String toHTML(String value) {
+		if(value == null) {
+			return "";
+		}
+		
+		return new StringBuilder("<input type=\"checkbox\" readonly=\"readonly\" checked=\"")
+			.append(Boolean.valueOf(value) ? "checked" : "")
+			.append("\">").toString();
+	}
+	
 }

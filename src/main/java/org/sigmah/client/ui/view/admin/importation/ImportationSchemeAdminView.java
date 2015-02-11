@@ -19,7 +19,6 @@ import org.sigmah.shared.dto.referential.ImportationSchemeImportType;
 import com.extjs.gxt.ui.client.Style;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Scroll;
-import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
@@ -28,7 +27,6 @@ import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Label;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.IconButton;
 import com.extjs.gxt.ui.client.widget.button.ToolButton;
 import com.extjs.gxt.ui.client.widget.form.NumberField;
@@ -40,12 +38,14 @@ import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.grid.GridSelectionModel;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
+import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.inject.Singleton;
+import org.sigmah.client.ui.widget.button.Button;
 import org.sigmah.client.ui.widget.layout.Layouts;
 import org.sigmah.client.ui.widget.panel.Panels;
 
@@ -67,10 +67,14 @@ public class ImportationSchemeAdminView extends AbstractView implements Importat
 	private ContentPanel schemePanel;
 	private ContentPanel variablePanel;
 	private IconButton closeButton;
+	
 	private Button addVariableButton;
 	private Button deleteVariableButton;
-	private Button deleteSchemeButton;
+	
 	private Button addSchemeButton;
+	private Button deleteSchemeButton;
+	private Button editSchemeButton;
+	
 	private NumberField firstRow;
 	private TextField<String> sheetName;
 	private Button saveSheetNameFirstRowButton;
@@ -222,14 +226,22 @@ public class ImportationSchemeAdminView extends AbstractView implements Importat
 	 * @return ToolBar
 	 */
 	private ToolBar importationSchemeToolBar() {
-
-		ToolBar toolbar = new ToolBar();
+		// Add scheme button.
 		addSchemeButton = new Button(I18N.CONSTANTS.addItem(), IconImageBundle.ICONS.add());
 
-		toolbar.add(addSchemeButton);
+		// Delete scheme button.
 		deleteSchemeButton = new Button(I18N.CONSTANTS.delete(), IconImageBundle.ICONS.delete());
 		deleteSchemeButton.setEnabled(false);
+		
+		// Edit scheme button.
+		editSchemeButton = new Button(I18N.CONSTANTS.edit(), IconImageBundle.ICONS.editPage());
+		editSchemeButton.setEnabled(false);
+		
+		final ToolBar toolbar = new ToolBar();
+		toolbar.add(addSchemeButton);
 		toolbar.add(deleteSchemeButton);
+		toolbar.add(new SeparatorToolItem());
+		toolbar.add(editSchemeButton);
 
 		return toolbar;
 	}
@@ -300,7 +312,7 @@ public class ImportationSchemeAdminView extends AbstractView implements Importat
 	@Override
 	public void confirmDeleteSchemesSelected(final ConfirmCallback confirmCallback) {
 
-		if (getSchemesSelection().size() == 0) {
+		if (getSchemesSelection().isEmpty()) {
 
 			N10N.infoNotif(I18N.CONSTANTS.delete(), I18N.CONSTANTS.adminImportationSchemesDeleteNone());
 
@@ -330,7 +342,7 @@ public class ImportationSchemeAdminView extends AbstractView implements Importat
 	@Override
 	public void confirmDeleteVariablesSelected(final ConfirmCallback confirmCallback) {
 
-		if (getVariablesSelection().size() == 0) {
+		if (getVariablesSelection().isEmpty()) {
 
 			N10N.infoNotif(I18N.CONSTANTS.delete(), I18N.CONSTANTS.adminVariablesDeleteNone());
 
@@ -389,6 +401,11 @@ public class ImportationSchemeAdminView extends AbstractView implements Importat
 	@Override
 	public Button getAddSchemeButton() {
 		return addSchemeButton;
+	}
+
+	@Override
+	public Button getEditSchemeButton() {
+		return editSchemeButton;
 	}
 
 	@Override

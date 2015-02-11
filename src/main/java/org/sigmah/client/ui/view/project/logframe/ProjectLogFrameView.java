@@ -72,7 +72,7 @@ public class ProjectLogFrameView extends AbstractView implements ProjectLogFrame
 
 		// Configuration.
 		final VBoxLayout layout = Layouts.vBoxLayout(VBoxLayoutAlign.STRETCH, new LayoutOptions(new Padding(5), false, Scroll.VERTICAL));
-		mainPanel = Panels.content(I18N.CONSTANTS.logFrame(), layout, STYLE_GRID_MAIN_PANEL);
+		mainPanel = Panels.content(I18N.CONSTANTS.logFrame() + "&nbsp;" + IconImageBundle.ICONS.DNABrownGreen().getHTML(), layout, STYLE_GRID_MAIN_PANEL);
 		mainPanel.setBorders(true);
 
 		// Toolbar.

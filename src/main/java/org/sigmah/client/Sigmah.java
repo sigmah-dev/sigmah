@@ -1,12 +1,9 @@
 package org.sigmah.client;
 
-import org.sigmah.client.dispatch.DispatchAsync;
 import org.sigmah.client.inject.Injector;
 import org.sigmah.client.page.PageManager;
-import org.sigmah.client.security.SecureDispatchAsync;
 import org.sigmah.client.ui.notif.N10N;
 import org.sigmah.offline.appcache.ApplicationCacheManager;
-import org.sigmah.offline.status.ConnectionStatus;
 
 import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.GXT;
@@ -85,12 +82,7 @@ public class Sigmah implements EntryPoint {
 
 		// Offline dispatcher
 		injector.getLocalDispatch();
-		final ConnectionStatus connectionStatus = injector.getConnectionStatus();
-
-		final DispatchAsync dispatch = injector.getDispatch();
-		if (dispatch instanceof SecureDispatchAsync) {
-			((SecureDispatchAsync) dispatch).setConnectionStatus(connectionStatus);
-		}
+		injector.getApplicationStateManager();
 
 		// Application presenters.
 		injector.getApplicationPresenter();
@@ -169,6 +161,9 @@ public class Sigmah implements EntryPoint {
 		injector.getAddImportationSchemeModelsAdminPresenter();
 		injector.getAddMatchingRuleImportationShemeModelsAdminPresenter();
 
+		// Propagates the network state.
+		injector.getApplicationStateManager().fireCurrentState();
+		
 		// Go to the current page.
 		injector.getPageManager().fireCurrentPlace();
 	}

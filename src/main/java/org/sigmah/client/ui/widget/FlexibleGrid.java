@@ -1,5 +1,6 @@
 package org.sigmah.client.ui.widget;
 
+import com.extjs.gxt.ui.client.core.El;
 import java.util.Arrays;
 
 import com.extjs.gxt.ui.client.data.ModelData;
@@ -135,15 +136,16 @@ public class FlexibleGrid<M extends ModelData> extends EditorGrid<M> {
 	 * Computes and applies the grid height depending on the number of desired elements to display.
 	 */
 	private void doAutoHeight() {
+		
+		final El fileListElement = this.getView().getBody().firstChild();
 
 		final int elementsHeight;
-		if (visibleElementsCount <= 0) {
+		if (visibleElementsCount <= 0 || fileListElement.firstChild() == null) {
 			// Shows all elements.
-			elementsHeight = this.getView().getBody().firstChild().getHeight();
+			elementsHeight = fileListElement.getHeight();
 		} else {
 			// Shows only desired elements.
-			elementsHeight =
-					this.getView().getBody().firstChild().firstChild().getHeight()
+			elementsHeight = fileListElement.firstChild().getHeight()
 						* (getStore().getCount() > visibleElementsCount ? visibleElementsCount : getStore().getCount());
 		}
 

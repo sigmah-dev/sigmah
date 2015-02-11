@@ -13,13 +13,14 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.log4j.Logger;
 import org.sigmah.linker.Manifest;
 import org.sigmah.server.inject.ServletModule;
 import org.sigmah.server.util.Languages;
 import org.sigmah.shared.Language;
 
 import com.google.inject.Singleton;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Parse the user-agent to determine which manifest is the best match for the
@@ -30,7 +31,7 @@ import com.google.inject.Singleton;
 @Singleton
 public class ManifestServlet extends HttpServlet {
 	
-	private static final Logger LOGGER = Logger.getLogger(ManifestServlet.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(ManifestServlet.class);
 	
 	private static final String PATH_OF_THIS_CLASS;
 	private static final String USER_AGENT_HEADER = "user-agent";
@@ -50,7 +51,7 @@ public class ManifestServlet extends HttpServlet {
 		final String permutation = getPermutation(userAgent.toLowerCase());
 		
 		final Manifest manifest = new Manifest(permutation, language);
-		Logger.getLogger(ManifestServlet.class.getName()).info("Requesting HTML5 manifest for " + manifest);
+		LOGGER.info("Requesting HTML5 manifest for " + manifest);
 		
 		resp.setContentType(MANIFEST_MIME_TYPE);
 		resp.setCharacterEncoding(ENCODING);

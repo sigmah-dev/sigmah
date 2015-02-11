@@ -198,6 +198,10 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 	public Component getElementComponent(ValueResult valueResult, boolean enabled) {
 		return getComponentWithHistory(valueResult, enabled, false);
 	}
+	
+	public Component getElementComponent(ValueResult valueResult, boolean enabled, boolean canUnlockProject) {
+		return getComponentWithHistory(valueResult, enabled, false, canUnlockProject);
+	}
 
 	/**
 	 * Gets the widget of a flexible element with its value. This method manages the history of the element.
@@ -211,15 +215,19 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 	 * @return The widget component.
 	 */
 	private Component getComponentWithHistory(ValueResult valueResult, boolean enabled, boolean inBanner) {
+		return getComponentWithHistory(valueResult, enabled, inBanner, false);
+	}
+	
+	private Component getComponentWithHistory(ValueResult valueResult, boolean enabled, boolean inBanner, boolean canUnlockProject) {
 
 		// Checking the amendment state.
 		if (enabled && // This element is in an editable state
-			Boolean.TRUE.equals(getAmendable())) {// This element is part of the amendment
+			getAmendable()) {// This element is part of the project core version
 			if (currentContainerDTO instanceof ProjectDTO && // This element is displayed in a project
 				(((ProjectDTO) currentContainerDTO).getAmendmentState() != AmendmentState.DRAFT || ((ProjectDTO) currentContainerDTO).getCurrentAmendment() != null)) {
-				enabled = false;
+				enabled = canUnlockProject;
 			} else {
-				if (currentContainerDTO instanceof OrgUnitDTO || currentContainerDTO instanceof org.sigmah.shared.dto.orgunit.OrgUnitDTO) {
+				if (currentContainerDTO instanceof OrgUnitDTO) {
 					enabled = false;
 				}
 			}
@@ -256,7 +264,7 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 		}
 		
 		// Adds the history menu if needed.
-		if (isHistorable()) {
+		if (isHistorable() && !(this instanceof BudgetElementDTO)) {
 			if(inBanner || !(component instanceof Field)) {
 				createHistoryMenu(component);
 				
@@ -308,7 +316,7 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 	 * 
 	 * @param loadables Element to mask during the load of the history.
 	 */
-	private void loadAndShowHistory(Loadable... loadables) {
+	protected void loadAndShowHistory(Loadable... loadables) {
 		dispatch.execute(new GetHistory(getId(), currentContainerDTO.getId()), new CommandResultHandler<ListResult<HistoryTokenListDTO>>() {
 
 			@Override
@@ -507,6 +515,14 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 		ensureHistorable();
 		return new HistoryTokenText(token);
 	}
+	
+	public String toHTML(String value) {
+		if(value != null) {
+			return value;
+		} else {
+			return "";
+		}
+	}
 
 	public ElementTypeEnum getElementType() {
 		ElementTypeEnum type = null;
@@ -532,6 +548,8 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 			type = ElementTypeEnum.REPORT_LIST;
 		} else if (this instanceof TripletsListElementDTO) {
 			type = ElementTypeEnum.TRIPLETS;
+		} else if (this instanceof CoreVersionElementDTO) {
+			type = ElementTypeEnum.CORE_VERSION;
 		}
 		return type;
 	}

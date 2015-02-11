@@ -1,15 +1,12 @@
 package org.sigmah.server.handler;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 
 import org.sigmah.server.dao.AmendmentDAO;
 import org.sigmah.server.dao.ProjectDAO;
 import org.sigmah.server.dispatch.impl.UserDispatch.UserExecutionContext;
 import org.sigmah.server.domain.Amendment;
 import org.sigmah.server.domain.Project;
-import org.sigmah.server.domain.logframe.LogFrame;
 import org.sigmah.server.handler.base.AbstractCommandHandler;
 import org.sigmah.server.service.AmendmentService;
 import org.sigmah.shared.command.AmendmentActionCommand;
@@ -80,7 +77,7 @@ public class AmendmentActionCommandHandler extends AbstractCommandHandler<Amendm
 				+ ')');
 		}
 
-		performAction(action, project, context);
+		performAction(action, project, cmd.getName(), context);
 
 		return mapper().map(project, ProjectDTO.class);
 	}
@@ -94,7 +91,7 @@ public class AmendmentActionCommandHandler extends AbstractCommandHandler<Amendm
 	 * @throws org.sigmah.shared.dispatch.CommandException If the action could not be executed.
 	 */
 	@Transactional
-	protected void performAction(final AmendmentAction action, final Project project, final UserExecutionContext context) throws CommandException {
+	protected void performAction(final AmendmentAction action, final Project project, final String name, final UserExecutionContext context) throws CommandException {
 		switch (action) {
 			case LOCK:
 				if(!userPermissionPolicy.isGranted(context.getUser().getOrgUnitWithProfiles(), GlobalPermissionEnum.LOCK_PROJECT)) {
@@ -112,7 +109,7 @@ public class AmendmentActionCommandHandler extends AbstractCommandHandler<Amendm
 
 			case VALIDATE:
 				validateAmendment(project, context);
-				createAmendment(project);
+				createAmendment(project, name);
 				break;
 				
 			default:
@@ -123,82 +120,20 @@ public class AmendmentActionCommandHandler extends AbstractCommandHandler<Amendm
 		projectDAO.persist(project, context.getUser());
 	}
 
-	protected void createAmendment(final Project project) {
+	protected void createAmendment(final Project project, final String name) {
 		// Changes the project state to draft and save the current state as a new amendment.
-		final Amendment newAmendment = amendmentPolicy.createAmendment(project);
+		final Amendment newAmendment = amendmentPolicy.createAmendment(project, name);
 		
 		int version = project.getAmendmentVersion() + 1;
-		int revision = 1;
-		
-		// If the previous amendment is in the REJECTED state, then the current amendment is a new revision.
-		if (project.getAmendments() != null
-			&& project.getAmendments().size() > 0
-			&& project.getAmendments().get(project.getAmendments().size() - 1).getState() == AmendmentState.REJECTED
-			&& project.getAmendments().get(project.getAmendments().size() - 1).getVersion() == version)
-			revision = project.getAmendments().get(project.getAmendments().size() - 1).getRevision() + 1;
 		
 		// Updating the project
 		project.setAmendmentVersion(version);
-		project.setAmendmentRevision(revision);
-		project.setAmendmentState(AmendmentState.DRAFT);
+		project.setAmendmentRevision(1);
+		project.setAmendmentState(AmendmentState.LOCKED);
 		
 		project.getAmendments().add(newAmendment);
 	}
 
-	protected void rejectAmendment(final Project project, final UserExecutionContext context) {
-		// Restore the active state or "creates" a new draft if no active state exists.
-		project.setAmendmentState(AmendmentState.REJECTED);
-		final Amendment rejectedAmendment = amendmentPolicy.createAmendment(project);
-		
-		boolean found = false;
-		if (project.getAmendments() != null) {
-			final Iterator<Amendment> iterator = project.getAmendments().iterator();
-			
-			while (iterator.hasNext()) {
-				
-				final Amendment amendment = iterator.next();
-				
-				if (amendment.getState() != AmendmentState.ACTIVE) {
-					continue;
-				}
-				
-				found = true;
-				
-				final LogFrame previousLogFrame = project.getLogFrame();
-				final LogFrame currentLogFrame = amendment.getLogFrame();
-				
-				previousLogFrame.setParentProject(null);
-				currentLogFrame.setParentProject(project);
-				
-				project.setLogFrame(currentLogFrame);
-				project.setAmendmentVersion(amendment.getVersion());
-				project.setAmendmentRevision(amendment.getRevision());
-				project.setAmendmentState(AmendmentState.ACTIVE);
-				
-				// TODO: Restores values of flexible elements from history tokens
-				
-				// Deleting the current amendment from the project
-				amendment.setLogFrame(null);
-				iterator.remove();
-				
-				// Persisting changes
-				em().remove(previousLogFrame);
-				amendmentDAO.remove(amendment, context.getUser());
-			}
-		}
-		
-		if (!found) {
-			project.setAmendmentRevision(project.getAmendmentRevision() + 1);
-			project.setAmendmentState(AmendmentState.DRAFT);
-		}
-		
-		if (project.getAmendments() == null) {
-			project.setAmendments(new ArrayList<Amendment>());
-		}
-		
-		project.getAmendments().add(rejectedAmendment);
-	}
-	
 	protected void validateAmendment(final Project project, final UserExecutionContext context) {
 		// Archive the active state (if one does exist) and activate the current one.
 		for (final Amendment amendment : project.getAmendments()) {

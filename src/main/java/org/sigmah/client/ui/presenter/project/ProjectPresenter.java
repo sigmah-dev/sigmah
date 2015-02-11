@@ -52,6 +52,7 @@ import org.sigmah.shared.util.ProfileUtils;
 import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.DomEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
@@ -75,6 +76,8 @@ import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import java.util.List;
+import org.sigmah.client.ui.res.icon.IconImageBundle;
+import org.sigmah.client.ui.widget.Loadable;
 import org.sigmah.shared.dto.referential.AmendmentState;
 import org.sigmah.shared.dto.referential.CoreVersionAction;
 
@@ -109,6 +112,8 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 		Button getDeleteButton();
 
 		void buildExportDialog(ExportActionHandler handler);
+		
+		void buildCreateCoreVersionDialog(SelectionListener<ButtonEvent> callback);
 
 		// --
 		// PROJECT BANNER.
@@ -154,9 +159,9 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 		
 		ComboBox<CoreVersionAction> getCoreVersionActionComboBox();
 
-		void setProjectCoreVersionState(AmendmentState state);
+		void setProjectCoreVersionState(AmendmentState state, boolean coreVersionWasModified);
 		
-		void setProjectCoreVersions(List<AmendmentDTO> coreVersions);
+		void setProjectCoreVersions(List<AmendmentDTO> coreVersions, boolean coreVersionWasModified);
 	}
 
 	/**
@@ -219,7 +224,7 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 			public void onSubMenuClick(final SubMenuItem menuItem) {
 
 				final PageRequest currentPageRequest = injector.getPageManager().getCurrentPageRequest(false);
-				eventBus.navigateRequest(menuItem.getRequest().addAllParameters(currentPageRequest.getParameters(true)));
+				eventBus.navigateRequest(menuItem.getRequest().addAllParameters(currentPageRequest.getParameters(false)));
 			}
 		});
 
@@ -262,7 +267,7 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 
 			@Override
 			public void componentSelected(final ButtonEvent event) {
-				onCoreVersionAction(project, AmendmentAction.LOCK, null);
+				onCoreVersionAction(project, AmendmentAction.LOCK, view.getLockProjectCoreButton());
 			}
 		});
 		
@@ -273,7 +278,7 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 
 			@Override
 			public void componentSelected(final ButtonEvent event) {
-				onCoreVersionAction(project, AmendmentAction.UNLOCK, null);
+				onCoreVersionAction(project, AmendmentAction.UNLOCK, view.getUnlockProjectCoreButton());
 			}
 		});
 
@@ -284,7 +289,14 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 
 			@Override
 			public void handleEvent(BaseEvent be) {
-				onCoreVersionAction(project, AmendmentAction.VALIDATE, null);
+				view.buildCreateCoreVersionDialog(new SelectionListener<ButtonEvent>() {
+
+					@Override
+					public void componentSelected(ButtonEvent ce) {
+						final String name = (String) ce.getSource();
+						onCoreVersionAction(project, AmendmentAction.VALIDATE, view.getValidateVersionButton(), name);
+					}
+				});
 			}
 		});
 
@@ -331,9 +343,14 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 			public void onUpdate(final UpdateEvent event) {
 				if (event.concern(UpdateEvent.PROJECT_BANNER_UPDATE)) {
 					refreshBanner(project);
-				}
-				if (event.concern(UpdateEvent.AMENDMENT_RENAME)) {
+					
+				} else if (event.concern(UpdateEvent.AMENDMENT_RENAME)) {
 					loadAmendments(project, currentCoreVersion != null ? currentCoreVersion.getId() : null);
+					
+				} else if(event.concern(UpdateEvent.CORE_VERSION_UPDATED)) {
+					// This is really harsh but it was the simplest to have to latest project revision.
+					// If too much, it is possible to set revision to revision + 1 and call loadAmendments instead.
+					eventBus.navigateRequest(injector.getPageManager().getCurrentPageRequest(), new LoadingMask(view.getProjectCoreVersionPanel()));
 				}
 			}
 		}));
@@ -398,6 +415,55 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 	public void setCurrentDisplayedPhase(final PhaseDTO displayedPhase) {
 		this.displayedPhase = displayedPhase;
 	}
+	
+	/**
+	 * Indicates if the current loaded project is locked.
+	 * 
+	 * @return <code>true</code> if the current project is loaded, <code>false</code> otherwise.
+	 */
+	public boolean projectIsLocked() {
+		return project.getAmendmentState() == AmendmentState.LOCKED;
+	}
+	
+	/**
+	 * Indicates if the user has the permission to unlock projects.
+	 * 
+	 * @return <code>true</code> if the current user can unlock projects, <code>false</code> otherwise.
+	 */
+	public boolean canUnlockProject() {
+		return auth().getAggregatedProfile().getGlobalPermissions().contains(GlobalPermissionEnum.LOCK_PROJECT);
+	}
+	
+	/**
+	 * Asks the user if he wants to unlock the project to edit the clicked 
+	 * flexible element.
+	 * 
+	 * @param element Element that is part of the project core version.
+	 * @param component Component of the element.
+	 * @param loadable Loadable to mask while unlocking the project.
+	 */
+	public void addUnlockProjectPopup(final FlexibleElementDTO element, Component component, final Loadable loadable) {
+		component.addListener(Events.OnFocus, new Listener<DomEvent>() {
+
+			@Override
+			public void handleEvent(DomEvent be) {
+				N10N.confirmation(I18N.MESSAGES.projectCoreUnlockInvite(element.getFormattedLabel()), new ConfirmCallback() {
+
+					@Override
+					public void onAction() {
+						dispatch.execute(new AmendmentActionCommand(project.getId(), AmendmentAction.UNLOCK), new CommandResultHandler<ProjectDTO>() {
+
+							@Override
+							protected void onCommandSuccess(ProjectDTO result) {
+								project.setAmendmentState(result.getAmendmentState());
+								eventBus.navigateRequest(injector.getPageManager().getCurrentPageRequest(), loadable);
+							}
+						}, loadable);
+					}
+				});
+			}
+		});
+	}
 
 	// -------------------------------------------------------------------------------------------
 	//
@@ -426,13 +492,23 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 		project.setCurrentAmendment(currentCoreVersion);
 		view.getCoreVersionActionComboBox().setValue(currentCoreVersion);
 		
-		if(currentCoreVersion == null) {
-			view.setProjectCoreVersionState(project.getAmendmentState());
+		final boolean coreVersionWasModified = project.getAmendmentVersion() == 1 || project.getAmendmentRevision() > 1;
+		
+		if(currentCoreVersion != null) {
+			view.setProjectCoreVersionState(currentCoreVersion.getState(), coreVersionWasModified);
+		} else if(project.getCurrentPhase().isEnded()) {
+			view.setProjectCoreVersionState(AmendmentState.PROJECT_ENDED, coreVersionWasModified);
 		} else {
-			view.setProjectCoreVersionState(currentCoreVersion.getState());
+			view.setProjectCoreVersionState(project.getAmendmentState(), coreVersionWasModified);
 		}
 		
-		view.setProjectCoreVersions(project.getAmendments());
+		view.setProjectCoreVersions(project.getAmendments(), coreVersionWasModified);
+		
+		if(coreVersionWasModified) {
+			view.getProjectCoreVersionPanel().setHeadingHtml("<span title=\"" + I18N.CONSTANTS.projectCoreModified() + "\">" + I18N.CONSTANTS.projectCoreBoxTitle() + ' ' + IconImageBundle.ICONS.warningSmall().getHTML() + "</span>");
+		} else {
+			view.getProjectCoreVersionPanel().setHeadingHtml(I18N.CONSTANTS.projectCoreBoxTitle());
+		}
 
 	}
 
@@ -445,6 +521,20 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 	 *          The selected action.
 	 */
 	private void onCoreVersionAction(final ProjectDTO project, final AmendmentAction action, final Button source) {
+		onCoreVersionAction(project, action, source, null);
+	}
+	
+	/**
+	 * Handles the given amendment {@code action} click event.
+	 * 
+	 * @param project
+	 *          The current project.
+	 * @param action
+	 *          The selected action.
+	 * @param name
+	 *          Name of the new core version.
+	 */
+	private void onCoreVersionAction(final ProjectDTO project, final AmendmentAction action, final Button source, final String name) {
 
 		// Executes form changes detection control.
 		injector.getPageManager().getCurrentPresenter().beforeLeaving(new LeavingCallback() {
@@ -452,7 +542,7 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 			@Override
 			public void leavingOk() {
 
-				dispatch.execute(new AmendmentActionCommand(project.getId(), action), new CommandResultHandler<ProjectDTO>() {
+				dispatch.execute(new AmendmentActionCommand(project.getId(), action, name), new CommandResultHandler<ProjectDTO>() {
 
 					@Override
 					public void onCommandFailure(final Throwable caught) {
@@ -513,7 +603,7 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 			}
 		});
 	}
-
+	
 	/**
 	 * <p>
 	 * Refreshes the project banner for the current project.

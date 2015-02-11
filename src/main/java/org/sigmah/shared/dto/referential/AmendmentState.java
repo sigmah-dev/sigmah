@@ -10,8 +10,9 @@ public enum AmendmentState implements Result {
 	DRAFT(AmendmentAction.LOCK),
 	LOCKED(AmendmentAction.UNLOCK, AmendmentAction.REJECT, AmendmentAction.VALIDATE),
 	ACTIVE(AmendmentAction.CREATE),
-	REJECTED(),
-	ARCHIVED();
+	REJECTED,
+	ARCHIVED,
+	PROJECT_ENDED;
 
 	private final AmendmentAction[] actions;
 

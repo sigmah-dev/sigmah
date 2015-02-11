@@ -78,6 +78,10 @@ public class HistoryToken extends AbstractEntityId<Integer> {
 	@ManyToOne(optional = true)
 	@JoinColumn(name = EntityConstants.HISTORY_TOKEN_COLUMN_USER_ID, nullable = true)
 	private User user;
+	
+	@ManyToOne(optional = true)
+	@JoinColumn(name = EntityConstants.HISTORY_TOKEN_COLUMN_CORE_VERSION, nullable = true)
+	private Amendment coreVersion;
 
 	// --------------------------------------------------------------------------------
 	//
@@ -168,5 +172,13 @@ public class HistoryToken extends AbstractEntityId<Integer> {
 	public void setComment(String comment) {
 		this.comment = comment;
 	}
-	
+
+	public Amendment getCoreVersion() {
+		return coreVersion;
+	}
+
+	public void setCoreVersion(Amendment coreVersion) {
+		this.coreVersion = coreVersion;
+	}
+
 }

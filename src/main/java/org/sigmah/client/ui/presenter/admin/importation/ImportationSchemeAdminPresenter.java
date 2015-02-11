@@ -93,6 +93,8 @@ public class ImportationSchemeAdminPresenter extends AbstractAdminPresenter<Impo
 		Button getDeleteSchemeButton();
 
 		Button getAddSchemeButton();
+		
+		Button getEditSchemeButton();
 
 		Button getSaveSheetNameFirstRowButton();
 		
@@ -165,17 +167,23 @@ public class ImportationSchemeAdminPresenter extends AbstractAdminPresenter<Impo
 			}
 		});
 
+		
 		// --
-		// Delete importation sheme button.
+		// Defining delete and edit button enable rule.
 		// --
 		view.getSchemesGrid().getSelectionModel().addSelectionChangedListener(new SelectionChangedListener<ImportationSchemeDTO>() {
 
 			@Override
 			public void selectionChanged(SelectionChangedEvent<ImportationSchemeDTO> se) {
-				view.getDeleteSchemeButton().setEnabled(se.getSelectedItem() != null);
+				final boolean enabled = se.getSelectedItem() != null;
+				view.getDeleteSchemeButton().setEnabled(enabled);
+				view.getEditSchemeButton().setEnabled(enabled);
 			}
 		});
 		
+		// --
+		// Delete importation sheme button.
+		// --
 		view.getDeleteSchemeButton().addSelectionListener(new SelectionListener<ButtonEvent>() {
 
 			@Override
@@ -188,6 +196,19 @@ public class ImportationSchemeAdminPresenter extends AbstractAdminPresenter<Impo
 						deleteImportationScheme(scheme);
 					}
 				});
+			}
+		});
+		
+		// --
+		// Edit importation sheme button.
+		// --
+		view.getEditSchemeButton().addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+			@Override
+			public void componentSelected(ButtonEvent ce) {
+				final ImportationSchemeDTO scheme = view.getSchemesGrid().getSelectionModel().getSelectedItem();
+				eventBus.navigateRequest(Page.ADMIN_ADD_IMPORTATION_SCHEME.request()
+					.addData(RequestParameter.DTO, scheme));
 			}
 		});
 

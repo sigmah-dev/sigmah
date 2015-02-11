@@ -1,5 +1,6 @@
 package org.sigmah.client.ui.view.project;
 
+import com.extjs.gxt.ui.client.GXT;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -31,7 +32,10 @@ import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.MessageBox.MessageBoxType;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.CheckBoxGroup;
@@ -93,8 +97,6 @@ public class ProjectView extends AbstractView implements ProjectPresenter.View {
 
 	private SubMenuWidget subMenu;
 	private LayoutContainer subViewPlaceHolder;
-
-	private ListStore<AmendmentDTO> listAmendmentStore;
 
 	private Button exportButton;
 	private Button deleteButton;
@@ -349,22 +351,70 @@ public class ProjectView extends AbstractView implements ProjectPresenter.View {
 		w.add(panel);
 		w.show();
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void buildCreateCoreVersionDialog(final SelectionListener<ButtonEvent> callback) {
+		final MessageBox box = new MessageBox();
+		box.setTitleHtml(I18N.CONSTANTS.projectCoreValidateVersion());
+		box.setMessage(I18N.CONSTANTS.projectCoreNewVersion());
+		box.setType(MessageBoxType.PROMPT);
+		
+		// No automatic button.
+		box.setButtons("");
+		
+		final Dialog dialog = box.getDialog();
+		
+		final SelectionListener<ButtonEvent> hideDialog = new SelectionListener<ButtonEvent>() {
+
+			@Override
+			public void componentSelected(ButtonEvent ce) {
+				dialog.hide(ce.getButton());
+			}
+		};
+		
+		// Create core version button.
+		final Button okButton = new Button(I18N.CONSTANTS.projectCoreNewVersionButton());
+		okButton.addSelectionListener(hideDialog);
+		okButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+			@Override
+			public void componentSelected(ButtonEvent ce) {
+				ce.setSource(box.getTextBox().getValue());
+				callback.handleEvent(ce);
+			}
+		});
+		
+		// Cancel button.
+		final Button cancelButton = new Button(GXT.MESSAGES.messageBox_cancel());
+		cancelButton.addSelectionListener(hideDialog);
+		
+		dialog.addButton(cancelButton);
+		dialog.addButton(okButton);
+		
+		box.show();
+	}
 
 	/**
 	 * Changes the current view to match the given state.
 	 * 
 	 * @param state Current project core version state.
+	 * @param coreVersionWasModified State of the current project core version (modified or not).
 	 */
 	@Override
-	public void setProjectCoreVersionState(AmendmentState state) {
+	public void setProjectCoreVersionState(AmendmentState state, boolean coreVersionWasModified) {
 		
 		coreVersionTable.clear();
 		coreVersionTable.removeAllRows();
 		
 		final boolean locked = state == AmendmentState.LOCKED;
+		final boolean ended = state == AmendmentState.PROJECT_ENDED;
 		
-		if(state == AmendmentState.DRAFT || locked) {
-			validateVersionButton.setEnabled(locked);
+		if(state == AmendmentState.DRAFT || locked || ended) {
+			validateVersionButton.setEnabled(locked && !ended);
+			lockProjectCoreButton.setEnabled(!ended);
 			
 			coreVersionTable.insertRow(0);
 			coreVersionTable.insertRow(0);
@@ -376,7 +426,7 @@ public class ProjectView extends AbstractView implements ProjectPresenter.View {
 			coreVersionTable.getFlexCellFormatter().setWidth(0, 1, "50%");
 			coreVersionTable.getFlexCellFormatter().setColSpan(1, 0, 2);
 			
-			coreVersionTable.setWidget(0, 0, locked ? unlockProjectCoreButton : lockProjectCoreButton);
+			coreVersionTable.setWidget(0, 0, locked && !ended ? unlockProjectCoreButton : lockProjectCoreButton);
 			coreVersionTable.setWidget(0, 1, validateVersionButton);
 			coreVersionTable.setWidget(1, 0, coreVersionActionComboBox);
 			
@@ -393,9 +443,10 @@ public class ProjectView extends AbstractView implements ProjectPresenter.View {
 	 * Displays the given core versions in the core version combo box.
 	 * 
 	 * @param coreVersions List of project core versions to display.
+	 * @param coreVersionWasModified State of the current project core version (modified or not).
 	 */
 	@Override
-	public void setProjectCoreVersions(List<AmendmentDTO> coreVersions) {
+	public void setProjectCoreVersions(List<AmendmentDTO> coreVersions, boolean coreVersionWasModified) {
 		final ListStore<CoreVersionAction> store = coreVersionActionComboBox.getStore();
 		store.removeAll();
 		
@@ -405,16 +456,22 @@ public class ProjectView extends AbstractView implements ProjectPresenter.View {
 		
 		// Add the separator if needed.
 		if(!coreVersions.isEmpty()) {
-			coreVersionActionComboBox.setEmptyText("");
+			// Displays the name of the last core version if the project core has not been modified.
+			final AmendmentDTO lastCoreVersion = coreVersions.get(coreVersions.size() - 1);
+			coreVersionActionComboBox.setEmptyText(!coreVersionWasModified ? lastCoreVersion.getVersion() + ". " + lastCoreVersion.getName() : "");
+			
+			// Add a separator between the actions and the core versions.
 			store.add(CoreVersionEntry.createSeparator());
 			store.add(CoreVersionEntry.createComment(I18N.CONSTANTS.projectCoreDisplayVersion()));
 			
+			// Add the core versions to the store.
+			for(final AmendmentDTO coreVersion : coreVersions) {
+				coreVersion.set(CoreVersionEntry.TYPE, CoreVersionActionType.CORE_VERSION.name());
+				store.add(coreVersion);
+			}
+			
 		} else {
 			coreVersionActionComboBox.setEmptyText(I18N.CONSTANTS.projectCoreNoValidated());
-		}
-		for(final AmendmentDTO coreVersion : coreVersions) {
-			coreVersion.set(CoreVersionEntry.TYPE, CoreVersionActionType.CORE_VERSION.name());
-			store.add(coreVersion);
 		}
 	}
 	

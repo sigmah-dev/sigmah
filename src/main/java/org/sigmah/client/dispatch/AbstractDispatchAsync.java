@@ -4,10 +4,12 @@ import org.sigmah.shared.command.base.Command;
 import org.sigmah.shared.command.result.Result;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.inject.Inject;
 import java.util.Collection;
+import org.sigmah.client.event.EventBus;
+import org.sigmah.client.event.OfflineEvent;
 import org.sigmah.client.ui.widget.Loadable;
 import org.sigmah.offline.status.ApplicationState;
-import org.sigmah.offline.status.ConnectionStatus;
 
 /**
  * <p>
@@ -21,52 +23,17 @@ import org.sigmah.offline.status.ConnectionStatus;
  * 
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
-public abstract class AbstractDispatchAsync implements DispatchAsync {
+public abstract class AbstractDispatchAsync implements DispatchAsync, OfflineEvent.Source {
 
 	/**
 	 * The dispatch exception handler.
 	 */
-	private final ExceptionHandler exceptionHandler;
+	@Inject
+	private ExceptionHandler exceptionHandler;
 	
-	/**
-	 * The monitor of the connection status.
-	 */
-	private ConnectionStatus connectionStatus;
+	@Inject
+	protected EventBus eventBus;
 	
-	/**
-	 * Connection state.
-	 */
-	protected boolean online = ConnectionStatus.getInitialStatus();
-
-	/**
-	 * Initializes the abstract layer of the asynchronous dispatch.
-	 * 
-	 * @param exceptionHandler
-	 *          The dispatch exception handler.
-	 */
-	protected AbstractDispatchAsync(final ExceptionHandler exceptionHandler) {
-		this.exceptionHandler = exceptionHandler;
-	}
-
-	/**
-	 * Define the connectionStatus property and start listening to connection
-	 * status changes.
-	 * 
-	 * @param connectionStatus
-	 *	        The connection status monitor.
-	 */
-	public void setConnectionStatus(ConnectionStatus connectionStatus) {
-		this.connectionStatus = connectionStatus;
-		
-		connectionStatus.addListener(new ConnectionStatus.Listener() {
-
-			@Override
-			public void connectionStatusHasChanged(ApplicationState state) {
-				online = state == ApplicationState.ONLINE;
-			}
-		});
-	}
-
 	/**
 	 * Handles a failed command execution.
 	 * 
@@ -94,7 +61,7 @@ public abstract class AbstractDispatchAsync implements DispatchAsync {
 				callback.onFailure(caught);
 				break;
 			case RETRY_OFFLINE:
-				connectionStatus.setState(ApplicationState.OFFLINE);
+				eventBus.fireEvent(new OfflineEvent(this, ApplicationState.OFFLINE));
 				execute(command, callback, loadables);
 				break;
 		}

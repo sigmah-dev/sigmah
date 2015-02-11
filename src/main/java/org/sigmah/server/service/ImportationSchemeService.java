@@ -28,7 +28,7 @@ public class ImportationSchemeService extends AbstractEntityService<ImportationS
 	@Override
 	public ImportationScheme create(final PropertyMap properties, final UserExecutionContext context) {
 
-		ImportationScheme importationScheme = null;
+		final ImportationScheme importationScheme;
 		ImportationSchemeDTO schemaToUpdate = properties.get(AdminUtil.ADMIN_SCHEMA);
 
 		String name = null;
@@ -43,6 +43,7 @@ public class ImportationSchemeService extends AbstractEntityService<ImportationS
 		if (properties.containsKey(AdminUtil.PROP_SCH_IMPORT_TYPE)) {
 			schImportType = (ImportationSchemeImportType) properties.get(AdminUtil.PROP_SCH_IMPORT_TYPE);
 		}
+		
 		if (schemaToUpdate.getId() != null) {
 			importationScheme = em().find(ImportationScheme.class, schemaToUpdate.getId());
 			if (importationScheme != null) {
@@ -75,6 +76,13 @@ public class ImportationSchemeService extends AbstractEntityService<ImportationS
 		if (changes.containsKey(AdminUtil.PROP_SCH_NAME)) {
 			final String schName = changes.get(AdminUtil.PROP_SCH_NAME);
 			importationScheme.setName(schName);
+		}
+		
+		if (changes.containsKey(AdminUtil.PROP_SCH_FILE_FORMAT)) {
+			importationScheme.setFileFormat((ImportationSchemeFileFormat) changes.get(AdminUtil.PROP_SCH_FILE_FORMAT));
+		}
+		if (changes.containsKey(AdminUtil.PROP_SCH_IMPORT_TYPE)) {
+			importationScheme.setImportType( (ImportationSchemeImportType) changes.get(AdminUtil.PROP_SCH_IMPORT_TYPE));
 		}
 
 		if (changes.containsKey(AdminUtil.PROP_SCH_FIRST_ROW)) {

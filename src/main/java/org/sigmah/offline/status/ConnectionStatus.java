@@ -22,7 +22,6 @@ import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import org.sigmah.offline.sync.StateListener;
 import org.sigmah.offline.sync.Synchronizer;
 
 /**
@@ -30,6 +29,7 @@ import org.sigmah.offline.sync.Synchronizer;
  * 
  * @author Raphaël Calabro <rcalabro@ideia.fr>
  */
+@Deprecated
 @Singleton
 public class ConnectionStatus {
 	/**
@@ -61,7 +61,7 @@ public class ConnectionStatus {
 		};
 		
 		initialize(eventBus);
-        synchronizer.setConnectionStatus(this);
+//        synchronizer.setConnectionStatus(this);
 	}
 	
 	public static native boolean getInitialStatus() /*-{
@@ -132,13 +132,13 @@ public class ConnectionStatus {
 		if(this.online != status) {
 			this.online = status;
 			
-            synchronizer.getApplicationState(status, new StateListener() {
-
-                @Override
-                public void onStateKnown(ApplicationState state) {
-                    setState(state);
-                }
-            });
+//            synchronizer.getApplicationState(status, new StateListener() {
+//
+//                @Override
+//                public void onStateKnown(ApplicationState state) {
+//                    setState(state);
+//                }
+//            });
 		}
 	}
 
@@ -159,13 +159,13 @@ public class ConnectionStatus {
 		listeners.add(listener);
 		
         listener.connectionStatusHasChanged(state);
-		synchronizer.getApplicationState(online, new StateListener() {
-
-            @Override
-            public void onStateKnown(ApplicationState state) {
-                setState(state);
-            }
-        });
+//		synchronizer.getApplicationState(online, new StateListener() {
+//
+//            @Override
+//            public void onStateKnown(ApplicationState state) {
+//                setState(state);
+//            }
+//        });
 	}
 	
 	public void removeListener(Listener listener) {

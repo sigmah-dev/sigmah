@@ -16,6 +16,7 @@ public enum Store {
 	FILE_DATA(true),
 	HISTORY,
 	LOG_FRAME,
+	LOGO,
 	MONITORED_POINT,
 	ORGANIZATION,
 	ORG_UNIT,

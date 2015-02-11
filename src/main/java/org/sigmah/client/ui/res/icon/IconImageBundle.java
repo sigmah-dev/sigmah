@@ -206,6 +206,8 @@ public interface IconImageBundle extends ImageBundle {
 	AbstractImagePrototype connection();
 
 	AbstractImagePrototype warning();
+	
+	AbstractImagePrototype warningSmall();
 
 	@Resource(value = "star.png")
 	AbstractImagePrototype mainSite();

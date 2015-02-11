@@ -421,6 +421,7 @@ public final class EntityConstants extends org.sigmah.shared.dto.util.EntityCons
 	// TODO Replace with 'UserLogin' id column.
 	public static final String HISTORY_TOKEN_COLUMN_USER_ID = "id_user";
 	public static final String HISTORY_TOKEN_COLUMN_COMMENT = "comment";
+	public static final String HISTORY_TOKEN_COLUMN_CORE_VERSION = "core_version";
 
 	// --------------------------------------------------------------------------------
 	//
@@ -1388,6 +1389,14 @@ public final class EntityConstants extends org.sigmah.shared.dto.util.EntityCons
 	public static final String TEXTAREA_ELEMENT_COLUMN_MAX_VALUE = "max_value";
 	public static final String TEXTAREA_ELEMENT_COLUMN_IS_DECIMAL = "is_decimal";
 	public static final String TEXTAREA_ELEMENT_COLUMN_LENGTH = "length";
+	
+	// --------------------------------------------------------------------------------
+	//
+	// CORE VERSION ELEMENT ENTITY.
+	//
+	// --------------------------------------------------------------------------------
+
+	public static final String CORE_VERSION_ELEMENT_TABLE = "core_version_element";
 
 	// --------------------------------------------------------------------------------
 	//

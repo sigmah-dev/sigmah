@@ -16,14 +16,19 @@ import org.sigmah.shared.util.ValueResultUtils;
 
 import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.form.LabelField;
-import com.extjs.gxt.ui.client.widget.form.NumberField;
+import org.sigmah.client.ui.res.icon.IconImageBundle;
+import org.sigmah.shared.dto.ProjectDTO;
+import org.sigmah.shared.dto.referential.AmendmentState;
+import org.sigmah.shared.dto.referential.GlobalPermissionEnum;
 
 /**
  * BudgetElementDTO.
@@ -90,7 +95,7 @@ public class BudgetElementDTO extends DefaultFlexibleElementDTO {
 			throw new IllegalArgumentException(
 				"The flexible elements container isn't an instance of DefaultFlexibleElementContainer. The default flexible element connot be instanciated.");
 		}
-
+		
 		final Component component;
 
 		// Creates choices store.
@@ -103,20 +108,35 @@ public class BudgetElementDTO extends DefaultFlexibleElementDTO {
 		final LabelField ratioLabel = Forms.label(I18N.CONSTANTS.adminBudgetRatio());
 
 		final Map<BudgetSubFieldDTO, Field<?>> fields = new HashMap<BudgetSubFieldDTO, Field<?>>();
-		final List<BudgetSubFieldDTO> bdfDTO = getBudgetSubFields();
+		final List<BudgetSubFieldDTO> budgetSubFields = getBudgetSubFields();
 
-		if (enabled) {
+		final boolean disabledBecauseAmendable = isDisabledBecauseAmendable();
+		if (enabled || disabledBecauseAmendable) {
 
-			for (BudgetSubFieldDTO bf : bdfDTO) {
-				final NumberField budgetField = createNumberField(false);
-				fields.put(bf, budgetField);
-				budgetField.setFieldLabel(generateBudgetSubFieldLabel(bf));
-
-				if (values.get(bf.getId()) != null) {
+			for (BudgetSubFieldDTO subField : budgetSubFields) {
+				final HistoryWrapper<Number> input = new HistoryWrapper(createNumberField(false));
+				fields.put(subField, input);
+				input.setFieldLabel(generateBudgetSubFieldLabel(subField));
+				
+				if (values.get(subField.getId()) != null) {
 					// Sets the value to the fields.
-					budgetField.setValue(Double.valueOf(values.get(bf.getId())));
+					input.setValue(Double.valueOf(values.get(subField.getId())));
 				} else {
-					budgetField.setValue(0);
+					input.setValue(0);
+				}
+				
+				// Show history.
+				input.getHistoryButton().addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+					@Override
+					public void componentSelected(ButtonEvent ce) {
+						loadAndShowHistory(input.getHistoryButton());
+					}
+					
+				});
+				
+				if(disabledBecauseAmendable && isRatioDivisor(subField)) {
+					input.setEnabled(false);
 				}
 			}
 
@@ -132,7 +152,7 @@ public class BudgetElementDTO extends DefaultFlexibleElementDTO {
 					final Map<BudgetSubFieldDTO, String> budgetStringValues = new HashMap<BudgetSubFieldDTO, String>();
 
 					for (BudgetSubFieldDTO budgetField : fields.keySet()) {
-						final NumberField budgetNumberField = (NumberField) fields.get(budgetField);
+						final Field<Number> budgetNumberField = (Field<Number>) fields.get(budgetField);
 						final Double doubleValue;
 						if (budgetNumberField.getValue() != null) {
 							doubleValue = budgetNumberField.getValue().doubleValue();
@@ -152,7 +172,7 @@ public class BudgetElementDTO extends DefaultFlexibleElementDTO {
 				field.addListener(Events.Change, listener);
 			}
 		} else {
-			for (BudgetSubFieldDTO bf : bdfDTO) {
+			for (BudgetSubFieldDTO bf : budgetSubFields) {
 				final LabelField budgetLabelField = createLabelField();
 				fields.put(bf, budgetLabelField);
 				if (bf.getType() != null) {
@@ -192,7 +212,12 @@ public class BudgetElementDTO extends DefaultFlexibleElementDTO {
 
 		// Sets the field label.
 		setLabel(I18N.CONSTANTS.projectBudget());
-		fieldset.setHeadingHtml(getLabel());
+		
+		if(getAmendable()) {
+			fieldset.setHeadingHtml(getLabel() + "&nbsp;" + IconImageBundle.ICONS.DNABrownGreen().getHTML());
+		} else {
+			fieldset.setHeadingHtml(getLabel());
+		}
 
 		component = fieldset;
 		return component;
@@ -237,34 +262,45 @@ public class BudgetElementDTO extends DefaultFlexibleElementDTO {
 
 	}
 
+	private List<String> toLabels(String value) {
+		final Map<Integer, String> budgets = ValueResultUtils.splitMapElements(value);
+		final List<String> stringValues = new ArrayList<String>();
+
+		for (BudgetSubFieldDTO budgetField : getBudgetSubFields()) {
+			final String currentBudget = (budgets.size() > 0) ? budgets.get(budgetField.getId()) : "0";
+			final String label = budgetField.getType() != null ? BudgetSubFieldType.getName(budgetField.getType()) : budgetField.getLabel();
+			
+			stringValues.add(label + ": " + Double.parseDouble(currentBudget));
+		}
+		
+		return stringValues;
+	}
+	
 	@Override
 	public Object renderHistoryToken(HistoryTokenListDTO token) {
 
 		ensureHistorable();
 
 		final String value = token.getTokens().get(0).getValue();
-
+		
 		if (Log.isDebugEnabled()) {
 			Log.debug("[renderHistoryToken] Case BUDGET ; value to split '" + value + "'.");
 		}
 
-		final Map<Integer, String> budgets = ValueResultUtils.splitMapElements(value);
-		final List<String> stringValues = new ArrayList<String>();
-
-		if (Log.isDebugEnabled()) {
-			Log.debug("[renderHistoryToken] Case BUDGET ; splitted values (" + budgets.size() + ") '" + budgets + "'.");
+		return new HistoryTokenText(toLabels(value));
+	}
+	
+	@Override
+	public String toHTML(String value) {
+		if(value == null) {
+			return "";
 		}
-
-		for (BudgetSubFieldDTO budgetField : getBudgetSubFields()) {
-			String currentBudget = (budgets.size() > 0) ? budgets.get(budgetField.getId()) : "0";
-			if (Log.isDebugEnabled()) {
-				Log.debug("[renderHistoryToken] Case BUDGET ; " + budgetField.getLabel() + "'" + currentBudget + "'.");
-			}
-
-			stringValues.add(budgetField.getLabel() + ":" + Double.parseDouble(currentBudget));
+		
+		final StringBuilder htmlBuilder = new StringBuilder();
+		for(final String entry : toLabels(value)) {
+			htmlBuilder.append(" -").append(entry).append("<br>");
 		}
-
-		return new HistoryTokenText(stringValues);
+		return htmlBuilder.toString();
 	}
 
 	@Override
@@ -289,5 +325,23 @@ public class BudgetElementDTO extends DefaultFlexibleElementDTO {
 			}
 		}
 		return null;
+	}
+	
+	private boolean isDisabledBecauseAmendable() {
+		if(currentContainerDTO instanceof ProjectDTO) {
+			final ProjectDTO project = (ProjectDTO)currentContainerDTO;
+			
+			if(project.getAmendmentState() == AmendmentState.LOCKED && project.getCloseDate() == null) {
+				return authenticationProvider.get().getAggregatedProfile().getGlobalPermissions().contains(GlobalPermissionEnum.EDIT_PROJECT);
+			}
+		}
+		return false;
+	}
+	
+	private boolean isRatioDivisor(BudgetSubFieldDTO subField) {
+		final BudgetSubFieldDTO divisor = getRatioDivisor();
+		
+		return subField != null && divisor != null && subField.getId() != null 
+			&& subField.getId().equals(divisor.getId());
 	}
 }

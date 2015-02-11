@@ -193,7 +193,11 @@ public class ProjectLogFramePresenter extends AbstractProjectPresenter<ProjectLo
 	@Override
 	public void onPageRequest(final PageRequest request) {
 
-		logFrame = getProject().getLogFrame();
+		if(getProject().getCurrentAmendment() != null) {
+			logFrame = getProject().getCurrentAmendment().getLogFrame();
+		} else {
+			logFrame = getProject().getLogFrame();
+		}
 
 		fillAndInit();
 

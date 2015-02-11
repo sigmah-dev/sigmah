@@ -3,14 +3,12 @@ package org.sigmah.client.ui.view.zone;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.FlowPanel;
-import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.ui.presenter.zone.OfflineBannerPresenter;
 import org.sigmah.client.ui.view.base.AbstractView;
 
-import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Panel;
-import org.sigmah.client.ui.res.icon.IconImageBundle;
+import org.sigmah.client.ui.res.icon.offline.OfflineIconBundle;
 import org.sigmah.client.ui.widget.RatioBar;
 import org.sigmah.offline.status.ApplicationState;
 import org.sigmah.offline.view.OfflineMenuPanel;
@@ -24,16 +22,15 @@ import org.sigmah.offline.view.SynchronizePopup;
  */
 public class OfflineBannerView extends AbstractView implements OfflineBannerPresenter.View {
 
-	private static final String DROP_DOWN =  " ▾";
-
 	private Panel statusPanel;
-	private HTML statusLabel;
+	private FlowPanel menuHandle;
     private RatioBar progressBar;
     private OfflineMenuPanel menuPanel;
     private SynchronizePopup synchronizePopup;
     private Image warningIcon;
-    private Image connectionIcon;
-
+    private Image onlineIcon;
+    private Image signalIcon;
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -43,19 +40,18 @@ public class OfflineBannerView extends AbstractView implements OfflineBannerPres
 		statusPanel = new FlowPanel();
 		statusPanel.getElement().setId("offline-status");
         
-        warningIcon = IconImageBundle.ICONS.warning().createImage();
+        warningIcon = new Image(OfflineIconBundle.INSTANCE.error());
         warningIcon.setVisible(false);
-        warningIcon.setStyleName("offline-icon");
-        statusPanel.add(warningIcon);
+		statusPanel.add(warningIcon);
         
-        connectionIcon = IconImageBundle.ICONS.connection().createImage();
-        connectionIcon.setVisible(false);
-        connectionIcon.setStyleName("offline-icon");
-        statusPanel.add(connectionIcon);
+        onlineIcon = new Image(OfflineIconBundle.INSTANCE.connect());
+        signalIcon = new Image(OfflineIconBundle.INSTANCE.signalOn());
 
-		statusLabel = new HTML();
-        statusLabel.setStyleName("offline-button");
-		statusPanel.add(statusLabel);
+		menuHandle = new FlowPanel();
+		menuHandle.addStyleName("offline-button");
+		menuHandle.add(signalIcon);
+		menuHandle.add(onlineIcon);
+		statusPanel.add(menuHandle);
         
         progressBar = new RatioBar(0);
         progressBar.setStyleName("offline-progress");
@@ -91,8 +87,8 @@ public class OfflineBannerView extends AbstractView implements OfflineBannerPres
 	 * {@inheritDoc}
 	 */
     @Override
-    public HTML getStatusLabel() {
-        return statusLabel;
+    public Panel getMenuHandle() {
+        return menuHandle;
     }
 
     /**
@@ -115,11 +111,21 @@ public class OfflineBannerView extends AbstractView implements OfflineBannerPres
 	public void setStatus(ApplicationState state) {
         switch(state) {
             case ONLINE:
-                statusLabel.setHTML(I18N.CONSTANTS.online() + DROP_DOWN);
+				onlineIcon.setResource(OfflineIconBundle.INSTANCE.connect());
+				signalIcon.setResource(OfflineIconBundle.INSTANCE.signalOn());
                 break;
+				
+			case READY_TO_SYNCHRONIZE:
+				onlineIcon.setResource(OfflineIconBundle.INSTANCE.disconnect());
+				signalIcon.setResource(OfflineIconBundle.INSTANCE.signalOn());
+				break;
+				
+			case OFFLINE:
+				onlineIcon.setResource(OfflineIconBundle.INSTANCE.disconnect());
+				signalIcon.setResource(OfflineIconBundle.INSTANCE.signalOff());
+				break;
                 
             default:
-                statusLabel.setHTML(I18N.CONSTANTS.offline() + DROP_DOWN);
                 break;
         }
 	}
@@ -163,9 +169,4 @@ public class OfflineBannerView extends AbstractView implements OfflineBannerPres
         warningIcon.setVisible(visible);
     }
     
-    @Override
-    public void setConnectionIconVisible(boolean visible) {
-        connectionIcon.setVisible(visible);
-    }
-
 }

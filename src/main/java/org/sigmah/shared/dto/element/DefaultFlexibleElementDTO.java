@@ -599,8 +599,11 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 							private void recursiveFillOrgUnitsList(OrgUnitDTO root) {
 
 								if (root.isCanContainProjects()) {
-									if (root.getId().equals(id)) {
-										orgUnitsStore.add(root);
+									orgUnitsStore.add(root);
+									
+									// Sets the value of the field.
+									if(root.getId().equals(id)) {
+										comboBox.setValue(root);
 									}
 								}
 
@@ -617,19 +620,8 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 							@Override
 							public void onSuccess(OrgUnitDTO result) {
 
-								orgUnitsStore.add(cache.getOrganizationCache().get(id));
-
 								// Fills the store.
 								recursiveFillOrgUnitsList(result);
-
-								// Sets the value to the field.
-								if (id != null && id != -1) {
-									for (final OrgUnitDTO model : orgUnitsStore.getModels()) {
-										if (model.getId().equals(id)) {
-											comboBox.setValue(model);
-										}
-									}
-								}
 
 								// Listens to the selection changes.
 								comboBox.addSelectionChangedListener(new SelectionChangedListener<OrgUnitDTO>() {
@@ -667,7 +659,7 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 													// New OrgUnit's country
 													final CountryDTO orgUnitCountry = choice.getOfficeLocationCountry();
 
-													Log.debug("geting site result: " + result.getSiteCount());
+													Log.debug("getting site result: " + result.getSiteCount());
 
 													if (result != null
 														&& result.getSiteCount() > 0
@@ -1387,6 +1379,55 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 
 		return labelField;
 	}
+	
+	private String formatCountry(String value) {
+		if (cache != null) {
+			final CountryDTO c = cache.getCountryCache().get(Integer.valueOf(value));
+			if (c != null) {
+				return c.getName();
+			} else {
+				return '#' + value;
+			}
+		} else {
+			return '#' + value;
+		}
+	}
+	
+	private String formatDate(String value) {
+		final DateTimeFormat formatter = DateUtils.DATE_SHORT;
+		final long time = Long.valueOf(value);
+		return formatter.format(new Date(time));
+	}
+	
+	private String formatManager(String value) {
+		if (cache != null) {
+			final UserDTO u = cache.getUserCache().get(Integer.valueOf(value));
+			if (u != null) {
+				return u.getFirstName() != null ? u.getFirstName() + ' ' + u.getName() : u.getName();
+			} else {
+				return '#' + value;
+			}
+		} else {
+			return '#' + value;
+		}
+	}
+	
+	private String formatOrgUnit(String value) {
+		if (cache != null) {
+			final OrgUnitDTO o = cache.getOrganizationCache().get(Integer.valueOf(value));
+			if (o != null) {
+				return o.getName() + " - " + o.getFullName();
+			} else {
+				return '#' + value;
+			}
+		} else {
+			return '#' + value;
+		}
+	}
+	
+	private String formatText(String value) {
+		return value.replace("\n", "<br>");
+	}
 
 	@Override
 	public Object renderHistoryToken(HistoryTokenListDTO token) {
@@ -1399,46 +1440,17 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 			switch (getType()) {
 
 				case COUNTRY:
-					if (cache != null) {
-						final CountryDTO c = cache.getCountryCache().get(Integer.valueOf(value));
-						if (c != null) {
-							return new HistoryTokenText(c.getName());
-						} else {
-							return new HistoryTokenText("#" + value);
-						}
-					} else {
-						return new HistoryTokenText("#" + value);
-					}
+					return new HistoryTokenText(formatCountry(value));
 
 				case START_DATE:
 				case END_DATE:
-					final DateTimeFormat format = DateUtils.DATE_SHORT;
-					final long time = Long.valueOf(value);
-					return new HistoryTokenText(format.format(new Date(time)));
+					return new HistoryTokenText(formatDate(value));
 
 				case MANAGER:
-					if (cache != null) {
-						final UserDTO u = cache.getUserCache().get(Integer.valueOf(value));
-						if (u != null) {
-							return new HistoryTokenText(u.getFirstName() != null ? u.getFirstName() + ' ' + u.getName() : u.getName());
-						} else {
-							return new HistoryTokenText("#" + value);
-						}
-					} else {
-						return new HistoryTokenText("#" + value);
-					}
+					return new HistoryTokenText(formatManager(value));
 
 				case ORG_UNIT:
-					if (cache != null) {
-						final OrgUnitDTO o = cache.getOrganizationCache().get(Integer.valueOf(value));
-						if (o != null) {
-							return new HistoryTokenText(o.getName() + " - " + o.getFullName());
-						} else {
-							return new HistoryTokenText("#" + value);
-						}
-					} else {
-						return new HistoryTokenText("#" + value);
-					}
+					return new HistoryTokenText(formatOrgUnit(value));
 
 				default:
 					return super.renderHistoryToken(token);
@@ -1448,4 +1460,33 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 		}
 	}
 
+	@Override
+	public String toHTML(String value) {
+		if(value == null) {
+			return "";
+		}
+		
+		if (getType() != null) {
+			switch (getType()) {
+				case COUNTRY:
+					return formatCountry(value);
+
+				case START_DATE:
+				case END_DATE:
+					return formatDate(value);
+
+				case MANAGER:
+					return formatManager(value);
+
+				case ORG_UNIT:
+					return formatOrgUnit(value);
+
+				default:
+					return formatText(value);
+			}
+		} else {
+			return formatText(value);
+		}
+	}
+	
 }

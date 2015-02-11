@@ -36,8 +36,6 @@ public class AddImportationSchemeView extends AbstractPopupView<PopupWidget> imp
 	private RadioGroup importTypeGroup;
 	private RadioGroup fileFormatGroup;
 	private FormPanel formPanel;
-	private ImportationSchemeFileFormat currentFileFormat;
-	private ImportationSchemeImportType currentImportType;
 	private Button createButton;
 
 	private static final int LABEL_WIDTH = 220;
@@ -71,12 +69,9 @@ public class AddImportationSchemeView extends AbstractPopupView<PopupWidget> imp
 		fileFormatGroup.setFieldLabel(I18N.CONSTANTS.importSchemeFileFormat());
 		fileFormatGroup.setFireChangeEventOnSetValue(true);
 
-		csvRadio = createRadio(I18N.CONSTANTS.csv(), true);
-		currentFileFormat = ImportationSchemeFileFormat.CSV;
-		currentImportType = ImportationSchemeImportType.ROW;
-
-		odsRadio = createRadio(I18N.CONSTANTS.ods(), false);
-		excelRadio = createRadio(I18N.CONSTANTS.excel(), false);
+		csvRadio = createRadio(I18N.CONSTANTS.csv(), ImportationSchemeFileFormat.CSV);
+		odsRadio = createRadio(I18N.CONSTANTS.ods(), ImportationSchemeFileFormat.ODS);
+		excelRadio = createRadio(I18N.CONSTANTS.excel(), ImportationSchemeFileFormat.MS_EXCEL);
 
 		fileFormatGroup.add(csvRadio);
 		fileFormatGroup.add(odsRadio);
@@ -84,9 +79,9 @@ public class AddImportationSchemeView extends AbstractPopupView<PopupWidget> imp
 
 		formPanel.add(fileFormatGroup);
 
-		uniqueRadio = createRadio(I18N.CONSTANTS.adminImportSchemeFileImportTypeUnique(), false);
-		severalRadio = createRadio(I18N.CONSTANTS.adminImportSchemeFileImportTypeSeveral(), false);
-		lineRadio = createRadio(I18N.CONSTANTS.adminImportSchemeFileImportTypeLine(), true);
+		uniqueRadio = createRadio(I18N.CONSTANTS.adminImportSchemeFileImportTypeUnique(), ImportationSchemeImportType.UNIQUE);
+		severalRadio = createRadio(I18N.CONSTANTS.adminImportSchemeFileImportTypeSeveral(), ImportationSchemeImportType.SEVERAL);
+		lineRadio = createRadio(I18N.CONSTANTS.adminImportSchemeFileImportTypeLine(), ImportationSchemeImportType.ROW);
 
 		importTypeGroup = new RadioGroup("importType");
 		importTypeGroup.setFieldLabel(I18N.CONSTANTS.adminImportSchemeFileImportType());
@@ -96,47 +91,7 @@ public class AddImportationSchemeView extends AbstractPopupView<PopupWidget> imp
 		importTypeGroup.add(severalRadio);
 		importTypeGroup.add(lineRadio);
 
-		// The default value is CSV
-		lineRadio.setValue(true);
-		importTypeGroup.disable();
-
 		formPanel.add(importTypeGroup);
-
-		// Adds actions on filter by model type.
-
-		for (final ImportationSchemeFileFormat type : ImportationSchemeFileFormat.values()) {
-			getFileFormatRadioFilter(type).addListener(Events.Change, new Listener<FieldEvent>() {
-
-				@Override
-				public void handleEvent(FieldEvent be) {
-					if (Boolean.TRUE.equals(be.getValue())) {
-						currentFileFormat = type;
-					}
-
-					// For csv files, it will automatically consider each line
-					// as a project
-					if (type == ImportationSchemeFileFormat.CSV) {
-						currentImportType = ImportationSchemeImportType.ROW;
-						lineRadio.setValue(true);
-						importTypeGroup.disable();
-					} else {
-						importTypeGroup.enable();
-					}
-				}
-			});
-		}
-
-		for (final ImportationSchemeImportType type : ImportationSchemeImportType.values()) {
-			getImportTypeRadioFilter(type).addListener(Events.Change, new Listener<FieldEvent>() {
-
-				@Override
-				public void handleEvent(FieldEvent be) {
-					if (Boolean.TRUE.equals(be.getValue())) {
-						currentImportType = type;
-					}
-				}
-			});
-		}
 
 		// Create button.
 		createButton = new Button(I18N.CONSTANTS.save());
@@ -183,14 +138,14 @@ public class AddImportationSchemeView extends AbstractPopupView<PopupWidget> imp
 		return null;
 	}
 
-	private Radio createRadio(String boxLabel, Boolean value) {
-
+	private <E extends Enum<E>> Radio createRadio(String boxLabel, Enum<E> value) {
 		final Radio radio = new Radio();
 		radio.setFireChangeEventOnSetValue(true);
-		radio.setValue(value);
 		radio.setBoxLabel(boxLabel);
 		radio.setHideLabel(false);
 		radio.addStyleName("toolbar-radio");
+		radio.setData(AddImportationSchemePresenter.VALUE, value);
+		
 		return radio;
 	}
 
@@ -245,16 +200,6 @@ public class AddImportationSchemeView extends AbstractPopupView<PopupWidget> imp
 	}
 
 	@Override
-	public ImportationSchemeFileFormat getCurrentFileFormat() {
-		return currentFileFormat;
-	}
-
-	@Override
-	public ImportationSchemeImportType getCurrentImportType() {
-		return currentImportType;
-	}
-
-	@Override
 	public Button getCreateButton() {
 		return createButton;
 	}
@@ -264,19 +209,9 @@ public class AddImportationSchemeView extends AbstractPopupView<PopupWidget> imp
 
 		getNameField().clear();
 
-		csvRadio.setValue(true);
-		odsRadio.setValue(false);
-		excelRadio.setValue(false);
-
-		lineRadio.setValue(true);
-		lineRadio.setEnabled(false);
-
-		uniqueRadio.setValue(false);
-		uniqueRadio.setEnabled(false);
-
-		severalRadio.setValue(false);
-		severalRadio.setEnabled(false);
-
+		importTypeGroup.setValue(csvRadio);
+		fileFormatGroup.setValue(lineRadio);
+		
 		importTypeGroup.show();
 		fileFormatGroup.show();
 	}

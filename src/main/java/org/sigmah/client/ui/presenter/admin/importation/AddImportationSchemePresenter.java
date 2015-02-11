@@ -24,6 +24,7 @@ import org.sigmah.shared.dto.referential.ImportationSchemeImportType;
 
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.FieldEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.Radio;
@@ -35,11 +36,16 @@ import com.google.inject.Singleton;
 
 /**
  * @author Mehdi Benabdeslam (mehdi.benabdeslam@netapsys.fr)
+ * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
 @Singleton
 public class AddImportationSchemePresenter extends AbstractPagePresenter<AddImportationSchemePresenter.View> {
 
+	public static final String VALUE = "type";
+	
 	private ImportationSchemeDTO currentImportationSheme;
+	private ImportationSchemeFileFormat currentFileFormat;
+	private ImportationSchemeImportType currentImportType;
 
 	/**
 	 * The view interface managed by this presenter.
@@ -68,10 +74,6 @@ public class AddImportationSchemePresenter extends AbstractPagePresenter<AddImpo
 
 		FormPanel getFormPanel();
 
-		ImportationSchemeFileFormat getCurrentFileFormat();
-
-		ImportationSchemeImportType getCurrentImportType();
-
 		Button getCreateButton();
 
 		Radio getFileFormatRadioFilter(ImportationSchemeFileFormat type);
@@ -93,32 +95,50 @@ public class AddImportationSchemePresenter extends AbstractPagePresenter<AddImpo
 	}
 
 	@Override
-	public void onPageRequest(PageRequest request) {
-
-		currentImportationSheme = request.getData(RequestParameter.DTO);
-
-		view.clearForm();
-
-		if (currentImportationSheme != null) {
-
-			// CASE EDIT
-
-			initUpdateImportationSchemeView(currentImportationSheme);
-
-		} else {
-
-			// CASE CREATE
-
-			currentImportationSheme = new ImportationSchemeDTO();
-
-		}
-
-		setPageTitle(I18N.CONSTANTS.addItem());
-	}
-
-	@Override
 	public void onBind() {
+		
+		// Adds actions on filter by model type.
+		view.getFileFormatGroup().addListener(Events.Change, new Listener<FieldEvent>() {
 
+			@Override
+			public void handleEvent(FieldEvent be) {
+				final Radio value = view.getFileFormatGroup().getValue();
+				if(value != null) {
+					currentFileFormat = value.getData(VALUE);
+					
+					// For csv files, it will automatically consider each line
+					// as a project
+					if (currentFileFormat == ImportationSchemeFileFormat.CSV) {
+						currentImportType = ImportationSchemeImportType.ROW;
+						view.getLineRadio().setValue(true);
+						view.getImportTypeGroup().disable();
+						
+					} else {
+						view.getImportTypeGroup().enable();
+					}
+					
+				} else {
+					currentFileFormat = null;
+				}
+			}
+			
+		});
+
+		view.getImportTypeGroup().addListener(Events.Change, new Listener<FieldEvent>() {
+
+			@Override
+			public void handleEvent(FieldEvent be) {
+				final Radio value = view.getImportTypeGroup().getValue();
+				if(value != null) {
+					currentImportType = value.getData(VALUE);
+					
+				} else {
+					currentImportType = null;
+				}
+			}
+			
+		});
+		
 		// Save Button
 
 		view.getCreateButton().addListener(Events.OnClick, new Listener<BaseEvent>() {
@@ -135,8 +155,8 @@ public class AddImportationSchemePresenter extends AbstractPagePresenter<AddImpo
 
 				newSchemaProperties.put(AdminUtil.ADMIN_SCHEMA, currentImportationSheme);
 				newSchemaProperties.put(AdminUtil.PROP_SCH_NAME, view.getNameField().getValue());
-				newSchemaProperties.put(AdminUtil.PROP_SCH_FILE_FORMAT, view.getCurrentFileFormat());
-				newSchemaProperties.put(AdminUtil.PROP_SCH_IMPORT_TYPE, view.getCurrentImportType());
+				newSchemaProperties.put(AdminUtil.PROP_SCH_FILE_FORMAT, currentFileFormat);
+				newSchemaProperties.put(AdminUtil.PROP_SCH_IMPORT_TYPE, currentImportType);
 
 				CreateEntity cmd = new CreateEntity(ImportationSchemeDTO.ENTITY_NAME, newSchemaProperties);
 
@@ -144,20 +164,15 @@ public class AddImportationSchemePresenter extends AbstractPagePresenter<AddImpo
 
 					@Override
 					protected void onCommandFailure(Throwable caught) {
-
 						hideView();
-
 					};
 
 					@Override
 					protected void onCommandSuccess(CreateResult result) {
-
 						N10N.infoNotif(I18N.CONSTANTS.infoConfirmation(), I18N.CONSTANTS.adminImportationSchemeUpdateConfirm());
 
 						hideView();
-
 						eventBus.fireEvent(new UpdateEvent(UpdateEvent.IMPORTATION_SCHEME_UPDATE));
-
 					};
 
 				});
@@ -166,16 +181,33 @@ public class AddImportationSchemePresenter extends AbstractPagePresenter<AddImpo
 		});
 
 	}
+	
+	@Override
+	public void onPageRequest(PageRequest request) {
 
-	private void initUpdateImportationSchemeView(ImportationSchemeDTO currentImportationSheme2) {
+		currentImportationSheme = request.getData(RequestParameter.DTO);
+		view.clearForm();
 
-		if (currentImportationSheme2.getId() > 0) {
+		if (currentImportationSheme != null) {
+			// CASE EDIT
+			setPageTitle(I18N.CONSTANTS.editItem());
+			initUpdateImportationSchemeView();
 
-			view.getNameField().setValue(currentImportationSheme2.getName()); // Prevent changing the import type and file
-																																				// format to avoid
-			// incoherence
-			view.getImportTypeGroup().hide();
-			view.getFileFormatGroup().hide();
+		} else {
+			// CASE CREATE
+			setPageTitle(I18N.CONSTANTS.addItem());
+			currentImportationSheme = new ImportationSchemeDTO();
+		}
+
+	}
+
+	private void initUpdateImportationSchemeView() {
+
+		if (currentImportationSheme.getId() > 0) {
+			// Prevent changing the import type and file format to avoid incoherence.
+			view.getNameField().setValue(currentImportationSheme.getName()); 
+			view.getFileFormatGroup().setValue(view.getFileFormatRadioFilter(currentImportationSheme.getFileFormat()));
+			view.getImportTypeGroup().setValue(view.getImportTypeRadioFilter(currentImportationSheme.getImportType()));
 		}
 
 	}

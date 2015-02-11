@@ -127,6 +127,26 @@ public final class HistoryWindow {
 
 		final DateTimeFormat format = DateUtils.DATE_TIME_SHORT;
 
+		// Core version name.
+		final ColumnConfig coreVersionColumn = new ColumnConfig();
+		coreVersionColumn.setId("coreVersionName");
+		coreVersionColumn.setHeaderText(I18N.CONSTANTS.projectCoreBoxTitle());
+		coreVersionColumn.setWidth(100);
+		coreVersionColumn.setRenderer(new GridCellRenderer<HistoryTokenListDTO>() {
+
+			@Override
+			public Object render(HistoryTokenListDTO model, String property, ColumnData config, int rowIndex, int colIndex, ListStore store, Grid grid) {
+				String coreVersion = "--";
+				
+				for(final HistoryTokenDTO token : model.getTokens()) {
+					if(token.getCoreVersionName() != null) {
+						coreVersion = token.getCoreVersionName();
+					}
+				}
+				return coreVersion;
+			}
+		});
+
 		// Date.
 		final ColumnConfig dateColumn = new ColumnConfig();
 		dateColumn.setId("date");
@@ -190,6 +210,7 @@ public final class HistoryWindow {
 
 		return new ColumnConfig[] {
 			countColumn,
+			coreVersionColumn,
 			dateColumn,
 			userColumn,
 			valueColumn,

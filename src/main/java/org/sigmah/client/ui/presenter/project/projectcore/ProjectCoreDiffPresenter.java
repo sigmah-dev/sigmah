@@ -12,7 +12,7 @@ import org.sigmah.client.page.RequestParameter;
 import org.sigmah.client.ui.notif.N10N;
 import org.sigmah.client.ui.presenter.base.AbstractPagePresenter;
 import org.sigmah.client.ui.view.base.ViewPopupInterface;
-import org.sigmah.client.ui.view.project.projectcore.ProjectCoreDiffLigne;
+import org.sigmah.client.ui.view.project.projectcore.DiffEntry;
 import org.sigmah.client.ui.view.project.projectcore.ProjectCoreDiffView;
 import org.sigmah.shared.command.GetValue;
 import org.sigmah.shared.command.result.ValueResult;
@@ -29,12 +29,21 @@ import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import org.sigmah.shared.command.BatchCommand;
+import org.sigmah.shared.command.result.ListResult;
+import org.sigmah.shared.command.result.Result;
 
 /**
+ * Manages the diff view between core versions.
+ * 
  * @author Mehdi Benabdeslam (mehdi.benabdeslam@netapsys.fr)
+ * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
 @Singleton
 public class ProjectCoreDiffPresenter extends AbstractPagePresenter<ProjectCoreDiffPresenter.View> {
+	
+	private static final int LEFT = 0;
+	private static final int RIGHT = 1;
 
 	private ProjectDTO project;
 
@@ -53,9 +62,9 @@ public class ProjectCoreDiffPresenter extends AbstractPagePresenter<ProjectCoreD
 
 		ListStore<AmendmentDTO> getAmendmentStore2();
 
-		Grid<ProjectCoreDiffLigne> getProjectFields();
+		Grid<DiffEntry> getProjectFields();
 
-		ListStore<ProjectCoreDiffLigne> getProjectFieldsValueStore();
+		ListStore<DiffEntry> getProjectFieldsValueStore();
 
 	}
 
@@ -70,13 +79,35 @@ public class ProjectCoreDiffPresenter extends AbstractPagePresenter<ProjectCoreD
 	}
 
 	@Override
+	public void onBind() {
+
+		view.getAmendmentsComboBox1().addSelectionChangedListener(new SelectionChangedListener<AmendmentDTO>() {
+
+			@Override
+			public void selectionChanged(SelectionChangedEvent<AmendmentDTO> se) {
+				loadCoreVersion(se, LEFT);
+			}
+		});
+
+		view.getAmendmentsComboBox2().addSelectionChangedListener(new SelectionChangedListener<AmendmentDTO>() {
+
+			@Override
+			public void selectionChanged(SelectionChangedEvent<AmendmentDTO> se) {
+				loadCoreVersion(se, RIGHT);
+			}
+
+		});
+
+	}
+	
+	@Override
 	public void onPageRequest(PageRequest request) {
 
 		setPageTitle(I18N.CONSTANTS.projectCoreCompareVersion());
 
 		project = request.getData(RequestParameter.DTO);
 
-		if (project.getAmendments().size() <= 0) {
+		if (project.getAmendments().isEmpty()) {
 			show = false;
 			N10N.info(I18N.MESSAGES.amendmentCompareNoValue());
 		}
@@ -88,105 +119,27 @@ public class ProjectCoreDiffPresenter extends AbstractPagePresenter<ProjectCoreD
 
 	}
 
-	@Override
-	public void onBind() {
-
-		view.getAmendmentsComboBox1().addSelectionChangedListener(new SelectionChangedListener<AmendmentDTO>() {
-
-			@Override
-			public void selectionChanged(SelectionChangedEvent<AmendmentDTO> se) {
-
-				if (se.getSelectedItem() != null) {
-
-					AmendmentDTO amendment = se.getSelectedItem();
-
-					for (int i = 0; i < view.getProjectFieldsValueStore().getCount(); i++) {
-
-						final ProjectCoreDiffLigne ligne = view.getProjectFieldsValueStore().getAt(i);
-
-						FlexibleElementDTO field = ligne.getField();
-
-						GetValue cm = new GetValue(project.getId(), field.getId(), field.getEntityName(), amendment.getId());
-
-						dispatch.execute(cm, new CommandResultHandler<ValueResult>() {
-
-							@Override
-							protected void onCommandSuccess(ValueResult result) {
-
-								if (result.getValueObject() != null) {
-									ligne.setValue1(result.getValueObject());
-									view.getProjectFieldsValueStore().update(ligne);
-								}
-
-							}
-						});
-
-					}
-
-					view.getProjectFieldsValueStore().commitChanges();
-
-				}
-
-			}
-		});
-
-		view.getAmendmentsComboBox2().addSelectionChangedListener(new SelectionChangedListener<AmendmentDTO>() {
-
-			@Override
-			public void selectionChanged(SelectionChangedEvent<AmendmentDTO> se) {
-
-				if (se.getSelectedItem() != null) {
-
-					AmendmentDTO amendment = se.getSelectedItem();
-
-					for (int i = 0; i < view.getProjectFieldsValueStore().getCount(); i++) {
-
-						final ProjectCoreDiffLigne ligne = view.getProjectFieldsValueStore().getAt(i);
-
-						FlexibleElementDTO field = ligne.getField();
-
-						GetValue cm = new GetValue(project.getId(), field.getId(), field.getEntityName(), amendment.getId());
-
-						dispatch.execute(cm, new CommandResultHandler<ValueResult>() {
-
-							@Override
-							protected void onCommandSuccess(ValueResult result) {
-
-								if (result.getValueObject() != null) {
-									ligne.setValue2(result.getValueObject());
-									view.getProjectFieldsValueStore().update(ligne);
-								}
-
-							}
-						});
-
-					}
-
-					view.getProjectFieldsValueStore().commitChanges();
-
-				}
-			}
-
-		});
-
-	}
-
 	public boolean initView(ProjectDTO project) {
 
 		view.getAmendmentStore1().removeAll();
 		view.getAmendmentStore2().removeAll();
 		view.getProjectFieldsValueStore().removeAll();
+		
+		view.getAmendmentsComboBox1().setValue(null);
+		view.getAmendmentsComboBox2().setValue(null);
+		
+		final AmendmentDTO projectAmendment = new AmendmentDTO(project);
 
 		view.getAmendmentStore1().add(project.getAmendments());
-		view.getAmendmentStore1().add(new AmendmentDTO(project));
+		view.getAmendmentStore1().add(projectAmendment);
 		view.getAmendmentStore2().add(project.getAmendments());
-		view.getAmendmentStore2().add(new AmendmentDTO(project));
+		view.getAmendmentStore2().add(projectAmendment);
 
-		List<ProjectCoreDiffLigne> listFieldsAmendable = new ArrayList<ProjectCoreDiffLigne>();
+		List<DiffEntry> listFieldsAmendable = new ArrayList<DiffEntry>();
 
 		for (FlexibleElementDTO field : project.getProjectModel().getAllElements()) {
 			if (field.getAmendable()) {
-				ProjectCoreDiffLigne ligne = new ProjectCoreDiffLigne();
+				DiffEntry ligne = new DiffEntry();
 				ligne.setField(field);
 				listFieldsAmendable.add(ligne);
 			}
@@ -196,11 +149,43 @@ public class ProjectCoreDiffPresenter extends AbstractPagePresenter<ProjectCoreD
 		view.getProjectFieldsValueStore().commitChanges();
 		view.getAmendmentStore1().commitChanges();
 		view.getAmendmentStore2().commitChanges();
-
-		if (listFieldsAmendable.size() > 0) {
-			return true;
+		
+		if(!project.getAmendments().isEmpty()) {
+			view.getAmendmentsComboBox1().setValue(project.getAmendments().get(project.getAmendments().size() - 1));
 		}
-		return false;
+		view.getAmendmentsComboBox2().setValue(projectAmendment);
+
+		return !listFieldsAmendable.isEmpty();
+	}
+	
+	private void loadCoreVersion(SelectionChangedEvent<AmendmentDTO> event, final int position) {
+		if (event.getSelectedItem() != null) {
+			final AmendmentDTO coreVersion = event.getSelectedItem();
+
+			final BatchCommand batchCommand = new BatchCommand();
+			
+			for (int index = 0; index < view.getProjectFieldsValueStore().getCount(); index++) {
+				final DiffEntry entry = view.getProjectFieldsValueStore().getAt(index);
+				final FlexibleElementDTO field = entry.getField();
+
+				batchCommand.add(new GetValue(project.getId(), field.getId(), 
+					field.getEntityName(), coreVersion.getId()));
+			}
+			
+			dispatch.execute(batchCommand, new CommandResultHandler<ListResult<Result>>() {
+
+				@Override
+				protected void onCommandSuccess(ListResult<Result> results) {
+					for (int index = 0; index < view.getProjectFieldsValueStore().getCount(); index++) {
+						final ValueResult result = (ValueResult) results.getList().get(index);
+						final DiffEntry entry = view.getProjectFieldsValueStore().getAt(index);
+						
+						entry.setValue(position, result.getValueObject());
+						view.getProjectFieldsValueStore().update(entry);
+					}
+				}
+			});
+		}
 	}
 
 	@Override

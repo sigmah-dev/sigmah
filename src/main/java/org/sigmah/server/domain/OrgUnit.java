@@ -116,12 +116,6 @@ public class OrgUnit extends AbstractEntityId<Integer> implements SchemaElement 
 	public OrgUnit() {
 	}
 
-	/**
-	 * Linked to {@link OrgUnitModel#getCanContainProjects()}.
-	 */
-	@Transient
-	private boolean canContainProjects;
-
 	// --------------------------------------------------------------------------------
 	//
 	// METHODS.
@@ -246,12 +240,11 @@ public class OrgUnit extends AbstractEntityId<Integer> implements SchemaElement 
 
 	// Transient.
 	public boolean isCanContainProjects() {
-		return canContainProjects;
+		return getOrgUnitModel() != null && getOrgUnitModel().getCanContainProjects() != null && getOrgUnitModel().getCanContainProjects();
 	}
 
 	// Transient.
 	public void setCanContainProjects(boolean canContainProjects) {
-		this.canContainProjects = canContainProjects;
 	}
 
 }

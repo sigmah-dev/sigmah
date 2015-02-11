@@ -4,6 +4,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import org.sigmah.client.dispatch.DispatchAsync;
+import org.sigmah.client.event.EventBus;
 import org.sigmah.client.page.PageManager;
 import org.sigmah.client.security.AuthenticationProvider;
 import org.sigmah.client.util.ClientUtils;
@@ -39,11 +40,11 @@ public class TransfertManagerProvider implements Provider<TransfertManager> {
     private final TransfertManager transfertManager;
 
     @Inject
-    public TransfertManagerProvider(DispatchAsync dispatchAsync, AuthenticationProvider authenticationProvider, PageManager pageManager, ConnectionStatus connectionStatus, FileDataAsyncDAO fileDataAsyncDAO, TransfertAsyncDAO transfertAsyncDAO) {
+    public TransfertManagerProvider(DispatchAsync dispatchAsync, AuthenticationProvider authenticationProvider, PageManager pageManager, EventBus eventBus, FileDataAsyncDAO fileDataAsyncDAO, TransfertAsyncDAO transfertAsyncDAO) {
         if(html5EngineActive && IndexedDB.isSupported() && FileReader.isSupported()) {
-			this.transfertManager = new Html5TransfertManager(dispatchAsync, fileDataAsyncDAO, transfertAsyncDAO, connectionStatus);
+			this.transfertManager = new Html5TransfertManager(dispatchAsync, fileDataAsyncDAO, transfertAsyncDAO, eventBus);
 		} else {
-            this.transfertManager = new DirectTransfertManager(authenticationProvider, pageManager, connectionStatus);
+            this.transfertManager = new DirectTransfertManager(authenticationProvider, pageManager, eventBus);
 		}
     }
 

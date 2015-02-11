@@ -1,6 +1,9 @@
 package org.sigmah.shared.dto.element;
 
 import com.extjs.gxt.ui.client.core.El;
+import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.EventType;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.form.AdapterField;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.google.gwt.user.client.ui.FlowPanel;
@@ -14,27 +17,29 @@ import org.sigmah.client.ui.widget.form.Forms;
  * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
-public class HistoryWrapper extends AdapterField {
+public class HistoryWrapper<V> extends AdapterField {
+
+	private static final int BUTTON_WIDTH = 26;
 	
 	/**
 	 * Wrapped field.
 	 */
-	private final Field<?> field;
+	private final Field<V> field;
 	
 	/**
 	 * History button.
 	 */
 	private final Button historyButton;
-
+	
 	/**
 	 * Wrap the given field.
 	 * 
 	 * @param field Field to wrap.
 	 */
-	public HistoryWrapper(Field<?> field) {
+	public HistoryWrapper(Field<V> field) {
 		super(new FlowPanel());
 		this.field = field;
-
+		
 		final Grid grid = new Grid(1, 2);
 		((FlowPanel)getWidget()).add(grid);
 		
@@ -55,6 +60,12 @@ public class HistoryWrapper extends AdapterField {
 	public Button getHistoryButton() {
 		return historyButton;
 	}
+
+	@Override
+	protected void onResize(int width, int height) {
+		super.onResize(width, height);
+		field.setSize(width - BUTTON_WIDTH, height);
+	}
 	
 	// --
 	// Wiring fields method to the wrapped element.
@@ -64,8 +75,61 @@ public class HistoryWrapper extends AdapterField {
 	 * {@inheritDoc} 
 	 */
 	@Override
+	public void addListener(EventType eventType, Listener<? extends BaseEvent> listener) {
+		field.addListener(eventType, listener);
+	}
+
+	/**
+	 * {@inheritDoc} 
+	 */
+	@Override
+	public void removeAllListeners() {
+		field.removeAllListeners();
+	}
+
+	/**
+	 * {@inheritDoc} 
+	 */
+	@Override
+	public void removeListener(EventType eventType, Listener<? extends BaseEvent> listener) {
+		field.removeListener(eventType, listener);
+	}
+
+	/**
+	 * {@inheritDoc} 
+	 */
+	@Override
+	public void setEnabled(boolean enabled) {
+		field.setEnabled(enabled);
+	}
+
+	/**
+	 * {@inheritDoc} 
+	 */
+	@Override
+	public void enable() {
+		field.enable();
+	}
+
+	/**
+	 * {@inheritDoc} 
+	 */
+	@Override
+	public void disable() {
+		field.disable();
+	}
+	
+	/**
+	 * {@inheritDoc} 
+	 */
+	@Override
 	public String getFieldLabel() {
 		return field.getFieldLabel();
+	}
+
+	@Override
+	public void setFieldLabel(String fieldLabelHtml) {
+		field.setFieldLabel(fieldLabelHtml);
 	}
 
 	/**
@@ -76,12 +140,22 @@ public class HistoryWrapper extends AdapterField {
 		return field.getLabelSeparator();
 	}
 
+	@Override
+	public void setLabelSeparator(String labelSeparator) {
+		field.setLabelSeparator(labelSeparator);
+	}
+
 	/**
 	 * {@inheritDoc} 
 	 */
 	@Override
-	public Object getValue() {
+	public V getValue() {
 		return field.getValue();
+	}
+
+	@Override
+	public void setValue(Object value) {
+		field.setValue((V)value);
 	}
 
 	/**

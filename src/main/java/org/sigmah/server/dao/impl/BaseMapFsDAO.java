@@ -2,13 +2,14 @@ package org.sigmah.server.dao.impl;
 
 import com.google.inject.Inject;
 
-import org.apache.log4j.Logger;
 import org.sigmah.server.dao.BaseMapDAO;
 import org.sigmah.shared.dto.map.BaseMap;
 import org.sigmah.shared.dto.map.LocalBaseMap;
 
 import java.io.File;
 import java.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Reads a list of base maps (tile sets) from a path on the local disk Searches the following three paths:
@@ -24,7 +25,7 @@ import java.util.*;
  */
 public class BaseMapFsDAO implements BaseMapDAO {
 
-	private final static Logger logger = Logger.getLogger(BaseMapFsDAO.class);
+	private final static Logger LOGGER = LoggerFactory.getLogger(BaseMapFsDAO.class);
 	private final Map<String, BaseMap> baseMaps;
 
 	@Inject
@@ -37,17 +38,17 @@ public class BaseMapFsDAO implements BaseMapDAO {
 		if (serverProperties.getProperty("basemaps.root") != null) {
 			tileRoot = new File(serverProperties.getProperty("basemaps.root"));
 			if (!tileRoot.exists()) {
-				logger.warn("Base map folder specified in properties at " + tileRoot.getAbsolutePath() + " does not exist");
+				LOGGER.warn("Base map folder specified in properties at " + tileRoot.getAbsolutePath() + " does not exist");
 				return;
 			}
 		} else {
-			logger.warn("No basemap root set, trying defaults at c:\\tiles and e:\\tiles");
+			LOGGER.warn("No basemap root set, trying defaults at c:\\tiles and e:\\tiles");
 			tileRoot = new File("e://tiles");
 			if (!tileRoot.exists()) {
 				tileRoot = new File("c://tiles"); // for the development machine
 			}
 			if (!tileRoot.exists()) {
-				logger.warn("Could not find basemaps folder anywhere!");
+				LOGGER.warn("Could not find basemaps folder anywhere!");
 				return;
 			}
 		}

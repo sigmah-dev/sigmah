@@ -15,14 +15,20 @@ public class AmendmentActionCommand extends AbstractCommand<ProjectDTO> {
 
 	private Integer projectId;
 	private AmendmentAction action;
+	private String name;
 
 	public AmendmentActionCommand() {
 		// Serialization.
 	}
 
 	public AmendmentActionCommand(final Integer projectId, final AmendmentAction action) {
+		this(projectId, action, null);
+	}
+	
+	public AmendmentActionCommand(final Integer projectId, final AmendmentAction action, String name) {
 		this.projectId = projectId;
 		this.action = action;
+		this.name = name;
 	}
 
 	/**
@@ -42,4 +48,12 @@ public class AmendmentActionCommand extends AbstractCommand<ProjectDTO> {
 		return action;
 	}
 
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+	
 }

@@ -5,7 +5,6 @@ import org.sigmah.client.page.RequestParameter;
 import org.sigmah.client.security.AuthenticationProvider;
 import org.sigmah.client.util.ClientUtils;
 import org.sigmah.offline.status.ApplicationState;
-import org.sigmah.offline.status.ConnectionStatus;
 import org.sigmah.shared.dto.value.FileVersionDTO;
 import org.sigmah.shared.servlet.ServletConstants;
 import org.sigmah.shared.servlet.ServletUrlBuilder;
@@ -16,8 +15,13 @@ import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import org.sigmah.client.event.EventBus;
+import org.sigmah.client.event.OfflineEvent;
+import org.sigmah.client.event.handler.OfflineHandler;
 
 /**
+ * Download and upload files with classic http requests.
+ * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
@@ -25,12 +29,19 @@ class DirectTransfertManager implements TransfertManager {
 
 	private final AuthenticationProvider authenticationProvider;
 	private final PageManager pageManager;
-	private final ConnectionStatus connectionStatus;
+	private ApplicationState state;
 
-	public DirectTransfertManager(AuthenticationProvider authenticationProvider, PageManager pageManager, ConnectionStatus connectionStatus) {
+	public DirectTransfertManager(AuthenticationProvider authenticationProvider, PageManager pageManager, EventBus eventBus) {
 		this.authenticationProvider = authenticationProvider;
 		this.pageManager = pageManager;
-		this.connectionStatus = connectionStatus;
+		
+		eventBus.addHandler(OfflineEvent.getType(), new OfflineHandler() {
+
+			@Override
+			public void handleEvent(OfflineEvent event) {
+				state = event.getState();
+			}
+		});
 	}
 
 	@Override
@@ -91,11 +102,11 @@ class DirectTransfertManager implements TransfertManager {
 
 	@Override
 	public void canDownload(FileVersionDTO fileVersionDTO, AsyncCallback<Boolean> callback) {
-		callback.onSuccess(connectionStatus.getState() == ApplicationState.ONLINE);
+		callback.onSuccess(state == ApplicationState.ONLINE);
 	}
 
 	@Override
 	public boolean canUpload() {
-		return connectionStatus.getState() == ApplicationState.ONLINE;
+		return state == ApplicationState.ONLINE;
 	}
 }

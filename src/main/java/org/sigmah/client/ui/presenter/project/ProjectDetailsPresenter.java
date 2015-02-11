@@ -163,7 +163,7 @@ public class ProjectDetailsPresenter extends AbstractProjectPresenter<ProjectDet
 		final LayoutDTO layout = details.getLayout();
 
 		// If the element are read only.
-		final boolean readOnly = !ProfileUtils.isGranted(auth(), GlobalPermissionEnum.EDIT_PROJECT);
+		final boolean readOnly = !ProfileUtils.isGranted(auth(), GlobalPermissionEnum.EDIT_PROJECT) || getProject().getCurrentPhase().isEnded();
 
 		// Counts elements.
 		int count = 0;
@@ -241,11 +241,18 @@ public class ProjectDetailsPresenter extends AbstractProjectPresenter<ProjectDet
 						elementDTO.setCurrentContainerDTO(getProject());
                         elementDTO.setTransfertManager(injector.getTransfertManager());
 						elementDTO.assignValue(valueResult);
+						
+						final ProjectPresenter projectPresenter = injector.getProjectPresenter();
 
 						// Generates element component (with the value).
 						elementDTO.init();
-						final Component elementComponent = elementDTO.getElementComponent(valueResult, !readOnly && !valueResult.isAmendment());
+						final Component elementComponent = elementDTO.getElementComponent(valueResult, !readOnly && !valueResult.isAmendment(), 
+							projectPresenter.canUnlockProject());
 
+						if(elementDTO.getAmendable() && projectPresenter.projectIsLocked() && projectPresenter.canUnlockProject()) {
+							projectPresenter.addUnlockProjectPopup(elementDTO, elementComponent, new LoadingMask(view.getMainPanel()));
+						}
+						
 						// Component width.
 						final FormData formData;
 						if (elementDTO.getPreferredWidth() == 0) {
@@ -308,6 +315,7 @@ public class ProjectDetailsPresenter extends AbstractProjectPresenter<ProjectDet
 
 				// Checks if there is any update needed to the local project instance.
 				boolean refreshBanner = false;
+				boolean coreVersionUpdated = false;
 				ProjectDTO newProject = null;
 
 				for (final ValueEvent event : valueChanges) {
@@ -316,6 +324,7 @@ public class ProjectDetailsPresenter extends AbstractProjectPresenter<ProjectDet
 						getParentPresenter().setCurrentProject(newProject);
 						refreshBanner = true;
 					}
+					coreVersionUpdated |= event.getSourceElement().getAmendable();
 				}
 
 				valueChanges.clear();
@@ -323,7 +332,11 @@ public class ProjectDetailsPresenter extends AbstractProjectPresenter<ProjectDet
 				if (refreshBanner) {
 					eventBus.fireEvent(new UpdateEvent(UpdateEvent.PROJECT_BANNER_UPDATE));
 				}
-
+				
+				if(coreVersionUpdated) {
+					eventBus.fireEvent(new UpdateEvent(UpdateEvent.CORE_VERSION_UPDATED));
+				}
+				
 				// Avoid tight coupling with other project events.
 				// FIXME (from v1.3) eventBus.fireEvent(new ProjectEvent(ProjectEvent.CHANGED, getProject().getId()));
 

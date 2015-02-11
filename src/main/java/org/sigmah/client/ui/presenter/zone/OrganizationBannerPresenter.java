@@ -16,11 +16,16 @@ import org.sigmah.shared.servlet.ServletRequestBuilder;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HasHTML;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import org.sigmah.client.event.OfflineEvent;
+import org.sigmah.client.event.handler.OfflineHandler;
+import org.sigmah.offline.dao.LogoAsyncDAO;
+import org.sigmah.offline.status.ApplicationState;
 
 /**
  * Organization banner presenter displaying organization's name and logo.
@@ -44,6 +49,11 @@ public class OrganizationBannerPresenter extends AbstractZonePresenter<Organizat
 
 	}
 
+	@Inject
+	private LogoAsyncDAO logoAsyncDAO;
+	
+	private ApplicationState state;
+	
 	/**
 	 * Default organization name.
 	 */
@@ -54,7 +64,7 @@ public class OrganizationBannerPresenter extends AbstractZonePresenter<Organizat
 	 * Should be a public resource file path.
 	 */
 	private static final String DEFAULT_ORGANIZATION_LOGO = ResourcesUtils.buildImageURL("header/org-default-logo.png");
-
+	
 	@Inject
 	public OrganizationBannerPresenter(View view, Injector injector) {
 		super(view, injector);
@@ -68,6 +78,17 @@ public class OrganizationBannerPresenter extends AbstractZonePresenter<Organizat
 		return Zone.ORG_BANNER;
 	}
 
+	@Override
+	public void onBind() {
+		eventBus.addHandler(OfflineEvent.getType(), new OfflineHandler() {
+
+			@Override
+			public void handleEvent(OfflineEvent event) {
+				state = event.getState();
+			}
+		});
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -84,27 +105,54 @@ public class OrganizationBannerPresenter extends AbstractZonePresenter<Organizat
 			return;
 		}
 
-		final ServletRequestBuilder builder = new ServletRequestBuilder(injector, RequestBuilder.GET, Servlet.FILE, ServletMethod.DOWNLOAD_LOGO);
-		builder.addParameter(RequestParameter.ID, auth().getOrganizationLogo());
+		if(state != ApplicationState.OFFLINE) {
+			final ServletRequestBuilder builder = new ServletRequestBuilder(injector, RequestBuilder.GET, Servlet.FILE, ServletMethod.DOWNLOAD_LOGO);
+			builder.addParameter(RequestParameter.ID, auth().getOrganizationLogo());
 
-		builder.send(new ServletRequestBuilder.RequestCallbackAdapter() {
+			builder.send(new ServletRequestBuilder.RequestCallbackAdapter() {
 
-			@Override
-			public void onResponseReceived(final Request request, final Response response) {
+				@Override
+				public void onResponseReceived(final Request request, final Response response) {
 
-				final String logoUrl;
-				if (response.getStatusCode() == Response.SC_OK) {
-					// Existing logo.
-					logoUrl = builder.toString();
+					final String logoUrl;
+					if (response.getStatusCode() == Response.SC_OK) {
+						// Existing logo.
+						logoUrl = response.getText();
 
-				} else {
-					// Non existing logo.
-					logoUrl = DEFAULT_ORGANIZATION_LOGO;
+						// Caching the organization logo.
+						logoAsyncDAO.saveOrUpdate(auth().getOrganizationId(), logoUrl);
+
+					} else {
+						// Non existing logo.
+						logoUrl = DEFAULT_ORGANIZATION_LOGO;
+					}
+
+					view.getLogoPanel().getElement().getStyle().setBackgroundImage(ResourcesUtils.buildCSSImageProperty(logoUrl));
+				}
+			});
+			
+		} else {
+			logoAsyncDAO.get(auth().getOrganizationId(), new AsyncCallback<String>() {
+
+				@Override
+				public void onFailure(Throwable caught) {
+					view.getLogoPanel().getElement().getStyle().setBackgroundImage(ResourcesUtils.buildCSSImageProperty(DEFAULT_ORGANIZATION_LOGO));
 				}
 
-				view.getLogoPanel().getElement().getStyle().setBackgroundImage(ResourcesUtils.buildCSSImageProperty(logoUrl));
-			}
-		});
+				@Override
+				public void onSuccess(String result) {
+					final String logoUrl;
+					
+					if(result != null) {
+						logoUrl = result;
+					} else {
+						logoUrl = DEFAULT_ORGANIZATION_LOGO;
+					}
+					
+					view.getLogoPanel().getElement().getStyle().setBackgroundImage(ResourcesUtils.buildCSSImageProperty(logoUrl));
+				}
+			});
+		}
 	}
 
 }

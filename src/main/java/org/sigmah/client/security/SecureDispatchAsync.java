@@ -14,7 +14,6 @@ import java.util.Set;
 import org.sigmah.client.dispatch.AbstractDispatchAsync;
 import org.sigmah.client.dispatch.DispatchAsync;
 import org.sigmah.client.dispatch.DispatchListener;
-import org.sigmah.client.dispatch.ExceptionHandler;
 import org.sigmah.client.event.EventBus;
 import org.sigmah.client.page.PageManager;
 import org.sigmah.client.page.RequestParameter;
@@ -31,6 +30,10 @@ import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
+import org.sigmah.client.event.OfflineEvent;
+import org.sigmah.client.event.handler.OfflineHandler;
+import org.sigmah.offline.status.ApplicationState;
+import org.sigmah.offline.status.ApplicationStateManager;
 
 /**
  * This class is the default implementation of {@link DispatchAsync}, which is essentially the client-side access to the
@@ -148,27 +151,34 @@ public class SecureDispatchAsync extends AbstractDispatchAsync {
 	 * Implementation of the RPC dispatch service used when the user is offline.
 	 */
 	private LocalDispatchServiceAsync offlineService;
+	
+	/**
+	 * Connection state. Used to decide which service to call when dispatching
+	 * a command.
+	 */
+	private boolean online;
 
 
 	/**
 	 * Initializes the {@code SecureDispatchAsync} with injected arguments.
 	 * 
-	 * @param exceptionHandler
-	 *          The {@link ExceptionHandler} implementation.
 	 * @param authenticationProvider
 	 *          The {@link AuthenticationProvider} instance.
 	 * @param eventBus
 	 *          The {@link EventBus} implementation.
 	 * @param pageManager
 	 *          The {@link PageManager} implementation.
+	 * @param applicationStateManager
+	 *			he {@link ApplicationStateManager} implementation.
 	 */
 	@Inject
-	public SecureDispatchAsync(final ExceptionHandler exceptionHandler, final AuthenticationProvider authenticationProvider, final EventBus eventBus, final PageManager pageManager) {
-		super(exceptionHandler);
+	public SecureDispatchAsync(final AuthenticationProvider authenticationProvider, final EventBus eventBus, final PageManager pageManager, final ApplicationStateManager applicationStateManager) {
 		this.authenticationProvider = authenticationProvider;
 		this.eventBus = eventBus;
 		this.pageManager = pageManager;
 		this.listeners = new HashMap<Class<?>, List<DispatchListener<?, ?>>>();
+		
+		registerEventHandlers();
 	}
 
 	/**
@@ -357,6 +367,19 @@ public class SecureDispatchAsync extends AbstractDispatchAsync {
 				loadablesMap.put(loadable, count - 1);
 			}
 		}
+	}
+	
+	/**
+	 * Begin to listen to events from the event bus.
+	 */
+	private void registerEventHandlers() {
+		eventBus.addHandler(OfflineEvent.getType(), new OfflineHandler() {
+
+			@Override
+			public void handleEvent(OfflineEvent event) {
+				online = event.getState() == ApplicationState.ONLINE;
+			}
+		});
 	}
 
 	private <C extends Command<R>, R extends Result> SecureDispatchServiceAsync getDispatchService(C command) {
