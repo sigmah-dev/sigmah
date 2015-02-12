@@ -3,7 +3,8 @@ package org.sigmah.offline.js;
 import org.sigmah.shared.command.Delete;
 
 /**
- *
+ * JavaScript version of the {@link Delete} command.
+ * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
 public final class DeleteJS extends CommandJS {

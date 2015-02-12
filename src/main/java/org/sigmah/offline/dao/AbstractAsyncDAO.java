@@ -177,28 +177,32 @@ public abstract class AbstractAsyncDAO<T> extends BaseAsyncDAO implements AsyncD
 
 			@Override
 			public void onTransaction(Transaction transaction) {
-				final ObjectStore objectStore = transaction.getObjectStore(getRequiredStore());
-				
-				final OpenCursorRequest request = objectStore.openCursor(IDBKeyRange.upperBound(0, false), Order.ASCENDING);
-				request.addCallback(new AsyncCallback<Request>() {
+				generateNegativeId(callback, transaction);
+			}
+		});
+	}
+    
+	protected void generateNegativeId(final AsyncCallback<Integer> callback, Transaction transaction) {
+		final ObjectStore objectStore = transaction.getObjectStore(getRequiredStore());
 
-					@Override
-					public void onFailure(Throwable caught) {
-						callback.onFailure(caught);
-					}
+		final OpenCursorRequest request = objectStore.openCursor(IDBKeyRange.upperBound(0, false), Order.ASCENDING);
+		request.addCallback(new AsyncCallback<Request>() {
 
-					@Override
-					public void onSuccess(Request result) {
-						final Cursor cursor = request.getResult();
-						if(cursor != null) {
-							final HasId hasId = cursor.getValue();
-							callback.onSuccess(hasId.getId() - 1);
-							
-						} else {
-							callback.onSuccess(-1);
-						}
-					}
-				});
+			@Override
+			public void onFailure(Throwable caught) {
+				callback.onFailure(caught);
+			}
+
+			@Override
+			public void onSuccess(Request result) {
+				final Cursor cursor = request.getResult();
+				if(cursor != null) {
+					final HasId hasId = cursor.getValue();
+					callback.onSuccess(hasId.getId() - 1);
+
+				} else {
+					callback.onSuccess(-1);
+				}
 			}
 		});
 	}

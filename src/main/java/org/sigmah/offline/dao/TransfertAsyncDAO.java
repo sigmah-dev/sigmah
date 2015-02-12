@@ -3,6 +3,7 @@ package org.sigmah.offline.dao;
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Singleton;
+import java.util.Map;
 import org.sigmah.offline.indexeddb.Cursor;
 import org.sigmah.offline.indexeddb.IDBKeyRange;
 import org.sigmah.offline.indexeddb.Index;
@@ -97,6 +98,45 @@ public class TransfertAsyncDAO extends AbstractAsyncDAO<TransfertJS> {
 						// else DONE
                     }
                 });
+			}
+		});
+	}
+	
+	public void replaceId(final Map.Entry<Integer, Integer> entry, final Transaction transaction) {
+		final ObjectStore objectStore = transaction.getObjectStore(getRequiredStore());
+		
+		objectStore.index("fileVersionId").get(entry.getKey().intValue()).addCallback(new AsyncCallback<Request>() {
+
+			@Override
+			public void onFailure(Throwable caught) {
+				Log.error("Error while changing the id of '" + entry.getKey() + "' to '" + entry.getValue() + "'.", caught);
+			}
+
+			@Override
+			public void onSuccess(Request request) {
+				final TransfertJS transfertJS = request.getResult();
+				
+				if(transfertJS != null) {
+					// Updating the entry.
+					transfertJS.getFileVersion().setId(entry.getValue());
+					saveOrUpdate(transfertJS, null, transaction);
+				}
+			}
+		});
+	}
+	
+	public void replaceIds(final Map<Integer, Integer> ids) {
+		if(ids == null || ids.isEmpty()) {
+			return;
+		}
+		
+		openTransaction(Transaction.Mode.READ_WRITE, new OpenTransactionHandler() {
+
+			@Override
+			public void onTransaction(Transaction transaction) {
+				for(Map.Entry<Integer, Integer> entry : ids.entrySet()) {
+					replaceId(entry, transaction);
+				}
 			}
 		});
 	}

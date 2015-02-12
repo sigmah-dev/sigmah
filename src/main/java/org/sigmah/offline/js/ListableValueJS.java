@@ -21,6 +21,9 @@ public class ListableValueJS extends JavaScriptObject {
 		TRIPLET;
 	}
 	
+	protected ListableValueJS() {
+	}
+	
 	public static ListableValueJS toJavaScript(ListableValue listableValue) {
 		if(listableValue instanceof BudgetPartsListValueDTO) {
 			return BudgetPartsListValueJS.toJavaScript((BudgetPartsListValueDTO)listableValue);
@@ -38,16 +41,16 @@ public class ListableValueJS extends JavaScriptObject {
 		throw new UnsupportedOperationException("Listable value type not supported: " + listableValue.getClass());
 	}
 	
-	public ListableValue toDTO() {
+	public final ListableValue toDTO() {
 		switch(getListableValueTypeEnum()) {
 			case BUDGET_PARTS_LIST:
-				return ((BudgetPartsListValueJS)this).toDTO();
+				return ((BudgetPartsListValueJS)this).toBudgetPartsListValueDTO();
 			case FILE:
-				return ((FileJS)this).toDTO();
+				return ((FileJS)this).toFileDTO();
 			case REPORT_REFERENCE:
-				return ((ReportReferenceJS)this).toDTO();
+				return ((ReportReferenceJS)this).toReportReference();
 			case TRIPLET:
-				return ((TripletValueJS)this).toDTO();
+				return ((TripletValueJS)this).toTripletValueDTO();
 			default:
 				throw new UnsupportedOperationException("Listable value type not supported: " + getListableValueType());
 		}
@@ -57,7 +60,7 @@ public class ListableValueJS extends JavaScriptObject {
 		return this.listableValueType;
 	}-*/;
 	
-	public Type getListableValueTypeEnum() {
+	public final Type getListableValueTypeEnum() {
 		if(getListableValueType() != null) {
 			return Type.valueOf(getListableValueType());
 		}
@@ -68,7 +71,7 @@ public class ListableValueJS extends JavaScriptObject {
 		this.listableValueType = listableValueType;
 	}-*/;
 	
-	public void setListableValueType(Type type) {
+	public final void setListableValueType(Type type) {
 		if(type != null) {
 			setListableValueType(type.name());
 		}

@@ -13,7 +13,13 @@ public class PrepareFileUpload implements Command<FileVersionDTO> {
 	private String fileName;
 	private int size;
 	
-	public PrepareFileUpload() {
+	protected PrepareFileUpload() {
+	}
+
+	public PrepareFileUpload(String fileName, int size, Map<String, String> properties) {
+		this.properties = properties;
+		this.fileName = fileName;
+		this.size = size;
 	}
 
 	public Map<String, String> getProperties() {

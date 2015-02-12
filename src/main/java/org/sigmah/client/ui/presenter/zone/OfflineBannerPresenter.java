@@ -420,7 +420,7 @@ public class OfflineBannerPresenter extends AbstractZonePresenter<OfflineBannerP
 					@Override
 					public void onClick(ClickEvent event) {
 						setMenuVisible(false);
-						pullFiles();
+						pushAndPullFiles();
 					}
 				});
                 break;
@@ -476,7 +476,7 @@ public class OfflineBannerPresenter extends AbstractZonePresenter<OfflineBannerP
                         view.getSynchronizePopup().hide();
                         setDatabaseUpdateDate(new Date());
 						
-						pullFiles();
+						pullFilesInvite();
                     }
 
                     @Override
@@ -536,12 +536,12 @@ public class OfflineBannerPresenter extends AbstractZonePresenter<OfflineBannerP
 
 			@Override
 			public void onAction() {
-				pullFiles();
+				pushAndPullFiles();
 			}
 		});
 	}
 	
-	private void pullFiles() {
+	private void pushAndPullFiles() {
 		view.setTransferFilesAnchorEnabled(false);
 
 		// Push files

@@ -78,7 +78,7 @@ public class ReportReferenceAsyncDAO extends AbstractAsyncDAO<ReportReference> {
             @Override
             public void onSuccess(Request request) {
                 final ReportReferenceJS reportReferenceJS = request.getResult();
-				callback.onSuccess(reportReferenceJS != null ? reportReferenceJS.toDTO() : null);
+				callback.onSuccess(reportReferenceJS != null ? reportReferenceJS.toReportReference() : null);
             }
         });
 	}
@@ -107,7 +107,7 @@ public class ReportReferenceAsyncDAO extends AbstractAsyncDAO<ReportReference> {
                         final Cursor cursor = cursorRequest.getResult();
 						if(cursor != null) {
 							final ReportReferenceJS reportReferenceJS = cursor.getValue();
-							reportReferences.add(reportReferenceJS.toDTO());
+							reportReferences.add(reportReferenceJS.toReportReference());
 							cursor.next();
 							
 						} else {

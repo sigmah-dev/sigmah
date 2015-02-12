@@ -26,8 +26,7 @@ public final class TripletValueJS extends ListableValueJS {
 		return tripletValueJS;
 	}
 	
-	@Override
-	public TripletValueDTO toDTO() {
+	public TripletValueDTO toTripletValueDTO() {
 		final TripletValueDTO tripletValueDTO = new TripletValueDTO();
 		
 		tripletValueDTO.setId(getId());

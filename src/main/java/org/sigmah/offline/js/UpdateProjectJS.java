@@ -10,7 +10,8 @@ import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArray;
 
 /**
- *
+ * JavaScript version of the {@link UpdateProject} command.
+ * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
 public final class UpdateProjectJS extends CommandJS {

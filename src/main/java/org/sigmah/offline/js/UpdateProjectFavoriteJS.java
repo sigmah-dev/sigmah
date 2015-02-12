@@ -3,7 +3,8 @@ package org.sigmah.offline.js;
 import org.sigmah.shared.command.UpdateProjectFavorite;
 
 /**
- *
+ * JavaScript version of the {@link UpdateProjectFavorite} command.
+ * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
 public final class UpdateProjectFavoriteJS extends CommandJS {

@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import org.sigmah.server.dispatch.impl.UserDispatch;
+import org.sigmah.server.domain.value.FileVersion;
 import org.sigmah.server.file.FileStorageProvider;
 import org.sigmah.server.handler.base.AbstractCommandHandler;
 import org.sigmah.shared.command.UploadSlice;
@@ -38,11 +39,15 @@ public class UploadSliceHandler extends AbstractCommandHandler<UploadSlice, Void
 		}
 		
 		if(command.isLast()) {
-			// Patch everything together
 			final FileVersionDTO fileVersionDTO = command.getFileVersionDTO();
+			
+			// Searching the original file version in database.
+			final FileVersion fileVersion = em().find(FileVersion.class, fileVersionDTO.getId());
+			
+			// Patch everything together.
 			final byte[] bytes = new byte[1024];
 			
-			try(final OutputStream outputStream = fileStorageProvider.create(fileVersionDTO.getPath())) {
+			try(final OutputStream outputStream = fileStorageProvider.create(fileVersion.getPath())) {
 				for(int offset = 0; offset < fileVersionDTO.getSize();) {
 					final String slice = fileVersionDTO.getPath() + '.' + offset;
 					try(final InputStream inputStream = fileStorageProvider.open(slice)) {

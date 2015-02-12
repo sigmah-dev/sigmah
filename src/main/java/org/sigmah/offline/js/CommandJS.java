@@ -3,6 +3,7 @@ package org.sigmah.offline.js;
 import com.google.gwt.core.client.JavaScriptObject;
 import org.sigmah.shared.command.CreateEntity;
 import org.sigmah.shared.command.Delete;
+import org.sigmah.shared.command.PrepareFileUpload;
 import org.sigmah.shared.command.UpdateEntity;
 import org.sigmah.shared.command.UpdateLogFrame;
 import org.sigmah.shared.command.UpdateMonitoredPoints;
@@ -13,6 +14,7 @@ import org.sigmah.shared.command.base.Command;
 
 /**
  * Parent class of the JavaScript versions of {@link Command}s.
+ * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
 public class CommandJS extends JavaScriptObject {
@@ -20,6 +22,7 @@ public class CommandJS extends JavaScriptObject {
 	public static enum Type {
 		CREATE_ENTITY,
 		DELETE,
+		PREPARE_FILE_UPLOAD,
 		UPDATE_ENTITY,
 		UPDATE_LOG_FRAME,
 		UPDATE_MONITORED_POINTS,
@@ -31,6 +34,7 @@ public class CommandJS extends JavaScriptObject {
 	public static final Class[] SUPPORTED_COMMANDS = new Class[] {
 		CreateEntity.class,
 		Delete.class,
+		PrepareFileUpload.class,
 		UpdateEntity.class,
 		UpdateLogFrame.class,
 		UpdateMonitoredPoints.class,
@@ -76,6 +80,10 @@ public class CommandJS extends JavaScriptObject {
 		} else if(command instanceof UpdateEntity) {
 			commandJS = UpdateEntityJS.toJavaScript((UpdateEntity)command);
 			commandJS.setCommandType(Type.UPDATE_ENTITY);
+			
+		} else if(command instanceof PrepareFileUpload) {
+			commandJS = PrepareFileUploadJS.toJavaScript((PrepareFileUpload)command);
+			commandJS.setCommandType(Type.PREPARE_FILE_UPLOAD);
 		}
 		
 		return commandJS;
@@ -90,6 +98,9 @@ public class CommandJS extends JavaScriptObject {
 				break;
 			case DELETE:
 				command = ((DeleteJS)this).toDelete();
+				break;
+			case PREPARE_FILE_UPLOAD:
+				command = ((PrepareFileUploadJS)this).toPrepareFileUpload();
 				break;
 			case UPDATE_ENTITY:
 				command = ((UpdateEntityJS)this).toUpdateEntity();

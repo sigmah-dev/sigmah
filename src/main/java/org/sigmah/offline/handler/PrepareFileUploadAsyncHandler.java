@@ -23,7 +23,9 @@ import com.google.gwt.core.client.JsArray;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import org.sigmah.offline.dao.UpdateDiaryAsyncDAO;
 import org.sigmah.offline.js.Values;
+import org.sigmah.shared.command.result.Authentication;
 
 /**
  * JavaScript implementation of {@link org.sigmah.server.handler.PrepareFileUploadHandler}.
@@ -36,17 +38,32 @@ public class PrepareFileUploadAsyncHandler implements AsyncCommandHandler<Prepar
 	
 	@Inject
 	private ValueAsyncDAO valueAsyncDAO;
+	
+	@Inject
+	private UpdateDiaryAsyncDAO updateDiaryAsyncDAO;
 
 	@Override
 	public void execute(final PrepareFileUpload command, final OfflineExecutionContext executionContext, final AsyncCallback<FileVersionDTO> callback) {
-		// TODO: Stocker la demande d'upload et prévoir un mécanisme pour faire l'upload à la reconnexion
-		// Garder une instance de TransfertJS avec "progress = 0" ?
-		// Ou alors, simplement attendre la reconnexion pour obtenir l'instance de FileVersionDTO et là démarrer un TransfertJS.
-		
+		// Saving the prepare upload request.
+		updateDiaryAsyncDAO.saveWithNegativeId(command, new AsyncCallback<Integer>() {
+
+			@Override
+			public void onFailure(Throwable caught) {
+				callback.onFailure(caught);
+			}
+
+			@Override
+			public void onSuccess(Integer result) {
+				findAndUpdateFileVersion(command, result, executionContext.getAuthentication(), callback);
+			}
+		});
+	}
+	
+	private void findAndUpdateFileVersion(final PrepareFileUpload command, final int versionId, 
+			final Authentication authentication, final AsyncCallback<FileVersionDTO> callback) {
 		final String fileId = command.getProperties().get(FileUploadUtils.DOCUMENT_ID);
 		final String projectId = command.getProperties().get(FileUploadUtils.DOCUMENT_PROJECT);
 		final String elementId = command.getProperties().get(FileUploadUtils.DOCUMENT_FLEXIBLE_ELEMENT);
-		final String fileName = command.getProperties().get(FileUploadUtils.DOCUMENT_NAME);
 		
 		final GetValue getValue = new GetValue();
 		getValue.setProjectId(Integer.parseInt(projectId));
@@ -68,58 +85,8 @@ public class PrepareFileUploadAsyncHandler implements AsyncCommandHandler<Prepar
 				
 				final JsArray<FileJS> files = valueJS.getValues();
 				
-				FileJS updatedFile = null;
-				if(fileId != null) {
-					// Searching for the FileJS to update
-					final int updatedFileId = Integer.parseInt(fileId);
-					for(int index = 0; updatedFile == null && index < files.length(); index++) {
-						final FileJS file = files.get(index);
-						if(file.getId() == updatedFileId) {
-							updatedFile = file;
-						}
-					}
-				}
-				
-				if(updatedFile == null) {
-					// Creating a new file
-					final FileDTO fileDTO = new FileDTO();
-					fileDTO.setId(-1);
-					fileDTO.setName(command.getFileName());
-					fileDTO.setVersions(new ArrayList<FileVersionDTO>());
-					
-					updatedFile = FileJS.toJavaScript(fileDTO);
-					files.push(updatedFile);
-				}
-				
-				// Creating a new version
-				final FileVersionDTO fileVersionDTO = new FileVersionDTO();
-				fileVersionDTO.setId(-1);
-				fileVersionDTO.setAddedDate(new Date());
-				fileVersionDTO.setAuthorFirstName(executionContext.getAuthentication().getUserFirstName());
-				fileVersionDTO.setAuthorName(executionContext.getAuthentication().getUserName());
-				fileVersionDTO.setSize(command.getSize());
-				
-				final String fullName = normalizeFileName(fileName);
-				final int dotIndex = fullName.indexOf('.');
-
-				final String name = dotIndex > 0 ? fullName.substring(0, dotIndex) : fullName;
-				final String extension = dotIndex > 0 && dotIndex < fullName.length() ? fullName.substring(dotIndex + 1) : null;
-				fileVersionDTO.setName(name);
-				fileVersionDTO.setExtension(extension);
-				
-				int versionNumber = 1;
-				final JsArray<FileVersionJS> versions = updatedFile.getVersions();
-				for(int index = 0; index < versions.length(); index++) {
-					final FileVersionJS version = versions.get(index);
-					if(version.getVersionNumber() >= versionNumber) {
-						versionNumber = version.getVersionNumber() + 1;
-					}
-				}
-				fileVersionDTO.setVersionNumber(versionNumber);
-				
-				// Saving locally the new version
-				final FileVersionJS createdVersion = FileVersionJS.toJavaScript(fileVersionDTO);
-				versions.push(createdVersion);
+				final FileVersionDTO fileVersionDTO = createFileVersion(fileId, 
+					versionId, command, authentication, files);
 				
 				// Updating the value of the current flexible element before returning the new FileVersionJS
 				valueAsyncDAO.saveOrUpdate(getValue, valueJS.toValueResult());
@@ -127,6 +94,67 @@ public class PrepareFileUploadAsyncHandler implements AsyncCommandHandler<Prepar
 				callback.onSuccess(fileVersionDTO);
 			}
 		});
+	}
+	
+	private FileVersionDTO createFileVersion(String fileId, int versionId, PrepareFileUpload command,
+		Authentication authentication, JsArray<FileJS> files) throws NumberFormatException {
+		
+		FileJS updatedFile = null;
+		if(fileId != null) {
+			// Searching for the FileJS to update.
+			final int updatedFileId = Integer.parseInt(fileId);
+			for(int index = 0; updatedFile == null && index < files.length(); index++) {
+				final FileJS file = files.get(index);
+				if(file.getId() == updatedFileId) {
+					updatedFile = file;
+				}
+			}
+		}
+		
+		if(updatedFile == null) {
+			// Creating a new file.
+			final FileDTO fileDTO = new FileDTO();
+			fileDTO.setId(versionId);
+			fileDTO.setName(command.getFileName());
+			fileDTO.setVersions(new ArrayList<FileVersionDTO>());
+
+			updatedFile = FileJS.toJavaScript(fileDTO);
+			files.push(updatedFile);
+		}
+		
+		// Name and extension.
+		final String path = command.getProperties().get(FileUploadUtils.DOCUMENT_NAME);
+		final String fullName = normalizeFileName(path);
+		final int dotIndex = fullName.indexOf('.');
+		final String name = dotIndex > 0 ? fullName.substring(0, dotIndex) : fullName;
+		final String extension = dotIndex > 0 && dotIndex < fullName.length() ? fullName.substring(dotIndex + 1) : null;
+		
+		// Version number.
+		int versionNumber = 1;
+		final JsArray<FileVersionJS> versions = updatedFile.getVersions();
+		for(int index = 0; index < versions.length(); index++) {
+			final FileVersionJS version = versions.get(index);
+			if(version.getVersionNumber() >= versionNumber) {
+				versionNumber = version.getVersionNumber() + 1;
+			}
+		}
+		
+		// Creating the new version.
+		final FileVersionDTO fileVersionDTO = new FileVersionDTO();
+		fileVersionDTO.setId(versionId);
+		fileVersionDTO.setAddedDate(new Date());
+		fileVersionDTO.setAuthorFirstName(authentication.getUserFirstName());
+		fileVersionDTO.setAuthorName(authentication.getUserName());
+		fileVersionDTO.setSize(command.getSize());
+		fileVersionDTO.setName(name);
+		fileVersionDTO.setExtension(extension);
+		fileVersionDTO.setVersionNumber(versionNumber);
+		
+		// Saving the new version locally.
+		final FileVersionJS createdVersion = FileVersionJS.toJavaScript(fileVersionDTO);
+		versions.push(createdVersion);
+		
+		return fileVersionDTO;
 	}
 	
 	/**

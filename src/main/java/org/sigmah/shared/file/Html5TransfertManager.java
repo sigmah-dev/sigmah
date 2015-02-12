@@ -344,58 +344,18 @@ class Html5TransfertManager implements TransfertManager, HasProgressListeners {
 	
 	@Override
 	public void resumeUpload(final TransfertJS transfertJS) {
-		final ProgressListener dummyListener = new ProgressAdapter() {
+		queueTransfert(transfertJS, new ProgressAdapter() {
 			// No action
-		};
-		
-		if(transfertJS.getFileVersion().getId() == -1) {
-			final PrepareFileUpload prepareFileUpload = new PrepareFileUpload();
-			prepareFileUpload.setProperties(transfertJS.getPropertyMap());
-			prepareFileUpload.setFileName(transfertJS.getFileVersion().getName() + '.' + transfertJS.getFileVersion().getExtension());
-			prepareFileUpload.setSize((int)transfertJS.getFileVersion().getSize());
-			
-			dispatchAsync.execute(prepareFileUpload, new AsyncCallback<FileVersionDTO>() {
-
-				@Override
-				public void onFailure(Throwable caught) {
-					Log.error("An error occured while preparing the upload of file '" + prepareFileUpload.getFileName() + "'.", caught);
-					N10N.notification(I18N.CONSTANTS.offlineTransfertUploadStoreError(), MessageType.OFFLINE);
-				}
-
-				@Override
-				public void onSuccess(FileVersionDTO result) {
-					transfertJS.setFileVersion(FileVersionJS.toJavaScript(result));
-					
-					transfertAsyncDAO.saveOrUpdate(transfertJS, new AsyncCallback<TransfertJS>() {
-
-						@Override
-						public void onFailure(Throwable caught) {
-							N10N.notification(I18N.CONSTANTS.offlineTransfertUploadStoreError(), MessageType.OFFLINE);
-						}
-
-						@Override
-						public void onSuccess(TransfertJS result) {
-							queueTransfert(transfertJS, dummyListener);
-						}
-					});
-				}
-			});
-			
-		} else {
-			queueTransfert(transfertJS, dummyListener);
-		}
+		});
 	}
 	
     private void prepareFileUpload(final Blob blob, final Map<String, String> properties, final ProgressListener progressListener) {
-		final PrepareFileUpload prepareFileUpload = new PrepareFileUpload();
-		prepareFileUpload.setProperties(properties);
-		prepareFileUpload.setFileName(blob.getName());
-		prepareFileUpload.setSize(blob.getSize());
+		final String fileName = blob.getName();
 		
-		dispatchAsync.execute(prepareFileUpload, new AsyncCallback<FileVersionDTO>() {
+		dispatchAsync.execute(new PrepareFileUpload(fileName, blob.getSize(), properties), new AsyncCallback<FileVersionDTO>() {
 			@Override
 			public void onFailure(Throwable caught) {
-				Log.error("An error occured while preparing the upload of file '" + prepareFileUpload.getFileName() + "'.", caught);
+				Log.error("An error occured while preparing the upload of file '" + fileName + "'.", caught);
 				progressListener.onFailure(Cause.SERVER_ERROR);
 			}
 

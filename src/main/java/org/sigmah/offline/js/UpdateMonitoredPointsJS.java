@@ -7,7 +7,8 @@ import org.sigmah.shared.command.UpdateMonitoredPoints;
 import org.sigmah.shared.dto.reminder.MonitoredPointDTO;
 
 /**
- *
+ * JavaScript version of the {@link UpdateMonitoredPoints} command.
+ * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
 public final class UpdateMonitoredPointsJS extends CommandJS {

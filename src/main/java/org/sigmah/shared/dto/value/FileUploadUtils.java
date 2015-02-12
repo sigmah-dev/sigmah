@@ -38,6 +38,11 @@ public final class FileUploadUtils {
 	public static final String DOCUMENT_ID = "id";
 
 	/**
+	 * Locally generated file id.
+	 */
+	public static final String GENERATED_ID = "generatedId";
+
+	/**
 	 * Uploaded file content.
 	 */
 	public static final String DOCUMENT_CONTENT = "file";

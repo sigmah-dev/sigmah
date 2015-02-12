@@ -4,7 +4,8 @@ import org.sigmah.shared.command.UpdateLogFrame;
 import org.sigmah.shared.dto.logframe.LogFrameDTO;
 
 /**
- *
+ * JavaScript version of the {@link UpdateLogFrame} command.
+ * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
 public final class UpdateLogFrameJS extends CommandJS {

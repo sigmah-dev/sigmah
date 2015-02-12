@@ -28,8 +28,10 @@ import org.sigmah.client.event.EventBus;
 import org.sigmah.client.event.OfflineEvent;
 import org.sigmah.client.page.Page;
 import org.sigmah.client.ui.notif.N10N;
+import org.sigmah.offline.dao.FileDataAsyncDAO;
 import org.sigmah.offline.dao.MonitoredPointAsyncDAO;
 import org.sigmah.offline.dao.ReminderAsyncDAO;
+import org.sigmah.offline.dao.TransfertAsyncDAO;
 import org.sigmah.offline.status.ApplicationState;
 import org.sigmah.shared.command.GetCalendar;
 import org.sigmah.shared.command.GetProjectReport;
@@ -38,6 +40,7 @@ import org.sigmah.shared.command.SecureNavigationCommand;
 import org.sigmah.shared.command.Synchronize;
 import org.sigmah.shared.command.result.Calendar;
 import org.sigmah.shared.command.result.SecureNavigationResult;
+import org.sigmah.shared.command.result.SynchronizeResult;
 import org.sigmah.shared.dto.ProjectFundingDTO;
 import org.sigmah.shared.dto.calendar.CalendarType;
 import org.sigmah.shared.dto.calendar.PersonalCalendarIdentifier;
@@ -64,6 +67,12 @@ public class Synchronizer implements OfflineEvent.Source {
     
 	@Inject
 	private MonitoredPointAsyncDAO monitoredPointAsyncDAO;
+	
+	@Inject
+	private TransfertAsyncDAO transfertAsyncDAO;
+	
+	@Inject
+	private FileDataAsyncDAO fileDataAsyncDAO;
     
     @Inject
 	private DispatchAsync dispatcher;
@@ -79,11 +88,10 @@ public class Synchronizer implements OfflineEvent.Source {
 
             @Override
             public void onRequestSuccess(final Map<Integer, Command> commands) {
-                final Synchronize synchronize = new Synchronize(new ArrayList(commands.values()));
-                dispatcher.execute(synchronize, new RequestManagerCallback<T, ListResult<String>>(requestManager) {
+                dispatcher.execute(new Synchronize(new ArrayList(commands.values())), new RequestManagerCallback<T, SynchronizeResult>(requestManager) {
                     
                     @Override
-                    public void onRequestSuccess(ListResult<String> result) {
+                    public void onRequestSuccess(SynchronizeResult result) {
                         updateDiaryAsyncDAO.removeAll(commands.keySet(), new RequestManagerCallback<T, Void>(requestManager, removeRequestId) {
                             
                             @Override
@@ -93,9 +101,14 @@ public class Synchronizer implements OfflineEvent.Source {
                             }
 						});
 						
-						if(!result.isEmpty()) {
+						// Update local ids for files.
+						transfertAsyncDAO.replaceIds(result.getFiles());
+						fileDataAsyncDAO.replaceIds(result.getFiles());
+						
+						// Display erros.
+						if(!result.getErrors().isEmpty()) {
 							final StringBuilder errorBuilder = new StringBuilder();
-							for(final String error : result.getList()) {
+							for(final String error : result.getErrors()) {
 								errorBuilder.append(error).append("<br>");
 							}
 						

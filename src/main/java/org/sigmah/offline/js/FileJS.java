@@ -28,8 +28,7 @@ public final class FileJS extends ListableValueJS {
 		return fileJS;
 	}
 	
-	@Override
-	public FileDTO toDTO() {
+	public FileDTO toFileDTO() {
 		final FileDTO fileDTO = new FileDTO();
 		
 		fileDTO.setId(getId());

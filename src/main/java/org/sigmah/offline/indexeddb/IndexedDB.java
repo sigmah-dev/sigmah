@@ -14,7 +14,7 @@ import org.sigmah.shared.command.result.Authentication;
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
 public class IndexedDB {
-	private static final int REVISION = 7;
+	private static final int REVISION = 8;
 	private static final int VERSION = Store.values().length + REVISION;
     
     private static State state = State.CLOSED;
@@ -134,6 +134,7 @@ public class IndexedDB {
 						break;
 					case TRANSFERT:
 						objectStore.createIndex("type", "type");
+						objectStore.createIndex("fileVersionId", "fileVersion.id");
 						break;
 					case USER:
 						objectStore.createIndex("organization", "organization");

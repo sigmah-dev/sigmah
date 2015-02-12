@@ -162,10 +162,14 @@ public class Sigmah implements EntryPoint {
 		injector.getAddMatchingRuleImportationShemeModelsAdminPresenter();
 
 		// Propagates the network state.
-		injector.getApplicationStateManager().fireCurrentState();
-		
-		// Go to the current page.
-		injector.getPageManager().fireCurrentPlace();
+		injector.getApplicationStateManager().fireCurrentState(new Runnable() {
+
+			@Override
+			public void run() {
+				// Go to the current page.
+				injector.getPageManager().fireCurrentPlace();
+			}
+		});
 	}
 
 }

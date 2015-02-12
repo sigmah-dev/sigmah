@@ -24,7 +24,7 @@ import com.google.inject.Singleton;
 public class UpdateDiaryAsyncDAO extends AbstractAsyncDAO<Command> {
 
 	@Override
-	public void saveOrUpdate(Command t, AsyncCallback<Command> callback, Transaction transaction) {
+	public void saveOrUpdate(Command t, final AsyncCallback<Command> callback, Transaction transaction) {
 		final ObjectStore commandObjectStore = transaction.getObjectStore(Store.COMMAND);
 		
 		final CommandJS commandJS = CommandJS.toJavaScript(t);
@@ -32,7 +32,7 @@ public class UpdateDiaryAsyncDAO extends AbstractAsyncDAO<Command> {
 
             @Override
             public void onFailure(Throwable caught) {
-                Log.error("Error while saving command " + commandJS.getCommandType() + ".", caught);
+				callback.onFailure(caught);
             }
 
             @Override
@@ -40,6 +40,43 @@ public class UpdateDiaryAsyncDAO extends AbstractAsyncDAO<Command> {
                 Log.trace("Command " + commandJS.getCommandType() + " has been successfully saved.");
             }
         });
+	}
+	
+	public void saveWithNegativeId(final Command t, final AsyncCallback<Integer> callback) {
+		openTransaction(Transaction.Mode.READ_WRITE, new OpenTransactionHandler() {
+
+			@Override
+			public void onTransaction(final Transaction transaction) {
+				generateNegativeId(new AsyncCallback<Integer>() {
+
+					@Override
+					public void onFailure(Throwable caught) {
+						callback.onFailure(caught);
+					}
+
+					@Override
+					public void onSuccess(final Integer generatedId) {
+						final ObjectStore commandObjectStore = transaction.getObjectStore(Store.COMMAND);
+						
+						final CommandJS commandJS = CommandJS.toJavaScript(t);
+						commandJS.setId(generatedId);
+						
+						commandObjectStore.add(commandJS).addCallback(new AsyncCallback<Request>() {
+
+							@Override
+							public void onFailure(Throwable caught) {
+								callback.onFailure(caught);
+							}
+
+							@Override
+							public void onSuccess(Request result) {
+								callback.onSuccess(generatedId);
+							}
+						});
+					}
+				}, transaction);
+			}
+		});
 	}
 
 	@Override

@@ -7,7 +7,8 @@ import org.sigmah.shared.command.UpdateReminders;
 import org.sigmah.shared.dto.reminder.ReminderDTO;
 
 /**
- *
+ * JavaScript version of the {@link UpdateReminders} command.
+ * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
 public final class UpdateRemindersJS extends CommandJS {

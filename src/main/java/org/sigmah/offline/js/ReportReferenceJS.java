@@ -29,8 +29,7 @@ public final class ReportReferenceJS extends ListableValueJS {
 		return reportReferenceJS;
 	}
 
-	@Override
-	public ReportReference toDTO() {
+	public ReportReference toReportReference() {
 		final ReportReference reportReference = new ReportReference(getFileVersionDTO());
 		
 		reportReference.setId(getId());

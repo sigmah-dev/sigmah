@@ -3,13 +3,13 @@ package org.sigmah.shared.command;
 import java.util.List;
 import org.sigmah.shared.command.base.AbstractCommand;
 import org.sigmah.shared.command.base.Command;
-import org.sigmah.shared.command.result.ListResult;
+import org.sigmah.shared.command.result.SynchronizeResult;
 
 /**
  *
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
-public class Synchronize extends AbstractCommand<ListResult<String>> {
+public class Synchronize extends AbstractCommand<SynchronizeResult> {
     
     private List<Command<?>> commands;
     

@@ -20,8 +20,7 @@ public final class BudgetPartsListValueJS extends ListableValueJS {
 		return budgetPartsListValueJS;
 	}
 	
-	@Override
-	public BudgetPartsListValueDTO toDTO() {
+	public BudgetPartsListValueDTO toBudgetPartsListValueDTO() {
 		final BudgetPartsListValueDTO fileDTO = new BudgetPartsListValueDTO();
 		
 		fileDTO.setId(getId());

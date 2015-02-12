@@ -7,7 +7,8 @@ import java.util.Map;
 import org.sigmah.shared.command.CreateEntity;
 
 /**
- *
+ * JavaScript version of the {@link CreateEntity} command.
+ * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
 public final class CreateEntityJS extends CommandJS {

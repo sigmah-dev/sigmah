@@ -57,7 +57,7 @@ public class ApplicationStateManager implements OfflineEvent.Source {
 		this.updateDiaryAsyncDAO = updateDiaryAsyncDAO;
 		
 		this.state = ApplicationState.UNKNOWN;
-		setOnline(getInitialStatus());
+		this.online = getInitialStatus();
 		
 		registerEventHandlers();
 		
@@ -69,8 +69,8 @@ public class ApplicationStateManager implements OfflineEvent.Source {
 	// --
 	// Public API.
 	// --
-	public void fireCurrentState() {
-		eventBus.fireEvent(new OfflineEvent(this, state));
+	public void fireCurrentState(final Runnable onStateFound) {
+		updateApplicationState(onStateFound);
 	}
 	
 	// ---
@@ -80,7 +80,7 @@ public class ApplicationStateManager implements OfflineEvent.Source {
 	private void setOnline(boolean status) {
 		if(this.online != status) {
 			this.online = status;
-			updateApplicationState();
+			updateApplicationState(null);
 		}
 	}
 
@@ -172,7 +172,7 @@ public class ApplicationStateManager implements OfflineEvent.Source {
 		}
 	}
 	
-	private void updateApplicationState() {
+	private void updateApplicationState(final Runnable runnable) {
 		if(online) {
 			isPushNeeded(new AsyncCallback<Boolean>() {
 
@@ -188,6 +188,10 @@ public class ApplicationStateManager implements OfflineEvent.Source {
                     } else {
                         setState(ApplicationState.ONLINE);
                     }
+					
+					if(runnable != null) {
+						runnable.run();
+					}
 				}
 			});
 			
