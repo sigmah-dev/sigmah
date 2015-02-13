@@ -58,5 +58,13 @@ public interface FileStorageProvider {
 	 * @throws IOException
 	 */
 	long copy(InputStream input, String fileId, CopyOption... options) throws IOException;
-
+	
+	/**
+	 * Tells if the given id matches an existing file.
+	 * 
+	 * @param storageId
+	 *			Storage id to test.
+	 * @return <code>true</code> if a file exists, <code>false</code> otherwise.
+	 */
+	boolean exists(String storageId);
 }

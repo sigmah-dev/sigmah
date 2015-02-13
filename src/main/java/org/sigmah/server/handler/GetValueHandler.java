@@ -1,5 +1,6 @@
 package org.sigmah.server.handler;
 
+import com.google.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,13 +13,16 @@ import org.sigmah.server.dispatch.impl.UserDispatch.UserExecutionContext;
 import org.sigmah.server.domain.Amendment;
 import org.sigmah.server.domain.HistoryToken;
 import org.sigmah.server.domain.element.FlexibleElement;
+import org.sigmah.server.file.FileStorageProvider;
 import org.sigmah.server.handler.base.AbstractCommandHandler;
 import org.sigmah.shared.command.GetValue;
 import org.sigmah.shared.command.result.ValueResult;
 import org.sigmah.shared.dispatch.CommandException;
+import org.sigmah.shared.dto.element.FilesListElementDTO;
 import org.sigmah.shared.dto.report.ReportReference;
 import org.sigmah.shared.dto.value.BudgetPartsListValueDTO;
 import org.sigmah.shared.dto.value.FileDTO;
+import org.sigmah.shared.dto.value.FileVersionDTO;
 import org.sigmah.shared.dto.value.IndicatorsListValueDTO;
 import org.sigmah.shared.dto.value.ListableValue;
 import org.sigmah.shared.dto.value.TripletValueDTO;
@@ -31,6 +35,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Denis Colliot (dcolliot@ideia.fr)
  * @author Maxime Lombard (mlombard@ideia.fr)
+ * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
 public class GetValueHandler extends AbstractCommandHandler<GetValue, ValueResult> {
 
@@ -38,6 +43,12 @@ public class GetValueHandler extends AbstractCommandHandler<GetValue, ValueResul
 	 * Logger.
 	 */
 	private static final Logger LOG = LoggerFactory.getLogger(GetValueHandler.class);
+	
+	/**
+	 * Allow access to the files.
+	 */
+	@Inject
+	private FileStorageProvider fileStorageProvider;
 
 	/**
 	 * Gets a flexible element value from the database.
@@ -204,6 +215,17 @@ public class GetValueHandler extends AbstractCommandHandler<GetValue, ValueResul
 			final List<ListableValue> serializablesList = new ArrayList<>();
 			for (Object o : objectsList) {
 				serializablesList.add(mapper().map(o, dtoClazz));
+			}
+			
+			if(elementClassName.equals(FilesListElementDTO.ENTITY_NAME)) {
+				for(final ListableValue value : serializablesList) {
+					if(value instanceof FileDTO) {
+						final FileDTO file = (FileDTO)value;
+						for(final FileVersionDTO version : file.getVersions()) {
+							version.setAvailable(fileStorageProvider.exists(version.getPath()));
+						}
+					}
+				}
 			}
 
 			valueResult.setValuesObject(serializablesList);

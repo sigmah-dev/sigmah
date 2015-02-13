@@ -32,6 +32,7 @@ public class FileVersionDTO extends AbstractModelDataEntityDTO<Integer> {
 	public static final String AUTHOR_FIRST_NAME = "authorFirstName";
 	public static final String NAME = "name";
 	public static final String EXTENSION = "extension";
+	public static final String AVAILABLE = "available";
 
 	public FileVersionDTO() {
 		// Serialization.
@@ -134,5 +135,14 @@ public class FileVersionDTO extends AbstractModelDataEntityDTO<Integer> {
 
 	public void setExtension(String extension) {
 		set(EXTENSION, extension);
+	}
+	
+	public boolean isAvailable() {
+		final Boolean available = get(AVAILABLE);
+		return available != null && available;
+	}
+	
+	public void setAvailable(boolean available) {
+		set(AVAILABLE, available);
 	}
 }

@@ -71,6 +71,14 @@ public class LocalFileStorageProvider implements FileStorageProvider {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean exists(String storageId) {
+		return Files.exists(Paths.get(getStorageRootPath(), storageId));
+	}
+
+	/**
 	 * Returns the files storage root directory path.
 	 * 
 	 * @return The files storage root directory path.

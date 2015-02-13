@@ -1063,6 +1063,11 @@ public class FilesListElementDTO extends FlexibleElementDTO {
 		if (versionDTO == null) {
 			return null;
 		}
+		
+		if(!versionDTO.isAvailable()) {
+			return new com.google.gwt.user.client.ui.Label(
+				versionDTO.getName() + '.' + versionDTO.getExtension() + ' ' + I18N.CONSTANTS.flexibleElementFilesListNotUploadedYet());
+		}
 
 		final com.google.gwt.user.client.ui.Label downloadButton = new com.google.gwt.user.client.ui.Label(versionDTO.getName() + '.' + versionDTO.getExtension());
 		downloadButton.addStyleName("flexibility-action");
