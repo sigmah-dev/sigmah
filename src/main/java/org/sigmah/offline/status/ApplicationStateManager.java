@@ -88,8 +88,12 @@ public class ApplicationStateManager implements OfflineEvent.Source {
 		return state;
 	}
 
-	private void setState(ApplicationState state) {
+	private void setState(ApplicationState state, Runnable runnable) {
 		setState(state, true);
+		
+		if(runnable != null) {
+			runnable.run();
+		}
 	}
 	
 	private void setState(ApplicationState state, boolean fireEvent) {
@@ -173,30 +177,29 @@ public class ApplicationStateManager implements OfflineEvent.Source {
 	}
 	
 	private void updateApplicationState(final Runnable runnable) {
-		if(online) {
+		if(!GWT.isProdMode()) {
+			setState(ApplicationState.ONLINE, runnable);
+			
+		} else if(online) {
 			isPushNeeded(new AsyncCallback<Boolean>() {
 
 				@Override
 				public void onFailure(Throwable caught) {
-					setState(ApplicationState.ONLINE);
+					setState(ApplicationState.ONLINE, runnable);
 				}
 
 				@Override
 				public void onSuccess(Boolean pushNeeded) {
 					if(pushNeeded) {
-                        setState(ApplicationState.READY_TO_SYNCHRONIZE);
+                        setState(ApplicationState.READY_TO_SYNCHRONIZE, runnable);
                     } else {
-                        setState(ApplicationState.ONLINE);
+                        setState(ApplicationState.ONLINE, runnable);
                     }
-					
-					if(runnable != null) {
-						runnable.run();
-					}
 				}
 			});
 			
 		} else {
-			setState(ApplicationState.OFFLINE);
+			setState(ApplicationState.OFFLINE, runnable);
 		}
 	}
 	
