@@ -526,11 +526,12 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 
 	public ElementTypeEnum getElementType() {
 		ElementTypeEnum type = null;
+		
+		// INFO: Budget elements are handled like DEFAULT elements.
+		
 		if (this instanceof TextAreaElementDTO) {
 			type = ElementTypeEnum.TEXT_AREA;
-		}/*
-			 * else if(this instanceof BudgetDistributionElementDTO){ type = ElementTypeEnum.BUDGET; }
-			 */else if (this instanceof CheckboxElementDTO) {
+		} else if (this instanceof CheckboxElementDTO) {
 			type = ElementTypeEnum.CHECKBOX;
 		} else if (this instanceof DefaultFlexibleElementDTO) {
 			type = ElementTypeEnum.DEFAULT;

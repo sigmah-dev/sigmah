@@ -206,7 +206,7 @@ public class ProjectReportService extends AbstractEntityService<ProjectReport, I
 			element.setId(flexibleElementId);
 			report.setFlexibleElement(element);
 
-			flexibleElementValue = updateProjectHandler.retrieveValue(containerId, flexibleElementId, user);
+			flexibleElementValue = updateProjectHandler.retrieveOrCreateValue(containerId, flexibleElementId, user);
 			if (!multiple && !(flexibleElementValue == null || flexibleElementValue.getValue() == null || "".equals(flexibleElementValue.getValue()))) {
 				throw new IllegalStateException("A report has already been created for the flexible element " + flexibleElementId);
 			}

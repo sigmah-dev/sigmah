@@ -55,9 +55,6 @@ public class FunctionalExceptions {
 			case ADMIN_USER_DUPLICATE_EMAIL:
 				return i18n.t(language, "existingEmailAddress", exception.getParameter(0));
 
-			case PROJECT_IS_LOCKED_AMENDABLE_FIELD_IS_READONLY:
-				return i18n.t(language, "projectIsLockedAmendableFieldReadOnly", exception.getParameter(0), exception.getParameter(1), exception.getParameter(2));
-				
 			case IMPORTATION_SCHEME_IS_LINKED:
 				return i18n.t(language, "adminImportationSchemesWarnModelsLinked", exception.getParameter(0));
 				

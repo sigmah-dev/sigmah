@@ -43,6 +43,9 @@ public final class FileVersionJS extends JavaScriptObject {
 		fileVersionDTO.setName(getName());
 		fileVersionDTO.setExtension(getExtension());
 		
+		// TODO: Search in the local database if this file is cached.
+		fileVersionDTO.setAvailable(true);
+		
 		return fileVersionDTO;
 	}
 

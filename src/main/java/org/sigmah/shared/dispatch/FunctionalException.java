@@ -4,6 +4,7 @@ import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.util.ToStringBuilder;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
@@ -27,6 +28,9 @@ public class FunctionalException extends CommandException {
 	public static enum ErrorCode implements IsSerializable {
 
 		/**
+		 * Authentication failure.<br>
+		 * No parameters.
+		 *//**
 		 * Authentication failure.<br>
 		 * No parameters.
 		 */
@@ -77,10 +81,11 @@ public class FunctionalException extends CommandException {
 		// --
 		
 		/**
-		 * Cannot edit an amendable field when the project is locked. <br>
-		 * {0} = field name.
+		 * A conflict happened while modifying a project. <br/>
+		 * Parameters:<br/>
+		 * - a list of error messages.
 		 */
-		PROJECT_IS_LOCKED_AMENDABLE_FIELD_IS_READONLY,
+		UPDATE_CONFLICT,
 
 		// --
 		// Importation schemes.
@@ -135,8 +140,12 @@ public class FunctionalException extends CommandException {
 			case ADMIN_USER_DUPLICATE_EMAIL:
 				return I18N.MESSAGES.existingEmailAddress(exception.getParameter(0));
 
-			case PROJECT_IS_LOCKED_AMENDABLE_FIELD_IS_READONLY:
-				return I18N.MESSAGES.projectIsLockedAmendableFieldReadOnly(exception.getParameter(0), exception.getParameter(1), exception.getParameter(2));
+			case UPDATE_CONFLICT:
+				final SafeHtmlBuilder ulBuilder = new SafeHtmlBuilder();
+				for(final String error : exception.parameters) {
+					ulBuilder.appendHtmlConstant("<li>").appendEscaped(error).appendHtmlConstant("</li>");
+				}
+				return I18N.MESSAGES.conflictError(ulBuilder.toSafeHtml().asString());
 				
 			case IMPORTATION_SCHEME_IS_LINKED:
 				return I18N.MESSAGES.adminImportationSchemesWarnModelsLinked(exception.getParameter(0));
@@ -261,7 +270,7 @@ public class FunctionalException extends CommandException {
 	 * 
 	 * @return the number of parameters set into the current exception.
 	 */
-	protected final int getParametersNumber() {
+	public final int getParameterCount() {
 		return parameters != null ? parameters.length : 0;
 	}
 

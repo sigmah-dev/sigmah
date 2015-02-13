@@ -91,6 +91,28 @@ public class I18nServerImpl implements I18nServer {
 		}
 
 		// Loading the properties files for the language if necessary
+		ensurePropertiesLoaded(language);
+
+		String propertyValue = propertiesMap.get(Languages.notNull(language)).getProperty(key);
+		
+		if(propertyValue == null) {
+			ensurePropertiesLoaded(Languages.DEFAULT_LANGUAGE);
+			propertyValue = propertiesMap.get(Languages.DEFAULT_LANGUAGE).getProperty(key);
+		}
+
+		if (propertyValue != null && ArrayUtils.isNotEmpty(parameters)) {
+			return buildMessage(propertyValue, parameters);
+		} else {
+			return propertyValue;
+		}
+	}
+	
+	/**
+	 * Load the properties for the given language if not loaded yet.
+	 * 
+	 * @param language Language to load.
+	 */
+	private static void ensurePropertiesLoaded(Language language) {
 		if (propertiesMap.get(Languages.notNull(language)) == null) {
 			try {
 
@@ -98,16 +120,7 @@ public class I18nServerImpl implements I18nServer {
 
 			} catch (final IOException e) {
 				// If the properties files cannot be loaded properly, returning null value
-				return null;
 			}
-		}
-
-		final String propertyValue = (String) propertiesMap.get(Languages.notNull(language)).get(key);
-
-		if (ArrayUtils.isNotEmpty(parameters)) {
-			return buildMessage(propertyValue, parameters);
-		} else {
-			return propertyValue;
 		}
 	}
 
@@ -148,7 +161,7 @@ public class I18nServerImpl implements I18nServer {
 
 		propertiesMap.put(language, properties);
 	}
-
+	
 	/**
 	 * Builds the property value's message from given parameters.
 	 * 

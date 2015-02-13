@@ -18,6 +18,7 @@ public enum EmailKeyEnum implements EmailKey {
 	CHANGE_PASS_KEY,
 	RESET_PASSWORD_LINK,
 	
+	ERROR_LIST,
 	;
 
 	private final boolean isSafe;

@@ -33,7 +33,7 @@ public final class Languages {
 	 * 
 	 * </p>
 	 */
-	private static final Language DEFAULT_LANGUAGE = Language.EN;
+	public static final Language DEFAULT_LANGUAGE = Language.EN;
 
 	/**
 	 * HTTP request {@code Accept-Language} header name.

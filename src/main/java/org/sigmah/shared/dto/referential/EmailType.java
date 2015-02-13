@@ -10,7 +10,8 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 public enum EmailType implements IsSerializable {
 
 	INVITATION,
-	LOST_PASSWORD;
+	LOST_PASSWORD,
+	OFFLINE_SYNC_CONFICT;
 
 	/**
 	 * Returns the current {@code EmailType} corresponding property name.

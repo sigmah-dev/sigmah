@@ -36,8 +36,15 @@ import org.slf4j.LoggerFactory;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.persist.Transactional;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Map;
+import org.sigmah.server.domain.Phase;
+import org.sigmah.server.i18n.I18nServer;
+import org.sigmah.shared.Language;
 import org.sigmah.shared.dispatch.FunctionalException;
 import org.sigmah.shared.dto.element.BudgetElementDTO;
+import org.sigmah.shared.dto.element.BudgetSubFieldDTO;
 import org.sigmah.shared.dto.referential.AmendmentState;
 
 /**
@@ -52,14 +59,24 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 	 */
 	private final static Logger LOG = LoggerFactory.getLogger(UpdateProjectHandler.class);
 
-	private final Mapper mapper;
-	private final Injector injector;
-
+	/**
+	 * Mapper to transform domain objects in DTO.
+	 */
 	@Inject
-	public UpdateProjectHandler(Mapper mapper, Injector injector) {
-		this.mapper = mapper;
-		this.injector = injector;
-	}
+	private Mapper mapper;
+	
+	/**
+	 * Guice injector.
+	 */
+	@Inject
+	private Injector injector;
+	
+	/**
+	 * Language files.
+	 */
+	@Inject
+	private I18nServer i18nServer;
+
 
 	/**
 	 * {@inheritDoc}
@@ -72,39 +89,30 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 			LOG.debug("[execute] Updates project #" + cmd.getProjectId() + " with following values #" + cmd.getValues().size() + " : " + cmd.getValues());
 		}
 
-		final User user = context.getUser();
 		final List<ValueEventWrapper> values = cmd.getValues();
 		final Integer projectId = cmd.getProjectId();
 		final String comment = cmd.getComment();
 		
-		updateProject(values, projectId, user, comment);
+		updateProject(values, projectId, context, comment);
 
 		return null;
 	}
 
 	@Transactional
-	protected void updateProject(final List<ValueEventWrapper> values, final Integer projectId, User user, String comment) throws CommandException {
+	protected void updateProject(final List<ValueEventWrapper> values, final Integer projectId, UserExecutionContext context, String comment) throws CommandException {
 		// This date must be the same for all the saved values !
 		final Date historyDate = new Date();
 		
 		// Search the given project.
 		final Project project = em().find(Project.class, projectId);
 		
+		// Verify if the modifications conflicts with the project state.
+		final List<String> conflicts = searchForConflicts(project, values, context.getLanguage());
+		
+		final User user = context.getUser();
+		
 		// Track if an element part of the core version has been modified.
 		boolean coreVersionHasBeenModified = false;
-		
-		if(project != null && project.getAmendmentState() == AmendmentState.LOCKED) {
-			// Verifying if the user is trying to cheat by modifying a locked field.
-			for(final ValueEventWrapper valueEvent : values) {
-				final FlexibleElementDTO source = valueEvent.getSourceElement();
-				
-				// An exception is made for budget elements since they can be modified when locked.
-				if(source.getAmendable() && !(source instanceof BudgetElementDTO)) {
-					throw new FunctionalException(FunctionalException.ErrorCode.PROJECT_IS_LOCKED_AMENDABLE_FIELD_IS_READONLY, 
-						source.getFormattedLabel(), getCurrentValueFormatted(projectId, source), getTargetValueFormatted(valueEvent));
-				}
-			}
-		}
 		
 		// Iterating over the value change events
 		for (final ValueEventWrapper valueEvent : values) {
@@ -169,7 +177,7 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 			}
 
 			// Retrieving the current value
-			final Value currentValue = retrieveValue(projectId, source.getId(), user);
+			final Value currentValue = retrieveOrCreateValue(projectId, source.getId(), user);
 
 			// Unique value of the flexible element.
 			if (updateListValue == null) {
@@ -260,6 +268,11 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 				updatedProject.setAmendmentRevision(updatedProject.getAmendmentRevision() == null ? 2 : updatedProject.getAmendmentRevision() + 1);
 				em().merge(updatedProject);
 			}
+		}
+
+		if(!conflicts.isEmpty()) {
+			// A conflict was found.
+			throw new FunctionalException(FunctionalException.ErrorCode.UPDATE_CONFLICT, conflicts.toArray(new String[0]));
 		}
 	}
 
@@ -362,7 +375,7 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 	 *          The user which launch the command.
 	 * @return The value.
 	 */
-	public Value retrieveValue(int projectId, Integer elementId, User user) {
+	public Value retrieveOrCreateValue(int projectId, Integer elementId, User user) {
 
 		// Retrieving the current value
 		Value currentValue = retrieveCurrentValue(projectId, elementId);
@@ -395,7 +408,8 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 	}
 	
 	/**
-	 * Retrieves the value for the given project and the given element.
+	 * Retrieves the value for the given project and the given element but 
+	 * don't create an empty value if none exists.
 	 * 
 	 * @param projectId
 	 *          The project id.
@@ -629,4 +643,112 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 
 		return oldValue;
 	}
+	
+	/**
+	 * Throw a functional exception if a conflict if found.
+	 * 
+	 * @param project Updated project.
+	 * @param values Values to update.
+	 * @param projectId 
+	 * @throws FunctionalException 
+	 */
+	private List<String> searchForConflicts(final Project project, final List<ValueEventWrapper> values, Language language) throws FunctionalException {
+		
+		final ArrayList<String> conflicts = new ArrayList<>();
+		
+		if(project == null) {
+			// The user is modifying an org unit.
+			return conflicts;
+		}
+		
+		if(project.getCloseDate() != null) {
+			// User is trying to modify a closed project.
+			for(final ValueEventWrapper valueEvent : values) {
+				final FlexibleElementDTO source = valueEvent.getSourceElement();
+				
+				conflicts.add(i18nServer.t(language, "conflictUpdatingAClosedProject",
+						source.getFormattedLabel(), getCurrentValueFormatted(project.getId(), source), getTargetValueFormatted(valueEvent)));
+			}
+			
+		} else {
+			// Verify if the user is trying to modify a closed phase.
+			Iterator<ValueEventWrapper> iterator = values.iterator();
+			while(iterator.hasNext()) {
+				final ValueEventWrapper valueEvent = iterator.next();
+				final FlexibleElementDTO source = valueEvent.getSourceElement();
+
+				// Retrieves the parent phase only if it exists and has been closed.
+				final TypedQuery<Phase> query = em().createQuery("SELECT p FROM Phase p "
+					+ "JOIN p.phaseModel.layout.groups as lg "
+					+ "JOIN lg.constraints as lc "
+					+ "WHERE p.endDate is not null "
+					+ "AND :projectId = p.parentProject.id "
+					+ "AND :elementId = lc.element.id", Phase.class);
+
+				query.setParameter("projectId", project.getId());
+				query.setParameter("elementId", source.getId());
+
+				final List<Phase> closedPhase = query.getResultList();
+				if(!closedPhase.isEmpty()) {
+					// Removing the current value event from the update list.
+					iterator.remove();
+					
+					conflicts.add(i18nServer.t(language, "conflictUpdatingAClosedPhase",
+						source.getFormattedLabel(), getCurrentValueFormatted(project.getId(), source), getTargetValueFormatted(valueEvent)));
+				}
+			}
+			
+			// Verify if the user is trying to modify a locked field.
+			if(project.getAmendmentState() == AmendmentState.LOCKED) {
+				iterator = values.iterator();
+				while(iterator.hasNext()) {
+					final ValueEventWrapper valueEvent = iterator.next();
+					final FlexibleElementDTO source = valueEvent.getSourceElement();
+
+					final boolean conflict;
+					if(source.getAmendable()) {
+						if(source instanceof BudgetElementDTO) {
+							final BudgetSubFieldDTO divisorField = ((BudgetElementDTO)source).getRatioDivisor();
+							final Value value = retrieveCurrentValue(project.getId(), source.getId());
+							conflict = getValueOfSubField(value.getValue(), divisorField) != getValueOfSubField(valueEvent.getSingleValue(), divisorField);
+
+						} else {
+							conflict = true;
+						}
+					} else {
+						conflict = false;
+					}
+
+					if(conflict) {
+						// Removing the current value event from the update list.
+						iterator.remove();
+						
+						conflicts.add(i18nServer.t(language, "conflictUpdatingALockedField",
+							source.getFormattedLabel(), getCurrentValueFormatted(project.getId(), source), getTargetValueFormatted(valueEvent)));
+					}
+				}
+			}
+		}
+		
+		return conflicts;
+	}
+	
+	/**
+	 * Retrieves the value of the given field as a double.
+	 * 
+	 * @param valueResult
+	 * @param budgetSubField
+	 * @return 
+	 */
+	private double getValueOfSubField(String valueResult, BudgetSubFieldDTO budgetSubField) {
+		final Map<Integer, String> values = ValueResultUtils.splitMapElements(valueResult);
+		final String value = values.get(budgetSubField.getId());
+		
+		if(value != null && value.matches("^[0-9]+(([.][0-9]+)|)$")) {
+			return Double.parseDouble(value);
+		} else {
+			return 0.0;
+		}
+	}
+	
 }
