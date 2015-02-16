@@ -26,6 +26,7 @@ import com.google.inject.Singleton;
 import org.sigmah.offline.dao.UpdateDiaryAsyncDAO;
 import org.sigmah.offline.js.Values;
 import org.sigmah.shared.command.result.Authentication;
+import org.sigmah.shared.util.ValueResultUtils;
 
 /**
  * JavaScript implementation of {@link org.sigmah.server.handler.PrepareFileUploadHandler}.
@@ -124,7 +125,7 @@ public class PrepareFileUploadAsyncHandler implements AsyncCommandHandler<Prepar
 		
 		// Name and extension.
 		final String path = command.getProperties().get(FileUploadUtils.DOCUMENT_NAME);
-		final String fullName = normalizeFileName(path);
+		final String fullName = ValueResultUtils.normalizeFileName(path);
 		final int dotIndex = fullName.indexOf('.');
 		final String name = dotIndex > 0 ? fullName.substring(0, dotIndex) : fullName;
 		final String extension = dotIndex > 0 && dotIndex < fullName.length() ? fullName.substring(dotIndex + 1) : null;
@@ -155,22 +156,6 @@ public class PrepareFileUploadAsyncHandler implements AsyncCommandHandler<Prepar
 		versions.push(createdVersion);
 		
 		return fileVersionDTO;
-	}
-	
-	/**
-	 * Removes the folder "C:\fakepath\" (used by Webkit browsers to hide the real path of the file).
-	 * Also replaces characters that can't be used in Windows filenames by an underscore.
-	 * 
-	 * @param fileName
-	 *            name to validate
-	 * @return string the name validated
-	 */
-	private String normalizeFileName(String fileName) {
-		if(fileName != null) {
-			return fileName.replaceFirst("[cC]:\\\\fakepath\\\\", "").replaceAll("[\\/:*?\"<>|]", "_");
-		} else {
-			return "";
-		}
 	}
 	
 }

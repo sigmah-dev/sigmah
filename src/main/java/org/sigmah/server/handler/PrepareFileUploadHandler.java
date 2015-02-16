@@ -17,6 +17,16 @@ import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import java.util.Map;
+import org.sigmah.client.util.ClientUtils;
+import org.sigmah.server.domain.Project;
+import org.sigmah.server.domain.element.FilesListElement;
+import org.sigmah.server.handler.util.Conflicts;
+import org.sigmah.server.i18n.I18nServer;
+import org.sigmah.shared.Language;
+import org.sigmah.shared.dispatch.UpdateConflictException;
+import org.sigmah.shared.dto.value.FileUploadUtils;
+import org.sigmah.shared.util.ValueResultUtils;
 
 /**
  * Handler for the {@link PrepareFileUpload} command.
@@ -38,12 +48,20 @@ public class PrepareFileUploadHandler extends AbstractCommandHandler<PrepareFile
 	 */
 	@Inject
 	private FileDAO fileDAO;
+	
+	@Inject
+	private Conflicts conflicts;
+	
+	@Inject
+	private I18nServer i18nServer;
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	protected FileVersionDTO execute(final PrepareFileUpload command, final UserDispatch.UserExecutionContext context) throws CommandException {
+		searchForConflicts(command.getProperties(), context.getLanguage());
+		
 		final String uid = FileServlet.generateUniqueName();
 
 		final Integer fileId = fileDAO.saveOrUpdate(command.getProperties(), uid, command.getSize());
@@ -52,4 +70,35 @@ public class PrepareFileUploadHandler extends AbstractCommandHandler<PrepareFile
 		return mapper().map(versions.get(0), FileVersionDTO.class);
 	}
 
+	private void searchForConflicts(Map<String, String> properties, Language language) throws UpdateConflictException {
+		// Element.
+		final int elementId = ClientUtils.asInt(properties.get(FileUploadUtils.DOCUMENT_FLEXIBLE_ELEMENT), 0);
+		final FilesListElement filesListElement = em().find(FilesListElement.class, elementId);
+		
+		// Project.
+		final int projectId = ClientUtils.asInt(properties.get(FileUploadUtils.DOCUMENT_PROJECT), 0);
+		final Project project = em().find(Project.class, projectId);
+		
+		if(conflicts.isParentPhaseClosed(elementId, projectId)) {
+			final String fileName = ValueResultUtils.normalizeFileName(properties.get(FileUploadUtils.DOCUMENT_NAME));
+			throw new UpdateConflictException(project, true, i18nServer.t(language, "conflictAddingFileToAClosedPhase", fileName, filesListElement.getLabel()));
+		}
+		
+//		// Retrieving the current value
+//		final TypedQuery<Value> query = em().createQuery("SELECT v FROM Value v WHERE v.containerId = :projectId and v.element.id = :elementId", Value.class);
+//		query.setParameter("projectId", projectId);
+//		query.setParameter("elementId", elementId);
+//
+//		Value currentValue = null;
+//
+//		try {
+//			currentValue = query.getSingleResult();
+//		} catch (NoResultException nre) {
+//			// No current value
+//		}
+//		
+//		if(currentValue != null) {
+//			
+//		}
+	}
 }

@@ -15,8 +15,7 @@ public final class CheckboxElementJS extends FlexibleElementJS {
 		return Values.createJavaScriptObject(CheckboxElementJS.class);
 	}
 	
-	@Override
-	protected CheckboxElementDTO createDTO() {
+	protected CheckboxElementDTO toCheckboxElementDTO() {
 		return new CheckboxElementDTO();
 	}
 }

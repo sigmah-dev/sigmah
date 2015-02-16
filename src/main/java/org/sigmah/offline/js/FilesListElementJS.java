@@ -19,8 +19,7 @@ public final class FilesListElementJS extends FlexibleElementJS {
 		return filesListElementJS;
 	}
 	
-	@Override
-	protected FilesListElementDTO createDTO() {
+	protected FilesListElementDTO toFilesListElementDTO() {
 		final FilesListElementDTO filesListElementDTO = new FilesListElementDTO();
 		
 		filesListElementDTO.setLimit(getLimitInteger());

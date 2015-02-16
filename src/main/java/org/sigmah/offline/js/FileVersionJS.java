@@ -42,9 +42,7 @@ public final class FileVersionJS extends JavaScriptObject {
 		fileVersionDTO.setAuthorFirstName(getAuthorFirstName());
 		fileVersionDTO.setName(getName());
 		fileVersionDTO.setExtension(getExtension());
-		
-		// TODO: Search in the local database if this file is cached.
-		fileVersionDTO.setAvailable(true);
+		fileVersionDTO.setAvailable(!hasAvailable() || isAvailable());
 		
 		return fileVersionDTO;
 	}
@@ -119,5 +117,17 @@ public final class FileVersionJS extends JavaScriptObject {
 
 	public native void setExtension(String extension) /*-{
 		this.extension = extension;
+	}-*/;
+
+	public native boolean hasAvailable() /*-{
+		return typeof this.available !== 'undefined';
+	}-*/;
+	
+	public native boolean isAvailable() /*-{
+		return this.available;
+	}-*/;
+
+	public native void setAvailable(boolean available) /*-{
+		this.available = available;
 	}-*/;
 }

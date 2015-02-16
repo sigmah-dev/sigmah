@@ -15,8 +15,7 @@ public final class MessageElementJS extends FlexibleElementJS {
 		return Values.createJavaScriptObject(MessageElementJS.class);
 	}
 	
-	@Override
-	protected MessageElementDTO createDTO() {
+	protected MessageElementDTO toMessageElementDTO() {
 		return new MessageElementDTO();
 	}
 }

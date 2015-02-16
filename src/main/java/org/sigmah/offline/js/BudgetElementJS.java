@@ -29,8 +29,7 @@ public final class BudgetElementJS extends DefaultFlexibleElementJS {
 		return budgetElementJS;
 	}
 
-	@Override
-	public BudgetElementDTO createDTO() {
+	public BudgetElementDTO toBudgetElementDTO() {
 		final BudgetElementDTO budgetElementDTO = new BudgetElementDTO();
 		
 		budgetElementDTO.setBudgetSubFields(getBudgetSubFieldsDTO());

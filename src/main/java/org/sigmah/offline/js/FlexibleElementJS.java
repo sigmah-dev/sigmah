@@ -92,37 +92,37 @@ public abstract class FlexibleElementJS extends JavaScriptObject {
 		
 		switch(getElementTypeEnum()) {
 			case CHECKBOX:
-				flexibleElementDTO = ((CheckboxElementJS)this).createDTO();
+				flexibleElementDTO = ((CheckboxElementJS)this).toCheckboxElementDTO();
 				break;
 			case CORE_VERSION:
 				flexibleElementDTO = new CoreVersionElementDTO();
 				break;
 			case DEFAULT:
-				flexibleElementDTO = ((DefaultFlexibleElementJS)this).createDTO();
+				flexibleElementDTO = ((DefaultFlexibleElementJS)this).toDefaultFlexibleElementDTO();
 				break;
 			case FILES_LIST:
-				flexibleElementDTO = ((FilesListElementJS)this).createDTO();
+				flexibleElementDTO = ((FilesListElementJS)this).toFilesListElementDTO();
 				break;
 			case INDICATORS:
 				flexibleElementDTO = new IndicatorsListElementDTO();
 				break;
 			case MESSAGE:
-				flexibleElementDTO = ((MessageElementJS)this).createDTO();
+				flexibleElementDTO = ((MessageElementJS)this).toMessageElementDTO();
 				break;
 			case QUESTION:
-				flexibleElementDTO = ((QuestionElementJS)this).createDTO();
+				flexibleElementDTO = ((QuestionElementJS)this).toQuestionElementDTO();
 				break;
 			case REPORT:
-				flexibleElementDTO = ((ReportElementJS)this).createDTO();
+				flexibleElementDTO = ((ReportElementJS)this).toReportElementDTO();
 				break;
 			case REPORT_LIST:
-				flexibleElementDTO = ((ReportListElementJS)this).createDTO();
+				flexibleElementDTO = ((ReportListElementJS)this).toReportListElementDTO();
 				break;
 			case TEXT_AREA:
-				flexibleElementDTO = ((TextAreaElementJS)this).createDTO();
+				flexibleElementDTO = ((TextAreaElementJS)this).toTextAreaElementDTO();
 				break;
 			case TRIPLETS:
-				flexibleElementDTO = ((TripletsListElementJS)this).createDTO();
+				flexibleElementDTO = ((TripletsListElementJS)this).toTripletsListElementDTO();
 				break;
 			default:
 				throw new UnsupportedOperationException("Given flexible element type is not supported yet: " + getElementType());
@@ -140,8 +140,6 @@ public abstract class FlexibleElementJS extends JavaScriptObject {
 		
 		return flexibleElementDTO;
 	}
-	
-	protected abstract FlexibleElementDTO createDTO();
 	
 	public final native int getId() /*-{
 		return this.id;
@@ -215,14 +213,14 @@ public abstract class FlexibleElementJS extends JavaScriptObject {
 		this.privacyGroup = privacyGroup;
 	}-*/;
 
-	public PrivacyGroupDTO getPrivacyGroupDTO() {
+	public final PrivacyGroupDTO getPrivacyGroupDTO() {
 		if(getPrivacyGroup() != null) {
 			return getPrivacyGroup().toDTO();
 		}
 		return null;
 	}
 	
-	public void setPrivacyGroup(PrivacyGroupDTO privacyGroup) {
+	public final void setPrivacyGroup(PrivacyGroupDTO privacyGroup) {
 		if(privacyGroup != null) {
 			setPrivacyGroup(PrivacyGroupJS.toJavaScript(privacyGroup));
 		}
@@ -232,7 +230,7 @@ public abstract class FlexibleElementJS extends JavaScriptObject {
 		return this.elementType;
 	}-*/;
 
-	public void setElementType(ElementTypeEnum elementType) {
+	public final void setElementType(ElementTypeEnum elementType) {
 		if(elementType != null) {
 			setElementType(elementType.name());
 		}
@@ -242,7 +240,7 @@ public abstract class FlexibleElementJS extends JavaScriptObject {
 		this.elementType = elementType;
 	}-*/;
 	
-	public ElementTypeEnum getElementTypeEnum() {
+	public final ElementTypeEnum getElementTypeEnum() {
 		if(getElementType() != null) {
 			return ElementTypeEnum.valueOf(getElementType());
 		} else {
@@ -254,7 +252,7 @@ public abstract class FlexibleElementJS extends JavaScriptObject {
 		return this.group;
 	}-*/;
 
-	public void setGroup(LayoutGroupDTO group) {
+	public final void setGroup(LayoutGroupDTO group) {
 		if(group != null) {
 			setGroup(group.getId());
 		}
@@ -264,21 +262,21 @@ public abstract class FlexibleElementJS extends JavaScriptObject {
 		this.group = group;
 	}-*/;
 
-	public Integer getConstraint() {
+	public final Integer getConstraint() {
 		return Values.getInteger(this, "constraint");
 	}
 	
-	public void setConstraint(LayoutConstraintDTO constraint) {
+	public final void setConstraint(LayoutConstraintDTO constraint) {
 		if(constraint != null) {
 			Values.setInteger(this, "constraint", constraint.getId());
 		}
 	}
 	
-	public Integer getBannerConstraint() {
+	public final Integer getBannerConstraint() {
 		return Values.getInteger(this, "bannerConstraint");
 	}
 	
-	public void setBannerConstraint(LayoutConstraintDTO constraint) {
+	public final void setBannerConstraint(LayoutConstraintDTO constraint) {
 		if(constraint != null) {
 			Values.setInteger(this, "bannerConstraint", constraint.getId());
 		}

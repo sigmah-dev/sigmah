@@ -29,12 +29,11 @@ public class DefaultFlexibleElementJS extends FlexibleElementJS {
 		return defaultFlexibleElementJS;
 	}
 	
-	@Override
-	public DefaultFlexibleElementDTO createDTO() {
+	public DefaultFlexibleElementDTO toDefaultFlexibleElementDTO() {
 		final DefaultFlexibleElementDTO defaultFlexibleElementDTO;
 		
 		if(getTypeEnum() == DefaultFlexibleElementType.BUDGET) {
-			defaultFlexibleElementDTO = ((BudgetElementJS)this).createDTO();
+			defaultFlexibleElementDTO = ((BudgetElementJS)this).toBudgetElementDTO();
 		} else {
 			defaultFlexibleElementDTO = new DefaultFlexibleElementDTO();
 		}

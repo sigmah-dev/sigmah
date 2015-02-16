@@ -4,7 +4,7 @@ import com.google.inject.Inject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import org.sigmah.server.dispatch.FunctionalExceptions;
+import java.util.Map;
 import org.sigmah.server.dispatch.impl.UserDispatch;
 import org.sigmah.server.handler.base.AbstractCommandHandler;
 import org.sigmah.server.i18n.I18nServer;
@@ -16,7 +16,8 @@ import org.sigmah.shared.command.base.Command;
 import org.sigmah.shared.command.result.Result;
 import org.sigmah.shared.command.result.SynchronizeResult;
 import org.sigmah.shared.dispatch.CommandException;
-import org.sigmah.shared.dispatch.FunctionalException;
+import org.sigmah.shared.dispatch.UpdateConflictException;
+import org.sigmah.shared.dto.referential.Container;
 import org.sigmah.shared.dto.referential.EmailKey;
 import org.sigmah.shared.dto.referential.EmailKeyEnum;
 import org.sigmah.shared.dto.referential.EmailType;
@@ -38,8 +39,9 @@ public class SynchronizeHandler extends AbstractCommandHandler<Synchronize, Sync
 	
     @Override
     protected SynchronizeResult execute(Synchronize synchronize, UserDispatch.UserExecutionContext context) throws CommandException {
-		final ArrayList<String> errors = new ArrayList<>();
+		final HashMap<Container, List<String>> errors = new HashMap<>();
 		final HashMap<Integer, Integer> files = new HashMap<>();
+		boolean errorConcernFiles = false;
 		
         for(final Command<?> command : synchronize.getCommands()) {
 			try {
@@ -56,31 +58,55 @@ public class SynchronizeHandler extends AbstractCommandHandler<Synchronize, Sync
 					files.put(Integer.parseInt(negativeId), fileVersion.getId());
 				}
 				
-			} catch(FunctionalException e) {
-				if(e.getErrorCode() == FunctionalException.ErrorCode.UPDATE_CONFLICT) {
-					for(int index = 0; index < e.getParameterCount(); index++) {
-						errors.add(e.getParameter(index));
-					}
-				} else {
-					errors.add(FunctionalExceptions.getMessage(context.getLanguage(), e));
+			} catch(UpdateConflictException e) {
+				errorConcernFiles |= e.isFile();
+				
+				final Container container = e.getContainer();
+				List<String> list = errors.get(container);
+				
+				if(list == null) {
+					list = new ArrayList<>();
+					errors.put(container, list);
+				}
+				
+				for(int index = 0; index < e.getParameterCount(); index++) {
+					list.add(e.getParameter(index));
 				}
 			}
         }
 		
 		if(!errors.isEmpty()) {
-			sendErrorsByMailToCurrentUser(errors, context);
+			sendErrorsByMailToCurrentUser(errors, errorConcernFiles, context);
 		}
 		
-        return new SynchronizeResult(errors, files);
+        return new SynchronizeResult(errors, errorConcernFiles, files);
     }
     
-	private void sendErrorsByMailToCurrentUser(List<String> errors, UserDispatch.UserExecutionContext context) {
+	private void sendErrorsByMailToCurrentUser(Map<Container, List<String>> errors, boolean hasFiles, UserDispatch.UserExecutionContext context) {
 		// Format the error list.
-		final StringBuilder ulBuilder = new StringBuilder("<ul>");
-		for(final String error : errors) {
-			ulBuilder.append("<li>").append(error).append("</li>");
+		final StringBuilder ulBuilder = new StringBuilder();
+		for(final Map.Entry<Container, List<String>> entry : errors.entrySet()) {
+			if(entry.getKey().getType() == Container.Type.PROJECT) {
+				ulBuilder.append(i18nServer.t(context.getLanguage(), "project"));
+			} else {
+				ulBuilder.append(i18nServer.t(context.getLanguage(), "orgunit"));
+			}
+			
+			ulBuilder.append(' ')
+				.append(entry.getKey().getName())
+				.append(" - ")
+				.append(entry.getKey().getFullName())
+				.append("<ul>");
+			
+			for(final String error : entry.getValue()) {
+				ulBuilder.append("<li>").append(error).append("</li>");
+			}
+			ulBuilder.append("</ul>");
 		}
-		ulBuilder.append("</ul>");
+		
+		if(hasFiles) {
+			ulBuilder.append(i18nServer.t(context.getLanguage(), "conflictFiles"));
+		}
 		
 		// Full name.
 		final String firstName = context.getUser().getFirstName();
@@ -94,4 +120,5 @@ public class SynchronizeHandler extends AbstractCommandHandler<Synchronize, Sync
 		
 		modelMailService.send(EmailType.OFFLINE_SYNC_CONFICT, parameters, context.getLanguage(), context.getUser().getEmail());
 	}
+	
 }

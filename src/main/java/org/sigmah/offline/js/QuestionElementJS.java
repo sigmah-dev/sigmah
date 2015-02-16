@@ -33,8 +33,7 @@ public final class QuestionElementJS extends FlexibleElementJS {
 		return questionElementJS;
 	}
 	
-	@Override
-	public FlexibleElementDTO createDTO() {
+	public QuestionElementDTO toQuestionElementDTO() {
 		final QuestionElementDTO questionElementDTO = new QuestionElementDTO();
 		
 		final JsArray<QuestionChoiceElementJS> choices = getChoices();

@@ -26,6 +26,7 @@ import java.util.HashSet;
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.event.EventBus;
 import org.sigmah.client.event.OfflineEvent;
+import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.page.Page;
 import org.sigmah.client.ui.notif.N10N;
 import org.sigmah.offline.dao.FileDataAsyncDAO;
@@ -44,6 +45,7 @@ import org.sigmah.shared.command.result.SynchronizeResult;
 import org.sigmah.shared.dto.ProjectFundingDTO;
 import org.sigmah.shared.dto.calendar.CalendarType;
 import org.sigmah.shared.dto.calendar.PersonalCalendarIdentifier;
+import org.sigmah.shared.dto.referential.Container;
 import org.sigmah.shared.dto.report.ProjectReportDTO;
 import org.sigmah.shared.dto.report.ReportReference;
 
@@ -108,9 +110,31 @@ public class Synchronizer implements OfflineEvent.Source {
 						// Display erros.
 						if(!result.getErrors().isEmpty()) {
 							final StringBuilder errorBuilder = new StringBuilder();
-							for(final String error : result.getErrors()) {
-								errorBuilder.append(error).append("<br>");
+							
+							for(final Map.Entry<Container, List<String>> entry : result.getErrors().entrySet()) {
+								if(entry.getKey().getType() == Container.Type.PROJECT) {
+									errorBuilder.append(I18N.CONSTANTS.project());
+								} else {
+									errorBuilder.append(I18N.CONSTANTS.orgunit());
+								}
+								
+								errorBuilder.append(entry.getKey().getName())
+									.append(" - ")
+									.append(entry.getKey().getFullName())
+									.append(" (")
+									.append("<ul>");
+									
+								for(final String error : entry.getValue()) {
+									errorBuilder.append("<li>").append(error).append("</li>");
+								}
+								errorBuilder.append("</ul>");
 							}
+
+							if(result.isErrorConcernFiles()) {
+								errorBuilder.append(I18N.MESSAGES.conflictFiles());
+							}
+							
+							errorBuilder.append(I18N.MESSAGES.conflictSentByMail());
 						
 							N10N.error(errorBuilder.toString());
 						}

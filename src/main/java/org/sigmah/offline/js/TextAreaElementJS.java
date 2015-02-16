@@ -23,8 +23,7 @@ public final class TextAreaElementJS extends FlexibleElementJS {
 		return textAreaElementJS;
 	}
 	
-	@Override
-	protected TextAreaElementDTO createDTO() {
+	protected TextAreaElementDTO toTextAreaElementDTO() {
 		final TextAreaElementDTO textAreaElementDTO = new TextAreaElementDTO();
 		
 		textAreaElementDTO.setType(getTypeCharacter());

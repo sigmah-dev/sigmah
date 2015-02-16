@@ -28,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.inject.persist.Transactional;
+import static org.sigmah.shared.util.ValueResultUtils.normalizeFileName;
 
 /**
  * {@link FileDAO} implementation.
@@ -177,7 +178,7 @@ public class FileHibernateDAO extends AbstractDAO<File, Integer> implements File
 		final File file = new File();
 
 		// Gets the details of the name of the file.
-		final String fullName = normalizeFileName(properties.get(FileUploadUtils.DOCUMENT_NAME));
+		final String fullName = ValueResultUtils.normalizeFileName(properties.get(FileUploadUtils.DOCUMENT_NAME));
 		final int index = fullName.indexOf('.');
 
 		final String name = index > 0 ? fullName.substring(0, index) : fullName;
@@ -201,15 +202,14 @@ public class FileHibernateDAO extends AbstractDAO<File, Integer> implements File
 		final int projectId = ClientUtils.asInt(properties.get(FileUploadUtils.DOCUMENT_PROJECT), 0);
 
 		// Retrieving the current value
-		final Query query = em.createQuery("SELECT v FROM Value v WHERE v.containerId = :projectId and v.element.id = :elementId");
+		final TypedQuery<Value> query = em.createQuery("SELECT v FROM Value v WHERE v.containerId = :projectId and v.element.id = :elementId", Value.class);
 		query.setParameter("projectId", projectId);
 		query.setParameter("elementId", elementId);
 
-		final Value currentValue;
-		Object object = null;
+		Value currentValue = null;
 
 		try {
-			object = query.getSingleResult();
+			currentValue = query.getSingleResult();
 		} catch (NoResultException nre) {
 			// No current value
 		}
@@ -219,8 +219,7 @@ public class FileHibernateDAO extends AbstractDAO<File, Integer> implements File
 		// --------------------------------------------------------------------
 
 		// The value already exists, must update it.
-		if (object != null) {
-			currentValue = (Value) object;
+		if (currentValue != null) {
 			currentValue.setLastModificationAction('U');
 
 			// Sets the value (adds a new file id).
@@ -353,22 +352,6 @@ public class FileHibernateDAO extends AbstractDAO<File, Integer> implements File
 		version.setPath(physicalName);
 
 		return version;
-	}
-
-	/**
-	 * Removes the folder "C:\fakepath\" (used by Webkit browsers to hide the real path of the file). Also replaces
-	 * characters that can't be used in Windows filenames by an underscore.
-	 * 
-	 * @param fileName
-	 *          name to validate
-	 * @return string the name validated
-	 */
-	private static String normalizeFileName(String fileName) {
-		if (fileName != null) {
-			return fileName.replaceFirst("[cC]:\\\\fakepath\\\\", "").replaceAll("[\\/:*?\"<>|]", "_");
-		} else {
-			return "";
-		}
 	}
 
 }

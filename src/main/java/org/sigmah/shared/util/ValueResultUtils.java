@@ -242,5 +242,21 @@ public final class ValueResultUtils {
 		}
 		return returnedMap;
 	}
+	
+	/**
+	 * Removes the folder "C:\fakepath\" (used by Webkit browsers to hide the real path of the file).
+	 * Also replaces characters that can't be used in Windows filenames by an underscore.
+	 * 
+	 * @param fileName
+	 *            name to validate
+	 * @return string the name validated
+	 */
+	public static String normalizeFileName(String fileName) {
+		if(fileName != null) {
+			return fileName.replaceFirst("[cC]:\\\\fakepath\\\\", "").replaceAll("[\\/:*?\"<>|]", "_");
+		} else {
+			return "";
+		}
+	}
 
 }

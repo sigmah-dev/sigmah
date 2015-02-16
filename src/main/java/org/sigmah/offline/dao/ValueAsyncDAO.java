@@ -13,8 +13,14 @@ import org.sigmah.shared.command.result.VoidResult;
 import org.sigmah.shared.dto.element.event.ValueEventWrapper;
 
 import com.allen_sauer.gwt.log.client.Log;
+import com.google.gwt.core.client.JsArray;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import org.sigmah.offline.js.FileDataJS;
+import org.sigmah.offline.js.FileJS;
+import org.sigmah.offline.js.FileVersionJS;
+import org.sigmah.offline.js.ListableValueJS;
 
 /**
  *
@@ -22,6 +28,9 @@ import com.google.inject.Singleton;
  */
 @Singleton
 public class ValueAsyncDAO extends BaseAsyncDAO {
+	
+	@Inject
+	private FileDataAsyncDAO fileDataAsyncDAO;
 	
 	public void saveOrUpdate(final GetValue getValue, final ValueResult valueResult) {
 		saveOrUpdate(getValue, valueResult, null);
@@ -119,6 +128,7 @@ public class ValueAsyncDAO extends BaseAsyncDAO {
             public void onSuccess(Request request) {
                 final ValueJS valueJS = (ValueJS) request.getResult();
 				if(valueJS != null) {
+					verifyIfFileVersionsAreAvailable(valueJS);
 					callback.onSuccess(valueJS.toValueResult());
 				} else {
 					// No value has been saved for the requested element
@@ -127,6 +137,44 @@ public class ValueAsyncDAO extends BaseAsyncDAO {
 				}
             }
         });
+	}
+	
+	/**
+	 * Sets the <code>available</code> flag on {@link FileVersionJS} instances
+	 * by searching in the FileData table.
+	 * 
+	 * @param valueJS Value to verifiy.
+	 */
+	private void verifyIfFileVersionsAreAvailable(ValueJS valueJS) {
+		final JsArray<ListableValueJS> values = valueJS.getValues();
+		if(values != null) {
+			
+			for(int parent = 0; parent < values.length(); parent++) {
+				final ListableValueJS listableValue = values.get(parent);
+				
+				if(listableValue.getListableValueTypeEnum() == ListableValueJS.Type.FILE) {
+					final FileJS file = (FileJS)listableValue;
+					final JsArray<FileVersionJS> versions = file.getVersions();
+					
+					for(int child = 0; child < versions.length(); child++) {
+						final FileVersionJS version = versions.get(child);
+						
+						fileDataAsyncDAO.getByFileVersionId(version.getId(), new AsyncCallback<FileDataJS>() {
+
+							@Override
+							public void onFailure(Throwable caught) {
+								// Ignored.
+							}
+
+							@Override
+							public void onSuccess(FileDataJS result) {
+								version.setAvailable(result != null);
+							}
+						});
+					}
+				}
+			}
+		}
 	}
 
 	@Override

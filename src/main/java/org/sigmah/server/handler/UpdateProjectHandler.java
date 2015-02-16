@@ -39,10 +39,11 @@ import com.google.inject.persist.Transactional;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
-import org.sigmah.server.domain.Phase;
+import org.sigmah.server.handler.util.Conflicts;
 import org.sigmah.server.i18n.I18nServer;
 import org.sigmah.shared.Language;
 import org.sigmah.shared.dispatch.FunctionalException;
+import org.sigmah.shared.dispatch.UpdateConflictException;
 import org.sigmah.shared.dto.element.BudgetElementDTO;
 import org.sigmah.shared.dto.element.BudgetSubFieldDTO;
 import org.sigmah.shared.dto.referential.AmendmentState;
@@ -76,6 +77,9 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 	 */
 	@Inject
 	private I18nServer i18nServer;
+	
+	@Inject
+	private Conflicts conflictHandler;
 
 
 	/**
@@ -272,7 +276,7 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 
 		if(!conflicts.isEmpty()) {
 			// A conflict was found.
-			throw new FunctionalException(FunctionalException.ErrorCode.UPDATE_CONFLICT, conflicts.toArray(new String[0]));
+			throw new UpdateConflictException(updatedProject, conflicts.toArray(new String[0]));
 		}
 	}
 
@@ -658,6 +662,7 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 		
 		if(project == null) {
 			// The user is modifying an org unit.
+			// TODO: Verify if the user has the right to modify the org unit.
 			return conflicts;
 		}
 		
@@ -677,19 +682,7 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 				final ValueEventWrapper valueEvent = iterator.next();
 				final FlexibleElementDTO source = valueEvent.getSourceElement();
 
-				// Retrieves the parent phase only if it exists and has been closed.
-				final TypedQuery<Phase> query = em().createQuery("SELECT p FROM Phase p "
-					+ "JOIN p.phaseModel.layout.groups as lg "
-					+ "JOIN lg.constraints as lc "
-					+ "WHERE p.endDate is not null "
-					+ "AND :projectId = p.parentProject.id "
-					+ "AND :elementId = lc.element.id", Phase.class);
-
-				query.setParameter("projectId", project.getId());
-				query.setParameter("elementId", source.getId());
-
-				final List<Phase> closedPhase = query.getResultList();
-				if(!closedPhase.isEmpty()) {
+				if(conflictHandler.isParentPhaseClosed(source.getId(), project.getId())) {
 					// Removing the current value event from the update list.
 					iterator.remove();
 					

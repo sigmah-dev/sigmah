@@ -476,6 +476,9 @@ public class OfflineBannerPresenter extends AbstractZonePresenter<OfflineBannerP
                         view.getSynchronizePopup().hide();
                         setDatabaseUpdateDate(new Date());
 						
+						// Refresh the current page.
+						eventBus.navigateRequest(injector.getPageManager().getCurrentPageRequest());
+						
 						pullFilesInvite();
                     }
 

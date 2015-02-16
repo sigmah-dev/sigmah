@@ -2,6 +2,7 @@ package org.sigmah.shared.command.result;
 
 import java.util.List;
 import java.util.Map;
+import org.sigmah.shared.dto.referential.Container;
 
 /**
  *
@@ -9,23 +10,29 @@ import java.util.Map;
  */
 public class SynchronizeResult implements Result {
 	
-	private List<String> errors;
+	private Map<Container, List<String>> errors;
+	private boolean errorConcernFiles;
 	private Map<Integer, Integer> files;
 
 	protected SynchronizeResult() {
 	}
 
-	public SynchronizeResult(List<String> errors, Map<Integer, Integer> files) {
+	public SynchronizeResult(Map<Container, List<String>> errors, boolean errorConcernFiles, Map<Integer, Integer> files) {
 		this.errors = errors;
+		this.errorConcernFiles = errorConcernFiles;
 		this.files = files;
 	}
 
-	public List<String> getErrors() {
+	public Map<Container, List<String>> getErrors() {
 		return errors;
 	}
 
 	public Map<Integer, Integer> getFiles() {
 		return files;
+	}
+
+	public boolean isErrorConcernFiles() {
+		return errorConcernFiles;
 	}
 	
 }

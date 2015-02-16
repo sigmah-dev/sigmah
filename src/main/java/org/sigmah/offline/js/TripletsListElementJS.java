@@ -15,8 +15,7 @@ public final class TripletsListElementJS extends FlexibleElementJS {
 		return Values.createJavaScriptObject(TripletsListElementJS.class);
 	}
 	
-	@Override
-	protected TripletsListElementDTO createDTO() {
+	protected TripletsListElementDTO toTripletsListElementDTO() {
 		return new TripletsListElementDTO();
 	}
 }

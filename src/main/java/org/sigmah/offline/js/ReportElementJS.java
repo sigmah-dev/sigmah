@@ -19,8 +19,7 @@ public final class ReportElementJS extends FlexibleElementJS {
 		return reportElementJS;
 	}
 	
-	@Override
-	protected ReportElementDTO createDTO() {
+	protected ReportElementDTO toReportElementDTO() {
 		final ReportElementDTO reportElementDTO = new ReportElementDTO();
 		reportElementDTO.setModelId(getModelIdInteger());
 		return reportElementDTO;
