@@ -31,7 +31,7 @@ public class CommandQueue {
 	/**
 	 * Queue of command to execute.
 	 */
-	private final List<Entry<?, ?>> entries;
+	private final List<QueueEntry<?>> entries;
 
 	/**
 	 * Create a new command queue.
@@ -41,7 +41,7 @@ public class CommandQueue {
 	 */
 	public CommandQueue(AsyncCallback<Void> callback, DispatchAsync dispatchAsync) {
 		this.callback = callback;
-		this.entries = new ArrayList<Entry<?, ?>>();
+		this.entries = new ArrayList<QueueEntry<?>>();
 		this.dispatchAsync = dispatchAsync;
 	}
 	
@@ -58,34 +58,42 @@ public class CommandQueue {
 	}
 	
 	/**
+	 * Add an user defined entry to the queue.
+	 * 
+	 * @param entry Entry to add.
+	 */
+	public void add(QueueEntry<?> entry) {
+		entries.add(entry);
+	}
+	
+	/**
 	 * Start the execution.
 	 * 
-	 * @param <C> Command type.
 	 * @param <R> Result type.
 	 * @param loadables Elements to mask during dispatch.
 	 */
-	public <C extends Command<R>, R extends Result> void run(final Loadable... loadables) {
+	public <R> void run(final Loadable... loadables) {
 		if(!entries.isEmpty()) {
-			final Entry<C, R> entry = next();
+			final QueueEntry<R> entry = (QueueEntry<R>) entries.remove(0);
 			
-			dispatchAsync.execute(entry.getCommand(), new AsyncCallback<R>() {
+			try {
+				entry.run(new AsyncCallback<R>() {
 
-				@Override
-				public void onFailure(Throwable caught) {
-					stopOnFailure(caught);
-				}
-
-				@Override
-				public void onSuccess(R result) {
-					try {
-						entry.getCallback().onSuccess(result);
-						run(loadables);
-						
-					} catch(RuntimeException e) {
-						stopOnFailure(e);
+					@Override
+					public void onFailure(Throwable caught) {
+						stopOnFailure(caught);
 					}
-				}
-			}, loadables);
+
+					@Override
+					public void onSuccess(R result) {
+						run(loadables);
+					}
+
+				}, loadables);
+				
+			} catch(RuntimeException e) {
+				stopOnFailure(e);
+			}
 			
 		} else {
 			callback.onSuccess(null);
@@ -98,23 +106,12 @@ public class CommandQueue {
 	}
 	
 	/**
-	 * Retrieves the next command and removes it from the queue.
-	 * 
-	 * @param <C> Command type.
-	 * @param <R> Result type.
-	 * @return The next command.
-	 */
-	private <C extends Command<R>, R extends Result> Entry<C, R> next() {
-		return (Entry<C, R>) entries.remove(0);
-	}
-	
-	/**
 	 * Entry type.
 	 * 
 	 * @param <C> Command type.
 	 * @param <R> Result type.
 	 */
-	private static class Entry<C extends Command<R>, R extends Result> {
+	private class Entry<C extends Command<R>, R extends Result> implements QueueEntry<R> {
 		private final C command;
 		private final AsyncCallback<R> callback;
 
@@ -129,6 +126,23 @@ public class CommandQueue {
 		
 		public AsyncCallback<R> getCallback() {
 			return callback;
+		}
+
+		@Override
+		public void run(final AsyncCallback<R> callback, Loadable... loadables) {
+			dispatchAsync.execute(command, new AsyncCallback<R>() {
+
+				@Override
+				public void onFailure(Throwable caught) {
+					callback.onFailure(caught);
+				}
+
+				@Override
+				public void onSuccess(R result) {
+					Entry.this.callback.onSuccess(result);
+					callback.onSuccess(result);
+				}
+			}, loadables);
 		}
 	}
 }

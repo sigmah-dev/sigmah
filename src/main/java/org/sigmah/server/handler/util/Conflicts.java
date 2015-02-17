@@ -1,14 +1,24 @@
 package org.sigmah.server.handler.util;
 
+import com.google.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
+import org.sigmah.client.util.ClientUtils;
 import org.sigmah.server.dao.base.EntityManagerProvider;
 import org.sigmah.server.domain.Phase;
 import org.sigmah.server.domain.Project;
 import org.sigmah.server.domain.element.FilesListElement;
 import org.sigmah.server.domain.value.File;
-import org.sigmah.server.domain.value.FileVersion;
+import org.sigmah.server.domain.value.Value;
+import org.sigmah.server.i18n.I18nServer;
+import org.sigmah.shared.Language;
+import org.sigmah.shared.dispatch.FunctionalException;
+import org.sigmah.shared.dispatch.UpdateConflictException;
+import org.sigmah.shared.dto.referential.AmendmentState;
+import org.sigmah.shared.dto.value.FileUploadUtils;
 import org.sigmah.shared.util.ValueResultUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,9 +31,13 @@ public class Conflicts extends EntityManagerProvider {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(Conflicts.class);
 	
+	@Inject
+	private I18nServer i18nServer;
+	
 	public boolean isParentPhaseClosed(int elementId, int projectId) {
 		// Retrieves the parent phase only if it exists and has been closed.
-		final TypedQuery<Phase> query = em().createQuery("SELECT p FROM Phase p "
+		final TypedQuery<Phase> query = em().createQuery("SELECT p FROM "
+			+ "Phase p "
 			+ "JOIN p.phaseModel.layout.groups as lg "
 			+ "JOIN lg.constraints as lc "
 			+ "WHERE p.endDate is not null "
@@ -36,11 +50,60 @@ public class Conflicts extends EntityManagerProvider {
 		return !query.getResultList().isEmpty();
 	}
 	
-	// File search method.
+	// File conflicts
 	
-	public Project getParentProjectOfFileVersion(FileVersion version) {
-		return getParentProjectOfFile(version.getParentFile());
+	public void searchForFileAddConflicts(Map<String, String> properties, Language language) throws FunctionalException {
+		// Element.
+		final int elementId = ClientUtils.asInt(properties.get(FileUploadUtils.DOCUMENT_FLEXIBLE_ELEMENT), 0);
+		final FilesListElement filesListElement = em().find(FilesListElement.class, elementId);
+		
+		// Project.
+		final int projectId = ClientUtils.asInt(properties.get(FileUploadUtils.DOCUMENT_PROJECT), 0);
+		final Project project = em().find(Project.class, projectId);
+		
+		if(project.getCloseDate() != null) {
+			final String fileName = ValueResultUtils.normalizeFileName(properties.get(FileUploadUtils.DOCUMENT_NAME));
+			throw new UpdateConflictException(project, true, i18nServer.t(language, "conflictAddingFileToAClosedProject", fileName, filesListElement.getLabel()));
+		}
+		
+		if(isParentPhaseClosed(elementId, projectId)) {
+			final String fileName = ValueResultUtils.normalizeFileName(properties.get(FileUploadUtils.DOCUMENT_NAME));
+			throw new UpdateConflictException(project, true, i18nServer.t(language, "conflictAddingFileToAClosedPhase", fileName, filesListElement.getLabel()));
+		}
+		
+		if(filesListElement.isAmendable() && project.getAmendmentState() == AmendmentState.LOCKED) {
+			final String fileName = ValueResultUtils.normalizeFileName(properties.get(FileUploadUtils.DOCUMENT_NAME));
+			throw new UpdateConflictException(project, true, i18nServer.t(language, "conflictAddingFileToALockedField", fileName, filesListElement.getLabel()));
+		}
+		
+		if(filesListElement.getLimit() != null) {
+			// Retrieving the current value
+			final TypedQuery<Value> valueQuery = em().createQuery("SELECT v FROM Value v WHERE v.containerId = :projectId and v.element.id = :elementId", Value.class);
+			valueQuery.setParameter("projectId", projectId);
+			valueQuery.setParameter("elementId", elementId);
+
+			Value currentValue = null;
+
+			try {
+				currentValue = valueQuery.getSingleResult();
+			} catch (NoResultException nre) {
+				// No current value
+			}
+
+			if(currentValue != null) {
+				final TypedQuery<File> fileQuery = em().createQuery("SELECT f FROM File f WHERE f.id IN (:idsList)", File.class);
+				fileQuery.setParameter("idsList", ValueResultUtils.splitValuesAsInteger(currentValue.getValue()));
+
+				final List<File> files = fileQuery.getResultList();
+				if(files.size() >= filesListElement.getLimit()) {
+					final String fileName = ValueResultUtils.normalizeFileName(properties.get(FileUploadUtils.DOCUMENT_NAME));
+					throw new UpdateConflictException(project, true, i18nServer.t(language, "conflictAddingFileToAFullFileField", fileName, filesListElement.getLabel()));
+				}
+			}
+		}
 	}
+	
+	// File search method.
 	
 	public Project getParentProjectOfFile(File file) {
 		final TypedQuery<Project> phaseQuery = em().createQuery("SELECT p FROM "
@@ -50,7 +113,7 @@ public class Conflicts extends EntityManagerProvider {
 				+ "JOIN pm.layout.groups as lg "
 				+ "JOIN lg.constraints as lc "
 				+ "WHERE v.element = lc.element "
-				+ "AND (v.value = :fileId OR v.value like :fileIdLeft OR v.value like :fileIdRight)", Project.class);
+				+ "AND (v.value = :fileId OR v.value like :fileIdLeft OR v.value like :fileIdRight OR v.value like :fileIdCenter)", Project.class);
 
 		final TypedQuery<Project> detailsQuery = em().createQuery("SELECT p FROM "
 				+ "Value v, "
@@ -58,7 +121,7 @@ public class Conflicts extends EntityManagerProvider {
 				+ "JOIN p.projectModel.projectDetails.layout.groups as lg "
 				+ "JOIN lg.constraints as lc "
 				+ "WHERE v.element = lc.element "
-				+ "AND (v.value = :fileId OR v.value like :fileIdLeft OR v.value like :fileIdRight)", Project.class);
+				+ "AND (v.value = :fileId OR v.value like :fileIdLeft OR v.value like :fileIdRight OR v.value like :fileIdCenter)", Project.class);
 
 		setFileQueryParameters(phaseQuery, file.getId());
 		setFileQueryParameters(detailsQuery, file.getId());
@@ -78,11 +141,11 @@ public class Conflicts extends EntityManagerProvider {
 	}
 	
 	public FilesListElement getParentFilesListElement(File file) {
-		final TypedQuery<FilesListElement> query = em().createQuery("SELECT p FROM "
+		final TypedQuery<FilesListElement> query = em().createQuery("SELECT fle FROM "
 			+ "Value v, "
 			+ "FilesListElement fle "
 			+ "WHERE v.element = fle "
-			+ "AND (v.value = :fileId OR v.value like :fileIdLeft OR v.value like :fileIdRight)", FilesListElement.class);
+			+ "AND (v.value = :fileId OR v.value like :fileIdLeft OR v.value like :fileIdRight OR v.value like :fileIdCenter)", FilesListElement.class);
 		
 		setFileQueryParameters(query, file.getId());
 		
@@ -100,7 +163,8 @@ public class Conflicts extends EntityManagerProvider {
 	
 	private void setFileQueryParameters(TypedQuery<?> query, Integer fileId) {
 		query.setParameter("fileId", fileId.toString());
-		query.setParameter("fileIdLeft", ValueResultUtils.DEFAULT_VALUE_SEPARATOR + fileId);
-		query.setParameter("fileIdRight", fileId + ValueResultUtils.DEFAULT_VALUE_SEPARATOR);
+		query.setParameter("fileIdLeft", '%' + ValueResultUtils.DEFAULT_VALUE_SEPARATOR + fileId);
+		query.setParameter("fileIdRight", fileId + ValueResultUtils.DEFAULT_VALUE_SEPARATOR + '%');
+		query.setParameter("fileIdCenter", '%' + ValueResultUtils.DEFAULT_VALUE_SEPARATOR + fileId + ValueResultUtils.DEFAULT_VALUE_SEPARATOR + '%');
 	}
 }

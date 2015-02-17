@@ -49,6 +49,8 @@ import org.slf4j.LoggerFactory;
 import com.google.gwt.http.client.Response;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import org.sigmah.server.handler.util.Conflicts;
+import org.sigmah.shared.Language;
 
 /**
  * File upload and download servlet.
@@ -71,51 +73,50 @@ public class FileServlet extends AbstractServlet {
 	/**
 	 * Injected application {@link FileStorageProvider}.
 	 */
-	private final FileStorageProvider fileStorageProvider;
+	@Inject
+	private FileStorageProvider fileStorageProvider;
 
 	/**
 	 * Injected application {@link LogoManager}.
 	 */
-	private final LogoManager logoManager;
+	@Inject
+	private LogoManager logoManager;
 
 	/**
 	 * Injected {@link OrganizationDAO}.
 	 */
-	private final OrganizationDAO organizationDAO;
+	@Inject
+	private OrganizationDAO organizationDAO;
 
 	/**
 	 * Injected {@link FileDAO}.
 	 */
-	private final FileDAO fileDAO;
+	@Inject
+	private FileDAO fileDAO;
 
 	/**
 	 * Injected {@link BackupArchiveManager}.
 	 */
-	private final BackupArchiveManager backupArchiveManager;
+	@Inject
+	private BackupArchiveManager backupArchiveManager;
 
 	/**
 	 * Injected {@link ProjectDAO}.
 	 */
-	private final ProjectDAO projectDAO;
+	@Inject
+	private ProjectDAO projectDAO;
 
 	/**
 	 * Injected {@link MonitoredPointDAO}.
 	 */
-	private final MonitoredPointDAO monitoredPointDAO;
-
+	@Inject
+	private MonitoredPointDAO monitoredPointDAO;
+	
 	/**
-	 * Initializes the servlet.
+	 * Injected {@link Conflicts}.
 	 */
 	@Inject
-	protected FileServlet(FileStorageProvider fileStorageProvider, BackupArchiveManager backupArchiveManager, LogoManager logoManager, OrganizationDAO organizationDAO, FileDAO fileDAO, ProjectDAO projectDAO, MonitoredPointDAO monitoredPointDAO) {
-		this.fileStorageProvider = fileStorageProvider;
-		this.backupArchiveManager = backupArchiveManager;
-		this.logoManager = logoManager;
-		this.fileDAO = fileDAO;
-		this.organizationDAO = organizationDAO;
-		this.projectDAO = projectDAO;
-		this.monitoredPointDAO = monitoredPointDAO;
-	}
+	private Conflicts conflicts;
 
 	// ---------------------------------------------------------------------------------------
 	//
@@ -380,7 +381,7 @@ public class FileServlet extends AbstractServlet {
 			LOG.error("File's size is too big to be uploaded (size: {}, maximum : {}).", contentLength, FileUploadUtils.MAX_UPLOAD_FILE_SIZE);
 			throw new StatusServletException(Response.SC_REQUEST_ENTITY_TOO_LARGE);
 		}
-
+		
 		final String fileName = generateUniqueName();
 
 		// --
@@ -390,6 +391,8 @@ public class FileServlet extends AbstractServlet {
 		final MultipartRequest multipartRequest = new MultipartRequest(request);
 		final long size = this.processUpload(multipartRequest, response, fileName, false);
 		final Map<String, String> properties = multipartRequest.getProperties();
+		
+		conflicts.searchForFileAddConflicts(properties, context.getLanguage());
 
 		// --
 		// Create the associated entries in File and FileVersion tables.

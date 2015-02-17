@@ -29,7 +29,19 @@ public class UploadSliceHandler extends AbstractCommandHandler<UploadSlice, Void
 	
 	@Override
 	protected VoidResult execute(UploadSlice command, UserDispatch.UserExecutionContext context) throws CommandException {
-		final String sliceName = command.getFileVersionDTO().getPath() + '.' + command.getOffset();
+		final FileVersionDTO fileVersionDTO = command.getFileVersionDTO();
+		
+		// Searching the original file version in database.
+		final FileVersion fileVersion = em().find(FileVersion.class, fileVersionDTO.getId());
+		
+		final String path;
+		if(fileVersion != null) {
+			path = fileVersion.getPath();
+		} else {
+			path = generateNameForNullPathFile(command, context);
+		}
+		
+		final String sliceName = path + '.' + command.getOffset();
 		
 		try(final OutputStream outputStream = fileStorageProvider.create(sliceName)) {
 			outputStream.write(command.getData());
@@ -39,17 +51,14 @@ public class UploadSliceHandler extends AbstractCommandHandler<UploadSlice, Void
 		}
 		
 		if(command.isLast()) {
-			final FileVersionDTO fileVersionDTO = command.getFileVersionDTO();
-			
-			// Searching the original file version in database.
-			final FileVersion fileVersion = em().find(FileVersion.class, fileVersionDTO.getId());
-			
 			// Patch everything together.
 			final byte[] bytes = new byte[1024];
 			
-			try(final OutputStream outputStream = fileStorageProvider.create(fileVersion.getPath())) {
+			try(final OutputStream outputStream = fileStorageProvider.create(path)) {
 				for(int offset = 0; offset < fileVersionDTO.getSize();) {
 					final String slice = fileVersionDTO.getPath() + '.' + offset;
+					
+					// Read the content of the slice.
 					try(final InputStream inputStream = fileStorageProvider.open(slice)) {
 						int read = inputStream.read(bytes);
 						while(read != -1) {
@@ -61,14 +70,45 @@ public class UploadSliceHandler extends AbstractCommandHandler<UploadSlice, Void
 					} catch(IOException ex) {
 						LOGGER.error("An error occured while reading the slice '" + slice + "'.", ex);
 					}
+					
+					// Remove the slice.
+					try {
+						fileStorageProvider.delete(slice);
+
+					} catch(IOException ex) {
+						LOGGER.error("An error occured while removing the slice '" + slice + "'.", ex);
+					}
 				}
 				
 			} catch (IOException ex) {
 				LOGGER.error("An error occured while patching the file slice together into file '" + fileVersionDTO.getPath() + "'.", ex);
 			}
+			
+			if(fileVersion == null) {
+				try {
+					sendFileByEmail(path, context);
+					
+				} finally {
+					try {
+						fileStorageProvider.delete(path);
+
+					} catch(IOException ex) {
+						LOGGER.error("An error occured while removing the unused file '" + path + "'.", ex);
+					}
+				}
+			}
 		}
 		
 		return null;
+	}
+	
+	private String generateNameForNullPathFile(UploadSlice command, UserDispatch.UserExecutionContext context) {
+		return context.getUser().getEmail() + '_' + command.getFileVersionDTO().getId() + '_' + command.getFileVersionDTO().getName();
+	}
+	
+	private void sendFileByEmail(String path, UserDispatch.UserExecutionContext context) {
+		// TODO: Move this method to MailSender
+		
 	}
 	
 }

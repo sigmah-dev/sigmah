@@ -203,9 +203,7 @@ public class FunctionalException extends CommandException {
 	 */
 	private String[] parameters;
 
-	@SuppressWarnings("unused")
-	@Deprecated
-	private FunctionalException() {
+	protected FunctionalException() {
 		// Serialization.
 	}
 

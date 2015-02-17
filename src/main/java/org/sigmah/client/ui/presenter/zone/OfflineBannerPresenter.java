@@ -39,7 +39,6 @@ import org.sigmah.client.ui.notif.N10N;
 import org.sigmah.client.ui.widget.RatioBar;
 import org.sigmah.client.util.MessageType;
 import org.sigmah.offline.appcache.ApplicationCacheEventHandler;
-import org.sigmah.offline.dao.RequestManager;
 import org.sigmah.offline.dao.TransfertAsyncDAO;
 import org.sigmah.offline.indexeddb.IndexedDB;
 import org.sigmah.offline.indexeddb.OpenDatabaseRequest;
@@ -48,6 +47,7 @@ import org.sigmah.offline.js.TransfertJS;
 import org.sigmah.offline.status.ApplicationState;
 import org.sigmah.offline.status.ProgressType;
 import org.sigmah.offline.sync.SynchroProgressListener;
+import org.sigmah.offline.sync.Synchronizer;
 import org.sigmah.offline.sync.UpdateDates;
 import org.sigmah.offline.view.OfflineMenuPanel;
 import org.sigmah.offline.view.SynchronizePopup;
@@ -66,7 +66,8 @@ import org.sigmah.shared.file.TransfertType;
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
 @Singleton
-public class OfflineBannerPresenter extends AbstractZonePresenter<OfflineBannerPresenter.View> {
+public class OfflineBannerPresenter extends AbstractZonePresenter<OfflineBannerPresenter.View> 
+implements OfflineEvent.Source {
 	
 	public static final String SHOW_BRIEFLY = "SHOW_BRIEFLY";
 	private static final int AUTOCLOSE_TIME = 3000;
@@ -440,7 +441,7 @@ public class OfflineBannerPresenter extends AbstractZonePresenter<OfflineBannerP
         view.getSynchronizePopup().setTask(I18N.CONSTANTS.offlineSynchronizePush());
         view.getSynchronizePopup().center();
         
-        final RequestManager<Void> requestManager = new RequestManager<Void>(null, new AsyncCallback<Void>() {
+        injector.getSynchronizer().push(new AsyncCallback<Void>() {
 
             @Override
             public void onFailure(Throwable caught) {
@@ -450,10 +451,15 @@ public class OfflineBannerPresenter extends AbstractZonePresenter<OfflineBannerP
                 
                 progresses.remove(ProgressType.DATABASE);
                 updateProgressBars();
+				
+				view.getSynchronizePopup().hide();
             }
 
             @Override
             public void onSuccess(Void result) {
+				// Success
+				eventBus.fireEvent(new OfflineEvent(OfflineBannerPresenter.this, ApplicationState.ONLINE));
+				
                 view.getSynchronizePopup().setProgress(PUSH_VALUE);
                 view.getSynchronizePopup().setTask(I18N.CONSTANTS.offlineSynchronizePull());
                 progresses.put(ProgressType.DATABASE, PUSH_VALUE);
@@ -495,8 +501,6 @@ public class OfflineBannerPresenter extends AbstractZonePresenter<OfflineBannerP
                 });
             }
         });
-
-        injector.getSynchronizer().push(requestManager);
     }
     
     private void pull() {

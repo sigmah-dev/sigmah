@@ -4,8 +4,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.sigmah.client.dispatch.DispatchAsync;
-import org.sigmah.offline.dao.RequestManager;
-import org.sigmah.offline.dao.RequestManagerCallback;
 import org.sigmah.offline.dao.UpdateDiaryAsyncDAO;
 import org.sigmah.shared.command.GetHistory;
 import org.sigmah.shared.command.GetProject;
@@ -24,16 +22,14 @@ import com.google.inject.Singleton;
 import java.util.ArrayList;
 import java.util.HashSet;
 import org.sigmah.client.dispatch.CommandResultHandler;
-import org.sigmah.client.event.EventBus;
-import org.sigmah.client.event.OfflineEvent;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.page.Page;
 import org.sigmah.client.ui.notif.N10N;
+import org.sigmah.client.ui.widget.Loadable;
 import org.sigmah.offline.dao.FileDataAsyncDAO;
 import org.sigmah.offline.dao.MonitoredPointAsyncDAO;
 import org.sigmah.offline.dao.ReminderAsyncDAO;
 import org.sigmah.offline.dao.TransfertAsyncDAO;
-import org.sigmah.offline.status.ApplicationState;
 import org.sigmah.shared.command.GetCalendar;
 import org.sigmah.shared.command.GetProjectReport;
 import org.sigmah.shared.command.GetProjectReports;
@@ -46,6 +42,7 @@ import org.sigmah.shared.dto.ProjectFundingDTO;
 import org.sigmah.shared.dto.calendar.CalendarType;
 import org.sigmah.shared.dto.calendar.PersonalCalendarIdentifier;
 import org.sigmah.shared.dto.referential.Container;
+import org.sigmah.shared.dto.referential.ContainerType;
 import org.sigmah.shared.dto.report.ProjectReportDTO;
 import org.sigmah.shared.dto.report.ReportReference;
 
@@ -55,7 +52,7 @@ import org.sigmah.shared.dto.report.ReportReference;
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
 @Singleton
-public class Synchronizer implements OfflineEvent.Source {
+public class Synchronizer {
     
     private static final double GET_PROJECT_VALUE = 0.1;
     private static final double ACCESS_RIGHTS_VALUE = 0.1;
@@ -79,88 +76,96 @@ public class Synchronizer implements OfflineEvent.Source {
     @Inject
 	private DispatchAsync dispatcher;
 	
-	@Inject
-	private EventBus eventBus;
     
-    
-	public <T> void push(final RequestManager<T> requestManager) {
-        final int removeRequestId = requestManager.prepareRequest();
+	public <T> void push(final AsyncCallback<Void> callback) {
+		final CommandQueue queue = new CommandQueue(callback, dispatcher);
         
-		updateDiaryAsyncDAO.getAll(new RequestManagerCallback<T, Map<Integer, Command>>(requestManager) {
+		queue.add(new QueueEntry<Void>() {
 
-            @Override
-            public void onRequestSuccess(final Map<Integer, Command> commands) {
-                dispatcher.execute(new Synchronize(new ArrayList(commands.values())), new RequestManagerCallback<T, SynchronizeResult>(requestManager) {
-                    
-                    @Override
-                    public void onRequestSuccess(SynchronizeResult result) {
-                        updateDiaryAsyncDAO.removeAll(commands.keySet(), new RequestManagerCallback<T, Void>(requestManager, removeRequestId) {
-                            
-                            @Override
-                            public void onRequestSuccess(Void result) {
-                                // Success
-								eventBus.fireEvent(new OfflineEvent(Synchronizer.this, ApplicationState.ONLINE));
-                            }
-						});
-						
-						// Update local ids for files.
-						transfertAsyncDAO.replaceIds(result.getFiles());
-						fileDataAsyncDAO.replaceIds(result.getFiles());
-						
-						// Display erros.
-						if(!result.getErrors().isEmpty()) {
-							final StringBuilder errorBuilder = new StringBuilder();
-							
-							for(final Map.Entry<Container, List<String>> entry : result.getErrors().entrySet()) {
-								if(entry.getKey().getType() == Container.Type.PROJECT) {
-									errorBuilder.append(I18N.CONSTANTS.project());
-								} else {
-									errorBuilder.append(I18N.CONSTANTS.orgunit());
+			@Override
+			public void run(final AsyncCallback<Void> callback, Loadable... loadables) {
+				updateDiaryAsyncDAO.getAll(new AsyncCallback<Map<Integer, Command>>() {
+
+					@Override
+					public void onFailure(Throwable caught) {
+						callback.onFailure(caught);
+					}
+
+					@Override
+					public void onSuccess(final Map<Integer, Command> commands) {
+						queue.add(new Synchronize(new ArrayList(commands.values())), new CommandResultHandler<SynchronizeResult>() {
+
+							@Override
+							protected void onCommandSuccess(SynchronizeResult result) {
+								// Update local ids for files.
+								transfertAsyncDAO.replaceIds(result.getFiles());
+								fileDataAsyncDAO.replaceIds(result.getFiles());
+
+								// Display erros.
+								if(!result.getErrors().isEmpty()) {
+									final StringBuilder errorBuilder = new StringBuilder();
+
+									for(final Map.Entry<Container, List<String>> entry : result.getErrors().entrySet()) {
+										if(entry.getKey().getType() == ContainerType.PROJECT) {
+											errorBuilder.append(I18N.CONSTANTS.project());
+										} else {
+											errorBuilder.append(I18N.CONSTANTS.orgunit());
+										}
+
+										errorBuilder.append(' ')
+											.append(entry.getKey().getName())
+											.append(" - ")
+											.append(entry.getKey().getFullName())
+											.append("<ul style=\"margin:0.5em 0 1em 1.5em;list-style:disc\">");
+
+										for(final String error : entry.getValue()) {
+											errorBuilder.append("<li>").append(error).append("</li>");
+										}
+										errorBuilder.append("</ul>");
+									}
+
+									if(result.isErrorConcernFiles()) {
+										errorBuilder.append(I18N.MESSAGES.conflictFiles());
+									}
+
+									errorBuilder.append(I18N.MESSAGES.conflictSentByMail());
+
+									N10N.error(errorBuilder.toString());
 								}
 								
-								errorBuilder.append(entry.getKey().getName())
-									.append(" - ")
-									.append(entry.getKey().getFullName())
-									.append(" (")
-									.append("<ul>");
-									
-								for(final String error : entry.getValue()) {
-									errorBuilder.append("<li>").append(error).append("</li>");
-								}
-								errorBuilder.append("</ul>");
-							}
+								queue.add(new QueueEntry<Void>() {
 
-							if(result.isErrorConcernFiles()) {
-								errorBuilder.append(I18N.MESSAGES.conflictFiles());
+									@Override
+									public void run(AsyncCallback<Void> callback, Loadable... loadables) {
+										updateDiaryAsyncDAO.removeAll(commands.keySet(), callback);
+									}
+								});
 							}
-							
-							errorBuilder.append(I18N.MESSAGES.conflictSentByMail());
+						});
 						
-							N10N.error(errorBuilder.toString());
-						}
-                    }
-                });
-                
-			}
-		});
-        
-		monitoredPointAsyncDAO.removeTemporaryObjects(new RequestManagerCallback<T, Void>(requestManager) {
-			
-			@Override
-			public void onRequestSuccess(Void result) {
-				// Monitored points created offline have been successfully removed.
-			}
-		});
-        
-		reminderAsyncDAO.removeTemporaryObjects(new RequestManagerCallback<T, Void>(requestManager) {
-			
-			@Override
-			public void onRequestSuccess(Void result) {
-				// Reminders created offline have been successfully removed.
+						queue.add(new QueueEntry<Void>() {
+
+							@Override
+							public void run(AsyncCallback<Void> callback, Loadable... loadables) {
+								monitoredPointAsyncDAO.removeTemporaryObjects(callback);
+							}
+						});
+						
+						queue.add(new QueueEntry<Void>() {
+
+							@Override
+							public void run(AsyncCallback<Void> callback, Loadable... loadables) {
+								reminderAsyncDAO.removeTemporaryObjects(callback);
+							}
+						});
+						
+						callback.onSuccess(null);
+					}
+				});
 			}
 		});
 		
-        requestManager.ready();
+        queue.run();
 	}
 	
 	public void pull(final SynchroProgressListener progressListener) {

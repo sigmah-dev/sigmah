@@ -18,6 +18,7 @@ import org.sigmah.shared.command.result.SynchronizeResult;
 import org.sigmah.shared.dispatch.CommandException;
 import org.sigmah.shared.dispatch.UpdateConflictException;
 import org.sigmah.shared.dto.referential.Container;
+import org.sigmah.shared.dto.referential.ContainerType;
 import org.sigmah.shared.dto.referential.EmailKey;
 import org.sigmah.shared.dto.referential.EmailKeyEnum;
 import org.sigmah.shared.dto.referential.EmailType;
@@ -86,7 +87,7 @@ public class SynchronizeHandler extends AbstractCommandHandler<Synchronize, Sync
 		// Format the error list.
 		final StringBuilder ulBuilder = new StringBuilder();
 		for(final Map.Entry<Container, List<String>> entry : errors.entrySet()) {
-			if(entry.getKey().getType() == Container.Type.PROJECT) {
+			if(entry.getKey().getType() == ContainerType.PROJECT) {
 				ulBuilder.append(i18nServer.t(context.getLanguage(), "project"));
 			} else {
 				ulBuilder.append(i18nServer.t(context.getLanguage(), "orgunit"));

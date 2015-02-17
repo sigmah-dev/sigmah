@@ -1,28 +1,23 @@
 package org.sigmah.shared.dto.referential;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
-import java.util.Objects;
+import java.io.Serializable;
 
 /**
  *
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
-public class Container implements IsSerializable {
-	
-	public static enum Type {
-		PROJECT,
-		ORG_UNIT
-	}
+public class Container implements Serializable {
 	
 	private int id;
 	private String name;
 	private String fullName;
-	private Type type;
+	private ContainerType type;
 
 	protected Container() {
+		// Serialization.
 	}
 
-	public Container(int id, String name, String fullName, Type type) {
+	public Container(int id, String name, String fullName, ContainerType type) {
 		this.id = id;
 		this.name = name;
 		this.fullName = fullName;
@@ -76,11 +71,11 @@ public class Container implements IsSerializable {
 		this.fullName = fullName;
 	}
 
-	public Type getType() {
+	public ContainerType getType() {
 		return type;
 	}
 
-	public void setType(Type type) {
+	public void setType(ContainerType type) {
 		this.type = type;
 	}
 	

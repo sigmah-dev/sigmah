@@ -1,8 +1,10 @@
 package org.sigmah.shared.dispatch;
 
+import java.io.Serializable;
 import org.sigmah.server.domain.OrgUnit;
 import org.sigmah.server.domain.Project;
 import org.sigmah.shared.dto.referential.Container;
+import org.sigmah.shared.dto.referential.ContainerType;
 
 /**
  * Sub type of {@link FunctionException}.
@@ -10,35 +12,44 @@ import org.sigmah.shared.dto.referential.Container;
  * 
  * @author Raphaël Calabro <raph_kun at yahoo.fr>
  */
-public class UpdateConflictException extends FunctionalException {
+public class UpdateConflictException extends FunctionalException implements Serializable {
 	
-	private final Container container;
-	private final boolean file;
+	private int containerId;
+	private String containerName;
+	private String containerFullName;
+	private boolean file;
 
+	protected UpdateConflictException() {
+		// Serialization.
+	}
+	
 	public UpdateConflictException(Project project, String... parameters) {
-		this(Container.Type.PROJECT, project.getId(), project.getName(), project.getFullName(), false, parameters);
+		this(ContainerType.PROJECT, project.getId(), project.getName(), project.getFullName(), false, parameters);
 	}
 
 	public UpdateConflictException(OrgUnit orgUnit, String... parameters) {
-		this(Container.Type.PROJECT, orgUnit.getId(), orgUnit.getName(), orgUnit.getFullName(), false, parameters);
+		this(ContainerType.ORG_UNIT, orgUnit.getId(), orgUnit.getName(), orgUnit.getFullName(), false, parameters);
 	}
 
 	public UpdateConflictException(Project project, boolean file, String... parameters) {
-		this(Container.Type.PROJECT, project.getId(), project.getName(), project.getFullName(), file, parameters);
+		this(ContainerType.PROJECT, project.getId(), project.getName(), project.getFullName(), file, parameters);
 	}
 
 	public UpdateConflictException(OrgUnit orgUnit, boolean file, String... parameters) {
-		this(Container.Type.PROJECT, orgUnit.getId(), orgUnit.getName(), orgUnit.getFullName(), file, parameters);
+		this(ContainerType.ORG_UNIT, orgUnit.getId(), orgUnit.getName(), orgUnit.getFullName(), file, parameters);
 	}
 
-	public UpdateConflictException(Container.Type containerType, int containerId, String containerName, String containerFullName, boolean file, String... parameters) {
+	public UpdateConflictException(ContainerType containerType, int containerId, String containerName, String containerFullName, boolean file, String... parameters) {
 		super(ErrorCode.UPDATE_CONFLICT, parameters);
-		this.container = new Container(containerId, containerName, containerFullName, containerType);
+//		this.containerType = containerType;
+		this.containerId = containerId;
+		this.containerName = containerName;
+		this.containerFullName = containerFullName;
 		this.file = file;
 	}
 
 	public Container getContainer() {
-		return container;
+		return new Container(containerId, containerName, containerFullName, ContainerType.PROJECT);
 	}
 
 	public boolean isFile() {
