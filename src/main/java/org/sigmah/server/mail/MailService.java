@@ -1,5 +1,6 @@
 package org.sigmah.server.mail;
 
+import java.io.InputStream;
 import java.util.Map;
 
 import org.sigmah.shared.Language;
@@ -44,5 +45,26 @@ public interface MailService {
 	 * @return {@code true} if the email has successfully been sent, {@code false} otherwise.
 	 */
 	boolean send(EmailType type, Map<EmailKey, String> parameters, Language language, String[] to, String... cc);
+
+	/**
+	 * Sends an email built from the given model and saves it.
+	 * 
+	 * @param type
+	 *          The email model.
+	 * @param parameters
+	 *          The parameters to replace in the model.
+	 * @param fileName
+	 *			Name of the attached file.
+	 * @param fileStream
+	 *			Content of the attached file.
+	 * @param language
+	 *          The mail language.
+	 * @param to
+	 *          The TO address(es).
+	 * @param cc
+	 *          The CC address(es).
+	 * @return {@code true} if the email has successfully been sent, {@code false} otherwise.
+	 */
+	boolean send(EmailType type, Map<EmailKey, String> parameters, final String fileName, final InputStream fileStream, Language language, String[] to, String... cc);
 
 }

@@ -11,7 +11,8 @@ public enum EmailType implements IsSerializable {
 
 	INVITATION,
 	LOST_PASSWORD,
-	OFFLINE_SYNC_CONFICT;
+	OFFLINE_SYNC_CONFLICT,
+	OFFLINE_FILE_CONFLICT;
 
 	/**
 	 * Returns the current {@code EmailType} corresponding property name.

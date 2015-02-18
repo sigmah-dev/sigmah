@@ -19,6 +19,7 @@ public enum EmailKeyEnum implements EmailKey {
 	RESET_PASSWORD_LINK,
 	
 	ERROR_LIST,
+	FILE_NAME,
 	;
 
 	private final boolean isSafe;

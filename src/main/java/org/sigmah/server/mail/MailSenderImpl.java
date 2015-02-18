@@ -1,15 +1,40 @@
 package org.sigmah.server.mail;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.util.Properties;
+import javax.activation.DataHandler;
+import javax.activation.DataSource;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
+import javax.mail.util.ByteArrayDataSource;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.SimpleEmail;
+import org.sigmah.shared.util.FileType;
 
 /**
  * Implementation of the mail sender using the Apache Commons library.
  * 
  * @author Maxime Lombard (mlombard@ideia.fr)
+ * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
 public class MailSenderImpl implements MailSender {
+	
+	private static final String MAIL_TRANSPORT_PROTOCOL = "mail.transport.protocol";
+	
+	private static final String MAIL_SMTP_HOST = "mail.smtp.host";
+	
+	private static final String MAIL_SMTP_PORT = "mail.smtp.port";
+	
+	private static final String TRANSPORT_PROTOCOL = "smtp";
 
 	/**
 	 * {@inheritDoc}
@@ -52,6 +77,96 @@ public class MailSenderImpl implements MailSender {
 
 		// Sends the mail.
 		simpleEmail.send();
+	}
+
+	@Override
+	public void sendFile(Email email, String fileName, InputStream fileStream) throws EmailException {
+        final String user = email.getAuthenticationUserName();
+        final String password = email.getAuthenticationPassword();
+        
+		final Properties properties = new Properties();
+		properties.setProperty(MAIL_TRANSPORT_PROTOCOL, TRANSPORT_PROTOCOL);
+		properties.setProperty(MAIL_SMTP_HOST, email.getHostName());
+		properties.setProperty(MAIL_SMTP_PORT, Integer.toString(email.getSmtpPort()));
+        
+		final StringBuilder toBuilder = new StringBuilder();
+		for(final String to : email.getToAddresses()) {
+			if(toBuilder.length() > 0) {
+				toBuilder.append(',');
+			}
+			toBuilder.append(to);
+		}
+
+		final StringBuilder ccBuilder = new StringBuilder();
+		if(email.getCcAddresses().length > 0) {
+			for(final String cc : email.getCcAddresses()) {
+				if(ccBuilder.length() > 0) {
+					ccBuilder.append(',');
+				}
+				ccBuilder.append(cc);
+			}
+		}
+		
+        final Session session = javax.mail.Session.getInstance(properties);
+		try {
+			final DataSource attachment = new ByteArrayDataSource(fileStream, 
+			FileType.fromExtension(FileType.getExtension(fileName), FileType._DEFAULT).getContentType());
+			
+			final Transport transport = session.getTransport();
+
+			if(password != null) {
+				transport.connect(user, password);
+			} else {
+				transport.connect();
+			}
+			
+			final MimeMessage message = new MimeMessage(session);
+			
+			// Configures the headers.
+			message.setFrom(new InternetAddress(email.getFromAddress(), false));
+			message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toBuilder.toString(), false));
+			if(email.getCcAddresses().length > 0) {
+				message.setRecipients(Message.RecipientType.CC, InternetAddress.parse(ccBuilder.toString(), false));
+			}
+
+			message.setSubject(email.getSubject(), email.getEncoding());
+
+			// Html body part.
+			final MimeMultipart textMultipart = new MimeMultipart("alternative");
+
+			final MimeBodyPart htmlBodyPart = new MimeBodyPart();
+			htmlBodyPart.setContent(email.getContent(), "text/html; charset=\"" + email.getEncoding() + "\"");
+			textMultipart.addBodyPart(htmlBodyPart);
+			
+			final MimeBodyPart textBodyPart = new MimeBodyPart();
+			textBodyPart.setContent(textMultipart);				
+
+			// Attachment body part.
+			final MimeBodyPart attachmentPart = new MimeBodyPart();
+			attachmentPart.setDataHandler(new DataHandler(attachment));
+			attachmentPart.setFileName(fileName);
+			attachmentPart.setDescription(fileName);
+
+			// Mail multipart content.
+			final MimeMultipart contentMultipart = new MimeMultipart("related");
+			contentMultipart.addBodyPart(textBodyPart);
+			contentMultipart.addBodyPart(attachmentPart);
+
+			message.setContent(contentMultipart);
+			message.saveChanges();
+
+			// Sends the mail.
+			transport.sendMessage(message, message.getAllRecipients());
+			
+		} catch (UnsupportedEncodingException ex) {
+			throw new EmailException("An error occured while encoding the mail content to '" + email.getEncoding() + "'.", ex);
+			
+		} catch(IOException ex) {
+			throw new EmailException("An error occured while reading the attachment of an email.", ex);
+			
+		} catch (MessagingException ex) {
+			throw new EmailException("An error occured while sending an email.", ex);
+		}
 	}
 
 }

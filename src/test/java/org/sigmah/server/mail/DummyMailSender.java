@@ -1,5 +1,6 @@
 package org.sigmah.server.mail;
 
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -18,7 +19,7 @@ import org.junit.Assert;
 public class DummyMailSender implements MailSender {
 
 	@Override
-	public void send(Email email) throws Exception {
+	public void send(Email email) throws EmailException {
 		if (email == null || ArrayUtils.isEmpty(email.getToAddresses())) {
 			// does nothing.
 			throw new EmailException("Email object null or invalid.");
@@ -66,5 +67,10 @@ public class DummyMailSender implements MailSender {
 		System.out.println();
 		System.out.println(email.getContent());
 	}
-	
+
+	@Override
+	public void sendFile(Email email, String fileName, InputStream fileStream) throws EmailException {
+		send(email);
+	}
+
 }

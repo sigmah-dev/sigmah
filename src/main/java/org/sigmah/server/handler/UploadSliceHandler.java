@@ -5,14 +5,20 @@ import com.google.inject.Singleton;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.HashMap;
 import org.sigmah.server.dispatch.impl.UserDispatch;
 import org.sigmah.server.domain.value.FileVersion;
 import org.sigmah.server.file.FileStorageProvider;
 import org.sigmah.server.handler.base.AbstractCommandHandler;
+import org.sigmah.server.mail.ModelMailService;
 import org.sigmah.shared.command.UploadSlice;
 import org.sigmah.shared.command.result.VoidResult;
 import org.sigmah.shared.dispatch.CommandException;
+import org.sigmah.shared.dto.referential.EmailKey;
+import org.sigmah.shared.dto.referential.EmailKeyEnum;
+import org.sigmah.shared.dto.referential.EmailType;
 import org.sigmah.shared.dto.value.FileVersionDTO;
+import org.sigmah.shared.util.ValueResultUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,6 +32,9 @@ public class UploadSliceHandler extends AbstractCommandHandler<UploadSlice, Void
 
 	@Inject
 	private FileStorageProvider fileStorageProvider;
+	
+	@Inject
+	private ModelMailService modelMailService;
 	
 	@Override
 	protected VoidResult execute(UploadSlice command, UserDispatch.UserExecutionContext context) throws CommandException {
@@ -56,7 +65,7 @@ public class UploadSliceHandler extends AbstractCommandHandler<UploadSlice, Void
 			
 			try(final OutputStream outputStream = fileStorageProvider.create(path)) {
 				for(int offset = 0; offset < fileVersionDTO.getSize();) {
-					final String slice = fileVersionDTO.getPath() + '.' + offset;
+					final String slice = path + '.' + offset;
 					
 					// Read the content of the slice.
 					try(final InputStream inputStream = fileStorageProvider.open(slice)) {
@@ -86,15 +95,13 @@ public class UploadSliceHandler extends AbstractCommandHandler<UploadSlice, Void
 			
 			if(fileVersion == null) {
 				try {
-					sendFileByEmail(path, context);
-					
-				} finally {
 					try {
+						sendFileByEmail(fileVersionDTO, path, context);
+					} finally {
 						fileStorageProvider.delete(path);
-
-					} catch(IOException ex) {
-						LOGGER.error("An error occured while removing the unused file '" + path + "'.", ex);
 					}
+				} catch(IOException ex) {
+					LOGGER.error("An error occured while accessing the unused file '" + path + "'.", ex);
 				}
 			}
 		}
@@ -103,12 +110,27 @@ public class UploadSliceHandler extends AbstractCommandHandler<UploadSlice, Void
 	}
 	
 	private String generateNameForNullPathFile(UploadSlice command, UserDispatch.UserExecutionContext context) {
-		return context.getUser().getEmail() + '_' + command.getFileVersionDTO().getId() + '_' + command.getFileVersionDTO().getName();
+		final String fileName = ValueResultUtils.normalizeFileName(command.getFileVersionDTO().getName());
+		return context.getUser().getEmail() + '_' + command.getFileVersionDTO().getId() + '_' + fileName;
 	}
 	
-	private void sendFileByEmail(String path, UserDispatch.UserExecutionContext context) {
-		// TODO: Move this method to MailSender
+	private void sendFileByEmail(FileVersionDTO fileVersion, String path, UserDispatch.UserExecutionContext context) throws IOException {
+		// Full name.
+		final String firstName = context.getUser().getFirstName();
+		final String lastName = context.getUser().getName();
+		final String fullName = firstName.isEmpty() ? lastName : firstName + ' ' + lastName;
 		
+		// Normalized file name.
+		final String fileName = fileVersion.getName() + '.' + fileVersion.getExtension();
+		
+		// Send the mail.
+		final HashMap<EmailKey, String> parameters = new HashMap<>();
+		parameters.put(EmailKeyEnum.USER_USERNAME, fullName);
+		parameters.put(EmailKeyEnum.FILE_NAME, fileName);
+		
+		try(InputStream inputStream = fileStorageProvider.open(path)) {
+			modelMailService.send(EmailType.OFFLINE_FILE_CONFLICT, parameters, fileName, inputStream, context.getLanguage(), new String[] {context.getUser().getEmail()});
+		}
 	}
 	
 }

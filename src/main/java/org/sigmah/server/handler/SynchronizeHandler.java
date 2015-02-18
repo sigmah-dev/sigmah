@@ -62,7 +62,7 @@ public class SynchronizeHandler extends AbstractCommandHandler<Synchronize, Sync
 			} catch(UpdateConflictException e) {
 				errorConcernFiles |= e.isFile();
 				
-				final Container container = e.getContainer();
+				final Container container = e.toContainer();
 				List<String> list = errors.get(container);
 				
 				if(list == null) {
@@ -119,7 +119,7 @@ public class SynchronizeHandler extends AbstractCommandHandler<Synchronize, Sync
 		parameters.put(EmailKeyEnum.USER_USERNAME, fullName);
 		parameters.put(EmailKeyEnum.ERROR_LIST, ulBuilder.toString());
 		
-		modelMailService.send(EmailType.OFFLINE_SYNC_CONFICT, parameters, context.getLanguage(), context.getUser().getEmail());
+		modelMailService.send(EmailType.OFFLINE_SYNC_CONFLICT, parameters, context.getLanguage(), context.getUser().getEmail());
 	}
 	
 }

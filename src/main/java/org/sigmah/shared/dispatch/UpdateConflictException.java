@@ -1,6 +1,5 @@
 package org.sigmah.shared.dispatch;
 
-import java.io.Serializable;
 import org.sigmah.server.domain.OrgUnit;
 import org.sigmah.server.domain.Project;
 import org.sigmah.shared.dto.referential.Container;
@@ -12,8 +11,9 @@ import org.sigmah.shared.dto.referential.ContainerType;
  * 
  * @author Raphaël Calabro <raph_kun at yahoo.fr>
  */
-public class UpdateConflictException extends FunctionalException implements Serializable {
+public class UpdateConflictException extends FunctionalException {
 	
+	private String containerType;
 	private int containerId;
 	private String containerName;
 	private String containerFullName;
@@ -21,6 +21,7 @@ public class UpdateConflictException extends FunctionalException implements Seri
 
 	protected UpdateConflictException() {
 		// Serialization.
+		this(null, -1, null, null, false);
 	}
 	
 	public UpdateConflictException(Project project, String... parameters) {
@@ -41,15 +42,15 @@ public class UpdateConflictException extends FunctionalException implements Seri
 
 	public UpdateConflictException(ContainerType containerType, int containerId, String containerName, String containerFullName, boolean file, String... parameters) {
 		super(ErrorCode.UPDATE_CONFLICT, parameters);
-//		this.containerType = containerType;
+		this.containerType = containerType != null ? containerType.name() : null;
 		this.containerId = containerId;
 		this.containerName = containerName;
 		this.containerFullName = containerFullName;
 		this.file = file;
 	}
 
-	public Container getContainer() {
-		return new Container(containerId, containerName, containerFullName, ContainerType.PROJECT);
+	public Container toContainer() {
+		return new Container(containerId, containerName, containerFullName, containerType != null ? ContainerType.valueOf(containerType) : null);
 	}
 
 	public boolean isFile() {

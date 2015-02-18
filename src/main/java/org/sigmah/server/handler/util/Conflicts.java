@@ -109,18 +109,13 @@ public class Conflicts extends EntityManagerProvider {
 		final TypedQuery<Project> phaseQuery = em().createQuery("SELECT p FROM "
 				+ "Value v, "
 				+ "Project p "
-				+ "JOIN p.projectModel.phaseModels pm "
-				+ "JOIN pm.layout.groups as lg "
-				+ "JOIN lg.constraints as lc "
-				+ "WHERE v.element = lc.element "
+				+ "WHERE v.containerId = p.id "
 				+ "AND (v.value = :fileId OR v.value like :fileIdLeft OR v.value like :fileIdRight OR v.value like :fileIdCenter)", Project.class);
-
+		
 		final TypedQuery<Project> detailsQuery = em().createQuery("SELECT p FROM "
 				+ "Value v, "
 				+ "Project p "
-				+ "JOIN p.projectModel.projectDetails.layout.groups as lg "
-				+ "JOIN lg.constraints as lc "
-				+ "WHERE v.element = lc.element "
+				+ "WHERE v.containerId = p.id "
 				+ "AND (v.value = :fileId OR v.value like :fileIdLeft OR v.value like :fileIdRight OR v.value like :fileIdCenter)", Project.class);
 
 		setFileQueryParameters(phaseQuery, file.getId());

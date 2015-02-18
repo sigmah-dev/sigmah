@@ -3,7 +3,8 @@ package org.sigmah.shared.dto.referential;
 import java.io.Serializable;
 
 /**
- *
+ * Informations about a container of flexible elements.
+ * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
 public class Container implements Serializable {

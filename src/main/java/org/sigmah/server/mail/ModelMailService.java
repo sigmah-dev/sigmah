@@ -16,6 +16,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
+import java.io.InputStream;
+import java.util.Arrays;
 
 /**
  * Defines the mail service.
@@ -68,6 +70,14 @@ public class ModelMailService implements MailService {
 	 */
 	@Override
 	public boolean send(final EmailType type, final Map<EmailKey, String> parameters, final Language language, final String[] to, final String... cc) {
+		return send(type, parameters, null, null, language, to, cc);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean send(final EmailType type, final Map<EmailKey, String> parameters, final String fileName, final InputStream fileStream, final Language language, final String[] to, final String... cc) {
 
 		// Checking that the type is not null.
 		if (type == null) {
@@ -107,12 +117,16 @@ public class ModelMailService implements MailService {
 
 		// Sending the email.
 		if (LOG.isInfoEnabled()) {
-			LOG.info("Sending an email to '{}'.", email.getToAddresses().toString());
+			LOG.info("Sending an email to '{}'.", Arrays.toString(email.getToAddresses()));
 		}
 
 		try {
 
-			sender.send(email);
+			if(fileName == null || fileStream == null) {
+				sender.send(email);
+			} else {
+				sender.sendFile(email, fileName, fileStream);
+			}
 
 			if (LOG.isInfoEnabled()) {
 				LOG.info("Email successfully sent.");
