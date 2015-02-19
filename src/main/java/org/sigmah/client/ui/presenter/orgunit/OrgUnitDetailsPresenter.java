@@ -192,7 +192,7 @@ public class OrgUnitDetailsPresenter extends AbstractOrgUnitPresenter<OrgUnitDet
 		final LayoutDTO layout = details.getLayout();
 
 		// If the user has the right to modify the element
-		final boolean enabled = ProfileUtils.isGranted(auth(), GlobalPermissionEnum.MANAGE_UNIT);
+		final boolean enabled = ProfileUtils.isGranted(auth(), GlobalPermissionEnum.MANAGE_ORG_UNITS);
 
 		// Counts elements.
 		int count = 0;

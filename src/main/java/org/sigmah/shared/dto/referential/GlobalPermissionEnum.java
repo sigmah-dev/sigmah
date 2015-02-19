@@ -8,10 +8,16 @@ import com.google.gwt.core.client.GWT;
 /**
  * List of the global permissions.
  * 
- * @author tmi
+ * @author Tom Miette (tmiette@ideia.fr)
  * @author Denis Colliot (dcolliot@ideia.fr)
+ * @author renato
+ * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
 public enum GlobalPermissionEnum implements Result {
+	
+	/*
+	 * Project-related permissions. 
+	 */
 
 	/**
 	 * View the projects list and the project page.
@@ -37,11 +43,112 @@ public enum GlobalPermissionEnum implements Result {
 	 * Lock or unlock a project.
 	 */
 	LOCK_PROJECT(GlobalPermissionCategory.PROJECT),
+	
+	/**
+	 * Modify locked content. (i. e. content of closed phases and content of closed projects).
+	 */
+	MODIFY_LOCKED_CONTENT(GlobalPermissionCategory.PROJECT),
+	
+	/**
+	 * Remove a file (in the files list flexible element of projects).
+	 */
+	REMOVE_PROJECT_FILE(GlobalPermissionCategory.PROJECT),
 
 	/**
 	 * Close or activate a phase.
 	 */
 	CHANGE_PHASE(GlobalPermissionCategory.PROJECT),
+	
+	/**
+	 * For relating projects.
+	 */
+	RELATE_PROJECT(GlobalPermissionCategory.PROJECT),
+	
+	/**
+	 * Validate the amendement.
+	 */
+	VALID_AMENDEMENT(GlobalPermissionCategory.PROJECT),
+
+	/**
+	 * for viewing the logframe sub-tab.
+	 */
+	VIEW_LOGFRAME(GlobalPermissionCategory.PROJECT),
+
+	/**
+	 * for creating/modifying/deleting objectives, expected results, activities,
+	 * hypothesis or linking/unlinking indicators to the logframe.
+	 */
+	EDIT_LOGFRAME(GlobalPermissionCategory.PROJECT),
+
+	/**
+	 * for viewing the agenda sub-tab.
+	 */
+	VIEW_PROJECT_AGENDA(GlobalPermissionCategory.PROJECT),
+
+	/**
+	 * for creating/deleting/modifying events in the agenda.
+	 */
+	EDIT_PROJECT_AGENDA(GlobalPermissionCategory.PROJECT),
+	
+	/**
+	 * for viewing the two indicator sub-tabs.
+	 */
+	VIEW_INDICATOR(GlobalPermissionCategory.INDICATOR),
+
+	/**
+	 * for creating/deleting/modifying indicator definitions.
+	 */
+	MANAGE_INDICATOR(GlobalPermissionCategory.INDICATOR),
+
+	/**
+	 * for editing values of existing indicators.
+	 */
+	EDIT_INDICATOR(GlobalPermissionCategory.INDICATOR),
+	
+	/**
+	 * For viewing Project > Map.
+	 */
+	VIEW_MAPTAB(GlobalPermissionCategory.INDICATOR),
+	
+	/**
+	 * For setting/editing the main location(site).
+	 */
+	MANAGE_MAIN_SITE(GlobalPermissionCategory.INDICATOR),
+	
+	/**
+	 * For creating/editing sites.
+	 */
+	MANAGE_SITES(GlobalPermissionCategory.INDICATOR),
+	
+	
+	/*
+	 * Org unit-related permissions. 
+	 */
+	
+	/**
+	 * Edit and save the org. unit content.
+	 */
+	EDIT_ORG_UNIT(GlobalPermissionCategory.ORG_UNIT),
+	
+	/**
+	 * Remove a file (in the files list flexible element of org. units).
+	 */
+	REMOVE_ORG_UNIT_FILE(GlobalPermissionCategory.ORG_UNIT),
+
+	/**
+	 * For viewing the agenda sub-tab of org. units.
+	 */
+	VIEW_ORG_UNIT_AGENDA(GlobalPermissionCategory.ORG_UNIT),
+	
+	/**
+	 * For creating/deleting/modifying events in the agenda of org. units.
+	 */
+	EDIT_ORG_UNIT_AGENDA(GlobalPermissionCategory.ORG_UNIT),
+	
+	
+	/*
+	 * Administration-related permissions. 
+	 */
 
 	/**
 	 * View the admin link.
@@ -51,95 +158,76 @@ public enum GlobalPermissionEnum implements Result {
 	/**
 	 * View the admin page to manage users.
 	 */
-	MANAGE_USER(GlobalPermissionCategory.ADMINISTRATION),
+	MANAGE_USERS(GlobalPermissionCategory.ADMINISTRATION),
 
 	/**
 	 * View the admin page to manage the org units.
 	 */
-	MANAGE_UNIT(GlobalPermissionCategory.ADMINISTRATION),
+	MANAGE_ORG_UNITS(GlobalPermissionCategory.ADMINISTRATION),
+	
+	/**
+	 * View the admin page to manage project models.
+	 */
+	MANAGE_PROJECT_MODELS(GlobalPermissionCategory.ADMINISTRATION),
+
+	/**
+	 * View the admin page to manage org unit models.
+	 */
+	MANAGE_ORG_UNIT_MODELS(GlobalPermissionCategory.ADMINISTRATION),
+
+	/**
+	 * View the admin page to manage report models.
+	 */
+	MANAGE_REPORT_MODELS(GlobalPermissionCategory.ADMINISTRATION),
+
+	/**
+	 * View the admin page to manage categories.
+	 */
+	MANAGE_CATEGORIES(GlobalPermissionCategory.ADMINISTRATION),
+
+	/**
+	 * View the admin page to manage importation schemes.
+	 */
+	MANAGE_IMPORTATION_SCHEMES(GlobalPermissionCategory.ADMINISTRATION),
+
+	/**
+	 * View the admin page to manage system settings.
+	 */
+	MANAGE_SETTINGS(GlobalPermissionCategory.ADMINISTRATION),
 
 	/**
 	 * Remove a file (in the files list flexible element).
 	 */
+	@Deprecated
 	REMOVE_FILE(GlobalPermissionCategory.OTHER),
 
 	/**
-	 * Validate the amendement.
-	 */
-	VALID_AMENDEMENT(GlobalPermissionCategory.PROJECT),
-
-	/**
-	 * for viewing the logframe sub-tab
-	 */
-	VIEW_LOGFRAME(null),
-
-	/**
-	 * for creating/modifying/deleting objectives, expected results, activities, hypothesis or linking/unlinking
-	 * indicators to the logframe
-	 */
-	EDIT_LOGFRAME(null),
-
-	/**
-	 * for viewing the agenda sub-tab
-	 */
-	VIEW_AGENDA(null),
-
-	/**
-	 * for creating/deleting/modifying events in the agenda
-	 */
-	EDIT_AGENDA(null),
-
-	/**
-	 * for creating/deleting/modifying/closing reminders created by the user
+	 * for creating/deleting/modifying/closing reminders created by the user.
 	 */
 
 	EDIT_OWN_REMINDERS(null),
 
 	/**
-	 * for creating/deleting/modifying/closing reminders created by the user or by other users
+	 * for creating/deleting/modifying/closing reminders created by the user or 
+	 * by other users.
 	 */
 
 	EDIT_ALL_REMINDERS(null),
 
 	/**
-	 * for viewing the two indicator sub-tabs
-	 */
-	VIEW_INDICATOR(null),
-
-	/**
-	 * for creating/deleting/modifying indicator definitions
-	 */
-	MANAGE_INDICATOR(null),
-
-	/**
-	 * for editing values of existing indicators
-	 */
-	EDIT_INDICATOR(null),
-
-	/**
-	 * Show global export button in projects list
+	 * Show global export button in projects list.
 	 */
 	GLOBAL_EXPORT(GlobalPermissionCategory.OTHER),
 	
 	/**
-	 * For viewing Project > Map
+	 * For exporting HXL data.
 	 */
-	VIEW_MAPTAB(null),
+	EXPORT_HXL(null),
 	
 	/**
-	 * For setting/editing the main location(site)
-	 */
-	MANAGE_MAIN_SITE(null),
-	
-	/**
-	 * For cretaing/editing sites
-	 */
-	MANAGE_SITES(null),
-	
-	/**
-	 * For exporting HXL data
-	 */
-	EXPORT_HXL(null);
+     * For changing own password.
+     */
+	CHANGE_PASSWORD(GlobalPermissionCategory.OTHER);
 
 	/**
 	 * The global permission category (never {@code null}).
@@ -175,6 +263,10 @@ public enum GlobalPermissionEnum implements Result {
 		// WARNING: Categories ordinal order is used in profiles administration.
 
 		PROJECT,
+		
+		INDICATOR,
+		
+		ORG_UNIT,
 
 		ADMINISTRATION,
 
@@ -271,11 +363,11 @@ public enum GlobalPermissionEnum implements Result {
 			case VIEW_ADMIN:
 				return I18N.CONSTANTS.VIEW_ADMIN();
 
-			case MANAGE_USER:
-				return I18N.CONSTANTS.MANAGE_USER();
+			case MANAGE_USERS:
+				return I18N.CONSTANTS.MANAGE_USERS();
 
-			case MANAGE_UNIT:
-				return I18N.CONSTANTS.MANAGE_UNIT();
+			case MANAGE_ORG_UNITS:
+				return I18N.CONSTANTS.MANAGE_ORG_UNITS();
 
 			case REMOVE_FILE:
 				return I18N.CONSTANTS.REMOVE_FILE();
@@ -289,10 +381,10 @@ public enum GlobalPermissionEnum implements Result {
 			case EDIT_LOGFRAME:
 				return I18N.CONSTANTS.EDIT_LOGFRAME();
 
-			case VIEW_AGENDA:
+			case VIEW_PROJECT_AGENDA:
 				return I18N.CONSTANTS.VIEW_AGENDA();
 
-			case EDIT_AGENDA:
+			case EDIT_PROJECT_AGENDA:
 				return I18N.CONSTANTS.EDIT_AGENDA();
 
 			case EDIT_ALL_REMINDERS:

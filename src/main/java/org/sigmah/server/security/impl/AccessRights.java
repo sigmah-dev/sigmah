@@ -79,7 +79,7 @@ final class AccessRights {
 
 		sperm(pageToken(Page.PROJECT_DASHBOARD), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_PROJECT);
 		sperm(pageToken(Page.PROJECT_DETAILS), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_PROJECT);
-		sperm(pageToken(Page.PROJECT_CALENDAR), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_PROJECT, GlobalPermissionEnum.VIEW_AGENDA);
+		sperm(pageToken(Page.PROJECT_CALENDAR), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_PROJECT, GlobalPermissionEnum.VIEW_PROJECT_AGENDA);
 		sperm(pageToken(Page.PROJECT_INDICATORS_ENTRIES), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_PROJECT, GlobalPermissionEnum.VIEW_INDICATOR);
 		sperm(pageToken(Page.PROJECT_INDICATORS_MANAGEMENT), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_PROJECT, GlobalPermissionEnum.VIEW_INDICATOR);
 		sperm(pageToken(Page.PROJECT_INDICATORS_MAP), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_PROJECT, GlobalPermissionEnum.VIEW_INDICATOR);
@@ -92,14 +92,14 @@ final class AccessRights {
 		sperm(pageToken(Page.CREATE_PROJECT), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.CREATE_PROJECT);
 
 		sperm(pageToken(Page.ORGUNIT_DASHBOARD), GrantType.AUTHENTICATED_ONLY);
-		sperm(pageToken(Page.ORGUNIT_CALENDAR), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_AGENDA);
+		sperm(pageToken(Page.ORGUNIT_CALENDAR), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_PROJECT_AGENDA);
 		sperm(pageToken(Page.ORGUNIT_DETAILS), GrantType.AUTHENTICATED_ONLY);
 		sperm(pageToken(Page.ORGUNIT_REPORTS), GrantType.AUTHENTICATED_ONLY);
 
 		sperm(pageToken(Page.ADMIN_PARAMETERS), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_ADMIN);
 		sperm(pageToken(Page.ADMIN_CATEGORIES), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_ADMIN);
 		sperm(pageToken(Page.ADMIN_ORG_UNITS), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_ADMIN);
-		sperm(pageToken(Page.ADMIN_USERS), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_ADMIN, GlobalPermissionEnum.MANAGE_USER);
+		sperm(pageToken(Page.ADMIN_USERS), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_ADMIN, GlobalPermissionEnum.MANAGE_USERS);
 		sperm(pageToken(Page.ADMIN_PROJECTS_MODELS), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_ADMIN);
 		sperm(pageToken(Page.ADMIN_REPORTS_MODELS), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_ADMIN);
 		sperm(pageToken(Page.ADMIN_ORG_UNITS_MODELS), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_ADMIN);

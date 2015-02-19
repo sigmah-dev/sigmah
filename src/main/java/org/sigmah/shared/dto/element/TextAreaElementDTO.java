@@ -162,7 +162,8 @@ public class TextAreaElementDTO extends FlexibleElementDTO {
 					// manual selections.
 					final DateField dateField = new DateField();
 					dateField.getPropertyEditor().setFormat(DATE_FORMAT);
-					dateField.setEditable(false);
+					dateField.setEditable(true);
+					dateField.setAllowBlank(true);
 					preferredWidth = 120;
 
 					// Sets the min date value.

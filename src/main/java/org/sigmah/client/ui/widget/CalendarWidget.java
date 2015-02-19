@@ -724,7 +724,7 @@ public class CalendarWidget extends Composite {
 
 			if (event.getParent().isEditable()
 				&& ProfileUtils.isGranted(authentication, GlobalPermissionEnum.EDIT_PROJECT)
-				&& ProfileUtils.isGranted(authentication, GlobalPermissionEnum.EDIT_AGENDA)) {
+				&& ProfileUtils.isGranted(authentication, GlobalPermissionEnum.EDIT_PROJECT_AGENDA)) {
 
 				final Anchor editAnchor = new Anchor(I18N.CONSTANTS.calendarEditEvent());
 				editAnchor.addClickHandler(new ClickHandler() {

@@ -271,7 +271,7 @@ public class CalendarPresenter extends AbstractPresenter<CalendarPresenter.View>
 
 		calendar.refresh();
 
-		view.setAddEventButtonEnabled(ProfileUtils.isGranted(auth(), GlobalPermissionEnum.EDIT_AGENDA, GlobalPermissionEnum.EDIT_PROJECT));
+		view.setAddEventButtonEnabled(ProfileUtils.isGranted(auth(), GlobalPermissionEnum.EDIT_PROJECT_AGENDA, GlobalPermissionEnum.EDIT_PROJECT));
 		reloadEvents(calendars);
 	}
 

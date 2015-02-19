@@ -192,7 +192,8 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 
 				// Builds the field and sets its value.
 				if (enabled) {
-					final DateField dateField = createDateField(false);
+					// Patch #76 by ssn155
+					final DateField dateField = createDateField(true);
 					dateField.setValue(sd);
 					field = dateField;
 
