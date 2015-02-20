@@ -31,11 +31,15 @@ import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.Style.Unit;
+import java.util.Collections;
+import java.util.HashSet;
+import org.sigmah.shared.dto.referential.ValueEventChangeType;
 
 /**
  * QuestionElementDTO.
  * 
  * @author Denis Colliot (dcolliot@ideia.fr) (v2.0)
+ * @author Renato Almeida (renatoaf.ufcg@gmail.com)
  */
 public class QuestionElementDTO extends FlexibleElementDTO {
 
@@ -83,20 +87,20 @@ public class QuestionElementDTO extends FlexibleElementDTO {
 
 	// Question category type
 	public CategoryTypeDTO getCategoryType() {
-		return get("categoryType");
+		return get(CATEGORY_TYPE);
 	}
 
 	public void setCategoryType(CategoryTypeDTO categoryType) {
-		set("categoryType", categoryType);
+		set(CATEGORY_TYPE, categoryType);
 	}
 
 	// Question quality criterion
 	public QualityCriterionDTO getQualityCriterion() {
-		return get("qualityCriterion");
+		return get(QUALITY_CRITERION);
 	}
 
 	public void setQualityCriterion(QualityCriterionDTO qualityCriterion) {
-		set("qualityCriterion", qualityCriterion);
+		set(QUALITY_CRITERION, qualityCriterion);
 	}
 
 	/**
@@ -104,7 +108,8 @@ public class QuestionElementDTO extends FlexibleElementDTO {
 	 */
 	@Override
 	protected Component getComponent(ValueResult valueResult, boolean enabled) {
-
+		final boolean canEdit = enabled && userCanPerformChangeType(ValueEventChangeType.EDIT);
+		
 		// Question's component.
 		final Component component;
 
@@ -115,6 +120,9 @@ public class QuestionElementDTO extends FlexibleElementDTO {
 		// Creates the listener of selection changes.
 		final ComboBoxSelectionListener listener = new ComboBoxSelectionListener();
 
+		// Selection.
+		List<QuestionChoiceElementDTO> selectedChoices = Collections.emptyList();
+		
 		// Single selection case.
 		if (!Boolean.TRUE.equals(getMultiple())) {
 
@@ -148,6 +156,7 @@ public class QuestionElementDTO extends FlexibleElementDTO {
 				for (QuestionChoiceElementDTO choiceDTO : getChoices()) {
 					if (idChoice.equals(String.valueOf(choiceDTO.getId()))) {
 						comboBox.setValue(choiceDTO);
+						selectedChoices = Collections.singletonList(choiceDTO);
 						break;
 					}
 				}
@@ -164,9 +173,9 @@ public class QuestionElementDTO extends FlexibleElementDTO {
 		else {
 
 			// Selection model.
-			final CheckBoxSelectionModel<QuestionChoiceElementDTO> sm = new CheckBoxSelectionModel<QuestionChoiceElementDTO>();
-			sm.setSelectionMode(SelectionMode.MULTI);
-			sm.addListener(Events.SelectionChange, listener);
+			final CheckBoxSelectionModel<QuestionChoiceElementDTO> selectionModel = new CheckBoxSelectionModel<QuestionChoiceElementDTO>();
+			selectionModel.setSelectionMode(SelectionMode.MULTI);
+			selectionModel.addListener(Events.SelectionChange, listener);
 
 			// Defines grid column model.
 			final ColumnConfig labelColumn = new ColumnConfig();
@@ -196,38 +205,39 @@ public class QuestionElementDTO extends FlexibleElementDTO {
 				});
 			}
 
+			// Visible columns.
+			final ColumnConfig[] columnConfigs = canEdit ?
+				new ColumnConfig[] {selectionModel.getColumn(), labelColumn} :
+				new ColumnConfig[] {labelColumn};
+				
 			// Grid used as a list box.
-			final FlexibleGrid<QuestionChoiceElementDTO> multipleQuestion = new FlexibleGrid<QuestionChoiceElementDTO>(store, sm, sm.getColumn(), labelColumn);
+			final FlexibleGrid<QuestionChoiceElementDTO> multipleQuestion = new FlexibleGrid<QuestionChoiceElementDTO>(store, selectionModel, columnConfigs);
 			multipleQuestion.setAutoExpandColumn(LABEL);
 			multipleQuestion.setVisibleElementsCount(5);
 
-			final ContentPanel cp = new ContentPanel();
-			cp.setHeaderVisible(true);
-			cp.setBorders(true);
-			cp.setHeadingText(getLabel());
-			cp.setTopComponent(null);
-			cp.add(multipleQuestion);
+			final ContentPanel contentPanel = new ContentPanel();
+			contentPanel.setHeaderVisible(true);
+			contentPanel.setBorders(true);
+			contentPanel.setHeadingText(getLabel());
+			contentPanel.setTopComponent(null);
+			contentPanel.add(multipleQuestion);
 
 			// Selects the already selected choices.
 			if (valueResult != null && valueResult.isValueDefined()) {
 
-				final List<Integer> selectedChoicesId = ValueResultUtils.splitValuesAsInteger(valueResult.getValueObject());
-				final ArrayList<QuestionChoiceElementDTO> selectedChoices = new ArrayList<QuestionChoiceElementDTO>();
+				final HashSet<Integer> selectedChoicesId = new HashSet(ValueResultUtils.splitValuesAsInteger(valueResult.getValueObject()));
+				selectedChoices = new ArrayList<QuestionChoiceElementDTO>();
 
-				for (final Integer id : selectedChoicesId) {
-					for (final QuestionChoiceElementDTO choiceDTO : getChoices()) {
-						if (id.equals(choiceDTO.getId())) {
-							selectedChoices.add(choiceDTO);
-						}
+				for (final QuestionChoiceElementDTO choiceDTO : getChoices()) {
+					if (selectedChoicesId.contains(choiceDTO.getId())) {
+						selectedChoices.add(choiceDTO);
 					}
 				}
 
-				sm.select(selectedChoices, false);
+				selectionModel.select(selectedChoices, false);
 			}
 
-			multipleQuestion.getSelectionModel().setLocked(!enabled);
-
-			component = cp;
+			component = contentPanel;
 		}
 
 		// If the component is a category and/or a quality criterion.
@@ -244,6 +254,13 @@ public class QuestionElementDTO extends FlexibleElementDTO {
 		} else if (getQualityCriterion() != null) {
 			component.setToolTip(I18N.MESSAGES.flexibleElementQuestionQuality(getQualityCriterion().getInfo()));
 		}
+		
+		// Remove disabled options (not selected)
+        for (QuestionChoiceElementDTO choice : getChoices()) {
+        	if (choice.isDisabled() && !selectedChoices.contains(choice)) {
+        		store.remove(choice);
+        	}
+        }
 
 		return component;
 	}

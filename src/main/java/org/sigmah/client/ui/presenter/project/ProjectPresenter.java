@@ -431,7 +431,7 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 	 * @return <code>true</code> if the current user can unlock projects, <code>false</code> otherwise.
 	 */
 	public boolean canUnlockProject() {
-		return auth().getAggregatedProfile().getGlobalPermissions().contains(GlobalPermissionEnum.LOCK_PROJECT);
+		return ProfileUtils.isGranted(auth(), GlobalPermissionEnum.LOCK_PROJECT);
 	}
 	
 	/**

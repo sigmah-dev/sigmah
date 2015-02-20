@@ -46,17 +46,16 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Image;
+import org.sigmah.shared.dto.referential.ValueEventChangeType;
 
 /**
  * Flexible element that can contain a list of project reports.
  * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  * @author Denis Colliot (dcolliot@ideia.fr)
+ * @author Renato Almeida (renatoaf.ufcg@gmail.com)
  */
-@SuppressWarnings({
-										"rawtypes",
-										"unchecked"
-})
+@SuppressWarnings({"rawtypes","unchecked"})
 public class ReportListElementDTO extends FlexibleElementDTO {
 
 	/**
@@ -93,6 +92,8 @@ public class ReportListElementDTO extends FlexibleElementDTO {
 	 */
 	@Override
 	protected Component getComponent(ValueResult valueResult, boolean enabled) {
+		final boolean canAdd = enabled && userCanPerformChangeType(ValueEventChangeType.ADD);
+		
 		final ContentPanel component = new ContentPanel();
 		component.setHeadingText(getLabel());
 
@@ -104,7 +105,9 @@ public class ReportListElementDTO extends FlexibleElementDTO {
 			store.add((List<ReportReference>) reports);
 
 		// Creating the toolbar
-		component.setTopComponent(createToolbar(enabled, store));
+		if (canAdd) {
+			component.setTopComponent(createToolbar(store));
+		}
 
 		// Creating the grid
 		final FlexibleGrid<ReportReference> reportGrid = new FlexibleGrid<ReportReference>(store, null, createColumnModel(enabled));
@@ -159,6 +162,8 @@ public class ReportListElementDTO extends FlexibleElementDTO {
 	 * @return A new array of column configs.
 	 */
 	private ColumnConfig[] createColumnModel(final boolean enabled) {
+		final boolean canRemove = enabled && userCanPerformChangeType(ValueEventChangeType.REMOVE);
+		
 		// Creating columns
 		final ColumnConfig lastEditDateColumn = new ColumnConfig("lastEditDate", I18N.CONSTANTS.reportLastEditDate(), 60);
 		final ColumnConfig nameColumn = new ColumnConfig("name", I18N.CONSTANTS.reportName(), 100);
@@ -192,56 +197,56 @@ public class ReportListElementDTO extends FlexibleElementDTO {
 
 			@Override
 			public Object render(final ReportReference model, String property, ColumnData config, int rowIndex, int colIndex, final ListStore store, Grid grid) {
-				if (enabled) {
-					final Image image = IconImageBundle.ICONS.remove().createImage();
-					image.setTitle(I18N.CONSTANTS.remove());
-					image.addStyleName("flexibility-action");
-
-					// Action
-					image.addClickHandler(new ClickHandler() {
-
-						@Override
-						public void onClick(ClickEvent event) {
-							N10N.confirmation(I18N.CONSTANTS.remove(), I18N.MESSAGES.reportRemoveConfirm(model.getName()), new ConfirmCallback() {
-
-								@Override
-								public void onAction() {
-									// TODO: Delete the report
-									if (Log.isDebugEnabled()) {
-										Log.debug("Removing '" + model.getName() + "' report...");
-									}
-
-									dispatch.execute(new Delete(ProjectReportDTO.ENTITY_NAME, model.getId()), new CommandResultHandler<VoidResult>() {
-
-										@Override
-										public void onCommandSuccess(final VoidResult result) {
-											store.remove(model);
-											N10N.validNotif("OK", "OK");
-										}
-
-										@Override
-										public void onCommandFailure(final Throwable caught) {
-											N10N.warn("ERROR", "ERROR");
-										}
-
-									});
-								}
-							});
-						}
-					});
-
-					return image;
-				} else {
+				if (!canRemove) {
 					return "-";
 				}
+				
+				final Image image = IconImageBundle.ICONS.remove().createImage();
+				image.setTitle(I18N.CONSTANTS.remove());
+				image.addStyleName("flexibility-action");
+
+				// Action
+				image.addClickHandler(new ClickHandler() {
+
+					@Override
+					public void onClick(ClickEvent event) {
+						N10N.confirmation(I18N.CONSTANTS.remove(), I18N.MESSAGES.reportRemoveConfirm(model.getName()), new ConfirmCallback() {
+
+							@Override
+							public void onAction() {
+								// TODO: Delete the report
+								if (Log.isDebugEnabled()) {
+									Log.debug("Removing '" + model.getName() + "' report...");
+								}
+
+								dispatch.execute(new Delete(ProjectReportDTO.ENTITY_NAME, model.getId()), new CommandResultHandler<VoidResult>() {
+
+									@Override
+									public void onCommandSuccess(final VoidResult result) {
+										store.remove(model);
+										N10N.validNotif("OK", "OK");
+									}
+
+									@Override
+									public void onCommandFailure(final Throwable caught) {
+										N10N.warn("ERROR", "ERROR");
+									}
+
+								});
+							}
+						});
+					}
+				});
+
+				return image;
 			}
 		});
 
 		return new ColumnConfig[] {
-																lastEditDateColumn,
-																nameColumn,
-																editorNameColumn,
-																deleteColumn
+			lastEditDateColumn,
+			nameColumn,
+			editorNameColumn,
+			deleteColumn
 		};
 	}
 
@@ -252,7 +257,7 @@ public class ReportListElementDTO extends FlexibleElementDTO {
 	 *          <code>true</code> to enable the buttons of this toolbar, <code>false</code> to disable them.
 	 * @return A new toolbar.
 	 */
-	private ToolBar createToolbar(final boolean enabled, final ListStore<ReportReference> store) {
+	private ToolBar createToolbar(final ListStore<ReportReference> store) {
 		final ToolBar toolbar = new ToolBar();
 
 		// Creating buttons
@@ -317,9 +322,6 @@ public class ReportListElementDTO extends FlexibleElementDTO {
 				});
 			}
 		});
-
-		// Enabling / desabling buttons
-		createReportButton.setEnabled(enabled);
 
 		// Adding buttons to the toolbar
 		toolbar.add(createReportButton);

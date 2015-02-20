@@ -154,7 +154,12 @@ public class LocalCachedOrganization {
 	 * @param callback
 	 *          The callback.
 	 */
-	public void get(int id, AsyncCallback<OrgUnitDTO> callback) {
+	public void get(Integer id, AsyncCallback<OrgUnitDTO> callback) {
+		
+		// If the requested id is null, returns immediatly a null result.
+		if(id == null) {
+			callback.onSuccess(null);
+		}
 
 		// If the cache is available, returns it immediately.
 		if (hasBeenSet) {

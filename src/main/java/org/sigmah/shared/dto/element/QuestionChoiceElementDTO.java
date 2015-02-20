@@ -26,6 +26,7 @@ public class QuestionChoiceElementDTO extends AbstractModelDataEntityDTO<Integer
 	public static final String SORT_ORDER = "sortOrder";
 	public static final String PARENT_QUESTION = "parentQuestion";
 	public static final String CATEGORY_ELEMENT = "categoryElement";
+	public static final String DISABLED = "disabled";
 
 	/**
 	 * {@inheritDoc}
@@ -54,6 +55,16 @@ public class QuestionChoiceElementDTO extends AbstractModelDataEntityDTO<Integer
 			set(LABEL, label);
 		}
 	}
+	
+	// Question choice disabled status
+    public boolean isDisabled() {
+		final Boolean disabled = get(DISABLED);
+        return disabled != null && disabled;
+    }
+
+    public void setDisabled(Boolean disabled) {
+        set(DISABLED, disabled);
+    }
 
 	// Question choice sort order
 	public Integer getSortOrder() {

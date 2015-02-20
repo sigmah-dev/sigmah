@@ -10,7 +10,7 @@ import com.google.gwt.core.client.GWT;
  * 
  * @author Tom Miette (tmiette@ideia.fr)
  * @author Denis Colliot (dcolliot@ideia.fr)
- * @author renato
+ * @author Renato Almeida (renatoaf.ufcg@gmail.com)
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
 public enum GlobalPermissionEnum implements Result {

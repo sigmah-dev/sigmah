@@ -44,6 +44,8 @@ import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.google.gwt.event.shared.HandlerManager;
 import org.sigmah.client.ui.widget.Loadable;
+import org.sigmah.shared.dto.referential.GlobalPermissionEnum;
+import org.sigmah.shared.dto.referential.ValueEventChangeType;
 
 /**
  * Abstract flexible element DTO.
@@ -220,41 +222,12 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 	
 	private Component getComponentWithHistory(ValueResult valueResult, boolean enabled, boolean inBanner, boolean canUnlockProject) {
 
-		// Checking the amendment state.
-		if (enabled && // This element is in an editable state
-			getAmendable()) {// This element is part of the project core version
-			if (currentContainerDTO instanceof ProjectDTO && // This element is displayed in a project
-				(((ProjectDTO) currentContainerDTO).getAmendmentState() != AmendmentState.DRAFT || ((ProjectDTO) currentContainerDTO).getCurrentAmendment() != null)) {
-				enabled = canUnlockProject;
-			} else {
-				if (currentContainerDTO instanceof OrgUnitDTO) {
-					enabled = false;
-				}
-			}
+		if(ProfileUtils.getPermission(auth(), getPrivacyGroup()) == PrivacyGroupPermissionEnum.NONE) {
+			return null;
 		}
-
-		// The permission for this element.
-		final PrivacyGroupPermissionEnum perm = ProfileUtils.getPermission(auth(), getPrivacyGroup());
-
-		if (Log.isDebugEnabled()) {
-			Log.debug("[getComponentWithHistory] Permission '" + perm + "' for the element '" + getLabel() + "'");
-		}
-
-		switch (perm) {
-			case NONE:
-				// Element not visible.
-				return null;
-			case READ:
-				// Read-only mode.
-				enabled = false;
-				break;
-			case WRITE:
-				// Edit mode.
-				enabled = enabled && true;
-				break;
-			default:
-				break;
-		}
+		
+		// Checking if the user has the right to edit this element.
+		enabled = enabled && userCanPerformChangeType(ValueEventChangeType.EDIT);
 
 		Component component = inBanner ? getComponentInBanner(valueResult, enabled) : getComponent(valueResult, enabled);
 
@@ -358,6 +331,76 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 	 * @return the widget corresponding to the flexible element.
 	 */
 	protected abstract Component getComponent(ValueResult valueResult, boolean enabled);
+	
+	/**
+	 * Returns <code>true</code> if the current user is allowed to perform
+	 * the given change type.
+	 * 
+	 * @param changeType Type of change to verify.
+	 * @return <code>true</code> if the current user can perform the given 
+	 * <code>changeType</code>, <code>false</code> otherwise.
+	 */
+	protected boolean userCanPerformChangeType(ValueEventChangeType changeType) {
+		final PrivacyGroupPermissionEnum permission = ProfileUtils.getPermission(auth(), getPrivacyGroup());
+		
+		if(permission == PrivacyGroupPermissionEnum.READ) {
+			return false;
+			
+		} else if(permission == PrivacyGroupPermissionEnum.WRITE) {
+			if(currentContainerDTO instanceof ProjectDTO) {
+				return userCanPerformChangeTypeOnProject(changeType, (ProjectDTO)currentContainerDTO);
+
+			} else if(currentContainerDTO instanceof OrgUnitDTO) {
+				return userCanPerformChangeTypeOnOrgUnit(changeType, (OrgUnitDTO)currentContainerDTO);
+			}
+		}
+		
+		return false;
+	}
+	
+	/**
+	 * Returns <code>true</code> if the current user is allowed to perform
+	 * the given change type on the given project.
+	 * <br/>
+	 * The default implementation checks for the 
+	 * {@link GlobalPermissionEnum#EDIT_PROJECT} right and to the current
+	 * amendment state.
+	 * 
+	 * @param changeType Type of change to verify.
+	 * @param project Project containing this element.
+	 * @return <code>true</code> if the current user can perform the given 
+	 * <code>changeType</code>, <code>false</code> otherwise.
+	 */
+	protected boolean userCanPerformChangeTypeOnProject(ValueEventChangeType changeType, ProjectDTO project) {
+		return
+			// The user is not consulting values from an ancient core version.
+			project.getCurrentAmendment() == null &&
+			// The user is granted edit rights on the project.
+			ProfileUtils.isGranted(auth(), GlobalPermissionEnum.EDIT_PROJECT) && (
+				// This element is not part of the core version
+				!getAmendable() || 
+				// OR the core version is in an editable state
+				project.getAmendmentState() == AmendmentState.DRAFT || 
+				// OR the user has the right to unlock the project
+				ProfileUtils.isGranted(auth(), GlobalPermissionEnum.LOCK_PROJECT)
+			);
+	}
+	
+	/**
+	 * Returns <code>true</code> if the current user is allowed to perform
+	 * the given change type on the given organization unit.
+	 * <br/>
+	 * For organization units, the default implementation only checks for the
+	 * {@link GlobalPermissionEnum#EDIT_ORG_UNIT} right.
+	 * 
+	 * @param changeType Type of change to verify.
+	 * @param orgUnit OrgUnit containing this element.
+	 * @return <code>true</code> if the current user can perform the given 
+	 * <code>changeType</code>, <code>false</code> otherwise.
+	 */
+	protected boolean userCanPerformChangeTypeOnOrgUnit(ValueEventChangeType changeType, OrgUnitDTO orgUnit) {
+		return ProfileUtils.isGranted(auth(), GlobalPermissionEnum.EDIT_ORG_UNIT);
+	}
 
 	/**
 	 * Adds a {@link ValueHandler} to the flexible element.

@@ -16,7 +16,6 @@ import org.sigmah.client.ui.widget.form.ButtonFileUploadField;
 import org.sigmah.client.util.DateUtils;
 import org.sigmah.shared.command.Delete;
 import org.sigmah.shared.command.GetValue;
-import org.sigmah.shared.command.result.Authentication;
 import org.sigmah.shared.command.result.ValueResult;
 import org.sigmah.shared.command.result.VoidResult;
 import org.sigmah.shared.dto.ProjectDTO;
@@ -63,11 +62,15 @@ import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
+import org.sigmah.shared.dto.orgunit.OrgUnitDTO;
+import org.sigmah.shared.dto.referential.ValueEventChangeType;
 
 /**
  * FilesListElementDTO.
  * 
  * @author Denis Colliot (dcolliot@ideia.fr)
+ * @author Raphaël Calabro (rcalabro@ideia.fr)
+ * @author Renato Almeida (renatoaf.ufcg@gmail.com)
  */
 public class FilesListElementDTO extends FlexibleElementDTO {
 
@@ -80,6 +83,8 @@ public class FilesListElementDTO extends FlexibleElementDTO {
 	 * Entity name mapped by the current DTO starting from the "server.domain" package name.
 	 */
 	public static final String ENTITY_NAME = "element.FilesListElement";
+	
+	private static StoreSorter<FileDTO> storeSorter;
 
 	/**
 	 * Current value result updated after each upload to keep the consistency of the widget.
@@ -105,7 +110,7 @@ public class FilesListElementDTO extends FlexibleElementDTO {
 	 * The upload button.
 	 */
 	private transient ButtonFileUploadField uploadField;
-
+	
 	public Integer getLimit() {
 		return get("limit");
 	}
@@ -190,6 +195,7 @@ public class FilesListElementDTO extends FlexibleElementDTO {
 	 */
 	@Override
 	protected Component getComponent(ValueResult valueResult, boolean enabled) {
+		final boolean canAdd = enabled && userCanPerformChangeType(ValueEventChangeType.ADD);
 
 		currentValueResult = valueResult;
 
@@ -198,7 +204,7 @@ public class FilesListElementDTO extends FlexibleElementDTO {
 		uploadField.setButtonCaption(I18N.CONSTANTS.flexibleElementFilesListAddDocument());
 		uploadField.setName(FileUploadUtils.DOCUMENT_CONTENT);
 		uploadField.setButtonIcon(IconImageBundle.ICONS.attach());
-		uploadField.setEnabled(enabled);
+		uploadField.setEnabled(canAdd);
 
 		final FormPanel uploadFormPanel = new FormPanel();
 		uploadFormPanel.setLayout(new FitLayout());
@@ -287,48 +293,7 @@ public class FilesListElementDTO extends FlexibleElementDTO {
 		filesGrid.setAutoExpandColumn("name");
 		filesGrid.setVisibleElementsCount(5);
 
-		store.setStoreSorter(new StoreSorter<FileDTO>() {
-
-			@Override
-			public int compare(Store<FileDTO> store, FileDTO m1, FileDTO m2, String property) {
-
-				if ("date".equals(property)) {
-
-					final FileVersionDTO last1 = m1.getLastVersion();
-					final FileVersionDTO last2 = m2.getLastVersion();
-
-					return last1.getAddedDate().compareTo(last2.getAddedDate());
-				} else if ("author".equals(property)) {
-
-					final FileVersionDTO last1 = m1.getLastVersion();
-					final FileVersionDTO last2 = m2.getLastVersion();
-
-					final String authorM1 = last1.getAuthorFirstName() != null ? last1.getAuthorFirstName() + " " + last1.getAuthorName() : last1.getAuthorName();
-					final String authorM2 = last2.getAuthorFirstName() != null ? last2.getAuthorFirstName() + " " + last2.getAuthorName() : last2.getAuthorName();
-
-					return authorM1.compareTo(authorM2);
-				} else if ("version".equals(property)) {
-
-					final FileVersionDTO last1 = m1.getLastVersion();
-					final FileVersionDTO last2 = m2.getLastVersion();
-
-					return new Integer(last1.getVersionNumber()).compareTo(last2.getVersionNumber());
-				} else if ("name".equals(property)) {
-
-					final FileVersionDTO last1 = m1.getLastVersion();
-					final FileVersionDTO last2 = m2.getLastVersion();
-
-					final String title1 = last1.getName() + '.' + last1.getExtension();
-					final String title2 = last2.getName() + '.' + last2.getExtension();
-
-					return title1.compareTo(title2);
-				}
-
-				else {
-					return super.compare(store, m1, m2, property);
-				}
-			}
-		});
+		store.setStoreSorter(getStoreSorter());
 
 		// Creates the main panel.
 		mainPanel = new ContentPanel();
@@ -342,7 +307,9 @@ public class FilesListElementDTO extends FlexibleElementDTO {
 			mainPanel.setHeadingText(getLabel());
 		}
 
-		mainPanel.setTopComponent(actionsToolBar);
+		if (canAdd) {
+			mainPanel.setTopComponent(actionsToolBar);
+		}
 		mainPanel.add(filesGrid);
 
 		return mainPanel;
@@ -370,6 +337,34 @@ public class FilesListElementDTO extends FlexibleElementDTO {
 		});
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected boolean userCanPerformChangeTypeOnProject(ValueEventChangeType changeType, ProjectDTO project) {
+		return super.userCanPerformChangeTypeOnProject(changeType, project) && (
+			// Add and edit changes are allowed if the user has basic rights to edit this field.
+			changeType != ValueEventChangeType.REMOVE ||
+			
+			// The user needs the "remove project file" to remove file from this field.
+			ProfileUtils.isGranted(auth(), GlobalPermissionEnum.REMOVE_PROJECT_FILE)
+		);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected boolean userCanPerformChangeTypeOnOrgUnit(ValueEventChangeType changeType, OrgUnitDTO orgUnit) {
+		return super.userCanPerformChangeTypeOnOrgUnit(changeType, orgUnit) && (
+			// Add and edit changes are allowed if the user has basic rights to edit this field.
+			changeType != ValueEventChangeType.REMOVE ||
+			
+			// The user needs the "remove orgunit file" to remove file from this field.
+			ProfileUtils.isGranted(auth(), GlobalPermissionEnum.REMOVE_ORG_UNIT_FILE)
+		);
+	}
+	
 	private ProgressListener createUploadProgressListener() {
 		return new ProgressListener() {
 
@@ -456,6 +451,8 @@ public class FilesListElementDTO extends FlexibleElementDTO {
 	 * @return The column model.
 	 */
 	private ColumnConfig[] getColumnModel(final boolean enabled) {
+		final boolean canAdd = enabled && userCanPerformChangeType(ValueEventChangeType.ADD);
+		final boolean canRemove = enabled && userCanPerformChangeType(ValueEventChangeType.REMOVE);
 
 		// File's add date.
 		final ColumnConfig dateColumn = new ColumnConfig();
@@ -529,7 +526,7 @@ public class FilesListElementDTO extends FlexibleElementDTO {
 				uploadField.setButtonCaption(I18N.CONSTANTS.flexibleElementFilesListUploadVersion());
 				uploadField.setName(FileUploadUtils.DOCUMENT_CONTENT);
 				uploadField.setButtonIcon(IconImageBundle.ICONS.attach());
-				uploadField.setEnabled(enabled);
+				uploadField.setEnabled(canAdd);
 
 				final FormPanel uploadFormPanel = new FormPanel();
 				uploadFormPanel.setLayout(new FitLayout());
@@ -619,7 +616,7 @@ public class FilesListElementDTO extends FlexibleElementDTO {
 					@Override
 					public void onClick(ClickEvent e) {
 
-						final FileDetailsWindow versionsWindow = new FileDetailsWindow(auth(), dispatch, transfertManager, enabled);
+						final FileDetailsWindow versionsWindow = new FileDetailsWindow(dispatch, transfertManager, canRemove);
 						versionsWindow.addListener(new FileDetailsWindow.FileDetailsWindowListener() {
 
 							@Override
@@ -698,26 +695,65 @@ public class FilesListElementDTO extends FlexibleElementDTO {
 			}
 		});
 
-		if (ProfileUtils.isGranted(auth(), GlobalPermissionEnum.REMOVE_FILE)) {
+		if (canRemove) {
 			return new ColumnConfig[] {
-																	dateColumn,
-																	nameColumn,
-																	authorColumn,
-																	versionColumn,
-																	addVersionColumn,
-																	historyColumn,
-																	deleteColumn
+				dateColumn,
+				nameColumn,
+				authorColumn,
+				versionColumn,
+				addVersionColumn,
+				historyColumn,
+				deleteColumn
 			};
+			
 		} else {
 			return new ColumnConfig[] {
-																	dateColumn,
-																	nameColumn,
-																	authorColumn,
-																	versionColumn,
-																	addVersionColumn,
-																	historyColumn
+				dateColumn,
+				nameColumn,
+				authorColumn,
+				versionColumn,
+				addVersionColumn,
+				historyColumn
 			};
 		}
+	}
+	
+	private static StoreSorter<FileDTO> getStoreSorter() {
+		if(storeSorter == null) {
+			storeSorter = new StoreSorter<FileDTO>() {
+
+				@Override
+				public int compare(Store<FileDTO> store, FileDTO m1, FileDTO m2, String property) {
+					final FileVersionDTO last1 = m1.getLastVersion();
+					final FileVersionDTO last2 = m2.getLastVersion();
+
+					if (FileDTO.DATE.equals(property)) {
+						return last1.getAddedDate().compareTo(last2.getAddedDate());
+
+					} else if (FileDTO.AUTHOR.equals(property)) {
+						final String authorM1 = last1.getAuthorFirstName() != null ? last1.getAuthorFirstName() + " " + last1.getAuthorName() : last1.getAuthorName();
+						final String authorM2 = last2.getAuthorFirstName() != null ? last2.getAuthorFirstName() + " " + last2.getAuthorName() : last2.getAuthorName();
+
+						return authorM1.compareTo(authorM2);
+
+					} else if (FileDTO.VERSION.equals(property)) {
+						return Integer.valueOf(last1.getVersionNumber()).compareTo(last2.getVersionNumber());
+
+					} else if (FileDTO.NAME.equals(property)) {
+						final String title1 = last1.getName() + '.' + last1.getExtension();
+						final String title2 = last2.getName() + '.' + last2.getExtension();
+
+						return title1.compareTo(title2);
+					}
+
+					else {
+						return super.compare(store, m1, m2, property);
+					}
+				}
+			};
+		}
+		
+		return storeSorter;
 	}
 
 	/**
@@ -744,8 +780,6 @@ public class FilesListElementDTO extends FlexibleElementDTO {
 		}
 
 		private final DispatchAsync dispatch;
-
-		private final Authentication authentication;
 
 		/**
 		 * GXT window.
@@ -786,15 +820,14 @@ public class FilesListElementDTO extends FlexibleElementDTO {
 		 * @param enabled
 		 *          If the component is enabled.
 		 */
-		public FileDetailsWindow(final Authentication authentication, final DispatchAsync dispatch, final TransfertManager transfertManager, boolean enabled) {
+		public FileDetailsWindow(final DispatchAsync dispatch, final TransfertManager transfertManager, boolean canRemove) {
 
-			this.authentication = authentication;
 			this.dispatch = dispatch;
 			this.transfertManager = transfertManager;
 
 			store = new ListStore<FileVersionDTO>();
 
-			grid = new FlexibleGrid<FileVersionDTO>(store, null, 10, getColumnModel(enabled));
+			grid = new FlexibleGrid<FileVersionDTO>(store, null, 10, getColumnModel(canRemove));
 			grid.setAutoExpandColumn("name");
 			grid.setAutoHeight(true);
 
@@ -851,7 +884,7 @@ public class FilesListElementDTO extends FlexibleElementDTO {
 		 *          If the component is enabled.
 		 * @return The column model.
 		 */
-		private ColumnConfig[] getColumnModel(final boolean enabled) {
+		private ColumnConfig[] getColumnModel(final boolean canRemove) {
 
 			// Version's number.
 			final ColumnConfig versionColumn = new ColumnConfig();
@@ -921,72 +954,69 @@ public class FilesListElementDTO extends FlexibleElementDTO {
 				public Object render(final FileVersionDTO model, String property, ColumnData config, int rowIndex, int colIndex, final ListStore<FileVersionDTO> store,
 						Grid<FileVersionDTO> grid) {
 
-					if (enabled) {
-						final Image image = IconImageBundle.ICONS.remove().createImage();
-						image.setTitle(I18N.CONSTANTS.remove());
-						image.addStyleName("flexibility-action");
-						image.addClickHandler(new ClickHandler() {
+					final Image image = IconImageBundle.ICONS.remove().createImage();
+					image.setTitle(I18N.CONSTANTS.remove());
+					image.addStyleName("flexibility-action");
+					image.addClickHandler(new ClickHandler() {
 
-							@Override
-							public void onClick(ClickEvent event) {
+						@Override
+						public void onClick(ClickEvent event) {
 
-								// Do not delete a single version.
-								if (store.getCount() <= 1) {
-									N10N.warn(I18N.CONSTANTS.flexibleElementFilesListVersionDeleteForbidden(),
-										I18N.CONSTANTS.flexibleElementFilesListVersionDeleteForbiddenDetails());
-									return;
-								}
-
-								// Asks the client to confirm the version deletion.
-								N10N.confirmation(I18N.CONSTANTS.flexibleElementFilesListVersionDelete(),
-									I18N.MESSAGES.flexibleElementFilesListConfirmVersionDelete(String.valueOf(model.getVersionNumber())), new ConfirmCallback() {
-
-										@Override
-										public void onAction() {
-
-											// Deletes it.
-											dispatch.execute(new Delete(model), new CommandResultHandler<VoidResult>() {
-
-												@Override
-												public void onCommandFailure(final Throwable caught) {
-													N10N.warn(I18N.CONSTANTS.flexibleElementFilesListDeleteError(), I18N.CONSTANTS.flexibleElementFilesListDeleteErrorDetails());
-												}
-
-												@Override
-												public void onCommandSuccess(final VoidResult result) {
-													store.remove(model);
-													fireVersionDeleted(model);
-												}
-											}, new LoadingMask(window));
-										}
-									});
-
+							// Do not delete a single version.
+							if (store.getCount() <= 1) {
+								N10N.warn(I18N.CONSTANTS.flexibleElementFilesListVersionDeleteForbidden(),
+									I18N.CONSTANTS.flexibleElementFilesListVersionDeleteForbiddenDetails());
+								return;
 							}
-						});
 
-						return image;
-					} else {
-						return new Label("-");
-					}
+							// Asks the client to confirm the version deletion.
+							N10N.confirmation(I18N.CONSTANTS.flexibleElementFilesListVersionDelete(),
+								I18N.MESSAGES.flexibleElementFilesListConfirmVersionDelete(String.valueOf(model.getVersionNumber())), new ConfirmCallback() {
+
+									@Override
+									public void onAction() {
+
+										// Deletes it.
+										dispatch.execute(new Delete(model), new CommandResultHandler<VoidResult>() {
+
+											@Override
+											public void onCommandFailure(final Throwable caught) {
+												N10N.warn(I18N.CONSTANTS.flexibleElementFilesListDeleteError(), I18N.CONSTANTS.flexibleElementFilesListDeleteErrorDetails());
+											}
+
+											@Override
+											public void onCommandSuccess(final VoidResult result) {
+												store.remove(model);
+												fireVersionDeleted(model);
+											}
+										}, new LoadingMask(window));
+									}
+								});
+
+						}
+					});
+
+					return image;
 				}
 			});
 
-			if (ProfileUtils.isGranted(authentication, GlobalPermissionEnum.REMOVE_FILE)) {
+			if (canRemove) {
 				return new ColumnConfig[] {
-																		versionColumn,
-																		dateColumn,
-																		authorColumn,
-																		nameColumn,
-																		sizeColumn,
-																		deleteColumn
+					versionColumn,
+					dateColumn,
+					authorColumn,
+					nameColumn,
+					sizeColumn,
+					deleteColumn
 				};
+				
 			} else {
 				return new ColumnConfig[] {
-																		versionColumn,
-																		dateColumn,
-																		authorColumn,
-																		nameColumn,
-																		sizeColumn
+					versionColumn,
+					dateColumn,
+					authorColumn,
+					nameColumn,
+					sizeColumn
 				};
 			}
 		}

@@ -15,6 +15,7 @@ import com.extjs.gxt.ui.client.widget.form.CheckBox;
  * CheckboxElementDTO.
  * 
  * @author Denis Colliot (dcolliot@ideia.fr)
+ * @author Renato Almeida (renatoaf.ufcg@gmail.com)
  */
 public class CheckboxElementDTO extends FlexibleElementDTO {
 
@@ -46,7 +47,7 @@ public class CheckboxElementDTO extends FlexibleElementDTO {
 			checkbox.setValue(value.equalsIgnoreCase("true"));
 		}
 
-		checkbox.addListener(Events.OnClick, new CheckBoxListener());
+		checkbox.addListener(Events.Change, new CheckBoxListener());
 
 		checkbox.setEnabled(enabled);
 

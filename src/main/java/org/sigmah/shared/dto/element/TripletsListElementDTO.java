@@ -35,6 +35,7 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.EditorGrid;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
+import com.extjs.gxt.ui.client.widget.grid.GridSelectionModel;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
@@ -42,11 +43,14 @@ import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Label;
+import java.util.ArrayList;
 
 /**
  * TripletsListElementDTO.
  * 
  * @author Denis Colliot (dcolliot@ideia.fr)
+ * @author Renato Almeida (renatoaf.ufcg@gmail.com)
+ * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
 public class TripletsListElementDTO extends FlexibleElementDTO {
 
@@ -82,18 +86,23 @@ public class TripletsListElementDTO extends FlexibleElementDTO {
 	 */
 	@Override
 	protected Component getComponent(ValueResult valueResult, final boolean enabled) {
+		final boolean canEdit = enabled && userCanPerformChangeType(ValueEventChangeType.EDIT);
+    	final boolean canDelete = enabled && userCanPerformChangeType(ValueEventChangeType.REMOVE);
+    	final boolean canAdd = enabled && userCanPerformChangeType(ValueEventChangeType.ADD);
 
 		// Creates actions toolbar to manage the triplets list.
 		final Button addButton = new Button(I18N.CONSTANTS.addItem());
-		addButton.setEnabled(enabled);
+		addButton.setEnabled(canAdd);
 
 		final Button deleteButton = new Button(I18N.CONSTANTS.remove());
 		deleteButton.setEnabled(false);
 
 		final ToolBar actionsToolBar = new ToolBar();
 		actionsToolBar.add(addButton);
-		actionsToolBar.add(new SeparatorToolItem());
-		actionsToolBar.add(deleteButton);
+		if (canDelete) {
+			actionsToolBar.add(new SeparatorToolItem());
+			actionsToolBar.add(deleteButton);
+		}
 
 		// Creates the top panel of the grid.
 		final ContentPanel topPanel = new ContentPanel();
@@ -110,10 +119,15 @@ public class TripletsListElementDTO extends FlexibleElementDTO {
 				store.add((TripletValueDTO) s);
 			}
 		}
+		
+		// Selecting the selection model based on user rights.
+		final GridSelectionModel<TripletValueDTO> selectionModel = canDelete ?
+			new CheckBoxSelectionModel<TripletValueDTO>() :
+			new GridSelectionModel<TripletValueDTO>();
 
 		// Creates the grid which contains the triplets list.
-		final CheckBoxSelectionModel<TripletValueDTO> selectionModel = new CheckBoxSelectionModel<TripletValueDTO>();
-		final FlexibleGrid<TripletValueDTO> grid = new FlexibleGrid<TripletValueDTO>(store, selectionModel, getColumnModel(selectionModel));
+		final FlexibleGrid<TripletValueDTO> grid = new FlexibleGrid<TripletValueDTO>(store, selectionModel, 
+			getColumnModel(selectionModel, canEdit));
 		grid.setAutoExpandColumn("name");
 		grid.setVisibleElementsCount(5);
 
@@ -122,9 +136,11 @@ public class TripletsListElementDTO extends FlexibleElementDTO {
 		panel.setHeadingText(getLabel());
 		panel.setBorders(true);
 		panel.setLayout(new FitLayout());
-
-		panel.setTopComponent(topPanel);
 		panel.add(grid);
+		
+		if (canAdd || canDelete) {
+        	panel.setTopComponent(topPanel);
+        }
 
 		grid.addListener(Events.AfterEdit, new Listener<GridEvent<TripletValueDTO>>() {
 
@@ -147,7 +163,7 @@ public class TripletsListElementDTO extends FlexibleElementDTO {
 			public void selectionChanged(SelectionChangedEvent<TripletValueDTO> se) {
 				final List<TripletValueDTO> selection = se.getSelection();
 
-				final boolean enabledState = enabled && selection != null && !selection.isEmpty();
+				final boolean enabledState = selection != null && !selection.isEmpty();
 				deleteButton.setEnabled(enabledState);
 			}
 		});
@@ -164,40 +180,51 @@ public class TripletsListElementDTO extends FlexibleElementDTO {
 	 * 
 	 * @param selectionModel
 	 *          The grid selection model.
+	 * @param canEdit 
+	 *          editing right of the current user.
 	 * @return The column model.
 	 */
-	private ColumnConfig[] getColumnModel(CheckBoxSelectionModel<TripletValueDTO> selectionModel) {
+	private ColumnConfig[] getColumnModel(GridSelectionModel<TripletValueDTO> selectionModel, boolean canEdit) {
 
 		final ColumnConfig codeColumn = new ColumnConfig();
 		codeColumn.setId("code");
 		codeColumn.setHeaderText(I18N.CONSTANTS.flexibleElementTripletsListCode());
-		TextField<String> text = new TextField<String>();
-		text.setAllowBlank(false);
-		codeColumn.setEditor(new CellEditor(text));
 		codeColumn.setWidth(100);
 
 		final ColumnConfig nameColumn = new ColumnConfig();
 		nameColumn.setId("name");
 		nameColumn.setHeaderText(I18N.CONSTANTS.flexibleElementTripletsListName());
-		text = new TextField<String>();
-		text.setAllowBlank(false);
-		nameColumn.setEditor(new CellEditor(text));
 		nameColumn.setWidth(100);
 
 		final ColumnConfig periodColumn = new ColumnConfig();
 		periodColumn.setId("period");
 		periodColumn.setHeaderText(I18N.CONSTANTS.flexibleElementTripletsListPeriod());
-		text = new TextField<String>();
-		text.setAllowBlank(false);
-		periodColumn.setEditor(new CellEditor(text));
 		periodColumn.setWidth(60);
+		
+		if (canEdit) {
+			// Adds editors to all column configs.
+			for(final ColumnConfig config : Arrays.asList(codeColumn, nameColumn, periodColumn)) {
+				final TextField<String> text = new TextField<String>();
+				text.setAllowBlank(false);
+				config.setEditor(new CellEditor(text));
+			}
+		}
 
-		return new ColumnConfig[] {
-																selectionModel.getColumn(),
-																codeColumn,
-																nameColumn,
-																periodColumn
-		};
+		if(selectionModel instanceof CheckBoxSelectionModel) {
+			return new ColumnConfig[] {
+				((CheckBoxSelectionModel<TripletValueDTO>) selectionModel).getColumn(),
+				codeColumn,
+				nameColumn,
+				periodColumn
+			};
+			
+		} else {
+			return new ColumnConfig[] {
+				codeColumn,
+				nameColumn,
+				periodColumn
+			};
+		}
 	}
 
 	/**
@@ -234,15 +261,17 @@ public class TripletsListElementDTO extends FlexibleElementDTO {
 			}
 			// Remove some existing triplets
 			else {
-
-				for (TripletValueDTO removedValue : grid.getSelectionModel().getSelectedItems()) {
-
-					removedValue.setIndex(grid.getStore().indexOf(removedValue));
-					grid.getStore().remove(removedValue);
-
-					// Fires the value change event.
-					handlerManager.fireEvent(new ValueEvent(TripletsListElementDTO.this, removedValue, ValueEventChangeType.REMOVE));
+				final List<TripletValueDTO> selectedItems = new ArrayList<TripletValueDTO>(grid.getSelectionModel().getSelectedItems());
+				for (TripletValueDTO removedValue : selectedItems) {
+                    removedValue.setIndex(grid.getStore().indexOf(removedValue));
+                    
+                    // Fires the value change event.
+                    handlerManager.fireEvent(new ValueEvent(TripletsListElementDTO.this, removedValue, ValueEventChangeType.REMOVE));
 				}
+
+				for (TripletValueDTO removedValue : selectedItems) {
+                    grid.getStore().remove(removedValue);
+                }
 			}
 
 			// Required element ?

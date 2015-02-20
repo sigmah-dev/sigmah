@@ -94,6 +94,10 @@ public class FileDTO extends AbstractModelDataEntityDTO<Integer> implements List
 	// DTO attributes keys.
 	public static final String NAME = "name";
 	public static final String VERSIONS = "versions";
+	
+	public static final String DATE = "date";
+	public static final String AUTHOR = "author";
+	public static final String VERSION = "version";
 
 	private FileVersionDTO lastVersion;
 

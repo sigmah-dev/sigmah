@@ -50,8 +50,9 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 /**
  * DTO mapping class for entity element.DefaultFlexibleElement.
  * 
- * @author tmi
+ * @author Tom Miette (tmiette@ideia.fr)
  * @author Denis Colliot (dcolliot@ideia.fr)
+ * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
 public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 
@@ -132,834 +133,43 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 				"The flexible elements container isn't an instance of DefaultFlexibleElementContainer. The default flexible element connot be instanciated.");
 		}
 
-		final DateTimeFormat DATE_FORMAT = DateUtils.DATE_SHORT;
 		final Component component;
 
 		switch (getType()) {
-		// Project code.
-			case CODE: {
-
-				final Field<?> field;
-
-				// Builds the field and sets its value.
-				if (enabled) {
-					final TextField<String> textField = createStringField(50, false);
-					textField.setValue(container.getName());
-					field = textField;
-
-				} else {
-					final LabelField labelField = createLabelField();
-					labelField.setValue(container.getName());
-					field = labelField;
-				}
-
-				// Sets the field label.
-				setLabel(I18N.CONSTANTS.projectName());
-				field.setFieldLabel(getLabel());
-
-				component = field;
-			}
+			// Project code.
+			case CODE:
+				component = buildCodeField(container.getName(), enabled);
 				break;
+				
 			// Project title.
-			case TITLE: {
-
-				final Field<?> field;
-
-				// Builds the field and sets its value.
-				if (enabled) {
-					final TextField<String> textField = createStringField(500, false);
-					textField.setValue(container.getFullName());
-					field = textField;
-
-				} else {
-					final LabelField labelField = createLabelField();
-					labelField.setValue(container.getFullName());
-					field = labelField;
-				}
-
-				// Sets the field label.
-				setLabel(I18N.CONSTANTS.projectFullName());
-				field.setFieldLabel(getLabel());
-
-				component = field;
-			}
+			case TITLE:
+				component = buildTitleField(container.getFullName(), enabled);
 				break;
 
-			case START_DATE: {
-
-				final Field<?> field;
-				final Date sd = container.getStartDate();
-
-				// Builds the field and sets its value.
-				if (enabled) {
-					// Patch #76 by ssn155
-					final DateField dateField = createDateField(true);
-					dateField.setValue(sd);
-					field = dateField;
-
-				} else {
-
-					final LabelField labelField = createLabelField();
-					if (sd != null) {
-						labelField.setValue(DATE_FORMAT.format(sd));
-					}
-					field = labelField;
-				}
-
-				// Sets the field label.
-				setLabel(I18N.CONSTANTS.projectStartDate());
-				field.setFieldLabel(getLabel());
-
-				component = field;
-			}
+			case START_DATE:
+				component = buildStartDateField(container.getStartDate(), enabled);
 				break;
-			case END_DATE: {
-
-				final Field<?> field;
-				final Date ed = container.getEndDate();
-
-				// Builds the field and sets its value.
-				if (enabled) {
-					final DateField dateField = createDateField(true);
-					dateField.setValue(ed);
-					field = dateField;
-
-				} else {
-
-					final LabelField labelField = createLabelField();
-					if (ed != null) {
-						labelField.setValue(DATE_FORMAT.format(ed));
-					}
-					field = labelField;
-				}
-
-				// Sets the field label.
-				setLabel(I18N.CONSTANTS.projectEndDate());
-				field.setFieldLabel(getLabel());
-
-				component = field;
-			}
+				
+			case END_DATE:
+				component = buildEndDateField(container.getEndDate(), enabled);
 				break;
-			case COUNTRY: {
-
-				// COUNTRY of project should not be changeable except OrgUnit's
-				enabled &= !(container instanceof ProjectDTO);
-
-				final Field<?> field;
-				final CountryDTO c = container.getCountry();
-
-				if (enabled) {
-					final ComboBox<CountryDTO> comboBox = new ComboBox<CountryDTO>();
-					comboBox.setEmptyText(I18N.CONSTANTS.flexibleElementDefaultSelectCountry());
-
-					if (countriesStore == null) {
-						countriesStore = new ListStore<CountryDTO>();
-					}
-
-					comboBox.setStore(countriesStore);
-					comboBox.setDisplayField(CountryDTO.NAME);
-					comboBox.setValueField(CountryDTO.ID);
-					comboBox.setTriggerAction(TriggerAction.ALL);
-					comboBox.setEditable(true);
-					comboBox.setAllowBlank(true);
-
-					// if country store is empty
-					if (countriesStore.getCount() == 0) {
-
-						if (cache != null) {
-							cache.getCountryCache().get(new AsyncCallback<List<CountryDTO>>() {
-
-								@Override
-								public void onFailure(Throwable e) {
-									Log.error("[getComponent] Error while getting countries list.", e);
-								}
-
-								@Override
-								public void onSuccess(List<CountryDTO> result) {
-									// Fills the store.
-									countriesStore.add(result);
-								}
-							});
-						} else /* cache is null */{
-							dispatch.execute(new GetCountries(CountryDTO.Mode.BASE), new CommandResultHandler<ListResult<CountryDTO>>() {
-
-								@Override
-								protected void onCommandSuccess(final ListResult<CountryDTO> result) {
-									// Fills the store.
-									countriesStore.add(result.getData());
-								}
-
-								@Override
-								protected void onCommandFailure(final Throwable caught) {
-									Log.error("[getComponent] Error while getting countries list.", caught);
-								};
-
-							});
-						}
-
-					}
-
-					// Listens to the selection changes.
-					comboBox.addSelectionChangedListener(new SelectionChangedListener<CountryDTO>() {
-
-						@Override
-						public void selectionChanged(SelectionChangedEvent<CountryDTO> se) {
-
-							String value = null;
-							final boolean isValueOn;
-
-							// Gets the selected choice.
-							final CountryDTO choice = se.getSelectedItem();
-
-							// Checks if the choice isn't the default empty choice.
-							isValueOn = choice != null && choice.getId() != null && choice.getId() != -1;
-
-							if (choice != null) {
-								value = String.valueOf(choice.getId());
-							}
-
-							if (value != null) {
-								// Fires value change event.
-								handlerManager.fireEvent(new ValueEvent(DefaultFlexibleElementDTO.this, value));
-							}
-
-							// Required element ?
-							if (getValidates()) {
-								handlerManager.fireEvent(new RequiredValueEvent(isValueOn));
-							}
-						}
-					});
-
-					if (c != null) {
-						comboBox.setValue(c);
-					}
-
-					field = comboBox;
-				} else /* not enabled */{
-
-					final LabelField labelField = createLabelField();
-
-					if (c == null) {
-						labelField.setValue("-");
-					} else {
-						labelField.setValue(c.getName());
-					}
-
-					field = labelField;
-				}
-
-				// Sets the field label.
-				setLabel(I18N.CONSTANTS.projectCountry());
-				field.setFieldLabel(getLabel());
-
-				component = field;
-			}
+				
+			case COUNTRY:
+				component = buildCountryField(container.getCountry(), enabled);
 				break;
-			case OWNER: {
-
-				final LabelField labelField = createLabelField();
-
-				// Sets the field label.
-				setLabel(I18N.CONSTANTS.projectOwner());
-				labelField.setFieldLabel(getLabel());
-
-				// Sets the value to the field.
-				labelField.setValue(container.getOwnerFirstName() != null ? container.getOwnerFirstName() + " " + container.getOwnerName() : container.getOwnerName());
-
-				component = labelField;
-			}
+				
+			case OWNER:
+				component = buildOwnerField(container.getOwnerFirstName(), container.getOwnerName());
 				break;
-			case MANAGER: {
-
-				final Field<?> field;
-				final UserDTO u = container.getManager();
-
-				if (enabled) {
-
-					final ComboBox<UserDTO> comboBox = new ComboBox<UserDTO>();
-					comboBox.setEmptyText(I18N.CONSTANTS.flexibleElementDefaultSelectManager());
-
-					if (usersStore == null) {
-						usersStore = new ListStore<UserDTO>();
-					}
-
-					comboBox.setStore(usersStore);
-					comboBox.setDisplayField(UserDTO.COMPLETE_NAME);
-					comboBox.setValueField(UserDTO.ID);
-					comboBox.setTriggerAction(TriggerAction.ALL);
-					comboBox.setEditable(true);
-					comboBox.setAllowBlank(true);
-
-					// Retrieves the county list.
-					if (usersStore.getCount() == 0) {
-
-						if (cache != null) {
-
-							cache.getUserCache().get(new AsyncCallback<List<UserDTO>>() {
-
-								@Override
-								public void onFailure(final Throwable e) {
-									Log.error("[getComponent] Error while getting users list.", e);
-								}
-
-								@Override
-								public void onSuccess(final List<UserDTO> result) {
-
-									// Fills the store.
-									usersStore.add(result);
-
-									// Sets the value to the field.
-									if (u != null) {
-										for (final UserDTO model : usersStore.getModels()) {
-											if (model.getId() != null && model.getId().equals(u.getId())) {
-												comboBox.setValue(model);
-											}
-										}
-									}
-
-									// Listens to the selection changes.
-									comboBox.addSelectionChangedListener(new SelectionChangedListener<UserDTO>() {
-
-										@Override
-										public void selectionChanged(SelectionChangedEvent<UserDTO> se) {
-
-											String value = null;
-											final boolean isValueOn;
-
-											// Gets the selected choice.
-											final UserDTO choice = se.getSelectedItem();
-
-											// Checks if the choice isn't the default empty choice.
-											isValueOn = choice != null && choice.getId() != null && choice.getId() != -1;
-
-											if (choice != null) {
-												value = String.valueOf(choice.getId());
-											}
-
-											if (value != null) {
-												// Fires value change event.
-												handlerManager.fireEvent(new ValueEvent(DefaultFlexibleElementDTO.this, value));
-											}
-
-											// Required element ?
-											if (getValidates()) {
-												handlerManager.fireEvent(new RequiredValueEvent(isValueOn));
-											}
-										}
-									});
-								}
-							});
-						} else {
-
-							dispatch.execute(new GetUsersByOrganization(auth().getOrganizationId(), null), new CommandResultHandler<ListResult<UserDTO>>() {
-
-								@Override
-								public void onCommandFailure(final Throwable caught) {
-									Log.error("[getComponent] Error while getting users list.", caught);
-								}
-
-								@Override
-								public void onCommandSuccess(final ListResult<UserDTO> result) {
-
-									// Fills the store.
-									usersStore.add(result.getList());
-
-									// Sets the value to the field.
-									if (u != null) {
-										comboBox.setValue(u);
-									}
-
-									// Listens to the selection changes.
-									comboBox.addSelectionChangedListener(new SelectionChangedListener<UserDTO>() {
-
-										@Override
-										public void selectionChanged(SelectionChangedEvent<UserDTO> se) {
-
-											String value = null;
-											final boolean isValueOn;
-
-											// Gets the selected choice.
-											final UserDTO choice = se.getSelectedItem();
-
-											// Checks if the choice isn't the default empty choice.
-											isValueOn = choice != null && choice.getId() != null && choice.getId() != -1;
-
-											if (choice != null) {
-												value = String.valueOf(choice.getId());
-											}
-
-											if (value != null) {
-												// Fires value change event.
-												handlerManager.fireEvent(new ValueEvent(DefaultFlexibleElementDTO.this, value));
-											}
-
-											// Required element ?
-											if (getValidates()) {
-												handlerManager.fireEvent(new RequiredValueEvent(isValueOn));
-											}
-										}
-									});
-								}
-							});
-						}
-					} else {
-
-						// Sets the value to the field.
-						if (u != null) {
-							comboBox.setValue(u);
-						}
-
-						// Listens to the selection changes.
-						comboBox.addSelectionChangedListener(new SelectionChangedListener<UserDTO>() {
-
-							@Override
-							public void selectionChanged(SelectionChangedEvent<UserDTO> se) {
-
-								String value = null;
-								final boolean isValueOn;
-
-								// Gets the selected choice.
-								final UserDTO choice = se.getSelectedItem();
-
-								// Checks if the choice isn't the default empty choice.
-								isValueOn = choice != null && choice.getId() != null && choice.getId() != -1;
-
-								if (choice != null) {
-									value = String.valueOf(choice.getId());
-								}
-
-								if (value != null) {
-									// Fires value change event.
-									handlerManager.fireEvent(new ValueEvent(DefaultFlexibleElementDTO.this, value));
-								}
-
-								// Required element ?
-								if (getValidates()) {
-									handlerManager.fireEvent(new RequiredValueEvent(isValueOn));
-								}
-							}
-						});
-					}
-
-					field = comboBox;
-
-				} else {
-
-					final LabelField labelField = createLabelField();
-
-					if (u == null) {
-						labelField.setValue("-");
-					} else {
-						labelField.setValue(u.getFirstName() != null ? u.getFirstName() + " " + u.getName() : u.getName());
-					}
-
-					field = labelField;
-				}
-
-				// Sets the field label.
-				setLabel(I18N.CONSTANTS.projectManager());
-				field.setFieldLabel(getLabel());
-
-				component = field;
-			}
+				
+			case MANAGER:
+				component = buildManagerField(container.getManager(), enabled);
 				break;
-			case ORG_UNIT: {
-
-				final Field<?> field;
-				final Integer id = container.getOrgUnitId();
-
-				// Org unit field is always read-only for org unit.
-				enabled &= !(container instanceof OrgUnitDTO);
-
-				if (enabled) {
-
-					final ComboBox<OrgUnitDTO> comboBox = new ComboBox<OrgUnitDTO>();
-
-					if (orgUnitsStore == null) {
-						orgUnitsStore = new ListStore<OrgUnitDTO>();
-					}
-
-					comboBox.setStore(orgUnitsStore);
-					comboBox.setDisplayField(OrgUnitDTO.COMPLETE_NAME);
-					comboBox.setValueField(OrgUnitDTO.ID);
-					comboBox.setTriggerAction(TriggerAction.ALL);
-					comboBox.setEditable(true);
-					comboBox.setAllowBlank(true);
-
-					if (orgUnitsStore.getCount() == 0) {
-
-						cache.getOrganizationCache().get(new AsyncCallback<OrgUnitDTO>() {
-
-							/**
-							 * Fills recursively the combobox from the given root org unit.
-							 * 
-							 * @param root
-							 *          The root org unit.
-							 */
-
-							private void recursiveFillOrgUnitsList(OrgUnitDTO root) {
-
-								if (root.isCanContainProjects()) {
-									orgUnitsStore.add(root);
-									
-									// Sets the value of the field.
-									if(root.getId().equals(id)) {
-										comboBox.setValue(root);
-									}
-								}
-
-								for (final OrgUnitDTO child : root.getChildrenOrgUnits()) {
-									recursiveFillOrgUnitsList(child);
-								}
-							}
-
-							@Override
-							public void onFailure(Throwable e) {
-								Log.error("[getComponent] Error while getting users info.", e);
-							}
-
-							@Override
-							public void onSuccess(OrgUnitDTO result) {
-
-								// Fills the store.
-								recursiveFillOrgUnitsList(result);
-
-								// Listens to the selection changes.
-								comboBox.addSelectionChangedListener(new SelectionChangedListener<OrgUnitDTO>() {
-
-									@Override
-									public void selectionChanged(final SelectionChangedEvent<OrgUnitDTO> se) {
-
-										if (container instanceof ProjectDTO) {
-
-											Log.debug("OrgUnit in project details.");
-
-											final ProjectDTO currentProject = (ProjectDTO) container;
-
-											final Filter filter = new Filter();
-											filter.addRestriction(DimensionType.Database, currentProject.getId());
-
-											GetSitesCount getSitesCountCmd = new GetSitesCount(filter);
-
-											dispatch.execute(getSitesCountCmd, new CommandResultHandler<SiteResult>() {
-
-												@Override
-												public void onCommandFailure(final Throwable caught) {
-													Log.error("[getSitesCountCmd] Error while getting the count of sites.", caught);
-												}
-
-												@Override
-												public void onCommandSuccess(final SiteResult result) {
-
-													// Gets the selected choice.
-													final OrgUnitDTO choice = se.getSelectedItem();
-
-													// Current poject's country
-													final CountryDTO projectCountry = currentProject.getCountry();
-
-													// New OrgUnit's country
-													final CountryDTO orgUnitCountry = choice.getOfficeLocationCountry();
-
-													Log.debug("getting site result: " + result.getSiteCount());
-
-													if (result != null
-														&& result.getSiteCount() > 0
-														&& projectCountry != null
-														&& orgUnitCountry != null
-														&& projectCountry != orgUnitCountry) {
-
-														// If the new OrgUnit's country different from the current country of project inform users
-														// that it will continue use the country of project not new OrgUnit's.
-
-														Log.debug("[getSitesCountCmd]-Site count is: " + result.getSiteCount());
-
-														N10N.confirmation(I18N.CONSTANTS.changeOrgUnit(), I18N.CONSTANTS.changeOrgUnitDetails(), new ConfirmCallback() {
-
-															/**
-															 * YES callback.
-															 */
-															@Override
-															public void onAction() {
-
-																Log.debug("You choose the Yes to change !");
-
-																String value = null;
-																final boolean isValueOn;
-
-																// Checks if the choice isn't the default empty choice.
-																isValueOn = choice != null && choice.getId() != null && choice.getId() != -1;
-
-																if (choice != null) {
-																	value = String.valueOf(choice.getId());
-																}
-
-																if (value != null) {
-																	// Fires value change event.
-																	handlerManager.fireEvent(new ValueEvent(DefaultFlexibleElementDTO.this, value));
-																}
-
-																// Required element ?
-																if (getValidates()) {
-																	handlerManager.fireEvent(new RequiredValueEvent(isValueOn));
-																}
-
-															}
-														}, new ConfirmCallback() {
-
-															/**
-															 * NO callback.
-															 */
-															@Override
-															public void onAction() {
-																comboBox.setValue(orgUnitsStore.findModel(OrgUnitDTO.ID, currentProject.getOrgUnitId()));
-															}
-
-														});
-
-													} else {
-
-														String value = null;
-														final boolean isValueOn;
-
-														// Checks if the choice isn't the default empty choice.
-														isValueOn = choice != null && choice.getId() != null && choice.getId() != -1;
-
-														if (choice != null) {
-															value = String.valueOf(choice.getId());
-														}
-
-														if (value != null) {
-															// Fires value change event.
-															handlerManager.fireEvent(new ValueEvent(DefaultFlexibleElementDTO.this, value, true));
-														}
-
-														// Required element ?
-														if (getValidates()) {
-															handlerManager.fireEvent(new RequiredValueEvent(isValueOn));
-														}
-
-													}
-
-												}
-
-											});
-										} else {// Non project container
-
-											Log.debug("OrgUnit in non-project.");
-
-											String value = null;
-											final boolean isValueOn;
-
-											// Gets the selected choice.
-											final OrgUnitDTO choice = se.getSelectedItem();
-
-											// Checks if the choice isn't the
-											// default empty choice.
-											isValueOn = choice != null && choice.getId() != null && choice.getId() != -1;
-
-											if (choice != null) {
-												value = String.valueOf(choice.getId());
-											}
-
-											if (value != null) {
-												// Fires value change event.
-												handlerManager.fireEvent(new ValueEvent(DefaultFlexibleElementDTO.this, value));
-											}
-
-											// Required element ?
-											if (getValidates()) {
-												handlerManager.fireEvent(new RequiredValueEvent(isValueOn));
-											}
-
-										}
-
-									}
-								});
-							}
-						});
-
-					} else {
-
-						// Sets the value to the field.
-						if (id != null && id != -1) {
-							for (final OrgUnitDTO model : orgUnitsStore.getModels()) {
-								if (model.getId().equals(id)) {
-									comboBox.setValue(model);
-								}
-							}
-						}
-
-						// Listens to the selection changes.
-						comboBox.addSelectionChangedListener(new SelectionChangedListener<OrgUnitDTO>() {
-
-							@Override
-							public void selectionChanged(final SelectionChangedEvent<OrgUnitDTO> se) {
-
-								if (container instanceof ProjectDTO) {
-
-									final ProjectDTO currentProject = (ProjectDTO) container;
-
-									final Filter filter = new Filter();
-									filter.addRestriction(DimensionType.Database, currentProject.getId());
-
-									GetSitesCount getSitesCountCmd = new GetSitesCount(filter);
-
-									dispatch.execute(getSitesCountCmd, new CommandResultHandler<SiteResult>() {
-
-										@Override
-										public void onCommandFailure(final Throwable caught) {
-											Log.error("[getSitesCountCmd] Error while getting the count of sites.", caught);
-										}
-
-										@Override
-										public void onCommandSuccess(final SiteResult result) {
-
-											// Gets the selected choice.
-											final OrgUnitDTO choice = se.getSelectedItem();
-
-											// Current poject's country
-											final CountryDTO projectCountry = currentProject.getCountry();
-
-											// New OrgUnit's country
-											final CountryDTO orgUnitCountry = choice.getOfficeLocationCountry();
-
-											if (result != null && result.getSiteCount() > 0 && projectCountry != null && orgUnitCountry != null && projectCountry != orgUnitCountry) {
-
-												N10N.confirmation(I18N.CONSTANTS.changeOrgUnit(), I18N.CONSTANTS.changeOrgUnitDetails(), new ConfirmCallback() {
-
-													/**
-													 * YES callback.
-													 */
-													@Override
-													public void onAction() {
-
-														String value = null;
-														final boolean isValueOn;
-
-														// Checks if the choice isn't the default empty choice.
-														isValueOn = choice != null && choice.getId() != null && choice.getId() != -1;
-
-														if (choice != null) {
-															value = String.valueOf(choice.getId());
-														}
-
-														if (value != null) {
-															// Fires value change event.
-															handlerManager.fireEvent(new ValueEvent(DefaultFlexibleElementDTO.this, value));
-														}
-
-														// Required element ?
-														if (getValidates()) {
-															handlerManager.fireEvent(new RequiredValueEvent(isValueOn));
-														}
-
-													}
-												}, new ConfirmCallback() {
-
-													/**
-													 * NO callback.
-													 */
-													@Override
-													public void onAction() {
-														comboBox.setValue(orgUnitsStore.findModel(OrgUnitDTO.ID, currentProject.getOrgUnitId()));
-													}
-
-												});
-
-											} else {
-
-												String value = null;
-												final boolean isValueOn;
-
-												// Checks if the choice isn't the default empty choice.
-												isValueOn = choice != null && choice.getId() != null && choice.getId() != -1;
-
-												if (choice != null) {
-													value = String.valueOf(choice.getId());
-												}
-
-												if (value != null) {
-													// Fires value change event.
-													handlerManager.fireEvent(new ValueEvent(DefaultFlexibleElementDTO.this, value, true));
-												}
-
-												// Required element ?
-												if (getValidates()) {
-													handlerManager.fireEvent(new RequiredValueEvent(isValueOn));
-												}
-
-											}
-
-										}
-
-									});
-								} else {// Non project container
-
-									Log.debug("OrgUnit in non-project 2.");
-
-									String value = null;
-									final boolean isValueOn;
-
-									// Gets the selected choice.
-									final OrgUnitDTO choice = se.getSelectedItem();
-
-									// Checks if the choice isn't the
-									// default empty choice.
-									isValueOn = choice != null && choice.getId() != null && choice.getId() != -1;
-
-									if (choice != null) {
-										value = String.valueOf(choice.getId());
-									}
-
-									if (value != null) {
-										// Fires value change event.
-										handlerManager.fireEvent(new ValueEvent(DefaultFlexibleElementDTO.this, value));
-									}
-
-									// Required element ?
-									if (getValidates()) {
-										handlerManager.fireEvent(new RequiredValueEvent(isValueOn));
-									}
-
-								}
-
-							}
-						});
-					}
-
-					field = comboBox;
-				} else {
-
-					final LabelField labelField = createLabelField();
-
-					// TODO ??
-					// cache.getOrganizationCache().get(id, new AsyncCallback<OrgUnitDTO>() {
-					//
-					// @Override
-					// public void onFailure(final Throwable e) {
-					// Log.error("[getComponent] Error while getting users info.", e);
-					// }
-					//
-					// @Override
-					// public void onSuccess(final OrgUnitDTO result) {
-					// if (result == null) {
-					// labelField.setValue("-");
-					// } else {
-					// labelField.setValue(result.getName() + " - " + result.getFullName());
-					// }
-					// }
-					// });
-
-					field = labelField;
-				}
-
-				// Sets the field label.
-				setLabel(I18N.CONSTANTS.orgunit());
-				field.setFieldLabel(getLabel());
-
-				component = field;
-			}
+				
+			case ORG_UNIT:
+				component = buildOrgUnitField(container.getOrgUnitId(), enabled);
 				break;
+				
 			default:
 				throw new IllegalArgumentException("[getComponent] The type '" + getType() + "' for the default flexible element doen't exist.");
 		}
@@ -969,232 +179,43 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 
 	protected Component getComponentWithValue(ValueResult valueResult, boolean enabled) {
 
-		final DateTimeFormat DATE_FORMAT = DateUtils.DATE_SHORT;
 		final Component component;
 
 		switch (getType()) {
-		// Project code.
-			case CODE: {
-
-				final Field<?> field;
-
-				// Builds the field and sets its value.
-				if (enabled) {
-					final TextField<String> textField = createStringField(16, false);
-					textField.setValue(valueResult.getValueObject());
-					field = textField;
-
-				} else {
-					final LabelField labelField = createLabelField();
-					labelField.setValue(valueResult.getValueObject());
-					field = labelField;
-				}
-
-				// Sets the field label.
-				setLabel(I18N.CONSTANTS.projectName());
-				field.setFieldLabel(getLabel());
-
-				component = field;
-			}
+			// Project code.
+			case CODE:
+				component = buildCodeField(valueResult.getValueObject(), enabled);
 				break;
+				
 			// Project title.
-			case TITLE: {
-
-				final Field<?> field;
-
-				// Builds the field and sets its value.
-				if (enabled) {
-					final TextField<String> textField = createStringField(500, false);
-					textField.setValue(valueResult.getValueObject());
-					field = textField;
-
-				} else {
-					final LabelField labelField = createLabelField();
-					labelField.setValue(valueResult.getValueObject());
-					field = labelField;
-				}
-
-				// Sets the field label.
-				setLabel(I18N.CONSTANTS.projectFullName());
-				field.setFieldLabel(getLabel());
-
-				component = field;
-			}
+			case TITLE:
+				component = buildTitleField(valueResult.getValueObject(), enabled);
 				break;
 
-			case START_DATE: {
-
-				final Field<?> field;
-				final Date sd = new Date(Long.parseLong(valueResult.getValueObject()));
-
-				// Builds the field and sets its value.
-				if (enabled) {
-					final DateField dateField = createDateField(false);
-					dateField.setValue(sd);
-					field = dateField;
-
-				} else {
-
-					final LabelField labelField = createLabelField();
-					if (sd != null) {
-						labelField.setValue(DATE_FORMAT.format(sd));
-					}
-					field = labelField;
-				}
-
-				// Sets the field label.
-				setLabel(I18N.CONSTANTS.projectStartDate());
-				field.setFieldLabel(getLabel());
-
-				component = field;
-			}
+			case START_DATE:
+				component = buildStartDateField(valueResult.getValueObject(), enabled);
 				break;
-			case END_DATE: {
-
-				final Field<?> field;
-				final Date ed = new Date(Long.parseLong(valueResult.getValueObject()));
-
-				// Builds the field and sets its value.
-				if (enabled) {
-					final DateField dateField = createDateField(true);
-					dateField.setValue(ed);
-					field = dateField;
-
-				} else {
-
-					final LabelField labelField = createLabelField();
-					if (ed != null) {
-						labelField.setValue(DATE_FORMAT.format(ed));
-					}
-					field = labelField;
-				}
-
-				// Sets the field label.
-				setLabel(I18N.CONSTANTS.projectEndDate());
-				field.setFieldLabel(getLabel());
-
-				component = field;
-			}
+				
+			case END_DATE:
+				component = buildEndDateField(valueResult.getValueObject(), enabled);
 				break;
 
-			case COUNTRY: {
-
-				// COUNTRY of project should not be changeable
-
-				final Field<Object> field;
-				final int countryId = Integer.parseInt(valueResult.getValueObject());
-
-				// Builds the field and sets its value.
-				final LabelField labelField = createLabelField();
-				field = labelField;
-
-				dispatch.execute(new GetCountry(countryId), new CommandResultHandler<org.sigmah.shared.dto.country.CountryDTO>() {
-
-					@Override
-					public void onCommandFailure(final Throwable caught) {
-						field.setValue("-");
-					}
-
-					@Override
-					public void onCommandSuccess(final org.sigmah.shared.dto.country.CountryDTO result) {
-						field.setValue(result.getName());
-					}
-
-				});
-
-				// Sets the field label.
-				setLabel(I18N.CONSTANTS.projectCountry());
-				field.setFieldLabel(getLabel());
-
-				component = field;
-
-			}
+			case COUNTRY:
+				component = buildCountryField(valueResult.getValueObject(), enabled);
 				break;
-			case OWNER: {
-
-				final LabelField labelField = createLabelField();
-
-				// Sets the field label.
-				setLabel(I18N.CONSTANTS.projectOwner());
-				labelField.setFieldLabel(getLabel());
-
-				// Sets the value to the field.
-				labelField.setValue(valueResult.getValueObject());
-
-				component = labelField;
-			}
+				
+			case OWNER:
+				component = buildOwnerField(valueResult.getValueObject());
 				break;
-			case MANAGER: {
-
-				final Field<Object> field;
-				final int userId = Integer.parseInt(valueResult.getValueObject());
-
-				// Builds the field and sets its value.
-				if (enabled) {
-					final TextField<Object> textField = new TextField<Object>();
-					field = textField;
-
-				} else {
-					final LabelField labelField = createLabelField();
-					field = labelField;
-				}
-
-				dispatch.execute(new GetUsersByOrganization(auth().getOrganizationId(), userId, null), new CommandResultHandler<ListResult<UserDTO>>() {
-
-					@Override
-					public void onCommandFailure(final Throwable caught) {
-						field.setValue("-");
-					}
-
-					@Override
-					public void onCommandSuccess(final ListResult<UserDTO> result) {
-						field.setValue(result.getList().get(0).getCompleteName());
-					}
-
-				});
-
-				// Sets the field label.
-				setLabel(I18N.CONSTANTS.projectManager());
-				field.setFieldLabel(getLabel());
-
-				component = field;
-			}
+				
+			case MANAGER:
+				component = buildManagerField(valueResult.getValueObject(), enabled);
 				break;
-			case ORG_UNIT: {
-
-				final Field<Object> field;
-				final int orgUnitId = Integer.parseInt(valueResult.getValueObject());
-
-				// Builds the field and sets its value.
-				if (enabled) {
-					final TextField<Object> textField = new TextField<Object>();
-					field = textField;
-
-				} else {
-					final LabelField labelField = createLabelField();
-					field = labelField;
-				}
-
-				cache.getOrganizationCache().get(orgUnitId, new AsyncCallback<OrgUnitDTO>() {
-
-					@Override
-					public void onSuccess(final OrgUnitDTO result) {
-						field.setValue(result.getName() + " - " + result.getFullName());
-					}
-
-					@Override
-					public void onFailure(final Throwable caught) {
-						field.setValue("-");
-					}
-				});
-
-				// Sets the field label.
-				setLabel(I18N.CONSTANTS.orgunit());
-				field.setFieldLabel(getLabel());
-
-				component = field;
-			}
+				
+			case ORG_UNIT:
+				component = buildOrgUnitField(valueResult.getValueObject(), enabled);
 				break;
+				
 			default:
 				throw new IllegalArgumentException("[getComponent] The type '" + getType() + "' for the default flexible element doen't exist.");
 		}
@@ -1226,6 +247,596 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 		if (getValidates()) {
 			handlerManager.fireEvent(new RequiredValueEvent(isValueOn));
 		}
+	}
+	
+	/**
+	 * Creates the code field.
+	 * 
+	 * @param value Code of the container.
+	 * @param enabled <code>true</code> if the field must be editable, <code>false</code> otherwise.
+	 * @return The code field.
+	 */
+	private Field<?> buildCodeField(String value, boolean enabled) {
+		return buildTextField(I18N.CONSTANTS.projectName(), value, 50, enabled);
+	}
+	
+	/**
+	 * Creates the title field.
+	 * 
+	 * @param value Title of the container.
+	 * @param enabled <code>true</code> if the field must be editable, <code>false</code> otherwise.
+	 * @return The title field.
+	 */
+	private Field<?> buildTitleField(String value, boolean enabled) {
+		return buildTextField(I18N.CONSTANTS.projectFullName(), value, 500, enabled);
+	}
+	
+	/**
+	 * Creates a text field. <br/>
+	 * This method is shared between the code and the title fields.
+	 * 
+	 * @param label Label of the field.
+	 * @param value Current value.
+	 * @param size Maximum number of characters allowed.
+	 * @param enabled <code>true</code> if the field must be editable, <code>false</code> otherwise.
+	 * @return A new text field.
+	 */
+	private Field<?> buildTextField(String label, String value, int size, boolean enabled) {
+		final Field<?> field;
+
+		// Builds the field and sets its value.
+		if (enabled) {
+			final TextField<String> textField = createStringField(size, false);
+			textField.setValue(value);
+			field = textField;
+
+		} else {
+			final LabelField labelField = createLabelField();
+			labelField.setValue(value);
+			field = labelField;
+		}
+
+		// Sets the field label.
+		setLabel(label);
+		field.setFieldLabel(getLabel());
+		
+		return field;
+	}
+	
+	/**
+	 * Creates the start date field.
+	 * 
+	 * @param date Start date of the container.
+	 * @param enabled <code>true</code> if the field must be editable, <code>false</code> otherwise.
+	 * @return The start date field.
+	 */
+	private Field<?> buildStartDateField(Date date, boolean enabled) {
+		return buildDateField(I18N.CONSTANTS.projectStartDate(), date, enabled);
+	}
+	
+	/**
+	 * Creates the start date field.
+	 * 
+	 * @param date Start date of the container.
+	 * @param enabled <code>true</code> if the field must be editable, <code>false</code> otherwise.
+	 * @return The start date field.
+	 */
+	private Field<?> buildStartDateField(String date, boolean enabled) {
+		return buildDateField(I18N.CONSTANTS.projectStartDate(), new Date(Long.parseLong(date)), enabled);
+	}
+	
+	/**
+	 * Creates the end date field.
+	 * 
+	 * @param date End date of the container.
+	 * @param enabled <code>true</code> if the field must be editable, <code>false</code> otherwise.
+	 * @return The end date field.
+	 */
+	private Field<?> buildEndDateField(Date date, boolean enabled) {
+		return buildDateField(I18N.CONSTANTS.projectEndDate(), date, enabled);
+	}
+	
+	/**
+	 * Creates the end date field.
+	 * 
+	 * @param date End date of the container.
+	 * @param enabled <code>true</code> if the field must be editable, <code>false</code> otherwise.
+	 * @return The end date field.
+	 */
+	private Field<?> buildEndDateField(String date, boolean enabled) {
+		return buildDateField(I18N.CONSTANTS.projectEndDate(), new Date(Long.parseLong(date)), enabled);
+	}
+	
+	/**
+	 * Creates a date field. <br/>
+	 * This method is shared between the start date and the end date fields.
+	 * 
+	 * @param label Label of the field.
+	 * @param value Current value.
+	 * @param enabled <code>true</code> if the field must be editable, <code>false</code> otherwise.
+	 * @return A new date field.
+	 */
+	private Field<?> buildDateField(String label, Date value, boolean enabled) {
+		final Field<?> field;
+
+		// Builds the field and sets its value.
+		if (enabled) {
+			final DateField dateField = createDateField(true);
+			dateField.setValue(value);
+			field = dateField;
+
+		} else {
+			final LabelField labelField = createLabelField();
+			if (value != null) {
+				labelField.setValue(DateUtils.DATE_SHORT.format(value));
+			} else {
+				labelField.setValue("-");
+			}
+			field = labelField;
+		}
+
+		// Sets the field label.
+		setLabel(label);
+		field.setFieldLabel(getLabel());
+
+		return field;
+	}
+	
+	/**
+	 * Creates the country field.
+	 * 
+	 * @param country Country of the container.
+	 * @param enabled <code>true</code> if the field must be editable, <code>false</code> otherwise.
+	 * @return The country field.
+	 */
+	private Field<?> buildCountryField(CountryDTO country, boolean enabled) {
+		// COUNTRY of project should not be changeable except OrgUnit's
+		enabled &= !(container instanceof ProjectDTO);
+
+		final Field<?> field;
+		
+		if (enabled) {
+			final ComboBox<CountryDTO> comboBox = new ComboBox<CountryDTO>();
+			comboBox.setEmptyText(I18N.CONSTANTS.flexibleElementDefaultSelectCountry());
+
+			ensureCountryStore();
+
+			comboBox.setStore(countriesStore);
+			comboBox.setDisplayField(CountryDTO.NAME);
+			comboBox.setValueField(CountryDTO.ID);
+			comboBox.setTriggerAction(TriggerAction.ALL);
+			comboBox.setEditable(true);
+			comboBox.setAllowBlank(true);
+
+			// Listens to the selection changes.
+			comboBox.addSelectionChangedListener(new SelectionChangedListener<CountryDTO>() {
+
+				@Override
+				public void selectionChanged(SelectionChangedEvent<CountryDTO> se) {
+
+					String value = null;
+					final boolean isValueOn;
+
+					// Gets the selected choice.
+					final CountryDTO choice = se.getSelectedItem();
+
+					// Checks if the choice isn't the default empty choice.
+					isValueOn = choice != null && choice.getId() != null && choice.getId() != -1;
+
+					if (choice != null) {
+						value = String.valueOf(choice.getId());
+					}
+
+					if (value != null) {
+						// Fires value change event.
+						handlerManager.fireEvent(new ValueEvent(DefaultFlexibleElementDTO.this, value));
+					}
+
+					// Required element ?
+					if (getValidates()) {
+						handlerManager.fireEvent(new RequiredValueEvent(isValueOn));
+					}
+				}
+			});
+
+			if (country != null) {
+				comboBox.setValue(country);
+			}
+
+			field = comboBox;
+			
+		} else /* not enabled */{
+
+			final LabelField labelField = createLabelField();
+
+			if (country == null) {
+				labelField.setValue("-");
+			} else {
+				labelField.setValue(country.getName());
+			}
+
+			field = labelField;
+		}
+
+		// Sets the field label.
+		setLabel(I18N.CONSTANTS.projectCountry());
+		field.setFieldLabel(getLabel());
+		
+		return field;
+	}
+	
+	/**
+	 * Creates the country field.
+	 * 
+	 * @param country Country of the container.
+	 * @param enabled <code>true</code> if the field must be editable, <code>false</code> otherwise.
+	 * @return The country field.
+	 */
+	private Field<?> buildCountryField(String country, boolean enabled) {
+		final Field<?> field = buildCountryField((CountryDTO)null, enabled);
+		
+		final int countryId = Integer.parseInt(country);
+
+		dispatch.execute(new GetCountry(countryId), new CommandResultHandler<org.sigmah.shared.dto.country.CountryDTO>() {
+
+			@Override
+			public void onCommandFailure(final Throwable caught) {
+			}
+
+			@Override
+			public void onCommandSuccess(final CountryDTO result) {
+				if(field instanceof ComboBox) {
+					((ComboBox<CountryDTO>)field).setValue(result);
+
+				} else if(field instanceof LabelField) {
+					((LabelField)field).setValue(result.getName());
+				}
+			}
+
+		});
+		
+		return field;
+	}
+	
+	/**
+	 * Creates the owner field. <br/>
+	 * This field is always read-only.
+	 * 
+	 * @param firstName First name of the owner.
+	 * @param lastName Last name of the owner.
+	 * @return The owner field.
+	 */
+	private Field<?> buildOwnerField(String firstName, String lastName) {
+		return buildOwnerField(firstName != null ? firstName + ' ' + lastName : lastName);
+	}
+	
+	/**
+	 * Creates the owner field. <br/>
+	 * This field is always read-only.
+	 * 
+	 * @param fullName Full name of the owner.
+	 * @return The owner field.
+	 */
+	private Field<?> buildOwnerField(String fullName) {
+		final LabelField labelField = createLabelField();
+
+		// Sets the field label.
+		setLabel(I18N.CONSTANTS.projectOwner());
+		labelField.setFieldLabel(getLabel());
+
+		// Sets the value to the field.
+		labelField.setValue(fullName);
+
+		return labelField;
+	}
+	
+	/**
+	 * Creates the manager field.
+	 * 
+	 * @param manager Manager of the container.
+	 * @param enabled <code>true</code> if the field must be editable, <code>false</code> otherwise.
+	 * @return The manager field.
+	 */
+	private Field<?> buildManagerField(final UserDTO manager, boolean enabled) {
+		final Field<?> field;
+		
+		if (enabled) {
+			final ComboBox<UserDTO> comboBox = new ComboBox<UserDTO>();
+			comboBox.setEmptyText(I18N.CONSTANTS.flexibleElementDefaultSelectManager());
+
+			ensureUserStore();
+
+			comboBox.setStore(usersStore);
+			comboBox.setDisplayField(UserDTO.COMPLETE_NAME);
+			comboBox.setValueField(UserDTO.ID);
+			comboBox.setTriggerAction(TriggerAction.ALL);
+			comboBox.setEditable(true);
+			comboBox.setAllowBlank(true);
+
+			// Sets the value to the field.
+			if (manager != null) {
+				comboBox.setValue(manager);
+			}
+
+			// Listens to the selection changes.
+			comboBox.addSelectionChangedListener(new SelectionChangedListener<UserDTO>() {
+
+				@Override
+				public void selectionChanged(SelectionChangedEvent<UserDTO> se) {
+
+					String value = null;
+					final boolean isValueOn;
+
+					// Gets the selected choice.
+					final UserDTO choice = se.getSelectedItem();
+
+					// Checks if the choice isn't the default empty choice.
+					isValueOn = choice != null && choice.getId() != null && choice.getId() != -1;
+
+					if (choice != null) {
+						value = String.valueOf(choice.getId());
+					}
+
+					if (value != null) {
+						// Fires value change event.
+						handlerManager.fireEvent(new ValueEvent(DefaultFlexibleElementDTO.this, value));
+					}
+
+					// Required element ?
+					if (getValidates()) {
+						handlerManager.fireEvent(new RequiredValueEvent(isValueOn));
+					}
+				}
+			});
+
+			field = comboBox;
+
+		} else {
+			final LabelField labelField = createLabelField();
+
+			if (manager == null) {
+				labelField.setValue("-");
+			} else {
+				labelField.setValue(manager.getFirstName() != null ? manager.getFirstName() + ' ' + manager.getName() : manager.getName());
+			}
+
+			field = labelField;
+		}
+
+		// Sets the field label.
+		setLabel(I18N.CONSTANTS.projectManager());
+		field.setFieldLabel(getLabel());
+		
+		return field;
+	}
+	
+	/**
+	 * Creates the manager field.
+	 * 
+	 * @param managerId ID of the manager.
+	 * @param enabled <code>true</code> if the field must be editable, <code>false</code> otherwise.
+	 * @return The manager field.
+	 */
+	private Field<?> buildManagerField(String managerId, boolean enabled) {
+		final Field<?> field = buildManagerField((UserDTO) null, enabled);
+
+		final int userId = Integer.parseInt(managerId);
+		
+		dispatch.execute(new GetUsersByOrganization(auth().getOrganizationId(), userId, null), new CommandResultHandler<ListResult<UserDTO>>() {
+
+			@Override
+			public void onCommandFailure(final Throwable caught) {
+				// Field is already set to null. Nothing to do.
+			}
+
+			@Override
+			public void onCommandSuccess(final ListResult<UserDTO> result) {
+				if(!result.isEmpty()) {
+					final UserDTO manager = result.getList().get(0);
+					
+					if(field instanceof ComboBox) {
+						((ComboBox<UserDTO>)field).setValue(manager);
+						
+					} else if(field instanceof LabelField) {
+						((LabelField)field).setValue(manager.getFirstName() != null ? manager.getFirstName() + ' ' + manager.getName() : manager.getName());
+					}
+				}
+			}
+
+		});
+
+		return field;
+	}
+	
+	/**
+	 * Creates the organization unit field.
+	 * 
+	 * @param orgUnitId ID of the organization unit.
+	 * @param enabled <code>true</code> if the field must be editable, <code>false</code> otherwise.
+	 * @return The organization unit field.
+	 */
+	private Field<?> buildOrgUnitField(String orgUnitId, boolean enabled) {
+		return buildOrgUnitField(Integer.parseInt(orgUnitId), enabled);
+	}
+	
+	/**
+	 * Creates the organization unit field.
+	 * 
+	 * @param orgUnitId ID of the organization unit.
+	 * @param enabled <code>true</code> if the field must be editable, <code>false</code> otherwise.
+	 * @return The organization unit field.
+	 */
+	private Field<?> buildOrgUnitField(Integer orgUnitId, boolean enabled) {
+		final Field<?> field;
+
+		// Org unit field is always read-only for org unit.
+		enabled &= !(container instanceof OrgUnitDTO);
+
+		if (enabled) {
+
+			final ComboBox<OrgUnitDTO> comboBox = new ComboBox<OrgUnitDTO>();
+
+			ensureOrgUnitStore();
+
+			comboBox.setStore(orgUnitsStore);
+			comboBox.setDisplayField(OrgUnitDTO.COMPLETE_NAME);
+			comboBox.setValueField(OrgUnitDTO.ID);
+			comboBox.setTriggerAction(TriggerAction.ALL);
+			comboBox.setEditable(true);
+			comboBox.setAllowBlank(true);
+
+
+			// Listens to the selection changes.
+			comboBox.addSelectionChangedListener(new SelectionChangedListener<OrgUnitDTO>() {
+
+				@Override
+				public void selectionChanged(final SelectionChangedEvent<OrgUnitDTO> se) {
+					// Action called to save the new value.
+					final Runnable fireChangeEventRunnable = new Runnable() {
+
+						@Override
+						public void run() {
+							String value = null;
+							final boolean isValueOn;
+
+							// Gets the selected choice.
+							final OrgUnitDTO choice = se.getSelectedItem();
+
+							// Checks if the choice isn't the default empty choice.
+							isValueOn = choice != null && choice.getId() != null && choice.getId() != -1;
+
+							if (choice != null) {
+								value = String.valueOf(choice.getId());
+							}
+
+							if (value != null) {
+								// Fires value change event.
+								handlerManager.fireEvent(new ValueEvent(DefaultFlexibleElementDTO.this, value));
+							}
+
+							// Required element ?
+							if (getValidates()) {
+								handlerManager.fireEvent(new RequiredValueEvent(isValueOn));
+							}
+						}
+					};
+
+					if (container instanceof ProjectDTO) {
+						Log.debug("OrgUnit in project details.");
+
+						final ProjectDTO currentProject = (ProjectDTO) container;
+
+						final Filter filter = new Filter();
+						filter.addRestriction(DimensionType.Database, currentProject.getId());
+
+						GetSitesCount getSitesCountCmd = new GetSitesCount(filter);
+
+						dispatch.execute(getSitesCountCmd, new CommandResultHandler<SiteResult>() {
+
+							@Override
+							public void onCommandFailure(final Throwable caught) {
+								Log.error("[getSitesCountCmd] Error while getting the count of sites.", caught);
+							}
+
+							@Override
+							public void onCommandSuccess(final SiteResult result) {
+
+								// Gets the selected choice.
+								final OrgUnitDTO choice = se.getSelectedItem();
+								
+								// Current poject's country
+								final CountryDTO projectCountry = currentProject.getCountry();
+
+								// New OrgUnit's country
+								final CountryDTO orgUnitCountry = choice != null ? choice.getOfficeLocationCountry() : null;
+
+								if (result != null
+									&& result.getSiteCount() > 0
+									&& projectCountry != null
+									&& orgUnitCountry != null
+									&& projectCountry != orgUnitCountry) {
+
+									// If the new OrgUnit's country different from the current country of project inform users
+									// that it will continue use the country of project not new OrgUnit's.
+
+									Log.debug("[getSitesCountCmd]-Site count is: " + result.getSiteCount());
+
+									N10N.confirmation(I18N.CONSTANTS.changeOrgUnit(), I18N.CONSTANTS.changeOrgUnitDetails(), new ConfirmCallback() {
+
+										// YES callback.
+										@Override
+										public void onAction() {
+											fireChangeEventRunnable.run();
+										}
+									}, new ConfirmCallback() {
+										
+										// NO callback.
+										@Override
+										public void onAction() {
+											comboBox.setValue(orgUnitsStore.findModel(OrgUnitDTO.ID, currentProject.getOrgUnitId()));
+										}
+									});
+
+								} else {
+									fireChangeEventRunnable.run();
+								}
+							}
+						});
+						
+					} else {
+						// Non project container
+						Log.debug("OrgUnit in non-project.");
+						fireChangeEventRunnable.run();
+					}
+				}
+			});
+			
+			// Loading the current value from the cache.
+			cache.getOrganizationCache().get(orgUnitId, new AsyncCallback<OrgUnitDTO>() {
+
+				@Override
+				public void onFailure(final Throwable caught) {
+					// Not found.
+				}
+
+				@Override
+				public void onSuccess(final OrgUnitDTO result) {
+					comboBox.setValue(result);
+				}
+
+			});
+
+			field = comboBox;
+			
+		} else {
+			// Builds the field and sets its value.
+			final LabelField labelField = createLabelField();
+
+			cache.getOrganizationCache().get(orgUnitId, new AsyncCallback<OrgUnitDTO>() {
+
+				@Override
+				public void onSuccess(final OrgUnitDTO result) {
+					labelField.setValue(result.getName() + " - " + result.getFullName());
+				}
+
+				@Override
+				public void onFailure(final Throwable caught) {
+					labelField.setValue("-");
+				}
+			});
+
+			// Sets the field label.
+			setLabel(I18N.CONSTANTS.orgunit());
+			labelField.setFieldLabel(getLabel());
+
+			field = labelField;
+		}
+
+		// Sets the field label.
+		setLabel(I18N.CONSTANTS.orgunit());
+		field.setFieldLabel(getLabel());
+
+		return field;
 	}
 
 	/**
@@ -1429,6 +1040,135 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 	private String formatText(String value) {
 		return value.replace("\n", "<br>");
 	}
+	
+	/**
+	 * Creates and populates the shared country store if needed.
+	 */
+	private void ensureCountryStore() {
+		if (countriesStore == null) {
+			countriesStore = new ListStore<CountryDTO>();
+		}
+		
+		// if country store is empty
+		if (countriesStore.getCount() == 0) {
+
+			if (cache != null) {
+				cache.getCountryCache().get(new AsyncCallback<List<CountryDTO>>() {
+
+					@Override
+					public void onFailure(Throwable e) {
+						Log.error("[getComponent] Error while getting countries list.", e);
+					}
+
+					@Override
+					public void onSuccess(List<CountryDTO> result) {
+						// Fills the store.
+						countriesStore.add(result);
+					}
+				});
+				
+			} else /* cache is null */ {
+				dispatch.execute(new GetCountries(CountryDTO.Mode.BASE), new CommandResultHandler<ListResult<CountryDTO>>() {
+
+					@Override
+					protected void onCommandSuccess(final ListResult<CountryDTO> result) {
+						// Fills the store.
+						countriesStore.add(result.getData());
+					}
+
+					@Override
+					protected void onCommandFailure(final Throwable caught) {
+						Log.error("[getComponent] Error while getting countries list.", caught);
+					};
+
+				});
+			}
+		}
+	}
+	
+	/**
+	 * Creates and populates the shared user store if needed.
+	 */
+	private void ensureUserStore() {
+		if (usersStore == null) {
+			usersStore = new ListStore<UserDTO>();
+		}
+		
+		if (usersStore.getCount() == 0) {
+			if (cache != null) {
+				cache.getUserCache().get(new AsyncCallback<List<UserDTO>>() {
+
+					@Override
+					public void onFailure(final Throwable e) {
+						Log.error("[getComponent] Error while getting users list.", e);
+					}
+
+					@Override
+					public void onSuccess(final List<UserDTO> result) {
+						// Fills the store.
+						usersStore.add(result);
+					}
+				});
+				
+			} else /* cache is null */ {
+				dispatch.execute(new GetUsersByOrganization(auth().getOrganizationId(), null), new CommandResultHandler<ListResult<UserDTO>>() {
+
+					@Override
+					public void onCommandFailure(final Throwable caught) {
+						Log.error("[getComponent] Error while getting users list.", caught);
+					}
+
+					@Override
+					public void onCommandSuccess(final ListResult<UserDTO> result) {
+						// Fills the store.
+						usersStore.add(result.getList());
+					}
+				});
+			}
+		}
+	}
+	
+	/**
+	 * Creates and populates the shared org unit store if needed.
+	 */
+	private void ensureOrgUnitStore() {
+		if (orgUnitsStore == null) {
+			orgUnitsStore = new ListStore<OrgUnitDTO>();
+		}
+		
+		if(orgUnitsStore.getCount() == 0) {
+			cache.getOrganizationCache().get(new AsyncCallback<OrgUnitDTO>() {
+				
+				@Override
+				public void onFailure(Throwable e) {
+					Log.error("[getComponent] Error while getting users info.", e);
+				}
+
+				@Override
+				public void onSuccess(OrgUnitDTO result) {
+					// Fills the store.
+					recursiveFillOrgUnitsList(result);
+				}
+			});
+		}
+	}
+	
+	/**
+	* Fills recursively the org unit store from the given root org unit.
+	* 
+	* @param root
+	*          The root org unit.
+	*/
+   private void recursiveFillOrgUnitsList(OrgUnitDTO root) {
+
+	   if (root.isCanContainProjects()) {
+		   orgUnitsStore.add(root);
+	   }
+
+	   for (final OrgUnitDTO child : root.getChildrenOrgUnits()) {
+		   recursiveFillOrgUnitsList(child);
+	   }
+   }
 
 	@Override
 	public Object renderHistoryToken(HistoryTokenListDTO token) {
