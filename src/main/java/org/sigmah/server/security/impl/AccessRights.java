@@ -96,16 +96,16 @@ final class AccessRights {
 		sperm(pageToken(Page.ORGUNIT_DETAILS), GrantType.AUTHENTICATED_ONLY);
 		sperm(pageToken(Page.ORGUNIT_REPORTS), GrantType.AUTHENTICATED_ONLY);
 
-		sperm(pageToken(Page.ADMIN_PARAMETERS), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_ADMIN);
-		sperm(pageToken(Page.ADMIN_CATEGORIES), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_ADMIN);
-		sperm(pageToken(Page.ADMIN_ORG_UNITS), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_ADMIN);
+		sperm(pageToken(Page.ADMIN_PARAMETERS), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_ADMIN, GlobalPermissionEnum.MANAGE_SETTINGS);
+		sperm(pageToken(Page.ADMIN_CATEGORIES), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_ADMIN, GlobalPermissionEnum.MANAGE_CATEGORIES);
+		sperm(pageToken(Page.ADMIN_ORG_UNITS), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_ADMIN, GlobalPermissionEnum.MANAGE_ORG_UNITS);
 		sperm(pageToken(Page.ADMIN_USERS), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_ADMIN, GlobalPermissionEnum.MANAGE_USERS);
-		sperm(pageToken(Page.ADMIN_PROJECTS_MODELS), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_ADMIN);
-		sperm(pageToken(Page.ADMIN_REPORTS_MODELS), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_ADMIN);
-		sperm(pageToken(Page.ADMIN_ORG_UNITS_MODELS), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_ADMIN);
-		sperm(pageToken(Page.ADMIN_IMPORTATION_SCHEME), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_ADMIN);
-		sperm(pageToken(Page.ADMIN_ADD_IMPORTATION_SCHEME), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_ADMIN);
-		sperm(pageToken(Page.ADMIN_ADD_VARIABLE_IMPORTATION_SCHEME), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_ADMIN);
+		sperm(pageToken(Page.ADMIN_PROJECTS_MODELS), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_ADMIN, GlobalPermissionEnum.MANAGE_PROJECT_MODELS);
+		sperm(pageToken(Page.ADMIN_REPORTS_MODELS), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_ADMIN, GlobalPermissionEnum.MANAGE_REPORT_MODELS);
+		sperm(pageToken(Page.ADMIN_ORG_UNITS_MODELS), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_ADMIN, GlobalPermissionEnum.MANAGE_ORG_UNIT_MODELS);
+		sperm(pageToken(Page.ADMIN_IMPORTATION_SCHEME), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_ADMIN, GlobalPermissionEnum.MANAGE_IMPORTATION_SCHEMES);
+		sperm(pageToken(Page.ADMIN_ADD_IMPORTATION_SCHEME), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_ADMIN, GlobalPermissionEnum.MANAGE_IMPORTATION_SCHEMES);
+		sperm(pageToken(Page.ADMIN_ADD_VARIABLE_IMPORTATION_SCHEME), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_ADMIN, GlobalPermissionEnum.MANAGE_IMPORTATION_SCHEMES);
 
 		// Commands.
 		sperm(commandToken(AddOrgUnit.class), GrantType.AUTHENTICATED_ONLY);

@@ -124,7 +124,7 @@ public class DashboardPresenter extends AbstractPagePresenter<DashboardPresenter
 		ProjectsListWidget getProjectsList();
 
 	}
-
+	
 	/**
 	 * Presenters's initialization.
 	 * 
@@ -286,7 +286,7 @@ public class DashboardPresenter extends AbstractPagePresenter<DashboardPresenter
 
 		// Users administration.
 		if (ProfileUtils.isGranted(auth(), GlobalPermissionEnum.VIEW_ADMIN)) {
-			view.addMenuButton(I18N.CONSTANTS.adminboard(), IconImageBundle.ICONS.setup(), new ButtonClickHandler(Page.ADMIN_USERS));
+			view.addMenuButton(I18N.CONSTANTS.adminboard(), IconImageBundle.ICONS.setup(), new ButtonClickHandler(getDefaultAdminPage()));
 		}
 
 		// Import.
@@ -304,6 +304,35 @@ public class DashboardPresenter extends AbstractPagePresenter<DashboardPresenter
 		// view.addMenuButton(I18N.CONSTANTS.tables(), IconImageBundle.ICONS.table(), new PivotPageState());
 		// view.addMenuButton(I18N.CONSTANTS.setup(), IconImageBundle.ICONS.setup(), new DbListPageState());
 		// }
+	}
+	
+	/**
+	 * Find the page of the administration to show by default for the current user.
+	 * 
+	 * @return First page of the administration to show.
+	 */
+	private Page getDefaultAdminPage() {
+		final Page[] administrationPages = new Page[] {
+			Page.ADMIN_USERS, Page.ADMIN_ORG_UNITS, 
+			Page.ADMIN_PROJECTS_MODELS, Page.ADMIN_ORG_UNITS_MODELS, 
+			Page.ADMIN_REPORTS_MODELS, Page.ADMIN_CATEGORIES, 
+			Page.ADMIN_IMPORTATION_SCHEME, Page.ADMIN_PARAMETERS
+		};
+		
+		final GlobalPermissionEnum[] accessRights = new GlobalPermissionEnum[] {
+			GlobalPermissionEnum.MANAGE_USERS, GlobalPermissionEnum.MANAGE_ORG_UNITS,
+			GlobalPermissionEnum.MANAGE_PROJECT_MODELS, GlobalPermissionEnum.MANAGE_ORG_UNIT_MODELS,
+			GlobalPermissionEnum.MANAGE_REPORT_MODELS, GlobalPermissionEnum.MANAGE_CATEGORIES,
+			GlobalPermissionEnum.MANAGE_IMPORTATION_SCHEMES, GlobalPermissionEnum.MANAGE_SETTINGS
+		};
+		
+		for(int index = 0; index < accessRights.length; index++) {
+			if(ProfileUtils.isGranted(auth(), accessRights[index])) {
+				return administrationPages[index];
+			}
+		}
+		
+		return Page.ADMIN_USERS;
 	}
 
 	/**

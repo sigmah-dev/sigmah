@@ -154,6 +154,9 @@ public final class ModelUtil {
 					flexibleElt.setPrivacyGroup(pgToPersist);
 					basicChanges = true;
 				}
+			} else if(changes.containsKey(AdminUtil.PROP_FX_PRIVACY_GROUP)) {
+				flexibleElt.setPrivacyGroup(null);
+				basicChanges = true;
 			}
 			if (basicChanges && flexibleElt.getId() != null)
 				flexibleElt = em.merge(flexibleElt);

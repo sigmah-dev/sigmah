@@ -15,6 +15,8 @@ import org.sigmah.client.ui.widget.form.Forms;
 /**
  * Field that encapsulates an other field and adds an history button next to it.
  * 
+ * @param <V> Type of the value of the encapsulated field.
+ * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
 public class HistoryWrapper<V> extends AdapterField {

@@ -108,12 +108,12 @@ public class ProjectDashboardPresenter extends AbstractProjectPresenter<ProjectD
 		/**
 		 * Updates the linked projects toolbars.
 		 * 
-		 * @param canEditProject
-		 *          {@code true} if the authenticated user is authorized to edit projects.
+		 * @param canRelateProject
+		 *          {@code true} if the authenticated user is authorized to create relations between projects.
 		 * @param canCreateProject
 		 *          {@code true} if the authenticated user is authorized to create projects.
 		 */
-		void updateLinkedProjectsToolbars(boolean canEditProject, boolean canCreateProject);
+		void updateLinkedProjectsToolbars(boolean canRelateProject, boolean canCreateProject);
 
 		// --
 		// Funding projects.
@@ -480,10 +480,10 @@ public class ProjectDashboardPresenter extends AbstractProjectPresenter<ProjectD
 		// Updates linked projects toolbars.
 		// --
 
-		final boolean canEditProject = ProfileUtils.isGranted(auth(), GlobalPermissionEnum.EDIT_PROJECT);
+		final boolean canRelateProject = ProfileUtils.isGranted(auth(), GlobalPermissionEnum.RELATE_PROJECT);
 		final boolean canCreateProject = ProfileUtils.isGranted(auth(), GlobalPermissionEnum.CREATE_PROJECT, GlobalPermissionEnum.EDIT_PROJECT);
 
-		view.updateLinkedProjectsToolbars(canEditProject, canCreateProject);
+		view.updateLinkedProjectsToolbars(canRelateProject, canCreateProject);
 
 		// --
 		// Updates reminders / monitored points.

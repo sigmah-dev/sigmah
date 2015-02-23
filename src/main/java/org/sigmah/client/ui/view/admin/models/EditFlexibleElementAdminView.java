@@ -53,6 +53,7 @@ import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Singleton;
+import org.sigmah.client.ui.widget.form.ClearableField;
 
 /**
  * {@link EditFlexibleElementAdminPresenter}'s view implementation.
@@ -179,7 +180,7 @@ public class EditFlexibleElementAdminView extends AbstractPopupView<PopupWidget>
 		commonForm.add(layoutGroupField);
 		commonForm.add(orderField);
 		commonForm.add(mandatoryField);
-		commonForm.add(privacyGroupField);
+		commonForm.add(new ClearableField<PrivacyGroupDTO>(privacyGroupField));
 		commonForm.add(amendableField);
 		commonForm.add(exportableField);
 

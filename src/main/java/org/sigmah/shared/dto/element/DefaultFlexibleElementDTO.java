@@ -60,6 +60,8 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 	 * Serial version UID.
 	 */
 	private static final long serialVersionUID = 3746586633233053639L;
+	
+	private static final String EMPTY_VALUE = "-";
 
 	private transient ListStore<CountryDTO> countriesStore;
 	private transient ListStore<UserDTO> usersStore;
@@ -370,7 +372,7 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 			if (value != null) {
 				labelField.setValue(DateUtils.DATE_SHORT.format(value));
 			} else {
-				labelField.setValue("-");
+				labelField.setValue(EMPTY_VALUE);
 			}
 			field = labelField;
 		}
@@ -450,7 +452,7 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 			final LabelField labelField = createLabelField();
 
 			if (country == null) {
-				labelField.setValue("-");
+				labelField.setValue(EMPTY_VALUE);
 			} else {
 				labelField.setValue(country.getName());
 			}
@@ -595,7 +597,7 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 			final LabelField labelField = createLabelField();
 
 			if (manager == null) {
-				labelField.setValue("-");
+				labelField.setValue(EMPTY_VALUE);
 			} else {
 				labelField.setValue(manager.getFirstName() != null ? manager.getFirstName() + ' ' + manager.getName() : manager.getName());
 			}
@@ -821,7 +823,7 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 
 				@Override
 				public void onFailure(final Throwable caught) {
-					labelField.setValue("-");
+					labelField.setValue(EMPTY_VALUE);
 				}
 			});
 

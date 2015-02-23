@@ -622,8 +622,7 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> {
 							
 							// Generates element component (with the value).
 							elementDTO.init();
-							final Component elementComponent = elementDTO.getElementComponent(valueResult, !readOnly && !valueResult.isAmendment(), 
-								projectPresenter.canUnlockProject());
+							final Component elementComponent = elementDTO.getElementComponent(valueResult, !readOnly && !valueResult.isAmendment());
 							
 							if(elementDTO.getAmendable() && projectPresenter.projectIsLocked() && projectPresenter.canUnlockProject()) {
 								projectPresenter.addUnlockProjectPopup(elementDTO, elementComponent, view);

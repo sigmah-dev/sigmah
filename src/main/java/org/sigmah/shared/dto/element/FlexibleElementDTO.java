@@ -201,10 +201,6 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 		return getComponentWithHistory(valueResult, enabled, false);
 	}
 	
-	public Component getElementComponent(ValueResult valueResult, boolean enabled, boolean canUnlockProject) {
-		return getComponentWithHistory(valueResult, enabled, false, canUnlockProject);
-	}
-
 	/**
 	 * Gets the widget of a flexible element with its value. This method manages the history of the element.
 	 * 
@@ -217,10 +213,6 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 	 * @return The widget component.
 	 */
 	private Component getComponentWithHistory(ValueResult valueResult, boolean enabled, boolean inBanner) {
-		return getComponentWithHistory(valueResult, enabled, inBanner, false);
-	}
-	
-	private Component getComponentWithHistory(ValueResult valueResult, boolean enabled, boolean inBanner, boolean canUnlockProject) {
 
 		if(ProfileUtils.getPermission(auth(), getPrivacyGroup()) == PrivacyGroupPermissionEnum.NONE) {
 			return null;

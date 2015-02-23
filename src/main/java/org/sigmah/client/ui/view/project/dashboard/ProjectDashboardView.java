@@ -195,7 +195,7 @@ public class ProjectDashboardView extends AbstractView implements ProjectDashboa
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void updateLinkedProjectsToolbars(final boolean canEditProject, final boolean canCreateProject) {
+	public void updateLinkedProjectsToolbars(final boolean canRelateProject, final boolean canCreateProject) {
 
 		fundingProjectsToolbar.removeAll();
 		fundedProjectsToolbar.removeAll();
@@ -209,7 +209,7 @@ public class ProjectDashboardView extends AbstractView implements ProjectDashboa
 		fundingProjectsToolbar.add(fundingTitle);
 		fundedProjectsToolbar.add(fundedTitle);
 
-		if (canEditProject) {
+		if (canRelateProject) {
 			fundingProjectsToolbar.add(new SeparatorToolItem());
 			fundedProjectsToolbar.add(new SeparatorToolItem());
 			fundingProjectsToolbar.add(fundingProjectsSelectButton);

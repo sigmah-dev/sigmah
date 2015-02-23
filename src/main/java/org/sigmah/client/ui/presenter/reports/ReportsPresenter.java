@@ -364,7 +364,7 @@ public class ReportsPresenter extends AbstractPresenter<ReportsPresenter.View> {
 	 */
 	public void loadReport(final ProjectReportDTO report) {
 
-		view.setReportsListButtonsVisibility(ProfileUtils.isGranted(auth(), GlobalPermissionEnum.MANAGE_ORG_UNITS));
+		view.setReportsListButtonsVisibility(ProfileUtils.isGranted(auth(), GlobalPermissionEnum.EDIT_ORG_UNIT));
 
 		// Reset.
 		textAreas.clear();
@@ -381,7 +381,7 @@ public class ReportsPresenter extends AbstractPresenter<ReportsPresenter.View> {
 
 			@Override
 			public boolean isEditionEnabled() {
-				return ProfileUtils.isGranted(auth(), GlobalPermissionEnum.MANAGE_ORG_UNITS);
+				return ProfileUtils.isGranted(auth(), GlobalPermissionEnum.EDIT_ORG_UNIT);
 			}
 
 			@Override

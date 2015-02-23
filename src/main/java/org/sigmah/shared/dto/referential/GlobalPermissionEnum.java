@@ -305,6 +305,12 @@ public enum GlobalPermissionEnum implements Result {
 
 				case PROJECT:
 					return I18N.CONSTANTS.categoryProject();
+					
+				case INDICATOR:
+					return I18N.CONSTANTS.categoryIndicator();
+					
+				case ORG_UNIT:
+					return I18N.CONSTANTS.categoryOrgUnit();
 
 				case ADMINISTRATION:
 					return I18N.CONSTANTS.categoryAdministration();
@@ -368,9 +374,6 @@ public enum GlobalPermissionEnum implements Result {
 
 			case MANAGE_ORG_UNITS:
 				return I18N.CONSTANTS.MANAGE_ORG_UNITS();
-
-			case REMOVE_FILE:
-				return I18N.CONSTANTS.REMOVE_FILE();
 
 			case VALID_AMENDEMENT:
 				return I18N.CONSTANTS.VALID_AMENDEMENT();
