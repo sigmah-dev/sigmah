@@ -117,6 +117,11 @@ public abstract class AbstractModelsAdminPresenter<E extends IsModel, V extends 
 		 * Selects the first tab.
 		 */
 		void selectFirstTab();
+		
+		/**
+		 * Collapse of model grid panel.
+		 */
+		void collapseModelGridPanel();
 
 	}
 
@@ -593,12 +598,17 @@ public abstract class AbstractModelsAdminPresenter<E extends IsModel, V extends 
 	private void onModelLoaded(final E model) {
 
 		currentModel = model;
+		
+		if(model != null) {
+			view.collapseModelGridPanel();
+		}
+		
 		view.loadModel(currentModel);
 
 		if (currentModel == null) {
 			return;
 		}
-
+		
 		loadStatus(currentModel.getStatus());
 	}
 

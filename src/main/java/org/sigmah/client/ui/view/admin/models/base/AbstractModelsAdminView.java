@@ -269,6 +269,14 @@ public abstract class AbstractModelsAdminView<E extends IsModel> extends Abstrac
 		return detailsHeaderForm;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void collapseModelGridPanel() {
+		gridPanel.collapse();
+	}
+	
 	// ---------------------------------------------------------------------------------------------------------------
 	//
 	// UTILITY METHODS.
