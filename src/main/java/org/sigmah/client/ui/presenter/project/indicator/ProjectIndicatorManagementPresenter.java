@@ -36,19 +36,22 @@ import org.sigmah.client.ui.widget.HasTreeGrid;
 import org.sigmah.client.ui.widget.button.Button;
 import org.sigmah.client.ui.widget.button.SplitButton;
 import org.sigmah.client.ui.widget.form.FormPanel;
-import org.sigmah.offline.dao.RequestManager;
-import org.sigmah.offline.dao.RequestManagerCallback;
+import org.sigmah.shared.command.BatchCommand;
 import org.sigmah.shared.command.CreateEntity;
 import org.sigmah.shared.command.Delete;
 import org.sigmah.shared.command.GetIndicators;
 import org.sigmah.shared.command.UpdateEntity;
 import org.sigmah.shared.command.result.CreateResult;
 import org.sigmah.shared.command.result.IndicatorListResult;
+import org.sigmah.shared.command.result.ListResult;
+import org.sigmah.shared.command.result.Result;
 import org.sigmah.shared.command.result.VoidResult;
 import org.sigmah.shared.dto.IndicatorDTO;
 import org.sigmah.shared.dto.IndicatorElement;
 import org.sigmah.shared.dto.IndicatorGroup;
 import org.sigmah.shared.dto.base.EntityDTO;
+import org.sigmah.shared.dto.referential.GlobalPermissionEnum;
+import org.sigmah.shared.util.ProfileUtils;
 
 /**
  * Project's indicators management presenter which manages the {@link ProjectIndicatorManagementView}.
@@ -79,6 +82,7 @@ public class ProjectIndicatorManagementPresenter extends AbstractProjectPresente
 		Button getIndicatorGroupSaveButton();
 		
 		void refreshTreeGrid();
+		void setEditable(boolean editable);
 	}
 	
 	private Integer currentDatabaseId;
@@ -115,7 +119,7 @@ public class ProjectIndicatorManagementPresenter extends AbstractProjectPresente
 
 			@Override
 			public void handleEvent(GridEvent<IndicatorElement> gridEvent) {
-				if(computeTarget(gridEvent) == Target.LABEL) {
+				if(ProfileUtils.isGranted(auth(), GlobalPermissionEnum.MANAGE_INDICATOR) && computeTarget(gridEvent) == Target.LABEL) {
 					onEditIndicator((IndicatorDTO)gridEvent.getModel());
 				}
 			}
@@ -198,6 +202,14 @@ public class ProjectIndicatorManagementPresenter extends AbstractProjectPresente
 	@Override
 	public void onPageRequest(final PageRequest request) {
 		currentDatabaseId = Integer.valueOf(request.getParameter(RequestParameter.ID));
+		
+		final boolean canManageIndicators = ProfileUtils.isGranted(auth(), GlobalPermissionEnum.MANAGE_INDICATOR);
+		view.getSaveButton().setVisible(canManageIndicators);
+		view.getNewIndicatorGroupButton().setVisible(canManageIndicators);
+		view.getNewIndicatorButton().setVisible(canManageIndicators);
+		view.getDeleteButton().setVisible(canManageIndicators);
+		view.setEditable(canManageIndicators);
+		
 		doLoad();
 	}
 
@@ -231,14 +243,7 @@ public class ProjectIndicatorManagementPresenter extends AbstractProjectPresente
 	// --
 	
 	private void onSave() {
-		// TODO: Migrate the BatchCommand object.
-		final RequestManager<VoidResult> requestManager = new RequestManager<VoidResult>(null, new CommandResultHandler<VoidResult>() {
-
-			@Override
-			protected void onCommandSuccess(VoidResult result) {
-				view.getStore().commitChanges();
-			}
-		});
+		final BatchCommand updateCommands = new BatchCommand();
 		
 		for(final Record record : view.getStore().getModifiedRecords()) {
 			if(record.getModel() instanceof EntityDTO) {
@@ -250,17 +255,18 @@ public class ProjectIndicatorManagementPresenter extends AbstractProjectPresente
 					changes.put(property, record.get(property));
 				}
 				
-				dispatch.execute(new UpdateEntity(entity, changes), new RequestManagerCallback<VoidResult, VoidResult>(requestManager) {
-
-					@Override
-					public void onRequestSuccess(VoidResult result) {
-						// Success
-					}
-				}, view.getSaveButton());
+				updateCommands.add(new UpdateEntity(entity, changes));
 			}
 		}
 		
-		requestManager.ready();
+		dispatch.execute(updateCommands, new CommandResultHandler<ListResult<Result>>() {
+
+			@Override
+			protected void onCommandSuccess(ListResult<Result> result) {
+				view.getStore().commitChanges();
+			}
+			
+		}, view.getSaveButton());
 	}
 	
 	private void onDiscardChanges() {

@@ -20,6 +20,8 @@ import org.sigmah.client.ui.view.pivot.ProjectPivotContainer;
 import org.sigmah.client.ui.widget.button.SplitButton;
 import org.sigmah.shared.command.GetProject;
 import org.sigmah.shared.dto.ProjectDTO;
+import org.sigmah.shared.dto.referential.GlobalPermissionEnum;
+import org.sigmah.shared.util.ProfileUtils;
 
 /**
  * Project's indicators entries presenter which manages the {@link ProjectIndicatorEntriesView}.
@@ -98,6 +100,14 @@ public class ProjectIndicatorEntriesPresenter extends AbstractProjectPresenter<P
 	@Override
 	public void onPageRequest(final PageRequest request) {
 		final Integer projectId = request.getParameterInteger(RequestParameter.ID);
+		
+		final boolean canEditIndicator = ProfileUtils.isGranted(auth(), GlobalPermissionEnum.EDIT_INDICATOR);
+		final boolean canManageIndicator = ProfileUtils.isGranted(auth(), GlobalPermissionEnum.MANAGE_INDICATOR);
+		
+		view.getProjectPivotContainer().getSaveButton().setVisible(canEditIndicator);
+		view.getProjectPivotContainer().getSaveButtonSeparator().setVisible(canEditIndicator);
+		
+		view.getProjectPivotContainer().getGridPanel().setHeaderDecoratorEditable(canManageIndicator);
 		
 		dispatch.execute(new GetProject(projectId), new CommandResultHandler<ProjectDTO>() {
 			@Override

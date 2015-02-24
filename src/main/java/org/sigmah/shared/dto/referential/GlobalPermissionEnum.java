@@ -91,6 +91,19 @@ public enum GlobalPermissionEnum implements Result {
 	EDIT_PROJECT_AGENDA(GlobalPermissionCategory.PROJECT),
 	
 	/**
+	 * for creating/deleting/modifying/closing reminders created by the user or 
+	 * by other users.
+	 */
+
+	EDIT_ALL_REMINDERS(null),
+	
+	/**
+	 * for creating/deleting/modifying/closing reminders created by the user.
+	 */
+
+	EDIT_OWN_REMINDERS(null),
+	
+	/**
 	 * for viewing the two indicator sub-tabs.
 	 */
 	VIEW_INDICATOR(GlobalPermissionCategory.INDICATOR),
@@ -194,25 +207,6 @@ public enum GlobalPermissionEnum implements Result {
 	 * View the admin page to manage system settings.
 	 */
 	MANAGE_SETTINGS(GlobalPermissionCategory.ADMINISTRATION),
-
-	/**
-	 * Remove a file (in the files list flexible element).
-	 */
-	@Deprecated
-	REMOVE_FILE(GlobalPermissionCategory.OTHER),
-
-	/**
-	 * for creating/deleting/modifying/closing reminders created by the user.
-	 */
-
-	EDIT_OWN_REMINDERS(null),
-
-	/**
-	 * for creating/deleting/modifying/closing reminders created by the user or 
-	 * by other users.
-	 */
-
-	EDIT_ALL_REMINDERS(null),
 
 	/**
 	 * Show global export button in projects list.
@@ -363,18 +357,18 @@ public enum GlobalPermissionEnum implements Result {
 			case LOCK_PROJECT:
 				return I18N.CONSTANTS.LOCK_PROJECT();
 				
+			case MODIFY_LOCKED_CONTENT:
+				return I18N.CONSTANTS.MODIFY_LOCKED_CONTENT();
+				
+			case REMOVE_PROJECT_FILE:
+				return I18N.CONSTANTS.REMOVE_PROJECT_FILE();
+				
 			case CHANGE_PHASE:
 				return I18N.CONSTANTS.CHANGE_PHASE();
-
-			case VIEW_ADMIN:
-				return I18N.CONSTANTS.VIEW_ADMIN();
-
-			case MANAGE_USERS:
-				return I18N.CONSTANTS.MANAGE_USERS();
-
-			case MANAGE_ORG_UNITS:
-				return I18N.CONSTANTS.MANAGE_ORG_UNITS();
-
+				
+			case RELATE_PROJECT:
+				return I18N.CONSTANTS.RELATE_PROJECT();
+				
 			case VALID_AMENDEMENT:
 				return I18N.CONSTANTS.VALID_AMENDEMENT();
 
@@ -389,7 +383,7 @@ public enum GlobalPermissionEnum implements Result {
 
 			case EDIT_PROJECT_AGENDA:
 				return I18N.CONSTANTS.EDIT_AGENDA();
-
+				
 			case EDIT_ALL_REMINDERS:
 				return I18N.CONSTANTS.EDIT_ALL_REMINDERS();
 
@@ -404,9 +398,6 @@ public enum GlobalPermissionEnum implements Result {
 
 			case EDIT_INDICATOR:
 				return I18N.CONSTANTS.EDIT_INDICATOR();
-
-			case GLOBAL_EXPORT:
-				return I18N.CONSTANTS.GLOBAL_EXPORT();
 				
 			case VIEW_MAPTAB:
 				return I18N.CONSTANTS.VIEW_MAPTAB();
@@ -416,6 +407,48 @@ public enum GlobalPermissionEnum implements Result {
 				
 			case MANAGE_SITES:
 				return I18N.CONSTANTS.MANAGE_SITES();
+
+			case GLOBAL_EXPORT:
+				return I18N.CONSTANTS.GLOBAL_EXPORT();
+				
+			case EDIT_ORG_UNIT:
+				return I18N.CONSTANTS.EDIT_ORG_UNIT();
+				
+			case REMOVE_ORG_UNIT_FILE:
+				return I18N.CONSTANTS.REMOVE_ORG_UNIT_FILE();
+				
+			case VIEW_ORG_UNIT_AGENDA:
+				return I18N.CONSTANTS.VIEW_ORG_UNIT_AGENDA();
+				
+			case EDIT_ORG_UNIT_AGENDA:
+				return I18N.CONSTANTS.EDIT_ORG_UNIT_AGENDA();
+			
+			case VIEW_ADMIN:
+				return I18N.CONSTANTS.VIEW_ADMIN();
+
+			case MANAGE_USERS:
+				return I18N.CONSTANTS.MANAGE_USERS();
+
+			case MANAGE_ORG_UNITS:
+				return I18N.CONSTANTS.MANAGE_ORG_UNITS();
+				
+			case MANAGE_PROJECT_MODELS:
+				return I18N.CONSTANTS.MANAGE_PROJECT_MODELS();
+				
+			case MANAGE_ORG_UNIT_MODELS:
+				return I18N.CONSTANTS.MANAGE_ORG_UNIT_MODELS();
+				
+			case MANAGE_REPORT_MODELS:
+				return I18N.CONSTANTS.MANAGE_REPORT_MODELS();
+				
+			case MANAGE_CATEGORIES:
+				return I18N.CONSTANTS.MANAGE_CATEGORIES();
+				
+			case MANAGE_IMPORTATION_SCHEMES:
+				return I18N.CONSTANTS.MANAGE_IMPORTATION_SCHEMES();
+				
+			case MANAGE_SETTINGS:
+				return I18N.CONSTANTS.MANAGE_SETTINGS();
 				
 			case EXPORT_HXL:
 				return I18N.CONSTANTS.EXPORT_HXL();

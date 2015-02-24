@@ -69,13 +69,14 @@ public class ProjectIndicatorManagementView extends AbstractView implements Proj
 	private Button exportButton;
 	
 	private EditorTreeGrid<IndicatorElement> treeGrid;
-	private TreeGridEventHandler<IndicatorElement> handler;
 	
 	/** New indicator group view */
 	private ViewPopupInterface indicatorGroupPopup;
 	private FormPanel indicatorGroupForm;
 	private Field<String> indicatorGroupNameField;
 	private Button indicatorGroupSaveButton;
+	
+	private boolean editable;
 	
 	/**
 	 * {@inheritDoc}
@@ -164,12 +165,16 @@ public class ProjectIndicatorManagementView extends AbstractView implements Proj
 	
 	@Override
 	public void setTreeGridEventHandler(TreeGridEventHandler<IndicatorElement> handler) {
-		this.handler = handler;
 	}
 
 	@Override
 	public void refreshTreeGrid() {
 		treeGrid.getView().refresh(false);
+	}
+
+	@Override
+	public void setEditable(boolean editable) {
+		this.editable = editable;
 	}
 	
 	/**
@@ -303,7 +308,7 @@ public class ProjectIndicatorManagementView extends AbstractView implements Proj
 					
 					return new StringBuilder(toHTMLIcon(css.mapIcon()))
 						.append("<span class='")
-						.append(css.indicatorLabel())
+						.append(editable ? css.indicatorLabel() : css.indicatorLabelInactive())
 						.append("'>")
 						.append(indicator.get(property))
 						.append("</span>")

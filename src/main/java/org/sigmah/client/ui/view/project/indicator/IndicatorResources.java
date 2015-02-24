@@ -31,5 +31,6 @@ public interface IndicatorResources extends ClientBundle {
 		String starIcon();
 		String emptyStarIcon();
 		String indicatorLabel();
+		String indicatorLabelInactive();
 	}
 }

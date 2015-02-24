@@ -203,11 +203,6 @@ public class ProjectPivotContainer extends ContentPanel implements Loadable {
 		
 		loadProject(project);
 		
-		gridPanel.setHeaderDecoratorEditable(ProfileUtils.isGranted(authentication, GlobalPermissionEnum.MANAGE_INDICATOR) ||
-			ProfileUtils.isGranted(authentication, GlobalPermissionEnum.EDIT_INDICATOR));
-		
-		saveButton.setVisible(ProfileUtils.isGranted(authentication, GlobalPermissionEnum.EDIT_INDICATOR));
-		
 		registerChangeListeners();
 	}
 	
@@ -217,6 +212,10 @@ public class ProjectPivotContainer extends ContentPanel implements Loadable {
 
 	public SplitButton getSaveButton() {
 		return saveButton;
+	}
+
+	public SeparatorToolItem getSaveButtonSeparator() {
+		return saveButtonSeparator;
 	}
 
 	public PivotGridPanel getGridPanel() {
@@ -514,9 +513,10 @@ public class ProjectPivotContainer extends ContentPanel implements Loadable {
 	}
 
 	private void editIndicator(final int id) {
-		if (!ProfileUtils.isGranted(authentication, GlobalPermissionEnum.MANAGE_INDICATOR)
-		                && !ProfileUtils.isGranted(authentication, GlobalPermissionEnum.EDIT_INDICATOR))
+		if (!ProfileUtils.isGranted(authentication, GlobalPermissionEnum.MANAGE_INDICATOR)) {
 			return;
+		}
+		
 		dispatcher.execute(new GetIndicators(this.currentDatabaseId), new CommandResultHandler<IndicatorListResult>() {
 
 			@Override
