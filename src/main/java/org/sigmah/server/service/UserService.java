@@ -97,7 +97,9 @@ public class UserService extends AbstractEntityService<User, Integer, UserDTO> {
 		}
 
 		// Saves user.
-		userFound = userDAO.findById(id);
+		if(id != null) {
+			userFound = userDAO.findById(id);
+		}
 		if (userFound != null && userUnitDAO.doesOrgUnitProfileExist(userFound)) {
 			orgUnitProfileFound = userUnitDAO.findOrgUnitProfileByUser(userFound);
 		}
