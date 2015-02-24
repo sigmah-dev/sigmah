@@ -13,6 +13,8 @@ import org.sigmah.client.ui.widget.SubMenuWidget.SubMenuListener;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import org.sigmah.client.page.Page;
+import org.sigmah.shared.dto.referential.GlobalPermissionEnum;
 
 /**
  * <p>
@@ -73,6 +75,18 @@ public class AdminPresenter extends AbstractPresenter<AdminPresenter.View> imple
 			}
 
 		});
+		
+		// --
+		// Sub menu visibility.
+		// --
+		view.getSubMenuWidget().setRequiredPermissions(Page.ADMIN_USERS, GlobalPermissionEnum.MANAGE_USERS);
+		view.getSubMenuWidget().setRequiredPermissions(Page.ADMIN_ORG_UNITS, GlobalPermissionEnum.MANAGE_ORG_UNITS);
+		view.getSubMenuWidget().setRequiredPermissions(Page.ADMIN_PROJECTS_MODELS, GlobalPermissionEnum.MANAGE_PROJECT_MODELS);
+		view.getSubMenuWidget().setRequiredPermissions(Page.ADMIN_ORG_UNITS_MODELS, GlobalPermissionEnum.MANAGE_ORG_UNIT_MODELS);
+		view.getSubMenuWidget().setRequiredPermissions(Page.ADMIN_REPORTS_MODELS, GlobalPermissionEnum.MANAGE_REPORT_MODELS);
+		view.getSubMenuWidget().setRequiredPermissions(Page.ADMIN_CATEGORIES, GlobalPermissionEnum.MANAGE_CATEGORIES);
+		view.getSubMenuWidget().setRequiredPermissions(Page.ADMIN_IMPORTATION_SCHEME, GlobalPermissionEnum.MANAGE_IMPORTATION_SCHEMES);
+		view.getSubMenuWidget().setRequiredPermissions(Page.ADMIN_PARAMETERS, GlobalPermissionEnum.MANAGE_SETTINGS);
 	}
 
 	/**
@@ -80,7 +94,7 @@ public class AdminPresenter extends AbstractPresenter<AdminPresenter.View> imple
 	 */
 	@Override
 	public void onSubPresenterRequest(final PageRequest subPageRequest) {
-		view.getSubMenuWidget().initializeMenu(subPageRequest.getPage());
+		view.getSubMenuWidget().initializeMenu(subPageRequest.getPage(), auth());
 	}
 
 }

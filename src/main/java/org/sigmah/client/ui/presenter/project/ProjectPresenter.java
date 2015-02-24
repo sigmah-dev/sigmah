@@ -354,6 +354,15 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 				}
 			}
 		}));
+		
+		// --
+		// Sub menu visibility.
+		// --
+		view.getSubMenuWidget().setRequiredPermissions(Page.PROJECT_LOGFRAME, GlobalPermissionEnum.VIEW_LOGFRAME);
+		view.getSubMenuWidget().setRequiredPermissions(Page.PROJECT_INDICATORS_MANAGEMENT, GlobalPermissionEnum.VIEW_INDICATOR);
+		view.getSubMenuWidget().setRequiredPermissions(Page.PROJECT_INDICATORS_MAP, GlobalPermissionEnum.VIEW_MAPTAB);
+		view.getSubMenuWidget().setRequiredPermissions(Page.PROJECT_INDICATORS_ENTRIES, GlobalPermissionEnum.VIEW_INDICATOR);
+		view.getSubMenuWidget().setRequiredPermissions(Page.PROJECT_CALENDAR, GlobalPermissionEnum.VIEW_PROJECT_AGENDA);
 	}
 
 	/**
@@ -363,7 +372,7 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 	public void onSubPresenterRequest(final PageRequest subPageRequest) {
 
 		// Updates sub-menu widget.
-		view.getSubMenuWidget().initializeMenu(subPageRequest.getPage());
+		view.getSubMenuWidget().initializeMenu(subPageRequest.getPage(), auth());
 
 		// Updates delete button enabled state.
 		final boolean canDeleteProject = canDeleteProject();

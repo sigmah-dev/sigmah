@@ -1,5 +1,6 @@
 package org.sigmah.client.ui.widget;
 
+import com.google.gwt.dom.client.Style;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +16,8 @@ import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import org.sigmah.shared.command.result.Authentication;
+import org.sigmah.shared.dto.referential.GlobalPermissionEnum;
 
 /**
  * Sub-menu widget.
@@ -153,7 +156,7 @@ public class SubMenuWidget implements IsWidget {
 	 * @param currentPage
 	 *          The current active page, may be {@code null}.
 	 */
-	public void initializeMenu(final Page currentPage) {
+	public void initializeMenu(final Page currentPage, final Authentication authentication) {
 
 		if (currentPage == null) {
 			return;
@@ -161,8 +164,29 @@ public class SubMenuWidget implements IsWidget {
 
 		for (final SubMenuItem menuItem : menuItems) {
 			final PageRequest request = menuItem.getRequest();
+			
 			if (request != null && currentPage == request.getPage()) {
 				activeMenu(menuItem);
+			}
+			
+			menuItem.setVisible(menuItem.hasRequiredPermissions(authentication));
+		}
+	}
+	
+	/**
+	 * Changes the required permissions to view the menu item associated to
+	 * the given <code>page</code>.
+	 * 
+	 * @param page 
+	 *			Page associated to the menu item to edit.
+	 * @param requiredPermissions 
+	 *			Required permissions to access this menu item.
+	 */
+	public void setRequiredPermissions(Page page, GlobalPermissionEnum... requiredPermissions) {
+		for (final SubMenuItem menuItem : menuItems) {
+			final PageRequest request = menuItem.getRequest();
+			if (request != null && page == request.getPage()) {
+				menuItem.setRequiredPermissions(requiredPermissions);
 			}
 		}
 	}
@@ -242,6 +266,22 @@ public class SubMenuWidget implements IsWidget {
 		}
 
 		menuItem.addStyleName(CSS_SUBMENU_ACTIVE);
+	}
+	
+	/**
+	 * Show or hide the given <code>menuItem</code>.
+	 * 
+	 * @param menuItem
+	 *			Menu item to show or hide.
+	 * @param visible 
+	 *			<code>true</code> to show the item, <code>false</code> to hide it.
+	 */
+	private void setMenuVisibility(final SubMenuItem menuItem, final boolean visible) {
+		if(visible) {
+			menuItem.getElement().getStyle().clearDisplay();
+		} else {
+			menuItem.getElement().getStyle().setDisplay(Style.Display.NONE);
+		}
 	}
 
 }

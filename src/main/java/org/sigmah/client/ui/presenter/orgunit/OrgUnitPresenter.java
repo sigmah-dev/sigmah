@@ -32,6 +32,8 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import org.sigmah.client.page.Page;
+import org.sigmah.shared.dto.referential.GlobalPermissionEnum;
 
 /**
  * <p>
@@ -115,6 +117,8 @@ public class OrgUnitPresenter extends AbstractPresenter<OrgUnitPresenter.View> i
 			}
 
 		});
+		
+		view.getSubMenuWidget().setRequiredPermissions(Page.ORGUNIT_CALENDAR, GlobalPermissionEnum.VIEW_ORG_UNIT_AGENDA);
 	}
 
 	/**
@@ -124,7 +128,7 @@ public class OrgUnitPresenter extends AbstractPresenter<OrgUnitPresenter.View> i
 	public void onSubPresenterRequest(final PageRequest subPageRequest) {
 
 		// Updates sub-menu widget.
-		view.getSubMenuWidget().initializeMenu(subPageRequest.getPage());
+		view.getSubMenuWidget().initializeMenu(subPageRequest.getPage(), auth());
 
 		// Updates parent view elements.
 		refreshBanner(orgUnit);

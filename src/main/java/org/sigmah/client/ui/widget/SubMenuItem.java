@@ -8,6 +8,9 @@ import com.google.gwt.event.dom.client.HasClickHandlers;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HTML;
+import org.sigmah.shared.command.result.Authentication;
+import org.sigmah.shared.dto.referential.GlobalPermissionEnum;
+import org.sigmah.shared.util.ProfileUtils;
 
 /**
  * Sub-menu item widget.
@@ -20,15 +23,18 @@ public class SubMenuItem extends Composite implements HasClickHandlers {
 
 	private final PageRequest request;
 	private final HTML titlePanel;
-
+	private GlobalPermissionEnum[] requiredPermissions;
+	
 	/**
 	 * Initializes a new item navigating to the given {@code page}.
 	 * 
 	 * @param page
 	 *          The {@link Page} to navigate to.
+	 * @param requiredPermissions
+	 *			Required permissions to access this menu item.
 	 */
-	public SubMenuItem(final Page page) {
-		this(page != null ? page.request() : null);
+	public SubMenuItem(final Page page, GlobalPermissionEnum... requiredPermissions) {
+		this(page != null ? page.request() : null, requiredPermissions);
 	}
 
 	/**
@@ -36,10 +42,13 @@ public class SubMenuItem extends Composite implements HasClickHandlers {
 	 * 
 	 * @param request
 	 *          The {@link PageRequest} to navigate to.
+	 * @param requiredPermissions
+	 *			Required permissions to access this menu item.
 	 */
-	public SubMenuItem(final PageRequest request) {
+	public SubMenuItem(final PageRequest request, GlobalPermissionEnum... requiredPermissions) {
 
 		this.request = request;
+		this.requiredPermissions = requiredPermissions;
 
 		titlePanel = new HTML();
 		titlePanel.setStyleName(CSS_SUBMENU_ITEM);
@@ -65,6 +74,32 @@ public class SubMenuItem extends Composite implements HasClickHandlers {
 	public void setMenuItemTitle(final String title) {
 		setTitle(title);
 		titlePanel.setHTML(title);
+	}
+
+	/**
+	 * Sets the required permissions to view this menu item.
+	 * 
+	 * @param requiredPermissions 
+	 *			Array of all the permissions required to view this menu item.
+	 */
+	public void setRequiredPermissions(GlobalPermissionEnum[] requiredPermissions) {
+		this.requiredPermissions = requiredPermissions;
+	}
+	
+	/**
+	 * Returns <code>true</code> if the given <code>authentication</code> has
+	 * all the required permissions to view this menu item.
+	 * 
+	 * @param authentication Authenticated user information.
+	 * @return <code>true</code> if the user has all the required permissions, 
+	 * <code>false</code> otherwise.
+	 */
+	public boolean hasRequiredPermissions(Authentication authentication) {
+		if(authentication == null) {
+			return requiredPermissions.length == 0;
+		} else {
+			return ProfileUtils.isGranted(authentication, requiredPermissions);
+		}
 	}
 
 	/**
