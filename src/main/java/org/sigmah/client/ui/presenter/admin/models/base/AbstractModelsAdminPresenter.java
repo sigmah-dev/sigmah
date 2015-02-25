@@ -119,10 +119,12 @@ public abstract class AbstractModelsAdminPresenter<E extends IsModel, V extends 
 		void selectFirstTab();
 		
 		/**
-		 * Collapse of model grid panel.
+		 * Collapse or expand the model grid panel.
+		 * 
+		 * @param expanded <code>true</code> to expand and show the panel, 
+		 * <code>false</code> to collapse and hide it.
 		 */
-		void collapseModelGridPanel();
-
+		void setModelGridPanelExpanded(boolean expanded);
 	}
 
 	/**
@@ -595,14 +597,11 @@ public abstract class AbstractModelsAdminPresenter<E extends IsModel, V extends 
 	 * @param model
 	 *          The loaded model (with full mapping). If {@code null}, clears the loaded data and view.
 	 */
-	private void onModelLoaded(final E model) {
+	protected void onModelLoaded(final E model) {
 
 		currentModel = model;
 		
-		if(model != null) {
-			view.collapseModelGridPanel();
-		}
-		
+		view.setModelGridPanelExpanded(model == null);
 		view.loadModel(currentModel);
 
 		if (currentModel == null) {

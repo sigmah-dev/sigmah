@@ -31,6 +31,7 @@ import com.extjs.gxt.ui.client.widget.button.ToolButton;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridSelectionModel;
+import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -215,12 +216,21 @@ public abstract class AbstractModelsAdminView<E extends IsModel> extends Abstrac
 		detailsHeaderForm.setHeadingHtml(modelHeader);
 
 		final LayoutContainer container = Layouts.border(false);
-		container.add(detailsHeaderForm, Layouts.borderLayoutData(LayoutRegion.NORTH, 200f, Margin.BOTTOM));
+		container.add(detailsHeaderForm, Layouts.borderLayoutData(LayoutRegion.NORTH, getDetailsHeaderFormHeight(), Margin.BOTTOM));
 		container.add(tabPanel, Layouts.borderLayoutData(LayoutRegion.CENTER));
 
 		detailsContainer.add(container);
 		detailsContainer.layout();
 		selectFirstTab();
+	}
+	
+	/**
+	 * Height of the details header form (can be overwritten if necessary).
+	 * 
+	 * @return The height of the details header form.
+	 */
+	public float getDetailsHeaderFormHeight() {
+		return 200.0f;
 	}
 
 	/**
@@ -273,8 +283,14 @@ public abstract class AbstractModelsAdminView<E extends IsModel> extends Abstrac
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void collapseModelGridPanel() {
-		gridPanel.collapse();
+	public void setModelGridPanelExpanded(boolean expanded) {
+		final BorderLayout layout = (BorderLayout) ((LayoutContainer)asWidget()).getLayout();
+		
+		if(expanded) {
+			layout.expand(LayoutRegion.WEST);
+		} else {
+			layout.collapse(LayoutRegion.WEST);
+		}
 	}
 	
 	// ---------------------------------------------------------------------------------------------------------------

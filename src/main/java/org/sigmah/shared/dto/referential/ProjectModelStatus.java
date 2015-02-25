@@ -17,7 +17,8 @@ public enum ProjectModelStatus implements Result {
 	DRAFT,
 	READY,
 	USED,
-	UNAVAILABLE;
+	UNAVAILABLE,
+	UNDER_MAINTENANCE;
 
 	/**
 	 * Gets the translation value for the given {@code status}. To use only on the client-side.
@@ -45,6 +46,8 @@ public enum ProjectModelStatus implements Result {
 				return I18N.CONSTANTS.USED();
 			case UNAVAILABLE:
 				return I18N.CONSTANTS.UNAVAILABLE();
+			case UNDER_MAINTENANCE:
+				return I18N.CONSTANTS.UNDER_MAINTENANCE();
 			default:
 				return status.name();
 		}
@@ -73,6 +76,9 @@ public enum ProjectModelStatus implements Result {
 
 		} else if (I18N.CONSTANTS.UNAVAILABLE().equals(status)) {
 			statusEnum = UNAVAILABLE;
+			
+		} else if(I18N.CONSTANTS.UNDER_MAINTENANCE().equals(status)) {
+			statusEnum = UNDER_MAINTENANCE;
 
 		} else {
 			statusEnum = DRAFT;

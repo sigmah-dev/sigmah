@@ -1,5 +1,8 @@
 package org.sigmah.client.ui.presenter.admin.models.project;
 
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.FieldEvent;
+import com.extjs.gxt.ui.client.event.Listener;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -34,11 +37,15 @@ import org.sigmah.shared.dto.referential.ProjectModelStatus;
 import org.sigmah.shared.dto.referential.ProjectModelType;
 
 import com.extjs.gxt.ui.client.widget.form.Field;
+import com.extjs.gxt.ui.client.widget.form.Time;
+import com.extjs.gxt.ui.client.widget.form.TimeField;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.Grid;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
+import java.util.Date;
 
 /**
  * Admin project models Presenter which manages {@link ProjectModelsAdminView}.
@@ -59,6 +66,16 @@ public class ProjectModelsAdminPresenter extends AbstractModelsAdminPresenter<Pr
 		Field<String> getNameField();
 
 		Field<ProjectModelType> getProjectModelTypeField();
+		
+		Field<?> getMaintenanceGroupField();
+		
+		Field<Boolean> getUnderMaintenanceField();
+		
+		Field<Date> getMaintenanceDateField();
+		
+		Field<Time> getMaintenanceTimeField();
+		
+		Grid getMaintenanceGrid();
 
 	}
 
@@ -134,7 +151,40 @@ public class ProjectModelsAdminPresenter extends AbstractModelsAdminPresenter<Pr
 				}
 			}
 		}));
+		
+		view.getUnderMaintenanceField().addListener(Events.Change, new Listener<FieldEvent>() {
+
+			@Override
+			public void handleEvent(FieldEvent be) {
+				final Boolean underMaintenance = view.getUnderMaintenanceField().getValue();
+				
+				if(underMaintenance != null && underMaintenance) {
+					view.getMaintenanceDateField().setVisible(true);
+					view.getMaintenanceTimeField().setVisible(true);
+					view.getMaintenanceGrid().setText(0, 1, "From: ");
+					view.getMaintenanceGrid().setText(0, 3, "at: ");
+					
+					final Date thirtyMinutesAfter = new Date(new Date().getTime() + 1000 * 60 * 30);
+					view.getMaintenanceDateField().setValue(thirtyMinutesAfter);
+					view.getMaintenanceTimeField().setValue(((TimeField)view.getMaintenanceTimeField()).findModel(thirtyMinutesAfter));
+					
+				} else {
+					view.getMaintenanceDateField().setVisible(false);
+					view.getMaintenanceTimeField().setVisible(false);
+					view.getMaintenanceGrid().clearCell(0, 1);
+					view.getMaintenanceGrid().clearCell(0, 3);
+				}
+			}
+		});
 	}
+
+	@Override
+	protected void onModelLoaded(ProjectModelDTO model) {
+		super.onModelLoaded(model);
+		
+		view.getMaintenanceGroupField().setVisible(model != null && model.getStatus() == ProjectModelStatus.USED);
+	}
+	
 
 	/**
 	 * {@inheritDoc}
