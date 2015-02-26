@@ -93,13 +93,16 @@ public class ProjectModelsAdminView extends AbstractModelsAdminView<ProjectModel
 		maintenanceDateField = Forms.date(null, true);
 		maintenanceTimeField = Forms.time(null, true);
 		
+		maintenanceDateField.setVisible(false);
+		maintenanceTimeField.setVisible(false);
+		
 		final Grid grid = new Grid(1, 5);
 		grid.setWidget(0, 0, underMaintenanceField);
 		grid.setWidget(0, 2, maintenanceDateField);
 		grid.setWidget(0, 4, maintenanceTimeField);
 		
 		maintenanceGroupField = new AdapterField(grid);
-		maintenanceGroupField.setFieldLabel("Under maintenance");
+		maintenanceGroupField.setFieldLabel(I18N.CONSTANTS.UNDER_MAINTENANCE());
 		
 		final FormPanel headerForm = Forms.panel(140);
 
@@ -124,6 +127,12 @@ public class ProjectModelsAdminView extends AbstractModelsAdminView<ProjectModel
 		nameField.setValue(model.getName());
 		statusField.setValue(new EnumModel<ProjectModelStatus>(model.getStatus()));
 		modelTypeField.setValue(projectTypeProvider.getProjectModelType(model));
+		maintenanceGroupField.setVisible(model.getStatus() == ProjectModelStatus.USED || model.getStatus() == ProjectModelStatus.UNDER_MAINTENANCE);
+		underMaintenanceField.setValue(model.getDateMaintenance() != null);
+		maintenanceDateField.setValue(model.getDateMaintenance());
+		maintenanceTimeField.setValue(model.getDateMaintenance() != null ? maintenanceTimeField.findModel(model.getDateMaintenance()) : null);
+		statusField.setEnabled(model.getDateMaintenance() == null);
+		
 		return model.getName();
 	}
 

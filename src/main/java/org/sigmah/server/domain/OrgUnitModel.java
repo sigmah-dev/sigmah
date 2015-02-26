@@ -49,7 +49,7 @@ import org.sigmah.shared.dto.referential.ProjectModelStatus;
 })
 @Filters({ @Filter(name = EntityFilters.HIDE_DELETED, condition = EntityFilters.ORG_UNIT_HIDE_DELETED_CONDITION)
 })
-public class OrgUnitModel extends AbstractEntityId<Integer> implements Deleteable {
+public class OrgUnitModel extends AbstractEntityId<Integer> implements Deleteable, HasMaintenance {
 
 	/**
 	 * Serial version UID.
@@ -89,6 +89,13 @@ public class OrgUnitModel extends AbstractEntityId<Integer> implements Deleteabl
 	@Enumerated(EnumType.STRING)
 	@NotNull
 	private ProjectModelStatus status = ProjectModelStatus.DRAFT;
+	
+	/**
+     * The date on which this project model maintenance started or is going to start.
+     */
+    @Column(name = EntityConstants.PROJECT_MODEL_COLUMN_DATE_MAINTENANCE, nullable = true)
+    @Temporal(value = TemporalType.TIMESTAMP)
+	private Date dateMaintenance;
 
 	// --------------------------------------------------------------------------------
 	//
@@ -221,10 +228,16 @@ public class OrgUnitModel extends AbstractEntityId<Integer> implements Deleteabl
 		this.canContainProjects = canContainProjects;
 	}
 
+	@Override
 	public ProjectModelStatus getStatus() {
-		return status;
+		if(isUnderMaintenance()) {
+			return ProjectModelStatus.UNDER_MAINTENANCE;
+		} else {
+			return status;
+		}
 	}
 
+	@Override
 	public void setStatus(ProjectModelStatus status) {
 		this.status = status;
 	}
@@ -245,4 +258,18 @@ public class OrgUnitModel extends AbstractEntityId<Integer> implements Deleteabl
 		this.dateDeleted = date;
 	}
 
+	@Override
+    public Date getDateMaintenance() {
+		return dateMaintenance;
+	}
+    
+	@Override
+    public void setDateMaintenance(Date dateMaintenance) {
+		this.dateMaintenance = dateMaintenance;
+	}
+	
+	public boolean isUnderMaintenance() {
+		return dateMaintenance != null && dateMaintenance.before(new Date());
+	}
+	
 }

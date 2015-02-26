@@ -99,7 +99,7 @@ public class PhaseModelsAdminPresenter extends AbstractPresenter<PhaseModelsAdmi
 			@Override
 			public void selectionChanged(final SelectionChangedEvent<PhaseModelDTO> event) {
 				final boolean singleSelection = ClientUtils.isNotEmpty(event.getSelection()) && event.getSelection().size() == 1;
-				view.getDeleteButton().setEnabled(singleSelection && isDraftModel());
+				view.getDeleteButton().setEnabled(singleSelection && isModelEditable());
 			}
 		});
 
@@ -158,7 +158,7 @@ public class PhaseModelsAdminPresenter extends AbstractPresenter<PhaseModelsAdmi
 	public void loadTab(final ProjectModelDTO model) {
 
 		this.currentModel = model;
-		view.setToolbarEnabled(isDraftModel());
+		view.setToolbarEnabled(isModelEditable());
 
 		// --
 		// Populating the store and initializing phase models 'root' property.
@@ -190,12 +190,12 @@ public class PhaseModelsAdminPresenter extends AbstractPresenter<PhaseModelsAdmi
 	// ---------------------------------------------------------------------------------------------------------------
 
 	/**
-	 * Returns if the current project model has a 'DRAFT' status.
+	 * Returns if the current project model can be edited (<code>DRAFT</code> or <code>UNDER_MAINTENANCE</code> status).
 	 * 
-	 * @return {@code true} if the current project model has a 'DRAFT' status, {@code false} otherwise.
+	 * @return {@code true} if the current project model is editable, {@code false} otherwise.
 	 */
-	private boolean isDraftModel() {
-		return currentModel.getStatus() == ProjectModelStatus.DRAFT;
+	private boolean isModelEditable() {
+		return currentModel.getStatus() != null && currentModel.getStatus().isEditable();
 	}
 
 	/**
@@ -211,7 +211,7 @@ public class PhaseModelsAdminPresenter extends AbstractPresenter<PhaseModelsAdmi
 		}
 
 		// Only a phase model within a project model in 'DRAFT' status is allowed to be deleted.
-		if (!isDraftModel()) {
+		if (!isModelEditable()) {
 			return;
 		}
 

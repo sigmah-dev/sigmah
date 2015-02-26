@@ -1,6 +1,7 @@
 package org.sigmah.shared.dto;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -44,6 +45,8 @@ public class ProjectModelDTO extends AbstractModelDataEntityDTO<Integer> impleme
 	public static final String PROJECT_BANNER = "projectBanner";
 	public static final String PROJECT_DETAILS = "projectDetails";
 	public static final String LOG_FRAME_MODEL = "logFrameModel";
+	public static final String MAINTENANCE_DATE = "dateMaintenance";
+	public static final String UNDER_MAINTENANCE = "underMaintenance";
 
 	/**
 	 * Mapping configurations.
@@ -305,6 +308,24 @@ public class ProjectModelDTO extends AbstractModelDataEntityDTO<Integer> impleme
 
 	public void setStatus(ProjectModelStatus status) {
 		set(STATUS, status);
+	}
+	
+	// Maintenance.
+	public boolean isUnderMaintenance() {
+		return get(UNDER_MAINTENANCE);
+	}
+	
+	public void setUnderMaintenance(boolean underMaintenance) {
+		set(UNDER_MAINTENANCE, underMaintenance);
+	}
+	
+	// Maintenance start date.
+	public Date getDateMaintenance() {
+		return get(MAINTENANCE_DATE);
+	}
+	
+	public void setDateMaintenance(Date date) {
+		set(MAINTENANCE_DATE, date);
 	}
 
 	// ---------------------------------------------------------------------------------------------

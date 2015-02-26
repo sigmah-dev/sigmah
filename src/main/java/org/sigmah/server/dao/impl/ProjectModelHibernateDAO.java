@@ -1,5 +1,7 @@
 package org.sigmah.server.dao.impl;
 
+import java.sql.Timestamp;
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.TypedQuery;
@@ -31,29 +33,33 @@ public class ProjectModelHibernateDAO extends AbstractDAO<ProjectModel, Integer>
 	@Override
 	public List<ProjectModel> findProjectModelsVisibleToOrganization(final Integer organizationId, final List<ProjectModelStatus> status) {
 
-		final StringBuilder builder = new StringBuilder();
-
-		builder.append("SELECT ");
-		builder.append("  pm ");
-		builder.append("FROM ");
-		builder.append("  ProjectModel pm ");
-		builder.append("  LEFT JOIN FETCH pm.projectBanner pb ");
-		builder.append("  LEFT JOIN FETCH pm.projectDetails pd ");
-		builder.append("  LEFT JOIN FETCH pm.logFrameModel lfm ");
-		builder.append("WHERE ");
-		builder.append("  EXISTS (");
-		builder.append("    SELECT 1 FROM ProjectModelVisibility pmv WHERE pmv.organization.id = :organizationId");
-		builder.append("  )");
+		final StringBuilder builder = new StringBuilder(
+			"SELECT "
+		  + "  pm "
+		  + "FROM "
+		  + "  ProjectModel pm "
+		  + "  LEFT JOIN FETCH pm.projectBanner pb "
+		  + "  LEFT JOIN FETCH pm.projectDetails pd "
+		  + "  LEFT JOIN FETCH pm.logFrameModel lfm "
+		  + "WHERE "
+		  + "  EXISTS ("
+		  + "    SELECT 1 FROM ProjectModelVisibility pmv WHERE pmv.organization.id = :organizationId"
+		  + "  )");
 		if (CollectionUtils.isNotEmpty(status)) {
 			builder.append(" AND pm.status IN :status ");
 		}
-		builder.append("ORDER BY ");
-		builder.append("  pm.name");
+		if(!status.contains(ProjectModelStatus.UNDER_MAINTENANCE)) {
+			builder.append(" AND (pm.dateMaintenance is null OR pm.dateMaintenance > :now)");
+		}
+		builder.append("ORDER BY pm.name");
 
 		final TypedQuery<ProjectModel> query = em().createQuery(builder.toString(), ProjectModel.class);
 		query.setParameter("organizationId", organizationId);
 		if (CollectionUtils.isNotEmpty(status)) {
 			query.setParameter("status", status);
+		}
+		if(!status.contains(ProjectModelStatus.UNDER_MAINTENANCE)) {
+			query.setParameter("now", new Timestamp(new Date().getTime()));
 		}
 
 		return query.getResultList();

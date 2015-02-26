@@ -1075,6 +1075,7 @@ public final class EntityConstants extends org.sigmah.shared.dto.util.EntityCons
 	public static final String PROJECT_MODEL_COLUMN_STATUS = "status";
 	// TODO Replace with common 'dateDeleted' column.
 	public static final String PROJECT_MODEL_COLUMN_DATE_DELETED = "date_deleted";
+	public static final String PROJECT_MODEL_COLUMN_DATE_MAINTENANCE = "date_maintenance";
 
 	// TODO Replace with 'PhaseModel' id column.
 	public static final String PROJECT_MODEL_COLUMN_PHASE_MODEL_ID = "id_root_phase_model";

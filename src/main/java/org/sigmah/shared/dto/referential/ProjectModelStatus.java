@@ -11,15 +11,16 @@ import com.google.gwt.core.client.GWT;
  * 
  * @author nrebiai (v1.3)
  * @author Denis Colliot (dcolliot@ideia.fr) (v2.0)
+ * @author Renato Almeida (renatoaf.ufcg@gmail.com)
  */
 public enum ProjectModelStatus implements Result {
 
-	DRAFT,
+	DRAFT(true),
 	READY,
 	USED,
 	UNAVAILABLE,
-	UNDER_MAINTENANCE;
-
+	UNDER_MAINTENANCE(true);
+	
 	/**
 	 * Gets the translation value for the given {@code status}. To use only on the client-side.
 	 * 
@@ -86,7 +87,7 @@ public enum ProjectModelStatus implements Result {
 
 		return statusEnum;
 	}
-
+	
 	/**
 	 * Check if a model's status change is valid.
 	 * 
@@ -116,6 +117,25 @@ public enum ProjectModelStatus implements Result {
 		}
 	}
 
+	private final boolean editable;
+	
 	private ProjectModelStatus() {
+		this(false);
 	}
+	
+	private ProjectModelStatus(boolean editable) {
+		this.editable = editable;
+	}
+
+	/**
+	 * Returns <code>true</code> if the state allows modifications to be done
+	 * on a model.
+	 * 
+	 * @return <code>true</code> if the state allows modifications, 
+	 * <code>false</code> otherwise.
+	 */
+	public boolean isEditable() {
+		return editable;
+	}
+	
 }

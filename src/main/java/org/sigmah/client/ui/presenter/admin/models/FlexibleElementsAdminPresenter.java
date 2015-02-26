@@ -199,7 +199,7 @@ public class FlexibleElementsAdminPresenter<E extends IsModel> extends AbstractP
 
 		this.currentModel = model;
 
-		view.setToolbarEnabled(model.getStatus() == ProjectModelStatus.DRAFT);
+		view.setToolbarEnabled(model.getStatus() != null && model.getStatus().isEditable());
 
 		view.setModelStatus(model.getStatus());
 

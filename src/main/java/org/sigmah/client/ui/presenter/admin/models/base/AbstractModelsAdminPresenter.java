@@ -296,6 +296,9 @@ public abstract class AbstractModelsAdminPresenter<E extends IsModel, V extends 
 						// Updates the current model.
 						updateModel(updatedModel);
 						view.getStore().update(updatedModel);
+						
+						// Updates the model status.
+						loadStatus(updatedModel.getStatus());
 
 						// Updates tab view content.
 						currentTabPresenter.loadTab(updatedModel);
@@ -608,7 +611,7 @@ public abstract class AbstractModelsAdminPresenter<E extends IsModel, V extends 
 			return;
 		}
 		
-		loadStatus(currentModel.getStatus());
+		loadStatus(view.getHeaderStatusField().getValue().getEnum());
 	}
 
 	/**

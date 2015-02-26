@@ -210,7 +210,7 @@ public class LogFrameModelsAdminPresenter extends AbstractPresenter<LogFrameMode
 		view.getForm().clear(); // Should not process a 'clearAll()'.
 
 		// Toolbar enable state.
-		view.setToolbarEnabled(currentModel.getStatus() == ProjectModelStatus.DRAFT);
+		view.setToolbarEnabled(currentModel.getStatus() != null && currentModel.getStatus().isEditable());
 
 		// LogFrame model loading.
 		loadLogFrameModel(currentModel.getLogFrameModel());

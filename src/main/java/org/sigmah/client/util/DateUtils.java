@@ -1,5 +1,6 @@
 package org.sigmah.client.util;
 
+import com.extjs.gxt.ui.client.widget.form.Time;
 import java.util.Comparator;
 import java.util.Date;
 
@@ -73,6 +74,28 @@ public final class DateUtils {
 			}
 		}
 	};
+	
+	/**
+	 * Returns a date whose day, month and year are taken from the given 
+	 * <code>date</code> and whose hour and minutes are taken from the given
+	 * <code>time</code>.
+	 * 
+	 * @param date Day of month, month and year to use.
+	 * @param time Hour and minutes to use.
+	 * @return A new date made by combining the data of the given objects.
+	 */
+	@SuppressWarnings("deprecation")
+	public static final Date mix(Date date, Time time) {
+		if(date != null && time != null) {
+			final Date result = new Date(date.getTime());
+			result.setHours(time.getHour());
+			result.setMinutes(time.getMinutes());
+			return result;
+			
+		} else {
+			return null;
+		}
+	}
 
 	/**
 	 * Private constructor.

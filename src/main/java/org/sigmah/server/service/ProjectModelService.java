@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import java.util.Date;
 
 /**
  * Handler for updating Project model command.
@@ -234,6 +235,14 @@ public class ProjectModelService extends AbstractEntityService<ProjectModel, Int
 					v.setType((ProjectModelType) changes.get(AdminUtil.PROP_PM_USE));
 					em().merge(v);
 				}
+			}
+		}
+		if (changes.containsKey(AdminUtil.PROP_PM_MAINTENANCE_DATE)) {
+			final Object maintenanceDate = changes.get(AdminUtil.PROP_PM_MAINTENANCE_DATE);
+			if(maintenanceDate instanceof Date) {
+				model.setDateMaintenance((Date)maintenanceDate);
+			} else {
+				model.setDateMaintenance(null);
 			}
 		}
 

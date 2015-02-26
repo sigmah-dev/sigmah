@@ -74,7 +74,7 @@ abstract class FlexibleElementsColumnsProvider {
 					label = model.getLabel();
 				}
 
-				if (getModelStatus() != ProjectModelStatus.DRAFT) {
+				if (!isEditable()) {
 					return ColumnProviders.renderText(label);
 				}
 
@@ -236,7 +236,7 @@ abstract class FlexibleElementsColumnsProvider {
 
 				final LayoutGroupDTO group = model.getGroup();
 
-				if (getModelStatus() != ProjectModelStatus.DRAFT) {
+				if (!isEditable()) {
 					return ColumnProviders.renderText(group.getTitle());
 				}
 
@@ -272,4 +272,13 @@ abstract class FlexibleElementsColumnsProvider {
 		return new ColumnModel(configs);
 	}
 
+	/**
+	 * Returns <code>true</code> if the parent model is editable.
+	 * 
+	 * @return <code>true</code> if the parent model is editable, <code>false</code> otherwise.
+	 */
+	private boolean isEditable() {
+		final ProjectModelStatus status = getModelStatus();
+		return status != null && status.isEditable();
+	}
 }
