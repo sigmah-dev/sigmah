@@ -311,6 +311,7 @@ public class ProjectModelDTO extends AbstractModelDataEntityDTO<Integer> impleme
 	}
 	
 	// Maintenance.
+	@Override
 	public boolean isUnderMaintenance() {
 		return get(UNDER_MAINTENANCE);
 	}

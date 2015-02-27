@@ -47,9 +47,14 @@ import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.button.IconButton;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.extjs.gxt.ui.client.widget.form.Field;
+import com.extjs.gxt.ui.client.widget.form.TimeField;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
+import java.util.Date;
+import org.sigmah.client.util.DateUtils;
 
 /**
  * Abstract layer for models administration presenters.
@@ -97,7 +102,26 @@ public abstract class AbstractModelsAdminPresenter<E extends IsModel, V extends 
 		ComboBox<EnumModel<ProjectModelStatus>> getHeaderStatusField();
 
 		Button getHeaderSaveButton();
+		
+		// --
+		// Maintenance components.
+		// -
+		
+		Field<?> getMaintenanceGroupField();
+		
+		Field<Boolean> getUnderMaintenanceField();
+		
+		Field<Date> getMaintenanceDateField();
+		
+		TimeField getMaintenanceTimeField();
+		
+		Grid getMaintenanceGrid();
 
+		/**
+		 * Load and display data from the given model.
+		 * 
+		 * @param model Model to display.
+		 */
 		void loadModel(E model);
 
 		/**
@@ -406,6 +430,34 @@ public abstract class AbstractModelsAdminPresenter<E extends IsModel, V extends 
 			}
 		}));
 
+		// --
+		// Maintenance fields.
+		// --
+		
+		view.getUnderMaintenanceField().addListener(Events.Change, new Listener<FieldEvent>() {
+
+			@Override
+			public void handleEvent(FieldEvent be) {
+				final boolean underMaintenance = view.getUnderMaintenanceField().getValue() != null && view.getUnderMaintenanceField().getValue();
+				
+				view.getMaintenanceDateField().setVisible(underMaintenance);
+				view.getMaintenanceTimeField().setVisible(underMaintenance);
+				view.getHeaderStatusField().setEnabled(!underMaintenance);
+				
+				if(underMaintenance) {
+					view.getMaintenanceGrid().setText(0, 1, I18N.CONSTANTS.maintenanceScheduleFrom());
+					view.getMaintenanceGrid().setText(0, 3, I18N.CONSTANTS.maintenanceScheduleAt());
+					
+					final Date thirtyMinutesAfter = new Date(new Date().getTime() + 1000 * 60 * 30);
+					view.getMaintenanceDateField().setValue(thirtyMinutesAfter);
+					view.getMaintenanceTimeField().setValue(((TimeField)view.getMaintenanceTimeField()).findModel(thirtyMinutesAfter));
+					
+				} else {
+					view.getMaintenanceGrid().clearCell(0, 1);
+					view.getMaintenanceGrid().clearCell(0, 3);
+				}
+			}
+		});
 	}
 
 	/**
@@ -758,5 +810,23 @@ public abstract class AbstractModelsAdminPresenter<E extends IsModel, V extends 
 				}, view.getGridDeleteButton());
 			}
 		});
+	}
+	
+	/**
+	 * Returns the maintenance date or <code>null</code> if the maintenance has
+	 * not been selected.
+	 * 
+	 * @return 
+	 */
+	protected Date getMaintenanceDate() {
+		final Boolean underMaintenance = view.getUnderMaintenanceField().getValue();
+		
+		if(underMaintenance != null && underMaintenance) {
+			return DateUtils.mix(view.getMaintenanceDateField().getValue(), 
+				view.getMaintenanceTimeField().getValue());
+				
+		} else {
+			return null;
+		}
 	}
 }

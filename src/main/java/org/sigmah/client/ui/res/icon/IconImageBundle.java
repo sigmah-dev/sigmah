@@ -230,4 +230,7 @@ public interface IconImageBundle extends ImageBundle {
 	AbstractImagePrototype validate();
 	
 	AbstractImagePrototype history16();
+	
+	AbstractImagePrototype disable();
+	
 }

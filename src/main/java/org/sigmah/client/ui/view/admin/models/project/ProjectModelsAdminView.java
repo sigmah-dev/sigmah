@@ -13,18 +13,11 @@ import org.sigmah.shared.dto.referential.ProjectModelStatus;
 import org.sigmah.shared.dto.referential.ProjectModelType;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
-import com.extjs.gxt.ui.client.widget.form.AdapterField;
-import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
-import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.TextField;
-import com.extjs.gxt.ui.client.widget.form.Time;
-import com.extjs.gxt.ui.client.widget.form.TimeField;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
-import com.google.gwt.user.client.ui.Grid;
 import com.google.inject.Singleton;
-import java.util.Date;
 
 /**
  * {@link ProjectModelsAdminPresenter}'s view implementation.
@@ -38,10 +31,6 @@ public class ProjectModelsAdminView extends AbstractModelsAdminView<ProjectModel
 	private ComboBox<EnumModel<ProjectModelStatus>> statusField;
 	private ProjectModelTypeField modelTypeField;
 	private ProjectTypeProvider projectTypeProvider;
-	private AdapterField maintenanceGroupField;
-	private CheckBox underMaintenanceField;
-	private DateField maintenanceDateField;
-	private TimeField maintenanceTimeField;
 
 	/**
 	 * {@inheritDoc}
@@ -89,26 +78,11 @@ public class ProjectModelsAdminView extends AbstractModelsAdminView<ProjectModel
 		statusField = Forms.combobox(I18N.CONSTANTS.adminProjectModelsStatus(), true, EnumModel.VALUE_FIELD, EnumModel.DISPLAY_FIELD);
 		modelTypeField = new ProjectModelTypeField(I18N.CONSTANTS.adminProjectModelType(), true, Orientation.VERTICAL);
 		
-		underMaintenanceField = Forms.checkbox(I18N.CONSTANTS.UNDER_MAINTENANCE());
-		maintenanceDateField = Forms.date(null, true);
-		maintenanceTimeField = Forms.time(null, true);
-		
-		maintenanceDateField.setVisible(false);
-		maintenanceTimeField.setVisible(false);
-		
-		final Grid grid = new Grid(1, 5);
-		grid.setWidget(0, 0, underMaintenanceField);
-		grid.setWidget(0, 2, maintenanceDateField);
-		grid.setWidget(0, 4, maintenanceTimeField);
-		
-		maintenanceGroupField = new AdapterField(grid);
-		maintenanceGroupField.setFieldLabel(I18N.CONSTANTS.UNDER_MAINTENANCE());
-		
 		final FormPanel headerForm = Forms.panel(140);
 
 		headerForm.add(nameField);
 		headerForm.add(statusField);
-		headerForm.add(maintenanceGroupField);
+		headerForm.add(getMaintenanceGroupField());
 		headerForm.add(modelTypeField);
 
 		return headerForm;
@@ -127,10 +101,10 @@ public class ProjectModelsAdminView extends AbstractModelsAdminView<ProjectModel
 		nameField.setValue(model.getName());
 		statusField.setValue(new EnumModel<ProjectModelStatus>(model.getStatus()));
 		modelTypeField.setValue(projectTypeProvider.getProjectModelType(model));
-		maintenanceGroupField.setVisible(model.getStatus() == ProjectModelStatus.USED || model.getStatus() == ProjectModelStatus.UNDER_MAINTENANCE);
-		underMaintenanceField.setValue(model.getDateMaintenance() != null);
-		maintenanceDateField.setValue(model.getDateMaintenance());
-		maintenanceTimeField.setValue(model.getDateMaintenance() != null ? maintenanceTimeField.findModel(model.getDateMaintenance()) : null);
+		getMaintenanceGroupField().setVisible(model.getStatus() == ProjectModelStatus.USED || model.getStatus() == ProjectModelStatus.UNDER_MAINTENANCE);
+		getUnderMaintenanceField().setValue(model.getDateMaintenance() != null);
+		getMaintenanceDateField().setValue(model.getDateMaintenance());
+		getMaintenanceTimeField().setValue(model.getDateMaintenance() != null ? getMaintenanceTimeField().findModel(model.getDateMaintenance()) : null);
 		statusField.setEnabled(model.getDateMaintenance() == null);
 		
 		return model.getName();
@@ -151,44 +125,5 @@ public class ProjectModelsAdminView extends AbstractModelsAdminView<ProjectModel
 	public Field<ProjectModelType> getProjectModelTypeField() {
 		return modelTypeField;
 	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public Grid getMaintenanceGrid() {
-		return (Grid) maintenanceGroupField.getWidget();
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public Field<Boolean> getUnderMaintenanceField() {
-		return underMaintenanceField;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public Field<Date> getMaintenanceDateField() {
-		return maintenanceDateField;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public Field<Time> getMaintenanceTimeField() {
-		return maintenanceTimeField;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public Field<?> getMaintenanceGroupField() {
-		return maintenanceGroupField;
-	}
+	
 }

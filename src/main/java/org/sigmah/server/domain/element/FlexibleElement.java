@@ -68,6 +68,10 @@ public abstract class FlexibleElement extends AbstractEntityId<Integer> implemen
 	@Column(name = EntityConstants.FLEXIBLE_ELEMENT_COLUMN_GLOBALLY_EXPORTABLE, nullable = false)
 	@NotNull
 	private Boolean globallyExportable = false; // exported to a global projects list
+	
+	@Column(name = EntityConstants.FLEXIBLE_ELEMENT_COLUMN_DISABLED, nullable = false)
+	@NotNull
+	private Boolean disabled = false;
 
 	// --------------------------------------------------------------------------------
 	//
@@ -205,6 +209,14 @@ public abstract class FlexibleElement extends AbstractEntityId<Integer> implemen
 
 	public void setGloballyExportable(boolean globallyExportable) {
 		this.globallyExportable = globallyExportable;
+	}
+
+	public boolean isDisabled() {
+		return disabled;
+	}
+
+	public void setDisabled(boolean disabled) {
+		this.disabled = disabled;
 	}
 
 }

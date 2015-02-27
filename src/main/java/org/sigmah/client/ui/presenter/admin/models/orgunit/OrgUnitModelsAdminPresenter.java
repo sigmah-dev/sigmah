@@ -170,15 +170,17 @@ public class OrgUnitModelsAdminPresenter extends AbstractModelsAdminPresenter<Or
 		final Boolean hasBudget = view.getHasBudgetField().getValue();
 		final Boolean containsProjects = view.getCanContainProjectsField().getValue();
 		final EnumModel<ProjectModelStatus> statusModel = view.getHeaderStatusField().getValue();
+		final ProjectModelStatus status = statusModel != null ? statusModel.getEnum() : null;
 
 		final Map<String, Object> modelProperties = new HashMap<String, Object>();
 		modelProperties.put(AdminUtil.PROP_OM_NAME, view.getNameField().getValue());
-		modelProperties.put(AdminUtil.PROP_OM_STATUS, EnumModel.getEnum(statusModel));
+		modelProperties.put(AdminUtil.PROP_OM_STATUS, status != ProjectModelStatus.UNDER_MAINTENANCE ? status : null);
 		modelProperties.put(AdminUtil.ADMIN_ORG_UNIT_MODEL, currentModel);
 		modelProperties.put(AdminUtil.PROP_OM_NAME, nameValue);
 		modelProperties.put(AdminUtil.PROP_OM_TITLE, title);
 		modelProperties.put(AdminUtil.PROP_OM_HAS_BUDGET, hasBudget);
 		modelProperties.put(AdminUtil.PROP_OM_CONTAINS_PROJECTS, containsProjects);
+		modelProperties.put(AdminUtil.PROP_OM_MAINTENANCE_DATE, getMaintenanceDate());
 
 		dispatch.execute(new CreateEntity(OrgUnitModelDTO.ENTITY_NAME, modelProperties), new CommandResultHandler<CreateResult>() {
 

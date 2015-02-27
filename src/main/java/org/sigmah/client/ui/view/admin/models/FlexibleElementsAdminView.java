@@ -30,6 +30,8 @@ public class FlexibleElementsAdminView extends AbstractView implements FlexibleE
 	private Button addButton;
 	private Button addGroupButton;
 	private Button deleteButton;
+	private Button enableButton;
+	private Button disableButton;
 
 	private ProjectModelStatus status;
 	private GridEventHandler<FlexibleElementDTO> gridEventHandler;
@@ -108,6 +110,22 @@ public class FlexibleElementsAdminView extends AbstractView implements FlexibleE
 	 * {@inheritDoc}
 	 */
 	@Override
+	public Button getEnableButton() {
+		return enableButton;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Button getDisableButton() {
+		return disableButton;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public void setToolbarEnabled(final boolean enabled) {
 		if (enabled) {
 			toolbar.show();
@@ -117,7 +135,10 @@ public class FlexibleElementsAdminView extends AbstractView implements FlexibleE
 		toolbar.setEnabled(enabled);
 		addButton.setEnabled(enabled);
 		addGroupButton.setEnabled(enabled);
-		deleteButton.setEnabled(false); // Only with selection.
+		// Only with selection.
+		deleteButton.setEnabled(false); 
+		enableButton.setEnabled(false);
+		disableButton.setEnabled(false);
 	}
 
 	// ---------------------------------------------------------------------------------------------------------------
@@ -176,6 +197,14 @@ public class FlexibleElementsAdminView extends AbstractView implements FlexibleE
 		deleteButton = Forms.button(I18N.CONSTANTS.adminFlexibleDeleteFlexibleElements(), IconImageBundle.ICONS.delete());
 		deleteButton.disable();
 		toolbar.add(deleteButton);
+		
+		enableButton = Forms.button(I18N.CONSTANTS.adminFlexibleDisableFlexibleElements(), IconImageBundle.ICONS.validate());
+		enableButton.disable();
+		toolbar.add(enableButton);
+		
+		disableButton = Forms.button(I18N.CONSTANTS.adminFlexibleDisableFlexibleElements(), IconImageBundle.ICONS.disable());
+		disableButton.disable();
+		toolbar.add(disableButton);
 
 		return toolbar;
 	}

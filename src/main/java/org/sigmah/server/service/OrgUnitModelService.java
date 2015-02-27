@@ -26,6 +26,7 @@ import org.sigmah.shared.dto.referential.ProjectModelStatus;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import java.util.Date;
 
 /**
  * Handler for updating Org unit model command.
@@ -173,7 +174,7 @@ public class OrgUnitModelService extends AbstractEntityService<OrgUnitModel, Int
 		if (model == null) {
 			throw new IllegalArgumentException("No OrgUnitModel found for id #" + entityId);
 		}
-
+		
 		if (changes.get(AdminUtil.PROP_OM_NAME) != null) {
 			// Update model.
 			model = createOrgUnitModel(model, changes, context.getUser());
@@ -184,7 +185,7 @@ public class OrgUnitModelService extends AbstractEntityService<OrgUnitModel, Int
 			ModelUtil.persistFlexibleElement(em(), mapper, changes, model);
 			return em().find(OrgUnitModel.class, model.getId());
 		}
-
+		
 		em().flush();
 		return null;
 	}
@@ -193,6 +194,7 @@ public class OrgUnitModelService extends AbstractEntityService<OrgUnitModel, Int
 
 		if (oM == null) {
 			oM = new OrgUnitModel();
+			oM.setStatus(ProjectModelStatus.DRAFT);
 		}
 
 		String oMName = null;
@@ -211,6 +213,15 @@ public class OrgUnitModelService extends AbstractEntityService<OrgUnitModel, Int
 		if (properties.get(AdminUtil.PROP_OM_CONTAINS_PROJECTS) != null) {
 			containsProjects = (Boolean) properties.get(AdminUtil.PROP_OM_CONTAINS_PROJECTS);
 		}
+		
+		if (properties.containsKey(AdminUtil.PROP_OM_MAINTENANCE_DATE)) {
+			final Object maintenanceDate = properties.get(AdminUtil.PROP_OM_MAINTENANCE_DATE);
+			if(maintenanceDate instanceof Date) {
+				oM.setDateMaintenance((Date)maintenanceDate);
+			} else {
+				oM.setDateMaintenance(null);
+			}
+		}
 
 		oM.setName(oMName);
 		oM.setTitle(oMTitle);
@@ -220,8 +231,6 @@ public class OrgUnitModelService extends AbstractEntityService<OrgUnitModel, Int
 		// Status
 		if (properties.get(AdminUtil.PROP_OM_STATUS) != null) {
 			oM.setStatus((ProjectModelStatus) properties.get(AdminUtil.PROP_OM_STATUS));
-		} else {
-			oM.setStatus(ProjectModelStatus.DRAFT);
 		}
 
 		return oM;

@@ -1,6 +1,7 @@
 package org.sigmah.shared.dto;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -38,6 +39,8 @@ public class OrgUnitModelDTO extends AbstractModelDataEntityDTO<Integer> impleme
 	public static final String CAN_CONTAIN_PROJECTS = "canContainProjects";
 	public static final String STATUS = "status";
 	public static final String TOP_MODEL = "topModel";
+	public static final String MAINTENANCE_DATE = "dateMaintenance";
+	public static final String UNDER_MAINTENANCE = "underMaintenance";
 
 	public static final String BANNER = "banner";
 	public static final String DETAILS = "details";
@@ -220,6 +223,25 @@ public class OrgUnitModelDTO extends AbstractModelDataEntityDTO<Integer> impleme
 
 	public void setStatus(ProjectModelStatus status) {
 		set(STATUS, status);
+	}
+	
+	// Maintenance.
+	@Override
+	public boolean isUnderMaintenance() {
+		return get(UNDER_MAINTENANCE);
+	}
+	
+	public void setUnderMaintenance(boolean underMaintenance) {
+		set(UNDER_MAINTENANCE, underMaintenance);
+	}
+	
+	// Maintenance start date.
+	public Date getDateMaintenance() {
+		return get(MAINTENANCE_DATE);
+	}
+	
+	public void setDateMaintenance(Date date) {
+		set(MAINTENANCE_DATE, date);
 	}
 
 	public void setTopOrgUnitModel(boolean is) {

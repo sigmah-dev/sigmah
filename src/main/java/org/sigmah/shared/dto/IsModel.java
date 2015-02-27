@@ -71,4 +71,11 @@ public interface IsModel extends EntityDTO<Integer>, ModelData {
 	 */
 	List<AbstractModelDataEntityDTO<?>> getHasLayoutElements();
 
+	/**
+	 * Returns <code>true</code> if the model is currently under maintenance.
+	 * 
+	 * @return <code>true</code> if this model is under maintenance, <code>false</code> otherwise.
+	 */
+	boolean isUnderMaintenance();
+	
 }

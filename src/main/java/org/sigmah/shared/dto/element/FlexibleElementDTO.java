@@ -73,6 +73,7 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 	public static final String CONTAINER = "container";
 	public static final String CONSTRAINT = "constraint";
 	public static final String BANNER = "banner";
+	public static final String DISABLED = "disabled";
 
 	// Provided elements.
 	protected transient HandlerManager handlerManager;
@@ -628,4 +629,13 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 	public void setBannerConstraint(LayoutConstraintDTO constraint) {
 		set(BANNER, constraint);
 	}
+	
+	public boolean isDisabled() {
+		final Boolean disabled = get(DISABLED);
+    	return disabled != null && disabled;
+    }
+    
+    public void setDisabled(Boolean disabled) {
+    	set(DISABLED, disabled);
+    }
 }

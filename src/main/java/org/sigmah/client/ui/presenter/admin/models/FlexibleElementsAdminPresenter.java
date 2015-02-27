@@ -32,8 +32,10 @@ import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
+import org.sigmah.shared.command.DisableFlexibleElements;
 
 /**
  * Model's flexible elements administration presenter.
@@ -65,6 +67,10 @@ public class FlexibleElementsAdminPresenter<E extends IsModel> extends AbstractP
 		Button getAddGroupButton();
 
 		Button getDeleteButton();
+		
+		Button getEnableButton();
+		
+		Button getDisableButton();
 
 	}
 
@@ -105,7 +111,11 @@ public class FlexibleElementsAdminPresenter<E extends IsModel> extends AbstractP
 
 			@Override
 			public void selectionChanged(final SelectionChangedEvent<FlexibleElementDTO> event) {
-				view.getDeleteButton().setEnabled(ClientUtils.isNotEmpty(event.getSelection()));
+				final boolean enabled = ClientUtils.isNotEmpty(event.getSelection());
+				
+				view.getDeleteButton().setEnabled(enabled);
+				view.getEnableButton().setEnabled(enabled);
+				view.getDisableButton().setEnabled(enabled);
 			}
 		});
 
@@ -166,6 +176,30 @@ public class FlexibleElementsAdminPresenter<E extends IsModel> extends AbstractP
 		});
 
 		// --
+		// Disable button handler.
+		// --
+
+		view.getDisableButton().addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+			@Override
+			public void componentSelected(final ButtonEvent event) {
+				onFlexibleElementDisableAction(view.getGrid().getSelectionModel().getSelection());
+			}
+		});
+
+		// --
+		// Enable button handler.
+		// --
+
+		view.getEnableButton().addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+			@Override
+			public void componentSelected(final ButtonEvent event) {
+				onFlexibleElementEnableAction(view.getGrid().getSelectionModel().getSelection());
+			}
+		});
+
+		// --
 		// Flexible element creation/update event handler.
 		// --
 
@@ -202,7 +236,11 @@ public class FlexibleElementsAdminPresenter<E extends IsModel> extends AbstractP
 		view.setToolbarEnabled(model.getStatus() != null && model.getStatus().isEditable());
 
 		view.setModelStatus(model.getStatus());
-
+		
+		view.getDeleteButton().setVisible(!model.isUnderMaintenance());
+		view.getEnableButton().setVisible(model.isUnderMaintenance());
+		view.getDisableButton().setVisible(model.isUnderMaintenance());
+		
 		view.getStore().removeAll();
 		view.getStore().add(model.getAllElements());
 		view.getStore().commitChanges();
@@ -311,4 +349,92 @@ public class FlexibleElementsAdminPresenter<E extends IsModel> extends AbstractP
 		});
 	}
 
+	/**
+	 * Callback executed on flexible element disable action.<br>
+	 * Handles confirmation message.
+	 * 
+	 * @param selection
+	 *          The selected flexible element(s).
+	 */
+	private void onFlexibleElementDisableAction(final List<FlexibleElementDTO> selection) {
+		
+		final StringBuilder fields = new StringBuilder();
+		final StringBuilder unableToDisableFields = new StringBuilder();
+		
+		for (FlexibleElementDTO s : selection) {
+			if (!s.getAmendable() && !(s instanceof DefaultFlexibleElementDTO)) {
+				if(fields.length() > 0) {
+					fields.append(", ");
+				}
+				fields.append(s.getLabel());
+				
+			} else {
+				if(unableToDisableFields.length() > 0) {
+					unableToDisableFields.append(", ");
+				}
+				unableToDisableFields.append(s.getFormattedLabel());
+			}
+		}
+		
+		if (unableToDisableFields.length() == 0) {
+	        dispatch.execute(new DisableFlexibleElements(selection, true), new AsyncCallback<VoidResult>() {
+	            @Override
+	            public void onFailure(Throwable caught) {
+	                N10N.error(I18N.CONSTANTS.error(), I18N.MESSAGES.flexibleElementDisableError(fields.toString()));
+	            }
+
+	            @Override
+	            public void onSuccess(VoidResult result) {
+	            	// update view   
+	            	for (FlexibleElementDTO element : selection) {
+						element.setDisabled(true);
+						
+	            		view.getStore().update(element);
+	            	}
+	            	
+	            	// Feedback 
+	            	N10N.info(I18N.CONSTANTS.infoConfirmation(), 
+						I18N.CONSTANTS.adminFlexibleDisableFlexibleElementsConfirm());
+	            }
+	        });
+		} else {
+			N10N.error(I18N.CONSTANTS.error(), I18N.MESSAGES.adminErrorDisableDefaultOrAmendableFlexible(unableToDisableFields.toString()));
+		}
+	}
+
+	/**
+	 * Callback executed on flexible element enable action.<br>
+	 * Handles confirmation message.
+	 * 
+	 * @param selection
+	 *          The selected flexible element(s).
+	 */
+	private void onFlexibleElementEnableAction(final List<FlexibleElementDTO> selection) {
+		
+		final StringBuilder fields = new StringBuilder();
+		
+		for (FlexibleElementDTO s : selection) {
+			if(fields.length() > 0) {
+				fields.append(", ");
+			}
+			fields.append(s.getLabel());
+		}
+		
+		dispatch.execute(new DisableFlexibleElements(selection, false), new AsyncCallback<VoidResult>() {
+			@Override
+			public void onFailure(Throwable caught) {
+				N10N.error(I18N.CONSTANTS.error(), I18N.MESSAGES.flexibleElementDisableError(fields.toString()));
+			}
+
+			@Override
+			public void onSuccess(VoidResult result) {
+				// update view   
+				for (FlexibleElementDTO element : selection) {
+					element.setDisabled(false);
+
+					view.getStore().update(element);
+				}
+			}
+		});
+	}
 }

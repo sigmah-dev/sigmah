@@ -103,6 +103,7 @@ public final class AdminUtil {
 	public static final String PROP_OM_HAS_BUDGET = "OrgUnitModelBudget";
 	public static final String PROP_OM_HAS_SITE = "OrgUnitModelSite";
 	public static final String PROP_OM_CONTAINS_PROJECTS = "OrgUnitModelContainProjects";
+	public static final String PROP_OM_MAINTENANCE_DATE = "OrgUnitModelMaintenanceDate";
 
 	public static final String PROP_SCH_NAME = "importationSchemeName";
 	public static final String PROP_SCH_FILE_FORMAT = "importationSchemeFileFormat";

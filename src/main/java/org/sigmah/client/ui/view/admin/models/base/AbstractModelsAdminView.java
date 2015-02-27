@@ -28,12 +28,18 @@ import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.extjs.gxt.ui.client.widget.button.IconButton;
 import com.extjs.gxt.ui.client.widget.button.ToolButton;
+import com.extjs.gxt.ui.client.widget.form.AdapterField;
+import com.extjs.gxt.ui.client.widget.form.CheckBox;
+import com.extjs.gxt.ui.client.widget.form.DateField;
+import com.extjs.gxt.ui.client.widget.form.Field;
+import com.extjs.gxt.ui.client.widget.form.TimeField;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridSelectionModel;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.ui.Widget;
+import java.util.Date;
 
 /**
  * Models administration presenters abstract view implementation.
@@ -68,6 +74,11 @@ public abstract class AbstractModelsAdminView<E extends IsModel> extends Abstrac
 	private FormPanel detailsHeaderForm;
 	private ToolButton closeButton;
 	private Button saveDetailsHeaderButton;
+	
+	private AdapterField maintenanceGroupField;
+	private CheckBox underMaintenanceField;
+	private DateField maintenanceDateField;
+	private TimeField maintenanceTimeField;
 
 	private TabPanel tabPanel;
 
@@ -94,6 +105,25 @@ public abstract class AbstractModelsAdminView<E extends IsModel> extends Abstrac
 		gridPanel.setTopComponent(createGridToolBar());
 		gridPanel.setScrollMode(Style.Scroll.AUTO);
 		gridPanel.add(grid);
+		
+		// --
+		// MAINTENANCE FIELDS.
+		// --
+		
+		underMaintenanceField = Forms.checkbox(I18N.CONSTANTS.UNDER_MAINTENANCE());
+		maintenanceDateField = Forms.date(null, true);
+		maintenanceTimeField = Forms.time(null, true);
+		
+		maintenanceDateField.setVisible(false);
+		maintenanceTimeField.setVisible(false);
+		
+		final com.google.gwt.user.client.ui.Grid maintenanceGrid = new com.google.gwt.user.client.ui.Grid(1, 5);
+		maintenanceGrid.setWidget(0, 0, underMaintenanceField);
+		maintenanceGrid.setWidget(0, 2, maintenanceDateField);
+		maintenanceGrid.setWidget(0, 4, maintenanceTimeField);
+		
+		maintenanceGroupField = new AdapterField(maintenanceGrid);
+		maintenanceGroupField.setFieldLabel(I18N.CONSTANTS.UNDER_MAINTENANCE());
 
 		// --
 		// DETAILS PANEL.
@@ -111,7 +141,7 @@ public abstract class AbstractModelsAdminView<E extends IsModel> extends Abstrac
 
 		tabPanel = Panels.tab(Layouts.STYLE_WHITE_BACKGROUND);
 		tabPanel.setPlain(true);
-
+		
 		// --
 		// GENERAL INITIALIZATION.
 		// --
@@ -291,6 +321,46 @@ public abstract class AbstractModelsAdminView<E extends IsModel> extends Abstrac
 		} else {
 			layout.collapse(LayoutRegion.WEST);
 		}
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public com.google.gwt.user.client.ui.Grid getMaintenanceGrid() {
+		return (com.google.gwt.user.client.ui.Grid) maintenanceGroupField.getWidget();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Field<Boolean> getUnderMaintenanceField() {
+		return underMaintenanceField;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Field<Date> getMaintenanceDateField() {
+		return maintenanceDateField;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public TimeField getMaintenanceTimeField() {
+		return maintenanceTimeField;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Field<?> getMaintenanceGroupField() {
+		return maintenanceGroupField;
 	}
 	
 	// ---------------------------------------------------------------------------------------------------------------

@@ -71,6 +71,7 @@ public class OrgUnitModelsAdminView extends AbstractModelsAdminView<OrgUnitModel
 		headerForm.add(nameField);
 		headerForm.add(typeField);
 		headerForm.add(statusField);
+		headerForm.add(getMaintenanceGroupField());
 		headerForm.add(hasBudgetField);
 		headerForm.add(canContainProjectsField);
 
@@ -85,6 +86,10 @@ public class OrgUnitModelsAdminView extends AbstractModelsAdminView<OrgUnitModel
 		nameField.setValue(model.getName());
 		typeField.setValue(model.getTitle());
 		statusField.setValue(new EnumModel<ProjectModelStatus>(model.getStatus()));
+		getMaintenanceGroupField().setVisible(model.getStatus() == ProjectModelStatus.USED || model.getStatus() == ProjectModelStatus.UNDER_MAINTENANCE);
+		getUnderMaintenanceField().setValue(model.getDateMaintenance() != null);
+		getMaintenanceDateField().setValue(model.getDateMaintenance());
+		getMaintenanceTimeField().setValue(model.getDateMaintenance() != null ? getMaintenanceTimeField().findModel(model.getDateMaintenance()) : null);
 		hasBudgetField.setValue(model.getHasBudget());
 		canContainProjectsField.setValue(model.getCanContainProjects());
 		return model.getName();
