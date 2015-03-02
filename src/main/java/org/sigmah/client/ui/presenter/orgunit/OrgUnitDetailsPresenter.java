@@ -230,6 +230,14 @@ public class OrgUnitDetailsPresenter extends AbstractOrgUnitPresenter<OrgUnitDet
 				final FlexibleElementDTO elementDTO = constraintDTO.getFlexibleElementDTO();
 
 				// --
+				// -- DISABLED ELEMENTS
+				// --
+				
+				if(elementDTO.isDisabled()) {
+					continue;
+				}
+				
+				// --
 				// -- ELEMENT VALUE
 				// --
 

@@ -53,6 +53,23 @@ public final class ColumnProviders {
 	}
 
 	/**
+	 * Renders the given {@code value} as a striked text.
+	 * 
+	 * @param value
+	 *          The text value.
+	 * @return A text rendering for the given {@code value}.
+	 */
+	public static Object renderDisabled(final Object value) {
+
+		// Renders direct HTML to improve performances.
+		final StringBuilder builder = new StringBuilder();
+		builder.append("<div class=\"").append(STYLE_LABEL_SMALL).append(" x-component\" style=\"text-decoration: line-through;\">");
+		builder.append(value != null ? String.valueOf(value) : "").append("</div>");
+
+		return builder.toString();
+	}
+
+	/**
 	 * Renders the given boolean value.
 	 * 
 	 * @param value

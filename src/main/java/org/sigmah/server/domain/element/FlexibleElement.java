@@ -1,5 +1,6 @@
 package org.sigmah.server.domain.element;
 
+import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -11,6 +12,8 @@ import javax.persistence.InheritanceType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 
@@ -69,9 +72,9 @@ public abstract class FlexibleElement extends AbstractEntityId<Integer> implemen
 	@NotNull
 	private Boolean globallyExportable = false; // exported to a global projects list
 	
-	@Column(name = EntityConstants.FLEXIBLE_ELEMENT_COLUMN_DISABLED, nullable = false)
-	@NotNull
-	private Boolean disabled = false;
+	@Column(name = EntityConstants.FLEXIBLE_ELEMENT_COLUMN_DISABLED_DATE, nullable = true)
+	@Temporal(value = TemporalType.TIMESTAMP)
+	private Date disabledDate;
 
 	// --------------------------------------------------------------------------------
 	//
@@ -211,12 +214,12 @@ public abstract class FlexibleElement extends AbstractEntityId<Integer> implemen
 		this.globallyExportable = globallyExportable;
 	}
 
-	public boolean isDisabled() {
-		return disabled;
+	public Date getDisabledDate() {
+		return disabledDate;
 	}
 
-	public void setDisabled(boolean disabled) {
-		this.disabled = disabled;
+	public void setDisabledDate(Date disabledDate) {
+		this.disabledDate = disabledDate;
 	}
 
 }

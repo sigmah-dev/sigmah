@@ -348,7 +348,7 @@ public final class EntityConstants extends org.sigmah.shared.dto.util.EntityCons
 	public static final String FLEXIBLE_ELEMENT_COLUMN_AMENDABLE = "amendable";
 	public static final String FLEXIBLE_ELEMENT_COLUMN_EXPORTABLE = "exportable";
 	public static final String FLEXIBLE_ELEMENT_COLUMN_GLOBALLY_EXPORTABLE = "globally_exportable";
-	public static final String FLEXIBLE_ELEMENT_COLUMN_DISABLED = "is_disabled";
+	public static final String FLEXIBLE_ELEMENT_COLUMN_DISABLED_DATE = "disabled_date";
 
 	// --------------------------------------------------------------------------------
 	//

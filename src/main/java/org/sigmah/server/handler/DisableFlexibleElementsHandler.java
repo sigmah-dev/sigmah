@@ -1,5 +1,8 @@
 package org.sigmah.server.handler;
 
+import com.google.inject.persist.Transactional;
+import java.util.Date;
+import java.util.List;
 import org.sigmah.shared.command.DisableFlexibleElements;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
 import org.sigmah.server.dispatch.impl.UserDispatch;
@@ -23,14 +26,19 @@ public class DisableFlexibleElementsHandler extends AbstractCommandHandler<Disab
 	@Override
 	protected VoidResult execute(DisableFlexibleElements command, UserDispatch.UserExecutionContext context) throws CommandException {
 		if (command.getFlexibleElements() != null) {
-			for (FlexibleElementDTO flexibleElementDTO : command.getFlexibleElements()) {
-				final FlexibleElement flexibleElement = em().find(FlexibleElement.class, flexibleElementDTO.getId());
-				flexibleElement.setDisabled(command.isDisable());
-				em().merge(flexibleElement);
-				
-				LOGGER.debug("DisableFlexibleElementsHandler flexibleElement {} name {}.", flexibleElementDTO.getId(), flexibleElementDTO.getLabel());
-			}
+			setDisabled(command.getFlexibleElements(), command.isDisable());
 		}
 		return null;
+	}
+	
+	@Transactional
+	protected void setDisabled(List<FlexibleElementDTO> elements, boolean disabled) {
+		for (FlexibleElementDTO flexibleElementDTO : elements) {
+			final FlexibleElement flexibleElement = em().find(FlexibleElement.class, flexibleElementDTO.getId());
+			flexibleElement.setDisabledDate(disabled ? new Date() : null);
+			em().merge(flexibleElement);
+
+			LOGGER.debug("DisableFlexibleElementsHandler flexibleElement {} name {}.", flexibleElementDTO.getId(), flexibleElementDTO.getLabel());
+		}
 	}
 }

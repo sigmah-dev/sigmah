@@ -198,7 +198,7 @@ public class FlexibleElementsAdminView extends AbstractView implements FlexibleE
 		deleteButton.disable();
 		toolbar.add(deleteButton);
 		
-		enableButton = Forms.button(I18N.CONSTANTS.adminFlexibleDisableFlexibleElements(), IconImageBundle.ICONS.validate());
+		enableButton = Forms.button(I18N.CONSTANTS.adminFlexibleEnableFlexibleElements(), IconImageBundle.ICONS.checked());
 		enableButton.disable();
 		toolbar.add(enableButton);
 		

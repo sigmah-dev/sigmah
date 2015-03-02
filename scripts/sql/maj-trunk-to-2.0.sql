@@ -54,6 +54,10 @@ ALTER TABLE history_token ADD comment varchar(255);
 -- ------
 ALTER TABLE history_token ADD core_version int;
 
+-- Add column for disabling flexible elements
+-- ------
+ALTER TABLE flexible_element ADD disabled_date timestamp;
+
 -- Deletes all entries from the AdminEntity table which contains only admin entities from the Democratic Republic of the Congo 
 -- ------
 

@@ -73,6 +73,10 @@ abstract class FlexibleElementsColumnsProvider {
 				} else {
 					label = model.getLabel();
 				}
+				
+				if(model.isDisabled()) {
+					return ColumnProviders.renderDisabled(label);
+				}
 
 				if (!isEditable()) {
 					return ColumnProviders.renderText(label);

@@ -198,6 +198,14 @@ public class ProjectDetailsPresenter extends AbstractProjectPresenter<ProjectDet
 
 				// Gets the element managed by this constraint.
 				final FlexibleElementDTO elementDTO = constraintDTO.getFlexibleElementDTO();
+				
+				// --
+				// -- DISABLED ELEMENTS
+				// --
+				
+				if(elementDTO.isDisabled()) {
+					continue;
+				}
 
 				// --
 				// -- ELEMENT VALUE

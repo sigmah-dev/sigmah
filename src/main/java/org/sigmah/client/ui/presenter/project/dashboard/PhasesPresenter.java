@@ -560,6 +560,9 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> {
 
 		// Dispatch queue ensuring results handling order.
 		final DispatchQueue queue = new DispatchQueue(dispatch, true);
+		
+		// Current project
+		final ProjectDTO project = getCurrentProjectDTO();
 
 		// For each layout group.
 		for (final LayoutGroupDTO groupDTO : phaseDTO.getPhaseModel().getLayout().getGroups()) {
@@ -573,6 +576,17 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> {
 
 				// Gets the element managed by this constraint.
 				final FlexibleElementDTO elementDTO = constraintDTO.getFlexibleElementDTO();
+				
+				// --
+				// -- DISABLED ELEMENTS
+				// --
+				if(elementDTO.isDisabled() && 
+					(phaseDTO.getEndDate() == null || phaseDTO.getEndDate().after(elementDTO.getDisabledDate()))) {
+					// Hiding the field if the current phase is opened or
+					// if it has been closed AFTER the field was disabled.
+					unmask();
+					continue;
+				}
 
 				// --
 				// -- ELEMENT VALUE
@@ -580,8 +594,8 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> {
 
 				// Retrieving the current amendment id.
 				final Integer amendmentId;
-				if (getCurrentProjectDTO().getCurrentAmendment() != null) {
-					amendmentId = getCurrentProjectDTO().getCurrentAmendment().getId();
+				if (project.getCurrentAmendment() != null) {
+					amendmentId = project.getCurrentAmendment().getId();
 				} else {
 					amendmentId = null;
 				}

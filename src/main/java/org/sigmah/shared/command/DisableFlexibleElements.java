@@ -24,6 +24,7 @@ public class DisableFlexibleElements implements Command<VoidResult> {
 	
 	public DisableFlexibleElements(List<FlexibleElementDTO> flexibleElements, boolean disable) {
 		this.flexibleElements = flexibleElements;
+		this.disable = disable;
 	}
 
 	public List<FlexibleElementDTO> getFlexibleElements() {

@@ -35,6 +35,7 @@ import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
+import java.util.Date;
 import org.sigmah.shared.command.DisableFlexibleElements;
 
 /**
@@ -387,13 +388,13 @@ public class FlexibleElementsAdminPresenter<E extends IsModel> extends AbstractP
 	            public void onSuccess(VoidResult result) {
 	            	// update view   
 	            	for (FlexibleElementDTO element : selection) {
-						element.setDisabled(true);
+						element.setDisabledDate(new Date());
 						
 	            		view.getStore().update(element);
 	            	}
 	            	
 	            	// Feedback 
-	            	N10N.info(I18N.CONSTANTS.infoConfirmation(), 
+	            	N10N.infoNotif(I18N.CONSTANTS.infoConfirmation(), 
 						I18N.CONSTANTS.adminFlexibleDisableFlexibleElementsConfirm());
 	            }
 	        });
@@ -430,10 +431,14 @@ public class FlexibleElementsAdminPresenter<E extends IsModel> extends AbstractP
 			public void onSuccess(VoidResult result) {
 				// update view   
 				for (FlexibleElementDTO element : selection) {
-					element.setDisabled(false);
+					element.setDisabledDate(null);
 
 					view.getStore().update(element);
 				}
+				
+				// Feedback 
+				N10N.infoNotif(I18N.CONSTANTS.infoConfirmation(), 
+						I18N.CONSTANTS.adminFlexibleEnableFlexibleElementsConfirm());
 			}
 		});
 	}

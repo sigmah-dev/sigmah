@@ -43,6 +43,7 @@ import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.google.gwt.event.shared.HandlerManager;
+import java.util.Date;
 import org.sigmah.client.ui.widget.Loadable;
 import org.sigmah.shared.dto.referential.GlobalPermissionEnum;
 import org.sigmah.shared.dto.referential.ProjectModelStatus;
@@ -73,7 +74,7 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 	public static final String CONTAINER = "container";
 	public static final String CONSTRAINT = "constraint";
 	public static final String BANNER = "banner";
-	public static final String DISABLED = "disabled";
+	public static final String DISABLED_DATE = "disabledDate";
 
 	// Provided elements.
 	protected transient HandlerManager handlerManager;
@@ -630,12 +631,15 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 		set(BANNER, constraint);
 	}
 	
+	public Date getDisabledDate() {
+		return get(DISABLED_DATE);
+	}
+
+	public void setDisabledDate(Date disabledDate) {
+		set(DISABLED_DATE, disabledDate);
+	}
+	
 	public boolean isDisabled() {
-		final Boolean disabled = get(DISABLED);
-    	return disabled != null && disabled;
-    }
-    
-    public void setDisabled(Boolean disabled) {
-    	set(DISABLED, disabled);
-    }
+		return get(DISABLED_DATE) != null;
+	}
 }
