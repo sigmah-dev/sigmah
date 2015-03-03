@@ -236,6 +236,7 @@ public class OrgUnitModelDTO extends AbstractModelDataEntityDTO<Integer> impleme
 	}
 	
 	// Maintenance start date.
+	@Override
 	public Date getDateMaintenance() {
 		return get(MAINTENANCE_DATE);
 	}

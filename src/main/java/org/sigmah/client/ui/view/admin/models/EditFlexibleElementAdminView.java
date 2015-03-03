@@ -29,6 +29,9 @@ import org.sigmah.shared.dto.referential.TextAreaType;
 import org.sigmah.shared.dto.report.ReportModelDTO;
 
 import com.extjs.gxt.ui.client.data.BaseModelData;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.FieldEvent;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Text;
 import com.extjs.gxt.ui.client.widget.form.AdapterField;
@@ -625,6 +628,26 @@ public class EditFlexibleElementAdminView extends AbstractPopupView<PopupWidget>
 				customChoiceLabel.removeFromParent();
 			}
 		});
+
+		customChoicesPanel.add(customChoiceLabel);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void addUndeletableCustomChoice(final String value, boolean checked, final Listener<FieldEvent> disableHandler) {
+		
+		final ClickableLabel customChoiceLabel = new ClickableLabel(value);
+		final Grid grid = (Grid) customChoiceLabel.getWidget();
+		
+		final CheckBox checkBox = new CheckBox();
+		checkBox.setValue(checked);
+		grid.setWidget(0, 0, checkBox);
+
+		if(disableHandler != null) {
+			checkBox.addListener(Events.Change, disableHandler);
+		}
 
 		customChoicesPanel.add(customChoiceLabel);
 	}

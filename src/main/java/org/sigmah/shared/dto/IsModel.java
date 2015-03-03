@@ -8,6 +8,7 @@ import org.sigmah.shared.dto.element.FlexibleElementDTO;
 import org.sigmah.shared.dto.referential.ProjectModelStatus;
 
 import com.extjs.gxt.ui.client.data.ModelData;
+import java.util.Date;
 
 /**
  * Interface implemented by model entities.
@@ -77,5 +78,12 @@ public interface IsModel extends EntityDTO<Integer>, ModelData {
 	 * @return <code>true</code> if this model is under maintenance, <code>false</code> otherwise.
 	 */
 	boolean isUnderMaintenance();
+	
+	/**
+	 * Returns the start date of the current maintenance.
+	 * 
+	 * @return The start date of the maintenance.
+	 */
+	public Date getDateMaintenance();
 	
 }

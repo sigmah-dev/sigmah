@@ -1,8 +1,11 @@
 package org.sigmah.server.service.util;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Table;
@@ -93,6 +96,7 @@ public final class ModelUtil {
 		final Boolean isMultiple = changes.get(AdminUtil.PROP_FX_Q_MULTIPLE);
 		final CategoryTypeDTO category = changes.get(AdminUtil.PROP_FX_Q_CATEGORY);
 		final List<String> qChoices = changes.get(AdminUtil.PROP_FX_Q_CHOICES);
+		Set<String> qChoicesDisabled = changes.get(AdminUtil.PROP_FX_Q_CHOICES_DISABLED);
 		final List<BudgetSubFieldDTO> bSubFields = changes.get(AdminUtil.PROP_FX_B_BUDGETSUBFIELDS);
 		final BudgetSubFieldDTO ratioDividend = changes.get(AdminUtil.PROP_FX_B_BUDGET_RATIO_DIVIDEND);
 		final BudgetSubFieldDTO ratioDivisor = changes.get(AdminUtil.PROP_FX_B_BUDGET_RATIO_DIVISOR);
@@ -105,29 +109,15 @@ public final class ModelUtil {
 		} else {
 			flexibleElt = (FlexibleElement) createNewFlexibleElement(em, oldType, type, flexibleElt);
 		}
+		
+		if(qChoicesDisabled == null) {
+			qChoicesDisabled = Collections.emptySet();
+		}
 
-		LOG.debug("Saving : ("
-			+ name
-			+ ","
-			+ type
-			+ ","
-			+ group
-			+ ","
-			+ order
-			+ ","
-			+ inBanner
-			+ ","
-			+ posB
-			+ ","
-			+ isCompulsory
-			+ ","
-			+ pg
-			+ ","
-			+ amend
-			+ ","
-			+ exportable
-			+ ")");
-		LOG.debug("Also Saving : (" + maxLimit + "," + minLimit + "," + textType + "," + length + "," + decimal + "," + reportModel + ")");
+		LOG.debug("Saving : (name {}, type {}, group {}, order {}, inBanner {}, posB {}, isCompulsory {}, pg {}, amend {}, exportable {})",
+			type, group, order, inBanner, posB, isCompulsory, pg, amend, exportable);
+		LOG.debug("Also Saving : (maxLimit {}, minLimit {}, textType {}, length {}, decimal {}, reportModel {})",
+			maxLimit, minLimit, textType, length, decimal, reportModel);
 
 		Boolean basicChanges = false;
 		if (flexibleElt != null) {// update flexible element
@@ -384,6 +374,7 @@ public final class ModelUtil {
 						qChoice.setLabel(choiceLabel);
 						qChoice.setParentQuestion(questionElement);
 						qChoice.setSortOrder(i++);
+						qChoice.setDisabled(qChoicesDisabled.contains(choiceLabel));
 						choices.add(qChoice);
 					}
 					((QuestionElement) flexibleElt).setChoices(choices);
@@ -445,6 +436,7 @@ public final class ModelUtil {
 
 			if (flexibleElement != null && flexibleElement.getId() != null && oldType != null) {
 				LOG.debug("Old Type '{}' (class '{}').", oldType, flexibleElement.getClass());
+				((FlexibleElement) newElement).setCreationDate(new Date());
 				((FlexibleElement) newElement).setLabel(flexibleElement.getLabel());
 				((FlexibleElement) newElement).setPrivacyGroup(flexibleElement.getPrivacyGroup());
 				((FlexibleElement) newElement).setValidates(flexibleElement.isValidates());

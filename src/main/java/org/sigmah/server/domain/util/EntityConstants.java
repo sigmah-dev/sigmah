@@ -349,6 +349,7 @@ public final class EntityConstants extends org.sigmah.shared.dto.util.EntityCons
 	public static final String FLEXIBLE_ELEMENT_COLUMN_EXPORTABLE = "exportable";
 	public static final String FLEXIBLE_ELEMENT_COLUMN_GLOBALLY_EXPORTABLE = "globally_exportable";
 	public static final String FLEXIBLE_ELEMENT_COLUMN_DISABLED_DATE = "disabled_date";
+	public static final String FLEXIBLE_ELEMENT_COLUMN_CREATION_DATE = "creation_date";
 
 	// --------------------------------------------------------------------------------
 	//
@@ -1207,6 +1208,7 @@ public final class EntityConstants extends org.sigmah.shared.dto.util.EntityCons
 	public static final String QUESTION_CHOICE_ELEMENT_COLUMN_ID_CATEGORY_ELEMENT = "id_category_element";
 	// TODO Replace with common 'SortOrder' column
 	public static final String QUESTION_CHOICE_ELEMENT_COLUMN_SORT_ORDER = "sort_order";
+	public static final String QUESTION_CHOICE_ELEMENT_COLUMN_DISABLED = "is_disabled";
 
 	public static final int QUESTION_CHOICE_ELEMENT_LABEL_MAX_LENGTH = 8192;
 

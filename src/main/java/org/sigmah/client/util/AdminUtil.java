@@ -50,6 +50,7 @@ public final class AdminUtil {
 	public static final String PROP_FX_Q_QUALITY = "FlexibleElementQuestionQuality";
 	public static final String PROP_FX_Q_CATEGORY = "FlexibleElementQuestionCategory";
 	public static final String PROP_FX_Q_CHOICES = "FlexibleElementQuestionChoices";
+	public static final String PROP_FX_Q_CHOICES_DISABLED = "FlexibleElementQuestionChoicesDisabled";
 	public static final String PROP_FX_B_BUDGETSUBFIELDS = "FlexibleElementBudgetSubFields";
 	public static final String PROP_FX_B_BUDGET_RATIO_DIVIDEND = "FlexibleElementBudgetRatioDividend";
 	public static final String PROP_FX_B_BUDGET_RATIO_DIVISOR = "FlexibleElementBudgetRatioDivisor";

@@ -211,6 +211,18 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 		 *          The delete handler triggered if the label is deleted.
 		 */
 		void addCustomChoice(String customChoice, ClickHandler deleteHandler);
+		
+		/**
+		 * Adds the given {@code customChoice} as an existing custom that can't be deleted.
+		 * 
+		 * @param customChoice
+		 *          The custom choice label.
+		 * @param checked
+		 *			Initial value of the checkbox.
+		 * @param disableHandler
+		 *          The disable handler triggered if the associated checkbox is selected.
+		 */
+		void addUndeletableCustomChoice(String customChoice, boolean checked, Listener<FieldEvent> disableHandler);
 
 		/**
 		 * Sets the custom choices add fields enabled state.
@@ -225,14 +237,7 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 	/**
 	 * Banner positions.
 	 */
-	private static final Integer[] BANNER_POSITIONS = {
-																											1,
-																											2,
-																											3,
-																											4,
-																											5,
-																											6
-	};
+	private static final Integer[] BANNER_POSITIONS = { 1, 2, 3, 4, 5, 6 };
 
 	/**
 	 * Default category type.
@@ -263,6 +268,11 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 	 * Custom choices labels.
 	 */
 	private Set<String> customChoices;
+	
+	/**
+	 * Disabled custom choices labels.
+	 */
+	private Set<String> disabledCustomChoices;
 
 	/**
 	 * Presenter's initialization.
@@ -292,6 +302,7 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 	public void onBind() {
 
 		customChoices = new HashSet<String>();
+		disabledCustomChoices = new HashSet<String>();
 
 		// --
 		// Type field select handler.
@@ -470,6 +481,9 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 
 		// Loads containers.
 		loadContainers(currentModel);
+		
+		// Change the form according to the maintenance state.
+		loadUnderMaintenanceState(currentModel);
 
 		// Loads the privacy groups.
 		loadPrivacyGroups(flexibleElement);
@@ -533,6 +547,17 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 		return ((DefaultFlexibleElementDTO) flexibleElement).getType();
 	}
 
+	/**
+	 * Returns <code>true</code> if the user is updating an existing flexible
+	 * element and its creation date is prior to the maintenance start date.
+	 * 
+	 * @return <code>true</code> if updating an existing flexible element and 
+	 */
+	private boolean isUpdateAndUnderMaintenance() {
+		return flexibleElement != null && currentModel.isUnderMaintenance() && 
+			(flexibleElement.getCreationDate() == null || flexibleElement.getCreationDate().before(currentModel.getDateMaintenance()));
+	}
+	
 	/**
 	 * <p>
 	 * Loads the given {@code flexibleElement} <b>common fields</b> and sets the corresponding form fields values.
@@ -670,9 +695,16 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 			view.getQualityLinkField().setValue(questionElement.getQualityCriterion() != null);
 			view.getMultipleChoicesField().setValue(questionElement.getMultiple());
 
+			customChoices.clear();
+			disabledCustomChoices.clear();
+			
 			if (ClientUtils.isNotEmpty(questionElement.getChoices())) {
 				for (final QuestionChoiceElementDTO choice : questionElement.getChoices()) {
-					onAddCustomChoice(choice.getLabel());
+					if(!isUpdateAndUnderMaintenance()) {
+						onAddCustomChoice(choice.getLabel());
+					} else {
+						onAddUndeletableCustomChoice(choice.getLabel(), !choice.isDisabled());
+					}
 				}
 			}
 		} else if (flexibleElement instanceof BudgetElementDTO) {
@@ -830,6 +862,16 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 		}
 
 		view.getContainerField().getStore().commitChanges();
+	}
+	
+	/**
+	 * Change the state of the fields if the current model is under maintenance.
+	 * 
+	 * @param currentModel 
+	 *			The current model.
+	 */
+	private void loadUnderMaintenanceState(final IsModel currentModel) {
+		view.getAmendableField().setVisible(!currentModel.isUnderMaintenance());
 	}
 
 	/**
@@ -1004,6 +1046,42 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 	}
 
 	/**
+	 * Callback executed on custom choice add action.<br>
+	 * Does nothing if one of the arguments is {@code null} or if the {@code customChoice} is already present.
+	 * 
+	 * @param customChoice
+	 *          The custom choice value.
+	 */
+	private void onAddUndeletableCustomChoice(final String customChoice, boolean checked) {
+
+		view.getCustomChoiceField().clear();
+
+		if (ClientUtils.isBlank(customChoice) || customChoices.contains(customChoice)) {
+			return;
+		}
+		
+		if(!checked) {
+			disabledCustomChoices.add(customChoice);
+		}
+
+		view.addUndeletableCustomChoice(customChoice, checked, new Listener<FieldEvent>() {
+
+			@Override
+			public void handleEvent(FieldEvent be) {
+				final Boolean value = (Boolean) be.getValue();
+				if(value != null && value) {
+					disabledCustomChoices.remove(customChoice);
+				} else {
+					disabledCustomChoices.add(customChoice);
+				}
+			}
+		});
+
+		customChoices.add(customChoice);
+		view.getCategoryTypeField().setEnabled(false);
+	}
+
+	/**
 	 * Callback executed on save button action.
 	 */
 	private void onSaveAction() {
@@ -1098,6 +1176,10 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 
 		if (ClientUtils.isNotEmpty(customChoices)) {
 			newFieldProperties.put(AdminUtil.PROP_FX_Q_CHOICES, new ArrayList<String>(customChoices));
+		}
+
+		if (ClientUtils.isNotEmpty(disabledCustomChoices)) {
+			newFieldProperties.put(AdminUtil.PROP_FX_Q_CHOICES_DISABLED, disabledCustomChoices);
 		}
 
 		List<BudgetSubFieldDTO> budgetSubFieldsToUpdate = new ArrayList<BudgetSubFieldDTO>();

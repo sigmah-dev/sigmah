@@ -66,15 +66,21 @@ public abstract class FlexibleElement extends AbstractEntityId<Integer> implemen
 
 	@Column(name = EntityConstants.FLEXIBLE_ELEMENT_COLUMN_EXPORTABLE, nullable = false)
 	@NotNull
-	private Boolean exportable = true; // exported to project synthesis sheet
+	// exported to project synthesis sheet
+	private Boolean exportable = true;
 
 	@Column(name = EntityConstants.FLEXIBLE_ELEMENT_COLUMN_GLOBALLY_EXPORTABLE, nullable = false)
 	@NotNull
-	private Boolean globallyExportable = false; // exported to a global projects list
+	// exported to a global projects list
+	private Boolean globallyExportable = false;
 	
 	@Column(name = EntityConstants.FLEXIBLE_ELEMENT_COLUMN_DISABLED_DATE, nullable = true)
 	@Temporal(value = TemporalType.TIMESTAMP)
 	private Date disabledDate;
+	
+	@Column(name = EntityConstants.FLEXIBLE_ELEMENT_COLUMN_CREATION_DATE, nullable = true)
+	@Temporal(value = TemporalType.TIMESTAMP)
+	private Date creationDate;
 
 	// --------------------------------------------------------------------------------
 	//
@@ -222,4 +228,16 @@ public abstract class FlexibleElement extends AbstractEntityId<Integer> implemen
 		this.disabledDate = disabledDate;
 	}
 
+	/**
+     * Returns the date on which this element was created.
+     * @return The date on which this element was created.
+     */
+    public Date getCreationDate() {
+		return creationDate;
+	}
+
+    public void setCreationDate(Date creationDate) {
+		this.creationDate = creationDate;
+	}
+	
 }

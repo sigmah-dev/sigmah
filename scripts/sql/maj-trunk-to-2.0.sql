@@ -54,16 +54,10 @@ ALTER TABLE history_token ADD comment varchar(255);
 -- ------
 ALTER TABLE history_token ADD core_version int;
 
--- Add column for disabling flexible elements
--- ------
-ALTER TABLE flexible_element ADD disabled_date timestamp;
-
 -- Deletes all entries from the AdminEntity table which contains only admin entities from the Democratic Republic of the Congo 
 -- ------
-
 -- POSTGRESQL
-
-DELETE FROM adminentity;
+-- DELETE FROM adminentity;
 
 
 -- Updates existing users 'last password change' with current timestamp (issue #438 / #517)
@@ -206,3 +200,19 @@ CREATE TABLE core_version_element
   id_flexible_element int primary key
 );
 ALTER TABLE core_version_element OWNER TO sigmah;
+
+-- ----------
+-- 02/03/2015
+-- ----------
+
+-- Add column for disabling flexible elements
+-- ------
+ALTER TABLE flexible_element ADD disabled_date timestamp;
+
+-- Update global_permission
+-- ------
+update global_permission set permission = 'EDIT_PROJECT_AGENDA' where permission = 'EDIT_AGENDA';
+update global_permission set permission = 'VIEW_PROJECT_AGENDA' where permission = 'VIEW_AGENDA';
+update global_permission set permission = 'MANAGE_USERS' where permission = 'MANAGE_USER';
+update global_permission set permission = 'EDIT_ORG_UNIT' where permission = 'MANAGE_UNIT';
+update global_permission set permission = 'REMOVE_PROJECT_FILE' where permission = 'REMOVE_FILE';

@@ -62,7 +62,7 @@ public class QuestionChoiceElementDTO extends AbstractModelDataEntityDTO<Integer
         return disabled != null && disabled;
     }
 
-    public void setDisabled(Boolean disabled) {
+    public void setDisabled(boolean disabled) {
         set(DISABLED, disabled);
     }
 

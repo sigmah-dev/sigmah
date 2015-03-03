@@ -75,6 +75,7 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 	public static final String CONSTRAINT = "constraint";
 	public static final String BANNER = "banner";
 	public static final String DISABLED_DATE = "disabledDate";
+	public static final String CREATION_DATE = "creationDate";
 
 	// Provided elements.
 	protected transient HandlerManager handlerManager;
@@ -641,5 +642,13 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 	
 	public boolean isDisabled() {
 		return get(DISABLED_DATE) != null;
+	}
+	
+	public Date getCreationDate() {
+		return get(CREATION_DATE);
+	}
+	
+	public void setCreationDate(Date creationDate) {
+		set(CREATION_DATE, creationDate);
 	}
 }

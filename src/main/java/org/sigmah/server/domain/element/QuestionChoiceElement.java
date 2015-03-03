@@ -44,6 +44,9 @@ public class QuestionChoiceElement extends AbstractEntityId<Integer> {
 
 	@Column(name = EntityConstants.QUESTION_CHOICE_ELEMENT_COLUMN_SORT_ORDER, nullable = true)
 	private Integer sortOrder;
+	
+	@Column(name = EntityConstants.QUESTION_CHOICE_ELEMENT_COLUMN_DISABLED, nullable = true)
+	private Boolean disabled;
 
 	// --------------------------------------------------------------------------------
 	//
@@ -134,4 +137,12 @@ public class QuestionChoiceElement extends AbstractEntityId<Integer> {
 	public void setCategoryElement(CategoryElement categoryElement) {
 		this.categoryElement = categoryElement;
 	}
+	
+    public Boolean getDisabled() {
+        return disabled;
+    }
+
+    public void setDisabled(Boolean disabled) {
+        this.disabled = disabled;
+    }
 }

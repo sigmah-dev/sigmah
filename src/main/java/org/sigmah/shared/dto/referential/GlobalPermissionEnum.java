@@ -95,13 +95,13 @@ public enum GlobalPermissionEnum implements Result {
 	 * by other users.
 	 */
 
-	EDIT_ALL_REMINDERS(null),
+	EDIT_ALL_REMINDERS(GlobalPermissionCategory.OTHER),
 	
 	/**
 	 * for creating/deleting/modifying/closing reminders created by the user.
 	 */
 
-	EDIT_OWN_REMINDERS(null),
+	EDIT_OWN_REMINDERS(GlobalPermissionCategory.OTHER),
 	
 	/**
 	 * for viewing the two indicator sub-tabs.
@@ -216,7 +216,7 @@ public enum GlobalPermissionEnum implements Result {
 	/**
 	 * For exporting HXL data.
 	 */
-	EXPORT_HXL(null),
+	EXPORT_HXL(GlobalPermissionCategory.OTHER),
 	
 	/**
      * For changing own password.
