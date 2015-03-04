@@ -694,6 +694,8 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 			view.setCustomChoiceAddFieldEnabled(true);
 			view.getQualityLinkField().setValue(questionElement.getQualityCriterion() != null);
 			view.getMultipleChoicesField().setValue(questionElement.getMultiple());
+			
+			view.getMultipleChoicesField().setEnabled(!isUpdateAndUnderMaintenance());
 
 			customChoices.clear();
 			disabledCustomChoices.clear();
@@ -711,7 +713,12 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 
 			final BudgetElementDTO budgetElement = (BudgetElementDTO) flexibleElement;
 
-			Integer i = 1;
+			// Showing or hiding the fields depending on the maintenance state of the current model.
+			view.getBudgetFields().setVisible(!isUpdateAndUnderMaintenance());
+			view.getUpBudgetSubFieldCombo().setVisible(!isUpdateAndUnderMaintenance());
+			view.getDownBudgetSubFieldCombo().setVisible(!isUpdateAndUnderMaintenance());
+			
+			int row = 1;
 
 			for (final BudgetSubFieldDTO budgetField : budgetElement.getBudgetSubFields()) {
 
@@ -725,15 +732,15 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 
 				budgetText.setText(budgetField.getLabel());
 
-				view.getBudgetFields().setWidget(i, 0, budgetText);
-				view.getBudgetFields().setWidget(i, 1, new TextField<String>());
+				view.getBudgetFields().setWidget(row, 0, budgetText);
+				view.getBudgetFields().setWidget(row, 1, new TextField<String>());
 
 				if (budgetField.getType() == null) {
 
 					Anchor anchorEditSubField = new Anchor(IconImageBundle.ICONS.editPage().getSafeHtml());
 					Anchor anchorDeleteSubField = new Anchor(IconImageBundle.ICONS.delete().getSafeHtml());
-					view.getBudgetFields().setWidget(i, 2, anchorEditSubField);
-					view.getBudgetFields().setWidget(i, 3, anchorDeleteSubField);
+					view.getBudgetFields().setWidget(row, 2, anchorEditSubField);
+					view.getBudgetFields().setWidget(row, 3, anchorDeleteSubField);
 
 					anchorEditSubField.addClickHandler(new ClickHandler() {
 
@@ -763,7 +770,7 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 
 				}
 
-				i++;
+				row++;
 
 			}
 
@@ -772,13 +779,12 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 
 			for (BudgetSubFieldDTO budgetField : budgetElement.getBudgetSubFields()) {
 
-				if (budgetField.getId() == budgetElement.getRatioDividend().getId()) {
+				if (budgetField.getId().equals(budgetElement.getRatioDividend().getId())) {
 					view.getUpBudgetSubFieldCombo().setValue(budgetField);
 				}
 
-				if (budgetField.getId() == budgetElement.getRatioDivisor().getId()) {
+				if (budgetField.getId().equals(budgetElement.getRatioDivisor().getId())) {
 					view.getDownBudgetSubFieldCombo().setValue(budgetField);
-
 				}
 			}
 
@@ -798,6 +804,12 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 
 		view.setTextAreaSpecificFieldsVisibility(textAreaType);
 
+		view.getTextAreaTypeField().setEnabled(!isUpdateAndUnderMaintenance());
+		view.getMinDateField().setEnabled(!isUpdateAndUnderMaintenance());
+		view.getMaxDateField().setEnabled(!isUpdateAndUnderMaintenance());
+		view.getMinLimitField().setEnabled(!isUpdateAndUnderMaintenance());
+		view.getMaxLimitField().setEnabled(!isUpdateAndUnderMaintenance());
+		
 		// Fires change event.
 		view.getTextAreaTypeField().setValue(textAreaType != null ? new EnumModel<TextAreaType>(textAreaType) : null);
 
