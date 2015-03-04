@@ -150,6 +150,8 @@ public class Sigmah implements EntryPoint {
 		injector.getImportModelPresenter();
 		injector.getImportationShemePresenter();
 		injector.getAddVariableImporationSchemePresenter();
+		injector.getAddImportationSchemeModelsAdminPresenter();
+		injector.getAddMatchingRuleImportationShemeModelsAdminPresenter();
 
 		injector.getOrgUnitPresenter();
 		injector.getOrgUnitDashboradPresenter();
@@ -158,8 +160,7 @@ public class Sigmah implements EntryPoint {
 		injector.getOrgUnitReportsPresenter();
 		injector.getAddImportationSchemePresenter();
 
-		injector.getAddImportationSchemeModelsAdminPresenter();
-		injector.getAddMatchingRuleImportationShemeModelsAdminPresenter();
+		injector.getFileSelectionPresenter();
 
 		// Propagates the network state.
 		injector.getApplicationStateManager().fireCurrentState(new Runnable() {

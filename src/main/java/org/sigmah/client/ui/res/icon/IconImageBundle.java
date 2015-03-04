@@ -233,4 +233,10 @@ public interface IconImageBundle extends ImageBundle {
 	
 	AbstractImagePrototype disable();
 	
+	AbstractImagePrototype left();
+	
+	AbstractImagePrototype right();
+	
+	AbstractImagePrototype transfer();
+	
 }

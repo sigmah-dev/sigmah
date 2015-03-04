@@ -33,6 +33,7 @@ import java.util.Map;
 import org.sigmah.client.event.OfflineEvent;
 import org.sigmah.client.event.handler.OfflineHandler;
 import org.sigmah.client.i18n.I18N;
+import org.sigmah.client.page.Page;
 import org.sigmah.client.page.RequestParameter;
 import org.sigmah.client.ui.notif.ConfirmCallback;
 import org.sigmah.client.ui.notif.N10N;
@@ -47,7 +48,6 @@ import org.sigmah.offline.js.TransfertJS;
 import org.sigmah.offline.status.ApplicationState;
 import org.sigmah.offline.status.ProgressType;
 import org.sigmah.offline.sync.SynchroProgressListener;
-import org.sigmah.offline.sync.Synchronizer;
 import org.sigmah.offline.sync.UpdateDates;
 import org.sigmah.offline.view.OfflineMenuPanel;
 import org.sigmah.offline.view.SynchronizePopup;
@@ -421,7 +421,7 @@ implements OfflineEvent.Source {
 					@Override
 					public void onClick(ClickEvent event) {
 						setMenuVisible(false);
-						pushAndPullFiles();
+						eventBus.navigate(Page.OFFLINE_SELECT_FILES);
 					}
 				});
                 break;
@@ -543,44 +543,9 @@ implements OfflineEvent.Source {
 
 			@Override
 			public void onAction() {
-				pushAndPullFiles();
+				eventBus.navigate(Page.OFFLINE_SELECT_FILES);
 			}
 		});
 	}
 	
-	private void pushAndPullFiles() {
-		view.setTransferFilesAnchorEnabled(false);
-
-		// Push files
-		final TransfertAsyncDAO transfertAsyncDAO = injector.getTransfertAsyncDAO();
-		transfertAsyncDAO.getAll(TransfertType.UPLOAD, new AsyncCallback<TransfertJS>() {
-
-			@Override
-			public void onFailure(Throwable caught) {
-				Log.error("An error occured while searching for not uploaded files.", caught);
-			}
-
-			@Override
-			public void onSuccess(TransfertJS result) {
-				((HasProgressListeners)injector.getTransfertManager()).resumeUpload(result);
-			}
-		});
-		
-		// Pull all files
-		dispatch.execute(new GetFilesFromFavoriteProjects(), new AsyncCallback<ListResult<FileVersionDTO>>() {
-			@Override
-			public void onFailure(Throwable caught) {
-				view.setTransferFilesAnchorEnabled(true);
-				N10N.error(I18N.CONSTANTS.offlineActionTransferFilesListFilesError());
-			}
-
-			@Override
-			public void onSuccess(ListResult<FileVersionDTO> result) {
-				view.setTransferFilesAnchorEnabled(true);
-				for(final FileVersionDTO fileVersionDTO : result.getList()) {
-					injector.getTransfertManager().cache(fileVersionDTO);
-				}
-			}
-		});
-	}
 }

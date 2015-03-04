@@ -70,6 +70,8 @@ public enum Page implements IsSerializable {
 	ADMIN_EDIT_FLEXIBLE_ELEMENT("flexible-element-edit"),
 	ADMIN_EDIT_FLEXIBLE_ELEMENT_ADD_BUDGETSUBFIELD("add-budgetsubfield-flexible-element-edit"),
 	ADMIN_EDIT_PHASE_MODEL("phase-model-edit"),
+	
+	OFFLINE_SELECT_FILES("offline-select-files"),
 
 	// OTHER PAGES.
 

@@ -77,12 +77,12 @@ import org.sigmah.offline.dao.FileDataAsyncDAO;
 import org.sigmah.offline.dao.TransfertAsyncDAO;
 import org.sigmah.offline.dispatch.LocalDispatchServiceAsync;
 import org.sigmah.offline.inject.OfflineModule;
-import org.sigmah.offline.status.ConnectionStatus;
 import org.sigmah.offline.sync.Synchronizer;
 import org.sigmah.shared.file.TransfertManager;
 
 import com.google.gwt.inject.client.GinModules;
 import com.google.gwt.inject.client.Ginjector;
+import org.sigmah.offline.presenter.FileSelectionPresenter;
 import org.sigmah.offline.status.ApplicationStateManager;
 
 /**
@@ -276,4 +276,9 @@ public interface Injector extends Ginjector {
 	AddImportationSchemeModelsAdminPresenter getAddImportationSchemeModelsAdminPresenter();
 
 	AddMatchingRuleImportationShemeModelsAdminPresenter getAddMatchingRuleImportationShemeModelsAdminPresenter();
+	
+	// ---- Offline presenters
+	
+	FileSelectionPresenter getFileSelectionPresenter();
+	
 }
