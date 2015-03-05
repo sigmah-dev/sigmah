@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
@@ -17,6 +18,7 @@ import org.sigmah.server.domain.element.FlexibleElement;
 import org.sigmah.server.domain.layout.LayoutConstraint;
 import org.sigmah.server.domain.layout.LayoutGroup;
 import org.sigmah.server.domain.value.FileVersion;
+import org.sigmah.server.file.FileStorageProvider;
 import org.sigmah.server.handler.base.AbstractCommandHandler;
 import org.sigmah.shared.command.GetFilesFromFavoriteProjects;
 import org.sigmah.shared.command.result.ListResult;
@@ -32,8 +34,17 @@ import org.sigmah.shared.util.ValueResultUtils;
 @Singleton
 public class GetFilesFromFavoriteProjectsHandler extends AbstractCommandHandler<GetFilesFromFavoriteProjects, ListResult<FileVersionDTO>> {
 
+	/**
+	 * DAO to search for files in the database.
+	 */
 	@Inject
 	private FileHibernateDAO fileHibernateDAO;
+	
+	/**
+	 * Allow access to the files.
+	 */
+	@Inject
+	private FileStorageProvider fileStorageProvider;
 	
 	@Override
 	protected ListResult<FileVersionDTO> execute(GetFilesFromFavoriteProjects command, UserDispatch.UserExecutionContext context) throws CommandException {
@@ -60,15 +71,23 @@ public class GetFilesFromFavoriteProjectsHandler extends AbstractCommandHandler<
 			}
 		}
 		
-		final List<FileVersion> versions;
+		final List<FileVersionDTO> versions;
 		
 		if(!fileIds.isEmpty()) {
-			versions = fileHibernateDAO.findVersions(fileIds, FileDTO.LoadingScope.LAST_VERSION);
+			final List<FileVersion> result = fileHibernateDAO.findVersions(fileIds, FileDTO.LoadingScope.LAST_VERSION_FROM_NOT_DELETED_FILES);
+			versions = mapper().mapCollection(result, FileVersionDTO.class);
+			
+			final Iterator<FileVersionDTO> iterator = versions.iterator();
+			while(iterator.hasNext()) {
+				final FileVersionDTO version = iterator.next();
+				version.setAvailable(fileStorageProvider.exists(version.getPath()));
+			}
+			
 		} else {
 			versions = Collections.emptyList();
 		}
 		
-		return new ListResult<FileVersionDTO>(mapper().mapCollection(versions, FileVersionDTO.class));
+		return new ListResult<FileVersionDTO>(versions);
 	}
 
 	private void getFilesFromGroups(final List<LayoutGroup> groups, final TypedQuery<String> valueQuery, final Project project, final ArrayList<Integer> fileIds) {

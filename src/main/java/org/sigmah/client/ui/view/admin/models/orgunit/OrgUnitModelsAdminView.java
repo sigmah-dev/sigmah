@@ -86,7 +86,7 @@ public class OrgUnitModelsAdminView extends AbstractModelsAdminView<OrgUnitModel
 		nameField.setValue(model.getName());
 		typeField.setValue(model.getTitle());
 		statusField.setValue(new EnumModel<ProjectModelStatus>(model.getStatus()));
-		getMaintenanceGroupField().setVisible(model.getStatus() == ProjectModelStatus.USED || model.getStatus() == ProjectModelStatus.UNDER_MAINTENANCE);
+		getMaintenanceGroupField().setVisible(model.getStatus() == ProjectModelStatus.USED || model.isUnderMaintenance());
 		getUnderMaintenanceField().setValue(model.getDateMaintenance() != null);
 		getMaintenanceDateField().setValue(model.getDateMaintenance());
 		getMaintenanceTimeField().setValue(model.getDateMaintenance() != null ? getMaintenanceTimeField().findModel(model.getDateMaintenance()) : null);

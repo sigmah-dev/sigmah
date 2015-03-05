@@ -58,6 +58,11 @@ class DirectTransfertManager implements TransfertManager {
 	}
 
 	@Override
+	public void isCached(FileVersionDTO fileVersionDTO, AsyncCallback<Boolean> callback) {
+		callback.onSuccess(Boolean.FALSE);
+	}
+
+	@Override
 	public void upload(final FormPanel formPanel, final ProgressListener progressListener) {
 		final ServletUrlBuilder urlBuilder =
 				new ServletUrlBuilder(authenticationProvider, pageManager, ServletConstants.Servlet.FILE, ServletConstants.ServletMethod.UPLOAD);
@@ -102,7 +107,7 @@ class DirectTransfertManager implements TransfertManager {
 
 	@Override
 	public void canDownload(FileVersionDTO fileVersionDTO, AsyncCallback<Boolean> callback) {
-		callback.onSuccess(state == ApplicationState.ONLINE);
+		callback.onSuccess(state == ApplicationState.ONLINE && fileVersionDTO.isAvailable());
 	}
 
 	@Override

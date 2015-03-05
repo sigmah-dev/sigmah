@@ -45,7 +45,15 @@ public class IndexedDB {
 	
 	private static OpenDatabaseRequest openUserDatabase(final String email) {
         if(database != null) {
-            return new AlreadyOpenedDatabaseRequest(database);
+			if(database.getName().equals(email)) {
+				return new AlreadyOpenedDatabaseRequest(database);
+				
+			} else {
+				// Switching database.
+				state = State.CLOSED;
+				database.close();
+				database = null;
+			}
         }
         
 		if(email == null) {
@@ -56,7 +64,7 @@ public class IndexedDB {
 			return new NoopDatabaseRequest();
 		}
 		if(!GWT.isProdMode()) {
-			Log.warn("IndexedDB is unavailable in Hosted Mode.");
+			Log.info("IndexedDB is unavailable in Hosted Mode.");
 			return new NoopDatabaseRequest();
 		}
         

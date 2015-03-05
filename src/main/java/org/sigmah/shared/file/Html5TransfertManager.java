@@ -72,7 +72,7 @@ class Html5TransfertManager implements TransfertManager, HasProgressListeners {
 	
 	private final List<Task> downloads;
 	private final List<Task> uploads;
-	private int[] currentTasks;
+	private final int[] currentTasks;
 	
 	private final TransfertThread downloadThread;
 	private final TransfertThread uploadThread;
@@ -194,6 +194,9 @@ class Html5TransfertManager implements TransfertManager, HasProgressListeners {
 	
     // Downloads ---------------------------------------------------------------
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void download(final FileVersionDTO fileVersionDTO, final ProgressListener progressListener) {
 		fileDataAsyncDAO.getByFileVersionId(fileVersionDTO.getId(), new AsyncCallback<FileDataJS>() {
@@ -214,6 +217,9 @@ class Html5TransfertManager implements TransfertManager, HasProgressListeners {
 		});
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void cache(final FileVersionDTO fileVersionDTO) {
 		fileDataAsyncDAO.getByFileVersionId(fileVersionDTO.getId(), new AsyncCallback<FileDataJS>() {
@@ -228,6 +234,24 @@ class Html5TransfertManager implements TransfertManager, HasProgressListeners {
 				if(result == null) {
 					queueTask(new Task(TransfertJS.createTransfertJS(fileVersionDTO, TransfertType.DOWNLOAD), null));
 				}
+			}
+		});
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void isCached(FileVersionDTO fileVersionDTO, final AsyncCallback<Boolean> callback) {
+		fileDataAsyncDAO.getByFileVersionId(fileVersionDTO.getId(), new AsyncCallback<FileDataJS>() {
+			@Override
+			public void onFailure(Throwable caught) {
+				callback.onFailure(caught);
+			}
+			
+			@Override
+			public void onSuccess(FileDataJS fileDataJS) {
+				callback.onSuccess(fileDataJS != null);
 			}
 		});
 	}
@@ -285,10 +309,14 @@ class Html5TransfertManager implements TransfertManager, HasProgressListeners {
 		nextDownload();
 	}
     
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void canDownload(FileVersionDTO fileVersionDTO, final AsyncCallback<Boolean> callback) {
         if(state == ApplicationState.ONLINE) {
-            callback.onSuccess(Boolean.TRUE);
+            callback.onSuccess(fileVersionDTO.isAvailable());
+			
         } else {
             fileDataAsyncDAO.getByFileVersionId(fileVersionDTO.getId(), new AsyncCallback<FileDataJS>() {
 
@@ -305,6 +333,9 @@ class Html5TransfertManager implements TransfertManager, HasProgressListeners {
         }
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public int getDownloadQueueSize() {
 		int size = downloads.size();
@@ -316,6 +347,9 @@ class Html5TransfertManager implements TransfertManager, HasProgressListeners {
 	
     // Uploads -----------------------------------------------------------------
     
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void upload(FormPanel formPanel, final ProgressListener progressListener) {
 		final HashMap<String, String> properties = new HashMap<String, String>();
@@ -342,6 +376,9 @@ class Html5TransfertManager implements TransfertManager, HasProgressListeners {
 		prepareFileUpload(blob, properties, progressListener);
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void resumeUpload(final TransfertJS transfertJS) {
 		queueTransfert(transfertJS, new ProgressAdapter() {
@@ -410,11 +447,17 @@ class Html5TransfertManager implements TransfertManager, HasProgressListeners {
 		nextUpload();
 	}
     
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public boolean canUpload() {
 		return true;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public int getUploadQueueSize() {
 		int size = uploads.size();
@@ -426,11 +469,17 @@ class Html5TransfertManager implements TransfertManager, HasProgressListeners {
     
     // Global Progress ---------------------------------------------------------
 
+	/**
+	 * {@inheritDoc}
+	 */
     @Override
     public void setProgressListener(TransfertType type, ProgressListener progressListener) {
         progressListeners.put(type, progressListener);
     }
 
+	/**
+	 * {@inheritDoc}
+	 */
     @Override
     public void removeProgressListener(TransfertType type) {
         progressListeners.remove(type);

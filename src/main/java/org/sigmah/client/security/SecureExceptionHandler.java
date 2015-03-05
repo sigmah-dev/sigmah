@@ -46,7 +46,7 @@ public class SecureExceptionHandler implements ExceptionHandler {
 				Log.error("Exception handler intercepts an IncompatibleRemoteServiceException ; application refresh should fix the problem.", e);
 			}
 
-			N10N.errorNotif(I18N.CONSTANTS.incompatibleRemoteServiceException());
+			N10N.error(I18N.CONSTANTS.incompatibleRemoteServiceException());
 			
 			return Status.RETRY_OFFLINE;
 

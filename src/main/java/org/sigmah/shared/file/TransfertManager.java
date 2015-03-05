@@ -6,6 +6,7 @@ import org.sigmah.shared.dto.value.FileVersionDTO;
 
 /**
  * Handle upload and download of files.
+ * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
 public interface TransfertManager {
@@ -21,11 +22,26 @@ public interface TransfertManager {
 	 * Ask the transfert manager to download a file for future access.
 	 * Will do nothing if not supported.
 	 * 
-	 * @param fileVersionDTO File to download and cache.
+	 * @param fileVersion File to download and cache.
 	 */
-	void cache(FileVersionDTO fileVersionDTO);
+	void cache(FileVersionDTO fileVersion);
 	
-	void canDownload(FileVersionDTO fileVersionDTO, AsyncCallback<Boolean> callback);
+	/**
+	 * Returns <code>true</code> if the given file version has been cached.
+	 * 
+	 * @param fileVersion File to search in the cache.
+	 * @param callback Called with <code>true</code> if the file is cached, <code>false</code> otherwise.
+	 */
+	void isCached(FileVersionDTO fileVersion, AsyncCallback<Boolean> callback);
+	
+	/**
+	 * Returns <code>true</code> if the manager is able to download the given 
+	 * file.
+	 * 
+	 * @param fileVersion File to download.
+	 * @param callback Called with <code>true</code> if the file is downloadable, <code>false</code> otherwise.
+	 */
+	void canDownload(FileVersionDTO fileVersion, AsyncCallback<Boolean> callback);
 	
 	/**
 	 * Upload a file enclosed in a FormPanel.
@@ -35,5 +51,10 @@ public interface TransfertManager {
 	 */
 	void upload(FormPanel formPanel, ProgressListener progressListener);
 	
+	/**
+	 * Returns <code>true</code> if the manager is able to upload a file.
+	 * 
+	 * @return <code>true</code> if the manager can upload a file, <code>false</code> otherwise.
+	 */
 	boolean canUpload();
 }

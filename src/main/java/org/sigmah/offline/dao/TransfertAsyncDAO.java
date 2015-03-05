@@ -69,6 +69,29 @@ public class TransfertAsyncDAO extends AbstractAsyncDAO<TransfertJS> {
         });
 	}
 	
+	public void getByFileVersionId(final int fileVersionId, final AsyncCallback<TransfertJS> callback) {
+		openTransaction(Transaction.Mode.READ_ONLY, new OpenTransactionHandler() {
+
+			@Override
+			public void onTransaction(Transaction transaction) {
+				final ObjectStore objectStore = transaction.getObjectStore(getRequiredStore());
+				
+				objectStore.index("fileVersionId").get(fileVersionId).addCallback(new AsyncCallback<Request>() {
+
+					@Override
+					public void onFailure(Throwable caught) {
+						callback.onFailure(caught);
+					}
+
+					@Override
+					public void onSuccess(Request request) {
+						callback.onSuccess(request.<TransfertJS>getResult());
+					}
+				});
+			}
+		});
+	}
+	
 	public void getAll(final TransfertType type, final AsyncCallback<TransfertJS> callback) {
 		openTransaction(Transaction.Mode.READ_ONLY, new OpenTransactionHandler() {
 

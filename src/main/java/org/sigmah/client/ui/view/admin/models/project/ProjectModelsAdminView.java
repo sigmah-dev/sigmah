@@ -101,7 +101,7 @@ public class ProjectModelsAdminView extends AbstractModelsAdminView<ProjectModel
 		nameField.setValue(model.getName());
 		statusField.setValue(new EnumModel<ProjectModelStatus>(model.getStatus()));
 		modelTypeField.setValue(projectTypeProvider.getProjectModelType(model));
-		getMaintenanceGroupField().setVisible(model.getStatus() == ProjectModelStatus.USED || model.getStatus() == ProjectModelStatus.UNDER_MAINTENANCE);
+		getMaintenanceGroupField().setVisible(model.getStatus() == ProjectModelStatus.USED || model.isUnderMaintenance());
 		getUnderMaintenanceField().setValue(model.getDateMaintenance() != null);
 		getMaintenanceDateField().setValue(model.getDateMaintenance());
 		getMaintenanceTimeField().setValue(model.getDateMaintenance() != null ? getMaintenanceTimeField().findModel(model.getDateMaintenance()) : null);

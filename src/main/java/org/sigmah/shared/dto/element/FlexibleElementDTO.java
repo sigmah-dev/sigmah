@@ -46,7 +46,6 @@ import com.google.gwt.event.shared.HandlerManager;
 import java.util.Date;
 import org.sigmah.client.ui.widget.Loadable;
 import org.sigmah.shared.dto.referential.GlobalPermissionEnum;
-import org.sigmah.shared.dto.referential.ProjectModelStatus;
 import org.sigmah.shared.dto.referential.ValueEventChangeType;
 
 /**
@@ -370,7 +369,7 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 	protected boolean userCanPerformChangeTypeOnProject(ValueEventChangeType changeType, ProjectDTO project) {
 		return
 			// The project model is not under maintenance.
-			project.getProjectModel().getStatus() != ProjectModelStatus.UNDER_MAINTENANCE &&
+			!project.getProjectModel().isUnderMaintenance() &&
 			// The user is not consulting values from an ancient core version.
 			project.getCurrentAmendment() == null &&
 			// The user is granted edit rights on the project.
@@ -399,7 +398,7 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 	protected boolean userCanPerformChangeTypeOnOrgUnit(ValueEventChangeType changeType, OrgUnitDTO orgUnit) {
 		return 
 			// The project model is not under maintenance.
-			orgUnit.getOrgUnitModel().getStatus() != ProjectModelStatus.UNDER_MAINTENANCE &&
+			!orgUnit.getOrgUnitModel().isUnderMaintenance() &&
 			// The is granted edit rights on organizational units.
 			ProfileUtils.isGranted(auth(), GlobalPermissionEnum.EDIT_ORG_UNIT);
 	}

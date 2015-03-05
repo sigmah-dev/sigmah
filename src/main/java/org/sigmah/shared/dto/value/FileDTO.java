@@ -32,13 +32,22 @@ public class FileDTO extends AbstractModelDataEntityDTO<Integer> implements List
 
 		/**
 		 * Loads all versions a a file.
+		 */// Enum values are used in backup archives file names, they should not be modified!
+
+		/**
+		 * Loads all versions a a file.
 		 */
 		ALL_VERSIONS,
 
 		/**
 		 * Loads only last version of a file.
 		 */
-		LAST_VERSION;
+		LAST_VERSION,
+		
+		/**
+		 * Loads only the last version of the not deleted files.
+		 */
+		LAST_VERSION_FROM_NOT_DELETED_FILES;
 
 		/**
 		 * Returns the given {@code value} corresponding {@link LoadingScope}.

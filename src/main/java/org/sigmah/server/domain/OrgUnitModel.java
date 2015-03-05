@@ -230,11 +230,7 @@ public class OrgUnitModel extends AbstractEntityId<Integer> implements Deleteabl
 
 	@Override
 	public ProjectModelStatus getStatus() {
-		if(isUnderMaintenance()) {
-			return ProjectModelStatus.UNDER_MAINTENANCE;
-		} else {
-			return status;
-		}
+		return status;
 	}
 
 	@Override

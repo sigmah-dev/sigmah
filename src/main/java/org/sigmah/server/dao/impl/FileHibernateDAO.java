@@ -56,37 +56,52 @@ public class FileHibernateDAO extends AbstractDAO<File, Integer> implements File
 			loadingScope = LoadingScope.LAST_VERSION;
 		}
 
-		final StringBuilder builder = new StringBuilder();
-
+		// NOTE : StringBuilder has been removed here since all the strings used here are constants.
+		final String request;
+		
 		switch (loadingScope) {
 			case ALL_VERSIONS:
 				// Retrieves all versions of each file.
-				builder.append("SELECT ");
-				builder.append("  fv ");
-				builder.append("FROM ");
-				builder.append("  File f INNER JOIN f.versions fv ");
-				builder.append("WHERE ");
-				builder.append("  f.id IN (:filesIds)");
+				request = "SELECT "
+					+ "  fv "
+					+ "FROM "
+					+ "  File f INNER JOIN f.versions fv "
+					+ "WHERE "
+					+ "  f.id IN (:filesIds)";
 				break;
 
 			case LAST_VERSION:
 				// Retrieves only the last version of each file.
-				builder.append("SELECT ");
-				builder.append("  fv ");
-				builder.append("FROM ");
-				builder.append("  File f INNER JOIN f.versions fv ");
-				builder.append("WHERE ");
-				builder.append("  f.id IN (:filesIds) ");
-				builder.append("  AND fv.versionNumber IN (");
-				builder.append("    SELECT max(fv2.versionNumber) FROM FileVersion fv2 WHERE fv2.parentFile = f");
-				builder.append("  )");
+				request = "SELECT "
+					+ "  fv "
+					+ "FROM "
+					+ "  File f INNER JOIN f.versions fv "
+					+ "WHERE "
+					+ "  f.id IN (:filesIds) "
+					+ "  AND fv.versionNumber IN ("
+					+ "    SELECT max(fv2.versionNumber) FROM FileVersion fv2 WHERE fv2.parentFile = f"
+					+ "  )";
+				break;
+
+			case LAST_VERSION_FROM_NOT_DELETED_FILES:
+				// Retrieves only the last version of each file if the file has not been deleted.
+				request = "SELECT "
+					+ "  fv "
+					+ "FROM "
+					+ "  File f INNER JOIN f.versions fv "
+					+ "WHERE "
+					+ "  f.id IN (:filesIds) "
+					+ "  AND f.dateDeleted IS NULL "
+					+ "  AND fv.versionNumber IN ("
+					+ "    SELECT max(fv2.versionNumber) FROM FileVersion fv2 WHERE fv2.parentFile = f"
+					+ "  )";
 				break;
 
 			default:
 				throw new IllegalArgumentException("Invalid file versions loading mode.");
 		}
 
-		final TypedQuery<FileVersion> query = em().createQuery(builder.toString(), FileVersion.class);
+		final TypedQuery<FileVersion> query = em().createQuery(request, FileVersion.class);
 		query.setParameter("filesIds", filesIds);
 
 		return query.getResultList();
