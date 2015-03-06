@@ -15,7 +15,6 @@ import org.sigmah.server.domain.value.File;
 import org.sigmah.server.domain.value.Value;
 import org.sigmah.server.i18n.I18nServer;
 import org.sigmah.shared.Language;
-import org.sigmah.shared.dispatch.FunctionalException;
 import org.sigmah.shared.dispatch.UpdateConflictException;
 import org.sigmah.shared.dto.referential.AmendmentState;
 import org.sigmah.shared.dto.value.FileUploadUtils;
@@ -52,7 +51,7 @@ public class Conflicts extends EntityManagerProvider {
 	
 	// File conflicts
 	
-	public void searchForFileAddConflicts(Map<String, String> properties, Language language) throws FunctionalException {
+	public void searchForFileAddConflicts(Map<String, String> properties, Language language) throws UpdateConflictException {
 		// Element.
 		final int elementId = ClientUtils.asInt(properties.get(FileUploadUtils.DOCUMENT_FLEXIBLE_ELEMENT), 0);
 		final FilesListElement filesListElement = em().find(FilesListElement.class, elementId);
@@ -63,17 +62,17 @@ public class Conflicts extends EntityManagerProvider {
 		
 		if(project.getCloseDate() != null) {
 			final String fileName = ValueResultUtils.normalizeFileName(properties.get(FileUploadUtils.DOCUMENT_NAME));
-			throw new UpdateConflictException(project, true, i18nServer.t(language, "conflictAddingFileToAClosedProject", fileName, filesListElement.getLabel()));
+			throw new UpdateConflictException(project.toContainerInformation(), true, i18nServer.t(language, "conflictAddingFileToAClosedProject", fileName, filesListElement.getLabel()));
 		}
 		
 		if(isParentPhaseClosed(elementId, projectId)) {
 			final String fileName = ValueResultUtils.normalizeFileName(properties.get(FileUploadUtils.DOCUMENT_NAME));
-			throw new UpdateConflictException(project, true, i18nServer.t(language, "conflictAddingFileToAClosedPhase", fileName, filesListElement.getLabel()));
+			throw new UpdateConflictException(project.toContainerInformation(), true, i18nServer.t(language, "conflictAddingFileToAClosedPhase", fileName, filesListElement.getLabel()));
 		}
 		
 		if(filesListElement.isAmendable() && project.getAmendmentState() == AmendmentState.LOCKED) {
 			final String fileName = ValueResultUtils.normalizeFileName(properties.get(FileUploadUtils.DOCUMENT_NAME));
-			throw new UpdateConflictException(project, true, i18nServer.t(language, "conflictAddingFileToALockedField", fileName, filesListElement.getLabel()));
+			throw new UpdateConflictException(project.toContainerInformation(), true, i18nServer.t(language, "conflictAddingFileToALockedField", fileName, filesListElement.getLabel()));
 		}
 		
 		if(filesListElement.getLimit() != null) {
@@ -97,7 +96,7 @@ public class Conflicts extends EntityManagerProvider {
 				final List<File> files = fileQuery.getResultList();
 				if(files.size() >= filesListElement.getLimit()) {
 					final String fileName = ValueResultUtils.normalizeFileName(properties.get(FileUploadUtils.DOCUMENT_NAME));
-					throw new UpdateConflictException(project, true, i18nServer.t(language, "conflictAddingFileToAFullFileField", fileName, filesListElement.getLabel()));
+					throw new UpdateConflictException(project.toContainerInformation(), true, i18nServer.t(language, "conflictAddingFileToAFullFileField", fileName, filesListElement.getLabel()));
 				}
 			}
 		}

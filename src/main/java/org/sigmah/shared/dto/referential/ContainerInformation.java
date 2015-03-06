@@ -7,29 +7,29 @@ import java.io.Serializable;
  * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
-public class Container implements Serializable {
+public class ContainerInformation implements Serializable {
 	
 	private int id;
 	private String name;
 	private String fullName;
-	private ContainerType type;
+	private boolean project;
 
-	protected Container() {
+	protected ContainerInformation() {
 		// Serialization.
 	}
 
-	public Container(int id, String name, String fullName, ContainerType type) {
+	public ContainerInformation(int id, String name, String fullName, boolean project) {
 		this.id = id;
 		this.name = name;
 		this.fullName = fullName;
-		this.type = type;
+		this.project = project;
 	}
 
 	@Override
 	public int hashCode() {
 		int hash = 7;
 		hash = 17 * hash + this.id;
-		hash = 17 * hash + (this.type != null ? this.type.hashCode() : 0);
+		hash = 17 * hash + (this.project ? 13 : 19);
 		return hash;
 	}
 
@@ -41,11 +41,11 @@ public class Container implements Serializable {
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
-		final Container other = (Container) obj;
+		final ContainerInformation other = (ContainerInformation) obj;
 		if (this.id != other.id) {
 			return false;
 		}
-		return this.type == other.type;
+		return this.project == other.project;
 	}
 
 	public int getId() {
@@ -72,12 +72,12 @@ public class Container implements Serializable {
 		this.fullName = fullName;
 	}
 
-	public ContainerType getType() {
-		return type;
+	public boolean isProject() {
+		return project;
 	}
 
-	public void setType(ContainerType type) {
-		this.type = type;
+	public void setProject(boolean project) {
+		this.project = project;
 	}
 	
 }

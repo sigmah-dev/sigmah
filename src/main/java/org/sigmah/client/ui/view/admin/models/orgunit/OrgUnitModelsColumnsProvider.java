@@ -114,7 +114,10 @@ abstract class OrgUnitModelsColumnsProvider {
 			public Object render(final OrgUnitModelDTO model, final String property, final ColumnData config, final int rowIndex, final int colIndex,
 					final ListStore<OrgUnitModelDTO> store, final Grid<OrgUnitModelDTO> grid) {
 
-				return model.getStatus() != null ? ProjectModelStatus.getName(model.getStatus()) : "";
+				final ProjectModelStatus status = !model.isUnderMaintenance() ?
+					model.getStatus() : ProjectModelStatus.UNDER_MAINTENANCE;
+				
+				return status != null ? ProjectModelStatus.getName(status) : "";
 			}
 		});
 		configs.add(column);

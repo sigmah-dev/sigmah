@@ -224,7 +224,7 @@ public class BudgetElementDTO extends DefaultFlexibleElementDTO {
 	}
 
 	@Override
-	protected Component getComponentInBanner(ValueResult valueResult, boolean enabled) {
+	protected Component getComponentInBanner(ValueResult valueResult) {
 
 		if (currentContainerDTO instanceof DefaultFlexibleElementContainer) {
 			container = (DefaultFlexibleElementContainer) currentContainerDTO;

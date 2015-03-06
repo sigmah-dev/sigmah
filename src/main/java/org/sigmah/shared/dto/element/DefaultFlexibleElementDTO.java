@@ -113,7 +113,7 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected Component getComponentInBanner(ValueResult valueResult, boolean enabled) {
+	protected Component getComponentInBanner(ValueResult valueResult) {
 
 		if (currentContainerDTO instanceof DefaultFlexibleElementContainer) {
 			container = (DefaultFlexibleElementContainer) currentContainerDTO;
@@ -122,7 +122,7 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 				"The flexible elements container isn't an instance of DefaultFlexibleElementContainer. The default flexible element connot be instanciated.");
 		}
 		// Budget case handled by the budget element itself
-		return super.getComponentInBanner(valueResult, enabled);
+		return super.getComponentInBanner(valueResult);
 
 	}
 

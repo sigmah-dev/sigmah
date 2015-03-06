@@ -162,9 +162,6 @@ public class ProjectDetailsPresenter extends AbstractProjectPresenter<ProjectDet
 		// Layout.
 		final LayoutDTO layout = details.getLayout();
 
-		// If the element are read only.
-		final boolean readOnly = !ProfileUtils.isGranted(auth(), GlobalPermissionEnum.EDIT_PROJECT) || getProject().getCurrentPhase().isEnded();
-
 		// Counts elements.
 		int count = 0;
 		for (final LayoutGroupDTO groupDTO : layout.getGroups()) {
@@ -254,9 +251,9 @@ public class ProjectDetailsPresenter extends AbstractProjectPresenter<ProjectDet
 
 						// Generates element component (with the value).
 						elementDTO.init();
-						final Component elementComponent = elementDTO.getElementComponent(valueResult, !readOnly && !valueResult.isAmendment());
+						final Component elementComponent = elementDTO.getElementComponent(valueResult);
 
-						if(elementDTO.getAmendable() && projectPresenter.projectIsLocked() && projectPresenter.canUnlockProject()) {
+						if(elementDTO.getAmendable() && projectPresenter.projectIsLocked() && projectPresenter.canUnlockProject() && !ProfileUtils.isGranted(auth(), GlobalPermissionEnum.MODIFY_LOCKED_CONTENT)) {
 							projectPresenter.addUnlockProjectPopup(elementDTO, elementComponent, new LoadingMask(view.getMainPanel()));
 						}
 						

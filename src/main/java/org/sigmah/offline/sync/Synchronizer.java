@@ -41,8 +41,7 @@ import org.sigmah.shared.command.result.SynchronizeResult;
 import org.sigmah.shared.dto.ProjectFundingDTO;
 import org.sigmah.shared.dto.calendar.CalendarType;
 import org.sigmah.shared.dto.calendar.PersonalCalendarIdentifier;
-import org.sigmah.shared.dto.referential.Container;
-import org.sigmah.shared.dto.referential.ContainerType;
+import org.sigmah.shared.dto.referential.ContainerInformation;
 import org.sigmah.shared.dto.report.ProjectReportDTO;
 import org.sigmah.shared.dto.report.ReportReference;
 
@@ -105,8 +104,8 @@ public class Synchronizer {
 								if(!result.getErrors().isEmpty()) {
 									final StringBuilder errorBuilder = new StringBuilder();
 
-									for(final Map.Entry<Container, List<String>> entry : result.getErrors().entrySet()) {
-										if(entry.getKey().getType() == ContainerType.PROJECT) {
+									for(final Map.Entry<ContainerInformation, List<String>> entry : result.getErrors().entrySet()) {
+										if(entry.getKey().isProject()) {
 											errorBuilder.append(I18N.CONSTANTS.project());
 										} else {
 											errorBuilder.append(I18N.CONSTANTS.orgunit());

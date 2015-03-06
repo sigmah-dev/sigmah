@@ -134,10 +134,8 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> {
 			// Stores the change to be saved later.
 			valueChanges.add(event);
 
-			if (!getCurrentDisplayedPhaseDTO().isEnded()) {
-				// Enables the save action.
-				view.getButtonSavePhase().enable();
-			}
+			// Enables the save action.
+			view.getButtonSavePhase().enable();
 		}
 	}
 
@@ -146,7 +144,7 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> {
 	 */
 	private class RequiredValueHandlerImpl implements RequiredValueHandler {
 
-		private FlexibleElementDTO elementDTO;
+		private final FlexibleElementDTO elementDTO;
 
 		public RequiredValueHandlerImpl(FlexibleElementDTO elementDTO) {
 			this.elementDTO = elementDTO;
@@ -198,7 +196,7 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> {
 	 * A map to maintain the current displayed phase required elements states.
 	 */
 	private RequiredValueStateList currentPhaseRequiredElements;
-
+	
 	/**
 	 * Presenters initialization.
 	 * 
@@ -395,9 +393,10 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> {
 				public void handleEvent(ComponentEvent tpe) {
 
 					final PhaseDTO toDisplayPhase = retrievePhaseDTO();
-
+					
 					if (!view.getButtonSavePhase().isEnabled() || isEndedPhase(getCurrentDisplayedPhaseDTO())) {
-						// If the current phase has been modified and it isn't ended.
+						// Load the selected phase without asking a question
+						// if the current phase has not been modified or if it is ended.
 						loadPhaseOnTab(toDisplayPhase);
 						return;
 					}
@@ -514,7 +513,7 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> {
 	private void loadPhaseOnTab(final PhaseDTO phaseDTO) {
 
 		// If the element are read only.
-		final boolean readOnly = isEndedPhase(phaseDTO) || !ProfileUtils.isGranted(auth(), GlobalPermissionEnum.EDIT_PROJECT);
+		final boolean phaseIsEnded = isEndedPhase(phaseDTO);
 
 		// Masks the main panel.
 		int count = 0;
@@ -532,7 +531,7 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> {
 		// Clears the required elements map for the current displayed phase.
 		currentPhaseRequiredElements.clear();
 		valueChanges.clear();
-
+		
 		// --
 		// -- CLEARS PANELS
 		// --
@@ -636,9 +635,9 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> {
 							
 							// Generates element component (with the value).
 							elementDTO.init();
-							final Component elementComponent = elementDTO.getElementComponent(valueResult, !readOnly && !valueResult.isAmendment());
+							final Component elementComponent = elementDTO.getElementComponent(valueResult, phaseIsEnded);
 							
-							if(elementDTO.getAmendable() && projectPresenter.projectIsLocked() && projectPresenter.canUnlockProject()) {
+							if(elementDTO.getAmendable() && projectPresenter.projectIsLocked() && projectPresenter.canUnlockProject() && !ProfileUtils.isGranted(auth(), GlobalPermissionEnum.MODIFY_LOCKED_CONTENT)) {
 								projectPresenter.addUnlockProjectPopup(elementDTO, elementComponent, view);
 							}
 							
@@ -716,12 +715,17 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> {
 	private void refreshActionsToolbar() {
 
 		// If the current displayed phase is ended, the toolbar is hidden.
-		if (isEndedPhase(getCurrentDisplayedPhaseDTO())) {
+		if (isEndedPhase(getCurrentDisplayedPhaseDTO()) &&  
+			// An exception is made if the user is authorized to edit ended phases.
+			!ProfileUtils.isGranted(auth(), GlobalPermissionEnum.MODIFY_LOCKED_CONTENT)) {
+			// Hide the toolbar.
 			view.flushToolbar();
 			return;
 		}
 
-		view.fillToolbar(ProfileUtils.isGranted(auth(), GlobalPermissionEnum.CHANGE_PHASE));
+		view.fillToolbar(ProfileUtils.isGranted(auth(), GlobalPermissionEnum.CHANGE_PHASE) &&
+			// Do not add the change phase button if the phase is already closed.
+			!isEndedPhase(getCurrentDisplayedPhaseDTO()));
 
 		// --
 		// -- ACTION: ACTIVATE OR CLOSE PHASE
@@ -815,10 +819,8 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> {
 			view.getButtonSavePhase().removeAllListeners();
 		}
 
-		// If the phase isn't ended, adds the save action.
-		if (!isEndedPhase(getCurrentDisplayedPhaseDTO())) {
-			view.getButtonSavePhase().addListener(Events.OnClick, new SaveListener());
-		}
+		// Adds the save action.
+		view.getButtonSavePhase().addListener(Events.OnClick, new SaveListener());
 
 		// --
 		// -- ACTION: PHASE GUIDE

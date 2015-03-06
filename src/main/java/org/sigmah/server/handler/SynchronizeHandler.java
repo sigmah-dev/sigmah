@@ -2,6 +2,7 @@ package org.sigmah.server.handler;
 
 import com.google.inject.Inject;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,8 +18,7 @@ import org.sigmah.shared.command.result.Result;
 import org.sigmah.shared.command.result.SynchronizeResult;
 import org.sigmah.shared.dispatch.CommandException;
 import org.sigmah.shared.dispatch.UpdateConflictException;
-import org.sigmah.shared.dto.referential.Container;
-import org.sigmah.shared.dto.referential.ContainerType;
+import org.sigmah.shared.dto.referential.ContainerInformation;
 import org.sigmah.shared.dto.referential.EmailKey;
 import org.sigmah.shared.dto.referential.EmailKeyEnum;
 import org.sigmah.shared.dto.referential.EmailType;
@@ -40,7 +40,7 @@ public class SynchronizeHandler extends AbstractCommandHandler<Synchronize, Sync
 	
     @Override
     protected SynchronizeResult execute(Synchronize synchronize, UserDispatch.UserExecutionContext context) throws CommandException {
-		final HashMap<Container, List<String>> errors = new HashMap<>();
+		final HashMap<ContainerInformation, List<String>> errors = new HashMap<>();
 		final HashMap<Integer, Integer> files = new HashMap<>();
 		boolean errorConcernFiles = false;
 		
@@ -62,7 +62,7 @@ public class SynchronizeHandler extends AbstractCommandHandler<Synchronize, Sync
 			} catch(UpdateConflictException e) {
 				errorConcernFiles |= e.isFile();
 				
-				final Container container = e.toContainer();
+				final ContainerInformation container = e.getContainer();
 				List<String> list = errors.get(container);
 				
 				if(list == null) {
@@ -70,9 +70,7 @@ public class SynchronizeHandler extends AbstractCommandHandler<Synchronize, Sync
 					errors.put(container, list);
 				}
 				
-				for(int index = 0; index < e.getParameterCount(); index++) {
-					list.add(e.getParameter(index));
-				}
+				list.addAll(Arrays.asList(e.getParameters()));
 			}
         }
 		
@@ -83,11 +81,11 @@ public class SynchronizeHandler extends AbstractCommandHandler<Synchronize, Sync
         return new SynchronizeResult(errors, errorConcernFiles, files);
     }
     
-	private void sendErrorsByMailToCurrentUser(Map<Container, List<String>> errors, boolean hasFiles, UserDispatch.UserExecutionContext context) {
+	private void sendErrorsByMailToCurrentUser(Map<ContainerInformation, List<String>> errors, boolean hasFiles, UserDispatch.UserExecutionContext context) {
 		// Format the error list.
 		final StringBuilder ulBuilder = new StringBuilder();
-		for(final Map.Entry<Container, List<String>> entry : errors.entrySet()) {
-			if(entry.getKey().getType() == ContainerType.PROJECT) {
+		for(final Map.Entry<ContainerInformation, List<String>> entry : errors.entrySet()) {
+			if(entry.getKey().isProject()) {
 				ulBuilder.append(i18nServer.t(context.getLanguage(), "project"));
 			} else {
 				ulBuilder.append(i18nServer.t(context.getLanguage(), "orgunit"));

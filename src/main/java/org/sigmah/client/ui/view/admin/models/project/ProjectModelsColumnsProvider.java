@@ -102,7 +102,10 @@ abstract class ProjectModelsColumnsProvider {
 			public Object render(final ProjectModelDTO model, final String property, final ColumnData config, final int rowIndex, final int colIndex,
 					final ListStore<ProjectModelDTO> store, final Grid<ProjectModelDTO> grid) {
 
-				return model.getStatus() != null ? ProjectModelStatus.getName(model.getStatus()) : "";
+				final ProjectModelStatus status = !model.isUnderMaintenance() ?
+					model.getStatus() : ProjectModelStatus.UNDER_MAINTENANCE;
+				
+				return status != null ? ProjectModelStatus.getName(status) : "";
 			}
 		});
 		configs.add(column);

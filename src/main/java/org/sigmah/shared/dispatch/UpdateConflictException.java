@@ -1,9 +1,6 @@
 package org.sigmah.shared.dispatch;
 
-import org.sigmah.server.domain.OrgUnit;
-import org.sigmah.server.domain.Project;
-import org.sigmah.shared.dto.referential.Container;
-import org.sigmah.shared.dto.referential.ContainerType;
+import org.sigmah.shared.dto.referential.ContainerInformation;
 
 /**
  * Sub type of {@link FunctionException}.
@@ -13,48 +10,41 @@ import org.sigmah.shared.dto.referential.ContainerType;
  */
 public class UpdateConflictException extends FunctionalException {
 	
-	private String containerType;
-	private int containerId;
-	private String containerName;
-	private String containerFullName;
+	/**
+	 * Information about the modified project/org unit.
+	 */
+	private ContainerInformation container;
+	
+	/**
+	 * <code>true</code> if this conflict concern a file operation.
+	 */
 	private boolean file;
-
+	
 	protected UpdateConflictException() {
 		// Serialization.
-		this(null, -1, null, null, false);
 	}
 	
-	public UpdateConflictException(Project project, String... parameters) {
-		this(ContainerType.PROJECT, project.getId(), project.getName(), project.getFullName(), false, parameters);
+	public UpdateConflictException(ContainerInformation container, String... parameters) {
+		this(container, false, parameters);
 	}
 
-	public UpdateConflictException(OrgUnit orgUnit, String... parameters) {
-		this(ContainerType.ORG_UNIT, orgUnit.getId(), orgUnit.getName(), orgUnit.getFullName(), false, parameters);
-	}
-
-	public UpdateConflictException(Project project, boolean file, String... parameters) {
-		this(ContainerType.PROJECT, project.getId(), project.getName(), project.getFullName(), file, parameters);
-	}
-
-	public UpdateConflictException(OrgUnit orgUnit, boolean file, String... parameters) {
-		this(ContainerType.ORG_UNIT, orgUnit.getId(), orgUnit.getName(), orgUnit.getFullName(), file, parameters);
-	}
-
-	public UpdateConflictException(ContainerType containerType, int containerId, String containerName, String containerFullName, boolean file, String... parameters) {
+	public UpdateConflictException(ContainerInformation container, boolean file, String... parameters) {
 		super(ErrorCode.UPDATE_CONFLICT, parameters);
-		this.containerType = containerType != null ? containerType.name() : null;
-		this.containerId = containerId;
-		this.containerName = containerName;
-		this.containerFullName = containerFullName;
+		this.container = container;
 		this.file = file;
+		this.parameters = parameters;
 	}
 
-	public Container toContainer() {
-		return new Container(containerId, containerName, containerFullName, containerType != null ? ContainerType.valueOf(containerType) : null);
+	public ContainerInformation getContainer() {
+		return container;
 	}
 
 	public boolean isFile() {
 		return file;
+	}
+
+	public String[] getParameters() {
+		return parameters;
 	}
 	
 }

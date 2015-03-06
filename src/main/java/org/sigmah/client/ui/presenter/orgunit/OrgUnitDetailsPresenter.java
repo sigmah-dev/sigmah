@@ -191,9 +191,6 @@ public class OrgUnitDetailsPresenter extends AbstractOrgUnitPresenter<OrgUnitDet
 		// Layout.
 		final LayoutDTO layout = details.getLayout();
 
-		// If the user has the right to modify the element
-		final boolean enabled = ProfileUtils.isGranted(auth(), GlobalPermissionEnum.EDIT_ORG_UNIT);
-
 		// Counts elements.
 		int count = 0;
 		for (final LayoutGroupDTO groupDTO : layout.getGroups()) {
@@ -274,7 +271,7 @@ public class OrgUnitDetailsPresenter extends AbstractOrgUnitPresenter<OrgUnitDet
 
 						// Generates element component (with the value).
 						elementDTO.init();
-						final Component elementComponent = elementDTO.getElementComponent(valueResult, enabled);
+						final Component elementComponent = elementDTO.getElementComponent(valueResult);
 
 						// Component width.
 						final FormData formData;

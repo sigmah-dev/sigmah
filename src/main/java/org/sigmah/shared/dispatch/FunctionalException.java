@@ -201,7 +201,7 @@ public class FunctionalException extends CommandException {
 	 * The error message relative parameters. Can be {@code null}.<br/>
 	 * They are used to populate dynamic message parameters (be careful with order).
 	 */
-	private String[] parameters;
+	protected String[] parameters;
 
 	protected FunctionalException() {
 		// Serialization.

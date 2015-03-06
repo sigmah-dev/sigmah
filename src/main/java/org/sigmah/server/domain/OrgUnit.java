@@ -20,12 +20,12 @@ import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import javax.persistence.Transient;
 import javax.validation.constraints.Size;
 
 import org.sigmah.server.domain.base.AbstractEntityId;
 import org.sigmah.server.domain.util.EntityConstants;
 import org.sigmah.server.domain.util.SchemaElement;
+import org.sigmah.shared.dto.referential.ContainerInformation;
 
 /**
  * <p>
@@ -122,6 +122,15 @@ public class OrgUnit extends AbstractEntityId<Integer> implements SchemaElement 
 	//
 	// --------------------------------------------------------------------------------
 
+	/**
+	 * Returns a serializable object with basic information about this object.
+	 * 
+	 * @return Basic information about this orgunit as a ContainerInformation instance.
+	 */
+	public ContainerInformation toContainerInformation() {
+		return new ContainerInformation(getId(), getName(), getFullName(), true);
+	}
+	
 	/**
 	 * <p>
 	 * Overrides default behaviour to only display {@link #getName()} value.

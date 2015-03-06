@@ -40,13 +40,17 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
 import org.sigmah.server.handler.util.Conflicts;
+import org.sigmah.server.handler.util.Handlers;
 import org.sigmah.server.i18n.I18nServer;
 import org.sigmah.shared.Language;
 import org.sigmah.shared.dispatch.FunctionalException;
 import org.sigmah.shared.dispatch.UpdateConflictException;
 import org.sigmah.shared.dto.element.BudgetElementDTO;
 import org.sigmah.shared.dto.element.BudgetSubFieldDTO;
+import org.sigmah.shared.dto.profile.ProfileDTO;
 import org.sigmah.shared.dto.referential.AmendmentState;
+import org.sigmah.shared.dto.referential.GlobalPermissionEnum;
+import org.sigmah.shared.util.ProfileUtils;
 
 /**
  * Updates the values of the flexible elements for a specific project.
@@ -102,7 +106,7 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 		return null;
 	}
 
-	@Transactional
+	@Transactional(rollbackOn = CommandException.class)
 	protected void updateProject(final List<ValueEventWrapper> values, final Integer projectId, UserExecutionContext context, String comment) throws CommandException {
 		// This date must be the same for all the saved values !
 		final Date historyDate = new Date();
@@ -111,7 +115,7 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 		final Project project = em().find(Project.class, projectId);
 		
 		// Verify if the modifications conflicts with the project state.
-		final List<String> conflicts = searchForConflicts(project, values, context.getLanguage());
+		final List<String> conflicts = searchForConflicts(project, values, context);
 		
 		final User user = context.getUser();
 		
@@ -276,7 +280,7 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 
 		if(!conflicts.isEmpty()) {
 			// A conflict was found.
-			throw new UpdateConflictException(updatedProject, conflicts.toArray(new String[0]));
+			throw new UpdateConflictException(updatedProject.toContainerInformation(), conflicts.toArray(new String[0]));
 		}
 	}
 
@@ -656,13 +660,21 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 	 * @param projectId 
 	 * @throws FunctionalException 
 	 */
-	private List<String> searchForConflicts(final Project project, final List<ValueEventWrapper> values, Language language) throws FunctionalException {
+	private List<String> searchForConflicts(final Project project, final List<ValueEventWrapper> values, UserExecutionContext context) throws FunctionalException {
 		
 		final ArrayList<String> conflicts = new ArrayList<>();
 		
 		if(project == null) {
 			// The user is modifying an org unit.
 			// TODO: Verify if the user has the right to modify the org unit.
+			return conflicts;
+		}
+		
+		final Language language = context.getLanguage();
+		final ProfileDTO profile = Handlers.aggregateProfiles(context.getUser(), mapper);
+		
+		if(ProfileUtils.isGranted(profile, GlobalPermissionEnum.MODIFY_LOCKED_CONTENT)) {
+			// The user is allowed to edit locked fields.
 			return conflicts;
 		}
 		

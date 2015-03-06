@@ -82,6 +82,7 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 	protected transient EventBus eventBus;
 	protected transient AuthenticationProvider authenticationProvider;
 	protected transient FlexibleElementContainer currentContainerDTO;
+	protected transient boolean phaseIsEnded;
 	protected transient TransfertManager transfertManager;
 	protected transient int preferredWidth;
 	private transient Menu historyMenu;
@@ -175,7 +176,7 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 	 *         element).
 	 */
 	public Component getElementComponent(ValueResult valueResult) {
-		return getComponentWithHistory(valueResult, true, false);
+		return getComponentWithHistory(valueResult, false, false);
 	}
 
 	/**
@@ -195,13 +196,13 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 	 * 
 	 * @param valueResult
 	 *          value of the flexible element, or {@code null} to display the element without its value.
-	 * @param enabled
+	 * @param phaseIsEnded
 	 *          If the component is enabled.
 	 * @return The widget corresponding to the flexible element (can be <code>null</code> if the user cannot see this
 	 *         element).
 	 */
-	public Component getElementComponent(ValueResult valueResult, boolean enabled) {
-		return getComponentWithHistory(valueResult, enabled, false);
+	public Component getElementComponent(ValueResult valueResult, boolean phaseIsEnded) {
+		return getComponentWithHistory(valueResult, phaseIsEnded, false);
 	}
 	
 	/**
@@ -209,23 +210,27 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 	 * 
 	 * @param valueResult
 	 *          value of the flexible element, or {@code null} to display the element without its value.
-	 * @param enabled
+	 * @param phaseIsEnded
 	 *          If the component is enabled.
 	 * @param inBanner
 	 *          If the component will be displayed in the banner.
 	 * @return The widget component.
 	 */
-	private Component getComponentWithHistory(ValueResult valueResult, boolean enabled, boolean inBanner) {
+	private Component getComponentWithHistory(ValueResult valueResult, boolean phaseIsEnded, boolean inBanner) {
 
 		if(ProfileUtils.getPermission(auth(), getPrivacyGroup()) == PrivacyGroupPermissionEnum.NONE) {
 			return null;
 		}
 		
+		this.phaseIsEnded = phaseIsEnded;
+		
 		// Checking if the user has the right to edit this element.
-		enabled = enabled && userCanPerformChangeType(ValueEventChangeType.EDIT);
+		final boolean enabled = userCanPerformChangeType(ValueEventChangeType.EDIT);
+		
+		// Building the component.
+		Component component = inBanner ? getComponentInBanner(valueResult) : getComponent(valueResult, enabled);
 
-		Component component = inBanner ? getComponentInBanner(valueResult, enabled) : getComponent(valueResult, enabled);
-
+		// Adding the DNA icon if this field is part of the core version.
 		if(getAmendable() && component instanceof Field) {
 			final Field<?> field = (Field<?>)component;
 			field.setFieldLabel(field.getFieldLabel() + "&nbsp;" + IconImageBundle.ICONS.DNABrownGreen().getHTML());
@@ -308,12 +313,10 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 	 * 
 	 * @param valueResult
 	 *          value of the flexible element, or {@code null} to display the element without its value.
-	 * @param enabled
-	 *          If the component is enabled.
 	 * @return the widget corresponding to the flexible element.
 	 */
-	protected Component getComponentInBanner(ValueResult valueResult, boolean enabled) {
-		return getComponent(valueResult, enabled);
+	protected Component getComponentInBanner(ValueResult valueResult) {
+		return getComponent(valueResult, false);
 	}
 
 	/**
@@ -367,11 +370,23 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 	 * <code>changeType</code>, <code>false</code> otherwise.
 	 */
 	protected boolean userCanPerformChangeTypeOnProject(ValueEventChangeType changeType, ProjectDTO project) {
+		// No modifications are possible if the model is under maintenance or
+		// if the user is consulting a previous core version.
+		if(project.getProjectModel().isUnderMaintenance() || project.getCurrentAmendment() != null) {
+			return false;
+		}
+		
+		// Special case for users with the MODIFY_LOCKED_CONTENT permission.
+		if(ProfileUtils.isGranted(auth(), GlobalPermissionEnum.MODIFY_LOCKED_CONTENT) &&
+			(phaseIsEnded || project.isClosed() || project.getAmendmentState() == AmendmentState.LOCKED)) {
+			return changeType != ValueEventChangeType.REMOVE;
+		}
+		
 		return
-			// The project model is not under maintenance.
-			!project.getProjectModel().isUnderMaintenance() &&
-			// The user is not consulting values from an ancient core version.
-			project.getCurrentAmendment() == null &&
+			// Current phase is opened.
+			!phaseIsEnded &&
+			// Current project is opened.
+			!project.isClosed() &&
 			// The user is granted edit rights on the project.
 			ProfileUtils.isGranted(auth(), GlobalPermissionEnum.EDIT_PROJECT) && (
 				// This element is not part of the core version

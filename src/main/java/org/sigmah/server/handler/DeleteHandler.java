@@ -36,7 +36,7 @@ import org.sigmah.server.domain.value.FileVersion;
 import org.sigmah.server.handler.util.Conflicts;
 import org.sigmah.server.i18n.I18nServer;
 import org.sigmah.shared.Language;
-import org.sigmah.shared.dispatch.FunctionalException;
+import org.sigmah.shared.dispatch.CommandException;
 import org.sigmah.shared.dispatch.UpdateConflictException;
 import org.sigmah.shared.dto.referential.AmendmentState;
 
@@ -63,7 +63,7 @@ public class DeleteHandler extends AbstractCommandHandler<Delete, VoidResult> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public VoidResult execute(final Delete cmd, final UserExecutionContext context) throws FunctionalException {
+	public VoidResult execute(final Delete cmd, final UserExecutionContext context) throws CommandException {
 
 		// TODO check permissions for delete!
 		// These handler should redirect to one of the Entity policy classes.
@@ -81,10 +81,10 @@ public class DeleteHandler extends AbstractCommandHandler<Delete, VoidResult> {
 	 * @param entityClass Type of the entity to delete.
 	 * @param language Language of the current user.
 	 * 
-	 * @throws org.sigmah.shared.dispatch.FunctionalException If the object can't be deleted.
+	 * @throws org.sigmah.shared.dispatch.CommandException If the object can't be deleted.
 	 */
-	@Transactional
-	protected void performDelete(final Delete cmd, final Class<? extends Deleteable> entityClass, final Language language) throws FunctionalException {
+	@Transactional(rollbackOn = CommandException.class)
+	protected void performDelete(final Delete cmd, final Class<? extends Deleteable> entityClass, final Language language) throws CommandException {
 		if (ProjectModelStatus.DRAFT.equals(cmd.getProjectModelStatus()) && ProjectModelDTO.ENTITY_NAME.equals(cmd.getEntityName())) {
 			// Delete draft project model
 			final ProjectModel projectModel = (ProjectModel) em().find(entityClass, cmd.getId());
@@ -301,7 +301,7 @@ public class DeleteHandler extends AbstractCommandHandler<Delete, VoidResult> {
 		em().flush();
 	}
 
-	private void searchForConflicts(Deleteable deleteable, Language language) throws FunctionalException {
+	private void searchForConflicts(Deleteable deleteable, Language language) throws UpdateConflictException {
 		// For now, this method only verify conflicts with files since the
 		// offline mode handle only file deletion.
 		
@@ -324,13 +324,13 @@ public class DeleteHandler extends AbstractCommandHandler<Delete, VoidResult> {
 			
 			if(filesListElement != null && project != null) {
 				if(project.getCloseDate() != null) {
-					throw new UpdateConflictException(project, i18nServer.t(language, "conflictRemovingFileFromAClosedProject", filesListElement.getLabel()));
+					throw new UpdateConflictException(project.toContainerInformation(), i18nServer.t(language, "conflictRemovingFileFromAClosedProject", filesListElement.getLabel()));
 					
 				} else if(conflicts.isParentPhaseClosed(filesListElement.getId(), project.getId())) {
-					throw new UpdateConflictException(project, i18nServer.t(language, "conflictRemovingFileFromAClosedPhase", filesListElement.getLabel()));
+					throw new UpdateConflictException(project.toContainerInformation(), i18nServer.t(language, "conflictRemovingFileFromAClosedPhase", filesListElement.getLabel()));
 					
 				} else if(project.getAmendmentState() == AmendmentState.LOCKED && filesListElement.isAmendable()) {
-					throw new UpdateConflictException(project, i18nServer.t(language, "conflictRemovingFileFromALockedField", filesListElement.getLabel()));
+					throw new UpdateConflictException(project.toContainerInformation(), i18nServer.t(language, "conflictRemovingFileFromALockedField", filesListElement.getLabel()));
 				}
 			}
 		}

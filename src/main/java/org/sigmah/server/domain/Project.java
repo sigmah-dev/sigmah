@@ -28,6 +28,7 @@ import org.sigmah.server.domain.reminder.MonitoredPointList;
 import org.sigmah.server.domain.reminder.ReminderList;
 import org.sigmah.server.domain.util.EntityConstants;
 import org.sigmah.shared.dto.referential.AmendmentState;
+import org.sigmah.shared.dto.referential.ContainerInformation;
 
 /**
  * <p>
@@ -150,6 +151,15 @@ public class Project extends UserDatabase {
 
 		phases.add(phase);
 		phase.setParentProject(this);
+	}
+	
+	/**
+	 * Returns a serializable object with basic information about this object.
+	 * 
+	 * @return Basic information about this project as a ContainerInformation instance.
+	 */
+	public ContainerInformation toContainerInformation() {
+		return new ContainerInformation(getId(), getName(), getFullName(), true);
 	}
 
 	/**
