@@ -4,6 +4,8 @@ import org.sigmah.client.i18n.I18N;
 import org.sigmah.shared.command.result.Result;
 
 import com.google.gwt.core.client.GWT;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * List of the global permissions.
@@ -27,12 +29,17 @@ public enum GlobalPermissionEnum implements Result {
 	/**
 	 * Edit and save the project details, the project phases, the project funding, the log frame and the calendar.
 	 */
-	EDIT_PROJECT(GlobalPermissionCategory.PROJECT),
+	EDIT_PROJECT(VIEW_PROJECT),
 
 	/**
 	 * Create a new project or a new funding.
 	 */
 	CREATE_PROJECT(GlobalPermissionCategory.PROJECT),
+	
+	/**
+	 * Create a new test project.
+	 */
+	CREATE_TEST_PROJECT(CREATE_PROJECT),
 
 	/**
 	 * Delete a project.
@@ -47,55 +54,48 @@ public enum GlobalPermissionEnum implements Result {
 	/**
 	 * Modify locked content. (i. e. content of closed phases and content of closed projects).
 	 */
-	MODIFY_LOCKED_CONTENT(GlobalPermissionCategory.PROJECT),
+	MODIFY_LOCKED_CONTENT(EDIT_PROJECT),
 	
 	/**
 	 * Remove a file (in the files list flexible element of projects).
 	 */
-	REMOVE_PROJECT_FILE(GlobalPermissionCategory.PROJECT),
+	REMOVE_PROJECT_FILE(EDIT_PROJECT),
 
 	/**
 	 * Close or activate a phase.
 	 */
-	CHANGE_PHASE(GlobalPermissionCategory.PROJECT),
+	CHANGE_PHASE(EDIT_PROJECT),
 	
 	/**
 	 * For relating projects.
 	 */
-	RELATE_PROJECT(GlobalPermissionCategory.PROJECT),
+	RELATE_PROJECT(EDIT_PROJECT),
 	
 	/**
 	 * Validate the amendement.
 	 */
-	VALID_AMENDEMENT(GlobalPermissionCategory.PROJECT),
+	VALID_AMENDEMENT(EDIT_PROJECT),
 
 	/**
 	 * for viewing the logframe sub-tab.
 	 */
-	VIEW_LOGFRAME(GlobalPermissionCategory.PROJECT),
+	VIEW_LOGFRAME(VIEW_PROJECT),
 
 	/**
 	 * for creating/modifying/deleting objectives, expected results, activities,
 	 * hypothesis or linking/unlinking indicators to the logframe.
 	 */
-	EDIT_LOGFRAME(GlobalPermissionCategory.PROJECT),
+	EDIT_LOGFRAME(VIEW_LOGFRAME),
 
 	/**
 	 * for viewing the agenda sub-tab.
 	 */
-	VIEW_PROJECT_AGENDA(GlobalPermissionCategory.PROJECT),
+	VIEW_PROJECT_AGENDA(VIEW_PROJECT),
 
 	/**
 	 * for creating/deleting/modifying events in the agenda.
 	 */
-	EDIT_PROJECT_AGENDA(GlobalPermissionCategory.PROJECT),
-	
-	/**
-	 * for creating/deleting/modifying/closing reminders created by the user or 
-	 * by other users.
-	 */
-
-	EDIT_ALL_REMINDERS(GlobalPermissionCategory.OTHER),
+	EDIT_PROJECT_AGENDA(VIEW_PROJECT_AGENDA),
 	
 	/**
 	 * for creating/deleting/modifying/closing reminders created by the user.
@@ -104,34 +104,41 @@ public enum GlobalPermissionEnum implements Result {
 	EDIT_OWN_REMINDERS(GlobalPermissionCategory.OTHER),
 	
 	/**
+	 * for creating/deleting/modifying/closing reminders created by the user or 
+	 * by other users.
+	 */
+
+	EDIT_ALL_REMINDERS(EDIT_OWN_REMINDERS),
+	
+	/**
 	 * for viewing the two indicator sub-tabs.
 	 */
-	VIEW_INDICATOR(GlobalPermissionCategory.INDICATOR),
+	VIEW_INDICATOR(VIEW_PROJECT),
 
 	/**
 	 * for creating/deleting/modifying indicator definitions.
 	 */
-	MANAGE_INDICATOR(GlobalPermissionCategory.INDICATOR),
+	MANAGE_INDICATOR(VIEW_INDICATOR),
 
 	/**
 	 * for editing values of existing indicators.
 	 */
-	EDIT_INDICATOR(GlobalPermissionCategory.INDICATOR),
+	EDIT_INDICATOR(VIEW_INDICATOR),
 	
 	/**
 	 * For viewing Project > Map.
 	 */
-	VIEW_MAPTAB(GlobalPermissionCategory.INDICATOR),
+	VIEW_MAPTAB(VIEW_INDICATOR),
 	
 	/**
 	 * For setting/editing the main location(site).
 	 */
-	MANAGE_MAIN_SITE(GlobalPermissionCategory.INDICATOR),
+	MANAGE_MAIN_SITE(VIEW_MAPTAB),
 	
 	/**
 	 * For creating/editing sites.
 	 */
-	MANAGE_SITES(GlobalPermissionCategory.INDICATOR),
+	MANAGE_SITES(VIEW_MAPTAB),
 	
 	
 	/*
@@ -146,7 +153,7 @@ public enum GlobalPermissionEnum implements Result {
 	/**
 	 * Remove a file (in the files list flexible element of org. units).
 	 */
-	REMOVE_ORG_UNIT_FILE(GlobalPermissionCategory.ORG_UNIT),
+	REMOVE_ORG_UNIT_FILE(EDIT_ORG_UNIT),
 
 	/**
 	 * For viewing the agenda sub-tab of org. units.
@@ -156,7 +163,7 @@ public enum GlobalPermissionEnum implements Result {
 	/**
 	 * For creating/deleting/modifying events in the agenda of org. units.
 	 */
-	EDIT_ORG_UNIT_AGENDA(GlobalPermissionCategory.ORG_UNIT),
+	EDIT_ORG_UNIT_AGENDA(VIEW_ORG_UNIT_AGENDA),
 	
 	
 	/*
@@ -171,42 +178,42 @@ public enum GlobalPermissionEnum implements Result {
 	/**
 	 * View the admin page to manage users.
 	 */
-	MANAGE_USERS(GlobalPermissionCategory.ADMINISTRATION),
+	MANAGE_USERS(VIEW_ADMIN),
 
 	/**
 	 * View the admin page to manage the org units.
 	 */
-	MANAGE_ORG_UNITS(GlobalPermissionCategory.ADMINISTRATION),
+	MANAGE_ORG_UNITS(VIEW_ADMIN),
 	
 	/**
 	 * View the admin page to manage project models.
 	 */
-	MANAGE_PROJECT_MODELS(GlobalPermissionCategory.ADMINISTRATION),
+	MANAGE_PROJECT_MODELS(VIEW_ADMIN),
 
 	/**
 	 * View the admin page to manage org unit models.
 	 */
-	MANAGE_ORG_UNIT_MODELS(GlobalPermissionCategory.ADMINISTRATION),
+	MANAGE_ORG_UNIT_MODELS(VIEW_ADMIN),
 
 	/**
 	 * View the admin page to manage report models.
 	 */
-	MANAGE_REPORT_MODELS(GlobalPermissionCategory.ADMINISTRATION),
+	MANAGE_REPORT_MODELS(VIEW_ADMIN),
 
 	/**
 	 * View the admin page to manage categories.
 	 */
-	MANAGE_CATEGORIES(GlobalPermissionCategory.ADMINISTRATION),
+	MANAGE_CATEGORIES(VIEW_ADMIN),
 
 	/**
 	 * View the admin page to manage importation schemes.
 	 */
-	MANAGE_IMPORTATION_SCHEMES(GlobalPermissionCategory.ADMINISTRATION),
+	MANAGE_IMPORTATION_SCHEMES(VIEW_ADMIN),
 
 	/**
 	 * View the admin page to manage system settings.
 	 */
-	MANAGE_SETTINGS(GlobalPermissionCategory.ADMINISTRATION),
+	MANAGE_SETTINGS(VIEW_ADMIN),
 
 	/**
 	 * Show global export button in projects list.
@@ -227,6 +234,12 @@ public enum GlobalPermissionEnum implements Result {
 	 * The global permission category (never {@code null}).
 	 */
 	private final GlobalPermissionCategory category;
+	
+	/**
+	 * The parent permission.
+	 * {@code null} if a category is defined.
+	 */
+	private final GlobalPermissionEnum parent;
 
 	/**
 	 * Initializes the global permission with its category.
@@ -236,6 +249,16 @@ public enum GlobalPermissionEnum implements Result {
 	 */
 	private GlobalPermissionEnum(final GlobalPermissionCategory category) {
 		this.category = category == null ? GlobalPermissionCategory._NONE : category;
+		this.parent = null;
+	}
+	
+	/**
+	 * 
+	 * @param parent 
+	 */
+	private GlobalPermissionEnum(final GlobalPermissionEnum parent) {
+		this.category = parent.getCategory();
+		this.parent = parent;
 	}
 
 	/**
@@ -245,6 +268,39 @@ public enum GlobalPermissionEnum implements Result {
 	 */
 	public GlobalPermissionCategory getCategory() {
 		return category;
+	}
+
+	/**
+	 * Returns the parent permission.
+	 * 
+	 * @return The parent permission or <code>null</code>.
+	 */
+	public GlobalPermissionEnum getParent() {
+		return parent;
+	}
+	
+	public boolean hasDependency() {
+		return getParent() != null;
+	}
+	
+	public List<GlobalPermissionEnum> getChildren() {
+		final ArrayList<GlobalPermissionEnum> children = new ArrayList<GlobalPermissionEnum>();
+		
+		for (GlobalPermissionEnum permission : values()) {
+			if (permission != this && permission.getParent() == this) {
+				children.add(permission);
+			}
+		}
+		
+		return children;
+	}
+	
+	public boolean isRoot() {
+		return parent == null;
+	}
+	
+	public boolean isLeaf() {
+		return getChildren().isEmpty();
 	}
 
 	/**
@@ -316,6 +372,22 @@ public enum GlobalPermissionEnum implements Result {
 					return I18N.CONSTANTS.categoryNotMapped();
 			}
 		}
+		
+		public List<GlobalPermissionEnum> getChildren() {
+			final ArrayList<GlobalPermissionEnum> permissions = new ArrayList<GlobalPermissionEnum>();
+			
+			for (GlobalPermissionEnum permission : GlobalPermissionEnum.values()) {
+				if (permission.getCategory() == this && permission.getParent() == null) {
+					permissions.add(permission);
+				}
+			}
+			
+			return permissions;
+		}
+		
+		public boolean isEmpty() {
+			return getChildren().isEmpty();
+		}
 	}
 
 	/**
@@ -350,7 +422,10 @@ public enum GlobalPermissionEnum implements Result {
 
 			case CREATE_PROJECT:
 				return I18N.CONSTANTS.CREATE_PROJECT();
-
+				
+			case CREATE_TEST_PROJECT:
+				return I18N.CONSTANTS.CREATE_TEST_PROJECT();
+				
 			case DELETE_PROJECT:
 				return I18N.CONSTANTS.DELETE_PROJECT();
 

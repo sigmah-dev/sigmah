@@ -276,7 +276,7 @@ public class DashboardPresenter extends AbstractPagePresenter<DashboardPresenter
 		}
 
 		// Draft project.
-		if (ProfileUtils.isGranted(auth(), GlobalPermissionEnum.VIEW_ADMIN)) {
+		if (ProfileUtils.isGranted(auth(), GlobalPermissionEnum.CREATE_TEST_PROJECT)) {
 
 			final PageRequest request = new PageRequest(Page.CREATE_PROJECT);
 			request.addParameter(RequestParameter.TYPE, CreateProjectPresenter.Mode.TEST_PROJECT);

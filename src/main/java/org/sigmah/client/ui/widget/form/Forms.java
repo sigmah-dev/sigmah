@@ -39,9 +39,11 @@ import com.extjs.gxt.ui.client.widget.layout.FormData;
 import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
+import com.google.gwt.event.logical.shared.AttachEvent;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.IsWidget;
+import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.UIObject;
 import com.google.gwt.user.client.ui.Widget;
 import org.sigmah.client.ui.res.icon.IconImageBundle;
@@ -1133,6 +1135,36 @@ public final class Forms {
 	// --
 	// -- AdapterField
 	// --
+	
+	/**
+	 * Wraps the given {@code widget} with a ScollPanel and builds an 
+	 * {@link AdapterField} for it.
+	 * 
+	 * @param label
+	 *			The field label. If {@code blank}, label separator is automatically disabled.
+	 * @param widget
+	 *			The widget wrapped into the scroll panel and into the adapter field.
+	 * @param width
+	 *			Width of the given widget.
+	 * @param height
+	 *			Height of the scroll panel.
+	 * @return The field.
+	 */
+	public static AdapterField adapterWithScrollbars(final String label, final IsWidget widget, final int width, final int height) {
+		
+		final ScrollPanel scrollPanel = new ScrollPanel();
+		scrollPanel.setWidget(Widget.asWidgetOrNull(widget));
+		scrollPanel.addAttachHandler(new AttachEvent.Handler() {
+			@Override
+			public void onAttachOrDetach(AttachEvent event) {
+				scrollPanel.setWidth(width + "px");
+			}
+		});
+		scrollPanel.setHeight(height + "px");
+		
+		return adapter(label, scrollPanel);
+		
+	}
 
 	/**
 	 * Builds an {@link AdapterField} for the given {@code widget}.
@@ -1179,7 +1211,7 @@ public final class Forms {
 		return field;
 
 	}
-
+	
 	// --
 	// -- HiddenField
 	// --
