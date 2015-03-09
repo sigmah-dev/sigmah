@@ -37,12 +37,14 @@ import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.persist.Transactional;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 import org.sigmah.server.handler.util.Conflicts;
 import org.sigmah.server.handler.util.Handlers;
 import org.sigmah.server.i18n.I18nServer;
 import org.sigmah.shared.Language;
+import org.sigmah.shared.command.result.ValueResult;
 import org.sigmah.shared.dispatch.FunctionalException;
 import org.sigmah.shared.dispatch.UpdateConflictException;
 import org.sigmah.shared.dto.element.BudgetElementDTO;
@@ -50,6 +52,7 @@ import org.sigmah.shared.dto.element.BudgetSubFieldDTO;
 import org.sigmah.shared.dto.profile.ProfileDTO;
 import org.sigmah.shared.dto.referential.AmendmentState;
 import org.sigmah.shared.dto.referential.GlobalPermissionEnum;
+import org.sigmah.shared.dto.value.ListableValue;
 import org.sigmah.shared.util.ProfileUtils;
 
 /**
@@ -675,6 +678,26 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 		
 		if(ProfileUtils.isGranted(profile, GlobalPermissionEnum.MODIFY_LOCKED_CONTENT)) {
 			// The user is allowed to edit locked fields.
+			final boolean projectIsClosed = project.getCloseDate() != null;
+			final boolean projectIsLocked = project.getAmendmentState() == AmendmentState.LOCKED;
+			
+			for(final ValueEventWrapper value : values) {
+				final FlexibleElementDTO source = value.getSourceElement();
+				
+				final boolean phaseIsClosed = conflictHandler.isParentPhaseClosed(source.getId(), project.getId());
+				
+				if(projectIsClosed || phaseIsClosed || (source.getAmendable() && projectIsLocked)) {
+					final ValueResult result = new ValueResult();
+					result.setValueObject(value.getSingleValue());
+					result.setValuesObject(value.getListValue() != null ? Collections.<ListableValue>singletonList(value.getListValue()) : null);
+
+					if(!source.isCorrectRequiredValue(result)) {
+						conflicts.add(i18nServer.t(language, "conflictModifyLockedContentEmptyValue",
+							source.getFormattedLabel(), getCurrentValueFormatted(project.getId(), source)));
+					}
+				}
+			}
+			
 			return conflicts;
 		}
 		
@@ -684,7 +707,7 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 				final FlexibleElementDTO source = valueEvent.getSourceElement();
 				
 				conflicts.add(i18nServer.t(language, "conflictUpdatingAClosedProject",
-						source.getFormattedLabel(), getCurrentValueFormatted(project.getId(), source), getTargetValueFormatted(valueEvent)));
+					source.getFormattedLabel(), getCurrentValueFormatted(project.getId(), source), getTargetValueFormatted(valueEvent)));
 			}
 			
 		} else {
