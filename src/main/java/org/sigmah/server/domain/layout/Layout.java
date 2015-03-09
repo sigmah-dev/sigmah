@@ -127,12 +127,13 @@ public class Layout extends AbstractEntityId<Integer> {
 	/**
 	 * Reset the identifiers of the object.
 	 */
-	public void resetImport() {
+	public void resetImport(boolean keepPrivacyGroups) {
 		this.id = null;
 		if (this.groups != null) {
 			for (LayoutGroup layoutGroup : groups) {
-				if (layoutGroup != null)
-					layoutGroup.resetImport(this);
+				if (layoutGroup != null) {
+					layoutGroup.resetImport(this, keepPrivacyGroups);
+				}
 			}
 		}
 	}

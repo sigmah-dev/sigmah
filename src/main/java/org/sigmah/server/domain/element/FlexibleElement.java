@@ -139,10 +139,13 @@ public abstract class FlexibleElement extends AbstractEntityId<Integer> implemen
 	/**
 	 * Reset the identifiers of the object.
 	 */
-	public void resetImport() {
+	public void resetImport(boolean keepPrivacyGroups) {
 		this.id = null;
-		// remove the privacy group from imported flexible elements.
-		this.privacyGroup = null;
+		
+		if(!keepPrivacyGroups) {
+			// remove the privacy group from imported flexible elements.
+			this.privacyGroup = null;
+		}
 	}
 
 	/*

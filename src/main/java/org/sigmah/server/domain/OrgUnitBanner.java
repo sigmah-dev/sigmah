@@ -70,11 +70,11 @@ public class OrgUnitBanner extends AbstractEntityId<Integer> {
 	 * @param orgUnitModel
 	 *          the parent org-unit model.
 	 */
-	public void resetImport(final OrgUnitModel orgUnitModel) {
+	public void resetImport(final OrgUnitModel orgUnitModel, boolean keepPrivacyGroups) {
 		this.id = null;
 		this.orgUnitModel = orgUnitModel;
 		if (this.layout != null) {
-			this.layout.resetImport();
+			this.layout.resetImport(keepPrivacyGroups);
 		}
 	}
 

@@ -70,7 +70,7 @@ public class GetOrgUnitModelCopyHandler extends AbstractCommandHandler<GetOrgUni
 		LOG.debug("Found organizational unit model {}.", modelId);
 
 		final OrgUnitModel copyOrgUnitModel = Realizer.realize(orgUnitModel);
-		copyOrgUnitModel.resetImport();
+		copyOrgUnitModel.resetImport(true);
 		copyOrgUnitModel.setStatus(ProjectModelStatus.DRAFT);
 		saveFlexibleElement(copyOrgUnitModel, em());
 		copyOrgUnitModel.setName(cmd.getNewModelName());

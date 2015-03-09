@@ -185,25 +185,41 @@ public class ProjectModel extends AbstractEntityId<Integer> implements Deleteabl
 	 * </ul>
 	 */
 	public void resetImport() {
+		resetImport(false);
+	}
+	
+	/**
+	 * Reset the following identifiers of the object:
+	 * <ul>
+	 * <li>{@code rootPhaseModel}</li>
+	 * <li>{@code phaseModels}</li>
+	 * <li>{@code projectBanner}</li>
+	 * <li>{@code projectDetails}</li>
+	 * <li>{@code logFrameModel}</li>
+	 * </ul>
+	 * 
+	 * @param keepPrivacyGroups <code>true</code> to not reset privacy groups.
+	 */
+	public void resetImport(boolean keepPrivacyGroups) {
 
 		this.id = null;
 
 		if (rootPhaseModel != null) {
-			rootPhaseModel.resetImport(this);
+			rootPhaseModel.resetImport(this, keepPrivacyGroups);
 		}
 
 		if (phaseModels != null) {
 			for (final PhaseModel phase : phaseModels) {
-				phase.resetImport(null);
+				phase.resetImport(null, keepPrivacyGroups);
 			}
 		}
 
 		if (projectBanner != null) {
-			projectBanner.resetImport(this);
+			projectBanner.resetImport(this, keepPrivacyGroups);
 		}
 
 		if (projectDetails != null) {
-			projectDetails.resetImport(this);
+			projectDetails.resetImport(this, keepPrivacyGroups);
 		}
 
 		if (logFrameModel != null) {

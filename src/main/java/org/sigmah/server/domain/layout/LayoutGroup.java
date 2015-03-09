@@ -100,14 +100,15 @@ public class LayoutGroup extends AbstractEntityId<Integer> {
 	 * @param parentLayout
 	 *          the parent Layout
 	 */
-	public void resetImport(Layout parentLayout) {
+	public void resetImport(Layout parentLayout, boolean keepPrivacyGroups) {
 		this.id = null;
 		this.parentLayout = parentLayout;
 
 		if (this.constraints != null) {
 			for (LayoutConstraint layoutConstraint : constraints) {
-				if (layoutConstraint != null)
-					layoutConstraint.resetImport(this);
+				if (layoutConstraint != null) {
+					layoutConstraint.resetImport(this, keepPrivacyGroups);
+				}
 			}
 		}
 	}

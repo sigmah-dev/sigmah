@@ -69,11 +69,11 @@ public class ProjectDetails extends AbstractEntityId<Integer> {
 	 * @param parentProjectModel
 	 *          the parent project identifier.
 	 */
-	public void resetImport(final ProjectModel parentProjectModel) {
+	public void resetImport(final ProjectModel parentProjectModel, boolean keepPrivacyGroups) {
 		this.id = null;
 		this.projectModel = parentProjectModel;
 		if (this.layout != null) {
-			this.layout.resetImport();
+			this.layout.resetImport(keepPrivacyGroups);
 		}
 	}
 

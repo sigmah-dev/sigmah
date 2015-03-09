@@ -73,7 +73,7 @@ public class GetProjectModelCopyHandler extends AbstractCommandHandler<GetProjec
 		LOG.debug("Found project model with id #{}.", cmd.getModelId());
 
 		final ProjectModel copyProjectModel = Realizer.realize(existentProjectModel);
-		copyProjectModel.resetImport();
+		copyProjectModel.resetImport(true);
 
 		// Set status 'DRAFT'
 		copyProjectModel.setStatus(ProjectModelStatus.DRAFT);

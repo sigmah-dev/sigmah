@@ -104,16 +104,16 @@ public class PhaseModel extends AbstractEntityId<Integer> {
 	 * @param parentProjectModel
 	 *          the parent project model
 	 */
-	public void resetImport(final ProjectModel parentProjectModel) {
+	public void resetImport(final ProjectModel parentProjectModel, boolean keepPrivacyGroups) {
 		this.id = null;
 		this.parentProjectModel = parentProjectModel;
 		if (this.successors != null) {
 			for (PhaseModel successor : successors) {
-				successor.resetImport(null);
+				successor.resetImport(null, keepPrivacyGroups);
 			}
 		}
 		if (this.layout != null) {
-			this.layout.resetImport();
+			this.layout.resetImport(keepPrivacyGroups);
 		}
 		if (this.definition != null) {
 			this.definition.resetImport();

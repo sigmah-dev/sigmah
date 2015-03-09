@@ -143,12 +143,21 @@ public class OrgUnitModel extends AbstractEntityId<Integer> implements Deleteabl
 	 * Reset the identifiers of the object.
 	 */
 	public void resetImport() {
+		resetImport(false);
+	}
+	
+	/**
+	 * Reset the identifiers of the object.
+	 * 
+	 * @param keepPrivacyGroups <code>true</code> to not reset the privacy groups.
+	 */
+	public void resetImport(boolean keepPrivacyGroups) {
 		this.id = null;
 		if (this.banner != null) {
-			this.banner.resetImport(this);
+			this.banner.resetImport(this, keepPrivacyGroups);
 		}
 		if (this.details != null) {
-			this.details.resetImport(this);
+			this.details.resetImport(this, keepPrivacyGroups);
 		}
 	}
 
