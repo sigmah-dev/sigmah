@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.inject.persist.Transactional;
+import org.sigmah.server.domain.ProjectModel;
 
 /**
  * Handler for update log frame command.
@@ -21,6 +22,7 @@ import com.google.inject.persist.Transactional;
  * @author Tom Miette (tmiette@ideia.fr)
  * @author Maxime Lombard (mlombard@ideia.fr)
  * @author Raphaël Calabro (rcalabro@ideia.fr)
+ * @author Renato Almeida (renatoaf.ufcg@gmail.com)
  */
 public class UpdateLogFrameHandler extends AbstractCommandHandler<UpdateLogFrame, LogFrameDTO> {
 
@@ -45,13 +47,15 @@ public class UpdateLogFrameHandler extends AbstractCommandHandler<UpdateLogFrame
 
 		// Sets the log frame parent project.
 		if (logFrame != null) {
-
-			final Project project = new Project();
-			project.setId(cmd.getProjectId());
-
+			final Project project = em().find(Project.class, cmd.getProjectId());
 			logFrame.setParentProject(project);
+			
+			final ProjectModel projectModel = project.getProjectModel();
+			if (projectModel != null && projectModel.getLogFrameModel() != null) {
+				logFrame.setLogFrameModel(projectModel.getLogFrameModel());
+            }
 		}
-
+			
 		if (logFrame != null) {
 			if (LOG.isDebugEnabled()) {
 				LOG.debug("Merges the log frame.");

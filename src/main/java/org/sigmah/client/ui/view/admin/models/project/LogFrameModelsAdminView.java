@@ -23,6 +23,7 @@ import com.extjs.gxt.ui.client.widget.layout.ColumnData;
 import com.extjs.gxt.ui.client.widget.layout.ColumnLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.dom.client.Style.Unit;
+import java.util.Arrays;
 
 /**
  * {@link LogFrameModelsAdminPresenter}'s view implementation.
@@ -242,6 +243,20 @@ public class LogFrameModelsAdminView extends AbstractView implements LogFrameMod
 		}
 		toolbar.setEnabled(enabled);
 		saveButton.setEnabled(enabled);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setReadOnly(boolean readOnly) {
+		for(final Field<?> field : Arrays.asList(name,
+			objectivesMax, objectivesEnableGroups, objectivesMaxPerGroup, objectivesMaxGroups,
+			activitiesMax, activitiesEnableGroups, activitiesMaxPerResult, activitiesMaxGroups, activitiesMaxPerGroup,
+			resultsMax, resultsEnableGroups, resultsMaxPerObjective, resultsMaxGroups, resultsMaxPerGroup,
+			prerequisitesMax, prerequisitesEnableGroups, prerequisitesMaxGroups, prerequisitesMaxPerGroup)) {
+			field.setEnabled(!readOnly);
+		}
 	}
 
 	// ---------------------------------------------------------------------------------------------------------------

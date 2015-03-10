@@ -90,6 +90,14 @@ public class LogFrameModelsAdminPresenter extends AbstractPresenter<LogFrameMode
 		 *          {@code true} to enable/show the toolbar, {@code false} to disable/hide it.
 		 */
 		void setToolbarEnabled(boolean enabled);
+		
+		/**
+		 * If readonly, disables all fields.
+		 * 
+		 * @param readOnly 
+		 *			{@code true} to disable all fields, {@code false} to enable them.
+		 */
+		void setReadOnly(boolean readOnly);
 
 	}
 
@@ -214,6 +222,9 @@ public class LogFrameModelsAdminPresenter extends AbstractPresenter<LogFrameMode
 
 		// LogFrame model loading.
 		loadLogFrameModel(currentModel.getLogFrameModel());
+		
+		// Read-only if the model is not editable.
+		view.setReadOnly(!model.getStatus().isEditable());
 	}
 
 	/**
