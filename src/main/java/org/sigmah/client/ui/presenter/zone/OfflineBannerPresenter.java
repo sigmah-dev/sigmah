@@ -1,6 +1,5 @@
 package org.sigmah.client.ui.presenter.zone;
 
-import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -40,20 +39,15 @@ import org.sigmah.client.ui.notif.N10N;
 import org.sigmah.client.ui.widget.RatioBar;
 import org.sigmah.client.util.MessageType;
 import org.sigmah.offline.appcache.ApplicationCacheEventHandler;
-import org.sigmah.offline.dao.TransfertAsyncDAO;
 import org.sigmah.offline.indexeddb.IndexedDB;
 import org.sigmah.offline.indexeddb.OpenDatabaseRequest;
 import org.sigmah.offline.indexeddb.Request;
-import org.sigmah.offline.js.TransfertJS;
 import org.sigmah.offline.status.ApplicationState;
 import org.sigmah.offline.status.ProgressType;
 import org.sigmah.offline.sync.SynchroProgressListener;
 import org.sigmah.offline.sync.UpdateDates;
 import org.sigmah.offline.view.OfflineMenuPanel;
 import org.sigmah.offline.view.SynchronizePopup;
-import org.sigmah.shared.command.GetFilesFromFavoriteProjects;
-import org.sigmah.shared.command.result.ListResult;
-import org.sigmah.shared.dto.value.FileVersionDTO;
 import org.sigmah.shared.file.HasProgressListeners;
 import org.sigmah.shared.file.ProgressAdapter;
 import org.sigmah.shared.file.TransfertManager;

@@ -16,11 +16,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
+import com.google.inject.persist.Transactional;
 
 /**
  * Handler for {@link DeleteFlexibleElements} command
  * 
  * @author Maxime Lombard (mlombard@ideia.fr)
+ * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
 public class DeleteFlexibleElementsHandler extends AbstractCommandHandler<DeleteFlexibleElements, VoidResult> {
 
@@ -42,22 +44,27 @@ public class DeleteFlexibleElementsHandler extends AbstractCommandHandler<Delete
 	public VoidResult execute(final DeleteFlexibleElements cmd, final UserExecutionContext context) throws CommandException {
 
 		if (cmd.getFlexibleElements() != null) {
-			for (FlexibleElementDTO flexEltDTO : cmd.getFlexibleElements()) {
-
-				FlexibleElement flexElt = em().find(FlexibleElement.class, flexEltDTO.getId());
-
-				Query query = em().createQuery("Select l from LayoutConstraint l Where l.element = :flexibleElement");
-				query.setParameter("flexibleElement", flexElt);
-				for (LayoutConstraint layout : (List<LayoutConstraint>) query.getResultList()) {
-					em().remove(layout);
-				}
-				LOG.debug("DeactivateUsersHandler flexElt " + flexEltDTO.getId() + " name" + flexEltDTO.getLabel());
-
-				em().remove(flexElt);
-			}
+			performDelete(cmd.getFlexibleElements());
 		}
 
 		return null;
+	}
+	
+	@Transactional
+	protected void performDelete(List<FlexibleElementDTO> flexibleElements) {
+		for (FlexibleElementDTO dto : flexibleElements) {
+
+			FlexibleElement flexibleElement = em().find(FlexibleElement.class, dto.getId());
+
+			Query query = em().createQuery("Select l from LayoutConstraint l Where l.element = :flexibleElement");
+			query.setParameter("flexibleElement", flexibleElement);
+			for (LayoutConstraint layout : (List<LayoutConstraint>) query.getResultList()) {
+				em().remove(layout);
+			}
+			LOG.debug("DeactivateUsersHandler flexElt " + dto.getId() + " name" + dto.getLabel());
+
+			em().remove(flexibleElement);
+		}
 	}
 
 }

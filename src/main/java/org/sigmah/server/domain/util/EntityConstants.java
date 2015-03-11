@@ -220,7 +220,7 @@ public final class EntityConstants extends org.sigmah.shared.dto.util.EntityCons
 	// --------------------------------------------------------------------------------
 
 	public static final String BUDGET_SUB_FIELD_TABLE = "budget_sub_field";
-	public static final String BUDGET_SUB_FIELD_COLMUN_ID = "id_budget_sub_field";
+	public static final String BUDGET_SUB_FIELD_COLUMN_ID = "id_budget_sub_field";
 	// TODO Replace with 'id_flexible_element' column.
 	public static final String BUDGET_SUB_FIELD_COLMUN_ID_BUDGET_ELEMENT = "id_budget_element";
 	public static final String BUDGET_SUB_FIELD_COLMUN_LABEL = "label";

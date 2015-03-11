@@ -1,5 +1,6 @@
 package org.sigmah.server.domain.importation;
 
+import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.validation.constraints.NotNull;
@@ -27,9 +28,13 @@ public class VariableBudgetSubFieldId implements EmbeddableEntity {
 	@NotNull
 	private Integer varId;
 
-	@Column(name = EntityConstants.VARIABLE_FLEXIBLE_ELEMENT_COLUMN_ID, nullable = false)
+	@Column(name = EntityConstants.BUDGET_SUB_FIELD_COLUMN_ID, nullable = false)
 	@NotNull
 	private Integer budgetSubFieldId;
+	
+	@Column(name = EntityConstants.VARIABLE_FLEXIBLE_ELEMENT_COLUMN_ID, nullable = false)
+	@NotNull
+	private Integer variableFlexibleId;
 
 	// --------------------------------------------------------------------------------
 	//
@@ -42,38 +47,38 @@ public class VariableBudgetSubFieldId implements EmbeddableEntity {
 		ToStringBuilder builder = new ToStringBuilder(this);
 		builder.append("varId", varId);
 		builder.append("budgetSubFieldId", budgetSubFieldId);
+		builder.append("variableFlexibleId", variableFlexibleId);
 
 		return builder.toString();
 	}
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((budgetSubFieldId == null) ? 0 : budgetSubFieldId.hashCode());
-		result = prime * result + ((varId == null) ? 0 : varId.hashCode());
-		return result;
+		int hash = 7;
+		hash = 41 * hash + Objects.hashCode(this.varId);
+		hash = 41 * hash + Objects.hashCode(this.budgetSubFieldId);
+		hash = 41 * hash + Objects.hashCode(this.variableFlexibleId);
+		return hash;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
+		if (obj == null) {
 			return false;
-		if (!(obj instanceof VariableBudgetSubFieldId))
+		}
+		if (getClass() != obj.getClass()) {
 			return false;
-		VariableBudgetSubFieldId other = (VariableBudgetSubFieldId) obj;
-		if (budgetSubFieldId == null) {
-			if (other.budgetSubFieldId != null)
-				return false;
-		} else if (!budgetSubFieldId.equals(other.budgetSubFieldId))
+		}
+		final VariableBudgetSubFieldId other = (VariableBudgetSubFieldId) obj;
+		if (!Objects.equals(this.varId, other.varId)) {
 			return false;
-		if (varId == null) {
-			if (other.varId != null)
-				return false;
-		} else if (!varId.equals(other.varId))
+		}
+		if (!Objects.equals(this.budgetSubFieldId, other.budgetSubFieldId)) {
 			return false;
+		}
+		if (!Objects.equals(this.variableFlexibleId, other.variableFlexibleId)) {
+			return false;
+		}
 		return true;
 	}
 
@@ -98,4 +103,13 @@ public class VariableBudgetSubFieldId implements EmbeddableEntity {
 	public void setBudgetSubFieldId(Integer bfId) {
 		this.budgetSubFieldId = bfId;
 	}
+
+	public Integer getVariableFlexibleId() {
+		return variableFlexibleId;
+	}
+
+	public void setVariableFlexibleId(Integer variableFlexibleId) {
+		this.variableFlexibleId = variableFlexibleId;
+	}
+	
 }

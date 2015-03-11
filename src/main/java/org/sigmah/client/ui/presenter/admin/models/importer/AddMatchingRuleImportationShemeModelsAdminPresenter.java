@@ -25,6 +25,7 @@ import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Text;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.extjs.gxt.ui.client.widget.form.Field;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
@@ -35,6 +36,7 @@ import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.event.UpdateEvent;
 import org.sigmah.client.ui.notif.N10N;
 import org.sigmah.client.ui.widget.button.Button;
+import org.sigmah.client.ui.widget.form.ClearableField;
 import org.sigmah.client.util.AdminUtil;
 import org.sigmah.shared.command.CreateEntity;
 import org.sigmah.shared.command.result.CreateResult;
@@ -233,16 +235,12 @@ public class AddMatchingRuleImportationShemeModelsAdminPresenter extends Abstrac
 			final ComboBox<VariableDTO> variablesComboBox = new ComboBox<VariableDTO>();
 			variablesComboBox.setStore(variableStore);
 			variablesComboBox.setDisplayField("name");
-			variablesComboBox.setAllowBlank(false);
-			
-			// Check box.
-			final CheckBox checkBox = new CheckBox();
-			checkBox.setData("budgetSubFieldId", subField.getId());
+			variablesComboBox.setTriggerAction(ComboBox.TriggerAction.ALL);
+			variablesComboBox.setData("budgetSubFieldId", subField.getId());
 			
 			// Creating the row.
 			view.getBudgetSubFlexTable().setText(y, 0, label);
-			view.getBudgetSubFlexTable().setWidget(y, 1, variablesComboBox);
-			view.getBudgetSubFlexTable().setWidget(y, 2, checkBox);
+			view.getBudgetSubFlexTable().setWidget(y, 1, new ClearableField(variablesComboBox));
 		}
 	}
 	
@@ -265,18 +263,16 @@ public class AddMatchingRuleImportationShemeModelsAdminPresenter extends Abstrac
 			
 			final int size = view.getBudgetSubFlexTable().getRowCount();
 			for(int y = 0; y < size; y++) {
-				final CheckBox budgetSubFieldCheckbox = (CheckBox) view.getBudgetSubFlexTable().getWidget(y, 2);
-				if(budgetSubFieldCheckbox.getValue()) {
-					final ComboBox<VariableDTO> budgetSubFieldComboBox = (ComboBox<VariableDTO>) view.getBudgetSubFlexTable().getWidget(y, 1);
-					final Integer budgetSubFieldId = budgetSubFieldCheckbox.getData("budgetSubFieldId");
-					
-					if(budgetSubFieldComboBox.getValue() != null && budgetSubFieldId != null) {
-						final VariableBudgetSubFieldDTO variableBudgetSubField = new VariableBudgetSubFieldDTO();
-						variableBudgetSubField.setBudgetSubFieldDTO(new BudgetSubFieldDTO(budgetSubFieldId));
-						variableBudgetSubField.setVariableDTO(budgetSubFieldComboBox.getValue());
-						
-						subFields.add(variableBudgetSubField);
-					}
+				final ClearableField<VariableDTO> field = (ClearableField<VariableDTO>) view.getBudgetSubFlexTable().getWidget(y, 1);
+				final Field<VariableDTO> budgetSubFieldComboBox = field.getField();
+				final Integer budgetSubFieldId = budgetSubFieldComboBox.getData("budgetSubFieldId");
+				
+				if(budgetSubFieldComboBox.getValue() != null && budgetSubFieldId != null) {
+					final VariableBudgetSubFieldDTO variableBudgetSubField = new VariableBudgetSubFieldDTO();
+					variableBudgetSubField.setBudgetSubFieldDTO(new BudgetSubFieldDTO(budgetSubFieldId));
+					variableBudgetSubField.setVariableDTO(budgetSubFieldComboBox.getValue());
+
+					subFields.add(variableBudgetSubField);
 				}
 			}
 			

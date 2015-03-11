@@ -16,10 +16,13 @@ import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.inject.Injector;
 import org.sigmah.client.page.Page;
 import org.sigmah.client.page.PageRequest;
+import org.sigmah.client.page.RequestParameter;
 import org.sigmah.client.ui.notif.N10N;
 import org.sigmah.client.ui.presenter.base.AbstractPagePresenter;
+import org.sigmah.client.ui.presenter.zone.OfflineBannerPresenter;
 import org.sigmah.client.ui.view.base.ViewPopupInterface;
 import org.sigmah.client.ui.widget.button.Button;
+import org.sigmah.client.ui.zone.Zone;
 import org.sigmah.offline.dao.TransfertAsyncDAO;
 import org.sigmah.offline.js.TransfertJS;
 import org.sigmah.offline.sync.SuccessCallback;
@@ -201,6 +204,8 @@ public class FileSelectionPresenter extends AbstractPagePresenter<FileSelectionP
 		for(final FileVersionDTO fileVersionDTO : downloads) {
 			transfertManager.cache(fileVersionDTO);
 		}
+		
+		eventBus.updateZoneRequest(Zone.OFFLINE_BANNER.requestWith(RequestParameter.TYPE, OfflineBannerPresenter.SHOW_BRIEFLY));
 	}
 	
 }

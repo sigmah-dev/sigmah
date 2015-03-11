@@ -80,7 +80,7 @@ public abstract class FlexibleElement extends AbstractEntityId<Integer> implemen
 	
 	@Column(name = EntityConstants.FLEXIBLE_ELEMENT_COLUMN_CREATION_DATE, nullable = true)
 	@Temporal(value = TemporalType.TIMESTAMP)
-	private Date creationDate;
+	private Date creationDate = new Date();
 
 	// --------------------------------------------------------------------------------
 	//

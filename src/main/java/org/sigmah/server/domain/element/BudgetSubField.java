@@ -36,7 +36,7 @@ public class BudgetSubField extends AbstractEntityId<Integer> {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	@Column(name = EntityConstants.BUDGET_SUB_FIELD_COLMUN_ID, nullable = false)
+	@Column(name = EntityConstants.BUDGET_SUB_FIELD_COLUMN_ID, nullable = false)
 	private Integer id;
 
 	@Column(name = EntityConstants.BUDGET_SUB_FIELD_COLMUN_LABEL)

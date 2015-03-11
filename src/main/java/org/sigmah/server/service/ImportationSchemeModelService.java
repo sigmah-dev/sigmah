@@ -116,6 +116,13 @@ public class ImportationSchemeModelService extends AbstractEntityService<Importa
 
 				BudgetElement fle = em().find(BudgetElement.class, flexibleElementDTO.getId());
 				varBe.setFlexibleElement(fle);
+				
+				final Boolean key = changes.get(AdminUtil.PROP_VAR_FLE_ID_KEY);
+				varBe.setIsKey(key != null && key);
+				
+				varBe.setImportationSchemeModel(importationSchemeModel);
+				
+				em().persist(varBe);
 
 				@SuppressWarnings("unchecked")
 				List<VariableBudgetSubFieldDTO> varBfDTOs = (List<VariableBudgetSubFieldDTO>) changes.get(AdminUtil.PROP_VAR_FLE_BUDGETSUBFIELDS);
@@ -130,28 +137,21 @@ public class ImportationSchemeModelService extends AbstractEntityService<Importa
 					Variable variable = em().find(Variable.class, vbsf.getVariableDTO().getId());
 					varBsf.setVariable(variable);
 
+					varBsf.setVariableBudgetElement(varBe);
+
 					VariableBudgetSubFieldId varbsfId = new VariableBudgetSubFieldId();
 					varbsfId.setBudgetSubFieldId(bsf.getId());
 					varbsfId.setVarId(variable.getId());
+					varbsfId.setVariableFlexibleId(varBe.getId());
 
 					varBsf.setId(varbsfId);
-
-					varBsf.setVariableBudgetElement(varBe);
 
 					varBsfs.add(varBsf);
 				}
 
 				varBe.setVariableBudgetSubFields(varBsfs);
 
-				if (changes.get(AdminUtil.PROP_VAR_FLE_ID_KEY) != null) {
-					varBe.setIsKey(true);
-				} else {
-					varBe.setIsKey(false);
-				}
-
-				varBe.setImportationSchemeModel(importationSchemeModel);
-
-				em().persist(varBe);
+				em().merge(varBe);
 				importationSchemeModel.getVariableFlexibleElements().add(varBe);
 			}
 
@@ -182,5 +182,5 @@ public class ImportationSchemeModelService extends AbstractEntityService<Importa
 
 		return em().merge(importationSchemeModel);
 	}
-
+	
 }

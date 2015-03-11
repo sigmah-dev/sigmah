@@ -18,6 +18,12 @@ import com.google.inject.Singleton;
 import org.sigmah.client.event.EventBus;
 import org.sigmah.client.event.OfflineEvent;
 import org.sigmah.client.event.handler.OfflineHandler;
+import org.sigmah.client.i18n.I18N;
+import org.sigmah.client.page.RequestParameter;
+import org.sigmah.client.ui.notif.N10N;
+import org.sigmah.client.ui.presenter.zone.OfflineBannerPresenter;
+import org.sigmah.client.ui.zone.Zone;
+import org.sigmah.client.util.MessageType;
 import org.sigmah.offline.dao.UpdateDiaryAsyncDAO;
 
 /**
@@ -50,7 +56,12 @@ public class ApplicationStateManager implements OfflineEvent.Source {
 	 * Current network state.
 	 */
 	private boolean online;
-
+	
+	/**
+	 * Keep tracks of the first reconnection.
+	 */
+	private Runnable onReconnection;
+	
 	@Inject
 	public ApplicationStateManager(EventBus eventBus, UpdateDiaryAsyncDAO updateDiaryAsyncDAO) {
 		this.eventBus = eventBus;
@@ -80,7 +91,7 @@ public class ApplicationStateManager implements OfflineEvent.Source {
 	private void setOnline(boolean status) {
 		if(this.online != status) {
 			this.online = status;
-			updateApplicationState(null);
+			updateApplicationState(onReconnection);
 		}
 	}
 
@@ -132,6 +143,28 @@ public class ApplicationStateManager implements OfflineEvent.Source {
 				}
 			}
 		});
+		
+		onReconnection = new Runnable() {
+			private ApplicationState lastState = ApplicationStateManager.this.state;
+			private boolean firstReconnection = true;
+
+			@Override
+			public void run() {
+				if(lastState == ApplicationState.OFFLINE && state == ApplicationState.READY_TO_SYNCHRONIZE) {
+					// Display a message saying that the network is available.
+					N10N.notification(I18N.CONSTANTS.sigmahOfflineFirstReconnectionTitle(), I18N.CONSTANTS.sigmahOfflineFirstReconnectionMessage(), MessageType.OFFLINE);
+					
+					// On the first reconnection only, show for 3 seconds the offline menu.
+					if(firstReconnection) {
+						eventBus.updateZoneRequest(Zone.OFFLINE_BANNER.requestWith(RequestParameter.TYPE, OfflineBannerPresenter.SHOW_BRIEFLY));
+						firstReconnection = false;
+					}
+					
+				} else {
+					lastState = state;
+				}
+			}
+		};
 	}
 	
 	// ---

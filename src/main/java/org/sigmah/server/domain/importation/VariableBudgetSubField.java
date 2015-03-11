@@ -32,8 +32,9 @@ public class VariableBudgetSubField extends AbstractEntityId<VariableBudgetSubFi
 
 	@EmbeddedId
 	@AttributeOverrides({
-												@AttributeOverride(name = "varId", column = @Column(name = EntityConstants.IMPORTATION_VARIABLE_COLUMN_ID, nullable = false)),
-												@AttributeOverride(name = "budgetSubFieldId", column = @Column(name = EntityConstants.BUDGET_SUB_FIELD_COLMUN_ID, nullable = false))
+		@AttributeOverride(name = "varId", column = @Column(name = EntityConstants.IMPORTATION_VARIABLE_COLUMN_ID, nullable = false)),
+		@AttributeOverride(name = "budgetSubFieldId", column = @Column(name = EntityConstants.BUDGET_SUB_FIELD_COLUMN_ID, nullable = false)),
+		@AttributeOverride(name = "variableFlexibleId", column = @Column(name = EntityConstants.VARIABLE_FLEXIBLE_ELEMENT_COLUMN_ID, nullable = false))
 	})
 	private VariableBudgetSubFieldId id;
 
@@ -49,12 +50,12 @@ public class VariableBudgetSubField extends AbstractEntityId<VariableBudgetSubFi
 	private Variable variable;
 
 	@ManyToOne(optional = false)
-	@JoinColumn(name = EntityConstants.BUDGET_SUB_FIELD_COLMUN_ID, nullable = false, insertable = false, updatable = false)
+	@JoinColumn(name = EntityConstants.BUDGET_SUB_FIELD_COLUMN_ID, nullable = false, insertable = false, updatable = false)
 	@NotNull
 	private BudgetSubField budgetSubField;
 
 	@ManyToOne
-	@JoinColumn(name = EntityConstants.VARIABLE_FLEXIBLE_ELEMENT_COLUMN_ID, nullable = false)
+	@JoinColumn(name = EntityConstants.VARIABLE_FLEXIBLE_ELEMENT_COLUMN_ID, nullable = false, insertable = false, updatable = false)
 	@NotNull
 	private VariableBudgetElement variableBudgetElement;
 
