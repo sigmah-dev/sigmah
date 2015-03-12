@@ -13,6 +13,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -82,6 +83,7 @@ public class User extends AbstractEntityId<Integer> {
 	 * old keys.
 	 */
 	@Column(name = EntityConstants.USER_COLUMN_DATE_CHANGE_PASSWORD_KEY_ISSUED)
+	@Temporal(javax.persistence.TemporalType.TIMESTAMP)
 	private Date dateChangePasswordKeyIssued;
 
 	/**

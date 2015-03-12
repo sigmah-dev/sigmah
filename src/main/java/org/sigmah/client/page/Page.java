@@ -80,6 +80,7 @@ public enum Page implements IsSerializable {
 	LOGIN("login"),
 	LOST_PASSWORD("lost-password"),
 	RESET_PASSWORD("reset-password"),
+	CHANGE_OWN_PASSWORD("change-own-password"),
 	CREDITS("credits", true),
 	HELP("help", true),
 	CREATE_PROJECT("create-project", true),

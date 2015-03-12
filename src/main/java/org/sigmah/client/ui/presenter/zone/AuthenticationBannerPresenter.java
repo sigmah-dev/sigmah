@@ -10,11 +10,17 @@ import org.sigmah.client.ui.zone.ZoneRequest;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.HasClickHandlers;
+import com.google.gwt.event.dom.client.MouseOutEvent;
+import com.google.gwt.event.dom.client.MouseOutHandler;
+import com.google.gwt.event.dom.client.MouseOverEvent;
+import com.google.gwt.event.dom.client.MouseOverHandler;
 import com.google.gwt.user.client.ui.HasHTML;
+import com.google.gwt.user.client.ui.InlineLabel;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import org.sigmah.client.page.Page;
 
 /**
  * Authentication banner presenter displaying user's name and logout.
@@ -37,6 +43,8 @@ public class AuthenticationBannerPresenter extends AbstractZonePresenter<Authent
 		Panel getLogoutPanel();
 
 		HasClickHandlers getLogoutHandler();
+		
+		InlineLabel getChangePasswordHandler();
 
 	}
 
@@ -68,6 +76,34 @@ public class AuthenticationBannerPresenter extends AbstractZonePresenter<Authent
 			}
 
 		});
+		
+		// Change password action.
+		view.getChangePasswordHandler().addClickHandler(new ClickHandler() {
+
+			@Override
+			public void onClick(ClickEvent event) {
+				eventBus.navigateRequest(Page.CHANGE_OWN_PASSWORD.request());
+			}
+		});
+		
+		// Change password handler visibility.
+		view.getNamePanel().addDomHandler(new MouseOverHandler() {
+
+			@Override
+			public void onMouseOver(MouseOverEvent event) {
+				view.getChangePasswordHandler().setVisible(true);
+			}
+			
+		}, MouseOverEvent.getType());
+		
+		view.getNamePanel().addDomHandler(new MouseOutHandler() {
+
+			@Override
+			public void onMouseOut(MouseOutEvent event) {
+				view.getChangePasswordHandler().setVisible(false);
+			}
+			
+		}, MouseOutEvent.getType());
 
 	}
 

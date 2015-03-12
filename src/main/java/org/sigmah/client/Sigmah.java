@@ -103,6 +103,7 @@ public class Sigmah implements EntryPoint {
 		injector.getLoginPresenter();
 		injector.getLostPasswordPresenter();
 		injector.getResetPasswordPresenter();
+		injector.getChangeOwnPasswordPresenter();
 		injector.getProjectPresenter();
 		injector.getProjectDashboardPresenter();
 		injector.getProjectLogFramePresenter();
