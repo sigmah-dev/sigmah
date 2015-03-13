@@ -1,21 +1,25 @@
 package org.sigmah.offline.view;
 
 import com.extjs.gxt.ui.client.Style;
-import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.SelectionEvent;
+import com.extjs.gxt.ui.client.store.TreeStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Status;
 import com.extjs.gxt.ui.client.widget.grid.CheckBoxSelectionModel;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
-import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
-import com.extjs.gxt.ui.client.widget.grid.Grid;
-import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.grid.GridSelectionModel;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
+import com.extjs.gxt.ui.client.widget.treegrid.TreeGrid;
+import com.extjs.gxt.ui.client.widget.treegrid.TreeGridCellRenderer;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.ui.res.icon.IconImageBundle;
 import org.sigmah.client.ui.view.base.AbstractPopupView;
@@ -23,8 +27,9 @@ import org.sigmah.client.ui.widget.button.Button;
 import org.sigmah.client.ui.widget.form.Forms;
 import org.sigmah.client.ui.widget.panel.Panels;
 import org.sigmah.client.ui.widget.popup.PopupWidget;
-import org.sigmah.client.util.DateUtils;
 import org.sigmah.offline.presenter.FileSelectionPresenter;
+import org.sigmah.offline.presenter.TreeGridFileModel;
+import org.sigmah.shared.dto.base.EntityDTO;
 import org.sigmah.shared.dto.element.FilesListElementDTO;
 import org.sigmah.shared.dto.value.FileVersionDTO;
 
@@ -35,18 +40,13 @@ import org.sigmah.shared.dto.value.FileVersionDTO;
  */
 public class FileSelectionView extends AbstractPopupView<PopupWidget> implements FileSelectionPresenter.View {
 	
-	private static final String CONTAINER = "container";
-	private static final String FILE_TYPE = "fileType";
-	private static final String FILE_NAME = "fileName";
-	private static final String LAST_MODIFICATION = "lastModification";
-	private static final String AUTHOR = "author";
-	private static final String SIZE = "size";
-	
 	private ContentPanel uploadPanel;
 	private ContentPanel downloadPanel;
 	
 	private Button cancelButton;
 	private Button transferFilesButton;
+	
+	private Map<Integer, TreeGridFileModel> parents;
 	
 	/**
 	 * Popup's initialization.
@@ -57,6 +57,8 @@ public class FileSelectionView extends AbstractPopupView<PopupWidget> implements
 
 	@Override
 	public void initialize() {
+		this.parents = new HashMap<Integer, TreeGridFileModel>();
+		
 		this.uploadPanel = createGridPanel(
 			I18N.CONSTANTS.sigmahOfflinePrepareOfflineFileTransferPopupUploads(), 
 			IconImageBundle.ICONS.right());
@@ -80,13 +82,13 @@ public class FileSelectionView extends AbstractPopupView<PopupWidget> implements
 	}
 
 	@Override
-	public ListStore<FileVersionDTO> getUploadStore() {
-		return getUploadGrid().getStore();
+	public TreeStore<TreeGridFileModel> getUploadStore() {
+		return getUploadGrid().getTreeStore();
 	}
 
 	@Override
-	public ListStore<FileVersionDTO> getDownloadStore() {
-		return getDownloadGrid().getStore();
+	public TreeStore<TreeGridFileModel> getDownloadStore() {
+		return getDownloadGrid().getTreeStore();
 	}
 	
 	@Override
@@ -100,25 +102,39 @@ public class FileSelectionView extends AbstractPopupView<PopupWidget> implements
 	}
 
 	@Override
-	public GridSelectionModel<FileVersionDTO> getUploadSelectionModel() {
+	public GridSelectionModel<TreeGridFileModel> getUploadSelectionModel() {
 		return getUploadGrid().getSelectionModel();
 	}
 
 	@Override
-	public GridSelectionModel<FileVersionDTO> getDownloadSelectionModel() {
+	public GridSelectionModel<TreeGridFileModel> getDownloadSelectionModel() {
 		return getDownloadGrid().getSelectionModel();
 	}
 	
 	@Override
-	public void addFileVersionToUploadGrid(FileVersionDTO fileVersion) {
-		getUploadStore().add(fileVersion);
-		getUploadGrid().getSelectionModel().select(fileVersion, true);
+	public void addFileVersionToUploadGrid(FileVersionDTO fileVersion, EntityDTO<Integer> parent) {
+		add(getUploadGrid(), fileVersion, parent);
 	}
 	
 	@Override
-	public void addFileVersionToDownloadGrid(FileVersionDTO fileVersion) {
-		getDownloadStore().add(fileVersion);
-		getDownloadGrid().getSelectionModel().select(fileVersion, true);
+	public void addFileVersionToDownloadGrid(FileVersionDTO fileVersion, EntityDTO<Integer> parent) {
+		add(getDownloadGrid(), fileVersion, parent);
+	}
+	
+	private void add(TreeGrid<TreeGridFileModel> grid, FileVersionDTO fileVersion, EntityDTO<Integer> parent) {
+		TreeGridFileModel parentModel = parents.get(parent.getId());
+		
+		if(parentModel == null) {
+			parentModel = new TreeGridFileModel(parent);
+			parents.put(parent.getId(), parentModel);
+			
+			grid.getTreeStore().add(parentModel, false);
+		}
+		
+		final TreeGridFileModel fileVersionModel = new TreeGridFileModel(fileVersion);
+		grid.getTreeStore().add(parentModel, fileVersionModel, false);
+		
+		grid.getSelectionModel().select(fileVersionModel, true);
 	}
 
 	@Override
@@ -130,13 +146,19 @@ public class FileSelectionView extends AbstractPopupView<PopupWidget> implements
 	public void setDownloadSelectedFileSize(long totalSize) {
 		getStatus(downloadPanel).setText(I18N.MESSAGES.sigmahOfflinePrepareOfflineFileTransferTotalDownloadSize(sizeToString(totalSize)));
 	}
-	
-	private Grid<FileVersionDTO> getUploadGrid() {
-		return (Grid<FileVersionDTO>) uploadPanel.getWidget(0);
+
+	@Override
+	public void clear() {
+		getUploadStore().removeAll();
+		getDownloadStore().removeAll();
 	}
 	
-	private Grid<FileVersionDTO> getDownloadGrid() {
-		return (Grid<FileVersionDTO>) downloadPanel.getWidget(0);
+	private TreeGrid<TreeGridFileModel> getUploadGrid() {
+		return (TreeGrid<TreeGridFileModel>) uploadPanel.getWidget(0);
+	}
+	
+	private TreeGrid<TreeGridFileModel> getDownloadGrid() {
+		return (TreeGrid<TreeGridFileModel>) downloadPanel.getWidget(0);
 	}
 	
 	private Status getStatus(ContentPanel contentPanel) {
@@ -144,9 +166,11 @@ public class FileSelectionView extends AbstractPopupView<PopupWidget> implements
 	}
 	
 	private ContentPanel createGridPanel(String title, AbstractImagePrototype icon) {
-		final CheckBoxSelectionModel<FileVersionDTO> selectionModel = new CheckBoxSelectionModel<FileVersionDTO>();
+		final TreeStore<TreeGridFileModel> store = new TreeStore<TreeGridFileModel>();
 		
-		final Grid<FileVersionDTO> grid = new Grid<FileVersionDTO>(new ListStore<FileVersionDTO>(), createColumnModel(selectionModel));
+		final CheckBoxSelectionModel<TreeGridFileModel> selectionModel = createSelectionModel(store);
+		
+		final TreeGrid<TreeGridFileModel> grid = new TreeGrid<TreeGridFileModel>(store, createColumnModel(selectionModel));
 		grid.setSelectionModel(selectionModel);
 		grid.getView().setForceFit(true);
 		
@@ -162,62 +186,41 @@ public class FileSelectionView extends AbstractPopupView<PopupWidget> implements
 		return panel;
 	}
 	
-	private ColumnModel createColumnModel(CheckBoxSelectionModel<FileVersionDTO> selectionModel) {
-		// Project/orgunit column.
-//		final ColumnConfig containerColumnConfig = new ColumnConfig(CONTAINER, I18N.CONSTANTS.sigmahOfflinePrepareOfflineFileTransferColumnContainer(), 140);
+	private CheckBoxSelectionModel<TreeGridFileModel> createSelectionModel(final TreeStore<TreeGridFileModel> store) {
+		final CheckBoxSelectionModel<TreeGridFileModel> selectionModel = new CheckBoxSelectionModel<TreeGridFileModel>();
 		
-		// File type column.
-//		final ColumnConfig fileTypeColumnConfig = new ColumnConfig(FILE_TYPE, I18N.CONSTANTS.sigmahOfflinePrepareOfflineFileTransferColumnType(), 140);
-		
-		// File name column.
-		final ColumnConfig fileNameColumnConfig = new ColumnConfig(FILE_NAME, I18N.CONSTANTS.sigmahOfflinePrepareOfflineFileTransferColumnName(), 200);
-		fileNameColumnConfig.setRenderer(new GridCellRenderer<FileVersionDTO>() {
+		selectionModel.addListener(Events.BeforeSelect, new Listener<SelectionEvent<TreeGridFileModel>>() {
 
 			@Override
-			public Object render(FileVersionDTO model, String property, ColumnData config, int rowIndex, int colIndex, ListStore store, Grid grid) {
-				return model.getName() + '.' + model.getExtension();
-			}
-		});
-		
-		// Last modification date column.
-		final ColumnConfig lastModificationColumnConfig = new ColumnConfig(LAST_MODIFICATION, I18N.CONSTANTS.sigmahOfflinePrepareOfflineFileTransferColumnLastModification(), 85);
-		lastModificationColumnConfig.setRenderer(new GridCellRenderer<FileVersionDTO>() {
-
-			@Override
-			public Object render(FileVersionDTO model, String property, ColumnData config, int rowIndex, int colIndex, ListStore store, Grid grid) {
-				return DateUtils.DATE_SHORT.format(model.getAddedDate());
-			}
-		});
-		
-		// Author full name column.
-		final ColumnConfig authorColumnConfig = new ColumnConfig(AUTHOR, I18N.CONSTANTS.flexibleElementFilesListAuthor(), 100);
-		authorColumnConfig.setRenderer(new GridCellRenderer<FileVersionDTO>() {
-
-			@Override
-			public Object render(FileVersionDTO model, String property, ColumnData config, int rowIndex, int colIndex, ListStore store, Grid grid) {
-				if(model.getAuthorFirstName() != null && !model.getAuthorFirstName().isEmpty()) {
-					return model.getAuthorFirstName() + ' ' + model.getAuthorName();
-				} else {
-					return model.getAuthorName();
+			public void handleEvent(SelectionEvent<TreeGridFileModel> be) {
+				final TreeGridFileModel model = be.getModel();
+				if(model.getChildren() != null) {
+					selectionModel.select(store.getChildren(model), true);
 				}
 			}
 		});
 		
+		return selectionModel;
+	}
+	
+	private ColumnModel createColumnModel(CheckBoxSelectionModel<TreeGridFileModel> selectionModel) {
+		
+		// Project / org unit / file name column.
+		final ColumnConfig nameColumnConfig = new ColumnConfig(TreeGridFileModel.NAME, I18N.CONSTANTS.sigmahOfflinePrepareOfflineFileTransferColumnName(), 200);
+		nameColumnConfig.setRenderer(new TreeGridCellRenderer());
+		
+		// Last modification date column.
+		final ColumnConfig lastModificationColumnConfig = new ColumnConfig(TreeGridFileModel.LAST_MODIFICATION, I18N.CONSTANTS.sigmahOfflinePrepareOfflineFileTransferColumnLastModification(), 85);
+		
+		// Author full name column.
+		final ColumnConfig authorColumnConfig = new ColumnConfig(TreeGridFileModel.AUTHOR, I18N.CONSTANTS.flexibleElementFilesListAuthor(), 100);
+		
 		// Size column.
-		final ColumnConfig sizeColumnConfig = new ColumnConfig(SIZE, I18N.CONSTANTS.flexibleElementFilesListSize(), 85);
-		sizeColumnConfig.setRenderer(new GridCellRenderer<FileVersionDTO>() {
-
-			@Override
-			public Object render(FileVersionDTO model, String property, ColumnData config, int rowIndex, int colIndex, ListStore<FileVersionDTO> store, Grid<FileVersionDTO> grid) {
-				return sizeToString(model.getSize());
-			}
-		});
+		final ColumnConfig sizeColumnConfig = new ColumnConfig(TreeGridFileModel.SIZE, I18N.CONSTANTS.flexibleElementFilesListSize(), 85);
 		
 		return new ColumnModel(Arrays.asList(
 			selectionModel.getColumn(),
-//			containerColumnConfig,
-//			fileTypeColumnConfig,
-			fileNameColumnConfig,
+			nameColumnConfig,
 			lastModificationColumnConfig,
 			authorColumnConfig,
 			sizeColumnConfig

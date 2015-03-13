@@ -114,7 +114,7 @@ public class AuthenticationBannerPresenter extends AbstractZonePresenter<Authent
 	public void onZoneRequest(final ZoneRequest zoneRequest) {
 
 		// Updates view's widgets.
-		view.getNameLabel().setHTML(auth().getUserEmail());
+		view.getNameLabel().setHTML(auth().getUserEmail() + " ▾");
 		view.getLogoutPanel().setVisible(!isAnonymous());
 	}
 

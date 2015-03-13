@@ -13,6 +13,7 @@ import org.sigmah.server.handler.util.Handlers;
 import org.sigmah.server.mapper.Mapper;
 import org.sigmah.server.servlet.base.ServletExecutionContext;
 import org.sigmah.shared.command.AddOrgUnit;
+import org.sigmah.shared.command.ChangePasswordCommand;
 import org.sigmah.shared.command.GetCategories;
 import org.sigmah.shared.command.GetCountries;
 import org.sigmah.shared.command.GetOrgUnit;
@@ -115,6 +116,7 @@ final class AccessRights {
 		sperm(commandToken(GetCategories.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetProjects.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetOrgUnit.class), GrantType.AUTHENTICATED_ONLY);
+		sperm(commandToken(ChangePasswordCommand.class), GrantType.AUTHENTICATED_ONLY);
 
 		// Servlet methods.
 		sperm(servletToken(Servlet.FILE, ServletMethod.DOWNLOAD_LOGO), GrantType.AUTHENTICATED_ONLY);

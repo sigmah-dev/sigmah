@@ -6,12 +6,13 @@ import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.store.TreeStore;
 import com.extjs.gxt.ui.client.widget.grid.GridSelectionModel;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
 import java.util.List;
+import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.inject.Injector;
 import org.sigmah.client.page.Page;
@@ -23,12 +24,18 @@ import org.sigmah.client.ui.presenter.zone.OfflineBannerPresenter;
 import org.sigmah.client.ui.view.base.ViewPopupInterface;
 import org.sigmah.client.ui.widget.button.Button;
 import org.sigmah.client.ui.zone.Zone;
+import org.sigmah.offline.dao.OrgUnitAsyncDAO;
+import org.sigmah.offline.dao.ProjectAsyncDAO;
 import org.sigmah.offline.dao.TransfertAsyncDAO;
 import org.sigmah.offline.js.TransfertJS;
 import org.sigmah.offline.sync.SuccessCallback;
 import org.sigmah.offline.view.FileSelectionView;
 import org.sigmah.shared.command.GetFilesFromFavoriteProjects;
 import org.sigmah.shared.command.result.ListResult;
+import org.sigmah.shared.dto.ProjectDTO;
+import org.sigmah.shared.dto.base.EntityDTO;
+import org.sigmah.shared.dto.orgunit.OrgUnitDTO;
+import org.sigmah.shared.dto.value.FileUploadUtils;
 import org.sigmah.shared.dto.value.FileVersionDTO;
 import org.sigmah.shared.file.HasProgressListeners;
 import org.sigmah.shared.file.TransfertManager;
@@ -48,15 +55,17 @@ public class FileSelectionPresenter extends AbstractPagePresenter<FileSelectionP
 	@ImplementedBy(FileSelectionView.class)
 	public static interface View extends ViewPopupInterface {
 		
-		ListStore<FileVersionDTO> getUploadStore();
-		ListStore<FileVersionDTO> getDownloadStore();
-		GridSelectionModel<FileVersionDTO> getUploadSelectionModel();
-		GridSelectionModel<FileVersionDTO> getDownloadSelectionModel();
+		TreeStore<TreeGridFileModel> getUploadStore();
+		TreeStore<TreeGridFileModel> getDownloadStore();
+		GridSelectionModel<TreeGridFileModel> getUploadSelectionModel();
+		GridSelectionModel<TreeGridFileModel> getDownloadSelectionModel();
 		
-		void addFileVersionToUploadGrid(FileVersionDTO fileVersion);
-		void addFileVersionToDownloadGrid(FileVersionDTO fileVersion);
+		void addFileVersionToUploadGrid(FileVersionDTO fileVersion, EntityDTO<Integer> parent);
+		void addFileVersionToDownloadGrid(FileVersionDTO fileVersion, EntityDTO<Integer> parent);
 		void setUploadSelectedFileSize(long totalSize);
 		void setDownloadSelectedFileSize(long totalSize);
+		
+		void clear();
 	
 		Button getCancelButton();
 		Button getTransferFilesButton();
@@ -65,6 +74,12 @@ public class FileSelectionPresenter extends AbstractPagePresenter<FileSelectionP
 	
 	@Inject
 	private TransfertAsyncDAO transfertAsyncDAO;
+	
+	@Inject
+	private ProjectAsyncDAO projectAsyncDAO;
+	
+	@Inject
+	private OrgUnitAsyncDAO orgUnitAsyncDAO;
 	
 	@Inject
 	private TransfertManager transfertManager;
@@ -114,8 +129,11 @@ public class FileSelectionPresenter extends AbstractPagePresenter<FileSelectionP
 			public void handleEvent(BaseEvent be) {
 				long totalSize = 0L;
 				
-				for(final FileVersionDTO fileVersion : view.getUploadSelectionModel().getSelectedItems()) {
-					totalSize += fileVersion.getSize();
+				for(final TreeGridFileModel model : view.getUploadSelectionModel().getSelectedItems()) {
+					if(model.getDTO() instanceof FileVersionDTO) {
+						final FileVersionDTO fileVersion = (FileVersionDTO) model.getDTO();
+						totalSize += fileVersion.getSize();
+					}
 				}
 				
 				view.setUploadSelectedFileSize(totalSize);
@@ -128,8 +146,11 @@ public class FileSelectionPresenter extends AbstractPagePresenter<FileSelectionP
 			public void handleEvent(BaseEvent be) {
 				long totalSize = 0L;
 				
-				for(final FileVersionDTO fileVersion : view.getDownloadSelectionModel().getSelectedItems()) {
-					totalSize += fileVersion.getSize();
+				for(final TreeGridFileModel model : view.getDownloadSelectionModel().getSelectedItems()) {
+					if(model.getDTO() instanceof FileVersionDTO) {
+						final FileVersionDTO fileVersion = (FileVersionDTO) model.getDTO();
+						totalSize += fileVersion.getSize();
+					}
 				}
 				
 				view.setDownloadSelectedFileSize(totalSize);
@@ -139,10 +160,7 @@ public class FileSelectionPresenter extends AbstractPagePresenter<FileSelectionP
 	
 	@Override
 	public void onPageRequest(PageRequest request) {
-		view.getUploadSelectionModel().deselectAll();
-		view.getDownloadSelectionModel().deselectAll();
-		view.getUploadStore().removeAll();
-		view.getDownloadStore().removeAll();
+		view.clear();
 		
 		transfertAsyncDAO.getAll(TransfertType.UPLOAD, new AsyncCallback<TransfertJS>() {
 
@@ -153,26 +171,53 @@ public class FileSelectionPresenter extends AbstractPagePresenter<FileSelectionP
 
 			@Override
 			public void onSuccess(TransfertJS result) {
-				view.addFileVersionToUploadGrid(result.getFileVersion().toDTO());
+				final FileVersionDTO fileVersion = result.getFileVersion().toDTO();
+				
+				final String parentIdProperty = result.getProperties().get(FileUploadUtils.DOCUMENT_PROJECT);
+				if(parentIdProperty == null) {
+					Log.error("No parent for file version " + fileVersion.getId());
+				}
+				
+				final int parentId = Integer.parseInt(parentIdProperty);
+				
+				projectAsyncDAO.getWithoutDependencies(parentId, new CommandResultHandler<ProjectDTO>() {
+
+					@Override
+					protected void onCommandSuccess(ProjectDTO project) {
+						if(project != null) {
+							view.addFileVersionToUploadGrid(fileVersion, project);
+						}
+					}
+				});
+				
+				orgUnitAsyncDAO.getWithoutDependencies(parentId, new CommandResultHandler<OrgUnitDTO>() {
+					
+					@Override
+					public void onCommandSuccess(OrgUnitDTO orgUnit) {
+						if(orgUnit != null) {
+							view.addFileVersionToUploadGrid(fileVersion, orgUnit);
+						}
+					}
+				});
 			}
 		});
 		
-		dispatch.execute(new GetFilesFromFavoriteProjects(), new AsyncCallback<ListResult<FileVersionDTO>>() {
+		dispatch.execute(new GetFilesFromFavoriteProjects(), new AsyncCallback<ListResult<TreeGridFileModel>>() {
 			@Override
 			public void onFailure(Throwable caught) {
 				N10N.error(I18N.CONSTANTS.offlineActionTransferFilesListFilesError());
 			}
 
 			@Override
-			public void onSuccess(ListResult<FileVersionDTO> result) {
-				for(final FileVersionDTO fileVersion : result.getList()) {
-					if(fileVersion.isAvailable()) {
+			public void onSuccess(ListResult<TreeGridFileModel> result) {
+				for(final TreeGridFileModel model : result.getList()) {
+					for(final FileVersionDTO fileVersion : model.getChildren()) {
 						transfertManager.isCached(fileVersion, new SuccessCallback<Boolean>() {
 
 							@Override
 							public void onSuccess(Boolean cached) {
 								if(cached == null || !cached) {
-									view.addFileVersionToDownloadGrid(fileVersion);
+									view.addFileVersionToDownloadGrid(fileVersion, model.getDTO());
 								}
 							}
 						});
@@ -183,26 +228,36 @@ public class FileSelectionPresenter extends AbstractPagePresenter<FileSelectionP
 	}
 	
 	private void transferSelectedFiles() {
-		final List<FileVersionDTO> uploads = view.getUploadSelectionModel().getSelectedItems();
+		// Uploads
+		final List<TreeGridFileModel> uploads = view.getUploadSelectionModel().getSelectedItems();
 		
-		for(final FileVersionDTO fileVersion : uploads) {
-			transfertAsyncDAO.getByFileVersionId(fileVersion.getId(), new AsyncCallback<TransfertJS>() {
+		for(final TreeGridFileModel model : uploads) {
+			if(model.getDTO() instanceof FileVersionDTO) {
+				final FileVersionDTO fileVersion = (FileVersionDTO) model.getDTO();
+				
+				transfertAsyncDAO.getByFileVersionId(fileVersion.getId(), new AsyncCallback<TransfertJS>() {
 
-				@Override
-				public void onFailure(Throwable caught) {
-					Log.error("An error occured while fetching the content of file version id " + fileVersion.getId() + '.', caught);
-				}
+					@Override
+					public void onFailure(Throwable caught) {
+						Log.error("An error occured while fetching the content of file version id " + fileVersion.getId() + '.', caught);
+					}
 
-				@Override
-				public void onSuccess(TransfertJS result) {
-					((HasProgressListeners)transfertManager).resumeUpload(result);
-				}
-			});
+					@Override
+					public void onSuccess(TransfertJS result) {
+						((HasProgressListeners)transfertManager).resumeUpload(result);
+					}
+				});
+			}
 		}
 		
-		final List<FileVersionDTO> downloads = view.getDownloadSelectionModel().getSelectedItems();
-		for(final FileVersionDTO fileVersionDTO : downloads) {
-			transfertManager.cache(fileVersionDTO);
+		// Downloads
+		final List<TreeGridFileModel> downloads = view.getDownloadSelectionModel().getSelectedItems();
+		
+		for(final TreeGridFileModel model : downloads) {
+			if(model.getDTO() instanceof FileVersionDTO) {
+				final FileVersionDTO fileVersion = (FileVersionDTO) model.getDTO();
+				transfertManager.cache(fileVersion);
+			}
 		}
 		
 		eventBus.updateZoneRequest(Zone.OFFLINE_BANNER.requestWith(RequestParameter.TYPE, OfflineBannerPresenter.SHOW_BRIEFLY));

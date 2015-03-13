@@ -140,6 +140,29 @@ public class OrgUnitAsyncDAO extends AbstractAsyncDAO<OrgUnitDTO> {
             }
         });
 	}
+	
+	public void getWithoutDependencies(final int id, final AsyncCallback<OrgUnitDTO> callback) {
+		openTransaction(Transaction.Mode.READ_ONLY, new OpenTransactionHandler() {
+
+			@Override
+			public void onTransaction(Transaction transaction) {
+				final ObjectStore orgUnitObjectStore = transaction.getObjectStore(getRequiredStore());
+				
+				orgUnitObjectStore.get(id).addCallback(new AsyncCallback<Request>() {
+
+					@Override
+					public void onFailure(Throwable caught) {
+						callback.onFailure(caught);
+					}
+
+					@Override
+					public void onSuccess(Request request) {
+						callback.onSuccess(request.getResult() != null ? request.<OrgUnitJS>getResult().toDTO() : null);
+					}
+				});
+			}
+		});
+	}
 
 	@Override
 	public Store getRequiredStore() {

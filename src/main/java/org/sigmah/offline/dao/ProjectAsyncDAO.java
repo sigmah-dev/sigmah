@@ -132,6 +132,35 @@ public class ProjectAsyncDAO extends AbstractAsyncDAO<ProjectDTO> {
         });
 	}
 	
+	/**
+	 * Retrieves only the informations stored inside ProjectJS.
+	 * 
+	 * @param id Identifier of the project to retrieve.
+	 * @param callback Handler to call when the search is done.
+	 */
+	public void getWithoutDependencies(final int id, final AsyncCallback<ProjectDTO> callback) {
+		openTransaction(Transaction.Mode.READ_ONLY, new OpenTransactionHandler() {
+
+			@Override
+			public void onTransaction(Transaction transaction) {
+				final ObjectStore projectStore = transaction.getObjectStore(getRequiredStore());
+				
+				projectStore.get(id).addCallback(new AsyncCallback<Request>() {
+
+					@Override
+					public void onFailure(Throwable caught) {
+						callback.onFailure(caught);
+					}
+
+					@Override
+					public void onSuccess(Request request) {
+						callback.onSuccess(request.getResult() != null ? request.<ProjectJS>getResult().toDTO() : null);
+					}
+				});
+			}
+		});
+	}
+	
 	private void setChildrenProjects(final ProjectDTO project) {
 		final ArrayList<ProjectDTO> children = new ArrayList<ProjectDTO>();
 
