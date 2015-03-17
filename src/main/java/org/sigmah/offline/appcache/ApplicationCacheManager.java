@@ -9,6 +9,7 @@ import org.sigmah.offline.event.ProgressEvent;
 import org.sigmah.offline.sync.UpdateDates;
 
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.user.client.Window;
 
 /**
  * Manager of ApplicationCache.
@@ -25,17 +26,27 @@ public class ApplicationCacheManager {
 	private static List<ApplicationCacheEventHandler> eventHandlers;
 	
 	/**
-	 * Add an handler for ApplicationCache events.
+	 * Adds an handler for ApplicationCache events.
 	 * 
 	 * @param handler Handler to add.
 	 */
 	public static void addHandler(ApplicationCacheEventHandler handler) {
 		ensureHandlers();
 		eventHandlers.add(handler);
+		
+		handler.onStatusChange(ApplicationCache.getApplicationCache().getStatus());
+	}
+	
+	/**
+	 * Swaps the current cache and displays it by reloading the web page.
+	 */
+	public static void swapCacheAndReload() {
+		ApplicationCache.getApplicationCache().swapCache();
+		Window.Location.reload();
 	}
     
 	/**
-	 * Ensure that the manager is listening to ApplicationCache events.
+	 * Ensures that the manager is listening to ApplicationCache events.
 	 * <p/>
 	 * If the manager is already listening to ApplicationCache, this method does
 	 * nothing.

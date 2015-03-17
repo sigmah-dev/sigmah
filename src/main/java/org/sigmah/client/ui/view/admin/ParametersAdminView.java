@@ -23,16 +23,24 @@ import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.form.AdapterField;
+import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.FileUploadField;
 import com.extjs.gxt.ui.client.widget.form.Radio;
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
+import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
+import com.extjs.gxt.ui.client.widget.form.SpinnerField;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.google.gwt.event.dom.client.LoadEvent;
 import com.google.gwt.event.dom.client.LoadHandler;
+import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.inject.Singleton;
+import java.util.Arrays;
+import java.util.Date;
+import org.sigmah.shared.dto.password.ExpirationPolicy;
 
 /**
  * {@link ParametersAdminPresenter}'s view implementation.
@@ -71,6 +79,14 @@ public class ParametersAdminView extends AbstractView implements ParametersAdmin
 	private Radio exportManagementXlsRadio;
 	private Button exportManagementSaveButton;
 
+	// Export.
+	private FormPanel passwordExpirationManagementForm;
+	private CheckBox resetNewUserPasswordCheckBox;
+	private SimpleComboBox<ExpirationPolicy> policyTypeCombo;
+	private SpinnerField frequencyField;
+	private DateField scheduledDateField;
+	private Button passwordExpirationSaveButton;
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -80,6 +96,10 @@ public class ParametersAdminView extends AbstractView implements ParametersAdmin
 		final LayoutContainer topContainer = Layouts.hBox();
 		topContainer.add(createGeneralParametersPanel(), Layouts.hBoxData(Margin.HALF_RIGHT));
 		topContainer.add(createBackupParametersPanel(), Layouts.hBoxData(Margin.HALF_LEFT));
+
+		// final LayoutContainer bottomContainer = Layouts.hBox();
+		// bottomContainer.add(createExportManagementPanel(), Layouts.hBoxData(Margin.HALF_RIGHT));
+		// bottomContainer.add(createPasswordExpirationManagementPanel(), Layouts.hBoxData(Margin.HALF_LEFT));
 
 		add(topContainer, Layouts.borderLayoutData(LayoutRegion.NORTH, 0.5f, Margin.BOTTOM));
 		add(createExportManagementPanel(), Layouts.borderLayoutData(LayoutRegion.CENTER, 0.5f));
@@ -172,7 +192,7 @@ public class ParametersAdminView extends AbstractView implements ParametersAdmin
 
 		final ContentPanel panel = Panels.content(I18N.CONSTANTS.defaultExportFormat());
 
-		exportManagementForm = Forms.panel(150);
+		exportManagementForm = Forms.panel(200);
 
 		// File format.
 		exportManagementOdsRadio = Forms.radio(I18N.CONSTANTS.openDocumentSpreadsheet());
@@ -186,6 +206,53 @@ public class ParametersAdminView extends AbstractView implements ParametersAdmin
 		exportManagementForm.addButton(exportManagementSaveButton);
 
 		panel.add(exportManagementForm);
+
+		return panel;
+	}
+
+	/**
+	 * Creates the password expiration policy management panel.
+	 * 
+	 * @return The password expiration policy management panel.
+	 */
+	private ContentPanel createPasswordExpirationManagementPanel() {
+
+		final ContentPanel panel = Panels.content(I18N.CONSTANTS.userPasswordSettings());
+		
+		passwordExpirationManagementForm = Forms.panel(300);
+		
+		resetNewUserPasswordCheckBox = Forms.checkbox(I18N.CONSTANTS.resetNewUserPasswords());
+		resetNewUserPasswordCheckBox.setFieldLabel(I18N.CONSTANTS.resetNewUserPasswords());
+		
+		policyTypeCombo = new SimpleComboBox<ExpirationPolicy>();
+        policyTypeCombo.add(Arrays.asList(ExpirationPolicy.values()));
+        policyTypeCombo.setTriggerAction(ComboBox.TriggerAction.ALL);
+        policyTypeCombo.setEditable(false);
+        policyTypeCombo.setAllowBlank(false);
+		policyTypeCombo.setFieldLabel(I18N.CONSTANTS.automaticExpirationPolicy());
+		
+		frequencyField = new SpinnerField();
+        frequencyField.setMinValue(0);
+        frequencyField.setValue(0);
+        frequencyField.setWidth(40);
+        frequencyField.setFormat(NumberFormat.getFormat("0"));
+        frequencyField.setIncrement(1);
+		frequencyField.setFieldLabel(I18N.CONSTANTS.every());
+        
+        scheduledDateField = new DateField();
+        scheduledDateField.setMinValue(new Date());
+		scheduledDateField.setFieldLabel(I18N.CONSTANTS.at());
+		
+		passwordExpirationManagementForm.add(resetNewUserPasswordCheckBox);
+		passwordExpirationManagementForm.add(policyTypeCombo);
+		passwordExpirationManagementForm.add(frequencyField);
+		passwordExpirationManagementForm.add(scheduledDateField);
+		
+		// button
+		passwordExpirationSaveButton = Forms.button(I18N.CONSTANTS.saveExportConfiguration(), IconImageBundle.ICONS.save());
+		passwordExpirationManagementForm.addButton(passwordExpirationSaveButton);
+
+		panel.add(passwordExpirationManagementForm);
 
 		return panel;
 	}

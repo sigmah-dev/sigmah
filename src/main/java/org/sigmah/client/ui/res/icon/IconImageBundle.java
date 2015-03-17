@@ -239,4 +239,6 @@ public interface IconImageBundle extends ImageBundle {
 	
 	AbstractImagePrototype transfer();
 	
+	AbstractImagePrototype update();
+	
 }

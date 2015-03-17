@@ -17,10 +17,21 @@ import org.sigmah.client.ui.widget.RatioBar;
 import org.sigmah.offline.status.ProgressType;
 
 /**
- *
+ * Popup menu to manage the offline mode.
+ * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
 public class OfflineMenuPanel extends Composite {
+	
+	private static final String MENU_ID = "offline-menu";
+	private static final String ACTION_STYLE = "offline-action";
+	private static final String UPDATE_DATABASE_ACTION_STYLE = "update-database";
+	private static final String TRANSFER_FILES_ACTION_STYLE = "transfert-files";
+	private static final String REMOVE_DATABASE_ACTION_STYLE = "delete-database";
+	private static final String VARIABLE_STYLE = "offline-menu-variable";
+	private static final String SEPARATOR_STYLE = "offline-action-separator";
+	private static final String PROGRESS_BAR_STYLE = "offline-menu-progress";
+	private static final String PROGRESS_LABEL_STYLE = "offline-menu-progress-label";
     
     private InlineLabel sigmahUpdateVariable;
     
@@ -38,26 +49,56 @@ public class OfflineMenuPanel extends Composite {
     
     private Widget[] fileBaseWidgets;
 
+	/**
+	 * Creates a new menu.
+	 */
 	public OfflineMenuPanel() {
 		initWidget(createPanel());
 	}
 
+	/**
+	 * Retrieves the link to update the database.
+	 * 
+	 * @return The link to update the database.
+	 */
     public Anchor getUpdateDatabaseAnchor() {
         return updateDatabaseAnchor;
     }
 
+	/**
+	 * Retrieves the link to transfer files.
+	 * 
+	 * @return The link to transfer files.
+	 */
     public Anchor getTransferFilesAnchor() {
         return transferFilesAnchor;
     }
 
+	/**
+	 * Retrieves the link to remove the current offline database.
+	 * 
+	 * @return The link to remove the current offline database.
+	 */
     public Anchor getRemoveOfflineDataAnchor() {
         return removeOfflineDataAnchor;
     }
 
+	/**
+	 * Retrieves the progress bar associated with the given type.
+	 * 
+	 * @param progressType Type of loadable element.
+	 * @return The associated progress bar.
+	 */
     public RatioBar getBar(ProgressType progressType) {
         return bars.get(progressType);
     }
 	
+	/**
+	 * Show or hide the progress bar associated with the given type.
+	 * 
+	 * @param progressType Type of loadable element.
+	 * @param visible <code>true</code> to show the bar, <code>false</code> to hide it.
+	 */
 	public void setBarVisible(ProgressType progressType, boolean visible) {
 		if(visible) {
 			wraps.get(progressType).getElement().getStyle().clearDisplay();
@@ -113,7 +154,7 @@ public class OfflineMenuPanel extends Composite {
 	
 	private Widget createPanel() {
 		final FlowPanel rootPanel = new FlowPanel();
-		rootPanel.getElement().setId("offline-menu");
+		rootPanel.getElement().setId(MENU_ID);
         
         // Application cache status
 //        rootPanel.add(createHeader(I18N.CONSTANTS.offlineModeHeader(), I18N.CONSTANTS.offlineModeAvailability()));
@@ -138,16 +179,17 @@ public class OfflineMenuPanel extends Composite {
         rootPanel.add(wrapProgressBar(I18N.CONSTANTS.offlineSynchronizeProgress(), localDatabaseRatioBar, ProgressType.DATABASE));
         
         updateDatabaseAnchor = createActionButton(I18N.CONSTANTS.offlineActionUpdateDatabase());
+		updateDatabaseAnchor.addStyleName(UPDATE_DATABASE_ACTION_STYLE);
 		rootPanel.add(updateDatabaseAnchor);
         
         rootPanel.add(createSeparator(false));
         
         // File base status
-        final InlineHTML offlineFileBaseHeader = createHeader(I18N.CONSTANTS.offlineFileBaseHeader(), "");
+        final InlineHTML offlineFileBaseHeader = createHeader(I18N.CONSTANTS.offlineFileBaseHeader());
         rootPanel.add(offlineFileBaseHeader);
 		
 		final FlowPanel pendingUploadsPanel = new FlowPanel();
-		pendingUploadsPanel.add(new InlineLabel(I18N.CONSTANTS.offlineTransfertUploadPending()));
+		pendingUploadsPanel.add(createListEntry(I18N.CONSTANTS.offlineTransfertUploadPending()));
 		pendingUploadsVariable = createVariable("0");
 		pendingUploadsPanel.add(pendingUploadsVariable);
 		rootPanel.add(pendingUploadsPanel);
@@ -157,7 +199,7 @@ public class OfflineMenuPanel extends Composite {
         rootPanel.add(wrapProgressBar(I18N.CONSTANTS.offlineTransfertUploadProgress(), uploadRatioBar, ProgressType.UPLOAD));
 		
 		final FlowPanel pendingDownloadsPanel = new FlowPanel();
-		pendingDownloadsPanel.add(new InlineLabel(I18N.CONSTANTS.offlineTransfertDownloadPending()));
+		pendingDownloadsPanel.add(createListEntry(I18N.CONSTANTS.offlineTransfertDownloadPending()));
 		pendingDownloadsVariable = createVariable("0");
 		pendingDownloadsPanel.add(pendingDownloadsVariable);
 		rootPanel.add(pendingDownloadsPanel);
@@ -167,6 +209,7 @@ public class OfflineMenuPanel extends Composite {
         rootPanel.add(wrapProgressBar(I18N.CONSTANTS.offlineTransfertDownloadProgress(), downloadRatioBar, ProgressType.DOWNLOAD));
         
         transferFilesAnchor = createActionButton(I18N.CONSTANTS.offlineActionTransferFiles());
+		transferFilesAnchor.addStyleName(TRANSFER_FILES_ACTION_STYLE);
 		rootPanel.add(transferFilesAnchor);
         
         fileBaseWidgets = new Widget[] {offlineFileBaseHeader, pendingUploadsPanel, uploadRatioBar, pendingDownloadsPanel, downloadRatioBar, transferFilesAnchor};
@@ -175,30 +218,49 @@ public class OfflineMenuPanel extends Composite {
         
         // Destroy offline mode button
         removeOfflineDataAnchor = createActionButton(I18N.CONSTANTS.offlineActionDestroyLocalData());
-        removeOfflineDataAnchor.addStyleName("offline-action-remove");
+        removeOfflineDataAnchor.addStyleName(REMOVE_DATABASE_ACTION_STYLE);
         rootPanel.add(removeOfflineDataAnchor);
 		
 		return rootPanel;
 	}
     
+    private InlineHTML createHeader(String header) {
+		return createHeader(header, null);
+	}
+	
     private InlineHTML createHeader(String header, String statusLabel) {
-        return new InlineHTML(new SafeHtmlBuilder()
-            .appendHtmlConstant("<h1>")
+		final SafeHtmlBuilder htmlBuilder = new SafeHtmlBuilder()
+			.appendHtmlConstant("<h1>")
             .appendEscaped(header)
-            .appendHtmlConstant("</h1>")
-            .appendEscaped(statusLabel)
-            .toSafeHtml());
+            .appendHtmlConstant("</h1>");
+		
+		if(statusLabel != null) {
+			htmlBuilder
+				.appendHtmlConstant("<span style=\"margin-left: 2em; font-style: italic\">")
+				.appendEscaped(statusLabel)
+				.appendHtmlConstant("</span>");
+		}
+		
+        return new InlineHTML(htmlBuilder.toSafeHtml());
     }
+	
+	private InlineHTML createListEntry(String label) {
+		return new InlineHTML(new SafeHtmlBuilder()
+			.appendHtmlConstant("<span style=\"margin-left: 4em;\">- ")
+			.appendEscaped(label)
+			.appendHtmlConstant("</span>")
+			.toSafeHtml());
+	}
     
     private InlineLabel createVariable(String value) {
         final InlineLabel label = new InlineLabel(value);
-        label.setStyleName("offline-menu-variable");
+        label.setStyleName(VARIABLE_STYLE);
         return label;
     }
     
     private InlineHTML createSeparator(boolean visible) {
         final InlineHTML inlineHTML = new InlineHTML(new SafeHtmlBuilder()
-            .appendHtmlConstant("<hr class=\"offline-action-separator\">")
+            .appendHtmlConstant("<hr class=\"" + SEPARATOR_STYLE + "\">")
             .toSafeHtml());
         
         if(!visible) {
@@ -210,7 +272,7 @@ public class OfflineMenuPanel extends Composite {
     
     private Anchor createActionButton(String label) {
         final Anchor anchor = new Anchor(label);
-        anchor.setStyleName("offline-action");
+        anchor.setStyleName(ACTION_STYLE);
         return anchor;
     }
 	
@@ -221,8 +283,8 @@ public class OfflineMenuPanel extends Composite {
 		panel.add(label);
 		panel.add(ratioBar);
 		
-		label.setStyleName("offline-menu-progress-label");
-		ratioBar.setStyleName("offline-menu-progress");
+		label.setStyleName(PROGRESS_LABEL_STYLE);
+		ratioBar.setStyleName(PROGRESS_BAR_STYLE);
 		
 		wraps.put(type, panel);
 		return panel;

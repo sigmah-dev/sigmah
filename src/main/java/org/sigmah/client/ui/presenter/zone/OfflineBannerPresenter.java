@@ -330,6 +330,8 @@ implements OfflineEvent.Source {
                         progresses.remove(ProgressType.APPLICATION_CACHE);
                         updateProgressBars();
                         view.getMenuPanel().setSigmahUpdateDate(new Date());
+						
+						ApplicationCacheManager.swapCacheAndReload();
 						break;
 					default:
 						break;
