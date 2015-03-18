@@ -263,7 +263,7 @@ public class ProjectModelsAdminPresenter extends AbstractModelsAdminPresenter<Pr
 		final Map<String, Object> modelProperties = new HashMap<String, Object>();
 		modelProperties.put(AdminUtil.ADMIN_PROJECT_MODEL, currentModel);
 		modelProperties.put(AdminUtil.PROP_PM_NAME, name);
-		modelProperties.put(AdminUtil.PROP_PM_STATUS, status != ProjectModelStatus.UNDER_MAINTENANCE ? status : null);
+		modelProperties.put(AdminUtil.PROP_PM_STATUS, status);
 		modelProperties.put(AdminUtil.PROP_PM_USE, view.getProjectModelTypeField().getValue());
 		modelProperties.put(AdminUtil.PROP_PM_MAINTENANCE_DATE, getMaintenanceDate());
 

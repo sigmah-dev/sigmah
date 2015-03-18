@@ -133,10 +133,17 @@ public class FileSelectionView extends AbstractPopupView<PopupWidget> implements
 		
 		final TreeGridFileModel fileVersionModel = new TreeGridFileModel(fileVersion);
 		grid.getTreeStore().add(parentModel, fileVersionModel, false);
-		
-		grid.getSelectionModel().select(fileVersionModel, true);
 	}
 
+	@Override
+	public void selectAndExpandAll() {
+		getUploadGrid().expandAll();
+		getDownloadGrid().expandAll();
+		
+		getUploadGrid().getSelectionModel().selectAll();
+		getDownloadGrid().getSelectionModel().selectAll();
+	}
+	
 	@Override
 	public void setUploadSelectedFileSize(long totalSize) {
 		getStatus(uploadPanel).setText(I18N.MESSAGES.sigmahOfflinePrepareOfflineFileTransferTotalUploadSize(sizeToString(totalSize)));
@@ -153,11 +160,13 @@ public class FileSelectionView extends AbstractPopupView<PopupWidget> implements
 		getDownloadStore().removeAll();
 	}
 	
-	private TreeGrid<TreeGridFileModel> getUploadGrid() {
+	@Override
+	public TreeGrid<TreeGridFileModel> getUploadGrid() {
 		return (TreeGrid<TreeGridFileModel>) uploadPanel.getWidget(0);
 	}
 	
-	private TreeGrid<TreeGridFileModel> getDownloadGrid() {
+	@Override
+	public TreeGrid<TreeGridFileModel> getDownloadGrid() {
 		return (TreeGrid<TreeGridFileModel>) downloadPanel.getWidget(0);
 	}
 	

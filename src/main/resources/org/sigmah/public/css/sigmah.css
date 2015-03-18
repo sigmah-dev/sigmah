@@ -88,6 +88,7 @@ body {font-family:Arial;font-size:8pt}
 #app-message .message-panel.warning .message,.popup-content .message-panel.warning .message{background-color:#FEFFCF;border-color:#EBAE7F;color:#D85D01;background-image:url(../images/icon/error.png);}
 #app-message .message-panel.error .message,.popup-content .message-panel.error .message{background-color:#FFE7E7;border-color:#E77D7B;color:#AD5E5C;background-image:url(../images/icon/exclamation.png);}
 #app-message .message-panel.valid .message,.popup-content .message-panel.valid .message{background-color:#E7FFD6;border-color:#8CD76B;color:#69A150;background-image:url(../images/icon/accept.png);}
+#app-message .message-panel.offline .message,.popup-content .message-panel.offline .message{background-color:#646263;border-color:#000;color:#FFF;background-image:url(../images/icon/information.png);}
 .popup-content .message-panel{background-color:white;padding-bottom:10px}
 .x-window.notification .popup-content .message-panel{padding:0;}
 .x-window.notification .popup-content .message{border:none;}

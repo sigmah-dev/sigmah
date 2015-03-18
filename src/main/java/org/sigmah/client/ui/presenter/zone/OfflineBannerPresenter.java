@@ -63,7 +63,6 @@ import org.sigmah.shared.file.TransfertType;
 public class OfflineBannerPresenter extends AbstractZonePresenter<OfflineBannerPresenter.View> 
 implements OfflineEvent.Source {
 	
-	public static final String SHOW_BRIEFLY = "SHOW_BRIEFLY";
 	private static final int AUTOCLOSE_TIME = 3000;
     
     private static final String STYLE_MENU_VISIBLE = "offline-button-active";
@@ -190,8 +189,9 @@ implements OfflineEvent.Source {
 	 */
 	@Override
 	public void onZoneRequest(ZoneRequest zoneRequest) {
-		final String type = zoneRequest.getData(RequestParameter.TYPE);
-		if(SHOW_BRIEFLY.equals(type)) {
+		final Boolean showBriefly = zoneRequest.getData(RequestParameter.SHOW_BRIEFLY);
+		
+		if(showBriefly != null && showBriefly) {
 			forceOpen = true;
 			updateMenuVisibility();
 			

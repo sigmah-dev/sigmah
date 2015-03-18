@@ -36,6 +36,7 @@ public final class ProjectModelJS extends JavaScriptObject {
 		projectModelJS.setVisibilities(projectModelDTO.getVisibilities());
 		projectModelJS.setLogFrameModel(projectModelDTO.getLogFrameModel());
 		projectModelJS.setStatus(projectModelDTO.getStatus());
+		projectModelJS.setUnderMaintenance(projectModelDTO.isUnderMaintenance());
 		
 		return projectModelJS;
 	}
@@ -71,6 +72,8 @@ public final class ProjectModelJS extends JavaScriptObject {
 		if(status != null) {
 			projectModelDTO.setStatus(ProjectModelStatus.valueOf(status));
 		}
+		
+		projectModelDTO.setUnderMaintenance(isUnderMaintenance());
 		
 		return projectModelDTO;
 	}
@@ -195,5 +198,13 @@ public final class ProjectModelJS extends JavaScriptObject {
 	
 	public native void setStatus(String status) /*-{
 		this.status = status;
+	}-*/;
+	
+	public native boolean isUnderMaintenance() /*-{
+		return this.underMaintenance;
+	}-*/;
+	
+	public native void setUnderMaintenance(boolean underMaintenance) /*-{
+		this.underMaintenance = underMaintenance;
 	}-*/;
 }

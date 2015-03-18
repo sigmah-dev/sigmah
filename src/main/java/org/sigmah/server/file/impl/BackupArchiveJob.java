@@ -322,21 +322,25 @@ public class BackupArchiveJob implements Runnable {
 
 			final FileElement file = (FileElement) root;
 			final String fileStorageId = file.getStorageId();
+			
+			if(fileStorageProvider.exists(fileStorageId)) {
+				try (final InputStream is = new BufferedInputStream(fileStorageProvider.open(fileStorageId), ResponseHelper.BUFFER_SIZE)) {
 
-			try (final InputStream is = new BufferedInputStream(fileStorageProvider.open(fileStorageId), ResponseHelper.BUFFER_SIZE)) {
+					zipOutputStream.putArchiveEntry(new ZipArchiveEntry(path));
 
-				zipOutputStream.putArchiveEntry(new ZipArchiveEntry(path));
+					final byte data[] = new byte[ResponseHelper.BUFFER_SIZE];
 
-				final byte data[] = new byte[ResponseHelper.BUFFER_SIZE];
+					while ((is.read(data)) != -1) {
+						zipOutputStream.write(data);
+					}
 
-				while ((is.read(data)) != -1) {
-					zipOutputStream.write(data);
+					zipOutputStream.closeArchiveEntry();
+
+				} catch (final IOException e) {
+					LOG.warn("File '" + fileStorageId + "' cannot be found ; continuing with next file.", e);
 				}
-
-				zipOutputStream.closeArchiveEntry();
-
-			} catch (final IOException e) {
-				LOG.warn("File '" + fileStorageId + "' cannot be found ; continuing with next file.", e);
+			} else {
+				LOG.warn("File '{0}' does not exists on the server ; continuing with next file.", fileStorageId);
 			}
 
 		} else if (root instanceof FolderElement) {

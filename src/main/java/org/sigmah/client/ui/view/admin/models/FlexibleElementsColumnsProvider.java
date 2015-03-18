@@ -14,7 +14,6 @@ import org.sigmah.shared.dto.layout.LayoutGroupDTO;
 import org.sigmah.shared.dto.profile.PrivacyGroupDTO;
 import org.sigmah.shared.dto.referential.DefaultFlexibleElementType;
 import org.sigmah.shared.dto.referential.ElementTypeEnum;
-import org.sigmah.shared.dto.referential.ProjectModelStatus;
 
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.store.ListStore;
@@ -34,12 +33,12 @@ import com.google.gwt.event.dom.client.ClickHandler;
 abstract class FlexibleElementsColumnsProvider {
 
 	/**
-	 * Returns the current model status.
+	 * Returns <code>true</code> if the parent model is editable.
 	 * 
-	 * @return The current model status.
+	 * @return <code>true</code> if the parent model is editable, <code>false</code> otherwise.
 	 */
-	protected abstract ProjectModelStatus getModelStatus();
-
+	protected abstract boolean isEditable();
+	
 	/**
 	 * Returns the {@link GridEventHandler} implementation.
 	 * 
@@ -276,13 +275,4 @@ abstract class FlexibleElementsColumnsProvider {
 		return new ColumnModel(configs);
 	}
 
-	/**
-	 * Returns <code>true</code> if the parent model is editable.
-	 * 
-	 * @return <code>true</code> if the parent model is editable, <code>false</code> otherwise.
-	 */
-	private boolean isEditable() {
-		final ProjectModelStatus status = getModelStatus();
-		return status != null && status.isEditable();
-	}
 }

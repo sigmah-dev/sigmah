@@ -40,6 +40,8 @@ import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import org.sigmah.client.ui.notif.N10N;
+import org.sigmah.offline.sync.UpdateDates;
 
 /**
  * Dashboard page presenter.
@@ -125,6 +127,8 @@ public class DashboardPresenter extends AbstractPagePresenter<DashboardPresenter
 
 	}
 	
+	private Integer lastUserId;
+	
 	/**
 	 * Presenters's initialization.
 	 * 
@@ -185,6 +189,14 @@ public class DashboardPresenter extends AbstractPagePresenter<DashboardPresenter
 
 		// Reloads projects.
 		view.getProjectsList().refresh(true, auth().getOrgUnitId());
+		
+		// Ask the user to synchronize its favorite projects.
+		final boolean userIsDifferent = auth().getUserId() != null && !auth().getUserId().equals(lastUserId);
+		final boolean userHasSynchronized = UpdateDates.getDatabaseUpdateDate(auth()) != null;
+		if(userIsDifferent && !userHasSynchronized) {
+			N10N.offlineNotif(I18N.CONSTANTS.offline(), I18N.CONSTANTS.sigmahOfflineWelcome());
+		}
+		lastUserId = auth().getUserId();
 	}
 
 	// -------------------------------------------------------------------------------------------

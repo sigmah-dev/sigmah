@@ -21,7 +21,6 @@ import org.sigmah.shared.command.Delete;
 import org.sigmah.shared.command.result.VoidResult;
 import org.sigmah.shared.dto.PhaseModelDTO;
 import org.sigmah.shared.dto.ProjectModelDTO;
-import org.sigmah.shared.dto.referential.ProjectModelStatus;
 
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
@@ -99,7 +98,7 @@ public class PhaseModelsAdminPresenter extends AbstractPresenter<PhaseModelsAdmi
 			@Override
 			public void selectionChanged(final SelectionChangedEvent<PhaseModelDTO> event) {
 				final boolean singleSelection = ClientUtils.isNotEmpty(event.getSelection()) && event.getSelection().size() == 1;
-				view.getDeleteButton().setEnabled(singleSelection && isModelEditable());
+				view.getDeleteButton().setEnabled(singleSelection && currentModel.isEditable());
 			}
 		});
 
@@ -158,7 +157,7 @@ public class PhaseModelsAdminPresenter extends AbstractPresenter<PhaseModelsAdmi
 	public void loadTab(final ProjectModelDTO model) {
 
 		this.currentModel = model;
-		view.setToolbarEnabled(isModelEditable());
+		view.setToolbarEnabled(currentModel.isEditable());
 
 		// --
 		// Populating the store and initializing phase models 'root' property.
@@ -190,15 +189,6 @@ public class PhaseModelsAdminPresenter extends AbstractPresenter<PhaseModelsAdmi
 	// ---------------------------------------------------------------------------------------------------------------
 
 	/**
-	 * Returns if the current project model can be edited (<code>DRAFT</code> or <code>UNDER_MAINTENANCE</code> status).
-	 * 
-	 * @return {@code true} if the current project model is editable, {@code false} otherwise.
-	 */
-	private boolean isModelEditable() {
-		return currentModel.getStatus() != null && currentModel.getStatus().isEditable();
-	}
-
-	/**
 	 * Callback executed on delete button action.
 	 * 
 	 * @param phaseModel
@@ -211,7 +201,7 @@ public class PhaseModelsAdminPresenter extends AbstractPresenter<PhaseModelsAdmi
 		}
 
 		// Only a phase model within a project model in 'DRAFT' status is allowed to be deleted.
-		if (!isModelEditable()) {
+		if (!currentModel.isEditable()) {
 			return;
 		}
 

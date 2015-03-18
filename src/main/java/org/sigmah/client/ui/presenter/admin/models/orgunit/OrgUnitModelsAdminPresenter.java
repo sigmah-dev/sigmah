@@ -174,7 +174,7 @@ public class OrgUnitModelsAdminPresenter extends AbstractModelsAdminPresenter<Or
 
 		final Map<String, Object> modelProperties = new HashMap<String, Object>();
 		modelProperties.put(AdminUtil.PROP_OM_NAME, view.getNameField().getValue());
-		modelProperties.put(AdminUtil.PROP_OM_STATUS, status != ProjectModelStatus.UNDER_MAINTENANCE ? status : null);
+		modelProperties.put(AdminUtil.PROP_OM_STATUS, status);
 		modelProperties.put(AdminUtil.ADMIN_ORG_UNIT_MODEL, currentModel);
 		modelProperties.put(AdminUtil.PROP_OM_NAME, nameValue);
 		modelProperties.put(AdminUtil.PROP_OM_TITLE, title);

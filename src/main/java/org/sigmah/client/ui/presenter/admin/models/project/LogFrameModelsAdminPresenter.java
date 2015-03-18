@@ -23,7 +23,6 @@ import org.sigmah.shared.command.CreateEntity;
 import org.sigmah.shared.command.result.CreateResult;
 import org.sigmah.shared.dto.ProjectModelDTO;
 import org.sigmah.shared.dto.logframe.LogFrameModelDTO;
-import org.sigmah.shared.dto.referential.ProjectModelStatus;
 
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
@@ -218,7 +217,7 @@ public class LogFrameModelsAdminPresenter extends AbstractPresenter<LogFrameMode
 		view.getForm().clear(); // Should not process a 'clearAll()'.
 
 		// Toolbar enable state.
-		view.setToolbarEnabled(currentModel.getStatus() != null && currentModel.getStatus().isEditable());
+		view.setToolbarEnabled(currentModel.getStatus() != null && currentModel.isEditable());
 
 		// LogFrame model loading.
 		loadLogFrameModel(currentModel.getLogFrameModel());

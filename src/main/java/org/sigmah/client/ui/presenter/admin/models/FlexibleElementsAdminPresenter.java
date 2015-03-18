@@ -26,7 +26,6 @@ import org.sigmah.shared.dto.IsModel;
 import org.sigmah.shared.dto.element.DefaultFlexibleElementDTO;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
 import org.sigmah.shared.dto.referential.DefaultFlexibleElementType;
-import org.sigmah.shared.dto.referential.ProjectModelStatus;
 
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
@@ -53,13 +52,7 @@ public class FlexibleElementsAdminPresenter<E extends IsModel> extends AbstractP
 	@ImplementedBy(FlexibleElementsAdminView.class)
 	public static interface View extends ViewInterface, HasGrid<FlexibleElementDTO> {
 
-		/**
-		 * Provides the current loaded model corresponding status to the view.
-		 * 
-		 * @param status
-		 *          The current loaded model corresponding status.
-		 */
-		void setModelStatus(ProjectModelStatus status);
+		void setModelEditable(final boolean editable);
 
 		void setToolbarEnabled(final boolean enabled);
 
@@ -234,9 +227,9 @@ public class FlexibleElementsAdminPresenter<E extends IsModel> extends AbstractP
 
 		this.currentModel = model;
 
-		view.setToolbarEnabled(model.getStatus() != null && model.getStatus().isEditable());
+		view.setToolbarEnabled(model.getStatus() != null && model.isEditable());
 
-		view.setModelStatus(model.getStatus());
+		view.setModelEditable(model.isEditable());
 		
 		view.getDeleteButton().setVisible(!model.isUnderMaintenance());
 		view.getEnableButton().setVisible(model.isUnderMaintenance());

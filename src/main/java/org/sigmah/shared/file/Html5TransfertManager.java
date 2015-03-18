@@ -10,7 +10,6 @@ import org.sigmah.client.dispatch.DispatchAsync;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.ui.notif.N10N;
 import org.sigmah.client.ui.widget.form.ButtonFileUploadField;
-import org.sigmah.client.util.MessageType;
 import org.sigmah.offline.dao.FileDataAsyncDAO;
 import org.sigmah.offline.dao.TransfertAsyncDAO;
 import org.sigmah.offline.fileapi.ArrayBuffer;
@@ -422,7 +421,7 @@ class Html5TransfertManager implements TransfertManager, HasProgressListeners {
 
                             @Override
                             public void onFailure(Throwable caught) {
-                                N10N.notification(I18N.CONSTANTS.offlineTransfertUploadStoreError(), MessageType.OFFLINE);
+                                N10N.offlineNotif(I18N.CONSTANTS.error(), I18N.CONSTANTS.offlineTransfertUploadStoreError());
                                 queueTransfert(transfertJS, progressListener);
                             }
 

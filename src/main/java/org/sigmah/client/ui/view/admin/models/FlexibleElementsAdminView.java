@@ -8,7 +8,6 @@ import org.sigmah.client.ui.widget.button.Button;
 import org.sigmah.client.ui.widget.form.Forms;
 import org.sigmah.client.ui.widget.panel.Panels;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
-import org.sigmah.shared.dto.referential.ProjectModelStatus;
 
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.store.ListStore;
@@ -33,7 +32,7 @@ public class FlexibleElementsAdminView extends AbstractView implements FlexibleE
 	private Button enableButton;
 	private Button disableButton;
 
-	private ProjectModelStatus status;
+	private boolean editable;
 	private GridEventHandler<FlexibleElementDTO> gridEventHandler;
 
 	/**
@@ -78,8 +77,8 @@ public class FlexibleElementsAdminView extends AbstractView implements FlexibleE
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setModelStatus(final ProjectModelStatus status) {
-		this.status = status;
+	public void setModelEditable(final boolean editable) {
+		this.editable = editable;
 	}
 
 	/**
@@ -157,8 +156,8 @@ public class FlexibleElementsAdminView extends AbstractView implements FlexibleE
 		grid = new Grid<FlexibleElementDTO>(new ListStore<FlexibleElementDTO>(), new FlexibleElementsColumnsProvider() {
 
 			@Override
-			protected ProjectModelStatus getModelStatus() {
-				return status;
+			protected boolean isEditable() {
+				return editable;
 			}
 
 			@Override

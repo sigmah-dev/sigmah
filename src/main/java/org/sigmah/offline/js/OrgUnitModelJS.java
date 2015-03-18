@@ -27,6 +27,7 @@ public final class OrgUnitModelJS extends JavaScriptObject {
 		orgUnitModelJS.setHasBudget(orgUnitModelDTO.getHasBudget());
 		orgUnitModelJS.setCanContainProjects(orgUnitModelDTO.getCanContainProjects());
 		orgUnitModelJS.setTopOrgUnitModel(orgUnitModelDTO.isTopOrgUnitModel());
+		orgUnitModelJS.setUnderMaintenance(orgUnitModelDTO.isUnderMaintenance());
 		
 		return orgUnitModelJS;
 	}
@@ -59,6 +60,7 @@ public final class OrgUnitModelJS extends JavaScriptObject {
 		}
 		
 		orgUnitModelDTO.setTopOrgUnitModel(isTopOrgUnitModel());
+		orgUnitModelDTO.setUnderMaintenance(isUnderMaintenance());
 		
 		return orgUnitModelDTO;
 	}
@@ -165,5 +167,13 @@ public final class OrgUnitModelJS extends JavaScriptObject {
 
 	public native void setTopOrgUnitModel(boolean topOrgUnitModel) /*-{
 		this.topOrgUnitModel = topOrgUnitModel;
+	}-*/;
+	
+	public native boolean isUnderMaintenance() /*-{
+		return this.underMaintenance;
+	}-*/;
+	
+	public native void setUnderMaintenance(boolean underMaintenance) /*-{
+		this.underMaintenance = underMaintenance;
 	}-*/;
 }

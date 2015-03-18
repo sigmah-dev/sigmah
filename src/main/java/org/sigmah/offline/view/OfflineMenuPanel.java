@@ -246,7 +246,7 @@ public class OfflineMenuPanel extends Composite {
 	
 	private InlineHTML createListEntry(String label) {
 		return new InlineHTML(new SafeHtmlBuilder()
-			.appendHtmlConstant("<span style=\"margin-left: 4em;\">- ")
+			.appendHtmlConstant("<span style=\"margin-left: 2em;\">- ")
 			.appendEscaped(label)
 			.appendHtmlConstant("</span>")
 			.toSafeHtml());

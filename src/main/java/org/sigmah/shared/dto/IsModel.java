@@ -84,6 +84,12 @@ public interface IsModel extends EntityDTO<Integer>, ModelData {
 	 * 
 	 * @return The start date of the maintenance.
 	 */
-	public Date getDateMaintenance();
+	Date getDateMaintenance();
 	
+	/**
+	 * Returns <code>true</code> if the model is in an editable state (<code>DRAFT</code> or <code>UNDER_MAINTENANCE</code> status).
+	 * 
+	 * @return {@code true} if the current project model is editable, {@code false} otherwise.
+	 */
+	boolean isEditable();
 }

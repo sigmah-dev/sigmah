@@ -118,7 +118,6 @@ public class AuthenticationProvider implements Provider<Authentication> {
 	public boolean clearAuthentication() {
 
 		Cookies.removeCookie(org.sigmah.shared.Cookies.AUTH_TOKEN_COOKIE, org.sigmah.shared.Cookies.COOKIE_PATH);
-		Cookies.removeCookie(org.sigmah.shared.Cookies.LANGUAGE_COOKIE, org.sigmah.shared.Cookies.COOKIE_PATH);
 		// TODO Also clear GXT theme cookie?
 
 		authentication = new Authentication(authentication.getLanguage());

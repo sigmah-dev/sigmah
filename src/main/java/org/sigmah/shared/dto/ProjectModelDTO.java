@@ -237,6 +237,10 @@ public class ProjectModelDTO extends AbstractModelDataEntityDTO<Integer> impleme
 	// ---------------------------------------------------------------------------------------------
 
 	// Project model name.
+	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String getName() {
 		return get(NAME);
@@ -301,6 +305,10 @@ public class ProjectModelDTO extends AbstractModelDataEntityDTO<Integer> impleme
 	}
 
 	// Status.
+	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public ProjectModelStatus getStatus() {
 		return get(STATUS);
@@ -311,6 +319,10 @@ public class ProjectModelDTO extends AbstractModelDataEntityDTO<Integer> impleme
 	}
 	
 	// Maintenance.
+	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public boolean isUnderMaintenance() {
 		return get(UNDER_MAINTENANCE);
@@ -318,6 +330,14 @@ public class ProjectModelDTO extends AbstractModelDataEntityDTO<Integer> impleme
 	
 	public void setUnderMaintenance(boolean underMaintenance) {
 		set(UNDER_MAINTENANCE, underMaintenance);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean isEditable() {
+		return getStatus().isEditable() || isUnderMaintenance();
 	}
 	
 	// Maintenance start date.

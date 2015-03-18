@@ -235,6 +235,14 @@ public class OrgUnitModelDTO extends AbstractModelDataEntityDTO<Integer> impleme
 		set(UNDER_MAINTENANCE, underMaintenance);
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean isEditable() {
+		return getStatus().isEditable() || isUnderMaintenance();
+	}
+	
 	// Maintenance start date.
 	@Override
 	public Date getDateMaintenance() {

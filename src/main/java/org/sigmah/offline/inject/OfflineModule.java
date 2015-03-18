@@ -50,6 +50,7 @@ import org.sigmah.offline.handler.GetLinkedProjectsAsyncHandler;
 import org.sigmah.offline.handler.GetProjectDocumentsAsyncHandler;
 import org.sigmah.offline.handler.GetProjectReportAsyncHandler;
 import org.sigmah.offline.handler.GetProjectReportsAsyncHandler;
+import org.sigmah.offline.handler.GetSitesCountAsyncHandler;
 import org.sigmah.offline.handler.UpdateEntityAsyncHandler;
 import org.sigmah.offline.handler.UpdateLogFrameAsyncHandler;
 import org.sigmah.offline.handler.UpdateMonitoredPointsAsyncHandler;
@@ -62,6 +63,7 @@ import org.sigmah.shared.command.GetLinkedProjects;
 import org.sigmah.shared.command.GetProjectDocuments;
 import org.sigmah.shared.command.GetProjectReport;
 import org.sigmah.shared.command.GetProjectReports;
+import org.sigmah.shared.command.GetSitesCount;
 import org.sigmah.shared.command.UpdateEntity;
 import org.sigmah.shared.command.UpdateLogFrame;
 import org.sigmah.shared.command.UpdateMonitoredPoints;
@@ -108,6 +110,7 @@ public class OfflineModule extends AbstractGinModule {
 			GetProjectReportAsyncHandler getProjectReportAsyncHandler,
 			GetProjectReportsAsyncHandler getProjectReportsAsyncHandler,
 			GetRemindersAsyncHandler getRemindersAsyncHandler,
+			GetSitesCountAsyncHandler getSitesCountAsyncHandler,
 			GetUsersByOrganizationAsyncHandler getUsersByOrganizationAsyncHandler,
 			GetValueAsyncHandler getValueAsyncHandler,
             PrepareFileUploadAsyncHandler prepareFileUploadAsyncHandler,
@@ -145,6 +148,7 @@ public class OfflineModule extends AbstractGinModule {
         registerHandler(GetProjectReport.class, getProjectReportAsyncHandler);
         registerHandler(GetProjectReports.class, getProjectReportsAsyncHandler);
         registerHandler(GetReminders.class, getRemindersAsyncHandler);
+        registerHandler(GetSitesCount.class, getSitesCountAsyncHandler);
         registerHandler(GetUsersByOrganization.class, getUsersByOrganizationAsyncHandler);
         registerHandler(GetValue.class, getValueAsyncHandler);
 		registerHandler(PrepareFileUpload.class, prepareFileUploadAsyncHandler);

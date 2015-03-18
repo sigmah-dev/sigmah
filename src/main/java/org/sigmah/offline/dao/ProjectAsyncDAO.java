@@ -203,6 +203,7 @@ public class ProjectAsyncDAO extends AbstractAsyncDAO<ProjectDTO> {
 						@Override
 						public void onRequestSuccess(ProjectDTO result) {
 							projects.add(result);
+							projectListResult.setSize(projects.size());
 						}
 					}, transaction);
 				}

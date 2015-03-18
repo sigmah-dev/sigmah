@@ -701,7 +701,6 @@ public class EditFlexibleElementAdminView extends AbstractPopupView<PopupWidget>
 
 			case QUESTION:
 				multipleChoicesField.show();
-				qualityLinkField.show();
 				categoryTypeField.show();
 				customChoiceAddField.show();
 				customChoicesField.show();

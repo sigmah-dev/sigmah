@@ -1,8 +1,12 @@
 package org.sigmah.client.ui.notif;
 
+import com.google.gwt.core.client.GWT;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import org.sigmah.client.inject.Injector;
+import org.sigmah.client.page.RequestParameter;
+import org.sigmah.client.ui.zone.Zone;
 
 import org.sigmah.client.util.ClientUtils;
 import org.sigmah.client.util.MessageType;
@@ -24,6 +28,12 @@ public final class N10N {
 	private static final String CSS_MESSAGE = "notif-message";
 	private static final String CSS_FIRST = "notif-first";
 	private static final String CSS_LIST = "notif-list";
+	
+	/**
+	 * Private inject to allow the use of the event bus when displaying offline
+	 * events.
+	 */
+	private static final Injector INJECTOR = GWT.create(Injector.class);
 
 	/**
 	 * Utility method to create a map with the given args.
@@ -336,6 +346,33 @@ public final class N10N {
 
 	public static <C extends Collection<String>> void validNotif(final String title, final Map<String, C> items) {
 		notification(title, items, MessageType.VALID);
+	}
+	
+	// Offline.
+	
+	public static void offlineNotif(final String html) {
+		offlineNotif(null, html);
+	}
+	
+	public static void offlineNotif(final String title, final String html) {
+		offlineNotif(title, html, null);
+	}
+	
+	public static void offlineNotif(final String html, final Collection<String> items) {
+		offlineNotif(null, html, items);
+	}
+	
+	public static void offlineNotif(final String title, final String html, final Collection<String> items) {
+		offlineNotif(title, map(html, items));
+	}
+	
+	public static <C extends Collection<String>> void offlineNotif(final Map<String, C> items) {
+		offlineNotif(null, items);
+	}
+	
+	public static <C extends Collection<String>> void offlineNotif(final String title, final Map<String, C> items) {
+		notification(title, items, MessageType.OFFLINE);
+		INJECTOR.getEventBus().updateZoneRequest(Zone.OFFLINE_BANNER.requestWith(RequestParameter.SHOW_BRIEFLY, true));
 	}
 
 	// Generic.

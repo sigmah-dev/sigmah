@@ -3,6 +3,8 @@ package org.sigmah.offline.dao;
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Singleton;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import org.sigmah.offline.indexeddb.Cursor;
 import org.sigmah.offline.indexeddb.IDBKeyRange;
@@ -92,7 +94,7 @@ public class TransfertAsyncDAO extends AbstractAsyncDAO<TransfertJS> {
 		});
 	}
 	
-	public void getAll(final TransfertType type, final AsyncCallback<TransfertJS> callback) {
+	public void getAll(final TransfertType type, final AsyncCallback<List<TransfertJS>> callback) {
 		openTransaction(Transaction.Mode.READ_ONLY, new OpenTransactionHandler() {
 
 			@Override
@@ -100,6 +102,8 @@ public class TransfertAsyncDAO extends AbstractAsyncDAO<TransfertJS> {
 				final ObjectStore objectStore = transaction.getObjectStore(getRequiredStore());
 				final Index typeIndex = objectStore.index("type");
 				final OpenCursorRequest openCursorRequest = typeIndex.openCursor(IDBKeyRange.only(type.name()));
+				
+				final ArrayList<TransfertJS> transfers = new ArrayList<TransfertJS>();
 				
                 openCursorRequest.addCallback(new AsyncCallback<Request>() {
 
@@ -112,13 +116,16 @@ public class TransfertAsyncDAO extends AbstractAsyncDAO<TransfertJS> {
                     public void onSuccess(Request request) {
                         final Cursor cursor = openCursorRequest.getResult();
 						if(cursor != null) {
-							final TransfertJS transfertJS = cursor.getValue();
-							if(transfertJS != null) {
-								callback.onSuccess(transfertJS);
+							final TransfertJS transfert = cursor.getValue();
+							if(transfert != null) {
+								transfers.add(transfert);
 							}
 							cursor.next();
+							
+						} else {
+							// Done
+							callback.onSuccess(transfers);
 						}
-						// else DONE
                     }
                 });
 			}
