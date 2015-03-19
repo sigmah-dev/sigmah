@@ -77,7 +77,6 @@ public class ProjectView extends AbstractView implements ProjectPresenter.View {
 	public static final String STYLE_HEADER_BANNER = "banner";
 	public static final String STYLE_HEADER_BANNER_LOGO = "banner-logo";
 	public static final String STYLE_HEADER_BANNER_FLEX = "banner-flex";
-	private static final String STYLE_AMENDMENT_ACTION = "amendment-action";
 
 	// Grids coordinates.
 	private static final Pair<Integer, Integer> HEADER_BANNER_LOGO_CELL = new Pair<Integer, Integer>(0, 0);

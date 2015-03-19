@@ -60,6 +60,7 @@ import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.Header;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FormPanel.Method;
@@ -78,6 +79,7 @@ import com.google.inject.Singleton;
 import java.util.List;
 import org.sigmah.client.ui.res.icon.IconImageBundle;
 import org.sigmah.client.ui.widget.Loadable;
+import org.sigmah.client.util.DateUtils;
 import org.sigmah.shared.dto.referential.AmendmentState;
 import org.sigmah.shared.dto.referential.CoreVersionAction;
 
@@ -93,6 +95,8 @@ import org.sigmah.shared.dto.referential.CoreVersionAction;
  */
 @Singleton
 public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> implements HasSubPresenter<ProjectPresenter.View> {
+	
+	private static final String ALERT_STYLE = "header-alert";
 
 	/**
 	 * Description of the view managed by this presenter.
@@ -128,7 +132,7 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 		 *          The project full name.
 		 */
 		void setProjectTitle(String projectName, String projectFullName);
-
+		
 		/**
 		 * Sets the project type icon.
 		 * 
@@ -633,6 +637,23 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 
 		view.setProjectTitle(project.getName(), project.getFullName());
 		view.setProjectLogo(project.getProjectModel().getVisibility(auth().getOrganizationId()));
+		
+		// Maintenance alert
+		final Header header = view.getProjectBannerPanel().getHeader();
+		
+		if (project.getProjectModel().isUnderMaintenance()) {
+			header.addStyleName(ALERT_STYLE);
+			header.setHtml(header.getHtml() + " - " + I18N.MESSAGES.projectMaintenanceMessage());
+			
+		} else if (project.getProjectModel().getDateMaintenance() != null) {
+			header.addStyleName(ALERT_STYLE);
+			
+			String maintenanceDate = DateUtils.DATE_TIME_SHORT.format(project.getProjectModel().getDateMaintenance());
+			header.setHtml(header.getHtml() + " - " + I18N.MESSAGES.projectMaintenanceScheduledMessage(maintenanceDate));
+			
+		} else {
+			header.removeStyleName(ALERT_STYLE);
+		}
 
 		// Banner data.
 		final ProjectBannerDTO banner = project.getProjectModel().getProjectBanner();
