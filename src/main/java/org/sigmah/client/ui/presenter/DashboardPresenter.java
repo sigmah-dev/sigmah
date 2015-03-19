@@ -194,7 +194,7 @@ public class DashboardPresenter extends AbstractPagePresenter<DashboardPresenter
 		final boolean userIsDifferent = auth().getUserId() != null && !auth().getUserId().equals(lastUserId);
 		final boolean userHasSynchronized = UpdateDates.getDatabaseUpdateDate(auth()) != null;
 		if(userIsDifferent && !userHasSynchronized) {
-			N10N.offlineNotif(I18N.CONSTANTS.offline(), I18N.CONSTANTS.sigmahOfflineWelcome());
+			N10N.info(I18N.CONSTANTS.offline(), I18N.CONSTANTS.sigmahOfflineWelcome());
 		}
 		lastUserId = auth().getUserId();
 	}
