@@ -40,7 +40,7 @@ public class OpenStreetMapWorldMap extends AbstractWorldMap<VectorFeature> {
 	private final Map<String, List<PinDragEndHandler>> dragEndHandlers;
 	
 	private static int featureIdSequence;
-
+	
 	public OpenStreetMapWorldMap() {
 		mapWidget = new MapWidget("100%", "100%", new MapOptions());
 		
@@ -53,7 +53,8 @@ public class OpenStreetMapWorldMap extends AbstractWorldMap<VectorFeature> {
 		XYZ HOTLayer = new XYZ(I18N.CONSTANTS.humanitarianOSMLayer(), "http://a.tile.openstreetmap.fr/hot/${z}/${x}/${y}.png", hotOption);
 				
 		// Basic layer
-		OSM osmMapnik = OSM.Mapnik(I18N.CONSTANTS.basicOSMLayer());
+		OSM osmMapnik = new OSM();
+		osmMapnik.setName(I18N.CONSTANTS.basicOSMLayer());
 		osmMapnik.setIsBaseLayer(true);
 		
 		// Pin layer
