@@ -1140,8 +1140,8 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 		final Integer maxLimit = ClientUtils.getInteger(view.getMaxLimitField().getValue());
 		final Integer minLimit = ClientUtils.getInteger(view.getMinLimitField().getValue());
 
-		final Long maxLimitDate = ClientUtils.getTimestamp(view.getMinDateField().getValue());
-		final Long minLimitDate = ClientUtils.getTimestamp(view.getMaxDateField().getValue());
+		final Long minLimitDate = ClientUtils.getTimestamp(view.getMinDateField().getValue());
+		final Long maxLimitDate = ClientUtils.getTimestamp(view.getMaxDateField().getValue());
 
 		final ReportModelDTO reportModel = view.getReportModelField().getValue();
 

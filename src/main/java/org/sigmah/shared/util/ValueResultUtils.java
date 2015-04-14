@@ -47,7 +47,8 @@ public final class ValueResultUtils {
 
 				if (split != null && split.length != 0) {
 					for (final String value : split) {
-						if (value != null) {
+						// BUGFIX: Ignoring empty strings to avoid a NumberFormatException.
+						if (value != null && !value.isEmpty()) {
 							list.add(Integer.valueOf(value));
 						}
 					}

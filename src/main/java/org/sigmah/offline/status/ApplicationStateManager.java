@@ -147,7 +147,7 @@ public class ApplicationStateManager implements OfflineEvent.Source {
 			public void run() {
 				if(lastState == ApplicationState.OFFLINE && state == ApplicationState.READY_TO_SYNCHRONIZE) {
 					// Display a message saying that the network is available.
-					N10N.offlineNotif(I18N.CONSTANTS.sigmahOfflineFirstReconnectionTitle(), I18N.CONSTANTS.sigmahOfflineFirstReconnectionMessage());
+					N10N.offlineNotif(I18N.CONSTANTS.sigmahOfflineFirstReconnectionTitle(), I18N.CONSTANTS.sigmahOfflineFirstReconnectionMessage(), eventBus);
 					
 				} else {
 					lastState = state;

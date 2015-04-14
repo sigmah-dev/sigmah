@@ -40,7 +40,9 @@ import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import org.sigmah.client.ui.notif.ConfirmCallback;
 import org.sigmah.client.ui.notif.N10N;
+import org.sigmah.client.ui.zone.Zone;
 import org.sigmah.offline.sync.UpdateDates;
 
 /**
@@ -194,7 +196,13 @@ public class DashboardPresenter extends AbstractPagePresenter<DashboardPresenter
 		final boolean userIsDifferent = auth().getUserId() != null && !auth().getUserId().equals(lastUserId);
 		final boolean userHasSynchronized = UpdateDates.getDatabaseUpdateDate(auth()) != null;
 		if(userIsDifferent && !userHasSynchronized) {
-			N10N.info(I18N.CONSTANTS.offline(), I18N.CONSTANTS.sigmahOfflineWelcome());
+			N10N.confirmation(I18N.CONSTANTS.offline(), I18N.CONSTANTS.sigmahOfflineWelcome(), new ConfirmCallback() {
+
+				@Override
+				public void onAction() {
+					eventBus.updateZoneRequest(Zone.OFFLINE_BANNER.requestWith(RequestParameter.PULL_DATABASE, true));
+				}
+			});
 		}
 		lastUserId = auth().getUserId();
 	}

@@ -190,6 +190,7 @@ implements OfflineEvent.Source {
 	@Override
 	public void onZoneRequest(ZoneRequest zoneRequest) {
 		final Boolean showBriefly = zoneRequest.getData(RequestParameter.SHOW_BRIEFLY);
+		final Boolean pullDatabase = zoneRequest.getData(RequestParameter.PULL_DATABASE);
 		
 		if(showBriefly != null && showBriefly) {
 			forceOpen = true;
@@ -203,6 +204,10 @@ implements OfflineEvent.Source {
 					updateMenuVisibility();
 				}
 			}.schedule(AUTOCLOSE_TIME);
+		}
+		
+		if(pullDatabase != null && pullDatabase) {
+			pull();
 		}
 	}
     

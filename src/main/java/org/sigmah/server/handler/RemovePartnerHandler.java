@@ -1,5 +1,6 @@
 package org.sigmah.server.handler;
 
+import com.google.inject.persist.Transactional;
 import javax.persistence.TypedQuery;
 
 import org.sigmah.server.dispatch.impl.UserDispatch.UserExecutionContext;
@@ -51,8 +52,15 @@ public class RemovePartnerHandler extends AbstractCommandHandler<RemovePartner, 
 			throw new CommandException("Partner has sites exception.");
 		}
 
-		db.getPartners().remove(em().getReference(OrgUnit.class, cmd.getPartnerId()));
+		removePartner(db, cmd.getPartnerId());
 
 		return new VoidResult();
+	}
+	
+	@Transactional
+	protected void removePartner(UserDatabase db, int partnerId) {
+		db.getPartners().remove(em().getReference(OrgUnit.class, partnerId));
+		// NOTE: Call to merge added. Needs to verify if really needed.
+		em().merge(db);
 	}
 }
