@@ -15,6 +15,7 @@ import org.sigmah.offline.dao.UpdateDiaryAsyncDAO;
 import org.sigmah.offline.dao.ValueAsyncDAO;
 import org.sigmah.offline.dispatch.AsyncCommandHandler;
 import org.sigmah.offline.dispatch.OfflineExecutionContext;
+import org.sigmah.offline.dispatch.UnavailableCommandException;
 import org.sigmah.offline.js.ValueJSIdentifierFactory;
 import org.sigmah.shared.command.Delete;
 import org.sigmah.shared.command.GetValue;
@@ -83,7 +84,7 @@ public class DeleteAsyncHandler implements AsyncCommandHandler<Delete, VoidResul
 	
 	private void exception(Delete command, boolean throwException) throws UnsupportedOperationException {
 		if(throwException) {
-			throw new UnsupportedOperationException("Creation of type '" + command.getEntityName() + "' is not supported yet.");
+			throw new UnavailableCommandException("Deletion of type '" + command.getEntityName() + "' is not supported yet.");
 		}
 	}
 	

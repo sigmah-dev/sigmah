@@ -14,6 +14,7 @@ import org.sigmah.offline.dao.ProjectReportAsyncDAO;
 import org.sigmah.offline.dao.UpdateDiaryAsyncDAO;
 import org.sigmah.offline.dispatch.AsyncCommandHandler;
 import org.sigmah.offline.dispatch.OfflineExecutionContext;
+import org.sigmah.offline.dispatch.UnavailableCommandException;
 import org.sigmah.shared.command.UpdateEntity;
 import org.sigmah.shared.command.result.Authentication;
 import org.sigmah.shared.command.result.Calendar;
@@ -70,7 +71,7 @@ public class UpdateEntityAsyncHandler implements AsyncCommandHandler<UpdateEntit
 	
 	private void exception(UpdateEntity command, boolean throwException) throws UnsupportedOperationException {
 		if(throwException) {
-			throw new UnsupportedOperationException("Creation of type '" + command.getEntityName() + "' is not supported yet.");
+			throw new UnavailableCommandException("Update of type '" + command.getEntityName() + "' is not supported yet.");
 		}
 	}
 
