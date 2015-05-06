@@ -503,10 +503,7 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 	 */
 	@Override
 	public FormPanel[] getForms() {
-		return new FormPanel[] {
-														view.getCommonForm(),
-														view.getSpecificForm()
-		};
+		return new FormPanel[] { view.getCommonForm(), view.getSpecificForm() };
 	}
 
 	// ---------------------------------------------------------------------------------------------------------------
@@ -622,6 +619,8 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 			oldFieldProperties.put(AdminUtil.PROP_FX_GROUP, view.getLayoutGroupField().getValue());
 			oldFieldProperties.put(AdminUtil.PROP_FX_ORDER_IN_GROUP, ClientUtils.getInteger(view.getOrderField().getValue()));
 			oldFieldProperties.put(AdminUtil.PROP_FX_LC, constraint);
+			// BUGFIX #719: sending the current banner constraint to avoid a null pointer exception.
+			oldFieldProperties.put(AdminUtil.PROP_FX_LC_BANNER, flexibleElement.getBannerConstraint());
 			oldFieldProperties.put(AdminUtil.PROP_FX_IS_COMPULSARY, view.getMandatoryField().getValue());
 			oldFieldProperties.put(AdminUtil.PROP_FX_AMENDABLE, view.getAmendableField().getValue());
 			oldFieldProperties.put(AdminUtil.PROP_FX_EXPORTABLE, view.getExportableField().getValue());
