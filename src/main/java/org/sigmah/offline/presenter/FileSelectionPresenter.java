@@ -22,6 +22,7 @@ import org.sigmah.client.page.PageRequest;
 import org.sigmah.client.page.RequestParameter;
 import org.sigmah.client.ui.presenter.base.AbstractPagePresenter;
 import org.sigmah.client.ui.view.base.ViewPopupInterface;
+import org.sigmah.client.ui.widget.Loadable;
 import org.sigmah.client.ui.widget.button.Button;
 import org.sigmah.client.ui.zone.Zone;
 import org.sigmah.offline.dao.OrgUnitAsyncDAO;
@@ -168,6 +169,11 @@ public class FileSelectionPresenter extends AbstractPagePresenter<FileSelectionP
 	public void onPageRequest(PageRequest request) {
 		view.clear();
 		
+		final Loadable[] loadables = new Loadable[] {
+			new LoadingMask(view.getDownloadGrid()),
+			new LoadingMask(view.getUploadGrid()),
+			view.getTransferFilesButton()};
+		
 		final RequestManager<VoidResult> manager = new RequestManager<VoidResult>(null, new CommandResultHandler<VoidResult>() {
 
 			@Override
@@ -176,6 +182,10 @@ public class FileSelectionPresenter extends AbstractPagePresenter<FileSelectionP
 				view.getDownloadStore().commitChanges();
 				
 				view.selectAndExpandAll();
+				
+				for(final Loadable loadable : loadables) {
+					loadable.setLoading(false);
+				}
 			}
 		});
 		
@@ -217,8 +227,11 @@ public class FileSelectionPresenter extends AbstractPagePresenter<FileSelectionP
 				
 				manager.setRequestSuccess(downloadReady);
 			}
-		}, new LoadingMask(view.getDownloadGrid()), view.getTransferFilesButton());
+		});
 		
+		for(final Loadable loadable : loadables) {
+			loadable.setLoading(true);
+		}
 		manager.ready();
 	}
 	

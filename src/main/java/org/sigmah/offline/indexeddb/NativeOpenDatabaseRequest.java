@@ -16,6 +16,8 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 public class NativeOpenDatabaseRequest extends Request implements OpenDatabaseRequest {
 	private final List<JavaScriptEvent> upgradeNeededHandlers = new ArrayList<JavaScriptEvent>();
 	private final List<JavaScriptEvent> blockedHandlers = new ArrayList<JavaScriptEvent>();
+	
+	private boolean openFailed;
 
 	NativeOpenDatabaseRequest(IDBOpenDBRequest request) {
 		super(request);
@@ -49,21 +51,28 @@ public class NativeOpenDatabaseRequest extends Request implements OpenDatabaseRe
 
 	@Override
 	public Database getResult() {
-		return new Database((IDBDatabase)super.getResult());
+		if(!openFailed) {
+			return new Database((IDBDatabase) super.getResult());
+		} else {
+			return null;
+		}
 	}
     
     @Override
-    public void addSuccessHandler(final JavaScriptEvent handler) {
+    public void addSuccessHandler(final JavaScriptEvent successHandler) {
         addCallback(new AsyncCallback<Request>() {
 
             @Override
             public void onFailure(Throwable caught) {
                 Log.error("Error while opening an IndexedDB database.", caught);
+				
+				openFailed = true;
+				successHandler.onEvent(null);
             }
 
             @Override
             public void onSuccess(Request result) {
-                handler.onEvent(null);
+                successHandler.onEvent(null);
             }
         });
     }

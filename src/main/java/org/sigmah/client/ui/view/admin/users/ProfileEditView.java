@@ -95,7 +95,7 @@ public class ProfileEditView extends AbstractPopupView<PopupWidget> implements P
 		formPanel.add(nameField);
 		formPanel.add(Forms.adapterWithScrollbars(I18N.CONSTANTS.adminProfilesGlobalPermissions(), permissionTree, 400, 400));
 		formPanel.add(privacyGroupsField);
-		formPanel.add(Forms.adapter(null, privacyGroupsSelectionPanel));
+		formPanel.add(Forms.adapterWithScrollbars(null, privacyGroupsSelectionPanel, 400, 160));
 		formPanel.addButton(createButton);
 
 		initPopup(formPanel);

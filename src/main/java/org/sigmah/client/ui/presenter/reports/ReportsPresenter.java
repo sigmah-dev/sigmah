@@ -62,6 +62,7 @@ import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.google.gwt.dom.client.FormElement;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Timer;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HasHTML;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.inject.ImplementedBy;
@@ -252,19 +253,35 @@ public class ReportsPresenter extends AbstractPresenter<ReportsPresenter.View> {
 
 				if (document) {
 					// Attached file download.
-					injector.getTransfertManager().download(report.getFileVersion(), new ProgressListener() {
+					// BUGFIX #699
+					injector.getTransfertManager().canDownload(report.getFileVersion(), new AsyncCallback<Boolean>() {
 
 						@Override
-						public void onProgress(double progress, double speed) {
-						}
-
-						@Override
-						public void onFailure(Cause cause) {
+						public void onFailure(Throwable caught) {
 							N10N.error(I18N.CONSTANTS.flexibleElementFilesListDownloadError(), I18N.CONSTANTS.flexibleElementFilesListDownloadErrorDetails());
 						}
 
 						@Override
-						public void onLoad(String result) {
+						public void onSuccess(Boolean result) {
+							if (result) {
+								injector.getTransfertManager().download(report.getFileVersion(), new ProgressListener() {
+
+									@Override
+									public void onProgress(double progress, double speed) {
+									}
+
+									@Override
+									public void onFailure(Cause cause) {
+										N10N.error(I18N.CONSTANTS.flexibleElementFilesListDownloadError(), I18N.CONSTANTS.flexibleElementFilesListDownloadErrorDetails());
+									}
+
+									@Override
+									public void onLoad(String result) {
+									}
+								});
+							} else {
+								N10N.error(I18N.CONSTANTS.flexibleElementFilesListDownloadError(), I18N.CONSTANTS.flexibleElementFilesListDownloadUnable());
+							}
 						}
 					});
 

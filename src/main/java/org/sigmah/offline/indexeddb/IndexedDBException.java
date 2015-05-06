@@ -1,6 +1,7 @@
 package org.sigmah.offline.indexeddb;
 
 import com.allen_sauer.gwt.log.client.Log;
+import com.google.gwt.core.client.JavaScriptException;
 
 /**
  *
@@ -23,6 +24,10 @@ public class IndexedDBException extends RuntimeException {
             this.type = DOMErrorType.UnknownError;
         }
     }
+	
+	public IndexedDBException(JavaScriptException e) {
+		this((DOMError) e.getException());
+	} 
 
     public DOMError getNativeError() {
         return nativeError;

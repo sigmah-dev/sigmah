@@ -166,16 +166,21 @@ public class EditPhaseModelAdminView extends AbstractPopupView<PopupWidget> impl
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void addSuccessor(final PhaseModelDTO successor, final boolean clearFirst) {
+	public void clearSuccessors() {
+		successorsPanel.clear();
+		successors.clear();
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void addSuccessor(final PhaseModelDTO successor, boolean selected) {
 		if (successor == null) {
 			return;
 		}
 
-		if (clearFirst) {
-			successorsPanel.clear();
-		}
-
-		final CheckBox checkBox = Forms.checkbox(successor.getName(), String.valueOf(successor.getId()), Boolean.TRUE);
+		final CheckBox checkBox = Forms.checkbox(successor.getName(), String.valueOf(successor.getId()), selected);
 		successorsPanel.add(checkBox);
 		successors.put(checkBox, successor);
 	}

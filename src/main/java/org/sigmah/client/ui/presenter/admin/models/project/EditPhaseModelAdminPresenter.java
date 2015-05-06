@@ -60,7 +60,9 @@ public class EditPhaseModelAdminPresenter extends AbstractPagePresenter<EditPhas
 
 		Button getSaveButton();
 
-		void addSuccessor(PhaseModelDTO successor, boolean clearFirst);
+		void clearSuccessors();
+		
+		void addSuccessor(PhaseModelDTO successor, boolean selected);
 
 		List<PhaseModelDTO> getSelectedSuccessors();
 
@@ -140,8 +142,10 @@ public class EditPhaseModelAdminPresenter extends AbstractPagePresenter<EditPhas
 		final List<PhaseModelDTO> phaseModels = request.getData(RequestParameter.CONTENT);
 
 		view.getForm().clearAll();
+		view.clearSuccessors();
 
 		setPageTitle(phaseModelUpdate == null ? I18N.CONSTANTS.adminPhaseAdd() : I18N.CONSTANTS.adminPhaseEdit());
+		view.getSaveButton().setText(phaseModelUpdate == null ? I18N.CONSTANTS.adminOrgUnitCreateButton() : I18N.CONSTANTS.edit());
 
 		// --
 		// Form loading (in case of edition only).
@@ -170,11 +174,9 @@ public class EditPhaseModelAdminPresenter extends AbstractPagePresenter<EditPhas
 			}
 
 			// Initializes potential successors.
-			boolean clearFirst = true;
 			for (final PhaseModelDTO phaseModel : phaseModels) {
 				if (iValidSuccessor(phaseModel, phaseModelUpdate, allSuccessors)) {
-					view.addSuccessor(phaseModel, clearFirst);
-					clearFirst = false;
+					view.addSuccessor(phaseModel, phaseModelUpdate != null ? phaseModelUpdate.getSuccessors().contains(phaseModel) : false);
 				}
 			}
 		}

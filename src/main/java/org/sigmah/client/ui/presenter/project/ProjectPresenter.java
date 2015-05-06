@@ -600,12 +600,12 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 			@Override
 			public void leavingOk() {
 
-				Log.debug("Loading amendment with id #" + coreVersion.getId() + "...");
+				Log.debug("Loading amendment with id #" + currentCoreVersion.getId() + "...");
 
-				if (coreVersion.getId() != null) {
+				if (currentCoreVersion.getId() != null) {
 					// Reloading the page with the amendment id parameter.
 					final PageRequest currentPageRequest = injector.getPageManager().getCurrentPageRequest();
-					currentPageRequest.addParameter(RequestParameter.VERSION, coreVersion.getId());
+					currentPageRequest.addParameter(RequestParameter.VERSION, currentCoreVersion.getId());
 					eventBus.navigateRequest(currentPageRequest, new LoadingMask(view.getProjectCoreVersionPanel()));
 				}
 			}

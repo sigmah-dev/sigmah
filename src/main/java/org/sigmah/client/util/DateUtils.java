@@ -17,10 +17,18 @@ public final class DateUtils {
 
 	/**
 	 * Short date format.
+	 * Available only client side. Avoid using this if possible.
 	 * 
 	 * @see PredefinedFormat#DATE_SHORT
 	 */
 	public static final DateTimeFormat DATE_SHORT = DateTimeFormat.getFormat(PredefinedFormat.DATE_SHORT);
+	
+	/**
+	 * Short date format.
+	 * 
+	 * @see PredefinedFormat#DATE_SHORT
+	 */
+	public static final com.google.gwt.i18n.shared.DateTimeFormat SHARED_DATE_SHORT = com.google.gwt.i18n.shared.DateTimeFormat.getFormat(com.google.gwt.i18n.shared.DateTimeFormat.PredefinedFormat.DATE_SHORT);
 
 	/**
 	 * Short date/time format.

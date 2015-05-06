@@ -91,7 +91,8 @@ public class QuestionChoiceElementDTO extends AbstractModelDataEntityDTO<Integer
 
 	public void setCategoryElement(CategoryElementDTO categoryElement) {
 		set(CATEGORY_ELEMENT, categoryElement);
-		setLabel(categoryElement.getLabel());
+		// BUGFIX #704
+		set(LABEL, categoryElement.getLabel());
 	}
 
 }

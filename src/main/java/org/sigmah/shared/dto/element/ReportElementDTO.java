@@ -150,7 +150,8 @@ public class ReportElementDTO extends FlexibleElementDTO {
 					public void onClick(ClickEvent event) {
 						final HashMap<String, Serializable> properties = new HashMap<String, Serializable>();
 						properties.put(ProjectReportDTO.FLEXIBLE_ELEMENT_ID, getId());
-						properties.put(ProjectReportDTO.FLEXIBLE_ELEMENT_ID, currentContainerDTO.getId());
+						// BUGFIX: Fixed regression, issue #696
+						properties.put(ProjectReportDTO.CONTAINER_ID, currentContainerDTO.getId());
 						properties.put(ProjectReportDTO.REPORT_MODEL_ID, getModelId());
 						properties.put(ProjectReportDTO.PHASE_NAME, projectDTO.getCurrentPhase().getPhaseModel().getName());
 						properties.put(ProjectReportDTO.PROJECT_ID, projectDTO.getId());
@@ -170,7 +171,7 @@ public class ReportElementDTO extends FlexibleElementDTO {
 						public void onClick(ClickEvent event) {
 							final HashMap<String, Serializable> properties = new HashMap<String, Serializable>();
 							properties.put(ProjectReportDTO.FLEXIBLE_ELEMENT_ID, getId());
-							properties.put(ProjectReportDTO.FLEXIBLE_ELEMENT_ID, currentContainerDTO.getId());
+							properties.put(ProjectReportDTO.CONTAINER_ID, currentContainerDTO.getId());
 							properties.put(ProjectReportDTO.REPORT_MODEL_ID, getModelId());
 							properties.put(ProjectReportDTO.PHASE_NAME, null);
 							properties.put(ProjectReportDTO.ORGUNIT_ID, orgUnitDTO.getId());

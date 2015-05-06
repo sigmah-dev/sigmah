@@ -778,13 +778,15 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 			view.getDownBudgetSubFieldStore().commitChanges();
 
 			for (BudgetSubFieldDTO budgetField : budgetElement.getBudgetSubFields()) {
+				// BUGFIX #706
+				if(budgetField.getId() != null) {
+					if (budgetField.getId().equals(budgetElement.getRatioDividend().getId())) {
+						view.getUpBudgetSubFieldCombo().setValue(budgetField);
+					}
 
-				if (budgetField.getId().equals(budgetElement.getRatioDividend().getId())) {
-					view.getUpBudgetSubFieldCombo().setValue(budgetField);
-				}
-
-				if (budgetField.getId().equals(budgetElement.getRatioDivisor().getId())) {
-					view.getDownBudgetSubFieldCombo().setValue(budgetField);
+					if (budgetField.getId().equals(budgetElement.getRatioDivisor().getId())) {
+						view.getDownBudgetSubFieldCombo().setValue(budgetField);
+					}
 				}
 			}
 

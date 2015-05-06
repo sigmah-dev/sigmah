@@ -149,7 +149,9 @@ public class LinkedProjectView extends AbstractPopupView<PopupWidget> implements
 		amountField.setFieldLabel(amountFieldLabel + " (" + I18N.CONSTANTS.currencyEuro() + ')');
 
 		projectsField.setVisible(selection);
+		projectsField.setEnabled(selection);
 		projectTypeField.setVisible(selection);
+		projectTypeField.setEnabled(selection);
 
 		// --
 		// Form delete button.

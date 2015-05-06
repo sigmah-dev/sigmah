@@ -60,12 +60,15 @@ public class PhaseModel extends AbstractEntityId<Integer> {
 	// --------------------------------------------------------------------------------
 
 	@OneToMany
-	@JoinTable(name = EntityConstants.PHASE_MODEL_SELF_LINK_TABLE, joinColumns = { @JoinColumn(name = EntityConstants.PHASE_MODEL_COLUMN_ID)
-	}, inverseJoinColumns = { @JoinColumn(name = EntityConstants.PHASE_MODEL_SELF_LINK_COLUMN)
-	}, uniqueConstraints = { @UniqueConstraint(columnNames = {
-																														EntityConstants.PHASE_MODEL_COLUMN_ID,
-																														EntityConstants.PHASE_MODEL_SELF_LINK_COLUMN
-	})
+	@JoinTable(name = EntityConstants.PHASE_MODEL_SELF_LINK_TABLE, joinColumns = { 
+		@JoinColumn(name = EntityConstants.PHASE_MODEL_COLUMN_ID)
+	}, inverseJoinColumns = { 
+		@JoinColumn(name = EntityConstants.PHASE_MODEL_SELF_LINK_COLUMN)
+	}, uniqueConstraints = { 
+		@UniqueConstraint(columnNames = {
+			EntityConstants.PHASE_MODEL_COLUMN_ID,
+			EntityConstants.PHASE_MODEL_SELF_LINK_COLUMN
+		})
 	})
 	private List<PhaseModel> successors = new ArrayList<PhaseModel>();
 

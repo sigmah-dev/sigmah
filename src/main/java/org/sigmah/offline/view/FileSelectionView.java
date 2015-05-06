@@ -158,6 +158,8 @@ public class FileSelectionView extends AbstractPopupView<PopupWidget> implements
 	public void clear() {
 		getUploadStore().removeAll();
 		getDownloadStore().removeAll();
+		// BUGFIX #698
+		parents.clear();
 	}
 	
 	@Override

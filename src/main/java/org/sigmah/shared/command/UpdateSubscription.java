@@ -15,6 +15,7 @@ import org.sigmah.shared.command.result.VoidResult;
  * @author Alex Bertram
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
+@Deprecated
 public class UpdateSubscription extends AbstractCommand<VoidResult> {
 
 	private int reportTemplateId;

@@ -79,10 +79,15 @@ public class IndexedDB {
                     @Override
                     public void onEvent(JavaScriptObject event) {
                         database = openDatabaseRequest.getResult();
-                        state = State.OPENED;
-                        for(final AlreadyOpenedDatabaseRequest listener : listenerQueue) {
-                            listener.setResult(database);
-                        }
+						
+						if(database != null) {
+							state = State.OPENED;
+							for(final AlreadyOpenedDatabaseRequest listener : listenerQueue) {
+								listener.setResult(database);
+							}
+						} else {
+							state = State.ERROR;
+						}
                     }
                 });
                 
@@ -193,6 +198,6 @@ public class IndexedDB {
     }
     
     private static enum State {
-        CLOSED, OPENING, OPENED;
+        CLOSED, OPENING, OPENED, ERROR;
     }
 }

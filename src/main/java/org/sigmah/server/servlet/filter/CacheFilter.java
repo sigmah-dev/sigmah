@@ -54,18 +54,14 @@ public class CacheFilter implements Filter {
 	 * 
 	 * @see #containsAny(String, String...)
 	 */
-	private static final String[] NO_CACHE_FILTERS = { ".nocache."
-	};
+	private static final String[] NO_CACHE_FILTERS = { ".nocache.", "manifest" };
 
 	/**
 	 * Resources containing one of these value(s) will be cached.
 	 * 
 	 * @see #containsAny(String, String...)
 	 */
-	private static final String[] CACHE_FILTERS = {
-																									".cache.",
-																									"/gxt"
-	};
+	private static final String[] CACHE_FILTERS = { ".cache.", "/gxt" };
 
 	/**
 	 * Year period in milliseconds.

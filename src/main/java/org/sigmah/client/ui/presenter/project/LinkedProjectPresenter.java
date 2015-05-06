@@ -58,6 +58,8 @@ import com.extjs.gxt.ui.client.widget.form.NumberField;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import org.sigmah.shared.command.UpdateEntity;
+import org.sigmah.shared.command.result.VoidResult;
 
 /**
  * Linked project (funding/funded) presenter which manages the {@link LinkedProjectView}.
@@ -257,7 +259,12 @@ public class LinkedProjectPresenter extends AbstractPagePresenter<LinkedProjectP
 
 			@Override
 			public void componentSelected(final ButtonEvent ce) {
-				onSaveAction();
+				// BUGFIX #649: Added an update method to allow edition of links.
+				if(linkedProject == null) {
+					onSaveAction();
+				} else {
+					onUpdateAction();
+				}
 			}
 		});
 
@@ -524,6 +531,35 @@ public class LinkedProjectPresenter extends AbstractPagePresenter<LinkedProjectP
 
 				// Notifies presenters displaying linked projects.
 				eventBus.fireEvent(new UpdateEvent(UpdateEvent.LINKED_PROJECT_UPDATE, projectType, projectFunding));
+
+				hideView();
+			}
+		}, view.getSaveButton(), view.getDeleteButton());
+	}
+	
+	/**
+	 * Method executed when editing an existing link.
+	 */
+	private void onUpdateAction() {
+		// Sets the funding/funded parameters.
+		final Map<String, Object> parameters = new HashMap<String, Object>();
+		parameters.put(ProjectFundingDTO.PERCENTAGE, view.getAmountField().getValue().doubleValue());
+		
+		dispatch.execute(new UpdateEntity(linkedProject, parameters), new CommandResultHandler<VoidResult>() {
+
+			@Override
+			public void onCommandFailure(final Throwable e) {
+				Log.error("Error while updating the funding/funded link '" + linkedProject.getId() + "'.", e);
+				N10N.warn(I18N.CONSTANTS.createProjectTypeFundingCreationError(), I18N.CONSTANTS.createProjectTypeFundingCreationDetails());
+			}
+
+			@Override
+			public void onCommandSuccess(final VoidResult result) {
+				N10N.notification(I18N.CONSTANTS.infoConfirmation(), I18N.CONSTANTS.createProjectTypeFundingSelectOk(), MessageType.INFO);
+
+				// Notifies presenters displaying linked projects.
+				linkedProject.setPercentage(view.getAmountField().getValue().doubleValue());
+				eventBus.fireEvent(new UpdateEvent(UpdateEvent.LINKED_PROJECT_UPDATE, projectType, linkedProject));
 
 				hideView();
 			}

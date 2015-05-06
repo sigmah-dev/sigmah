@@ -343,6 +343,10 @@ public final class N10N {
 	
 	// Offline.
 	
+	public static void offlineNotif(final String title, final String html) {
+		offlineNotif(title, html, null, null);
+	}
+	
 	public static void offlineNotif(final String title, final String html, EventBus eventBus) {
 		offlineNotif(title, html, null, eventBus);
 	}

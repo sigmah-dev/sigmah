@@ -737,7 +737,7 @@ public class CreateProjectPresenter extends AbstractPagePresenter<CreateProjectP
 		final String name = view.getNameField().getValue();
 		final String fullName = view.getFullNameField().getValue();
 		final double budget = view.getBudgetField().getValue() != null ? view.getBudgetField().getValue().doubleValue() : ZERO;
-		final Integer projectModelId = view.getModelsField().getValue().getId();
+		final Integer projectModelId = view.getModelsField().getValue() != null ? view.getModelsField().getValue().getId() : null;
 		final String orgUnitId = view.getOrgUnitsField().getValue() != null ? String.valueOf(view.getOrgUnitsField().getValue().getId()) : null;
 
 		if (Log.isDebugEnabled()) {
