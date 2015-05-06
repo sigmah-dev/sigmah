@@ -199,7 +199,7 @@ public class DashboardPresenter extends AbstractPagePresenter<DashboardPresenter
 		final boolean userIsDifferent = auth().getUserId() != null && !auth().getUserId().equals(lastUserId);
 		final boolean userHasSynchronized = UpdateDates.getDatabaseUpdateDate(auth()) != null;
 		if(userIsOnline && userIsDifferent && !userHasSynchronized) {
-			N10N.confirmation(I18N.CONSTANTS.offline(), I18N.CONSTANTS.sigmahOfflineWelcome(), new ConfirmCallback() {
+			N10N.confirmation(I18N.CONSTANTS.offlineModeHeader(), I18N.CONSTANTS.sigmahOfflineWelcome(), new ConfirmCallback() {
 
 				@Override
 				public void onAction() {
