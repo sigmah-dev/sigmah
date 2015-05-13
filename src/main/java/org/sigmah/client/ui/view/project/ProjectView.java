@@ -414,6 +414,7 @@ public class ProjectView extends AbstractView implements ProjectPresenter.View {
 		if(state == AmendmentState.DRAFT || locked || ended) {
 			validateVersionButton.setEnabled(locked && !ended);
 			lockProjectCoreButton.setEnabled(!ended);
+			unlockProjectCoreButton.setEnabled(true);
 			
 			coreVersionTable.insertRow(0);
 			coreVersionTable.insertRow(0);
@@ -443,15 +444,18 @@ public class ProjectView extends AbstractView implements ProjectPresenter.View {
 	 * 
 	 * @param coreVersions List of project core versions to display.
 	 * @param coreVersionWasModified State of the current project core version (modified or not).
+	 * @param canRenameVersion <code>true</code> to add the "Rename core version" menu item.
 	 */
 	@Override
-	public void setProjectCoreVersions(List<AmendmentDTO> coreVersions, boolean coreVersionWasModified) {
+	public void setProjectCoreVersions(List<AmendmentDTO> coreVersions, boolean coreVersionWasModified, boolean canRenameVersion) {
 		final ListStore<CoreVersionAction> store = coreVersionActionComboBox.getStore();
 		store.removeAll();
 		
 		// Add compare and rename actions.
 		coreVersionActionComboBox.getStore().add(CoreVersionEntry.create(I18N.CONSTANTS.amendmentCompare(), CoreVersionActionType.FUNCTION_COMPARE));
-		coreVersionActionComboBox.getStore().add(CoreVersionEntry.create(I18N.CONSTANTS.amendmentRename(), CoreVersionActionType.FUNCTION_RENAME));
+		if(canRenameVersion) {
+			coreVersionActionComboBox.getStore().add(CoreVersionEntry.create(I18N.CONSTANTS.amendmentRename(), CoreVersionActionType.FUNCTION_RENAME));
+		}
 		
 		// Add the separator if needed.
 		if(!coreVersions.isEmpty()) {

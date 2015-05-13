@@ -87,6 +87,7 @@ public class AmendmentActionCommandHandler extends AbstractCommandHandler<Amendm
 	 * 
 	 * @param action Action to perform.
 	 * @param project Project to modify.
+	 * @param name Core version name.
 	 * @param context Execution context.
 	 * @throws org.sigmah.shared.dispatch.CommandException If the action could not be executed.
 	 */
@@ -108,6 +109,10 @@ public class AmendmentActionCommandHandler extends AbstractCommandHandler<Amendm
 				break;
 
 			case VALIDATE:
+				// BUGFIX #738: verifying the user rights before validating.
+				if(!userPermissionPolicy.isGranted(context.getUser().getOrgUnitWithProfiles(), GlobalPermissionEnum.VALID_AMENDEMENT)) {
+					throw new UnauthorizedAccessException(GlobalPermissionEnum.VALID_AMENDEMENT + " permission is required to validate projects.");
+				}
 				validateAmendment(project, context);
 				createAmendment(project, name);
 				break;

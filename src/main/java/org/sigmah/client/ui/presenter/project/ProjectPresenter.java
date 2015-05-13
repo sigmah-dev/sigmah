@@ -165,7 +165,7 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 
 		void setProjectCoreVersionState(AmendmentState state, boolean coreVersionWasModified);
 		
-		void setProjectCoreVersions(List<AmendmentDTO> coreVersions, boolean coreVersionWasModified);
+		void setProjectCoreVersions(List<AmendmentDTO> coreVersions, boolean coreVersionWasModified, boolean canRenameVersion);
 	}
 
 	/**
@@ -517,7 +517,10 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 			view.setProjectCoreVersionState(project.getAmendmentState(), coreVersionWasModified);
 		}
 		
-		view.setProjectCoreVersions(project.getAmendments(), coreVersionWasModified);
+		final boolean canValidateCoreVersion = ProfileUtils.isGranted(auth(), GlobalPermissionEnum.VALID_AMENDEMENT);
+		final boolean canLockOrUnlock = canUnlockProject();
+		
+		view.setProjectCoreVersions(project.getAmendments(), coreVersionWasModified, canValidateCoreVersion);
 		
 		if(coreVersionWasModified) {
 			view.getProjectCoreVersionPanel().setHeadingHtml("<span title=\"" + I18N.CONSTANTS.projectCoreModified() + "\">" + I18N.CONSTANTS.projectCoreBoxTitle() + ' ' + IconImageBundle.ICONS.warningSmall().getHTML() + "</span>");
@@ -525,6 +528,10 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 			view.getProjectCoreVersionPanel().setHeadingHtml(I18N.CONSTANTS.projectCoreBoxTitle());
 		}
 
+		// BUGFIX #738: Disabling buttons if the user has not the required rights.
+		view.getLockProjectCoreButton().setEnabled(view.getLockProjectCoreButton().isEnabled() && canLockOrUnlock);
+		view.getUnlockProjectCoreButton().setEnabled(view.getUnlockProjectCoreButton().isEnabled() && canLockOrUnlock);
+		view.getValidateVersionButton().setEnabled(view.getValidateVersionButton().isEnabled() && canValidateCoreVersion);
 	}
 
 	/**
