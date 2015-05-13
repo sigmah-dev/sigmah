@@ -11,6 +11,8 @@ import org.sigmah.server.inject.PersistenceModule;
 import org.sigmah.shared.Language;
 
 import com.google.inject.Inject;
+import java.io.IOException;
+import java.util.Properties;
 
 /**
  * JUnit test for the {@link I18nServer} Module
@@ -29,12 +31,17 @@ public class I18nServerTest {
 	private I18nServer i18nServer;
 
 	@Test
-	public void testParam() {
+	public void testParam() throws IOException {
+		final Properties frenchProperties = new Properties();
+		frenchProperties.load(I18nServer.class.getResourceAsStream("/org/sigmah/client/i18n/UIConstants_fr.properties"));
+		
+		final Properties englishProperties = new Properties();
+		englishProperties.load(I18nServer.class.getResourceAsStream("/org/sigmah/client/i18n/UIConstants.properties"));
 
-		Assert.assertEquals("Vous n'êtes pas autorisé à exécuter cette action.", i18nServer.t(Language.FR, "navigation.unauthorized.action"));
-		Assert.assertEquals("Bannière", i18nServer.t(Language.FR, "Admin_BANNER"));
-		Assert.assertEquals("Banner", i18nServer.t(Language.EN, "Admin_BANNER"));
-		Assert.assertEquals("Banner", i18nServer.t(null, "Admin_BANNER"));
+		Assert.assertEquals(frenchProperties.getProperty("navigation.unauthorized.action"), i18nServer.t(Language.FR, "navigation.unauthorized.action"));
+		Assert.assertEquals(frenchProperties.getProperty("Admin_BANNER"), i18nServer.t(Language.FR, "Admin_BANNER"));
+		Assert.assertEquals(englishProperties.getProperty("Admin_BANNER"), i18nServer.t(Language.EN, "Admin_BANNER"));
+		Assert.assertEquals(englishProperties.getProperty("Admin_BANNER"), i18nServer.t(null, "Admin_BANNER"));
 
 	}
 
