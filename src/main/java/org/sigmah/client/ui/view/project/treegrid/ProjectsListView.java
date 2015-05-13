@@ -237,10 +237,13 @@ public class ProjectsListView extends AbstractView implements ProjectsListWidget
 					}
 
 					currentFilterO = getModelFilter();
-					getStore().addFilter(currentFilterO);
+					// BUGFIX #742 : Verifying that grid is not null to avoid a NPE in getStore().
+					if(currentFilterO != null && grid != null) {
+						getStore().addFilter(currentFilterO);
 
-					if (!getStore().isFiltered()) {
-						getStore().applyFilters("");
+						if (!getStore().isFiltered()) {
+							getStore().applyFilters("");
+						}
 					}
 
 				} else {
@@ -255,7 +258,11 @@ public class ProjectsListView extends AbstractView implements ProjectsListWidget
 
 			@Override
 			public void updateColumnHeadings() {
-
+				// BUGFIX #742 : Verifying that grid is not null to avoid a NPE when the user cannot access projects.
+				if(grid == null || grid.getColumnModel() == null) {
+					return;
+				}
+				
 				final int cols = grid.getColumnModel().getColumnCount();
 
 				for (int i = 0; i < cols; i++) {

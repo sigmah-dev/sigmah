@@ -372,6 +372,9 @@ public class ProjectsListWidget extends AbstractPresenter<ProjectsListWidget.Vie
 
 			@Override
 			public ProjectModelType getProjectModelType(final ProjectDTO model) {
+				if(model == null) {
+					return ProjectModelType.NGO;
+				}
 				return model.getProjectModelType(auth().getOrganizationId());
 			}
 
