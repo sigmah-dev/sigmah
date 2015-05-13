@@ -12,9 +12,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.persistence.EntityManager;
-import javax.servlet.ServletException;
 
-import org.dozer.Mapper;
 import org.sigmah.server.servlet.exporter.data.GlobalExportDataProvider;
 import org.sigmah.shared.command.GetImportationSchemeModels;
 import org.sigmah.shared.command.GetOrgUnitsByModel;
@@ -52,6 +50,7 @@ import org.sigmah.server.domain.element.QuestionElement;
 import org.sigmah.server.domain.element.TextAreaElement;
 import org.sigmah.server.domain.element.TripletsListElement;
 import org.sigmah.server.i18n.I18nServer;
+import org.sigmah.server.mapper.Mapper;
 import org.sigmah.server.servlet.exporter.utils.ExporterUtil;
 import org.sigmah.shared.Language;
 import org.sigmah.shared.command.result.ListResult;
@@ -345,7 +344,7 @@ public abstract class Importer {
 				importEntity.setModelStatus(orgUnitModelDTO.getStatus());
 
 				// Get all the orgUnits from an orgUnit model
-				final GetOrgUnitsByModel cmdGOU = new GetOrgUnitsByModel(orgUnitModelDTO.getId(), OrgUnitDTO.Mode.BASE);
+				final GetOrgUnitsByModel cmdGOU = new GetOrgUnitsByModel(orgUnitModelDTO.getId(), null);
 
 				ListResult<OrgUnitDTO> resultGP = executionContext.execute(cmdGOU);
 				List<OrgUnitDTO> list = resultGP.getList();
@@ -404,7 +403,7 @@ public abstract class Importer {
 				for (ProjectDTO projectDTO : list) {
 					String valueString = (String) getFlexibleElementValue(fleDTO, projectDTO, true);
 
-					if (valueString.equals(cellValue)) {
+					if (valueString != null && valueString.equals(cellValue)) {
 
 						List<ElementExtractedValue> correspondances = getCorrespondancesVariableFlexibleElement(
 						                schemeModelDTO.getVariableFlexibleElementsDTO(), projectDTO, lineNumber,

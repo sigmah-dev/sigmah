@@ -54,6 +54,7 @@ import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import java.util.Date;
+import javax.validation.constraints.NotNull;
 import org.sigmah.client.util.DateUtils;
 
 /**
@@ -77,44 +78,60 @@ public abstract class AbstractModelsAdminPresenter<E extends IsModel, V extends 
 		// Grid components.
 		// --
 
+		@NotNull
 		Button getGridAddButton();
 
+		@NotNull
 		Button getGridImportButton();
 
+		@NotNull
 		Button getGridDeleteButton();
 
+		@NotNull
 		Button getGridDuplicateButton();
 
+		@NotNull
 		Button getGridExportButton();
 
+		@NotNull
 		Loadable getGridMask();
 
 		// --
 		// Details components.
 		// --
 
+		@NotNull
 		Loadable getDetailsPanelMask();
 
+		@NotNull
 		IconButton getDetailsCloseButton();
 
+		@NotNull
 		FormPanel getHeaderForm();
 
+		@NotNull
 		ComboBox<EnumModel<ProjectModelStatus>> getHeaderStatusField();
 
+		@NotNull
 		Button getHeaderSaveButton();
 		
 		// --
 		// Maintenance components.
 		// -
 		
+		@NotNull
 		Field<?> getMaintenanceGroupField();
 		
+		@NotNull
 		Field<Boolean> getUnderMaintenanceField();
 		
+		@NotNull
 		Field<Date> getMaintenanceDateField();
 		
+		@NotNull
 		TimeField getMaintenanceTimeField();
 		
+		@NotNull
 		Grid getMaintenanceGrid();
 
 		/**
@@ -663,7 +680,7 @@ public abstract class AbstractModelsAdminPresenter<E extends IsModel, V extends 
 			return;
 		}
 		
-		loadStatus(view.getHeaderStatusField().getValue().getEnum());
+		loadStatus(view.getHeaderStatusField().getValue() != null ? view.getHeaderStatusField().getValue().getEnum() : ProjectModelStatus.DRAFT);
 	}
 
 	/**

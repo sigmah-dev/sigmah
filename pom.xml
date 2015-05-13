@@ -11,7 +11,7 @@
 
 	<groupId>org.sigmah</groupId>
 	<artifactId>sigmah</artifactId>
-	<version>2.0-rc1</version>
+	<version>2.0-rc2</version>
 
 	<packaging>war</packaging>
 
@@ -155,7 +155,7 @@
 
 		<!-- Plugins configuration. -->
 		<gwt.logLevel>INFO</gwt.logLevel> <!-- Available levels: ERROR, WARN, INFO, TRACE, DEBUG, SPAM, ALL. -->
-		<gwt.style>PRETTY</gwt.style> <!-- OFUSCATED (production), PRETTY, DETAILED (debug). -->
+		<gwt.style>OBFUSCATED</gwt.style> <!-- OBFUSCATED (production), PRETTY, DETAILED (debug). -->
 		<gwt.compiler.optimizationLevel>9</gwt.compiler.optimizationLevel> <!-- 0=none, 9=maximum. -->
 		<gwt.disableClassMetadata>true</gwt.disableClassMetadata> <!-- Disables some java.lang.Class methods (e.g. getName()). -->
 		<gwt.disableCastChecking>true</gwt.disableCastChecking> <!-- Disables run-time checking of cast operations. -->
@@ -842,10 +842,9 @@
 
 		<profile>
 			<id>sigmah-dev</id>
-			<activation>
-				<activeByDefault>true</activeByDefault>
-			</activation>
 			<properties>
+
+				<gwt.style>PRETTY</gwt.style>
 
 				<!-- Logger properties. -->
 

@@ -84,7 +84,7 @@ public class SecureExceptionHandler implements ExceptionHandler {
 			// The user executed an unauthorized action.
 
 			// Inform the user.
-			N10N.error(I18N.CONSTANTS.navigation_unauthorized_action());
+			N10N.info(I18N.CONSTANTS.navigation_unauthorized_action());
 
 			return Status.STOP;
 

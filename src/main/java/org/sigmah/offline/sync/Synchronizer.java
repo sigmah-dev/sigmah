@@ -207,7 +207,6 @@ public class Synchronizer {
 			@Override
 			protected void onCommandSuccess(ListResult<ProjectDTO> result) {
                 updateProgress(GET_PROJECT_VALUE, progress, progressListener);
-                final double projectProgress = PROJECT_DETAIL_VALUE / result.getSize();
                 
                 final HashSet<ProjectDTO> projects = new HashSet<ProjectDTO>();
                 projects.addAll(result.getList());
@@ -221,6 +220,8 @@ public class Synchronizer {
                         projects.add(funded.getFunded());
                     }
                 }
+				
+				final double projectProgress = PROJECT_DETAIL_VALUE / projects.size();
                 
 				for(final ProjectDTO project : projects) {
 					final Integer projectId = project.getId();

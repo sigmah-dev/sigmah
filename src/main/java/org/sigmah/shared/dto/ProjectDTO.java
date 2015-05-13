@@ -684,11 +684,17 @@ public final class ProjectDTO extends AbstractTreeModelEntityDTO<Integer> implem
 	 */
 	public ProjectModelType getVisibility(int organizationId) {
 
-		if (getVisibilities() == null) {
+		final List<ProjectModelVisibilityDTO> visibilities;
+		
+		if (getVisibilities() != null) {
+			visibilities = getVisibilities();
+		} else if(getProjectModel() != null && getProjectModel().getVisibilities() != null) {
+			visibilities = getProjectModel().getVisibilities();
+		} else {
 			return null;
 		}
 
-		for (final ProjectModelVisibilityDTO visibility : getVisibilities()) {
+		for (final ProjectModelVisibilityDTO visibility : visibilities) {
 			if (visibility.getOrganizationId().equals(organizationId)) {
 				return visibility.getType();
 			}
@@ -707,17 +713,7 @@ public final class ProjectDTO extends AbstractTreeModelEntityDTO<Integer> implem
 	 */
 	public ProjectModelType getProjectModelType(final int organizationId) {
 
-		if (getVisibilities() == null) {
-			return null;
-		}
-
-		for (final ProjectModelVisibilityDTO visibility : getVisibilities()) {
-			if (visibility.getOrganizationId().equals(organizationId)) {
-				return visibility.getType();
-			}
-		}
-
-		return null;
+		return getVisibility(organizationId);
 	}
 
 	public boolean isClosed() {

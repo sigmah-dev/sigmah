@@ -53,29 +53,31 @@ public class Conflicts extends EntityManagerProvider {
 	
 	public void searchForFileAddConflicts(Map<String, String> properties, Language language) throws UpdateConflictException {
 		// Element.
-		final int elementId = ClientUtils.asInt(properties.get(FileUploadUtils.DOCUMENT_FLEXIBLE_ELEMENT), 0);
-		final FilesListElement filesListElement = em().find(FilesListElement.class, elementId);
+		final int elementId = ClientUtils.asInt(properties.get(FileUploadUtils.DOCUMENT_FLEXIBLE_ELEMENT), -1);
+		final FilesListElement filesListElement = elementId != -1 ? em().find(FilesListElement.class, elementId) : null;
 		
 		// Project.
 		final int projectId = ClientUtils.asInt(properties.get(FileUploadUtils.DOCUMENT_PROJECT), 0);
 		final Project project = em().find(Project.class, projectId);
 		
-		if(project.getCloseDate() != null) {
-			final String fileName = ValueResultUtils.normalizeFileName(properties.get(FileUploadUtils.DOCUMENT_NAME));
-			throw new UpdateConflictException(project.toContainerInformation(), true, i18nServer.t(language, "conflictAddingFileToAClosedProject", fileName, filesListElement.getLabel()));
+		if(project != null) {
+			if(project.getCloseDate() != null) {
+				final String fileName = ValueResultUtils.normalizeFileName(properties.get(FileUploadUtils.DOCUMENT_NAME));
+				throw new UpdateConflictException(project.toContainerInformation(), true, i18nServer.t(language, "conflictAddingFileToAClosedProject", fileName, filesListElement.getLabel()));
+			}
+
+			if(isParentPhaseClosed(elementId, projectId)) {
+				final String fileName = ValueResultUtils.normalizeFileName(properties.get(FileUploadUtils.DOCUMENT_NAME));
+				throw new UpdateConflictException(project.toContainerInformation(), true, i18nServer.t(language, "conflictAddingFileToAClosedPhase", fileName, filesListElement.getLabel()));
+			}
+
+			if(filesListElement != null && filesListElement.isAmendable() && project.getAmendmentState() == AmendmentState.LOCKED) {
+				final String fileName = ValueResultUtils.normalizeFileName(properties.get(FileUploadUtils.DOCUMENT_NAME));
+				throw new UpdateConflictException(project.toContainerInformation(), true, i18nServer.t(language, "conflictAddingFileToALockedField", fileName, filesListElement.getLabel()));
+			}
 		}
 		
-		if(isParentPhaseClosed(elementId, projectId)) {
-			final String fileName = ValueResultUtils.normalizeFileName(properties.get(FileUploadUtils.DOCUMENT_NAME));
-			throw new UpdateConflictException(project.toContainerInformation(), true, i18nServer.t(language, "conflictAddingFileToAClosedPhase", fileName, filesListElement.getLabel()));
-		}
-		
-		if(filesListElement.isAmendable() && project.getAmendmentState() == AmendmentState.LOCKED) {
-			final String fileName = ValueResultUtils.normalizeFileName(properties.get(FileUploadUtils.DOCUMENT_NAME));
-			throw new UpdateConflictException(project.toContainerInformation(), true, i18nServer.t(language, "conflictAddingFileToALockedField", fileName, filesListElement.getLabel()));
-		}
-		
-		if(filesListElement.getLimit() != null) {
+		if(filesListElement != null && filesListElement.getLimit() != null) {
 			// Retrieving the current value
 			final TypedQuery<Value> valueQuery = em().createQuery("SELECT v FROM Value v WHERE v.containerId = :projectId and v.element.id = :elementId", Value.class);
 			valueQuery.setParameter("projectId", projectId);

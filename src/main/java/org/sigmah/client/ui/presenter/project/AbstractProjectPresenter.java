@@ -45,6 +45,11 @@ public abstract class AbstractProjectPresenter<V extends AbstractProjectPresente
 	public AbstractProjectPresenter(final V view, final Injector injector) {
 		super(view, injector);
 	}
+	
+	/**
+	 * Defines the loading mode of projects.
+	 */
+	private boolean useCache;
 
 	/**
 	 * {@inheritDoc}
@@ -58,29 +63,25 @@ public abstract class AbstractProjectPresenter<V extends AbstractProjectPresente
 
 		final ProjectDTO currentProject = getParentPresenter().getCurrentProject();
 
-		if (currentProject != null && projectId.equals(currentProject.getId())) {
-
+		if (useCache && currentProject != null && projectId.equals(currentProject.getId())) {
 			if (Log.isDebugEnabled()) {
 				Log.debug("Project #" + projectId + " has already been loaded. No need to load it again.");
 			}
-
 			onProjectLoaded(currentProject, event, page);
-			return;
-		}
-
-		// Retrieves project (full loading executing only once).
-		dispatch.execute(new GetProject(projectId, amendmentId, null), new CommandResultHandler<ProjectDTO>() {
-
-			@Override
-			protected void onCommandSuccess(final ProjectDTO project) {
-
-				if (Log.isDebugEnabled()) {
-					Log.debug("Project #" + projectId + " is not the current loaded project. Loading it from server.");
-				}
-
-				onProjectLoaded(project, event, page);
+			
+		} else {
+			if (Log.isDebugEnabled()) {
+				Log.debug("Project #" + projectId + " is not the current loaded project. Loading it from server.");
 			}
-		});
+			// Retrieves project (full loading executing only once).
+			dispatch.execute(new GetProject(projectId, amendmentId, null), new CommandResultHandler<ProjectDTO>() {
+
+				@Override
+				protected void onCommandSuccess(final ProjectDTO project) {
+					onProjectLoaded(project, event, page);
+				}
+			});
+		}
 	}
 
 	/**
@@ -123,6 +124,17 @@ public abstract class AbstractProjectPresenter<V extends AbstractProjectPresente
 	 */
 	protected final ProjectDTO getProject() {
 		return getParentPresenter().getCurrentProject();
+	}
+
+	/**
+	 * Changes the way the project presenter loads projects.
+	 * If <code>true</code>, a project already opened will not be loaded again
+	 * until a different project has been selected.
+	 * If <code>false</code>, projects will be reloaded every time.
+	 * @param useCache <code>true</code> to use cache, <code>false</code> to reload the projects every time.
+	 */
+	protected void setUseCache(boolean useCache) {
+		this.useCache = useCache;
 	}
 
 }

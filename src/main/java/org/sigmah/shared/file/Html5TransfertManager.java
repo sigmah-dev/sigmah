@@ -69,6 +69,8 @@ class Html5TransfertManager implements TransfertManager, HasProgressListeners {
 	 */
 	private static final int MAXIMUM_NUMBER_OF_RETRIES = 5;
 	
+	private final EventBus eventBus;
+	
 	private final List<Task> downloads;
 	private final List<Task> uploads;
 	private final int[] currentTasks;
@@ -88,6 +90,7 @@ class Html5TransfertManager implements TransfertManager, HasProgressListeners {
         this.dispatchAsync = dispatchAsync;
         this.fileDataAsyncDAO = fileDataAsyncDAO;
         this.transfertAsyncDAO = transfertAsyncDAO;
+		this.eventBus = eventBus;
         
         // Creating transfert threads.
 		this.downloads = new ArrayList<Task>();
@@ -421,7 +424,7 @@ class Html5TransfertManager implements TransfertManager, HasProgressListeners {
 
                             @Override
                             public void onFailure(Throwable caught) {
-                                N10N.offlineNotif(I18N.CONSTANTS.error(), I18N.CONSTANTS.offlineTransfertUploadStoreError());
+                                N10N.offlineNotif(I18N.CONSTANTS.error(), I18N.CONSTANTS.offlineTransfertUploadStoreError(), eventBus);
                                 queueTransfert(transfertJS, progressListener);
                             }
 

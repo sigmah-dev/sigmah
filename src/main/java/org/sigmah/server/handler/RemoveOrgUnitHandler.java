@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
+import com.google.inject.persist.Transactional;
 
 /**
  * Handler for {@link RemoveOrgUnit} command.
@@ -93,9 +94,18 @@ public class RemoveOrgUnitHandler extends AbstractCommandHandler<RemoveOrgUnit, 
 		// Logical remove.
 		// --
 
-		removed.setDeleted(new Date());
-		em().merge(removed);
+		removeOrgUnit(removed);
 
 		return new VoidResult();
+	}
+	
+	/**
+	 * Uses a transaction to really remove the given <code>orgUnit</code>.
+	 * @param orgUnit Organizational unit to remove.
+	 */
+	@Transactional
+	protected void removeOrgUnit(OrgUnit orgUnit) {
+		orgUnit.setDeleted(new Date());
+		em().merge(orgUnit);
 	}
 }

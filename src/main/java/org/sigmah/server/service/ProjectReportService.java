@@ -29,6 +29,8 @@ import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import org.sigmah.server.domain.element.FlexibleElement;
+import org.sigmah.server.domain.element.ReportListElement;
 
 /**
  * Handle the creation and the update procedure of the project reports.
@@ -172,7 +174,33 @@ public class ProjectReportService extends AbstractEntityService<ProjectReport, I
 		initialVersion.setEditDate(new Date());
 		initialVersion.setPhaseName((String) properties.get(ProjectReportDTO.PHASE_NAME));
 
-		final ProjectReportModel model = dao.findModelById((Integer) properties.get(ProjectReportDTO.REPORT_MODEL_ID));
+		final ProjectReportModel model;
+
+		final Integer reportModelId = properties.get(ProjectReportDTO.REPORT_MODEL_ID);
+		if(reportModelId != null) {
+			model = dao.findModelById((Integer) properties.get(ProjectReportDTO.REPORT_MODEL_ID));
+			
+		} else if(properties.get(ProjectReportDTO.FLEXIBLE_ELEMENT_ID) != null) {
+			final int flexibleElementId = properties.get(ProjectReportDTO.FLEXIBLE_ELEMENT_ID);
+			final FlexibleElement element = em().find(FlexibleElement.class, flexibleElementId);
+			
+			if(element instanceof ReportListElement) {
+				model = ((ReportListElement) element).getModel();
+				
+			} else if(element instanceof ReportElement) {
+				model = ((ReportElement) element).getModel();
+				
+			} else {
+				model = null;
+			}
+		} else {
+			model = null;
+		}
+		
+		if(model == null) {
+			throw new IllegalStateException("Impossible to find the requested project model.");
+		}
+		
 		report.setModel(model);
 
 		final Integer projectId = (Integer) properties.get(ProjectReportDTO.PROJECT_ID);

@@ -96,7 +96,7 @@ public class ReportsView extends AbstractView implements ReportsPresenter.View {
 	/**
 	 * The global rich text formatter instance.
 	 */
-	private RichTextArea.Formatter globalRichTextFormatter;
+	private final RichTextArea.Formatter[] globalFormatterArray = new RichTextArea.Formatter[1];
 
 	/**
 	 * The document column name
@@ -108,7 +108,6 @@ public class ReportsView extends AbstractView implements ReportsPresenter.View {
 	 */
 	@Override
 	public void initialize() {
-		globalRichTextFormatter = null;
 		keyQuestionState = new KeyQuestionState();
 
 		add(createReportsListPanel(), Layouts.borderLayoutData(LayoutRegion.WEST, 400f, true));
@@ -487,7 +486,7 @@ public class ReportsView extends AbstractView implements ReportsPresenter.View {
 
 				@Override
 				public void onFocus(FocusEvent event) {
-					globalRichTextFormatter = textArea.getFormatter();
+					globalFormatterArray[0] = textArea.getFormatter();
 				}
 			});
 
@@ -565,7 +564,7 @@ public class ReportsView extends AbstractView implements ReportsPresenter.View {
 	 *          The toolbar to which the rich text toolbar actions buttons should be append.
 	 */
 	private void createRichTextToolbar(final ToolBar toolbar) {
-		createRichTextToolbar(toolbar, globalRichTextFormatter);
+		createRichTextToolbar(toolbar, globalFormatterArray);
 	}
 
 	/**
@@ -576,7 +575,7 @@ public class ReportsView extends AbstractView implements ReportsPresenter.View {
 	 * @param formatter
 	 *          The rich text formatter instance.
 	 */
-	static void createRichTextToolbar(final ToolBar toolbar, final RichTextArea.Formatter formatter) {
+	static void createRichTextToolbar(final ToolBar toolbar, final RichTextArea.Formatter[] formatter) {
 
 		// Fonts
 		final ListBox fontListBox = new ListBox();
@@ -591,7 +590,7 @@ public class ReportsView extends AbstractView implements ReportsPresenter.View {
 
 			@Override
 			public void onChange(ChangeEvent event) {
-				formatter.setFontName(fontListBox.getValue(fontListBox.getSelectedIndex()));
+				formatter[0].setFontName(fontListBox.getValue(fontListBox.getSelectedIndex()));
 			}
 		});
 		final LayoutContainer fontListBoxWrapper = new LayoutContainer(new FitLayout());
@@ -604,7 +603,7 @@ public class ReportsView extends AbstractView implements ReportsPresenter.View {
 
 			@Override
 			public void componentSelected(ButtonEvent be) {
-				formatter.toggleBold();
+				formatter[0].toggleBold();
 			}
 		});
 		toolbar.add(boldButton);
@@ -615,7 +614,7 @@ public class ReportsView extends AbstractView implements ReportsPresenter.View {
 
 			@Override
 			public void componentSelected(ButtonEvent be) {
-				formatter.toggleItalic();
+				formatter[0].toggleItalic();
 			}
 		});
 		toolbar.add(italicButton);
@@ -626,7 +625,7 @@ public class ReportsView extends AbstractView implements ReportsPresenter.View {
 
 			@Override
 			public void componentSelected(ButtonEvent be) {
-				formatter.toggleUnderline();
+				formatter[0].toggleUnderline();
 			}
 		});
 		toolbar.add(underlineButton);
@@ -637,7 +636,7 @@ public class ReportsView extends AbstractView implements ReportsPresenter.View {
 
 			@Override
 			public void componentSelected(ButtonEvent be) {
-				formatter.toggleStrikethrough();
+				formatter[0].toggleStrikethrough();
 			}
 		});
 		toolbar.add(strikeButton);
@@ -648,7 +647,7 @@ public class ReportsView extends AbstractView implements ReportsPresenter.View {
 
 			@Override
 			public void componentSelected(ButtonEvent be) {
-				formatter.setJustification(RichTextArea.Justification.LEFT);
+				formatter[0].setJustification(RichTextArea.Justification.LEFT);
 			}
 		});
 		toolbar.add(alignLeftButton);
@@ -659,7 +658,7 @@ public class ReportsView extends AbstractView implements ReportsPresenter.View {
 
 			@Override
 			public void componentSelected(ButtonEvent be) {
-				formatter.setJustification(RichTextArea.Justification.CENTER);
+				formatter[0].setJustification(RichTextArea.Justification.CENTER);
 			}
 		});
 		toolbar.add(alignCenterButton);
@@ -670,7 +669,7 @@ public class ReportsView extends AbstractView implements ReportsPresenter.View {
 
 			@Override
 			public void componentSelected(ButtonEvent be) {
-				formatter.setJustification(RichTextArea.Justification.RIGHT);
+				formatter[0].setJustification(RichTextArea.Justification.RIGHT);
 			}
 		});
 		toolbar.add(alignRightButton);
@@ -681,7 +680,7 @@ public class ReportsView extends AbstractView implements ReportsPresenter.View {
 
 			@Override
 			public void componentSelected(ButtonEvent be) {
-				formatter.setJustification(RichTextArea.Justification.FULL);
+				formatter[0].setJustification(RichTextArea.Justification.FULL);
 			}
 		});
 		toolbar.add(alignJustifyButton);
@@ -692,7 +691,7 @@ public class ReportsView extends AbstractView implements ReportsPresenter.View {
 
 			@Override
 			public void componentSelected(ButtonEvent be) {
-				formatter.insertOrderedList();
+				formatter[0].insertOrderedList();
 			}
 		});
 		toolbar.add(listNumbersButton);
@@ -703,7 +702,7 @@ public class ReportsView extends AbstractView implements ReportsPresenter.View {
 
 			@Override
 			public void componentSelected(ButtonEvent be) {
-				formatter.insertUnorderedList();
+				formatter[0].insertUnorderedList();
 			}
 		});
 		toolbar.add(listBulletsButton);
@@ -741,7 +740,7 @@ public class ReportsView extends AbstractView implements ReportsPresenter.View {
 
 						@Override
 						public void componentSelected(ButtonEvent ce) {
-							formatter.insertImage(imageURLField.getValue());
+							formatter[0].insertImage(imageURLField.getValue());
 							imageAddDialog.hide();
 						}
 					});

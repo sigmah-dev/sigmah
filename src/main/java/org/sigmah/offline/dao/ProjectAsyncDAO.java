@@ -420,7 +420,9 @@ public class ProjectAsyncDAO extends AbstractAsyncDAO<ProjectDTO> {
             orgUnitAsyncDAO.get(projectJS.getOrgUnit(), new RequestManagerCallback<M, OrgUnitDTO>(requestManager) {
                 @Override
                 public void onRequestSuccess(OrgUnitDTO result) {
-                    projectDTO.setOrgUnitName(result.getName() + " - " + result.getFullName());
+					if(result != null) {
+						projectDTO.setOrgUnitName(result.getName() + " - " + result.getFullName());
+					}
                 }
             }, transaction);
         }

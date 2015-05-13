@@ -17,6 +17,7 @@ import org.sigmah.offline.dao.RequestManagerCallback;
 import org.sigmah.offline.dao.UpdateDiaryAsyncDAO;
 import org.sigmah.offline.dispatch.AsyncCommandHandler;
 import org.sigmah.offline.dispatch.OfflineExecutionContext;
+import org.sigmah.offline.dispatch.UnavailableCommandException;
 import org.sigmah.shared.command.CreateEntity;
 import org.sigmah.shared.command.result.Authentication;
 import org.sigmah.shared.command.result.Calendar;
@@ -98,9 +99,9 @@ public class CreateEntityAsyncHandler implements AsyncCommandHandler<CreateEntit
 		}
 	}
 	
-	private void exception(CreateEntity command, boolean throwException) throws UnsupportedOperationException {
+	private void exception(CreateEntity command, boolean throwException) throws UnavailableCommandException {
 		if(throwException) {
-			throw new UnsupportedOperationException("Creation of type '" + command.getEntityName() + "' is not supported yet.");
+			throw new UnavailableCommandException("Creation of type '" + command.getEntityName() + "' is not supported yet.");
 		}
 	}
 	

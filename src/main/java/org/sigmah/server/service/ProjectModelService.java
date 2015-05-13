@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import java.util.Date;
+import java.util.HashSet;
 
 /**
  * Handler for updating Project model command.
@@ -353,44 +354,50 @@ public class ProjectModelService extends AbstractEntityService<ProjectModel, Int
 		final Integer numRows = (Integer) changes.get(AdminUtil.PROP_PHASE_ROWS);
 		final String guide = (String) changes.get(AdminUtil.PROP_PHASE_GUIDE);
 
-		PhaseModel phaseToSave = new PhaseModel();
-
 		if (phaseDTOToSave != null) {
-			phaseToSave.setName(phaseDTOToSave.getName());
-			if (displayOrder != null)
-				phaseToSave.setDisplayOrder(displayOrder);
-			// Guide
-			if (guide != null && !guide.isEmpty())
-				phaseToSave.setGuide(guide);
-			// successors
-			for (PhaseModelDTO sucDTO : phaseDTOToSave.getSuccessors()) {
-				if (sucDTO.getId() != null && sucDTO.getId() > 0) {
-					PhaseModel suc = em().find(PhaseModel.class, sucDTO.getId());
-					phaseToSave.getSuccessors().add(suc);
-				}
-			}
-
+			PhaseModel phaseToSave;
+			
 			PhaseModel phaseFound = null;
-
 			for (final PhaseModel phase : model.getPhaseModels()) {
 				if (phaseDTOToSave.getId() != null && phaseDTOToSave.getId().equals(phase.getId())) {
 					phaseFound = phase;
 				}
 			}
+			
+			if(phaseFound != null) {
+				phaseToSave = phaseFound;
+			} else {
+				phaseToSave = new PhaseModel();
+			}
+			
+			phaseToSave.setName(phaseDTOToSave.getName());
+			if (displayOrder != null) {
+				phaseToSave.setDisplayOrder(displayOrder);
+			}
+			// Guide
+			if (guide != null) {
+				phaseToSave.setGuide(guide);
+			}
+			// successors
+			final HashSet<PhaseModel> existingPhaseModels = new HashSet<PhaseModel>(phaseToSave.getSuccessors());
+			for (PhaseModelDTO sucDTO : phaseDTOToSave.getSuccessors()) {
+				if (sucDTO.getId() != null && sucDTO.getId() > 0) {
+					final PhaseModel successor = em().find(PhaseModel.class, sucDTO.getId());
+					if(!existingPhaseModels.contains(successor)) {
+						phaseToSave.getSuccessors().add(successor);
+					} else {
+						existingPhaseModels.remove(successor);
+					}
+				}
+			}
+			
+			for(final PhaseModel removedSuccessor : existingPhaseModels) {
+				phaseToSave.getSuccessors().remove(removedSuccessor);
+			}
 
 			if (phaseFound != null) {
 				// phase is old
-				phaseFound.setName(phaseToSave.getName());
-				phaseFound.setSuccessors(phaseToSave.getSuccessors());
-				if (numRows != null)
-					phaseFound.getLayout().setRowsCount(numRows);
-
-				if (displayOrder != null)
-					phaseFound.setDisplayOrder(displayOrder);
-
-				if (guide != null && !guide.isEmpty())
-					phaseFound.setGuide(guide);
-				phaseToSave = em().merge(phaseFound);
+				phaseToSave = em().merge(phaseToSave);
 
 			} else {
 				// create new phase
@@ -414,9 +421,10 @@ public class ProjectModelService extends AbstractEntityService<ProjectModel, Int
 
 				phaseToSave.setLayout(phaseLayout);
 				em().persist(phaseToSave);
+				
+				model.addPhase(phaseToSave);
 			}
 
-			model.addPhase(phaseToSave);
 			if (root != null && root) {
 				model.setRootPhaseModel(phaseToSave);
 

@@ -12,7 +12,7 @@ import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.store.Record;
 import com.extjs.gxt.ui.client.store.Store;
 import com.extjs.gxt.ui.client.widget.Component;
-import com.google.gwt.user.client.rpc.AsyncCallback;
+import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.dispatch.monitor.LoadingMask;
 import org.sigmah.shared.command.result.ListResult;
 import org.sigmah.shared.command.result.Result;
@@ -21,15 +21,10 @@ import org.sigmah.shared.dto.base.EntityDTO;
 public class SavingHelper {
 
 	public static void save(DispatchAsync dispatcher, final Store<? extends ModelData> store, Component component) {
-		dispatcher.execute(createUpdateCommand(store), new AsyncCallback<ListResult<Result>>() {
+		dispatcher.execute(createUpdateCommand(store), new CommandResultHandler<ListResult<Result>>() {
 
 			@Override
-			public void onFailure(Throwable caught) {
-				// handled by monitor
-			}
-
-			@Override
-			public void onSuccess(ListResult<Result> result) {
+			protected void onCommandSuccess(ListResult<Result> result) {
 				store.commitChanges();
 			}
 		}, new LoadingMask(component, I18N.CONSTANTS.saving()));	

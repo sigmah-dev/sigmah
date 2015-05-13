@@ -1,5 +1,6 @@
 package org.sigmah.offline.indexeddb;
 
+import com.google.gwt.core.client.JavaScriptException;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArrayString;
 import java.util.Collection;
@@ -79,11 +80,15 @@ public class Database {
 		deleteObjectStore(store.name());
 	}
 	
-	public Transaction getTransaction(Transaction.Mode mode, Collection<Store> stores) {
+	public Transaction getTransaction(Transaction.Mode mode, Collection<Store> stores) throws IndexedDBException {
 		final JsArrayString array = (JsArrayString) JavaScriptObject.createArray();
 		for(final Store store : stores) {
 			array.push(store.name());
 		}
-		return new Transaction(nativeDatabase.getTransaction(array, mode.getArgument()), mode, stores);
+		try {
+			return new Transaction(nativeDatabase.getTransaction(array, mode.getArgument()), mode, stores);
+		} catch(JavaScriptException e) {
+			throw new IndexedDBException(e);
+		}
 	}
 }

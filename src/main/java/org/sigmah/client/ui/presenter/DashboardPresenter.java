@@ -40,7 +40,10 @@ import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import org.sigmah.client.ui.notif.ConfirmCallback;
 import org.sigmah.client.ui.notif.N10N;
+import org.sigmah.client.ui.zone.Zone;
+import org.sigmah.offline.status.ApplicationState;
 import org.sigmah.offline.sync.UpdateDates;
 
 /**
@@ -191,10 +194,18 @@ public class DashboardPresenter extends AbstractPagePresenter<DashboardPresenter
 		view.getProjectsList().refresh(true, auth().getOrgUnitId());
 		
 		// Ask the user to synchronize its favorite projects.
+		// BUGFIX #701: only showing this message if the user is online.
+		final boolean userIsOnline = injector.getApplicationStateManager().getState() == ApplicationState.ONLINE;
 		final boolean userIsDifferent = auth().getUserId() != null && !auth().getUserId().equals(lastUserId);
 		final boolean userHasSynchronized = UpdateDates.getDatabaseUpdateDate(auth()) != null;
-		if(userIsDifferent && !userHasSynchronized) {
-			N10N.info(I18N.CONSTANTS.offline(), I18N.CONSTANTS.sigmahOfflineWelcome());
+		if(userIsOnline && userIsDifferent && !userHasSynchronized) {
+			N10N.confirmation(I18N.CONSTANTS.offlineModeHeader(), I18N.CONSTANTS.sigmahOfflineWelcome(), new ConfirmCallback() {
+
+				@Override
+				public void onAction() {
+					eventBus.updateZoneRequest(Zone.OFFLINE_BANNER.requestWith(RequestParameter.PULL_DATABASE, true));
+				}
+			});
 		}
 		lastUserId = auth().getUserId();
 	}
@@ -302,7 +313,7 @@ public class DashboardPresenter extends AbstractPagePresenter<DashboardPresenter
 		}
 
 		// Import.
-		if (ProfileUtils.isGranted(auth(), GlobalPermissionEnum.EDIT_PROJECT)) {
+		if (ProfileUtils.isGranted(auth(), GlobalPermissionEnum.IMPORT_BUTTON)) {
 			view.addMenuButton(I18N.CONSTANTS.importItem(), null, new ButtonClickHandler(Page.IMPORT_VALUES));
 		}
 

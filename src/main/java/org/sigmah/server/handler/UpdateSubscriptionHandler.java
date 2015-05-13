@@ -21,6 +21,7 @@ import com.google.inject.Inject;
  * @author Alex Bertram
  * @author Maxime Lombard (mlombard@ideia.fr)
  */
+@Deprecated
 public class UpdateSubscriptionHandler extends AbstractCommandHandler<UpdateSubscription, VoidResult> {
 
 
@@ -75,6 +76,6 @@ public class UpdateSubscriptionHandler extends AbstractCommandHandler<UpdateSubs
 			sub.setSubscribed(cmd.isSubscribed());
 		}
 
-		return new VoidResult();
+		return null;
 	}
 }

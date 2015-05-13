@@ -687,111 +687,9 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 			comboBox.setEditable(true);
 			comboBox.setAllowBlank(true);
 
-
-			// Listens to the selection changes.
-			comboBox.addSelectionChangedListener(new SelectionChangedListener<OrgUnitDTO>() {
-
-				@Override
-				public void selectionChanged(final SelectionChangedEvent<OrgUnitDTO> se) {
-					// Action called to save the new value.
-					final Runnable fireChangeEventRunnable = new Runnable() {
-
-						@Override
-						public void run() {
-							String value = null;
-							final boolean isValueOn;
-
-							// Gets the selected choice.
-							final OrgUnitDTO choice = se.getSelectedItem();
-
-							// Checks if the choice isn't the default empty choice.
-							isValueOn = choice != null && choice.getId() != null && choice.getId() != -1;
-
-							if (choice != null) {
-								value = String.valueOf(choice.getId());
-							}
-
-							if (value != null) {
-								// Fires value change event.
-								handlerManager.fireEvent(new ValueEvent(DefaultFlexibleElementDTO.this, value));
-							}
-
-							// Required element ?
-							if (getValidates()) {
-								handlerManager.fireEvent(new RequiredValueEvent(isValueOn));
-							}
-						}
-					};
-
-					if (container instanceof ProjectDTO) {
-						Log.debug("OrgUnit in project details.");
-
-						final ProjectDTO currentProject = (ProjectDTO) container;
-
-						final Filter filter = new Filter();
-						filter.addRestriction(DimensionType.Database, currentProject.getId());
-
-						GetSitesCount getSitesCountCmd = new GetSitesCount(filter);
-
-						dispatch.execute(getSitesCountCmd, new CommandResultHandler<SiteResult>() {
-
-							@Override
-							public void onCommandFailure(final Throwable caught) {
-								Log.error("[getSitesCountCmd] Error while getting the count of sites.", caught);
-							}
-
-							@Override
-							public void onCommandSuccess(final SiteResult result) {
-
-								// Gets the selected choice.
-								final OrgUnitDTO choice = se.getSelectedItem();
-								
-								// Current poject's country
-								final CountryDTO projectCountry = currentProject.getCountry();
-
-								// New OrgUnit's country
-								final CountryDTO orgUnitCountry = choice != null ? choice.getOfficeLocationCountry() : null;
-
-								if (result != null
-									&& result.getSiteCount() > 0
-									&& projectCountry != null
-									&& orgUnitCountry != null
-									&& projectCountry != orgUnitCountry) {
-
-									// If the new OrgUnit's country different from the current country of project inform users
-									// that it will continue use the country of project not new OrgUnit's.
-
-									Log.debug("[getSitesCountCmd]-Site count is: " + result.getSiteCount());
-
-									N10N.confirmation(I18N.CONSTANTS.changeOrgUnit(), I18N.CONSTANTS.changeOrgUnitDetails(), new ConfirmCallback() {
-
-										// YES callback.
-										@Override
-										public void onAction() {
-											fireChangeEventRunnable.run();
-										}
-									}, new ConfirmCallback() {
-										
-										// NO callback.
-										@Override
-										public void onAction() {
-											comboBox.setValue(orgUnitsStore.findModel(OrgUnitDTO.ID, currentProject.getOrgUnitId()));
-										}
-									});
-
-								} else {
-									fireChangeEventRunnable.run();
-								}
-							}
-						});
-						
-					} else {
-						// Non project container
-						Log.debug("OrgUnit in non-project.");
-						fireChangeEventRunnable.run();
-					}
-				}
-			});
+			// BUGFIX #694 : SelectionChangedEvent listener is added AFTER 
+			// setting the initial value to avoid sending a 
+			// SelectionChangedEvent during view initialization.
 			
 			// Loading the current value from the cache.
 			cache.getOrganizationCache().get(orgUnitId, new AsyncCallback<OrgUnitDTO>() {
@@ -799,11 +697,17 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 				@Override
 				public void onFailure(final Throwable caught) {
 					// Not found.
+					
+					// Listens to the selection changes.
+					addSelectionChangedListener(comboBox);
 				}
 
 				@Override
 				public void onSuccess(final OrgUnitDTO result) {
 					comboBox.setValue(result);
+					
+					// Listens to the selection changes.
+					addSelectionChangedListener(comboBox);
 				}
 
 			});
@@ -818,7 +722,12 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 
 				@Override
 				public void onSuccess(final OrgUnitDTO result) {
-					labelField.setValue(result.getName() + " - " + result.getFullName());
+					// BUGFIX: Issue #718
+					if(result != null) {
+						labelField.setValue(result.getName() + " - " + result.getFullName());
+					} else {
+						labelField.setValue(EMPTY_VALUE);
+					}
 				}
 
 				@Override
@@ -839,6 +748,117 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 		field.setFieldLabel(getLabel());
 
 		return field;
+	}
+
+	/**
+	 * Adds the selection changed listener to the given orgunit combobox.
+	 * 
+	 * @param comboBox Combo box to configure.
+	 */
+	private void addSelectionChangedListener(final ComboBox<OrgUnitDTO> comboBox) {
+		comboBox.addSelectionChangedListener(new SelectionChangedListener<OrgUnitDTO>() {
+			
+			@Override
+			public void selectionChanged(final SelectionChangedEvent<OrgUnitDTO> se) {
+				// Action called to save the new value.
+				final Runnable fireChangeEventRunnable = new Runnable() {
+					
+					@Override
+					public void run() {
+						String value = null;
+						final boolean isValueOn;
+						
+						// Gets the selected choice.
+						final OrgUnitDTO choice = se.getSelectedItem();
+						
+						// Checks if the choice isn't the default empty choice.
+						isValueOn = choice != null && choice.getId() != null && choice.getId() != -1;
+						
+						if (choice != null) {
+							value = String.valueOf(choice.getId());
+						}
+						
+						if (value != null) {
+							// Fires value change event.
+							handlerManager.fireEvent(new ValueEvent(DefaultFlexibleElementDTO.this, value));
+						}
+						
+						// Required element ?
+						if (getValidates()) {
+							handlerManager.fireEvent(new RequiredValueEvent(isValueOn));
+						}
+					}
+				};
+				
+				if (container instanceof ProjectDTO) {
+					Log.debug("OrgUnit in project details.");
+					
+					final ProjectDTO currentProject = (ProjectDTO) container;
+					
+					final Filter filter = new Filter();
+					filter.addRestriction(DimensionType.Database, currentProject.getId());
+					
+					GetSitesCount getSitesCountCmd = new GetSitesCount(filter);
+					
+					dispatch.execute(getSitesCountCmd, new CommandResultHandler<SiteResult>() {
+						
+						@Override
+						public void onCommandFailure(final Throwable caught) {
+							Log.error("[getSitesCountCmd] Error while getting the count of sites.", caught);
+						}
+						
+						@Override
+						public void onCommandSuccess(final SiteResult result) {
+							
+							// Gets the selected choice.
+							final OrgUnitDTO choice = se.getSelectedItem();
+							
+							// Current poject's country
+							final CountryDTO projectCountry = currentProject.getCountry();
+							
+							// New OrgUnit's country
+							final CountryDTO orgUnitCountry = choice != null ? choice.getOfficeLocationCountry() : null;
+							
+							if (result != null
+								&& result.getSiteCount() > 0
+								&& projectCountry != null
+								&& orgUnitCountry != null
+								&& projectCountry != orgUnitCountry) {
+								
+								// If the new OrgUnit's country different from the current country of project inform users
+								// that it will continue use the country of project not new OrgUnit's.
+								
+								Log.debug("[getSitesCountCmd]-Site count is: " + result.getSiteCount());
+								
+								N10N.confirmation(I18N.CONSTANTS.changeOrgUnit(), I18N.CONSTANTS.changeOrgUnitDetails(), new ConfirmCallback() {
+									
+									// YES callback.
+									@Override
+									public void onAction() {
+										fireChangeEventRunnable.run();
+									}
+								}, new ConfirmCallback() {
+									
+									// NO callback.
+									@Override
+									public void onAction() {
+										comboBox.setValue(orgUnitsStore.findModel(OrgUnitDTO.ID, currentProject.getOrgUnitId()));
+									}
+								});
+								
+							} else {
+								fireChangeEventRunnable.run();
+							}
+						}
+					});
+					
+				} else {
+					// Non project container
+					Log.debug("OrgUnit in non-project.");
+					fireChangeEventRunnable.run();
+				}
+			}
+		});
 	}
 
 	/**
@@ -892,12 +912,12 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 	 */
 	private DateField createDateField(final boolean allowBlank) {
 
-		final DateTimeFormat DATE_FORMAT = DateUtils.DATE_SHORT;
+		final DateTimeFormat dateFormat = DateUtils.DATE_SHORT;
 
 		// Creates a date field which manages date picker selections and
 		// manual selections.
 		final DateField dateField = new DateField();
-		dateField.getPropertyEditor().setFormat(DATE_FORMAT);
+		dateField.getPropertyEditor().setFormat(dateFormat);
 		dateField.setEditable(allowBlank);
 		dateField.setAllowBlank(allowBlank);
 		preferredWidth = 120;
@@ -1008,9 +1028,12 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 	}
 	
 	private String formatDate(String value) {
-		final DateTimeFormat formatter = DateUtils.DATE_SHORT;
 		final long time = Long.valueOf(value);
-		return formatter.format(new Date(time));
+		final Date date = new Date(time);
+		
+		// Using a shared instance to allow parsing from client and server side.
+		final com.google.gwt.i18n.shared.DateTimeFormat formatter = DateUtils.SHARED_DATE_SHORT;
+		return formatter.format(date);
 	}
 	
 	private String formatManager(String value) {

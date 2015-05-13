@@ -289,8 +289,8 @@ public abstract class AbstractPagePresenter<V extends ViewInterface> extends Abs
 			super.beforeLeaving(callback);
 			return;
 		}
-
-		boolean valueHasChanged = false || hasValueChanged();
+		
+		boolean valueHasChanged = hasValueChanged();
 
 		if (!valueHasChanged && this instanceof HasForm) {
 			final FormPanel[] forms = ((HasForm) this).getForms();

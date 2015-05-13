@@ -13,6 +13,7 @@ import com.extjs.gxt.ui.client.data.ModelData;
  * {@link ModelData} implementation for enum values.
  * 
  * @author Denis Colliot (dcolliot@ideia.fr)
+ * @param <E> Enum type
  */
 public final class EnumModel<E extends Enum<E>> extends BaseModelData {
 
@@ -119,6 +120,7 @@ public final class EnumModel<E extends Enum<E>> extends BaseModelData {
 	/**
 	 * Utility method providing a null-safe access to the given {@code enumModel} inner enum value.
 	 * 
+	 * @param <E> Enum type.
 	 * @param enumModel
 	 *          The enum model instance, may be {@code null}.
 	 * @return The given {@code enumModel} inner enum value, or {@code null}.

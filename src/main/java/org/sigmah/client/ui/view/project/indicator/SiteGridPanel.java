@@ -226,7 +226,7 @@ public class SiteGridPanel extends ContentPanel implements SelectionProvider<Sit
 		// By default the label is "Create". If the project has a main site, use
     	// the "Edit" label for this button.
 		manageMainSiteButton.setText(mainSiteId != null ?
-			I18N.CONSTANTS.editMainSiteButton() : I18N.CONSTANTS.newSite());
+			I18N.CONSTANTS.editMainSiteButton() : I18N.CONSTANTS.createMainSiteButton());
 		
         load(filter, Collections.<IndicatorDTO> emptySet());
     }

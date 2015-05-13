@@ -3,11 +3,9 @@ package org.sigmah.offline.dispatch;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.security.AuthenticationProvider;
 import org.sigmah.client.security.SecureDispatchAsync;
 import org.sigmah.client.security.SecureDispatchServiceAsync;
-import org.sigmah.client.ui.notif.N10N;
 import org.sigmah.shared.command.base.Command;
 import org.sigmah.shared.command.result.Authentication;
 import org.sigmah.shared.command.result.Result;
@@ -51,8 +49,7 @@ public class LocalDispatchServiceAsync implements SecureDispatchServiceAsync {
 		final AsyncCommandHandler handler = getHandler(command);
 		
 		if(handler == null) {
-			N10N.warn(I18N.CONSTANTS.sigmahOfflineUnavailable(), I18N.MESSAGES.sigmahOfflineUnavailableCommand(command.getClass().getName()));
-            callback.onFailure(new UnavailableCommandException("No handler is registered for command '" + command.getClass().getName() + "'."));
+			callback.onFailure(new UnavailableCommandException("No handler is registered for command '" + command.getClass().getName() + "'."));
 			
 		} else {
 			final Authentication authentication = authenticationProvider.get();

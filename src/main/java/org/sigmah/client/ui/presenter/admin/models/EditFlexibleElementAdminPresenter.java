@@ -503,10 +503,7 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 	 */
 	@Override
 	public FormPanel[] getForms() {
-		return new FormPanel[] {
-														view.getCommonForm(),
-														view.getSpecificForm()
-		};
+		return new FormPanel[] { view.getCommonForm(), view.getSpecificForm() };
 	}
 
 	// ---------------------------------------------------------------------------------------------------------------
@@ -622,6 +619,8 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 			oldFieldProperties.put(AdminUtil.PROP_FX_GROUP, view.getLayoutGroupField().getValue());
 			oldFieldProperties.put(AdminUtil.PROP_FX_ORDER_IN_GROUP, ClientUtils.getInteger(view.getOrderField().getValue()));
 			oldFieldProperties.put(AdminUtil.PROP_FX_LC, constraint);
+			// BUGFIX #719: sending the current banner constraint to avoid a null pointer exception.
+			oldFieldProperties.put(AdminUtil.PROP_FX_LC_BANNER, flexibleElement.getBannerConstraint());
 			oldFieldProperties.put(AdminUtil.PROP_FX_IS_COMPULSARY, view.getMandatoryField().getValue());
 			oldFieldProperties.put(AdminUtil.PROP_FX_AMENDABLE, view.getAmendableField().getValue());
 			oldFieldProperties.put(AdminUtil.PROP_FX_EXPORTABLE, view.getExportableField().getValue());
@@ -778,13 +777,15 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 			view.getDownBudgetSubFieldStore().commitChanges();
 
 			for (BudgetSubFieldDTO budgetField : budgetElement.getBudgetSubFields()) {
+				// BUGFIX #706
+				if(budgetField.getId() != null) {
+					if (budgetField.getId().equals(budgetElement.getRatioDividend().getId())) {
+						view.getUpBudgetSubFieldCombo().setValue(budgetField);
+					}
 
-				if (budgetField.getId().equals(budgetElement.getRatioDividend().getId())) {
-					view.getUpBudgetSubFieldCombo().setValue(budgetField);
-				}
-
-				if (budgetField.getId().equals(budgetElement.getRatioDivisor().getId())) {
-					view.getDownBudgetSubFieldCombo().setValue(budgetField);
+					if (budgetField.getId().equals(budgetElement.getRatioDivisor().getId())) {
+						view.getDownBudgetSubFieldCombo().setValue(budgetField);
+					}
 				}
 			}
 
@@ -1140,8 +1141,8 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 		final Integer maxLimit = ClientUtils.getInteger(view.getMaxLimitField().getValue());
 		final Integer minLimit = ClientUtils.getInteger(view.getMinLimitField().getValue());
 
-		final Long maxLimitDate = ClientUtils.getTimestamp(view.getMinDateField().getValue());
-		final Long minLimitDate = ClientUtils.getTimestamp(view.getMaxDateField().getValue());
+		final Long minLimitDate = ClientUtils.getTimestamp(view.getMinDateField().getValue());
+		final Long maxLimitDate = ClientUtils.getTimestamp(view.getMaxDateField().getValue());
 
 		final ReportModelDTO reportModel = view.getReportModelField().getValue();
 

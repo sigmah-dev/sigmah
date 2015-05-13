@@ -14,6 +14,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
+import com.google.inject.persist.Transactional;
+import org.sigmah.server.domain.User;
 
 /**
  * Handler for {@link MoveOrgUnit} command.
@@ -83,13 +85,18 @@ public class MoveOrgUnitHandler extends AbstractCommandHandler<MoveOrgUnit, Void
 
 		// Performs the move.
 		moved.setParentOrgUnit(parent);
-		orgUnitDAO.persist(moved, context.getUser());
-
-		// [UserPermission trigger] Updates UserPermission table when org unit changes its parent.
-		permissionPolicy.deleteUserPermssionByOrgUnit(moved);
-		permissionPolicy.updateUserPermissionByOrgUnit(moved);
+		performMove(moved, context.getUser());
 
 		return new VoidResult();
+	}
+	
+	@Transactional
+	protected void performMove(OrgUnit moonWalk, User michael) throws CommandException {
+		orgUnitDAO.persist(moonWalk, michael);
+
+		// [UserPermission trigger] Updates UserPermission table when org unit changes its parent.
+		permissionPolicy.deleteUserPermssionByOrgUnit(moonWalk);
+		permissionPolicy.updateUserPermissionByOrgUnit(moonWalk);
 	}
 
 	/**

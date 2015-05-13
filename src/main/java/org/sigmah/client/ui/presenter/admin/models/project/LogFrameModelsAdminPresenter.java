@@ -215,15 +215,17 @@ public class LogFrameModelsAdminPresenter extends AbstractPresenter<LogFrameMode
 		this.currentModel = model;
 
 		view.getForm().clear(); // Should not process a 'clearAll()'.
-
+		
 		// Toolbar enable state.
-		view.setToolbarEnabled(currentModel.getStatus() != null && currentModel.isEditable());
+		view.setToolbarEnabled(currentModel.isEditable());
 
 		// LogFrame model loading.
 		loadLogFrameModel(currentModel.getLogFrameModel());
 		
 		// Read-only if the model is not editable.
-		view.setReadOnly(!model.getStatus().isEditable());
+		// BUGFIX #731: Using model.isEditable instead of status.isEditable
+		// to handle the maintenance state.
+		view.setReadOnly(!currentModel.isEditable());
 	}
 
 	/**

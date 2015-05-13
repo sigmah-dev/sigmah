@@ -12,6 +12,8 @@ import org.sigmah.shared.dto.logframe.LogFrameDTO;
 
 import com.google.inject.Inject;
 import com.google.inject.persist.Transactional;
+import java.util.List;
+import javax.persistence.TypedQuery;
 
 /**
  * Handler for the CopyLogFrame command.
@@ -45,9 +47,21 @@ public class CopyLogFrameHandler extends AbstractCommandHandler<CopyLogFrame, Lo
 	private LogFrame replaceLogFrame(Project project, LogFrame source, CopyLogFrame cmd) {
 		final LogFrame previousLogFrame = project.getLogFrame();
 		if (previousLogFrame != null) {
+			previousLogFrame.setParentProject(null);
 			em().remove(previousLogFrame);
 		}
-
+		
+		// Double check that previous log frames have been deleted.
+		final TypedQuery<LogFrame> query = em().createQuery("SELECT l FROM LogFrame l WHERE l.parentProject = :project", LogFrame.class);
+		query.setParameter("project", project);
+		List<LogFrame> logFrames = query.getResultList();
+		
+		for(final LogFrame logFrame : logFrames) {
+			logFrame.setParentProject(null);
+			em().remove(logFrame);
+		}
+		
+		// Copying the new log frame.
 		final LogFrame copy = source.copy(LogFrameCopyContext.toProject(project).withStrategy(cmd.getIndicatorCopyStrategy()));
 		copy.setParentProject(project);
 		project.setLogFrame(copy);

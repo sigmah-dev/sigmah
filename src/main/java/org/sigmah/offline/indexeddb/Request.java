@@ -4,12 +4,13 @@ import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import java.util.ArrayList;
 import java.util.List;
+import org.sigmah.shared.command.result.Result;
 
 /**
  *
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
-public class Request {
+public class Request implements Result {
 	final IDBRequest request;
     private final List<AsyncCallback<Request>> callbacks = new ArrayList<AsyncCallback<Request>>();
 

@@ -32,7 +32,8 @@ public enum RequestParameter {
 	BUDGET,
 	NO_REFRESH,
 	FOR_KEY,
-	SHOW_BRIEFLY;
+	SHOW_BRIEFLY,
+	PULL_DATABASE;
 
 	// If the parameter is part of the tab uniqueness logic.
 	private final boolean unique;

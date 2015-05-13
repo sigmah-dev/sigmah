@@ -1,10 +1,9 @@
 package org.sigmah.client.ui.notif;
 
-import com.google.gwt.core.client.GWT;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import org.sigmah.client.inject.Injector;
+import org.sigmah.client.event.EventBus;
 import org.sigmah.client.page.RequestParameter;
 import org.sigmah.client.ui.zone.Zone;
 
@@ -29,12 +28,6 @@ public final class N10N {
 	private static final String CSS_FIRST = "notif-first";
 	private static final String CSS_LIST = "notif-list";
 	
-	/**
-	 * Private inject to allow the use of the event bus when displaying offline
-	 * events.
-	 */
-	private static final Injector INJECTOR = GWT.create(Injector.class);
-
 	/**
 	 * Utility method to create a map with the given args.
 	 * 
@@ -350,29 +343,23 @@ public final class N10N {
 	
 	// Offline.
 	
-	public static void offlineNotif(final String html) {
-		offlineNotif(null, html);
-	}
-	
 	public static void offlineNotif(final String title, final String html) {
-		offlineNotif(title, html, null);
+		offlineNotif(title, html, null, null);
 	}
 	
-	public static void offlineNotif(final String html, final Collection<String> items) {
-		offlineNotif(null, html, items);
+	public static void offlineNotif(final String title, final String html, EventBus eventBus) {
+		offlineNotif(title, html, null, eventBus);
 	}
 	
-	public static void offlineNotif(final String title, final String html, final Collection<String> items) {
-		offlineNotif(title, map(html, items));
+	public static void offlineNotif(final String title, final String html, final Collection<String> items, EventBus eventBus) {
+		offlineNotif(title, map(html, items), eventBus);
 	}
 	
-	public static <C extends Collection<String>> void offlineNotif(final Map<String, C> items) {
-		offlineNotif(null, items);
-	}
-	
-	public static <C extends Collection<String>> void offlineNotif(final String title, final Map<String, C> items) {
+	public static <C extends Collection<String>> void offlineNotif(final String title, final Map<String, C> items, EventBus eventBus) {
 		notification(title, items, MessageType.OFFLINE);
-		INJECTOR.getEventBus().updateZoneRequest(Zone.OFFLINE_BANNER.requestWith(RequestParameter.SHOW_BRIEFLY, true));
+		if(eventBus != null) {
+			eventBus.updateZoneRequest(Zone.OFFLINE_BANNER.requestWith(RequestParameter.SHOW_BRIEFLY, true));
+		}
 	}
 
 	// Generic.

@@ -19,7 +19,9 @@ import org.sigmah.client.event.EventBus;
 import org.sigmah.client.event.OfflineEvent;
 import org.sigmah.client.event.handler.OfflineHandler;
 import org.sigmah.client.i18n.I18N;
+import org.sigmah.client.page.RequestParameter;
 import org.sigmah.client.ui.notif.N10N;
+import org.sigmah.client.ui.zone.Zone;
 import org.sigmah.offline.dao.UpdateDiaryAsyncDAO;
 
 /**
@@ -136,12 +138,15 @@ public class ApplicationStateManager implements OfflineEvent.Source {
 					if(state != ApplicationState.UNKNOWN) {
 						online = state != ApplicationState.OFFLINE;
 					}
+					
+					onReconnection.run();
 				}
 			}
 		});
 		
 		onReconnection = new Runnable() {
 			private ApplicationState lastState = ApplicationStateManager.this.state;
+			private boolean firstTime = true;
 
 			@Override
 			public void run() {
@@ -149,8 +154,18 @@ public class ApplicationStateManager implements OfflineEvent.Source {
 					// Display a message saying that the network is available.
 					N10N.offlineNotif(I18N.CONSTANTS.sigmahOfflineFirstReconnectionTitle(), I18N.CONSTANTS.sigmahOfflineFirstReconnectionMessage());
 					
+					if(firstTime) {
+						// Also show the offline menu
+						eventBus.updateZoneRequest(Zone.OFFLINE_BANNER.requestWith(RequestParameter.SHOW_BRIEFLY, true));
+						firstTime = false;
+					}
+					
 				} else {
 					lastState = state;
+					
+					if(state == ApplicationState.ONLINE) {
+						firstTime = true;
+					}
 				}
 			}
 		};

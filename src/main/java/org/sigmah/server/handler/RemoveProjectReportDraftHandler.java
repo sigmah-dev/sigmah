@@ -8,6 +8,7 @@ import org.sigmah.shared.command.result.VoidResult;
 import org.sigmah.shared.dispatch.CommandException;
 
 import com.google.inject.Inject;
+import com.google.inject.persist.Transactional;
 
 /**
  * Handler for the {@link RemoveProjectReportDraft} command.
@@ -29,10 +30,14 @@ public class RemoveProjectReportDraftHandler extends AbstractCommandHandler<Remo
 	 */
 	@Override
 	public VoidResult execute(final RemoveProjectReportDraft cmd, final UserExecutionContext context) throws CommandException {
-		final ProjectReportVersion version = em().find(ProjectReportVersion.class, cmd.getVersionId());
-		em().remove(version);
-
+		removeReportVersion(cmd.getVersionId());
 		return null;
+	}
+	
+	@Transactional
+	protected void removeReportVersion(int versionId) {
+		final ProjectReportVersion version = em().find(ProjectReportVersion.class, versionId);
+		em().remove(version);
 	}
 
 }

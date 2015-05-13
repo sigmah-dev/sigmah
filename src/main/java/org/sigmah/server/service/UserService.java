@@ -77,9 +77,9 @@ public class UserService extends AbstractEntityService<User, Integer, UserDTO> {
 
 		final User executingUser = context.getUser();
 
-		User userToPersist = null;
+		User userToPersist;
 		User userFound = null;
-		OrgUnitProfile orgUnitProfileToPersist = null;
+		OrgUnitProfile orgUnitProfileToPersist;
 		OrgUnitProfile orgUnitProfileFound = null;
 
 		// get User that need to be saved from properties
@@ -120,6 +120,9 @@ public class UserService extends AbstractEntityService<User, Integer, UserDTO> {
 		if (userFound != null && userFound.getId() != null) {
 			// Updates user.
 			userToPersist.setId(userFound.getId());
+			// BUGFIX #736 : Keeping the active state of modified users.
+			userToPersist.setActive(userFound.getActive());
+			
 			userToPersist = em().merge(userToPersist);
 
 		} else {
