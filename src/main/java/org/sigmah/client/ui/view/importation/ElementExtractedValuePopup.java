@@ -66,8 +66,8 @@ public class ElementExtractedValuePopup extends PopupWidget implements HasGrid<E
 		final ColumnModel columnModel = createColumnModel(selectionModel);
 		grid = createGrid(columnModel, selectionModel);
 		
-		// Creating the import button.
-		confirmButton = Forms.button(I18N.CONSTANTS.importItem());
+		// Creating the OK button.
+		confirmButton = Forms.button(I18N.CONSTANTS.ok());
 		
 		// Preparing the popup.
 		setContent(grid);
