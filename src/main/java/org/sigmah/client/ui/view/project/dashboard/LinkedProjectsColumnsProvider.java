@@ -106,7 +106,11 @@ final class LinkedProjectsColumnsProvider extends LinkedProjectsAbstractProvider
 		// Amount.
 		final ColumnConfig amountColumn = new ColumnConfig();
 		amountColumn.setId(ProjectFundingDTO.PERCENTAGE);
-		amountColumn.setHeaderHtml(I18N.CONSTANTS.projectFinances() + " (" + I18N.CONSTANTS.currencyEuro() + ')');
+		if (this.projectType == LinkedProjectType.FUNDING_PROJECT) {
+			amountColumn.setHeaderHtml(I18N.CONSTANTS.projectFinances() + " (" + I18N.CONSTANTS.currencyEuro() + ')');
+		} else {
+			amountColumn.setHeaderHtml(I18N.CONSTANTS.projectFundedBy() + " (" + I18N.CONSTANTS.currencyEuro() + ')');
+		}
 		amountColumn.setWidth(120);
 
 		// Percentage.
