@@ -417,7 +417,7 @@ public class ImportationPresenter extends AbstractPagePresenter<ImportationPrese
 	}
 	
 	private Button renderUnlockButton(final ImportDetails model) {
-		final Button unlockButton = Forms.button(I18N.CONSTANTS.importButtonConfirmDetails());
+		final Button unlockButton = Forms.button(I18N.CONSTANTS.projectCoreUnlockButton());
 		
 		unlockButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
