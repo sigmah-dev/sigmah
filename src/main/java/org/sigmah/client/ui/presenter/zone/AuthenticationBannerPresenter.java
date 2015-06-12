@@ -21,6 +21,8 @@ import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.sigmah.client.page.Page;
+import org.sigmah.shared.dto.referential.GlobalPermissionEnum;
+import org.sigmah.shared.util.ProfileUtils;
 
 /**
  * Authentication banner presenter displaying user's name and logout.
@@ -30,6 +32,8 @@ import org.sigmah.client.page.Page;
 @Singleton
 public class AuthenticationBannerPresenter extends AbstractZonePresenter<AuthenticationBannerPresenter.View> {
 
+	private boolean canChangeOwnPassword;
+	
 	/**
 	 * View interface.
 	 */
@@ -91,7 +95,7 @@ public class AuthenticationBannerPresenter extends AbstractZonePresenter<Authent
 
 			@Override
 			public void onMouseOver(MouseOverEvent event) {
-				view.getChangePasswordHandler().setVisible(true);
+				view.getChangePasswordHandler().setVisible(canChangeOwnPassword && true);
 			}
 			
 		}, MouseOverEvent.getType());
@@ -112,9 +116,13 @@ public class AuthenticationBannerPresenter extends AbstractZonePresenter<Authent
 	 */
 	@Override
 	public void onZoneRequest(final ZoneRequest zoneRequest) {
-
+		
+		// BUGFIX #739: Not showing the menu if the user can't edit his password.
+		canChangeOwnPassword = ProfileUtils.isGranted(auth(), GlobalPermissionEnum.CHANGE_PASSWORD);
+		
 		// Updates view's widgets.
-		view.getNameLabel().setHTML(auth().getUserEmail() + " ▾");
+		final String html = canChangeOwnPassword ? auth().getUserEmail() + " ▾" : auth().getUserEmail();
+		view.getNameLabel().setHTML(html);
 		view.getLogoutPanel().setVisible(!isAnonymous());
 	}
 

@@ -72,6 +72,7 @@ final class AccessRights {
 		sperm(pageToken(Page.LOGIN), GrantType.ANONYMOUS_ONLY);
 		sperm(pageToken(Page.RESET_PASSWORD), GrantType.ANONYMOUS_ONLY);
 		sperm(pageToken(Page.LOST_PASSWORD), GrantType.ANONYMOUS_ONLY);
+		sperm(pageToken(Page.CHANGE_OWN_PASSWORD), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.CHANGE_PASSWORD);
 		sperm(pageToken(Page.MOCKUP), GrantType.BOTH);
 		sperm(pageToken(Page.CREDITS), GrantType.AUTHENTICATED_ONLY);
 		sperm(pageToken(Page.HELP), GrantType.AUTHENTICATED_ONLY);
@@ -116,7 +117,7 @@ final class AccessRights {
 		sperm(commandToken(GetCategories.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetProjects.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetOrgUnit.class), GrantType.AUTHENTICATED_ONLY);
-		sperm(commandToken(ChangePasswordCommand.class), GrantType.AUTHENTICATED_ONLY);
+		sperm(commandToken(ChangePasswordCommand.class), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.CHANGE_PASSWORD);
 
 		// Servlet methods.
 		sperm(servletToken(Servlet.FILE, ServletMethod.DOWNLOAD_LOGO), GrantType.AUTHENTICATED_ONLY);
