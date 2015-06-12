@@ -5,6 +5,7 @@ import org.sigmah.shared.dto.element.QuestionChoiceElementDTO;
 import org.sigmah.shared.dto.element.QuestionElementDTO;
 
 import com.google.gwt.core.client.JavaScriptObject;
+import org.sigmah.shared.dto.category.CategoryTypeDTO;
 
 /**
  *
@@ -33,7 +34,14 @@ public final class QuestionChoiceElementJS extends JavaScriptObject {
 		questionChoiceElementDTO.setId(getId());
 		questionChoiceElementDTO.setLabel(getLabel());
 		questionChoiceElementDTO.setSortOrder(getSortOrder());
-		// FIXME: Find a way to fill the missing fields (CategoryElement)
+		
+		if(getCategoryElementJS() != null) {
+			final CategoryElementDTO categoryElement = getCategoryElementJS().toDTO();
+			final CategoryTypeDTO categoryType = getCategoryTypeJS().toDTO();
+			
+			categoryElement.setParentCategoryDTO(categoryType);
+			questionChoiceElementDTO.setCategoryElement(categoryElement);
+		}
 		
 		return questionChoiceElementDTO;
 	}
@@ -83,10 +91,30 @@ public final class QuestionChoiceElementJS extends JavaScriptObject {
 	public void setCategoryElement(CategoryElementDTO categoryElement) {
 		if(categoryElement != null) {
 			setCategoryElement(categoryElement.getId());
+			
+			// BUGFIX #704: Saving a local copy of the category and the category type in JS form.
+			setCategoryElementJS(CategoryElementJS.toJavaScript(categoryElement));
+			setCategoryTypeJS(CategoryTypeJS.toJavaScript(categoryElement.getParentCategoryDTO()));
 		}
 	}
 	
 	public native void setCategoryElement(int categoryElement) /*-{
 		this.categoryElement = categoryElement;
+	}-*/;
+	
+	public native CategoryElementJS getCategoryElementJS() /*-{
+		return this.categoryElementJS;
+	}-*/;
+	
+	public native void setCategoryElementJS(CategoryElementJS categoryElementJS) /*-{
+		this.categoryElementJS = categoryElementJS;
+	}-*/;
+	
+	public native CategoryTypeJS getCategoryTypeJS() /*-{
+		return this.categoryTypeJS;
+	}-*/;
+	
+	public native void setCategoryTypeJS(CategoryTypeJS categoryTypeJS) /*-{
+		this.categoryTypeJS = categoryTypeJS;
 	}-*/;
 }

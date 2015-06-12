@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.sigmah.client.util.ClientUtils;
 import org.sigmah.shared.dto.category.CategoryTypeDTO;
-import org.sigmah.shared.dto.element.FlexibleElementDTO;
 import org.sigmah.shared.dto.element.QuestionChoiceElementDTO;
 import org.sigmah.shared.dto.element.QuestionElementDTO;
 import org.sigmah.shared.dto.quality.QualityCriterionDTO;

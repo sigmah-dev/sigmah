@@ -98,7 +98,7 @@ public final class CategoryIconProvider {
 				'<tpl for=".">',
 				'<table cellspacing="0" cellpadding="0" width="100%" class="x-combo-list-item">\
     <tr>\
-        <td width="16px">{[values.categoryElementDTO.iconHtml]}\</td>\
+        <td width="16px"><tpl if="values.categoryElement != null">{[values.categoryElement.iconHtml]}</tpl></td>\
         <td style="padding-left: 5px;">{[values.label]}</td>\
     </tr>\
     </table>',
