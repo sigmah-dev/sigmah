@@ -192,6 +192,7 @@ implements OfflineEvent.Source {
 		final Boolean showBriefly = zoneRequest.getData(RequestParameter.SHOW_BRIEFLY);
 		final Boolean pullDatabase = zoneRequest.getData(RequestParameter.PULL_DATABASE);
 		
+		// Display briefly the menu panel
 		if(showBriefly != null && showBriefly) {
 			forceOpen = true;
 			updateMenuVisibility();
@@ -206,6 +207,12 @@ implements OfflineEvent.Source {
 			}.schedule(AUTOCLOSE_TIME);
 		}
 		
+		// Updating dates
+		// BUGFIX #714: Dates are refreshed when the current user changes.
+		view.getMenuPanel().setSigmahUpdateDate(ApplicationCacheManager.getUpdateDate());
+        view.getMenuPanel().setDatabaseUpdateDate(getDatabaseUpdateDate());
+
+		// Users requested to pull data from the server.
 		if(pullDatabase != null && pullDatabase) {
 			pull();
 		}
