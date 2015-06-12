@@ -33,6 +33,7 @@ import org.sigmah.client.ui.widget.form.Forms;
 import org.sigmah.shared.command.result.ListResult;
 import org.sigmah.shared.command.result.VoidResult;
 import org.sigmah.shared.dto.ProjectDTO;
+import org.sigmah.shared.dto.referential.ProjectModelType;
 
 /**
  * Dialog that enables a user to select Indicators.
@@ -165,13 +166,12 @@ public class IndicatorBrowsePopup extends AbstractPopupView<PopupWidget> {
 	}
 	
 	
-	private class TreeProxy extends RpcProxy {
+	private class TreeProxy extends RpcProxy<List<?>> {
 
 		@Override
-		protected void load(Object parent, final AsyncCallback callback) {
+		protected void load(Object parent, final AsyncCallback<List<?>> callback) {
 			if(parent == null) {
-				GetProjects command = new GetProjects();
-				command.setMappingMode(ProjectDTO.Mode.BASE);
+				final GetProjects command = new GetProjects((ProjectModelType) null, ProjectDTO.Mode.BASE);
 
 				dispatcher.execute(command, new CommandResultHandler<ListResult<ProjectDTO>>() {
 

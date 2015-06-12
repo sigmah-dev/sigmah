@@ -676,6 +676,14 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 		final Language language = context.getLanguage();
 		final ProfileDTO profile = Handlers.aggregateProfiles(context.getUser(), mapper);
 		
+		if(project.getProjectModel().isUnderMaintenance()) {
+			// BUGFIX #730: Verifying the maintenance status of projects.
+			conflicts.add(i18nServer.t(language, "conflictEditingUnderMaintenanceProject",
+				project.getName(), project.getFullName()));
+			
+			return conflicts;
+		}
+		
 		if(ProfileUtils.isGranted(profile, GlobalPermissionEnum.MODIFY_LOCKED_CONTENT)) {
 			// The user is allowed to edit locked fields.
 			final boolean projectIsClosed = project.getCloseDate() != null;
