@@ -9,6 +9,7 @@ import org.sigmah.offline.dispatch.AsyncCommandHandler;
 import org.sigmah.offline.dispatch.OfflineExecutionContext;
 import org.sigmah.shared.command.GetProject;
 import org.sigmah.shared.command.result.Authentication;
+import org.sigmah.shared.dispatch.NotCachedException;
 import org.sigmah.shared.dto.ProjectDTO;
 
 /**
@@ -28,8 +29,23 @@ public class GetProjectAsyncHandler implements AsyncCommandHandler<GetProject, P
 	}
 	
 	@Override
-	public void execute(GetProject command, OfflineExecutionContext executionContext, AsyncCallback<ProjectDTO> callback) {
-		projectAsyncDAO.get(command.getProjectId(), callback);
+	public void execute(final GetProject command, OfflineExecutionContext executionContext, final AsyncCallback<ProjectDTO> callback) {
+		projectAsyncDAO.get(command.getProjectId(), new AsyncCallback<ProjectDTO>() {
+
+			@Override
+			public void onFailure(Throwable caught) {
+				callback.onFailure(caught);
+			}
+
+			@Override
+			public void onSuccess(ProjectDTO result) {
+				if(result != null) {
+					callback.onSuccess(result);
+				} else {
+					callback.onFailure(new NotCachedException("Requested project '" + command.getProjectId() + "' was not found in the local database."));
+				}
+			}
+		});
 	}
 
 	@Override

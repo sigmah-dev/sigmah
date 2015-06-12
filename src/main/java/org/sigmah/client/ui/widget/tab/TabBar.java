@@ -10,6 +10,8 @@ import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Widget;
+import java.util.List;
+import java.util.Map;
 
 /**
  * This widget displays a bar of {@link Tab}.
@@ -24,8 +26,14 @@ public class TabBar implements IsWidget {
 	private final AbsolutePanel scrollPanel;
 
 	// Stores the tabs.
-	private final ArrayList<Tab> tabs;
-	private final HashMap<TabId, Tab> tabsIds;
+	private final List<Tab> tabs;
+	private final Map<TabId, Tab> tabsIds;
+	
+	/**
+	 * Tab currently displayed.
+	 */
+	private Tab activeTab;
+	private Tab previousTab;
 
 	// Animation.
 	private static final int ANIMATION_DURATION = 200;
@@ -37,7 +45,7 @@ public class TabBar implements IsWidget {
 
 	// Listeners.
 
-	private final ArrayList<TabBarListener> listeners;
+	private final List<TabBarListener> listeners;
 
 	/**
 	 * Tab bar events listener.
@@ -227,7 +235,7 @@ public class TabBar implements IsWidget {
 						// Active tab click action: nothing to do.
 						return;
 					}
-					activeTab(tab, false, true);
+					activateTab(tab, false, true);
 				}
 
 			});
@@ -258,7 +266,7 @@ public class TabBar implements IsWidget {
 		}
 
 		// Activates the tab
-		activeTab(t, true, false);
+		activateTab(t, true, false);
 
 	}
 
@@ -290,6 +298,19 @@ public class TabBar implements IsWidget {
 		removeTab(tabsIds.get(id));
 
 	}
+	
+	/**
+	 * Removes the tab currently displayed and activates to the previous tab
+	 * (if not null).
+	 */
+	public void removeActiveTab() {
+		final Tab tabToRemove = this.activeTab;
+		
+		activateTab(previousTab, true, true);
+		removeTab(tabToRemove);
+		
+		this.previousTab = null;
+	}
 
 	/**
 	 * Activates the given tab.
@@ -301,11 +322,14 @@ public class TabBar implements IsWidget {
 	 * @param fireEvent
 	 *          If the {@link TabBarListener#tabActivated(TabBar, Tab)} event must be fired.
 	 */
-	private void activeTab(Tab tab, boolean updateStyle, boolean fireEvent) {
+	private void activateTab(Tab tab, boolean updateStyle, boolean fireEvent) {
 
 		if (tab == null) {
 			return;
 		}
+		
+		this.previousTab = activeTab;
+		this.activeTab = tab;
 
 		if (updateStyle) {
 			for (final Tab t : tabs) {
@@ -366,7 +390,7 @@ public class TabBar implements IsWidget {
 
 		// Activates the first tab ?
 		if (active) {
-			activeTab(tabs.get(tabIndex == tabs.size() ? tabIndex - 1 : tabIndex), true, true);
+			activateTab(tabs.get(tabIndex == tabs.size() ? tabIndex - 1 : tabIndex), true, true);
 		}
 
 	}

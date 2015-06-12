@@ -153,6 +153,13 @@ public class MenuBannerPresenter extends AbstractZonePresenter<MenuBannerPresent
 	@Override
 	public void onZoneRequest(final ZoneRequest zoneRequest) {
 
+		// Closes the current tab ?
+		final Boolean closeCurrentTab = zoneRequest.getData(RequestParameter.CLOSE_CURRENT_TAB);
+		if(closeCurrentTab != null && closeCurrentTab) {
+			view.getTabBar().removeActiveTab();
+			return;
+		}
+		
 		// Retrieves the page request (cannot be null).
 		final PageRequest request = zoneRequest.getData(RequestParameter.REQUEST);
 		if (request == null || request.getPage() == null) {

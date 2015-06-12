@@ -33,7 +33,8 @@ public enum RequestParameter {
 	NO_REFRESH,
 	FOR_KEY,
 	SHOW_BRIEFLY,
-	PULL_DATABASE;
+	PULL_DATABASE,
+	CLOSE_CURRENT_TAB;
 
 	// If the parameter is part of the tab uniqueness logic.
 	private final boolean unique;

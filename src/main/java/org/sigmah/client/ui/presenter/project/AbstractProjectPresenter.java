@@ -14,6 +14,9 @@ import org.sigmah.shared.command.GetProject;
 import org.sigmah.shared.dto.ProjectDTO;
 
 import com.allen_sauer.gwt.log.client.Log;
+import org.sigmah.client.i18n.I18N;
+import org.sigmah.client.ui.notif.N10N;
+import org.sigmah.shared.dispatch.NotCachedException;
 
 /**
  * Project's presenters abstract code.<br/>
@@ -80,6 +83,19 @@ public abstract class AbstractProjectPresenter<V extends AbstractProjectPresente
 				protected void onCommandSuccess(final ProjectDTO project) {
 					onProjectLoaded(project, event, page);
 				}
+
+				@Override
+				protected void onCommandFailure(Throwable caught) {
+					if(caught instanceof NotCachedException) {
+						// BUGFIX #684: Displays an information message when the user tries to access an unavailable project.
+						N10N.info(I18N.CONSTANTS.sigmahOfflineProjectNotCached());
+						eventBus.updateZoneRequest(Zone.MENU_BANNER.requestWith(RequestParameter.CLOSE_CURRENT_TAB, Boolean.TRUE));
+						
+					} else {
+						super.onCommandFailure(caught);
+					}
+				}
+				
 			});
 		}
 	}
