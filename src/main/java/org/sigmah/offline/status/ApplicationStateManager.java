@@ -79,7 +79,7 @@ public class ApplicationStateManager implements OfflineEvent.Source {
 	// Public API.
 	// --
 	public void fireCurrentState(final Runnable onStateFound) {
-		updateApplicationState(onStateFound);
+		updateApplicationState(onStateFound, onReconnection);
 	}
 	
 	// ---
@@ -87,7 +87,7 @@ public class ApplicationStateManager implements OfflineEvent.Source {
 	// ---
 	
 	private void setOnline(boolean status) {
-		if(this.online != status) {
+		if(this.online != status || state == ApplicationState.UNKNOWN) {
 			this.online = status;
 			updateApplicationState(onReconnection);
 		}
@@ -97,11 +97,13 @@ public class ApplicationStateManager implements OfflineEvent.Source {
 		return state;
 	}
 
-	private void setState(ApplicationState state, Runnable runnable) {
+	private void setState(ApplicationState state, Runnable... runnables) {
 		setState(state, true);
 		
-		if(runnable != null) {
-			runnable.run();
+		if(runnables != null) {
+			for(final Runnable runnable : runnables) {
+				runnable.run();
+			}
 		}
 	}
 	
@@ -150,7 +152,11 @@ public class ApplicationStateManager implements OfflineEvent.Source {
 
 			@Override
 			public void run() {
-				if(lastState == ApplicationState.OFFLINE && state == ApplicationState.READY_TO_SYNCHRONIZE) {
+				if(lastState == ApplicationState.ONLINE && state == ApplicationState.OFFLINE) {
+					// BUGFIX #690: Display a message saying that the connection has been lost.
+					N10N.offlineNotif(I18N.CONSTANTS.sigmahOfflineDeconnectionTitle(), I18N.CONSTANTS.sigmahOfflineDeconnectionMessage());
+					
+				} else if(lastState == ApplicationState.OFFLINE && state == ApplicationState.READY_TO_SYNCHRONIZE) {
 					// Display a message saying that the network is available.
 					N10N.offlineNotif(I18N.CONSTANTS.sigmahOfflineFirstReconnectionTitle(), I18N.CONSTANTS.sigmahOfflineFirstReconnectionMessage());
 					
@@ -159,13 +165,12 @@ public class ApplicationStateManager implements OfflineEvent.Source {
 						eventBus.updateZoneRequest(Zone.OFFLINE_BANNER.requestWith(RequestParameter.SHOW_BRIEFLY, true));
 						firstTime = false;
 					}
-					
-				} else {
-					lastState = state;
-					
-					if(state == ApplicationState.ONLINE) {
-						firstTime = true;
-					}
+				}
+				
+				lastState = state;
+
+				if(state == ApplicationState.ONLINE) {
+					firstTime = true;
 				}
 			}
 		};
@@ -213,30 +218,30 @@ public class ApplicationStateManager implements OfflineEvent.Source {
 		}
 	}
 	
-	private void updateApplicationState(final Runnable runnable) {
+	private void updateApplicationState(final Runnable... runnables) {
 		if(!GWT.isProdMode()) {
-			setState(ApplicationState.ONLINE, runnable);
+			setState(ApplicationState.ONLINE, runnables);
 			
 		} else if(online) {
 			isPushNeeded(new AsyncCallback<Boolean>() {
 
 				@Override
 				public void onFailure(Throwable caught) {
-					setState(ApplicationState.ONLINE, runnable);
+					setState(ApplicationState.ONLINE, runnables);
 				}
 
 				@Override
 				public void onSuccess(Boolean pushNeeded) {
 					if(pushNeeded) {
-                        setState(ApplicationState.READY_TO_SYNCHRONIZE, runnable);
+                        setState(ApplicationState.READY_TO_SYNCHRONIZE, runnables);
                     } else {
-                        setState(ApplicationState.ONLINE, runnable);
+                        setState(ApplicationState.ONLINE, runnables);
                     }
 				}
 			});
 			
 		} else {
-			setState(ApplicationState.OFFLINE, runnable);
+			setState(ApplicationState.OFFLINE, runnables);
 		}
 	}
 	
