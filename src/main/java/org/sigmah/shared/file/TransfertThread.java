@@ -16,6 +16,7 @@ import org.sigmah.shared.util.FileType;
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import org.sigmah.shared.servlet.FileUploadResponse;
 
 /**
  *
@@ -244,7 +245,8 @@ class TransfertThread {
 		task = null;
 		
 		if(doneTask.hasListener()) {
-			doneTask.getProgressListener().onLoad(null);
+			// BUGFIX #685 & #781: sending a serialized fileVersion on load.
+			doneTask.getProgressListener().onLoad(FileUploadResponse.serialize(fileVersion, null));
 		}
         
 		if(removeTransfert) {

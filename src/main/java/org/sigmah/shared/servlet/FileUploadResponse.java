@@ -78,6 +78,7 @@ public final class FileUploadResponse {
 	 *          The file version, may be {@code null}.
 	 * @param monitoredPoint
 	 *          The monitored point instance, may be {@code null}.
+	 * @return The given objects serialized in a {@code String} object.
 	 */
 	public static String serialize(final FileVersionDTO fileVersion, final MonitoredPointDTO monitoredPoint) {
 

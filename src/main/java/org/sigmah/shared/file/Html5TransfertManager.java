@@ -366,7 +366,8 @@ class Html5TransfertManager implements TransfertManager, HasProgressListeners {
 				}
 				blob = Blob.getBlob(fileField);
 				
-			} else {
+			} else if(field.getName() != null && field.getValue() instanceof String) {
+				// BUGFIX #781: Ignoring fields with invalid values to avoid serialization errors when synchronizing.
 				properties.put(field.getName(), (String) field.getValue());
 			}
 		}

@@ -1,5 +1,6 @@
 package org.sigmah.server.handler;
 
+import com.google.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,6 +14,7 @@ import org.sigmah.server.domain.profile.Profile;
 import org.sigmah.server.domain.value.File;
 import org.sigmah.server.domain.value.FileVersion;
 import org.sigmah.server.domain.value.Value;
+import org.sigmah.server.file.FileStorageProvider;
 import org.sigmah.server.handler.base.AbstractCommandHandler;
 import org.sigmah.shared.command.GetProjectDocuments;
 import org.sigmah.shared.command.result.ListResult;
@@ -29,6 +31,12 @@ import org.sigmah.shared.util.ValueResultUtils;
  */
 public class GetProjectDocumentsHandler extends AbstractCommandHandler<GetProjectDocuments, ListResult<ReportReference>> {
 
+	/**
+	 * Allow access to the files.
+	 */
+	@Inject
+	private FileStorageProvider fileStorageProvider;
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -69,6 +77,8 @@ public class GetProjectDocumentsHandler extends AbstractCommandHandler<GetProjec
 
 								final FileVersion lastVersion = document.getLastVersion();
 								final FileVersionDTO lastVersionDTO = mapper().map(lastVersion, FileVersionDTO.class);
+								
+								lastVersionDTO.setAvailable(fileStorageProvider.exists(lastVersionDTO.getPath()));
 
 								final ReportReference r = new ReportReference(lastVersionDTO);
 								r.setId(lastVersion.getId());

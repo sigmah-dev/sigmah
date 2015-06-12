@@ -331,6 +331,9 @@ public class AttachFilePresenter extends AbstractPagePresenter<AttachFilePresent
 		if (fileVersion == null) {
 			throw new UnsupportedOperationException("Invalid required file version.");
 		}
+		
+		// Mark the file as available
+		fileVersion.setAvailable(true);
 
 		// Create the report reference.
 		final ReportReference reportReference = new ReportReference(fileVersion);

@@ -30,7 +30,9 @@ public class GetProjectReportAsyncHandler implements AsyncCommandHandler<GetProj
 
 	@Override
 	public void onSuccess(GetProjectReport command, ProjectReportDTO result, Authentication authentication) {
-		projectReportAsyncDAO.saveOrUpdate(result);
+		if(result != null) {
+			projectReportAsyncDAO.saveOrUpdate(result);
+		}
 	}
 	
 }

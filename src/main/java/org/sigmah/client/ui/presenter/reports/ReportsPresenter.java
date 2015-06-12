@@ -67,6 +67,7 @@ import com.google.gwt.user.client.ui.HasHTML;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
+import org.sigmah.shared.file.TransfertManager;
 
 /**
  * Reports & Documents widget presenter.
@@ -215,6 +216,9 @@ public class ReportsPresenter extends AbstractPresenter<ReportsPresenter.View> {
 	 * The project current phase name.
 	 */
 	private String phaseName;
+	
+	@Inject
+	private TransfertManager transfertManager;
 
 	/**
 	 * Presenters's initialization.
@@ -254,7 +258,7 @@ public class ReportsPresenter extends AbstractPresenter<ReportsPresenter.View> {
 				if (document) {
 					// Attached file download.
 					// BUGFIX #699
-					injector.getTransfertManager().canDownload(report.getFileVersion(), new AsyncCallback<Boolean>() {
+					transfertManager.canDownload(report.getFileVersion(), new AsyncCallback<Boolean>() {
 
 						@Override
 						public void onFailure(Throwable caught) {
@@ -264,7 +268,7 @@ public class ReportsPresenter extends AbstractPresenter<ReportsPresenter.View> {
 						@Override
 						public void onSuccess(Boolean result) {
 							if (result) {
-								injector.getTransfertManager().download(report.getFileVersion(), new ProgressListener() {
+								transfertManager.download(report.getFileVersion(), new ProgressListener() {
 
 									@Override
 									public void onProgress(double progress, double speed) {
