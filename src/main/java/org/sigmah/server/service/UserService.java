@@ -248,6 +248,8 @@ public class UserService extends AbstractEntityService<User, Integer, UserDTO> {
 		user.setNewUser(true);
 		user.setLocale(locale);
 		user.setChangePasswordKey(SecureTokenGenerator.generate());
+		// BUGFIX: #771 new users should be active when created.
+		user.setActive(Boolean.TRUE);
 		return user;
 	}
 
