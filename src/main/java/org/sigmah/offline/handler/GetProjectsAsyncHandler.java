@@ -50,6 +50,9 @@ public class GetProjectsAsyncHandler implements AsyncCommandHandler<GetProjects,
 		if (command.getOrgUnitsIds() == null) {
 			command.setOrgUnitsIds(Collections.singletonList(authentication.getOrgUnitId()));
 		}
+		
+		// Adding the org unit 0 to also retrieve draft projects.
+		orgUnits.add(0);
 
         final RequestManager<Set<Integer>> requestManager = new RequestManager<Set<Integer>>(orgUnits, new AsyncCallback<Set<Integer>>() {
 

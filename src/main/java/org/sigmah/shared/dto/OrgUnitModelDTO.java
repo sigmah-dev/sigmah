@@ -228,7 +228,8 @@ public class OrgUnitModelDTO extends AbstractModelDataEntityDTO<Integer> impleme
 	// Maintenance.
 	@Override
 	public boolean isUnderMaintenance() {
-		return get(UNDER_MAINTENANCE);
+		final Boolean underMaintenance = get(UNDER_MAINTENANCE);
+		return underMaintenance != null && underMaintenance;
 	}
 	
 	public void setUnderMaintenance(boolean underMaintenance) {

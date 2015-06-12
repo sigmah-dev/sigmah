@@ -11,6 +11,7 @@ import org.sigmah.offline.indexeddb.OpenCursorRequest;
 import org.sigmah.offline.indexeddb.Order;
 import org.sigmah.offline.indexeddb.Request;
 import org.sigmah.offline.js.HasId;
+import org.sigmah.shared.command.result.VoidResult;
 
 /**
  *
@@ -83,7 +84,7 @@ public abstract class AbstractAsyncDAO<T> extends BaseAsyncDAO implements AsyncD
         remove(id, null);
     }
     
-    public void remove(final int id, final AsyncCallback<Void> callback) {
+    public void remove(final int id, final AsyncCallback<VoidResult> callback) {
         openTransaction(Transaction.Mode.READ_WRITE, new OpenTransactionHandler() {
 
             @Override
@@ -101,7 +102,7 @@ public abstract class AbstractAsyncDAO<T> extends BaseAsyncDAO implements AsyncD
      * @param callback
      * @param transaction 
      */
-    public void remove(int id, final AsyncCallback<Void> callback, Transaction transaction) {
+    public void remove(int id, final AsyncCallback<VoidResult> callback, Transaction transaction) {
         final ObjectStore commandObjectStore = transaction.getObjectStore(getRequiredStore());
         commandObjectStore.delete(id).addCallback(new AsyncCallback<Request>() {
 
@@ -125,8 +126,8 @@ public abstract class AbstractAsyncDAO<T> extends BaseAsyncDAO implements AsyncD
         removeAll(ids, null);
     }
     
-    public void removeAll(final Collection<Integer> ids, final AsyncCallback<Void> callback) {
-        final RequestManager<Void> requestManager = new RequestManager<Void>(null, callback);
+    public void removeAll(final Collection<Integer> ids, final AsyncCallback<VoidResult> callback) {
+        final RequestManager<VoidResult> requestManager = new RequestManager<VoidResult>(null, callback);
         
         openTransaction(Transaction.Mode.READ_WRITE, new OpenTransactionHandler() {
 
@@ -134,10 +135,10 @@ public abstract class AbstractAsyncDAO<T> extends BaseAsyncDAO implements AsyncD
             public void onTransaction(Transaction transaction) {
                 for(final Integer id : ids) {
                     // Remove the current object
-                    remove(id, new RequestManagerCallback<Void, Void>(requestManager) {
+                    remove(id, new RequestManagerCallback<VoidResult, VoidResult>(requestManager) {
                         
                         @Override
-                        public void onRequestSuccess(Void result) {
+                        public void onRequestSuccess(VoidResult result) {
                             // Success
                         }
                     }, transaction);
@@ -211,7 +212,7 @@ public abstract class AbstractAsyncDAO<T> extends BaseAsyncDAO implements AsyncD
 	 * Removes every objets whose id is a negative integer.
 	 * @param callback
 	 */
-	public void removeTemporaryObjects(final AsyncCallback<Void> callback) {
+	public void removeTemporaryObjects(final AsyncCallback<VoidResult> callback) {
 		openTransaction(Transaction.Mode.READ_WRITE, new OpenTransactionHandler() {
 
 			@Override

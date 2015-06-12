@@ -20,6 +20,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.i18n.I18N;
@@ -38,6 +39,7 @@ import org.sigmah.shared.command.Synchronize;
 import org.sigmah.shared.command.result.Calendar;
 import org.sigmah.shared.command.result.SecureNavigationResult;
 import org.sigmah.shared.command.result.SynchronizeResult;
+import org.sigmah.shared.command.result.VoidResult;
 import org.sigmah.shared.dto.ProjectFundingDTO;
 import org.sigmah.shared.dto.calendar.CalendarType;
 import org.sigmah.shared.dto.calendar.PersonalCalendarIdentifier;
@@ -132,28 +134,28 @@ public class Synchronizer {
 									N10N.error(errorBuilder.toString());
 								}
 								
-								queue.add(new QueueEntry<Void>() {
+								queue.add(new QueueEntry<VoidResult>() {
 
 									@Override
-									public void run(AsyncCallback<Void> callback, Loadable... loadables) {
+									public void run(AsyncCallback<VoidResult> callback, Loadable... loadables) {
 										updateDiaryAsyncDAO.removeAll(commands.keySet(), callback);
 									}
 								});
 							}
 						});
 						
-						queue.add(new QueueEntry<Void>() {
+						queue.add(new QueueEntry<VoidResult>() {
 
 							@Override
-							public void run(AsyncCallback<Void> callback, Loadable... loadables) {
+							public void run(AsyncCallback<VoidResult> callback, Loadable... loadables) {
 								monitoredPointAsyncDAO.removeTemporaryObjects(callback);
 							}
 						});
 						
-						queue.add(new QueueEntry<Void>() {
+						queue.add(new QueueEntry<VoidResult>() {
 
 							@Override
-							public void run(AsyncCallback<Void> callback, Loadable... loadables) {
+							public void run(AsyncCallback<VoidResult> callback, Loadable... loadables) {
 								reminderAsyncDAO.removeTemporaryObjects(callback);
 							}
 						});
@@ -168,8 +170,7 @@ public class Synchronizer {
 	}
 	
 	public void pull(final SynchroProgressListener progressListener) {
-		final GetProjects getProjects = new GetProjects();
-		getProjects.setMappingMode(ProjectDTO.Mode.WITH_RELATED_PROJECTS);
+		final GetProjects getProjects = new GetProjects(Collections.<Integer>emptyList(), ProjectDTO.Mode.WITH_RELATED_PROJECTS);
         getProjects.setFavoritesOnly(true);
         
         final double[] progress = {0.0};

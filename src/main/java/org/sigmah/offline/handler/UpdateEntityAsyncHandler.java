@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import org.sigmah.client.dispatch.DispatchListener;
 import org.sigmah.offline.dao.PersonalCalendarAsyncDAO;
+import org.sigmah.offline.dao.ProjectAsyncDAO;
 import org.sigmah.offline.dao.ProjectReportAsyncDAO;
 import org.sigmah.offline.dao.UpdateDiaryAsyncDAO;
 import org.sigmah.offline.dispatch.AsyncCommandHandler;
@@ -19,6 +20,7 @@ import org.sigmah.shared.command.UpdateEntity;
 import org.sigmah.shared.command.result.Authentication;
 import org.sigmah.shared.command.result.Calendar;
 import org.sigmah.shared.command.result.VoidResult;
+import org.sigmah.shared.dto.ProjectDTO;
 import org.sigmah.shared.dto.calendar.CalendarWrapper;
 import org.sigmah.shared.dto.calendar.Event;
 import org.sigmah.shared.dto.calendar.PersonalCalendarIdentifier;
@@ -46,6 +48,9 @@ public class UpdateEntityAsyncHandler implements AsyncCommandHandler<UpdateEntit
 	@Inject
 	private PersonalCalendarAsyncDAO personalCalendarAsyncDAO;
 	
+	@Inject
+	private ProjectAsyncDAO projectAsyncDAO;
+	
 	@Override
 	public void execute(UpdateEntity command, OfflineExecutionContext executionContext, AsyncCallback<VoidResult> callback) {
 		executeCommand(command, executionContext.getAuthentication(), callback);
@@ -63,6 +68,9 @@ public class UpdateEntityAsyncHandler implements AsyncCommandHandler<UpdateEntit
 			
 		} else if(PersonalEventDTO.ENTITY_NAME.equals(command.getEntityName())) {
 			updatePersonalEvent(command.getId(), command.getChanges(), callback);
+			
+		} else if(ProjectDTO.ENTITY_NAME.equals(command.getEntityName())) {
+			updateProject(command.getId(), command.getChanges(), callback);
 			
 		} else {
 			exception(command, callback != null);
@@ -179,5 +187,13 @@ public class UpdateEntityAsyncHandler implements AsyncCommandHandler<UpdateEntit
 				personalCalendarAsyncDAO.saveOrUpdate(result, calendarCallback);
 			}
 		});
+	}
+	
+	private void updateProject(final int entityId, RpcMap changes, AsyncCallback<VoidResult> callback) {
+		if(changes.containsKey("dateDeleted")) {
+			// Removes the project from the local database.
+			projectAsyncDAO.remove(entityId, callback);
+		}
+		// TODO: Support "fundedId" and "fundingId" if necessary.
 	}
 }

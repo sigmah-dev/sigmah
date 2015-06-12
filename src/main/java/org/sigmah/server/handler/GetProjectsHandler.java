@@ -79,10 +79,19 @@ public class GetProjectsHandler extends AbstractCommandHandler<GetProjects, List
 			final TypedQuery<Project> ownerManagerQuery = em().createQuery("SELECT p FROM Project p WHERE p.owner = :ouser OR p.manager = :muser", Project.class);
 			ownerManagerQuery.setParameter("ouser", context.getUser());
 			ownerManagerQuery.setParameter("muser", context.getUser());
-			for (final Project p : ownerManagerQuery.getResultList()) {
-				projects.add(p);
-			}
+			projects.addAll(ownerManagerQuery.getResultList());
 		}
+		
+		// ---------------
+		// Favorites projects.
+		// ---------------
+		
+		if(cmd.isFavoritesOnly()) {
+			final TypedQuery<Project> favoritesQuery = em().createQuery("FROM Project p WHERE :user MEMBER OF p.favoriteUsers", Project.class);
+			favoritesQuery.setParameter("user", context.getUser());
+			projects.addAll(favoritesQuery.getResultList());
+		}
+		
 		// ---------------
 		// Projects in my visible organization units.
 		// ---------------
