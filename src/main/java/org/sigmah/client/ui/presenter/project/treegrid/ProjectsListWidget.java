@@ -474,8 +474,7 @@ public class ProjectsListWidget extends AbstractPresenter<ProjectsListWidget.Vie
 		this.orgUnitsIds.addAll(orgUnitsIdsAsList);
 
 		// Builds the next refresh command.
-		command = new GetProjects();
-		command.setOrgUnitsIds(orgUnitsIdsAsList);
+		command = new GetProjects(orgUnitsIdsAsList, null);
 		command.setViewOwnOrManage(viewOwnOrManage);
 
 		// If the mode is automatic, the list is refreshed immediately.

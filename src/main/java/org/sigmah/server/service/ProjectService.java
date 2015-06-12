@@ -49,6 +49,8 @@ import org.slf4j.LoggerFactory;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
+import org.sigmah.client.ui.presenter.CreateProjectPresenter;
+import org.sigmah.shared.dto.ProjectFundingDTO;
 
 /**
  * {@link Project} service.
@@ -74,6 +76,12 @@ public class ProjectService extends AbstractEntityService<Project, Integer, Proj
 	 */
 	@Inject
 	private ProjectMapper projectMapper;
+	
+	/**
+	 * Project funding service.
+	 */
+	@Inject
+	private ProjectFundingService fundingService;
 
 	@Inject
 	public ProjectService(final Injector injector) {
@@ -226,34 +234,83 @@ public class ProjectService extends AbstractEntityService<Project, Integer, Proj
 		// Updates the project with a default log frame.
 		final LogFrame logFrame = createDefaultLogFrame(project);
 		project.setLogFrame(logFrame);
-		final Double budgetPlanned = properties.<Double> get("budget");
-		Map<BudgetSubFieldDTO, Double> budgetValues = new HashMap<BudgetSubFieldDTO, Double>();
+		
+		// Create the budget values
+		final Double budgetPlanned = properties.<Double> get(ProjectDTO.BUDGET);
 		if (budgetPlanned != null) {
-			BudgetElement budgetElement = getBudgetElement(model);
-			if (budgetElement != null) {
-				for (BudgetSubField budgetSubField : budgetElement.getBudgetSubFields()) {
-					BudgetSubFieldDTO budgetSubFieldDTO = new BudgetSubFieldDTO();
-					budgetSubFieldDTO.setId(budgetSubField.getId().intValue());
-					if (BudgetSubFieldType.PLANNED == budgetSubField.getType()) {
-						budgetValues.put(budgetSubFieldDTO, budgetPlanned);
-					} else {
-						budgetValues.put(budgetSubFieldDTO, 0.0);
-					}
-				}
-				Value value = new Value();
-				value.setContainerId(project.getId());
-				value.setElement(budgetElement);
-				value.setLastModificationAction('C');
-				value.setLastModificationDate(new Date());
-				value.setLastModificationUser(user);
-				value.setValue(ValueResultUtils.mergeElements(budgetValues));
-				em().persist(value);
-			}
-
+			createBudgetValues(budgetPlanned, model, project, user);
 		}
+		
+		// Updates the project
 		project = em().merge(project);
+		
+		// Create links (if requested)
+		final ProjectDTO baseProject = properties.get(ProjectDTO.BASE_PROJECT);
+		if(baseProject != null) {
+			final CreateProjectPresenter.Mode mode = properties.get(ProjectDTO.CREATION_MODE);
+			
+			if(mode == CreateProjectPresenter.Mode.FUNDING_ANOTHER_PROJECT) {
+				// Sets the funding parameters.
+				final Map<String, Object> parameters = new HashMap<String, Object>();
+				parameters.put(ProjectFundingDTO.FUNDING_ID, project.getId());
+				parameters.put(ProjectFundingDTO.FUNDED_ID, baseProject.getId());
+				parameters.put(ProjectFundingDTO.PERCENTAGE, properties.get(ProjectDTO.AMOUNT));
+
+				final ProjectFunding funding = fundingService.create(new PropertyMap(parameters), context);
+				if(project.getFunding() == null) {
+					project.setFunding(new ArrayList<ProjectFunding>());
+				}
+				project.getFunding().add(funding);
+
+			} else if(mode == CreateProjectPresenter.Mode.FUNDED_BY_ANOTHER_PROJECT) {
+				// Sets the funding parameters.
+				final Map<String, Object> parameters = new HashMap<String, Object>();
+				parameters.put(ProjectFundingDTO.FUNDING_ID, baseProject.getId());
+				parameters.put(ProjectFundingDTO.FUNDED_ID, project.getId());
+				parameters.put(ProjectFundingDTO.PERCENTAGE, properties.get(ProjectDTO.AMOUNT));
+
+				final ProjectFunding funded = fundingService.create(new PropertyMap(parameters), context);
+				if(project.getFunded() == null) {
+					project.setFunded(new ArrayList<ProjectFunding>());
+				}
+				project.getFunded().add(funded);
+			}
+		}
 
 		return project;
+	}
+
+	/**
+	 * Create the required budget values.
+	 * 
+	 * @param budgetPlanned Planned budget. Null values will result in a NullPointerException.
+	 * @param model Project model to read.
+	 * @param project Project to edit.
+	 * @param user User creating the project.
+	 */
+	private void createBudgetValues(Double budgetPlanned, ProjectModel model, Project project, final User user) {
+		Map<BudgetSubFieldDTO, Double> budgetValues = new HashMap<BudgetSubFieldDTO, Double>();
+		
+		BudgetElement budgetElement = getBudgetElement(model);
+		if (budgetElement != null) {
+			for (BudgetSubField budgetSubField : budgetElement.getBudgetSubFields()) {
+				BudgetSubFieldDTO budgetSubFieldDTO = new BudgetSubFieldDTO();
+				budgetSubFieldDTO.setId(budgetSubField.getId());
+				if (BudgetSubFieldType.PLANNED == budgetSubField.getType()) {
+					budgetValues.put(budgetSubFieldDTO, budgetPlanned);
+				} else {
+					budgetValues.put(budgetSubFieldDTO, 0.0);
+				}
+			}
+			Value value = new Value();
+			value.setContainerId(project.getId());
+			value.setElement(budgetElement);
+			value.setLastModificationAction('C');
+			value.setLastModificationDate(new Date());
+			value.setLastModificationUser(user);
+			value.setValue(ValueResultUtils.mergeElements(budgetValues));
+			em().persist(value);
+		}
 	}
 
 	/**

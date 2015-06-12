@@ -94,6 +94,14 @@ public final class ProjectDTO extends AbstractTreeModelEntityDTO<Integer> implem
 	public static final String RATIO_DIVISOR_VALUE = "ratioDivisorValue";
 	public static final String RATIO_DIVISOR_LABEL = "ratioDivisorLabel";
 	public static final String RATIO_DIVISOR_TYPE = "ratioDivisorType";
+	
+	// Keys used by project creation
+	public static final String BUDGET = "budget";
+	public static final String MODEL_ID = "modelId";
+	public static final String CALENDAR_NAME = "calendarName";
+	public static final String AMOUNT = "amount";
+	public static final String CREATION_MODE = "creationMode";
+	public static final String BASE_PROJECT = "baseProject";
 
 	/**
 	 * Mapping configurations.

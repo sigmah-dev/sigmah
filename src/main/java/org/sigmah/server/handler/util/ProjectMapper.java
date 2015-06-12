@@ -222,62 +222,7 @@ public class ProjectMapper extends EntityManagerProvider {
 		}
 		projectDTO.setCategoryElements(elements);
 
-		final Query budgetValueQuery = em().createQuery("SELECT v, e FROM Value v JOIN v.element e WHERE v.containerId = :projectId AND e.id IN (:ids)");
-		budgetValueQuery.setParameter("projectId", project.getId());
-		budgetValueQuery.setParameter("ids", em().createQuery("SELECT b.id FROM BudgetElement b").getResultList());
-
-		final Iterator<?> i = budgetValueQuery.getResultList().iterator();
-
-		if (i.hasNext()) {
-			Object[] result = (Object[]) i.next();
-			Value budgetValue = (Value) result[0];
-			BudgetElement budgetElement = (BudgetElement) result[1];
-			final Map<Integer, String> values = ValueResultUtils.splitMapElements(budgetValue.getValue());
-
-			if (budgetElement.getRatioDividend() != null) {
-				if (budgetElement.getRatioDividend().getType() != null) {
-					projectDTO.setRatioDividendType(budgetElement.getRatioDividend().getType());
-				} else {
-					projectDTO.setRatioDividendLabel(budgetElement.getRatioDividend().getLabel());
-				}
-				if (values.get(budgetElement.getRatioDividend().getId().intValue()) != null) {
-					projectDTO.setRatioDividendValue(Double.parseDouble(values.get(budgetElement.getRatioDividend().getId().intValue())));
-				}
-			}
-
-			if (budgetElement.getRatioDivisor() != null) {
-				if (budgetElement.getRatioDivisor().getType() != null) {
-					projectDTO.setRatioDivisorType(budgetElement.getRatioDivisor().getType());
-				} else {
-					projectDTO.setRatioDivisorLabel(budgetElement.getRatioDivisor().getLabel());
-				}
-				if (values.get(budgetElement.getRatioDivisor().getId().intValue()) != null) {
-					projectDTO.setRatioDivisorValue(Double.parseDouble(values.get(budgetElement.getRatioDivisor().getId().intValue())));
-				}
-			}
-
-			for (BudgetSubField budgetSubField : budgetElement.getBudgetSubFields()) {
-				if (budgetSubField.getType() != null) {
-					if (values.get(budgetSubField.getId().intValue()) != null) {
-						switch (budgetSubField.getType()) {
-							case PLANNED:
-								projectDTO.setPlannedBudget(Double.parseDouble(values.get(budgetSubField.getId().intValue())));
-								break;
-							case RECEIVED:
-								projectDTO.setReceivedBudget(Double.parseDouble(values.get(budgetSubField.getId().intValue())));
-								break;
-							case SPENT:
-								projectDTO.setSpendBudget(Double.parseDouble(values.get(budgetSubField.getId().intValue())));
-								break;
-							default:
-								break;
-
-						}
-					}
-
-				}
-			}
-		}
+		fillBudget(project, projectDTO);
 
 		sb.append("- CATEGORIES: ");
 		sb.append(new Date().getTime() - start);
@@ -358,6 +303,65 @@ public class ProjectMapper extends EntityManagerProvider {
 		}
 
 		return projectDTO;
+	}
+
+	public void fillBudget(final Project project, final ProjectDTO projectDTO) throws NumberFormatException {
+		final Query budgetValueQuery = em().createQuery("SELECT v, e FROM Value v JOIN v.element e WHERE v.containerId = :projectId AND e.id IN (:ids)");
+		budgetValueQuery.setParameter("projectId", project.getId());
+		budgetValueQuery.setParameter("ids", em().createQuery("SELECT b.id FROM BudgetElement b").getResultList());
+		
+		final Iterator<?> i = budgetValueQuery.getResultList().iterator();
+		
+		if (i.hasNext()) {
+			Object[] result = (Object[]) i.next();
+			Value budgetValue = (Value) result[0];
+			BudgetElement budgetElement = (BudgetElement) result[1];
+			final Map<Integer, String> values = ValueResultUtils.splitMapElements(budgetValue.getValue());
+			
+			if (budgetElement.getRatioDividend() != null) {
+				if (budgetElement.getRatioDividend().getType() != null) {
+					projectDTO.setRatioDividendType(budgetElement.getRatioDividend().getType());
+				} else {
+					projectDTO.setRatioDividendLabel(budgetElement.getRatioDividend().getLabel());
+				}
+				if (values.get(budgetElement.getRatioDividend().getId().intValue()) != null) {
+					projectDTO.setRatioDividendValue(Double.parseDouble(values.get(budgetElement.getRatioDividend().getId().intValue())));
+				}
+			}
+			
+			if (budgetElement.getRatioDivisor() != null) {
+				if (budgetElement.getRatioDivisor().getType() != null) {
+					projectDTO.setRatioDivisorType(budgetElement.getRatioDivisor().getType());
+				} else {
+					projectDTO.setRatioDivisorLabel(budgetElement.getRatioDivisor().getLabel());
+				}
+				if (values.get(budgetElement.getRatioDivisor().getId().intValue()) != null) {
+					projectDTO.setRatioDivisorValue(Double.parseDouble(values.get(budgetElement.getRatioDivisor().getId().intValue())));
+				}
+			}
+			
+			for (BudgetSubField budgetSubField : budgetElement.getBudgetSubFields()) {
+				if (budgetSubField.getType() != null) {
+					if (values.get(budgetSubField.getId().intValue()) != null) {
+						switch (budgetSubField.getType()) {
+							case PLANNED:
+								projectDTO.setPlannedBudget(Double.parseDouble(values.get(budgetSubField.getId().intValue())));
+								break;
+							case RECEIVED:
+								projectDTO.setReceivedBudget(Double.parseDouble(values.get(budgetSubField.getId().intValue())));
+								break;
+							case SPENT:
+								projectDTO.setSpendBudget(Double.parseDouble(values.get(budgetSubField.getId().intValue())));
+								break;
+							default:
+								break;
+								
+						}
+					}
+					
+				}
+			}
+		}
 	}
 
 }

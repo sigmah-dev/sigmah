@@ -86,6 +86,8 @@ public class CreateProjectPresenter extends AbstractPagePresenter<CreateProjectP
 
 		void setProjectModelType(ProjectModelType type);
 
+		LabelField getBaseProjectBudgetField();
+		
 		NumberField getAmountField();
 
 		LabelField getPercentageField();
@@ -475,6 +477,8 @@ public class CreateProjectPresenter extends AbstractPagePresenter<CreateProjectP
 		final String amountFieldLabel;
 		final boolean showTestProjectsField;
 		final String viewTitle;
+		final String baseProjectBudgetLabel;
+		final Double baseProjectBudget;
 
 		switch (currentMode) {
 
@@ -489,6 +493,8 @@ public class CreateProjectPresenter extends AbstractPagePresenter<CreateProjectP
 
 				showAmountField = true;
 				amountFieldLabel = I18N.MESSAGES.projectFinancesDetails(baseProject.getName()) + " (" + I18N.CONSTANTS.currencyEuro() + ')';
+				baseProjectBudgetLabel = null;
+				baseProjectBudget = null;
 
 				showTestProjectsField = false;
 
@@ -507,6 +513,8 @@ public class CreateProjectPresenter extends AbstractPagePresenter<CreateProjectP
 
 				showAmountField = true;
 				amountFieldLabel = I18N.MESSAGES.projectFundedByDetails(baseProject.getName()) + " (" + I18N.CONSTANTS.currencyEuro() + ')';
+				baseProjectBudgetLabel = I18N.MESSAGES.projectFundsDetails(baseProject.getName()) + " (" + I18N.CONSTANTS.currencyEuro() + ')' + I18N.CONSTANTS.form_label_separator();
+				baseProjectBudget = baseProject.getPlannedBudget();
 
 				showTestProjectsField = false;
 
@@ -525,6 +533,8 @@ public class CreateProjectPresenter extends AbstractPagePresenter<CreateProjectP
 
 				showAmountField = false;
 				amountFieldLabel = null;
+				baseProjectBudgetLabel = null;
+				baseProjectBudget = null;
 
 				showTestProjectsField = true;
 
@@ -543,6 +553,8 @@ public class CreateProjectPresenter extends AbstractPagePresenter<CreateProjectP
 
 				showAmountField = false;
 				amountFieldLabel = null;
+				baseProjectBudgetLabel = null;
+				baseProjectBudget = null;
 
 				showTestProjectsField = false;
 
@@ -560,6 +572,11 @@ public class CreateProjectPresenter extends AbstractPagePresenter<CreateProjectP
 		view.getOrgUnitsField().setVisible(showOrgUnitsField);
 		view.getOrgUnitsField().setAllowBlank(!showOrgUnitsField);
 
+		// Linked budget field.
+		view.getBaseProjectBudgetField().setFieldLabel(baseProjectBudgetLabel);
+		view.getBaseProjectBudgetField().setValue(baseProjectBudget != null ? baseProjectBudget : ZERO);
+		view.getBaseProjectBudgetField().setVisible(baseProjectBudget != null);
+		
 		// Amount field.
 		view.getAmountField().setValue(ZERO);
 		view.getAmountField().setVisible(showAmountField);
@@ -722,7 +739,7 @@ public class CreateProjectPresenter extends AbstractPagePresenter<CreateProjectP
 		}, view.getCreateButton());
 
 	}
-
+	
 	/**
 	 * Create the project with the current form values.
 	 */
@@ -762,10 +779,16 @@ public class CreateProjectPresenter extends AbstractPagePresenter<CreateProjectP
 		final HashMap<String, Object> projectProperties = new HashMap<String, Object>();
 		projectProperties.put(ProjectDTO.NAME, name);
 		projectProperties.put(ProjectDTO.FULL_NAME, fullName);
-		projectProperties.put("budget", budget);
-		projectProperties.put("modelId", projectModelId);
+		projectProperties.put(ProjectDTO.BUDGET, budget);
+		projectProperties.put(ProjectDTO.MODEL_ID, projectModelId);
 		projectProperties.put(ProjectDTO.ORG_UNIT_ID, orgUnitId);
-		projectProperties.put("calendarName", I18N.CONSTANTS.calendarDefaultName());
+		projectProperties.put(ProjectDTO.CALENDAR_NAME, I18N.CONSTANTS.calendarDefaultName());
+		projectProperties.put(ProjectDTO.CREATION_MODE, currentMode);
+		
+		if(currentMode == Mode.FUNDING_ANOTHER_PROJECT || currentMode == Mode.FUNDED_BY_ANOTHER_PROJECT) {
+			projectProperties.put(ProjectDTO.AMOUNT, view.getAmountField().getValue().doubleValue());
+			projectProperties.put(ProjectDTO.BASE_PROJECT, baseProject);
+		}
 
 		// Creates the project.
 		dispatch.execute(new CreateEntity(ProjectDTO.ENTITY_NAME, projectProperties), new CommandResultHandler<CreateResult>() {

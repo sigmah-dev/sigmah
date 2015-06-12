@@ -23,8 +23,10 @@ import com.google.gwt.event.dom.client.ClickHandler;
  * 
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
-final class LinkedProjectsColumnsProvider extends LinkedProjectsAbstractProvider {
+public final class LinkedProjectsColumnsProvider extends LinkedProjectsAbstractProvider {
 
+	private ProjectDTO project;
+	
 	/**
 	 * Initializes the linked projects columns provider.
 	 * 
@@ -37,6 +39,10 @@ final class LinkedProjectsColumnsProvider extends LinkedProjectsAbstractProvider
 		super(view, projectType);
 	}
 
+	public void setProject(ProjectDTO project) {
+		this.project = project;
+	}
+	
 	/**
 	 * Builds the columns for the funding/funded projects grids.
 	 * 
@@ -74,7 +80,8 @@ final class LinkedProjectsColumnsProvider extends LinkedProjectsAbstractProvider
 					Grid<ProjectFundingDTO> grid) {
 
 				final com.google.gwt.user.client.ui.Label label = new com.google.gwt.user.client.ui.Label(getProject(model).getName());
-				label.addStyleName("hyperlink");
+				// BUGFIX: #770 Using the right style name to display project name like an hyperlink.
+				label.addStyleName("hyperlink-label");
 
 				label.addClickHandler(new ClickHandler() {
 
@@ -128,8 +135,10 @@ final class LinkedProjectsColumnsProvider extends LinkedProjectsAbstractProvider
 				final Double amount = model.getPercentage();
 
 				// The current project budget.
-				final Double budget = getProject(model).getPlannedBudget();
-
+				final Double budget = projectType == LinkedProjectType.FUNDING_PROJECT ?
+						project.getPlannedBudget() :
+						getProject(model).getPlannedBudget();
+				
 				return new Label(NumberUtils.ratioAsString(amount, budget));
 			}
 		});

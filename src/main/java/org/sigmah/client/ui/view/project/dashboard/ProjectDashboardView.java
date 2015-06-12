@@ -78,6 +78,8 @@ public class ProjectDashboardView extends AbstractView implements ProjectDashboa
 	private ToolBar fundedProjectsToolbar;
 	private Button fundedProjectsSelectButton;
 	private Button fundedProjectsCreateButton;
+	
+	private LinkedProjectsColumnsProvider fundingProjectsColumnsProvider;
 
 	/**
 	 * Specific presenter's handlers.
@@ -280,6 +282,14 @@ public class ProjectDashboardView extends AbstractView implements ProjectDashboa
 		return phasesPresenter;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public LinkedProjectsColumnsProvider getFundingProjectsColumnsProvider() {
+		return fundingProjectsColumnsProvider;
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -560,9 +570,10 @@ public class ProjectDashboardView extends AbstractView implements ProjectDashboa
 		final ListStore<ProjectFundingDTO> fundingProjectsStore = new ListStore<ProjectFundingDTO>();
 		fundingProjectsStore.setStoreSorter(storeSorter);
 
+		this.fundingProjectsColumnsProvider = new LinkedProjectsColumnsProvider(this, LinkedProjectType.FUNDING_PROJECT);
 		fundingProjectsGrid =
 				new FlexibleGrid<ProjectFundingDTO>(fundingProjectsStore, null, 2,
-					new LinkedProjectsColumnsProvider(this, LinkedProjectType.FUNDING_PROJECT).getLinkedProjectsColumnModel());
+					fundingProjectsColumnsProvider.getLinkedProjectsColumnModel());
 		fundingProjectsGrid.setAutoExpandColumn(ProjectDTO.NAME);
 
 		fundingProjectsToolbar = new ToolBar();

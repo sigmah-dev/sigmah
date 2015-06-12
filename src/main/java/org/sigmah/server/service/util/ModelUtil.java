@@ -303,13 +303,10 @@ public final class ModelUtil {
 		} else if (ElementTypeEnum.REPORT.equals(type) || (ElementTypeEnum.REPORT.equals(oldType) && type == null)) {
 			ReportElement reportElement = em.find(ReportElement.class, flexibleElt.getId());
 			if (reportElement != null) {
-				if (reportModel != null) {
-					if (reportModel.getName() != null) {
-						ProjectReportModel reportId = findReportModel(em, reportModel.getName());
-						((ReportElement) flexibleElt).setModel(reportId);
-						specificChanges = true;
-					}
-
+				if (reportModel != null && reportModel.getName() != null) {
+					ProjectReportModel reportId = findReportModel(em, reportModel.getName());
+					((ReportElement) flexibleElt).setModel(reportId);
+					specificChanges = true;
 				}
 
 				if (specificChanges) {
@@ -319,7 +316,8 @@ public final class ModelUtil {
 		} else if (ElementTypeEnum.REPORT_LIST.equals(type) || (ElementTypeEnum.REPORT_LIST.equals(oldType) && type == null)) {
 			ReportListElement reportElement = em.find(ReportListElement.class, flexibleElt.getId());
 			if (reportElement != null) {
-				if (reportModel.getName() != null) {
+				// BUGFIX #760: Verifiying that reportModel is not null before accessing its name.
+				if (reportModel != null && reportModel.getName() != null) {
 					ProjectReportModel reportId = findReportModel(em, reportModel.getName());
 					((ReportListElement) flexibleElt).setModel(reportId);
 					specificChanges = true;

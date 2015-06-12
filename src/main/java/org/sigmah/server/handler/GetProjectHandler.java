@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
+import org.sigmah.server.handler.util.ProjectMapper;
 
 /**
  * {@link GetProject} corresponding handler implementation.
@@ -41,6 +42,12 @@ public class GetProjectHandler extends AbstractCommandHandler<GetProject, Projec
 	 */
 	@Inject
 	private AmendmentDAO amendmentDAO;
+	
+	/**
+	 * Injected project mapper.
+	 */
+	@Inject
+	private ProjectMapper projectMapper;
 
 	/**
 	 * Gets a project from the database and maps it into a {@link ProjectDTO} object.
@@ -84,7 +91,13 @@ public class GetProjectHandler extends AbstractCommandHandler<GetProject, Projec
 		// Processing project mapping.
 		// --
 
-		final ProjectDTO dto = mapper().map(project, ProjectDTO.class, cmd.getMappingMode());
+		final ProjectDTO dto;
+		if(cmd.getMappingMode() == ProjectDTO.Mode._USE_PROJECT_MAPPER) {
+			dto = projectMapper.map(project, true);
+		} else {
+			dto = mapper().map(project, ProjectDTO.class, cmd.getMappingMode());
+			projectMapper.fillBudget(project, dto);
+		}
 		dto.setCurrentAmendment(mapper().map(amendment, AmendmentDTO.class));
 
 		for (final OrgUnit orgUnit : project.getPartners()) {

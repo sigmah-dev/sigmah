@@ -61,6 +61,7 @@ public class CreateProjectView extends AbstractPopupView<PopupWidget> implements
 	private SimplePanel modelTypeImage;
 	private Label modelTypeLabel;
 	private LabelField percentageField;
+	private LabelField baseProjectBudgetField;
 	private NumberField amountField;
 	private DeleteTestProjectAction deleteTestProjectAction;
 	private Grid<ProjectDTO> testProjectsGrid;
@@ -108,6 +109,7 @@ public class CreateProjectView extends AbstractPopupView<PopupWidget> implements
 		modelTypePanel.add(modelTypeLabel);
 
 		// Founding.
+		baseProjectBudgetField = Forms.label("");
 		amountField = Forms.number(null, false, false, false, NumberFormat.getCurrencyFormat("EUR"));
 		percentageField = Forms.label(I18N.CONSTANTS.createProjectPercentage());
 
@@ -130,6 +132,7 @@ public class CreateProjectView extends AbstractPopupView<PopupWidget> implements
 		formPanel.add(orgUnitsField);
 		formPanel.add(modelsField);
 		formPanel.add(modelTypePanel);
+		formPanel.add(baseProjectBudgetField);
 		formPanel.add(amountField);
 		formPanel.add(percentageField);
 		formPanel.add(testProjectsGrid);
@@ -242,6 +245,10 @@ public class CreateProjectView extends AbstractPopupView<PopupWidget> implements
 	@Override
 	public ComboBox<ProjectModelDTO> getModelsField() {
 		return modelsField;
+	}
+
+	public LabelField getBaseProjectBudgetField() {
+		return baseProjectBudgetField;
 	}
 
 	/**

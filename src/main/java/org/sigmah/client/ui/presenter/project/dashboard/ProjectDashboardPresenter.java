@@ -55,8 +55,7 @@ import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import org.sigmah.shared.command.CreateEntity;
-import org.sigmah.shared.command.result.CreateResult;
+import org.sigmah.client.ui.view.project.dashboard.LinkedProjectsColumnsProvider;
 
 /**
  * Project's Dashboard presenter which manages the {@link ProjectDashboardView}.
@@ -136,6 +135,8 @@ public class ProjectDashboardPresenter extends AbstractProjectPresenter<ProjectD
 		Button getFundedProjectSelectButton();
 
 		Button getFundedProjectCreateButton();
+		
+		LinkedProjectsColumnsProvider getFundingProjectsColumnsProvider();
 
 		// --
 		// Phases widget.
@@ -420,11 +421,11 @@ public class ProjectDashboardPresenter extends AbstractProjectPresenter<ProjectD
 					
 					switch (mode) {
 						case FUNDING_ANOTHER_PROJECT:
-							createFundingLink(event.<ProjectDTO>getParam(1), event.<Double>getParam(2));
+							loadLinkedProjects(LinkedProjectType.FUNDING_PROJECT);
 							break;
 							
 						case FUNDED_BY_ANOTHER_PROJECT:
-							// TODO: No code since this case was not handled by Sigmah 1.2.
+							loadLinkedProjects(LinkedProjectType.FUNDED_PROJECT);
 							break;
 							
 						default:
@@ -519,6 +520,7 @@ public class ProjectDashboardPresenter extends AbstractProjectPresenter<ProjectD
 		// Updates linked projects (funding / funded).
 		// --
 
+		view.getFundingProjectsColumnsProvider().setProject(getProject());
 		loadLinkedProjects(null);
 
 		// --
@@ -799,28 +801,4 @@ public class ProjectDashboardPresenter extends AbstractProjectPresenter<ProjectD
 		}, new LoadingMask(linkedProjectsGrid));
 	}
 	
-	private void createFundingLink(ProjectDTO project, Double percentage) {
-		// Sets the funding parameters.
-		final HashMap<String, Object> parameters = new HashMap<String, Object>();
-		parameters.put("fundingId", project.getId());
-		parameters.put("fundedId", getProject().getId());
-		parameters.put("percentage", percentage);
-
-		// Create the new funding.
-		dispatch.execute(new CreateEntity(ProjectFundingDTO.ENTITY_NAME, parameters), 
-			new CommandResultHandler<CreateResult>() {
-
-				@Override
-				public void onCommandSuccess(CreateResult result) {
-					N10N.infoNotif(I18N.CONSTANTS.infoConfirmation(), I18N.CONSTANTS.createProjectTypeFundingSelectOk());
-
-					final ProjectFundingDTO funding = (ProjectFundingDTO) result.getEntity();
-
-					// Adds the just created funding to the list.
-					view.getFundingProjectsGrid().getStore().add(funding);
-
-					getProject().addFunding(funding);
-				}
-			});
-	}
 }
