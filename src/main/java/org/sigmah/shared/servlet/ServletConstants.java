@@ -229,6 +229,19 @@ public final class ServletConstants {
 
 		/**
 		 * <p>
+		 * Exports all indicators of a project.
+		 * </p>
+		 * <p>
+		 * Expected request parameter(s):
+		 * <ul>
+		 * <li>{@link RequestParameter#ID} : Project id.</li>
+		 * </ul>
+		 * </p>
+		 */
+		EXPORT_PROJECT_INDICATORS("exportProjectIndicators"),
+
+		/**
+		 * <p>
 		 * Exports a Project or OrgUnit report.
 		 * </p>
 		 * <p>

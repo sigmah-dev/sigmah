@@ -16,7 +16,7 @@ import org.sigmah.shared.dto.pivot.content.YearCategory;
  * based on the <code>Calendar</code> class, and another for client-side usage.
  *
  * @see org.sigmah.client.util.GWTDates
- * @see org.sigmah.server.util.DateUtilCalendarImpl
+ * @see org.sigmah.server.util.CalendarDates
  *
  * @author Alex Bertram (akbertram@gmail.com)
  * @author Raphaël Calabro (rcalabro@ideia.fr) v2.0

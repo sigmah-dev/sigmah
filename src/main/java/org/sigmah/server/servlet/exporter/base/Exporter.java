@@ -14,6 +14,12 @@ import org.sigmah.shared.Language;
 import org.sigmah.shared.util.ExportUtils;
 
 import com.google.inject.Injector;
+import org.sigmah.client.security.SecureDispatchAsync;
+import org.sigmah.server.dispatch.impl.UserDispatch;
+import org.sigmah.shared.command.base.Command;
+import org.sigmah.shared.command.result.Result;
+import org.sigmah.shared.dispatch.CommandException;
+import org.sigmah.shared.dispatch.DispatchException;
 
 /**
  * Represents an exporter.
@@ -52,6 +58,11 @@ public abstract class Exporter {
 	 * ServletExecutionContext
 	 */
 	private final ServletExecutionContext context;
+	
+	/**
+	 *  The dispatch instance.
+	 */
+	private final UserDispatch dispatch;
 
 	/**
 	 * Builds an new exporter.
@@ -68,6 +79,7 @@ public abstract class Exporter {
 		this.context = context;
 		this.injector = injector;
 		this.parametersMap = req.getParameterMap();
+		this.dispatch = injector.getInstance(UserDispatch.class);
 
 		// set up user's Language
 
@@ -136,6 +148,24 @@ public abstract class Exporter {
 	 */
 	public String localize(String key) {
 		return i18ntranslator.t(language, key);
+	}
+	
+	/**
+	 * Execute the given command.
+	 * 
+	 * @param <C> 
+	 *			Command type.
+	 * @param <R> 
+	 *			Result type.
+	 * @param command 
+	 *			Command to execute.
+	 * @return 
+	 *			Result of the command.
+	 * @throws DispatchException 
+	 *			If the command execution fails.
+	 */
+	public <C extends Command<R>, R extends Result> R execute(C command) throws DispatchException {
+		return dispatch.execute(command, context);
 	}
 
 	/**

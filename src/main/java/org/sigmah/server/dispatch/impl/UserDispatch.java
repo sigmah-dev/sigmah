@@ -233,6 +233,38 @@ public class UserDispatch implements Dispatch {
 			throw e;
 		}
 	}
+	
+	/**
+	 * Executes the given command from server side.
+	 * 
+	 * @param <C> 
+	 *			Command type.
+	 * @param <R> 
+	 *			Result type.
+	 * @param command 
+	 *			Command to execute.
+	 * @param executionContext 
+	 *			Execution context of the servlet.
+	 * @return Execution result.
+	 * @throws DispatchException 
+	 *			If the command handler execution fails.
+	 */
+	public <C extends Command<R>, R extends Result> R execute(final C command, final ServletExecutionContext executionContext)
+			throws DispatchException {
+		
+		// Builds a new user execution context.
+		final UserExecutionContext context = new UserExecutionContext(this, executionContext.getUser(), executionContext.getRequest(), null);
+
+		try {
+			// Tries to execute the action.
+			return doExecute(command, context);
+
+		} catch (final CommandException e) {
+			// Rollback if necessary.
+			context.rollback();
+			throw e;
+		}
+	}
 
 	/**
 	 * Executes a command.

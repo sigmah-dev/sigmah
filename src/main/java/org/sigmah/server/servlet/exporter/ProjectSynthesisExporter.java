@@ -133,7 +133,7 @@ public class ProjectSynthesisExporter extends Exporter {
 
 		} catch (Throwable e) {
 			LOG.error("[export] Error during the workbook writing.", e);
-			throw new Exception("Error during the workbook writing.");
+			throw new Exception("Error during the workbook writing.", e);
 		}
 	}
 

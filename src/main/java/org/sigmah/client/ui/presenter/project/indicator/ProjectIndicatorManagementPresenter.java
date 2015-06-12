@@ -36,6 +36,7 @@ import org.sigmah.client.ui.widget.HasTreeGrid;
 import org.sigmah.client.ui.widget.button.Button;
 import org.sigmah.client.ui.widget.button.SplitButton;
 import org.sigmah.client.ui.widget.form.FormPanel;
+import org.sigmah.client.util.ClientUtils;
 import org.sigmah.shared.command.BatchCommand;
 import org.sigmah.shared.command.CreateEntity;
 import org.sigmah.shared.command.Delete;
@@ -51,6 +52,8 @@ import org.sigmah.shared.dto.IndicatorElement;
 import org.sigmah.shared.dto.IndicatorGroup;
 import org.sigmah.shared.dto.base.EntityDTO;
 import org.sigmah.shared.dto.referential.GlobalPermissionEnum;
+import org.sigmah.shared.servlet.ServletConstants;
+import org.sigmah.shared.servlet.ServletUrlBuilder;
 import org.sigmah.shared.util.ProfileUtils;
 
 /**
@@ -185,6 +188,15 @@ public class ProjectIndicatorManagementPresenter extends AbstractProjectPresente
 			}
 		});
 		
+		view.getExportButton().addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+			@Override
+			public void componentSelected(ButtonEvent ce) {
+				// BUGFIX #674: Calling the "export" method when the user clicks on the export button.
+				onExport();
+			}
+		});
+		
 		eventBus.addHandler(UpdateEvent.getType(), new UpdateHandler() {
 
 			@Override
@@ -312,6 +324,15 @@ public class ProjectIndicatorManagementPresenter extends AbstractProjectPresente
 		} else if (selected instanceof IndicatorGroup) {
 			deleteIndicatorGroup((IndicatorGroup) selected);
 		}
+	}
+	
+	private void onExport() {
+		final ServletUrlBuilder urlBuilder =
+				new ServletUrlBuilder(injector.getAuthenticationProvider(), injector.getPageManager(), ServletConstants.Servlet.EXPORT, ServletConstants.ServletMethod.EXPORT_PROJECT_INDICATORS);
+		
+		urlBuilder.addParameter(RequestParameter.ID, getProject().getId());
+
+		ClientUtils.launchDownload(urlBuilder.toString());
 	}
 	
 	private void deleteIndicatorGroup(IndicatorGroup selected) {
