@@ -98,8 +98,7 @@ public class ManifestGenerationLinker extends AbstractLinker {
 			}
 		}
 		
-		// TODO: Ajouter les ressources de GXT
-		
+		// Generating offline fallback sources
 		appendToAll(manifests, "FALLBACK:\nonline.nocache.json offline.nocache.json\n");
 		artifactSet.add(emitString(logger, "{\"online\": false}", "offline.nocache.json"));
 		artifactSet.add(emitString(logger, "{\"online\": true}", "online.nocache.json"));
@@ -107,6 +106,9 @@ public class ManifestGenerationLinker extends AbstractLinker {
 		appendToAll(manifests, "is_online.nocache.js is_offline.nocache.js\n");
 		artifactSet.add(emitString(logger, "window.online = false;", "is_offline.nocache.js"));
 		artifactSet.add(emitString(logger, "window.online = true;", "is_online.nocache.js"));
+		
+		appendToAll(manifests, "export export_offline.html\n");
+		artifactSet.add(emitString(logger, "<html><header><title>Sigmah</title></header><body>Export functionality is only available when online.</body></html>", "export_offline.html"));
 		
 		if(PREFER_ONLINE) {
 			appendToAll(manifests, "SETTINGS:\nprefer-online\n");
