@@ -44,10 +44,12 @@ public class CopyLogFrameHandler extends AbstractCommandHandler<CopyLogFrame, Lo
 	}
 
 	@Transactional
-	private LogFrame replaceLogFrame(Project project, LogFrame source, CopyLogFrame cmd) {
+	protected LogFrame replaceLogFrame(Project project, LogFrame source, CopyLogFrame cmd) {
 		final LogFrame previousLogFrame = project.getLogFrame();
 		if (previousLogFrame != null) {
+			project.setLogFrame(null);
 			previousLogFrame.setParentProject(null);
+			em().merge(project);
 			em().remove(previousLogFrame);
 		}
 		
@@ -56,9 +58,8 @@ public class CopyLogFrameHandler extends AbstractCommandHandler<CopyLogFrame, Lo
 		query.setParameter("project", project);
 		List<LogFrame> logFrames = query.getResultList();
 		
-		for(final LogFrame logFrame : logFrames) {
-			logFrame.setParentProject(null);
-			em().remove(logFrame);
+		if(logFrames.size() > 0) {
+			throw new IllegalStateException("The previous LogFrame has not been deleted. This should never happen, please check the transaction state.");
 		}
 		
 		// Copying the new log frame.
