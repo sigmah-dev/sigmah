@@ -546,7 +546,28 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 			final ComboBox<UserDTO> comboBox = new ComboBox<UserDTO>();
 			comboBox.setEmptyText(I18N.CONSTANTS.flexibleElementDefaultSelectManager());
 
-			ensureUserStore();
+			// Sets the value to the field.
+			// BUGFIX #756 : Iterating through users to give the right instance to the combobox.
+			final ConfirmCallback listener;
+			if(manager != null && manager.getId() != null) {
+				listener = new ConfirmCallback() {
+
+					@Override
+					public void onAction() {
+						for (final UserDTO model : usersStore.getModels()) {
+							if (manager.getId().equals(model.getId())) {
+								comboBox.setValue(model);
+								return;
+							}
+						}
+					}
+				};
+			} else {
+				listener = null;
+			}
+			
+			// Load the user store if needed
+			ensureUserStore(listener);
 
 			comboBox.setStore(usersStore);
 			comboBox.setDisplayField(UserDTO.COMPLETE_NAME);
@@ -554,11 +575,6 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 			comboBox.setTriggerAction(TriggerAction.ALL);
 			comboBox.setEditable(true);
 			comboBox.setAllowBlank(true);
-
-			// Sets the value to the field.
-			if (manager != null) {
-				comboBox.setValue(manager);
-			}
 
 			// Listens to the selection changes.
 			comboBox.addSelectionChangedListener(new SelectionChangedListener<UserDTO>() {
@@ -1114,7 +1130,7 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 	/**
 	 * Creates and populates the shared user store if needed.
 	 */
-	private void ensureUserStore() {
+	private void ensureUserStore(final ConfirmCallback onLoad) {
 		if (usersStore == null) {
 			usersStore = new ListStore<UserDTO>();
 		}
@@ -1132,6 +1148,10 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 					public void onSuccess(final List<UserDTO> result) {
 						// Fills the store.
 						usersStore.add(result);
+						
+						if(onLoad != null) {
+							onLoad.onAction();
+						}
 					}
 				});
 				
@@ -1147,9 +1167,15 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 					public void onCommandSuccess(final ListResult<UserDTO> result) {
 						// Fills the store.
 						usersStore.add(result.getList());
+						
+						if(onLoad != null) {
+							onLoad.onAction();
+						}
 					}
 				});
 			}
+		} else {
+			onLoad.onAction();
 		}
 	}
 	

@@ -483,7 +483,8 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 
 	// Flexible element validates
 	public boolean getValidates() {
-		return (Boolean) get(VALIDATES);
+		final Boolean validates = get(VALIDATES);
+		return validates != null && validates;
 	}
 
 	public void setValidates(boolean validates) {
@@ -491,7 +492,7 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 	}
 
 	public boolean isFilledIn() {
-		final Boolean filledIn = (Boolean) get(FILLED_IN);
+		final Boolean filledIn = get(FILLED_IN);
 		return filledIn != null && filledIn;
 	}
 
@@ -500,7 +501,8 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 	}
 
 	public boolean getAmendable() {
-		return (Boolean) get(AMENDABLE);
+		final Boolean amendable = get(AMENDABLE);
+		return amendable != null && amendable;
 	}
 
 	public void setAmendable(boolean amendable) {
@@ -508,7 +510,8 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 	}
 
 	public boolean getExportable() {
-		return (Boolean) get(EXPORTABLE);
+		final Boolean exportable = get(EXPORTABLE);
+		return exportable != null && exportable;
 	}
 
 	public void setExportable(boolean exportable) {
@@ -516,7 +519,8 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 	}
 
 	public boolean getGloballyExportable() {
-		return (Boolean) get(GLOBALLY_EXPORTABLE);
+		final Boolean globallyExportable = get(GLOBALLY_EXPORTABLE);
+		return globallyExportable != null && globallyExportable;
 	}
 
 	public void setGloballyExportable(boolean globallyExportable) {
@@ -524,7 +528,8 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 	}
 
 	public boolean isHistorable() {
-		return (Boolean) get(HISTORABLE);
+		final Boolean historable = get(HISTORABLE);
+		return historable != null && historable;
 	}
 
 	public void setHistorable(boolean historable) {

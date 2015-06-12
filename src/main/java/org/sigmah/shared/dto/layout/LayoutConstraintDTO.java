@@ -44,7 +44,8 @@ public class LayoutConstraintDTO extends AbstractModelDataEntityDTO<Integer> {
 
 	// Sort order
 	public int getSortOrder() {
-		return (Integer) get(SORT_ORDER);
+		final Integer sortOrder = get(SORT_ORDER);
+		return sortOrder != null ? sortOrder : 0;
 	}
 
 	public void setSortOrder(int sortOrder) {
