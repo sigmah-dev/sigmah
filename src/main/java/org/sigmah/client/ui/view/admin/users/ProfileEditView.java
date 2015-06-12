@@ -1,5 +1,6 @@
 package org.sigmah.client.ui.view.admin.users;
 
+import com.extjs.gxt.ui.client.Style;
 import java.util.Set;
 
 import org.sigmah.client.i18n.I18N;
@@ -92,10 +93,11 @@ public class ProfileEditView extends AbstractPopupView<PopupWidget> implements P
 		// Form initialization.
 		// --
 
+		// #670: Resized panels to make the popup smaller.
 		formPanel.add(nameField);
-		formPanel.add(Forms.adapterWithScrollbars(I18N.CONSTANTS.adminProfilesGlobalPermissions(), permissionTree, 400, 400));
+		formPanel.add(Forms.adapterWithScrollbars(I18N.CONSTANTS.adminProfilesGlobalPermissions(), permissionTree, 400, 300));
 		formPanel.add(privacyGroupsField);
-		formPanel.add(Forms.adapterWithScrollbars(null, privacyGroupsSelectionPanel, 400, 160));
+		formPanel.add(Forms.adapterWithScrollbars(null, privacyGroupsSelectionPanel, 400, 120));
 		formPanel.addButton(createButton);
 
 		initPopup(formPanel);
