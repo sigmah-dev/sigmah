@@ -264,61 +264,62 @@ public class ProjectModelService extends AbstractEntityService<ProjectModel, Int
 				logFrameModel.setProjectModel(model);
 			}
 
-			if (changes.get(AdminUtil.PROP_LOG_FRAME_NAME) != null) {
+			// BUGFIX #758 : Using containsKey instead of != null to verify if a property must be updated.
+			if (changes.containsKey(AdminUtil.PROP_LOG_FRAME_NAME)) {
 				logFrameModel.setName((String) changes.get(AdminUtil.PROP_LOG_FRAME_NAME));
 			}
-			if (changes.get(AdminUtil.PROP_OBJ_MAX) != null) {
+			if (changes.containsKey(AdminUtil.PROP_OBJ_MAX)) {
 				logFrameModel.setSpecificObjectivesMax((Integer) changes.get(AdminUtil.PROP_OBJ_MAX));
 			}
-			if (changes.get(AdminUtil.PROP_OBJ_MAX_PER_GROUP) != null) {
+			if (changes.containsKey(AdminUtil.PROP_OBJ_MAX_PER_GROUP)) {
 				logFrameModel.setSpecificObjectivesPerGroupMax((Integer) changes.get(AdminUtil.PROP_OBJ_MAX_PER_GROUP));
 			}
-			if (changes.get(AdminUtil.PROP_OBJ_ENABLE_GROUPS) != null) {
+			if (changes.containsKey(AdminUtil.PROP_OBJ_ENABLE_GROUPS)) {
 				logFrameModel.setEnableSpecificObjectivesGroups((Boolean) changes.get(AdminUtil.PROP_OBJ_ENABLE_GROUPS));
 			}
-			if (changes.get(AdminUtil.PROP_OBJ_MAX_GROUPS) != null) {
+			if (changes.containsKey(AdminUtil.PROP_OBJ_MAX_GROUPS)) {
 				logFrameModel.setSpecificObjectivesGroupsMax((Integer) changes.get(AdminUtil.PROP_OBJ_MAX_GROUPS));
 			}
-			if (changes.get(AdminUtil.PROP_A_MAX) != null) {
+			if (changes.containsKey(AdminUtil.PROP_A_MAX)) {
 				logFrameModel.setActivitiesMax((Integer) changes.get(AdminUtil.PROP_A_MAX));
 			}
-			if (changes.get(AdminUtil.PROP_A_ENABLE_GROUPS) != null) {
+			if (changes.containsKey(AdminUtil.PROP_A_ENABLE_GROUPS)) {
 				logFrameModel.setEnableActivitiesGroups((Boolean) changes.get(AdminUtil.PROP_A_ENABLE_GROUPS));
 			}
-			if (changes.get(AdminUtil.PROP_A_MAX_PER_RESULT) != null) {
+			if (changes.containsKey(AdminUtil.PROP_A_MAX_PER_RESULT)) {
 				logFrameModel.setActivitiesPerExpectedResultMax((Integer) changes.get(AdminUtil.PROP_A_MAX_PER_RESULT));
 			}
-			if (changes.get(AdminUtil.PROP_A_MAX_GROUPS) != null) {
+			if (changes.containsKey(AdminUtil.PROP_A_MAX_GROUPS)) {
 				logFrameModel.setActivitiesGroupsMax((Integer) changes.get(AdminUtil.PROP_A_MAX_GROUPS));
 			}
-			if (changes.get(AdminUtil.PROP_A_MAX_PER_GROUP) != null) {
+			if (changes.containsKey(AdminUtil.PROP_A_MAX_PER_GROUP)) {
 				logFrameModel.setActivitiesPerGroupMax((Integer) changes.get(AdminUtil.PROP_A_MAX_PER_GROUP));
 			}
-			if (changes.get(AdminUtil.PROP_R_MAX) != null) {
+			if (changes.containsKey(AdminUtil.PROP_R_MAX)) {
 				logFrameModel.setExpectedResultsMax((Integer) changes.get(AdminUtil.PROP_R_MAX));
 			}
-			if (changes.get(AdminUtil.PROP_R_ENABLE_GROUPS) != null) {
+			if (changes.containsKey(AdminUtil.PROP_R_ENABLE_GROUPS)) {
 				logFrameModel.setEnableExpectedResultsGroups((Boolean) changes.get(AdminUtil.PROP_R_ENABLE_GROUPS));
 			}
-			if (changes.get(AdminUtil.PROP_R_MAX_PER_OBJ) != null) {
+			if (changes.containsKey(AdminUtil.PROP_R_MAX_PER_OBJ)) {
 				logFrameModel.setExpectedResultsPerSpecificObjectiveMax((Integer) changes.get(AdminUtil.PROP_R_MAX_PER_OBJ));
 			}
-			if (changes.get(AdminUtil.PROP_R_MAX_GROUPS) != null) {
+			if (changes.containsKey(AdminUtil.PROP_R_MAX_GROUPS)) {
 				logFrameModel.setExpectedResultsGroupsMax((Integer) changes.get(AdminUtil.PROP_R_MAX_GROUPS));
 			}
-			if (changes.get(AdminUtil.PROP_R_MAX_PER_GROUP) != null) {
+			if (changes.containsKey(AdminUtil.PROP_R_MAX_PER_GROUP)) {
 				logFrameModel.setExpectedResultsPerGroupMax((Integer) changes.get(AdminUtil.PROP_R_MAX_PER_GROUP));
 			}
-			if (changes.get(AdminUtil.PROP_P_MAX) != null) {
+			if (changes.containsKey(AdminUtil.PROP_P_MAX)) {
 				logFrameModel.setPrerequisitesMax((Integer) changes.get(AdminUtil.PROP_P_MAX));
 			}
-			if (changes.get(AdminUtil.PROP_P_ENABLE_GROUPS) != null) {
+			if (changes.containsKey(AdminUtil.PROP_P_ENABLE_GROUPS)) {
 				logFrameModel.setEnablePrerequisitesGroups((Boolean) changes.get(AdminUtil.PROP_P_ENABLE_GROUPS));
 			}
-			if (changes.get(AdminUtil.PROP_P_MAX_GROUPS) != null) {
+			if (changes.containsKey(AdminUtil.PROP_P_MAX_GROUPS)) {
 				logFrameModel.setPrerequisitesGroupsMax((Integer) changes.get(AdminUtil.PROP_P_MAX_GROUPS));
 			}
-			if (changes.get(AdminUtil.PROP_P_MAX_PER_GROUP) != null) {
+			if (changes.containsKey(AdminUtil.PROP_P_MAX_PER_GROUP)) {
 				logFrameModel.setPrerequisitesPerGroupMax((Integer) changes.get(AdminUtil.PROP_P_MAX_PER_GROUP));
 			}
 
