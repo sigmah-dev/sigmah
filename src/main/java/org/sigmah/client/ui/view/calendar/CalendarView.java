@@ -172,10 +172,9 @@ public class CalendarView extends AbstractView implements CalendarPresenter.View
 	public void initializeCalendarWidget(final CalendarWidget calendarWidget) {
 
 		// Defining the first day of the week
-		// LocaleInfo uses 1 for Sunday and 2 for Monday. Substracting 1 since
-		// Date starts with 0 for Sunday.
+		// BUGFIX #653: Contrary to the deprecated DateTimeConstants, firstDayOfTheWeek starts at 0 (and not 1). No substraction is needed.
 		final DateTimeFormatInfo constants = LocaleInfo.getCurrentLocale().getDateTimeFormatInfo();
-		calendarWidget.setFirstDayOfWeek(constants.firstDayOfTheWeek() - 1);
+		calendarWidget.setFirstDayOfWeek(constants.firstDayOfTheWeek());
 
 		// Retrieving the current calendar header
 		calendarView.setHeadingHtml(calendarWidget.getHeading());
