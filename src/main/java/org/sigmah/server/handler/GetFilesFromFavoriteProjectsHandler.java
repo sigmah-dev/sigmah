@@ -3,13 +3,17 @@ package org.sigmah.server.handler;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 import org.sigmah.offline.presenter.TreeGridFileModel;
 import org.sigmah.server.dao.impl.FileHibernateDAO;
 import org.sigmah.server.dispatch.impl.UserDispatch;
+import org.sigmah.server.domain.OrgUnit;
+import org.sigmah.server.domain.OrgUnitDetails;
 import org.sigmah.server.domain.PhaseModel;
 import org.sigmah.server.domain.Project;
 import org.sigmah.server.domain.ProjectDetails;
@@ -20,10 +24,12 @@ import org.sigmah.server.domain.layout.LayoutGroup;
 import org.sigmah.server.domain.value.FileVersion;
 import org.sigmah.server.file.FileStorageProvider;
 import org.sigmah.server.handler.base.AbstractCommandHandler;
+import org.sigmah.server.handler.util.Handlers;
 import org.sigmah.shared.command.GetFilesFromFavoriteProjects;
 import org.sigmah.shared.command.result.ListResult;
 import org.sigmah.shared.dispatch.CommandException;
 import org.sigmah.shared.dto.ProjectDTO;
+import org.sigmah.shared.dto.orgunit.OrgUnitDTO;
 import org.sigmah.shared.dto.value.FileDTO;
 import org.sigmah.shared.dto.value.FileVersionDTO;
 import org.sigmah.shared.util.ValueResultUtils;
@@ -51,11 +57,11 @@ public class GetFilesFromFavoriteProjectsHandler extends AbstractCommandHandler<
 	protected ListResult<TreeGridFileModel> execute(GetFilesFromFavoriteProjects command, UserDispatch.UserExecutionContext context) throws CommandException {
 		
 		// Result
-		final ArrayList<TreeGridFileModel> models = new ArrayList<>();
+		final List<TreeGridFileModel> models = new ArrayList<>();
 		
 		// Creating queries
 		final TypedQuery<Project> projectQuery = em().createQuery("SELECT p FROM Project p WHERE :user MEMBER OF p.favoriteUsers", Project.class);
-		final TypedQuery<String> valueQuery = em().createQuery("SELECT v.value FROM Value v WHERE v.containerId = :projectId AND v.element.id = :elementId", String.class);
+		final TypedQuery<String> valueQuery = em().createQuery("SELECT v.value FROM Value v WHERE v.containerId = :containerId AND v.element.id = :elementId", String.class);
 		
 		// Searching for favorites projects of the current user
 		projectQuery.setParameter("user", context.getUser());
@@ -63,31 +69,19 @@ public class GetFilesFromFavoriteProjectsHandler extends AbstractCommandHandler<
 		
 		// Searching every FilesListElement of the found projects
 		for(final Project project : projects) {
-			final ArrayList<Integer> fileIds = new ArrayList<>();
+			final List<Integer> fileIds = new ArrayList<>();
 			
 			for(final PhaseModel phaseModel : project.getProjectModel().getPhaseModels()) {
-				getFilesFromGroups(phaseModel.getLayout().getGroups(), valueQuery, project, fileIds);
+				getFilesFromGroups(phaseModel.getLayout().getGroups(), valueQuery, project.getId(), fileIds);
 			}
 			
 			final ProjectDetails projectDetails = project.getProjectModel().getProjectDetails();
 			if(projectDetails != null) {
-				getFilesFromGroups(projectDetails.getLayout().getGroups(), valueQuery, project, fileIds);
+				getFilesFromGroups(projectDetails.getLayout().getGroups(), valueQuery, project.getId(), fileIds);
 			}
 			
 			if(!fileIds.isEmpty()) {
-				final List<FileVersion> result = fileHibernateDAO.findVersions(fileIds, FileDTO.LoadingScope.LAST_VERSION_FROM_NOT_DELETED_FILES);
-				
-				final List<FileVersionDTO> versions = mapper().mapCollection(result, FileVersionDTO.class);
-			
-				final Iterator<FileVersionDTO> iterator = versions.iterator();
-				while(iterator.hasNext()) {
-					final FileVersionDTO version = iterator.next();
-					version.setAvailable(fileStorageProvider.exists(version.getPath()));
-					
-					if(!version.isAvailable()) {
-						iterator.remove();
-					}
-				}
+				final List<FileVersionDTO> versions = getLastVersions(fileIds);
 				
 				if(!versions.isEmpty()) {
 					final ProjectDTO projectDTO = mapper().map(project, ProjectDTO.class);
@@ -100,17 +94,79 @@ public class GetFilesFromFavoriteProjectsHandler extends AbstractCommandHandler<
 			}
 		}
 		
-		return new ListResult<TreeGridFileModel>(models);
+		// BUGFIX #785: Searching files from org units
+		final Set<OrgUnit> units = new HashSet<>();
+
+		// Crawl the org units hierarchy from the user root org unit.
+		Handlers.crawlUnits(context.getUser().getOrgUnitWithProfiles().getOrgUnit(), units, true);
+		
+		for(final OrgUnit unit : units) {
+			final List<Integer> fileIds = new ArrayList<>();
+			
+			final OrgUnitDetails orgUnitDetails = unit.getOrgUnitModel().getDetails();
+			if(orgUnitDetails != null) {
+				getFilesFromGroups(orgUnitDetails.getLayout().getGroups(), valueQuery, unit.getId(), fileIds);
+			}
+			
+			if(!fileIds.isEmpty()) {
+				final List<FileVersionDTO> versions = getLastVersions(fileIds);
+				
+				if(!versions.isEmpty()) {
+					final OrgUnitDTO orgUnitDTO = mapper().map(unit, OrgUnitDTO.class);
+					
+					final TreeGridFileModel model = new TreeGridFileModel(orgUnitDTO);
+					model.setChildren(versions);
+					
+					models.add(model);
+				}
+			}
+		}
+		
+		return new ListResult<>(models);
 	}
 
-	private void getFilesFromGroups(final List<LayoutGroup> groups, final TypedQuery<String> valueQuery, final Project project, final ArrayList<Integer> fileIds) {
+	/**
+	 * Creates a list from the last versions of the given files.
+	 * <p/>
+	 * File versions will only be added if they exists on the server.
+	 * 
+	 * @param fileIds Files to search.
+	 * @return A list of FileVersionDTO.
+	 */
+	private List<FileVersionDTO> getLastVersions(final List<Integer> fileIds) {
+		final List<FileVersion> result = fileHibernateDAO.findVersions(fileIds, FileDTO.LoadingScope.LAST_VERSION_FROM_NOT_DELETED_FILES);
+		
+		final List<FileVersionDTO> versions = new ArrayList<>(mapper().mapCollection(result, FileVersionDTO.class));
+		
+		final Iterator<FileVersionDTO> iterator = versions.iterator();
+		while(iterator.hasNext()) {
+			final FileVersionDTO version = iterator.next();
+			version.setAvailable(fileStorageProvider.exists(version.getPath()));
+			
+			if(!version.isAvailable()) {
+				iterator.remove();
+			}
+		}
+		
+		return versions;
+	}
+
+	/**
+	 * Adds every file ids for the given groups in the given container.
+	 * 
+	 * @param groups Layout groups.
+	 * @param valueQuery Request to fill.
+	 * @param containerId Identifier of the parent (project id or org unit id).
+	 * @param fileIds List where to add results.
+	 */
+	private void getFilesFromGroups(final List<LayoutGroup> groups, final TypedQuery<String> valueQuery, int containerId, final List<Integer> fileIds) {
 		for(final LayoutGroup group : groups) {
 			for(final LayoutConstraint constraint : group.getConstraints()) {
 				final FlexibleElement flexibleElement = constraint.getElement();
 				
 				if(flexibleElement instanceof FilesListElement) {
 					// Retrieving the file ids
-					valueQuery.setParameter("projectId", project.getId());
+					valueQuery.setParameter("containerId", containerId);
 					valueQuery.setParameter("elementId", flexibleElement.getId());
 					
 					try {

@@ -173,7 +173,8 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 				break;
 				
 			default:
-				throw new IllegalArgumentException("[getComponent] The type '" + getType() + "' for the default flexible element doen't exist.");
+				component = createLabelField("ERROR: The default element type '" + getType() + "' is not supported. Your model may need to be updated.");
+				break;
 		}
 
 		return component;
@@ -219,7 +220,8 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 				break;
 				
 			default:
-				throw new IllegalArgumentException("[getComponent] The type '" + getType() + "' for the default flexible element doen't exist.");
+				component = createLabelField("ERROR: The default element type '" + getType() + "' is not supported. Your model may need to be updated.");
+				break;
 		}
 
 		return component;
@@ -293,9 +295,7 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 			field = textField;
 
 		} else {
-			final LabelField labelField = createLabelField();
-			labelField.setValue(value);
-			field = labelField;
+			field = createLabelField(value);
 		}
 
 		// Sets the field label.
@@ -1030,6 +1030,18 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 		return labelField;
 	}
 	
+	/**
+	 * Create a label field and sets its value.
+	 * 
+	 * @param value Value to set.
+	 * @return The label field.
+	 */
+	protected LabelField createLabelField(String value) {
+		final LabelField labelField = createLabelField();
+		labelField.setValue(value);
+		return labelField;
+	}
+	
 	private String formatCountry(String value) {
 		if (cache != null) {
 			final CountryDTO c = cache.getCountryCache().get(Integer.valueOf(value));
@@ -1174,7 +1186,7 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 					}
 				});
 			}
-		} else {
+		} else if(onLoad != null) {
 			onLoad.onAction();
 		}
 	}

@@ -18,6 +18,9 @@ import com.google.gwt.core.client.JsArrayInteger;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import org.sigmah.offline.indexeddb.Cursor;
+import org.sigmah.offline.indexeddb.OpenCursorRequest;
+import org.sigmah.shared.command.result.ListResult;
 
 /**
  * @author Raphaël Calabro (rcalabro@ideia.fr)
@@ -158,6 +161,40 @@ public class OrgUnitAsyncDAO extends AbstractAsyncDAO<OrgUnitDTO> {
 					@Override
 					public void onSuccess(Request request) {
 						callback.onSuccess(request.getResult() != null ? request.<OrgUnitJS>getResult().toDTO() : null);
+					}
+				});
+			}
+		});
+	}
+	
+	public void getAll(final AsyncCallback<ListResult<OrgUnitDTO>> callback) {
+		openTransaction(Transaction.Mode.READ_ONLY, new OpenTransactionHandler() {
+
+			@Override
+			public void onTransaction(Transaction transaction) {
+				final ArrayList<OrgUnitDTO> units = new ArrayList<OrgUnitDTO>();
+				
+				final ObjectStore objectStore = transaction.getObjectStore(getRequiredStore());
+				final OpenCursorRequest cursorRequest = objectStore.openCursor();
+				
+				cursorRequest.addCallback(new AsyncCallback<Request>() {
+
+					@Override
+					public void onFailure(Throwable caught) {
+						callback.onFailure(caught);
+					}
+
+					@Override
+					public void onSuccess(Request result) {
+						final Cursor cursor = cursorRequest.getResult();
+						if(cursor != null) {
+							final OrgUnitJS orgUnitJS = (OrgUnitJS) cursor.getValue();
+							units.add(orgUnitJS.toDTO());
+							cursor.next();
+							
+						} else {
+							callback.onSuccess(new ListResult<OrgUnitDTO>(units));
+						}
 					}
 				});
 			}

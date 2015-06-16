@@ -5,6 +5,7 @@ import org.sigmah.shared.dto.logframe.LogFrameDTO;
 import org.sigmah.shared.dto.referential.AmendmentState;
 
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.core.client.JsDate;
 
 /**
  *
@@ -23,6 +24,7 @@ public final class AmendmentJS extends JavaScriptObject {
 		amendmentJS.setRevision(amendmentDTO.getRevision());
 		amendmentJS.setState(amendmentDTO.getState());
 		amendmentJS.setLogFrame(amendmentDTO.getLogFrame());
+		amendmentJS.setDate(Values.toJsDate(amendmentDTO.getDate()));
 		
 		return amendmentJS;
 	}
@@ -43,6 +45,7 @@ public final class AmendmentJS extends JavaScriptObject {
 		if(getLogFrame() != null) {
 			amendmentDTO.setLogFrame(getLogFrame().toDTO());
 		}
+		amendmentDTO.setDate(Values.toDate(getDate()));
 		
 		return amendmentDTO;
 	}
@@ -117,5 +120,13 @@ public final class AmendmentJS extends JavaScriptObject {
 	
 	public native void setLogFrame(LogFrameJS logFrame) /*-{
 		this.logFrame = logFrame;
+	}-*/;
+	
+	public native JsDate getDate() /*-{
+		return this.date;
+		}-*/;
+	
+	public native void setDate(JsDate date) /*-{
+		this.date = date;
 	}-*/;
 }
