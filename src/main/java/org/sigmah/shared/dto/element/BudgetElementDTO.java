@@ -267,9 +267,10 @@ public class BudgetElementDTO extends DefaultFlexibleElementDTO {
 		final List<String> stringValues = new ArrayList<String>();
 
 		for (BudgetSubFieldDTO budgetField : getBudgetSubFields()) {
-			final String currentBudget = (budgets.size() > 0) ? budgets.get(budgetField.getId()) : "0";
+			// BUGFIX #788: Verifying if an entry exists before using it to avoid NullPointerExceptions
+			final String currentBudget = budgets.size() > 0 && budgets.containsKey(budgetField.getId()) ? budgets.get(budgetField.getId()) : "0";
 			final String label = budgetField.getType() != null ? BudgetSubFieldType.getName(budgetField.getType()) : budgetField.getLabel();
-			
+
 			stringValues.add(label + ": " + Double.parseDouble(currentBudget));
 		}
 		
