@@ -106,6 +106,8 @@ public class PhaseModel extends AbstractEntityId<Integer> {
 	 * 
 	 * @param parentProjectModel
 	 *          the parent project model
+	 * @param keepPrivacyGroups
+	 *			<code>false</code> to set privacy group value to <code>null</code>, <code>true</code> to let it as is.
 	 */
 	public void resetImport(final ProjectModel parentProjectModel, boolean keepPrivacyGroups) {
 		this.id = null;

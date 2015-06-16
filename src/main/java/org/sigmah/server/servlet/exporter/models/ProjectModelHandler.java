@@ -73,7 +73,7 @@ public class ProjectModelHandler implements ModelHandler {
 			visibilities.add(visibility);
 			projectModel.setVisibilities(visibilities);
 
-			// Set the staus to DRAFT
+			// Set the status to DRAFT
 			projectModel.setStatus(ProjectModelStatus.DRAFT);
 
 			// TODO ??

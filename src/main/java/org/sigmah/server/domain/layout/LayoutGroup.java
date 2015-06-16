@@ -99,6 +99,8 @@ public class LayoutGroup extends AbstractEntityId<Integer> {
 	 * 
 	 * @param parentLayout
 	 *          the parent Layout
+	 * @param keepPrivacyGroups
+	 *			<code>false</code> to set privacy group value to <code>null</code>, <code>true</code> to let it as is.
 	 */
 	public void resetImport(Layout parentLayout, boolean keepPrivacyGroups) {
 		this.id = null;

@@ -10,7 +10,6 @@ import javax.persistence.EntityManager;
 
 import org.sigmah.server.dispatch.impl.UserDispatch.UserExecutionContext;
 import org.sigmah.server.domain.OrgUnitModel;
-import org.sigmah.server.domain.category.CategoryElement;
 import org.sigmah.server.domain.category.CategoryType;
 import org.sigmah.server.domain.element.BudgetElement;
 import org.sigmah.server.domain.element.BudgetSubField;
@@ -114,17 +113,9 @@ public class GetOrgUnitModelCopyHandler extends AbstractCommandHandler<GetOrgUni
 												if (questionChoiceElement != null) {
 													questionChoiceElement.setId(null);
 													questionChoiceElement.setParentQuestion((QuestionElement) parent);
-													CategoryElement categoryElement = questionChoiceElement.getCategoryElement();
-													if (categoryElement != null) {
-														questionChoiceElement.setCategoryElement(null);
-
-														em.persist(questionChoiceElement);
-														saveCategoryElement(categoryElement, em);
-														questionChoiceElement.setCategoryElement(categoryElement);
-														em.merge(questionChoiceElement);
-													} else {
-														em.persist(questionChoiceElement);
-													}
+													
+													// BUGFIX #652: Removed the duplication of the category element.
+													em.persist(questionChoiceElement);
 												}
 											}
 											// Set saved QuestionChoiceElement to QuestionElement parent and update it
@@ -211,17 +202,9 @@ public class GetOrgUnitModelCopyHandler extends AbstractCommandHandler<GetOrgUni
 												if (questionChoiceElement != null) {
 													questionChoiceElement.setId(null);
 													questionChoiceElement.setParentQuestion((QuestionElement) parent);
-													CategoryElement categoryElement = questionChoiceElement.getCategoryElement();
-													if (categoryElement != null) {
-														questionChoiceElement.setCategoryElement(null);
-
-														em.persist(questionChoiceElement);
-														saveCategoryElement(categoryElement, em);
-														questionChoiceElement.setCategoryElement(categoryElement);
-														em.merge(questionChoiceElement);
-													} else {
-														em.persist(questionChoiceElement);
-													}
+													
+													// BUGFIX #652: Removed the duplication of the category element.
+													em.persist(questionChoiceElement);
 												}
 											}
 											// Set saved QuestionChoiceElement to QuestionElement parent and update it
@@ -283,64 +266,6 @@ public class GetOrgUnitModelCopyHandler extends AbstractCommandHandler<GetOrgUni
 				}
 			}
 		}
-	}
-
-	/**
-	 * Save the category elements of a question choice element.
-	 * 
-	 * @param categoryElement
-	 *          The category element to save.
-	 * @param em
-	 *          The entity manager.
-	 */
-	private static void saveCategoryElement(CategoryElement categoryElement, final EntityManager em) {
-
-		if (modelesImport.contains(categoryElement)) {
-			return;
-		}
-
-		modelesImport.add(categoryElement);
-
-		if (modelesReset.containsKey(categoryElement)) {
-			categoryElement = (CategoryElement) modelesReset.get(categoryElement);
-			return;
-		}
-
-		final CategoryElement key = categoryElement;
-		categoryElement.setId(null);
-
-		CategoryType parentType = categoryElement.getParentType();
-
-		if (!modelesImport.contains(parentType)) {
-			modelesImport.add(parentType);
-
-			if (!modelesReset.containsKey(parentType)) {
-				final CategoryType parentKey = parentType;
-				parentType.setId(null);
-
-				final List<CategoryElement> elements = parentType.getElements();
-				if (elements != null) {
-					parentType.setElements(null);
-					em.persist(parentType);
-					for (final CategoryElement element : elements) {
-						categoryElement.setParentType(parentType);
-						saveCategoryElement(element, em);
-					}
-					parentType.setElements(elements);
-					em.merge(parentType);
-				} else {
-					em.persist(parentType);
-				}
-				modelesReset.put(parentKey, parentType);
-
-			} else {
-				parentType = (CategoryType) modelesReset.get(parentType);
-			}
-		}
-
-		categoryElement.setParentType(parentType);
-		em.persist(categoryElement);
-		modelesReset.put(key, categoryElement);
 	}
 
 }

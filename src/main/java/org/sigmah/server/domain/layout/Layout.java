@@ -126,6 +126,9 @@ public class Layout extends AbstractEntityId<Integer> {
 
 	/**
 	 * Reset the identifiers of the object.
+	 * 
+	 * @param keepPrivacyGroups
+	 *			<code>false</code> to set privacy group value to <code>null</code>, <code>true</code> to let it as is.
 	 */
 	public void resetImport(boolean keepPrivacyGroups) {
 		this.id = null;

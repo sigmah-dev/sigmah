@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -39,17 +40,18 @@ public class Realizer {
 	 * and <code>HashSet</code> instead of <code>PersistentSet</code>s. <br>
 	 * <b>Note:</b> do not use this without testing its compatibility with your objects.
 	 * 
-	 * @param <T>
+	 * @param <T> Type of the object to copy.
 	 * @param object
 	 *          An hibernate proxy.
-	 * @return
+	 * @param ignores Array of classes to ignore.
+	 * @return A copy of the given object without any proxy instance.
 	 */
-	public static <T> T realize(T object) {
-		return realize(object, new HashMap<Object, Object>());
+	public static <T> T realize(T object, Class<?>... ignores) {
+		return realize(object, new HashMap<>(), new HashSet<>(Arrays.asList(ignores)));
 	}
 
 	@SuppressWarnings("unchecked")
-	private static <T> T realize(T object, Map<Object, Object> alreadyRealizedObjects) {
+	private static <T> T realize(T object, Map<Object, Object> alreadyRealizedObjects, Set<Class<?>> ignores) {
 		T result = null;
 
 		if (object != null) {
@@ -102,11 +104,13 @@ public class Realizer {
 						final Object sourceValue = getterMethod.invoke(object);
 						final Object destinationValue;
 						
+						final Class<?> sourceValueClass = sourceValue != null ? sourceValue.getClass() : null;
+						
 						if(sourceValue instanceof PersistentCollection || sourceValue instanceof HibernateProxy) {
 							Hibernate.initialize(sourceValue);
 						}
 
-						if (sourceValue == null) {
+						if (sourceValue == null || sourceValueClass == null) {
 							destinationValue = null;
 
 						} else if (sourceValue instanceof PersistentBag || sourceValue instanceof PersistentList) {
@@ -114,7 +118,7 @@ public class Realizer {
 							final ArrayList<Object> list = new ArrayList<Object>();
 
 							for (Object value : (PersistentBag) sourceValue) {
-								list.add(realize(value, alreadyRealizedObjects));
+								list.add(realize(value, alreadyRealizedObjects, ignores));
 							}
 
 							destinationValue = list;
@@ -125,17 +129,17 @@ public class Realizer {
 							final HashSet<Object> set = new HashSet<Object>();
 
 							for (Object value : (PersistentSet) sourceValue) {
-								set.add(realize(value, alreadyRealizedObjects));
+								set.add(realize(value, alreadyRealizedObjects, ignores));
 							}
 
 							destinationValue = set;
 
-						} else if (sourceValue.getClass().getName().startsWith("java.") || sourceValue.getClass().isEnum()) {
+						} else if (ignores.contains(sourceValueClass) || sourceValueClass.getName().startsWith("java.") || sourceValueClass.isEnum()) {
 							// Simple copy if the current field is a jdk type or an enum
 							destinationValue = sourceValue;
 
 						} else {
-							destinationValue = realize(sourceValue, alreadyRealizedObjects);
+							destinationValue = realize(sourceValue, alreadyRealizedObjects, ignores);
 						}
 						
 						// Setting the field of the new object
