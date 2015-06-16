@@ -31,6 +31,17 @@ import com.google.gwt.core.client.JsArrayInteger;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+import org.sigmah.offline.js.ValueJSIdentifierFactory;
+import org.sigmah.shared.command.result.ValueResult;
+import org.sigmah.shared.dto.category.CategoryElementDTO;
+import org.sigmah.shared.dto.element.FlexibleElementDTO;
+import org.sigmah.shared.dto.element.QuestionChoiceElementDTO;
+import org.sigmah.shared.dto.element.QuestionElementDTO;
+import org.sigmah.shared.dto.referential.ElementTypeEnum;
+import org.sigmah.shared.util.ValueResultUtils;
 
 /**
  *
@@ -40,27 +51,27 @@ import com.google.inject.Singleton;
 @Singleton
 public class ProjectAsyncDAO extends AbstractAsyncDAO<ProjectDTO> {
 	
-	private final ProjectModelAsyncDAO projectModelAsyncDAO;
-	private final OrgUnitAsyncDAO orgUnitAsyncDAO;
-	private final PhaseAsyncDAO phaseAsyncDAO;
-	private final LogFrameAsyncDAO logFrameAsyncDAO;
-	private final MonitoredPointAsyncDAO monitoredPointAsyncDAO;
-	private final ReminderAsyncDAO reminderAsyncDAO;
-
 	@Inject
-	public ProjectAsyncDAO(ProjectModelAsyncDAO projectModelAsyncDAO, 
-			OrgUnitAsyncDAO orgUnitAsyncDAO, PhaseAsyncDAO phaseAsyncDAO, 
-			LogFrameAsyncDAO logFrameAsyncDAO, 
-			MonitoredPointAsyncDAO monitoredPointAsyncDAO,
-			ReminderAsyncDAO reminderAsyncDAO) {
-		this.projectModelAsyncDAO = projectModelAsyncDAO;
-		this.orgUnitAsyncDAO = orgUnitAsyncDAO;
-		this.phaseAsyncDAO = phaseAsyncDAO;
-		this.logFrameAsyncDAO = logFrameAsyncDAO;
-		this.monitoredPointAsyncDAO = monitoredPointAsyncDAO;
-		this.reminderAsyncDAO = reminderAsyncDAO;
-	}
+	private ProjectModelAsyncDAO projectModelAsyncDAO;
 	
+	@Inject
+	private OrgUnitAsyncDAO orgUnitAsyncDAO;
+	
+	@Inject
+	private PhaseAsyncDAO phaseAsyncDAO;
+	
+	@Inject
+	private LogFrameAsyncDAO logFrameAsyncDAO;
+	
+	@Inject
+	private MonitoredPointAsyncDAO monitoredPointAsyncDAO;
+	
+	@Inject
+	private ReminderAsyncDAO reminderAsyncDAO;
+	
+	@Inject
+	private ValueAsyncDAO valueAsyncDAO;
+
 	@Override
 	public void saveOrUpdate(final ProjectDTO t, final AsyncCallback<ProjectDTO> callback, Transaction transaction) {
 		final ObjectStore projectStore = transaction.getObjectStore(Store.PROJECT);
@@ -314,12 +325,41 @@ public class ProjectAsyncDAO extends AbstractAsyncDAO<ProjectDTO> {
 	
 	private <M> void loadProjectDTO(final ProjectJS projectJS, final boolean loadChildren, final RequestManager<M> requestManager, 
 			final ProjectDTO projectDTO, final Transaction transaction) {
+		
+		// Loading categories
+		final int categoriesRequest = requestManager.prepareRequest();
+			
+		final RequestManager<ProjectDTO> categoryRequestManager = new RequestManager<ProjectDTO>(projectDTO, new RequestManagerCallback<M, ProjectDTO>(requestManager) {
+			@Override
+			public void onRequestSuccess(final ProjectDTO project) {
+				project.setCategoryElements(new HashSet<CategoryElementDTO>());
+				
+				for(final FlexibleElementDTO element : project.getProjectModel().getAllElements()) {
+					if(element.getElementType() == ElementTypeEnum.QUESTION && 
+						((QuestionElementDTO)element).getCategoryType() != null) {
+						valueAsyncDAO.get(ValueJSIdentifierFactory.toIdentifier(element.getEntityName(), projectDTO.getId(), element.getId(), null), new RequestManagerCallback<M, ValueResult>(requestManager) {
+							
+							@Override
+							public void onRequestSuccess(ValueResult result) {
+								project.getCategoryElements().addAll(getCategoryElements(result, (QuestionElementDTO) element));
+							}
+						});
+					}
+				}
+				requestManager.setRequestSuccess(categoriesRequest);
+			}
+		});
+		final int projectModelRequest = categoryRequestManager.prepareRequest();
+		categoryRequestManager.ready();
+		
 		// Loading project model
 		projectModelAsyncDAO.get(projectJS.getProjectModel(), new RequestManagerCallback<M, ProjectModelDTO>(requestManager) {
 			@Override
 			public void onRequestSuccess(ProjectModelDTO result) {
 				projectDTO.setProjectModel(result);
                 projectDTO.setVisibilities(result.getVisibilities());
+				
+				categoryRequestManager.setRequestSuccess(projectModelRequest);
 				
 				if(loadChildren) {
 					transaction.getObjectCache().put(projectDTO.getId(), projectDTO);
@@ -426,6 +466,33 @@ public class ProjectAsyncDAO extends AbstractAsyncDAO<ProjectDTO> {
                 }
             }, transaction);
         }
+	}
+	
+	private Set<CategoryElementDTO> getCategoryElements(ValueResult valueResult, QuestionElementDTO questionElement) {
+		if (valueResult != null && valueResult.isValueDefined()) {
+			if(questionElement.getMultiple() == null || !questionElement.getMultiple()) {
+				final String idChoice = valueResult.getValueObject();
+
+				for (final QuestionChoiceElementDTO choice : questionElement.getChoices()) {
+					if (idChoice.equals(String.valueOf(choice.getId()))) {
+						return Collections.<CategoryElementDTO>singleton(choice.getCategoryElement());
+					}
+				}
+			} else {
+				final Set<Integer> selectedChoicesId = new HashSet<Integer>(ValueResultUtils.splitValuesAsInteger(valueResult.getValueObject()));
+				
+				final Set<CategoryElementDTO> elements = new HashSet<CategoryElementDTO>();
+				
+				for (final QuestionChoiceElementDTO choice : questionElement.getChoices()) {
+					if (selectedChoicesId.contains(choice.getId())) {
+						elements.add(choice.getCategoryElement());
+					}
+				}
+
+				return elements;
+			}
+		}
+		return Collections.<CategoryElementDTO>emptySet();
 	}
 	
 	private <M> void loadProjectFundings(final JsArray<ProjectFundingJS> projectFundings, final List<ProjectFundingDTO> dtos,
