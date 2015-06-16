@@ -266,7 +266,7 @@ class Html5TransfertManager implements TransfertManager, HasProgressListeners {
      * @param data Array of bytes containing the data of the downloaded file.
      */
     private void startDownload(final FileVersionDTO fileVersion, final Int8Array data) {
-		final JsArray<Int8Array> array = Values.createJavaScriptArray(JsArray.class);
+		final JsArray<Int8Array> array = Values.createTypedJavaScriptArray(Int8Array.class);
 		array.push(data);
 		final Blob blob = Blob.createBlob(array, FileType.fromExtension(fileVersion.getExtension(), FileType._DEFAULT).getContentType());
 					

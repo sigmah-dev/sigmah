@@ -52,7 +52,7 @@ public final class UpdateMonitoredPointsJS extends CommandJS {
 	
 	public void setList(List<MonitoredPointDTO> list) {
 		if(list != null) {
-			final JsArray<MonitoredPointJS> array = Values.createJavaScriptArray(JsArray.class);
+			final JsArray<MonitoredPointJS> array = Values.createTypedJavaScriptArray(MonitoredPointJS.class);
 			
 			for(final MonitoredPointDTO monitoredPoint : list) {
 				array.push(MonitoredPointJS.toJavaScript(monitoredPoint));

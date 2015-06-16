@@ -43,7 +43,7 @@ public final class AuthenticationJS extends JavaScriptObject {
 				getOrganizationName(), 
 				getOrganizationLogo(), 
 				getOrgUnitId(), 
-				getAggregatedProfile().toDTO(),
+				getAggregatedProfileDTO(),
 				getUserId() != null);
 		authentication.setAuthenticationToken(getAuthenticationToken());
 		return authentication;
@@ -140,6 +140,14 @@ public final class AuthenticationJS extends JavaScriptObject {
 	public native ProfileJS getAggregatedProfile() /*-{
 		return this.aggregatedProfile;
 	}-*/;
+	
+	public ProfileDTO getAggregatedProfileDTO() {
+		if(getAggregatedProfile() != null) {
+			return getAggregatedProfile().toDTO();
+		} else {
+			return null;
+		}
+	}
 
 	public native void setAggregatedProfile(ProfileJS aggregatedProfile) /*-{
 		this.aggregatedProfile = aggregatedProfile;

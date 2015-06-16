@@ -76,7 +76,7 @@ public final class ProjectReportSectionJS extends ProjectReportContentJS {
 
 	public void setChildren(List<ProjectReportContent> children) {
 		if(children != null) {
-			final JsArray<ProjectReportContentJS> array = Values.createJavaScriptArray(JsArray.class);
+			final JsArray<ProjectReportContentJS> array = Values.createTypedJavaScriptArray(ProjectReportContentJS.class);
 			
 			for(final ProjectReportContent child : children) {
 				array.push(ProjectReportContentJS.toJavaScript(child));

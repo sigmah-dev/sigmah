@@ -24,6 +24,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.sigmah.offline.dao.UpdateDiaryAsyncDAO;
+import org.sigmah.offline.js.ListableValueJS;
 import org.sigmah.offline.js.Values;
 import org.sigmah.shared.command.result.Authentication;
 import org.sigmah.shared.util.ValueResultUtils;
@@ -81,7 +82,7 @@ public class PrepareFileUploadAsyncHandler implements AsyncCommandHandler<Prepar
 			public void onSuccess(ValueResult valueResult) {
 				final ValueJS valueJS = ValueJS.toJavaScript(getValue, valueResult);
 				if(valueJS.getValues() == null) {
-					valueJS.setValues(Values.createJavaScriptArray(JsArray.class));
+					valueJS.setValues(Values.createTypedJavaScriptArray(ListableValueJS.class));
 				}
 				
 				final JsArray<FileJS> files = valueJS.getValues();

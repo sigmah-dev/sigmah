@@ -187,6 +187,16 @@ public class Synchronizer {
 	 * @param progressListener Progress listener.
 	 */
 	public void pull(final SynchroProgressListener progressListener) {
+		pull(progressListener, false);
+	}
+	
+	/**
+	 * Store server data inside the local database.
+	 * 
+	 * @param progressListener Progress listener.
+	 * @param withHistory <code>true</code> to retrieve history, <code>false</code> to ignore it.
+	 */
+	public void pull(final SynchroProgressListener progressListener, final boolean withHistory) {
         final double[] progress = {0.0};
         
         // Called if the synchronization failed or when it is completed.
@@ -248,7 +258,7 @@ public class Synchronizer {
 						@Override
 						protected void onCommandSuccess(ProjectDTO result) {
 							final List<FlexibleElementDTO> elements = result.getProjectModel().getAllElements();
-							queueDetails(queue, projectId, result.getCalendarId(), elements, projectProgress, progress, progressListener);
+							queueDetails(queue, projectId, result.getCalendarId(), elements, projectProgress, progress, progressListener, withHistory);
 						}
 					});
 				}
@@ -281,7 +291,7 @@ public class Synchronizer {
 								@Override
 								protected void onCommandSuccess(OrgUnitDTO result) {
 									final List<FlexibleElementDTO> elements = result.getOrgUnitModel().getAllElements();
-									queueDetails(queue, orgUnitId, result.getCalendarId(), elements, orgUnitProgress, progress, progressListener);
+									queueDetails(queue, orgUnitId, result.getCalendarId(), elements, orgUnitProgress, progress, progressListener, withHistory);
 								}
 							});
 						}
@@ -306,9 +316,12 @@ public class Synchronizer {
 	 * @param progress Current progress.
 	 * @param progressListener Listener to call to update the progress bar.
 	 */
-	private void queueDetails(final CommandQueue queue, int containerId, final Integer calendarId, List<FlexibleElementDTO> elements, double categoryProgress, final double[] progress, final SynchroProgressListener progressListener) {
+	private void queueDetails(final CommandQueue queue, int containerId, final Integer calendarId, 
+		List<FlexibleElementDTO> elements, double categoryProgress, final double[] progress, 
+		final SynchroProgressListener progressListener, final boolean withHistory) {
+		
 		final double flexibleElementCount = elements.size();
-		final double historyCount = elements.size();
+		final double historyCount = withHistory ? elements.size() : 0;
 		final double calendarCount = calendarId != null ? 1.0 : 0.0;
 		final double projectReports = 1.0;
 
@@ -327,14 +340,16 @@ public class Synchronizer {
 			});
 
 			// Caching value history
-			final GetHistory getHistory = new GetHistory(element.getId(), containerId);
-			queue.add(getHistory, new CommandResultHandler<ListResult<HistoryTokenListDTO>>() {
-				@Override
-				protected void onCommandSuccess(ListResult<HistoryTokenListDTO> result) {
-					// Success
-					updateProgress(elementProgress, progress, progressListener);
-				}
-			});
+			if(withHistory) {
+				final GetHistory getHistory = new GetHistory(element.getId(), containerId);
+				queue.add(getHistory, new CommandResultHandler<ListResult<HistoryTokenListDTO>>() {
+					@Override
+					protected void onCommandSuccess(ListResult<HistoryTokenListDTO> result) {
+						// Success
+						updateProgress(elementProgress, progress, progressListener);
+					}
+				});
+			}
 		}
 
 		// Fetching the calendar

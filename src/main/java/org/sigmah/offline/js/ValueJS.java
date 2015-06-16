@@ -206,7 +206,7 @@ public final class ValueJS extends JavaScriptObject {
 
 	public void setValues(List<ListableValue> values) {
 		if(values != null) {
-			final JsArray<ListableValueJS> array = Values.createJavaScriptArray(JsArray.class);
+			final JsArray<ListableValueJS> array = Values.createTypedJavaScriptArray(ListableValueJS.class);
 			
 			for(final ListableValue value : values) {
 				array.push(ListableValueJS.toJavaScript(value));

@@ -107,6 +107,9 @@ public final class ProfileJS extends JavaScriptObject {
 			for(final Map.Entry<PrivacyGroupDTO, String> privacyGroup : privacyGroups.entrySet()) {
 				result.put(privacyGroup.getKey(), PrivacyGroupPermissionEnum.valueOf(privacyGroup.getValue()));
 			}
+			
+			// BUGFIX #780: Actually returning the privacy groups.
+			return result;
 		}
 		return null;
 	}

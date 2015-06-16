@@ -70,7 +70,7 @@ public final class FileJS extends ListableValueJS {
 
 	public void setVersions(List<FileVersionDTO> versions) {
 		if(versions != null) {
-			final JsArray<FileVersionJS> array = Values.createJavaScriptArray(JsArray.class);
+			final JsArray<FileVersionJS> array = Values.createTypedJavaScriptArray(FileVersionJS.class);
 			
 			for(final FileVersionDTO version : versions) {
 				array.push(FileVersionJS.toJavaScript(version));

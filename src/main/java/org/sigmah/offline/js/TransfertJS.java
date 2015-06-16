@@ -18,7 +18,7 @@ public final class TransfertJS extends JavaScriptObject {
 	public static TransfertJS createTransfertJS(FileVersionDTO fileVersionDTO, TransfertType type) {
 		final TransfertJS transfertJS = Values.createJavaScriptObject(TransfertJS.class);
 		transfertJS.setFileVersion(FileVersionJS.toJavaScript(fileVersionDTO));
-		transfertJS.setData(Values.createJavaScriptArray(JsArray.class));
+		transfertJS.setData(Values.createTypedJavaScriptArray(Int8Array.class));
 		transfertJS.setProgress(0);
 		transfertJS.setType(type);
 		return transfertJS;

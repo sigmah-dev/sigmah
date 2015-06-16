@@ -52,7 +52,7 @@ public final class UpdateRemindersJS extends CommandJS {
 	
 	public void setList(List<ReminderDTO> list) {
 		if(list != null) {
-			final JsArray<ReminderJS> array = Values.createJavaScriptArray(JsArray.class);
+			final JsArray<ReminderJS> array = Values.createTypedJavaScriptArray(ReminderJS.class);
 			
 			for(final ReminderDTO reminder : list) {
 				array.push(ReminderJS.toJavaScript(reminder));

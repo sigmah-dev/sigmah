@@ -7,7 +7,8 @@ import org.sigmah.shared.dto.orgunit.OrgUnitDTO;
 import org.sigmah.shared.dto.profile.ProfileDTO;
 
 import com.google.gwt.core.client.JavaScriptObject;
-import com.google.gwt.core.client.JsArrayInteger;
+import com.google.gwt.core.client.JsArray;
+import java.util.ArrayList;
 
 /**
  *
@@ -43,6 +44,7 @@ public final class UserJS extends JavaScriptObject {
 		userDTO.setFirstName(getFirstName());
 		userDTO.setCompleteName(getCompleteName());
 		userDTO.setLocale(getLocale());
+		userDTO.setProfiles(getProfilesDTO());
 		
 		return userDTO;
 	}
@@ -133,23 +135,37 @@ public final class UserJS extends JavaScriptObject {
 		this.orgUnit = orgUnit;
 	}-*/;
 
-	public native JsArrayInteger getProfiles() /*-{
-		return this.profilesDTO;
+	public native JsArray<ProfileJS> getProfiles() /*-{
+		return this.profiles;
 	}-*/;
+	
+	public List<ProfileDTO> getProfilesDTO() {
+		if(getProfiles() != null) {
+			final List<ProfileDTO> profilesDTO = new ArrayList<ProfileDTO>();
+			
+			final JsArray<ProfileJS> profilesJS = getProfiles();
+			for(int index = 0; index < profilesJS.length(); index++) {
+				profilesDTO.add(profilesJS.get(index).toDTO());
+			}
+			
+			return profilesDTO;
+		}
+		return null;
+	}
 
 	public void setProfiles(List<ProfileDTO> profilesDTO) {
 		if(profilesDTO != null) {
-			final JsArrayInteger array = (JsArrayInteger) JavaScriptObject.createArray();
+			final JsArray<ProfileJS> profilesJS = Values.createTypedJavaScriptArray(ProfileJS.class);
 			
 			for(final ProfileDTO profileDTO : profilesDTO) {
-				array.push(profileDTO.getId());
+				profilesJS.push(ProfileJS.toJavaScript(profileDTO));
 			}
-			setProfiles(array);
+			setProfiles(profilesJS);
 		}
 	}
 	
-	public native void setProfiles(JsArrayInteger profilesDTO) /*-{
-		this.profilesDTO = profilesDTO;
+	public native void setProfiles(JsArray<ProfileJS> profiles) /*-{
+		this.profiles = profiles;
 	}-*/;
 
 	public native boolean isActive() /*-{

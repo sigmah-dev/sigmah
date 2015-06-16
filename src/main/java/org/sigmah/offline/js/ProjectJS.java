@@ -539,7 +539,7 @@ public final class ProjectJS extends JavaScriptObject {
 	
 	public void setFavoriteUsers(Set<UserDTO> favoriteUsers) {
 		if (favoriteUsers != null) {
-			final JsArray<UserJS> array = Values.createJavaScriptArray(JsArray.class);
+			final JsArray<UserJS> array = Values.createTypedJavaScriptArray(UserJS.class);
 
 			for (final UserDTO userDTO : favoriteUsers) {
 				array.push(UserJS.toJavaScript(userDTO));

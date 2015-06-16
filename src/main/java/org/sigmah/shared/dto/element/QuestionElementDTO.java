@@ -225,7 +225,7 @@ public class QuestionElementDTO extends FlexibleElementDTO {
 			// Selects the already selected choices.
 			if (valueResult != null && valueResult.isValueDefined()) {
 
-				final HashSet<Integer> selectedChoicesId = new HashSet(ValueResultUtils.splitValuesAsInteger(valueResult.getValueObject()));
+				final HashSet<Integer> selectedChoicesId = new HashSet<Integer>(ValueResultUtils.splitValuesAsInteger(valueResult.getValueObject()));
 				selectedChoices = new ArrayList<QuestionChoiceElementDTO>();
 
 				for (final QuestionChoiceElementDTO choiceDTO : getChoices()) {

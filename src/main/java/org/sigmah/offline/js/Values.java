@@ -3,6 +3,7 @@ package org.sigmah.offline.js;
 import java.util.Date;
 
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.core.client.JsArray;
 import com.google.gwt.core.client.JsDate;
 
 /**
@@ -20,6 +21,10 @@ public final class Values {
 	}-*/;
 	
 	public static native <T> T createJavaScriptArray(Class<T> clazz) /*-{
+		return [];
+	}-*/;
+	
+	public static native <T extends JavaScriptObject> JsArray<T> createTypedJavaScriptArray(Class<T> clazz) /*-{
 		return [];
 	}-*/;
 	

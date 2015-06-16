@@ -121,7 +121,7 @@ public final class ProjectReportJS extends JavaScriptObject {
 
 	public void setSections(List<ProjectReportSectionDTO> sections) {
 		if(sections != null) {
-			final JsArray<ProjectReportSectionJS> array = Values.createJavaScriptArray(JsArray.class);
+			final JsArray<ProjectReportSectionJS> array = Values.createTypedJavaScriptArray(ProjectReportSectionJS.class);
 			
 			for(final ProjectReportSectionDTO section : sections) {
 				array.push(ProjectReportSectionJS.toJavaScript(section));
