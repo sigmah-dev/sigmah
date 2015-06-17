@@ -30,6 +30,7 @@ public abstract class AbstractWorldMap<P> implements WorldMap {
 	private final FlowPanel loadingMask;
 	
 	private boolean initialized;
+	private boolean displayed;
 	private boolean loading;
 	
 	private final Map<Pin, P> pins;
@@ -69,6 +70,8 @@ public abstract class AbstractWorldMap<P> implements WorldMap {
 	protected abstract void movePin(P pin, double latitude, double longitude);
 	
 	protected abstract void addPinDragEndHandler(P pin, PinDragEndHandler dragEndHandler);
+	
+	protected abstract void init();
 
 	@Override
 	public void setSize(String width, String height) {
@@ -189,6 +192,15 @@ public abstract class AbstractWorldMap<P> implements WorldMap {
 		return loading;
 	}
 	
+	@Override
+	public void setDisplayed(boolean displayed) {
+		this.displayed = displayed;
+		
+		if(displayed && !initialized) {
+			init();
+		}
+	}
+
 	protected void setInitialized(boolean initialized) {
 		this.initialized = initialized;
 		createNativePins();
@@ -196,6 +208,7 @@ public abstract class AbstractWorldMap<P> implements WorldMap {
 		updateBounds();
 		updateLoadingMask();
 	}
+
 
 	protected Panel getRoot() {
 		return root;

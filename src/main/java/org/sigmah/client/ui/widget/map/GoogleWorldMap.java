@@ -25,7 +25,8 @@ public class GoogleWorldMap extends AbstractWorldMap<Marker> {
 	
 	private MapWidget map;
 
-	public GoogleWorldMap() {
+	@Override
+	protected void init() {
 		MapApiLoader.load(new AsyncCallback<Void>() {
 
 			@Override

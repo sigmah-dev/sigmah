@@ -48,20 +48,31 @@ public class MultipleWorldMap implements WorldMap {
 
 			@Override
 			public void handleEvent(final TabPanelEvent be) {
+				for(final WorldMap implementation : implementations) {
+					implementation.setDisplayed(false);
+				}
+				
+				final WorldMap worldMap = getWorldMap(be);
+				worldMap.setDisplayed(true);
+				
 				new Timer() {
 					@Override
 					public void run() {
-						replicateView(be);
+						replicateView(worldMap);
 					}
 				}.schedule(500);
 			}
 		});
+		
+		implementations[0].setDisplayed(true);
 	}
 	
-	private void replicateView(TabPanelEvent be) {
+	private WorldMap getWorldMap(TabPanelEvent be) {
 		final int index = be.getItem().getData("index");
-		final WorldMap worldMap = implementations[index];
-
+		return implementations[index];
+	}
+	
+	private void replicateView(WorldMap worldMap) {
 		if(useCenterAndZoom) {
 			worldMap.setCenterAndZoom(centerLatitude, centerLongitude, zoom);
 		} else if(bounds != null) {
@@ -201,6 +212,10 @@ public class MultipleWorldMap implements WorldMap {
 			return implementation.isLoading();
 		}
 		return false;
+	}
+
+	@Override
+	public void setDisplayed(boolean displayed) {
 	}
 
 	

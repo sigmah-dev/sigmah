@@ -26,4 +26,6 @@ public interface WorldMap extends IsWidget, Loadable {
 	void panTo(double latitude, double longitude);
 	
 	void setSize(String width, String height);
+	
+	void setDisplayed(boolean displayed);
 }

@@ -31,17 +31,18 @@ public class OpenStreetMapWorldMap extends AbstractWorldMap<VectorFeature> {
 	
 	private static final String TRANSFORM_SOURCE = "EPSG:4326";
 	
-	private final MapWidget mapWidget;
-	private final Vector vectorLayer;
-	private final DragFeature dragFeature;
+	private MapWidget mapWidget;
+	private Vector vectorLayer;
+	private DragFeature dragFeature;
 	private boolean draggable;
 
-	private final List<VectorFeature> displayedFeatures;
-	private final Map<String, List<PinDragEndHandler>> dragEndHandlers;
+	private final List<VectorFeature> displayedFeatures = new ArrayList<VectorFeature>();
+	private final Map<String, List<PinDragEndHandler>> dragEndHandlers = new HashMap<String, List<PinDragEndHandler>>();
 	
 	private static int featureIdSequence;
 	
-	public OpenStreetMapWorldMap() {
+	@Override
+	protected void init() {
 		mapWidget = new MapWidget("100%", "100%", new MapOptions());
 		
 		// Humanitarian layer
@@ -59,11 +60,9 @@ public class OpenStreetMapWorldMap extends AbstractWorldMap<VectorFeature> {
 		
 		// Pin layer
 		vectorLayer = new Vector(I18N.CONSTANTS.projectSitesLayer());
-		displayedFeatures = new ArrayList<VectorFeature>();
 		
 		// Drag & drop listeners
 		dragFeature = createDraggableFeature(vectorLayer);
-		dragEndHandlers = new HashMap<String, List<PinDragEndHandler>>();
 		
 		// Center & zoom
 		LonLat lonLat = new LonLat(0, 0);

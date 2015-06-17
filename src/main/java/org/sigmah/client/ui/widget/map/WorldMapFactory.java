@@ -16,6 +16,8 @@ public final class WorldMapFactory {
 	 * @return a new WorldMap instance.
 	 */
 	public static WorldMap createInstance() {
-		return new GoogleWorldMap();
+		final GoogleWorldMap worldMap = new GoogleWorldMap();
+		worldMap.setDisplayed(true);
+		return worldMap;
 	}
 }
