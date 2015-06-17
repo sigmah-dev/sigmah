@@ -40,6 +40,8 @@ import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import org.sigmah.client.event.OfflineEvent;
+import org.sigmah.client.event.handler.OfflineHandler;
 import org.sigmah.client.ui.notif.ConfirmCallback;
 import org.sigmah.client.ui.notif.N10N;
 import org.sigmah.client.ui.zone.Zone;
@@ -107,6 +109,11 @@ public class DashboardPresenter extends AbstractPagePresenter<DashboardPresenter
 		void addMenuButton(final String buttonText, final AbstractImagePrototype buttonIcon, final Listener<ButtonEvent> clickHandler);
 
 		/**
+		 * Ask the button panel to relayout itself.
+		 */
+		void layoutButtons();
+		
+		/**
 		 * Returns the OrgUnit tree grid component.
 		 * 
 		 * @return The OrgUnit tree grid component.
@@ -127,7 +134,7 @@ public class DashboardPresenter extends AbstractPagePresenter<DashboardPresenter
 		 * @return The projects list widget.
 		 */
 		ProjectsListWidget getProjectsList();
-
+		
 	}
 	
 	private Integer lastUserId;
@@ -170,6 +177,16 @@ public class DashboardPresenter extends AbstractPagePresenter<DashboardPresenter
 
 		// Projects widget initialization.
 		view.getProjectsList().init(RefreshMode.BOTH, LoadingMode.CHUNK);
+		
+		// Listening to connection state changes to refresh the available buttons.
+		// Fixes mantis #682 and #683
+		eventBus.addHandler(OfflineEvent.getType(), new OfflineHandler() {
+
+			@Override
+			public void handleEvent(OfflineEvent event) {
+				initializeMenuButtons(event.getState());
+			}
+		});
 	}
 
 	/**
@@ -286,11 +303,17 @@ public class DashboardPresenter extends AbstractPagePresenter<DashboardPresenter
 	 * Initializes menu buttons based on authenticated user profile permissions.
 	 */
 	private void initializeMenuButtons() {
+		initializeMenuButtons(injector.getApplicationStateManager().getState());
+	}
+	
+	private void initializeMenuButtons(ApplicationState applicationState) {
 
 		view.clearMenuButtons();
+		
+		final boolean online = applicationState == ApplicationState.UNKNOWN || applicationState == ApplicationState.ONLINE;
 
 		// Create project.
-		if (ProfileUtils.isGranted(auth(), GlobalPermissionEnum.CREATE_PROJECT)) {
+		if (online && ProfileUtils.isGranted(auth(), GlobalPermissionEnum.CREATE_PROJECT)) {
 
 			final PageRequest request = new PageRequest(Page.CREATE_PROJECT);
 			request.addParameter(RequestParameter.TYPE, CreateProjectPresenter.Mode.PROJECT);
@@ -299,7 +322,7 @@ public class DashboardPresenter extends AbstractPagePresenter<DashboardPresenter
 		}
 
 		// Draft project.
-		if (ProfileUtils.isGranted(auth(), GlobalPermissionEnum.CREATE_TEST_PROJECT)) {
+		if (online && ProfileUtils.isGranted(auth(), GlobalPermissionEnum.CREATE_TEST_PROJECT)) {
 
 			final PageRequest request = new PageRequest(Page.CREATE_PROJECT);
 			request.addParameter(RequestParameter.TYPE, CreateProjectPresenter.Mode.TEST_PROJECT);
@@ -308,15 +331,15 @@ public class DashboardPresenter extends AbstractPagePresenter<DashboardPresenter
 		}
 
 		// Users administration.
-		if (ProfileUtils.isGranted(auth(), GlobalPermissionEnum.VIEW_ADMIN)) {
+		if (online && ProfileUtils.isGranted(auth(), GlobalPermissionEnum.VIEW_ADMIN)) {
 			view.addMenuButton(I18N.CONSTANTS.adminboard(), IconImageBundle.ICONS.setup(), new ButtonClickHandler(getDefaultAdminPage()));
 		}
 
 		// Import.
-		if (ProfileUtils.isGranted(auth(), GlobalPermissionEnum.IMPORT_BUTTON)) {
+		if (online && ProfileUtils.isGranted(auth(), GlobalPermissionEnum.IMPORT_BUTTON)) {
 			view.addMenuButton(I18N.CONSTANTS.importItem(), null, new ButtonClickHandler(Page.IMPORT_VALUES));
 		}
-
+		
 		// TODO Handle other menus buttons.
 		// There are two ways to show these menus (authentication / profile).
 		// if (auth().isShowMenus()) {
@@ -327,6 +350,8 @@ public class DashboardPresenter extends AbstractPagePresenter<DashboardPresenter
 		// view.addMenuButton(I18N.CONSTANTS.tables(), IconImageBundle.ICONS.table(), new PivotPageState());
 		// view.addMenuButton(I18N.CONSTANTS.setup(), IconImageBundle.ICONS.setup(), new DbListPageState());
 		// }
+		
+		view.layoutButtons();
 	}
 	
 	/**
