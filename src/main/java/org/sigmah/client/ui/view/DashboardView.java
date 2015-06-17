@@ -165,7 +165,15 @@ public class DashboardView extends AbstractView implements DashboardPresenter.Vi
 
 		menuButtonsContainer.add(button, Layouts.vBoxData());
 	}
-
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void layoutButtons() {
+		menuButtonsContainer.layout();
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 */
