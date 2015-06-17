@@ -1044,11 +1044,15 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 	
 	private String formatCountry(String value) {
 		if (cache != null) {
-			final CountryDTO c = cache.getCountryCache().get(Integer.valueOf(value));
-			if (c != null) {
-				return c.getName();
-			} else {
-				return '#' + value;
+			try {
+				final CountryDTO c = cache.getCountryCache().get(Integer.valueOf(value));
+				if (c != null) {
+					return c.getName();
+				} else {
+					return '#' + value;
+				}
+			} catch(NumberFormatException e) {
+				return "";
 			}
 		} else {
 			return '#' + value;
@@ -1056,21 +1060,30 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 	}
 	
 	private String formatDate(String value) {
-		final long time = Long.valueOf(value);
-		final Date date = new Date(time);
-		
-		// Using a shared instance to allow parsing from client and server side.
-		final com.google.gwt.i18n.shared.DateTimeFormat formatter = DateUtils.SHARED_DATE_SHORT;
-		return formatter.format(date);
+		try {
+			final long time = Long.parseLong(value);
+			final Date date = new Date(time);
+
+			// Using a shared instance to allow parsing from client and server side.
+			final com.google.gwt.i18n.shared.DateTimeFormat formatter = DateUtils.SHARED_DATE_SHORT;
+			return formatter.format(date);
+			
+		} catch(NumberFormatException e) {
+			return "";
+		}
 	}
 	
 	private String formatManager(String value) {
 		if (cache != null) {
-			final UserDTO u = cache.getUserCache().get(Integer.valueOf(value));
-			if (u != null) {
-				return u.getFirstName() != null ? u.getFirstName() + ' ' + u.getName() : u.getName();
-			} else {
-				return '#' + value;
+			try {
+				final UserDTO u = cache.getUserCache().get(Integer.valueOf(value));
+				if (u != null) {
+					return u.getFirstName() != null ? u.getFirstName() + ' ' + u.getName() : u.getName();
+				} else {
+					return '#' + value;
+				}
+			} catch(NumberFormatException e) {
+				return "";
 			}
 		} else {
 			return '#' + value;
@@ -1079,11 +1092,15 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 	
 	private String formatOrgUnit(String value) {
 		if (cache != null) {
-			final OrgUnitDTO o = cache.getOrganizationCache().get(Integer.valueOf(value));
-			if (o != null) {
-				return o.getName() + " - " + o.getFullName();
-			} else {
-				return '#' + value;
+			try {
+				final OrgUnitDTO o = cache.getOrganizationCache().get(Integer.valueOf(value));
+				if (o != null) {
+					return o.getName() + " - " + o.getFullName();
+				} else {
+					return '#' + value;
+				}
+			} catch(NumberFormatException e) {
+				return "";
 			}
 		} else {
 			return '#' + value;
@@ -1266,7 +1283,7 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 
 	@Override
 	public String toHTML(String value) {
-		if(value == null) {
+		if(value == null || value.length() == 0) {
 			return "";
 		}
 		

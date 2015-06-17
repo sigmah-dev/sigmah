@@ -293,7 +293,7 @@ public class BudgetElementDTO extends DefaultFlexibleElementDTO {
 	
 	@Override
 	public String toHTML(String value) {
-		if(value == null) {
+		if(value == null || value.length() == 0) {
 			return "";
 		}
 		

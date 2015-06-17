@@ -111,7 +111,7 @@ public class CheckboxElementDTO extends FlexibleElementDTO {
 		}
 		
 		return new StringBuilder("<input type=\"checkbox\" readonly=\"readonly\" checked=\"")
-			.append(Boolean.valueOf(value) ? "checked" : "")
+			.append(Boolean.parseBoolean(value) ? "checked" : "")
 			.append("\">").toString();
 	}
 	

@@ -491,8 +491,12 @@ public class TextAreaElementDTO extends FlexibleElementDTO {
 
 	private String formatDate(String value) {
 		if (value != null) {
-			final DateTimeFormat formatter = DateUtils.DATE_SHORT;
-			return formatter.format(new Date(Long.valueOf(value)));
+			try {
+				final DateTimeFormat formatter = DateUtils.DATE_SHORT;
+				return formatter.format(new Date(Long.parseLong(value)));
+			} catch(NumberFormatException e) {
+				return "";
+			}
 		} else {
 			return "";
 		}
@@ -513,7 +517,7 @@ public class TextAreaElementDTO extends FlexibleElementDTO {
 
 	@Override
 	public String toHTML(String value) {
-		if(value == null) {
+		if(value == null || value.length() == 0) {
 			return "";
 		}
 		
