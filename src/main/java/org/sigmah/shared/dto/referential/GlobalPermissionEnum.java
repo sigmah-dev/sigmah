@@ -101,7 +101,7 @@ public enum GlobalPermissionEnum implements Result {
 	 * for creating/deleting/modifying/closing reminders created by the user.
 	 */
 
-	EDIT_OWN_REMINDERS(GlobalPermissionCategory.PROJECT),
+	EDIT_OWN_REMINDERS(VIEW_PROJECT),
 	
 	/**
 	 * for displaying the import button.
