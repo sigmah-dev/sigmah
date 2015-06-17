@@ -277,9 +277,9 @@ public class ProjectDashboardPresenter extends AbstractProjectPresenter<ProjectD
 			 */
 			@Override
 			public boolean isAuthorizedToEditReminder() {
-				return ProfileUtils.isGranted(auth(), GlobalPermissionEnum.EDIT_PROJECT)
-					&& (ProfileUtils.isGranted(auth(), GlobalPermissionEnum.EDIT_ALL_REMINDERS) || ProfileUtils
-						.isGranted(auth(), GlobalPermissionEnum.EDIT_OWN_REMINDERS));
+				// BUGFIX #741: Removed the need to have "EDIT_PROJECT" privilege to edit reminders.
+				return ProfileUtils.isGranted(auth(), GlobalPermissionEnum.EDIT_ALL_REMINDERS) || 
+					ProfileUtils.isGranted(auth(), GlobalPermissionEnum.EDIT_OWN_REMINDERS);
 			}
 
 			/**
@@ -311,8 +311,7 @@ public class ProjectDashboardPresenter extends AbstractProjectPresenter<ProjectD
 					}
 				}
 
-				return creator
-					&& ProfileUtils.isGranted(auth(), GlobalPermissionEnum.EDIT_OWN_REMINDERS)
+				return creator && ProfileUtils.isGranted(auth(), GlobalPermissionEnum.EDIT_OWN_REMINDERS)
 					|| ProfileUtils.isGranted(auth(), GlobalPermissionEnum.EDIT_ALL_REMINDERS);
 			}
 
@@ -488,14 +487,12 @@ public class ProjectDashboardPresenter extends AbstractProjectPresenter<ProjectD
 		// --
 
 		final boolean canEditReminders =
-				ProfileUtils.isGranted(auth(), GlobalPermissionEnum.EDIT_PROJECT)
-					&& (ProfileUtils.isGranted(auth(), GlobalPermissionEnum.EDIT_ALL_REMINDERS) || ProfileUtils
-						.isGranted(auth(), GlobalPermissionEnum.EDIT_OWN_REMINDERS));
+			ProfileUtils.isGranted(auth(), GlobalPermissionEnum.EDIT_ALL_REMINDERS) || 
+			ProfileUtils.isGranted(auth(), GlobalPermissionEnum.EDIT_OWN_REMINDERS);
 
 		final boolean canEditMonitoredPoints =
-				ProfileUtils.isGranted(auth(), GlobalPermissionEnum.EDIT_PROJECT)
-					&& (ProfileUtils.isGranted(auth(), GlobalPermissionEnum.EDIT_ALL_REMINDERS) || ProfileUtils
-						.isGranted(auth(), GlobalPermissionEnum.EDIT_OWN_REMINDERS));
+			ProfileUtils.isGranted(auth(), GlobalPermissionEnum.EDIT_ALL_REMINDERS) || 
+			ProfileUtils.isGranted(auth(), GlobalPermissionEnum.EDIT_OWN_REMINDERS);
 
 		view.updateRemindersToolbars(canEditReminders, canEditMonitoredPoints);
 
@@ -523,10 +520,16 @@ public class ProjectDashboardPresenter extends AbstractProjectPresenter<ProjectD
 		view.getFundingProjectsColumnsProvider().setProject(getProject());
 		loadLinkedProjects(null);
 
+		view.getPhasesWidget().clear();
+	}
+
+	@Override
+	protected void onViewRevealed() {
+		
 		// --
 		// Updates project tabs.
 		// --
-
+		// BUGFIX #702: Loading phases after reveal to avoid layout errors.
 		view.getPhasesWidget().refresh(getProject());
 	}
 

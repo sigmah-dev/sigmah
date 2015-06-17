@@ -120,6 +120,8 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> {
 		void fillToolbar(boolean changePhaseAuthorized);
 
 		ContentPanel getRequiredElementContentPanel();
+		
+		void layout();
 
 	}
 
@@ -220,6 +222,22 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> {
 		activePhaseRequiredElements = new RequiredValueStateList();
 		currentPhaseRequiredElements = new RequiredValueStateList();
 	}
+	
+	/**
+	 * Clear everything by removing all tabs and all required elements.
+	 */
+	public void clear() {
+		clearChangedValues();
+		
+		// Clears the required elements maps.
+		activePhaseRequiredElements.clear();
+		currentPhaseRequiredElements.clear();
+
+		// Removes old tabs configuration (from the previous displayed project).
+		view.getTabPanelPhases().removeAll();
+		view.getTabPanelPhases().removeAllListeners();
+		tabItemsMap.clear();
+	}
 
 	/**
 	 * <p>
@@ -317,6 +335,8 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> {
 		view.getTabPanelPhases().removeAll();
 		view.getTabPanelPhases().removeAllListeners();
 		tabItemsMap.clear();
+		
+		TabItem currentPhase = null;
 
 		// Creates tabs for each phase.
 		for (final PhaseDTO phaseDTO : projectDTO.getPhases()) {
@@ -347,7 +367,8 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> {
 				// Enables it, apply the correct style and selects it.
 				tabItem.setEnabled(true);
 				tabItem.getHeader().addStyleName(PhasesView.PROJECT_PHASE_ACTIVE);
-				view.getTabPanelPhases().setSelection(tabItem);
+				
+				currentPhase = tabItem;
 			}
 
 			// If the phase is ended.
@@ -376,7 +397,7 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> {
 				 * Important: it's better to manipulate the id instead of the phases instances to keep coherence after a project
 				 * update.
 				 */
-				private Integer phaseDTOId = phaseDTO.getId();
+				private final Integer phaseDTOId = phaseDTO.getId();
 
 				private PhaseDTO retrievePhaseDTO() {
 					// Loads the phase of the selected tab (loaded from the current project instance).
@@ -437,6 +458,8 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> {
 				}
 			});
 		}
+		
+		view.getTabPanelPhases().setSelection(currentPhase);
 	}
 
 	/**
@@ -558,7 +581,17 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> {
 		view.getPanelSelectedPhase().add(layoutGrid);
 
 		// Dispatch queue ensuring results handling order.
-		final DispatchQueue queue = new DispatchQueue(dispatch, true);
+		final DispatchQueue queue = new DispatchQueue(dispatch, true) {
+
+			@Override
+			protected void onComplete() {
+				// View layouts update.
+				// FIXME (v1.3) This should be done by Ext, not be the developer!
+				injector.getProjectDashboardPresenter().getView().layoutView();
+				view.layout();
+			}
+			
+		};
 		
 		// Current project
 		final ProjectDTO project = getCurrentProjectDTO();
@@ -704,9 +737,6 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> {
 
 		queue.start();
 
-		// View layouts update.
-		// FIXME (v1.3) This should be done by Ext, not be the developer!
-		injector.getProjectDashboardPresenter().getView().layoutView();
 	}
 
 	/**

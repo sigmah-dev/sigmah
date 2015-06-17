@@ -44,6 +44,7 @@ public class PhasesView extends AbstractView implements PhasesPresenter.View {
 	public static final String PROJECT_PHASE_ACTIVE = "project-phase-active";
 	public static final String PROJECT_PHASE_CLOSED = "project-phase-closed";
 	private static final String X_BORDER_PANEL = "x-border-panel";
+	private static final String WHITE_TAB_BODY = "white-tab-body";
 
 	private ContentPanel requiredElementContentPanel;
 	private Grid<FlexibleElementDTO> gridRequiredElements;
@@ -78,6 +79,7 @@ public class PhasesView extends AbstractView implements PhasesPresenter.View {
 		tabPanelPhases.setTabScroll(true);
 		tabPanelPhases.setAnimScroll(true);
 		tabPanelPhases.addStyleName(X_BORDER_PANEL);
+		tabPanelPhases.addStyleName(WHITE_TAB_BODY);
 
 		// Toolbar
 		toolBar = new ToolBar();
@@ -299,4 +301,9 @@ public class PhasesView extends AbstractView implements PhasesPresenter.View {
 		return maskCount > 0;
 	}
 
+	@Override
+	public void layout() {
+		layoutContainer.layout(true);
+	}
+	
 }

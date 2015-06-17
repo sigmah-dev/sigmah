@@ -81,6 +81,7 @@ body {font-family:Arial;font-size:8pt}
 .layout-with-h-scroll{overflow-x:scroll}
 .white-background{background:#fff}
 .sigmah-tab-panel .x-tab-panel-header-plain .x-tab-strip-spacer{border:none;height:0}
+.white-tab-body .x-tab-panel-body {background:#fff}
 
 /* Notifications N10N */
 #app-message .message-panel.info .message,.popup-content .message-panel.info .message{background-color:#E7F3FF;border-color:#7BA6D6;color:#5C7CA0;background-image:url(../images/icon/information.png);}
