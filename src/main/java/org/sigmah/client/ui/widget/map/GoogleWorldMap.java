@@ -1,6 +1,7 @@
 package org.sigmah.client.ui.widget.map;
 
 import com.google.gwt.maps.client.MapWidget;
+import com.google.gwt.maps.client.Maps;
 import com.google.gwt.maps.client.event.MarkerDragEndHandler;
 import com.google.gwt.maps.client.geom.LatLng;
 import com.google.gwt.maps.client.geom.LatLngBounds;
@@ -14,6 +15,7 @@ import com.google.gwt.user.client.ui.Label;
 import java.util.List;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.ui.map.MapApiLoader;
+import org.sigmah.client.ui.notif.N10N;
 import org.sigmah.shared.dto.BoundingBoxDTO;
 
 /**
@@ -37,11 +39,16 @@ public class GoogleWorldMap extends AbstractWorldMap<Marker> {
 
 			@Override
 			public void onSuccess(Void result) {
-				map = new MapWidget();
-				map.setHeight("100%");
-				getRoot().add(map);
-				
-				setInitialized(true);
+				if(Maps.isLoaded()) {
+					map = new MapWidget();
+					map.setHeight("100%");
+					getRoot().add(map);
+
+					setInitialized(true);
+					
+				} else {
+					N10N.errorNotif(I18N.CONSTANTS.googleMaps(), I18N.CONSTANTS.cannotLoadMap());
+				}
 			}
 		});
 	}
