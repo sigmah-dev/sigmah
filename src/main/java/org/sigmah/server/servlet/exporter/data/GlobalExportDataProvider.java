@@ -492,26 +492,28 @@ public class GlobalExportDataProvider {
 			case BUDGET: {
 				BudgetElement budgetElement = (BudgetElement) element;
 
-				Double pb = 0d;
-				Double sb = 0d;
+				// BUGFIX #732: Inverted plannedBudget and spentBudget.
+				
+				Double plannedBudget = 0d;
+				Double spentBudget = 0d;
 				if (hasValue) {
 					final Map<Integer, String> values = ValueResultUtils.splitMapElements(valueResult.getValueObject());
 
 					if (budgetElement.getRatioDividend() != null) {
-						if (values.get(budgetElement.getRatioDividend().getId().intValue()) != null) {
-							pb = Double.valueOf(values.get(budgetElement.getRatioDividend().getId().intValue()));
+						if (values.get(budgetElement.getRatioDividend().getId()) != null) {
+							spentBudget = Double.valueOf(values.get(budgetElement.getRatioDividend().getId()));
 
 						}
 					}
 
 					if (budgetElement.getRatioDivisor() != null) {
-						if (values.get(budgetElement.getRatioDivisor().getId().intValue()) != null) {
-							sb = Double.valueOf(values.get(budgetElement.getRatioDivisor().getId().intValue()));
+						if (values.get(budgetElement.getRatioDivisor().getId()) != null) {
+							plannedBudget = Double.valueOf(values.get(budgetElement.getRatioDivisor().getId()));
 
 						}
 					}
 				}
-				value = sb + " / " + pb;
+				value = spentBudget + " / " + plannedBudget;
 			}
 				break;
 			case COUNTRY: {
@@ -593,26 +595,26 @@ public class GlobalExportDataProvider {
 			case BUDGET: {
 				BudgetElement budgetElement = (BudgetElement) element;
 
-				Double pb = 0d;
-				Double sb = 0d;
+				Double plannedBudget = 0d;
+				Double spentBudget = 0d;
 				if (hasValue) {
 					final Map<Integer, String> values = ValueResultUtils.splitMapElements(valueResult.getValueObject());
 
 					if (budgetElement.getRatioDividend() != null) {
 						if (values.get(budgetElement.getRatioDividend().getId()) != null) {
-							pb = Double.valueOf(values.get(budgetElement.getRatioDividend().getId()));
+							spentBudget = Double.valueOf(values.get(budgetElement.getRatioDividend().getId()));
 
 						}
 					}
 
 					if (budgetElement.getRatioDivisor() != null) {
 						if (values.get(budgetElement.getRatioDivisor().getId()) != null) {
-							pb = Double.valueOf(values.get(budgetElement.getRatioDivisor().getId()));
+							plannedBudget = Double.valueOf(values.get(budgetElement.getRatioDivisor().getId()));
 
 						}
 					}
 				}
-				value = sb + " / " + pb;
+				value = spentBudget + " / " + plannedBudget;
 			}
 				break;
 
