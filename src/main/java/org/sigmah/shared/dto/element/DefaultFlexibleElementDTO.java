@@ -61,6 +61,8 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 	 */
 	private static final long serialVersionUID = 3746586633233053639L;
 	
+	public static final String ENTITY_NAME = "element.DefaultFlexibleElement";
+	
 	private static final String EMPTY_VALUE = "-";
 
 	private transient ListStore<CountryDTO> countriesStore;
@@ -73,7 +75,7 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 	 */
 	@Override
 	public String getEntityName() {
-		return "element.DefaultFlexibleElement";
+		return ENTITY_NAME;
 	}
 
 	// Type.

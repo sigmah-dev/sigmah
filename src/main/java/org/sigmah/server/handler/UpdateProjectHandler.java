@@ -139,7 +139,7 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 			LOG.debug("[execute] Event of type {} with value {} and list value {}.", valueEvent.getChangeType(), updateSingleValue, updateListValue);
 
 			// Verify if the core version has been modified.
-			coreVersionHasBeenModified = coreVersionHasBeenModified | element.isAmendable();
+			coreVersionHasBeenModified = coreVersionHasBeenModified || element != null && element.isAmendable();
 			
 			// Case of the default flexible element which values arent't stored
 			// like other values. These values impact directly the project.
@@ -154,7 +154,7 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 				// Saves the value and switch to the next value.
 				final String oldValue = saveDefaultElement(projectId, defaultElement.getType(), updateSingleValue, isProjectCountryChanged);
 
-				// Checks if the first value as already been historized or not.
+				// Checks if the first value has already been historized or not.
 				List<HistoryToken> results = null;
 				if (element != null) {
 					final TypedQuery<HistoryToken> query =

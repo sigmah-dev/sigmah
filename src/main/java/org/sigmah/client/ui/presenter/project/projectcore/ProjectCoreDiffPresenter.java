@@ -129,6 +129,7 @@ public class ProjectCoreDiffPresenter extends AbstractPagePresenter<ProjectCoreD
 		view.getAmendmentsComboBox2().setValue(null);
 		
 		final AmendmentDTO projectAmendment = new AmendmentDTO(project);
+		projectAmendment.setName(I18N.CONSTANTS.projectCoreCurrent());
 
 		view.getAmendmentStore1().add(project.getAmendments());
 		view.getAmendmentStore1().add(projectAmendment);

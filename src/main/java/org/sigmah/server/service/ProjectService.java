@@ -49,8 +49,14 @@ import org.slf4j.LoggerFactory;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
+import com.google.inject.persist.Transactional;
+import java.util.HashSet;
+import java.util.Set;
 import org.sigmah.client.ui.presenter.CreateProjectPresenter;
+import org.sigmah.server.domain.HistoryToken;
+import org.sigmah.server.domain.element.DefaultFlexibleElement;
 import org.sigmah.shared.dto.ProjectFundingDTO;
+import org.sigmah.shared.dto.referential.ValueEventChangeType;
 
 /**
  * {@link Project} service.
@@ -92,6 +98,7 @@ public class ProjectService extends AbstractEntityService<Project, Integer, Proj
 	 * {@inheritDoc}
 	 */
 	@Override
+	@Transactional
 	public Project create(final PropertyMap properties, final UserExecutionContext context) {
 
 		if (LOG.isDebugEnabled()) {
@@ -237,12 +244,19 @@ public class ProjectService extends AbstractEntityService<Project, Integer, Proj
 		
 		// Create the budget values
 		final Double budgetPlanned = properties.<Double> get(ProjectDTO.BUDGET);
+		final String budgetValue;
 		if (budgetPlanned != null) {
-			createBudgetValues(budgetPlanned, model, project, user);
+			budgetValue = createBudgetValues(budgetPlanned, model, project, user);
+		} else {
+			budgetValue = null;
 		}
 		
 		// Updates the project
 		project = em().merge(project);
+		
+		// Create initials history tokens
+		// BUGFIX #729 & #784
+		createInitialHistoryTokens(project, budgetValue, user);
 		
 		// Create links (if requested)
 		final ProjectDTO baseProject = properties.get(ProjectDTO.BASE_PROJECT);
@@ -279,7 +293,7 @@ public class ProjectService extends AbstractEntityService<Project, Integer, Proj
 
 		return project;
 	}
-
+	
 	/**
 	 * Create the required budget values.
 	 * 
@@ -288,10 +302,12 @@ public class ProjectService extends AbstractEntityService<Project, Integer, Proj
 	 * @param project Project to edit.
 	 * @param user User creating the project.
 	 */
-	private void createBudgetValues(Double budgetPlanned, ProjectModel model, Project project, final User user) {
-		Map<BudgetSubFieldDTO, Double> budgetValues = new HashMap<BudgetSubFieldDTO, Double>();
+	private String createBudgetValues(Double budgetPlanned, ProjectModel model, Project project, final User user) {
+		final String budgetValue;
 		
-		BudgetElement budgetElement = getBudgetElement(model);
+		final Map<BudgetSubFieldDTO, Double> budgetValues = new HashMap<BudgetSubFieldDTO, Double>();
+		
+		final BudgetElement budgetElement = getBudgetElement(model);
 		if (budgetElement != null) {
 			for (BudgetSubField budgetSubField : budgetElement.getBudgetSubFields()) {
 				BudgetSubFieldDTO budgetSubFieldDTO = new BudgetSubFieldDTO();
@@ -302,17 +318,25 @@ public class ProjectService extends AbstractEntityService<Project, Integer, Proj
 					budgetValues.put(budgetSubFieldDTO, 0.0);
 				}
 			}
-			Value value = new Value();
+			
+			budgetValue = ValueResultUtils.mergeElements(budgetValues);
+			
+			final Value value = new Value();
 			value.setContainerId(project.getId());
 			value.setElement(budgetElement);
 			value.setLastModificationAction('C');
 			value.setLastModificationDate(new Date());
 			value.setLastModificationUser(user);
-			value.setValue(ValueResultUtils.mergeElements(budgetValues));
+			value.setValue(budgetValue);
 			em().persist(value);
+			
+		} else {
+			budgetValue = null;
 		}
+		
+		return budgetValue;
 	}
-
+	
 	/**
 	 * Creates a well-configured default log frame for the new project.
 	 * 
@@ -374,6 +398,78 @@ public class ProjectService extends AbstractEntityService<Project, Integer, Proj
 
 		return logFrame;
 	}
+	
+	/**
+	 * Creates an history token for each default flexible element.
+	 * 
+	 * @param project
+	 *			Created project.
+	 * @param budgetValue
+	 *			Budget value (can be <code>null</code>).
+	 * @param user 
+	 *			User creating the project.
+	 */
+	private void createInitialHistoryTokens(Project project, String budgetValue, User user) {
+		for(final DefaultFlexibleElement element : getDefaultElements(project)) {
+			final String value;
+			
+			if(element instanceof BudgetElement) {
+				value = budgetValue;
+			} else {
+				value = element.getValue(project);
+			}
+			
+			if(value != null) {
+				final HistoryToken historyToken = new HistoryToken();
+				
+				historyToken.setDate(new Date());
+				historyToken.setElementId(element.getId());
+				historyToken.setProjectId(project.getId());
+				historyToken.setType(ValueEventChangeType.ADD);
+				historyToken.setUser(user);
+				historyToken.setValue(value);
+				
+				em().persist(historyToken);
+			}
+		}
+	}
+	
+	/**
+	 * Find every default element contained in the model of the given project.
+	 * 
+	 * @param project Project to search.
+	 * @return A set of every default flexible element.
+	 */
+	private Set<DefaultFlexibleElement> getDefaultElements(Project project) {
+		final Set<DefaultFlexibleElement> defaultElements = new HashSet<>();
+		
+		for(final LayoutGroup layoutGroup : project.getProjectModel().getProjectDetails().getLayout().getGroups()) {
+			getDefaultElements(layoutGroup, defaultElements);
+		}
+		
+		for(final PhaseModel phaseModel : project.getProjectModel().getPhaseModels()) {
+			for(final LayoutGroup layoutGroup : phaseModel.getLayout().getGroups()) {
+				getDefaultElements(layoutGroup, defaultElements);
+			}
+		}
+		
+		return defaultElements;
+	}
+	
+	/**
+	 * Find every default flexible elements in the given layout group and add
+	 * them to the given set.
+	 * 
+	 * @param layoutGroup Group tu search.
+	 * @param defaultElements Set to fill.
+	 */
+	private void getDefaultElements(LayoutGroup layoutGroup, Set<DefaultFlexibleElement> defaultElements) {
+		for(final LayoutConstraint constraint : layoutGroup.getConstraints()) {
+			if(constraint.getElement() instanceof DefaultFlexibleElement) {
+				defaultElements.add((DefaultFlexibleElement) constraint.getElement());
+			}
+		}
+	}
 
 	/**
 	 * Searches the country for the given org unit.
@@ -431,6 +527,13 @@ public class ProjectService extends AbstractEntityService<Project, Integer, Proj
 		}
 	}
 
+	/**
+	 * Find the budget element of the given model.
+	 * 
+	 * @param model Model to search.
+	 * @return An instance of <code>BudgetElement</code> or <code>null</code> if
+	 *		   none was found.
+	 */
 	private BudgetElement getBudgetElement(ProjectModel model) {
 		BudgetElement budgetElement = null;
 		if (model.getProjectBanner().getLayout() != null) {

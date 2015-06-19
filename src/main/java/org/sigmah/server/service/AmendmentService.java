@@ -83,8 +83,11 @@ public class AmendmentService extends AbstractEntityService<Amendment, Integer, 
 	 * 
 	 * @param project
 	 *          The Project instance.
+	 * @param name
+	 *			Name of the new amendment.
 	 * @return The created {@link Amendment} instance.
 	 */
+	@Transactional
 	public Amendment createAmendment(final Project project, String name) {
 
 		final Amendment amendment = new Amendment();
@@ -102,7 +105,7 @@ public class AmendmentService extends AbstractEntityService<Amendment, Integer, 
 		// values property.
 		// @see GetHistoryHandler
 		final List<HistoryToken> historyTokens = new ArrayList<HistoryToken>();
-
+		
 		// Looking for all groups
 		final List<LayoutGroup> groups = new ArrayList<LayoutGroup>();
 		for (final PhaseModel phaseModel : project.getProjectModel().getPhaseModels()) {

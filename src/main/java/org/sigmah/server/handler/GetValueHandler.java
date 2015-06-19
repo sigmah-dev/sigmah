@@ -12,12 +12,15 @@ import org.apache.commons.lang3.StringUtils;
 import org.sigmah.server.dispatch.impl.UserDispatch.UserExecutionContext;
 import org.sigmah.server.domain.Amendment;
 import org.sigmah.server.domain.HistoryToken;
+import org.sigmah.server.domain.Project;
+import org.sigmah.server.domain.element.DefaultFlexibleElement;
 import org.sigmah.server.domain.element.FlexibleElement;
 import org.sigmah.server.file.FileStorageProvider;
 import org.sigmah.server.handler.base.AbstractCommandHandler;
 import org.sigmah.shared.command.GetValue;
 import org.sigmah.shared.command.result.ValueResult;
 import org.sigmah.shared.dispatch.CommandException;
+import org.sigmah.shared.dto.element.DefaultFlexibleElementDTO;
 import org.sigmah.shared.dto.element.FilesListElementDTO;
 import org.sigmah.shared.dto.report.ReportReference;
 import org.sigmah.shared.dto.value.BudgetPartsListValueDTO;
@@ -91,25 +94,15 @@ public class GetValueHandler extends AbstractCommandHandler<GetValue, ValueResul
 		// STEP 1 : gets the string value (regardless of the element).
 		// --------------------------------------------------------------------
 
-		// Creates the query to get the value for the flexible element (as
-		// string) in the Value table.
-		final TypedQuery<String> valueQuery =
-				em().createQuery("SELECT v.value FROM Value v WHERE v.containerId = :projectId AND v.element.id = :elementId", String.class);
-		valueQuery.setParameter("projectId", cmd.getProjectId());
-		valueQuery.setParameter("elementId", cmd.getElementId());
-
-		// Executes the query and tests if a value exists for this flexible
-		// element.
-		boolean isValueExisting = true;
-		String valueAsString = null;
-		try {
-			valueAsString = valueQuery.getSingleResult();
-			if (StringUtils.isBlank(valueAsString)) {
-				isValueExisting = false;
-			}
-		} catch (NoResultException | ClassCastException e) {
-			isValueExisting = false;
+		final String valueFromDatabase;
+		if(DefaultFlexibleElementDTO.ENTITY_NAME.equals(cmd.getElementEntityName())) {
+			valueFromDatabase = findCurrentValueOfDefaultElement(cmd.getProjectId(), cmd.getElementId());
+		} else {
+			valueFromDatabase = findCurrentValue(cmd.getProjectId(), cmd.getElementId());
 		}
+		
+		String valueAsString = valueFromDatabase;
+		boolean isValueExisting = valueFromDatabase != null;
 
 		// Overriding the value by the old one if we have to display an amendment
 		if (historyValue != null) {
@@ -242,5 +235,38 @@ public class GetValueHandler extends AbstractCommandHandler<GetValue, ValueResul
 		LOG.debug("Returned value = {}.", valueResult);
 
 		return valueResult;
+	}
+	
+	private String findCurrentValue(int projectId, int elementId) {
+		// Creates the query to get the value for the flexible element (as
+		// string) in the Value table.
+		final TypedQuery<String> valueQuery =
+			em().createQuery("SELECT v.value FROM Value v WHERE v.containerId = :projectId AND v.element.id = :elementId", String.class);
+		valueQuery.setParameter("projectId", projectId);
+		valueQuery.setParameter("elementId", elementId);
+
+		String valueAsString;
+		
+		// Executes the query and tests if a value exists for this flexible
+		// element.
+		try {
+			valueAsString = valueQuery.getSingleResult();
+			if (StringUtils.isBlank(valueAsString)) {
+				valueAsString = null;
+			}
+		} catch (NoResultException | ClassCastException e) {
+			valueAsString = null;
+		}
+		
+		return valueAsString;
+	}
+	
+	private String findCurrentValueOfDefaultElement(int projectId, int elementId) {
+		final Project container = em().find(Project.class, projectId);
+		final DefaultFlexibleElement element = em().find(DefaultFlexibleElement.class, elementId);
+		
+		// TODO: Should also handle BudgetElements.
+		
+		return element.getValue(container);
 	}
 }
