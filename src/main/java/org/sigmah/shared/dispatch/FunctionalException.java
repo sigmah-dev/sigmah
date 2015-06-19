@@ -77,6 +77,16 @@ public class FunctionalException extends CommandException {
 		ADMIN_USER_DUPLICATE_EMAIL,
 		
 		// --
+		// Admin - Backup
+		// --
+		
+		/**
+		 * Cannot create a new archive file. <br/>
+		 * {0} = Archive path.
+		 */
+		ADMIN_BACKUP_ARCHIVE_CREATION_FAILED,
+		
+		// --
 		// Project updates.
 		// --
 		
@@ -139,6 +149,9 @@ public class FunctionalException extends CommandException {
 
 			case ADMIN_USER_DUPLICATE_EMAIL:
 				return I18N.MESSAGES.existingEmailAddress(exception.getParameter(0));
+				
+			case ADMIN_BACKUP_ARCHIVE_CREATION_FAILED:
+				return I18N.MESSAGES.adminBackupArchiveCreationFailed(exception.getParameter(0));
 
 			case UPDATE_CONFLICT:
 				final SafeHtmlBuilder ulBuilder = new SafeHtmlBuilder();

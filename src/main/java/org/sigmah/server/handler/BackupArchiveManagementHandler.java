@@ -79,7 +79,7 @@ public class BackupArchiveManagementHandler extends AbstractCommandHandler<Backu
 	 * @throws IOException
 	 *           If an error occurs.
 	 */
-	private BackupDTO launchNewBackupGeneration(final BackupDTO backupConf, final UserExecutionContext context) throws IOException {
+	private BackupDTO launchNewBackupGeneration(final BackupDTO backupConf, final UserExecutionContext context) throws IOException, CommandException {
 
 		final BackupDTO tempBackup = backupArchiveManager.getRunningBackupProcessFile(backupConf.getOrganizationId());
 

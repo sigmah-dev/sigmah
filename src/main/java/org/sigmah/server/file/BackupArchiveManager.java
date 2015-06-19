@@ -5,6 +5,7 @@ import java.io.InputStream;
 
 import org.sigmah.server.domain.OrgUnit;
 import org.sigmah.server.domain.User;
+import org.sigmah.shared.dispatch.CommandException;
 import org.sigmah.shared.dto.BackupDTO;
 
 /**
@@ -57,8 +58,10 @@ public interface BackupArchiveManager {
 	 * @param user
 	 *          The user executing the process.
 	 * @throws IOException
-	 *           If an error occurs while reading archive file.
+	 *          If an error occurs while reading archive file.
+	 * @throws org.sigmah.shared.dispatch.CommandException
+	 *			if an error occurs while creating the backup.
 	 */
-	void startBackupArchiveGeneration(BackupDTO backup, User user) throws IOException;
+	void startBackupArchiveGeneration(BackupDTO backup, User user) throws IOException, CommandException;
 
 }

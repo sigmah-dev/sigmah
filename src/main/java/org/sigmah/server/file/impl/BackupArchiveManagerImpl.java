@@ -29,6 +29,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
+import java.util.Arrays;
+import java.util.Comparator;
+import org.sigmah.shared.dispatch.FunctionalException;
 
 /**
  * {@link BackupArchiveManager} implementation.
@@ -172,15 +175,44 @@ public class BackupArchiveManagerImpl implements BackupArchiveManager {
 			}
 			return null;
 		}
+		
+		// BUGFIX #671 & #772: Sorting files by creation date to retrieve the most recent backup.
+		Arrays.sort(archiveFiles, new Comparator<File>() {
+
+			@Override
+			public int compare(File o1, File o2) {
+				return getCreationDate(o2).compareTo(getCreationDate(o1));
+			}
+			
+		});
 
 		return fromFile(archiveFiles[0].toPath());
 	}
 
 	/**
+	 * Returns the creation date of the given file or the 1st january 1970
+	 * if an error occured while trying to read the date.
+	 * 
+	 * @param file File to access.
+	 * @return Creation date of the given file.
+	 */
+	private Date getCreationDate(File file) {
+		try {
+			final BasicFileAttributeView view = Files.getFileAttributeView(file.toPath(), BasicFileAttributeView.class);
+			final BasicFileAttributes attributes = view.readAttributes();
+
+			return new Date(attributes.creationTime().toMillis());
+			
+		} catch(IOException e) {
+			return new Date(0L);
+		}
+	}
+	
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void startBackupArchiveGeneration(final BackupDTO backup, final User user) throws IOException {
+	public void startBackupArchiveGeneration(final BackupDTO backup, final User user) throws IOException, FunctionalException {
 
 		if (LOG.isTraceEnabled()) {
 			LOG.trace("Starting new backup process for configuration '{}' ; Backup launched by user '{}'.", backup, user);
@@ -195,7 +227,12 @@ public class BackupArchiveManagerImpl implements BackupArchiveManager {
 		final Path finalArchiveFile = Paths.get(getArchiveRootPath(), buildArchiveFileName(backup, false));
 
 		// Creates temporary file.
-		Files.createFile(tempArchiveFile);
+		try {
+			Files.createFile(tempArchiveFile);
+			
+		} catch(IOException e) {
+			throw new FunctionalException(e, FunctionalException.ErrorCode.ADMIN_BACKUP_ARCHIVE_CREATION_FAILED, tempArchiveFile.toString());
+		}
 
 		if (LOG.isTraceEnabled()) {
 			LOG.trace("Backup process file has been created: '{}'. Initializing job.", tempArchiveFile);
