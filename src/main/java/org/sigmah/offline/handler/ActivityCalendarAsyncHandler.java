@@ -56,7 +56,7 @@ public class ActivityCalendarAsyncHandler implements AsyncCommandHandler<GetCale
 
 			@Override
 			public void onRequestSuccess(ProjectDTO result) {
-				final LogFrameDTO logFrame = result.getLogFrame();
+				final LogFrameDTO logFrame = result != null ? result.getLogFrame() : null;
 
 				if (logFrame != null) {
 					final HashMap<Date, List<Event>> eventMap = new HashMap<Date, List<Event>>();

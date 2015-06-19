@@ -44,6 +44,7 @@ import org.sigmah.shared.command.result.Result;
 import com.google.gwt.inject.client.AbstractGinModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
+import org.sigmah.offline.handler.BatchCommandAsyncHandler;
 import org.sigmah.offline.handler.CreateEntityAsyncHandler;
 import org.sigmah.offline.handler.DeleteAsyncHandler;
 import org.sigmah.offline.handler.GetLinkedProjectsAsyncHandler;
@@ -57,6 +58,7 @@ import org.sigmah.offline.handler.UpdateMonitoredPointsAsyncHandler;
 import org.sigmah.offline.handler.UpdateProjectAsyncHandler;
 import org.sigmah.offline.handler.UpdateProjectFavoriteAsyncHandler;
 import org.sigmah.offline.handler.UpdateRemindersAsyncHandler;
+import org.sigmah.shared.command.BatchCommand;
 import org.sigmah.shared.command.CreateEntity;
 import org.sigmah.shared.command.Delete;
 import org.sigmah.shared.command.GetLinkedProjects;
@@ -92,6 +94,7 @@ public class OfflineModule extends AbstractGinModule {
 			AuthenticationProvider authenticationProvider,
 			
 			// Injecting command handlers
+			BatchCommandAsyncHandler batchCommandAsyncHandler,
 			CreateEntityAsyncHandler createEntityAsyncHandler,
 			DeleteAsyncHandler deleteAsyncHandler,
 			GetCalendarAsyncHandler getCalendarAsyncHandler,
@@ -130,6 +133,7 @@ public class OfflineModule extends AbstractGinModule {
 			throw new IllegalArgumentException("Given DispatchAsync type is not supported (SecureDispatchAsync is required).");
 		}
 		
+        registerHandler(BatchCommand.class, batchCommandAsyncHandler);
         registerHandler(CreateEntity.class, createEntityAsyncHandler);
         registerHandler(Delete.class, deleteAsyncHandler);
         registerHandler(GetCalendar.class, getCalendarAsyncHandler);
