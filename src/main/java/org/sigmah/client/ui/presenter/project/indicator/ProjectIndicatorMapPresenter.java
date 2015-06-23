@@ -168,6 +168,11 @@ public class ProjectIndicatorMapPresenter extends AbstractProjectPresenter<Proje
 		}, new LoadingMask(view.getSiteGridPanel()), view.getWorldMap());
 	}
 
+	@Override
+	protected boolean hasValueChanged() {
+		return view.getSiteGridPanel().isSiteUpdated();
+	}
+
 	private void displaySites(SitePointList points) {
 		final ArrayList<Pin> pins = new ArrayList<Pin>();
 		for(final SitePointDTO point : points.getPoints()) {

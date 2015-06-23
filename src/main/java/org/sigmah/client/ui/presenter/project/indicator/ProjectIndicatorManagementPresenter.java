@@ -225,6 +225,11 @@ public class ProjectIndicatorManagementPresenter extends AbstractProjectPresente
 		doLoad();
 	}
 
+	@Override
+	protected boolean hasValueChanged() {
+		return !view.getStore().getModifiedRecords().isEmpty();
+	}
+
 	private void doLoad() {
 		dispatch.execute(new GetIndicators(currentDatabaseId), new CommandResultHandler<IndicatorListResult>() {
 

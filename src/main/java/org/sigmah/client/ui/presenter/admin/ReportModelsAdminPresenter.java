@@ -156,6 +156,11 @@ public class ReportModelsAdminPresenter extends AbstractAdminPresenter<ReportMod
 		refreshReportModelsPanel();
 	}
 
+	@Override
+	protected boolean hasValueChanged() {
+		return view.getSaveReportSectionButton().isEnabled();
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */

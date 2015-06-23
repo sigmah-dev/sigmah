@@ -261,6 +261,8 @@ public class ImportationSchemeAdminPresenter extends AbstractAdminPresenter<Impo
 							currentImportationSchemeDTO.setSheetName(schemaUpdated.getSheetName());
 							view.getSchemesStore().update(currentImportationSchemeDTO);
 							view.getSchemesStore().commitChanges();
+							
+							view.getSaveSheetNameFirstRowButton().disable();
 						}
 
 					});
@@ -382,6 +384,11 @@ public class ImportationSchemeAdminPresenter extends AbstractAdminPresenter<Impo
 		
 	}
 
+	@Override
+	protected boolean hasValueChanged() {
+		return view.getSaveSheetNameFirstRowButton().isEnabled();
+	}
+
 	/**
 	 * Hides the specific fields for the ROW import type
 	 */
@@ -392,13 +399,15 @@ public class ImportationSchemeAdminPresenter extends AbstractAdminPresenter<Impo
 		view.getSaveSheetNameFirstRowButton().hide();
 		view.getFirstRowLabel().hide();
 		view.getSheetNameLabel().hide();
+		
+		view.getSaveSheetNameFirstRowButton().disable();
 
 		if (currentImportationSchemeDTO != null && ImportationSchemeImportType.ROW.equals(currentImportationSchemeDTO.getImportType())) {
 
 			view.getSaveSheetNameFirstRowButton().show();
 			view.getFirstRow().show();
 			view.getFirstRowLabel().show();
-
+			
 			if (!ImportationSchemeFileFormat.CSV.equals(currentImportationSchemeDTO.getFileFormat())) {
 
 				view.getSheetNameLabel().show();
@@ -433,6 +442,8 @@ public class ImportationSchemeAdminPresenter extends AbstractAdminPresenter<Impo
 								loadImportationScheme(scheme);
 							}
 						}
+					} else {
+						view.getSaveSheetNameFirstRowButton().disable();
 					}
 				}
 
@@ -448,8 +459,6 @@ public class ImportationSchemeAdminPresenter extends AbstractAdminPresenter<Impo
 		
 		view.getVariablePanel().setHeadingText(scheme.getName());
 		
-		hideSheetNameFirstRow();
-
 		if (currentImportationSchemeDTO.getFirstRow() != null) {
 
 			view.getFirstRow().setValue(currentImportationSchemeDTO.getFirstRow());

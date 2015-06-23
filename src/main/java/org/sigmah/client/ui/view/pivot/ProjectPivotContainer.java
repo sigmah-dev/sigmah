@@ -142,6 +142,7 @@ public class ProjectPivotContainer extends ContentPanel implements Loadable {
 			@Override
 			public void handleEvent(StoreEvent<PivotTableRow> be) {
 				setDirty(true);
+				setUpdated(true);
 			}
 		});
 
@@ -200,6 +201,7 @@ public class ProjectPivotContainer extends ContentPanel implements Loadable {
 	public void onPageRequest(Authentication authentication, ProjectDTO project) {
 		this.authentication = authentication;
 		setDirty(false);
+		setUpdated(false);
 		
 		loadProject(project);
 		
@@ -539,7 +541,7 @@ public class ProjectPivotContainer extends ContentPanel implements Loadable {
 
 	private void onCellEdited(final PivotGridCellEvent event) {
 		if (ProfileUtils.isGranted(authentication, GlobalPermissionEnum.EDIT_INDICATOR)) {
-			this.updated = true;
+			setUpdated(true);
 			setDirty(true);
 			if (event.getCell() != null) {
 				if (event.getCell().getCount() > 1) {
@@ -639,6 +641,7 @@ public class ProjectPivotContainer extends ContentPanel implements Loadable {
 			protected void onCommandSuccess(ListResult<Result> result) {
 					gridPanel.getStore().commitChanges();
 					setDirty(false);
+					setUpdated(false);
 					eventBus.fireEvent(new UpdateEvent(UpdateEvent.INDICATOR_UPDATED, ProjectPivotContainer.this));
 				}
 		}, this);
@@ -647,6 +650,7 @@ public class ProjectPivotContainer extends ContentPanel implements Loadable {
 	public void discard() {
 		gridPanel.getStore().rejectChanges();
 		setDirty(false);
+		setUpdated(false);
 	}
 	
 	public void viewDidAppear() {

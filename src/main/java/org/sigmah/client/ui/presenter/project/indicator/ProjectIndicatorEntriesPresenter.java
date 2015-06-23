@@ -4,6 +4,7 @@ import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.MenuEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
+import com.google.gwt.core.client.GWT;
 import org.sigmah.client.inject.Injector;
 import org.sigmah.client.page.Page;
 import org.sigmah.client.page.PageRequest;
@@ -118,9 +119,14 @@ public class ProjectIndicatorEntriesPresenter extends AbstractProjectPresenter<P
 	}
 
 	@Override
+	protected boolean hasValueChanged() {
+		return view.getProjectPivotContainer().hasValueChanged();
+	}
+	
+	@Override
 	public void beforeLeaving(EventBus.LeavingCallback callback) {
 		view.getProjectPivotContainer().onPageChange();
-		callback.leavingOk();
+		super.beforeLeaving(callback);
 	}
 
 	private void onSave() {

@@ -420,7 +420,6 @@ public class SiteGridPanel extends ContentPanel implements SelectionProvider<Sit
                 public void handleEvent(GridEvent<SiteDTO> event) {
                     siteUpdated = true;
                     saveButton.setEnabled(true);
-
                 }
             });
 
@@ -454,6 +453,7 @@ public class SiteGridPanel extends ContentPanel implements SelectionProvider<Sit
 
 			@Override
 			protected void onCommandSuccess(ListResult<Result> result) {
+				siteUpdated = false;
                 saveButton.setEnabled(false);
                 
                 for (Record record : dirty) {

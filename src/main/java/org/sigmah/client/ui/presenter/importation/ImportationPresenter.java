@@ -25,6 +25,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import org.sigmah.client.dispatch.CommandResultHandler;
+import org.sigmah.client.dispatch.monitor.LoadingMask;
 import org.sigmah.client.event.EventBus;
 import org.sigmah.client.event.UpdateEvent;
 import org.sigmah.client.event.handler.UpdateHandler;
@@ -104,6 +105,7 @@ public class ImportationPresenter extends AbstractPagePresenter<ImportationPrese
 	private HandlerRegistration handlerRegistration;
 	private final Map<Integer, List<ElementExtractedValue>> changes;
 	private String fileName;
+	private String lastFileId;
 	
 	/**
 	 * Presenters's initialization.
@@ -218,9 +220,14 @@ public class ImportationPresenter extends AbstractPagePresenter<ImportationPrese
 
 	@Override
 	public void onPageRequest(PageRequest request) {
+		this.lastFileId = null;
+		this.fileName = null;
+		
 		view.getSchemeListStore().removeAll();
-		view.getSchemeField().setValue(null);
-		view.getFileField().setValue("");
+		view.getSchemeField().clear();
+		if(view.getFileField().isRendered()) {
+			view.getFileField().clear();
+		}
 		
 		changes.clear();
 		
@@ -269,6 +276,9 @@ public class ImportationPresenter extends AbstractPagePresenter<ImportationPrese
 					
 					store.remove(toBeRemoved);
 					store.commitChanges();
+					
+					// BUGFIX #774: Reloading results to take created projects in account.
+					refreshResults();
 				}
 			}
 		});
@@ -296,6 +306,8 @@ public class ImportationPresenter extends AbstractPagePresenter<ImportationPrese
 	}
 	
 	private void loadImportResults(String fileId) {
+		this.lastFileId = fileId;
+		
 		dispatch.execute(new GetImportInformation(fileId, view.getSchemeField().getValue()), new CommandResultHandler<ImportInformationResult>() {
 
 			@Override
@@ -307,6 +319,22 @@ public class ImportationPresenter extends AbstractPagePresenter<ImportationPrese
 				popup.center();
 			}
 		}, view.getImportButton());
+	}
+	
+	private void refreshResults() {
+		if(lastFileId != null) {
+			final ImportDetailsPopup popup = view.getImportDetailsPopup();
+			
+			dispatch.execute(new GetImportInformation(lastFileId, view.getSchemeField().getValue()), new CommandResultHandler<ImportInformationResult>() {
+
+				@Override
+				protected void onCommandSuccess(ImportInformationResult result) {
+					popup.getStore().removeAll();
+					popup.getStore().add(result.getEntitiesToImport());
+				}
+				
+			}, view.getImportButton(), new LoadingMask(popup.getGrid()));
+		}
 	}
 	
 	private Button renderCreateButton(final ImportDetails model) {
@@ -522,6 +550,8 @@ public class ImportationPresenter extends AbstractPagePresenter<ImportationPrese
 					updates.add(new UpdateProject((Integer) selectedEntity.getId(), values, "Imported from file '" + fileName + "'."));
 				}
 			}
+			
+			updates.add(new GetImportInformation(fileName, true));
 			
 			if(!updates.getCommands().isEmpty()) {
 				dispatch.execute(updates, new CommandResultHandler<ListResult<Result>>() {
