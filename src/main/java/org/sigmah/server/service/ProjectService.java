@@ -98,7 +98,6 @@ public class ProjectService extends AbstractEntityService<Project, Integer, Proj
 	 * {@inheritDoc}
 	 */
 	@Override
-	@Transactional
 	public Project create(final PropertyMap properties, final UserExecutionContext context) {
 
 		if (LOG.isDebugEnabled()) {

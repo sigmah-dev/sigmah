@@ -11,6 +11,7 @@ public class GetImportInformation extends AbstractCommand<ImportInformationResul
 
 	private String fileName;
 	private ImportationSchemeDTO scheme;
+	private boolean commit;
 
 	protected GetImportInformation() {
 		// Serialization.
@@ -19,6 +20,11 @@ public class GetImportInformation extends AbstractCommand<ImportInformationResul
 	public GetImportInformation(String fileName, ImportationSchemeDTO scheme) {
 		this.fileName = fileName;
 		this.scheme = scheme;
+	}
+	
+	public GetImportInformation(String fileName, boolean commit) {
+		this.fileName = fileName;
+		this.commit = commit;
 	}
 
 	/**
@@ -35,4 +41,11 @@ public class GetImportInformation extends AbstractCommand<ImportInformationResul
 		return scheme;
 	}
 
+	/**
+	 * @return the commit flag.
+	 */
+	public boolean isCommit() {
+		return commit;
+	}
+	
 }
