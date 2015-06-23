@@ -329,7 +329,8 @@ public class BudgetElementDTO extends DefaultFlexibleElementDTO {
 	}
 	
 	private boolean isDisabledBecauseAmendable() {
-		if(currentContainerDTO instanceof ProjectDTO) {
+		// BUGFIX #794: Checking if this element is amendable before going further.
+		if(currentContainerDTO instanceof ProjectDTO && getAmendable()) {
 			final ProjectDTO project = (ProjectDTO)currentContainerDTO;
 			
 			if(project.getAmendmentState() == AmendmentState.LOCKED && project.getCloseDate() == null) {
