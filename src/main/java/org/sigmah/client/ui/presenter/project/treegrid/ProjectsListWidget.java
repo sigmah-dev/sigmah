@@ -149,6 +149,11 @@ public class ProjectsListWidget extends AbstractPresenter<ProjectsListWidget.Vie
 		 * @return The export button.
 		 */
 		Button getExportButton();
+		
+		/**
+		 * Resynchronize the size of the grid.
+		 */
+		void syncSize();
 
 	}
 
@@ -198,18 +203,18 @@ public class ProjectsListWidget extends AbstractPresenter<ProjectsListWidget.Vie
 		 * The project list is refreshed each time the {@link ProjectsListWidget#refresh(boolean, Integer...)} method is
 		 * called.
 		 */
-		AUTOMATIC,
+		ALWAYS,
 
 		/**
 		 * The project list is refreshed each time user clicks on the refresh button.
 		 */
-		BUTTON,
+		MANUAL,
 
 		/**
-		 * Refresh the project list when {@link ProjectsListWidget#refresh(boolean, Integer...)} if called for the first
+		 * Refresh the project list when {@link ProjectsListWidget#refresh(boolean, Integer...)} is called for the first
 		 * time. Subsequent refreshs are called by the refresh button.
 		 */
-		BOTH;
+		ON_FIRST_TIME;
 
 	}
 
@@ -436,19 +441,19 @@ public class ProjectsListWidget extends AbstractPresenter<ProjectsListWidget.Vie
 	 * </p>
 	 * 
 	 * @param refreshMode
-	 *          The {@link RefreshMode} value. If {@code null}, default {@link RefreshMode#AUTOMATIC} value is set.
+	 *          The {@link RefreshMode} value. If {@code null}, default {@link RefreshMode#ALWAYS} value is set.
 	 * @param loadingMode
 	 *          The {@link LoadingMode} value. If {@code null}, default {@link LoadingMode#ONE_TIME} value is set.
 	 */
 	public void init(final RefreshMode refreshMode, final LoadingMode loadingMode) {
 
 		// Initializes values.
-		this.refreshMode = refreshMode != null ? refreshMode : RefreshMode.AUTOMATIC;
+		this.refreshMode = refreshMode != null ? refreshMode : RefreshMode.ALWAYS;
 		this.loadingMode = loadingMode != null ? loadingMode : LoadingMode.ONE_TIME;
 	}
 
 	/**
-	 * Asks for a refresh of the projects list. If the refreshing mode is set to {@link RefreshMode#AUTOMATIC}, the list
+	 * Asks for a refresh of the projects list. If the refreshing mode is set to {@link RefreshMode#ALWAYS}, the list
 	 * will be refreshed immediately. Otherwise, the list will be refreshed depending on the selected refreshing mode.
 	 * 
 	 * @param viewOwnOrManage
@@ -461,7 +466,7 @@ public class ProjectsListWidget extends AbstractPresenter<ProjectsListWidget.Vie
 	public void refresh(final boolean viewOwnOrManage, final Integer... orgUnitsIds) {
 
 		// Updates toolbar.
-		final boolean refreshEnabled = refreshMode == RefreshMode.BUTTON || refreshMode == RefreshMode.BOTH;
+		final boolean refreshEnabled = refreshMode == RefreshMode.MANUAL || refreshMode == RefreshMode.ON_FIRST_TIME;
 		final boolean exportEnabled = ProfileUtils.isGranted(auth(), GlobalPermissionEnum.GLOBAL_EXPORT);
 		view.updateToolbar(refreshEnabled, exportEnabled);
 
@@ -478,7 +483,7 @@ public class ProjectsListWidget extends AbstractPresenter<ProjectsListWidget.Vie
 		command.setViewOwnOrManage(viewOwnOrManage);
 
 		// If the mode is automatic, the list is refreshed immediately.
-		if (refreshMode == RefreshMode.AUTOMATIC || (refreshMode == RefreshMode.BOTH && !loaded)) {
+		if (refreshMode == RefreshMode.ALWAYS || (refreshMode == RefreshMode.ON_FIRST_TIME && !loaded)) {
 			refreshProjectGrid(command);
 			loaded = true;
 		}
@@ -550,12 +555,17 @@ public class ProjectsListWidget extends AbstractPresenter<ProjectsListWidget.Vie
 
 				} else if (event.concern(UpdateEvent.PROJECT_DELETE)) {
 					// On project delete event.
-					loaded = false; // Will force projects list to reload on next refresh.
+					// Will force projects list to reload on next refresh.
+					loaded = false;
 
 				} else if (event.concern(UpdateEvent.PROJECT_DRAFT_DELETE)) {
 					// On 'draft' project delete event.
 					final ProjectDTO deletedDraftProject = event.getParam(0);
 					onDraftProjectDeleted(deletedDraftProject);
+					
+				} else if(event.concern(UpdateEvent.USER_LOGGED_IN)) {
+					// Force dashboard to load projects for the new user.
+					loaded = false;
 				}
 			}
 		}));

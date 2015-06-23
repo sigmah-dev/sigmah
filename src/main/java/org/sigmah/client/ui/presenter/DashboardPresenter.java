@@ -114,6 +114,11 @@ public class DashboardPresenter extends AbstractPagePresenter<DashboardPresenter
 		void layoutButtons();
 		
 		/**
+		 * Ask the main container to relayout itself.
+		 */
+		void layoutViews();
+		
+		/**
 		 * Returns the OrgUnit tree grid component.
 		 * 
 		 * @return The OrgUnit tree grid component.
@@ -176,7 +181,7 @@ public class DashboardPresenter extends AbstractPagePresenter<DashboardPresenter
 		});
 
 		// Projects widget initialization.
-		view.getProjectsList().init(RefreshMode.BOTH, LoadingMode.CHUNK);
+		view.getProjectsList().init(RefreshMode.ON_FIRST_TIME, LoadingMode.CHUNK);
 		
 		// Listening to connection state changes to refresh the available buttons.
 		// Fixes mantis #682 and #683
@@ -225,6 +230,12 @@ public class DashboardPresenter extends AbstractPagePresenter<DashboardPresenter
 			});
 		}
 		lastUserId = auth().getUserId();
+	}
+
+	@Override
+	protected void onViewRevealed() {
+		// BUGFIX #786: Relayout the views on reveal to avoid having the last project hidden.
+		view.layoutViews();
 	}
 
 	// -------------------------------------------------------------------------------------------

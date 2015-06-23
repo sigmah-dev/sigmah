@@ -343,6 +343,13 @@ public class UpdateEvent extends GwtEvent<UpdateHandler> {
 	 * </p>
 	 */
 	public static final String CORE_VERSION_UPDATED = "CORE_VERSION_UPDATED";
+	
+	/**
+	 * <p>
+	 * Sent when a user successfully logged into Sigmah.
+	 * </p>
+	 */
+	public static final String USER_LOGGED_IN = "USER_LOGGED_IN";
 
 	// ---------------------------------------------------------------------------------
 	//

@@ -494,6 +494,14 @@ public class ProjectsListView extends AbstractView implements ProjectsListWidget
 		return exportButton;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void syncSize() {
+		projectTreeGrid.syncSize();
+	}
+
 	// ---------------------------------------------------------------------------------------------------------
 	//
 	// UTILITY METHODS.

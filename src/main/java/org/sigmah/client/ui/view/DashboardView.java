@@ -178,6 +178,14 @@ public class DashboardView extends AbstractView implements DashboardPresenter.Vi
 	 * {@inheritDoc}
 	 */
 	@Override
+	public void layoutViews() {
+		projectsListWidget.getView().syncSize();
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public HasTreeGrid<OrgUnitDTO> getOrgUnitsTreeGrid() {
 		return orgUnitsTreeGrid;
 	}

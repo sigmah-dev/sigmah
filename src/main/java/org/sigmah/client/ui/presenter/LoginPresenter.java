@@ -31,6 +31,7 @@ import com.google.gwt.user.client.ui.ValueBoxBase;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import org.sigmah.client.event.UpdateEvent;
 
 /**
  * Login presenter.
@@ -177,6 +178,7 @@ public class LoginPresenter extends AbstractPagePresenter<LoginPresenter.View> {
 					Log.info("Authentication proccesed successfully, reloading application.");
 				}
 				injector.getAuthenticationProvider().login(authentication);
+				eventBus.fireEvent(new UpdateEvent(UpdateEvent.USER_LOGGED_IN));
 
 				if (GWT.isScript()) {
 					// PRODUCTION: Reloads entire application in order to set the selected language into HTML meta.

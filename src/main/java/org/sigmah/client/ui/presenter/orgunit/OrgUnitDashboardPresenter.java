@@ -84,7 +84,7 @@ public class OrgUnitDashboardPresenter extends AbstractOrgUnitPresenter<OrgUnitD
 		});
 
 		// Projects widget initialization.
-		view.getProjectsList().init(RefreshMode.AUTOMATIC, LoadingMode.ONE_TIME);
+		view.getProjectsList().init(RefreshMode.ALWAYS, LoadingMode.ONE_TIME);
 	}
 
 	/**
