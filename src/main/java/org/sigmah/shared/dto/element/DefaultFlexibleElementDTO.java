@@ -489,12 +489,17 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 
 			@Override
 			public void onCommandSuccess(final CountryDTO result) {
+				// BUGFIX #694: Disable events on first set.
+				field.enableEvents(false);
+				
 				if(field instanceof ComboBox) {
 					((ComboBox<CountryDTO>)field).setValue(result);
 
 				} else if(field instanceof LabelField) {
 					((LabelField)field).setValue(result.getName());
 				}
+				
+				field.enableEvents(true);
 			}
 
 		});
@@ -651,6 +656,9 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 
 			@Override
 			public void onCommandSuccess(final ListResult<UserDTO> result) {
+				// BUGFIX #694: Disable events on first set.
+				field.enableEvents(false);
+				
 				if(!result.isEmpty()) {
 					final UserDTO manager = result.getList().get(0);
 					
@@ -661,6 +669,8 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 						((LabelField)field).setValue(manager.getFirstName() != null ? manager.getFirstName() + ' ' + manager.getName() : manager.getName());
 					}
 				}
+				
+				field.enableEvents(true);
 			}
 
 		});
