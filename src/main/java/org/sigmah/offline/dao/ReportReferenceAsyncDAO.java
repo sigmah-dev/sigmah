@@ -53,15 +53,17 @@ public class ReportReferenceAsyncDAO extends AbstractAsyncDAO<ReportReference> {
 	}
 	
 	public void saveAll(final ListResult<ReportReference> result, final String parentId) {
-		openTransaction(Transaction.Mode.READ_WRITE, new OpenTransactionHandler() {
+		if(result != null && result.getList() != null) {
+			openTransaction(Transaction.Mode.READ_WRITE, new OpenTransactionHandler() {
 
-			@Override
-			public void onTransaction(Transaction transaction) {
-				for(final ReportReference reportReference : result.getList()) {
-					saveOrUpdate(reportReference, parentId, null, transaction);
+				@Override
+				public void onTransaction(Transaction transaction) {
+					for(final ReportReference reportReference : result.getList()) {
+						saveOrUpdate(reportReference, parentId, null, transaction);
+					}
 				}
-			}
-		});
+			});
+		}
 	}
 
 	@Override

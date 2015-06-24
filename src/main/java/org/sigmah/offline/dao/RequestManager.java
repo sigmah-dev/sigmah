@@ -1,5 +1,7 @@
 package org.sigmah.offline.dao;
 
+import com.allen_sauer.gwt.log.client.Log;
+import com.google.gwt.user.client.Timer;
 import java.util.ArrayList;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -21,6 +23,8 @@ public class RequestManager<T> {
 	private final T result;
 	private final AsyncCallback<T> callback;
 	
+	private Timer timer;
+	
 	public RequestManager(T result, AsyncCallback<T> callback) {
 		this.result = result;
 		this.callback = callback;
@@ -36,6 +40,29 @@ public class RequestManager<T> {
 	}
 	
 	public void ready() {
+		timer = new Timer() {
+
+			@Override
+			public void run() {
+				final StringBuilder errorBuilder = new StringBuilder();
+				
+				int index = 0;
+				for(final Boolean entry : status) {
+					if(entry == null || entry.equals(Boolean.FALSE)) {
+						errorBuilder.append('#').append(index).append(" : ").append(entry).append("; ");
+					}
+					index++;
+				}
+				
+				if(errorBuilder.length() == 0) {
+					Log.warn("RequestManager : callSuccess required ?");
+				} else {
+					Log.warn("RequestManager Timeout : " + errorBuilder.toString());
+				}
+			}
+		};
+		timer.schedule(3000);
+		
 		setPreparing(false);
 	}
 	
@@ -75,6 +102,10 @@ public class RequestManager<T> {
 				callback.onFailure(caught);
 				return;
 			}
+		}
+		if(timer != null) {
+			timer.cancel();
+			timer = null;
 		}
         if(callback != null) {
             callback.onSuccess(result);

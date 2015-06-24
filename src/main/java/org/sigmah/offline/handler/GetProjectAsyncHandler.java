@@ -51,7 +51,7 @@ public class GetProjectAsyncHandler implements AsyncCommandHandler<GetProject, P
 	@Override
 	public void onSuccess(GetProject command, ProjectDTO result, Authentication authentication) {
         // TODO: Do something better. Maybe mix data from the database and from the given DTO ? Switch on the mapping mode ?
-        if(result.getCurrentMappingMode() == null) {
+        if(result != null && result.getCurrentMappingMode() == null) {
             projectAsyncDAO.saveOrUpdate(result);
         }
 	}

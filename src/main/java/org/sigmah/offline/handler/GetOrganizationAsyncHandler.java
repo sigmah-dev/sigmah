@@ -35,6 +35,8 @@ public class GetOrganizationAsyncHandler implements AsyncCommandHandler<GetOrgan
 
 	@Override
 	public void onSuccess(GetOrganization command, OrganizationDTO result, Authentication authentication) {
-		organizationDAO.saveOrUpdate(result);
+		if(result != null) {
+			organizationDAO.saveOrUpdate(result);
+		}
 	}
 }

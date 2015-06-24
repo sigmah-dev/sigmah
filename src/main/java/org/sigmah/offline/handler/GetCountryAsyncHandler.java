@@ -34,6 +34,8 @@ public class GetCountryAsyncHandler implements AsyncCommandHandler<GetCountry, C
 
 	@Override
 	public void onSuccess(GetCountry command, CountryDTO result, Authentication authentication) {
-		countryDAO.saveOrUpdate(result);
+		if(result != null) {
+			countryDAO.saveOrUpdate(result);
+		}
 	}
 }

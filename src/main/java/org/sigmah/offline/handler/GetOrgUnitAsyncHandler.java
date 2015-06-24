@@ -35,6 +35,8 @@ public class GetOrgUnitAsyncHandler implements AsyncCommandHandler<GetOrgUnit, O
 
 	@Override
 	public void onSuccess(GetOrgUnit command, OrgUnitDTO result, Authentication authentication) {
-		orgUnitAsyncDAO.saveOrUpdate(result);
+		if(result != null) {
+			orgUnitAsyncDAO.saveOrUpdate(result);
+		}
 	}
 }

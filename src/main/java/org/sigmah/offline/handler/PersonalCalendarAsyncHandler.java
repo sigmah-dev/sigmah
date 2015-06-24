@@ -37,7 +37,9 @@ public class PersonalCalendarAsyncHandler implements AsyncCommandHandler<GetCale
 	
 	@Override
 	public void onSuccess(GetCalendar command, Calendar result, Authentication authentication) {
-		personalCalendarAsyncDAO.saveOrUpdate(result);
+		if(result != null) {
+			personalCalendarAsyncDAO.saveOrUpdate(result);
+		}
 	}
 	
 }

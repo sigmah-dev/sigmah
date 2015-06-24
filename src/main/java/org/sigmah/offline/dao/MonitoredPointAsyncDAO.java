@@ -50,7 +50,7 @@ public class MonitoredPointAsyncDAO extends AbstractAsyncDAO<MonitoredPointDTO> 
 	}
 	
 	public void saveOrUpdate(final ListResult<MonitoredPointDTO> monitoredPointsResultList) {
-		if(monitoredPointsResultList != null && monitoredPointsResultList.getList()!= null) {
+		if(monitoredPointsResultList != null && monitoredPointsResultList.getList() != null) {
             openTransaction(Transaction.Mode.READ_WRITE, new OpenTransactionHandler() {
 
                 @Override

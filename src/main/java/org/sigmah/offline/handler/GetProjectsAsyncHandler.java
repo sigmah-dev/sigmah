@@ -82,7 +82,6 @@ public class GetProjectsAsyncHandler implements AsyncCommandHandler<GetProjects,
 	}
 
 	private void executeCommand(final Collection<Integer> orgUnits, final GetProjects command, final AsyncCallback<ListResult<ProjectDTO>> callback) {
-		
 		if (command.getOrgUnitsIds() != null) {
 			projectAsyncDAO.getProjectsByOrgUnits(orgUnits, callback);
 			
@@ -104,8 +103,8 @@ public class GetProjectsAsyncHandler implements AsyncCommandHandler<GetProjects,
 
     @Override
     public void onSuccess(GetProjects command, ListResult<ProjectDTO> result, Authentication authentication) {
-        if(command.getMappingMode() == null) {
-            projectAsyncDAO.saveAll(result.getData(), null);
+        if(command.getMappingMode() == null && result != null && result.getList() != null) {
+            projectAsyncDAO.saveAll(result.getList(), null);
         }
     }
 }

@@ -22,6 +22,7 @@ import com.google.inject.Singleton;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import org.mortbay.log.Log;
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.page.Page;
@@ -235,6 +236,12 @@ public class Synchronizer {
 			protected void onCommandSuccess(ListResult<ProjectDTO> result) {
                 updateProgress(GET_PROJECT_VALUE, progress, progressListener);
                 
+				if(result == null || result.isEmpty()) {
+					// If nothing has been found.
+					updateProgress(PROJECT_DETAIL_VALUE, progress, progressListener);
+					return;
+				}
+				
                 final HashSet<ProjectDTO> projects = new HashSet<ProjectDTO>();
                 projects.addAll(result.getList());
                 
@@ -253,14 +260,18 @@ public class Synchronizer {
 				for(final ProjectDTO project : projects) {
 					final Integer projectId = project.getId();
 					
-					queue.add(new GetProject(projectId, null), new CommandResultHandler<ProjectDTO>() {
+					if(projectId != null) {
+						queue.add(new GetProject(projectId, null), new CommandResultHandler<ProjectDTO>() {
 
-						@Override
-						protected void onCommandSuccess(ProjectDTO result) {
-							final List<FlexibleElementDTO> elements = result.getProjectModel().getAllElements();
-							queueDetails(queue, projectId, result.getCalendarId(), elements, projectProgress, progress, progressListener, withHistory);
-						}
-					});
+							@Override
+							protected void onCommandSuccess(ProjectDTO result) {
+								final List<FlexibleElementDTO> elements = result.getProjectModel().getAllElements();
+								queueDetails(queue, projectId, result.getCalendarId(), elements, projectProgress, progress, progressListener, withHistory);
+							}
+						});
+					} else {
+						Log.warn("Null project id encountered while pulling data.");
+					}
 				}
 			}
 		});
@@ -281,19 +292,29 @@ public class Synchronizer {
 					public void onSuccess(final ListResult<OrgUnitDTO> result) {
 						updateProgress(GET_ORGUNIT_VALUE, progress, progressListener);
 						
+						if(result == null || result.isEmpty()) {
+							// If nothing has been found.
+							updateProgress(ORGUNIT_DETAIL_VALUE, progress, progressListener);
+							return;
+						}
+						
 						final double orgUnitProgress = ORGUNIT_DETAIL_VALUE / result.getSize();
 						
 						for(final OrgUnitDTO orgUnit : result.getList()) {
 							final Integer orgUnitId = orgUnit.getId();
 							
-							queue.add(new GetOrgUnit(orgUnitId, null), new CommandResultHandler<OrgUnitDTO>() {
+							if(orgUnitId != null) {
+								queue.add(new GetOrgUnit(orgUnitId, null), new CommandResultHandler<OrgUnitDTO>() {
 
-								@Override
-								protected void onCommandSuccess(OrgUnitDTO result) {
-									final List<FlexibleElementDTO> elements = result.getOrgUnitModel().getAllElements();
-									queueDetails(queue, orgUnitId, result.getCalendarId(), elements, orgUnitProgress, progress, progressListener, withHistory);
-								}
-							});
+									@Override
+									protected void onCommandSuccess(OrgUnitDTO result) {
+										final List<FlexibleElementDTO> elements = result.getOrgUnitModel().getAllElements();
+										queueDetails(queue, orgUnitId, result.getCalendarId(), elements, orgUnitProgress, progress, progressListener, withHistory);
+									}
+								});
+							} else {
+								Log.warn("Null org unit id encountered while pulling data.");
+							}
 						}
 						
 						callback.onSuccess(null);
@@ -370,9 +391,10 @@ public class Synchronizer {
 
 			@Override
 			protected void onCommandSuccess(ListResult<ReportReference> result) {
-				if(result == null || result.getSize() == 0) {
+				if(result == null || result.isEmpty()) {
 					// No reports
 					updateProgress(elementProgress, progress, progressListener);
+					
 				} else {
 					final double reportProgress = elementProgress / result.getSize();
 

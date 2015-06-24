@@ -48,11 +48,13 @@ public class GetCalendarAsyncHandler implements AsyncCommandHandler<GetCalendar,
 
 	@Override
 	public void onSuccess(GetCalendar command, Calendar result, Authentication authentication) {
-		final AsyncCommandHandler<GetCalendar, Calendar> calendarHandler = calendarHandlers.get(command.getType());
-		
-		if(calendarHandler instanceof DispatchListener) {
-			final DispatchListener<GetCalendar, Calendar> dispatchListener = (DispatchListener<GetCalendar, Calendar>)calendarHandler;
-			dispatchListener.onSuccess(command, result, authentication);
+		if(result != null) {
+			final AsyncCommandHandler<GetCalendar, Calendar> calendarHandler = calendarHandlers.get(command.getType());
+
+			if(calendarHandler instanceof DispatchListener) {
+				final DispatchListener<GetCalendar, Calendar> dispatchListener = (DispatchListener<GetCalendar, Calendar>)calendarHandler;
+				dispatchListener.onSuccess(command, result, authentication);
+			}
 		}
 	}
 }

@@ -50,7 +50,7 @@ public class ReminderAsyncDAO extends AbstractAsyncDAO<ReminderDTO> {
 	}
 	
 	public void saveOrUpdate(final ListResult<ReminderDTO> remindersResultList) {
-		if(remindersResultList != null && remindersResultList.getList()!= null) {
+		if(remindersResultList != null && remindersResultList.getList() != null) {
             openTransaction(Transaction.Mode.READ_WRITE, new OpenTransactionHandler() {
 
                 @Override

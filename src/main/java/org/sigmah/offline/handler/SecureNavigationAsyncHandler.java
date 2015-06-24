@@ -83,7 +83,7 @@ public class SecureNavigationAsyncHandler implements AsyncCommandHandler<SecureN
 
 	@Override
 	public void onSuccess(SecureNavigationCommand command, SecureNavigationResult result, Authentication authentication) {
-        if(result.getAuthentication() != null) {
+        if(result != null && result.getAuthentication() != null) {
             authenticationAsyncDAO.saveOrUpdate(result.getAuthentication());
             pageAccessAsyncDAO.saveOrUpdate(PageAccessJS.createPageAccessJS(command.getPage(), result.isGranted()));
             

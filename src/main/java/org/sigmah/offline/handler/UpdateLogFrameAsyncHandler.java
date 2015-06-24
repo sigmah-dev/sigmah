@@ -41,7 +41,9 @@ public class UpdateLogFrameAsyncHandler implements AsyncCommandHandler<UpdateLog
 
 	@Override
 	public void onSuccess(UpdateLogFrame command, LogFrameDTO result, Authentication authentication) {
-		updateLogFrame(command.getProjectId(), result, new RequestManager<Void>(null, null));
+		if(result != null) {
+			updateLogFrame(command.getProjectId(), result, new RequestManager<Void>(null, null));
+		}
 	}
 	
 	private <M> void updateLogFrame(final Integer projectId, final LogFrameDTO logFrame, final RequestManager<M> requestManager) {

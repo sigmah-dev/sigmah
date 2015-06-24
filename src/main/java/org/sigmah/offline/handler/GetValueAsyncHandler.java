@@ -35,6 +35,8 @@ public class GetValueAsyncHandler implements AsyncCommandHandler<GetValue, Value
 
 	@Override
 	public void onSuccess(GetValue command, ValueResult result, Authentication authentication) {
-		valueAsyncDAO.saveOrUpdate(command, result);
+		if(result != null) {
+			valueAsyncDAO.saveOrUpdate(command, result);
+		}
 	}
 }
