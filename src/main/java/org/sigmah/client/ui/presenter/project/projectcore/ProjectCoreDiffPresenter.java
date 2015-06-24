@@ -140,9 +140,12 @@ public class ProjectCoreDiffPresenter extends AbstractPagePresenter<ProjectCoreD
 
 		for (FlexibleElementDTO field : project.getProjectModel().getAllElements()) {
 			if (field.getAmendable()) {
-				DiffEntry ligne = new DiffEntry();
-				ligne.setField(field);
-				listFieldsAmendable.add(ligne);
+				// BUGFIX #728: Using the cache to resolve users and countries.
+				field.setCache(injector.getClientCache());
+				
+				DiffEntry entry = new DiffEntry();
+				entry.setField(field);
+				listFieldsAmendable.add(entry);
 			}
 		}
 
