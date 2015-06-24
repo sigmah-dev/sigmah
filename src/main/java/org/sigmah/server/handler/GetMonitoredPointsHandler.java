@@ -56,6 +56,9 @@ public class GetMonitoredPointsHandler extends AbstractCommandHandler<GetMonitor
 	 */
 	private List<MonitoredPointDTO> findProjectPoints(final Integer projectId, final MonitoredPointDTO.Mode mappingMode, final UserExecutionContext context) {
 
+		// Disable the ActivityInfo filter on Userdatabase.
+		DomainFilters.disableUserFilter(em());
+		
 		final Query query = em().createQuery("SELECT p.pointsList.points FROM Project p WHERE p.id = :projectId");
 		query.setParameter("projectId", projectId);
 
@@ -84,7 +87,7 @@ public class GetMonitoredPointsHandler extends AbstractCommandHandler<GetMonitor
 		final Set<OrgUnit> units = new HashSet<>();
 
 		// Crawl the org units hierarchy from the user root org unit.
-		Handlers.crawlUnits(context.getUser(), units, false);
+		Handlers.crawlUnits(context.getUser(), units, true);
 
 		// Retrieves all the corresponding org units.
 		for (final OrgUnit unit : units) {

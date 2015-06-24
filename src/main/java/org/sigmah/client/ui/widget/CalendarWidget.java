@@ -723,7 +723,6 @@ public class CalendarWidget extends Composite {
 				popupContent.setText(2, 0, "");
 
 			if (event.getParent().isEditable()
-				&& ProfileUtils.isGranted(authentication, GlobalPermissionEnum.EDIT_PROJECT)
 				&& ProfileUtils.isGranted(authentication, GlobalPermissionEnum.EDIT_PROJECT_AGENDA)) {
 
 				final Anchor editAnchor = new Anchor(I18N.CONSTANTS.calendarEditEvent());

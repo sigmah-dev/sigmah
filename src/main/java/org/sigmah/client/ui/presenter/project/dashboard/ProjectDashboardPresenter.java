@@ -205,14 +205,14 @@ public class ProjectDashboardPresenter extends AbstractProjectPresenter<ProjectD
 
 		final CheckColumnConfig remindersCheckPlugin = (CheckColumnConfig) view.getRemindersGrid().getColumnModel().getColumn(0);
 
-		if (ProfileUtils.isGranted(auth(), GlobalPermissionEnum.EDIT_PROJECT)
-			&& (ProfileUtils.isGranted(auth(), GlobalPermissionEnum.EDIT_ALL_REMINDERS) || ProfileUtils.isGranted(auth(), GlobalPermissionEnum.EDIT_OWN_REMINDERS))) {
+		// Removed the need to have "EDIT_PROJECT" privilege to see reminders.
+		if (ProfileUtils.isGranted(auth(), GlobalPermissionEnum.EDIT_ALL_REMINDERS) || ProfileUtils.isGranted(auth(), GlobalPermissionEnum.EDIT_OWN_REMINDERS)) {
 			view.getRemindersGrid().addPlugin(remindersCheckPlugin);
 		}
 
 		final CheckColumnConfig monitoredPointsCheckPlugin = (CheckColumnConfig) view.getMonitoredPointsGrid().getColumnModel().getColumn(0);
 
-		if (ProfileUtils.isGranted(auth(), GlobalPermissionEnum.EDIT_PROJECT)) {
+		if (ProfileUtils.isGranted(auth(), GlobalPermissionEnum.EDIT_ALL_REMINDERS) || ProfileUtils.isGranted(auth(), GlobalPermissionEnum.EDIT_OWN_REMINDERS)) {
 			view.getMonitoredPointsGrid().addPlugin(monitoredPointsCheckPlugin);
 		}
 

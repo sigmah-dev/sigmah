@@ -57,6 +57,9 @@ public class GetRemindersHandler extends AbstractCommandHandler<GetReminders, Li
 	 */
 	private List<ReminderDTO> findProjectReminders(final Integer projectId, final ReminderDTO.Mode mappingMode, final UserExecutionContext context) {
 
+		// Disable the ActivityInfo filter on Userdatabase.
+		DomainFilters.disableUserFilter(em());
+		
 		final Query query = em().createQuery("SELECT p.remindersList.reminders FROM Project p WHERE p.id = :projectId");
 		query.setParameter("projectId", projectId);
 
@@ -85,7 +88,7 @@ public class GetRemindersHandler extends AbstractCommandHandler<GetReminders, Li
 		final Set<OrgUnit> units = new HashSet<OrgUnit>();
 
 		// Crawl the org units hierarchy from the user root org unit.
-		Handlers.crawlUnits(context.getUser(), units, false);
+		Handlers.crawlUnits(context.getUser(), units, true);
 
 		// Retrieves all the corresponding org units.
 		for (final OrgUnit unit : units) {
