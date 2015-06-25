@@ -1,5 +1,6 @@
 package org.sigmah.offline.sync;
 
+import com.allen_sauer.gwt.log.client.Log;
 import java.util.List;
 import java.util.Map;
 
@@ -22,7 +23,6 @@ import com.google.inject.Singleton;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
-import org.mortbay.log.Log;
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.page.Page;
@@ -265,8 +265,12 @@ public class Synchronizer {
 
 							@Override
 							protected void onCommandSuccess(ProjectDTO result) {
-								final List<FlexibleElementDTO> elements = result.getProjectModel().getAllElements();
-								queueDetails(queue, projectId, result.getCalendarId(), elements, projectProgress, progress, progressListener, withHistory);
+								if(result != null && result.getProjectModel() != null) {
+									final List<FlexibleElementDTO> elements = result.getProjectModel().getAllElements();
+									queueDetails(queue, projectId, result.getCalendarId(), elements, projectProgress, progress, progressListener, withHistory);
+								} else {
+									Log.warn("Project '" + projectId + "' was not found on the server.");
+								}
 							}
 						});
 					} else {
@@ -301,19 +305,24 @@ public class Synchronizer {
 						final double orgUnitProgress = ORGUNIT_DETAIL_VALUE / result.getSize();
 						
 						for(final OrgUnitDTO orgUnit : result.getList()) {
-							final Integer orgUnitId = orgUnit.getId();
+							if(orgUnit != null && orgUnit.getId() != null) {
+								final Integer orgUnitId = orgUnit.getId();
 							
-							if(orgUnitId != null) {
 								queue.add(new GetOrgUnit(orgUnitId, null), new CommandResultHandler<OrgUnitDTO>() {
 
 									@Override
 									protected void onCommandSuccess(OrgUnitDTO result) {
-										final List<FlexibleElementDTO> elements = result.getOrgUnitModel().getAllElements();
-										queueDetails(queue, orgUnitId, result.getCalendarId(), elements, orgUnitProgress, progress, progressListener, withHistory);
+										// BUGFIX #795: Checking if an actual org unit exists for the given id.
+										if(result != null && result.getOrgUnitModel() != null) {
+											final List<FlexibleElementDTO> elements = result.getOrgUnitModel().getAllElements();
+											queueDetails(queue, orgUnitId, result.getCalendarId(), elements, orgUnitProgress, progress, progressListener, withHistory);
+										} else {
+											Log.warn("Cached org unit '" + orgUnitId + "' was not found on the server.");
+										}
 									}
 								});
 							} else {
-								Log.warn("Null org unit id encountered while pulling data.");
+								Log.warn("Null org unit encountered while pulling data.");
 							}
 						}
 						
