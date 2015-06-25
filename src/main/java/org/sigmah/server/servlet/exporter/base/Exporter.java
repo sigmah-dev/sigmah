@@ -14,11 +14,9 @@ import org.sigmah.shared.Language;
 import org.sigmah.shared.util.ExportUtils;
 
 import com.google.inject.Injector;
-import org.sigmah.client.security.SecureDispatchAsync;
 import org.sigmah.server.dispatch.impl.UserDispatch;
 import org.sigmah.shared.command.base.Command;
 import org.sigmah.shared.command.result.Result;
-import org.sigmah.shared.dispatch.CommandException;
 import org.sigmah.shared.dispatch.DispatchException;
 
 /**
@@ -87,7 +85,9 @@ public abstract class Exporter {
 		i18ntranslator = injector.getInstance(I18nServer.class);
 
 		// Set the export format
-		final String formatString = req.getParameter(RequestParameter.FORMAT.name());
+		// BUGFIX #800: Fixed format reading method.
+		final String[] formatArray = (String[]) parametersMap.get(RequestParameter.getRequestName(RequestParameter.FORMAT));
+		final String formatString = formatArray != null && formatArray.length == 1 ? formatArray[0] : null;
 
 		if (formatString != null) {
 
