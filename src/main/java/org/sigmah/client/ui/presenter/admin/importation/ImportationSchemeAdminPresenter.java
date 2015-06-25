@@ -512,7 +512,8 @@ public class ImportationSchemeAdminPresenter extends AbstractAdminPresenter<Impo
 				view.getSchemesStore().remove(scheme);
 				view.getSchemesStore().commitChanges();
 				
-				if(currentImportationSchemeDTO.equals(scheme)) {
+				// BUGFIX #799 : Verifying if an importation scheme has been selected before using it.
+				if(currentImportationSchemeDTO != null && currentImportationSchemeDTO.equals(scheme)) {
 					eventBus.navigateRequest(Page.ADMIN_IMPORTATION_SCHEME.request()
 						.addData(RequestParameter.NO_REFRESH, true));
 				}
