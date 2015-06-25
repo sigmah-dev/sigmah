@@ -49,8 +49,8 @@
 		<!-- Representatives of the two organizations co-authors of Sigmah. For
 			full developers list, see: https://github.com/sigmah-dev/sigmah/graphs/contributors). -->
 		<developer>
-			<id>osarrat</id>
-			<name>Olivier Sarrat</name>
+			<id>groupe.urd</id>
+			<name>Groupe URD</name>
 			<email>osarrat@urd.org</email>
 			<url>http://www.urd.org</url>
 			<roles>
@@ -658,32 +658,68 @@
 					<!-- Maven property: ${sigmah.version.contributors} -->
 					<contributors>
 						<contributor>
+							<name>Alan Beuret</name>
+							<!--<email>beuretalan@gmail.com</email>-->
+						</contributor>
+						<contributor>
+							<name>Mathilde Beziau</name>
+							<!--<email>Mathilde.Beziau@croix-rouge.fr</email>-->
+						</contributor>
+						<contributor>
+							<name>Fadoi Chaouki</name>
+							<!--<email>fadoichaouki@hotmail.fr</email>-->
+						</contributor>
+						<contributor>
+							<name>Julien Carlier</name>
+							<!--<email>jcarlier@urd.org</email>-->
+						</contributor>
+						<contributor>
+							<name>Emeline Dupont-Huin</name>
+							<!--<email>emeline.dupont-huin@medecinsdumonde.net</email>-->
+						</contributor>
+						<contributor>
 							<name>Mathilde Guilment</name>
-							<email>mathilde.guilment@gmail.com</email>
+							<!--<email>mathilde.guilment@gmail.com</email>-->
 						</contributor>
 						<contributor>
 							<name>Oussama Mojahed</name>
-							<email>omojahed@ideia.fr</email>
+							<!--<email>omojahed@ideia.fr</email>-->
+						</contributor>
+						<contributor>
+							<name>Juan Pablo Rodríguez Portugués</name>
+							<!--<email>cachomero@hotmail.com</email>-->
 						</contributor>
 						<contributor>
 							<name>Laura Perchat</name>
-							<email>l.perchat.lp@gmail.com</email>
+							<!--<email>l.perchat.lp@gmail.com</email>-->
 						</contributor>
 						<contributor>
 							<name>Astrid Renet</name>
-							<email>astrid.renet@gmail.com</email>
+							<!--<email>astrid.renet@gmail.com</email>-->
 						</contributor>
 						<contributor>
 							<name>Pierrick Rumel</name>
-							<email>pierrick.rumel@gmail.com</email>
+							<!--<email>pierrick.rumel@gmail.com</email>-->
 						</contributor>
 						<contributor>
 							<name>Olivier Sarrat</name>
-							<email>osarrat@urd.org</email>
+							<!--<email>osarrat@urd.org</email>-->
+						</contributor>
+						<contributor>
+							<name>Flora Soussi</name>
+							<!--<email>flo.soussi@hotmail.fr</email>-->
+						</contributor>
+						<contributor>
+							<name>Etienne Sutherland</name>
+							<!--<email>esutherland@urd.org</email>-->
+						</contributor>
+						<contributor>
+							<name>Pierre van Male</name>
+							<!--<email>vmalep@gmail.com</email>-->
 						</contributor>
 						<contributor>
 							<name>Edmond Wach</name>
-							<email>edmond.wach@yahoo.fr</email>
+							<!--<email>edmond.wach@yahoo.fr</email>-->
 						</contributor>
 					</contributors>
 				</configuration>
