@@ -110,6 +110,7 @@ public class MoveOrgUnitHandler extends AbstractCommandHandler<MoveOrgUnit, Void
 	 * @since 1982
 	 */
 	// Wouaaww!! nice work Tom Miette... Is that what you were doing all day at Ideia? ;-)
+	// Only when I was in a good mood! The good old days... :-)
 	private static boolean theKidIsMySon(final OrgUnit me, final Integer theKidName) {
 
 		boolean sheSaysIAmTheOne = false;
