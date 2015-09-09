@@ -1,5 +1,6 @@
 package org.sigmah.server.domain.category;
 
+import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -91,6 +92,38 @@ public class CategoryElement extends AbstractEntityId<Integer> {
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public int hashCode() {
+		int hash = 7;
+		hash = 17 * hash + Objects.hashCode(this.label);
+		hash = 17 * hash + Objects.hashCode(this.color);
+		return hash;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		final CategoryElement other = (CategoryElement) obj;
+		if (!Objects.equals(this.label, other.label)) {
+			return false;
+		}
+		return Objects.equals(this.color, other.color);
+	}
+	
 	// --------------------------------------------------------------------------------
 	//
 	// GETTERS & SETTERS.

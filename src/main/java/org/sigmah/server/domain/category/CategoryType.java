@@ -2,6 +2,7 @@ package org.sigmah.server.domain.category;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -98,6 +99,38 @@ public class CategoryType extends AbstractEntityId<Integer> {
 				categoryElement.resetImport();
 			}
 		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public int hashCode() {
+		int hash = 7;
+		hash = 23 * hash + Objects.hashCode(this.label);
+		hash = 23 * hash + Objects.hashCode(this.icon);
+		return hash;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		final CategoryType other = (CategoryType) obj;
+		if (!Objects.equals(this.label, other.label)) {
+			return false;
+		}
+		return this.icon == other.icon;
 	}
 
 	// --------------------------------------------------------------------------------

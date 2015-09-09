@@ -398,6 +398,7 @@ public class ProjectModelHandler implements ModelHandler {
 
 			if (!modelesReset.containsKey(categoryElement)) {
 				CategoryElement key = categoryElement;
+				modelesReset.put(key, categoryElement);
 				categoryElement.setId(null);
 
 				CategoryType parentType = categoryElement.getParentType();
@@ -406,6 +407,7 @@ public class ProjectModelHandler implements ModelHandler {
 
 					if (!modelesReset.containsKey(parentType)) {
 						CategoryType parentKey = parentType;
+						modelesReset.put(parentKey, parentType);
 						parentType.setId(null);
 
 						List<CategoryElement> elements = parentType.getElements();
@@ -421,14 +423,12 @@ public class ProjectModelHandler implements ModelHandler {
 						} else {
 							em.persist(parentType);
 						}
-						modelesReset.put(parentKey, parentType);
 					} else {
 						parentType = (CategoryType) modelesReset.get(parentType);
 					}
 				}
 				categoryElement.setParentType(parentType);
 				em.persist(categoryElement);
-				modelesReset.put(key, categoryElement);
 			} else {
 				categoryElement = (CategoryElement) modelesReset.get(categoryElement);
 			}
