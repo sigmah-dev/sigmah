@@ -1007,6 +1007,10 @@
 				<!-- Mailer properties. -->
 
 				<mail.from.name>Sigmah - DEV</mail.from.name>
+				<mail.hostname>localhost</mail.hostname>
+				<mail.port>1025</mail.port>
+				<mail.auth.username></mail.auth.username>
+				<mail.auth.password></mail.auth.password>
 
 				<!-- Overrride properties for your local profile here... -->
 
