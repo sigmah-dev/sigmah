@@ -572,7 +572,7 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 
 		view.getNameField().setVisible(!defaultFlexibleElement);
 		view.getNameReadOnlyField().setVisible(defaultFlexibleElement);
-		view.getTypeField().setEnabled(!defaultFlexibleElement);
+		view.getTypeField().setEnabled(flexibleElement == null);
 		view.getExportableField().setValue(true);
 
 		loadFlexibleElementSpecificFields(flexibleElement, getElementType(flexibleElement));
@@ -671,6 +671,9 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 		view.getBannerPositionField().disable();
 		view.getBannerPositionField().setAllowBlank(true);
 
+        customChoices.clear();
+        disabledCustomChoices.clear();
+
 		if (flexibleElement instanceof FilesListElementDTO) {
 
 			view.getMaxLimitField().setValue(((FilesListElementDTO) flexibleElement).getLimit());
@@ -696,9 +699,6 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 			
 			view.getMultipleChoicesField().setEnabled(!isUpdateAndUnderMaintenance());
 
-			customChoices.clear();
-			disabledCustomChoices.clear();
-			
 			if (ClientUtils.isNotEmpty(questionElement.getChoices())) {
 				for (final QuestionChoiceElementDTO choice : questionElement.getChoices()) {
 					if(!isUpdateAndUnderMaintenance()) {
