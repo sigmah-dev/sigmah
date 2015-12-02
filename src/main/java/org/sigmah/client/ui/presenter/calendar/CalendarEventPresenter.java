@@ -18,7 +18,6 @@ import org.sigmah.client.ui.notif.N10N;
 import org.sigmah.client.ui.presenter.base.AbstractPagePresenter;
 import org.sigmah.client.ui.view.base.ViewInterface;
 import org.sigmah.client.ui.view.calendar.CalendarEventView;
-import org.sigmah.client.ui.widget.CalendarWidget;
 import org.sigmah.client.ui.widget.button.Button;
 import org.sigmah.client.ui.widget.form.FormPanel;
 import org.sigmah.client.util.ClientUtils;
@@ -34,7 +33,6 @@ import org.sigmah.shared.dto.calendar.PersonalEventDTO;
 import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.TextArea;
 import com.extjs.gxt.ui.client.widget.form.TextField;
@@ -60,8 +58,6 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
 
 		FormPanel getForm();
 
-		ComboBox<CalendarWrapper> getCalendarsField();
-
 		TextField<String> getEventSummaryField();
 
 		DateField getEventDateField();
@@ -83,13 +79,13 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
 	 */
 	private Event event;
 
+    private CalendarWrapper calendarWrapper;
+
 	/**
 	 * Presenters's initialization.
 	 * 
-	 * @param view
-	 *          Presenter's view interface.
-	 * @param injector
-	 *          Injected client injector.
+     * @param view Presenter's view interface.
+     * @param injector Injected client injector.
 	 */
 	@Inject
 	public CalendarEventPresenter(final View view, final Injector injector) {
@@ -113,7 +109,6 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
 		// --
 		// Cancel button listener.
 		// --
-
 		view.getCancelButton().addSelectionListener(new SelectionListener<ButtonEvent>() {
 
 			@Override
@@ -125,7 +120,6 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
 		// --
 		// Save button listener.
 		// --
-
 		view.getSaveButton().addSelectionListener(new SelectionListener<ButtonEvent>() {
 
 			@Override
@@ -146,7 +140,6 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
 		// --
 		// Reading inputs into request.
 		// --
-
 		event = request.getData(RequestParameter.DTO);
 		final boolean creation = event == null;
 
@@ -162,26 +155,22 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
 		// --
 		// Loading received calendars.
 		// --
-
-		view.getCalendarsField().getStore().removeAll();
-
 		for (final CalendarWrapper calendarWrapper : calendars) {
 			if (calendarWrapper.getCalendar().isEditable()) {
-				view.getCalendarsField().getStore().add(calendarWrapper);
+                this.calendarWrapper = calendarWrapper;
 			}
 		}
 
 		// --
 		// Loading event on view (if edition).
 		// --
-
 		if (creation) {
 			return;
 		}
 
-		view.getCalendarsField().setValue(new CalendarWrapper(event.getParent()));
+        this.calendarWrapper = new CalendarWrapper(event.getParent());
 		view.getEventSummaryField().setValue(event.getSummary());
-		view.getEventDateField().setValue(getEventDate(event));
+        view.getEventDateField().setValue(event.getKey());
 
 		if (!isFullDayEvent(event)) {
 
@@ -201,7 +190,6 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
 	// UTILITY METHODS.
 	//
 	// ---------------------------------------------------------------------------------------------------------------
-
 	/**
 	 * Method executed on save button action.
 	 */
@@ -215,9 +203,8 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
 		// --
 		// Building properties map.
 		// --
-
 		final Map<String, Serializable> properties = new HashMap<String, Serializable>();
-		properties.put(Event.CALENDAR_ID, view.getCalendarsField().getValue());
+        properties.put(Event.CALENDAR_ID, calendarWrapper);
 		properties.put(Event.SUMMARY, view.getEventSummaryField().getValue());
 
 		final Date date = view.getEventDateField().getValue();
@@ -256,8 +243,7 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
 	/**
 	 * Creates a new "Personal" calendar event.
 	 * 
-	 * @param properties
-	 *          Properties of the new event.
+     * @param properties Properties of the new event.
 	 */
 	private void addPersonalEvent(final Map<String, Serializable> properties) {
 
@@ -288,8 +274,7 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
 	/**
 	 * Edits the events.
 	 * 
-	 * @param properties
-	 *          Properties of the new event.
+     * @param properties Properties of the new event.
 	 */
 	private void editPersonalEvent(final Event event, final Map<String, ?> properties) {
 
@@ -311,7 +296,8 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
 
 				final Calendar calendar = event.getParent();
 
-				final List<Event> oldEventList = CalendarWidget.normalize(calendar).get(getEventDate(event));
+                final List<Event> oldEventList =
+								calendar.getEvents().get(event.getKey());
 				oldEventList.remove(event);
 
 				updateEvent(event, properties);
@@ -322,10 +308,8 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
 	/**
 	 * Updates the given {@code event} with the given {@code properties}.
 	 * 
-	 * @param event
-	 *          The event to update.
-	 * @param properties
-	 *          The properties.
+     * @param event The event to update.
+     * @param properties The properties.
 	 */
 	@SuppressWarnings("deprecation")
 	private void updateEvent(final Event event, final Map<String, ?> properties) {
@@ -333,7 +317,6 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
 		// --
 		// Updates the event.
 		// --
-
 		event.setSummary((String) properties.get(Event.SUMMARY));
 		event.setDescription((String) properties.get(Event.DESCRIPTION));
 
@@ -372,22 +355,19 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
 		// --
 		// Sends an update event on the event bus.
 		// --
-
 		eventBus.fireEvent(new UpdateEvent(UpdateEvent.CALENDAR_EVENT_UPDATE, event));
 		// calendarWidget.refresh();
 
 		// --
 		// Hides the view.
 		// --
-
 		hideView();
 	}
 
 	/**
 	 * Returns if the given {@code event} is a full day event.
 	 * 
-	 * @param event
-	 *          The event.
+     * @param event The event.
 	 * @return {@code true} if the given {@code event} is a full day event.
 	 */
 	@SuppressWarnings("deprecation")
@@ -400,18 +380,6 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
 		return event.getDtend() != null
 			&& (event.getDtstart().getDate() != event.getDtend().getDate() || event.getDtstart().getMonth() != event.getDtend().getMonth() || event.getDtstart()
 				.getYear() != event.getDtend().getYear());
-	}
-
-	/**
-	 * Returns the given {@code event} corresponding {@link Date} value.
-	 * 
-	 * @param event
-	 *          The event.
-	 * @return The given {@code event} corresponding {@link Date} value.
-	 */
-	@SuppressWarnings("deprecation")
-	private static Date getEventDate(final Event event) {
-		return new Date(event.getDtstart().getYear(), event.getDtstart().getMonth(), event.getDtstart().getDate());
 	}
 
 }

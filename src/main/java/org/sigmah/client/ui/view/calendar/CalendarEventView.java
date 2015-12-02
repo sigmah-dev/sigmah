@@ -8,11 +8,8 @@ import org.sigmah.client.ui.widget.button.Button;
 import org.sigmah.client.ui.widget.form.FormPanel;
 import org.sigmah.client.ui.widget.form.Forms;
 import org.sigmah.client.ui.widget.popup.PopupWidget;
-import org.sigmah.shared.dto.calendar.CalendarWrapper;
 import org.sigmah.shared.dto.calendar.Event;
 
-import com.extjs.gxt.ui.client.store.ListStore;
-import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.TextArea;
@@ -29,8 +26,6 @@ import com.google.inject.Singleton;
 public class CalendarEventView extends AbstractPopupView<PopupWidget> implements CalendarEventPresenter.View {
 
 	private FormPanel form;
-
-	private ComboBox<CalendarWrapper> calendarsField;
 	private TextField<String> eventSummaryField;
 	private DateField eventDateField;
 	private TimeField eventStartTimeField;
@@ -55,9 +50,6 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
 
 		form = Forms.panel();
 
-		calendarsField = Forms.combobox(I18N.CONSTANTS.projectTabCalendar(), true, CalendarWrapper.ID, CalendarWrapper.NAME, new ListStore<CalendarWrapper>());
-		calendarsField.setName(Event.CALENDAR_ID);
-
 		eventSummaryField = Forms.text(I18N.CONSTANTS.calendarEventObject(), true);
 		eventSummaryField.setName(Event.SUMMARY);
 
@@ -78,7 +70,6 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
 		saveButton = Forms.button(I18N.CONSTANTS.formWindowSubmitAction(), IconImageBundle.ICONS.save());
 		cancelButton = Forms.button(I18N.CONSTANTS.cancel());
 
-		form.add(calendarsField);
 		form.add(eventSummaryField);
 		form.add(eventDateField);
 		form.add(eventStartTimeField);
@@ -97,14 +88,6 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
 	@Override
 	public FormPanel getForm() {
 		return form;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public ComboBox<CalendarWrapper> getCalendarsField() {
-		return calendarsField;
 	}
 
 	/**
