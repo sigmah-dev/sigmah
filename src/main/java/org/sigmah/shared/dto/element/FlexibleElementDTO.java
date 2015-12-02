@@ -379,7 +379,8 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 		// Special case for users with the MODIFY_LOCKED_CONTENT permission.
 		if(ProfileUtils.isGranted(auth(), GlobalPermissionEnum.MODIFY_LOCKED_CONTENT) &&
 			(phaseIsEnded || project.isClosed() || project.getAmendmentState() == AmendmentState.LOCKED)) {
-			return changeType != ValueEventChangeType.REMOVE;
+			// #818: MODIFY_LOCKED_CONTENT can now delete values. 
+			return true;
 		}
 		
 		return

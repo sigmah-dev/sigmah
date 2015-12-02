@@ -14,6 +14,8 @@ import com.google.inject.Singleton;
 import java.util.ArrayList;
 import java.util.List;
 import org.sigmah.offline.dao.ProjectAsyncDAO;
+import org.sigmah.offline.dao.RequestManager;
+import org.sigmah.offline.dao.RequestManagerCallback;
 import org.sigmah.shared.command.result.Authentication;
 import org.sigmah.shared.dto.ProjectDTO;
 
@@ -35,32 +37,62 @@ public class GetRemindersAsyncHandler implements AsyncCommandHandler<GetReminder
 	@Override
 	public void execute(GetReminders command, OfflineExecutionContext executionContext, final AsyncCallback<ListResult<ReminderDTO>> callback) {
 		if(command.getProjectId() == null) {
-			reminderAsyncDAO.getAllWithoutCompletionDate(wrapCallback(callback));
-			
+			loadAllReminders(callback);
 		} else {
-			projectAsyncDAO.get(command.getProjectId(), new AsyncCallback<ProjectDTO>() {
+			loadProjectReminders(command.getProjectId(), callback);
+		}
+	}
 
 				@Override
+	public void onSuccess(GetReminders command, ListResult<ReminderDTO> result, Authentication authentication) {
+		reminderAsyncDAO.saveOrUpdate(result);
+	}
+	
+	private void loadAllReminders(final AsyncCallback<ListResult<ReminderDTO>> callback) {
+		reminderAsyncDAO.getAllWithoutCompletionDate(new AsyncCallback<List<ReminderDTO>>() {
+			@Override
 				public void onFailure(Throwable caught) {
 					callback.onFailure(caught);
 				}
 
 				@Override
-				public void onSuccess(ProjectDTO result) {
-					if(result != null && result.getRemindersList() != null) {
-						reminderAsyncDAO.getAllByParentListId(result.getRemindersList().getId(), wrapCallback(callback));
+			public void onSuccess(List<ReminderDTO> result) {
+				final RequestManager<ListResult<ReminderDTO>> manager = new RequestManager<ListResult<ReminderDTO>>(new ListResult<ReminderDTO>(result), callback);
 						
-					} else {
-						callback.onSuccess(new ListResult<ReminderDTO>(new ArrayList<ReminderDTO>()));
+				for (final ReminderDTO reminder : result) {
+					projectAsyncDAO.getByIndexWithoutDependencies("remindersListId", reminder.getParentListId(), new RequestManagerCallback<ListResult<ReminderDTO>, ProjectDTO>(manager) {
+						@Override
+						public void onRequestSuccess(ProjectDTO result) {
+							if (result != null) {
+								reminder.setProjectId(result.getId());
+								reminder.setProjectCode(result.getName());
+								reminder.setProjectName(result.getFullName());
 					}
 				}
 			});
 		}
+				manager.ready();
+			}
+		});
 	}
 
+	private void loadProjectReminders(final int projectId, final AsyncCallback<ListResult<ReminderDTO>> callback) {
+		projectAsyncDAO.get(projectId, new AsyncCallback<ProjectDTO>() {
+
 	@Override
-	public void onSuccess(GetReminders command, ListResult<ReminderDTO> result, Authentication authentication) {
-		reminderAsyncDAO.saveOrUpdate(result);
+			public void onFailure(Throwable caught) {
+				callback.onFailure(caught);
+			}
+
+			@Override
+			public void onSuccess(ProjectDTO result) {
+				if(result != null && result.getRemindersList() != null) {
+					reminderAsyncDAO.getAllByParentListId(result.getRemindersList().getId(), wrapCallback(callback));
+				} else {
+					callback.onSuccess(new ListResult<ReminderDTO>(new ArrayList<ReminderDTO>()));
+				}
+			}
+		});
 	}
 	
 	private AsyncCallback<List<ReminderDTO>> wrapCallback(final AsyncCallback<ListResult<ReminderDTO>> callback) {

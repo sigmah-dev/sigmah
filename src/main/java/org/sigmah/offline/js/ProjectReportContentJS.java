@@ -18,6 +18,9 @@ public abstract class ProjectReportContentJS extends JavaScriptObject {
 		SECTION;
 	}
 	
+	protected ProjectReportContentJS() {
+	}
+	
 	public static ProjectReportContentJS toJavaScript(ProjectReportContent projectReportContent) {
 		final ProjectReportContentJS projectReportContentJS;
 		
@@ -54,8 +57,6 @@ public abstract class ProjectReportContentJS extends JavaScriptObject {
 		}
 		return null;
 	}
-	
-	protected abstract ProjectReportContent createDTO();
 	
 	private Type getProjectReportContentType() {
 		return Values.getEnum(this, "projectReportContentType", Type.class);

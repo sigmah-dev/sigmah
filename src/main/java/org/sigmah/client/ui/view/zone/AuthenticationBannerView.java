@@ -1,6 +1,5 @@
 package org.sigmah.client.ui.view.zone;
 
-import com.google.gwt.dom.client.Style;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.ui.presenter.zone.AuthenticationBannerPresenter;
 import org.sigmah.client.ui.view.base.AbstractView;

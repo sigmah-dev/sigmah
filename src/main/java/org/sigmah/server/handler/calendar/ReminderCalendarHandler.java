@@ -66,7 +66,7 @@ public class ReminderCalendarHandler implements CalendarHandler {
 
 			if (list.getReminders() != null) {
 				for (final Reminder reminder : list.getReminders()) {
-
+                    if(reminder.getDeleted() == null || !reminder.getDeleted()) {
 					final Event event = new Event();
 					event.setParent(calendar);
 					event.setIdentifier(reminder.getId());
@@ -110,6 +110,7 @@ public class ReminderCalendarHandler implements CalendarHandler {
 					}
 					events.add(event);
 				}
+			}
 			}
 
 		} catch (NoResultException e) {

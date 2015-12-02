@@ -1,5 +1,6 @@
 package org.sigmah.server.domain;
 
+import static com.extjs.gxt.ui.client.Style.SortDir.ASC;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -17,6 +18,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -109,6 +111,7 @@ public class ProjectModel extends AbstractEntityId<Integer> implements Deleteabl
 	private LogFrameModel logFrameModel;
 
 	@OneToMany(mappedBy = "parentProjectModel", cascade = CascadeType.ALL)
+    @OrderBy("displayOrder ASC")
 	private List<PhaseModel> phaseModels = new ArrayList<>();
 
 	@OneToMany(mappedBy = "model", cascade = CascadeType.ALL)

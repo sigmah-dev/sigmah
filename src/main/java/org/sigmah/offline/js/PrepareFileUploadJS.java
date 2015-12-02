@@ -11,7 +11,7 @@ import org.sigmah.shared.dto.value.FileUploadUtils;
  * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
-public class PrepareFileUploadJS extends CommandJS {
+public final class PrepareFileUploadJS extends CommandJS {
 	
 	protected PrepareFileUploadJS() {
 	}

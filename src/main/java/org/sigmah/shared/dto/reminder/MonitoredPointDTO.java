@@ -39,9 +39,16 @@ public class MonitoredPointDTO extends AbstractModelDataEntityDTO<Integer> {
 	public static final String FILE = "file";
 
 	/**
+	 * Project name& code used for reminder in dashboard.
+	 */
+    public static final String PROJECT_ID = "projectId";
+    public static final String PROJECT_NAME = "projectName";
+    public static final String PROJECT_CODE = "projectCode";   
+    
+
+	/**
 	 * Mapping configurations.
 	 * 
-	 * @author Denis Colliot (dcolliot@ideia.fr)
 	 */
 	public static enum Mode implements IsMappingMode {
 
@@ -191,6 +198,33 @@ public class MonitoredPointDTO extends AbstractModelDataEntityDTO<Integer> {
 
 	public void setHistory(List<MonitoredPointHistoryDTO> history) {
 		set(HISTORY, history);
+	}
+
+    // ProjectId
+	public Integer getProjectId() {
+		return get(PROJECT_ID);
+	}
+
+	public void setProjectId(Integer projectId) {
+		set(PROJECT_ID, projectId);
+	}
+    
+    // ProjectName
+	public String getProjectName() {
+		return get(PROJECT_NAME);
+	}
+
+	public void setProjectName(String projectName) {
+		set(PROJECT_NAME, projectName);
+	}
+
+    // ProjectCode
+	public String getProjectCode() {
+		return get(PROJECT_CODE);
+	}
+
+	public void setProjectCode(String projectCode) {
+		set(PROJECT_CODE, projectCode);
 	}
 
 }

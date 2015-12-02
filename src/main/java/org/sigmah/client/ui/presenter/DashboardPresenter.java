@@ -57,12 +57,19 @@ import org.sigmah.offline.sync.UpdateDates;
 @Singleton
 public class DashboardPresenter extends AbstractPagePresenter<DashboardPresenter.View> {
 
+    public static interface ReminderOrMonitoredPointHandler{
+        public void onLabelClickEvent(Integer projectId);
+    }
+    
 	/**
 	 * View interface.
 	 */
 	@ImplementedBy(DashboardView.class)
 	public static interface View extends ViewInterface {
 
+        void setReminderOrMonitoredPointHandler(ReminderOrMonitoredPointHandler handler);
+        
+        
 		/**
 		 * Returns the reminders wrapper component.
 		 * 
@@ -183,6 +190,14 @@ public class DashboardPresenter extends AbstractPagePresenter<DashboardPresenter
 		// Projects widget initialization.
 		view.getProjectsList().init(RefreshMode.ON_FIRST_TIME, LoadingMode.CHUNK);
 		
+       
+        view.setReminderOrMonitoredPointHandler(new ReminderOrMonitoredPointHandler() {
+            @Override
+            public void onLabelClickEvent(Integer projectId) {
+                eventBus.navigateRequest(Page.PROJECT_DASHBOARD.requestWith(RequestParameter.ID, projectId));
+            }
+        });
+        
 		// Listening to connection state changes to refresh the available buttons.
 		// Fixes mantis #682 and #683
 		eventBus.addHandler(OfflineEvent.getType(), new OfflineHandler() {

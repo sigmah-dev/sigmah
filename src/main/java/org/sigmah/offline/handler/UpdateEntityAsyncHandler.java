@@ -9,9 +9,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import org.sigmah.client.dispatch.DispatchListener;
+import org.sigmah.offline.dao.MonitoredPointAsyncDAO;
 import org.sigmah.offline.dao.PersonalCalendarAsyncDAO;
 import org.sigmah.offline.dao.ProjectAsyncDAO;
 import org.sigmah.offline.dao.ProjectReportAsyncDAO;
+import org.sigmah.offline.dao.ReminderAsyncDAO;
 import org.sigmah.offline.dao.UpdateDiaryAsyncDAO;
 import org.sigmah.offline.dispatch.AsyncCommandHandler;
 import org.sigmah.offline.dispatch.OfflineExecutionContext;
@@ -25,6 +27,8 @@ import org.sigmah.shared.dto.calendar.CalendarWrapper;
 import org.sigmah.shared.dto.calendar.Event;
 import org.sigmah.shared.dto.calendar.PersonalCalendarIdentifier;
 import org.sigmah.shared.dto.calendar.PersonalEventDTO;
+import org.sigmah.shared.dto.reminder.MonitoredPointDTO;
+import org.sigmah.shared.dto.reminder.ReminderDTO;
 import org.sigmah.shared.dto.report.KeyQuestionDTO;
 import org.sigmah.shared.dto.report.ProjectReportContent;
 import org.sigmah.shared.dto.report.ProjectReportDTO;
@@ -49,6 +53,12 @@ public class UpdateEntityAsyncHandler implements AsyncCommandHandler<UpdateEntit
 	private PersonalCalendarAsyncDAO personalCalendarAsyncDAO;
 	
 	@Inject
+	private ReminderAsyncDAO reminderAsyncDAO;
+	
+	@Inject
+	private MonitoredPointAsyncDAO monitoredPointAsyncDAO;
+	
+	@Inject
 	private ProjectAsyncDAO projectAsyncDAO;
 	
 	@Override
@@ -63,7 +73,10 @@ public class UpdateEntityAsyncHandler implements AsyncCommandHandler<UpdateEntit
 	}
 	
 	private void executeCommand(UpdateEntity command, Authentication authentication, AsyncCallback<VoidResult> callback) {
-		if(ProjectReportDTO.ENTITY_NAME.equals(command.getEntityName())) {
+		if(MonitoredPointDTO.ENTITY_NAME.equals(command.getEntityName())) {
+			updateMonitoredPoint(command.getId(), command.getChanges(), callback);
+			
+		} else if(ProjectReportDTO.ENTITY_NAME.equals(command.getEntityName())) {
 			updateProjectReport(command.getId(), command.getChanges(), authentication, callback);
 			
 		} else if(PersonalEventDTO.ENTITY_NAME.equals(command.getEntityName())) {
@@ -71,6 +84,9 @@ public class UpdateEntityAsyncHandler implements AsyncCommandHandler<UpdateEntit
 			
 		} else if(ProjectDTO.ENTITY_NAME.equals(command.getEntityName())) {
 			updateProject(command.getId(), command.getChanges(), callback);
+			
+		} else if(ReminderDTO.ENTITY_NAME.equals(command.getEntityName())) {
+			updateReminder(command.getId(), command.getChanges(), callback);
 			
 		} else {
 			exception(command, callback != null);
@@ -189,11 +205,54 @@ public class UpdateEntityAsyncHandler implements AsyncCommandHandler<UpdateEntit
 		});
 	}
 	
-	private void updateProject(final int entityId, RpcMap changes, AsyncCallback<VoidResult> callback) {
+	private void updateProject(final int entityId, final RpcMap changes, final AsyncCallback<VoidResult> callback) {
 		if(changes.containsKey("dateDeleted")) {
 			// Removes the project from the local database.
 			projectAsyncDAO.remove(entityId, callback);
 		}
 		// TODO: Support "fundedId" and "fundingId" if necessary.
+	}
+	
+	private void updateReminder(final int entityId, final RpcMap changes, final AsyncCallback<VoidResult> callback) {
+		reminderAsyncDAO.get(entityId, new AsyncCallback<ReminderDTO>() {
+			@Override
+			public void onFailure(Throwable caught) {
+				callback.onFailure(caught);
+			}
+
+			@Override
+			public void onSuccess(ReminderDTO reminder) {
+				reminder.setExpectedDate(new Date((Long) changes.get(ReminderDTO.EXPECTED_DATE)));
+				reminder.setLabel((String) changes.get(ReminderDTO.LABEL));
+				final Boolean deleted = (Boolean) changes.get(ReminderDTO.DELETED);
+				if (deleted != null) {
+					reminder.setDeleted(deleted);
+				}
+				final AsyncCallback<ReminderDTO> reminderCallback = wrapVoidResultCallback(callback);
+				reminderAsyncDAO.saveOrUpdate(reminder, reminderCallback);
+			}
+		});
+	}
+	
+	private void updateMonitoredPoint(final int entityId, final RpcMap changes, final AsyncCallback<VoidResult> callback) {
+		monitoredPointAsyncDAO.get(entityId, new AsyncCallback<MonitoredPointDTO>() {
+			@Override
+			public void onFailure(Throwable caught) {
+				callback.onFailure(caught);
+			}
+
+			@Override
+			public void onSuccess(MonitoredPointDTO point) {
+				point.setExpectedDate(new Date((Long) changes.get(MonitoredPointDTO.EXPECTED_DATE)));
+				point.setLabel((String) changes.get(MonitoredPointDTO.LABEL));
+				final Boolean deleted = (Boolean) changes.get(MonitoredPointDTO.DELETED);
+				if (deleted != null) {
+					point.setDeleted(deleted);
+				}
+				
+				final AsyncCallback<MonitoredPointDTO> monitoredPointCallback = wrapVoidResultCallback(callback);
+				monitoredPointAsyncDAO.saveOrUpdate(point, monitoredPointCallback);
+			}
+		});
 	}
 }

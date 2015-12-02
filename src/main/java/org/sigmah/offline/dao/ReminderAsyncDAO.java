@@ -112,7 +112,9 @@ public class ReminderAsyncDAO extends AbstractAsyncDAO<ReminderDTO> {
                         final Cursor cursor = cursorRequest.getResult();
 						if(cursor != null) {
 							final ReminderJS reminderJS = (ReminderJS) cursor.getValue();
+							if (!reminderJS.isDeleted()) {
 							reminders.add(reminderJS.toDTO());
+							}
 							cursor.next();
 							
 						} else {
@@ -153,7 +155,9 @@ public class ReminderAsyncDAO extends AbstractAsyncDAO<ReminderDTO> {
 				final Cursor cursor = cursorRequest.getResult();
 				if(cursor != null) {
 					final ReminderJS reminderJS = (ReminderJS) cursor.getValue();
+					if (!reminderJS.isDeleted()) {
 					reminders.add(reminderJS.toDTO());
+					}
 					cursor.next();
 
 				} else {
@@ -185,7 +189,7 @@ public class ReminderAsyncDAO extends AbstractAsyncDAO<ReminderDTO> {
 						final Cursor cursor = cursorRequest.getResult();
 						if(cursor != null) {
 							final ReminderJS reminderJS = (ReminderJS) cursor.getValue();
-							if(reminderJS.getCompletionDate() == null) {
+							if(reminderJS.getCompletionDate() == null && !reminderJS.isDeleted()) {
 								reminders.add(reminderJS.toDTO());
 							}
 							cursor.next();

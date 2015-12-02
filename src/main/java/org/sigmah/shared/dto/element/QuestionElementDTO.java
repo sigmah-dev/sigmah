@@ -29,6 +29,7 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.Style.Unit;
 import java.util.Collections;
@@ -341,7 +342,17 @@ public class QuestionElementDTO extends FlexibleElementDTO {
 	}
 	
 	private String toLabel(String value) {
-		final QuestionChoiceElementDTO singleChoice = pickChoice(Integer.valueOf(value));
+		QuestionChoiceElementDTO singleChoice;
+		
+		try {
+			singleChoice = pickChoice(Integer.valueOf(value));
+			
+		} catch (NumberFormatException e) {
+			GWT.log("Value is not an id: '" + value + "'.", e);
+			
+			// Searching for the element.
+			singleChoice = pickChoice(value);
+		}
 
 		if (singleChoice != null) {
 			return singleChoice.getLabel();
@@ -351,13 +362,27 @@ public class QuestionElementDTO extends FlexibleElementDTO {
 	}
 	
 	private List<String> toLabels(String values) {
+		final ArrayList<String> labels = new ArrayList<String>();
+		
+		try {
 		final List<Integer> selectedChoicesId = ValueResultUtils.splitValuesAsInteger(values);
 
-		final ArrayList<String> labels = new ArrayList<String>();
 		for (final Integer id : selectedChoicesId) {
 			final QuestionChoiceElementDTO choice = pickChoice(id.intValue());
 			if (choice != null) {
 				labels.add(choice.getLabel());
+			}
+		}
+		} catch (NumberFormatException e) {
+			GWT.log("Values is not an array of ids:'" + values + "'.", e);
+			
+			final String valuesAsString = (String) values;
+			final String[] labelArray = valuesAsString.trim().split("-");
+			for (final String label : labelArray) {
+				final String trimmedLabel = label.trim();
+				if (!trimmedLabel.isEmpty()) {
+					labels.add(trimmedLabel);
+				}
 			}
 		}
 		
@@ -414,6 +439,26 @@ public class QuestionElementDTO extends FlexibleElementDTO {
 		if (getChoices() != null) {
 			for (final QuestionChoiceElementDTO choice : getChoices()) {
 				if (choice.getId().equals(id)) {
+					return choice;
+				}
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Select a choice among the list of the choices.
+	 * 
+	 * @param label
+	 *          The wanted choice's label.
+	 * @return The choice if it exists, <code>null</code> otherwise.
+	 */
+	private QuestionChoiceElementDTO pickChoice(final String label) {
+
+		if (getChoices() != null) {
+			for (final QuestionChoiceElementDTO choice : getChoices()) {
+				if (choice.getLabel().equals(label)) {
 					return choice;
 				}
 			}

@@ -13,6 +13,7 @@ import org.sigmah.shared.dto.calendar.PersonalCalendarIdentifier;
 public class ObjectJsMapBoxer implements AutoBoxingJsMap.Boxer<Object> {
 	
 	private enum Type {
+		BOOLEAN,
 		CALENDAR_WRAPPER,
 		DATE,
 		INTEGER,
@@ -52,6 +53,11 @@ public class ObjectJsMapBoxer implements AutoBoxingJsMap.Boxer<Object> {
 				.append(SEPARATOR)
 				.append((Long)object);
 			
+		} else if(object instanceof Boolean) {
+			stringBuilder.append(Type.BOOLEAN)
+				.append(SEPARATOR)
+				.append((Boolean) object);
+			
 		} else if(object instanceof CalendarWrapper) {
 			final CalendarWrapper calendarWrapper = (CalendarWrapper)object;
 			final PersonalCalendarIdentifier personalCalendarIdentifier = (PersonalCalendarIdentifier)calendarWrapper.getCalendar().getIdentifier();
@@ -75,6 +81,8 @@ public class ObjectJsMapBoxer implements AutoBoxingJsMap.Boxer<Object> {
 		final Type type = Type.valueOf(string.substring(0, separator));
 		
 		switch(type) {
+			case BOOLEAN:
+				return Boolean.parseBoolean(string.substring(separator + 1));
 			case CALENDAR_WRAPPER:
 				final PersonalCalendarIdentifier personalCalendarIdentifier = new PersonalCalendarIdentifier(Integer.parseInt(string.substring(separator + 1)));
 				final Calendar calendar = new Calendar();

@@ -66,7 +66,7 @@ public class MonitoredPointCalendarHandler implements CalendarHandler {
 
 			if (list.getPoints() != null) {
 				for (final MonitoredPoint point : list.getPoints()) {
-
+                    if(point.getDeleted() == null || !point.getDeleted()) {
 					final Event event = new Event();
 					event.setParent(calendar);
 					event.setIdentifier(point.getId());
@@ -110,6 +110,7 @@ public class MonitoredPointCalendarHandler implements CalendarHandler {
 					}
 					events.add(event);
 				}
+			}
 			}
 
 		} catch (NoResultException e) {

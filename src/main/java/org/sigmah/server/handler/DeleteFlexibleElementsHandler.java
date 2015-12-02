@@ -17,6 +17,8 @@ import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
 import com.google.inject.persist.Transactional;
+import javax.persistence.TypedQuery;
+import org.sigmah.server.domain.value.Value;
 
 /**
  * Handler for {@link DeleteFlexibleElements} command
@@ -56,9 +58,13 @@ public class DeleteFlexibleElementsHandler extends AbstractCommandHandler<Delete
 
 			FlexibleElement flexibleElement = em().find(FlexibleElement.class, dto.getId());
 
-			Query query = em().createQuery("Select l from LayoutConstraint l Where l.element = :flexibleElement");
+            Query valueQuery = em().createQuery("DELETE FROM Value v WHERE v.element = :element");
+            valueQuery.setParameter("element", flexibleElement);
+            valueQuery.executeUpdate();
+
+			TypedQuery<LayoutConstraint> query = em().createQuery("Select l from LayoutConstraint l Where l.element = :flexibleElement", LayoutConstraint.class);
 			query.setParameter("flexibleElement", flexibleElement);
-			for (LayoutConstraint layout : (List<LayoutConstraint>) query.getResultList()) {
+			for (LayoutConstraint layout : query.getResultList()) {
 				em().remove(layout);
 			}
 			LOG.debug("DeactivateUsersHandler flexElt " + dto.getId() + " name" + dto.getLabel());

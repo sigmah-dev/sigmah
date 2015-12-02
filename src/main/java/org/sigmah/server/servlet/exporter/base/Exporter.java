@@ -30,7 +30,7 @@ public abstract class Exporter {
 	/**
 	 * The export parameters.
 	 */
-	protected final Map<RequestParameter, Object> parametersMap;
+	protected final Map<String, String[]> parametersMap;
 
 	/**
 	 * The injector.
@@ -72,7 +72,6 @@ public abstract class Exporter {
 	 * @param context
 	 *          The execution context.
 	 */
-	@SuppressWarnings("unchecked")
 	public Exporter(final Injector injector, final HttpServletRequest req, ServletExecutionContext context) throws Exception {
 		this.context = context;
 		this.injector = injector;
@@ -86,7 +85,7 @@ public abstract class Exporter {
 
 		// Set the export format
 		// BUGFIX #800: Fixed format reading method.
-		final String[] formatArray = (String[]) parametersMap.get(RequestParameter.getRequestName(RequestParameter.FORMAT));
+		final String[] formatArray = parametersMap.get(RequestParameter.getRequestName(RequestParameter.FORMAT));
 		final String formatString = formatArray != null && formatArray.length == 1 ? formatArray[0] : null;
 
 		if (formatString != null) {
@@ -115,7 +114,7 @@ public abstract class Exporter {
 	 */
 	protected final String requireParameter(final RequestParameter parameter) throws Exception {
 
-		final String[] param = (String[]) parametersMap.get(RequestParameter.getRequestName(parameter));
+		final String[] param = parametersMap.get(RequestParameter.getRequestName(parameter));
 		if (param == null) {
 			throw new Exception("The parameter '" + parameter + "' 'is missing.");
 		}

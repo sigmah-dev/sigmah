@@ -29,7 +29,7 @@ public class DefaultFlexibleElementJS extends FlexibleElementJS {
 		return defaultFlexibleElementJS;
 	}
 	
-	public DefaultFlexibleElementDTO toDefaultFlexibleElementDTO() {
+	public final DefaultFlexibleElementDTO toDefaultFlexibleElementDTO() {
 		final DefaultFlexibleElementDTO defaultFlexibleElementDTO;
 		
 		if(getTypeEnum() == DefaultFlexibleElementType.BUDGET) {
@@ -46,14 +46,14 @@ public class DefaultFlexibleElementJS extends FlexibleElementJS {
 		return this.type;
 	}-*/;
 
-	public DefaultFlexibleElementType getTypeEnum() {
+	public final DefaultFlexibleElementType getTypeEnum() {
 		if(getType() != null) {
 			return DefaultFlexibleElementType.valueOf(getType());
 		}
 		return null;
 	}
 
-	public void setType(DefaultFlexibleElementType type) {
+	public final void setType(DefaultFlexibleElementType type) {
 		if(type != null) {
 			setType(type.name());
 		}

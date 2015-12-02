@@ -1,5 +1,6 @@
 package org.sigmah.client.ui.presenter.importation;
 
+import com.google.gwt.user.client.ui.Widget;
 import org.sigmah.shared.dto.ImportDetails;
 
 /**
@@ -9,5 +10,13 @@ import org.sigmah.shared.dto.ImportDetails;
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
 public interface ActionRenderer {
-	Object renderActionsForModel(ImportDetails model);
+	
+	/**
+	 * Creates actions buttons for the given model.
+	 * 
+	 * @param model Details of an import.
+	 * @return A widget containing the available actions.
+	 */
+	Widget renderActionsForModel(ImportDetails model);
+	
 }

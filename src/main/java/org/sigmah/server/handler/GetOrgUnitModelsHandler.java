@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
+import org.sigmah.server.domain.OrgUnit;
 
 /**
  * Retrieves the list of org unit models available to the user.
@@ -48,7 +49,14 @@ public class GetOrgUnitModelsHandler extends AbstractCommandHandler<GetOrgUnitMo
 		LOG.debug("Retrieving OrgUnit models for command: '{}'.", cmd);
 
 		final Integer organizationId = context.getUser().getOrganization().getId();
-		final int topModelId = context.getUser().getOrganization().getRoot().getOrgUnitModel().getId();
+		final Integer topModelId;
+		
+		final OrgUnit rootOrgUnit = context.getUser().getOrganization().getRoot();
+		if (rootOrgUnit != null) {
+			topModelId = rootOrgUnit.getOrgUnitModel().getId();
+		} else {
+			topModelId = null;
+		}
 
 		final List<ProjectModelStatus> statusFilters;
 

@@ -27,10 +27,10 @@ import org.sigmah.shared.dto.PhaseModelDTO;
 import org.sigmah.shared.dto.ProjectModelDTO;
 import org.sigmah.shared.dto.referential.ProjectModelStatus;
 
-import com.google.gwt.thirdparty.guava.common.base.Objects;
 import com.google.inject.Inject;
 import com.google.inject.persist.Transactional;
-import org.sigmah.server.domain.element.FilesListElement;
+import java.util.Objects;
+import org.sigmah.server.domain.User;
 import org.sigmah.server.domain.value.File;
 import org.sigmah.server.domain.value.FileVersion;
 import org.sigmah.server.handler.util.Conflicts;
@@ -38,7 +38,6 @@ import org.sigmah.server.i18n.I18nServer;
 import org.sigmah.shared.Language;
 import org.sigmah.shared.dispatch.CommandException;
 import org.sigmah.shared.dispatch.UpdateConflictException;
-import org.sigmah.shared.dto.referential.AmendmentState;
 
 /**
  * Handler for {@link Delete} command.
@@ -69,7 +68,7 @@ public class DeleteHandler extends AbstractCommandHandler<Delete, VoidResult> {
 		// These handler should redirect to one of the Entity policy classes.
 		final Class<? extends Deleteable> entityClass = entityClassForEntityName(cmd.getEntityName());
 
-		performDelete(cmd, entityClass, context.getLanguage());
+		performDelete(cmd, entityClass, context);
 
 		return null;
 	}
@@ -79,12 +78,12 @@ public class DeleteHandler extends AbstractCommandHandler<Delete, VoidResult> {
 	 * 
 	 * @param cmd Command defining what to delete.
 	 * @param entityClass Type of the entity to delete.
-	 * @param language Language of the current user.
+	 * @param context Execution context.
 	 * 
 	 * @throws org.sigmah.shared.dispatch.CommandException If the object can't be deleted.
 	 */
 	@Transactional(rollbackOn = CommandException.class)
-	protected void performDelete(final Delete cmd, final Class<? extends Deleteable> entityClass, final Language language) throws CommandException {
+	protected void performDelete(final Delete cmd, final Class<? extends Deleteable> entityClass, final UserExecutionContext context) throws CommandException {
 		if (ProjectModelStatus.DRAFT.equals(cmd.getProjectModelStatus()) && ProjectModelDTO.ENTITY_NAME.equals(cmd.getEntityName())) {
 			// Delete draft project model
 			final ProjectModel projectModel = (ProjectModel) em().find(entityClass, cmd.getId());
@@ -103,7 +102,7 @@ public class DeleteHandler extends AbstractCommandHandler<Delete, VoidResult> {
 
 		else {
 			final Deleteable entity = (Deleteable) em().find(entityClass, cmd.getId());
-			searchForConflicts(entity, language);
+			searchForConflicts(entity, context.getLanguage(), context.getUser());
 			
 			entity.delete();
 			em().persist(entity);
@@ -134,7 +133,7 @@ public class DeleteHandler extends AbstractCommandHandler<Delete, VoidResult> {
 		queryPhases.setParameter("phaseModelId", phaseModel.getId());
 
 		for (final Phase phase : queryPhases.getResultList()) {
-			if (phase.getParentProject() != null && Objects.equal(phase.getParentProject().getCurrentPhase(), phase)) {
+			if (phase.getParentProject() != null && Objects.equals(phase.getParentProject().getCurrentPhase(), phase)) {
 				final Project parentProject = em().find(Project.class, phase.getParentProject().getId());
 				parentProject.setCurrentPhase(null);
 				em().merge(parentProject);
@@ -301,7 +300,15 @@ public class DeleteHandler extends AbstractCommandHandler<Delete, VoidResult> {
 		em().flush();
 	}
 
-	private void searchForConflicts(Deleteable deleteable, Language language) throws UpdateConflictException {
+	/**
+	 * Check if the deletion will happen in a conflicting state.
+	 * 
+	 * @param deleteable Delete command.
+	 * @param language Language of the current user.
+	 * @param user User trying to delete a field.
+	 * @throws UpdateConflictException If a conflict has been detected.
+	 */
+	private void searchForConflicts(Deleteable deleteable, Language language, User user) throws UpdateConflictException {
 		// For now, this method only verify conflicts with files since the
 		// offline mode handle only file deletion.
 		
@@ -319,20 +326,7 @@ public class DeleteHandler extends AbstractCommandHandler<Delete, VoidResult> {
 		}
 		
 		if(file != null) {
-			final Project project = conflicts.getParentProjectOfFile(file);
-			final FilesListElement filesListElement = conflicts.getParentFilesListElement(file);
-			
-			if(filesListElement != null && project != null) {
-				if(project.getCloseDate() != null) {
-					throw new UpdateConflictException(project.toContainerInformation(), i18nServer.t(language, "conflictRemovingFileFromAClosedProject", filesListElement.getLabel()));
-					
-				} else if(conflicts.isParentPhaseClosed(filesListElement.getId(), project.getId())) {
-					throw new UpdateConflictException(project.toContainerInformation(), i18nServer.t(language, "conflictRemovingFileFromAClosedPhase", filesListElement.getLabel()));
-					
-				} else if(project.getAmendmentState() == AmendmentState.LOCKED && filesListElement.isAmendable()) {
-					throw new UpdateConflictException(project.toContainerInformation(), i18nServer.t(language, "conflictRemovingFileFromALockedField", filesListElement.getLabel()));
-				}
-			}
+			conflicts.searchForFileDeleteConflicts(file, language, user);
 		}
 	}
 	

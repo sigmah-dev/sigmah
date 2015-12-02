@@ -25,7 +25,7 @@ public final class ProjectModelJS extends JavaScriptObject {
 	}
 	
 	public static ProjectModelJS toJavaScript(ProjectModelDTO projectModelDTO) {
-		final ProjectModelJS projectModelJS = new ProjectModelJS();
+		final ProjectModelJS projectModelJS = Values.createJavaScriptObject(ProjectModelJS.class);
 		
 		projectModelJS.setId(projectModelDTO.getId());
 		projectModelJS.setName(projectModelDTO.getName());

@@ -23,6 +23,7 @@ import com.google.gwt.core.client.JsArray;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import java.util.Map;
 import org.sigmah.offline.dao.UpdateDiaryAsyncDAO;
 import org.sigmah.offline.js.ListableValueJS;
 import org.sigmah.offline.js.Values;
@@ -63,9 +64,11 @@ public class PrepareFileUploadAsyncHandler implements AsyncCommandHandler<Prepar
 	
 	private void findAndUpdateFileVersion(final PrepareFileUpload command, final int versionId, 
 			final Authentication authentication, final AsyncCallback<FileVersionDTO> callback) {
-		final String fileId = command.getProperties().get(FileUploadUtils.DOCUMENT_ID);
-		final String projectId = command.getProperties().get(FileUploadUtils.DOCUMENT_PROJECT);
-		final String elementId = command.getProperties().get(FileUploadUtils.DOCUMENT_FLEXIBLE_ELEMENT);
+		final Map<String, String> properties = command.getProperties();
+		
+		final String fileId = properties.get(FileUploadUtils.DOCUMENT_ID);
+		final String projectId = properties.get(FileUploadUtils.DOCUMENT_PROJECT);
+		final String elementId = properties.get(FileUploadUtils.DOCUMENT_FLEXIBLE_ELEMENT);
 		
 		final GetValue getValue = new GetValue();
 		getValue.setProjectId(Integer.parseInt(projectId));

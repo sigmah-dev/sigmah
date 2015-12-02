@@ -302,9 +302,9 @@ public class FilesListElementDTO extends FlexibleElementDTO {
 
 		int max = getAdjustedLimit();
 		if (max != -1) {
-			mainPanel.setHeadingText(getLabel() + " (" + I18N.MESSAGES.flexibleElementFilesListLimitReached(String.valueOf(getAdjustedLimit())) + ")");
+			mainPanel.setHeadingHtml(getLabel() + " (" + I18N.MESSAGES.flexibleElementFilesListLimitReached(String.valueOf(getAdjustedLimit())) + ")");
 		} else {
-			mainPanel.setHeadingText(getLabel());
+			mainPanel.setHeadingHtml(getLabel());
 		}
 
 		if (canAdd) {
@@ -537,6 +537,12 @@ public class FilesListElementDTO extends FlexibleElementDTO {
 				uploadFormPanel.setMethod(Method.POST);
 				uploadFormPanel.setAction(GWT.getModuleBaseURL() + "upload");
 
+				final HiddenField<String> elementIdHidden = new HiddenField<String>();
+				elementIdHidden.setName(FileUploadUtils.DOCUMENT_FLEXIBLE_ELEMENT);
+
+				final HiddenField<String> projectIdHidden = new HiddenField<String>();
+				projectIdHidden.setName(FileUploadUtils.DOCUMENT_PROJECT);
+				
 				final HiddenField<String> idHidden = new HiddenField<String>();
 				idHidden.setName(FileUploadUtils.DOCUMENT_ID);
 
@@ -550,6 +556,8 @@ public class FilesListElementDTO extends FlexibleElementDTO {
 				versionHidden.setName(FileUploadUtils.DOCUMENT_VERSION);
 
 				uploadFormPanel.add(uploadField);
+				uploadFormPanel.add(elementIdHidden);
+				uploadFormPanel.add(projectIdHidden);
 				uploadFormPanel.add(authorHidden);
 				uploadFormPanel.add(idHidden);
 				uploadFormPanel.add(nameHidden);
@@ -563,6 +571,8 @@ public class FilesListElementDTO extends FlexibleElementDTO {
 
 						if (transfertManager.canUpload()) {
 							// Set hidden fields values.
+							elementIdHidden.setValue(String.valueOf(getId()));
+							projectIdHidden.setValue(String.valueOf(currentContainerDTO.getId()));
 							idHidden.setValue(String.valueOf(model.getId()));
 							nameHidden.setValue(uploadField.getValue());
 							authorHidden.setValue(String.valueOf(auth().getUserId()));

@@ -54,7 +54,10 @@ public class OrganizationAsyncDAO extends AbstractAsyncDAO<OrganizationDTO> {
         });
 
 		// Saving its root
-		orgUnitDAO.saveOrUpdate(t.getRoot(), null, transaction);
+		final OrgUnitDTO rootOrgUnit = t.getRoot();
+		if (rootOrgUnit != null) {
+			orgUnitDAO.saveOrUpdate(rootOrgUnit, null, transaction);
+		}
 	}
 	
 	@Override

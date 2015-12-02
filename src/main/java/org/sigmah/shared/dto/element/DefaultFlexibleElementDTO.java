@@ -105,6 +105,11 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 	 */
 	@Override
 	protected Component getComponent(ValueResult valueResult, boolean enabled) {
+		
+		if (currentContainerDTO instanceof DefaultFlexibleElementContainer) {
+			container = (DefaultFlexibleElementContainer) currentContainerDTO;
+		}
+		
 		if (valueResult != null && valueResult.isValueDefined())
 			return getComponentWithValue(valueResult, enabled);
 		else
@@ -130,9 +135,7 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 
 	protected Component getComponent(boolean enabled) {
 
-		if (currentContainerDTO instanceof DefaultFlexibleElementContainer) {
-			container = (DefaultFlexibleElementContainer) currentContainerDTO;
-		} else {
+		if (currentContainerDTO == null) {
 			throw new IllegalArgumentException(
 				"The flexible elements container isn't an instance of DefaultFlexibleElementContainer. The default flexible element connot be instanciated.");
 		}
@@ -395,7 +398,7 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 	 */
 	private Field<?> buildCountryField(CountryDTO country, boolean enabled) {
 		// COUNTRY of project should not be changeable except OrgUnit's
-		enabled &= !(container instanceof ProjectDTO);
+		enabled &= !(currentContainerDTO instanceof ProjectDTO);
 
 		final Field<?> field;
 		

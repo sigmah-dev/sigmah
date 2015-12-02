@@ -95,7 +95,7 @@ public class AuthenticationBannerPresenter extends AbstractZonePresenter<Authent
 
 			@Override
 			public void onMouseOver(MouseOverEvent event) {
-				view.getChangePasswordHandler().setVisible(canChangeOwnPassword && true);
+				view.getChangePasswordHandler().setVisible(canChangeOwnPassword);
 			}
 			
 		}, MouseOverEvent.getType());

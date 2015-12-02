@@ -25,8 +25,7 @@ public final class ProjectReportSectionJS extends ProjectReportContentJS {
 		return projectReportSectionJS;
 	}
 
-	@Override
-	public ProjectReportSectionDTO createDTO() {
+	public final ProjectReportSectionDTO createDTO() {
 		final ProjectReportSectionDTO projectReportSectionDTO = new ProjectReportSectionDTO();
 		
 		projectReportSectionDTO.setId(getId());

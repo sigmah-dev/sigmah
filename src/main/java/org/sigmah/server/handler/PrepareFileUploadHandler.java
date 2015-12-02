@@ -40,7 +40,7 @@ public class PrepareFileUploadHandler extends AbstractCommandHandler<PrepareFile
 	 */
 	@Override
 	protected FileVersionDTO execute(final PrepareFileUpload command, final UserDispatch.UserExecutionContext context) throws CommandException {
-		conflicts.searchForFileAddConflicts(command.getProperties(), context.getLanguage());
+		conflicts.searchForFileAddConflicts(command.getProperties(), context.getLanguage(), context.getUser());
 		
 		final String uid = FileServlet.generateUniqueName();
 

@@ -155,6 +155,11 @@ public class OfflineBannerView extends AbstractView implements OfflineBannerPres
 		setAnchorEnabled(menuPanel.getTransferFilesAnchor(), enabled);
     }
 	
+	@Override
+	public boolean isEnabled(Anchor anchor) {
+		return !anchor.getStyleName().contains("offline-action-disabled");
+	}
+	
 	private void setAnchorEnabled(Anchor anchor, boolean enabled) {
         anchor.setEnabled(enabled);
         if(enabled) {

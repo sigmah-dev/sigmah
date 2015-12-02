@@ -42,9 +42,9 @@ public class CheckboxElementDTO extends FlexibleElementDTO {
 		checkbox.setBoxLabel(getLabel());
 		checkbox.setHideLabel(true);
 
-		if (valueResult != null && valueResult.getValueObject() != null) {
-			String value = valueResult.getValueObject();
-			checkbox.setValue(value.equalsIgnoreCase("true"));
+		if (valueResult != null) {
+			final String value = valueResult.getValueObject();
+			checkbox.setValue(Boolean.parseBoolean(value));
 		}
 
 		checkbox.addListener(Events.Change, new CheckBoxListener());

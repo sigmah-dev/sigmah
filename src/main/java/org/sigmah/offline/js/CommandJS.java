@@ -89,7 +89,7 @@ public class CommandJS extends JavaScriptObject {
 		return commandJS;
 	}
 	
-	public Command<?> toCommand() {
+	public final Command<?> toCommand() {
 		final Command<?> command;
 		
 		switch(getCommandTypeEnum()) {
@@ -140,7 +140,7 @@ public class CommandJS extends JavaScriptObject {
 		return this.elementType;
 	}-*/;
 	
-	public Type getCommandTypeEnum() {
+	public final Type getCommandTypeEnum() {
 		if(getCommandType() != null) {
 			return Type.valueOf(getCommandType());
 		} else {
@@ -148,7 +148,7 @@ public class CommandJS extends JavaScriptObject {
 		}
 	}
 
-	public void setCommandType(Type type) {
+	public final void setCommandType(Type type) {
 		if(type != null) {
 			setCommandType(type.name());
 		}

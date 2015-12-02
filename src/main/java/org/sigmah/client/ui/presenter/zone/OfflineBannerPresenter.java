@@ -7,7 +7,6 @@ import com.google.gwt.event.dom.client.MouseOutEvent;
 import com.google.gwt.event.dom.client.MouseOutHandler;
 import com.google.gwt.event.dom.client.MouseOverEvent;
 import com.google.gwt.event.dom.client.MouseOverHandler;
-import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -69,13 +68,13 @@ implements OfflineEvent.Source {
     private static final double PUSH_VALUE = 0.4;
 	private static final double UNDEFINED = -1.0;
     
-    private HandlerRegistration syncHandlerRegistration;
-    private HandlerRegistration fileHandlerRegistration;
 	private Map<ProgressType, Double> progresses;
     
 	private boolean linkHover;
 	private boolean menuHover;
 	private boolean forceOpen;
+	
+	private ApplicationState lastState = ApplicationState.UNKNOWN;
 	
 	/**
 	 * View interface.
@@ -92,6 +91,7 @@ implements OfflineEvent.Source {
         void setProgress(double progress, boolean undefined);
         void setSynchronizeAnchorEnabled(boolean enabled);
         void setTransferFilesAnchorEnabled(boolean enabled);
+		boolean isEnabled(Anchor anchor);
         void setWarningIconVisible(boolean visible);
 	}
     
@@ -182,6 +182,37 @@ implements OfflineEvent.Source {
         });
 		
         updateProgressBars();
+		
+		// Actions
+		
+		menuPanel.getUpdateDatabaseAnchor().addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				if (!view.isEnabled(menuPanel.getUpdateDatabaseAnchor())) {
+					return;
+				}
+				if (lastState == ApplicationState.READY_TO_SYNCHRONIZE) {
+					setMenuVisible(false);
+					pushAndPull();
+				} else if(lastState == ApplicationState.ONLINE) {
+					setMenuVisible(false);
+					pull();
+				}
+			}
+		});
+		
+		menuPanel.getTransferFilesAnchor().addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				if (!view.isEnabled(menuPanel.getTransferFilesAnchor())) {
+					return;
+				}
+				if (lastState == ApplicationState.ONLINE) {
+					setMenuVisible(false);
+					eventBus.navigate(Page.OFFLINE_SELECT_FILES);
+				}
+			}
+		});
 	}
     
     /**
@@ -376,18 +407,9 @@ implements OfflineEvent.Source {
 	}
 
     private void onStateChange(ApplicationState state) {
+		this.lastState = state;
         view.setStatus(state);
             
-        if(syncHandlerRegistration != null) {
-            syncHandlerRegistration.removeHandler();
-            syncHandlerRegistration = null;
-        }
-		
-		if(fileHandlerRegistration != null) {
-			fileHandlerRegistration.removeHandler();
-			fileHandlerRegistration = null;
-		}
-
         final Anchor syncAnchor = view.getMenuPanel().getUpdateDatabaseAnchor();
 		final Anchor fileAnchor = view.getMenuPanel().getTransferFilesAnchor();
 		
@@ -402,13 +424,6 @@ implements OfflineEvent.Source {
 				fileAnchor.getElement().getStyle().setDisplay(Style.Display.NONE);
                 syncAnchor.getElement().getStyle().clearDisplay();
                 syncAnchor.setText(I18N.CONSTANTS.offlineActionSynchronize());
-                syncHandlerRegistration = syncAnchor.addClickHandler(new ClickHandler() {
-                    @Override
-                    public void onClick(ClickEvent event) {
-                        setMenuVisible(false);
-                        pushAndPull();
-                    }
-                });
 				RootPanel.getBodyElement().addClassName("offline");
                 break;
 
@@ -416,22 +431,8 @@ implements OfflineEvent.Source {
                 syncAnchor.getElement().getStyle().clearDisplay();
                 syncAnchor.setText(I18N.CONSTANTS.offlineActionUpdateDatabase());
 				RootPanel.getBodyElement().removeClassName("offline");
-                syncHandlerRegistration = syncAnchor.addClickHandler(new ClickHandler() {
-                    @Override
-                    public void onClick(ClickEvent event) {
-                        setMenuVisible(false);
-                        pull();
-                    }
-                });
 				
                 fileAnchor.getElement().getStyle().clearDisplay();
-				fileHandlerRegistration = fileAnchor.addClickHandler(new ClickHandler() {
-					@Override
-					public void onClick(ClickEvent event) {
-						setMenuVisible(false);
-						eventBus.navigate(Page.OFFLINE_SELECT_FILES);
-					}
-				});
                 break;
 
             default:

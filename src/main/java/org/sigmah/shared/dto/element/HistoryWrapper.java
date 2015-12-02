@@ -239,4 +239,21 @@ public class HistoryWrapper<V> extends AdapterField {
 	public void unmask() {
 		field.unmask();
 	}
+
+	/**
+	 * {@inheritDoc} 
+	 */
+	@Override
+	public boolean isHideLabel() {
+		return field.isHideLabel();
+	}
+
+	/**
+	 * {@inheritDoc} 
+	 */
+	@Override
+	public void setHideLabel(boolean hideLabel) {
+		field.setHideLabel(hideLabel);
+	}
+	
 }

@@ -82,7 +82,9 @@ public class ProjectModelAsyncDAO extends AbstractAsyncDAO<ProjectModelDTO> {
 							phaseModelAsyncDAO.get(phaseModels.get(index), new RequestManagerCallback<ProjectModelDTO, PhaseModelDTO>(requestManager) {
 								@Override
 								public void onRequestSuccess(PhaseModelDTO result) {
+									if (result != null) {
 									dtos.add(result);
+								}
 								}
 							}, transaction);
 						}

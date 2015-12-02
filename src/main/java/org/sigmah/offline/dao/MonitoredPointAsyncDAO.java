@@ -114,7 +114,9 @@ public class MonitoredPointAsyncDAO extends AbstractAsyncDAO<MonitoredPointDTO> 
                         final Cursor cursor = cursorRequest.getResult();
 						if(cursor != null) {
 							final MonitoredPointJS monitoredPointJS = (MonitoredPointJS) cursor.getValue();
+							if (!monitoredPointJS.isDeleted()) {
 							monitoredPoints.add(monitoredPointJS.toDTO());
+							}
 							cursor.next();
 							
 						} else {
@@ -155,7 +157,9 @@ public class MonitoredPointAsyncDAO extends AbstractAsyncDAO<MonitoredPointDTO> 
 				final Cursor cursor = cursorRequest.getResult();
 				if(cursor != null) {
 					final MonitoredPointJS monitoredPointJS = (MonitoredPointJS) cursor.getValue();
+					if (!monitoredPointJS.isDeleted()) {
 					monitoredPoints.add(monitoredPointJS.toDTO());
+					}
 					cursor.next();
 
 				} else {
@@ -187,7 +191,7 @@ public class MonitoredPointAsyncDAO extends AbstractAsyncDAO<MonitoredPointDTO> 
 						final Cursor cursor = cursorRequest.getResult();
 						if(cursor != null) {
 							final MonitoredPointJS monitoredPointJS = (MonitoredPointJS) cursor.getValue();
-							if(monitoredPointJS.getCompletionDate() == null) {
+							if(monitoredPointJS.getCompletionDate() == null && !monitoredPointJS.isDeleted()) {
 								monitoredPoints.add(monitoredPointJS.toDTO());
 							}
 							cursor.next();

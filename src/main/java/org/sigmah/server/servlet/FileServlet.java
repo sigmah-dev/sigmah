@@ -392,7 +392,7 @@ public class FileServlet extends AbstractServlet {
 		final long size = this.processUpload(multipartRequest, response, fileName, false);
 		final Map<String, String> properties = multipartRequest.getProperties();
 		
-		conflicts.searchForFileAddConflicts(properties, context.getLanguage());
+		conflicts.searchForFileAddConflicts(properties, context.getLanguage(), context.getUser());
 
 		// --
 		// Create the associated entries in File and FileVersion tables.

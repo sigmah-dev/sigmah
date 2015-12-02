@@ -20,7 +20,6 @@ public final class RichTextElementJS extends ProjectReportContentJS {
 		return richTextElementJS;
 	}
 	
-	@Override
 	protected RichTextElementDTO createDTO() {
 		final RichTextElementDTO richTextElementDTO = new RichTextElementDTO();
 		

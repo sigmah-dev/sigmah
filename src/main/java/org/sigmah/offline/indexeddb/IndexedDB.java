@@ -14,7 +14,7 @@ import org.sigmah.shared.command.result.Authentication;
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
 public class IndexedDB {
-	private static final int REVISION = 8;
+	private static final int REVISION = 9;
 	private static final int VERSION = Store.values().length + REVISION;
     
     private static State state = State.CLOSED;
@@ -135,6 +135,8 @@ public class IndexedDB {
 						break;
 					case PROJECT:
 						objectStore.createIndex("orgUnit", "orgUnit");
+						objectStore.createIndex("remindersListId", "remindersListId");
+						objectStore.createIndex("pointsListId", "pointsListId");
 						break;
 					case PROJECT_REPORT:
 						objectStore.createIndex("versionId", "versionId");
@@ -189,7 +191,7 @@ public class IndexedDB {
 		this.nativeIndexedDB = NativeIndexedDB.getIndexedDB();
 	}
 
-	private NativeOpenDatabaseRequest open(String name, int version) {
+	public NativeOpenDatabaseRequest open(String name, int version) {
 		return new NativeOpenDatabaseRequest(nativeIndexedDB.open(name, version));
 	}
     
@@ -197,7 +199,7 @@ public class IndexedDB {
         return new NativeOpenDatabaseRequest(nativeIndexedDB.deleteDatabase(name));
     }
     
-    private static enum State {
+    public static enum State {
         CLOSED, OPENING, OPENED, ERROR;
     }
 }

@@ -39,12 +39,18 @@ import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.grid.filters.DateFilter;
 import com.extjs.gxt.ui.client.widget.grid.filters.GridFilters;
 import com.extjs.gxt.ui.client.widget.grid.filters.StringFilter;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
+import org.sigmah.client.page.Page;
+import org.sigmah.client.page.RequestParameter;
+import org.sigmah.client.ui.presenter.DashboardPresenter.ReminderOrMonitoredPointHandler;
+import org.sigmah.client.ui.presenter.project.dashboard.ProjectDashboardPresenter;
 
 /**
  * Dashboard view.
@@ -76,6 +82,21 @@ public class DashboardView extends AbstractView implements DashboardPresenter.Vi
 
 	private ProjectsListWidget projectsListWidget;
 
+    private static ReminderOrMonitoredPointHandler handler;
+    
+    final ReminderOrMonitoredPointHandler getReminderOrMonitoredPointHandler() {
+		return handler;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setReminderOrMonitoredPointHandler(final ReminderOrMonitoredPointHandler handler) {
+		this.handler = handler;
+	}
+    
+    
 	/**
 	 * {@inheritDoc}
 	 */
@@ -85,7 +106,6 @@ public class DashboardView extends AbstractView implements DashboardPresenter.Vi
 		// --
 		// Left panel (Reminders + MonitoredPoints + Buttons).
 		// --
-
 		final LayoutContainer leftContainer = Layouts.vBox();
 
 		leftContainer.add(createRemindersPanel(), Layouts.vBoxData(Margin.BOTTOM));
@@ -97,7 +117,6 @@ public class DashboardView extends AbstractView implements DashboardPresenter.Vi
 		// --
 		// Center panel (OrgUnits + Projects).
 		// --
-
 		final LayoutContainer centerContainer = Layouts.vBox();
 
 		centerContainer.add(createOrgUnitsPanel(), Layouts.vBoxData(1.0, Margin.BOTTOM, Margin.LEFT));
@@ -211,7 +230,6 @@ public class DashboardView extends AbstractView implements DashboardPresenter.Vi
 	// UTILITY METHODS.
 	//
 	// -------------------------------------------------------------------------------------------
-
 	/**
 	 * Creates the reminders component.
 	 * 
@@ -322,7 +340,6 @@ public class DashboardView extends AbstractView implements DashboardPresenter.Vi
 
 				if (DateUtils.DAY_COMPARATOR.compare(now, model.getExpectedDate()) > 0) {
 					return IconImageBundle.ICONS.overdueReminder().createImage();
-
 				} else {
 					return IconImageBundle.ICONS.openedReminder().createImage();
 				}
@@ -334,6 +351,39 @@ public class DashboardView extends AbstractView implements DashboardPresenter.Vi
 		labelColumn.setId(ReminderDTO.LABEL);
 		labelColumn.setHeaderHtml(I18N.CONSTANTS.monitoredPointLabel());
 		labelColumn.setWidth(100);
+
+        // project Code column.
+        final ColumnConfig projectCodeColumn = new ColumnConfig();
+        projectCodeColumn.setId(ReminderDTO.PROJECT_CODE);
+        projectCodeColumn.setHeaderHtml(I18N.CONSTANTS.project());
+        projectCodeColumn.setWidth(100);
+
+        // project Name column.
+        final ColumnConfig projectNameColumn = new ColumnConfig();
+        projectNameColumn.setId(ReminderDTO.PROJECT_NAME);
+        projectNameColumn.setHeaderHtml(I18N.CONSTANTS.projectName());
+        projectNameColumn.setWidth(100);
+
+        projectNameColumn.setRenderer(new GridCellRenderer<ReminderDTO>() {
+
+			@Override
+			public Object render(final ReminderDTO model, String property, ColumnData config, int rowIndex, int colIndex, ListStore<ReminderDTO> store,
+					Grid<ReminderDTO> grid) {
+
+				final com.google.gwt.user.client.ui.Label label = new com.google.gwt.user.client.ui.Label((String) model.get(property));
+				label.addStyleName("hyperlink-label");
+
+				label.addClickHandler(new ClickHandler() {
+
+					@Override
+					public void onClick(ClickEvent event) {
+                        handler.onLabelClickEvent(model.getProjectId());
+					}
+				});
+
+				return label;
+			}
+		});
 
 		// Expected date column.
 		final ColumnConfig expectedDateColumn = new ColumnConfig();
@@ -358,6 +408,8 @@ public class DashboardView extends AbstractView implements DashboardPresenter.Vi
 		return Arrays.asList(new ColumnConfig[] {
 																							iconColumn,
 																							labelColumn,
+            projectNameColumn,
+            projectCodeColumn,
 																							expectedDateColumn
 		});
 	}
@@ -398,6 +450,38 @@ public class DashboardView extends AbstractView implements DashboardPresenter.Vi
 		labelColumn.setHeaderHtml(I18N.CONSTANTS.monitoredPointLabel());
 		labelColumn.setWidth(100);
 
+        // project Code column.
+        final ColumnConfig projectCodeColumn = new ColumnConfig();
+        projectCodeColumn.setId(MonitoredPointDTO.PROJECT_CODE);
+        projectCodeColumn.setHeaderHtml(I18N.CONSTANTS.project());
+        projectCodeColumn.setWidth(100);
+
+        // project Name column.
+        final ColumnConfig projectNameColumn = new ColumnConfig();
+        projectNameColumn.setId(MonitoredPointDTO.PROJECT_NAME);
+        projectNameColumn.setHeaderHtml(I18N.CONSTANTS.projectName());
+        projectNameColumn.setWidth(100);
+        projectNameColumn.setRenderer(new GridCellRenderer<MonitoredPointDTO>() {
+
+			@Override
+			public Object render(final MonitoredPointDTO model, String property, ColumnData config, int rowIndex, int colIndex, ListStore<MonitoredPointDTO> store,
+					Grid<MonitoredPointDTO> grid) {
+
+				final com.google.gwt.user.client.ui.Label label = new com.google.gwt.user.client.ui.Label((String) model.get(property));
+				label.addStyleName("hyperlink-label");
+
+				label.addClickHandler(new ClickHandler() {
+
+					@Override
+					public void onClick(ClickEvent event) {
+                        handler.onLabelClickEvent(model.getProjectId());
+					}
+				});
+
+				return label;
+			}
+		});
+
 		// Expected date.
 		final ColumnConfig expectedDateColumn = new ColumnConfig();
 		expectedDateColumn.setId(MonitoredPointDTO.EXPECTED_DATE);
@@ -413,6 +497,7 @@ public class DashboardView extends AbstractView implements DashboardPresenter.Vi
 				final Label label = new Label(format.format(model.getExpectedDate()));
 				if (!model.isCompleted() && DateUtils.DAY_COMPARATOR.compare(now, model.getExpectedDate()) > 0) {
 					label.addStyleName(EXPECTED_DATE_LABEL_STYLE);
+                    
 				}
 				return label;
 			}
@@ -421,6 +506,8 @@ public class DashboardView extends AbstractView implements DashboardPresenter.Vi
 		return Arrays.asList(new ColumnConfig[] {
 																							iconColumn,
 																							labelColumn,
+            projectNameColumn,
+            projectCodeColumn,
 																							expectedDateColumn
 		});
 	}

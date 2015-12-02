@@ -6,9 +6,11 @@ import java.util.List;
 import java.util.Set;
 
 import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 
 import org.sigmah.server.dispatch.impl.UserDispatch.UserExecutionContext;
 import org.sigmah.server.domain.OrgUnit;
+import org.sigmah.server.domain.Project;
 import org.sigmah.server.domain.reminder.Reminder;
 import org.sigmah.server.domain.util.DomainFilters;
 import org.sigmah.server.handler.base.AbstractCommandHandler;
@@ -106,7 +108,19 @@ public class GetRemindersHandler extends AbstractCommandHandler<GetReminders, Li
 					continue; // Not completed only.
 				}
 
-				dtos.add(mapper().map(reminder, ReminderDTO.class, mappingMode));
+                final TypedQuery<Project> fullNameQuery = em().createQuery("SELECT p FROM Project p WHERE p.remindersList = :remindersList", Project.class);
+                
+                fullNameQuery.setParameter("remindersList", reminder.getParentList());
+               
+                final ReminderDTO reminderDTO = mapper().map(reminder, ReminderDTO.class, mappingMode);
+                
+                Project project = fullNameQuery.getSingleResult();
+                
+                reminderDTO.setProjectId(project.getId());
+                reminderDTO.setProjectName(project.getName());
+                reminderDTO.setProjectCode(project.getFullName());
+                
+				dtos.add(reminderDTO);
 			}
 		}
 

@@ -6,9 +6,11 @@ import java.util.List;
 import java.util.Set;
 
 import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 
 import org.sigmah.server.dispatch.impl.UserDispatch.UserExecutionContext;
 import org.sigmah.server.domain.OrgUnit;
+import org.sigmah.server.domain.Project;
 import org.sigmah.server.domain.reminder.MonitoredPoint;
 import org.sigmah.server.domain.util.DomainFilters;
 import org.sigmah.server.handler.base.AbstractCommandHandler;
@@ -17,6 +19,7 @@ import org.sigmah.shared.command.GetMonitoredPoints;
 import org.sigmah.shared.command.result.ListResult;
 import org.sigmah.shared.dispatch.CommandException;
 import org.sigmah.shared.dto.reminder.MonitoredPointDTO;
+import org.sigmah.shared.dto.reminder.ReminderDTO;
 
 /**
  * Handler for the {@link GetMonitoredPoints} command.
@@ -105,7 +108,20 @@ public class GetMonitoredPointsHandler extends AbstractCommandHandler<GetMonitor
 					continue; // Not completed only.
 				}
 
-				dtos.add(mapper().map(monitoredPoint, MonitoredPointDTO.class, mappingMode));
+                final TypedQuery<Project> fullNameQuery = em().createQuery("SELECT p FROM Project p WHERE p.pointsList = :pointsList", Project.class);
+                
+                fullNameQuery.setParameter("pointsList", monitoredPoint.getParentList());
+               
+                final MonitoredPointDTO monitoredPointDTO = mapper().map(monitoredPoint, MonitoredPointDTO.class, mappingMode);
+                
+                Project project = fullNameQuery.getSingleResult();
+                
+                monitoredPointDTO.setProjectId(project.getId());
+                monitoredPointDTO.setProjectName(project.getName());
+                monitoredPointDTO.setProjectCode(project.getFullName());
+                
+				dtos.add(monitoredPointDTO);
+
 			}
 		}
 

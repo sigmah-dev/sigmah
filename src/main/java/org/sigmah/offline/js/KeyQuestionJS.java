@@ -23,7 +23,6 @@ public final class KeyQuestionJS extends ProjectReportContentJS {
 		return keyQuestionJS;
 	}
 	
-	@Override
 	protected KeyQuestionDTO createDTO() {
 		final KeyQuestionDTO keyQuestionDTO = new KeyQuestionDTO();
 		

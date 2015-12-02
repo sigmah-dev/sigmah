@@ -12,6 +12,7 @@ import org.sigmah.shared.dto.base.mapping.IsMappingMode;
 import org.sigmah.shared.dto.base.mapping.MappingField;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
 import org.sigmah.shared.dto.layout.LayoutConstraintDTO;
+import org.sigmah.shared.dto.layout.LayoutDTO;
 import org.sigmah.shared.dto.layout.LayoutGroupDTO;
 import org.sigmah.shared.dto.logframe.LogFrameModelDTO;
 import org.sigmah.shared.dto.referential.ElementTypeEnum;
@@ -471,13 +472,16 @@ public class ProjectModelDTO extends AbstractModelDataEntityDTO<Integer> impleme
 		// Phases.
 		// --
 
-		for (final PhaseModelDTO phaseDTO : getPhaseModels()) {
-			for (final LayoutGroupDTO lg : phaseDTO.getLayout().getGroups()) {
+		for (final PhaseModelDTO phaseModel : getPhaseModels()) {
+			if (phaseModel != null) {
+				final LayoutDTO layout = phaseModel.getLayout();
+				if (layout != null) {
+					for (final LayoutGroupDTO lg : layout.getGroups()) {
 				for (final LayoutConstraintDTO lc : lg.getConstraints()) {
 					final FlexibleElementDTO f = lc.getFlexibleElementDTO();
 					f.setGroup(lg);
 					f.setConstraint(lc);
-					f.setContainerModel(phaseDTO);
+							f.setContainerModel(phaseModel);
 					for (final FlexibleElementDTO bf : bannerElements) {
 						if (f.getId().equals(bf.getId())) {
 							f.setBannerConstraint(bf.getBannerConstraint());
@@ -485,6 +489,8 @@ public class ProjectModelDTO extends AbstractModelDataEntityDTO<Integer> impleme
 					}
 					allElements.add(f);
 				}
+			}
+		}
 			}
 		}
 
