@@ -61,6 +61,7 @@ body.x-body-masked .x-window-mc,body.x-body-masked .x-window-plain .x-window-mc{
 .x-tab-panel-noborder .x-tab-panel-header-noborder{border-top-width:0;border-left-width:0;border-right-width:0;}
 .x-tab-panel-noborder .x-tab-panel-footer-noborder{border-bottom-width:0;border-left-width:0;border-right-width:0;}
 .x-form-text,textarea.x-form-field{border:1px solid #C8BEB5;}
+.x-form-textarea{line-height: 1.8em; }
 .x-trigger-wrap-focus .x-form-trigger{border-bottom:1px solid #787878;background-position:-51px 0;}
 .x-form-focus,textarea.x-form-focus{border:1px solid #787878;}
 .x-form-field-wrap .x-form-trigger{background:transparent url(../images/sigmah/form/trigger.gif) no-repeat 0 0;border-bottom:1px solid #789;}
