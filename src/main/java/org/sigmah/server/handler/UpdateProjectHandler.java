@@ -147,9 +147,7 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 
 				final DefaultFlexibleElementDTO defaultElement = (DefaultFlexibleElementDTO) source;
 
-				if (LOG.isDebugEnabled()) {
 					LOG.debug("[execute] Default element case '{}'.", defaultElement.getType());
-				}
 
 				// Saves the value and switch to the next value.
 				final String oldValue = saveDefaultElement(projectId, defaultElement.getType(), updateSingleValue, isProjectCountryChanged);

@@ -15,6 +15,7 @@ import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Panel;
+import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
 import java.io.Serializable;
@@ -172,7 +173,7 @@ public class ImportationPresenter extends AbstractPagePresenter<ImportationPrese
 		popup.setActionRenderer(new ActionRenderer() {
 
 			@Override
-			public Object renderActionsForModel(ImportDetails model) {
+			public Widget renderActionsForModel(ImportDetails model) {
 				switch(model.getEntityStatus()) {
 					case PROJECT_NOT_FOUND_CODE:
 						return renderCreateButton(model);
@@ -616,6 +617,10 @@ public class ImportationPresenter extends AbstractPagePresenter<ImportationPrese
 							valueEvents.add(new ValueEvent(element, ValueResultUtils.mergeElements(budgetMap)));
 							break;
 							
+						case MANAGER:
+						case OWNER:
+						case ORG_UNIT:
+						case COUNTRY:
 						case CODE:
 						case TITLE:
 							valueEvents.add(new ValueEvent(element, String.valueOf(extractedValue.getNewValue())));

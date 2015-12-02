@@ -40,7 +40,9 @@ import org.sigmah.shared.dto.importation.VariableDTO;
 import org.sigmah.shared.dto.importation.VariableFlexibleElementDTO;
 
 import com.google.inject.Injector;
+import javax.persistence.TypedQuery;
 import org.sigmah.server.dispatch.impl.UserDispatch;
+import org.sigmah.server.domain.Country;
 import org.sigmah.server.domain.OrgUnit;
 import org.sigmah.server.domain.Project;
 import org.sigmah.server.domain.element.CheckboxElement;
@@ -64,6 +66,7 @@ import org.sigmah.shared.dto.referential.DefaultFlexibleElementType;
 import org.sigmah.shared.dto.referential.ImportStatusCode;
 import org.sigmah.shared.dto.referential.ImportationSchemeFileFormat;
 import org.sigmah.shared.dto.referential.ImportationSchemeImportType;
+import org.sigmah.shared.dto.referential.TextAreaType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -476,6 +479,7 @@ public abstract class Importer {
 					
 					if ("true".equalsIgnoreCase(stringValue) || "false".equalsIgnoreCase(stringValue)) {
 						formattedValue = Boolean.valueOf(stringValue);
+						statusCode = ElementExtractedValueStatus.VALID_VALUE;
 					} else if (noValue.equalsIgnoreCase(stringValue)) {
 						formattedValue = false;
 						statusCode = ElementExtractedValueStatus.VALID_VALUE;
@@ -489,17 +493,18 @@ public abstract class Importer {
 			case DEFAULT:
 				DefaultFlexibleElementDTO dfDTO = (DefaultFlexibleElementDTO) fleDTO;
 				if (!stringValue.isEmpty()) {
-					if (DefaultFlexibleElementType.START_DATE.equals(dfDTO.getType())
-					                || DefaultFlexibleElementType.END_DATE.equals(dfDTO.getType())) {
+					switch (dfDTO.getType()) {
+						case START_DATE:
+						case END_DATE:
 						if (value instanceof Number) {
-							Long time = Double.valueOf(stringValue).longValue();
+								final Long time = Double.valueOf(stringValue).longValue();
 							formattedValue = new Date(time);
 							statusCode = ElementExtractedValueStatus.VALID_VALUE;
 						} else if (value instanceof Date) {
 							formattedValue = (Date) value;
 							statusCode = ElementExtractedValueStatus.VALID_VALUE;
 						}else if (value instanceof String) {
-							SimpleDateFormat defaultFormat = new SimpleDateFormat("dd/MM/yy");
+								final SimpleDateFormat defaultFormat = new SimpleDateFormat("dd/MM/yy");
 							try {
 								formattedValue = defaultFormat.parse(stringValue);
 								statusCode = ElementExtractedValueStatus.VALID_VALUE;
@@ -507,7 +512,9 @@ public abstract class Importer {
 								statusCode = ElementExtractedValueStatus.INVALID_DATE_VALUE;
 							}
 						}
-					} else if (DefaultFlexibleElementType.BUDGET.equals(dfDTO.getType())) {
+							break;
+							
+						case BUDGET:
 						if(value instanceof String) {
 							try{
 								formattedValue = Double.valueOf(stringValue);
@@ -521,20 +528,133 @@ public abstract class Importer {
 						} else {
 							statusCode = ElementExtractedValueStatus.INVALID_NUMBER_VALUE;
 						}
-					} else {
+							break;
+							
+						case ORG_UNIT:
+							if (value instanceof String) {
+								try {
+									final int orgUnitId = Integer.parseInt(stringValue);
+									value = orgUnitId;
+								} catch( NumberFormatException e) {
+									// Ignored.
+								}
+								
+								// Searching by code and by name.
+								final TypedQuery<OrgUnit> query = em().createQuery("SELECT o FROM OrgUnit o WHERE LOWER(o.name) = :value OR LOWER(o.fullName) = :value", OrgUnit.class);
+								query.setParameter("value", stringValue.toLowerCase());
+								
+								final List<OrgUnit> results = query.getResultList();
+
+								if (!results.isEmpty()) {
+									// Selecting the first result.
+									formattedValue = results.get(0).getId();
+									statusCode = ElementExtractedValueStatus.VALID_VALUE;
+								}
+							}
+							if (value instanceof Integer) {
+								// Searching by ID.
+								final int orgUnitId = (Integer) value;
+								final OrgUnit orgUnit = em().getReference(OrgUnit.class, orgUnitId);
+								if (orgUnit != null) {
+									statusCode = ElementExtractedValueStatus.VALID_VALUE;
+									formattedValue = orgUnitId;
+								}
+							}
+							if (formattedValue == null) {
+								statusCode = ElementExtractedValueStatus.INVALID_NUMBER_VALUE;
+							}
+							break;
+							
+						case COUNTRY:
+							// TODO: Needs to prevent import of countries for projects.
+							if (value instanceof String) {
+								try {
+									final int countryId = Integer.parseInt(stringValue);
+									value = countryId;
+								} catch( NumberFormatException e) {
+									// Ignored.
+								}
+								
+								// Searching by code ISO and by name.
+								final TypedQuery<Country> query = em().createQuery("SELECT c FROM Country c WHERE LOWER(c.codeISO) = :value OR LOWER(c.name) = :value", Country.class);
+								query.setParameter("value", stringValue.toLowerCase());
+								
+								final List<Country> results = query.getResultList();
+
+								if (!results.isEmpty()) {
+									// Selecting the first result.
+									formattedValue = results.get(0).getId();
+									statusCode = ElementExtractedValueStatus.VALID_VALUE;
+								}
+							}
+							if (value instanceof Integer) {
+								// Searching by ID.
+								final int countryId = (Integer) value;
+								final Country country = em().getReference(Country.class, countryId);
+								if (country != null) {
+									statusCode = ElementExtractedValueStatus.VALID_VALUE;
+									formattedValue = countryId;
+								}
+							}
+							if (formattedValue == null) {
+								statusCode = ElementExtractedValueStatus.INVALID_NUMBER_VALUE;
+							}
+							break;
+							
+						case MANAGER:
+						case OWNER:
+							if (value instanceof String) {
+								try {
+									final int userId = Integer.parseInt(stringValue);
+									value = userId;
+								} catch( NumberFormatException e) {
+									// Ignored.
+								}
+								
+								// Searching by e-mail address and by last name.
+								final TypedQuery<User> query = em().createQuery("SELECT o FROM User o WHERE LOWER(o.email) = :value OR LOWER(o.name) = :value", User.class);
+								query.setParameter("value", stringValue.toLowerCase());
+								
+								final List<User> results = query.getResultList();
+
+								if (!results.isEmpty()) {
+									// Selecting the first result.
+									formattedValue = results.get(0).getId();
+									statusCode = ElementExtractedValueStatus.VALID_VALUE;
+								}
+							}
+							if (value instanceof Integer) {
+								// Searching by ID.
+								final int userId = (Integer) value;
+								final User user = em().getReference(User.class, userId);
+								if (user != null) {
+									statusCode = ElementExtractedValueStatus.VALID_VALUE;
+									formattedValue = userId;
+								}
+							}
+							if (formattedValue == null) {
+								statusCode = ElementExtractedValueStatus.INVALID_NUMBER_VALUE;
+							}
+							break;
+							
+						default:
 						formattedValue = stringValue;
 						statusCode = ElementExtractedValueStatus.VALID_VALUE;
+							break;
 					}
 				}
 				break;
 				
 			case QUESTION:
+				// Accepted formats:
+				// Multiple : label(-label)+
+				// Single : label
 				QuestionElementDTO questionElement = (QuestionElementDTO) fleDTO;
 				if (questionElement.getMultiple() != null && questionElement.getMultiple()) {
 					String[] extractedQuestionValues = stringValue.split("-");
 					List<QuestionChoiceElementDTO> choices = new ArrayList<QuestionChoiceElementDTO>();
 					for (QuestionChoiceElementDTO choice : questionElement.getChoices()) {
-						String choiceLabel = "";
+						final String choiceLabel;
 						if (choice.getCategoryElement() != null) {
 							choiceLabel = choice.getCategoryElement().getLabel();
 						} else {
@@ -556,7 +676,7 @@ public abstract class Importer {
 					
 				} else {
 					for (QuestionChoiceElementDTO choice : questionElement.getChoices()) {
-						String choiceLabel = "";
+						final String choiceLabel;
 						if (choice.getCategoryElement() != null) {
 							choiceLabel = choice.getCategoryElement().getLabel();
 						} else {
@@ -573,9 +693,15 @@ public abstract class Importer {
 				}
 				break;
 			case TEXT_AREA:
+				// Accepted formats:
+				// Type DATE -> dd/MM/yyyy
+				// Type NUMBER -> 0
+				// Type NUMBER + decimal -> 0.00
+				// Type PARAGRAPH -> *
+				// Type TEXT -> *
 				TextAreaElementDTO textAreaElementDTO = (TextAreaElementDTO) fleDTO;
-				switch (textAreaElementDTO.getType()) {
-				case 'D': {
+				switch (TextAreaType.fromCode(textAreaElementDTO.getType())) {
+				case DATE: {
 					if (value instanceof Date) {
 						formattedValue = (Date) value;
 						statusCode = ElementExtractedValueStatus.VALID_VALUE;
@@ -600,7 +726,7 @@ public abstract class Importer {
 					}
 				}
 					break;
-				case 'N': {
+				case NUMBER: {
 					if (textAreaElementDTO.getIsDecimal()) {
 						if(value instanceof String) {
 							try{
@@ -652,8 +778,9 @@ public abstract class Importer {
 					}
 				}
 					break;
-				case 'T': {
-					value = String.valueOf(value);
+				case PARAGRAPH:
+				case TEXT: {
+					formattedValue = String.valueOf(value);
 					statusCode = ElementExtractedValueStatus.VALID_VALUE;
 				}
 				default:
@@ -661,6 +788,9 @@ public abstract class Importer {
 				}
 				break;
 			case TRIPLETS:
+				// Accepted formats:
+				// Code-Name-Date
+				// IGNORED-Code-Name:Date
 				String[] extractedTripletValues = stringValue.split("-");
 				if(extractedTripletValues.length == 3){
 					String[] namePeriod = extractedTripletValues[2].split(":");
@@ -680,7 +810,9 @@ public abstract class Importer {
 					statusCode = ElementExtractedValueStatus.INVALID_TRIPLET_VALUE;
 				}
 				break;
+				
 			default:
+				LOGGER.warn("Unsupported flexible element type: {}",  fleDTO.getElementType());
 				break;
 
 			}
@@ -752,4 +884,9 @@ public abstract class Importer {
 		}
 		return row;
 	}
+	
+	private EntityManager em() {
+		return injector.getProvider(EntityManager.class).get();
+	}
+	
 }
