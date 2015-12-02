@@ -1,7 +1,6 @@
 package org.sigmah.client.ui.presenter.calendar;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -38,8 +37,10 @@ import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.selection.AbstractStoreSelectionModel;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
+import org.sigmah.client.ui.presenter.reminder.ReminderType;
 import org.sigmah.shared.dto.calendar.CalendarIdentifier;
 import org.sigmah.shared.dto.calendar.PersonalCalendarIdentifier;
 
@@ -76,12 +77,18 @@ public class CalendarPresenter extends AbstractPresenter<CalendarPresenter.View>
 
 		Button getNextButton();
 
+        Button getReminderAddButton();
+
+		Button getMonitoredPointsAddButton();
+
 	}
 
 	/**
 	 * The calendar widget.
 	 */
 	private CalendarWidget calendar;
+
+    private Integer projectId;
 
 	/**
 	 * Presenters's initialization.
@@ -141,9 +148,8 @@ public class CalendarPresenter extends AbstractPresenter<CalendarPresenter.View>
 					@Override
 					public void onCommandSuccess(final VoidResult result) {
 
-						@SuppressWarnings("deprecation")
 						final List<Event> oldEventList =
-								event.getParent().getEvents().get(new Date(event.getDtstart().getYear(), event.getDtstart().getMonth(), event.getDtstart().getDate()));
+								event.getParent().getEvents().get(event.getKey());
 						oldEventList.remove(event);
 						calendar.refresh();
 					}
@@ -247,6 +253,28 @@ public class CalendarPresenter extends AbstractPresenter<CalendarPresenter.View>
 		});
 
 		// --
+		// Reminders / Monitored Points add buttons handlers.
+		// --
+
+		view.getReminderAddButton().addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+			@Override
+			public void componentSelected(final ButtonEvent event) {
+				eventBus.navigateRequest(Page.REMINDER_EDIT.requestWith(RequestParameter.TYPE, ReminderType.REMINDER).addParameter(RequestParameter.ID, 
+                    projectId));
+			}
+		});
+
+		view.getMonitoredPointsAddButton().addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+			@Override
+			public void componentSelected(final ButtonEvent event) {
+				eventBus.navigateRequest(Page.REMINDER_EDIT.requestWith(RequestParameter.TYPE, ReminderType.MONITORED_POINT).addParameter(RequestParameter.ID, 
+                   projectId));
+			}
+		});
+
+		// --
 		// Update event handler.
 		// --
 
@@ -257,6 +285,12 @@ public class CalendarPresenter extends AbstractPresenter<CalendarPresenter.View>
 				if (event.concern(UpdateEvent.CALENDAR_EVENT_UPDATE)) {
 					calendar.refresh();
 				}
+                
+                if (event.concern(UpdateEvent.REMINDER_UPDATED)) {
+                    // TODO appel 
+                    reloadEventsOfReminderType((ReminderType) event.getParam(0));
+                    calendar.refresh();
+                }
 			}
 		}));
 	}
@@ -270,6 +304,7 @@ public class CalendarPresenter extends AbstractPresenter<CalendarPresenter.View>
 	public void reload(final Map<CalendarType, Integer> calendars) {
 
 		calendar.refresh();
+        this.projectId = calendars.get(CalendarType.Activity);
 
 		view.setAddEventButtonEnabled(ProfileUtils.isGranted(auth(), GlobalPermissionEnum.EDIT_PROJECT_AGENDA, GlobalPermissionEnum.EDIT_PROJECT));
 		reloadEvents(calendars);
@@ -340,6 +375,7 @@ public class CalendarPresenter extends AbstractPresenter<CalendarPresenter.View>
 					if(result != null) {
 						// Defines the color index of the calendar.
 						result.setStyle(calendarType.getColorCode());
+                        result.setType(calendarType);
 
 						view.getCalendarsStore().add(new CalendarWrapper(result));
 						view.getCalendarsSelectionModel().select(view.getCalendarsStore().getCount() - 1, true);
@@ -350,4 +386,38 @@ public class CalendarPresenter extends AbstractPresenter<CalendarPresenter.View>
 
 		queue.start();
 	}
+    /**
+     * Reload a given type of reminder into the calendar.
+     * 
+     * @param reminderType Type of reminder to refresh.
+     */
+    private void reloadEventsOfReminderType(final ReminderType reminderType) {
+        final CalendarType calendarType = reminderType == ReminderType.REMINDER ? CalendarType.Reminder : CalendarType.MonitoredPoint;
+        
+        final List<Calendar> calendars = calendar.getCalendars();
+        for (int index = 0; index < calendars.size(); index++) {
+            final Calendar currentCalendar = calendars.get(index);
+            
+            if (currentCalendar.getType() == calendarType) {
+
+                final GetCalendar getCalendar = new GetCalendar(calendarType, currentCalendar.getIdentifier());
+                final int location = index;
+                
+                dispatch.execute(getCalendar, new CommandResultHandler<Calendar>() {
+                    
+                    @Override
+                    protected void onCommandSuccess(Calendar result) {
+                        if(result != null) {
+                            result.setStyle(calendarType.getColorCode());
+                            result.setType(calendarType);
+                            calendars.set(location, result);
+                            calendar.refresh();
+                        }
+                    }
+                    
+                });
+                return;
+            }
+        }
+    }
 }

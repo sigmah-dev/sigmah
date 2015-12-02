@@ -31,6 +31,7 @@ import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.i18n.client.LocaleInfo;
 import com.google.gwt.i18n.shared.DateTimeFormatInfo;
 import com.google.gwt.user.client.ui.SimplePanel;
+import org.sigmah.client.ui.res.icon.IconImageBundle;
 
 /**
  * Calendar widget presenter.
@@ -52,6 +53,9 @@ public class CalendarView extends AbstractView implements CalendarPresenter.View
 	private Button monthButton;
 	private Button previousButton;
 	private Button nextButton;
+
+    private Button reminderAddButton;
+    private Button monitoredPointsAddButton;
 
 	/**
 	 * {@inheritDoc}
@@ -160,6 +164,10 @@ public class CalendarView extends AbstractView implements CalendarPresenter.View
 
 		addEventButton = Forms.button(I18N.CONSTANTS.calendarAddEvent());
 
+        reminderAddButton = new Button(I18N.CONSTANTS.reminderPoint(), IconImageBundle.ICONS.add());
+        
+        monitoredPointsAddButton = new Button(I18N.CONSTANTS.monitoredPoint(), IconImageBundle.ICONS.add());
+
 		calendarView.setTopComponent(toolbar);
 
 		return calendarView;
@@ -199,10 +207,15 @@ public class CalendarView extends AbstractView implements CalendarPresenter.View
 
 		if (toolbar.indexOf(addEventButton) != -1) {
 			toolbar.remove(addEventButton);
+            toolbar.remove(reminderAddButton);
+            toolbar.remove(monitoredPointsAddButton);
 		}
 
 		if (addEventButtonEnabled) {
 			toolbar.add(addEventButton);
+            toolbar.add(reminderAddButton);
+            toolbar.add(monitoredPointsAddButton);
+	
 		}
 	}
 
@@ -252,6 +265,22 @@ public class CalendarView extends AbstractView implements CalendarPresenter.View
 	@Override
 	public Button getNextButton() {
 		return nextButton;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Button getReminderAddButton() {
+		return reminderAddButton;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Button getMonitoredPointsAddButton() {
+		return monitoredPointsAddButton;
 	}
 
 	/**
