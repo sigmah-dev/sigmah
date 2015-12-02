@@ -11,6 +11,7 @@ import org.sigmah.shared.dto.layout.LayoutGroupDTO;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import javax.persistence.TypedQuery;
 
 /**
  * Create layout group policy.
@@ -34,27 +35,52 @@ public class LayoutGroupService extends AbstractEntityService<LayoutGroup, Integ
 	@Override
 	public LayoutGroup create(final PropertyMap properties, final UserExecutionContext context) {
 
-		LayoutGroup groupToPersist = null;
 		final LayoutGroupDTO layoutGroupDTOToPersist = (LayoutGroupDTO) properties.get(AdminUtil.PROP_NEW_GROUP_LAYOUT);
-
-		groupToPersist = mapper.map(layoutGroupDTOToPersist, LayoutGroup.class);
-
-		if (groupToPersist.getParentLayout().getRowsCount() <= groupToPersist.getRow()) {
-			Layout layout = groupToPersist.getParentLayout();
-			layout.setRowsCount(groupToPersist.getRow() + 1);
-			em().merge(layout);
-		}
+		LayoutGroup groupToPersist = mapper.map(layoutGroupDTOToPersist, LayoutGroup.class);
 
 		if (layoutGroupDTOToPersist.getId() != null) {
-			// update
+			final int groupId = layoutGroupDTOToPersist.getId();
+
+			// Find current order.
+			final TypedQuery<Integer> rowQuery = em().createQuery("SELECT lg.row FROM LayoutGroup lg where lg.id = :id", Integer.class);
+			rowQuery.setParameter("id", groupId);
+
+			final int oldRow = rowQuery.getSingleResult();
+			final int row = groupToPersist.getRow();
+			
+			// Update.
 			groupToPersist = em().merge(groupToPersist);
 
-		} else {
-			// Save group
-			if (groupToPersist != null) {
-				groupToPersist.setId(null);
-				em().persist(groupToPersist);
+			if (oldRow != row) {
+				// Groups have been reordered.
+				final int change = row > oldRow ? -1 : 1;
+				final int impact = Math.max(row, oldRow);
+				
+				final Layout layout = em().find(Layout.class, groupToPersist.getParentLayout().getId());
+				for (final LayoutGroup other : layout.getGroups()) {
+					if (groupId != other.getId() && other.getRow() <= impact) {
+						other.setRow(other.getRow() + change);
+						em().persist(other);
+					}
+				}
 			}
+
+		} else {
+			// New group.
+			final Layout layout = groupToPersist.getParentLayout();
+			
+			// Moving down existing groups.
+			for (final LayoutGroup layoutGroup : layout.getGroups()) {
+				if (layoutGroup.getRow() >= groupToPersist.getRow()) {
+					layoutGroup.setRow(layoutGroup.getRow() + 1);
+				}
+			}
+
+			// Adding a row to the parent layout.
+			layout.setRowsCount(layout.getRowsCount() + 1);
+			em().merge(layout);
+			
+			em().persist(groupToPersist);
 		}
 
 		return groupToPersist;

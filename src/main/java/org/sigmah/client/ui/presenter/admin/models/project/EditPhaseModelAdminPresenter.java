@@ -156,6 +156,8 @@ public class EditPhaseModelAdminPresenter extends AbstractPagePresenter<EditPhas
 			view.getRootField().setValue(phaseModelUpdate.getRoot());
 			view.getDisplayOrderField().setValue(phaseModelUpdate.getDisplayOrder());
 			view.getGuideField().setValue(phaseModelUpdate.getGuide());
+		} else {
+			view.getDisplayOrderField().setValue(displayOrderForANewPhase());
 		}
 
 		// --
@@ -220,6 +222,22 @@ public class EditPhaseModelAdminPresenter extends AbstractPagePresenter<EditPhas
 			// Not a root phase and not a successor yet.
 			return ClientUtils.isNotTrue(phaseModel.getRoot()) && !allSuccessors.contains(phaseModel);
 		}
+	}
+
+	/**
+	 * Find the highest current display order and return this value + 1.
+	 * 
+	 * @return Default display order of a new phase.
+	 */
+	private int displayOrderForANewPhase() {
+		int highestDisplayOrder = 0;
+		for (final PhaseModelDTO phaseModel : parentProjectModel.getPhaseModels()) {
+			final Integer phaseDisplayOrder = phaseModel.getDisplayOrder();
+			if (phaseDisplayOrder != null && phaseDisplayOrder > highestDisplayOrder) {
+				highestDisplayOrder = phaseDisplayOrder;
+			}
+		}
+		return highestDisplayOrder + 1;
 	}
 
 	/**

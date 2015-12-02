@@ -42,6 +42,8 @@ import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import org.sigmah.shared.command.Delete;
+import org.sigmah.shared.command.result.VoidResult;
 
 /**
  * Presenter in charge of creating/editing a layout group.
@@ -66,6 +68,8 @@ public class EditLayoutGroupAdminPresenter extends AbstractPagePresenter<EditLay
 		SimpleComboBox<Integer> getRowField();
 
 		Button getSaveButton();
+
+		Button getDeleteButton();
 
 	}
 
@@ -127,6 +131,18 @@ public class EditLayoutGroupAdminPresenter extends AbstractPagePresenter<EditLay
 				onSaveForm();
 			}
 		});
+
+		// --
+		// Delete button handler.
+		// --
+
+		view.getDeleteButton().addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+			@Override
+			public void componentSelected(final ButtonEvent event) {
+				onDelete();
+			}
+		});
 	}
 
 	/**
@@ -165,12 +181,16 @@ public class EditLayoutGroupAdminPresenter extends AbstractPagePresenter<EditLay
 		// Loads the edited element.
 		// --
 
+//		view.getDeleteButton().setVisible(flexibleElement != null);
+		
 		if (flexibleElement != null) {
 			layoutGroup = flexibleElement.getGroup();
 
 			view.getNameField().setValue(layoutGroup.getTitle());
 			view.getContainerField().setValue(flexibleElement.getContainerModel());
 			setRowFieldValues(flexibleElement.getContainerModel(), layoutGroup.getRow());
+		} else {
+			layoutGroup = null;
 		}
 	}
 
@@ -211,8 +231,12 @@ public class EditLayoutGroupAdminPresenter extends AbstractPagePresenter<EditLay
 		if (container != null) {
 			view.getRowField().removeAll();
 
-			for (int i = 0; i <= container.getRowsCount(); i++) {
+			for (int i = 0; i < container.getRowsCount(); i++) {
 				view.getRowField().add(i);
+			}
+			
+			if (layoutGroup == null) {
+				view.getRowField().add(container.getRowsCount());
 			}
 		}
 
@@ -289,7 +313,24 @@ public class EditLayoutGroupAdminPresenter extends AbstractPagePresenter<EditLay
 				// Send an update event to reload necessary data.
 				eventBus.fireEvent(new UpdateEvent(UpdateEvent.LAYOUT_GROUP_UPDATE, result.getEntity()));
 			}
-		});
+		}, view.getSaveButton(), view.getDeleteButton());
+	}
+
+	/**
+	 * Callback executed on <em>delete</em> button action.
+	 */
+	private void onDelete() {
+		
+		dispatch.execute(new Delete(layoutGroup), new CommandResultHandler<VoidResult>() {
+
+			@Override
+			protected void onCommandSuccess(VoidResult result) {
+				hideView();
+
+				// Send an update event to reload necessary data.
+				// eventBus.fireEvent(new UpdateEvent(UpdateEvent.LAYOUT_GROUP_UPDATE, result.getEntity()));
+			}
+		}, view.getSaveButton(), view.getDeleteButton());
 	}
 
 }

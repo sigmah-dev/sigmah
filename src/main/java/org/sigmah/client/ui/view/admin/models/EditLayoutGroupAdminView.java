@@ -31,6 +31,7 @@ public class EditLayoutGroupAdminView extends AbstractPopupView<PopupWidget> imp
 	private ComboBox<BaseModelData> containerField;
 	private SimpleComboBox<Integer> rowField;
 	private Button saveButton;
+	private Button deleteButton;
 
 	/**
 	 * Popup's initialization.
@@ -72,10 +73,13 @@ public class EditLayoutGroupAdminView extends AbstractPopupView<PopupWidget> imp
 		// --
 
 		saveButton = Forms.button(I18N.CONSTANTS.save(), IconImageBundle.ICONS.save());
+		deleteButton = Forms.button(I18N.CONSTANTS.formWindowDeleteAction(), IconImageBundle.ICONS.remove());
 
 		form.add(nameField);
 		form.add(containerField);
 		form.add(rowField);
+		
+//		form.addButton(deleteButton);
 		form.addButton(saveButton);
 
 		initPopup(form);
@@ -119,6 +123,14 @@ public class EditLayoutGroupAdminView extends AbstractPopupView<PopupWidget> imp
 	@Override
 	public Button getSaveButton() {
 		return saveButton;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Button getDeleteButton() {
+		return deleteButton;
 	}
 
 }
