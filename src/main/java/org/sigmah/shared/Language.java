@@ -48,7 +48,11 @@ public enum Language implements IsSerializable {
 	 * @return The current {@link Language} corresponding <em>locale</em> name.
 	 */
 	public String getLocale() {
+		if (this == EN) {
+			return "en_GB";
+		} else {
 		return name().toLowerCase();
+	}
 	}
 
 	/**
@@ -60,6 +64,10 @@ public enum Language implements IsSerializable {
 	 * @return The given locale {@code value} corresponding {@link Language} instance, or {@code null}.
 	 */
 	public static Language fromString(final String value) {
+		
+		if ("en_GB".equals(value)) {
+			return EN;
+		}
 		try {
 
 			return Language.valueOf(ClientUtils.trimToEmpty(value).toUpperCase());
