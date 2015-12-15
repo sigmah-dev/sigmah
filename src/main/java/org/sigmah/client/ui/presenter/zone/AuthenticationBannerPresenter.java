@@ -20,7 +20,10 @@ import com.google.gwt.user.client.ui.Panel;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.page.Page;
+import org.sigmah.client.ui.notif.ConfirmCallback;
+import org.sigmah.client.ui.notif.N10N;
 import org.sigmah.shared.dto.referential.GlobalPermissionEnum;
 import org.sigmah.shared.util.ProfileUtils;
 
@@ -76,11 +79,19 @@ public class AuthenticationBannerPresenter extends AbstractZonePresenter<Authent
 
 			@Override
 			public void onClick(ClickEvent event) {
-				eventBus.logout();
+                N10N.confirmation(I18N.CONSTANTS.logout(), I18N.CONSTANTS.logoutConfirmation(), new ConfirmCallback() {
+
+                    @Override
+                    public void onAction() {
+                        eventBus.logout();
+                    }
+                    
+                });
+				
 			}
 
 		});
-		
+        
 		// Change password action.
 		view.getChangePasswordHandler().addClickHandler(new ClickHandler() {
 
