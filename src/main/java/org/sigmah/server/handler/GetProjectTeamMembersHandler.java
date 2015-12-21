@@ -31,7 +31,9 @@ public class GetProjectTeamMembersHandler extends AbstractCommandHandler<GetProj
 	protected TeamMembersResult execute(GetProjectTeamMembers command, UserDispatch.UserExecutionContext context) throws CommandException {
 		User manager = userDAO.getProjectManager(command.getProjectId());
 		UserDTO managerDTO = mapper().map(manager, UserDTO.class, UserDTO.Mode.WITH_BASE_PROFILES);
-		managerDTO.generateCompleteName();
+		if (managerDTO != null) {
+			managerDTO.generateCompleteName();
+		}
 
 		List<Profile> profiles = profileDAO.getProjectTeamMemberProfiles(command.getProjectId());
 		List<ProfileDTO> profileDTOs = new ArrayList<>();

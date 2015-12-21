@@ -31,6 +31,8 @@ import org.sigmah.shared.command.result.TeamMembersResult;
 import org.sigmah.shared.dto.TeamMemberDTO;
 import org.sigmah.shared.dto.UserDTO;
 import org.sigmah.shared.dto.profile.ProfileDTO;
+import org.sigmah.shared.dto.referential.GlobalPermissionEnum;
+import org.sigmah.shared.util.ProfileUtils;
 
 /**
  * Project's details presenter which manages the {@link ProjectTeamMembersView}.
@@ -144,30 +146,49 @@ public class ProjectTeamMembersPresenter extends AbstractProjectPresenter<Projec
 		view.setRemoveTeamMemberButtonCreationHandler(new RemoveTeamMemberButtonCreationHandler() {
 			@Override
 			public void onCreateRemoveUserButton(Button button, final UserDTO userDTO) {
-				// TODO: Verify if the user is allowed to update team members
+				if (!isEditable()) {
+					button.setEnabled(false);
+					return;
+				}
+
 				button.addSelectionListener(new SelectionListener<ButtonEvent>() {
 					@Override
 					public void componentSelected(ButtonEvent event) {
 						view.getTeamMembersStore().remove(userDTO);
 						modified = true;
-						view.getSaveButton().setEnabled(true);
+						view.getSaveButton().setEnabled(isEditable());
 					}
 				});
 			}
 
 			@Override
 			public void onCreateRemoveProfileButton(Button button, final ProfileDTO profileDTO) {
-				// TODO: Verify if the user is allowed to update team members
+				if (!isEditable()) {
+					button.setEnabled(false);
+					return;
+				}
+
 				button.addSelectionListener(new SelectionListener<ButtonEvent>() {
 					@Override
 					public void componentSelected(ButtonEvent event) {
 						view.getTeamMembersStore().remove(profileDTO);
 						modified = true;
-						view.getSaveButton().setEnabled(true);
+						view.getSaveButton().setEnabled(isEditable());
 					}
 				});
 			}
 		});
+
+		addButtonHandlers();
+	}
+
+	private void addButtonHandlers() {
+		if (!isEditable()) {
+			view.getSaveButton().setEnabled(false);
+			view.getAddTeamMemberButton().setEnabled(false);
+			view.getAddTeamMemberByProfileButton().setEnabled(false);
+			return;
+		}
 
 		view.getSaveButton().addSelectionListener(new SelectionListener<ButtonEvent>() {
 			@Override
@@ -258,10 +279,13 @@ public class ProjectTeamMembersPresenter extends AbstractProjectPresenter<Projec
 
 	private void fillTeamMembersStore(TeamMembersResult result) {
 		UserDTO projectManager = result.getProjectManager();
-		// As the ListStore doesn't support duplicated IDs, let's modify the ID of the manager
-		projectManager.set(TeamMemberDTO.ID, Integer.MAX_VALUE);
-		projectManager.set(TeamMemberDTO.TYPE, TeamMemberDTO.TeamMemberType.MANAGER);
-		projectManager.set(TeamMemberDTO.ORDER, 1);
+		// ProjectManager can be null if the current user doesn't have sufficient UserPermission
+		if (projectManager != null) {
+			// As the ListStore doesn't support duplicated IDs, let's modify the ID of the manager
+			projectManager.set(TeamMemberDTO.ID, Integer.MAX_VALUE);
+			projectManager.set(TeamMemberDTO.TYPE, TeamMemberDTO.TeamMemberType.MANAGER);
+			projectManager.set(TeamMemberDTO.ORDER, 1);
+		}
 
 		List<ProfileDTO> teamMemberProfiles = result.getTeamMemberProfiles();
 		for (ProfileDTO profileDTO : teamMemberProfiles) {
@@ -276,8 +300,15 @@ public class ProjectTeamMembersPresenter extends AbstractProjectPresenter<Projec
 		}
 
 		view.getTeamMembersStore().removeAll();
-		view.getTeamMembersStore().add(projectManager);
+		if (projectManager != null) {
+			view.getTeamMembersStore().add(projectManager);
+		}
 		view.getTeamMembersStore().add(teamMemberProfiles);
 		view.getTeamMembersStore().add(teamMembers);
+	}
+
+	private boolean isEditable() {
+		return ProfileUtils.isGranted(auth(), GlobalPermissionEnum.EDIT_ALL_PROJECTS)
+				&& ProfileUtils.isGranted(auth(), GlobalPermissionEnum.EDIT_PROJECT_TEAM_MEMBERS);
 	}
 }

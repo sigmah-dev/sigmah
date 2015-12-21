@@ -102,6 +102,7 @@ final class AccessRights {
 		sperm(pageToken(Page.PROJECT_INDICATORS_MAP), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_MY_PROJECTS, GlobalPermissionEnum.VIEW_INDICATOR);
 		sperm(pageToken(Page.PROJECT_LOGFRAME), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_MY_PROJECTS, GlobalPermissionEnum.VIEW_LOGFRAME);
 		sperm(pageToken(Page.PROJECT_REPORTS), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_MY_PROJECTS);
+		sperm(pageToken(Page.PROJECT_TEAM_MEMBERS), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_MY_PROJECTS, GlobalPermissionEnum.VIEW_PROJECT_TEAM_MEMBERS);
 
 		sperm(pageToken(Page.INDICATOR_EDIT), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.MANAGE_INDICATOR);
 		sperm(pageToken(Page.SITE_EDIT), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.MANAGE_INDICATOR);
@@ -173,14 +174,17 @@ final class AccessRights {
 		sperm(commandToken(GetProjects.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetProjectsByModel.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetProjectsFromId.class), GrantType.AUTHENTICATED_ONLY);
+		sperm(commandToken(GetProjectTeamMembers.class), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_PROJECT_TEAM_MEMBERS);
 		sperm(commandToken(GetReminders.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetUsersByOrganization.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetUsers.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetUsersWithProfiles.class), GrantType.AUTHENTICATED_ONLY);
+		sperm(commandToken(GetUsersByOrgUnit.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetValue.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(Synchronize.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(UpdateProject.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(UpdateProjectFavorite.class), GrantType.AUTHENTICATED_ONLY);
+		sperm(commandToken(UpdateProjectTeamMembers.class), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.EDIT_PROJECT_TEAM_MEMBERS);
 		sperm(commandToken(UploadSlice.class), GrantType.AUTHENTICATED_ONLY);
 
 		// Servlet methods.
