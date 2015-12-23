@@ -9,7 +9,9 @@ import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.dispatch.monitor.LoadingMask;
@@ -21,7 +23,9 @@ import org.sigmah.client.ui.notif.N10N;
 import org.sigmah.client.ui.view.project.ProjectTeamMembersView;
 import org.sigmah.client.ui.widget.button.Button;
 import org.sigmah.shared.command.GetProjectTeamMembers;
+import org.sigmah.shared.command.GetUsersByOrgUnit;
 import org.sigmah.shared.command.UpdateProjectTeamMembers;
+import org.sigmah.shared.command.result.ListResult;
 import org.sigmah.shared.command.result.TeamMembersResult;
 import org.sigmah.shared.dto.TeamMemberDTO;
 import org.sigmah.shared.dto.UserDTO;
@@ -42,13 +46,21 @@ public class ProjectTeamMembersPresenter extends AbstractProjectPresenter<Projec
 
 		Button getSaveButton();
 
+		Button getAddTeamMemberButton();
+
 		ListStore<ModelData> getTeamMembersStore();
 
 		void setRemoveTeamMemberButtonCreationHandler(RemoveTeamMemberButtonCreationHandler removeTeamMemberButtonCreationHandler);
+
+		void buildAddTeamMemberDialog(AddTeamMemberHandler handler, List<UserDTO> availableUsers);
 	}
 
 	public interface RemoveTeamMemberButtonCreationHandler {
 		void onCreateRemoveUserButton(Button button, UserDTO userDTO);
+	}
+
+	public interface AddTeamMemberHandler {
+		void onAddTeamMember(UserDTO userDTO);
 	}
 
 	private boolean modified;
@@ -159,6 +171,36 @@ public class ProjectTeamMembersPresenter extends AbstractProjectPresenter<Projec
 				);
 				modified = false;
 				view.getSaveButton().setEnabled(false);
+			}
+		});
+
+		view.getAddTeamMemberButton().addSelectionListener(new SelectionListener<ButtonEvent>() {
+			@Override
+			public void componentSelected(ButtonEvent ce) {
+				Set<Integer> alreadySelectedUserIds = new HashSet<Integer>();
+				for (ModelData modelData : view.getTeamMembersStore().findModels(TeamMemberDTO.TYPE, TeamMemberDTO.TeamMemberType.TEAM_MEMBER)) {
+					alreadySelectedUserIds.add((Integer) modelData.get(TeamMemberDTO.ID));
+				}
+				dispatch.execute(
+						new GetUsersByOrgUnit(getProject().getOrgUnitId(), alreadySelectedUserIds),
+						new CommandResultHandler<ListResult<UserDTO>>() {
+							@Override
+							protected void onCommandSuccess(ListResult<UserDTO> results) {
+								view.buildAddTeamMemberDialog(new AddTeamMemberHandler() {
+									@Override
+									public void onAddTeamMember(UserDTO userDTO) {
+										userDTO.set(TeamMemberDTO.TYPE, TeamMemberDTO.TeamMemberType.TEAM_MEMBER);
+										userDTO.set(TeamMemberDTO.ORDER, 3);
+										view.getTeamMembersStore().add(userDTO);
+										modified = true;
+										view.getSaveButton().setEnabled(true);
+									}
+								}, results.getData());
+							}
+						},
+						view.getAddTeamMemberButton(), new LoadingMask(view.getMainPanel())
+				);
+
 			}
 		});
 	}

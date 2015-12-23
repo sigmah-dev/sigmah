@@ -22,15 +22,46 @@ package org.sigmah.server.dao.impl;
  * #L%
  */
 
+import java.util.HashSet;
+import java.util.Set;
+
+import javax.persistence.NoResultException;
+import javax.persistence.TypedQuery;
+
 import org.sigmah.server.dao.OrgUnitDAO;
 import org.sigmah.server.dao.base.AbstractDAO;
 import org.sigmah.server.domain.OrgUnit;
 
 /**
  * {@link OrgUnitDAO} implementation.
- * 
+ *
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
 public class OrgUnitHibernateDAO extends AbstractDAO<OrgUnit, Integer> implements OrgUnitDAO {
 
+	@Override
+	public Set<Integer> getOrgUnitTreeIds(Integer rootId) {
+		Set<Integer> orgUnitIds = new HashSet<>();
+		Integer currentOrgUnitId = rootId;
+		while (currentOrgUnitId != null) {
+			orgUnitIds.add(currentOrgUnitId);
+			currentOrgUnitId = getParentId(currentOrgUnitId);
+		}
+		return orgUnitIds;
+	}
+
+	private Integer getParentId(Integer childId) {
+		TypedQuery<Integer> query = em().createQuery(
+			"SELECT o.parentOrgUnit.id " +
+			"FROM OrgUnit o " +
+			"WHERE o.id = :childId",
+			Integer.class
+		);
+		query.setParameter("childId", childId);
+		try {
+			return query.getSingleResult();
+		} catch (NoResultException e) {
+			return null;
+		}
+	}
 }

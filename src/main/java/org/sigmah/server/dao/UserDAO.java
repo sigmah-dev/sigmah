@@ -23,6 +23,7 @@ package org.sigmah.server.dao;
  */
 
 import java.util.List;
+import java.util.Set;
 
 import org.sigmah.server.dao.base.DAO;
 import org.sigmah.server.domain.User;
@@ -85,6 +86,15 @@ public interface UserDAO extends DAO<User, Integer> {
 	 */
 	List<User> findUsersByProfile(final Integer profileId);
 
+	/**
+	 * Return users related to this OrgUnit
+	 */
+	List<User> findUsersByOrgUnitIds(Set<Integer> orgUnitIds);
+
+	/**
+	 * Return users related to this OrgUnit (excepted some users)
+	 */
+	List<User> findUsersByOrgUnitIds(Set<Integer> orgUnitIds, Set<Integer> withoutIds);
 
 	/**
 	 * Retrieves the manager of the defined project

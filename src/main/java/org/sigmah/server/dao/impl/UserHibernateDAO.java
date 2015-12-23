@@ -22,7 +22,9 @@ package org.sigmah.server.dao.impl;
  * #L%
  */
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
@@ -121,6 +123,40 @@ public class UserHibernateDAO extends AbstractDAO<User, Integer> implements User
 		query.append("  p.id = :profileId");
 
 		return em().createQuery(query.toString(), User.class).setParameter("profileId", profileId).getResultList();
+	}
+
+	@Override
+	public List<User> findUsersByOrgUnitIds(Set<Integer> orgUnitIds) {
+		if (orgUnitIds == null || orgUnitIds.isEmpty()) {
+			return Collections.emptyList();
+		}
+
+		return em().createQuery(
+				"SELECT u " +
+				"FROM User u " +
+				"JOIN FETCH u.orgUnitWithProfiles oup " +
+				"WHERE oup.orgUnit.id IN (:orgUnitIds)",
+				User.class
+		).setParameter("orgUnitIds", orgUnitIds).getResultList();
+	}
+
+	@Override
+	public List<User> findUsersByOrgUnitIds(Set<Integer> orgUnitIds, Set<Integer> withoutIds) {
+		if (withoutIds == null || withoutIds.isEmpty()) {
+			return findUsersByOrgUnitIds(orgUnitIds);
+		}
+
+		return em().createQuery(
+				"SELECT u " +
+				"FROM User u " +
+				"JOIN FETCH u.orgUnitWithProfiles oup " +
+				"WHERE oup.orgUnit.id IN (:orgUnitIds) " +
+				"AND u.id NOT IN (:withoutIds)",
+				User.class
+		)
+				.setParameter("orgUnitIds", orgUnitIds)
+				.setParameter("withoutIds", withoutIds)
+				.getResultList();
 	}
 
 	@Override
