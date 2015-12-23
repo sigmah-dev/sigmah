@@ -28,22 +28,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import javax.persistence.OrderBy;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import javax.persistence.*;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.sigmah.server.domain.logframe.LogFrame;
@@ -60,7 +45,7 @@ import org.sigmah.shared.dto.referential.ContainerInformation;
  * <p>
  * Inherits {@link UserDatabase} entity.
  * </p>
- * 
+ *
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
 @Entity
@@ -149,11 +134,23 @@ public class Project extends UserDatabase {
 	@ManyToMany(cascade = CascadeType.MERGE)
 	@JoinTable(name = EntityConstants.PROJECT_COLUMN_USER_LINK_TABLE)
 	protected Set<User> favoriteUsers;
-	
+
 	@OneToOne(optional = true, fetch = FetchType.LAZY)
 	@JoinColumn(name = "mainSite", nullable = true)
 	private Site mainSite;
-	
+
+	@ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	@JoinTable(
+			name = EntityConstants.PROJECT_COLUMN_TEAM_MEMBERS_LINK_TABLE,
+			joinColumns = @JoinColumn(name = EntityConstants.PROJECT_COLUMN_ID, referencedColumnName = EntityConstants.USER_DATABASE_COLUMN_ID),
+			inverseJoinColumns = @JoinColumn(name = EntityConstants.USER_COLUMN_ID, referencedColumnName = EntityConstants.USER_COLUMN_ID),
+			uniqueConstraints = @UniqueConstraint(columnNames = {
+					EntityConstants.PROJECT_COLUMN_ID,
+					EntityConstants.USER_COLUMN_ID
+			})
+	)
+	private List<User> teamMembers = new ArrayList<User>();
+
 	// --------------------------------------------------------------------------------
 	//
 	// METHODS.
@@ -162,7 +159,7 @@ public class Project extends UserDatabase {
 
 	/**
 	 * Adds a phase to the project.
-	 * 
+	 *
 	 * @param phase
 	 *          The new phase.
 	 */
@@ -175,10 +172,10 @@ public class Project extends UserDatabase {
 		phases.add(phase);
 		phase.setParentProject(this);
 	}
-	
+
 	/**
 	 * Returns a serializable object with basic information about this object.
-	 * 
+	 *
 	 * @return Basic information about this project as a ContainerInformation instance.
 	 */
 	public ContainerInformation toContainerInformation() {
@@ -355,5 +352,13 @@ public class Project extends UserDatabase {
 
 	public void setMainSite(Site site) {
 		this.mainSite = site;
+	}
+
+	public List<User> getTeamMembers() {
+		return teamMembers;
+	}
+
+	public void setTeamMembers(List<User> teamMembers) {
+		this.teamMembers = teamMembers;
 	}
 }

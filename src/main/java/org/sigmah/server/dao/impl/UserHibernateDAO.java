@@ -25,15 +25,17 @@ package org.sigmah.server.dao.impl;
 import java.util.List;
 
 import javax.persistence.NoResultException;
+import javax.persistence.TypedQuery;
 
-import org.apache.commons.collections4.CollectionUtils;
 import org.sigmah.server.dao.UserDAO;
 import org.sigmah.server.dao.base.AbstractDAO;
 import org.sigmah.server.domain.User;
 
+import org.apache.commons.collections4.CollectionUtils;
+
 /**
  * UserDAO implementation.
- * 
+ *
  * @author Alex Bertram
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
@@ -121,4 +123,32 @@ public class UserHibernateDAO extends AbstractDAO<User, Integer> implements User
 		return em().createQuery(query.toString(), User.class).setParameter("profileId", profileId).getResultList();
 	}
 
+	@Override
+	public User getProjectManager(Integer projectId) {
+		TypedQuery<User> query = em().createQuery(
+			"SELECT p.manager " +
+			"FROM Project p " +
+			"WHERE p.id = :projectId",
+			User.class
+		);
+		query.setParameter("projectId", projectId);
+		try {
+			return query.getSingleResult();
+		} catch (NoResultException e) {
+			return null;
+		}
+	}
+
+	@Override
+	public List<User> getProjectTeamMembers(Integer projectId) {
+		TypedQuery<User> query = em().createQuery(
+			"SELECT u " +
+				"FROM Project p " +
+				"JOIN p.teamMembers u " +
+				"WHERE p.id = :projectId",
+			User.class
+		);
+		query.setParameter("projectId", projectId);
+		return query.getResultList();
+	}
 }

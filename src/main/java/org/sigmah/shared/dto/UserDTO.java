@@ -36,7 +36,7 @@ import org.sigmah.shared.dto.profile.ProfileDTO;
 
 /**
  * One-to-one DTO of the {@link org.sigmah.server.domain.User} domain class.
- * 
+ *
  * @author nrebiai (v1.3)
  * @author Denis Colliot (dcolliot@ideia.fr) (v2.0)
  */
@@ -77,7 +77,7 @@ public class UserDTO extends AbstractModelDataEntityDTO<Integer> {
 
 	/**
 	 * Mapping configurations.
-	 * 
+	 *
 	 * @author Denis Colliot (dcolliot@ideia.fr)
 	 */
 	public static enum Mode implements IsMappingMode {
@@ -258,4 +258,8 @@ public class UserDTO extends AbstractModelDataEntityDTO<Integer> {
 		set(PROFILES, profiles);
 	}
 
+	public void generateCompleteName() {
+		String completeName = getFirstName() != null ? getFirstName() + " " + getName() : getName();
+		setCompleteName(completeName);
+	}
 }

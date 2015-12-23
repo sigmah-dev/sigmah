@@ -29,7 +29,7 @@ package org.sigmah.server.domain.util;
  * <p>
  * <em>Thank you for maintaining entities alphabetical order in this class.</em>
  * </p>
- * 
+ *
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
 public final class EntityConstants extends org.sigmah.shared.dto.util.EntityConstants {
@@ -1081,6 +1081,8 @@ public final class EntityConstants extends org.sigmah.shared.dto.util.EntityCons
 
 	public static final String PROJECT_COLUMN_USER_LINK_TABLE = "project_userlogin";
 
+	public static final String PROJECT_COLUMN_TEAM_MEMBERS_LINK_TABLE = "project_team_members";
+
 	// --------------------------------------------------------------------------------
 	//
 	// PROJECT BANNER ENTITY.
@@ -1439,7 +1441,7 @@ public final class EntityConstants extends org.sigmah.shared.dto.util.EntityCons
 	public static final String TEXTAREA_ELEMENT_COLUMN_MAX_VALUE = "max_value";
 	public static final String TEXTAREA_ELEMENT_COLUMN_IS_DECIMAL = "is_decimal";
 	public static final String TEXTAREA_ELEMENT_COLUMN_LENGTH = "length";
-	
+
 	// --------------------------------------------------------------------------------
 	//
 	// USER ENTITY.

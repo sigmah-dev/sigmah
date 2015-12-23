@@ -30,7 +30,7 @@ import org.sigmah.server.domain.profile.Profile;
 
 /**
  * Data Access Object for the {@link org.sigmah.server.domain.User} domain class.
- * 
+ *
  * @author Alex Bertram
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
@@ -38,7 +38,7 @@ public interface UserDAO extends DAO<User, Integer> {
 
 	/**
 	 * Returns if a {@link User} exist for the given {@code email}.
-	 * 
+	 *
 	 * @param email
 	 *          The user email, representing a <em>unique</em> key in the table.
 	 *          Case insensitive.
@@ -48,7 +48,7 @@ public interface UserDAO extends DAO<User, Integer> {
 
 	/**
 	 * Finds the given {@code email} corresponding {@link User}.
-	 * 
+	 *
 	 * @param email
 	 *          The user email, representing a <em>unique</em> key in the table.
 	 *          Case insensitive.
@@ -58,7 +58,7 @@ public interface UserDAO extends DAO<User, Integer> {
 
 	/**
 	 * Finds the given change password {@code key} corresponding {@link User}.
-	 * 
+	 *
 	 * @param key
 	 *          The change password generated key.
 	 *          Case insensitive.
@@ -69,7 +69,7 @@ public interface UserDAO extends DAO<User, Integer> {
 
 	/**
 	 * Returns the number of {@link User}(s) linked to the given {@code profileId}.
-	 * 
+	 *
 	 * @param profileId
 	 *          The {@link Profile} unique id.
 	 * @return The number of {@link User}(s) linked to the given {@code profileId}.
@@ -78,11 +78,21 @@ public interface UserDAO extends DAO<User, Integer> {
 
 	/**
 	 * Returns the {@link User}'s linked to the given {@code profileId}.
-	 * 
+	 *
 	 * @param profileId
 	 *          The {@link Profile} unique id.
 	 * @return A list of all {@link User}'s linked to the given {@code profileId}.
 	 */
 	List<User> findUsersByProfile(final Integer profileId);
 
+
+	/**
+	 * Retrieves the manager of the defined project
+	 */
+	User getProjectManager(Integer projectId);
+
+	/**
+	 * Retrieves all team members for the defined project
+	 */
+	List<User> getProjectTeamMembers(Integer projectId);
 }
