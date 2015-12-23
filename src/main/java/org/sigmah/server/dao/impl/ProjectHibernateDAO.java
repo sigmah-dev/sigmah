@@ -32,6 +32,7 @@ import org.sigmah.server.dao.base.AbstractDAO;
 import org.sigmah.server.domain.Project;
 import org.sigmah.server.domain.ProjectModel;
 import org.sigmah.server.domain.User;
+import org.sigmah.server.domain.profile.Profile;
 import org.sigmah.shared.dto.referential.ProjectModelStatus;
 
 /**
@@ -79,8 +80,9 @@ public class ProjectHibernateDAO extends AbstractDAO<Project, Integer> implement
 	}
 
 	@Override
-	public Project updateProjectTeamMembers(Project project, List<User> teamMembers, User modifier) {
+	public Project updateProjectTeamMembers(Project project, List<User> teamMembers, List<Profile> teamMemberProfiles, User modifier) {
 		project.setTeamMembers(teamMembers);
+		project.setTeamMemberProfiles(teamMemberProfiles);
 		return persist(project, modifier);
 	}
 }

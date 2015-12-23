@@ -29,6 +29,7 @@ import org.sigmah.server.dao.base.DAO;
 import org.sigmah.server.domain.Project;
 import org.sigmah.server.domain.ProjectModel;
 import org.sigmah.server.domain.User;
+import org.sigmah.server.domain.profile.Profile;
 import org.sigmah.shared.dto.referential.ProjectModelStatus;
 
 /**
@@ -58,5 +59,5 @@ public interface ProjectDAO extends DAO<Project, Integer> {
 	 */
 	List<Project> findDraftProjects(Integer ownerId);
 
-	Project updateProjectTeamMembers(Project project, List<User> teamMembers, User modifier);
+	Project updateProjectTeamMembers(Project project, List<User> teamMembers, List<Profile> teamMemberProfiles, User modifier);
 }

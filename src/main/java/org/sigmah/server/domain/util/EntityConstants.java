@@ -1083,6 +1083,8 @@ public final class EntityConstants extends org.sigmah.shared.dto.util.EntityCons
 
 	public static final String PROJECT_COLUMN_TEAM_MEMBERS_LINK_TABLE = "project_team_members";
 
+	public static final String PROJECT_COLUMN_TEAM_MEMBER_PROFILES_LINK_TABLE = "project_team_member_profiles";
+
 	// --------------------------------------------------------------------------------
 	//
 	// PROJECT BANNER ENTITY.

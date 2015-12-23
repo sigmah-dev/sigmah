@@ -34,6 +34,7 @@ import org.sigmah.client.ui.widget.layout.Layouts;
 import org.sigmah.client.ui.widget.panel.Panels;
 import org.sigmah.shared.dto.TeamMemberDTO;
 import org.sigmah.shared.dto.UserDTO;
+import org.sigmah.shared.dto.profile.ProfileDTO;
 
 public class ProjectTeamMembersView extends AbstractView implements ProjectTeamMembersPresenter.View {
 	private ContentPanel mainPanel;
@@ -42,6 +43,7 @@ public class ProjectTeamMembersView extends AbstractView implements ProjectTeamM
 	private ProjectTeamMembersPresenter.RemoveTeamMemberButtonCreationHandler removeTeamMemberButtonCreationHandler;
 	private Button saveButton;
 	private Button addTeamMemberButton;
+	private Button addTeamMemberByProfileButton;
 
 	@Override
 	public void initialize() {
@@ -79,6 +81,11 @@ public class ProjectTeamMembersView extends AbstractView implements ProjectTeamM
 	}
 
 	@Override
+	public Button getAddTeamMemberByProfileButton() {
+		return addTeamMemberByProfileButton;
+	}
+
+	@Override
 	public ListStore<ModelData> getTeamMembersStore() {
 		return teamMembersStore;
 	}
@@ -94,6 +101,7 @@ public class ProjectTeamMembersView extends AbstractView implements ProjectTeamM
 		saveButton.setEnabled(false);
 
 		addTeamMemberButton = Forms.button(I18N.CONSTANTS.addTeamMemberButtonLabel(), IconImageBundle.ICONS.addUser());
+		addTeamMemberByProfileButton = Forms.button(I18N.CONSTANTS.addTeamMembersByProfileButtonLabel(), IconImageBundle.ICONS.add());
 
 		// Actions toolbar.
 		final ToolBar toolBar = new ToolBar();
@@ -102,6 +110,7 @@ public class ProjectTeamMembersView extends AbstractView implements ProjectTeamM
 
 		toolBar.add(saveButton);
 		toolBar.add(addTeamMemberButton);
+		toolBar.add(addTeamMemberByProfileButton);
 		toolBar.add(new FillToolItem());
 
 		return toolBar;
@@ -116,6 +125,8 @@ public class ProjectTeamMembersView extends AbstractView implements ProjectTeamM
 				switch ((TeamMemberDTO.TeamMemberType) model.get(TeamMemberDTO.TYPE)) {
 					case MANAGER:
 						return I18N.MESSAGES.projectTeamMemberManagerLabel(model.get(UserDTO.COMPLETE_NAME).toString());
+					case TEAM_MEMBER_PROFILE:
+						return I18N.MESSAGES.projectTeamMemberProfileLabel(model.get(ProfileDTO.NAME).toString());
 					case TEAM_MEMBER:
 						return model.get(UserDTO.COMPLETE_NAME);
 					default:
@@ -138,6 +149,9 @@ public class ProjectTeamMembersView extends AbstractView implements ProjectTeamM
 				Button button = new Button(I18N.CONSTANTS.removeItem());
 				if (type == TeamMemberDTO.TeamMemberType.TEAM_MEMBER) {
 					removeTeamMemberButtonCreationHandler.onCreateRemoveUserButton(button, (UserDTO) model);
+				} else {
+					// the data is supposed to be a TEAM_MEMBER_PROFILE
+					removeTeamMemberButtonCreationHandler.onCreateRemoveProfileButton(button, (ProfileDTO) model);
 				}
 				return button;
 			}
@@ -189,6 +203,47 @@ public class ProjectTeamMembersView extends AbstractView implements ProjectTeamM
 		userComboBox.addSelectionChangedListener(new SelectionChangedListener<UserDTO>() {
 			@Override
 			public void selectionChanged(SelectionChangedEvent<UserDTO> event) {
+				validateButton.setEnabled(event.getSelectedItem() != null);
+			}
+		});
+
+		window.show();
+	}
+
+	@Override
+	public void buildAddTeamMembersByProfileDialog(final ProjectTeamMembersPresenter.SelectTeamMembersByProfileHandler handler,
+																								 List<ProfileDTO> profiles) {
+		final Window window = new Window();
+		window.setPlain(true);
+		window.setModal(true);
+		window.setBlinkModal(true);
+		window.setLayout(new FitLayout());
+		window.setSize(350, 180);
+		window.setHeadingHtml(I18N.CONSTANTS.addTeamMembersByProfileDialogTitle());
+
+		final FormPanel panel = Forms.panel();
+		final Button validateButton = Forms.button(I18N.CONSTANTS.addTeamMembersByProfileButtonLabel());
+		validateButton.setEnabled(false);
+		panel.getButtonBar().add(validateButton);
+		ListStore<ProfileDTO> profileStore = new ListStore<ProfileDTO>();
+		profileStore.add(profiles);
+		final ComboBox<ProfileDTO> profileComboBox = Forms.combobox(I18N.CONSTANTS.selectTeamMembersByProfileComboboxLabel(),
+				true, ProfileDTO.ID, ProfileDTO.NAME, I18N.CONSTANTS.selectTeamMembersByProfileEmptyChoice(), profileStore);
+		panel.add(profileComboBox);
+		window.add(panel);
+
+		panel.getButtonBar().add(validateButton);
+		validateButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+			@Override
+			public void componentSelected(final ButtonEvent event) {
+				handler.onSelectTeamMemberByProfile(profileComboBox.getValue());
+				window.hide();
+			}
+		});
+
+		profileComboBox.addSelectionChangedListener(new SelectionChangedListener<ProfileDTO>() {
+			@Override
+			public void selectionChanged(SelectionChangedEvent<ProfileDTO> event) {
 				validateButton.setEnabled(event.getSelectedItem() != null);
 			}
 		});

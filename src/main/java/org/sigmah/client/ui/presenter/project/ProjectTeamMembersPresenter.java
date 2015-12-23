@@ -22,6 +22,7 @@ import org.sigmah.client.page.PageRequest;
 import org.sigmah.client.ui.notif.N10N;
 import org.sigmah.client.ui.view.project.ProjectTeamMembersView;
 import org.sigmah.client.ui.widget.button.Button;
+import org.sigmah.shared.command.GetProfiles;
 import org.sigmah.shared.command.GetProjectTeamMembers;
 import org.sigmah.shared.command.GetUsersByOrgUnit;
 import org.sigmah.shared.command.UpdateProjectTeamMembers;
@@ -29,6 +30,7 @@ import org.sigmah.shared.command.result.ListResult;
 import org.sigmah.shared.command.result.TeamMembersResult;
 import org.sigmah.shared.dto.TeamMemberDTO;
 import org.sigmah.shared.dto.UserDTO;
+import org.sigmah.shared.dto.profile.ProfileDTO;
 
 /**
  * Project's details presenter which manages the {@link ProjectTeamMembersView}.
@@ -48,19 +50,28 @@ public class ProjectTeamMembersPresenter extends AbstractProjectPresenter<Projec
 
 		Button getAddTeamMemberButton();
 
+		Button getAddTeamMemberByProfileButton();
+
 		ListStore<ModelData> getTeamMembersStore();
 
 		void setRemoveTeamMemberButtonCreationHandler(RemoveTeamMemberButtonCreationHandler removeTeamMemberButtonCreationHandler);
 
 		void buildAddTeamMemberDialog(AddTeamMemberHandler handler, List<UserDTO> availableUsers);
+
+		void buildAddTeamMembersByProfileDialog(SelectTeamMembersByProfileHandler handler, List<ProfileDTO> profiles);
 	}
 
 	public interface RemoveTeamMemberButtonCreationHandler {
 		void onCreateRemoveUserButton(Button button, UserDTO userDTO);
+		void onCreateRemoveProfileButton(Button button, ProfileDTO userDTO);
 	}
 
 	public interface AddTeamMemberHandler {
 		void onAddTeamMember(UserDTO userDTO);
+	}
+
+	public interface SelectTeamMembersByProfileHandler {
+		void onSelectTeamMemberByProfile(ProfileDTO profileDTO);
 	}
 
 	private boolean modified;
@@ -143,6 +154,19 @@ public class ProjectTeamMembersPresenter extends AbstractProjectPresenter<Projec
 					}
 				});
 			}
+
+			@Override
+			public void onCreateRemoveProfileButton(Button button, final ProfileDTO profileDTO) {
+				// TODO: Verify if the user is allowed to update team members
+				button.addSelectionListener(new SelectionListener<ButtonEvent>() {
+					@Override
+					public void componentSelected(ButtonEvent event) {
+						view.getTeamMembersStore().remove(profileDTO);
+						modified = true;
+						view.getSaveButton().setEnabled(true);
+					}
+				});
+			}
 		});
 
 		view.getSaveButton().addSelectionListener(new SelectionListener<ButtonEvent>() {
@@ -151,8 +175,10 @@ public class ProjectTeamMembersPresenter extends AbstractProjectPresenter<Projec
 			public void componentSelected(ButtonEvent event) {
 				List<UserDTO> teamMembers = (List<UserDTO>) (List) view.getTeamMembersStore().findModels(TeamMemberDTO.TYPE,
 						TeamMemberDTO.TeamMemberType.TEAM_MEMBER);
+				List<ProfileDTO> teamMemberProfiles = (List<ProfileDTO>) (List)view.getTeamMembersStore().findModels(TeamMemberDTO.TYPE,
+						TeamMemberDTO.TeamMemberType.TEAM_MEMBER_PROFILE);
 				dispatch.execute(
-						new UpdateProjectTeamMembers(getProject().getId(), teamMembers),
+						new UpdateProjectTeamMembers(getProject().getId(), teamMembers, teamMemberProfiles),
 						new CommandResultHandler<TeamMembersResult>() {
 
 							@Override
@@ -191,6 +217,7 @@ public class ProjectTeamMembersPresenter extends AbstractProjectPresenter<Projec
 									public void onAddTeamMember(UserDTO userDTO) {
 										userDTO.set(TeamMemberDTO.TYPE, TeamMemberDTO.TeamMemberType.TEAM_MEMBER);
 										userDTO.set(TeamMemberDTO.ORDER, 3);
+
 										view.getTeamMembersStore().add(userDTO);
 										modified = true;
 										view.getSaveButton().setEnabled(true);
@@ -200,7 +227,31 @@ public class ProjectTeamMembersPresenter extends AbstractProjectPresenter<Projec
 						},
 						view.getAddTeamMemberButton(), new LoadingMask(view.getMainPanel())
 				);
+			}
+		});
 
+		view.getAddTeamMemberByProfileButton().addSelectionListener(new SelectionListener<ButtonEvent>() {
+			@Override
+			public void componentSelected(ButtonEvent event) {
+				dispatch.execute(
+						new GetProfiles(ProfileDTO.Mode.BASE),
+						new CommandResultHandler<ListResult<ProfileDTO>>() {
+							@Override
+							protected void onCommandSuccess(ListResult<ProfileDTO> result) {
+								view.buildAddTeamMembersByProfileDialog(new SelectTeamMembersByProfileHandler() {
+									@Override
+									public void onSelectTeamMemberByProfile(ProfileDTO profileDTO) {
+										profileDTO.set(TeamMemberDTO.TYPE, TeamMemberDTO.TeamMemberType.TEAM_MEMBER_PROFILE);
+										profileDTO.set(TeamMemberDTO.ORDER, 2);
+
+										view.getTeamMembersStore().add(profileDTO);
+										modified = true;
+										view.getSaveButton().setEnabled(true);
+									}
+								}, result.getData());
+							}
+						}, view.getAddTeamMemberByProfileButton(), new LoadingMask(view.getMainPanel())
+				);
 			}
 		});
 	}
@@ -212,6 +263,12 @@ public class ProjectTeamMembersPresenter extends AbstractProjectPresenter<Projec
 		projectManager.set(TeamMemberDTO.TYPE, TeamMemberDTO.TeamMemberType.MANAGER);
 		projectManager.set(TeamMemberDTO.ORDER, 1);
 
+		List<ProfileDTO> teamMemberProfiles = result.getTeamMemberProfiles();
+		for (ProfileDTO profileDTO : teamMemberProfiles) {
+			profileDTO.set(TeamMemberDTO.TYPE, TeamMemberDTO.TeamMemberType.TEAM_MEMBER_PROFILE);
+			profileDTO.set(TeamMemberDTO.ORDER, 2);
+		}
+
 		List<UserDTO> teamMembers = result.getTeamMembers();
 		for (UserDTO userDTO : teamMembers) {
 			userDTO.set(TeamMemberDTO.TYPE, TeamMemberDTO.TeamMemberType.TEAM_MEMBER);
@@ -220,6 +277,7 @@ public class ProjectTeamMembersPresenter extends AbstractProjectPresenter<Projec
 
 		view.getTeamMembersStore().removeAll();
 		view.getTeamMembersStore().add(projectManager);
+		view.getTeamMembersStore().add(teamMemberProfiles);
 		view.getTeamMembersStore().add(teamMembers);
 	}
 }

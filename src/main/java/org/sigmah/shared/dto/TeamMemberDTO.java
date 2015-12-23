@@ -9,6 +9,6 @@ public interface TeamMemberDTO extends ModelData {
 	String ORDER = "order";
 
 	enum TeamMemberType {
-		MANAGER, TEAM_MEMBER
+		MANAGER, TEAM_MEMBER, TEAM_MEMBER_PROFILE
 	}
 }

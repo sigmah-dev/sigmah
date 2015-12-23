@@ -32,6 +32,7 @@ import javax.persistence.*;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.sigmah.server.domain.logframe.LogFrame;
+import org.sigmah.server.domain.profile.Profile;
 import org.sigmah.server.domain.reminder.MonitoredPointList;
 import org.sigmah.server.domain.reminder.ReminderList;
 import org.sigmah.server.domain.util.EntityConstants;
@@ -150,6 +151,18 @@ public class Project extends UserDatabase {
 			})
 	)
 	private List<User> teamMembers = new ArrayList<User>();
+
+	@ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	@JoinTable(
+			name = EntityConstants.PROJECT_COLUMN_TEAM_MEMBER_PROFILES_LINK_TABLE,
+			joinColumns = @JoinColumn(name = EntityConstants.PROJECT_COLUMN_ID, referencedColumnName = EntityConstants.USER_DATABASE_COLUMN_ID),
+			inverseJoinColumns = @JoinColumn(name = EntityConstants.PROFILE_COLUMN_ID, referencedColumnName = EntityConstants.PROFILE_COLUMN_ID),
+			uniqueConstraints = @UniqueConstraint(columnNames = {
+					EntityConstants.PROJECT_COLUMN_ID,
+					EntityConstants.PROFILE_COLUMN_ID
+			})
+	)
+	private List<Profile> teamMemberProfiles = new ArrayList<Profile>();
 
 	// --------------------------------------------------------------------------------
 	//
@@ -360,5 +373,13 @@ public class Project extends UserDatabase {
 
 	public void setTeamMembers(List<User> teamMembers) {
 		this.teamMembers = teamMembers;
+	}
+
+	public List<Profile> getTeamMemberProfiles() {
+		return teamMemberProfiles;
+	}
+
+	public void setTeamMemberProfiles(List<Profile> teamMemberProfiles) {
+		this.teamMemberProfiles = teamMemberProfiles;
 	}
 }
