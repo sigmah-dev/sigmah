@@ -147,6 +147,7 @@ public class CommandHandlerModule extends AbstractCommandHandlerModule {
 		bindHandler(UpdateProject.class, UpdateProjectHandler.class);
 		bindHandler(UpdateProjectFavorite.class, UpdateProjectFavoriteHandler.class);
 		bindHandler(UpdateProjectReportModel.class, UpdateProjectReportModelHandler.class);
+		bindHandler(UpdateProjectTeamMembers.class, UpdateProjectTeamMembersHandler.class);
 		bindHandler(UpdateReminders.class, UpdateRemindersHandler.class);
 		bindHandler(UpdateSubscription.class, UpdateSubscriptionHandler.class);
 		bindHandler(UploadSlice.class, UploadSliceHandler.class);

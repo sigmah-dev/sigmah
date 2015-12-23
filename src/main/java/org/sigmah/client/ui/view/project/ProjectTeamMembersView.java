@@ -16,7 +16,10 @@ import java.util.Arrays;
 
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.ui.presenter.project.ProjectTeamMembersPresenter;
+import org.sigmah.client.ui.res.icon.IconImageBundle;
 import org.sigmah.client.ui.view.base.AbstractView;
+import org.sigmah.client.ui.widget.button.Button;
+import org.sigmah.client.ui.widget.form.Forms;
 import org.sigmah.client.ui.widget.layout.Layouts;
 import org.sigmah.client.ui.widget.panel.Panels;
 import org.sigmah.shared.dto.TeamMemberDTO;
@@ -26,6 +29,8 @@ public class ProjectTeamMembersView extends AbstractView implements ProjectTeamM
 	private ContentPanel mainPanel;
 	private Grid<ModelData> teamMembersGrid;
 	private ListStore<ModelData> teamMembersStore;
+	private ProjectTeamMembersPresenter.RemoveTeamMemberButtonCreationHandler removeTeamMemberButtonCreationHandler;
+	private Button saveButton;
 
 	@Override
 	public void initialize() {
@@ -53,13 +58,25 @@ public class ProjectTeamMembersView extends AbstractView implements ProjectTeamM
 	}
 
 	@Override
+	public Button getSaveButton() {
+		return saveButton;
+	}
+
+	@Override
 	public ListStore<ModelData> getTeamMembersStore() {
 		return teamMembersStore;
 	}
 
+	@Override
+	public void setRemoveTeamMemberButtonCreationHandler(ProjectTeamMembersPresenter.RemoveTeamMemberButtonCreationHandler removeTeamMemberButtonCreationHandler) {
+		this.removeTeamMemberButtonCreationHandler = removeTeamMemberButtonCreationHandler;
+	}
+
 	private ToolBar buildToolbar() {
 
-		// TODO: Add "Save" button
+		saveButton = Forms.button(I18N.CONSTANTS.save(), IconImageBundle.ICONS.save());
+		saveButton.setEnabled(false);
+
 		// TODO: Add "Add a member" button
 
 		// Actions toolbar.
@@ -67,6 +84,7 @@ public class ProjectTeamMembersView extends AbstractView implements ProjectTeamM
 		toolBar.setAlignment(Style.HorizontalAlignment.LEFT);
 		toolBar.setBorders(false);
 
+		toolBar.add(saveButton);
 		toolBar.add(new FillToolItem());
 
 		return toolBar;
@@ -100,8 +118,11 @@ public class ProjectTeamMembersView extends AbstractView implements ProjectTeamM
 					return null;
 				}
 
-				// TODO: Add a button
-				return null;
+				Button button = new Button(I18N.CONSTANTS.removeItem());
+				if (type == TeamMemberDTO.TeamMemberType.TEAM_MEMBER) {
+					removeTeamMemberButtonCreationHandler.onCreateRemoveUserButton(button, (UserDTO) model);
+				}
+				return button;
 			}
 		});
 

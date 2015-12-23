@@ -31,11 +31,12 @@ import org.sigmah.server.dao.ProjectDAO;
 import org.sigmah.server.dao.base.AbstractDAO;
 import org.sigmah.server.domain.Project;
 import org.sigmah.server.domain.ProjectModel;
+import org.sigmah.server.domain.User;
 import org.sigmah.shared.dto.referential.ProjectModelStatus;
 
 /**
  * {@link ProjectDAO} implementation.
- * 
+ *
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
 public class ProjectHibernateDAO extends AbstractDAO<Project, Integer> implements ProjectDAO {
@@ -77,4 +78,9 @@ public class ProjectHibernateDAO extends AbstractDAO<Project, Integer> implement
 		return query.getResultList();
 	}
 
+	@Override
+	public Project updateProjectTeamMembers(Project project, List<User> teamMembers, User modifier) {
+		project.setTeamMembers(teamMembers);
+		return persist(project, modifier);
+	}
 }

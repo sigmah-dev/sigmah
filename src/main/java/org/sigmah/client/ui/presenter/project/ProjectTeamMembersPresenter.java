@@ -1,6 +1,8 @@
 package org.sigmah.client.ui.presenter.project;
 
 import com.extjs.gxt.ui.client.data.ModelData;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.google.inject.ImplementedBy;
@@ -11,11 +13,15 @@ import java.util.List;
 
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.dispatch.monitor.LoadingMask;
+import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.inject.Injector;
 import org.sigmah.client.page.Page;
 import org.sigmah.client.page.PageRequest;
+import org.sigmah.client.ui.notif.N10N;
 import org.sigmah.client.ui.view.project.ProjectTeamMembersView;
+import org.sigmah.client.ui.widget.button.Button;
 import org.sigmah.shared.command.GetProjectTeamMembers;
+import org.sigmah.shared.command.UpdateProjectTeamMembers;
 import org.sigmah.shared.command.result.TeamMembersResult;
 import org.sigmah.shared.dto.TeamMemberDTO;
 import org.sigmah.shared.dto.UserDTO;
@@ -34,9 +40,18 @@ public class ProjectTeamMembersPresenter extends AbstractProjectPresenter<Projec
 	public interface View extends AbstractProjectPresenter.View {
 		LayoutContainer getMainPanel();
 
+		Button getSaveButton();
+
 		ListStore<ModelData> getTeamMembersStore();
+
+		void setRemoveTeamMemberButtonCreationHandler(RemoveTeamMemberButtonCreationHandler removeTeamMemberButtonCreationHandler);
 	}
 
+	public interface RemoveTeamMemberButtonCreationHandler {
+		void onCreateRemoveUserButton(Button button, UserDTO userDTO);
+	}
+
+	private boolean modified;
 
 	/**
 	 * Presenters's initialization.
@@ -67,6 +82,8 @@ public class ProjectTeamMembersPresenter extends AbstractProjectPresenter<Projec
 	public void onPageRequest(final PageRequest request) {
 
 		load();
+
+		modified = false;
 	}
 
 	/**
@@ -74,7 +91,7 @@ public class ProjectTeamMembersPresenter extends AbstractProjectPresenter<Projec
 	 */
 	@Override
 	public boolean hasValueChanged() {
-		return false;
+		return modified;
 	}
 
 	// ---------------------------------------------------------------------------------------------------------------
@@ -95,6 +112,55 @@ public class ProjectTeamMembersPresenter extends AbstractProjectPresenter<Projec
 				fillTeamMembersStore(result);
 			}
 		}, null, new LoadingMask(view.getMainPanel()));
+	}
+
+	@Override
+	public void onBind() {
+		super.onBind();
+
+		view.setRemoveTeamMemberButtonCreationHandler(new RemoveTeamMemberButtonCreationHandler() {
+			@Override
+			public void onCreateRemoveUserButton(Button button, final UserDTO userDTO) {
+				// TODO: Verify if the user is allowed to update team members
+				button.addSelectionListener(new SelectionListener<ButtonEvent>() {
+					@Override
+					public void componentSelected(ButtonEvent event) {
+						view.getTeamMembersStore().remove(userDTO);
+						modified = true;
+						view.getSaveButton().setEnabled(true);
+					}
+				});
+			}
+		});
+
+		view.getSaveButton().addSelectionListener(new SelectionListener<ButtonEvent>() {
+			@Override
+			@SuppressWarnings("unchecked")
+			public void componentSelected(ButtonEvent event) {
+				List<UserDTO> teamMembers = (List<UserDTO>) (List) view.getTeamMembersStore().findModels(TeamMemberDTO.TYPE,
+						TeamMemberDTO.TeamMemberType.TEAM_MEMBER);
+				dispatch.execute(
+						new UpdateProjectTeamMembers(getProject().getId(), teamMembers),
+						new CommandResultHandler<TeamMembersResult>() {
+
+							@Override
+							public void onCommandFailure(final Throwable caught) {
+								N10N.error(I18N.CONSTANTS.save(), I18N.CONSTANTS.saveError());
+							}
+
+							@Override
+							protected void onCommandSuccess(TeamMembersResult result) {
+								N10N.infoNotif(I18N.CONSTANTS.infoConfirmation(), I18N.CONSTANTS.saveConfirm());
+
+								fillTeamMembersStore(result);
+							}
+						},
+						view.getSaveButton(), new LoadingMask(view.getMainPanel())
+				);
+				modified = false;
+				view.getSaveButton().setEnabled(false);
+			}
+		});
 	}
 
 	private void fillTeamMembersStore(TeamMembersResult result) {
