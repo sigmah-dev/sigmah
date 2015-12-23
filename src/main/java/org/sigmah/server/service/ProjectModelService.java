@@ -23,17 +23,16 @@ package org.sigmah.server.service;
  */
 
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 import org.sigmah.client.util.AdminUtil;
+import org.sigmah.server.dao.ProfileDAO;
 import org.sigmah.server.dao.ProjectModelDAO;
 import org.sigmah.server.dispatch.impl.UserDispatch.UserExecutionContext;
-import org.sigmah.server.domain.PhaseModel;
-import org.sigmah.server.domain.ProjectBanner;
-import org.sigmah.server.domain.ProjectDetails;
-import org.sigmah.server.domain.ProjectModel;
-import org.sigmah.server.domain.ProjectModelVisibility;
+import org.sigmah.server.domain.*;
 import org.sigmah.server.domain.element.BudgetElement;
 import org.sigmah.server.domain.element.BudgetSubField;
 import org.sigmah.server.domain.element.DefaultFlexibleElement;
@@ -41,6 +40,7 @@ import org.sigmah.server.domain.layout.Layout;
 import org.sigmah.server.domain.layout.LayoutConstraint;
 import org.sigmah.server.domain.layout.LayoutGroup;
 import org.sigmah.server.domain.logframe.LogFrameModel;
+import org.sigmah.server.domain.profile.Profile;
 import org.sigmah.server.mapper.Mapper;
 import org.sigmah.server.service.base.AbstractEntityService;
 import org.sigmah.server.service.util.ModelUtil;
@@ -54,14 +54,9 @@ import org.sigmah.shared.dto.referential.ProjectModelType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
-import java.util.Date;
-import java.util.HashSet;
-
 /**
  * Handler for updating Project model command.
- * 
+ *
  * @author nrebiai
  * @author Maxime Lombard (mlombard@ideia.fr)
  * @author Denis Colliot (dcolliot@ideia.fr)
@@ -85,6 +80,8 @@ public class ProjectModelService extends AbstractEntityService<ProjectModel, Int
 	 */
 	@Inject
 	private ProjectModelDAO projectModelDAO;
+	@Inject
+	private ProfileDAO profileDAO;
 
 	/**
 	 * {@inheritDoc}
@@ -269,6 +266,20 @@ public class ProjectModelService extends AbstractEntityService<ProjectModel, Int
 				model.setDateMaintenance(null);
 			}
 		}
+		if (changes.containsKey(AdminUtil.PROP_PM_DEFAULT_TEAM_MEMBER_PROFILES)) {
+			Object defaultProfileIds = changes.get(AdminUtil.PROP_PM_DEFAULT_TEAM_MEMBER_PROFILES);
+			if (defaultProfileIds instanceof Set) {
+				Set<Integer> profileIds = (Set<Integer>) defaultProfileIds;
+				if (profileIds.isEmpty()) {
+					model.setDefaultTeamMemberProfiles(null);
+				} else {
+					List<Profile> profiles = profileDAO.findByIds(profileIds);
+					model.setDefaultTeamMemberProfiles(profiles);
+				}
+			} else {
+				model.setDefaultTeamMemberProfiles(null);
+			}
+		}
 
 		model = em().merge(model);
 
@@ -380,20 +391,20 @@ public class ProjectModelService extends AbstractEntityService<ProjectModel, Int
 
 		if (phaseDTOToSave != null) {
 			PhaseModel phaseToSave;
-			
+
 			PhaseModel phaseFound = null;
 			for (final PhaseModel phase : model.getPhaseModels()) {
 				if (phaseDTOToSave.getId() != null && phaseDTOToSave.getId().equals(phase.getId())) {
 					phaseFound = phase;
 				}
 			}
-			
+
 			if(phaseFound != null) {
 				phaseToSave = phaseFound;
 			} else {
 				phaseToSave = new PhaseModel();
 			}
-			
+
 			phaseToSave.setName(phaseDTOToSave.getName());
 			if (displayOrder != null) {
 				phaseToSave.setDisplayOrder(displayOrder);
@@ -414,7 +425,7 @@ public class ProjectModelService extends AbstractEntityService<ProjectModel, Int
 					}
 				}
 			}
-			
+
 			for(final PhaseModel removedSuccessor : existingPhaseModels) {
 				phaseToSave.getSuccessors().remove(removedSuccessor);
 			}
@@ -445,7 +456,7 @@ public class ProjectModelService extends AbstractEntityService<ProjectModel, Int
 
 				phaseToSave.setLayout(phaseLayout);
 				em().persist(phaseToSave);
-				
+
 				model.addPhase(phaseToSave);
 			}
 
@@ -465,7 +476,7 @@ public class ProjectModelService extends AbstractEntityService<ProjectModel, Int
 
 	/**
 	 * Creates a new {@link LogFrameModel} from the given {@code model}.
-	 * 
+	 *
 	 * @param model
 	 *          The project model.
 	 * @return The {@link LogFrameModel} instance.

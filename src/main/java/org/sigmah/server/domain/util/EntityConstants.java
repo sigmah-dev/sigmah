@@ -1131,6 +1131,7 @@ public final class EntityConstants extends org.sigmah.shared.dto.util.EntityCons
 
 	// TODO Replace with 'PhaseModel' id column.
 	public static final String PROJECT_MODEL_COLUMN_PHASE_MODEL_ID = "id_root_phase_model";
+	public static final String PROJECT_MODEL_COLUMN_DEFAULT_TEAM_MEMBER_PROFILES_LINK_TABLE = "project_model_default_team_member_profiles";
 
 	public static final int PROJECT_MODEL_NAME_MAX_LENGTH = 8192;
 

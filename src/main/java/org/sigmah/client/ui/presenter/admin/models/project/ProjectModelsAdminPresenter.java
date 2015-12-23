@@ -23,10 +23,7 @@ package org.sigmah.client.ui.presenter.admin.models.project;
  */
 
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.dispatch.monitor.LoadingMask;
@@ -41,18 +38,16 @@ import org.sigmah.client.ui.presenter.admin.models.FlexibleElementsAdminPresente
 import org.sigmah.client.ui.presenter.admin.models.base.AbstractModelsAdminPresenter;
 import org.sigmah.client.ui.presenter.admin.models.importer.ImportationSchemeModelsAdminPresenter;
 import org.sigmah.client.ui.view.admin.models.project.ProjectModelsAdminView;
+import org.sigmah.client.ui.widget.form.ListComboBox;
 import org.sigmah.client.util.AdminUtil;
 import org.sigmah.client.util.EnumModel;
-import org.sigmah.shared.command.CreateEntity;
-import org.sigmah.shared.command.GetProjectModel;
-import org.sigmah.shared.command.GetProjectModelCopy;
-import org.sigmah.shared.command.GetProjectModels;
-import org.sigmah.shared.command.GetProjectsByModel;
+import org.sigmah.shared.command.*;
 import org.sigmah.shared.command.base.Command;
 import org.sigmah.shared.command.result.CreateResult;
 import org.sigmah.shared.command.result.ListResult;
 import org.sigmah.shared.dto.ProjectDTO;
 import org.sigmah.shared.dto.ProjectModelDTO;
+import org.sigmah.shared.dto.profile.ProfileDTO;
 import org.sigmah.shared.dto.referential.ProjectModelStatus;
 import org.sigmah.shared.dto.referential.ProjectModelType;
 
@@ -65,7 +60,7 @@ import com.google.inject.Singleton;
 
 /**
  * Admin project models Presenter which manages {@link ProjectModelsAdminView}.
- * 
+ *
  * @author Denis Colliot (dcolliot@ideia.fr) (v2.0)
  */
 @Singleton
@@ -82,14 +77,16 @@ public class ProjectModelsAdminPresenter extends AbstractModelsAdminPresenter<Pr
 		Field<String> getNameField();
 
 		Field<ProjectModelType> getProjectModelTypeField();
-		
+
+		ListComboBox<ProfileDTO> getDefaultProfilesComboBox();
+
 	}
 
 	public static interface ProjectTypeProvider {
 
 		/**
 		 * Returns the given {@code projectModel} corresponding {@link ProjectModelType}.
-		 * 
+		 *
 		 * @param projectModel
 		 *          The project model.
 		 * @return The given {@code projectModel} corresponding {@link ProjectModelType}, or {@code null}.
@@ -100,7 +97,7 @@ public class ProjectModelsAdminPresenter extends AbstractModelsAdminPresenter<Pr
 
 	/**
 	 * Presenters's initialization.
-	 * 
+	 *
 	 * @param view
 	 *          Presenter's view interface.
 	 * @param injector
@@ -157,6 +154,14 @@ public class ProjectModelsAdminPresenter extends AbstractModelsAdminPresenter<Pr
 				}
 			}
 		}));
+
+		dispatch.execute(new GetProfiles(ProfileDTO.Mode.BASE), new CommandResultHandler<ListResult<ProfileDTO>>() {
+			@Override
+			protected void onCommandSuccess(ListResult<ProfileDTO> result) {
+				view.getDefaultProfilesComboBox().getAvailableValuesStore().removeAll();
+				view.getDefaultProfilesComboBox().getAvailableValuesStore().add(result.getData());
+			}
+		}, null, new LoadingMask(view.getHeaderForm()));
 	}
 
 	/**
@@ -282,13 +287,19 @@ public class ProjectModelsAdminPresenter extends AbstractModelsAdminPresenter<Pr
 		final String name = view.getNameField().getValue();
 		final EnumModel<ProjectModelStatus> statusModel = view.getHeaderStatusField().getValue();
 		final ProjectModelStatus status = statusModel != null ? statusModel.getEnum() : null;
-		
+		List<ProfileDTO> defaultProfiles = view.getDefaultProfilesComboBox().getListStore().getModels();
+		Set<Integer> defaultProfileIds = new HashSet<Integer>();
+		for (ProfileDTO profile : defaultProfiles) {
+			defaultProfileIds.add(profile.getId());
+		}
+
 		final Map<String, Object> modelProperties = new HashMap<String, Object>();
 		modelProperties.put(AdminUtil.ADMIN_PROJECT_MODEL, currentModel);
 		modelProperties.put(AdminUtil.PROP_PM_NAME, name);
 		modelProperties.put(AdminUtil.PROP_PM_STATUS, status);
 		modelProperties.put(AdminUtil.PROP_PM_USE, view.getProjectModelTypeField().getValue());
 		modelProperties.put(AdminUtil.PROP_PM_MAINTENANCE_DATE, getMaintenanceDate());
+		modelProperties.put(AdminUtil.PROP_PM_DEFAULT_TEAM_MEMBER_PROFILES, defaultProfileIds);
 
 		dispatch.execute(new CreateEntity(ProjectModelDTO.ENTITY_NAME, modelProperties), new CommandResultHandler<CreateResult>() {
 
@@ -349,5 +360,5 @@ public class ProjectModelsAdminPresenter extends AbstractModelsAdminPresenter<Pr
 				}
 			}, view.getGridDuplicateButton(), view.getGridMask());
 	}
-	
+
 }

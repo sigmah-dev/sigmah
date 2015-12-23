@@ -23,28 +23,34 @@ package org.sigmah.client.ui.view.admin.models.project;
  */
 
 
-import org.sigmah.client.i18n.I18N;
-import org.sigmah.client.ui.presenter.admin.models.project.ProjectModelsAdminPresenter;
-import org.sigmah.client.ui.presenter.admin.models.project.ProjectModelsAdminPresenter.ProjectTypeProvider;
-import org.sigmah.client.ui.view.admin.models.base.AbstractModelsAdminView;
-import org.sigmah.client.ui.widget.form.FormPanel;
-import org.sigmah.client.ui.widget.form.Forms;
-import org.sigmah.client.ui.widget.form.ProjectModelTypeField;
-import org.sigmah.client.util.EnumModel;
-import org.sigmah.shared.dto.ProjectModelDTO;
-import org.sigmah.shared.dto.referential.ProjectModelStatus;
-import org.sigmah.shared.dto.referential.ProjectModelType;
-
 import com.extjs.gxt.ui.client.Style.Orientation;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.store.StoreEvent;
+import com.extjs.gxt.ui.client.store.StoreListener;
+import com.extjs.gxt.ui.client.widget.form.AdapterField;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.google.inject.Singleton;
 
+import org.sigmah.client.i18n.I18N;
+import org.sigmah.client.ui.presenter.admin.models.project.ProjectModelsAdminPresenter;
+import org.sigmah.client.ui.presenter.admin.models.project.ProjectModelsAdminPresenter.ProjectTypeProvider;
+import org.sigmah.client.ui.view.admin.models.base.AbstractModelsAdminView;
+import org.sigmah.client.ui.widget.form.FormPanel;
+import org.sigmah.client.ui.widget.form.Forms;
+import org.sigmah.client.ui.widget.form.ListComboBox;
+import org.sigmah.client.ui.widget.form.ProjectModelTypeField;
+import org.sigmah.client.util.EnumModel;
+import org.sigmah.shared.dto.ProjectModelDTO;
+import org.sigmah.shared.dto.profile.ProfileDTO;
+import org.sigmah.shared.dto.referential.ProjectModelStatus;
+import org.sigmah.shared.dto.referential.ProjectModelType;
+
 /**
  * {@link ProjectModelsAdminPresenter}'s view implementation.
- * 
+ *
  * @author Denis Colliot (dcolliot@ideia.fr) (v2.0)
  */
 @Singleton
@@ -54,6 +60,7 @@ public class ProjectModelsAdminView extends AbstractModelsAdminView<ProjectModel
 	private ComboBox<EnumModel<ProjectModelStatus>> statusField;
 	private ProjectModelTypeField modelTypeField;
 	private ProjectTypeProvider projectTypeProvider;
+	private ListComboBox<ProfileDTO> defaultProfiles;
 
 	/**
 	 * {@inheritDoc}
@@ -91,6 +98,11 @@ public class ProjectModelsAdminView extends AbstractModelsAdminView<ProjectModel
 		return statusField;
 	}
 
+	@Override
+	public ListComboBox<ProfileDTO> getDefaultProfilesComboBox() {
+		return defaultProfiles;
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -100,22 +112,25 @@ public class ProjectModelsAdminView extends AbstractModelsAdminView<ProjectModel
 		nameField = Forms.text(I18N.CONSTANTS.adminProjectModelsName(), true);
 		statusField = Forms.combobox(I18N.CONSTANTS.adminProjectModelsStatus(), true, EnumModel.VALUE_FIELD, EnumModel.DISPLAY_FIELD);
 		modelTypeField = new ProjectModelTypeField(I18N.CONSTANTS.adminProjectModelType(), true, Orientation.VERTICAL);
-		
+
+		defaultProfiles = new ListComboBox<ProfileDTO>(ProfileDTO.ID, ProfileDTO.NAME);
+		defaultProfiles.addStyleName("admin__project-models__default-team-member-profiles");
 		final FormPanel headerForm = Forms.panel(140);
+		headerForm.setAutoHeight(true);
 
 		headerForm.add(nameField);
 		headerForm.add(statusField);
 		headerForm.add(getMaintenanceGroupField());
 		headerForm.add(modelTypeField);
-
+		headerForm.add(Forms.adapter(I18N.CONSTANTS.adminProjectModelsDefaultProfilesForTeamMembers(), defaultProfiles));
 		return headerForm;
 	}
 
 	@Override
 	public float getDetailsHeaderFormHeight() {
-		return 230f;
+		return 250f;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -129,7 +144,10 @@ public class ProjectModelsAdminView extends AbstractModelsAdminView<ProjectModel
 		getMaintenanceDateField().setValue(model.getDateMaintenance());
 		getMaintenanceTimeField().setValue(model.getDateMaintenance() != null ? getMaintenanceTimeField().findModel(model.getDateMaintenance()) : null);
 		statusField.setEnabled(model.getDateMaintenance() == null);
-		
+
+		defaultProfiles.getListStore().removeAll();
+		defaultProfiles.getListStore().add(model.getDefaultTeamMemberProfiles());
+
 		return model.getName();
 	}
 
@@ -148,5 +166,5 @@ public class ProjectModelsAdminView extends AbstractModelsAdminView<ProjectModel
 	public Field<ProjectModelType> getProjectModelTypeField() {
 		return modelTypeField;
 	}
-	
+
 }
