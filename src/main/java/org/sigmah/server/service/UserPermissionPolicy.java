@@ -30,6 +30,7 @@ import java.util.List;
 import org.sigmah.server.dao.UserDAO;
 import org.sigmah.server.dao.UserPermissionDAO;
 import org.sigmah.server.dao.UserUnitDAO;
+import org.sigmah.server.dispatch.impl.UserDispatch;
 import org.sigmah.server.domain.OrgUnit;
 import org.sigmah.server.domain.Project;
 import org.sigmah.server.domain.User;
@@ -119,7 +120,7 @@ public class UserPermissionPolicy {
 		getCommand.setOrgUnitsIds(orgUnitIds);
 		getCommand.setMappingMode(ProjectDTO.Mode.BASE);
 
-		final ListResult<ProjectDTO> result = projectsHandler.execute(getCommand, null);
+		final ListResult<ProjectDTO> result = projectsHandler.execute(getCommand, user);
 
 		// create and persist userpermission entity for each project
 		for (final ProjectDTO project : result.getList()) {

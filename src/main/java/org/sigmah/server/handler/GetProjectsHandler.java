@@ -23,11 +23,7 @@ package org.sigmah.server.handler;
  */
 
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import javax.persistence.TypedQuery;
 
@@ -36,6 +32,7 @@ import com.google.inject.Inject;
 import org.sigmah.server.dispatch.impl.UserDispatch.UserExecutionContext;
 import org.sigmah.server.domain.OrgUnit;
 import org.sigmah.server.domain.Project;
+import org.sigmah.server.domain.User;
 import org.sigmah.server.domain.util.DomainFilters;
 import org.sigmah.server.handler.base.AbstractCommandHandler;
 import org.sigmah.server.handler.util.Handlers;
@@ -86,7 +83,10 @@ public class GetProjectsHandler extends AbstractCommandHandler<GetProjects, List
 	 */
 	@Override
 	public ListResult<ProjectDTO> execute(final GetProjects cmd, final UserExecutionContext context) throws CommandException {
+		return execute(cmd, context.getUser());
+	}
 
+	public ListResult<ProjectDTO> execute(final GetProjects cmd, final User user) {
 		// Disable the ActivityInfo filter on Userdatabase.
 		DomainFilters.disableUserFilter(em());
 
@@ -102,11 +102,11 @@ public class GetProjectsHandler extends AbstractCommandHandler<GetProjects, List
 
 		if (cmd.getViewOwnOrManage()) {
 			final TypedQuery<Project> ownerManagerQuery = em().createQuery("SELECT p FROM Project p WHERE p.owner = :ouser OR p.manager = :muser", Project.class);
-			ownerManagerQuery.setParameter("ouser", context.getUser());
-			ownerManagerQuery.setParameter("muser", context.getUser());
+			ownerManagerQuery.setParameter("ouser", user);
+			ownerManagerQuery.setParameter("muser", user);
 			List<Project> resultList = ownerManagerQuery.getResultList();
 			for (Project project : resultList) {
-				if (!Handlers.isProjectVisible(project, context.getUser())) {
+				if (!Handlers.isProjectVisible(project, user)) {
 					continue;
 				}
 				projects.add(project);
@@ -119,12 +119,12 @@ public class GetProjectsHandler extends AbstractCommandHandler<GetProjects, List
 
 		if (cmd.isFavoritesOnly()) {
 			final TypedQuery<Project> favoritesQuery = em().createQuery("FROM Project p WHERE :user MEMBER OF p.favoriteUsers", Project.class);
-			favoritesQuery.setParameter("user", context.getUser());
+			favoritesQuery.setParameter("user", user);
 
 
 			List<Project> resultList = favoritesQuery.getResultList();
 			for (Project project : resultList) {
-				if (!Handlers.isProjectVisible(project, context.getUser())) {
+				if (!Handlers.isProjectVisible(project, user)) {
 					continue;
 				}
 				projects.add(project);
@@ -145,7 +145,7 @@ public class GetProjectsHandler extends AbstractCommandHandler<GetProjects, List
 			LOG.debug("No org unit specified, gets all projects for the user org unit.");
 
 			// Crawl the org units hierarchy from the user root org unit.
-			Handlers.crawlUnits(context.getUser().getOrgUnitWithProfiles().getOrgUnit(), units, true);
+			Handlers.crawlUnits(user.getOrgUnitWithProfiles().getOrgUnit(), units, true);
 
 		} else {
 			// Crawl the org units hierarchy from each specified org unit.
@@ -167,12 +167,12 @@ public class GetProjectsHandler extends AbstractCommandHandler<GetProjects, List
 		for (final OrgUnit unit : units) {
 
 			// Builds and executes the query.
-			fillQuery(query, cmd, context, unit);
+			fillQuery(query, cmd, user, unit);
 
 			int count = 0;
 			final List<Project> listResults = query.getResultList();
 			for (final Project project : listResults) {
-				if (!Handlers.isProjectVisible(project, context.getUser())) {
+				if (!Handlers.isProjectVisible(project, user)) {
 					continue;
 				}
 				projectIdToOrgUnitId.put(project.getId(), unit.getId());
@@ -183,7 +183,7 @@ public class GetProjectsHandler extends AbstractCommandHandler<GetProjects, List
 				}
 				// Filters by model type.
 				else {
-					if (project.getProjectModel().getVisibility(context.getUser().getOrganization()) == modelType) {
+					if (project.getProjectModel().getVisibility(user.getOrganization()) == modelType) {
 						projects.add(project);
 						count++;
 					}
@@ -231,10 +231,10 @@ public class GetProjectsHandler extends AbstractCommandHandler<GetProjects, List
 		return em().createQuery(stringBuilder.toString(), Project.class);
 	}
 
-	private void fillQuery(TypedQuery<Project> query, GetProjects getProjects, UserExecutionContext context, OrgUnit unit) {
+	private void fillQuery(TypedQuery<Project> query, GetProjects getProjects, User user, OrgUnit unit) {
 		query.setParameter("unit", unit);
 		if (getProjects.isFavoritesOnly()) {
-			query.setParameter("user", context.getUser());
+			query.setParameter("user", user);
 		}
 	}
 }
