@@ -13,7 +13,6 @@ import org.sigmah.shared.dto.OrgUnitModelDTO;
 import org.sigmah.shared.dto.country.CountryDTO;
 import org.sigmah.shared.dto.orgunit.OrgUnitDTO;
 
-import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.JsArrayInteger;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
@@ -23,10 +22,12 @@ import org.sigmah.offline.indexeddb.OpenCursorRequest;
 import org.sigmah.shared.command.result.ListResult;
 
 /**
+ * Asynchronous DAO for saving and loading <code>OrgUnitDTO</code> objects.
+ * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
 @Singleton
-public class OrgUnitAsyncDAO extends AbstractAsyncDAO<OrgUnitDTO> {
+public class OrgUnitAsyncDAO extends AbstractUserDatabaseAsyncDAO<OrgUnitDTO, OrgUnitJS> {
 
 	private final OrgUnitModelAsyncDAO orgUnitModelAsyncDAO;
 	private final CountryAsyncDAO countryAsyncDAO;
@@ -37,24 +38,13 @@ public class OrgUnitAsyncDAO extends AbstractAsyncDAO<OrgUnitDTO> {
 		this.countryAsyncDAO = countryAsyncDAO;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public void saveOrUpdate(final OrgUnitDTO t, AsyncCallback<OrgUnitDTO> callback, Transaction transaction) {
+	public void saveOrUpdate(final OrgUnitDTO t, AsyncCallback<OrgUnitDTO> callback, Transaction<Store> transaction) {
 		// Saving org unit
-		final ObjectStore orgUnitStore = transaction.getObjectStore(Store.ORG_UNIT);
-
-		final OrgUnitJS orgUnitJS = OrgUnitJS.toJavaScript(t);
-		orgUnitStore.put(orgUnitJS).addCallback(new AsyncCallback<Request>() {
-
-            @Override
-            public void onFailure(Throwable caught) {
-                Log.error("Error while saving OrgUnit " + t.getId() + ".", caught);
-            }
-
-            @Override
-            public void onSuccess(Request result) {
-                Log.trace("OrgUnit " + t.getId() + " has been successfully saved.");
-            }
-        });
+		super.saveOrUpdate(t, callback, transaction);
 
 		// REM: parent is not saved to avoid stack overflows.
 
@@ -71,8 +61,11 @@ public class OrgUnitAsyncDAO extends AbstractAsyncDAO<OrgUnitDTO> {
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public void get(final int id, final AsyncCallback<OrgUnitDTO> callback, final Transaction transaction) {
+	public void get(final int id, final AsyncCallback<OrgUnitDTO> callback, final Transaction<Store> transaction) {
 		if (transaction.useObjectFromCache(OrgUnitDTO.class, id, callback)) {
 			return;
 		}
@@ -145,10 +138,10 @@ public class OrgUnitAsyncDAO extends AbstractAsyncDAO<OrgUnitDTO> {
 	}
 	
 	public void getWithoutDependencies(final int id, final AsyncCallback<OrgUnitDTO> callback) {
-		openTransaction(Transaction.Mode.READ_ONLY, new OpenTransactionHandler() {
+		openTransaction(Transaction.Mode.READ_ONLY, new OpenTransactionHandler<Store>() {
 
 			@Override
-			public void onTransaction(Transaction transaction) {
+			public void onTransaction(Transaction<Store> transaction) {
 				final ObjectStore orgUnitObjectStore = transaction.getObjectStore(getRequiredStore());
 				
 				orgUnitObjectStore.get(id).addCallback(new AsyncCallback<Request>() {
@@ -168,10 +161,10 @@ public class OrgUnitAsyncDAO extends AbstractAsyncDAO<OrgUnitDTO> {
 	}
 	
 	public void getAll(final AsyncCallback<ListResult<OrgUnitDTO>> callback) {
-		openTransaction(Transaction.Mode.READ_ONLY, new OpenTransactionHandler() {
+		openTransaction(Transaction.Mode.READ_ONLY, new OpenTransactionHandler<Store>() {
 
 			@Override
-			public void onTransaction(Transaction transaction) {
+			public void onTransaction(Transaction<Store> transaction) {
 				final ArrayList<OrgUnitDTO> units = new ArrayList<OrgUnitDTO>();
 				
 				final ObjectStore objectStore = transaction.getObjectStore(getRequiredStore());
@@ -201,16 +194,39 @@ public class OrgUnitAsyncDAO extends AbstractAsyncDAO<OrgUnitDTO> {
 		});
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Store getRequiredStore() {
 		return Store.ORG_UNIT;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public Collection<BaseAsyncDAO> getDependencies() {
-		final ArrayList<BaseAsyncDAO> list = new ArrayList<BaseAsyncDAO>();
+	public Collection<BaseAsyncDAO<Store>> getDependencies() {
+		final ArrayList<BaseAsyncDAO<Store>> list = new ArrayList<BaseAsyncDAO<Store>>();
 		list.add(orgUnitModelAsyncDAO);
 		list.add(countryAsyncDAO);
 		return list;
 	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public OrgUnitJS toJavaScriptObject(OrgUnitDTO t) {
+		return OrgUnitJS.toJavaScript(t);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public OrgUnitDTO toJavaObject(OrgUnitJS js) {
+		return js.toDTO();
+	}
+	
 }

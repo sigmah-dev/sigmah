@@ -10,17 +10,22 @@ import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
- *
+ * Request to open an IndexedDB database.
+ * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
-public class NativeOpenDatabaseRequest extends Request implements OpenDatabaseRequest {
+public class NativeOpenDatabaseRequest<S extends Enum<S> & Schema> extends Request implements OpenDatabaseRequest<S> {
+	
 	private final List<JavaScriptEvent> upgradeNeededHandlers = new ArrayList<JavaScriptEvent>();
 	private final List<JavaScriptEvent> blockedHandlers = new ArrayList<JavaScriptEvent>();
 	
+	private final Class<S> stores;
+	
 	private boolean openFailed;
 
-	NativeOpenDatabaseRequest(IDBOpenDBRequest request) {
+	NativeOpenDatabaseRequest(IDBOpenDBRequest request, Class<S> stores) {
 		super(request);
+		this.stores = stores;
 		registerEvents(request);
 	}
 	
@@ -50,9 +55,9 @@ public class NativeOpenDatabaseRequest extends Request implements OpenDatabaseRe
 	}-*/;
 
 	@Override
-	public Database getResult() {
+	public Database<S> getResult() {
 		if(!openFailed) {
-			return new Database((IDBDatabase) super.getResult());
+			return new Database<S>((IDBDatabase) super.getResult(), stores);
 		} else {
 			return null;
 		}

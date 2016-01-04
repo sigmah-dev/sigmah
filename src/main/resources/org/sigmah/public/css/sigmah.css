@@ -355,3 +355,6 @@ body {font-family:Arial;font-size:8pt}
 
 /* Maintenance */
 .header-alert {color: black !important;background-color: rgb(255, 90, 90) !important;background-image: none !important;border: 1px black solid !important;}
+
+
+.messageElement{line-height: 1.8em;font-size: 12px;}

@@ -168,6 +168,11 @@ public abstract class Importer {
 		final List<ElementExtractedValue> correspondances = new ArrayList<ElementExtractedValue>();
 		
 		for (VariableFlexibleElementDTO varfle : variableFlexibleElementsDTO) {
+			// FEATURE #789: Removed the identification key from the importation results.
+			if (varfle.getIsKey() != null && varfle.getIsKey()) {
+				continue;
+			}
+			
 			ElementExtractedValue elementExtractedValue = new ElementExtractedValue();
 			Object cellValue = null;
 			if (varfle.getFlexibleElementDTO() instanceof BudgetElementDTO) {

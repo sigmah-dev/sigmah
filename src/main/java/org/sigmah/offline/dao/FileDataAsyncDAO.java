@@ -5,22 +5,43 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Singleton;
 import java.util.Map;
 import org.sigmah.offline.indexeddb.Index;
+import org.sigmah.offline.indexeddb.IndexedDB;
 import org.sigmah.offline.indexeddb.ObjectStore;
+import org.sigmah.offline.indexeddb.OpenDatabaseRequest;
 import org.sigmah.offline.indexeddb.Request;
 import org.sigmah.offline.indexeddb.Store;
 import org.sigmah.offline.indexeddb.Transaction;
 import org.sigmah.offline.js.FileDataJS;
-import org.sigmah.offline.js.TransfertJS;
 
 /**
  * Save and load file data into IndexedDB.
+ * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
 @Singleton
-public class FileDataAsyncDAO extends AbstractAsyncDAO<FileDataJS> {
+public class FileDataAsyncDAO extends AbstractAsyncDAO<FileDataJS, Store> {
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public void saveOrUpdate(final FileDataJS t, final AsyncCallback<FileDataJS> callback, final Transaction transaction) {
+	public OpenDatabaseRequest<Store> openDatabase() {
+		return IndexedDB.openUserDatabase(getAuthentication());
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Class<Store> getSchema() {
+		return Store.class;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void saveOrUpdate(final FileDataJS t, final AsyncCallback<FileDataJS> callback, final Transaction<Store> transaction) {
 		final ObjectStore objectStore = transaction.getObjectStore(getRequiredStore());
 		
 		objectStore.put(t).addCallback(new AsyncCallback<Request>() {
@@ -47,8 +68,11 @@ public class FileDataAsyncDAO extends AbstractAsyncDAO<FileDataJS> {
         });
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public void get(final int id, final AsyncCallback<FileDataJS> callback, final Transaction transaction) {
+	public void get(final int id, final AsyncCallback<FileDataJS> callback, final Transaction<Store> transaction) {
 		final ObjectStore objectStore = transaction.getObjectStore(getRequiredStore());
 		
 		objectStore.get(id).addCallback(new AsyncCallback<Request>() {
@@ -66,16 +90,16 @@ public class FileDataAsyncDAO extends AbstractAsyncDAO<FileDataJS> {
 	}
 
 	public void getByFileVersionId(final int fileVersionId, final AsyncCallback<FileDataJS> callback) {
-        openTransaction(Transaction.Mode.READ_ONLY, new OpenTransactionHandler() {
+        openTransaction(Transaction.Mode.READ_ONLY, new OpenTransactionHandler<Store>() {
 
             @Override
-            public void onTransaction(Transaction transaction) {
+            public void onTransaction(Transaction<Store> transaction) {
                 getByFileVersionId(fileVersionId, callback, transaction);
             }
         });
 	}
 	
-	public void getByFileVersionId(final int fileVersionId, final AsyncCallback<FileDataJS> callback, final Transaction transaction) {
+	public void getByFileVersionId(final int fileVersionId, final AsyncCallback<FileDataJS> callback, final Transaction<Store> transaction) {
 		final ObjectStore objectStore = transaction.getObjectStore(getRequiredStore());
 		
 		final Index fileVersionIdIndex = objectStore.index("fileVersionId");
@@ -93,7 +117,7 @@ public class FileDataAsyncDAO extends AbstractAsyncDAO<FileDataJS> {
         });
 	}
 	
-	public void replaceId(final Map.Entry<Integer, Integer> entry, final Transaction transaction) {
+	public void replaceId(final Map.Entry<Integer, Integer> entry, final Transaction<Store> transaction) {
 		final ObjectStore objectStore = transaction.getObjectStore(getRequiredStore());
 		
 		objectStore.index("fileVersionId").get(entry.getKey().intValue()).addCallback(new AsyncCallback<Request>() {
@@ -121,10 +145,10 @@ public class FileDataAsyncDAO extends AbstractAsyncDAO<FileDataJS> {
 			return;
 		}
 		
-		openTransaction(Transaction.Mode.READ_WRITE, new OpenTransactionHandler() {
+		openTransaction(Transaction.Mode.READ_WRITE, new OpenTransactionHandler<Store>() {
 
 			@Override
-			public void onTransaction(Transaction transaction) {
+			public void onTransaction(Transaction<Store> transaction) {
 				for(Map.Entry<Integer, Integer> entry : ids.entrySet()) {
 					replaceId(entry, transaction);
 				}
@@ -132,6 +156,9 @@ public class FileDataAsyncDAO extends AbstractAsyncDAO<FileDataJS> {
 		});
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Store getRequiredStore() {
 		return Store.FILE_DATA;

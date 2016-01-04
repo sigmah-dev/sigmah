@@ -29,14 +29,20 @@ public class GetCategoriesAsyncHandler implements AsyncCommandHandler<GetCategor
 		this.categoryTypeAsyncDAO = categoryTypeAsyncDAO;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void execute(GetCategories command, OfflineExecutionContext executionContext, AsyncCallback<ListResult<CategoryTypeDTO>> callback) {
 		categoryTypeAsyncDAO.getAll(callback);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void onSuccess(GetCategories command, ListResult<CategoryTypeDTO> result, Authentication authentication) {
-		categoryTypeAsyncDAO.saveOrUpdate(result);
+		categoryTypeAsyncDAO.saveAll(result, null);
 	}
 	
 }

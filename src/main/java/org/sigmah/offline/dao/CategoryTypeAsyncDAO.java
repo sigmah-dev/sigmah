@@ -14,18 +14,18 @@ import org.sigmah.shared.command.result.ListResult;
 import org.sigmah.shared.dto.category.CategoryElementDTO;
 import org.sigmah.shared.dto.category.CategoryTypeDTO;
 
-import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.JsArrayInteger;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 /**
- *
+ * Asynchronous DAO for saving and loading <code>CategoryTypeDTO</code> objects.
+ * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
 @Singleton
-public class CategoryTypeAsyncDAO extends AbstractAsyncDAO<CategoryTypeDTO> {
+public class CategoryTypeAsyncDAO extends AbstractUserDatabaseAsyncDAO<CategoryTypeDTO, CategoryTypeJS> {
 	
 	private final CategoryElementAsyncDAO categoryElementAsyncDAO;
 
@@ -34,48 +34,26 @@ public class CategoryTypeAsyncDAO extends AbstractAsyncDAO<CategoryTypeDTO> {
 		this.categoryElementAsyncDAO = categoryElementAsyncDAO;
 	}
 
-	public void saveOrUpdate(final ListResult<CategoryTypeDTO> categoriesListResult) {
-		if(categoriesListResult != null && categoriesListResult.getList() != null) {
-            openTransaction(Transaction.Mode.READ_WRITE, new OpenTransactionHandler() {
-
-                @Override
-                public void onTransaction(Transaction transaction) {
-                    for(final CategoryTypeDTO categoryTypeDTO : categoriesListResult.getList()) {
-						saveOrUpdate(categoryTypeDTO, null, transaction);
-					}
-                }
-            });
-		}
-	}
-	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public void saveOrUpdate(final CategoryTypeDTO t, AsyncCallback<CategoryTypeDTO> callback, Transaction transaction) {
-		final ObjectStore categoryTypeStore = transaction.getObjectStore(Store.CATEGORY_TYPE);
-		
-		final CategoryTypeJS categoryTypeJS = CategoryTypeJS.toJavaScript(t);
-		categoryTypeStore.put(categoryTypeJS).addCallback(new AsyncCallback<Request>() {
-
-            @Override
-            public void onFailure(Throwable caught) {
-                Log.error("Error while saving category type " + t.getId() + ".", caught);
-            }
-
-            @Override
-            public void onSuccess(Request result) {
-                Log.info("Category type " + t.getId() + " has been successfully saved.");
-            }
-        });
+	public void saveOrUpdate(final CategoryTypeDTO t, AsyncCallback<CategoryTypeDTO> callback, Transaction<Store> transaction) {
+		super.saveOrUpdate(t, callback, transaction);
         
 		// Saving category elements
-		if(t.getCategoryElementsDTO() != null) {
-			for(final CategoryElementDTO categoryElementDTO : t.getCategoryElementsDTO()) {
+		if (t.getCategoryElementsDTO() != null) {
+			for (final CategoryElementDTO categoryElementDTO : t.getCategoryElementsDTO()) {
 				categoryElementAsyncDAO.saveOrUpdate(categoryElementDTO, null, transaction);
 			}
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public void get(int id, final AsyncCallback<CategoryTypeDTO> callback, final Transaction transaction) {
+	public void get(int id, final AsyncCallback<CategoryTypeDTO> callback, final Transaction<Store> transaction) {
 		final ObjectStore categoryTypeStore = transaction.getObjectStore(Store.CATEGORY_TYPE);
 
 		categoryTypeStore.get(id).addCallback(new AsyncCallback<Request>() {
@@ -103,10 +81,10 @@ public class CategoryTypeAsyncDAO extends AbstractAsyncDAO<CategoryTypeDTO> {
 	}
 	
 	public void getAll(final AsyncCallback<ListResult<CategoryTypeDTO>> callback) {
-        openTransaction(Transaction.Mode.READ_ONLY, new OpenTransactionHandler() {
+        openTransaction(Transaction.Mode.READ_ONLY, new OpenTransactionHandler<Store>() {
 
             @Override
-            public void onTransaction(final Transaction transaction) {
+            public void onTransaction(final Transaction<Store> transaction) {
                 final ArrayList<CategoryTypeDTO> categories = new ArrayList<CategoryTypeDTO>();
 				final ListResult<CategoryTypeDTO> result = new ListResult<CategoryTypeDTO>(categories);
 				final RequestManager<ListResult<CategoryTypeDTO>> requestManager = new RequestManager<ListResult<CategoryTypeDTO>>(result, callback);
@@ -162,15 +140,38 @@ public class CategoryTypeAsyncDAO extends AbstractAsyncDAO<CategoryTypeDTO> {
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Store getRequiredStore() {
 		return Store.CATEGORY_TYPE;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public Collection<BaseAsyncDAO> getDependencies() {
-		final ArrayList<BaseAsyncDAO> list = new ArrayList<BaseAsyncDAO>();
+	public Collection<BaseAsyncDAO<Store>> getDependencies() {
+		final ArrayList<BaseAsyncDAO<Store>> list = new ArrayList<BaseAsyncDAO<Store>>();
 		list.add(categoryElementAsyncDAO);
 		return list;
 	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public CategoryTypeJS toJavaScriptObject(CategoryTypeDTO t) {
+		return CategoryTypeJS.toJavaScript(t);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public CategoryTypeDTO toJavaObject(CategoryTypeJS js) {
+		return js.toDTO();
+	}
+	
 }

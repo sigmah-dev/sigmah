@@ -15,7 +15,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
  * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
-public class Transaction {
+public class Transaction<S extends Enum<S> & Schema> {
     /**
      * Allowed operations on a transaction.
      */
@@ -36,10 +36,10 @@ public class Transaction {
 	private final IDBTransaction nativeTransaction;
 	private final ObjectCache objectCache;
 	
-	private final Set<Store> stores;
+	private final Set<S> stores;
 	private final Mode mode;
 	
-	Transaction(IDBTransaction transaction, Mode mode, Collection<Store> stores) {
+	Transaction(IDBTransaction transaction, Mode mode, Collection<S> stores) {
 		this.nativeTransaction = transaction;
 		this.objectCache = new ObjectCache();
 		this.stores = EnumSet.copyOf(stores);
@@ -50,7 +50,7 @@ public class Transaction {
 		return new ObjectStore(nativeTransaction.getObjectStore(name));
 	}
 	
-	public ObjectStore getObjectStore(Store store) {
+	public ObjectStore getObjectStore(S store) {
 		return getObjectStore(store.name());
 	}
 
@@ -62,7 +62,7 @@ public class Transaction {
 		return mode;
 	}
 
-	public Set<Store> getStores() {
+	public Set<S> getStores() {
 		return stores;
 	}
 
@@ -79,7 +79,7 @@ public class Transaction {
 	 * Run a dummy request on the current transaction to extends its validity.
 	 */
 	public void ping() {
-		final Store randomStore = stores.iterator().next();
+		final S randomStore = stores.iterator().next();
 		final ObjectStore pingObjectStore = getObjectStore(randomStore);
         
 		pingObjectStore.get(0).addCallback(new AsyncCallback<Request>() {

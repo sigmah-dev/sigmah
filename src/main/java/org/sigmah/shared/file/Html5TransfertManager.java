@@ -30,15 +30,12 @@ import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.google.gwt.core.client.JsArray;
-import com.google.gwt.dom.client.Style;
-import com.google.gwt.user.client.DOM;
-import com.google.gwt.dom.client.Element;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.RootPanel;
 import org.sigmah.client.event.EventBus;
 import org.sigmah.client.event.OfflineEvent;
 import org.sigmah.client.event.handler.OfflineHandler;
+import org.sigmah.offline.fileapi.Files;
 
 /**
  * Transfert files by slicing them.
@@ -287,19 +284,9 @@ class Html5TransfertManager implements TransfertManager, HasProgressListeners {
      * @param dataUrl Content of the file as a data URL.
      */
 	private void startDownload(FileVersionDTO fileVersion, String dataUrl) {
-		final Element anchorElement = DOM.createAnchor();
-		anchorElement.setAttribute("href", dataUrl);
-		anchorElement.setAttribute("download", fileVersion.getName() + '.' + fileVersion.getExtension());
-		anchorElement.getStyle().setDisplay(Style.Display.NONE);
-		RootPanel.getBodyElement().appendChild(anchorElement);
-		click(anchorElement);
-		anchorElement.removeFromParent();
+		Files.startDownload(fileVersion.getName() + '.' + fileVersion.getExtension(), dataUrl);
 	}
-    
-    private native void click(Element e) /*-{
-		e.click();
-	}-*/;
-    
+	
 	public void onDownloadComplete(FileVersionDTO fileVersionDTO, Int8Array data, boolean startDownload, TransfertThread transfertThread) {
 		final FileVersionJS fileVersionJS = FileVersionJS.toJavaScript(fileVersionDTO);
 		fileDataAsyncDAO.saveOrUpdate(FileDataJS.createFileDataJS(fileVersionJS, data));

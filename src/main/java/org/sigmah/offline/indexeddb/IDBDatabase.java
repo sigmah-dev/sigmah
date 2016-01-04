@@ -6,11 +6,14 @@ import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArrayString;
 
 /**
- *
+ * Native IndexedDB database.
+ * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
 final class IDBDatabase extends JavaScriptObject {
+	
 	protected IDBDatabase() {
+		// Not accessible.
 	}
 	
 	public native String getName() /*-{
@@ -67,4 +70,5 @@ final class IDBDatabase extends JavaScriptObject {
 	public final native void setOnError(JavaScriptEvent handler) /*-{
 		this.onerror = handler.@org.sigmah.offline.event.JavaScriptEvent::onEvent(Lcom/google/gwt/core/client/JavaScriptObject;);
 	}-*/;
+	
 }

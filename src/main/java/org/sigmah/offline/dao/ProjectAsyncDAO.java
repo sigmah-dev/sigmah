@@ -25,7 +25,6 @@ import org.sigmah.shared.dto.orgunit.OrgUnitDTO;
 import org.sigmah.shared.dto.reminder.MonitoredPointDTO;
 import org.sigmah.shared.dto.reminder.ReminderDTO;
 
-import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.core.client.JsArrayInteger;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -44,12 +43,13 @@ import org.sigmah.shared.dto.referential.ElementTypeEnum;
 import org.sigmah.shared.util.ValueResultUtils;
 
 /**
- *
+ * Asynchronous DAO for saving and loading <code>ProjectDTO</code> objects.
+ * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
 @Singleton
-public class ProjectAsyncDAO extends AbstractAsyncDAO<ProjectDTO> {
+public class ProjectAsyncDAO extends AbstractUserDatabaseAsyncDAO<ProjectDTO, ProjectJS> {
 	
 	@Inject
 	private ProjectModelAsyncDAO projectModelAsyncDAO;
@@ -73,31 +73,14 @@ public class ProjectAsyncDAO extends AbstractAsyncDAO<ProjectDTO> {
 	private ValueAsyncDAO valueAsyncDAO;
 
 	@Override
-	public void saveOrUpdate(final ProjectDTO t, final AsyncCallback<ProjectDTO> callback, Transaction transaction) {
-		final ObjectStore projectStore = transaction.getObjectStore(Store.PROJECT);
-		
-		final ProjectJS projectJS = ProjectJS.toJavaScript(t);
-		projectStore.put(projectJS).addCallback(new AsyncCallback<Request>() {
-        
-            @Override
-            public void onFailure(Throwable caught) {
-                Log.error("Error while saving project " + projectJS.getId() + '.', caught);
-            }
-
-            @Override
-            public void onSuccess(Request result) {
-                Log.trace("Project " + projectJS.getId() + " has been successfully saved.");
-                if(callback != null) {
-                    callback.onSuccess(t);
-                }
-            }
-        });
+	public void saveOrUpdate(final ProjectDTO t, final AsyncCallback<ProjectDTO> callback, Transaction<Store> transaction) {
+		super.saveOrUpdate(t, callback, transaction);
         
 		// Saving the project model
 		projectModelAsyncDAO.saveOrUpdate(t.getProjectModel(), null, transaction);
 		
 		// Saving phases
-		phaseAsyncDAO.saveOrUpdate(t.getPhases(), transaction);
+		phaseAsyncDAO.saveAll(t.getPhases(), null, transaction);
 		
 		// Saving the log frame
 		logFrameAsyncDAO.saveOrUpdate(t.getLogFrame(), null, transaction);
@@ -107,12 +90,15 @@ public class ProjectAsyncDAO extends AbstractAsyncDAO<ProjectDTO> {
 		reminderAsyncDAO.saveOrUpdate(t.getRemindersList(), transaction);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public void get(final int id, final AsyncCallback<ProjectDTO> callback, final Transaction transaction) {
+	public void get(final int id, final AsyncCallback<ProjectDTO> callback, final Transaction<Store> transaction) {
 		get(id, true, callback, transaction);
 	}
 	
-	private void get(final int id, final boolean loadChildren, final AsyncCallback<ProjectDTO> callback, final Transaction transaction) {
+	private void get(final int id, final boolean loadChildren, final AsyncCallback<ProjectDTO> callback, final Transaction<Store> transaction) {
 		if(loadChildren && transaction.useObjectFromCache(ProjectDTO.class, id, callback)) {
 			return;
 		}
@@ -150,10 +136,10 @@ public class ProjectAsyncDAO extends AbstractAsyncDAO<ProjectDTO> {
 	 * @param callback Handler to call when the search is done.
 	 */
 	public void getWithoutDependencies(final int id, final AsyncCallback<ProjectDTO> callback) {
-		openTransaction(Transaction.Mode.READ_ONLY, new OpenTransactionHandler() {
+		openTransaction(Transaction.Mode.READ_ONLY, new OpenTransactionHandler<Store>() {
 
 			@Override
-			public void onTransaction(Transaction transaction) {
+			public void onTransaction(Transaction<Store> transaction) {
 				final ObjectStore projectStore = transaction.getObjectStore(getRequiredStore());
 				
 				projectStore.get(id).addCallback(new AsyncCallback<Request>() {
@@ -181,10 +167,10 @@ public class ProjectAsyncDAO extends AbstractAsyncDAO<ProjectDTO> {
 	 * @param callback Handler to call when the search is done.
 	 */
 	public void getByIndexWithoutDependencies(final String indexName, final int id, final AsyncCallback<ProjectDTO> callback) {
-		openTransaction(Transaction.Mode.READ_ONLY, new OpenTransactionHandler() {
+		openTransaction(Transaction.Mode.READ_ONLY, new OpenTransactionHandler<Store>() {
 
 			@Override
-			public void onTransaction(Transaction transaction) {
+			public void onTransaction(Transaction<Store> transaction) {
 				final ObjectStore projectStore = transaction.getObjectStore(getRequiredStore());
 				
 				projectStore.index(indexName).get(id).addCallback(new AsyncCallback<Request>() {
@@ -230,10 +216,10 @@ public class ProjectAsyncDAO extends AbstractAsyncDAO<ProjectDTO> {
 	}
 	
 	public void getProjectsByIds(final Collection<Integer> ids, final AsyncCallback<ListResult<ProjectDTO>> callback) {
-        openTransaction(Transaction.Mode.READ_ONLY, new OpenTransactionHandler() {
+        openTransaction(Transaction.Mode.READ_ONLY, new OpenTransactionHandler<Store>() {
 
             @Override
-            public void onTransaction(Transaction transaction) {
+            public void onTransaction(Transaction<Store> transaction) {
                 final ArrayList<ProjectDTO> projects = new ArrayList<ProjectDTO>();
 				
 				final ListResult<ProjectDTO> projectListResult = new ListResult<ProjectDTO>(projects);
@@ -256,10 +242,10 @@ public class ProjectAsyncDAO extends AbstractAsyncDAO<ProjectDTO> {
 	}
 	
 	public void getProjectsByOrgUnits(final Collection<Integer> orgUnitsIds, final AsyncCallback<ListResult<ProjectDTO>> callback) {
-        openTransaction(Transaction.Mode.READ_ONLY, new OpenTransactionHandler() {
+        openTransaction(Transaction.Mode.READ_ONLY, new OpenTransactionHandler<Store>() {
 
             @Override
-            public void onTransaction(final Transaction transaction) {
+            public void onTransaction(final Transaction<Store> transaction) {
                 final ObjectStore projectStore = transaction.getObjectStore(Store.PROJECT);
 				final Index orgUnitIndex = projectStore.index("orgUnit");
 				
@@ -309,10 +295,10 @@ public class ProjectAsyncDAO extends AbstractAsyncDAO<ProjectDTO> {
 	}
 	
 	public void getIdsByOrgUnits(final Collection<Integer> orgUnitsIds, final AsyncCallback<ListResult<ProjectDTO>> callback) {
-        openTransaction(Transaction.Mode.READ_ONLY, new OpenTransactionHandler() {
+        openTransaction(Transaction.Mode.READ_ONLY, new OpenTransactionHandler<Store>() {
 
             @Override
-            public void onTransaction(Transaction transaction) {
+            public void onTransaction(Transaction<Store> transaction) {
                 final ObjectStore projectStore = transaction.getObjectStore(Store.PROJECT);
 				final Index orgUnitIndex = projectStore.index("orgUnit");
 				
@@ -355,7 +341,7 @@ public class ProjectAsyncDAO extends AbstractAsyncDAO<ProjectDTO> {
 	}
 	
 	private <M> void loadProjectDTO(final ProjectJS projectJS, final boolean loadChildren, final RequestManager<M> requestManager, 
-			final ProjectDTO projectDTO, final Transaction transaction) {
+			final ProjectDTO projectDTO, final Transaction<Store> transaction) {
 		
 		// Loading categories
 		final int categoriesRequest = requestManager.prepareRequest();
@@ -527,7 +513,7 @@ public class ProjectAsyncDAO extends AbstractAsyncDAO<ProjectDTO> {
 	}
 	
 	private <M> void loadProjectFundings(final JsArray<ProjectFundingJS> projectFundings, final List<ProjectFundingDTO> dtos,
-			final RequestManager<M> requestManager, final Transaction transaction) {
+			final RequestManager<M> requestManager, final Transaction<Store> transaction) {
 		for(int index = 0; index < projectFundings.length(); index++) {
 			final ProjectFundingJS projectFundingJS = projectFundings.get(index);
 			final ProjectFundingDTO dto = projectFundingJS.toDTO();
@@ -549,14 +535,20 @@ public class ProjectAsyncDAO extends AbstractAsyncDAO<ProjectDTO> {
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Store getRequiredStore() {
 		return Store.PROJECT;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public Collection<BaseAsyncDAO> getDependencies() {
-		final ArrayList<BaseAsyncDAO> list = new ArrayList<BaseAsyncDAO>();
+	public Collection<BaseAsyncDAO<Store>> getDependencies() {
+		final ArrayList<BaseAsyncDAO<Store>> list = new ArrayList<BaseAsyncDAO<Store>>();
 		list.add(projectModelAsyncDAO);
 		list.add(orgUnitAsyncDAO);
 		list.add(phaseAsyncDAO);
@@ -565,4 +557,21 @@ public class ProjectAsyncDAO extends AbstractAsyncDAO<ProjectDTO> {
 		list.add(reminderAsyncDAO);
 		return list;
 	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public ProjectJS toJavaScriptObject(ProjectDTO t) {
+		return ProjectJS.toJavaScript(t);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public ProjectDTO toJavaObject(ProjectJS js) {
+		return js.toDTO();
+	}
+	
 }

@@ -33,18 +33,20 @@ public class GetImportationSchemeModelsHandler extends AbstractCommandHandler<Ge
 
 		} else {
 
-			final StringBuilder builder = new StringBuilder("SELECT sm FROM ImportationSchemeModel sm WHERE ");
+			final StringBuilder builder = new StringBuilder("SELECT sm FROM ImportationSchemeModel sm LEFT JOIN sm.projectModel pm LEFT JOIN sm.orgUnitModel oum WHERE ");
 
 			if (cmd.getImportationSchemeId() != null) {
 				builder.append(" sm.importationScheme.id = ").append(cmd.getImportationSchemeId());
-
 			} else if (cmd.getProjectModelId() != null) {
 				builder.append(" sm.projectModel.id = ").append(cmd.getProjectModelId());
-
 			} else if (cmd.getOrgUnitModelId() != null) {
 				builder.append(" sm.orgUnitModel.id = ").append(cmd.getOrgUnitModelId());
 			}
-
+            
+            builder.append(" and sm.importationScheme.dateDeleted is null "
+                    + "and (pm is null OR pm.dateDeleted is null) "
+                    + "and (oum is null OR oum.dateDeleted is null)");
+            
 			query = em().createQuery(builder.toString(), ImportationSchemeModel.class);
 		}
 

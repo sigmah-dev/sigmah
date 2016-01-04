@@ -28,6 +28,9 @@ public class UpdateRemindersAsyncHandler implements AsyncCommandHandler<UpdateRe
 	@Inject
 	private UpdateDiaryAsyncDAO updateDiaryAsyncDAO;
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void execute(final UpdateReminders command, OfflineExecutionContext executionContext, final AsyncCallback<ListResult<ReminderDTO>> callback) {
 		reminderAsyncDAO.saveAll(command.getList(), new AsyncCallback<Void>() {
@@ -46,9 +49,12 @@ public class UpdateRemindersAsyncHandler implements AsyncCommandHandler<UpdateRe
 		updateDiaryAsyncDAO.saveOrUpdate(command);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void onSuccess(UpdateReminders command, ListResult<ReminderDTO> result, Authentication authentication) {
-		reminderAsyncDAO.saveOrUpdate(result);
+		reminderAsyncDAO.saveAll(result, null);
 	}
 	
 }

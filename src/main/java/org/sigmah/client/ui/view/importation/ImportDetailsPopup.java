@@ -61,6 +61,8 @@ public class ImportDetailsPopup extends PopupWidget implements HasGrid<ImportDet
 		final ColumnModel columnModel = createColumnModel(selectionModel);
 		grid = createGrid(columnModel, selectionModel);
 		
+		grid.addPlugin(selectionModel);
+		
 		// Creating the import button.
 		importButton = Forms.button(I18N.CONSTANTS.importItem());
 		

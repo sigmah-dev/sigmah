@@ -16,17 +16,21 @@ import org.sigmah.shared.command.result.ListResult;
 import org.sigmah.shared.dto.report.ReportReference;
 
 /**
- *
+ * Asynchronous DAO for saving and loading <code>ReportReference</code> objects.
+ * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
-public class ReportReferenceAsyncDAO extends AbstractAsyncDAO<ReportReference> {
+public class ReportReferenceAsyncDAO extends AbstractUserDatabaseAsyncDAO<ReportReference, ReportReferenceJS> {
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public void saveOrUpdate(final ReportReference t, final AsyncCallback<ReportReference> callback, Transaction transaction) {
+	public void saveOrUpdate(final ReportReference t, final AsyncCallback<ReportReference> callback, Transaction<Store> transaction) {
 		saveOrUpdate(t, null, callback, transaction);
 	}
 	
-	public void saveOrUpdate(final ReportReference t, String parentId, final AsyncCallback<ReportReference> callback, Transaction transaction) {
+	public void saveOrUpdate(final ReportReference t, String parentId, final AsyncCallback<ReportReference> callback, Transaction<Store> transaction) {
 		final ObjectStore objectStore = transaction.getObjectStore(getRequiredStore());
 		
 		final ReportReferenceJS reportReferenceJS = ReportReferenceJS.toJavaScript(t);
@@ -54,10 +58,10 @@ public class ReportReferenceAsyncDAO extends AbstractAsyncDAO<ReportReference> {
 	
 	public void saveAll(final ListResult<ReportReference> result, final String parentId) {
 		if(result != null && result.getList() != null) {
-			openTransaction(Transaction.Mode.READ_WRITE, new OpenTransactionHandler() {
+			openTransaction(Transaction.Mode.READ_WRITE, new OpenTransactionHandler<Store>() {
 
 				@Override
-				public void onTransaction(Transaction transaction) {
+				public void onTransaction(Transaction<Store> transaction) {
 					for(final ReportReference reportReference : result.getList()) {
 						saveOrUpdate(reportReference, parentId, null, transaction);
 					}
@@ -66,30 +70,11 @@ public class ReportReferenceAsyncDAO extends AbstractAsyncDAO<ReportReference> {
 		}
 	}
 
-	@Override
-	public void get(int id, final AsyncCallback<ReportReference> callback, Transaction transaction) {
-		final ObjectStore objectStore = transaction.getObjectStore(getRequiredStore());
-
-		objectStore.get(id).addCallback(new AsyncCallback<Request>() {
-
-            @Override
-            public void onFailure(Throwable caught) {
-                callback.onFailure(null);
-            }
-
-            @Override
-            public void onSuccess(Request request) {
-                final ReportReferenceJS reportReferenceJS = request.getResult();
-				callback.onSuccess(reportReferenceJS != null ? reportReferenceJS.toReportReference() : null);
-            }
-        });
-	}
-	
 	public void getAll(final String parentId, final AsyncCallback<ListResult<ReportReference>> callback) {
-        openTransaction(Transaction.Mode.READ_ONLY, new OpenTransactionHandler() {
+        openTransaction(Transaction.Mode.READ_ONLY, new OpenTransactionHandler<Store>() {
 
             @Override
-            public void onTransaction(Transaction transaction) {
+            public void onTransaction(Transaction<Store> transaction) {
                 final ArrayList<ReportReference> reportReferences = new ArrayList<ReportReference>();
 				
 				final ObjectStore objectStore = transaction.getObjectStore(getRequiredStore());
@@ -111,7 +96,6 @@ public class ReportReferenceAsyncDAO extends AbstractAsyncDAO<ReportReference> {
 							final ReportReferenceJS reportReferenceJS = cursor.getValue();
 							reportReferences.add(reportReferenceJS.toReportReference());
 							cursor.next();
-							
 						} else {
 							callback.onSuccess(new ListResult<ReportReference>(reportReferences));
 						}
@@ -121,9 +105,28 @@ public class ReportReferenceAsyncDAO extends AbstractAsyncDAO<ReportReference> {
         });
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Store getRequiredStore() {
 		return Store.REPORT_REFERENCE;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public ReportReferenceJS toJavaScriptObject(ReportReference t) {
+		return ReportReferenceJS.toJavaScript(t);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public ReportReference toJavaObject(ReportReferenceJS js) {
+		return js.toReportReference();
 	}
 	
 }

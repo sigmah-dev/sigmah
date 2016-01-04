@@ -7,33 +7,46 @@ import org.sigmah.offline.event.JavaScriptEvent;
 import org.sigmah.offline.indexeddb.Database;
 import org.sigmah.offline.indexeddb.IndexedDBException;
 import org.sigmah.offline.indexeddb.OpenDatabaseRequest;
-import org.sigmah.offline.indexeddb.Store;
 import org.sigmah.offline.indexeddb.Transaction;
+import org.sigmah.offline.indexeddb.Schema;
 
 /**
  * Utility class to centralize code used to open a transaction.
  * 
+ * @param <S> Store type.
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
-public abstract class OpenTransactionHandler implements JavaScriptEvent {
+public abstract class OpenTransactionHandler<S extends Enum<S> & Schema> implements JavaScriptEvent {
     
-    public static void openTransaction(OpenDatabaseRequest openDatabaseRequest, Transaction.Mode mode, Collection<Store> stores, OpenTransactionHandler handler) {
+	/**
+	 * Open a new transaction.
+	 * 
+	 * @param <S> Schema type.
+	 * @param openDatabaseRequest Request to open an IndexedDB database.
+	 * @param mode Mode to use when opening the transaction.
+	 * @param stores Stores to open and lock during the transaction.
+	 * @param handler Called when the transaction is opened.
+	 */
+    public static <S extends Enum<S> & Schema> void openTransaction(OpenDatabaseRequest<S> openDatabaseRequest, Transaction.Mode mode, Collection<S> stores, OpenTransactionHandler<S> handler) {
         handler.stores = stores;
         handler.openDatabaseRequest = openDatabaseRequest;
         handler.mode = mode;
         openDatabaseRequest.addSuccessHandler(handler);
     }
     
-    private Collection<Store> stores;
-    private OpenDatabaseRequest openDatabaseRequest;
+    private Collection<S> stores;
+    private OpenDatabaseRequest<S> openDatabaseRequest;
     private Transaction.Mode mode;
 
+	/**
+	 * {@inheritDoc}
+	 */
     @Override
     public void onEvent(JavaScriptObject event) {
-        final Database database = openDatabaseRequest.getResult();
+        final Database<S> database = openDatabaseRequest.getResult();
 		if(database != null) {
 			try {
-				final Transaction transaction = database.getTransaction(mode, stores);
+				final Transaction<S> transaction = database.getTransaction(mode, stores);
 				onTransaction(transaction);
 				
 			} catch(IndexedDBException e) {
@@ -42,9 +55,14 @@ public abstract class OpenTransactionHandler implements JavaScriptEvent {
 		}
     }
     
-    public abstract void onTransaction(Transaction transaction);
+	/**
+	 * Called when a new transaction is opened and ready.
+	 * 
+	 * @param transaction A new transaction.
+	 */
+    public abstract void onTransaction(Transaction<S> transaction);
 
-    public void setStores(Collection<Store> stores) {
+    public void setStores(Collection<S> stores) {
         this.stores = stores;
     }
 

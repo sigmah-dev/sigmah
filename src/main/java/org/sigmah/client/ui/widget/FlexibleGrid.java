@@ -10,7 +10,7 @@ import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.store.Store;
 import com.extjs.gxt.ui.client.store.StoreEvent;
-import com.extjs.gxt.ui.client.widget.grid.CheckBoxSelectionModel;
+import com.extjs.gxt.ui.client.widget.ComponentPlugin;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.EditorGrid;
@@ -69,8 +69,8 @@ public class FlexibleGrid<M extends ModelData> extends EditorGrid<M> {
 
 		if (selectionModel != null) {
 			setSelectionModel(selectionModel);
-			if (selectionModel instanceof CheckBoxSelectionModel) {
-				addPlugin((CheckBoxSelectionModel<M>) selectionModel);
+			if (selectionModel instanceof ComponentPlugin) {
+				addPlugin((ComponentPlugin) selectionModel);
 			}
 		}
 

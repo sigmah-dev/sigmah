@@ -82,10 +82,10 @@ public class EditIndicatorView extends AbstractPopupView<PopupWidget> implements
 		form = Forms.panel(130);
 		
 		// Code field.
-		codeField = Forms.text(I18N.CONSTANTS.indicatorCode(), true);
+		codeField = Forms.text(I18N.CONSTANTS.indicatorCode(), true, 30);
 		
 		// Name field.
-		nameField = Forms.text(I18N.CONSTANTS.name(), true);
+		nameField = Forms.text(I18N.CONSTANTS.name(), true, 1024);
 		
 		// Indicator group field.
 		indicatorGroupField = Forms.combobox(I18N.CONSTANTS.group(), false, IndicatorGroup.ID, IndicatorGroup.NAME);
@@ -111,7 +111,7 @@ public class EditIndicatorView extends AbstractPopupView<PopupWidget> implements
 			aggregationAverageTypeRadio);
 		
 		// Units field.
-		unitsField = Forms.text(I18N.CONSTANTS.units(), true);
+		unitsField = Forms.text(I18N.CONSTANTS.units(), true, 15);
 		
 		// Objective field.
 		objectiveField = Forms.number(I18N.CONSTANTS.targetValue(), false);

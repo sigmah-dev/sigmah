@@ -183,6 +183,7 @@ public class FileSelectionView extends AbstractPopupView<PopupWidget> implements
 		
 		final TreeGrid<TreeGridFileModel> grid = new TreeGrid<TreeGridFileModel>(store, createColumnModel(selectionModel));
 		grid.setSelectionModel(selectionModel);
+		grid.addPlugin(selectionModel);
 		grid.getView().setForceFit(true);
 		
 		final ToolBar bottomBar = new ToolBar();

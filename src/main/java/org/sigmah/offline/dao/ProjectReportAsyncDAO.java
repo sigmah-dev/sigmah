@@ -10,63 +10,17 @@ import org.sigmah.offline.js.ProjectReportJS;
 import org.sigmah.shared.dto.report.ProjectReportDTO;
 
 /**
- *
+ * Asynchronous DAO for saving and loading <code>ProjectReportDTO</code> objects.
+ * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
-public class ProjectReportAsyncDAO extends AbstractAsyncDAO<ProjectReportDTO> {
+public class ProjectReportAsyncDAO extends AbstractUserDatabaseAsyncDAO<ProjectReportDTO, ProjectReportJS> {
 
-	@Override
-	public void saveOrUpdate(final ProjectReportDTO t, final AsyncCallback<ProjectReportDTO> callback, Transaction transaction) {
-		final ProjectReportJS projectReportJS = ProjectReportJS.toJavaScript(t);
-		
-		final ObjectStore objectStore = transaction.getObjectStore(getRequiredStore());
-		objectStore.put(projectReportJS).addCallback(new AsyncCallback<Request>() {
-
-			@Override
-			public void onFailure(Throwable caught) {
-				if(callback != null) {
-					callback.onFailure(caught);
-				}
-			}
-
-			@Override
-			public void onSuccess(Request result) {
-				if(callback != null) {
-					callback.onSuccess(t);
-				}
-			}
-		});
-	}
-
-	@Override
-	public void get(int id, final AsyncCallback<ProjectReportDTO> callback, Transaction transaction) {
-		final ObjectStore objectStore = transaction.getObjectStore(getRequiredStore());
-		
-		objectStore.get(id).addCallback(new AsyncCallback<Request>() {
-
-			@Override
-			public void onFailure(Throwable caught) {
-				callback.onFailure(caught);
-			}
-
-			@Override
-			public void onSuccess(Request result) {
-				final ProjectReportJS projectReportJS = result.getResult();
-				
-				if(projectReportJS != null) {
-					callback.onSuccess(projectReportJS.toDTO());
-				} else {
-					callback.onSuccess(null);
-				}
-			}
-		});
-	}
-	
 	public void getByVersionId(final int id, final AsyncCallback<ProjectReportDTO> callback) {
-		openTransaction(Transaction.Mode.READ_ONLY, new OpenTransactionHandler() {
+		openTransaction(Transaction.Mode.READ_ONLY, new OpenTransactionHandler<Store>() {
 
 			@Override
-			public void onTransaction(Transaction transaction) {
+			public void onTransaction(Transaction<Store> transaction) {
 				final ObjectStore objectStore = transaction.getObjectStore(getRequiredStore());
 				final Index index = objectStore.index("versionId");
 
@@ -92,9 +46,28 @@ public class ProjectReportAsyncDAO extends AbstractAsyncDAO<ProjectReportDTO> {
 		});
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Store getRequiredStore() {
 		return Store.PROJECT_REPORT;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public ProjectReportJS toJavaScriptObject(ProjectReportDTO t) {
+		return ProjectReportJS.toJavaScript(t);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public ProjectReportDTO toJavaObject(ProjectReportJS js) {
+		return js.toDTO();
 	}
 	
 }

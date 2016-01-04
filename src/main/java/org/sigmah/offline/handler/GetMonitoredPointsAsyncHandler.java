@@ -34,6 +34,9 @@ public class GetMonitoredPointsAsyncHandler implements AsyncCommandHandler<GetMo
 	@Inject
 	private ProjectAsyncDAO projectAsyncDAO;
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void execute(GetMonitoredPoints command, OfflineExecutionContext executionContext, final AsyncCallback<ListResult<MonitoredPointDTO>> callback) {
 		if(command.getProjectId() == null) {
@@ -43,9 +46,12 @@ public class GetMonitoredPointsAsyncHandler implements AsyncCommandHandler<GetMo
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void onSuccess(GetMonitoredPoints command, ListResult<MonitoredPointDTO> result, Authentication authentication) {
-		monitoredPointAsyncDAO.saveOrUpdate(result);
+		monitoredPointAsyncDAO.saveAll(result, null);
 	}
 
 	private void loadAllMonitoredPoints(final AsyncCallback<ListResult<MonitoredPointDTO>> callback) {
@@ -79,7 +85,7 @@ public class GetMonitoredPointsAsyncHandler implements AsyncCommandHandler<GetMo
 	private void loadProjectMonitoredPoints(final int projectId, final AsyncCallback<ListResult<MonitoredPointDTO>> callback) {
 		projectAsyncDAO.get(projectId, new AsyncCallback<ProjectDTO>() {
 
-	@Override
+			@Override
 			public void onFailure(Throwable caught) {
 				callback.onFailure(caught);
 			}

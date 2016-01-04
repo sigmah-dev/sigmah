@@ -28,6 +28,7 @@ import org.sigmah.shared.dto.calendar.PersonalEventDTO;
 import org.sigmah.shared.dto.element.FilesListElementDTO;
 import org.sigmah.shared.dto.report.ProjectReportDTO;
 import org.sigmah.shared.dto.value.FileDTO;
+import org.sigmah.shared.dto.value.FileVersionDTO;
 import org.sigmah.shared.dto.value.ListableValue;
 
 /**
@@ -53,6 +54,7 @@ public class DeleteAsyncHandler implements AsyncCommandHandler<Delete, VoidResul
 	public DeleteAsyncHandler() {
 		entityNameMap = new HashMap<String, String>();
 		entityNameMap.put(FileDTO.ENTITY_NAME, FilesListElementDTO.ENTITY_NAME);
+		entityNameMap.put(FileVersionDTO.ENTITY_NAME, FilesListElementDTO.ENTITY_NAME);
 	}
 	
 	@Override
@@ -69,6 +71,9 @@ public class DeleteAsyncHandler implements AsyncCommandHandler<Delete, VoidResul
 	private void executeCommand(Delete command, AsyncCallback<VoidResult> callback) {
 		if(FileDTO.ENTITY_NAME.equals(command.getEntityName())) {
 			deleteFileDTO(command, callback);
+			
+		} else if(FileVersionDTO.ENTITY_NAME.equals(command.getEntityName())) {
+			deleteFileVersionDTO(command, callback);
 			
 		} else if(PersonalEventDTO.ENTITY_NAME.equals(command.getEntityName())) {
 			deletePersonalEvent(command, callback);
@@ -112,29 +117,65 @@ public class DeleteAsyncHandler implements AsyncCommandHandler<Delete, VoidResul
 
 			@Override
 			public void onSuccess(ValueResult result) {
-				if(result != null) {
-					final List<ListableValue> values = result.getValuesObject();
-					if(values != null) {
-						final Iterator<ListableValue> iterator = values.iterator();
-						while(iterator.hasNext()) {
-							final ListableValue value = iterator.next();
-							if(value instanceof FileDTO) {
-								final FileDTO file = (FileDTO)value;
-								if(file.getId().equals(command.getId())) {
-									iterator.remove();
-								}
-							}
-						}
-					}
-
-					valueAsyncDAO.saveOrUpdate(new GetValue(command.getProjectId(), command.getElementId(), getEntityName(command)), result, callback);
-					
-				} else {
+				if (result == null || result.getValuesObject() == null)  {
 					Log.warn("Delete not done. Value not found for element '" + getOfflineId(command) + "'.");
 					if(callback != null) {
 						callback.onSuccess(null);
 					}
+					return;
 				}
+				
+				final Iterator<ListableValue> iterator = result.getValuesObject().iterator();
+				while(iterator.hasNext()) {
+					final ListableValue value = iterator.next();
+					if(value instanceof FileDTO) {
+						final FileDTO file = (FileDTO)value;
+						if(file.getId().equals(command.getId())) {
+							iterator.remove();
+						}
+					}
+				}
+
+				valueAsyncDAO.saveOrUpdate(new GetValue(command.getProjectId(), command.getElementId(), getEntityName(command)), result, callback);
+			}
+		});
+	}
+	
+	private void deleteFileVersionDTO(final Delete command, final AsyncCallback<VoidResult> callback) {
+		valueAsyncDAO.get(getOfflineId(command), new AsyncCallback<ValueResult>() {
+
+			@Override
+			public void onFailure(Throwable caught) {
+				if(callback != null) {
+					callback.onFailure(caught);
+				}
+			}
+
+			@Override
+			public void onSuccess(ValueResult result) {
+				if (result == null || result.getValuesObject() == null)  {
+					Log.warn("Delete not done. Value not found for element '" + getOfflineId(command) + "'.");
+					if(callback != null) {
+						callback.onSuccess(null);
+					}
+					return;
+				}
+				
+				for (final ListableValue value : result.getValuesObject()) {
+					if (value instanceof FileDTO) {
+						final FileDTO file = (FileDTO)value;
+
+						final Iterator<FileVersionDTO> iterator = file.getVersions().iterator();
+						while (iterator.hasNext()) {
+							final FileVersionDTO version = iterator.next();
+							if (version.getId().equals(command.getId())) {
+								iterator.remove();
+							}
+						}
+					}
+				}
+
+				valueAsyncDAO.saveOrUpdate(new GetValue(command.getProjectId(), command.getElementId(), getEntityName(command)), result, callback);
 			}
 		});
 	}

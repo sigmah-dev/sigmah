@@ -12,10 +12,10 @@ import org.sigmah.offline.event.JavaScriptEvent;
  * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
-public class AlreadyOpenedDatabaseRequest implements OpenDatabaseRequest {
+public class AlreadyOpenedDatabaseRequest<S extends Enum<S> & Schema> implements OpenDatabaseRequest<S> {
     
     private final List<JavaScriptEvent> handlers = new ArrayList<JavaScriptEvent>();
-    private Database result;
+    private Database<S> result;
     
 	/**
 	 * Creates an empty request. This is useful if an open request is pending.
@@ -28,12 +28,15 @@ public class AlreadyOpenedDatabaseRequest implements OpenDatabaseRequest {
 	 * 
 	 * @param database An already opened database.
 	 */
-    public AlreadyOpenedDatabaseRequest(Database database) {
+    public AlreadyOpenedDatabaseRequest(Database<S> database) {
         this.result = database;
     }
     
+	/**
+	 * {@inheritDoc}
+	 */
     @Override
-    public Database getResult() {
+    public Database<S> getResult() {
         return result;
     }
 
@@ -43,13 +46,16 @@ public class AlreadyOpenedDatabaseRequest implements OpenDatabaseRequest {
 	 * 
 	 * @param result An already opened database.
 	 */
-    public void setResult(Database result) {
+    public void setResult(Database<S> result) {
         this.result = result;
         for(final JavaScriptEvent handler : handlers) {
             handler.onEvent(null);
         }
     }
     
+	/**
+	 * {@inheritDoc}
+	 */
     @Override
     public void addSuccessHandler(JavaScriptEvent handler) {
         if(result != null) {
@@ -59,6 +65,9 @@ public class AlreadyOpenedDatabaseRequest implements OpenDatabaseRequest {
         }
     }
 
+	/**
+	 * {@inheritDoc}
+	 */
     @Override
     public void addCallback(AsyncCallback<Request> callback) {
         throw new UnsupportedOperationException("Not supported.");

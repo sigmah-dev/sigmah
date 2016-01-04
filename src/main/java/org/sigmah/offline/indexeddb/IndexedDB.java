@@ -4,6 +4,7 @@ import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Set;
 import org.sigmah.offline.event.JavaScriptEvent;
 import org.sigmah.offline.sync.UpdateDates;
@@ -11,18 +12,19 @@ import org.sigmah.shared.command.result.Authentication;
 
 /**
  * Main class for creating and opening IndexedDB databases.
+ * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
 public class IndexedDB {
-	private static final int REVISION = 9;
-	private static final int VERSION = Store.values().length + REVISION;
-    
+	
+    private static final LinkedList<AlreadyOpenedDatabaseRequest> LISTENER_QUEUE = new LinkedList<AlreadyOpenedDatabaseRequest>();
+	
     private static State state = State.CLOSED;
-    private static Database database;
-    private static final LinkedList<AlreadyOpenedDatabaseRequest> listenerQueue = new LinkedList<AlreadyOpenedDatabaseRequest>();
+    private static Database<Store> userDatabase;
 	
 	/**
 	 * Verify if IndexedDB is supported by the current browser.
+	 * 
 	 * @return <code>true</code> if supported, <code>false</code> otherwise.
 	 */
 	public static native boolean isSupported() /*-{
@@ -30,42 +32,54 @@ public class IndexedDB {
 	}-*/;
 	
 	/**
-	 * Open or create a database named with the e-mail address of the current user.
+	 * Open or create a database named with the e-mail address of the given user.
+	 * 
 	 * @param authentication Information about the current user.
 	 * @return A request to open the database.
 	 */
-	public static OpenDatabaseRequest openUserDatabase(Authentication authentication) {
+	public static OpenDatabaseRequest<Store> openUserDatabase(Authentication authentication) {
 		return openUserDatabase(authentication.getUserEmail());
 	}
     
+	/**
+	 * Removes the database named with the e-mail address of the given user.
+	 * 
+	 * @param authentication Information about the current user.
+	 * @return A request to delete the database.
+	 */
     public static OpenDatabaseRequest deleteUserDatabase(Authentication authentication) {
 		closeDatabase();
         return deleteUserDatabase(authentication.getUserEmail());
     }
 	
-	private static OpenDatabaseRequest openUserDatabase(final String email) {
-        if(database != null) {
-			if(database.getName().equals(email)) {
-				return new AlreadyOpenedDatabaseRequest(database);
-				
+	/**
+	 * Open or create a database with the given name.
+	 * 
+	 * @param email Name of the database to open or create.
+	 * @return A request to open the database.
+	 */
+	private static OpenDatabaseRequest<Store> openUserDatabase(final String email) {
+        if (userDatabase != null) {
+			if (userDatabase.getName().equals(email)) {
+				return new AlreadyOpenedDatabaseRequest<Store>(userDatabase);
 			} else {
 				// Switching database.
 				state = State.CLOSED;
-				database.close();
-				database = null;
+				userDatabase.close();
+				userDatabase = null;
 			}
         }
         
 		if(email == null) {
-			return new NoopDatabaseRequest();
+			return new NoopDatabaseRequest<Store>();
 		}
 		if(!isSupported()) {
 			Log.warn("IndexedDB is not supported by this web browser.");
-			return new NoopDatabaseRequest();
+			return new NoopDatabaseRequest<Store>();
 		}
 		if(!GWT.isProdMode()) {
 			Log.info("IndexedDB is unavailable in Hosted Mode.");
-			return new NoopDatabaseRequest();
+			return new NoopDatabaseRequest<Store>();
 		}
         
         switch(state) {
@@ -73,92 +87,74 @@ public class IndexedDB {
                 state = State.OPENING;
                 
                 final IndexedDB indexedDB = new IndexedDB();
-                final NativeOpenDatabaseRequest openDatabaseRequest = indexedDB.open(email, VERSION);
+                final NativeOpenDatabaseRequest<Store> openDatabaseRequest = indexedDB.open(email, Store.class);
 
                 openDatabaseRequest.addSuccessHandler(new JavaScriptEvent() {
                     @Override
                     public void onEvent(JavaScriptObject event) {
-                        database = openDatabaseRequest.getResult();
+                        userDatabase = openDatabaseRequest.getResult();
 						
-						if(database != null) {
+						if (userDatabase != null) {
 							state = State.OPENED;
-							for(final AlreadyOpenedDatabaseRequest listener : listenerQueue) {
-								listener.setResult(database);
-							}
 						} else {
 							state = State.ERROR;
+						}
+						
+						for(final AlreadyOpenedDatabaseRequest<Store> listener : LISTENER_QUEUE) {
+							listener.setResult(userDatabase);
 						}
                     }
                 });
                 
-                openDatabaseRequest.addUpgradeNeededHandler(new JavaScriptEvent<IDBVersionChangeEvent>() {
-                    @Override
-                    public void onEvent(IDBVersionChangeEvent event) {
-                        upgradeDatabase(openDatabaseRequest.getResult(), event, email);
-                    }
-                });
                 return openDatabaseRequest;
                 
             case OPENING:
-                final AlreadyOpenedDatabaseRequest listener = new AlreadyOpenedDatabaseRequest();
-                listenerQueue.add(listener);
+                final AlreadyOpenedDatabaseRequest<Store> listener = new AlreadyOpenedDatabaseRequest<Store>();
+                LISTENER_QUEUE.add(listener);
                 return listener;
                 
             case OPENED:
-                return new AlreadyOpenedDatabaseRequest(database);
+                return new AlreadyOpenedDatabaseRequest<Store>(userDatabase);
                 
             default:
-                return new NoopDatabaseRequest();
+                return new NoopDatabaseRequest<Store>();
         }
 	}
 	
-	private static void upgradeDatabase(final Database database, IDBVersionChangeEvent event, String email) {
-		Log.info("Local IndexedDB database is being updated from version " + event.getOldVersion() + " to version " + VERSION + '.');
-		UpdateDates.setDatabaseUpdateDate(email, null);
+	/**
+	 * Upgrade the given database.
+	 * 
+	 * @param <S> Schema type.
+	 * @param database Database to upgrade.
+	 * @param event Version change event.
+	 * @param name Name of the database.
+	 */
+	private static <S extends Enum<S> & Schema> void upgradeDatabase(final Database<S> database, final IDBVersionChangeEvent event, final String name) {
+		Log.info("Local IndexedDB database is being updated from version " + event.getOldVersion() + " to version " + Stores.getVersion(database.getSchema()) + '.');
+		UpdateDates.setDatabaseUpdateDate(name, null);
 		
-		for(final Store store : database.getObjectStores()) {
+		for(final String store : database.getObjectStoreNames()) {
 			database.deleteObjectStore(store);
 		}
 
-		final Set<Store> stores = database.getObjectStores();
+		final Set<S> stores = database.getObjectStores();
 
-		for(final Store store : Store.values()) {
-			if(!stores.contains(store)) {
+		for(final S store : database.getSchema().getEnumConstants()) {
+			if (!stores.contains(store) && store.isEnabled()) {
 				final ObjectStore objectStore = database.createObjectStore(store, "id", store.isAutoIncrement());
-
-				switch(store) {
-					case FILE_DATA:
-						objectStore.createIndex("fileVersionId", "fileVersion.id");
-						break;
-					case MONITORED_POINT:
-						objectStore.createIndex("parentListId", "parentListId");
-						break;
-					case PROJECT:
-						objectStore.createIndex("orgUnit", "orgUnit");
-						objectStore.createIndex("remindersListId", "remindersListId");
-						objectStore.createIndex("pointsListId", "pointsListId");
-						break;
-					case PROJECT_REPORT:
-						objectStore.createIndex("versionId", "versionId");
-						break;
-					case REPORT_REFERENCE:
-						objectStore.createIndex("parentId", "parentId");
-						break;
-					case REMINDER:
-						objectStore.createIndex("parentListId", "parentListId");
-						break;
-					case TRANSFERT:
-						objectStore.createIndex("type", "type");
-						objectStore.createIndex("fileVersionId", "fileVersion.id");
-						break;
-					case USER:
-						objectStore.createIndex("organization", "organization");
-						break;
+				for (final Map.Entry<String, String> index : store.getIndexes().entrySet()) {
+					objectStore.createIndex(index.getKey(), index.getValue());
 				}
 			}
 		}
 	}
     
+	/**
+	 * Removes the database with the given name.
+	 * 
+	 * @param email Name of the database to remove.
+	 * @return A request to delete the database.
+	 */
     private static OpenDatabaseRequest deleteUserDatabase(String email) {
         if(email == null) {
 			return new NoopDatabaseRequest();
@@ -173,17 +169,25 @@ public class IndexedDB {
     }
 	
 	/**
-	 * Close and release the currently opened database.
+	 * Close and release the currently opened user database.
 	 */
 	public static void closeDatabase() {
-		if(database != null) {
-			database.close();
+		if(userDatabase != null) {
+			userDatabase.close();
 			state = State.CLOSED;
 		}
 	}
 	
+	/**
+	 * Native instance of IndexedDB.
+	 */
 	private final NativeIndexedDB nativeIndexedDB;
 	
+	/**
+	 * Creates a new wrapper around IndexedDB.
+	 * 
+	 * @throws UnsupportedOperationException If IndexedDB is not supported by the web browser.
+	 */
 	public IndexedDB() throws UnsupportedOperationException {
 		if(!isSupported()) {
 			throw new UnsupportedOperationException("IndexedDB is not supported by this web browser.");
@@ -191,15 +195,44 @@ public class IndexedDB {
 		this.nativeIndexedDB = NativeIndexedDB.getIndexedDB();
 	}
 
-	public NativeOpenDatabaseRequest open(String name, int version) {
-		return new NativeOpenDatabaseRequest(nativeIndexedDB.open(name, version));
+	/**
+	 * Create a native request to open a designated IndexedDB database.
+	 * 
+	 * @param <S> Schema type.
+	 * @param name Name of the database to open.
+	 * @param stores Schema type class.
+	 * @return An open database request.
+	 */
+	public <S extends Enum<S> & Schema> NativeOpenDatabaseRequest<S> open(final String name, final Class<S> stores) {
+		final NativeOpenDatabaseRequest<S> request = new NativeOpenDatabaseRequest<S>(nativeIndexedDB.open(name, Stores.getVersion(stores)), stores);
+		
+		request.addUpgradeNeededHandler(new JavaScriptEvent<IDBVersionChangeEvent>() {
+
+			@Override
+			public void onEvent(IDBVersionChangeEvent event) {
+				upgradeDatabase(request.getResult(), event, name);
+			}
+		});
+		
+		return request;
 	}
     
-    private NativeOpenDatabaseRequest deleteDatabase(String name) {
-        return new NativeOpenDatabaseRequest(nativeIndexedDB.deleteDatabase(name));
+	/**
+	 * Create a native request to delete the given database.
+	 * 
+	 * @param name Name of the database to delete.
+	 * @return An open database request.
+	 */
+    public NativeOpenDatabaseRequest deleteDatabase(String name) {
+        return new NativeOpenDatabaseRequest(nativeIndexedDB.deleteDatabase(name), null);
     }
     
+	/**
+	 * Database states.
+	 */
     public static enum State {
+		
         CLOSED, OPENING, OPENED, ERROR;
+		
     }
 }

@@ -2,7 +2,7 @@ package org.sigmah.shared.command.base;
 
 import org.sigmah.shared.command.result.Result;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
+import java.io.Serializable;
 
 /**
  * <p>
@@ -16,6 +16,6 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  * @param <R>
  *          The command result type.
  */
-public interface Command<R extends Result> extends IsSerializable {
+public interface Command<R extends Result> extends Serializable {
 
 }

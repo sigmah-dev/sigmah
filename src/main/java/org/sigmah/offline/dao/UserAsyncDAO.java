@@ -12,7 +12,6 @@ import org.sigmah.offline.indexeddb.Request;
 import org.sigmah.offline.indexeddb.Store;
 import org.sigmah.offline.indexeddb.Transaction;
 import org.sigmah.offline.js.UserJS;
-import org.sigmah.offline.js.Values;
 import org.sigmah.shared.command.result.ListResult;
 import org.sigmah.shared.dto.UserDTO;
 import org.sigmah.shared.dto.orgunit.OrgUnitDTO;
@@ -23,11 +22,12 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 /**
- *
+ * Asynchronous DAO for saving and loading <code>UserDTO</code> objects.
+ * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
 @Singleton
-public class UserAsyncDAO extends AbstractAsyncDAO<UserDTO> {
+public class UserAsyncDAO extends AbstractUserDatabaseAsyncDAO<UserDTO, UserJS> {
 
 	private final OrgUnitAsyncDAO orgUnitDAO;
 
@@ -36,36 +36,25 @@ public class UserAsyncDAO extends AbstractAsyncDAO<UserDTO> {
 		this.orgUnitDAO = orgUnitDAO;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public void saveOrUpdate(UserDTO t, AsyncCallback<UserDTO> callback, Transaction transaction) {
-		final ObjectStore userObjectStore = transaction.getObjectStore(Store.USER);
-		
-		final UserJS userJS = UserJS.toJavaScript(t);
-		userObjectStore.put(userJS).addCallback(new AsyncCallback<Request>() {
-
-            @Override
-            public void onFailure(Throwable caught) {
-                Log.error("Error while saving user " + userJS.getId() + ".", caught);
-            }
-
-            @Override
-            public void onSuccess(Request result) {
-                Log.trace("User " + userJS.getId() + " has been successfully saved.");
-            }
-        });
+	public void saveOrUpdate(UserDTO t, AsyncCallback<UserDTO> callback, Transaction<Store> transaction) {
+		super.saveOrUpdate(t, callback, transaction);
 		
 		// Saving its org unit
-		if(Values.isDefined(userJS, UserDTO.ORG_UNIT)) {
+		if (t.getOrgUnit() != null) {
 			orgUnitDAO.saveOrUpdate(t.getOrgUnit(), null, transaction);
 		}
 	}
 	
-	public void saveOrUpdate(final ListResult<UserDTO> userListResult, final Integer organizationId) {
+	public void saveAll(final ListResult<UserDTO> userListResult, final Integer organizationId) {
 		if(userListResult != null && userListResult.getList() != null) {
-            openTransaction(Transaction.Mode.READ_WRITE, new OpenTransactionHandler() {
+            openTransaction(Transaction.Mode.READ_WRITE, new OpenTransactionHandler<Store>() {
 
                 @Override
-                public void onTransaction(Transaction transaction) {
+                public void onTransaction(Transaction<Store> transaction) {
                     for(final UserDTO userDTO : userListResult.getList()) {
 						userDTO.set("organization", organizationId);
 						saveOrUpdate(userDTO, null, transaction);
@@ -75,8 +64,11 @@ public class UserAsyncDAO extends AbstractAsyncDAO<UserDTO> {
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public void get(final int id, final AsyncCallback<UserDTO> callback, final Transaction transaction) {
+	public void get(final int id, final AsyncCallback<UserDTO> callback, final Transaction<Store> transaction) {
 		if(transaction.useObjectFromCache(UserDTO.class, id, callback)) {
 			return;
 		}
@@ -118,10 +110,10 @@ public class UserAsyncDAO extends AbstractAsyncDAO<UserDTO> {
 	}
 	
 	public void getByOrganization(final int organizationId, final AsyncCallback<ListResult<UserDTO>> callback) {
-        openTransaction(Transaction.Mode.READ_ONLY, new OpenTransactionHandler() {
+        openTransaction(Transaction.Mode.READ_ONLY, new OpenTransactionHandler<Store>() {
 
             @Override
-            public void onTransaction(final Transaction transaction) {
+            public void onTransaction(final Transaction<Store> transaction) {
                 final ObjectStore userObjectStore = transaction.getObjectStore(Store.USER);
 				final Index organizationIndex = userObjectStore.index("organization");
 				final OpenCursorRequest openCursorRequest = organizationIndex.openCursor(IDBKeyRange.only(organizationId));
@@ -168,15 +160,38 @@ public class UserAsyncDAO extends AbstractAsyncDAO<UserDTO> {
         });
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Store getRequiredStore() {
 		return Store.USER;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public Collection<BaseAsyncDAO> getDependencies() {
-		final ArrayList<BaseAsyncDAO> list = new ArrayList<BaseAsyncDAO>();
+	public Collection<BaseAsyncDAO<Store>> getDependencies() {
+		final ArrayList<BaseAsyncDAO<Store>> list = new ArrayList<BaseAsyncDAO<Store>>();
 		list.add(orgUnitDAO);
 		return list;
 	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public UserJS toJavaScriptObject(UserDTO t) {
+		return UserJS.toJavaScript(t);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public UserDTO toJavaObject(UserJS js) {
+		return js.toDTO();
+	}
+	
 }

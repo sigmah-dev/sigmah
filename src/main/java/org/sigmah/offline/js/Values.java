@@ -16,6 +16,10 @@ public final class Values {
 	private Values() {
 	}
 	
+	public static native <T> T createJavaScriptObject() /*-{
+		return {};
+	}-*/;
+	
 	public static native <T> T createJavaScriptObject(Class<T> clazz) /*-{
 		return {};
 	}-*/;
@@ -106,4 +110,9 @@ public final class Values {
 	public static void setDate(JavaScriptObject object, String property, Date value) {
 		setJavaScriptObject(object, property, toJsDate(value));
 	}
+	
+	public static native boolean isDeleted(JavaScriptObject object) /*-{
+		return typeof object != 'undefined' && object['deleted'] == true;
+	}-*/;
+	
 }

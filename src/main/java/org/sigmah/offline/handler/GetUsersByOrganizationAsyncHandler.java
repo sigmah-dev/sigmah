@@ -29,13 +29,20 @@ public class GetUsersByOrganizationAsyncHandler implements AsyncCommandHandler<G
 		this.userDAO = userDAO;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void execute(GetUsersByOrganization command, OfflineExecutionContext executionContext, AsyncCallback<ListResult<UserDTO>> callback) {
 		userDAO.getByOrganization(command.getOrganizationId(), callback);
 	}
-
+	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void onSuccess(GetUsersByOrganization command, ListResult<UserDTO> result, Authentication authentication) {
-		userDAO.saveOrUpdate(result, command.getOrganizationId());
+		userDAO.saveAll(result, command.getOrganizationId());
 	}
+	
 }

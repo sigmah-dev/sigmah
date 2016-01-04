@@ -21,6 +21,7 @@ import org.sigmah.client.ui.widget.form.Forms;
 import org.sigmah.client.ui.widget.layout.Layouts;
 import org.sigmah.client.ui.widget.popup.PopupWidget;
 import org.sigmah.shared.dto.ElementExtractedValue;
+import org.sigmah.shared.dto.ImportDetails;
 import org.sigmah.shared.dto.ProjectDTO;
 import org.sigmah.shared.dto.base.EntityDTO;
 import org.sigmah.shared.dto.element.BudgetElementDTO;
@@ -52,6 +53,7 @@ public class ElementExtractedValuePopup extends PopupWidget implements HasGrid<E
 	private Grid<ElementExtractedValue> grid;
 	private Button confirmButton;
 	
+    private ImportDetails parentModel;
 	private EntityDTO<?> entity;
 	
 	public ElementExtractedValuePopup() {
@@ -65,6 +67,8 @@ public class ElementExtractedValuePopup extends PopupWidget implements HasGrid<E
 		final CheckBoxSelectionModel<ElementExtractedValue> selectionModel = new CheckBoxSelectionModel<ElementExtractedValue>();
 		final ColumnModel columnModel = createColumnModel(selectionModel);
 		grid = createGrid(columnModel, selectionModel);
+		
+		grid.addPlugin(selectionModel);
 		
 		// Creating the OK button.
 		confirmButton = Forms.button(I18N.CONSTANTS.ok());
@@ -95,6 +99,14 @@ public class ElementExtractedValuePopup extends PopupWidget implements HasGrid<E
 	@Override
 	public void setGridEventHandler(GridEventHandler<ElementExtractedValue> handler) {
 	}
+
+    public ImportDetails getParentModel() {
+        return parentModel;
+    }
+
+    public void setParentModel(ImportDetails parentModel) {
+        this.parentModel = parentModel;
+    }
 
 	/**
 	 * Retrieves the current entity.

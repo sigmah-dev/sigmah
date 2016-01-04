@@ -10,25 +10,44 @@ import org.sigmah.offline.js.PageAccessJS;
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Singleton;
+import org.sigmah.offline.indexeddb.IndexedDB;
+import org.sigmah.offline.indexeddb.OpenDatabaseRequest;
 
 /**
- *
+ * Asynchronous DAO for saving and loading the page accesses rights.
+ * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
 @Singleton
-public class PageAccessAsyncDAO extends BaseAsyncDAO {
+public class PageAccessAsyncDAO extends BaseAsyncDAO<Store> {
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public OpenDatabaseRequest<Store> openDatabase() {
+		return IndexedDB.openUserDatabase(getAuthentication());
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Class<Store> getSchema() {
+		return Store.class;
+	}
 	
 	public void saveOrUpdate(final PageAccessJS pageAccessJS) {
-		openTransaction(Transaction.Mode.READ_WRITE, new OpenTransactionHandler() {
+		openTransaction(Transaction.Mode.READ_WRITE, new OpenTransactionHandler<Store>() {
 
 			@Override
-			public void onTransaction(Transaction transaction) {
+			public void onTransaction(Transaction<Store> transaction) {
 				saveOrUpdate(pageAccessJS, transaction);
 			}
 		});
 	}
 	
-	public void saveOrUpdate(final PageAccessJS pageAccessJS, Transaction transaction) {
+	public void saveOrUpdate(final PageAccessJS pageAccessJS, Transaction<Store> transaction) {
 		final ObjectStore objectStore = transaction.getObjectStore(Store.PAGE_ACCESS);
 		
 		objectStore.put(pageAccessJS).addCallback(new AsyncCallback<Request>() {
@@ -46,16 +65,16 @@ public class PageAccessAsyncDAO extends BaseAsyncDAO {
 	}
 
 	public void get(final Page page, final AsyncCallback<PageAccessJS> callback) {
-		openTransaction(Transaction.Mode.READ_ONLY, new OpenTransactionHandler() {
+		openTransaction(Transaction.Mode.READ_ONLY, new OpenTransactionHandler<Store>() {
 
 			@Override
-			public void onTransaction(Transaction transaction) {
+			public void onTransaction(Transaction<Store> transaction) {
 				get(page, callback, transaction);
 			}
 		});
 	}
 	
-	public void get(final Page page, final AsyncCallback<PageAccessJS> callback, Transaction transaction) {
+	public void get(final Page page, final AsyncCallback<PageAccessJS> callback, Transaction<Store> transaction) {
 		final ObjectStore objectStore = transaction.getObjectStore(Store.PAGE_ACCESS);
 		
 		objectStore.get(page.name()).addCallback(new AsyncCallback<Request>() {
@@ -79,8 +98,12 @@ public class PageAccessAsyncDAO extends BaseAsyncDAO {
         });
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Store getRequiredStore() {
 		return Store.PAGE_ACCESS;
 	}
+	
 }

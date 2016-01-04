@@ -164,7 +164,10 @@ public class FilesListElementDTO extends FlexibleElementDTO {
 			int max = getAdjustedLimit();
 			int count = 0;
 			for (ListableValue s : currentValueResult.getValuesObject()) {
-				store.add((FileDTO) s);
+				final FileDTO fileDTO = (FileDTO) s;
+				fileDTO.set("containerId", currentContainerDTO.getId());
+				fileDTO.set("elementId", getId());
+				store.add(fileDTO);
 				count++;
 				if (count == max) {
 					if (uploadField != null) {
@@ -987,7 +990,7 @@ public class FilesListElementDTO extends FlexibleElementDTO {
 									public void onAction() {
 
 										// Deletes it.
-										dispatch.execute(new Delete(model), new CommandResultHandler<VoidResult>() {
+										dispatch.execute(new Delete(model, model.<Integer>get("containerId"), model.<Integer>get("elementId")), new CommandResultHandler<VoidResult>() {
 
 											@Override
 											public void onCommandFailure(final Throwable caught) {
@@ -1045,12 +1048,15 @@ public class FilesListElementDTO extends FlexibleElementDTO {
 
 			this.file = file;
 			final FileVersionDTO lastVersion = file.getLastVersion();
-
+			
 			// Clears the existing versions.
 			store.removeAll();
 
 			// Adds each version to the store to be displayed in the grid.
 			for (final FileVersionDTO version : this.file.getVersions()) {
+				version.set("containerId", file.get("containerId"));
+				version.set("elementId", file.get("elementId"));
+				version.set("fileId", file.getId());
 				store.add(version);
 			}
 

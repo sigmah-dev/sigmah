@@ -11,47 +11,46 @@ import org.sigmah.offline.js.ProjectModelJS;
 import org.sigmah.shared.dto.PhaseModelDTO;
 import org.sigmah.shared.dto.ProjectModelDTO;
 
-import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.JsArrayInteger;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 /**
- *
+ * Asynchronous DAO for saving and loading <code>ProjectModelDTO</code> objects.
+ * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
 @Singleton
-public class ProjectModelAsyncDAO extends AbstractAsyncDAO<ProjectModelDTO> {
+public class ProjectModelAsyncDAO extends AbstractUserDatabaseAsyncDAO<ProjectModelDTO, ProjectModelJS> {
 	
 	private final PhaseModelAsyncDAO phaseModelAsyncDAO;
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Inject
 	public ProjectModelAsyncDAO(PhaseModelAsyncDAO phaseModelAsyncDAO) {
 		this.phaseModelAsyncDAO = phaseModelAsyncDAO;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public void saveOrUpdate(final ProjectModelDTO t, AsyncCallback<ProjectModelDTO> callback, Transaction transaction) {
-		final ObjectStore projectModelStore = transaction.getObjectStore(Store.PROJECT_MODEL);
+	public void saveOrUpdate(ProjectModelDTO t, AsyncCallback<ProjectModelDTO> callback, Transaction<Store> transaction) {
+		super.saveOrUpdate(t, callback, transaction);
 		
-		final ProjectModelJS projectModelJS = ProjectModelJS.toJavaScript(t);
-		projectModelStore.put(projectModelJS).addCallback(new AsyncCallback<Request>() {
-
-            @Override
-            public void onFailure(Throwable caught) {
-                Log.error("Error while saving project model " + t.getId() + '.', caught);
-            }
-
-            @Override
-            public void onSuccess(Request result) {
-                Log.trace("Project model " + t.getId() + " has been successfully saved.");
-            }
-        });
+		for (final PhaseModelDTO phaseModel : t.getPhaseModels()) {
+			phaseModelAsyncDAO.saveOrUpdate(phaseModel, null, transaction);
+		}
 	}
-
+	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public void get(int id, final AsyncCallback<ProjectModelDTO> callback, final Transaction transaction) {
+	public void get(int id, final AsyncCallback<ProjectModelDTO> callback, final Transaction<Store> transaction) {
 		if(transaction.useObjectFromCache(ProjectModelDTO.class, id, callback)) {
 			return;
 		}
@@ -99,16 +98,38 @@ public class ProjectModelAsyncDAO extends AbstractAsyncDAO<ProjectModelDTO> {
         });
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Store getRequiredStore() {
 		return Store.PROJECT_MODEL;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public Collection<BaseAsyncDAO> getDependencies() {
-		final ArrayList<BaseAsyncDAO> dependencies = new ArrayList<BaseAsyncDAO>();
+	public Collection<BaseAsyncDAO<Store>> getDependencies() {
+		final ArrayList<BaseAsyncDAO<Store>> dependencies = new ArrayList<BaseAsyncDAO<Store>>();
 		dependencies.add(phaseModelAsyncDAO);
 		return dependencies;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public ProjectModelJS toJavaScriptObject(ProjectModelDTO t) {
+		return ProjectModelJS.toJavaScript(t);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public ProjectModelDTO toJavaObject(ProjectModelJS js) {
+		return js.toDTO();
 	}
 	
 }

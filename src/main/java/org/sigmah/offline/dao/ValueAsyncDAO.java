@@ -17,30 +17,49 @@ import com.google.gwt.core.client.JsArray;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import org.sigmah.offline.indexeddb.IndexedDB;
+import org.sigmah.offline.indexeddb.OpenDatabaseRequest;
 import org.sigmah.offline.js.FileDataJS;
 import org.sigmah.offline.js.FileJS;
 import org.sigmah.offline.js.FileVersionJS;
 import org.sigmah.offline.js.ListableValueJS;
 
 /**
- *
+ * Asynchronous DAO for saving and loading the values of the flexible elements.
+ * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
 @Singleton
-public class ValueAsyncDAO extends BaseAsyncDAO {
+public class ValueAsyncDAO extends BaseAsyncDAO<Store> {
 	
 	@Inject
 	private FileDataAsyncDAO fileDataAsyncDAO;
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public OpenDatabaseRequest<Store> openDatabase() {
+		return IndexedDB.openUserDatabase(getAuthentication());
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Class<Store> getSchema() {
+		return Store.class;
+	}
 	
 	public void saveOrUpdate(final GetValue getValue, final ValueResult valueResult) {
 		saveOrUpdate(getValue, valueResult, null);
 	}
 	
 	public void saveOrUpdate(final GetValue getValue, final ValueResult valueResult, final AsyncCallback<VoidResult> callback) {
-		openTransaction(Transaction.Mode.READ_WRITE, new OpenTransactionHandler() {
+		openTransaction(Transaction.Mode.READ_WRITE, new OpenTransactionHandler<Store>() {
 
 			@Override
-			public void onTransaction(Transaction transaction) {
+			public void onTransaction(Transaction<Store> transaction) {
 				saveOrUpdate(getValue, valueResult, callback, transaction);
 			}
 		});
@@ -71,10 +90,10 @@ public class ValueAsyncDAO extends BaseAsyncDAO {
 	}
 
 	public void saveOrUpdate(final UpdateProject updateProject, final ValueEventWrapper valueEventWrapper, final ValueResult originalValue, final AsyncCallback<VoidResult> callback) {
-		openTransaction(Transaction.Mode.READ_WRITE, new OpenTransactionHandler() {
+		openTransaction(Transaction.Mode.READ_WRITE, new OpenTransactionHandler<Store>() {
 
 			@Override
-			public void onTransaction(Transaction transaction) {
+			public void onTransaction(Transaction<Store> transaction) {
 				saveOrUpdate(updateProject, valueEventWrapper, originalValue, callback, transaction);
 			}
 		});
@@ -105,10 +124,10 @@ public class ValueAsyncDAO extends BaseAsyncDAO {
 	}
 	
 	public void get(final String id, final AsyncCallback<ValueResult> callback) {
-		openTransaction(Transaction.Mode.READ_ONLY, new OpenTransactionHandler() {
+		openTransaction(Transaction.Mode.READ_ONLY, new OpenTransactionHandler<Store>() {
 
 			@Override
-			public void onTransaction(Transaction transaction) {
+			public void onTransaction(Transaction<Store> transaction) {
 				get(id, callback, transaction);
 			}
 		});
@@ -177,6 +196,9 @@ public class ValueAsyncDAO extends BaseAsyncDAO {
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Store getRequiredStore() {
 		return Store.VALUE;

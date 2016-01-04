@@ -28,6 +28,9 @@ public class UpdateMonitoredPointsAsyncHandler implements AsyncCommandHandler<Up
 	@Inject
 	private UpdateDiaryAsyncDAO updateDiaryAsyncDAO;
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void execute(final UpdateMonitoredPoints command, OfflineExecutionContext executionContext, final AsyncCallback<ListResult<MonitoredPointDTO>> callback) {
 		monitoredPointAsyncDAO.saveAll(command.getList(), new AsyncCallback<Void>() {
@@ -46,9 +49,12 @@ public class UpdateMonitoredPointsAsyncHandler implements AsyncCommandHandler<Up
 		updateDiaryAsyncDAO.saveOrUpdate(command);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void onSuccess(UpdateMonitoredPoints command, ListResult<MonitoredPointDTO> result, Authentication authentication) {
-		monitoredPointAsyncDAO.saveOrUpdate(result);
+		monitoredPointAsyncDAO.saveAll(result, null);
 	}
 	
 }

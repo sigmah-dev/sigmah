@@ -6,10 +6,13 @@ import org.sigmah.shared.command.result.Authentication;
 import org.sigmah.shared.dto.profile.ProfileDTO;
 
 /**
- *
+ * JavaScript version of <code>Authentication</code>.
+ * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
 public final class AuthenticationJS extends JavaScriptObject {
+	
+	public static final int DEFAULT_ID = 1;
 	
 	protected AuthenticationJS() {
 	}
@@ -17,6 +20,7 @@ public final class AuthenticationJS extends JavaScriptObject {
 	public static AuthenticationJS toJavaScript(Authentication authentication) {
 		final AuthenticationJS authenticationJS = Values.createJavaScriptObject(AuthenticationJS.class);
 		
+		authenticationJS.setId(DEFAULT_ID);
 		authenticationJS.setAuthenticationToken(authentication.getAuthenticationToken());
 		authenticationJS.setUserId(authentication.getUserId());
 		authenticationJS.setUserEmail(authentication.getUserEmail());
@@ -56,7 +60,7 @@ public final class AuthenticationJS extends JavaScriptObject {
 	public native int getId() /*-{
 		return this.id;
 	}-*/;
-
+	
 	public native String getAuthenticationToken() /*-{
 		return this.authenticationToken;
 	}-*/;

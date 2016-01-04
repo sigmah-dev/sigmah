@@ -12,34 +12,56 @@ import org.sigmah.offline.indexeddb.Order;
 import org.sigmah.offline.indexeddb.Request;
 import org.sigmah.offline.js.HasId;
 import org.sigmah.shared.command.result.VoidResult;
+import org.sigmah.offline.indexeddb.Schema;
 
 /**
- *
+ * Implements basic CRUD operations for objects using an int as key.
+ * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
- * @param <T>
+ * @param <T> Type of the objects handled by this DAO.
+ * @param <S> Schema where to save objects.
  */
-public abstract class AbstractAsyncDAO<T> extends BaseAsyncDAO implements AsyncDAO<T> {
+public abstract class AbstractAsyncDAO<T, S extends Enum<S> & Schema> extends BaseAsyncDAO<S> implements AsyncDAO<T, S> {
 
+	/**
+	 * Open a transaction and save the given object.
+	 * 
+	 * @param t Object to save.
+	 */
 	@Override
 	public void saveOrUpdate(T t) {
 		saveOrUpdate(t, (AsyncCallback<T>) null);
 	}
 	
+	/**
+	 * Open a transaction and save the given object, the given callback will be
+	 * called when done (if not null).
+	 * 
+	 * @param t Object to save.
+	 * @param callback Callback to call (may be null).
+	 */
 	public void saveOrUpdate(final T t, final AsyncCallback<T> callback) {
-        openTransaction(Transaction.Mode.READ_WRITE, new OpenTransactionHandler() {
+        openTransaction(Transaction.Mode.READ_WRITE, new OpenTransactionHandler<S>() {
             
             @Override
-            public void onTransaction(Transaction transaction) {
+            public void onTransaction(Transaction<S> transaction) {
                 saveOrUpdate(t, callback, transaction);
             }
         });
 	}
-    
+	
+	/**
+	 * Open a transaction and save every objects in the given collection, the
+	 * given callback will be called when done (if not null).
+	 * 
+	 * @param ts Objects to save.
+	 * @param callback Callback to call (may be null).
+	 */
     public void saveAll(final Collection<T> ts, final AsyncCallback<Void> callback) {
-        openTransaction(Transaction.Mode.READ_WRITE, new OpenTransactionHandler() {
+        openTransaction(Transaction.Mode.READ_WRITE, new OpenTransactionHandler<S>() {
 
             @Override
-            public void onTransaction(Transaction transaction) {
+            public void onTransaction(Transaction<S> transaction) {
                 saveAll(ts, callback, transaction);
             }
         });
@@ -47,13 +69,13 @@ public abstract class AbstractAsyncDAO<T> extends BaseAsyncDAO implements AsyncD
     
     /**
      * Saves the given objects in the given transaction.
-     * Override this method to implements the saving of most complexe objects.
+     * Override this method to save of most complexe objects.
      * 
-     * @param ts
-     * @param callback
-     * @param transaction 
+     * @param ts Objects to save.
+     * @param callback Callback to call (may be null).
+     * @param transaction Transaction to use.
      */
-    public void saveAll(Collection<T> ts, AsyncCallback<Void> callback, Transaction transaction) {
+    public void saveAll(Collection<T> ts, AsyncCallback<Void> callback, Transaction<S> transaction) {
         final RequestManager<Void> requestManager = new RequestManager<Void>(null, callback);
         
         for(final T t : ts) {
@@ -61,6 +83,7 @@ public abstract class AbstractAsyncDAO<T> extends BaseAsyncDAO implements AsyncD
 
                 @Override
                 public void onRequestSuccess(T result) {
+					// Success.
                 }
                 
             }, transaction);
@@ -69,26 +92,43 @@ public abstract class AbstractAsyncDAO<T> extends BaseAsyncDAO implements AsyncD
         requestManager.ready();
     }
 
+	/**
+	 * Open a transaction and retrieve the object identified by the given id.
+	 * 
+	 * @param id Identifier.
+	 * @param callback Callback to call when the object is loaded.
+	 */
 	@Override
 	public void get(final int id, final AsyncCallback<T> callback) {
-        openTransaction(Transaction.Mode.READ_ONLY, new OpenTransactionHandler() {
+        openTransaction(Transaction.Mode.READ_ONLY, new OpenTransactionHandler<S>() {
 
             @Override
-            public void onTransaction(Transaction transaction) {
+            public void onTransaction(Transaction<S> transaction) {
                 get(id, callback, transaction);
             }
         });
 	}
     
+	/**
+     * Open a new transaction and removes the object identified by <code>id</code>.
+     * 
+     * @param id Identifier of the object to remove.
+     */
     public void remove(final int id) {
         remove(id, null);
     }
     
+	/**
+     * Open a new transaction and removes the object identified by <code>id</code>.
+     * 
+     * @param id Identifier of the object to remove.
+     * @param callback Called when the removal is done.
+     */
     public void remove(final int id, final AsyncCallback<VoidResult> callback) {
-        openTransaction(Transaction.Mode.READ_WRITE, new OpenTransactionHandler() {
+        openTransaction(Transaction.Mode.READ_WRITE, new OpenTransactionHandler<S>() {
 
             @Override
-            public void onTransaction(Transaction transaction) {
+            public void onTransaction(Transaction<S> transaction) {
                 remove(id, callback, transaction);
             }
         });
@@ -98,11 +138,11 @@ public abstract class AbstractAsyncDAO<T> extends BaseAsyncDAO implements AsyncD
      * Removes the object identified by <code>id</code>.
      * Override this method to implements the removal of most complexe objects.
      * 
-     * @param id
-     * @param callback
-     * @param transaction 
+     * @param id Identifier of the object to remove.
+     * @param callback Called when the removal is done.
+     * @param transaction Transaction to use.
      */
-    public void remove(int id, final AsyncCallback<VoidResult> callback, Transaction transaction) {
+    public void remove(int id, final AsyncCallback<VoidResult> callback, Transaction<S> transaction) {
         final ObjectStore commandObjectStore = transaction.getObjectStore(getRequiredStore());
         commandObjectStore.delete(id).addCallback(new AsyncCallback<Request>() {
 
@@ -122,17 +162,28 @@ public abstract class AbstractAsyncDAO<T> extends BaseAsyncDAO implements AsyncD
         });
     }
     
+	/**
+	 * Remove every entry matching the given identifiers.
+	 * 
+	 * @param ids Collection of identifier to remove.
+	 */
     public void removeAll(final Collection<Integer> ids) {
         removeAll(ids, null);
     }
     
+	/**
+	 * Remove every entry matching the given identifiers.
+	 * 
+	 * @param ids Collection of identifier to remove.
+	 * @param callback Called when the removal is done.
+	 */
     public void removeAll(final Collection<Integer> ids, final AsyncCallback<VoidResult> callback) {
         final RequestManager<VoidResult> requestManager = new RequestManager<VoidResult>(null, callback);
         
-        openTransaction(Transaction.Mode.READ_WRITE, new OpenTransactionHandler() {
+        openTransaction(Transaction.Mode.READ_WRITE, new OpenTransactionHandler<S>() {
 
             @Override
-            public void onTransaction(Transaction transaction) {
+            public void onTransaction(Transaction<S> transaction) {
                 for(final Integer id : ids) {
                     // Remove the current object
                     remove(id, new RequestManagerCallback<VoidResult, VoidResult>(requestManager) {
@@ -150,10 +201,10 @@ public abstract class AbstractAsyncDAO<T> extends BaseAsyncDAO implements AsyncD
     }
     
     public void count(final AsyncCallback<Integer> callback) {
-        openTransaction(Transaction.Mode.READ_ONLY, new OpenTransactionHandler() {
+        openTransaction(Transaction.Mode.READ_ONLY, new OpenTransactionHandler<S>() {
 
             @Override
-            public void onTransaction(Transaction transaction) {
+            public void onTransaction(Transaction<S> transaction) {
                 final ObjectStore objectStore = transaction.getObjectStore(getRequiredStore());
 				final CountRequest countRequest = objectStore.count();
 				
@@ -173,17 +224,28 @@ public abstract class AbstractAsyncDAO<T> extends BaseAsyncDAO implements AsyncD
         });
 	}
     
+	/**
+	 * Open a new transaction and generates a negative identifier.
+	 * 
+	 * @param callback Called when the identifier is generated.
+	 */
 	public void generateNegativeId(final AsyncCallback<Integer> callback) {
-		openTransaction(Transaction.Mode.READ_ONLY, new OpenTransactionHandler() {
+		openTransaction(Transaction.Mode.READ_ONLY, new OpenTransactionHandler<S>() {
 
 			@Override
-			public void onTransaction(Transaction transaction) {
+			public void onTransaction(Transaction<S> transaction) {
 				generateNegativeId(callback, transaction);
 			}
 		});
 	}
     
-	protected void generateNegativeId(final AsyncCallback<Integer> callback, Transaction transaction) {
+	/**
+	 * Generates a negative identifier within the given transaction.
+	 * 
+	 * @param callback Called when the identifier is generated.
+	 * @param transaction Transaction to use.
+	 */
+	protected void generateNegativeId(final AsyncCallback<Integer> callback, Transaction<S> transaction) {
 		final ObjectStore objectStore = transaction.getObjectStore(getRequiredStore());
 
 		final OpenCursorRequest request = objectStore.openCursor(IDBKeyRange.upperBound(0, false), Order.ASCENDING);
@@ -210,13 +272,14 @@ public abstract class AbstractAsyncDAO<T> extends BaseAsyncDAO implements AsyncD
 	
 	/**
 	 * Removes every objets whose id is a negative integer.
-	 * @param callback
+	 * 
+	 * @param callback Called when the removal is done.
 	 */
 	public void removeTemporaryObjects(final AsyncCallback<VoidResult> callback) {
-		openTransaction(Transaction.Mode.READ_WRITE, new OpenTransactionHandler() {
+		openTransaction(Transaction.Mode.READ_WRITE, new OpenTransactionHandler<S>() {
 
 			@Override
-			public void onTransaction(final Transaction transaction) {
+			public void onTransaction(final Transaction<S> transaction) {
 				final ObjectStore objectStore = transaction.getObjectStore(getRequiredStore());
 				
 				final OpenCursorRequest request = objectStore.openCursor(IDBKeyRange.upperBound(0, false), Order.ASCENDING);
@@ -243,4 +306,5 @@ public abstract class AbstractAsyncDAO<T> extends BaseAsyncDAO implements AsyncD
 			}
 		});
 	}
+	
 }

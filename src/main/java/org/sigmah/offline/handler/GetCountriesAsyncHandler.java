@@ -29,17 +29,23 @@ public class GetCountriesAsyncHandler implements AsyncCommandHandler<GetCountrie
 		this.countryDAO = countryDAO;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void execute(GetCountries command, OfflineExecutionContext executionContext, AsyncCallback<ListResult<CountryDTO>> callback) {
 		// TODO: Should handle the "containingProjects" property
 		// Maybe add a boolean in the local database to allow the usage of an Index,
 		// instead of having to make a join.
-		countryDAO.getAll(callback);
+		countryDAO.getListResult(callback);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void onSuccess(GetCountries command, ListResult<CountryDTO> result, Authentication authentication) {
-		countryDAO.saveOrUpdate(result);
+		countryDAO.saveAll(result, null);
 	}
 
 }

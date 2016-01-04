@@ -16,6 +16,8 @@ public class MessageElementDTO extends FlexibleElementDTO {
 	 * Serial version UID.
 	 */
 	private static final long serialVersionUID = 8520711106031085130L;
+	
+	private static final String STYLE_MESSAGE_ELEMENT = "messageElement";
 
 	/**
 	 * {@inheritDoc}
@@ -33,6 +35,7 @@ public class MessageElementDTO extends FlexibleElementDTO {
 	protected Component getComponent(ValueResult valueResult, boolean enabled) {
 		// The label for a message can be considered as HTML code.
 		final Html message = new Html(getLabel());
+		message.addStyleName(STYLE_MESSAGE_ELEMENT);
 		return message;
 	}
 

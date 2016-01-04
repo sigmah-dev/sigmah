@@ -9,21 +9,48 @@ import java.util.HashSet;
 import java.util.Set;
 import org.sigmah.client.security.AuthenticationProvider;
 import org.sigmah.offline.dispatch.LocalDispatchServiceAsync;
-import org.sigmah.offline.indexeddb.IndexedDB;
 import org.sigmah.offline.indexeddb.OpenDatabaseRequest;
-import org.sigmah.offline.indexeddb.Store;
 import org.sigmah.offline.indexeddb.Transaction;
 import org.sigmah.shared.command.result.Authentication;
+import org.sigmah.offline.indexeddb.Schema;
 
 /**
- *
+ * Base class for every asynchronous DAO.
+ * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
+ * @param <S> Type of the schema containing the stores used by this DAO.
  */
-public abstract class BaseAsyncDAO {
+public abstract class BaseAsyncDAO<S extends Enum<S> & Schema> {
 	
 	@Inject
 	private AuthenticationProvider authenticationProvider;
-
+	
+	/**
+	 * Open the required IndexedDB database.
+	 * 
+	 * @return An open database request.
+	 */
+	public abstract OpenDatabaseRequest<S> openDatabase();
+	
+	/**
+	 * Get the store required by this DAO.
+	 * 
+	 * @return Required store.
+	 */
+	public abstract S getRequiredStore();
+	
+	/**
+	 * Get the schema class required by this DAO.
+	 * 
+	 * @return Schema class.
+	 */
+	public abstract Class<S> getSchema();
+	
+	/**
+	 * Retrieves the current authentication.
+	 * 
+	 * @return The current authentication.
+	 */
 	public Authentication getAuthentication() {
 		final Authentication authentication = authenticationProvider.get();
 		
@@ -38,6 +65,12 @@ public abstract class BaseAsyncDAO {
 		return authentication;
 	}
 	
+	/**
+	 * Returns <code>true</code> if the current user is anonymous.
+	 * 
+	 * @return <code>true</code> if the current user is anonymous, 
+	 * <code>false</code> otherwise.
+	 */
 	public boolean isAnonymous() {
         return authenticationProvider.isAnonymous();
     }
@@ -46,8 +79,8 @@ public abstract class BaseAsyncDAO {
 		this.authenticationProvider = authenticationProvider;
 	}
 	
-	protected void openTransaction(Transaction.Mode mode, OpenTransactionHandler handler) {
-        final OpenDatabaseRequest openDatabaseRequest = IndexedDB.openUserDatabase(getAuthentication());
+	protected void openTransaction(Transaction.Mode mode, OpenTransactionHandler<S> handler) {
+        final OpenDatabaseRequest<S> openDatabaseRequest = openDatabase();
         
         handler.setMode(mode);
         handler.setOpenDatabaseRequest(openDatabaseRequest);
@@ -56,7 +89,7 @@ public abstract class BaseAsyncDAO {
 		openDatabaseRequest.addSuccessHandler(handler);
     }
 	
-	public Set<Store> getRequiredStores() {
+	public Set<S> getRequiredStores() {
 		final HashSet<BaseAsyncDAO> dependencies = new HashSet<BaseAsyncDAO>();
 		dependencies.add(this);
 		
@@ -75,16 +108,15 @@ public abstract class BaseAsyncDAO {
 			size = dependencies.size();
 		}
 		
-		final EnumSet<Store> stores = EnumSet.noneOf(Store.class);
-		for(final BaseAsyncDAO dependency : dependencies) {
-			stores.add(dependency.getRequiredStore());
+		final EnumSet<S> requiredStores = EnumSet.noneOf(getSchema());
+		for(final BaseAsyncDAO<S> dependency : dependencies) {
+			requiredStores.add(dependency.getRequiredStore());
 		}
-		return stores;
+		return requiredStores;
 	}
 
-	public Collection<BaseAsyncDAO> getDependencies() {
+	public Collection<BaseAsyncDAO<S>> getDependencies() {
 		return Collections.EMPTY_LIST;
 	}
 	
-	public abstract Store getRequiredStore();
 }

@@ -78,8 +78,23 @@ public class ApplicationStateManager implements OfflineEvent.Source {
 	// --
 	// Public API.
 	// --
+	
+	/**
+	 * Fire the current state to every state listener.
+	 * 
+	 * @param onStateFound Called when the state is found.
+	 */
 	public void fireCurrentState(final Runnable onStateFound) {
 		updateApplicationState(onStateFound, onReconnection);
+	}
+	
+	/**
+	 * Retrieves the last found state.
+	 * 
+	 * @return Last application state.
+	 */
+	public ApplicationState getLastState() {
+		return state;
 	}
 	
 	// ---

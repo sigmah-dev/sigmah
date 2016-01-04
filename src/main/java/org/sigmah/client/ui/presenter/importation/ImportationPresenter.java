@@ -101,6 +101,8 @@ public class ImportationPresenter extends AbstractPagePresenter<ImportationPrese
 		ElementExtractedValuePopup getElementExtractedValuePopup();
 		
 		ListStore<ImportationSchemeDTO> getSchemeListStore();
+        
+        void hide();
 	}
 	
 	private HandlerRegistration handlerRegistration;
@@ -202,6 +204,8 @@ public class ImportationPresenter extends AbstractPagePresenter<ImportationPrese
 			@Override
 			public void componentSelected(ButtonEvent ce) {
 				onImport();
+				// Closing the file selection popup.
+                view.hide();
 			}
 		});
 		
@@ -213,8 +217,17 @@ public class ImportationPresenter extends AbstractPagePresenter<ImportationPrese
 
 			@Override
 			public void componentSelected(ButtonEvent ce) {
-				changes.put((Integer)elementExtractedValuePopup.getEntity().getId(), elementExtractedValuePopup.getSelection());
-				elementExtractedValuePopup.hide();
+				final List<ElementExtractedValue> selection = elementExtractedValuePopup.getSelection();
+				changes.put((Integer)elementExtractedValuePopup.getEntity().getId(), selection);
+				
+				if (!selection.isEmpty()) {
+					view.getImportDetailsPopup().getGrid().getSelectionModel().select(elementExtractedValuePopup.getParentModel(), true);
+				} else {
+					view.getImportDetailsPopup().getGrid().getSelectionModel().deselect(elementExtractedValuePopup.getParentModel());
+				}
+                      
+                elementExtractedValuePopup.hide();
+                       
 			}
 		});
 	}
@@ -431,6 +444,7 @@ public class ImportationPresenter extends AbstractPagePresenter<ImportationPrese
 					final Iterator<EntityDTO<?>> iterator = entities.keySet().iterator();
 					final EntityDTO<?> entity = iterator.next();
 					popup.setEntity(entity);
+                    popup.setParentModel(model);
 					
 					popup.getStore().removeAll();
 					popup.getStore().add(entities.get(entity));

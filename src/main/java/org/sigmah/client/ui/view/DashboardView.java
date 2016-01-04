@@ -346,33 +346,22 @@ public class DashboardView extends AbstractView implements DashboardPresenter.Vi
 			}
 		});
 
-		// Label column.
-		final ColumnConfig labelColumn = new ColumnConfig();
-		labelColumn.setId(ReminderDTO.LABEL);
-		labelColumn.setHeaderHtml(I18N.CONSTANTS.monitoredPointLabel());
-		labelColumn.setWidth(100);
-
-        // project Code column.
-        final ColumnConfig projectCodeColumn = new ColumnConfig();
-        projectCodeColumn.setId(ReminderDTO.PROJECT_CODE);
-        projectCodeColumn.setHeaderHtml(I18N.CONSTANTS.project());
-        projectCodeColumn.setWidth(100);
-
-        // project Name column.
-        final ColumnConfig projectNameColumn = new ColumnConfig();
-        projectNameColumn.setId(ReminderDTO.PROJECT_NAME);
-        projectNameColumn.setHeaderHtml(I18N.CONSTANTS.projectName());
-        projectNameColumn.setWidth(100);
-
-        projectNameColumn.setRenderer(new GridCellRenderer<ReminderDTO>() {
+        // Label column.
+        final ColumnConfig labelColumn = new ColumnConfig();
+        labelColumn.setId(ReminderDTO.LABEL);
+        labelColumn.setHeaderHtml(I18N.CONSTANTS.monitoredPointLabel());
+        labelColumn.setWidth(100);
+        
+        // Ajout du HREF
+        labelColumn.setRenderer(new GridCellRenderer<ReminderDTO>() {
 
 			@Override
 			public Object render(final ReminderDTO model, String property, ColumnData config, int rowIndex, int colIndex, ListStore<ReminderDTO> store,
 					Grid<ReminderDTO> grid) {
 
 				final com.google.gwt.user.client.ui.Label label = new com.google.gwt.user.client.ui.Label((String) model.get(property));
+                
 				label.addStyleName("hyperlink-label");
-
 				label.addClickHandler(new ClickHandler() {
 
 					@Override
@@ -380,6 +369,8 @@ public class DashboardView extends AbstractView implements DashboardPresenter.Vi
                         handler.onLabelClickEvent(model.getProjectId());
 					}
 				});
+                
+                label.setTitle(I18N.CONSTANTS.projectLabelWithDots() + ' ' + model.getProjectCode() + " - " + model.getProjectName());
 
 				return label;
 			}
@@ -406,11 +397,9 @@ public class DashboardView extends AbstractView implements DashboardPresenter.Vi
 		});
 
 		return Arrays.asList(new ColumnConfig[] {
-																							iconColumn,
-																							labelColumn,
-            projectNameColumn,
-            projectCodeColumn,
-																							expectedDateColumn
+				iconColumn,
+				labelColumn,
+				expectedDateColumn
 		});
 	}
 
@@ -450,18 +439,7 @@ public class DashboardView extends AbstractView implements DashboardPresenter.Vi
 		labelColumn.setHeaderHtml(I18N.CONSTANTS.monitoredPointLabel());
 		labelColumn.setWidth(100);
 
-        // project Code column.
-        final ColumnConfig projectCodeColumn = new ColumnConfig();
-        projectCodeColumn.setId(MonitoredPointDTO.PROJECT_CODE);
-        projectCodeColumn.setHeaderHtml(I18N.CONSTANTS.project());
-        projectCodeColumn.setWidth(100);
-
-        // project Name column.
-        final ColumnConfig projectNameColumn = new ColumnConfig();
-        projectNameColumn.setId(MonitoredPointDTO.PROJECT_NAME);
-        projectNameColumn.setHeaderHtml(I18N.CONSTANTS.projectName());
-        projectNameColumn.setWidth(100);
-        projectNameColumn.setRenderer(new GridCellRenderer<MonitoredPointDTO>() {
+        labelColumn.setRenderer(new GridCellRenderer<MonitoredPointDTO>() {
 
 			@Override
 			public Object render(final MonitoredPointDTO model, String property, ColumnData config, int rowIndex, int colIndex, ListStore<MonitoredPointDTO> store,
@@ -478,6 +456,8 @@ public class DashboardView extends AbstractView implements DashboardPresenter.Vi
 					}
 				});
 
+                label.setTitle(I18N.CONSTANTS.projectLabelWithDots() + ' ' + model.getProjectCode() + " - " + model.getProjectName());
+                
 				return label;
 			}
 		});
@@ -506,8 +486,6 @@ public class DashboardView extends AbstractView implements DashboardPresenter.Vi
 		return Arrays.asList(new ColumnConfig[] {
 																							iconColumn,
 																							labelColumn,
-            projectNameColumn,
-            projectCodeColumn,
 																							expectedDateColumn
 		});
 	}

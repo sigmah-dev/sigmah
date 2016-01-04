@@ -1,23 +1,24 @@
 package org.sigmah.offline.indexeddb;
 
+import java.util.Map;
+
 /**
  * List of every store used by Sigmah.
- * <p/>
- * A store is like an IndexedDB table. Each store is made to store one type of
- * object.
- * @author Raphaël Calabro (rcalabro@ideia.fr)
+ * 
+ * @author Raphaël Calabro (raphael.calabro@netapsys.fr)
  */
-public enum Store {
+public enum Store implements Schema {
+	
 	AUTHENTICATION,
 	CATEGORY_TYPE,
 	CATEGORY_ELEMENT,
 	COUNTRY,
 	COMMAND(true),
-	FILE_DATA(true),
+	FILE_DATA(true, "fileVersionId", "fileVersion.id"),
 	HISTORY,
 	LOG_FRAME,
 	LOGO,
-	MONITORED_POINT,
+	MONITORED_POINT("parentListId", "parentListId"),
 	ORGANIZATION,
 	ORG_UNIT,
 	ORG_UNIT_MODEL,
@@ -25,26 +26,58 @@ public enum Store {
 	PAGE_ACCESS,
 	PHASE,
 	PHASE_MODEL,
-	PROJECT,
+	PROJECT("orgUnit", "orgUnit",
+			"remindersListId", "remindersListId",
+			"pointsListId", "pointsListId"),
 	PROJECT_MODEL,
-	PROJECT_REPORT,
-	REMINDER,
-	REPORT_REFERENCE,
-	TRANSFERT(true),
-	USER,
+	PROJECT_REPORT("versionId", "versionId"),
+	REMINDER("parentListId", "parentListId"),
+	REPORT_REFERENCE("parentId", "parentId"),
+	TRANSFERT(true, "type", "type",
+			"fileVersionId", "fileVersion.id"),
+	USER("organization", "organization"),
 	VALUE;
 	
 	private final boolean autoIncrement;
+	private final boolean enabled;
+	private final Map<String, String> indexes;
 
-	private Store() {
-		autoIncrement = false;
+	private Store(String... indexes) {
+		this(false, true, indexes);
 	}
 
-	private Store(boolean autoIncrement) {
+	private Store(boolean autoIncrement, String... indexes) {
+		this(autoIncrement, true, indexes);
+	}
+
+	private Store(boolean autoIncrement, boolean enabled, String... indexes) {
 		this.autoIncrement = autoIncrement;
+		this.enabled = enabled;
+		this.indexes = Stores.toIndexMap(indexes);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public boolean isAutoIncrement() {
 		return autoIncrement;
 	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean isEnabled() {
+		return enabled;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Map<String, String> getIndexes() {
+		return indexes;
+	}
+	
 }

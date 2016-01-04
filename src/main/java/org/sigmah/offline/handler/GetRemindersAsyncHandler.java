@@ -34,6 +34,9 @@ public class GetRemindersAsyncHandler implements AsyncCommandHandler<GetReminder
 	@Inject
 	private ProjectAsyncDAO projectAsyncDAO;
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void execute(GetReminders command, OfflineExecutionContext executionContext, final AsyncCallback<ListResult<ReminderDTO>> callback) {
 		if(command.getProjectId() == null) {
@@ -43,9 +46,12 @@ public class GetRemindersAsyncHandler implements AsyncCommandHandler<GetReminder
 		}
 	}
 
-				@Override
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public void onSuccess(GetReminders command, ListResult<ReminderDTO> result, Authentication authentication) {
-		reminderAsyncDAO.saveOrUpdate(result);
+		reminderAsyncDAO.saveAll(result, null);
 	}
 	
 	private void loadAllReminders(final AsyncCallback<ListResult<ReminderDTO>> callback) {
@@ -79,7 +85,7 @@ public class GetRemindersAsyncHandler implements AsyncCommandHandler<GetReminder
 	private void loadProjectReminders(final int projectId, final AsyncCallback<ListResult<ReminderDTO>> callback) {
 		projectAsyncDAO.get(projectId, new AsyncCallback<ProjectDTO>() {
 
-	@Override
+			@Override
 			public void onFailure(Throwable caught) {
 				callback.onFailure(caught);
 			}

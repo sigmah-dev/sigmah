@@ -11,17 +11,17 @@ import org.sigmah.offline.js.OrganizationJS;
 import org.sigmah.shared.dto.organization.OrganizationDTO;
 import org.sigmah.shared.dto.orgunit.OrgUnitDTO;
 
-import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 /**
- *
+ * Asynchronous DAO for saving and loading <code>OrganizationDTO</code> objects.
+ * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
 @Singleton
-public class OrganizationAsyncDAO extends AbstractAsyncDAO<OrganizationDTO> {
+public class OrganizationAsyncDAO extends AbstractUserDatabaseAsyncDAO<OrganizationDTO, OrganizationJS> {
 	
 	private final OrgUnitAsyncDAO orgUnitDAO;
 
@@ -29,30 +29,31 @@ public class OrganizationAsyncDAO extends AbstractAsyncDAO<OrganizationDTO> {
 	public OrganizationAsyncDAO(OrgUnitAsyncDAO orgUnitDAO) {
 		this.orgUnitDAO = orgUnitDAO;
 	}
-	
-	public static interface Factory {
-		OrganizationAsyncDAO create(OrgUnitAsyncDAO orgUnitAsyncDAO);
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public OrganizationJS toJavaScriptObject(OrganizationDTO t) {
+		return OrganizationJS.toJavaScript(t);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public OrganizationDTO toJavaObject(OrganizationJS js) {
+		return js.toDTO();
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public void saveOrUpdate(final OrganizationDTO t, AsyncCallback<OrganizationDTO> callback, Transaction transaction) {
+	public void saveOrUpdate(final OrganizationDTO t, AsyncCallback<OrganizationDTO> callback, Transaction<Store> transaction) {
 		// Saving organization
-		final ObjectStore organizationStore = transaction.getObjectStore(Store.ORGANIZATION);
-
-		final OrganizationJS organizationJS = OrganizationJS.toJavaScript(t);
-		organizationStore.put(organizationJS).addCallback(new AsyncCallback<Request>() {
-
-            @Override
-            public void onFailure(Throwable caught) {
-                Log.error("Error while saving organization " + t.getId() + ".", caught);
-            }
-
-            @Override
-            public void onSuccess(Request result) {
-                Log.trace("Organization " + t.getId() + " has been successfully saved.");
-            }
-        });
-
+		super.saveOrUpdate(t, callback, transaction);
+		
 		// Saving its root
 		final OrgUnitDTO rootOrgUnit = t.getRoot();
 		if (rootOrgUnit != null) {
@@ -60,8 +61,11 @@ public class OrganizationAsyncDAO extends AbstractAsyncDAO<OrganizationDTO> {
 		}
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public void get(final int id, final AsyncCallback<OrganizationDTO> callback, final Transaction transaction) {
+	public void get(final int id, final AsyncCallback<OrganizationDTO> callback, final Transaction<Store> transaction) {
 		if(transaction.useObjectFromCache(OrganizationDTO.class, id, callback)) {
 			return;
 		}
@@ -102,14 +106,20 @@ public class OrganizationAsyncDAO extends AbstractAsyncDAO<OrganizationDTO> {
         });
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Store getRequiredStore() {
 		return Store.ORGANIZATION;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public Collection<BaseAsyncDAO> getDependencies() {
-		final ArrayList<BaseAsyncDAO> list = new ArrayList<BaseAsyncDAO>();
+	public Collection<BaseAsyncDAO<Store>> getDependencies() {
+		final ArrayList<BaseAsyncDAO<Store>> list = new ArrayList<BaseAsyncDAO<Store>>();
 		list.add(orgUnitDAO);
 		return list;
 	}

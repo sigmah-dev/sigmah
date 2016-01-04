@@ -9,38 +9,23 @@ import org.sigmah.offline.indexeddb.Transaction;
 import org.sigmah.offline.js.PhaseModelJS;
 import org.sigmah.shared.dto.PhaseModelDTO;
 
-import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.JsArrayInteger;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Singleton;
 
 /**
+ * Asynchronous DAO for saving and loading <code>PhaseModelDTO</code> objects.
+ * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
 @Singleton
-public class PhaseModelAsyncDAO extends AbstractAsyncDAO<PhaseModelDTO> {
+public class PhaseModelAsyncDAO extends AbstractUserDatabaseAsyncDAO<PhaseModelDTO, PhaseModelJS> {
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public void saveOrUpdate(PhaseModelDTO t, AsyncCallback<PhaseModelDTO> callback, Transaction transaction) {
-		final ObjectStore phaseModelStore = transaction.getObjectStore(Store.PHASE_MODEL);
-
-		final PhaseModelJS phaseModelJS = PhaseModelJS.toJavaScript(t);
-		phaseModelStore.put(phaseModelJS).addCallback(new AsyncCallback<Request>() {
-
-			@Override
-			public void onFailure(Throwable caught) {
-				Log.error("Error while saving phase model " + phaseModelJS.getId() + '.', caught);
-			}
-
-			@Override
-			public void onSuccess(Request result) {
-				Log.trace("Phase model " + phaseModelJS.getId() + " has been successfully saved.");
-			}
-		});
-	}
-
-	@Override
-	public void get(final int id, final AsyncCallback<PhaseModelDTO> callback, final Transaction transaction) {
+	public void get(final int id, final AsyncCallback<PhaseModelDTO> callback, final Transaction<Store> transaction) {
 		if (transaction.useObjectFromCache(PhaseModelDTO.class, id, callback)) {
 			return;
 		}
@@ -88,9 +73,28 @@ public class PhaseModelAsyncDAO extends AbstractAsyncDAO<PhaseModelDTO> {
 		});
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Store getRequiredStore() {
 		return Store.PHASE_MODEL;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public PhaseModelJS toJavaScriptObject(PhaseModelDTO t) {
+		return PhaseModelJS.toJavaScript(t);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public PhaseModelDTO toJavaObject(PhaseModelJS js) {
+		return js.toDTO();
 	}
 
 }
