@@ -38,6 +38,28 @@ import org.sigmah.server.domain.OrgUnit;
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
 public class OrgUnitHibernateDAO extends AbstractDAO<OrgUnit, Integer> implements OrgUnitDAO {
+	@Override
+	public Set<Integer> getOrgUnitTreeIdsByUserId(Integer userId) {
+		TypedQuery<Integer> query = em().createQuery(
+			"SELECT oup.orgUnit.id " +
+			"FROM User u " +
+			"JOIN u.orgUnitWithProfiles oup " +
+			"WHERE u.id = :userId",
+			Integer.class
+		);
+		query.setParameter("userId", userId);
+		Set<Integer> userOrgUnitIds = new HashSet<>(query.getResultList());
+		Set<Integer> orgUnitIds = new HashSet<>();
+		for (Integer orgUnitId : userOrgUnitIds) {
+			if (orgUnitIds.contains(orgUnitId)) {
+				// if the current orgUnitId is already in the set, it means that it is a parent of a previous orgUnit
+				// and that it was already crawled
+				continue;
+			}
+			orgUnitIds.addAll(getOrgUnitTreeIds(orgUnitId));
+		}
+		return orgUnitIds;
+	}
 
 	@Override
 	public Set<Integer> getOrgUnitTreeIds(Integer rootId) {

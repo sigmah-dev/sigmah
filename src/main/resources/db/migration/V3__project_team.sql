@@ -30,3 +30,11 @@ CREATE TABLE project_team_member_profiles
 WITH (
   OIDS=FALSE
 );
+
+INSERT INTO global_permission (id_global_permission, permission, id_profile) SELECT nextval('hibernate_sequence'), 'VIEW_MY_PROJECTS', p.id_profile FROM global_permission p WHERE p.permission='VIEW_PROJECT';
+INSERT INTO global_permission (id_global_permission, permission, id_profile) SELECT nextval('hibernate_sequence'), 'VIEW_ALL_PROJECTS', p.id_profile FROM global_permission p WHERE p.permission='VIEW_PROJECT';
+INSERT INTO global_permission (id_global_permission, permission, id_profile) SELECT nextval('hibernate_sequence'), 'EDIT_ALL_PROJECTS', p.id_profile FROM global_permission p WHERE p.permission='EDIT_PROJECT';
+INSERT INTO global_permission (id_global_permission, permission, id_profile) SELECT nextval('hibernate_sequence'), 'EDIT_MY_PROJECTS', p.id_profile FROM global_permission p WHERE p.permission='EDIT_PROJECT';
+
+DELETE FROM global_permission p WHERE p.permission='VIEW_PROJECT';
+DELETE FROM global_permission p WHERE p.permission='EDIT_PROJECT';

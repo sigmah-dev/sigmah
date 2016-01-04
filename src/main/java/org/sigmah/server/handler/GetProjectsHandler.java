@@ -24,11 +24,14 @@ package org.sigmah.server.handler;
 
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import javax.persistence.TypedQuery;
+
+import com.google.inject.Inject;
 
 import org.sigmah.server.dispatch.impl.UserDispatch.UserExecutionContext;
 import org.sigmah.server.domain.OrgUnit;
@@ -43,15 +46,14 @@ import org.sigmah.shared.dispatch.CommandException;
 import org.sigmah.shared.dto.ProjectDTO;
 import org.sigmah.shared.dto.base.mapping.IsMappingMode;
 import org.sigmah.shared.dto.referential.ProjectModelType;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.inject.Inject;
-import java.util.HashMap;
 
 /**
  * Handler for {@link GetProjects} command.
- * 
+ *
  * @author Maxime Lombard (mlombard@ideia.fr)
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
@@ -79,7 +81,7 @@ public class GetProjectsHandler extends AbstractCommandHandler<GetProjects, List
 	 * <p>
 	 * Gets the projects list from the database.
 	 * </p>
-	 * 
+	 *
 	 * @return A {@link ListResult} containing the projects list.
 	 */
 	@Override
@@ -102,19 +104,33 @@ public class GetProjectsHandler extends AbstractCommandHandler<GetProjects, List
 			final TypedQuery<Project> ownerManagerQuery = em().createQuery("SELECT p FROM Project p WHERE p.owner = :ouser OR p.manager = :muser", Project.class);
 			ownerManagerQuery.setParameter("ouser", context.getUser());
 			ownerManagerQuery.setParameter("muser", context.getUser());
-			projects.addAll(ownerManagerQuery.getResultList());
+			List<Project> resultList = ownerManagerQuery.getResultList();
+			for (Project project : resultList) {
+				if (!Handlers.isProjectVisible(project, context.getUser())) {
+					continue;
+				}
+				projects.add(project);
+			}
 		}
-		
+
 		// ---------------
 		// Favorites projects.
 		// ---------------
-		
-		if(cmd.isFavoritesOnly()) {
+
+		if (cmd.isFavoritesOnly()) {
 			final TypedQuery<Project> favoritesQuery = em().createQuery("FROM Project p WHERE :user MEMBER OF p.favoriteUsers", Project.class);
 			favoritesQuery.setParameter("user", context.getUser());
-			projects.addAll(favoritesQuery.getResultList());
+
+
+			List<Project> resultList = favoritesQuery.getResultList();
+			for (Project project : resultList) {
+				if (!Handlers.isProjectVisible(project, context.getUser())) {
+					continue;
+				}
+				projects.add(project);
+			}
 		}
-		
+
 		// ---------------
 		// Projects in my visible organization units.
 		// ---------------
@@ -140,32 +156,35 @@ public class GetProjectsHandler extends AbstractCommandHandler<GetProjects, List
 				}
 			}
 		}
-        
-        // Keep a link between projects and orgUnits.
-        final HashMap<Integer, Integer> projectIdToOrgUnitId = new HashMap<Integer, Integer>();
-        
-        // Creating the query to retrieve projects
-        final TypedQuery<Project> query = buildQuery(cmd);
+
+		// Keep a link between projects and orgUnits.
+		final HashMap<Integer, Integer> projectIdToOrgUnitId = new HashMap<Integer, Integer>();
+
+		// Creating the query to retrieve projects
+		final TypedQuery<Project> query = buildQuery(cmd);
 
 		// Retrieves all the corresponding org units.
 		for (final OrgUnit unit : units) {
 
 			// Builds and executes the query.
-            fillQuery(query, cmd, context, unit);
+			fillQuery(query, cmd, context, unit);
 
 			int count = 0;
 			final List<Project> listResults = query.getResultList();
-			for (final Project p : listResults) {
-                projectIdToOrgUnitId.put(p.getId(), unit.getId());
+			for (final Project project : listResults) {
+				if (!Handlers.isProjectVisible(project, context.getUser())) {
+					continue;
+				}
+				projectIdToOrgUnitId.put(project.getId(), unit.getId());
 
 				if (modelType == null) {
-					projects.add(p);
+					projects.add(project);
 					count++;
 				}
 				// Filters by model type.
 				else {
-					if (p.getProjectModel().getVisibility(context.getUser().getOrganization()) == modelType) {
-						projects.add(p);
+					if (project.getProjectModel().getVisibility(context.getUser().getOrganization()) == modelType) {
+						projects.add(project);
 						count++;
 					}
 				}
@@ -189,33 +208,33 @@ public class GetProjectsHandler extends AbstractCommandHandler<GetProjects, List
 
 		} else {
 			// Using provided mapping mode.
-            for(final Project project : projects) {
-                final ProjectDTO projectDTO = mapper().map(project, new ProjectDTO(), cmd.getMappingMode());
-                // Filling the orgUnitId using the map made when querying by OrgUnits.
-                projectDTO.setOrgUnitId(projectIdToOrgUnitId.get(project.getId()));
-                projectsDTO.add(projectDTO);
-            }
+			for (final Project project : projects) {
+				final ProjectDTO projectDTO = mapper().map(project, new ProjectDTO(), cmd.getMappingMode());
+				// Filling the orgUnitId using the map made when querying by OrgUnits.
+				projectDTO.setOrgUnitId(projectIdToOrgUnitId.get(project.getId()));
+				projectsDTO.add(projectDTO);
+			}
 		}
 
 		LOG.debug("Found {} project(s).", projects.size());
 
 		return new ListResult<>(projectsDTO);
 	}
-    
-    private TypedQuery<Project> buildQuery(GetProjects getProjects) {
-        final StringBuilder stringBuilder = new StringBuilder("SELECT p FROM Project p WHERE :unit MEMBER OF p.partners");
-        
-        if(getProjects.isFavoritesOnly()) {
-            stringBuilder.append(" AND :user MEMBER OF p.favoriteUsers");
-        }
-        
-        return em().createQuery(stringBuilder.toString(), Project.class); 
-    }
-    
-    private void fillQuery(TypedQuery<Project> query, GetProjects getProjects, UserExecutionContext context, OrgUnit unit) {
-        query.setParameter("unit", unit);
-        if(getProjects.isFavoritesOnly()) {
-            query.setParameter("user", context.getUser());
-        }
-    }
+
+	private TypedQuery<Project> buildQuery(GetProjects getProjects) {
+		final StringBuilder stringBuilder = new StringBuilder("SELECT p FROM Project p WHERE :unit MEMBER OF p.partners");
+
+		if (getProjects.isFavoritesOnly()) {
+			stringBuilder.append(" AND :user MEMBER OF p.favoriteUsers");
+		}
+
+		return em().createQuery(stringBuilder.toString(), Project.class);
+	}
+
+	private void fillQuery(TypedQuery<Project> query, GetProjects getProjects, UserExecutionContext context, OrgUnit unit) {
+		query.setParameter("unit", unit);
+		if (getProjects.isFavoritesOnly()) {
+			query.setParameter("user", context.getUser());
+		}
+	}
 }

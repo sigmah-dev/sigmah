@@ -57,7 +57,7 @@ import com.google.inject.Singleton;
  * <li>Project created/modified/deleted.</li>
  * <li>Profile modified.</li>
  * </ol>
- * 
+ *
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
 @Singleton
@@ -99,7 +99,7 @@ public class UserPermissionPolicy {
 	/**
 	 * Each time a user is created or modified a method will go through all projects which are editable by the user
 	 * (projects attached to the user main orgunit, and all the child orgunits of it), and add a row in the table
-	 * userpermission for each of them if the user has the EDIT_PROJECT global privilege
+	 * userpermission for each of them if the user has the EDIT_ALL_PROJECTS global privilege
 	 */
 	public void updateUserPermissionByUser(User user) throws CommandException {
 
@@ -108,8 +108,9 @@ public class UserPermissionPolicy {
 		// delete existing userpermission entries related to the user
 		userPermissionDAO.deleteByUser(user.getId());
 
-		// check new profile set for EDIT_PROJECT global permission
-		boolean granted = isGranted(userOrgUnit, GlobalPermissionEnum.EDIT_PROJECT);
+		// check new profile set for EDIT_ALL_PROJECTS global permission
+		boolean granted = isGranted(userOrgUnit, GlobalPermissionEnum.EDIT_ALL_PROJECTS) ||
+			isGranted(userOrgUnit, GlobalPermissionEnum.EDIT_MY_PROJECTS);
 		if (!granted) /* skip the rest of part if user has no enough permission */
 			return;
 
@@ -139,7 +140,7 @@ public class UserPermissionPolicy {
 	}
 
 	/**
-	 * When the global privilege "EDIT_PROJECT" is added/removed to a profile, UserPermissions is updated for the users
+	 * When the global privilege "EDIT_ALL_PROJECTS" is added/removed to a profile, UserPermissions is updated for the users
 	 * who have included this profile
 	 */
 	public void updateUserPermissionByProfile(Integer profileId) throws CommandException {

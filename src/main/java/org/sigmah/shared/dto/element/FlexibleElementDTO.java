@@ -70,6 +70,7 @@ import java.util.Date;
 import org.sigmah.client.ui.widget.Loadable;
 import org.sigmah.shared.dto.referential.GlobalPermissionEnum;
 import org.sigmah.shared.dto.referential.ValueEventChangeType;
+import org.sigmah.shared.util.ProjectUtils;
 
 /**
  * Abstract flexible element DTO.
@@ -387,7 +388,7 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 	 * the given change type on the given project.
 	 *
 	 * The default implementation checks for the 
-	 * {@link GlobalPermissionEnum#EDIT_PROJECT} right and to the current
+	 * {@link GlobalPermissionEnum#EDIT_ALL_PROJECTS} right and to the current
 	 * amendment state.
 	 * 
 	 * @param changeType Type of change to verify.
@@ -414,8 +415,8 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 			!phaseIsEnded &&
 			// Current project is opened.
 			!project.isClosed() &&
-			// The user is granted edit rights on the project.
-			ProfileUtils.isGranted(auth(), GlobalPermissionEnum.EDIT_PROJECT) && (
+			// Check that the user can edit the project
+			ProjectUtils.isProjectEditable(project, auth()) && (
 				// This element is not part of the core version
 				!getAmendable() || 
 				// OR the core version is in an editable state

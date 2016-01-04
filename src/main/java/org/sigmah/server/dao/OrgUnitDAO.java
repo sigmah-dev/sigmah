@@ -33,5 +33,7 @@ import org.sigmah.server.domain.OrgUnit;
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
 public interface OrgUnitDAO extends DAO<OrgUnit, Integer> {
+	Set<Integer> getOrgUnitTreeIdsByUserId(Integer userId);
+
 	Set<Integer> getOrgUnitTreeIds(Integer rootId);
 }

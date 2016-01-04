@@ -24,6 +24,7 @@ package org.sigmah.server.dao;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import org.sigmah.server.dao.base.DAO;
 import org.sigmah.server.domain.Project;
@@ -60,4 +61,6 @@ public interface ProjectDAO extends DAO<Project, Integer> {
 	List<Project> findDraftProjects(Integer ownerId);
 
 	Project updateProjectTeamMembers(Project project, List<User> teamMembers, List<Profile> teamMemberProfiles, User modifier);
+
+	Set<Integer> findProjectIdsByTeamMemberIdAndOrgUnitIds(Integer userId, Set<Integer> orgUnitIds);
 }

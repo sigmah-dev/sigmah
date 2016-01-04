@@ -23,12 +23,7 @@ package org.sigmah.server.handler.util;
  */
 
 
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.sigmah.server.dispatch.CommandHandler;
@@ -52,7 +47,7 @@ import org.sigmah.shared.util.Month;
 
 /**
  * Convenient methods for {@link CommandHandler} implementations.
- * 
+ *
  * @author Maxime Lombard (mlombard@ideia.fr)
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
@@ -85,7 +80,7 @@ public final class Handlers {
 
 	/**
 	 * Creates a new {@link Authentication} with the given arguments.
-	 * 
+	 *
 	 * @param user
 	 *          The {@link User} instance, may be {@code null}.
 	 * @param language
@@ -94,7 +89,8 @@ public final class Handlers {
 	 *          The {@link Mapper} service.
 	 * @return The created {@link Authentication}. Its language property is never {@code null}.
 	 */
-	public static Authentication createAuthentication(final User user, final Language language, final Mapper mapper) {
+	public static Authentication createAuthentication(final User user, final Language language,
+		Set<Integer> memberOfProjectIds, final Mapper mapper) {
 
 		final Organization organization = user.getOrganization();
 		final OrgUnitProfile orgUnitWithProfiles = user.getOrgUnitWithProfiles();
@@ -105,7 +101,7 @@ public final class Handlers {
 		final Integer orgUnitId = orgUnitWithProfiles != null && orgUnitWithProfiles.getOrgUnit() != null ? orgUnitWithProfiles.getOrgUnit().getId() : null;
 
 		return new Authentication(user.getId(), user.getEmail(), user.getName(), user.getFirstName(), Languages.notNull(language), organizationId,
-			organizationName, organizationLogo, orgUnitId, Handlers.aggregateProfiles(user, mapper));
+			organizationName, organizationLogo, orgUnitId, Handlers.aggregateProfiles(user, mapper), memberOfProjectIds);
 	}
 
 	/**
@@ -116,7 +112,7 @@ public final class Handlers {
 	 * The {@link User} may have several profiles which link it to its {@link OrgUnit}.
 	 * This handler merges also all the profiles in one <em>aggregated profile</em>.
 	 * </p>
-	 * 
+	 *
 	 * @param user
 	 *          The user.
 	 * @param mapper
@@ -165,7 +161,7 @@ public final class Handlers {
 
 	/**
 	 * Adds recursively all the OrgUnits children of a {@code user} in a collection.
-	 * 
+	 *
 	 * @param user
 	 *          The {@link User} from which the hierarchy is traversed.
 	 * @param units
@@ -185,7 +181,7 @@ public final class Handlers {
 
 	/**
 	 * Adds recursively all the children of an unit in a collection.
-	 * 
+	 *
 	 * @param root
 	 *          The root unit from which the hierarchy is traversed.
 	 * @param units
@@ -209,7 +205,7 @@ public final class Handlers {
 
 	/**
 	 * Returns if the project is visible for the given user.
-	 * 
+	 *
 	 * @param project
 	 *          The project.
 	 * @param user
@@ -217,7 +213,14 @@ public final class Handlers {
 	 * @return If the project is visible for the user.
 	 */
 	public static boolean isProjectVisible(final Project project, final User user) {
+		return isProjectAccessible(project, user, false);
+	}
 
+	public static boolean isProjectEditable(final Project project, final User user) {
+		return isProjectAccessible(project, user, true);
+	}
+
+	public static boolean isProjectAccessible(Project project, User user, boolean edition) {
 		// Checks that the project is not deleted
 		if (project.isDeleted()) {
 			return false;
@@ -241,11 +244,62 @@ public final class Handlers {
 		final HashSet<OrgUnit> units = new HashSet<OrgUnit>();
 		crawlUnits(user.getOrgUnitWithProfiles().getOrgUnit(), units, true);
 
+		boolean sameOrgUnit = false;
 		for (final OrgUnit partner : project.getPartners()) {
 			for (final OrgUnit unit : units) {
 				if (partner.getId().equals(unit.getId())) {
-					return true;
+					sameOrgUnit = true;
+					break;
 				}
+			}
+			if (sameOrgUnit) {
+				break;
+			}
+		}
+
+		if (!sameOrgUnit) {
+			return false;
+		}
+
+		boolean canSeeHisProjects = false;
+		boolean canEditHisProjects = false;
+		for (Profile profile : user.getOrgUnitWithProfiles().getProfiles()) {
+			for (GlobalPermission globalPermission : profile.getGlobalPermissions()) {
+				switch (globalPermission.getPermission()) {
+					case VIEW_ALL_PROJECTS:
+						if (!edition) {
+							return true;
+						}
+						break;
+					case VIEW_MY_PROJECTS:
+						canSeeHisProjects = true;
+						break;
+					case EDIT_ALL_PROJECTS:
+						if (edition) {
+							return true;
+						}
+						break;
+					case EDIT_MY_PROJECTS:
+						canEditHisProjects = true;
+						break;
+				}
+			}
+		}
+
+		if ((!edition && !canSeeHisProjects) || (edition && !canEditHisProjects)) {
+			return false;
+		}
+
+		// Let's see if the user belongs to the project team
+		for (User teamMember : project.getTeamMembers()) {
+			if (teamMember.equals(user)) {
+				return true;
+			}
+		}
+
+		for (Profile profile : user.getOrgUnitWithProfiles().getProfiles()) {
+			if (project.getTeamMemberProfiles().contains(profile)) {
+				return true;
 			}
 		}
 
@@ -254,7 +308,7 @@ public final class Handlers {
 
 	/**
 	 * Returns if the given {@code orgUnit} is visible to the given {@code user}.
-	 * 
+	 *
 	 * @param orgUnit
 	 *          The org unit.
 	 * @param user

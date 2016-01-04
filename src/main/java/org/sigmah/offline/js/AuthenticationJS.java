@@ -22,7 +22,13 @@ package org.sigmah.offline.js;
  * #L%
  */
 
+import java.util.HashSet;
+import java.util.Set;
+
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.core.client.JsArray;
+import com.google.gwt.core.client.JsArrayInteger;
+
 import org.sigmah.shared.Language;
 import org.sigmah.shared.command.result.Authentication;
 import org.sigmah.shared.dto.profile.ProfileDTO;
@@ -33,15 +39,15 @@ import org.sigmah.shared.dto.profile.ProfileDTO;
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
 public final class AuthenticationJS extends JavaScriptObject {
-	
+
 	public static final int DEFAULT_ID = 1;
-	
+
 	protected AuthenticationJS() {
 	}
-	
+
 	public static AuthenticationJS toJavaScript(Authentication authentication) {
 		final AuthenticationJS authenticationJS = Values.createJavaScriptObject(AuthenticationJS.class);
-		
+
 		authenticationJS.setId(DEFAULT_ID);
 		authenticationJS.setAuthenticationToken(authentication.getAuthenticationToken());
 		authenticationJS.setUserId(authentication.getUserId());
@@ -54,35 +60,37 @@ public final class AuthenticationJS extends JavaScriptObject {
 		authenticationJS.setOrganizationLogo(authentication.getOrganizationLogo());
 		authenticationJS.setOrgUnitId(authentication.getOrgUnitId());
 		authenticationJS.setAggregatedProfile(authentication.getAggregatedProfile());
-		
+		authenticationJS.setMemberOfProjectIds(authentication.getMemberOfProjectIds());
+
 		return authenticationJS;
 	}
-	
+
 	public Authentication toAuthentication() {
 		final Authentication authentication = new Authentication(
-				getUserId(), 
-				getUserEmail(), 
-				getUserName(),
-				getUserFirstName(),
-				getLanguage(), 
-				getOrganizationId(), 
-				getOrganizationName(), 
-				getOrganizationLogo(), 
-				getOrgUnitId(), 
-				getAggregatedProfileDTO(),
-				getUserId() != null);
+			getUserId(),
+			getUserEmail(),
+			getUserName(),
+			getUserFirstName(),
+			getLanguage(),
+			getOrganizationId(),
+			getOrganizationName(),
+			getOrganizationLogo(),
+			getOrgUnitId(),
+			getAggregatedProfileDTO(),
+			getMemberOfProjectIdsDTO(),
+			getUserId() != null);
 		authentication.setAuthenticationToken(getAuthenticationToken());
 		return authentication;
 	}
-	
+
 	public native void setId(int id) /*-{
 		this.id = id;
 	}-*/;
-	
+
 	public native int getId() /*-{
 		return this.id;
 	}-*/;
-	
+
 	public native String getAuthenticationToken() /*-{
 		return this.authenticationToken;
 	}-*/;
@@ -166,9 +174,9 @@ public final class AuthenticationJS extends JavaScriptObject {
 	public native ProfileJS getAggregatedProfile() /*-{
 		return this.aggregatedProfile;
 	}-*/;
-	
+
 	public ProfileDTO getAggregatedProfileDTO() {
-		if(getAggregatedProfile() != null) {
+		if (getAggregatedProfile() != null) {
 			return getAggregatedProfile().toDTO();
 		} else {
 			return null;
@@ -178,11 +186,35 @@ public final class AuthenticationJS extends JavaScriptObject {
 	public native void setAggregatedProfile(ProfileJS aggregatedProfile) /*-{
 		this.aggregatedProfile = aggregatedProfile;
 	}-*/;
-	
+
 	public void setAggregatedProfile(ProfileDTO aggregatedProfile) {
-        if(aggregatedProfile != null) {
-            setAggregatedProfile(ProfileJS.toJavaScript(aggregatedProfile));
-        }
+		if (aggregatedProfile != null) {
+			setAggregatedProfile(ProfileJS.toJavaScript(aggregatedProfile));
+		}
 	}
-	
+
+	public native JsArrayInteger getMemberOfProjectIds() /*-{
+		return this.memberOfProjectIds;
+	}-*/;
+
+	public Set<Integer> getMemberOfProjectIdsDTO() {
+		Set<Integer> projectIds = new HashSet<Integer>();
+		JsArrayInteger memberOfProjectIds = getMemberOfProjectIds();
+		for (int i = 0; i < memberOfProjectIds.length(); i++) {
+			projectIds.add(memberOfProjectIds.get(i));
+		}
+		return projectIds;
+	}
+
+	public native void setMemberOfProjectIds(JsArrayInteger memberOfProjectIds) /*-{
+		this.memberOfProjectIds = memberOfProjectIds;
+	}-*/;
+
+	public void setMemberOfProjectIds(Set<Integer> memberOfProjectIds) {
+		JsArrayInteger array = JavaScriptObject.createArray().cast();
+		for (Integer memberOfProjectId : memberOfProjectIds) {
+			array.push(memberOfProjectId);
+		}
+		setMemberOfProjectIds(array);
+	}
 }

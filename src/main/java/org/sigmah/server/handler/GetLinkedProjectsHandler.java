@@ -30,6 +30,7 @@ import javax.persistence.Query;
 import org.sigmah.server.dispatch.impl.UserDispatch.UserExecutionContext;
 import org.sigmah.server.domain.ProjectFunding;
 import org.sigmah.server.handler.base.AbstractCommandHandler;
+import org.sigmah.server.handler.util.Handlers;
 import org.sigmah.server.handler.util.ProjectMapper;
 import org.sigmah.shared.command.GetLinkedProjects;
 import org.sigmah.shared.command.result.ListResult;
@@ -43,7 +44,7 @@ import com.google.inject.Inject;
 
 /**
  * Handler for the {@link GetLinkedProjects} command.
- * 
+ *
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
 public class GetLinkedProjectsHandler extends AbstractCommandHandler<GetLinkedProjects, ListResult<ProjectFundingDTO>> {
@@ -90,6 +91,12 @@ public class GetLinkedProjectsHandler extends AbstractCommandHandler<GetLinkedPr
 
 		final List<ProjectFundingDTO> dtos = new ArrayList<ProjectFundingDTO>();
 		for (final ProjectFunding pf : results) {
+			if (!Handlers.isProjectVisible(pf.getFunded(), context.getUser())) {
+				continue;
+			}
+			if (!Handlers.isProjectVisible(pf.getFunding(), context.getUser())) {
+				continue;
+			}
 
 			final ProjectFundingDTO pfDTO = new ProjectFundingDTO();
 			pfDTO.setId(pf.getId());

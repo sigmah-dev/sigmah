@@ -31,6 +31,9 @@ import org.sigmah.client.ui.presenter.calendar.CalendarPresenter;
 import org.sigmah.client.ui.view.base.ViewInterface;
 import org.sigmah.client.ui.view.project.ProjectCalendarView;
 import org.sigmah.shared.dto.calendar.CalendarType;
+import org.sigmah.shared.dto.referential.GlobalPermissionEnum;
+import org.sigmah.shared.util.ProfileUtils;
+import org.sigmah.shared.util.ProjectUtils;
 
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
@@ -44,7 +47,7 @@ import com.google.inject.Singleton;
  * <p>
  * Delegates its entire logic business to the {@link CalendarPresenter}.
  * </p>
- * 
+ *
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
 @Singleton
@@ -59,7 +62,7 @@ public class ProjectCalendarPresenter extends AbstractProjectPresenter<ProjectCa
 		/**
 		 * Provides the reports presenter's view.<br>
 		 * Should be called before view initialization.
-		 * 
+		 *
 		 * @param view
 		 *          The view.
 		 */
@@ -74,7 +77,7 @@ public class ProjectCalendarPresenter extends AbstractProjectPresenter<ProjectCa
 
 	/**
 	 * Presenters's initialization.
-	 * 
+	 *
 	 * @param view
 	 *          Presenter's view interface.
 	 * @param injector
@@ -115,7 +118,8 @@ public class ProjectCalendarPresenter extends AbstractProjectPresenter<ProjectCa
 		calendars.put(CalendarType.Personal, getProject().getCalendarId());
 		calendars.put(CalendarType.MonitoredPoint, getProject().getPointsList().getId());
 		calendars.put(CalendarType.Reminder, getProject().getRemindersList().getId());
-		calendarPresenter.reload(calendars);
+		boolean editable = ProjectUtils.isProjectEditable(getProject(), auth()) && ProfileUtils.isGranted(auth(), GlobalPermissionEnum.EDIT_PROJECT_AGENDA);
+		calendarPresenter.reload(calendars, editable);
 	}
 
 	/**

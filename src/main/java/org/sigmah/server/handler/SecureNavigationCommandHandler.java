@@ -23,6 +23,8 @@ package org.sigmah.server.handler;
  */
 
 import org.sigmah.client.page.Page;
+import org.sigmah.server.dao.OrgUnitDAO;
+import org.sigmah.server.dao.ProjectDAO;
 import org.sigmah.server.dispatch.impl.UserDispatch.UserExecutionContext;
 import org.sigmah.server.domain.User;
 import org.sigmah.server.handler.base.AbstractCommandHandler;
@@ -38,9 +40,11 @@ import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
 
+import java.util.Set;
+
 /**
  * Handler for {@link SecureNavigationCommand}.
- * 
+ *
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
 public class SecureNavigationCommandHandler extends AbstractCommandHandler<SecureNavigationCommand, SecureNavigationResult> {
@@ -50,19 +54,19 @@ public class SecureNavigationCommandHandler extends AbstractCommandHandler<Secur
 	 */
 	private static final Logger LOG = LoggerFactory.getLogger(SecureNavigationCommandHandler.class);
 
-	/**
-	 * Injected {@link SecureSessionValidator}.
-	 */
 	private final SecureSessionValidator secureSessionValidator;
 
-	/**
-	 * Injected {@link Mapper}.
-	 */
+	private final OrgUnitDAO orgUnitDAO;
+	private final ProjectDAO projectDAO;
+
 	private final Mapper mapper;
 
 	@Inject
-	public SecureNavigationCommandHandler(final SecureSessionValidator secureSessionValidator, final Mapper mapper) {
+	public SecureNavigationCommandHandler(final SecureSessionValidator secureSessionValidator, OrgUnitDAO orgUnitDAO,
+		ProjectDAO projectDAO, final Mapper mapper) {
 		this.secureSessionValidator = secureSessionValidator;
+		this.orgUnitDAO = orgUnitDAO;
+		this.projectDAO = projectDAO;
 		this.mapper = mapper;
 	}
 
@@ -85,7 +89,9 @@ public class SecureNavigationCommandHandler extends AbstractCommandHandler<Secur
 			}
 		}
 
-		final Authentication authentication = Handlers.createAuthentication(user, context.getLanguage(), mapper);
+		Set<Integer> orgUnitIds = orgUnitDAO.getOrgUnitTreeIdsByUserId(user.getId());
+		Set<Integer> memberOfProjectIds = projectDAO.findProjectIdsByTeamMemberIdAndOrgUnitIds(user.getId(), orgUnitIds);
+		final Authentication authentication = Handlers.createAuthentication(user, context.getLanguage(), memberOfProjectIds, mapper);
 
 		return new SecureNavigationResult(granted, authentication);
 	}

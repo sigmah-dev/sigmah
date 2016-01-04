@@ -22,6 +22,10 @@ package org.sigmah.shared.command.result;
  * #L%
  */
 
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
+
 import org.sigmah.client.security.AuthenticationProvider;
 import org.sigmah.client.util.ToStringBuilder;
 import org.sigmah.shared.Language;
@@ -36,7 +40,7 @@ import org.sigmah.shared.util.Users;
  * <p>
  * This object is managed by {@link org.sigmah.client.security.AuthenticationProvider}.
  * </p>
- * 
+ *
  * @author Alex Bertram
  * @author Denis Colliot (dcolliot@ideia.fr)
  * @see org.sigmah.client.security.AuthenticationProvider
@@ -99,7 +103,9 @@ public class Authentication implements Result {
 	 * Aggregation of all user's profile(s) (a user can be linked to multiple profiles).
 	 */
 	private ProfileDTO aggregatedProfile;
-	
+
+	private Set<Integer> memberOfProjectIds = new HashSet<Integer>();
+
 	/**
 	 * Set to <code>true</code> if the current user is the anonymous user.
 	 */
@@ -114,7 +120,7 @@ public class Authentication implements Result {
 
 	/**
 	 * Initializes a new {@code Authentication} instance.
-	 * 
+	 *
 	 * @param language
 	 *          The user's language.
 	 */
@@ -124,7 +130,7 @@ public class Authentication implements Result {
 
 	/**
 	 * Initializes a new {@code Authentication} instance.
-	 * 
+	 *
 	 * @param userId
 	 *          The user's id (from the server's database).
 	 * @param userEmail
@@ -146,13 +152,15 @@ public class Authentication implements Result {
 	 * @param aggregatedProfile
 	 *          The user's <em>aggregated profile</em>.
 	 */
-	public Authentication(Integer userId, String userEmail, String userName, String userFirstName, Language language, Integer organizationId, String organizationName, String organizationLogo, Integer orgUnitId, ProfileDTO aggregatedProfile) {
-		this(userId, userEmail, userName, userFirstName, language, organizationId, organizationName, organizationLogo, orgUnitId, aggregatedProfile, false);
+	public Authentication(Integer userId, String userEmail, String userName, String userFirstName, Language language,
+		Integer organizationId, String organizationName, String organizationLogo, Integer orgUnitId, ProfileDTO aggregatedProfile, Set<Integer> memberOfProjectIds) {
+		this(userId, userEmail, userName, userFirstName, language, organizationId, organizationName, organizationLogo,
+			orgUnitId, aggregatedProfile, memberOfProjectIds, false);
 	}
-	
+
 	/**
 	 * Initializes a new {@code Authentication} instance.
-	 * 
+	 *
 	 * @param userId
 	 *          The user's id (from the server's database).
 	 * @param userEmail
@@ -176,7 +184,9 @@ public class Authentication implements Result {
 	 * @param authorized
 	 *			<code>true</code> to allow the user to use Sigmah without cookie.
 	 */
-	public Authentication(Integer userId, String userEmail, String userName, String userFirstName, Language language, Integer organizationId, String organizationName, String organizationLogo, Integer orgUnitId, ProfileDTO aggregatedProfile, boolean authorized) {
+	public Authentication(Integer userId, String userEmail, String userName, String userFirstName, Language language,
+		Integer organizationId, String organizationName, String organizationLogo, Integer orgUnitId,
+		ProfileDTO aggregatedProfile, Set<Integer> memberOfProjectIds, boolean authorized) {
 		this.userId = userId;
 		this.userEmail = userEmail;
 		this.userName = userName;
@@ -187,6 +197,7 @@ public class Authentication implements Result {
 		this.organizationLogo = organizationLogo;
 		this.orgUnitId = orgUnitId;
 		this.aggregatedProfile = aggregatedProfile;
+		this.memberOfProjectIds = memberOfProjectIds;
 		this.authorized = authorized;
 	}
 
@@ -208,13 +219,24 @@ public class Authentication implements Result {
 		builder.append("organizationLogo", organizationLogo);
 		builder.append("orgUnitId", orgUnitId);
 		builder.append("aggregatedProfile", aggregatedProfile);
+		StringBuilder serializedMemberOfProjectIds = new StringBuilder("[");
+		for (Iterator<Integer> iterator = memberOfProjectIds.iterator(); iterator.hasNext();) {
+			Integer memberOfProjectId = iterator.next();
+			serializedMemberOfProjectIds.append(memberOfProjectId);
+			if (iterator.hasNext()) {
+				serializedMemberOfProjectIds.append(", ");
+			}
+		}
+		serializedMemberOfProjectIds.append("]");
+
+		builder.append("memberOfProjectIds", serializedMemberOfProjectIds.toString());
 
 		return builder.toString();
 	}
 
 	/**
 	 * See {@link Users#getUserCompleteName(String, String)} for javadoc.
-	 * 
+	 *
 	 * @return The current authentication related user's <em>complete</em> name.
 	 */
 	public String getUserCompleteName() {
@@ -223,7 +245,7 @@ public class Authentication implements Result {
 
 	/**
 	 * See {@link Users#getUserShortName(String, String)} for javadoc.
-	 * 
+	 *
 	 * @return The current authentication related user's <em>short</em> name.
 	 */
 	public String getUserShortName() {
@@ -238,7 +260,7 @@ public class Authentication implements Result {
 
 	/**
 	 * Returns the authentication token, from {@link org.sigmah.server.domain.Authentication}.
-	 * 
+	 *
 	 * @return The authentication token, from {@link org.sigmah.server.domain.Authentication}.
 	 */
 	public String getAuthenticationToken() {
@@ -251,7 +273,7 @@ public class Authentication implements Result {
 	 * <p>
 	 * <em>Should <b>only</b> be called by {@link org.sigmah.server.handler.LoginCommandHandler} or {@link AuthenticationProvider}.</em>
 	 * </p>
-	 * 
+	 *
 	 * @param authenticationToken
 	 *          The authentication token.
 	 */
@@ -262,7 +284,7 @@ public class Authentication implements Result {
 
 	/**
 	 * Returns the authenticated user id or {@code null} if anonymous.
-	 * 
+	 *
 	 * @return The authenticated user id or {@code null} if anonymous.
 	 */
 	public Integer getUserId() {
@@ -271,7 +293,7 @@ public class Authentication implements Result {
 
 	/**
 	 * Returns the authenticated user email or {@code null} if anonymous.
-	 * 
+	 *
 	 * @return The authenticated user email or {@code null} if anonymous.
 	 */
 	public String getUserEmail() {
@@ -280,7 +302,7 @@ public class Authentication implements Result {
 
 	/**
 	 * Sets the authenticated user email.
-	 * 
+	 *
 	 * @param userEmail The authenticated user email or {@code null} if anonymous.
 	 */
 	public void setUserEmail(String userEmail) {
@@ -289,7 +311,7 @@ public class Authentication implements Result {
 
 	/**
 	 * Returns the authenticated user's Organization id or {@code null} if anonymous.
-	 * 
+	 *
 	 * @return The authenticated user's Organization id or {@code null} if anonymous.
 	 */
 	public Integer getOrganizationId() {
@@ -298,7 +320,7 @@ public class Authentication implements Result {
 
 	/**
 	 * Returns the authenticated user's Organization name or {@code null} if anonymous.
-	 * 
+	 *
 	 * @return The authenticated user's Organization name or {@code null} if anonymous.
 	 */
 	public String getOrganizationName() {
@@ -307,7 +329,7 @@ public class Authentication implements Result {
 
 	/**
 	 * Returns the authenticated user's Organization logo or {@code null} if anonymous.
-	 * 
+	 *
 	 * @return The authenticated user's Organization logo or {@code null} if anonymous.
 	 */
 	public String getOrganizationLogo() {
@@ -316,7 +338,7 @@ public class Authentication implements Result {
 
 	/**
 	 * Returns the authenticated user's OrgUnit id or {@code null} if anonymous.
-	 * 
+	 *
 	 * @return The authenticated user's OrgUnit id or {@code null} if anonymous.
 	 */
 	public Integer getOrgUnitId() {
@@ -325,7 +347,7 @@ public class Authentication implements Result {
 
 	/**
 	 * Returns the authenticated user last name or {@code null} if anonymous.
-	 * 
+	 *
 	 * @return The authenticated user last name or {@code null} if anonymous.
 	 */
 	public String getUserName() {
@@ -334,7 +356,7 @@ public class Authentication implements Result {
 
 	/**
 	 * Returns the authenticated user first name or {@code null} if anonymous.
-	 * 
+	 *
 	 * @return The authenticated user first name or {@code null} if anonymous.
 	 */
 	public String getUserFirstName() {
@@ -343,7 +365,7 @@ public class Authentication implements Result {
 
 	/**
 	 * Returns the authenticated user aggregated profile or {@code null} if anonymous.
-	 * 
+	 *
 	 * @return The authenticated user aggregated profile or {@code null} if anonymous.
 	 */
 	public ProfileDTO getAggregatedProfile() {
@@ -351,8 +373,15 @@ public class Authentication implements Result {
 	}
 
 	/**
+	 * Returns the list of project ids for which the authenticated user is a member.
+	 */
+	public Set<Integer> getMemberOfProjectIds() {
+		return memberOfProjectIds;
+	}
+
+	/**
 	 * Returns the user {@link Language}.
-	 * 
+	 *
 	 * @return The user {@link Language}, never {@code null}.
 	 */
 	public Language getLanguage() {
@@ -363,11 +392,11 @@ public class Authentication implements Result {
 	 * Tells if the current user is allowed to connect to Sigmah without the
 	 * login cookie.
 	 * Used only by the online mode.
-	 * 
+	 *
 	 * @return <code>true</code> if the current user is authorized to connect, <code>false</code> otherwise.
 	 */
 	public boolean isAuthorized() {
 		return authorized;
 	}
-	
+
 }

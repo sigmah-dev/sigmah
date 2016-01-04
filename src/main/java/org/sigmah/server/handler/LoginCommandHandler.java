@@ -23,6 +23,8 @@ package org.sigmah.server.handler;
  */
 
 import org.sigmah.server.dao.AuthenticationDAO;
+import org.sigmah.server.dao.OrgUnitDAO;
+import org.sigmah.server.dao.ProjectDAO;
 import org.sigmah.server.dispatch.impl.UserDispatch.UserExecutionContext;
 import org.sigmah.server.domain.User;
 import org.sigmah.server.handler.base.AbstractCommandHandler;
@@ -35,32 +37,29 @@ import org.sigmah.shared.dispatch.CommandException;
 
 import com.google.inject.Inject;
 
+import java.util.Set;
+
 /**
  * Handler for {@link LoginCommand}.
- * 
+ *
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
 public class LoginCommandHandler extends AbstractCommandHandler<LoginCommand, Authentication> {
 
-	/**
-	 * Injected {@link Authenticator} service.
-	 */
 	private final Authenticator authenticator;
 
-	/**
-	 * Injected {@link AuthenticationDAO}.
-	 */
 	private final AuthenticationDAO authenticationDAO;
+	private final OrgUnitDAO orgUnitDAO;
+	private final ProjectDAO projectDAO;
 
-	/**
-	 * Injected {@link Mapper}.
-	 */
 	private final Mapper mapper;
 
 	@Inject
-	public LoginCommandHandler(final Authenticator authenticator, final AuthenticationDAO authenticationDAO, final Mapper mapper) {
+	public LoginCommandHandler(final Authenticator authenticator, final AuthenticationDAO authenticationDAO, OrgUnitDAO orgUnitDAO, ProjectDAO projectDAO, final Mapper mapper) {
 		this.authenticator = authenticator;
 		this.authenticationDAO = authenticationDAO;
+		this.orgUnitDAO = orgUnitDAO;
+		this.projectDAO = projectDAO;
 		this.mapper = mapper;
 	}
 
@@ -75,7 +74,9 @@ public class LoginCommandHandler extends AbstractCommandHandler<LoginCommand, Au
 
 		final org.sigmah.server.domain.Authentication newAuth = authenticationDAO.persist(new org.sigmah.server.domain.Authentication(user), user);
 
-		final Authentication authentication = Handlers.createAuthentication(user, command.getLanguage(), mapper);
+		Set<Integer> orgUnitIds = orgUnitDAO.getOrgUnitTreeIdsByUserId(user.getId());
+		Set<Integer> memberOfProjectIds = projectDAO.findProjectIdsByTeamMemberIdAndOrgUnitIds(user.getId(), orgUnitIds);
+		final Authentication authentication = Handlers.createAuthentication(user, command.getLanguage(), memberOfProjectIds, mapper);
 		authentication.setAuthenticationToken(newAuth.getId());
 
 		return authentication;
