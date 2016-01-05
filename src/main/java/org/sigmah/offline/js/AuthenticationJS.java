@@ -22,6 +22,7 @@ package org.sigmah.offline.js;
  * #L%
  */
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -200,6 +201,10 @@ public final class AuthenticationJS extends JavaScriptObject {
 	public Set<Integer> getMemberOfProjectIdsDTO() {
 		Set<Integer> projectIds = new HashSet<Integer>();
 		JsArrayInteger memberOfProjectIds = getMemberOfProjectIds();
+		if (memberOfProjectIds == null) {
+			return Collections.emptySet();
+		}
+
 		for (int i = 0; i < memberOfProjectIds.length(); i++) {
 			projectIds.add(memberOfProjectIds.get(i));
 		}
