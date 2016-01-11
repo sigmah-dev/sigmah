@@ -32,6 +32,7 @@ import org.sigmah.server.domain.Project;
 import org.sigmah.server.domain.ProjectModel;
 import org.sigmah.server.domain.User;
 import org.sigmah.server.domain.profile.Profile;
+import org.sigmah.server.domain.util.DomainFilters;
 import org.sigmah.shared.dto.referential.ProjectModelStatus;
 
 /**
@@ -90,6 +91,9 @@ public class ProjectHibernateDAO extends AbstractDAO<Project, Integer> implement
 		if (orgUnitIds.isEmpty()) {
 			return Collections.emptySet();
 		}
+
+		// Disable the ActivityInfo filter on Userdatabase.
+		DomainFilters.disableUserFilter(em());
 
 		TypedQuery<Integer> query = em().createQuery("SELECT pr.id " +
 			"FROM Project pr " +

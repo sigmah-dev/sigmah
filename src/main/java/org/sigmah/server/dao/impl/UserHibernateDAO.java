@@ -32,6 +32,7 @@ import javax.persistence.TypedQuery;
 import org.sigmah.server.dao.UserDAO;
 import org.sigmah.server.dao.base.AbstractDAO;
 import org.sigmah.server.domain.User;
+import org.sigmah.server.domain.util.DomainFilters;
 
 import org.apache.commons.collections4.CollectionUtils;
 
@@ -161,6 +162,9 @@ public class UserHibernateDAO extends AbstractDAO<User, Integer> implements User
 
 	@Override
 	public User getProjectManager(Integer projectId) {
+		// Disable the ActivityInfo filter on Userdatabase.
+		DomainFilters.disableUserFilter(em());
+
 		TypedQuery<User> query = em().createQuery(
 			"SELECT p.manager " +
 			"FROM Project p " +
@@ -177,6 +181,9 @@ public class UserHibernateDAO extends AbstractDAO<User, Integer> implements User
 
 	@Override
 	public List<User> getProjectTeamMembers(Integer projectId) {
+		// Disable the ActivityInfo filter on Userdatabase.
+		DomainFilters.disableUserFilter(em());
+
 		TypedQuery<User> query = em().createQuery(
 			"SELECT u " +
 				"FROM Project p " +
