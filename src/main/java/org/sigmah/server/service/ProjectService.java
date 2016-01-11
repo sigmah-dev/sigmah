@@ -192,7 +192,7 @@ public class ProjectService extends AbstractEntityService<Project, Integer, Proj
 		project.setLogFrame(null);
 
 		// Let's add default team member profiles
-		List<Profile> defaultTeamMemberProfiles = model.getDefaultTeamMemberProfiles();
+		List<Profile> defaultTeamMemberProfiles = new ArrayList<>(model.getDefaultTeamMemberProfiles());
 		project.setTeamMemberProfiles(defaultTeamMemberProfiles);
 
 		// Creates and adds phases.
