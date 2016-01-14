@@ -664,10 +664,7 @@ public class ProjectService extends AbstractEntityService<Project, Integer, Proj
 
 		if (createdProject.getPartners() != null) {
 			UserPermissionPolicy permissionPolicy = injector.getInstance(UserPermissionPolicy.class);
-			for (OrgUnit orgUnit : createdProject.getPartners()) {
-				permissionPolicy.updateUserPermissionByOrgUnit(orgUnit);
-				break;
-			}
+			permissionPolicy.updateUserPermissionByOrgUnit(createdProject.getOrgUnit());
 		}
 
 		final ProjectDTO mappedProject = projectMapper.map(createdProject, false);

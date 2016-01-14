@@ -300,11 +300,7 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 		// Update user permissions
 		final Project updatedProject = em().find(Project.class, projectId);
 		if (updatedProject != null) {
-			OrgUnit newOrgUnit = null;
-			for (OrgUnit orgUnit : updatedProject.getPartners()) {
-				newOrgUnit = orgUnit;
-				break;
-			}
+			OrgUnit newOrgUnit = updatedProject.getOrgUnit();
 			if (newOrgUnit != null) {
 				final UserPermissionPolicy permissionPolicy = injector.getInstance(UserPermissionPolicy.class);
 				permissionPolicy.deleteUserPemissionByProject(projectId);

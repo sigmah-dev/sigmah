@@ -382,4 +382,13 @@ public class Project extends UserDatabase {
 	public void setTeamMemberProfiles(List<Profile> teamMemberProfiles) {
 		this.teamMemberProfiles = teamMemberProfiles;
 	}
+
+	@Transient
+	public OrgUnit getOrgUnit() {
+		// Get the first org unit
+		for (OrgUnit orgUnit : getPartners()) {
+			return orgUnit;
+		}
+		return null;
+	}
 }

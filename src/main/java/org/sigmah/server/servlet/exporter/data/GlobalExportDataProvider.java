@@ -567,10 +567,7 @@ public class GlobalExportDataProvider {
 				if (hasValue) {
 					orgUnitId = Integer.parseInt(valueResult.getValueObject());
 				} else {
-					for (final OrgUnit orgUnit : project.getPartners()) {
-						orgUnitId = orgUnit.getId();
-						break;
-					}
+					orgUnitId = project.getOrgUnit().getId();
 				}
 				OrgUnit orgUnit = entityManager.find(OrgUnit.class, orgUnitId);
 				if (orgUnit != null)
