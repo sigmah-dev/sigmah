@@ -152,6 +152,7 @@
 		<maven-javadoc-plugin.version>2.9.1</maven-javadoc-plugin.version>
 		<maven-source-plugin.version>2.2.1</maven-source-plugin.version>
 		<gwt-maven-plugin.version>${gwt.version}</gwt-maven-plugin.version>
+                <tomcat7-maven-plugin.version>2.2</tomcat7-maven-plugin.version>
 
 		<!-- Plugins configuration. -->
 		<gwt.logLevel>INFO</gwt.logLevel> <!-- Available levels: ERROR, WARN, INFO, TRACE, DEBUG, SPAM, ALL. -->
@@ -861,6 +862,12 @@
 						</lifecycleMappingMetadata>
 					</configuration>
 				</plugin>
+
+                                <plugin>
+                                        <groupId>org.apache.tomcat.maven</groupId>
+                                        <artifactId>tomcat7-maven-plugin</artifactId>
+                                        <version>${tomcat7-maven-plugin.version}</version>
+                                </plugin>
 			</plugins>
 		</pluginManagement>
 
