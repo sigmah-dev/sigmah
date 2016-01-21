@@ -50,7 +50,7 @@ import com.google.inject.Inject;
 import java.util.HashMap;
 
 /**
- * Handler for {@link GetProjects} command
+ * Handler for {@link GetProjects} command.
  * 
  * @author Maxime Lombard (mlombard@ideia.fr)
  * @author Denis Colliot (dcolliot@ideia.fr)
@@ -190,7 +190,7 @@ public class GetProjectsHandler extends AbstractCommandHandler<GetProjects, List
 		} else {
 			// Using provided mapping mode.
             for(final Project project : projects) {
-                final ProjectDTO projectDTO = mapper().map(project, ProjectDTO.class, cmd.getMappingMode());
+                final ProjectDTO projectDTO = mapper().map(project, new ProjectDTO(), cmd.getMappingMode());
                 // Filling the orgUnitId using the map made when querying by OrgUnits.
                 projectDTO.setOrgUnitId(projectIdToOrgUnitId.get(project.getId()));
                 projectsDTO.add(projectDTO);

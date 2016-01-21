@@ -454,8 +454,8 @@ public class FileServlet extends AbstractServlet {
 			monitoredPointDAO.persist(monitoredPoint, context.getUser());
 		}
 
-		final MonitoredPointDTO monitoredPointDTO = mapper().map(monitoredPoint, MonitoredPointDTO.class, MonitoredPointDTO.Mode.BASE);
-		final FileVersionDTO fileVersionDTO = mapper().map(fileVersion, FileVersionDTO.class);
+		final MonitoredPointDTO monitoredPointDTO = mapper().map(monitoredPoint, new MonitoredPointDTO(), MonitoredPointDTO.Mode.BASE);
+		final FileVersionDTO fileVersionDTO = mapper().map(fileVersion, new FileVersionDTO());
 
 		response.setContentType(FileType.HTML.getContentType());
 		response.getWriter().write(FileUploadResponse.serialize(fileVersionDTO, monitoredPointDTO));

@@ -71,7 +71,7 @@ public class GetProjectModelHandler extends AbstractCommandHandler<GetProjectMod
 
 		LOG.debug("Found project model with id #{}.", modelId);
 
-		return mapper().map(model, ProjectModelDTO.class, cmd.getMappingMode());
+		return mapper().map(model, new ProjectModelDTO(), cmd.getMappingMode());
 	}
 
 }

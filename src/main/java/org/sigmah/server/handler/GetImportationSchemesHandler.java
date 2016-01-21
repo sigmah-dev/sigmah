@@ -75,7 +75,7 @@ public class GetImportationSchemesHandler extends AbstractCommandHandler<GetImpo
 		if (!schemasList.isEmpty()) {
 			for (final ImportationScheme importationScheme : schemasList) {
 				if (!schemeToExclude.contains(importationScheme)) {
-					schemaDTOList.add(mapper().map(importationScheme, ImportationSchemeDTO.class));
+					schemaDTOList.add(mapper().map(importationScheme, new ImportationSchemeDTO()));
 				}
 			}
 		}

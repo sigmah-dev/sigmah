@@ -150,7 +150,7 @@ public final class Handlers {
 			if (profile.getPrivacyGroupPermissions() != null) {
 				for (final PrivacyGroupPermission p : profile.getPrivacyGroupPermissions()) {
 
-					final PrivacyGroupDTO groupDTO = mapper.map(p.getPrivacyGroup(), PrivacyGroupDTO.class);
+					final PrivacyGroupDTO groupDTO = mapper.map(p.getPrivacyGroup(), new PrivacyGroupDTO());
 
 					// Aggregates privacy groups among profiles.
 					if (aggretatedProfileDTO.getPrivacyGroups().get(groupDTO) != PrivacyGroupPermissionEnum.WRITE) {

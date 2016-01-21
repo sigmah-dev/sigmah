@@ -72,7 +72,7 @@ public class GetOrgUnitModelHandler extends AbstractCommandHandler<GetOrgUnitMod
 
 		LOG.debug("Found orgUnit model with id #{}.", modelId);
 
-		return mapper().map(model, OrgUnitModelDTO.class, cmd.getMappingMode());
+		return mapper().map(model, new OrgUnitModelDTO(), cmd.getMappingMode());
 	}
 
 }

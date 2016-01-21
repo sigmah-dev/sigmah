@@ -134,7 +134,7 @@ public class GetMonitoredPointsHandler extends AbstractCommandHandler<GetMonitor
                 
                 fullNameQuery.setParameter("pointsList", monitoredPoint.getParentList());
                
-                final MonitoredPointDTO monitoredPointDTO = mapper().map(monitoredPoint, MonitoredPointDTO.class, mappingMode);
+                final MonitoredPointDTO monitoredPointDTO = mapper().map(monitoredPoint, new MonitoredPointDTO(), mappingMode);
                 
                 Project project = fullNameQuery.getSingleResult();
                 

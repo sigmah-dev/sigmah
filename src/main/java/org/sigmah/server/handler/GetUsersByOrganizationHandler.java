@@ -72,7 +72,7 @@ public class GetUsersByOrganizationHandler extends AbstractCommandHandler<GetUse
 
 			if (users != null) {
 				for (final User u : users) {
-					final UserDTO userDTO = mapper().map(u, UserDTO.class, cmd.getMappingMode());
+					final UserDTO userDTO = mapper().map(u, new UserDTO(), cmd.getMappingMode());
 					userDTO.setCompleteName(userDTO.getFirstName() != null ? userDTO.getFirstName() + " " + userDTO.getName() : userDTO.getName());
 					userDTOList.add(userDTO);
 				}
@@ -86,7 +86,7 @@ public class GetUsersByOrganizationHandler extends AbstractCommandHandler<GetUse
 
 			try {
 				final User u = q.getSingleResult();
-				final UserDTO userDTO = mapper().map(u, UserDTO.class, cmd.getMappingMode());
+				final UserDTO userDTO = mapper().map(u, new UserDTO(), cmd.getMappingMode());
 				userDTO.setCompleteName(userDTO.getFirstName() != null ? userDTO.getFirstName() + " " + userDTO.getName() : userDTO.getName());
 				userDTOList.add(userDTO);
 			} catch (NoResultException e) {

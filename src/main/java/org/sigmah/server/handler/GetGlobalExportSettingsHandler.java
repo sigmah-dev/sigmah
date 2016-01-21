@@ -85,7 +85,7 @@ public class GetGlobalExportSettingsHandler extends AbstractCommandHandler<GetGl
 
 		// Retrieving global export settings.
 		final GlobalExportSettings settings = globalExportSettingsDAO.getGlobalExportSettingsByOrganization(organizationId);
-		final GlobalExportSettingsDTO result = mapper.map(settings, GlobalExportSettingsDTO.class);
+		final GlobalExportSettingsDTO result = mapper.map(settings, new GlobalExportSettingsDTO());
 
 		if (!cmd.isRetrieveProjectModels()) {
 			return result;
@@ -96,7 +96,7 @@ public class GetGlobalExportSettingsHandler extends AbstractCommandHandler<GetGl
 
 		for (final ProjectModel model : pModels) {
 			if (model.getStatus() != ProjectModelStatus.DRAFT) {
-				pModelDTOs.add(mapper.map(model, ProjectModelDTO.class));
+				pModelDTOs.add(mapper.map(model, new ProjectModelDTO()));
 			}
 		}
 		result.setProjectModelsDTO(pModelDTOs);
