@@ -117,11 +117,10 @@
 	<!-- -->
 	<!-- =========================================================================================== -->
 
-	<ciManagement>
-		<system>Jenkins</system>
-		<!-- TODO : ajouter l'URL en temps voulu. -->
-		<url>TBA</url>
-	</ciManagement>
+        <ciManagement>
+                <system>jenkins</system>
+                <url>https://ci.codelutin.com/jenkins</url>
+        </ciManagement>
 
 	<!-- =========================================================================================== -->
 	<!-- -->
