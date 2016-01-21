@@ -795,7 +795,7 @@
 					<gwtVersion>${gwt.version}</gwtVersion>
 					<webappDirectory>${webapp.directory}</webappDirectory>
 					<hostedWebapp>${webapp.directory}</hostedWebapp>
-					<generateDirectory>${basedir}/src/main/java</generateDirectory>
+					<generateDirectory>${project.build.directory}/generated-sources/java</generateDirectory>
 					<i18nConstantsBundles>
 						<i18nConstantsBundle>${project.groupId}.client.i18n.UIConstants</i18nConstantsBundle>
 					</i18nConstantsBundles>
