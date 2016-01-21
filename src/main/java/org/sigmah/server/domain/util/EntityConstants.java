@@ -263,6 +263,25 @@ public final class EntityConstants extends org.sigmah.shared.dto.util.EntityCons
 
 	// --------------------------------------------------------------------------------
 	//
+	// COMPUTATION ELEMENT ENTITY.
+	//
+	// --------------------------------------------------------------------------------
+
+	public static final String COMPUTATION_ELEMENT_TABLE = "computation_element";
+	public static final String COMPUTATION_ELEMENT_COLUMN_RULE = "rule";
+	
+	public static final int COMPUTATION_ELEMENT_RULE_MAX_LENGTH = 1500;
+	
+	// --------------------------------------------------------------------------------
+	//
+	// CORE VERSION ELEMENT ENTITY.
+	//
+	// --------------------------------------------------------------------------------
+
+	public static final String CORE_VERSION_ELEMENT_TABLE = "core_version_element";
+	
+	// --------------------------------------------------------------------------------
+	//
 	// COUNTRY ENTITY.
 	//
 	// --------------------------------------------------------------------------------
@@ -271,7 +290,7 @@ public final class EntityConstants extends org.sigmah.shared.dto.util.EntityCons
 	public static final String COUNTRY_COLUMN_ID = "CountryId";
 	public static final String COUNTRY_COLUMN_NAME = "Name";
 	public static final String COUNTRY_COLUMN_ISO_CODE = "ISO2";
-
+	
 	// --------------------------------------------------------------------------------
 	//
 	// CRITERION TYPE ENTITY.
@@ -344,12 +363,15 @@ public final class EntityConstants extends org.sigmah.shared.dto.util.EntityCons
 	public static final String FLEXIBLE_ELEMENT_TABLE = "flexible_element";
 	public static final String FLEXIBLE_ELEMENT_COLUMN_ID = "id_flexible_element";
 	public static final String FLEXIBLE_ELEMENT_COLUMN_LABEL = "label";
+	public static final String FLEXIBLE_ELEMENT_COLUMN_CODE = "code";
 	public static final String FLEXIBLE_ELEMENT_COLUMN_VALIDATES = "validates";
 	public static final String FLEXIBLE_ELEMENT_COLUMN_AMENDABLE = "amendable";
 	public static final String FLEXIBLE_ELEMENT_COLUMN_EXPORTABLE = "exportable";
 	public static final String FLEXIBLE_ELEMENT_COLUMN_GLOBALLY_EXPORTABLE = "globally_exportable";
 	public static final String FLEXIBLE_ELEMENT_COLUMN_DISABLED_DATE = "disabled_date";
 	public static final String FLEXIBLE_ELEMENT_COLUMN_CREATION_DATE = "creation_date";
+	
+	public static final int FLEXIBLE_ELEMENT_CODE_MAX_LENGTH = 30;
 
 	// --------------------------------------------------------------------------------
 	//
@@ -1394,14 +1416,6 @@ public final class EntityConstants extends org.sigmah.shared.dto.util.EntityCons
 	public static final String TEXTAREA_ELEMENT_COLUMN_IS_DECIMAL = "is_decimal";
 	public static final String TEXTAREA_ELEMENT_COLUMN_LENGTH = "length";
 	
-	// --------------------------------------------------------------------------------
-	//
-	// CORE VERSION ELEMENT ENTITY.
-	//
-	// --------------------------------------------------------------------------------
-
-	public static final String CORE_VERSION_ELEMENT_TABLE = "core_version_element";
-
 	// --------------------------------------------------------------------------------
 	//
 	// USER ENTITY.

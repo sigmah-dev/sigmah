@@ -3,6 +3,7 @@ package org.sigmah.offline.js;
 import com.google.gwt.core.client.JavaScriptObject;
 
 import org.sigmah.shared.dto.element.CheckboxElementDTO;
+import org.sigmah.shared.dto.element.ComputationElementDTO;
 import org.sigmah.shared.dto.element.CoreVersionElementDTO;
 import org.sigmah.shared.dto.element.DefaultFlexibleElementDTO;
 import org.sigmah.shared.dto.element.FilesListElementDTO;
@@ -35,6 +36,9 @@ public abstract class FlexibleElementJS extends JavaScriptObject {
 		switch(flexibleElementDTO.getElementType()) {
 			case CHECKBOX:
 				flexibleElementJS = CheckboxElementJS.toJavaScript((CheckboxElementDTO)flexibleElementDTO);
+				break;
+			case COMPUTATION:
+				flexibleElementJS = ComputationElementJS.toJavaScript((ComputationElementDTO)flexibleElementDTO);
 				break;
 			case CORE_VERSION:
 				flexibleElementJS = Values.createJavaScriptObject(FlexibleElementJS.class);
@@ -93,6 +97,9 @@ public abstract class FlexibleElementJS extends JavaScriptObject {
 		switch(getElementTypeEnum()) {
 			case CHECKBOX:
 				flexibleElementDTO = ((CheckboxElementJS)this).toCheckboxElementDTO();
+				break;
+			case COMPUTATION:
+				flexibleElementDTO = ((ComputationElementJS)this).toComputationElementDTO();
 				break;
 			case CORE_VERSION:
 				flexibleElementDTO = new CoreVersionElementDTO();

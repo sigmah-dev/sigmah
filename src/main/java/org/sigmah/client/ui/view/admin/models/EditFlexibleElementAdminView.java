@@ -96,6 +96,7 @@ public class EditFlexibleElementAdminView extends AbstractPopupView<PopupWidget>
 	private Set<Field<?>> textAreaFields;
 	private ComboBox<EnumModel<TextAreaType>> textAreaTypeField;
 	private NumberField lengthField;
+	private TextField<String> codeField;
 	private CheckBox decimalField;
 	private NumberField minLimitField;
 	private NumberField maxLimitField;
@@ -120,6 +121,8 @@ public class EditFlexibleElementAdminView extends AbstractPopupView<PopupWidget>
 	private ListStore<BudgetSubFieldDTO> upBudgetSubFieldStore;
 	private ListStore<BudgetSubFieldDTO> downBudgetSubFieldStore;
 	private Anchor anchorAddSubField;
+	
+	private TextField<String> computationRuleField;
 
 	// --
 	// Other components.
@@ -202,6 +205,7 @@ public class EditFlexibleElementAdminView extends AbstractPopupView<PopupWidget>
 		textAreaTypeField = Forms.combobox(I18N.CONSTANTS.adminFlexibleTextType(), true, EnumModel.VALUE_FIELD, EnumModel.DISPLAY_FIELD);
 
 		lengthField = Forms.number(I18N.CONSTANTS.adminFlexibleLength(), false);
+		codeField = Forms.text(I18N.CONSTANTS.adminFlexibleCode(), false);
 		decimalField = Forms.checkbox("", null, I18N.CONSTANTS.adminFlexibleDecimal(), false);
 		minLimitField = Forms.number(I18N.CONSTANTS.adminFlexibleMinLimit(), false);
 		maxLimitField = Forms.number(I18N.CONSTANTS.adminFlexibleMaxLimit(), false);
@@ -209,6 +213,7 @@ public class EditFlexibleElementAdminView extends AbstractPopupView<PopupWidget>
 		maxDateField = Forms.date(I18N.CONSTANTS.adminFlexible_form_maxDate(), false);
 
 		textAreaFields.add(lengthField);
+		textAreaFields.add(codeField);
 		textAreaFields.add(decimalField);
 		textAreaFields.add(minLimitField);
 		textAreaFields.add(maxLimitField);
@@ -224,6 +229,8 @@ public class EditFlexibleElementAdminView extends AbstractPopupView<PopupWidget>
 		customChoiceAddField = new TextButtonField(I18N.CONSTANTS.adminFlexibleQChoices());
 		customChoicesPanel = new FlowPanel();
 		customChoicesField = Forms.adapter(null, customChoicesPanel);
+		
+		computationRuleField = Forms.text(I18N.CONSTANTS.adminFlexibleComputationRule(), false);
 
 		// --
 		// specific properties for budget field
@@ -278,6 +285,7 @@ public class EditFlexibleElementAdminView extends AbstractPopupView<PopupWidget>
 		specificForm.add(bannerField);
 		specificForm.add(bannerPositionField);
 		specificForm.add(textAreaTypeField);
+		specificForm.add(codeField);
 		specificForm.add(lengthField);
 		specificForm.add(decimalField);
 		specificForm.add(minLimitField);
@@ -290,6 +298,7 @@ public class EditFlexibleElementAdminView extends AbstractPopupView<PopupWidget>
 		specificForm.add(categoryTypeField);
 		specificForm.add(customChoiceAddField);
 		specificForm.add(customChoicesField);
+		specificForm.add(computationRuleField);
 
 		specificForm.add(budgetFields);
 		specificForm.add(anchorAddSubField);
@@ -461,6 +470,14 @@ public class EditFlexibleElementAdminView extends AbstractPopupView<PopupWidget>
 	 * {@inheritDoc}
 	 */
 	@Override
+	public Field<String> getCodeField() {
+		return codeField;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public Field<Number> getLengthField() {
 		return lengthField;
 	}
@@ -553,39 +570,68 @@ public class EditFlexibleElementAdminView extends AbstractPopupView<PopupWidget>
 		return customChoiceAddField.getButton();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public FlexTable getBudgetFields() {
 		return budgetFields;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public FlexTable getRatioFlexTable() {
 		return ratioFlexTable;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public ComboBox<BudgetSubFieldDTO> getUpBudgetSubFieldCombo() {
 		return upBudgetSubFieldCombo;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public ComboBox<BudgetSubFieldDTO> getDownBudgetSubFieldCombo() {
 		return downBudgetSubFieldCombo;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public ListStore<BudgetSubFieldDTO> getUpBudgetSubFieldStore() {
 		return upBudgetSubFieldStore;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public ListStore<BudgetSubFieldDTO> getDownBudgetSubFieldStore() {
 		return downBudgetSubFieldStore;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Anchor getAnchorAddSubField() {
 		return anchorAddSubField;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Field<String> getComputationRuleField() {
+		return computationRuleField;
 	}
 
 	/**
@@ -674,6 +720,11 @@ public class EditFlexibleElementAdminView extends AbstractPopupView<PopupWidget>
 		}
 
 		switch (elementType) {
+			
+			case COMPUTATION:
+				codeField.show();
+				computationRuleField.show();
+				break;
 
 			case DEFAULT:
 
@@ -742,6 +793,7 @@ public class EditFlexibleElementAdminView extends AbstractPopupView<PopupWidget>
 				break;
 
 			case NUMBER:
+				codeField.show();
 				decimalField.show();
 				minLimitField.show();
 				maxLimitField.show();

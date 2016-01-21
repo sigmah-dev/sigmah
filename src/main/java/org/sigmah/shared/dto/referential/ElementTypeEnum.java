@@ -16,6 +16,10 @@ import com.google.gwt.core.client.GWT;
 public enum ElementTypeEnum {
 
 	CHECKBOX("CheckboxElement"),
+	
+	COMPUTATION("ComputationElement"),
+	
+	CORE_VERSION("CoreVersionElement"),
 
 	DEFAULT("DefaultFlexibleElement"),
 
@@ -33,9 +37,7 @@ public enum ElementTypeEnum {
 
 	TEXT_AREA("TextAreaElement"),
 
-	TRIPLETS("TripletsListElement"),
-	
-	CORE_VERSION("CoreVersionElement");
+	TRIPLETS("TripletsListElement");
 
 	private static Map<String, ElementTypeEnum> nameMap;
 
@@ -67,6 +69,10 @@ public enum ElementTypeEnum {
 		switch (elementType) {
 			case CHECKBOX:
 				return I18N.CONSTANTS.flexibleElementCheckbox();
+			case COMPUTATION:
+				return I18N.CONSTANTS.flexibleElementComputation();
+			case CORE_VERSION:
+				return I18N.CONSTANTS.flexibleElementCoreVersion();
 			case DEFAULT:
 				return I18N.CONSTANTS.flexibleElementDefault();
 			case FILES_LIST:
@@ -85,8 +91,6 @@ public enum ElementTypeEnum {
 				return I18N.CONSTANTS.flexibleElementTextArea();
 			case TRIPLETS:
 				return I18N.CONSTANTS.flexibleElementTripletsList();
-			case CORE_VERSION:
-				return I18N.CONSTANTS.flexibleElementCoreVersion();
 			default:
 				return I18N.CONSTANTS.flexibleElementDefault();
 		}
@@ -96,6 +100,8 @@ public enum ElementTypeEnum {
 		if (nameMap == null) {
 			nameMap = new HashMap<String, ElementTypeEnum>();
 			nameMap.put(I18N.CONSTANTS.flexibleElementCheckbox(), ElementTypeEnum.CHECKBOX);
+			nameMap.put(I18N.CONSTANTS.flexibleElementComputation(), ElementTypeEnum.COMPUTATION);
+			nameMap.put(I18N.CONSTANTS.flexibleElementCoreVersion(), ElementTypeEnum.CORE_VERSION);
 			nameMap.put(I18N.CONSTANTS.flexibleElementDefault(), ElementTypeEnum.DEFAULT);
 			nameMap.put(I18N.CONSTANTS.flexibleElementFilesList(), ElementTypeEnum.FILES_LIST);
 			nameMap.put(I18N.CONSTANTS.flexibleElementIndicatorsList(), ElementTypeEnum.INDICATORS);
@@ -105,7 +111,6 @@ public enum ElementTypeEnum {
 			nameMap.put(I18N.CONSTANTS.flexibleElementReportList(), ElementTypeEnum.REPORT_LIST);
 			nameMap.put(I18N.CONSTANTS.flexibleElementTextArea(), ElementTypeEnum.TEXT_AREA);
 			nameMap.put(I18N.CONSTANTS.flexibleElementTripletsList(), ElementTypeEnum.TRIPLETS);
-			nameMap.put(I18N.CONSTANTS.flexibleElementCoreVersion(), ElementTypeEnum.CORE_VERSION);
 		}
 
 		final ElementTypeEnum value = nameMap.get(name);

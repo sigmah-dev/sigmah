@@ -54,8 +54,10 @@ public final class AdminUtil {
 	public static final String PROP_FX_B_BUDGETSUBFIELDS = "FlexibleElementBudgetSubFields";
 	public static final String PROP_FX_B_BUDGET_RATIO_DIVIDEND = "FlexibleElementBudgetRatioDividend";
 	public static final String PROP_FX_B_BUDGET_RATIO_DIVISOR = "FlexibleElementBudgetRatioDivisor";
+	public static final String PROP_FX_COMPUTATION_RULE = "FlexibleElementComputationRule";
 
 	public static final String PROP_FX_NAME = "name";
+	public static final String PROP_FX_CODE = "code";
 	public static final String PROP_FX_TYPE = "type";
 	public static final String PROP_FX_GROUP = "group";
 	public static final String PROP_FX_ORDER_IN_GROUP = "orderInGroup";

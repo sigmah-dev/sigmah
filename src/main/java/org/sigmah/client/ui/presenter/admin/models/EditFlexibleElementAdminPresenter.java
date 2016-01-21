@@ -80,6 +80,9 @@ import com.google.gwt.user.client.ui.FlexTable;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import org.sigmah.shared.computation.Computation;
+import org.sigmah.shared.computation.Computations;
+import org.sigmah.shared.dto.element.ComputationElementDTO;
 
 /**
  * Presenter in charge of creating/editing a flexible element.
@@ -133,6 +136,8 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 
 		ComboBox<EnumModel<TextAreaType>> getTextAreaTypeField();
 
+		Field<String> getCodeField();
+		
 		Field<Number> getLengthField();
 
 		Field<Boolean> getDecimalField();
@@ -172,6 +177,8 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 		Anchor getAnchorAddSubField();
 
 		void clearBudgetFields();
+		
+		Field<String> getComputationRuleField();
 
 		// --
 		// Methods.
@@ -586,6 +593,7 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 			view.getNameField().setValue(flexibleElement.getFormattedLabel());
 			view.getNameReadOnlyField().setValue(DefaultFlexibleElementType.getName(getDefaultElementType(flexibleElement)));
 			view.getTypeField().setValue(new EnumModel<ElementTypeEnum>(getElementType(flexibleElement)));
+			view.getCodeField().setValue(flexibleElement.getCode());
 
 			// Banner constraint.
 			final LayoutConstraintDTO bannerConstraint = flexibleElement.getBannerConstraint();
@@ -790,6 +798,13 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 			}
 
 			view.getSpecificForm().recalculate();
+			
+		} else if (flexibleElement instanceof ComputationElementDTO) {
+			
+			final ComputationElementDTO computationElement = (ComputationElementDTO) flexibleElement;
+			final Computation computation = Computations.parse(computationElement.getRule(), currentModel.getAllElements());
+			
+			view.getComputationRuleField().setValue(computation.toHumanReadableString());
 		}
 	}
 
@@ -806,6 +821,7 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 		view.setTextAreaSpecificFieldsVisibility(textAreaType);
 
 		view.getTextAreaTypeField().setEnabled(!isUpdateAndUnderMaintenance());
+		view.getCodeField().setEnabled(!isUpdateAndUnderMaintenance());
 		view.getMinDateField().setEnabled(!isUpdateAndUnderMaintenance());
 		view.getMaxDateField().setEnabled(!isUpdateAndUnderMaintenance());
 		view.getMinLimitField().setEnabled(!isUpdateAndUnderMaintenance());
@@ -1127,6 +1143,7 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 		final PrivacyGroupDTO privacyGroup = view.getPrivacyGroupField().getValue();
 		final Boolean amendable = view.getAmendableField().getValue();
 		final Boolean exportable = view.getExportableField().getValue();
+		final String code = view.getCodeField().getValue();
 
 		// --
 		// Specific properties.
@@ -1148,6 +1165,9 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 
 		final Boolean multiple = view.getMultipleChoicesField().getValue();
 		final CategoryTypeDTO category = view.getCategoryTypeField().getValue();
+		
+		final Computation computation = Computations.parse(view.getComputationRuleField().getValue(), currentModel.getAllElements());
+		final String computationRule = computation.toString();
 
 		// --
 		// Initializing 'NEW' properties map.
@@ -1156,6 +1176,7 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 		final Map<String, Object> newFieldProperties = new HashMap<String, Object>();
 
 		newFieldProperties.put(AdminUtil.PROP_FX_NAME, htmlName);
+		newFieldProperties.put(AdminUtil.PROP_FX_CODE, code);
 		newFieldProperties.put(AdminUtil.PROP_FX_TYPE, (flexibleElement instanceof BudgetElementDTO) ? ElementTypeEnum.DEFAULT : type);
 		newFieldProperties.put(AdminUtil.PROP_FX_GROUP, group);
 		newFieldProperties.put(AdminUtil.PROP_FX_ORDER_IN_GROUP, order);
@@ -1169,7 +1190,7 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 		newFieldProperties.put(AdminUtil.PROP_FX_LENGTH, length);
 		newFieldProperties.put(AdminUtil.PROP_FX_MAX_LIMIT, maxLimit);
 		newFieldProperties.put(AdminUtil.PROP_FX_MIN_LIMIT, minLimit);
-
+		
 		if (textAreaType == TextAreaType.DATE) {
 			newFieldProperties.put(AdminUtil.PROP_FX_MAX_LIMIT, maxLimitDate);
 			newFieldProperties.put(AdminUtil.PROP_FX_MIN_LIMIT, minLimitDate);
@@ -1211,6 +1232,8 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 			newFieldProperties.put(AdminUtil.PROP_FX_B_BUDGET_RATIO_DIVIDEND, view.getUpBudgetSubFieldCombo().getValue());
 			newFieldProperties.put(AdminUtil.PROP_FX_B_BUDGET_RATIO_DIVISOR, view.getDownBudgetSubFieldCombo().getValue());
 		}
+		
+		newFieldProperties.put(AdminUtil.PROP_FX_COMPUTATION_RULE, computationRule);
 
 		// --
 		// Logging old/new properties & filtering actual modifications.

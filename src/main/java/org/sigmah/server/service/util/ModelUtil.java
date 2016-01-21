@@ -18,6 +18,7 @@ import org.sigmah.server.domain.category.CategoryElement;
 import org.sigmah.server.domain.category.CategoryType;
 import org.sigmah.server.domain.element.BudgetElement;
 import org.sigmah.server.domain.element.BudgetSubField;
+import org.sigmah.server.domain.element.ComputationElement;
 import org.sigmah.server.domain.element.DefaultFlexibleElement;
 import org.sigmah.server.domain.element.FilesListElement;
 import org.sigmah.server.domain.element.FlexibleElement;
@@ -63,6 +64,7 @@ public final class ModelUtil {
 
 		// Common attributes
 		final String name = changes.get(AdminUtil.PROP_FX_NAME);
+		final String code = changes.get(AdminUtil.PROP_FX_CODE);
 		final ElementTypeEnum type = changes.get(AdminUtil.PROP_FX_TYPE);
 		final Boolean isCompulsory = changes.get(AdminUtil.PROP_FX_IS_COMPULSARY);
 		final PrivacyGroupDTO pg = changes.get(AdminUtil.PROP_FX_PRIVACY_GROUP);
@@ -100,6 +102,7 @@ public final class ModelUtil {
 		final List<BudgetSubFieldDTO> bSubFields = changes.get(AdminUtil.PROP_FX_B_BUDGETSUBFIELDS);
 		final BudgetSubFieldDTO ratioDividend = changes.get(AdminUtil.PROP_FX_B_BUDGET_RATIO_DIVIDEND);
 		final BudgetSubFieldDTO ratioDivisor = changes.get(AdminUtil.PROP_FX_B_BUDGET_RATIO_DIVISOR);
+		final String computationRule = changes.get(AdminUtil.PROP_FX_COMPUTATION_RULE);
 
 		final FlexibleElementDTO flexibleEltDTO = changes.get(AdminUtil.PROP_FX_FLEXIBLE_ELEMENT);
 
@@ -124,6 +127,10 @@ public final class ModelUtil {
 			// //////////////// First, basic attributes
 			if (name != null) {
 				flexibleElt.setLabel(name);
+				basicChanges = true;
+			}
+			if (code != null) {
+				flexibleElt.setCode(code);
 				basicChanges = true;
 			}
 			if (amend != null) {
@@ -187,7 +194,7 @@ public final class ModelUtil {
 					changeBanner(em, posB, model, flexibleElt);
 			} else {// delete from banner
 				if (oldBannerLayoutConstraintDTO != null) {
-					LayoutConstraint oldBannerLayoutConstraint = mapper.map(oldBannerLayoutConstraintDTO, LayoutConstraint.class);
+					LayoutConstraint oldBannerLayoutConstraint = mapper.map(oldBannerLayoutConstraintDTO, new LayoutConstraint());
 					oldBannerLayoutConstraint = em.find(LayoutConstraint.class, oldBannerLayoutConstraint.getId());
 					em.remove(oldBannerLayoutConstraint);
 				}
@@ -196,7 +203,7 @@ public final class ModelUtil {
 			if (posB != null) {// Position has changed means surely element
 				// was already in banner so there's an old
 				// banner layout constraint
-				LayoutConstraint oldBannerLayoutConstraint = mapper.map(oldBannerLayoutConstraintDTO, LayoutConstraint.class);
+				LayoutConstraint oldBannerLayoutConstraint = mapper.map(oldBannerLayoutConstraintDTO, new LayoutConstraint());
 				if (model instanceof ProjectModel)
 					changePositionInBanner(em, posB, model, flexibleElt, oldBannerLayoutConstraint);
 				else if (model instanceof OrgUnitModel)
@@ -381,6 +388,19 @@ public final class ModelUtil {
 
 				if (specificChanges) {
 					flexibleElt = em.merge((QuestionElement) flexibleElt);
+				}
+			}
+			
+		} else if (type == ElementTypeEnum.COMPUTATION || (type == null && oldType == ElementTypeEnum.COMPUTATION)) {
+			ComputationElement computationElement = (ComputationElement) flexibleElt;
+			if (computationElement != null) {
+				if (computationRule != null) {
+					computationElement.setRule(computationRule);
+					specificChanges = true;
+				}
+				
+				if (specificChanges) {
+					flexibleElt = em.merge(computationElement);
 				}
 			}
 		}

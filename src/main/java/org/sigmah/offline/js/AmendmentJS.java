@@ -8,7 +8,8 @@ import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsDate;
 
 /**
- *
+ * JavaScript version of <code>AmendmentDTO</code>.
+ * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
 public final class AmendmentJS extends JavaScriptObject {

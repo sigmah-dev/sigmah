@@ -141,12 +141,12 @@ public class ProjectModelDTO extends AbstractModelDataEntityDTO<Integer> impleme
 	 * 
 	 * @author tmi (v1.3)
 	 */
-	protected static class LocalizedElement {
+	protected static class LocalizedElement<E extends FlexibleElementDTO> {
 
 		private final PhaseModelDTO phaseModel;
-		private final FlexibleElementDTO element;
+		private final E element;
 
-		protected LocalizedElement(PhaseModelDTO phaseModel, FlexibleElementDTO element) {
+		protected LocalizedElement(PhaseModelDTO phaseModel, E element) {
 			this.phaseModel = phaseModel;
 			this.element = element;
 		}
@@ -156,7 +156,7 @@ public class ProjectModelDTO extends AbstractModelDataEntityDTO<Integer> impleme
 		 * 
 		 * @return The flexible element.
 		 */
-		public FlexibleElementDTO getElement() {
+		public E getElement() {
 			return element;
 		}
 
@@ -171,7 +171,8 @@ public class ProjectModelDTO extends AbstractModelDataEntityDTO<Integer> impleme
 		}
 	}
 
-	private transient HashMap<Class<? extends FlexibleElementDTO>, List<LocalizedElement>> localizedElements;
+	private transient HashMap<Class<? extends FlexibleElementDTO>, List> localizedElements;
+	private transient List<FlexibleElementDTO> allElements;
 
 	public ProjectModelDTO() {
 		// Serialization.
@@ -450,6 +451,10 @@ public class ProjectModelDTO extends AbstractModelDataEntityDTO<Integer> impleme
 	 */
 	@Override
 	public List<FlexibleElementDTO> getAllElements() {
+		
+		if (this.allElements != null) {
+			return this.allElements;
+		}
 
 		final List<FlexibleElementDTO> allElements = new ArrayList<FlexibleElementDTO>();
 		final List<FlexibleElementDTO> bannerElements = new ArrayList<FlexibleElementDTO>();
@@ -477,20 +482,20 @@ public class ProjectModelDTO extends AbstractModelDataEntityDTO<Integer> impleme
 				final LayoutDTO layout = phaseModel.getLayout();
 				if (layout != null) {
 					for (final LayoutGroupDTO lg : layout.getGroups()) {
-				for (final LayoutConstraintDTO lc : lg.getConstraints()) {
-					final FlexibleElementDTO f = lc.getFlexibleElementDTO();
-					f.setGroup(lg);
-					f.setConstraint(lc);
-							f.setContainerModel(phaseModel);
-					for (final FlexibleElementDTO bf : bannerElements) {
-						if (f.getId().equals(bf.getId())) {
-							f.setBannerConstraint(bf.getBannerConstraint());
+						for (final LayoutConstraintDTO lc : lg.getConstraints()) {
+							final FlexibleElementDTO f = lc.getFlexibleElementDTO();
+							f.setGroup(lg);
+							f.setConstraint(lc);
+									f.setContainerModel(phaseModel);
+							for (final FlexibleElementDTO bf : bannerElements) {
+								if (f.getId().equals(bf.getId())) {
+									f.setBannerConstraint(bf.getBannerConstraint());
+								}
+							}
+							allElements.add(f);
 						}
 					}
-					allElements.add(f);
 				}
-			}
-		}
 			}
 		}
 
@@ -517,6 +522,8 @@ public class ProjectModelDTO extends AbstractModelDataEntityDTO<Integer> impleme
 				}
 			}
 		}
+		
+		this.allElements = allElements;
 
 		return allElements;
 	}
@@ -529,13 +536,13 @@ public class ProjectModelDTO extends AbstractModelDataEntityDTO<Integer> impleme
 	 *          The class of the searched flexible elements.
 	 * @return The elements localized for the given class, or <code>null</code> if there is no element of this class.
 	 */
-	public List<LocalizedElement> getLocalizedElements(Class<? extends FlexibleElementDTO> clazz) {
+	public <E extends FlexibleElementDTO> List<LocalizedElement<E>> getLocalizedElements(Class<E> clazz) {
 
 		if (localizedElements != null) {
 			return localizedElements.get(clazz);
 		}
 
-		localizedElements = new HashMap<Class<? extends FlexibleElementDTO>, List<LocalizedElement>>();
+		localizedElements = new HashMap<Class<? extends FlexibleElementDTO>, List>();
 
 		// Details.
 		for (final LayoutGroupDTO group : getProjectDetails().getLayout().getGroups()) {
@@ -545,11 +552,11 @@ public class ProjectModelDTO extends AbstractModelDataEntityDTO<Integer> impleme
 
 				// Gets the element and its class.
 				final FlexibleElementDTO element = constraint.getFlexibleElementDTO();
-				List<LocalizedElement> elements = localizedElements.get(element.getClass());
+				List elements = localizedElements.get(element.getClass());
 
 				// First element for this class.
 				if (elements == null) {
-					elements = new ArrayList<LocalizedElement>();
+					elements = new ArrayList<LocalizedElement<?>>();
 					localizedElements.put(element.getClass(), elements);
 				}
 

@@ -62,6 +62,7 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 
 	// DTO 'base' attributes keys.
 	public static final String LABEL = "label";
+	public static final String CODE = "code";
 	public static final String VALIDATES = "validates";
 	public static final String FILLED_IN = "filledIn";
 	public static final String AMENDABLE = "amendable";
@@ -482,6 +483,15 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 		set(LABEL, label);
 	}
 
+	// Flexible element code
+	public String getCode() {
+		return get(CODE);
+	}
+
+	public void setCode(String code) {
+		set(CODE, code);
+	}
+
 	// Flexible element validates
 	public boolean getValidates() {
 		final Boolean validates = get(VALIDATES);
@@ -616,6 +626,8 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 			type = ElementTypeEnum.TRIPLETS;
 		} else if (this instanceof CoreVersionElementDTO) {
 			type = ElementTypeEnum.CORE_VERSION;
+		} else if (this instanceof ComputationElementDTO) {
+			type = ElementTypeEnum.COMPUTATION;
 		}
 		return type;
 	}
