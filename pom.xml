@@ -177,6 +177,7 @@
 		<hibernate.version>4.2.14.Final</hibernate.version>
 		<hibernate-c3p0.version>${hibernate.version}</hibernate-c3p0.version>
 		<hibernate-validator.version>4.3.0.Final</hibernate-validator.version>
+                <flyway.version>3.2.1</flyway.version>
 		<commons-lang.version>3.3.2</commons-lang.version>
 		<commons-email.version>1.3.2</commons-email.version>
 		<commons-fileupload.version>1.3.1</commons-fileupload.version>
@@ -200,6 +201,12 @@
 		<log.pattern>[%-5level] {%d{dd/MM/yyyy HH:mm:ss.SSS}} [%thread] %logger{35} - %msg%n</log.pattern>
 		<log.level>ERROR</log.level> <!-- Available levels: ALL, TRACE, DEBUG, INFO, WARN, ERROR, OFF. -->
 
+                <!-- Default database access properties, shared by both Flyway and Hibernate (may be override in profiles) -->
+
+                <sigmah.database.url>jdbc:postgresql://localhost:5432/sigmah-dev</sigmah.database.url>
+                <sigmah.database.user>postgres</sigmah.database.user>
+                <sigmah.database.password>********</sigmah.database.password>
+
 		<!-- Hibernate properties. -->
 
 		<hibernate.dialect>org.hibernate.dialect.PostgreSQLDialect</hibernate.dialect>
@@ -207,7 +214,9 @@
 		<hibernate.hbm2ddl.auto>update</hibernate.hbm2ddl.auto>
 		<hibernate.show_sql>true</hibernate.show_sql>
 		<hibernate.format_sql>true</hibernate.format_sql>
-		<!-- (Database access must be configured into profiles.) -->
+                <hibernate.connection.url>${sigmah.database.url}</hibernate.connection.url>
+                <hibernate.connection.username>${sigmah.database.user}</hibernate.connection.username>
+                <hibernate.connection.password>${sigmah.database.password}</hibernate.connection.password>
 		
 		<!-- JDBC pool properties. -->
 
@@ -853,6 +862,16 @@
                                 </configuration>
                         </plugin>
 
+                        <plugin>
+                                <groupId>org.flywaydb</groupId>
+                                <artifactId>flyway-maven-plugin</artifactId>
+                                <version>${flyway.version}</version>
+                                <configuration>
+                                        <url>${sigmah.database.url}</url>
+                                        <user>${sigmah.database.user}</user>
+                                        <password>${sigmah.database.password}</password>
+                                </configuration>
+                        </plugin>
 		</plugins>
 
 		<pluginManagement>
@@ -929,11 +948,7 @@
 
 				<!-- Hibernate properties. -->
 
-				<hibernate.connection.url>jdbc:postgresql://localhost:5432/sigmah-dev</hibernate.connection.url>
-				<hibernate.connection.username>postgres</hibernate.connection.username>
-				<hibernate.connection.password>********</hibernate.connection.password>
 				<hibernate.show_sql>true</hibernate.show_sql>
-				<hibernate.format_sql>true</hibernate.format_sql>
 				
 				<!-- Mailer properties. -->
 
