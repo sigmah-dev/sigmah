@@ -125,15 +125,15 @@ public class GetValueHandler extends AbstractCommandHandler<GetValue, ValueResul
 
 		Query query = null;
 		String elementClassName = cmd.getElementEntityName();
-		Class<? extends ListableValue> dtoClazz = null;
-		boolean isList = false;
+		ListableValue dto = null;
+		Boolean isList = null;
 
 		// Creates the sub-select query to get the true value.
 		if (elementClassName.equals("element.TripletsListElement")) {
 
 			LOG.debug("Case TripletsListElementDTO.");
 
-			dtoClazz = TripletValueDTO.class;
+			dto = new TripletValueDTO();
 			isList = true;
 
 			query = em().createQuery("SELECT tv FROM TripletValue tv WHERE tv.id IN (:idsList)");
@@ -143,7 +143,7 @@ public class GetValueHandler extends AbstractCommandHandler<GetValue, ValueResul
 
 			LOG.debug("Case IndicatorsListElementDTO.");
 
-			dtoClazz = IndicatorsListValueDTO.class;
+			dto = new IndicatorsListValueDTO();
 			isList = true;
 
 			query = em().createQuery("SELECT ilv FROM IndicatorsListValue ilv WHERE ilv.id.idList = :value");
@@ -153,7 +153,7 @@ public class GetValueHandler extends AbstractCommandHandler<GetValue, ValueResul
 
 			LOG.debug("Case BudgetDistributionElementDTO.");
 
-			dtoClazz = BudgetPartsListValueDTO.class;
+			dto = new BudgetPartsListValueDTO();
 			isList = true;
 
 			query = em().createQuery("SELECT bplv FROM BudgetPartsListValue bplv WHERE bplv.id = :value");
@@ -163,7 +163,7 @@ public class GetValueHandler extends AbstractCommandHandler<GetValue, ValueResul
 
 			LOG.debug("Case FilesListElementDTO.");
 
-			dtoClazz = FileDTO.class;
+			dto = new FileDTO();
 			isList = true;
 
 			query = em().createQuery("SELECT f FROM File f WHERE f.id IN (:idsList)");
@@ -173,7 +173,7 @@ public class GetValueHandler extends AbstractCommandHandler<GetValue, ValueResul
 
 			LOG.debug("Case ReportListElementDTO.");
 
-			dtoClazz = ReportReference.class;
+			dto = new ReportReference();
 			isList = true;
 
 			query = em().createQuery("SELECT r FROM ProjectReport r WHERE r.id IN (:idList)");
@@ -183,7 +183,7 @@ public class GetValueHandler extends AbstractCommandHandler<GetValue, ValueResul
 
 			LOG.debug("Case others (but MessageElementDTO).");
 
-			dtoClazz = ListableValue.class;
+			dto = null;
 			isList = false;
 
 		}
@@ -193,7 +193,7 @@ public class GetValueHandler extends AbstractCommandHandler<GetValue, ValueResul
 		// --------------------------------------------------------------------
 
 		// No value for this kind of elements.
-		if (dtoClazz == null) {
+		if (isList == null) {
 			return valueResult;
 		}
 
@@ -207,7 +207,7 @@ public class GetValueHandler extends AbstractCommandHandler<GetValue, ValueResul
 
 			final List<ListableValue> serializablesList = new ArrayList<>();
 			for (Object o : objectsList) {
-				serializablesList.add(mapper().map(o, dtoClazz));
+				serializablesList.add(mapper().map(o, dto));
 			}
 			
 			if(elementClassName.equals(FilesListElementDTO.ENTITY_NAME)) {

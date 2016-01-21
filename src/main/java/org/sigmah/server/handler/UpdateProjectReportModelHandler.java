@@ -58,7 +58,7 @@ public class UpdateProjectReportModelHandler extends AbstractCommandHandler<Upda
 
 		final ProjectReportModel model = em().find(ProjectReportModel.class, reportModelId);
 
-		return mapper().map(model, ReportModelDTO.class);
+		return mapper().map(model, new ReportModelDTO());
 	}
 
 	/**

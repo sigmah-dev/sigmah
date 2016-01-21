@@ -198,7 +198,7 @@ public class UserService extends AbstractEntityService<User, Integer, UserDTO> {
 		UserDTO userPersisted = null;
 
 		if (createdUser != null) {
-			userPersisted = mapper.map(createdUser, UserDTO.class, UserDTO.Mode.WITH_BASE_ORG_UNIT_AND_BASE_PROFILES);
+			userPersisted = mapper.map(createdUser, new UserDTO(), UserDTO.Mode.WITH_BASE_ORG_UNIT_AND_BASE_PROFILES);
 			userPersisted.setIdd(createdUser.getId());
 		}
 

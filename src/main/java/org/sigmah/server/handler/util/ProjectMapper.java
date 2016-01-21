@@ -118,7 +118,7 @@ public class ProjectMapper extends EntityManagerProvider {
 		projectDTO.setEndDate(project.getEndDate());
 		projectDTO.setCloseDate(project.getCloseDate());
 		projectDTO.setActivityAdvancement(project.getActivityAdvancement());
-		projectDTO.setCountry(mapper.map(project.getCountry(), CountryDTO.class));
+		projectDTO.setCountry(mapper.map(project.getCountry(), new CountryDTO()));
 
 		sb.append("- SIMPLE FIELDS: ");
 		sb.append(new Date().getTime() - start);
@@ -273,7 +273,7 @@ public class ProjectMapper extends EntityManagerProvider {
 			final Set<UserDTO> favoriteUsesSet = new HashSet<UserDTO>();
 
 			for (final User u : project.getFavoriteUsers()) {
-				// favoriteUsesSet.add(dozerMapper.map(u, UserDTO.class));
+				// favoriteUsesSet.add(dozermapper.map(u, new UserDTO()));
 				UserDTO uDTO = new UserDTO();
 				uDTO.setId(u.getId());
 				uDTO.setChangePasswordKey(u.getChangePasswordKey());

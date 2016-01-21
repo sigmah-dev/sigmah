@@ -36,7 +36,7 @@ public class LayoutGroupService extends AbstractEntityService<LayoutGroup, Integ
 	public LayoutGroup create(final PropertyMap properties, final UserExecutionContext context) {
 
 		final LayoutGroupDTO layoutGroupDTOToPersist = (LayoutGroupDTO) properties.get(AdminUtil.PROP_NEW_GROUP_LAYOUT);
-		LayoutGroup groupToPersist = mapper.map(layoutGroupDTOToPersist, LayoutGroup.class);
+		LayoutGroup groupToPersist = mapper.map(layoutGroupDTOToPersist, new LayoutGroup());
 
 		if (layoutGroupDTOToPersist.getId() != null) {
 			final int groupId = layoutGroupDTOToPersist.getId();

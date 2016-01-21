@@ -46,7 +46,7 @@ public class GetOrgUnitsByModelHandler extends AbstractCommandHandler<GetOrgUnit
 
 		for (OrgUnit orgUnit : orgUnitList) {
 			if (isOrgUnitVisible(orgUnit, context.getUser())) {
-				orgUnitDTOList.add(mapper().map(orgUnit, OrgUnitDTO.class, cmd.getMappingMode()));
+				orgUnitDTOList.add(mapper().map(orgUnit, new OrgUnitDTO(), cmd.getMappingMode()));
 			}
 		}
 

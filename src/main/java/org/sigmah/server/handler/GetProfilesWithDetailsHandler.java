@@ -69,7 +69,7 @@ public class GetProfilesWithDetailsHandler extends AbstractCommandHandler<GetPro
 			LOG.debug("Found {} profiles.", resultProfiles.size());
 
 			for (final Profile oneProfile : resultProfiles) {
-				ProfileDTO profile = mapper().map(oneProfile, ProfileDTO.class);
+				ProfileDTO profile = mapper().map(oneProfile, new ProfileDTO());
 				// Global Permissions
 				Set<GlobalPermissionEnum> permissions = new HashSet<GlobalPermissionEnum>();
 				for (final GlobalPermission globalPermission : oneProfile.getGlobalPermissions()) {
@@ -80,7 +80,7 @@ public class GetProfilesWithDetailsHandler extends AbstractCommandHandler<GetPro
 				Map<PrivacyGroupDTO, PrivacyGroupPermissionEnum> privacyGroups = new HashMap<PrivacyGroupDTO, PrivacyGroupPermissionEnum>();
 				for (final PrivacyGroupPermission privacyGroupPermission : oneProfile.getPrivacyGroupPermissions()) {
 					if (privacyGroupPermission.getPrivacyGroup() != null) {
-						PrivacyGroupDTO privacyGroupDTO = mapper().map(privacyGroupPermission.getPrivacyGroup(), PrivacyGroupDTO.class);
+						PrivacyGroupDTO privacyGroupDTO = mapper().map(privacyGroupPermission.getPrivacyGroup(), new PrivacyGroupDTO());
 						privacyGroups.put(privacyGroupDTO, privacyGroupPermission.getPermission());
 					}
 				}

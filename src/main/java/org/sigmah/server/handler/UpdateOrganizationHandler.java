@@ -63,7 +63,7 @@ public class UpdateOrganizationHandler extends AbstractCommandHandler<UpdateOrga
 
 		organizationDAO.persist(organization, context.getUser());
 
-		return mapper.map(organization, OrganizationDTO.class);
+		return mapper.map(organization, new OrganizationDTO());
 	}
 
 }

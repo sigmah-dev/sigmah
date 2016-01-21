@@ -76,7 +76,7 @@ public class GetOrgUnitModelCopyHandler extends AbstractCommandHandler<GetOrgUni
 		copyOrgUnitModel.setOrganization(orgUnitModel.getOrganization());
 		em().persist(copyOrgUnitModel);
 
-		return mapper().map(copyOrgUnitModel, OrgUnitModelDTO.class, cmd.getMappingMode());
+		return mapper().map(copyOrgUnitModel, new OrgUnitModelDTO(), cmd.getMappingMode());
 	}
 
 	/**

@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
+import java.util.ArrayList;
 
 /**
  * Handler for {@link GetCountries} command
@@ -52,8 +53,13 @@ public class GetCountriesHandler extends AbstractCommandHandler<GetCountries, Li
 		} else {
 			countries = countryDAO.queryAllCountriesAlphabetically();
 		}
+		
+		final ArrayList<CountryDTO> dtos = new ArrayList<>();
+		for (final Country country : countries) {
+			dtos.add(mapper().map(country, new CountryDTO()));
+		}
 
-		return new ListResult<CountryDTO>(mapper().mapCollection(countries, CountryDTO.class, cmd.getMappingMode()));
+		return new ListResult<>(dtos);
 	}
 
 }

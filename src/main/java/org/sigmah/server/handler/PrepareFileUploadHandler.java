@@ -47,7 +47,7 @@ public class PrepareFileUploadHandler extends AbstractCommandHandler<PrepareFile
 		final Integer fileId = fileDAO.saveOrUpdate(command.getProperties(), uid, command.getSize());
 		final List<FileVersion> versions = fileDAO.findVersions(Collections.singleton(fileId), FileDTO.LoadingScope.LAST_VERSION);
 
-		return mapper().map(versions.get(0), FileVersionDTO.class);
+		return mapper().map(versions.get(0), new FileVersionDTO());
 	}
 	
 }

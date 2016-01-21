@@ -76,7 +76,7 @@ public class GetProjectDocumentsHandler extends AbstractCommandHandler<GetProjec
 							for (final File document : documents) {
 
 								final FileVersion lastVersion = document.getLastVersion();
-								final FileVersionDTO lastVersionDTO = mapper().map(lastVersion, FileVersionDTO.class);
+								final FileVersionDTO lastVersionDTO = mapper().map(lastVersion, new FileVersionDTO());
 								
 								lastVersionDTO.setAvailable(fileStorageProvider.exists(lastVersionDTO.getPath()));
 

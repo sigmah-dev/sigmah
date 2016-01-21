@@ -127,7 +127,7 @@ public class UpdateRemindersHandler extends AbstractCommandHandler<UpdateReminde
 			// Saves it.
 			reminder = reminderDAO.persist(reminder, user);
 
-			resultList.add(mapper().map(reminder, ReminderDTO.class, ReminderDTO.Mode.WITH_HISTORY));
+			resultList.add(mapper().map(reminder, new ReminderDTO(), ReminderDTO.Mode.WITH_HISTORY));
 		}
 	}
 

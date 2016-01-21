@@ -42,7 +42,7 @@ public class UpdateLogFrameHandler extends AbstractCommandHandler<UpdateLogFrame
 
 		// Maps the log frame.
 		if (logFrameDTO != null) {
-			logFrame = mapper().map(logFrameDTO, LogFrame.class);
+			logFrame = mapper().map(logFrameDTO, new LogFrame());
 		}
 
 		// Sets the log frame parent project.
@@ -64,7 +64,7 @@ public class UpdateLogFrameHandler extends AbstractCommandHandler<UpdateLogFrame
 			logFrame = updateLogFrame(logFrame, logFrameDTO);
 
 			// Re-map as DTO.
-			logFrameDTO = mapper().map(logFrame, LogFrameDTO.class);
+			logFrameDTO = mapper().map(logFrame, new LogFrameDTO());
 		}
 
 		return logFrameDTO;

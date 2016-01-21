@@ -45,7 +45,7 @@ public class GetCategoriesHandler extends AbstractCommandHandler<GetCategories, 
 
 		if (resultCategories != null) {
 			for (final CategoryType oneCategory : resultCategories) {
-				categories.add(mapper().map(oneCategory, CategoryTypeDTO.class));
+				categories.add(mapper().map(oneCategory, new CategoryTypeDTO()));
 			}
 		}
 

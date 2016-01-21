@@ -144,7 +144,7 @@ public class DeletePrivacyGroupsHandler extends AbstractCommandHandler<DeletePri
 	private void deletePrivacyGroup(final PrivacyGroup privacyGroup, final UserExecutionContext context, final DeleteResult<PrivacyGroupDTO> result) {
 
 		final Integer privacyGroupId = privacyGroup.getId();
-		final PrivacyGroupDTO privacyGroupDTO = mapper().map(privacyGroup, PrivacyGroupDTO.class);
+		final PrivacyGroupDTO privacyGroupDTO = mapper().map(privacyGroup, new PrivacyGroupDTO());
 		boolean errorDetected = false;
 
 		// --

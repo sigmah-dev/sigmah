@@ -78,8 +78,8 @@ public class GetLinkedProjectsHandler extends AbstractCommandHandler<GetLinkedPr
 				pfDTO.setFunded(projectMapper.map(pf.getFunded(), false));
 
 			} else {
-				pfDTO.setFunding(mapper().map(pf.getFunding(), ProjectDTO.class, mappingMode));
-				pfDTO.setFunded(mapper().map(pf.getFunded(), ProjectDTO.class, mappingMode));
+				pfDTO.setFunding(mapper().map(pf.getFunding(), new ProjectDTO(), mappingMode));
+				pfDTO.setFunded(mapper().map(pf.getFunded(), new ProjectDTO(), mappingMode));
 			}
 
 			dtos.add(pfDTO);

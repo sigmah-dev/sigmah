@@ -1,5 +1,6 @@
 package org.sigmah.server.handler;
 
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import java.util.Date;
 import java.util.List;
 
@@ -37,16 +38,22 @@ import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.persist.Transactional;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
+import org.sigmah.server.computation.ServerValueResolver;
+import org.sigmah.server.domain.element.ComputationElement;
 import org.sigmah.server.handler.util.Conflicts;
 import org.sigmah.server.handler.util.Handlers;
 import org.sigmah.server.i18n.I18nServer;
 import org.sigmah.shared.Language;
 import org.sigmah.shared.command.result.ValueResult;
+import org.sigmah.shared.computation.Computation;
+import org.sigmah.shared.computation.Computations;
 import org.sigmah.shared.dispatch.FunctionalException;
 import org.sigmah.shared.dispatch.UpdateConflictException;
+import org.sigmah.shared.dto.ProjectModelDTO;
 import org.sigmah.shared.dto.element.BudgetElementDTO;
 import org.sigmah.shared.dto.element.BudgetSubFieldDTO;
 import org.sigmah.shared.dto.profile.ProfileDTO;
@@ -85,8 +92,17 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 	@Inject
 	private I18nServer i18nServer;
 	
+	/**
+	 * Conflict detector.
+	 */
 	@Inject
 	private Conflicts conflictHandler;
+	
+	/**
+	 * Value resolver for computations.
+	 */
+	@Inject
+	private ServerValueResolver valueResolver;
 
 
 	/**
@@ -109,6 +125,15 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 		return null;
 	}
 
+	/**
+	 * Update the project identified by <code>projectId</code> with the given values.
+	 * 
+	 * @param values Values to update.
+	 * @param projectId Identifier of the project to update.
+	 * @param context User context.
+	 * @param comment Update comment.
+	 * @throws CommandException If an error occurs during update.
+	 */
 	@Transactional(rollbackOn = CommandException.class)
 	protected void updateProject(final List<ValueEventWrapper> values, final Integer projectId, UserExecutionContext context, String comment) throws CommandException {
 		// This date must be the same for all the saved values !
@@ -216,34 +241,20 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 				}
 
 				// Cast the update value (as a DTO).
-				final TripletValueDTO item = updateListValue;
-
-				Class<TripletValue> clazz = TripletValue.class;
-
-				try {
-					// Computes the respective entity class name.
-					clazz = (Class<TripletValue>) Class.forName(Project.class.getPackage().getName() + '.' + item.getEntityName());
-
-				} catch (ClassNotFoundException e) {
-					// Unable to find the entity class, the event is ignored.
-					LOG.error("[execute] Unable to find the entity class : '" + item.getEntityName() + "'.");
-					continue;
-				}
-
 				switch (valueEvent.getChangeType()) {
 					case ADD:
-						onAdd(item, clazz, ids, currentValue, historyDate, element, projectId, user, comment);
+						onAdd(updateListValue, ids, currentValue, historyDate, element, projectId, user, comment);
 						break;
 						
 					case REMOVE:
-						if(!onDelete(item, clazz, ids, currentValue, historyDate, element, projectId, user, comment)) {
+						if(!onDelete(updateListValue,  ids, currentValue, historyDate, element, projectId, user, comment)) {
 							// Do not historize, the value hasn't been changed.
 							continue;
 						}
 						break;
 						
 					case EDIT:
-						onEdit(item, clazz, historyDate, element, projectId, user, comment);
+						onEdit(updateListValue, historyDate, element, projectId, user, comment);
 						break;
 						
 					default:
@@ -285,11 +296,11 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 		}
 	}
 
-	protected void onAdd(final TripletValueDTO item, Class<TripletValue> clazz, final List<Integer> ids, final Value currentValue, final Date historyDate, final FlexibleElement element, final Integer projectId, User user, String comment) {
+	protected void onAdd(final TripletValueDTO item, final List<Integer> ids, final Value currentValue, final Date historyDate, final FlexibleElement element, final Integer projectId, User user, String comment) {
 		LOG.debug("[execute] Adds an element to the list.");
 		
 		// Adds the element.
-		TripletValue entity = mapper.map(item, clazz);
+		TripletValue entity = mapper.map(item, new TripletValue());
 		entity = em().merge(entity);
 		
 		LOG.debug("[execute] Successfully create the entity with id #" + entity.getId() + ".");
@@ -302,11 +313,11 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 		historize(historyDate, element, projectId, user, ValueEventChangeType.ADD, null, entity, comment);
 	}
 
-	protected boolean onDelete(final TripletValueDTO item, Class<TripletValue> clazz, final List<Integer> ids, final Value currentValue, final Date historyDate, final FlexibleElement element, final Integer projectId, User user, String comment) {
+	protected boolean onDelete(final TripletValueDTO item, final List<Integer> ids, final Value currentValue, final Date historyDate, final FlexibleElement element, final Integer projectId, User user, String comment) {
 		LOG.debug("[execute] Removes a element from the list.");
 
 		// Retrieves the element.
-		final TripletValue entity = em().find(clazz, item.getId());
+		final TripletValue entity = em().find(TripletValue.class, item.getId());
 
 		if(!(entity instanceof Deleteable)) {
 			LOG.debug("[execute] The element isn't deletable, the event is ignored.");
@@ -330,13 +341,13 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 		return true;
 	}
 
-	protected void onEdit(final TripletValueDTO item, Class<TripletValue> clazz, final Date historyDate, final FlexibleElement element, final Integer projectId, User user, String comment) {
+	protected void onEdit(final TripletValueDTO item, final Date historyDate, final FlexibleElement element, final Integer projectId, User user, String comment) {
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("[execute] Edits a element from the list.");
 		}
 		
 		// Retrieves the element.
-		final TripletValue entity = mapper.map(item, clazz);
+		final TripletValue entity = mapper.map(item, new TripletValue());
 		em().merge(entity);
 		
 		if (LOG.isDebugEnabled()) {

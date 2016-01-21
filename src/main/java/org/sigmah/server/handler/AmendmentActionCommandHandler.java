@@ -79,7 +79,7 @@ public class AmendmentActionCommandHandler extends AbstractCommandHandler<Amendm
 
 		performAction(action, project, cmd.getName(), context);
 
-		return mapper().map(project, ProjectDTO.class);
+		return mapper().map(project, new ProjectDTO());
 	}
 
 	/**

@@ -77,7 +77,7 @@ public class GetOrgUnitModelsHandler extends AbstractCommandHandler<GetOrgUnitMo
 
 		// Mapping (entity -> dto).
 		for (final OrgUnitModel model : models) {
-			final OrgUnitModelDTO dto = mapper().map(model, OrgUnitModelDTO.class, cmd.getMappingMode());
+			final OrgUnitModelDTO dto = mapper().map(model, new OrgUnitModelDTO(), cmd.getMappingMode());
 			dto.setTopOrgUnitModel(model.getId().equals(topModelId));
 			orgUnitModelDTOList.add(dto);
 		}

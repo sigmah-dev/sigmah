@@ -40,7 +40,7 @@ public class CopyLogFrameHandler extends AbstractCommandHandler<CopyLogFrame, Lo
 		final LogFrame logFrame = em().find(LogFrame.class, cmd.getSourceId());
 
 		final LogFrame copy = replaceLogFrame(project, logFrame, cmd);
-		return mapper.map(copy, LogFrameDTO.class);
+		return mapper.map(copy, new LogFrameDTO());
 	}
 
 	@Transactional

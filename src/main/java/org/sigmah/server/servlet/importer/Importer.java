@@ -271,11 +271,11 @@ public abstract class Importer {
 		
 		switch (fleDTO.getElementType()) {
 		case CHECKBOX:
-			element = mapper.map(fleDTO, CheckboxElement.class);
+			element = mapper.map(fleDTO, new CheckboxElement());
 			valueObject = getCheckboxValue(valueResult, element);
 			break;
 		case DEFAULT:
-			element = mapper.map(fleDTO, DefaultFlexibleElement.class);
+			element = mapper.map(fleDTO, new DefaultFlexibleElement());
 			if (!DefaultFlexibleElementType.BUDGET.equals(((DefaultFlexibleElement) element).getType())) {
 				valueObject = (Serializable) gdp.getDefElementPair(valueResult, element, entity, entityClass, em,
 				                translator, language).getValue();
@@ -284,15 +284,15 @@ public abstract class Importer {
 			}
 			break;
 		case QUESTION:
-			element = mapper.map(fleDTO, QuestionElement.class);
+			element = mapper.map(fleDTO, new QuestionElement());
 			valueObject = (Serializable) gdp.getChoicePair(element, valueResult).getValue();
 			break;
 		case TEXT_AREA:
-			element = mapper.map(fleDTO, TextAreaElement.class);
+			element = mapper.map(fleDTO, new TextAreaElement());
 			valueObject = (Serializable) gdp.getTextAreaElementPair(valueResult, element).getValue();
 			break;
 		case TRIPLETS:
-			element = mapper.map(fleDTO, TripletsListElement.class);
+			element = mapper.map(fleDTO, new TripletsListElement());
 			valueObject = (Serializable) gdp.getTripletPair(element, valueResult).getValue();
 			break;
 		default:

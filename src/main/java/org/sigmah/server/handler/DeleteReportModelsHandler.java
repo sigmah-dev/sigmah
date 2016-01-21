@@ -84,7 +84,7 @@ public class DeleteReportModelsHandler extends AbstractCommandHandler<DeleteRepo
 
 			// Finding project report model.
 			final ProjectReportModel model = em().find(ProjectReportModel.class, reportModelId);
-			return mapper().map(model, ReportModelDTO.class);
+			return mapper().map(model, new ReportModelDTO());
 		}
 
 		return null;

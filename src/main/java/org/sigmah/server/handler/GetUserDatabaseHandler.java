@@ -45,7 +45,7 @@ public class GetUserDatabaseHandler extends AbstractCommandHandler<GetUserDataba
 		// Mapping (entity -> dto).
 		if (dbs != null) {
 			for (final UserDatabase oneDB : dbs) {
-				userDatabaseDTOList.add(mapper().map(oneDB, UserDatabaseDTO.class));
+				userDatabaseDTOList.add(mapper().map(oneDB, new UserDatabaseDTO()));
 			}
 		}
 

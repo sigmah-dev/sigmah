@@ -91,7 +91,7 @@ public class GetProjectModelCopyHandler extends AbstractCommandHandler<GetProjec
 
 		saveCopy(copyProjectModel, cmd);
 
-		return mapper().map(copyProjectModel, ProjectModelDTO.class, cmd.getMappingMode());
+		return mapper().map(copyProjectModel, new ProjectModelDTO(), cmd.getMappingMode());
 	}
 
 	/**

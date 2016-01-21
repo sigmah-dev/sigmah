@@ -84,7 +84,7 @@ public class GetFilesFromFavoriteProjectsHandler extends AbstractCommandHandler<
 				final List<FileVersionDTO> versions = getLastVersions(fileIds);
 				
 				if(!versions.isEmpty()) {
-					final ProjectDTO projectDTO = mapper().map(project, ProjectDTO.class);
+					final ProjectDTO projectDTO = mapper().map(project, new ProjectDTO());
 					
 					final TreeGridFileModel model = new TreeGridFileModel(projectDTO);
 					model.setChildren(versions);
@@ -112,7 +112,7 @@ public class GetFilesFromFavoriteProjectsHandler extends AbstractCommandHandler<
 				final List<FileVersionDTO> versions = getLastVersions(fileIds);
 				
 				if(!versions.isEmpty()) {
-					final OrgUnitDTO orgUnitDTO = mapper().map(unit, OrgUnitDTO.class);
+					final OrgUnitDTO orgUnitDTO = mapper().map(unit, new OrgUnitDTO());
 					
 					final TreeGridFileModel model = new TreeGridFileModel(orgUnitDTO);
 					model.setChildren(versions);

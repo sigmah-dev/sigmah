@@ -95,10 +95,10 @@ public class GetProjectHandler extends AbstractCommandHandler<GetProject, Projec
 		if(cmd.getMappingMode() == ProjectDTO.Mode._USE_PROJECT_MAPPER) {
 			dto = projectMapper.map(project, true);
 		} else {
-			dto = mapper().map(project, ProjectDTO.class, cmd.getMappingMode());
+			dto = mapper().map(project, new ProjectDTO(), cmd.getMappingMode());
 			projectMapper.fillBudget(project, dto);
 		}
-		dto.setCurrentAmendment(mapper().map(amendment, AmendmentDTO.class));
+		dto.setCurrentAmendment(mapper().map(amendment, new AmendmentDTO()));
 
 		for (final OrgUnit orgUnit : project.getPartners()) {
 			dto.setOrgUnitId(orgUnit.getId());
