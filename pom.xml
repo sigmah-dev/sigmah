@@ -795,6 +795,7 @@
 					<webappDirectory>${webapp.directory}</webappDirectory>
 					<hostedWebapp>${webapp.directory}</hostedWebapp>
 					<generateDirectory>${project.build.directory}/generated-sources/java</generateDirectory>
+                                        <workDir>${project.build.directory}/gwt-workDir</workDir>
 					<i18nConstantsBundles>
 						<i18nConstantsBundle>${project.groupId}.client.i18n.UIConstants</i18nConstantsBundle>
 					</i18nConstantsBundles>
@@ -804,7 +805,7 @@
 					<!-- For gwt:run command. -->
 					<runTarget>/</runTarget>
 					<module>org.sigmah.Sigmah</module>
-					<extraJvmArgs>-Xmx1G -Xss256M -XX:PermSize=256M</extraJvmArgs>
+					<extraJvmArgs>-Xmx1G -Xss256M -XX:PermSize=256M -Djava.io.tmpdir=${project.build.directory}</extraJvmArgs>
 				</configuration>
 			</plugin>
 
