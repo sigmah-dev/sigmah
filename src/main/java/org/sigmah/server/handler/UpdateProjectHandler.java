@@ -1,6 +1,5 @@
 package org.sigmah.server.handler;
 
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import java.util.Date;
 import java.util.List;
 
@@ -38,24 +37,22 @@ import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.persist.Transactional;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 import org.sigmah.server.computation.ServerValueResolver;
-import org.sigmah.server.domain.element.ComputationElement;
 import org.sigmah.server.handler.util.Conflicts;
 import org.sigmah.server.handler.util.Handlers;
 import org.sigmah.server.i18n.I18nServer;
 import org.sigmah.shared.Language;
 import org.sigmah.shared.command.result.ValueResult;
-import org.sigmah.shared.computation.Computation;
-import org.sigmah.shared.computation.Computations;
+import org.sigmah.shared.computation.value.ComputedValue;
+import org.sigmah.shared.computation.value.ComputedValues;
 import org.sigmah.shared.dispatch.FunctionalException;
 import org.sigmah.shared.dispatch.UpdateConflictException;
-import org.sigmah.shared.dto.ProjectModelDTO;
 import org.sigmah.shared.dto.element.BudgetElementDTO;
 import org.sigmah.shared.dto.element.BudgetSubFieldDTO;
+import org.sigmah.shared.dto.element.ComputationElementDTO;
 import org.sigmah.shared.dto.profile.ProfileDTO;
 import org.sigmah.shared.dto.referential.AmendmentState;
 import org.sigmah.shared.dto.referential.GlobalPermissionEnum;
@@ -676,7 +673,7 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 		
 		final ArrayList<String> conflicts = new ArrayList<>();
 		
-		if(project == null) {
+		if (project == null) {
 			// The user is modifying an org unit.
 			// TODO: Verify if the user has the right to modify the org unit.
 			return conflicts;
@@ -685,7 +682,7 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 		final Language language = context.getLanguage();
 		final ProfileDTO profile = Handlers.aggregateProfiles(context.getUser(), mapper);
 		
-		if(project.getProjectModel().isUnderMaintenance()) {
+		if (project.getProjectModel().isUnderMaintenance()) {
 			// BUGFIX #730: Verifying the maintenance status of projects.
 			conflicts.add(i18nServer.t(language, "conflictEditingUnderMaintenanceProject",
 				project.getName(), project.getFullName()));
@@ -693,17 +690,17 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 			return conflicts;
 		}
 		
-		if(ProfileUtils.isGranted(profile, GlobalPermissionEnum.MODIFY_LOCKED_CONTENT)) {
+		if (ProfileUtils.isGranted(profile, GlobalPermissionEnum.MODIFY_LOCKED_CONTENT)) {
 			// The user is allowed to edit locked fields.
 			final boolean projectIsClosed = project.getCloseDate() != null;
 			final boolean projectIsLocked = project.getAmendmentState() == AmendmentState.LOCKED;
 			
-			for(final ValueEventWrapper value : values) {
+			for (final ValueEventWrapper value : values) {
 				final FlexibleElementDTO source = value.getSourceElement();
 				
 				final boolean phaseIsClosed = conflictHandler.isParentPhaseClosed(source.getId(), project.getId());
 				
-				if(projectIsClosed || phaseIsClosed || (source.getAmendable() && projectIsLocked)) {
+				if (projectIsClosed || phaseIsClosed || (source.getAmendable() && projectIsLocked)) {
 					final ValueResult result = new ValueResult();
 					result.setValueObject(value.getSingleValue());
 					result.setValuesObject(value.getListValue() != null ? Collections.<ListableValue>singletonList(value.getListValue()) : null);
@@ -718,9 +715,9 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 			return conflicts;
 		}
 		
-		if(project.getCloseDate() != null) {
+		if (project.getCloseDate() != null) {
 			// User is trying to modify a closed project.
-			for(final ValueEventWrapper valueEvent : values) {
+			for (final ValueEventWrapper valueEvent : values) {
 				final FlexibleElementDTO source = valueEvent.getSourceElement();
 				
 				conflicts.add(i18nServer.t(language, "conflictUpdatingAClosedProject",
@@ -730,11 +727,23 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 		} else {
 			// Verify if the user is trying to modify a closed phase.
 			Iterator<ValueEventWrapper> iterator = values.iterator();
-			while(iterator.hasNext()) {
+			while (iterator.hasNext()) {
 				final ValueEventWrapper valueEvent = iterator.next();
 				final FlexibleElementDTO source = valueEvent.getSourceElement();
 
-				if(conflictHandler.isParentPhaseClosed(source.getId(), project.getId())) {
+				if (source instanceof ComputationElementDTO && ((ComputationElementDTO) source).hasConstraints()) {
+					// Checking the constraints.
+					final ComputationElementDTO computationElement = (ComputationElementDTO) source;
+					
+					final ComputedValue value = ComputedValues.from(valueEvent.getSingleValue());
+					if (!value.matchesConstraints(computationElement.getMinimumValueConstraint(), computationElement.getMaximumValueConstraint())) {
+						conflicts.add(i18nServer.t(language, "conflictComputationOutOfBounds", 
+							source.getFormattedLabel(), getCurrentValueFormatted(project.getId(), source), getTargetValueFormatted(valueEvent),
+							computationElement.getMinimumValueConstraint(), computationElement.getMaximumValueConstraint()));
+					}
+				}
+				
+				if (conflictHandler.isParentPhaseClosed(source.getId(), project.getId())) {
 					// Removing the current value event from the update list.
 					iterator.remove();
 					
@@ -744,15 +753,15 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 			}
 			
 			// Verify if the user is trying to modify a locked field.
-			if(project.getAmendmentState() == AmendmentState.LOCKED) {
+			if (project.getAmendmentState() == AmendmentState.LOCKED) {
 				iterator = values.iterator();
-				while(iterator.hasNext()) {
+				while (iterator.hasNext()) {
 					final ValueEventWrapper valueEvent = iterator.next();
 					final FlexibleElementDTO source = valueEvent.getSourceElement();
 
 					final boolean conflict;
-					if(source.getAmendable()) {
-						if(source instanceof BudgetElementDTO) {
+					if (source.getAmendable()) {
+						if (source instanceof BudgetElementDTO) {
 							final BudgetSubFieldDTO divisorField = ((BudgetElementDTO)source).getRatioDivisor();
 							final Value value = retrieveCurrentValue(project.getId(), source.getId());
 							conflict = getValueOfSubField(value.getValue(), divisorField) != getValueOfSubField(valueEvent.getSingleValue(), divisorField);
@@ -764,7 +773,7 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 						conflict = false;
 					}
 
-					if(conflict) {
+					if (conflict) {
 						// Removing the current value event from the update list.
 						iterator.remove();
 						

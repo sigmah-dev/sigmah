@@ -55,6 +55,7 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import org.sigmah.client.computation.ComputationTriggerManager;
 
 /**
  * Project's details presenter which manages the {@link ProjectDetailsView}.
@@ -85,6 +86,12 @@ public class ProjectDetailsPresenter extends AbstractProjectPresenter<ProjectDet
 	 * List of values changes.
 	 */
 	private final ArrayList<ValueEvent> valueChanges = new ArrayList<ValueEvent>();
+	
+	/**
+	 * Listen to the values of flexible elements to update computated values.
+	 */
+	@Inject
+	private ComputationTriggerManager computationTriggerManager;
 
 	/**
 	 * Presenters's initialization.
@@ -155,6 +162,9 @@ public class ProjectDetailsPresenter extends AbstractProjectPresenter<ProjectDet
 	 *          The project details.
 	 */
 	private void load(final ProjectDetailsDTO details) {
+		
+		// Prepare the manager of computation elements
+		computationTriggerManager.prepareForProject(getProject());
 
 		// Clear panel.
 		view.getMainPanel().removeAll();
@@ -273,12 +283,17 @@ public class ProjectDetailsPresenter extends AbstractProjectPresenter<ProjectDet
 						// --
 						// -- ELEMENT HANDLERS
 						// --
+						
+						// Adds a value change handler if this element is a dependency of a ComputationElementDTO.
+						computationTriggerManager.listenToValueChangesOfElement(elementDTO, elementComponent, valueChanges);
 
 						// Adds a value change handler to this element.
 						elementDTO.addValueHandler(new ValueHandler() {
 
 							@Override
 							public void onValueChange(final ValueEvent event) {
+								
+								// TODO: Find linked computation fields if any and recompute the value.
 
 								// Stores the change to be saved later.
 								valueChanges.add(event);

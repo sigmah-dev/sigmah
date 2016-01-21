@@ -269,6 +269,8 @@ public final class EntityConstants extends org.sigmah.shared.dto.util.EntityCons
 
 	public static final String COMPUTATION_ELEMENT_TABLE = "computation_element";
 	public static final String COMPUTATION_ELEMENT_COLUMN_RULE = "rule";
+	public static final String COMPUTATION_ELEMENT_COLUMN_MINIMUM_VALUE = "minimum";
+	public static final String COMPUTATION_ELEMENT_COLUMN_MAXIMUM_VALUE = "maximum";
 	
 	public static final int COMPUTATION_ELEMENT_RULE_MAX_LENGTH = 1500;
 	

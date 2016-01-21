@@ -25,6 +25,8 @@ public final class ComputationElementJS extends FlexibleElementJS {
 	public static FlexibleElementJS toJavaScript(ComputationElementDTO computationElementDTO) {
 		final ComputationElementJS js = Values.createJavaScriptObject(ComputationElementJS.class);
 		js.setRule(computationElementDTO.getRule());
+		js.setMinimumValue(computationElementDTO.getMinimumValue());
+		js.setMaximumValue(computationElementDTO.getMaximumValue());
 		return js;
 	}
 	
@@ -36,6 +38,8 @@ public final class ComputationElementJS extends FlexibleElementJS {
 	protected ComputationElementDTO toComputationElementDTO() {
 		final ComputationElementDTO dto = new ComputationElementDTO();
 		dto.setRule(getRule());
+		dto.setMinimumValue(getMinimumValue());
+		dto.setMaximumValue(getMaximumValue());
 		return dto;
 	}
 	
@@ -45,6 +49,22 @@ public final class ComputationElementJS extends FlexibleElementJS {
 
 	public native void setRule(String rule) /*-{
 		this.rule = rule;
+	}-*/;
+	
+	public native String getMinimumValue() /*-{
+		return this.minimumValue;
+	}-*/;
+
+	public native void setMinimumValue(String minimumValue) /*-{
+		this.minimumValue = minimumValue;
+	}-*/;
+	
+	public native String getMaximumValue() /*-{
+		return this.maximumValue;
+	}-*/;
+
+	public native void setMaximumValue(String maximumValue) /*-{
+		this.maximumValue = maximumValue;
 	}-*/;
 	
 }

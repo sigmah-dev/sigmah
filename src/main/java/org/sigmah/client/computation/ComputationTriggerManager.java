@@ -87,19 +87,41 @@ public class ComputationTriggerManager {
 
 				@Override
 				public void onValueChange(ValueEvent event) {
-					for (final ComputationElementDTO computationElement : computationElements) {
-						final Computation computation = computations.get(computationElement);
-						computation.computeValueWithModificationsAndResolver(container, modifications, valueResolver, new SuccessCallback<String>() {
+					updateComputations(computationElements, modifications);
+				}
+			});
+		}
+	}
+	
+	/**
+	 * Update the given computation elements.
+	 * 
+	 * @param computationElements Element to update.
+	 * @param modifications Value change list.
+	 */
+	private void updateComputations(final List<ComputationElementDTO> computationElements, final List<ValueEvent> modifications) {
+		
+		if (computationElements == null) {
+			return;
+		}
+		
+		for (final ComputationElementDTO computationElement : computationElements) {
+			final Computation computation = computations.get(computationElement);
+			computation.computeValueWithModificationsAndResolver(container, modifications, valueResolver, new SuccessCallback<String>() {
 
-							@Override
-							public void onSuccess(String result) {
-								final Field<Object> field = components.get(computationElement);
-								if (field != null) {
-									field.setValue(result);
-								}
-								computationElement.fireValueEvent(result);
-							}
-						});
+				@Override
+				public void onSuccess(String result) {
+					final Field<Object> field = components.get(computationElement);
+					if (field != null) {
+						// Firing the value to register the change.
+						field.setValue(result);
+						computationElement.fireValueEvent(result);
+					} else {
+						// Manually adding the value to the modifications.
+						modifications.add(new ValueEvent(computationElement, result));
+
+						// Manually firing the dependencies.
+						updateComputations(dependencies.get(computationElement), modifications);
 					}
 				}
 			});

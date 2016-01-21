@@ -22,6 +22,27 @@ public class DoubleValue implements ComputedValue {
 	public Double get() {
 		return value;
 	}
+	
+/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean matchesConstraints(ComputedValue minimum, ComputedValue maximum) {
+		final Double minimumValue = minimum.get();
+		final Double maximumValue = maximum.get();
+		
+		boolean matches = true;
+		
+		if (minimumValue != null) {
+			matches &= value >= minimumValue;
+		}
+		
+		if (maximumValue != null) {
+			matches &= value <= maximumValue;
+		}
+		
+		return matches;
+	}
 
 	/**
 	 * {@inheritDoc}

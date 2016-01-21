@@ -1166,8 +1166,7 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 		final Boolean multiple = view.getMultipleChoicesField().getValue();
 		final CategoryTypeDTO category = view.getCategoryTypeField().getValue();
 		
-		final Computation computation = Computations.parse(view.getComputationRuleField().getValue(), currentModel.getAllElements());
-		final String computationRule = computation.toString();
+		final String computationRule = Computations.formatRule(view.getComputationRuleField().getValue(), currentModel.getAllElements());
 
 		// --
 		// Initializing 'NEW' properties map.

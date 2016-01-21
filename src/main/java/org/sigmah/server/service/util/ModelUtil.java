@@ -398,6 +398,14 @@ public final class ModelUtil {
 					computationElement.setRule(computationRule);
 					specificChanges = true;
 				}
+				if (minLimit != null) {
+					computationElement.setMinimumValue(minLimit.toString());
+					specificChanges = true;
+				}
+				if (maxLimit != null) {
+					computationElement.setMaximumValue(maxLimit.toString());
+					specificChanges = true;
+				}
 				
 				if (specificChanges) {
 					flexibleElt = em.merge(computationElement);

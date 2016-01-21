@@ -16,6 +16,16 @@ public interface ComputedValue {
 	Double get();
 	
 	/**
+	 * Returns <code>true</code> if this value matches the given constraints.
+	 * 
+	 * @param minimum Minimum value.
+	 * @param maximum Maximum value.
+	 * @return <code>true</code> if this value matches the given constraints,
+	 * <code>false</code> otherwise.
+	 */
+	boolean matchesConstraints(ComputedValue minimum, ComputedValue maximum);
+	
+	/**
 	 * Add the given value to this one.
 	 * <p>
 	 * Result will be equals to "<code>other + this</code>".

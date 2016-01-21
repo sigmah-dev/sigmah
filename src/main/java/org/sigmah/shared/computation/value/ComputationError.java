@@ -10,7 +10,8 @@ public enum ComputationError implements ComputedValue {
 	
 	BAD_REFERENCE,
 	DIVISON_BY_ZERO,
-	BAD_VALUE;
+	BAD_VALUE,
+	NO_VALUE;
 	
 	/**
 	 * {@inheritDoc}
@@ -20,6 +21,14 @@ public enum ComputationError implements ComputedValue {
 		return null;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean matchesConstraints(ComputedValue minimum, ComputedValue maximum) {
+		return false;
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 */

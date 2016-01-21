@@ -29,13 +29,14 @@ class ParserEnvironment {
 	/**
 	 * Flexible elements of the parent model.
 	 */
-	private Map<String, FlexibleElementDTO> elements;
+	private final Map<String, FlexibleElementDTO> elements;
 
 	/**
 	 * Create a new environment and push an initial context.
 	 */
-	ParserEnvironment() {
-		contexts.push(new Context());
+	ParserEnvironment(final Map<String, FlexibleElementDTO> elements) {
+		this.elements = elements;
+		this.contexts.push(new Context());
 	}
 
 	/**
@@ -43,7 +44,7 @@ class ParserEnvironment {
 	 * 
 	 * @param instruction Instruction to add.
 	 */
-	void add(Instruction instruction) {
+	void add(final Instruction instruction) {
 		contexts.peek().instructions.add(instruction);
 	}
 	
@@ -52,7 +53,7 @@ class ParserEnvironment {
 	 * 
 	 * @param operator Operator to push.
 	 */
-	void pushOnStack(Operator operator) {
+	void pushOnStack(final Operator operator) {
 		contexts.peek().operators.push(operator);
 	}
 	
@@ -106,19 +107,15 @@ class ParserEnvironment {
 	
 	// GETTERS & SETTERS
 
-	Map<String, FlexibleElementDTO> getElements() {
-		return elements;
-	}
-
-	void setElements(Map<String, FlexibleElementDTO> elements) {
-		this.elements = elements;
+	FlexibleElementDTO getElement(String key) {
+		return elements.get(key);
 	}
 	
 	ParserState getState() {
 		return state;
 	}
 
-	void setState(ParserState state) {
+	void setState(final ParserState state) {
 		this.state = state;
 	}
 	

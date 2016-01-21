@@ -5,6 +5,8 @@ import com.extjs.gxt.ui.client.widget.form.LabelField;
 import org.sigmah.shared.command.result.ValueResult;
 import org.sigmah.shared.computation.Computation;
 import org.sigmah.shared.computation.Computations;
+import org.sigmah.shared.computation.value.ComputedValue;
+import org.sigmah.shared.computation.value.ComputedValues;
 import org.sigmah.shared.dto.IsModel;
 import org.sigmah.shared.dto.element.event.ValueEvent;
 
@@ -21,6 +23,8 @@ public class ComputationElementDTO extends FlexibleElementDTO {
 	 */
 	public static final String ENTITY_NAME = "element.ComputationElement";
 	public static final String RULE = "rule";
+	public static final String MINIMUM_VALUE = "minimumValue";
+	public static final String MAXIMUM_VALUE = "maximumValue";
 	
 	/**
 	 * {@inheritDoc}
@@ -47,8 +51,7 @@ public class ComputationElementDTO extends FlexibleElementDTO {
 	 */
 	@Override
 	public boolean isCorrectRequiredValue(ValueResult result) {
-		// TODO: Renvoyer vrai/faux en fonction des valeurs min / max.
-		return result != null && result.getValueObject() != null;
+		return ComputedValues.from(result).matchesConstraints(getMinimumValueConstraint(), getMaximumValueConstraint());
 	}
 
 	/**
@@ -66,6 +69,9 @@ public class ComputationElementDTO extends FlexibleElementDTO {
 	 *          The raw value which is serialized to the server and saved to the data layer.
 	 */
 	public void fireValueEvent(final String value) {
+		if (handlerManager == null) {
+			init();
+		}
 		handlerManager.fireEvent(new ValueEvent(ComputationElementDTO.this, value));
 	}
 	
@@ -77,6 +83,35 @@ public class ComputationElementDTO extends FlexibleElementDTO {
 	 */
 	public Computation getComputationForModel(IsModel model) {
 		return Computations.parse(getRule(), model.getAllElements());
+	}
+	
+	/**
+	 * Returns <code>true</code> if this element has a minimum or maximum value
+	 * constraint.
+	 * 
+	 * @return <code>true</code> if this element has a minimum or maximum value
+	 * constraint, <code>false</code> otherwise.
+	 */
+	public boolean hasConstraints() {
+		return getMinimumValueConstraint().get() != null || getMinimumValueConstraint().get() != null;
+	}
+	
+	/**
+	 * Returns the minimum value constraint.
+	 * 
+	 * @return minimum value constraint.
+	 */
+	public ComputedValue getMinimumValueConstraint() {
+		return ComputedValues.from(getMinimumValue(), false);
+	}
+	
+	/**
+	 * Returns the maximum value constraint.
+	 * 
+	 * @return maximum value constraint.
+	 */
+	public ComputedValue getMaximumValueConstraint() {
+		return ComputedValues.from(getMaximumValue(), false);
 	}
 	
 	// ---------------------------------------------------------------------------------------------
@@ -91,6 +126,22 @@ public class ComputationElementDTO extends FlexibleElementDTO {
 	
 	public void setRule(String rule) {
 		set(RULE, rule);
+	}
+	
+	public String getMinimumValue() {
+		return get(MINIMUM_VALUE);
+	}
+
+	public void setMinimumValue(String minimumValue) {
+		set(MINIMUM_VALUE, minimumValue);
+	}
+
+	public String getMaximumValue() {
+		return get(MAXIMUM_VALUE);
+	}
+
+	public void setMaximumValue(String maximumValue) {
+		set(MAXIMUM_VALUE, maximumValue);
 	}
 	
 }

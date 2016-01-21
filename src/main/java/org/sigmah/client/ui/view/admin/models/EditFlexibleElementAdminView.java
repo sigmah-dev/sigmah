@@ -724,6 +724,8 @@ public class EditFlexibleElementAdminView extends AbstractPopupView<PopupWidget>
 			case COMPUTATION:
 				codeField.show();
 				computationRuleField.show();
+				minLimitField.show();
+				maxLimitField.show();
 				break;
 
 			case DEFAULT:

@@ -21,9 +21,8 @@ public final class Computations {
 	 * @return A new <code>Computation</code> object.
 	 */
 	public static Computation parse(String rule, Collection<FlexibleElementDTO> allElements) {
-		final ParserEnvironment environment = new ParserEnvironment();
-		environment.setElements(createReferenceMap(allElements));
-		
+		final ParserEnvironment environment = new ParserEnvironment(createReferenceMap(allElements));
+	
 		final char[] array = rule.toCharArray();
 		int index = 0;
 		while (index < array.length) {
@@ -33,6 +32,22 @@ public final class Computations {
 		environment.popEverythingFromStackToInstructions();
 		
 		return new Computation(environment.getInstructions());
+	}
+	
+	/**
+	 * Parse the given rule and format it.
+	 * 
+	 * @param rule Rule to format.
+	 * @param allElements Elements.
+	 * @return Formatted rule or <code>null</code> if the given rule is invalid.
+	 */
+	public static String formatRule(String rule, Collection<FlexibleElementDTO> allElements) {
+		if (rule == null || rule.trim().isEmpty()) {
+			return null;
+		}
+		
+		final Computation computation = parse(rule, allElements);
+		return computation.toHumanReadableString();
 	}
 	
 	/**

@@ -73,8 +73,6 @@ import com.google.inject.Inject;
 import org.sigmah.client.computation.ComputationTriggerManager;
 import org.sigmah.client.ui.presenter.project.ProjectPresenter;
 import org.sigmah.client.ui.widget.Loadable;
-import org.sigmah.shared.computation.Computation;
-import org.sigmah.shared.dto.element.ComputationElementDTO;
 
 /**
  * Phases presenter.

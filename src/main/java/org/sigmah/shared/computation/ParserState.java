@@ -259,7 +259,7 @@ enum ParserState {
 	 * @param environment Environment.
 	 */
 	private static void addVariable(final String variable, final ParserEnvironment environment) {
-		final FlexibleElementDTO element = environment.getElements().get(variable);
+		final FlexibleElementDTO element = environment.getElement(variable);
 		if (element != null) {
 			environment.add(new Variable(element));
 		} else {

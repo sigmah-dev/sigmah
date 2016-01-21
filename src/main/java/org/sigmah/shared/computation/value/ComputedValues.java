@@ -25,8 +25,20 @@ public final class ComputedValues {
 	 * @return A new <code>ComputedValue</code>.
 	 */
 	public static ComputedValue from(final String value) {
+		return from(value, true);
+	}
+	
+	/**
+	 * Creates a <code>ComputedValue</code> from the given <code>String</code>.
+	 * 
+	 * @param value Value to parse.
+	 * @param zeroIfNull <code>true</code> to return zero if <code>value</code>
+	 * is <code>null</code>, <code>false</code> to return an error.
+	 * @return A new <code>ComputedValue</code>.
+	 */
+	public static ComputedValue from(final String value, final boolean zeroIfNull) {
 		if (value == null) {
-			return ZERO;
+			return noValue(zeroIfNull);
 		}
 		try {
 			return new DoubleValue(Double.parseDouble(value));
@@ -43,9 +55,9 @@ public final class ComputedValues {
 	 */
 	public static ComputedValue from(final ValueResult value) {
 		if (value != null) {
-			return from(value.getValueObject());
+			return from(value.getValueObject(), false);
 		} else {
-			return ZERO;
+			return ComputationError.NO_VALUE;
 		}
 	}
 	
@@ -60,6 +72,22 @@ public final class ComputedValues {
 			return ComputationError.valueOf(error);
 		} catch (IllegalArgumentException e) {
 			return ComputationError.BAD_VALUE;
+		}
+	}
+	
+	/**
+	 * Returns an empty value.
+	 * 
+	 * @param zero <code>true</code> to return 0, <code>false</code> to return 
+	 * an error.
+	 * @return 0 if the given argument is <code>true</code>, 
+	 * {@link ComputationError#NO_VALUE} otherwise.
+	 */
+	private static ComputedValue noValue(final boolean zero) {
+		if (zero) {
+			return ZERO;
+		} else {
+			return ComputationError.NO_VALUE;
 		}
 	}
 	

@@ -22,9 +22,18 @@ public class ComputationElement extends FlexibleElement {
 	@Column(name = EntityConstants.COMPUTATION_ELEMENT_COLUMN_RULE, nullable = true, length = EntityConstants.COMPUTATION_ELEMENT_RULE_MAX_LENGTH)
 	private String rule;
 	
-	// TODO: Ajouter le type de retour.
-	// TODO: Ajouter la valeur minimum (String).
-	// TODO: Ajouter la valeur maximum (String).
+	/**
+	 * Minimum value constraint.
+	 */
+	@Column(name = EntityConstants.COMPUTATION_ELEMENT_COLUMN_MINIMUM_VALUE, nullable = true, length = EntityConstants.COMPUTATION_ELEMENT_RULE_MAX_LENGTH)
+	private String minimumValue;
+	
+	/**
+	 * Maximum value constraint.
+	 */
+	@Column(name = EntityConstants.COMPUTATION_ELEMENT_COLUMN_MAXIMUM_VALUE, nullable = true, length = EntityConstants.COMPUTATION_ELEMENT_RULE_MAX_LENGTH)
+	private String maximumValue;
+	
 	
 	// --------------------------------------------------------------------------------
 	//
@@ -50,6 +59,22 @@ public class ComputationElement extends FlexibleElement {
 
 	public void setRule(String rule) {
 		this.rule = rule;
+	}
+
+	public String getMinimumValue() {
+		return minimumValue;
+	}
+
+	public void setMinimumValue(String minimumValue) {
+		this.minimumValue = minimumValue;
+	}
+
+	public String getMaximumValue() {
+		return maximumValue;
+	}
+
+	public void setMaximumValue(String maximumValue) {
+		this.maximumValue = maximumValue;
 	}
 	
 }
