@@ -37,6 +37,7 @@ import org.sigmah.client.ui.notif.ConfirmCallback;
 import org.sigmah.client.ui.notif.N10N;
 import org.sigmah.client.ui.widget.RatioBar;
 import org.sigmah.client.util.MessageType;
+import org.sigmah.client.util.profiler.Profiler;
 import org.sigmah.offline.appcache.ApplicationCacheEventHandler;
 import org.sigmah.offline.indexeddb.IndexedDB;
 import org.sigmah.offline.indexeddb.OpenDatabaseRequest;
@@ -339,6 +340,8 @@ implements OfflineEvent.Source {
 
                 N10N.message(I18N.CONSTANTS.offlineActionDestroyLocalDataWorking(), MessageType.OFFLINE);
                 
+				Profiler.INSTANCE.deleteDatabase();
+				
                 final OpenDatabaseRequest request = IndexedDB.deleteUserDatabase(auth());
                 request.addCallback(new AsyncCallback<Request>() {
                     @Override

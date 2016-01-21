@@ -57,6 +57,8 @@ import com.extjs.gxt.ui.client.widget.grid.filters.GridFilters;
 import com.extjs.gxt.ui.client.widget.grid.filters.ListFilter;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
+import org.sigmah.client.util.profiler.Profiler;
+import org.sigmah.client.util.profiler.Scenario;
 
 /**
  * <p>
@@ -347,6 +349,7 @@ public class ProjectsListWidget extends AbstractPresenter<ProjectsListWidget.Vie
 
 			@Override
 			public void onRowClickEvent(final ProjectDTO rowElement) {
+				Profiler.INSTANCE.startScenario(Scenario.OPEN_PROJECT);
 				eventBus.navigateRequest(Page.PROJECT_DASHBOARD.requestWith(RequestParameter.ID, rowElement.getId()));
 			}
 		});
@@ -658,10 +661,12 @@ public class ProjectsListWidget extends AbstractPresenter<ProjectsListWidget.Vie
 		if (cmd == null) {
 			return;
 		}
-
+		
 		// Reload filter labels for category filter list store.
 		reloadCategoryListFilterStore();
 
+		Profiler.INSTANCE.markCheckpoint(Scenario.LOGIN, "Project list widget initialization ended.");
+		
 		if (loadingMode == LoadingMode.ONE_TIME) {
 			// Loads projects in one time (one request).
 			loadProjectsInOneTime(cmd);
@@ -717,6 +722,8 @@ public class ProjectsListWidget extends AbstractPresenter<ProjectsListWidget.Vie
 
 		final GetProjectsWorker worker = new GetProjectsWorker(dispatch, cmd, view.getProjectsPanel(), ClientConfiguration.getChunkSize());
 		worker.addWorkerListener(new GetProjectsWorker.WorkerListener() {
+			
+			private int chunk = 0;
 
 			@Override
 			public void serverError(final Throwable error) {
@@ -733,6 +740,7 @@ public class ProjectsListWidget extends AbstractPresenter<ProjectsListWidget.Vie
 			@Override
 			public void chunkRetrieved(final List<ProjectDTO> projects) {
 				addProjectToTreeGrid(projects);
+				Profiler.INSTANCE.markCheckpoint(Scenario.LOGIN, "Chunk #" + (chunk++) + " loaded.");
 			}
 
 			@Override
@@ -748,6 +756,8 @@ public class ProjectsListWidget extends AbstractPresenter<ProjectsListWidget.Vie
 
 		view.getStore().removeAll();
 		view.getStore().clearFilters();
+		
+		Profiler.INSTANCE.markCheckpoint(Scenario.LOGIN, "Before project loading.");
 
 		worker.run();
 	}

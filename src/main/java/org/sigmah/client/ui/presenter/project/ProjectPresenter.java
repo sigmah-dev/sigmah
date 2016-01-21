@@ -80,6 +80,8 @@ import java.util.List;
 import org.sigmah.client.ui.res.icon.IconImageBundle;
 import org.sigmah.client.ui.widget.Loadable;
 import org.sigmah.client.util.DateUtils;
+import org.sigmah.client.util.profiler.Profiler;
+import org.sigmah.client.util.profiler.Scenario;
 import org.sigmah.shared.dto.referential.AmendmentState;
 import org.sigmah.shared.dto.referential.CoreVersionAction;
 
@@ -218,7 +220,7 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 	 */
 	@Override
 	public void onBind() {
-
+		
 		// --
 		// SubMenu listener.
 		// --
@@ -391,6 +393,8 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 		// Updates parent view elements.
 		loadAmendments(project, coreVersionId);
 		refreshBanner(project);
+		
+		Profiler.INSTANCE.endScenario(Scenario.OPEN_PROJECT);
 	}
 
 	/**
@@ -666,11 +670,11 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 
 		// Banner data.
 		final ProjectBannerDTO banner = project.getProjectModel().getProjectBanner();
-		final LayoutDTO layout = banner.getLayout();
+		final LayoutDTO layout = banner != null ? banner.getLayout() : null;
 
 		final Widget bannerWidget;
 
-		if (banner != null && layout != null && layout.getGroups() != null && !layout.getGroups().isEmpty()) {
+		if (layout != null && layout.getGroups() != null && !layout.getGroups().isEmpty()) {
 
 			// --
 			// Layout banner.
