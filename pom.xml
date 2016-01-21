@@ -152,6 +152,7 @@
 		<maven-source-plugin.version>2.2.1</maven-source-plugin.version>
 		<gwt-maven-plugin.version>${gwt.version}</gwt-maven-plugin.version>
                 <tomcat7-maven-plugin.version>2.2</tomcat7-maven-plugin.version>
+                <license-maven-plugin.version>1.8</license-maven-plugin.version>
 
 		<!-- Plugins configuration. -->
 		<gwt.logLevel>INFO</gwt.logLevel> <!-- Available levels: ERROR, WARN, INFO, TRACE, DEBUG, SPAM, ALL. -->
@@ -818,6 +819,18 @@
 					<webappDirectory>${webapp.directory}</webappDirectory>
 				</configuration>
 			</plugin>
+
+                        <plugin>
+                                <groupId>org.codehaus.mojo</groupId>
+                                <artifactId>license-maven-plugin</artifactId>
+                                <version>${license-maven-plugin.version}</version>
+                                <configuration>
+                                        <licenseName>gpl_v3</licenseName>
+                                        <excludes>
+                                                <exclude>**/OpenLayers.js</exclude>
+                                        </excludes>
+                                </configuration>
+                        </plugin>
 
 		</plugins>
 
