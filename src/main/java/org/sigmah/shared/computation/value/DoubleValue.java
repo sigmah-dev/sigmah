@@ -23,7 +23,7 @@ public class DoubleValue implements ComputedValue {
 		return value;
 	}
 	
-/**
+    /**
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -115,7 +115,7 @@ public class DoubleValue implements ComputedValue {
 	 */
 	@Override
 	public int hashCode() {
-		return 71 + 7 * Double.hashCode(value);
+		return 71 + 7 * Double.valueOf(value).hashCode();
 	}
 
 	/**
