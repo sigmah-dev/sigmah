@@ -117,11 +117,10 @@
 	<!-- -->
 	<!-- =========================================================================================== -->
 
-	<ciManagement>
-		<system>Jenkins</system>
-		<!-- TODO : ajouter l'URL en temps voulu. -->
-		<url>TBA</url>
-	</ciManagement>
+        <ciManagement>
+                <system>jenkins</system>
+                <url>https://ci.codelutin.com/jenkins</url>
+        </ciManagement>
 
 	<!-- =========================================================================================== -->
 	<!-- -->
@@ -153,6 +152,7 @@
 		<maven-source-plugin.version>2.2.1</maven-source-plugin.version>
 		<gwt-maven-plugin.version>${gwt.version}</gwt-maven-plugin.version>
                 <tomcat7-maven-plugin.version>2.2</tomcat7-maven-plugin.version>
+                <license-maven-plugin.version>1.8</license-maven-plugin.version>
 
 		<!-- Plugins configuration. -->
 		<gwt.logLevel>INFO</gwt.logLevel> <!-- Available levels: ERROR, WARN, INFO, TRACE, DEBUG, SPAM, ALL. -->
@@ -795,7 +795,8 @@
 					<gwtVersion>${gwt.version}</gwtVersion>
 					<webappDirectory>${webapp.directory}</webappDirectory>
 					<hostedWebapp>${webapp.directory}</hostedWebapp>
-					<generateDirectory>${basedir}/src/main/java</generateDirectory>
+					<generateDirectory>${project.build.directory}/generated-sources/java</generateDirectory>
+                                        <workDir>${project.build.directory}/gwt-workDir</workDir>
 					<i18nConstantsBundles>
 						<i18nConstantsBundle>${project.groupId}.client.i18n.UIConstants</i18nConstantsBundle>
 					</i18nConstantsBundles>
@@ -805,7 +806,7 @@
 					<!-- For gwt:run command. -->
 					<runTarget>/</runTarget>
 					<module>org.sigmah.Sigmah</module>
-					<extraJvmArgs>-Xmx1G -Xss256M -XX:PermSize=256M</extraJvmArgs>
+					<extraJvmArgs>-Xmx1G -Xss256M -XX:PermSize=256M -Djava.io.tmpdir=${project.build.directory}</extraJvmArgs>
 				</configuration>
 			</plugin>
 
@@ -818,6 +819,18 @@
 					<webappDirectory>${webapp.directory}</webappDirectory>
 				</configuration>
 			</plugin>
+
+                        <plugin>
+                                <groupId>org.codehaus.mojo</groupId>
+                                <artifactId>license-maven-plugin</artifactId>
+                                <version>${license-maven-plugin.version}</version>
+                                <configuration>
+                                        <licenseName>gpl_v3</licenseName>
+                                        <excludes>
+                                                <exclude>**/OpenLayers.js</exclude>
+                                        </excludes>
+                                </configuration>
+                        </plugin>
 
 		</plugins>
 

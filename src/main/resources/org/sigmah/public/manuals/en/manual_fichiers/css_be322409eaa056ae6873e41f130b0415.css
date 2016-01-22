@@ -1,3 +1,24 @@
+/*
+ * #%L
+ * Sigmah
+ * %%
+ * Copyright (C) 2010 - 2016 URD
+ * %%
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public
+ * License along with this program.  If not, see
+ * <http://www.gnu.org/licenses/gpl-3.0.html>.
+ * #L%
+ */
 
 .book-navigation .menu{border-top:1px solid #888;padding:1em 0 0 3em;}.book-navigation .page-links{border-top:1px solid #888;border-bottom:1px solid #888;text-align:center;padding:0.5em;}.book-navigation .page-previous{text-align:left;width:42%;display:block;float:left;}.book-navigation .page-up{margin:0 5%;width:4%;display:block;float:left;}.book-navigation .page-next{text-align:right;width:42%;display:block;float:right;}#book-outline{min-width:56em;}.book-outline-form .form-item{margin-top:0;margin-bottom:0;}#edit-book-bid-wrapper .description{clear:both;}#book-admin-edit select{margin-right:24px;}#book-admin-edit select.progress-disabled{margin-right:0;}#book-admin-edit tr.ahah-new-content{background-color:#ffd;}#book-admin-edit .form-item{float:left;}
 
