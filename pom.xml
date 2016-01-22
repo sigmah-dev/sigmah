@@ -151,8 +151,8 @@
 		<maven-javadoc-plugin.version>2.9.1</maven-javadoc-plugin.version>
 		<maven-source-plugin.version>2.2.1</maven-source-plugin.version>
 		<gwt-maven-plugin.version>${gwt.version}</gwt-maven-plugin.version>
-                <tomcat7-maven-plugin.version>2.2</tomcat7-maven-plugin.version>
-                <license-maven-plugin.version>1.8</license-maven-plugin.version>
+		<tomcat7-maven-plugin.version>2.2</tomcat7-maven-plugin.version>
+		<license-maven-plugin.version>1.8</license-maven-plugin.version>
 
 		<!-- Plugins configuration. -->
 		<gwt.logLevel>INFO</gwt.logLevel> <!-- Available levels: ERROR, WARN, INFO, TRACE, DEBUG, SPAM, ALL. -->
@@ -199,14 +199,19 @@
 
 		<log.pattern>[%-5level] {%d{dd/MM/yyyy HH:mm:ss.SSS}} [%thread] %logger{35} - %msg%n</log.pattern>
 		<log.level>ERROR</log.level> <!-- Available levels: ALL, TRACE, DEBUG, INFO, WARN, ERROR, OFF. -->
+		
+		<!-- Included languages and browsers. -->
+		
+		<module.local>fr,en_GB,es</module.local>
+		<module.extension></module.extension>
 
 		<!-- Hibernate properties. -->
 
 		<hibernate.dialect>org.hibernate.dialect.PostgreSQLDialect</hibernate.dialect>
 		<hibernate.connection.driver_class>org.postgresql.Driver</hibernate.connection.driver_class>
 		<hibernate.hbm2ddl.auto>update</hibernate.hbm2ddl.auto>
-		<hibernate.show_sql>true</hibernate.show_sql>
-		<hibernate.format_sql>true</hibernate.format_sql>
+		<hibernate.show_sql>false</hibernate.show_sql>
+		<hibernate.format_sql>false</hibernate.format_sql>
 		<!-- (Database access must be configured into profiles.) -->
 		
 		<!-- JDBC pool properties. -->
@@ -796,7 +801,7 @@
 					<webappDirectory>${webapp.directory}</webappDirectory>
 					<hostedWebapp>${webapp.directory}</hostedWebapp>
 					<generateDirectory>${project.build.directory}/generated-sources/java</generateDirectory>
-                                        <workDir>${project.build.directory}/gwt-workDir</workDir>
+					<workDir>${project.build.directory}/gwt-workDir</workDir>
 					<i18nConstantsBundles>
 						<i18nConstantsBundle>${project.groupId}.client.i18n.UIConstants</i18nConstantsBundle>
 					</i18nConstantsBundles>
@@ -820,17 +825,17 @@
 				</configuration>
 			</plugin>
 
-                        <plugin>
-                                <groupId>org.codehaus.mojo</groupId>
-                                <artifactId>license-maven-plugin</artifactId>
-                                <version>${license-maven-plugin.version}</version>
-                                <configuration>
-                                        <licenseName>gpl_v3</licenseName>
-                                        <excludes>
-                                                <exclude>**/OpenLayers.js</exclude>
-                                        </excludes>
-                                </configuration>
-                        </plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>license-maven-plugin</artifactId>
+				<version>${license-maven-plugin.version}</version>
+				<configuration>
+					<licenseName>gpl_v3</licenseName>
+					<excludes>
+						<exclude>**/OpenLayers.js</exclude>
+					</excludes>
+				</configuration>
+			</plugin>
 
 		</plugins>
 
@@ -876,11 +881,11 @@
 					</configuration>
 				</plugin>
 
-                                <plugin>
-                                        <groupId>org.apache.tomcat.maven</groupId>
-                                        <artifactId>tomcat7-maven-plugin</artifactId>
-                                        <version>${tomcat7-maven-plugin.version}</version>
-                                </plugin>
+				<plugin>
+					<groupId>org.apache.tomcat.maven</groupId>
+					<artifactId>tomcat7-maven-plugin</artifactId>
+					<version>${tomcat7-maven-plugin.version}</version>
+				</plugin>
 			</plugins>
 		</pluginManagement>
 
@@ -895,12 +900,35 @@
 	<profiles>
 		
 		<!-- ========= [ LOCAL DEVELOPMENT ENVIRONMENT. ] ========= -->
+		
+		<profile>
+			<id>release</id>
+			<build>
+				<resources>
+					<resource>
+						<directory>src/release/resources</directory>
+					</resource>
+				</resources>
+			</build>
+		</profile>
 
 		<profile>
 			<id>sigmah-dev</id>
+			<build>
+				<resources>
+					<resource>
+						<directory>src/dev/resources</directory>
+					</resource>
+				</resources>
+			</build>
 			<properties>
 
 				<gwt.style>PRETTY</gwt.style>
+				
+				<!-- Module properties. -->
+				
+				<module.local>fr</module.local>
+				<module.extension><![CDATA[<set-property name="user.agent" value="gecko1_8" />]]></module.extension>
 
 				<!-- Logger properties. -->
 
@@ -908,17 +936,55 @@
 
 				<!-- Hibernate properties. -->
 
-				<hibernate.connection.url>jdbc:postgresql://localhost:5432/sigmah-dev</hibernate.connection.url>
-				<hibernate.connection.username>postgres</hibernate.connection.username>
-				<hibernate.connection.password>********</hibernate.connection.password>
-				<hibernate.show_sql>true</hibernate.show_sql>
-				<hibernate.format_sql>true</hibernate.format_sql>
+				<hibernate.connection.url>jdbc:postgresql://localhost:5432/sigmah2</hibernate.connection.url>
+				<hibernate.connection.username>sigmah</hibernate.connection.username>
+				<hibernate.connection.password>sigmah</hibernate.connection.password>
 				
 				<!-- Mailer properties. -->
 
 				<mail.from.name>Sigmah - DEV</mail.from.name>
 
-				<!-- Overrride properties for your local profile here... -->
+				<!-- Override properties for your local profile here... -->
+				
+				<!-- Root directory where files and org logos are stored. -->
+				<files.repository.name>${basedir}/../../repository/files</files.repository.name>
+				<!-- Root directory where backup archives (zips) are stored. -->
+				<archives.repository.name>${basedir}/../../repository/archives</archives.repository.name>
+
+			</properties>
+		</profile>
+
+		<profile>
+			<id>jenkins</id>
+			<build>
+				<resources>
+					<resource>
+						<directory>src/dev/resources</directory>
+					</resource>
+				</resources>
+			</build>
+			<properties>
+				
+				<!-- Module properties. -->
+
+				<module.local>fr</module.local>
+				<module.extension><![CDATA[<set-property name="user.agent" value="gecko1_8" />]]></module.extension>
+				
+				<!-- Logger properties. -->
+
+				<log.level>OFF</log.level>
+
+				<!-- Hibernate properties. -->
+
+				<hibernate.connection.url>jdbc:postgresql://sigmah-integ.pr.netapsys.fr:5432/sigmah-demo</hibernate.connection.url>
+				<hibernate.connection.username>sigmah</hibernate.connection.username>
+				<hibernate.connection.password>sigmah</hibernate.connection.password>
+				
+				<!-- Mailer properties. -->
+
+				<mail.from.name>Sigmah - INTEG</mail.from.name>
+
+				<!-- Override properties for your local profile here... -->
 
 			</properties>
 		</profile>
