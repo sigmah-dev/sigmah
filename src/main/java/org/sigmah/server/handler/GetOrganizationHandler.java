@@ -81,7 +81,7 @@ public class GetOrganizationHandler extends AbstractCommandHandler<GetOrganizati
 			result = null;
 
 		} else {
-			result = mapper.map(organization, OrganizationDTO.class, cmd.getMode());
+			result = mapper.map(organization, new OrganizationDTO(), cmd.getMode());
 		}
 
 		return result;

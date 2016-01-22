@@ -89,7 +89,7 @@ public class GetSchemaHandler extends AbstractCommandHandler<GetSchema, SchemaDT
             LOGGER.debug("country: " +country);
             if (country == null) {
             	LOGGER.debug("country.locationTypes " +database.getCountry().getLocationTypes().size());
-                country = mapper().map(database.getCountry(), CountryDTO.class);
+                country = mapper().map(database.getCountry(), new CountryDTO());
                 countries.put(country.getId(), country);
                 schema.getCountries().add(country);
             }
@@ -130,7 +130,7 @@ public class GetSchemaHandler extends AbstractCommandHandler<GetSchema, SchemaDT
 			databaseDTO.setPartners(mapper().mapCollection(database.getPartners(), PartnerDTO.class));
             
             for (Activity activity : database.getActivities()) {
-                ActivityDTO activityDTO = mapper().map(activity, ActivityDTO.class);
+                ActivityDTO activityDTO = mapper().map(activity, new ActivityDTO());
                 databaseDTO.getActivities().add(activityDTO);
                 activityDTO.setDatabase(databaseDTO);
             }

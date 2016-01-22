@@ -83,7 +83,7 @@ public class AddPartnerHandler extends AbstractCommandHandler<AddPartner, Create
 
 		if (allPartners.size() != 0) {
 			db.getPartners().add(allPartners.get(0));
-			return new CreateResult(mapper.map(allPartners.get(0), OrgUnitDTO.class, OrgUnitDTO.Mode.BASE));
+			return new CreateResult(mapper.map(allPartners.get(0), new OrgUnitDTO(), OrgUnitDTO.Mode.BASE));
 		}
 
 		// Nope, have to create a new record.
@@ -94,6 +94,6 @@ public class AddPartnerHandler extends AbstractCommandHandler<AddPartner, Create
 
 		db.getPartners().add(newPartner);
 
-		return new CreateResult(mapper.map(newPartner, OrgUnitDTO.class, OrgUnitDTO.Mode.BASE));
+		return new CreateResult(mapper.map(newPartner, new OrgUnitDTO(), OrgUnitDTO.Mode.BASE));
 	}
 }

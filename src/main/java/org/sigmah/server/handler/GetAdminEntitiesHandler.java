@@ -72,7 +72,7 @@ public class GetAdminEntitiesHandler extends AbstractCommandHandler<GetAdminEnti
 		List<AdminEntityDTO> models = new ArrayList<AdminEntityDTO>();
 
 		for (AdminEntity entity : entities) {
-			models.add(mapper().map(entity, AdminEntityDTO.class));
+			models.add(mapper().map(entity, new AdminEntityDTO()));
 		}
 
 		return new ListResult<AdminEntityDTO>(models);

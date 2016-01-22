@@ -71,7 +71,7 @@ public class GetReportElementsHandler extends AbstractCommandHandler<GetReportEl
 
 		// Mapping
 		for (final ReportElement r : reportElements) {
-			final ReportElementDTO reportElementDTO = mapper().map(r, ReportElementDTO.class);
+			final ReportElementDTO reportElementDTO = mapper().map(r, new ReportElementDTO());
 			reportElementDTO.setModelId(r.getModel().getId());
 			reportElementsDTOs.add(reportElementDTO);
 
@@ -79,7 +79,7 @@ public class GetReportElementsHandler extends AbstractCommandHandler<GetReportEl
 		}
 
 		for (final ReportListElement r : reportListElements) {
-			final ReportListElementDTO reportListElementDTO = mapper().map(r, ReportListElementDTO.class);
+			final ReportListElementDTO reportListElementDTO = mapper().map(r, new ReportListElementDTO());
 			reportListElementDTO.setModelId(r.getModel().getId());
 			reportListElementsDTOs.add(reportListElementDTO);
 

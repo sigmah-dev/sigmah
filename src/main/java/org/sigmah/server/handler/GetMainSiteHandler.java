@@ -44,7 +44,7 @@ public class GetMainSiteHandler extends AbstractCommandHandler<GetMainSite, Site
 			throw new IllegalArgumentException("Project '" + command.getProjectId() + "' was not been found.");
 		}
 		
-		return mapper().map(project.getMainSite(), SiteDTO.class);
+		return mapper().map(project.getMainSite(), new SiteDTO());
 	}
 	
 }

@@ -75,7 +75,8 @@ public class PrivacyGroupsConverter extends DozerConverter<List<PrivacyGroupPerm
 
 		for (final PrivacyGroupPermission p : source) {
 
-			final PrivacyGroupDTO groupDTO = mapper.map(p.getPrivacyGroup(), PrivacyGroupDTO.class);
+			final PrivacyGroupDTO groupDTO = new PrivacyGroupDTO();
+			mapper.map(p.getPrivacyGroup(), groupDTO);
 
 			destination.put(groupDTO, p.getPermission());
 		}

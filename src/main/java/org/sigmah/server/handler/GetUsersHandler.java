@@ -35,6 +35,7 @@ import org.sigmah.shared.dispatch.CommandException;
 import org.sigmah.shared.dto.UserPermissionDTO;
 
 import com.extjs.gxt.ui.client.Style;
+import java.util.ArrayList;
 
 /**
  * Handler for {@link GetUsers} command
@@ -86,7 +87,11 @@ public class GetUsersHandler extends AbstractCommandHandler<GetUsers, UserResult
 		}
 
 		final List<UserPermission> perms = query.getResultList();
-		final List<UserPermissionDTO> models = mapper().mapCollection(perms, UserPermissionDTO.class);
+		final ArrayList<UserPermissionDTO> models = new ArrayList<>();
+		
+		for (final UserPermission permission : perms) {
+			models.add(mapper().map(permission, new UserPermissionDTO()));
+		}
 
 		final TypedQuery<Number> countQuery =
 				em().createQuery("select count(up) from UserPermission up where up.database.id = :dbId and up.user.id <> :currentUserId ", Number.class);

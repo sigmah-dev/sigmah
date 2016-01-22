@@ -84,7 +84,7 @@ public class GetOrgUnitHandler extends AbstractCommandHandler<GetOrgUnit, OrgUni
 			return null;
 		}
 
-		return mapper.map(orgUnit, OrgUnitDTO.class);
+		return mapper.map(orgUnit, new OrgUnitDTO());
 	}
 
 }

@@ -151,7 +151,7 @@ public class UpdateMonitoredPointsHandler extends AbstractCommandHandler<UpdateM
 			// Saves it.
 			point = monitoredPointDAO.persist(point, context.getUser());
 
-			resultList.add(mapper().map(point, MonitoredPointDTO.class, MonitoredPointDTO.Mode.FULL));
+			resultList.add(mapper().map(point, new MonitoredPointDTO(), MonitoredPointDTO.Mode.FULL));
 		}
 	}
 }

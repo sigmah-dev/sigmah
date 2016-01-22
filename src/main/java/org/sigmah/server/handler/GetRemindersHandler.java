@@ -134,7 +134,7 @@ public class GetRemindersHandler extends AbstractCommandHandler<GetReminders, Li
                 
                 fullNameQuery.setParameter("remindersList", reminder.getParentList());
                
-                final ReminderDTO reminderDTO = mapper().map(reminder, ReminderDTO.class, mappingMode);
+                final ReminderDTO reminderDTO = mapper().map(reminder, new ReminderDTO(), mappingMode);
                 
                 Project project = fullNameQuery.getSingleResult();
                 

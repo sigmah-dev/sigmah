@@ -113,7 +113,7 @@ public class AddOrgUnitHandler extends AbstractCommandHandler<AddOrgUnit, Create
 
 		final OrgUnit newOrgUnit = performCreation(parent, orgUnitDTO, country, model, cmd.getCalendarName());
 
-		return new CreateResult(mapper().map(newOrgUnit, OrgUnitDTO.class, cmd.getMappingMode()));
+		return new CreateResult(mapper().map(newOrgUnit, new OrgUnitDTO(), cmd.getMappingMode()));
 	}
 
 	/**

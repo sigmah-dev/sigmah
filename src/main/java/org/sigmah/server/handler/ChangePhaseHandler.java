@@ -111,6 +111,6 @@ public class ChangePhaseHandler extends AbstractCommandHandler<ChangePhase, Proj
 		// Saves the new project state.
 		projectDAO.persist(project, context.getUser());
 
-		return mapper().map(project, ProjectDTO.class);
+		return mapper().map(project, new ProjectDTO());
 	}
 }

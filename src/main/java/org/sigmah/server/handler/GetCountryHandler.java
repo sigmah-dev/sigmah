@@ -56,7 +56,7 @@ public class GetCountryHandler extends AbstractCommandHandler<GetCountry, Countr
 
 		final Country country = countryDAO.findById(cmd.getId());
 
-		return mapper().map(country, CountryDTO.class);
+		return mapper().map(country, new CountryDTO());
 	}
 
 }
