@@ -77,7 +77,7 @@ public class ServerValueResolverTest extends AbstractDaoTest {
 		final Collection<FlexibleElementDTO> allElements = getElements();
 		
 		final Computation computation = Computations.parse("12*(neuf-1) + 3.14/(quarante_2+2) + zero", allElements);
-		Assert.assertEquals("Computation has not been parsed correctly.", "12 * (neuf - 1) + 3.14 ÷ (quarante_2 + 2) + zero", computation.toHumanReadableString());
+		Assert.assertEquals("Computation has not been parsed correctly.", "12 × (neuf - 1) + 3.14 ÷ (quarante_2 + 2) + zero", computation.toHumanReadableString());
 		
 		computation.computeValueWithResolver(projectId, instance, new AsyncCallback<String>() {
 
@@ -104,7 +104,7 @@ public class ServerValueResolverTest extends AbstractDaoTest {
 		final Collection<FlexibleElementDTO> allElements = getElements();
 		
 		final Computation computation = Computations.parse("12*(neuf-1) + 3.14/(quarante_2+2) + zero", allElements);
-		Assert.assertEquals("Computation has not been parsed correctly.", "12 * (neuf - 1) + 3.14 ÷ (quarante_2 + 2) + zero", computation.toHumanReadableString());
+		Assert.assertEquals("Computation has not been parsed correctly.", "12 × (neuf - 1) + 3.14 ÷ (quarante_2 + 2) + zero", computation.toHumanReadableString());
 		
 		final List<ValueEventWrapper> modifications = new ArrayList<ValueEventWrapper>();
 		

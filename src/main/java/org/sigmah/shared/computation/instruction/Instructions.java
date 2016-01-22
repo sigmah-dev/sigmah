@@ -17,7 +17,7 @@ public final class Instructions {
 		
 		put(map, new Add(), "+");
 		put(map, new Substract(), "-");
-		put(map, new Multiply(), "*");
+		put(map, new Multiply(), "*", "×");
 		put(map, new Divide(), "/", "÷");
 		put(map, new Minus(), "minus");
 		
