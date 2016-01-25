@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.sigmah.client.dispatch.monitor.LoadingMask;
+import org.sigmah.client.ui.widget.Loadable;
 import org.sigmah.offline.sync.SuccessCallback;
 import org.sigmah.shared.computation.Computation;
 import org.sigmah.shared.dto.ProjectDTO;
@@ -31,7 +33,8 @@ public class ComputationTriggerManager {
 	private final Map<ComputationElementDTO, Computation> computations = new HashMap<ComputationElementDTO, Computation>();
 	private final Map<FlexibleElementDTO, List<ComputationElementDTO>> dependencies = new HashMap<FlexibleElementDTO, List<ComputationElementDTO>>();
 	private final Map<FlexibleElementDTO, Field<Object>> components = new HashMap<FlexibleElementDTO, Field<Object>>();
-	
+    private final Map<Integer, ComputationElementDTO> elementsWithHandlers = new HashMap<Integer, ComputationElementDTO>();
+    
 	private FlexibleElementContainer container;
 	
 	/**
@@ -40,12 +43,14 @@ public class ComputationTriggerManager {
 	 * @param project Project to display.
 	 */
 	public void prepareForProject(final ProjectDTO project) {
+        
 		this.container = project;
-		
-		dependencies.clear();
-		computations.clear();
-		components.clear();
-		
+        
+		this.dependencies.clear();
+		this.computations.clear();
+		this.components.clear();
+		this.elementsWithHandlers.clear();
+        
 		final ProjectModelDTO model = project.getProjectModel();
 		
 		for (final ProjectDTO.LocalizedElement<ComputationElementDTO> localizedElement : project.getLocalizedElements(ComputationElementDTO.class)) {
@@ -78,6 +83,7 @@ public class ComputationTriggerManager {
 		
 		if (element instanceof ComputationElementDTO) {
 			components.put(element, (Field<Object>) component);
+            elementsWithHandlers.put(element.getId(), (ComputationElementDTO) element);
 		}
 		
 		final List<ComputationElementDTO> computationElements = dependencies.get(element);
@@ -107,16 +113,33 @@ public class ComputationTriggerManager {
 		
 		for (final ComputationElementDTO computationElement : computationElements) {
 			final Computation computation = computations.get(computationElement);
+            
+            final Loadable loadable;
+            
+            final Field<Object> computationView = components.get(computationElement);
+            if (computationView != null) {
+                loadable = new LoadingMask(computationView);
+            } else {
+                loadable = null;
+            }
+            
 			computation.computeValueWithModificationsAndResolver(container, modifications, valueResolver, new SuccessCallback<String>() {
 
 				@Override
 				public void onSuccess(String result) {
 					final Field<Object> field = components.get(computationElement);
 					if (field != null) {
-						// Firing the value to register the change.
 						field.setValue(result);
-						computationElement.fireValueEvent(result);
+                        
+						// Firing a value event to register the change and trigger dependencies update.
+                        final ComputationElementDTO withHandlers = elementsWithHandlers.get(computationElement.getId());
+                        if (withHandlers != null) {
+                            withHandlers.fireValueEvent(result);
+                        } else {
+    						computationElement.fireValueEvent(result);
+                        }
 					} else {
+                        // The affected computation is not displayed.
 						// Manually adding the value to the modifications.
 						modifications.add(new ValueEvent(computationElement, result));
 
@@ -124,7 +147,7 @@ public class ComputationTriggerManager {
 						updateComputations(dependencies.get(computationElement), modifications);
 					}
 				}
-			});
+			}, loadable);
 		}
 	}
 	

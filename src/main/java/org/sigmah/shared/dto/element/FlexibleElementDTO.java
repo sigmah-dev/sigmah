@@ -450,6 +450,9 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 	 *          a {@link ValueHandler} object
 	 */
 	public void addValueHandler(ValueHandler handler) {
+        if (handlerManager == null) {
+            init();
+        }
 		handlerManager.addHandler(ValueEvent.getType(), handler);
 	}
 

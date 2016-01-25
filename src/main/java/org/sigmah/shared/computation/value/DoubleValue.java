@@ -34,11 +34,11 @@ public class DoubleValue implements ComputedValue {
 		boolean matches = true;
 		
 		if (minimumValue != null) {
-			matches &= value >= minimumValue;
+			matches = matches && value >= minimumValue;
 		}
 		
 		if (maximumValue != null) {
-			matches &= value <= maximumValue;
+			matches = matches && value <= maximumValue;
 		}
 		
 		return matches;

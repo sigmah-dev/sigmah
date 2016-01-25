@@ -96,6 +96,7 @@ import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.form.Validator;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Anchor;
@@ -201,7 +202,7 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 
 		void clearBudgetFields();
 		
-		Field<String> getComputationRuleField();
+		TextField<String> getComputationRuleField();
 
 		// --
 		// Methods.
@@ -483,6 +484,40 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 				}
 			}
 		}));
+        
+        // --
+        // Computation rule validation.
+        // --
+        
+        view.getComputationRuleField().setValidator(new Validator() {
+            
+            @Override
+            public String validate(Field<?> field, String value) {
+                
+                if (value == null || value.trim().isEmpty()) {
+                    return null;
+                } 
+                
+                final Computation computation = Computations.parse(value, currentModel.getAllElements());
+                
+                if (computation != null) {
+                    final StringBuilder errorBuilder = new StringBuilder();
+                    for (final String badReference : computation.getBadReferences()) {
+                        errorBuilder.append(badReference).append(", ");
+                    }
+                    if (errorBuilder.length() > 0) {
+                        errorBuilder.setLength(errorBuilder.length() - 2);
+                        
+                        return "Les codes suivants ne correspondent à aucun champ : " + errorBuilder;
+                    }
+                } else {
+                    return "Formule incorrecte.";
+                }
+                
+                return null;
+            }
+            
+        });
 	}
 
 	/**
@@ -825,9 +860,9 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 		} else if (flexibleElement instanceof ComputationElementDTO) {
 			
 			final ComputationElementDTO computationElement = (ComputationElementDTO) flexibleElement;
-			final Computation computation = Computations.parse(computationElement.getRule(), currentModel.getAllElements());
-			
-			view.getComputationRuleField().setValue(computation.toHumanReadableString());
+            final String formattedRule = Computations.formatRuleForEdition(computationElement.getRule(), currentModel.getAllElements());
+            
+			view.getComputationRuleField().setValue(formattedRule);
 		}
 	}
 
@@ -1189,7 +1224,7 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 		final Boolean multiple = view.getMultipleChoicesField().getValue();
 		final CategoryTypeDTO category = view.getCategoryTypeField().getValue();
 		
-		final String computationRule = Computations.formatRule(view.getComputationRuleField().getValue(), currentModel.getAllElements());
+		final String computationRule = Computations.formatRuleForServer(view.getComputationRuleField().getValue(), currentModel.getAllElements());
 
 		// --
 		// Initializing 'NEW' properties map.

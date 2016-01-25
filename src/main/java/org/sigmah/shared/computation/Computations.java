@@ -35,13 +35,13 @@ public final class Computations {
 	}
 	
 	/**
-	 * Parse the given rule and format it.
+	 * Parse the given rule and format it as a human readable rule.
 	 * 
 	 * @param rule Rule to format.
 	 * @param allElements Elements.
 	 * @return Formatted rule or <code>null</code> if the given rule is invalid.
 	 */
-	public static String formatRule(String rule, Collection<FlexibleElementDTO> allElements) {
+	public static String formatRuleForEdition(String rule, Collection<FlexibleElementDTO> allElements) {
 		if (rule == null || rule.trim().isEmpty()) {
 			return null;
 		}
@@ -50,6 +50,22 @@ public final class Computations {
 		return computation.toHumanReadableString();
 	}
 	
+	/**
+	 * Parse the given rule and format it with ids.
+	 * 
+	 * @param rule Rule to format.
+	 * @param allElements Elements.
+	 * @return Formatted rule or <code>null</code> if the given rule is invalid.
+	 */
+	public static String formatRuleForServer(String rule, Collection<FlexibleElementDTO> allElements) {
+		if (rule == null || rule.trim().isEmpty()) {
+			return null;
+		}
+		
+		final Computation computation = parse(rule, allElements);
+		return computation.toString();
+	}
+    
 	/**
 	 * Creates a map associating the identifier and the code of every element
 	 * to its element.
