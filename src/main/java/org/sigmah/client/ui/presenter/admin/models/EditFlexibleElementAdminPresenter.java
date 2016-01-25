@@ -304,6 +304,11 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 	 * Disabled custom choices labels.
 	 */
 	private Set<String> disabledCustomChoices;
+    
+    /**
+     * List of every other flexible elements of this model.
+     */
+    private List<FlexibleElementDTO> otherElements;
 
 	/**
 	 * Presenter's initialization.
@@ -498,7 +503,7 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
                     return null;
                 } 
                 
-                final Computation computation = Computations.parse(value, currentModel.getAllElements());
+                final Computation computation = Computations.parse(value, otherElements);
                 
                 if (computation != null) {
                     final StringBuilder errorBuilder = new StringBuilder();
@@ -532,6 +537,7 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 		// Reads parameters/data from request.
 		currentModel = request.getData(RequestParameter.MODEL);
 		flexibleElement = request.getData(RequestParameter.DTO);
+        otherElements = request.getData(RequestParameter.ELEMENTS);
 
 		if (currentModel == null) {
 			hideView();
@@ -860,7 +866,7 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 		} else if (flexibleElement instanceof ComputationElementDTO) {
 			
 			final ComputationElementDTO computationElement = (ComputationElementDTO) flexibleElement;
-            final String formattedRule = Computations.formatRuleForEdition(computationElement.getRule(), currentModel.getAllElements());
+            final String formattedRule = Computations.formatRuleForEdition(computationElement.getRule(), otherElements);
             
 			view.getComputationRuleField().setValue(formattedRule);
 		}
@@ -1224,7 +1230,7 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 		final Boolean multiple = view.getMultipleChoicesField().getValue();
 		final CategoryTypeDTO category = view.getCategoryTypeField().getValue();
 		
-		final String computationRule = Computations.formatRuleForServer(view.getComputationRuleField().getValue(), currentModel.getAllElements());
+		final String computationRule = Computations.formatRuleForServer(view.getComputationRuleField().getValue(), otherElements);
 
 		// --
 		// Initializing 'NEW' properties map.
@@ -1398,7 +1404,7 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 					final List<Integer> oldFlexibleIds = new ArrayList<Integer>();
 
 					// Collects 'OLD' flexible elements ids.
-					for (final FlexibleElementDTO oldFlexibleElement : currentModel.getAllElements()) {
+					for (final FlexibleElementDTO oldFlexibleElement : otherElements) {
 						oldFlexibleIds.add(oldFlexibleElement.getId());
 					}
 
