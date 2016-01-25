@@ -43,4 +43,13 @@ public class BadVariable implements Instruction {
 		return reference;
 	}
 
+    /**
+     * Retrieve the name of the bad reference.
+     * 
+     * @return Name of the bad reference.
+     */
+    public String getReference() {
+        return reference;
+    }
+
 }

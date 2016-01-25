@@ -32,7 +32,22 @@ public class ComputationElementDTO extends FlexibleElementDTO {
 	@Override
 	protected Component getComponent(ValueResult valueResult, boolean enabled) {
 		
-		final LabelField labelField = new LabelField();
+		final LabelField labelField = new LabelField() {
+            @Override
+            public void setValue(Object value) {
+                super.setValue(value);
+                
+                if (value instanceof String) {
+                    final ComputedValue computedValue = ComputedValues.from((String) value);
+                    if (!computedValue.matchesConstraints(computedValue, computedValue)) {
+                        markInvalid("Does not matches constraints");
+                    } else {
+                        clearInvalid();
+                    }
+                }
+            }
+            
+        };
 		
 		labelField.setFieldLabel(getLabel());
 		
@@ -42,7 +57,7 @@ public class ComputationElementDTO extends FlexibleElementDTO {
 		if (valueResult != null && valueResult.isValueDefined()) {
 			labelField.setValue(valueResult.getValueObject());
 		}
-		
+        
 		return labelField;
 	}
 

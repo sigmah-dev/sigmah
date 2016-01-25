@@ -653,7 +653,7 @@ public class EditFlexibleElementAdminView extends AbstractPopupView<PopupWidget>
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Field<String> getComputationRuleField() {
+	public TextField<String> getComputationRuleField() {
 		return computationRuleField;
 	}
 
