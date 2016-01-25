@@ -151,7 +151,8 @@ public class FlexibleElementsAdminPresenter<E extends IsModel> extends AbstractP
 
 				} else {
 					eventBus.navigateRequest(Page.ADMIN_EDIT_FLEXIBLE_ELEMENT.request().addData(RequestParameter.MODEL, currentModel)
-						.addData(RequestParameter.DTO, rowElement));
+						.addData(RequestParameter.DTO, rowElement)
+                        .addData(RequestParameter.ELEMENTS, view.getStore().getModels()));
 				}
 			}
 		});
@@ -164,7 +165,8 @@ public class FlexibleElementsAdminPresenter<E extends IsModel> extends AbstractP
 
 			@Override
 			public void componentSelected(final ButtonEvent ce) {
-				eventBus.navigateRequest(Page.ADMIN_EDIT_FLEXIBLE_ELEMENT.request().addData(RequestParameter.MODEL, currentModel));
+				eventBus.navigateRequest(Page.ADMIN_EDIT_FLEXIBLE_ELEMENT.request().addData(RequestParameter.MODEL, currentModel)
+                        .addData(RequestParameter.ELEMENTS, view.getStore().getModels()));
 			}
 		});
 
