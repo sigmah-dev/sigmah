@@ -89,8 +89,11 @@ import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FieldEvent;
 import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.widget.Dialog;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Text;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.Field;
@@ -104,6 +107,10 @@ import com.google.gwt.user.client.ui.FlexTable;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import org.sigmah.client.dispatch.monitor.LoadingMask;
+import org.sigmah.client.ui.widget.HasGrid;
+import org.sigmah.shared.command.UpdateEntity;
+import org.sigmah.shared.command.result.VoidResult;
 import org.sigmah.shared.computation.Computation;
 import org.sigmah.shared.computation.Computations;
 import org.sigmah.shared.dto.element.ComputationElementDTO;
@@ -120,7 +127,7 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 	 * Description of the view managed by this presenter.
 	 */
 	@ImplementedBy(EditFlexibleElementAdminView.class)
-	public static interface View extends ViewPopupInterface {
+	public static interface View extends ViewPopupInterface, HasGrid<FlexibleElementDTO> {
 
 		// --
 		// Common form components.
@@ -203,7 +210,7 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 		void clearBudgetFields();
 		
 		TextField<String> getComputationRuleField();
-
+        
 		// --
 		// Methods.
 		// --
@@ -513,18 +520,43 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
                     if (errorBuilder.length() > 0) {
                         errorBuilder.setLength(errorBuilder.length() - 2);
                         
+                        // TODO: Must use I18N.
                         return "Les codes suivants ne correspondent à aucun champ : " + errorBuilder;
                     }
                 } else {
+                    // TODO: Must use I18N.
                     return "Formule incorrecte.";
                 }
                 
                 return null;
             }
+        });
+        
+        // --
+        // Code edition.
+        // --
+        
+        view.setGridEventHandler(new HasGrid.GridEventHandler<FlexibleElementDTO>() {
             
+            @Override
+            public void onRowClickEvent(final FlexibleElementDTO rowElement) {
+                
+                MessageBox.prompt("Code ?", "Code ?", false, new Listener<MessageBoxEvent>() {
+                    @Override
+                    public void handleEvent(MessageBoxEvent be) {
+                        
+                        // OK.
+                        if (Dialog.OK.equals(be.getButtonClicked().getItemId())) {
+                            
+                            final String code = be.getValue();
+                            onRenameCodeAction(rowElement, code);
+                        }
+                    }
+                });
+            }
         });
 	}
-
+    
 	/**
 	 * {@inheritDoc}
 	 */
@@ -869,6 +901,18 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
             final String formattedRule = Computations.formatRuleForEdition(computationElement.getRule(), otherElements);
             
 			view.getComputationRuleField().setValue(formattedRule);
+            
+            final ListStore<FlexibleElementDTO> store = view.getStore();
+            store.removeAll();
+            
+            for (final FlexibleElementDTO otherElement : otherElements) {
+                final ElementTypeEnum otherElementType = otherElement.getElementType();
+                
+                if ((otherElementType == ElementTypeEnum.TEXT_AREA && ((TextAreaElementDTO) otherElement).getType() == 'N')
+                        || otherElementType == ElementTypeEnum.COMPUTATION) {
+                    store.add(otherElement);
+                }
+            }
 		}
 	}
 
@@ -1173,6 +1217,32 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 		customChoices.add(customChoice);
 		view.getCategoryTypeField().setEnabled(false);
 	}
+    
+    /**
+     * Callback exectued when renaming an other flexible element.
+     * 
+     * @param selectedElement Flexible element to edit.
+     * @param code Code to set.
+     */
+    private void onRenameCodeAction(final FlexibleElementDTO selectedElement, final String code) {
+        
+        final Map<String, Object> newFieldProperties = new HashMap<String, Object>();
+		newFieldProperties.put(AdminUtil.PROP_FX_CODE, code);
+        
+        newFieldProperties.put(AdminUtil.PROP_FX_FLEXIBLE_ELEMENT, selectedElement);
+        newFieldProperties.put(AdminUtil.ADMIN_PROJECT_MODEL, currentModel);
+		newFieldProperties.put(AdminUtil.ADMIN_ORG_UNIT_MODEL, currentModel);
+        newFieldProperties.put(AdminUtil.PROP_FX_OLD_FIELDS, new HashMap<String, Object>());
+        
+        dispatch.execute(new UpdateEntity(currentModel, newFieldProperties), new CommandResultHandler<VoidResult>() {
+            
+            @Override
+            protected void onCommandSuccess(VoidResult result) {
+                selectedElement.setCode(code);
+                view.getStore().update(selectedElement);
+            }
+        }, new LoadingMask(view.getGrid()));
+    }
 
 	/**
 	 * Callback executed on save button action.
@@ -1302,42 +1372,40 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 		// Logging old/new properties & filtering actual modifications.
 		// --
 
-		final StringBuilder message = new StringBuilder();
-		message.append("New : (");
-		for (Map.Entry<String, Object> newP : newFieldProperties.entrySet()) {
-			message.append(newP.getKey()).append('=').append(newP.getValue()).append(", ");
-		}
+        if (Log.isDebugEnabled()) {
+            
+            final StringBuilder message = new StringBuilder();
+            message.append("New : (");
+            for (Map.Entry<String, Object> newP : newFieldProperties.entrySet()) {
+                message.append(newP.getKey()).append('=').append(newP.getValue()).append(", ");
+            }
 
-		if (Log.isDebugEnabled()) {
-			Log.debug(message.append(')').toString());
-		}
+            Log.debug(message.append(')').toString());
 
-		// Only keep actual changes.
-		if (flexibleElement != null) {
-			message.setLength(0);
-			message.append("Old : (");
+            // Only keep actual changes.
+            if (flexibleElement != null) {
+                message.setLength(0);
+                message.append("Old : (");
 
-			for (final Entry<String, Object> old : oldFieldProperties.entrySet()) {
-				message.append(old.getKey()).append('=').append(old.getValue()).append(", ");
+                for (final Entry<String, Object> old : oldFieldProperties.entrySet()) {
+                    message.append(old.getKey()).append('=').append(old.getValue()).append(", ");
 
-				if ((old.getValue() != null && old.getValue().equals(newFieldProperties.get(old.getKey())))
-					|| (old.getValue() == null && newFieldProperties.get(old.getKey()) == null)) {
-					newFieldProperties.remove(old.getKey());
-				}
-			}
+                    if ((old.getValue() != null && old.getValue().equals(newFieldProperties.get(old.getKey())))
+                        || (old.getValue() == null && newFieldProperties.get(old.getKey()) == null)) {
+                        newFieldProperties.remove(old.getKey());
+                    }
+                }
 
-			if (Log.isDebugEnabled()) {
-				Log.debug(message.append(')').toString());
-			}
-		}
+                Log.debug(message.append(')').toString());
+            }
 
-		message.setLength(0);
-		message.append("Register : (");
-		for (final Entry<String, Object> newP : newFieldProperties.entrySet()) {
-			message.append(newP.getKey()).append('=').append(newP.getValue()).append(", ");
-		}
+            message.setLength(0);
+            message.append("Register : (");
+            for (final Entry<String, Object> newP : newFieldProperties.entrySet()) {
+                message.append(newP.getKey()).append('=').append(newP.getValue()).append(", ");
+            }
 
-		if (Log.isDebugEnabled()) {
+		
 			Log.debug(message.append(')').toString());
 		}
 
