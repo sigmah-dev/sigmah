@@ -758,7 +758,7 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 					final ComputationElementDTO computationElement = (ComputationElementDTO) source;
 					
 					final ComputedValue value = ComputedValues.from(valueEvent.getSingleValue());
-					if (!value.matchesConstraints(computationElement.getMinimumValueConstraint(), computationElement.getMaximumValueConstraint())) {
+					if (value.matchesConstraints(computationElement) != 0) {
 						conflicts.add(i18nServer.t(language, "conflictComputationOutOfBounds", 
 							source.getFormattedLabel(), getCurrentValueFormatted(project.getId(), source), getTargetValueFormatted(valueEvent),
 							computationElement.getMinimumValueConstraint(), computationElement.getMaximumValueConstraint()));
