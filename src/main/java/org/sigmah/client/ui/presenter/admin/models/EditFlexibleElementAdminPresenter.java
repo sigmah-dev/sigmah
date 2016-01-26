@@ -521,12 +521,14 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
                     if (errorBuilder.length() > 0) {
                         errorBuilder.setLength(errorBuilder.length() - 2);
                         
-                        // TODO: Must use I18N.
-                        return "Les codes suivants ne correspondent à aucun champ : " + errorBuilder;
+                        if (computation.getBadReferences().size() == 1) {
+                            return I18N.MESSAGES.adminFlexibleComputationRuleBadReference(errorBuilder.toString());
+                        } else {
+                            return I18N.MESSAGES.adminFlexibleComputationRuleBadReferences(errorBuilder.toString());
+                        }
                     }
                 } else {
-                    // TODO: Must use I18N.
-                    return "Formule incorrecte.";
+                    return I18N.CONSTANTS.adminFlexibleComputationRuleBadFormula();
                 }
                 
                 return null;
@@ -542,7 +544,7 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
             @Override
             public void onRowClickEvent(final FlexibleElementDTO rowElement) {
                 
-                MessageBox.prompt("Code ?", "Code ?", false, new Listener<MessageBoxEvent>() {
+                MessageBox.prompt(I18N.CONSTANTS.adminFlexibleCode(), I18N.MESSAGES.adminFlexibleEditCode(rowElement.getFormattedLabel()), false, new Listener<MessageBoxEvent>() {
                     @Override
                     public void handleEvent(MessageBoxEvent be) {
                         

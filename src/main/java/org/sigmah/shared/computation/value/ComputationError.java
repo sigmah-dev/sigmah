@@ -1,5 +1,7 @@
 package org.sigmah.shared.computation.value;
 
+import org.sigmah.shared.dto.element.ComputationElementDTO;
+
 /**
  * Erroned values during a computation.
  * 
@@ -25,9 +27,17 @@ public enum ComputationError implements ComputedValue {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean matchesConstraints(ComputedValue minimum, ComputedValue maximum) {
-		return false;
+	public int matchesConstraints(ComputedValue minimum, ComputedValue maximum) {
+		return 0;
 	}
+
+    /**
+	 * {@inheritDoc}
+	 */
+    @Override
+    public int matchesConstraints(ComputationElementDTO element) {
+        return matchesConstraints(element.getMinimumValueConstraint(), element.getMaximumValueConstraint());
+    }
 	
 	/**
 	 * {@inheritDoc}

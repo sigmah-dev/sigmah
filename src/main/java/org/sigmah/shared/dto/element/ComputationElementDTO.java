@@ -1,7 +1,10 @@
 package org.sigmah.shared.dto.element;
 
 import com.extjs.gxt.ui.client.widget.Component;
-import com.extjs.gxt.ui.client.widget.form.LabelField;
+import com.extjs.gxt.ui.client.widget.form.Field;
+import com.extjs.gxt.ui.client.widget.form.Validator;
+import org.sigmah.client.i18n.I18N;
+import org.sigmah.client.ui.widget.form.StringField;
 import org.sigmah.shared.command.result.ValueResult;
 import org.sigmah.shared.computation.Computation;
 import org.sigmah.shared.computation.Computations;
@@ -32,33 +35,25 @@ public class ComputationElementDTO extends FlexibleElementDTO {
 	@Override
 	protected Component getComponent(ValueResult valueResult, boolean enabled) {
 		
-		final LabelField labelField = new LabelField() {
+		final StringField field = new StringField();
+		field.setFieldLabel(getLabel());
+        field.setValidator(new Validator() {
+            
             @Override
-            public void setValue(Object value) {
-                super.setValue(value);
-                
-                if (value instanceof String) {
-                    final ComputedValue computedValue = ComputedValues.from((String) value);
-                    if (!computedValue.matchesConstraints(computedValue, computedValue)) {
-                        markInvalid("Does not matches constraints");
-                    } else {
-                        clearInvalid();
-                    }
-                }
+            public String validate(Field<?> field, String value) {
+                return validateValue(value);
             }
             
-        };
-		
-		labelField.setFieldLabel(getLabel());
+        });
 		
 		preferredWidth = 120;
 		
 		// Sets the value of the field.
 		if (valueResult != null && valueResult.isValueDefined()) {
-			labelField.setValue(valueResult.getValueObject());
+			field.setValue(valueResult.getValueObject());
 		}
         
-		return labelField;
+		return field;
 	}
 
 	/**
@@ -66,7 +61,7 @@ public class ComputationElementDTO extends FlexibleElementDTO {
 	 */
 	@Override
 	public boolean isCorrectRequiredValue(ValueResult result) {
-		return ComputedValues.from(result).matchesConstraints(getMinimumValueConstraint(), getMaximumValueConstraint());
+		return ComputedValues.from(result).matchesConstraints(this) == 0;
 	}
 
 	/**
@@ -128,6 +123,25 @@ public class ComputationElementDTO extends FlexibleElementDTO {
 	public ComputedValue getMaximumValueConstraint() {
 		return ComputedValues.from(getMaximumValue(), false);
 	}
+    
+    /**
+     * Validate the given value.
+     * 
+     * @param labelField View of this element.
+     * @param value Value to validate.
+     */
+    private String validateValue(final String value) {
+        
+        final ComputedValue computedValue = ComputedValues.from(value);
+        switch (computedValue.matchesConstraints(this)) {
+        case -1:
+            return I18N.MESSAGES.flexibleElementComputationTooLow(value, getMinimumValue());
+        case 1:
+            return I18N.MESSAGES.flexibleElementComputationTooHigh(value, getMaximumValue());
+        default:
+            return null;
+        }
+    }
 	
 	// ---------------------------------------------------------------------------------------------
 	//

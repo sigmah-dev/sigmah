@@ -1,5 +1,7 @@
 package org.sigmah.shared.computation.value;
 
+import org.sigmah.shared.dto.element.ComputationElementDTO;
+
 /**
  * Computed value containing a double.
  * 
@@ -27,22 +29,28 @@ public class DoubleValue implements ComputedValue {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean matchesConstraints(ComputedValue minimum, ComputedValue maximum) {
+	public int matchesConstraints(ComputedValue minimum, ComputedValue maximum) {
+        
 		final Double minimumValue = minimum.get();
-		final Double maximumValue = maximum.get();
-		
-		boolean matches = true;
-		
-		if (minimumValue != null) {
-			matches = matches && value >= minimumValue;
+		if (minimumValue != null && value < minimumValue) {
+            return -1;
 		}
 		
-		if (maximumValue != null) {
-			matches = matches && value <= maximumValue;
+        final Double maximumValue = maximum.get();
+		if (maximumValue != null && value > maximumValue) {
+            return 1;
 		}
 		
-		return matches;
+		return 0;
 	}
+    
+    /**
+	 * {@inheritDoc}
+	 */
+    @Override
+    public int matchesConstraints(ComputationElementDTO element) {
+        return matchesConstraints(element.getMinimumValueConstraint(), element.getMaximumValueConstraint());
+    }
 
 	/**
 	 * {@inheritDoc}
