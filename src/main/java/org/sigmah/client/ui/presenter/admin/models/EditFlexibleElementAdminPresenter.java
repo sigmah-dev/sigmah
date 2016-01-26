@@ -113,6 +113,7 @@ import org.sigmah.shared.command.UpdateEntity;
 import org.sigmah.shared.command.result.VoidResult;
 import org.sigmah.shared.computation.Computation;
 import org.sigmah.shared.computation.Computations;
+import org.sigmah.shared.computation.value.ComputedValues;
 import org.sigmah.shared.dto.element.ComputationElementDTO;
 
 /**
@@ -898,10 +899,16 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 		} else if (flexibleElement instanceof ComputationElementDTO) {
 			
 			final ComputationElementDTO computationElement = (ComputationElementDTO) flexibleElement;
+
+            // Computation rule.       
             final String formattedRule = Computations.formatRuleForEdition(computationElement.getRule(), otherElements);
-            
 			view.getComputationRuleField().setValue(formattedRule);
             
+            // Minimum and maximum value.
+            view.getMinLimitField().setValue(ComputedValues.from(computationElement.getMinimumValue(), false).get());
+            view.getMaxLimitField().setValue(ComputedValues.from(computationElement.getMaximumValue(), false).get());
+            
+            // Related flexible elements.
             final ListStore<FlexibleElementDTO> store = view.getStore();
             store.removeAll();
             
@@ -915,7 +922,7 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
             }
 		}
 	}
-
+    
 	/**
 	 * Loads the given {@code flexibleElement} <b>text area fields</b> and sets the corresponding form fields values.
 	 * 
