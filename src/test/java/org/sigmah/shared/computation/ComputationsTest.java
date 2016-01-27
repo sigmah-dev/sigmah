@@ -100,6 +100,21 @@ public class ComputationsTest {
 	 * Test of parse method, of class Computations.
 	 */
 	@Test
+	public void testParseFunction() {
+		System.out.println("parseFunction");
+		
+		final HashMap<Integer, ComputedValue> values = new HashMap<>();
+		values.put(9, new DoubleValue(9.0));
+		values.put(42, new DoubleValue(42.0));
+		
+		final Computation result = Computations.parse("min(neuf, quarante_2) / max(neuf, quarante_2)", getAllElements());
+		Assert.assertEquals("Computation was not parsed correctly.", "BAD_FORMULA", result.toString());
+	}
+	
+	/**
+	 * Test of parse method, of class Computations.
+	 */
+	@Test
 	public void testDivisionError() {
 		System.out.println("divisionError");
 		
@@ -143,6 +158,21 @@ public class ComputationsTest {
 		
 		Assert.assertEquals("Computation was not parsed correctly.", "12 × #9 + 3.14 × #42", result.toString());
 		Assert.assertEquals("Computation result is incorrect.", ComputationError.BAD_VALUE, result.computeValue(values));
+	}
+    
+    /**
+	 * Test of parse method, of class Computations.
+	 */
+	@Test
+	public void testBadFormula() {
+		System.out.println("badFormula");
+		
+		final HashMap<Integer, ComputedValue> values = new HashMap<>();
+		values.put(9, new DoubleValue(9.0));
+		values.put(42, new DoubleValue(42.0));
+		
+		final Computation badFunction = Computations.parse("neuf(neuf, quarante_2) / quarante_2(neuf, quarante_2)", getAllElements());
+		Assert.assertEquals("Computation was not parsed correctly.", "BAD_FORMULA", badFunction.toString());
 	}
 	
 	/**

@@ -11,6 +11,7 @@ import org.sigmah.shared.dto.element.ComputationElementDTO;
 public enum ComputationError implements ComputedValue {
 	
 	BAD_REFERENCE,
+    BAD_FORMULA,
 	DIVISON_BY_ZERO,
 	BAD_VALUE,
 	NO_VALUE;
