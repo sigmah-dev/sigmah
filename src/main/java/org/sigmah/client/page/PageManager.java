@@ -48,6 +48,11 @@ import com.google.inject.Inject;
  * @author Tom Miette (tmiette@ideia.fr)
  */
 public class PageManager implements ValueChangeHandler<String>, PageChangedHandler, PageRequestHandler {
+    
+    /**
+     * Enable or disable Google Analytics tracking.
+     */
+    public static boolean trackingEnabled = false;
 
 	/**
 	 * Application event bus.
@@ -379,9 +384,8 @@ public class PageManager implements ValueChangeHandler<String>, PageChangedHandl
 	 *          The tracked page.
 	 */
 	public static void trackPage(final Page page) {
-		if (page != null) {
-			// TODO : Enable Google Analytics ?
-			// trackPage(page.getToken());
+		if (trackingEnabled && page != null) {
+			trackPage(page.getToken());
 		}
 	}
 
@@ -392,13 +396,13 @@ public class PageManager implements ValueChangeHandler<String>, PageChangedHandl
 	 *          The tracked page name.
 	 */
 	private static native void trackPage(final String pageName) /*-{
-																															try {
-																															$wnd._gaq.push([ '_setAccount', 'UA-000000000-1' ]);
-																															$wnd._gaq.push([ '_trackPageview', pageName ]);
-																															$wnd._gaq.push([ '_trackPageLoadTime' ]);
-																															} catch (err) {
-																															// Custom exception handling.
-																															}
-																															}-*/;
+        try {
+            $wnd._gaq.push([ '_setAccount', 'UA-000000000-1' ]);
+            $wnd._gaq.push([ '_trackPageview', pageName ]);
+            $wnd._gaq.push([ '_trackPageLoadTime' ]);
+        } catch (err) {
+            // Custom exception handling.
+        }
+    }-*/;
 
 }
