@@ -36,7 +36,10 @@ public class Variable implements Instruction, HasHumanReadableFormat {
 	 */
 	@Override
 	public String toString() {
-		return "#" + flexibleElement.getId();
+		return new StringBuilder()
+                .append(Instructions.ID_PREFIX)
+                .append(flexibleElement.getId())
+                .toString();
 	}
 
 	/**
