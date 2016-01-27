@@ -1,8 +1,11 @@
 package org.sigmah.shared.computation;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import org.sigmah.shared.computation.instruction.Instructions;
+import org.sigmah.shared.computation.value.ComputationError;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
 
 /**
@@ -21,17 +24,24 @@ public final class Computations {
 	 * @return A new <code>Computation</code> object.
 	 */
 	public static Computation parse(String rule, Collection<FlexibleElementDTO> allElements) {
-		final ParserEnvironment environment = new ParserEnvironment(createReferenceMap(allElements));
-	
-		final char[] array = rule.toCharArray();
-		int index = 0;
-		while (index < array.length) {
-			index = environment.getState().execute(index, array, environment);
-		}
-		
-		environment.popEverythingFromStackToInstructions();
-		
-		return new Computation(environment.getInstructions());
+        try {
+            final ParserEnvironment environment = new ParserEnvironment(createReferenceMap(allElements));
+
+            final char[] array = rule.toCharArray();
+            int index = 0;
+            while (index < array.length) {
+                index = environment.getState().execute(index, array, environment);
+            }
+
+            environment.popEverythingFromStackToInstructions();
+
+            return new Computation(environment.getInstructions());
+            
+        } catch (UnsupportedOperationException | IllegalArgumentException e) {
+            // Exception is ignored.
+            return new Computation(Collections.singletonList(
+                    Instructions.getConstantWithValue(ComputationError.BAD_FORMULA)));
+        }
 	}
 	
 	/**

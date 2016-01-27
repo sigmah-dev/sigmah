@@ -47,7 +47,22 @@ class ParserEnvironment {
 	void add(final Instruction instruction) {
 		contexts.peek().instructions.add(instruction);
 	}
-	
+    
+    /**
+     * Retrieves the last instruction added.
+     * 
+     * @return The last instruction.
+     */
+    Instruction lastInstruction() {
+        final List<Instruction> instructions = contexts.peek().instructions;
+        
+        if (instructions == null || instructions.isEmpty()) {
+            return null;
+        } else {
+            return instructions.get(instructions.size() - 1);
+        }
+    }
+    
 	/**
 	 * Push the given operator to the operator stack of the current context.
 	 * 

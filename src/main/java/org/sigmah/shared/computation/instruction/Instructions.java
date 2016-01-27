@@ -2,6 +2,7 @@ package org.sigmah.shared.computation.instruction;
 
 import java.util.HashMap;
 import java.util.Map;
+import org.sigmah.shared.computation.value.ComputedValue;
 
 /**
  * List of every instructions.
@@ -10,6 +11,9 @@ import java.util.Map;
  */
 public final class Instructions {
 	
+    /**
+     * Map each alias to its instruction.
+     */
 	private static final Map<String, Instruction> INSTRUCTIONS;
 	
 	static {
@@ -24,20 +28,42 @@ public final class Instructions {
 		INSTRUCTIONS = map;
 	}
 	
+    /**
+     * Add aliases for the given instruction.
+     * 
+     * @param map Instruction map.
+     * @param instruction Instruction to add.
+     * @param aliases Aliases of the instructions.
+     */
 	private static void put(final Map<String, Instruction> map, final Instruction instruction, final String... aliases) {
 		for (final String alias : aliases) {
 			map.put(alias, instruction);
 		}
 	}
 
+    /**
+     * Private constructor.
+     */
 	private Instructions() {
 		// Not accessible.
 	}
 	
+    /**
+     * Search for an instruction with the given alias.
+     * 
+     * @param name Alias of an instruction.
+     * @return The instruction or <code>null</code> if none matches.
+     */
 	public static Instruction getInstructionNamed(final String name) {
 		return INSTRUCTIONS.get(name);
 	}
 	
+    /**
+     * Search for an operator with the given alias.
+     * 
+     * @param name Alias of an operator.
+     * @return The operator or <code>null</code> if none matches.
+     */
 	public static Operator getOperatorNamed(final String name) {
 		final Instruction instruction = INSTRUCTIONS.get(name);
 		
@@ -48,7 +74,23 @@ public final class Instructions {
 		}
 	}
 	
+    /**
+     * Creates a new constant with the given value.
+     * 
+     * @param value Value of the constant.
+     * @return A new constant.
+     */
 	public static Instruction getConstantWithValue(final String value) {
+		return new Constant(value);
+	}
+	
+    /**
+     * Creates a new constant with the given value.
+     * 
+     * @param value Value of the constant.
+     * @return A new constant.
+     */
+	public static Instruction getConstantWithValue(final ComputedValue value) {
 		return new Constant(value);
 	}
 	

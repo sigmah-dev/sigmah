@@ -16,7 +16,11 @@ class Constant implements Instruction {
 	private final ComputedValue value;
 
 	Constant(String value) {
-		this.value = ComputedValues.from(value);
+		this(ComputedValues.from(value));
+	}
+    
+	Constant(ComputedValue value) {
+		this.value = value;
 	}
 
 	/**

@@ -136,6 +136,9 @@ enum ParserState {
 				final char c = array[index];
 				if (c == ')') {
 					environment.popContext();
+                    
+                } else if (c == '(' && environment.lastInstruction() instanceof BadVariable) {
+                    throw new UnsupportedOperationException("Functions are not supported yet.");
 					
 				} else if (!isSpace(c)) {
 					environment.setState(OPERATOR);
