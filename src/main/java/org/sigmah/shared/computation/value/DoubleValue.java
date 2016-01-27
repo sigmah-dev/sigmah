@@ -1,5 +1,7 @@
 package org.sigmah.shared.computation.value;
 
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.i18n.client.LocaleInfo;
 import org.sigmah.shared.dto.element.ComputationElementDTO;
 
 /**
@@ -10,6 +12,8 @@ import org.sigmah.shared.dto.element.ComputationElementDTO;
 public class DoubleValue implements ComputedValue {
 	
 	public static final DoubleValue ZERO = new DoubleValue(0);
+    
+    private static final int DECIMAL_PART_MAX_LENGTH = 4;
 
 	private final double value;
 
@@ -111,10 +115,10 @@ public class DoubleValue implements ComputedValue {
 	 */
 	@Override
 	public String toString() {
-		if ((int) value == value) {
+        if ((int) value == value) {
 			return Integer.toString((int) value);
 		} else {
-			return Double.toString(value);
+            return doubleToString(value);
 		}
 	}
 
@@ -142,5 +146,30 @@ public class DoubleValue implements ComputedValue {
 		}
 		return this.value == ((DoubleValue) obj).value;
 	}
+    
+    /**
+     * Returns the given value with a decimal part reduced to a length of {@link #DECIMAL_PART_MAX_LENGTH}.
+     * If client-side, also replace the decimal separator by the one specified in the current locale.
+     * 
+     * @param value Value to convert.
+     * @return the given double as a <code>String</code>.
+     */
+    private String doubleToString(double value) {
+        final String base = Double.toString(value);
+        final int index = base.indexOf('.');
+        
+        final String decimalSeparator;
+        if (GWT.isClient()) {
+            decimalSeparator = LocaleInfo.getCurrentLocale().getNumberConstants().decimalSeparator();
+        } else {
+            decimalSeparator = ".";
+        }
+        
+        if (base.length() - index - 1 > DECIMAL_PART_MAX_LENGTH) {
+            return base.substring(0, index) + decimalSeparator + base.substring(index + 1, index + 1 + DECIMAL_PART_MAX_LENGTH);
+        } else {
+            return base.replace(".", decimalSeparator);
+        }
+    }
 	
 }

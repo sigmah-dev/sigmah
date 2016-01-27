@@ -228,7 +228,7 @@ public class ComputationsTest {
 
 			@Override
 			public void onSuccess(String result) {
-				Assert.assertEquals("Computation result is incorrect.", Double.toString(12 * values[0] + 3.14 * values[1]), result);
+				Assert.assertEquals("Computation result is incorrect.", new DoubleValue(12 * values[0] + 3.14 * values[1]).toString(), result);
 			}
 		});
 	}
