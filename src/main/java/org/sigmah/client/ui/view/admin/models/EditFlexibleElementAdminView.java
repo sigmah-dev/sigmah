@@ -366,6 +366,7 @@ public class EditFlexibleElementAdminView extends AbstractPopupView<PopupWidget>
 		specificForm.add(bannerField);
 		specificForm.add(bannerPositionField);
 		specificForm.add(textAreaTypeField);
+        specificForm.add(computationRuleField);
 		specificForm.add(codeField);
 		specificForm.add(lengthField);
 		specificForm.add(decimalField);
@@ -379,7 +380,6 @@ public class EditFlexibleElementAdminView extends AbstractPopupView<PopupWidget>
 		specificForm.add(categoryTypeField);
 		specificForm.add(customChoiceAddField);
 		specificForm.add(customChoicesField);
-		specificForm.add(computationRuleField);
 		specificForm.add(codeGrid);
 
 		specificForm.add(budgetFields);
