@@ -31,6 +31,7 @@ import org.sigmah.server.security.Authenticator;
 import org.sigmah.shared.Language;
 import org.sigmah.shared.computation.Computation;
 import org.sigmah.shared.computation.Computations;
+import org.sigmah.shared.computation.value.DoubleValue;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
 import org.sigmah.shared.dto.element.TextAreaElementDTO;
 import org.sigmah.shared.dto.element.event.ValueEventWrapper;
@@ -89,7 +90,7 @@ public class ServerValueResolverTest extends AbstractDaoTest {
 			@Override
 			public void onSuccess(String result) {
 				Assert.assertNotNull("Result must not be null.", result);
-				Assert.assertEquals("Computed result is incorrect.", Double.toString(12.0 * (9 - 1) + 3.14 / (4.2 + 2) + 0), result);
+				Assert.assertEquals("Computed result is incorrect.", new DoubleValue(12.0 * (9 - 1) + 3.14 / (4.2 + 2) + 0).toString(), result);
 			}
 		});
 	}
@@ -127,7 +128,7 @@ public class ServerValueResolverTest extends AbstractDaoTest {
 			@Override
 			public void onSuccess(String result) {
 				Assert.assertNotNull("Result must not be null.", result);
-				Assert.assertEquals("Computed result is incorrect.", Double.toString(12.0 * (1.0 - 1) + 3.14 / (1.0 + 2) + 1.0), result);
+				Assert.assertEquals("Computed result is incorrect.", new DoubleValue(12.0 * (1.0 - 1) + 3.14 / (1.0 + 2) + 1.0).toString(), result);
 			}
 		});
 	}

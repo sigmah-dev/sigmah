@@ -40,8 +40,9 @@ public final class ComputedValues {
 		if (value == null) {
 			return noValue(zeroIfNull);
 		}
+        final String correctedValue = value.replace(" ", "").replace(',', '.');
 		try {
-			return new DoubleValue(Double.parseDouble(value));
+			return new DoubleValue(Double.parseDouble(correctedValue));
 		} catch (IllegalArgumentException e) {
 			return valueError(value);
 		}
