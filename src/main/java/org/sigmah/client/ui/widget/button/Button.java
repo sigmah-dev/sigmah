@@ -114,6 +114,7 @@ public class Button extends com.extjs.gxt.ui.client.widget.button.Button impleme
 	public void setLoading(final boolean loading) {
 
 		if (!this.loading && loading) {
+            initialEnabledState = isEnabled();
 			super.setEnabled(false);
 			replaceIcon(IconImageBundle.ICONS.loading());
 
@@ -139,8 +140,37 @@ public class Button extends com.extjs.gxt.ui.client.widget.button.Button impleme
 	@Override
 	public void setEnabled(final boolean enabled) {
 		super.setEnabled(enabled);
-		initialEnabledState = enabled;
+        updateInitialEnabldStateWhileLoading(enabled);
 	}
+
+    /**
+	 * {@inheritDoc}
+	 */
+    @Override
+    public void enable() {
+        super.enable();
+        updateInitialEnabldStateWhileLoading(true);
+    }
+
+    /**
+	 * {@inheritDoc}
+	 */
+    @Override
+    public void disable() {
+        super.disable();
+        updateInitialEnabldStateWhileLoading(false);
+    }
+    
+    /**
+     * Changes the saved value to restore correctly the state when the load ends.
+     * 
+     * @param enabled Enabled state.
+     */
+    private void updateInitialEnabldStateWhileLoading(boolean enabled) {
+        if (loading) {
+            this.initialEnabledState = enabled;
+        }
+    }
 
 	/**
 	 * Replaces the button icon <b>but</b> does not save icon reference into parent {@code icon} attribute.

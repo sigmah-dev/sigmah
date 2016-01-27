@@ -340,6 +340,7 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> {
 
 	public void clearChangedValues() {
 		valueChanges.clear();
+        view.getButtonSavePhase().disable();
 	}
 
 	/**
@@ -1189,9 +1190,7 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> {
 
 		@Override
 		public void handleEvent(final ButtonEvent be) {
-			view.getButtonSavePhase().disable();
 			final UpdateProject updateProject = new UpdateProject(getCurrentProject().getId(), valueChanges);
-
 			dispatch.execute(updateProject, new CommandResultHandler<VoidResult>() {
 
 				@Override
@@ -1210,7 +1209,7 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> {
 				public void onCommandSuccess(final VoidResult result) {
 
 					N10N.infoNotif(I18N.CONSTANTS.infoConfirmation(), I18N.CONSTANTS.saveConfirm());
-
+                    
 					// Checks if there is any update needed to the local project instance.
 					boolean refreshBanner = false;
 					boolean coreVersionUpdated = false;
@@ -1241,7 +1240,7 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> {
 						eventBus.fireEvent(new UpdateEvent(UpdateEvent.CORE_VERSION_UPDATED));
 					}
 				}
-			}, new LoadingMask(view.getTabPanelPhases()));
+			}, new LoadingMask(view.getTabPanelPhases()), view.getButtonSavePhase());
 		}
 	}
 

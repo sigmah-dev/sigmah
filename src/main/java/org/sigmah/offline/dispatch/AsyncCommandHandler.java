@@ -28,11 +28,28 @@ import org.sigmah.shared.command.result.Result;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
- *
+ * Instances of this interface will handle specific types of {@link Command} classes when the user is offline.
+ * 
+ * @param <C> Command type.
+ * @param <R> Result type of the command.
+ * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
- * @param <C>
- * @param <R>
+ * @since 2.0
  */
 public interface AsyncCommandHandler<C extends Command<R>, R extends Result> {
+    
+    /**
+	 * Handles the specified {@code command}.
+     * <p>
+     * If an exception occurs during the execution, it should be sent back through the given <code>callback</code>.
+	 * 
+	 * @param command
+	 *          The command.
+     * @param executionContext
+     *          The execution context (contains information about the user executing the command).
+     * @param callback
+     *          Will be called when the execution finishes.
+	 */
 	void execute(C command, OfflineExecutionContext executionContext, AsyncCallback<R> callback);
+    
 }
