@@ -40,7 +40,19 @@ import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import java.util.ArrayList;
+import java.util.List;
+import org.sigmah.client.i18n.I18N;
+import org.sigmah.offline.dao.ProjectAsyncDAO;
+import org.sigmah.offline.sync.SuccessCallback;
 import org.sigmah.shared.command.result.Authentication;
+import org.sigmah.shared.computation.value.ComputedValue;
+import org.sigmah.shared.computation.value.ComputedValues;
+import org.sigmah.shared.dispatch.UpdateConflictException;
+import org.sigmah.shared.dto.ProjectDTO;
+import org.sigmah.shared.dto.element.ComputationElementDTO;
+import org.sigmah.shared.dto.element.FlexibleElementDTO;
+import org.sigmah.shared.dto.referential.ContainerInformation;
 
 /**
  * JavaScript implementation of {@link org.sigmah.server.handler.UpdateProjectHandler}.
@@ -51,21 +63,30 @@ import org.sigmah.shared.command.result.Authentication;
 @Singleton
 public class UpdateProjectAsyncHandler implements AsyncCommandHandler<UpdateProject, VoidResult>, DispatchListener<UpdateProject, VoidResult> {
 
-	private final ValueAsyncDAO valueAsyncDAO;
-	private final UpdateDiaryAsyncDAO updateDiaryAsyncDAO;
+    @Inject
+	private ValueAsyncDAO valueAsyncDAO;
+    
+    @Inject
+	private UpdateDiaryAsyncDAO updateDiaryAsyncDAO;
+    
+    @Inject
+    private ProjectAsyncDAO projectAsyncDAO;
 
-	@Inject
-	public UpdateProjectAsyncHandler(ValueAsyncDAO valueAsyncDAO, UpdateDiaryAsyncDAO updateDiaryAsyncDAO) {
-		this.valueAsyncDAO = valueAsyncDAO;
-		this.updateDiaryAsyncDAO = updateDiaryAsyncDAO;
-	}
-	
-	
+    /**
+     * {@inheritDoc}
+     */
 	@Override
 	public void execute(final UpdateProject command, final OfflineExecutionContext executionContext, final AsyncCallback<VoidResult> callback) {
 		// Updating the local database
 		final RequestManager<VoidResult> requestManager = new RequestManager<VoidResult>(null, callback);
-		
+        
+        try {
+            checkComputations(command.getValues(), command.getProjectId());
+        } catch (UpdateConflictException e) {
+            callback.onFailure(e);
+            return;
+        }
+        
 		for(final ValueEventWrapper valueEventWrapper : command.getValues()) {
 			final String id = ValueJSIdentifierFactory.toIdentifier(command, valueEventWrapper);
 			Log.info("Modification de la valeur de l'élément " + id);
@@ -97,6 +118,9 @@ public class UpdateProjectAsyncHandler implements AsyncCommandHandler<UpdateProj
 		requestManager.ready();
 	}
 
+    /**
+     * {@inheritDoc}
+     */ 
 	@Override
 	public void onSuccess(final UpdateProject command, VoidResult result, Authentication authentication) {
 		// Updating local database
@@ -123,5 +147,49 @@ public class UpdateProjectAsyncHandler implements AsyncCommandHandler<UpdateProj
 			});
 		}
 	}
+    
+    /**
+     * Search for computations and verify if the value matches the constraints of the field.
+     * 
+     * @param valueEvents List of changes.
+     */
+    private void checkComputations(final List<ValueEventWrapper> valueEvents, int projectId) throws UpdateConflictException {
+        
+        final ArrayList<String> conflicts = new ArrayList<String>();
+        
+        for (final ValueEventWrapper valueEvent : valueEvents) {
+            final FlexibleElementDTO source = valueEvent.getSourceElement();
+            if (source instanceof ComputationElementDTO && ((ComputationElementDTO) source).hasConstraints()) {
+                final ComputationElementDTO computationElement = (ComputationElementDTO) source;
+                final ComputedValue clientResult = ComputedValues.from(valueEvent.getSingleValue());
+                
+                switch (clientResult.matchesConstraints(computationElement)) {
+                    case -1:
+                        conflicts.add(I18N.MESSAGES.conflictComputationTooLowOffline(computationElement.getLabel(), valueEvent.getSingleValue(), computationElement.getMinimumValue()));
+                        break;
+                    case 1:
+                        conflicts.add(I18N.MESSAGES.conflictComputationTooHighOffline(computationElement.getLabel(), valueEvent.getSingleValue(), computationElement.getMaximumValue()));
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+        
+        if(!conflicts.isEmpty()) {
+            final ContainerInformation containerInformation = new ContainerInformation(projectId, I18N.CONSTANTS.loading(), I18N.CONSTANTS.loading(), true);
+            projectAsyncDAO.getWithoutDependencies(projectId, new SuccessCallback<ProjectDTO>() {
+                
+                @Override
+                public void onSuccess(ProjectDTO result) {
+                    containerInformation.setName(result.getName());
+                    containerInformation.setFullName(result.getFullName());
+                }
+            });
+            
+			// A conflict was found.
+			throw new UpdateConflictException(containerInformation, conflicts.toArray(new String[0]));
+		}
+    }
 	
 }
