@@ -90,9 +90,9 @@ public class ComputationsTest {
 		values.put(9, new DoubleValue(9.0));
 		values.put(42, new DoubleValue(42.0));
 		
-		final Computation result = Computations.parse("12 * #9 + 3.14 * quarante_2", getAllElements());
+		final Computation result = Computations.parse("12 * $9 + 3.14 * quarante_2", getAllElements());
 		
-		Assert.assertEquals("Computation was not parsed correctly.", "12 × #9 + 3.14 × #42", result.toString());
+		Assert.assertEquals("Computation was not parsed correctly.", "12 × $9 + 3.14 × $42", result.toString());
 		Assert.assertEquals("Computation result is incorrect.", new DoubleValue(12.0 * 9.0 + 3.14 * 42.0), result.computeValue(values));
 	}
 	
@@ -121,9 +121,9 @@ public class ComputationsTest {
 		final HashMap<Integer, ComputedValue> values = new HashMap<>();
 		values.put(9, new DoubleValue(0.0));
 		
-		final Computation result = Computations.parse("(12 / #9 + 3.14) * 2", getAllElements());
+		final Computation result = Computations.parse("(12 / $9 + 3.14) * 2", getAllElements());
 		
-		Assert.assertEquals("Computation was not parsed correctly.", "(12 ÷ #9 + 3.14) × 2", result.toString());
+		Assert.assertEquals("Computation was not parsed correctly.", "(12 ÷ $9 + 3.14) × 2", result.toString());
 		Assert.assertEquals("Computation result is incorrect.", ComputationError.DIVISON_BY_ZERO, result.computeValue(values));
 	}
 	
@@ -137,9 +137,9 @@ public class ComputationsTest {
 		final HashMap<Integer, ComputedValue> values = new HashMap<>();
 		values.put(9, new DoubleValue(9.0));
 		
-		final Computation result = Computations.parse("12 * #10 + 3.14 * quarante_3", getAllElements());
+		final Computation result = Computations.parse("12 * $10 + 3.14 * quarante_3", getAllElements());
 		
-		Assert.assertEquals("Computation was not parsed correctly.", "12 × #10 + 3.14 × quarante_3", result.toString());
+		Assert.assertEquals("Computation was not parsed correctly.", "12 × $10 + 3.14 × quarante_3", result.toString());
 		Assert.assertEquals("Computation result is incorrect.", ComputationError.BAD_REFERENCE, result.computeValue(values));
 	}
 	
@@ -154,9 +154,9 @@ public class ComputationsTest {
 		values.put(9, ComputedValues.from("9,1"));
 		values.put(42, ComputedValues.from("quarante deux"));
 		
-		final Computation result = Computations.parse("12 * #9 + 3.14 * quarante_2", getAllElements());
+		final Computation result = Computations.parse("12 * $9 + 3.14 * quarante_2", getAllElements());
 		
-		Assert.assertEquals("Computation was not parsed correctly.", "12 × #9 + 3.14 × #42", result.toString());
+		Assert.assertEquals("Computation was not parsed correctly.", "12 × $9 + 3.14 × $42", result.toString());
 		Assert.assertEquals("Computation result is incorrect.", ComputationError.BAD_VALUE, result.computeValue(values));
 	}
     
@@ -182,7 +182,7 @@ public class ComputationsTest {
 	public void testHumanReadableFormat() {
 		System.out.println("humanReadableFormat");
 		
-		final Computation result = Computations.parse("12 * #9 + 3.14 * quarante_2", getAllElements());
+		final Computation result = Computations.parse("12 * $9 + 3.14 * quarante_2", getAllElements());
 		Assert.assertEquals("Computation was not parsed correctly.", "12 × neuf + 3.14 × quarante_2", result.toHumanReadableString());
 	}
 	
@@ -193,8 +193,8 @@ public class ComputationsTest {
 	public void testComputeWithValueResolver() {
 		System.out.println("computeValueWithResolver");
 		
-		final Computation result = Computations.parse("12 * #9 + 3.14 * quarante_2", getAllElements());
-		Assert.assertEquals("Computation was not parsed correctly.", "12 × #9 + 3.14 × #42", result.toString());
+		final Computation result = Computations.parse("12 * $9 + 3.14 * quarante_2", getAllElements());
+		Assert.assertEquals("Computation was not parsed correctly.", "12 × $9 + 3.14 × $42", result.toString());
 		
 		final double[] values = new double[2];
 		

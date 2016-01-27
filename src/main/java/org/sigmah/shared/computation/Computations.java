@@ -37,7 +37,7 @@ public final class Computations {
 
             return new Computation(environment.getInstructions());
             
-        } catch (UnsupportedOperationException | IllegalArgumentException e) {
+        } catch (RuntimeException e) {
             // Exception is ignored.
             return new Computation(Collections.singletonList(
                     Instructions.getConstantWithValue(ComputationError.BAD_FORMULA)));
@@ -87,7 +87,7 @@ public final class Computations {
 		final HashMap<String, FlexibleElementDTO> references = new HashMap<String, FlexibleElementDTO>();
 		
 		for (final FlexibleElementDTO element : allElements) {
-			references.put('#' + element.getId().toString(), element);
+			references.put(Instructions.ID_PREFIX + element.getId().toString(), element);
 			references.put(element.getCode(), element);
 		}
 		

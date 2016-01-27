@@ -10,6 +10,11 @@ import org.sigmah.shared.computation.value.ComputedValue;
  * @author Raphaël Calabro (raphael.calabro@netapsys.fr)
  */
 public final class Instructions {
+    
+    /**
+     * Prefix of the identifiers.
+     */
+    public static final char ID_PREFIX = '$';
 	
     /**
      * Map each alias to its instruction.

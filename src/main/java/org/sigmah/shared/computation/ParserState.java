@@ -26,17 +26,17 @@ enum ParserState {
 				if (isDigit(c)) {
 					environment.setState(CONSTANT);
 					return index;
-				} else if (c == '-') {
+				} else if (c == MINUS_ALIAS) {
 					environment.setState(UNARY_OPERATOR);
 					return index;
-				} else if (c == '(') {
+				} else if (c == LEFT_PARENTHESIS) {
 					environment.pushContext();
-				} else if (c == ')') {
+				} else if (c == RIGHT_PARENTHESIS) {
 					environment.popContext();
-				} else if (c == '#') {
+				} else if (c == ID_MARK) {
 					environment.setState(VARIABLE_ID);
 					return index;
-				} else if (isLetter(c) || c == '_' || c == '$') {
+				} else if (isLetter(c) || c == '_') {
 					environment.setState(VARIABLE_CODE);
 					return index;
 				}
@@ -60,7 +60,7 @@ enum ParserState {
 				if (isDigit(c)) {
 					constantBuilder.append(c);
 				} else if (isDecimalMark(c)) {
-					constantBuilder.append('.');
+					constantBuilder.append(DECIMAL_MARK);
 				} else {
 					addConstant(constantBuilder.toString(), environment);
 					environment.setState(WAITING_FOR_OPERATOR);
@@ -84,7 +84,7 @@ enum ParserState {
 			
 			for (int index = offset; index < array.length; index++) {
 				final char c = array[index];
-				if (isDigit(c) || c == '#') {
+				if (isDigit(c) || c == ID_MARK) {
 					idBuilder.append(c);
 				} else {
 					addVariable(idBuilder.toString(), environment);
@@ -110,7 +110,7 @@ enum ParserState {
 			
 			for (int index = offset; index < array.length; index++) {
 				final char c = array[index];
-				if (isLetter(c) || isDigit(c) || c == '_' || c == '$') {
+				if (isLetter(c) || isDigit(c) || c == '_') {
 					codeBuilder.append(c);
 				} else {
 					addVariable(codeBuilder.toString(), environment);
@@ -134,10 +134,10 @@ enum ParserState {
 		int execute(final int offset, final char[] array, final ParserEnvironment environment) {
 			for (int index = offset; index < array.length; index++) {
 				final char c = array[index];
-				if (c == ')') {
+				if (c == RIGHT_PARENTHESIS) {
 					environment.popContext();
                     
-                } else if (c == '(' && environment.lastInstruction() instanceof BadVariable) {
+                } else if (c == LEFT_PARENTHESIS && environment.lastInstruction() instanceof BadVariable) {
                     throw new UnsupportedOperationException("Functions are not supported yet.");
 					
 				} else if (!isSpace(c)) {
@@ -160,7 +160,7 @@ enum ParserState {
 			
 			for (int index = offset; index < array.length; index++) {
 				final char c = array[index];
-				if (!isSpace(c) && !isDigit(c) && c != '(') {
+				if (!isSpace(c) && !isDigit(c) && c != LEFT_PARENTHESIS) {
 					operatorBuilder.append(c);
 				} else {
 					pushOperator(operatorBuilder.toString(), environment);
@@ -181,13 +181,20 @@ enum ParserState {
 
 		@Override
 		int execute(final int offset, final char[] array, final ParserEnvironment environment) {
-			if (array[offset] == '-') {
-				pushOperator("minus", environment);
+			if (array[offset] == MINUS_ALIAS) {
+				pushOperator(MINUS_OPERATOR, environment);
 			}
 			environment.setState(WAITING_FOR_OPERAND);
 			return offset + 1;
 		}
 	};
+    
+    private static final char LEFT_PARENTHESIS = '(';
+    private static final char RIGHT_PARENTHESIS = ')';
+    private static final char DECIMAL_MARK = '.';
+    private static final char ID_MARK = Instructions.ID_PREFIX;
+    private static final char MINUS_ALIAS = '-';
+    private static final String MINUS_OPERATOR = "minus";
 	
 	/**
 	 * Execute the current state.
