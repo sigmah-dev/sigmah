@@ -330,7 +330,7 @@ public class FlexibleElementsAdminPresenter<E extends IsModel> extends AbstractP
                         
                         @Override
                         public String forEntry(ComputationElementDTO entry) {
-                            return entry.getLabel();
+                            return "<span style=\"font-weight: bold\">" + entry.getLabel() + "</span>";
                         }
                     }, ", ")) 
                     + "<br/><br/>";
