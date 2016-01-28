@@ -57,6 +57,8 @@ public class TextAreaElementDTO extends FlexibleElementDTO {
 	 * Serial version UID.
 	 */
 	private static final long serialVersionUID = 8520711106031085130L;
+    
+    public static final String ENTITY_NAME = "element.TextAreaElement";
 
 	/**
 	 * {@inheritDoc}
@@ -64,7 +66,7 @@ public class TextAreaElementDTO extends FlexibleElementDTO {
 	@Override
 	public String getEntityName() {
 		// Gets the entity name mapped by the current DTO starting from the "server.domain" package name.
-		return "element.TextAreaElement";
+		return ENTITY_NAME;
 	}
 
 	/**
