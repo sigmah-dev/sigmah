@@ -26,6 +26,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import org.sigmah.shared.dto.referential.DimensionType;
+import org.sigmah.shared.util.Collections;
 
 /**
  * Encapsulates a text description of a given filter restriction.
@@ -63,21 +64,23 @@ public class FilterDescription implements Serializable {
 	}
 
 	/**
+     * Returns the labels of the dimension categories specified in this restriction.
+     * 
 	 * @return The labels of the dimension categories specified in this restriction.
 	 */
 	public List<String> getLabels() {
 		return labels;
 	}
 
+    /**
+     * Join the labels with the given delimiter.
+     * 
+     * @param delimeter
+     *          Delimiter to use.
+     * @return A string join the labels with the given delimiter.
+     */
 	public String joinLabels(String delimeter) {
-		final StringBuilder sb = new StringBuilder();
-		for (final String label : labels) {
-			if (sb.length() != 0) {
-				sb.append(delimeter);
-			}
-			sb.append(label);
-		}
-		return sb.toString();
+        return Collections.join(labels, delimeter);
 	}
 
 }
