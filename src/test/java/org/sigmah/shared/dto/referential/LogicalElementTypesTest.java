@@ -97,6 +97,7 @@ public class LogicalElementTypesTest {
 
             Assert.assertEquals(defaultFlexibleElementType, type);
             Assert.assertEquals(ElementTypeEnum.DEFAULT, type.toElementTypeEnum());
+            Assert.assertEquals(defaultFlexibleElementDTO.getElementType(), type.toElementTypeEnum());
             Assert.assertNull(type.toTextAreaType());
             Assert.assertEquals(defaultFlexibleElementType, type.toDefaultFlexibleElementType());
         }
@@ -207,6 +208,7 @@ public class LogicalElementTypesTest {
 
             Assert.assertEquals(textAreaType, type);
             Assert.assertEquals(ElementTypeEnum.TEXT_AREA, type.toElementTypeEnum());
+            Assert.assertEquals(textAreaElementDTO.getElementType(), type.toElementTypeEnum());
             Assert.assertEquals(textAreaType, type.toTextAreaType());
             Assert.assertNull(type.toDefaultFlexibleElementType());
         }

@@ -356,6 +356,8 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 
 			@Override
 			public void handleEvent(final BaseEvent be) {
+                
+                final String code = view.getCodeField().getValue();
 
 				final LogicalElementType type = TypeModel.getType(view.getTypeField().getValue());
 				loadFlexibleElementSpecificFields(flexibleElement, type);
@@ -367,6 +369,8 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
                     view.getExportableField().show();
 					view.getExportableField().setValue(flexibleElement != null ? flexibleElement.getExportable() : null);
                 }
+                
+                view.getCodeField().setValue(code);
 			}
 		});
 
@@ -638,6 +642,8 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 		view.getExportableField().setValue(true);
 
 		loadFlexibleElementSpecificFields(flexibleElement, type);
+        
+        view.getCodeField().setValue("field" + otherElements.size());
 
 		if (flexibleElement != null) {
 
@@ -696,7 +702,7 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 			oldFieldProperties.put(AdminUtil.PROP_FX_DECIMAL, view.getDecimalField().getValue());
 			oldFieldProperties.put(AdminUtil.PROP_FX_Q_QUALITY, view.getQualityLinkField().getValue());
 			oldFieldProperties.put(AdminUtil.PROP_FX_Q_MULTIPLE, view.getMultipleChoicesField().getValue());
-		}
+        }
 	}
 
 	/**
