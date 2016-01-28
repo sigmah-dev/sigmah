@@ -36,7 +36,7 @@ import com.google.gwt.core.client.GWT;
  * @author Denis Colliot (dcolliot@ideia.fr) (v2.0)
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
-public enum ElementTypeEnum {
+public enum ElementTypeEnum implements LogicalElementType {
 
 	CHECKBOX("CheckboxElement"),
 	
@@ -69,7 +69,7 @@ public enum ElementTypeEnum {
 	private ElementTypeEnum(String className) {
 		this.className = className;
 	}
-
+    
 	/**
 	 * Root package of domain elements.
 	 */
@@ -147,4 +147,37 @@ public enum ElementTypeEnum {
 			return ROOT_PACKAGE + "default";
 		}
 	}
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ElementTypeEnum toElementTypeEnum() {
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public TextAreaType toTextAreaType() {
+        return null;
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DefaultFlexibleElementType toDefaultFlexibleElementType() {
+        return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getDescription() {
+        return getName(this);
+    }
+    
 }

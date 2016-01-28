@@ -33,7 +33,7 @@ import com.google.gwt.core.client.GWT;
  * @author tmi
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
-public enum DefaultFlexibleElementType implements Result {
+public enum DefaultFlexibleElementType implements Result, LogicalElementType {
 
 	CODE,
 	TITLE,
@@ -95,4 +95,37 @@ public enum DefaultFlexibleElementType implements Result {
 				return flexibleElementType.name();
 		}
 	}
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ElementTypeEnum toElementTypeEnum() {
+        return ElementTypeEnum.DEFAULT;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public TextAreaType toTextAreaType() {
+        return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DefaultFlexibleElementType toDefaultFlexibleElementType() {
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getDescription() {
+        return I18N.CONSTANTS.flexibleElementDefault() + " (" + getName(this) + ')';
+    }
+    
 }

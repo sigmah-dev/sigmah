@@ -87,7 +87,9 @@ import java.util.Arrays;
 import org.sigmah.client.ui.widget.HasGrid;
 import org.sigmah.client.ui.widget.form.ClearableField;
 import org.sigmah.client.util.ColumnProviders;
+import org.sigmah.client.util.TypeModel;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
+import org.sigmah.shared.dto.referential.LogicalElementType;
 
 /**
  * {@link EditFlexibleElementAdminPresenter}'s view implementation.
@@ -107,7 +109,7 @@ public class EditFlexibleElementAdminView extends AbstractPopupView<PopupWidget>
 	private FormPanel commonForm;
 	private HtmlEditor nameField;
 	private LabelField nameReadOnlyField;
-	private ComboBox<EnumModel<ElementTypeEnum>> typeField;
+	private ComboBox<TypeModel> typeField;
 	private ComboBox<BaseModelData> containerField;
 	private ComboBox<LayoutGroupDTO> layoutGroupField;
 	private NumberField orderField;
@@ -125,7 +127,6 @@ public class EditFlexibleElementAdminView extends AbstractPopupView<PopupWidget>
 	private SimpleComboBox<Integer> bannerPositionField;
 
 	private Set<Field<?>> textAreaFields;
-	private ComboBox<EnumModel<TextAreaType>> textAreaTypeField;
 	private NumberField lengthField;
 	private TextField<String> codeField;
 	private CheckBox decimalField;
@@ -240,8 +241,6 @@ public class EditFlexibleElementAdminView extends AbstractPopupView<PopupWidget>
 
 		bannerPositionField = Forms.simpleCombobox(I18N.CONSTANTS.adminFlexibleBannerPosition(), false);
 		bannerPositionField.disable();
-
-		textAreaTypeField = Forms.combobox(I18N.CONSTANTS.adminFlexibleTextType(), true, EnumModel.VALUE_FIELD, EnumModel.DISPLAY_FIELD);
 
 		lengthField = Forms.number(I18N.CONSTANTS.adminFlexibleLength(), false);
 		codeField = Forms.text(I18N.CONSTANTS.adminFlexibleCode(), false);
@@ -365,7 +364,6 @@ public class EditFlexibleElementAdminView extends AbstractPopupView<PopupWidget>
 		specificForm = Forms.panel(150);
 		specificForm.add(bannerField);
 		specificForm.add(bannerPositionField);
-		specificForm.add(textAreaTypeField);
         specificForm.add(computationRuleField);
 		specificForm.add(codeField);
 		specificForm.add(lengthField);
@@ -456,7 +454,7 @@ public class EditFlexibleElementAdminView extends AbstractPopupView<PopupWidget>
 	 * {@inheritDoc}
 	 */
 	@Override
-	public ComboBox<EnumModel<ElementTypeEnum>> getTypeField() {
+	public ComboBox<TypeModel> getTypeField() {
 		return typeField;
 	}
 
@@ -538,14 +536,6 @@ public class EditFlexibleElementAdminView extends AbstractPopupView<PopupWidget>
 	@Override
 	public SimpleComboBox<Integer> getBannerPositionField() {
 		return bannerPositionField;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public ComboBox<EnumModel<TextAreaType>> getTextAreaTypeField() {
-		return textAreaTypeField;
 	}
 
 	/**
@@ -817,11 +807,13 @@ public class EditFlexibleElementAdminView extends AbstractPopupView<PopupWidget>
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setSpecificFieldsVisibility(final ElementTypeEnum elementType, final DefaultFlexibleElementType defaultFlexibleElementType) {
+	public void setSpecificFieldsVisibility(final LogicalElementType type) {
 
 		hideFields(specificForm.getFields());
         codeGrid.hide();
 
+        final ElementTypeEnum elementType = type.toElementTypeEnum();
+        
 		if (elementType == null) {
 			return;
 		}
@@ -840,20 +832,12 @@ public class EditFlexibleElementAdminView extends AbstractPopupView<PopupWidget>
 
 				bannerField.show();
 				bannerPositionField.show();
-
-				switch (defaultFlexibleElementType) {
-
-					case BUDGET:
-
-						budgetFields.setVisible(true);
-						anchorAddSubField.setVisible(true);
-						ratioFlexTable.setVisible(true);
-
-						break;
-
-					default:
-						break;
-				}
+                
+                if (type == DefaultFlexibleElementType.BUDGET) {
+                    budgetFields.setVisible(true);
+                    anchorAddSubField.setVisible(true);
+                    ratioFlexTable.setVisible(true);
+                }
 				break;
 
 			case FILES_LIST:
@@ -874,8 +858,7 @@ public class EditFlexibleElementAdminView extends AbstractPopupView<PopupWidget>
 				break;
 
 			case TEXT_AREA:
-				textAreaTypeField.show();
-				textAreaTypeField.setAllowBlank(false);
+                setTextAreaSpecificFieldsVisibility(elementType.toTextAreaType());
 				break;
 
 			default:
