@@ -373,6 +373,7 @@ body {font-family:Arial;font-size:8pt}
 
 /* Administration */
 .form-header-label{padding:5px 0 8px 5px;margin:0 5px;border-bottom:1px solid #aaa;font-style:italic;color:#aaa}
+.form-hint{padding-bottom:6px;display:block}
 
 /* Maintenance */
 .header-alert {color: black !important;background-color: rgb(255, 90, 90) !important;background-image: none !important;border: 1px black solid !important;}

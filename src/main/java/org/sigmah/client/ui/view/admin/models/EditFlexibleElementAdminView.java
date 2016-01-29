@@ -101,6 +101,8 @@ public class EditFlexibleElementAdminView extends AbstractPopupView<PopupWidget>
 
 	// CSS style names.
 	private static final String STYLE_FORM_HEADER_LABEL = "form-header-label";
+    private static final String STYLE_FORM_HINT = "form-hint";
+    private static final String STYLE_FORM_ITEM = "x-form-item";
 
 	// --
 	// Common properties form components.
@@ -272,6 +274,7 @@ public class EditFlexibleElementAdminView extends AbstractPopupView<PopupWidget>
 		
 		formulaField = Forms.text(I18N.CONSTANTS.adminFlexibleComputationFormula(), false);
 		formulaHintLabel = new com.extjs.gxt.ui.client.widget.Label(I18N.CONSTANTS.adminFlexibleComputationFormulaHint());
+        formulaHintLabel.addStyleName(STYLE_FORM_HINT);
 
 		// --
 		// specific properties for budget field
@@ -363,7 +366,7 @@ public class EditFlexibleElementAdminView extends AbstractPopupView<PopupWidget>
         codeGrid.setAutoHeight(false);
         codeGrid.setHeight(200);
         codeGridHeaderLabel = new com.extjs.gxt.ui.client.widget.Label(I18N.CONSTANTS.adminFlexibleComputationCodeGridHeader());
-        codeGridHeaderLabel.addStyleName("x-form-item");
+        codeGridHeaderLabel.addStyleName(STYLE_FORM_ITEM);
         
 		// Form initialization.
 		specificForm = Forms.panel(150);
@@ -818,6 +821,8 @@ public class EditFlexibleElementAdminView extends AbstractPopupView<PopupWidget>
 
 		hideFields(specificForm.getFields());
         codeGrid.hide();
+        formulaHintLabel.hide();
+        codeGridHeaderLabel.hide();
 
         final ElementTypeEnum elementType = type.toElementTypeEnum();
         
