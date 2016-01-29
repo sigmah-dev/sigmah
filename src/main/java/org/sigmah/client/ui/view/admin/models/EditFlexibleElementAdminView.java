@@ -160,7 +160,9 @@ public class EditFlexibleElementAdminView extends AbstractPopupView<PopupWidget>
     // Computation specific fields.
     // --
     
-	private TextField<String> computationRuleField;
+	private TextField<String> formulaField;
+	private com.extjs.gxt.ui.client.widget.Label formulaHintLabel;
+	private com.extjs.gxt.ui.client.widget.Label codeGridHeaderLabel;
     private com.extjs.gxt.ui.client.widget.grid.Grid<FlexibleElementDTO> codeGrid;
     private HasGrid.GridEventHandler<FlexibleElementDTO> codeGridEventHandler;
 
@@ -268,7 +270,8 @@ public class EditFlexibleElementAdminView extends AbstractPopupView<PopupWidget>
 		customChoicesPanel = new FlowPanel();
 		customChoicesField = Forms.adapter(null, customChoicesPanel);
 		
-		computationRuleField = Forms.text(I18N.CONSTANTS.adminFlexibleComputationRule(), false);
+		formulaField = Forms.text(I18N.CONSTANTS.adminFlexibleComputationFormula(), false);
+		formulaHintLabel = new com.extjs.gxt.ui.client.widget.Label(I18N.CONSTANTS.adminFlexibleComputationFormulaHint());
 
 		// --
 		// specific properties for budget field
@@ -359,12 +362,15 @@ public class EditFlexibleElementAdminView extends AbstractPopupView<PopupWidget>
         codeGrid = new com.extjs.gxt.ui.client.widget.grid.Grid<FlexibleElementDTO>(codeStore, columnModel);
         codeGrid.setAutoHeight(false);
         codeGrid.setHeight(200);
+        codeGridHeaderLabel = new com.extjs.gxt.ui.client.widget.Label(I18N.CONSTANTS.adminFlexibleComputationCodeGridHeader());
+        codeGridHeaderLabel.addStyleName("x-form-item");
         
 		// Form initialization.
 		specificForm = Forms.panel(150);
 		specificForm.add(bannerField);
 		specificForm.add(bannerPositionField);
-        specificForm.add(computationRuleField);
+        specificForm.add(formulaField);
+        specificForm.add(formulaHintLabel);
 		specificForm.add(codeField);
 		specificForm.add(lengthField);
 		specificForm.add(decimalField);
@@ -378,6 +384,7 @@ public class EditFlexibleElementAdminView extends AbstractPopupView<PopupWidget>
 		specificForm.add(categoryTypeField);
 		specificForm.add(customChoiceAddField);
 		specificForm.add(customChoicesField);
+		specificForm.add(codeGridHeaderLabel);
 		specificForm.add(codeGrid);
 
 		specificForm.add(budgetFields);
@@ -702,8 +709,8 @@ public class EditFlexibleElementAdminView extends AbstractPopupView<PopupWidget>
 	 * {@inheritDoc}
 	 */
 	@Override
-	public TextField<String> getComputationRuleField() {
-		return computationRuleField;
+	public TextField<String> getFormulaField() {
+		return formulaField;
 	}
 
     /**
@@ -822,9 +829,11 @@ public class EditFlexibleElementAdminView extends AbstractPopupView<PopupWidget>
 			
 			case COMPUTATION:
 				codeField.show();
-				computationRuleField.show();
+				formulaField.show();
+                formulaHintLabel.show();
 				minLimitField.show();
 				maxLimitField.show();
+                codeGridHeaderLabel.show();
                 codeGrid.show();
 				break;
 

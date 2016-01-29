@@ -29,6 +29,7 @@ import org.sigmah.client.util.ToStringBuilder;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.rpc.IsSerializable;
+import org.sigmah.client.ui.notif.N10N;
 
 /**
  * <p>
@@ -178,9 +179,11 @@ public class FunctionalException extends CommandException {
 
 			case UPDATE_CONFLICT:
 				final SafeHtmlBuilder ulBuilder = new SafeHtmlBuilder();
+                ulBuilder.appendHtmlConstant("<ul class=\"" + N10N.CSS_LIST + "\">");
 				for(final String error : exception.parameters) {
-					ulBuilder.appendHtmlConstant("<li>").appendEscaped(error).appendHtmlConstant("</li>");
+					ulBuilder.appendHtmlConstant("<li>").appendEscapedLines(error).appendHtmlConstant("</li>");
 				}
+                ulBuilder.appendHtmlConstant("</ul>");
 				return I18N.MESSAGES.conflictError(ulBuilder.toSafeHtml().asString());
 				
 			case IMPORTATION_SCHEME_IS_LINKED:
