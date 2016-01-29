@@ -836,6 +836,9 @@
                                         <licenseName>gpl_v3</licenseName>
                                         <excludes>
                                                 <exclude>**/OpenLayers.js</exclude>
+
+						<!-- Exclude flyway migration because flyway checksum the file -->
+                                                <exclude>main/resources/db/migration/*.sql</exclude>
                                         </excludes>
                                 </configuration>
                         </plugin>
