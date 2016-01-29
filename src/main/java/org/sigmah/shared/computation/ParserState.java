@@ -39,7 +39,18 @@ enum ParserState {
 				} else if (isLetter(c) || c == '_') {
 					environment.setState(VARIABLE_CODE);
 					return index;
-				}
+				} else if (!isSpace(c)) {
+                    throw new IllegalArgumentException("Formula '" 
+                            + new String(array)
+                            + "' is unparseable. Got bad element '" + c 
+                            + "', accepted elements are: "
+                            + "[0-9], " 
+                            + MINUS_ALIAS + ", " 
+                            + LEFT_PARENTHESIS + ", " 
+                            + RIGHT_PARENTHESIS + ", "
+                            + ID_MARK + ", "
+                            + "[a-zA-Z] or space.");
+                }
 			}
 			return array.length;
 		}
