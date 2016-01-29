@@ -164,7 +164,7 @@ public class UpdateProjectAsyncHandler implements AsyncCommandHandler<UpdateProj
                 try {
                     checkComputations(valueEvents, project);
                 } catch (UpdateConflictException e) {
-                    N10N.warn(e.getTitle(), e.getMessage());
+                    N10N.info(e.getTitle(), e.getMessage());
                 }
             }
         });
