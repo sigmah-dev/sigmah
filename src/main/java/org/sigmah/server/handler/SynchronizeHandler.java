@@ -32,6 +32,7 @@ import org.sigmah.server.dispatch.impl.UserDispatch;
 import org.sigmah.server.handler.base.AbstractCommandHandler;
 import org.sigmah.server.i18n.I18nServer;
 import org.sigmah.server.mail.ModelMailService;
+import org.sigmah.shared.Language;
 import org.sigmah.shared.command.PrepareFileUpload;
 import org.sigmah.shared.command.Synchronize;
 import org.sigmah.shared.command.UpdateProject;
@@ -54,34 +55,44 @@ import org.sigmah.shared.dto.value.FileVersionDTO;
  */
 public class SynchronizeHandler extends AbstractCommandHandler<Synchronize, SynchronizeResult> {
 	
+    /**
+     * Access to the localized strings.
+     */
 	@Inject
 	private I18nServer i18nServer;
 	
+    /**
+     * Service to send emails.
+     */
 	@Inject
 	private ModelMailService modelMailService;
 	
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected SynchronizeResult execute(Synchronize synchronize, UserDispatch.UserExecutionContext context) throws CommandException {
+        
 		final HashMap<ContainerInformation, List<String>> errors = new HashMap<>();
 		final HashMap<Integer, Integer> files = new HashMap<>();
 		boolean errorConcernFiles = false;
 		
-        for(final Command<?> command : synchronize.getCommands()) {
+        for (final Command<?> command : synchronize.getCommands()) {
 			try {
-				if(command instanceof UpdateProject) {
+				if (command instanceof UpdateProject) {
 					((UpdateProject)command).setComment(i18nServer.t(context.getLanguage(), "sigmahOfflineSynchronizeUpdateComment"));
 				}
 				
 				final Result result = context.execute(command);
 				
-				if(command instanceof PrepareFileUpload) {
+				if (command instanceof PrepareFileUpload) {
 					final String negativeId = ((PrepareFileUpload)command).getProperties().get(FileUploadUtils.GENERATED_ID);
 					final FileVersionDTO fileVersion = (FileVersionDTO)result;
 					
 					files.put(Integer.parseInt(negativeId), fileVersion.getId());
 				}
 				
-			} catch(UpdateConflictException e) {
+			} catch (UpdateConflictException e) {
 				errorConcernFiles |= e.isFile();
 				
 				final ContainerInformation container = e.getContainer();
@@ -96,39 +107,25 @@ public class SynchronizeHandler extends AbstractCommandHandler<Synchronize, Sync
 			}
         }
 		
-		if(!errors.isEmpty()) {
+		if (!errors.isEmpty()) {
 			sendErrorsByMailToCurrentUser(errors, errorConcernFiles, context);
 		}
 		
         return new SynchronizeResult(errors, errorConcernFiles, files);
     }
     
+    /**
+     * Send errors of the synchronization by email.
+     * 
+     * @param errors
+     *          Map of errors for each container (project or orgunit).
+     * @param hasFiles
+     *          <code>true</code> if at least one error concern files.
+     * @param context 
+     *          Execution context.
+     */
 	private void sendErrorsByMailToCurrentUser(Map<ContainerInformation, List<String>> errors, boolean hasFiles, UserDispatch.UserExecutionContext context) {
-		// Format the error list.
-		final StringBuilder ulBuilder = new StringBuilder();
-		for(final Map.Entry<ContainerInformation, List<String>> entry : errors.entrySet()) {
-			if(entry.getKey().isProject()) {
-				ulBuilder.append(i18nServer.t(context.getLanguage(), "project"));
-			} else {
-				ulBuilder.append(i18nServer.t(context.getLanguage(), "orgunit"));
-			}
-			
-			ulBuilder.append(' ')
-				.append(entry.getKey().getName())
-				.append(" - ")
-				.append(entry.getKey().getFullName())
-				.append("<ul>");
-			
-			for(final String error : entry.getValue()) {
-				ulBuilder.append("<li>").append(error).append("</li>");
-			}
-			ulBuilder.append("</ul>");
-		}
-		
-		if(hasFiles) {
-			ulBuilder.append(i18nServer.t(context.getLanguage(), "conflictFiles"));
-		}
-		
+        
 		// Full name.
 		final String firstName = context.getUser().getFirstName();
 		final String lastName = context.getUser().getName();
@@ -137,9 +134,51 @@ public class SynchronizeHandler extends AbstractCommandHandler<Synchronize, Sync
 		// Send the mail.
 		final HashMap<EmailKey, String> parameters = new HashMap<>();
 		parameters.put(EmailKeyEnum.USER_USERNAME, fullName);
-		parameters.put(EmailKeyEnum.ERROR_LIST, ulBuilder.toString());
+		parameters.put(EmailKeyEnum.ERROR_LIST, errorListBody(errors, hasFiles, context.getLanguage()));
 		
 		modelMailService.send(EmailType.OFFLINE_SYNC_CONFLICT, parameters, context.getLanguage(), context.getUser().getEmail());
 	}
+
+    /**
+     * Format the error list.
+     * 
+     * @param errors
+     *          Map of errors for each container (project or orgunit).
+     * @param hasFiles
+     *          <code>true</code> if at least one error concern files.
+     * @param context
+     *          Execution context.
+     * @return Body of the mail to be sent.
+     */
+    private String errorListBody(Map<ContainerInformation, List<String>> errors, boolean hasFiles, Language language) {
+        
+        final StringBuilder ulBuilder = new StringBuilder();
+        
+        for (final Map.Entry<ContainerInformation, List<String>> entry : errors.entrySet()) {
+            
+            if (entry.getKey().isProject()) {
+                ulBuilder.append(i18nServer.t(language, "project"));
+            } else {
+                ulBuilder.append(i18nServer.t(language, "orgunit"));
+            }
+            
+            ulBuilder.append(' ')
+                    .append(entry.getKey().getName())
+                    .append(" - ")
+                    .append(entry.getKey().getFullName())
+                    .append("<ul>");
+            
+            for (final String error : entry.getValue()) {
+                ulBuilder.append("<li>").append(error.replace("\n", "<br>")).append("</li>");
+            }
+            ulBuilder.append("</ul>");
+        }
+        
+        if (hasFiles) {
+            ulBuilder.append(i18nServer.t(language, "conflictFiles"));
+        }
+        
+        return ulBuilder.toString();
+    }
 	
 }
