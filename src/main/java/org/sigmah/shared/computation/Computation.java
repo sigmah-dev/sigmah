@@ -16,6 +16,7 @@ import org.sigmah.shared.computation.instruction.BadVariable;
 import org.sigmah.shared.computation.instruction.HasHumanReadableFormat;
 import org.sigmah.shared.computation.instruction.Operator;
 import org.sigmah.shared.computation.instruction.OperatorPriority;
+import org.sigmah.shared.computation.value.ComputationError;
 import org.sigmah.shared.computation.value.ComputedValue;
 import org.sigmah.shared.computation.value.ComputedValues;
 import org.sigmah.shared.dto.element.FlexibleElementContainer;
@@ -87,7 +88,9 @@ public class Computation {
 	 * @param callback
      *          Called when the value has been computed.
      */
-    public void computeValueWithWrappersAndResolver(final int containerId, final List<ValueEventWrapper> modifications, final ValueResolver resolver, final AsyncCallback<String> callback) {
+    public void computeValueWithWrappersAndResolver(final int containerId, final List<ValueEventWrapper> modifications, 
+            final ValueResolver resolver, final AsyncCallback<String> callback) {
+        
         final HashSet<FlexibleElementDTO> dependencies = new HashSet<FlexibleElementDTO>(getDependencies());
 
         final HashMap<Integer, ComputedValue> variables = new HashMap<Integer, ComputedValue>();
@@ -202,6 +205,15 @@ public class Computation {
         return elements;
     }
 
+    /**
+     * Returns <code>true</code> if this computation was made from a bad formula.
+     * 
+     * @return <code>true</code> if this computation was made from a bad formula, <code>false</code> otherwise.
+     */
+    public boolean isBadFormula() {
+        return instructions.size() == 1 && ComputedValues.from(toString()) == ComputationError.BAD_FORMULA;
+    }
+    
     /**
      * Find and return the bad references used in this computation.
      *

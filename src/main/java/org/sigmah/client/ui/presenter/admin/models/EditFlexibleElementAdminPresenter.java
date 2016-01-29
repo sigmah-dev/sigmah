@@ -119,6 +119,7 @@ import org.sigmah.shared.computation.value.ComputedValues;
 import org.sigmah.shared.dto.element.ComputationElementDTO;
 import org.sigmah.shared.dto.referential.LogicalElementType;
 import org.sigmah.shared.dto.referential.LogicalElementTypes;
+import org.sigmah.shared.util.Collections;
 
 /**
  * Presenter in charge of creating/editing a flexible element.
@@ -504,18 +505,16 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
                 
                 final Computation computation = Computations.parse(value, otherElements);
                 
-                if (computation != null) {
-                    final StringBuilder errorBuilder = new StringBuilder();
-                    for (final String badReference : computation.getBadReferences()) {
-                        errorBuilder.append(badReference).append(", ");
-                    }
-                    if (errorBuilder.length() > 0) {
-                        errorBuilder.setLength(errorBuilder.length() - 2);
+                if (computation != null && !computation.isBadFormula()) {
+                    final Set<String> badReferences = computation.getBadReferences();
+                    
+                    if (!badReferences.isEmpty()) {
+                        final String references = Collections.join(customChoices, ", ");
                         
                         if (computation.getBadReferences().size() == 1) {
-                            return I18N.MESSAGES.adminFlexibleComputationRuleBadReference(errorBuilder.toString());
+                            return I18N.MESSAGES.adminFlexibleComputationRuleBadReference(references);
                         } else {
-                            return I18N.MESSAGES.adminFlexibleComputationRuleBadReferences(errorBuilder.toString());
+                            return I18N.MESSAGES.adminFlexibleComputationRuleBadReferences(references);
                         }
                     }
                 } else {
