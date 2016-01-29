@@ -212,7 +212,7 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 
 		void clearBudgetFields();
 		
-		TextField<String> getComputationRuleField();
+		TextField<String> getFormulaField();
         
 		// --
 		// Methods.
@@ -493,7 +493,7 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
         // Computation rule validation.
         // --
         
-        view.getComputationRuleField().setValidator(new Validator() {
+        view.getFormulaField().setValidator(new Validator() {
             
             @Override
             public String validate(Field<?> field, String value) {
@@ -859,7 +859,7 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 
             // Computation rule.       
             final String formattedRule = Computations.formatRuleForEdition(computationElement.getRule(), otherElements);
-			view.getComputationRuleField().setValue(formattedRule);
+			view.getFormulaField().setValue(formattedRule);
             
             // Minimum and maximum value.
             view.getMinLimitField().setValue(ComputedValues.from(computationElement.getMinimumValue(), false).get());
@@ -1280,7 +1280,7 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 		final Boolean multiple = view.getMultipleChoicesField().getValue();
 		final CategoryTypeDTO category = view.getCategoryTypeField().getValue();
 		
-		final String computationRule = Computations.formatRuleForServer(view.getComputationRuleField().getValue(), otherElements);
+		final String computationRule = Computations.formatRuleForServer(view.getFormulaField().getValue(), otherElements);
 
 		// --
 		// Initializing 'NEW' properties map.

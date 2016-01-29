@@ -1,6 +1,8 @@
 package org.sigmah.shared.util;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -86,6 +88,29 @@ public final class Collections {
         }
         return builder.toString();
     }
+    
+    /**
+     * Creates a list by mapping the elements from the given collection.
+     * 
+     * @param <S>
+     *          Source type.
+     * @param <D>
+     *          Destination type.
+     * @param collection
+     *          Collection to map.
+     * @param mapper
+     *          Mapper from S to D.
+     * @return A new list.
+     */
+    public static <S, D> List<D> map(final Collection<S> collection, final Mapper<S, D> mapper) {
+        final ArrayList<D> list = new ArrayList<D>();
+        
+        for (final S entry : collection) {
+            list.add(mapper.forEntry(entry));
+        }
+        
+        return list;
+    } 
     
     /**
      * Simple filter interface.

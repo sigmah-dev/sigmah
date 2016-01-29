@@ -1,5 +1,6 @@
 package org.sigmah.shared.util;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import org.junit.Assert;
@@ -17,7 +18,7 @@ public class CollectionsTest {
      * Test of join method, of class Collections.
      */
     @Test
-    public void testJoin() {
+    public void testJoin_Collection_String() {
         System.out.println("join");
         
         Assert.assertEquals("", Collections.join(Arrays.<Object>asList(), ", "));
@@ -30,7 +31,7 @@ public class CollectionsTest {
      * Test of join method, of class Collections.
      */
     @Test
-    public void testMapJoin() {
+    public void testJoin_3args() {
         System.out.println("mapJoin");
         
         final ComputationElementDTO element1 = new ComputationElementDTO();
@@ -65,6 +66,30 @@ public class CollectionsTest {
         Assert.assertTrue(Collections.containsOneOf(haystack, Arrays.asList("B", "C")));
         Assert.assertTrue(Collections.containsOneOf(haystack, Arrays.asList("D", "C")));
         Assert.assertTrue(Collections.containsOneOf(haystack, haystack));
+    }
+
+    /**
+     * Test of map method, of class Collections.
+     */
+    @Test
+    public void testMap() {
+        System.out.println("map");
+        
+        Assert.assertEquals(new ArrayList<String>(Arrays.asList("12", "42", "94")), Collections.map(Arrays.asList(12, 42, 94), new Collections.Mapper<Integer, String>() {
+            
+            @Override
+            public String forEntry(Integer entry) {
+                return entry.toString();
+            }
+        }));
+        
+        Assert.assertEquals(new ArrayList<Double>(Arrays.asList(12.0, 42.0, 94.0)), Collections.map(Arrays.asList(12, 42, 94), new Collections.Mapper<Integer, Double>() {
+            
+            @Override
+            public Double forEntry(Integer entry) {
+                return Double.valueOf(entry);
+            }
+        }));
     }
 
 }
