@@ -43,9 +43,11 @@ import com.google.inject.Singleton;
 import java.util.ArrayList;
 import java.util.List;
 import org.sigmah.client.i18n.I18N;
+import org.sigmah.client.ui.notif.N10N;
 import org.sigmah.offline.dao.ProjectAsyncDAO;
 import org.sigmah.offline.sync.SuccessCallback;
 import org.sigmah.shared.command.result.Authentication;
+import org.sigmah.shared.computation.Computation;
 import org.sigmah.shared.computation.value.ComputedValue;
 import org.sigmah.shared.computation.value.ComputedValues;
 import org.sigmah.shared.dispatch.UpdateConflictException;
@@ -53,6 +55,7 @@ import org.sigmah.shared.dto.ProjectDTO;
 import org.sigmah.shared.dto.element.ComputationElementDTO;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
 import org.sigmah.shared.dto.referential.ContainerInformation;
+import org.sigmah.shared.util.Collections;
 
 /**
  * JavaScript implementation of {@link org.sigmah.server.handler.UpdateProjectHandler}.
@@ -80,12 +83,7 @@ public class UpdateProjectAsyncHandler implements AsyncCommandHandler<UpdateProj
 		// Updating the local database
 		final RequestManager<VoidResult> requestManager = new RequestManager<VoidResult>(null, callback);
         
-        try {
-            checkComputations(command.getValues(), command.getProjectId());
-        } catch (UpdateConflictException e) {
-            callback.onFailure(e);
-            return;
-        }
+        checkComputations(command.getValues(), command.getProjectId());
         
 		for(final ValueEventWrapper valueEventWrapper : command.getValues()) {
 			final String id = ValueJSIdentifierFactory.toIdentifier(command, valueEventWrapper);
@@ -149,47 +147,93 @@ public class UpdateProjectAsyncHandler implements AsyncCommandHandler<UpdateProj
 	}
     
     /**
+     * Retrieves the project from the local database and begin to check for conflicts.
+     * 
+     * @param valueEvents
+     *          List of modifications.
+     * @param projectId
+     *          Identifier of the modified project.
+     */
+    private void checkComputations(final List<ValueEventWrapper> valueEvents, int projectId) {
+        
+        projectAsyncDAO.get(projectId, new SuccessCallback<ProjectDTO>() {
+
+            @Override
+            public void onSuccess(final ProjectDTO project) {
+                
+                try {
+                    checkComputations(valueEvents, project);
+                } catch (UpdateConflictException e) {
+                    N10N.warn(e.getTitle(), e.getMessage());
+                }
+            }
+        });
+    }
+    
+    /**
      * Search for computations and verify if the value matches the constraints of the field.
      * 
-     * @param valueEvents List of changes.
+     * @param valueEvents
+     *          List of changes.
      */
-    private void checkComputations(final List<ValueEventWrapper> valueEvents, int projectId) throws UpdateConflictException {
+    private void checkComputations(final List<ValueEventWrapper> valueEvents, ProjectDTO project) throws UpdateConflictException {
         
         final ArrayList<String> conflicts = new ArrayList<String>();
         
         for (final ValueEventWrapper valueEvent : valueEvents) {
             final FlexibleElementDTO source = valueEvent.getSourceElement();
             if (source instanceof ComputationElementDTO && ((ComputationElementDTO) source).hasConstraints()) {
-                final ComputationElementDTO computationElement = (ComputationElementDTO) source;
-                final ComputedValue clientResult = ComputedValues.from(valueEvent.getSingleValue());
-                
-                switch (clientResult.matchesConstraints(computationElement)) {
-                    case -1:
-                        conflicts.add(I18N.MESSAGES.conflictComputationTooLowOffline(computationElement.getLabel(), valueEvent.getSingleValue(), computationElement.getMinimumValue()));
-                        break;
-                    case 1:
-                        conflicts.add(I18N.MESSAGES.conflictComputationTooHighOffline(computationElement.getLabel(), valueEvent.getSingleValue(), computationElement.getMaximumValue()));
-                        break;
-                    default:
-                        break;
-                }
+                checkComputation((ComputationElementDTO) source, ComputedValues.from(valueEvent.getSingleValue()), project, valueEvents, conflicts);
             }
         }
         
-        if(!conflicts.isEmpty()) {
-            final ContainerInformation containerInformation = new ContainerInformation(projectId, I18N.CONSTANTS.loading(), I18N.CONSTANTS.loading(), true);
-            projectAsyncDAO.getWithoutDependencies(projectId, new SuccessCallback<ProjectDTO>() {
+        if (!conflicts.isEmpty()) {
+			// At least one conflict was found.
+			throw new UpdateConflictException(
+                    new ContainerInformation(project.getId(), project.getName(), project.getFullName(), true), 
+                    conflicts.toArray(new String[conflicts.size()]));
+		}
+    }
+
+    /**
+     * Check if the new value of the given computation exceeds one of its constraints.
+     * 
+     * @param computationElement
+     *          Modified computation field.
+     * @param value
+     *          New value.
+     * @param project
+     *          Modified project.
+     * @param valueEvents
+     *          List of modifications.
+     * @param conflicts 
+     *          List of conflicts where to add the result of this verification.
+     */
+    private void checkComputation(final ComputationElementDTO computationElement, final ComputedValue value, final ProjectDTO project, final List<ValueEventWrapper> valueEvents, final List<String> conflicts) {
+        
+        final int comparison = value.matchesConstraints(computationElement);
+        if (comparison != 0) {
+            final String greaterOrLess, breachedConstraint;
+            if (comparison < 0) {
+                greaterOrLess = I18N.CONSTANTS.flexibleElementComputationLess();
+                breachedConstraint = computationElement.getMinimumValue();
+            } else {
+                greaterOrLess = I18N.CONSTANTS.flexibleElementComputationGreater();
+                breachedConstraint = computationElement.getMaximumValue();
+            }
+            
+            final Computation computation = computationElement.getComputationForModel(project.getProjectModel());
+            final List<ValueEventWrapper> changes = computation.getRelatedChanges(valueEvents);
+            final String fieldList = Collections.join(changes, new Collections.Mapper<ValueEventWrapper, String>() {
                 
                 @Override
-                public void onSuccess(ProjectDTO result) {
-                    containerInformation.setName(result.getName());
-                    containerInformation.setFullName(result.getFullName());
+                public String forEntry(ValueEventWrapper entry) {
+                    return entry.getSourceElement().getFormattedLabel();
                 }
-            });
+            }, ", ");
             
-			// A conflict was found.
-			throw new UpdateConflictException(containerInformation, conflicts.toArray(new String[0]));
-		}
+            conflicts.add(I18N.MESSAGES.conflictComputationOutOfBoundOffline(fieldList, value.toString(), computationElement.getFormattedLabel(), greaterOrLess, breachedConstraint));
+        }
     }
 	
 }

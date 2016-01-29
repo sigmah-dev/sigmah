@@ -64,7 +64,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 import org.sigmah.offline.sync.SuccessCallback;
 import org.sigmah.server.computation.ServerValueResolver;
 import org.sigmah.server.handler.util.Conflicts;
@@ -860,10 +859,6 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
                     value.setSingleValue(serverResult[0].toString());
                 }
                 
-                // Your latest modification on field(s) FIELD1, FIELD2, [List of fields modified and part of the computation]
-                // cannot be saved because it makes the computed value of NAME_OF_THE_COMPUTATION_FIELD [below/greater] than EXCEEDED_LIMIT. 
-                // For your information, here are the latest values of all fields used to compute NAME_OF_THE_COMPUTATION_FIELD: [table with columns: Title / Value / Latest modification (datetime) / Author ]
-                
                 final int comparison = serverResult[0].matchesConstraints(computationElement);
                 if (comparison != 0) {
                     final String greaterOrLess, breachedConstraint;
@@ -875,7 +870,7 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
                         breachedConstraint = computationElement.getMaximumValue();
                     }
                     
-                    final List<ValueEventWrapper> changes = changesAffectingComputation(computation, values);
+                    final List<ValueEventWrapper> changes = computation.getRelatedChanges(values);
                     final String fieldList = org.sigmah.shared.util.Collections.join(changes, new org.sigmah.shared.util.Collections.Mapper<ValueEventWrapper, String>() {
                         
                         @Override
@@ -890,29 +885,6 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
                 }
             }
         }
-    }
-    
-    /**
-     * Identify the changes that made a computation breach its constraints.
-     * 
-     * @param computation
-     *          Computation.
-     * @param changes
-     *          List of changes.
-     * @return The list of changes that made the given computation breach its constraints.
-     */
-    private List<ValueEventWrapper> changesAffectingComputation(final Computation computation, final List<ValueEventWrapper> changes) {
-        final ArrayList<ValueEventWrapper> result = new ArrayList<ValueEventWrapper>();
-        
-        final Set<FlexibleElementDTO> dependencies = computation.getDependencies();
-        
-        for (final ValueEventWrapper change : changes) {
-            if (dependencies.contains(change.getSourceElement())) {
-                result.add(change);
-            }
-        }
-        
-        return result;
     }
     
     /**

@@ -3,6 +3,7 @@ package org.sigmah.shared.computation;
 import org.sigmah.shared.computation.instruction.Variable;
 import org.sigmah.shared.computation.instruction.Instruction;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -36,7 +37,8 @@ public class Computation {
     /**
      * Creates a new computation with the given instructions.
      *
-     * @param instructions Instructions.
+     * @param instructions
+     *          Instructions.
      *
      * @see Computations#parse(java.lang.String, java.util.List)
      */
@@ -47,11 +49,16 @@ public class Computation {
     /**
      * Compute the value for the given container and resolver (for client-side).
      *
-	 * @param container Container (project or orgunit).
-     * @param modifications Unsaved modifications.
-	 * @param resolver Value resolver.
-	 * @param callback Called when the value has been computed.
-     * @param loadables Element to mask during the computation.
+	 * @param container
+     *          Container (project or orgunit).
+     * @param modifications
+     *          Unsaved modifications.
+	 * @param resolver
+     *          Value resolver.
+	 * @param callback
+     *          Called when the value has been computed.
+     * @param loadables
+     *          Element to mask during the computation.
      */
     public void computeValueWithModificationsAndResolver(final FlexibleElementContainer container, final List<ValueEvent> modifications, 
             final ValueResolver resolver, final AsyncCallback<String> callback, final Loadable... loadables) {
@@ -71,10 +78,14 @@ public class Computation {
     /**
      * Compute the value for the given container and resolver (for server-side).
      *
-	 * @param containerId Identifier of the container (project or orgunit).
-     * @param modifications Unsaved modifications.
-	 * @param resolver Value resolver.
-	 * @param callback Called when the value has been computed.
+	 * @param containerId
+     *          Identifier of the container (project or orgunit).
+     * @param modifications
+     *          Unsaved modifications.
+	 * @param resolver
+     *          Value resolver.
+	 * @param callback
+     *          Called when the value has been computed.
      */
     public void computeValueWithWrappersAndResolver(final int containerId, final List<ValueEventWrapper> modifications, final ValueResolver resolver, final AsyncCallback<String> callback) {
         final HashSet<FlexibleElementDTO> dependencies = new HashSet<FlexibleElementDTO>(getDependencies());
@@ -92,14 +103,17 @@ public class Computation {
     /**
      * Compute the value for the given container and resolver.
      *
-     * @param containerId Identifier of the container (project or orgunit).
-	 * @param resolver Value resolver.
-	 * @param callback Called when the value has been computed.
+     * @param containerId
+     *          Identifier of the container (project or orgunit).
+	 * @param resolver
+     *          Value resolver.
+	 * @param callback
+     *          Called when the value has been computed.
      */
     public void computeValueWithResolver(final int containerId, final ValueResolver resolver, final AsyncCallback<String> callback) {
         computeValueWithVariablesDependenciesAndResolver(containerId, new HashMap<Integer, ComputedValue>(), getDependencies(), resolver, callback);
     }
-
+    
     /**
      * Compute the value with the given values.
      * <p>
@@ -107,12 +121,18 @@ public class Computation {
      * the values. Otherwise, the computation is done directly.
      * </p>
      *
-	 * @param containerId Identifier of the container (project or orgunit).
-	 * @param variables Map of the already resolved variables.
-     * @param dependencies Not yet resolved dependencies.
-	 * @param resolver Value resolver.
-	 * @param callback Called when the value has been computed.
-     * @param loadables Element to mask during the computation.
+	 * @param containerId
+     *          Identifier of the container (project or orgunit).
+	 * @param variables
+     *          Map of the already resolved variables.
+     * @param dependencies
+     *          Not yet resolved dependencies.
+	 * @param resolver
+     *          Value resolver.
+	 * @param callback
+     *          Called when the value has been computed.
+     * @param loadables
+     *          Element to mask during the computation.
      */
     private void computeValueWithVariablesDependenciesAndResolver(final int containerId, final Map<Integer, ComputedValue> variables, 
             final Set<FlexibleElementDTO> dependencies, final ValueResolver resolver, final AsyncCallback<String> callback, final Loadable... loadables) {
@@ -144,7 +164,8 @@ public class Computation {
     /**
      * Compute the value with the given variables.
      *
-     * @param variables Values of the variables.
+     * @param variables
+     *          Values of the variables.
      *
      * @return Result of the computation.
      */
@@ -196,6 +217,27 @@ public class Computation {
         }
 
         return errors;
+    }
+    
+    /**
+     * Identify the changes that are part of the dependencies of this computation.
+     * 
+     * @param changes
+     *          List of changes.
+     * @return The list of changes that made the given computation breach its constraints.
+     */
+    public List<ValueEventWrapper> getRelatedChanges(final List<ValueEventWrapper> changes) {
+        final ArrayList<ValueEventWrapper> result = new ArrayList<ValueEventWrapper>();
+
+        final Set<FlexibleElementDTO> dependencies = getDependencies();
+        
+        for (final ValueEventWrapper change : changes) {
+            if (dependencies.contains(change.getSourceElement())) {
+                result.add(change);
+            }
+        }
+        
+        return result;
     }
 
     /**
