@@ -420,6 +420,8 @@ public final class ModelUtil {
 				if (computationRule != null) {
 					computationElement.setRule(computationRule);
 					specificChanges = true;
+                    
+                    removeAllValuesForElement(computationElement, em);
 				}
 				if (minLimit != null) {
 					computationElement.setMinimumValue(minLimit.toString());
@@ -583,6 +585,18 @@ public final class ModelUtil {
 			return null;
 		}
 	}
+    
+    /**
+     * Removes every value associated with the given flexible element.
+     * 
+     * @param element 
+     *          Element to purge.
+     */
+    private static void removeAllValuesForElement(final FlexibleElement element, final EntityManager em) {
+        em.createQuery("DELETE FROM Value AS v WHERE v.element = :element")
+                .setParameter("element", element)
+                .executeUpdate();
+    }
 
 	/**
 	 * Utility class private constructor.
