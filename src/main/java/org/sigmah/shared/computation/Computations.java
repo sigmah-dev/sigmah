@@ -35,7 +35,12 @@ public final class Computations {
 
             environment.popEverythingFromStackToInstructions();
 
-            return new Computation(environment.getInstructions());
+            final Computation computation = new Computation(environment.getInstructions());
+            
+            // Check if everything is alright.
+            computation.toString();
+            
+            return computation;
             
         } catch (RuntimeException e) {
             // Exception is ignored.

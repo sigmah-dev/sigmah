@@ -171,8 +171,20 @@ public class ComputationsTest {
 		values.put(9, new DoubleValue(9.0));
 		values.put(42, new DoubleValue(42.0));
 		
-		final Computation badFunction = Computations.parse("neuf(neuf, quarante_2) / quarante_2(neuf, quarante_2)", getAllElements());
+		Computation badFunction = Computations.parse("neuf(neuf, quarante_2) / quarante_2(neuf, quarante_2)", getAllElements());
 		Assert.assertEquals("Computation was not parsed correctly.", "BAD_FORMULA", badFunction.toString());
+        
+        badFunction = Computations.parse("9 /", getAllElements());
+        Assert.assertEquals("Computation was not parsed correctly.", "BAD_FORMULA", badFunction.toString());
+        
+        badFunction = Computations.parse("9 + + 2", getAllElements());
+        Assert.assertEquals("Computation was not parsed correctly.", "BAD_FORMULA", badFunction.toString());
+        
+        badFunction = Computations.parse("9 9 + 2", getAllElements());
+        Assert.assertEquals("Computation was not parsed correctly.", "BAD_FORMULA", badFunction.toString());
+        
+        badFunction = Computations.parse("9 +- 2", getAllElements());
+        Assert.assertEquals("Computation was not parsed correctly.", "BAD_FORMULA", badFunction.toString());
 	}
 	
 	/**
