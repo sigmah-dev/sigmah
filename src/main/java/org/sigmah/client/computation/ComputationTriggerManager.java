@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import org.sigmah.client.dispatch.monitor.LoadingMask;
 import org.sigmah.client.ui.widget.Loadable;
+import org.sigmah.client.ui.widget.form.StringField;
 import org.sigmah.offline.sync.SuccessCallback;
 import org.sigmah.shared.computation.Computation;
 import org.sigmah.shared.dto.ProjectDTO;
@@ -32,7 +33,7 @@ public class ComputationTriggerManager {
 	
 	private final Map<ComputationElementDTO, Computation> computations = new HashMap<ComputationElementDTO, Computation>();
 	private final Map<FlexibleElementDTO, List<ComputationElementDTO>> dependencies = new HashMap<FlexibleElementDTO, List<ComputationElementDTO>>();
-	private final Map<FlexibleElementDTO, Field<Object>> components = new HashMap<FlexibleElementDTO, Field<Object>>();
+	private final Map<FlexibleElementDTO, Field<String>> components = new HashMap<FlexibleElementDTO, Field<String>>();
     private final Map<Integer, ComputationElementDTO> elementsWithHandlers = new HashMap<Integer, ComputationElementDTO>();
     
 	private FlexibleElementContainer container;
@@ -40,7 +41,8 @@ public class ComputationTriggerManager {
 	/**
 	 * Prepare the trigger manager.
 	 * 
-	 * @param project Project to display.
+	 * @param project
+     *          Project to display.
 	 */
 	public void prepareForProject(final ProjectDTO project) {
         
@@ -75,15 +77,20 @@ public class ComputationTriggerManager {
 	 * Add a value change handler to the given element if it is a dependency
 	 * of a computation.
 	 * 
-	 * @param element Element to listen.
-	 * @param component Component associated to the given element.
-	 * @param modifications Value change list.
+	 * @param element
+     *          Element to listen.
+	 * @param component
+     *          Component associated to the given element.
+	 * @param modifications
+     *          Value change list.
 	 */
 	public void listenToValueChangesOfElement(final FlexibleElementDTO element, final Component component, final List<ValueEvent> modifications) {
 		
 		if (element instanceof ComputationElementDTO) {
-			components.put(element, (Field<Object>) component);
+			components.put(element, (Field<String>) component);
             elementsWithHandlers.put(element.getId(), (ComputationElementDTO) element);
+            
+            initialUpdateIfCurrentValueIsEmpty((ComputationElementDTO) element, (StringField) component);
 		}
 		
 		final List<ComputationElementDTO> computationElements = dependencies.get(element);
@@ -99,11 +106,28 @@ public class ComputationTriggerManager {
 		}
 	}
 	
+    /**
+     * Compute the value of the given element if no value has been provided.
+     * 
+     * @param computationElement
+     *          Computation element to update.
+     * @param component
+     *          Component associated to the given element.
+     */
+    private void initialUpdateIfCurrentValueIsEmpty(final ComputationElementDTO computationElement, final StringField field) {
+        
+        if (field.getValue() == null || field.getValue().isEmpty()) {
+            updateComputation(computationElement, new ArrayList<ValueEvent>(), false);
+        }
+    }
+    
 	/**
 	 * Update the given computation elements.
 	 * 
-	 * @param computationElements Element to update.
-	 * @param modifications Value change list.
+	 * @param computationElements
+     *          List of elements to update.
+	 * @param modifications
+     *          Value change list.
 	 */
 	private void updateComputations(final List<ComputationElementDTO> computationElements, final List<ValueEvent> modifications) {
 		
@@ -112,43 +136,86 @@ public class ComputationTriggerManager {
 		}
 		
 		for (final ComputationElementDTO computationElement : computationElements) {
-			final Computation computation = computations.get(computationElement);
-            
-            final Loadable loadable;
-            
-            final Field<Object> computationView = components.get(computationElement);
-            if (computationView != null) {
-                loadable = new LoadingMask(computationView);
-            } else {
-                loadable = null;
-            }
-            
-			computation.computeValueWithModificationsAndResolver(container, modifications, valueResolver, new SuccessCallback<String>() {
-
-				@Override
-				public void onSuccess(String result) {
-					final Field<Object> field = components.get(computationElement);
-					if (field != null) {
-						field.setValue(result);
-                        
-						// Firing a value event to register the change and trigger dependencies update.
-                        final ComputationElementDTO withHandlers = elementsWithHandlers.get(computationElement.getId());
-                        if (withHandlers != null) {
-                            withHandlers.fireValueEvent(result);
-                        } else {
-    						computationElement.fireValueEvent(result);
-                        }
-					} else {
-                        // The affected computation is not displayed.
-						// Manually adding the value to the modifications.
-						modifications.add(new ValueEvent(computationElement, result));
-
-						// Manually firing the dependencies.
-						updateComputations(dependencies.get(computationElement), modifications);
-					}
-				}
-			}, loadable);
+			updateComputation(computationElement, modifications, true);
 		}
 	}
-	
+
+    /**
+     * Update the given computation element.
+     * 
+     * @param computationElement
+     *          Element to update.
+     * @param modifications 
+     *          Value change list.
+     */
+    private void updateComputation(final ComputationElementDTO computationElement, final List<ValueEvent> modifications, 
+            final boolean fireEvents) {
+        
+        final Computation computation = computations.get(computationElement);
+        
+        final Loadable loadable;
+        
+        final Field<String> computationView = components.get(computationElement);
+        if (computationView != null) {
+            loadable = new LoadingMask(computationView);
+        } else {
+            loadable = null;
+        }
+        
+        computation.computeValueWithModificationsAndResolver(container, modifications, valueResolver, new SuccessCallback<String>() {
+            
+            @Override
+            public void onSuccess(String result) {
+                updateComputationElementWithValue(computationElement, result, modifications, fireEvents);
+            }
+        }, loadable);
+    }
+    
+    /**
+     * Update the given computation element with the given value.
+     * 
+     * @param computationElement
+     *          Computation element to update.
+     * @param value
+     *          Result of the computation.
+     * @param modifications 
+     *          Value change list.
+     */
+    private void updateComputationElementWithValue(final ComputationElementDTO computationElement, final String value, 
+            final List<ValueEvent> modifications, final boolean fireEvents) {
+        
+        final Field<String> field = components.get(computationElement);
+        if (field != null) {
+            field.setValue(value);
+            if (fireEvents) {
+                fireValueEvent(computationElement, value);
+            }
+        } else {
+            // The affected computation is not displayed.
+            // Manually adding the value to the modifications.
+            modifications.add(new ValueEvent(computationElement, value));
+
+            // Manually firing the dependencies.
+            updateComputations(dependencies.get(computationElement), modifications);
+        }
+    }
+
+    /**
+     * Fire a value event for the given computation element.
+     * 
+     * @param computationElement
+     *          Modified computation field.
+     * @param value 
+     *          New value.
+     */
+    private void fireValueEvent(final ComputationElementDTO computationElement, final String value) {
+        // Firing a value event to register the change and trigger dependencies update.
+        final ComputationElementDTO withHandlers = elementsWithHandlers.get(computationElement.getId());
+        if (withHandlers != null) {
+            withHandlers.fireValueEvent(value);
+        } else {
+            computationElement.fireValueEvent(value);
+        }
+    }
+    
 }
