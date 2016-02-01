@@ -328,42 +328,9 @@ public class EditFlexibleElementAdminView extends AbstractPopupView<PopupWidget>
         // Grid of available codes fo computation field.
         // --
         
-        final ColumnConfig labelColumnConfig = new ColumnConfig(FlexibleElementDTO.LABEL, I18N.CONSTANTS.adminFlexibleName(), 200);
-        labelColumnConfig.setRenderer(new GridCellRenderer<FlexibleElementDTO>() {
-            @Override
-            public Object render(FlexibleElementDTO model, String property, ColumnData config, int rowIndex, int colIndex, ListStore store, com.extjs.gxt.ui.client.widget.grid.Grid grid) {
-                return model.getFormattedLabel();
-            }
-        });
-        
-        final ColumnConfig codeColumnConfig = new ColumnConfig(FlexibleElementDTO.CODE, I18N.CONSTANTS.adminFlexibleCode(), 150);
-        codeColumnConfig.setRenderer(new GridCellRenderer<FlexibleElementDTO>() {
-
-			@Override
-			public Object render(final FlexibleElementDTO model, final String property, final ColumnData config, final int rowIndex, final int colIndex,
-					final ListStore<FlexibleElementDTO> store, final com.extjs.gxt.ui.client.widget.grid.Grid<FlexibleElementDTO> grid) {
-
-                String code = model.getCode();
-                
-                if (code == null || code.trim().isEmpty()) {
-                    code = "/";
-                }
-                
-				return ColumnProviders.renderLink(code, new ClickHandler() {
-
-					@Override
-					public void onClick(final ClickEvent event) {
-                        codeGridEventHandler.onRowClickEvent(model);
-					}
-
-				});
-			}
-		});
-        
-        final ColumnModel columnModel = new ColumnModel(Arrays.asList(labelColumnConfig, codeColumnConfig));
-        final ListStore<FlexibleElementDTO> codeStore = new ListStore<FlexibleElementDTO>();
-        codeGrid = new com.extjs.gxt.ui.client.widget.grid.Grid<FlexibleElementDTO>(codeStore, columnModel);
+        codeGrid = new com.extjs.gxt.ui.client.widget.grid.Grid<FlexibleElementDTO>(new ListStore<FlexibleElementDTO>(), createCodeGridColumnModel());
         codeGrid.setAutoHeight(false);
+        codeGrid.setAutoExpandColumn(FlexibleElementDTO.CODE);
         codeGrid.setHeight(200);
         codeGridHeaderLabel = new com.extjs.gxt.ui.client.widget.Label(I18N.CONSTANTS.adminFlexibleComputationCodeGridHeader());
         codeGridHeaderLabel.addStyleName(STYLE_FORM_ITEM);
@@ -958,8 +925,71 @@ public class EditFlexibleElementAdminView extends AbstractPopupView<PopupWidget>
 		}
 	}
 
-	public static String getStyleFormHeaderLabel() {
-		return STYLE_FORM_HEADER_LABEL;
-	}
+    /**
+     * Creates the column model for the code grid.
+     * 
+     * @return The column model for the code grid.
+     */
+    private ColumnModel createCodeGridColumnModel() {
+        
+        // Field label column.
+        final ColumnConfig labelColumnConfig = new ColumnConfig(FlexibleElementDTO.LABEL, I18N.CONSTANTS.adminFlexibleName(), 150);
+        labelColumnConfig.setRenderer(new GridCellRenderer<FlexibleElementDTO>() {
+            @Override
+            public Object render(FlexibleElementDTO model, String property, ColumnData config, int rowIndex, int colIndex, ListStore store, com.extjs.gxt.ui.client.widget.grid.Grid grid) {
+                return model.getFormattedLabel();
+            }
+        });
+        
+        // Field code column (link)
+        final ColumnConfig codeColumnConfig = new ColumnConfig(FlexibleElementDTO.CODE, I18N.CONSTANTS.adminFlexibleCode(), 100);
+        codeColumnConfig.setRenderer(new GridCellRenderer<FlexibleElementDTO>() {
+            
+            @Override
+            public Object render(final FlexibleElementDTO model, final String property, final ColumnData config, final int rowIndex, final int colIndex,
+                    final ListStore<FlexibleElementDTO> store, final com.extjs.gxt.ui.client.widget.grid.Grid<FlexibleElementDTO> grid) {
+                
+                String code = model.getCode();
+                
+                if (code == null || code.trim().isEmpty()) {
+                    code = "/";
+                }
+                
+                return ColumnProviders.renderLink(code, new ClickHandler() {
+                    
+                    @Override
+                    public void onClick(final ClickEvent event) {
+                        codeGridEventHandler.onRowClickEvent(model);
+                    }
+                    
+                });
+            }
+        });
+        
+        // Container column.
+        final ColumnConfig containerColumnConfig = new ColumnConfig(FlexibleElementDTO.CONTAINER, I18N.CONSTANTS.adminFlexibleContainer(), 75);
+        containerColumnConfig.setRenderer(new GridCellRenderer<FlexibleElementDTO>() {
+            @Override
+            public Object render(FlexibleElementDTO model, String property, ColumnData config, int rowIndex, int colIndex, ListStore store, com.extjs.gxt.ui.client.widget.grid.Grid grid) {
+                final BaseModelData container = model.getContainerModel();
+                return ColumnProviders.renderText(container.get(PhaseModelDTO.NAME));
+            }
+        });
+        
+        // Group column.
+        final ColumnConfig groupColumnConfig = new ColumnConfig(FlexibleElementDTO.GROUP, I18N.CONSTANTS.adminFlexibleGroup(), 75);
+        groupColumnConfig.setRenderer(new GridCellRenderer<FlexibleElementDTO>() {
+            @Override
+            public Object render(FlexibleElementDTO model, String property, ColumnData config, int rowIndex, int colIndex, ListStore store, com.extjs.gxt.ui.client.widget.grid.Grid grid) {
+                return model.getGroup().getTitle();
+            }
+        });
+        
+        return new ColumnModel(Arrays.asList(
+                labelColumnConfig, 
+                codeColumnConfig, 
+                containerColumnConfig, 
+                groupColumnConfig));
+    }
 
 }

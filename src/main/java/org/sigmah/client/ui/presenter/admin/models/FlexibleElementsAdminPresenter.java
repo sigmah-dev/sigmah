@@ -59,7 +59,6 @@ import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
 import java.util.Collection;
 import java.util.Date;
-import java.util.Set;
 import org.sigmah.shared.command.DisableFlexibleElements;
 import org.sigmah.shared.computation.Computation;
 import org.sigmah.shared.computation.Computations;
