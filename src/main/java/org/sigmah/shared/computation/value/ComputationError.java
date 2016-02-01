@@ -29,7 +29,7 @@ public enum ComputationError implements ComputedValue {
 	 */
 	@Override
 	public int matchesConstraints(ComputedValue minimum, ComputedValue maximum) {
-		return 0;
+		return -1;
 	}
 
     /**

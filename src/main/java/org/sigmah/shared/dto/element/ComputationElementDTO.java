@@ -103,7 +103,7 @@ public class ComputationElementDTO extends FlexibleElementDTO {
 	 * constraint, <code>false</code> otherwise.
 	 */
 	public boolean hasConstraints() {
-		return getMinimumValueConstraint().get() != null || getMinimumValueConstraint().get() != null;
+		return getMinimumValueConstraint().get() != null || getMaximumValueConstraint().get() != null;
 	}
 	
 	/**
