@@ -509,7 +509,7 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
                     final Set<String> badReferences = computation.getBadReferences();
                     
                     if (!badReferences.isEmpty()) {
-                        final String references = Collections.join(customChoices, ", ");
+                        final String references = Collections.join(badReferences, ", ");
                         
                         if (computation.getBadReferences().size() == 1) {
                             return I18N.MESSAGES.adminFlexibleComputationRuleBadReference(references);
