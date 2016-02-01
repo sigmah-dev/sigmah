@@ -96,6 +96,7 @@ import com.google.inject.Inject;
 import org.sigmah.client.computation.ComputationTriggerManager;
 import org.sigmah.client.ui.presenter.project.ProjectPresenter;
 import org.sigmah.client.ui.widget.Loadable;
+import org.sigmah.shared.dispatch.FunctionalException;
 
 /**
  * Phases presenter.
@@ -340,7 +341,7 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> {
 
 	public void clearChangedValues() {
 		valueChanges.clear();
-        view.getButtonSavePhase().disable();
+        view.getButtonSavePhase().setEnabled(false);
 	}
 
 	/**
@@ -1190,7 +1191,9 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> {
 
 		@Override
 		public void handleEvent(final ButtonEvent be) {
+            view.getButtonSavePhase().disable();
 			final UpdateProject updateProject = new UpdateProject(getCurrentProject().getId(), valueChanges);
+            
 			dispatch.execute(updateProject, new CommandResultHandler<VoidResult>() {
 
 				@Override
@@ -1204,6 +1207,13 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> {
 						activePhaseRequiredElements.clearState();
 					}
 				}
+
+                @Override
+                protected void onFunctionalException(FunctionalException exception) {
+                    super.onFunctionalException(exception);
+                    
+                    view.getButtonSavePhase().setEnabled(true);
+                }
 
 				@Override
 				public void onCommandSuccess(final VoidResult result) {
@@ -1240,7 +1250,7 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> {
 						eventBus.fireEvent(new UpdateEvent(UpdateEvent.CORE_VERSION_UPDATED));
 					}
 				}
-			}, new LoadingMask(view.getTabPanelPhases()), view.getButtonSavePhase());
+			}, new LoadingMask(view.getTabPanelPhases()));
 		}
 	}
 
