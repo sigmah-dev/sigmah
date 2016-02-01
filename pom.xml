@@ -964,6 +964,10 @@
 				<!-- Mailer properties. -->
 
 				<mail.from.name>Sigmah - DEV</mail.from.name>
+				<mail.hostname>mail.netapsys.fr</mail.hostname>
+				<mail.from.address>urd-sigmah@netapsys.fr</mail.from.address>
+				<mail.auth.username>urd-sigmah@netapsys.fr</mail.auth.username>
+				<mail.auth.password>9TgSMAZK</mail.auth.password>
 
 				<!-- Override properties for your local profile here... -->
 				
