@@ -1,7 +1,8 @@
-/**
- * Author:  Raphaël Calabro (raphael.calabro@netapsys.fr)
- * Created: 2 févr. 2016
- */
+--
+-- Database update for computation elements.
+-- Author: Raphaël Calabro (raphael.calabro@netapsys.fr)
+-- Update date: 11 january 2016
+--
 
 -- "code" property.
 ALTER TABLE flexible_element ADD code VARCHAR(30);
