@@ -406,6 +406,7 @@
 			<groupId>postgresql</groupId>
 			<artifactId>postgresql</artifactId>
 			<version>${jdbc-driver-postgresql.version}</version>
+                        <scope>runtime</scope>
 		</dependency>
 
 		<!-- HIBERNATE -->
@@ -434,6 +435,7 @@
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-validator</artifactId>
 			<version>${hibernate-validator.version}</version>
+                        <scope>runtime</scope>
 			<exclusions>
 				<exclusion>
 					<artifactId>slf4j-api</artifactId>
@@ -445,6 +447,7 @@
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-c3p0</artifactId>
 			<version>${hibernate-c3p0.version}</version>
+                        <scope>runtime</scope>
 		</dependency>
 
 		<!-- COMMONS -->
@@ -452,11 +455,6 @@
 			<groupId>commons-fileupload</groupId>
 			<artifactId>commons-fileupload</artifactId>
 			<version>${commons-fileupload.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-io</artifactId>
-			<version>${commons-io.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
