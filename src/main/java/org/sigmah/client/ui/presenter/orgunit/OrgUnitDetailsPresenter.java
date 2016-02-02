@@ -54,11 +54,9 @@ import org.sigmah.shared.dto.layout.LayoutConstraintDTO;
 import org.sigmah.shared.dto.layout.LayoutDTO;
 import org.sigmah.shared.dto.layout.LayoutGroupDTO;
 import org.sigmah.shared.dto.orgunit.OrgUnitDTO;
-import org.sigmah.shared.dto.referential.GlobalPermissionEnum;
 import org.sigmah.shared.servlet.ServletConstants.Servlet;
 import org.sigmah.shared.servlet.ServletConstants.ServletMethod;
 import org.sigmah.shared.servlet.ServletUrlBuilder;
-import org.sigmah.shared.util.ProfileUtils;
 import org.sigmah.shared.util.ValueResultUtils;
 
 import com.allen_sauer.gwt.log.client.Log;
@@ -75,6 +73,7 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import org.sigmah.client.computation.ComputationTriggerManager;
 
 /**
  * OrgUnit Details Presenter.
@@ -102,6 +101,12 @@ public class OrgUnitDetailsPresenter extends AbstractOrgUnitPresenter<OrgUnitDet
 	 * List of values changes.
 	 */
 	private List<ValueEvent> valueChanges;
+    
+    /**
+	 * Listen to the values of flexible elements to update computated values.
+	 */
+	@Inject
+	private ComputationTriggerManager computationTriggerManager;
 
 	@Inject
 	protected OrgUnitDetailsPresenter(View view, Injector injector) {
@@ -207,6 +212,9 @@ public class OrgUnitDetailsPresenter extends AbstractOrgUnitPresenter<OrgUnitDet
 	 *          The details.
 	 */
 	private void load(OrgUnitDetailsDTO details) {
+        
+        // Prepare the manager of computation elements
+		computationTriggerManager.prepareForOrgUnit(getOrgUnit());
 
 		// Clear panel.
 		view.getContentOrgUnitDetailsPanel().removeAll();
@@ -312,6 +320,9 @@ public class OrgUnitDetailsPresenter extends AbstractOrgUnitPresenter<OrgUnitDet
 						// --
 						// -- ELEMENT HANDLERS
 						// --
+                        
+                        // Adds a value change handler if this element is a dependency of a ComputationElementDTO.
+						computationTriggerManager.listenToValueChangesOfElement(elementDTO, elementComponent, valueChanges);
 
 						// Adds a value change handler to this element.
 						elementDTO.addValueHandler(new ValueHandler() {

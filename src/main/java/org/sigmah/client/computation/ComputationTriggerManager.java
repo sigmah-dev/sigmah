@@ -12,6 +12,8 @@ import org.sigmah.client.ui.widget.Loadable;
 import org.sigmah.client.ui.widget.form.StringField;
 import org.sigmah.offline.sync.SuccessCallback;
 import org.sigmah.shared.computation.Computation;
+import org.sigmah.shared.dto.IsModel;
+import org.sigmah.shared.dto.OrgUnitModelDTO;
 import org.sigmah.shared.dto.ProjectDTO;
 import org.sigmah.shared.dto.ProjectModelDTO;
 import org.sigmah.shared.dto.element.ComputationElementDTO;
@@ -19,6 +21,7 @@ import org.sigmah.shared.dto.element.FlexibleElementContainer;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
 import org.sigmah.shared.dto.element.event.ValueEvent;
 import org.sigmah.shared.dto.element.event.ValueHandler;
+import org.sigmah.shared.dto.orgunit.OrgUnitDTO;
 
 /**
  * Manage computation element triggers.
@@ -48,31 +51,70 @@ public class ComputationTriggerManager {
         
 		this.container = project;
         
-		this.dependencies.clear();
-		this.computations.clear();
-		this.components.clear();
-		this.elementsWithHandlers.clear();
+		clearMaps();
         
 		final ProjectModelDTO model = project.getProjectModel();
 		
 		for (final ProjectDTO.LocalizedElement<ComputationElementDTO> localizedElement : project.getLocalizedElements(ComputationElementDTO.class)) {
 			final ComputationElementDTO computationElement = localizedElement.getElement();
-			final Computation computation = computationElement.getComputationForModel(model);
-			computations.put(computationElement, computation);
-			
-			for (final FlexibleElementDTO dependency : computation.getDependencies()) {
-				List<ComputationElementDTO> list = dependencies.get(dependency);
-				
-				if (list == null) {
-					list = new ArrayList<ComputationElementDTO>();
-					dependencies.put(dependency, list);
-				}
-				
-				list.add(computationElement);
-			}
+			prepareForComputationElement(computationElement, model);
 		}
 	}
-	
+    
+    /**
+	 * Prepare the trigger manager.
+	 * 
+	 * @param orgUnit
+     *          OrgUnit to display.
+	 */
+    public void prepareForOrgUnit(final OrgUnitDTO orgUnit) {
+        
+        this.container = orgUnit;
+        
+		clearMaps();
+        
+        final OrgUnitModelDTO model = orgUnit.getOrgUnitModel();
+        
+        for (final OrgUnitDTO.LocalizedElement localizedElement : orgUnit.getLocalizedElements(ComputationElementDTO.class)) {
+			final ComputationElementDTO computationElement = (ComputationElementDTO) localizedElement.getElement();
+			prepareForComputationElement(computationElement, model);
+		}
+    }
+
+    /**
+     * Remove the content of every maps.
+     */
+    private void clearMaps() {
+        this.dependencies.clear();
+        this.computations.clear();
+        this.components.clear();
+        this.elementsWithHandlers.clear();
+    }
+
+    /**
+     * List the dependencies of the given element.
+     * 
+     * @param computationElement
+     *          Computation element to prepare.
+     * @param model
+     *          Model of the current container.
+     */
+    private void prepareForComputationElement(final ComputationElementDTO computationElement, final IsModel model) {
+        final Computation computation = computationElement.getComputationForModel(model);
+        computations.put(computationElement, computation);
+        
+        for (final FlexibleElementDTO dependency : computation.getDependencies()) {
+            List<ComputationElementDTO> list = dependencies.get(dependency);
+            
+            if (list == null) {
+                list = new ArrayList<ComputationElementDTO>();
+                dependencies.put(dependency, list);
+            }
+            
+            list.add(computationElement);
+        }
+    }
+    
 	/**
 	 * Add a value change handler to the given element if it is a dependency
 	 * of a computation.
