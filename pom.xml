@@ -905,10 +905,10 @@
 		        
 		<!-- ========= [ HANDICAP INTERNATIONAL SPECIAL VERSION. ] ========= -->
         <profile>
-			<id>sigmah4hi</id>
+			<id>sigmah-custom-handicapinternational</id>
             
             <build>
-                <finalName>sigmah4hi_v${project.version}</finalName>
+                <finalName>sigmah-hi_v${project.version}</finalName>
                 <plugins>
                     <plugin>
                         <groupId>com.google.code.maven-replacer-plugin</groupId>
@@ -956,7 +956,7 @@
                                 <!-- Maven property: ${sigmah.version.number} -->
                                 <number>${project.version}-hi</number>
                                 <!-- Maven property: ${sigmah.version.name} -->
-                                <name>Handicap International special version</name>  <!-- Amazon, Brahmapoutre, Congo -->
+                                <name>Handicap International custom version</name>  
                                 <!-- Maven property: ${sigmah.version.date} -->
                             </version>
                         </configuration>
