@@ -933,6 +933,74 @@
 
 			</properties>
 		</profile>
+		        
+		<!-- ========= [ HANDICAP INTERNATIONAL SPECIAL VERSION. ] ========= -->
+                <profile>
+                        <id>sigmah-custom-handicapinternational</id>
+
+                        <build>
+                                <finalName>sigmah-hi_v${project.version}</finalName>
+                                <plugins>
+                                        <plugin>
+                                                <groupId>com.google.code.maven-replacer-plugin</groupId>
+                                                <artifactId>replacer</artifactId>
+                                                <version>1.5.3</version>
+                                                <executions>
+                                                        <execution>
+                                                                <phase>process-sources</phase>
+                                                                <goals>
+                                                                        <goal>replace</goal>
+                                                                </goals>
+                                                        </execution>
+                                                </executions>
+
+                                                <configuration>
+                                                        <basedir>${basedir}</basedir>
+                                                        <filesToInclude>
+                                                                src/main/resources/org/sigmah/client/i18n/UIConstants.properties,
+                                                                src/main/resources/org/sigmah/client/i18n/UIConstants_en_GB.properties
+                                                        </filesToInclude>
+                                                        <replacements>
+                                                                <replacement>
+                                                                        <token>createProjectTypeNGO=In-house project
+                                                                        </token>
+                                                                        <value>createProjectTypeNGO=Implemented
+                                                                                project
+                                                                        </value>
+                                                                </replacement>
+                                                        </replacements>
+                                                </configuration>
+                                        </plugin>
+
+
+                                        <plugin>
+                                                <groupId>org.sigmah</groupId>
+                                                <artifactId>sigmah-maven-plugin</artifactId>
+                                                <version>${maven-sigmah-plugin.version}</version>
+                                                <executions>
+                                                        <execution>
+                                                                <phase>process-sources</phase>
+                                                                <goals>
+                                                                        <goal>sigmah</goal>
+                                                                </goals>
+                                                        </execution>
+                                                </executions>
+                                                <configuration>
+                                                        <version>
+                                                                <!-- Maven property: ${sigmah.version.number} -->
+                                                                <number>${project.version}-hi</number>
+                                                                <!-- Maven property: ${sigmah.version.name} -->
+                                                                <name>Handicap International custom version</name>
+                                                                <!-- Maven property: ${sigmah.version.date} -->
+                                                        </version>
+                                                </configuration>
+                                        </plugin>
+
+                                </plugins>
+
+                        </build>
+
+                </profile>
 		
 	</profiles>
 
