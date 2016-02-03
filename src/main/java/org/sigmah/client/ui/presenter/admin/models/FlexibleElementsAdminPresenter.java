@@ -70,9 +70,8 @@ import org.sigmah.shared.util.Collections;
  * 
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
-public class FlexibleElementsAdminPresenter<E extends IsModel> extends AbstractPresenter<FlexibleElementsAdminPresenter.View>
-																																																															implements
-																																																															IsModelTabPresenter<E, FlexibleElementsAdminPresenter.View> {
+public class FlexibleElementsAdminPresenter<E extends IsModel> extends AbstractPresenter<FlexibleElementsAdminPresenter.View> 
+		implements IsModelTabPresenter<E, FlexibleElementsAdminPresenter.View> {
 
 	/**
 	 * Description of the view managed by this presenter.
@@ -157,7 +156,7 @@ public class FlexibleElementsAdminPresenter<E extends IsModel> extends AbstractP
 				} else {
 					eventBus.navigateRequest(Page.ADMIN_EDIT_FLEXIBLE_ELEMENT.request().addData(RequestParameter.MODEL, currentModel)
 						.addData(RequestParameter.DTO, rowElement)
-                        .addData(RequestParameter.ELEMENTS, view.getStore().getModels()));
+						.addData(RequestParameter.ELEMENTS, view.getStore().getModels()));
 				}
 			}
 		});
@@ -171,7 +170,7 @@ public class FlexibleElementsAdminPresenter<E extends IsModel> extends AbstractP
 			@Override
 			public void componentSelected(final ButtonEvent ce) {
 				eventBus.navigateRequest(Page.ADMIN_EDIT_FLEXIBLE_ELEMENT.request().addData(RequestParameter.MODEL, currentModel)
-                        .addData(RequestParameter.ELEMENTS, view.getStore().getModels()));
+						.addData(RequestParameter.ELEMENTS, view.getStore().getModels()));
 			}
 		});
 
@@ -283,61 +282,61 @@ public class FlexibleElementsAdminPresenter<E extends IsModel> extends AbstractP
 	// UTILITY METHODS.
 	//
 	// ---------------------------------------------------------------------------------------------------------------
-    
-    /**
-     * Find the computation fields using the given flexible element.
-     * 
-     * @param flexibleElement
-     *          Flexible element.
-     * @return A collection of every computation element using the given element.
-     */
-    private Collection<ComputationElementDTO> getComputationElementsUsingFields(final List<FlexibleElementDTO> flexibleElements) {
-        
-        final ArrayList<ComputationElementDTO> computationElements = new ArrayList<ComputationElementDTO>();
-        final List<FlexibleElementDTO> allElements = view.getStore().getModels();
-        
-        for (final FlexibleElementDTO other : allElements) {
-            if (other instanceof ComputationElementDTO) {
-                final ComputationElementDTO computationElement = (ComputationElementDTO) other;
-                
-                final Computation computation = Computations.parse(computationElement.getRule(), allElements);
-                if (Collections.containsOneOf(computation.getDependencies(), flexibleElements)) {
-                    computationElements.add(computationElement);
-                }
-            }
-        }
-        
-        return computationElements;
-    }
-    
-    /**
-     * Returns a message to add to the warning displayed when removing or disabling the given elements.
-     * 
-     * @param selection
-     *          Selection of elements to delete/disable.
-     * @return A warning message.
-     */
-    private String getAdditionnalWarning(final List<FlexibleElementDTO> selection) {
-        
-        final String additionnalWarning;
-        
-        final Collection<ComputationElementDTO> relatedComputationElements = getComputationElementsUsingFields(selection);
-        if (!relatedComputationElements.isEmpty()) {
-            additionnalWarning = "<br/><br/>" 
-                    + I18N.MESSAGES.confirmDeleteWhenRelatedComputationElementsExists(
-                    Collections.join(relatedComputationElements, new Collections.Mapper<ComputationElementDTO, String>() {
-                        
-                        @Override
-                        public String forEntry(ComputationElementDTO entry) {
-                            return "<span style=\"font-weight: bold\">" + entry.getLabel() + "</span>";
-                        }
-                    }, ", ")) 
-                    + "<br/><br/>";
-        } else {
-            additionnalWarning = "";
-        }
-        return additionnalWarning;
-    }
+
+	/**
+	 * Find the computation fields using the given flexible element.
+	 *
+	 * @param flexibleElement
+	 *          Flexible element.
+	 * @return A collection of every computation element using the given element.
+	 */
+	private Collection<ComputationElementDTO> getComputationElementsUsingFields(final List<FlexibleElementDTO> flexibleElements) {
+
+		final ArrayList<ComputationElementDTO> computationElements = new ArrayList<ComputationElementDTO>();
+		final List<FlexibleElementDTO> allElements = view.getStore().getModels();
+
+		for (final FlexibleElementDTO other : allElements) {
+			if (other instanceof ComputationElementDTO) {
+				final ComputationElementDTO computationElement = (ComputationElementDTO) other;
+
+				final Computation computation = Computations.parse(computationElement.getRule(), allElements);
+				if (Collections.containsOneOf(computation.getDependencies(), flexibleElements)) {
+					computationElements.add(computationElement);
+				}
+			}
+		}
+
+		return computationElements;
+	}
+
+	/**
+	 * Returns a message to add to the warning displayed when removing or disabling the given elements.
+	 *
+	 * @param selection
+	 *          Selection of elements to delete/disable.
+	 * @return A warning message.
+	 */
+	private String getAdditionnalWarning(final List<FlexibleElementDTO> selection) {
+
+		final String additionnalWarning;
+
+		final Collection<ComputationElementDTO> relatedComputationElements = getComputationElementsUsingFields(selection);
+		if (!relatedComputationElements.isEmpty()) {
+			additionnalWarning = "<br/><br/>"
+					+ I18N.MESSAGES.confirmDeleteWhenRelatedComputationElementsExists(
+							Collections.join(relatedComputationElements, new Collections.Mapper<ComputationElementDTO, String>() {
+
+								@Override
+								public String forEntry(ComputationElementDTO entry) {
+									return "<span style=\"font-weight: bold\">" + entry.getLabel() + "</span>";
+								}
+							}, ", "))
+					+ "<br/><br/>";
+		} else {
+			additionnalWarning = "";
+		}
+		return additionnalWarning;
+	}
 
 	/**
 	 * Callback executed on flexible element creation/update event.
@@ -388,7 +387,7 @@ public class FlexibleElementsAdminPresenter<E extends IsModel> extends AbstractP
 			N10N.warn(I18N.CONSTANTS.error(), I18N.CONSTANTS.adminErrorDeleteDefaultFlexible(), defaultElementNames);
 			return;
 		}
-        
+
 		N10N.confirmation(I18N.CONSTANTS.delete(), I18N.CONSTANTS.adminFlexibleConfirmDelete() + getAdditionnalWarning(selection), elementNames, new ConfirmCallback() {
 
 			@Override
