@@ -59,8 +59,9 @@ public class Profiler implements ProfilerStrategy {
 	/**
 	 * Activate or deactivate profiling.
 	 * 
-	 * @param active <code>true</code> to active the profiler, 
-	 * <code>false</code> to deactivate it.
+	 * @param active
+	 *			<code>true</code> to active the profiler, 
+	 *			<code>false</code> to deactivate it.
 	 */
 	public void setActive(boolean active) {
 		if (active) {
@@ -136,7 +137,8 @@ public class Profiler implements ProfilerStrategy {
 	/**
 	 * Generates a CSV file from the collected data.
 	 * 
-	 * @param callback Called when the generation is done.
+	 * @param callback
+	 *			Called when the generation is done.
 	 */
 	public void generateCSV(final AsyncCallback<String> callback) {
 		executionAsyncDAO.forEach(new AsyncCallback<Execution>() {
@@ -173,14 +175,22 @@ public class Profiler implements ProfilerStrategy {
 		});
 	}
 	
+	/**
+	 * Generates a markdown report from the collected data.
+	 */
 	public void generateMarkdownReport() {
-		
+		// TODO: Write the generation code.
+		throw new UnsupportedOperationException("Not implemented yet.");
 	}
 	
 	/**
-	 * Format the given double value to a String suitable for a CSV file.
+	 * Format the given double value to a <code>String</code> suitable for a CSV file.
+	 * <p>
+	 * Dots are replaced by commas and the decimal part is truncated to 3 digits.
+	 * For example, <code>Math.PI</code> will be formatted as <code>3,141</code>.
 	 * 
-	 * @param value Value to format.
+	 * @param value
+	 *			Double value to format.
 	 * @return The formatted value.
 	 */
 	private String formatDoubleForCSV(final double value) {
