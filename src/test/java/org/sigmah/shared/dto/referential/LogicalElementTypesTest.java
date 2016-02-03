@@ -27,8 +27,6 @@ public class LogicalElementTypesTest {
      */
     @Test
     public void testWithNull() {
-        System.out.println("withNull");
-        
         final LogicalElementType type = LogicalElementTypes.of(null);
         
         Assert.assertEquals(NoElementType.INSTANCE, type);
@@ -42,8 +40,6 @@ public class LogicalElementTypesTest {
      */
     @Test
     public void testWithCheckboxElement() {
-        System.out.println("withCheckboxElement");
-        
         final LogicalElementType type = LogicalElementTypes.of(new CheckboxElementDTO());
         
         Assert.assertEquals(ElementTypeEnum.CHECKBOX, type);
@@ -57,8 +53,6 @@ public class LogicalElementTypesTest {
      */
     @Test
     public void testWithComputationElement() {
-        System.out.println("withComputationElement");
-        
         final LogicalElementType type = LogicalElementTypes.of(new ComputationElementDTO());
         
         Assert.assertEquals(ElementTypeEnum.COMPUTATION, type);
@@ -72,8 +66,6 @@ public class LogicalElementTypesTest {
      */
     @Test
     public void testWithCoreVersionElement() {
-        System.out.println("withCoreVersionElement");
-        
         final LogicalElementType type = LogicalElementTypes.of(new CoreVersionElementDTO());
         
         Assert.assertEquals(ElementTypeEnum.CORE_VERSION, type);
@@ -87,8 +79,6 @@ public class LogicalElementTypesTest {
      */
     @Test
     public void testWithDefaultFlexibleElement() {
-        System.out.println("withDefaultFlexibleElement");
-        
         for (final DefaultFlexibleElementType defaultFlexibleElementType : DefaultFlexibleElementType.values()) {
             final DefaultFlexibleElementDTO defaultFlexibleElementDTO = new DefaultFlexibleElementDTO();
             defaultFlexibleElementDTO.setType(defaultFlexibleElementType);
@@ -108,8 +98,6 @@ public class LogicalElementTypesTest {
      */
     @Test
     public void testWithFilesListElement() {
-        System.out.println("withFilesListElement");
-        
         final LogicalElementType type = LogicalElementTypes.of(new FilesListElementDTO());
         
         Assert.assertEquals(ElementTypeEnum.FILES_LIST, type);
@@ -123,8 +111,6 @@ public class LogicalElementTypesTest {
      */
     @Test
     public void testWithIndicatorsListElement() {
-        System.out.println("withIndicatorsListElement");
-        
         final LogicalElementType type = LogicalElementTypes.of(new IndicatorsListElementDTO());
         
         Assert.assertEquals(ElementTypeEnum.INDICATORS, type);
@@ -138,8 +124,6 @@ public class LogicalElementTypesTest {
      */
     @Test
     public void testWithMessageElement() {
-        System.out.println("withMessageElement");
-        
         final LogicalElementType type = LogicalElementTypes.of(new MessageElementDTO());
         
         Assert.assertEquals(ElementTypeEnum.MESSAGE, type);
@@ -153,8 +137,6 @@ public class LogicalElementTypesTest {
      */
     @Test
     public void testWithQuestionElement() {
-        System.out.println("withQuestionElement");
-        
         final LogicalElementType type = LogicalElementTypes.of(new QuestionElementDTO());
         
         Assert.assertEquals(ElementTypeEnum.QUESTION, type);
@@ -168,8 +150,6 @@ public class LogicalElementTypesTest {
      */
     @Test
     public void testWithReportElement() {
-        System.out.println("withReportElement");
-        
         final LogicalElementType type = LogicalElementTypes.of(new ReportElementDTO());
         
         Assert.assertEquals(ElementTypeEnum.REPORT, type);
@@ -183,8 +163,6 @@ public class LogicalElementTypesTest {
      */
     @Test
     public void testWithReportListElement() {
-        System.out.println("withReportListElement");
-        
         final LogicalElementType type = LogicalElementTypes.of(new ReportListElementDTO());
         
         Assert.assertEquals(ElementTypeEnum.REPORT_LIST, type);
@@ -198,8 +176,6 @@ public class LogicalElementTypesTest {
      */
     @Test
     public void testWithTextAreaElement() {
-        System.out.println("withTextAreaElement");
-        
         for (final TextAreaType textAreaType : TextAreaType.values()) {
             final TextAreaElementDTO textAreaElementDTO = new TextAreaElementDTO();
             textAreaElementDTO.setType(textAreaType.getCode());
@@ -219,8 +195,6 @@ public class LogicalElementTypesTest {
      */
     @Test
     public void testWithTripletsListElement() {
-        System.out.println("withTripletsListElement");
-        
         final LogicalElementType type = LogicalElementTypes.of(new TripletsListElementDTO());
         
         Assert.assertEquals(ElementTypeEnum.TRIPLETS, type);

@@ -73,8 +73,6 @@ public class ServerValueResolverTest extends AbstractDaoTest {
 	 */
 	@Test
 	public void testComputeValueWithResolver() {
-		System.out.println("computeValueWithResolver");
-		
 		final Collection<FlexibleElementDTO> allElements = getElements();
 		
 		final Computation computation = Computations.parse("12*(neuf-1) + 3.14/(quarante_2+2) + zero", allElements);
@@ -100,8 +98,6 @@ public class ServerValueResolverTest extends AbstractDaoTest {
 	 */
 	@Test
 	public void testComputeValueWithWrappersAndResolver() {
-		System.out.println("computeValueWithWrappersAndResolver");
-		
 		final Collection<FlexibleElementDTO> allElements = getElements();
 		
 		final Computation computation = Computations.parse("12*(neuf-1) + 3.14/(quarante_2+2) + zero", allElements);

@@ -28,8 +28,6 @@ public class ComputationsTest {
 	 */
 	@Test
 	public void testParseAddSub() {
-		System.out.println("parseAddSub");
-		
 		List<FlexibleElementDTO> allElements = Collections.emptyList();
 		final Computation result = Computations.parse("12 + 3.14 - 4", allElements);
 		
@@ -42,8 +40,6 @@ public class ComputationsTest {
 	 */
 	@Test
 	public void testParseMultDiv() {
-		System.out.println("parseMultDiv");
-		
 		List<FlexibleElementDTO> allElements = Collections.emptyList();
 		final Computation result = Computations.parse("12 + 3.14 * 4 + 8 / 2", allElements);
 		
@@ -56,8 +52,6 @@ public class ComputationsTest {
 	 */
 	@Test
 	public void testParseUnary() {
-		System.out.println("parseUnary");
-		
 		List<FlexibleElementDTO> allElements = Collections.emptyList();
 		final Computation result = Computations.parse("12 * -3.14 / 4", allElements);
 		
@@ -70,8 +64,6 @@ public class ComputationsTest {
 	 */
 	@Test
 	public void testParseContext() {
-		System.out.println("parseContext");
-		
 		List<FlexibleElementDTO> allElements = Collections.emptyList();
 		final Computation result = Computations.parse("(12 + 3.14) * 4", allElements);
 		
@@ -84,8 +76,6 @@ public class ComputationsTest {
 	 */
 	@Test
 	public void testParseVariable() {
-		System.out.println("parseVariable");
-		
 		final HashMap<Integer, ComputedValue> values = new HashMap<>();
 		values.put(9, new DoubleValue(9.0));
 		values.put(42, new DoubleValue(42.0));
@@ -101,8 +91,6 @@ public class ComputationsTest {
 	 */
 	@Test
 	public void testParseFunction() {
-		System.out.println("parseFunction");
-		
 		final HashMap<Integer, ComputedValue> values = new HashMap<>();
 		values.put(9, new DoubleValue(9.0));
 		values.put(42, new DoubleValue(42.0));
@@ -116,8 +104,6 @@ public class ComputationsTest {
 	 */
 	@Test
 	public void testDivisionError() {
-		System.out.println("divisionError");
-		
 		final HashMap<Integer, ComputedValue> values = new HashMap<>();
 		values.put(9, new DoubleValue(0.0));
 		
@@ -132,8 +118,6 @@ public class ComputationsTest {
 	 */
 	@Test
 	public void testReferenceError() {
-		System.out.println("referenceError");
-		
 		final HashMap<Integer, ComputedValue> values = new HashMap<>();
 		values.put(9, new DoubleValue(9.0));
 		
@@ -148,8 +132,6 @@ public class ComputationsTest {
 	 */
 	@Test
 	public void testBadValue() {
-		System.out.println("badValue");
-		
 		final HashMap<Integer, ComputedValue> values = new HashMap<>();
 		values.put(9, ComputedValues.from("9,1"));
 		values.put(42, ComputedValues.from("quarante deux"));
@@ -165,8 +147,6 @@ public class ComputationsTest {
 	 */
 	@Test
 	public void testBadFormula() {
-		System.out.println("badFormula");
-		
 		final HashMap<Integer, ComputedValue> values = new HashMap<>();
 		values.put(9, new DoubleValue(9.0));
 		values.put(42, new DoubleValue(42.0));
@@ -198,8 +178,6 @@ public class ComputationsTest {
 	 */
 	@Test
 	public void testHumanReadableFormat() {
-		System.out.println("humanReadableFormat");
-		
 		final Computation result = Computations.parse("12 * $9 + 3.14 * quarante_2", getAllElements());
 		Assert.assertEquals("Computation was not parsed correctly.", "12 × neuf + 3.14 × quarante_2", result.toHumanReadableString());
 	}
@@ -209,8 +187,6 @@ public class ComputationsTest {
 	 */
 	@Test
 	public void testComputeWithValueResolver() {
-		System.out.println("computeValueWithResolver");
-		
 		final Computation result = Computations.parse("12 * $9 + 3.14 * quarante_2", getAllElements());
 		Assert.assertEquals("Computation was not parsed correctly.", "12 × $9 + 3.14 × $42", result.toString());
 		
