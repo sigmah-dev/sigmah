@@ -33,7 +33,7 @@ import com.google.gwt.core.client.GWT;
  * 
  * @author Denis Colliot (dcolliot@ideia.fr) (v2.0)
  */
-public enum TextAreaType implements Result {
+public enum TextAreaType implements Result, LogicalElementType {
 
 	PARAGRAPH('P'),
 	TEXT('T'),
@@ -123,5 +123,48 @@ public enum TextAreaType implements Result {
 
 		return null;
 	}
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ElementTypeEnum toElementTypeEnum() {
+        return ElementTypeEnum.TEXT_AREA;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public TextAreaType toTextAreaType() {
+        return this;
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DefaultFlexibleElementType toDefaultFlexibleElementType() {
+        return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getDescription() {
+        switch (this) {
+        case PARAGRAPH:
+            return I18N.CONSTANTS.flexibleElementParagraph();
+        case TEXT:
+            return I18N.CONSTANTS.flexibleElementTextArea();
+        case NUMBER:
+            return I18N.CONSTANTS.flexibleElementNumber();
+        case DATE:
+            return I18N.CONSTANTS.flexibleElementDate();
+        default:
+            return PropertyName.error(name());
+        }
+    }
 
 }

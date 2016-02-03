@@ -49,7 +49,7 @@ public final class N10N {
 	// CSS styles names
 	private static final String CSS_MESSAGE = "notif-message";
 	private static final String CSS_FIRST = "notif-first";
-	private static final String CSS_LIST = "notif-list";
+	public static final String CSS_LIST = "notif-list";
 	
 	/**
 	 * Utility method to create a map with the given args.

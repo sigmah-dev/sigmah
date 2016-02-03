@@ -33,6 +33,8 @@ import com.extjs.gxt.ui.client.GXT;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.GWT.UncaughtExceptionHandler;
+import org.sigmah.client.util.profiler.Profiler;
+import org.sigmah.client.util.profiler.Scenario;
 
 /**
  * GWT module entry point.
@@ -61,23 +63,31 @@ public class Sigmah implements EntryPoint {
 		if (Log.isDebugEnabled()) {
 			Log.debug("Application > Client init start.");
 		}
+		
+		Profiler.INSTANCE.startScenario(Scenario.LOGIN);
 
 		// Listening ApplicationCache events.
 		// Done early to avoid missing some events and to keep track of the
 		// last update date.
 		ApplicationCacheManager.ensureHandlers();
+		
+		Profiler.INSTANCE.markCheckpoint(Scenario.LOGIN, "ApplicationCacheManager.ensureHandlers() ended.");
 
 		// GIN injector instantiation.
 		if (Log.isDebugEnabled()) {
 			Log.debug("Application > Creates GIN injector.");
 		}
 		injector = GWT.create(Injector.class);
+		
+		Profiler.INSTANCE.markCheckpoint(Scenario.LOGIN, "Injector creation ended.");
 
 		// Set GXT theme.
 		if (Log.isDebugEnabled()) {
 			Log.debug("Application > Sets GWT default theme.");
 		}
 		GXT.setDefaultTheme(injector.getTheme(), true);
+		
+		Profiler.INSTANCE.markCheckpoint(Scenario.LOGIN, "GXT initialization ended.");
 
 		// Uncaught exception handler.
 		GWT.setUncaughtExceptionHandler(new UncaughtExceptionHandler() {
@@ -91,12 +101,18 @@ public class Sigmah implements EntryPoint {
 				N10N.error("An unexpected error has occured.");
 			}
 		});
+		
+		Profiler.INSTANCE.markCheckpoint(Scenario.LOGIN, "UncaughtExceptionHandler definition ended.");
 
 		clientInitializing();
+		
+		Profiler.INSTANCE.setAuthenticationProvider(injector.getAuthenticationProvider());
+		Profiler.INSTANCE.setApplicationStateManager(injector.getApplicationStateManager());
 
 		if (Log.isDebugEnabled()) {
 			Log.debug("Application > Client init end.");
 		}
+		Profiler.INSTANCE.markCheckpoint(Scenario.LOGIN, "Initialization ended.");
 
 	}
 
@@ -112,6 +128,8 @@ public class Sigmah implements EntryPoint {
 		// Offline dispatcher
 		injector.getLocalDispatch();
 		injector.getApplicationStateManager();
+		
+		Profiler.INSTANCE.markCheckpoint(Scenario.LOGIN, "Offline dispatcher initialization ended.");
 
 		// Application presenters.
 		injector.getApplicationPresenter();
@@ -119,6 +137,8 @@ public class Sigmah implements EntryPoint {
 		injector.getMockUpPresenter();
 		injector.getCreditsPresenter();
 		injector.getHelpPresenter();
+		
+		Profiler.INSTANCE.markCheckpoint(Scenario.LOGIN, "Application presenters initialization ended.");
 
 		// Zones.
 		injector.getOrganizationBannerPresenter();
@@ -127,6 +147,8 @@ public class Sigmah implements EntryPoint {
 		injector.getAppLoaderPresenter();
 		injector.getMenuBannerPresenter();
 		injector.getMessageBannerPresenter();
+		
+		Profiler.INSTANCE.markCheckpoint(Scenario.LOGIN, "Zone presenters initialization ended.");
 
 		// Pages.
 		injector.getLoginPresenter();

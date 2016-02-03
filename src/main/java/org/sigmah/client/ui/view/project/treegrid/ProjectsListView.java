@@ -104,6 +104,8 @@ import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Widget;
+import org.sigmah.client.util.profiler.Profiler;
+import org.sigmah.client.util.profiler.Scenario;
 
 /**
  * {@link ProjectsListWidget} corresponding view implementation.
@@ -438,6 +440,8 @@ public class ProjectsListView extends AbstractView implements ProjectsListWidget
 		}
 
 		refreshDateLabel.setHtml('(' + REFRESH_TIME_FORMAT.format(date) + ')');
+		Profiler.INSTANCE.markCheckpoint(Scenario.LOGIN, "Project list loading ended.");
+		Profiler.INSTANCE.endScenario(Scenario.LOGIN);
 	}
 
 	/**

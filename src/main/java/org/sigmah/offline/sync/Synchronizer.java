@@ -23,6 +23,7 @@ package org.sigmah.offline.sync;
  */
 
 import com.allen_sauer.gwt.log.client.Log;
+import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import java.util.List;
 import java.util.Map;
 
@@ -138,35 +139,8 @@ public class Synchronizer {
 								fileDataAsyncDAO.replaceIds(result.getFiles());
 
 								// Display erros.
-								if(!result.getErrors().isEmpty()) {
-									final StringBuilder errorBuilder = new StringBuilder();
-
-									for(final Map.Entry<ContainerInformation, List<String>> entry : result.getErrors().entrySet()) {
-										if(entry.getKey().isProject()) {
-											errorBuilder.append(I18N.CONSTANTS.project());
-										} else {
-											errorBuilder.append(I18N.CONSTANTS.orgunit());
-										}
-
-										errorBuilder.append(' ')
-											.append(entry.getKey().getName())
-											.append(" - ")
-											.append(entry.getKey().getFullName())
-											.append("<ul style=\"margin:0.5em 0 1em 1.5em;list-style:disc\">");
-
-										for(final String error : entry.getValue()) {
-											errorBuilder.append("<li>").append(error).append("</li>");
-										}
-										errorBuilder.append("</ul>");
-									}
-
-									if(result.isErrorConcernFiles()) {
-										errorBuilder.append(I18N.MESSAGES.conflictFiles());
-									}
-
-									errorBuilder.append(I18N.MESSAGES.conflictSentByMail());
-
-									N10N.error(errorBuilder.toString());
+								if (!result.getErrors().isEmpty()) {
+									displayErrorNotification(result);
 								}
 								
 								queue.add(new QueueEntry<VoidResult>() {
@@ -360,13 +334,20 @@ public class Synchronizer {
 	/**
 	 * Adds the operations required to download the details of a project/orgunit.
 	 * 
-	 * @param queue Command queue.
-	 * @param containerId Identifier of the project/orgunit.
-	 * @param calendarId Identifier of the calendar of the project/orgunit (may be null).
-	 * @param elements Full list of flexibles elements.
-	 * @param categoryProgress Percentage of progress for the given element.
-	 * @param progress Current progress.
-	 * @param progressListener Listener to call to update the progress bar.
+	 * @param queue
+     *          Command queue.
+	 * @param containerId
+     *          Identifier of the project/orgunit.
+	 * @param calendarId
+     *          Identifier of the calendar of the project/orgunit (may be null).
+	 * @param elements
+     *          Full list of flexibles elements.
+	 * @param categoryProgress
+     *          Percentage of progress for the given element.
+	 * @param progress
+     *          Current progress.
+	 * @param progressListener
+     *          Listener to call to update the progress bar.
 	 */
 	private void queueDetails(final CommandQueue queue, int containerId, final Integer calendarId, 
 		List<FlexibleElementDTO> elements, double categoryProgress, final double[] progress, 
@@ -448,15 +429,59 @@ public class Synchronizer {
 	/**
 	 * Update the current progress and refresh the progress bar.
 	 * 
-	 * @param progress Progression.
-	 * @param total Total progression.
-	 * @param progressListener Listener to call to refresh the progress bar.
+	 * @param progress
+     *          Progression.
+	 * @param total
+     *          Total progression.
+	 * @param progressListener
+     *          Listener to call to refresh the progress bar.
 	 */
     private void updateProgress(double progress, double[] total, SynchroProgressListener progressListener) {
+        
         total[0] += progress;
 		if(total[0] > 1.0) {
 			total[0] = 1.0;
 		}
         progressListener.onProgress(total[0]);
+    }
+    
+    /**
+     * Display an error message built from the returned errors.
+     * 
+     * @param result 
+     *          Result of a synchronization.
+     */
+    private void displayErrorNotification(final SynchronizeResult result) {
+        
+        final SafeHtmlBuilder errorBuilder = new SafeHtmlBuilder();
+
+        for(final Map.Entry<ContainerInformation, List<String>> entry : result.getErrors().entrySet()) {
+            final ContainerInformation information = entry.getKey();
+
+            if (information.isProject()) {
+                errorBuilder.appendHtmlConstant(I18N.CONSTANTS.project());
+            } else {
+                errorBuilder.appendHtmlConstant(I18N.CONSTANTS.orgunit());
+            }
+
+            errorBuilder.appendHtmlConstant(" ")
+                    .appendEscaped(information.getName())
+                    .appendHtmlConstant(" - ")
+                    .appendEscaped(information.getFullName())
+                    .appendHtmlConstant("<ul style=\"margin:0.5em 0 1em 1.5em;list-style:disc\">");
+
+            for (final String error : entry.getValue()) {
+                errorBuilder.appendHtmlConstant("<li>").appendEscapedLines(error).appendHtmlConstant("</li>");
+            }
+            errorBuilder.appendHtmlConstant("</ul>");
+        }
+
+        if(result.isErrorConcernFiles()) {
+            errorBuilder.appendHtmlConstant(I18N.MESSAGES.conflictFiles());
+        }
+
+        errorBuilder.appendHtmlConstant(I18N.MESSAGES.conflictSentByMail());
+
+        N10N.error(errorBuilder.toSafeHtml().asString());
     }
 }

@@ -22,64 +22,52 @@ package org.sigmah.client.util.profiler;
  * #L%
  */
 
-import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.JavaScriptObject;
-import com.google.gwt.core.client.JsArray;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import java.util.Collections;
-import java.util.Date;
-import java.util.EnumMap;
-import java.util.Map;
 import org.sigmah.client.security.AuthenticationProvider;
+import org.sigmah.offline.appcache.ApplicationCache;
 import org.sigmah.offline.event.JavaScriptEvent;
-import org.sigmah.offline.indexeddb.Cursor;
-import org.sigmah.offline.indexeddb.Database;
 import org.sigmah.offline.indexeddb.IndexedDB;
 import org.sigmah.offline.indexeddb.NativeOpenDatabaseRequest;
-import org.sigmah.offline.indexeddb.ObjectStore;
-import org.sigmah.offline.indexeddb.Request;
-import org.sigmah.offline.indexeddb.Transaction;
 import org.sigmah.offline.status.ApplicationState;
 import org.sigmah.offline.status.ApplicationStateManager;
-import org.sigmah.offline.sync.SuccessCallback;
 
 /**
  * JavaScript profiler. Measure performances of the application.
  * 
  * @author Raphaël Calabro (raphael.calabro@netapsys.fr)
  */
-public class Profiler {
+public class Profiler implements ProfilerStrategy {
 	
 	/**
 	 * Shared instance.
 	 */
 	public static final Profiler INSTANCE = new Profiler();
 	
-	private static final String DATABASE_NAME = "profiler";
+	public static final String DATABASE_NAME = "profiler";
 	
-	private static final String[] UNITS = {"ms", "s", "min", "h", "d"};
-	private static final long[] UNIT_VALUES = {1000, 60, 60, 24};
-			
-	private final Map<Scenario, Execution> executions = new EnumMap<Scenario, Execution>(Scenario.class);
-	private Database<ProfilerStore> database;
+	/**
+	 * Current strategy.
+	 */
+	private ProfilerStrategy strategy = new ActiveProfilerStrategy();
 	
+	private final ExecutionAsyncDAO executionAsyncDAO = new ExecutionAsyncDAO();
 	private AuthenticationProvider authenticationProvider;
-	private ApplicationStateManager applicationStateManage;
+	private ApplicationStateManager applicationStateManager;
 	
-	public Profiler() {
-		if (IndexedDB.isSupported()) {
-			final IndexedDB indexedDB = new IndexedDB();
-			final NativeOpenDatabaseRequest<ProfilerStore> request = indexedDB.open(DATABASE_NAME, ProfilerStore.class);
-			
-			request.addSuccessHandler(new JavaScriptEvent() {
-
-				@Override
-				public void onEvent(JavaScriptObject event) {
-					Profiler.this.database = request.getResult();
-				}
-				
-			});
+	/**
+	 * Activate or deactivate profiling.
+	 * 
+	 * @param active
+	 *			<code>true</code> to active the profiler, 
+	 *			<code>false</code> to deactivate it.
+	 */
+	public void setActive(boolean active) {
+		if (active) {
+			strategy = new ActiveProfilerStrategy();
+		} else {
+			strategy = new InactiveProfilerStrategy();
 		}
 	}
 	
@@ -101,212 +89,124 @@ public class Profiler {
 	}
 	
 	/**
-	 * Start a new execution for the given scenario.
-	 * 
-	 * @param scenario Scenario to start.
-	 * @return Identifier of the new execution.
+	 * {@inheritDoc}
 	 */
-	public String startScenario(Scenario scenario) {
-		final Execution execution = Execution.create(scenario);
-		final String identifier = identifierForExecution(execution);
-		Log.debug("Started recording of execution " + identifier + "...");
-		executions.put(scenario, execution);
-		return identifier;
+	@Override
+	public void startScenario(Scenario scenario) {
+		strategy.startScenario(scenario);
 	}
 	
 	/**
-	 * Pause the clock for the given scenario.
-	 * 
-	 * @param scenario Scenario to pause.
+	 * {@inheritDoc}
 	 */
+	@Override
 	public void pauseScenario(Scenario scenario) {
-		final Execution execution = executions.get(scenario);
-		if (execution != null) {
-			execution.setDuration(execution.getDuration() + durationOfExecution(execution));
-			execution.setDate(null);
-			Log.debug("Paused execution " + identifierForExecution(execution) + ".");
-		}
+		strategy.pauseScenario(scenario);
 	}
 	
 	/**
-	 * Resume the clock for the given scenario.
-	 * 
-	 * @param scenario Scenario to resume.
+	 * {@inheritDoc}
 	 */
+	@Override
 	public void resumeScenario(Scenario scenario) {
-		final Execution execution = executions.get(scenario);
-		if (execution != null) {
-			if (execution.getDate() != null) {
-				Log.warn("Can't resume execution of " + identifierForExecution(execution) + " because it is already running.");
-				return;
-			}
-			execution.setDate(new Date());
-			Log.debug("Resumed execution " + identifierForExecution(execution) + "...");
-		}
+		strategy.resumeScenario(scenario);
 	}
 	
 	/**
-	 * Save the split time from the previous checkpoint to this one.
-	 * 
-	 * @param scenario Scenario to mark.
-	 * @param checkpoint Checkpoint name.
+	 * {@inheritDoc}
 	 */
+	@Override
 	public void markCheckpoint(Scenario scenario, String checkpoint) {
-		final Execution execution = executions.get(scenario);
-		if (execution != null && execution.getDate() != null) {
-			execution.addCheckpoint(checkpoint, durationOfExecution(execution));
-		} else {
-			Log.warn("Can't mark checkpoint for scenario " + scenario + " because it is paused or not started.");
-		}
+		strategy.markCheckpoint(scenario, checkpoint);
 	}
 	
 	/**
-	 * End the execution for the given scenario.
-	 * 
-	 * @param scenario Scenario to end.
+	 * {@inheritDoc}
 	 */
-	public void endScenario(Scenario scenario) {
-		final Execution execution = executions.remove(scenario);
+	@Override
+	public Execution endScenario(Scenario scenario) {
+		final Execution execution = strategy.endScenario(scenario);
 		if (execution != null) {
-			final double duration = durationOfExecution(execution);
-			Log.debug(identifierForExecution(execution) + " duration was " + formatDuration((long) (duration * 1000.0)));
-			
-			execution.setDuration(duration);
 			execution.setUserEmailAddress(authenticationProvider.get().getUserEmail());
-			execution.setOnline(applicationStateManage.getLastState() == ApplicationState.ONLINE);
-			
-			double lastCheckpointTime = 0.0;
-			final JsArray<Checkpoint> checkpoints = execution.getCheckpoints();
-			for (int index = 0; index < checkpoints.length(); index++) {
-				final Checkpoint checkpoint = checkpoints.get(index);
-				checkpoint.setDuration(checkpoint.getTime() - lastCheckpointTime);
-				lastCheckpointTime = checkpoint.getTime();
-			}
-			
-			if (database != null) {
-				final Transaction<ProfilerStore> transaction = database.getTransaction(Transaction.Mode.READ_WRITE, Collections.singleton(ProfilerStore.EXECUTION));
-				final ObjectStore objectStore = transaction.getObjectStore(ProfilerStore.EXECUTION);
-				objectStore.add(execution).addCallback(new SuccessCallback<Request>() {
-
-					@Override
-					public void onSuccess(Request result) {
-						// Rien
-					}
-				});
-			}
-		} 
+			execution.setOnline(applicationStateManager.getLastState() == ApplicationState.ONLINE);
+			executionAsyncDAO.saveOrUpdate(execution);
+		}
+		return execution;
 	}
 	
 	/**
 	 * Generates a CSV file from the collected data.
 	 * 
-	 * @param callback Called when the generation is done.
+	 * @param callback
+	 *			Called when the generation is done.
 	 */
 	public void generateCSV(final AsyncCallback<String> callback) {
-		if (database != null) {
-			final Transaction<ProfilerStore> transaction = database.getTransaction(Transaction.Mode.READ_ONLY, Collections.singleton(ProfilerStore.EXECUTION));
-			final ObjectStore objectStore = transaction.getObjectStore(ProfilerStore.EXECUTION);
+		executionAsyncDAO.forEach(new AsyncCallback<Execution>() {
 			
-			objectStore.openCursor().addCallback(new SuccessCallback<Request>() {
-				
-				private final StringBuilder csvBuilder = new StringBuilder("scenario;duration;date;version;user-agent\n");
-				private final DateTimeFormat formatter = DateTimeFormat.getFormat(DateTimeFormat.PredefinedFormat.DATE_TIME_FULL);
+			private final StringBuilder csvBuilder = new StringBuilder("scenario;duration;date;version;user-agent\n");
+			private final DateTimeFormat formatter = DateTimeFormat.getFormat(DateTimeFormat.PredefinedFormat.DATE_TIME_FULL);
 
-				@Override
-				public void onSuccess(Request result) {
-					final Cursor cursor = result.getResult();
-					if(cursor != null) {
-						final Execution execution = cursor.getValue();
+			@Override
+			public void onFailure(Throwable caught) {
+				callback.onFailure(caught);
+			}
+
+			@Override
+			public void onSuccess(Execution execution) {
+				if (execution != null) {
+					if (execution.isOnline() && ApplicationCache.Status.IDLE.name().equals(execution.getApplicationCacheStatus())) {
 						csvBuilder.append(execution.getScenarioName()).append(';')
-								.append(execution.getDuration()).append(';')
+								.append(formatDoubleForCSV(execution.getDuration())).append(';')
 								.append(formatter.format(execution.getDate())).append(';')
 								.append(execution.getVersionNumber()).append(";\"")
-								.append(execution.getUserAgent()).append("\"\n");
-						
-						cursor.next();
-					} else {
-						callback.onSuccess(csvBuilder.toString());
+								.append(execution.getUserAgent()).append('\"');
+
+						for (final Checkpoint checkpoint : execution.getCheckpointSequence()) {
+							csvBuilder.append(';').append(checkpoint.getName())
+									.append(';').append(formatDoubleForCSV(checkpoint.getDuration()));
+						}
+
+						csvBuilder.append("\r\n");
 					}
+				} else {
+					callback.onSuccess(csvBuilder.toString());
 				}
-			});
-		} else {
-			callback.onSuccess("IndexedDB database is not opened.");
-		}
+			}
+		});
+	}
+	
+	/**
+	 * Generates a markdown report from the collected data.
+	 */
+	public void generateMarkdownReport() {
+		// TODO: Write the generation code.
+		throw new UnsupportedOperationException("Not implemented yet.");
+	}
+	
+	/**
+	 * Format the given double value to a <code>String</code> suitable for a CSV file.
+	 * <p>
+	 * Dots are replaced by commas and the decimal part is truncated to 3 digits.
+	 * For example, <code>Math.PI</code> will be formatted as <code>3,141</code>.
+	 * 
+	 * @param value
+	 *			Double value to format.
+	 * @return The formatted value.
+	 */
+	private String formatDoubleForCSV(final double value) {
+		return Double.toString(((int) (value * 1000)) / 1000.0).replace('.', ',');
 	}
 
-	/**
-	 * Generates an identifier for the given execution.
-	 * 
-	 * @param execution Execution to use.
-	 * @return An identifier.
-	 */
-	private String identifierForExecution(final Execution execution) {
-		final Date date = execution.getDate();
-		if (date != null) {
-			return execution.getScenarioName() + '-' + date.getTime();
-		} else {
-			return execution.getScenarioName() + "-PAUSE";
-		}
-	}
-	
-	/**
-	 * Calculates the duration of the given execution.
-	 * 
-	 * @param execution Execution to measure.
-	 * @return Duration of the given execution.
-	 */
-	private double durationOfExecution(final Execution execution) {
-		double duration = execution.getDuration();
-		
-		final Date date = execution.getDate();
-		if (date != null) {
-			duration += (new Date().getTime() - date.getTime()) / 1000.0;
-		}
-		
-		return duration;
-	}
-	
-	/**
-	 * Format the current duration.
-	 * 
-	 * @param duration Duration to format.
-	 * @return The duration formatted.
-	 */
-	private String formatDuration(long duration) {
-		final StringBuilder durationBuilder = new StringBuilder();
-		
-		long remaining = duration;
-		for(int index = 0; remaining > 0 && index < UNIT_VALUES.length; index++) {
-			final long value = UNIT_VALUES[index];
-			
-			durationBuilder.insert(0, UNITS[index])
-					.insert(0, remaining % value)
-					.insert(0, ' ');
-			
-			remaining /= value;
-		}
-		
-		if (durationBuilder.length() == 0) {
-			durationBuilder.append(0).append(' ').append(UNITS[0]);
-		}
-		
-		return durationBuilder.toString();
-	}
-	
 	// ---
 	// GETTERS & SETTERS
 	// ---
 	
-	public Database<ProfilerStore> getDatabase() {
-		return database;
+	public ApplicationStateManager getApplicationStateManager() {
+		return applicationStateManager;
 	}
 
-	public ApplicationStateManager getApplicationStateManage() {
-		return applicationStateManage;
-	}
-
-	public void setApplicationStateManage(ApplicationStateManager applicationStateManage) {
-		this.applicationStateManage = applicationStateManage;
+	public void setApplicationStateManager(ApplicationStateManager applicationStateManager) {
+		this.applicationStateManager = applicationStateManager;
 	}
 
 	public AuthenticationProvider getAuthenticationProvider() {

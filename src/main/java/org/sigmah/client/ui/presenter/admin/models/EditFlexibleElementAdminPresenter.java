@@ -50,7 +50,6 @@ import org.sigmah.client.ui.widget.button.Button;
 import org.sigmah.client.ui.widget.form.FormPanel;
 import org.sigmah.client.util.AdminUtil;
 import org.sigmah.client.util.ClientUtils;
-import org.sigmah.client.util.EnumModel;
 import org.sigmah.shared.command.CreateEntity;
 import org.sigmah.shared.command.GetCategories;
 import org.sigmah.shared.command.GetPrivacyGroups;
@@ -64,7 +63,6 @@ import org.sigmah.shared.dto.base.AbstractModelDataEntityDTO;
 import org.sigmah.shared.dto.category.CategoryTypeDTO;
 import org.sigmah.shared.dto.element.BudgetElementDTO;
 import org.sigmah.shared.dto.element.BudgetSubFieldDTO;
-import org.sigmah.shared.dto.element.DefaultFlexibleElementDTO;
 import org.sigmah.shared.dto.element.FilesListElementDTO;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
 import org.sigmah.shared.dto.element.QuestionChoiceElementDTO;
@@ -89,13 +87,17 @@ import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FieldEvent;
 import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.widget.Dialog;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Text;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.form.Validator;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Anchor;
@@ -103,6 +105,21 @@ import com.google.gwt.user.client.ui.FlexTable;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.TreeSet;
+import org.sigmah.client.dispatch.monitor.LoadingMask;
+import org.sigmah.client.ui.widget.HasGrid;
+import org.sigmah.client.util.TypeModel;
+import org.sigmah.shared.command.UpdateEntity;
+import org.sigmah.shared.command.result.VoidResult;
+import org.sigmah.shared.computation.Computation;
+import org.sigmah.shared.computation.Computations;
+import org.sigmah.shared.computation.value.ComputedValues;
+import org.sigmah.shared.dto.element.ComputationElementDTO;
+import org.sigmah.shared.dto.referential.LogicalElementType;
+import org.sigmah.shared.dto.referential.LogicalElementTypes;
+import org.sigmah.shared.util.Collections;
 
 /**
  * Presenter in charge of creating/editing a flexible element.
@@ -116,7 +133,7 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 	 * Description of the view managed by this presenter.
 	 */
 	@ImplementedBy(EditFlexibleElementAdminView.class)
-	public static interface View extends ViewPopupInterface {
+	public static interface View extends ViewPopupInterface, HasGrid<FlexibleElementDTO> {
 
 		// --
 		// Common form components.
@@ -128,7 +145,7 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 
 		Field<Object> getNameReadOnlyField();
 
-		ComboBox<EnumModel<ElementTypeEnum>> getTypeField();
+		ComboBox<TypeModel> getTypeField();
 
 		ComboBox<BaseModelData> getContainerField();
 
@@ -154,8 +171,8 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 
 		SimpleComboBox<Integer> getBannerPositionField();
 
-		ComboBox<EnumModel<TextAreaType>> getTextAreaTypeField();
-
+		Field<String> getCodeField();
+		
 		Field<Number> getLengthField();
 
 		Field<Boolean> getDecimalField();
@@ -195,6 +212,8 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 		Anchor getAnchorAddSubField();
 
 		void clearBudgetFields();
+		
+		TextField<String> getFormulaField();
 
 		// --
 		// Methods.
@@ -212,10 +231,8 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 		 * 
 		 * @param elementType
 		 *          The flexible element type, may be {@code null}.
-		 * @param defaultFlexibleElementType
-		 *          The <b>default</b> flexible element type, may be {@code null}.
 		 */
-		void setSpecificFieldsVisibility(ElementTypeEnum elementType, DefaultFlexibleElementType defaultFlexibleElementType);
+		void setSpecificFieldsVisibility(LogicalElementType elementType);
 
 		/**
 		 * Initializes the given {@code textAreaType} specific form fields.
@@ -298,6 +315,11 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 	private Set<String> disabledCustomChoices;
 
 	/**
+	 * List of every other flexible elements of this model.
+	 */
+	private List<FlexibleElementDTO> otherElements;
+
+	/**
 	 * Presenter's initialization.
 	 * 
 	 * @param view
@@ -336,7 +358,9 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 			@Override
 			public void handleEvent(final BaseEvent be) {
 
-				final ElementTypeEnum type = EnumModel.getEnum(view.getTypeField().getValue());
+				final String code = view.getCodeField().getValue();
+
+				final LogicalElementType type = TypeModel.getType(view.getTypeField().getValue());
 				loadFlexibleElementSpecificFields(flexibleElement, type);
 
 				if (type == ElementTypeEnum.FILES_LIST || type == ElementTypeEnum.REPORT || type == ElementTypeEnum.REPORT_LIST) {
@@ -346,19 +370,8 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 					view.getExportableField().show();
 					view.getExportableField().setValue(flexibleElement != null ? flexibleElement.getExportable() : null);
 				}
-			}
-		});
 
-		// --
-		// TextArea type field select handler.
-		// --
-
-		view.getTextAreaTypeField().addListener(Events.Select, new Listener<BaseEvent>() {
-
-			@Override
-			public void handleEvent(final BaseEvent be) {
-				final TextAreaType textAreaType = EnumModel.getEnum(view.getTextAreaTypeField().getValue());
-				loadFlexibleElementTextAreaFields(flexibleElement, textAreaType);
+				view.getCodeField().setValue(code);
 			}
 		});
 
@@ -476,6 +489,65 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 				}
 			}
 		}));
+
+		// --
+		// Computation rule validation.
+		// --
+
+		view.getFormulaField().setValidator(new Validator() {
+
+			@Override
+			public String validate(Field<?> field, String value) {
+
+				if (value == null || value.trim().isEmpty()) {
+					return null;
+				}
+
+				final Computation computation = Computations.parse(value, otherElements);
+
+				if (computation != null && !computation.isBadFormula()) {
+					final Set<String> badReferences = computation.getBadReferences();
+
+					if (!badReferences.isEmpty()) {
+						final String references = Collections.join(badReferences, ", ");
+
+						if (computation.getBadReferences().size() == 1) {
+							return I18N.MESSAGES.adminFlexibleComputationRuleBadReference(references);
+						} else {
+							return I18N.MESSAGES.adminFlexibleComputationRuleBadReferences(references);
+						}
+					}
+				} else {
+					return I18N.CONSTANTS.adminFlexibleComputationRuleBadFormula();
+				}
+
+				return null;
+			}
+		});
+
+		// --
+		// Code edition.
+		// --
+
+		view.setGridEventHandler(new HasGrid.GridEventHandler<FlexibleElementDTO>() {
+
+			@Override
+			public void onRowClickEvent(final FlexibleElementDTO rowElement) {
+
+				MessageBox.prompt(I18N.CONSTANTS.adminFlexibleCode(), I18N.MESSAGES.adminFlexibleEditCode(rowElement.getFormattedLabel()), false, new Listener<MessageBoxEvent>() {
+					@Override
+					public void handleEvent(MessageBoxEvent be) {
+
+						// OK.
+						if (Dialog.OK.equals(be.getButtonClicked().getItemId())) {
+
+							final String code = be.getValue();
+							onRenameCodeAction(rowElement, code);
+						}
+					}
+				});
+			}
+		});
 	}
 
 	/**
@@ -490,6 +562,7 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 		// Reads parameters/data from request.
 		currentModel = request.getData(RequestParameter.MODEL);
 		flexibleElement = request.getData(RequestParameter.DTO);
+		otherElements = request.getData(RequestParameter.ELEMENTS);
 
 		if (currentModel == null) {
 			hideView();
@@ -536,38 +609,6 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 	// ---------------------------------------------------------------------------------------------------------------
 
 	/**
-	 * Returns the given {@code flexibleElement} corresponding flexible element type.<br>
-	 * If the given {@code flexibleElement} is <b>not</b> a flexible element (or is {@code null}), the method returns
-	 * {@code null}.
-	 * 
-	 * @param flexibleElement
-	 *          The flexible element.
-	 * @return The given {@code flexibleElement} corresponding flexible element type, or {@code null}.
-	 */
-	private static ElementTypeEnum getElementType(final FlexibleElementDTO flexibleElement) {
-		if (!(flexibleElement instanceof FlexibleElementDTO)) {
-			return null;
-		}
-		return flexibleElement.getElementType();
-	}
-
-	/**
-	 * Returns the given {@code flexibleElement} corresponding default flexible element type.<br>
-	 * If the given {@code flexibleElement} is <b>not</b> a <em>default</em> flexible element (or is {@code null}), the
-	 * method returns {@code null}.
-	 * 
-	 * @param flexibleElement
-	 *          The flexible element.
-	 * @return The given {@code flexibleElement} corresponding default flexible element type, or {@code null}.
-	 */
-	private static DefaultFlexibleElementType getDefaultElementType(final FlexibleElementDTO flexibleElement) {
-		if (!(flexibleElement instanceof DefaultFlexibleElementDTO)) {
-			return null;
-		}
-		return ((DefaultFlexibleElementDTO) flexibleElement).getType();
-	}
-
-	/**
 	 * Returns <code>true</code> if the user is updating an existing flexible
 	 * element and its creation date is prior to the maintenance start date.
 	 * 
@@ -591,14 +632,17 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 	 */
 	private void loadFlexibleElement(final FlexibleElementDTO flexibleElement) {
 
-		final boolean defaultFlexibleElement = getElementType(flexibleElement) == ElementTypeEnum.DEFAULT;
+		final LogicalElementType type = LogicalElementTypes.of(flexibleElement);
+		final boolean defaultFlexibleElement = type.toDefaultFlexibleElementType() != null;
 
 		view.getNameField().setVisible(!defaultFlexibleElement);
 		view.getNameReadOnlyField().setVisible(defaultFlexibleElement);
 		view.getTypeField().setEnabled(flexibleElement == null);
 		view.getExportableField().setValue(true);
 
-		loadFlexibleElementSpecificFields(flexibleElement, getElementType(flexibleElement));
+		loadFlexibleElementSpecificFields(flexibleElement, type);
+
+		view.getCodeField().setValue("field" + otherElements.size());
 
 		if (flexibleElement != null) {
 
@@ -607,8 +651,9 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 			// --
 
 			view.getNameField().setValue(flexibleElement.getFormattedLabel());
-			view.getNameReadOnlyField().setValue(DefaultFlexibleElementType.getName(getDefaultElementType(flexibleElement)));
-			view.getTypeField().setValue(new EnumModel<ElementTypeEnum>(getElementType(flexibleElement)));
+			view.getNameReadOnlyField().setValue(DefaultFlexibleElementType.getName(type.toDefaultFlexibleElementType()));
+			view.getTypeField().setValue(new TypeModel(type));
+			view.getCodeField().setValue(flexibleElement.getCode());
 
 			// Banner constraint.
 			final LayoutConstraintDTO bannerConstraint = flexibleElement.getBannerConstraint();
@@ -636,7 +681,7 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 
 			// Common properties.
 			oldFieldProperties.put(AdminUtil.PROP_FX_NAME, view.getNameField().getValue());
-			oldFieldProperties.put(AdminUtil.PROP_FX_TYPE, EnumModel.getEnum(view.getTypeField().getValue()));
+			oldFieldProperties.put(AdminUtil.PROP_FX_TYPE, type.toElementTypeEnum());
 			oldFieldProperties.put(AdminUtil.PROP_FX_IN_BANNER, view.getBannerField().getValue());
 			oldFieldProperties.put(AdminUtil.PROP_FX_POS_IN_BANNER, ClientUtils.getSimpleValue(view.getBannerPositionField()));
 			oldFieldProperties.put(AdminUtil.PROP_FX_GROUP, view.getLayoutGroupField().getValue());
@@ -649,7 +694,7 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 			oldFieldProperties.put(AdminUtil.PROP_FX_EXPORTABLE, view.getExportableField().getValue());
 
 			// Specific properties.
-			oldFieldProperties.put(AdminUtil.PROP_FX_TEXT_TYPE, TextAreaType.getCode(EnumModel.getEnum(view.getTextAreaTypeField().getValue())));
+			oldFieldProperties.put(AdminUtil.PROP_FX_TEXT_TYPE, TextAreaType.getCode(type.toTextAreaType()));
 			oldFieldProperties.put(AdminUtil.PROP_FX_MIN_LIMIT, view.getMinLimitField().getValue());
 			oldFieldProperties.put(AdminUtil.PROP_FX_MAX_LIMIT, view.getMaxLimitField().getValue());
 			oldFieldProperties.put(AdminUtil.PROP_FX_LENGTH, ClientUtils.getInteger(view.getLengthField().getValue()));
@@ -673,7 +718,7 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 	 * @param type
 	 *          The element type, may be {@code null}.
 	 */
-	private void loadFlexibleElementSpecificFields(final FlexibleElementDTO flexibleElement, final ElementTypeEnum type) {
+	private void loadFlexibleElementSpecificFields(final FlexibleElementDTO flexibleElement, final LogicalElementType type) {
 
 		// clear specific element for bubget
 		view.getBudgetFields().setVisible(false);
@@ -689,28 +734,21 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 		view.getDownBudgetSubFieldStore().commitChanges();
 
 		// Specific fields visibility.
-		view.setSpecificFieldsVisibility(type, getDefaultElementType(flexibleElement));
+		view.setSpecificFieldsVisibility(type);
 
 		view.getBannerPositionField().disable();
 		view.getBannerPositionField().setAllowBlank(true);
 
-        customChoices.clear();
-        disabledCustomChoices.clear();
+		customChoices.clear();
+		disabledCustomChoices.clear();
 
 		if (flexibleElement instanceof FilesListElementDTO) {
 
 			view.getMaxLimitField().setValue(((FilesListElementDTO) flexibleElement).getLimit());
 
-		} else if (flexibleElement instanceof TextAreaElementDTO || type == ElementTypeEnum.TEXT_AREA) {
+		} else if (flexibleElement instanceof TextAreaElementDTO || type.toElementTypeEnum() == ElementTypeEnum.TEXT_AREA) {
 
-			final TextAreaType textAreaType;
-			if (flexibleElement instanceof TextAreaElementDTO) {
-				textAreaType = TextAreaType.fromCode(((TextAreaElementDTO) flexibleElement).getType());
-			} else {
-				textAreaType = null;
-			}
-
-			loadFlexibleElementTextAreaFields(flexibleElement, textAreaType);
+			loadFlexibleElementTextAreaFields(flexibleElement, type.toTextAreaType());
 
 		} else if (flexibleElement instanceof QuestionElementDTO) {
 
@@ -813,6 +851,32 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 			}
 
 			view.getSpecificForm().recalculate();
+			
+		} else if (flexibleElement instanceof ComputationElementDTO) {
+			
+			final ComputationElementDTO computationElement = (ComputationElementDTO) flexibleElement;
+
+			// Computation rule.
+			final String formattedRule = Computations.formatRuleForEdition(computationElement.getRule(), otherElements);
+			view.getFormulaField().setValue(formattedRule);
+
+			// Minimum and maximum value.
+			view.getMinLimitField().setValue(ComputedValues.from(computationElement.getMinimumValue(), false).get());
+			view.getMaxLimitField().setValue(ComputedValues.from(computationElement.getMaximumValue(), false).get());
+		}
+		if (type == ElementTypeEnum.COMPUTATION) {
+			// Related flexible elements code grid.
+			final ListStore<FlexibleElementDTO> store = view.getStore();
+			store.removeAll();
+
+			for (final FlexibleElementDTO otherElement : otherElements) {
+				final ElementTypeEnum otherElementType = otherElement.getElementType();
+
+				if ((otherElementType == ElementTypeEnum.TEXT_AREA && ((TextAreaElementDTO) otherElement).getType() == 'N')
+						|| otherElementType == ElementTypeEnum.COMPUTATION) {
+					store.add(otherElement);
+				}
+			}
 		}
 	}
 
@@ -828,15 +892,13 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 
 		view.setTextAreaSpecificFieldsVisibility(textAreaType);
 
-		view.getTextAreaTypeField().setEnabled(!isUpdateAndUnderMaintenance());
+		view.getCodeField().setEnabled(!isUpdateAndUnderMaintenance());
 		view.getMinDateField().setEnabled(!isUpdateAndUnderMaintenance());
 		view.getMaxDateField().setEnabled(!isUpdateAndUnderMaintenance());
 		view.getMinLimitField().setEnabled(!isUpdateAndUnderMaintenance());
 		view.getMaxLimitField().setEnabled(!isUpdateAndUnderMaintenance());
 		
 		// Fires change event.
-		view.getTextAreaTypeField().setValue(textAreaType != null ? new EnumModel<TextAreaType>(textAreaType) : null);
-
 		if (flexibleElement instanceof TextAreaElementDTO) {
 
 			final TextAreaElementDTO textAreaElement = (TextAreaElementDTO) flexibleElement;
@@ -860,9 +922,9 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 		// Loads element types.
 		view.getTypeField().getStore().removeAll();
 
-		for (final ElementTypeEnum type : ElementTypeEnum.values()) {
+		for (final LogicalElementType type : getLogicalElementTypes()) {
 			if (type != ElementTypeEnum.DEFAULT && type != ElementTypeEnum.INDICATORS) {
-				view.getTypeField().getStore().add(new EnumModel<ElementTypeEnum>(type));
+				view.getTypeField().getStore().add(new TypeModel(type));
 			}
 		}
 
@@ -872,13 +934,31 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 		for (final Integer position : BANNER_POSITIONS) {
 			view.getBannerPositionField().add(position);
 		}
+	}
 
-		// Loads textArea types.
-		view.getTextAreaTypeField().getStore().removeAll();
+	/**
+	 * Loads and sort the logical element types.
+	 *
+	 * @return A collection of every logical element types.
+	 */
+	private Collection<LogicalElementType> getLogicalElementTypes() {
 
-		for (final TextAreaType textAreaType : TextAreaType.values()) {
-			view.getTextAreaTypeField().getStore().add(new EnumModel<TextAreaType>(textAreaType));
+		final TreeSet<LogicalElementType> types = new TreeSet<LogicalElementType>(new Comparator<LogicalElementType>() {
+			@Override
+			public int compare(LogicalElementType o1, LogicalElementType o2) {
+				return o1.getDescription().compareTo(o2.getDescription());
+			}
+		});
+
+		for (final ElementTypeEnum type : ElementTypeEnum.values()) {
+			types.add(type);
 		}
+
+		for (final TextAreaType type : TextAreaType.values()) {
+			types.add(type);
+		}
+
+		return types;
 	}
 
 	/**
@@ -1118,6 +1198,34 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 	}
 
 	/**
+	 * Callback exectued when renaming an other flexible element.
+	 *
+	 * @param selectedElement
+	 *          Flexible element to edit.
+	 * @param code
+	 *          Code to set.
+	 */
+	private void onRenameCodeAction(final FlexibleElementDTO selectedElement, final String code) {
+
+		final Map<String, Object> newFieldProperties = new HashMap<String, Object>();
+		newFieldProperties.put(AdminUtil.PROP_FX_CODE, code);
+
+		newFieldProperties.put(AdminUtil.PROP_FX_FLEXIBLE_ELEMENT, selectedElement);
+		newFieldProperties.put(AdminUtil.ADMIN_PROJECT_MODEL, currentModel);
+		newFieldProperties.put(AdminUtil.ADMIN_ORG_UNIT_MODEL, currentModel);
+		newFieldProperties.put(AdminUtil.PROP_FX_OLD_FIELDS, new HashMap<String, Object>());
+
+		dispatch.execute(new UpdateEntity(currentModel, newFieldProperties), new CommandResultHandler<VoidResult>() {
+
+			@Override
+			protected void onCommandSuccess(VoidResult result) {
+				selectedElement.setCode(code);
+				view.getStore().update(selectedElement);
+			}
+		}, new LoadingMask(view.getGrid()));
+	}
+
+	/**
 	 * Callback executed on save button action.
 	 */
 	private void onSaveAction() {
@@ -1143,13 +1251,15 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 		// Common properties.
 		// --
 
-		final ElementTypeEnum type = EnumModel.getEnum(view.getTypeField().getValue());
+		final LogicalElementType logicalElementType = TypeModel.getType(view.getTypeField().getValue());
+		final ElementTypeEnum type = logicalElementType.toElementTypeEnum();
 		final LayoutGroupDTO group = view.getLayoutGroupField().getValue();
 		final Integer order = ClientUtils.getInteger(view.getOrderField().getValue().intValue());
 		final Boolean mandatory = view.getMandatoryField().getValue();
 		final PrivacyGroupDTO privacyGroup = view.getPrivacyGroupField().getValue();
 		final Boolean amendable = view.getAmendableField().getValue();
 		final Boolean exportable = view.getExportableField().getValue();
+		final String code = view.getCodeField().getValue();
 
 		// --
 		// Specific properties.
@@ -1157,7 +1267,7 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 
 		final Boolean banner = view.getBannerField().getValue();
 		final Integer bannerPosition = ClientUtils.getSimpleValue(view.getBannerPositionField());
-		final TextAreaType textAreaType = EnumModel.getEnum(view.getTextAreaTypeField().getValue());
+		final TextAreaType textAreaType = logicalElementType.toTextAreaType();
 
 		final Integer length = ClientUtils.getInteger(view.getLengthField().getValue());
 		final Boolean decimal = view.getDecimalField().getValue();
@@ -1171,6 +1281,8 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 
 		final Boolean multiple = view.getMultipleChoicesField().getValue();
 		final CategoryTypeDTO category = view.getCategoryTypeField().getValue();
+		
+		final String computationRule = Computations.formatRuleForServer(view.getFormulaField().getValue(), otherElements);
 
 		// --
 		// Initializing 'NEW' properties map.
@@ -1179,6 +1291,7 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 		final Map<String, Object> newFieldProperties = new HashMap<String, Object>();
 
 		newFieldProperties.put(AdminUtil.PROP_FX_NAME, htmlName);
+		newFieldProperties.put(AdminUtil.PROP_FX_CODE, code);
 		newFieldProperties.put(AdminUtil.PROP_FX_TYPE, (flexibleElement instanceof BudgetElementDTO) ? ElementTypeEnum.DEFAULT : type);
 		newFieldProperties.put(AdminUtil.PROP_FX_GROUP, group);
 		newFieldProperties.put(AdminUtil.PROP_FX_ORDER_IN_GROUP, order);
@@ -1192,7 +1305,7 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 		newFieldProperties.put(AdminUtil.PROP_FX_LENGTH, length);
 		newFieldProperties.put(AdminUtil.PROP_FX_MAX_LIMIT, maxLimit);
 		newFieldProperties.put(AdminUtil.PROP_FX_MIN_LIMIT, minLimit);
-
+		
 		if (textAreaType == TextAreaType.DATE) {
 			newFieldProperties.put(AdminUtil.PROP_FX_MAX_LIMIT, maxLimitDate);
 			newFieldProperties.put(AdminUtil.PROP_FX_MIN_LIMIT, minLimitDate);
@@ -1234,47 +1347,47 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 			newFieldProperties.put(AdminUtil.PROP_FX_B_BUDGET_RATIO_DIVIDEND, view.getUpBudgetSubFieldCombo().getValue());
 			newFieldProperties.put(AdminUtil.PROP_FX_B_BUDGET_RATIO_DIVISOR, view.getDownBudgetSubFieldCombo().getValue());
 		}
+		
+		newFieldProperties.put(AdminUtil.PROP_FX_COMPUTATION_RULE, computationRule);
 
 		// --
 		// Logging old/new properties & filtering actual modifications.
 		// --
-
-		final StringBuilder message = new StringBuilder();
-		message.append("New : (");
-		for (Map.Entry<String, Object> newP : newFieldProperties.entrySet()) {
-			message.append(newP.getKey()).append('=').append(newP.getValue()).append(", ");
-		}
-
+		
 		if (Log.isDebugEnabled()) {
-			Log.debug(message.append(')').toString());
-		}
 
-		// Only keep actual changes.
-		if (flexibleElement != null) {
-			message.setLength(0);
-			message.append("Old : (");
-
-			for (final Entry<String, Object> old : oldFieldProperties.entrySet()) {
-				message.append(old.getKey()).append('=').append(old.getValue()).append(", ");
-
-				if ((old.getValue() != null && old.getValue().equals(newFieldProperties.get(old.getKey())))
-					|| (old.getValue() == null && newFieldProperties.get(old.getKey()) == null)) {
-					newFieldProperties.remove(old.getKey());
-				}
+			final StringBuilder message = new StringBuilder();
+			message.append("New : (");
+			for (Map.Entry<String, Object> newP : newFieldProperties.entrySet()) {
+				message.append(newP.getKey()).append('=').append(newP.getValue()).append(", ");
 			}
 
-			if (Log.isDebugEnabled()) {
+			Log.debug(message.append(')').toString());
+
+			// Only keep actual changes.
+			if (flexibleElement != null) {
+				message.setLength(0);
+				message.append("Old : (");
+
+				for (final Entry<String, Object> old : oldFieldProperties.entrySet()) {
+					message.append(old.getKey()).append('=').append(old.getValue()).append(", ");
+
+					if ((old.getValue() != null && old.getValue().equals(newFieldProperties.get(old.getKey())))
+							|| (old.getValue() == null && newFieldProperties.get(old.getKey()) == null)) {
+						newFieldProperties.remove(old.getKey());
+					}
+				}
+
 				Log.debug(message.append(')').toString());
 			}
-		}
 
-		message.setLength(0);
-		message.append("Register : (");
-		for (final Entry<String, Object> newP : newFieldProperties.entrySet()) {
-			message.append(newP.getKey()).append('=').append(newP.getValue()).append(", ");
-		}
+			message.setLength(0);
+			message.append("Register : (");
+			for (final Entry<String, Object> newP : newFieldProperties.entrySet()) {
+				message.append(newP.getKey()).append('=').append(newP.getValue()).append(", ");
+			}
 
-		if (Log.isDebugEnabled()) {
+		
 			Log.debug(message.append(')').toString());
 		}
 
@@ -1341,7 +1454,7 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 					final List<Integer> oldFlexibleIds = new ArrayList<Integer>();
 
 					// Collects 'OLD' flexible elements ids.
-					for (final FlexibleElementDTO oldFlexibleElement : currentModel.getAllElements()) {
+					for (final FlexibleElementDTO oldFlexibleElement : otherElements) {
 						oldFlexibleIds.add(oldFlexibleElement.getId());
 					}
 

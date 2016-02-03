@@ -194,22 +194,15 @@ public class I18nServerImpl implements I18nServer {
 	 *          The parameters object values that are supposed to fit the message content.
 	 * @return The built message.
 	 */
-	private static final String buildMessage(String propertyValue, final Object... params) {
+	private static String buildMessage(String propertyValue, final Object... params) {
 
 		propertyValue = propertyValue.replaceAll(Pattern.quote("''"), "'");
 
-		if (ArrayUtils.isNotEmpty(params)) {
+		if (params != null) {
 
-			int index = 0;
-			String regex = PARAM_TAG_START + index + PARAM_TAG_END;
-
-			while (StringUtils.contains(propertyValue, regex)) {
-				if (index < params.length) {
-					propertyValue = propertyValue.replaceAll(Pattern.quote(regex), String.valueOf(params[index]));
-				}
-				index++;
-				regex = PARAM_TAG_START + index + PARAM_TAG_END;
-			}
+            for (int index = 0; index < params.length; index++) {
+                propertyValue = propertyValue.replace(PARAM_TAG_START + index + PARAM_TAG_END, String.valueOf(params[index]));
+            }
 		}
 
 		return propertyValue;

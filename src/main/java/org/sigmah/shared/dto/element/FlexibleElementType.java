@@ -48,6 +48,7 @@ public final class FlexibleElementType {
 		types.put(TextAreaElementDTO.class, I18N.CONSTANTS.flexibleElementTextArea());
 		types.put(TripletsListElementDTO.class, I18N.CONSTANTS.flexibleElementTripletsList());
 		types.put(CoreVersionElementDTO.class, I18N.CONSTANTS.flexibleElementCoreVersion());
+		types.put(ComputationElementDTO.class, I18N.CONSTANTS.flexibleElementComputation());
 	}
 
 	/**

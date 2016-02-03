@@ -49,6 +49,8 @@ public interface CommandHandler<C extends Command<R>, R extends Result> {
 	 * 
 	 * @param command
 	 *          The command.
+     * @param context
+     *          The execution context (contains information about the user executing the command).
 	 * @return The command execution {@link Result}.
 	 * @throws CommandException
 	 *           If there is a problem performing the specified command.

@@ -79,6 +79,9 @@ public abstract class FlexibleElement extends AbstractEntityId<Integer> implemen
 	@Column(name = EntityConstants.FLEXIBLE_ELEMENT_COLUMN_LABEL, nullable = true, columnDefinition = EntityConstants.COLUMN_DEFINITION_TEXT)
 	private String label;
 
+	@Column(name = EntityConstants.FLEXIBLE_ELEMENT_COLUMN_CODE, nullable = true, length = EntityConstants.FLEXIBLE_ELEMENT_CODE_MAX_LENGTH)
+	private String code;
+
 	@Column(name = EntityConstants.FLEXIBLE_ELEMENT_COLUMN_VALIDATES, nullable = false)
 	@NotNull
 	private Boolean validates = false;
@@ -207,6 +210,14 @@ public abstract class FlexibleElement extends AbstractEntityId<Integer> implemen
 
 	public void setLabel(String label) {
 		this.label = label;
+	}
+
+	public String getCode() {
+		return code;
+	}
+
+	public void setCode(String code) {
+		this.code = code;
 	}
 
 	public boolean isValidates() {

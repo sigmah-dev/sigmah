@@ -33,3 +33,13 @@ var ExtraParameters = {
 	chunkSize : 2,
 	reportAutoSaveDelay : 120000
 };
+
+window.addEventListener('load', function() {
+	var scripts = ['//www.openstreetmap.org/openlayers/OpenStreetMap.js'];
+	for(var index = 0; index < scripts.length; index++) {
+		var script = document.createElement('script');
+		script.src = scripts[index];
+		script.async = true;
+		document.body.appendChild(script);
+	}
+});
