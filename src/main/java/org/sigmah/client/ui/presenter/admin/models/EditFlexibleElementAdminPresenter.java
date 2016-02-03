@@ -214,7 +214,7 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 		void clearBudgetFields();
 		
 		TextField<String> getFormulaField();
-        
+
 		// --
 		// Methods.
 		// --
@@ -313,11 +313,11 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 	 * Disabled custom choices labels.
 	 */
 	private Set<String> disabledCustomChoices;
-    
-    /**
-     * List of every other flexible elements of this model.
-     */
-    private List<FlexibleElementDTO> otherElements;
+
+	/**
+	 * List of every other flexible elements of this model.
+	 */
+	private List<FlexibleElementDTO> otherElements;
 
 	/**
 	 * Presenter's initialization.
@@ -357,8 +357,8 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 
 			@Override
 			public void handleEvent(final BaseEvent be) {
-                
-                final String code = view.getCodeField().getValue();
+
+				final String code = view.getCodeField().getValue();
 
 				final LogicalElementType type = TypeModel.getType(view.getTypeField().getValue());
 				loadFlexibleElementSpecificFields(flexibleElement, type);
@@ -367,11 +367,11 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 					view.getExportableField().hide();
 					view.getExportableField().clear();
 				} else {
-                    view.getExportableField().show();
+					view.getExportableField().show();
 					view.getExportableField().setValue(flexibleElement != null ? flexibleElement.getExportable() : null);
-                }
-                
-                view.getCodeField().setValue(code);
+				}
+
+				view.getCodeField().setValue(code);
 			}
 		});
 
@@ -489,67 +489,67 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 				}
 			}
 		}));
-        
-        // --
-        // Computation rule validation.
-        // --
-        
-        view.getFormulaField().setValidator(new Validator() {
-            
-            @Override
-            public String validate(Field<?> field, String value) {
-                
-                if (value == null || value.trim().isEmpty()) {
-                    return null;
-                } 
-                
-                final Computation computation = Computations.parse(value, otherElements);
-                
-                if (computation != null && !computation.isBadFormula()) {
-                    final Set<String> badReferences = computation.getBadReferences();
-                    
-                    if (!badReferences.isEmpty()) {
-                        final String references = Collections.join(badReferences, ", ");
-                        
-                        if (computation.getBadReferences().size() == 1) {
-                            return I18N.MESSAGES.adminFlexibleComputationRuleBadReference(references);
-                        } else {
-                            return I18N.MESSAGES.adminFlexibleComputationRuleBadReferences(references);
-                        }
-                    }
-                } else {
-                    return I18N.CONSTANTS.adminFlexibleComputationRuleBadFormula();
-                }
-                
-                return null;
-            }
-        });
-        
-        // --
-        // Code edition.
-        // --
-        
-        view.setGridEventHandler(new HasGrid.GridEventHandler<FlexibleElementDTO>() {
-            
-            @Override
-            public void onRowClickEvent(final FlexibleElementDTO rowElement) {
-                
-                MessageBox.prompt(I18N.CONSTANTS.adminFlexibleCode(), I18N.MESSAGES.adminFlexibleEditCode(rowElement.getFormattedLabel()), false, new Listener<MessageBoxEvent>() {
-                    @Override
-                    public void handleEvent(MessageBoxEvent be) {
-                        
-                        // OK.
-                        if (Dialog.OK.equals(be.getButtonClicked().getItemId())) {
-                            
-                            final String code = be.getValue();
-                            onRenameCodeAction(rowElement, code);
-                        }
-                    }
-                });
-            }
-        });
+
+		// --
+		// Computation rule validation.
+		// --
+
+		view.getFormulaField().setValidator(new Validator() {
+
+			@Override
+			public String validate(Field<?> field, String value) {
+
+				if (value == null || value.trim().isEmpty()) {
+					return null;
+				}
+
+				final Computation computation = Computations.parse(value, otherElements);
+
+				if (computation != null && !computation.isBadFormula()) {
+					final Set<String> badReferences = computation.getBadReferences();
+
+					if (!badReferences.isEmpty()) {
+						final String references = Collections.join(badReferences, ", ");
+
+						if (computation.getBadReferences().size() == 1) {
+							return I18N.MESSAGES.adminFlexibleComputationRuleBadReference(references);
+						} else {
+							return I18N.MESSAGES.adminFlexibleComputationRuleBadReferences(references);
+						}
+					}
+				} else {
+					return I18N.CONSTANTS.adminFlexibleComputationRuleBadFormula();
+				}
+
+				return null;
+			}
+		});
+
+		// --
+		// Code edition.
+		// --
+
+		view.setGridEventHandler(new HasGrid.GridEventHandler<FlexibleElementDTO>() {
+
+			@Override
+			public void onRowClickEvent(final FlexibleElementDTO rowElement) {
+
+				MessageBox.prompt(I18N.CONSTANTS.adminFlexibleCode(), I18N.MESSAGES.adminFlexibleEditCode(rowElement.getFormattedLabel()), false, new Listener<MessageBoxEvent>() {
+					@Override
+					public void handleEvent(MessageBoxEvent be) {
+
+						// OK.
+						if (Dialog.OK.equals(be.getButtonClicked().getItemId())) {
+
+							final String code = be.getValue();
+							onRenameCodeAction(rowElement, code);
+						}
+					}
+				});
+			}
+		});
 	}
-    
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -562,7 +562,7 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 		// Reads parameters/data from request.
 		currentModel = request.getData(RequestParameter.MODEL);
 		flexibleElement = request.getData(RequestParameter.DTO);
-        otherElements = request.getData(RequestParameter.ELEMENTS);
+		otherElements = request.getData(RequestParameter.ELEMENTS);
 
 		if (currentModel == null) {
 			hideView();
@@ -632,7 +632,7 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 	 */
 	private void loadFlexibleElement(final FlexibleElementDTO flexibleElement) {
 
-        final LogicalElementType type = LogicalElementTypes.of(flexibleElement);
+		final LogicalElementType type = LogicalElementTypes.of(flexibleElement);
 		final boolean defaultFlexibleElement = type.toDefaultFlexibleElementType() != null;
 
 		view.getNameField().setVisible(!defaultFlexibleElement);
@@ -641,8 +641,8 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 		view.getExportableField().setValue(true);
 
 		loadFlexibleElementSpecificFields(flexibleElement, type);
-        
-        view.getCodeField().setValue("field" + otherElements.size());
+
+		view.getCodeField().setValue("field" + otherElements.size());
 
 		if (flexibleElement != null) {
 
@@ -701,7 +701,7 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 			oldFieldProperties.put(AdminUtil.PROP_FX_DECIMAL, view.getDecimalField().getValue());
 			oldFieldProperties.put(AdminUtil.PROP_FX_Q_QUALITY, view.getQualityLinkField().getValue());
 			oldFieldProperties.put(AdminUtil.PROP_FX_Q_MULTIPLE, view.getMultipleChoicesField().getValue());
-        }
+		}
 	}
 
 	/**
@@ -739,8 +739,8 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 		view.getBannerPositionField().disable();
 		view.getBannerPositionField().setAllowBlank(true);
 
-        customChoices.clear();
-        disabledCustomChoices.clear();
+		customChoices.clear();
+		disabledCustomChoices.clear();
 
 		if (flexibleElement instanceof FilesListElementDTO) {
 
@@ -856,29 +856,30 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 			
 			final ComputationElementDTO computationElement = (ComputationElementDTO) flexibleElement;
 
-            // Computation rule.       
-            final String formattedRule = Computations.formatRuleForEdition(computationElement.getRule(), otherElements);
+			// Computation rule.
+			final String formattedRule = Computations.formatRuleForEdition(computationElement.getRule(), otherElements);
 			view.getFormulaField().setValue(formattedRule);
-            
-            // Minimum and maximum value.
-            view.getMinLimitField().setValue(ComputedValues.from(computationElement.getMinimumValue(), false).get());
-            view.getMaxLimitField().setValue(ComputedValues.from(computationElement.getMaximumValue(), false).get());
-            
-            // Related flexible elements.
-            final ListStore<FlexibleElementDTO> store = view.getStore();
-            store.removeAll();
-            
-            for (final FlexibleElementDTO otherElement : otherElements) {
-                final ElementTypeEnum otherElementType = otherElement.getElementType();
-                
-                if ((otherElementType == ElementTypeEnum.TEXT_AREA && ((TextAreaElementDTO) otherElement).getType() == 'N')
-                        || otherElementType == ElementTypeEnum.COMPUTATION) {
-                    store.add(otherElement);
-                }
-            }
+
+			// Minimum and maximum value.
+			view.getMinLimitField().setValue(ComputedValues.from(computationElement.getMinimumValue(), false).get());
+			view.getMaxLimitField().setValue(ComputedValues.from(computationElement.getMaximumValue(), false).get());
+		}
+		if (type == ElementTypeEnum.COMPUTATION) {
+			// Related flexible elements code grid.
+			final ListStore<FlexibleElementDTO> store = view.getStore();
+			store.removeAll();
+
+			for (final FlexibleElementDTO otherElement : otherElements) {
+				final ElementTypeEnum otherElementType = otherElement.getElementType();
+
+				if ((otherElementType == ElementTypeEnum.TEXT_AREA && ((TextAreaElementDTO) otherElement).getType() == 'N')
+						|| otherElementType == ElementTypeEnum.COMPUTATION) {
+					store.add(otherElement);
+				}
+			}
 		}
 	}
-    
+
 	/**
 	 * Loads the given {@code flexibleElement} <b>text area fields</b> and sets the corresponding form fields values.
 	 * 
@@ -934,31 +935,31 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 			view.getBannerPositionField().add(position);
 		}
 	}
-    
-    /**
-     * Loads and sort the logical element types.
-     * 
-     * @return A collection of every logical element types.
-     */
-    private Collection<LogicalElementType> getLogicalElementTypes() {
-        
-        final TreeSet<LogicalElementType> types = new TreeSet<LogicalElementType>(new Comparator<LogicalElementType>() {
-            @Override
-            public int compare(LogicalElementType o1, LogicalElementType o2) {
-                return o1.getDescription().compareTo(o2.getDescription());
-            }
-        });
-        
-        for (final ElementTypeEnum type : ElementTypeEnum.values()) {
-            types.add(type);
-        }
-        
-        for (final TextAreaType type : TextAreaType.values()) {
-            types.add(type);
-        }
-        
-        return types;
-    }
+
+	/**
+	 * Loads and sort the logical element types.
+	 *
+	 * @return A collection of every logical element types.
+	 */
+	private Collection<LogicalElementType> getLogicalElementTypes() {
+
+		final TreeSet<LogicalElementType> types = new TreeSet<LogicalElementType>(new Comparator<LogicalElementType>() {
+			@Override
+			public int compare(LogicalElementType o1, LogicalElementType o2) {
+				return o1.getDescription().compareTo(o2.getDescription());
+			}
+		});
+
+		for (final ElementTypeEnum type : ElementTypeEnum.values()) {
+			types.add(type);
+		}
+
+		for (final TextAreaType type : TextAreaType.values()) {
+			types.add(type);
+		}
+
+		return types;
+	}
 
 	/**
 	 * Loads the containers and populates the corresponding form field.
@@ -1195,32 +1196,34 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 		customChoices.add(customChoice);
 		view.getCategoryTypeField().setEnabled(false);
 	}
-    
-    /**
-     * Callback exectued when renaming an other flexible element.
-     * 
-     * @param selectedElement Flexible element to edit.
-     * @param code Code to set.
-     */
-    private void onRenameCodeAction(final FlexibleElementDTO selectedElement, final String code) {
-        
-        final Map<String, Object> newFieldProperties = new HashMap<String, Object>();
+
+	/**
+	 * Callback exectued when renaming an other flexible element.
+	 *
+	 * @param selectedElement
+	 *          Flexible element to edit.
+	 * @param code
+	 *          Code to set.
+	 */
+	private void onRenameCodeAction(final FlexibleElementDTO selectedElement, final String code) {
+
+		final Map<String, Object> newFieldProperties = new HashMap<String, Object>();
 		newFieldProperties.put(AdminUtil.PROP_FX_CODE, code);
-        
-        newFieldProperties.put(AdminUtil.PROP_FX_FLEXIBLE_ELEMENT, selectedElement);
-        newFieldProperties.put(AdminUtil.ADMIN_PROJECT_MODEL, currentModel);
+
+		newFieldProperties.put(AdminUtil.PROP_FX_FLEXIBLE_ELEMENT, selectedElement);
+		newFieldProperties.put(AdminUtil.ADMIN_PROJECT_MODEL, currentModel);
 		newFieldProperties.put(AdminUtil.ADMIN_ORG_UNIT_MODEL, currentModel);
-        newFieldProperties.put(AdminUtil.PROP_FX_OLD_FIELDS, new HashMap<String, Object>());
-        
-        dispatch.execute(new UpdateEntity(currentModel, newFieldProperties), new CommandResultHandler<VoidResult>() {
-            
-            @Override
-            protected void onCommandSuccess(VoidResult result) {
-                selectedElement.setCode(code);
-                view.getStore().update(selectedElement);
-            }
-        }, new LoadingMask(view.getGrid()));
-    }
+		newFieldProperties.put(AdminUtil.PROP_FX_OLD_FIELDS, new HashMap<String, Object>());
+
+		dispatch.execute(new UpdateEntity(currentModel, newFieldProperties), new CommandResultHandler<VoidResult>() {
+
+			@Override
+			protected void onCommandSuccess(VoidResult result) {
+				selectedElement.setCode(code);
+				view.getStore().update(selectedElement);
+			}
+		}, new LoadingMask(view.getGrid()));
+	}
 
 	/**
 	 * Callback executed on save button action.
@@ -1248,7 +1251,7 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 		// Common properties.
 		// --
 
-        final LogicalElementType logicalElementType = TypeModel.getType(view.getTypeField().getValue());
+		final LogicalElementType logicalElementType = TypeModel.getType(view.getTypeField().getValue());
 		final ElementTypeEnum type = logicalElementType.toElementTypeEnum();
 		final LayoutGroupDTO group = view.getLayoutGroupField().getValue();
 		final Integer order = ClientUtils.getInteger(view.getOrderField().getValue().intValue());
@@ -1350,39 +1353,39 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 		// --
 		// Logging old/new properties & filtering actual modifications.
 		// --
+		
+		if (Log.isDebugEnabled()) {
 
-        if (Log.isDebugEnabled()) {
-            
-            final StringBuilder message = new StringBuilder();
-            message.append("New : (");
-            for (Map.Entry<String, Object> newP : newFieldProperties.entrySet()) {
-                message.append(newP.getKey()).append('=').append(newP.getValue()).append(", ");
-            }
+			final StringBuilder message = new StringBuilder();
+			message.append("New : (");
+			for (Map.Entry<String, Object> newP : newFieldProperties.entrySet()) {
+				message.append(newP.getKey()).append('=').append(newP.getValue()).append(", ");
+			}
 
-            Log.debug(message.append(')').toString());
+			Log.debug(message.append(')').toString());
 
-            // Only keep actual changes.
-            if (flexibleElement != null) {
-                message.setLength(0);
-                message.append("Old : (");
+			// Only keep actual changes.
+			if (flexibleElement != null) {
+				message.setLength(0);
+				message.append("Old : (");
 
-                for (final Entry<String, Object> old : oldFieldProperties.entrySet()) {
-                    message.append(old.getKey()).append('=').append(old.getValue()).append(", ");
+				for (final Entry<String, Object> old : oldFieldProperties.entrySet()) {
+					message.append(old.getKey()).append('=').append(old.getValue()).append(", ");
 
-                    if ((old.getValue() != null && old.getValue().equals(newFieldProperties.get(old.getKey())))
-                        || (old.getValue() == null && newFieldProperties.get(old.getKey()) == null)) {
-                        newFieldProperties.remove(old.getKey());
-                    }
-                }
+					if ((old.getValue() != null && old.getValue().equals(newFieldProperties.get(old.getKey())))
+							|| (old.getValue() == null && newFieldProperties.get(old.getKey()) == null)) {
+						newFieldProperties.remove(old.getKey());
+					}
+				}
 
-                Log.debug(message.append(')').toString());
-            }
+				Log.debug(message.append(')').toString());
+			}
 
-            message.setLength(0);
-            message.append("Register : (");
-            for (final Entry<String, Object> newP : newFieldProperties.entrySet()) {
-                message.append(newP.getKey()).append('=').append(newP.getValue()).append(", ");
-            }
+			message.setLength(0);
+			message.append("Register : (");
+			for (final Entry<String, Object> newP : newFieldProperties.entrySet()) {
+				message.append(newP.getKey()).append('=').append(newP.getValue()).append(", ");
+			}
 
 		
 			Log.debug(message.append(')').toString());
