@@ -22,8 +22,6 @@ package org.sigmah.server.servlet.importer;
  * #L%
  */
 
-import java.util.List;
-import java.util.Map;
 
 
 import org.apache.poi.hssf.usermodel.HSSFCell;
@@ -34,8 +32,10 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.sigmah.shared.dto.importation.ImportationSchemeModelDTO;
 
-import com.google.inject.Injector;
-import org.sigmah.server.dispatch.impl.UserDispatch;
+import java.io.IOException;
+import java.io.InputStream;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.sigmah.shared.dispatch.CommandException;
 
 /**
@@ -46,24 +46,27 @@ import org.sigmah.shared.dispatch.CommandException;
  */
 public class ExcelImporter extends Importer {
 
-	private final Workbook workbook;
+	private Workbook workbook;
 
-	public ExcelImporter(Injector injector, Map<String, Object> properties, UserDispatch.UserExecutionContext executionContext) throws CommandException {
-		super(injector, properties, executionContext);
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setInputStream(InputStream inputStream) throws IOException {
 		
-		if (properties.get("importedExcelDocument") != null) {
-			this.workbook = (Workbook) properties.get("importedExcelDocument");
-			
-		} else {
-			this.workbook = null;
-			throw new IllegalArgumentException("Incompatible Document Format");
+		try {
+			this.workbook = WorkbookFactory.create(inputStream);
+		} catch (InvalidFormatException ex) {
+			throw new IOException("The format of the file given is invalid for the file format Excel.", ex);
 		}
-
-		getCorrespondances(schemeModelList);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	protected void getCorrespondances(List<ImportationSchemeModelDTO> schemeModelList) throws CommandException {
+	public void getCorrespondances() throws CommandException {
+		
 		for (ImportationSchemeModelDTO schemeModelDTO : schemeModelList) {
 			// Get the variable and the flexible element for the identification
 			switch (scheme.getImportType()) {
@@ -95,13 +98,15 @@ public class ExcelImporter extends Importer {
 				getCorrespondancePerSheetOrLine(schemeModelDTO, null, null);
 				break;
 			default:
+				logWarnFormatImportTypeIncoherence();
 				break;
-
 			}
 		}
-
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Object getValueFromVariable(String reference, Integer rowNumber, String sheetName) {
 		// Get the cell value
@@ -161,6 +166,7 @@ public class ExcelImporter extends Importer {
 				break;
 				
 			default:
+				logWarnFormatImportTypeIncoherence();
 				break;
 			}
 		}

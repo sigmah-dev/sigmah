@@ -63,6 +63,8 @@ import org.sigmah.shared.dto.importation.VariableDTO;
 import org.sigmah.shared.dto.importation.VariableFlexibleElementDTO;
 
 import com.google.inject.Injector;
+import java.io.IOException;
+import java.io.InputStream;
 import javax.persistence.TypedQuery;
 import org.sigmah.server.dispatch.impl.UserDispatch;
 import org.sigmah.server.domain.Country;
@@ -103,15 +105,16 @@ public abstract class Importer {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(Importer.class);
 
-	private final Injector injector;
-	
-	/**
-	 * The import parameters.
-	 */
-	protected Map<String, Object> properties;
-
+	private UserDispatch.UserExecutionContext executionContext;
+	private Injector injector;
 	protected ImportationSchemeDTO scheme;
-
+	
+	protected List<ImportationSchemeModelDTO> schemeModelList;
+	
+	private Mapper mapper;
+	private Language language;
+	private I18nServer translator;
+	
 	/**
 	 * The result map sent back to the client: EntityDTO :
 	 * {@link ProjectModelDTO} or {@link OrgUnitModelDTO} String : the key
@@ -119,62 +122,99 @@ public abstract class Importer {
 	 * FlexibleElementDTO : The element updated during the importation Object :
 	 * the element new value
 	 */
-
-	private final List<ImportDetails> entitiesToImport;
-
-	private final Mapper mapper;
-
-	private final Language language;
-
-	private final I18nServer translator;
-
-	private final EntityManager em;
-
-
-	protected List<ImportationSchemeModelDTO> schemeModelList;
+	private List<ImportDetails> entitiesToImport;
 	
-	private UserDispatch.UserExecutionContext executionContext;
-
-	public Importer(Injector injector, Map<String, Object> properties, UserDispatch.UserExecutionContext executionContext) throws CommandException {
-		this.injector = injector;
-		this.mapper = injector.getInstance(Mapper.class);
-		this.em = injector.getProvider(EntityManager.class).get();
-		this.translator = injector.getInstance(I18nServer.class);
-		this.properties = properties;
-		this.executionContext = executionContext;
+	/**
+	 * Sets the stream that will be parsed by this importer.
+	 * 
+	 * @param inputStream 
+	 *          Stream to parse.
+	 * @throws java.io.IOException
+	 *          If the file format is invalid or if an error occurs while reading from the stream.
+	 */
+	public abstract void setInputStream(InputStream inputStream) throws IOException;
+	
+	/**
+	 * Add the correspondances map (flexibleElement , new value) to the result
+	 * map.
+	 * 
+	 * @throws CommandException
+	 *          If an error occurs during the analysis.
+	 */
+	public abstract void getCorrespondances() throws CommandException;
+	
+	/**
+	 * Get the String value of the corresponding variable DTO reference from the
+	 * imported file
+	 * 
+	 * @param reference
+	 * @param lineNumber
+	 * @param sheetName
+	 * @return
+	 * @throws org.sigmah.shared.dispatch.FunctionalException
+	 */
+	public abstract Object getValueFromVariable(String reference, Integer lineNumber, String sheetName) throws FunctionalException;
+	
+	/**
+	 * 
+	 * @throws CommandException
+	 * @throws IllegalStateException 
+	 */
+	public void initialize() throws CommandException, IllegalStateException {
+		if (injector == null || executionContext == null || scheme == null) {
+			throw new IllegalStateException("injector, executionContext and scheme must be set before calling initialize.");
+		}
 		
-		final User user = executionContext.getUser();
-		this.language = Language.fromString(user.getLocale());
-
-		entitiesToImport = new ArrayList<ImportDetails>();
-
 		final GetImportationSchemeModels getImportationSchemeModels = new GetImportationSchemeModels();
-		scheme = (ImportationSchemeDTO) properties.get("scheme");
 		getImportationSchemeModels.setImportationSchemeId(scheme.getId());
-
 		final ListResult<ImportationSchemeModelDTO> result = executionContext.execute(getImportationSchemeModels);
-
-		schemeModelList = result.getList();
+		
+		this.schemeModelList = result.getList();
+		this.entitiesToImport = new ArrayList<>();
+		this.language = executionContext.getLanguage();
 	}
 
 	/**
-	 * @return the entitiesToImport
+	 * Sets the instance of the Guice injecto.
+	 * 
+	 * @param injector
+	 *          Guice injector.
+	 */
+	public void setInjector(Injector injector) {
+		this.injector = injector;
+	}
+
+	/**
+	 * Sets the current execution context.
+	 * 
+	 * @param executionContext 
+	 *          Execution context.
+	 */
+	public void setExecutionContext(UserDispatch.UserExecutionContext executionContext) {
+		this.executionContext = executionContext;
+	}
+
+	/**
+	 * Sets the importation scheme to use.
+	 * 
+	 * @param scheme 
+	 *          Importation scheme.
+	 */
+	public void setScheme(ImportationSchemeDTO scheme) {
+		this.scheme = scheme;
+	}
+	
+	/**
+	 * Retrieves the detail of everything that can be imported.
+	 * 
+	 * @return the entities to import.
 	 */
 	public List<ImportDetails> getEntitiesToImport() {
 		return entitiesToImport;
 	}
 
 	/**
-	 * Add the correspondances map (flexibleElement , new value) to the result
-	 * map
-	 * 
-	 * @param schemeModelList
-	 * @throws CommandException
-	 */
-	protected abstract void getCorrespondances(List<ImportationSchemeModelDTO> schemeModelList) throws CommandException;
-
-	/**
-	 * Get the map mapping a variable value and a flexible element value
+	 * Get the map mapping a variable value and a flexible element value.
 	 * 
 	 * @param variableFlexibleElementsDTO
 	 * @param lineNumber
@@ -239,18 +279,6 @@ public abstract class Importer {
 	}
 
 	/**
-	 * Get the String value of the corresponding variable DTO reference from the
-	 * imported file
-	 * 
-	 * @param reference
-	 * @param lineNumber
-	 * @param sheetName
-	 * @return
-	 */
-
-	public abstract Object getValueFromVariable(String reference, Integer lineNumber, String sheetName) throws FunctionalException;
-
-	/**
 	 * Gets the alphabetic position of the provided character (-1)
 	 * 
 	 * @param letter
@@ -266,11 +294,11 @@ public abstract class Importer {
 	}
 
 	/**
-	 * Get the value of the flexible Element
+	 * Get the value of the flexible Element.
 	 * 
 	 * @param fleDTO
-	 * @param projectDTO
-	 * @param class1
+	 * @param entityDTO
+	 * @param forkey
 	 * @return
 	 * @throws CommandException
 	 */
@@ -300,7 +328,7 @@ public abstract class Importer {
 		case DEFAULT:
 			element = mapper.map(fleDTO, new DefaultFlexibleElement());
 			if (!DefaultFlexibleElementType.BUDGET.equals(((DefaultFlexibleElement) element).getType())) {
-				valueObject = (Serializable) gdp.getDefElementPair(valueResult, element, entity, entityClass, em,
+				valueObject = (Serializable) gdp.getDefElementPair(valueResult, element, entity, entityClass, em(),
 				                translator, language).getValue();
 			} else {
 				valueObject = null;
@@ -853,8 +881,9 @@ public abstract class Importer {
 
 	protected void logWarnFormatImportTypeIncoherence() {
 		LOGGER.warn("Incoherence in ImporationScheme fileFormat ("
-		                + ImportationSchemeFileFormat.getStringValue(scheme.getFileFormat()) + " and its importType "
-		                + ImportationSchemeImportType.getStringValue(scheme.getImportType()));
+				+ ImportationSchemeFileFormat.getStringValue(scheme.getFileFormat()) 
+				+ " and its importType "
+				+ ImportationSchemeImportType.getStringValue(scheme.getImportType()));
 	}
 
 	/**
@@ -913,7 +942,7 @@ public abstract class Importer {
 		return row;
 	}
 	
-	private EntityManager em() {
+	protected EntityManager em() {
 		return injector.getProvider(EntityManager.class).get();
 	}
 	
