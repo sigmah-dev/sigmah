@@ -46,6 +46,7 @@ public class ServerValueResolver extends EntityManagerProvider implements ValueR
 				values.put(id, ComputedValues.from(result));
 			} else {
 				// TODO: Should also handle DefaultFlexibleElement.
+				throw new UnsupportedOperationException("DefaultFlexibleElement are not supported yet.");
 			}
 		}
 		
