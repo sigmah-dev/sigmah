@@ -26,7 +26,6 @@ public class ComputationElementDTOTest {
      */
     @Test
     public void testIsCorrectRequiredValue() {
-        System.out.println("isCorrectRequiredValue");
         ValueResult result = new ValueResult();
         ComputationElementDTO instance = new ComputationElementDTO();
         instance.setMinimumValue("8");
@@ -49,7 +48,6 @@ public class ComputationElementDTOTest {
      */
     @Test
     public void testGetEntityName() {
-        System.out.println("getEntityName");
         ComputationElementDTO instance = new ComputationElementDTO();
         String result = instance.getEntityName();
         assertEquals(ComputationElementDTO.ENTITY_NAME, result);
@@ -60,7 +58,6 @@ public class ComputationElementDTOTest {
      */
     @Test
     public void testFireValueEvent() {
-        System.out.println("fireValueEvent");
         String value = "42";
         ComputationElementDTO instance = new ComputationElementDTO();
         instance.handlerManager = new HandlerManager(instance);
@@ -83,7 +80,6 @@ public class ComputationElementDTOTest {
      */
     @Test
     public void testGetComputationForModel() {
-        System.out.println("getComputationForModel");
         ProjectModelDTO model = new ProjectModelDTO();
         model.setProjectBanner(new ProjectBannerDTO());
         model.setPhaseModels(new ArrayList<PhaseModelDTO>());
@@ -100,7 +96,6 @@ public class ComputationElementDTOTest {
      */
     @Test
     public void testHasConstraints() {
-        System.out.println("hasConstraints");
         ComputationElementDTO instance = new ComputationElementDTO();
         assertFalse(instance.hasConstraints());
         
@@ -119,7 +114,6 @@ public class ComputationElementDTOTest {
      */
     @Test
     public void testGetMinimumValueConstraint() {
-        System.out.println("getMinimumValueConstraint");
         ComputationElementDTO instance = new ComputationElementDTO();
         instance.setMinimumValue("10");
         assertEquals(new DoubleValue(10.0), instance.getMinimumValueConstraint());
@@ -130,7 +124,6 @@ public class ComputationElementDTOTest {
      */
     @Test
     public void testGetMaximumValueConstraint() {
-        System.out.println("getMaximumValueConstraint");
         ComputationElementDTO instance = new ComputationElementDTO();
         instance.setMaximumValue("30");
         assertEquals(new DoubleValue(30.0), instance.getMaximumValueConstraint());

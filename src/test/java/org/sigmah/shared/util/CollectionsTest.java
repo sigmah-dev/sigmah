@@ -19,8 +19,6 @@ public class CollectionsTest {
      */
     @Test
     public void testJoin_Collection_String() {
-        System.out.println("join");
-        
         Assert.assertEquals("", Collections.join(Arrays.<Object>asList(), ", "));
         Assert.assertEquals("origin", Collections.join(java.util.Collections.singleton("origin"), ", "));
         Assert.assertEquals("Azerty, Querty", Collections.join(Arrays.asList("Azerty", "Querty"), ", "));
@@ -32,8 +30,6 @@ public class CollectionsTest {
      */
     @Test
     public void testJoin_3args() {
-        System.out.println("mapJoin");
-        
         final ComputationElementDTO element1 = new ComputationElementDTO();
         element1.setRule("firstRule");
         
@@ -54,8 +50,6 @@ public class CollectionsTest {
      */
     @Test
     public void testContainsOneOf() {
-        System.out.println("containsOneOf");
-        
         final HashSet<String> haystack = new HashSet<String>();
         haystack.add("A");
         haystack.add("B");
@@ -73,8 +67,6 @@ public class CollectionsTest {
      */
     @Test
     public void testMap() {
-        System.out.println("map");
-        
         Assert.assertEquals(new ArrayList<String>(Arrays.asList("12", "42", "94")), Collections.map(Arrays.asList(12, 42, 94), new Collections.Mapper<Integer, String>() {
             
             @Override

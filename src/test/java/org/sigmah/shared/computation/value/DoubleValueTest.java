@@ -15,7 +15,6 @@ public class DoubleValueTest {
      */
     @Test
     public void testGet() {
-        System.out.println("get");
         DoubleValue instance = new DoubleValue(42.0);
         Double expResult = 42.0;
         Double result = instance.get();
@@ -27,7 +26,6 @@ public class DoubleValueTest {
      */
     @Test
     public void testMatchesConstraints_ComputedValue_ComputedValue() {
-        System.out.println("matchesConstraints");
         ComputedValue minimum = ComputedValues.from("5");
         ComputedValue maximum = ComputedValues.from("42");
         ComputedValue nullValue = ComputedValues.from((String) null, false);
@@ -48,7 +46,6 @@ public class DoubleValueTest {
      */
     @Test
     public void testMatchesConstraints_ComputationElementDTO() {
-        System.out.println("matchesConstraints");
         ComputationElementDTO element = new ComputationElementDTO();
         element.setMinimumValue("5");
         element.setMaximumValue("42");
@@ -75,7 +72,6 @@ public class DoubleValueTest {
      */
     @Test
     public void testAddTo() {
-        System.out.println("addTo");
         Assert.assertEquals(ComputedValues.from("32"), ComputedValues.from("17").addTo(ComputedValues.from("15")));
     }
 
@@ -84,7 +80,6 @@ public class DoubleValueTest {
      */
     @Test
     public void testMultiplyWith() {
-        System.out.println("multiplyWith");
         Assert.assertEquals(ComputedValues.from("32"), ComputedValues.from("16").multiplyWith(ComputedValues.from("2")));
     }
 
@@ -93,7 +88,6 @@ public class DoubleValueTest {
      */
     @Test
     public void testDivide() {
-        System.out.println("divide");
         Assert.assertEquals(ComputedValues.from("32"), ComputedValues.from("3").divide(ComputedValues.from("96")));
     }
 
@@ -102,7 +96,6 @@ public class DoubleValueTest {
      */
     @Test
     public void testSubstractFrom() {
-        System.out.println("substractFrom");
         Assert.assertEquals(ComputedValues.from("32"), ComputedValues.from("10").substractFrom(ComputedValues.from("42")));
     }
 
@@ -111,7 +104,6 @@ public class DoubleValueTest {
      */
     @Test
     public void testToString() {
-        System.out.println("toString");
         Assert.assertEquals("32", ComputedValues.from("32").toString());
     }
 
