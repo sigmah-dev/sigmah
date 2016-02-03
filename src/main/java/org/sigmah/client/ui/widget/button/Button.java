@@ -114,7 +114,7 @@ public class Button extends com.extjs.gxt.ui.client.widget.button.Button impleme
 	public void setLoading(final boolean loading) {
 
 		if (!this.loading && loading) {
-			super.setEnabled(false);
+			disable();
 			replaceIcon(IconImageBundle.ICONS.loading());
 
 		} else if (this.loading && !loading) {
@@ -139,7 +139,7 @@ public class Button extends com.extjs.gxt.ui.client.widget.button.Button impleme
 	@Override
 	public void setEnabled(final boolean enabled) {
 		super.setEnabled(enabled);
-		initialEnabledState = enabled;
+        initialEnabledState = enabled;
 	}
 
 	/**

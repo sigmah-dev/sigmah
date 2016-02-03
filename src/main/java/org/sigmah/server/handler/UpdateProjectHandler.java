@@ -58,19 +58,28 @@ import org.slf4j.LoggerFactory;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.persist.Transactional;
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.Map;
+import org.sigmah.offline.sync.SuccessCallback;
+import org.sigmah.server.computation.ServerValueResolver;
 import org.sigmah.server.handler.util.Conflicts;
 import org.sigmah.server.handler.util.Handlers;
 import org.sigmah.server.i18n.I18nServer;
 import org.sigmah.shared.Language;
 import org.sigmah.shared.command.result.ValueResult;
+import org.sigmah.shared.computation.Computation;
+import org.sigmah.shared.computation.value.ComputedValue;
+import org.sigmah.shared.computation.value.ComputedValues;
 import org.sigmah.shared.dispatch.FunctionalException;
 import org.sigmah.shared.dispatch.UpdateConflictException;
+import org.sigmah.shared.dto.ProjectModelDTO;
 import org.sigmah.shared.dto.element.BudgetElementDTO;
 import org.sigmah.shared.dto.element.BudgetSubFieldDTO;
+import org.sigmah.shared.dto.element.ComputationElementDTO;
 import org.sigmah.shared.dto.profile.ProfileDTO;
 import org.sigmah.shared.dto.referential.AmendmentState;
 import org.sigmah.shared.dto.referential.GlobalPermissionEnum;
@@ -113,6 +122,12 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 	@Inject
 	private Conflicts conflictHandler;
 	
+	/**
+	 * Value resolver for computations.
+	 */
+	@Inject
+	private ServerValueResolver valueResolver;
+
 
 	/**
 	 * {@inheritDoc}
@@ -462,17 +477,33 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 		return currentValue;
 	}
 	
+    /**
+     * Finds the current value of the given element from the database and returns it as HTML.
+     * 
+     * @param projectId
+     *          Identifier of the project.
+     * @param element
+     *          Element to search.
+     * @return The value of the given element.
+     */
 	private String getCurrentValueFormatted(int projectId, FlexibleElementDTO element) {
+        
 		final Value value = retrieveCurrentValue(projectId, element.getId());
 		
 		if(value != null) {
 			return element.toHTML(value.getValue());
-			
 		} else {
 			return "";
 		}
 	}
 	
+    /**
+     * Format the given value event.
+     * 
+     * @param valueEvent
+     *          Value event to format.
+     * @return The given value in HTML format.
+     */
 	private String getTargetValueFormatted(ValueEventWrapper valueEvent) {
 		return valueEvent.getSourceElement().toHTML(valueEvent.getSingleValue());
 	}
@@ -681,11 +712,11 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 	 * @param projectId 
 	 * @throws FunctionalException 
 	 */
-	private List<String> searchForConflicts(final Project project, final List<ValueEventWrapper> values, UserExecutionContext context) throws FunctionalException {
+	private List<String> searchForConflicts(final Project project, final List<ValueEventWrapper> values, final UserExecutionContext context) throws FunctionalException {
 		
 		final ArrayList<String> conflicts = new ArrayList<>();
 		
-		if(project == null) {
+		if (project == null) {
 			// The user is modifying an org unit.
 			// TODO: Verify if the user has the right to modify the org unit.
 			return conflicts;
@@ -694,25 +725,28 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 		final Language language = context.getLanguage();
 		final ProfileDTO profile = Handlers.aggregateProfiles(context.getUser(), mapper);
 		
-		if(project.getProjectModel().isUnderMaintenance()) {
+		if (project.getProjectModel().isUnderMaintenance()) {
 			// BUGFIX #730: Verifying the maintenance status of projects.
 			conflicts.add(i18nServer.t(language, "conflictEditingUnderMaintenanceProject",
 				project.getName(), project.getFullName()));
 			
 			return conflicts;
 		}
+        
+        // Verify computated values.
+        conflictsRelatedToComputedElements(values, project, conflicts, language);
 		
-		if(ProfileUtils.isGranted(profile, GlobalPermissionEnum.MODIFY_LOCKED_CONTENT)) {
+		if (ProfileUtils.isGranted(profile, GlobalPermissionEnum.MODIFY_LOCKED_CONTENT)) {
 			// The user is allowed to edit locked fields.
 			final boolean projectIsClosed = project.getCloseDate() != null;
 			final boolean projectIsLocked = project.getAmendmentState() == AmendmentState.LOCKED;
 			
-			for(final ValueEventWrapper value : values) {
+			for (final ValueEventWrapper value : values) {
 				final FlexibleElementDTO source = value.getSourceElement();
 				
 				final boolean phaseIsClosed = conflictHandler.isParentPhaseClosed(source.getId(), project.getId());
 				
-				if(projectIsClosed || phaseIsClosed || (source.getAmendable() && projectIsLocked)) {
+				if (projectIsClosed || phaseIsClosed || (source.getAmendable() && projectIsLocked)) {
 					final ValueResult result = new ValueResult();
 					result.setValueObject(value.getSingleValue());
 					result.setValuesObject(value.getListValue() != null ? Collections.<ListableValue>singletonList(value.getListValue()) : null);
@@ -727,9 +761,9 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 			return conflicts;
 		}
 		
-		if(project.getCloseDate() != null) {
+		if (project.getCloseDate() != null) {
 			// User is trying to modify a closed project.
-			for(final ValueEventWrapper valueEvent : values) {
+			for (final ValueEventWrapper valueEvent : values) {
 				final FlexibleElementDTO source = valueEvent.getSourceElement();
 				
 				conflicts.add(i18nServer.t(language, "conflictUpdatingAClosedProject",
@@ -739,11 +773,11 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 		} else {
 			// Verify if the user is trying to modify a closed phase.
 			Iterator<ValueEventWrapper> iterator = values.iterator();
-			while(iterator.hasNext()) {
+			while (iterator.hasNext()) {
 				final ValueEventWrapper valueEvent = iterator.next();
 				final FlexibleElementDTO source = valueEvent.getSourceElement();
 
-				if(conflictHandler.isParentPhaseClosed(source.getId(), project.getId())) {
+				if (conflictHandler.isParentPhaseClosed(source.getId(), project.getId())) {
 					// Removing the current value event from the update list.
 					iterator.remove();
 					
@@ -753,15 +787,15 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 			}
 			
 			// Verify if the user is trying to modify a locked field.
-			if(project.getAmendmentState() == AmendmentState.LOCKED) {
+			if (project.getAmendmentState() == AmendmentState.LOCKED) {
 				iterator = values.iterator();
-				while(iterator.hasNext()) {
+				while (iterator.hasNext()) {
 					final ValueEventWrapper valueEvent = iterator.next();
 					final FlexibleElementDTO source = valueEvent.getSourceElement();
 
 					final boolean conflict;
-					if(source.getAmendable()) {
-						if(source instanceof BudgetElementDTO) {
+					if (source.getAmendable()) {
+						if (source instanceof BudgetElementDTO) {
 							final BudgetSubFieldDTO divisorField = ((BudgetElementDTO)source).getRatioDivisor();
 							final Value value = retrieveCurrentValue(project.getId(), source.getId());
 							conflict = getValueOfSubField(value.getValue(), divisorField) != getValueOfSubField(valueEvent.getSingleValue(), divisorField);
@@ -773,7 +807,7 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 						conflict = false;
 					}
 
-					if(conflict) {
+					if (conflict) {
 						// Removing the current value event from the update list.
 						iterator.remove();
 						
@@ -786,19 +820,160 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 		
 		return conflicts;
 	}
-	
+
+    /**
+     * Verify updates done to computed values.
+     * 
+     * @param values
+     *          Changed values.
+     * @param project
+     *          Edited project.
+     * @param conflicts
+     *          List of conflicts.
+     * @param language 
+     *          Language of the user.
+     */
+    private void conflictsRelatedToComputedElements(final List<ValueEventWrapper> values, final Project project, final List<String> conflicts, final Language language) {
+        
+        for (final ValueEventWrapper value : values) {
+            final FlexibleElementDTO source = value.getSourceElement();
+            
+            if (source instanceof ComputationElementDTO && ((ComputationElementDTO) source).hasConstraints()) {
+                // Recompute the value and check that the result matches the constraints.
+                final ComputationElementDTO computationElement = (ComputationElementDTO) source;
+                
+                final ComputedValue[] serverResult = new ComputedValue[1];
+                final ComputedValue clientResult = ComputedValues.from(value.getSingleValue());
+                
+                // TODO: Avoid using the DTOs when server-side.
+                final Computation computation = computationElement.getComputationForModel(mapper.map(project.getProjectModel(), new ProjectModelDTO()));
+                computation.computeValueWithWrappersAndResolver(project.getId(), values, valueResolver, new SuccessCallback<String>() {
+                    @Override
+                    public void onSuccess(String result) {
+                        serverResult[0] = ComputedValues.from(result);
+                    }
+                });
+                
+                if (!clientResult.equals(serverResult[0])) {
+                    // Updating the value.
+                    value.setSingleValue(serverResult[0].toString());
+                }
+                
+                final int comparison = serverResult[0].matchesConstraints(computationElement);
+                if (comparison != 0) {
+                    final String greaterOrLess, breachedConstraint;
+                    if (comparison < 0) {
+                        greaterOrLess = i18nServer.t(language, "flexibleElementComputationLess");
+                        breachedConstraint = computationElement.getMinimumValue();
+                    } else {
+                        greaterOrLess = i18nServer.t(language, "flexibleElementComputationGreater");
+                        breachedConstraint = computationElement.getMaximumValue();
+                    }
+                    
+                    final List<ValueEventWrapper> changes = computation.getRelatedChanges(values);
+                    final String fieldList = org.sigmah.shared.util.Collections.join(changes, new org.sigmah.shared.util.Collections.Mapper<ValueEventWrapper, String>() {
+                        
+                        @Override
+                        public String forEntry(ValueEventWrapper entry) {
+                            return entry.getSourceElement().getFormattedLabel();
+                        }
+                    }, ", ");
+                    
+                    conflicts.add(i18nServer.t(language, "conflictComputationOutOfBound",
+                            fieldList, value.getSingleValue(), source.getFormattedLabel(), greaterOrLess, breachedConstraint) 
+                            + dependenciesLastValuesForComputation(computation, project.getId(), language));
+                }
+            }
+        }
+    }
+    
+    /**
+     * Returns a list of the details of each dependency of the computation. <br>
+     * <br>
+     * The details for each dependency contains:<ul>
+     * <li>Label of the flexible element.</li>
+     * <li>Last saved value (or '-' if unmodified).</li>
+     * <li>Short name of the author of the last modification (or '-' if unmodified).</li>
+     * <li>Date of the last modification (or '-' if unmodified).</li>
+     * </ul>
+     * 
+     * @param computation
+     *          Computation.
+     * @param projectId
+     *          Identifier of the current project.
+     * @param language
+     *          Language to use to create the messages.
+     * @return A list of details about the dependencies.
+     * 
+     * @see #flexibleElementDetails(org.sigmah.shared.dto.element.FlexibleElementDTO, int, org.sigmah.shared.Language, java.text.DateFormat) 
+     */
+    private String dependenciesLastValuesForComputation(final Computation computation, final int projectId, final Language language) {
+        final DateFormat formatter = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, Locale.forLanguageTag(language.getLocale()));
+        
+        return org.sigmah.shared.util.Collections.join(computation.getDependencies(), new org.sigmah.shared.util.Collections.Mapper<FlexibleElementDTO, String>() {
+                        
+            @Override
+            public String forEntry(final FlexibleElementDTO entry) {
+                return "\n" + flexibleElementDetails(entry, projectId, language, formatter);
+            }
+        }, "");
+    }
+    
+    /**
+     * Finds the current value of the given element and returns a line with the details.
+     * <br>
+     * <br>
+     * The returned details are:<ul>
+     * <li>Label of the flexible element.</li>
+     * <li>Last saved value (or '-' if unmodified).</li>
+     * <li>Short name of the author of the last modification (or '-' if unmodified).</li>
+     * <li>Date of the last modification (or '-' if unmodified).</li>
+     * </ul>
+     * 
+     * @param entry
+     *          Flexible element to format.
+     * @param projectId
+     *          Identifier of the project.
+     * @param language
+     *          Language to use to creates the message.
+     * @param formatter
+     *          Date formatter.
+     * @return The formatted line.
+     */
+    private String flexibleElementDetails(final FlexibleElementDTO entry, final int projectId, final Language language, final DateFormat formatter) {
+        
+        final String title = entry.getFormattedLabel();
+        final String value, author, date;
+
+        final Value currentValue = retrieveCurrentValue(projectId, entry.getId());
+        if (currentValue != null) {
+            value = currentValue.getValue();
+            author = User.getUserShortName(currentValue.getLastModificationUser());
+            date = formatter.format(currentValue.getLastModificationDate());
+        } else {
+            value = "-";
+            author = "-";
+            date = "-";
+        }
+
+        return i18nServer.t(language, "conflictComputationDependencyDetails", title, value, author, date);
+    }
+    
 	/**
 	 * Retrieves the value of the given field as a double.
 	 * 
 	 * @param valueResult
+     *          Raw value of a budget element.
 	 * @param budgetSubField
-	 * @return 
+     *          Sub field to search.
+	 * @return The value of the given budget sub field.
 	 */
-	private double getValueOfSubField(String valueResult, BudgetSubFieldDTO budgetSubField) {
+	private double getValueOfSubField(final String valueResult, final BudgetSubFieldDTO budgetSubField) {
+        
 		final Map<Integer, String> values = ValueResultUtils.splitMapElements(valueResult);
 		final String value = values.get(budgetSubField.getId());
 		
-		if(value != null && value.matches("^[0-9]+(([.][0-9]+)|)$")) {
+		if (value != null && value.matches("^[0-9]+(([.][0-9]+)|)$")) {
 			return Double.parseDouble(value);
 		} else {
 			return 0.0;

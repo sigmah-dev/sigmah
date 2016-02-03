@@ -23,14 +23,13 @@ package org.sigmah.offline.handler;
  */
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.inject.Inject;
 import java.util.Arrays;
 import java.util.List;
 import org.sigmah.client.dispatch.CommandResultHandler;
-import org.sigmah.client.security.SecureDispatchAsync;
 import org.sigmah.offline.dao.RequestManager;
 import org.sigmah.offline.dao.RequestManagerCallback;
 import org.sigmah.offline.dispatch.AsyncCommandHandler;
+import org.sigmah.offline.dispatch.LocalDispatchServiceAsync;
 import org.sigmah.offline.dispatch.OfflineExecutionContext;
 import org.sigmah.shared.command.BatchCommand;
 import org.sigmah.shared.command.base.Command;
@@ -38,14 +37,18 @@ import org.sigmah.shared.command.result.ListResult;
 import org.sigmah.shared.command.result.Result;
 
 /**
- *
+ * JavaScript implementation of {@link org.sigmah.server.handler.BatchCommandHandler}.
+ * Used when the user is offline.
+ * 
  * @author Raphaël Calabro (raphael.calabro@netapsys.fr)
  */
 public class BatchCommandAsyncHandler implements AsyncCommandHandler<BatchCommand, ListResult<Result>> {
 	
-	@Inject
-	private SecureDispatchAsync dispatcher;
+	private LocalDispatchServiceAsync dispatcher;
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void execute(BatchCommand batch, OfflineExecutionContext executionContext, final AsyncCallback<ListResult<Result>> callback) {
 		final List<Command> commands = batch.getCommands();
@@ -71,6 +74,17 @@ public class BatchCommandAsyncHandler implements AsyncCommandHandler<BatchComman
 				}
 			});
 		}
+		
+		requestManager.ready();
+	}
+
+	/**
+	 * Defines the local dispatcher to use.
+	 * 
+	 * @param dispatcher Local dispatcher.
+	 */
+	public void setDispatcher(LocalDispatchServiceAsync dispatcher) {
+		this.dispatcher = dispatcher;
 	}
 	
 }

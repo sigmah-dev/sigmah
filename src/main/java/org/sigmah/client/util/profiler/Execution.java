@@ -27,6 +27,7 @@ import com.google.gwt.core.client.JsArray;
 import com.google.gwt.user.client.Window;
 import java.util.Date;
 import org.sigmah.client.Sigmah;
+import org.sigmah.client.util.JsIterable;
 import org.sigmah.offline.appcache.ApplicationCache;
 import org.sigmah.offline.js.Values;
 
@@ -134,6 +135,10 @@ public final class Execution extends JavaScriptObject {
 	public native JsArray<Checkpoint> getCheckpoints() /*-{
 		return this.checkpoints;
 	}-*/;
+	
+	public Iterable<Checkpoint> getCheckpointSequence() {
+		return new JsIterable<Checkpoint>(getCheckpoints());
+	}
 	
 	public native void setCheckpoints(JsArray<Checkpoint> checkpoints) /*-{
 		this.checkpoints = checkpoints;

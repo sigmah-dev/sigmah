@@ -155,6 +155,8 @@ public class OfflineModule extends AbstractGinModule {
 			throw new IllegalArgumentException("Given DispatchAsync type is not supported (SecureDispatchAsync is required).");
 		}
 		
+		batchCommandAsyncHandler.setDispatcher(localDispatchAsync);
+		
         registerHandler(BatchCommand.class, batchCommandAsyncHandler);
         registerHandler(CreateEntity.class, createEntityAsyncHandler);
         registerHandler(Delete.class, deleteAsyncHandler);

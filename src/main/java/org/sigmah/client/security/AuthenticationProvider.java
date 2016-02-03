@@ -51,7 +51,7 @@ public class AuthenticationProvider implements Provider<Authentication> {
 	 * <em>Should never be {@code null}.</em>
 	 * </p>
 	 */
-	private Authentication authentication = new Authentication();
+	private Authentication authentication;
 
 	/**
 	 * Returns the current authentication.<br/>
@@ -62,16 +62,25 @@ public class AuthenticationProvider implements Provider<Authentication> {
 	 */
 	@Override
 	public Authentication get() {
-
+		
 		if (isAnonymous()) {
 			clearAuthentication();
-
-		} else {
-			final String token = Cookies.getCookie(org.sigmah.shared.Cookies.AUTH_TOKEN_COOKIE);
-			authentication.setAuthenticationToken(token);
 		}
 
 		return authentication;
+	}
+	
+	/**
+	 * Returns the authentication token.
+	 * <p>
+	 * When anonymous, <code>null</code> is returned.
+	 * </p>
+	 * 
+	 * @return The authentication token or <code>null</code> if anonymous.
+	 */
+	public String getAuthenticationToken() {
+		
+		return Cookies.getCookie(org.sigmah.shared.Cookies.AUTH_TOKEN_COOKIE);
 	}
 
 	/**
@@ -154,8 +163,13 @@ public class AuthenticationProvider implements Provider<Authentication> {
 	 * @return {@code true} if no user is currently authenticated, {@code false} otherwise.
 	 */
 	public boolean isAnonymous() {
-
-		final boolean anonymous = ClientUtils.isBlank(Cookies.getCookie(org.sigmah.shared.Cookies.AUTH_TOKEN_COOKIE)) 
+		
+		if (authentication == null) {
+			authentication = new Authentication();
+			authentication.setAuthenticationToken(getAuthenticationToken());
+		}
+		
+		final boolean anonymous = ClientUtils.isBlank(authentication.getAuthenticationToken())
 			&& !authentication.isAuthorized();
 
 		if (anonymous) {

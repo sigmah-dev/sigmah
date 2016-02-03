@@ -31,15 +31,47 @@ import java.io.Serializable;
  */
 public class ContainerInformation implements Serializable {
 	
+    /**
+     * Identifier of the container.
+     */
 	private int id;
+    
+    /**
+     * Code of the container.
+     */
 	private String name;
+    
+    /**
+     * Name of the container.
+     */
 	private String fullName;
+    
+    /**
+     * <code>true</code> if the container is a project,
+     * <code>false</code> otherwise (i.e. it is an orgunit).
+     */
 	private boolean project;
 
+    /**
+     * Empty constructor for serialization.
+     */
 	protected ContainerInformation() {
 		// Serialization.
 	}
 
+    /**
+     * Creates a new instance.
+     * 
+     * @param id
+     *          Identifier of the container.
+     * @param name
+     *          Code of the container.
+     * @param fullName
+     *          Name of the container.
+     * @param project 
+     *          <code>true</code> if the container is a project,
+     *          <code>false</code> otherwise (i.e. it is an orgunit).
+     */
 	public ContainerInformation(int id, String name, String fullName, boolean project) {
 		this.id = id;
 		this.name = name;
@@ -47,6 +79,9 @@ public class ContainerInformation implements Serializable {
 		this.project = project;
 	}
 
+    /**
+     * {@inheritDoc}
+     */
 	@Override
 	public int hashCode() {
 		int hash = 7;
@@ -55,6 +90,9 @@ public class ContainerInformation implements Serializable {
 		return hash;
 	}
 
+    /**
+     * {@inheritDoc}
+     */
 	@Override
 	public boolean equals(Object obj) {
 		if (obj == null) {
