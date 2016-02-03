@@ -22,8 +22,6 @@ package org.sigmah.server.servlet.importer;
  * #L%
  */
 
-import java.util.List;
-import java.util.Map;
 
 
 import org.odftoolkit.simple.Document;
@@ -32,8 +30,9 @@ import org.odftoolkit.simple.table.Row;
 import org.odftoolkit.simple.table.Table;
 import org.sigmah.shared.dto.importation.ImportationSchemeModelDTO;
 
-import com.google.inject.Injector;
-import org.sigmah.server.dispatch.impl.UserDispatch;
+import java.io.IOException;
+import java.io.InputStream;
+import org.odftoolkit.simple.SpreadsheetDocument;
 import org.sigmah.shared.dispatch.CommandException;
 
 /**
@@ -44,23 +43,26 @@ import org.sigmah.shared.dispatch.CommandException;
  */
 public class OdsImporter extends Importer {
 
-	private final Document doc;
+	private Document doc;
 
-	public OdsImporter(Injector injector, Map<String, Object> properties, UserDispatch.UserExecutionContext executionContext) throws CommandException {
-		super(injector, properties, executionContext);
-		
-		if (properties.get("importedOdsDocument") != null && properties.get("importedOdsDocument") instanceof Document) {
-			doc = (Document) properties.get("importedOdsDocument");
-		} else {
-			doc = null;
-			throw new IllegalArgumentException("Incompatible Document Format");
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setInputStream(InputStream inputStream) throws IOException {
+		try {
+			this.doc = SpreadsheetDocument.loadDocument(inputStream);
+		} catch (Exception ex) {
+			throw new IOException("The format of the file given is invalid for the file format ODS.", ex);
 		}
-
-		getCorrespondances(schemeModelList);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	protected void getCorrespondances(List<ImportationSchemeModelDTO> schemeModelList) throws CommandException {
+	public void getCorrespondances() throws CommandException {
+		
 		for (ImportationSchemeModelDTO schemeModelDTO : schemeModelList) {
 			// GetThe variable and the flexible element for the identification
 			// key
@@ -93,13 +95,16 @@ public class OdsImporter extends Importer {
 				getCorrespondancePerSheetOrLine(schemeModelDTO, null, null);
 				break;
 			default:
+				logWarnFormatImportTypeIncoherence();
 				break;
 
 			}
 		}
-
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Object getValueFromVariable(String reference, Integer lineNumber, String sheetName) {
 		// Get the cell value
@@ -153,6 +158,7 @@ public class OdsImporter extends Importer {
 				}
 				break;
 			default:
+				logWarnFormatImportTypeIncoherence();
 				break;
 
 			}

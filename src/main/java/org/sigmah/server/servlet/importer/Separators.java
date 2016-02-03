@@ -28,10 +28,17 @@ package org.sigmah.server.servlet.importer;
  * @author Guerline Jean-Baptiste (gjbaptiste@ideia.fr)
  * @author Raphaël Calabro (rcalabro@ideia.fr) v2.0
  */
-public class Separators {
+public final class Separators {
 
 	public final static String SHEET_CELL_SEPARATOR = ":";
 	
 	public final static String TRIPLET_SEPARATOR = "-";
 
+	/**
+	 * Private constructor.
+	 */
+	private Separators() {
+		// No initialization.
+	}
+	
 }
