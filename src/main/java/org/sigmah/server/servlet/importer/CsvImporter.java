@@ -26,15 +26,15 @@ package org.sigmah.server.servlet.importer;
 import java.util.List;
 
 
-import org.sigmah.shared.dto.importation.ImportationSchemeModelDTO;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import org.sigmah.server.servlet.exporter.utils.CsvParser;
-import org.sigmah.shared.dispatch.CommandException;
 import org.sigmah.shared.dispatch.FunctionalException;
 import org.sigmah.shared.dispatch.FunctionalException.ErrorCode;
+import org.sigmah.shared.dto.ImportDetails;
+import org.sigmah.shared.dto.referential.ImportationSchemeImportType;
 
 /**
  * CSV implementation of {@link Importer}.
@@ -45,6 +45,7 @@ import org.sigmah.shared.dispatch.FunctionalException.ErrorCode;
 public class CsvImporter extends Importer {
 
 	private List<String[]> lines;
+	private Integer cursor;
 
 	/**
 	 * {@inheritDoc}
@@ -60,29 +61,33 @@ public class CsvImporter extends Importer {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void getCorrespondances() throws CommandException {
+	public ImportDetails next() {
 		
-		for (ImportationSchemeModelDTO schemeModelDTO : schemeModelList) {
-			// GetThe variable and the flexible element for the identification
-
-			switch (scheme.getImportType()) {
-			case ROW:
-				int firstRow = 0;
-				if(scheme.getFirstRow() != null) {
-					firstRow = scheme.getFirstRow();
-				}
-				for (int i = firstRow; i < lines.size(); i++) {
-					getCorrespondancePerSheetOrLine(schemeModelDTO, i, null);
-				}
-				break;
-			default:
-				logWarnFormatImportTypeIncoherence();
-				break;
-
-			}
+		if (scheme.getImportType() != ImportationSchemeImportType.ROW) {
+			logWarnFormatImportTypeIncoherence();
+			return null;
+		}
+		
+		if (cursor == null || cursor == lines.size()) {
+			nextSchemeModel();
+			cursor = scheme.getFirstRow();
+		}
+		
+		if (cursor < lines.size()) {
+			return getCorrespondancePerSheetOrLine(cursor++, null);
+		} else {
+			return null;
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean hasNext() {
+		return hasNextLine() || hasNextSchemeModel();
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -102,7 +107,7 @@ public class CsvImporter extends Importer {
 						if(column >= 0 && column < line.length) {
 							columnValue = line[column];
 						}
-					} catch(NumberFormatException nfe){
+					} catch(NumberFormatException nfe) {
 						throw new FunctionalException(nfe, ErrorCode.IMPORT_INVALID_COLUMN_REFERENCE, reference);
 					}
 				}
@@ -140,5 +145,16 @@ public class CsvImporter extends Importer {
 		
 		return outputStream.toString(encoding);
 	}
-
+	
+	/**
+	 * Verify if the stream has more rows to read before moving on to the next
+	 * scheme model.
+	 * 
+	 * @return <code>true</code> if there is more lignes,
+	 * <code>false</code> otherwise.
+	 */
+	private boolean hasNextLine() {
+		return cursor == null || cursor < lines.size();
+	}
+	
 }

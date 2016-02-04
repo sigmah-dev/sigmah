@@ -88,10 +88,7 @@ public class GetImportInformationHandler extends AbstractCommandHandler<GetImpor
 			importer.setInputStream(inputStream);
 			importer.initialize();
 
-			// Search for correspondances.
-			importer.getCorrespondances();
-
-			return new ImportInformationResult(importer.getEntitiesToImport());
+			return new ImportInformationResult(importer.getCorrespondances());
 			
 		} catch (IOException | IllegalStateException | UnsupportedOperationException e) {
 			throw new CommandException("Error while importing file '" + fileName + "'.", e);

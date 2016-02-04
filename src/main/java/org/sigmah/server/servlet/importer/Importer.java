@@ -37,61 +37,69 @@ import java.util.regex.Pattern;
 import javax.persistence.EntityManager;
 
 import org.sigmah.server.servlet.exporter.data.GlobalExportDataProvider;
-import org.sigmah.shared.command.GetImportationSchemeModels;
-import org.sigmah.shared.command.GetOrgUnitsByModel;
-import org.sigmah.shared.command.GetProjectsByModel;
 import org.sigmah.shared.command.GetValue;
 import org.sigmah.shared.command.result.ValueResult;
 import org.sigmah.shared.util.ValueResultUtils;
 import org.sigmah.shared.dto.referential.AmendmentState;
 import org.sigmah.server.domain.User;
 import org.sigmah.shared.dto.referential.ElementExtractedValueStatus;
-import org.sigmah.shared.dto.OrgUnitModelDTO;
 import org.sigmah.shared.dto.ProjectDTO;
-import org.sigmah.shared.dto.ProjectModelDTO;
-import org.sigmah.shared.dto.element.BudgetElementDTO;
-import org.sigmah.shared.dto.element.DefaultFlexibleElementDTO;
-import org.sigmah.shared.dto.element.FlexibleElementDTO;
-import org.sigmah.shared.dto.element.QuestionChoiceElementDTO;
-import org.sigmah.shared.dto.element.QuestionElementDTO;
-import org.sigmah.shared.dto.element.TextAreaElementDTO;
 import org.sigmah.shared.dto.importation.ImportationSchemeDTO;
-import org.sigmah.shared.dto.importation.ImportationSchemeModelDTO;
-import org.sigmah.shared.dto.importation.VariableBudgetElementDTO;
-import org.sigmah.shared.dto.importation.VariableBudgetSubFieldDTO;
-import org.sigmah.shared.dto.importation.VariableDTO;
-import org.sigmah.shared.dto.importation.VariableFlexibleElementDTO;
 
 import com.google.inject.Injector;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Iterator;
+import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 import org.sigmah.server.dispatch.impl.UserDispatch;
 import org.sigmah.server.domain.Country;
 import org.sigmah.server.domain.OrgUnit;
+import org.sigmah.server.domain.OrgUnitModel;
 import org.sigmah.server.domain.Project;
+import org.sigmah.server.domain.ProjectModel;
+import org.sigmah.server.domain.base.EntityId;
 import org.sigmah.server.domain.element.CheckboxElement;
 import org.sigmah.server.domain.element.DefaultFlexibleElement;
 import org.sigmah.server.domain.element.FlexibleElement;
+import org.sigmah.server.domain.element.QuestionChoiceElement;
 import org.sigmah.server.domain.element.QuestionElement;
 import org.sigmah.server.domain.element.TextAreaElement;
 import org.sigmah.server.domain.element.TripletsListElement;
+import org.sigmah.server.domain.importation.ImportationSchemeModel;
+import org.sigmah.server.domain.importation.Variable;
+import org.sigmah.server.domain.importation.VariableBudgetElement;
+import org.sigmah.server.domain.importation.VariableBudgetSubField;
+import org.sigmah.server.domain.importation.VariableFlexibleElement;
 import org.sigmah.server.i18n.I18nServer;
 import org.sigmah.server.mapper.Mapper;
 import org.sigmah.server.servlet.exporter.utils.ExporterUtil;
 import org.sigmah.shared.Language;
-import org.sigmah.shared.command.result.ListResult;
 import org.sigmah.shared.dispatch.CommandException;
 import org.sigmah.shared.dispatch.FunctionalException;
 import org.sigmah.shared.dto.ElementExtractedValue;
 import org.sigmah.shared.dto.ImportDetails;
 import org.sigmah.shared.dto.base.EntityDTO;
+import org.sigmah.shared.dto.element.CheckboxElementDTO;
+import org.sigmah.shared.dto.element.ComputationElementDTO;
+import org.sigmah.shared.dto.element.CoreVersionElementDTO;
+import org.sigmah.shared.dto.element.DefaultFlexibleElementDTO;
+import org.sigmah.shared.dto.element.FilesListElementDTO;
+import org.sigmah.shared.dto.element.FlexibleElementDTO;
+import org.sigmah.shared.dto.element.IndicatorsListElementDTO;
+import org.sigmah.shared.dto.element.MessageElementDTO;
+import org.sigmah.shared.dto.element.QuestionElementDTO;
+import org.sigmah.shared.dto.element.ReportElementDTO;
+import org.sigmah.shared.dto.element.ReportListElementDTO;
+import org.sigmah.shared.dto.element.TextAreaElementDTO;
+import org.sigmah.shared.dto.element.TripletsListElementDTO;
 import org.sigmah.shared.dto.orgunit.OrgUnitDTO;
 import org.sigmah.shared.dto.referential.DefaultFlexibleElementType;
 import org.sigmah.shared.dto.referential.ImportStatusCode;
 import org.sigmah.shared.dto.referential.ImportationSchemeFileFormat;
 import org.sigmah.shared.dto.referential.ImportationSchemeImportType;
-import org.sigmah.shared.dto.referential.TextAreaType;
+import org.sigmah.shared.dto.referential.LogicalElementType;
+import org.sigmah.shared.util.Collections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -101,7 +109,7 @@ import org.slf4j.LoggerFactory;
  * @author Guerline Jean-Baptiste (gjbaptiste@ideia.fr)
  * @author Raphaël Calabro (rcalabro@ideia.fr) v2.0
  */
-public abstract class Importer {
+public abstract class Importer implements Iterator<ImportDetails> {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(Importer.class);
 
@@ -109,20 +117,12 @@ public abstract class Importer {
 	private Injector injector;
 	protected ImportationSchemeDTO scheme;
 	
-	protected List<ImportationSchemeModelDTO> schemeModelList;
+	private Iterator<ImportationSchemeModel> schemeModels;
+	private ImportationSchemeModel schemeModel;
 	
 	private Mapper mapper;
 	private Language language;
 	private I18nServer translator;
-	
-	/**
-	 * The result map sent back to the client: EntityDTO :
-	 * {@link ProjectModelDTO} or {@link OrgUnitModelDTO} String : the key
-	 * identification EntityDTO : {@link ProjectDTO} or {@link OrgUnitDTO}
-	 * FlexibleElementDTO : The element updated during the importation Object :
-	 * the element new value
-	 */
-	private List<ImportDetails> entitiesToImport;
 	
 	/**
 	 * Sets the stream that will be parsed by this importer.
@@ -133,15 +133,6 @@ public abstract class Importer {
 	 *          If the file format is invalid or if an error occurs while reading from the stream.
 	 */
 	public abstract void setInputStream(InputStream inputStream) throws IOException;
-	
-	/**
-	 * Add the correspondances map (flexibleElement , new value) to the result
-	 * map.
-	 * 
-	 * @throws CommandException
-	 *          If an error occurs during the analysis.
-	 */
-	public abstract void getCorrespondances() throws CommandException;
 	
 	/**
 	 * Get the String value of the corresponding variable DTO reference from the
@@ -156,22 +147,57 @@ public abstract class Importer {
 	public abstract Object getValueFromVariable(String reference, Integer lineNumber, String sheetName) throws FunctionalException;
 	
 	/**
+	 * Prepare the importer. Must be called before trying to parse an input 
+	 * stream.
+	 * <p>
+	 * The attributes <code>schemeModelList</code>, 
+	 * <code>entitiesToImport</code>, <code>language</code>, <code>mapper</code>
+	 * and <code>translator</code> will be initialized after this method.
+	 * <p>
+	 * The attributes <code>injector</code>, <code>executionContext</code> and 
+	 * <code>executionContext</code> must be initialized before calling this 
+	 * method.
 	 * 
 	 * @throws CommandException
+	 *          If an error occurs while retrieving the scheme models.
 	 * @throws IllegalStateException 
+	 *          If one of <code>injector</code>, <code>executionContext</code>, 
+	 *          <code>executionContext</code> is <code>null</code>.
 	 */
 	public void initialize() throws CommandException, IllegalStateException {
+		
 		if (injector == null || executionContext == null || scheme == null) {
 			throw new IllegalStateException("injector, executionContext and scheme must be set before calling initialize.");
 		}
 		
-		final GetImportationSchemeModels getImportationSchemeModels = new GetImportationSchemeModels();
-		getImportationSchemeModels.setImportationSchemeId(scheme.getId());
-		final ListResult<ImportationSchemeModelDTO> result = executionContext.execute(getImportationSchemeModels);
-		
-		this.schemeModelList = result.getList();
-		this.entitiesToImport = new ArrayList<>();
 		this.language = executionContext.getLanguage();
+		this.mapper = injector.getInstance(Mapper.class);
+		this.translator = injector.getInstance(I18nServer.class);
+		this.schemeModels = em().createQuery("SELECT ism FROM ImportationSchemeModel AS ism WHERE ism.importationScheme.id = :schemeId", ImportationSchemeModel.class)
+				.setParameter("schemeId", scheme.getId())
+				.getResultList()
+				.iterator();
+	}
+	
+	/**
+	 * Retrieves the detail of everything that can be imported.
+	 * 
+	 * @return the entities to import.
+	 * @throws CommandException
+	 *          If an error occurs during the analysis.
+	 */
+	public List<ImportDetails> getCorrespondances() throws CommandException {
+		
+		final ArrayList<ImportDetails> correspondances = new ArrayList<>();
+		
+		while (hasNext()) {
+			final ImportDetails importDetails = next();
+			if (importDetails != null) {
+				correspondances.add(importDetails);
+			}
+		}
+		
+		return correspondances;
 	}
 
 	/**
@@ -205,14 +231,26 @@ public abstract class Importer {
 	}
 	
 	/**
-	 * Retrieves the detail of everything that can be imported.
-	 * 
-	 * @return the entities to import.
+	 * {@inheritDoc}
 	 */
-	public List<ImportDetails> getEntitiesToImport() {
-		return entitiesToImport;
+	@Override
+	public void remove() {
+		throw new UnsupportedOperationException("Not supported.");
 	}
-
+	
+	protected boolean hasNextSchemeModel() {
+		return schemeModels.hasNext();
+	}
+	
+	protected ImportationSchemeModel nextSchemeModel() {
+		this.schemeModel = schemeModels.next();
+		return schemeModel;
+	}
+	
+	protected ImportationSchemeModel getSchemeModel() {
+		return schemeModel;
+	}
+	
 	/**
 	 * Get the map mapping a variable value and a flexible element value.
 	 * 
@@ -226,58 +264,63 @@ public abstract class Importer {
 	 * @throws Throwable
 	 */
 	private List<ElementExtractedValue> getCorrespondancesVariableFlexibleElement(
-	                List<VariableFlexibleElementDTO> variableFlexibleElementsDTO, EntityDTO entityDTO,
-	                Integer lineNumber, String sheetName) throws CommandException {
+	                List<VariableFlexibleElement> variableFlexibleElements, EntityId<Integer> entity,
+	                Integer lineNumber, String sheetName) {
 		final List<ElementExtractedValue> correspondances = new ArrayList<ElementExtractedValue>();
 		
-		for (VariableFlexibleElementDTO varfle : variableFlexibleElementsDTO) {
+		for (VariableFlexibleElement variableFlexibleElement : variableFlexibleElements) {
 			// FEATURE #789: Removed the identification key from the importation results.
-			if (varfle.getIsKey() != null && varfle.getIsKey()) {
+			if (variableFlexibleElement.getIsKey() != null && variableFlexibleElement.getIsKey()) {
 				continue;
 			}
-			
-			ElementExtractedValue elementExtractedValue = new ElementExtractedValue();
-			Object cellValue = null;
-			if (varfle.getFlexibleElementDTO() instanceof BudgetElementDTO) {
-				VariableBudgetElementDTO varBudgetElement = (VariableBudgetElementDTO) varfle;
-				for (VariableBudgetSubFieldDTO varBsfDTO : varBudgetElement.getVariableBudgetSubFieldsDTO()) {
-					cellValue = getValueFromVariable(varBsfDTO.getVariableDTO().getReference(), lineNumber, sheetName);
-					Object[] valueStatus = getValueFormatForFlexibleElement(varfle.getFlexibleElementDTO(),
-					                cellValue);
+			try {
+				ElementExtractedValue elementExtractedValue = new ElementExtractedValue();
+				Object cellValue = null;
+				if (variableFlexibleElement instanceof VariableBudgetElement) {
+					final VariableBudgetElement variableBudgetElement = (VariableBudgetElement) variableFlexibleElement;
+
+					for (VariableBudgetSubField variableBudgetSubField : variableBudgetElement.getVariableBudgetSubFields()) {
+						cellValue = getValueFromVariable(variableBudgetSubField.getVariable().getReference(), lineNumber, sheetName);
+						Object[] valueStatus = getValueFormatForFlexibleElement(variableFlexibleElement.getFlexibleElement(),
+										cellValue);
+						if(valueStatus[0] != null) {
+							elementExtractedValue.getNewBudgetValues().put(variableBudgetSubField.getBudgetSubField().getId(),
+											(Serializable) valueStatus[0]);
+						}
+						if(valueStatus[1] != null) {
+							elementExtractedValue.setStatus((ElementExtractedValueStatus) valueStatus[1]);
+						}
+						if (entity != null) {
+							elementExtractedValue.setOldBudgetValues(getBudgetElementValue(variableFlexibleElement.getFlexibleElement(),
+											entity));
+						}
+					}
+
+				} else {
+					cellValue = getValueFromVariable(variableFlexibleElement.getVariable().getReference(), lineNumber, sheetName);
+					Object[] valueStatus = getValueFormatForFlexibleElement(variableFlexibleElement.getFlexibleElement(),
+									cellValue);
 					if(valueStatus[0] != null) {
-						elementExtractedValue.getNewBudgetValues().put(varBsfDTO.getBudgetSubFieldDTO().getId(),
-										(Serializable) valueStatus[0]);
+						elementExtractedValue.setNewValue((Serializable) valueStatus[0]);
 					}
 					if(valueStatus[1] != null) {
 						elementExtractedValue.setStatus((ElementExtractedValueStatus) valueStatus[1]);
 					}
-					if (entityDTO != null) {
-						elementExtractedValue.setOldBudgetValues(getBudgetElementValue(varfle.getFlexibleElementDTO(),
-						                entityDTO));
-					}
 				}
 				
-			} else {
-				cellValue = getValueFromVariable(varfle.getVariableDTO().getReference(), lineNumber, sheetName);
-				Object[] valueStatus = getValueFormatForFlexibleElement(varfle.getFlexibleElementDTO(),
-				                cellValue);
-				if(valueStatus[0] != null) {
-					elementExtractedValue.setNewValue((Serializable) valueStatus[0]);
+				final FlexibleElementDTO elementDTO = toDTO(variableFlexibleElement.getFlexibleElement());
+				elementExtractedValue.setElement(elementDTO);
+				if (entity != null) {
+					elementExtractedValue.setOldValue(getFlexibleElementValue(variableFlexibleElement.getFlexibleElement(), entity));
 				}
-				if(valueStatus[1] != null) {
-					elementExtractedValue.setStatus((ElementExtractedValueStatus) valueStatus[1]);
-				}
+				correspondances.add(elementExtractedValue);
+			} catch (FunctionalException e) {
+				
 			}
-			elementExtractedValue.setElement(varfle.getFlexibleElementDTO());
-			if (entityDTO != null) {
-				elementExtractedValue.setOldValue(getFlexibleElementValue(varfle.getFlexibleElementDTO(), entityDTO,
-				                false));
-			}
-			correspondances.add(elementExtractedValue);
 		}
 		return correspondances;
 	}
-
+	
 	/**
 	 * Gets the alphabetic position of the provided character (-1)
 	 * 
@@ -296,54 +339,55 @@ public abstract class Importer {
 	/**
 	 * Get the value of the flexible Element.
 	 * 
-	 * @param fleDTO
+	 * @param flexibleElement
 	 * @param entityDTO
 	 * @param forkey
 	 * @return
 	 * @throws CommandException
 	 */
-	public Serializable getFlexibleElementValue(FlexibleElementDTO fleDTO, EntityDTO<Integer> entityDTO, Boolean forkey)
-	                throws CommandException {
-		Class<?> entityClass;
-		if (entityDTO instanceof OrgUnitDTO) {
-			entityClass = OrgUnit.class;
-		} else {
-			entityClass = Project.class;
+	private Serializable getFlexibleElementValue(FlexibleElement flexibleElement, EntityId<Integer> entity) {
+		
+		final GetValue command = new GetValue(entity.getId(), flexibleElement.getId(), "element." + flexibleElement.getClass().getSimpleName(), null);
+		final ValueResult valueResult;
+		
+		try {
+			valueResult = executionContext.execute(command);
+		} catch (CommandException e) {
+			LOGGER.error("An error occured when trying to find the value of flexible element " + flexibleElement + " for the container " + entity, e);
+			return null;
 		}
-		final GetValue command = new GetValue(entityDTO.getId(), fleDTO.getId(), fleDTO.getEntityName(), null);
-		final ValueResult valueResult = executionContext.execute(command);
 
 		GlobalExportDataProvider gdp = new GlobalExportDataProvider(injector);
-
-		Object entity = mapper.map(entityDTO, entityClass);
 
 		final FlexibleElement element;
 		final Serializable valueObject;
 		
-		switch (fleDTO.getElementType()) {
+		final LogicalElementType type = flexibleElement.type();
+		
+		switch (type.toElementTypeEnum()) {
 		case CHECKBOX:
-			element = mapper.map(fleDTO, new CheckboxElement());
+			element = mapper.map(flexibleElement, new CheckboxElement());
 			valueObject = getCheckboxValue(valueResult, element);
 			break;
 		case DEFAULT:
-			element = mapper.map(fleDTO, new DefaultFlexibleElement());
-			if (!DefaultFlexibleElementType.BUDGET.equals(((DefaultFlexibleElement) element).getType())) {
-				valueObject = (Serializable) gdp.getDefElementPair(valueResult, element, entity, entityClass, em(),
+			element = mapper.map(flexibleElement, new DefaultFlexibleElement());
+			if (!DefaultFlexibleElementType.BUDGET.equals(((DefaultFlexibleElement) element).type())) {
+				valueObject = (Serializable) gdp.getDefElementPair(valueResult, element, entity, entity.getClass(), em(),
 				                translator, language).getValue();
 			} else {
 				valueObject = null;
 			}
 			break;
 		case QUESTION:
-			element = mapper.map(fleDTO, new QuestionElement());
+			element = mapper.map(flexibleElement, new QuestionElement());
 			valueObject = (Serializable) gdp.getChoicePair(element, valueResult).getValue();
 			break;
 		case TEXT_AREA:
-			element = mapper.map(fleDTO, new TextAreaElement());
+			element = mapper.map(flexibleElement, new TextAreaElement());
 			valueObject = (Serializable) gdp.getTextAreaElementPair(valueResult, element).getValue();
 			break;
 		case TRIPLETS:
-			element = mapper.map(fleDTO, new TripletsListElement());
+			element = mapper.map(flexibleElement, new TripletsListElement());
 			valueObject = (Serializable) gdp.getTripletPair(element, valueResult).getValue();
 			break;
 		default:
@@ -353,14 +397,19 @@ public abstract class Importer {
 		return valueObject;
 	}
 
-	private Map<Integer, String> getBudgetElementValue(FlexibleElementDTO flexibleElementDTO, EntityDTO<Integer> entityDTO)
-	                throws CommandException {
-		final GetValue command = new GetValue(entityDTO.getId(), flexibleElementDTO.getId(),
-		                flexibleElementDTO.getEntityName(), null);
+	private Map<Integer, String> getBudgetElementValue(FlexibleElement flexibleElement, EntityId<Integer> entity) {
+		
+		try {
+			final String value = em().createQuery("SELECT v.value FROM Value AS v WHERE v.containerId = :containerId AND v.element = :element", String.class)
+					.setParameter("containerId", entity.getId())
+					.setParameter("element", flexibleElement)
+					.getSingleResult();
 
-		final ValueResult valueResult = executionContext.execute(command);
-		final Map<Integer, String> values = ValueResultUtils.splitMapElements(valueResult.getValueObject());
-		return values;
+			return ValueResultUtils.splitMapElements(value);
+		} catch (NoResultException e) {
+			LOGGER.trace("No value for the element " + flexibleElement + " of entity " + entity.getId(), e);
+			return java.util.Collections.<Integer, String>emptyMap();
+		}
 	}
 
 	/**
@@ -373,158 +422,169 @@ public abstract class Importer {
 	 *            name of the sheet
 	 * @throws CommandException
 	 */
-	public void getCorrespondancePerSheetOrLine(ImportationSchemeModelDTO schemeModelDTO, Integer lineNumber,
-	                String sheetName) throws CommandException {
-		if (schemeModelDTO.getIdKey() != null) {
-
-			ImportDetails importEntity = new ImportDetails();
-
-			final VariableDTO varDTO = schemeModelDTO.getIdKey().getVariableDTO();
-			final FlexibleElementDTO fleDTO = schemeModelDTO.getIdKey().getFlexibleElementDTO();
-
-			final Object cellValue = getValueFromVariable(varDTO.getReference(), lineNumber, sheetName);
-
-			if (cellValue == null) {
-				return;
-			}
-			LOGGER.debug("Key identification is " + cellValue.toString());
-			String fleName = ExporterUtil.getFlexibleElementLabel(fleDTO, translator, language);
-
-			Map<EntityDTO<?>, List<ElementExtractedValue>> mapEntityCorrespondances = new HashMap<EntityDTO<?>, List<ElementExtractedValue>>();
-
-			// Checks if the model is an orgUnit or a project model
-			if (schemeModelDTO.getOrgUnitModelDTO() != null) {
-
-				OrgUnitModelDTO orgUnitModelDTO = schemeModelDTO.getOrgUnitModelDTO();
-
-				LOGGER.debug("Import for org unit model : " + orgUnitModelDTO.getName());
-
-				importEntity.setModelName(orgUnitModelDTO.getName());
-				importEntity.setModelStatus(orgUnitModelDTO.getStatus());
-
-				// Get all the orgUnits from an orgUnit model
-				final GetOrgUnitsByModel cmdGOU = new GetOrgUnitsByModel(orgUnitModelDTO.getId(), null);
-
-				ListResult<OrgUnitDTO> resultGP = executionContext.execute(cmdGOU);
-				List<OrgUnitDTO> list = resultGP.getList();
-
-				// For each project get the value of the corresponding
-				// identification key
-				for (OrgUnitDTO orgUnitDTO : list) {
-
-					String valueString = (String) getFlexibleElementValue(fleDTO, orgUnitDTO, true);
-
-					if (valueString.equals(cellValue)) {
-
-						List<ElementExtractedValue> correspondances = getCorrespondancesVariableFlexibleElement(
-						                schemeModelDTO.getVariableFlexibleElementsDTO(), orgUnitDTO, lineNumber,
-						                sheetName);
-
-						mapEntityCorrespondances.put(orgUnitDTO, correspondances);
-
-					}
-				}
-
-				// Initializes the importEntity according to the number of
-				// orgUnits found
-				importEntity.setKeyIdentification(fleName + " : " + cellValue);
-				if (mapEntityCorrespondances.isEmpty()) {
-					importEntity.setEntityStatus(ImportStatusCode.ORGUNIT_NOT_FOUND_CODE);
-					List<ElementExtractedValue> correspondances = getCorrespondancesVariableFlexibleElement(
-					                schemeModelDTO.getVariableFlexibleElementsDTO(), null, lineNumber, sheetName);
-					OrgUnitDTO o = new OrgUnitDTO();
-					o.setId(0);
-					mapEntityCorrespondances.put(o, correspondances);
-				} else if (mapEntityCorrespondances.size() == 1) {
-					importEntity.setEntityStatus(ImportStatusCode.ORGUNIT_FOUND_CODE);
-				} else {
-					importEntity.setEntityStatus(ImportStatusCode.SEVERAL_ORGUNITS_FOUND_CODE);
-				}
-				importEntity.setEntitiesToImport(mapEntityCorrespondances);
-
-			} else if (schemeModelDTO.getProjectModelDTO() != null) {
-				Map<EntityDTO<?>, List<ElementExtractedValue>> mapLockedEntityCorrespondances = new HashMap<EntityDTO<?>, List<ElementExtractedValue>>();
-
-				ProjectModelDTO projectModelDTO = schemeModelDTO.getProjectModelDTO();
-
-				LOGGER.debug("Import for project model : " + projectModelDTO.getName());
-
-				importEntity.setModelName(projectModelDTO.getName());
-				importEntity.setModelStatus(projectModelDTO.getStatus());
-
-				// Get all the projects of a project model
-				GetProjectsByModel cmdGP = new GetProjectsByModel(projectModelDTO.getId(), null);
-				ListResult<ProjectDTO> resultGP = executionContext.execute(cmdGP);
-				List<ProjectDTO> list = resultGP.getList();
-
-				// For each project get the value of the corresponding
-				// identification key
-				for (ProjectDTO projectDTO : list) {
-					String valueString = (String) getFlexibleElementValue(fleDTO, projectDTO, true);
-
-					if (valueString != null && valueString.equals(cellValue)) {
-
-						List<ElementExtractedValue> correspondances = getCorrespondancesVariableFlexibleElement(
-						                schemeModelDTO.getVariableFlexibleElementsDTO(), projectDTO, lineNumber,
-						                sheetName);
-						if (projectDTO.getAmendmentState() != null && projectDTO.getAmendmentState() == AmendmentState.LOCKED) {
-							if (mapLockedEntityCorrespondances.isEmpty()) {
-								mapLockedEntityCorrespondances.put(projectDTO, correspondances);
-							}
-						} else {
-							mapEntityCorrespondances.put(projectDTO, correspondances);
-
-						}
-					}
-
-				}
-
-				// Initializes the importEntity according to the number of
-				// projects found
-				importEntity.setKeyIdentification(fleName + " : " + cellValue);
-				if (mapEntityCorrespondances.isEmpty()) {
-					if (!mapLockedEntityCorrespondances.isEmpty()) {
-						importEntity.setEntityStatus(ImportStatusCode.PROJECT_LOCKED_CODE);
-						importEntity.setEntitiesToImport(mapLockedEntityCorrespondances);
-						
-					} else {
-						importEntity.setEntityStatus(ImportStatusCode.PROJECT_NOT_FOUND_CODE);
-						List<ElementExtractedValue> correspondances = getCorrespondancesVariableFlexibleElement(
-						                schemeModelDTO.getVariableFlexibleElementsDTO(), null, lineNumber, sheetName);
-						ProjectDTO p = new ProjectDTO();
-						p.setId(0);
-						mapEntityCorrespondances.put(p, correspondances);
-						importEntity.setEntitiesToImport(mapEntityCorrespondances);
-					}
-					
-				} else if (mapEntityCorrespondances.size() == 1) {
-					importEntity.setEntityStatus(ImportStatusCode.PROJECT_FOUND_CODE);
-					importEntity.setEntitiesToImport(mapEntityCorrespondances);
-					
-				} else {
-					importEntity.setEntityStatus(ImportStatusCode.SEVERAL_PROJECTS_FOUND_CODE);
-					importEntity.setEntitiesToImport(mapEntityCorrespondances);
-				}
-			}
-
-			entitiesToImport.add(importEntity);
+	public ImportDetails getCorrespondancePerSheetOrLine(Integer lineNumber,
+	                String sheetName) {
+		
+		final VariableFlexibleElement keyVariableElement = getKeyOfCurrentSchemeModel();
+		if (keyVariableElement == null) {
+			return null;
 		}
+
+		final ImportDetails importEntity = new ImportDetails();
+
+		final Variable variable = keyVariableElement.getVariable();
+		final FlexibleElement flexibleElement = keyVariableElement.getFlexibleElement();
+
+		final String keyValue;
+		try {
+			final Object cellValue = getValueFromVariable(variable.getReference(), lineNumber, sheetName);
+			if (cellValue == null) {
+				return null;
+			}
+			keyValue = cellValue.toString();
+		} catch (FunctionalException e) {
+			LOGGER.error("An error occured while retrieving the value of the key.", e);
+			return null;
+		}
+		
+		LOGGER.debug("Key identification is " + keyValue);
+		final String label = ExporterUtil.getFlexibleElementLabel(flexibleElement, translator, language);
+
+		final Map<EntityDTO<?>, List<ElementExtractedValue>> entityCorrespondances = new HashMap<>();
+
+		// Checks if the model is an orgUnit or a project model
+		if (schemeModel.getOrgUnitModel() != null) {
+
+			OrgUnitModel orgUnitModel = schemeModel.getOrgUnitModel();
+
+			LOGGER.debug("Import for org unit model : " + orgUnitModel.getName());
+
+			importEntity.setModelName(orgUnitModel.getName());
+			importEntity.setModelStatus(orgUnitModel.getStatus());
+
+			// Get all the orgUnits from an orgUnit model
+			final List<OrgUnit> orgUnits = em().createQuery("SELECT ou FROM OrgUnit as ou WHERE ou.orgUnitModel = :orgUnitModel", OrgUnit.class)
+					.setParameter("orgUnitModel", orgUnitModel)
+					.getResultList();
+			
+			// For each project get the value of the corresponding
+			// identification key
+			for (OrgUnit orgUnit : orgUnits) {
+				final String valueString = (String) getFlexibleElementValue(flexibleElement, orgUnit);
+				
+				if (valueString != null && valueString.equals(keyValue)) {
+				
+					final List<ElementExtractedValue> correspondances = getCorrespondancesVariableFlexibleElement(
+									schemeModel.getVariableFlexibleElements(), orgUnit, lineNumber,
+									sheetName);
+
+					final OrgUnitDTO orgUnitDTO = mapper.map(orgUnit, new OrgUnitDTO());
+					entityCorrespondances.put(orgUnitDTO, correspondances);
+				}
+			}
+
+			// Initializes the importEntity according to the number of
+			// orgUnits found
+			importEntity.setKeyIdentification(label + " : " + keyValue);
+			if (entityCorrespondances.isEmpty()) {
+				importEntity.setEntityStatus(ImportStatusCode.ORGUNIT_NOT_FOUND_CODE);
+				List<ElementExtractedValue> correspondances = getCorrespondancesVariableFlexibleElement(
+								schemeModel.getVariableFlexibleElements(), null, lineNumber, sheetName);
+				OrgUnitDTO o = new OrgUnitDTO();
+				o.setId(0);
+				entityCorrespondances.put(o, correspondances);
+			} else if (entityCorrespondances.size() == 1) {
+				importEntity.setEntityStatus(ImportStatusCode.ORGUNIT_FOUND_CODE);
+			} else {
+				importEntity.setEntityStatus(ImportStatusCode.SEVERAL_ORGUNITS_FOUND_CODE);
+			}
+			importEntity.setEntitiesToImport(entityCorrespondances);
+
+		} else if (schemeModel.getProjectModel() != null) {
+			Map<EntityDTO<?>, List<ElementExtractedValue>> lockedEntityCorrespondances = new HashMap<EntityDTO<?>, List<ElementExtractedValue>>();
+
+			ProjectModel projectModel = schemeModel.getProjectModel();
+
+			LOGGER.debug("Import for project model : " + projectModel.getName());
+
+			importEntity.setModelName(projectModel.getName());
+			importEntity.setModelStatus(projectModel.getStatus());
+
+			// Get all the projects of a project model
+			final List<Project> projects = em().createQuery("SELECT p FROM Project as p WHERE p.projectModel = :projectModel", Project.class)
+					.setParameter("projectModel", projectModel)
+					.getResultList();
+			
+			// For each project get the value of the corresponding
+			// identification key
+			for (Project project : projects) {
+				final String valueString = (String) getFlexibleElementValue(flexibleElement, project);
+				
+				if (valueString != null && valueString.equals(keyValue)) {
+				
+					final List<ElementExtractedValue> correspondances = getCorrespondancesVariableFlexibleElement(
+							schemeModel.getVariableFlexibleElements(), project, lineNumber,
+							sheetName);
+				
+					final ProjectDTO projectDTO = mapper.map(project, new ProjectDTO());
+
+					if (project.getAmendmentState() != null && project.getAmendmentState() == AmendmentState.LOCKED) {
+						if (lockedEntityCorrespondances.isEmpty()) {
+							lockedEntityCorrespondances.put(projectDTO, correspondances);
+						}
+					} else {
+						entityCorrespondances.put(projectDTO, correspondances);
+					}
+				}
+			}
+
+			// Initializes the importEntity according to the number of
+			// projects found
+			importEntity.setKeyIdentification(label + " : " + keyValue);
+			if (entityCorrespondances.isEmpty()) {
+				if (!lockedEntityCorrespondances.isEmpty()) {
+					importEntity.setEntityStatus(ImportStatusCode.PROJECT_LOCKED_CODE);
+					importEntity.setEntitiesToImport(lockedEntityCorrespondances);
+
+				} else {
+					importEntity.setEntityStatus(ImportStatusCode.PROJECT_NOT_FOUND_CODE);
+					List<ElementExtractedValue> correspondances = getCorrespondancesVariableFlexibleElement(
+									schemeModel.getVariableFlexibleElements(), null, lineNumber, sheetName);
+					ProjectDTO p = new ProjectDTO();
+					p.setId(0);
+					entityCorrespondances.put(p, correspondances);
+					importEntity.setEntitiesToImport(entityCorrespondances);
+				}
+
+			} else if (entityCorrespondances.size() == 1) {
+				importEntity.setEntityStatus(ImportStatusCode.PROJECT_FOUND_CODE);
+				importEntity.setEntitiesToImport(entityCorrespondances);
+
+			} else {
+				importEntity.setEntityStatus(ImportStatusCode.SEVERAL_PROJECTS_FOUND_CODE);
+				importEntity.setEntitiesToImport(entityCorrespondances);
+			}
+		}
+
+		return importEntity;
 	}
 
 	/**
 	 * Gets the right format of the value for the flexible element provided
 	 * 
-	 * @param fleDTO
+	 * @param flexibleElement
 	 * @param value
 	 * @return
 	 */
-	public Object[] getValueFormatForFlexibleElement(FlexibleElementDTO fleDTO, Object value) {
+	public Object[] getValueFormatForFlexibleElement(FlexibleElement flexibleElement, Object value) {
 		Object[] valueStatus = new Object[2];
 		Serializable formattedValue = null;
 		ElementExtractedValueStatus statusCode = null;
 		String stringValue = String.valueOf(value);
 		if (value != null) {
-			switch (fleDTO.getElementType()) {
+			final LogicalElementType type = flexibleElement.type();
+			
+			switch (type.toElementTypeEnum()) {
 			case CHECKBOX:
 				if (value instanceof Boolean) {
 					formattedValue = (Serializable) value;
@@ -547,9 +607,9 @@ public abstract class Importer {
 				break;
 				
 			case DEFAULT:
-				DefaultFlexibleElementDTO dfDTO = (DefaultFlexibleElementDTO) fleDTO;
+				DefaultFlexibleElement dfDTO = (DefaultFlexibleElement) flexibleElement;
 				if (!stringValue.isEmpty()) {
-					switch (dfDTO.getType()) {
+					switch (type.toDefaultFlexibleElementType()) {
 						case START_DATE:
 						case END_DATE:
 						if (value instanceof Number) {
@@ -705,11 +765,11 @@ public abstract class Importer {
 				// Accepted formats:
 				// Multiple : label(-label)+
 				// Single : label
-				QuestionElementDTO questionElement = (QuestionElementDTO) fleDTO;
+				QuestionElement questionElement = (QuestionElement) flexibleElement;
 				if (questionElement.getMultiple() != null && questionElement.getMultiple()) {
 					String[] extractedQuestionValues = stringValue.split("-");
-					List<QuestionChoiceElementDTO> choices = new ArrayList<QuestionChoiceElementDTO>();
-					for (QuestionChoiceElementDTO choice : questionElement.getChoices()) {
+					List<QuestionChoiceElement> choices = new ArrayList<QuestionChoiceElement>();
+					for (QuestionChoiceElement choice : questionElement.getChoices()) {
 						final String choiceLabel;
 						if (choice.getCategoryElement() != null) {
 							choiceLabel = choice.getCategoryElement().getLabel();
@@ -720,18 +780,22 @@ public abstract class Importer {
 							if (choiceLabel.trim().equals(questionValue.trim())) {
 								choices.add(choice);
 							}
-
 						}
 					}
-					if(!choices.isEmpty()){
-						formattedValue = ValueResultUtils.mergeValues(choices);
+					if (!choices.isEmpty()) {
+						formattedValue = Collections.join(choices, new Collections.Mapper<QuestionChoiceElement, String>() {
+							@Override
+							public String forEntry(QuestionChoiceElement entry) {
+								return entry.getId().toString();
+							}
+						}, ValueResultUtils.DEFAULT_VALUE_SEPARATOR);
 						statusCode = ElementExtractedValueStatus.VALID_VALUE;
 					} else {
 						statusCode = ElementExtractedValueStatus.INVALID_QUESTION_VALUE;
 					}
 					
 				} else {
-					for (QuestionChoiceElementDTO choice : questionElement.getChoices()) {
+					for (QuestionChoiceElement choice : questionElement.getChoices()) {
 						final String choiceLabel;
 						if (choice.getCategoryElement() != null) {
 							choiceLabel = choice.getCategoryElement().getLabel();
@@ -755,8 +819,8 @@ public abstract class Importer {
 				// Type NUMBER + decimal -> 0.00
 				// Type PARAGRAPH -> *
 				// Type TEXT -> *
-				TextAreaElementDTO textAreaElementDTO = (TextAreaElementDTO) fleDTO;
-				switch (TextAreaType.fromCode(textAreaElementDTO.getType())) {
+				TextAreaElement textAreaElement = (TextAreaElement) flexibleElement;
+				switch (type.toTextAreaType()) {
 				case DATE: {
 					if (value instanceof Date) {
 						formattedValue = (Date) value;
@@ -773,8 +837,8 @@ public abstract class Importer {
 					
 					if( ElementExtractedValueStatus.VALID_VALUE.equals(statusCode)){
 						Date dateValue  = (Date) formattedValue;
-						Date minValue = textAreaElementDTO.getMinValue() != null ?  new Date(textAreaElementDTO.getMinValue()) : null;
-						Date maxValue =textAreaElementDTO.getMaxValue() != null ?  new Date(textAreaElementDTO.getMaxValue()) : null;
+						Date minValue = textAreaElement.getMinValue() != null ?  new Date(textAreaElement.getMinValue()) : null;
+						Date maxValue = textAreaElement.getMaxValue() != null ?  new Date(textAreaElement.getMaxValue()) : null;
 						boolean isValueCorrect = !((minValue != null && dateValue.before(minValue)) || (maxValue != null && dateValue.after(minValue)));
 						if(!isValueCorrect) {
 							statusCode = ElementExtractedValueStatus.FORBIDDEN_VALUE;
@@ -783,7 +847,7 @@ public abstract class Importer {
 				}
 					break;
 				case NUMBER: {
-					if (textAreaElementDTO.getIsDecimal()) {
+					if (textAreaElement.getIsDecimal()) {
 						if(value instanceof String) {
 							try{
 								formattedValue = Double.valueOf(stringValue);
@@ -800,8 +864,8 @@ public abstract class Importer {
 						
 						if( ElementExtractedValueStatus.VALID_VALUE.equals(statusCode)){
 							Double numberValue  = (Double) formattedValue;
-							Long minValue = textAreaElementDTO.getMinValue() != null ?  textAreaElementDTO.getMinValue() : null;
-							Long maxValue =textAreaElementDTO.getMaxValue() != null ?  textAreaElementDTO.getMaxValue() : null;
+							Long minValue = textAreaElement.getMinValue() != null ?  textAreaElement.getMinValue() : null;
+							Long maxValue = textAreaElement.getMaxValue() != null ?  textAreaElement.getMaxValue() : null;
 							boolean isValueCorrect = !((minValue != null && numberValue < minValue) || (maxValue != null && numberValue > maxValue));
 							if(!isValueCorrect) {
 								statusCode = ElementExtractedValueStatus.FORBIDDEN_VALUE;
@@ -824,8 +888,8 @@ public abstract class Importer {
 						
 						if( ElementExtractedValueStatus.VALID_VALUE.equals(statusCode)){
 							Long numberValue  = (Long) formattedValue;
-							Long minValue = textAreaElementDTO.getMinValue() != null ?  textAreaElementDTO.getMinValue() : null;
-							Long maxValue =textAreaElementDTO.getMaxValue() != null ?  textAreaElementDTO.getMaxValue() : null;
+							Long minValue = textAreaElement.getMinValue() != null ?  textAreaElement.getMinValue() : null;
+							Long maxValue = textAreaElement.getMaxValue() != null ?  textAreaElement.getMaxValue() : null;
 							boolean isValueCorrect = !((minValue != null && numberValue < minValue) || (maxValue != null && numberValue > maxValue));
 							if(!isValueCorrect) {
 								statusCode = ElementExtractedValueStatus.FORBIDDEN_VALUE;
@@ -868,9 +932,8 @@ public abstract class Importer {
 				break;
 				
 			default:
-				LOGGER.warn("Unsupported flexible element type: {}",  fleDTO.getElementType());
+				LOGGER.warn("Unsupported flexible element type: {}",  type);
 				break;
-
 			}
 		}
 		valueStatus[0] = formattedValue;
@@ -944,6 +1007,72 @@ public abstract class Importer {
 	
 	protected EntityManager em() {
 		return injector.getProvider(EntityManager.class).get();
+	}
+	
+	// --
+	// Privates methods.
+	// --
+	
+	private VariableFlexibleElement getKeyOfCurrentSchemeModel() {
+		
+		try {
+			return em().createQuery("SELECT vfe FROM VariableFlexibleElement AS vfe WHERE vfe.isKey = true AND vfe.importationSchemeModel = :schemeModel", VariableFlexibleElement.class)
+					.setParameter("schemeModel", schemeModel)
+					.getSingleResult();
+		} catch (NoResultException e) {
+			LOGGER.trace("No key was found in the scheme model " + schemeModel, e);
+			return null;
+		}
+	}
+	
+	private FlexibleElementDTO toDTO(FlexibleElement element) {
+		
+		final FlexibleElementDTO dto;
+		
+		final LogicalElementType type = element.type();
+		
+		switch (type.toElementTypeEnum()) {
+		case CHECKBOX:
+			dto = new CheckboxElementDTO();
+			break;
+		case COMPUTATION:
+			dto = new ComputationElementDTO();
+			break;
+		case CORE_VERSION:
+			dto = new CoreVersionElementDTO();
+			break;
+		case DEFAULT:
+			dto = new DefaultFlexibleElementDTO();
+			break;
+		case FILES_LIST:
+			dto = new FilesListElementDTO();
+			break;
+		case INDICATORS:
+			dto = new IndicatorsListElementDTO();
+			break;
+		case MESSAGE:
+			dto = new MessageElementDTO();
+			break;
+		case QUESTION:
+			dto = new QuestionElementDTO();
+			break;
+		case REPORT:
+			dto = new ReportElementDTO();
+			break;
+		case REPORT_LIST:
+			dto = new ReportListElementDTO();
+			break;
+		case TEXT_AREA:
+			dto = new TextAreaElementDTO();
+			break;
+		case TRIPLETS:
+			dto = new TripletsListElementDTO();
+			break;
+		default:
+			throw new UnsupportedOperationException("Flexible element of type '" + type + "' is not supported.");
+		}
+		
+		return mapper.map(element, dto);
 	}
 	
 }

@@ -30,13 +30,13 @@ import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.sigmah.shared.dto.importation.ImportationSchemeModelDTO;
 
 import java.io.IOException;
 import java.io.InputStream;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
-import org.sigmah.shared.dispatch.CommandException;
+import org.sigmah.shared.dto.ImportDetails;
+import org.sigmah.shared.dto.referential.ImportationSchemeImportType;
 
 /**
  * Excel implementation of {@link Importer}.
@@ -47,6 +47,10 @@ import org.sigmah.shared.dispatch.CommandException;
 public class ExcelImporter extends Importer {
 
 	private Workbook workbook;
+	
+	private Sheet sheet;
+	private Integer sheetCursor;
+	private Integer rowCursor;
 
 	/**
 	 * {@inheritDoc}
@@ -60,48 +64,70 @@ public class ExcelImporter extends Importer {
 			throw new IOException("The format of the file given is invalid for the file format Excel.", ex);
 		}
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public ImportDetails next() {
+		
+		if (scheme.getImportType() != ImportationSchemeImportType.ROW) {
+			logWarnFormatImportTypeIncoherence();
+			return null;
+		}
+		
+		ImportDetails details = null;
+		
+		switch (scheme.getImportType()) {
+		case ROW:
+			if (rowCursor == null || (sheet != null && rowCursor == sheet.getLastRowNum())) {
+				nextSchemeModel();
+				
+				if (scheme.getFirstRow() != null) {
+					rowCursor = scheme.getFirstRow();
+				} else {
+					rowCursor = 0;
+				}
+				if (sheet == null) {
+					if (scheme.getSheetName() != null && !scheme.getSheetName().isEmpty()) {
+						sheet = workbook.getSheet(scheme.getSheetName());
+					} else {
+						sheet = workbook.getSheetAt(0);
+					}
+				}
+			}
+			if (sheet != null && rowCursor < sheet.getLastRowNum()) {
+				details = getCorrespondancePerSheetOrLine(rowCursor, sheet.getSheetName());
+				rowCursor++;
+			}
+			break;
+		case SEVERAL:
+			if (sheetCursor == null || sheetCursor == workbook.getNumberOfSheets()) {
+				nextSchemeModel();
+				sheetCursor = 0;
+			}
+			if (sheetCursor < workbook.getNumberOfSheets()) {
+				details = getCorrespondancePerSheetOrLine(null, workbook.getSheetName(sheetCursor));
+				sheetCursor++;
+			}
+			break;
+		case UNIQUE:
+			nextSchemeModel();
+			details = getCorrespondancePerSheetOrLine(null, null);
+			break;
+		default:
+			throw new UnsupportedOperationException("Given import type is not supported '" + scheme.getImportType() + "'.");
+		}
+		
+		return details;
+	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void getCorrespondances() throws CommandException {
-		
-		for (ImportationSchemeModelDTO schemeModelDTO : schemeModelList) {
-			// Get the variable and the flexible element for the identification
-			switch (scheme.getImportType()) {
-			case ROW:
-				Sheet sheet = null;
-				if (scheme.getSheetName() != null && !scheme.getSheetName().isEmpty()) {
-					sheet = workbook.getSheet(scheme.getSheetName());
-				} else if (workbook.getNumberOfSheets() > 0) {
-					sheet = workbook.getSheetAt(0);
-				}
-				if (sheet != null) {
-					int firstRow = 0;
-					if (scheme.getFirstRow() != null) {
-						firstRow = scheme.getFirstRow();
-					}
-
-					for (int i = firstRow; i < sheet.getLastRowNum(); i++) {
-						getCorrespondancePerSheetOrLine(schemeModelDTO, i, scheme.getSheetName());
-					}
-				}
-
-				break;
-			case SEVERAL:
-				for (int i = 0; i < workbook.getNumberOfSheets(); i++) {
-					getCorrespondancePerSheetOrLine(schemeModelDTO, null, workbook.getSheetName(i));
-				}
-				break;
-			case UNIQUE:
-				getCorrespondancePerSheetOrLine(schemeModelDTO, null, null);
-				break;
-			default:
-				logWarnFormatImportTypeIncoherence();
-				break;
-			}
-		}
+	public boolean hasNext() {
+		return hasNextRow() || hasNextSchemeModel();
 	}
 
 	/**
@@ -160,7 +186,6 @@ public class ExcelImporter extends Importer {
 								cellValue = getCellValue(cellObject);
 							}
 						}
-						
 					}
 				}
 				break;
@@ -198,6 +223,25 @@ public class ExcelImporter extends Importer {
 		}
 
 		return cellValue;
+	}
+	
+	/**
+	 * Verify if the stream has more rows to read before moving on to the next
+	 * scheme model.
+	 * 
+	 * @return <code>true</code> if there is more lignes,
+	 * <code>false</code> otherwise.
+	 */
+	private boolean hasNextRow() {
+		switch (scheme.getImportType()) {
+		case ROW:
+			return rowCursor == null || (sheet != null && rowCursor < sheet.getLastRowNum());
+		case SEVERAL:
+			return sheetCursor == null || sheetCursor < workbook.getNumberOfSheets();
+		case UNIQUE:
+		default:
+			return false;
+		}
 	}
 
 }

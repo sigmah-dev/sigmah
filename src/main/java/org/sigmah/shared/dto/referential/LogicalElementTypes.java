@@ -58,7 +58,7 @@ public final class LogicalElementTypes {
         
         if (flexibleElement instanceof TextAreaElementDTO) {
             type = TextAreaType.fromCode(((TextAreaElementDTO) flexibleElement).getType());
-        } else if(flexibleElement instanceof DefaultFlexibleElementDTO) {
+        } else if (flexibleElement instanceof DefaultFlexibleElementDTO) {
             type = ((DefaultFlexibleElementDTO) flexibleElement).getType();
         } else if (flexibleElement != null) {
             type = flexibleElement.getElementType();
@@ -66,11 +66,22 @@ public final class LogicalElementTypes {
             type = null;
         }
         
-        if (type != null) {
-            return type;
-        } else {
-            return NoElementType.INSTANCE;
-        }
+        return notNull(type);
+	}
+	
+	/**
+	 * Returns a non-null value from the given type.
+	 * 
+	 * @param type
+	 *         Any logical element type (may be null).
+	 * @return The given type if non-null, {@link NoElementType#INSTANCE} otherwise.
+	 */
+	public static LogicalElementType notNull(final LogicalElementType type) {
+		if (type != null) {
+			return type;
+		} else {
+			return NoElementType.INSTANCE;
+		}
 	}
     
 }

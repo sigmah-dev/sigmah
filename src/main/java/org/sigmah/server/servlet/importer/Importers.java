@@ -6,6 +6,7 @@ import org.sigmah.shared.dto.importation.ImportationSchemeDTO;
  * Utility class to create {@link Importer}s.
  * 
  * @author Raphaël Calabro (raphael.calabro@netapsys.fr)
+ * @since 2.1
  */
 public final class Importers {
 	

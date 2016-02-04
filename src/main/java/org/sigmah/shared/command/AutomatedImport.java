@@ -8,8 +8,9 @@ import org.sigmah.shared.dto.importation.ImportationSchemeDTO;
  * Command to import a file without asking the user what he wants to do.
  * 
  * @author Raphaël Calabro (raphael.calabro@netapsys.fr)
+ * @since 2.1
  */
-public class AutomatizedImport extends AbstractCommand<Result> {
+public class AutomatedImport extends AbstractCommand<Result> {
 	
 	private String fileName;
 	private ImportationSchemeDTO scheme;
@@ -21,7 +22,7 @@ public class AutomatizedImport extends AbstractCommand<Result> {
 	/**
 	 * Empty constructor, required by the serialization.
 	 */
-	public AutomatizedImport() {
+	public AutomatedImport() {
 		// No initialization.
 	}
 
@@ -42,7 +43,7 @@ public class AutomatizedImport extends AbstractCommand<Result> {
 	 *			<code>true</code> to all the projects matching the identification key,
 	 *			<code>false</code> to skip those.
 	 */
-	public AutomatizedImport(String fileName, ImportationSchemeDTO scheme, boolean createProjects, boolean unlockProjectCores, boolean updateAllMatches) {
+	public AutomatedImport(String fileName, ImportationSchemeDTO scheme, boolean createProjects, boolean unlockProjectCores, boolean updateAllMatches) {
 		this.fileName = fileName;
 		this.scheme = scheme;
 		this.createProjects = createProjects;

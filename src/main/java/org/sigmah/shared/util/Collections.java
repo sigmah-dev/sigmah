@@ -75,6 +75,7 @@ public final class Collections {
      * @return A new string joining every elements in the collection with the given separator.
      */
     public static <T> String join(final Collection<T> collection, final String separator) {
+		
         return join(collection, new Mapper<T, String>() {
             
             @Override
@@ -98,16 +99,18 @@ public final class Collections {
      * @return A new string joining every elements in the collection with the given separator.
      */
     public static <T> String join(final Collection<T> collection, final Mapper<T, String> mapper, final String separator) {
+		
         final StringBuilder builder = new StringBuilder();
         
-        for (final T entry : collection) {
-            builder.append(mapper.forEntry(entry)).append(separator);
-        }
-        
-        final int builderLength = builder.length();
-        if (builderLength > 0) {
-            builder.setLength(builderLength - separator.length());
-        }
+		for (final T entry : collection) {
+			builder.append(mapper.forEntry(entry)).append(separator);
+		}
+
+		final int builderLength = builder.length();
+		if (builderLength > 0) {
+			builder.setLength(builderLength - separator.length());
+		}
+		
         return builder.toString();
     }
     
@@ -125,6 +128,7 @@ public final class Collections {
      * @return A new list.
      */
     public static <S, D> List<D> map(final Collection<S> collection, final Mapper<S, D> mapper) {
+		
         final ArrayList<D> list = new ArrayList<D>();
         
         for (final S entry : collection) {

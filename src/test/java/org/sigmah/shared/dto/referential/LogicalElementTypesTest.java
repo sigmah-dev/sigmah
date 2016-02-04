@@ -29,6 +29,7 @@ import org.sigmah.shared.dto.element.ComputationElementDTO;
 import org.sigmah.shared.dto.element.CoreVersionElementDTO;
 import org.sigmah.shared.dto.element.DefaultFlexibleElementDTO;
 import org.sigmah.shared.dto.element.FilesListElementDTO;
+import org.sigmah.shared.dto.element.FlexibleElementDTO;
 import org.sigmah.shared.dto.element.IndicatorsListElementDTO;
 import org.sigmah.shared.dto.element.MessageElementDTO;
 import org.sigmah.shared.dto.element.QuestionElementDTO;
@@ -49,7 +50,8 @@ public class LogicalElementTypesTest {
      */
     @Test
     public void testWithNull() {
-        final LogicalElementType type = LogicalElementTypes.of(null);
+		final FlexibleElementDTO elementDTO = null;
+        final LogicalElementType type = LogicalElementTypes.of(elementDTO);
         
         Assert.assertEquals(NoElementType.INSTANCE, type);
         Assert.assertNull(type.toElementTypeEnum());

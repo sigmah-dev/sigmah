@@ -46,6 +46,10 @@ import org.sigmah.server.domain.base.EntityId;
 import org.sigmah.server.domain.profile.PrivacyGroup;
 import org.sigmah.server.domain.util.EntityConstants;
 import org.sigmah.server.domain.util.Historable;
+import org.sigmah.shared.dto.referential.ElementTypeEnum;
+import org.sigmah.shared.dto.referential.LogicalElementType;
+import org.sigmah.shared.dto.referential.LogicalElementTypes;
+import org.sigmah.shared.dto.referential.TextAreaType;
 
 /**
  * <p>
@@ -186,6 +190,46 @@ public abstract class FlexibleElement extends AbstractEntityId<Integer> implemen
 			exportable = true;
 		if (globallyExportable == null)
 			globallyExportable = false;
+	}
+	
+	/**
+	 * Identify the logical type of this element based.
+	 * 
+	 * @return The logical element type of this element.
+	 */
+	public LogicalElementType type() {
+		
+		final LogicalElementType type;
+		
+		if (this instanceof TextAreaElement) {
+			type = TextAreaType.fromCode(((TextAreaElement) this).getType());
+		} else if (this instanceof CheckboxElement) {
+			type = ElementTypeEnum.CHECKBOX;
+		} else if (this instanceof DefaultFlexibleElement) {
+			type = ((DefaultFlexibleElement) this).getType();
+		} else if (this instanceof FilesListElement) {
+			type = ElementTypeEnum.FILES_LIST;
+		} else if (this instanceof IndicatorsListElement) {
+			type = ElementTypeEnum.INDICATORS;
+		} else if (this instanceof MessageElement) {
+			type = ElementTypeEnum.MESSAGE;
+		} else if (this instanceof QuestionElement) {
+			type = ElementTypeEnum.QUESTION;
+		} else if (this instanceof ReportElement) {
+			type = ElementTypeEnum.REPORT;
+		} else if (this instanceof ReportListElement) {
+			type = ElementTypeEnum.REPORT_LIST;
+		} else if (this instanceof TripletsListElement) {
+			type = ElementTypeEnum.TRIPLETS;
+		} else if (this instanceof CoreVersionElement) {
+			type = ElementTypeEnum.CORE_VERSION;
+		} else if (this instanceof ComputationElement) {
+			type = ElementTypeEnum.COMPUTATION;
+		} else {
+			type = null;
+		}
+		
+		return LogicalElementTypes.notNull(type);
 	}
 
 	// --------------------------------------------------------------------------------
