@@ -32,6 +32,7 @@ import javax.persistence.EntityTransaction;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.sigmah.server.dao.AbstractDaoTest;
 import org.sigmah.server.domain.Bounds;
@@ -65,6 +66,8 @@ import org.sigmah.shared.dto.referential.ValueEventChangeType;
  * 
  * @author Raphaël Calabro (raphael.calabro@netapsys.fr)
  */
+// TODO use Assume to skip test if environment is not set
+@Ignore("Test requires a database environment")
 public class ServerValueResolverTest extends AbstractDaoTest {
 	
 	@Inject

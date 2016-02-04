@@ -25,6 +25,7 @@ package org.sigmah.server.dao;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.sigmah.server.domain.Authentication;
 import org.sigmah.server.domain.User;
@@ -38,6 +39,8 @@ import com.google.inject.Inject;
  * 
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
+// TODO use Assume to skip test if environment is not set
+@Ignore("Test requires a database environment")
 public class PersistenceTest extends AbstractDaoTest {
 
 	@Inject

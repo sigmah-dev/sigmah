@@ -24,6 +24,7 @@ package org.sigmah.server.i18n;
 
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sigmah.server.inject.ConfigurationModule;
@@ -48,6 +49,8 @@ import java.util.Properties;
 								ConfigurationModule.class,
 								I18nServerModule.class
 })
+// TODO use Assume to skip test if environment is not set
+@Ignore("Test requires a database environment")
 public class I18nServerTest {
 
 	@Inject
