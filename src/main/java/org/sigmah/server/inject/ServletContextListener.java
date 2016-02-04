@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.servlet.GuiceServletContextListener;
+import org.flywaydb.core.Flyway;
 import org.sigmah.server.autoExport.QuartzScheduler;
 
 /**
@@ -85,6 +86,24 @@ public class ServletContextListener extends GuiceServletContextListener {
 
 	@Override
 	public void contextInitialized(ServletContextEvent servletContextEvent) {
+
+		boolean weAreInAnEnvironmentWeWantToMigrateAutomatically = false;
+		if (weAreInAnEnvironmentWeWantToMigrateAutomatically) {
+			Flyway flyway = new Flyway();
+
+			// TODO fill-in the blank with the actual database credentials
+			flyway.setDataSource("jdbc:postgresql://localhost:5432/sigmah", "sigmah", "hamsig");
+
+			// for the already existing database, we must create the flyway database to store schema version
+			flyway.setBaselineOnMigrate(true);
+
+			// let's consider the existing database schema is the same as the migration file named V1...
+			// So the existing database will be migrated only with the script V2 and above
+			flyway.setBaselineVersionAsString("1");
+
+			flyway.migrate();
+		}
+
 		super.contextInitialized(servletContextEvent);
 
 		final Injector injector = (Injector) servletContextEvent.getServletContext().getAttribute(Injector.class.getName());
