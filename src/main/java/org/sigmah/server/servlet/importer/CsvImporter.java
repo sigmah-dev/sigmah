@@ -24,13 +24,14 @@ package org.sigmah.server.servlet.importer;
 
 
 import java.util.List;
-import java.util.Map;
 
 
 import org.sigmah.shared.dto.importation.ImportationSchemeModelDTO;
 
-import com.google.inject.Injector;
-import org.sigmah.server.dispatch.impl.UserDispatch;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import org.sigmah.server.servlet.exporter.utils.CsvParser;
 import org.sigmah.shared.dispatch.CommandException;
 import org.sigmah.shared.dispatch.FunctionalException;
 import org.sigmah.shared.dispatch.FunctionalException.ErrorCode;
@@ -45,19 +46,22 @@ public class CsvImporter extends Importer {
 
 	private List<String[]> lines;
 
-	@SuppressWarnings("unchecked")
-	public CsvImporter(Injector injector,  Map<String, Object> properties, UserDispatch.UserExecutionContext executionContext) throws CommandException {
-		super(injector,properties, executionContext);
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setInputStream(InputStream inputStream) throws IOException {
 		
-		if(properties.get("importedCsvDocument") != null && properties.get("importedCsvDocument") instanceof List<?>){
-			lines = (List<String[]>) properties.get("importedCsvDocument");
-		}
-		
-		getCorrespondances(schemeModelList);
+		final String stringFromStream = inputStreamToString(inputStream, "UTF-8");
+		this.lines = new CsvParser().parseCsv(stringFromStream);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	protected void getCorrespondances(List<ImportationSchemeModelDTO> schemeModelList) throws CommandException {
+	public void getCorrespondances() throws CommandException {
+		
 		for (ImportationSchemeModelDTO schemeModelDTO : schemeModelList) {
 			// GetThe variable and the flexible element for the identification
 
@@ -71,21 +75,17 @@ public class CsvImporter extends Importer {
 					getCorrespondancePerSheetOrLine(schemeModelDTO, i, null);
 				}
 				break;
-			case SEVERAL:
-				logWarnFormatImportTypeIncoherence();
-				break;
-			case UNIQUE:
-				logWarnFormatImportTypeIncoherence();
-				break;
 			default:
 				logWarnFormatImportTypeIncoherence();
 				break;
 
 			}
 		}
-
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String getValueFromVariable(String reference, Integer lineNumber, String sheetName) throws FunctionalException {
 	
@@ -107,18 +107,38 @@ public class CsvImporter extends Importer {
 					}
 				}
 				break;
-			case SEVERAL:
-				logWarnFormatImportTypeIncoherence();
-				break;
-			case UNIQUE:
-				logWarnFormatImportTypeIncoherence();
-				break;
 			default:
+				logWarnFormatImportTypeIncoherence();
 				break;
-
 			}
 		}
 		return columnValue;
+	}
+	
+	/**
+	 * Read fully the given input stream and return it as a <code>String</code>.
+	 * <p/>
+	 * The input stream is not closed by this method.
+	 * 
+	 * @param inputStream 
+	 *          Stream to read.
+	 * @param encoding
+	 *          Encoding to use.
+	 * @return The content of the input stream as a <code>String</code>.
+	 * @throws IOException If an error occur while reading the stream.
+	 */
+	private String inputStreamToString(final InputStream inputStream, final String encoding) throws IOException {
+		final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+		
+		final byte[] bytes = new byte[1024];
+
+		int length = inputStream.read(bytes);
+		while(length > 0) {
+			outputStream.write(bytes, 0, length);
+			length = inputStream.read(bytes);
+		}
+		
+		return outputStream.toString(encoding);
 	}
 
 }

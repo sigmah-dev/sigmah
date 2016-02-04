@@ -199,6 +199,11 @@
 
 		<log.pattern>[%-5level] {%d{dd/MM/yyyy HH:mm:ss.SSS}} [%thread] %logger{35} - %msg%n</log.pattern>
 		<log.level>ERROR</log.level> <!-- Available levels: ALL, TRACE, DEBUG, INFO, WARN, ERROR, OFF. -->
+		
+		<!-- Included languages and browsers. -->
+		
+		<module.local>fr,en_GB,es</module.local>
+		<module.extension></module.extension>
 
 		<!-- Default database access properties, shared by both Flyway and Hibernate (may be override in profiles) -->
 
@@ -211,8 +216,9 @@
 		<hibernate.dialect>org.hibernate.dialect.PostgreSQLDialect</hibernate.dialect>
 		<hibernate.connection.driver_class>org.postgresql.Driver</hibernate.connection.driver_class>
 		<hibernate.hbm2ddl.auto>update</hibernate.hbm2ddl.auto>
-		<hibernate.show_sql>true</hibernate.show_sql>
-		<hibernate.format_sql>true</hibernate.format_sql>
+		<hibernate.show_sql>false</hibernate.show_sql>
+		<hibernate.format_sql>false</hibernate.format_sql>
+		<!-- (Database access must be configured into profiles.) -->
 		<hibernate.connection.url>${sigmah.database.url}</hibernate.connection.url>
 		<hibernate.connection.username>${sigmah.database.user}</hibernate.connection.username>
 		<hibernate.connection.password>${sigmah.database.password}</hibernate.connection.password>
@@ -936,12 +942,35 @@
 	<profiles>
 		
 		<!-- ========= [ LOCAL DEVELOPMENT ENVIRONMENT. ] ========= -->
+		
+		<profile>
+			<id>release</id>
+			<build>
+				<resources>
+					<resource>
+						<directory>src/release/resources</directory>
+					</resource>
+				</resources>
+			</build>
+		</profile>
 
 		<profile>
 			<id>sigmah-dev</id>
+			<build>
+				<resources>
+					<resource>
+						<directory>src/dev/resources</directory>
+					</resource>
+				</resources>
+			</build>
 			<properties>
 
 				<gwt.style>PRETTY</gwt.style>
+				
+				<!-- Module properties. -->
+				
+				<module.local>fr</module.local>
+				<module.extension><![CDATA[<set-property name="user.agent" value="gecko1_8" />]]></module.extension>
 
 				<!-- Logger properties. -->
 
@@ -949,84 +978,130 @@
 
 				<!-- Hibernate properties. -->
 
-				<hibernate.show_sql>true</hibernate.show_sql>
+				<sigmah.database.url>jdbc:postgresql://localhost:5432/sigmah2</sigmah.database.url>
+				<sigmah.database.user>sigmah</sigmah.database.user>
+				<sigmah.database.password>sigmah</sigmah.database.password>
 				
 				<!-- Mailer properties. -->
 
 				<mail.from.name>Sigmah - DEV</mail.from.name>
+				<mail.hostname>mail.netapsys.fr</mail.hostname>
+				<mail.from.address>urd-sigmah@netapsys.fr</mail.from.address>
+				<mail.auth.username>urd-sigmah@netapsys.fr</mail.auth.username>
+				<mail.auth.password>9TgSMAZK</mail.auth.password>
 
-				<!-- Overrride properties for your local profile here... -->
+				<!-- Override properties for your local profile here... -->
+				
+				<!-- Root directory where files and org logos are stored. -->
+				<files.repository.name>${basedir}/../../repository/files</files.repository.name>
+				<!-- Root directory where backup archives (zips) are stored. -->
+				<archives.repository.name>${basedir}/../../repository/archives</archives.repository.name>
 
 			</properties>
 		</profile>
-		        
+
+		<profile>
+			<id>jenkins</id>
+			<build>
+				<resources>
+					<resource>
+						<directory>src/dev/resources</directory>
+					</resource>
+				</resources>
+			</build>
+			<properties>
+				
+				<!-- Module properties. -->
+
+				<module.local>fr</module.local>
+				<module.extension><![CDATA[<set-property name="user.agent" value="gecko1_8" />]]></module.extension>
+				
+				<!-- Logger properties. -->
+
+				<log.level>OFF</log.level>
+
+				<!-- Hibernate properties. -->
+
+				<sigmah.database.url>jdbc:postgresql://sigmah-integ.pr.netapsys.fr:5432/sigmah-demo</sigmah.database.url>
+				<sigmah.database.user>sigmah</sigmah.database.user>
+				<sigmah.database.password>sigmah</sigmah.database.password>
+				
+				<!-- Mailer properties. -->
+
+				<mail.from.name>Sigmah - INTEG</mail.from.name>
+
+				<!-- Override properties for your local profile here... -->
+
+			</properties>
+		</profile>
+
 		<!-- ========= [ HANDICAP INTERNATIONAL SPECIAL VERSION. ] ========= -->
-                <profile>
-                        <id>sigmah-custom-handicapinternational</id>
+		<profile>
+			<id>sigmah-custom-handicapinternational</id>
 
-                        <build>
-                                <finalName>sigmah-hi_v${project.version}</finalName>
-                                <plugins>
-                                        <plugin>
-                                                <groupId>com.google.code.maven-replacer-plugin</groupId>
-                                                <artifactId>replacer</artifactId>
-                                                <version>1.5.3</version>
-                                                <executions>
-                                                        <execution>
-                                                                <phase>process-sources</phase>
-                                                                <goals>
-                                                                        <goal>replace</goal>
-                                                                </goals>
-                                                        </execution>
-                                                </executions>
+			<build>
+				<finalName>sigmah-hi_v${project.version}</finalName>
+				<plugins>
+					<plugin>
+						<groupId>com.google.code.maven-replacer-plugin</groupId>
+						<artifactId>replacer</artifactId>
+						<version>1.5.3</version>
+						<executions>
+							<execution>
+								<phase>process-sources</phase>
+								<goals>
+									<goal>replace</goal>
+								</goals>
+							</execution>
+						</executions>
 
-                                                <configuration>
-                                                        <basedir>${basedir}</basedir>
-                                                        <filesToInclude>
-                                                                src/main/resources/org/sigmah/client/i18n/UIConstants.properties,
-                                                                src/main/resources/org/sigmah/client/i18n/UIConstants_en_GB.properties
-                                                        </filesToInclude>
-                                                        <replacements>
-                                                                <replacement>
-                                                                        <token>createProjectTypeNGO=In-house project
-                                                                        </token>
-                                                                        <value>createProjectTypeNGO=Implemented
-                                                                                project
-                                                                        </value>
-                                                                </replacement>
-                                                        </replacements>
-                                                </configuration>
-                                        </plugin>
+						<configuration>
+							<basedir>${basedir}</basedir>
+							<filesToInclude>
+								src/main/resources/org/sigmah/client/i18n/UIConstants.properties,
+								src/main/resources/org/sigmah/client/i18n/UIConstants_en_GB.properties
+							</filesToInclude>
+							<replacements>
+								<replacement>
+									<token>createProjectTypeNGO=In-house project
+									</token>
+									<value>createProjectTypeNGO=Implemented
+										project
+									</value>
+								</replacement>
+							</replacements>
+						</configuration>
+					</plugin>
 
 
-                                        <plugin>
-                                                <groupId>org.sigmah</groupId>
-                                                <artifactId>sigmah-maven-plugin</artifactId>
-                                                <version>${maven-sigmah-plugin.version}</version>
-                                                <executions>
-                                                        <execution>
-                                                                <phase>process-sources</phase>
-                                                                <goals>
-                                                                        <goal>sigmah</goal>
-                                                                </goals>
-                                                        </execution>
-                                                </executions>
-                                                <configuration>
-                                                        <version>
-                                                                <!-- Maven property: ${sigmah.version.number} -->
-                                                                <number>${project.version}-hi</number>
-                                                                <!-- Maven property: ${sigmah.version.name} -->
-                                                                <name>Handicap International custom version</name>
-                                                                <!-- Maven property: ${sigmah.version.date} -->
-                                                        </version>
-                                                </configuration>
-                                        </plugin>
+					<plugin>
+						<groupId>org.sigmah</groupId>
+						<artifactId>sigmah-maven-plugin</artifactId>
+						<version>${maven-sigmah-plugin.version}</version>
+						<executions>
+							<execution>
+								<phase>process-sources</phase>
+								<goals>
+									<goal>sigmah</goal>
+								</goals>
+							</execution>
+						</executions>
+						<configuration>
+							<version>
+								<!-- Maven property: ${sigmah.version.number} -->
+								<number>${project.version}-hi</number>
+								<!-- Maven property: ${sigmah.version.name} -->
+								<name>Handicap International custom version</name>
+								<!-- Maven property: ${sigmah.version.date} -->
+							</version>
+						</configuration>
+					</plugin>
 
-                                </plugins>
+				</plugins>
 
-                        </build>
+			</build>
 
-                </profile>
+		</profile>
 		
 	</profiles>
 
