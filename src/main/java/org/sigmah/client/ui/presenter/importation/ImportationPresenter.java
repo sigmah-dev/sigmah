@@ -22,6 +22,7 @@ package org.sigmah.client.ui.presenter.importation;
  * #L%
  */
 
+import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FormEvent;
@@ -67,6 +68,7 @@ import org.sigmah.client.ui.widget.button.Button;
 import org.sigmah.client.ui.widget.form.Forms;
 import org.sigmah.offline.fileapi.Blob;
 import org.sigmah.shared.command.AmendmentActionCommand;
+import org.sigmah.shared.command.AutomatedImport;
 import org.sigmah.shared.command.BatchCommand;
 import org.sigmah.shared.command.GetImportInformation;
 import org.sigmah.shared.command.GetImportationSchemes;
@@ -109,6 +111,10 @@ public class ImportationPresenter extends AbstractPagePresenter<ImportationPrese
 	public static interface View extends AbstractProjectPresenter.View, HasForm {
 		Field<ImportationSchemeDTO> getSchemeField();
 		FileUploadField getFileField();
+		Field<Boolean> getAutomatedField();
+		Field<Boolean> getNewProjectsPolicyField();
+		Field<Boolean> getProjectCorePolicyField();
+		Field<Boolean> getMultipleMatchPolicyField();
 		Button getImportButton();
 		
 		ImportDetailsPopup getImportDetailsPopup();
@@ -185,6 +191,29 @@ public class ImportationPresenter extends AbstractPagePresenter<ImportationPrese
 				if(blob != null) {
 					fileName = blob.getName();
 				}
+			}
+		});
+		
+		view.getSchemeField().addListener(Events.Select, new Listener<BaseEvent>() {
+			
+			@Override
+			public void handleEvent(BaseEvent be) {
+				view.getImportButton().setEnabled(view.getSchemeField().getValue() != null);
+			}
+		});
+		
+		// --
+		// Visibility of the automated options.
+		// --
+		view.getAutomatedField().addListener(Events.OnChange, new Listener<BaseEvent>() {
+			
+			@Override
+			public void handleEvent(BaseEvent be) {
+				final boolean visible = view.getAutomatedField().getValue();
+				
+				view.getNewProjectsPolicyField().setVisible(visible);
+				view.getProjectCorePolicyField().setVisible(visible);
+				view.getMultipleMatchPolicyField().setVisible(visible);
 			}
 		});
 		
@@ -274,7 +303,9 @@ public class ImportationPresenter extends AbstractPagePresenter<ImportationPrese
 			protected void onCommandSuccess(ListResult<ImportationSchemeDTO> result) {
 				view.getSchemeListStore().add(result.getList());
 			}
-		}, view.getImportButton());
+		});
+		
+		view.getImportButton().disable();
 		
 		// Register events.
 		registerEvents();
@@ -336,7 +367,11 @@ public class ImportationPresenter extends AbstractPagePresenter<ImportationPrese
 	private void onSubmit(String result) {
 		switch (ServletConstants.getErrorCode(result)) {
 			case Response.SC_OK:
-				loadImportResults(result);
+				if (view.getAutomatedField().getValue()) {
+					doAutomatedImport(result);
+				} else {
+					loadImportResults(result);
+				}
 				break;
 
 			default:
@@ -345,7 +380,25 @@ public class ImportationPresenter extends AbstractPagePresenter<ImportationPrese
 		}
 	}
 	
+	private void doAutomatedImport(String fileId) {
+		
+		dispatch.execute(new AutomatedImport(fileId, fileName,
+				view.getSchemeField().getValue(), 
+				view.getNewProjectsPolicyField().getValue(), 
+				view.getProjectCorePolicyField().getValue(), 
+				view.getMultipleMatchPolicyField().getValue()), 
+				new CommandResultHandler<Result>() {
+
+			@Override
+			protected void onCommandSuccess(Result result) {
+				// TODO: Shows result popup.
+				view.hide();
+			}
+		}, view.getImportButton());
+	}
+	
 	private void loadImportResults(String fileId) {
+		
 		this.lastFileId = fileId;
 		
 		dispatch.execute(new GetImportInformation(fileId, view.getSchemeField().getValue()), new CommandResultHandler<ImportInformationResult>() {
@@ -362,6 +415,7 @@ public class ImportationPresenter extends AbstractPagePresenter<ImportationPrese
 	}
 	
 	private void refreshResults() {
+		
 		if(lastFileId != null) {
 			final ImportDetailsPopup popup = view.getImportDetailsPopup();
 			
@@ -378,6 +432,7 @@ public class ImportationPresenter extends AbstractPagePresenter<ImportationPrese
 	}
 	
 	private Button renderCreateButton(final ImportDetails model) {
+		
 		final Button createButton = Forms.button(I18N.CONSTANTS.createProjectCreateButton());
 		
 		createButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
@@ -444,6 +499,7 @@ public class ImportationPresenter extends AbstractPagePresenter<ImportationPrese
 	}
 	
 	private void addAllChanges(final ImportDetails model) {
+		
 		final Map<EntityDTO<Integer>, List<ElementExtractedValue>> entities = model.getEntitiesToImport();
 		
 		if(!entities.keySet().isEmpty()) {
@@ -455,6 +511,7 @@ public class ImportationPresenter extends AbstractPagePresenter<ImportationPrese
 	}
 	
 	private Button renderConfirmButton(final ImportDetails model) {
+		
 		final Button confirmButton = Forms.button(I18N.CONSTANTS.importButtonConfirmDetails());
 		
 		confirmButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
@@ -486,6 +543,7 @@ public class ImportationPresenter extends AbstractPagePresenter<ImportationPrese
 	}
 	
 	private Button renderUnlockButton(final ImportDetails model) {
+		
 		final Button unlockButton = Forms.button(I18N.CONSTANTS.projectCoreUnlockButton());
 		
 		unlockButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
@@ -515,6 +573,7 @@ public class ImportationPresenter extends AbstractPagePresenter<ImportationPrese
 	}
 	
 	private Panel renderChoosePanel(final ImportDetails model) {
+		
 		// Project/orgUnit combobox.
 		final ComboBox<DefaultFlexibleElementContainer> comboBox = Forms.combobox(null, false, ProjectDTO.ID, ProjectDTO.NAME, I18N.CONSTANTS.formWindowListEmptyText());
 		for(final EntityDTO<?> entity : model.getEntitiesToImport().keySet()) {
@@ -563,6 +622,7 @@ public class ImportationPresenter extends AbstractPagePresenter<ImportationPrese
 	 * Apply all the selected changes.
 	 */
 	private void onImport() {
+		
 		final List<ImportDetails> selection = view.getImportDetailsPopup().getSelection();
 		
 		if(!selection.isEmpty()) {

@@ -1,5 +1,6 @@
 package org.sigmah.server.servlet.importer;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.sigmah.shared.command.AutomatedImport;
@@ -9,7 +10,6 @@ import org.sigmah.shared.dto.ElementExtractedValue;
 import org.sigmah.shared.dto.ImportDetails;
 import org.sigmah.shared.dto.base.EntityDTO;
 import org.sigmah.shared.dto.element.event.ValueEvent;
-import org.sigmah.shared.util.Collections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,18 +72,14 @@ public class AutomatedImporter {
 	 */
 	private void updateContainerWithDetails(final EntityDTO<Integer> container, final List<ElementExtractedValue> extractedValues, final String fileName) {
 		
-		final List<ValueEvent> values = Collections.map(extractedValues, new Collections.OptionnalMapper<ElementExtractedValue, ValueEvent>() {
+		final ArrayList<ValueEvent> values = new ArrayList<>();
+		for (final ElementExtractedValue value : extractedValues) {
+			final ValueEvent event = value != null ? value.toValueEvent() : null;
 			
-			@Override
-			public boolean skipEntry(ElementExtractedValue entry) {
-				return entry == null;
+			if (event != null) {
+				values.add(event);
 			}
-
-			@Override
-			public ValueEvent forEntry(ElementExtractedValue entry) {
-				return entry.toValueEvent();
-			}
-		});
+		};
 		
 		final UpdateProject updateProject = new UpdateProject(container.getId(), values, "Imported from file '" + fileName + "'.");
 		try {

@@ -12,6 +12,7 @@ import org.sigmah.shared.dto.importation.ImportationSchemeDTO;
  */
 public class AutomatedImport extends AbstractCommand<Result> {
 	
+	private String fileId;
 	private String fileName;
 	private ImportationSchemeDTO scheme;
 	
@@ -29,6 +30,8 @@ public class AutomatedImport extends AbstractCommand<Result> {
 	/**
 	 * Creates a new command with the given parameters.
 	 * 
+	 * @param fileId
+	 *			Identifier of the file to import.
 	 * @param fileName
 	 *			Name of the file to import.
 	 * @param scheme
@@ -43,12 +46,17 @@ public class AutomatedImport extends AbstractCommand<Result> {
 	 *			<code>true</code> to all the projects matching the identification key,
 	 *			<code>false</code> to skip those.
 	 */
-	public AutomatedImport(String fileName, ImportationSchemeDTO scheme, boolean createProjects, boolean unlockProjectCores, boolean updateAllMatches) {
+	public AutomatedImport(String fileId, String fileName, ImportationSchemeDTO scheme, boolean createProjects, boolean unlockProjectCores, boolean updateAllMatches) {
+		this.fileId = fileId;
 		this.fileName = fileName;
 		this.scheme = scheme;
 		this.createProjects = createProjects;
 		this.unlockProjectCores = unlockProjectCores;
 		this.updateAllMatches = updateAllMatches;
+	}
+
+	public String getFileId() {
+		return fileId;
 	}
 
 	public String getFileName() {

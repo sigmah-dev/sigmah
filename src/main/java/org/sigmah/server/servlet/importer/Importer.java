@@ -620,7 +620,6 @@ public abstract class Importer implements Iterator<ImportDetails> {
 				break;
 				
 			case DEFAULT:
-				DefaultFlexibleElement dfDTO = (DefaultFlexibleElement) flexibleElement;
 				if (!stringValue.isEmpty()) {
 					switch (type.toDefaultFlexibleElementType()) {
 						case START_DATE:

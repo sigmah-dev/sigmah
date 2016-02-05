@@ -97,7 +97,7 @@ public class AutomatedImporterTest extends AbstractDaoTest {
 		
 		importer.setInputStream(getClass().getResourceAsStream("import.csv"));
 		
-		final AutomatedImport configuration = new AutomatedImport("import.csv", getImportationScheme(), false, false, false);
+		final AutomatedImport configuration = new AutomatedImport("1234", "import.csv", getImportationScheme(), false, false, false);
 		
 		final AutomatedImporter instance = new AutomatedImporter(importer);
 		instance.importCorrespondances(configuration);

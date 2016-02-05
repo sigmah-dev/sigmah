@@ -23,6 +23,7 @@ package org.sigmah.client.ui.view.importation;
  */
 
 import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FileUploadField;
@@ -55,11 +56,18 @@ public class ImportationView extends AbstractPopupView<PopupWidget> implements I
 	
 	private ImportDetailsPopup importDetailsPopup;
 	private ElementExtractedValuePopup elementExtractedValuePopup;
+	private CheckBox automatedField;
+	private CheckBox newProjectsPolicyField;
+	private CheckBox projectCorePolicyField;
+	private CheckBox multipleMatchPolicyField;
 	
 	public ImportationView() {
 		super(new PopupWidget(true));
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void initialize() {
 		// Importation details popup.
@@ -78,6 +86,12 @@ public class ImportationView extends AbstractPopupView<PopupWidget> implements I
 		fileField = Forms.upload(I18N.CONSTANTS.adminFileImport());
 		fileField.setName(FileUploadUtils.DOCUMENT_CONTENT);
 		
+		// Automated import fields.
+		automatedField = Forms.checkbox(null, null, I18N.CONSTANTS.USE_AUTOMATED_IMPORT(), true);
+		newProjectsPolicyField = Forms.checkbox(I18N.CONSTANTS.AUTOMATED_IMPORT_CREATE_PROJECTS_YES(), null, I18N.CONSTANTS.AUTOMATED_IMPORT_CREATE_PROJECTS(), false);
+		projectCorePolicyField = Forms.checkbox(I18N.CONSTANTS.AUTOMATED_IMPORT_CORE_UNLOCK_YES(), null, I18N.CONSTANTS.AUTOMATED_IMPORT_CORE_UNLOCK(), false);
+		multipleMatchPolicyField = Forms.checkbox(I18N.CONSTANTS.AUTOMATED_IMPORT_MULTIPLE_MATCHES_UPDATE_YES(), null, I18N.CONSTANTS.AUTOMATED_IMPORT_MULTIPLE_MATCHES_UPDATE(), false);
+		
 		// Import button.
 		importButton = Forms.button(I18N.CONSTANTS.importItem());
 		
@@ -85,11 +99,18 @@ public class ImportationView extends AbstractPopupView<PopupWidget> implements I
 		form = Forms.panel();
 		form.add(schemeField);
 		form.add(fileField);
+		form.add(automatedField);
+		form.add(newProjectsPolicyField);
+		form.add(projectCorePolicyField);
+		form.add(multipleMatchPolicyField);
 		form.addButton(importButton);
 		
 		initPopup(form);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public FormPanel[] getForms() {
 		return new FormPanel[] {
@@ -97,31 +118,81 @@ public class ImportationView extends AbstractPopupView<PopupWidget> implements I
 		};
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Field<ImportationSchemeDTO> getSchemeField() {
 		return schemeField;
 	}
-
+	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public FileUploadField getFileField() {
 		return fileField;
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Field<Boolean> getAutomatedField() {
+		return automatedField;
+	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Field<Boolean> getNewProjectsPolicyField() {
+		return newProjectsPolicyField;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Field<Boolean> getProjectCorePolicyField() {
+		return projectCorePolicyField;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Field<Boolean> getMultipleMatchPolicyField() {
+		return multipleMatchPolicyField;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Button getImportButton() {
 		return importButton;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public ListStore<ImportationSchemeDTO> getSchemeListStore() {
 		return schemeField.getStore();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public ImportDetailsPopup getImportDetailsPopup() {
 		return importDetailsPopup;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public ElementExtractedValuePopup getElementExtractedValuePopup() {
 		return elementExtractedValuePopup;
