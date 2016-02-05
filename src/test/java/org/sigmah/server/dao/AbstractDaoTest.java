@@ -24,9 +24,11 @@ package org.sigmah.server.dao;
 
 import org.junit.runner.RunWith;
 import org.sigmah.server.dao.base.EntityManagerProvider;
+import org.sigmah.server.inject.CommandHandlerModule;
 import org.sigmah.server.inject.ConfigurationModule;
 import org.sigmah.server.inject.GuiceJUnitRunner;
 import org.sigmah.server.inject.GuiceJUnitRunner.GuiceModules;
+import org.sigmah.server.inject.I18nServerModule;
 import org.sigmah.server.inject.MapperModule;
 import org.sigmah.server.inject.PersistenceModule;
 import org.sigmah.server.inject.SecurityModule;
@@ -38,10 +40,12 @@ import org.sigmah.server.inject.SecurityModule;
  */
 @RunWith(GuiceJUnitRunner.class)
 @GuiceModules({
-								ConfigurationModule.class,
-								PersistenceModule.class,
-								SecurityModule.class,
-								MapperModule.class
+	ConfigurationModule.class,
+	PersistenceModule.class,
+	SecurityModule.class,
+	MapperModule.class,
+	I18nServerModule.class,
+	CommandHandlerModule.class
 })
 public abstract class AbstractDaoTest extends EntityManagerProvider {
 

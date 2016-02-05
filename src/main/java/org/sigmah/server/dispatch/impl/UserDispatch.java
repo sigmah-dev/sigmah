@@ -92,7 +92,7 @@ public class UserDispatch implements Dispatch {
 
 			this.dispatch = dispatch;
 			this.commandResults = new java.util.ArrayList<CommandResult<?, ?>>();
-			this.applicationUrl = request.getHeader("Referer").split(PageRequest.URL_TOKEN)[0];
+			this.applicationUrl = request != null ? request.getHeader("Referer").split(PageRequest.URL_TOKEN)[0] : null;
 		}
 
 		/**
@@ -243,7 +243,7 @@ public class UserDispatch implements Dispatch {
 			throws DispatchException {
 
 		// Builds a new user execution context.
-		final UserExecutionContext context = new UserExecutionContext(this, user, request, commandExecution.getCurrentPageToken());
+		final UserExecutionContext context = createContext(user, request, commandExecution.getCurrentPageToken());
 
 		try {
 
@@ -276,7 +276,7 @@ public class UserDispatch implements Dispatch {
 			throws DispatchException {
 		
 		// Builds a new user execution context.
-		final UserExecutionContext context = new UserExecutionContext(this, executionContext.getUser(), executionContext.getRequest(), null);
+		final UserExecutionContext context = createContext(executionContext.getUser(), executionContext.getRequest(), null);
 
 		try {
 			// Tries to execute the action.
@@ -287,6 +287,23 @@ public class UserDispatch implements Dispatch {
 			context.rollback();
 			throw e;
 		}
+	}
+	
+	/**
+	 * Creates a new <code>UserExecutionContext</code> for the given request and
+	 * user.
+	 * 
+	 * @param user
+	 *          The user executing the command.
+	 * @param request
+	 *          The servlet HTTP request.
+	 * @param originPageToken
+	 *          Token of the page.
+	 * @return A new <code>UserExecutionContext</code>.
+	 */
+	public UserExecutionContext createContext(final User user, final HttpServletRequest request, final String originPageToken) {
+		
+		return new UserExecutionContext(this, user, request, originPageToken);
 	}
 
 	/**
