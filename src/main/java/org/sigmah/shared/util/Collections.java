@@ -106,11 +106,34 @@ public final class Collections {
 			builder.append(mapper.forEntry(entry)).append(separator);
 		}
 
-		final int builderLength = builder.length();
-		if (builderLength > 0) {
-			builder.setLength(builderLength - separator.length());
-		}
+		removeLastSeparator(builder, separator);
+        return builder.toString();
+    }
+
+    /**
+     * Join the elements of the collection with the given separator.
+     * 
+     * @param <T>
+     *          Type of the elements contained in the collection.
+     * @param collection
+     *          Collection of elements.
+     * @param mapper
+     *          Transform the content of the collection to <code>String</code>.
+     * @param separator
+     *          Separator to insert between each element.
+     * @return A new string joining every elements in the collection with the given separator.
+     */
+    public static <T> String join(final Collection<T> collection, final OptionnalMapper<T, String> mapper, final String separator) {
 		
+        final StringBuilder builder = new StringBuilder();
+        
+		for (final T entry : collection) {
+			if (!mapper.skipEntry(entry)) {
+				builder.append(mapper.forEntry(entry)).append(separator);
+			}
+		}
+
+		removeLastSeparator(builder, separator);
         return builder.toString();
     }
     
@@ -136,13 +159,60 @@ public final class Collections {
         }
         
         return list;
-    } 
+    }
     
     /**
-     * Simple filter interface.
+     * Creates a list by mapping the elements from the given collection.
+	 * <p>
+	 * The elements identified as skippable from the given mapper will not be
+	 * included in the returned list.
      * 
-     * @param <S> Source type.
-     * @param <D> Destination type.
+     * @param <S>
+     *          Source type.
+     * @param <D>
+     *          Destination type.
+     * @param collection
+     *          Collection to map.
+     * @param mapper
+     *          Mapper from S to D.
+     * @return A new list.
+     */
+    public static <S, D> List<D> map(final Collection<S> collection, final OptionnalMapper<S, D> mapper) {
+		
+        final ArrayList<D> list = new ArrayList<D>();
+        
+        for (final S entry : collection) {
+			if (!mapper.skipEntry(entry)) {
+				list.add(mapper.forEntry(entry));
+			}
+        }
+        
+        return list;
+    }
+	
+	/**
+	 * Removes the last separator in the given <code>StringBuilder</code>.
+	 * 
+	 * @param builder
+	 *          StringBuilder to modify.
+	 * @param separator 
+	 *          Separator to remove.
+	 */
+	private static void removeLastSeparator(final StringBuilder builder, final String separator) {
+		
+		final int builderLength = builder.length();
+		if (builderLength > 0) {
+			builder.setLength(builderLength - separator.length());
+		}
+	}
+    
+    /**
+     * Simple mapper interface.
+     * 
+     * @param <S>
+     *          Source type.
+     * @param <D>
+     *          Destination type.
      */
     public interface Mapper<S, D> {
         
@@ -154,7 +224,29 @@ public final class Collections {
          * @return The element converted.
          */
         D forEntry(S entry);
-        
+		
     }
+	
+	/**
+	 * Mapper interface for collections with optional elements.
+	 * 
+	 * @param <S>
+     *          Source type.
+     * @param <D>
+     *          Destination type.
+	 */
+	public interface OptionnalMapper<S, D> extends Mapper<S, D> {
+		
+		/**
+		 * Decide if the given entry should be mapped or not.
+		 * 
+		 * @param entry
+		 *          Entry to verify.
+		 * @return <code>true</code> to skip the given entry, 
+		 * <code>false</code> otherwise.
+		 */
+		boolean skipEntry(S entry);
+		
+	}
     
 }

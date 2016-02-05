@@ -30,7 +30,16 @@ import org.sigmah.shared.dto.element.FlexibleElementDTO;
 import org.sigmah.shared.dto.referential.ElementExtractedValueStatus;
 
 import com.extjs.gxt.ui.client.data.BaseModel;
+import java.util.Date;
 import org.sigmah.shared.dto.base.DTO;
+import org.sigmah.shared.dto.element.BudgetSubFieldDTO;
+import org.sigmah.shared.dto.element.event.ValueEvent;
+import org.sigmah.shared.dto.referential.LogicalElementType;
+import org.sigmah.shared.dto.referential.LogicalElementTypes;
+import org.sigmah.shared.dto.referential.TextAreaType;
+import org.sigmah.shared.dto.referential.ValueEventChangeType;
+import org.sigmah.shared.dto.value.TripletValueDTO;
+import org.sigmah.shared.util.ValueResultUtils;
 
 /**
  * Represents the association between a {@link FlexibleElementDTO} and its new value for the importation
@@ -54,6 +63,86 @@ public class ElementExtractedValue extends BaseModel implements Serializable, DT
 
 	public ElementExtractedValue() {
 		// Serialization.
+	}
+	
+	/**
+	 * Creates an new {@link ValueEvent} from the value of this element.
+	 * 
+	 * @return A new <code>ValueEvent</code>.
+	 */
+	public ValueEvent toValueEvent() {
+		
+		if (status != ElementExtractedValueStatus.VALID_VALUE) {
+			return null;
+		}
+
+		final LogicalElementType type = LogicalElementTypes.of(element);
+		
+		switch (type.toElementTypeEnum()) {
+			case CHECKBOX:
+				if (newValue instanceof Boolean) {
+					return new ValueEvent(element, newValue.toString());
+				}
+				break;
+
+			case DEFAULT:
+				switch (type.toDefaultFlexibleElementType()) {
+					case BUDGET:
+						final HashMap<BudgetSubFieldDTO, String> budgetMap = new HashMap<BudgetSubFieldDTO, String>();
+
+						// Putting old values first.
+						for (final Map.Entry<Integer, String> entry : oldBudgetValues.entrySet()) {
+							budgetMap.put(new BudgetSubFieldDTO(entry.getKey()), entry.getValue());
+						}
+
+						// Replacing old values with the new ones.
+						for (final Map.Entry<Integer, Serializable> entry : newBudgetValues.entrySet()) {
+							budgetMap.put(new BudgetSubFieldDTO(entry.getKey()), entry.getValue().toString()); 
+						}
+
+						return new ValueEvent(element, ValueResultUtils.mergeElements(budgetMap));
+
+					case MANAGER:
+					case OWNER:
+					case ORG_UNIT:
+					case COUNTRY:
+					case CODE:
+					case TITLE:
+						return new ValueEvent(element, String.valueOf(newValue));
+
+					case START_DATE:
+					case END_DATE:
+						return new ValueEvent(element, dateToString(newValue));
+
+					default:
+						break;
+				}
+				break;
+
+			case QUESTION:
+				return new ValueEvent(element, String.valueOf(newValue));
+
+			case TEXT_AREA:
+				if (type.toTextAreaType() == TextAreaType.DATE) {
+					return new ValueEvent(element, dateToString(newValue));
+				} else {
+					return new ValueEvent(element, String.valueOf(newValue));
+				}
+
+			case TRIPLETS:
+				final String[] tripletValues = (String[]) newValue;
+
+				final TripletValueDTO addedValue = new TripletValueDTO();
+				addedValue.setCode(tripletValues[0]);
+				addedValue.setName(tripletValues[1]);
+				addedValue.setPeriod(tripletValues[2]);
+
+				return new ValueEvent(element, addedValue, ValueEventChangeType.ADD);
+
+			default:
+				break;
+		}
+		return null;
 	}
 
 	/**
@@ -144,6 +233,16 @@ public class ElementExtractedValue extends BaseModel implements Serializable, DT
 	 */
 	public void setOldBudgetValues(Map<Integer, String> oldBudgetValues) {
 		this.oldBudgetValues = oldBudgetValues;
+	}
+	
+	private String dateToString(Serializable serializable) {
+		if(serializable instanceof Date) {
+			final Date date = (Date) serializable;
+			return Long.toString(date.getTime());
+			
+		} else {
+			return "null";
+		}
 	}
 
 }

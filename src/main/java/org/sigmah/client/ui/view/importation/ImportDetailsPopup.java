@@ -186,11 +186,11 @@ public class ImportDetailsPopup extends PopupWidget implements HasGrid<ImportDet
 			@Override
 			public Object render(final ImportDetails model, String property, ColumnData config, int rowIndex,
 			                int colIndex, ListStore<ImportDetails> store, Grid<ImportDetails> grid) {
-				final Set<EntityDTO<?>> entitySet = model.getEntitiesToImport().keySet();
+				final Set<EntityDTO<Integer>> entitySet = model.getEntitiesToImport().keySet();
 				
 				if (!entitySet.isEmpty()) {
-					final Iterator<EntityDTO<?>> iterator = entitySet.iterator();
-					final EntityDTO<?> entity = iterator.next();
+					final Iterator<EntityDTO<Integer>> iterator = entitySet.iterator();
+					final EntityDTO<Integer> entity = iterator.next();
 					
 					if (entity instanceof ProjectDTO) {
 						final ProjectDTO project = (ProjectDTO) entity;
@@ -212,10 +212,10 @@ public class ImportDetailsPopup extends PopupWidget implements HasGrid<ImportDet
 			@Override
 			public Object render(final ImportDetails model, String property, ColumnData config, int rowIndex,
 			                int colIndex, ListStore<ImportDetails> store, Grid<ImportDetails> grid) {
-				final Set<EntityDTO<?>> entitySet = model.getEntitiesToImport().keySet();
+				final Set<EntityDTO<Integer>> entitySet = model.getEntitiesToImport().keySet();
 				
 				if (!entitySet.isEmpty()) {
-					final Iterator<EntityDTO<?>> iterator = entitySet.iterator();
+					final Iterator<EntityDTO<Integer>> iterator = entitySet.iterator();
 					final EntityDTO<?> entity = iterator.next();
 					
 					if (entity instanceof ProjectDTO) {

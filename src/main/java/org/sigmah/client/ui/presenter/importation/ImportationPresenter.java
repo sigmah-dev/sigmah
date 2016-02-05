@@ -40,9 +40,7 @@ import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
-import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -84,22 +82,16 @@ import org.sigmah.shared.dto.element.BudgetElementDTO;
 import org.sigmah.shared.dto.element.BudgetSubFieldDTO;
 import org.sigmah.shared.dto.element.DefaultFlexibleElementContainer;
 import org.sigmah.shared.dto.element.DefaultFlexibleElementDTO;
-import org.sigmah.shared.dto.element.FlexibleElementDTO;
-import org.sigmah.shared.dto.element.TextAreaElementDTO;
 import org.sigmah.shared.dto.element.event.ValueEvent;
 import org.sigmah.shared.dto.importation.ImportationSchemeDTO;
 import org.sigmah.shared.dto.orgunit.OrgUnitDTO;
 import org.sigmah.shared.dto.referential.AmendmentAction;
 import org.sigmah.shared.dto.referential.BudgetSubFieldType;
 import org.sigmah.shared.dto.referential.DefaultFlexibleElementType;
-import org.sigmah.shared.dto.referential.ElementExtractedValueStatus;
 import org.sigmah.shared.dto.referential.ImportStatusCode;
 import org.sigmah.shared.dto.referential.ProjectModelStatus;
-import org.sigmah.shared.dto.referential.ValueEventChangeType;
-import org.sigmah.shared.dto.value.TripletValueDTO;
 import org.sigmah.shared.servlet.ServletConstants;
 import org.sigmah.shared.servlet.ServletUrlBuilder;
-import org.sigmah.shared.util.ValueResultUtils;
 
 /**
  * Data import presenter.
@@ -146,11 +138,17 @@ public class ImportationPresenter extends AbstractPagePresenter<ImportationPrese
 		changes = new HashMap<Integer, List<ElementExtractedValue>>();
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Page getPage() {
 		return Page.IMPORT_VALUES;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void onBind() {
 		setPageTitle(I18N.CONSTANTS.importItem());
@@ -254,6 +252,9 @@ public class ImportationPresenter extends AbstractPagePresenter<ImportationPrese
 		});
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void onPageRequest(PageRequest request) {
 		this.lastFileId = null;
@@ -279,6 +280,9 @@ public class ImportationPresenter extends AbstractPagePresenter<ImportationPrese
 		registerEvents();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void beforeLeaving(EventBus.LeavingCallback callback) {
 		// Stop listener to creation events.
@@ -380,9 +384,9 @@ public class ImportationPresenter extends AbstractPagePresenter<ImportationPrese
 
 			@Override
 			public void componentSelected(ButtonEvent ce) {
-				final Map<EntityDTO<?>, List<ElementExtractedValue>> entities = model.getEntitiesToImport();
+				final Map<EntityDTO<Integer>, List<ElementExtractedValue>> entities = model.getEntitiesToImport();
 				
-				final Iterator<EntityDTO<?>> iterator = entities.keySet().iterator();
+				final Iterator<EntityDTO<Integer>> iterator = entities.keySet().iterator();
 				final EntityDTO<?> notFoundEntity = iterator.next();
 
 				// Prepare the page request and select the creation type based 
@@ -440,13 +444,13 @@ public class ImportationPresenter extends AbstractPagePresenter<ImportationPrese
 	}
 	
 	private void addAllChanges(final ImportDetails model) {
-		final Map<EntityDTO<?>, List<ElementExtractedValue>> entities = model.getEntitiesToImport();
+		final Map<EntityDTO<Integer>, List<ElementExtractedValue>> entities = model.getEntitiesToImport();
 		
 		if(!entities.keySet().isEmpty()) {
-			final Iterator<EntityDTO<?>> iterator = entities.keySet().iterator();
-			final EntityDTO<?> entity = iterator.next();
+			final Iterator<EntityDTO<Integer>> iterator = entities.keySet().iterator();
+			final EntityDTO<Integer> entity = iterator.next();
 			
-			changes.put((Integer) entity.getId(), entities.get(entity));
+			changes.put(entity.getId(), entities.get(entity));
 		}
 	}
 	
@@ -457,13 +461,13 @@ public class ImportationPresenter extends AbstractPagePresenter<ImportationPrese
 
 			@Override
 			public void componentSelected(ButtonEvent ce) {
-				final Map<EntityDTO<?>, List<ElementExtractedValue>> entities = model.getEntitiesToImport();
+				final Map<EntityDTO<Integer>, List<ElementExtractedValue>> entities = model.getEntitiesToImport();
 				
 				if(!entities.keySet().isEmpty()) {
 					// Displaying the "select changes" popup.
 					final ElementExtractedValuePopup popup = view.getElementExtractedValuePopup();
 					
-					final Iterator<EntityDTO<?>> iterator = entities.keySet().iterator();
+					final Iterator<EntityDTO<Integer>> iterator = entities.keySet().iterator();
 					final EntityDTO<?> entity = iterator.next();
 					popup.setEntity(entity);
                     popup.setParentModel(model);
@@ -488,10 +492,10 @@ public class ImportationPresenter extends AbstractPagePresenter<ImportationPrese
 
 			@Override
 			public void componentSelected(ButtonEvent ce) {
-				final Iterator<EntityDTO<?>> iterator = model.getEntitiesToImport().keySet().iterator();
-				final EntityDTO<?> entityLocked = iterator.next();
+				final Iterator<EntityDTO<Integer>> iterator = model.getEntitiesToImport().keySet().iterator();
+				final EntityDTO<Integer> entityLocked = iterator.next();
 				
-				dispatch.execute(new AmendmentActionCommand((Integer)entityLocked.getId(), AmendmentAction.UNLOCK), new CommandResultHandler<ProjectDTO>() {
+				dispatch.execute(new AmendmentActionCommand(entityLocked.getId(), AmendmentAction.UNLOCK), new CommandResultHandler<ProjectDTO>() {
 
 					@Override
 					protected void onCommandSuccess(ProjectDTO result) {
@@ -524,13 +528,12 @@ public class ImportationPresenter extends AbstractPagePresenter<ImportationPrese
 
 			@Override
 			public void componentSelected(ButtonEvent ce) {
-				final DefaultFlexibleElementContainer container = comboBox.getValue();
-				if (container != null) {
+				final DefaultFlexibleElementContainer entity = comboBox.getValue();
+				if (entity != null) {
 					// Rebuild the "entitiesToImport" map.
-					final EntityDTO<?> entity = (EntityDTO<?>)container;
 					final List<ElementExtractedValue> extractedValues = model.getEntitiesToImport().get(entity);
 					
-					final HashMap<EntityDTO<?>, List<ElementExtractedValue>> entitiesToImport = new HashMap<EntityDTO<?>, List<ElementExtractedValue>>();
+					final HashMap<EntityDTO<Integer>, List<ElementExtractedValue>> entitiesToImport = new HashMap<EntityDTO<Integer>, List<ElementExtractedValue>>();
 					entitiesToImport.put(entity, extractedValues);
 					
 					// Update the importDetails.
@@ -570,12 +573,12 @@ public class ImportationPresenter extends AbstractPagePresenter<ImportationPrese
 				if(ImportStatusCode.isFound(importDetails.getEntityStatus()) && 
 					!importDetails.getEntitiesToImport().isEmpty()) {
 					// Prepare an UpdateProject command for this ImportDetails object.
-					final Iterator<EntityDTO<?>> iterator = importDetails.getEntitiesToImport().keySet().iterator();
-					final EntityDTO<?> selectedEntity = iterator.next();
-					final List<ValueEvent> values = toValueEvent(changes.get((Integer)selectedEntity.getId()));
+					final Iterator<EntityDTO<Integer>> iterator = importDetails.getEntitiesToImport().keySet().iterator();
+					final EntityDTO<Integer> selectedEntity = iterator.next();
+					final List<ValueEvent> values = toValueEvent(changes.get(selectedEntity.getId()));
 					
 					// Save the name of the project (to notify that this project has been updated).
-					if(selectedEntity instanceof ProjectDTO) {
+					if (selectedEntity instanceof ProjectDTO) {
 						names.add(((ProjectDTO)selectedEntity).getFullName());
 						
 					} else if(selectedEntity instanceof OrgUnitDTO) {
@@ -584,7 +587,7 @@ public class ImportationPresenter extends AbstractPagePresenter<ImportationPrese
 					
 					// Add the update project to the batch.
 					// TODO: I18N
-					updates.add(new UpdateProject((Integer) selectedEntity.getId(), values, "Imported from file '" + fileName + "'."));
+					updates.add(new UpdateProject(selectedEntity.getId(), values, "Imported from file '" + fileName + "'."));
 				}
 			}
 			
@@ -618,98 +621,17 @@ public class ImportationPresenter extends AbstractPagePresenter<ImportationPrese
 	 * @return A list of <code>ValueEvent</code>.
 	 */
 	private List<ValueEvent> toValueEvent(List<ElementExtractedValue> extractedValues) {
+		
 		final ArrayList<ValueEvent> valueEvents = new ArrayList<ValueEvent>();
 		
 		for(final ElementExtractedValue extractedValue : extractedValues) {
-			if(extractedValue.getStatus() != ElementExtractedValueStatus.VALID_VALUE) {
-				continue;
-			}
-			
-			final FlexibleElementDTO element = extractedValue.getElement();
-			
-			switch(element.getElementType()) {
-				case CHECKBOX:
-					if(extractedValue.getNewValue() instanceof Boolean) {
-						valueEvents.add(new ValueEvent(element, extractedValue.getNewValue().toString()));
-					}
-					break;
-					
-				case DEFAULT:
-					final DefaultFlexibleElementDTO defaultFlexibleElement = (DefaultFlexibleElementDTO) element;
-					switch(defaultFlexibleElement.getType()) {
-						case BUDGET:
-							final HashMap<BudgetSubFieldDTO, String> budgetMap = new HashMap<BudgetSubFieldDTO, String>();
-							
-							// Putting old values first.
-							for(final Map.Entry<Integer, String> entry : extractedValue.getOldBudgetValues().entrySet()) {
-								budgetMap.put(new BudgetSubFieldDTO(entry.getKey()), entry.getValue());
-							}
-							
-							// Replacing old values with the new ones.
-							for (final Map.Entry<Integer, Serializable> entry : extractedValue.getNewBudgetValues().entrySet()) {
-								budgetMap.put(new BudgetSubFieldDTO(entry.getKey()), entry.getValue().toString()); 
-							}
-							
-							valueEvents.add(new ValueEvent(element, ValueResultUtils.mergeElements(budgetMap)));
-							break;
-							
-						case MANAGER:
-						case OWNER:
-						case ORG_UNIT:
-						case COUNTRY:
-						case CODE:
-						case TITLE:
-							valueEvents.add(new ValueEvent(element, String.valueOf(extractedValue.getNewValue())));
-							break;
-							
-						case START_DATE:
-						case END_DATE:
-							valueEvents.add(new ValueEvent(element, dateToString(extractedValue.getNewValue())));
-							break;
-							
-						default:
-							break;
-					}
-					break;
-					
-				case QUESTION:
-					valueEvents.add(new ValueEvent(element, String.valueOf(extractedValue.getNewValue())));
-					break;
-					
-				case TEXT_AREA:
-					if(Character.valueOf('D').equals(((TextAreaElementDTO)element).getType())) {
-						valueEvents.add(new ValueEvent(element, dateToString(extractedValue.getNewValue())));
-					} else {
-						valueEvents.add(new ValueEvent(element, String.valueOf(extractedValue.getNewValue())));
-					}
-					break;
-					
-				case TRIPLETS:
-					final String[] tripletValues = (String[]) extractedValue.getNewValue();
-					
-					final TripletValueDTO addedValue = new TripletValueDTO();
-					addedValue.setCode(tripletValues[0]);
-					addedValue.setName(tripletValues[1]);
-					addedValue.setPeriod(tripletValues[2]);
-
-					valueEvents.add(new ValueEvent(extractedValue.getElement(), addedValue, ValueEventChangeType.ADD));
-					break;
-					
-				default:
-					break;
+			final ValueEvent valueEvent = extractedValue.toValueEvent();
+			if (valueEvent != null) {
+				valueEvents.add(valueEvent);
 			}
 		}
 		
 		return valueEvents;
 	}
 	
-	private String dateToString(Serializable serializable) {
-		if(serializable instanceof Date) {
-			final Date date = (Date) serializable;
-			return Long.toString(date.getTime());
-			
-		} else {
-			return "null";
-		}
-	}
 }

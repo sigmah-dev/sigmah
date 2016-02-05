@@ -135,13 +135,16 @@ public abstract class Importer implements Iterator<ImportDetails> {
 	public abstract void setInputStream(InputStream inputStream) throws IOException;
 	
 	/**
-	 * Get the String value of the corresponding variable DTO reference from the
-	 * imported file
+	 * Get the String value of the corresponding variable reference from the
+	 * imported file.
 	 * 
 	 * @param reference
+	 *          Location where to find the variable value (column number, cell reference, etc.)
 	 * @param lineNumber
+	 *          Line number.
 	 * @param sheetName
-	 * @return
+	 *          Name of the sheet.
+	 * @return The value at the requested location.
 	 * @throws org.sigmah.shared.dispatch.FunctionalException
 	 */
 	public abstract Object getValueFromVariable(String reference, Integer lineNumber, String sheetName) throws FunctionalException;
@@ -211,6 +214,15 @@ public abstract class Importer implements Iterator<ImportDetails> {
 	}
 
 	/**
+	 * Retrieves the current execution context.
+	 * 
+	 * @return the current execution context.
+	 */
+	UserDispatch.UserExecutionContext getExecutionContext() {
+		return executionContext;
+	}
+	
+	/**
 	 * Sets the current execution context.
 	 * 
 	 * @param executionContext 
@@ -277,6 +289,7 @@ public abstract class Importer implements Iterator<ImportDetails> {
 				ElementExtractedValue elementExtractedValue = new ElementExtractedValue();
 				Object cellValue = null;
 				if (variableFlexibleElement instanceof VariableBudgetElement) {
+					// Handling budget elements.
 					final VariableBudgetElement variableBudgetElement = (VariableBudgetElement) variableFlexibleElement;
 
 					for (VariableBudgetSubField variableBudgetSubField : variableBudgetElement.getVariableBudgetSubFields()) {
@@ -295,8 +308,8 @@ public abstract class Importer implements Iterator<ImportDetails> {
 											entity));
 						}
 					}
-
 				} else {
+					// Handling others elements.
 					cellValue = getValueFromVariable(variableFlexibleElement.getVariable().getReference(), lineNumber, sheetName);
 					Object[] valueStatus = getValueFormatForFlexibleElement(variableFlexibleElement.getFlexibleElement(),
 									cellValue);
@@ -315,7 +328,7 @@ public abstract class Importer implements Iterator<ImportDetails> {
 				}
 				correspondances.add(elementExtractedValue);
 			} catch (FunctionalException e) {
-				
+				LOGGER.trace("An exception occured while retrieveing the value of the variable '" + variableFlexibleElement.getVariable().getName() + "' for the container '" + entity + "'", e);
 			}
 		}
 		return correspondances;
@@ -450,12 +463,12 @@ public abstract class Importer implements Iterator<ImportDetails> {
 		LOGGER.debug("Key identification is " + keyValue);
 		final String label = ExporterUtil.getFlexibleElementLabel(flexibleElement, translator, language);
 
-		final Map<EntityDTO<?>, List<ElementExtractedValue>> entityCorrespondances = new HashMap<>();
+		final Map<EntityDTO<Integer>, List<ElementExtractedValue>> entityCorrespondances = new HashMap<>();
 
 		// Checks if the model is an orgUnit or a project model
 		if (schemeModel.getOrgUnitModel() != null) {
 
-			OrgUnitModel orgUnitModel = schemeModel.getOrgUnitModel();
+			final OrgUnitModel orgUnitModel = schemeModel.getOrgUnitModel();
 
 			LOGGER.debug("Import for org unit model : " + orgUnitModel.getName());
 
@@ -501,9 +514,9 @@ public abstract class Importer implements Iterator<ImportDetails> {
 			importEntity.setEntitiesToImport(entityCorrespondances);
 
 		} else if (schemeModel.getProjectModel() != null) {
-			Map<EntityDTO<?>, List<ElementExtractedValue>> lockedEntityCorrespondances = new HashMap<EntityDTO<?>, List<ElementExtractedValue>>();
+			final Map<EntityDTO<Integer>, List<ElementExtractedValue>> lockedEntityCorrespondances = new HashMap<EntityDTO<Integer>, List<ElementExtractedValue>>();
 
-			ProjectModel projectModel = schemeModel.getProjectModel();
+			final ProjectModel projectModel = schemeModel.getProjectModel();
 
 			LOGGER.debug("Import for project model : " + projectModel.getName());
 

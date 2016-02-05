@@ -26,6 +26,7 @@ import com.extjs.gxt.ui.client.data.ModelData;
 import java.util.Date;
 
 import org.sigmah.shared.dto.UserDTO;
+import org.sigmah.shared.dto.base.EntityDTO;
 import org.sigmah.shared.dto.country.CountryDTO;
 import org.sigmah.shared.dto.referential.DefaultFlexibleElementType;
 
@@ -35,7 +36,7 @@ import org.sigmah.shared.dto.referential.DefaultFlexibleElementType;
  * @author tmi
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
-public interface DefaultFlexibleElementContainer extends FlexibleElementContainer, ModelData {
+public interface DefaultFlexibleElementContainer extends FlexibleElementContainer, ModelData, EntityDTO<Integer> {
 
 	/**
 	 * @return the property for the default type {@link DefaultFlexibleElementType#CODE}.
