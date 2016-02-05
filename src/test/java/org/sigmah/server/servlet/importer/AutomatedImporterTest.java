@@ -5,8 +5,6 @@ import com.google.inject.Injector;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
-import java.util.Map;
 import javax.persistence.EntityTransaction;
 import org.junit.After;
 import org.junit.Assert;
@@ -37,26 +35,21 @@ import org.sigmah.server.domain.value.Value;
 import org.sigmah.server.mapper.Mapper;
 import org.sigmah.server.security.Authenticator;
 import org.sigmah.shared.Language;
+import org.sigmah.shared.command.AutomatedImport;
 import org.sigmah.shared.dispatch.CommandException;
-import org.sigmah.shared.dto.ElementExtractedValue;
-import org.sigmah.shared.dto.ImportDetails;
-import org.sigmah.shared.dto.base.EntityDTO;
 import org.sigmah.shared.dto.importation.ImportationSchemeDTO;
 import org.sigmah.shared.dto.referential.DefaultFlexibleElementType;
-import org.sigmah.shared.dto.referential.ImportStatusCode;
 import org.sigmah.shared.dto.referential.ImportationSchemeFileFormat;
 import org.sigmah.shared.dto.referential.ImportationSchemeImportType;
-import org.sigmah.shared.dto.referential.LogicalElementType;
-import org.sigmah.shared.dto.referential.LogicalElementTypes;
 import org.sigmah.shared.dto.referential.ProjectModelStatus;
 import org.sigmah.shared.dto.referential.TextAreaType;
 
 /**
- * Test class for <code>CsvImporter</code>.
+ * Test class for <code>AutomatedImporter</code>.
  * 
  * @author Raphaël Calabro (raphael.calabro@netapsys.fr)
  */
-public class CsvImporterTest extends AbstractDaoTest {
+public class AutomatedImporterTest extends AbstractDaoTest {
 	
 	private static final String EMAIL_ADDRESS = "urd-sigmah+test@ideia.fr";
 	
@@ -79,6 +72,7 @@ public class CsvImporterTest extends AbstractDaoTest {
 	
 	private int projectId;
 	private int schemeId;
+	private int introductionElementId;
 	
 	@Before
 	public void before() {
@@ -90,8 +84,11 @@ public class CsvImporterTest extends AbstractDaoTest {
 		removeEntities();
 	}
 	
+	/**
+	 * Test of importCorrespondances method, of class AutomatedImporter.
+	 */
 	@Test
-	public void testGetCorrespondances() throws CommandException, IOException {
+	public void testImportCorrespondances() throws CommandException, IOException {
 		final CsvImporter importer = new CsvImporter();
 		importer.setInjector(injector);
 		importer.setScheme(getImportationScheme());
@@ -100,30 +97,19 @@ public class CsvImporterTest extends AbstractDaoTest {
 		
 		importer.setInputStream(getClass().getResourceAsStream("import.csv"));
 		
-		final List<ImportDetails> correspondances = importer.getCorrespondances();
-		Assert.assertNotNull(correspondances);
-		Assert.assertEquals(1, correspondances.size());
+		final AutomatedImport configuration = new AutomatedImport("import.csv", getImportationScheme(), false, false, false);
 		
-		final ImportDetails details = correspondances.get(0);
-		Assert.assertEquals(ImportStatusCode.PROJECT_FOUND_CODE, details.getEntityStatus());
+		final AutomatedImporter instance = new AutomatedImporter(importer);
+		instance.importCorrespondances(configuration);
 		
-		final Map.Entry<EntityDTO<Integer>, List<ElementExtractedValue>> singleEntity = details.getEntitiesToImport().entrySet().iterator().next();
-		final EntityDTO<Integer> entity = singleEntity.getKey();
-		Assert.assertEquals(projectId, (int) entity.getId());
-		
-		for (final ElementExtractedValue value : singleEntity.getValue()) {
-			final LogicalElementType type = LogicalElementTypes.of(value.getElement());
-			
-			if (type == DefaultFlexibleElementType.TITLE) {
-				Assert.assertEquals(value.getNewValue(), "Mon projet d’import");
-				Assert.assertEquals(value.getOldValue(), "TestProject");
-			} else if (type == TextAreaType.TEXT) {
-				Assert.assertEquals(value.getNewValue(), "Ce projet sérieux et plein d'avenir devrait sauver beaucoup de personnes");
-				Assert.assertEquals(value.getOldValue(), "Pas d'introduction");
-			} else {
-				Assert.fail();
-			}
-		}
+		final Project project = em().find(Project.class, projectId);
+		Assert.assertEquals("I1", project.getName());
+		Assert.assertEquals("Mon projet d’import", project.getFullName());
+		Assert.assertEquals("Ce projet sérieux et plein d'avenir devrait sauver beaucoup de personnes", em().createQuery(
+				"SELECT v.value from Value AS v WHERE v.containerId = :projectId AND v.element.id = :elementId", String.class)
+				.setParameter("projectId", projectId)
+				.setParameter("elementId", introductionElementId)
+				.getSingleResult());
 	}
 	
 	private ImportationSchemeDTO getImportationScheme() {
@@ -131,8 +117,11 @@ public class CsvImporterTest extends AbstractDaoTest {
 	}
 	
 	private UserDispatch.UserExecutionContext getExecutionContext() {
-		final User user = userDAO.findUserByEmail(EMAIL_ADDRESS);
-		return dispatch.createContext(user, null, null);
+		return dispatch.createContext(getUser(), null, null);
+	}
+	
+	private User getUser() {
+		return userDAO.findUserByEmail(EMAIL_ADDRESS);
 	}
 	
 	private void persistEntities() {
@@ -151,6 +140,8 @@ public class CsvImporterTest extends AbstractDaoTest {
 		final TextAreaElement introductionElement = new TextAreaElement();
 		introductionElement.setType(TextAreaType.TEXT.getCode());
 		em().persist(introductionElement);
+		
+		introductionElementId = introductionElement.getId();
 		
 		final Layout detailsLayout = new Layout(3, 1);
 		detailsLayout.addConstraint(0, 0, codeElement, 0);
@@ -314,6 +305,10 @@ public class CsvImporterTest extends AbstractDaoTest {
 	private void removeEntities() {
 		final EntityTransaction transaction = em().getTransaction();
 		transaction.begin();
+		
+		em().createQuery("DELETE FROM HistoryToken AS ht WHERE ht.user = :user")
+				.setParameter("user", getUser())
+				.executeUpdate();
 		
 		for (final Entity entity : entities) {
 			em().remove(entity);
