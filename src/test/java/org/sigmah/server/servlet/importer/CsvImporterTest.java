@@ -115,11 +115,11 @@ public class CsvImporterTest extends AbstractDaoTest {
 			final LogicalElementType type = LogicalElementTypes.of(value.getElement());
 			
 			if (type == DefaultFlexibleElementType.TITLE) {
-				Assert.assertEquals(value.getNewValue(), "Mon projet d’import");
-				Assert.assertEquals(value.getOldValue(), "TestProject");
+				Assert.assertEquals("Mon projet d’import", value.getNewValue());
+				Assert.assertEquals("TestProject", value.getOldValue());
 			} else if (type == TextAreaType.TEXT) {
-				Assert.assertEquals(value.getNewValue(), "Ce projet sérieux et plein d'avenir devrait sauver beaucoup de personnes");
-				Assert.assertEquals(value.getOldValue(), "Pas d'introduction");
+				Assert.assertEquals("Ce projet sérieux et plein d'avenir devrait sauver beaucoup de personnes", value.getNewValue());
+				Assert.assertEquals("Pas d'introduction", value.getOldValue());
 			} else {
 				Assert.fail();
 			}
