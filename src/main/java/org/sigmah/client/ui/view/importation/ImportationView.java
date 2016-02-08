@@ -87,7 +87,7 @@ public class ImportationView extends AbstractPopupView<PopupWidget> implements I
 		fileField.setName(FileUploadUtils.DOCUMENT_CONTENT);
 		
 		// Automated import fields.
-		automatedField = Forms.checkbox(null, null, I18N.CONSTANTS.USE_AUTOMATED_IMPORT(), true);
+		automatedField = Forms.checkbox("", null, I18N.CONSTANTS.USE_AUTOMATED_IMPORT(), true);
 		newProjectsPolicyField = Forms.checkbox(I18N.CONSTANTS.AUTOMATED_IMPORT_CREATE_PROJECTS_YES(), null, I18N.CONSTANTS.AUTOMATED_IMPORT_CREATE_PROJECTS(), false);
 		projectCorePolicyField = Forms.checkbox(I18N.CONSTANTS.AUTOMATED_IMPORT_CORE_UNLOCK_YES(), null, I18N.CONSTANTS.AUTOMATED_IMPORT_CORE_UNLOCK(), false);
 		multipleMatchPolicyField = Forms.checkbox(I18N.CONSTANTS.AUTOMATED_IMPORT_MULTIPLE_MATCHES_UPDATE_YES(), null, I18N.CONSTANTS.AUTOMATED_IMPORT_MULTIPLE_MATCHES_UPDATE(), false);
