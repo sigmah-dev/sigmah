@@ -50,7 +50,7 @@ import org.sigmah.shared.dto.referential.TextAreaType;
  * 
  * @author Raphaël Calabro (raphael.calabro@netapsys.fr)
  */
-public class AutomatedImporterTest extends AbstractDaoTest {
+public class AutomatedImporterLockedTest extends AbstractDaoTest {
 	
 	private static final String EMAIL_ADDRESS = "urd-sigmah+test@ideia.fr";
 	
@@ -89,7 +89,7 @@ public class AutomatedImporterTest extends AbstractDaoTest {
 	 * Test of importCorrespondances method, of class AutomatedImporter.
 	 */
 	@Test
-	public void testImportCorrespondances() throws CommandException, IOException {
+	public void testProjectCoreLockedNoUpdate() throws CommandException, IOException {
 		final CsvImporter importer = new CsvImporter();
 		importer.setInjector(injector);
 		importer.setScheme(getImportationScheme());
@@ -99,14 +99,13 @@ public class AutomatedImporterTest extends AbstractDaoTest {
 		importer.setInputStream(getClass().getResourceAsStream("import.csv"));
 
 		final AutomatedImport configuration = new AutomatedImport("1234", "import.csv", getImportationScheme(), false, false, false);
-		
 		final AutomatedImporter instance = new AutomatedImporter(importer);
 		instance.importCorrespondances(configuration);
 
 		final Project project = em().find(Project.class, projectId);
 		Assert.assertEquals("I1", project.getName());
-		Assert.assertEquals("Mon projet d’import", project.getFullName());
-		Assert.assertEquals("Ce projet sérieux et plein d'avenir devrait sauver beaucoup de personnes", em().createQuery(
+		Assert.assertEquals("TestProject", project.getFullName());
+		Assert.assertEquals("Pas d'introduction", em().createQuery(
 				"SELECT v.value from Value AS v WHERE v.containerId = :projectId AND v.element.id = :elementId", String.class)
 				.setParameter("projectId", projectId)
 				.setParameter("elementId", introductionElementId)
@@ -261,7 +260,7 @@ public class AutomatedImporterTest extends AbstractDaoTest {
 		project.setProjectModel(model);
 		project.setName("I1");
 		project.setFullName("TestProject");
-		project.setAmendmentState(AmendmentState.DRAFT);
+		project.setAmendmentState(AmendmentState.LOCKED);
 		project.setPhases(new ArrayList<Phase>());
 		project.setStartDate(new Date());
 		project.setOwner(user);

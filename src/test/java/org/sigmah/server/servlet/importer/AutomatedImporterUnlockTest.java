@@ -4,6 +4,8 @@ import com.google.inject.Inject;
 import com.google.inject.Injector;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import javax.persistence.EntityTransaction;
 import org.junit.After;
@@ -15,6 +17,7 @@ import org.sigmah.server.dao.UserDAO;
 import org.sigmah.server.dispatch.impl.UserDispatch;
 import org.sigmah.server.domain.Bounds;
 import org.sigmah.server.domain.Country;
+import org.sigmah.server.domain.OrgUnit;
 import org.sigmah.server.domain.Phase;
 import org.sigmah.server.domain.PhaseModel;
 import org.sigmah.server.domain.Project;
@@ -31,6 +34,9 @@ import org.sigmah.server.domain.importation.ImportationSchemeModel;
 import org.sigmah.server.domain.importation.Variable;
 import org.sigmah.server.domain.importation.VariableFlexibleElement;
 import org.sigmah.server.domain.layout.Layout;
+import org.sigmah.server.domain.profile.GlobalPermission;
+import org.sigmah.server.domain.profile.OrgUnitProfile;
+import org.sigmah.server.domain.profile.Profile;
 import org.sigmah.server.domain.value.Value;
 import org.sigmah.server.mapper.Mapper;
 import org.sigmah.server.security.Authenticator;
@@ -40,6 +46,7 @@ import org.sigmah.shared.dispatch.CommandException;
 import org.sigmah.shared.dto.importation.ImportationSchemeDTO;
 import org.sigmah.shared.dto.referential.AmendmentState;
 import org.sigmah.shared.dto.referential.DefaultFlexibleElementType;
+import org.sigmah.shared.dto.referential.GlobalPermissionEnum;
 import org.sigmah.shared.dto.referential.ImportationSchemeFileFormat;
 import org.sigmah.shared.dto.referential.ImportationSchemeImportType;
 import org.sigmah.shared.dto.referential.ProjectModelStatus;
@@ -50,7 +57,7 @@ import org.sigmah.shared.dto.referential.TextAreaType;
  * 
  * @author Raphaël Calabro (raphael.calabro@netapsys.fr)
  */
-public class AutomatedImporterTest extends AbstractDaoTest {
+public class AutomatedImporterUnlockTest extends AbstractDaoTest {
 	
 	private static final String EMAIL_ADDRESS = "urd-sigmah+test@ideia.fr";
 	
@@ -98,7 +105,7 @@ public class AutomatedImporterTest extends AbstractDaoTest {
 
 		importer.setInputStream(getClass().getResourceAsStream("import.csv"));
 
-		final AutomatedImport configuration = new AutomatedImport("1234", "import.csv", getImportationScheme(), false, false, false);
+		final AutomatedImport configuration = new AutomatedImport("1234", "import.csv", getImportationScheme(), false, true, false);
 		
 		final AutomatedImporter instance = new AutomatedImporter(importer);
 		instance.importCorrespondances(configuration);
@@ -186,6 +193,28 @@ public class AutomatedImporterTest extends AbstractDaoTest {
 		user.setLocale(Language.FR.getLocale());
 		em().persist(user);
 		
+		// OrgUnit
+		final OrgUnit orgUnit = new OrgUnit();
+		orgUnit.setName("TOU");
+		orgUnit.setFullName("Test Org Unit");
+		orgUnit.setCanContainProjects(true);
+		em().persist(orgUnit);
+		
+		// Profile
+		final Profile profile = new Profile();
+		profile.setName("Test Profile");
+		profile.setGlobalPermissions(Arrays.asList(globalPermission(GlobalPermissionEnum.LOCK_PROJECT, profile)));
+		em().persist(profile);
+		
+		final OrgUnitProfile orgUnitProfile = new OrgUnitProfile();
+		orgUnitProfile.setUser(user);
+		orgUnitProfile.setOrgUnit(orgUnit);
+		orgUnitProfile.setProfiles(Collections.singletonList(profile));
+		em().persist(orgUnitProfile);
+		
+		user.setOrgUnitWithProfiles(orgUnitProfile);
+		em().merge(user);
+		
 		// Importation Scheme
 		final ArrayList<Variable> variables = new ArrayList<>();
 		
@@ -261,7 +290,7 @@ public class AutomatedImporterTest extends AbstractDaoTest {
 		project.setProjectModel(model);
 		project.setName("I1");
 		project.setFullName("TestProject");
-		project.setAmendmentState(AmendmentState.DRAFT);
+		project.setAmendmentState(AmendmentState.LOCKED);
 		project.setPhases(new ArrayList<Phase>());
 		project.setStartDate(new Date());
 		project.setOwner(user);
@@ -301,6 +330,9 @@ public class AutomatedImporterTest extends AbstractDaoTest {
 			introductionElement,
 			titleElement,
 			codeElement,
+			orgUnitProfile,
+			profile,
+			orgUnit,
 			user,
 			country
 		};
@@ -319,6 +351,13 @@ public class AutomatedImporterTest extends AbstractDaoTest {
 		}
 		this.entities = new Entity[0];
 		transaction.commit();
+	}
+	
+	private GlobalPermission globalPermission(GlobalPermissionEnum permission, Profile profile) {
+		final GlobalPermission globalPermission = new GlobalPermission();
+		globalPermission.setProfile(profile);
+		globalPermission.setPermission(permission);
+		return globalPermission;
 	}
 	
 }

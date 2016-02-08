@@ -3,6 +3,7 @@ package org.sigmah.server.servlet.importer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import org.sigmah.shared.command.AmendmentActionCommand;
 import org.sigmah.shared.command.AutomatedImport;
 import org.sigmah.shared.command.UpdateProject;
 import org.sigmah.shared.dispatch.CommandException;
@@ -10,6 +11,7 @@ import org.sigmah.shared.dto.ElementExtractedValue;
 import org.sigmah.shared.dto.ImportDetails;
 import org.sigmah.shared.dto.base.EntityDTO;
 import org.sigmah.shared.dto.element.event.ValueEvent;
+import org.sigmah.shared.dto.referential.AmendmentAction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,9 +55,28 @@ public class AutomatedImporter {
 			
 			switch (details.getEntityStatus()) {
 			case PROJECT_FOUND_CODE:
-				final Map.Entry<EntityDTO<Integer>, List<ElementExtractedValue>> singleEntry = details.getEntitiesToImport().entrySet().iterator().next();
-				updateContainerWithDetails(singleEntry.getKey(), singleEntry.getValue(), configuration.getFileName());
+				onProjectFound(details, configuration);
 				break;
+			case PROJECT_LOCKED_CODE:
+				onProjectLocked(details, configuration);
+				break;
+			}
+		}
+	}
+
+	private void onProjectFound(final ImportDetails details, AutomatedImport configuration) {
+		final Map.Entry<EntityDTO<Integer>, List<ElementExtractedValue>> singleEntry = details.getEntitiesToImport().entrySet().iterator().next();
+		updateContainerWithDetails(singleEntry.getKey(), singleEntry.getValue(), configuration.getFileName());
+	}
+	
+	private void onProjectLocked(final ImportDetails details, AutomatedImport configuration) {
+		if (configuration.isUnlockProjectCores()) {
+			final Map.Entry<EntityDTO<Integer>, List<ElementExtractedValue>> singleEntry = details.getEntitiesToImport().entrySet().iterator().next();
+			try {
+				importer.getExecutionContext().execute(new AmendmentActionCommand(singleEntry.getKey().getId(), AmendmentAction.UNLOCK));
+				updateContainerWithDetails(singleEntry.getKey(), singleEntry.getValue(), configuration.getFileName());
+			} catch (CommandException e) {
+				LOGGER.warn("An error occured while trying to unlock the project " + singleEntry.getKey(), e);
 			}
 		}
 	}
@@ -79,7 +100,7 @@ public class AutomatedImporter {
 			if (event != null) {
 				values.add(event);
 			}
-		};
+		}
 		
 		final UpdateProject updateProject = new UpdateProject(container.getId(), values, "Imported from file '" + fileName + "'.");
 		try {
