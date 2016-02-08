@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import javax.persistence.EntityTransaction;
 import org.junit.After;
 import org.junit.Assert;
@@ -45,12 +46,15 @@ import org.sigmah.shared.command.AutomatedImport;
 import org.sigmah.shared.dispatch.CommandException;
 import org.sigmah.shared.dto.importation.ImportationSchemeDTO;
 import org.sigmah.shared.dto.referential.AmendmentState;
+import org.sigmah.shared.dto.referential.AutomatedImportStatus;
+import org.sigmah.shared.dto.referential.ContainerInformation;
 import org.sigmah.shared.dto.referential.DefaultFlexibleElementType;
 import org.sigmah.shared.dto.referential.GlobalPermissionEnum;
 import org.sigmah.shared.dto.referential.ImportationSchemeFileFormat;
 import org.sigmah.shared.dto.referential.ImportationSchemeImportType;
 import org.sigmah.shared.dto.referential.ProjectModelStatus;
 import org.sigmah.shared.dto.referential.TextAreaType;
+import org.sigmah.shared.util.Pair;
 
 /**
  * Test class for <code>AutomatedImporter</code>.
@@ -81,6 +85,7 @@ public class AutomatedImporterUnlockTest extends AbstractDaoTest {
 	private int projectId;
 	private int schemeId;
 	private int introductionElementId;
+	private int phaseModelId;
 	
 	@Before
 	public void before() {
@@ -105,10 +110,21 @@ public class AutomatedImporterUnlockTest extends AbstractDaoTest {
 
 		importer.setInputStream(getClass().getResourceAsStream("import.csv"));
 
-		final AutomatedImport configuration = new AutomatedImport("1234", "import.csv", getImportationScheme(), false, true, false);
+		final AutomatedImport configuration = new AutomatedImport("1234", "import.csv", getImportationScheme(), true, true, false);
 		
 		final AutomatedImporter instance = new AutomatedImporter(importer);
-		instance.importCorrespondances(configuration);
+		final List<Pair<ContainerInformation, AutomatedImportStatus>> result = instance.importCorrespondances(configuration);
+		
+		Assert.assertEquals(2, result.size());
+		Assert.assertEquals(projectId, result.get(0).getLeft().getId());
+		Assert.assertEquals("I1", result.get(0).getLeft().getName());
+		Assert.assertEquals("TestProject", result.get(0).getLeft().getFullName());
+		Assert.assertEquals(AutomatedImportStatus.UNLOCKED_AND_UPDATED, result.get(0).getRight());
+		
+		Assert.assertNotEquals(0, result.get(1).getLeft().getId());
+		Assert.assertEquals("I8", result.get(1).getLeft().getName());
+		Assert.assertEquals("Mon projet qui n'existe pas", result.get(1).getLeft().getFullName());
+		Assert.assertEquals(AutomatedImportStatus.CREATED_AND_UPDATED, result.get(1).getRight());
 
 		final Project project = em().find(Project.class, projectId);
 		Assert.assertEquals("I1", project.getName());
@@ -116,6 +132,15 @@ public class AutomatedImporterUnlockTest extends AbstractDaoTest {
 		Assert.assertEquals("Ce projet sérieux et plein d'avenir devrait sauver beaucoup de personnes", em().createQuery(
 				"SELECT v.value from Value AS v WHERE v.containerId = :projectId AND v.element.id = :elementId", String.class)
 				.setParameter("projectId", projectId)
+				.setParameter("elementId", introductionElementId)
+				.getSingleResult());
+
+		final Project project2 = em().find(Project.class, result.get(1).getLeft().getId());
+		Assert.assertEquals("I8", project2.getName());
+		Assert.assertEquals("Mon projet qui n'existe pas", project2.getFullName());
+		Assert.assertEquals("Rien", em().createQuery(
+				"SELECT v.value from Value AS v WHERE v.containerId = :projectId AND v.element.id = :elementId", String.class)
+				.setParameter("projectId", project2.getId())
 				.setParameter("elementId", introductionElementId)
 				.getSingleResult());
 	}
@@ -160,11 +185,20 @@ public class AutomatedImporterUnlockTest extends AbstractDaoTest {
 		
 		final Layout bannerLayout = new Layout(0, 0);
 		
+		final Layout phaseModelLayout = new Layout(0, 0);
+		
 		final ProjectModel model = new ProjectModel();
 		model.setName("TestModel");
 		model.setStatus(ProjectModelStatus.READY);
 		model.setPhaseModels(new ArrayList<PhaseModel>());
 		model.setVisibilities(new ArrayList<ProjectModelVisibility>());
+		
+		final PhaseModel phaseModel = new PhaseModel();
+		phaseModel.setName("TestPhaseModel");
+		phaseModel.setDisplayOrder(0);
+		phaseModel.setParentProjectModel(model);
+		phaseModel.setLayout(phaseModelLayout);
+		model.getPhaseModels().add(phaseModel);
 		
 		final ProjectDetails details = new ProjectDetails();
 		details.setLayout(detailsLayout);
@@ -182,6 +216,8 @@ public class AutomatedImporterUnlockTest extends AbstractDaoTest {
 		model.setProjectBanner(banner);
 		
 		em().persist(model);
+		
+		phaseModelId = model.getPhaseModels().get(0).getId();
 		
 		// User
 		final User user = new User();
@@ -312,8 +348,6 @@ public class AutomatedImporterUnlockTest extends AbstractDaoTest {
 		transaction.commit();
 		
 		this.entities = new Entity[] {
-			introductionValue,
-			project,
 			banner,
 			details,
 			codeVariableFlexibleElement,
@@ -327,10 +361,10 @@ public class AutomatedImporterUnlockTest extends AbstractDaoTest {
 			model,
 			bannerLayout,
 			detailsLayout,
+			phaseModelLayout,
 			introductionElement,
 			titleElement,
 			codeElement,
-			orgUnitProfile,
 			profile,
 			orgUnit,
 			user,
@@ -343,6 +377,20 @@ public class AutomatedImporterUnlockTest extends AbstractDaoTest {
 		transaction.begin();
 		
 		em().createQuery("DELETE FROM HistoryToken AS ht WHERE ht.user = :user")
+				.setParameter("user", getUser())
+				.executeUpdate();
+		
+		em().createQuery("DELETE FROM Value AS v WHERE v.lastModificationUser = :user")
+				.setParameter("user", getUser())
+				.executeUpdate();
+		
+		for (final Project project : em().createQuery("SELECT p FROM Project AS p WHERE p.owner = :user", Project.class)
+				.setParameter("user", getUser())
+				.getResultList()) {
+			em().remove(project);
+		}
+		
+		em().createQuery("DELETE FROM OrgUnitProfile AS oup WHERE oup.user = :user")
 				.setParameter("user", getUser())
 				.executeUpdate();
 		

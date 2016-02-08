@@ -166,7 +166,7 @@ public class AutomatedImporter {
 			try {
 				importer.getExecutionContext().execute(new AmendmentActionCommand(singleEntry.getKey().getId(), AmendmentAction.UNLOCK));
 				updateContainerWithDetails(singleEntry.getKey(), singleEntry.getValue(), configuration.getFileName());
-				status = AutomatedImportStatus.UPDATED;
+				status = AutomatedImportStatus.UNLOCKED_AND_UPDATED;
 			} catch (CommandException e) {
 				LOGGER.warn("An error occured while trying to unlock the project " + singleEntry.getKey(), e);
 				status = AutomatedImportStatus.UNLOCK_FAILED;

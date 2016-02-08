@@ -111,10 +111,12 @@ public class AutomatedImporterTest extends AbstractDaoTest {
 		Assert.assertEquals(projectId, result.get(0).getLeft().getId());
 		Assert.assertEquals("I1", result.get(0).getLeft().getName());
 		Assert.assertEquals("TestProject", result.get(0).getLeft().getFullName());
+		Assert.assertEquals(AutomatedImportStatus.UPDATED, result.get(0).getRight());
 		
 		Assert.assertEquals(0, result.get(1).getLeft().getId());
 		Assert.assertEquals("I8", result.get(1).getLeft().getName());
 		Assert.assertEquals("Mon projet qui n'existe pas", result.get(1).getLeft().getFullName());
+		Assert.assertEquals(AutomatedImportStatus.NOT_FOUND, result.get(1).getRight());
 		
 		final Project project = em().find(Project.class, projectId);
 		Assert.assertEquals("I1", project.getName());
