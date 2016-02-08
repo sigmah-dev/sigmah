@@ -241,6 +241,15 @@ public abstract class Importer implements Iterator<ImportDetails> {
 	public void setScheme(ImportationSchemeDTO scheme) {
 		this.scheme = scheme;
 	}
+
+	/**
+	 * Retrieves the shared instance of translator.
+	 * 
+	 * @return the shared instance of translator.
+	 */
+	I18nServer getTranslator() {
+		return translator;
+	}
 	
 	/**
 	 * {@inheritDoc}
@@ -282,7 +291,7 @@ public abstract class Importer implements Iterator<ImportDetails> {
 		
 		for (VariableFlexibleElement variableFlexibleElement : variableFlexibleElements) {
 			// FEATURE #789: Removed the identification key from the importation results.
-			if (variableFlexibleElement.getIsKey() != null && variableFlexibleElement.getIsKey()) {
+			if (entity != null && variableFlexibleElement.getIsKey() != null && variableFlexibleElement.getIsKey()) {
 				continue;
 			}
 			try {

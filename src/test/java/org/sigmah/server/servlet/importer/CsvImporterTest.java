@@ -102,7 +102,7 @@ public class CsvImporterTest extends AbstractDaoTest {
 		
 		final List<ImportDetails> correspondances = importer.getCorrespondances();
 		Assert.assertNotNull(correspondances);
-		Assert.assertEquals(1, correspondances.size());
+		Assert.assertEquals(2, correspondances.size());
 		
 		final ImportDetails details = correspondances.get(0);
 		Assert.assertEquals(ImportStatusCode.PROJECT_FOUND_CODE, details.getEntityStatus());
@@ -111,6 +111,7 @@ public class CsvImporterTest extends AbstractDaoTest {
 		final EntityDTO<Integer> entity = singleEntity.getKey();
 		Assert.assertEquals(projectId, (int) entity.getId());
 		
+		Assert.assertEquals(2, singleEntity.getValue().size());
 		for (final ElementExtractedValue value : singleEntity.getValue()) {
 			final LogicalElementType type = LogicalElementTypes.of(value.getElement());
 			
@@ -120,6 +121,26 @@ public class CsvImporterTest extends AbstractDaoTest {
 			} else if (type == TextAreaType.TEXT) {
 				Assert.assertEquals("Ce projet sérieux et plein d'avenir devrait sauver beaucoup de personnes", value.getNewValue());
 				Assert.assertEquals("Pas d'introduction", value.getOldValue());
+			} else {
+				Assert.fail();
+			}
+		}
+		
+		Assert.assertEquals(ImportStatusCode.PROJECT_NOT_FOUND_CODE, correspondances.get(1).getEntityStatus());
+		final Map.Entry<EntityDTO<Integer>, List<ElementExtractedValue>> noEntity = correspondances.get(1).getEntitiesToImport().entrySet().iterator().next();
+		Assert.assertEquals(3, noEntity.getValue().size());
+		for (final ElementExtractedValue value : noEntity.getValue()) {
+			final LogicalElementType type = LogicalElementTypes.of(value.getElement());
+			
+			if (type == DefaultFlexibleElementType.CODE) {
+				Assert.assertEquals("I8", value.getNewValue());
+				Assert.assertNull(value.getOldValue());
+			} else if (type == DefaultFlexibleElementType.TITLE) {
+				Assert.assertEquals("Mon projet qui n'existe pas", value.getNewValue());
+				Assert.assertNull(value.getOldValue());
+			} else if (type == TextAreaType.TEXT) {
+				Assert.assertEquals("Rien", value.getNewValue());
+				Assert.assertNull(value.getOldValue());
 			} else {
 				Assert.fail();
 			}

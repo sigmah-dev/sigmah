@@ -5,6 +5,7 @@ import com.google.inject.Injector;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import javax.persistence.EntityTransaction;
 import org.junit.After;
 import org.junit.Assert;
@@ -39,11 +40,14 @@ import org.sigmah.shared.command.AutomatedImport;
 import org.sigmah.shared.dispatch.CommandException;
 import org.sigmah.shared.dto.importation.ImportationSchemeDTO;
 import org.sigmah.shared.dto.referential.AmendmentState;
+import org.sigmah.shared.dto.referential.AutomatedImportStatus;
+import org.sigmah.shared.dto.referential.ContainerInformation;
 import org.sigmah.shared.dto.referential.DefaultFlexibleElementType;
 import org.sigmah.shared.dto.referential.ImportationSchemeFileFormat;
 import org.sigmah.shared.dto.referential.ImportationSchemeImportType;
 import org.sigmah.shared.dto.referential.ProjectModelStatus;
 import org.sigmah.shared.dto.referential.TextAreaType;
+import org.sigmah.shared.util.Pair;
 
 /**
  * Test class for <code>AutomatedImporter</code>.
@@ -101,8 +105,17 @@ public class AutomatedImporterTest extends AbstractDaoTest {
 		final AutomatedImport configuration = new AutomatedImport("1234", "import.csv", getImportationScheme(), false, false, false);
 		
 		final AutomatedImporter instance = new AutomatedImporter(importer);
-		instance.importCorrespondances(configuration);
+		final List<Pair<ContainerInformation, AutomatedImportStatus>> result = instance.importCorrespondances(configuration);
 
+		Assert.assertEquals(2, result.size());
+		Assert.assertEquals(projectId, result.get(0).getLeft().getId());
+		Assert.assertEquals("I1", result.get(0).getLeft().getName());
+		Assert.assertEquals("TestProject", result.get(0).getLeft().getFullName());
+		
+		Assert.assertEquals(0, result.get(1).getLeft().getId());
+		Assert.assertEquals("I8", result.get(1).getLeft().getName());
+		Assert.assertEquals("Mon projet qui n'existe pas", result.get(1).getLeft().getFullName());
+		
 		final Project project = em().find(Project.class, projectId);
 		Assert.assertEquals("I1", project.getName());
 		Assert.assertEquals("Mon projet d’import", project.getFullName());

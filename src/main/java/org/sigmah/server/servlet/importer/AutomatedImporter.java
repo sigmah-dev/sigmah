@@ -1,17 +1,34 @@
 package org.sigmah.server.servlet.importer;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.sigmah.client.ui.presenter.CreateProjectPresenter;
+import org.sigmah.server.domain.User;
 import org.sigmah.shared.command.AmendmentActionCommand;
 import org.sigmah.shared.command.AutomatedImport;
+import org.sigmah.shared.command.CreateEntity;
 import org.sigmah.shared.command.UpdateProject;
+import org.sigmah.shared.command.result.CreateResult;
 import org.sigmah.shared.dispatch.CommandException;
 import org.sigmah.shared.dto.ElementExtractedValue;
 import org.sigmah.shared.dto.ImportDetails;
+import org.sigmah.shared.dto.ProjectDTO;
 import org.sigmah.shared.dto.base.EntityDTO;
+import org.sigmah.shared.dto.element.BudgetElementDTO;
+import org.sigmah.shared.dto.element.BudgetSubFieldDTO;
 import org.sigmah.shared.dto.element.event.ValueEvent;
+import org.sigmah.shared.dto.orgunit.OrgUnitDTO;
 import org.sigmah.shared.dto.referential.AmendmentAction;
+import org.sigmah.shared.dto.referential.AutomatedImportStatus;
+import org.sigmah.shared.dto.referential.BudgetSubFieldType;
+import org.sigmah.shared.dto.referential.ContainerInformation;
+import org.sigmah.shared.dto.referential.DefaultFlexibleElementType;
+import org.sigmah.shared.dto.referential.LogicalElementType;
+import org.sigmah.shared.dto.referential.LogicalElementTypes;
+import org.sigmah.shared.dto.referential.ProjectModelStatus;
+import org.sigmah.shared.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,38 +64,194 @@ public class AutomatedImporter {
 	 * 
 	 * @param configuration
 	 *          Import configuration.
+	 * @return A list of status for 
 	 */
-	public void importCorrespondances(AutomatedImport configuration) {
+	public List<Pair<ContainerInformation, AutomatedImportStatus>> importCorrespondances(AutomatedImport configuration) {
+		
+		final ArrayList<Pair<ContainerInformation, AutomatedImportStatus>> result = new ArrayList<>();
 		
 		while (importer.hasNext()) {
 			final ImportDetails details = importer.next();
 			
 			switch (details.getEntityStatus()) {
 			case PROJECT_FOUND_CODE:
-				onProjectFound(details, configuration);
+			case ORGUNIT_FOUND_CODE:
+				result.add(onContainerFound(details, configuration));
+				break;
+			case SEVERAL_PROJECTS_FOUND_CODE:
+			case SEVERAL_ORGUNITS_FOUND_CODE:
+				result.addAll(onSeveralContainersFound(details, configuration));
 				break;
 			case PROJECT_LOCKED_CODE:
-				onProjectLocked(details, configuration);
+				result.add(onProjectLocked(details, configuration));
 				break;
+			case PROJECT_NOT_FOUND_CODE:
+				result.add(onProjectNotFound(details, configuration));
+				break;
+			case ORGUNIT_NOT_FOUND_CODE:
+				result.add(onOrgUnitNotFound(details, configuration));
+				break;
+			default:
+				throw new UnsupportedOperationException("Entity status '" + details.getEntityStatus() + "' is not supported.");
 			}
 		}
+		
+		return result;
 	}
 
-	private void onProjectFound(final ImportDetails details, AutomatedImport configuration) {
+	/**
+	 * Update the project/orgunit found.
+	 * 
+	 * @param details
+	 *          Import details.
+	 * @param configuration 
+	 *          Import configuration.
+	 * @return A pair containing information about the container before the
+	 * update and the status of the importation.
+	 */
+	private Pair<ContainerInformation, AutomatedImportStatus> onContainerFound(final ImportDetails details, final AutomatedImport configuration) {
+		
 		final Map.Entry<EntityDTO<Integer>, List<ElementExtractedValue>> singleEntry = details.getEntitiesToImport().entrySet().iterator().next();
 		updateContainerWithDetails(singleEntry.getKey(), singleEntry.getValue(), configuration.getFileName());
+		
+		return new Pair<>(toContainerInformation(singleEntry.getKey()), AutomatedImportStatus.UPDATED);
 	}
 	
-	private void onProjectLocked(final ImportDetails details, AutomatedImport configuration) {
+	/**
+	 * Update every project/orgunit if necessary.
+	 * 
+	 * @param details
+	 *          Import details.
+	 * @param configuration 
+	 *          Import configuration.
+	 * @return A list of pairs containing information about the containers 
+	 * before the updates and the status of the importation.
+	 */
+	private List<Pair<ContainerInformation, AutomatedImportStatus>> onSeveralContainersFound(final ImportDetails details, final AutomatedImport configuration) {
+		
+		final ArrayList<Pair<ContainerInformation, AutomatedImportStatus>> result = new ArrayList<>();
+		
+		if (configuration.isUpdateAllMatches()) {
+			for (final Map.Entry<EntityDTO<Integer>, List<ElementExtractedValue>> entry : details.getEntitiesToImport().entrySet()) {
+				updateContainerWithDetails(entry.getKey(), entry.getValue(), configuration.getFileName());
+				result.add(new Pair<>(toContainerInformation(entry.getKey()), AutomatedImportStatus.UPDATED));
+			}
+		} else {
+			for (final Map.Entry<EntityDTO<Integer>, List<ElementExtractedValue>> entry : details.getEntitiesToImport().entrySet()) {
+				result.add(new Pair<>(toContainerInformation(entry.getKey()), AutomatedImportStatus.ABIGUOUS));
+			}
+		}
+		
+		return result;
+	}
+	
+	/**
+	 * Unlock the project if necessary and if the user has the required accesses
+	 * and update it.
+	 * 
+	 * @param details
+	 *          Import details.
+	 * @param configuration 
+	 *          Import configuration.
+	 * @return A pair containing information about the container before the
+	 * update and the status of the importation.
+	 */
+	private Pair<ContainerInformation, AutomatedImportStatus> onProjectLocked(final ImportDetails details, final AutomatedImport configuration) {
+		
+		AutomatedImportStatus status;
+		
+		final Map.Entry<EntityDTO<Integer>, List<ElementExtractedValue>> singleEntry = details.getEntitiesToImport().entrySet().iterator().next();
+		
 		if (configuration.isUnlockProjectCores()) {
-			final Map.Entry<EntityDTO<Integer>, List<ElementExtractedValue>> singleEntry = details.getEntitiesToImport().entrySet().iterator().next();
 			try {
 				importer.getExecutionContext().execute(new AmendmentActionCommand(singleEntry.getKey().getId(), AmendmentAction.UNLOCK));
 				updateContainerWithDetails(singleEntry.getKey(), singleEntry.getValue(), configuration.getFileName());
+				status = AutomatedImportStatus.UPDATED;
 			} catch (CommandException e) {
 				LOGGER.warn("An error occured while trying to unlock the project " + singleEntry.getKey(), e);
+				status = AutomatedImportStatus.UNLOCK_FAILED;
 			}
+		} else {
+			status = AutomatedImportStatus.WAS_LOCKED;
 		}
+		
+		return new Pair<>(toContainerInformation(singleEntry.getKey()), status);
+	}
+	
+	/**
+	 * Create the project if necessary and if the user has the required accesses
+	 * and update it.
+	 * 
+	 * @param details
+	 *          Import details.
+	 * @param configuration 
+	 *          Import configuration.
+	 * @return A pair containing information about the container and the status 
+	 * of the importation.
+	 */
+	private Pair<ContainerInformation, AutomatedImportStatus> onProjectNotFound(final ImportDetails details, final AutomatedImport configuration) {
+		
+		AutomatedImportStatus status;
+		
+		final List<ElementExtractedValue> values = details.getEntitiesToImport().values().iterator().next();
+		final Map<String, Object> properties = toBasicProperties(values);
+		
+		final ContainerInformation information = new ContainerInformation(0, (String) properties.get(ProjectDTO.NAME), (String) properties.get(ProjectDTO.FULL_NAME), true);
+		
+		if (configuration.isCreateProjects()) {
+			properties.putAll(toProjectCreationProperties(details));
+			
+			try {
+				final ProjectDTO project = createProjectWithProperties(properties);
+				information.setId(project.getId());
+				updateContainerWithDetails(project, values, configuration.getFileName());
+				status = AutomatedImportStatus.CREATED_AND_UPDATED;
+			} catch (CommandException ex) {
+				LOGGER.warn("An error occured while trying to create a new project.", ex);
+				status = AutomatedImportStatus.CREATION_FAILED;
+			}
+		} else {
+			status = AutomatedImportStatus.NOT_FOUND;
+		}
+		
+		return new Pair<>(information, status);
+	}
+	
+	/**
+	 * Mark the given organizational unit as not found.
+	 * 
+	 * @param details
+	 *          Import details.
+	 * @param configuration
+	 *          Import configuration.
+	 * @return A pair containing information about the container and the status 
+	 * of the importation.
+	 */
+	private Pair<ContainerInformation, AutomatedImportStatus> onOrgUnitNotFound(final ImportDetails details, final AutomatedImport configuration) {
+		
+		final List<ElementExtractedValue> values = details.getEntitiesToImport().values().iterator().next();
+		final Map<String, Object> properties = toBasicProperties(values);
+		
+		return new Pair<>(new ContainerInformation(0, (String) properties.get(OrgUnitDTO.NAME), (String) properties.get(OrgUnitDTO.FULL_NAME), false), AutomatedImportStatus.NOT_FOUND);
+	}
+	
+	// --
+	// ENTITY CREATION AND UPDATE.
+	// --
+
+	/**
+	 * Creates a new project with the given properties.
+	 * 
+	 * @param projectProperties
+	 *          Properties of the project to create.
+	 * @return The new project.
+	 * @throws CommandException
+	 *          If an error occured during the creation of the project.
+	 */
+	private ProjectDTO createProjectWithProperties(final Map<String, Object> projectProperties) throws CommandException {
+		
+		final CreateResult createResult = importer.getExecutionContext().execute(new CreateEntity(ProjectDTO.ENTITY_NAME, projectProperties));
+		return (ProjectDTO) createResult.getEntity();
 	}
 	
 	/**
@@ -108,6 +281,151 @@ public class AutomatedImporter {
 		} catch (CommandException ex) {
 			LOGGER.error("An error occured while importing values for the project #" + container.getId() + ".", ex);
 		}
+	}
+	
+	// --
+	// UTILITY METHODS.
+	// --
+	
+	/**
+	 * Extract the basic properties of a project/orgunit (code, title and 
+	 * budget) from the given values.
+	 * 
+	 * @param values
+	 *          Extracted values.
+	 * @return A map of the basic properties of a project/orgunit.
+	 */
+	private Map<String, Object> toBasicProperties(final List<ElementExtractedValue> values) {
+		
+		final HashMap<String, Object> projectProperties = new HashMap<String, Object>();
+		
+		for (final ElementExtractedValue extractedValue : values) {
+			final LogicalElementType type = LogicalElementTypes.of(extractedValue.getElement());
+			final DefaultFlexibleElementType defaultType = type.toDefaultFlexibleElementType();
+			
+			if (defaultType != null) switch (defaultType) {
+				case CODE:
+					projectProperties.put(ProjectDTO.NAME, extractedValue.getNewValue());
+					break;
+				case TITLE:
+					projectProperties.put(ProjectDTO.FULL_NAME, extractedValue.getNewValue());
+					break;
+				case BUDGET:
+					final BudgetElementDTO budgetElement = (BudgetElementDTO) extractedValue.getElement();
+					for (BudgetSubFieldDTO budgetSubField : budgetElement.getBudgetSubFields()) {
+						final Double value = (Double) extractedValue.getNewBudgetValues().get(budgetSubField.getId());
+
+						if (budgetSubField.getType() == BudgetSubFieldType.PLANNED && value != null) {
+							projectProperties.put(ProjectDTO.BUDGET, value);
+						}
+					}
+					break;
+				default:
+					break;
+			}
+		}
+		
+		return projectProperties;
+	}
+	
+	/**
+	 * Retrieve the properties required to create a new project.
+	 * <p>
+	 * The properties are:<ul>
+	 * <li>Creation mode (project or test project)</li>
+	 * <li>Project model identifier</li>
+	 * <li>Organizational unit identifier</li>
+	 * <li>Name of the calendar</li>
+	 * </ul>
+	 * 
+	 * @param details
+	 *          Importation details.
+	 * @return A map of the properties required to create a new project.
+	 */
+	private Map<String, Object> toProjectCreationProperties(final ImportDetails details) {
+		
+		final HashMap<String, Object> projectProperties = new HashMap<>();
+		
+		final CreateProjectPresenter.Mode creationMode = details.getModelStatus() == ProjectModelStatus.DRAFT ?
+				CreateProjectPresenter.Mode.TEST_PROJECT :
+				CreateProjectPresenter.Mode.PROJECT;
+		
+		projectProperties.put(ProjectDTO.MODEL_ID, getProjectModelIdForName(details.getModelName()));
+		projectProperties.put(ProjectDTO.ORG_UNIT_ID, getOrgUnitId());
+		projectProperties.put(ProjectDTO.CALENDAR_NAME, i18n("calendarDefaultName"));
+		projectProperties.put(ProjectDTO.CREATION_MODE, creationMode);
+		
+		return projectProperties;
+	}
+
+	/**
+	 * Creates a new instance of <code>ContainerInformation</code> from the
+	 * given entity.
+	 * 
+	 * @param container
+	 *          Container to use (can be a project or an org unit).
+	 * @return A new instance of <code>ContainerInformation</code>.
+	 */
+	private ContainerInformation toContainerInformation(final EntityDTO<Integer> container) {
+		
+		if (container instanceof ProjectDTO) {
+			final ProjectDTO project = (ProjectDTO) container;
+			return new ContainerInformation(project.getId(), project.getName(), project.getFullName(), true);
+		} else if (container instanceof OrgUnitDTO) {
+			final OrgUnitDTO orgUnit = (OrgUnitDTO) container;
+			return new ContainerInformation(orgUnit.getId(), orgUnit.getName(), orgUnit.getFullName(), false);
+		} else {
+			throw new IllegalArgumentException("Container should either be a project or an org unit.");
+		}
+	}
+	
+	/**
+	 * Find the identifier of one of the project model that has the given name.
+	 * If multiple models have the same name, result of this method is random.
+	 * 
+	 * @param projectModelName
+	 *          Name of the project model to search.
+	 * @return the identifier of a project model named with the given name.
+	 */
+	private Integer getProjectModelIdForName(final String projectModelName) {
+		final List<Integer> projectModels = importer.em().createQuery("SELECT pm.id FROM ProjectModel AS pm WHERE pm.name = :name", Integer.class)
+				.setParameter("name", projectModelName)
+				.getResultList();
+		
+		if (projectModels.isEmpty()) {
+			throw new IllegalArgumentException("Project model '" + projectModelName + "' was not found.");
+		} else if (projectModels.size() > 1) {
+			LOGGER.warn("Multiple project models with name '" + projectModelName + "' exists, using #" + projectModels.get(0) + " for the creation.");
+		}
+		return projectModels.get(0);
+	}
+	
+	/**
+	 * Find the identifier of the organizational unit of the current user.
+	 * 
+	 * @return the identifier of the orgunit of the current user.
+	 */
+	private String getOrgUnitId() {
+		final User user = importer.getExecutionContext().getUser();
+		final Integer orgUnitId = user.getOrgUnitWithProfiles().getOrgUnit().getId();
+		
+		if (orgUnitId != null) {
+			return orgUnitId.toString();
+		} else {
+			throw new IllegalArgumentException("Current user has no organizational unit.");
+		}
+	}
+	
+	/**
+	 * Find the translate value for the given <code>key</code> using the 
+	 * language of the current user.
+	 * 
+	 * @param key
+	 *          Key of the message to translate.
+	 * @return The translated key.
+	 */
+	private String i18n(String key) {
+		return importer.getTranslator().t(importer.getExecutionContext().getLanguage(), key);
 	}
 	
 }
