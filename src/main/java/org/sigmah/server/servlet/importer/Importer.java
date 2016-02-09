@@ -80,6 +80,7 @@ import org.sigmah.shared.dispatch.FunctionalException;
 import org.sigmah.shared.dto.ElementExtractedValue;
 import org.sigmah.shared.dto.ImportDetails;
 import org.sigmah.shared.dto.base.EntityDTO;
+import org.sigmah.shared.dto.element.BudgetElementDTO;
 import org.sigmah.shared.dto.element.CheckboxElementDTO;
 import org.sigmah.shared.dto.element.ComputationElementDTO;
 import org.sigmah.shared.dto.element.CoreVersionElementDTO;
@@ -1063,7 +1064,11 @@ public abstract class Importer implements Iterator<ImportDetails> {
 			dto = new CoreVersionElementDTO();
 			break;
 		case DEFAULT:
-			dto = new DefaultFlexibleElementDTO();
+			if (type == DefaultFlexibleElementType.BUDGET) {
+				dto = new BudgetElementDTO();
+			} else {
+				dto = new DefaultFlexibleElementDTO();
+			}
 			break;
 		case FILES_LIST:
 			dto = new FilesListElementDTO();
