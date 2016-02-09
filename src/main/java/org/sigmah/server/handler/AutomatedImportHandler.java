@@ -27,6 +27,8 @@ import com.google.inject.Inject;
 import com.google.inject.Injector;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collections;
+import java.util.List;
 import org.sigmah.server.dispatch.impl.UserDispatch;
 import org.sigmah.server.file.FileStorageProvider;
 import org.sigmah.server.handler.base.AbstractCommandHandler;
@@ -57,6 +59,8 @@ public class AutomatedImportHandler extends AbstractCommandHandler<AutomatedImpo
 	@Override
 	protected ListResult<BaseModelData> execute(AutomatedImport command, UserDispatch.UserExecutionContext context) throws CommandException {
 		
+		List<BaseModelData> correspondances = Collections.<BaseModelData>emptyList();
+		
 		try (final InputStream inputStream = storageProvider.open(command.getFileId())) {
 			final Importer importer = Importers.createImporterForScheme(command.getScheme());
 			importer.setExecutionContext(context);
@@ -66,13 +70,13 @@ public class AutomatedImportHandler extends AbstractCommandHandler<AutomatedImpo
 			importer.setInputStream(inputStream);
 
 			final AutomatedImporter automatedImporter = new AutomatedImporter(importer);
-			automatedImporter.importCorrespondances(command);
+			correspondances = automatedImporter.importCorrespondances(command);
 			
 		} catch (IOException ex) {
 			throw new CommandException("Error while importing file '" + command.getFileName() + "'.", ex);
 		}
 		
-		return null;
+		return new ListResult<>(correspondances);
 	}
 	
 }

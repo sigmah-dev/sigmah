@@ -27,6 +27,7 @@ import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
+import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import java.util.Arrays;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.ui.widget.button.Button;
@@ -43,11 +44,11 @@ import org.sigmah.shared.dto.ProjectDTO;
 public class AutomatedImportResultPopup extends PopupWidget {
 
 	private Grid<BaseModelData> grid;
-	private Button confirmButton;
+	private Button closeButton;
 	
 	public AutomatedImportResultPopup() {
 		super(true, Layouts.fitLayout());
-		setWidth("900px");
+		setWidth("700px");
 		setHeight("500px");
 	}
 	
@@ -60,11 +61,19 @@ public class AutomatedImportResultPopup extends PopupWidget {
 		grid = new Grid<BaseModelData>(new ListStore<BaseModelData>(), createColumnModel());
 		
 		// Creating the OK button.
-		confirmButton = Forms.button(I18N.CONSTANTS.ok());
+		closeButton = Forms.button(I18N.CONSTANTS.ok());
 		
 		// Preparing the popup.
 		setContent(grid);
-		addButton(confirmButton);
+		addButton(closeButton);
+	}
+	
+	public ListStore<BaseModelData> getStore() {
+		return grid.getStore();
+	}
+
+	public Button getCloseButton() {
+		return closeButton;
 	}
 	
 	/**
@@ -79,10 +88,10 @@ public class AutomatedImportResultPopup extends PopupWidget {
 		final ColumnConfig projectCodeColumnConfig = new ColumnConfig(ProjectDTO.NAME, I18N.CONSTANTS.adminFlexible(), 100);
 		
 		// Project title column.
-		final ColumnConfig projectTitleColumnConfig = new ColumnConfig(ProjectDTO.FULL_NAME, I18N.CONSTANTS.adminFlexible(), 100);
+		final ColumnConfig projectTitleColumnConfig = new ColumnConfig(ProjectDTO.FULL_NAME, I18N.CONSTANTS.adminFlexible(), 400);
 		
 		// New value column.
-		final ColumnConfig statusColumnConfig = new ColumnConfig("status", I18N.CONSTANTS.adminImportNewValue(), 70);
+		final ColumnConfig statusColumnConfig = new ColumnConfig("status", I18N.CONSTANTS.adminImportNewValue(), 200);
 		
 		// Creating the column model.
 		return new ColumnModel(Arrays.asList(

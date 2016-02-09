@@ -62,6 +62,7 @@ import org.sigmah.client.ui.presenter.CreateProjectPresenter;
 import org.sigmah.client.ui.presenter.base.AbstractPagePresenter;
 import org.sigmah.client.ui.presenter.base.HasForm;
 import org.sigmah.client.ui.presenter.project.AbstractProjectPresenter;
+import org.sigmah.client.ui.view.importation.AutomatedImportResultPopup;
 import org.sigmah.client.ui.view.importation.ElementExtractedValuePopup;
 import org.sigmah.client.ui.view.importation.ImportDetailsPopup;
 import org.sigmah.client.ui.view.importation.ImportationView;
@@ -120,6 +121,7 @@ public class ImportationPresenter extends AbstractPagePresenter<ImportationPrese
 		
 		ImportDetailsPopup getImportDetailsPopup();
 		ElementExtractedValuePopup getElementExtractedValuePopup();
+		AutomatedImportResultPopup getAutomatedImportResultPopup();
 		
 		ListStore<ImportationSchemeDTO> getSchemeListStore();
         
@@ -195,6 +197,9 @@ public class ImportationPresenter extends AbstractPagePresenter<ImportationPrese
 			}
 		});
 		
+		// --
+		// Activation rule of the import button.
+		// --
 		view.getSchemeField().addListener(Events.Select, new Listener<BaseEvent>() {
 			
 			@Override
@@ -278,6 +283,17 @@ public class ImportationPresenter extends AbstractPagePresenter<ImportationPrese
                       
                 elementExtractedValuePopup.hide();
                        
+			}
+		});
+		
+		// --
+		// Automated import result popup.
+		// --
+		view.getAutomatedImportResultPopup().getCloseButton().addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+			@Override
+			public void componentSelected(ButtonEvent ce) {
+				view.getAutomatedImportResultPopup().hide();
 			}
 		});
 	}
@@ -392,7 +408,12 @@ public class ImportationPresenter extends AbstractPagePresenter<ImportationPrese
 
 			@Override
 			protected void onCommandSuccess(ListResult<BaseModelData> result) {
-				// TODO: Shows result popup.
+				final AutomatedImportResultPopup popup = view.getAutomatedImportResultPopup();
+				final ListStore<BaseModelData> store = popup.getStore();
+				store.removeAll();
+				store.add(result.getData());
+				
+				popup.show();
 				view.hide();
 			}
 		}, view.getImportButton());

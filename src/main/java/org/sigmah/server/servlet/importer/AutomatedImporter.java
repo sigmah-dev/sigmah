@@ -164,7 +164,7 @@ public class AutomatedImporter {
 			}
 		} else {
 			for (final Map.Entry<EntityDTO<Integer>, List<ElementExtractedValue>> entry : details.getEntitiesToImport().entrySet()) {
-				result.add(toBaseModelData(entry.getKey(), AutomatedImportStatus.ABIGUOUS));
+				result.add(toBaseModelData(entry.getKey(), AutomatedImportStatus.MULTIPLE_MATCHES_FOUND));
 			}
 		}
 		

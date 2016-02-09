@@ -56,6 +56,8 @@ public class ImportationView extends AbstractPopupView<PopupWidget> implements I
 	
 	private ImportDetailsPopup importDetailsPopup;
 	private ElementExtractedValuePopup elementExtractedValuePopup;
+	private AutomatedImportResultPopup automatedImportResultPopup;
+	
 	private CheckBox automatedField;
 	private CheckBox newProjectsPolicyField;
 	private CheckBox projectCorePolicyField;
@@ -70,6 +72,7 @@ public class ImportationView extends AbstractPopupView<PopupWidget> implements I
 	 */
 	@Override
 	public void initialize() {
+		
 		// Importation details popup.
 		importDetailsPopup = new ImportDetailsPopup();
 		importDetailsPopup.initialize();
@@ -77,6 +80,10 @@ public class ImportationView extends AbstractPopupView<PopupWidget> implements I
 		// Element extracted value popup.
 		elementExtractedValuePopup = new ElementExtractedValuePopup();
 		elementExtractedValuePopup.initialize();
+		
+		// Automated import result popup.
+		automatedImportResultPopup = new AutomatedImportResultPopup();
+		automatedImportResultPopup.initialize();
 		
 		// Scheme field.
 		schemeField = Forms.combobox(I18N.CONSTANTS.adminImportationScheme(), true, ImportationSchemeDTO.ID, ImportationSchemeDTO.NAME);
@@ -196,5 +203,13 @@ public class ImportationView extends AbstractPopupView<PopupWidget> implements I
 	@Override
 	public ElementExtractedValuePopup getElementExtractedValuePopup() {
 		return elementExtractedValuePopup;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public AutomatedImportResultPopup getAutomatedImportResultPopup() {
+		return automatedImportResultPopup;
 	}
 }

@@ -1,5 +1,8 @@
 package org.sigmah.shared.dto.referential;
 
+import com.google.gwt.core.client.GWT;
+import org.sigmah.client.i18n.I18N;
+
 /*
  * #%L
  * Sigmah
@@ -30,13 +33,59 @@ package org.sigmah.shared.dto.referential;
 public enum AutomatedImportStatus {
 	
 	UPDATED,
-	ABIGUOUS,
 	WAS_LOCKED,
 	UNLOCK_FAILED,
 	UNLOCKED_AND_UPDATED,
 	NOT_FOUND,
+	MULTIPLE_MATCHES_FOUND,
 	CREATED_AND_UPDATED,
 	CREATION_FAILED,
 	;
+	
+	/**
+	 * Returns the given {@code elementType} corresponding name value.<br/>
+	 * This method should be executed from client-side. If executed from server-side, it returns a default name.
+	 * 
+	 * @param status
+	 *          The {@code ElementTypeEnum} value.
+	 * @return the given {@code elementType} corresponding name value, or a default name.
+	 */
+	public static String getName(final AutomatedImportStatus status) {
+
+		if (status == null) {
+			return null;
+		} else if (!GWT.isClient()) {
+			return status.name();
+		}
+
+		switch (status) {
+			case CREATED_AND_UPDATED:
+				return I18N.CONSTANTS.automatedImportCreatedAndUpdated();
+			case CREATION_FAILED:
+				return I18N.CONSTANTS.automatedImportCreationFailed();
+			case MULTIPLE_MATCHES_FOUND:
+				return I18N.CONSTANTS.automatedImportMultipleMatchesFound();
+			case NOT_FOUND:
+				return I18N.CONSTANTS.automatedImportNotFound();
+			case UNLOCKED_AND_UPDATED:
+				return I18N.CONSTANTS.automatedImportUnlockedAndUpdated();
+			case UNLOCK_FAILED:
+				return I18N.CONSTANTS.automatedImportUnlockedFailed();
+			case UPDATED:
+				return I18N.CONSTANTS.automatedImportUpdated();
+			case WAS_LOCKED:
+				return I18N.CONSTANTS.automatedImportWasLocked();
+			default:
+				return status.name();
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String toString() {
+		return getName(this);
+	}
 	
 }
