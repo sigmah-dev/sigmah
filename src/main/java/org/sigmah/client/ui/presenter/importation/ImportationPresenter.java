@@ -22,6 +22,7 @@ package org.sigmah.client.ui.presenter.importation;
  * #L%
  */
 
+import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
@@ -387,10 +388,10 @@ public class ImportationPresenter extends AbstractPagePresenter<ImportationPrese
 				view.getNewProjectsPolicyField().getValue(), 
 				view.getProjectCorePolicyField().getValue(), 
 				view.getMultipleMatchPolicyField().getValue()), 
-				new CommandResultHandler<Result>() {
+				new CommandResultHandler<ListResult<BaseModelData>>() {
 
 			@Override
-			protected void onCommandSuccess(Result result) {
+			protected void onCommandSuccess(ListResult<BaseModelData> result) {
 				// TODO: Shows result popup.
 				view.hide();
 			}

@@ -1,11 +1,10 @@
 package org.sigmah.server.handler;
 
+import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.sigmah.server.dispatch.impl.UserDispatch;
 import org.sigmah.server.file.FileStorageProvider;
 import org.sigmah.server.handler.base.AbstractCommandHandler;
@@ -13,7 +12,7 @@ import org.sigmah.server.servlet.importer.AutomatedImporter;
 import org.sigmah.server.servlet.importer.Importer;
 import org.sigmah.server.servlet.importer.Importers;
 import org.sigmah.shared.command.AutomatedImport;
-import org.sigmah.shared.command.result.Result;
+import org.sigmah.shared.command.result.ListResult;
 import org.sigmah.shared.dispatch.CommandException;
 
 /**
@@ -22,7 +21,7 @@ import org.sigmah.shared.dispatch.CommandException;
  * @author Raphaël Calabro (raphael.calabro@netapsys.fr)
  * @since 2.1
  */
-public class AutomatedImportHandler extends AbstractCommandHandler<AutomatedImport, Result> {
+public class AutomatedImportHandler extends AbstractCommandHandler<AutomatedImport, ListResult<BaseModelData>> {
 
 	@Inject
 	private Injector injector;
@@ -34,7 +33,7 @@ public class AutomatedImportHandler extends AbstractCommandHandler<AutomatedImpo
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected Result execute(AutomatedImport command, UserDispatch.UserExecutionContext context) throws CommandException {
+	protected ListResult<BaseModelData> execute(AutomatedImport command, UserDispatch.UserExecutionContext context) throws CommandException {
 		
 		try (final InputStream inputStream = storageProvider.open(command.getFileId())) {
 			final Importer importer = Importers.createImporterForScheme(command.getScheme());

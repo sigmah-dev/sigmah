@@ -1,5 +1,6 @@
 package org.sigmah.server.servlet.importer;
 
+import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import java.io.IOException;
@@ -44,17 +45,16 @@ import org.sigmah.server.security.Authenticator;
 import org.sigmah.shared.Language;
 import org.sigmah.shared.command.AutomatedImport;
 import org.sigmah.shared.dispatch.CommandException;
+import org.sigmah.shared.dto.ProjectDTO;
 import org.sigmah.shared.dto.importation.ImportationSchemeDTO;
 import org.sigmah.shared.dto.referential.AmendmentState;
 import org.sigmah.shared.dto.referential.AutomatedImportStatus;
-import org.sigmah.shared.dto.referential.ContainerInformation;
 import org.sigmah.shared.dto.referential.DefaultFlexibleElementType;
 import org.sigmah.shared.dto.referential.GlobalPermissionEnum;
 import org.sigmah.shared.dto.referential.ImportationSchemeFileFormat;
 import org.sigmah.shared.dto.referential.ImportationSchemeImportType;
 import org.sigmah.shared.dto.referential.ProjectModelStatus;
 import org.sigmah.shared.dto.referential.TextAreaType;
-import org.sigmah.shared.util.Pair;
 
 /**
  * Test class for <code>AutomatedImporter</code>.
@@ -113,18 +113,18 @@ public class AutomatedImporterUnlockTest extends AbstractDaoTest {
 		final AutomatedImport configuration = new AutomatedImport("1234", "import.csv", getImportationScheme(), true, true, false);
 		
 		final AutomatedImporter instance = new AutomatedImporter(importer);
-		final List<Pair<ContainerInformation, AutomatedImportStatus>> result = instance.importCorrespondances(configuration);
+		final List<BaseModelData> result = instance.importCorrespondances(configuration);
 		
 		Assert.assertEquals(2, result.size());
-		Assert.assertEquals(projectId, result.get(0).getLeft().getId());
-		Assert.assertEquals("I1", result.get(0).getLeft().getName());
-		Assert.assertEquals("TestProject", result.get(0).getLeft().getFullName());
-		Assert.assertEquals(AutomatedImportStatus.UNLOCKED_AND_UPDATED, result.get(0).getRight());
+		Assert.assertEquals(projectId, result.get(0).get(ProjectDTO.ID));
+		Assert.assertEquals("I1", result.get(0).get(ProjectDTO.NAME));
+		Assert.assertEquals("TestProject", result.get(0).get(ProjectDTO.FULL_NAME));
+		Assert.assertEquals(AutomatedImportStatus.UNLOCKED_AND_UPDATED, result.get(0).get("status"));
 		
-		Assert.assertNotEquals(0, result.get(1).getLeft().getId());
-		Assert.assertEquals("I8", result.get(1).getLeft().getName());
-		Assert.assertEquals("Mon projet qui n'existe pas", result.get(1).getLeft().getFullName());
-		Assert.assertEquals(AutomatedImportStatus.CREATED_AND_UPDATED, result.get(1).getRight());
+		Assert.assertNotEquals(0, result.get(1).get(ProjectDTO.ID));
+		Assert.assertEquals("I8", result.get(1).get(ProjectDTO.NAME));
+		Assert.assertEquals("Mon projet qui n'existe pas", result.get(1).get(ProjectDTO.FULL_NAME));
+		Assert.assertEquals(AutomatedImportStatus.CREATED_AND_UPDATED, result.get(1).get("status"));
 
 		final Project project = em().find(Project.class, projectId);
 		Assert.assertEquals("I1", project.getName());
@@ -135,7 +135,7 @@ public class AutomatedImporterUnlockTest extends AbstractDaoTest {
 				.setParameter("elementId", introductionElementId)
 				.getSingleResult());
 
-		final Project project2 = em().find(Project.class, result.get(1).getLeft().getId());
+		final Project project2 = em().find(Project.class, result.get(1).get(ProjectDTO.ID));
 		Assert.assertEquals("I8", project2.getName());
 		Assert.assertEquals("Mon projet qui n'existe pas", project2.getFullName());
 		Assert.assertEquals("Rien", em().createQuery(

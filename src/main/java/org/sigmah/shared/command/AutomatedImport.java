@@ -1,7 +1,8 @@
 package org.sigmah.shared.command;
 
+import com.extjs.gxt.ui.client.data.BaseModelData;
 import org.sigmah.shared.command.base.AbstractCommand;
-import org.sigmah.shared.command.result.Result;
+import org.sigmah.shared.command.result.ListResult;
 import org.sigmah.shared.dto.importation.ImportationSchemeDTO;
 
 /**
@@ -10,8 +11,8 @@ import org.sigmah.shared.dto.importation.ImportationSchemeDTO;
  * @author Raphaël Calabro (raphael.calabro@netapsys.fr)
  * @since 2.1
  */
-public class AutomatedImport extends AbstractCommand<Result> {
-	
+public class AutomatedImport extends AbstractCommand<ListResult<BaseModelData>> {
+
 	private String fileId;
 	private String fileName;
 	private ImportationSchemeDTO scheme;

@@ -1,5 +1,7 @@
 package org.sigmah.server.servlet.importer;
 
+import com.extjs.gxt.ui.client.data.BaseModelData;
+import com.extjs.gxt.ui.client.data.ModelData;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -28,7 +30,6 @@ import org.sigmah.shared.dto.referential.DefaultFlexibleElementType;
 import org.sigmah.shared.dto.referential.LogicalElementType;
 import org.sigmah.shared.dto.referential.LogicalElementTypes;
 import org.sigmah.shared.dto.referential.ProjectModelStatus;
-import org.sigmah.shared.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,9 +67,9 @@ public class AutomatedImporter {
 	 *          Import configuration.
 	 * @return A list of status for 
 	 */
-	public List<Pair<ContainerInformation, AutomatedImportStatus>> importCorrespondances(AutomatedImport configuration) {
+	public List<BaseModelData> importCorrespondances(AutomatedImport configuration) {
 		
-		final ArrayList<Pair<ContainerInformation, AutomatedImportStatus>> result = new ArrayList<>();
+		final ArrayList<BaseModelData> result = new ArrayList<>();
 		
 		while (importer.hasNext()) {
 			final ImportDetails details = importer.next();
@@ -109,12 +110,14 @@ public class AutomatedImporter {
 	 * @return A pair containing information about the container before the
 	 * update and the status of the importation.
 	 */
-	private Pair<ContainerInformation, AutomatedImportStatus> onContainerFound(final ImportDetails details, final AutomatedImport configuration) {
+	private BaseModelData onContainerFound(final ImportDetails details, final AutomatedImport configuration) {
 		
 		final Map.Entry<EntityDTO<Integer>, List<ElementExtractedValue>> singleEntry = details.getEntitiesToImport().entrySet().iterator().next();
-		updateContainerWithDetails(singleEntry.getKey(), singleEntry.getValue(), configuration.getFileName());
+		final EntityDTO<Integer> container = singleEntry.getKey();
 		
-		return new Pair<>(toContainerInformation(singleEntry.getKey()), AutomatedImportStatus.UPDATED);
+		updateContainerWithDetails(container, singleEntry.getValue(), configuration.getFileName());
+		
+		return toBaseModelData(container, AutomatedImportStatus.UPDATED);
 	}
 	
 	/**
@@ -127,18 +130,19 @@ public class AutomatedImporter {
 	 * @return A list of pairs containing information about the containers 
 	 * before the updates and the status of the importation.
 	 */
-	private List<Pair<ContainerInformation, AutomatedImportStatus>> onSeveralContainersFound(final ImportDetails details, final AutomatedImport configuration) {
+	private List<BaseModelData> onSeveralContainersFound(final ImportDetails details, final AutomatedImport configuration) {
 		
-		final ArrayList<Pair<ContainerInformation, AutomatedImportStatus>> result = new ArrayList<>();
+		final ArrayList<BaseModelData> result = new ArrayList<>();
 		
 		if (configuration.isUpdateAllMatches()) {
 			for (final Map.Entry<EntityDTO<Integer>, List<ElementExtractedValue>> entry : details.getEntitiesToImport().entrySet()) {
-				updateContainerWithDetails(entry.getKey(), entry.getValue(), configuration.getFileName());
-				result.add(new Pair<>(toContainerInformation(entry.getKey()), AutomatedImportStatus.UPDATED));
+				final EntityDTO<Integer> container = entry.getKey();
+				updateContainerWithDetails(container, entry.getValue(), configuration.getFileName());
+				result.add(toBaseModelData(container, AutomatedImportStatus.UPDATED));
 			}
 		} else {
 			for (final Map.Entry<EntityDTO<Integer>, List<ElementExtractedValue>> entry : details.getEntitiesToImport().entrySet()) {
-				result.add(new Pair<>(toContainerInformation(entry.getKey()), AutomatedImportStatus.ABIGUOUS));
+				result.add(toBaseModelData(entry.getKey(), AutomatedImportStatus.ABIGUOUS));
 			}
 		}
 		
@@ -156,26 +160,27 @@ public class AutomatedImporter {
 	 * @return A pair containing information about the container before the
 	 * update and the status of the importation.
 	 */
-	private Pair<ContainerInformation, AutomatedImportStatus> onProjectLocked(final ImportDetails details, final AutomatedImport configuration) {
+	private BaseModelData onProjectLocked(final ImportDetails details, final AutomatedImport configuration) {
 		
 		AutomatedImportStatus status;
 		
 		final Map.Entry<EntityDTO<Integer>, List<ElementExtractedValue>> singleEntry = details.getEntitiesToImport().entrySet().iterator().next();
+		final EntityDTO<Integer> container = singleEntry.getKey();
 		
 		if (configuration.isUnlockProjectCores()) {
 			try {
 				importer.getExecutionContext().execute(new AmendmentActionCommand(singleEntry.getKey().getId(), AmendmentAction.UNLOCK));
-				updateContainerWithDetails(singleEntry.getKey(), singleEntry.getValue(), configuration.getFileName());
+				updateContainerWithDetails(container, singleEntry.getValue(), configuration.getFileName());
 				status = AutomatedImportStatus.UNLOCKED_AND_UPDATED;
 			} catch (CommandException e) {
-				LOGGER.warn("An error occured while trying to unlock the project " + singleEntry.getKey(), e);
+				LOGGER.warn("An error occured while trying to unlock the project " + container, e);
 				status = AutomatedImportStatus.UNLOCK_FAILED;
 			}
 		} else {
 			status = AutomatedImportStatus.WAS_LOCKED;
 		}
 		
-		return new Pair<>(toContainerInformation(singleEntry.getKey()), status);
+		return toBaseModelData(container, status);
 	}
 	
 	/**
@@ -189,21 +194,22 @@ public class AutomatedImporter {
 	 * @return A pair containing information about the container and the status 
 	 * of the importation.
 	 */
-	private Pair<ContainerInformation, AutomatedImportStatus> onProjectNotFound(final ImportDetails details, final AutomatedImport configuration) {
+	private BaseModelData onProjectNotFound(final ImportDetails details, final AutomatedImport configuration) {
 		
 		AutomatedImportStatus status;
 		
 		final List<ElementExtractedValue> values = details.getEntitiesToImport().values().iterator().next();
 		final Map<String, Object> properties = toBasicProperties(values);
 		
-		final ContainerInformation information = new ContainerInformation(0, (String) properties.get(ProjectDTO.NAME), (String) properties.get(ProjectDTO.FULL_NAME), true);
+		ProjectDTO project = new ProjectDTO();
+		project.setName((String) properties.get(ProjectDTO.NAME));
+		project.setFullName((String) properties.get(ProjectDTO.FULL_NAME));
 		
 		if (configuration.isCreateProjects()) {
 			properties.putAll(toProjectCreationProperties(details));
 			
 			try {
-				final ProjectDTO project = createProjectWithProperties(properties);
-				information.setId(project.getId());
+				project = createProjectWithProperties(properties);
 				updateContainerWithDetails(project, values, configuration.getFileName());
 				status = AutomatedImportStatus.CREATED_AND_UPDATED;
 			} catch (CommandException ex) {
@@ -214,7 +220,7 @@ public class AutomatedImporter {
 			status = AutomatedImportStatus.NOT_FOUND;
 		}
 		
-		return new Pair<>(information, status);
+		return toBaseModelData(project, status);
 	}
 	
 	/**
@@ -227,12 +233,16 @@ public class AutomatedImporter {
 	 * @return A pair containing information about the container and the status 
 	 * of the importation.
 	 */
-	private Pair<ContainerInformation, AutomatedImportStatus> onOrgUnitNotFound(final ImportDetails details, final AutomatedImport configuration) {
+	private BaseModelData onOrgUnitNotFound(final ImportDetails details, final AutomatedImport configuration) {
 		
 		final List<ElementExtractedValue> values = details.getEntitiesToImport().values().iterator().next();
 		final Map<String, Object> properties = toBasicProperties(values);
 		
-		return new Pair<>(new ContainerInformation(0, (String) properties.get(OrgUnitDTO.NAME), (String) properties.get(OrgUnitDTO.FULL_NAME), false), AutomatedImportStatus.NOT_FOUND);
+		final OrgUnitDTO orgUnit = new OrgUnitDTO();
+		orgUnit.setName((String) properties.get(OrgUnitDTO.NAME));
+		orgUnit.setFullName((String) properties.get(OrgUnitDTO.FULL_NAME));
+		
+		return toBaseModelData(orgUnit, AutomatedImportStatus.NOT_FOUND);
 	}
 	
 	// --
@@ -377,6 +387,21 @@ public class AutomatedImporter {
 		} else {
 			throw new IllegalArgumentException("Container should either be a project or an org unit.");
 		}
+	}
+	
+	private BaseModelData toBaseModelData(final EntityDTO<Integer> container, final AutomatedImportStatus status) {
+		
+		final BaseModelData modelData = new BaseModelData();
+		
+		final ModelData source = (ModelData) container;
+		
+		modelData.set(ProjectDTO.ID, container.getId());
+		modelData.set(ProjectDTO.NAME, source.get(ProjectDTO.NAME));
+		modelData.set(ProjectDTO.FULL_NAME, source.get(ProjectDTO.FULL_NAME));
+		modelData.set("entityName", container.getEntityName());
+		modelData.set("status", status);
+		
+		return modelData;
 	}
 	
 	/**
