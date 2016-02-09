@@ -25,7 +25,6 @@ package org.sigmah.server.security;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sigmah.server.dao.UserDAO;
@@ -52,8 +51,6 @@ import com.google.inject.Inject;
 								PersistenceModule.class,
 								MapperModule.class
 })
-// TODO use Assume to skip test if environment is not set
-@Ignore("Test requires a database environment")
 public class PasswordTest {
 
 	private static final String TEST_USER_LOGIN = "test-dumb-email@email.net";

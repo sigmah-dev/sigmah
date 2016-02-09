@@ -37,6 +37,17 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.google.inject.persist.PersistService;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+import org.junit.runner.notification.RunNotifier;
+import org.xml.sax.Attributes;
+import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
 
 /**
  * <p>
@@ -86,6 +97,17 @@ public final class GuiceJUnitRunner extends BlockJUnit4ClassRunner {
 	 * The injector.
 	 */
 	private final Injector injector;
+	
+	/**
+	 * State of the database.
+	 * <p>
+	 * <code>true</code> if the database is required by the test class but
+	 * no local database was found.
+	 * <code>false</code> otherwise.
+	 * <p>
+	 * If <code>true</code> the whole test class will be skipped.
+	 */
+	private final boolean databaseRequiredButUnavailable;
 
 	/**
 	 * {@inheritDoc}
@@ -112,11 +134,32 @@ public final class GuiceJUnitRunner extends BlockJUnit4ClassRunner {
 		final List<Class<?>> classes = getModulesFor(klass);
 		this.injector = createInjectorFor(classes);
 
+		boolean databaseIsRequiredAndUnavailable = false;
+		
 		if (classes.contains(PersistenceModule.class)) {
-			startPersistUnit();
+			if (isDatabaseAvailable()) {
+				startPersistUnit();
+			} else {
+				databaseIsRequiredAndUnavailable = true;
+			}
 		}
+		
+		this.databaseRequiredButUnavailable = databaseIsRequiredAndUnavailable;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void run(RunNotifier notifier) {
+		
+		if (databaseRequiredButUnavailable) {
+			notifier.fireTestIgnored(getDescription());
+		} else {
+			super.run(notifier);
+		}
+	}
+	
 	/**
 	 * Creates the {@link Injector} instance for the given modules {@code classes}.
 	 * 
@@ -170,5 +213,73 @@ public final class GuiceJUnitRunner extends BlockJUnit4ClassRunner {
 	 */
 	private void startPersistUnit() {
 		injector.getInstance(PersistService.class).start();
+	}
+	
+	/**
+	 * Parse the <code>META-INF/context.xml</code> file and try to connect to 
+	 * the database.
+	 * 
+	 * @return <code>true</code> if the connection was successful, 
+	 * <code>false</code> otherwise.
+	 */
+	private boolean isDatabaseAvailable() {
+		
+		boolean available = false;
+		final SAXParserFactory factory = SAXParserFactory.newInstance();
+
+		try {
+			factory.setValidating(false);
+			factory.setFeature("http://xml.org/sax/features/validation", false);
+			factory.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
+			factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+			factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+			factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+
+			final SAXParser parser = factory.newSAXParser();
+			
+			final String[] properties = new String[3];
+			
+			parser.parse(getClass().getResourceAsStream("/META-INF/persistence.xml"), new DefaultHandler() {
+				
+				@Override
+				public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
+					if ("property".equals(qName)) {
+						final String name = attributes.getValue("name");
+						final String value = attributes.getValue("value");
+						
+						if (name != null) switch (name) {
+						case "hibernate.connection.driver_class":
+							try {
+								Class.forName(value);
+							} catch (ClassNotFoundException ex) {
+								throw new SAXException("SQL driver '" + value + "' could not be loaded.", ex);
+							}
+							break;
+						case "hibernate.connection.url":
+							properties[0] = value;
+							break;
+						case "hibernate.connection.username":
+							properties[1] = value;
+							break;
+						case "hibernate.connection.password":
+							properties[2] = value;
+							break;
+						default:
+							break;
+						}
+					}
+				}
+				
+			});
+			
+			final Connection testConnection = DriverManager.getConnection(properties[0], properties[1], properties[2]);
+			testConnection.close();
+			
+			available = true;
+		} catch (ParserConfigurationException | SAXException | IOException | SQLException ex) {
+			// Ignored.
+		}
+		
+		return available;
 	}
 }

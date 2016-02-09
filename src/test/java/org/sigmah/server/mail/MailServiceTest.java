@@ -25,7 +25,6 @@ package org.sigmah.server.mail;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sigmah.server.inject.ConfigurationModule;
@@ -53,8 +52,6 @@ import org.sigmah.server.inject.TestMailModule;
 								PersistenceModule.class,
 								I18nServerModule.class
 })
-// TODO use Assume to skip test if environment is not set
-@Ignore("Test requires a database environment")
 public class MailServiceTest {
 
 	@Inject
