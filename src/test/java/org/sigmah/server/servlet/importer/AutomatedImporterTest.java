@@ -143,7 +143,7 @@ public class AutomatedImporterTest extends AbstractDaoTest {
 		final Project project = em().find(Project.class, projectId);
 		Assert.assertEquals("I1", project.getName());
 		Assert.assertEquals("Mon projet d’import", project.getFullName());
-		Assert.assertEquals("Ce projet sérieux et plein d'avenir devrait sauver beaucoup de personnes", em().createQuery(
+		Assert.assertEquals("Ce projet incroyable, efficace et plein d'avenir devrait sauver beaucoup de personnes", em().createQuery(
 				"SELECT v.value from Value AS v WHERE v.containerId = :projectId AND v.element.id = :elementId", String.class)
 				.setParameter("projectId", projectId)
 				.setParameter("elementId", introductionElementId)

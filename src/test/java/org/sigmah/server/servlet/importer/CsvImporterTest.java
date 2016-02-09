@@ -141,7 +141,7 @@ public class CsvImporterTest extends AbstractDaoTest {
 				Assert.assertEquals("Mon projet d’import", value.getNewValue());
 				Assert.assertEquals("TestProject", value.getOldValue());
 			} else if (type == TextAreaType.TEXT) {
-				Assert.assertEquals("Ce projet sérieux et plein d'avenir devrait sauver beaucoup de personnes", value.getNewValue());
+				Assert.assertEquals("Ce projet incroyable, efficace et plein d'avenir devrait sauver beaucoup de personnes", value.getNewValue());
 				Assert.assertEquals("Pas d'introduction", value.getOldValue());
 			} else {
 				Assert.fail();
