@@ -82,6 +82,8 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 	 * Serial version UID.
 	 */
 	private static final long serialVersionUID = 8520711106031085130L;
+	
+	public static final int NUMBER_FIELD_WIDTH = 200;
 
 	// DTO 'base' attributes keys.
 	public static final String LABEL = "label";

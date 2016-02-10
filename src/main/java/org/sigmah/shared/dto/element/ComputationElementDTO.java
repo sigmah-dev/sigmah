@@ -68,7 +68,7 @@ public class ComputationElementDTO extends FlexibleElementDTO {
             
         });
 		
-		preferredWidth = 120;
+		preferredWidth = FlexibleElementDTO.NUMBER_FIELD_WIDTH;
 		
 		// Sets the value of the field.
 		if (valueResult != null && valueResult.isValueDefined()) {
