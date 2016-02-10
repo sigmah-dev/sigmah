@@ -1251,7 +1251,11 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 		// Common properties.
 		// --
 
-		final LogicalElementType logicalElementType = TypeModel.getType(view.getTypeField().getValue());
+		final LogicalElementType logicalElementType = flexibleElement != null ? 
+				// BUGFIX #849: When disabled, GXT combo box can't be set and thus return null.
+				// So instead of using the value of the combo box, the type is set from the edited element.
+				LogicalElementTypes.of(flexibleElement) : 
+				TypeModel.getType(view.getTypeField().getValue());
 		final ElementTypeEnum type = logicalElementType.toElementTypeEnum();
 		final LayoutGroupDTO group = view.getLayoutGroupField().getValue();
 		final Integer order = ClientUtils.getInteger(view.getOrderField().getValue().intValue());
