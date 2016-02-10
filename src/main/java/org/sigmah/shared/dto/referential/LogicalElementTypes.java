@@ -61,7 +61,14 @@ public final class LogicalElementTypes {
         } else if(flexibleElement instanceof DefaultFlexibleElementDTO) {
             type = ((DefaultFlexibleElementDTO) flexibleElement).getType();
         } else if (flexibleElement != null) {
-            type = flexibleElement.getElementType();
+			final ElementTypeEnum elementType = flexibleElement.getElementType();
+			if (elementType == ElementTypeEnum.TEXT_AREA) {
+				// Should never happen but has happened. Remove this when
+				// the cause is found.
+				type = TextAreaType.TEXT;
+			} else {
+				type = elementType;
+			}
         } else {
             type = null;
         }
