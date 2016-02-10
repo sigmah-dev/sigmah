@@ -83,7 +83,8 @@ public class ComputationElementDTO extends FlexibleElementDTO {
 	 */
 	@Override
 	public boolean isCorrectRequiredValue(ValueResult result) {
-		return ComputedValues.from(result).matchesConstraints(this) == 0;
+		final ComputedValue value = ComputedValues.from(result);
+		return value.get() != null && value.matchesConstraints(this) == 0;
 	}
 
 	/**
@@ -153,6 +154,10 @@ public class ComputationElementDTO extends FlexibleElementDTO {
      * @param value Value to validate.
      */
     private String validateValue(final String value) {
+		
+		if (!hasConstraints()) {
+			return null;
+		}
         
         final ComputedValue computedValue = ComputedValues.from(value);
         switch (computedValue.matchesConstraints(this)) {
