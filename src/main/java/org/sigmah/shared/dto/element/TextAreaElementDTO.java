@@ -104,7 +104,7 @@ public class TextAreaElementDTO extends FlexibleElementDTO {
 
 					numberField.setAllowDecimals(isDecimal);
 					numberField.setAllowNegative(true);
-					preferredWidth = 120;
+					preferredWidth = FlexibleElementDTO.NUMBER_FIELD_WIDTH;
 
 					// Decimal value
 					if (isDecimal) {
@@ -189,7 +189,7 @@ public class TextAreaElementDTO extends FlexibleElementDTO {
 					dateField.getPropertyEditor().setFormat(DATE_FORMAT);
 					dateField.setEditable(true);
 					dateField.setAllowBlank(true);
-					preferredWidth = 120;
+					preferredWidth = FlexibleElementDTO.NUMBER_FIELD_WIDTH;
 
 					// Sets the min date value.
 					final Date minDate;
