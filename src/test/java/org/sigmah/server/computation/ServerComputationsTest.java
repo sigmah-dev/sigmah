@@ -51,30 +51,6 @@ import org.sigmah.shared.dto.referential.TextAreaType;
 public class ServerComputationsTest {
 	
 	/**
-	 * Test of getAllElementsFromModels method, of class ServerComputations.
-	 */
-	@Test
-	public void testGetAllElementsFromModels() {
-		ProjectModel projectModel = null;
-		OrgUnitModel orgUnitModel = null;
-		
-		Collection<FlexibleElementDTO> result = ServerComputations.getAllElementsFromModels(projectModel, orgUnitModel);
-		assertNotNull(result);
-		assertEquals(0, result.size());
-		
-		projectModel = getProjectModel();
-		result = ServerComputations.getAllElementsFromModels(projectModel, orgUnitModel);
-		assertNotNull(result);
-		assertEquals(3, result.size());
-		
-		projectModel = null;
-		orgUnitModel = getOrgUnitModel();
-		result = ServerComputations.getAllElementsFromModels(projectModel, orgUnitModel);
-		assertNotNull(result);
-		assertEquals(3, result.size());
-	}
-
-	/**
 	 * Test of getAllElementsFromModel method, of class ServerComputations.
 	 */
 	@Test
