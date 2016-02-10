@@ -65,6 +65,7 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
 import org.sigmah.offline.sync.SuccessCallback;
+import org.sigmah.server.computation.ServerComputations;
 import org.sigmah.server.computation.ServerValueResolver;
 import org.sigmah.server.handler.util.Conflicts;
 import org.sigmah.server.handler.util.Handlers;
@@ -72,11 +73,11 @@ import org.sigmah.server.i18n.I18nServer;
 import org.sigmah.shared.Language;
 import org.sigmah.shared.command.result.ValueResult;
 import org.sigmah.shared.computation.Computation;
+import org.sigmah.shared.computation.Computations;
 import org.sigmah.shared.computation.value.ComputedValue;
 import org.sigmah.shared.computation.value.ComputedValues;
 import org.sigmah.shared.dispatch.FunctionalException;
 import org.sigmah.shared.dispatch.UpdateConflictException;
-import org.sigmah.shared.dto.ProjectModelDTO;
 import org.sigmah.shared.dto.element.BudgetElementDTO;
 import org.sigmah.shared.dto.element.BudgetSubFieldDTO;
 import org.sigmah.shared.dto.element.ComputationElementDTO;
@@ -845,8 +846,7 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
                 final ComputedValue[] serverResult = new ComputedValue[1];
                 final ComputedValue clientResult = ComputedValues.from(value.getSingleValue());
                 
-                // TODO: Avoid using the DTOs when server-side.
-                final Computation computation = computationElement.getComputationForModel(mapper.map(project.getProjectModel(), new ProjectModelDTO()));
+                final Computation computation = Computations.parse(computationElement.getRule(), ServerComputations.getAllElementsFromModel(project.getProjectModel()));
                 computation.computeValueWithWrappersAndResolver(project.getId(), values, valueResolver, new SuccessCallback<String>() {
                     @Override
                     public void onSuccess(String result) {

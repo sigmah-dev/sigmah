@@ -29,8 +29,11 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -43,6 +46,12 @@ import org.hibernate.collection.internal.PersistentList;
 import org.hibernate.collection.internal.PersistentSet;
 import org.hibernate.collection.spi.PersistentCollection;
 import org.hibernate.proxy.HibernateProxy;
+import org.sigmah.server.computation.ServerComputations;
+import org.sigmah.server.domain.OrgUnitModel;
+import org.sigmah.server.domain.ProjectModel;
+import org.sigmah.server.domain.element.ComputationElement;
+import org.sigmah.shared.computation.Computations;
+import org.sigmah.shared.dto.element.FlexibleElementDTO;
 
 /**
  * Creates plain objects from Hibernate proxies.
@@ -53,6 +62,9 @@ import org.hibernate.proxy.HibernateProxy;
 public class Realizer {
 
 	private final static Log LOG = LogFactory.getLog(Realizer.class);
+	
+	private final static String ORGANIZATION_FIELD = "organization";
+	private final static String FORMULA_FIELD = "rule";
 
 	private Realizer() {
 	}
@@ -62,18 +74,35 @@ public class Realizer {
 	 * and <code>HashSet</code> instead of <code>PersistentSet</code>s. <br>
 	 * <b>Note:</b> do not use this without testing its compatibility with your objects.
 	 * 
-	 * @param <T> Type of the object to copy.
+	 * @param <T>
+	 *          Type of the object to copy.
 	 * @param object
 	 *          An hibernate proxy.
-	 * @param ignores Array of classes to ignore.
+	 * @param ignores 
+	 *          Array of classes to ignore.
 	 * @return A copy of the given object without any proxy instance.
 	 */
 	public static <T> T realize(T object, Class<?>... ignores) {
-		return realize(object, new HashMap<>(), new HashSet<>(Arrays.asList(ignores)));
+		return realize(object, new HashMap<>(), new HashSet<>(Arrays.asList(ignores)), object);
 	}
 
+	/**
+	 * Creates a new object and recursively fills its fields.
+	 * 
+	 * @param <T>
+	 *          Type of the object to copy.
+	 * @param object
+	 *          Object to copy.
+	 * @param alreadyRealizedObjects
+	 *          Set of already copied objects.
+	 * @param ignores
+	 *          Set of classes to ignore.
+	 * @param parent
+	 *          Parent object.
+	 * @return A copy of the given object without any proxy instance.
+	 */
 	@SuppressWarnings("unchecked")
-	private static <T> T realize(T object, Map<Object, Object> alreadyRealizedObjects, Set<Class<?>> ignores) {
+	private static <T> T realize(T object, Map<Object, Object> alreadyRealizedObjects, Set<Class<?>> ignores, Object parent) {
 		T result = null;
 
 		if (object != null) {
@@ -97,80 +126,13 @@ public class Realizer {
 				final T instance = emptyConstructor.newInstance();
 				alreadyRealizedObjects.put(object, instance);
 
-				// Accessing fields from the given object
-				final ArrayList<Field> fields = new ArrayList<Field>();
-
-				fields.addAll(Arrays.asList(clazz.getDeclaredFields()));
-
-				Class<?> superClass = clazz.getSuperclass();
-				while (superClass.getPackage().getName().startsWith("org.sigmah")) {
-
-					fields.addAll(Arrays.asList(superClass.getDeclaredFields()));
-
-					superClass = superClass.getSuperclass();
-				}
+				final List<Field> fields = getFieldsOfClass(clazz);
 
 				for (final Field field : fields) {
-					// Avoid trying to modify static fields
-					if (!Modifier.isStatic(field.getModifiers())) {
-						LOG.trace("\tfield " + field.getName());
-						
-						if(field.getName().equalsIgnoreCase("organization")) {
-							// Organization should not be exported.
-							continue;
-						}
-						
-						final Method getterMethod = getGetterMethod(field, clazz);
-						final Method setterMethod = getSetterMethod(field, clazz);
-
-						final Object sourceValue = getterMethod.invoke(object);
-						final Object destinationValue;
-						
-						final Class<?> sourceValueClass = sourceValue != null ? sourceValue.getClass() : null;
-						
-						if(sourceValue instanceof PersistentCollection || sourceValue instanceof HibernateProxy) {
-							Hibernate.initialize(sourceValue);
-						}
-
-						if (sourceValue == null || sourceValueClass == null) {
-							destinationValue = null;
-
-						} else if (sourceValue instanceof PersistentBag || sourceValue instanceof PersistentList) {
-							// Turning persistent bags into array lists
-							final ArrayList<Object> list = new ArrayList<Object>();
-
-							for (Object value : (PersistentBag) sourceValue) {
-								list.add(realize(value, alreadyRealizedObjects, ignores));
-							}
-
-							destinationValue = list;
-
-						} else if (sourceValue instanceof PersistentSet) {
-							// Turning persistent sets into hash sets
-
-							final HashSet<Object> set = new HashSet<Object>();
-
-							for (Object value : (PersistentSet) sourceValue) {
-								set.add(realize(value, alreadyRealizedObjects, ignores));
-							}
-
-							destinationValue = set;
-
-						} else if (ignores.contains(sourceValueClass) || sourceValueClass.getName().startsWith("java.") || sourceValueClass.isEnum()) {
-							// Simple copy if the current field is a jdk type or an enum
-							destinationValue = sourceValue;
-
-						} else {
-							destinationValue = realize(sourceValue, alreadyRealizedObjects, ignores);
-						}
-						
-						// Setting the field of the new object
-						if(setterMethod != null) {
-							setterMethod.invoke(instance, destinationValue);
-						} else {
-							field.setAccessible(true); // Force the accessibility of the current field
-							field.set(instance, destinationValue);
-						}
+					final Object destinationValue = getFieldValue(field, clazz, object, alreadyRealizedObjects, ignores, parent);
+					
+					if (destinationValue != null) {
+						setFieldValue(field, clazz, instance, destinationValue);
 					}
 				}
 
@@ -184,7 +146,173 @@ public class Realizer {
 
 		return result;
 	}
+
+	/**
+	 * Sets the given <code>field</code> with the given <code>value</code> in
+	 * the object <code>instance</code>.
+	 * 
+	 * @param <T>
+	 *          Type of the object to set.
+	 * @param field
+	 *          Field to set.
+	 * @param clazz
+	 *          Class of the object to set.
+	 * @param instance
+	 *          Object to set.
+	 * @param value
+	 *          Value to set.
+	 * @throws IllegalArgumentException
+	 * @throws InvocationTargetException
+	 * @throws IllegalAccessException
+	 * @throws SecurityException 
+	 */
+	private static <T> void setFieldValue(final Field field, final Class<T> clazz, final T instance, final Object value) throws IllegalArgumentException, InvocationTargetException, IllegalAccessException, SecurityException {
+		
+		// Setting the field of the new object
+		final Method setterMethod = getSetterMethod(field, clazz);
+		
+		if(setterMethod != null) {
+			setterMethod.invoke(instance, value);
+		} else {
+			field.setAccessible(true); // Force the accessibility of the current field
+			field.set(instance, value);
+		}
+	}
+
+	/**
+	 * Retrieve the value of the given <code>field</code> for the given 
+	 * <code>source</code> object.
+	 * 
+	 * @param <T>
+	 *          Type of the source object.
+	 * @param field
+	 *          Field to extract.
+	 * @param clazz
+	 *          Class of the source object.
+	 * @param source
+	 *          Object to read from.
+	 * @param alreadyRealizedObjects
+	 *          Set of already handled objects (to avoid infinite recursion).
+	 * @param ignores
+	 *          Set of classes to ignore.
+	 * @param parent
+	 *          Parent object.
+	 * @return The value of the given field for the given object.
+	 * @throws HibernateException
+	 * @throws SecurityException
+	 * @throws IllegalAccessException
+	 * @throws InvocationTargetException
+	 * @throws IllegalArgumentException 
+	 */
+	private static <T> Object getFieldValue(final Field field, final Class<T> clazz, final T source, final Map<Object, Object> alreadyRealizedObjects, final Set<Class<?>> ignores, final Object parent) 
+			throws HibernateException, SecurityException, IllegalAccessException, InvocationTargetException, IllegalArgumentException {
+		
+		// Avoid trying to modify static fields.
+		// Organization should not be exported.
+		if (Modifier.isStatic(field.getModifiers()) || field.getName().equalsIgnoreCase(ORGANIZATION_FIELD)) {
+			return null;
+		}
+		
+		LOG.trace("\tfield " + field.getName());
+		final Method getterMethod = getGetterMethod(field, clazz);
+		
+		final Object sourceValue = getterMethod.invoke(source);
+		final Object destinationValue;
+		
+		final Class<?> sourceValueClass = sourceValue != null ? sourceValue.getClass() : null;
+		
+		if (sourceValue instanceof PersistentCollection || sourceValue instanceof HibernateProxy) {
+			Hibernate.initialize(sourceValue);
+		}
+		
+		if (sourceValue == null || sourceValueClass == null) {
+			destinationValue = null;
+
+		} else if (sourceValue instanceof PersistentBag || sourceValue instanceof PersistentList) {
+			// Turning persistent bags into array lists
+			final ArrayList<Object> list = new ArrayList<Object>();
+
+			for (Object value : (PersistentBag) sourceValue) {
+				list.add(realize(value, alreadyRealizedObjects, ignores, parent));
+			}
+
+			destinationValue = list;
+
+		} else if (sourceValue instanceof PersistentSet) {
+			// Turning persistent sets into hash sets
+			final HashSet<Object> set = new HashSet<>();
+
+			for (Object value : (PersistentSet) sourceValue) {
+				set.add(realize(value, alreadyRealizedObjects, ignores, parent));
+			}
+
+			destinationValue = set;
+			
+		} else if (source instanceof ComputationElement && field.getName().equals(FORMULA_FIELD)) {
+			final Collection<FlexibleElementDTO> elements;
+			
+			if (parent instanceof ProjectModel) {
+				elements = ServerComputations.getAllElementsFromModel((ProjectModel) parent);
+			} else if (parent instanceof OrgUnitModel) {
+				elements = ServerComputations.getAllElementsFromModel((OrgUnitModel) parent);
+			} else {
+				elements = Collections.<FlexibleElementDTO>emptyList();
+			}
+			
+			destinationValue = Computations.formatRuleForEdition(((ComputationElement) source).getRule(), elements);
+
+		} else if (ignores.contains(sourceValueClass) || sourceValueClass.getName().startsWith("java.") || sourceValueClass.isEnum()) {
+			// Simple copy if the current field is a jdk type or an enum
+			destinationValue = sourceValue;
+			
+		} else {
+			destinationValue = realize(sourceValue, alreadyRealizedObjects, ignores, parent);
+		}
+		
+		return destinationValue;
+	}
+
+	/**
+	 * Find all the declared fields of the given class and its super classes
+	 * for Sigmah objects.
+	 * 
+	 * @param clazz
+	 *          Class to read.
+	 * @return A list of every declared fields (also contains static fields).
+	 * @throws SecurityException If one of the fields is protected.
+	 */
+	private static List<Field> getFieldsOfClass(final Class<?> clazz) throws SecurityException {
+		
+		// Accessing fields from the given object.
+		final ArrayList<Field> fields = new ArrayList<>();
+		
+		fields.addAll(Arrays.asList(clazz.getDeclaredFields()));
+		
+		// Accessing fields from the super classes.
+		Class<?> superClass = clazz.getSuperclass();
+		while (superClass.getPackage().getName().startsWith("org.sigmah")) {
+			
+			fields.addAll(Arrays.asList(superClass.getDeclaredFields()));
+			
+			superClass = superClass.getSuperclass();
+		}
+		
+		return fields;
+	}
 	
+	/**
+	 * Find the getter method for the given <code>field</code> in the given
+	 * <code>class</code>.
+	 * <p>
+	 * The name of the getter method is assumed to starts by <code>get</code> or
+	 * by <code>is</code>.
+	 * 
+	 * @param field
+	 *          Field to search.
+	 * @param clazz
+	 *          Class to use.
+	 * @return The getter field or <code>null</code> if not found.
+	 */
 	private static Method getGetterMethod(Field field, Class<?> clazz) {
 		final String getAccessor = "get" + field.getName().toLowerCase();
 		
@@ -205,6 +333,18 @@ public class Realizer {
 		return null;
 	}
 	
+	/**
+	 * Find the setter method for the given <code>field</code> in the given
+	 * <code>class</code>.
+	 * <p>
+	 * The name of the setter method is assumed to starts by <code>set</code>.
+	 * 
+	 * @param field
+	 *          Field to search.
+	 * @param clazz
+	 *          Class to use.
+	 * @return The setter field or <code>null</code> if not found.
+	 */
 	private static Method getSetterMethod(Field field, Class<?> clazz) {
 		final String getAccessor = "set" + field.getName().toLowerCase();
 		
