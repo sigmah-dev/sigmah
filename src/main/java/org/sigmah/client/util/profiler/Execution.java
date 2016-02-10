@@ -1,10 +1,33 @@
 package org.sigmah.client.util.profiler;
 
+/*
+ * #%L
+ * Sigmah
+ * %%
+ * Copyright (C) 2010 - 2016 URD
+ * %%
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public
+ * License along with this program.  If not, see
+ * <http://www.gnu.org/licenses/gpl-3.0.html>.
+ * #L%
+ */
+
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.user.client.Window;
 import java.util.Date;
 import org.sigmah.client.Sigmah;
+import org.sigmah.client.util.JsIterable;
 import org.sigmah.offline.appcache.ApplicationCache;
 import org.sigmah.offline.js.Values;
 
@@ -112,6 +135,10 @@ public final class Execution extends JavaScriptObject {
 	public native JsArray<Checkpoint> getCheckpoints() /*-{
 		return this.checkpoints;
 	}-*/;
+	
+	public Iterable<Checkpoint> getCheckpointSequence() {
+		return new JsIterable<Checkpoint>(getCheckpoints());
+	}
 	
 	public native void setCheckpoints(JsArray<Checkpoint> checkpoints) /*-{
 		this.checkpoints = checkpoints;

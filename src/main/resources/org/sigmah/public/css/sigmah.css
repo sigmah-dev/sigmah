@@ -1,3 +1,24 @@
+/*
+ * #%L
+ * Sigmah
+ * %%
+ * Copyright (C) 2010 - 2016 URD
+ * %%
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public
+ * License along with this program.  If not, see
+ * <http://www.gnu.org/licenses/gpl-3.0.html>.
+ * #L%
+ */
 .noscript{max-width:550px;font-family:sans-serif;font-weight:700;text-align:center;color:#FFF;background-color:red;border:3px solid red;position:relative;z-index:99999991;margin:50px auto 0;padding:8px;}
 
 .work-in-progress-label{color:#DF4848;font-weight:bold;background:url(../images/icon/traffic-cone.png) no-repeat 0 50%;padding-left:22px;height:22px;line-height:22px}
@@ -352,6 +373,7 @@ body {font-family:Arial;font-size:8pt}
 
 /* Administration */
 .form-header-label{padding:5px 0 8px 5px;margin:0 5px;border-bottom:1px solid #aaa;font-style:italic;color:#aaa}
+.form-hint{padding-bottom:6px;display:block}
 
 /* Maintenance */
 .header-alert {color: black !important;background-color: rgb(255, 90, 90) !important;background-image: none !important;border: 1px black solid !important;}

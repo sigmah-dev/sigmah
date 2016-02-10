@@ -1,8 +1,31 @@
 package org.sigmah.offline.js;
 
+/*
+ * #%L
+ * Sigmah
+ * %%
+ * Copyright (C) 2010 - 2016 URD
+ * %%
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public
+ * License along with this program.  If not, see
+ * <http://www.gnu.org/licenses/gpl-3.0.html>.
+ * #L%
+ */
+
 import com.google.gwt.core.client.JavaScriptObject;
 
 import org.sigmah.shared.dto.element.CheckboxElementDTO;
+import org.sigmah.shared.dto.element.ComputationElementDTO;
 import org.sigmah.shared.dto.element.CoreVersionElementDTO;
 import org.sigmah.shared.dto.element.DefaultFlexibleElementDTO;
 import org.sigmah.shared.dto.element.FilesListElementDTO;
@@ -35,6 +58,9 @@ public abstract class FlexibleElementJS extends JavaScriptObject {
 		switch(flexibleElementDTO.getElementType()) {
 			case CHECKBOX:
 				flexibleElementJS = CheckboxElementJS.toJavaScript((CheckboxElementDTO)flexibleElementDTO);
+				break;
+			case COMPUTATION:
+				flexibleElementJS = ComputationElementJS.toJavaScript((ComputationElementDTO)flexibleElementDTO);
 				break;
 			case CORE_VERSION:
 				flexibleElementJS = Values.createJavaScriptObject(FlexibleElementJS.class);
@@ -73,6 +99,7 @@ public abstract class FlexibleElementJS extends JavaScriptObject {
 		flexibleElementJS.setId(flexibleElementDTO.getId());
 		flexibleElementJS.setElementType(flexibleElementDTO.getElementType());
 		flexibleElementJS.setLabel(flexibleElementDTO.getLabel());
+		flexibleElementJS.setCode(flexibleElementDTO.getCode());
 		flexibleElementJS.setValidates(flexibleElementDTO.getValidates());
 //		flexibleElementJS.setFilledIn(flexibleElementDTO.isFilledIn());
 		flexibleElementJS.setAmendable(flexibleElementDTO.getAmendable());
@@ -93,6 +120,9 @@ public abstract class FlexibleElementJS extends JavaScriptObject {
 		switch(getElementTypeEnum()) {
 			case CHECKBOX:
 				flexibleElementDTO = ((CheckboxElementJS)this).toCheckboxElementDTO();
+				break;
+			case COMPUTATION:
+				flexibleElementDTO = ((ComputationElementJS)this).toComputationElementDTO();
 				break;
 			case CORE_VERSION:
 				flexibleElementDTO = new CoreVersionElementDTO();
@@ -130,6 +160,7 @@ public abstract class FlexibleElementJS extends JavaScriptObject {
 		
 		flexibleElementDTO.setId(getId());
 		flexibleElementDTO.setLabel(getLabel());
+        flexibleElementDTO.setCode(getCode());
 		flexibleElementDTO.setValidates(isValidates());
 //		dto.setFilledIn(isFilledIn());
 		flexibleElementDTO.setAmendable(isAmendable());
@@ -155,6 +186,14 @@ public abstract class FlexibleElementJS extends JavaScriptObject {
 
 	public final native void setLabel(String label) /*-{
 		this.label = label;
+	}-*/;
+	
+	public final native String getCode() /*-{
+		return this.code;
+	}-*/;
+
+	public final native void setCode(String code) /*-{
+		this.code = code;
 	}-*/;
 
 	public final native boolean isValidates() /*-{

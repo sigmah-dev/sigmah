@@ -1,5 +1,28 @@
 package org.sigmah.client.ui.presenter.admin.models;
 
+/*
+ * #%L
+ * Sigmah
+ * %%
+ * Copyright (C) 2010 - 2016 URD
+ * %%
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public
+ * License along with this program.  If not, see
+ * <http://www.gnu.org/licenses/gpl-3.0.html>.
+ * #L%
+ */
+
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,17 +57,21 @@ import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
+import java.util.Collection;
 import java.util.Date;
 import org.sigmah.shared.command.DisableFlexibleElements;
+import org.sigmah.shared.computation.Computation;
+import org.sigmah.shared.computation.Computations;
+import org.sigmah.shared.dto.element.ComputationElementDTO;
+import org.sigmah.shared.util.Collections;
 
 /**
  * Model's flexible elements administration presenter.
  * 
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
-public class FlexibleElementsAdminPresenter<E extends IsModel> extends AbstractPresenter<FlexibleElementsAdminPresenter.View>
-																																																															implements
-																																																															IsModelTabPresenter<E, FlexibleElementsAdminPresenter.View> {
+public class FlexibleElementsAdminPresenter<E extends IsModel> extends AbstractPresenter<FlexibleElementsAdminPresenter.View> 
+		implements IsModelTabPresenter<E, FlexibleElementsAdminPresenter.View> {
 
 	/**
 	 * Description of the view managed by this presenter.
@@ -128,7 +155,8 @@ public class FlexibleElementsAdminPresenter<E extends IsModel> extends AbstractP
 
 				} else {
 					eventBus.navigateRequest(Page.ADMIN_EDIT_FLEXIBLE_ELEMENT.request().addData(RequestParameter.MODEL, currentModel)
-						.addData(RequestParameter.DTO, rowElement));
+						.addData(RequestParameter.DTO, rowElement)
+						.addData(RequestParameter.ELEMENTS, view.getStore().getModels()));
 				}
 			}
 		});
@@ -141,7 +169,8 @@ public class FlexibleElementsAdminPresenter<E extends IsModel> extends AbstractP
 
 			@Override
 			public void componentSelected(final ButtonEvent ce) {
-				eventBus.navigateRequest(Page.ADMIN_EDIT_FLEXIBLE_ELEMENT.request().addData(RequestParameter.MODEL, currentModel));
+				eventBus.navigateRequest(Page.ADMIN_EDIT_FLEXIBLE_ELEMENT.request().addData(RequestParameter.MODEL, currentModel)
+						.addData(RequestParameter.ELEMENTS, view.getStore().getModels()));
 			}
 		});
 
@@ -255,6 +284,61 @@ public class FlexibleElementsAdminPresenter<E extends IsModel> extends AbstractP
 	// ---------------------------------------------------------------------------------------------------------------
 
 	/**
+	 * Find the computation fields using the given flexible element.
+	 *
+	 * @param flexibleElement
+	 *          Flexible element.
+	 * @return A collection of every computation element using the given element.
+	 */
+	private Collection<ComputationElementDTO> getComputationElementsUsingFields(final List<FlexibleElementDTO> flexibleElements) {
+
+		final ArrayList<ComputationElementDTO> computationElements = new ArrayList<ComputationElementDTO>();
+		final List<FlexibleElementDTO> allElements = view.getStore().getModels();
+
+		for (final FlexibleElementDTO other : allElements) {
+			if (other instanceof ComputationElementDTO) {
+				final ComputationElementDTO computationElement = (ComputationElementDTO) other;
+
+				final Computation computation = Computations.parse(computationElement.getRule(), allElements);
+				if (Collections.containsOneOf(computation.getDependencies(), flexibleElements)) {
+					computationElements.add(computationElement);
+				}
+			}
+		}
+
+		return computationElements;
+	}
+
+	/**
+	 * Returns a message to add to the warning displayed when removing or disabling the given elements.
+	 *
+	 * @param selection
+	 *          Selection of elements to delete/disable.
+	 * @return A warning message.
+	 */
+	private String getAdditionnalWarning(final List<FlexibleElementDTO> selection) {
+
+		final String additionnalWarning;
+
+		final Collection<ComputationElementDTO> relatedComputationElements = getComputationElementsUsingFields(selection);
+		if (!relatedComputationElements.isEmpty()) {
+			additionnalWarning = "<br/><br/>"
+					+ I18N.MESSAGES.confirmDeleteWhenRelatedComputationElementsExists(
+							Collections.join(relatedComputationElements, new Collections.Mapper<ComputationElementDTO, String>() {
+
+								@Override
+								public String forEntry(ComputationElementDTO entry) {
+									return "<span style=\"font-weight: bold\">" + entry.getLabel() + "</span>";
+								}
+							}, ", "))
+					+ "<br/><br/>";
+		} else {
+			additionnalWarning = "";
+		}
+		return additionnalWarning;
+	}
+
+	/**
 	 * Callback executed on flexible element creation/update event.
 	 * 
 	 * @param udpate
@@ -304,7 +388,7 @@ public class FlexibleElementsAdminPresenter<E extends IsModel> extends AbstractP
 			return;
 		}
 
-		N10N.confirmation(I18N.CONSTANTS.delete(), I18N.CONSTANTS.adminFlexibleConfirmDelete(), elementNames, new ConfirmCallback() {
+		N10N.confirmation(I18N.CONSTANTS.delete(), I18N.CONSTANTS.adminFlexibleConfirmDelete() + getAdditionnalWarning(selection), elementNames, new ConfirmCallback() {
 
 			@Override
 			public void onAction() {

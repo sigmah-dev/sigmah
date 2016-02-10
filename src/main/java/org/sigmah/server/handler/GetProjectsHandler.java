@@ -1,5 +1,28 @@
 package org.sigmah.server.handler;
 
+/*
+ * #%L
+ * Sigmah
+ * %%
+ * Copyright (C) 2010 - 2016 URD
+ * %%
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public
+ * License along with this program.  If not, see
+ * <http://www.gnu.org/licenses/gpl-3.0.html>.
+ * #L%
+ */
+
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -27,7 +50,7 @@ import com.google.inject.Inject;
 import java.util.HashMap;
 
 /**
- * Handler for {@link GetProjects} command
+ * Handler for {@link GetProjects} command.
  * 
  * @author Maxime Lombard (mlombard@ideia.fr)
  * @author Denis Colliot (dcolliot@ideia.fr)
@@ -167,7 +190,7 @@ public class GetProjectsHandler extends AbstractCommandHandler<GetProjects, List
 		} else {
 			// Using provided mapping mode.
             for(final Project project : projects) {
-                final ProjectDTO projectDTO = mapper().map(project, ProjectDTO.class, cmd.getMappingMode());
+                final ProjectDTO projectDTO = mapper().map(project, new ProjectDTO(), cmd.getMappingMode());
                 // Filling the orgUnitId using the map made when querying by OrgUnits.
                 projectDTO.setOrgUnitId(projectIdToOrgUnitId.get(project.getId()));
                 projectsDTO.add(projectDTO);

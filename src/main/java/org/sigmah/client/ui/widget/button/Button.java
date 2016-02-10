@@ -1,5 +1,27 @@
 package org.sigmah.client.ui.widget.button;
 
+/*
+ * #%L
+ * Sigmah
+ * %%
+ * Copyright (C) 2010 - 2016 URD
+ * %%
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public
+ * License along with this program.  If not, see
+ * <http://www.gnu.org/licenses/gpl-3.0.html>.
+ * #L%
+ */
+
 import org.sigmah.client.ui.res.icon.IconImageBundle;
 import org.sigmah.client.ui.widget.Loadable;
 
@@ -92,7 +114,7 @@ public class Button extends com.extjs.gxt.ui.client.widget.button.Button impleme
 	public void setLoading(final boolean loading) {
 
 		if (!this.loading && loading) {
-			super.setEnabled(false);
+			disable();
 			replaceIcon(IconImageBundle.ICONS.loading());
 
 		} else if (this.loading && !loading) {
@@ -117,7 +139,7 @@ public class Button extends com.extjs.gxt.ui.client.widget.button.Button impleme
 	@Override
 	public void setEnabled(final boolean enabled) {
 		super.setEnabled(enabled);
-		initialEnabledState = enabled;
+        initialEnabledState = enabled;
 	}
 
 	/**

@@ -1,5 +1,28 @@
 package org.sigmah.client.ui.presenter.orgunit;
 
+/*
+ * #%L
+ * Sigmah
+ * %%
+ * Copyright (C) 2010 - 2016 URD
+ * %%
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public
+ * License along with this program.  If not, see
+ * <http://www.gnu.org/licenses/gpl-3.0.html>.
+ * #L%
+ */
+
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -31,11 +54,9 @@ import org.sigmah.shared.dto.layout.LayoutConstraintDTO;
 import org.sigmah.shared.dto.layout.LayoutDTO;
 import org.sigmah.shared.dto.layout.LayoutGroupDTO;
 import org.sigmah.shared.dto.orgunit.OrgUnitDTO;
-import org.sigmah.shared.dto.referential.GlobalPermissionEnum;
 import org.sigmah.shared.servlet.ServletConstants.Servlet;
 import org.sigmah.shared.servlet.ServletConstants.ServletMethod;
 import org.sigmah.shared.servlet.ServletUrlBuilder;
-import org.sigmah.shared.util.ProfileUtils;
 import org.sigmah.shared.util.ValueResultUtils;
 
 import com.allen_sauer.gwt.log.client.Log;
@@ -52,6 +73,7 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import org.sigmah.client.computation.ComputationTriggerManager;
 
 /**
  * OrgUnit Details Presenter.
@@ -79,6 +101,12 @@ public class OrgUnitDetailsPresenter extends AbstractOrgUnitPresenter<OrgUnitDet
 	 * List of values changes.
 	 */
 	private List<ValueEvent> valueChanges;
+    
+    /**
+	 * Listen to the values of flexible elements to update computated values.
+	 */
+	@Inject
+	private ComputationTriggerManager computationTriggerManager;
 
 	@Inject
 	protected OrgUnitDetailsPresenter(View view, Injector injector) {
@@ -184,6 +212,9 @@ public class OrgUnitDetailsPresenter extends AbstractOrgUnitPresenter<OrgUnitDet
 	 *          The details.
 	 */
 	private void load(OrgUnitDetailsDTO details) {
+        
+        // Prepare the manager of computation elements
+		computationTriggerManager.prepareForOrgUnit(getOrgUnit());
 
 		// Clear panel.
 		view.getContentOrgUnitDetailsPanel().removeAll();
@@ -289,6 +320,9 @@ public class OrgUnitDetailsPresenter extends AbstractOrgUnitPresenter<OrgUnitDet
 						// --
 						// -- ELEMENT HANDLERS
 						// --
+                        
+                        // Adds a value change handler if this element is a dependency of a ComputationElementDTO.
+						computationTriggerManager.listenToValueChangesOfElement(elementDTO, elementComponent, valueChanges);
 
 						// Adds a value change handler to this element.
 						elementDTO.addValueHandler(new ValueHandler() {

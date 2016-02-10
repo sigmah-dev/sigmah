@@ -5,6 +5,7 @@
 .project
 .settings
 catalina.base_IS_UNDEFINED
-src/main/java/org/sigmah/client/i18n/UIConstants.java
-src/main/java/org/sigmah/client/i18n/UIMessages.java
 /target/
+*~
+.idea
+*.iml

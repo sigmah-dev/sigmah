@@ -1,5 +1,27 @@
 package org.sigmah.server.handler;
 
+/*
+ * #%L
+ * Sigmah
+ * %%
+ * Copyright (C) 2010 - 2016 URD
+ * %%
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public
+ * License along with this program.  If not, see
+ * <http://www.gnu.org/licenses/gpl-3.0.html>.
+ * #L%
+ */
+
 import java.util.List;
 
 import javax.persistence.TypedQuery;
@@ -13,6 +35,7 @@ import org.sigmah.shared.dispatch.CommandException;
 import org.sigmah.shared.dto.UserPermissionDTO;
 
 import com.extjs.gxt.ui.client.Style;
+import java.util.ArrayList;
 
 /**
  * Handler for {@link GetUsers} command
@@ -64,7 +87,11 @@ public class GetUsersHandler extends AbstractCommandHandler<GetUsers, UserResult
 		}
 
 		final List<UserPermission> perms = query.getResultList();
-		final List<UserPermissionDTO> models = mapper().mapCollection(perms, UserPermissionDTO.class);
+		final ArrayList<UserPermissionDTO> models = new ArrayList<>();
+		
+		for (final UserPermission permission : perms) {
+			models.add(mapper().map(permission, new UserPermissionDTO()));
+		}
 
 		final TypedQuery<Number> countQuery =
 				em().createQuery("select count(up) from UserPermission up where up.database.id = :dbId and up.user.id <> :currentUserId ", Number.class);

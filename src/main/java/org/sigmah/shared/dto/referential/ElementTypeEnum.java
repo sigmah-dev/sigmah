@@ -1,5 +1,28 @@
 package org.sigmah.shared.dto.referential;
 
+/*
+ * #%L
+ * Sigmah
+ * %%
+ * Copyright (C) 2010 - 2016 URD
+ * %%
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public
+ * License along with this program.  If not, see
+ * <http://www.gnu.org/licenses/gpl-3.0.html>.
+ * #L%
+ */
+
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,9 +36,13 @@ import com.google.gwt.core.client.GWT;
  * @author Denis Colliot (dcolliot@ideia.fr) (v2.0)
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
-public enum ElementTypeEnum {
+public enum ElementTypeEnum implements LogicalElementType {
 
 	CHECKBOX("CheckboxElement"),
+	
+	COMPUTATION("ComputationElement"),
+	
+	CORE_VERSION("CoreVersionElement"),
 
 	DEFAULT("DefaultFlexibleElement"),
 
@@ -33,9 +60,7 @@ public enum ElementTypeEnum {
 
 	TEXT_AREA("TextAreaElement"),
 
-	TRIPLETS("TripletsListElement"),
-	
-	CORE_VERSION("CoreVersionElement");
+	TRIPLETS("TripletsListElement");
 
 	private static Map<String, ElementTypeEnum> nameMap;
 
@@ -44,7 +69,7 @@ public enum ElementTypeEnum {
 	private ElementTypeEnum(String className) {
 		this.className = className;
 	}
-
+    
 	/**
 	 * Root package of domain elements.
 	 */
@@ -67,6 +92,10 @@ public enum ElementTypeEnum {
 		switch (elementType) {
 			case CHECKBOX:
 				return I18N.CONSTANTS.flexibleElementCheckbox();
+			case COMPUTATION:
+				return I18N.CONSTANTS.flexibleElementComputation();
+			case CORE_VERSION:
+				return I18N.CONSTANTS.flexibleElementCoreVersion();
 			case DEFAULT:
 				return I18N.CONSTANTS.flexibleElementDefault();
 			case FILES_LIST:
@@ -85,8 +114,6 @@ public enum ElementTypeEnum {
 				return I18N.CONSTANTS.flexibleElementTextArea();
 			case TRIPLETS:
 				return I18N.CONSTANTS.flexibleElementTripletsList();
-			case CORE_VERSION:
-				return I18N.CONSTANTS.flexibleElementCoreVersion();
 			default:
 				return I18N.CONSTANTS.flexibleElementDefault();
 		}
@@ -96,6 +123,8 @@ public enum ElementTypeEnum {
 		if (nameMap == null) {
 			nameMap = new HashMap<String, ElementTypeEnum>();
 			nameMap.put(I18N.CONSTANTS.flexibleElementCheckbox(), ElementTypeEnum.CHECKBOX);
+			nameMap.put(I18N.CONSTANTS.flexibleElementComputation(), ElementTypeEnum.COMPUTATION);
+			nameMap.put(I18N.CONSTANTS.flexibleElementCoreVersion(), ElementTypeEnum.CORE_VERSION);
 			nameMap.put(I18N.CONSTANTS.flexibleElementDefault(), ElementTypeEnum.DEFAULT);
 			nameMap.put(I18N.CONSTANTS.flexibleElementFilesList(), ElementTypeEnum.FILES_LIST);
 			nameMap.put(I18N.CONSTANTS.flexibleElementIndicatorsList(), ElementTypeEnum.INDICATORS);
@@ -105,7 +134,6 @@ public enum ElementTypeEnum {
 			nameMap.put(I18N.CONSTANTS.flexibleElementReportList(), ElementTypeEnum.REPORT_LIST);
 			nameMap.put(I18N.CONSTANTS.flexibleElementTextArea(), ElementTypeEnum.TEXT_AREA);
 			nameMap.put(I18N.CONSTANTS.flexibleElementTripletsList(), ElementTypeEnum.TRIPLETS);
-			nameMap.put(I18N.CONSTANTS.flexibleElementCoreVersion(), ElementTypeEnum.CORE_VERSION);
 		}
 
 		final ElementTypeEnum value = nameMap.get(name);
@@ -119,4 +147,37 @@ public enum ElementTypeEnum {
 			return ROOT_PACKAGE + "default";
 		}
 	}
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ElementTypeEnum toElementTypeEnum() {
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public TextAreaType toTextAreaType() {
+        return null;
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DefaultFlexibleElementType toDefaultFlexibleElementType() {
+        return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getDescription() {
+        return getName(this);
+    }
+    
 }

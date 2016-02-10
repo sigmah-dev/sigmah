@@ -1,5 +1,28 @@
 package org.sigmah.client.ui.presenter.project;
 
+/*
+ * #%L
+ * Sigmah
+ * %%
+ * Copyright (C) 2010 - 2016 URD
+ * %%
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public
+ * License along with this program.  If not, see
+ * <http://www.gnu.org/licenses/gpl-3.0.html>.
+ * #L%
+ */
+
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -55,6 +78,7 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import org.sigmah.client.computation.ComputationTriggerManager;
 
 /**
  * Project's details presenter which manages the {@link ProjectDetailsView}.
@@ -85,6 +109,12 @@ public class ProjectDetailsPresenter extends AbstractProjectPresenter<ProjectDet
 	 * List of values changes.
 	 */
 	private final ArrayList<ValueEvent> valueChanges = new ArrayList<ValueEvent>();
+	
+	/**
+	 * Listen to the values of flexible elements to update computated values.
+	 */
+	@Inject
+	private ComputationTriggerManager computationTriggerManager;
 
 	/**
 	 * Presenters's initialization.
@@ -155,6 +185,9 @@ public class ProjectDetailsPresenter extends AbstractProjectPresenter<ProjectDet
 	 *          The project details.
 	 */
 	private void load(final ProjectDetailsDTO details) {
+		
+		// Prepare the manager of computation elements
+		computationTriggerManager.prepareForProject(getProject());
 
 		// Clear panel.
 		view.getMainPanel().removeAll();
@@ -273,12 +306,17 @@ public class ProjectDetailsPresenter extends AbstractProjectPresenter<ProjectDet
 						// --
 						// -- ELEMENT HANDLERS
 						// --
+						
+						// Adds a value change handler if this element is a dependency of a ComputationElementDTO.
+						computationTriggerManager.listenToValueChangesOfElement(elementDTO, elementComponent, valueChanges);
 
 						// Adds a value change handler to this element.
 						elementDTO.addValueHandler(new ValueHandler() {
 
 							@Override
 							public void onValueChange(final ValueEvent event) {
+								
+								// TODO: Find linked computation fields if any and recompute the value.
 
 								// Stores the change to be saved later.
 								valueChanges.add(event);

@@ -1,5 +1,28 @@
 package org.sigmah.client.ui.view.admin.models;
 
+/*
+ * #%L
+ * Sigmah
+ * %%
+ * Copyright (C) 2010 - 2016 URD
+ * %%
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public
+ * License along with this program.  If not, see
+ * <http://www.gnu.org/licenses/gpl-3.0.html>.
+ * #L%
+ */
+
+
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
@@ -45,6 +68,10 @@ import com.extjs.gxt.ui.client.widget.form.LabelField;
 import com.extjs.gxt.ui.client.widget.form.NumberField;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
+import com.extjs.gxt.ui.client.widget.grid.ColumnData;
+import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
+import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.google.gwt.dom.client.Style.TableLayout;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -56,7 +83,13 @@ import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Singleton;
+import java.util.Arrays;
+import org.sigmah.client.ui.widget.HasGrid;
 import org.sigmah.client.ui.widget.form.ClearableField;
+import org.sigmah.client.util.ColumnProviders;
+import org.sigmah.client.util.TypeModel;
+import org.sigmah.shared.dto.element.FlexibleElementDTO;
+import org.sigmah.shared.dto.referential.LogicalElementType;
 
 /**
  * {@link EditFlexibleElementAdminPresenter}'s view implementation.
@@ -68,6 +101,8 @@ public class EditFlexibleElementAdminView extends AbstractPopupView<PopupWidget>
 
 	// CSS style names.
 	private static final String STYLE_FORM_HEADER_LABEL = "form-header-label";
+    private static final String STYLE_FORM_HINT = "form-hint";
+    private static final String STYLE_FORM_ITEM = "x-form-item";
 
 	// --
 	// Common properties form components.
@@ -76,7 +111,7 @@ public class EditFlexibleElementAdminView extends AbstractPopupView<PopupWidget>
 	private FormPanel commonForm;
 	private HtmlEditor nameField;
 	private LabelField nameReadOnlyField;
-	private ComboBox<EnumModel<ElementTypeEnum>> typeField;
+	private ComboBox<TypeModel> typeField;
 	private ComboBox<BaseModelData> containerField;
 	private ComboBox<LayoutGroupDTO> layoutGroupField;
 	private NumberField orderField;
@@ -94,8 +129,8 @@ public class EditFlexibleElementAdminView extends AbstractPopupView<PopupWidget>
 	private SimpleComboBox<Integer> bannerPositionField;
 
 	private Set<Field<?>> textAreaFields;
-	private ComboBox<EnumModel<TextAreaType>> textAreaTypeField;
 	private NumberField lengthField;
+	private TextField<String> codeField;
 	private CheckBox decimalField;
 	private NumberField minLimitField;
 	private NumberField maxLimitField;
@@ -111,7 +146,9 @@ public class EditFlexibleElementAdminView extends AbstractPopupView<PopupWidget>
 	private FlowPanel customChoicesPanel;
 	private AdapterField customChoicesField;
 
-	// TODO budget specific fields.
+    // --
+	// Budget specific fields.
+    // --
 
 	private FlexTable budgetFields;
 	private FlexTable ratioFlexTable;
@@ -120,6 +157,16 @@ public class EditFlexibleElementAdminView extends AbstractPopupView<PopupWidget>
 	private ListStore<BudgetSubFieldDTO> upBudgetSubFieldStore;
 	private ListStore<BudgetSubFieldDTO> downBudgetSubFieldStore;
 	private Anchor anchorAddSubField;
+	
+    // --
+    // Computation specific fields.
+    // --
+    
+	private TextField<String> formulaField;
+	private com.extjs.gxt.ui.client.widget.Label formulaHintLabel;
+	private com.extjs.gxt.ui.client.widget.Label codeGridHeaderLabel;
+    private com.extjs.gxt.ui.client.widget.grid.Grid<FlexibleElementDTO> codeGrid;
+    private HasGrid.GridEventHandler<FlexibleElementDTO> codeGridEventHandler;
 
 	// --
 	// Other components.
@@ -199,9 +246,8 @@ public class EditFlexibleElementAdminView extends AbstractPopupView<PopupWidget>
 		bannerPositionField = Forms.simpleCombobox(I18N.CONSTANTS.adminFlexibleBannerPosition(), false);
 		bannerPositionField.disable();
 
-		textAreaTypeField = Forms.combobox(I18N.CONSTANTS.adminFlexibleTextType(), true, EnumModel.VALUE_FIELD, EnumModel.DISPLAY_FIELD);
-
 		lengthField = Forms.number(I18N.CONSTANTS.adminFlexibleLength(), false);
+		codeField = Forms.text(I18N.CONSTANTS.adminFlexibleCode(), false);
 		decimalField = Forms.checkbox("", null, I18N.CONSTANTS.adminFlexibleDecimal(), false);
 		minLimitField = Forms.number(I18N.CONSTANTS.adminFlexibleMinLimit(), false);
 		maxLimitField = Forms.number(I18N.CONSTANTS.adminFlexibleMaxLimit(), false);
@@ -209,6 +255,7 @@ public class EditFlexibleElementAdminView extends AbstractPopupView<PopupWidget>
 		maxDateField = Forms.date(I18N.CONSTANTS.adminFlexible_form_maxDate(), false);
 
 		textAreaFields.add(lengthField);
+		textAreaFields.add(codeField);
 		textAreaFields.add(decimalField);
 		textAreaFields.add(minLimitField);
 		textAreaFields.add(maxLimitField);
@@ -224,6 +271,10 @@ public class EditFlexibleElementAdminView extends AbstractPopupView<PopupWidget>
 		customChoiceAddField = new TextButtonField(I18N.CONSTANTS.adminFlexibleQChoices());
 		customChoicesPanel = new FlowPanel();
 		customChoicesField = Forms.adapter(null, customChoicesPanel);
+		
+		formulaField = Forms.text(I18N.CONSTANTS.adminFlexibleComputationFormula(), false);
+		formulaHintLabel = new com.extjs.gxt.ui.client.widget.Label(I18N.CONSTANTS.adminFlexibleComputationFormulaHint());
+        formulaHintLabel.addStyleName(STYLE_FORM_HINT);
 
 		// --
 		// specific properties for budget field
@@ -272,12 +323,25 @@ public class EditFlexibleElementAdminView extends AbstractPopupView<PopupWidget>
 		ratioFlexTable.setWidget(0, 2, new Text("/"));
 		ratioFlexTable.setWidget(0, 3, downBudgetSubFieldCombo);
 		ratioFlexTable.setVisible(false);
-
+        
+        // --
+        // Grid of available codes fo computation field.
+        // --
+        
+        codeGrid = new com.extjs.gxt.ui.client.widget.grid.Grid<FlexibleElementDTO>(new ListStore<FlexibleElementDTO>(), createCodeGridColumnModel());
+        codeGrid.setAutoHeight(false);
+        codeGrid.setAutoExpandColumn(FlexibleElementDTO.CODE);
+        codeGrid.setHeight(200);
+        codeGridHeaderLabel = new com.extjs.gxt.ui.client.widget.Label(I18N.CONSTANTS.adminFlexibleComputationCodeGridHeader());
+        codeGridHeaderLabel.addStyleName(STYLE_FORM_ITEM);
+        
 		// Form initialization.
 		specificForm = Forms.panel(150);
 		specificForm.add(bannerField);
 		specificForm.add(bannerPositionField);
-		specificForm.add(textAreaTypeField);
+        specificForm.add(formulaField);
+        specificForm.add(formulaHintLabel);
+		specificForm.add(codeField);
 		specificForm.add(lengthField);
 		specificForm.add(decimalField);
 		specificForm.add(minLimitField);
@@ -290,6 +354,8 @@ public class EditFlexibleElementAdminView extends AbstractPopupView<PopupWidget>
 		specificForm.add(categoryTypeField);
 		specificForm.add(customChoiceAddField);
 		specificForm.add(customChoicesField);
+		specificForm.add(codeGridHeaderLabel);
+		specificForm.add(codeGrid);
 
 		specificForm.add(budgetFields);
 		specificForm.add(anchorAddSubField);
@@ -365,7 +431,7 @@ public class EditFlexibleElementAdminView extends AbstractPopupView<PopupWidget>
 	 * {@inheritDoc}
 	 */
 	@Override
-	public ComboBox<EnumModel<ElementTypeEnum>> getTypeField() {
+	public ComboBox<TypeModel> getTypeField() {
 		return typeField;
 	}
 
@@ -453,8 +519,8 @@ public class EditFlexibleElementAdminView extends AbstractPopupView<PopupWidget>
 	 * {@inheritDoc}
 	 */
 	@Override
-	public ComboBox<EnumModel<TextAreaType>> getTextAreaTypeField() {
-		return textAreaTypeField;
+	public Field<String> getCodeField() {
+		return codeField;
 	}
 
 	/**
@@ -553,40 +619,93 @@ public class EditFlexibleElementAdminView extends AbstractPopupView<PopupWidget>
 		return customChoiceAddField.getButton();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public FlexTable getBudgetFields() {
 		return budgetFields;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public FlexTable getRatioFlexTable() {
 		return ratioFlexTable;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public ComboBox<BudgetSubFieldDTO> getUpBudgetSubFieldCombo() {
 		return upBudgetSubFieldCombo;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public ComboBox<BudgetSubFieldDTO> getDownBudgetSubFieldCombo() {
 		return downBudgetSubFieldCombo;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public ListStore<BudgetSubFieldDTO> getUpBudgetSubFieldStore() {
 		return upBudgetSubFieldStore;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public ListStore<BudgetSubFieldDTO> getDownBudgetSubFieldStore() {
 		return downBudgetSubFieldStore;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Anchor getAnchorAddSubField() {
 		return anchorAddSubField;
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public TextField<String> getFormulaField() {
+		return formulaField;
+	}
+
+    /**
+	 * {@inheritDoc}
+	 */
+	@Override
+    public com.extjs.gxt.ui.client.widget.grid.Grid<FlexibleElementDTO> getGrid() {
+        return codeGrid;
+    }
+
+    /**
+	 * {@inheritDoc}
+	 */
+    @Override
+    public ListStore<FlexibleElementDTO> getStore() {
+        return codeGrid.getStore();
+    }
+
+    /**
+	 * {@inheritDoc}
+	 */
+    @Override
+    public void setGridEventHandler(GridEventHandler<FlexibleElementDTO> handler) {
+        this.codeGridEventHandler = handler;
+    }
 
 	/**
 	 * {@inheritDoc}
@@ -665,34 +784,41 @@ public class EditFlexibleElementAdminView extends AbstractPopupView<PopupWidget>
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setSpecificFieldsVisibility(final ElementTypeEnum elementType, final DefaultFlexibleElementType defaultFlexibleElementType) {
+	public void setSpecificFieldsVisibility(final LogicalElementType type) {
 
 		hideFields(specificForm.getFields());
+        codeGrid.hide();
+        formulaHintLabel.hide();
+        codeGridHeaderLabel.hide();
 
+        final ElementTypeEnum elementType = type.toElementTypeEnum();
+        
 		if (elementType == null) {
 			return;
 		}
 
 		switch (elementType) {
+			
+			case COMPUTATION:
+				codeField.show();
+				formulaField.show();
+                formulaHintLabel.show();
+				minLimitField.show();
+				maxLimitField.show();
+                codeGridHeaderLabel.show();
+                codeGrid.show();
+				break;
 
 			case DEFAULT:
 
 				bannerField.show();
 				bannerPositionField.show();
-
-				switch (defaultFlexibleElementType) {
-
-					case BUDGET:
-
-						budgetFields.setVisible(true);
-						anchorAddSubField.setVisible(true);
-						ratioFlexTable.setVisible(true);
-
-						break;
-
-					default:
-						break;
-				}
+                
+                if (type == DefaultFlexibleElementType.BUDGET) {
+                    budgetFields.setVisible(true);
+                    anchorAddSubField.setVisible(true);
+                    ratioFlexTable.setVisible(true);
+                }
 				break;
 
 			case FILES_LIST:
@@ -713,8 +839,7 @@ public class EditFlexibleElementAdminView extends AbstractPopupView<PopupWidget>
 				break;
 
 			case TEXT_AREA:
-				textAreaTypeField.show();
-				textAreaTypeField.setAllowBlank(false);
+                setTextAreaSpecificFieldsVisibility(elementType.toTextAreaType());
 				break;
 
 			default:
@@ -742,6 +867,7 @@ public class EditFlexibleElementAdminView extends AbstractPopupView<PopupWidget>
 				break;
 
 			case NUMBER:
+				codeField.show();
 				decimalField.show();
 				minLimitField.show();
 				maxLimitField.show();
@@ -799,8 +925,71 @@ public class EditFlexibleElementAdminView extends AbstractPopupView<PopupWidget>
 		}
 	}
 
-	public static String getStyleFormHeaderLabel() {
-		return STYLE_FORM_HEADER_LABEL;
-	}
+    /**
+     * Creates the column model for the code grid.
+     * 
+     * @return The column model for the code grid.
+     */
+    private ColumnModel createCodeGridColumnModel() {
+        
+        // Field label column.
+        final ColumnConfig labelColumnConfig = new ColumnConfig(FlexibleElementDTO.LABEL, I18N.CONSTANTS.adminFlexibleName(), 150);
+        labelColumnConfig.setRenderer(new GridCellRenderer<FlexibleElementDTO>() {
+            @Override
+            public Object render(FlexibleElementDTO model, String property, ColumnData config, int rowIndex, int colIndex, ListStore store, com.extjs.gxt.ui.client.widget.grid.Grid grid) {
+                return model.getFormattedLabel();
+            }
+        });
+        
+        // Field code column (link)
+        final ColumnConfig codeColumnConfig = new ColumnConfig(FlexibleElementDTO.CODE, I18N.CONSTANTS.adminFlexibleCode(), 100);
+        codeColumnConfig.setRenderer(new GridCellRenderer<FlexibleElementDTO>() {
+            
+            @Override
+            public Object render(final FlexibleElementDTO model, final String property, final ColumnData config, final int rowIndex, final int colIndex,
+                    final ListStore<FlexibleElementDTO> store, final com.extjs.gxt.ui.client.widget.grid.Grid<FlexibleElementDTO> grid) {
+                
+                String code = model.getCode();
+                
+                if (code == null || code.trim().isEmpty()) {
+                    code = "/";
+                }
+                
+                return ColumnProviders.renderLink(code, new ClickHandler() {
+                    
+                    @Override
+                    public void onClick(final ClickEvent event) {
+                        codeGridEventHandler.onRowClickEvent(model);
+                    }
+                    
+                });
+            }
+        });
+        
+        // Container column.
+        final ColumnConfig containerColumnConfig = new ColumnConfig(FlexibleElementDTO.CONTAINER, I18N.CONSTANTS.adminFlexibleContainer(), 75);
+        containerColumnConfig.setRenderer(new GridCellRenderer<FlexibleElementDTO>() {
+            @Override
+            public Object render(FlexibleElementDTO model, String property, ColumnData config, int rowIndex, int colIndex, ListStore store, com.extjs.gxt.ui.client.widget.grid.Grid grid) {
+                final BaseModelData container = model.getContainerModel();
+                return ColumnProviders.renderText(container.get(PhaseModelDTO.NAME));
+            }
+        });
+        
+        // Group column.
+        final ColumnConfig groupColumnConfig = new ColumnConfig(FlexibleElementDTO.GROUP, I18N.CONSTANTS.adminFlexibleGroup(), 75);
+        groupColumnConfig.setRenderer(new GridCellRenderer<FlexibleElementDTO>() {
+            @Override
+            public Object render(FlexibleElementDTO model, String property, ColumnData config, int rowIndex, int colIndex, ListStore store, com.extjs.gxt.ui.client.widget.grid.Grid grid) {
+                return model.getGroup().getTitle();
+            }
+        });
+        
+        return new ColumnModel(Arrays.asList(
+                labelColumnConfig, 
+                codeColumnConfig, 
+                containerColumnConfig, 
+                groupColumnConfig));
+    }
 
 }

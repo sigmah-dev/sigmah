@@ -1,5 +1,27 @@
 package org.sigmah.client.page;
 
+/*
+ * #%L
+ * Sigmah
+ * %%
+ * Copyright (C) 2010 - 2016 URD
+ * %%
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public
+ * License along with this program.  If not, see
+ * <http://www.gnu.org/licenses/gpl-3.0.html>.
+ * #L%
+ */
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,6 +48,11 @@ import com.google.inject.Inject;
  * @author Tom Miette (tmiette@ideia.fr)
  */
 public class PageManager implements ValueChangeHandler<String>, PageChangedHandler, PageRequestHandler {
+    
+    /**
+     * Enable or disable Google Analytics tracking.
+     */
+    public static boolean trackingEnabled = false;
 
 	/**
 	 * Application event bus.
@@ -357,9 +384,8 @@ public class PageManager implements ValueChangeHandler<String>, PageChangedHandl
 	 *          The tracked page.
 	 */
 	public static void trackPage(final Page page) {
-		if (page != null) {
-			// TODO : Enable Google Analytics ?
-			// trackPage(page.getToken());
+		if (trackingEnabled && page != null) {
+			trackPage(page.getToken());
 		}
 	}
 
@@ -370,13 +396,13 @@ public class PageManager implements ValueChangeHandler<String>, PageChangedHandl
 	 *          The tracked page name.
 	 */
 	private static native void trackPage(final String pageName) /*-{
-																															try {
-																															$wnd._gaq.push([ '_setAccount', 'UA-000000000-1' ]);
-																															$wnd._gaq.push([ '_trackPageview', pageName ]);
-																															$wnd._gaq.push([ '_trackPageLoadTime' ]);
-																															} catch (err) {
-																															// Custom exception handling.
-																															}
-																															}-*/;
+        try {
+            $wnd._gaq.push([ '_setAccount', 'UA-000000000-1' ]);
+            $wnd._gaq.push([ '_trackPageview', pageName ]);
+            $wnd._gaq.push([ '_trackPageLoadTime' ]);
+        } catch (err) {
+            // Custom exception handling.
+        }
+    }-*/;
 
 }

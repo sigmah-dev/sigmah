@@ -1,5 +1,27 @@
 package org.sigmah.client.cache;
 
+/*
+ * #%L
+ * Sigmah
+ * %%
+ * Copyright (C) 2010 - 2016 URD
+ * %%
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public
+ * License along with this program.  If not, see
+ * <http://www.gnu.org/licenses/gpl-3.0.html>.
+ * #L%
+ */
+
 import java.util.List;
 
 import org.sigmah.client.dispatch.CommandResultHandler;
@@ -17,6 +39,7 @@ import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import org.sigmah.offline.dispatch.LocalDispatchServiceAsync;
 
 /**
  * Stores data widely used on client-side for the current user.
@@ -32,41 +55,40 @@ public class UserLocalCache {
 	/**
 	 * The dispatcher.
 	 */
-	private final DispatchAsync dispatch;
+	@Inject
+	private DispatchAsync dispatch;
+	
+	/**
+	 * Implementation of the RPC dispatch service.
+	 */
+	@Inject
+	private LocalDispatchServiceAsync localDispatch;
 
 	/**
 	 * The authentication provider.
 	 */
-	private final AuthenticationProvider authenticationProvider;
-
+	@Inject
+	private AuthenticationProvider authenticationProvider;
+	
 	/**
 	 * Cache of the countries.
 	 */
-	private LocalCachedCollection<CountryDTO> countries;
+	private final LocalCachedCollection<CountryDTO> countries = new LocalCachedCollection<CountryDTO>();
 
 	/**
 	 * Cache of the users (for the current organization only).
 	 */
-	private LocalCachedCollection<UserDTO> users;
+	private final LocalCachedCollection<UserDTO> users = new LocalCachedCollection<UserDTO>();
 
 	/**
 	 * Cache of the organization.
 	 */
-	private LocalCachedOrganization organization;
+	private final LocalCachedOrganization organization = new LocalCachedOrganization();
 
 	/**
 	 * Flag set to {@code true} once local client-side cache has been initialized.
 	 */
 	private boolean initialized;
-
-	@Inject
-	public UserLocalCache(final DispatchAsync dispatch, final AuthenticationProvider authenticationProvider) {
-		this.dispatch = dispatch;
-		this.authenticationProvider = authenticationProvider;
-		this.countries = new LocalCachedCollection<CountryDTO>();
-		this.users = new LocalCachedCollection<UserDTO>();
-		this.organization = new LocalCachedOrganization();
-	}
 
 	/**
 	 * Gets the cache of the countries.
@@ -125,26 +147,26 @@ public class UserLocalCache {
 		if (Log.isDebugEnabled()) {
 			Log.debug("[init] Initializes local cache.");
 		}
-
-		// Gets countries list.
-		dispatch.execute(new GetCountries(), new CommandResultHandler<ListResult<CountryDTO>>() {
+		
+		localDispatch.execute(new GetCountries(), new AsyncCallback<ListResult<CountryDTO>>() {
 
 			@Override
-			public void onCommandFailure(final Throwable e) {
-				Log.error("[init] Error while getting the countries list for the local cache.", e);
-				countries.set(null);
+			public void onFailure(Throwable caught) {
+				// IndexedDB is unavailable or forbidden.
+				loadCountriesFromServer();
 			}
 
 			@Override
-			public void onCommandSuccess(final ListResult<CountryDTO> result) {
-
-				final List<CountryDTO> list = result.getData();
-				countries.set(list);
-
-				if (Log.isDebugEnabled()) {
-					Log.debug("[init] The local cache of the countries has been set (" + list.size() + " countries cached).");
+			public void onSuccess(ListResult<CountryDTO> result) {
+				if (result.isEmpty()) {
+					loadCountriesFromServer();
+				} else {
+					countries.set(result.getList());
+					
+					Log.debug("[init] The local cache of the countries has been set from IndexedDB (" + result.getSize() + " countries cached).");
 				}
 			}
+			
 		});
 
 		// Gets users list.
@@ -208,6 +230,31 @@ public class UserLocalCache {
 
 				if (callback != null) {
 					callback.onSuccess(result);
+				}
+			}
+		});
+	}
+	
+	/**
+	 * Send a request to load the country list from the server.
+	 */
+	private void loadCountriesFromServer() {
+		// Gets countries list.
+		dispatch.execute(new GetCountries(), new CommandResultHandler<ListResult<CountryDTO>>() {
+
+			@Override
+			public void onCommandFailure(final Throwable e) {
+				Log.error("[init] Error while getting the countries list for the local cache.", e);
+				countries.set(null);
+			}
+
+			@Override
+			public void onCommandSuccess(final ListResult<CountryDTO> result) {
+
+				countries.set(result.getList());
+
+				if (Log.isDebugEnabled()) {
+					Log.debug("[init] The local cache of the countries has been set (" + result.getSize() + " countries cached).");
 				}
 			}
 		});

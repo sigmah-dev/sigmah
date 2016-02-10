@@ -1,5 +1,28 @@
 package org.sigmah.server.i18n;
 
+/*
+ * #%L
+ * Sigmah
+ * %%
+ * Copyright (C) 2010 - 2016 URD
+ * %%
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public
+ * License along with this program.  If not, see
+ * <http://www.gnu.org/licenses/gpl-3.0.html>.
+ * #L%
+ */
+
+
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
@@ -171,22 +194,15 @@ public class I18nServerImpl implements I18nServer {
 	 *          The parameters object values that are supposed to fit the message content.
 	 * @return The built message.
 	 */
-	private static final String buildMessage(String propertyValue, final Object... params) {
+	private static String buildMessage(String propertyValue, final Object... params) {
 
 		propertyValue = propertyValue.replaceAll(Pattern.quote("''"), "'");
 
-		if (ArrayUtils.isNotEmpty(params)) {
+		if (params != null) {
 
-			int index = 0;
-			String regex = PARAM_TAG_START + index + PARAM_TAG_END;
-
-			while (StringUtils.contains(propertyValue, regex)) {
-				if (index < params.length) {
-					propertyValue = propertyValue.replaceAll(Pattern.quote(regex), String.valueOf(params[index]));
-				}
-				index++;
-				regex = PARAM_TAG_START + index + PARAM_TAG_END;
-			}
+            for (int index = 0; index < params.length; index++) {
+                propertyValue = propertyValue.replace(PARAM_TAG_START + index + PARAM_TAG_END, String.valueOf(params[index]));
+            }
 		}
 
 		return propertyValue;

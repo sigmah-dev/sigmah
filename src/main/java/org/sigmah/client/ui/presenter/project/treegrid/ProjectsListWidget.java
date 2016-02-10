@@ -1,5 +1,28 @@
 package org.sigmah.client.ui.presenter.project.treegrid;
 
+/*
+ * #%L
+ * Sigmah
+ * %%
+ * Copyright (C) 2010 - 2016 URD
+ * %%
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public
+ * License along with this program.  If not, see
+ * <http://www.gnu.org/licenses/gpl-3.0.html>.
+ * #L%
+ */
+
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -57,6 +80,8 @@ import com.extjs.gxt.ui.client.widget.grid.filters.GridFilters;
 import com.extjs.gxt.ui.client.widget.grid.filters.ListFilter;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
+import org.sigmah.client.util.profiler.Profiler;
+import org.sigmah.client.util.profiler.Scenario;
 
 /**
  * <p>
@@ -347,6 +372,7 @@ public class ProjectsListWidget extends AbstractPresenter<ProjectsListWidget.Vie
 
 			@Override
 			public void onRowClickEvent(final ProjectDTO rowElement) {
+				Profiler.INSTANCE.startScenario(Scenario.OPEN_PROJECT);
 				eventBus.navigateRequest(Page.PROJECT_DASHBOARD.requestWith(RequestParameter.ID, rowElement.getId()));
 			}
 		});
@@ -658,10 +684,12 @@ public class ProjectsListWidget extends AbstractPresenter<ProjectsListWidget.Vie
 		if (cmd == null) {
 			return;
 		}
-
+		
 		// Reload filter labels for category filter list store.
 		reloadCategoryListFilterStore();
 
+		Profiler.INSTANCE.markCheckpoint(Scenario.LOGIN, "Project list widget initialization ended.");
+		
 		if (loadingMode == LoadingMode.ONE_TIME) {
 			// Loads projects in one time (one request).
 			loadProjectsInOneTime(cmd);
@@ -717,6 +745,8 @@ public class ProjectsListWidget extends AbstractPresenter<ProjectsListWidget.Vie
 
 		final GetProjectsWorker worker = new GetProjectsWorker(dispatch, cmd, view.getProjectsPanel(), ClientConfiguration.getChunkSize());
 		worker.addWorkerListener(new GetProjectsWorker.WorkerListener() {
+			
+			private int chunk = 0;
 
 			@Override
 			public void serverError(final Throwable error) {
@@ -733,6 +763,7 @@ public class ProjectsListWidget extends AbstractPresenter<ProjectsListWidget.Vie
 			@Override
 			public void chunkRetrieved(final List<ProjectDTO> projects) {
 				addProjectToTreeGrid(projects);
+				Profiler.INSTANCE.markCheckpoint(Scenario.LOGIN, "Chunk #" + (chunk++) + " loaded.");
 			}
 
 			@Override
@@ -748,6 +779,8 @@ public class ProjectsListWidget extends AbstractPresenter<ProjectsListWidget.Vie
 
 		view.getStore().removeAll();
 		view.getStore().clearFilters();
+		
+		Profiler.INSTANCE.markCheckpoint(Scenario.LOGIN, "Before project loading.");
 
 		worker.run();
 	}

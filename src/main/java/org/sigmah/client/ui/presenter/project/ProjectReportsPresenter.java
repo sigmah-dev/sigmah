@@ -1,5 +1,27 @@
 package org.sigmah.client.ui.presenter.project;
 
+/*
+ * #%L
+ * Sigmah
+ * %%
+ * Copyright (C) 2010 - 2016 URD
+ * %%
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public
+ * License along with this program.  If not, see
+ * <http://www.gnu.org/licenses/gpl-3.0.html>.
+ * #L%
+ */
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,6 +51,7 @@ import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
+import org.sigmah.shared.dto.element.FlexibleElementDTO;
 
 /**
  * Project's reports presenter which manages the {@link ProjectReportsView}.<br>
@@ -110,7 +133,7 @@ public class ProjectReportsPresenter extends AbstractProjectPresenter<ProjectRep
 		// --
 
 		final List<FilesListElement> filesLists = new ArrayList<GetProjectDocuments.FilesListElement>();
-		for (final LocalizedElement element : getProject().getLocalizedElements(FilesListElementDTO.class)) {
+		for (final LocalizedElement<FilesListElementDTO> element : getProject().getLocalizedElements(FilesListElementDTO.class)) {
 			filesLists.add(new GetProjectDocuments.FilesListElement(element.getElement().getId(),
 				element.getPhaseModel() != null ? element.getPhaseModel().getName() : I18N.CONSTANTS.projectDetails(), element.getElement().getLabel()));
 		}
@@ -165,7 +188,7 @@ public class ProjectReportsPresenter extends AbstractProjectPresenter<ProjectRep
 	private Menu createAttachFileMenu() {
 
 		// Retrieves all the files list elements in the current project.
-		final List<LocalizedElement> filesListElements = getProject().getLocalizedElements(FilesListElementDTO.class);
+		final List<LocalizedElement<FilesListElementDTO>> filesListElements = getProject().getLocalizedElements(FilesListElementDTO.class);
 
 		return createMenu(filesListElements, false);
 	}
@@ -178,8 +201,8 @@ public class ProjectReportsPresenter extends AbstractProjectPresenter<ProjectRep
 	private Menu createCreateReportMenu() {
 
 		// Retrieves all the report and report list elements in the current project.
-		final List<LocalizedElement> reportElements = getProject().getLocalizedElements(ReportElementDTO.class);
-		final List<LocalizedElement> reportsListElements = getProject().getLocalizedElements(ReportListElementDTO.class);
+		final List reportElements = getProject().getLocalizedElements(ReportElementDTO.class);
+		final List reportsListElements = getProject().getLocalizedElements(ReportListElementDTO.class);
 
 		return createMenu(ClientUtils.concat(reportElements, reportsListElements), true);
 	}
@@ -193,7 +216,7 @@ public class ProjectReportsPresenter extends AbstractProjectPresenter<ProjectRep
 	 *          {@code true} to build a <em>create report</em> menu, {@code false} to build an <em>attach file</em> menu.
 	 * @return The menu for the given {@code elements}.
 	 */
-	private Menu createMenu(final List<LocalizedElement> elements, final boolean createReportMenu) {
+	private <E extends FlexibleElementDTO> Menu createMenu(final List<LocalizedElement<E>> elements, final boolean createReportMenu) {
 
 		final Menu menu = new Menu();
 		menu.setEnabled(false);
@@ -203,7 +226,7 @@ public class ProjectReportsPresenter extends AbstractProjectPresenter<ProjectRep
 		}
 
 		// For each files list.
-		for (final LocalizedElement element : elements) {
+		for (final LocalizedElement<E> element : elements) {
 
 			final PrivacyGroupPermissionEnum permission = ProfileUtils.getPermission(auth(), element.getElement().getPrivacyGroup());
 

@@ -1,5 +1,28 @@
 package org.sigmah.client.ui.presenter.project.dashboard;
 
+/*
+ * #%L
+ * Sigmah
+ * %%
+ * Copyright (C) 2010 - 2016 URD
+ * %%
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public
+ * License along with this program.  If not, see
+ * <http://www.gnu.org/licenses/gpl-3.0.html>.
+ * #L%
+ */
+
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -70,8 +93,10 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
+import org.sigmah.client.computation.ComputationTriggerManager;
 import org.sigmah.client.ui.presenter.project.ProjectPresenter;
 import org.sigmah.client.ui.widget.Loadable;
+import org.sigmah.shared.dispatch.FunctionalException;
 
 /**
  * Phases presenter.
@@ -164,7 +189,7 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> {
 
 			// If the current displayed phase is the active one,
 			// map the required element for the active phase.
-			if (isCurrentPhase(getCurrentProjectDTO().getCurrentPhase())) {
+			if (isCurrentPhase(getCurrentProject().getCurrentPhase())) {
 				activePhaseRequiredElements.putActual(elementDTO.getId(), event.isValueOn());
 			}
 
@@ -198,6 +223,12 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> {
 	 * A map to maintain the current displayed phase required elements states.
 	 */
 	private RequiredValueStateList currentPhaseRequiredElements;
+	
+	/**
+	 * Listen to the values of flexible elements to update computated values.
+	 */
+	@Inject
+	private ComputationTriggerManager computationTriggerManager;
 	
 	/**
 	 * Presenters initialization.
@@ -257,23 +288,23 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> {
 	public void refresh(final ProjectDTO project) {
 		clearChangedValues();
 		view.getButtonSavePhase().disable();
-		setCurrentDisplayedPhaseDTO(project.getCurrentPhase());
+		setCurrentDisplayedPhase(project.getCurrentPhase());
 		loadProjectDashboard(project);
 	}
 
-	private ProjectDTO getCurrentProjectDTO() {
+	private ProjectDTO getCurrentProject() {
 		return injector.getProjectPresenter().getCurrentProject();
 	}
 
-	private void setCurrentProjectDTO(final ProjectDTO project) {
+	private void setCurrentProject(final ProjectDTO project) {
 		injector.getProjectPresenter().setCurrentProject(project);
 	}
 
-	private PhaseDTO getCurrentDisplayedPhaseDTO() {
+	private PhaseDTO getCurrentDisplayedPhase() {
 		return injector.getProjectPresenter().getCurrentDisplayedPhase();
 	}
 
-	private void setCurrentDisplayedPhaseDTO(final PhaseDTO phase) {
+	private void setCurrentDisplayedPhase(final PhaseDTO phase) {
 		injector.getProjectPresenter().setCurrentDisplayedPhase(phase);
 	}
 
@@ -310,6 +341,7 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> {
 
 	public void clearChangedValues() {
 		valueChanges.clear();
+        view.getButtonSavePhase().setEnabled(false);
 	}
 
 	/**
@@ -401,7 +433,7 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> {
 
 				private PhaseDTO retrievePhaseDTO() {
 					// Loads the phase of the selected tab (loaded from the current project instance).
-					for (final PhaseDTO p : getCurrentProjectDTO().getPhases()) {
+					for (final PhaseDTO p : getCurrentProject().getPhases()) {
 						if (p.getId().equals(phaseDTOId)) {
 							return p;
 						}
@@ -415,7 +447,7 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> {
 
 					final PhaseDTO toDisplayPhase = retrievePhaseDTO();
 					
-					if (!view.getButtonSavePhase().isEnabled() || isEndedPhase(getCurrentDisplayedPhaseDTO())) {
+					if (!view.getButtonSavePhase().isEnabled() || isEndedPhase(getCurrentDisplayedPhase())) {
 						// Load the selected phase without asking a question
 						// if the current phase has not been modified or if it is ended.
 						loadPhaseOnTab(toDisplayPhase);
@@ -433,7 +465,7 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> {
 							// --
 
 							view.getButtonSavePhase().fireEvent(Events.OnClick);
-							if (isActivePhase(getCurrentDisplayedPhaseDTO())) {
+							if (isActivePhase(getCurrentDisplayedPhase())) {
 								activePhaseRequiredElements.saveState();
 							}
 							loadPhaseOnTab(toDisplayPhase);
@@ -449,7 +481,7 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> {
 
 							// If the last displayed phase was the active one, modifications are discarded then the required
 							// elements map is cleared (to prevent inconsistent successor activation).
-							if (isActivePhase(getCurrentDisplayedPhaseDTO())) {
+							if (isActivePhase(getCurrentDisplayedPhase())) {
 								activePhaseRequiredElements.clearState();
 							}
 							loadPhaseOnTab(toDisplayPhase);
@@ -471,7 +503,7 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> {
 	 */
 	private boolean isCurrentPhase(PhaseDTO phaseDTO) {
 
-		final PhaseDTO currentPhaseDTO = getCurrentDisplayedPhaseDTO();
+		final PhaseDTO currentPhaseDTO = getCurrentDisplayedPhase();
 		return currentPhaseDTO != null && phaseDTO != null && currentPhaseDTO.getId().equals(phaseDTO.getId());
 
 	}
@@ -485,7 +517,7 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> {
 	 */
 	private boolean isActivePhase(PhaseDTO phaseDTO) {
 
-		final ProjectDTO currentProjectDTO = getCurrentProjectDTO();
+		final ProjectDTO currentProjectDTO = getCurrentProject();
 
 		return currentProjectDTO != null
 			&& currentProjectDTO.getCurrentPhase() != null
@@ -519,7 +551,7 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> {
 	 */
 	private void enableSuccessorsTabs() {
 
-		for (final PhaseModelDTO successor : getCurrentProjectDTO().getCurrentPhase().getPhaseModel().getSuccessors()) {
+		for (final PhaseModelDTO successor : getCurrentProject().getCurrentPhase().getPhaseModel().getSuccessors()) {
 			final TabItem successorTabItem = tabItemsMap.get(successor.getId());
 			if (successorTabItem != null) {
 				successorTabItem.setEnabled(true);
@@ -549,7 +581,7 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> {
 		}
 
 		// Sets current project status.
-		setCurrentDisplayedPhaseDTO(phaseDTO);
+		setCurrentDisplayedPhase(phaseDTO);
 
 		// Clears the required elements map for the current displayed phase.
 		currentPhaseRequiredElements.clear();
@@ -594,7 +626,10 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> {
 		};
 		
 		// Current project
-		final ProjectDTO project = getCurrentProjectDTO();
+		final ProjectDTO project = getCurrentProject();
+		
+		// Prepare the manager of computation elements
+		computationTriggerManager.prepareForProject(project);
 
 		// For each layout group.
 		for (final LayoutGroupDTO groupDTO : phaseDTO.getPhaseModel().getLayout().getGroups()) {
@@ -633,7 +668,7 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> {
 				}
 
 				// Remote call to ask for this element value.
-				queue.add(new GetValue(getCurrentProjectDTO().getId(), elementDTO.getId(), elementDTO.getEntityName(), amendmentId),
+				queue.add(new GetValue(getCurrentProject().getId(), elementDTO.getId(), elementDTO.getEntityName(), amendmentId),
 					new CommandResultHandler<ValueResult>() {
 
 						@Override
@@ -660,7 +695,7 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> {
 							elementDTO.setEventBus(eventBus);
 							elementDTO.setAuthenticationProvider(injector.getAuthenticationProvider());
 							elementDTO.setCache(injector.getClientCache());
-							elementDTO.setCurrentContainerDTO(getCurrentProjectDTO());
+							elementDTO.setCurrentContainerDTO(getCurrentProject());
 							elementDTO.setTransfertManager(injector.getTransfertManager());
 							elementDTO.assignValue(valueResult);
 
@@ -694,6 +729,9 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> {
 
 							// Adds a value change handler to this element.
 							elementDTO.addValueHandler(new ValueHandlerImpl());
+							
+							// Adds a value change handler if this element is a dependency of a ComputationElementDTO.
+							computationTriggerManager.listenToValueChangesOfElement(elementDTO, elementComponent, valueChanges);
 
 							// If this element id a required one.
 							if (elementDTO.getValidates()) {
@@ -724,7 +762,7 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> {
 
 								// If the current displayed phase is the active one,
 								// map the required element for the active phase.
-								if (isCurrentPhase(getCurrentProjectDTO().getCurrentPhase())) {
+								if (isCurrentPhase(getCurrentProject().getCurrentPhase())) {
 									activePhaseRequiredElements.putSaved(elementDTO.getId(), elementDTO.isFilledIn());
 								}
 							}
@@ -745,7 +783,7 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> {
 	private void refreshActionsToolbar() {
 
 		// If the current displayed phase is ended, the toolbar is hidden.
-		if (isEndedPhase(getCurrentDisplayedPhaseDTO()) &&  
+		if (isEndedPhase(getCurrentDisplayedPhase()) &&  
 			// An exception is made if the user is authorized to edit ended phases.
 			!ProfileUtils.isGranted(auth(), GlobalPermissionEnum.MODIFY_LOCKED_CONTENT)) {
 			// Hide the toolbar.
@@ -755,7 +793,7 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> {
 
 		view.fillToolbar(ProfileUtils.isGranted(auth(), GlobalPermissionEnum.CHANGE_PHASE) &&
 			// Do not add the change phase button if the phase is already closed.
-			!isEndedPhase(getCurrentDisplayedPhaseDTO()));
+			!isEndedPhase(getCurrentDisplayedPhase()));
 
 		// --
 		// -- ACTION: ACTIVATE OR CLOSE PHASE
@@ -766,7 +804,7 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> {
 		view.getButtonActivatePhase().removeAllListeners();
 
 		// If the current displayed phase is the active one or it is ended, the close action is displayed.
-		if (isCurrentPhase(getCurrentProjectDTO().getCurrentPhase())) {
+		if (isCurrentPhase(getCurrentProject().getCurrentPhase())) {
 
 			view.getButtonActivatePhase().setText(I18N.CONSTANTS.projectClosePhaseButton());
 			view.getButtonActivatePhase().setIcon(IconImageBundle.ICONS.close());
@@ -783,7 +821,7 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> {
 			// Builds the button menu to select the next phase after closing the current displayed one.
 			final Menu successorsMenu = new Menu();
 
-			final List<PhaseDTO> successors = getCurrentProjectDTO().getSuccessors(getCurrentDisplayedPhaseDTO());
+			final List<PhaseDTO> successors = getCurrentProject().getSuccessors(getCurrentDisplayedPhase());
 
 			// If the current displayed phase hasn't successor, the close action ends the project.
 			if (successors == null || successors.isEmpty()) {
@@ -832,7 +870,7 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> {
 
 				@Override
 				public void componentSelected(final ButtonEvent be) {
-					activatePhase(getCurrentDisplayedPhaseDTO(), false);
+					activatePhase(getCurrentDisplayedPhase(), false);
 				}
 			});
 		}
@@ -859,9 +897,9 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> {
 		// Check guide availability.
 		view.getButtonPhaseGuide().removeAllListeners();
 
-		if (getCurrentDisplayedPhaseDTO().getPhaseModel().isGuideAvailable()) {
+		if (getCurrentDisplayedPhase().getPhaseModel().isGuideAvailable()) {
 
-			final String guide = getCurrentDisplayedPhaseDTO().getPhaseModel().getGuide();
+			final String guide = getCurrentDisplayedPhase().getPhaseModel().getGuide();
 
 			view.getButtonPhaseGuide().setEnabled(true);
 			view.getButtonPhaseGuide().setTitle(guide);
@@ -996,14 +1034,14 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> {
 		if (phase == null) {
 
 			// Confirms that the user wants to end the project.
-			N10N.confirmation(I18N.CONSTANTS.projectEnd(), I18N.MESSAGES.projectEnd(getCurrentProjectDTO().getCurrentPhase().getPhaseModel().getName()),
+			N10N.confirmation(I18N.CONSTANTS.projectEnd(), I18N.MESSAGES.projectEnd(getCurrentProject().getCurrentPhase().getPhaseModel().getName()),
 				new ConfirmCallback() {
 
 					@Override
 					public void onAction() {
 
 						// Activates the current displayed phase.
-						dispatch.execute(new ChangePhase(getCurrentProjectDTO().getId(), null), new CommandResultHandler<ProjectDTO>() {
+						dispatch.execute(new ChangePhase(getCurrentProject().getId(), null), new CommandResultHandler<ProjectDTO>() {
 
 							@Override
 							public void onCommandFailure(final Throwable e) {
@@ -1022,12 +1060,12 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> {
 								}
 
 								// Sets the new current project (after update).
-								setCurrentProjectDTO(result);
+								setCurrentProject(result);
 
 								// Sets the new current displayed phase (not necessary the active one).
-								for (final PhaseDTO phase : getCurrentProjectDTO().getPhases()) {
-									if (phase.getId().equals(getCurrentDisplayedPhaseDTO().getId())) {
-										setCurrentDisplayedPhaseDTO(phase);
+								for (final PhaseDTO phase : getCurrentProject().getPhases()) {
+									if (phase.getId().equals(getCurrentDisplayedPhase().getId())) {
+										setCurrentDisplayedPhase(phase);
 									}
 								}
 
@@ -1042,14 +1080,14 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> {
 
 			// Confirms that the user wants to close the active phase and activate the given one.
 			N10N.confirmation(I18N.CONSTANTS.projectCloseAndActivate(),
-				I18N.MESSAGES.projectCloseAndActivate(getCurrentProjectDTO().getCurrentPhase().getPhaseModel().getName(), phase.getPhaseModel().getName()),
+				I18N.MESSAGES.projectCloseAndActivate(getCurrentProject().getCurrentPhase().getPhaseModel().getName(), phase.getPhaseModel().getName()),
 				new ConfirmCallback() {
 
 					@Override
 					public void onAction() {
 
 						// Activates the current displayed phase.
-						dispatch.execute(new ChangePhase(getCurrentProjectDTO().getId(), phase.getId()), new CommandResultHandler<ProjectDTO>() {
+						dispatch.execute(new ChangePhase(getCurrentProject().getId(), phase.getId()), new CommandResultHandler<ProjectDTO>() {
 
 							@Override
 							public void onCommandFailure(final Throwable e) {
@@ -1069,12 +1107,12 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> {
 								}
 
 								// Sets the new current project (after update).
-								setCurrentProjectDTO(result);
+								setCurrentProject(result);
 
 								// Sets the new current displayed phase (not necessary the active one).
-								for (final PhaseDTO phase : getCurrentProjectDTO().getPhases()) {
-									if (phase.getId().equals(getCurrentDisplayedPhaseDTO().getId())) {
-										setCurrentDisplayedPhaseDTO(phase);
+								for (final PhaseDTO phase : getCurrentProject().getPhases()) {
+									if (phase.getId().equals(getCurrentDisplayedPhase().getId())) {
+										setCurrentDisplayedPhase(phase);
 									}
 								}
 
@@ -1119,7 +1157,7 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> {
 		// --
 
 		// Updates closed phases styles.
-		for (final PhaseDTO phase : getCurrentProjectDTO().getPhases()) {
+		for (final PhaseDTO phase : getCurrentProject().getPhases()) {
 			final TabItem successorTabItem = tabItemsMap.get(phase.getPhaseModel().getId());
 			if (phase.isEnded()) {
 				successorTabItem.getHeader().addStyleName(PhasesView.PROJECT_PHASE_CLOSED);
@@ -1132,7 +1170,7 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> {
 		}
 
 		final PhaseDTO phase;
-		if ((phase = getCurrentProjectDTO().getCurrentPhase()) != null) {
+		if ((phase = getCurrentProject().getCurrentPhase()) != null) {
 
 			// Updates active phase styles.
 			tabItemsMap.get(phase.getPhaseModel().getId()).getHeader().addStyleName(PhasesView.PROJECT_PHASE_ACTIVE);
@@ -1142,7 +1180,7 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> {
 		}
 
 		if (reload) {
-			loadPhaseOnTab(getCurrentDisplayedPhaseDTO());
+			loadPhaseOnTab(getCurrentDisplayedPhase());
 		}
 	}
 
@@ -1153,9 +1191,9 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> {
 
 		@Override
 		public void handleEvent(final ButtonEvent be) {
-			view.getButtonSavePhase().disable();
-			final UpdateProject updateProject = new UpdateProject(getCurrentProjectDTO().getId(), valueChanges);
-
+            view.getButtonSavePhase().disable();
+			final UpdateProject updateProject = new UpdateProject(getCurrentProject().getId(), valueChanges);
+            
 			dispatch.execute(updateProject, new CommandResultHandler<VoidResult>() {
 
 				@Override
@@ -1165,16 +1203,23 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> {
 
 					currentPhaseRequiredElements.clearState();
 
-					if (isActivePhase(getCurrentDisplayedPhaseDTO())) {
+					if (isActivePhase(getCurrentDisplayedPhase())) {
 						activePhaseRequiredElements.clearState();
 					}
 				}
+
+                @Override
+                protected void onFunctionalException(FunctionalException exception) {
+                    super.onFunctionalException(exception);
+                    
+                    view.getButtonSavePhase().setEnabled(true);
+                }
 
 				@Override
 				public void onCommandSuccess(final VoidResult result) {
 
 					N10N.infoNotif(I18N.CONSTANTS.infoConfirmation(), I18N.CONSTANTS.saveConfirm());
-
+                    
 					// Checks if there is any update needed to the local project instance.
 					boolean refreshBanner = false;
 					boolean coreVersionUpdated = false;
@@ -1191,7 +1236,7 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> {
 
 					currentPhaseRequiredElements.saveState();
 
-					if (isActivePhase(getCurrentDisplayedPhaseDTO())) {
+					if (isActivePhase(getCurrentDisplayedPhase())) {
 						activePhaseRequiredElements.saveState();
 					}
 
@@ -1219,7 +1264,7 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> {
 	 */
 	private void updateCurrentProject(final DefaultFlexibleElementDTO element, final String value) {
 
-		final ProjectDTO currentProjectDTO = getCurrentProjectDTO();
+		final ProjectDTO currentProjectDTO = getCurrentProject();
 
 		switch (element.getType()) {
 

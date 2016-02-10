@@ -1,5 +1,28 @@
 package org.sigmah.client.ui.presenter.project;
 
+/*
+ * #%L
+ * Sigmah
+ * %%
+ * Copyright (C) 2010 - 2016 URD
+ * %%
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public
+ * License along with this program.  If not, see
+ * <http://www.gnu.org/licenses/gpl-3.0.html>.
+ * #L%
+ */
+
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -80,6 +103,8 @@ import java.util.List;
 import org.sigmah.client.ui.res.icon.IconImageBundle;
 import org.sigmah.client.ui.widget.Loadable;
 import org.sigmah.client.util.DateUtils;
+import org.sigmah.client.util.profiler.Profiler;
+import org.sigmah.client.util.profiler.Scenario;
 import org.sigmah.shared.dto.referential.AmendmentState;
 import org.sigmah.shared.dto.referential.CoreVersionAction;
 
@@ -218,7 +243,7 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 	 */
 	@Override
 	public void onBind() {
-
+		
 		// --
 		// SubMenu listener.
 		// --
@@ -391,6 +416,8 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 		// Updates parent view elements.
 		loadAmendments(project, coreVersionId);
 		refreshBanner(project);
+		
+		Profiler.INSTANCE.endScenario(Scenario.OPEN_PROJECT);
 	}
 
 	/**
@@ -666,11 +693,11 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 
 		// Banner data.
 		final ProjectBannerDTO banner = project.getProjectModel().getProjectBanner();
-		final LayoutDTO layout = banner.getLayout();
+		final LayoutDTO layout = banner != null ? banner.getLayout() : null;
 
 		final Widget bannerWidget;
 
-		if (banner != null && layout != null && layout.getGroups() != null && !layout.getGroups().isEmpty()) {
+		if (layout != null && layout.getGroups() != null && !layout.getGroups().isEmpty()) {
 
 			// --
 			// Layout banner.

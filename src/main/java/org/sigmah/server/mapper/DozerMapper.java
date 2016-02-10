@@ -1,5 +1,27 @@
 package org.sigmah.server.mapper;
 
+/*
+ * #%L
+ * Sigmah
+ * %%
+ * Copyright (C) 2010 - 2016 URD
+ * %%
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public
+ * License along with this program.  If not, see
+ * <http://www.gnu.org/licenses/gpl-3.0.html>.
+ * #L%
+ */
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -43,6 +65,18 @@ public class DozerMapper implements Mapper {
 	 * {@inheritDoc}
 	 */
 	@Override
+	public <T> T map(Object o, T t) {
+		if (o == null) {
+			return null;
+		}
+		mapper.map(o, t);
+		return t;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public <O, T> List<T> mapCollection(Collection<O> l, Class<T> c) {
 		return mapCollection(l, c, null);
 	}
@@ -65,17 +99,37 @@ public class DozerMapper implements Mapper {
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Maps a collection of objects into a set of another ones.
+	 * 
+	 * @param <O>
+	 *          The objects type.
+	 * @param <T>
+	 *          The dest type.
+	 * @param l
+	 *          The source collection.
+	 * @param c
+	 *          The dest type.
+	 * @return The dest mapping set of the given collection (never <code>null</code>).
 	 */
-	@Override
 	public <O, T> Set<T> mapCollectionToSet(Collection<O> l, Class<T> c) {
 		return mapCollectionToSet(l, c, null);
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Maps a collection of objects into a given {@code Set} implementation.
+	 * 
+	 * @param <O>
+	 *          The objects type.
+	 * @param <T>
+	 *          The dest type.
+	 * @param l
+	 *          The source collection.
+	 * @param c
+	 *          The dest type.
+	 * @param setImpl
+	 *          The {@code Set} implementation.
+	 * @return The dest mapping set of the given collection (never <code>null</code>).
 	 */
-	@Override
 	public <O, T> Set<T> mapCollectionToSet(Collection<O> l, Class<T> c, Set<T> setImpl) {
 
 		if (setImpl == null) {
@@ -92,9 +146,16 @@ public class DozerMapper implements Mapper {
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Populates the given {@code dest} object with the values of the given {@code src} object.
+	 * 
+	 * @param <T>
+	 *          The populated dest type.
+	 * @param src
+	 *          The source object used to populate {@code dest} fields.
+	 * @param dest
+	 *          The populated dest object.
+	 * @return The populated dest object or {@code null} if {@code dest} is {@code null}.
 	 */
-	@Override
 	public <T> T populate(Object src, T populatedDest) {
 		if (populatedDest == null) {
 			return null;
@@ -131,6 +192,31 @@ public class DozerMapper implements Mapper {
 
 		return t;
 
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public <T> T map(Object source, T destination, IsMappingMode mapId) {
+		
+		if (source == null) {
+			return null;
+		}
+
+		if (mapId != null) {
+
+			mapper.map(source, destination, mapId.getMapId());
+			if (destination instanceof HasMappingMode) {
+				((HasMappingMode) destination).setCurrentMappingMode(mapId);
+			}
+
+		} else {
+			map(source, destination);
+		}
+
+		return destination;
+		
 	}
 
 }

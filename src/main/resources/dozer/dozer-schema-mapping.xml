@@ -1,4 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  #%L
+  Sigmah
+  %%
+  Copyright (C) 2010 - 2016 URD
+  %%
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as
+  published by the Free Software Foundation, either version 3 of the
+  License, or (at your option) any later version.
+  
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+  
+  You should have received a copy of the GNU General Public
+  License along with this program.  If not, see
+  <http://www.gnu.org/licenses/gpl-3.0.html>.
+  #L%
+  -->
+
 <mappings xmlns="http://dozer.sourceforge.net" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://dozer.sourceforge.net beanmapping.xsd">
 	
@@ -109,9 +131,37 @@
 		<field>
 			<a>element</a>
 			<b>flexibleElementDTO</b>
-			<a-hint>org.sigmah.server.domain.element.DefaultFlexibleElement,org.sigmah.server.domain.element.MessageElement,org.sigmah.server.domain.element.CheckboxElement,org.sigmah.server.domain.element.TextAreaElement,org.sigmah.server.domain.element.QuestionElement,org.sigmah.server.domain.element.TripletsListElement,org.sigmah.server.domain.element.FilesListElement,org.sigmah.server.domain.element.IndicatorsListElement,org.sigmah.server.domain.element.BudgetDistributionElement,org.sigmah.server.domain.element.ReportElement,org.sigmah.server.domain.element.ReportListElement,org.sigmah.server.domain.element.BudgetElement,org.sigmah.server.domain.element.CoreVersionElement
+			<a-hint>
+				org.sigmah.server.domain.element.DefaultFlexibleElement,
+				org.sigmah.server.domain.element.MessageElement,
+				org.sigmah.server.domain.element.CheckboxElement,
+				org.sigmah.server.domain.element.TextAreaElement,
+				org.sigmah.server.domain.element.QuestionElement,
+				org.sigmah.server.domain.element.TripletsListElement,
+				org.sigmah.server.domain.element.FilesListElement,
+				org.sigmah.server.domain.element.IndicatorsListElement,
+				org.sigmah.server.domain.element.BudgetDistributionElement,
+				org.sigmah.server.domain.element.ReportElement,
+				org.sigmah.server.domain.element.ReportListElement,
+				org.sigmah.server.domain.element.BudgetElement,
+				org.sigmah.server.domain.element.CoreVersionElement,
+				org.sigmah.server.domain.element.ComputationElement
 			</a-hint>
-			<b-hint>org.sigmah.shared.dto.element.DefaultFlexibleElementDTO,org.sigmah.shared.dto.element.MessageElementDTO,org.sigmah.shared.dto.element.CheckboxElementDTO,org.sigmah.shared.dto.element.TextAreaElementDTO,org.sigmah.shared.dto.element.QuestionElementDTO,org.sigmah.shared.dto.element.TripletsListElementDTO,org.sigmah.shared.dto.element.FilesListElementDTO,org.sigmah.shared.dto.element.IndicatorsListElementDTO,org.sigmah.shared.dto.element.BudgetDistributionElementDTO,org.sigmah.shared.dto.element.ReportElementDTO,org.sigmah.shared.dto.element.ReportListElementDTO,org.sigmah.shared.dto.element.BudgetElementDTO,org.sigmah.shared.dto.element.CoreVersionElementDTO
+			<b-hint>
+				org.sigmah.shared.dto.element.DefaultFlexibleElementDTO,
+				org.sigmah.shared.dto.element.MessageElementDTO,
+				org.sigmah.shared.dto.element.CheckboxElementDTO,
+				org.sigmah.shared.dto.element.TextAreaElementDTO,
+				org.sigmah.shared.dto.element.QuestionElementDTO,
+				org.sigmah.shared.dto.element.TripletsListElementDTO,
+				org.sigmah.shared.dto.element.FilesListElementDTO,
+				org.sigmah.shared.dto.element.IndicatorsListElementDTO,
+				org.sigmah.shared.dto.element.BudgetDistributionElementDTO,
+				org.sigmah.shared.dto.element.ReportElementDTO,
+				org.sigmah.shared.dto.element.ReportListElementDTO,
+				org.sigmah.shared.dto.element.BudgetElementDTO,
+				org.sigmah.shared.dto.element.CoreVersionElementDTO,
+				org.sigmah.shared.dto.element.ComputationElementDTO
 			</b-hint>
 		</field>
 	</mapping>
@@ -305,9 +355,37 @@
 		<field>
 			<a>flexibleElement</a>
 			<b>flexibleElementDTO</b>
-			<a-hint>org.sigmah.server.domain.element.DefaultFlexibleElement,org.sigmah.server.domain.element.MessageElement,org.sigmah.server.domain.element.CheckboxElement,org.sigmah.server.domain.element.TextAreaElement,org.sigmah.server.domain.element.QuestionElement,org.sigmah.server.domain.element.TripletsListElement,org.sigmah.server.domain.element.FilesListElement,org.sigmah.server.domain.element.IndicatorsListElement,org.sigmah.server.domain.element.BudgetDistributionElement,org.sigmah.server.domain.element.ReportElement,org.sigmah.server.domain.element.ReportListElement,org.sigmah.server.domain.element.BudgetElement
+			<a-hint>
+				org.sigmah.server.domain.element.DefaultFlexibleElement,
+				org.sigmah.server.domain.element.MessageElement,
+				org.sigmah.server.domain.element.CheckboxElement,
+				org.sigmah.server.domain.element.TextAreaElement,
+				org.sigmah.server.domain.element.QuestionElement,
+				org.sigmah.server.domain.element.TripletsListElement,
+				org.sigmah.server.domain.element.FilesListElement,
+				org.sigmah.server.domain.element.IndicatorsListElement,
+				org.sigmah.server.domain.element.BudgetDistributionElement,
+				org.sigmah.server.domain.element.ReportElement,
+				org.sigmah.server.domain.element.ReportListElement,
+				org.sigmah.server.domain.element.BudgetElement,
+				org.sigmah.server.domain.element.CoreVersionElement,
+				org.sigmah.server.domain.element.ComputationElement
 			</a-hint>
-			<b-hint>org.sigmah.shared.dto.element.DefaultFlexibleElementDTO,org.sigmah.shared.dto.element.MessageElementDTO,org.sigmah.shared.dto.element.CheckboxElementDTO,org.sigmah.shared.dto.element.TextAreaElementDTO,org.sigmah.shared.dto.element.QuestionElementDTO,org.sigmah.shared.dto.element.TripletsListElementDTO,org.sigmah.shared.dto.element.FilesListElementDTO,org.sigmah.shared.dto.element.IndicatorsListElementDTO,org.sigmah.shared.dto.element.BudgetDistributionElementDTO,org.sigmah.shared.dto.element.ReportElementDTO,org.sigmah.shared.dto.element.ReportListElementDTO,org.sigmah.shared.dto.element.BudgetElementDTO
+			<b-hint>
+				org.sigmah.shared.dto.element.DefaultFlexibleElementDTO,
+				org.sigmah.shared.dto.element.MessageElementDTO,
+				org.sigmah.shared.dto.element.CheckboxElementDTO,
+				org.sigmah.shared.dto.element.TextAreaElementDTO,
+				org.sigmah.shared.dto.element.QuestionElementDTO,
+				org.sigmah.shared.dto.element.TripletsListElementDTO,
+				org.sigmah.shared.dto.element.FilesListElementDTO,
+				org.sigmah.shared.dto.element.IndicatorsListElementDTO,
+				org.sigmah.shared.dto.element.BudgetDistributionElementDTO,
+				org.sigmah.shared.dto.element.ReportElementDTO,
+				org.sigmah.shared.dto.element.ReportListElementDTO,
+				org.sigmah.shared.dto.element.BudgetElementDTO,
+				org.sigmah.shared.dto.element.CoreVersionElementDTO,
+				org.sigmah.shared.dto.element.ComputationElementDTO
 			</b-hint>
 		</field>
 	</mapping>
