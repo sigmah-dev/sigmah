@@ -22,6 +22,8 @@ package org.sigmah.shared.computation.value;
  * #L%
  */
 
+import com.google.gwt.core.client.GWT;
+import org.sigmah.client.i18n.I18N;
 import org.sigmah.shared.dto.element.ComputationElementDTO;
 
 /**
@@ -51,7 +53,7 @@ public enum ComputationError implements ComputedValue {
 	 */
 	@Override
 	public int matchesConstraints(ComputedValue minimum, ComputedValue maximum) {
-		return -1;
+		return 0;
 	}
 
     /**
@@ -92,6 +94,30 @@ public enum ComputationError implements ComputedValue {
 	@Override
 	public ComputedValue substractFrom(ComputedValue other) {
 		return this;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String toString() {
+		if (!GWT.isClient()) {
+			return name();
+		}
+		switch (this) {
+		case BAD_FORMULA:
+			return I18N.CONSTANTS.computationErrorBadFormula();
+		case BAD_REFERENCE:
+			return I18N.CONSTANTS.computationErrorBadReference();
+		case BAD_VALUE:
+			return I18N.CONSTANTS.computationErrorBadValue();
+		case DIVISON_BY_ZERO:
+			return I18N.CONSTANTS.computationErrorDivisonByZero();
+		case NO_VALUE:
+			return I18N.CONSTANTS.computationErrorNoValue();
+		default:
+			return name();
+		}
 	}
 	
 }
