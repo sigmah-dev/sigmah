@@ -23,6 +23,7 @@ package org.sigmah.shared.dto.element;
  */
 
 
+import com.allen_sauer.gwt.log.client.Log;
 import java.util.Date;
 
 import org.sigmah.client.i18n.I18N;
@@ -45,6 +46,7 @@ import com.extjs.gxt.ui.client.widget.form.TextArea;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.NumberFormat;
+import org.sigmah.shared.dto.referential.TextAreaType;
 
 /**
  * TextAreaElementDTO.
@@ -87,306 +89,29 @@ public class TextAreaElementDTO extends FlexibleElementDTO {
 	@Override
 	protected Component getComponent(ValueResult valueResult, boolean enabled) {
 
-		final DateTimeFormat DATE_FORMAT = DateUtils.DATE_SHORT;
-
 		final TextField<?> field;
-
+		
 		// Checks the type of the expected value to build the corrected
 		// component.
-		if (getType() != null) {
-
-			switch (getType()) {
-			// Number
-				case 'N': {
-
-					final NumberField numberField = new NumberField();
-					final boolean isDecimal = Boolean.TRUE.equals(getIsDecimal());
-
-					numberField.setAllowDecimals(isDecimal);
-					numberField.setAllowNegative(true);
-					preferredWidth = FlexibleElementDTO.NUMBER_FIELD_WIDTH;
-
-					// Decimal value
-					if (isDecimal) {
-						numberField.setFormat(NumberFormat.getDecimalFormat());
-
-						// Sets the value to the field.
-						if (valueResult != null && valueResult.isValueDefined()) {
-							numberField.setValue(Double.parseDouble(valueResult.getValueObject()));
-						}
-					}
-					// Non-decimal value
-					else {
-						numberField.setFormat(NumberFormat.getFormat("#"));
-
-						// Sets the value to the field.
-						if (valueResult != null && valueResult.isValueDefined()) {
-							numberField.setValue(Long.parseLong(valueResult.getValueObject()));
-						}
-					}
-
-					// Sets the min value.
-					final Long minValue;
-					if (getMinValue() != null) {
-						minValue = getMinValue();
-						numberField.setMinValue(minValue);
-					} else {
-						minValue = null;
-					}
-
-					// Sets the min value.
-					final Long maxValue;
-					if (getMaxValue() != null) {
-						maxValue = getMaxValue();
-						numberField.setMaxValue(maxValue);
-					} else {
-						maxValue = null;
-					}
-
-					// Sets tooltip.
-					numberField.setToolTip(I18N.MESSAGES.flexibleElementTextAreaNumberRange(
-						isDecimal ? I18N.CONSTANTS.flexibleElementDecimalValue() : I18N.CONSTANTS.flexibleElementNonDecimalValue(),
-						minValue != null ? String.valueOf(minValue) : "-", maxValue != null ? String.valueOf(maxValue) : "-"));
-
-					// Adds listeners.
-					numberField.addListener(Events.OnKeyUp, new Listener<BaseEvent>() {
-
-						@Override
-						public void handleEvent(BaseEvent be) {
-
-							final Number number = numberField.getValue();
-							final Double asDouble = number != null ? number.doubleValue() : null;
-
-							// The number is invalid, fires only a required event to invalidate some previously valid number.
-							if (asDouble == null) {
-
-								// Required element ?
-								if (getValidates()) {
-									handlerManager.fireEvent(new RequiredValueEvent(false));
-								}
-
-								return;
-							}
-
-							// The number is saved as a double (decimal) or a long (integer).
-							final String rawValue = isDecimal ? String.valueOf(asDouble) : String.valueOf(asDouble.longValue());
-							// Checks the number interval.
-							final boolean isValueOn = !((minValue != null && asDouble < minValue) || (maxValue != null && asDouble > maxValue));
-
-							fireEvents(rawValue, isValueOn);
-						}
-					});
-
-					field = numberField;
-				}
-					break;
-				// Date
-				case 'D': {
-
-					// Creates a date field which manages date picker selections and
-					// manual selections.
-					final DateField dateField = new DateField();
-					dateField.getPropertyEditor().setFormat(DATE_FORMAT);
-					dateField.setEditable(true);
-					dateField.setAllowBlank(true);
-					preferredWidth = FlexibleElementDTO.NUMBER_FIELD_WIDTH;
-
-					// Sets the min date value.
-					final Date minDate;
-					if (getMinValue() != null) {
-						minDate = new Date(getMinValue());
-						dateField.setMinValue(minDate);
-					} else {
-						minDate = null;
-					}
-
-					// Sets the max date value.
-					final Date maxDate;
-					if (getMaxValue() != null) {
-						maxDate = new Date(getMaxValue());
-						dateField.setMaxValue(maxDate);
-					} else {
-						maxDate = null;
-					}
-
-					// Sets tooltip.
-					dateField.setToolTip(I18N.MESSAGES.flexibleElementTextAreaDateRange(minDate != null ? DATE_FORMAT.format(minDate) : "-",
-						maxDate != null ? DATE_FORMAT.format(maxDate) : "-"));
-
-					// Adds the listeners.
-
-					dateField.getDatePicker().addListener(Events.Select, new Listener<DatePickerEvent>() {
-
-						@Override
-						public void handleEvent(DatePickerEvent be) {
-
-							// The date is saved as a timestamp.
-							final String rawValue = String.valueOf(be.getDate().getTime());
-							// The date picker always returns a valid date.
-							final boolean isValueOn = true;
-
-							fireEvents(rawValue, isValueOn);
-						}
-					});
-
-					dateField.addListener(Events.OnKeyUp, new Listener<BaseEvent>() {
-
-						@Override
-						public void handleEvent(BaseEvent be) {
-
-							final Date date = dateField.getValue();
-
-							// The date is invalid, fires only a required event to
-							// invalidate some previously valid date.
-							if (date == null || (minDate != null && date.before(minDate)) || (maxDate != null && date.after(maxDate))) {
-
-								// Required element ?
-								if (getValidates()) {
-									handlerManager.fireEvent(new RequiredValueEvent(false));
-								}
-
-								return;
-							}
-
-							// The date is saved as a timestamp.
-							final String rawValue = String.valueOf(date.getTime());
-							// The date is valid here.
-							final boolean isValueOn = true;
-
-							fireEvents(rawValue, isValueOn);
-						}
-					});
-
-					// Sets the value to the field.
-					if (valueResult != null && valueResult.isValueDefined()) {
-						dateField.setValue(new Date(Long.parseLong(valueResult.getValueObject())));
-					}
-
-					field = dateField;
-				}
-					break;
-				// Text
-				case 'T': {
-
-					final TextField<String> textField = new TextField<String>();
-
-					// Sets the max length.
-					final Integer length = getLength();
-					if (length != null) {
-						textField.setMaxLength(length);
-						textField.setToolTip(I18N.MESSAGES.flexibleElementTextAreaTextLength(String.valueOf(length)));
-					}
-
-					// Adds the listeners.
-					textField.addListener(Events.OnKeyUp, new Listener<BaseEvent>() {
-
-						@Override
-						public void handleEvent(BaseEvent be) {
-
-							String rawValue = textField.getValue();
-
-							if (rawValue == null) {
-								rawValue = "";
-							}
-
-							// The value is valid if it contains at least one
-							// non-blank character.
-							final boolean isValueOn = !rawValue.trim().equals("") && !(length != null && rawValue.length() > length);
-
-							fireEvents(rawValue, isValueOn);
-						}
-					});
-
-					// Sets the value to the field.
-					if (valueResult != null && valueResult.isValueDefined()) {
-						textField.setValue(valueResult.getValueObject());
-					}
-
-					field = textField;
-				}
-					break;
-				// Paragraph
-				case 'P':
-				default: {
-
-					final TextArea textArea = new TextArea();
-					textArea.addStyleName("flexibility-textarea");
-
-					final Integer length = getLength();
-					// Sets the max length.
-					if (length != null) {
-						textArea.setMaxLength(length);
-						textArea.setToolTip(I18N.MESSAGES.flexibleElementTextAreaTextLength(String.valueOf(length)));
-					}
-
-					// Adds the listeners.
-					textArea.addListener(Events.OnKeyUp, new Listener<BaseEvent>() {
-
-						@Override
-						public void handleEvent(BaseEvent be) {
-
-							String rawValue = textArea.getValue();
-
-							if (rawValue == null) {
-								rawValue = "";
-							}
-
-							// The value is valid if it contains at least one
-							// non-blank character.
-							final boolean isValueOn = !rawValue.trim().equals("") && !(length != null && rawValue.length() > length);
-
-							fireEvents(rawValue, isValueOn);
-						}
-					});
-
-					// Sets the value to the field.
-					if (valueResult != null && valueResult.isValueDefined()) {
-						textArea.setValue(valueResult.getValueObject());
-					}
-
-					field = textArea;
-				}
-					break;
-			}
-		}
-		// No specific type specified.
-		else {
-
-			final TextArea textArea = new TextArea();
-
-			final Integer length = getLength();
-			// Sets the max length.
-			if (length != null) {
-				textArea.setMaxLength(length);
-				textArea.setToolTip(I18N.MESSAGES.flexibleElementTextAreaTextLength(String.valueOf(length)));
-			}
-
-			// Adds the listeners.
-			textArea.addListener(Events.OnKeyUp, new Listener<BaseEvent>() {
-
-				@Override
-				public void handleEvent(BaseEvent be) {
-
-					String rawValue = textArea.getValue();
-
-					if (rawValue == null) {
-						rawValue = "";
-					}
-
-					// The value is valid if it contains at least one
-					// non-blank character.
-					final boolean isValueOn = !rawValue.trim().equals("") && !(length != null && rawValue.length() > length);
-
-					fireEvents(rawValue, isValueOn);
-				}
-			});
-
-			// Sets the value to the field.
-			if (valueResult != null && valueResult.isValueDefined()) {
-				textArea.setValue(valueResult.getValueObject());
-			}
-
-			field = textArea;
+		final TextAreaType type = TextAreaType.fromCode(getType());
+		if (type != null) switch (type) {
+			case DATE:
+				field = createDateField(valueResult);
+				break;
+			case NUMBER:
+				field = createNumberField(valueResult);
+				break;
+			case PARAGRAPH:
+				field = createParagraphField(valueResult);
+				break;
+			case TEXT:
+				field = createTextField(valueResult);
+				break;
+			default:
+				throw new UnsupportedOperationException("Given type '" + type + "' is not supported yet.");
+		} else {
+			Log.warn("No textarea type is specified for the textarea element '" + getLabel() + "'. Using paragraph instead.");
+			field = createParagraphField(valueResult);
 		}
 
 		// Sets the global properties.
@@ -408,92 +133,19 @@ public class TextAreaElementDTO extends FlexibleElementDTO {
 			return false;
 		}
 
-		try {
-
-			final String value = (result.getValueObject());
-			final boolean isValueOn;
-
-			if (getType() != null) {
-
-				switch (getType()) {
-				// Number
-					case 'N': {
-
-						final boolean isDecimal = Boolean.TRUE.equals(getIsDecimal());
-
-						// Gets the min value.
-						final Long minValue;
-						if (getMinValue() != null) {
-							minValue = getMinValue();
-						} else {
-							minValue = null;
-						}
-
-						// Gets the min value.
-						final Long maxValue;
-						if (getMaxValue() != null) {
-							maxValue = getMaxValue();
-						} else {
-							maxValue = null;
-						}
-
-						// Checks the number range.
-						if (isDecimal) {
-							final double d = Double.parseDouble(value);
-							isValueOn = !((minValue != null && d < minValue) || (maxValue != null && d > maxValue));
-						} else {
-							final long l = Long.parseLong(value);
-							isValueOn = !((minValue != null && l < minValue) || (maxValue != null && l > maxValue));
-						}
-					}
-						break;
-					// Date
-					case 'D': {
-
-						// Gets the min date value.
-						final Date minDate;
-						if (getMinValue() != null) {
-							minDate = new Date(getMinValue());
-						} else {
-							minDate = null;
-						}
-
-						// Gets the max date value.
-						final Date maxDate;
-						if (getMaxValue() != null) {
-							maxDate = new Date(getMaxValue());
-						} else {
-							maxDate = null;
-						}
-
-						final Date date = new Date(Long.parseLong(value));
-						isValueOn = !((minDate != null && date.before(minDate)) || (maxDate != null && date.after(maxDate)));
-					}
-						break;
-					// Text
-					case 'T': {
-						final Integer length = getLength();
-						isValueOn = !"".equals(value.trim()) && !(length != null && value.length() > length);
-					}
-						break;
-					// Paragraph
-					case 'P':
-					default: {
-						final Integer length = getLength();
-						isValueOn = !"".equals(value.trim()) && !(length != null && value.length() > length);
-					}
-						break;
-				}
-			} else {
-				final Integer length = getLength();
-				isValueOn = !"".equals(value.trim()) && !(length != null && value.length() > length);
-			}
-
-			return isValueOn;
-
-		} catch (ClassCastException e) {
-			return false;
+		final String value = result.getValueObject();
+		final boolean correct;
+		
+		final TextAreaType type = TextAreaType.fromCode(getType());
+		if (type == TextAreaType.DATE) {
+			correct = isCorrectRequiredDateValue(value);
+		} else if (type == TextAreaType.NUMBER) {
+			correct = isCorrectRequiredNumberValue(value);
+		} else {
+			correct = isCorrectRequiredStringValue(value);
 		}
+		
+		return correct;
 	}
 
 	/**
@@ -552,6 +204,371 @@ public class TextAreaElementDTO extends FlexibleElementDTO {
 			return value.replace("\n", "<br>");
 		}
 	}
+	
+	// --
+	// Utility methods.
+	// --
+	
+	/**
+	 * Creates a new <code>NumberField</code> for this element.
+	 * 
+	 * @param valueResult
+	 *          Initial value to set.
+	 * @return A new <code>NumberField</code>.
+	 */
+	private TextField<Number> createNumberField(final ValueResult valueResult) {
+		
+		final NumberField numberField = new NumberField();
+		final boolean isDecimal = Boolean.TRUE.equals(getIsDecimal());
+
+		numberField.setAllowDecimals(isDecimal);
+		numberField.setAllowNegative(true);
+		preferredWidth = FlexibleElementDTO.NUMBER_FIELD_WIDTH;
+
+		// Decimal value
+		if (isDecimal) {
+			numberField.setFormat(NumberFormat.getDecimalFormat());
+
+			// Sets the value to the field.
+			if (valueResult != null && valueResult.isValueDefined()) {
+				numberField.setValue(Double.parseDouble(valueResult.getValueObject()));
+			}
+		}
+		// Non-decimal value
+		else {
+			numberField.setFormat(NumberFormat.getFormat("#"));
+
+			// Sets the value to the field.
+			if (valueResult != null && valueResult.isValueDefined()) {
+				numberField.setValue(Long.parseLong(valueResult.getValueObject()));
+			}
+		}
+
+		// Sets the min value.
+		final Long minValue = getMinValue();
+		if (minValue != null) {
+			numberField.setMinValue(minValue);
+		}
+
+		// Sets the min value.
+		final Long maxValue = getMaxValue();
+		if (maxValue != null) {
+			numberField.setMaxValue(maxValue);
+		}
+
+		// Sets tooltip.
+		numberField.setToolTip(I18N.MESSAGES.flexibleElementTextAreaNumberRange(
+			isDecimal ? I18N.CONSTANTS.flexibleElementDecimalValue() : I18N.CONSTANTS.flexibleElementNonDecimalValue(),
+			minValue != null ? String.valueOf(minValue) : "-", maxValue != null ? String.valueOf(maxValue) : "-"));
+
+		// Adds listeners.
+		numberField.addListener(Events.OnKeyUp, new Listener<BaseEvent>() {
+
+			@Override
+			public void handleEvent(BaseEvent be) {
+				onNumberFieldChange(numberField, isDecimal);
+			}
+
+		});
+		
+		numberField.addListener(Events.OnBlur, new Listener<BaseEvent>() {
+
+			@Override
+			public void handleEvent(BaseEvent be) {
+				onNumberFieldChange(numberField, isDecimal);
+			}
+		});
+
+		return numberField;
+	}
+	
+	/**
+	 * Creates a new <code>DateField</code> for this element.
+	 * 
+	 * @param valueResult
+	 *          Initial value to set.
+	 * @return A new <code>DateField</code>.
+	 */
+	private TextField<Date> createDateField(final ValueResult valueResult) {
+		
+		// Creates a date field which manages date picker selections and
+		// manual selections.
+		final DateField dateField = new DateField();
+		final DateTimeFormat dateFormat = DateUtils.DATE_SHORT;
+		dateField.getPropertyEditor().setFormat(dateFormat);
+		dateField.setEditable(true);
+		dateField.setAllowBlank(true);
+		preferredWidth = FlexibleElementDTO.NUMBER_FIELD_WIDTH;
+
+		// Sets the min date value.
+		final Date minDate;
+		if (getMinValue() != null) {
+			minDate = new Date(getMinValue());
+			dateField.setMinValue(minDate);
+		} else {
+			minDate = null;
+		}
+
+		// Sets the max date value.
+		final Date maxDate;
+		if (getMaxValue() != null) {
+			maxDate = new Date(getMaxValue());
+			dateField.setMaxValue(maxDate);
+		} else {
+			maxDate = null;
+		}
+
+		// Sets tooltip.
+		dateField.setToolTip(I18N.MESSAGES.flexibleElementTextAreaDateRange(minDate != null ? dateFormat.format(minDate) : "-",
+			maxDate != null ? dateFormat.format(maxDate) : "-"));
+
+		// Adds the listeners.
+
+		dateField.getDatePicker().addListener(Events.Select, new Listener<DatePickerEvent>() {
+
+			@Override
+			public void handleEvent(DatePickerEvent be) {
+
+				// The date is saved as a timestamp.
+				final String rawValue = String.valueOf(be.getDate().getTime());
+				// The date picker always returns a valid date.
+				final boolean isValueOn = true;
+
+				fireEvents(rawValue, isValueOn);
+			}
+		});
+
+		dateField.addListener(Events.OnKeyUp, new Listener<BaseEvent>() {
+
+			@Override
+			public void handleEvent(BaseEvent be) {
+
+				final Date date = dateField.getValue();
+
+				// The date is invalid, fires only a required event to
+				// invalidate some previously valid date.
+				if (date == null || (minDate != null && date.before(minDate)) || (maxDate != null && date.after(maxDate))) {
+
+					// Required element ?
+					if (getValidates()) {
+						handlerManager.fireEvent(new RequiredValueEvent(false));
+					}
+
+					return;
+				}
+
+				// The date is saved as a timestamp.
+				final String rawValue = String.valueOf(date.getTime());
+				// The date is valid here.
+				final boolean isValueOn = true;
+
+				fireEvents(rawValue, isValueOn);
+			}
+		});
+
+		// Sets the value to the field.
+		if (valueResult != null && valueResult.isValueDefined()) {
+			dateField.setValue(new Date(Long.parseLong(valueResult.getValueObject())));
+		}
+		
+		return dateField;
+	}
+	
+	/**
+	 * Creates a new <code>TextArea</code> for this element.
+	 * 
+	 * @param valueResult
+	 *          Initial value to set.
+	 * @return A new <code>TextArea</code>.
+	 */
+	private TextField<String> createParagraphField(final ValueResult valueResult) {
+		
+		final TextArea textArea = new TextArea();
+		textArea.addStyleName("flexibility-textarea");
+
+		final Integer length = getLength();
+		// Sets the max length.
+		if (length != null) {
+			textArea.setMaxLength(length);
+			textArea.setToolTip(I18N.MESSAGES.flexibleElementTextAreaTextLength(String.valueOf(length)));
+		}
+
+		// Adds the listeners.
+		textArea.addListener(Events.OnKeyUp, new Listener<BaseEvent>() {
+
+			@Override
+			public void handleEvent(BaseEvent be) {
+
+				String rawValue = textArea.getValue();
+
+				if (rawValue == null) {
+					rawValue = "";
+				}
+
+				// The value is valid if it contains at least one
+				// non-blank character.
+				final boolean isValueOn = !rawValue.trim().equals("") && !(length != null && rawValue.length() > length);
+
+				fireEvents(rawValue, isValueOn);
+			}
+		});
+
+		// Sets the value to the field.
+		if (valueResult != null && valueResult.isValueDefined()) {
+			textArea.setValue(valueResult.getValueObject());
+		}
+		
+		return textArea;
+	}
+	
+	/**
+	 * Creates a new <code>TextField</code> for this element.
+	 * 
+	 * @param valueResult
+	 *          Initial value to set.
+	 * @return A new <code>TextField</code>.
+	 */
+	private TextField<String> createTextField(final ValueResult valueResult) {
+		
+		final TextField<String> textField = new TextField<String>();
+
+		// Sets the max length.
+		final Integer length = getLength();
+		if (length != null) {
+			textField.setMaxLength(length);
+			textField.setToolTip(I18N.MESSAGES.flexibleElementTextAreaTextLength(String.valueOf(length)));
+		}
+
+		// Adds the listeners.
+		textField.addListener(Events.OnKeyUp, new Listener<BaseEvent>() {
+
+			@Override
+			public void handleEvent(BaseEvent be) {
+
+				String rawValue = textField.getValue();
+
+				if (rawValue == null) {
+					rawValue = "";
+				}
+
+				// The value is valid if it contains at least one
+				// non-blank character.
+				final boolean isValueOn = !rawValue.trim().equals("") && !(length != null && rawValue.length() > length);
+
+				fireEvents(rawValue, isValueOn);
+			}
+		});
+
+		// Sets the value to the field.
+		if (valueResult != null && valueResult.isValueDefined()) {
+			textField.setValue(valueResult.getValueObject());
+		}
+		
+		return textField;
+	}
+	
+	/**
+	 * Verify if the given <code>String</code> is a number and that it matches
+	 * the minimum and maximum values.
+	 * 
+	 * @param value
+	 *          Value to verify.
+	 * @return <code>true</code> if the given value is correct,
+	 * <code>false</code> otherwise.
+	 */
+	private boolean isCorrectRequiredNumberValue(final String value) {
+		
+		final boolean decimal = Boolean.TRUE.equals(getIsDecimal());
+		final Long minValue = getMinValue();
+		final Long maxValue = getMaxValue();
+
+		// Checks the number range.
+		if (decimal) {
+			final double d = Double.parseDouble(value);
+			return (minValue == null || d >= minValue) && (maxValue == null || d <= maxValue);
+		} else {
+			final long l = Long.parseLong(value);
+			return (minValue == null || l >= minValue) && (maxValue == null || l <= maxValue);
+		}
+	}
+	
+	/**
+	 * Verify if the given <code>String</code> is a date and that it matches
+	 * the minimum and maximum values.
+	 * 
+	 * @param value
+	 *          Value to verify.
+	 * @return <code>true</code> if the given value is correct,
+	 * <code>false</code> otherwise.
+	 */
+	private boolean isCorrectRequiredDateValue(final String value) {
+		
+		// Gets the min date value.
+		final Date minDate;
+		if (getMinValue() != null) {
+			minDate = new Date(getMinValue());
+		} else {
+			minDate = null;
+		}
+
+		// Gets the max date value.
+		final Date maxDate;
+		if (getMaxValue() != null) {
+			maxDate = new Date(getMaxValue());
+		} else {
+			maxDate = null;
+		}
+
+		final Date date = new Date(Long.parseLong(value));
+		return !((minDate != null && date.before(minDate)) || (maxDate != null && date.after(maxDate)));
+	}
+	
+	/**
+	 * Verify if the given <code>String</code> matches the maximum length
+	 * constraint.
+	 * 
+	 * @param value
+	 *          Value to verify.
+	 * @return <code>true</code> if the given value is correct,
+	 * <code>false</code> otherwise.
+	 */
+	private boolean isCorrectRequiredStringValue(final String value) {
+		final Integer length = getLength();
+		return !value.trim().isEmpty() && (length == null || value.length() <= length);
+	}
+	
+	/**
+	 * Propagate the change if the current value is valid.
+	 * Called when the value of a number field change.
+	 * 
+	 * @param numberField
+	 *          Field whose value changed.
+	 * @param decimal 
+	 *          <code>true</code> if the value can be decimal,
+	 *          <code>false</code> otherwise.
+	 */
+	private void onNumberFieldChange(final TextField<Number> numberField, final boolean decimal) {
+		
+		final Number number = numberField.getValue();
+		final Double asDouble = number != null ? number.doubleValue() : null;
+		
+		// The number is invalid, fires only a required event to invalidate some previously valid number.
+		if (asDouble == null) {
+			// Required element ?
+			if (getValidates()) {
+				handlerManager.fireEvent(new RequiredValueEvent(false));
+			}
+			return;
+		}
+		
+		// The number is saved as a double (decimal) or a long (integer).
+		final String rawValue = decimal ? String.valueOf(asDouble) : String.valueOf(asDouble.longValue());
+		fireEvents(rawValue, isCorrectRequiredNumberValue(rawValue));
+	}
+	
+	// --
+	// GETTERS & SETTERS
+	// --
 
 	// Expected value type
 	public Character getType() {
