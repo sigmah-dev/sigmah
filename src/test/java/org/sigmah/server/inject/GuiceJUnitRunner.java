@@ -45,9 +45,9 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import org.junit.runner.notification.RunNotifier;
-import org.xml.sax.Attributes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
-import org.xml.sax.helpers.DefaultHandler;
 
 /**
  * <p>
@@ -75,6 +75,11 @@ import org.xml.sax.helpers.DefaultHandler;
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
 public final class GuiceJUnitRunner extends BlockJUnit4ClassRunner {
+	
+	/**
+	 * Logger.
+	 */
+	private static final Logger LOGGER = LoggerFactory.getLogger(GuiceJUnitRunner.class);
 
 	/**
 	 * Annotation used to specify modules to load for JUnit tests.
@@ -88,6 +93,8 @@ public final class GuiceJUnitRunner extends BlockJUnit4ClassRunner {
 
 		/**
 		 * Module(s) classe(s) to initialize into injector.
+		 * 
+		 * @return An array of the classes to use to initialize the injector.
 		 */
 		Class<?>[] value();
 
@@ -126,8 +133,16 @@ public final class GuiceJUnitRunner extends BlockJUnit4ClassRunner {
 	 *          The class defining injector modules to initialize.
 	 * @throws InitializationError
 	 *           If an error occurs during injector creation.
+	 * @throws ParserConfigurationException
+	 *           If a required feature of the XML parser is not available.
+	 * @throws SAXException
+	 *           If the database configuration file could not be parsed.
+	 * @throws IOException 
+	 *           If an error occurs while reading the database configuration file.
+	 * @throws ClassNotFoundException
+	 *           If the SQL driver was not found.
 	 */
-	public GuiceJUnitRunner(final Class<?> klass) throws InitializationError {
+	public GuiceJUnitRunner(final Class<?> klass) throws InitializationError, ParserConfigurationException, SAXException, IOException, ClassNotFoundException {
 
 		super(klass);
 
@@ -216,70 +231,62 @@ public final class GuiceJUnitRunner extends BlockJUnit4ClassRunner {
 	}
 	
 	/**
-	 * Parse the <code>META-INF/context.xml</code> file and try to connect to 
+	 * Parse the <code>META-INF/persistence.xml</code> file and try to connect to 
 	 * the database.
 	 * 
 	 * @return <code>true</code> if the connection was successful, 
 	 * <code>false</code> otherwise.
 	 */
-	private boolean isDatabaseAvailable() {
+	private boolean isDatabaseAvailable() throws ParserConfigurationException, SAXException, IOException, ClassNotFoundException {
 		
-		boolean available = false;
-		final SAXParserFactory factory = SAXParserFactory.newInstance();
-
+		final PersistenceXmlHandler configuration = parsePersistenceXml();
+		Class.forName(configuration.getDriverClass());
+		
+		boolean available;
 		try {
-			factory.setValidating(false);
-			factory.setFeature("http://xml.org/sax/features/validation", false);
-			factory.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
-			factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-			factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
-			factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
-
-			final SAXParser parser = factory.newSAXParser();
-			
-			final String[] properties = new String[3];
-			
-			parser.parse(getClass().getResourceAsStream("/META-INF/persistence.xml"), new DefaultHandler() {
-				
-				@Override
-				public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
-					if ("property".equals(qName)) {
-						final String name = attributes.getValue("name");
-						final String value = attributes.getValue("value");
-						
-						if (name != null) switch (name) {
-						case "hibernate.connection.driver_class":
-							try {
-								Class.forName(value);
-							} catch (ClassNotFoundException ex) {
-								throw new SAXException("SQL driver '" + value + "' could not be loaded.", ex);
-							}
-							break;
-						case "hibernate.connection.url":
-							properties[0] = value;
-							break;
-						case "hibernate.connection.username":
-							properties[1] = value;
-							break;
-						case "hibernate.connection.password":
-							properties[2] = value;
-							break;
-						default:
-							break;
-						}
-					}
-				}
-				
-			});
-			
-			final Connection testConnection = DriverManager.getConnection(properties[0], properties[1], properties[2]);
+			final Connection testConnection = DriverManager.getConnection(
+					configuration.getConnectionUrl(), configuration.getUsername(), configuration.getPassword());
 			testConnection.close();
-			
 			available = true;
-		} catch (ParserConfigurationException | SAXException | IOException | SQLException ex) {
-			// Ignored.
+		} catch (SQLException ex) {
+			LOGGER.trace("Unable to open a connection to the test database.", ex);
+			available = false;
 		}
 		
 		return available;
 	}
+	
+	/**
+	 * Parse the <code>META-INF/persistence.xml</code> file and return its
+	 * configuration.
+	 * 
+	 * @return an instance of <code>PersistenceXmlHandler</code> containing the
+	 * test database connection properties.
+	 * 
+	 * @throws ParserConfigurationException
+	 *           If a required feature is not available.
+	 * @throws SAXException
+	 *           If the XML file could not be parsed.
+	 * @throws IOException 
+	 *           If an error occurs while reading the file.
+	 */
+	private PersistenceXmlHandler parsePersistenceXml() throws ParserConfigurationException, SAXException, IOException {
+		
+		final SAXParserFactory factory = SAXParserFactory.newInstance();
+		
+		// Disable validation to avoid fetching the schema for each test.
+		factory.setValidating(false);
+		factory.setFeature("http://xml.org/sax/features/validation", false);
+		factory.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
+		factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+		factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+		factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+		
+		final SAXParser parser = factory.newSAXParser();
+		final PersistenceXmlHandler persistenceXmlHandler = new PersistenceXmlHandler();
+		parser.parse(getClass().getResourceAsStream("/META-INF/persistence.xml"), persistenceXmlHandler);
+		
+		return persistenceXmlHandler;
+	}
+	
 }
