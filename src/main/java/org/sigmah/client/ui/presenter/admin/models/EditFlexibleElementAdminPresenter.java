@@ -870,9 +870,10 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 			store.removeAll();
 
 			for (final FlexibleElementDTO otherElement : otherElements) {
-				final ElementTypeEnum otherElementType = otherElement.getElementType();
+				final LogicalElementType otherType = LogicalElementTypes.of(otherElement);
+				final ElementTypeEnum otherElementType = otherType.toElementTypeEnum();
 
-				if ((otherElementType == ElementTypeEnum.TEXT_AREA && ((TextAreaElementDTO) otherElement).getType() == 'N')
+				if ((otherElementType == ElementTypeEnum.TEXT_AREA && otherType.toTextAreaType() == TextAreaType.NUMBER)
 						|| otherElementType == ElementTypeEnum.COMPUTATION) {
 					store.add(otherElement);
 				}
