@@ -974,7 +974,7 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 		dateField.getPropertyEditor().setFormat(dateFormat);
 		dateField.setEditable(allowBlank);
 		dateField.setAllowBlank(allowBlank);
-		preferredWidth = 120;
+		preferredWidth = FlexibleElementDTO.NUMBER_FIELD_WIDTH;
 
 		// Adds the listeners.
 
@@ -1042,7 +1042,7 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 		numberField.setAllowDecimals(true);
 		numberField.setAllowNegative(false);
 		numberField.setAllowBlank(allowBlank);
-		preferredWidth = 120;
+		preferredWidth = FlexibleElementDTO.NUMBER_FIELD_WIDTH;
 
 		// Decimal format
 		final NumberFormat format = NumberFormat.getDecimalFormat();
