@@ -27,7 +27,6 @@ import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
-import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import java.util.Arrays;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.ui.widget.button.Button;
@@ -56,6 +55,7 @@ public class AutomatedImportResultPopup extends PopupWidget {
 	 * Creates the inner components of the popup.
 	 */
 	public void initialize() {
+		setTitle(I18N.CONSTANTS.automatedImportResults());
 		
 		// Building the grid.
 		grid = new Grid<BaseModelData>(new ListStore<BaseModelData>(), createColumnModel());
@@ -85,13 +85,13 @@ public class AutomatedImportResultPopup extends PopupWidget {
 	private ColumnModel createColumnModel() {
 		
 		// Project code column.
-		final ColumnConfig projectCodeColumnConfig = new ColumnConfig(ProjectDTO.NAME, I18N.CONSTANTS.adminFlexible(), 100);
+		final ColumnConfig projectCodeColumnConfig = new ColumnConfig(ProjectDTO.NAME, I18N.CONSTANTS.code(), 75);
 		
 		// Project title column.
-		final ColumnConfig projectTitleColumnConfig = new ColumnConfig(ProjectDTO.FULL_NAME, I18N.CONSTANTS.adminFlexible(), 400);
+		final ColumnConfig projectTitleColumnConfig = new ColumnConfig(ProjectDTO.FULL_NAME, I18N.CONSTANTS.title(), 325);
 		
 		// New value column.
-		final ColumnConfig statusColumnConfig = new ColumnConfig("status", I18N.CONSTANTS.adminImportNewValue(), 200);
+		final ColumnConfig statusColumnConfig = new ColumnConfig("status", I18N.CONSTANTS.importHeadingStatus(), 300);
 		
 		// Creating the column model.
 		return new ColumnModel(Arrays.asList(
