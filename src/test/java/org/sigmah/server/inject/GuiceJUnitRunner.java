@@ -37,6 +37,17 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.google.inject.persist.PersistService;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+import org.junit.runner.notification.RunNotifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXException;
 
 /**
  * <p>
@@ -64,6 +75,11 @@ import com.google.inject.persist.PersistService;
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
 public final class GuiceJUnitRunner extends BlockJUnit4ClassRunner {
+	
+	/**
+	 * Logger.
+	 */
+	private static final Logger LOGGER = LoggerFactory.getLogger(GuiceJUnitRunner.class);
 
 	/**
 	 * Annotation used to specify modules to load for JUnit tests.
@@ -77,6 +93,8 @@ public final class GuiceJUnitRunner extends BlockJUnit4ClassRunner {
 
 		/**
 		 * Module(s) classe(s) to initialize into injector.
+		 * 
+		 * @return An array of the classes to use to initialize the injector.
 		 */
 		Class<?>[] value();
 
@@ -86,6 +104,17 @@ public final class GuiceJUnitRunner extends BlockJUnit4ClassRunner {
 	 * The injector.
 	 */
 	private final Injector injector;
+	
+	/**
+	 * State of the database.
+	 * <p>
+	 * <code>true</code> if the database is required by the test class but
+	 * no local database was found.
+	 * <code>false</code> otherwise.
+	 * <p>
+	 * If <code>true</code> the whole test class will be skipped.
+	 */
+	private final boolean databaseRequiredButUnavailable;
 
 	/**
 	 * {@inheritDoc}
@@ -104,19 +133,48 @@ public final class GuiceJUnitRunner extends BlockJUnit4ClassRunner {
 	 *          The class defining injector modules to initialize.
 	 * @throws InitializationError
 	 *           If an error occurs during injector creation.
+	 * @throws ParserConfigurationException
+	 *           If a required feature of the XML parser is not available.
+	 * @throws SAXException
+	 *           If the database configuration file could not be parsed.
+	 * @throws IOException 
+	 *           If an error occurs while reading the database configuration file.
+	 * @throws ClassNotFoundException
+	 *           If the SQL driver was not found.
 	 */
-	public GuiceJUnitRunner(final Class<?> klass) throws InitializationError {
+	public GuiceJUnitRunner(final Class<?> klass) throws InitializationError, ParserConfigurationException, SAXException, IOException, ClassNotFoundException {
 
 		super(klass);
 
 		final List<Class<?>> classes = getModulesFor(klass);
 		this.injector = createInjectorFor(classes);
 
+		boolean databaseIsRequiredAndUnavailable = false;
+		
 		if (classes.contains(PersistenceModule.class)) {
-			startPersistUnit();
+			if (isDatabaseAvailable()) {
+				startPersistUnit();
+			} else {
+				databaseIsRequiredAndUnavailable = true;
+			}
 		}
+		
+		this.databaseRequiredButUnavailable = databaseIsRequiredAndUnavailable;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void run(RunNotifier notifier) {
+		
+		if (databaseRequiredButUnavailable) {
+			notifier.fireTestIgnored(getDescription());
+		} else {
+			super.run(notifier);
+		}
+	}
+	
 	/**
 	 * Creates the {@link Injector} instance for the given modules {@code classes}.
 	 * 
@@ -171,4 +229,64 @@ public final class GuiceJUnitRunner extends BlockJUnit4ClassRunner {
 	private void startPersistUnit() {
 		injector.getInstance(PersistService.class).start();
 	}
+	
+	/**
+	 * Parse the <code>META-INF/persistence.xml</code> file and try to connect to 
+	 * the database.
+	 * 
+	 * @return <code>true</code> if the connection was successful, 
+	 * <code>false</code> otherwise.
+	 */
+	private boolean isDatabaseAvailable() throws ParserConfigurationException, SAXException, IOException, ClassNotFoundException {
+		
+		final PersistenceXmlHandler configuration = parsePersistenceXml();
+		Class.forName(configuration.getDriverClass());
+		
+		boolean available;
+		try {
+			final Connection testConnection = DriverManager.getConnection(
+					configuration.getConnectionUrl(), configuration.getUsername(), configuration.getPassword());
+			testConnection.close();
+			available = true;
+		} catch (SQLException ex) {
+			LOGGER.trace("Unable to open a connection to the test database.", ex);
+			available = false;
+		}
+		
+		return available;
+	}
+	
+	/**
+	 * Parse the <code>META-INF/persistence.xml</code> file and return its
+	 * configuration.
+	 * 
+	 * @return an instance of <code>PersistenceXmlHandler</code> containing the
+	 * test database connection properties.
+	 * 
+	 * @throws ParserConfigurationException
+	 *           If a required feature is not available.
+	 * @throws SAXException
+	 *           If the XML file could not be parsed.
+	 * @throws IOException 
+	 *           If an error occurs while reading the file.
+	 */
+	private PersistenceXmlHandler parsePersistenceXml() throws ParserConfigurationException, SAXException, IOException {
+		
+		final SAXParserFactory factory = SAXParserFactory.newInstance();
+		
+		// Disable validation to avoid fetching the schema for each test.
+		factory.setValidating(false);
+		factory.setFeature("http://xml.org/sax/features/validation", false);
+		factory.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
+		factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+		factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+		factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+		
+		final SAXParser parser = factory.newSAXParser();
+		final PersistenceXmlHandler persistenceXmlHandler = new PersistenceXmlHandler();
+		parser.parse(getClass().getResourceAsStream("/META-INF/persistence.xml"), persistenceXmlHandler);
+		
+		return persistenceXmlHandler;
+	}
+	
 }
