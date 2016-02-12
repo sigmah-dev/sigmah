@@ -44,7 +44,7 @@ import org.sigmah.shared.dto.element.TextAreaElementDTO;
  * @author Raphaël Calabro (raphael.calabro@netapsys.fr)
  */
 public class ComputationsTest {
-	
+
 	/**
 	 * Test of parse method, of class Computations.
 	 */
@@ -293,6 +293,26 @@ public class ComputationsTest {
 		allElements.add(element60);
 		
 		return allElements;
+	}
+
+	/**
+	 * Test of formatRuleForEdition method, of class Computations.
+	 */
+	@Test
+	public void testFormatRuleForEdition() {
+		Assert.assertNull(Computations.formatRuleForEdition(null, null));
+		Assert.assertNull(Computations.formatRuleForEdition("	", null));
+		Assert.assertEquals("onze + vingt_4", Computations.formatRuleForEdition("$11 + $24", getAllElements()));
+	}
+
+	/**
+	 * Test of formatRuleForServer method, of class Computations.
+	 */
+	@Test
+	public void testFormatRuleForServer() {
+		Assert.assertNull(Computations.formatRuleForServer(null, null));
+		Assert.assertNull(Computations.formatRuleForServer("  ", null));
+		Assert.assertEquals("$11 + $24", Computations.formatRuleForServer("onze + vingt_4", getAllElements()));
 	}
 	
 }
