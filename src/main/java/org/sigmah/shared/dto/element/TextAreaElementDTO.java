@@ -110,6 +110,10 @@ public class TextAreaElementDTO extends FlexibleElementDTO {
 			default:
 				throw new UnsupportedOperationException("Given type '" + type + "' is not supported yet.");
 		} else {
+			// A case where type is null exists in production but is the result
+			// of a bug. Until the cause is found and fixed, null is handled
+			// the same as PARAGRAPH.
+			// TODO: Should throw an exception instead of silently ignoring the null value.
 			Log.warn("No textarea type is specified for the textarea element '" + getLabel() + "'. Using paragraph instead.");
 			field = createParagraphField(valueResult);
 		}
@@ -137,11 +141,25 @@ public class TextAreaElementDTO extends FlexibleElementDTO {
 		final boolean correct;
 		
 		final TextAreaType type = TextAreaType.fromCode(getType());
-		if (type == TextAreaType.DATE) {
-			correct = isCorrectRequiredDateValue(value);
-		} else if (type == TextAreaType.NUMBER) {
-			correct = isCorrectRequiredNumberValue(value);
+		if (type != null) switch (type) {
+			case DATE:
+				correct = isCorrectRequiredDateValue(value);
+				break;
+			case NUMBER:
+				correct = isCorrectRequiredNumberValue(value);
+				break;
+			case PARAGRAPH:
+			case TEXT:
+				correct = isCorrectRequiredStringValue(value);
+				break;
+			default:
+				throw new UnsupportedOperationException("Given type '" + type + "' is not supported yet.");
 		} else {
+			// A case where type is null exists in production but is the result
+			// of a bug. Until the cause is found and fixed, null is handled
+			// the same as PARAGRAPH.
+			// TODO: Should throw an exception instead of silently ignoring the null value.
+			Log.warn("No textarea type is specified for the textarea element '" + getLabel() + "'. Using paragraph instead.");
 			correct = isCorrectRequiredStringValue(value);
 		}
 		
