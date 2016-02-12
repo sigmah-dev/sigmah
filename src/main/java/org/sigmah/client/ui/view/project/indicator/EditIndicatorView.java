@@ -29,7 +29,7 @@ import com.extjs.gxt.ui.client.widget.form.Radio;
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
-import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import org.sigmah.client.dispatch.DispatchAsync;
 import org.sigmah.client.i18n.I18N;
@@ -53,9 +53,6 @@ import org.sigmah.shared.dto.IndicatorGroup;
  */
 public class EditIndicatorView extends AbstractPopupView<PopupWidget> implements EditIndicatorPresenter.View {
 	
-	// CSS style names.
-	private static final String STYLE_FORM_HEADER_LABEL = "form-header-label";
-
 	private static final String RADIO_GROUP_TYPE = "type";
 	private static final String RADIO_GROUP_QUANTITATIVE_AGGREGATION = "quantitativeAggregation";
 	
@@ -83,7 +80,7 @@ public class EditIndicatorView extends AbstractPopupView<PopupWidget> implements
 	
 	@Inject
 	private PivotGridPanel pivotGridPanel;
-	private Label pivotLabel;
+	private Widget pivotLabel;
 	
 	// Required by DatasourceField
 	@Inject
@@ -170,7 +167,7 @@ public class EditIndicatorView extends AbstractPopupView<PopupWidget> implements
 		// Value editor.
 		pivotGridPanel.setHeaderVisible(false);
 		pivotGridPanel.setHeight("380px");
-		pivotLabel = buildFormHeaderLabel(I18N.CONSTANTS.value());
+		pivotLabel = Forms.header(I18N.CONSTANTS.value());
 		
 		// Building tabs
 		mainContainer = new Grid(2, 2);
@@ -180,7 +177,7 @@ public class EditIndicatorView extends AbstractPopupView<PopupWidget> implements
 		mainContainer.getColumnFormatter().getElement(1).getStyle().setProperty("width", "50%");
 		mainContainer.getRowFormatter().setVerticalAlign(1, HasVerticalAlignment.ALIGN_TOP);
 
-		mainContainer.setWidget(0, 0, buildFormHeaderLabel("Definition"));
+		mainContainer.setWidget(0, 0, Forms.header("Definition"));
 		mainContainer.setWidget(0, 1, pivotLabel);
 		mainContainer.setWidget(1, 0, form);
 		mainContainer.setWidget(1, 1, pivotGridPanel);
@@ -322,19 +319,6 @@ public class EditIndicatorView extends AbstractPopupView<PopupWidget> implements
 	//
 	// ---------------------------------------------------------------------------------------------------------------
 
-	/**
-	 * Builds a new form header label widget.
-	 * 
-	 * @param label
-	 *          The form header label.
-	 * @return A new form header label widget.
-	 */
-	private Label buildFormHeaderLabel(final String label) {
-		final Label headerLabel = new Label(label);
-		headerLabel.setStyleName(STYLE_FORM_HEADER_LABEL);
-		return headerLabel;
-	}
-	
 	private void selectTypeAndAggregation(int aggregationType) {
 		switch(aggregationType) {
 			case IndicatorDTO.AGGREGATE_MULTINOMIAL:
