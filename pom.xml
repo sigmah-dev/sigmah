@@ -611,7 +611,7 @@
 				<configuration>
 					<version>
 						<!-- Maven property: ${sigmah.version.number} -->
-						<number>2.0</number>
+						<number>${project.version}</number>
 						<!-- Maven property: ${sigmah.version.name} -->
 						<name>Brahmapoutre</name>  <!-- Amazon, Brahmapoutre, Congo -->
 						<!-- Maven property: ${sigmah.version.date} -->
