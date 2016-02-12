@@ -63,9 +63,11 @@ public final class LogicalElementTypes {
         } else if (flexibleElement != null) {
 			final ElementTypeEnum elementType = flexibleElement.getElementType();
 			if (elementType == ElementTypeEnum.TEXT_AREA) {
-				// Should never happen but has happened. Remove this when
-				// the cause is found.
-				type = TextAreaType.TEXT;
+				// A case where type is null exists in production but is the result
+				// of a bug. Until the cause is found and fixed, null is handled
+				// the same as PARAGRAPH.
+				// TODO: This special case should be removed to return only the element type.
+				type = TextAreaType.PARAGRAPH;
 			} else {
 				type = elementType;
 			}
