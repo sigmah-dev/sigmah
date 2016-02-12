@@ -35,7 +35,6 @@ import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
-import com.google.gwt.user.client.ui.Label;
 import java.util.ArrayList;
 import java.util.List;
 import org.sigmah.client.i18n.I18N;
@@ -58,12 +57,11 @@ import org.sigmah.shared.dto.SiteDTO;
 import org.sigmah.shared.dto.country.CountryDTO;
 
 /**
- *
+ * Site edition popup.
+ * 
+ * @author sherzod (v1.3)
  */
 public class EditSiteView extends AbstractPopupView<PopupWidget> implements EditSitePresenter.View {
-	
-	// CSS style names.
-	private static final String STYLE_FORM_HEADER_LABEL = "form-header-label";
 	
 	private FormPanel form;
 	
@@ -137,8 +135,8 @@ public class EditSiteView extends AbstractPopupView<PopupWidget> implements Edit
 		mainContainer.getColumnFormatter().getElement(1).getStyle().setProperty("width", "50%");
 		mainContainer.getRowFormatter().setVerticalAlign(1, HasVerticalAlignment.ALIGN_TOP);
 
-		mainContainer.setWidget(0, 0, buildFormHeaderLabel(I18N.CONSTANTS.locationTitle()));
-		mainContainer.setWidget(0, 1, buildFormHeaderLabel(I18N.CONSTANTS.geoPosition()));
+		mainContainer.setWidget(0, 0, Forms.label(I18N.CONSTANTS.locationTitle()));
+		mainContainer.setWidget(0, 1, Forms.label(I18N.CONSTANTS.geoPosition()));
 		mainContainer.setWidget(1, 0, form);
 		mainContainer.setWidget(1, 1, mapPanel);
 		getPopup().addButton(cancelButton);
@@ -248,23 +246,4 @@ public class EditSiteView extends AbstractPopupView<PopupWidget> implements Edit
 		pin.setPosition(latitude, longitude);
 	}
 	
-	
-	// ---------------------------------------------------------------------------------------------------------------
-	//
-	// UTILITY METHODS.
-	//
-	// ---------------------------------------------------------------------------------------------------------------
-
-	/**
-	 * Builds a new form header label widget.
-	 * 
-	 * @param label
-	 *          The form header label.
-	 * @return A new form header label widget.
-	 */
-	private Label buildFormHeaderLabel(final String label) {
-		final Label headerLabel = new Label(label);
-		headerLabel.setStyleName(STYLE_FORM_HEADER_LABEL);
-		return headerLabel;
-	}
 }

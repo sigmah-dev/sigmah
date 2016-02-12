@@ -66,6 +66,7 @@ import com.google.gwt.event.logical.shared.AttachEvent;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.IsWidget;
+import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.UIObject;
 import com.google.gwt.user.client.ui.Widget;
@@ -111,6 +112,11 @@ public final class Forms {
 	 * </p>
 	 */
 	static final int DEFAULT_RIGHT_PADDING = 25;
+
+	/**
+	 * CSS style name of the headers.
+	 */
+	private static final String STYLE_FORM_HEADER_LABEL = "form-header-label";
 
 	/**
 	 * Builds a new {@link org.sigmah.client.ui.widget.form.FormPanel} with default {@link FormLayout}.
@@ -255,6 +261,25 @@ public final class Forms {
 	 */
 	public static FormData data() {
 		return new FormData("100%");
+	}
+
+	// --------------------------------------------------------------------------------
+	//
+	// HEADERS.
+	//
+	// --------------------------------------------------------------------------------
+
+	/**
+	 * Builds a new form header label widget.
+	 * 
+	 * @param label
+	 *          The form header label.
+	 * @return A new form header label widget.
+	 */
+	public static Widget header(String label) {
+		final Label headerLabel = new Label(label);
+		headerLabel.setStyleName(STYLE_FORM_HEADER_LABEL);
+		return headerLabel;
 	}
 
 	// --------------------------------------------------------------------------------

@@ -80,8 +80,6 @@ import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Singleton;
 import java.util.Arrays;
 import org.sigmah.client.ui.widget.HasGrid;
@@ -100,7 +98,6 @@ import org.sigmah.shared.dto.referential.LogicalElementType;
 public class EditFlexibleElementAdminView extends AbstractPopupView<PopupWidget> implements EditFlexibleElementAdminPresenter.View {
 
 	// CSS style names.
-	private static final String STYLE_FORM_HEADER_LABEL = "form-header-label";
     private static final String STYLE_FORM_HINT = "form-hint";
     private static final String STYLE_FORM_ITEM = "x-form-item";
 
@@ -381,8 +378,8 @@ public class EditFlexibleElementAdminView extends AbstractPopupView<PopupWidget>
 		mainContainer.getColumnFormatter().getElement(1).getStyle().setProperty("width", "50%");
 		mainContainer.getRowFormatter().setVerticalAlign(1, HasVerticalAlignment.ALIGN_TOP);
 
-		mainContainer.setWidget(0, 0, buildFormHeaderLabel(I18N.CONSTANTS.adminFlexible_form_header_common()));
-		mainContainer.setWidget(0, 1, buildFormHeaderLabel(I18N.CONSTANTS.adminFlexible_form_header_specific()));
+		mainContainer.setWidget(0, 0, Forms.header(I18N.CONSTANTS.adminFlexible_form_header_common()));
+		mainContainer.setWidget(0, 1, Forms.header(I18N.CONSTANTS.adminFlexible_form_header_specific()));
 		mainContainer.setWidget(1, 0, commonForm);
 		mainContainer.setWidget(1, 1, specificForm);
 		mainContainer.setWidget(2, 1, buttonFormPanel);
@@ -888,19 +885,6 @@ public class EditFlexibleElementAdminView extends AbstractPopupView<PopupWidget>
 	// UTILITY METHODS.
 	//
 	// ---------------------------------------------------------------------------------------------------------------
-
-	/**
-	 * Builds a new form header label widget.
-	 * 
-	 * @param label
-	 *          The form header label.
-	 * @return A new form header label widget.
-	 */
-	private static final Widget buildFormHeaderLabel(final String label) {
-		final Label headerLabel = new Label(label);
-		headerLabel.setStyleName(STYLE_FORM_HEADER_LABEL);
-		return headerLabel;
-	}
 
 	/**
 	 * Hides properly the given {@code fields}.<br>
