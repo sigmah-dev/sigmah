@@ -74,6 +74,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
+import org.sigmah.shared.dto.referential.TextAreaType;
 
 /**
  * Utility class Provides global export data
@@ -407,26 +408,22 @@ public class GlobalExportDataProvider {
 
 		if (valueResult != null && valueResult.isValueDefined()) {
 			String strValue = valueResult.getValueObject();
-			if (textAreaElement.getType() != null) {
-				switch (textAreaElement.getType()) {
-				// Number
-					case 'N': {
-						if (textAreaElement.getIsDecimal()) {
-							value = Double.parseDouble(strValue);
-						} else {
-							value = Long.parseLong(strValue);
-
-						}
+			final TextAreaType type = TextAreaType.fromCode(textAreaElement.getType());
+			if (type != null) {
+				switch (type) {
+				case NUMBER:
+					if (textAreaElement.getIsDecimal()) {
+						value = Double.parseDouble(strValue);
+					} else {
+						value = Long.parseLong(strValue);
 					}
-						break;
-					case 'D': {
-						value = new Date(Long.parseLong(strValue));
-					}
-						break;
-					default: {
-						value = strValue;
-					}
-						break;
+					break;
+				case DATE:
+					value = new Date(Long.parseLong(strValue));
+					break;
+				default:
+					value = strValue;
+					break;
 				}
 			} else {
 				value = strValue;

@@ -24,16 +24,17 @@ package org.sigmah.server.servlet.importer;
 
 
 import java.util.List;
-import java.util.Map;
 
 
-import org.sigmah.shared.dto.importation.ImportationSchemeModelDTO;
 
-import com.google.inject.Injector;
-import org.sigmah.server.dispatch.impl.UserDispatch;
-import org.sigmah.shared.dispatch.CommandException;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import org.sigmah.server.servlet.exporter.utils.CsvParser;
 import org.sigmah.shared.dispatch.FunctionalException;
 import org.sigmah.shared.dispatch.FunctionalException.ErrorCode;
+import org.sigmah.shared.dto.ImportDetails;
+import org.sigmah.shared.dto.referential.ImportationSchemeImportType;
 
 /**
  * CSV implementation of {@link Importer}.
@@ -44,48 +45,52 @@ import org.sigmah.shared.dispatch.FunctionalException.ErrorCode;
 public class CsvImporter extends Importer {
 
 	private List<String[]> lines;
+	private Integer cursor;
 
-	@SuppressWarnings("unchecked")
-	public CsvImporter(Injector injector,  Map<String, Object> properties, UserDispatch.UserExecutionContext executionContext) throws CommandException {
-		super(injector,properties, executionContext);
-		
-		if(properties.get("importedCsvDocument") != null && properties.get("importedCsvDocument") instanceof List<?>){
-			lines = (List<String[]>) properties.get("importedCsvDocument");
-		}
-		
-		getCorrespondances(schemeModelList);
-	}
-
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	protected void getCorrespondances(List<ImportationSchemeModelDTO> schemeModelList) throws CommandException {
-		for (ImportationSchemeModelDTO schemeModelDTO : schemeModelList) {
-			// GetThe variable and the flexible element for the identification
-
-			switch (scheme.getImportType()) {
-			case ROW:
-				int firstRow = 0;
-				if(scheme.getFirstRow() != null) {
-					firstRow = scheme.getFirstRow();
-				}
-				for (int i = firstRow; i < lines.size(); i++) {
-					getCorrespondancePerSheetOrLine(schemeModelDTO, i, null);
-				}
-				break;
-			case SEVERAL:
-				logWarnFormatImportTypeIncoherence();
-				break;
-			case UNIQUE:
-				logWarnFormatImportTypeIncoherence();
-				break;
-			default:
-				logWarnFormatImportTypeIncoherence();
-				break;
-
-			}
-		}
-
+	public void setInputStream(InputStream inputStream) throws IOException {
+		
+		final String stringFromStream = inputStreamToString(inputStream, "UTF-8");
+		this.lines = new CsvParser().parseCsv(stringFromStream);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public ImportDetails next() {
+		
+		if (scheme.getImportType() != ImportationSchemeImportType.ROW) {
+			logWarnFormatImportTypeIncoherence();
+			return null;
+		}
+		
+		if (cursor == null || cursor == lines.size()) {
+			nextSchemeModel();
+			cursor = scheme.getFirstRow();
+		}
+		
+		if (cursor < lines.size()) {
+			return getCorrespondancePerSheetOrLine(cursor++, null);
+		} else {
+			return null;
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean hasNext() {
+		return hasNextLine() || hasNextSchemeModel();
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String getValueFromVariable(String reference, Integer lineNumber, String sheetName) throws FunctionalException {
 	
@@ -102,23 +107,54 @@ public class CsvImporter extends Importer {
 						if(column >= 0 && column < line.length) {
 							columnValue = line[column];
 						}
-					} catch(NumberFormatException nfe){
+					} catch(NumberFormatException nfe) {
 						throw new FunctionalException(nfe, ErrorCode.IMPORT_INVALID_COLUMN_REFERENCE, reference);
 					}
 				}
 				break;
-			case SEVERAL:
-				logWarnFormatImportTypeIncoherence();
-				break;
-			case UNIQUE:
-				logWarnFormatImportTypeIncoherence();
-				break;
 			default:
+				logWarnFormatImportTypeIncoherence();
 				break;
-
 			}
 		}
 		return columnValue;
 	}
+	
+	/**
+	 * Read fully the given input stream and return it as a <code>String</code>.
+	 * <p/>
+	 * The input stream is not closed by this method.
+	 * 
+	 * @param inputStream 
+	 *          Stream to read.
+	 * @param encoding
+	 *          Encoding to use.
+	 * @return The content of the input stream as a <code>String</code>.
+	 * @throws IOException If an error occur while reading the stream.
+	 */
+	private String inputStreamToString(final InputStream inputStream, final String encoding) throws IOException {
+		final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+		
+		final byte[] bytes = new byte[1024];
 
+		int length = inputStream.read(bytes);
+		while(length > 0) {
+			outputStream.write(bytes, 0, length);
+			length = inputStream.read(bytes);
+		}
+		
+		return outputStream.toString(encoding);
+	}
+	
+	/**
+	 * Verify if the stream has more rows to read before moving on to the next
+	 * scheme model.
+	 * 
+	 * @return <code>true</code> if there is more lignes,
+	 * <code>false</code> otherwise.
+	 */
+	private boolean hasNextLine() {
+		return cursor == null || cursor < lines.size();
+	}
+	
 }

@@ -25,7 +25,12 @@ package org.sigmah.shared.util;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
+import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.sigmah.shared.dto.element.ComputationElementDTO;
 
@@ -51,7 +56,7 @@ public class CollectionsTest {
      * Test of join method, of class Collections.
      */
     @Test
-    public void testJoin_3args() {
+    public void testJoin_3args_1() {
         final ComputationElementDTO element1 = new ComputationElementDTO();
         element1.setRule("firstRule");
         
@@ -88,7 +93,7 @@ public class CollectionsTest {
      * Test of map method, of class Collections.
      */
     @Test
-    public void testMap() {
+    public void testMap_Collection_CollectionsMapper() {
         Assert.assertEquals(new ArrayList<String>(Arrays.asList("12", "42", "94")), Collections.map(Arrays.asList(12, 42, 94), new Collections.Mapper<Integer, String>() {
             
             @Override
@@ -105,5 +110,49 @@ public class CollectionsTest {
             }
         }));
     }
+
+	/**
+	 * Test of join method, of class Collections.
+	 */
+	@Test
+	public void testJoin_3args_2() {
+		final ComputationElementDTO element1 = new ComputationElementDTO();
+        element1.setRule("firstRule");
+        
+        final ComputationElementDTO element2 = new ComputationElementDTO();
+        element2.setRule("secondRule");
+        
+        Assert.assertEquals("firstRule, secondRule", Collections.join(Arrays.asList(element1, null, element2), new Collections.OptionnalMapper<ComputationElementDTO, String>() {
+
+			@Override
+			public boolean skipEntry(ComputationElementDTO entry) {
+				return entry == null;
+			}
+            
+            @Override
+            public String forEntry(ComputationElementDTO entry) {
+                return entry.getRule();
+            }
+        }, ", "));
+	}
+
+	/**
+	 * Test of map method, of class Collections.
+	 */
+	@Test
+	public void testMap_Collection_CollectionsOptionnalMapper() {
+		Assert.assertEquals(new ArrayList<String>(Arrays.asList("12", "42", "94")), Collections.map(Arrays.asList(12, null, 42, null, 94), new Collections.OptionnalMapper<Integer, String>() {
+            
+			@Override
+			public boolean skipEntry(Integer entry) {
+				return entry == null;
+			}
+			
+            @Override
+            public String forEntry(Integer entry) {
+                return entry.toString();
+            }
+        }));
+	}
 
 }

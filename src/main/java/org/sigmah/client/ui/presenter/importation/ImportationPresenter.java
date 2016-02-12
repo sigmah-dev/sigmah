@@ -22,6 +22,8 @@ package org.sigmah.client.ui.presenter.importation;
  * #L%
  */
 
+import com.extjs.gxt.ui.client.data.BaseModelData;
+import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FormEvent;
@@ -40,9 +42,7 @@ import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
-import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -62,6 +62,7 @@ import org.sigmah.client.ui.presenter.CreateProjectPresenter;
 import org.sigmah.client.ui.presenter.base.AbstractPagePresenter;
 import org.sigmah.client.ui.presenter.base.HasForm;
 import org.sigmah.client.ui.presenter.project.AbstractProjectPresenter;
+import org.sigmah.client.ui.view.importation.AutomatedImportResultPopup;
 import org.sigmah.client.ui.view.importation.ElementExtractedValuePopup;
 import org.sigmah.client.ui.view.importation.ImportDetailsPopup;
 import org.sigmah.client.ui.view.importation.ImportationView;
@@ -69,6 +70,7 @@ import org.sigmah.client.ui.widget.button.Button;
 import org.sigmah.client.ui.widget.form.Forms;
 import org.sigmah.offline.fileapi.Blob;
 import org.sigmah.shared.command.AmendmentActionCommand;
+import org.sigmah.shared.command.AutomatedImport;
 import org.sigmah.shared.command.BatchCommand;
 import org.sigmah.shared.command.GetImportInformation;
 import org.sigmah.shared.command.GetImportationSchemes;
@@ -84,22 +86,16 @@ import org.sigmah.shared.dto.element.BudgetElementDTO;
 import org.sigmah.shared.dto.element.BudgetSubFieldDTO;
 import org.sigmah.shared.dto.element.DefaultFlexibleElementContainer;
 import org.sigmah.shared.dto.element.DefaultFlexibleElementDTO;
-import org.sigmah.shared.dto.element.FlexibleElementDTO;
-import org.sigmah.shared.dto.element.TextAreaElementDTO;
 import org.sigmah.shared.dto.element.event.ValueEvent;
 import org.sigmah.shared.dto.importation.ImportationSchemeDTO;
 import org.sigmah.shared.dto.orgunit.OrgUnitDTO;
 import org.sigmah.shared.dto.referential.AmendmentAction;
 import org.sigmah.shared.dto.referential.BudgetSubFieldType;
 import org.sigmah.shared.dto.referential.DefaultFlexibleElementType;
-import org.sigmah.shared.dto.referential.ElementExtractedValueStatus;
 import org.sigmah.shared.dto.referential.ImportStatusCode;
 import org.sigmah.shared.dto.referential.ProjectModelStatus;
-import org.sigmah.shared.dto.referential.ValueEventChangeType;
-import org.sigmah.shared.dto.value.TripletValueDTO;
 import org.sigmah.shared.servlet.ServletConstants;
 import org.sigmah.shared.servlet.ServletUrlBuilder;
-import org.sigmah.shared.util.ValueResultUtils;
 
 /**
  * Data import presenter.
@@ -117,10 +113,15 @@ public class ImportationPresenter extends AbstractPagePresenter<ImportationPrese
 	public static interface View extends AbstractProjectPresenter.View, HasForm {
 		Field<ImportationSchemeDTO> getSchemeField();
 		FileUploadField getFileField();
+		Field<Boolean> getAutomatedField();
+		Field<Boolean> getNewProjectsPolicyField();
+		Field<Boolean> getProjectCorePolicyField();
+		Field<Boolean> getMultipleMatchPolicyField();
 		Button getImportButton();
 		
 		ImportDetailsPopup getImportDetailsPopup();
 		ElementExtractedValuePopup getElementExtractedValuePopup();
+		AutomatedImportResultPopup getAutomatedImportResultPopup();
 		
 		ListStore<ImportationSchemeDTO> getSchemeListStore();
         
@@ -146,11 +147,17 @@ public class ImportationPresenter extends AbstractPagePresenter<ImportationPrese
 		changes = new HashMap<Integer, List<ElementExtractedValue>>();
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Page getPage() {
 		return Page.IMPORT_VALUES;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void onBind() {
 		setPageTitle(I18N.CONSTANTS.importItem());
@@ -187,6 +194,32 @@ public class ImportationPresenter extends AbstractPagePresenter<ImportationPrese
 				if(blob != null) {
 					fileName = blob.getName();
 				}
+			}
+		});
+		
+		// --
+		// Activation rule of the import button.
+		// --
+		view.getSchemeField().addListener(Events.Select, new Listener<BaseEvent>() {
+			
+			@Override
+			public void handleEvent(BaseEvent be) {
+				view.getImportButton().setEnabled(view.getSchemeField().getValue() != null);
+			}
+		});
+		
+		// --
+		// Visibility of the automated options.
+		// --
+		view.getAutomatedField().addListener(Events.OnChange, new Listener<BaseEvent>() {
+			
+			@Override
+			public void handleEvent(BaseEvent be) {
+				final boolean visible = view.getAutomatedField().getValue();
+				
+				view.getNewProjectsPolicyField().setVisible(visible);
+				view.getProjectCorePolicyField().setVisible(visible);
+				view.getMultipleMatchPolicyField().setVisible(visible);
 			}
 		});
 		
@@ -252,8 +285,22 @@ public class ImportationPresenter extends AbstractPagePresenter<ImportationPrese
                        
 			}
 		});
+		
+		// --
+		// Automated import result popup.
+		// --
+		view.getAutomatedImportResultPopup().getCloseButton().addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+			@Override
+			public void componentSelected(ButtonEvent ce) {
+				view.getAutomatedImportResultPopup().hide();
+			}
+		});
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void onPageRequest(PageRequest request) {
 		this.lastFileId = null;
@@ -273,12 +320,17 @@ public class ImportationPresenter extends AbstractPagePresenter<ImportationPrese
 			protected void onCommandSuccess(ListResult<ImportationSchemeDTO> result) {
 				view.getSchemeListStore().add(result.getList());
 			}
-		}, view.getImportButton());
+		});
+		
+		view.getImportButton().disable();
 		
 		// Register events.
 		registerEvents();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void beforeLeaving(EventBus.LeavingCallback callback) {
 		// Stop listener to creation events.
@@ -332,7 +384,11 @@ public class ImportationPresenter extends AbstractPagePresenter<ImportationPrese
 	private void onSubmit(String result) {
 		switch (ServletConstants.getErrorCode(result)) {
 			case Response.SC_OK:
-				loadImportResults(result);
+				if (view.getAutomatedField().getValue()) {
+					doAutomatedImport(result);
+				} else {
+					loadImportResults(result);
+				}
 				break;
 
 			default:
@@ -341,7 +397,30 @@ public class ImportationPresenter extends AbstractPagePresenter<ImportationPrese
 		}
 	}
 	
+	private void doAutomatedImport(String fileId) {
+		
+		dispatch.execute(new AutomatedImport(fileId, fileName,
+				view.getSchemeField().getValue(), 
+				view.getNewProjectsPolicyField().getValue(), 
+				view.getProjectCorePolicyField().getValue(), 
+				view.getMultipleMatchPolicyField().getValue()), 
+				new CommandResultHandler<ListResult<BaseModelData>>() {
+
+			@Override
+			protected void onCommandSuccess(ListResult<BaseModelData> result) {
+				final AutomatedImportResultPopup popup = view.getAutomatedImportResultPopup();
+				final ListStore<BaseModelData> store = popup.getStore();
+				store.removeAll();
+				store.add(result.getData());
+				
+				popup.show();
+				view.hide();
+			}
+		}, view.getImportButton());
+	}
+	
 	private void loadImportResults(String fileId) {
+		
 		this.lastFileId = fileId;
 		
 		dispatch.execute(new GetImportInformation(fileId, view.getSchemeField().getValue()), new CommandResultHandler<ImportInformationResult>() {
@@ -358,6 +437,7 @@ public class ImportationPresenter extends AbstractPagePresenter<ImportationPrese
 	}
 	
 	private void refreshResults() {
+		
 		if(lastFileId != null) {
 			final ImportDetailsPopup popup = view.getImportDetailsPopup();
 			
@@ -374,15 +454,16 @@ public class ImportationPresenter extends AbstractPagePresenter<ImportationPrese
 	}
 	
 	private Button renderCreateButton(final ImportDetails model) {
+		
 		final Button createButton = Forms.button(I18N.CONSTANTS.createProjectCreateButton());
 		
 		createButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
 			@Override
 			public void componentSelected(ButtonEvent ce) {
-				final Map<EntityDTO<?>, List<ElementExtractedValue>> entities = model.getEntitiesToImport();
+				final Map<EntityDTO<Integer>, List<ElementExtractedValue>> entities = model.getEntitiesToImport();
 				
-				final Iterator<EntityDTO<?>> iterator = entities.keySet().iterator();
+				final Iterator<EntityDTO<Integer>> iterator = entities.keySet().iterator();
 				final EntityDTO<?> notFoundEntity = iterator.next();
 
 				// Prepare the page request and select the creation type based 
@@ -440,30 +521,32 @@ public class ImportationPresenter extends AbstractPagePresenter<ImportationPrese
 	}
 	
 	private void addAllChanges(final ImportDetails model) {
-		final Map<EntityDTO<?>, List<ElementExtractedValue>> entities = model.getEntitiesToImport();
+		
+		final Map<EntityDTO<Integer>, List<ElementExtractedValue>> entities = model.getEntitiesToImport();
 		
 		if(!entities.keySet().isEmpty()) {
-			final Iterator<EntityDTO<?>> iterator = entities.keySet().iterator();
-			final EntityDTO<?> entity = iterator.next();
+			final Iterator<EntityDTO<Integer>> iterator = entities.keySet().iterator();
+			final EntityDTO<Integer> entity = iterator.next();
 			
-			changes.put((Integer) entity.getId(), entities.get(entity));
+			changes.put(entity.getId(), entities.get(entity));
 		}
 	}
 	
 	private Button renderConfirmButton(final ImportDetails model) {
+		
 		final Button confirmButton = Forms.button(I18N.CONSTANTS.importButtonConfirmDetails());
 		
 		confirmButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
 			@Override
 			public void componentSelected(ButtonEvent ce) {
-				final Map<EntityDTO<?>, List<ElementExtractedValue>> entities = model.getEntitiesToImport();
+				final Map<EntityDTO<Integer>, List<ElementExtractedValue>> entities = model.getEntitiesToImport();
 				
 				if(!entities.keySet().isEmpty()) {
 					// Displaying the "select changes" popup.
 					final ElementExtractedValuePopup popup = view.getElementExtractedValuePopup();
 					
-					final Iterator<EntityDTO<?>> iterator = entities.keySet().iterator();
+					final Iterator<EntityDTO<Integer>> iterator = entities.keySet().iterator();
 					final EntityDTO<?> entity = iterator.next();
 					popup.setEntity(entity);
                     popup.setParentModel(model);
@@ -482,16 +565,17 @@ public class ImportationPresenter extends AbstractPagePresenter<ImportationPrese
 	}
 	
 	private Button renderUnlockButton(final ImportDetails model) {
+		
 		final Button unlockButton = Forms.button(I18N.CONSTANTS.projectCoreUnlockButton());
 		
 		unlockButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
 			@Override
 			public void componentSelected(ButtonEvent ce) {
-				final Iterator<EntityDTO<?>> iterator = model.getEntitiesToImport().keySet().iterator();
-				final EntityDTO<?> entityLocked = iterator.next();
+				final Iterator<EntityDTO<Integer>> iterator = model.getEntitiesToImport().keySet().iterator();
+				final EntityDTO<Integer> entityLocked = iterator.next();
 				
-				dispatch.execute(new AmendmentActionCommand((Integer)entityLocked.getId(), AmendmentAction.UNLOCK), new CommandResultHandler<ProjectDTO>() {
+				dispatch.execute(new AmendmentActionCommand(entityLocked.getId(), AmendmentAction.UNLOCK), new CommandResultHandler<ProjectDTO>() {
 
 					@Override
 					protected void onCommandSuccess(ProjectDTO result) {
@@ -511,6 +595,7 @@ public class ImportationPresenter extends AbstractPagePresenter<ImportationPrese
 	}
 	
 	private Panel renderChoosePanel(final ImportDetails model) {
+		
 		// Project/orgUnit combobox.
 		final ComboBox<DefaultFlexibleElementContainer> comboBox = Forms.combobox(null, false, ProjectDTO.ID, ProjectDTO.NAME, I18N.CONSTANTS.formWindowListEmptyText());
 		for(final EntityDTO<?> entity : model.getEntitiesToImport().keySet()) {
@@ -524,13 +609,12 @@ public class ImportationPresenter extends AbstractPagePresenter<ImportationPrese
 
 			@Override
 			public void componentSelected(ButtonEvent ce) {
-				final DefaultFlexibleElementContainer container = comboBox.getValue();
-				if (container != null) {
+				final DefaultFlexibleElementContainer entity = comboBox.getValue();
+				if (entity != null) {
 					// Rebuild the "entitiesToImport" map.
-					final EntityDTO<?> entity = (EntityDTO<?>)container;
 					final List<ElementExtractedValue> extractedValues = model.getEntitiesToImport().get(entity);
 					
-					final HashMap<EntityDTO<?>, List<ElementExtractedValue>> entitiesToImport = new HashMap<EntityDTO<?>, List<ElementExtractedValue>>();
+					final HashMap<EntityDTO<Integer>, List<ElementExtractedValue>> entitiesToImport = new HashMap<EntityDTO<Integer>, List<ElementExtractedValue>>();
 					entitiesToImport.put(entity, extractedValues);
 					
 					// Update the importDetails.
@@ -560,6 +644,7 @@ public class ImportationPresenter extends AbstractPagePresenter<ImportationPrese
 	 * Apply all the selected changes.
 	 */
 	private void onImport() {
+		
 		final List<ImportDetails> selection = view.getImportDetailsPopup().getSelection();
 		
 		if(!selection.isEmpty()) {
@@ -570,12 +655,12 @@ public class ImportationPresenter extends AbstractPagePresenter<ImportationPrese
 				if(ImportStatusCode.isFound(importDetails.getEntityStatus()) && 
 					!importDetails.getEntitiesToImport().isEmpty()) {
 					// Prepare an UpdateProject command for this ImportDetails object.
-					final Iterator<EntityDTO<?>> iterator = importDetails.getEntitiesToImport().keySet().iterator();
-					final EntityDTO<?> selectedEntity = iterator.next();
-					final List<ValueEvent> values = toValueEvent(changes.get((Integer)selectedEntity.getId()));
+					final Iterator<EntityDTO<Integer>> iterator = importDetails.getEntitiesToImport().keySet().iterator();
+					final EntityDTO<Integer> selectedEntity = iterator.next();
+					final List<ValueEvent> values = toValueEvent(changes.get(selectedEntity.getId()));
 					
 					// Save the name of the project (to notify that this project has been updated).
-					if(selectedEntity instanceof ProjectDTO) {
+					if (selectedEntity instanceof ProjectDTO) {
 						names.add(((ProjectDTO)selectedEntity).getFullName());
 						
 					} else if(selectedEntity instanceof OrgUnitDTO) {
@@ -584,7 +669,7 @@ public class ImportationPresenter extends AbstractPagePresenter<ImportationPrese
 					
 					// Add the update project to the batch.
 					// TODO: I18N
-					updates.add(new UpdateProject((Integer) selectedEntity.getId(), values, "Imported from file '" + fileName + "'."));
+					updates.add(new UpdateProject(selectedEntity.getId(), values, "Imported from file '" + fileName + "'."));
 				}
 			}
 			
@@ -618,98 +703,17 @@ public class ImportationPresenter extends AbstractPagePresenter<ImportationPrese
 	 * @return A list of <code>ValueEvent</code>.
 	 */
 	private List<ValueEvent> toValueEvent(List<ElementExtractedValue> extractedValues) {
+		
 		final ArrayList<ValueEvent> valueEvents = new ArrayList<ValueEvent>();
 		
 		for(final ElementExtractedValue extractedValue : extractedValues) {
-			if(extractedValue.getStatus() != ElementExtractedValueStatus.VALID_VALUE) {
-				continue;
-			}
-			
-			final FlexibleElementDTO element = extractedValue.getElement();
-			
-			switch(element.getElementType()) {
-				case CHECKBOX:
-					if(extractedValue.getNewValue() instanceof Boolean) {
-						valueEvents.add(new ValueEvent(element, extractedValue.getNewValue().toString()));
-					}
-					break;
-					
-				case DEFAULT:
-					final DefaultFlexibleElementDTO defaultFlexibleElement = (DefaultFlexibleElementDTO) element;
-					switch(defaultFlexibleElement.getType()) {
-						case BUDGET:
-							final HashMap<BudgetSubFieldDTO, String> budgetMap = new HashMap<BudgetSubFieldDTO, String>();
-							
-							// Putting old values first.
-							for(final Map.Entry<Integer, String> entry : extractedValue.getOldBudgetValues().entrySet()) {
-								budgetMap.put(new BudgetSubFieldDTO(entry.getKey()), entry.getValue());
-							}
-							
-							// Replacing old values with the new ones.
-							for (final Map.Entry<Integer, Serializable> entry : extractedValue.getNewBudgetValues().entrySet()) {
-								budgetMap.put(new BudgetSubFieldDTO(entry.getKey()), entry.getValue().toString()); 
-							}
-							
-							valueEvents.add(new ValueEvent(element, ValueResultUtils.mergeElements(budgetMap)));
-							break;
-							
-						case MANAGER:
-						case OWNER:
-						case ORG_UNIT:
-						case COUNTRY:
-						case CODE:
-						case TITLE:
-							valueEvents.add(new ValueEvent(element, String.valueOf(extractedValue.getNewValue())));
-							break;
-							
-						case START_DATE:
-						case END_DATE:
-							valueEvents.add(new ValueEvent(element, dateToString(extractedValue.getNewValue())));
-							break;
-							
-						default:
-							break;
-					}
-					break;
-					
-				case QUESTION:
-					valueEvents.add(new ValueEvent(element, String.valueOf(extractedValue.getNewValue())));
-					break;
-					
-				case TEXT_AREA:
-					if(Character.valueOf('D').equals(((TextAreaElementDTO)element).getType())) {
-						valueEvents.add(new ValueEvent(element, dateToString(extractedValue.getNewValue())));
-					} else {
-						valueEvents.add(new ValueEvent(element, String.valueOf(extractedValue.getNewValue())));
-					}
-					break;
-					
-				case TRIPLETS:
-					final String[] tripletValues = (String[]) extractedValue.getNewValue();
-					
-					final TripletValueDTO addedValue = new TripletValueDTO();
-					addedValue.setCode(tripletValues[0]);
-					addedValue.setName(tripletValues[1]);
-					addedValue.setPeriod(tripletValues[2]);
-
-					valueEvents.add(new ValueEvent(extractedValue.getElement(), addedValue, ValueEventChangeType.ADD));
-					break;
-					
-				default:
-					break;
+			final ValueEvent valueEvent = extractedValue.toValueEvent();
+			if (valueEvent != null) {
+				valueEvents.add(valueEvent);
 			}
 		}
 		
 		return valueEvents;
 	}
 	
-	private String dateToString(Serializable serializable) {
-		if(serializable instanceof Date) {
-			final Date date = (Date) serializable;
-			return Long.toString(date.getTime());
-			
-		} else {
-			return "null";
-		}
-	}
 }

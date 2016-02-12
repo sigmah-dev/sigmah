@@ -102,7 +102,7 @@ public final class Languages {
 		}
 
 		// Attempt to retrieve locale from request headers.
-		final String acceptLanguageHeader = request.getHeader(ACCEPT_LANGUAGE_HEADER);
+		final String acceptLanguageHeader = request != null ? request.getHeader(ACCEPT_LANGUAGE_HEADER) : null;
 		if (StringUtils.isNotBlank(acceptLanguageHeader)) {
 
 			for (final String acceptLanguageToken : acceptLanguageHeader.split(",|;|-|_")) {

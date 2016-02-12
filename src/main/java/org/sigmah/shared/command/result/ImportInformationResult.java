@@ -40,6 +40,10 @@ public class ImportInformationResult implements Result {
 		// Serialization.
 	}
 
+	public ImportInformationResult(List<ImportDetails> entitiesToImport) {
+		this.entitiesToImport = entitiesToImport;
+	}
+
 	/**
 	 * @return the entitiesToImport
 	 */

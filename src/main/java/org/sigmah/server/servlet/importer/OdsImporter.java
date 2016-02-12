@@ -22,19 +22,18 @@ package org.sigmah.server.servlet.importer;
  * #L%
  */
 
-import java.util.List;
-import java.util.Map;
 
 
 import org.odftoolkit.simple.Document;
 import org.odftoolkit.simple.table.Cell;
 import org.odftoolkit.simple.table.Row;
 import org.odftoolkit.simple.table.Table;
-import org.sigmah.shared.dto.importation.ImportationSchemeModelDTO;
 
-import com.google.inject.Injector;
-import org.sigmah.server.dispatch.impl.UserDispatch;
-import org.sigmah.shared.dispatch.CommandException;
+import java.io.IOException;
+import java.io.InputStream;
+import org.odftoolkit.simple.SpreadsheetDocument;
+import org.sigmah.shared.dto.ImportDetails;
+import org.sigmah.shared.dto.referential.ImportationSchemeImportType;
 
 /**
  * ODS implementation of {@link Importer}.
@@ -44,62 +43,92 @@ import org.sigmah.shared.dispatch.CommandException;
  */
 public class OdsImporter extends Importer {
 
-	private final Document doc;
+	private Document doc;
+	
+	private Table table;
+	private Integer tableCursor;
+	private Integer rowCursor;
 
-	public OdsImporter(Injector injector, Map<String, Object> properties, UserDispatch.UserExecutionContext executionContext) throws CommandException {
-		super(injector, properties, executionContext);
-		
-		if (properties.get("importedOdsDocument") != null && properties.get("importedOdsDocument") instanceof Document) {
-			doc = (Document) properties.get("importedOdsDocument");
-		} else {
-			doc = null;
-			throw new IllegalArgumentException("Incompatible Document Format");
-		}
-
-		getCorrespondances(schemeModelList);
-	}
-
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	protected void getCorrespondances(List<ImportationSchemeModelDTO> schemeModelList) throws CommandException {
-		for (ImportationSchemeModelDTO schemeModelDTO : schemeModelList) {
-			// GetThe variable and the flexible element for the identification
-			// key
-
-			switch (scheme.getImportType()) {
-			case ROW:
-				Table sheetTable = null;
-				if(scheme.getSheetName() != null && !scheme.getSheetName().isEmpty()) {
-					sheetTable = doc.getTableByName(scheme.getSheetName());
-				} else if(doc.getTableList().size() > 0){
-					sheetTable = doc.getTableList().get(0);
-				}
-				if(sheetTable != null) {
-					int firstRow = 0;
-					if(scheme.getFirstRow() != null) {
-						firstRow = scheme.getFirstRow();
-					}
-				
-					for (int i = firstRow; i < sheetTable.getRowCount() ; i++) {
-						getCorrespondancePerSheetOrLine(schemeModelDTO, i, scheme.getSheetName());
-					}
-				}
-				break;
-			case SEVERAL:
-				for (Table sheet : doc.getTableList()) {
-					getCorrespondancePerSheetOrLine(schemeModelDTO, null, sheet.getTableName());
-				}
-				break;
-			case UNIQUE:
-				getCorrespondancePerSheetOrLine(schemeModelDTO, null, null);
-				break;
-			default:
-				break;
-
-			}
+	public void setInputStream(InputStream inputStream) throws IOException {
+		try {
+			this.doc = SpreadsheetDocument.loadDocument(inputStream);
+		} catch (Exception ex) {
+			throw new IOException("The format of the file given is invalid for the file format ODS.", ex);
 		}
-
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public ImportDetails next() {
+		
+		if (scheme.getImportType() != ImportationSchemeImportType.ROW) {
+			logWarnFormatImportTypeIncoherence();
+			return null;
+		}
+		
+		ImportDetails details = null;
+		
+		switch (scheme.getImportType()) {
+		case ROW:
+			if (rowCursor == null || (table != null && rowCursor == table.getRowCount())) {
+				nextSchemeModel();
+				
+				if (scheme.getFirstRow() != null) {
+					rowCursor = scheme.getFirstRow();
+				} else {
+					rowCursor = 0;
+				}
+				if (table == null) {
+					if (scheme.getSheetName() != null && !scheme.getSheetName().isEmpty()) {
+						table = doc.getTableByName(scheme.getSheetName());
+					} else {
+						table = doc.getTableList().get(0);
+					}
+				}
+			}
+			if (table != null && rowCursor < table.getRowCount()) {
+				details = getCorrespondancePerSheetOrLine(rowCursor, table.getTableName());
+				rowCursor++;
+			}
+			break;
+		case SEVERAL:
+			if (tableCursor == null || tableCursor == doc.getTableList().size()) {
+				nextSchemeModel();
+				tableCursor = 0;
+			}
+			if (tableCursor < doc.getTableList().size()) {
+				details = getCorrespondancePerSheetOrLine(null, doc.getTableList().get(tableCursor).getTableName());
+				tableCursor++;
+			}
+			break;
+		case UNIQUE:
+			nextSchemeModel();
+			details = getCorrespondancePerSheetOrLine(null, null);
+			break;
+		default:
+			throw new UnsupportedOperationException("Given import type is not supported '" + scheme.getImportType() + "'.");
+		}
+		
+		return details;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean hasNext() {
+		return hasNextRow() || hasNextSchemeModel();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Object getValueFromVariable(String reference, Integer lineNumber, String sheetName) {
 		// Get the cell value
@@ -153,6 +182,7 @@ public class OdsImporter extends Importer {
 				}
 				break;
 			default:
+				logWarnFormatImportTypeIncoherence();
 				break;
 
 			}
@@ -185,6 +215,25 @@ public class OdsImporter extends Importer {
 			cellValue = varCell.getStringValue();
 		}
 		return cellValue;
+	}
+	
+	/**
+	 * Verify if the stream has more rows to read before moving on to the next
+	 * scheme model.
+	 * 
+	 * @return <code>true</code> if there is more lignes,
+	 * <code>false</code> otherwise.
+	 */
+	private boolean hasNextRow() {
+		switch (scheme.getImportType()) {
+		case ROW:
+			return rowCursor == null || (table != null && rowCursor < table.getRowCount());
+		case SEVERAL:
+			return tableCursor == null || tableCursor < doc.getTableList().size();
+		case UNIQUE:
+		default:
+			return false;
+		}
 	}
 
 }

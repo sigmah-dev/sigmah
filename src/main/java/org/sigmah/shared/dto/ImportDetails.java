@@ -52,7 +52,7 @@ public class ImportDetails extends BaseModel implements Serializable, DTO {
 	private ProjectModelStatus modelStatus;
 	private String keyIdentification;
 	private ImportStatusCode entityStatus;
-	private Map<EntityDTO<?>, List<ElementExtractedValue>> entitiesToImport = new HashMap<EntityDTO<?>, List<ElementExtractedValue>>();
+	private Map<EntityDTO<Integer>, List<ElementExtractedValue>> entitiesToImport = new HashMap<EntityDTO<Integer>, List<ElementExtractedValue>>();
 
 	public ImportDetails() {
 		// Serialization.
@@ -106,7 +106,7 @@ public class ImportDetails extends BaseModel implements Serializable, DTO {
 	/**
 	 * @return the entitiesToImport
 	 */
-	public Map<EntityDTO<?>, List<ElementExtractedValue>> getEntitiesToImport() {
+	public Map<EntityDTO<Integer>, List<ElementExtractedValue>> getEntitiesToImport() {
 		return entitiesToImport;
 	}
 
@@ -114,7 +114,7 @@ public class ImportDetails extends BaseModel implements Serializable, DTO {
 	 * @param entitiesToImport
 	 *          the entitiesToImport to set
 	 */
-	public void setEntitiesToImport(Map<EntityDTO<?>, List<ElementExtractedValue>> entitiesToImport) {
+	public void setEntitiesToImport(Map<EntityDTO<Integer>, List<ElementExtractedValue>> entitiesToImport) {
 		this.entitiesToImport = entitiesToImport;
 	}
 
