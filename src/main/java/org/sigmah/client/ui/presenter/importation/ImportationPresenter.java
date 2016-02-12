@@ -35,6 +35,7 @@ import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FileUploadField;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.FormPanel.Method;
+import com.extjs.gxt.ui.client.widget.form.Radio;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.ui.HorizontalPanel;
@@ -116,7 +117,7 @@ public class ImportationPresenter extends AbstractPagePresenter<ImportationPrese
 		Field<Boolean> getAutomatedField();
 		Field<Boolean> getNewProjectsPolicyField();
 		Field<Boolean> getProjectCorePolicyField();
-		Field<Boolean> getMultipleMatchPolicyField();
+		Radio getMultipleMatchPolicyField();
 		Button getImportButton();
 		
 		ImportDetailsPopup getImportDetailsPopup();
@@ -211,15 +212,15 @@ public class ImportationPresenter extends AbstractPagePresenter<ImportationPrese
 		// --
 		// Visibility of the automated options.
 		// --
-		view.getAutomatedField().addListener(Events.OnChange, new Listener<BaseEvent>() {
+		view.getAutomatedField().addListener(Events.Change, new Listener<BaseEvent>() {
 			
 			@Override
 			public void handleEvent(BaseEvent be) {
-				final boolean visible = view.getAutomatedField().getValue();
+				final boolean enabled = view.getAutomatedField().getValue();
 				
-				view.getNewProjectsPolicyField().setVisible(visible);
-				view.getProjectCorePolicyField().setVisible(visible);
-				view.getMultipleMatchPolicyField().setVisible(visible);
+				view.getNewProjectsPolicyField().setEnabled(enabled);
+				view.getProjectCorePolicyField().setEnabled(enabled);
+				view.getMultipleMatchPolicyField().getGroup().setEnabled(enabled);
 			}
 		});
 		

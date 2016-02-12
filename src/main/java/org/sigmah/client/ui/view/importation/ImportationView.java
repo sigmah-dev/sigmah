@@ -22,11 +22,16 @@ package org.sigmah.client.ui.view.importation;
  * #L%
  */
 
+import com.extjs.gxt.ui.client.Style;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FileUploadField;
+import com.extjs.gxt.ui.client.widget.form.Radio;
+import com.extjs.gxt.ui.client.widget.form.RadioGroup;
+import com.google.gwt.user.client.ui.Label;
+import java.util.Arrays;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.ui.presenter.importation.ImportationPresenter;
 import org.sigmah.client.ui.view.base.AbstractPopupView;
@@ -58,10 +63,10 @@ public class ImportationView extends AbstractPopupView<PopupWidget> implements I
 	private ElementExtractedValuePopup elementExtractedValuePopup;
 	private AutomatedImportResultPopup automatedImportResultPopup;
 	
-	private CheckBox automatedField;
+	private Radio massImportRadio;
 	private CheckBox newProjectsPolicyField;
 	private CheckBox projectCorePolicyField;
-	private CheckBox multipleMatchPolicyField;
+	private Radio multipleMatchRadio;
 	
 	public ImportationView() {
 		super(new PopupWidget(true));
@@ -93,11 +98,19 @@ public class ImportationView extends AbstractPopupView<PopupWidget> implements I
 		fileField = Forms.upload(I18N.CONSTANTS.adminFileImport());
 		fileField.setName(FileUploadUtils.DOCUMENT_CONTENT);
 		
-		// Automated import fields.
-		automatedField = Forms.checkbox("", null, I18N.CONSTANTS.USE_AUTOMATED_IMPORT(), true);
-		newProjectsPolicyField = Forms.checkbox(I18N.CONSTANTS.AUTOMATED_IMPORT_CREATE_PROJECTS_YES(), null, I18N.CONSTANTS.AUTOMATED_IMPORT_CREATE_PROJECTS(), false);
-		projectCorePolicyField = Forms.checkbox(I18N.CONSTANTS.AUTOMATED_IMPORT_CORE_UNLOCK_YES(), null, I18N.CONSTANTS.AUTOMATED_IMPORT_CORE_UNLOCK(), false);
-		multipleMatchPolicyField = Forms.checkbox(I18N.CONSTANTS.AUTOMATED_IMPORT_MULTIPLE_MATCHES_UPDATE_YES(), null, I18N.CONSTANTS.AUTOMATED_IMPORT_MULTIPLE_MATCHES_UPDATE(), false);
+		// Mass import fields.
+		massImportRadio = Forms.radio(I18N.CONSTANTS.importationModeMass(), Boolean.TRUE);
+		final RadioGroup massImportRadioGroup = Forms.radioGroup(I18N.CONSTANTS.importationMode(), Style.Orientation.VERTICAL, 
+				massImportRadio, Forms.radio(I18N.CONSTANTS.importationModeWithControl()));
+		
+		newProjectsPolicyField = Forms.checkbox(I18N.CONSTANTS.importationMassParameterCreateNewProjects());
+		projectCorePolicyField = Forms.checkbox(I18N.CONSTANTS.importationMassParameterUnlockCores());
+		multipleMatchRadio = Forms.radio(I18N.CONSTANTS.importationMassParameterMultipleMatchesAll());
+		final RadioGroup multipleMatchRadioGroup = Forms.radioGroup("", multipleMatchRadio, Forms.radio(I18N.CONSTANTS.importationMassParameterMultipleMatchesNone(), Boolean.TRUE));
+		
+		for (final Field<?> field : Arrays.asList(newProjectsPolicyField, projectCorePolicyField, multipleMatchRadioGroup)) {
+			field.setHideLabel(true);
+		}
 		
 		// Import button.
 		importButton = Forms.button(I18N.CONSTANTS.importItem());
@@ -106,13 +119,35 @@ public class ImportationView extends AbstractPopupView<PopupWidget> implements I
 		form = Forms.panel();
 		form.add(schemeField);
 		form.add(fileField);
-		form.add(automatedField);
+		form.add(massImportRadioGroup);
+		form.add(createText(I18N.CONSTANTS.importationMassParameters(), true));
 		form.add(newProjectsPolicyField);
 		form.add(projectCorePolicyField);
-		form.add(multipleMatchPolicyField);
+		form.add(createText(I18N.CONSTANTS.importationMassParameterMultipleMatches(), false));
+		form.add(multipleMatchRadioGroup);
 		form.addButton(importButton);
 		
 		initPopup(form);
+	}
+	
+	/**
+	 * Creates a simple text element. Since it is not a {@link Field}, it will
+	 * take the full width of the layout.
+	 * 
+	 * @param text
+	 *          Text du use.
+	 * @param bold
+	 *          <code>true</code> to set <code>font-weight</code> CSS property as <code>bold</code>,
+	 *          <code>false</code> otherwise.
+	 * @return A new <code>Label</code> containing the given text.
+	 */
+	private Label createText(final String text, final boolean bold) {
+		final Label label = new Label(text);
+		label.addStyleName("x-form-item");
+		if (bold) {
+			label.getElement().getStyle().setFontWeight(com.google.gwt.dom.client.Style.FontWeight.BOLD);
+		}
+		return label;
 	}
 
 	/**
@@ -146,9 +181,9 @@ public class ImportationView extends AbstractPopupView<PopupWidget> implements I
 	 */
 	@Override
 	public Field<Boolean> getAutomatedField() {
-		return automatedField;
+		return massImportRadio;
 	}
-
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -169,8 +204,8 @@ public class ImportationView extends AbstractPopupView<PopupWidget> implements I
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Field<Boolean> getMultipleMatchPolicyField() {
-		return multipleMatchPolicyField;
+	public Radio getMultipleMatchPolicyField() {
+		return multipleMatchRadio;
 	}
 
 	/**
