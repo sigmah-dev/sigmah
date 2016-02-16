@@ -1,5 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
 	<!-- =========================================================================================== -->
 	<!-- -->
@@ -11,7 +10,7 @@
 
 	<groupId>org.sigmah</groupId>
 	<artifactId>sigmah</artifactId>
-	<version>2.1-SNAPSHOT</version>
+	<version>2.1</version>
 
 	<packaging>war</packaging>
 
@@ -138,7 +137,7 @@
 		<javadoc.url>http://docs.oracle.com/javase/7/docs/api/</javadoc.url>
 
 		<!-- Release package name. -->
-		<release.name.prefix></release.name.prefix>
+		<release.name.prefix />
 		<release.name>${release.name.prefix}${project.artifactId}-${project.version}</release.name>
 
 		<!-- Plugins Versions. -->
@@ -950,7 +949,7 @@
 										</goals>
 									</pluginExecutionFilter>
 									<action>
-										<ignore></ignore>
+										<ignore />
 									</action>
 								</pluginExecution>
 								<pluginExecution>
@@ -963,7 +962,7 @@
 										</goals>
 									</pluginExecutionFilter>
 									<action>
-										<ignore></ignore>
+										<ignore />
 									</action>
 								</pluginExecution>
 							</pluginExecutions>
@@ -984,7 +983,8 @@
 		<connection>scm:git:https://github.com/sigmah-dev/sigmah.git</connection>
 		<developerConnection>scm:git:git@github.com:sigmah-dev/sigmah.git</developerConnection>
 		<url>https://github.com/sigmah-dev/sigmah</url>
-	</scm>
+	  <tag>2.1</tag>
+  </scm>
 
 	<profiles>
 		
