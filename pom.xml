@@ -970,6 +970,11 @@
 	<!-- ENVIRONMENTS PROFILES. -->
 	<!-- -->
 	<!-- =========================================================================================== -->
+	<scm>
+		<connection>scm:git:https://github.com/sigmah-dev/sigmah.git</connection>
+		<developerConnection>scm:git:git@github.com:sigmah-dev/sigmah.git</developerConnection>
+		<url>https://github.com/sigmah-dev/sigmah</url>
+	</scm>
 
 	<profiles>
 		
