@@ -83,7 +83,11 @@ public class Realizer {
 	 * @return A copy of the given object without any proxy instance.
 	 */
 	public static <T> T realize(T object, Class<?>... ignores) {
-		return realize(object, new HashMap<>(), new HashSet<>(Arrays.asList(ignores)), object);
+		return realize(object, Collections.singleton(ORGANIZATION_FIELD), ignores);
+	}
+	
+	public static <T> T realize(T object, Set<String> ignoredFields, Class<?>... ignores) {
+		return realize(object, new HashMap<>(), ignoredFields, new HashSet<>(Arrays.asList(ignores)), object);
 	}
 
 	/**
@@ -102,7 +106,7 @@ public class Realizer {
 	 * @return A copy of the given object without any proxy instance.
 	 */
 	@SuppressWarnings("unchecked")
-	private static <T> T realize(T object, Map<Object, Object> alreadyRealizedObjects, Set<Class<?>> ignores, Object parent) {
+	private static <T> T realize(T object, Map<Object, Object> alreadyRealizedObjects, Set<String> ignoredFields, Set<Class<?>> ignores, Object parent) {
 		T result = null;
 
 		if (object != null) {
@@ -129,7 +133,7 @@ public class Realizer {
 				final List<Field> fields = getFieldsOfClass(clazz);
 
 				for (final Field field : fields) {
-					final Object destinationValue = getFieldValue(field, clazz, object, alreadyRealizedObjects, ignores, parent);
+					final Object destinationValue = getFieldValue(field, clazz, object, alreadyRealizedObjects, ignoredFields, ignores, parent);
 					
 					if (destinationValue != null) {
 						setFieldValue(field, clazz, instance, destinationValue);
@@ -204,12 +208,12 @@ public class Realizer {
 	 * @throws InvocationTargetException
 	 * @throws IllegalArgumentException 
 	 */
-	private static <T> Object getFieldValue(final Field field, final Class<T> clazz, final T source, final Map<Object, Object> alreadyRealizedObjects, final Set<Class<?>> ignores, final Object parent) 
+	private static <T> Object getFieldValue(final Field field, final Class<T> clazz, final T source, final Map<Object, Object> alreadyRealizedObjects, final Set<String> ignoredFields, final Set<Class<?>> ignores, final Object parent) 
 			throws HibernateException, SecurityException, IllegalAccessException, InvocationTargetException, IllegalArgumentException {
 		
 		// Avoid trying to modify static fields.
 		// Organization should not be exported.
-		if (Modifier.isStatic(field.getModifiers()) || field.getName().equalsIgnoreCase(ORGANIZATION_FIELD)) {
+		if (Modifier.isStatic(field.getModifiers()) || (!ignores.contains(clazz) && ignoredFields.contains(field.getName()))) {
 			return null;
 		}
 		
@@ -233,7 +237,7 @@ public class Realizer {
 			final ArrayList<Object> list = new ArrayList<Object>();
 
 			for (Object value : (PersistentBag) sourceValue) {
-				list.add(realize(value, alreadyRealizedObjects, ignores, parent));
+				list.add(realize(value, alreadyRealizedObjects, ignoredFields, ignores, parent));
 			}
 
 			destinationValue = list;
@@ -243,7 +247,7 @@ public class Realizer {
 			final HashSet<Object> set = new HashSet<>();
 
 			for (Object value : (PersistentSet) sourceValue) {
-				set.add(realize(value, alreadyRealizedObjects, ignores, parent));
+				set.add(realize(value, alreadyRealizedObjects, ignoredFields, ignores, parent));
 			}
 
 			destinationValue = set;
@@ -266,7 +270,7 @@ public class Realizer {
 			destinationValue = sourceValue;
 			
 		} else {
-			destinationValue = realize(sourceValue, alreadyRealizedObjects, ignores, parent);
+			destinationValue = realize(sourceValue, alreadyRealizedObjects, ignoredFields, ignores, parent);
 		}
 		
 		return destinationValue;
