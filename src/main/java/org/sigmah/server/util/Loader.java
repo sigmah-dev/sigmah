@@ -34,6 +34,11 @@ import org.sigmah.server.servlet.exporter.models.Realizer;
  */
 public class Loader {
 	
+	/*Id of project , project should be in database*/
+	private static final Integer PROJECT_ID=953;
+	/*Count of projecte to be inserted */
+	private static final Integer COUNT=2;
+	
 	public static void main(String[] args) {
 		final Injector injector = Guice.createInjector(
 			// Configuration module.
@@ -47,50 +52,22 @@ public class Loader {
 		
 		injector.getInstance(PersistService.class).start();
 		try {
-			ProjectDAO projectDAO = injector.getInstance(ProjectDAO.class);
-			Project project=projectDAO.findById(953);
-			for(int i=0;i<2;i++){
+			
+			ProjectDAO projectDAO = injector.getInstance(ProjectDAO.class);			
+			Project project=projectDAO.findById(PROJECT_ID);
+			
+			for(int i=0;i<COUNT;i++){
 				Project newProject=Realizer.realize(project, new HashSet<>(Arrays.asList("id")), ProjectModel.class,User.class,OrgUnit.class,Country.class,PhaseModel.class,LogFrameModel.class);
 				newProject.setName("gen-" + i);
 				newProject.getId();
 				final EntityManager em = injector.getProvider(EntityManager.class).get();
 				em.getTransaction().begin();
 				//em.persist(newProject);
-				em.merge(newProject);
-				
-				em.getTransaction().commit();
-				
-				
-			}
-			
-			
-			System.out.println("Nom : " + projectDAO.findById(953).getFullName());
+				em.merge(newProject);				
+				em.getTransaction().commit();				
+			}			
 		} finally {
 			injector.getInstance(PersistService.class).stop();
 		}
-	}
-	
-	
-	private static void initIds(Project project){
-		initIdForEntity(project);
-		if(project.getActivities()!=null){
-			for (final Activity activity : project.getActivities()) {
-				initIds(activity);
-			}
-		}
-	}
-	
-	private static void initIds(Activity activity){
-		initIdForEntity(activity);
-		if(activity.getAttributeGroups()!=null){
-			
-		}
-		
-	}
-	
-	private static void initIdForEntity(EntityId entity){
-		entity.setId(null);
-	}
-	
-	
+	}	
 }
