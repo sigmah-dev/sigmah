@@ -1,5 +1,4 @@
-package org.sigmah.client.util.profiler;
-
+package org.sigmah.shared.command;
 /*
  * #%L
  * Sigmah
@@ -21,15 +20,33 @@ package org.sigmah.client.util.profiler;
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+import java.util.ArrayList;
+import java.util.List;
+import org.sigmah.shared.command.base.AbstractCommand;
+import org.sigmah.shared.command.result.Result;
+import org.sigmah.shared.dto.profile.ExecutionDTO;
 
 /**
- * List of the scenarios measured by the <code>Profiler</code>.
- * 
- * @author Raphaël Calabro (raphael.calabro@netapsys.fr)
+ *
+ * @author Mohamed KHADHRAOUI (mohamed.khadhraoui@netapsys.fr)
  */
-public enum Scenario {
-	LOGIN,
-	OPEN_PROJECT,
-	SWITCH_TAB,
-	AGENDA;
+public class SendProbeReport extends AbstractCommand<Result>{
+	/**
+	 * list of execution.
+	 */
+	List<ExecutionDTO>  executionsProfiler=new ArrayList<ExecutionDTO>();
+	
+	public SendProbeReport(){
+		
+	}
+	
+	public SendProbeReport(List<ExecutionDTO>  executionsProfiler){	
+		this.executionsProfiler=executionsProfiler;
+	}
+
+	public List<ExecutionDTO> getExecutionsProfiler() {
+		return executionsProfiler;
+	}
+	
+	
 }

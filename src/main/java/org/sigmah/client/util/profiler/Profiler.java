@@ -25,6 +25,7 @@ package org.sigmah.client.util.profiler;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import java.util.List;
 import org.sigmah.client.security.AuthenticationProvider;
 import org.sigmah.offline.appcache.ApplicationCache;
 import org.sigmah.offline.event.JavaScriptEvent;
@@ -179,8 +180,17 @@ public class Profiler implements ProfilerStrategy {
 	 * Generates a markdown report from the collected data.
 	 */
 	public void generateMarkdownReport() {
-		// TODO: Write the generation code.
-		throw new UnsupportedOperationException("Not implemented yet.");
+		executionAsyncDAO.getExecutionsByScenario("AGENDA", new AsyncCallback<List<Execution>>() {
+			@Override
+			public void onFailure(Throwable caught) {
+				throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+			}
+
+			@Override
+			public void onSuccess(List<Execution> result) {
+				
+			}
+		});
 	}
 	
 	/**

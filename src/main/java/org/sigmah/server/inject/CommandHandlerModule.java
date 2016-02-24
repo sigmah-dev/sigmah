@@ -113,6 +113,7 @@ import org.sigmah.server.handler.RemoveOrgUnitHandler;
 import org.sigmah.server.handler.RemovePartnerHandler;
 import org.sigmah.server.handler.RemoveProjectReportDraftHandler;
 import org.sigmah.server.handler.SecureNavigationCommandHandler;
+import org.sigmah.server.handler.SendProbeReportHandler;
 import org.sigmah.server.handler.SynchronizeHandler;
 import org.sigmah.server.handler.UpdateEntityHandler;
 import org.sigmah.server.handler.UpdateGlobalExportSettingsHandler;
@@ -217,6 +218,7 @@ import org.sigmah.shared.command.RemoveOrgUnit;
 import org.sigmah.shared.command.RemovePartner;
 import org.sigmah.shared.command.RemoveProjectReportDraft;
 import org.sigmah.shared.command.SecureNavigationCommand;
+import org.sigmah.shared.command.SendProbeReport;
 import org.sigmah.shared.command.Synchronize;
 import org.sigmah.shared.command.UpdateEntity;
 import org.sigmah.shared.command.UpdateGlobalExportSettingsCommand;
@@ -353,6 +355,7 @@ public class CommandHandlerModule extends AbstractCommandHandlerModule {
 		bindHandler(UpdateReminders.class, UpdateRemindersHandler.class);
 		bindHandler(UpdateSubscription.class, UpdateSubscriptionHandler.class);
 		bindHandler(UploadSlice.class, UploadSliceHandler.class);
+		bindHandler(SendProbeReport.class, SendProbeReportHandler.class);
 	}
 
 }

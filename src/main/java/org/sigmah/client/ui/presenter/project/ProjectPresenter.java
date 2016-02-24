@@ -253,6 +253,8 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 			public void onSubMenuClick(final SubMenuItem menuItem) {
 
 				final PageRequest currentPageRequest = injector.getPageManager().getCurrentPageRequest(false);
+				Profiler.INSTANCE.startScenario(Scenario.AGENDA);	
+				Profiler.INSTANCE.markCheckpoint(Scenario.AGENDA, "Before navigateRequest");
 				eventBus.navigateRequest(menuItem.getRequest().addAllParameters(currentPageRequest.getParameters(false)));
 			}
 		});

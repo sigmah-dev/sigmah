@@ -25,18 +25,20 @@ package org.sigmah.client.util.profiler;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.user.client.Window;
+import java.io.Serializable;
 import java.util.Date;
 import org.sigmah.client.Sigmah;
 import org.sigmah.client.util.JsIterable;
 import org.sigmah.offline.appcache.ApplicationCache;
 import org.sigmah.offline.js.Values;
+import org.sigmah.shared.command.result.Result;
 
 /**
  * Execution of a scenario.
  * 
  * @author Raphaël Calabro (raphael.calabro@netapsys.fr)
  */
-public final class Execution extends JavaScriptObject {
+public final class Execution extends JavaScriptObject implements Serializable{
 	
 	/**
 	 * Creates a new execution for the given scenario.

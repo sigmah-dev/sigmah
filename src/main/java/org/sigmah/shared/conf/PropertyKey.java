@@ -62,6 +62,16 @@ public enum PropertyKey implements IsSerializable {
 	MAIL_ENCODING(PropertyName.n(PropertyName.PREFIX_MAIL, "encoding")),
 	MAIL_CONTENT_TYPE(PropertyName.n(PropertyName.PREFIX_MAIL, "contentType")),
 	MAIL_SUPPORT_TO(PropertyName.n(PropertyName.PREFIX_MAIL, "support", "to")),
+	
+	MAIL_OPTIMISATION_FROM_ADDRESS(PropertyName.n(PropertyName.PREFIX_MAIL,"optimisation", "from", "address")),
+	MAIL_OPTIMISATION_FROM_NAME(PropertyName.n(PropertyName.PREFIX_MAIL,"optimisation", "from", "name")),
+	MAIL_OPTIMISATION_TO_ADDRESS(PropertyName.n(PropertyName.PREFIX_MAIL,"optimisation", "to", "address")),
+	MAIL_OPTIMISATION_COPY_ADDRESS(PropertyName.n(PropertyName.PREFIX_MAIL,"optimisation", "copy", "address")),
+	MAIL_OPTIMISATION_MARKDOWNFILE_NAME(PropertyName.n(PropertyName.PREFIX_MAIL,"optimisation", "MARKDOWNFILE", "name")),
+	//---------------------------------------------
+	
+	
+	
 
 	// --------------------------------------------------------------------------------
 	//
@@ -80,6 +90,7 @@ public enum PropertyKey implements IsSerializable {
 	FILE_REPOSITORY_NAME(PropertyName.n("files", "repository", "name")),
 	FILE_UPLOAD_MAX_SIZE(PropertyName.n("files", "upload", "maxSize")),
 	ARCHIVE_REPOSITORY_NAME(PropertyName.n("archives", "repository", "name")),
+	MAIL_OPTIMISATION(PropertyName.n(PropertyName.PREFIX_MAIL, "optimisation", "address")),
 
 	;
 
