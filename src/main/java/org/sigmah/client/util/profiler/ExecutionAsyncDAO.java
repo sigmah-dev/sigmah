@@ -38,7 +38,6 @@ import org.sigmah.offline.indexeddb.OpenDatabaseRequest;
 import org.sigmah.offline.indexeddb.Request;
 import org.sigmah.offline.indexeddb.Transaction;
 import org.sigmah.offline.sync.SuccessCallback;
-
 /**
  * Save and load executions in an IndexedDB database.
  * 
@@ -210,6 +209,19 @@ public class ExecutionAsyncDAO extends AbstractAsyncDAO<Execution, ProfilerStore
 				});
 			}
 			
+		});
+	}
+	/**
+	 * clear Data base.
+	 * @param profiler 
+	 */
+	public void removeDataBase(final ProfilerStore profiler){
+		openTransaction(Transaction.Mode.READ_WRITE, new OpenTransactionHandler<ProfilerStore>() {
+			@Override
+			public void onTransaction(Transaction<ProfilerStore> transaction) {
+				final ObjectStore objectStore = transaction.getObjectStore(profiler);
+				objectStore.clear();				
+			}
 		});
 	}
 	

@@ -84,6 +84,7 @@ import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.util.profiler.Checkpoint;
 import org.sigmah.client.util.profiler.Execution;
 import org.sigmah.client.util.profiler.ExecutionAsyncDAO;
+import org.sigmah.client.util.profiler.ProfilerStore;
 import org.sigmah.shared.command.SendProbeReport;
 import org.sigmah.shared.command.result.Result;
 import org.sigmah.shared.dto.profile.CheckPointDTO;
@@ -349,6 +350,7 @@ implements OfflineEvent.Source {
 								@Override
 								protected void onCommandSuccess(Result result) {
 									N10N.infoNotif("Info", "<p>"+I18N.CONSTANTS.probeReportSentSucces() +"</p>");
+									executionAsyncDAO.removeDataBase(ProfilerStore.EXECUTION);
 								}
 								protected void onCommandFailure(Result result) {
 									N10N.infoNotif("Error", "<p>"+I18N.CONSTANTS.probeReportSentFailure()+"</p>");
