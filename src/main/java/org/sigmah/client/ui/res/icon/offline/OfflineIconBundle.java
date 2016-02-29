@@ -41,4 +41,5 @@ public interface OfflineIconBundle extends ClientBundle {
 	ImageResource disconnect();
 	
 	ImageResource error();
+	//ImageResource trace();
 }

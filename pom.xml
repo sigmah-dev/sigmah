@@ -192,6 +192,7 @@
 		<itext.version>2.1.7</itext.version>
 		<itext-rtf.version>2.1.7</itext-rtf.version>
 		<quartz.version>1.5.2</quartz.version>
+		<gson.version>2.6.1</gson.version>
 		
 		<!-- ========= [ DEFAULT PROFILES PROPERTIES. ] ========= -->
 		
@@ -236,7 +237,7 @@
 
 		<!-- Mailer properties. -->
 
-		<mail.hostname>mail.your-server.com</mail.hostname>
+		<mail.hostname>localhost</mail.hostname>
 		<mail.port>25</mail.port>
 		<mail.from.address>sigmah@your-server.com</mail.from.address>
 		<mail.from.name>Sigmah</mail.from.name>
@@ -247,6 +248,13 @@
 
 		<mail.support.to>support@sigmah.org</mail.support.to>
 
+		<!--optimisation email properties-->
+		<mail.optimisation.from.address>sigmah@your-server.com</mail.optimisation.from.address>
+		<mail.optimisation.from.name>Sigmah</mail.optimisation.from.name>
+		<mail.optimisation.to.address>sigmah1@yopmail.com;sigmah2@yopmail.com;sigmah3@yopmail.com;</mail.optimisation.to.address>
+		<mail.optimisation.copy.address>sigmahadmin@yopmail.com</mail.optimisation.copy.address>
+		<mail.optimisation.markdownfile>markdownfileReport.txt</mail.optimisation.markdownfile>
+		
 		<!-- Maps API properties. -->
 
 		<maps.key>ABQIAAAAaKyZGjYsJ9quclBfsnGc-xRxtna0S6DNUYSvLTUdQl9eB6x9_xQH4P0V3CSFEY_MypecLWSdS3Q8IQ</maps.key>
@@ -560,6 +568,12 @@
 			<artifactId>bcprov-jdk14</artifactId>
 			<version>1.38</version>
 		</dependency>
+		<dependency>
+			<groupId>com.google.code.gson</groupId>
+			<artifactId>gson</artifactId>
+			<version>${gson.version}</version>
+		</dependency>
+		
 
 	</dependencies>
 
@@ -1009,6 +1023,11 @@
 				<mail.from.name>Sigmah - DEV</mail.from.name>
 
 				<!-- Overrride properties for your local profile here... -->
+				<sigmah.database.url>jdbc:postgresql://localhost:5432/sigmah</sigmah.database.url>
+				<sigmah.database.user>sigmah</sigmah.database.user>
+				<sigmah.database.password>sigmah</sigmah.database.password>
+				
+				<files.repository.name>E:\NETAPSYS\SIGMAH</files.repository.name>
 
 			</properties>
 		</profile>

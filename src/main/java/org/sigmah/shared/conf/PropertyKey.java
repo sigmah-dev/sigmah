@@ -67,7 +67,7 @@ public enum PropertyKey implements IsSerializable {
 	MAIL_OPTIMISATION_FROM_NAME(PropertyName.n(PropertyName.PREFIX_MAIL,"optimisation", "from", "name")),
 	MAIL_OPTIMISATION_TO_ADDRESS(PropertyName.n(PropertyName.PREFIX_MAIL,"optimisation", "to", "address")),
 	MAIL_OPTIMISATION_COPY_ADDRESS(PropertyName.n(PropertyName.PREFIX_MAIL,"optimisation", "copy", "address")),
-	MAIL_OPTIMISATION_MARKDOWNFILE_NAME(PropertyName.n(PropertyName.PREFIX_MAIL,"optimisation", "MARKDOWNFILE", "name")),
+	MAIL_OPTIMISATION_MARKDOWNFILE_NAME(PropertyName.n(PropertyName.PREFIX_MAIL,"optimisation", "markdownfile")),
 	//---------------------------------------------
 	
 	

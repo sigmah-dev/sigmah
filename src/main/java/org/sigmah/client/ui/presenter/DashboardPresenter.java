@@ -417,7 +417,6 @@ public class DashboardPresenter extends AbstractPagePresenter<DashboardPresenter
 
 						@Override
 						public void onSuccess(List<Execution> listExecution) {
-							Log.info("++++++++++++++++++++listExecution :"+listExecution);
 							List<ExecutionDTO> dtos=new ArrayList<ExecutionDTO>();
 							//Mapping from Execution JavaScriptObject to ExecutionDTO
 							for(Execution execution :listExecution){

@@ -95,4 +95,9 @@ public class DummyMailSender implements MailSender {
 		send(email);
 	}
 
+	@Override
+	public void sendEmailWithMultiAttachmenets(Email email, String[] fileNames, InputStream[] fileStreams) throws EmailException {
+		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+	}
+
 }

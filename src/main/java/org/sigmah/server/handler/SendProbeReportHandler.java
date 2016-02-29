@@ -20,6 +20,7 @@ package org.sigmah.server.handler;
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+import com.google.gson.Gson;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import java.io.ByteArrayInputStream;
@@ -57,6 +58,18 @@ public class SendProbeReportHandler extends AbstractCommandHandler<SendProbeRepo
 
 
 	/**
+	 * End of line.
+	 */
+	final String LINE_SEPARATOR=System.getProperty("line.separator");
+	/**
+	 * Markdow report file name.
+	 */
+	final String OPTIMISATION_MARKDOWNFILE_NAME="sigmah_performance_report.txt";
+	/**
+	 * json report file name.
+	 */
+	final String OPTIMISATION_BRUT_REPORT_NAME="sigmah_performance_brut_report.txt";
+	/**
 	 * Injected application properties.
 	 */
 	@Inject
@@ -67,8 +80,10 @@ public class SendProbeReportHandler extends AbstractCommandHandler<SendProbeRepo
 	 */
 	@Inject
 	private  MailSender sender;
-
-	
+	/**
+	 * gson used to transform javaobject to json.
+	 */
+	private Gson gson =new Gson();	
 	
 	private static final Logger LOG = LoggerFactory.getLogger(SendProbeReportHandler.class);
 	@Override
@@ -76,11 +91,12 @@ public class SendProbeReportHandler extends AbstractCommandHandler<SendProbeRepo
 		LOG.info("###########################SendProbeReportHandler start "); 		
 		if(command.getExecutionsProfiler()!=null){			
 			ProbesReportDetails probesReportDetails = buildProbesReportDetails(command.getExecutionsProfiler());
-			log(probesReportDetails);
+			log(probesReportDetails);			
 			Email email=buildEmail();	
 			try{
-				sender.sendFile(email, properties.getProperty(PropertyKey.MAIL_OPTIMISATION_MARKDOWNFILE_NAME), buildMarkDownFile(probesReportDetails));
-				log(probesReportDetails);
+				String[] filesName={OPTIMISATION_MARKDOWNFILE_NAME,OPTIMISATION_BRUT_REPORT_NAME};
+				InputStream[] streams={buildMarkDownFile(probesReportDetails),buildBrutReportFile(probesReportDetails)};
+				sender.sendEmailWithMultiAttachmenets(email,filesName,streams);
 			}catch(EmailException e){
 				LOG.error("Error", e);
 			}
@@ -88,7 +104,15 @@ public class SendProbeReportHandler extends AbstractCommandHandler<SendProbeRepo
 		LOG.info("###########################SendProbeReportHandler end "); 
 		return null;
 	}
-	
+	/**
+	 * Build json from java object.
+	 * @param probesReportDetails object to be serialized
+	 * @return InputStream
+	 */
+	public InputStream buildBrutReportFile(ProbesReportDetails probesReportDetails){
+		String stringReport=gson.toJson(probesReportDetails);
+		return new ByteArrayInputStream(stringReport.getBytes());
+	}
 	/**
 	 * Build mark down file from probesReportDetails.
 	 * @param probesReportDetails
@@ -96,25 +120,22 @@ public class SendProbeReportHandler extends AbstractCommandHandler<SendProbeRepo
 	 */
 	private InputStream  buildMarkDownFile(ProbesReportDetails probesReportDetails){
 		
-		final String lineSparator=System.getProperty("line.separator");
-		
 		StringBuilder sb=new StringBuilder();
-		sb.append("## Report").append(lineSparator);
-		sb.append(" - Start time     : ").append(probesReportDetails.getStartTime()).append(lineSparator);
-		sb.append(" -  End time       : ").append(probesReportDetails.getEndTime()).append(lineSparator);
-		sb.append(" - User Agent	   : ").append(probesReportDetails.getUserAgent()).append(lineSparator);
-		sb.append(" - Sigmah version : ").append(probesReportDetails.getVersionNumber()).append(lineSparator);
-		sb.append(lineSparator);
-		sb.append("### Senarios").append(lineSparator);
-		sb.append("```sh").append(lineSparator);
-		sb.append(StringUtils.center("Scenario",20)).append(StringUtils.center("Min",20)).append(StringUtils.center("Max",20)).append(StringUtils.center("Avrage",20)).append(lineSparator);
-		for(ScenarioDetailsDTO scenario: probesReportDetails.getSenarios()){
-			sb.append(StringUtils.center(scenario.getScenario().name(),20)).append(StringUtils.center(String.valueOf(scenario.getMaxDuration()),20)).append(StringUtils.center(String.valueOf(scenario.getMaxDuration()),20)).append(StringUtils.center(String.valueOf(scenario.getAvrageDuration()),20)).append(lineSparator);
-		}
-		sb.append("```").append(lineSparator);
+		sb.append("## Performance Report").append(LINE_SEPARATOR);
+		sb.append(" * Sigmah version	: ").append(probesReportDetails.getVersionNumber()).append(LINE_SEPARATOR);		
+		sb.append(" * Start time		: ").append(probesReportDetails.getStartTime()).append(LINE_SEPARATOR);
+		sb.append(" *  End time			: ").append(probesReportDetails.getEndTime()).append(LINE_SEPARATOR);
+		sb.append(" * User Agent		: ").append(probesReportDetails.getUserAgent()).append(LINE_SEPARATOR);
 		
+		sb.append(LINE_SEPARATOR);
+		sb.append("### Scenarios execution time ").append(LINE_SEPARATOR);
+		sb.append(" | **Scenario**  | **Min**   | **Max** | **Average** | ").append(LINE_SEPARATOR);
+		for(ScenarioDetailsDTO scenario: probesReportDetails.getSenarios()){			
+			sb.append(" | ").append(scenario.getScenario().name()).append(" | ").append(String.valueOf(scenario.getMinDuartion())).append(" | ").append(String.valueOf(scenario.getMaxDuration())).append(" | ").append(String.valueOf(scenario.getAvrageDuration())).append(" | ").append(LINE_SEPARATOR);
+		}
 		return new ByteArrayInputStream(sb.toString().getBytes());
 	}
+	
 	
 	/**
 	 * Build report model
