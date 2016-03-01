@@ -31,7 +31,6 @@ import org.sigmah.client.Sigmah;
 import org.sigmah.client.util.JsIterable;
 import org.sigmah.offline.appcache.ApplicationCache;
 import org.sigmah.offline.js.Values;
-import org.sigmah.shared.command.result.Result;
 
 /**
  * Execution of a scenario.

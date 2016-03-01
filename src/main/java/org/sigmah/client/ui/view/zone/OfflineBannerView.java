@@ -78,7 +78,7 @@ public class OfflineBannerView extends AbstractView implements OfflineBannerPres
 		statusPanel = new FlowPanel();
 		statusPanel.getElement().setId("offline-status");
 		
-		traceModeIcon = new Image(OfflineIconBundle.INSTANCE.connect());		
+		traceModeIcon = new Image(OfflineIconBundle.INSTANCE.traceOn());		
 		traceHandle = new FlowPanel();		
 		traceHandle.add(traceModeIcon);	
 		traceHandle.getElement().getStyle().setDisplay(Display.INLINE_BLOCK);

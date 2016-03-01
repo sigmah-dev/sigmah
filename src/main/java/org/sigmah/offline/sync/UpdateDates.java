@@ -35,7 +35,7 @@ public final class UpdateDates {
     
     private static final String ITEM_DATABASE_UPDATE_DATE = ".database-update-date";
     private static final String ITEM_SIGMAH_UPDATE_DATE = "sigmah.update-date";
-    
+    private static final String ITEM_SIGMAH_ACTIVATION_TRACE_DATE = "sigmah.activation-trace-date";
     private UpdateDates() {
     }
     
@@ -91,5 +91,26 @@ public final class UpdateDates {
         if(storage != null) {
             storage.setItem(ITEM_SIGMAH_UPDATE_DATE, Long.toString(date.getTime()));
         }
+    }
+	
+	public static void setSigmahActivationTraceDate(Date date) {
+        final Storage storage = Storage.getLocalStorageIfSupported();
+        if(storage != null) {
+            storage.setItem(ITEM_SIGMAH_ACTIVATION_TRACE_DATE, Long.toString(date.getTime()));
+        }
+    }
+	
+	 public static Date getSigmahActivationTraceDate() {
+        Date updateDate = null;
+        
+        final Storage storage = Storage.getLocalStorageIfSupported();
+        if(storage != null) {
+            final String date = storage.getItem(ITEM_SIGMAH_ACTIVATION_TRACE_DATE);
+            if(date != null) {
+                updateDate = new Date(Long.parseLong(date));
+            }
+        }
+        
+        return updateDate;
     }
 }

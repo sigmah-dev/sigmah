@@ -363,7 +363,28 @@ implements OfflineEvent.Source {
 		
 		traceMenuPanel.getActiveDesactiveModeAnchor().addClickHandler(new ClickHandler() {
 			@Override
-			public void onClick(ClickEvent event) {	;
+			public void onClick(ClickEvent event) {
+				if(Profiler.INSTANCE.isActive()){
+					Profiler.INSTANCE.setActive(false);
+					traceMenuPanel.getActiveDesactiveModeAnchor().setText(I18N.CONSTANTS.probesEnableTrace());
+					traceMenuPanel.getDateActivationModeLabel().setVisible(false);
+					traceMenuPanel.getDateActivationModeVariable().setVisible(false);	
+					traceMenuPanel.getDateActivationModeVariable().setVisible(false);
+					traceMenuPanel.getActiveDesactiveModeAnchor().removeStyleName(traceMenuPanel.getDISABLE_ACTION_STYLE());
+					traceMenuPanel.getActiveDesactiveModeAnchor().addStyleName(traceMenuPanel.getENABLE_ACTION_STYLE());
+					///traceMenuPanel.getActiveDesactiveModeAnchor().getBodyElement().addClassName("offline");
+					traceMenuPanel.getActiveDesactiveModeAnchor().addStyleName("offline");
+				}else{
+					Profiler.INSTANCE.setActive(true);
+					traceMenuPanel.getActiveDesactiveModeAnchor().setText(I18N.CONSTANTS.probesDisableTrace());
+					UpdateDates.setSigmahActivationTraceDate(new Date());
+					traceMenuPanel.getDateActivationModeLabel().setVisible(true);
+					traceMenuPanel.getDateActivationModeVariable().setVisible(true);
+					traceMenuPanel.getActiveDesactiveModeAnchor().removeStyleName(traceMenuPanel.getENABLE_ACTION_STYLE());
+					traceMenuPanel.getActiveDesactiveModeAnchor().addStyleName(traceMenuPanel.getDISABLE_ACTION_STYLE());
+					//traceMenuPanel.getActiveDesactiveModeAnchor().getBodyElement().removeStyleName("offline");
+					traceMenuPanel.getActiveDesactiveModeAnchor().removeStyleName("offline");
+				}				
 			}
 		});
 	}
