@@ -78,9 +78,13 @@ import org.sigmah.shared.file.TransfertManager;
 import org.sigmah.shared.file.TransfertType;
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.dom.client.Style.Display;
+import com.google.gwt.i18n.shared.DateTimeFormat;
+import com.google.gwt.user.client.ui.Image;
 import java.util.ArrayList;
 import java.util.List;
 import org.sigmah.client.dispatch.CommandResultHandler;
+import org.sigmah.client.ui.res.icon.offline.OfflineIconBundle;
+import org.sigmah.client.util.ClientUtils;
 import org.sigmah.client.util.profiler.Checkpoint;
 import org.sigmah.client.util.profiler.Execution;
 import org.sigmah.client.util.profiler.ExecutionAsyncDAO;
@@ -127,22 +131,19 @@ implements OfflineEvent.Source {
 	@ImplementedBy(OfflineBannerView.class)
 	public static interface View extends ViewInterface {
 
-		Panel getTraceHandle();
-		
+		Panel getTraceHandle();		
 		Panel getStatusPanel();        
-		OfflineMenuPanel getMenuPanel();
-		
+		OfflineMenuPanel getMenuPanel();		
 		TraceMenuPanel getTraceMenuPanel();
-		Panel getMenuHandle();
-        
+		Panel getMenuHandle();        
         SynchronizePopup getSynchronizePopup();		
-		
 		void setStatus(ApplicationState state);
         void setProgress(double progress, boolean undefined);
         void setSynchronizeAnchorEnabled(boolean enabled);
         void setTransferFilesAnchorEnabled(boolean enabled);
 		boolean isEnabled(Anchor anchor);
         void setWarningIconVisible(boolean visible);
+		public Image getTraceModeIcon();
 	}
     
 	@Inject
@@ -198,8 +199,7 @@ implements OfflineEvent.Source {
 			}
 			
 		}, MouseOutEvent.getType());
-		
-		//======================================start 
+		 
 		// Toggle visibility of the offline menu
 		view.getTraceHandle().addDomHandler(new MouseOverHandler() {
 
@@ -210,7 +210,7 @@ implements OfflineEvent.Source {
 			}
 			
 		}, MouseOverEvent.getType());
-		
+		// Hide menu
 		view.getTraceHandle().addDomHandler(new MouseOutHandler() {
 
 			@Override
@@ -221,33 +221,28 @@ implements OfflineEvent.Source {
 			}
 			
 		}, MouseOutEvent.getType());
-        //======================================end
+		
         final OfflineMenuPanel menuPanel = view.getMenuPanel();
-		/**/
+		
 		menuPanel.addDomHandler(new MouseOverHandler() {
-
 			@Override
 			public void onMouseOver(MouseOverEvent event) {
 				menuHover = true;
 				updateMenuVisibility();
-			}
-			
+			}			
 		}, MouseOverEvent.getType());
 		
 		menuPanel.addDomHandler(new MouseOutHandler() {
-
 			@Override
 			public void onMouseOut(MouseOutEvent event) {
 				menuHover = false;
 				forceOpen = false;
 				updateMenuVisibility();
-			}
-			
+			}			
 		}, MouseOutEvent.getType());
 		
 		final TraceMenuPanel traceMenuPanel = view.getTraceMenuPanel();		
 		traceMenuPanel.addDomHandler(new MouseOverHandler() {
-
 			@Override
 			public void onMouseOver(MouseOverEvent event) {
 				traceMenuHover = true;
@@ -321,41 +316,45 @@ implements OfflineEvent.Source {
 						public void onFailure(Throwable caught) {
 							Log.error("Excpetion occured ");
 						}
-
 						@Override
 						public void onSuccess(List<Execution> listExecution) {
 							List<ExecutionDTO> dtos=new ArrayList<ExecutionDTO>();
-							//Mapping from Execution JavaScriptObject to ExecutionDTO
-							for(Execution execution :listExecution){
-								ExecutionDTO executionDTO=new ExecutionDTO();
-								executionDTO.setApplicationCacheStatus(execution.getApplicationCacheStatus());
-								executionDTO.setDate(execution.getDate());
-								executionDTO.setOnligne(execution.isOnline());
-								executionDTO.setScenario(execution.getScenario());
-								executionDTO.setUserAgent(execution.getUserAgent());
-								executionDTO.setUserEmailAddress(execution.getUserEmailAddress());
-								executionDTO.setVersionNumber(execution.getVersionNumber());
-								executionDTO.setDuration(execution.getDuration());
-								for(Checkpoint checkPoint:execution.getCheckpointSequence()){
-									CheckPointDTO checkPointDto=new CheckPointDTO();
-									checkPointDto.setDuration(checkPoint.getDuration());
-									checkPointDto.setName(checkPoint.getName());
-									checkPoint.setTime(checkPoint.getTime());
-									executionDTO.getCheckpoints().add(checkPointDto);
+							Log.info("listExecution:"+listExecution);
+							if(listExecution!=null && ! listExecution.isEmpty()){
+								//Mapping from Execution JavaScriptObject to ExecutionDTO
+								for(Execution execution :listExecution){
+									ExecutionDTO executionDTO=new ExecutionDTO();
+									executionDTO.setApplicationCacheStatus(execution.getApplicationCacheStatus());
+									executionDTO.setDate(execution.getDate());
+									executionDTO.setOnligne(execution.isOnline());
+									executionDTO.setScenario(execution.getScenario());
+									executionDTO.setUserAgent(execution.getUserAgent());
+									executionDTO.setUserEmailAddress(execution.getUserEmailAddress());
+									executionDTO.setVersionNumber(execution.getVersionNumber());
+									executionDTO.setDuration(execution.getDuration());
+									for(Checkpoint checkPoint:execution.getCheckpointSequence()){
+										CheckPointDTO checkPointDto=new CheckPointDTO();
+										checkPointDto.setDuration(checkPoint.getDuration());
+										checkPointDto.setName(checkPoint.getName());
+										checkPoint.setTime(checkPoint.getTime());
+										executionDTO.getCheckpoints().add(checkPointDto);
+									}
+									dtos.add(executionDTO);
 								}
-								dtos.add(executionDTO);
-							}
-							//call server
-							dispatch.execute(new SendProbeReport(dtos), new CommandResultHandler<Result>(){
-								@Override
-								protected void onCommandSuccess(Result result) {
-									N10N.infoNotif("Info", "<p>"+I18N.CONSTANTS.probeReportSentSucces() +"</p>");
-									executionAsyncDAO.removeDataBase(ProfilerStore.EXECUTION);
-								}
-								protected void onCommandFailure(Result result) {
-									N10N.infoNotif("Error", "<p>"+I18N.CONSTANTS.probeReportSentFailure()+"</p>");
-								}
-							});
+								//call server
+								dispatch.execute(new SendProbeReport(dtos), new CommandResultHandler<Result>(){
+									@Override
+									protected void onCommandSuccess(Result result) {
+										N10N.infoNotif("Info", "<p>"+I18N.CONSTANTS.probeReportSentSucces() +"</p>");
+										executionAsyncDAO.removeDataBase(ProfilerStore.EXECUTION);
+									}
+									protected void onCommandFailure(Result result) {
+										N10N.errorNotif("Error", "<p>"+I18N.CONSTANTS.probeReportSentFailure()+"</p>");
+									}
+								});
+							}else{
+								N10N.errorNotif("Error", "<p>"+I18N.CONSTANTS.probeReportEmpty()+"</p>");
+							}							
 						}
 					});
 			}
@@ -372,8 +371,9 @@ implements OfflineEvent.Source {
 					traceMenuPanel.getDateActivationModeVariable().setVisible(false);
 					traceMenuPanel.getActiveDesactiveModeAnchor().removeStyleName(traceMenuPanel.getDISABLE_ACTION_STYLE());
 					traceMenuPanel.getActiveDesactiveModeAnchor().addStyleName(traceMenuPanel.getENABLE_ACTION_STYLE());
-					///traceMenuPanel.getActiveDesactiveModeAnchor().getBodyElement().addClassName("offline");
-					traceMenuPanel.getActiveDesactiveModeAnchor().addStyleName("offline");
+					UpdateDates.setSigmahActivationTraceDate(null);
+					view.getTraceModeIcon().setResource(OfflineIconBundle.INSTANCE.traceOff());
+					
 				}else{
 					Profiler.INSTANCE.setActive(true);
 					traceMenuPanel.getActiveDesactiveModeAnchor().setText(I18N.CONSTANTS.probesDisableTrace());
@@ -382,8 +382,8 @@ implements OfflineEvent.Source {
 					traceMenuPanel.getDateActivationModeVariable().setVisible(true);
 					traceMenuPanel.getActiveDesactiveModeAnchor().removeStyleName(traceMenuPanel.getENABLE_ACTION_STYLE());
 					traceMenuPanel.getActiveDesactiveModeAnchor().addStyleName(traceMenuPanel.getDISABLE_ACTION_STYLE());
-					//traceMenuPanel.getActiveDesactiveModeAnchor().getBodyElement().removeStyleName("offline");
-					traceMenuPanel.getActiveDesactiveModeAnchor().removeStyleName("offline");
+					traceMenuPanel.getDateActivationModeVariable().setText(DateTimeFormat.getFormat(DateTimeFormat.PredefinedFormat.DATE_TIME_SHORT).format(UpdateDates.getSigmahActivationTraceDate()));
+					view.getTraceModeIcon().setResource(OfflineIconBundle.INSTANCE.traceOn());
 				}				
 			}
 		});

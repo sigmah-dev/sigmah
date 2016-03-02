@@ -42,4 +42,5 @@ public interface OfflineIconBundle extends ClientBundle {
 	
 	ImageResource error();
 	ImageResource traceOn();
+	ImageResource traceOff();
 }

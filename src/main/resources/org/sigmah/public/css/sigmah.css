@@ -382,23 +382,8 @@ body {font-family:Arial;font-size:8pt}
 .messageElement{line-height: 1.8em;font-size: 12px;}
 
 /* trace */
-.offline #header-left{background:none}
-.offline #header-middle{background:none}
-.offline-button{cursor:pointer;display:inline-block;padding:4px}
-.offline-button-active{background-color:#646263;border-bottom:1px solid #999}
-.offline .bar-decoration-left{background:url(../images/menu/menu-bar-repeat.jpg) repeat-x scroll 0 0 transparent}
-.offline .bar-decoration-left-round{background-image:none !important}
 #trace-menu{position:absolute;top:32px;right:0px;width:320px;z-index:1;background-color:#646263;color:#FFF;text-align:left;border-radius:6px 0 6px 6px;;padding:6px;line-height:normal;font-weight:normal}
 #trace-menu h1{font-weight:bold; margin:5px 0}
-.offline-progress{position:absolute;top:28px;left:0;right:0;background-color:#646263;height:2px}
-.offline-progress .blockStatBgBlack,.offline-progress .blockStatBgYellow,.offline-progress .blockStatBgOrange,.offline-progress .blockStatBgRed{height: 100%;background: #FFF none}
-.offline-progress .blockStatUndefined{height: 100%}
-.offline-menu-progress{display:inline-block;width:220px;background-color:#A88F64;height:6px;margin-top:3px;border-radius:1px}
-.offline-menu-progress .blockStatBgBlack,.offline-menu-progress .blockStatBgYellow,.offline-menu-progress .blockStatBgOrange,.offline-menu-progress .blockStatBgRed{height: 100%;background: #FFF none}
-.offline-menu-progress .blockStatUndefined{height: 100%}
-.offline-menu-progress-label{display: inline-block;width:100px}
-.offline-sync-progress{border:1px solid #B9A48F;padding:1px;background:transparent url(../images/ratiobar/ratio-bar-bg.png) repeat-x scroll 0 1px}
-.offline-sync-progress .blockStatBgBlack,.offline-sync-progress .blockStatBgYellow,.offline-sync-progress .blockStatBgOrange,.offline-sync-progress .blockStatBgRed{height:11px;line-height:10px;color:white;font-weight:bold;font-family:tahoma;font-size:11px;text-align:center;background-repeat:repeat-x;background-position:0 0;background-image:url(../images/ratiobar/ratio-bar-bg-black.png)}
 .trace-action{background-color:#FFF;border-radius:4px;color:#000;text-decoration:none;font-weight:bold;font-size:11px;display:block;text-align:center;margin:5px 0;padding:5px;line-height:1}
 .trace-action-disabled{background-color:lightgray;color:gray;cursor:default}
 .trace-action-separator{border:0;height:1px;background-color:#999}
@@ -406,6 +391,6 @@ body {font-family:Arial;font-size:8pt}
 .trace-action.enable-trace{background: #FFF url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsQAAA7EAZUrDhsAAAAZdEVYdFNvZnR3YXJlAEFkb2JlIEltYWdlUmVhZHlxyWU8AAAA+VBMVEU4YwBAagBFbQFIcwJMdQlRfAxVfBZVfhNWfBZYeR5ahhRbfCNcihVdfiRdgx5dhB5dhB9ehx1ggCdggihhjhxjhCtjkR1kiydkjSJliydliyhljChmiC5mkyFmlyBoijBokShqmCRqnx9rjTRtlDFulDFulTJwmDJwnytwoyhxnTN1njt1pTF2nzt2nzx3oz14oz14qjJ7pz9+p0R+qEWCrEeEsUmGr02GsE6Iu0aKtVGNt1aQuViSvFqZxWOcr3qesX2esX6ltoSmt4iouYurvI6zw5m9yqXI0bbi49zj5Nzk5t/m5+Ho6uPo6+Pr7ebu7+v19PX////ye0A4AAAAiElEQVQY02MIQgMM+AQ8lZxQBLx07CydkQS8NWytbQw9gAL+7iC+j6KVuYWZMlBFgIimS1CQr5ipsYmRPNAMPx4DPTnXQB59bV0tGZAtblxqqmqyEuoqqgqiEGvtWaUlpcQlJQWFYe6wZxbg4+NnF0I4zJ6Rg42FF9mlDgxM3KhOd+QkznNgAABhT0M7fSgVFAAAAABJRU5ErkJggg==) 4px center no-repeat}
 .trace-action.disable-trace{background: #FFF url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAABGdBTUEAAK/INwWK6QAAAAlwSFlzAAAOxAAADsQBlSsOGwAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAADYUExURcwiANU8HdZMMdoyENtIJttXPdxFJt5dQt9rU+I/HeNBH+Q6GORgROVQLuWOfeWQf+Z1XudiQOhHJelJJ+pLKeyYhuypm+13Ve2qne6vo/BwVfByUPK1qPNKKPNNK/RSMPRbOfWIcfdkQvdxT/fb1fhuT/h/ZPiolvjd1/m/s/ni3vpsSvt/XfxjQfyEavyTe/1hP/12V/2Mav2ScP3Asv6CYP6GZP7BtP7FuP7k3v7o5P9VM/9ePP9jQf9mRP97Wf+DaP+EYv+Zd/+qiP+xoP+yof/m4P///5IuMgkAAAC6SURBVBjTXc/JdgFRAIThMoSgEbO0mMcESdAdEVxDi//938jikpOjdl+tqsRdBHA+7Y3Zn863Yjnzj0Fw9GdLW3jjRSUqRSuLsQdi1Z/nHp7h0QTz/gox7Nbib/BrAtW6Q4Q7Sb9YP6UnLiJ/SFhnSRzyiOSucDWFXRLhdFpt69dWx0GUilPrn8G0WEKMYs0vfcD3+2czNkJQjTQ2W2O2m0akaqeXQ6n6el1Phcq3c71MWApnen9v/+cCydYyJ9Lg6qMAAAAASUVORK5CYII=") 4px center no-repeat}
 .trace-menu-variable{margin-left: 5px}
-.offline-icon{vertical-align:middle}
+
 
 

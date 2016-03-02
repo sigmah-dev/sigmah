@@ -38,21 +38,45 @@ import org.sigmah.offline.sync.UpdateDates;
  */
 public class TraceMenuPanel extends Composite{
 	
-	private static final String MENU_ID = "trace-menu";
-	
+	/**
+	 * trace menu id.
+	 */
+	private static final String MENU_ID = "trace-menu";	
+	/**
+	 * trace menu text style.
+	 */
 	private  final String VARIABLE_STYLE = "trace-menu-variable";
+	/**
+	 * Enable trace button style.
+	 */
 	private  final String ENABLE_ACTION_STYLE = "enable-trace";
+	/**
+	 * Disable trace button style.
+	 */
 	private  final String DISABLE_ACTION_STYLE = "disable-trace";
+	/**
+	 * Send report button style.
+	 */
 	private  final String SEND_REPORT_ACTION_STYLE = "send-report";
+	/**
+	 * Style calss.
+	 */
 	private  final String ACTION_STYLE = "trace-action";
-
-	
-	
+	/**
+	 * Static lable for date.
+	 */
 	private InlineLabel dateActivationModeLabel;
-	
-	private InlineLabel dateActivationModeVariable;
-	
+	/**
+	 * Label for date.
+	 */
+	private InlineLabel dateActivationModeVariable;	
+	/**
+	 * Enable/disable button objec.
+	 */
 	private Anchor activeDesactiveModeAnchor;
+	/**
+	 * Send report button objec.
+	 */
 	private Anchor sendReportAnchor;
 	
 	/**
@@ -61,27 +85,31 @@ public class TraceMenuPanel extends Composite{
 	public TraceMenuPanel() {
 		initWidget(createPanel());
 	}
-
-	
-	
+	/**
+	 * Init Menu panel.
+	 * @return 
+	 */
 	private Widget createPanel() {
 		final FlowPanel rootPanel = new FlowPanel();
 		rootPanel.getElement().setId(MENU_ID);
-		
-		dateActivationModeLabel = createVariable(I18N.CONSTANTS.probesDateTraceActivation());
-        rootPanel.add(dateActivationModeLabel);
-		dateActivationModeVariable=createVariable(DateTimeFormat.getFormat(DateTimeFormat.PredefinedFormat.DATE_TIME_SHORT).format(UpdateDates.getSigmahActivationTraceDate()));		
+		Date dateActivation = UpdateDates.getSigmahActivationTraceDate();
+		dateActivationModeVariable = createVariable(dateActivation != null?DateTimeFormat.getFormat(DateTimeFormat.PredefinedFormat.DATE_TIME_SHORT).format(dateActivation):null);		
 		rootPanel.add(dateActivationModeVariable);
-		if(Profiler.INSTANCE.isActive()){
-			dateActivationModeLabel.setVisible(true);
-			dateActivationModeVariable.setVisible(true);
-		}else{
+		dateActivationModeLabel = createVariable(I18N.CONSTANTS.probesDateTraceActivation());
+        rootPanel.add(dateActivationModeLabel);	
+		if(dateActivation == null){
+			Profiler.INSTANCE.setActive(false);
 			dateActivationModeLabel.setVisible(false);
 			dateActivationModeVariable.setVisible(false);
+			
+		}else{			
+			Profiler.INSTANCE.setActive(true);
+			dateActivationModeLabel.setVisible(true);
+			dateActivationModeVariable.setVisible(true);
 		}
-		
+
 		//disable/enable
-		activeDesactiveModeAnchor =Profiler.INSTANCE.isActive()? createActionButton(I18N.CONSTANTS.probesDisableTrace()):createActionButton(I18N.CONSTANTS.probesEnableTrace());
+		activeDesactiveModeAnchor = Profiler.INSTANCE.isActive()? createActionButton(I18N.CONSTANTS.probesDisableTrace()):createActionButton(I18N.CONSTANTS.probesEnableTrace());
 		activeDesactiveModeAnchor.addStyleName(Profiler.INSTANCE.isActive()?DISABLE_ACTION_STYLE:ENABLE_ACTION_STYLE);
 		rootPanel.add(activeDesactiveModeAnchor);
 		
@@ -91,12 +119,21 @@ public class TraceMenuPanel extends Composite{
 		rootPanel.add(sendReportAnchor);		
 		return rootPanel;
 	}	
-	
+	/**
+	 * Create label.
+	 * @param value
+	 * @return 
+	 */
 	 private InlineLabel createVariable(String value) {
         final InlineLabel label = new InlineLabel(value);
         label.setStyleName(VARIABLE_STYLE);
         return label;
     }
+	 /**
+	  * Create button.
+	  * @param label
+	  * @return 
+	  */
 	  private Anchor createActionButton(String label) {
         final Anchor anchor = new Anchor(label);
         anchor.setStyleName(ACTION_STYLE);

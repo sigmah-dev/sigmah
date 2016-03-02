@@ -96,21 +96,27 @@ public final class UpdateDates {
 	public static void setSigmahActivationTraceDate(Date date) {
         final Storage storage = Storage.getLocalStorageIfSupported();
         if(storage != null) {
-            storage.setItem(ITEM_SIGMAH_ACTIVATION_TRACE_DATE, Long.toString(date.getTime()));
+			if(date!=null){
+				storage.setItem(ITEM_SIGMAH_ACTIVATION_TRACE_DATE, Long.toString(date.getTime()));
+			}else{
+				storage.setItem(ITEM_SIGMAH_ACTIVATION_TRACE_DATE, null);
+			}
+            
         }
     }
-	
+	/**
+	 * Get date from local storage.
+	 * @return 
+	 */
 	 public static Date getSigmahActivationTraceDate() {
-        Date updateDate = null;
-        
-        final Storage storage = Storage.getLocalStorageIfSupported();
+       final Storage storage = Storage.getLocalStorageIfSupported();
         if(storage != null) {
             final String date = storage.getItem(ITEM_SIGMAH_ACTIVATION_TRACE_DATE);
-            if(date != null) {
-                updateDate = new Date(Long.parseLong(date));
-            }
-        }
-        
-        return updateDate;
-    }
+            if(date == null || "null".equalsIgnoreCase(date)) {
+				return null;
+			 }
+                return  new Date(Long.parseLong(date));
+		}
+		return  null;
+	 }
 }

@@ -35,8 +35,7 @@ public enum ProfilerStore implements Schema {
 	
 	EXECUTION(true, 
 			"versionNumber", "versionNumber",
-			"scenario", "scenario",
-			"date_activation", "date_activation");
+			"scenario", "scenario");
 
 	private final boolean autoIncrement;
 	private final boolean enabled;
