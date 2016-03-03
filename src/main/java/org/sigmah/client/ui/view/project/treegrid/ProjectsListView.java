@@ -438,12 +438,8 @@ public class ProjectsListView extends AbstractView implements ProjectsListWidget
 		if (date == null) {
 			return;
 		}
-
 		refreshDateLabel.setHtml('(' + REFRESH_TIME_FORMAT.format(date) + ')');
-		Profiler.INSTANCE.markCheckpoint(Scenario.LOGIN, "Project list loading ended.");
-		Profiler.INSTANCE.endScenario(Scenario.LOGIN);
 	}
-
 	/**
 	 * {@inheritDoc}
 	 */
