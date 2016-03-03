@@ -54,7 +54,7 @@ public class Loader {
 	 */
 	private static final Integer PROJECT_ID = 953;
 	/**
-	 * Count of projecte to be inserted.
+	 * Count of project to be inserted.
 	 */
 	private static final Integer COUNT = 2;
 	
