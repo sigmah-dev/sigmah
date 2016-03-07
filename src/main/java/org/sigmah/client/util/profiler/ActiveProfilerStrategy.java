@@ -27,6 +27,7 @@ import com.google.gwt.core.client.JsArray;
 import java.util.Date;
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * Active strategy, record executions.
@@ -80,6 +81,7 @@ public class ActiveProfilerStrategy implements ProfilerStrategy {
 	 */
 	@Override
 	public Execution endScenario(Scenario scenario) {
+		Log.debug("End recording of scenario " + scenario + "...");
 		final Execution execution = executions.remove(scenario);
 		if (execution != null) {
 			final double duration = durationOfExecution(execution);
@@ -104,7 +106,7 @@ public class ActiveProfilerStrategy implements ProfilerStrategy {
 	 */
 	@Override
 	public void markCheckpoint(Scenario scenario, String checkpoint) {
-		final Execution execution = executions.get(scenario);
+		final Execution execution = executions.get(scenario);		
 		if (execution != null && execution.getDate() != null) {
 			execution.addCheckpoint(checkpoint, durationOfExecution(execution));
 		} else {

@@ -27,7 +27,7 @@ package org.sigmah.client.util.profiler;
  * 
  * @author Raphaël Calabro (raphael.calabro@netapsys.fr)
  */
-public enum Scenario {
-	OPEN_PROJECT,
-	AGENDA;
+public enum Scenario {	
+	AGENDA,
+	OPEN_PROJECT;
 }

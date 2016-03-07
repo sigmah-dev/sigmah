@@ -406,7 +406,7 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 
 		// Updates sub-menu widget.
 		view.getSubMenuWidget().initializeMenu(subPageRequest.getPage(), auth());
-
+		Profiler.INSTANCE.markCheckpoint(Scenario.OPEN_PROJECT, "End initializeMenu");
 		// Updates delete button enabled state.
 		final boolean canDeleteProject = canDeleteProject();
 		view.getDeleteButton().setEnabled(canDeleteProject);
@@ -417,8 +417,9 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 
 		// Updates parent view elements.
 		loadAmendments(project, coreVersionId);
+		Profiler.INSTANCE.markCheckpoint(Scenario.OPEN_PROJECT, "End loadAmendments");
 		refreshBanner(project);
-		
+		Profiler.INSTANCE.markCheckpoint(Scenario.OPEN_PROJECT, "End refreshBanner");
 		Profiler.INSTANCE.endScenario(Scenario.OPEN_PROJECT);
 	}
 

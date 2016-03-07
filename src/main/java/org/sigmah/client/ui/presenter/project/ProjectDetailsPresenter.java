@@ -79,6 +79,8 @@ import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.sigmah.client.computation.ComputationTriggerManager;
+import org.sigmah.client.util.profiler.Profiler;
+import org.sigmah.client.util.profiler.Scenario;
 
 /**
  * Project's details presenter which manages the {@link ProjectDetailsView}.
@@ -158,9 +160,7 @@ public class ProjectDetailsPresenter extends AbstractProjectPresenter<ProjectDet
 	 */
 	@Override
 	public void onPageRequest(final PageRequest request) {
-
 		load(getProject().getProjectModel().getProjectDetails());
-
 		valueChanges.clear();
 	}
 
