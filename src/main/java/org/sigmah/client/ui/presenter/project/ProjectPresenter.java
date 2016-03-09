@@ -420,11 +420,11 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 		Profiler.INSTANCE.markCheckpoint(Scenario.OPEN_PROJECT, "End loadAmendments");
 		refreshBanner(project);
 		Profiler.INSTANCE.markCheckpoint(Scenario.OPEN_PROJECT, "End refreshBanner");
-		Profiler.INSTANCE.endScenario(Scenario.OPEN_PROJECT);
+		//Profiler.INSTANCE.endScenario(Scenario.OPEN_PROJECT);
 	}
 
 	/**
-	 * Returns the current loaded project.
+	 * Return the current loaded project.
 	 * 
 	 * @return The current loaded project instance.
 	 */

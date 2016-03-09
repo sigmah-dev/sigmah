@@ -40,6 +40,8 @@ import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
+import org.sigmah.client.util.profiler.Profiler;
+import org.sigmah.client.util.profiler.Scenario;
 
 /**
  * <p>
@@ -211,7 +213,7 @@ public abstract class AbstractPresenter<V extends ViewInterface> implements Pres
 	 */
 	@Override
 	public void revealView() {
-
+		Profiler.INSTANCE.markCheckpoint(Scenario.OPEN_PROJECT, " revealView start ");
 		if (Log.isTraceEnabled()) {
 			Log.trace("Reveals '" + view.getClass().getName() + "' presenter's view.");
 		}
@@ -234,7 +236,10 @@ public abstract class AbstractPresenter<V extends ViewInterface> implements Pres
 		}
 
 		view.onViewRevealed();
+		
 		onViewRevealed();
+		
+		Profiler.INSTANCE.markCheckpoint(Scenario.OPEN_PROJECT, " revealView end ");
 	}
 
 	/**

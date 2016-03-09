@@ -8,6 +8,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.persist.PersistService;
 import javax.persistence.EntityManager;
+import org.apache.commons.lang.StringUtils;
 import org.sigmah.server.inject.ConfigurationModule;
 import org.sigmah.server.inject.I18nServerModule;
 import org.sigmah.server.inject.MapperModule;
@@ -44,12 +45,12 @@ public class PersonnalEventLoader {
 	/**
 	 * Count of event to be inserted.
 	 */
-	private static final Integer COUNT = 5;
+	private static  Integer count = 1000;
 	
 	private static final Logger LOGGER=LoggerFactory.getLogger(PersonnalEventLoader.class);
 	
 	public static void main(String[] args) {
-		
+		LOGGER.info("PersonnalEventLoader started");
 		final Injector injector = Guice.createInjector(
 				// Configuration module.
 				new ConfigurationModule(),
@@ -60,12 +61,17 @@ public class PersonnalEventLoader {
 				// I18nServer module.
 				new I18nServerModule());
 		
+		if(args!=null && args.length>0 && StringUtils.isNumeric(args[0])){
+			count=Integer.valueOf(args[0]);
+		}
+		
 		injector.getInstance(PersistService.class).start();
 		final EntityManager em = injector.getProvider(EntityManager.class).get();
 		em.getTransaction().begin();
+		LOGGER.info("Creating" +count +" PersonalEvent ");
 		try{
-			Calendar cal=COUNT<365?initCalendar(2016):initCalendar(2015);		
-			for(int i=0;i<COUNT;i++){
+			Calendar cal=count<365?initCalendar(2016):initCalendar(2015);		
+			for(int i=0;i<count;i++){
 				cal.add(Calendar.DAY_OF_MONTH, 1);
 				PersonalEvent personEvent=personalEventFactory(cal.getTime(),i);
 				em.merge(personEvent);
@@ -77,6 +83,7 @@ public class PersonnalEventLoader {
 		} finally {
 			injector.getInstance(PersistService.class).stop();
 		}
+		LOGGER.info("PersonnalEventLoader ended");
 	}
 	
 	/**

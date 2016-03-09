@@ -46,6 +46,8 @@ import org.sigmah.client.util.MessageType;
 
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.inject.Inject;
+import org.sigmah.client.util.profiler.Profiler;
+import org.sigmah.client.util.profiler.Scenario;
 
 /**
  * <p>
@@ -181,6 +183,7 @@ public abstract class AbstractPagePresenter<V extends ViewInterface> extends Abs
 	 */
 	protected final void afterOnPageRequest(final PageRequestEvent event, final Page page) {
 
+		Profiler.INSTANCE.markCheckpoint(Scenario.OPEN_PROJECT, " afterOnPageRequest start ");
 		if (Log.isTraceEnabled()) {
 			Log.trace("Executing '" + page + "' onPageRequest() method.");
 		}
@@ -193,13 +196,15 @@ public abstract class AbstractPagePresenter<V extends ViewInterface> extends Abs
 
 		// Processing presenter 'onPageRequest()' implementation.
 		onPageRequest(pageRequest);
-
+		Profiler.INSTANCE.markCheckpoint(Scenario.OPEN_PROJECT, " onPageRequest end ");
 		revealView();
 
 		if (!isPopupView()) {
 			// Update application message and control.
 			displayApplicationMessage(page);
 		}
+		
+		Profiler.INSTANCE.endScenario(Scenario.OPEN_PROJECT);
 
 	}
 

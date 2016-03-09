@@ -27,6 +27,7 @@ import com.google.inject.persist.PersistService;
 import java.util.Arrays;
 import java.util.HashSet;
 import javax.persistence.EntityManager;
+import org.apache.commons.lang.StringUtils;
 import org.sigmah.server.dao.ProjectDAO;
 import org.sigmah.server.domain.Country;
 import org.sigmah.server.domain.OrgUnit;
@@ -52,11 +53,11 @@ public class Loader {
 	/**
 	 * Id of project , project should be in database.
 	 */
-	private static final Integer PROJECT_ID = 953;
+	private static Integer projectId = 953;
 	/**
 	 * Count of project to be inserted.
 	 */
-	private static final Integer COUNT = 2;
+	private static  Integer count = 2;
 	
 	private static final Logger LOGGER=LoggerFactory.getLogger(Loader.class);
 
@@ -67,6 +68,7 @@ public class Loader {
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		LOGGER.info("Loader project started.");
 		final Injector injector = Guice.createInjector(
 				// Configuration module.
 				new ConfigurationModule(),
@@ -76,17 +78,29 @@ public class Loader {
 				new MapperModule(),
 				// I18nServer module.
 				new I18nServerModule());
-
+		if(args!=null){
+			if( args.length>0 && StringUtils.isNumeric(args[0])){
+				projectId=Integer.valueOf(args[0]);
+			}
+			if(args.length>1 &&  StringUtils.isNumeric(args[1])){
+				count=Integer.valueOf(args[1]);
+			}
+		}
+		
 		injector.getInstance(PersistService.class).start();
 		final EntityManager em = injector.getProvider(EntityManager.class).get();
+		final ProjectDAO projectDAO = injector.getInstance(ProjectDAO.class);
+		final Project project = projectDAO.findById(projectId);
+		if(project==null){
+			LOGGER.info("Project not found .");
+			return ;
+		}
+		LOGGER.info("Duplicating project with id: "+project + " for "+count+" times ");
 		em.getTransaction().begin();
-		try {
-
-			final ProjectDAO projectDAO = injector.getInstance(ProjectDAO.class);
-			final Project project = projectDAO.findById(PROJECT_ID);
+		try {			
 			final Class[] classes = {ProjectModel.class, User.class, OrgUnit.class, Country.class, PhaseModel.class, LogFrameModel.class};
-
-			for (int i = 0; i < COUNT; i++) {
+			
+			for (int i = 0; i < count; i++) {
 				final Project newProject = Realizer.realize(project, new HashSet<>(Arrays.asList("id")), classes);
 				newProject.setName("gen-" + i);
 				newProject.getId();
@@ -99,5 +113,8 @@ public class Loader {
 		} finally {
 			injector.getInstance(PersistService.class).stop();
 		}
+		LOGGER.info("Loader project ended.");
 	}
+	
+	
 }

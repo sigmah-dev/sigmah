@@ -64,11 +64,11 @@ public class SendProbeReportHandler extends AbstractCommandHandler<SendProbeRepo
 	/**
 	 * Markdow report file name.
 	 */
-	final String OPTIMISATION_MARKDOWNFILE_NAME="sigmah_performance_report.txt";
+	//final String OPTIMISATION_MARKDOWNFILE_NAME="sigmah_performance_report.txt";
 	/**
 	 * json report file name.
 	 */
-	final String OPTIMISATION_BRUT_REPORT_NAME="sigmah_performance_brut_report.txt";
+	//final String OPTIMISATION_BRUT_REPORT_NAME="sigmah_performance_brut_report.txt";
 	/**
 	 * Injected application properties.
 	 */
@@ -94,7 +94,8 @@ public class SendProbeReportHandler extends AbstractCommandHandler<SendProbeRepo
 			log(probesReportDetails);			
 			Email email=buildEmail();	
 			try{
-				String[] filesName={OPTIMISATION_MARKDOWNFILE_NAME,OPTIMISATION_BRUT_REPORT_NAME};
+				//properties.getProperty(PropertyKey.MAIL_OPTIMISATION_MARKDOWNFILE);
+				String[] filesName={properties.getProperty(PropertyKey.MAIL_OPTIMISATION_MARKDOWN_FILE_NAME),properties.getProperty(PropertyKey.MAIL_OPTIMISATION_JSON_FILE_NAME)};
 				InputStream[] streams={buildMarkDownFile(probesReportDetails),buildBrutReportFile(probesReportDetails)};
 				sender.sendEmailWithMultiAttachmenets(email,filesName,streams);
 			}catch(EmailException e){
@@ -222,8 +223,8 @@ public class SendProbeReportHandler extends AbstractCommandHandler<SendProbeRepo
 	private Email buildEmail(){
 		
 		final Email email = new Email();
-		email.setFromAddress(properties.getProperty(PropertyKey.MAIL_OPTIMISATION_FROM_ADDRESS));
-		email.setFromName(properties.getProperty(PropertyKey.MAIL_OPTIMISATION_FROM_NAME));
+		email.setFromAddress(properties.getProperty(PropertyKey.MAIL_FROM_ADDRESS));
+		email.setFromName(properties.getProperty(PropertyKey.MAIL_FROM_NAME));
 		String toAdresse=properties.getProperty(PropertyKey.MAIL_OPTIMISATION_TO_ADDRESS);
 		email.setToAddresses(!StringUtils.isBlank(toAdresse)? toAdresse.split(";"):new String[0]);		
 		String copyAdresse=properties.getProperty(PropertyKey.MAIL_OPTIMISATION_COPY_ADDRESS);
@@ -236,8 +237,8 @@ public class SendProbeReportHandler extends AbstractCommandHandler<SendProbeRepo
 		
 		email.setSubject("Optimisation message");
 		email.setContent("");
-		//email.setAuthenticationUserName(StringUtils.isBlank(username) ? null : username);
-		//email.setAuthenticationPassword(StringUtils.isBlank(password) ? null : password);
+		email.setAuthenticationUserName(properties.getProperty(PropertyKey.MAIL_AUTH_USERNAME));
+		email.setAuthenticationPassword(properties.getProperty(PropertyKey.MAIL_AUTH_PASSWORD));
 		
 		return email;
 	}

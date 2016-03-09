@@ -245,16 +245,12 @@
 		<mail.auth.password>********</mail.auth.password>
 		<mail.encoding>UTF-8</mail.encoding>
 		<mail.contentType>text/html</mail.contentType>
-
 		<mail.support.to>support@sigmah.org</mail.support.to>
-
 		<!--optimisation email properties-->
-		<mail.optimisation.from.address>sigmah@your-server.com</mail.optimisation.from.address>
-		<mail.optimisation.from.name>Sigmah</mail.optimisation.from.name>
 		<mail.optimisation.to.address>sigmah1@yopmail.com;sigmah2@yopmail.com;sigmah3@yopmail.com;</mail.optimisation.to.address>
 		<mail.optimisation.copy.address>sigmahadmin@yopmail.com</mail.optimisation.copy.address>
-		<mail.optimisation.markdownfile>markdownfileReport.txt</mail.optimisation.markdownfile>
-		
+		<mail.optimisation.markdownfile.name>sigmah_performance_report.txt</mail.optimisation.markdownfile.name>
+		<mail.optimisation.jsonfile.name>sigmah_performance_brut_report.txt</mail.optimisation.jsonfile.name>
 		<!-- Maps API properties. -->
 
 		<maps.key>ABQIAAAAaKyZGjYsJ9quclBfsnGc-xRxtna0S6DNUYSvLTUdQl9eB6x9_xQH4P0V3CSFEY_MypecLWSdS3Q8IQ</maps.key>
