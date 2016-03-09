@@ -202,7 +202,7 @@
 
 		<!-- Default database access properties, shared by both Flyway and Hibernate (may be override in profiles) -->
 
-		<sigmah.database.url>jdbc:postgresql://localhost:5432/sigmah</sigmah.database.url>
+		<sigmah.database.url>jdbc:postgresql://localhost:5432/sigmah-dev</sigmah.database.url>
 		<sigmah.database.user>postgres</sigmah.database.user>
 		<sigmah.database.password>********</sigmah.database.password>
 
