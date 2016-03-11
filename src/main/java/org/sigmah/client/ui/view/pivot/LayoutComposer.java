@@ -90,7 +90,20 @@ public class LayoutComposer {
 		pivot.setFilter(filter);
 		return pivot;
 	}
-
+    public PivotTableElement YearExcel(int indicatorId) {
+        PivotTableElement pivot = new PivotTableElement();
+        pivot.setShowEmptyCells(true);
+        pivot.addRowDimensions(adminDimensions);
+        pivot.addRowDimension(new Dimension(DimensionType.Site));
+        pivot.addColDimension(new DateDimension(DateUnit.MONTH));
+        pivot.addColDimension(new DateDimension(DateUnit.YEAR));
+        Filter filter = new Filter();
+		filter.addRestriction(DimensionType.Database, databaseId);
+		filter.addRestriction(DimensionType.Indicator, indicatorId );
+		filter.setDateRange(projectDateRange);
+		pivot.setFilter(filter);
+    return pivot;}
+    
 	public PivotTableElement fixSite(int siteId) {
 		PivotTableElement pivot = new PivotTableElement();
 		pivot.setShowEmptyCells(true);
