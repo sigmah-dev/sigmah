@@ -384,7 +384,7 @@ public class PivotTableData implements Serializable {
 		}
 
 		@SuppressWarnings("unused")
-		private void setLabel(String label) {
+		public void setLabel(String label) {
 			this.label = label;
 		}
 
