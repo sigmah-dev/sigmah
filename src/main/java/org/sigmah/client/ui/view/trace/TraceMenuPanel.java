@@ -63,6 +63,13 @@ public class TraceMenuPanel extends Composite{
 	 */
 	private  final String ACTION_STYLE = "trace-action";
 	/**
+	 * Id of active desactive button.
+	 */
+	private  final String ACTIVE_DESACTIVE_BUTTON_ID = "activeDesactiveButtonId";
+	
+	private  final String SEND_REPORT_BUTTON_ID = "sendReportButtonId";
+	
+	/**
 	 * Static lable for date.
 	 */
 	private InlineLabel dateActivationModeLabel;
@@ -78,6 +85,8 @@ public class TraceMenuPanel extends Composite{
 	 * Send report button objec.
 	 */
 	private Anchor sendReportAnchor;
+	
+	
 	
 	/**
 	 * Creates a new menu.
@@ -111,10 +120,12 @@ public class TraceMenuPanel extends Composite{
 		//disable/enable
 		activeDesactiveModeAnchor = Profiler.INSTANCE.isActive()? createActionButton(I18N.CONSTANTS.probesDisableTrace()):createActionButton(I18N.CONSTANTS.probesEnableTrace());
 		activeDesactiveModeAnchor.addStyleName(Profiler.INSTANCE.isActive()?DISABLE_ACTION_STYLE:ENABLE_ACTION_STYLE);
+		activeDesactiveModeAnchor.getElement().setId(ACTIVE_DESACTIVE_BUTTON_ID);
 		rootPanel.add(activeDesactiveModeAnchor);
 		
 		// send report
 		sendReportAnchor = createActionButton(I18N.CONSTANTS.probesSendReport());
+		sendReportAnchor.getElement().setId(SEND_REPORT_BUTTON_ID);
 		sendReportAnchor.addStyleName(SEND_REPORT_ACTION_STYLE);
 		rootPanel.add(sendReportAnchor);		
 		return rootPanel;

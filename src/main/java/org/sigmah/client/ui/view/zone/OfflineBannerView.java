@@ -48,6 +48,10 @@ import org.sigmah.offline.view.SynchronizePopup;
  */
 public class OfflineBannerView extends AbstractView implements OfflineBannerPresenter.View {
 
+	/**
+	 * id of trace icon.
+	 */
+	private final static String TRACE_MODE_ICON_ID="traceModeIconId" ;
 	private Panel statusPanel;
 	private FlowPanel menuHandle;
 	// Menu
@@ -83,7 +87,8 @@ public class OfflineBannerView extends AbstractView implements OfflineBannerPres
 		
 		statusPanel = new FlowPanel();
 		statusPanel.getElement().setId("offline-status");		
-		traceModeIcon = new Image(OfflineIconBundle.INSTANCE.traceOn());	
+		traceModeIcon = new Image(OfflineIconBundle.INSTANCE.traceOn());
+		traceModeIcon.getElement().setId(TRACE_MODE_ICON_ID);
 		Date dateActivation=UpdateDates.getSigmahActivationTraceDate();
 		if(dateActivation == null ){
 			traceModeIcon.setResource(OfflineIconBundle.INSTANCE.traceOff());

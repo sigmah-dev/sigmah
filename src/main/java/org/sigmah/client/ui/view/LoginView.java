@@ -31,6 +31,7 @@ import org.sigmah.client.ui.widget.button.Button;
 
 import com.google.gwt.dom.client.Style.Position;
 import com.google.gwt.event.dom.client.HasClickHandlers;
+import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.FlowPanel;

@@ -39,6 +39,7 @@ import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import org.sigmah.client.i18n.I18N;
 import org.sigmah.shared.command.result.Authentication;
 import org.sigmah.shared.dto.referential.GlobalPermissionEnum;
 
@@ -50,6 +51,10 @@ import org.sigmah.shared.dto.referential.GlobalPermissionEnum;
  */
 public class SubMenuWidget implements IsWidget {
 
+	/**
+	 * id of agenda sub menu.
+	 */
+	private final static String AGENDA_SUB_MENU_ID="agendaSubMenuId"; 
 	/**
 	 * Sub-menu orientation.
 	 */
@@ -224,7 +229,9 @@ public class SubMenuWidget implements IsWidget {
 
 		final SubMenuItem menuItem = new SubMenuItem(linkedPage);
 		menuItem.setMenuItemTitle(title);
-
+		if(Page.PROJECT_CALENDAR==linkedPage){
+			menuItem.getElement().setId(AGENDA_SUB_MENU_ID);
+		}
 		menuItem.addClickHandler(new ClickHandler() {
 
 			@Override
