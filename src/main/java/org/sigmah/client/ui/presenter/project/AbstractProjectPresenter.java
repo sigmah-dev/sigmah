@@ -142,8 +142,8 @@ public abstract class AbstractProjectPresenter<V extends AbstractProjectPresente
 		final PageRequest request = event.getRequest();
 
 		// Updates the tab title.
-		eventBus.updateZoneRequest(Zone.MENU_BANNER.requestWith(RequestParameter.REQUEST, request).addData(RequestParameter.HEADER, loadedProject.getName()));
-		
+		eventBus.updateZoneRequest(Zone.MENU_BANNER.requestWith(RequestParameter.REQUEST, request).addData(RequestParameter.HEADER, loadedProject.getName()).addData(RequestParameter.PROJECT_ID, loadedProject.getId()));
+				
 		// Executes child page 'onPageRequest()'.
 		afterOnPageRequest(event, page);
 	}
