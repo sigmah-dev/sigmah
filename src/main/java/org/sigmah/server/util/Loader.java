@@ -27,14 +27,20 @@ import com.google.inject.persist.PersistService;
 import java.util.Arrays;
 import java.util.HashSet;
 import javax.persistence.EntityManager;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
+
 import org.sigmah.server.dao.ProjectDAO;
 import org.sigmah.server.domain.Country;
 import org.sigmah.server.domain.OrgUnit;
+import org.sigmah.server.domain.Organization;
 import org.sigmah.server.domain.PhaseModel;
 import org.sigmah.server.domain.Project;
 import org.sigmah.server.domain.ProjectModel;
 import org.sigmah.server.domain.User;
+import org.sigmah.server.domain.element.FlexibleElement;
+import org.sigmah.server.domain.layout.Layout;
+import org.sigmah.server.domain.layout.LayoutConstraint;
+import org.sigmah.server.domain.layout.LayoutGroup;
 import org.sigmah.server.domain.logframe.LogFrameModel;
 import org.sigmah.server.inject.ConfigurationModule;
 import org.sigmah.server.inject.I18nServerModule;
@@ -53,7 +59,7 @@ public class Loader {
 	/**
 	 * Id of project , project should be in database.
 	 */
-	private static Integer projectId = 953;
+	private static Integer projectId =15520 /* 15472 /*953*/;
 	/**
 	 * Count of project to be inserted.
 	 */
@@ -98,7 +104,9 @@ public class Loader {
 		LOGGER.info("Duplicating project with id: "+project + " for "+count+" times ");
 		em.getTransaction().begin();
 		try {			
-			final Class[] classes = {ProjectModel.class, User.class, OrgUnit.class, Country.class, PhaseModel.class, LogFrameModel.class};
+			final Class[] classes = {Organization.class, 
+									 ProjectModel.class, 
+									 User.class, OrgUnit.class, Country.class, PhaseModel.class, LogFrameModel.class};
 			
 			for (int i = 0; i < count; i++) {
 				final Project newProject = Realizer.realize(project, new HashSet<>(Arrays.asList("id")), classes);
@@ -115,6 +123,7 @@ public class Loader {
 		}
 		LOGGER.info("Loader project ended.");
 	}
+	
 	
 	
 }
