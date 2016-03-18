@@ -96,7 +96,7 @@ public class SendProbeReportHandler extends AbstractCommandHandler<SendProbeRepo
 			try{
 				//properties.getProperty(PropertyKey.MAIL_OPTIMISATION_MARKDOWNFILE);
 				String[] filesName={properties.getProperty(PropertyKey.MAIL_OPTIMISATION_MARKDOWN_FILE_NAME),properties.getProperty(PropertyKey.MAIL_OPTIMISATION_JSON_FILE_NAME)};
-				InputStream[] streams={buildMarkDownFile(probesReportDetails),buildBrutReportFile(probesReportDetails)};
+				InputStream[] streams={buildMarkDownFile(probesReportDetails),buildBrutReportFile(command.getExecutionsProfiler())};
 				sender.sendEmailWithMultiAttachmenets(email,filesName,streams);
 			}catch(EmailException e){
 				LOG.error("Error", e);
@@ -107,11 +107,11 @@ public class SendProbeReportHandler extends AbstractCommandHandler<SendProbeRepo
 	}
 	/**
 	 * Build json from java object.
-	 * @param probesReportDetails object to be serialized
+	 * @param executionDtoList object to be serialized
 	 * @return InputStream
 	 */
-	public InputStream buildBrutReportFile(ProbesReportDetails probesReportDetails){
-		String stringReport=gson.toJson(probesReportDetails);
+	public InputStream buildBrutReportFile(List<ExecutionDTO> executionDtoList){
+		String stringReport=gson.toJson(executionDtoList);
 		return new ByteArrayInputStream(stringReport.getBytes());
 	}
 	/**

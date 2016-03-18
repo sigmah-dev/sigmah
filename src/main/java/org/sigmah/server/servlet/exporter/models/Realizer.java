@@ -110,6 +110,10 @@ public class Realizer {
 		T result = null;
 
 		if (object != null) {
+			
+			if (ignores.contains(object.getClass())) {
+				return object;
+			}
 
 			// If the given object has already been instantiated, no need to instantiate it again
 			if (alreadyRealizedObjects.containsKey(object)) {
