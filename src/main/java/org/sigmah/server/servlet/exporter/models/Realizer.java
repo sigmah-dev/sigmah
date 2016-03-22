@@ -111,22 +111,24 @@ public class Realizer {
 
 		if (object != null) {
 			
-			if (ignores.contains(object.getClass())) {
-				return object;
-			}
-
 			// If the given object has already been instantiated, no need to instantiate it again
 			if (alreadyRealizedObjects.containsKey(object)) {
 				return (T) alreadyRealizedObjects.get(object);
 			}
 
-			LOG.trace("Realizing " + object.getClass() + "...");
+			// Extracting the class of the current object
+			final Class<T> clazz = object instanceof HibernateProxy ?
+				((HibernateProxy)object).getHibernateLazyInitializer().getPersistentClass() :
+				(Class<T>) object.getClass();
+			
+			if (ignores.contains(clazz) || clazz.getName().startsWith("java.") || clazz.isEnum()) {
+				LOG.trace("\t\tUsing the given value for " + clazz);
+				return object;
+			}
+			
+			LOG.trace("Realizing " + clazz + "...");
 
 			try {
-				// Extracting the class of the current object
-				final Class<T> clazz = object instanceof HibernateProxy ?
-					((HibernateProxy)object).getHibernateLazyInitializer().getPersistentClass() :
-					(Class<T>) object.getClass();
 				final Constructor<T> emptyConstructor = clazz.getConstructor();
 
 				// Creating a new instance of the current object
@@ -227,7 +229,7 @@ public class Realizer {
 		final Object sourceValue = getterMethod.invoke(source);
 		final Object destinationValue;
 		
-		final Class<?> sourceValueClass = sourceValue != null ? sourceValue.getClass() : null;
+		final Class<?> sourceValueClass = getterMethod.getReturnType();
 		
 		if (sourceValue instanceof PersistentCollection || sourceValue instanceof HibernateProxy) {
 			Hibernate.initialize(sourceValue);
@@ -269,10 +271,6 @@ public class Realizer {
 			
 			destinationValue = Computations.formatRuleForEdition(((ComputationElement) source).getRule(), elements);
 
-		} else if (ignores.contains(sourceValueClass) || sourceValueClass.getName().startsWith("java.") || sourceValueClass.isEnum()) {
-			// Simple copy if the current field is a jdk type or an enum
-			destinationValue = sourceValue;
-			
 		} else {
 			destinationValue = realize(sourceValue, alreadyRealizedObjects, ignoredFields, ignores, parent);
 		}

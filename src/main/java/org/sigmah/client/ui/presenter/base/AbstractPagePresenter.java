@@ -204,7 +204,7 @@ public abstract class AbstractPagePresenter<V extends ViewInterface> extends Abs
 			displayApplicationMessage(page);
 		}
 		
-		Profiler.INSTANCE.endScenario(Scenario.OPEN_PROJECT);
+		//Profiler.INSTANCE.endScenario(Scenario.OPEN_PROJECT);
 
 	}
 

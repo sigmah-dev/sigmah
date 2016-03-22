@@ -37,10 +37,6 @@ import org.sigmah.server.domain.PhaseModel;
 import org.sigmah.server.domain.Project;
 import org.sigmah.server.domain.ProjectModel;
 import org.sigmah.server.domain.User;
-import org.sigmah.server.domain.element.FlexibleElement;
-import org.sigmah.server.domain.layout.Layout;
-import org.sigmah.server.domain.layout.LayoutConstraint;
-import org.sigmah.server.domain.layout.LayoutGroup;
 import org.sigmah.server.domain.logframe.LogFrameModel;
 import org.sigmah.server.inject.ConfigurationModule;
 import org.sigmah.server.inject.I18nServerModule;
@@ -59,7 +55,7 @@ public class Loader {
 	/**
 	 * Id of project , project should be in database.
 	 */
-	private static Integer projectId =15520 /* 15472 /*953*/;
+	private static Integer projectId = 15472 /*953*/;
 	/**
 	 * Count of project to be inserted.
 	 */

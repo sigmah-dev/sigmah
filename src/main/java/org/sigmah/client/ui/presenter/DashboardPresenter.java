@@ -407,8 +407,6 @@ public class DashboardPresenter extends AbstractPagePresenter<DashboardPresenter
 			view.addMenuButton(I18N.CONSTANTS.sendProbeReport(), null, new Listener<ButtonEvent>(){
 				@Override
 				public void handleEvent(ButtonEvent be) {
-					Log.debug("TOD work here "+executionAsyncDAO);
-					
 					executionAsyncDAO.getAllExecutions( new AsyncCallback<List<Execution>>() {
 						@Override
 						public void onFailure(Throwable caught) {
