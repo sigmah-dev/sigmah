@@ -59,7 +59,7 @@ public class PivotTableData implements Serializable {
 		rootRow = new Axis();
 		rootColumn = new Axis();
 	}
-
+    
 	public boolean isEmpty() {
 		return rootRow.isLeaf() && rootColumn.isLeaf();
 	}
@@ -215,6 +215,11 @@ public class PivotTableData implements Serializable {
 			this.category = category;
 			this.label = label;
 		}
+        
+        public void cellIndexValue(String label){
+        
+        this.label = label;
+        }
 
 		public Axis getChild(DimensionCategory category) {
 			return childMap.get(category);
@@ -384,7 +389,7 @@ public class PivotTableData implements Serializable {
 		}
 
 		@SuppressWarnings("unused")
-		public void setLabel(String label) {
+		private void setLabel(String label) {
 			this.label = label;
 		}
 

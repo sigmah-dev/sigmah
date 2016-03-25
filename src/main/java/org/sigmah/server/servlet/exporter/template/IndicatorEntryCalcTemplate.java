@@ -218,7 +218,7 @@ public class IndicatorEntryCalcTemplate implements ExportTemplate {
 		Map<String, Integer> columnIndexMap = new HashMap<String, Integer>();
 		for (PivotTableData.Axis axis : leaves) {
 			CalcUtils.putHeader(row, ++cellIndex, axis.getLabel());
-            axis.setLabel(String.valueOf(cellIndex));
+            axis.cellIndexValue(String.valueOf(cellIndex));
 			columnIndexMap.put(axis.getLabel(), cellIndex);
 		}
 
