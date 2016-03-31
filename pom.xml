@@ -1120,7 +1120,43 @@
 				</plugins>
 			</build>
 		</profile>
-		
+
+		<profile>
+			<!-- Profil qui doit être activé pour les builds de release -->
+			<id>sigmah-release-profile</id>
+			<activation>
+				<property>
+					<name>performRelease</name>
+					<value>true</value>
+				</property>
+			</activation>
+			<properties>
+				<!-- au release:perform, on ne souhaite pas déployer vers un dépôt d'artifact maven, on ne produit pas la javadoc car trop d'erreur de validation -->
+				<maven.deploy.skip>true</maven.deploy.skip>
+				<maven.javadoc.skip>true</maven.javadoc.skip>
+			</properties>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>de.jutzig</groupId>
+						<artifactId>github-release-plugin</artifactId>
+						<version>1.1.1</version>
+						<executions>
+							<execution>
+								<goals>
+									<goal>release</goal>
+								</goals>
+							</execution>
+						</executions>
+						<configuration>
+							<description>Sigmah ${project.version}</description>
+							<releaseName>${project.version}</releaseName>
+							<tag>${project.version}</tag>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
 	</profiles>
 
 </project>
