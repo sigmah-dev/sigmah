@@ -39,10 +39,13 @@ import org.sigmah.server.domain.profile.OrgUnitProfile;
 public interface UserUnitDAO extends DAO<OrgUnitProfile, Integer> {
 	OrgUnitProfile findMainOrgUnitProfileByUserId(Integer userId);
 
+	List<OrgUnitProfile> findSecondaryOrgUnitProfilesByUserId(Integer userId);
+
 	Set<Integer> findSecondaryOrgUnitIdsByUserId(Integer userId);
+
+	List<OrgUnitProfile> findAllOrgUnitProfilesByUserId(Integer userId);
 
 	boolean doesOrgUnitProfileExist(User user);
 
 	List<User> findUsersByOrgUnit(List<OrgUnit> orgUnits);
-
 }

@@ -59,7 +59,7 @@ public enum Store implements Schema {
 	TRANSFERT(true, "type", "type",
 			"fileVersionId", "fileVersion.id"),
 	USER("organization", "organization",
-			"orgUnit", "orgUnit"),
+			"orgUnit", "orgUnits"),
 	VALUE;
 
 	private final boolean autoIncrement;

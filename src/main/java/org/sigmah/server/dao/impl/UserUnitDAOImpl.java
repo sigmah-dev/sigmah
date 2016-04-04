@@ -79,6 +79,20 @@ public class UserUnitDAOImpl extends AbstractDAO<OrgUnitProfile, Integer> implem
 	}
 
 	@Override
+	public List<OrgUnitProfile> findSecondaryOrgUnitProfilesByUserId(Integer userId) {
+		TypedQuery<OrgUnitProfile> query = em().createQuery(
+			"SELECT oup " +
+			"FROM OrgUnitProfile oup " +
+			"JOIN FETCH oup.profiles p " +
+			"JOIN FETCH oup.orgUnit o " +
+			"WHERE oup.user.id = :userId " +
+			"AND oup.type = 'SECONDARY' ",
+			OrgUnitProfile.class
+		);
+		return query.setParameter("userId", userId).getResultList();
+	}
+
+	@Override
 	public Set<Integer> findSecondaryOrgUnitIdsByUserId(Integer userId) {
 		TypedQuery<Integer> query = em().createQuery(
 			"SELECT oup.orgUnit.id " +
@@ -89,6 +103,20 @@ public class UserUnitDAOImpl extends AbstractDAO<OrgUnitProfile, Integer> implem
 		);
 		return new HashSet<>(query.setParameter("userId", userId).getResultList());
 	}
+
+	@Override
+	public List<OrgUnitProfile> findAllOrgUnitProfilesByUserId(Integer userId) {
+		TypedQuery<OrgUnitProfile> query = em().createQuery(
+			"SELECT oup " +
+				"FROM OrgUnitProfile oup " +
+				"JOIN FETCH oup.profiles p " +
+				"JOIN FETCH oup.orgUnit o " +
+				"WHERE oup.user.id = :userId ",
+			OrgUnitProfile.class
+		);
+		return query.setParameter("userId", userId).getResultList();
+	}
+
 
 	/**
 	 * {@inheritDoc}

@@ -28,6 +28,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -360,6 +361,22 @@ public class User extends AbstractEntityId<Integer> {
 			postLoad();
 		}
 		return secondaryOrgUnitsWithProfiles;
+	}
+
+	/*
+	 * Helper for Dozer.
+	 * Dozer can't map a User.secondaryOrgUnitsWithProfiles.*.orgUnit to a orgUnit list
+	 */
+	public List<OrgUnit> getSecondaryOrgUnits() {
+		if (secondaryOrgUnitsWithProfiles == null) {
+			return null;
+		}
+
+		List<OrgUnit> orgUnits = new ArrayList<OrgUnit>(secondaryOrgUnitsWithProfiles.size());
+		for (OrgUnitProfile orgUnitProfile : secondaryOrgUnitsWithProfiles) {
+			orgUnits.add(orgUnitProfile.getOrgUnit());
+		}
+		return orgUnits;
 	}
 
 	@PostLoad

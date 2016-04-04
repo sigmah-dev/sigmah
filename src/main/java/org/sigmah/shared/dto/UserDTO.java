@@ -22,6 +22,7 @@ package org.sigmah.shared.dto;
  * #L%
  */
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -65,15 +66,18 @@ public class UserDTO extends AbstractModelDataEntityDTO<Integer> {
 	public static final String IDD = "idd";
 
 	// Manual mapping keys.
-	public static final String ORG_UNIT = "orgUnit";
+	public static final String MAIN_ORG_UNIT = "mainOrgUnit";
+	public static final String SECONDARY_ORG_UNITS = "secondaryOrgUnits";
 	public static final String PROFILES = "profiles";
+	public static final String USER_UNITS = "userUnits";
 
 	// Service properties keys.
 	public static final String PASSWORD = "pwd";
 
 	// Custom field names.
-	private static final String CUSTOM_FIELD_ORG_UNIT = MappingField.n("orgUnitWithProfiles", "orgUnit");
-	private static final String CUSTOM_FIELD_PROFILES = MappingField.n("orgUnitWithProfiles", "profiles");
+	private static final String CUSTOM_FIELD_MAIN_ORG_UNIT = MappingField.n("mainOrgUnitWithProfiles", "orgUnit");
+	private static final String CUSTOM_FIELD_SECONDARY_ORG_UNITS = MappingField.n("secondaryOrgUnits");
+	private static final String CUSTOM_FIELD_PROFILES = MappingField.n("mainOrgUnitWithProfiles", "profiles");
 
 	/**
 	 * Mapping configurations.
@@ -85,7 +89,10 @@ public class UserDTO extends AbstractModelDataEntityDTO<Integer> {
 		/**
 		 * Maps the user's orgUnit with {@link OrgUnitDTO.Mode#BASE} mode.
 		 */
-		WITH_BASE_ORG_UNIT(new CustomMappingField(CUSTOM_FIELD_ORG_UNIT, ORG_UNIT, OrgUnitDTO.Mode.BASE)),
+		WITH_BASE_ORG_UNIT(
+				new CustomMappingField(CUSTOM_FIELD_MAIN_ORG_UNIT, MAIN_ORG_UNIT, OrgUnitDTO.Mode.BASE),
+				new CustomMappingField(SECONDARY_ORG_UNITS, SECONDARY_ORG_UNITS, OrgUnitDTO.Mode.BASE)
+		),
 
 		/**
 		 * Maps the user's profile(s) with {@link ProfileDTO.Mode#BASE} mode.
@@ -101,8 +108,11 @@ public class UserDTO extends AbstractModelDataEntityDTO<Integer> {
 		 * Maps the user's orgUnit with {@link OrgUnitDTO.Mode#BASE} mode <b>and</b> the user's profile(s) with
 		 * {@link ProfileDTO.Mode#BASE} mode.
 		 */
-		WITH_BASE_ORG_UNIT_AND_BASE_PROFILES(new CustomMappingField(CUSTOM_FIELD_ORG_UNIT, ORG_UNIT, OrgUnitDTO.Mode.BASE), new CustomMappingField(
-			CUSTOM_FIELD_PROFILES, PROFILES, ProfileDTO.Mode.BASE)),
+		WITH_BASE_ORG_UNIT_AND_BASE_PROFILES(
+				new CustomMappingField(CUSTOM_FIELD_MAIN_ORG_UNIT, MAIN_ORG_UNIT, OrgUnitDTO.Mode.BASE),
+				new CustomMappingField(SECONDARY_ORG_UNITS, SECONDARY_ORG_UNITS, OrgUnitDTO.Mode.BASE),
+				new CustomMappingField(CUSTOM_FIELD_PROFILES, PROFILES, ProfileDTO.Mode.BASE)
+		),
 
 		;
 
@@ -242,12 +252,27 @@ public class UserDTO extends AbstractModelDataEntityDTO<Integer> {
 		return ClientUtils.isTrue(get(ACTIVE));
 	}
 
-	public OrgUnitDTO getOrgUnit() {
-		return get(ORG_UNIT);
+	public OrgUnitDTO getMainOrgUnit() {
+		return get(MAIN_ORG_UNIT);
 	}
 
-	public void setOrgUnit(OrgUnitDTO orgUnit) {
-		set(ORG_UNIT, orgUnit);
+	public void setMainOrgUnit(OrgUnitDTO orgUnit) {
+		set(MAIN_ORG_UNIT, orgUnit);
+	}
+
+	public List<OrgUnitDTO> getSecondaryOrgUnits() {
+		return get(SECONDARY_ORG_UNITS);
+	}
+
+	public void setSecondaryOrgUnits(List<OrgUnitDTO> orgUnits) {
+		set(SECONDARY_ORG_UNITS, orgUnits);
+	}
+
+	public List<OrgUnitDTO> getOrgUnits() {
+		List<OrgUnitDTO> orgUnitDTOs = new ArrayList<OrgUnitDTO>();
+		orgUnitDTOs.add(getMainOrgUnit());
+		orgUnitDTOs.addAll(getSecondaryOrgUnits());
+		return orgUnitDTOs;
 	}
 
 	public List<ProfileDTO> getProfiles() {

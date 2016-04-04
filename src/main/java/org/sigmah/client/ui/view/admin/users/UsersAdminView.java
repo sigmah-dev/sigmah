@@ -76,7 +76,7 @@ import com.google.inject.Singleton;
 
 /**
  * Admin users view implementation.
- * 
+ *
  * @author Maxime Lombard (mlombard@ideia.fr) v1.3
  * @author Mehdi Benabdeslam (mehdi.benabdeslam@netapsys.fr) v2.0
  * @author Denis Colliot (dcolliot@ideia.fr) (v2.0)
@@ -345,7 +345,7 @@ public class UsersAdminView extends AbstractView implements UsersAdminPresenter.
 
 	/**
 	 * Create the {@link PrivacyGroupDTO} grid.
-	 * 
+	 *
 	 * @return The grid component.
 	 */
 	private Grid<PrivacyGroupDTO> buildPrivacyGroupsGrid() {
@@ -393,7 +393,7 @@ public class UsersAdminView extends AbstractView implements UsersAdminPresenter.
 
 	/**
 	 * Create the {@link ProfileDTO} grid.
-	 * 
+	 *
 	 * @return The grid component.
 	 */
 	private Grid<ProfileDTO> buildProfilesGrid() {
@@ -490,7 +490,7 @@ public class UsersAdminView extends AbstractView implements UsersAdminPresenter.
 
 	/**
 	 * Create the {@link UserDTO} grid.
-	 * 
+	 *
 	 * @return The grid component.
 	 */
 	private Grid<UserDTO> buildUsersGrid() {
@@ -541,14 +541,14 @@ public class UsersAdminView extends AbstractView implements UsersAdminPresenter.
 		// OrgUnit column.
 		// --
 
-		column = new ColumnConfig(UserDTO.ORG_UNIT, I18N.CONSTANTS.adminUsersOrgUnit(), 110);
+		column = new ColumnConfig(UserDTO.MAIN_ORG_UNIT, I18N.CONSTANTS.adminUsersOrgUnit(), 110);
 		column.setRenderer(new GridCellRenderer<UserDTO>() {
 
 			@Override
 			public Object render(final UserDTO model, final String property, final ColumnData config, final int rowIndex, final int colIndex,
 					final ListStore<UserDTO> store, final Grid<UserDTO> grid) {
 
-				final OrgUnitDTO orgUnit = model.getOrgUnit();
+				final OrgUnitDTO orgUnit = model.getMainOrgUnit();
 				return createTextWidget(orgUnit != null ? (ClientUtils.isNotBlank(orgUnit.getFullName()) ? orgUnit.getFullName() : "") : "");
 			}
 		});
@@ -636,7 +636,7 @@ public class UsersAdminView extends AbstractView implements UsersAdminPresenter.
 
 	/**
 	 * Initializes the grids toolbars.
-	 * 
+	 *
 	 * @param panel
 	 *          The grid type.
 	 * @return The toolbar component.
@@ -721,7 +721,7 @@ public class UsersAdminView extends AbstractView implements UsersAdminPresenter.
 
 	/**
 	 * Creates a new {@link Grid} instance for the given {@code columnConfigs}.
-	 * 
+	 *
 	 * @param columnConfigs
 	 *          The columns configurations list.
 	 * @param autoExpandColumn
@@ -744,7 +744,7 @@ public class UsersAdminView extends AbstractView implements UsersAdminPresenter.
 
 	/**
 	 * Builds a new {@link Text} widget instance with the given {@code content}.
-	 * 
+	 *
 	 * @param content
 	 *          The text content.
 	 * @return The widget instance.

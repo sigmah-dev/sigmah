@@ -59,12 +59,18 @@ public class UserAsyncDAO extends AbstractUserDatabaseAsyncDAO<UserDTO, UserJS> 
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void saveOrUpdate(UserDTO t, AsyncCallback<UserDTO> callback, Transaction<Store> transaction) {
-		super.saveOrUpdate(t, callback, transaction);
+	public void saveOrUpdate(UserDTO userDTO, AsyncCallback<UserDTO> callback, Transaction<Store> transaction) {
+		super.saveOrUpdate(userDTO, callback, transaction);
 		
 		// Saving its org unit
-		if (t.getOrgUnit() != null) {
-			orgUnitDAO.saveOrUpdate(t.getOrgUnit(), null, transaction);
+
+		if (userDTO.getMainOrgUnit() != null) {
+			orgUnitDAO.saveOrUpdate(userDTO.getMainOrgUnit(), null, transaction);
+		}
+		if (userDTO.getSecondaryOrgUnits() != null) {
+			for (OrgUnitDTO orgUnit : userDTO.getSecondaryOrgUnits()) {
+				orgUnitDAO.saveOrUpdate(orgUnit, null, transaction);
+			}
 		}
 	}
 	
@@ -108,15 +114,15 @@ public class UserAsyncDAO extends AbstractUserDatabaseAsyncDAO<UserDTO, UserJS> 
 					final UserDTO userDTO = userJS.toDTO();
 					transaction.getObjectCache().put(id, userDTO);
 
-					orgUnitDAO.get(userJS.getOrgUnit(), new AsyncCallback<OrgUnitDTO>() {
+					orgUnitDAO.get(userJS.getMainOrgUnit(), new AsyncCallback<OrgUnitDTO>() {
 						@Override
 						public void onFailure(Throwable caught) {
-							Log.error("Error while retrieving org unit " + userJS.getOrgUnit() + " for user " + userJS.getId());
+							Log.error("Error while retrieving org unit " + userJS.getMainOrgUnit() + " for user " + userJS.getId());
 						}
 
 						@Override
 						public void onSuccess(OrgUnitDTO result) {
-							userDTO.setOrgUnit(result);
+							userDTO.setMainOrgUnit(result);
 							callback.onSuccess(userDTO);
 						}
 					}, transaction);
@@ -153,16 +159,16 @@ public class UserAsyncDAO extends AbstractUserDatabaseAsyncDAO<UserDTO, UserJS> 
 							final UserJS userJS = (UserJS) cursor.getValue();
 							final UserDTO userDTO = userJS.toDTO();
 							
-							if(userJS.hasOrgUnit()) {
-								orgUnitDAO.get(userJS.getOrgUnit(), new AsyncCallback<OrgUnitDTO>() {
+							if (userJS.hasMainOrgUnit()) {
+								orgUnitDAO.get(userJS.getMainOrgUnit(), new AsyncCallback<OrgUnitDTO>() {
 									@Override
 									public void onFailure(Throwable caught) {
-										Log.error("Error while retrieving org unit " + userJS.getOrgUnit() + " for user " + userJS.getId());
+										Log.error("Error while retrieving org unit " + userJS.getMainOrgUnit() + " for user " + userJS.getId());
 									}
 
 									@Override
 									public void onSuccess(OrgUnitDTO result) {
-										userDTO.setOrgUnit(result);
+										userDTO.setMainOrgUnit(result);
 									}
 								}, transaction);
 							}
