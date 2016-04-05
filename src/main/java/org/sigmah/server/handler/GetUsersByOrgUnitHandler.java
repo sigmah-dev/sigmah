@@ -31,7 +31,7 @@ public class GetUsersByOrgUnitHandler extends AbstractCommandHandler<GetUsersByO
 		List<User> users = userDAO.findUsersByOrgUnitIds(orgUnitIds, command.getWithoutUserIds());
 		List<UserDTO> userDTOs = new ArrayList<>();
 		for (User user : users) {
-			UserDTO userDTO = mapper().map(user, UserDTO.class, UserDTO.Mode.WITH_BASE_PROFILES);
+			UserDTO userDTO = mapper().map(user, UserDTO.class, UserDTO.Mode.WITH_BASE_ORG_UNIT_AND_BASE_PROFILES);
 			userDTO.generateCompleteName();
 			userDTOs.add(userDTO);
 		}

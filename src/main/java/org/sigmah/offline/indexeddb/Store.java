@@ -58,7 +58,8 @@ public enum Store implements Schema {
 	REPORT_REFERENCE("parentId", "parentId"),
 	TRANSFERT(true, "type", "type",
 			"fileVersionId", "fileVersion.id"),
-	USER("organization", "organization"),
+	USER("organization", "organization",
+			"orgUnit", "orgUnit"),
 	VALUE;
 
 	private final boolean autoIncrement;
