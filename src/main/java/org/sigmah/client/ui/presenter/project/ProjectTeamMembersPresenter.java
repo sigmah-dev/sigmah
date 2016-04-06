@@ -48,8 +48,6 @@ public class ProjectTeamMembersPresenter extends AbstractProjectPresenter<Projec
 	public interface View extends AbstractProjectPresenter.View {
 		LayoutContainer getMainPanel();
 
-		Button getSaveButton();
-
 		Button getAddTeamMemberButton();
 
 		Button getAddTeamMemberByProfileButton();
@@ -75,8 +73,6 @@ public class ProjectTeamMembersPresenter extends AbstractProjectPresenter<Projec
 	public interface SelectTeamMembersByProfileHandler {
 		void onSelectTeamMemberByProfile(ProfileDTO profileDTO);
 	}
-
-	private boolean modified;
 
 	/**
 	 * Presenters's initialization.
@@ -105,10 +101,7 @@ public class ProjectTeamMembersPresenter extends AbstractProjectPresenter<Projec
 	 */
 	@Override
 	public void onPageRequest(final PageRequest request) {
-
 		load();
-
-		modified = false;
 	}
 
 	/**
@@ -116,7 +109,7 @@ public class ProjectTeamMembersPresenter extends AbstractProjectPresenter<Projec
 	 */
 	@Override
 	public boolean hasValueChanged() {
-		return modified;
+		return false;
 	}
 
 	// ---------------------------------------------------------------------------------------------------------------
@@ -155,8 +148,8 @@ public class ProjectTeamMembersPresenter extends AbstractProjectPresenter<Projec
 					@Override
 					public void componentSelected(ButtonEvent event) {
 						view.getTeamMembersStore().remove(userDTO);
-						modified = true;
-						view.getSaveButton().setEnabled(isEditable());
+
+						save();
 					}
 				});
 			}
@@ -172,8 +165,8 @@ public class ProjectTeamMembersPresenter extends AbstractProjectPresenter<Projec
 					@Override
 					public void componentSelected(ButtonEvent event) {
 						view.getTeamMembersStore().remove(profileDTO);
-						modified = true;
-						view.getSaveButton().setEnabled(isEditable());
+
+						save();
 					}
 				});
 			}
@@ -184,42 +177,10 @@ public class ProjectTeamMembersPresenter extends AbstractProjectPresenter<Projec
 
 	private void addButtonHandlers() {
 		if (!isEditable()) {
-			view.getSaveButton().setEnabled(false);
 			view.getAddTeamMemberButton().setEnabled(false);
 			view.getAddTeamMemberByProfileButton().setEnabled(false);
 			return;
 		}
-
-		view.getSaveButton().addSelectionListener(new SelectionListener<ButtonEvent>() {
-			@Override
-			@SuppressWarnings("unchecked")
-			public void componentSelected(ButtonEvent event) {
-				List<UserDTO> teamMembers = (List<UserDTO>) (List) view.getTeamMembersStore().findModels(TeamMemberDTO.TYPE,
-						TeamMemberDTO.TeamMemberType.TEAM_MEMBER);
-				List<ProfileDTO> teamMemberProfiles = (List<ProfileDTO>) (List)view.getTeamMembersStore().findModels(TeamMemberDTO.TYPE,
-						TeamMemberDTO.TeamMemberType.TEAM_MEMBER_PROFILE);
-				dispatch.execute(
-						new UpdateProjectTeamMembers(getProject().getId(), teamMembers, teamMemberProfiles),
-						new CommandResultHandler<TeamMembersResult>() {
-
-							@Override
-							public void onCommandFailure(final Throwable caught) {
-								N10N.error(I18N.CONSTANTS.save(), I18N.CONSTANTS.saveError());
-							}
-
-							@Override
-							protected void onCommandSuccess(TeamMembersResult result) {
-								N10N.infoNotif(I18N.CONSTANTS.infoConfirmation(), I18N.CONSTANTS.saveConfirm());
-
-								fillTeamMembersStore(result);
-							}
-						},
-						view.getSaveButton(), new LoadingMask(view.getMainPanel())
-				);
-				modified = false;
-				view.getSaveButton().setEnabled(false);
-			}
-		});
 
 		view.getAddTeamMemberButton().addSelectionListener(new SelectionListener<ButtonEvent>() {
 			@Override
@@ -240,8 +201,8 @@ public class ProjectTeamMembersPresenter extends AbstractProjectPresenter<Projec
 										userDTO.set(TeamMemberDTO.ORDER, 3);
 
 										view.getTeamMembersStore().add(userDTO);
-										modified = true;
-										view.getSaveButton().setEnabled(true);
+
+										save();
 									}
 								}, results.getData());
 							}
@@ -266,8 +227,8 @@ public class ProjectTeamMembersPresenter extends AbstractProjectPresenter<Projec
 										profileDTO.set(TeamMemberDTO.ORDER, 2);
 
 										view.getTeamMembersStore().add(profileDTO);
-										modified = true;
-										view.getSaveButton().setEnabled(true);
+
+										save();
 									}
 								}, result.getData());
 							}
@@ -275,6 +236,31 @@ public class ProjectTeamMembersPresenter extends AbstractProjectPresenter<Projec
 				);
 			}
 		});
+	}
+
+	private void save() {
+		List<UserDTO> teamMembers = (List<UserDTO>) (List) view.getTeamMembersStore().findModels(TeamMemberDTO.TYPE,
+				TeamMemberDTO.TeamMemberType.TEAM_MEMBER);
+		List<ProfileDTO> teamMemberProfiles = (List<ProfileDTO>) (List)view.getTeamMembersStore().findModels(TeamMemberDTO.TYPE,
+				TeamMemberDTO.TeamMemberType.TEAM_MEMBER_PROFILE);
+		dispatch.execute(
+				new UpdateProjectTeamMembers(getProject().getId(), teamMembers, teamMemberProfiles),
+				new CommandResultHandler<TeamMembersResult>() {
+
+					@Override
+					public void onCommandFailure(final Throwable caught) {
+						N10N.error(I18N.CONSTANTS.save(), I18N.CONSTANTS.saveError());
+					}
+
+					@Override
+					protected void onCommandSuccess(TeamMembersResult result) {
+						N10N.infoNotif(I18N.CONSTANTS.infoConfirmation(), I18N.CONSTANTS.saveConfirm());
+
+						fillTeamMembersStore(result);
+					}
+				},
+				view.getAddTeamMemberButton(), new LoadingMask(view.getMainPanel())
+		);
 	}
 
 	private void fillTeamMembersStore(TeamMembersResult result) {

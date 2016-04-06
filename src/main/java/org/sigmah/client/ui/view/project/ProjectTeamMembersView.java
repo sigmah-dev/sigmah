@@ -41,7 +41,6 @@ public class ProjectTeamMembersView extends AbstractView implements ProjectTeamM
 	private Grid<ModelData> teamMembersGrid;
 	private ListStore<ModelData> teamMembersStore;
 	private ProjectTeamMembersPresenter.RemoveTeamMemberButtonCreationHandler removeTeamMemberButtonCreationHandler;
-	private Button saveButton;
 	private Button addTeamMemberButton;
 	private Button addTeamMemberByProfileButton;
 
@@ -71,11 +70,6 @@ public class ProjectTeamMembersView extends AbstractView implements ProjectTeamM
 	}
 
 	@Override
-	public Button getSaveButton() {
-		return saveButton;
-	}
-
-	@Override
 	public Button getAddTeamMemberButton() {
 		return addTeamMemberButton;
 	}
@@ -96,10 +90,6 @@ public class ProjectTeamMembersView extends AbstractView implements ProjectTeamM
 	}
 
 	private ToolBar buildToolbar() {
-
-		saveButton = Forms.button(I18N.CONSTANTS.save(), IconImageBundle.ICONS.save());
-		saveButton.setEnabled(false);
-
 		addTeamMemberButton = Forms.button(I18N.CONSTANTS.addTeamMemberButtonLabel(), IconImageBundle.ICONS.addUser());
 		addTeamMemberByProfileButton = Forms.button(I18N.CONSTANTS.addTeamMembersByProfileButtonLabel(), IconImageBundle.ICONS.add());
 
@@ -108,7 +98,6 @@ public class ProjectTeamMembersView extends AbstractView implements ProjectTeamM
 		toolBar.setAlignment(Style.HorizontalAlignment.LEFT);
 		toolBar.setBorders(false);
 
-		toolBar.add(saveButton);
 		toolBar.add(addTeamMemberButton);
 		toolBar.add(addTeamMemberByProfileButton);
 		toolBar.add(new FillToolItem());
