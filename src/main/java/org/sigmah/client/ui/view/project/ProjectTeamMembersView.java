@@ -18,6 +18,9 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.VBoxLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 
 import java.util.Arrays;
@@ -124,9 +127,10 @@ public class ProjectTeamMembersView extends AbstractView implements ProjectTeamM
 			}
 		});
 
-		ColumnConfig actionsColumnConfig = new ColumnConfig("actions", "", 150);
+		ColumnConfig actionsColumnConfig = new ColumnConfig("actions", "", 50);
 		actionsColumnConfig.setSortable(false);
 		actionsColumnConfig.setFixed(true);
+		actionsColumnConfig.setAlignment(Style.HorizontalAlignment.CENTER);
 		actionsColumnConfig.setRenderer(new GridCellRenderer() {
 			@Override
 			public Object render(ModelData model, String property, ColumnData config, int rowIndex, int colIndex, ListStore store, Grid grid) {
@@ -135,14 +139,16 @@ public class ProjectTeamMembersView extends AbstractView implements ProjectTeamM
 					return null;
 				}
 
-				Button button = new Button(I18N.CONSTANTS.removeItem());
+				Image image = IconImageBundle.ICONS.remove().createImage();
+				image.setTitle(I18N.CONSTANTS.remove());
+				image.addStyleName("flexibility-action");
 				if (type == TeamMemberDTO.TeamMemberType.TEAM_MEMBER) {
-					removeTeamMemberButtonCreationHandler.onCreateRemoveUserButton(button, (UserDTO) model);
+					removeTeamMemberButtonCreationHandler.onCreateRemoveUserButton(image, (UserDTO) model);
 				} else {
 					// the data is supposed to be a TEAM_MEMBER_PROFILE
-					removeTeamMemberButtonCreationHandler.onCreateRemoveProfileButton(button, (ProfileDTO) model);
+					removeTeamMemberButtonCreationHandler.onCreateRemoveProfileButton(image, (ProfileDTO) model);
 				}
-				return button;
+				return image;
 			}
 		});
 

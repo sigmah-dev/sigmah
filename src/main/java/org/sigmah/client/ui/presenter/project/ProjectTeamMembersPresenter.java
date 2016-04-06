@@ -5,6 +5,9 @@ import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.ui.Image;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -62,8 +65,8 @@ public class ProjectTeamMembersPresenter extends AbstractProjectPresenter<Projec
 	}
 
 	public interface RemoveTeamMemberButtonCreationHandler {
-		void onCreateRemoveUserButton(Button button, UserDTO userDTO);
-		void onCreateRemoveProfileButton(Button button, ProfileDTO userDTO);
+		void onCreateRemoveUserButton(Image imageButton, UserDTO userDTO);
+		void onCreateRemoveProfileButton(Image imageButton, ProfileDTO userDTO);
 	}
 
 	public interface AddTeamMemberHandler {
@@ -138,15 +141,15 @@ public class ProjectTeamMembersPresenter extends AbstractProjectPresenter<Projec
 
 		view.setRemoveTeamMemberButtonCreationHandler(new RemoveTeamMemberButtonCreationHandler() {
 			@Override
-			public void onCreateRemoveUserButton(Button button, final UserDTO userDTO) {
+			public void onCreateRemoveUserButton(Image imageButton, final UserDTO userDTO) {
 				if (!isEditable()) {
-					button.setEnabled(false);
+					imageButton.setVisible(false);
 					return;
 				}
 
-				button.addSelectionListener(new SelectionListener<ButtonEvent>() {
+				imageButton.addClickHandler(new ClickHandler() {
 					@Override
-					public void componentSelected(ButtonEvent event) {
+					public void onClick(ClickEvent clickEvent) {
 						view.getTeamMembersStore().remove(userDTO);
 
 						save();
@@ -155,15 +158,15 @@ public class ProjectTeamMembersPresenter extends AbstractProjectPresenter<Projec
 			}
 
 			@Override
-			public void onCreateRemoveProfileButton(Button button, final ProfileDTO profileDTO) {
+			public void onCreateRemoveProfileButton(Image imageButton, final ProfileDTO profileDTO) {
 				if (!isEditable()) {
-					button.setEnabled(false);
+					imageButton.setVisible(false);
 					return;
 				}
 
-				button.addSelectionListener(new SelectionListener<ButtonEvent>() {
+				imageButton.addClickHandler(new ClickHandler() {
 					@Override
-					public void componentSelected(ButtonEvent event) {
+					public void onClick(ClickEvent clickEvent) {
 						view.getTeamMembersStore().remove(profileDTO);
 
 						save();
