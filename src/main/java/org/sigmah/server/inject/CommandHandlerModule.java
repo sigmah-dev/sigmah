@@ -70,6 +70,7 @@ public class CommandHandlerModule extends AbstractCommandHandlerModule {
 		bindHandler(DownloadSlice.class, DownloadSliceHandler.class);
 		bindHandler(GenerateElement.class, GenerateElementHandler.class);
 		bindHandler(GetAdminEntities.class, GetAdminEntitiesHandler.class);
+		bindHandler(GetAvailableFrameworks.class, GetAvailableFrameworksHandler.class);
 		bindHandler(GetAvailableStatusForModel.class, GetAvailableStatusForModelHandler.class);
 		bindHandler(GetBaseMaps.class, GetBaseMapsHandler.class);
 		bindHandler(GetCalendar.class, GetCalendarHandler.class);
@@ -77,6 +78,7 @@ public class CommandHandlerModule extends AbstractCommandHandlerModule {
 		bindHandler(GetCountries.class, GetCountriesHandler.class);
 		bindHandler(GetCountry.class, GetCountryHandler.class);
 		bindHandler(GetFilesFromFavoriteProjects.class, GetFilesFromFavoriteProjectsHandler.class);
+		bindHandler(GetFrameworkFulfillmentsByProjectModelId.class, GetFrameworkFulfillmentsByProjectModelIdHandler.class);
 		bindHandler(GetGlobalExportSettings.class, GetGlobalExportSettingsHandler.class);
 		bindHandler(GetGlobalExports.class, GetGlobalExportsHandler.class);
 		bindHandler(GetHistory.class, GetHistoryHandler.class);

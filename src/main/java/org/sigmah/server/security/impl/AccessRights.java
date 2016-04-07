@@ -149,6 +149,7 @@ final class AccessRights {
 		sperm(commandToken(DownloadSlice.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GenerateElement.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetAdminEntities.class), GrantType.AUTHENTICATED_ONLY);
+		sperm(commandToken(GetAvailableFrameworks.class), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.MANAGE_PROJECT_MODELS);
 		sperm(commandToken(GetAvailableStatusForModel.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetBaseMaps.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetCalendar.class), GrantType.AUTHENTICATED_ONLY);
@@ -156,6 +157,7 @@ final class AccessRights {
 		sperm(commandToken(GetCountries.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetCountry.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetFilesFromFavoriteProjects.class), GrantType.AUTHENTICATED_ONLY);
+		sperm(commandToken(GetFrameworkFulfillmentsByProjectModelId.class), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.MANAGE_PROJECT_MODELS);
 		sperm(commandToken(GetGlobalExportSettings.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetGlobalExports.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetHistory.class), GrantType.AUTHENTICATED_ONLY);

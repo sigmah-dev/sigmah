@@ -29,6 +29,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import org.sigmah.client.util.AdminUtil;
+import org.sigmah.server.dao.FrameworkDAO;
 import org.sigmah.server.dao.ProfileDAO;
 import org.sigmah.server.dao.ProjectModelDAO;
 import org.sigmah.server.dispatch.impl.UserDispatch.UserExecutionContext;
@@ -82,6 +83,8 @@ public class ProjectModelService extends AbstractEntityService<ProjectModel, Int
 	private ProjectModelDAO projectModelDAO;
 	@Inject
 	private ProfileDAO profileDAO;
+	@Inject
+	private FrameworkDAO frameworkDAO;
 
 	/**
 	 * {@inheritDoc}
@@ -248,7 +251,12 @@ public class ProjectModelService extends AbstractEntityService<ProjectModel, Int
 			model.setName((String) changes.get(AdminUtil.PROP_PM_NAME));
 		}
 		if (changes.get(AdminUtil.PROP_PM_STATUS) != null) {
-			model.setStatus((ProjectModelStatus) changes.get(AdminUtil.PROP_PM_STATUS));
+			ProjectModelStatus newStatus = changes.get(AdminUtil.PROP_PM_STATUS);
+			if (frameworkDAO.countNotImplementedElementsByProjectModelId(model.getId()) > 0) {
+				throw new IllegalArgumentException("A framework requirement was not entirely fulfilled.");
+			}
+
+			model.setStatus(newStatus);
 		}
 		if (changes.get(AdminUtil.PROP_PM_USE) instanceof ProjectModelType) {
 			for (final ProjectModelVisibility v : model.getVisibilities()) {

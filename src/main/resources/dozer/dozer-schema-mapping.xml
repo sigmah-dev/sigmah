@@ -460,4 +460,32 @@
 		</field>
 	</mapping>
 	
+	<!-- FrameworkFulfillment/FrameworkFulfillmentDTO mapping -->
+	<mapping wildcard="true">
+		<class-a>org.sigmah.server.domain.FrameworkFulfillment</class-a>
+		<class-b>org.sigmah.shared.dto.FrameworkFulfillmentDTO</class-b>
+		<field>
+			<a>framework.id</a>
+			<b>frameworkId</b>
+		</field>
+		<field>
+			<a>projectModel.id</a>
+			<b>projectModelId</b>
+		</field>
+	</mapping>
+
+	<!-- FrameworkElementImplementation/FrameworkElementImplementationDTO mapping -->
+	<mapping wildcard="true">
+		<class-a>org.sigmah.server.domain.FrameworkElementImplementation</class-a>
+		<class-b>org.sigmah.shared.dto.FrameworkElementImplementationDTO</class-b>
+		<field>
+			<a>frameworkElement.id</a>
+			<b>frameworkElementId</b>
+		</field>
+		<field>
+			<a>flexibleElement.id</a>
+			<b>flexibleElementId</b>
+		</field>
+	</mapping>
+
 </mappings>
