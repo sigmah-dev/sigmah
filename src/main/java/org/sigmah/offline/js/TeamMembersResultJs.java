@@ -20,7 +20,7 @@ public final class TeamMembersResultJs extends JavaScriptObject {
 		teamMembersResultJs.setProjectId(teamMembersResult.getProjectId());
 		teamMembersResultJs.setProjectManager(teamMembersResult.getProjectManager());
 		teamMembersResultJs.setTeamMembers(teamMembersResult.getTeamMembers());
-		teamMembersResult.setTeamMemberProfiles(teamMembersResult.getTeamMemberProfiles());
+		teamMembersResultJs.setTeamMemberProfiles(teamMembersResult.getTeamMemberProfiles());
 		return teamMembersResultJs;
 	}
 
