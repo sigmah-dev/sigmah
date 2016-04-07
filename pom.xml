@@ -1015,6 +1015,20 @@
 				<!-- Overrride properties for your local profile here... -->
 
 			</properties>
+
+			<build>
+				<plugins>
+					<!-- Make GWT compilation faster for sigmah-dev profile -->
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>gwt-maven-plugin</artifactId>
+						<version>${gwt-maven-plugin.version}</version>
+						<configuration>
+							<module>org.sigmah.SigmahDev</module>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
 		</profile>
 		        
 		<!-- ========= [ HANDICAP INTERNATIONAL SPECIAL VERSION. ] ========= -->
