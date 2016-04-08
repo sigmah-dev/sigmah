@@ -26,7 +26,9 @@ package org.sigmah.client.ui.presenter.project.treegrid;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.dispatch.monitor.LoadingMask;
@@ -276,6 +278,8 @@ public class ProjectsListWidget extends AbstractPresenter<ProjectsListWidget.Vie
 	// Current projects grid parameters.
 	private ProjectModelType currentModelType;
 	private final ArrayList<Integer> orgUnitsIds;
+	private boolean currentlyLoading = false;
+	private final Queue<GetProjects> commandQueue = new LinkedList<GetProjects>();
 
 	/**
 	 * The refreshing mode (automatic by default).
@@ -708,6 +712,12 @@ public class ProjectsListWidget extends AbstractPresenter<ProjectsListWidget.Vie
 			return;
 		}
 
+		if (currentlyLoading) {
+			commandQueue.add(cmd);
+			return;
+		}
+
+		currentlyLoading = true;
 		// Reload filter labels for category filter list store.
 		reloadCategoryListFilterStore();
 
@@ -748,6 +758,10 @@ public class ProjectsListWidget extends AbstractPresenter<ProjectsListWidget.Vie
 
 				applyProjectFilters();
 				view.updateRefreshingDate(new Date());
+
+				currentlyLoading = false;
+				// Try to execute the next loader
+				refreshProjectGrid(commandQueue.poll());
 			}
 
 		}, new LoadingMask(view.getProjectsPanel()));
@@ -793,6 +807,10 @@ public class ProjectsListWidget extends AbstractPresenter<ProjectsListWidget.Vie
 			public void ended() {
 				applyProjectFilters();
 				view.updateRefreshingDate(new Date());
+
+				currentlyLoading = false;
+				// Try to execute the next loader
+				refreshProjectGrid(commandQueue.poll());
 			}
 		});
 
