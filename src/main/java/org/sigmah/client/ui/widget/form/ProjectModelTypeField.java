@@ -105,7 +105,7 @@ public class ProjectModelTypeField extends MultiField<ProjectModelType> {
 			icon.getElement().getStyle().setMarginTop(-2, Unit.PX);
 			icon.getElement().getStyle().setPaddingRight(6, Unit.PX);
 
-			radio.setBoxLabel(icon.toString() + ProjectModelType.getName(projectModelType) + "(" + projectModelType.counter + ")");
+			radio.setBoxLabel(icon.toString() + ProjectModelType.getName(projectModelType) + "(" + ProjectModelType.counter + ")");
 
 			radioGroup.add(radio);
 			radios.put(projectModelType, radio);
