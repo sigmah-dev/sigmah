@@ -221,7 +221,7 @@ public class UserEditPresenter extends AbstractPagePresenter<UserEditPresenter.V
 
 		view.getUserUnitStore().removeAll();
 
-		dispatch.execute(new GetOrgUnits(auth().getOrgUnitIds(), Mode.WITH_TREE), new CommandResultHandler<ListResult<OrgUnitDTO>>() {
+		dispatch.execute(new GetOrgUnits(Mode.WITH_TREE), new CommandResultHandler<ListResult<OrgUnitDTO>>() {
 			@Override
 			public void onCommandFailure(final Throwable caught) {
 				N10N.error(I18N.CONSTANTS.adminChoiceProblem());

@@ -32,6 +32,11 @@ public class GetOrgUnitsAsyncHandler implements AsyncCommandHandler<GetOrgUnits,
 
 	@Override
 	public void execute(final GetOrgUnits command, OfflineExecutionContext executionContext, final AsyncCallback<ListResult<OrgUnitDTO>> callback) {
+		if (command.getOrgUnitIds() == null) {
+			orgUnitAsyncDAO.getAll(callback);
+			return;
+		}
+
 		final List<OrgUnitDTO> orgUnitDTOs = new ArrayList<OrgUnitDTO>();
 		final int[] requests = new int[]{0};
 		for (Integer orgUnitId : command.getOrgUnitIds()) {

@@ -624,7 +624,7 @@ public class CreateProjectPresenter extends AbstractPagePresenter<CreateProjectP
 	 *          The current creation mode.
 	 */
 	private void loadOrgUnits(final Mode mode) {
-		dispatch.execute(new GetOrgUnits(auth().getOrgUnitIds(), OrgUnitDTO.Mode.WITH_TREE), new CommandResultHandler<ListResult<OrgUnitDTO>>() {
+		dispatch.execute(new GetOrgUnits(OrgUnitDTO.Mode.WITH_TREE), new CommandResultHandler<ListResult<OrgUnitDTO>>() {
 			@Override
 			public void onCommandFailure(Throwable e) {
 				if (Log.isErrorEnabled()) {

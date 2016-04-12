@@ -23,6 +23,7 @@ package org.sigmah.server.dao.impl;
  */
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.persistence.NoResultException;
@@ -85,5 +86,17 @@ public class OrgUnitHibernateDAO extends AbstractDAO<OrgUnit, Integer> implement
 		} catch (NoResultException e) {
 			return null;
 		}
+	}
+
+	@Override
+	public List<OrgUnit> findByOrganizationId(Integer organizationId) {
+		TypedQuery<OrgUnit> query = em().createQuery(
+				"SELECT o " +
+				"FROM OrgUnit o " +
+				"WHERE o.organization.id = :organizationId ",
+				OrgUnit.class
+		);
+		query.setParameter("organizationId", organizationId);
+		return query.getResultList();
 	}
 }

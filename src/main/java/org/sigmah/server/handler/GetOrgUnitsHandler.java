@@ -40,16 +40,15 @@ public class GetOrgUnitsHandler extends AbstractCommandHandler<GetOrgUnits, List
 	 */
 	@Override
 	public ListResult<OrgUnitDTO> execute(GetOrgUnits cmd, final UserExecutionContext context) throws CommandException {
-		List<OrgUnit> orgUnits = orgUnitDAO.findByIds(cmd.getOrgUnitIds());
+		List<OrgUnit> orgUnits;
+		if (cmd.getOrgUnitIds() == null) {
+			orgUnits = orgUnitDAO.findByOrganizationId(context.getUser().getOrganization().getId());
+		} else {
+			orgUnits = orgUnitDAO.findByIds(cmd.getOrgUnitIds());
+		}
 
 		List<OrgUnitDTO> orgUnitDTOs = new ArrayList<>();
 		for (OrgUnit orgUnit : orgUnits) {
-			if (!Handlers.isOrgUnitVisible(orgUnit, context.getUser())) {
-				if (LOG.isDebugEnabled()) {
-					LOG.debug("User cannot see org unit id #{}, returns null.", orgUnit.getId());
-				}
-				continue;
-			}
 			orgUnitDTOs.add(mapper.map(orgUnit, OrgUnitDTO.class));
 		}
 

@@ -22,6 +22,10 @@ public class GetOrgUnits extends AbstractCommand<ListResult<OrgUnitDTO>> {
 		// Serialization.
 	}
 
+	public GetOrgUnits(final OrgUnitDTO.Mode mode) {
+		this(null, mode);
+	}
+
 	public GetOrgUnits(final Set<Integer> orgUnitIds, final OrgUnitDTO.Mode mode) {
 		this.orgUnitIds = orgUnitIds;
 		this.mode = mode;

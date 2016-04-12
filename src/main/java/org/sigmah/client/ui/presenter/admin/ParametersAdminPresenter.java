@@ -341,7 +341,7 @@ public class ParametersAdminPresenter extends AbstractAdminPresenter<ParametersA
 		displayLogo(auth().getOrganizationLogo());
 
 		// Retrieves OrgUnits and populates store.
-		dispatch.execute(new GetOrgUnits(auth().getOrgUnitIds(), OrgUnitDTO.Mode.WITH_TREE), new CommandResultHandler<ListResult<OrgUnitDTO>>() {
+		dispatch.execute(new GetOrgUnits(OrgUnitDTO.Mode.WITH_TREE), new CommandResultHandler<ListResult<OrgUnitDTO>>() {
 
 			@Override
 			public void onCommandSuccess(final ListResult<OrgUnitDTO> result) {
