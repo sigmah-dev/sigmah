@@ -45,7 +45,6 @@ import org.sigmah.shared.dto.profile.ProfileDTO;
 import org.sigmah.shared.dto.referential.GlobalPermissionEnum;
 import org.sigmah.shared.dto.referential.PrivacyGroupPermissionEnum;
 import org.sigmah.shared.util.Month;
-import org.sigmah.shared.util.ProfileUtils;
 
 /**
  * Convenient methods for {@link CommandHandler} implementations.
@@ -320,7 +319,7 @@ public final class Handlers {
 							return true;
 						}
 						break;
-					case EDIT_MY_PROJECTS:
+					case EDIT_PROJECT:
 						canEditHisProjects = true;
 						break;
 				}

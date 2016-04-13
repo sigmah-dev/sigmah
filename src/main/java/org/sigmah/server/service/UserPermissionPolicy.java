@@ -110,7 +110,7 @@ public class UserPermissionPolicy {
 
 		// check new profile set for EDIT_ALL_PROJECTS global permission
 		boolean granted = isGranted(userOrgUnit, GlobalPermissionEnum.EDIT_ALL_PROJECTS) ||
-			isGranted(userOrgUnit, GlobalPermissionEnum.EDIT_MY_PROJECTS);
+			isGranted(userOrgUnit, GlobalPermissionEnum.EDIT_PROJECT);
 		if (!granted) /* skip the rest of part if user has no enough permission */
 			return;
 

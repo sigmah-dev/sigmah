@@ -53,7 +53,7 @@ public enum GlobalPermissionEnum implements Result {
 	 * Edit and save the project details, the project phases, the project funding, the log frame and the calendar of
 	 * projects for which the user is a member of the project team.
 	 */
-	EDIT_MY_PROJECTS(VIEW_MY_PROJECTS),
+	EDIT_PROJECT(VIEW_MY_PROJECTS),
 
 	/**
 	 * View all the projects list and the project page.
@@ -78,37 +78,37 @@ public enum GlobalPermissionEnum implements Result {
 	/**
 	 * Delete a project.
 	 */
-	DELETE_PROJECT(GlobalPermissionCategory.PROJECT),
+	DELETE_PROJECT(VIEW_MY_PROJECTS),
 
 	/**
 	 * Lock or unlock a project.
 	 */
-	LOCK_PROJECT(GlobalPermissionCategory.PROJECT),
+	LOCK_PROJECT(VIEW_MY_PROJECTS),
 
 	/**
 	 * Modify locked content. (i. e. content of closed phases and content of closed projects).
 	 */
-	MODIFY_LOCKED_CONTENT(EDIT_MY_PROJECTS),
+	MODIFY_LOCKED_CONTENT(EDIT_PROJECT),
 
 	/**
 	 * Remove a file (in the files list flexible element of projects).
 	 */
-	REMOVE_PROJECT_FILE(EDIT_MY_PROJECTS),
+	REMOVE_PROJECT_FILE(EDIT_PROJECT),
 
 	/**
 	 * Close or activate a phase.
 	 */
-	CHANGE_PHASE(EDIT_MY_PROJECTS),
+	CHANGE_PHASE(EDIT_PROJECT),
 
 	/**
 	 * For relating projects.
 	 */
-	RELATE_PROJECT(EDIT_MY_PROJECTS),
+	RELATE_PROJECT(EDIT_PROJECT),
 
 	/**
 	 * Validate the amendement.
 	 */
-	VALID_AMENDEMENT(EDIT_MY_PROJECTS),
+	VALID_AMENDEMENT(EDIT_PROJECT),
 
 	/**
 	 * for viewing the logframe sub-tab.
@@ -152,7 +152,7 @@ public enum GlobalPermissionEnum implements Result {
 	/**
 	 * for viewing the two indicator sub-tabs.
 	 */
-	VIEW_INDICATOR(VIEW_ALL_PROJECTS),
+	VIEW_INDICATOR(VIEW_MY_PROJECTS),
 
 	/**
 	 * for creating/deleting/modifying indicator definitions.
@@ -461,8 +461,8 @@ public enum GlobalPermissionEnum implements Result {
 			case VIEW_MY_PROJECTS:
 				return I18N.CONSTANTS.VIEW_MY_PROJECTS();
 
-			case EDIT_MY_PROJECTS:
-				return I18N.CONSTANTS.EDIT_MY_PROJECTS();
+			case EDIT_PROJECT:
+				return I18N.CONSTANTS.EDIT_PROJECT();
 
 			case VIEW_ALL_PROJECTS:
 				return I18N.CONSTANTS.VIEW_ALL_PROJECTS();

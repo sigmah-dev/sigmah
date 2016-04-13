@@ -59,6 +59,6 @@ public class ProjectUtils {
 		}
 
 		return authentication.getMemberOfProjectIds().contains(project.getId()) &&
-			profileDTO.getGlobalPermissions().contains(GlobalPermissionEnum.EDIT_MY_PROJECTS);
+			profileDTO.getGlobalPermissions().contains(GlobalPermissionEnum.EDIT_PROJECT);
 	}
 }
