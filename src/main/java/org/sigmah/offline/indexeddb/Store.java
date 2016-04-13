@@ -48,6 +48,7 @@ public enum Store implements Schema {
 	PAGE_ACCESS,
 	PHASE,
 	PHASE_MODEL,
+	PROFILE,
 	PROJECT("orgUnit", "orgUnit",
 			"remindersListId", "remindersListId",
 			"pointsListId", "pointsListId"),

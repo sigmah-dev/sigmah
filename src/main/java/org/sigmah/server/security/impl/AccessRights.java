@@ -168,6 +168,7 @@ final class AccessRights {
 		sperm(commandToken(GetOrgUnit.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetOrgUnitModel.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetUserUnitsByUser.class), GrantType.AUTHENTICATED_ONLY);
+		sperm(commandToken(GetProfiles.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetProject.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetProjectDocuments.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetProjectModel.class), GrantType.AUTHENTICATED_ONLY);
