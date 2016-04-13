@@ -402,56 +402,6 @@ public class DashboardPresenter extends AbstractPagePresenter<DashboardPresenter
 			view.addMenuButton(I18N.CONSTANTS.importItem(), null, new ButtonClickHandler(Page.IMPORT_VALUES));
 		}
 		
-		// Probes mangment.
-		if (online && ProfileUtils.isGranted(auth(), GlobalPermissionEnum.PROBES_MANGMENT)) {
-			view.addMenuButton(I18N.CONSTANTS.sendProbeReport(), null, new Listener<ButtonEvent>(){
-				@Override
-				public void handleEvent(ButtonEvent be) {
-					executionAsyncDAO.getAllExecutions( new AsyncCallback<List<Execution>>() {
-						@Override
-						public void onFailure(Throwable caught) {
-							Log.error("Excpetion occured ");
-						}
-
-						@Override
-						public void onSuccess(List<Execution> listExecution) {
-							List<ExecutionDTO> dtos=new ArrayList<ExecutionDTO>();
-							//Mapping from Execution JavaScriptObject to ExecutionDTO
-							for(Execution execution :listExecution){
-								ExecutionDTO executionDTO=new ExecutionDTO();
-								executionDTO.setApplicationCacheStatus(execution.getApplicationCacheStatus());
-								executionDTO.setDate(execution.getDate());
-								executionDTO.setOnligne(execution.isOnline());
-								executionDTO.setScenario(execution.getScenario());
-								executionDTO.setUserAgent(execution.getUserAgent());
-								executionDTO.setUserEmailAddress(execution.getUserEmailAddress());
-								executionDTO.setVersionNumber(execution.getVersionNumber());
-								executionDTO.setDuration(execution.getDuration());
-								for(Checkpoint checkPoint:execution.getCheckpointSequence()){
-									CheckPointDTO checkPointDto=new CheckPointDTO();
-									checkPointDto.setDuration(checkPoint.getDuration());
-									checkPointDto.setName(checkPoint.getName());
-									checkPoint.setTime(checkPoint.getTime());
-									executionDTO.getCheckpoints().add(checkPointDto);
-								}
-								dtos.add(executionDTO);
-							}
-							//call server
-							dispatch.execute(new SendProbeReport(dtos), new CommandResultHandler<Result>(){
-								@Override
-								protected void onCommandSuccess(Result result) {
-									N10N.infoNotif("Info", "<p>"+I18N.CONSTANTS.probeReportSentSucces() +"</p>");
-								}
-								protected void onCommandFailure(Result result) {
-									N10N.infoNotif("Error", "<p>"+I18N.CONSTANTS.probeReportSentFailure()+"</p>");
-								}
-							});
-						}
-					});
-				}
-				
-			});
-		}
 		
 		// TODO Handle other menus buttons.
 		// There are two ways to show these menus (authentication / profile).
