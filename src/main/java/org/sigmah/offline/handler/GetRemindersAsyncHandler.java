@@ -35,6 +35,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import org.sigmah.offline.dao.ProjectAsyncDAO;
 import org.sigmah.offline.dao.RequestManager;
 import org.sigmah.offline.dao.RequestManagerCallback;
@@ -62,7 +63,7 @@ public class GetRemindersAsyncHandler implements AsyncCommandHandler<GetReminder
 	@Override
 	public void execute(GetReminders command, OfflineExecutionContext executionContext, final AsyncCallback<ListResult<ReminderDTO>> callback) {
 		if(command.getProjectId() == null) {
-			loadAllReminders(callback);
+			loadAllReminders(command, callback);
 		} else {
 			loadProjectReminders(command.getProjectId(), callback);
 		}
@@ -76,30 +77,41 @@ public class GetRemindersAsyncHandler implements AsyncCommandHandler<GetReminder
 		reminderAsyncDAO.saveAll(result, null);
 	}
 	
-	private void loadAllReminders(final AsyncCallback<ListResult<ReminderDTO>> callback) {
-		reminderAsyncDAO.getAllWithoutCompletionDate(new AsyncCallback<List<ReminderDTO>>() {
+	private void loadAllReminders(GetReminders command, final AsyncCallback<ListResult<ReminderDTO>> callback) {
+		Set<Integer> orgUnitIds = command.getOrgUnitIds();
+		projectAsyncDAO.getProjectsByIds(orgUnitIds, new AsyncCallback<ListResult<ProjectDTO>>() {
 			@Override
-				public void onFailure(Throwable caught) {
-					callback.onFailure(caught);
-				}
+			public void onFailure(Throwable caught) {
+				callback.onFailure(caught);
+			}
 
-				@Override
-			public void onSuccess(List<ReminderDTO> result) {
-				final RequestManager<ListResult<ReminderDTO>> manager = new RequestManager<ListResult<ReminderDTO>>(new ListResult<ReminderDTO>(result), callback);
-						
-				for (final ReminderDTO reminder : result) {
-					projectAsyncDAO.getByIndexWithoutDependencies("remindersListId", reminder.getParentListId(), new RequestManagerCallback<ListResult<ReminderDTO>, ProjectDTO>(manager) {
+			@Override
+			public void onSuccess(final ListResult<ProjectDTO> projectsResult) {
+				final int[] index = new int[]{0};
+				final List<ReminderDTO> reminders = new ArrayList<ReminderDTO>();
+				for (ProjectDTO projectDTO : projectsResult.getData()) {
+					reminderAsyncDAO.getAllByParentListId(projectDTO.getRemindersList().getId(), new AsyncCallback<List<ReminderDTO>>() {
 						@Override
-						public void onRequestSuccess(ProjectDTO result) {
-							if (result != null) {
-								reminder.setProjectId(result.getId());
-								reminder.setProjectCode(result.getName());
-								reminder.setProjectName(result.getFullName());
-					}
+						public void onFailure(Throwable caught) {
+							callback.onFailure(caught);
+						}
+
+						@Override
+						public void onSuccess(List<ReminderDTO> remindersResult) {
+							for (ReminderDTO reminderDTO : remindersResult) {
+								if (reminderDTO.getCompletionDate() != null) {
+									continue;
+								}
+
+								reminders.add(reminderDTO);
+							}
+
+							if (++index[0] >= projectsResult.getSize()) {
+								callback.onSuccess(new ListResult<ReminderDTO>(reminders));
+							}
+						}
+					});
 				}
-			});
-		}
-				manager.ready();
 			}
 		});
 	}

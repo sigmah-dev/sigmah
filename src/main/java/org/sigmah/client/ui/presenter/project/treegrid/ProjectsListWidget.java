@@ -217,6 +217,10 @@ public class ProjectsListWidget extends AbstractPresenter<ProjectsListWidget.Vie
 
 	}
 
+	public interface TitleSupplier {
+		String supplyTitle(int projectCount);
+	}
+
 	/**
 	 * Defines the refreshing mode.
 	 *
@@ -225,7 +229,7 @@ public class ProjectsListWidget extends AbstractPresenter<ProjectsListWidget.Vie
 	public static enum RefreshMode {
 
 		/**
-		 * The project list is refreshed each time the {@link ProjectsListWidget#refresh(boolean, Integer...)} method is
+		 * The project list is refreshed each time the {@link ProjectsListWidget#refresh(boolean, boolean, Integer...)} method is
 		 * called.
 		 */
 		ALWAYS,
@@ -236,7 +240,7 @@ public class ProjectsListWidget extends AbstractPresenter<ProjectsListWidget.Vie
 		MANUAL,
 
 		/**
-		 * Refresh the project list when {@link ProjectsListWidget#refresh(boolean, Integer...)} is called for the first
+		 * Refresh the project list when {@link ProjectsListWidget#refresh(boolean, boolean, Integer...)} is called for the first
 		 * time. Subsequent refreshs are called by the refresh button.
 		 */
 		ON_FIRST_TIME;
@@ -262,6 +266,13 @@ public class ProjectsListWidget extends AbstractPresenter<ProjectsListWidget.Vie
 
 	}
 
+	public static final TitleSupplier DEFAULT_TITLE_SUPPLIER = new TitleSupplier() {
+		@Override
+		public String supplyTitle(int projectCount) {
+			return I18N.CONSTANTS.projects() + " (" + projectCount + ")";
+		}
+	};
+
 	// Current projects grid parameters.
 	private ProjectModelType currentModelType;
 	private final ArrayList<Integer> orgUnitsIds;
@@ -285,6 +296,8 @@ public class ProjectsListWidget extends AbstractPresenter<ProjectsListWidget.Vie
 	 * Has the project grid already been loaded once?
 	 */
 	private boolean loaded;
+
+	private TitleSupplier titleSupplier = DEFAULT_TITLE_SUPPLIER;
 
 	/**
 	 * Builds a new project list panel with default values.
@@ -458,6 +471,16 @@ public class ProjectsListWidget extends AbstractPresenter<ProjectsListWidget.Vie
 		});
 	}
 
+	public void setTitleSupplier(TitleSupplier titleSupplier) {
+		this.titleSupplier = titleSupplier;
+
+		updateTitle(titleSupplier);
+	}
+
+	private void updateTitle(TitleSupplier titleSupplier) {
+		view.getProjectsPanel().setHeadingText(titleSupplier.supplyTitle(view.getStore().getChildCount()));
+	}
+
 	/**
 	 * <p>
 	 * Initializes the widget.
@@ -489,7 +512,7 @@ public class ProjectsListWidget extends AbstractPresenter<ProjectsListWidget.Vie
 	 *          The list of ids of the organizational units for which the projects will be retrieved. The projects of each
 	 *          the sub-organizational units are retrieved automatically.
 	 */
-	public void refresh(final boolean viewOwnOrManage, final Integer... orgUnitsIds) {
+	public void refresh(final boolean viewOwnOrManage, final boolean forceRefresh, final Integer... orgUnitsIds) {
 
 		// Updates toolbar.
 		final boolean refreshEnabled = refreshMode == RefreshMode.MANUAL || refreshMode == RefreshMode.ON_FIRST_TIME;
@@ -509,7 +532,7 @@ public class ProjectsListWidget extends AbstractPresenter<ProjectsListWidget.Vie
 		command.setViewOwnOrManage(viewOwnOrManage);
 
 		// If the mode is automatic, the list is refreshed immediately.
-		if (refreshMode == RefreshMode.ALWAYS || (refreshMode == RefreshMode.ON_FIRST_TIME && !loaded)) {
+		if (forceRefresh || refreshMode == RefreshMode.ALWAYS || (refreshMode == RefreshMode.ON_FIRST_TIME && !loaded)) {
 			refreshProjectGrid(command);
 			loaded = true;
 		}
@@ -546,7 +569,7 @@ public class ProjectsListWidget extends AbstractPresenter<ProjectsListWidget.Vie
 
 			@Override
 			public void handleEvent(StoreEvent<ProjectDTO> be) {
-				view.getProjectsPanel().setHeadingText(I18N.CONSTANTS.projects() + " (" + view.getStore().getChildCount() + ')');
+				updateTitle(titleSupplier);
 			}
 		});
 
