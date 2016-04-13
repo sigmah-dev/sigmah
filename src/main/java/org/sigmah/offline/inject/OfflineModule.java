@@ -83,6 +83,7 @@ public class OfflineModule extends AbstractGinModule {
 			GetSitesCountAsyncHandler getSitesCountAsyncHandler,
 			GetUsersByOrganizationAsyncHandler getUsersByOrganizationAsyncHandler,
 			GetUsersByOrgUnitAsyncHandler getUsersByOrgUnitAsyncHandler,
+		GetUserUnitsByUserAsyncHandler getUserUnitsByUserAsyncHandler,
 			GetValueAsyncHandler getValueAsyncHandler,
             PrepareFileUploadAsyncHandler prepareFileUploadAsyncHandler,
 			SecureNavigationAsyncHandler secureNavigationAsyncHandler,
@@ -128,6 +129,7 @@ public class OfflineModule extends AbstractGinModule {
         registerHandler(GetSitesCount.class, getSitesCountAsyncHandler);
         registerHandler(GetUsersByOrganization.class, getUsersByOrganizationAsyncHandler);
 		registerHandler(GetUsersByOrgUnit.class, getUsersByOrgUnitAsyncHandler);
+		registerHandler(GetUserUnitsByUser.class, getUserUnitsByUserAsyncHandler);
         registerHandler(GetValue.class, getValueAsyncHandler);
 		registerHandler(PrepareFileUpload.class, prepareFileUploadAsyncHandler);
         registerHandler(SecureNavigationCommand.class, secureNavigationAsyncHandler);

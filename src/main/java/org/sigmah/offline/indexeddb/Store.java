@@ -60,6 +60,7 @@ public enum Store implements Schema {
 			"fileVersionId", "fileVersion.id"),
 	USER("organization", "organization",
 			"orgUnit", "orgUnits"),
+	USER_UNITS_RESULT,
 	VALUE;
 
 	private final boolean autoIncrement;
