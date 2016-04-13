@@ -24,24 +24,21 @@ package org.sigmah.offline.dao;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 
-import org.sigmah.offline.indexeddb.Cursor;
-import org.sigmah.offline.indexeddb.IDBKeyRange;
-import org.sigmah.offline.indexeddb.Index;
-import org.sigmah.offline.indexeddb.ObjectStore;
-import org.sigmah.offline.indexeddb.OpenCursorRequest;
-import org.sigmah.offline.indexeddb.Request;
-import org.sigmah.offline.indexeddb.Store;
-import org.sigmah.offline.indexeddb.Transaction;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+
+import org.sigmah.offline.indexeddb.*;
 import org.sigmah.offline.js.UserJS;
+import org.sigmah.offline.js.Values;
 import org.sigmah.shared.command.result.ListResult;
 import org.sigmah.shared.dto.UserDTO;
 import org.sigmah.shared.dto.orgunit.OrgUnitDTO;
 
 import com.allen_sauer.gwt.log.client.Log;
-import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 
 /**
  * Asynchronous DAO for saving and loading <code>UserDTO</code> objects.
@@ -57,7 +54,7 @@ public class UserAsyncDAO extends AbstractUserDatabaseAsyncDAO<UserDTO, UserJS> 
 	public UserAsyncDAO(OrgUnitAsyncDAO orgUnitDAO) {
 		this.orgUnitDAO = orgUnitDAO;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -180,6 +177,66 @@ public class UserAsyncDAO extends AbstractUserDatabaseAsyncDAO<UserDTO, UserJS> 
                 });
             }
         });
+	}
+
+public void getByOrgUnit(final int orgUnitId, final AsyncCallback<ListResult<UserDTO>> callback) {
+		openTransaction(Transaction.Mode.READ_ONLY, new OpenTransactionHandler() {
+
+			@Override
+			public void onTransaction(final Transaction transaction) {
+				final ObjectStore userObjectStore = transaction.getObjectStore(Store.USER);
+				final Index orgUnitIndex = userObjectStore.index("orgUnit");
+				final OpenCursorRequest openCursorRequest = orgUnitIndex.openCursor(IDBKeyRange.only(orgUnitId));
+
+				final ArrayList<UserDTO> users = new ArrayList<UserDTO>();
+
+				openCursorRequest.addCallback(new AsyncCallback<Request>() {
+
+					@Override
+					public void onFailure(Throwable caught) {
+						callback.onFailure(caught);
+					}
+
+					@Override
+					public void onSuccess(Request request) {
+						final Cursor cursor = openCursorRequest.getResult();
+						if (cursor != null) {
+							final UserJS userJS = (UserJS) cursor.getValue();
+							users.add(userJS.toDTO());
+							cursor.next();
+
+						} else {
+							callback.onSuccess(new ListResult<UserDTO>(users));
+						}
+					}
+				});
+			}
+		});
+	}
+
+	public void getByOrgUnits(final Set<Integer> orgUnitIds, final AsyncCallback<ListResult<UserDTO>> callback) {
+		final List<UserDTO> users = new ArrayList<UserDTO>();
+		// `i` needs to be final as it is accessed asynchronously
+		final int[] i = {0};
+		for (final Integer orgUnitId : orgUnitIds) {
+			getByOrgUnit(orgUnitId, new AsyncCallback<ListResult<UserDTO>>() {
+				@Override
+				public void onFailure(Throwable caught) {
+					callback.onFailure(caught);
+				}
+
+				@Override
+				public void onSuccess(ListResult<UserDTO> userDTOListResult) {
+					users.addAll(userDTOListResult.getData());
+					i[0]++;
+
+					if (i[0] == orgUnitIds.size()) {
+						callback.onSuccess(new ListResult<UserDTO>(users));
+					}
+				}
+			});
+		}
+
 	}
 
 	/**

@@ -6,9 +6,18 @@ import org.sigmah.shared.dto.UserDTO;
 import org.sigmah.shared.dto.profile.ProfileDTO;
 
 public class TeamMembersResult implements Result {
+	private Integer projectId;
 	private UserDTO projectManager;
 	private List<UserDTO> teamMembers;
 	private List<ProfileDTO> teamMemberProfiles;
+
+	public Integer getProjectId() {
+		return projectId;
+	}
+
+	public void setProjectId(Integer projectId) {
+		this.projectId = projectId;
+	}
 
 	public UserDTO getProjectManager() {
 		return projectManager;

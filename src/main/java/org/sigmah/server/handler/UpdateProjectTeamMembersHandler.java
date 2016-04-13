@@ -71,6 +71,7 @@ public class UpdateProjectTeamMembersHandler extends AbstractCommandHandler<Upda
 			userDTOs.add(userDTO);
 		}
 		TeamMembersResult teamMembersResult = new TeamMembersResult();
+		teamMembersResult.setProjectId(command.getProjectId());
 		teamMembersResult.setProjectManager(managerDTO);
 		teamMembersResult.setTeamMemberProfiles(profileDTOs);
 		teamMembersResult.setTeamMembers(userDTOs);
