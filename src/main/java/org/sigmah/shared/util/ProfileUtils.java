@@ -22,6 +22,8 @@ package org.sigmah.shared.util;
  * #L%
  */
 
+import java.util.Map;
+
 import org.sigmah.client.util.ClientUtils;
 import org.sigmah.shared.command.result.Authentication;
 import org.sigmah.shared.dto.profile.PrivacyGroupDTO;
@@ -59,7 +61,18 @@ public final class ProfileUtils {
 			return false;
 		}
 
-		return isGranted(authentication.getAggregatedProfile(), permissions);
+		Map<Integer, ProfileDTO> aggregatedProfiles = authentication.getAggregatedProfiles();
+		if (aggregatedProfiles == null) {
+			return false;
+		}
+
+		for (ProfileDTO profileDTO : aggregatedProfiles.values()) {
+			if (isGranted(profileDTO, permissions)) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**
@@ -110,13 +123,18 @@ public final class ProfileUtils {
 	 *          The privacy group.
 	 * @return The permission for the authentication and this privacy group.
 	 */
-	public static PrivacyGroupPermissionEnum getPermission(final Authentication authentication, final PrivacyGroupDTO group) {
+	public static PrivacyGroupPermissionEnum getPermissionForOrgUnit(final Authentication authentication,
+		final Integer orgUnitId, final PrivacyGroupDTO group) {
 
 		if (authentication == null) {
 			return PrivacyGroupPermissionEnum.NONE;
 		}
 
-		return getPermission(authentication.getAggregatedProfile(), group);
+		Map<Integer, ProfileDTO> aggregatedProfiles = authentication.getAggregatedProfiles();
+		if (aggregatedProfiles == null) {
+			return PrivacyGroupPermissionEnum.NONE;
+		}
+		return getPermission(aggregatedProfiles.get(orgUnitId), group);
 	}
 
 	/**

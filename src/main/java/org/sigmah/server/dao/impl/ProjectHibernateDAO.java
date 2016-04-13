@@ -115,4 +115,34 @@ public class ProjectHibernateDAO extends AbstractDAO<Project, Integer> implement
 
 		return new HashSet<>(query.getResultList());
 	}
+
+	@Override
+	public List<Project> findProjectByTeamMemberIdAndOrgUnitIds(Integer userId, Set<Integer> orgUnitIds) {
+		if (orgUnitIds.isEmpty()) {
+			return Collections.emptyList();
+		}
+
+		// Disable the ActivityInfo filter on Userdatabase.
+		DomainFilters.disableUserFilter(em());
+
+		TypedQuery<Project> query = em().createQuery("SELECT pr " +
+			"FROM Project pr " +
+			"WHERE pr.manager.id = :userId " +
+			"OR pr.owner.id = :userId " +
+			"OR :userId IN ( " +
+			" SELECT tm.id " +
+			" FROM pr.teamMembers tm " +
+			") " +
+			"OR :userId IN ( " +
+			" SELECT oup.user.id " +
+			" FROM pr.teamMemberProfiles tmp, OrgUnitProfile oup " +
+			" JOIN oup.profiles oupp " +
+			" WHERE tmp.id = oupp.id " +
+			" AND oup.orgUnit.id IN (:orgUnitIds) " +
+			") ", Project.class);
+		query.setParameter("userId", userId);
+		query.setParameter("orgUnitIds", orgUnitIds);
+
+		return query.getResultList();
+	}
 }

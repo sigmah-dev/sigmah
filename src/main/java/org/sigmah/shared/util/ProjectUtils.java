@@ -1,7 +1,10 @@
 package org.sigmah.shared.util;
 
+import java.util.Map;
+
 import org.sigmah.shared.command.result.Authentication;
 import org.sigmah.shared.dto.ProjectDTO;
+import org.sigmah.shared.dto.profile.ProfileDTO;
 import org.sigmah.shared.dto.referential.GlobalPermissionEnum;
 
 public class ProjectUtils {
@@ -19,12 +22,21 @@ public class ProjectUtils {
 			}
 		}
 
-		if (authentication.getAggregatedProfile().getGlobalPermissions().contains(GlobalPermissionEnum.VIEW_ALL_PROJECTS)) {
+		Map<Integer, ProfileDTO> aggregatedProfiles = authentication.getAggregatedProfiles();
+		if (aggregatedProfiles == null) {
+			return false;
+		}
+		ProfileDTO profileDTO = aggregatedProfiles.get(project.getOrgUnitId());
+		if (profileDTO == null) {
+			return false;
+		}
+
+		if (profileDTO.getGlobalPermissions().contains(GlobalPermissionEnum.VIEW_ALL_PROJECTS)) {
 			return true;
 		}
 
 		return authentication.getMemberOfProjectIds().contains(project.getId()) &&
-			authentication.getAggregatedProfile().getGlobalPermissions().contains(GlobalPermissionEnum.VIEW_MY_PROJECTS);
+			profileDTO.getGlobalPermissions().contains(GlobalPermissionEnum.VIEW_MY_PROJECTS);
 	}
 
 	public static boolean isProjectEditable(ProjectDTO project, Authentication authentication) {
@@ -32,11 +44,21 @@ public class ProjectUtils {
 			return false;
 		}
 
-		if (authentication.getAggregatedProfile().getGlobalPermissions().contains(GlobalPermissionEnum.EDIT_ALL_PROJECTS)) {
+		Map<Integer, ProfileDTO> aggregatedProfiles = authentication.getAggregatedProfiles();
+		if (aggregatedProfiles == null) {
+			return false;
+		}
+
+		ProfileDTO profileDTO = aggregatedProfiles.get(project.getOrgUnitId());
+		if (profileDTO == null) {
+			return false;
+		}
+
+		if (profileDTO.getGlobalPermissions().contains(GlobalPermissionEnum.EDIT_ALL_PROJECTS)) {
 			return true;
 		}
 
 		return authentication.getMemberOfProjectIds().contains(project.getId()) &&
-			authentication.getAggregatedProfile().getGlobalPermissions().contains(GlobalPermissionEnum.EDIT_MY_PROJECTS);
+			profileDTO.getGlobalPermissions().contains(GlobalPermissionEnum.EDIT_MY_PROJECTS);
 	}
 }

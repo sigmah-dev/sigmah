@@ -723,7 +723,7 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 		}
 
 		final Language language = context.getLanguage();
-		final ProfileDTO profile = Handlers.aggregateProfiles(context.getUser(), mapper);
+		final ProfileDTO profile = Handlers.aggregateProfiles(context.getUser(), mapper).get(project.getOrgUnit().getId());
 
 		if (project.getProjectModel().isUnderMaintenance()) {
 			// BUGFIX #730: Verifying the maintenance status of projects.

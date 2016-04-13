@@ -25,6 +25,7 @@ package org.sigmah.server.service;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -112,7 +113,7 @@ public class UserService extends AbstractEntityService<User, Integer, UserDTO> {
 		final String firstName = properties.get(UserDTO.FIRST_NAME);
 		final Language language = properties.get(UserDTO.LOCALE);
 		String password = properties.get(UserDTO.PASSWORD);
-		final Integer orgUnitId = (Integer) properties.get(UserDTO.ORG_UNIT);
+		final Integer orgUnitId = properties.get(UserDTO.ORG_UNIT);
 		final Collection<Integer> profilesIds = properties.get(UserDTO.PROFILES);
 
 		if (email == null && name == null) {
@@ -124,7 +125,7 @@ public class UserService extends AbstractEntityService<User, Integer, UserDTO> {
 			userFound = userDAO.findById(id);
 		}
 		if (userFound != null && userUnitDAO.doesOrgUnitProfileExist(userFound)) {
-			orgUnitProfileFound = userUnitDAO.findOrgUnitProfileByUser(userFound);
+			orgUnitProfileFound = userUnitDAO.findMainOrgUnitProfileByUserId(userFound.getId());
 		}
 
 		userToPersist = createNewUser(email, name, language.getLocale());
@@ -204,7 +205,7 @@ public class UserService extends AbstractEntityService<User, Integer, UserDTO> {
 					em().persist(orgUnitProfileToPersist);
 				}
 				if (orgUnitProfileToPersist.getId() != null && orgUnitProfileToPersist.getId() > 0) {
-					userToPersist.setOrgUnitWithProfiles(orgUnitProfileToPersist);
+					userToPersist.setOrgUnitsWithProfiles(Collections.singletonList(orgUnitProfileToPersist));
 				}
 			}
 		}

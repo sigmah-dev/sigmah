@@ -42,9 +42,9 @@ public class OrgUnitHibernateDAO extends AbstractDAO<OrgUnit, Integer> implement
 	public Set<Integer> getOrgUnitTreeIdsByUserId(Integer userId) {
 		TypedQuery<Integer> query = em().createQuery(
 			"SELECT oup.orgUnit.id " +
-			"FROM User u " +
-			"JOIN u.orgUnitWithProfiles oup " +
-			"WHERE u.id = :userId",
+			"FROM OrgUnitProfile oup " +
+			"JOIN oup.user u " +
+			"WHERE u.id = :userId ",
 			Integer.class
 		);
 		query.setParameter("userId", userId);

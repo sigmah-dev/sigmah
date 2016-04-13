@@ -23,6 +23,7 @@ package org.sigmah.server.dao;
  */
 
 import java.util.List;
+import java.util.Set;
 
 import org.sigmah.server.dao.base.DAO;
 import org.sigmah.server.domain.OrgUnit;
@@ -31,13 +32,14 @@ import org.sigmah.server.domain.profile.OrgUnitProfile;
 
 /**
  * Data Access Object for the {@link org.sigmah.server.domain.User} domain class.
- * 
+ *
  * @author nrebiai
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
 public interface UserUnitDAO extends DAO<OrgUnitProfile, Integer> {
+	OrgUnitProfile findMainOrgUnitProfileByUserId(Integer userId);
 
-	OrgUnitProfile findOrgUnitProfileByUser(User user);
+	Set<Integer> findSecondaryOrgUnitIdsByUserId(Integer userId);
 
 	boolean doesOrgUnitProfileExist(User user);
 

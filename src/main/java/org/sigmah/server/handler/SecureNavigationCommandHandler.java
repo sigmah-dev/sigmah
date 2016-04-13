@@ -25,6 +25,7 @@ package org.sigmah.server.handler;
 import org.sigmah.client.page.Page;
 import org.sigmah.server.dao.OrgUnitDAO;
 import org.sigmah.server.dao.ProjectDAO;
+import org.sigmah.server.dao.UserUnitDAO;
 import org.sigmah.server.dispatch.impl.UserDispatch.UserExecutionContext;
 import org.sigmah.server.domain.User;
 import org.sigmah.server.handler.base.AbstractCommandHandler;
@@ -58,15 +59,17 @@ public class SecureNavigationCommandHandler extends AbstractCommandHandler<Secur
 
 	private final OrgUnitDAO orgUnitDAO;
 	private final ProjectDAO projectDAO;
+	private final UserUnitDAO userUnitDAO;
 
 	private final Mapper mapper;
 
 	@Inject
 	public SecureNavigationCommandHandler(final SecureSessionValidator secureSessionValidator, OrgUnitDAO orgUnitDAO,
-		ProjectDAO projectDAO, final Mapper mapper) {
+		ProjectDAO projectDAO, UserUnitDAO userUnitDAO, final Mapper mapper) {
 		this.secureSessionValidator = secureSessionValidator;
 		this.orgUnitDAO = orgUnitDAO;
 		this.projectDAO = projectDAO;
+		this.userUnitDAO = userUnitDAO;
 		this.mapper = mapper;
 	}
 
@@ -91,7 +94,9 @@ public class SecureNavigationCommandHandler extends AbstractCommandHandler<Secur
 
 		Set<Integer> orgUnitIds = orgUnitDAO.getOrgUnitTreeIdsByUserId(user.getId());
 		Set<Integer> memberOfProjectIds = projectDAO.findProjectIdsByTeamMemberIdAndOrgUnitIds(user.getId(), orgUnitIds);
-		final Authentication authentication = Handlers.createAuthentication(user, context.getLanguage(), memberOfProjectIds, mapper);
+		Set<Integer> secondaryOrgUnitProfileIdsByUserId = userUnitDAO.findSecondaryOrgUnitIdsByUserId(user.getId());
+		final Authentication authentication = Handlers.createAuthentication(user, context.getLanguage(), memberOfProjectIds,
+			secondaryOrgUnitProfileIdsByUserId, mapper);
 
 		return new SecureNavigationResult(granted, authentication);
 	}

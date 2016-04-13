@@ -26,6 +26,7 @@ package org.sigmah.server.handler.util;
 import java.util.*;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.map.HashedMap;
 import org.sigmah.server.dispatch.CommandHandler;
 import org.sigmah.server.domain.OrgUnit;
 import org.sigmah.server.domain.Organization;
@@ -44,6 +45,7 @@ import org.sigmah.shared.dto.profile.ProfileDTO;
 import org.sigmah.shared.dto.referential.GlobalPermissionEnum;
 import org.sigmah.shared.dto.referential.PrivacyGroupPermissionEnum;
 import org.sigmah.shared.util.Month;
+import org.sigmah.shared.util.ProfileUtils;
 
 /**
  * Convenient methods for {@link CommandHandler} implementations.
@@ -90,10 +92,10 @@ public final class Handlers {
 	 * @return The created {@link Authentication}. Its language property is never {@code null}.
 	 */
 	public static Authentication createAuthentication(final User user, final Language language,
-		Set<Integer> memberOfProjectIds, final Mapper mapper) {
+		Set<Integer> memberOfProjectIds, Set<Integer> secondaryOrgUnitIds, final Mapper mapper) {
 
 		final Organization organization = user.getOrganization();
-		final OrgUnitProfile orgUnitWithProfiles = user.getOrgUnitWithProfiles();
+		final OrgUnitProfile orgUnitWithProfiles = user.getMainOrgUnitWithProfiles();
 
 		final Integer organizationId = organization != null ? organization.getId() : null;
 		final String organizationName = organization != null ? organization.getName() : null;
@@ -101,7 +103,7 @@ public final class Handlers {
 		final Integer orgUnitId = orgUnitWithProfiles != null && orgUnitWithProfiles.getOrgUnit() != null ? orgUnitWithProfiles.getOrgUnit().getId() : null;
 
 		return new Authentication(user.getId(), user.getEmail(), user.getName(), user.getFirstName(), Languages.notNull(language), organizationId,
-			organizationName, organizationLogo, orgUnitId, Handlers.aggregateProfiles(user, mapper), memberOfProjectIds);
+			organizationName, organizationLogo, orgUnitId, secondaryOrgUnitIds, Handlers.aggregateProfiles(user, mapper), memberOfProjectIds);
 	}
 
 	/**
@@ -112,6 +114,10 @@ public final class Handlers {
 	 * The {@link User} may have several profiles which link it to its {@link OrgUnit}.
 	 * This handler merges also all the profiles in one <em>aggregated profile</em>.
 	 * </p>
+	 * <p>
+	 * It returns a map relating the id of a OrgUnit with an aggregated ProfileDTO.
+	 * Each OrgUnit is crawled and put into the map with the best matching (i.e. the nearest) ProfileDTO.
+	 * </p>
 	 *
 	 * @param user
 	 *          The user.
@@ -119,35 +125,35 @@ public final class Handlers {
 	 *          The mapper service.
 	 * @return The aggregated profile DTO.
 	 */
-	public static ProfileDTO aggregateProfiles(final User user, final Mapper mapper) {
+	public static Map<Integer, ProfileDTO> aggregateProfiles(final User user, final Mapper mapper) {
+		Map<Integer, ProfileDTO> aggregatedProfiles = new HashMap<>();
+		if (user == null) {
+			return aggregatedProfiles;
+		}
 
-		final ProfileDTO aggretatedProfileDTO = new ProfileDTO();
+		Map<Integer, Integer> orgUnitDistance = new HashedMap<>();
+		for (OrgUnitProfile orgUnitProfile : user.getOrgUnitsWithProfiles()) {
+			ProfileDTO aggretatedProfileDTO = new ProfileDTO();
 		aggretatedProfileDTO.setName("AGGREGATED_PROFILE");
 		aggretatedProfileDTO.setGlobalPermissions(new HashSet<GlobalPermissionEnum>());
 		aggretatedProfileDTO.setPrivacyGroups(new HashMap<PrivacyGroupDTO, PrivacyGroupPermissionEnum>());
 
-		if (user == null || user.getOrgUnitWithProfiles() == null || CollectionUtils.isEmpty(user.getOrgUnitWithProfiles().getProfiles())) {
-			return aggretatedProfileDTO;
+		if (CollectionUtils.isEmpty(orgUnitProfile.getProfiles())) {
+			aggregatedProfiles.put(orgUnitProfile.getOrgUnit().getId(), aggretatedProfileDTO);
+			continue;
 		}
 
-		// For each profile.
-		for (final Profile profile : user.getOrgUnitWithProfiles().getProfiles()) {
-
-			// Global permissions.
+		for (Profile profile : orgUnitProfile.getProfiles()) {
 			if (profile.getGlobalPermissions() != null) {
-				for (final GlobalPermission p : profile.getGlobalPermissions()) {
-
+				for (GlobalPermission p : profile.getGlobalPermissions()) {
 					// Aggregates global permissions among profiles.
 					aggretatedProfileDTO.getGlobalPermissions().add(p.getPermission());
 				}
 			}
 
-			// Privacy groups.
 			if (profile.getPrivacyGroupPermissions() != null) {
-				for (final PrivacyGroupPermission p : profile.getPrivacyGroupPermissions()) {
-
-					final PrivacyGroupDTO groupDTO = mapper.map(p.getPrivacyGroup(), new PrivacyGroupDTO());
-
+					for (PrivacyGroupPermission p : profile.getPrivacyGroupPermissions()) {
+						PrivacyGroupDTO groupDTO = mapper.map(p.getPrivacyGroup(), new PrivacyGroupDTO());
 					// Aggregates privacy groups among profiles.
 					if (aggretatedProfileDTO.getPrivacyGroups().get(groupDTO) != PrivacyGroupPermissionEnum.WRITE) {
 						aggretatedProfileDTO.getPrivacyGroups().put(groupDTO, p.getPermission());
@@ -156,7 +162,23 @@ public final class Handlers {
 			}
 		}
 
-		return aggretatedProfileDTO;
+			List<OrgUnit> orgUnits = new ArrayList<>();
+			crawlUnits(orgUnitProfile.getOrgUnit(), orgUnits, true);
+			for (int i = 0; i < orgUnits.size(); i++) {
+				Integer orgUnitId = orgUnits.get(i).getId();
+				if (aggregatedProfiles.containsKey(orgUnitId) && orgUnitDistance.get(orgUnitId) <= i) {
+					// The OrgUnit is already inside the Map
+					// and the current profile is farther than the one inside the map so let's try another OrgUnitProfile
+					// or else
+					break;
+				}
+
+				aggregatedProfiles.put(orgUnitId, aggretatedProfileDTO);
+				orgUnitDistance.put(orgUnitId, i);
+			}
+		}
+
+		return aggregatedProfiles;
 	}
 
 	/**
@@ -171,12 +193,14 @@ public final class Handlers {
 	 */
 	public static void crawlUnits(final User user, final Collection<OrgUnit> units, final boolean addRoot) {
 
-		if (user == null || user.getOrgUnitWithProfiles() == null || user.getOrgUnitWithProfiles().getOrgUnit() == null) {
+		if (user == null || user.getOrgUnitsWithProfiles() == null) {
 			// No units available.
 			return;
 		}
 
-		crawlUnits(user.getOrgUnitWithProfiles().getOrgUnit(), units, addRoot);
+		for (OrgUnitProfile orgUnitProfile : user.getOrgUnitsWithProfiles()) {
+			crawlUnits(orgUnitProfile.getOrgUnit(), units, addRoot);
+		}
 	}
 
 	/**
@@ -241,29 +265,46 @@ public final class Handlers {
 		}
 
 		// Checks that the user can see this project.
-		final HashSet<OrgUnit> units = new HashSet<OrgUnit>();
-		crawlUnits(user.getOrgUnitWithProfiles().getOrgUnit(), units, true);
-
-		boolean sameOrgUnit = false;
-		for (final OrgUnit partner : project.getPartners()) {
-			for (final OrgUnit unit : units) {
-				if (partner.getId().equals(unit.getId())) {
-					sameOrgUnit = true;
+		// let's get the nearest OrgUnitProfile from the target OrgUnit
+		int minDistance = Integer.MAX_VALUE;
+		OrgUnitProfile targetedOrgUnitProfile = null;
+		for (OrgUnitProfile orgUnitProfile : user.getOrgUnitsWithProfiles()) {
+			if (Objects.equals(orgUnitProfile.getOrgUnit().getId(), project.getOrgUnit().getId())) {
+				// This OrgUnitProfile is directly related to the targeted OrgUnit, so he is obviously the nearest OrgUnitProfile
+				targetedOrgUnitProfile = orgUnitProfile;
 					break;
 				}
+
+			if (minDistance == 1) {
+				// The nearest OrgUnitProfile is either the current one or a OrgUnitProfile directly related to the targeted OrgUnit
+				continue;
 			}
-			if (sameOrgUnit) {
+
+			List<OrgUnit> orgUnits = new ArrayList<>();
+			crawlUnits(orgUnitProfile.getOrgUnit(), orgUnits, false);
+			int currentDistance = 1;
+			for (OrgUnit orgUnit : orgUnits) {
+				// This loop is over the distance of the currently selected OrgUnitProfile
+				if (currentDistance >= minDistance) {
 				break;
 			}
+
+				if (Objects.equals(orgUnit.getId(), project.getOrgUnit().getId())) {
+					targetedOrgUnitProfile = orgUnitProfile;
+					minDistance = currentDistance;
+					break;
 		}
 
-		if (!sameOrgUnit) {
+				currentDistance++;
+			}
+		}
+		if (targetedOrgUnitProfile == null) {
 			return false;
 		}
 
 		boolean canSeeHisProjects = false;
 		boolean canEditHisProjects = false;
-		for (Profile profile : user.getOrgUnitWithProfiles().getProfiles()) {
+		for (Profile profile : targetedOrgUnitProfile.getProfiles()) {
 			for (GlobalPermission globalPermission : profile.getGlobalPermissions()) {
 				switch (globalPermission.getPermission()) {
 					case VIEW_ALL_PROJECTS:
@@ -283,6 +324,12 @@ public final class Handlers {
 						canEditHisProjects = true;
 						break;
 				}
+				if ((!edition && canSeeHisProjects) || (edition && canEditHisProjects)) {
+					break;
+				}
+			}
+			if ((!edition && canSeeHisProjects) || (edition && canEditHisProjects)) {
+				break;
 			}
 		}
 
@@ -296,8 +343,7 @@ public final class Handlers {
 				return true;
 			}
 		}
-
-		for (Profile profile : user.getOrgUnitWithProfiles().getProfiles()) {
+		for (Profile profile : targetedOrgUnitProfile.getProfiles()) {
 			if (project.getTeamMemberProfiles().contains(profile)) {
 				return true;
 			}
@@ -325,7 +371,9 @@ public final class Handlers {
 
 		// Checks that the user can see this org unit.
 		final HashSet<OrgUnit> units = new HashSet<OrgUnit>();
-		Handlers.crawlUnits(user.getOrgUnitWithProfiles().getOrgUnit(), units, true);
+		for (OrgUnitProfile orgUnitProfile : user.getOrgUnitsWithProfiles()) {
+			Handlers.crawlUnits(orgUnitProfile.getOrgUnit(), units, true);
+		}
 
 		for (final OrgUnit unit : units) {
 			if (orgUnit.getId().equals(unit.getId())) {

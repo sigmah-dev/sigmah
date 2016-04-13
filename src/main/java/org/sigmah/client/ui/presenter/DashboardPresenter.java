@@ -251,7 +251,7 @@ public class DashboardPresenter extends AbstractPagePresenter<DashboardPresenter
 		loadOrgUnits();
 
 		// Reloads projects.
-		view.getProjectsList().refresh(true, auth().getOrgUnitId());
+		view.getProjectsList().refresh(true, auth().getMainOrgUnitId());
 		
 		// Ask the user to synchronize its favorite projects.
 		// BUGFIX #701: only showing this message if the user is online.
@@ -469,7 +469,7 @@ public class DashboardPresenter extends AbstractPagePresenter<DashboardPresenter
 	 */
 	private void loadOrgUnits() {
 
-		dispatch.execute(new GetOrgUnit(auth().getOrgUnitId(), OrgUnitDTO.Mode.WITH_TREE), new CommandResultHandler<OrgUnitDTO>() {
+		dispatch.execute(new GetOrgUnit(auth().getMainOrgUnitId(), OrgUnitDTO.Mode.WITH_TREE), new CommandResultHandler<OrgUnitDTO>() {
 
 			@Override
 			public void onCommandSuccess(final OrgUnitDTO result) {

@@ -230,24 +230,22 @@ final class AccessRights {
 		final Pair<GrantType, Set<GlobalPermissionEnum>> grantData = permissions.get(token);
 		final GrantType grantType = grantData.left;
 
-		final boolean granted;
-
 		if (user == null || ServletExecutionContext.ANONYMOUS_USER.equals(user)) {
 			// Anonymous user.
-			granted = grantType != null && grantType != GrantType.AUTHENTICATED_ONLY;
-
+			return grantType != null && grantType != GrantType.AUTHENTICATED_ONLY;
 		} else {
 			// Authenticated user.
 			if (grantType != null && grantType == GrantType.ANONYMOUS_ONLY) {
-				granted = false;
-
+				return false;
 			} else {
-				final ProfileDTO aggregatedProfile = Handlers.aggregateProfiles(user, mapper);
-				granted = CollectionUtils.containsAll(aggregatedProfile.getGlobalPermissions(), grantData.right);
+				for (Map.Entry<Integer, ProfileDTO> aggregatedProfileEntry : Handlers.aggregateProfiles(user, mapper).entrySet()) {
+					if (CollectionUtils.containsAll(aggregatedProfileEntry.getValue().getGlobalPermissions(), grantData.right)) {
+						return true;
+					}
+				}
 			}
 		}
-
-		return granted;
+		return false;
 	}
 
 	// -------------------------------------------------------------------------------------

@@ -24,6 +24,7 @@ package org.sigmah.shared.command.result;
 
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
 import org.sigmah.client.security.AuthenticationProvider;
@@ -96,13 +97,15 @@ public class Authentication implements Result {
 	/**
 	 * The currently authenticated user's OrgUnit id.
 	 */
-	private Integer orgUnitId;
+	private Integer mainOrgUnitId;
+
+	private Set<Integer> secondaryOrgUnitIds;
 
 	/**
 	 * The currently authenticated user's aggregated profiles.
 	 * Aggregation of all user's profile(s) (a user can be linked to multiple profiles).
 	 */
-	private ProfileDTO aggregatedProfile;
+	private Map<Integer, ProfileDTO> aggregatedProfiles;
 
 	private Set<Integer> memberOfProjectIds = new HashSet<Integer>();
 
@@ -147,15 +150,16 @@ public class Authentication implements Result {
 	 *          The user's Organization name.
 	 * @param organizationLogo
 	 *          The user's Organization logo path.
-	 * @param orgUnitId
+	 * @param mainOrgUnitId
 	 *          The user's OrgUnit id.
-	 * @param aggregatedProfile
-	 *          The user's <em>aggregated profile</em>.
+	 * @param aggregatedProfiles
+	 *          The user's <em>aggregated profiles</em>.
 	 */
 	public Authentication(Integer userId, String userEmail, String userName, String userFirstName, Language language,
-		Integer organizationId, String organizationName, String organizationLogo, Integer orgUnitId, ProfileDTO aggregatedProfile, Set<Integer> memberOfProjectIds) {
+		Integer organizationId, String organizationName, String organizationLogo, Integer mainOrgUnitId,
+		Set<Integer> secondaryOrgUnitIds, Map<Integer, ProfileDTO> aggregatedProfiles, Set<Integer> memberOfProjectIds) {
 		this(userId, userEmail, userName, userFirstName, language, organizationId, organizationName, organizationLogo,
-			orgUnitId, aggregatedProfile, memberOfProjectIds, false);
+			mainOrgUnitId, secondaryOrgUnitIds,  aggregatedProfiles, memberOfProjectIds, false);
 	}
 
 	/**
@@ -177,7 +181,7 @@ public class Authentication implements Result {
 	 *          The user's Organization name.
 	 * @param organizationLogo
 	 *          The user's Organization logo path.
-	 * @param orgUnitId
+	 * @param mainOrgUnitId
 	 *          The user's OrgUnit id.
 	 * @param aggregatedProfile
 	 *          The user's <em>aggregated profile</em>.
@@ -185,8 +189,8 @@ public class Authentication implements Result {
 	 *			<code>true</code> to allow the user to use Sigmah without cookie.
 	 */
 	public Authentication(Integer userId, String userEmail, String userName, String userFirstName, Language language,
-		Integer organizationId, String organizationName, String organizationLogo, Integer orgUnitId,
-		ProfileDTO aggregatedProfile, Set<Integer> memberOfProjectIds, boolean authorized) {
+		Integer organizationId, String organizationName, String organizationLogo, Integer mainOrgUnitId,
+		Set<Integer> secondaryOrgUnitIds, Map<Integer, ProfileDTO> aggregatedProfiles, Set<Integer> memberOfProjectIds, boolean authorized) {
 		this.userId = userId;
 		this.userEmail = userEmail;
 		this.userName = userName;
@@ -195,8 +199,9 @@ public class Authentication implements Result {
 		this.organizationId = organizationId;
 		this.organizationName = organizationName;
 		this.organizationLogo = organizationLogo;
-		this.orgUnitId = orgUnitId;
-		this.aggregatedProfile = aggregatedProfile;
+		this.mainOrgUnitId = mainOrgUnitId;
+		this.secondaryOrgUnitIds = secondaryOrgUnitIds;
+		this.aggregatedProfiles = aggregatedProfiles;
 		this.memberOfProjectIds = memberOfProjectIds;
 		this.authorized = authorized;
 	}
@@ -217,8 +222,31 @@ public class Authentication implements Result {
 		builder.append("organizationId", organizationId);
 		builder.append("organizationName", organizationName);
 		builder.append("organizationLogo", organizationLogo);
-		builder.append("orgUnitId", orgUnitId);
-		builder.append("aggregatedProfile", aggregatedProfile);
+		builder.append("mainOrgUnitId", mainOrgUnitId);
+
+		StringBuilder serializedSecondaryOrgUnitIds = new StringBuilder("[");
+		for (Iterator<Integer> iterator = secondaryOrgUnitIds.iterator(); iterator.hasNext();) {
+			Integer secondaryOrgUnitId = iterator.next();
+			serializedSecondaryOrgUnitIds.append(secondaryOrgUnitId);
+			if (iterator.hasNext()) {
+				serializedSecondaryOrgUnitIds.append(", ");
+			}
+		}
+		serializedSecondaryOrgUnitIds.append("]");
+
+		builder.append("secondaryOrgUnitIds", serializedSecondaryOrgUnitIds.toString());
+
+		StringBuilder serializedAggregatedProfiles = new StringBuilder("[");
+		for (Iterator<Map.Entry<Integer, ProfileDTO>> iterator = aggregatedProfiles.entrySet().iterator(); iterator.hasNext(); ) {
+			Map.Entry<Integer, ProfileDTO> entry = iterator.next();
+			serializedAggregatedProfiles.append("{" + entry.getKey() + ": " + entry.getValue() + "}");
+			if (iterator.hasNext()) {
+				serializedAggregatedProfiles.append(", ");
+			}
+		}
+		serializedAggregatedProfiles.append("]");
+		builder.append("aggregatedProfiles", serializedAggregatedProfiles);
+
 		StringBuilder serializedMemberOfProjectIds = new StringBuilder("[");
 		for (Iterator<Integer> iterator = memberOfProjectIds.iterator(); iterator.hasNext();) {
 			Integer memberOfProjectId = iterator.next();
@@ -337,12 +365,26 @@ public class Authentication implements Result {
 	}
 
 	/**
-	 * Returns the authenticated user's OrgUnit id or {@code null} if anonymous.
+	 * Returns the authenticated user's main OrgUnit id or {@code null} if anonymous.
 	 *
-	 * @return The authenticated user's OrgUnit id or {@code null} if anonymous.
+	 * @return The authenticated user's main OrgUnit id or {@code null} if anonymous.
 	 */
-	public Integer getOrgUnitId() {
-		return orgUnitId;
+	public Integer getMainOrgUnitId() {
+		return mainOrgUnitId;
+	}
+
+	/**
+	 * Returns the authenticated user's secondary OrgUnit ids or {@code Collections.emptySet()} if anonymous.
+	 */
+	public Set<Integer> getSecondaryOrgUnitIds() {
+		return secondaryOrgUnitIds;
+	}
+
+	public Set<Integer> getOrgUnitIds() {
+		Set<Integer> orgUnitIds = new HashSet<Integer>();
+		orgUnitIds.add(getMainOrgUnitId());
+		orgUnitIds.addAll(getSecondaryOrgUnitIds());
+		return orgUnitIds;
 	}
 
 	/**
@@ -364,12 +406,12 @@ public class Authentication implements Result {
 	}
 
 	/**
-	 * Returns the authenticated user aggregated profile or {@code null} if anonymous.
+	 * Returns the authenticated user aggregated profiles by OrgUnit id or {@code null} if anonymous.
 	 *
-	 * @return The authenticated user aggregated profile or {@code null} if anonymous.
+	 * @return The authenticated user aggregated profiles by OrgUnit id or {@code null} if anonymous.
 	 */
-	public ProfileDTO getAggregatedProfile() {
-		return aggregatedProfile;
+	public Map<Integer, ProfileDTO> getAggregatedProfiles() {
+		return aggregatedProfiles;
 	}
 
 	/**

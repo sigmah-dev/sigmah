@@ -42,7 +42,7 @@ import org.sigmah.shared.dto.report.ReportReference;
 
 /**
  * Handler for {@link GetProjectReports} command
- * 
+ *
  * @author Raphaël Calabro (rcalabro@ideia.fr) (v1.3)
  * @author Maxime Lombard (mlombard@ideia.fr) (v2.0)
  * @author Denis Colliot (dcolliot@ideia.fr) (v2.0)
@@ -105,7 +105,7 @@ public class GetProjectReportsHandler extends AbstractCommandHandler<GetProjectR
 
 	/***
 	 * Checks if the given {@code user} has the right to see the given {@code report}.
-	 * 
+	 *
 	 * @param projectReport
 	 *          The project report.
 	 * @param user
@@ -120,7 +120,7 @@ public class GetProjectReportsHandler extends AbstractCommandHandler<GetProjectR
 			return true;
 		}
 
-		for (final Profile profile : user.getOrgUnitWithProfiles().getProfiles()) {
+		for (final Profile profile : user.getMainOrgUnitWithProfiles().getProfiles()) {
 			for (final PrivacyGroupPermission pgp : profile.getPrivacyGroupPermissions()) {
 				if (documentPG.equals(pgp.getPrivacyGroup())) {
 					return true;

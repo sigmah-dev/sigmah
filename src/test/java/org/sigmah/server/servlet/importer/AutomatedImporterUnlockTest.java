@@ -269,8 +269,9 @@ public class AutomatedImporterUnlockTest extends AbstractDaoTest {
 		orgUnitProfile.setOrgUnit(orgUnit);
 		orgUnitProfile.setProfiles(Collections.singletonList(profile));
 		em().persist(orgUnitProfile);
-		
-		user.setOrgUnitWithProfiles(orgUnitProfile);
+		List<OrgUnitProfile> orgUnitsProfiles = new ArrayList<>();
+		orgUnitsProfiles.add(orgUnitProfile);
+		user.setOrgUnitsWithProfiles(orgUnitsProfiles);
 		em().merge(user);
 		
 		// Importation Scheme

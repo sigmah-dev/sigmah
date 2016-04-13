@@ -22,9 +22,12 @@ package org.sigmah.server.dao.impl;
  * #L%
  */
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.NoResultException;
+import javax.persistence.TypedQuery;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.sigmah.server.dao.UserUnitDAO;
@@ -46,24 +49,45 @@ public class UserUnitDAOImpl extends AbstractDAO<OrgUnitProfile, Integer> implem
 	 */
 	@Override
 	public boolean doesOrgUnitProfileExist(final User user) {
-		return CollectionUtils.isNotEmpty(em().createQuery("SELECT o from OrgUnitProfile o WHERE o.user = :user").setParameter("user", user).getResultList());
+		List resultList = em().createQuery("SELECT o from OrgUnitProfile o WHERE o.user = :user")
+			.setParameter("user", user)
+			.getResultList();
+		return CollectionUtils.isNotEmpty(resultList);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public OrgUnitProfile findOrgUnitProfileByUser(final User user) {
+	public OrgUnitProfile findMainOrgUnitProfileByUserId(Integer userId) {
 		try {
-
-			return em().createQuery("SELECT o from OrgUnitProfile o WHERE o.user = :user", entityClass).setParameter("user", user).getSingleResult();
-
+			TypedQuery<OrgUnitProfile> query = em().createQuery(
+				"SELECT oup " +
+				"FROM OrgUnitProfile oup " +
+				"JOIN FETCH oup.profiles p " +
+				"JOIN FETCH oup.orgUnit o " +
+				"WHERE oup.user.id = :userId " +
+				"AND oup.type = 'MAIN' ",
+				OrgUnitProfile.class
+			);
+			return query.setParameter("userId", userId).getSingleResult();
 		} catch (final NoResultException e) {
 			return null;
-
 		} catch (final Throwable t) {
 			throw t;
 		}
+	}
+
+	@Override
+	public Set<Integer> findSecondaryOrgUnitIdsByUserId(Integer userId) {
+		TypedQuery<Integer> query = em().createQuery(
+			"SELECT oup.orgUnit.id " +
+			"FROM OrgUnitProfile oup " +
+			"WHERE oup.user.id = :userId " +
+			"AND oup.type = 'SECONDARY' ",
+			Integer.class
+		);
+		return new HashSet<>(query.setParameter("userId", userId).getResultList());
 	}
 
 	/**
@@ -74,5 +98,4 @@ public class UserUnitDAOImpl extends AbstractDAO<OrgUnitProfile, Integer> implem
 		return em().createQuery("SELECT o.user FROM OrgUnitProfile o WHERE o.orgUnit IN (:orgUnits)", User.class).setParameter("orgUnits", orgUnits)
 			.getResultList();
 	}
-
 }

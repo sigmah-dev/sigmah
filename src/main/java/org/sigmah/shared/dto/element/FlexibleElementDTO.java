@@ -244,8 +244,7 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 	 * @return The widget component.
 	 */
 	private Component getComponentWithHistory(ValueResult valueResult, boolean phaseIsEnded, boolean inBanner) {
-
-		if(ProfileUtils.getPermission(auth(), getPrivacyGroup()) == PrivacyGroupPermissionEnum.NONE) {
+		if(ProfileUtils.getPermissionForOrgUnit(auth(), getOrgUnitId(), getPrivacyGroup()) == PrivacyGroupPermissionEnum.NONE) {
 			return null;
 		}
 		
@@ -283,7 +282,17 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 
 		return component;
 	}
-	
+
+	private Integer getOrgUnitId() {
+		Integer orgUnitId = null;
+		if (currentContainerDTO instanceof OrgUnitDTO) {
+			orgUnitId = ((OrgUnitDTO) currentContainerDTO).getOrgUnitId();
+		} else if (currentContainerDTO instanceof ProjectDTO) {
+			orgUnitId = ((ProjectDTO) currentContainerDTO).getOrgUnitId();
+		}
+		return orgUnitId;
+	}
+
 	/**
 	 * Creates the history menu. Displayed when the user right click a flexible 
 	 * element.
@@ -366,7 +375,7 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 	 * <code>changeType</code>, <code>false</code> otherwise.
 	 */
 	protected boolean userCanPerformChangeType(ValueEventChangeType changeType) {
-		final PrivacyGroupPermissionEnum permission = ProfileUtils.getPermission(auth(), getPrivacyGroup());
+		final PrivacyGroupPermissionEnum permission = ProfileUtils.getPermissionForOrgUnit(auth(), getOrgUnitId(), getPrivacyGroup());
 		
 		if(permission == PrivacyGroupPermissionEnum.READ) {
 			return false;

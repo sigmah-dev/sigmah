@@ -29,9 +29,11 @@ import javax.persistence.TypedQuery;
 
 import com.google.inject.Inject;
 
+import org.sigmah.server.dao.ProjectDAO;
 import org.sigmah.server.dispatch.impl.UserDispatch.UserExecutionContext;
 import org.sigmah.server.domain.OrgUnit;
 import org.sigmah.server.domain.Project;
+import org.sigmah.server.domain.ProjectFunding;
 import org.sigmah.server.domain.User;
 import org.sigmah.server.domain.util.DomainFilters;
 import org.sigmah.server.handler.base.AbstractCommandHandler;
@@ -65,10 +67,12 @@ public class GetProjectsHandler extends AbstractCommandHandler<GetProjects, List
 	 * Injected project mapper.
 	 */
 	private final ProjectMapper projectMapper;
+	private final ProjectDAO projectDAO;
 
 	@Inject
-	public GetProjectsHandler(final ProjectMapper projectMapper) {
+	public GetProjectsHandler(final ProjectMapper projectMapper, ProjectDAO projectDAO) {
 		this.projectMapper = projectMapper;
+		this.projectDAO = projectDAO;
 	}
 
 	/**
@@ -104,13 +108,9 @@ public class GetProjectsHandler extends AbstractCommandHandler<GetProjects, List
 			final TypedQuery<Project> ownerManagerQuery = em().createQuery("SELECT p FROM Project p WHERE p.owner = :ouser OR p.manager = :muser", Project.class);
 			ownerManagerQuery.setParameter("ouser", user);
 			ownerManagerQuery.setParameter("muser", user);
-			List<Project> resultList = ownerManagerQuery.getResultList();
-			for (Project project : resultList) {
-				if (!Handlers.isProjectVisible(project, user)) {
-					continue;
-				}
-				projects.add(project);
-			}
+			projects.addAll(ownerManagerQuery.getResultList());
+
+			projects.addAll(projectDAO.findProjectByTeamMemberIdAndOrgUnitIds(user.getId(), new HashSet<>(cmd.getOrgUnitsIds())));
 		}
 
 		// ---------------
@@ -121,14 +121,7 @@ public class GetProjectsHandler extends AbstractCommandHandler<GetProjects, List
 			final TypedQuery<Project> favoritesQuery = em().createQuery("FROM Project p WHERE :user MEMBER OF p.favoriteUsers", Project.class);
 			favoritesQuery.setParameter("user", user);
 
-
-			List<Project> resultList = favoritesQuery.getResultList();
-			for (Project project : resultList) {
-				if (!Handlers.isProjectVisible(project, user)) {
-					continue;
-				}
-				projects.add(project);
-			}
+			projects.addAll(favoritesQuery.getResultList());
 		}
 
 		// ---------------
@@ -145,7 +138,7 @@ public class GetProjectsHandler extends AbstractCommandHandler<GetProjects, List
 			LOG.debug("No org unit specified, gets all projects for the user org unit.");
 
 			// Crawl the org units hierarchy from the user root org unit.
-			Handlers.crawlUnits(user.getOrgUnitWithProfiles().getOrgUnit(), units, true);
+			Handlers.crawlUnits(user, units, true);
 
 		} else {
 			// Crawl the org units hierarchy from each specified org unit.
@@ -172,9 +165,6 @@ public class GetProjectsHandler extends AbstractCommandHandler<GetProjects, List
 			int count = 0;
 			final List<Project> listResults = query.getResultList();
 			for (final Project project : listResults) {
-				if (!Handlers.isProjectVisible(project, user)) {
-					continue;
-				}
 				projectIdToOrgUnitId.put(project.getId(), unit.getId());
 
 				if (modelType == null) {
@@ -193,6 +183,21 @@ public class GetProjectsHandler extends AbstractCommandHandler<GetProjects, List
 			LOG.debug("Found {}/{} projects for org unit #{}.", count, listResults.size(), unit.getName());
 		}
 
+		Set<Integer> projectIds = new HashSet<>();
+		List<Project> visibleProjects = new ArrayList<>();
+		for (Project project : projects) {
+			if (!projectIds.add(project.getId())) {
+				continue;
+			}
+
+			if (!Handlers.isProjectVisible(project, user)) {
+				continue;
+			}
+
+			visibleProjects.add(project);
+		}
+
+
 		// ---------------
 		// Mapping and return.
 		// ---------------
@@ -202,13 +207,13 @@ public class GetProjectsHandler extends AbstractCommandHandler<GetProjects, List
 
 		if (mappingMode == ProjectDTO.Mode._USE_PROJECT_MAPPER) {
 			// Using custom project mapper.
-			for (final Project project : projects) {
+			for (final Project project : visibleProjects) {
 				projectsDTO.add(projectMapper.map(project, true));
 			}
 
 		} else {
 			// Using provided mapping mode.
-			for (final Project project : projects) {
+			for (final Project project : visibleProjects) {
 				final ProjectDTO projectDTO = mapper().map(project, new ProjectDTO(), cmd.getMappingMode());
 				// Filling the orgUnitId using the map made when querying by OrgUnits.
 				projectDTO.setOrgUnitId(projectIdToOrgUnitId.get(project.getId()));
@@ -216,7 +221,7 @@ public class GetProjectsHandler extends AbstractCommandHandler<GetProjects, List
 			}
 		}
 
-		LOG.debug("Found {} project(s).", projects.size());
+		LOG.debug("Found {} project(s).", visibleProjects.size());
 
 		return new ListResult<>(projectsDTO);
 	}

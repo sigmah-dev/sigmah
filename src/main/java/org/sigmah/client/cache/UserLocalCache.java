@@ -43,7 +43,7 @@ import org.sigmah.offline.dispatch.LocalDispatchServiceAsync;
 
 /**
  * Stores data widely used on client-side for the current user.
- * 
+ *
  * @author tmi
  * @author Denis Colliot (dcolliot@ideia.fr)
  * @deprecated [TO DELETE] use the command each time it's necessary.
@@ -92,7 +92,7 @@ public class UserLocalCache {
 
 	/**
 	 * Gets the cache of the countries.
-	 * 
+	 *
 	 * @return The cache of the countries.
 	 */
 	public LocalCachedCollection<CountryDTO> getCountryCache() {
@@ -101,7 +101,7 @@ public class UserLocalCache {
 
 	/**
 	 * Gets the cache of the current organization members.
-	 * 
+	 *
 	 * @return The cache of the current organization members.
 	 */
 	public LocalCachedCollection<UserDTO> getUserCache() {
@@ -110,7 +110,7 @@ public class UserLocalCache {
 
 	/**
 	 * Gets the cache of the current organization.
-	 * 
+	 *
 	 * @return The cache of the current organization.
 	 */
 	public LocalCachedOrganization getOrganizationCache() {
@@ -199,14 +199,14 @@ public class UserLocalCache {
 	/**
 	 * Refreshes the cached {@code OrganizationDTO} and executes the given {@code callback} once refresh process is
 	 * complete.
-	 * 
+	 *
 	 * @param callback
 	 *          If not {@code null}, the callback is executed once {@code OrganizationDTO} has been loaded.
 	 */
 	public void refreshOrganization(final AsyncCallback<OrganizationDTO> callback) {
 
 		final Integer organizationId = authenticationProvider.get().getOrganizationId();
-		final Integer orgUnitId = authenticationProvider.get().getOrgUnitId();
+		final Integer orgUnitId = authenticationProvider.get().getMainOrgUnitId();
 
 		// Gets the organization.
 		dispatch.execute(new GetOrganization(OrganizationDTO.Mode.WITH_ROOT, organizationId), new CommandResultHandler<OrganizationDTO>() {

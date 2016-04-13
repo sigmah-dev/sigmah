@@ -25,6 +25,7 @@ package org.sigmah.server.handler;
 import org.sigmah.server.dao.AuthenticationDAO;
 import org.sigmah.server.dao.OrgUnitDAO;
 import org.sigmah.server.dao.ProjectDAO;
+import org.sigmah.server.dao.UserUnitDAO;
 import org.sigmah.server.dispatch.impl.UserDispatch.UserExecutionContext;
 import org.sigmah.server.domain.User;
 import org.sigmah.server.handler.base.AbstractCommandHandler;
@@ -51,15 +52,18 @@ public class LoginCommandHandler extends AbstractCommandHandler<LoginCommand, Au
 	private final AuthenticationDAO authenticationDAO;
 	private final OrgUnitDAO orgUnitDAO;
 	private final ProjectDAO projectDAO;
+	private final UserUnitDAO userUnitDAO;
 
 	private final Mapper mapper;
 
 	@Inject
-	public LoginCommandHandler(final Authenticator authenticator, final AuthenticationDAO authenticationDAO, OrgUnitDAO orgUnitDAO, ProjectDAO projectDAO, final Mapper mapper) {
+	public LoginCommandHandler(final Authenticator authenticator, final AuthenticationDAO authenticationDAO,
+		OrgUnitDAO orgUnitDAO, ProjectDAO projectDAO, UserUnitDAO userUnitDAO, final Mapper mapper) {
 		this.authenticator = authenticator;
 		this.authenticationDAO = authenticationDAO;
 		this.orgUnitDAO = orgUnitDAO;
 		this.projectDAO = projectDAO;
+		this.userUnitDAO = userUnitDAO;
 		this.mapper = mapper;
 	}
 
@@ -76,7 +80,9 @@ public class LoginCommandHandler extends AbstractCommandHandler<LoginCommand, Au
 
 		Set<Integer> orgUnitIds = orgUnitDAO.getOrgUnitTreeIdsByUserId(user.getId());
 		Set<Integer> memberOfProjectIds = projectDAO.findProjectIdsByTeamMemberIdAndOrgUnitIds(user.getId(), orgUnitIds);
-		final Authentication authentication = Handlers.createAuthentication(user, command.getLanguage(), memberOfProjectIds, mapper);
+		Set<Integer> secondaryOrgUnitProfileIdsByUserId = userUnitDAO.findSecondaryOrgUnitIdsByUserId(user.getId());
+		final Authentication authentication = Handlers.createAuthentication(user, command.getLanguage(), memberOfProjectIds,
+			secondaryOrgUnitProfileIdsByUserId, mapper);
 		authentication.setAuthenticationToken(newAuth.getId());
 
 		return authentication;

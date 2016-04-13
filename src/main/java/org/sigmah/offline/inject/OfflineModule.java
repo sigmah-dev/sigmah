@@ -71,6 +71,7 @@ public class OfflineModule extends AbstractGinModule {
 			GetMonitoredPointsAsyncHandler getMonitoredPointsAsyncHandler,
 			GetOrganizationAsyncHandler getOrganizationAsyncHandler,
 			GetOrgUnitAsyncHandler getOrgUnitAsyncHandler,
+		GetOrgUnitsAsyncHandler getOrgUnitsAsyncHandler,
 			GetProjectAsyncHandler getProjectAsyncHandler,
 			GetProjectsAsyncHandler getProjectsAsyncHandler,
 			GetProjectsFromIdAsyncHandler getProjectsFromIdAsyncHandler,
@@ -115,6 +116,7 @@ public class OfflineModule extends AbstractGinModule {
         registerHandler(GetMonitoredPoints.class, getMonitoredPointsAsyncHandler);
         registerHandler(GetOrganization.class, getOrganizationAsyncHandler);
         registerHandler(GetOrgUnit.class, getOrgUnitAsyncHandler);
+		registerHandler(GetOrgUnits.class, getOrgUnitsAsyncHandler);
         registerHandler(GetProject.class, getProjectAsyncHandler);
         registerHandler(GetProjects.class, getProjectsAsyncHandler);
         registerHandler(GetProjectsFromId.class, getProjectsFromIdAsyncHandler);

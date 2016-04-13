@@ -156,6 +156,8 @@
 		<!-- Profile package. -->
 		<class>org.sigmah.server.domain.profile.GlobalPermission</class>
 		<class>org.sigmah.server.domain.profile.OrgUnitProfile</class>
+		<class>org.sigmah.server.domain.profile.MainOrgUnitProfile</class>
+		<class>org.sigmah.server.domain.profile.SecondaryOrgUnitProfile</class>
 		<class>org.sigmah.server.domain.profile.PrivacyGroup</class>
 		<class>org.sigmah.server.domain.profile.PrivacyGroupPermission</class>
 		<class>org.sigmah.server.domain.profile.Profile</class>

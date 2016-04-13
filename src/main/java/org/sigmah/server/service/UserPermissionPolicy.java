@@ -30,7 +30,6 @@ import java.util.List;
 import org.sigmah.server.dao.UserDAO;
 import org.sigmah.server.dao.UserPermissionDAO;
 import org.sigmah.server.dao.UserUnitDAO;
-import org.sigmah.server.dispatch.impl.UserDispatch;
 import org.sigmah.server.domain.OrgUnit;
 import org.sigmah.server.domain.Project;
 import org.sigmah.server.domain.User;
@@ -104,7 +103,7 @@ public class UserPermissionPolicy {
 	 */
 	public void updateUserPermissionByUser(User user) throws CommandException {
 
-		final OrgUnitProfile userOrgUnit = user.getOrgUnitWithProfiles();
+		final OrgUnitProfile userOrgUnit = user.getMainOrgUnitWithProfiles();
 
 		// delete existing userpermission entries related to the user
 		userPermissionDAO.deleteByUser(user.getId());

@@ -63,4 +63,6 @@ public interface ProjectDAO extends DAO<Project, Integer> {
 	Project updateProjectTeamMembers(Project project, List<User> teamMembers, List<Profile> teamMemberProfiles, User modifier);
 
 	Set<Integer> findProjectIdsByTeamMemberIdAndOrgUnitIds(Integer userId, Set<Integer> orgUnitIds);
+
+	List<Project> findProjectByTeamMemberIdAndOrgUnitIds(Integer userId, Set<Integer> orgUnitIds);
 }

@@ -80,18 +80,13 @@ public class SecureNavigationAsyncHandler implements AsyncCommandHandler<SecureN
 					// User is anonymous
 					Cookies.removeCookie(org.sigmah.shared.Cookies.AUTH_TOKEN_COOKIE);
 
-					// TODO: Create a shared class to avoid code duplicate for server and client.
-					final ProfileDTO aggretatedProfileDTO = new ProfileDTO();
-					aggretatedProfileDTO.setName("AGGREGATED_PROFILE");
-					aggretatedProfileDTO.setGlobalPermissions(new HashSet<GlobalPermissionEnum>());
-					aggretatedProfileDTO.setPrivacyGroups(new HashMap<PrivacyGroupDTO, PrivacyGroupPermissionEnum>());
-
 					Language language = Language.fromString(LocaleInfo.getCurrentLocale().getLocaleName());
 					if (language == null) {
 						language = Language.EN;
 					}
 
-					result.setAuthentication(new Authentication(null, "anonymous@nowhere.com", "anonymous", null, language, null, null, null, null, aggretatedProfileDTO, Collections.<Integer>emptySet()));
+					result.setAuthentication(new Authentication(null, "anonymous@nowhere.com", "anonymous", null, language, null,
+						null, null, null, null, null, Collections.<Integer>emptySet()));
 				}
 			}
 		});

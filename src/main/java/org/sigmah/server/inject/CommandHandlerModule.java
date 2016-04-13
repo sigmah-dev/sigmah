@@ -91,6 +91,7 @@ public class CommandHandlerModule extends AbstractCommandHandlerModule {
 		bindHandler(GetMonthlyReports.class, GetMonthlyReportsHandler.class);
 		bindHandler(GetOrganization.class, GetOrganizationHandler.class);
 		bindHandler(GetOrgUnit.class, GetOrgUnitHandler.class);
+		bindHandler(GetOrgUnits.class, GetOrgUnitsHandler.class);
 		bindHandler(GetOrgUnitModelCopy.class, GetOrgUnitModelCopyHandler.class);
 		bindHandler(GetOrgUnitModel.class, GetOrgUnitModelHandler.class);
 		bindHandler(GetOrgUnitModels.class, GetOrgUnitModelsHandler.class);

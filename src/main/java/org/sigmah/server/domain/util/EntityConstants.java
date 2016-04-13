@@ -951,6 +951,7 @@ public final class EntityConstants extends org.sigmah.shared.dto.util.EntityCons
 	public static final String ORG_UNIT_PROFILE_COLUMN_ORG_UNIT = "id_org_unit";
 
 	public static final String ORG_UNIT_PROFILE_PROFILE_LINK_TABLE = "user_unit_profiles";
+	public static final String ORG_UNIT_PROFILE_COLUMN_TYPE = "user_unit_type";
 
 	// --------------------------------------------------------------------------------
 	//

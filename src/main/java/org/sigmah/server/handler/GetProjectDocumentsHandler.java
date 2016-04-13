@@ -139,7 +139,7 @@ public class GetProjectDocumentsHandler extends AbstractCommandHandler<GetProjec
 			return true;
 		}
 
-		for (final Profile profile : user.getOrgUnitWithProfiles().getProfiles()) {
+		for (final Profile profile : user.getMainOrgUnitWithProfiles().getProfiles()) {
 			for (final PrivacyGroupPermission pgp : profile.getPrivacyGroupPermissions()) {
 				if (documentPG.equals(pgp.getPrivacyGroup())) {
 					return true;

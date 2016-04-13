@@ -44,7 +44,7 @@ import org.sigmah.client.util.ClientUtils;
 import org.sigmah.client.util.EnumModel;
 import org.sigmah.shared.Language;
 import org.sigmah.shared.command.CreateEntity;
-import org.sigmah.shared.command.GetOrgUnit;
+import org.sigmah.shared.command.GetOrgUnits;
 import org.sigmah.shared.command.GetProfiles;
 import org.sigmah.shared.command.result.CreateResult;
 import org.sigmah.shared.command.result.ListResult;
@@ -205,19 +205,18 @@ public class UserEditPresenter extends AbstractPagePresenter<UserEditPresenter.V
 
 		view.getOrgUnitsField().getStore().removeAll();
 
-		dispatch.execute(new GetOrgUnit(auth().getOrgUnitId(), Mode.WITH_TREE), new CommandResultHandler<OrgUnitDTO>() {
-
+		dispatch.execute(new GetOrgUnits(auth().getOrgUnitIds(), Mode.WITH_TREE), new CommandResultHandler<ListResult<OrgUnitDTO>>() {
 			@Override
 			public void onCommandFailure(final Throwable caught) {
 				N10N.error(I18N.CONSTANTS.adminChoiceProblem());
 			}
 
 			@Override
-			public void onCommandSuccess(final OrgUnitDTO result) {
-				if (result != null) {
-					fillOrgUnitsList(result, true);
-					view.getOrgUnitsField().getStore().commitChanges();
+			public void onCommandSuccess(final ListResult<OrgUnitDTO> result) {
+				for (OrgUnitDTO orgUnitDTO : result.getData()) {
+					fillOrgUnitsList(orgUnitDTO, true);
 				}
+				view.getOrgUnitsField().getStore().commitChanges();
 			}
 		});
 
