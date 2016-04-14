@@ -98,11 +98,12 @@ public class LayoutComposer {
         pivot.addColDimension(new DateDimension(DateUnit.MONTH));
         pivot.addColDimension(new DateDimension(DateUnit.YEAR));
         Filter filter = new Filter();
-		filter.addRestriction(DimensionType.Database, databaseId);
-		filter.addRestriction(DimensionType.Indicator, indicatorId );
-		filter.setDateRange(projectDateRange);
-		pivot.setFilter(filter);
-    return pivot;}
+        filter.addRestriction(DimensionType.Database, databaseId);
+        filter.addRestriction(DimensionType.Indicator, indicatorId);
+        filter.setDateRange(projectDateRange);
+        pivot.setFilter(filter);
+        return pivot;
+    }
     
 	public PivotTableElement fixSite(int siteId) {
 		PivotTableElement pivot = new PivotTableElement();

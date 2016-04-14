@@ -126,7 +126,7 @@ public class IndicatorEntryExcelTemplate implements ExportTemplate {
 		int rowIndex = -1;
 
 		final List<PivotTableData.Axis> leaves = data.getEntryMap().get(indicator.getId()).getRootColumn().getLeaves();
-        final List<PivotTableData.Axis> leavesyear=data.getEntryMap().get(indicator.getId()+1).getRootColumn().getLeaves();
+        final List<PivotTableData.Axis> leavesyear = data.getEntryMap().get(indicator.getId() + 1).getRootColumn().getLeaves();
 		
 		int numbOfLeaves = leaves.size();
 		int numbOfCols = 4;
@@ -210,73 +210,87 @@ public class IndicatorEntryExcelTemplate implements ExportTemplate {
 
 		// data entry
         //for year above months in indicators
-		int startval=2;
-		int endval=0;
-		String merge="hello";
-				row = sheetEx.createRow(++rowIndex);
-				row.setHeightInPoints(defHeight);
-				int cellIndex = 0;
-				utils.putHeader(row,++cellIndex, "Year");
-				Map<String, Integer> columnIndexMapyr=new HashMap<String, Integer>();
-				for(PivotTableData.Axis axis:leavesyear){
-					utils.putHeader(row,++cellIndex, axis.getLabel());
-					columnIndexMapyr.put(axis.getLabel(),cellIndex);
-					if(cellIndex>3){
-					if(merge.equals(axis.getLabel())){
-						
-					}
-					else{
-						endval=cellIndex-1;
-						sheetEx.addMergedRegion(new CellRangeAddress(rowIndex, rowIndex, startval, endval));
-						startval=cellIndex;
-					}
-					}
-					sheetEx.addMergedRegion(new CellRangeAddress(rowIndex, rowIndex, startval, cellIndex));
-					merge=axis.getLabel();
-					
-				}
+        int startval = 2;
+        int endval = 0;
+        String merge = "hello";
+        row = sheetEx.createRow(++rowIndex);
+        row.setHeightInPoints(defHeight);
+        int cellIndex = 0;
+        utils.putHeader(row, ++cellIndex, "Year");
+        Map<String, Integer> columnIndexMapyr = new HashMap<String, Integer>();
+        for (PivotTableData.Axis axis : leavesyear) {
+            utils.putHeader(row, ++cellIndex, axis.getLabel());
+            columnIndexMapyr.put(axis.getLabel(), cellIndex);
+            if (cellIndex > 3) {
+                if (merge.equals(axis.getLabel())) {
+
+                } else {
+                    endval = cellIndex - 1;
+                    sheetEx.addMergedRegion(new CellRangeAddress(rowIndex, rowIndex, startval, endval));
+                    startval = cellIndex;
+                }
+            }
+            sheetEx.addMergedRegion(new CellRangeAddress(rowIndex, rowIndex, startval, cellIndex));
+            merge = axis.getLabel();
+
+        }
 		// header
-        int month=0;
-				String completedate="hello";
+        int month = 0;
+        String completedate = "hello";
 		row = sheetEx.createRow(++rowIndex);
 		row.setHeightInPoints(defHeight);
-		 cellIndex = 0;
-		utils.putHeader(row,++cellIndex, "month");
+		      cellIndex = 0;
+        utils.putHeader(row, ++cellIndex, "month");
 		Map<String, Integer> columnIndexMap = new HashMap<String, Integer>();
 		for (PivotTableData.Axis axis : leaves) {
 			utils.putHeader(row, ++cellIndex, axis.getLabel());
 			columnIndexMap.put(axis.getLabel(), cellIndex);
-            if(cellIndex==2){
-				completedate=axis.getLabel();
-			}
+            if (cellIndex == 2) {
+                completedate = axis.getLabel();
+            }
 		}
-        if(completedate.equals("Jan")){month=1;}
-		else if(completedate.equals("Feb")){month=2;}
-		else if(completedate.equals("Mar")){month=3;}
-		else if(completedate.equals("Apr")){month=4;}
-		else if(completedate.equals("May")){month=5;}
-		else if(completedate.equals("Jun")){month=6;}
-		else if(completedate.equals("Jul")){month=7;}
-		else if(completedate.equals("Aug")){month=8;}
-		else if(completedate.equals("Sep")){month=9;}
-		else if(completedate.equals("Oct")){month=10;}
-		else if(completedate.equals("Nov")){month=11;}
-		else{month=12;}		
-		
-		
-		//for year row in sheet
-		row = sheetEx.createRow(++rowIndex);
-		row.setHeightInPoints(defHeight);
-		cellIndex = 0;
-		utils.putHeader(row,++cellIndex,  "Site");
- 		Map<String, Integer> columnIndexMapcompletedate=new HashMap<String, Integer>();
-		for(PivotTableData.Axis axis:leavesyear){	
-			utils.putHeader(row,++cellIndex, month+"."+ axis.getLabel());
-			columnIndexMapcompletedate.put(axis.getLabel(),cellIndex);
-			if(month==12){
-				month=1;
-			}else{month++;}
-				}
+        
+        if (completedate.equals("Jan")) {
+            month = 1;
+        } else if (completedate.equals("Feb")) {
+            month = 2;
+        } else if (completedate.equals("Mar")) {
+            month = 3;
+        } else if (completedate.equals("Apr")) {
+            month = 4;
+        } else if (completedate.equals("May")) {
+            month = 5;
+        } else if (completedate.equals("Jun")) {
+            month = 6;
+        } else if (completedate.equals("Jul")) {
+            month = 7;
+        } else if (completedate.equals("Aug")) {
+            month = 8;
+        } else if (completedate.equals("Sep")) {
+            month = 9;
+        } else if (completedate.equals("Oct")) {
+            month = 10;
+        } else if (completedate.equals("Nov")) {
+            month = 11;
+        } else {
+            month = 12;
+        }
+
+        //for year row in sheet
+        row = sheetEx.createRow(++rowIndex);
+        row.setHeightInPoints(defHeight);
+        cellIndex = 0;
+        utils.putHeader(row, ++cellIndex, "Site");
+        Map<String, Integer> columnIndexMapcompletedate = new HashMap<String, Integer>();
+        for (PivotTableData.Axis axis : leavesyear) {
+            utils.putHeader(row, ++cellIndex, month + "." + axis.getLabel());
+            columnIndexMapcompletedate.put(axis.getLabel(), cellIndex);
+            if (month == 12) {
+                month = 1;
+            } else {
+                month++;
+            }
+        }
 		// rows
 		for (PivotTableData.Axis axis : data.getEntryMap().get(indicator.getId()).getRootRow().getChildren()) {
 			row = sheetEx.createRow(++rowIndex);
