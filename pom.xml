@@ -1080,6 +1080,46 @@
                         </build>
 
                 </profile>
+
+		<profile>
+			<id>sigmah-check-bundles-integrity</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.nuiton.i18n</groupId>
+						<artifactId>i18n-maven-plugin</artifactId>
+						<version>3.5</version>
+						<configuration>
+							<verbose>true</verbose>
+							<bundles>en_GB,es,fr</bundles>
+							<src>${basedir}/src/main/resources/org/sigmah/client/i18n</src>
+						</configuration>
+						<executions>
+							<execution>
+								<id>sigmah-check-bundle-1</id>
+								<goals>
+									<goal>check-bundles-integrity</goal>
+								</goals>
+								<phase>prepare-package</phase>
+								<configuration>
+									<artifactId>UIMessages</artifactId>
+								</configuration>
+							</execution>
+							<execution>
+								<id>sigmah-check-bundle-2</id>
+								<goals>
+									<goal>check-bundles-integrity</goal>
+								</goals>
+								<phase>prepare-package</phase>
+								<configuration>
+									<artifactId>UIConstants</artifactId>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
 		
 	</profiles>
 
