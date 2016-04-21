@@ -1,10 +1,10 @@
-﻿--
+--
 -- Create easily understandable views of all project models with all project data (like Global export)
 --
 -- Note : materialized views are only available since PostgreSQL v9.3
 CREATE OR REPLACE FUNCTION create_sigmah_datamart_views(drop_views boolean default false, use_materialized_views boolean default false) RETURNS BOOLEAN AS $$
 DECLARE
-	project_models_cursor CURSOR FOR select quote_ident(prjm.id_project_model || '-' || prjm.name) as project_model, prjm.id_project_model from project_model prjm;
+	project_models_cursor CURSOR FOR select quote_ident(prjm.id_project_model || '-' || prjm.name) as project_model, prjm.id_project_model from project_model prjm where prjm.date_deleted is null;
 	project_model_record RECORD;
 	fields_cursor CURSOR FOR
 		select quote_ident(prjm.id_project_model || '-' || prjm.name) as project_model, 
@@ -115,6 +115,9 @@ LOOP
 		END IF;
 	END LOOP;
 
+	-- Where clause
+	create_view_query := create_view_query || ' WHERE prj.id_project_model= ' || project_model_record.id_project_model || ' and prj.close_date is null and udb.datedeleted is null ';
+
 	-- Create View
 	EXECUTE create_view_query;
 		
@@ -144,7 +147,7 @@ $$ LANGUAGE plpgsql;
 --
 CREATE OR REPLACE FUNCTION exportcsv_sigmah_datamart_views(export_folder text, refresh_materialized_views boolean default false, view_name text default null) RETURNS BOOLEAN AS $$
 DECLARE
-	project_models_cursor CURSOR FOR select quote_ident(prjm.id_project_model || '-' || prjm.name) as project_model, prjm.id_project_model from project_model prjm;
+	project_models_cursor CURSOR FOR select quote_ident(prjm.id_project_model || '-' || prjm.name) as project_model, prjm.id_project_model from project_model prjm where prjm.date_deleted is null;
 	project_model_record RECORD;
 BEGIN
 
