@@ -140,8 +140,22 @@ public class GetMonitoredPointsHandler extends AbstractCommandHandler<GetMonitor
 			}
 		}
 
-		List<MonitoredPoint> reminders = monitoredPointDAO.findNotCompletedByProjectIds(visibleProjectIds);
-		return mapper().mapCollection(reminders, MonitoredPointDTO.class, mappingMode);
+		List<MonitoredPoint> monitoredPoints = monitoredPointDAO.findNotCompletedByProjectIds(visibleProjectIds);
+		List<MonitoredPointDTO> monitoredPointDTOs = new ArrayList<>(monitoredPoints.size());
+		for (MonitoredPoint monitoredPoint : monitoredPoints) {
+			MonitoredPointDTO monitoredPointDTO = mapper().map(monitoredPoint, new MonitoredPointDTO(), mappingMode);
+
+			// FIXME: Put this code into a DAO
+			TypedQuery<Project> fullNameQuery = em().createQuery("SELECT p FROM Project p WHERE p.pointsList = :pointsList", Project.class);
+			fullNameQuery.setParameter("pointsList", monitoredPoint.getParentList());
+			Project project = fullNameQuery.getSingleResult();
+			monitoredPointDTO.setProjectId(project.getId());
+			monitoredPointDTO.setProjectName(project.getName());
+			monitoredPointDTO.setProjectCode(project.getFullName());
+			monitoredPointDTOs.add(monitoredPointDTO);
+		}
+
+		return monitoredPointDTOs;
 	}
 
 }

@@ -141,7 +141,23 @@ public class GetRemindersHandler extends AbstractCommandHandler<GetReminders, Li
 		}
 
 		List<Reminder> reminders = reminderDAO.findNotCompletedByProjectIds(visibleProjectIds);
-		return mapper().mapCollection(reminders, ReminderDTO.class, mappingMode);
+		List<ReminderDTO> reminderDTOs = new ArrayList<>(reminders.size());
+		for (Reminder reminder : reminders) {
+			final TypedQuery<Project> fullNameQuery = em().createQuery("SELECT p FROM Project p WHERE p.remindersList = :remindersList", Project.class);
+
+			fullNameQuery.setParameter("remindersList", reminder.getParentList());
+
+			final ReminderDTO reminderDTO = mapper().map(reminder, new ReminderDTO(), mappingMode);
+
+			Project project = fullNameQuery.getSingleResult();
+
+			reminderDTO.setProjectId(project.getId());
+			reminderDTO.setProjectName(project.getName());
+			reminderDTO.setProjectCode(project.getFullName());
+			reminderDTOs.add(reminderDTO);
+		}
+
+		return reminderDTOs;
 	}
 
 }
