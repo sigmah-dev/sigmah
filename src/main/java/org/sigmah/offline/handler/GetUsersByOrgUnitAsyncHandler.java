@@ -3,7 +3,6 @@ package org.sigmah.offline.handler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -12,7 +11,6 @@ import org.sigmah.offline.dao.OrgUnitAsyncDAO;
 import org.sigmah.offline.dao.UserAsyncDAO;
 import org.sigmah.offline.dispatch.AsyncCommandHandler;
 import org.sigmah.offline.dispatch.OfflineExecutionContext;
-import org.sigmah.server.domain.OrgUnit;
 import org.sigmah.shared.command.GetUsersByOrgUnit;
 import org.sigmah.shared.command.result.Authentication;
 import org.sigmah.shared.command.result.ListResult;
@@ -47,13 +45,12 @@ public class GetUsersByOrgUnitAsyncHandler implements AsyncCommandHandler<GetUse
 	}
 
 	private Set<Integer> traverseOrgUnitIds(OrgUnitDTO orgUnit) {
-		if (orgUnit.getChildrenOrgUnits() == null) {
-			return Collections.singleton(orgUnit.getId());
-		}
-		Set<Integer> orgUnitIds = new HashSet<Integer>(orgUnit.getChildrenOrgUnits().size());
-		orgUnitIds.add(orgUnit.getId());
-		for (OrgUnitDTO child : orgUnit.getChildrenOrgUnits()) {
-			orgUnitIds.addAll(traverseOrgUnitIds(child));
+		Set<Integer> orgUnitIds = new HashSet<Integer>();
+		OrgUnitDTO parent = orgUnit;
+		while (parent != null) {
+			orgUnitIds.add(parent.getId());
+
+			parent = parent.getParentOrgUnit();
 		}
 		return orgUnitIds;
 	}
