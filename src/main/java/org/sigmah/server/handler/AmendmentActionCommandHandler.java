@@ -116,16 +116,17 @@ public class AmendmentActionCommandHandler extends AbstractCommandHandler<Amendm
 	 */
 	@Transactional
 	protected void performAction(final AmendmentAction action, final Project project, final String name, final UserExecutionContext context) throws CommandException {
+
 		switch (action) {
 			case LOCK:
-				if(!userPermissionPolicy.isGranted(context.getUser().getMainOrgUnitWithProfiles(), GlobalPermissionEnum.LOCK_PROJECT)) {
+				if(!userPermissionPolicy.isGranted(context.getUser().getOrgUnitsWithProfiles(), project.getOrgUnit(), GlobalPermissionEnum.LOCK_PROJECT)) {
 					throw new UnauthorizedAccessException(GlobalPermissionEnum.LOCK_PROJECT + " permission is required to lock projects.");
 				}
 				project.setAmendmentState(AmendmentState.LOCKED);
 				break;
 
 			case UNLOCK:
-				if(!userPermissionPolicy.isGranted(context.getUser().getMainOrgUnitWithProfiles(), GlobalPermissionEnum.LOCK_PROJECT)) {
+				if(!userPermissionPolicy.isGranted(context.getUser().getOrgUnitsWithProfiles(), project.getOrgUnit(), GlobalPermissionEnum.LOCK_PROJECT)) {
 					throw new UnauthorizedAccessException(GlobalPermissionEnum.LOCK_PROJECT + " permission is required to unlock projects.");
 				}
 				project.setAmendmentState(AmendmentState.DRAFT);
@@ -133,7 +134,7 @@ public class AmendmentActionCommandHandler extends AbstractCommandHandler<Amendm
 
 			case VALIDATE:
 				// BUGFIX #738: verifying the user rights before validating.
-				if(!userPermissionPolicy.isGranted(context.getUser().getMainOrgUnitWithProfiles(), GlobalPermissionEnum.VALID_AMENDEMENT)) {
+				if(!userPermissionPolicy.isGranted(context.getUser().getOrgUnitsWithProfiles(), project.getOrgUnit(), GlobalPermissionEnum.VALID_AMENDEMENT)) {
 					throw new UnauthorizedAccessException(GlobalPermissionEnum.VALID_AMENDEMENT + " permission is required to validate projects.");
 				}
 				validateAmendment(project, context);

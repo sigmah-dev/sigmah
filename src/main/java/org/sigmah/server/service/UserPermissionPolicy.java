@@ -23,7 +23,6 @@ package org.sigmah.server.service;
  */
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -43,6 +42,8 @@ import org.sigmah.shared.command.result.ListResult;
 import org.sigmah.shared.dispatch.CommandException;
 import org.sigmah.shared.dto.ProjectDTO;
 import org.sigmah.shared.dto.referential.GlobalPermissionEnum;
+import org.sigmah.shared.util.OrgUnitUtils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -103,19 +104,23 @@ public class UserPermissionPolicy {
 	 */
 	public void updateUserPermissionByUser(User user) throws CommandException {
 
-		final OrgUnitProfile userOrgUnit = user.getMainOrgUnitWithProfiles();
+		final List<OrgUnitProfile> userOrgUnits = user.getOrgUnitsWithProfiles();
 
 		// delete existing userpermission entries related to the user
 		userPermissionDAO.deleteByUser(user.getId());
 
 		// check new profile set for EDIT_ALL_PROJECTS global permission
-		boolean granted = isGranted(userOrgUnit, GlobalPermissionEnum.EDIT_ALL_PROJECTS) ||
-			isGranted(userOrgUnit, GlobalPermissionEnum.EDIT_PROJECT);
+		boolean granted = isGranted(userOrgUnits, GlobalPermissionEnum.EDIT_ALL_PROJECTS) ||
+			isGranted(userOrgUnits, GlobalPermissionEnum.EDIT_PROJECT);
 		if (!granted) /* skip the rest of part if user has no enough permission */
 			return;
 
 		final GetProjects getCommand = new GetProjects();
-		List<Integer> orgUnitIds = new ArrayList<Integer>(Arrays.asList(userOrgUnit.getOrgUnit().getId()));
+		List<Integer> orgUnitIds = new ArrayList<>(user.getOrgUnitsWithProfiles().size());
+		for (OrgUnitProfile orgUnitProfile : user.getOrgUnitsWithProfiles()) {
+			orgUnitIds.add(orgUnitProfile.getOrgUnit().getId());
+		}
+
 		getCommand.setOrgUnitsIds(orgUnitIds);
 		getCommand.setMappingMode(ProjectDTO.Mode.BASE);
 
@@ -123,7 +128,12 @@ public class UserPermissionPolicy {
 
 		// create and persist userpermission entity for each project
 		for (final ProjectDTO project : result.getList()) {
-			userPermissionDAO.createAndPersist(user, userOrgUnit.getOrgUnit(), project.getId());
+			for (OrgUnitProfile orgUnitProfile : user.getOrgUnitsWithProfiles()) {
+				if (!OrgUnitUtils.areOrgUnitsEqualOrParent(orgUnitProfile.getOrgUnit(), project.getOrgUnitId())) {
+					continue;
+				}
+				userPermissionDAO.createAndPersist(user, orgUnitProfile.getOrgUnit(), project.getId());
+			}
 		}
 
 		if (LOG.isInfoEnabled()) {
@@ -228,4 +238,24 @@ public class UserPermissionPolicy {
 		return false;
 	}
 
+	public boolean isGranted(List<OrgUnitProfile> userUnits, GlobalPermissionEnum permission) {
+		for (OrgUnitProfile userUnit : userUnits) {
+			if (isGranted(userUnit, permission)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public boolean isGranted(List<OrgUnitProfile> userUnits, OrgUnit targetOrgUnit, GlobalPermissionEnum permission) {
+		for (OrgUnitProfile userUnit : userUnits) {
+			if (OrgUnitUtils.areOrgUnitsEqualOrParent(userUnit.getOrgUnit(), targetOrgUnit.getId())) {
+				continue;
+			}
+			if (isGranted(userUnit, permission)) {
+				return true;
+			}
+		}
+		return false;
+	}
 }

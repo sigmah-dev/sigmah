@@ -30,6 +30,7 @@ import javax.persistence.TypedQuery;
 
 import org.sigmah.server.dispatch.impl.UserDispatch.UserExecutionContext;
 import org.sigmah.server.domain.User;
+import org.sigmah.server.domain.profile.OrgUnitProfile;
 import org.sigmah.server.domain.profile.PrivacyGroup;
 import org.sigmah.server.domain.profile.PrivacyGroupPermission;
 import org.sigmah.server.domain.profile.Profile;
@@ -120,10 +121,12 @@ public class GetProjectReportsHandler extends AbstractCommandHandler<GetProjectR
 			return true;
 		}
 
-		for (final Profile profile : user.getMainOrgUnitWithProfiles().getProfiles()) {
-			for (final PrivacyGroupPermission pgp : profile.getPrivacyGroupPermissions()) {
-				if (documentPG.equals(pgp.getPrivacyGroup())) {
-					return true;
+		for (OrgUnitProfile orgUnitProfile : user.getSecondaryOrgUnitsWithProfiles()) {
+			for (final Profile profile : orgUnitProfile.getProfiles()) {
+				for (final PrivacyGroupPermission pgp : profile.getPrivacyGroupPermissions()) {
+					if (documentPG.equals(pgp.getPrivacyGroup())) {
+						return true;
+					}
 				}
 			}
 		}
