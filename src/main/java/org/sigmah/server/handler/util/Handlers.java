@@ -305,30 +305,20 @@ public final class Handlers {
 		boolean canEditHisProjects = false;
 		for (Profile profile : targetedOrgUnitProfile.getProfiles()) {
 			for (GlobalPermission globalPermission : profile.getGlobalPermissions()) {
-				switch (globalPermission.getPermission()) {
-					case VIEW_ALL_PROJECTS:
-						if (!edition) {
-							return true;
-						}
-						break;
-					case VIEW_MY_PROJECTS:
-						canSeeHisProjects = true;
-						break;
-					case EDIT_ALL_PROJECTS:
-						if (edition) {
-							return true;
-						}
-						break;
-					case EDIT_PROJECT:
-						canEditHisProjects = true;
-						break;
+				if (globalPermission.getPermission() == GlobalPermissionEnum.EDIT_ALL_PROJECTS) {
+					// If the profile has EDIT_ALL_PROJECTS permission, it has VIEW_ALL_PROJECTS too
+					return true;
 				}
-				if ((!edition && canSeeHisProjects) || (edition && canEditHisProjects)) {
-					break;
+				if (globalPermission.getPermission() == GlobalPermissionEnum.VIEW_ALL_PROJECTS && !edition) {
+					return true;
 				}
-			}
-			if ((!edition && canSeeHisProjects) || (edition && canEditHisProjects)) {
-				break;
+				if (globalPermission.getPermission() == GlobalPermissionEnum.VIEW_MY_PROJECTS) {
+					canSeeHisProjects = true;
+				} else if (globalPermission.getPermission() == GlobalPermissionEnum.EDIT_PROJECT) {
+					canEditHisProjects = true;
+					// If the profile has EDIT_PROJECT permission, it has VIEW_MY_PROJECTS too
+					canSeeHisProjects = true;
+				}
 			}
 		}
 
