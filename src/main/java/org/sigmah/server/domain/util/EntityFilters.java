@@ -374,6 +374,16 @@ public final class EntityFilters {
 
 	// --------------------------------------------------------------------------------
 	//
+	// CONTACT MODEL ENTITY.
+	//
+	// --------------------------------------------------------------------------------
+
+	// HIDE DELETED FILTER.
+
+	public static final String CONTACT_MODEL_HIDE_DELETED_CONDITION = EntityConstants.CONTACT_MODEL_COLUMN_DATE_DELETED + " IS NULL";
+
+	// --------------------------------------------------------------------------------
+	//
 	// USER DATABASE ENTITY.
 	//
 	// --------------------------------------------------------------------------------

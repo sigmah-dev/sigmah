@@ -1567,4 +1567,47 @@ public final class EntityConstants extends org.sigmah.shared.dto.util.EntityCons
 
 	public static final String FRAMEWORK_ELEMENT_IMPLEMENTATION_TABLE = "framework_element_implementation";
 	public static final String FRAMEWORK_ELEMENT_IMPLEMENTATION_COLUMN_ID = "id_framework_element_implementation";
+
+	// --------------------------------------------------------------------------------
+	//
+	// CONTACT MODEL ENTITY.
+	//
+	// --------------------------------------------------------------------------------
+
+	public static final String CONTACT_MODEL_TABLE = "contact_model";
+	public static final String CONTACT_MODEL_COLUMN_ID = "id_contact_model";
+	public static final String CONTACT_MODEL_COLUMN_TYPE = "type";
+	public static final String CONTACT_MODEL_COLUMN_NAME = "name";
+	public static final String CONTACT_MODEL_COLUMN_STATUS = "status";
+	public static final String CONTACT_MODEL_COLUMN_DATE_DELETED = "date_deleted";
+	public static final String CONTACT_MODEL_COLUMN_DATE_MAINTENANCE = "date_maintenance";
+
+	public static final int CONTACT_MODEL_NAME_MAX_LENGTH = 8192;
+
+	// --------------------------------------------------------------------------------
+	//
+	// CONTACT CARD ENTITY.
+	//
+	// --------------------------------------------------------------------------------
+
+	public static final String CONTACT_CARD_TABLE = "contact_card";
+	public static final String CONTACT_CARD_COLUMN_ID = "id_contact_card";
+
+	// --------------------------------------------------------------------------------
+	//
+	// CONTACT DETAILS ENTITY.
+	//
+	// --------------------------------------------------------------------------------
+
+	public static final String CONTACT_DETAILS_TABLE = "contact_details";
+	public static final String CONTACT_DETAILS_COLUMN_ID = "id_contact_details";
+
+	// --------------------------------------------------------------------------------
+	//
+	// CONTACT DETAILS ENTITY.
+	//
+	// --------------------------------------------------------------------------------
+
+	public static final String DEFAULT_CONTACT_FLEXIBLE_ELEMENT_TABLE = "default_contact_flexible_element";
+	public static final String DEFAULT_CONTACT_FLEXIBLE_ELEMENT_COLUMN_TYPE = "type";
 }
