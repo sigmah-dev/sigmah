@@ -79,4 +79,12 @@ public class ContactCard extends AbstractEntityId<Integer> {
   public void setLayout(Layout layout) {
     this.layout = layout;
   }
+
+  public void resetImport(final ContactModel contactModel, boolean keepPrivacyGroups) {
+    this.id = null;
+    this.contactModel = contactModel;
+    if (this.layout != null) {
+      this.layout.resetImport(keepPrivacyGroups);
+    }
+  }
 }

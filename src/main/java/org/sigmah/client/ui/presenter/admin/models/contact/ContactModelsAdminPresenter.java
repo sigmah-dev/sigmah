@@ -45,6 +45,7 @@ import org.sigmah.client.util.AdminUtil;
 import org.sigmah.client.util.EnumModel;
 import org.sigmah.shared.command.CreateEntity;
 import org.sigmah.shared.command.GetContactModel;
+import org.sigmah.shared.command.GetContactModelCopy;
 import org.sigmah.shared.command.GetContactModels;
 import org.sigmah.shared.command.base.Command;
 import org.sigmah.shared.command.result.CreateResult;
@@ -175,6 +176,29 @@ public class ContactModelsAdminPresenter extends AbstractModelsAdminPresenter<Co
 
   @Override
   protected void onDuplicateAction(final ContactModelDTO model) {
-    // TODO
+    dispatch.execute(new GetContactModelCopy(model.getId(), I18N.MESSAGES.copyOf(model.getName())),
+        new CommandResultHandler<ContactModelDTO>() {
+
+          @Override
+          public void onCommandFailure(final Throwable caught) {
+            N10N.error(I18N.CONSTANTS.adminContactModelCopy(), I18N.CONSTANTS.adminContactModelCopyError());
+          }
+
+          @Override
+          public void onCommandSuccess(final ContactModelDTO result) {
+            if (result == null) {
+              return;
+            }
+
+            view.getStore().add(result);
+            view.getStore().commitChanges();
+
+            // Selects the model in the grid.
+            view.getGrid().getSelectionModel().select(result, false);
+
+            // Shows notification.
+            N10N.infoNotif(I18N.CONSTANTS.adminContactModelCopy(), I18N.CONSTANTS.adminContactModelCopyDetail());
+          }
+        }, view.getGridDuplicateButton(), view.getGridMask());
   }
 }

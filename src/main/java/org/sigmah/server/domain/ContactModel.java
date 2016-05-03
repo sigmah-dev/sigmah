@@ -173,4 +173,14 @@ public class ContactModel extends AbstractEntityId<Integer> implements Deleteabl
   public void setDetails(ContactDetails details) {
     this.details = details;
   }
+
+  public void resetImport(boolean keepPrivacyGroups) {
+    this.id = null;
+    if (this.card != null) {
+      this.card.resetImport(this, keepPrivacyGroups);
+    }
+    if (this.details != null) {
+      this.details.resetImport(this, keepPrivacyGroups);
+    }
+  }
 }
