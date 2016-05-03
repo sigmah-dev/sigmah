@@ -319,7 +319,7 @@ public class ProjectTeamMembersPresenter extends AbstractProjectPresenter<Projec
 	}
 
 	private boolean isEditable() {
-		return ProfileUtils.isGranted(auth(), GlobalPermissionEnum.EDIT_ALL_PROJECTS)
+		return ProfileUtils.isGranted(auth(), GlobalPermissionEnum.EDIT_PROJECT)
 				&& ProfileUtils.isGranted(auth(), GlobalPermissionEnum.EDIT_PROJECT_TEAM_MEMBERS);
 	}
 }
