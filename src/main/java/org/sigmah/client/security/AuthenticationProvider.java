@@ -44,7 +44,7 @@ public class AuthenticationProvider implements Provider<Authentication> {
 
 	/**
 	 * <p>
-	 * The cached authenticated user data.<br/>
+	 * The cached authenticated user data.
 	 * This data is updated at each page access ; see {@link org.sigmah.client.event.EventBus EventBus}.
 	 * </p>
 	 * <p>
@@ -54,7 +54,7 @@ public class AuthenticationProvider implements Provider<Authentication> {
 	private Authentication authentication;
 
 	/**
-	 * Returns the current authentication.<br/>
+	 * Returns the current authentication.
 	 * If no user is currently authenticated, the method returns an empty {@link Authentication} instance (with
 	 * {@code null} token).
 	 * 

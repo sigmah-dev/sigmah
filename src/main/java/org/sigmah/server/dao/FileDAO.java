@@ -45,7 +45,7 @@ public interface FileDAO extends DAO<File, Integer> {
 	 * @param filesIds
 	 *          The {@link File} id(s) collection.
 	 * @param loadingScope
-	 *          The loading scope (see {@link LoadingScope} for details).<br/>
+	 *          The loading scope (see {@link LoadingScope} for details).
 	 *          If {@code null}, the default {@link LoadingScope#LAST_VERSION} is used.
 	 * @return The {@link FileVersion} list corresponding to the given {@code filesIds}.
 	 */

@@ -143,7 +143,7 @@ public interface Presenter<V extends ViewInterface> {
 
 		/**
 		 * This method is called when a {@link PageRequestEvent} is fired <b>and</b> matches with the value from
-		 * {@link #getPage()}.<br/>
+		 * {@link #getPage()}.
 		 * This mechanism ensures that method is executed on each page access.
 		 * 
 		 * @param request
@@ -175,7 +175,7 @@ public interface Presenter<V extends ViewInterface> {
 
 		/**
 		 * This method is called when a {@link ZoneRequestEvent} is fired <b>and</b> matches with the value from
-		 * {@link #getZone()}.<br/>
+		 * {@link #getZone()}.
 		 * This mechanism ensures that method is executed on each zone update.
 		 * 
 		 * @param zoneRequest

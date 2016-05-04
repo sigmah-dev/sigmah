@@ -223,7 +223,7 @@ public final class GuiceJUnitRunner extends BlockJUnit4ClassRunner {
 	}
 
 	/**
-	 * Starts the {@link PersistService}.<br/>
+	 * Starts the {@link PersistService}.
 	 * <b>Should be done only once.</b>
 	 */
 	private void startPersistUnit() {

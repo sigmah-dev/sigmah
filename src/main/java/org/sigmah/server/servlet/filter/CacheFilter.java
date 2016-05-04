@@ -45,7 +45,7 @@ import com.google.inject.Singleton;
  * for files containing the token ".nocache."
  * </p>
  * <p>
- * See http://www.infoq.com/articles/gwt-high-ajax<br/>
+ * See http://www.infoq.com/articles/gwt-high-ajax
  * See http://www.gwtproject.org/doc/latest/DevGuideCompilingAndDebugging.html#perfect_caching
  * </p>
  * <p>
@@ -92,7 +92,7 @@ public class CacheFilter implements Filter {
 	private static final long YEAR = 365 * 24 * 60 * 60 * 1000L;
 
 	/**
-	 * Sigmah custom header.<br/>
+	 * Sigmah custom header.
 	 * Used to control that responses headers are correctly set.
 	 */
 	private static final String CUSTOM_HEADER_NAME = "sigmahHeader";
@@ -160,18 +160,18 @@ public class CacheFilter implements Filter {
 	}
 
 	/**
-	 * Returns if the given {@code seq} contains any of the given {@code searchSeqs}.<br/>
+	 * Returns if the given {@code seq} contains any of the given {@code searchSeqs}.
 	 * The search is case insensitive.
 	 * 
 	 * <pre>
-	 * containsAny(null, null) -> false
-	 * containsAny(*, null) -> false
-	 * containsAny(null, *) -> false
-	 * containsAny("abc", "a") -> true
-	 * containsAny("abc", "abcd", "efg") -> false
-	 * containsAny("abc", "aB") -> true
-	 * containsAny("abc", "aBk") -> false
-	 * containsAny("abc", "aBk", "abC") -> true
+	 * containsAny(null, null) → false
+	 * containsAny(*, null) → false
+	 * containsAny(null, *) → false
+	 * containsAny("abc", "a") → true
+	 * containsAny("abc", "abcd", "efg") → false
+	 * containsAny("abc", "aB") → true
+	 * containsAny("abc", "aBk") → false
+	 * containsAny("abc", "aBk", "abC") → true
 	 * </pre>
 	 * 
 	 * @param seq

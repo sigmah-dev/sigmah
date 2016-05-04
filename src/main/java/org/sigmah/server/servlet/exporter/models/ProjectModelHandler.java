@@ -180,21 +180,21 @@ public class ProjectModelHandler implements ModelHandler {
 	private void saveProjectFlexibleElement(ProjectModel projectModel, EntityManager em, HashMap<Object, Object> modelesReset, HashSet<Object> modelesImport,
 			User user) {
 
-		// ProjectModel --> Banner --> Layout --> Groups --> Constraints
+		// ProjectModel → Banner → Layout → Groups → Constraints
 		if (projectModel.getProjectBanner() != null && projectModel.getProjectBanner().getLayout() != null) {
 
 			final List<LayoutGroup> bannerLayoutGroups = projectModel.getProjectBanner().getLayout().getGroups();
 			saveLayoutGroups(bannerLayoutGroups, em, modelesReset, modelesImport, user);
 		}
 
-		// ProjectModel --> Detail --> Layout --> Groups --> Constraints
+		// ProjectModel → Detail → Layout → Groups → Constraints
 		if (projectModel.getProjectDetails() != null && projectModel.getProjectDetails().getLayout() != null) {
 
 			final List<LayoutGroup> detailLayoutGroups = projectModel.getProjectDetails().getLayout().getGroups();
 			saveLayoutGroups(detailLayoutGroups, em, modelesReset, modelesImport, user);
 		}
 
-		// ProjectModel --> Phases --> Layout --> Groups --> Constraints
+		// ProjectModel → Phases → Layout → Groups → Constraints
 		List<PhaseModel> phases = projectModel.getPhaseModels();
 		if (phases != null) {
 			projectModel.setPhaseModels(null);

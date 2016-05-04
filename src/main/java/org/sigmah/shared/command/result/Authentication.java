@@ -95,7 +95,7 @@ public class Authentication implements Result {
 	private Integer orgUnitId;
 
 	/**
-	 * The currently authenticated user's aggregated profiles.<br/>
+	 * The currently authenticated user's aggregated profiles.
 	 * Aggregation of all user's profile(s) (a user can be linked to multiple profiles).
 	 */
 	private ProfileDTO aggregatedProfile;

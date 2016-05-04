@@ -31,14 +31,13 @@ import org.sigmah.shared.command.result.SecureNavigationResult;
  * <p>
  * Secures the navigation to a given page.
  * </p>
- * <p>
+ *
  * This command returns two information:
  * <ul>
  * <li>A boolean flag that grants or refuses the access to the page.</li>
  * <li>An updated instance of {@link org.sigmah.shared.command.result.Authentication Authentication}.</li>
  * </ul>
- * </p>
- * 
+ *
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
 public class SecureNavigationCommand extends AbstractCommand<SecureNavigationResult> {

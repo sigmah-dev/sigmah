@@ -65,13 +65,13 @@ public final class PageRequest {
 	private final Page page;
 
 	/**
-	 * Page request <b>URL</b> parameters.<br/>
+	 * Page request <b>URL</b> parameters.
 	 * <em>They can be considered as HTTP {@code GET} parameters.</em>
 	 */
 	private final Map<RequestParameter, String> parameters;
 
 	/**
-	 * Page request <b>data object</b> parameters.<br/>
+	 * Page request <b>data object</b> parameters.
 	 * <em>They can be considered as HTTP {@code POST} parameters.</em>
 	 */
 	private final Map<RequestParameter, Object> dataParameters;

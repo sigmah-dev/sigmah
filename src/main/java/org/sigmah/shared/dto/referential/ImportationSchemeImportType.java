@@ -50,7 +50,7 @@ public enum ImportationSchemeImportType implements Result {
 	SEVERAL;
 
 	/**
-	 * Returns the given {@code importType} corresponding name.<br/>
+	 * Returns the given {@code importType} corresponding name.
 	 * This method should be executed from client-side. If executed from server-side, it returns the enum constant name.
 	 * 
 	 * @param importType

@@ -149,7 +149,7 @@ public class MapResult<K, V> implements Result {
 	}
 
 	/**
-	 * Returns the {@code Boolean} value of the parameter corresponding to the given {@code key}.<br/>
+	 * Returns the {@code Boolean} value of the parameter corresponding to the given {@code key}.
 	 * The parameter value must be <b>true</b>, <b>on</b> or <b>1</b> (see {@link ClientUtils#isTrue(Object)} for
 	 * details).
 	 * 

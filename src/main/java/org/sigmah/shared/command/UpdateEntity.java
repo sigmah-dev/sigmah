@@ -35,14 +35,13 @@ import com.extjs.gxt.ui.client.data.RpcMap;
  * <p>
  * Updates a domain entity on the server.
  * </p>
- * <p>
+ *
  * Some entities require specialized commands to create or update. See:
  * <ul>
  * <li>{@link org.sigmah.shared.command.AddPartner}</li>
  * <li>{@link org.sigmah.shared.command.UpdateUserPermissions}</li>
  * <li>{@link org.sigmah.shared.command.UpdateSubscription}</li>
  * </ul>
- * </p>
  *
  * @author Alex Bertram (akbertram@gmail.com)
  * @author Denis Colliot (dcolliot@ideia.fr)

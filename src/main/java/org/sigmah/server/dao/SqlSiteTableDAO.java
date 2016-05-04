@@ -303,7 +303,7 @@ public class SqlSiteTableDAO implements SiteTableDAO {
 	 * <li>Site</li>
 	 * <li>Location</li>
 	 * <li>Partner (now: OrgUnit)</li>
-	 * <li>Activity -> UserDatabase</li>
+	 * <li>Activity → UserDatabase</li>
 	 * </ul>
 	 * 
 	 * @return an SQLQueryBuilder instance

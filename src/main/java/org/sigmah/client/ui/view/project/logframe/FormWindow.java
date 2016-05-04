@@ -278,7 +278,7 @@ final class FormWindow {
 	}
 
 	/**
-	 * Removes all the fields of this window.<br/>
+	 * Removes all the fields of this window.
 	 * This method removes also the listeners.
 	 */
 	public void clear() {

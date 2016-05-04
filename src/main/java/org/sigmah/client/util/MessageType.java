@@ -99,7 +99,7 @@ public enum MessageType {
 	}
 
 	/**
-	 * Returns the given {@code messageType} corresponding i18n title.<br/>
+	 * Returns the given {@code messageType} corresponding i18n title.
 	 * This method should be executed from client-side. If executed from server-side, it returns an error value.
 	 * 
 	 * @param messageType

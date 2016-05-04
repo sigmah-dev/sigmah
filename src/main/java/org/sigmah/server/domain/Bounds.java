@@ -31,7 +31,7 @@ import org.sigmah.server.domain.util.EntityConstants;
 
 /**
  * <p>
- * Embeddable bounds coordinates.<br/>
+ * Embeddable bounds coordinates.
  * Not an entity.
  * </p>
  * 

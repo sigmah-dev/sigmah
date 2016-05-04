@@ -159,7 +159,7 @@ public abstract class AbstractCommandHandler<C extends Command<R>, R extends Res
 	}
 
 	/**
-	 * Rollbacks the given {@code command} execution.<br/>
+	 * Rollbacks the given {@code command} execution.
 	 * The default implementation does nothing.
 	 * 
 	 * @param command

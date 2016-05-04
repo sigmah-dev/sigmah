@@ -151,11 +151,11 @@ public final class ServletRequestBuilder {
 
 	/**
 	 * <p>
-	 * Adds a {@code POST} request parameter.<br/>
+	 * Adds a {@code POST} request parameter.
 	 * The {@link #requestMethod} must be set to {@link RequestBuilder#POST}. Otherwise, the method does nothing.
 	 * </p>
 	 * <p>
-	 * Empty or {@code null} value is skipped.<br/>
+	 * Empty or {@code null} value is skipped.
 	 * {@code String.valueOf(value)} is used for given {@code value}.
 	 * </p>
 	 * 
@@ -231,7 +231,7 @@ public final class ServletRequestBuilder {
 	}
 
 	/**
-	 * Returns the current builder corresponding {@code GET} URL.<br/>
+	 * Returns the current builder corresponding {@code GET} URL.
 	 * If the builder contains {@code POST} parameters, they will <b>not</b> be included in the result.
 	 * 
 	 * @return the current builder corresponding {@code GET} URL.

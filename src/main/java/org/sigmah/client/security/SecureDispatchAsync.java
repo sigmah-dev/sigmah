@@ -68,14 +68,14 @@ import org.sigmah.offline.status.ApplicationStateManager;
 public class SecureDispatchAsync extends AbstractDispatchAsync {
 
 	/**
-	 * <p>
+	 *
 	 * Command execution wrapper containing following properties:
 	 * <ul>
 	 * <li>Authentication token (used to retrieve corresponding user).</li>
 	 * <li>Command to execute.</li>
 	 * <li>Current page token.</li>
 	 * </ul>
-	 * </p>
+	 *
 	 * <p>
 	 * Implements {@link Command} to ensure {@code IsSerializable} implementation.
 	 * </p>
@@ -305,7 +305,7 @@ public class SecureDispatchAsync extends AbstractDispatchAsync {
 	private static final Integer ONE = new Integer(1);
 
 	/**
-	 * Command execution with no response timeout limit (in milliseconds).<br/>
+	 * Command execution with no response timeout limit (in milliseconds).
 	 * <em>Currently set to <b>5 minutes</b>.</em>
 	 */
 	private static final Long TIMEOUT = new Long(5 * 60 * 1000);

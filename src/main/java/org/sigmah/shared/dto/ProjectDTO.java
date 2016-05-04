@@ -898,15 +898,15 @@ public final class ProjectDTO extends AbstractTreeModelEntityDTO<Integer> implem
 		// Start date and end date.
 		else {
 
-			// The start date is after the end date -> 100%.
+			// The start date is after the end date → 100%.
 			if (DateUtils.DAY_COMPARATOR.compare(start, end) >= 0) {
 				ratio = 100d;
 			}
-			// The start date is after today -> 0%.
+			// The start date is after today → 0%.
 			else if (DateUtils.DAY_COMPARATOR.compare(comparison, start) <= 0) {
 				ratio = 0d;
 			}
-			// The start date is before the end date -> x%.
+			// The start date is before the end date → x%.
 			else {
 				final Date sd = new Date(start.getYear(), start.getMonth(), start.getDate());
 				final Date ed = new Date(end.getYear(), end.getMonth(), end.getDate());

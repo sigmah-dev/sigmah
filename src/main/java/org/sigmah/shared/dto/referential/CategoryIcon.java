@@ -42,7 +42,7 @@ public enum CategoryIcon implements Result {
 	TRIANGLE;
 
 	/**
-	 * Returns the given {@code categoryIcon} corresponding name.<br/>
+	 * Returns the given {@code categoryIcon} corresponding name.
 	 * This method should be executed from client-side. If executed from server-side, it returns the enum constant name.
 	 * 
 	 * @param categoryIcon
@@ -84,7 +84,7 @@ public enum CategoryIcon implements Result {
 	}
 
 	/**
-	 * Returns the given {@code categoryIconText} corresponding {@code CategoryIcon} value.<br/>
+	 * Returns the given {@code categoryIconText} corresponding {@code CategoryIcon} value.
 	 * This method should be executed from client-side. If executed from server-side, it always returns {@code null}.
 	 * 
 	 * @param categoryIconText

@@ -65,7 +65,7 @@ import com.google.inject.Provider;
 
 /**
  * <p>
- * Abstract additional servlet which secures access to its methods.<br/>
+ * Abstract additional servlet which secures access to its methods.
  * All additional <em>secured</em> servlet should inherit this abstract layer.
  * </p>
  * The declared child servlet methods must have this signature:

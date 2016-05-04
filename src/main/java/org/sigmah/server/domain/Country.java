@@ -92,7 +92,7 @@ public class Country extends AbstractEntityId<Integer> implements SchemaElement 
 	private String codeISO;
 
 	/**
-	 * The geographic bounds of this Country.<br/>
+	 * The geographic bounds of this Country.
 	 * Bounds for the Country cannot be {@code null}.
 	 */
 	@Embedded

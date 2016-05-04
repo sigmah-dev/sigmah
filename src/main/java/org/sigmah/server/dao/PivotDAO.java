@@ -40,7 +40,7 @@ import org.sigmah.shared.util.Filter;
 
 /**
  * PivotDAO is a reporting data access object that provides aggregation ("or pivoting")
- *  {@link org.sigmah.shared.domain.Site}s by a given set of dimensions.
+ *  {@link org.sigmah.server.domain.Site}s by a given set of dimensions.
  *
  * @author Alex Bertram
  */
@@ -49,7 +49,7 @@ public interface PivotDAO {
     /**
      *
      * @param userId the id of the User for whom the data is restricted
-     * @param filter a {@link org.sigmah.shared.dao.Filter filter} restricting the sites
+     * @param filter a {@link Filter} restricting the sites
      * @param dimensions
      * @return
      */

@@ -41,7 +41,7 @@ public abstract class AbstractEntity implements Entity {
 
 	/**
 	 * <p>
-	 * <b><em>Default {@code toString} method only displays centralized properties.</em><br/>
+	 * <em>Default {@code toString} method only displays centralized properties.</em>
 	 * See {@link #appendToString(ToStringBuilder)} to append other properties to {@code toString} builder.</b>
 	 * </p>
 	 * {@inheritDoc}

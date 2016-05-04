@@ -28,12 +28,12 @@ import com.google.gwt.core.client.JavaScriptObject;
 
 /**
  * Wrapper around the JavaScript API of ApplicationCache.
- * <p/>
+ *
  * ApplicationCache is an HTML5 API. It is the basis of the offline mode.
- * <p/>
+ *
  * ApplicationCache purpose is to cache every file required by the application.
  * They will then be accessible even when the user is offline.
- * <p/>
+ *
  * The file list is specified by a Manifest.
  * 
  * @see org.sigmah.linker.ManifestGenerationLinker

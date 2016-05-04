@@ -143,7 +143,7 @@ public class GetProjectModelCopyHandler extends AbstractCommandHandler<GetProjec
 	 */
 	private static void saveFlexibleElement(final ProjectModel projectModel, final EntityManager em) {
 
-		// ProjectModel --> Banner --> Layout --> Groups --> Constraints
+		// ProjectModel → Banner → Layout → Groups → Constraints
 
 		if (projectModel.getProjectBanner() == null || projectModel.getProjectBanner().getLayout() == null) {
 			return;
@@ -242,7 +242,7 @@ public class GetProjectModelCopyHandler extends AbstractCommandHandler<GetProjec
 			}
 		}
 
-		// ProjectModel --> Detail --> Layout --> Groups --> Constraints
+		// ProjectModel → Detail → Layout → Groups → Constraints
 
 		if (projectModel.getProjectDetails() != null && projectModel.getProjectDetails().getLayout() != null) {
 			List<LayoutGroup> detailLayoutGroups = projectModel.getProjectDetails().getLayout().getGroups();
@@ -331,7 +331,7 @@ public class GetProjectModelCopyHandler extends AbstractCommandHandler<GetProjec
 			}
 		}
 
-		// ProjectModel --> Phases --> Layout --> Groups --> Constraints
+		// ProjectModel → Phases → Layout → Groups → Constraints
 		List<PhaseModel> phases = projectModel.getPhaseModels();
 		if (phases != null) {
 			projectModel.setPhaseModels(null);

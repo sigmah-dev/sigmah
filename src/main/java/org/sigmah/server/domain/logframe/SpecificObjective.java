@@ -41,7 +41,7 @@ import org.sigmah.server.domain.util.EntityConstants;
  * Specific objective domain entity.
  * </p>
  * <p>
- * Represents an item of the specific objectives of a log frame.<br/>
+ * Represents an item of the specific objectives of a log frame.
  * A specific objective contains a list of expected results.
  * </p>
  * 

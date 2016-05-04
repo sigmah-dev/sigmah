@@ -134,7 +134,7 @@ public class ListResult<E extends Serializable> implements Result, ListLoadResul
 
 	/**
 	 * Returns the given {@code result} inner list data as given {@code clazz} typed list (using an unchecked cast, see
-	 * following warning).<br/>
+	 * following warning).
 	 * <b>Warning : throws a {@code ClassCastException} if given {@code clazz} type does not correspond to given
 	 * {@code result} inner list type.</b>
 	 * 

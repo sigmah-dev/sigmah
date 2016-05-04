@@ -124,10 +124,10 @@ public class MappingField {
 	 * Builds a mapping field name which {@code parts} are separated by a dot character.
 	 * 
 	 * <pre>
-	 * n(null) -> ""
-	 * n("") -> ""
-	 * n("my", "Key", " rocks ") -> "my.Key.rocks"
-	 * n("my", "Key", "rocks.like.hell") -> "my.Key.rocks.like.hell"
+	 * n(null) → ""
+	 * n("") → ""
+	 * n("my", "Key", " rocks ") → "my.Key.rocks"
+	 * n("my", "Key", "rocks.like.hell") → "my.Key.rocks.like.hell"
 	 * </pre>
 	 * 
 	 * @param parts

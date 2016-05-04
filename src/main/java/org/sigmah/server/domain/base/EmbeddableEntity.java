@@ -29,7 +29,7 @@ import java.io.Serializable;
  * Embeddable entity interface.
  * </p>
  * <p>
- * Embeddable elements must implement {@code hashCode} and {@code equals} methods.<br/>
+ * Embeddable elements must implement {@code hashCode} and {@code equals} methods.
  * Ex: Composite id (primary key).
  * </p>
  * 

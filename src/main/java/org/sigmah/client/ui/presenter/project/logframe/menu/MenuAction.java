@@ -162,7 +162,7 @@ public abstract class MenuAction {
 
 	/**
 	 * Returns if this action can be now performed. A <code>null</code> or empty string means that the action can be
-	 * perform. A non-empty string means that the action cannot be performed for the moment.<br/>
+	 * perform. A non-empty string means that the action cannot be performed for the moment.
 	 * The returned string will be used as the cause of this unavailability.
 	 * 
 	 * @return The unavailability message, or <code>null</code>.

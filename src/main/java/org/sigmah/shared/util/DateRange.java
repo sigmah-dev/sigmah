@@ -28,7 +28,6 @@ import java.util.Date;
 import org.sigmah.client.util.ToStringBuilder;
 
 /**
- * <p>
  * Defines a time period as a range of dates. The end points of the range are <em>inclusive</em>, so that a date range
  * of 1-Jan-09 to 31-Jan-09 would include all events that took place at any moment in the month of January. The
  * {@code DateRange} can be also be open on either end. Here are a few concrete examples:
@@ -56,11 +55,12 @@ import org.sigmah.client.util.ToStringBuilder;
  * <td>All dates on or before 31-Jan-09 (2009 or earlier)</td>
  * </tr>
  * </tbody>
+ * <caption>Accepted parameters and result examples</caption>
  * </table>
- * </p>
+ *
  * <p>
  * A server-side version of this class exists for XML manipulations, see
- * {@link org.sigmah.server.report.model.DateRange}.
+ * {@link org.sigmah.shared.dto.pivot.model.DateRange}.
  * </p>
  * 
  * @author Alex Bertram

@@ -44,7 +44,7 @@ import org.sigmah.shared.dto.reminder.MonitoredPointDTO;
 /**
  * JavaScript implementation of {@link org.sigmah.server.handler.calendar.MonitoredPointCalendarHandler}.
  * Used when the user is offline.
- * <p/>
+ *
  * Creates a <code>Calendar</code> from the monitored point of the given project.
  * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)

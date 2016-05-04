@@ -35,7 +35,7 @@ import org.sigmah.shared.dto.value.TripletValueDTO;
 
 /**
  * Modify the value of one or more flexible elements.
- * <p/>
+ *
  * Although this command is named <code>UpdateProject</code>, it can be used
  * to modify <code>OrgUnits</code> as well.
  * 

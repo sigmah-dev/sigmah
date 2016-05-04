@@ -32,7 +32,7 @@ import org.sigmah.shared.command.result.Result;
 
 /**
  * Execute a queue of commands and stop completely if one of them fails.
- * <p/>
+ *
  * Each command has the possibility to add new commands to the queue. They will
  * be executed as well.
  * 

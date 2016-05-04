@@ -39,7 +39,7 @@ public class FunctionalExceptions {
 	private static I18nServer i18n;
 	
 	/**
-	 * Returns the functional exception message from server side. <br/>
+	 * Returns the functional exception message from server side.
 	 * Method {@link FunctionalException#getParameter(int)} can be used to populate message dynamic parameters.
 	 * 
 	 * @param language 

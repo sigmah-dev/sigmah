@@ -40,7 +40,7 @@ public interface UserDAO extends DAO<User, Integer> {
 	 * Returns if a {@link User} exist for the given {@code email}.
 	 * 
 	 * @param email
-	 *          The user email, representing a <em>unique</em> key in the table.<br/>
+	 *          The user email, representing a <em>unique</em> key in the table.
 	 *          Case insensitive.
 	 * @return {@code true} if a user exist for the given {@code email}, {@code false} otherwise.
 	 */
@@ -50,7 +50,7 @@ public interface UserDAO extends DAO<User, Integer> {
 	 * Finds the given {@code email} corresponding {@link User}.
 	 * 
 	 * @param email
-	 *          The user email, representing a <em>unique</em> key in the table.<br/>
+	 *          The user email, representing a <em>unique</em> key in the table.
 	 *          Case insensitive.
 	 * @return the given {@code email} corresponding {@link User}, or {@code null} if no user exists for this email.
 	 */
@@ -60,7 +60,7 @@ public interface UserDAO extends DAO<User, Integer> {
 	 * Finds the given change password {@code key} corresponding {@link User}.
 	 * 
 	 * @param key
-	 *          The change password generated key.<br/>
+	 *          The change password generated key.
 	 *          Case insensitive.
 	 * @return the given change password {@code key} corresponding {@link User}, or {@code null} if no user exists for
 	 *         this key.

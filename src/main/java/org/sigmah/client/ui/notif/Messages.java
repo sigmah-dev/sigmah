@@ -73,8 +73,8 @@ final class Messages {
 	}
 
 	/**
-	 * Shows the given message into the popup.<br/>
-	 * <br/>
+	 * Shows the given message into the popup.
+	 *
 	 * There is only one instance of the popup, the previous message may be erased.
 	 * 
 	 * @param title

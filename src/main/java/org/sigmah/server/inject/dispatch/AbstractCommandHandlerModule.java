@@ -37,11 +37,11 @@ import com.google.inject.internal.UniqueAnnotations;
  * This is an abstract base class that configures Guice to inject {@link Dispatch} and {@link CommandHandler} instances.
  * If no other prior instance of {@link DispatchModule} has been installed, the standard {@link Dispatch} and
  * {@link CommandHandlerRegistry} classes will be configured.
- * <p/>
- * <p/>
+ *
+ *
  * Implement the {@link #configureHandlers()} method and call {@link #bindHandler(Class, Class)} to register handler
  * implementations. For example:
- * <p/>
+ *
  * 
  * <pre>
  * public class CommandHandlerModule extends AbstractCommandHandlerModule {

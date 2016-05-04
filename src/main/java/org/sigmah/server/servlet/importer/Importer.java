@@ -836,11 +836,11 @@ public abstract class Importer implements Iterator<ImportDetails> {
 				break;
 			case TEXT_AREA:
 				// Accepted formats:
-				// Type DATE -> dd/MM/yyyy
-				// Type NUMBER -> 0
-				// Type NUMBER + decimal -> 0.00
-				// Type PARAGRAPH -> *
-				// Type TEXT -> *
+				// Type DATE → dd/MM/yyyy
+				// Type NUMBER → 0
+				// Type NUMBER + decimal → 0.00
+				// Type PARAGRAPH → *
+				// Type TEXT → *
 				TextAreaElement textAreaElement = (TextAreaElement) flexibleElement;
 				switch (type.toTextAreaType()) {
 				case DATE: {

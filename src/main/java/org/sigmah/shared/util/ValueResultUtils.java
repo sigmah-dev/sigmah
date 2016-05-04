@@ -85,8 +85,8 @@ public final class ValueResultUtils {
 	}
 
 	/**
-	 * Merges a list of values as a single string.<br/>
-	 * <br/>
+	 * Merges a list of values as a single string.
+	 *
 	 * The <code>null</code> values are ignored.
 	 * 
 	 * @param <T>
@@ -117,8 +117,8 @@ public final class ValueResultUtils {
 	}
 
 	/**
-	 * Merges a list of elements as a single string.<br/>
-	 * <br/>
+	 * Merges a list of elements as a single string.
+	 *
 	 * The <code>null</code> values are ignored.
 	 * 
 	 * @param <T>
@@ -149,7 +149,7 @@ public final class ValueResultUtils {
 	}
 
 	/**
-	 * Merges a map into a single string <br/>
+	 * Merges a map into a single string
 	 * The <code>null</code> values are ignored.
 	 * 
 	 * @param values
@@ -181,8 +181,8 @@ public final class ValueResultUtils {
 	}
 
 	/**
-	 * Merges a list of elements as a single string.<br/>
-	 * <br/>
+	 * Merges a list of elements as a single string.
+	 *
 	 * The <code>null</code> values are ignored.
 	 * 
 	 * @param <T>

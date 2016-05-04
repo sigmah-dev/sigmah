@@ -62,7 +62,7 @@ public enum ElementExtractedValueStatus implements Serializable {
 	INVALID_QUESTION_VALUE;
 
 	/**
-	 * Returns the given {@code code} corresponding message.<br/>
+	 * Returns the given {@code code} corresponding message.
 	 * This method should be executed from client-side. If executed from server-side, it returns the enum constant name.
 	 * 
 	 * @param code

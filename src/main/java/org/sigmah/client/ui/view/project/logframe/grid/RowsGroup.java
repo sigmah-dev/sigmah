@@ -357,7 +357,7 @@ public abstract class RowsGroup<T> {
 	}
 
 	/**
-	 * Returns if the group header must be shown.<br/>
+	 * Returns if the group header must be shown.
 	 * Returns <code>true</code> by default.
 	 * 
 	 * @param userObject

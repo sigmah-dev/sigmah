@@ -38,7 +38,7 @@ import org.sigmah.offline.status.ConnectionStatus;
 
 /**
  * Maintain and provides a TransfertManager singleton.
- * <p/>
+ *
  * The type of TransfertManager is selected based on the user's browser.
  * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
@@ -51,7 +51,7 @@ public class TransfertManagerProvider implements Provider<TransfertManager> {
      * 
      * As of november 2014, downloads from DataURL are unsupported for the 
      * following browsers:
-     * - Google Chrome (crash for files > 1 MB)
+     * - Google Chrome (crash for files &gt; 1 MB)
      * - Internet Explorer 6 up to IE 9
      * 
      * Mozilla Firefox has the best support for offline downloads since it also

@@ -59,7 +59,7 @@ public class ReportSubscription extends AbstractEntityId<ReportSubscriptionId> {
 	private ReportSubscriptionId id;
 
 	/**
-	 * The subscription status to <code>report</code>.<br/>
+	 * The subscription status to <code>report</code>.
 	 * {@code true} if the user is subscribed to the <code>report</code>.
 	 */
 	@Column(name = EntityConstants.REPORT_SUBSCRIPTION_COLUMN_SUBSCRIBED, nullable = false)
@@ -89,7 +89,7 @@ public class ReportSubscription extends AbstractEntityId<ReportSubscriptionId> {
 	private User user;
 
 	/**
-	 * The second user who has invited {@code user} to subscribe to this report.<br/>
+	 * The second user who has invited {@code user} to subscribe to this report.
 	 * {@code null} if the user has set its own preferences.
 	 */
 	// FIXME Online documentation describes this column as NOT nullable.

@@ -41,7 +41,7 @@ public interface SiteDAO extends DAO<Site, Integer> {
 	 * @param siteId
 	 *          the id of the Site entity to update
 	 * @param attributeValues
-	 *          a map of attribute ids => attribute value
+	 *          a map of attribute ids → attribute value
 	 */
 	void updateAttributeValues(int siteId, Map<Integer, Boolean> attributeValues);
 

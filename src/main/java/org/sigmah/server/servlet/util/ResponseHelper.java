@@ -262,7 +262,7 @@ public final class ResponseHelper {
 	/**
 	 * Read the content of the given input stream and write all its content to
 	 * the given output stream.
-	 * <p/>
+	 *
 	 * The streams are not closed by this method.
 	 * 
 	 * @param input Source data.

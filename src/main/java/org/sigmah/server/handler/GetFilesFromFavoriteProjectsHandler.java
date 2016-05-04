@@ -149,7 +149,7 @@ public class GetFilesFromFavoriteProjectsHandler extends AbstractCommandHandler<
 
 	/**
 	 * Creates a list from the last versions of the given files.
-	 * <p/>
+	 *
 	 * File versions will only be added if they exists on the server.
 	 * 
 	 * @param fileIds Files to search.

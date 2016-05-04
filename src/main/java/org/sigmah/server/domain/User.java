@@ -94,7 +94,7 @@ public class User extends AbstractEntityId<Integer> {
 	private String locale;
 
 	/**
-	 * The secure key required to change the user's password.<br/>
+	 * The secure key required to change the user's password.
 	 * This is a random 128-bit key that can be safely sent to the user by email.
 	 */
 	@Column(name = EntityConstants.USER_COLUMN_CHANGE_PASSWORD_KEY, nullable = true, length = EntityConstants.CHANGE_PASSWORD_KEY_MAX_LENGTH)

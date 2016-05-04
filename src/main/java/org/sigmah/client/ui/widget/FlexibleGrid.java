@@ -50,7 +50,7 @@ import com.extjs.gxt.ui.client.widget.grid.GridSelectionModel;
 public class FlexibleGrid<M extends ModelData> extends EditorGrid<M> {
 
 	/**
-	 * The number of elements to display (before adding a scrollbar).<br/>
+	 * The number of elements to display (before adding a scrollbar).
 	 * A negative or <code>null</code> value displays all elements by default.
 	 */
 	private int visibleElementsCount = -1;
@@ -145,7 +145,7 @@ public class FlexibleGrid<M extends ModelData> extends EditorGrid<M> {
 	}
 
 	/**
-	 * Sets the number of elements to display (before adding a scrollbar).<br/>
+	 * Sets the number of elements to display (before adding a scrollbar).
 	 * A negative or <code>null</code> value displays all elements by default.
 	 * 
 	 * @param visibleElementsCount

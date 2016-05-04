@@ -61,7 +61,7 @@ public class BackupArchiveManagementCommand extends AbstractCommand<BackupDTO> {
 	 * <p>
 	 * Checks if an existing previous backup archive already exists for the given {@code organizationId}.<br>
 	 * </p>
-	 * <p>
+	 *
 	 * Returns either:
 	 * <ul>
 	 * <li>The existing {@link BackupDTO} archive file details ({@code running} attribute is set to {@code false}).</li>
@@ -69,8 +69,7 @@ public class BackupArchiveManagementCommand extends AbstractCommand<BackupDTO> {
 	 * attribute is set to {@code true}).</li>
 	 * <li>{@code null} if no existing archive has been found and no process is currently running.</li>
 	 * </ul>
-	 * </p>
-	 * 
+	 *
 	 * @param organizationId
 	 *          The organization id.
 	 */
@@ -82,15 +81,14 @@ public class BackupArchiveManagementCommand extends AbstractCommand<BackupDTO> {
 	 * <p>
 	 * Launches a new backup archive generation process.
 	 * </p>
-	 * <p>
+	 *
 	 * Returns either:
 	 * <ul>
 	 * <li>The existing {@link BackupDTO} temporary file details if a process is currently running ({@code running}
 	 * attribute is set to {@code true}).</li>
 	 * <li>{@code null} if the generation process has been successfully launched.</li>
 	 * </ul>
-	 * </p>
-	 * 
+	 *
 	 * @param backupConfiguration
 	 *          The backup configuration (required).
 	 */

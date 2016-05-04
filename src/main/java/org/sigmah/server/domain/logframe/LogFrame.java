@@ -49,7 +49,7 @@ import org.sigmah.server.domain.util.EntityConstants;
  * LogFrame domain entity.
  * </p>
  * <p>
- * Represents the entire log frame of a project.<br/>
+ * Represents the entire log frame of a project.
  * A log frame defines a main objective and contains a list of specific objectives and a list of prerequisites.
  * </p>
  * 

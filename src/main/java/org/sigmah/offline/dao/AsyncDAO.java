@@ -48,7 +48,7 @@ public interface AsyncDAO<T, S extends Enum<S> & Schema> {
 	
 	/**
 	 * Save or replace the given object using the given transaction.
-	 * <p/>
+	 *
 	 * It is more efficient to save composites objects using the same transaction.
 	 * Open a new transaction with {@link #saveOrUpdate(Object)} and save its children
 	 * with this method.

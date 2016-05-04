@@ -41,7 +41,7 @@ import org.sigmah.server.domain.util.EntityConstants;
  * Expected result domain entity.
  * </p>
  * <p>
- * Represents an item of the expected results of a specific objective of a log frame.<br/>
+ * Represents an item of the expected results of a specific objective of a log frame.
  * An expected result contains one activity.
  * </p>
  * 

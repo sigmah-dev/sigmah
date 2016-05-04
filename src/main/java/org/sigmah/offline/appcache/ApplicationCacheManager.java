@@ -35,7 +35,7 @@ import com.google.gwt.user.client.Window;
 
 /**
  * Manager of ApplicationCache.
- * <p/>
+ *
  * This class adds Java properties to ApplicationCache.
  * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
@@ -69,7 +69,7 @@ public class ApplicationCacheManager {
     
 	/**
 	 * Ensures that the manager is listening to ApplicationCache events.
-	 * <p/>
+	 *
 	 * If the manager is already listening to ApplicationCache, this method does
 	 * nothing.
 	 */

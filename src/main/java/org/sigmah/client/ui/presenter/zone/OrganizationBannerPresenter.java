@@ -83,7 +83,7 @@ public class OrganizationBannerPresenter extends AbstractZonePresenter<Organizat
 	private static final String DEFAULT_ORGANIZATION_NAME = "Sigmah";
 
 	/**
-	 * Default organization logo URL.<br/>
+	 * Default organization logo URL.
 	 * Should be a public resource file path.
 	 */
 	private static final String DEFAULT_ORGANIZATION_LOGO = ResourcesUtils.buildImageURL("header/org-default-logo.png");

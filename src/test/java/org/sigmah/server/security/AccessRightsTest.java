@@ -65,7 +65,7 @@ public class AccessRightsTest {
 	}
 
 	/**
-	 * Transforms the given {@code gpes} into a {@code Set} collection.<br/>
+	 * Transforms the given {@code gpes} into a {@code Set} collection.
 	 * {@code null} values are ignored.
 	 * 
 	 * @param gpes

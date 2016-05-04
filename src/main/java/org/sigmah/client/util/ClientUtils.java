@@ -246,11 +246,11 @@ public final class ClientUtils {
 	 * Returns if the given {@code value} is blank.
 	 * 
 	 * <pre>
-	 * isBlank(null)    -> true
-	 * isBlank("")      -> true
-	 * isBlank(" ")     -> true
-	 * isBlank(" test") -> false
-	 * isBlank(" a ")   -> false
+	 * isBlank(null)    → true
+	 * isBlank("")      → true
+	 * isBlank(" ")     → true
+	 * isBlank(" test") → false
+	 * isBlank(" a ")   → false
 	 * </pre>
 	 * 
 	 * @param value
@@ -265,11 +265,11 @@ public final class ClientUtils {
 	 * Returns if the given {@code value} is not blank.
 	 * 
 	 * <pre>
-	 * isNotBlank(null)    -> false
-	 * isNotBlank("")      -> false
-	 * isNotBlank(" ")     -> false
-	 * isNotBlank(" test") -> true
-	 * isNotBlank(" a ")   -> true
+	 * isNotBlank(null)    → false
+	 * isNotBlank("")      → false
+	 * isNotBlank(" ")     → false
+	 * isNotBlank(" test") → true
+	 * isNotBlank(" a ")   → true
 	 * </pre>
 	 * 
 	 * @param value
@@ -459,7 +459,7 @@ public final class ClientUtils {
 	}
 
 	/**
-	 * Puts the first text's character to its upper case value.<br/>
+	 * Puts the first text's character to its upper case value.
 	 * The rest of the {@code text} is not modified.
 	 * 
 	 * @param text
@@ -761,9 +761,9 @@ public final class ClientUtils {
 	 * If the {@code value} is abbreviated, the result ends with "{@code ...}".
 	 * 
 	 * <pre>
-	 * abbreviate("my value", 150) -> "my value"
-	 * abbreviate("my value", 5) -> "my va..."
-	 * abbreviate("my value", 0) -> "..."
+	 * abbreviate("my value", 150) → "my value"
+	 * abbreviate("my value", 5) → "my va..."
+	 * abbreviate("my value", 0) → "..."
 	 * </pre>
 	 * 
 	 * @param value
@@ -797,14 +797,14 @@ public final class ClientUtils {
 	 * Removes the last {@code suffix} of the given {@code value}.
 	 * 
 	 * <pre>
-	 * removeLastSuffix("a blue dog", null) -> "a blue dog"
-	 * removeLastSuffix("a blue dog", "") -> "a blue dog"
-	 * removeLastSuffix(null, *) -> null
-	 * removeLastSuffix("", *) -> ""
-	 * removeLastSuffix("a blue dog", "fog") -> "a blue dog"
-	 * removeLastSuffix("a blue dog", "og") -> "a blue d"
-	 * removeLastSuffix("a blue dog", "dog") -> "a blue "
-	 * removeLastSuffix("a blue dog", "a blue dog") -> ""
+	 * removeLastSuffix("a blue dog", null) → "a blue dog"
+	 * removeLastSuffix("a blue dog", "") → "a blue dog"
+	 * removeLastSuffix(null, *) → null
+	 * removeLastSuffix("", *) → ""
+	 * removeLastSuffix("a blue dog", "fog") → "a blue dog"
+	 * removeLastSuffix("a blue dog", "og") → "a blue d"
+	 * removeLastSuffix("a blue dog", "dog") → "a blue "
+	 * removeLastSuffix("a blue dog", "a blue dog") → ""
 	 * </pre>
 	 * 
 	 * @param value
@@ -835,13 +835,13 @@ public final class ClientUtils {
 	 * Returns {@code true} if the given string is a valid <strong>true</strong> boolean value.
 	 * 
 	 * <pre>
-	 * isTrue(null)   -> false
-	 * isTrue("true") -> true
-	 * isTrue("TRUE") -> true
-	 * isTrue("on")   -> true
-	 * isTrue("ON")   -> true
-	 * isTrue("1")    -> true
-	 * isTrue(" 1 ")  -> true
+	 * isTrue(null)   → false
+	 * isTrue("true") → true
+	 * isTrue("TRUE") → true
+	 * isTrue("on")   → true
+	 * isTrue("ON")   → true
+	 * isTrue("1")    → true
+	 * isTrue(" 1 ")  → true
 	 * </pre>
 	 * 
 	 * @param value
@@ -856,9 +856,9 @@ public final class ClientUtils {
 	 * Returns {@code true} if the given {@link Boolean} value is a {@code true} boolean value.
 	 * 
 	 * <pre>
-	 * isTrue(null)  -> false
-	 * isTrue(false) -> false
-	 * isTrue(true)  -> true
+	 * isTrue(null)  → false
+	 * isTrue(false) → false
+	 * isTrue(true)  → true
 	 * </pre>
 	 * 
 	 * @param value
@@ -873,9 +873,9 @@ public final class ClientUtils {
 	 * Returns {@code false} if the given {@link Boolean} value is a {@code true} boolean value.
 	 * 
 	 * <pre>
-	 * isNotTrue(null)  -> true
-	 * isNotTrue(false) -> true
-	 * isNotTrue(true)  -> false
+	 * isNotTrue(null)  → true
+	 * isNotTrue(false) → true
+	 * isNotTrue(true)  → false
 	 * </pre>
 	 * 
 	 * @param value
@@ -890,22 +890,22 @@ public final class ClientUtils {
 	 * Returns {@code true} if the given {@link Object} value is a {@code true} boolean value.
 	 * 
 	 * <pre>
-	 * isTrue(null)                -> false
-	 * isTrue(true)                -> true
-	 * isTrue(false)               -> true
-	 * isTrue(new String("true"))  -> true
-	 * isTrue(new String("TRUE"))  -> true
-	 * isTrue(new String("false")) -> false
-	 * isTrue(new String("1"))     -> true
-	 * isTrue(new String(" 1 "))   -> true
-	 * isTrue(new String("ON"))    -> true
-	 * isTrue(new String("on"))    -> true
-	 * isTrue(new String(""))      -> false
-	 * isTrue(new String("abc"))   -> false
-	 * isTrue(new Boolean(true))   -> true
-	 * isTrue(new Boolean(false))  -> false
-	 * isTrue(new Integer(0))      -> false
-	 * isTrue(new Integer(1))      -> true
+	 * isTrue(null)                → false
+	 * isTrue(true)                → true
+	 * isTrue(false)               → true
+	 * isTrue(new String("true"))  → true
+	 * isTrue(new String("TRUE"))  → true
+	 * isTrue(new String("false")) → false
+	 * isTrue(new String("1"))     → true
+	 * isTrue(new String(" 1 "))   → true
+	 * isTrue(new String("ON"))    → true
+	 * isTrue(new String("on"))    → true
+	 * isTrue(new String(""))      → false
+	 * isTrue(new String("abc"))   → false
+	 * isTrue(new Boolean(true))   → true
+	 * isTrue(new Boolean(false))  → false
+	 * isTrue(new Integer(0))      → false
+	 * isTrue(new Integer(1))      → true
 	 * </pre>
 	 * 
 	 * @param value
@@ -1130,7 +1130,7 @@ public final class ClientUtils {
 	 *          The first set.
 	 * @param secondSet
 	 *          The second set.
-	 * @return The intersection between the given sets (i.e. elements present among both sets).<br/>
+	 * @return The intersection between the given sets (i.e. elements present among both sets).
 	 *         Never returns {@code null} ; if no intersection, returns empty set.
 	 */
 	public static <T> Set<T> intersect(final Set<T> firstSet, final Set<T> secondSet) {
@@ -1151,8 +1151,8 @@ public final class ClientUtils {
 	 * Concatenates all the given {@code collections} together (order is conserved).
 	 * 
 	 * <pre>
-	 * concat({4,5}, {1,6}, {7,9}) -> {4,5,1,6,7,9}
-	 * concat({4,5}, null, {7,9}) -> {4,5,7,9}
+	 * concat({4,5}, {1,6}, {7,9}) → {4,5,1,6,7,9}
+	 * concat({4,5}, null, {7,9}) → {4,5,7,9}
 	 * </pre>
 	 * 
 	 * @param collections
@@ -1574,7 +1574,7 @@ public final class ClientUtils {
 	}-*/;
 
 	/**
-	 * Calculates the absolute offset (left, top) of the given {@code element} relatively to root <em>body</em> element.<br/>
+	 * Calculates the absolute offset (left, top) of the given {@code element} relatively to root <em>body</em> element.
 	 * Automatically includes parent(s) offset(s).
 	 * 
 	 * @param element
@@ -1696,7 +1696,7 @@ public final class ClientUtils {
 	 * Deletes the {@code <pre>} tags from the given {@code value}.
 	 * 
 	 * <pre>
-	 * deletePreTags("&lt;pre&gt;my value&lt;/pre&gt;") -> "my value"
+	 * deletePreTags("&lt;pre&gt;my value&lt;/pre&gt;") → "my value"
 	 * </pre>
 	 * 
 	 * @param value

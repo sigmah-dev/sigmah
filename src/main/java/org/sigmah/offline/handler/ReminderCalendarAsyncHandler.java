@@ -44,7 +44,7 @@ import org.sigmah.shared.dto.reminder.ReminderDTO;
 /**
  * JavaScript implementation of {@link org.sigmah.server.handler.calendar.ReminderCalendarHandler}.
  * Used when the user is offline.
- * <p/>
+ *
  * Creates a <code>Calendar</code> from the monitored point of the given project.
  * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
