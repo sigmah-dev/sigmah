@@ -65,3 +65,17 @@ CREATE TABLE contact_unit (
   id_org_unit INTEGER NOT NULL REFERENCES partner(partnerid),
   PRIMARY KEY (id_contact, id_org_unit)
 );
+
+-- Let's create a contact for each user and for each organization
+-- Do not add user | organization data in contact table as these data will be retrieved from user | organization table when required
+
+INSERT INTO contact (id_contact, id_contact_model, id_organization, date_created)
+SELECT nextval('hibernate_sequence'), cm.id_contact_model, o.id_organization, NOW()
+FROM organization o
+JOIN contact_model cm ON (cm.id_organization = o.id_organization AND cm.name = o.name || ' model');
+
+INSERT INTO contact (id_contact, id_contact_model, id_user, id_parent, date_created)
+SELECT nextval('hibernate_sequence'), cm.id_contact_model, u.userid, parent.id_contact, NOW()
+FROM userlogin u
+JOIN contact_model cm ON (cm.id_organization = u.id_organization AND cm.name = 'Sigmah user model')
+JOIN contact parent ON (parent.id_organization = u.id_organization);
