@@ -85,7 +85,7 @@ public class FlexibleElementsAdminPresenter<E extends IsModel> extends AbstractP
 
 		void setToolbarEnabled(final boolean enabled);
 
-		void resetGrid(boolean hasBanner, boolean hasCard);
+		void resetGrid(boolean canHaveMandatoryFields, boolean hasBanner, boolean hasCard);
 
 		Button getAddButton();
 
@@ -248,6 +248,7 @@ public class FlexibleElementsAdminPresenter<E extends IsModel> extends AbstractP
 
 		view.setModelEditable(model.isEditable());
 		view.resetGrid(
+				model.getModelType().canHaveMandatoryFields(),
 				model.getModelType().hasBanner(),
 				model.getModelType().hasCard()
 		);

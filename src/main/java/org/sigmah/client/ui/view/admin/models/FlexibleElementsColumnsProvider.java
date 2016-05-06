@@ -76,7 +76,7 @@ abstract class FlexibleElementsColumnsProvider {
 	 * 
 	 * @return The columns model for the flexible elements admin grid.
 	 */
-	public ColumnModel getColumnModel(boolean hasBanner, boolean hasCard) {
+	public ColumnModel getColumnModel(boolean canHaveMandatoryFields, boolean hasBanner, boolean hasCard) {
 
 		final List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
 
@@ -130,21 +130,23 @@ abstract class FlexibleElementsColumnsProvider {
 		});
 		configs.add(column);
 
-		// --
-		// Validates column.
-		// --
+		if (canHaveMandatoryFields) {
+			// --
+			// Validates column.
+			// --
 
-		column = new ColumnConfig(FlexibleElementDTO.VALIDATES, I18N.CONSTANTS.adminFlexibleCompulsory(), 50);
-		column.setRenderer(new GridCellRenderer<FlexibleElementDTO>() {
+			column = new ColumnConfig(FlexibleElementDTO.VALIDATES, I18N.CONSTANTS.adminFlexibleCompulsory(), 50);
+			column.setRenderer(new GridCellRenderer<FlexibleElementDTO>() {
 
-			@Override
-			public Object render(final FlexibleElementDTO model, final String property, final ColumnData config, final int rowIndex, final int colIndex,
-					final ListStore<FlexibleElementDTO> store, final Grid<FlexibleElementDTO> grid) {
+				@Override
+				public Object render(final FlexibleElementDTO model, final String property, final ColumnData config, final int rowIndex, final int colIndex,
+														 final ListStore<FlexibleElementDTO> store, final Grid<FlexibleElementDTO> grid) {
 
-				return ColumnProviders.renderBoolean(model.getValidates(), I18N.CONSTANTS.adminFlexibleCompulsory());
-			}
-		});
-		configs.add(column);
+					return ColumnProviders.renderBoolean(model.getValidates(), I18N.CONSTANTS.adminFlexibleCompulsory());
+				}
+			});
+			configs.add(column);
+		}
 
 		// --
 		// Privacy group column.

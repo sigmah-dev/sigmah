@@ -164,9 +164,9 @@ public class FlexibleElementsAdminView extends AbstractView implements FlexibleE
 	}
 
 	@Override
-	public void resetGrid(boolean hasBanner, boolean hasCard) {
+	public void resetGrid(boolean canHaveMandatoryFields, boolean hasBanner, boolean hasCard) {
 		this.mainPanel.remove(grid);
-		createGrid(hasBanner, hasCard);
+		createGrid(canHaveMandatoryFields, hasBanner, hasCard);
 		this.mainPanel.add(grid);
 	}
 // ---------------------------------------------------------------------------------------------------------------
@@ -180,7 +180,7 @@ public class FlexibleElementsAdminView extends AbstractView implements FlexibleE
 	 * 
 	 * @return The grid component.
 	 */
-	private Component createGrid(boolean hasBanner, boolean hasCard) {
+	private Component createGrid(boolean canHaveMandatoryFields, boolean hasBanner, boolean hasCard) {
 
 		grid = new Grid<FlexibleElementDTO>(new ListStore<FlexibleElementDTO>(), new FlexibleElementsColumnsProvider() {
 
@@ -194,7 +194,7 @@ public class FlexibleElementsAdminView extends AbstractView implements FlexibleE
 				return gridEventHandler;
 			}
 
-		}.getColumnModel(hasBanner, hasCard));
+		}.getColumnModel(canHaveMandatoryFields, hasBanner, hasCard));
 
 		grid.setAutoHeight(true);
 		grid.getView().setForceFit(true);

@@ -61,15 +61,7 @@ import org.sigmah.shared.dto.OrgUnitBannerDTO;
 import org.sigmah.shared.dto.ProjectBannerDTO;
 import org.sigmah.shared.dto.base.AbstractModelDataEntityDTO;
 import org.sigmah.shared.dto.category.CategoryTypeDTO;
-import org.sigmah.shared.dto.element.BudgetElementDTO;
-import org.sigmah.shared.dto.element.BudgetSubFieldDTO;
-import org.sigmah.shared.dto.element.FilesListElementDTO;
-import org.sigmah.shared.dto.element.FlexibleElementDTO;
-import org.sigmah.shared.dto.element.QuestionChoiceElementDTO;
-import org.sigmah.shared.dto.element.QuestionElementDTO;
-import org.sigmah.shared.dto.element.ReportElementDTO;
-import org.sigmah.shared.dto.element.ReportListElementDTO;
-import org.sigmah.shared.dto.element.TextAreaElementDTO;
+import org.sigmah.shared.dto.element.*;
 import org.sigmah.shared.dto.layout.LayoutConstraintDTO;
 import org.sigmah.shared.dto.layout.LayoutDTO;
 import org.sigmah.shared.dto.layout.LayoutGroupDTO;
@@ -116,7 +108,6 @@ import org.sigmah.shared.command.result.VoidResult;
 import org.sigmah.shared.computation.Computation;
 import org.sigmah.shared.computation.Computations;
 import org.sigmah.shared.computation.value.ComputedValues;
-import org.sigmah.shared.dto.element.ComputationElementDTO;
 import org.sigmah.shared.dto.referential.LogicalElementType;
 import org.sigmah.shared.dto.referential.LogicalElementTypes;
 import org.sigmah.shared.util.Collections;
@@ -666,7 +657,11 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 			view.getLayoutGroupField().setValue(constraint != null ? constraint.getParentLayoutGroup() : null);
 			view.getOrderField().setValue(constraint != null ? constraint.getSortOrder() : null);
 
-			view.getMandatoryField().setValue(flexibleElement.getValidates());
+			if (currentModel.getModelType().canHaveMandatoryFields()) {
+				view.getMandatoryField().setValue(flexibleElement.getValidates());
+			} else {
+				view.getMandatoryField().hide();
+			}
 
 			view.getAmendableField().setValue(flexibleElement.getAmendable());
 
