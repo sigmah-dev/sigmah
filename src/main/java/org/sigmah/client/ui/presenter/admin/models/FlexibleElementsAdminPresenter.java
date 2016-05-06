@@ -85,6 +85,8 @@ public class FlexibleElementsAdminPresenter<E extends IsModel> extends AbstractP
 
 		void setToolbarEnabled(final boolean enabled);
 
+		void resetGrid(boolean hasBanner, boolean hasCard);
+
 		Button getAddButton();
 
 		Button getAddGroupButton();
@@ -125,22 +127,6 @@ public class FlexibleElementsAdminPresenter<E extends IsModel> extends AbstractP
 	 */
 	@Override
 	public void onBind() {
-
-		// --
-		// Grid selection change handler.
-		// --
-
-		view.getGrid().getSelectionModel().addSelectionChangedListener(new SelectionChangedListener<FlexibleElementDTO>() {
-
-			@Override
-			public void selectionChanged(final SelectionChangedEvent<FlexibleElementDTO> event) {
-				final boolean enabled = ClientUtils.isNotEmpty(event.getSelection());
-				
-				view.getDeleteButton().setEnabled(enabled);
-				view.getEnableButton().setEnabled(enabled);
-				view.getDisableButton().setEnabled(enabled);
-			}
-		});
 
 		// --
 		// Grid events handler.
@@ -261,11 +247,31 @@ public class FlexibleElementsAdminPresenter<E extends IsModel> extends AbstractP
 		view.setToolbarEnabled(model.getStatus() != null && model.isEditable());
 
 		view.setModelEditable(model.isEditable());
-		
+		view.resetGrid(
+				model.getModelType().hasBanner(),
+				model.getModelType().hasCard()
+		);
+
+		// --
+		// Grid selection change handler.
+		// --
+
+		view.getGrid().getSelectionModel().addSelectionChangedListener(new SelectionChangedListener<FlexibleElementDTO>() {
+
+			@Override
+			public void selectionChanged(final SelectionChangedEvent<FlexibleElementDTO> event) {
+				final boolean enabled = ClientUtils.isNotEmpty(event.getSelection());
+
+				view.getDeleteButton().setEnabled(enabled);
+				view.getEnableButton().setEnabled(enabled);
+				view.getDisableButton().setEnabled(enabled);
+			}
+		});
+
 		view.getDeleteButton().setVisible(!model.isUnderMaintenance());
 		view.getEnableButton().setVisible(model.isUnderMaintenance());
 		view.getDisableButton().setVisible(model.isUnderMaintenance());
-		
+
 		view.getStore().removeAll();
 		view.getStore().add(model.getAllElements());
 		view.getStore().commitChanges();

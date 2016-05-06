@@ -76,7 +76,7 @@ abstract class FlexibleElementsColumnsProvider {
 	 * 
 	 * @return The columns model for the flexible elements admin grid.
 	 */
-	public ColumnModel getColumnModel() {
+	public ColumnModel getColumnModel(boolean hasBanner, boolean hasCard) {
 
 		final List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
 
@@ -195,38 +195,43 @@ abstract class FlexibleElementsColumnsProvider {
 		});
 		configs.add(column);
 
-		// --
-		// Banner column.
-		// --
 
-		column = new ColumnConfig(FlexibleElementDTO.BANNER, I18N.CONSTANTS.Admin_BANNER(), 50);
-		column.setRenderer(new GridCellRenderer<FlexibleElementDTO>() {
+		if (hasBanner || hasCard) {
+			String bannerTitle = hasBanner ? I18N.CONSTANTS.Admin_BANNER() : I18N.CONSTANTS.Admin_CARD();
+			String bannerPositionTitle = hasBanner ? I18N.CONSTANTS.adminFlexibleBannerPosition() : I18N.CONSTANTS.adminFlexibleCardPosition();
+			// --
+			// Banner column.
+			// --
 
-			@Override
-			public Object render(final FlexibleElementDTO model, final String property, final ColumnData config, final int rowIndex, final int colIndex,
-					final ListStore<FlexibleElementDTO> store, final Grid<FlexibleElementDTO> grid) {
+			column = new ColumnConfig(FlexibleElementDTO.BANNER, bannerTitle, 50);
+			column.setRenderer(new GridCellRenderer<FlexibleElementDTO>() {
 
-				return ColumnProviders.renderBoolean(model.getBannerConstraint() != null, I18N.CONSTANTS.Admin_BANNER());
-			}
-		});
-		configs.add(column);
+				@Override
+				public Object render(final FlexibleElementDTO model, final String property, final ColumnData config, final int rowIndex, final int colIndex,
+														 final ListStore<FlexibleElementDTO> store, final Grid<FlexibleElementDTO> grid) {
 
-		// --
-		// Banner position column.
-		// --
+					return ColumnProviders.renderBoolean(model.getBannerConstraint() != null, I18N.CONSTANTS.Admin_BANNER());
+				}
+			});
+			configs.add(column);
 
-		column = new ColumnConfig("bannerPos", I18N.CONSTANTS.adminFlexibleBannerPosition(), 50);
-		column.setRenderer(new GridCellRenderer<FlexibleElementDTO>() {
+			// --
+			// Banner position column.
+			// --
 
-			@Override
-			public Object render(final FlexibleElementDTO model, final String property, final ColumnData config, final int rowIndex, final int colIndex,
-					final ListStore<FlexibleElementDTO> store, final Grid<FlexibleElementDTO> grid) {
+			column = new ColumnConfig("bannerPos", bannerPositionTitle, 50);
+			column.setRenderer(new GridCellRenderer<FlexibleElementDTO>() {
 
-				final LayoutConstraintDTO bannerConstraint = model.getBannerConstraint();
-				return ColumnProviders.renderText(bannerConstraint != null ? bannerConstraint.getSortOrder() : null);
-			}
-		});
-		configs.add(column);
+				@Override
+				public Object render(final FlexibleElementDTO model, final String property, final ColumnData config, final int rowIndex, final int colIndex,
+														 final ListStore<FlexibleElementDTO> store, final Grid<FlexibleElementDTO> grid) {
+
+					final LayoutConstraintDTO bannerConstraint = model.getBannerConstraint();
+					return ColumnProviders.renderText(bannerConstraint != null ? bannerConstraint.getSortOrder() : null);
+				}
+			});
+			configs.add(column);
+		}
 
 		// --
 		// Container column.

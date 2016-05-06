@@ -100,6 +100,7 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 	public static final String CONTAINER = "container";
 	public static final String CONSTRAINT = "constraint";
 	public static final String BANNER = "banner";
+	public static final String BANNER_POSITION = "bannerPos";
 	public static final String DISABLED_DATE = "disabledDate";
 	public static final String CREATION_DATE = "creationDate";
 
