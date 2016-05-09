@@ -195,6 +195,8 @@ public class Sigmah implements EntryPoint {
 		injector.getAddOrgUnitModelAdminPresenter();
 		injector.getProjectModelsAdminPresenter();
 		injector.getAddProjectModelAdminPresenter();
+		injector.getContactModelsAdminPresenter();
+		injector.getAddContactModelAdminPresenter();
 		injector.getReportModelsAdminPresenter();
 		injector.getEditPhaseModelAdminPresenter();
 		injector.getEditLayoutGroupAdminPresenter();

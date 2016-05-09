@@ -27,6 +27,7 @@ import org.sigmah.client.event.handler.UpdateHandler;
 import org.sigmah.client.page.PageRequest;
 import org.sigmah.client.ui.presenter.CreateProjectPresenter.Mode;
 import org.sigmah.client.ui.presenter.reminder.ReminderType;
+import org.sigmah.shared.dto.ContactModelDTO;
 import org.sigmah.shared.dto.IsModel;
 import org.sigmah.shared.dto.OrgUnitModelDTO;
 import org.sigmah.shared.dto.ProjectDTO;
@@ -239,6 +240,18 @@ public class UpdateEvent extends GwtEvent<UpdateHandler> {
 	 * </p>
 	 */
 	public static final String PROJECT_MODEL_ADD = "PROJECT_MODEL_ADD";
+
+	/**
+	 * <p>
+	 * When a {@code ContactModel} has been created.
+	 * </p>
+	 * <p>
+	 * <ul>
+	 * <li>param[0] = The created {@link ContactModelDTO} instance.</li>
+	 * </ul>
+	 * </p>
+	 */
+	public static final String CONTACT_MODEL_ADD = "CONTACT_MODEL_ADD";
 
 	/**
 	 * <p>

@@ -42,7 +42,6 @@ import org.sigmah.client.ui.presenter.project.treegrid.ProjectsListWidget.Refres
 import org.sigmah.client.ui.res.icon.IconImageBundle;
 import org.sigmah.client.ui.view.DashboardView;
 import org.sigmah.client.ui.view.base.ViewInterface;
-import org.sigmah.client.ui.widget.HasTreeGrid;
 import org.sigmah.client.ui.widget.HasTreeGrid.TreeGridEventHandler;
 import org.sigmah.client.ui.widget.WorkInProgressWidget;
 import org.sigmah.client.ui.widget.orgunit.OrgUnitTreeGrid;
@@ -431,26 +430,28 @@ public class DashboardPresenter extends AbstractPagePresenter<DashboardPresenter
 	 * @return First page of the administration to show.
 	 */
 	private Page getDefaultAdminPage() {
-		final Page[] administrationPages = new Page[] {
-			Page.ADMIN_USERS, Page.ADMIN_ORG_UNITS, 
-			Page.ADMIN_PROJECTS_MODELS, Page.ADMIN_ORG_UNITS_MODELS, 
-			Page.ADMIN_REPORTS_MODELS, Page.ADMIN_CATEGORIES, 
-			Page.ADMIN_IMPORTATION_SCHEME, Page.ADMIN_PARAMETERS
+		final Page[] administrationPages = new Page[]{
+				Page.ADMIN_USERS, Page.ADMIN_ORG_UNITS,
+				Page.ADMIN_PROJECTS_MODELS, Page.ADMIN_ORG_UNITS_MODELS,
+				Page.ADMIN_CONTACT_MODELS, Page.ADMIN_REPORTS_MODELS,
+				Page.ADMIN_CATEGORIES, Page.ADMIN_IMPORTATION_SCHEME,
+				Page.ADMIN_PARAMETERS
 		};
-		
-		final GlobalPermissionEnum[] accessRights = new GlobalPermissionEnum[] {
-			GlobalPermissionEnum.MANAGE_USERS, GlobalPermissionEnum.MANAGE_ORG_UNITS,
-			GlobalPermissionEnum.MANAGE_PROJECT_MODELS, GlobalPermissionEnum.MANAGE_ORG_UNIT_MODELS,
-			GlobalPermissionEnum.MANAGE_REPORT_MODELS, GlobalPermissionEnum.MANAGE_CATEGORIES,
-			GlobalPermissionEnum.MANAGE_IMPORTATION_SCHEMES, GlobalPermissionEnum.MANAGE_SETTINGS
+
+		final GlobalPermissionEnum[] accessRights = new GlobalPermissionEnum[]{
+				GlobalPermissionEnum.MANAGE_USERS, GlobalPermissionEnum.MANAGE_ORG_UNITS,
+				GlobalPermissionEnum.MANAGE_PROJECT_MODELS, GlobalPermissionEnum.MANAGE_ORG_UNIT_MODELS,
+				GlobalPermissionEnum.MANAGE_CONTACT_MODELS, GlobalPermissionEnum.MANAGE_REPORT_MODELS,
+				GlobalPermissionEnum.MANAGE_CATEGORIES, GlobalPermissionEnum.MANAGE_IMPORTATION_SCHEMES,
+				GlobalPermissionEnum.MANAGE_SETTINGS
 		};
-		
-		for(int index = 0; index < accessRights.length; index++) {
-			if(ProfileUtils.isGranted(auth(), accessRights[index])) {
+
+		for (int index = 0; index < accessRights.length; index++) {
+			if (accessRights[index] == null || ProfileUtils.isGranted(auth(), accessRights[index])) {
 				return administrationPages[index];
 			}
 		}
-		
+
 		return Page.ADMIN_USERS;
 	}
 

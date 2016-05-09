@@ -55,7 +55,12 @@ public interface IsModel extends EntityDTO<Integer>, ModelData {
 		/**
 		 * Organization unit model type.
 		 */
-		OrgUnitModel;
+		OrgUnitModel,
+
+		/**
+		 * Contact model type
+		 */
+		ContactModel;
 
 	}
 

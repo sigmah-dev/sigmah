@@ -32,19 +32,21 @@ import com.google.gwt.core.client.GWT;
 
 /**
  * Element types enumeration.
- * 
+ *
  * @author Denis Colliot (dcolliot@ideia.fr) (v2.0)
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
 public enum ElementTypeEnum implements LogicalElementType {
 
 	CHECKBOX("CheckboxElement"),
-	
+
 	COMPUTATION("ComputationElement"),
-	
+
 	CORE_VERSION("CoreVersionElement"),
 
 	DEFAULT("DefaultFlexibleElement"),
+
+	DEFAULT_CONTACT("DefaultContactFlexibleElement"),
 
 	FILES_LIST("FilesListElement"),
 
@@ -69,7 +71,7 @@ public enum ElementTypeEnum implements LogicalElementType {
 	private ElementTypeEnum(String className) {
 		this.className = className;
 	}
-    
+
 	/**
 	 * Root package of domain elements.
 	 */
@@ -78,7 +80,7 @@ public enum ElementTypeEnum implements LogicalElementType {
 	/**
 	 * Returns the given {@code elementType} corresponding name value.
 	 * This method should be executed from client-side. If executed from server-side, it returns a default name.
-	 * 
+	 *
 	 * @param elementType
 	 *          The {@code ElementTypeEnum} value.
 	 * @return the given {@code elementType} corresponding name value, or a default name.
@@ -126,6 +128,7 @@ public enum ElementTypeEnum implements LogicalElementType {
 			nameMap.put(I18N.CONSTANTS.flexibleElementComputation(), ElementTypeEnum.COMPUTATION);
 			nameMap.put(I18N.CONSTANTS.flexibleElementCoreVersion(), ElementTypeEnum.CORE_VERSION);
 			nameMap.put(I18N.CONSTANTS.flexibleElementDefault(), ElementTypeEnum.DEFAULT);
+			nameMap.put(I18N.CONSTANTS.flexibleElementDefaultContact(), ElementTypeEnum.DEFAULT_CONTACT);
 			nameMap.put(I18N.CONSTANTS.flexibleElementFilesList(), ElementTypeEnum.FILES_LIST);
 			nameMap.put(I18N.CONSTANTS.flexibleElementIndicatorsList(), ElementTypeEnum.INDICATORS);
 			nameMap.put(I18N.CONSTANTS.flexibleElementMessage(), ElementTypeEnum.MESSAGE);
@@ -147,37 +150,37 @@ public enum ElementTypeEnum implements LogicalElementType {
 			return ROOT_PACKAGE + "default";
 		}
 	}
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public ElementTypeEnum toElementTypeEnum() {
-        return this;
-    }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public TextAreaType toTextAreaType() {
-        return null;
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public DefaultFlexibleElementType toDefaultFlexibleElementType() {
-        return null;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public ElementTypeEnum toElementTypeEnum() {
+		return this;
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getDescription() {
-        return getName(this);
-    }
-    
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public TextAreaType toTextAreaType() {
+		return null;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public DefaultFlexibleElementType toDefaultFlexibleElementType() {
+		return null;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getDescription() {
+		return getName(this);
+	}
+
 }

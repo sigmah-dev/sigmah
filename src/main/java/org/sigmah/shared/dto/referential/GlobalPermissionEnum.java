@@ -241,6 +241,11 @@ public enum GlobalPermissionEnum implements Result {
 	MANAGE_ORG_UNIT_MODELS(VIEW_ADMIN),
 
 	/**
+	 * View the admin page to manage contact models.
+	 */
+	MANAGE_CONTACT_MODELS(VIEW_ADMIN),
+
+	/**
 	 * View the admin page to manage report models.
 	 */
 	MANAGE_REPORT_MODELS(VIEW_ADMIN),
@@ -568,6 +573,9 @@ public enum GlobalPermissionEnum implements Result {
 
 			case MANAGE_ORG_UNIT_MODELS:
 				return I18N.CONSTANTS.MANAGE_ORG_UNIT_MODELS();
+
+			case MANAGE_CONTACT_MODELS:
+				return I18N.CONSTANTS.MANAGE_CONTACT_MODELS();
 
 			case MANAGE_REPORT_MODELS:
 				return I18N.CONSTANTS.MANAGE_REPORT_MODELS();

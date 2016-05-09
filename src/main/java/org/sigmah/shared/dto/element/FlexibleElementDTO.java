@@ -648,6 +648,8 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 			type = ElementTypeEnum.CHECKBOX;
 		} else if (this instanceof DefaultFlexibleElementDTO) {
 			type = ElementTypeEnum.DEFAULT;
+		} else if (this instanceof DefaultContactFlexibleElementDTO) {
+			type = ElementTypeEnum.DEFAULT_CONTACT;
 		} else if (this instanceof FilesListElementDTO) {
 			type = ElementTypeEnum.FILES_LIST;
 		} else if (this instanceof IndicatorsListElementDTO) {

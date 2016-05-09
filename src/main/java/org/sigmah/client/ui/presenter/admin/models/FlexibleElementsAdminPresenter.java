@@ -46,8 +46,10 @@ import org.sigmah.client.util.ClientUtils;
 import org.sigmah.shared.command.DeleteFlexibleElements;
 import org.sigmah.shared.command.result.VoidResult;
 import org.sigmah.shared.dto.IsModel;
+import org.sigmah.shared.dto.element.DefaultContactFlexibleElementDTO;
 import org.sigmah.shared.dto.element.DefaultFlexibleElementDTO;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
+import org.sigmah.shared.dto.referential.DefaultContactFlexibleElementType;
 import org.sigmah.shared.dto.referential.DefaultFlexibleElementType;
 
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -380,6 +382,8 @@ public class FlexibleElementsAdminPresenter<E extends IsModel> extends AbstractP
 
 			if (element instanceof DefaultFlexibleElementDTO) {
 				defaultElementNames.add(DefaultFlexibleElementType.getName(((DefaultFlexibleElementDTO) element).getType()));
+			} else if (element instanceof DefaultContactFlexibleElementDTO && !((DefaultContactFlexibleElementDTO) element).getType().isDeletable()) {
+				defaultElementNames.add(DefaultContactFlexibleElementType.getName(((DefaultContactFlexibleElementDTO) element).getType()));
 			}
 		}
 

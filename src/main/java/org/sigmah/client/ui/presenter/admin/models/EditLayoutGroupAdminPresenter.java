@@ -43,6 +43,8 @@ import org.sigmah.client.util.AdminUtil;
 import org.sigmah.client.util.ClientUtils;
 import org.sigmah.shared.command.CreateEntity;
 import org.sigmah.shared.command.result.CreateResult;
+import org.sigmah.shared.dto.ContactDetailsDTO;
+import org.sigmah.shared.dto.ContactModelDTO;
 import org.sigmah.shared.dto.IsModel;
 import org.sigmah.shared.dto.OrgUnitDetailsDTO;
 import org.sigmah.shared.dto.PhaseModelDTO;
@@ -282,6 +284,9 @@ public class EditLayoutGroupAdminPresenter extends AbstractPagePresenter<EditLay
 
 		} else if (hasLayout instanceof OrgUnitDetailsDTO) {
 			return ((OrgUnitDetailsDTO) hasLayout).getLayout();
+
+		} else if (hasLayout instanceof ContactDetailsDTO) {
+			return ((ContactDetailsDTO) hasLayout).getLayout();
 
 		} else {
 			return null;

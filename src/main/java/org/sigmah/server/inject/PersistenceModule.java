@@ -79,6 +79,7 @@ public class PersistenceModule extends AbstractModule {
 		bind(AdminDAO.class).to(AdminHibernateDAO.class).in(Singleton.class);
 		bind(AmendmentDAO.class).to(AmendmentHibernateDAO.class).in(Singleton.class);
 		bind(AuthenticationDAO.class).to(AuthenticationHibernateDAO.class).in(Singleton.class);
+		bind(ContactModelDAO.class).to(ContactModelHibernateDAO.class).in(Singleton.class);
 		bind(CountryDAO.class).to(CountryHibernateDAO.class).in(Singleton.class);
 		bind(FileDAO.class).to(FileHibernateDAO.class).in(Singleton.class);
 		bind(FrameworkDAO.class).to(FrameworkHibernateDAO.class).in(Singleton.class);

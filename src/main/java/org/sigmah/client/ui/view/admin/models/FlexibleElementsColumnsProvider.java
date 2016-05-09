@@ -30,11 +30,13 @@ import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.ui.presenter.admin.models.FlexibleElementsAdminPresenter;
 import org.sigmah.client.ui.widget.HasGrid.GridEventHandler;
 import org.sigmah.client.util.ColumnProviders;
+import org.sigmah.shared.dto.element.DefaultContactFlexibleElementDTO;
 import org.sigmah.shared.dto.element.DefaultFlexibleElementDTO;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
 import org.sigmah.shared.dto.layout.LayoutConstraintDTO;
 import org.sigmah.shared.dto.layout.LayoutGroupDTO;
 import org.sigmah.shared.dto.profile.PrivacyGroupDTO;
+import org.sigmah.shared.dto.referential.DefaultContactFlexibleElementType;
 import org.sigmah.shared.dto.referential.DefaultFlexibleElementType;
 import org.sigmah.shared.dto.referential.ElementTypeEnum;
 
@@ -89,14 +91,9 @@ abstract class FlexibleElementsColumnsProvider {
 			public Object render(final FlexibleElementDTO model, final String property, final ColumnData config, final int rowIndex, final int colIndex,
 					final ListStore<FlexibleElementDTO> store, final Grid<FlexibleElementDTO> grid) {
 
-				final String label;
-				if (model.getElementType() == ElementTypeEnum.DEFAULT) {
-					label = DefaultFlexibleElementType.getName(((DefaultFlexibleElementDTO) model).getType());
-				} else {
-					label = model.getLabel();
-				}
-				
-				if(model.isDisabled()) {
+				final String label = getLabel(model);
+
+				if (model.isDisabled()) {
 					return ColumnProviders.renderDisabled(label);
 				}
 
@@ -298,4 +295,18 @@ abstract class FlexibleElementsColumnsProvider {
 		return new ColumnModel(configs);
 	}
 
+	private String getLabel(FlexibleElementDTO model) {
+		if (model.getElementType() == null) {
+			return model.getLabel();
+		}
+
+		switch (model.getElementType()) {
+			case DEFAULT:
+				return DefaultFlexibleElementType.getName(((DefaultFlexibleElementDTO) model).getType());
+			case DEFAULT_CONTACT:
+				return DefaultContactFlexibleElementType.getName(((DefaultContactFlexibleElementDTO) model).getType());
+			default:
+				return model.getLabel();
+		}
+	}
 }

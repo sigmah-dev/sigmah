@@ -62,6 +62,7 @@ public class AdminView extends AbstractView implements AdminPresenter.View {
 		linksMap.put(Page.ADMIN_ORG_UNITS, I18N.CONSTANTS.adminOrgUnit());
 		linksMap.put(Page.ADMIN_PROJECTS_MODELS, I18N.CONSTANTS.adminProjectModels());
 		linksMap.put(Page.ADMIN_ORG_UNITS_MODELS, I18N.CONSTANTS.adminOrgUnitsModels());
+		linksMap.put(Page.ADMIN_CONTACT_MODELS, I18N.CONSTANTS.adminContactModels());
 		linksMap.put(Page.ADMIN_REPORTS_MODELS, I18N.CONSTANTS.adminProjectModelReports());
 		linksMap.put(Page.ADMIN_CATEGORIES, I18N.CONSTANTS.adminCategories());
 		linksMap.put(Page.ADMIN_IMPORTATION_SCHEME, I18N.CONSTANTS.adminImportationSchemes());

@@ -121,6 +121,7 @@ final class AccessRights {
 		sperm(pageToken(Page.ADMIN_PROJECTS_MODELS), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_ADMIN, GlobalPermissionEnum.MANAGE_PROJECT_MODELS);
 		sperm(pageToken(Page.ADMIN_REPORTS_MODELS), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_ADMIN, GlobalPermissionEnum.MANAGE_REPORT_MODELS);
 		sperm(pageToken(Page.ADMIN_ORG_UNITS_MODELS), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_ADMIN, GlobalPermissionEnum.MANAGE_ORG_UNIT_MODELS);
+		sperm(pageToken(Page.ADMIN_CONTACT_MODELS), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_ADMIN, GlobalPermissionEnum.MANAGE_CONTACT_MODELS);
 		sperm(pageToken(Page.ADMIN_IMPORTATION_SCHEME), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_ADMIN, GlobalPermissionEnum.MANAGE_IMPORTATION_SCHEMES);
 		sperm(pageToken(Page.ADMIN_ADD_IMPORTATION_SCHEME), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_ADMIN, GlobalPermissionEnum.MANAGE_IMPORTATION_SCHEMES);
 		sperm(pageToken(Page.ADMIN_ADD_VARIABLE_IMPORTATION_SCHEME), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_ADMIN, GlobalPermissionEnum.MANAGE_IMPORTATION_SCHEMES);
@@ -154,6 +155,8 @@ final class AccessRights {
 		sperm(commandToken(GetBaseMaps.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetCalendar.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetCategories.class), GrantType.AUTHENTICATED_ONLY);
+		sperm(commandToken(GetContactModel.class), GrantType.AUTHENTICATED_ONLY);
+		sperm(commandToken(GetContactModels.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetCountries.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetCountry.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetFilesFromFavoriteProjects.class), GrantType.AUTHENTICATED_ONLY);

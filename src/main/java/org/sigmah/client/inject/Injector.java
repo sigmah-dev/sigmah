@@ -45,6 +45,8 @@ import org.sigmah.client.ui.presenter.admin.importation.ImportationSchemeAdminPr
 import org.sigmah.client.ui.presenter.admin.models.AddBudgetSubFieldPresenter;
 import org.sigmah.client.ui.presenter.admin.models.EditFlexibleElementAdminPresenter;
 import org.sigmah.client.ui.presenter.admin.models.EditLayoutGroupAdminPresenter;
+import org.sigmah.client.ui.presenter.admin.models.contact.AddContactModelAdminPresenter;
+import org.sigmah.client.ui.presenter.admin.models.contact.ContactModelsAdminPresenter;
 import org.sigmah.client.ui.presenter.admin.models.importer.AddImportationSchemeModelsAdminPresenter;
 import org.sigmah.client.ui.presenter.admin.models.importer.AddMatchingRuleImportationShemeModelsAdminPresenter;
 import org.sigmah.client.ui.presenter.admin.models.importer.ImportModelPresenter;
@@ -278,6 +280,10 @@ public interface Injector extends Ginjector {
 	ProjectModelsAdminPresenter getProjectModelsAdminPresenter();
 
 	AddProjectModelAdminPresenter getAddProjectModelAdminPresenter();
+
+	ContactModelsAdminPresenter getContactModelsAdminPresenter();
+
+	AddContactModelAdminPresenter getAddContactModelAdminPresenter();
 
 	AddImportationSchemePresenter getAddImportationSchemePresenter();
 
