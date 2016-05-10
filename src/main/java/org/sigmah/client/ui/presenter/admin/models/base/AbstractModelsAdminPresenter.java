@@ -896,6 +896,12 @@ public abstract class AbstractModelsAdminPresenter<E extends IsModel, V extends 
 				notificationContent = I18N.CONSTANTS.adminOrgUnitModelDeleteDetail();
 				break;
 
+			case ContactModel:
+				errorMessage = I18N.CONSTANTS.adminDeleteNotDraftContactModelError();
+				confirmationMessage = I18N.CONSTANTS.adminDeleteDraftContactModelConfirm();
+				notificationTitle = I18N.CONSTANTS.adminContactModelDelete();
+				notificationContent = I18N.CONSTANTS.adminContactModelDeleteDetail();
+				break;
 			default:
 				throw new UnsupportedOperationException("Invalid model type.");
 		}

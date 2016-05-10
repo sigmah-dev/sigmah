@@ -30,6 +30,7 @@ import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 
 import org.sigmah.server.dispatch.impl.UserDispatch.UserExecutionContext;
+import org.sigmah.server.domain.ContactModel;
 import org.sigmah.server.domain.OrgUnitModel;
 import org.sigmah.server.domain.Phase;
 import org.sigmah.server.domain.PhaseModel;
@@ -45,6 +46,7 @@ import org.sigmah.server.domain.value.Value;
 import org.sigmah.server.handler.base.AbstractCommandHandler;
 import org.sigmah.shared.command.Delete;
 import org.sigmah.shared.command.result.VoidResult;
+import org.sigmah.shared.dto.ContactModelDTO;
 import org.sigmah.shared.dto.OrgUnitModelDTO;
 import org.sigmah.shared.dto.PhaseModelDTO;
 import org.sigmah.shared.dto.ProjectModelDTO;
@@ -121,6 +123,9 @@ public class DeleteHandler extends AbstractCommandHandler<Delete, VoidResult> {
 			// Delete draft OrgUnit model
 			OrgUnitModel orgUnitModel = em().find(OrgUnitModel.class, cmd.getId());
 			deleteOrgUnitModelWithDate(orgUnitModel);
+		} else if (cmd.getProjectModelStatus() == ProjectModelStatus.DRAFT && ContactModelDTO.ENTITY_NAME.equals(cmd.getEntityName())) {
+			ContactModel contactModel = em().find(ContactModel.class, cmd.getId());
+			deleteContactModelWithDate(contactModel);
 		}
 
 		else {
@@ -252,12 +257,22 @@ public class DeleteHandler extends AbstractCommandHandler<Delete, VoidResult> {
 
 	/**
 	 * Sets the deleted date of the given org unit model.
-	 * 
+	 *
 	 * @param orgUnitModel
 	 *          the org unit model to delete.
 	 */
 	private void deleteOrgUnitModelWithDate(OrgUnitModel orgUnitModel) {
 		orgUnitModel.delete();
+	}
+
+	/**
+	 * Sets the deleted date of the given contact model.
+	 *
+	 * @param contactModel
+	 *          the org unit model to delete.
+	 */
+	private void deleteContactModelWithDate(ContactModel contactModel) {
+		contactModel.delete();
 	}
 
 	/**
