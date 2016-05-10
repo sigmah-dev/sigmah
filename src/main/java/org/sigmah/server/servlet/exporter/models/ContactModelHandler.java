@@ -26,6 +26,7 @@ import com.google.inject.Inject;
 
 import java.io.InputStream;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 
 import javax.persistence.EntityManager;
@@ -68,8 +69,32 @@ public class ContactModelHandler implements ModelHandler {
 
   @Override
   public String exportModel(OutputStream outputStream, String identifier, EntityManager em) throws Exception {
-    // TODO
-    return null;
+    if (identifier == null) {
+      throw new Exception("The identifier is missing.");
+    }
+
+    final Integer contactModelId = Integer.parseInt(identifier);
+
+    final ContactModel hibernateModel = em.find(ContactModel.class, contactModelId);
+
+    if (hibernateModel == null) {
+      throw new Exception("No contact model is associated with the identifier '" + identifier + "'.");
+    }
+
+    String name = hibernateModel.getName();
+
+    // Stripping hibernate proxies from the model.
+
+    final ContactModel realModel = Realizer.realize(hibernateModel);
+
+    // Serialization
+    try {
+      final ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream);
+      objectOutputStream.writeObject(realModel);
+      return name;
+    } catch (Exception ex) {
+      throw new Exception("An error occured while serializing the contact model " + contactModelId, ex);
+    }
   }
 
   /**

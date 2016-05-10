@@ -333,6 +333,17 @@ public final class ServletConstants {
 		EXPORT_MODEL_ORGUNIT("exportOrgUnitModel"),
 
 		/**
+		 * <p> Model Contact Export.</p>
+		 * <p>
+		 * Expected request parameter(s):
+		 * <ul>
+		 * <li>{@link RequestParameter#ID} : Contact id.</li>
+		 * </ul>
+		 */
+
+		EXPORT_MODEL_CONTACT("exportContactModel"),
+
+		/**
 		 * <p> Model Gategory Import.</p>
 		 * <p>
 		 * Expected request parameter(s):

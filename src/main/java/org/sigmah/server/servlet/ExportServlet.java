@@ -38,6 +38,7 @@ import org.sigmah.server.servlet.exporter.ProjectReportExporter;
 import org.sigmah.server.servlet.exporter.ProjectSynthesisExporter;
 import org.sigmah.server.servlet.exporter.base.Exporter;
 import org.sigmah.server.servlet.exporter.models.CategoryTypeHandler;
+import org.sigmah.server.servlet.exporter.models.ContactModelHandler;
 import org.sigmah.server.servlet.exporter.models.ModelHandler;
 import org.sigmah.server.servlet.exporter.models.OrgUnitModelHandler;
 import org.sigmah.server.servlet.exporter.models.ProjectModelHandler;
@@ -238,6 +239,16 @@ public class ExportServlet extends AbstractServlet {
 			throws Exception {
 
 		executeExportModel(new OrgUnitModelHandler(), request, response);
+
+	}
+
+	/**
+	 * Export Contact Model
+	 */
+	protected void exportContactModel(final HttpServletRequest request, final HttpServletResponse response, final ServletExecutionContext context)
+			throws Exception {
+
+		executeExportModel(injector.getInstance(ContactModelHandler.class), request, response);
 
 	}
 
