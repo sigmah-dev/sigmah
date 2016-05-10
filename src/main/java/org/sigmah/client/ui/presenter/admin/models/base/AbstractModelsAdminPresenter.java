@@ -551,7 +551,7 @@ public abstract class AbstractModelsAdminPresenter<E extends IsModel, V extends 
 					final E updatedModel = event.getParam(0);
 					updateModel(updatedModel);
 
-				} else if (event.concern(UpdateEvent.PROJECT_MODEL_IMPORT) || event.concern(UpdateEvent.ORG_UNIT_MODEL_IMPORT)) {
+				} else if (event.concern(UpdateEvent.PROJECT_MODEL_IMPORT) || event.concern(UpdateEvent.ORG_UNIT_MODEL_IMPORT) || event.concern(UpdateEvent.CONTACT_MODEL_IMPORT)) {
 					// Import update event.
 					loadModels();
 				}

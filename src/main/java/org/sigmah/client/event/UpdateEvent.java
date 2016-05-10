@@ -313,6 +313,11 @@ public class UpdateEvent extends GwtEvent<UpdateHandler> {
 	public static final String ORG_UNIT_MODEL_IMPORT = "ORG_UNIT_MODEL_IMPORT";
 
 	/**
+	 * After Importing Contact model
+	 */
+	public static final String CONTACT_MODEL_IMPORT = "CONTACT_MODEL_IMPORT";
+
+	/**
 	 * <p>
 	 * When an {@code IndicatorDTO} has been created or updated.
 	 * </p>

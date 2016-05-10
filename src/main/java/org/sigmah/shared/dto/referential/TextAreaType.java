@@ -30,141 +30,143 @@ import com.google.gwt.core.client.GWT;
 
 /**
  * TextArea type.
- * 
+ *
  * @author Denis Colliot (dcolliot@ideia.fr) (v2.0)
  */
 public enum TextAreaType implements Result, LogicalElementType {
 
-	PARAGRAPH('P'),
-	TEXT('T'),
-	NUMBER('N'),
-	DATE('D');
+  PARAGRAPH('P'),
+  TEXT('T'),
+  NUMBER('N'),
+  DATE('D');
 
-	private final char code;
+  private final char code;
 
-	private TextAreaType(final char code) {
-		this.code = code;
-	}
+  private TextAreaType(final char code) {
+    this.code = code;
+  }
 
-	/**
-	 * Returns the current text area type corresponding code character.
-	 * 
-	 * @return The current text area type corresponding code character.
-	 */
-	public char getCode() {
-		return code;
-	}
+  /**
+   * Returns the current text area type corresponding code character.
+   *
+   * @return The current text area type corresponding code character.
+   */
+  public char getCode() {
+    return code;
+  }
 
-	/**
-	 * <p>
-	 * Returns the given {@code textAreaType} corresponding name.
-	 * </p>
-	 * <p>
-	 * If this method is executed from server-side, it returns the given {@code textAreaType} enum name.
-	 * </p>
-	 * 
-	 * @param textAreaType
-	 *          The text area type.
-	 * @return the given {@code textAreaType} corresponding name, or {@code null}.
-	 */
-	public static String getName(final TextAreaType textAreaType) {
+  /**
+   * <p>
+   * Returns the given {@code textAreaType} corresponding name.
+   * </p>
+   * <p>
+   * If this method is executed from server-side, it returns the given {@code textAreaType} enum name.
+   * </p>
+   *
+   * @param textAreaType The text area type.
+   * @return the given {@code textAreaType} corresponding name, or {@code null}.
+   */
+  public static String getName(final TextAreaType textAreaType) {
 
-		if (textAreaType == null) {
-			return null;
-		}
-
-		if (!GWT.isClient()) {
-			return textAreaType.name();
-		}
-
-		switch (textAreaType) {
-			case PARAGRAPH:
-				return I18N.CONSTANTS.adminFlexibleTextTypeP();
-			case TEXT:
-				return I18N.CONSTANTS.adminFlexibleTextTypeT();
-			case NUMBER:
-				return I18N.CONSTANTS.adminFlexibleTextTypeN();
-			case DATE:
-				return I18N.CONSTANTS.adminFlexibleTextTypeD();
-			default:
-				return PropertyName.error(textAreaType.name());
-		}
-	}
-
-	/**
-	 * Returns the given {@code type} corresponding {@link Character} code, or {@code null}.
-	 * 
-	 * @param type
-	 *          The text area type.
-	 * @return The given {@code type} corresponding {@link Character} code, or {@code null}.
-	 */
-	public static Character getCode(final TextAreaType type) {
-		return type != null ? type.code : null;
-	}
-
-	/**
-	 * Returns the given {@code code} corresponding {@link TextAreaType}.
-	 * 
-	 * @param code
-	 *          The code character.
-	 * @return The given {@code code} corresponding {@link TextAreaType}, or {@code null}.
-	 */
-	public static TextAreaType fromCode(final Character code) {
-
-		if (code == null) {
-			return null;
-		}
-
-		for (final TextAreaType type : values()) {
-			if (type.code == code) {
-				return type;
-			}
-		}
-
-		return null;
-	}
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public ElementTypeEnum toElementTypeEnum() {
-        return ElementTypeEnum.TEXT_AREA;
+    if (textAreaType == null) {
+      return null;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public TextAreaType toTextAreaType() {
-        return this;
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public DefaultFlexibleElementType toDefaultFlexibleElementType() {
-        return null;
+    if (!GWT.isClient()) {
+      return textAreaType.name();
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getDescription() {
-        switch (this) {
-        case PARAGRAPH:
-            return I18N.CONSTANTS.flexibleElementParagraph();
-        case TEXT:
-            return I18N.CONSTANTS.flexibleElementTextArea();
-        case NUMBER:
-            return I18N.CONSTANTS.flexibleElementNumber();
-        case DATE:
-            return I18N.CONSTANTS.flexibleElementDate();
-        default:
-            return PropertyName.error(name());
-        }
+    switch (textAreaType) {
+      case PARAGRAPH:
+        return I18N.CONSTANTS.adminFlexibleTextTypeP();
+      case TEXT:
+        return I18N.CONSTANTS.adminFlexibleTextTypeT();
+      case NUMBER:
+        return I18N.CONSTANTS.adminFlexibleTextTypeN();
+      case DATE:
+        return I18N.CONSTANTS.adminFlexibleTextTypeD();
+      default:
+        return PropertyName.error(textAreaType.name());
     }
+  }
+
+  /**
+   * Returns the given {@code type} corresponding {@link Character} code, or {@code null}.
+   *
+   * @param type The text area type.
+   * @return The given {@code type} corresponding {@link Character} code, or {@code null}.
+   */
+  public static Character getCode(final TextAreaType type) {
+    return type != null ? type.code : null;
+  }
+
+  /**
+   * Returns the given {@code code} corresponding {@link TextAreaType}.
+   *
+   * @param code The code character.
+   * @return The given {@code code} corresponding {@link TextAreaType}, or {@code null}.
+   */
+  public static TextAreaType fromCode(final Character code) {
+
+    if (code == null) {
+      return null;
+    }
+
+    for (final TextAreaType type : values()) {
+      if (type.code == code) {
+        return type;
+      }
+    }
+
+    return null;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public ElementTypeEnum toElementTypeEnum() {
+    return ElementTypeEnum.TEXT_AREA;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public TextAreaType toTextAreaType() {
+    return this;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public DefaultFlexibleElementType toDefaultFlexibleElementType() {
+    return null;
+  }
+
+  @Override
+  public DefaultContactFlexibleElementType toDefaultContactFlexibleElementType() {
+    return null;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String getDescription() {
+    switch (this) {
+      case PARAGRAPH:
+        return I18N.CONSTANTS.flexibleElementParagraph();
+      case TEXT:
+        return I18N.CONSTANTS.flexibleElementTextArea();
+      case NUMBER:
+        return I18N.CONSTANTS.flexibleElementNumber();
+      case DATE:
+        return I18N.CONSTANTS.flexibleElementDate();
+      default:
+        return PropertyName.error(name());
+    }
+  }
 
 }

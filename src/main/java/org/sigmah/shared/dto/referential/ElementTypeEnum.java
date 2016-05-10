@@ -175,6 +175,11 @@ public enum ElementTypeEnum implements LogicalElementType {
 		return null;
 	}
 
+	@Override
+	public DefaultContactFlexibleElementType toDefaultContactFlexibleElementType() {
+		return null;
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */

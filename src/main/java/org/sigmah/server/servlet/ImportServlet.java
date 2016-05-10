@@ -38,6 +38,7 @@ import org.apache.commons.fileupload.util.Streams;
 import org.sigmah.server.servlet.base.AbstractServlet;
 import org.sigmah.server.servlet.base.ServletExecutionContext;
 import org.sigmah.server.servlet.exporter.models.CategoryTypeHandler;
+import org.sigmah.server.servlet.exporter.models.ContactModelHandler;
 import org.sigmah.server.servlet.exporter.models.ModelHandler;
 import org.sigmah.server.servlet.exporter.models.OrgUnitModelHandler;
 import org.sigmah.server.servlet.exporter.models.ProjectModelHandler;
@@ -110,7 +111,7 @@ public class ImportServlet extends AbstractServlet {
 
 	/**
 	 * import Orgunit Model
-	 * 
+	 *
 	 * @param request
 	 * @param response
 	 * @param context
@@ -119,6 +120,20 @@ public class ImportServlet extends AbstractServlet {
 	public void importOrgUnitModel(final HttpServletRequest request, final HttpServletResponse response, final ServletExecutionContext context) throws Exception {
 
 		runImport(new OrgUnitModelHandler(), request, response, context);
+
+	}
+
+	/**
+	 * import Contact Model
+	 *
+	 * @param request
+	 * @param response
+	 * @param context
+	 * @throws Exception
+	 */
+	public void importContactModel(final HttpServletRequest request, final HttpServletResponse response, final ServletExecutionContext context) throws Exception {
+
+		runImport(injector.getInstance(ContactModelHandler.class), request, response, context);
 
 	}
 

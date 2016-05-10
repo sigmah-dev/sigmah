@@ -91,8 +91,7 @@ public enum DefaultContactFlexibleElementType implements Result, LogicalElementT
    * Returns the given {@code flexibleElementType} corresponding name.<br/>
    * This method should be executed from client-side. If executed from server-side, it returns the enum constant name.
    *
-   * @param flexibleElementType
-   *          The flexibleElement type.
+   * @param flexibleElementType The flexibleElement type.
    * @return the given {@code flexibleElementType} corresponding name, or {@code null}.
    */
   public static String getName(final DefaultContactFlexibleElementType flexibleElementType) {
@@ -152,6 +151,11 @@ public enum DefaultContactFlexibleElementType implements Result, LogicalElementT
   @Override
   public DefaultFlexibleElementType toDefaultFlexibleElementType() {
     return null;
+  }
+
+  @Override
+  public DefaultContactFlexibleElementType toDefaultContactFlexibleElementType() {
+    return this;
   }
 
   @Override

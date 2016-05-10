@@ -120,6 +120,11 @@ public enum DefaultFlexibleElementType implements Result, LogicalElementType {
         return this;
     }
 
+  @Override
+  public DefaultContactFlexibleElementType toDefaultContactFlexibleElementType() {
+    return null;
+  }
+
     /**
      * {@inheritDoc}
      */

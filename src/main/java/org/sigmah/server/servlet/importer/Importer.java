@@ -36,6 +36,7 @@ import java.util.regex.Pattern;
 
 import javax.persistence.EntityManager;
 
+import org.sigmah.server.domain.element.DefaultContactFlexibleElement;
 import org.sigmah.server.servlet.exporter.data.GlobalExportDataProvider;
 import org.sigmah.shared.command.GetValue;
 import org.sigmah.shared.command.result.ValueResult;
@@ -401,6 +402,15 @@ public abstract class Importer implements Iterator<ImportDetails> {
 				valueObject = null;
 			}
 			break;
+		case DEFAULT_CONTACT:
+			element = mapper.map(flexibleElement, new DefaultContactFlexibleElement());
+			if (!DefaultFlexibleElementType.BUDGET.equals(((DefaultContactFlexibleElement) element).type())) {
+				valueObject = (Serializable) gdp.getDefElementPair(valueResult, element, entity, entity.getClass(), em(),
+						translator, language).getValue();
+			} else {
+				valueObject = null;
+			}
+			break;
 		case QUESTION:
 			element = mapper.map(flexibleElement, new QuestionElement());
 			valueObject = (Serializable) gdp.getChoicePair(element, valueResult).getValue();
@@ -608,354 +618,375 @@ public abstract class Importer implements Iterator<ImportDetails> {
 			final LogicalElementType type = flexibleElement.type();
 			
 			switch (type.toElementTypeEnum()) {
-			case CHECKBOX:
-				if (value instanceof Boolean) {
-					formattedValue = (Serializable) value;
-					statusCode = ElementExtractedValueStatus.VALID_VALUE;
-				} else if (value instanceof String) {
-					final String noValue = translator.t(language, "no");
-					final String yesValue = translator.t(language, "yes");
-					
-					if ("true".equalsIgnoreCase(stringValue) || "false".equalsIgnoreCase(stringValue)) {
-						formattedValue = Boolean.valueOf(stringValue);
-						statusCode = ElementExtractedValueStatus.VALID_VALUE;
-					} else if (noValue.equalsIgnoreCase(stringValue)) {
-						formattedValue = false;
-						statusCode = ElementExtractedValueStatus.VALID_VALUE;
-					} else if (yesValue.equalsIgnoreCase(stringValue)) {
-						formattedValue = true;
-						statusCode = ElementExtractedValueStatus.VALID_VALUE;
-					}
-				}
-				break;
-				
-			case DEFAULT:
-				if (!stringValue.isEmpty()) {
-					switch (type.toDefaultFlexibleElementType()) {
-						case START_DATE:
-						case END_DATE:
-						if (value instanceof Number) {
-								final Long time = Double.valueOf(stringValue).longValue();
-							formattedValue = new Date(time);
-							statusCode = ElementExtractedValueStatus.VALID_VALUE;
-						} else if (value instanceof Date) {
-							formattedValue = (Date) value;
-							statusCode = ElementExtractedValueStatus.VALID_VALUE;
-						}else if (value instanceof String) {
-								final SimpleDateFormat defaultFormat = new SimpleDateFormat("dd/MM/yy");
-							try {
-								formattedValue = defaultFormat.parse(stringValue);
-								statusCode = ElementExtractedValueStatus.VALID_VALUE;
-							} catch (ParseException e) {
-								statusCode = ElementExtractedValueStatus.INVALID_DATE_VALUE;
-							}
-						}
-							break;
-							
-						case BUDGET:
-						if(value instanceof String) {
-							try{
-								formattedValue = Double.valueOf(stringValue);
-								statusCode = ElementExtractedValueStatus.VALID_VALUE;
-							} catch(NumberFormatException nfe) {
-								statusCode = ElementExtractedValueStatus.INVALID_NUMBER_VALUE;
-							}
-						} else if (value instanceof Number) {
-							formattedValue = ((Number)value).doubleValue();
-							statusCode = ElementExtractedValueStatus.VALID_VALUE;
-						} else {
-							statusCode = ElementExtractedValueStatus.INVALID_NUMBER_VALUE;
-						}
-							break;
-							
-						case ORG_UNIT:
-							if (value instanceof String) {
-								try {
-									final int orgUnitId = Integer.parseInt(stringValue);
-									value = orgUnitId;
-								} catch( NumberFormatException e) {
-									// Ignored.
-								}
-								
-								// Searching by code and by name.
-								final TypedQuery<OrgUnit> query = em().createQuery("SELECT o FROM OrgUnit o WHERE LOWER(o.name) = :value OR LOWER(o.fullName) = :value", OrgUnit.class);
-								query.setParameter("value", stringValue.toLowerCase());
-								
-								final List<OrgUnit> results = query.getResultList();
-
-								if (!results.isEmpty()) {
-									// Selecting the first result.
-									formattedValue = results.get(0).getId();
-									statusCode = ElementExtractedValueStatus.VALID_VALUE;
-								}
-							}
-							if (value instanceof Integer) {
-								// Searching by ID.
-								final int orgUnitId = (Integer) value;
-								final OrgUnit orgUnit = em().getReference(OrgUnit.class, orgUnitId);
-								if (orgUnit != null) {
-									statusCode = ElementExtractedValueStatus.VALID_VALUE;
-									formattedValue = orgUnitId;
-								}
-							}
-							if (formattedValue == null) {
-								statusCode = ElementExtractedValueStatus.INVALID_NUMBER_VALUE;
-							}
-							break;
-							
-						case COUNTRY:
-							// TODO: Needs to prevent import of countries for projects.
-							if (value instanceof String) {
-								try {
-									final int countryId = Integer.parseInt(stringValue);
-									value = countryId;
-								} catch( NumberFormatException e) {
-									// Ignored.
-								}
-								
-								// Searching by code ISO and by name.
-								final TypedQuery<Country> query = em().createQuery("SELECT c FROM Country c WHERE LOWER(c.codeISO) = :value OR LOWER(c.name) = :value", Country.class);
-								query.setParameter("value", stringValue.toLowerCase());
-								
-								final List<Country> results = query.getResultList();
-
-								if (!results.isEmpty()) {
-									// Selecting the first result.
-									formattedValue = results.get(0).getId();
-									statusCode = ElementExtractedValueStatus.VALID_VALUE;
-								}
-							}
-							if (value instanceof Integer) {
-								// Searching by ID.
-								final int countryId = (Integer) value;
-								final Country country = em().getReference(Country.class, countryId);
-								if (country != null) {
-									statusCode = ElementExtractedValueStatus.VALID_VALUE;
-									formattedValue = countryId;
-								}
-							}
-							if (formattedValue == null) {
-								statusCode = ElementExtractedValueStatus.INVALID_NUMBER_VALUE;
-							}
-							break;
-							
-						case MANAGER:
-						case OWNER:
-							if (value instanceof String) {
-								try {
-									final int userId = Integer.parseInt(stringValue);
-									value = userId;
-								} catch( NumberFormatException e) {
-									// Ignored.
-								}
-								
-								// Searching by e-mail address and by last name.
-								final TypedQuery<User> query = em().createQuery("SELECT o FROM User o WHERE LOWER(o.email) = :value OR LOWER(o.name) = :value", User.class);
-								query.setParameter("value", stringValue.toLowerCase());
-								
-								final List<User> results = query.getResultList();
-
-								if (!results.isEmpty()) {
-									// Selecting the first result.
-									formattedValue = results.get(0).getId();
-									statusCode = ElementExtractedValueStatus.VALID_VALUE;
-								}
-							}
-							if (value instanceof Integer) {
-								// Searching by ID.
-								final int userId = (Integer) value;
-								final User user = em().getReference(User.class, userId);
-								if (user != null) {
-									statusCode = ElementExtractedValueStatus.VALID_VALUE;
-									formattedValue = userId;
-								}
-							}
-							if (formattedValue == null) {
-								statusCode = ElementExtractedValueStatus.INVALID_NUMBER_VALUE;
-							}
-							break;
-							
-						default:
-						formattedValue = stringValue;
-						statusCode = ElementExtractedValueStatus.VALID_VALUE;
-							break;
-					}
-				}
-				break;
-				
-			case QUESTION:
-				// Accepted formats:
-				// Multiple : label(-label)+
-				// Single : label
-				QuestionElement questionElement = (QuestionElement) flexibleElement;
-				if (questionElement.getMultiple() != null && questionElement.getMultiple()) {
-					String[] extractedQuestionValues = stringValue.split("-");
-					List<QuestionChoiceElement> choices = new ArrayList<QuestionChoiceElement>();
-					for (QuestionChoiceElement choice : questionElement.getChoices()) {
-						final String choiceLabel;
-						if (choice.getCategoryElement() != null) {
-							choiceLabel = choice.getCategoryElement().getLabel();
-						} else {
-							choiceLabel = choice.getLabel();
-						}
-						for (String questionValue : extractedQuestionValues) {
-							if (choiceLabel.trim().equals(questionValue.trim())) {
-								choices.add(choice);
-							}
-						}
-					}
-					if (!choices.isEmpty()) {
-						formattedValue = Collections.join(choices, new Collections.Mapper<QuestionChoiceElement, String>() {
-							@Override
-							public String forEntry(QuestionChoiceElement entry) {
-								return entry.getId().toString();
-							}
-						}, ValueResultUtils.DEFAULT_VALUE_SEPARATOR);
-						statusCode = ElementExtractedValueStatus.VALID_VALUE;
-					} else {
-						statusCode = ElementExtractedValueStatus.INVALID_QUESTION_VALUE;
-					}
-					
-				} else {
-					for (QuestionChoiceElement choice : questionElement.getChoices()) {
-						final String choiceLabel;
-						if (choice.getCategoryElement() != null) {
-							choiceLabel = choice.getCategoryElement().getLabel();
-						} else {
-							choiceLabel = choice.getLabel();
-						}
-						
-						if (choiceLabel.equals(stringValue)) {
-							formattedValue = choice.getId();
-							statusCode = ElementExtractedValueStatus.VALID_VALUE;
-							break;
-						}
-
-					}
-				}
-				break;
-			case TEXT_AREA:
-				// Accepted formats:
-				// Type DATE → dd/MM/yyyy
-				// Type NUMBER → 0
-				// Type NUMBER + decimal → 0.00
-				// Type PARAGRAPH → *
-				// Type TEXT → *
-				TextAreaElement textAreaElement = (TextAreaElement) flexibleElement;
-				switch (type.toTextAreaType()) {
-				case DATE: {
-					if (value instanceof Date) {
-						formattedValue = (Date) value;
+				case CHECKBOX:
+					if (value instanceof Boolean) {
+						formattedValue = (Serializable) value;
 						statusCode = ElementExtractedValueStatus.VALID_VALUE;
 					} else if (value instanceof String) {
-						SimpleDateFormat defaultFormat = new SimpleDateFormat("dd/MM/yyyy");
-						try {
-							formattedValue = defaultFormat.parse(stringValue);
+						final String noValue = translator.t(language, "no");
+						final String yesValue = translator.t(language, "yes");
+
+						if ("true".equalsIgnoreCase(stringValue) || "false".equalsIgnoreCase(stringValue)) {
+							formattedValue = Boolean.valueOf(stringValue);
 							statusCode = ElementExtractedValueStatus.VALID_VALUE;
-						} catch (ParseException e) {
-							statusCode = ElementExtractedValueStatus.INVALID_DATE_VALUE;
+						} else if (noValue.equalsIgnoreCase(stringValue)) {
+							formattedValue = false;
+							statusCode = ElementExtractedValueStatus.VALID_VALUE;
+						} else if (yesValue.equalsIgnoreCase(stringValue)) {
+							formattedValue = true;
+							statusCode = ElementExtractedValueStatus.VALID_VALUE;
 						}
 					}
-					
-					if( ElementExtractedValueStatus.VALID_VALUE.equals(statusCode)){
-						Date dateValue  = (Date) formattedValue;
-						Date minValue = textAreaElement.getMinValue() != null ?  new Date(textAreaElement.getMinValue()) : null;
-						Date maxValue = textAreaElement.getMaxValue() != null ?  new Date(textAreaElement.getMaxValue()) : null;
-						boolean isValueCorrect = !((minValue != null && dateValue.before(minValue)) || (maxValue != null && dateValue.after(minValue)));
-						if(!isValueCorrect) {
-							statusCode = ElementExtractedValueStatus.FORBIDDEN_VALUE;
-						}
-					}
-				}
 					break;
-				case NUMBER: {
-					if (textAreaElement.getIsDecimal()) {
-						if(value instanceof String) {
-							try{
-								formattedValue = Double.valueOf(stringValue);
+
+				case DEFAULT:
+					if (!stringValue.isEmpty()) {
+						switch (type.toDefaultFlexibleElementType()) {
+							case START_DATE:
+							case END_DATE:
+								if (value instanceof Number) {
+									final Long time = Double.valueOf(stringValue).longValue();
+									formattedValue = new Date(time);
+									statusCode = ElementExtractedValueStatus.VALID_VALUE;
+								} else if (value instanceof Date) {
+									formattedValue = (Date) value;
+									statusCode = ElementExtractedValueStatus.VALID_VALUE;
+								} else if (value instanceof String) {
+									final SimpleDateFormat defaultFormat = new SimpleDateFormat("dd/MM/yy");
+									try {
+										formattedValue = defaultFormat.parse(stringValue);
+										statusCode = ElementExtractedValueStatus.VALID_VALUE;
+									} catch (ParseException e) {
+										statusCode = ElementExtractedValueStatus.INVALID_DATE_VALUE;
+									}
+								}
+								break;
+
+							case BUDGET:
+								if (value instanceof String) {
+									try {
+										formattedValue = Double.valueOf(stringValue);
+										statusCode = ElementExtractedValueStatus.VALID_VALUE;
+									} catch (NumberFormatException nfe) {
+										statusCode = ElementExtractedValueStatus.INVALID_NUMBER_VALUE;
+									}
+								} else if (value instanceof Number) {
+									formattedValue = ((Number) value).doubleValue();
+									statusCode = ElementExtractedValueStatus.VALID_VALUE;
+								} else {
+									statusCode = ElementExtractedValueStatus.INVALID_NUMBER_VALUE;
+								}
+								break;
+
+							case ORG_UNIT:
+								if (value instanceof String) {
+									try {
+										final int orgUnitId = Integer.parseInt(stringValue);
+										value = orgUnitId;
+									} catch (NumberFormatException e) {
+										// Ignored.
+									}
+
+									// Searching by code and by name.
+									final TypedQuery<OrgUnit> query = em().createQuery("SELECT o FROM OrgUnit o WHERE LOWER(o.name) = :value OR LOWER(o.fullName) = :value", OrgUnit.class);
+									query.setParameter("value", stringValue.toLowerCase());
+
+									final List<OrgUnit> results = query.getResultList();
+
+									if (!results.isEmpty()) {
+										// Selecting the first result.
+										formattedValue = results.get(0).getId();
+										statusCode = ElementExtractedValueStatus.VALID_VALUE;
+									}
+								}
+								if (value instanceof Integer) {
+									// Searching by ID.
+									final int orgUnitId = (Integer) value;
+									final OrgUnit orgUnit = em().getReference(OrgUnit.class, orgUnitId);
+									if (orgUnit != null) {
+										statusCode = ElementExtractedValueStatus.VALID_VALUE;
+										formattedValue = orgUnitId;
+									}
+								}
+								if (formattedValue == null) {
+									statusCode = ElementExtractedValueStatus.INVALID_NUMBER_VALUE;
+								}
+								break;
+
+							case COUNTRY:
+								// TODO: Needs to prevent import of countries for projects.
+								if (value instanceof String) {
+									try {
+										final int countryId = Integer.parseInt(stringValue);
+										value = countryId;
+									} catch (NumberFormatException e) {
+										// Ignored.
+									}
+
+									// Searching by code ISO and by name.
+									final TypedQuery<Country> query = em().createQuery("SELECT c FROM Country c WHERE LOWER(c.codeISO) = :value OR LOWER(c.name) = :value", Country.class);
+									query.setParameter("value", stringValue.toLowerCase());
+
+									final List<Country> results = query.getResultList();
+
+									if (!results.isEmpty()) {
+										// Selecting the first result.
+										formattedValue = results.get(0).getId();
+										statusCode = ElementExtractedValueStatus.VALID_VALUE;
+									}
+								}
+								if (value instanceof Integer) {
+									// Searching by ID.
+									final int countryId = (Integer) value;
+									final Country country = em().getReference(Country.class, countryId);
+									if (country != null) {
+										statusCode = ElementExtractedValueStatus.VALID_VALUE;
+										formattedValue = countryId;
+									}
+								}
+								if (formattedValue == null) {
+									statusCode = ElementExtractedValueStatus.INVALID_NUMBER_VALUE;
+								}
+								break;
+
+							case MANAGER:
+							case OWNER:
+								if (value instanceof String) {
+									try {
+										final int userId = Integer.parseInt(stringValue);
+										value = userId;
+									} catch (NumberFormatException e) {
+										// Ignored.
+									}
+
+									// Searching by e-mail address and by last name.
+									final TypedQuery<User> query = em().createQuery("SELECT o FROM User o WHERE LOWER(o.email) = :value OR LOWER(o.name) = :value", User.class);
+									query.setParameter("value", stringValue.toLowerCase());
+
+									final List<User> results = query.getResultList();
+
+									if (!results.isEmpty()) {
+										// Selecting the first result.
+										formattedValue = results.get(0).getId();
+										statusCode = ElementExtractedValueStatus.VALID_VALUE;
+									}
+								}
+								if (value instanceof Integer) {
+									// Searching by ID.
+									final int userId = (Integer) value;
+									final User user = em().getReference(User.class, userId);
+									if (user != null) {
+										statusCode = ElementExtractedValueStatus.VALID_VALUE;
+										formattedValue = userId;
+									}
+								}
+								if (formattedValue == null) {
+									statusCode = ElementExtractedValueStatus.INVALID_NUMBER_VALUE;
+								}
+								break;
+
+							default:
+								formattedValue = stringValue;
 								statusCode = ElementExtractedValueStatus.VALID_VALUE;
-							} catch(NumberFormatException nfe) {
-								statusCode = ElementExtractedValueStatus.INVALID_NUMBER_VALUE;
+								break;
+						}
+					}
+					break;
+				case DEFAULT_CONTACT:
+					if (stringValue.isEmpty()) {
+						break;
+					}
+
+					switch (type.toDefaultContactFlexibleElementType()) {
+						case COUNTRY:
+						case DIRECT_MEMBERSHIP:
+						case MAIN_ORG_UNIT:
+						case ORGANIZATION_NAME:
+						case SECONDARY_ORG_UNITS:
+						case CREATION_DATE:
+							// fall through
+						case TOP_MEMBERSHIP:
+							// Do not import it, it will be computed
+							break;
+						default:
+							formattedValue = stringValue;
+							statusCode = ElementExtractedValueStatus.VALID_VALUE;
+							break;
+					}
+					break;
+				case QUESTION:
+					// Accepted formats:
+					// Multiple : label(-label)+
+					// Single : label
+					QuestionElement questionElement = (QuestionElement) flexibleElement;
+					if (questionElement.getMultiple() != null && questionElement.getMultiple()) {
+						String[] extractedQuestionValues = stringValue.split("-");
+						List<QuestionChoiceElement> choices = new ArrayList<QuestionChoiceElement>();
+						for (QuestionChoiceElement choice : questionElement.getChoices()) {
+							final String choiceLabel;
+							if (choice.getCategoryElement() != null) {
+								choiceLabel = choice.getCategoryElement().getLabel();
+							} else {
+								choiceLabel = choice.getLabel();
 							}
-						} else if (value instanceof Number) {
-							formattedValue = ((Number)value).doubleValue();
+							for (String questionValue : extractedQuestionValues) {
+								if (choiceLabel.trim().equals(questionValue.trim())) {
+									choices.add(choice);
+								}
+							}
+						}
+						if (!choices.isEmpty()) {
+							formattedValue = Collections.join(choices, new Collections.Mapper<QuestionChoiceElement, String>() {
+								@Override
+								public String forEntry(QuestionChoiceElement entry) {
+									return entry.getId().toString();
+								}
+							}, ValueResultUtils.DEFAULT_VALUE_SEPARATOR);
 							statusCode = ElementExtractedValueStatus.VALID_VALUE;
 						} else {
-							statusCode = ElementExtractedValueStatus.INVALID_NUMBER_VALUE;
+							statusCode = ElementExtractedValueStatus.INVALID_QUESTION_VALUE;
 						}
-						
-						if( ElementExtractedValueStatus.VALID_VALUE.equals(statusCode)){
-							Double numberValue  = (Double) formattedValue;
-							Long minValue = textAreaElement.getMinValue() != null ?  textAreaElement.getMinValue() : null;
-							Long maxValue = textAreaElement.getMaxValue() != null ?  textAreaElement.getMaxValue() : null;
-							boolean isValueCorrect = !((minValue != null && numberValue < minValue) || (maxValue != null && numberValue > maxValue));
-							if(!isValueCorrect) {
-								statusCode = ElementExtractedValueStatus.FORBIDDEN_VALUE;
-							}
-						}
+
 					} else {
-						if(value instanceof String) {
-							try{
-								formattedValue = Long.valueOf(stringValue);
+						for (QuestionChoiceElement choice : questionElement.getChoices()) {
+							final String choiceLabel;
+							if (choice.getCategoryElement() != null) {
+								choiceLabel = choice.getCategoryElement().getLabel();
+							} else {
+								choiceLabel = choice.getLabel();
+							}
+
+							if (choiceLabel.equals(stringValue)) {
+								formattedValue = choice.getId();
 								statusCode = ElementExtractedValueStatus.VALID_VALUE;
-							} catch(NumberFormatException nfe) {
-								statusCode = ElementExtractedValueStatus.INVALID_NUMBER_VALUE;
+								break;
 							}
-						} else if (value instanceof Number) {
-							formattedValue = ((Number)value).longValue();
-							statusCode = ElementExtractedValueStatus.VALID_VALUE;
-						} else {
-							statusCode = ElementExtractedValueStatus.INVALID_NUMBER_VALUE;
-						}
-						
-						if( ElementExtractedValueStatus.VALID_VALUE.equals(statusCode)){
-							Long numberValue  = (Long) formattedValue;
-							Long minValue = textAreaElement.getMinValue() != null ?  textAreaElement.getMinValue() : null;
-							Long maxValue = textAreaElement.getMaxValue() != null ?  textAreaElement.getMaxValue() : null;
-							boolean isValueCorrect = !((minValue != null && numberValue < minValue) || (maxValue != null && numberValue > maxValue));
-							if(!isValueCorrect) {
-								statusCode = ElementExtractedValueStatus.FORBIDDEN_VALUE;
-							}
+
 						}
 					}
-				}
 					break;
-				case PARAGRAPH:
-				case TEXT: {
-					formattedValue = String.valueOf(value);
-					statusCode = ElementExtractedValueStatus.VALID_VALUE;
-				}
+				case TEXT_AREA:
+					// Accepted formats:
+					// Type DATE -> dd/MM/yyyy
+					// Type NUMBER -> 0
+					// Type NUMBER + decimal -> 0.00
+					// Type PARAGRAPH -> *
+					// Type TEXT -> *
+					TextAreaElement textAreaElement = (TextAreaElement) flexibleElement;
+					switch (type.toTextAreaType()) {
+						case DATE: {
+							if (value instanceof Date) {
+								formattedValue = (Date) value;
+								statusCode = ElementExtractedValueStatus.VALID_VALUE;
+							} else if (value instanceof String) {
+								SimpleDateFormat defaultFormat = new SimpleDateFormat("dd/MM/yyyy");
+								try {
+									formattedValue = defaultFormat.parse(stringValue);
+									statusCode = ElementExtractedValueStatus.VALID_VALUE;
+								} catch (ParseException e) {
+									statusCode = ElementExtractedValueStatus.INVALID_DATE_VALUE;
+								}
+							}
+
+							if (ElementExtractedValueStatus.VALID_VALUE.equals(statusCode)) {
+								Date dateValue = (Date) formattedValue;
+								Date minValue = textAreaElement.getMinValue() != null ? new Date(textAreaElement.getMinValue()) : null;
+								Date maxValue = textAreaElement.getMaxValue() != null ? new Date(textAreaElement.getMaxValue()) : null;
+								boolean isValueCorrect = !((minValue != null && dateValue.before(minValue)) || (maxValue != null && dateValue.after(minValue)));
+								if (!isValueCorrect) {
+									statusCode = ElementExtractedValueStatus.FORBIDDEN_VALUE;
+								}
+							}
+						}
+						break;
+						case NUMBER: {
+							if (textAreaElement.getIsDecimal()) {
+								if (value instanceof String) {
+									try {
+										formattedValue = Double.valueOf(stringValue);
+										statusCode = ElementExtractedValueStatus.VALID_VALUE;
+									} catch (NumberFormatException nfe) {
+										statusCode = ElementExtractedValueStatus.INVALID_NUMBER_VALUE;
+									}
+								} else if (value instanceof Number) {
+									formattedValue = ((Number) value).doubleValue();
+									statusCode = ElementExtractedValueStatus.VALID_VALUE;
+								} else {
+									statusCode = ElementExtractedValueStatus.INVALID_NUMBER_VALUE;
+								}
+
+								if (ElementExtractedValueStatus.VALID_VALUE.equals(statusCode)) {
+									Double numberValue = (Double) formattedValue;
+									Long minValue = textAreaElement.getMinValue() != null ? textAreaElement.getMinValue() : null;
+									Long maxValue = textAreaElement.getMaxValue() != null ? textAreaElement.getMaxValue() : null;
+									boolean isValueCorrect = !((minValue != null && numberValue < minValue) || (maxValue != null && numberValue > maxValue));
+									if (!isValueCorrect) {
+										statusCode = ElementExtractedValueStatus.FORBIDDEN_VALUE;
+									}
+								}
+							} else {
+								if (value instanceof String) {
+									try {
+										formattedValue = Long.valueOf(stringValue);
+										statusCode = ElementExtractedValueStatus.VALID_VALUE;
+									} catch (NumberFormatException nfe) {
+										statusCode = ElementExtractedValueStatus.INVALID_NUMBER_VALUE;
+									}
+								} else if (value instanceof Number) {
+									formattedValue = ((Number) value).longValue();
+									statusCode = ElementExtractedValueStatus.VALID_VALUE;
+								} else {
+									statusCode = ElementExtractedValueStatus.INVALID_NUMBER_VALUE;
+								}
+
+								if (ElementExtractedValueStatus.VALID_VALUE.equals(statusCode)) {
+									Long numberValue = (Long) formattedValue;
+									Long minValue = textAreaElement.getMinValue() != null ? textAreaElement.getMinValue() : null;
+									Long maxValue = textAreaElement.getMaxValue() != null ? textAreaElement.getMaxValue() : null;
+									boolean isValueCorrect = !((minValue != null && numberValue < minValue) || (maxValue != null && numberValue > maxValue));
+									if (!isValueCorrect) {
+										statusCode = ElementExtractedValueStatus.FORBIDDEN_VALUE;
+									}
+								}
+							}
+						}
+						break;
+						case PARAGRAPH:
+						case TEXT: {
+							formattedValue = String.valueOf(value);
+							statusCode = ElementExtractedValueStatus.VALID_VALUE;
+						}
+						default:
+							break;
+					}
+					break;
+				case TRIPLETS:
+					// Accepted formats:
+					// Code-Name-Date
+					// IGNORED-Code-Name:Date
+					String[] extractedTripletValues = stringValue.split("-");
+					if (extractedTripletValues.length == 3) {
+						String[] namePeriod = extractedTripletValues[2].split(":");
+						if (namePeriod.length == 2) {
+							String[] arrayTripletValues = new String[3];
+							arrayTripletValues[0] = extractedTripletValues[1];
+							arrayTripletValues[1] = namePeriod[0];
+							arrayTripletValues[2] = namePeriod[1];
+							formattedValue = arrayTripletValues;
+							statusCode = ElementExtractedValueStatus.VALID_VALUE;
+						} else {
+							formattedValue = extractedTripletValues;
+							statusCode = ElementExtractedValueStatus.VALID_VALUE;
+						}
+
+					} else {
+						statusCode = ElementExtractedValueStatus.INVALID_TRIPLET_VALUE;
+					}
+					break;
+
 				default:
+					LOGGER.warn("Unsupported flexible element type: {}", type);
 					break;
-				}
-				break;
-			case TRIPLETS:
-				// Accepted formats:
-				// Code-Name-Date
-				// IGNORED-Code-Name:Date
-				String[] extractedTripletValues = stringValue.split("-");
-				if(extractedTripletValues.length == 3){
-					String[] namePeriod = extractedTripletValues[2].split(":");
-					if(namePeriod.length == 2) {
-						String[] arrayTripletValues = new String[3];
-						arrayTripletValues[0] = extractedTripletValues[1];
-						arrayTripletValues[1] = namePeriod[0];
-						arrayTripletValues[2] = namePeriod[1];
-						formattedValue = arrayTripletValues;
-						statusCode = ElementExtractedValueStatus.VALID_VALUE;
-					} else {
-						formattedValue = extractedTripletValues;
-						statusCode = ElementExtractedValueStatus.VALID_VALUE;
-					}
-					
-				} else {
-					statusCode = ElementExtractedValueStatus.INVALID_TRIPLET_VALUE;
-				}
-				break;
-				
-			default:
-				LOGGER.warn("Unsupported flexible element type: {}",  type);
-				break;
 			}
 		}
 		valueStatus[0] = formattedValue;

@@ -375,6 +375,17 @@ public final class ServletConstants {
 		 */
 
 		IMPORT_MODEL_ORGUNIT("importOrgUnitModel"),
+
+		/**
+		 * <p> Model Contact Import</p>
+		 * <p>
+		 * Expected request parameter(s):
+		 * <ul>
+		 * <li></li>
+		 * </ul>
+		 */
+
+		IMPORT_MODEL_CONTACT("importContactModel"),
 		
 		/**
 		 * <p>Prepare the importation a file containing values by storing it on
