@@ -50,7 +50,7 @@ public class GetContactModelsHandler extends AbstractCommandHandler<GetContactMo
       return new ListResult<>(mapper().mapCollection(contactModelDAO.findByOrganization(organizationId), ContactModelDTO.class));
     }
 
-    List<ContactModel> contactModels = contactModelDAO.findByOrganizationAndType(organizationId, command.getType());
+    List<ContactModel> contactModels = contactModelDAO.findByOrganizationAndType(organizationId, command.getType(), command.isOnlyAvailable());
     return new ListResult<>(mapper().mapCollection(contactModels, ContactModelDTO.class, ContactModelDTO.Mode.WITHOUT_LAYOUTS));
   }
 }

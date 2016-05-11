@@ -30,22 +30,6 @@ import org.sigmah.shared.dto.referential.ContactModelType;
 
 public class ContactHibernateDAO extends AbstractDAO<Contact, Integer> implements ContactDAO {
   @Override
-  public Contact findInstanceContact(Integer organizationId) {
-    return em()
-        .createQuery(
-            "SELECT c " +
-            "FROM Contact c " +
-            "JOIN c.contactModel cm " +
-            "WHERE c.organization.id = :organizationId " +
-            "AND cm.type = 'ORGANIZATION' ",
-            Contact.class
-        )
-        .setParameter("organizationId", organizationId)
-        .setMaxResults(1)
-        .getSingleResult();
-  }
-
-  @Override
   public List<Contact> findTypedContacts(Integer organizationId, ContactModelType type) {
     return em()
         .createQuery(

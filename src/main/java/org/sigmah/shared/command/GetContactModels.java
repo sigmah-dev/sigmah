@@ -30,16 +30,22 @@ public class GetContactModels extends AbstractCommand<ListResult<ContactModelDTO
   private static final long serialVersionUID = 279291041835072569L;
 
   private ContactModelType type;
+  private boolean onlyAvailable;
 
   public GetContactModels() {
     // Serialization
   }
 
-  public GetContactModels(ContactModelType type) {
+  public GetContactModels(ContactModelType type, boolean onlyAvailable) {
     this.type = type;
+    this.onlyAvailable = onlyAvailable;
   }
 
   public ContactModelType getType() {
     return type;
+  }
+
+  public boolean isOnlyAvailable() {
+    return onlyAvailable;
   }
 }

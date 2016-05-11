@@ -126,6 +126,9 @@ public class User extends AbstractEntityId<Integer> {
 	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<OrgUnitProfile> orgUnitsWithProfiles = new ArrayList<>();
 
+	@OneToOne(fetch = FetchType.LAZY, mappedBy = "user")
+	private Contact contact;
+
 	@Transient
 	private OrgUnitProfile mainOrgUnitWithProfiles;
 
@@ -343,6 +346,14 @@ public class User extends AbstractEntityId<Integer> {
 
 	public void setOrgUnitsWithProfiles(List<OrgUnitProfile> orgUnitsWithProfiles) {
 		this.orgUnitsWithProfiles = orgUnitsWithProfiles;
+	}
+
+	public Contact getContact() {
+		return contact;
+	}
+
+	public void setContact(Contact contact) {
+		this.contact = contact;
 	}
 
 	public OrgUnitProfile getMainOrgUnitWithProfiles() {

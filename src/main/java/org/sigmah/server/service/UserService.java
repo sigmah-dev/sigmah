@@ -195,10 +195,8 @@ public class UserService extends AbstractEntityService<User, Integer, UserDTO> {
 			}
 
 			// Let's create a contact for this user
-			Integer organizationId = context.getUser().getOrganization().getId();
-			// FIXME: Do not take the default contact model but let the user choose himself
-			ContactModel contactModel = contactModelDAO.getDefaultContactModel(organizationId, ContactModelType.INDIVIDUAL);
-			Contact parent = contactDAO.findInstanceContact(organizationId);
+			ContactModel contactModel = contactModelDAO.findById((Integer) properties.get(UserDTO.CONTACT_MODEL));
+			Contact parent = contactDAO.findById((Integer) properties.get(UserDTO.CONTACT_ORGANIZATION));
 			Contact contact = new Contact();
 			contact.setUser(userToPersist);
 			contact.setContactModel(contactModel);

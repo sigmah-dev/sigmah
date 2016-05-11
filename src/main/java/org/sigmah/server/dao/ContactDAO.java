@@ -29,11 +29,6 @@ import org.sigmah.shared.dto.referential.ContactModelType;
 
 public interface ContactDAO extends DAO<Contact, Integer> {
   /**
-   * Return the contact related to the given organization.
-   */
-  Contact findInstanceContact(Integer organizationId);
-
-  /**
    * Return contacts from a targeted organization and with a defined type (INDIVIDUAL or ORGANIZATION)
    */
   List<Contact> findTypedContacts(Integer organizationId, ContactModelType type);

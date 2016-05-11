@@ -22,12 +22,21 @@ package org.sigmah.client.ui.presenter.admin.users;
  * #L%
  */
 
+import com.google.gwt.regexp.shared.MatchResult;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.inject.ImplementedBy;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.extjs.gxt.ui.client.widget.form.Field;
+
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.event.UpdateEvent;
@@ -46,29 +55,22 @@ import org.sigmah.client.util.ClientUtils;
 import org.sigmah.client.util.EnumModel;
 import org.sigmah.shared.Language;
 import org.sigmah.shared.command.CreateEntity;
+import org.sigmah.shared.command.GetContactModels;
+import org.sigmah.shared.command.GetContacts;
 import org.sigmah.shared.command.GetOrgUnits;
 import org.sigmah.shared.command.GetProfiles;
 import org.sigmah.shared.command.GetUserUnitsByUser;
 import org.sigmah.shared.command.result.CreateResult;
 import org.sigmah.shared.command.result.ListResult;
 import org.sigmah.shared.command.result.UserUnitsResult;
+import org.sigmah.shared.dto.ContactDTO;
+import org.sigmah.shared.dto.ContactModelDTO;
 import org.sigmah.shared.dto.UserDTO;
 import org.sigmah.shared.dto.UserUnitDTO;
 import org.sigmah.shared.dto.orgunit.OrgUnitDTO;
 import org.sigmah.shared.dto.orgunit.OrgUnitDTO.Mode;
 import org.sigmah.shared.dto.profile.ProfileDTO;
-
-import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.store.ListStore;
-import com.extjs.gxt.ui.client.widget.form.ComboBox;
-import com.extjs.gxt.ui.client.widget.form.Field;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.regexp.shared.MatchResult;
-import com.google.inject.ImplementedBy;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
+import org.sigmah.shared.dto.referential.ContactModelType;
 
 /**
  * Admin user create/edit Presenter
@@ -101,6 +103,10 @@ public class UserEditPresenter extends AbstractPagePresenter<UserEditPresenter.V
 		Field<String> getFirstNameField();
 
 		Field<String> getNameField();
+
+		ComboBox<ContactDTO> getContactOrganizationField();
+
+		ComboBox<ContactModelDTO> getContactModelField();
 
 		FormPanel getForm();
 
@@ -256,7 +262,90 @@ public class UserEditPresenter extends AbstractPagePresenter<UserEditPresenter.V
 			}
 		});
 
+		// --
+		// Loads contact organizations
+		// --
+
+		dispatch.execute(new GetContacts(ContactModelType.ORGANIZATION), new AsyncCallback<ListResult<ContactDTO>>() {
+			@Override
+			public void onFailure(Throwable throwable) {
+				N10N.error(I18N.CONSTANTS.adminChoiceProblem());
+			}
+
+			@Override
+			public void onSuccess(ListResult<ContactDTO> result) {
+				if (result == null) {
+					return;
+				}
+
+				view.getContactOrganizationField().setValue(null);
+				view.getContactOrganizationField().getStore().removeAll();
+				view.getContactOrganizationField().getStore().add(result.getList());
+
+				// Let's find the default contact
+				for (ContactDTO contactDTO : result.getList()) {
+					if (user != null) {
+						// Let's find the user contact
+						if (contactDTO.getId().equals(user.getContact().getParentId())) {
+							view.getContactOrganizationField().setValue(contactDTO);
+							return;
+						}
+						continue;
+					}
+
+					if (contactDTO.getOrganizationId() != null) {
+						// This contact is related to an Organization so let's make it the default value
+						view.getContactOrganizationField().setValue(contactDTO);
+						return;
+					}
+				}
+			}
+		});
+
+		// --
+		// Loads contact models
+		// --
+
+		dispatch.execute(new GetContactModels(ContactModelType.INDIVIDUAL, true), new AsyncCallback<ListResult<ContactModelDTO>>() {
+			@Override
+			public void onFailure(Throwable throwable) {
+				N10N.error(I18N.CONSTANTS.adminChoiceProblem());
+			}
+
+			@Override
+			public void onSuccess(ListResult<ContactModelDTO> result) {
+				if (result == null) {
+					return;
+				}
+
+				view.getContactModelField().setValue(null);
+				view.getContactModelField().getStore().removeAll();
+				view.getContactModelField().getStore().add(result.getList());
+
+				// Let's find the default contact model
+				// The contact model with the smallest id can be considered as the default one
+				Integer minId = null;
+				for (ContactModelDTO contactModelDTO : result.getList()) {
+					if (user != null) {
+						if (contactModelDTO.getId().equals(user.getContact().getContactModelId())) {
+							view.getContactModelField().setValue(contactModelDTO);
+							return;
+						}
+						continue;
+					}
+					if (minId != null && minId <= contactModelDTO.getId()) {
+						continue;
+					}
+
+					minId = contactModelDTO.getId();
+					view.getContactModelField().setValue(contactModelDTO);
+				}
+			}
+		});
+
 		if (user == null) {
+			view.getContactModelField().setReadOnly(false);
+			view.getContactOrganizationField().setReadOnly(false);
 			// Creation mode.
 			return;
 		}
@@ -267,6 +356,9 @@ public class UserEditPresenter extends AbstractPagePresenter<UserEditPresenter.V
 		view.getEmailField().setValue(user.getEmail());
 		view.getChangePwdLink().setVisible(true);
 		view.getLanguageField().setValue(new EnumModel<Language>(Language.fromString(user.getLocale())));
+		// Contact fields are only editable when creating a user
+		view.getContactModelField().setReadOnly(true);
+		view.getContactOrganizationField().setReadOnly(true);
 
 		if (user.getMainOrgUnit() != null && ClientUtils.isNotBlank(user.getMainOrgUnit().getFullName())) {
 			final OrgUnitDTO orgUnitDTOLight = new OrgUnitDTO();
@@ -309,6 +401,8 @@ public class UserEditPresenter extends AbstractPagePresenter<UserEditPresenter.V
 		final String name = view.getNameField().getValue();
 		final String firstName = view.getFirstNameField().getValue();
 		final String email = view.getEmailField().getValue().trim();
+		final Integer contactModelId = view.getContactModelField().getValue().getId();
+		final Integer contactOrganizationId = view.getContactOrganizationField().getValue().getId();
 
 		// Gets the value only if the admin wants to change the password.
 		final String password = view.getPwdField().isVisible() ? view.getPwdField().getValue() : null;
@@ -349,6 +443,8 @@ public class UserEditPresenter extends AbstractPagePresenter<UserEditPresenter.V
 		userProperties.put(UserDTO.EMAIL, email);
 		userProperties.put(UserDTO.LOCALE, languageValue.getEnum());
 		userProperties.put(UserDTO.USER_UNITS, userUnitsResult);
+		userProperties.put(UserDTO.CONTACT_MODEL, contactModelId);
+		userProperties.put(UserDTO.CONTACT_ORGANIZATION, contactOrganizationId);
 
 		dispatch.execute(new CreateEntity(UserDTO.ENTITY_NAME, userProperties), new CommandResultHandler<CreateResult>() {
 

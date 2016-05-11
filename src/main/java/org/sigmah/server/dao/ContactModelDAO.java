@@ -28,12 +28,7 @@ import org.sigmah.server.domain.ContactModel;
 import org.sigmah.shared.dto.referential.ContactModelType;
 
 public interface ContactModelDAO extends DAO<ContactModel, Integer> {
-  /**
-   * Return the default contact model
-   */
-  ContactModel getDefaultContactModel(Integer organizationId, ContactModelType type);
-
   List<ContactModel> findByOrganization(Integer organizationId);
 
-  List<ContactModel> findByOrganizationAndType(Integer organizationId, ContactModelType type);
+  List<ContactModel> findByOrganizationAndType(Integer organizationId, ContactModelType type, boolean onlyAvailable);
 }

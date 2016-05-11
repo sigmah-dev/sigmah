@@ -21,34 +21,16 @@ package org.sigmah.server.dao.impl;
  * #L%
  */
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.sigmah.server.dao.ContactModelDAO;
 import org.sigmah.server.dao.base.AbstractDAO;
 import org.sigmah.server.domain.ContactModel;
 import org.sigmah.shared.dto.referential.ContactModelType;
+import org.sigmah.shared.dto.referential.ProjectModelStatus;
 
 public class ContactModelHibernateDAO extends AbstractDAO<ContactModel, Integer> implements ContactModelDAO {
-  @Override
-  public ContactModel getDefaultContactModel(Integer organizationId, ContactModelType type) {
-    // The first contact model for a type and an organization can be considered as the default one
-    return em()
-        .createQuery(
-            "SELECT cm " +
-            "FROM ContactModel cm " +
-            "WHERE cm.id = ( " +
-            "  SELECT MIN(cm2.id) " +
-            "  FROM ContactModel cm2 " +
-            "  WHERE cm2.organization.id = :organizationId " +
-            "  AND cm2.type = :type " +
-            ") ",
-            ContactModel.class
-        )
-        .setParameter("organizationId", organizationId)
-        .setParameter("type", type)
-        .getSingleResult();
-  }
-
   @Override
   public List<ContactModel> findByOrganization(Integer organizationId) {
     return em()
@@ -63,17 +45,19 @@ public class ContactModelHibernateDAO extends AbstractDAO<ContactModel, Integer>
   }
 
   @Override
-  public List<ContactModel> findByOrganizationAndType(Integer organizationId, ContactModelType type) {
+  public List<ContactModel> findByOrganizationAndType(Integer organizationId, ContactModelType type, boolean onlyAvailable) {
     return em()
         .createQuery(
             "SELECT cm " +
             "FROM ContactModel cm " +
             "WHERE cm.organization.id = :organizationId " +
-            "AND cm.type = :type ",
+            "AND cm.type = :type " +
+            "AND cm.status IN (:availableStatus) ",
             ContactModel.class
         )
         .setParameter("organizationId", organizationId)
         .setParameter("type", type)
+        .setParameter("availableStatus", onlyAvailable ? Arrays.asList(ProjectModelStatus.READY, ProjectModelStatus.USED) : ProjectModelStatus.values())
         .getResultList();
   }
 }
