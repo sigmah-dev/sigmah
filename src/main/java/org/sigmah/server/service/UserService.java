@@ -35,11 +35,15 @@ import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sigmah.server.auth.SecureTokenGenerator;
+import org.sigmah.server.dao.ContactDAO;
+import org.sigmah.server.dao.ContactModelDAO;
 import org.sigmah.server.dao.OrgUnitDAO;
 import org.sigmah.server.dao.ProfileDAO;
 import org.sigmah.server.dao.UserDAO;
 import org.sigmah.server.dao.UserUnitDAO;
 import org.sigmah.server.dispatch.impl.UserDispatch.UserExecutionContext;
+import org.sigmah.server.domain.Contact;
+import org.sigmah.server.domain.ContactModel;
 import org.sigmah.server.domain.OrgUnit;
 import org.sigmah.server.domain.User;
 import org.sigmah.server.domain.profile.OrgUnitProfile;
@@ -58,6 +62,7 @@ import org.sigmah.shared.dto.UserDTO;
 import org.sigmah.shared.dto.UserUnitDTO;
 import org.sigmah.shared.dto.base.EntityDTO;
 import org.sigmah.shared.dto.profile.ProfileDTO;
+import org.sigmah.shared.dto.referential.ContactModelType;
 import org.sigmah.shared.dto.referential.EmailKey;
 import org.sigmah.shared.dto.referential.EmailKeyEnum;
 import org.sigmah.shared.dto.referential.EmailType;
@@ -85,6 +90,8 @@ public class UserService extends AbstractEntityService<User, Integer, UserDTO> {
 
 	private final Injector injector;
 	private final Mapper mapper;
+	private final ContactDAO contactDAO;
+	private final ContactModelDAO contactModelDAO;
 	private final OrgUnitDAO orgUnitDAO;
 	private final ProfileDAO profileDAO;
 	private final UserDAO userDAO;
@@ -93,8 +100,10 @@ public class UserService extends AbstractEntityService<User, Integer, UserDTO> {
 	private final Authenticator authenticator;
 
 	@Inject
-	public UserService(Injector injector, OrgUnitDAO orgUnitDAO, ProfileDAO profileDAO, UserDAO userDAO, UserUnitDAO userUnitDAO, MailService mailService, Mapper mapper, Authenticator authenticator) {
+	public UserService(Injector injector, ContactDAO contactDAO, ContactModelDAO contactModelDAO, OrgUnitDAO orgUnitDAO, ProfileDAO profileDAO, UserDAO userDAO, UserUnitDAO userUnitDAO, MailService mailService, Mapper mapper, Authenticator authenticator) {
 		this.injector = injector;
+		this.contactDAO = contactDAO;
+		this.contactModelDAO = contactModelDAO;
 		this.orgUnitDAO = orgUnitDAO;
 		this.profileDAO = profileDAO;
 		this.userDAO = userDAO;
@@ -163,7 +172,7 @@ public class UserService extends AbstractEntityService<User, Integer, UserDTO> {
 
 			password = authenticator.generatePassword();
 			userToPersist.setHashedPassword(authenticator.hashPassword(password));
-			userDAO.persist(userToPersist, executingUser);
+			userToPersist = userDAO.persist(userToPersist, executingUser);
 
 			try {
 
@@ -184,6 +193,18 @@ public class UserService extends AbstractEntityService<User, Integer, UserDTO> {
 					LOG.debug("Error occured during invitation email sending. Continuing user creation process anyway.", e);
 				}
 			}
+
+			// Let's create a contact for this user
+			Integer organizationId = context.getUser().getOrganization().getId();
+			// FIXME: Do not take the default contact model but let the user choose himself
+			ContactModel contactModel = contactModelDAO.getDefaultContactModel(organizationId, ContactModelType.INDIVIDUAL);
+			Contact parent = contactDAO.findInstanceContact(organizationId);
+			Contact contact = new Contact();
+			contact.setUser(userToPersist);
+			contact.setContactModel(contactModel);
+			contact.setParent(parent);
+			contact.setDateCreated(new Date());
+			contactDAO.persist(contact, context.getUser());
 		}
 
 		// update link to profile

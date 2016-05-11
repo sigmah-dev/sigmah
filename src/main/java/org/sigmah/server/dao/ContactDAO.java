@@ -21,17 +21,12 @@ package org.sigmah.server.dao;
  * #L%
  */
 
-import java.util.List;
-
 import org.sigmah.server.dao.base.DAO;
-import org.sigmah.server.domain.ContactModel;
-import org.sigmah.shared.dto.referential.ContactModelType;
+import org.sigmah.server.domain.Contact;
 
-public interface ContactModelDAO extends DAO<ContactModel, Integer> {
+public interface ContactDAO extends DAO<Contact, Integer> {
   /**
-   * Return the default contact model
+   * Return the contact related to the given organization.
    */
-  ContactModel getDefaultContactModel(Integer organizationId, ContactModelType type);
-
-  List<ContactModel> findByOrganization(Integer organizationId);
+  Contact findInstanceContact(Integer organizationId);
 }

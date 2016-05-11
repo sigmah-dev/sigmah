@@ -1,4 +1,4 @@
-package org.sigmah.server.dao;
+package org.sigmah.server.dao.impl;
 /*
  * #%L
  * Sigmah
@@ -21,17 +21,24 @@ package org.sigmah.server.dao;
  * #L%
  */
 
-import java.util.List;
+import org.sigmah.server.dao.ContactDAO;
+import org.sigmah.server.dao.base.AbstractDAO;
+import org.sigmah.server.domain.Contact;
 
-import org.sigmah.server.dao.base.DAO;
-import org.sigmah.server.domain.ContactModel;
-import org.sigmah.shared.dto.referential.ContactModelType;
-
-public interface ContactModelDAO extends DAO<ContactModel, Integer> {
-  /**
-   * Return the default contact model
-   */
-  ContactModel getDefaultContactModel(Integer organizationId, ContactModelType type);
-
-  List<ContactModel> findByOrganization(Integer organizationId);
+public class ContactHibernateDAO extends AbstractDAO<Contact, Integer> implements ContactDAO {
+  @Override
+  public Contact findInstanceContact(Integer organizationId) {
+    return em()
+        .createQuery(
+            "SELECT c " +
+            "FROM Contact c " +
+            "JOIN c.contactModel cm " +
+            "WHERE c.organization.id = :organizationId " +
+            "AND cm.type = 'ORGANIZATION' ",
+            Contact.class
+        )
+        .setParameter("organizationId", organizationId)
+        .setMaxResults(1)
+        .getSingleResult();
+  }
 }

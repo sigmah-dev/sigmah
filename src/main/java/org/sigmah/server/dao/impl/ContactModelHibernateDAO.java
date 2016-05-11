@@ -26,8 +26,29 @@ import java.util.List;
 import org.sigmah.server.dao.ContactModelDAO;
 import org.sigmah.server.dao.base.AbstractDAO;
 import org.sigmah.server.domain.ContactModel;
+import org.sigmah.shared.dto.referential.ContactModelType;
 
 public class ContactModelHibernateDAO extends AbstractDAO<ContactModel, Integer> implements ContactModelDAO {
+  @Override
+  public ContactModel getDefaultContactModel(Integer organizationId, ContactModelType type) {
+    // The first contact model for a type and an organization can be considered as the default one
+    return em()
+        .createQuery(
+            "SELECT cm " +
+            "FROM ContactModel cm " +
+            "WHERE cm.id = ( " +
+            "  SELECT MIN(cm2.id) " +
+            "  FROM ContactModel cm2 " +
+            "  WHERE cm2.organization.id = :organizationId " +
+            "  AND cm2.type = :type " +
+            ") ",
+            ContactModel.class
+        )
+        .setParameter("organizationId", organizationId)
+        .setParameter("type", type)
+        .getSingleResult();
+  }
+
   @Override
   public List<ContactModel> findByOrganization(Integer organizationId) {
     return em()
