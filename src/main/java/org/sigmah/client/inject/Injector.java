@@ -63,6 +63,10 @@ import org.sigmah.client.ui.presenter.admin.users.ProfileEditPresenter;
 import org.sigmah.client.ui.presenter.admin.users.UserEditPresenter;
 import org.sigmah.client.ui.presenter.admin.users.UsersAdminPresenter;
 import org.sigmah.client.ui.presenter.calendar.CalendarEventPresenter;
+import org.sigmah.client.ui.presenter.contact.ContactDetailsPresenter;
+import org.sigmah.client.ui.presenter.contact.ContactHistoryPresenter;
+import org.sigmah.client.ui.presenter.contact.ContactPresenter;
+import org.sigmah.client.ui.presenter.contact.ContactRelationshipsPresenter;
 import org.sigmah.client.ui.presenter.importation.ImportationPresenter;
 import org.sigmah.client.ui.presenter.orgunit.OrgUnitCalendarPresenter;
 import org.sigmah.client.ui.presenter.orgunit.OrgUnitDashboardPresenter;
@@ -250,6 +254,16 @@ public interface Injector extends Ginjector {
 	OrgUnitCalendarPresenter getOrgUnitCalendarPresenter();
 
 	OrgUnitReportsPresenter getOrgUnitReportsPresenter();
+
+	// ---- Contact presenters
+
+	ContactPresenter getContactPresenter();
+
+	ContactDetailsPresenter getContactDetailsPresenter();
+
+	ContactRelationshipsPresenter getContactRelationshipsPresenter();
+
+	ContactHistoryPresenter getContactHistoryPresenter();
 
 	// ---- Admin presenters
 

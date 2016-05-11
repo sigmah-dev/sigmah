@@ -215,6 +215,11 @@ public class Sigmah implements EntryPoint {
 		injector.getOrgUnitReportsPresenter();
 		injector.getAddImportationSchemePresenter();
 
+		injector.getContactPresenter();
+		injector.getContactDetailsPresenter();
+		injector.getContactRelationshipsPresenter();
+		injector.getContactHistoryPresenter();
+
 		injector.getFileSelectionPresenter();
 
 		// Propagates the network state.

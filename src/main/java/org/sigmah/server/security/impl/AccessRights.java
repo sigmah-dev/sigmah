@@ -114,6 +114,8 @@ final class AccessRights {
 		sperm(pageToken(Page.ORGUNIT_DETAILS), GrantType.AUTHENTICATED_ONLY);
 		sperm(pageToken(Page.ORGUNIT_REPORTS), GrantType.AUTHENTICATED_ONLY);
 
+		sperm(pageToken(Page.CONTACT_DASHBOARD), GrantType.AUTHENTICATED_ONLY);
+
 		sperm(pageToken(Page.ADMIN_PARAMETERS), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_ADMIN, GlobalPermissionEnum.MANAGE_SETTINGS);
 		sperm(pageToken(Page.ADMIN_CATEGORIES), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_ADMIN, GlobalPermissionEnum.MANAGE_CATEGORIES);
 		sperm(pageToken(Page.ADMIN_ORG_UNITS), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_ADMIN, GlobalPermissionEnum.MANAGE_ORG_UNITS);

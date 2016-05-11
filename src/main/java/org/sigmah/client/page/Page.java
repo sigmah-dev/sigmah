@@ -67,6 +67,8 @@ public enum Page implements IsSerializable {
 	ORGUNIT_CALENDAR(Pages.ORGUNIT_PARENT_KEY, "calendar"),
 	ORGUNIT_REPORTS(Pages.ORGUNIT_PARENT_KEY, "reports"),
 
+	CONTACT_DASHBOARD(Pages.CONTACT_PARENT_KEY, "dashboard"),
+
 	ADMIN_USERS(Pages.ADMIN_PARENT_KEY, "users"),
 	ADMIN_ORG_UNITS(Pages.ADMIN_PARENT_KEY, "org-units"),
 	ADMIN_PROJECTS_MODELS(Pages.ADMIN_PARENT_KEY, "projects-models"),
