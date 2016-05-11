@@ -37,6 +37,7 @@
 		<class>org.sigmah.server.domain.AttributeGroup</class>
 		<class>org.sigmah.server.domain.AttributeValue</class>
 		<class>org.sigmah.server.domain.Authentication</class>
+		<class>org.sigmah.server.domain.Contact</class>
 		<class>org.sigmah.server.domain.ContactModel</class>
 		<class>org.sigmah.server.domain.ContactCard</class>
 		<class>org.sigmah.server.domain.ContactDetails</class>

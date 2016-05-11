@@ -1610,4 +1610,29 @@ public final class EntityConstants extends org.sigmah.shared.dto.util.EntityCons
 
 	public static final String DEFAULT_CONTACT_FLEXIBLE_ELEMENT_TABLE = "default_contact_flexible_element";
 	public static final String DEFAULT_CONTACT_FLEXIBLE_ELEMENT_COLUMN_TYPE = "type";
+
+	// --------------------------------------------------------------------------------
+	//
+	// CONTACT ENTITY.
+	//
+	// --------------------------------------------------------------------------------
+
+	public static final String CONTACT_TABLE = "contact";
+	public static final String CONTACT_COLUMN_ID = "id_contact";
+	public static final String CONTACT_COLUMN_NAME = "name";
+	public static final String CONTACT_COLUMN_FIRSTNAME = "firstname";
+	public static final String CONTACT_COLUMN_MAIN_ORG_UNIT = "id_main_org_unit";
+	public static final String CONTACT_COLUMN_LOGIN = "login";
+	public static final String CONTACT_COLUMN_EMAIL = "email";
+	public static final String CONTACT_COLUMN_PHONE_NUMBER = "phone_number";
+	public static final String CONTACT_COLUMN_POSTAL_ADDRESS = "postal_address";
+	public static final String CONTACT_COLUMN_PHOTO = "photo";
+	public static final String CONTACT_COLUMN_COUNTRY = "id_country";
+	public static final String CONTACT_COLUMN_PARENT = "id_parent";
+	public static final String CONTACT_COLUMN_USER = "id_user";
+	public static final String CONTACT_COLUMN_DATE_CREATED = "date_created";
+	public static final String CONTACT_COLUMN_DATE_DELETED = "date_deleted";
+
+	public static final String CONTACT_ORG_UNIT_LINK_TABLE = "contact_unit";
+	public static final String CONTACT_ORG_UNIT_COLUMN_ORG_UNIT = "id_org_unit";
 }
