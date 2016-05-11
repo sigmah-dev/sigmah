@@ -492,4 +492,36 @@
 		</field>
 	</mapping>
 
+	<mapping wildcard="true">
+		<class-a>org.sigmah.server.domain.Contact</class-a>
+		<class-b>org.sigmah.shared.dto.ContactDTO</class-b>
+		<field>
+			<a>contactModel.id</a>
+			<b>contactModelId</b>
+		</field>
+		<field>
+			<a>parent.id</a>
+			<b>parentId</b>
+		</field>
+		<field>
+			<a>user.id</a>
+			<b>userId</b>
+		</field>
+		<field>
+			<a>organization.id</a>
+			<b>organizationId</b>
+		</field>
+		<field>
+			<a>mainOrgUnit.id</a>
+			<b>mainOrgUnitId</b>
+		</field>
+		<field>
+			<a>user.id</a>
+			<b>userId</b>
+		</field>
+		<field>
+			<a>country.id</a>
+			<b>countryId</b>
+		</field>
+	</mapping>
 </mappings>

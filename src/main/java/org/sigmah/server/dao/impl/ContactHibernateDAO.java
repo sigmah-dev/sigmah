@@ -21,9 +21,12 @@ package org.sigmah.server.dao.impl;
  * #L%
  */
 
+import java.util.List;
+
 import org.sigmah.server.dao.ContactDAO;
 import org.sigmah.server.dao.base.AbstractDAO;
 import org.sigmah.server.domain.Contact;
+import org.sigmah.shared.dto.referential.ContactModelType;
 
 public class ContactHibernateDAO extends AbstractDAO<Contact, Integer> implements ContactDAO {
   @Override
@@ -40,5 +43,21 @@ public class ContactHibernateDAO extends AbstractDAO<Contact, Integer> implement
         .setParameter("organizationId", organizationId)
         .setMaxResults(1)
         .getSingleResult();
+  }
+
+  @Override
+  public List<Contact> findTypedContacts(Integer organizationId, ContactModelType type) {
+    return em()
+        .createQuery(
+            "SELECT c " +
+            "FROM Contact c " +
+            "JOIN c.contactModel cm " +
+            "WHERE c.organization.id = :organizationId " +
+            "AND cm.type = :type ",
+            Contact.class
+        )
+        .setParameter("organizationId", organizationId)
+        .setParameter("type", type)
+        .getResultList();
   }
 }

@@ -23,8 +23,11 @@ package org.sigmah.server.handler;
 
 import com.google.inject.Inject;
 
+import java.util.List;
+
 import org.sigmah.server.dao.ContactModelDAO;
 import org.sigmah.server.dispatch.impl.UserDispatch;
+import org.sigmah.server.domain.ContactModel;
 import org.sigmah.server.handler.base.AbstractCommandHandler;
 import org.sigmah.shared.command.GetContactModels;
 import org.sigmah.shared.command.result.ListResult;
@@ -42,6 +45,12 @@ public class GetContactModelsHandler extends AbstractCommandHandler<GetContactMo
   @Override
   protected ListResult<ContactModelDTO> execute(GetContactModels command, UserDispatch.UserExecutionContext context) throws CommandException {
     Integer organizationId = context.getUser().getOrganization().getId();
-    return new ListResult<>(mapper().mapCollection(contactModelDAO.findByOrganization(organizationId), ContactModelDTO.class, ContactModelDTO.Mode.WITHOUT_LAYOUTS));
+
+    if (command.getType() == null) {
+      return new ListResult<>(mapper().mapCollection(contactModelDAO.findByOrganization(organizationId), ContactModelDTO.class));
+    }
+
+    List<ContactModel> contactModels = contactModelDAO.findByOrganizationAndType(organizationId, command.getType());
+    return new ListResult<>(mapper().mapCollection(contactModels, ContactModelDTO.class, ContactModelDTO.Mode.WITHOUT_LAYOUTS));
   }
 }

@@ -1,4 +1,4 @@
-package org.sigmah.server.dao;
+package org.sigmah.shared.command;
 /*
  * #%L
  * Sigmah
@@ -21,20 +21,29 @@ package org.sigmah.server.dao;
  * #L%
  */
 
-import java.util.List;
-
-import org.sigmah.server.dao.base.DAO;
-import org.sigmah.server.domain.Contact;
+import org.sigmah.client.util.ToStringBuilder;
+import org.sigmah.shared.command.base.AbstractCommand;
+import org.sigmah.shared.command.result.ListResult;
+import org.sigmah.shared.dto.ContactDTO;
 import org.sigmah.shared.dto.referential.ContactModelType;
 
-public interface ContactDAO extends DAO<Contact, Integer> {
-  /**
-   * Return the contact related to the given organization.
-   */
-  Contact findInstanceContact(Integer organizationId);
+public class GetContacts extends AbstractCommand<ListResult<ContactDTO>> {
+  private ContactModelType type;
 
-  /**
-   * Return contacts from a targeted organization and with a defined type (INDIVIDUAL or ORGANIZATION)
-   */
-  List<Contact> findTypedContacts(Integer organizationId, ContactModelType type);
+  public GetContacts() {
+    // Serialization
+  }
+
+  public GetContacts(ContactModelType type) {
+    this.type = type;
+  }
+
+  public ContactModelType getType() {
+    return type;
+  }
+
+  @Override
+  protected void appendToString(final ToStringBuilder builder) {
+    builder.append("type", type);
+  }
 }

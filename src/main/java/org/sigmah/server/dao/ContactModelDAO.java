@@ -34,4 +34,6 @@ public interface ContactModelDAO extends DAO<ContactModel, Integer> {
   ContactModel getDefaultContactModel(Integer organizationId, ContactModelType type);
 
   List<ContactModel> findByOrganization(Integer organizationId);
+
+  List<ContactModel> findByOrganizationAndType(Integer organizationId, ContactModelType type);
 }

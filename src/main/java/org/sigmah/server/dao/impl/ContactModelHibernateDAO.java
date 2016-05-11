@@ -61,4 +61,19 @@ public class ContactModelHibernateDAO extends AbstractDAO<ContactModel, Integer>
         .setParameter("organizationId", organizationId)
         .getResultList();
   }
+
+  @Override
+  public List<ContactModel> findByOrganizationAndType(Integer organizationId, ContactModelType type) {
+    return em()
+        .createQuery(
+            "SELECT cm " +
+            "FROM ContactModel cm " +
+            "WHERE cm.organization.id = :organizationId " +
+            "AND cm.type = :type ",
+            ContactModel.class
+        )
+        .setParameter("organizationId", organizationId)
+        .setParameter("type", type)
+        .getResultList();
+  }
 }

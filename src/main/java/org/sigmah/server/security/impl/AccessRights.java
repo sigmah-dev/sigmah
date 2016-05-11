@@ -155,6 +155,7 @@ final class AccessRights {
 		sperm(commandToken(GetBaseMaps.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetCalendar.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetCategories.class), GrantType.AUTHENTICATED_ONLY);
+		sperm(commandToken(GetContacts.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetContactModel.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetContactModelCopy.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetContactModels.class), GrantType.AUTHENTICATED_ONLY);

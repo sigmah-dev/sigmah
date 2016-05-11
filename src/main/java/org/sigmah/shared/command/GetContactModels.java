@@ -24,7 +24,22 @@ package org.sigmah.shared.command;
 import org.sigmah.shared.command.base.AbstractCommand;
 import org.sigmah.shared.command.result.ListResult;
 import org.sigmah.shared.dto.ContactModelDTO;
+import org.sigmah.shared.dto.referential.ContactModelType;
 
 public class GetContactModels extends AbstractCommand<ListResult<ContactModelDTO>> {
   private static final long serialVersionUID = 279291041835072569L;
+
+  private ContactModelType type;
+
+  public GetContactModels() {
+    // Serialization
+  }
+
+  public GetContactModels(ContactModelType type) {
+    this.type = type;
+  }
+
+  public ContactModelType getType() {
+    return type;
+  }
 }
