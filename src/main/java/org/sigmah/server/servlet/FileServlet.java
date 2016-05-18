@@ -22,6 +22,11 @@ package org.sigmah.server.servlet;
  * #L%
  */
 
+import com.google.gwt.http.client.Response;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.NoSuchFileException;
@@ -35,10 +40,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.collections4.MapUtils;
-import org.apache.commons.fileupload.FileUploadException;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.sigmah.client.page.RequestParameter;
 import org.sigmah.client.util.ClientUtils;
 import org.sigmah.server.dao.FileDAO;
@@ -55,6 +56,8 @@ import org.sigmah.server.file.FileStorageProvider;
 import org.sigmah.server.file.LogoManager;
 import org.sigmah.server.file.util.MultipartRequest;
 import org.sigmah.server.file.util.MultipartRequestCallback;
+import org.sigmah.server.handler.util.Conflicts;
+import org.sigmah.server.service.util.ImageMinimizer;
 import org.sigmah.server.servlet.base.AbstractServlet;
 import org.sigmah.server.servlet.base.ServletExecutionContext;
 import org.sigmah.server.servlet.base.StatusServletException;
@@ -65,14 +68,14 @@ import org.sigmah.shared.dto.value.FileVersionDTO;
 import org.sigmah.shared.servlet.FileUploadResponse;
 import org.sigmah.shared.servlet.ServletConstants.ServletMethod;
 import org.sigmah.shared.util.FileType;
+
+import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.fileupload.FileUploadException;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.output.ByteArrayOutputStream;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.gwt.http.client.Response;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
-import org.sigmah.server.handler.util.Conflicts;
-import org.sigmah.shared.Language;
 
 /**
  * File upload and download servlet.
@@ -139,6 +142,9 @@ public class FileServlet extends AbstractServlet {
 	 */
 	@Inject
 	private Conflicts conflicts;
+
+	@Inject
+	private ImageMinimizer imageMinimizer;
 
 	// ---------------------------------------------------------------------------------------
 	//
@@ -360,7 +366,7 @@ public class FileServlet extends AbstractServlet {
 		// --
 
 		organization.setLogo(organization.getId() + "_" + new Date().getTime());
-		processUpload(new MultipartRequest(request), response, organization.getLogo(), true);
+		processUpload(new MultipartRequest(request), response, organization.getLogo(), true, null);
 		organizationDAO.persist(organization, context.getUser());
 
 		// --
@@ -411,7 +417,7 @@ public class FileServlet extends AbstractServlet {
 		// --
 
 		final MultipartRequest multipartRequest = new MultipartRequest(request);
-		final long size = this.processUpload(multipartRequest, response, fileName, false);
+		final long size = this.processUpload(multipartRequest, response, fileName, false, null);
 		final Map<String, String> properties = multipartRequest.getProperties();
 		
 		conflicts.searchForFileAddConflicts(properties, context.getLanguage(), context.getUser());
@@ -461,6 +467,33 @@ public class FileServlet extends AbstractServlet {
 		response.getWriter().write(FileUploadResponse.serialize(fileVersionDTO, monitoredPointDTO));
 	}
 
+	protected void uploadAvatar(final HttpServletRequest request, final HttpServletResponse response, final ServletExecutionContext context) throws Exception {
+		final int contentLength = request.getContentLength();
+
+		if (contentLength == 0) {
+			LOG.error("Empty file.");
+			throw new StatusServletException(Response.SC_NO_CONTENT);
+		}
+
+		if (contentLength > FileUploadUtils.MAX_UPLOAD_FILE_SIZE) {
+			LOG.error("File's size is too big to be uploaded (size: {}, maximum : {}).", contentLength, FileUploadUtils.MAX_UPLOAD_FILE_SIZE);
+			throw new StatusServletException(Response.SC_REQUEST_ENTITY_TOO_LARGE);
+		}
+
+		final String fileName = generateUniqueName();
+
+		// --
+		// Writing the file.
+		// --
+
+		final MultipartRequest multipartRequest = new MultipartRequest(request);
+		processUpload(multipartRequest, response, fileName, false, FileUploadUtils.MAX_AVATAR_SIZE);
+
+		response.setStatus(Response.SC_OK);
+		response.setContentType(FileType.TXT.getContentType());
+		response.getWriter().write(fileName);
+	}
+
 	// ---------------------------------------------------------------------------------------
 	//
 	// UTILITY METHODS.
@@ -488,7 +521,7 @@ public class FileServlet extends AbstractServlet {
 	 * @throws org.apache.commons.fileupload.FileUploadException
 	 *           If an error occured while reading the uploaded file.
 	 */
-	private long processUpload(final MultipartRequest multipartRequest, final HttpServletResponse response, final String filename, final boolean logo)
+	private long processUpload(final MultipartRequest multipartRequest, final HttpServletResponse response, final String filename, final boolean logo, final Integer resizeTo)
 			throws StatusServletException, IOException, FileUploadException {
 		LOG.debug("Starting file uploading...");
 
@@ -507,8 +540,15 @@ public class FileServlet extends AbstractServlet {
 
 					if (logo) {
 						size[0] = logoManager.updateLogo(stream, name);
-					} else {
+					} else if (resizeTo == null) {
 						size[0] = fileStorageProvider.copy(stream, name, StandardCopyOption.REPLACE_EXISTING);
+					} else {
+						try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
+							imageMinimizer.resizeImage(inputStream, byteArrayOutputStream, resizeTo);
+							try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray())) {
+								size[0] = fileStorageProvider.copy(byteArrayInputStream, name, StandardCopyOption.REPLACE_EXISTING);
+							}
+						}
 					}
 
 					response.setStatus(Response.SC_ACCEPTED);
@@ -575,4 +615,5 @@ public class FileServlet extends AbstractServlet {
 		// Adds the timestamp to ensure the id uniqueness.
 		return UUID.randomUUID().toString() + new Date().getTime();
 	}
+
 }

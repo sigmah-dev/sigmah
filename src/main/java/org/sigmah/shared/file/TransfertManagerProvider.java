@@ -63,11 +63,12 @@ public class TransfertManagerProvider implements Provider<TransfertManager> {
 
     @Inject
     public TransfertManagerProvider(DispatchAsync dispatchAsync, AuthenticationProvider authenticationProvider, PageManager pageManager, EventBus eventBus, FileDataAsyncDAO fileDataAsyncDAO, TransfertAsyncDAO transfertAsyncDAO) {
-        if(html5EngineActive && IndexedDB.isSupported() && FileReader.isSupported()) {
-			this.transfertManager = new Html5TransfertManager(dispatchAsync, fileDataAsyncDAO, transfertAsyncDAO, eventBus);
-		} else {
-            this.transfertManager = new DirectTransfertManager(authenticationProvider, pageManager, eventBus);
-		}
+      DirectTransfertManager directTransfertManager = new DirectTransfertManager(authenticationProvider, pageManager, eventBus);
+      if (html5EngineActive && IndexedDB.isSupported() && FileReader.isSupported()) {
+        this.transfertManager = new Html5TransfertManager(dispatchAsync, fileDataAsyncDAO, transfertAsyncDAO, eventBus, directTransfertManager);
+      } else {
+        this.transfertManager = directTransfertManager;
+      }
     }
 
     @Override

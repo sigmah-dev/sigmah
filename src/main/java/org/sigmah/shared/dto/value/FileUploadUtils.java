@@ -51,6 +51,12 @@ public final class FileUploadUtils {
 	 */
 	public static final int MAX_UPLOAD_IMAGE_SIZE = 262144;
 
+	/**
+	 * Max width and max height in pixels
+	 */
+	// TODO: Make it configurable
+	public static final int MAX_AVATAR_SIZE = 300;
+
 	// --
 	// Properties keys constants.
 	// --

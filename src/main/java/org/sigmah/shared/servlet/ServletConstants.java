@@ -169,6 +169,11 @@ public final class ServletConstants {
 		UPLOAD_ORGANIZATION_LOGO("uploadOrganizationLogo"),
 
 		/**
+	   * Upload a new avatar.
+		 */
+		UPLOAD_AVATAR("uploadAvatar"),
+
+		/**
 		 * <p>
 		 * Downloads a file version.
 		 * </p>

@@ -99,32 +99,34 @@ class Html5TransfertManager implements TransfertManager, HasProgressListeners {
 	
 	private final DispatchAsync dispatchAsync;
 	private final FileDataAsyncDAO fileDataAsyncDAO;
-    private final TransfertAsyncDAO transfertAsyncDAO;
+	private final TransfertAsyncDAO transfertAsyncDAO;
+	private final DirectTransfertManager directTransfertManager;
 	
 	private ApplicationState state;
     
     private final Map<TransfertType, ProgressListener> progressListeners;
-    
-    public Html5TransfertManager(DispatchAsync dispatchAsync, FileDataAsyncDAO fileDataAsyncDAO, TransfertAsyncDAO transfertAsyncDAO, EventBus eventBus) {
-        this.dispatchAsync = dispatchAsync;
-        this.fileDataAsyncDAO = fileDataAsyncDAO;
-        this.transfertAsyncDAO = transfertAsyncDAO;
+
+	public Html5TransfertManager(DispatchAsync dispatchAsync, FileDataAsyncDAO fileDataAsyncDAO, TransfertAsyncDAO transfertAsyncDAO, EventBus eventBus, DirectTransfertManager directTransfertManager) {
+		this.dispatchAsync = dispatchAsync;
+		this.fileDataAsyncDAO = fileDataAsyncDAO;
+		this.transfertAsyncDAO = transfertAsyncDAO;
 		this.eventBus = eventBus;
-        
-        // Creating transfert threads.
+		this.directTransfertManager = directTransfertManager;
+
+		// Creating transfert threads.
 		this.downloads = new ArrayList<Task>();
 		this.uploads = new ArrayList<Task>();
-		this.currentTasks = new int[] {-1, -1};
-		
+		this.currentTasks = new int[]{-1, -1};
+
 		downloadThread = createTransfertThread();
 		uploadThread = createTransfertThread();
-        
-        this.progressListeners = new EnumMap<TransfertType, ProgressListener>(TransfertType.class);
-        
-        // Adding a connection status listener to start or stop threads
-        listenToConnectionStatusChanges(eventBus);
-    }
-    
+
+		this.progressListeners = new EnumMap<TransfertType, ProgressListener>(TransfertType.class);
+
+		// Adding a connection status listener to start or stop threads
+		listenToConnectionStatusChanges(eventBus);
+	}
+
     // Transfert thread handling -----------------------------------------------
     
     private TransfertThread createTransfertThread() {
@@ -387,7 +389,14 @@ class Html5TransfertManager implements TransfertManager, HasProgressListeners {
 		
 		prepareFileUpload(blob, properties, progressListener);
 	}
-	
+
+	@Override
+	public void uploadAvatar(FormPanel formPanel, ProgressListener progressListener) {
+		// TODO: Make it offline
+		// The previous system based on TransfertJS is too closely related to versioned files which is not used by contacts
+		directTransfertManager.uploadAvatar(formPanel, progressListener);
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -426,7 +435,9 @@ class Html5TransfertManager implements TransfertManager, HasProgressListeners {
 						final FileDataJS fileDataJS = Values.createJavaScriptObject(FileDataJS.class);
 						fileDataJS.setData(int8Array);
 						fileDataJS.setMimeType(blob.getType());
-						fileDataJS.setFileVersion(FileVersionJS.toJavaScript(fileVersion));
+						if (fileVersion != null) {
+							fileDataJS.setFileVersion(FileVersionJS.toJavaScript(fileVersion));
+						}
 
 						fileDataAsyncDAO.saveOrUpdate(fileDataJS);
 						

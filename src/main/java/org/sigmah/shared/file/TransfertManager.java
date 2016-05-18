@@ -64,14 +64,22 @@ public interface TransfertManager {
 	 * @param callback Called with <code>true</code> if the file is downloadable, <code>false</code> otherwise.
 	 */
 	void canDownload(FileVersionDTO fileVersion, AsyncCallback<Boolean> callback);
-	
+
 	/**
 	 * Upload a file enclosed in a FormPanel.
-	 * 
+	 *
 	 * @param formPanel Form element containing an input[type='file'] element and properties.
 	 * @param progressListener Tracks upload progress. Called on progress, success and failure.
 	 */
 	void upload(FormPanel formPanel, ProgressListener progressListener);
+
+	/**
+	 * Upload an avatar enclosed in a FormPanel.
+	 *
+	 * @param formPanel Form element containing an input[type='file'] element and properties.
+	 * @param progressListener Tracks upload progress. Called on progress, success and failure.
+	 */
+	void uploadAvatar(FormPanel formPanel, ProgressListener progressListener);
 	
 	/**
 	 * Returns <code>true</code> if the manager is able to upload a file.
