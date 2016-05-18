@@ -168,8 +168,16 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 
 		// Search the given project.
 		final Project project = em().find(Project.class, projectId);
-		if (!Handlers.isProjectEditable(project, user)) {
-			throw new IllegalStateException();
+		if (project != null) {
+			if (!Handlers.isProjectEditable(project, user)) {
+				throw new IllegalStateException();
+			}
+		} else {
+			// If project is null, it means the user is not trying to update a project but an org unit
+			OrgUnit orgUnit = em().find(OrgUnit.class, projectId);
+			if (!Handlers.isOrgUnitVisible(orgUnit, user)) {
+				throw new IllegalStateException();
+			}
 		}
 
 		// Verify if the modifications conflicts with the project state.
