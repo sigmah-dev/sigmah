@@ -30,12 +30,15 @@ import com.extjs.gxt.ui.client.store.StoreEvent;
 import com.extjs.gxt.ui.client.store.StoreListener;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.extjs.gxt.ui.client.widget.form.Field;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
+import com.google.gwt.user.client.ui.Widget;
 
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.ui.res.icon.IconImageBundle;
@@ -49,6 +52,7 @@ public class ListComboBox<T extends ModelData> extends Composite {
 	private String displayField;
 	private FlexTable flexTable;
 	private Panel rootPanel;
+	private boolean enabled = true;
 
 	public ListComboBox(String valueField, String displayField) {
 		super();
@@ -85,7 +89,9 @@ public class ListComboBox<T extends ModelData> extends Composite {
 				ListComboBox.this.buildComponent();
 			}
 		});
+	}
 
+	public void initComponent() {
 		rootPanel = new FlowPanel();
 
 		flexTable = new FlexTable();
@@ -103,50 +109,94 @@ public class ListComboBox<T extends ModelData> extends Composite {
 		return availableValuesStore;
 	}
 
-	private void buildComponent() {
-		rootPanel.clear();
+	public void copyAvailableValueStore(ListStore<T> store) {
+		availableValuesStore.add(store.getModels());
 
-		final ComboBox<T> comboBox = Forms.combobox(null, false, valueField, displayField, availableValuesStore);
-		comboBox.setStyleName("list-combobox__form__choices");
-		if (availableValuesStore.getModels().isEmpty()) {
-			comboBox.setToolTip(I18N.CONSTANTS.noAvailableProfileToAddInDefaultTeamMemberProfiles());
-		}
-		FlowPanel formPanel = new FlowPanel();
-		formPanel.addStyleName("list-combobox__form");
-		formPanel.add(comboBox);
-		Button addButton = new Button(I18N.CONSTANTS.addItem(), IconImageBundle.ICONS.add());
-		addButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+		store.addStoreListener(new StoreListener<T>() {
 			@Override
-			public void componentSelected(ButtonEvent event) {
-				T value = comboBox.getValue();
-				if (value == null) {
-					return;
-				}
+			public void storeAdd(StoreEvent<T> se) {
+				super.storeAdd(se);
 
-				if (dataStore.findModel(valueField, value.get(valueField)) != null) {
-					return;
+				availableValuesStore.add(se.getModels());
+			}
+
+			@Override
+			public void storeRemove(StoreEvent<T> se) {
+				super.storeRemove(se);
+
+				for (T model : se.getModels()) {
+					availableValuesStore.remove(model);
 				}
-				availableValuesStore.remove(value);
-				dataStore.add(value);
 			}
 		});
-		formPanel.add(addButton);
+	}
+
+	public boolean isEnabled() {
+		return enabled;
+	}
+
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
+	}
+
+	private void buildComponent() {
+		if (rootPanel == null) {
+			// not yet initialized
+			return;
+		}
+
+		rootPanel.clear();
+
+		FlowPanel formPanel = new FlowPanel();
+		formPanel.addStyleName("list-combobox__form");
+
+		if (enabled) {
+			final ComboBox<T> comboBox = Forms.combobox(null, false, valueField, displayField, availableValuesStore);
+			comboBox.setStyleName("list-combobox__form__choices");
+			if (availableValuesStore.getModels().isEmpty()) {
+				comboBox.setToolTip(I18N.CONSTANTS.noAvailableProfileToAddInDefaultTeamMemberProfiles());
+			}
+			formPanel.add(comboBox);
+
+			Button addButton = new Button(I18N.CONSTANTS.addItem(), IconImageBundle.ICONS.add());
+			addButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+				@Override
+				public void componentSelected(ButtonEvent event) {
+					T value = comboBox.getValue();
+					if (value == null) {
+						return;
+					}
+
+					if (dataStore.findModel(valueField, value.get(valueField)) != null) {
+						return;
+					}
+					availableValuesStore.remove(value);
+					dataStore.add(value);
+				}
+			});
+			formPanel.add(addButton);
+		}
+
 		formPanel.setWidth("100%");
 		rootPanel.add(formPanel);
 
 		FlowPanel elementsPanel = new FlowPanel();
 		elementsPanel.setStyleName("list-combobox__elements");
 		for (final T element : dataStore.getModels()) {
-			final ClickableLabel label = new ClickableLabel(element.get(displayField).toString());
-			label.addStyleName("list-combobox__elements__element");
-
-			label.addClickHandler(new ClickHandler() {
-				@Override
-				public void onClick(final ClickEvent event) {
-					availableValuesStore.add(element);
-					dataStore.remove(element);
-				}
-			});
+			Widget label;
+			if (enabled) {
+				label = new ClickableLabel(element.get(displayField).toString());
+				label.addStyleName("list-combobox__elements__element");
+				((ClickableLabel)label).addClickHandler(new ClickHandler() {
+					@Override
+					public void onClick(final ClickEvent event) {
+						availableValuesStore.add(element);
+						dataStore.remove(element);
+					}
+				});
+			} else {
+				label = new Label(element.get(displayField).toString());
+			}
 			elementsPanel.add(label);
 		}
 		rootPanel.add(elementsPanel);

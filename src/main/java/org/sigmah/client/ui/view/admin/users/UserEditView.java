@@ -276,6 +276,7 @@ public class UserEditView extends AbstractPopupView<PopupWidget> implements User
 				});
 				setAvailableProfiles(profileListComboBox.getAvailableValuesStore(), availableProfiles);
 				profileStores.add(profileListComboBox.getAvailableValuesStore());
+				profileListComboBox.initComponent();
 				return profileListComboBox;
 			}
 		});
