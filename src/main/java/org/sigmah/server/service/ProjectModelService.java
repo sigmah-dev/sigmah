@@ -75,6 +75,8 @@ public class ProjectModelService extends AbstractEntityService<ProjectModel, Int
 	 */
 	@Inject
 	private Mapper mapper;
+	@Inject
+	private ModelUtil modelUtil;
 
 	/**
 	 * Injected {@link ProjectModelDAO}.
@@ -381,7 +383,7 @@ public class ProjectModelService extends AbstractEntityService<ProjectModel, Int
 
 		if (changes.get(AdminUtil.PROP_FX_FLEXIBLE_ELEMENT) != null) {
 
-			ModelUtil.persistFlexibleElement(em(), mapper, changes, model);
+			modelUtil.persistFlexibleElement(changes, model);
 			model = projectModelDAO.findById(model.getId());
 
 		}

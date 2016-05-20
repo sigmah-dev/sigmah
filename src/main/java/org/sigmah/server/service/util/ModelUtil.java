@@ -23,6 +23,9 @@ package org.sigmah.server.service.util;
  */
 
 
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -39,17 +42,7 @@ import org.sigmah.server.domain.OrgUnitModel;
 import org.sigmah.server.domain.ProjectModel;
 import org.sigmah.server.domain.category.CategoryElement;
 import org.sigmah.server.domain.category.CategoryType;
-import org.sigmah.server.domain.element.BudgetElement;
-import org.sigmah.server.domain.element.BudgetSubField;
-import org.sigmah.server.domain.element.ComputationElement;
-import org.sigmah.server.domain.element.DefaultFlexibleElement;
-import org.sigmah.server.domain.element.FilesListElement;
-import org.sigmah.server.domain.element.FlexibleElement;
-import org.sigmah.server.domain.element.QuestionChoiceElement;
-import org.sigmah.server.domain.element.QuestionElement;
-import org.sigmah.server.domain.element.ReportElement;
-import org.sigmah.server.domain.element.ReportListElement;
-import org.sigmah.server.domain.element.TextAreaElement;
+import org.sigmah.server.domain.element.*;
 import org.sigmah.server.domain.layout.LayoutConstraint;
 import org.sigmah.server.domain.layout.LayoutGroup;
 import org.sigmah.server.domain.profile.PrivacyGroup;
@@ -71,19 +64,30 @@ import org.slf4j.LoggerFactory;
  * @author Maxime Lombard (mlombard@ideia.fr) (v2.0)
  * @author Denis Colliot (dcolliot@ideia.fr) (v2.0)
  */
-public final class ModelUtil {
+public class ModelUtil {
 
 	/**
 	 * Logger.
 	 */
 	private static final Logger LOG = LoggerFactory.getLogger(ModelUtil.class);
 
+	private final Provider<EntityManager> entityManagerProvider;
+	private final Mapper mapper;
+
+	@Inject
+	public ModelUtil(Provider<EntityManager> entityManagerProvider, Mapper mapper) {
+		this.entityManagerProvider = entityManagerProvider;
+		this.mapper = mapper;
+	}
+
 	@SuppressWarnings("unchecked")
-	public static void persistFlexibleElement(final EntityManager em, final Mapper mapper, final PropertyMap changes, final Object model) {
+	public void persistFlexibleElement(final PropertyMap changes, final Object model) {
 
 		if (changes.get(AdminUtil.PROP_FX_FLEXIBLE_ELEMENT) == null) {
 			return;
 		}
+
+		EntityManager em = entityManagerProvider.get();
 
 		// Common attributes
 		final String name = changes.get(AdminUtil.PROP_FX_NAME);
@@ -441,7 +445,7 @@ public final class ModelUtil {
 		em.clear();
 	}
 
-	private static String retrieveTable(final String className) {
+	private String retrieveTable(final String className) {
 
 		final int bI = className.lastIndexOf(".") + 1;
 		String table = className.substring(bI);
@@ -459,7 +463,7 @@ public final class ModelUtil {
 		return table;
 	}
 
-	private static void changeOldType(final EntityManager em, final ElementTypeEnum type, final FlexibleElement flexibleElement) {
+	private void changeOldType(final EntityManager em, final ElementTypeEnum type, final FlexibleElement flexibleElement) {
 
 		final String oldflexTable = retrieveTable(ElementTypeEnum.getClassName(type));
 
@@ -476,7 +480,7 @@ public final class ModelUtil {
 		}
 	}
 
-	private static Object createNewFlexibleElement(final EntityManager em, final ElementTypeEnum oldType, final ElementTypeEnum type,
+	private Object createNewFlexibleElement(final EntityManager em, final ElementTypeEnum oldType, final ElementTypeEnum type,
 			final FlexibleElement flexibleElement) {
 
 		Object newElement = null;
@@ -510,7 +514,7 @@ public final class ModelUtil {
 		return newElement;
 	}
 
-	private static void changeBanner(final EntityManager em, final Integer posB, final Object model, final FlexibleElement flexibleElt) {
+	private void changeBanner(final EntityManager em, final Integer posB, final Object model, final FlexibleElement flexibleElt) {
 
 		final LayoutGroup bannerGroup;
 		if (model instanceof ProjectModel) {
@@ -547,7 +551,7 @@ public final class ModelUtil {
 		}
 	}
 
-	private static void changePositionInBanner(final EntityManager em, final Integer posB, final Object model, final FlexibleElement flexibleElt,
+	private void changePositionInBanner(final EntityManager em, final Integer posB, final Object model, final FlexibleElement flexibleElt,
 			final LayoutConstraint oldBannerLayoutConstraint) {
 
 		final LayoutGroup bannerGroup;
@@ -572,7 +576,7 @@ public final class ModelUtil {
 		em.merge(oldBannerLayoutConstraint);
 	}
 
-	private static ProjectReportModel findReportModel(final EntityManager em, final String reportName) {
+	private ProjectReportModel findReportModel(final EntityManager em, final String reportName) {
 
 		final TypedQuery<ProjectReportModel> query = em.createQuery("SELECT r FROM ProjectReportModel r WHERE r.name = :name", ProjectReportModel.class);
 		query.setParameter("name", reportName);
@@ -592,16 +596,9 @@ public final class ModelUtil {
      * @param element 
      *          Element to purge.
      */
-    private static void removeAllValuesForElement(final FlexibleElement element, final EntityManager em) {
+    private void removeAllValuesForElement(final FlexibleElement element, final EntityManager em) {
         em.createQuery("DELETE FROM Value AS v WHERE v.element = :element")
                 .setParameter("element", element)
                 .executeUpdate();
     }
-
-	/**
-	 * Utility class private constructor.
-	 */
-	private ModelUtil() {
-		// Only provides static methods.
-	}
 }

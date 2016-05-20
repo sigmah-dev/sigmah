@@ -52,6 +52,8 @@ public class ContactModelService extends AbstractEntityService<ContactModel, Int
   private ContactModelDAO contactModelDAO;
   @Inject
   private Mapper mapper;
+  @Inject
+  private ModelUtil modelUtil;
 
   @Override
   public ContactModel create(PropertyMap properties, UserDispatch.UserExecutionContext context) throws CommandException {
@@ -159,7 +161,7 @@ public class ContactModelService extends AbstractEntityService<ContactModel, Int
     }
 
     if (changes.get(AdminUtil.PROP_FX_FLEXIBLE_ELEMENT) != null) {
-      ModelUtil.persistFlexibleElement(em(), mapper, changes, contactModel);
+      modelUtil.persistFlexibleElement(changes, contactModel);
       return em().find(ContactModel.class, contactModel.getId());
     }
 
