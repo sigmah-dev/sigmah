@@ -42,6 +42,8 @@ public enum ElementTypeEnum implements LogicalElementType {
 
 	COMPUTATION("ComputationElement"),
 
+	CONTACT_LIST("ContactListElement"),
+
 	CORE_VERSION("CoreVersionElement"),
 
 	DEFAULT("DefaultFlexibleElement"),
@@ -96,6 +98,8 @@ public enum ElementTypeEnum implements LogicalElementType {
 				return I18N.CONSTANTS.flexibleElementCheckbox();
 			case COMPUTATION:
 				return I18N.CONSTANTS.flexibleElementComputation();
+			case CONTACT_LIST:
+				return I18N.CONSTANTS.flexibleElementContactList();
 			case CORE_VERSION:
 				return I18N.CONSTANTS.flexibleElementCoreVersion();
 			case DEFAULT:
@@ -126,6 +130,7 @@ public enum ElementTypeEnum implements LogicalElementType {
 			nameMap = new HashMap<String, ElementTypeEnum>();
 			nameMap.put(I18N.CONSTANTS.flexibleElementCheckbox(), ElementTypeEnum.CHECKBOX);
 			nameMap.put(I18N.CONSTANTS.flexibleElementComputation(), ElementTypeEnum.COMPUTATION);
+			nameMap.put(I18N.CONSTANTS.flexibleElementContactList(), ElementTypeEnum.CONTACT_LIST);
 			nameMap.put(I18N.CONSTANTS.flexibleElementCoreVersion(), ElementTypeEnum.CORE_VERSION);
 			nameMap.put(I18N.CONSTANTS.flexibleElementDefault(), ElementTypeEnum.DEFAULT);
 			nameMap.put(I18N.CONSTANTS.flexibleElementDefaultContact(), ElementTypeEnum.DEFAULT_CONTACT);

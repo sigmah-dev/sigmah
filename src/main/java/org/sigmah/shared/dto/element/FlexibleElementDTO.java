@@ -681,6 +681,8 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 			type = ElementTypeEnum.TEXT_AREA;
 		} else if (this instanceof CheckboxElementDTO) {
 			type = ElementTypeEnum.CHECKBOX;
+		} else if (this instanceof ContactListElementDTO) {
+			type = ElementTypeEnum.CONTACT_LIST;
 		} else if (this instanceof DefaultFlexibleElementDTO) {
 			type = ElementTypeEnum.DEFAULT;
 		} else if (this instanceof DefaultContactFlexibleElementDTO) {

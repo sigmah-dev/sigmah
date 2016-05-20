@@ -28,36 +28,11 @@ import java.util.Collections;
 import org.sigmah.server.domain.OrgUnitModel;
 import org.sigmah.server.domain.PhaseModel;
 import org.sigmah.server.domain.ProjectModel;
-import org.sigmah.server.domain.element.CheckboxElement;
-import org.sigmah.server.domain.element.ComputationElement;
-import org.sigmah.server.domain.element.CoreVersionElement;
-import org.sigmah.server.domain.element.DefaultFlexibleElement;
-import org.sigmah.server.domain.element.FilesListElement;
-import org.sigmah.server.domain.element.FlexibleElement;
-import org.sigmah.server.domain.element.IndicatorsListElement;
-import org.sigmah.server.domain.element.MessageElement;
-import org.sigmah.server.domain.element.QuestionElement;
-import org.sigmah.server.domain.element.ReportElement;
-import org.sigmah.server.domain.element.ReportListElement;
-import org.sigmah.server.domain.element.TextAreaElement;
-import org.sigmah.server.domain.element.TripletsListElement;
+import org.sigmah.server.domain.element.*;
 import org.sigmah.server.domain.layout.Layout;
 import org.sigmah.server.domain.layout.LayoutConstraint;
 import org.sigmah.server.domain.layout.LayoutGroup;
-import org.sigmah.shared.dto.element.BudgetElementDTO;
-import org.sigmah.shared.dto.element.CheckboxElementDTO;
-import org.sigmah.shared.dto.element.ComputationElementDTO;
-import org.sigmah.shared.dto.element.CoreVersionElementDTO;
-import org.sigmah.shared.dto.element.DefaultFlexibleElementDTO;
-import org.sigmah.shared.dto.element.FilesListElementDTO;
-import org.sigmah.shared.dto.element.FlexibleElementDTO;
-import org.sigmah.shared.dto.element.IndicatorsListElementDTO;
-import org.sigmah.shared.dto.element.MessageElementDTO;
-import org.sigmah.shared.dto.element.QuestionElementDTO;
-import org.sigmah.shared.dto.element.ReportElementDTO;
-import org.sigmah.shared.dto.element.ReportListElementDTO;
-import org.sigmah.shared.dto.element.TextAreaElementDTO;
-import org.sigmah.shared.dto.element.TripletsListElementDTO;
+import org.sigmah.shared.dto.element.*;
 import org.sigmah.shared.dto.referential.DefaultFlexibleElementType;
 import org.sigmah.shared.dto.referential.ElementTypeEnum;
 import static org.sigmah.shared.dto.referential.ElementTypeEnum.CHECKBOX;
@@ -174,6 +149,8 @@ public final class ServerComputations {
 			type = TextAreaType.fromCode(((TextAreaElement) element).getType());
 		} else if (element instanceof CheckboxElement) {
 			type = ElementTypeEnum.CHECKBOX;
+		} else if (element instanceof ContactListElement) {
+			type = ElementTypeEnum.CONTACT_LIST;
 		} else if (element instanceof DefaultFlexibleElement) {
 			type = ((DefaultFlexibleElement) element).getType();
 		} else if (element instanceof FilesListElement) {
@@ -214,6 +191,9 @@ public final class ServerComputations {
 		switch (type.toElementTypeEnum()) {
 		case CHECKBOX:
 			dto = new CheckboxElementDTO();
+			break;
+		case CONTACT_LIST:
+			dto = new ContactListElementDTO();
 			break;
 		case COMPUTATION:
 			dto = new ComputationElementDTO();
