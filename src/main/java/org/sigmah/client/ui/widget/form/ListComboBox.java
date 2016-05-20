@@ -30,7 +30,6 @@ import com.extjs.gxt.ui.client.store.StoreEvent;
 import com.extjs.gxt.ui.client.store.StoreListener;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
-import com.extjs.gxt.ui.client.widget.form.Field;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Composite;
@@ -43,10 +42,12 @@ import com.google.gwt.user.client.ui.Widget;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.ui.res.icon.IconImageBundle;
 import org.sigmah.client.ui.widget.button.ClickableLabel;
+import org.sigmah.client.util.ClientUtils;
 
 public class ListComboBox<T extends ModelData> extends Composite {
 	private ListStore<T> dataStore = new ListStore<T>();
 	private ListStore<T> availableValuesStore = new ListStore<T>();
+	private String noAvailableValueTooltip;
 
 	private String valueField;
 	private String displayField;
@@ -85,6 +86,29 @@ public class ListComboBox<T extends ModelData> extends Composite {
 			@Override
 			public void storeDataChanged(StoreEvent<T> se) {
 				super.storeDataChanged(se);
+
+				ListComboBox.this.buildComponent();
+			}
+		});
+
+		availableValuesStore.addStoreListener(new StoreListener<T>() {
+			@Override
+			public void storeAdd(StoreEvent<T> se) {
+				super.storeAdd(se);
+
+				ListComboBox.this.buildComponent();
+			}
+
+			@Override
+			public void storeClear(StoreEvent<T> se) {
+				super.storeClear(se);
+
+				ListComboBox.this.buildComponent();
+			}
+
+			@Override
+			public void storeRemove(StoreEvent<T> se) {
+				super.storeRemove(se);
 
 				ListComboBox.this.buildComponent();
 			}
@@ -131,6 +155,10 @@ public class ListComboBox<T extends ModelData> extends Composite {
 		});
 	}
 
+	public void setNoAvailableValueTooltip(String noAvailableValueTooltip) {
+		this.noAvailableValueTooltip = noAvailableValueTooltip;
+	}
+
 	public boolean isEnabled() {
 		return enabled;
 	}
@@ -153,8 +181,8 @@ public class ListComboBox<T extends ModelData> extends Composite {
 		if (enabled) {
 			final ComboBox<T> comboBox = Forms.combobox(null, false, valueField, displayField, availableValuesStore);
 			comboBox.setStyleName("list-combobox__form__choices");
-			if (availableValuesStore.getModels().isEmpty()) {
-				comboBox.setToolTip(I18N.CONSTANTS.noAvailableProfileToAddInDefaultTeamMemberProfiles());
+			if (availableValuesStore.getModels().isEmpty() && !ClientUtils.isBlank(noAvailableValueTooltip)) {
+				comboBox.setToolTip(noAvailableValueTooltip);
 			}
 			formPanel.add(comboBox);
 

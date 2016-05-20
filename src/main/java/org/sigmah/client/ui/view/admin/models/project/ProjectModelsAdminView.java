@@ -114,6 +114,7 @@ public class ProjectModelsAdminView extends AbstractModelsAdminView<ProjectModel
 		modelTypeField = new ProjectModelTypeField(I18N.CONSTANTS.adminProjectModelType(), true, Orientation.VERTICAL);
 
 		defaultProfiles = new ListComboBox<ProfileDTO>(ProfileDTO.ID, ProfileDTO.NAME);
+		defaultProfiles.setNoAvailableValueTooltip(I18N.CONSTANTS.noAvailableProfileToAddInDefaultTeamMemberProfiles());
 		defaultProfiles.initComponent();
 		defaultProfiles.addStyleName("admin__project-models__default-team-member-profiles");
 
