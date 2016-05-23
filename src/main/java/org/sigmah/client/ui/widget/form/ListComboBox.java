@@ -210,7 +210,8 @@ public class ListComboBox<T extends ModelData> extends Composite {
 
 		FlowPanel elementsPanel = new FlowPanel();
 		elementsPanel.setStyleName("list-combobox__elements");
-		for (final T element : dataStore.getModels()) {
+		for (int i = 0; i < dataStore.getModels().size(); i++) {
+			final T element = dataStore.getModels().get(i);
 			Widget label;
 			if (enabled) {
 				label = new ClickableLabel(element.get(displayField).toString());
@@ -223,7 +224,7 @@ public class ListComboBox<T extends ModelData> extends Composite {
 					}
 				});
 			} else {
-				label = new Label(element.get(displayField).toString());
+				label = new Label(i == 0 ? element.get(displayField).toString() : ", " + element.get(displayField).toString());
 			}
 			elementsPanel.add(label);
 		}
