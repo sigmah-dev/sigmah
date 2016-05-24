@@ -1513,4 +1513,58 @@ public final class EntityConstants extends org.sigmah.shared.dto.util.EntityCons
 	public static final String VALUE_COLUMN_DATE_LAST_MODIF = "date_last_modif";
 	public static final String VALUE_COLUMN_VALUE = "value";
 
+	// --------------------------------------------------------------------------------
+	//
+	// FRAMEWORK ENTITY.
+	//
+	// --------------------------------------------------------------------------------
+
+	public static final String FRAMEWORK_TABLE = "framework";
+	public static final String FRAMEWORK_COLUMN_ID = "id_framework";
+	public static final String FRAMEWORK_COLUMN_AVAILABILITY_STATUS = "availability_status";
+	public static final String FRAMEWORK_COLUMN_IMPLEMENTATION_STATUS = "implementation_status";
+	public static final String FRAMEWORK_COLUMN_LABEL = "label";
+
+	// --------------------------------------------------------------------------------
+	//
+	// FRAMEWORK FULFILLMENT ENTITY.
+	//
+	// --------------------------------------------------------------------------------
+
+	public static final String FRAMEWORK_FULFILLMENT_TABLE = "framework_fulfillment";
+	public static final String FRAMEWORK_FULFILLMENT_COLUMN_ID = "id_framework_fulfillment";
+	public static final String FRAMEWORK_FULFILLMENT_COLUMN_REJECT_REASON = "reject_reason";
+
+	// --------------------------------------------------------------------------------
+	//
+	// FRAMEWORK HIERARCHY ENTITY.
+	//
+	// --------------------------------------------------------------------------------
+
+	public static final String FRAMEWORK_HIERARCHY_TABLE = "framework_hierarchy";
+	public static final String FRAMEWORK_HIERARCHY_COLUMN_ID = "id_framework_hierarchy";
+	public static final String FRAMEWORK_HIERARCHY_COLUMN_LABEL = "label";
+	public static final String FRAMEWORK_HIERARCHY_COLUMN_LEVEL = "level";
+	public static final String FRAMEWORK_HIERARCHY_PARENT_HIERARCHY = "parent_hierarchy";
+
+	// --------------------------------------------------------------------------------
+	//
+	// FRAMEWORK ELEMENT ENTITY.
+	//
+	// --------------------------------------------------------------------------------
+
+	public static final String FRAMEWORK_ELEMENT_TABLE = "framework_element";
+	public static final String FRAMEWORK_ELEMENT_COLUMN_ID = "id_framework_element";
+	public static final String FRAMEWORK_ELEMENT_COLUMN_LABEL = "label";
+	public static final String FRAMEWORK_ELEMENT_COLUMN_VALUE_RULE = "value_rule";
+	public static final String FRAMEWORK_ELEMENT_COLUMN_DATA_TYPE = "data_type";
+
+	// --------------------------------------------------------------------------------
+	//
+	// FRAMEWORK ELEMENT IMPLEMENTATION ENTITY.
+	//
+	// --------------------------------------------------------------------------------
+
+	public static final String FRAMEWORK_ELEMENT_IMPLEMENTATION_TABLE = "framework_element_implementation";
+	public static final String FRAMEWORK_ELEMENT_IMPLEMENTATION_COLUMN_ID = "id_framework_element_implementation";
 }

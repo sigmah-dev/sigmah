@@ -137,6 +137,9 @@ public class ProjectModel extends AbstractEntityId<Integer> implements Deleteabl
 	)
 	private List<Profile> defaultTeamMemberProfiles;
 
+	@OneToMany(mappedBy = "projectModel", cascade = CascadeType.ALL)
+	private List<FrameworkFulfillment> frameworkFulfillments;
+
 	public ProjectModel() {
 	}
 
@@ -370,5 +373,13 @@ public class ProjectModel extends AbstractEntityId<Integer> implements Deleteabl
 
 	public void setDefaultTeamMemberProfiles(List<Profile> defaultTeamMemberProfiles) {
 		this.defaultTeamMemberProfiles = defaultTeamMemberProfiles;
+	}
+
+	public List<FrameworkFulfillment> getFrameworkFulfillments() {
+		return frameworkFulfillments;
+	}
+
+	public void setFrameworkFulfillments(List<FrameworkFulfillment> frameworkFulfillments) {
+		this.frameworkFulfillments = frameworkFulfillments;
 	}
 }
