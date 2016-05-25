@@ -168,6 +168,7 @@ public class FlexibleElementsAdminView extends AbstractView implements FlexibleE
 		this.mainPanel.remove(grid);
 		createGrid(canHaveMandatoryFields, hasBanner, hasCard);
 		this.mainPanel.add(grid);
+		this.mainPanel.layout();
 	}
 // ---------------------------------------------------------------------------------------------------------------
 	//
