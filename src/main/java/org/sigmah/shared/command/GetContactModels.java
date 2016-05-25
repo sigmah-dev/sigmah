@@ -21,6 +21,9 @@ package org.sigmah.shared.command;
  * #L%
  */
 
+import java.util.Collections;
+import java.util.Set;
+
 import org.sigmah.shared.command.base.AbstractCommand;
 import org.sigmah.shared.command.result.ListResult;
 import org.sigmah.shared.dto.ContactModelDTO;
@@ -30,6 +33,7 @@ public class GetContactModels extends AbstractCommand<ListResult<ContactModelDTO
   private static final long serialVersionUID = 279291041835072569L;
 
   private ContactModelType type;
+  private Set<Integer> allowedIds;
   private boolean onlyAvailable;
 
   public GetContactModels() {
@@ -37,12 +41,21 @@ public class GetContactModels extends AbstractCommand<ListResult<ContactModelDTO
   }
 
   public GetContactModels(ContactModelType type, boolean onlyAvailable) {
+    this(type, Collections.<Integer>emptySet(), onlyAvailable);
+  }
+
+  public GetContactModels(ContactModelType type, Set<Integer> allowedIds, boolean onlyAvailable) {
     this.type = type;
+    this.allowedIds = allowedIds;
     this.onlyAvailable = onlyAvailable;
   }
 
   public ContactModelType getType() {
     return type;
+  }
+
+  public Set<Integer> getAllowedIds() {
+    return allowedIds;
   }
 
   public boolean isOnlyAvailable() {

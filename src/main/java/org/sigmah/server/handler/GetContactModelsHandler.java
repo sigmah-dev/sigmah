@@ -45,12 +45,8 @@ public class GetContactModelsHandler extends AbstractCommandHandler<GetContactMo
   @Override
   protected ListResult<ContactModelDTO> execute(GetContactModels command, UserDispatch.UserExecutionContext context) throws CommandException {
     Integer organizationId = context.getUser().getOrganization().getId();
-
-    if (command.getType() == null) {
-      return new ListResult<>(mapper().mapCollection(contactModelDAO.findByOrganization(organizationId), ContactModelDTO.class));
-    }
-
-    List<ContactModel> contactModels = contactModelDAO.findByOrganizationAndType(organizationId, command.getType(), command.isOnlyAvailable());
+    List<ContactModel> contactModels = contactModelDAO.findByOrganizationAndTypeAndIds(organizationId,
+        command.getType(), command.getAllowedIds(), command.isOnlyAvailable());
     return new ListResult<>(mapper().mapCollection(contactModels, ContactModelDTO.class, ContactModelDTO.Mode.WITHOUT_LAYOUTS));
   }
 }

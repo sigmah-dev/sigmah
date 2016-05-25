@@ -22,13 +22,13 @@ package org.sigmah.server.dao;
  */
 
 import java.util.List;
+import java.util.Set;
 
 import org.sigmah.server.dao.base.DAO;
 import org.sigmah.server.domain.ContactModel;
 import org.sigmah.shared.dto.referential.ContactModelType;
 
 public interface ContactModelDAO extends DAO<ContactModel, Integer> {
-  List<ContactModel> findByOrganization(Integer organizationId);
-
-  List<ContactModel> findByOrganizationAndType(Integer organizationId, ContactModelType type, boolean onlyAvailable);
+  List<ContactModel> findByOrganizationAndTypeAndIds(Integer organizationId, ContactModelType type,
+                                                     Set<Integer> contactModelIds, boolean onlyAvailable);
 }
