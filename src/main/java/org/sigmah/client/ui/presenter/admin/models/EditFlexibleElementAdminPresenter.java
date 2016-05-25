@@ -1301,6 +1301,7 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 		newFieldProperties.put(AdminUtil.PROP_FX_FLEXIBLE_ELEMENT, selectedElement);
 		newFieldProperties.put(AdminUtil.ADMIN_PROJECT_MODEL, currentModel);
 		newFieldProperties.put(AdminUtil.ADMIN_ORG_UNIT_MODEL, currentModel);
+		newFieldProperties.put(AdminUtil.ADMIN_CONTACT_MODEL, currentModel);
 		newFieldProperties.put(AdminUtil.PROP_FX_OLD_FIELDS, new HashMap<String, Object>());
 
 		dispatch.execute(new UpdateEntity(currentModel, newFieldProperties), new CommandResultHandler<VoidResult>() {
@@ -1509,6 +1510,7 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 		newFieldProperties.put(AdminUtil.PROP_FX_FLEXIBLE_ELEMENT, (flexibleElement != null) ? flexibleElement : new TextAreaElementDTO());
 		newFieldProperties.put(AdminUtil.ADMIN_PROJECT_MODEL, currentModel);
 		newFieldProperties.put(AdminUtil.ADMIN_ORG_UNIT_MODEL, currentModel);
+		newFieldProperties.put(AdminUtil.ADMIN_CONTACT_MODEL, currentModel);
 		newFieldProperties.put(AdminUtil.PROP_FX_OLD_FIELDS, oldFieldProperties);
 
 		// --

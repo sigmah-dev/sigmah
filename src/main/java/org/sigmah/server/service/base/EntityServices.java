@@ -41,6 +41,7 @@ import org.sigmah.server.domain.category.CategoryElement;
 import org.sigmah.server.domain.category.CategoryType;
 import org.sigmah.server.service.*;
 import org.sigmah.shared.dto.AmendmentDTO;
+import org.sigmah.shared.dto.ContactDTO;
 import org.sigmah.shared.dto.ContactModelDTO;
 import org.sigmah.shared.dto.OrgUnitModelDTO;
 import org.sigmah.shared.dto.ProjectModelDTO;
@@ -80,6 +81,7 @@ public final class EntityServices {
 		addService(Attribute.class, AttributeService.class);
 		addService(CategoryElement.class, CategoryElementService.class);
 		addService(CategoryType.class, CategoryTypeService.class);
+		addService(ContactDTO.ENTITY_NAME, ContactService.class);
 		addService(ContactModelDTO.ENTITY_NAME, ContactModelService.class);
 		addService(ImportationSchemeModelDTO.ENTITY_NAME, ImportationSchemeModelService.class);
 		addService(Indicator.class, IndicatorService.class);
