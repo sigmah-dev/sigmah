@@ -26,17 +26,22 @@ import com.extjs.gxt.ui.client.widget.Component;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import org.sigmah.client.ui.widget.form.ContactListComboBox;
 import org.sigmah.client.ui.widget.form.Forms;
+import org.sigmah.shared.command.CreateEntity;
 import org.sigmah.shared.command.GetContacts;
+import org.sigmah.shared.command.result.CreateResult;
 import org.sigmah.shared.command.result.ListResult;
 import org.sigmah.shared.command.result.ValueResult;
 import org.sigmah.shared.dto.ContactDTO;
+import org.sigmah.shared.dto.ContactModelDTO;
 import org.sigmah.shared.dto.element.event.ValueEvent;
+import org.sigmah.shared.dto.orgunit.OrgUnitDTO;
 import org.sigmah.shared.dto.referential.ContactModelType;
 import org.sigmah.shared.util.ValueResultUtils;
 
@@ -55,12 +60,44 @@ public class ContactListElementDTO extends FlexibleElementDTO {
   @Override
   @SuppressWarnings("unchecked")
   protected Component getComponent(final ValueResult valueResult, final boolean enabled) {
-    final ContactListComboBox listComboBox = new ContactListComboBox(getLimit(), getAllowedType(), getAllowedModelIds());
+    final ContactListComboBox listComboBox = new ContactListComboBox(getLimit(), getAllowedType(), getAllowedModelIds(), dispatch);
     listComboBox.setEnabled(enabled);
     listComboBox.setChangeHandler(new ContactListComboBox.ChangeHandler() {
       @Override
       public void handleChange(List<ContactDTO> contacts) {
         fireEvents(serializeValue(contacts));
+      }
+    });
+    listComboBox.setCreateContactHandler(new ContactListComboBox.CreateContactHandler() {
+      @Override
+      public void handleContactCreation(ContactModelDTO contactModelDTO, String login, String firstName, String familyName, String organizationName, OrgUnitDTO mainOrgUnit, List<OrgUnitDTO> secondaryOrgUnits) {
+        HashMap<String, Object> properties = new HashMap<String, Object>();
+        properties.put(ContactDTO.CONTACT_MODEL, contactModelDTO.getId());
+        properties.put(ContactDTO.LOGIN, login);
+        properties.put(ContactDTO.FIRSTNAME, contactModelDTO.getType() == ContactModelType.INDIVIDUAL ? firstName : null);
+        properties.put(ContactDTO.NAME, contactModelDTO.getType() == ContactModelType.INDIVIDUAL ? familyName : organizationName);
+        if (mainOrgUnit != null) {
+          properties.put(ContactDTO.MAIN_ORG_UNIT, mainOrgUnit.getId());
+        }
+        if (secondaryOrgUnits != null) {
+          HashSet<Integer> secondaryOrgUnitIds = new HashSet<Integer>();
+          for (OrgUnitDTO secondaryOrgUnit : secondaryOrgUnits) {
+            secondaryOrgUnitIds.add(secondaryOrgUnit.getId());
+          }
+          properties.put(ContactDTO.SECONDARY_ORG_UNITS, secondaryOrgUnitIds);
+        }
+
+        dispatch.execute(new CreateEntity(ContactDTO.ENTITY_NAME, properties), new AsyncCallback<CreateResult>() {
+          @Override
+          public void onFailure(Throwable caught) {
+            Log.error("Error while creating a new Contact from contact creation dialog.");
+          }
+
+          @Override
+          public void onSuccess(CreateResult result) {
+            listComboBox.getListStore().add((ContactDTO) result.getEntity());
+          }
+        });
       }
     });
 
