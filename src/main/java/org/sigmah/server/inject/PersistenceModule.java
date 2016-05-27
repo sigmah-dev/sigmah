@@ -40,6 +40,7 @@ import com.google.inject.Singleton;
 import com.google.inject.persist.jpa.JpaPersistModule;
 import org.sigmah.server.dao.PivotDAO;
 import org.sigmah.server.dao.impl.PivotHibernateDAO;
+import org.sigmah.server.domain.value.TripletValue;
 
 /**
  * Abstract module providing methods to install the DAO-layer interfaces.
@@ -108,12 +109,14 @@ public class PersistenceModule extends AbstractModule {
 		bind(ProjectDetailsDAO.class).to(ProjectDetailsHibernateDAO.class).in(Singleton.class);
 		bind(ProjectModelDAO.class).to(ProjectModelHibernateDAO.class).in(Singleton.class);
 		bind(ProjectReportDAO.class).to(ProjectReportHibernateDAO.class).in(Singleton.class);
+		bind(QuestionChoiceElementDAO.class).to(QuestionChoiceElementHibernateDAO.class).in(Singleton.class);
 		bind(ReminderDAO.class).to(ReminderHibernateDAO.class).in(Singleton.class);
 		bind(ReminderListDAO.class).to(ReminderListHibernateDAO.class).in(Singleton.class);
 		bind(ReportDefinitionDAO.class).to(ReportDefinitionHibernateDAO.class).in(Singleton.class);
 		bind(ReportingPeriodDAO.class).to(ReportingPeriodHibernateDAO.class).in(Singleton.class);
 		bind(SiteDAO.class).to(SiteHibernateDAO.class).in(Singleton.class);
 		bind(SiteTableDAO.class).to(SiteTableHibernateDAO.class).in(Singleton.class);
+		bind(TripletValueDAO.class).to(TripletValueHibernateDAO.class).in(Singleton.class);
 		bind(UserDAO.class).to(UserHibernateDAO.class).in(Singleton.class);
 		bind(UserDatabaseDAO.class).to(UserDatabaseHibernateDAO.class).in(Singleton.class);
 		bind(UserPermissionDAO.class).to(UserPermissionHibernateDAO.class).in(Singleton.class);
