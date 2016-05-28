@@ -133,6 +133,10 @@ public enum ProjectModelStatus implements Result {
 		} else if (currentStatus.equals(ProjectModelStatus.USED) && !targetStatus.equals(ProjectModelStatus.UNAVAILABLE)) {
 			// "USED" status is only allowed to shift to "UNAVAILABLE" status.
 			return new Pair<Boolean, String>(false, I18N.CONSTANTS.usedModelStatusChangeError());
+			
+		}else if (currentStatus == ProjectModelStatus.UNAVAILABLE && targetStatus == ProjectModelStatus.USED) {
+			// for #199: When "Unavailable" a project model can not be "Available" again
+			return new Pair<Boolean, String>(false, I18N.CONSTANTS.unavilableModelStatusChangeError());	
 
 		} else {
 			// Others cases are all allowed.
