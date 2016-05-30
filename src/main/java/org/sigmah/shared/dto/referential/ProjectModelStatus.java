@@ -134,7 +134,7 @@ public enum ProjectModelStatus implements Result {
 			// "USED" status is only allowed to shift to "UNAVAILABLE" status.
 			return new Pair<Boolean, String>(false, I18N.CONSTANTS.usedModelStatusChangeError());
 
-		} else if (currentStatus == ProjectModelStatus.UNDER_MAINTENANCE && targetStatus == ProjectModelStatus.DRAFT) {
+		} else if (currentStatus == ProjectModelStatus.USED && !currentModel.isUnderMaintenance() && targetStatus == ProjectModelStatus.DRAFT) {
 			return new Pair<Boolean, String>(false, I18N.CONSTANTS.usedModelStatusChangeError());
 
 		} else {
