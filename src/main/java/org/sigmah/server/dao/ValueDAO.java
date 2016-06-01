@@ -45,4 +45,5 @@ public interface ValueDAO extends DAO<Value, Integer> {
 	 */
 	List<Value> findValuesForOrgUnits(Collection<OrgUnit> orgUnits);
 
+	Value getValueByElementAndContainer(Integer elementId, Integer containerId);
 }

@@ -160,6 +160,7 @@ final class AccessRights {
 		sperm(commandToken(GetCategories.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetContact.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetContacts.class), GrantType.AUTHENTICATED_ONLY);
+		sperm(commandToken(GetContactDuplicatedProperties.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetContactModel.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetContactModelCopy.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetContactModels.class), GrantType.AUTHENTICATED_ONLY);

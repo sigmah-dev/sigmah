@@ -51,6 +51,20 @@ public class ContactService extends AbstractEntityService<Contact, Integer, Cont
 
   @Override
   public Contact create(PropertyMap properties, UserDispatch.UserExecutionContext context) throws CommandException {
+    Contact contact = generateContact(properties);
+    if (contact == null) {
+      return null;
+    }
+
+    return contactDAO.persist(contact, context.getUser());
+  }
+
+  @Override
+  public Contact update(Integer entityId, PropertyMap changes, UserDispatch.UserExecutionContext context) throws CommandException {
+    throw new UnsupportedOperationException();
+  }
+
+  public Contact generateContact(PropertyMap properties) {
     Integer contactModelId = properties.get(ContactDTO.CONTACT_MODEL);
     if (contactModelId == null) {
       return null;
@@ -82,11 +96,6 @@ public class ContactService extends AbstractEntityService<Contact, Integer, Cont
       contact.setSecondaryOrgUnits(orgUnitDAO.findByIds(secondaryOrgUnitIds));
     }
     contact.setDateCreated(new Date());
-    return contactDAO.persist(contact, context.getUser());
-  }
-
-  @Override
-  public Contact update(Integer entityId, PropertyMap changes, UserDispatch.UserExecutionContext context) throws CommandException {
-    throw new UnsupportedOperationException();
+    return contact;
   }
 }

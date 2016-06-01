@@ -25,6 +25,7 @@ package org.sigmah.server.dao.impl;
 import java.util.Collection;
 import java.util.List;
 
+import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -69,4 +70,15 @@ public class ValueHibernateDAO extends AbstractDAO<Value, Integer> implements Va
 		return query.getResultList();
 	}
 
+	@Override
+	public Value getValueByElementAndContainer(Integer elementId, Integer containerId) {
+		try {
+			return em().createQuery("SELECT v FROM Value v WHERE v.element.id = :elementId AND v.containerId = :containerId", Value.class)
+					.setParameter("elementId", elementId)
+					.setParameter("containerId", containerId)
+					.getSingleResult();
+		} catch (NoResultException e) {
+			return null;
+		}
+	}
 }

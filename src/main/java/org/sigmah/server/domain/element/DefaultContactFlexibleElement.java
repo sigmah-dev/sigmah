@@ -21,14 +21,20 @@ package org.sigmah.server.domain.element;
  * #L%
  */
 
+import java.text.SimpleDateFormat;
+import java.util.List;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Table;
 
+import org.sigmah.server.domain.Contact;
+import org.sigmah.server.domain.OrgUnit;
 import org.sigmah.server.domain.util.EntityConstants;
 import org.sigmah.shared.dto.referential.DefaultContactFlexibleElementType;
+import org.sigmah.shared.util.ValueResultUtils;
 
 @Entity
 @Table(name = EntityConstants.DEFAULT_CONTACT_FLEXIBLE_ELEMENT_TABLE)
@@ -45,5 +51,119 @@ public class DefaultContactFlexibleElement extends FlexibleElement {
 
   public void setType(DefaultContactFlexibleElementType type) {
     this.type = type;
+  }
+
+  public String getFormattedValue(Contact contact) {
+    switch (type) {
+      case COUNTRY:
+        if (contact.getCountry() == null) {
+          return null;
+        }
+        return contact.getCountry().getName();
+      case CREATION_DATE:
+        return SimpleDateFormat.getDateTimeInstance().format(contact.getDateCreated());
+      case DIRECT_MEMBERSHIP:
+        if (contact.getParent() == null) {
+          return null;
+        }
+        return contact.getParent().getFullName();
+      case EMAIL_ADDRESS:
+        return contact.getEmail();
+      case FAMILY_NAME:
+        return contact.getName();
+      case FIRST_NAME:
+        return contact.getFirstname();
+      case LOGIN:
+        return contact.getLogin();
+      case MAIN_ORG_UNIT:
+        if (contact.getMainOrgUnit() == null) {
+          return null;
+        }
+        return contact.getMainOrgUnit().getFullName();
+      case ORGANIZATION_NAME:
+        return contact.getName();
+      case PHONE_NUMBER:
+        return contact.getPhoneNumber();
+      case PHOTO:
+        return contact.getPhoto();
+      case POSTAL_ADDRESS:
+        return contact.getPostalAddress();
+      case SECONDARY_ORG_UNITS:
+        if (contact.getSecondaryOrgUnits() == null) {
+          return null;
+        }
+        StringBuilder stringBuilder = new StringBuilder();
+        for (int i = 0; i < contact.getSecondaryOrgUnits().size(); i++) {
+          if (i != 0) {
+            stringBuilder.append(", ");
+          }
+          stringBuilder.append(contact.getSecondaryOrgUnits().get(i).getFullName());
+        }
+        return stringBuilder.toString();
+      case TOP_MEMBERSHIP:
+        if (contact.getRoot() == null) {
+          return null;
+        }
+        return contact.getRoot().getFullName();
+      default:
+        throw new IllegalStateException();
+    }
+  }
+
+  public String getSerializedValue(Contact contact) {
+    switch (type) {
+      case COUNTRY:
+        if (contact.getCountry() == null) {
+          return null;
+        }
+        return String.valueOf(contact.getCountry().getId());
+      case CREATION_DATE:
+        return String.valueOf(contact.getDateCreated().getTime());
+      case DIRECT_MEMBERSHIP:
+        if (contact.getParent() == null) {
+          return null;
+        }
+        return String.valueOf(contact.getParent().getId());
+      case EMAIL_ADDRESS:
+        return contact.getEmail();
+      case FAMILY_NAME:
+        return contact.getName();
+      case FIRST_NAME:
+        return contact.getFirstname();
+      case LOGIN:
+        return contact.getLogin();
+      case MAIN_ORG_UNIT:
+        if (contact.getMainOrgUnit() == null) {
+          return null;
+        }
+        return String.valueOf(contact.getMainOrgUnit().getId());
+      case ORGANIZATION_NAME:
+        return contact.getName();
+      case PHONE_NUMBER:
+        return contact.getPhoneNumber();
+      case PHOTO:
+        return contact.getPhoto();
+      case POSTAL_ADDRESS:
+        return contact.getPostalAddress();
+      case SECONDARY_ORG_UNITS:
+        if (contact.getSecondaryOrgUnits() == null) {
+          return null;
+        }
+        StringBuilder stringBuilder = new StringBuilder();
+        for (int i = 0; i < contact.getSecondaryOrgUnits().size(); i++) {
+          if (i != 0) {
+            stringBuilder.append(ValueResultUtils.DEFAULT_VALUE_SEPARATOR);
+          }
+          stringBuilder.append(contact.getSecondaryOrgUnits().get(i).getId());
+        }
+        return stringBuilder.toString();
+      case TOP_MEMBERSHIP:
+        if (contact.getRoot() == null) {
+          return null;
+        }
+        return String.valueOf(contact.getRoot().getId());
+      default:
+        throw new IllegalStateException();
+    }
   }
 }
