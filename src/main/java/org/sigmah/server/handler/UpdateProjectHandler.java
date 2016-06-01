@@ -49,6 +49,7 @@ import org.sigmah.shared.dto.element.DefaultFlexibleElementDTO;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
 import org.sigmah.shared.dto.element.event.ValueEventWrapper;
 import org.sigmah.shared.dto.referential.DefaultFlexibleElementType;
+import org.sigmah.shared.dto.referential.ProjectModelStatus;
 import org.sigmah.shared.dto.referential.ValueEventChangeType;
 import org.sigmah.shared.dto.value.TripletValueDTO;
 import org.sigmah.shared.util.ValueResultUtils;
@@ -730,8 +731,27 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 			return conflicts;
 		}
 
+		Integer projectOrgUnitId = null;
+		if (project.getOrgUnit() == null) {
+			// The project should be a draft project
+			// Let's verify it
+			if (project.getProjectModel().getStatus() != ProjectModelStatus.DRAFT) {
+				LOG.error("Project {} doesn't have an OrgUnit.", project.getId());
+			} else if (context.getUser().getMainOrgUnitWithProfiles() == null) {
+				LOG.error("User {} doesn't have a main org unit.", context.getUser().getId());
+			} else {
+				// Let's get the main org unit from the user
+				projectOrgUnitId = context.getUser().getMainOrgUnitWithProfiles().getOrgUnit().getId();
+			}
+		} else {
+			projectOrgUnitId = project.getOrgUnit().getId();
+		}
+
 		final Language language = context.getLanguage();
-		final ProfileDTO profile = Handlers.aggregateProfiles(context.getUser(), mapper).get(project.getOrgUnit().getId());
+		ProfileDTO profile = null;
+		if (projectOrgUnitId != null) {
+			profile = Handlers.aggregateProfiles(context.getUser(), mapper).get(projectOrgUnitId);
+		}
 
 		if (project.getProjectModel().isUnderMaintenance()) {
 			// BUGFIX #730: Verifying the maintenance status of projects.
