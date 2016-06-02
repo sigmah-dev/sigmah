@@ -84,10 +84,12 @@ public class PersistenceModule extends AbstractModule {
 		bind(ContactModelDAO.class).to(ContactModelHibernateDAO.class).in(Singleton.class);
 		bind(CountryDAO.class).to(CountryHibernateDAO.class).in(Singleton.class);
 		bind(FileDAO.class).to(FileHibernateDAO.class).in(Singleton.class);
+		bind(FlexibleElementDAO.class).to(FlexibleElementHibernateDAO.class).in(Singleton.class);
 		bind(FrameworkDAO.class).to(FrameworkHibernateDAO.class).in(Singleton.class);
 		bind(FrameworkFulfillmentDAO.class).to(FrameworkFulfillmentHibernateDAO.class).in(Singleton.class);
 		bind(GlobalExportDAO.class).to(GlobalExportHibernateDAO.class).in(Singleton.class);
 		bind(GlobalExportSettingsDAO.class).to(GlobalExportSettingsHibernateDAO.class).in(Singleton.class);
+		bind(HistoryTokenDAO.class).to(HistoryTokenHibernateDAO.class).in(Singleton.class);
 		bind(IndicatorDAO.class).to(IndicatorHibernateDAO.class).in(Singleton.class);
 		bind(LocationDAO.class).to(LocationHibernateDAO.class).in(Singleton.class);
 		bind(LocationTypeDAO.class).to(LocationTypeHibernateDAO.class).in(Singleton.class);

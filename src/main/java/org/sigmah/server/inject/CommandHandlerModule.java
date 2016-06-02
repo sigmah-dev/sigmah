@@ -59,6 +59,7 @@ public class CommandHandlerModule extends AbstractCommandHandlerModule {
 		bindHandler(CreateEntity.class, CreateEntityHandler.class);
 		bindHandler(CopyLogFrame.class, CopyLogFrameHandler.class);
 		bindHandler(DeactivateUsers.class, DeactivateUsersHandler.class);
+		bindHandler(DedupeContact.class, DedupeContactHandler.class);
 		bindHandler(DisableFlexibleElements.class, DisableFlexibleElementsHandler.class);
 		bindHandler(DeleteCategories.class, DeleteCategoriesHandler.class);
 		bindHandler(DeleteFlexibleElements.class, DeleteFlexibleElementsHandler.class);
