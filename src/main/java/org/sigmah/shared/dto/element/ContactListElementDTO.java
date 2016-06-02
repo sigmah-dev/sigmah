@@ -37,6 +37,8 @@ import java.util.Set;
 
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.dispatch.monitor.LoadingMask;
+import org.sigmah.client.page.Page;
+import org.sigmah.client.page.RequestParameter;
 import org.sigmah.client.ui.widget.contact.DedupeContactDialog;
 import org.sigmah.client.ui.widget.form.ContactListComboBox;
 import org.sigmah.client.ui.widget.form.Forms;
@@ -44,6 +46,7 @@ import org.sigmah.client.ui.widget.form.ListComboBox;
 import org.sigmah.offline.sync.SuccessCallback;
 import org.sigmah.shared.command.CheckContactDuplication;
 import org.sigmah.shared.command.CreateEntity;
+import org.sigmah.shared.command.DedupeContact;
 import org.sigmah.shared.command.GetContactDuplicatedProperties;
 import org.sigmah.shared.command.GetContacts;
 import org.sigmah.shared.command.result.ContactDuplicatedProperty;
@@ -134,8 +137,14 @@ public class ContactListElementDTO extends FlexibleElementDTO {
               }
 
               @Override
-              public void handleDedupeContact(Integer targetedContactId, List<ContactDuplicatedProperty> selectedProperties) {
-                // TODO
+              public void handleDedupeContact(final Integer targetedContactId, List<ContactDuplicatedProperty> selectedProperties) {
+                dispatch.execute(new DedupeContact(selectedProperties, targetedContactId), new CommandResultHandler<ContactDTO>() {
+                  @Override
+                  protected void onCommandSuccess(ContactDTO targetedContactDTO) {
+                    dedupeContactDialog.hide();
+                    eventBus.navigateRequest(Page.CONTACT_DASHBOARD.requestWith(RequestParameter.ID, targetedContactId));
+                  }
+                });
               }
             });
             dedupeContactDialog.show();

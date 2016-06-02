@@ -21,13 +21,18 @@ package org.sigmah.client.ui.widget.contact;
  * #L%
  */
 
+import com.google.gwt.event.logical.shared.ValueChangeEvent;
+import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.extjs.gxt.ui.client.Style;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.FieldEvent;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.event.WidgetListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
@@ -41,6 +46,7 @@ import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.layout.CardLayout;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -50,6 +56,8 @@ import org.sigmah.client.ui.widget.form.Forms;
 import org.sigmah.client.ui.widget.layout.Layouts;
 import org.sigmah.shared.command.result.ContactDuplicatedProperty;
 import org.sigmah.shared.dto.ContactDTO;
+import org.sigmah.shared.dto.element.event.ValueEvent;
+import org.sigmah.shared.dto.element.event.ValueHandler;
 
 public class DedupeContactDialog extends Window {
   private final boolean createContact;
@@ -61,6 +69,9 @@ public class DedupeContactDialog extends Window {
   private LayoutContainer secondStepContainer;
   private CardLayout cardLayout;
 
+  private List<ContactDuplicatedProperty> selectedProperties = new ArrayList<ContactDuplicatedProperty>();
+
+  private ContactDTO selectedContact;
   private SecondStepHandler secondStepHandler;
 
   public DedupeContactDialog(boolean createContact) {
@@ -127,10 +138,19 @@ public class DedupeContactDialog extends Window {
   }
 
   private Button generateFirstStepMainButton() {
+    Button button;
     if (createContact) {
-      return new Button(I18N.CONSTANTS.dedupeContactCreateNewButton());
+      button = new Button(I18N.CONSTANTS.dedupeContactCreateNewButton());
+    } else {
+      button = new Button(I18N.CONSTANTS.dedupeContactUpdateIndependently());
     }
-    return new Button(I18N.CONSTANTS.dedupeContactUpdateIndependently());
+    button.addSelectionListener(new SelectionListener<ButtonEvent>() {
+      @Override
+      public void componentSelected(ButtonEvent ce) {
+        secondStepHandler.handleDedupeContact(selectedContact.getId(), selectedProperties);
+      }
+    });
+    return button;
   }
 
   private Grid<ContactDTO> generatePossibleDuplicatesGrid() {
@@ -147,6 +167,7 @@ public class DedupeContactDialog extends Window {
           public void componentSelected(ButtonEvent ce) {
             cardLayout.setActiveItem(secondStepContainer);
             secondStepHandler.initialize(contact.getId(), duplicatedPropertiesGrid.getStore());
+            selectedContact = contact;
           }
         });
 
@@ -164,11 +185,26 @@ public class DedupeContactDialog extends Window {
     selectColumn.setRenderer(new GridCellRenderer<ContactDuplicatedProperty>() {
       @Override
       public Object render(final ContactDuplicatedProperty contactDuplicatedProperty, String property, ColumnData config, int rowIndex, int colIndex, ListStore store, Grid grid) {
-        CheckBox checkbox = Forms.checkbox(null);
-        checkbox.addListener(Events.Change, new SelectionListener<ComponentEvent>() {
+        final CheckBox checkbox = Forms.checkbox(null);
+        checkbox.addHandler(new ValueChangeHandler<Boolean>() {
           @Override
-          public void componentSelected(ComponentEvent ce) {
-            // TODO
+          public void onValueChange(ValueChangeEvent<Boolean> event) {
+            if (event.getValue()) {
+              selectedProperties.add(contactDuplicatedProperty);
+            } else {
+              selectedProperties.remove(contactDuplicatedProperty);
+            }
+          }
+        }, ValueChangeEvent.getType());
+        checkbox.addListener(Events.OnClick, new Listener<FieldEvent>() {
+
+          @Override
+          public void handleEvent(FieldEvent event) {
+            if (checkbox.getValue()) {
+              selectedProperties.add(contactDuplicatedProperty);
+            } else {
+              selectedProperties.remove(contactDuplicatedProperty);
+            }
           }
         });
         return checkbox;

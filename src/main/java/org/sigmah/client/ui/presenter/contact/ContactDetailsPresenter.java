@@ -49,6 +49,8 @@ import org.sigmah.client.dispatch.DispatchQueue;
 import org.sigmah.client.dispatch.monitor.LoadingMask;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.inject.Injector;
+import org.sigmah.client.page.Page;
+import org.sigmah.client.page.RequestParameter;
 import org.sigmah.client.ui.notif.N10N;
 import org.sigmah.client.ui.presenter.base.AbstractPresenter;
 import org.sigmah.client.ui.view.base.ViewInterface;
@@ -56,10 +58,12 @@ import org.sigmah.client.ui.view.contact.ContactDetailsView;
 import org.sigmah.client.ui.widget.button.Button;
 import org.sigmah.client.ui.widget.contact.DedupeContactDialog;
 import org.sigmah.client.ui.widget.form.Forms;
+import org.sigmah.client.util.AdminUtil;
 import org.sigmah.client.util.ClientUtils;
 import org.sigmah.client.util.ImageProvider;
 import org.sigmah.offline.sync.SuccessCallback;
 import org.sigmah.shared.command.CheckContactDuplication;
+import org.sigmah.shared.command.DedupeContact;
 import org.sigmah.shared.command.GetContact;
 import org.sigmah.shared.command.GetContactDuplicatedProperties;
 import org.sigmah.shared.command.GetCountry;
@@ -253,7 +257,7 @@ public class ContactDetailsPresenter extends AbstractPresenter<ContactDetailsPre
     view.getSaveButton().removeAllListeners();
     view.getSaveButton().addSelectionListener(new SelectionListener<ButtonEvent>() {
       @Override
-      public void componentSelected(ButtonEvent buttonEvent) {
+      public void componentSelected(final ButtonEvent buttonEvent) {
         view.getSaveButton().disable();
 
         dispatch.execute(buildCheckContactDuplicationCommand(contactDTO), new CommandResultHandler<ListResult<ContactDTO>>() {
@@ -310,8 +314,14 @@ public class ContactDetailsPresenter extends AbstractPresenter<ContactDetailsPre
               }
 
               @Override
-              public void handleDedupeContact(Integer targetedContactId, List<ContactDuplicatedProperty> selectedProperties) {
-                // TODO
+              public void handleDedupeContact(final Integer targetedContactId, List<ContactDuplicatedProperty> selectedProperties) {
+                dispatch.execute(new DedupeContact(selectedProperties, contactDTO.getId(), targetedContactId), new CommandResultHandler<ContactDTO>() {
+                  @Override
+                  protected void onCommandSuccess(ContactDTO targetedContactDTO) {
+                    dedupeContactDialog.hide();
+                    eventBus.navigateRequest(Page.CONTACT_DASHBOARD.requestWith(RequestParameter.ID, targetedContactId));
+                  }
+                });
               }
             });
             dedupeContactDialog.addWindowListener(new WindowListener() {
