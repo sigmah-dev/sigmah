@@ -22,6 +22,9 @@ package org.sigmah.shared.dto.element;
  */
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Component;
 
 import java.util.ArrayList;
@@ -31,8 +34,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.sigmah.client.ui.widget.contact.DedupeContactDialog;
 import org.sigmah.client.ui.widget.form.ContactListComboBox;
 import org.sigmah.client.ui.widget.form.Forms;
+import org.sigmah.client.ui.widget.form.ListComboBox;
+import org.sigmah.shared.command.CheckContactDuplication;
 import org.sigmah.shared.command.CreateEntity;
 import org.sigmah.shared.command.GetContacts;
 import org.sigmah.shared.command.result.CreateResult;
@@ -70,34 +76,40 @@ public class ContactListElementDTO extends FlexibleElementDTO {
     });
     listComboBox.setCreateContactHandler(new ContactListComboBox.CreateContactHandler() {
       @Override
-      public void handleContactCreation(ContactModelDTO contactModelDTO, String login, String firstName, String familyName, String organizationName, OrgUnitDTO mainOrgUnit, List<OrgUnitDTO> secondaryOrgUnits) {
-        HashMap<String, Object> properties = new HashMap<String, Object>();
-        properties.put(ContactDTO.CONTACT_MODEL, contactModelDTO.getId());
-        properties.put(ContactDTO.LOGIN, login);
-        properties.put(ContactDTO.FIRSTNAME, contactModelDTO.getType() == ContactModelType.INDIVIDUAL ? firstName : null);
-        properties.put(ContactDTO.NAME, contactModelDTO.getType() == ContactModelType.INDIVIDUAL ? familyName : organizationName);
-        if (mainOrgUnit != null) {
-          properties.put(ContactDTO.MAIN_ORG_UNIT, mainOrgUnit.getId());
+      public void handleContactCreation(final ContactModelDTO contactModelDTO, final String login, final String firstName, final String familyName, final String organizationName, final OrgUnitDTO mainOrgUnit, final List<OrgUnitDTO> secondaryOrgUnits) {
+        CheckContactDuplication checkContactDuplication;
+        if (contactModelDTO.getType() == ContactModelType.INDIVIDUAL) {
+          checkContactDuplication = new CheckContactDuplication(null, null, familyName, firstName);
+        } else {
+          checkContactDuplication = new CheckContactDuplication(null, null, familyName, null);
         }
-        if (secondaryOrgUnits != null) {
-          HashSet<Integer> secondaryOrgUnitIds = new HashSet<Integer>();
-          for (OrgUnitDTO secondaryOrgUnit : secondaryOrgUnits) {
-            secondaryOrgUnitIds.add(secondaryOrgUnit.getId());
-          }
-          properties.put(ContactDTO.SECONDARY_ORG_UNITS, secondaryOrgUnitIds);
-        }
-
-        dispatch.execute(new CreateEntity(ContactDTO.ENTITY_NAME, properties), new AsyncCallback<CreateResult>() {
+        dispatch.execute(checkContactDuplication, new AsyncCallback<ListResult<ContactDTO>>() {
           @Override
           public void onFailure(Throwable caught) {
-            Log.error("Error while creating a new Contact from contact creation dialog.");
+            Log.error("Error while checking contact duplicates.");
           }
 
           @Override
-          public void onSuccess(CreateResult result) {
-            listComboBox.getListStore().add((ContactDTO) result.getEntity());
+          public void onSuccess(ListResult<ContactDTO> result) {
+            final HashMap<String, Object> properties = buildPropertyMap(contactModelDTO, login, firstName, familyName, organizationName, mainOrgUnit, secondaryOrgUnits);
+            if (result == null || result.getSize() == 0) {
+              createEntity(properties, listComboBox);
+              return;
+            }
+
+            final DedupeContactDialog dedupeContactDialog = new DedupeContactDialog(true);
+            dedupeContactDialog.getPossibleDuplicatesGrid().getStore().add(result.getList());
+            dedupeContactDialog.getFirstStepMainButton().addSelectionListener(new SelectionListener<ButtonEvent>() {
+              @Override
+              public void componentSelected(ButtonEvent ce) {
+                createEntity(properties, listComboBox);
+                dedupeContactDialog.hide();
+              }
+            });
+            dedupeContactDialog.show();
           }
         });
+
       }
     });
 
@@ -191,6 +203,39 @@ public class ContactListElementDTO extends FlexibleElementDTO {
       builder.append(contacts.get(i).getId());
     }
     return builder.toString();
+  }
+
+  private void createEntity(HashMap<String, Object> properties, final ListComboBox<ContactDTO> listComboBox) {
+    dispatch.execute(new CreateEntity(ContactDTO.ENTITY_NAME, properties), new AsyncCallback<CreateResult>() {
+      @Override
+      public void onFailure(Throwable caught) {
+        Log.error("Error while creating a new Contact from contact creation dialog.");
+      }
+
+      @Override
+      public void onSuccess(CreateResult result) {
+        listComboBox.getListStore().add((ContactDTO) result.getEntity());
+      }
+    });
+  }
+
+  private HashMap<String, Object> buildPropertyMap(ContactModelDTO contactModelDTO, String login, String firstName, String familyName, String organizationName, OrgUnitDTO mainOrgUnit, List<OrgUnitDTO> secondaryOrgUnits) {
+    HashMap<String, Object> properties = new HashMap<String, Object>();
+    properties.put(ContactDTO.CONTACT_MODEL, contactModelDTO.getId());
+    properties.put(ContactDTO.LOGIN, login);
+    properties.put(ContactDTO.FIRSTNAME, contactModelDTO.getType() == ContactModelType.INDIVIDUAL ? firstName : null);
+    properties.put(ContactDTO.NAME, contactModelDTO.getType() == ContactModelType.INDIVIDUAL ? familyName : organizationName);
+    if (mainOrgUnit != null) {
+      properties.put(ContactDTO.MAIN_ORG_UNIT, mainOrgUnit.getId());
+    }
+    if (secondaryOrgUnits != null) {
+      HashSet<Integer> secondaryOrgUnitIds = new HashSet<Integer>();
+      for (OrgUnitDTO secondaryOrgUnit : secondaryOrgUnits) {
+        secondaryOrgUnitIds.add(secondaryOrgUnit.getId());
+      }
+      properties.put(ContactDTO.SECONDARY_ORG_UNITS, secondaryOrgUnitIds);
+    }
+    return properties;
   }
 
   private void fireEvents(String value) {

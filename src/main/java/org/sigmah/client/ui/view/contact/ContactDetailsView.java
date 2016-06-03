@@ -34,6 +34,7 @@ import org.sigmah.client.ui.presenter.contact.ContactDetailsPresenter;
 import org.sigmah.client.ui.res.icon.IconImageBundle;
 import org.sigmah.client.ui.view.base.AbstractView;
 import org.sigmah.client.ui.widget.button.Button;
+import org.sigmah.client.ui.widget.contact.DedupeContactDialog;
 import org.sigmah.client.ui.widget.form.Forms;
 import org.sigmah.client.ui.widget.layout.Layouts;
 import org.sigmah.client.ui.widget.panel.Panels;
@@ -74,5 +75,10 @@ public class ContactDetailsView extends AbstractView implements ContactDetailsPr
   @Override
   public Button getSaveButton() {
     return saveButton;
+  }
+
+  @Override
+  public DedupeContactDialog generateDedupeDialog() {
+    return new DedupeContactDialog(false);
   }
 }

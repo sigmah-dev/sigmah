@@ -33,8 +33,10 @@ import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
-import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.event.WindowEvent;
+import com.extjs.gxt.ui.client.event.WindowListener;
+import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
@@ -55,14 +57,16 @@ import org.sigmah.client.ui.notif.N10N;
 import org.sigmah.client.ui.presenter.base.AbstractPresenter;
 import org.sigmah.client.ui.view.base.ViewInterface;
 import org.sigmah.client.ui.view.contact.ContactDetailsView;
-import org.sigmah.client.ui.view.contact.ContactView;
 import org.sigmah.client.ui.widget.button.Button;
+import org.sigmah.client.ui.widget.contact.DedupeContactDialog;
 import org.sigmah.client.ui.widget.form.Forms;
 import org.sigmah.client.util.ClientUtils;
+import org.sigmah.shared.command.CheckContactDuplication;
 import org.sigmah.shared.command.GetContact;
 import org.sigmah.shared.command.GetCountry;
 import org.sigmah.shared.command.GetValue;
 import org.sigmah.shared.command.UpdateContact;
+import org.sigmah.shared.command.result.ListResult;
 import org.sigmah.shared.command.result.ValueResult;
 import org.sigmah.shared.command.result.VoidResult;
 import org.sigmah.shared.dto.ContactDTO;
@@ -74,6 +78,7 @@ import org.sigmah.shared.dto.element.event.ValueHandler;
 import org.sigmah.shared.dto.layout.LayoutConstraintDTO;
 import org.sigmah.shared.dto.layout.LayoutDTO;
 import org.sigmah.shared.dto.layout.LayoutGroupDTO;
+import org.sigmah.shared.dto.referential.DefaultContactFlexibleElementType;
 import org.sigmah.shared.dto.referential.ElementTypeEnum;
 import org.sigmah.shared.servlet.ServletConstants;
 import org.sigmah.shared.servlet.ServletRequestBuilder;
@@ -86,6 +91,8 @@ public class ContactDetailsPresenter extends AbstractPresenter<ContactDetailsPre
     LayoutContainer getDetailsContainer();
 
     Button getSaveButton();
+
+    DedupeContactDialog generateDedupeDialog();
 
     void fillContainer(final Widget widget);
   }
@@ -268,38 +275,47 @@ public class ContactDetailsPresenter extends AbstractPresenter<ContactDetailsPre
     view.getSaveButton().removeAllListeners();
     view.getSaveButton().addSelectionListener(new SelectionListener<ButtonEvent>() {
       @Override
-      public void componentSelected(ButtonEvent event) {
-        view.getSaveButton().addListener(Events.OnClick, new Listener<ButtonEvent>() {
+      public void componentSelected(ButtonEvent buttonEvent) {
+        view.getSaveButton().disable();
 
+        dispatch.execute(buildCheckContactDuplicationCommand(contactDTO), new CommandResultHandler<ListResult<ContactDTO>>() {
           @Override
-          public void handleEvent(ButtonEvent be) {
-
-            view.getSaveButton().disable();
-
-            dispatch.execute(new UpdateContact(contactDTO.getId(), valueChanges), new CommandResultHandler<VoidResult>() {
-
-              @Override
-              protected void onCommandFailure(final Throwable caught) {
-                N10N.error(I18N.CONSTANTS.save(), I18N.CONSTANTS.saveError());
-              }
-
-              @Override
-              protected void onCommandSuccess(final VoidResult result) {
-
-                N10N.infoNotif(I18N.CONSTANTS.infoConfirmation(), I18N.CONSTANTS.saveConfirm());
-
-                // Checks if there is any update needed to the local project instance.
-                for (final ValueEvent event : valueChanges) {
-                  if (event.getSource() instanceof DefaultContactFlexibleElementDTO) {
-                    updateCurrentContact(contactDTO, (DefaultContactFlexibleElementDTO) event.getSource(), event.getSingleValue());
-                  }
+          protected void onCommandSuccess(ListResult<ContactDTO> result) {
+            if (result == null || result.isEmpty()) {
+              updateContact(contactDTO, new CommandResultHandler<ContactDTO>() {
+                @Override
+                protected void onCommandSuccess(ContactDTO updatedContactDTO) {
+                  view.getSaveButton().enable();
                 }
+              }, view.getDetailsContainer());
 
-                valueChanges.clear();
+              return;
+            }
 
+            final DedupeContactDialog dedupeContactDialog = view.generateDedupeDialog();
+            dedupeContactDialog.getPossibleDuplicatesGrid().getStore().add(result.getList());
+            dedupeContactDialog.getFirstStepMainButton().addSelectionListener(new SelectionListener<ButtonEvent>() {
+              @Override
+              public void componentSelected(ButtonEvent ce) {
+                updateContact(contactDTO, new CommandResultHandler<ContactDTO>() {
+                  @Override
+                  protected void onCommandSuccess(ContactDTO result) {
+                    dedupeContactDialog.hide();
+                  }
+                }, view.getDetailsContainer());
               }
-            }, view.getSaveButton(), new LoadingMask(view.getDetailsContainer()));
+            });
+            dedupeContactDialog.addWindowListener(new WindowListener() {
+              @Override
+              public void windowHide(WindowEvent windowEvent) {
+                super.windowHide(windowEvent);
 
+                if (windowEvent.getType() == Events.Hide) {
+                  view.getSaveButton().enable();
+                }
+              }
+            });
+            dedupeContactDialog.show();
           }
         });
       }
@@ -309,6 +325,59 @@ public class ContactDetailsPresenter extends AbstractPresenter<ContactDetailsPre
 
     formPanel.add(gridLayout);
     view.fillContainer(formPanel);
+  }
+
+  private CheckContactDuplication buildCheckContactDuplicationCommand(ContactDTO contactDTO) {
+    CheckContactDuplication checkDuplicationCommand;
+
+    String currentEmail = getCurrentSingleValue(DefaultContactFlexibleElementType.EMAIL_ADDRESS, contactDTO.getEmail());
+    switch (contactDTO.getContactModel().getType()) {
+      case INDIVIDUAL:
+        String currentFamilyName = getCurrentSingleValue(DefaultContactFlexibleElementType.FAMILY_NAME, contactDTO.getFamilyName());
+        String currentFirstName = getCurrentSingleValue(DefaultContactFlexibleElementType.FIRST_NAME, contactDTO.getFirstname());
+        checkDuplicationCommand = new CheckContactDuplication(contactDTO.getId(), currentEmail, currentFamilyName, currentFirstName);
+        break;
+      case ORGANIZATION:
+        String currentOrganizationName = getCurrentSingleValue(DefaultContactFlexibleElementType.ORGANIZATION_NAME, contactDTO.getOrganizationName());
+        checkDuplicationCommand = new CheckContactDuplication(contactDTO.getId(), currentEmail, currentOrganizationName, null);
+        break;
+      default:
+        throw new IllegalStateException();
+    }
+    return checkDuplicationCommand;
+  }
+
+  private void updateContact(final ContactDTO contactDTO, final AsyncCallback<ContactDTO> callback, Component target) {
+    dispatch.execute(new UpdateContact(contactDTO.getId(), valueChanges), new CommandResultHandler<VoidResult>() {
+
+      @Override
+      protected void onCommandFailure(final Throwable caught) {
+        N10N.error(I18N.CONSTANTS.save(), I18N.CONSTANTS.saveError());
+
+        if (callback != null) {
+          callback.onFailure(caught);
+        }
+      }
+
+      @Override
+      protected void onCommandSuccess(final VoidResult result) {
+
+        N10N.infoNotif(I18N.CONSTANTS.infoConfirmation(), I18N.CONSTANTS.saveConfirm());
+
+        // Checks if there is any update needed to the local project instance.
+        for (final ValueEvent event : valueChanges) {
+          if (event.getSource() instanceof DefaultContactFlexibleElementDTO) {
+            updateCurrentContact(contactDTO, (DefaultContactFlexibleElementDTO) event.getSource(), event.getSingleValue());
+          }
+        }
+
+        valueChanges.clear();
+
+        if (callback != null) {
+          callback.onSuccess(contactDTO);
+        }
+      }
+    }, view.getSaveButton(), new LoadingMask(view.getDetailsContainer()), new LoadingMask(target));
   }
 
   private void updateCurrentContact(final ContactDTO contactDTO, DefaultContactFlexibleElementDTO element, String value) {
@@ -385,5 +454,21 @@ public class ContactDetailsPresenter extends AbstractPresenter<ContactDetailsPre
       default:
         throw new IllegalStateException();
     }
+  }
+
+  private String getCurrentSingleValue(DefaultContactFlexibleElementType type, String oldValue) {
+    String singleValue = oldValue;
+
+    for (ValueEvent valueChange : valueChanges) {
+      if (!(valueChange.getSourceElement() instanceof DefaultContactFlexibleElementDTO)) {
+        continue;
+      }
+      if (((DefaultContactFlexibleElementDTO) valueChange.getSourceElement()).getType() != type) {
+        continue;
+      }
+      singleValue = valueChange.getSingleValue();
+    }
+
+    return singleValue;
   }
 }

@@ -23,7 +23,6 @@ package org.sigmah.client.ui.widget.contact;
 
 import com.google.gwt.user.client.ui.Label;
 import com.extjs.gxt.ui.client.Style;
-import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
@@ -38,6 +37,7 @@ import com.extjs.gxt.ui.client.widget.layout.CardLayout;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 
 import java.util.Arrays;
+import java.util.List;
 
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.ui.widget.button.Button;
@@ -50,6 +50,7 @@ public class DedupeContactDialog extends Window {
 
   private Grid<ContactDTO> possibleDuplicatesGrid;
   private Button firstStepMainButton;
+  private CardLayout cardLayout;
 
   public DedupeContactDialog(boolean createContact) {
     super();
@@ -86,7 +87,7 @@ public class DedupeContactDialog extends Window {
 
     // TODO: Create second step container
 
-    CardLayout cardLayout = new CardLayout();
+    cardLayout = new CardLayout();
     LayoutContainer mainContainer = new LayoutContainer(cardLayout);
     mainContainer.add(firstStepContainer);
     cardLayout.setActiveItem(firstStepContainer);
@@ -112,9 +113,9 @@ public class DedupeContactDialog extends Window {
     ColumnConfig emailColumn = new ColumnConfig(ContactDTO.EMAIL, I18N.CONSTANTS.email(), 250);
     ColumnConfig actionsColumn = new ColumnConfig();
     actionsColumn.setWidth(100);
-    actionsColumn.setRenderer(new GridCellRenderer() {
+    actionsColumn.setRenderer(new GridCellRenderer<ContactDTO>() {
       @Override
-      public Object render(ModelData model, String property, ColumnData config, int rowIndex, int colIndex, ListStore store, Grid grid) {
+      public Object render(final ContactDTO contact, String property, ColumnData config, int rowIndex, int colIndex, ListStore store, Grid grid) {
         Button button = Forms.button(I18N.CONSTANTS.dedupeContactUpdateButton());
         button.addSelectionListener(new SelectionListener<ButtonEvent>() {
           @Override
