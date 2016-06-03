@@ -22,34 +22,22 @@ package org.sigmah.server.servlet.importer;
  * #L%
  */
 
-import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
+import com.extjs.gxt.ui.client.data.BaseModelData;
+
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+
 import javax.persistence.EntityTransaction;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+
 import org.sigmah.server.dao.AbstractDaoTest;
 import org.sigmah.server.dao.UserDAO;
 import org.sigmah.server.dispatch.impl.UserDispatch;
-import org.sigmah.server.domain.Bounds;
-import org.sigmah.server.domain.Country;
-import org.sigmah.server.domain.OrgUnit;
-import org.sigmah.server.domain.Phase;
-import org.sigmah.server.domain.PhaseModel;
-import org.sigmah.server.domain.Project;
-import org.sigmah.server.domain.ProjectBanner;
-import org.sigmah.server.domain.ProjectDetails;
-import org.sigmah.server.domain.ProjectModel;
-import org.sigmah.server.domain.ProjectModelVisibility;
-import org.sigmah.server.domain.User;
+import org.sigmah.server.domain.*;
 import org.sigmah.server.domain.base.Entity;
 import org.sigmah.server.domain.element.DefaultFlexibleElement;
 import org.sigmah.server.domain.element.TextAreaElement;
@@ -77,6 +65,11 @@ import org.sigmah.shared.dto.referential.ImportationSchemeFileFormat;
 import org.sigmah.shared.dto.referential.ImportationSchemeImportType;
 import org.sigmah.shared.dto.referential.ProjectModelStatus;
 import org.sigmah.shared.dto.referential.TextAreaType;
+
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Test class for <code>AutomatedImporter</code>.
@@ -261,13 +254,16 @@ public class AutomatedImporterUnlockTest extends AbstractDaoTest {
 		// Profile
 		final Profile profile = new Profile();
 		profile.setName("Test Profile");
-		profile.setGlobalPermissions(Arrays.asList(globalPermission(GlobalPermissionEnum.LOCK_PROJECT, profile)));
+		profile.setGlobalPermissions(new ArrayList<GlobalPermission>());
+		profile.getGlobalPermissions().add(globalPermission(GlobalPermissionEnum.LOCK_PROJECT, profile));
 		em().persist(profile);
-		
+
 		final OrgUnitProfile orgUnitProfile = new OrgUnitProfile();
+		orgUnitProfile.setType(OrgUnitProfile.OrgUnitProfileType.MAIN);
 		orgUnitProfile.setUser(user);
 		orgUnitProfile.setOrgUnit(orgUnit);
-		orgUnitProfile.setProfiles(Collections.singletonList(profile));
+		orgUnitProfile.setProfiles(new ArrayList<Profile>());
+		orgUnitProfile.getProfiles().add(profile);
 		em().persist(orgUnitProfile);
 		List<OrgUnitProfile> orgUnitsProfiles = new ArrayList<>();
 		orgUnitsProfiles.add(orgUnitProfile);
@@ -355,6 +351,8 @@ public class AutomatedImporterUnlockTest extends AbstractDaoTest {
 		project.setOwner(user);
 		project.setLastSchemaUpdate(new Date());
 		project.setCountry(country);
+		project.setPartners(new HashSet<OrgUnit>());
+		project.getPartners().add(orgUnit);
 		em().persist(project);
 		
 		this.projectId = project.getId();
