@@ -249,7 +249,7 @@ public class UserPermissionPolicy {
 
 	public boolean isGranted(List<OrgUnitProfile> userUnits, OrgUnit targetOrgUnit, GlobalPermissionEnum permission) {
 		for (OrgUnitProfile userUnit : userUnits) {
-			if (OrgUnitUtils.areOrgUnitsEqualOrParent(userUnit.getOrgUnit(), targetOrgUnit.getId())) {
+			if (!OrgUnitUtils.areOrgUnitsEqualOrParent(userUnit.getOrgUnit(), targetOrgUnit.getId())) {
 				continue;
 			}
 			if (isGranted(userUnit, permission)) {
