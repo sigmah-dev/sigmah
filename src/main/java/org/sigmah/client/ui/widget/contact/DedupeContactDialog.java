@@ -21,13 +21,18 @@ package org.sigmah.client.ui.widget.contact;
  * #L%
  */
 
+import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.extjs.gxt.ui.client.Style;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.ComponentEvent;
+import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Window;
+import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
@@ -43,14 +48,20 @@ import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.ui.widget.button.Button;
 import org.sigmah.client.ui.widget.form.Forms;
 import org.sigmah.client.ui.widget.layout.Layouts;
+import org.sigmah.shared.command.result.ContactDuplicatedProperty;
 import org.sigmah.shared.dto.ContactDTO;
 
 public class DedupeContactDialog extends Window {
   private final boolean createContact;
 
   private Grid<ContactDTO> possibleDuplicatesGrid;
+  private Grid<ContactDuplicatedProperty> duplicatedPropertiesGrid;
   private Button firstStepMainButton;
+  private Button secondStepMainButton;
+  private LayoutContainer secondStepContainer;
   private CardLayout cardLayout;
+
+  private SecondStepHandler secondStepHandler;
 
   public DedupeContactDialog(boolean createContact) {
     super();
@@ -85,11 +96,25 @@ public class DedupeContactDialog extends Window {
     firstStepContainer.add(firstStepButtonsContainer, Layouts.borderLayoutData(Style.LayoutRegion.SOUTH, 20f,
         Layouts.Margin.HALF_TOP, Layouts.Margin.HALF_RIGHT, Layouts.Margin.BOTTOM, Layouts.Margin.DOUBLE_LEFT));
 
-    // TODO: Create second step container
+    duplicatedPropertiesGrid = generateDuplicatedPropertiesGrid();
+
+    secondStepMainButton = generateFirstStepMainButton();
+    LayoutContainer secondStepButtonsContainer = Layouts.border();
+    secondStepButtonsContainer.add(secondStepMainButton, Layouts.borderLayoutData(Style.LayoutRegion.EAST));
+
+    secondStepContainer = Layouts.border();
+    secondStepContainer.setScrollMode(Style.Scroll.AUTOY);
+
+    secondStepContainer.add(duplicatedPropertiesGrid, Layouts.borderLayoutData(Style.LayoutRegion.CENTER,
+        Layouts.Margin.HALF_TOP, Layouts.Margin.HALF_BOTTOM));
+
+    secondStepContainer.add(secondStepButtonsContainer, Layouts.borderLayoutData(Style.LayoutRegion.SOUTH, 20f,
+        Layouts.Margin.HALF_TOP, Layouts.Margin.HALF_RIGHT, Layouts.Margin.BOTTOM, Layouts.Margin.DOUBLE_LEFT));
 
     cardLayout = new CardLayout();
     LayoutContainer mainContainer = new LayoutContainer(cardLayout);
     mainContainer.add(firstStepContainer);
+    mainContainer.add(secondStepContainer);
     cardLayout.setActiveItem(firstStepContainer);
     add(mainContainer);
   }
@@ -120,7 +145,8 @@ public class DedupeContactDialog extends Window {
         button.addSelectionListener(new SelectionListener<ButtonEvent>() {
           @Override
           public void componentSelected(ButtonEvent ce) {
-            // TODO
+            cardLayout.setActiveItem(secondStepContainer);
+            secondStepHandler.initialize(contact.getId(), duplicatedPropertiesGrid.getStore());
           }
         });
 
@@ -132,11 +158,92 @@ public class DedupeContactDialog extends Window {
     return new Grid<ContactDTO>(new ListStore<ContactDTO>(), columnModel);
   }
 
+  private Grid<ContactDuplicatedProperty> generateDuplicatedPropertiesGrid() {
+    ColumnConfig selectColumn = new ColumnConfig();
+    selectColumn.setWidth(20);
+    selectColumn.setRenderer(new GridCellRenderer<ContactDuplicatedProperty>() {
+      @Override
+      public Object render(final ContactDuplicatedProperty contactDuplicatedProperty, String property, ColumnData config, int rowIndex, int colIndex, ListStore store, Grid grid) {
+        CheckBox checkbox = Forms.checkbox(null);
+        checkbox.addListener(Events.Change, new SelectionListener<ComponentEvent>() {
+          @Override
+          public void componentSelected(ComponentEvent ce) {
+            // TODO
+          }
+        });
+        return checkbox;
+      }
+    });
+
+    ColumnConfig propertyNameColumn = new ColumnConfig(ContactDuplicatedProperty.PROPERTY_LABEL, I18N.CONSTANTS.dedupeContactPropertyNameHeader(), 150);
+
+    ColumnConfig oldValueColumn = new ColumnConfig();
+    oldValueColumn.setHeaderText(I18N.CONSTANTS.dedupeContactOldValue());
+    oldValueColumn.setWidth(200);
+    oldValueColumn.setRenderer(new GridCellRenderer<ContactDuplicatedProperty>() {
+      @Override
+      public Object render(ContactDuplicatedProperty contactDuplicatedProperty, String property, ColumnData config, int rowIndex, int colIndex, ListStore store, Grid grid) {
+        return renderProperty(contactDuplicatedProperty.getValueType(), contactDuplicatedProperty.getFormattedOldValue(), contactDuplicatedProperty.getSerializedOldValue());
+      }
+    });
+
+    ColumnConfig newValueColumn = new ColumnConfig();
+    newValueColumn.setHeaderText(I18N.CONSTANTS.dedupeContactNewValue());
+    newValueColumn.setWidth(200);
+    newValueColumn.setRenderer(new GridCellRenderer<ContactDuplicatedProperty>() {
+      @Override
+      public Object render(ContactDuplicatedProperty contactDuplicatedProperty, String property, ColumnData config, int rowIndex, int colIndex, ListStore store, Grid grid) {
+        return renderProperty(contactDuplicatedProperty.getValueType(), contactDuplicatedProperty.getFormattedNewValue(), contactDuplicatedProperty.getSerializedNewValue());
+      }
+    });
+
+    ColumnModel columnModel = new ColumnModel(Arrays.asList(selectColumn, propertyNameColumn, oldValueColumn, newValueColumn));
+    return new Grid<ContactDuplicatedProperty>(new ListStore<ContactDuplicatedProperty>(), columnModel);
+  }
+
   public Grid<ContactDTO> getPossibleDuplicatesGrid() {
     return possibleDuplicatesGrid;
   }
 
+  public Grid<ContactDuplicatedProperty> getDuplicatedPropertiesGrid() {
+    return duplicatedPropertiesGrid;
+  }
+
   public Button getFirstStepMainButton() {
     return firstStepMainButton;
+  }
+
+  public Button getSecondStepMainButton() {
+    return secondStepMainButton;
+  }
+
+  public void setSecondStepHandler(SecondStepHandler secondStepHandler) {
+    this.secondStepHandler = secondStepHandler;
+  }
+
+  private Object renderProperty(ContactDuplicatedProperty.ValueType valueType, String formattedValue, String serializedValue) {
+    if (serializedValue == null) {
+      return "";
+    }
+
+    switch (valueType) {
+      case STRING:
+        return formattedValue;
+      case IMAGE:
+        Image image = new Image();
+        secondStepHandler.downloadImage(serializedValue, image);
+        image.getElement().getStyle().setHeight(50, com.google.gwt.dom.client.Style.Unit.PX);
+        return image;
+      default:
+        throw new IllegalStateException();
+    }
+  }
+
+  public interface SecondStepHandler {
+    void initialize(Integer contactId, ListStore<ContactDuplicatedProperty> propertiesStore);
+
+    void downloadImage(String id, Image image);
+
+    void handleDedupeContact(Integer targetedContactId, List<ContactDuplicatedProperty> selectedProperties);
   }
 }

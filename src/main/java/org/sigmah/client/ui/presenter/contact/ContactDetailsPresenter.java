@@ -21,12 +21,9 @@ package org.sigmah.client.ui.presenter.contact;
  * #L%
  */
 
-import com.google.gwt.http.client.Request;
-import com.google.gwt.http.client.RequestBuilder;
-import com.google.gwt.http.client.RequestException;
-import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Grid;
+import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.ImplementedBy;
@@ -52,7 +49,6 @@ import org.sigmah.client.dispatch.DispatchQueue;
 import org.sigmah.client.dispatch.monitor.LoadingMask;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.inject.Injector;
-import org.sigmah.client.page.RequestParameter;
 import org.sigmah.client.ui.notif.N10N;
 import org.sigmah.client.ui.presenter.base.AbstractPresenter;
 import org.sigmah.client.ui.view.base.ViewInterface;
@@ -62,11 +58,14 @@ import org.sigmah.client.ui.widget.contact.DedupeContactDialog;
 import org.sigmah.client.ui.widget.form.Forms;
 import org.sigmah.client.util.ClientUtils;
 import org.sigmah.client.util.ImageProvider;
+import org.sigmah.offline.sync.SuccessCallback;
 import org.sigmah.shared.command.CheckContactDuplication;
 import org.sigmah.shared.command.GetContact;
+import org.sigmah.shared.command.GetContactDuplicatedProperties;
 import org.sigmah.shared.command.GetCountry;
 import org.sigmah.shared.command.GetValue;
 import org.sigmah.shared.command.UpdateContact;
+import org.sigmah.shared.command.result.ContactDuplicatedProperty;
 import org.sigmah.shared.command.result.ListResult;
 import org.sigmah.shared.command.result.ValueResult;
 import org.sigmah.shared.command.result.VoidResult;
@@ -81,8 +80,6 @@ import org.sigmah.shared.dto.layout.LayoutDTO;
 import org.sigmah.shared.dto.layout.LayoutGroupDTO;
 import org.sigmah.shared.dto.referential.DefaultContactFlexibleElementType;
 import org.sigmah.shared.dto.referential.ElementTypeEnum;
-import org.sigmah.shared.servlet.ServletConstants;
-import org.sigmah.shared.servlet.ServletRequestBuilder;
 
 import com.allen_sauer.gwt.log.client.Log;
 
@@ -284,6 +281,37 @@ public class ContactDetailsPresenter extends AbstractPresenter<ContactDetailsPre
                     dedupeContactDialog.hide();
                   }
                 }, view.getDetailsContainer());
+              }
+            });
+            dedupeContactDialog.setSecondStepHandler(new DedupeContactDialog.SecondStepHandler() {
+              @Override
+              public void initialize(final Integer contactId, final ListStore<ContactDuplicatedProperty> propertiesStore) {
+                updateContact(contactDTO, new CommandResultHandler<ContactDTO>() {
+                  @Override
+                  protected void onCommandSuccess(ContactDTO updatedContactDTO) {
+                    dispatch.execute(new GetContactDuplicatedProperties(contactId, updatedContactDTO.getId(), null), new CommandResultHandler<ListResult<ContactDuplicatedProperty>>() {
+                      @Override
+                      protected void onCommandSuccess(ListResult<ContactDuplicatedProperty> result) {
+                        propertiesStore.add(result.getList());
+                      }
+                    }, new LoadingMask(dedupeContactDialog));
+                  }
+                }, dedupeContactDialog);
+              }
+
+              @Override
+              public void downloadImage(String id, final Image image) {
+                imageProvider.provideDataUrl(id, new SuccessCallback<String>() {
+                  @Override
+                  public void onSuccess(String dataUrl) {
+                    image.setUrl(dataUrl);
+                  }
+                });
+              }
+
+              @Override
+              public void handleDedupeContact(Integer targetedContactId, List<ContactDuplicatedProperty> selectedProperties) {
+                // TODO
               }
             });
             dedupeContactDialog.addWindowListener(new WindowListener() {

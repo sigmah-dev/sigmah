@@ -22,6 +22,7 @@ package org.sigmah.shared.dto.element;
  */
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.Image;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
@@ -34,13 +35,18 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.sigmah.client.dispatch.CommandResultHandler;
+import org.sigmah.client.dispatch.monitor.LoadingMask;
 import org.sigmah.client.ui.widget.contact.DedupeContactDialog;
 import org.sigmah.client.ui.widget.form.ContactListComboBox;
 import org.sigmah.client.ui.widget.form.Forms;
 import org.sigmah.client.ui.widget.form.ListComboBox;
+import org.sigmah.offline.sync.SuccessCallback;
 import org.sigmah.shared.command.CheckContactDuplication;
 import org.sigmah.shared.command.CreateEntity;
+import org.sigmah.shared.command.GetContactDuplicatedProperties;
 import org.sigmah.shared.command.GetContacts;
+import org.sigmah.shared.command.result.ContactDuplicatedProperty;
 import org.sigmah.shared.command.result.CreateResult;
 import org.sigmah.shared.command.result.ListResult;
 import org.sigmah.shared.command.result.ValueResult;
@@ -104,6 +110,32 @@ public class ContactListElementDTO extends FlexibleElementDTO {
               public void componentSelected(ButtonEvent ce) {
                 createEntity(properties, listComboBox);
                 dedupeContactDialog.hide();
+              }
+            });
+            dedupeContactDialog.setSecondStepHandler(new DedupeContactDialog.SecondStepHandler() {
+              @Override
+              public void initialize(final Integer contactId, final ListStore<ContactDuplicatedProperty> propertiesStore) {
+                dispatch.execute(new GetContactDuplicatedProperties(contactId, null, properties), new CommandResultHandler<ListResult<ContactDuplicatedProperty>>() {
+                  @Override
+                  protected void onCommandSuccess(ListResult<ContactDuplicatedProperty> result) {
+                    propertiesStore.add(result.getList());
+                  }
+                }, new LoadingMask(dedupeContactDialog));
+              }
+
+              @Override
+              public void downloadImage(String id, final Image image) {
+                imageProvider.provideDataUrl(id, new SuccessCallback<String>() {
+                  @Override
+                  public void onSuccess(String dataUrl) {
+                    image.setUrl(dataUrl);
+                  }
+                });
+              }
+
+              @Override
+              public void handleDedupeContact(Integer targetedContactId, List<ContactDuplicatedProperty> selectedProperties) {
+                // TODO
               }
             });
             dedupeContactDialog.show();
