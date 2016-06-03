@@ -388,7 +388,6 @@ public class AutomatedImporterUnlockTest extends AbstractDaoTest {
 			codeElement,
 			profile,
 			orgUnit,
-			user,
 			country
 		};
 	}
@@ -396,28 +395,37 @@ public class AutomatedImporterUnlockTest extends AbstractDaoTest {
 	private void removeEntities() {
 		final EntityTransaction transaction = em().getTransaction();
 		transaction.begin();
-		
+
+		User user = getUser();
 		em().createQuery("DELETE FROM HistoryToken AS ht WHERE ht.user = :user")
-				.setParameter("user", getUser())
+				.setParameter("user", user)
 				.executeUpdate();
-		
+
 		em().createQuery("DELETE FROM Value AS v WHERE v.lastModificationUser = :user")
-				.setParameter("user", getUser())
+				.setParameter("user", user)
 				.executeUpdate();
 		
 		for (final Project project : em().createQuery("SELECT p FROM Project AS p WHERE p.owner = :user", Project.class)
-				.setParameter("user", getUser())
+				.setParameter("user", user)
 				.getResultList()) {
+			project.setPartners(new HashSet<OrgUnit>());
+			em().persist(project);
 			em().remove(project);
 		}
-		
-		em().createQuery("DELETE FROM OrgUnitProfile AS oup WHERE oup.user = :user")
-				.setParameter("user", getUser())
-				.executeUpdate();
-		
+
+		for (OrgUnitProfile orgUnitProfile : em().createQuery("SELECT oup FROM OrgUnitProfile AS oup WHERE oup.user = :user", OrgUnitProfile.class)
+				.setParameter("user", user)
+				.getResultList()) {
+			em().remove(orgUnitProfile);
+		}
+		user.setOrgUnitsWithProfiles(new ArrayList<OrgUnitProfile>());
+		em().persist(user);
+
 		for (final Entity entity : entities) {
 			em().remove(entity);
 		}
+		em().remove(user);
+
 		this.entities = new Entity[0];
 		transaction.commit();
 	}
