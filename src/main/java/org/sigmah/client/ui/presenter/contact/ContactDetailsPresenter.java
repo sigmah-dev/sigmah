@@ -61,6 +61,7 @@ import org.sigmah.client.ui.widget.button.Button;
 import org.sigmah.client.ui.widget.contact.DedupeContactDialog;
 import org.sigmah.client.ui.widget.form.Forms;
 import org.sigmah.client.util.ClientUtils;
+import org.sigmah.client.util.ImageProvider;
 import org.sigmah.shared.command.CheckContactDuplication;
 import org.sigmah.shared.command.GetContact;
 import org.sigmah.shared.command.GetCountry;
@@ -98,14 +99,16 @@ public class ContactDetailsPresenter extends AbstractPresenter<ContactDetailsPre
   }
 
   private final ComputationTriggerManager computationTriggerManager;
+  private final ImageProvider imageProvider;
 
   private List<ValueEvent> valueChanges = new ArrayList<ValueEvent>();
 
   @Inject
-  public ContactDetailsPresenter(View view, Injector injector, ComputationTriggerManager computationTriggerManager) {
+  public ContactDetailsPresenter(View view, Injector injector, ComputationTriggerManager computationTriggerManager, ImageProvider imageProvider) {
     super(view, injector);
 
     this.computationTriggerManager = computationTriggerManager;
+    this.imageProvider = imageProvider;
   }
 
   @Override
@@ -199,32 +202,10 @@ public class ContactDetailsPresenter extends AbstractPresenter<ContactDetailsPre
             elementDTO.setCurrentContainerDTO(contactDTO);
             elementDTO.setTransfertManager(injector.getTransfertManager());
             elementDTO.assignValue(valueResult);
+            elementDTO.setImageProvider(imageProvider);
             if (elementDTO instanceof DefaultContactFlexibleElementDTO) {
               ((DefaultContactFlexibleElementDTO) elementDTO).setFormPanel(formPanel);
-              ((DefaultContactFlexibleElementDTO) elementDTO).setImageProvider(new DefaultContactFlexibleElementDTO.ImageProvider() {
-                @Override
-                public void provideImageUrl(String imageId, final AsyncCallback<String> callback) {
-                  ServletRequestBuilder builder = new ServletRequestBuilder(injector, RequestBuilder.GET, ServletConstants.Servlet.FILE, ServletConstants.ServletMethod.DOWNLOAD_LOGO);
-                  builder.addParameter(RequestParameter.ID, imageId);
-                  builder.send(new ServletRequestBuilder.RequestCallbackAdapter() {
-                    @Override
-                    public void onResponseReceived(final Request request, final Response response) {
-                      if (response.getStatusCode() != Response.SC_OK) {
-                        callback.onFailure(new RequestException(response.getStatusText()));
-                        return;
-                      }
-                      callback.onSuccess(response.getText());
-                    }
 
-                    @Override
-                    public void onError(Request request, Throwable exception) {
-                      super.onError(request, exception);
-
-                      callback.onFailure(exception);
-                    }
-                  });
-                }
-              });
             }
 
             // Generates element component (with the value).

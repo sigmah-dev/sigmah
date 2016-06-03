@@ -52,6 +52,7 @@ import org.sigmah.client.ui.widget.form.ButtonFileUploadField;
 import org.sigmah.client.ui.widget.form.Forms;
 import org.sigmah.client.ui.widget.form.ListComboBox;
 import org.sigmah.client.util.ClientUtils;
+import org.sigmah.client.util.ImageProvider;
 import org.sigmah.shared.command.GetContact;
 import org.sigmah.shared.command.GetContacts;
 import org.sigmah.shared.command.result.ListResult;
@@ -72,10 +73,6 @@ public class DefaultContactFlexibleElementDTO extends AbstractDefaultFlexibleEle
   private static final long serialVersionUID = -1251850749619288873L;
 
   private static final String ENTITY_NAME = "element.DefaultContactFlexibleElement";
-
-  public interface ImageProvider {
-    void provideImageUrl(String imageId, AsyncCallback<String> callback);
-  }
 
   private transient DefaultContactFlexibleElementContainer container;
   private transient ListStore<ContactDTO> contactsStore;
@@ -405,7 +402,7 @@ public class DefaultContactFlexibleElementDTO extends AbstractDefaultFlexibleEle
     setLabel(I18N.CONSTANTS.contactPhoto());
 
     if (imageId != null && imageId.length() > 0) {
-      imageProvider.provideImageUrl(imageId, new AsyncCallback<String>() {
+      imageProvider.provideDataUrl(imageId, new AsyncCallback<String>() {
         @Override
         public void onFailure(Throwable caught) {
           // noop
@@ -524,7 +521,7 @@ public class DefaultContactFlexibleElementDTO extends AbstractDefaultFlexibleEle
         // Displaying a notification of success
         N10N.validNotif(I18N.CONSTANTS.infoConfirmation(), I18N.CONSTANTS.flexibleElementFilesListUploadFileConfirm());
 
-        imageProvider.provideImageUrl(imageId, new AsyncCallback<String>() {
+        imageProvider.provideDataUrl(imageId, new AsyncCallback<String>() {
           @Override
           public void onFailure(Throwable caught) {
             image.setUrl("");

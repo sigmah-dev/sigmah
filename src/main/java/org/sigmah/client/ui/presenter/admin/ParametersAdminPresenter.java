@@ -22,6 +22,27 @@ package org.sigmah.client.ui.presenter.admin;
  * #L%
  */
 
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.Timer;
+import com.google.gwt.user.client.ui.Image;
+import com.google.inject.ImplementedBy;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.FormEvent;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.store.StoreEvent;
+import com.extjs.gxt.ui.client.store.StoreListener;
+import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.extjs.gxt.ui.client.widget.form.FileUploadField;
+import com.extjs.gxt.ui.client.widget.form.FormPanel.Encoding;
+import com.extjs.gxt.ui.client.widget.form.FormPanel.Method;
+import com.extjs.gxt.ui.client.widget.form.TextField;
+
 import java.util.Set;
 
 import org.sigmah.client.dispatch.CommandResultHandler;
@@ -37,6 +58,8 @@ import org.sigmah.client.ui.widget.BackupStatusWidget;
 import org.sigmah.client.ui.widget.button.Button;
 import org.sigmah.client.ui.widget.form.FormPanel;
 import org.sigmah.client.util.ClientUtils;
+import org.sigmah.client.util.ImageProvider;
+import org.sigmah.offline.sync.SuccessCallback;
 import org.sigmah.shared.command.BackupArchiveManagementCommand;
 import org.sigmah.shared.command.GetGlobalExportSettings;
 import org.sigmah.shared.command.GetOrgUnits;
@@ -52,34 +75,10 @@ import org.sigmah.shared.dto.value.FileDTO.LoadingScope;
 import org.sigmah.shared.servlet.ServletConstants;
 import org.sigmah.shared.servlet.ServletConstants.Servlet;
 import org.sigmah.shared.servlet.ServletConstants.ServletMethod;
-import org.sigmah.shared.servlet.ServletRequestBuilder;
 import org.sigmah.shared.servlet.ServletUrlBuilder;
 import org.sigmah.shared.util.ExportUtils.ExportFormat;
 
 import com.allen_sauer.gwt.log.client.Log;
-import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.Events;
-import com.extjs.gxt.ui.client.event.FormEvent;
-import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.store.ListStore;
-import com.extjs.gxt.ui.client.store.StoreEvent;
-import com.extjs.gxt.ui.client.store.StoreListener;
-import com.extjs.gxt.ui.client.widget.form.ComboBox;
-import com.extjs.gxt.ui.client.widget.form.FileUploadField;
-import com.extjs.gxt.ui.client.widget.form.FormPanel.Encoding;
-import com.extjs.gxt.ui.client.widget.form.FormPanel.Method;
-import com.extjs.gxt.ui.client.widget.form.TextField;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.http.client.Request;
-import com.google.gwt.http.client.RequestBuilder;
-import com.google.gwt.http.client.Response;
-import com.google.gwt.user.client.Timer;
-import com.google.gwt.user.client.ui.Image;
-import com.google.inject.ImplementedBy;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 
 /**
  * Admin Parameters Presenter which manages {@link ParametersAdminView}.
@@ -180,6 +179,8 @@ public class ParametersAdminPresenter extends AbstractAdminPresenter<ParametersA
 	 * Timer used to regularly update the backup status once a backup process has been started.
 	 */
 	private Timer updateBackupStatusTimer;
+
+	private ImageProvider imageProvider;
 
 	/**
 	 * Presenters's initialization.
@@ -411,26 +412,10 @@ public class ParametersAdminPresenter extends AbstractAdminPresenter<ParametersA
 	 *          File id of the logo
 	 */
 	private void displayLogo(final String organisationLogo) {
-
-		final ServletRequestBuilder builder = new ServletRequestBuilder(injector, RequestBuilder.GET, Servlet.FILE, ServletMethod.DOWNLOAD_LOGO);
-		builder.addParameter(RequestParameter.ID, organisationLogo);
-
-		builder.send(new ServletRequestBuilder.RequestCallbackAdapter() {
-
+		imageProvider.provideDataUrl(organisationLogo, new SuccessCallback<String>() {
 			@Override
-			public void onResponseReceived(final Request request, final Response response) {
-
-				final String logoUrl;
-				if (response.getStatusCode() == Response.SC_OK) {
-					// Existing logo.
-					logoUrl = builder.toString();
-
-				} else {
-					// Non existing logo.
-					logoUrl = ""; // Cannot be null.
-				}
-
-				view.getLogoPreview().setUrl(logoUrl);
+			public void onSuccess(String dataUrl) {
+				view.getLogoPreview().setUrl(dataUrl);
 			}
 		});
 	}

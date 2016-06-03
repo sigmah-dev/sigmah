@@ -22,9 +22,6 @@ package org.sigmah.client.ui.presenter.contact;
  */
 
 import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.http.client.Request;
-import com.google.gwt.http.client.RequestBuilder;
-import com.google.gwt.http.client.Response;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Widget;
@@ -49,6 +46,7 @@ import org.sigmah.client.ui.presenter.base.Presenter;
 import org.sigmah.client.ui.view.base.ViewInterface;
 import org.sigmah.client.ui.view.contact.ContactView;
 import org.sigmah.client.ui.zone.Zone;
+import org.sigmah.client.util.ImageProvider;
 import org.sigmah.shared.command.GetContact;
 import org.sigmah.shared.dto.ContactDTO;
 import org.sigmah.shared.dto.ContactModelDTO;
@@ -57,8 +55,6 @@ import org.sigmah.shared.dto.layout.LayoutConstraintDTO;
 import org.sigmah.shared.dto.layout.LayoutGroupDTO;
 import org.sigmah.shared.dto.orgunit.OrgUnitDTO;
 import org.sigmah.shared.dto.referential.ContactModelType;
-import org.sigmah.shared.servlet.ServletConstants;
-import org.sigmah.shared.servlet.ServletRequestBuilder;
 
 import com.allen_sauer.gwt.log.client.Log;
 
@@ -87,12 +83,15 @@ public class ContactPresenter extends AbstractPagePresenter<ContactPresenter.Vie
   }
 
   private final List<? extends ContactSubPresenter> tabPresenters;
+  private final ImageProvider imageProvider;
 
   private ContactDTO contactDTO;
 
   @Inject
-  public ContactPresenter(View view, Injector injector, ContactDetailsPresenter contactDetailsPresenter, ContactRelationshipsPresenter contactRelationshipsPresenter, ContactHistoryPresenter contactHistoryPresenter) {
+  public ContactPresenter(View view, Injector injector, ContactDetailsPresenter contactDetailsPresenter, ContactRelationshipsPresenter contactRelationshipsPresenter, ContactHistoryPresenter contactHistoryPresenter, ImageProvider imageProvider) {
     super(view, injector);
+
+    this.imageProvider = imageProvider;
 
     this.tabPresenters = Arrays.asList(contactDetailsPresenter, contactRelationshipsPresenter, contactHistoryPresenter);
   }
@@ -189,17 +188,15 @@ public class ContactPresenter extends AbstractPagePresenter<ContactPresenter.Vie
           }
 
           hasPhoto = true;
-          ServletRequestBuilder builder = new ServletRequestBuilder(injector, RequestBuilder.GET, ServletConstants.Servlet.FILE, ServletConstants.ServletMethod.DOWNLOAD_LOGO);
-          builder.addParameter(RequestParameter.ID, contactDTO.getPhoto());
-          builder.send(new ServletRequestBuilder.RequestCallbackAdapter() {
+          imageProvider.provideDataUrl(contactDTO.getPhoto(), new AsyncCallback<String>() {
             @Override
-            public void onResponseReceived(final Request request, final Response response) {
-              if (response.getStatusCode() != Response.SC_OK) {
-                view.setDefaultAvatar(contactModelDTO.getType());
-                return;
-              }
+            public void onFailure(Throwable caught) {
+              view.setDefaultAvatar(contactModelDTO.getType());
+            }
 
-              view.setAvatarUrl(response.getText());
+            @Override
+            public void onSuccess(String dataUrl) {
+              view.setAvatarUrl(dataUrl);
             }
           });
           break;

@@ -33,6 +33,7 @@ import org.sigmah.client.ui.notif.N10N;
 import org.sigmah.client.ui.res.icon.IconImageBundle;
 import org.sigmah.client.ui.widget.HistoryTokenText;
 import org.sigmah.client.ui.widget.HistoryWindow;
+import org.sigmah.client.util.ImageProvider;
 import org.sigmah.client.util.ToStringBuilder;
 import org.sigmah.shared.command.GetHistory;
 import org.sigmah.shared.command.result.Authentication;
@@ -67,6 +68,7 @@ import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.google.gwt.event.shared.HandlerManager;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import java.util.Collections;
 import java.util.Date;
@@ -120,6 +122,7 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 	protected transient int preferredWidth;
 	private transient Menu historyMenu;
 	protected transient UserLocalCache cache;
+	protected transient ImageProvider imageProvider;
 
 	/**
 	 * Sets the dispatch service to be used in the {@link #getElementComponent(ValueResult)} method.
@@ -180,6 +183,10 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 	 */
 	public void setCache(UserLocalCache cache) {
 		this.cache = cache;
+	}
+
+	public void setImageProvider(ImageProvider imageProvider) {
+		this.imageProvider = imageProvider;
 	}
 
 	/**

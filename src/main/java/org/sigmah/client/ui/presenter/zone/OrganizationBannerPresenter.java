@@ -32,6 +32,7 @@ import org.sigmah.client.ui.view.zone.OrganizationBannerView;
 import org.sigmah.client.ui.zone.Zone;
 import org.sigmah.client.ui.zone.ZoneRequest;
 import org.sigmah.client.util.ClientUtils;
+import org.sigmah.client.util.ImageProvider;
 import org.sigmah.shared.servlet.ServletConstants.Servlet;
 import org.sigmah.shared.servlet.ServletConstants.ServletMethod;
 import org.sigmah.shared.servlet.ServletRequestBuilder;
@@ -72,8 +73,8 @@ public class OrganizationBannerPresenter extends AbstractZonePresenter<Organizat
 
 	}
 
-	@Inject
 	private LogoAsyncDAO logoAsyncDAO;
+	private ImageProvider imageProvider;
 	
 	private ApplicationState state;
 	
@@ -89,8 +90,11 @@ public class OrganizationBannerPresenter extends AbstractZonePresenter<Organizat
 	private static final String DEFAULT_ORGANIZATION_LOGO = ResourcesUtils.buildImageURL("header/org-default-logo.png");
 	
 	@Inject
-	public OrganizationBannerPresenter(View view, Injector injector) {
+	public OrganizationBannerPresenter(View view, Injector injector, LogoAsyncDAO logoAsyncDAO, ImageProvider imageProvider) {
 		super(view, injector);
+
+		this.logoAsyncDAO = logoAsyncDAO;
+		this.imageProvider = imageProvider;
 	}
 
 	/**
@@ -129,28 +133,16 @@ public class OrganizationBannerPresenter extends AbstractZonePresenter<Organizat
 		}
 
 		if(state != ApplicationState.OFFLINE) {
-			final ServletRequestBuilder builder = new ServletRequestBuilder(injector, RequestBuilder.GET, Servlet.FILE, ServletMethod.DOWNLOAD_LOGO);
-			builder.addParameter(RequestParameter.ID, auth().getOrganizationLogo());
-
-			builder.send(new ServletRequestBuilder.RequestCallbackAdapter() {
+			imageProvider.provideDataUrl(auth().getOrganizationLogo(), new AsyncCallback<String>() {
+				@Override
+				public void onFailure(Throwable caught) {
+					view.getLogoPanel().getElement().getStyle().setBackgroundImage(ResourcesUtils.buildCSSImageProperty(DEFAULT_ORGANIZATION_LOGO));
+				}
 
 				@Override
-				public void onResponseReceived(final Request request, final Response response) {
-
-					final String logoUrl;
-					if (response.getStatusCode() == Response.SC_OK) {
-						// Existing logo.
-						logoUrl = response.getText();
-
-						// Caching the organization logo.
-						logoAsyncDAO.saveOrUpdate(auth().getOrganizationId(), logoUrl);
-
-					} else {
-						// Non existing logo.
-						logoUrl = DEFAULT_ORGANIZATION_LOGO;
-					}
-
-					view.getLogoPanel().getElement().getStyle().setBackgroundImage(ResourcesUtils.buildCSSImageProperty(logoUrl));
+				public void onSuccess(String dataUrl) {
+					view.getLogoPanel().getElement().getStyle().setBackgroundImage(ResourcesUtils.buildCSSImageProperty(dataUrl));
+					logoAsyncDAO.saveOrUpdate(auth().getOrganizationId(), dataUrl);
 				}
 			});
 			
