@@ -194,15 +194,29 @@ public class UserService extends AbstractEntityService<User, Integer, UserDTO> {
 				}
 			}
 
-			// Let's create a contact for this user
-			ContactModel contactModel = contactModelDAO.findById((Integer) properties.get(UserDTO.CONTACT_MODEL));
-			Contact parent = contactDAO.findById((Integer) properties.get(UserDTO.CONTACT_ORGANIZATION));
-			Contact contact = new Contact();
-			contact.setUser(userToPersist);
-			contact.setContactModel(contactModel);
-			contact.setParent(parent);
-			contact.setDateCreated(new Date());
-			contactDAO.persist(contact, context.getUser());
+			Integer contactId = properties.get(UserDTO.CONTACT);
+			if (contactId != null) {
+				// It means that the user was created from a contact
+				// Let's remove all duplicated properties which should stay in user entity
+				Contact contact = contactDAO.findById(contactId);
+				contact.setName(null);
+				contact.setFirstname(null);
+				contact.setMainOrgUnit(null);
+				contact.setSecondaryOrgUnits(new ArrayList<OrgUnit>());
+				// Now let's link the contact with the user
+				contact.setUser(userToPersist);
+				contactDAO.persist(contact, context.getUser());
+			} else {
+				// Let's create a contact for this user
+				ContactModel contactModel = contactModelDAO.findById((Integer) properties.get(UserDTO.CONTACT_MODEL));
+				Contact parent = contactDAO.findById((Integer) properties.get(UserDTO.CONTACT_ORGANIZATION));
+				Contact contact = new Contact();
+				contact.setUser(userToPersist);
+				contact.setContactModel(contactModel);
+				contact.setParent(parent);
+				contact.setDateCreated(new Date());
+				contactDAO.persist(contact, context.getUser());
+			}
 		}
 
 		// update link to profile

@@ -42,7 +42,7 @@ public class ContactHibernateDAO extends AbstractDAO<Contact, Integer> implement
   private static final float MIN_SIMILARITY_SCORE = 0.5f;
 
   @Override
-  public List<Contact> findContactsByTypeAndContactModels(Integer organizationId, ContactModelType type, Set<Integer> contactModelIds) {
+  public List<Contact> findContactsByTypeAndContactModels(Integer organizationId, ContactModelType type, Set<Integer> contactModelIds, boolean onlyWithoutUser, boolean withEmailNotNull) {
     // Too much nullable parameters, let's use criteria query builder to ease the query creation
     // and to avoid using dangerous string concatenation
     CriteriaBuilder criteriaBuilder = em().getCriteriaBuilder();
@@ -50,6 +50,7 @@ public class ContactHibernateDAO extends AbstractDAO<Contact, Integer> implement
     Root<Contact> contactRoot = criteriaQuery.from(Contact.class);
     Join<Object, Object> contactModelJoin = contactRoot.join("contactModel", JoinType.INNER);
     Join<Object, Object> organizationJoin = contactModelJoin.join("organization", JoinType.INNER);
+    Join<Object, Object> userJoin = contactRoot.join("user", JoinType.LEFT);
 
     List<Predicate> predicates = new ArrayList<>();
     predicates.add(criteriaBuilder.equal(organizationJoin.get("id"), organizationId));
@@ -58,6 +59,15 @@ public class ContactHibernateDAO extends AbstractDAO<Contact, Integer> implement
     }
     if (contactModelIds != null && !contactModelIds.isEmpty()) {
       predicates.add(contactModelJoin.get("id").in(contactModelIds));
+    }
+    if (onlyWithoutUser) {
+      predicates.add(userJoin.get("id").isNull());
+    }
+    if (withEmailNotNull) {
+      predicates.add(criteriaBuilder.or(
+          contactRoot.get("email").isNotNull(),
+          userJoin.get("email").isNotNull()
+      ));
     }
     criteriaQuery.where(predicates.toArray(new Predicate[predicates.size()]));
     criteriaQuery.select(contactRoot);

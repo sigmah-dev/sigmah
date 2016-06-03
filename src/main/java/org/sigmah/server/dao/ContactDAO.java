@@ -36,7 +36,7 @@ public interface ContactDAO extends DAO<Contact, Integer> {
    * @param type Filter the contacts by the type of the model, if provided.
    * @param contactModelIds Filter the contacts by the id of the model, if provided.
    */
-  List<Contact> findContactsByTypeAndContactModels(Integer organizationId, ContactModelType type, Set<Integer> contactModelIds);
+  List<Contact> findContactsByTypeAndContactModels(Integer organizationId, ContactModelType type, Set<Integer> contactModelIds, boolean onlyWithoutUsers, boolean withEmailNotNull);
 
   List<Contact> findContactsByEmailOrSimilarName(Integer organizationId, Integer contactId, String email, String firstName, String name);
 

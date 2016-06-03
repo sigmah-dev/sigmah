@@ -58,7 +58,8 @@ public enum RequestParameter {
 	SHOW_BRIEFLY,
 	PULL_DATABASE,
 	CLOSE_CURRENT_TAB,
-    ELEMENTS;
+	CONTACT_ID,
+	ELEMENTS;
 
 	// If the parameter is part of the tab uniqueness logic.
 	private final boolean unique;

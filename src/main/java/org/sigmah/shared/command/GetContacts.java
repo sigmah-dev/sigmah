@@ -21,6 +21,7 @@ package org.sigmah.shared.command;
  * #L%
  */
 
+import java.util.Collections;
 import java.util.Set;
 
 import org.sigmah.client.util.ToStringBuilder;
@@ -34,18 +35,30 @@ public class GetContacts extends AbstractCommand<ListResult<ContactDTO>> {
 
   private ContactModelType type;
   private Set<Integer> contactModelIds;
+  private boolean onlyContactWithoutUser;
+  private boolean withEmailNotNull;
 
   public GetContacts() {
     // Serialization
   }
 
   public GetContacts(ContactModelType type) {
-    this(type, null);
+    this(type, Collections.<Integer>emptySet(), false, false);
   }
 
   public GetContacts(ContactModelType type, Set<Integer> contactModelIds) {
+    this(type, contactModelIds, false, false);
+  }
+
+  public GetContacts(ContactModelType type, boolean onlyContactWithoutUser, boolean withEmailNotNull) {
+    this(type, Collections.<Integer>emptySet(), onlyContactWithoutUser, withEmailNotNull);
+  }
+
+  public GetContacts(ContactModelType type, Set<Integer> contactModelIds, boolean onlyContactWithoutUser, boolean withEmailNotNull) {
     this.type = type;
     this.contactModelIds = contactModelIds;
+    this.onlyContactWithoutUser = onlyContactWithoutUser;
+    this.withEmailNotNull = withEmailNotNull;
   }
 
   public ContactModelType getType() {
@@ -54,6 +67,14 @@ public class GetContacts extends AbstractCommand<ListResult<ContactDTO>> {
 
   public Set<Integer> getContactModelIds() {
     return contactModelIds;
+  }
+
+  public boolean isOnlyContactWithoutUser() {
+    return onlyContactWithoutUser;
+  }
+
+  public boolean isWithEmailNotNull() {
+    return withEmailNotNull;
   }
 
   @Override

@@ -55,6 +55,7 @@ import org.sigmah.client.util.ClientUtils;
 import org.sigmah.client.util.EnumModel;
 import org.sigmah.shared.Language;
 import org.sigmah.shared.command.CreateEntity;
+import org.sigmah.shared.command.GetContact;
 import org.sigmah.shared.command.GetContactModels;
 import org.sigmah.shared.command.GetContacts;
 import org.sigmah.shared.command.GetOrgUnits;
@@ -138,6 +139,11 @@ public class UserEditPresenter extends AbstractPagePresenter<UserEditPresenter.V
 	private UserDTO user;
 
 	/**
+	 * The contact from which the user should be created.
+	 */
+	private ContactDTO contact;
+
+	/**
 	 * Presenter's initialization.
 	 * 
 	 * @param view
@@ -219,14 +225,70 @@ public class UserEditPresenter extends AbstractPagePresenter<UserEditPresenter.V
 
 		setPageTitle(I18N.CONSTANTS.newUser());
 
-		user = request.getData(RequestParameter.DTO);
+		view.getUserUnitStore().removeAll();
 
+		user = request.getData(RequestParameter.DTO);
+		Integer contactId = request.getParameterInteger(RequestParameter.CONTACT_ID);
+		if (contactId != null) {
+			dispatch.execute(new GetContact(contactId, ContactDTO.Mode.BASIC_INFORMATION), new CommandResultHandler<ContactDTO>() {
+				@Override
+				protected void onCommandSuccess(ContactDTO contact) {
+					UserEditPresenter.this.contact = contact;
+
+					view.getNameField().setValue(contact.getName());
+					view.getFirstNameField().setValue(contact.getFirstname());
+					view.getEmailField().setValue(contact.getEmail());
+
+					view.getContactOrganizationField().setReadOnly(true);
+					view.getContactModelField().setReadOnly(true);
+
+					loadData();
+				}
+			});
+		} else {
+			loadData();
+		}
+
+		if (user == null) {
+			view.getContactModelField().setReadOnly(false);
+			view.getContactOrganizationField().setReadOnly(false);
+			// Creation mode.
+			return;
+		}
+
+		// Edition mode.
+		view.getNameField().setValue(user.getName());
+		view.getFirstNameField().setValue(user.getFirstName());
+		view.getEmailField().setValue(user.getEmail());
+		view.getChangePwdLink().setVisible(true);
+		view.getLanguageField().setValue(new EnumModel<Language>(Language.fromString(user.getLocale())));
+		// Contact fields are only editable when creating a user
+		view.getContactModelField().setReadOnly(true);
+		view.getContactOrganizationField().setReadOnly(true);
+
+		if (user.getMainOrgUnit() != null && ClientUtils.isNotBlank(user.getMainOrgUnit().getFullName())) {
+			final OrgUnitDTO orgUnitDTOLight = new OrgUnitDTO();
+			orgUnitDTOLight.setId(user.getMainOrgUnit().getId());
+			orgUnitDTOLight.setFullName(user.getMainOrgUnit().getFullName());
+		}
+
+		dispatch.execute(new GetUserUnitsByUser(user.getId(), Mode.WITH_TREE), new CommandResultHandler<UserUnitsResult>() {
+			@Override
+			protected void onCommandSuccess(UserUnitsResult result) {
+				if (result.getMainUserUnit() != null) {
+					view.getUserUnitStore().add(result.getMainUserUnit());
+				}
+				if (result.getSecondaryUserUnits() != null) {
+					view.getUserUnitStore().add(result.getSecondaryUserUnits());
+				}
+			}
+		});
+	}
+
+	private void loadData() {
 		// --
 		// Loads org units.
 		// --
-
-		view.getUserUnitStore().removeAll();
-
 		dispatch.execute(new GetOrgUnits(Mode.WITH_TREE), new CommandResultHandler<ListResult<OrgUnitDTO>>() {
 			@Override
 			public void onCommandFailure(final Throwable caught) {
@@ -240,6 +302,24 @@ public class UserEditPresenter extends AbstractPagePresenter<UserEditPresenter.V
 					orgUnitDTOs.addAll(crawlOrgUnits(orgUnitDTO));
 				}
 				view.setAvailableOrgUnits(orgUnitDTOs);
+
+				if (contact != null && contact.getMainOrgUnit() != null) {
+					UserUnitDTO userUnitDTO = new UserUnitDTO();
+					userUnitDTO.setMainUserUnit(true);
+					userUnitDTO.setOrgUnit(contact.getMainOrgUnit());
+					userUnitDTO.setProfiles(new ArrayList<ProfileDTO>());
+
+					view.getUserUnitStore().add(userUnitDTO);
+
+					for (OrgUnitDTO orgUnitDTO : contact.getSecondaryOrgUnits()) {
+						userUnitDTO = new UserUnitDTO();
+						userUnitDTO.setMainUserUnit(false);
+						userUnitDTO.setOrgUnit(orgUnitDTO);
+						userUnitDTO.setProfiles(new ArrayList<ProfileDTO>());
+
+						view.getUserUnitStore().add(userUnitDTO);
+					}
+				}
 			}
 		});
 
@@ -282,11 +362,16 @@ public class UserEditPresenter extends AbstractPagePresenter<UserEditPresenter.V
 				view.getContactOrganizationField().getStore().removeAll();
 				view.getContactOrganizationField().getStore().add(result.getList());
 
+				ContactDTO userContact = contact;
+				if (user != null) {
+					userContact = user.getContact();
+				}
+
 				// Let's find the default contact
 				for (ContactDTO contactDTO : result.getList()) {
-					if (user != null) {
+					if (userContact != null) {
 						// Let's find the user contact
-						if (contactDTO.getId().equals(user.getContact().getParent().getId())) {
+						if (contactDTO.getId().equals(userContact.getParent().getId())) {
 							view.getContactOrganizationField().setValue(contactDTO);
 							return;
 						}
@@ -322,12 +407,17 @@ public class UserEditPresenter extends AbstractPagePresenter<UserEditPresenter.V
 				view.getContactModelField().getStore().removeAll();
 				view.getContactModelField().getStore().add(result.getList());
 
+				ContactDTO userContact = contact;
+				if (user != null) {
+					userContact = user.getContact();
+				}
+
 				// Let's find the default contact model
 				// The contact model with the smallest id can be considered as the default one
 				Integer minId = null;
 				for (ContactModelDTO contactModelDTO : result.getList()) {
-					if (user != null) {
-						if (contactModelDTO.getId().equals(user.getContact().getContactModel().getId())) {
+					if (userContact != null) {
+						if (contactModelDTO.getId().equals(userContact.getContactModel().getId())) {
 							view.getContactModelField().setValue(contactModelDTO);
 							return;
 						}
@@ -339,41 +429,6 @@ public class UserEditPresenter extends AbstractPagePresenter<UserEditPresenter.V
 
 					minId = contactModelDTO.getId();
 					view.getContactModelField().setValue(contactModelDTO);
-				}
-			}
-		});
-
-		if (user == null) {
-			view.getContactModelField().setReadOnly(false);
-			view.getContactOrganizationField().setReadOnly(false);
-			// Creation mode.
-			return;
-		}
-
-		// Edition mode.
-		view.getNameField().setValue(user.getName());
-		view.getFirstNameField().setValue(user.getFirstName());
-		view.getEmailField().setValue(user.getEmail());
-		view.getChangePwdLink().setVisible(true);
-		view.getLanguageField().setValue(new EnumModel<Language>(Language.fromString(user.getLocale())));
-		// Contact fields are only editable when creating a user
-		view.getContactModelField().setReadOnly(true);
-		view.getContactOrganizationField().setReadOnly(true);
-
-		if (user.getMainOrgUnit() != null && ClientUtils.isNotBlank(user.getMainOrgUnit().getFullName())) {
-			final OrgUnitDTO orgUnitDTOLight = new OrgUnitDTO();
-			orgUnitDTOLight.setId(user.getMainOrgUnit().getId());
-			orgUnitDTOLight.setFullName(user.getMainOrgUnit().getFullName());
-		}
-
-		dispatch.execute(new GetUserUnitsByUser(user.getId(), Mode.WITH_TREE), new CommandResultHandler<UserUnitsResult>() {
-			@Override
-			protected void onCommandSuccess(UserUnitsResult result) {
-				if (result.getMainUserUnit() != null) {
-					view.getUserUnitStore().add(result.getMainUserUnit());
-				}
-				if (result.getSecondaryUserUnits() != null) {
-					view.getUserUnitStore().add(result.getSecondaryUserUnits());
 				}
 			}
 		});
@@ -445,6 +500,7 @@ public class UserEditPresenter extends AbstractPagePresenter<UserEditPresenter.V
 		userProperties.put(UserDTO.USER_UNITS, userUnitsResult);
 		userProperties.put(UserDTO.CONTACT_MODEL, contactModelId);
 		userProperties.put(UserDTO.CONTACT_ORGANIZATION, contactOrganizationId);
+		userProperties.put(UserDTO.CONTACT, contact != null ? contact.getId() : null);
 
 		dispatch.execute(new CreateEntity(UserDTO.ENTITY_NAME, userProperties), new CommandResultHandler<CreateResult>() {
 

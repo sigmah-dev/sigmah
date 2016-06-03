@@ -59,6 +59,7 @@ public class ContactDTO extends AbstractModelDataEntityDTO<Integer> implements D
   public static final String PARENT = "parent";
   public static final String ROOT = "root";
   public static final String DATE_CREATED = "dateCreated";
+  public static final String EMAIL_WITH_FULLNAME = "emailWithFullname";
 
   public enum Mode implements IsMappingMode {
     BASIC_INFORMATION(new MappingField(MAIN_ORG_UNIT), new MappingField(SECONDARY_ORG_UNITS), new MappingField(COUNTRY),
@@ -181,6 +182,8 @@ public class ContactDTO extends AbstractModelDataEntityDTO<Integer> implements D
     }
 
     set(FULLNAME, firstname + " " + name.toUpperCase());
+
+    initEmailWithFullname();
   }
 
   public String getFullName() {
@@ -226,6 +229,8 @@ public class ContactDTO extends AbstractModelDataEntityDTO<Integer> implements D
 
   public void setEmail(String email) {
     set(EMAIL, email);
+
+    initEmailWithFullname();
   }
 
   public String getPhoneNumber() {
@@ -297,6 +302,19 @@ public class ContactDTO extends AbstractModelDataEntityDTO<Integer> implements D
   @Override
   public String getOrganizationName() {
     return getName();
+  }
+
+  public String getEmailWithFullname() {
+    return get(EMAIL_WITH_FULLNAME);
+  }
+
+  public void initEmailWithFullname() {
+    String fullName = getFullName();
+    String email = getEmail();
+    if (fullName == null || fullName.isEmpty()) {
+      set(EMAIL_WITH_FULLNAME, email);
+    }
+    set(EMAIL_WITH_FULLNAME, email + " (" + fullName + ")");
   }
 
   /**
