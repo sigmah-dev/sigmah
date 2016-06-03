@@ -135,10 +135,10 @@ public class ProjectModel extends AbstractEntityId<Integer> implements Deleteabl
 					EntityConstants.PROFILE_COLUMN_ID
 			})
 	)
-	private List<Profile> defaultTeamMemberProfiles;
+	private List<Profile> defaultTeamMemberProfiles = new ArrayList<>();
 
 	@OneToMany(mappedBy = "projectModel", cascade = CascadeType.ALL)
-	private List<FrameworkFulfillment> frameworkFulfillments;
+	private List<FrameworkFulfillment> frameworkFulfillments = new ArrayList<>();
 
 	public ProjectModel() {
 	}

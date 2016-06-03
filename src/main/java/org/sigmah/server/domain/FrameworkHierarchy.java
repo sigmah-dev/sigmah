@@ -22,6 +22,7 @@ package org.sigmah.server.domain;
  * #L%
  */
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.*;
@@ -59,11 +60,11 @@ public class FrameworkHierarchy extends AbstractEntityId<Integer> {
 
 	@OneToMany(mappedBy = "parentHierarchy", fetch = FetchType.LAZY)
 	@OrderBy("label ASC")
-	private List<FrameworkHierarchy> childrenHierarchies;
+	private List<FrameworkHierarchy> childrenHierarchies = new ArrayList<>();
 
 	@OneToMany(mappedBy = "frameworkHierarchy", fetch = FetchType.LAZY)
 	@OrderBy("label ASC")
-	private List<FrameworkElement> frameworkElements;
+	private List<FrameworkElement> frameworkElements = new ArrayList<>();
 
 	@Override
 	public Integer getId() {

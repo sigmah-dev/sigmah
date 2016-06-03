@@ -22,6 +22,7 @@ package org.sigmah.server.domain;
  * #L%
  */
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.*;
@@ -49,7 +50,7 @@ public class FrameworkFulfillment extends AbstractEntityId<Integer> {
 	private ProjectModel projectModel;
 
 	@OneToMany(mappedBy = "frameworkFulfillment")
-	private List<FrameworkElementImplementation> frameworkElementImplementations;
+	private List<FrameworkElementImplementation> frameworkElementImplementations = new ArrayList<>();
 
 	@Column(name = EntityConstants.FRAMEWORK_FULFILLMENT_COLUMN_REJECT_REASON, nullable = true)
 	private String rejectReason;
