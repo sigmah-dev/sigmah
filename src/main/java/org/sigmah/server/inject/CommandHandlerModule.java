@@ -83,6 +83,7 @@ public class CommandHandlerModule extends AbstractCommandHandlerModule {
 		bindHandler(GetContactModel.class, GetContactModelHandler.class);
 		bindHandler(GetContactModelCopy.class, GetContactModelCopyHandler.class);
 		bindHandler(GetContactModels.class, GetContactModelsHandler.class);
+		bindHandler(GetContactRelationships.class, GetContactRelationshipsHandler.class);
 		bindHandler(GetCountries.class, GetCountriesHandler.class);
 		bindHandler(GetCountry.class, GetCountryHandler.class);
 		bindHandler(GetFilesFromFavoriteProjects.class, GetFilesFromFavoriteProjectsHandler.class);

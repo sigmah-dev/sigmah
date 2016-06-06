@@ -91,6 +91,7 @@ public class PersistenceModule extends AbstractModule {
 		bind(GlobalExportSettingsDAO.class).to(GlobalExportSettingsHibernateDAO.class).in(Singleton.class);
 		bind(HistoryTokenDAO.class).to(HistoryTokenHibernateDAO.class).in(Singleton.class);
 		bind(IndicatorDAO.class).to(IndicatorHibernateDAO.class).in(Singleton.class);
+		bind(LayoutGroupDAO.class).to(LayoutGroupHibernateDAO.class).in(Singleton.class);
 		bind(LocationDAO.class).to(LocationHibernateDAO.class).in(Singleton.class);
 		bind(LocationTypeDAO.class).to(LocationTypeHibernateDAO.class).in(Singleton.class);
 		bind(MonitoredPointDAO.class).to(MonitoredPointHibernateDAO.class).in(Singleton.class);
