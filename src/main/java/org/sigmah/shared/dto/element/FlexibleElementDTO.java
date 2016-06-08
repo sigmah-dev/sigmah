@@ -34,6 +34,7 @@ import org.sigmah.client.ui.res.icon.IconImageBundle;
 import org.sigmah.client.ui.widget.HistoryTokenText;
 import org.sigmah.client.ui.widget.HistoryWindow;
 import org.sigmah.client.util.ImageProvider;
+import org.sigmah.client.ui.widget.form.IterableGroupPanel;
 import org.sigmah.client.util.ToStringBuilder;
 import org.sigmah.shared.command.GetHistory;
 import org.sigmah.shared.command.result.Authentication;
@@ -123,6 +124,9 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 	private transient Menu historyMenu;
 	protected transient UserLocalCache cache;
 	protected transient ImageProvider imageProvider;
+
+	// If element is part of an iterative group we need this to determine current iteration
+	private transient IterableGroupPanel tabPanel;
 
 	/**
 	 * Sets the dispatch service to be used in the {@link #getElementComponent(ValueResult)} method.
@@ -359,7 +363,9 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 	 * @param loadables Element to mask during the load of the history.
 	 */
 	protected void loadAndShowHistory(Loadable... loadables) {
-		dispatch.execute(new GetHistory(getId(), currentContainerDTO.getId()), new CommandResultHandler<ListResult<HistoryTokenListDTO>>() {
+		final Integer iterationId = tabPanel == null ? null : tabPanel.getCurrentIterationId();
+
+		dispatch.execute(new GetHistory(getId(), currentContainerDTO.getId(), iterationId), new CommandResultHandler<ListResult<HistoryTokenListDTO>>() {
 
 			@Override
 			public void onCommandFailure(final Throwable e) {
@@ -766,5 +772,13 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 	
 	public void setCreationDate(Date creationDate) {
 		set(CREATION_DATE, creationDate);
+	}
+
+	public void setTabPanel(IterableGroupPanel tabPanel) {
+		this.tabPanel = tabPanel;
+	}
+
+	public IterableGroupPanel getTabPanel() {
+		return tabPanel;
 	}
 }
