@@ -43,13 +43,12 @@ import org.slf4j.LoggerFactory;
  * @author Mohamed KHADHRAOUI (mohamed.khadhraoui@netapsys.fr)
  */
 public class PersonnalEventLoader {
-	
-	
-	private static final Logger LOGGER=LoggerFactory.getLogger(PersonnalEventLoader.class);
-	
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(PersonnalEventLoader.class);
+
 	public static void main(String[] args) {
 		LOGGER.info("PersonnalEventLoader started");
-		Integer projectId ;
+		Integer projectId;
 		Integer count;
 		final Injector injector = Guice.createInjector(
 				// Configuration module.
@@ -61,28 +60,27 @@ public class PersonnalEventLoader {
 				// I18nServer module.
 				new I18nServerModule());
 
-		if(args!=null && args.length>1 && StringUtils.isNumeric(args[0])&& StringUtils.isNumeric(args[1])){
+		if (args != null && args.length > 1 && StringUtils.isNumeric(args[0]) && StringUtils.isNumeric(args[1])) {
 			count = Integer.valueOf(args[1]);
 			projectId = Integer.valueOf(args[0]);
-		}else{
-			LOGGER.error(" Parameters are not correct ");
-			LOGGER.info(" PersonnalEventLoader ended with errors");
+		} else {
+			LOGGER.error("Parameters are not correct");
+			LOGGER.info("PersonnalEventLoader ended with errors");
 			return;
 		}
-		
+
 		injector.getInstance(PersistService.class).start();
 		final ProjectDAO projectDAO = injector.getInstance(ProjectDAO.class);
 		final Project project = projectDAO.findById(projectId);
-		project.getName()
-		if(project!=null){
-			final EntityManager em = injector.getProvider(EntityManager.class).get();		
+		if (project != null) {
+			final EntityManager em = injector.getProvider(EntityManager.class).get();
 			em.getTransaction().begin();
-			LOGGER.info("Creating" +count +" PersonalEvent ");
-			try{
-				Calendar cal=count<365?initCalendar(2016):initCalendar(2015);		
-				for(int i=0;i<count;i++){
+			LOGGER.info("Creating" + count + " PersonalEvent");
+			try {
+				final Calendar cal = count < 365 ? initCalendar(2016) : initCalendar(2015);
+				for (int i = 0; i < count; i++) {
 					cal.add(Calendar.DAY_OF_MONTH, 1);
-					PersonalEvent personEvent=personalEventFactory(cal.getTime(),project.getCalendarId(),i);					
+					PersonalEvent personEvent = personalEventFactory(cal.getTime(), project.getCalendarId(), i);
 					em.merge(personEvent);
 				}
 				em.getTransaction().commit();
@@ -92,44 +90,46 @@ public class PersonnalEventLoader {
 			} finally {
 				injector.getInstance(PersistService.class).stop();
 			}
-			LOGGER.info("PersonnalEventLoader ended with succes");
-		}else{
-			LOGGER.error("Project  with id = "+projectId+" not found.");	
+			LOGGER.info("PersonnalEventLoader ended with success");
+		} else {
+			LOGGER.error("Project  with id = " + projectId + " not found.");
 			injector.getInstance(PersistService.class).stop();
 			LOGGER.info("PersonnalEventLoader ended with errors");
 		}
-		
-		
 	}
-	
+
 	/**
-	 * Instanciate  and initialize PersonalEvent.
+	 * Instanciate and initialize PersonalEvent.
+	 *
 	 * @param startDate
 	 * @param parentCalendarId
 	 * @param i
-	 * @return 
+	 * @return
 	 */
-	public static PersonalEvent personalEventFactory(Date startDate,Integer parentCalendarId,int i){
-		
-		PersonalEvent personalEvent = new PersonalEvent();		
+	public static PersonalEvent personalEventFactory(Date startDate, Integer parentCalendarId, int i) {
+		final PersonalEvent personalEvent = new PersonalEvent();
 		personalEvent.setDateCreated(new Date());
-		personalEvent.setDescription("Gen personal event "+i);
-		personalEvent.setSummary("gen personal event summary "+i);
-		personalEvent.setStartDate(startDate);	
-		Calendar cal=Calendar.getInstance();
+		personalEvent.setDescription("Gen personal event " + i);
+		personalEvent.setSummary("gen personal event summary " + i);
+		personalEvent.setStartDate(startDate);
+		
+		final Calendar cal = Calendar.getInstance();
 		cal.setTime(startDate);
-		cal.set(Calendar.HOUR_OF_DAY, Calendar.HOUR_OF_DAY+1);
+		cal.set(Calendar.HOUR_OF_DAY, Calendar.HOUR_OF_DAY + 1);
+		
 		personalEvent.setEndDate(cal.getTime());
 		personalEvent.setCalendarId(parentCalendarId);
 		return personalEvent;
 	}
+
 	/**
 	 * init calendar.
+	 *
 	 * @param year
-	 * @return 
+	 * @return
 	 */
-	private static Calendar initCalendar(int year){
-		Calendar cal = Calendar.getInstance();
+	private static Calendar initCalendar(int year) {
+		final Calendar cal = Calendar.getInstance();
 		cal.set(Calendar.YEAR, year);
 		cal.set(Calendar.MONTH, 0);
 		cal.set(Calendar.DAY_OF_MONTH, 1);

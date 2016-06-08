@@ -42,15 +42,14 @@ public final class PropertyName {
 
 	private static final String ERROR_TAG = "???";
 	
-
 	/**
 	 * Builds a property name which {@code parts} are separated by a dot character.
 	 * 
 	 * <pre>
-	 * n(null) -> ""
-	 * n("") -> ""
-	 * n("my", "Key", " rocks ") -> "my.Key.rocks"
-	 * n("my", "Key", "rocks.like.hell") -> "my.Key.rocks.like.hell"
+	 * n(null) → ""
+	 * n("") → ""
+	 * n("my", "Key", " rocks ") → "my.Key.rocks"
+	 * n("my", "Key", "rocks.like.hell") → "my.Key.rocks.like.hell"
 	 * </pre>
 	 * 
 	 * @param parts
@@ -79,7 +78,7 @@ public final class PropertyName {
 	 * Returns the <em>error</em> value for the given {@code key}.
 	 * 
 	 * <pre>
-	 * error("my.key") -> "???my.key???"
+	 * error("my.key") → "???my.key???"
 	 * </pre>
 	 * 
 	 * @param key
@@ -94,8 +93,8 @@ public final class PropertyName {
 	 * Returns if the given {@code key} is an error key produced by {@link #error(String)} method.
 	 * 
 	 * <pre>
-	 * isErrorKey("my.key") -> false
-	 * isErrorKey("???my.key???") -> true
+	 * isErrorKey("my.key") → false
+	 * isErrorKey("???my.key???") → true
 	 * </pre>
 	 * 
 	 * @param key

@@ -59,7 +59,8 @@ final class Confirm {
 	/**
 	 * html id of yes button.
 	 */
-	private final static String YES_BUTTON_ID="yesButtonId";
+	private final static String YES_BUTTON_ID = "yesButtonId";
+	
 	static {
 
 		// Buttons.
@@ -115,8 +116,8 @@ final class Confirm {
 	}
 
 	/**
-	 * Shows the given message into the popup.<br/>
-	 * <br/>
+	 * Shows the given message into the popup.
+	 *
 	 * There is only one instance of the popup, the previous message may be erased.
 	 * 
 	 * @param title

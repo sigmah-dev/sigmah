@@ -61,7 +61,7 @@ import org.sigmah.client.util.profiler.Scenario;
  * (<u>crucial</u>).<br>
  * The presenter's {@link PagePresenter#getPage()} method should return new page token.</li>
  * <li>Define an inner <em>static</em> interface representing the presenter's view. This interface must have the
- * {@link com.google.inject.ImplementedBy} annotation referencing the view implementation (<u>crucial</u>).<br/>
+ * {@link com.google.inject.ImplementedBy} annotation referencing the view implementation (<u>crucial</u>).
  * See {@link AbstractView} javadoc to initialize the view implementation.</li>
  * <li>Add an accessor to the presenter into client-side {@link Injector} and call it into {@link Sigmah#onModuleLoad()}
  * entry point in order to register presenter.</li>
@@ -204,8 +204,6 @@ public abstract class AbstractPagePresenter<V extends ViewInterface> extends Abs
 			displayApplicationMessage(page);
 		}
 		
-		//Profiler.INSTANCE.endScenario(Scenario.OPEN_PROJECT);
-
 	}
 
 	/**
@@ -242,8 +240,8 @@ public abstract class AbstractPagePresenter<V extends ViewInterface> extends Abs
 
 	/**
 	 * Checks if a message needs to be displayed in the application header. If it does, the message is sent to the
-	 * application presenter's view.<br/>
-	 * <br/>
+	 * application presenter's view.
+	 *
 	 * Also check if the {@code page} is still in progress from retrieved server properties. If this is the case, a
 	 * warning message is displayed.
 	 * 
@@ -257,8 +255,8 @@ public abstract class AbstractPagePresenter<V extends ViewInterface> extends Abs
 
 	/**
 	 * Displays the given message at the top of the current page. If the message is {@code null} or {@code empty}, the
-	 * message will be hidden.<br/>
-	 * <br/>
+	 * message will be hidden.
+	 *
 	 * <strong>The page message must be initialized in the {@link #onPageRequest} method.</strong>
 	 * 
 	 * @param message
@@ -275,7 +273,7 @@ public abstract class AbstractPagePresenter<V extends ViewInterface> extends Abs
 	}
 
 	/**
-	 * Hides the presenter's popup view.<br/>
+	 * Hides the presenter's popup view.
 	 * If the presenter's view is not a {@link ViewPopupInterface} implementation, the method does nothing.
 	 */
 	protected final void hideView() {
