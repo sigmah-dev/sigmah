@@ -25,6 +25,7 @@ package org.sigmah.client.ui.presenter.admin.models;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.event.UpdateEvent;
 import org.sigmah.client.i18n.I18N;
@@ -91,6 +92,7 @@ public class EditLayoutGroupAdminPresenter extends AbstractPagePresenter<EditLay
 
 		SimpleComboBox<Integer> getRowField();
 
+		CheckBox getHasIterationsField();
 		Button getSaveButton();
 
 		Button getDeleteButton();
@@ -213,6 +215,7 @@ public class EditLayoutGroupAdminPresenter extends AbstractPagePresenter<EditLay
 			view.getNameField().setValue(layoutGroup.getTitle());
 			view.getContainerField().setValue(flexibleElement.getContainerModel());
 			setRowFieldValues(flexibleElement.getContainerModel(), layoutGroup.getRow());
+			view.getHasIterationsField().setValue(layoutGroup.getHasIterations());
 		} else {
 			layoutGroup = null;
 		}
@@ -305,12 +308,14 @@ public class EditLayoutGroupAdminPresenter extends AbstractPagePresenter<EditLay
 		final String name = view.getNameField().getValue();
 		final Integer row = view.getRowField().getSimpleValue();
 		final Integer column = 0;
+		final Boolean hasIterations = view.getHasIterationsField().getValue();
 		final LayoutDTO container = getLayout(view.getContainerField().getValue());
 
 		final LayoutGroupDTO layoutGroupDTO = layoutGroup != null ? layoutGroup : new LayoutGroupDTO();
 		layoutGroupDTO.setTitle(name);
 		layoutGroupDTO.setRow(row);
 		layoutGroupDTO.setColumn(column);
+		layoutGroupDTO.setHasIterations(hasIterations);
 		layoutGroupDTO.setParentLayout(container);
 
 		final Map<String, Object> newGroupProperties = new HashMap<String, Object>();

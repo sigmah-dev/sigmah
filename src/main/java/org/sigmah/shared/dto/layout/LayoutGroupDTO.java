@@ -53,6 +53,7 @@ public class LayoutGroupDTO extends AbstractModelDataEntityDTO<Integer> {
 	public static final String ROW = "row";
 	public static final String COLUMN = "column";
 	public static final String PARENT_LAYOUT = "parentLayout";
+	public static final String HAS_ITERATIONS = "hasIterations";
 	public static final String CONSTRAINTS = "constraints";
 
 	/**
@@ -71,6 +72,7 @@ public class LayoutGroupDTO extends AbstractModelDataEntityDTO<Integer> {
 		builder.append(TITLE, getTitle());
 		builder.append(ROW, getRow());
 		builder.append(COLUMN, getColumn());
+		builder.append(HAS_ITERATIONS, getHasIterations());
 	}
 
 	// Layout group title
@@ -98,6 +100,15 @@ public class LayoutGroupDTO extends AbstractModelDataEntityDTO<Integer> {
 
 	public void setColumn(Integer column) {
 		set(COLUMN, column);
+	}
+
+	// Has iterations
+	public Boolean getHasIterations() {
+		return (Boolean) get(HAS_ITERATIONS);
+	}
+
+	public void setHasIterations(Boolean hasIterations) {
+		set(HAS_ITERATIONS, hasIterations);
 	}
 
 	// Reference to layoutDTO
