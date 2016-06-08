@@ -23,18 +23,43 @@ package org.sigmah.client.ui.presenter.contact;
 
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.widget.button.ToggleButton;
+import com.extjs.gxt.ui.client.widget.grid.Grid;
 
+import java.util.List;
+
+import org.sigmah.client.dispatch.CommandResultHandler;
+import org.sigmah.client.dispatch.monitor.LoadingMask;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.inject.Injector;
+import org.sigmah.client.page.Page;
+import org.sigmah.client.page.RequestParameter;
 import org.sigmah.client.ui.presenter.base.AbstractPresenter;
 import org.sigmah.client.ui.view.base.ViewInterface;
 import org.sigmah.client.ui.view.contact.ContactRelationshipsView;
+import org.sigmah.shared.command.GetContactRelationships;
+import org.sigmah.shared.command.result.ContactRelationship;
+import org.sigmah.shared.command.result.ListResult;
 import org.sigmah.shared.dto.ContactDTO;
 
 public class ContactRelationshipsPresenter extends AbstractPresenter<ContactRelationshipsPresenter.View> implements ContactPresenter.ContactSubPresenter<ContactRelationshipsPresenter.View> {
   @ImplementedBy(ContactRelationshipsView.class)
   public interface View extends ViewInterface {
+    void reloadView(ContactDTO contactDTO, AnchorHandler anchorHandler);
 
+    Grid<ContactRelationship> getRelationshipsGrid();
+
+    ToggleButton outboundToggleButton();
+
+    ToggleButton inboundToggleButton();
+
+    void updateGridData(List<ContactRelationship> relationships);
+  }
+
+  public interface AnchorHandler {
+    void handleClick(ContactRelationship.Type type, Integer id);
   }
 
   @Inject
@@ -48,7 +73,54 @@ public class ContactRelationshipsPresenter extends AbstractPresenter<ContactRela
   }
 
   @Override
-  public void refresh(ContactDTO contactDTO) {
-    // TODO
+  public void refresh(final ContactDTO contactDTO) {
+    view.reloadView(contactDTO, new AnchorHandler() {
+      @Override
+      public void handleClick(ContactRelationship.Type type, Integer id) {
+        Page page;
+        switch (type) {
+          case PROJECT:
+            page = Page.PROJECT_DASHBOARD;
+            break;
+          case ORGUNIT:
+            page = Page.ORGUNIT_DASHBOARD;
+            break;
+          case CONTACT:
+            page = Page.CONTACT_DASHBOARD;
+            break;
+          default:
+            throw new IllegalStateException();
+        }
+        eventBus.navigateRequest(page.requestWith(RequestParameter.ID, id));
+      }
+    });
+
+    reloadData(contactDTO.getId(), null);
+
+    view.inboundToggleButton().toggle(false);
+    view.outboundToggleButton().toggle(false);
+    view.inboundToggleButton().addSelectionListener(new SelectionListener<ButtonEvent>() {
+      @Override
+      public void componentSelected(ButtonEvent ce) {
+        view.outboundToggleButton().toggle(false);
+        reloadData(contactDTO.getId(), view.inboundToggleButton().isPressed() ? ContactRelationship.Direction.INBOUND : null);
+      }
+    });
+    view.outboundToggleButton().addSelectionListener(new SelectionListener<ButtonEvent>() {
+      @Override
+      public void componentSelected(ButtonEvent ce) {
+        view.inboundToggleButton().toggle(false);
+        reloadData(contactDTO.getId(), view.outboundToggleButton().isPressed() ? ContactRelationship.Direction.OUTBOUND : null);
+      }
+    });
+  }
+
+  private void reloadData(Integer contactId, ContactRelationship.Direction direction) {
+    dispatch.execute(new GetContactRelationships(contactId, direction), new CommandResultHandler<ListResult<ContactRelationship>>() {
+      @Override
+      protected void onCommandSuccess(ListResult<ContactRelationship> result) {
+        view.updateGridData(result.getList());
+      }
+    }, new LoadingMask(view.getRelationshipsGrid()));
   }
 }
