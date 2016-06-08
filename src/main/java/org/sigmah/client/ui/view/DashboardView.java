@@ -70,10 +70,8 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
-import org.sigmah.client.page.Page;
-import org.sigmah.client.page.RequestParameter;
 import org.sigmah.client.ui.presenter.DashboardPresenter.ReminderOrMonitoredPointHandler;
-import org.sigmah.client.ui.presenter.project.dashboard.ProjectDashboardPresenter;
+
 
 /**
  * Dashboard view.

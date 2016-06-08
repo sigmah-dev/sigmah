@@ -79,6 +79,8 @@ import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.sigmah.client.computation.ComputationTriggerManager;
+import org.sigmah.client.util.profiler.Profiler;
+import org.sigmah.client.util.profiler.Scenario;
 
 /**
  * Project's details presenter which manages the {@link ProjectDetailsView}.
@@ -158,9 +160,7 @@ public class ProjectDetailsPresenter extends AbstractProjectPresenter<ProjectDet
 	 */
 	@Override
 	public void onPageRequest(final PageRequest request) {
-
 		load(getProject().getProjectModel().getProjectDetails());
-
 		valueChanges.clear();
 	}
 
@@ -476,8 +476,8 @@ public class ProjectDetailsPresenter extends AbstractProjectPresenter<ProjectDet
 
 					/**
 					 * Update funding projects - Reflect to funded project in funding projects currentProjectDTO |-- getFunding()
-					 * → <ProjectFundingDTO> // list of funding projects |-- getPercentage() // no updates from here |--
-					 * getFunded() → ProjectDTOLight // funded project details light |--getPlannedBudget() // update budget
+					 * --> <ProjectFundingDTO> // list of funding projects |-- getPercentage() // no updates from here |--
+					 * getFunded() --> ProjectDTOLight // funded project details light |--getPlannedBudget() // update budget
 					 * details
 					 */
 					final List<ProjectFundingDTO> fundingProjects = currentProjectDTO.getFunding();

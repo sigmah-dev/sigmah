@@ -1,5 +1,4 @@
-package org.sigmah.client.ui.res.icon.offline;
-
+package org.sigmah.shared.command;
 /*
  * #%L
  * Sigmah
@@ -21,26 +20,33 @@ package org.sigmah.client.ui.res.icon.offline;
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
-
-import com.google.gwt.core.client.GWT;
-import com.google.gwt.resources.client.ClientBundle;
-import com.google.gwt.resources.client.ImageResource;
+import java.util.ArrayList;
+import java.util.List;
+import org.sigmah.shared.command.base.AbstractCommand;
+import org.sigmah.shared.command.result.Result;
+import org.sigmah.shared.dto.profile.ExecutionDTO;
 
 /**
  *
- * @author Raphaël Calabro (rcalabro@ideia.fr)
+ * @author Mohamed KHADHRAOUI (mohamed.khadhraoui@netapsys.fr)
  */
-public interface OfflineIconBundle extends ClientBundle {
+public class SendProbeReport extends AbstractCommand<Result>{
+	/**
+	 * list of execution.
+	 */
+	List<ExecutionDTO>  executionsProfiler=new ArrayList<ExecutionDTO>();
 	
-	public static final OfflineIconBundle INSTANCE = GWT.create(OfflineIconBundle.class);
+	public SendProbeReport(){
+		
+	}
 	
-	ImageResource signalOff();
-	ImageResource signalOn();
+	public SendProbeReport(List<ExecutionDTO>  executionsProfiler){	
+		this.executionsProfiler=executionsProfiler;
+	}
+
+	public List<ExecutionDTO> getExecutionsProfiler() {
+		return executionsProfiler;
+	}
 	
-	ImageResource connect();
-	ImageResource disconnect();
 	
-	ImageResource error();
-	ImageResource traceOn();
-	ImageResource traceOff();
 }

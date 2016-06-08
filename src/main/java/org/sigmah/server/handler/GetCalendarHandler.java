@@ -40,6 +40,11 @@ import org.sigmah.shared.dto.calendar.CalendarType;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Locale;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Retrieves calendars and events.
@@ -50,6 +55,8 @@ import com.google.inject.Singleton;
 @Singleton
 public class GetCalendarHandler extends AbstractCommandHandler<GetCalendar, Calendar> {
 
+	
+	private static final Logger LOGGER=LoggerFactory.getLogger(GetCalendarHandler.class);
 	/**
 	 * List of converters. They convert model objects to <code>Calendar</code>s and <code>Event</code>s objects.
 	 * 
@@ -78,6 +85,7 @@ public class GetCalendarHandler extends AbstractCommandHandler<GetCalendar, Cale
 	@Override
 	public Calendar execute(GetCalendar cmd, final UserExecutionContext context) throws CommandException {
 		final CalendarHandler handler = handlers.get(cmd.getType());
-		return handler.getCalendar(cmd.getIdentifier(),em());
+		Calendar calendar= handler.getCalendar(cmd.getIdentifier(),em());
+		return calendar;
 	}
 }

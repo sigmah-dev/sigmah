@@ -23,6 +23,7 @@ package org.sigmah.client.ui.presenter.zone;
  */
 
 
+import com.allen_sauer.gwt.log.client.Log;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -62,6 +63,14 @@ import com.google.inject.Singleton;
 @Singleton
 public class MenuBannerPresenter extends AbstractZonePresenter<MenuBannerPresenter.View> {
 
+	/**
+	 * Home tab id
+	 */
+	private final static String DASHBOARD_HOME_TAB_ID="dashboardHomeTabId";
+	/**
+	 * Project tab id.
+	 */
+	private final static String DASHBOARD_PROJECT_TAB_ID="dashboardProjectTabId";
 	/**
 	 * View interface.
 	 */
@@ -188,7 +197,10 @@ public class MenuBannerPresenter extends AbstractZonePresenter<MenuBannerPresent
 		if (request == null || request.getPage() == null) {
 			throw new IllegalArgumentException("Invalid PageRequest instance.");
 		}
-
+		final String tabDomId = zoneRequest.getData(RequestParameter.PROJECT_ID);
+		if(tabDomId!=null){
+			view.getTabBar().updateClosableTabDomId(new MenuTabId(request), DASHBOARD_PROJECT_TAB_ID+tabDomId);	
+		}
 		// Retrieves a tab title ?
 		final String tabTitle = zoneRequest.getData(RequestParameter.HEADER);
 
@@ -200,7 +212,7 @@ public class MenuBannerPresenter extends AbstractZonePresenter<MenuBannerPresent
 		else {
 			view.getTabBar().updateTitle(new MenuTabId(request), tabTitle);
 		}
-
+		
 	}
 
 	/**
@@ -243,6 +255,9 @@ public class MenuBannerPresenter extends AbstractZonePresenter<MenuBannerPresent
 		// Builds the tab.
 		final Tab tab = new Tab(new MenuTabId(request), closeable, styleName);
 
+		if(request.getPage()==Page.DASHBOARD){
+			tab.getElement().setId(DASHBOARD_HOME_TAB_ID);
+		}		
 		// Adds the tab.
 		view.getTabBar().addTab(tab);
 		requests.put(tab.getId(), new PageRequest(request)); // Important: create a new instance.

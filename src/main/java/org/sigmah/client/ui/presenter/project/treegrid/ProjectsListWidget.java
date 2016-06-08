@@ -688,7 +688,6 @@ public class ProjectsListWidget extends AbstractPresenter<ProjectsListWidget.Vie
 		// Reload filter labels for category filter list store.
 		reloadCategoryListFilterStore();
 
-		Profiler.INSTANCE.markCheckpoint(Scenario.LOGIN, "Project list widget initialization ended.");
 		
 		if (loadingMode == LoadingMode.ONE_TIME) {
 			// Loads projects in one time (one request).
@@ -763,7 +762,6 @@ public class ProjectsListWidget extends AbstractPresenter<ProjectsListWidget.Vie
 			@Override
 			public void chunkRetrieved(final List<ProjectDTO> projects) {
 				addProjectToTreeGrid(projects);
-				Profiler.INSTANCE.markCheckpoint(Scenario.LOGIN, "Chunk #" + (chunk++) + " loaded.");
 			}
 
 			@Override
@@ -780,7 +778,6 @@ public class ProjectsListWidget extends AbstractPresenter<ProjectsListWidget.Vie
 		view.getStore().removeAll();
 		view.getStore().clearFilters();
 		
-		Profiler.INSTANCE.markCheckpoint(Scenario.LOGIN, "Before project loading.");
 
 		worker.run();
 	}

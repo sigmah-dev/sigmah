@@ -32,7 +32,7 @@ import org.junit.Assert;
 
 /**
  * Test implementation of the mail sender.
- *
+ * <p/>
  * Does not send any actual email but test if the given arguments are corrects
  * and display the requested e-mail on the standard output.
  * 
@@ -93,6 +93,11 @@ public class DummyMailSender implements MailSender {
 	@Override
 	public void sendFile(Email email, String fileName, InputStream fileStream) throws EmailException {
 		send(email);
+	}
+
+	@Override
+	public void sendEmailWithMultiAttachmenets(Email email, String[] fileNames, InputStream[] fileStreams) throws EmailException {
+		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
 	}
 
 }

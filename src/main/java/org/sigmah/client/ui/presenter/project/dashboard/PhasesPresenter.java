@@ -96,6 +96,8 @@ import com.google.inject.Inject;
 import org.sigmah.client.computation.ComputationTriggerManager;
 import org.sigmah.client.ui.presenter.project.ProjectPresenter;
 import org.sigmah.client.ui.widget.Loadable;
+import org.sigmah.client.util.profiler.Profiler;
+import org.sigmah.client.util.profiler.Scenario;
 import org.sigmah.shared.dispatch.FunctionalException;
 
 /**
@@ -620,7 +622,8 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> {
 				// View layouts update.
 				// FIXME (v1.3) This should be done by Ext, not be the developer!
 				injector.getProjectDashboardPresenter().getView().layoutView();
-				view.layout();
+				view.layout();				
+				Profiler.INSTANCE.endScenario(Scenario.OPEN_PROJECT);
 			}
 			
 		};

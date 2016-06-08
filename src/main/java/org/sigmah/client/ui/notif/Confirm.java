@@ -56,10 +56,15 @@ final class Confirm {
 	private static ConfirmCallback yesCallback;
 	private static ConfirmCallback noCallback;
 
+	/**
+	 * html id of yes button.
+	 */
+	private final static String YES_BUTTON_ID="yesButtonId";
 	static {
 
 		// Buttons.
 		final Button yes = new Button(I18N.CONSTANTS.yes());
+		yes.setId(YES_BUTTON_ID);
 		yes.addListener(Events.Select, new Listener<BaseEvent>() {
 
 			@Override
@@ -110,8 +115,8 @@ final class Confirm {
 	}
 
 	/**
-	 * Shows the given message into the popup.
-	 *
+	 * Shows the given message into the popup.<br/>
+	 * <br/>
 	 * There is only one instance of the popup, the previous message may be erased.
 	 * 
 	 * @param title
@@ -132,6 +137,8 @@ final class Confirm {
 
 		popup.setTitle(ClientUtils.isNotBlank(title) ? title : MessageType.getTitle(MessageType.QUESTION));
 		popup.setPageMessage(html, MessageType.QUESTION);
+		
+		
 
 		if (!visible) {
 			popup.center();

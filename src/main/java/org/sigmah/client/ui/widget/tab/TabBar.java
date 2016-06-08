@@ -239,7 +239,7 @@ public class TabBar implements IsWidget {
 	 *          The tab.
 	 */
 	public void addTab(final Tab tab) {
-
+		
 		// Nothing to do.
 		if (tab == null || tab.getId() == null) {
 			return;
@@ -305,6 +305,30 @@ public class TabBar implements IsWidget {
 		final Tab tab = tabsIds.get(id);
 		if (tab != null) {
 			tab.setTabTitle(title);
+		}
+
+	}
+	
+	/**
+	 * Updates the title of the tab with the given id.
+	 * 
+	 * @param id
+	 *          The id.
+	 * @param title
+	 *          The new title.
+	 */
+	/**
+	 * Updates the dom of the tab with the given id.
+	 * @param id
+	 * @param domId 
+	 */
+	public void updateClosableTabDomId(TabId id, String domId) {
+
+		final Tab tab = tabsIds.get(id);
+		if (tab != null) {			
+			if(tab.getClosePanel()!=null){
+				tab.getClosePanel().getElement().setId(domId);
+			}
 		}
 
 	}

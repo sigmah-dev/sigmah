@@ -164,4 +164,8 @@ public class ObjectStore {
 	public Index index(String name) {
 		return new Index(nativeObjectStore.index(name));
 	}
+	
+	public IDBRequest clear(){
+		return nativeObjectStore.clear();
+	}
 }

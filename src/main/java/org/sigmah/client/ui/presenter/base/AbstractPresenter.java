@@ -40,6 +40,8 @@ import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
+import org.sigmah.client.util.profiler.Profiler;
+import org.sigmah.client.util.profiler.Scenario;
 
 /**
  * <p>
@@ -51,7 +53,7 @@ import com.google.inject.Inject;
  * <li>Create a new class inheriting {@link AbstractPresenter} with {@link com.google.inject.Singleton} annotation or
  * not, depending on its uniqueness.</li>
  * <li>Define an inner <em>static</em> interface representing the presenter's view. This interface must have the
- * {@link com.google.inject.ImplementedBy} annotation referencing the view implementation (<u>crucial</u>).
+ * {@link com.google.inject.ImplementedBy} annotation referencing the view implementation (<u>crucial</u>).<br/>
  * See {@link AbstractView} javadoc to initialize the view implementation.</li>
  * <li>Add an accessor to the presenter into client-side {@link Injector} and call it into {@link Sigmah#onModuleLoad()}
  * entry point in order to register presenter.</li>
@@ -98,7 +100,7 @@ public abstract class AbstractPresenter<V extends ViewInterface> implements Pres
 	protected final DispatchAsync dispatch;
 
 	/**
-	 * Flag indicating if the presenter has already been initialized.
+	 * Flag indicating if the presenter has already been initialized.<br/>
 	 * Each presenter is initialized only once.
 	 */
 	private boolean initialized;
@@ -211,7 +213,7 @@ public abstract class AbstractPresenter<V extends ViewInterface> implements Pres
 	 */
 	@Override
 	public void revealView() {
-
+		Profiler.INSTANCE.markCheckpoint(Scenario.OPEN_PROJECT, " revealView start ");
 		if (Log.isTraceEnabled()) {
 			Log.trace("Reveals '" + view.getClass().getName() + "' presenter's view.");
 		}
@@ -234,7 +236,10 @@ public abstract class AbstractPresenter<V extends ViewInterface> implements Pres
 		}
 
 		view.onViewRevealed();
+		
 		onViewRevealed();
+		
+		Profiler.INSTANCE.markCheckpoint(Scenario.OPEN_PROJECT, " revealView end ");
 	}
 
 	/**
