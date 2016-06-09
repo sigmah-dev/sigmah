@@ -48,7 +48,7 @@ public class ValueEvent extends GWTImmortalEvent<ValueHandler> implements Serial
 	private final static GwtEvent.Type<ValueHandler> TYPE = new GwtEvent.Type<ValueHandler>();
 
 	private FlexibleElementDTO sourceElement;
-	private TripletValueDTO listValue;
+	private TripletValueDTO tripletValue;
 	private String singleValue;
 	// Only used for the elements part of a list.
 	private ValueEventChangeType changeType;
@@ -76,15 +76,15 @@ public class ValueEvent extends GWTImmortalEvent<ValueHandler> implements Serial
 		this.isProjectCountryChanged = isProjectCountryChanged;
 	}
 
-	public ValueEvent(FlexibleElementDTO sourceElement, TripletValueDTO listValue) {
+	public ValueEvent(FlexibleElementDTO sourceElement, TripletValueDTO tripletValue) {
 		this.sourceElement = sourceElement;
-		this.listValue = listValue;
+		this.tripletValue = tripletValue;
 		this.changeType = ValueEventChangeType.ADD;
 	}
 
-	public ValueEvent(FlexibleElementDTO sourceElement, TripletValueDTO listValue, ValueEventChangeType changeType) {
+	public ValueEvent(FlexibleElementDTO sourceElement, TripletValueDTO tripletValue, ValueEventChangeType changeType) {
 		this.sourceElement = sourceElement;
-		this.listValue = listValue;
+		this.tripletValue = tripletValue;
 		if (changeType == null) {
 			this.changeType = ValueEventChangeType.ADD;
 		} else {
@@ -122,12 +122,12 @@ public class ValueEvent extends GWTImmortalEvent<ValueHandler> implements Serial
 		this.changeType = changeType;
 	}
 
-	public TripletValueDTO getListValue() {
-		return listValue;
+	public TripletValueDTO getTripletValue() {
+		return tripletValue;
 	}
 
-	public void setListValue(TripletValueDTO listValue) {
-		this.listValue = listValue;
+	public void setTripletValue(TripletValueDTO tripletValue) {
+		this.tripletValue = tripletValue;
 	}
 
 	public String getSingleValue() {
@@ -162,7 +162,7 @@ public class ValueEvent extends GWTImmortalEvent<ValueHandler> implements Serial
 
 		builder.append("source", sourceElement.getId());
 		builder.append("value", singleValue);
-		builder.append("values", listValue);
+		builder.append("tripletValue", tripletValue);
 		builder.append("changeType", changeType);
 
 		return builder.toString();

@@ -69,13 +69,13 @@ public class UpdateProject extends AbstractCommand<VoidResult> {
 		for (final ValueEvent event : values) {
 
 			// Manages basic values changes.
-			if (event.getListValue() == null) {
+			if (event.getTripletValue() == null) {
 				// Keep only the last modification to avoid events repetition.
 				basicValues.put(event.getSourceElement().getId(), event);
 			}
 			// Manages the elements which are a part of a list.
 			else {
-				final TripletValueDTO element = event.getListValue();
+				final TripletValueDTO element = event.getTripletValue();
 
 				// Manages only elements which are not stored on the data layer to keep only the last state of each element
 				// before sending events to the server.
@@ -115,11 +115,11 @@ public class UpdateProject extends AbstractCommand<VoidResult> {
 
 		// Store each event for new elements as an 'add' event with the last state of the element.
 		for (final ValueEvent event : listValues.values()) {
-			this.values.add(wrapEvent(new ValueEvent(event.getSourceElement(), event.getListValue(), ValueEventChangeType.ADD), event.isProjectCountryChanged()));
+			this.values.add(wrapEvent(new ValueEvent(event.getSourceElement(), event.getTripletValue(), ValueEventChangeType.ADD), event.isProjectCountryChanged()));
 		}
 
 		for (final ValueEvent event : editedValues.values()) {
-			this.values.add(wrapEvent(new ValueEvent(event.getSourceElement(), event.getListValue(), ValueEventChangeType.EDIT), event.isProjectCountryChanged()));
+			this.values.add(wrapEvent(new ValueEvent(event.getSourceElement(), event.getTripletValue(), ValueEventChangeType.EDIT), event.isProjectCountryChanged()));
 		}
 	}
 
@@ -184,7 +184,7 @@ public class UpdateProject extends AbstractCommand<VoidResult> {
 		final ValueEventWrapper wrapper = new ValueEventWrapper();
 		wrapper.setSourceElement(event.getSourceElement());
 		wrapper.setSingleValue(event.getSingleValue());
-		wrapper.setListValue(event.getListValue());
+		wrapper.setTripletValue(event.getTripletValue());
 		wrapper.setChangeType(event.getChangeType());
 		wrapper.setProjectCountryChanged(isProjectCountryChange);
 

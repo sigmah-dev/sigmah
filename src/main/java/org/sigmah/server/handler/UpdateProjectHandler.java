@@ -193,7 +193,7 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 			// Event parameters.
 			final FlexibleElementDTO source = valueEvent.getSourceElement();
 			final FlexibleElement element = em().find(FlexibleElement.class, source.getId());
-			final TripletValueDTO updateListValue = valueEvent.getListValue();
+			final TripletValueDTO updateListValue = valueEvent.getTripletValue();
 			final String updateSingleValue = valueEvent.getSingleValue();
 			final boolean isProjectCountryChanged = valueEvent.isProjectCountryChanged();
 
@@ -777,7 +777,7 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 				if (projectIsClosed || phaseIsClosed || (source.getAmendable() && projectIsLocked)) {
 					final ValueResult result = new ValueResult();
 					result.setValueObject(value.getSingleValue());
-					result.setValuesObject(value.getListValue() != null ? Collections.<ListableValue>singletonList(value.getListValue()) : null);
+					result.setValuesObject(value.getTripletValue() != null ? Collections.<ListableValue>singletonList(value.getTripletValue()) : null);
 
 					if(!source.isCorrectRequiredValue(result)) {
 						conflicts.add(i18nServer.t(language, "conflictModifyLockedContentEmptyValue",

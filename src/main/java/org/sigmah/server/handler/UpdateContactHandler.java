@@ -41,8 +41,6 @@ import org.sigmah.server.dispatch.impl.UserDispatch.UserExecutionContext;
 import org.sigmah.server.domain.Contact;
 import org.sigmah.server.domain.Country;
 import org.sigmah.server.domain.HistoryToken;
-import org.sigmah.server.domain.OrgUnit;
-import org.sigmah.server.domain.Project;
 import org.sigmah.server.domain.User;
 import org.sigmah.server.domain.element.FlexibleElement;
 import org.sigmah.server.domain.util.Deleteable;
@@ -51,7 +49,6 @@ import org.sigmah.server.domain.value.Value;
 import org.sigmah.server.handler.base.AbstractCommandHandler;
 import org.sigmah.server.i18n.I18nServer;
 import org.sigmah.server.mapper.Mapper;
-import org.sigmah.server.service.UserPermissionPolicy;
 import org.sigmah.shared.Language;
 import org.sigmah.shared.command.UpdateContact;
 import org.sigmah.shared.command.result.VoidResult;
@@ -121,7 +118,7 @@ public class UpdateContactHandler extends AbstractCommandHandler<UpdateContact, 
       // Event parameters.
       FlexibleElementDTO source = valueEvent.getSourceElement();
       FlexibleElement element = em().find(FlexibleElement.class, source.getId());
-      TripletValueDTO updateListValue = valueEvent.getListValue();
+      TripletValueDTO updateListValue = valueEvent.getTripletValue();
       String updateSingleValue = valueEvent.getSingleValue();
 
       LOG.debug("[execute] Updates value of element #{} ({})", source.getId(), source.getEntityName());

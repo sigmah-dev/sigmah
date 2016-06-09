@@ -39,7 +39,7 @@ public class ValueEventWrapper implements Serializable {
 	private static final long serialVersionUID = 8800087226429558970L;
 
 	private FlexibleElementDTO sourceElement;
-	private TripletValueDTO listValue;
+	private TripletValueDTO tripletValue;
 	private String singleValue;
 	private ValueEventChangeType changeType;
 	private boolean isProjectCountryChanged;
@@ -78,12 +78,12 @@ public class ValueEventWrapper implements Serializable {
 		this.changeType = changeType;
 	}
 
-	public TripletValueDTO getListValue() {
-		return listValue;
+	public TripletValueDTO getTripletValue() {
+		return tripletValue;
 	}
 
-	public void setListValue(TripletValueDTO listValue) {
-		this.listValue = listValue;
+	public void setTripletValue(TripletValueDTO tripletValue) {
+		this.tripletValue = tripletValue;
 	}
 
 	public String getSingleValue() {
@@ -102,7 +102,7 @@ public class ValueEventWrapper implements Serializable {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((changeType == null) ? 0 : changeType.hashCode());
-		result = prime * result + ((listValue == null) ? 0 : listValue.hashCode());
+		result = prime * result + ((tripletValue == null) ? 0 : tripletValue.hashCode());
 		result = prime * result + ((singleValue == null) ? 0 : singleValue.hashCode());
 		result = prime * result + ((sourceElement == null) ? 0 : sourceElement.hashCode());
 		return result;
@@ -122,10 +122,10 @@ public class ValueEventWrapper implements Serializable {
 		ValueEventWrapper other = (ValueEventWrapper) obj;
 		if (changeType != other.changeType)
 			return false;
-		if (listValue == null) {
-			if (other.listValue != null)
+		if (tripletValue == null) {
+			if (other.tripletValue != null)
 				return false;
-		} else if (!listValue.equals(other.listValue))
+		} else if (!tripletValue.equals(other.tripletValue))
 			return false;
 		if (singleValue == null) {
 			if (other.singleValue != null)
@@ -144,8 +144,8 @@ public class ValueEventWrapper implements Serializable {
 	public String toString() {
 		return "ValueEventWrapper [sourceElement="
 			+ sourceElement
-			+ ", listValue="
-			+ listValue
+			+ ", tripletValue="
+			+ tripletValue
 			+ ", singleValue="
 			+ singleValue
 			+ ", changeType="
