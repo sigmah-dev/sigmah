@@ -383,3 +383,7 @@ body {font-family:Arial;font-size:8pt}
 .list-combobox__form { display: flex; }
 
 .messageElement{line-height: 1.8em;font-size: 12px;}
+
+ul.x-tab-strip {
+  width: auto !important;
+}
