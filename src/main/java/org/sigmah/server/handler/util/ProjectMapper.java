@@ -328,9 +328,15 @@ public class ProjectMapper extends EntityManagerProvider {
 	}
 
 	public void fillBudget(final Project project, final ProjectDTO projectDTO) throws NumberFormatException {
+		final List<Integer> budgetElementIds = em().createQuery("SELECT b.id FROM BudgetElement b", Integer.class).getResultList();
+		
+		if (budgetElementIds.isEmpty()) {
+			return;
+		}
+		
 		final TypedQuery<Value> budgetValueQuery = em().createQuery("SELECT v FROM Value v WHERE v.containerId = :projectId AND v.element.id IN (:ids)", Value.class);
 		budgetValueQuery.setParameter("projectId", project.getId());
-		budgetValueQuery.setParameter("ids", em().createQuery("SELECT b.id FROM BudgetElement b").getResultList());
+		budgetValueQuery.setParameter("ids", budgetElementIds);
 		
 		final Iterator<Value> i = budgetValueQuery.getResultList().iterator();
 		
