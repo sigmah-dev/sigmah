@@ -400,7 +400,18 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 				view.getLayoutGroupField().disable();
 
 				if (selectedContainer != null) {
-					view.getLayoutGroupField().getStore().add(selectedContainer.getGroups());
+					List<LayoutGroupDTO> groups = selectedContainer.getGroups();
+					if(flexibleElement != null && (flexibleElement.getElementType() == ElementTypeEnum.DEFAULT || flexibleElement.getElementType() == ElementTypeEnum.DEFAULT_CONTACT)) {
+						// iterative groups are not available for default fields
+						Iterator<LayoutGroupDTO> it = groups.iterator();
+						while(it.hasNext()) {
+							LayoutGroupDTO group = it.next();
+							if(group.getHasIterations()) {
+								it.remove();
+							}
+						}
+					}
+					view.getLayoutGroupField().getStore().add(groups);
 					view.getLayoutGroupField().getStore().commitChanges();
 					view.getLayoutGroupField().setValue(view.getLayoutGroupField().getStore().getAt(0));
 					view.getLayoutGroupField().enable();
@@ -1606,6 +1617,9 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 
 				// Sends an update event to notify registered components.
 				eventBus.fireEvent(new UpdateEvent(UpdateEvent.FLEXIBLE_ELEMENT_UPDATE, updatedModel, update, updatedOrCreatedFlexibleElement));
+
+				// Send an update event to reload necessary data.
+				eventBus.fireEvent(new UpdateEvent(UpdateEvent.LAYOUT_GROUP_UPDATE, group));
 
 				hideView();
 			}

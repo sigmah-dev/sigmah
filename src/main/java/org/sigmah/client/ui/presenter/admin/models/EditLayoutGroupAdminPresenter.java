@@ -52,6 +52,7 @@ import org.sigmah.shared.dto.PhaseModelDTO;
 import org.sigmah.shared.dto.ProjectDetailsDTO;
 import org.sigmah.shared.dto.base.AbstractModelDataEntityDTO;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
+import org.sigmah.shared.dto.layout.LayoutConstraintDTO;
 import org.sigmah.shared.dto.layout.LayoutDTO;
 import org.sigmah.shared.dto.layout.LayoutGroupDTO;
 
@@ -69,6 +70,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.sigmah.shared.command.Delete;
 import org.sigmah.shared.command.result.VoidResult;
+import org.sigmah.shared.dto.referential.ElementTypeEnum;
 
 /**
  * Presenter in charge of creating/editing a layout group.
@@ -310,6 +312,17 @@ public class EditLayoutGroupAdminPresenter extends AbstractPagePresenter<EditLay
 		final Integer column = 0;
 		final Boolean hasIterations = view.getHasIterationsField().getValue();
 		final LayoutDTO container = getLayout(view.getContainerField().getValue());
+
+		// iterative groups cannot contain default fields
+		if(hasIterations && layoutGroup != null) {
+			for(LayoutConstraintDTO constraint : layoutGroup.getConstraints()) {
+				if(constraint.getFlexibleElementDTO().getElementType() == ElementTypeEnum.DEFAULT
+						|| constraint.getFlexibleElementDTO().getElementType() == ElementTypeEnum.DEFAULT_CONTACT) {
+					N10N.error(I18N.CONSTANTS.adminFlexibleGroup(), I18N.CONSTANTS.adminErrorDefaultFieldIterable());
+					return;
+				}
+			}
+		}
 
 		final LayoutGroupDTO layoutGroupDTO = layoutGroup != null ? layoutGroup : new LayoutGroupDTO();
 		layoutGroupDTO.setTitle(name);
