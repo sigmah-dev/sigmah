@@ -31,7 +31,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 
 import org.apache.commons.lang3.BooleanUtils;
@@ -329,16 +328,15 @@ public class ProjectMapper extends EntityManagerProvider {
 	}
 
 	public void fillBudget(final Project project, final ProjectDTO projectDTO) throws NumberFormatException {
-		final Query budgetValueQuery = em().createQuery("SELECT v, e FROM Value v JOIN v.element e WHERE v.containerId = :projectId AND e.id IN (:ids)");
+		final TypedQuery<Value> budgetValueQuery = em().createQuery("SELECT v FROM Value v WHERE v.containerId = :projectId AND v.element.id IN (:ids)", Value.class);
 		budgetValueQuery.setParameter("projectId", project.getId());
 		budgetValueQuery.setParameter("ids", em().createQuery("SELECT b.id FROM BudgetElement b").getResultList());
 		
-		final Iterator<?> i = budgetValueQuery.getResultList().iterator();
+		final Iterator<Value> i = budgetValueQuery.getResultList().iterator();
 		
 		if (i.hasNext()) {
-			Object[] result = (Object[]) i.next();
-			Value budgetValue = (Value) result[0];
-			BudgetElement budgetElement = (BudgetElement) result[1];
+			final Value budgetValue = i.next();
+			final BudgetElement budgetElement = (BudgetElement) budgetValue.getElement();
 			final Map<Integer, String> values = ValueResultUtils.splitMapElements(budgetValue.getValue());
 			
 			if (budgetElement.getRatioDividend() != null) {
