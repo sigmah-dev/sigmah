@@ -36,6 +36,8 @@ import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * <p>
@@ -112,9 +114,9 @@ public class OrgUnitCalendarPresenter extends AbstractOrgUnitPresenter<OrgUnitCa
 	 */
 	@Override
 	public void onPageRequest(final PageRequest request) {
-		final EnumMap<CalendarType, Integer> calendars = new EnumMap<CalendarType, Integer>(CalendarType.class);
-		calendars.put(CalendarType.Activity, getOrgUnit().getId());
-		calendars.put(CalendarType.Personal, getOrgUnit().getCalendarId());
+		final Map<Integer, Integer> calendars = new HashMap<Integer, Integer>();
+		calendars.put(1, getOrgUnit().getId());
+		calendars.put(2, getOrgUnit().getCalendarId());
 		calendarPresenter.reload(calendars);
 	}
 

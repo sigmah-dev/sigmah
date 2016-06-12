@@ -324,10 +324,10 @@ public class CalendarPresenter extends AbstractPresenter<CalendarPresenter.View>
 	 * @param calendars
 	 *          The calendar types with their corresponding identifier.
 	 */
-	public void reload(final Map<CalendarType, Integer> calendars) {
+	public void reload(final Map<Integer, Integer> calendars) {
 
 		calendar.refresh();
-        this.projectId = calendars.get(CalendarType.Activity);
+        this.projectId = calendars.get(1);
 
 		view.setAddEventButtonEnabled(ProfileUtils.isGranted(auth(), GlobalPermissionEnum.EDIT_PROJECT_AGENDA, GlobalPermissionEnum.EDIT_PROJECT));
 		reloadEvents(calendars);
@@ -365,7 +365,7 @@ public class CalendarPresenter extends AbstractPresenter<CalendarPresenter.View>
 	 * @param calendars
 	 *          The calendar types with their corresponding identifier.
 	 */
-	private void reloadEvents(final Map<CalendarType, Integer> calendars) {
+	private void reloadEvents(final Map<Integer, Integer> calendars) {
 
 		view.getCalendarsStore().removeAll();
 
@@ -382,13 +382,28 @@ public class CalendarPresenter extends AbstractPresenter<CalendarPresenter.View>
 			}
 		};
 
-		for (final Entry<CalendarType, Integer> calendarEntry : calendars.entrySet()) {
+		for (final Entry<Integer, Integer> calendarEntry : calendars.entrySet()) {
 
 			if (calendarEntry == null) {
 				continue;
 			}
 
-			final CalendarType calendarType = calendarEntry.getKey();
+			Integer assign=calendarEntry.getKey();
+            final CalendarType calendarType;
+            switch (assign%4) {
+                case 1:
+                    calendarType =CalendarType.Activity;
+                    break;
+                case 2:
+                    calendarType = CalendarType.Personal;
+                    break;
+                case 3:
+                    calendarType = CalendarType.MonitoredPoint;
+                    break;
+                default:
+                    calendarType = CalendarType.Reminder;
+                    break;
+            }
 			final Integer calendarId = calendarEntry.getValue();
 
 			queue.add(new GetCalendar(calendarType, CalendarType.getIdentifier(calendarType, calendarId)), new CommandResultHandler<Calendar>() {
