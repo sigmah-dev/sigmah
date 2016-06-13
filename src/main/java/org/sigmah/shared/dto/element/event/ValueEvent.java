@@ -22,19 +22,20 @@ package org.sigmah.shared.dto.element.event;
  * #L%
  */
 
+import com.google.gwt.event.shared.GwtEvent;
+
 import java.io.Serializable;
+import java.util.Set;
 
 import org.sigmah.client.util.ToStringBuilder;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
 import org.sigmah.shared.dto.referential.ValueEventChangeType;
 import org.sigmah.shared.dto.value.TripletValueDTO;
 
-import com.google.gwt.event.shared.GwtEvent;
-
 /**
  * Event transmitted to the {@link org.sigmah.client.ui.presenter.orgunit.OrgUnitPresenter OrgUnitPresenter} when a
  * flexible element value changes.
- * 
+ *
  * @author HUZHE
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
@@ -50,6 +51,8 @@ public class ValueEvent extends GWTImmortalEvent<ValueHandler> implements Serial
 	private FlexibleElementDTO sourceElement;
 	private TripletValueDTO tripletValue;
 	private String singleValue;
+	private Set<Integer> multivaluedIdsValue;
+
 	// Only used for the elements part of a list.
 	private ValueEventChangeType changeType;
 	boolean isProjectCountryChanged = false;
@@ -57,6 +60,12 @@ public class ValueEvent extends GWTImmortalEvent<ValueHandler> implements Serial
 	public ValueEvent(FlexibleElementDTO sourceElement, String singleValue) {
 		this.sourceElement = sourceElement;
 		this.singleValue = singleValue;
+	}
+
+	public ValueEvent(FlexibleElementDTO sourceElement, Set<Integer> multivaluedIdsValue, ValueEventChangeType changeType) {
+		this.sourceElement = sourceElement;
+		this.multivaluedIdsValue = multivaluedIdsValue;
+		this.changeType = changeType;
 	}
 
 	/**
@@ -136,6 +145,14 @@ public class ValueEvent extends GWTImmortalEvent<ValueHandler> implements Serial
 
 	public void setSingleValue(String singleValue) {
 		this.singleValue = singleValue;
+	}
+
+	public Set<Integer> getMultivaluedIdsValue() {
+		return multivaluedIdsValue;
+	}
+
+	public void setMultivaluedIdsValue(Set<Integer> multivaluedIdsValue) {
+		this.multivaluedIdsValue = multivaluedIdsValue;
 	}
 
 	/**

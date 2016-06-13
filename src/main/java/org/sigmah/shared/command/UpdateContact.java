@@ -55,13 +55,19 @@ public class UpdateContact extends AbstractCommand<VoidResult> {
     final HashMap<Integer, ValueEvent> basicValues = new HashMap<Integer, ValueEvent>();
     final HashMap<ListEntityDTOKey, ValueEvent> listValues = new HashMap<ListEntityDTOKey, ValueEvent>();
     final HashMap<ListEntityDTOKey, ValueEvent> editedValues = new HashMap<ListEntityDTOKey, ValueEvent>();
+    final HashMap<Integer, List<ValueEvent>> multivaluedValues = new HashMap<Integer, List<ValueEvent>>();
 
     for (final ValueEvent event : values) {
 
       // Manages basic values changes.
-      if (event.getTripletValue() == null) {
+      if (event.getSingleValue() != null) {
         // Keep only the last modification to avoid events repetition.
         basicValues.put(event.getSourceElement().getId(), event);
+      } else if (event.getMultivaluedIdsValue() != null && !event.getMultivaluedIdsValue().isEmpty()) {
+        if (!multivaluedValues.containsKey(event.getSourceElement().getId())) {
+          multivaluedValues.put(event.getSourceElement().getId(), new ArrayList<ValueEvent>());
+        }
+        multivaluedValues.get(event.getSourceElement().getId()).add(event);
       }
       // Manages the elements which are a part of a list.
       else {
@@ -111,6 +117,12 @@ public class UpdateContact extends AbstractCommand<VoidResult> {
     for (final ValueEvent event : editedValues.values()) {
       this.values.add(wrapEvent(new ValueEvent(event.getSourceElement(), event.getTripletValue(), ValueEventChangeType.EDIT), event.isProjectCountryChanged()));
     }
+
+    for (final List<ValueEvent> events : multivaluedValues.values()) {
+      for (final ValueEvent event : events) {
+        this.values.add(wrapEvent(new ValueEvent(event.getSourceElement(), event.getMultivaluedIdsValue(), event.getChangeType()), event.isProjectCountryChanged()));
+      }
+    }
   }
 
   public int getContactId() {
@@ -137,6 +149,7 @@ public class UpdateContact extends AbstractCommand<VoidResult> {
     final ValueEventWrapper wrapper = new ValueEventWrapper();
     wrapper.setSourceElement(event.getSourceElement());
     wrapper.setSingleValue(event.getSingleValue());
+    wrapper.setMultivaluedIdsValue(event.getMultivaluedIdsValue());
     wrapper.setTripletValue(event.getTripletValue());
     wrapper.setChangeType(event.getChangeType());
     wrapper.setProjectCountryChanged(isProjectCountryChange);

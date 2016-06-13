@@ -117,6 +117,7 @@ public final class ValueJS extends JavaScriptObject {
 		valueEventWrapper.setChangeType(getChangeTypeEnum());
 		valueEventWrapper.setProjectCountryChanged(isProjectCountryChanged());
 		valueEventWrapper.setSingleValue(getValue());
+		// TODO: set multivalued values
 		
 		if(getValues() != null && getValues().length() == 1) {
 			final ListableValue listableValue = getValues().get(0).toDTO();

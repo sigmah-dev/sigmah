@@ -26,10 +26,13 @@ import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.persist.Transactional;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
@@ -120,6 +123,7 @@ public class UpdateContactHandler extends AbstractCommandHandler<UpdateContact, 
       FlexibleElement element = em().find(FlexibleElement.class, source.getId());
       TripletValueDTO updateListValue = valueEvent.getTripletValue();
       String updateSingleValue = valueEvent.getSingleValue();
+      Set<Integer> multivaluedIdsValue = valueEvent.getMultivaluedIdsValue();
 
       LOG.debug("[execute] Updates value of element #{} ({})", source.getId(), source.getEntityName());
       LOG.debug("[execute] Event of type {} with value {} and list value {}.", valueEvent.getChangeType(), updateSingleValue, updateListValue);
@@ -163,7 +167,7 @@ public class UpdateContactHandler extends AbstractCommandHandler<UpdateContact, 
       Value currentValue = retrieveOrCreateValue(contactId, source.getId(), user);
 
       // Unique value of the flexible element.
-      if (updateListValue == null) {
+      if (updateSingleValue != null) {
 
         if (LOG.isDebugEnabled()) {
           LOG.debug("[execute] Basic value case.");
@@ -173,8 +177,37 @@ public class UpdateContactHandler extends AbstractCommandHandler<UpdateContact, 
 
         // Historize the value.
         historize(historyDate, element, contactId, user, ValueEventChangeType.EDIT, updateSingleValue, null, comment);
-      }
+      } else if (multivaluedIdsValue != null) {
 
+        if (LOG.isDebugEnabled()) {
+          LOG.debug("[execute] Multivalued ids value case.");
+        }
+
+        Set<Integer> currentIds = new HashSet<>(ValueResultUtils.splitValuesAsInteger(currentValue.getValue()));
+        switch (valueEvent.getChangeType()) {
+          case ADD:
+            currentIds.addAll(multivaluedIdsValue);
+            break;
+          case REMOVE:
+            currentIds.removeAll(multivaluedIdsValue);
+            break;
+          case EDIT:
+            currentIds = multivaluedIdsValue;
+            break;
+          default:
+            throw new IllegalStateException();
+        }
+        String serializedValue = ValueResultUtils.mergeElements(new ArrayList<Integer>(currentIds));
+        currentValue.setValue(serializedValue);
+
+        if (valueEvent.getChangeType() == ValueEventChangeType.EDIT) {
+          historize(historyDate, element, contactId, user, valueEvent.getChangeType(), serializedValue, null, comment);
+        } else {
+          for (Integer id : multivaluedIdsValue) {
+            historize(historyDate, element, contactId, user, valueEvent.getChangeType(), String.valueOf(id), null, comment);
+          }
+        }
+      }
       // Special case : this value is a part of a list which is the true value of the flexible element. (only used for
       // the TripletValue class for the moment)
       else {

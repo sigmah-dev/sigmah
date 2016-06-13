@@ -23,6 +23,7 @@ package org.sigmah.shared.dto.element.event;
  */
 
 import java.io.Serializable;
+import java.util.Set;
 
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
 import org.sigmah.shared.dto.referential.ValueEventChangeType;
@@ -41,6 +42,7 @@ public class ValueEventWrapper implements Serializable {
 	private FlexibleElementDTO sourceElement;
 	private TripletValueDTO tripletValue;
 	private String singleValue;
+	private Set<Integer> multivaluedIdsValue;
 	private ValueEventChangeType changeType;
 	private boolean isProjectCountryChanged;
 
@@ -94,6 +96,14 @@ public class ValueEventWrapper implements Serializable {
 		this.singleValue = singleValue;
 	}
 
+	public Set<Integer> getMultivaluedIdsValue() {
+		return multivaluedIdsValue;
+	}
+
+	public void setMultivaluedIdsValue(Set<Integer> multivaluedIdsValue) {
+		this.multivaluedIdsValue = multivaluedIdsValue;
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -104,6 +114,7 @@ public class ValueEventWrapper implements Serializable {
 		result = prime * result + ((changeType == null) ? 0 : changeType.hashCode());
 		result = prime * result + ((tripletValue == null) ? 0 : tripletValue.hashCode());
 		result = prime * result + ((singleValue == null) ? 0 : singleValue.hashCode());
+		result = prime * result + ((multivaluedIdsValue == null) ? 0 : multivaluedIdsValue.hashCode());
 		result = prime * result + ((sourceElement == null) ? 0 : sourceElement.hashCode());
 		return result;
 	}
@@ -132,6 +143,11 @@ public class ValueEventWrapper implements Serializable {
 				return false;
 		} else if (!singleValue.equals(other.singleValue))
 			return false;
+		if (multivaluedIdsValue == null) {
+			if (other.multivaluedIdsValue != null)
+				return false;
+		} else if (!multivaluedIdsValue.equals(other.multivaluedIdsValue))
+			return false;
 		if (sourceElement == null) {
 			if (other.sourceElement != null)
 				return false;
@@ -148,6 +164,8 @@ public class ValueEventWrapper implements Serializable {
 			+ tripletValue
 			+ ", singleValue="
 			+ singleValue
+			+ ", multivaluedIdsValue="
+			+ multivaluedIdsValue
 			+ ", changeType="
 			+ changeType
 			+ ", isProjectCountryChanged="
