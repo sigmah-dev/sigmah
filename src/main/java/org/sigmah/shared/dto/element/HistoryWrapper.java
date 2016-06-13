@@ -30,6 +30,8 @@ import com.extjs.gxt.ui.client.widget.form.AdapterField;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Grid;
+import com.google.gwt.user.client.ui.HasVerticalAlignment;
+
 import org.sigmah.client.ui.res.icon.IconImageBundle;
 import org.sigmah.client.ui.widget.button.Button;
 import org.sigmah.client.ui.widget.form.Forms;
@@ -72,6 +74,7 @@ public class HistoryWrapper<V> extends AdapterField {
 		
 		grid.setWidget(0, 0, field);
 		grid.setWidget(0, 1, historyButton);
+		grid.getCellFormatter().setVerticalAlignment(0, 1, HasVerticalAlignment.ALIGN_TOP);
 		
 		grid.getCellFormatter().setStyleName(0, 1, "flexibility-action-iconable");
 	}
