@@ -26,6 +26,7 @@ import com.google.gwt.regexp.shared.RegExp;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.Widget;
 import com.extjs.gxt.ui.client.event.DomEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
@@ -41,31 +42,42 @@ import com.extjs.gxt.ui.client.widget.form.LabelField;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.Validator;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.ui.notif.N10N;
+import org.sigmah.client.ui.widget.HistoryTokenText;
 import org.sigmah.client.ui.widget.form.ButtonFileUploadField;
 import org.sigmah.client.ui.widget.form.Forms;
 import org.sigmah.client.ui.widget.form.ListComboBox;
 import org.sigmah.client.util.ClientUtils;
 import org.sigmah.client.util.ImageProvider;
+import org.sigmah.offline.sync.SuccessCallback;
 import org.sigmah.shared.command.GetContact;
 import org.sigmah.shared.command.GetContacts;
+import org.sigmah.shared.command.GetCountry;
+import org.sigmah.shared.command.GetOrgUnit;
+import org.sigmah.shared.command.GetOrgUnits;
 import org.sigmah.shared.command.result.ListResult;
 import org.sigmah.shared.command.result.ValueResult;
 import org.sigmah.shared.dto.ContactDTO;
+import org.sigmah.shared.dto.country.CountryDTO;
 import org.sigmah.shared.dto.element.event.RequiredValueEvent;
 import org.sigmah.shared.dto.element.event.ValueEvent;
+import org.sigmah.shared.dto.history.HistoryTokenDTO;
+import org.sigmah.shared.dto.history.HistoryTokenListDTO;
 import org.sigmah.shared.dto.orgunit.OrgUnitDTO;
 import org.sigmah.shared.dto.referential.ContactModelType;
 import org.sigmah.shared.dto.referential.DefaultContactFlexibleElementType;
 import org.sigmah.shared.dto.value.FileUploadUtils;
 import org.sigmah.shared.file.Cause;
 import org.sigmah.shared.file.ProgressListener;
+import org.sigmah.shared.util.ValueResultUtils;
 
 import com.allen_sauer.gwt.log.client.Log;
 
@@ -631,5 +643,92 @@ public class DefaultContactFlexibleElementDTO extends AbstractDefaultFlexibleEle
 
   public void setImageProvider(ImageProvider imageProvider) {
     this.imageProvider = imageProvider;
+  }
+
+  @Override
+  public Object renderHistoryToken(HistoryTokenListDTO historyTokenListDTO) {
+    switch (getType()) {
+      case FAMILY_NAME: // fall through
+      case FIRST_NAME: // fall through
+      case ORGANIZATION_NAME: // fall through
+      case EMAIL_ADDRESS: // fall through
+      case PHONE_NUMBER: // fall through
+      case POSTAL_ADDRESS: // fall through
+        return super.renderHistoryToken(historyTokenListDTO);
+      case PHOTO:
+        return renderPhotoHistory(historyTokenListDTO);
+      case COUNTRY:
+        return renderCountryHistory(historyTokenListDTO);
+      case DIRECT_MEMBERSHIP:
+        return renderContactHistory(historyTokenListDTO);
+      case LOGIN: // fall through
+      case MAIN_ORG_UNIT: // fall through
+      case SECONDARY_ORG_UNITS: // fall through
+      case CREATION_DATE: // fall through
+      case TOP_MEMBERSHIP: // fall through
+      default:
+        throw new IllegalStateException();
+    }
+  }
+
+  private HistoryTokenText renderCountryHistory(HistoryTokenListDTO historyTokenListDTO) {
+    final HistoryTokenText historyTokenText = new HistoryTokenText();
+    final List<String> formattedValues = new ArrayList<String>();
+    for (HistoryTokenDTO historyTokenDTO : historyTokenListDTO.getTokens()) {
+      String serializedValue = historyTokenDTO.getValue();
+      if (serializedValue == null || serializedValue.isEmpty()) {
+        continue;
+      }
+
+      dispatch.execute(new GetCountry(Integer.parseInt(serializedValue)), new CommandResultHandler<CountryDTO>() {
+        @Override
+        protected void onCommandSuccess(CountryDTO countryDTO) {
+          formattedValues.add(countryDTO.getCompleteName());
+          historyTokenText.setHistoryTokenValue(formattedValues);
+        }
+      });
+    }
+    return historyTokenText;
+  }
+
+  private Widget renderPhotoHistory(HistoryTokenListDTO historyTokenListDTO) {
+    final FlowPanel flowPanel = new FlowPanel();
+    for (HistoryTokenDTO historyTokenDTO : historyTokenListDTO.getTokens()) {
+      String value = historyTokenDTO.getValue();
+      if (value == null || value.isEmpty()) {
+        continue;
+      }
+
+      final Image image = new Image();
+      image.setHeight("100px");
+      imageProvider.provideDataUrl(value, new SuccessCallback<String>() {
+        @Override
+        public void onSuccess(String dataUrl) {
+          image.setUrl(dataUrl);
+        }
+      });
+      flowPanel.add(image);
+    }
+    return flowPanel;
+  }
+
+  private HistoryTokenText renderContactHistory(HistoryTokenListDTO historyTokenListDTO) {
+    final HistoryTokenText historyTokenText = new HistoryTokenText();
+    final List<String> formattedValues = new ArrayList<String>();
+    for (HistoryTokenDTO historyTokenDTO : historyTokenListDTO.getTokens()) {
+      String serializedValue = historyTokenDTO.getValue();
+      if (serializedValue == null || serializedValue.isEmpty()) {
+        continue;
+      }
+
+      dispatch.execute(new GetContact(Integer.parseInt(serializedValue), ContactDTO.Mode.BASIC_INFORMATION), new CommandResultHandler<ContactDTO>() {
+        @Override
+        protected void onCommandSuccess(ContactDTO contactDTO) {
+          formattedValues.add(contactDTO.getFullName());
+          historyTokenText.setHistoryTokenValue(formattedValues);
+        }
+      });
+    }
+    return historyTokenText;
   }
 }

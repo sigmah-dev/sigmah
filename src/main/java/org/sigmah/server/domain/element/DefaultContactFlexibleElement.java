@@ -166,4 +166,28 @@ public class DefaultContactFlexibleElement extends FlexibleElement {
         throw new IllegalStateException();
     }
   }
+
+  @Override
+  public boolean isHistorable() {
+    switch (getType()) {
+      case FAMILY_NAME:
+      case FIRST_NAME:
+      case ORGANIZATION_NAME:
+      case EMAIL_ADDRESS:
+      case PHONE_NUMBER:
+      case POSTAL_ADDRESS:
+      case PHOTO:
+      case COUNTRY:
+      case DIRECT_MEMBERSHIP:
+        return true;
+      case LOGIN:
+      case MAIN_ORG_UNIT:
+      case SECONDARY_ORG_UNITS:
+      case CREATION_DATE:
+      case TOP_MEMBERSHIP:
+        return false;
+      default:
+        throw new IllegalStateException();
+    }
+  }
 }
