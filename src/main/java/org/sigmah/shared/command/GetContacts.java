@@ -33,6 +33,7 @@ import org.sigmah.shared.dto.referential.ContactModelType;
 public class GetContacts extends AbstractCommand<ListResult<ContactDTO>> {
   private static final long serialVersionUID = -945246727047007961L;
 
+  private Set<Integer> contactIds;
   private ContactModelType type;
   private Set<Integer> contactModelIds;
   private boolean onlyContactWithoutUser;
@@ -40,6 +41,10 @@ public class GetContacts extends AbstractCommand<ListResult<ContactDTO>> {
 
   public GetContacts() {
     // Serialization
+  }
+
+  public GetContacts(Set<Integer> contactIds) {
+    this.contactIds = contactIds;
   }
 
   public GetContacts(ContactModelType type) {
@@ -59,6 +64,10 @@ public class GetContacts extends AbstractCommand<ListResult<ContactDTO>> {
     this.contactModelIds = contactModelIds;
     this.onlyContactWithoutUser = onlyContactWithoutUser;
     this.withEmailNotNull = withEmailNotNull;
+  }
+
+  public Set<Integer> getContactIds() {
+    return contactIds;
   }
 
   public ContactModelType getType() {

@@ -52,6 +52,7 @@ import org.sigmah.shared.dto.ContactDTO;
 import org.sigmah.shared.dto.ContactModelDTO;
 import org.sigmah.shared.dto.orgunit.OrgUnitDTO;
 import org.sigmah.shared.dto.referential.ContactModelType;
+import org.sigmah.shared.dto.referential.ValueEventChangeType;
 
 import com.allen_sauer.gwt.log.client.Log;
 
@@ -146,18 +147,31 @@ public class ContactListComboBox extends ListComboBox<ContactDTO> {
         }
 
         if (initialized) {
-          handleChange();
+          handleChange(models, ValueEventChangeType.ADD);
         }
       }
 
       @Override
-      public void storeRemove(StoreEvent se) {
-        handleChange();
+      public void storeRemove(StoreEvent event) {
+        List<ContactDTO> models = event.getModels();
+        if (models == null) {
+          models = new ArrayList<ContactDTO>(1);
+          models.add((ContactDTO) event.getModel());
+        }
+
+        handleChange(models, ValueEventChangeType.REMOVE);
       }
 
       @Override
-      public void storeClear(StoreEvent se) {
-        handleChange();
+      public void storeClear(StoreEvent event) {
+
+        List<ContactDTO> models = event.getModels();
+        if (models == null) {
+          models = new ArrayList<ContactDTO>(1);
+          models.add((ContactDTO) event.getModel());
+        }
+
+        handleChange(models, ValueEventChangeType.REMOVE);
       }
     });
   }
@@ -180,14 +194,14 @@ public class ContactListComboBox extends ListComboBox<ContactDTO> {
     getField().setReadOnly(readOnly);
   }
 
-  private void handleChange() {
+  private void handleChange(List<ContactDTO> contacts, ValueEventChangeType changeType) {
     checkReadWriteStatus();
 
     if (changeHandler == null) {
       return;
     }
 
-    changeHandler.handleChange(getListStore().getModels());
+    changeHandler.handleChange(contacts, changeType);
   }
 
   private void showContactCreator() {
@@ -307,6 +321,6 @@ public class ContactListComboBox extends ListComboBox<ContactDTO> {
   }
 
   public interface ChangeHandler {
-    void handleChange(List<ContactDTO> contacts);
+    void handleChange(List<ContactDTO> contacts, ValueEventChangeType changeType);
   }
 }

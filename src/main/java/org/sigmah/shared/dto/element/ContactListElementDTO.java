@@ -36,9 +36,12 @@ import java.util.List;
 import java.util.Set;
 
 import org.sigmah.client.dispatch.CommandResultHandler;
+import org.sigmah.client.dispatch.DispatchQueue;
 import org.sigmah.client.dispatch.monitor.LoadingMask;
+import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.page.Page;
 import org.sigmah.client.page.RequestParameter;
+import org.sigmah.client.ui.widget.HistoryTokenText;
 import org.sigmah.client.ui.widget.contact.DedupeContactDialog;
 import org.sigmah.client.ui.widget.form.ContactListComboBox;
 import org.sigmah.client.ui.widget.form.Forms;
@@ -47,6 +50,7 @@ import org.sigmah.offline.sync.SuccessCallback;
 import org.sigmah.shared.command.CheckContactDuplication;
 import org.sigmah.shared.command.CreateEntity;
 import org.sigmah.shared.command.DedupeContact;
+import org.sigmah.shared.command.GetContact;
 import org.sigmah.shared.command.GetContactDuplicatedProperties;
 import org.sigmah.shared.command.GetContacts;
 import org.sigmah.shared.command.result.ContactDuplicatedProperty;
@@ -56,8 +60,11 @@ import org.sigmah.shared.command.result.ValueResult;
 import org.sigmah.shared.dto.ContactDTO;
 import org.sigmah.shared.dto.ContactModelDTO;
 import org.sigmah.shared.dto.element.event.ValueEvent;
+import org.sigmah.shared.dto.history.HistoryTokenDTO;
+import org.sigmah.shared.dto.history.HistoryTokenListDTO;
 import org.sigmah.shared.dto.orgunit.OrgUnitDTO;
 import org.sigmah.shared.dto.referential.ContactModelType;
+import org.sigmah.shared.dto.referential.ValueEventChangeType;
 import org.sigmah.shared.util.ValueResultUtils;
 
 import com.allen_sauer.gwt.log.client.Log;
@@ -79,8 +86,8 @@ public class ContactListElementDTO extends FlexibleElementDTO {
     listComboBox.setEnabled(enabled);
     listComboBox.setChangeHandler(new ContactListComboBox.ChangeHandler() {
       @Override
-      public void handleChange(List<ContactDTO> contacts) {
-        fireEvents(serializeValue(contacts));
+      public void handleChange(List<ContactDTO> contacts, ValueEventChangeType changeType) {
+        fireEvents(serializeValue(contacts), changeType);
       }
     });
     listComboBox.setCreateContactHandler(new ContactListComboBox.CreateContactHandler() {
@@ -235,15 +242,12 @@ public class ContactListElementDTO extends FlexibleElementDTO {
     return ids;
   }
 
-  public static String serializeValue(List<ContactDTO> contacts) {
-    StringBuilder builder = new StringBuilder();
-    for (int i = 0; i < contacts.size(); i++) {
-      if (i > 0) {
-        builder.append(ValueResultUtils.DEFAULT_VALUE_SEPARATOR);
-      }
-      builder.append(contacts.get(i).getId());
+  private static Set<Integer> serializeValue(List<ContactDTO> contacts) {
+    Set<Integer> ids = new HashSet<Integer>();
+    for (ContactDTO contact : contacts) {
+      ids.add(contact.getId());
     }
-    return builder.toString();
+    return ids;
   }
 
   private void createEntity(HashMap<String, Object> properties, final ListComboBox<ContactDTO> listComboBox) {
@@ -279,7 +283,46 @@ public class ContactListElementDTO extends FlexibleElementDTO {
     return properties;
   }
 
-  private void fireEvents(String value) {
-    handlerManager.fireEvent(new ValueEvent(ContactListElementDTO.this, value));
+  @Override
+  public Object renderHistoryToken(HistoryTokenListDTO historyTokenListDTO) {
+    final List<String> formattedTokens = new ArrayList<String>();
+    final HistoryTokenText historyTokenText = new HistoryTokenText();
+    DispatchQueue dispatchQueue = new DispatchQueue(dispatch);
+    for (final HistoryTokenDTO historyTokenDTO : historyTokenListDTO.getTokens()) {
+      // Contact list element value in a HistoryToken is always monovalued and combined to a ADD or REMOVED action
+      dispatchQueue.add(new GetContacts(new HashSet<Integer>(ValueResultUtils.splitValuesAsInteger(historyTokenDTO.getValue()))), new CommandResultHandler<ListResult<ContactDTO>>() {
+        @Override
+        protected void onCommandSuccess(ListResult<ContactDTO> result) {
+          StringBuilder stringBuilder = new StringBuilder();
+          for (int i = 0; i < result.getList().size(); i++) {
+            if (i != 0) {
+              stringBuilder.append(", ");
+            }
+            stringBuilder.append(result.getList().get(i).getFullName());
+          }
+          switch (historyTokenDTO.getType()) {
+            case ADD:
+              formattedTokens.add(I18N.MESSAGES.contactListHistoryAdded(stringBuilder.toString()));
+              break;
+            case REMOVE:
+              formattedTokens.add(I18N.MESSAGES.contactListHistoryRemoved(stringBuilder.toString()));
+              break;
+            case EDIT:
+              formattedTokens.add(stringBuilder.toString());
+              break;
+            default:
+              throw new IllegalStateException();
+          }
+          historyTokenText.setHistoryTokenValue(formattedTokens);
+        }
+      });
+    }
+
+    dispatchQueue.start();
+    return historyTokenText;
+  }
+
+  private void fireEvents(Set<Integer> value, ValueEventChangeType changeType) {
+    handlerManager.fireEvent(new ValueEvent(ContactListElementDTO.this, value, changeType));
   }
 }

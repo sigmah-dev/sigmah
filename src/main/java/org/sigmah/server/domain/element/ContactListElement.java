@@ -99,4 +99,9 @@ public class ContactListElement extends FlexibleElement {
   public void setMember(boolean member) {
     isMember = member;
   }
+
+  @Override
+  public boolean isHistorable() {
+    return true;
+  }
 }
