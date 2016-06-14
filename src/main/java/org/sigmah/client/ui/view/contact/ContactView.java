@@ -40,14 +40,20 @@ import org.sigmah.client.ui.presenter.contact.ContactPresenter;
 import org.sigmah.client.ui.view.base.AbstractView;
 import org.sigmah.client.ui.widget.layout.Layouts;
 import org.sigmah.client.ui.widget.panel.Panels;
+import org.sigmah.client.util.ClientUtils;
+import org.sigmah.shared.dto.referential.ContactModelType;
 
 public class ContactView extends AbstractView implements ContactPresenter.View {
   private static final int AVATAR_WIDTH = 128;
   private static final int AVATAR_HEIGHT = 128;
   private static final int CARD_WIDTH = 600;
+  private static final int LABEL_HEIGHT = 30;
   private static final int PADDING = 15;
 
   private final String AVATAR_STYLE_NAME = "contact-card-avatar";
+  private final String AVATAR_DEFAULT_INDIVIDUAL_STYLE_NAME = "contact-card-avatar-individual";
+  private final String AVATAR_DEFAULT_ORGANIZATION_STYLE_NAME = "contact-card-avatar-organization";
+  private final String LABEL_STYLE_NAME = "contact-card-label";
 
   private ContentPanel contentPanel;
   private HTML avatar;
@@ -102,6 +108,55 @@ public class ContactView extends AbstractView implements ContactPresenter.View {
     cardContainer.add(topContainer);
     cardContainer.add(bottomDetailsContainer);
     return cardContainer;
+  }
+
+  @Override
+  public void setAvatarUrl(String url) {
+    avatar.getElement().getStyle().setBackgroundImage("url(\"" + url + "\")");
+  }
+
+  @Override
+  public void setDefaultAvatar(ContactModelType type) {
+    avatar.getElement().getStyle().clearBackgroundImage();
+    switch (type) {
+      case INDIVIDUAL:
+        avatar.addStyleName(AVATAR_DEFAULT_INDIVIDUAL_STYLE_NAME);
+        break;
+      case ORGANIZATION:
+        avatar.addStyleName(AVATAR_DEFAULT_ORGANIZATION_STYLE_NAME);
+        break;
+      default:
+        throw new IllegalStateException();
+    }
+  }
+
+  @Override
+  public void prepareContainers() {
+    topDetailsContainer.removeAll();
+    bottomDetailsContainer.removeAll();
+    avatar.removeStyleName(AVATAR_DEFAULT_INDIVIDUAL_STYLE_NAME);
+    avatar.removeStyleName(AVATAR_DEFAULT_ORGANIZATION_STYLE_NAME);
+    avatar.getElement().getStyle().clearBackgroundImage();
+  }
+
+  @Override
+  public void addLabel(String label) {
+    if (ClientUtils.isBlank(label)) {
+      return;
+    }
+
+    HTML html = new HTML(label);
+    html.setHeight(LABEL_HEIGHT + "px");
+    html.setStyleName(LABEL_STYLE_NAME);
+    html.setWordWrap(false);
+    if ((topDetailsContainer.getItemCount() + 1 ) * LABEL_HEIGHT > AVATAR_HEIGHT) {
+      bottomDetailsContainer.add(html);
+      bottomDetailsContainer.setHeight(bottomDetailsContainer.getItemCount() * LABEL_HEIGHT);
+      bottomDetailsContainer.layout();
+      return;
+    }
+    topDetailsContainer.add(html);
+    topDetailsContainer.layout();
   }
 
   @Override

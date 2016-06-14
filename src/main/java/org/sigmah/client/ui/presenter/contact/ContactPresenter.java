@@ -22,6 +22,10 @@ package org.sigmah.client.ui.presenter.contact;
  */
 
 import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.Response;
+import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.ImplementedBy;
@@ -31,7 +35,9 @@ import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.Component;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
+import java.util.TreeSet;
 
 import org.sigmah.client.dispatch.monitor.LoadingMask;
 import org.sigmah.client.inject.Injector;
@@ -45,6 +51,14 @@ import org.sigmah.client.ui.view.contact.ContactView;
 import org.sigmah.client.ui.zone.Zone;
 import org.sigmah.shared.command.GetContact;
 import org.sigmah.shared.dto.ContactDTO;
+import org.sigmah.shared.dto.ContactModelDTO;
+import org.sigmah.shared.dto.element.DefaultContactFlexibleElementDTO;
+import org.sigmah.shared.dto.layout.LayoutConstraintDTO;
+import org.sigmah.shared.dto.layout.LayoutGroupDTO;
+import org.sigmah.shared.dto.orgunit.OrgUnitDTO;
+import org.sigmah.shared.dto.referential.ContactModelType;
+import org.sigmah.shared.servlet.ServletConstants;
+import org.sigmah.shared.servlet.ServletRequestBuilder;
 
 import com.allen_sauer.gwt.log.client.Log;
 
@@ -52,6 +66,14 @@ public class ContactPresenter extends AbstractPagePresenter<ContactPresenter.Vie
   @ImplementedBy(ContactView.class)
   public interface View extends ViewInterface {
     Component getMainComponent();
+
+    void setAvatarUrl(String url);
+
+    void setDefaultAvatar(ContactModelType type);
+
+    void prepareContainers();
+
+    void addLabel(String label);
 
     void setHeaderText(String header);
 
@@ -132,6 +154,116 @@ public class ContactPresenter extends AbstractPagePresenter<ContactPresenter.Vie
   }
 
   private void refreshCard() {
-    // TODO
+    final ContactModelDTO contactModelDTO = contactDTO.getContactModel();
+
+    view.prepareContainers();
+    TreeSet<LayoutConstraintDTO> constraints = new TreeSet<LayoutConstraintDTO>(new Comparator<LayoutConstraintDTO>() {
+      @Override
+      public int compare(LayoutConstraintDTO constraint1, LayoutConstraintDTO constraint2) {
+        if (constraint1.getSortOrder() == constraint2.getSortOrder()) {
+          return constraint1.getFlexibleElementDTO().getId().compareTo(constraint2.getFlexibleElementDTO().getId());
+        }
+        return constraint1.getSortOrder() - constraint2.getSortOrder();
+      }
+    });
+
+    for (LayoutGroupDTO layoutGroup : contactModelDTO.getCard().getLayout().getGroups()) {
+      for (LayoutConstraintDTO constraint : layoutGroup.getConstraints()) {
+        constraints.add(constraint);
+      }
+    }
+
+    boolean hasPhoto = false;
+    for (LayoutConstraintDTO constraint : constraints) {
+      DefaultContactFlexibleElementDTO flexibleElementDTO = (DefaultContactFlexibleElementDTO) constraint.getFlexibleElementDTO();
+      if (!flexibleElementDTO.getType().isVisibleForType(contactModelDTO.getType())) {
+        continue;
+      }
+      switch (flexibleElementDTO.getType()) {
+        case PHOTO:
+          if (contactDTO.getPhoto() == null) {
+            break;
+          }
+
+          hasPhoto = true;
+          ServletRequestBuilder builder = new ServletRequestBuilder(injector, RequestBuilder.GET, ServletConstants.Servlet.FILE, ServletConstants.ServletMethod.DOWNLOAD_LOGO);
+          builder.addParameter(RequestParameter.ID, contactDTO.getPhoto());
+          builder.send(new ServletRequestBuilder.RequestCallbackAdapter() {
+            @Override
+            public void onResponseReceived(final Request request, final Response response) {
+              if (response.getStatusCode() != Response.SC_OK) {
+                view.setDefaultAvatar(contactModelDTO.getType());
+                return;
+              }
+
+              view.setAvatarUrl(response.getText());
+            }
+          });
+          break;
+        case COUNTRY:
+          if (contactDTO.getCountry() == null) {
+            break;
+          }
+          view.addLabel(contactDTO.getCountry().getName());
+          break;
+        case CREATION_DATE:
+          if (contactDTO.getDateCreated() == null) {
+            break;
+          }
+          String date = DateTimeFormat.getFormat(DateTimeFormat.PredefinedFormat.DATE_TIME_MEDIUM).format(contactDTO.getDateCreated());
+          view.addLabel(date);
+          break;
+        case DIRECT_MEMBERSHIP:
+          if (contactDTO.getParent() == null) {
+            break;
+          }
+          view.addLabel(contactDTO.getParent().getName());
+          break;
+        case EMAIL_ADDRESS:
+          view.addLabel(contactDTO.getEmail());
+          break;
+        case FAMILY_NAME:
+          view.addLabel(contactDTO.getName());
+          break;
+        case FIRST_NAME:
+          view.addLabel(contactDTO.getFirstname());
+          break;
+        case LOGIN:
+          view.addLabel(contactDTO.getLogin());
+          break;
+        case MAIN_ORG_UNIT:
+          if (contactDTO.getMainOrgUnit() == null) {
+            break;
+          }
+          view.addLabel(contactDTO.getMainOrgUnit().getName());
+          break;
+        case ORGANIZATION_NAME:
+          view.addLabel(contactDTO.getName());
+          break;
+        case PHONE_NUMBER:
+          view.addLabel(contactDTO.getPhoneNumber());
+          break;
+        case POSTAL_ADDRESS:
+          view.addLabel(contactDTO.getPostalAddress());
+          break;
+        case SECONDARY_ORG_UNITS:
+          for (OrgUnitDTO secondaryOrgUnit : contactDTO.getSecondaryOrgUnits()) {
+            view.addLabel(secondaryOrgUnit.getName());
+          }
+          break;
+        case TOP_MEMBERSHIP:
+          if (contactDTO.getRoot() == null) {
+            break;
+          }
+          view.addLabel(contactDTO.getRoot().getName());
+          break;
+        default:
+          throw new IllegalStateException();
+      }
+    }
+
+    if (!hasPhoto) {
+      view.setDefaultAvatar(contactModelDTO.getType());
+    }
   }
 }

@@ -387,3 +387,26 @@ body {font-family:Arial;font-size:8pt}
 ul.x-tab-strip {
   width: auto !important;
 }
+
+/* Contact */
+.contact-card-label {
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  padding: 5px 0;
+  font-size: 14px;
+}
+.contact-card-avatar {
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  padding: 5px;
+  background-repeat: no-repeat;
+  background-origin: content-box;
+  background-position: 50% 0%;
+  background-size: contain;
+}
+.contact-card-avatar-individual {
+  background-image: url("../images/icon/individual-128.png");
+}
+.contact-card-avatar-organization {
+  background-image: url("../images/icon/organization-128.png");
+}
