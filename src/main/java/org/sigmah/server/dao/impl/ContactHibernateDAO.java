@@ -44,4 +44,9 @@ public class ContactHibernateDAO extends AbstractDAO<Contact, Integer> implement
         .setParameter("type", type)
         .getResultList();
   }
+
+  @Override
+  public Contact update(Contact contact) {
+    return em().merge(contact);
+  }
 }

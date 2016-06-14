@@ -32,4 +32,6 @@ public interface ContactDAO extends DAO<Contact, Integer> {
    * Return contacts from a targeted organization and with a defined type (INDIVIDUAL or ORGANIZATION)
    */
   List<Contact> findTypedContacts(Integer organizationId, ContactModelType type);
+
+  Contact update(Contact contact);
 }

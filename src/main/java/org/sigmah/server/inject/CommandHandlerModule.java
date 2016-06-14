@@ -148,6 +148,7 @@ public class CommandHandlerModule extends AbstractCommandHandlerModule {
 		bindHandler(RemoveProjectReportDraft.class, RemoveProjectReportDraftHandler.class);
 		bindHandler(SecureNavigationCommand.class, SecureNavigationCommandHandler.class);
 		bindHandler(Synchronize.class, SynchronizeHandler.class);
+		bindHandler(UpdateContact.class, UpdateContactHandler.class);
 		bindHandler(UpdateEntity.class, UpdateEntityHandler.class);
 		bindHandler(UpdateGlobalExportSettingsCommand.class, UpdateGlobalExportSettingsHandler.class);
 		bindHandler(UpdateLogFrame.class, UpdateLogFrameHandler.class);

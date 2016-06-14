@@ -158,6 +158,10 @@ public class ContactModel extends AbstractEntityId<Integer> implements Deleteabl
     this.dateMaintenance = dateMaintenance;
   }
 
+  public boolean isUnderMaintenance() {
+    return dateMaintenance != null && dateMaintenance.before(new Date());
+  }
+
   public ContactCard getCard() {
     return card;
   }

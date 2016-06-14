@@ -51,6 +51,7 @@ import org.sigmah.client.dispatch.monitor.LoadingMask;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.inject.Injector;
 import org.sigmah.client.page.RequestParameter;
+import org.sigmah.client.ui.notif.N10N;
 import org.sigmah.client.ui.presenter.base.AbstractPresenter;
 import org.sigmah.client.ui.view.base.ViewInterface;
 import org.sigmah.client.ui.view.contact.ContactDetailsView;
@@ -58,9 +59,14 @@ import org.sigmah.client.ui.view.contact.ContactView;
 import org.sigmah.client.ui.widget.button.Button;
 import org.sigmah.client.ui.widget.form.Forms;
 import org.sigmah.client.util.ClientUtils;
+import org.sigmah.shared.command.GetContact;
+import org.sigmah.shared.command.GetCountry;
 import org.sigmah.shared.command.GetValue;
+import org.sigmah.shared.command.UpdateContact;
 import org.sigmah.shared.command.result.ValueResult;
+import org.sigmah.shared.command.result.VoidResult;
 import org.sigmah.shared.dto.ContactDTO;
+import org.sigmah.shared.dto.country.CountryDTO;
 import org.sigmah.shared.dto.element.DefaultContactFlexibleElementDTO;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
 import org.sigmah.shared.dto.element.event.ValueEvent;
@@ -267,7 +273,33 @@ public class ContactDetailsPresenter extends AbstractPresenter<ContactDetailsPre
 
           @Override
           public void handleEvent(ButtonEvent be) {
-            // TODO
+
+            view.getSaveButton().disable();
+
+            dispatch.execute(new UpdateContact(contactDTO.getId(), valueChanges), new CommandResultHandler<VoidResult>() {
+
+              @Override
+              protected void onCommandFailure(final Throwable caught) {
+                N10N.error(I18N.CONSTANTS.save(), I18N.CONSTANTS.saveError());
+              }
+
+              @Override
+              protected void onCommandSuccess(final VoidResult result) {
+
+                N10N.infoNotif(I18N.CONSTANTS.infoConfirmation(), I18N.CONSTANTS.saveConfirm());
+
+                // Checks if there is any update needed to the local project instance.
+                for (final ValueEvent event : valueChanges) {
+                  if (event.getSource() instanceof DefaultContactFlexibleElementDTO) {
+                    updateCurrentContact(contactDTO, (DefaultContactFlexibleElementDTO) event.getSource(), event.getSingleValue());
+                  }
+                }
+
+                valueChanges.clear();
+
+              }
+            }, view.getSaveButton(), new LoadingMask(view.getDetailsContainer()));
+
           }
         });
       }
@@ -277,5 +309,81 @@ public class ContactDetailsPresenter extends AbstractPresenter<ContactDetailsPre
 
     formPanel.add(gridLayout);
     view.fillContainer(formPanel);
+  }
+
+  private void updateCurrentContact(final ContactDTO contactDTO, DefaultContactFlexibleElementDTO element, String value) {
+    if (!element.getType().isUpdatable()) {
+      return;
+    }
+
+    switch (element.getType()) {
+      case COUNTRY:
+        dispatch.execute(new GetCountry(Integer.parseInt(value)), new AsyncCallback<CountryDTO>() {
+          @Override
+          public void onFailure(Throwable caught) {
+            Log.error("Error while updating default contact information.", caught);
+          }
+
+          @Override
+          public void onSuccess(CountryDTO country) {
+            contactDTO.setCountry(country);
+          }
+        });
+        break;
+      case DIRECT_MEMBERSHIP:
+        dispatch.execute(new GetContact(Integer.parseInt(value), ContactDTO.Mode.MAIN_INFORMATION), new AsyncCallback<ContactDTO>() {
+          @Override
+          public void onFailure(Throwable caught) {
+            Log.error("Error while updating default contact information.", caught);
+          }
+
+          @Override
+          public void onSuccess(ContactDTO parent) {
+            if (parent == null) {
+              contactDTO.setParent(null);
+              contactDTO.setRoot(null);
+            }
+
+            contactDTO.setParent(parent);
+            if (parent.getRoot() != null) {
+              contactDTO.setRoot(parent.getRoot());
+            } else {
+              contactDTO.setRoot(parent);
+            }
+          }
+        });
+        break;
+      case EMAIL_ADDRESS:
+        contactDTO.setEmail(value);
+        break;
+      case FIRST_NAME:
+        contactDTO.setFirstname(value);
+        break;
+      case FAMILY_NAME:
+        // fall through
+      case ORGANIZATION_NAME:
+        contactDTO.setName(value);
+        break;
+      case PHONE_NUMBER:
+        contactDTO.setPhoneNumber(value);
+        break;
+      case PHOTO:
+        contactDTO.setPhoto(value);
+        break;
+      case POSTAL_ADDRESS:
+        contactDTO.setPostalAddress(value);
+        break;
+
+      // Ignored element types
+      // Should always be unmodifiable
+      case LOGIN:
+      case MAIN_ORG_UNIT:
+      case SECONDARY_ORG_UNITS:
+      case TOP_MEMBERSHIP:
+      case CREATION_DATE:
+        break;
+      default:
+        throw new IllegalStateException();
+    }
   }
 }

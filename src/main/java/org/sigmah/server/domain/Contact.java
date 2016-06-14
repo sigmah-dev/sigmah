@@ -29,6 +29,7 @@ import javax.persistence.*;
 import org.sigmah.server.domain.base.AbstractEntityId;
 import org.sigmah.server.domain.util.Deleteable;
 import org.sigmah.server.domain.util.EntityConstants;
+import org.sigmah.shared.dto.referential.ContainerInformation;
 
 @Entity
 @Table(name = EntityConstants.CONTACT_TABLE)
@@ -177,6 +178,26 @@ public class Contact extends AbstractEntityId<Integer> implements Deleteable {
       return;
     }
     this.firstname = firstname;
+  }
+
+  public String getFullName() {
+    String firstname = getFirstname();
+    String name = getName();
+
+    if (firstname == null && name == null) {
+      return null;
+    }
+
+    if (firstname == null) {
+      return name.toUpperCase();
+    }
+
+    if (name == null) {
+      return firstname;
+    }
+
+    return firstname + " " + name.toUpperCase();
+
   }
 
   public OrgUnit getMainOrgUnit() {
@@ -330,5 +351,14 @@ public class Contact extends AbstractEntityId<Integer> implements Deleteable {
   @Override
   public boolean isDeleted() {
     return dateDeleted != null;
+  }
+
+  /**
+   * Returns a serializable object with basic information about this object.
+   *
+   * @return Basic information about this contact as a ContainerInformation instance.
+   */
+  public ContainerInformation toContainerInformation() {
+    return new ContainerInformation(getId(), getName(), getFullName(), true);
   }
 }
