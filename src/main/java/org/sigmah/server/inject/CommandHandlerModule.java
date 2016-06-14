@@ -54,6 +54,7 @@ public class CommandHandlerModule extends AbstractCommandHandlerModule {
 		bindHandler(BatchCommand.class, BatchCommandHandler.class);
 		bindHandler(ChangePasswordCommand.class, ChangePasswordCommandHandler.class);
 		bindHandler(ChangePhase.class, ChangePhaseHandler.class);
+		bindHandler(CheckContactDuplication.class, CheckContactDuplicationHandler.class);
 		bindHandler(CheckModelUsage.class, CheckModelUsageHandler.class);
 		bindHandler(CreateEntity.class, CreateEntityHandler.class);
 		bindHandler(CopyLogFrame.class, CopyLogFrameHandler.class);

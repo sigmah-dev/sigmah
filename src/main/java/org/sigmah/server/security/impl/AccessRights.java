@@ -136,6 +136,7 @@ final class AccessRights {
 		sperm(commandToken(BatchCommand.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(ChangePasswordCommand.class), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.CHANGE_PASSWORD);
 		sperm(commandToken(ChangePhase.class), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.CHANGE_PHASE);
+		sperm(commandToken(CheckContactDuplication.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(CheckModelUsage.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(CreateEntity.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(CopyLogFrame.class), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.EDIT_LOGFRAME);
