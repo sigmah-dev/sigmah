@@ -21,9 +21,37 @@ package org.sigmah.server.dao.impl;
  * #L%
  */
 
+import java.util.List;
+
 import org.sigmah.server.dao.HistoryTokenDAO;
 import org.sigmah.server.dao.base.AbstractDAO;
 import org.sigmah.server.domain.HistoryToken;
+import org.sigmah.server.domain.value.Value;
 
 public class HistoryTokenHibernateDAO extends AbstractDAO<HistoryToken, Integer> implements HistoryTokenDAO {
+  @Override
+  public List<HistoryToken> findByContainerIdAndFlexibleElementId(Integer containerId, Integer flexibleElementId) {
+    return em().createQuery("" +
+        "SELECT h " +
+        "FROM HistoryToken h " +
+        "WHERE h.projectId = :containerId " +
+        "AND h.elementId = :elementId " +
+        "ORDER BY h.date ASC", HistoryToken.class)
+        .setParameter("containerId", containerId)
+        .setParameter("elementId", flexibleElementId)
+        .getResultList();
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public List<HistoryToken> findByIdInSerializedValue(Integer id) {
+    return em().createNativeQuery("" +
+        "SELECT ht.* " +
+        "FROM history_token ht " +
+        "WHERE ht.value = :id " +
+        "OR ht.value ~ ('^(.*~)?'||:id||'(~.*)?$') " +
+        "ORDER BY ht.id_element ", HistoryToken.class)
+        .setParameter("id", String.valueOf(id))
+        .getResultList();
+  }
 }

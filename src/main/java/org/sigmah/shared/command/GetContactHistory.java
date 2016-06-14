@@ -1,4 +1,4 @@
-package org.sigmah.server.dao;
+package org.sigmah.shared.command;
 /*
  * #%L
  * Sigmah
@@ -21,19 +21,25 @@ package org.sigmah.server.dao;
  * #L%
  */
 
-import java.util.List;
+import org.sigmah.shared.command.base.AbstractCommand;
+import org.sigmah.shared.command.result.ContactHistory;
+import org.sigmah.shared.command.result.ListResult;
 
-import org.sigmah.server.dao.base.DAO;
-import org.sigmah.server.domain.HistoryToken;
+public class GetContactHistory extends AbstractCommand<ListResult<ContactHistory>> {
+  private static final long serialVersionUID = 5615701725561806283L;
 
-public interface HistoryTokenDAO extends DAO<HistoryToken, Integer> {
-  List<HistoryToken> findByContainerIdAndFlexibleElementId(Integer containerId, Integer flexibleElementId);
+  private Integer contactId;
 
-  /**
-   * Find history tokens with a value equaled to or containing the given id.
-   * <p>
-   *   The value inside the history token can be a multivalued value.
-   * </p>
-   */
-  List<HistoryToken> findByIdInSerializedValue(Integer containerId);
+  public GetContactHistory() {
+    // Serialization
+  }
+
+  public GetContactHistory(Integer contactId) {
+    this.contactId = contactId;
+
+  }
+
+  public Integer getContactId() {
+    return contactId;
+  }
 }

@@ -271,6 +271,14 @@ public class User extends AbstractEntityId<Integer> {
 		this.name = name;
 	}
 
+	@Transient
+	public String getFullName() {
+		if (firstName == null) {
+			return name;
+		}
+		return firstName + " " + name.toUpperCase();
+	}
+
 	public String getFirstName() {
 		return firstName;
 	}
