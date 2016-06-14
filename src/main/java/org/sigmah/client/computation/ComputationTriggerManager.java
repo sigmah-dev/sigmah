@@ -43,6 +43,7 @@ import org.sigmah.shared.dto.ProjectModelDTO;
 import org.sigmah.shared.dto.element.ComputationElementDTO;
 import org.sigmah.shared.dto.element.FlexibleElementContainer;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
+import org.sigmah.shared.dto.element.HistoryWrapper;
 import org.sigmah.shared.dto.element.event.ValueEvent;
 import org.sigmah.shared.dto.element.event.ValueHandler;
 import org.sigmah.shared.dto.orgunit.OrgUnitDTO;
@@ -171,10 +172,18 @@ public class ComputationTriggerManager {
 	public void listenToValueChangesOfElement(final FlexibleElementDTO element, final Component component, final List<ValueEvent> modifications) {
 
 		if (element instanceof ComputationElementDTO) {
-			components.put(element, (Field<String>) component);
-			elementsWithHandlers.put(element.getId(), (ComputationElementDTO) element);
+			StringField stringField = null;
+			if (component instanceof StringField) {
+				stringField = (StringField) component;
+			} else if (component instanceof HistoryWrapper && ((HistoryWrapper) component).getField() instanceof StringField) {
+				stringField = (StringField) ((HistoryWrapper) component).getField();
+			}
+			if (stringField != null) {
+				components.put(element, stringField);
+				elementsWithHandlers.put(element.getId(), (ComputationElementDTO) element);
 
-			initialUpdateIfCurrentValueIsEmpty((ComputationElementDTO) element, (StringField) component);
+				initialUpdateIfCurrentValueIsEmpty((ComputationElementDTO) element, stringField);
+			}
 		}
 
 		final List<ComputationElementDTO> computationElements = dependencies.get(element);

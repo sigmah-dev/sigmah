@@ -277,5 +277,8 @@ public class HistoryWrapper<V> extends AdapterField {
 	public void setHideLabel(boolean hideLabel) {
 		field.setHideLabel(hideLabel);
 	}
-	
+
+	public Field<V> getField() {
+		return field;
+	}
 }
