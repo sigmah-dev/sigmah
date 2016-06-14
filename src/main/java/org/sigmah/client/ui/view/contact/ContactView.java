@@ -28,6 +28,7 @@ import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.util.Padding;
+import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.TabItem;
@@ -53,6 +54,11 @@ public class ContactView extends AbstractView implements ContactPresenter.View {
   private LayoutContainer topDetailsContainer;
   private LayoutContainer bottomDetailsContainer;
   private TabPanel tabPanel;
+
+  @Override
+  public Component getMainComponent() {
+    return contentPanel;
+  }
 
   @Override
   public void initialize() {

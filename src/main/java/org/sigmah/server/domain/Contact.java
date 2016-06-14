@@ -21,11 +21,8 @@ package org.sigmah.server.domain;
  * #L%
  */
 
-import java.util.Collections;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import javax.persistence.*;
 
@@ -220,22 +217,6 @@ public class Contact extends AbstractEntityId<Integer> implements Deleteable {
     this.secondaryOrgUnits = secondaryOrgUnits;
   }
 
-  // Dozer can't transform a Collection<OrgUnit> to a Collection<Integer> by itself
-  // Let's help it by providing directly a function that give the result of the transformation
-  public Set<Integer> getSecondaryOrgUnitIds() {
-    // getSecondaryOrgUnits() instead of secondaryOrgUnits to force data recuperation from the database
-    List<OrgUnit> secondaryOrgUnits = getSecondaryOrgUnits();
-    if (secondaryOrgUnits == null) {
-      return Collections.emptySet();
-    }
-
-    Set<Integer> ids = new HashSet<>(secondaryOrgUnits.size());
-    for (OrgUnit secondaryOrgUnit : secondaryOrgUnits) {
-      ids.add(secondaryOrgUnit.getId());
-    }
-    return ids;
-  }
-
   public String getLogin() {
     // contact login can be different from user email
     // take it from user in fallback
@@ -310,6 +291,19 @@ public class Contact extends AbstractEntityId<Integer> implements Deleteable {
 
   public void setParent(Contact parent) {
     this.parent = parent;
+  }
+
+  @Transient
+  public Contact getRoot() {
+    if (getParent() == null) {
+      return null;
+    }
+
+    Contact parent = getParent();
+    if (parent.getRoot() == null) {
+      return parent;
+    }
+    return parent.getRoot();
   }
 
   public Date getDateCreated() {

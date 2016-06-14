@@ -286,7 +286,7 @@ public class UserEditPresenter extends AbstractPagePresenter<UserEditPresenter.V
 				for (ContactDTO contactDTO : result.getList()) {
 					if (user != null) {
 						// Let's find the user contact
-						if (contactDTO.getId().equals(user.getContact().getParentId())) {
+						if (contactDTO.getId().equals(user.getContact().getParent().getId())) {
 							view.getContactOrganizationField().setValue(contactDTO);
 							return;
 						}
@@ -327,7 +327,7 @@ public class UserEditPresenter extends AbstractPagePresenter<UserEditPresenter.V
 				Integer minId = null;
 				for (ContactModelDTO contactModelDTO : result.getList()) {
 					if (user != null) {
-						if (contactModelDTO.getId().equals(user.getContact().getContactModelId())) {
+						if (contactModelDTO.getId().equals(user.getContact().getContactModel().getId())) {
 							view.getContactModelField().setValue(contactModelDTO);
 							return;
 						}

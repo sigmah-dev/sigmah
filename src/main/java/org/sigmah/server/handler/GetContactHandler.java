@@ -23,29 +23,27 @@ package org.sigmah.server.handler;
 
 import com.google.inject.Inject;
 
-import java.util.List;
-
 import org.sigmah.server.dao.ContactDAO;
 import org.sigmah.server.dispatch.impl.UserDispatch;
 import org.sigmah.server.domain.Contact;
 import org.sigmah.server.handler.base.AbstractCommandHandler;
-import org.sigmah.shared.command.GetContacts;
-import org.sigmah.shared.command.result.ListResult;
+import org.sigmah.shared.command.GetContact;
 import org.sigmah.shared.dispatch.CommandException;
 import org.sigmah.shared.dto.ContactDTO;
 
-public class GetContactsHandler extends AbstractCommandHandler<GetContacts, ListResult<ContactDTO>> {
+public class GetContactHandler extends AbstractCommandHandler<GetContact, ContactDTO> {
   private final ContactDAO contactDAO;
 
-  @Inject GetContactsHandler(ContactDAO contactDAO) {
+  @Inject
+  public GetContactHandler(ContactDAO contactDAO) {
     this.contactDAO = contactDAO;
   }
 
   @Override
-  protected ListResult<ContactDTO> execute(GetContacts command, UserDispatch.UserExecutionContext context) throws CommandException {
-    List<Contact> contacts = contactDAO.findTypedContacts(context.getUser().getOrganization().getId(), command.getType());
-    // FIXME: Add ContactDTO.Mode.MAIN_INFORMATION when dozer 5.5.2 will be ready
+  protected ContactDTO execute(GetContact command, UserDispatch.UserExecutionContext context) throws CommandException {
+    Contact contact = contactDAO.findById(command.getContactId());
+    // FIXME: Add command.mode when dozer 5.5.2 will be ready
     // see https://github.com/DozerMapper/dozer/commit/5e179bb68c91e60d63bf9f44bf64b7ca70f61520
-    return new ListResult<>(mapper().mapCollection(contacts, ContactDTO.class));
+    return mapper().map(contact, new ContactDTO());
   }
 }

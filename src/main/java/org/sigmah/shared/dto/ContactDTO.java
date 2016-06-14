@@ -21,9 +21,15 @@ package org.sigmah.shared.dto;
  * #L%
  */
 
-import java.util.Set;
+import java.util.Date;
+import java.util.List;
 
 import org.sigmah.shared.dto.base.AbstractModelDataEntityDTO;
+import org.sigmah.shared.dto.base.mapping.CustomMappingField;
+import org.sigmah.shared.dto.base.mapping.IsMappingMode;
+import org.sigmah.shared.dto.base.mapping.MappingField;
+import org.sigmah.shared.dto.country.CountryDTO;
+import org.sigmah.shared.dto.orgunit.OrgUnitDTO;
 
 public class ContactDTO extends AbstractModelDataEntityDTO<Integer> {
   private static final long serialVersionUID = -6688968774985926447L;
@@ -46,7 +52,58 @@ public class ContactDTO extends AbstractModelDataEntityDTO<Integer> {
   public static final String PHOTO = "photo";
   public static final String COUNTRY = "country";
   public static final String PARENT = "parent";
+  public static final String ROOT = "root";
   public static final String DATE_CREATED = "dateCreated";
+
+  public enum Mode implements IsMappingMode {
+    BASIC_INFORMATION(new MappingField(MAIN_ORG_UNIT), new MappingField(SECONDARY_ORG_UNITS), new MappingField(COUNTRY),
+        new MappingField(PARENT), new MappingField(ROOT), new MappingField(CONTACT_MODEL)),
+
+    // Just take basic information.
+    MAIN_INFORMATION(
+        new CustomMappingField[] { new CustomMappingField(PARENT, Mode.BASIC_INFORMATION) },
+        new MappingField(MAIN_ORG_UNIT), new MappingField(SECONDARY_ORG_UNITS), new MappingField(COUNTRY), new MappingField(ROOT)
+    ),
+
+    // Take all data.
+    ALL(
+        new CustomMappingField(MAIN_ORG_UNIT, OrgUnitDTO.Mode.BASE),
+        new CustomMappingField(SECONDARY_ORG_UNITS, OrgUnitDTO.Mode.BASE),
+        new CustomMappingField(PARENT, Mode.BASIC_INFORMATION),
+        new CustomMappingField(ROOT, Mode.BASIC_INFORMATION)
+    );
+
+    private final CustomMappingField[] customFields;
+    private final MappingField[] excludedFields;
+
+    Mode(final MappingField... excludedFields) {
+      this(null, excludedFields);
+    }
+
+    Mode(final CustomMappingField... customFields) {
+      this(customFields, (MappingField[]) null);
+    }
+
+    Mode(final CustomMappingField[] customFields, final MappingField... excludedFields) {
+      this.customFields = customFields;
+      this.excludedFields = excludedFields;
+    }
+
+    @Override
+    public String getMapId() {
+      return name();
+    }
+
+    @Override
+    public CustomMappingField[] getCustomFields() {
+      return customFields;
+    }
+
+    @Override
+    public MappingField[] getExcludedFields() {
+      return excludedFields;
+    }
+  }
 
   public Integer getId() {
     return get(ID);
@@ -56,12 +113,12 @@ public class ContactDTO extends AbstractModelDataEntityDTO<Integer> {
     set(ID, id);
   }
 
-  public Integer getContactModelId() {
+  public ContactModelDTO getContactModel() {
     return get(CONTACT_MODEL);
   }
 
-  public void setContactModelId(Integer contactModelId) {
-    set(CONTACT_MODEL, contactModelId);
+  public void setContactModel(ContactModelDTO contactModel) {
+    set(CONTACT_MODEL, contactModel);
   }
 
   public Integer getUserId() {
@@ -87,7 +144,7 @@ public class ContactDTO extends AbstractModelDataEntityDTO<Integer> {
   public void setName(String name) {
     set(NAME, name);
 
-    initFullname();
+    initFullName();
   }
 
   public String getFirstname() {
@@ -97,10 +154,10 @@ public class ContactDTO extends AbstractModelDataEntityDTO<Integer> {
   public void setFirstname(String firstname) {
     set(FIRSTNAME, firstname);
 
-    initFullname();
+    initFullName();
   }
 
-  public void initFullname() {
+  public void initFullName() {
     String firstname = getFirstname();
     String name = getName();
 
@@ -121,20 +178,24 @@ public class ContactDTO extends AbstractModelDataEntityDTO<Integer> {
     set(FULLNAME, firstname + " " + name.toUpperCase());
   }
 
-  public Integer getMainOrgUnitId() {
+  public String getFullName() {
+    return get(FULLNAME);
+  }
+
+  public OrgUnitDTO getMainOrgUnit() {
     return get(MAIN_ORG_UNIT);
   }
 
-  public void setMainOrgUnitId(Integer mainOrgUnitId) {
-    set(MAIN_ORG_UNIT, mainOrgUnitId);
+  public void setMainOrgUnit(OrgUnitDTO mainOrgUnit) {
+    set(MAIN_ORG_UNIT, mainOrgUnit);
   }
 
-  public Set<Integer> getSecondaryOrgUnitIds() {
+  public List<OrgUnitDTO> getSecondaryOrgUnits() {
     return get(SECONDARY_ORG_UNITS);
   }
 
-  public void setSecondaryOrgUnitIds(Set<Integer> secondaryOrgUnitIds) {
-    set(SECONDARY_ORG_UNITS, secondaryOrgUnitIds);
+  public void setSecondaryOrgUnits(List<OrgUnitDTO> secondaryOrgUnits) {
+    set(SECONDARY_ORG_UNITS, secondaryOrgUnits);
   }
 
   public String getLogin() {
@@ -177,28 +238,35 @@ public class ContactDTO extends AbstractModelDataEntityDTO<Integer> {
     set(PHOTO, photo);
   }
 
-  public Integer getCountryId() {
+  public CountryDTO getCountry() {
     return get(COUNTRY);
   }
 
-  public void setCountryId(Integer countryId) {
-    set(COUNTRY, countryId);
+  public void setCountry(CountryDTO country) {
+    set(COUNTRY, country);
   }
 
-  public Integer getParentId() {
+  public ContactDTO getParent() {
     return get(PARENT);
   }
 
-  public void setParentId(Integer parent) {
+  public void setParent(ContactDTO parent) {
     set(PARENT, parent);
   }
 
+  public ContactDTO getRoot() {
+    return get(ROOT);
+  }
 
-  public String getDateCreated() {
+  public void setRoot(ContactDTO root) {
+    set(ROOT, root);
+  }
+
+  public Date getDateCreated() {
     return get(DATE_CREATED);
   }
 
-  public void setDateCreated(String dateCreated) {
+  public void setDateCreated(Date dateCreated) {
     set(DATE_CREATED, dateCreated);
   }
 
