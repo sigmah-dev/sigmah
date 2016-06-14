@@ -29,17 +29,21 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.persistence.EntityManager;
 
+import org.sigmah.server.domain.element.ContactListElement;
 import org.sigmah.server.domain.element.DefaultContactFlexibleElement;
 import org.sigmah.server.servlet.exporter.data.GlobalExportDataProvider;
 import org.sigmah.shared.command.GetValue;
 import org.sigmah.shared.command.result.ValueResult;
+import org.sigmah.shared.dto.element.*;
 import org.sigmah.shared.util.ValueResultUtils;
 import org.sigmah.shared.dto.referential.AmendmentState;
 import org.sigmah.server.domain.User;
@@ -81,20 +85,6 @@ import org.sigmah.shared.dispatch.FunctionalException;
 import org.sigmah.shared.dto.ElementExtractedValue;
 import org.sigmah.shared.dto.ImportDetails;
 import org.sigmah.shared.dto.base.EntityDTO;
-import org.sigmah.shared.dto.element.BudgetElementDTO;
-import org.sigmah.shared.dto.element.CheckboxElementDTO;
-import org.sigmah.shared.dto.element.ComputationElementDTO;
-import org.sigmah.shared.dto.element.CoreVersionElementDTO;
-import org.sigmah.shared.dto.element.DefaultFlexibleElementDTO;
-import org.sigmah.shared.dto.element.FilesListElementDTO;
-import org.sigmah.shared.dto.element.FlexibleElementDTO;
-import org.sigmah.shared.dto.element.IndicatorsListElementDTO;
-import org.sigmah.shared.dto.element.MessageElementDTO;
-import org.sigmah.shared.dto.element.QuestionElementDTO;
-import org.sigmah.shared.dto.element.ReportElementDTO;
-import org.sigmah.shared.dto.element.ReportListElementDTO;
-import org.sigmah.shared.dto.element.TextAreaElementDTO;
-import org.sigmah.shared.dto.element.TripletsListElementDTO;
 import org.sigmah.shared.dto.orgunit.OrgUnitDTO;
 import org.sigmah.shared.dto.referential.DefaultFlexibleElementType;
 import org.sigmah.shared.dto.referential.ImportStatusCode;
@@ -392,6 +382,9 @@ public abstract class Importer implements Iterator<ImportDetails> {
 		case CHECKBOX:
 			element = mapper.map(flexibleElement, new CheckboxElement());
 			valueObject = getCheckboxValue(valueResult, element);
+			break;
+		case CONTACT_LIST:
+			valueObject = getContactListValue(valueResult);
 			break;
 		case DEFAULT:
 			element = mapper.map(flexibleElement, new DefaultFlexibleElement());
@@ -1019,6 +1012,19 @@ public abstract class Importer implements Iterator<ImportDetails> {
 		return value;
 	}
 
+	public HashSet<Integer> getContactListValue(ValueResult valueResult) {
+		if (valueResult == null || valueResult.getValueObject() == null) {
+			return new HashSet<>(0);
+		}
+
+		String[] values = valueResult.getValueObject().split(",");
+		HashSet<Integer> contactIds = new HashSet<>(values.length);
+		for (String value : values) {
+			contactIds.add(Integer.parseInt(value));
+		}
+		return contactIds;
+	}
+
 	protected int getColumnFromReference(String reference) {
 		int column = 0;
 		
@@ -1087,6 +1093,9 @@ public abstract class Importer implements Iterator<ImportDetails> {
 		switch (type.toElementTypeEnum()) {
 		case CHECKBOX:
 			dto = new CheckboxElementDTO();
+			break;
+		case CONTACT_LIST:
+			dto = new ContactListElementDTO();
 			break;
 		case COMPUTATION:
 			dto = new ComputationElementDTO();
