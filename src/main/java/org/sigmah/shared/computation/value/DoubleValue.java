@@ -24,6 +24,7 @@ package org.sigmah.shared.computation.value;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.i18n.client.LocaleInfo;
+import org.sigmah.shared.computation.instruction.Reductor;
 import org.sigmah.shared.dto.element.ComputationElementDTO;
 
 /**
@@ -49,6 +50,14 @@ public class DoubleValue implements ComputedValue {
 	@Override
 	public Double get() {
 		return value;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void feedToReductor(Reductor reductor) {
+		reductor.feed(this);
 	}
 	
     /**

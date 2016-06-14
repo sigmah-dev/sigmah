@@ -22,6 +22,7 @@ package org.sigmah.shared.computation.value;
  * #L%
  */
 
+import org.sigmah.shared.computation.instruction.Reductor;
 import org.sigmah.shared.dto.element.ComputationElementDTO;
 
 /**
@@ -38,6 +39,8 @@ public interface ComputedValue {
 	 * @return Double value or <code>null</code> if no value is present.
 	 */
 	Double get();
+	
+	void feedToReductor(Reductor reductor);
 	
 	/**
 	 * Returns <code>true</code> if this value matches the given constraints.

@@ -24,6 +24,7 @@ package org.sigmah.shared.computation.value;
 
 import com.google.gwt.core.client.GWT;
 import org.sigmah.client.i18n.I18N;
+import org.sigmah.shared.computation.instruction.Reductor;
 import org.sigmah.shared.dto.element.ComputationElementDTO;
 
 /**
@@ -46,6 +47,11 @@ public enum ComputationError implements ComputedValue {
 	@Override
 	public Double get() {
 		return null;
+	}
+
+	@Override
+	public void feedToReductor(Reductor reductor) {
+		reductor.feed(this);
 	}
 
 	/**
