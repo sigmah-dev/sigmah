@@ -34,6 +34,8 @@ import org.sigmah.client.ui.widget.Loadable;
 import org.sigmah.client.ui.widget.form.StringField;
 import org.sigmah.offline.sync.SuccessCallback;
 import org.sigmah.shared.computation.Computation;
+import org.sigmah.shared.dto.ContactDTO;
+import org.sigmah.shared.dto.ContactModelDTO;
 import org.sigmah.shared.dto.IsModel;
 import org.sigmah.shared.dto.OrgUnitModelDTO;
 import org.sigmah.shared.dto.ProjectDTO;
@@ -100,6 +102,24 @@ public class ComputationTriggerManager {
 		for (final OrgUnitDTO.LocalizedElement localizedElement : orgUnit.getLocalizedElements(ComputationElementDTO.class)) {
 			final ComputationElementDTO computationElement = (ComputationElementDTO) localizedElement.getElement();
 			prepareForComputationElement(computationElement, model);
+		}
+	}
+
+	/**
+	 * Prepare the trigger manager.
+	 *
+	 * @param contactDTO
+	 *          Contact to display.
+	 */
+	public void prepareForContact(ContactDTO contactDTO) {
+
+		this.container = contactDTO;
+
+		clearMaps();
+
+		for (final ContactDTO.LocalizedElement localizedElement : contactDTO.getLocalizedElements(ComputationElementDTO.class)) {
+			final ComputationElementDTO computationElement = (ComputationElementDTO) localizedElement.getElement();
+			prepareForComputationElement(computationElement, contactDTO.getContactModel());
 		}
 	}
 

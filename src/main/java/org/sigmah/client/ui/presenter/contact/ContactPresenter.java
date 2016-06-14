@@ -82,6 +82,8 @@ public class ContactPresenter extends AbstractPagePresenter<ContactPresenter.Vie
 
   interface ContactSubPresenter<E extends ViewInterface> extends Presenter<E> {
     String getTabHeader();
+
+    void refresh(ContactDTO contactDTO);
   }
 
   private final List<? extends ContactSubPresenter> tabPresenters;
@@ -149,6 +151,7 @@ public class ContactPresenter extends AbstractPagePresenter<ContactPresenter.Vie
       @Override
       public void execute() {
         refreshCard();
+        refreshTabs();
       }
     });
   }
@@ -264,6 +267,12 @@ public class ContactPresenter extends AbstractPagePresenter<ContactPresenter.Vie
 
     if (!hasPhoto) {
       view.setDefaultAvatar(contactModelDTO.getType());
+    }
+  }
+
+  private void refreshTabs() {
+    for (ContactSubPresenter tabPresenter : tabPresenters) {
+      tabPresenter.refresh(contactDTO);
     }
   }
 }

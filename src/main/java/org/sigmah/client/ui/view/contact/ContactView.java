@@ -21,9 +21,13 @@ package org.sigmah.client.ui.view.contact;
  * #L%
  */
 
+import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.event.logical.shared.ResizeEvent;
+import com.google.gwt.event.logical.shared.ResizeHandler;
+import com.google.gwt.user.client.Timer;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;
-import com.extjs.gxt.ui.client.Style;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
@@ -71,7 +75,16 @@ public class ContactView extends AbstractView implements ContactPresenter.View {
     Widget contactCardPanel = createContactCardPanel();
 
     tabPanel = Panels.tab();
+    tabPanel.setBorderStyle(true);
+    tabPanel.setBodyBorder(true);
+    tabPanel.setBorders(true);
     tabPanel.setPlain(true);
+    Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+      @Override
+      public void execute() {
+        tabPanel.setWidth(contentPanel.getWidth() - CARD_WIDTH);
+      }
+    });
 
     LayoutContainer layoutContainer = Layouts.hBox(HBoxLayout.HBoxLayoutAlign.STRETCH);
     layoutContainer.add(contactCardPanel);
@@ -167,9 +180,34 @@ public class ContactView extends AbstractView implements ContactPresenter.View {
   @Override
   public void addTab(String tabTitle, final Widget tabView) {
     final TabItem tabItem = new TabItem(tabTitle);
+    tabItem.addListener(Events.Select, new Listener<ComponentEvent>() {
+      @Override
+      public void handleEvent(ComponentEvent be) {
+        fixTabViewHeight(tabView, tabItem);
+      }
+    });
     tabItem.add(tabView);
-    tabItem.setScrollMode(Style.Scroll.AUTO);
+
+    Window.addResizeHandler(new ResizeHandler() {
+      @Override
+      public void onResize(ResizeEvent event) {
+        fixTabViewHeight(tabView, tabItem);
+      }
+    });
+    fixTabViewHeight(tabView, tabItem);
 
     tabPanel.add(tabItem);
+  }
+
+  private void fixTabViewHeight(final Widget tabView, final TabItem tabItem) {
+    Timer timer = new Timer() {
+      @Override
+      public void run() {
+        if (tabView.isVisible() && tabItem == tabPanel.getSelectedItem()) {
+          tabView.setHeight(tabItem.getHeight() + "px");
+        }
+      }
+    };
+    timer.schedule(200);
   }
 }

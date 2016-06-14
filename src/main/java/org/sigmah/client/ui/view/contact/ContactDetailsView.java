@@ -21,12 +21,58 @@ package org.sigmah.client.ui.view.contact;
  * #L%
  */
 
+import com.google.gwt.user.client.ui.Widget;
+import com.extjs.gxt.ui.client.Style;
+import com.extjs.gxt.ui.client.util.Padding;
+import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.layout.VBoxLayout;
+import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
+
+import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.ui.presenter.contact.ContactDetailsPresenter;
+import org.sigmah.client.ui.res.icon.IconImageBundle;
 import org.sigmah.client.ui.view.base.AbstractView;
+import org.sigmah.client.ui.widget.button.Button;
+import org.sigmah.client.ui.widget.form.Forms;
+import org.sigmah.client.ui.widget.layout.Layouts;
+import org.sigmah.client.ui.widget.panel.Panels;
 
 public class ContactDetailsView extends AbstractView implements ContactDetailsPresenter.View {
+  private ContentPanel container;
+  private ToolBar toolBar;
+  private Button saveButton;
+
   @Override
   public void initialize() {
+    container = Panels.content(null, false, Layouts.vBoxLayout(VBoxLayout.VBoxLayoutAlign.STRETCH, new Layouts.LayoutOptions(new Padding(10))), "x-border-layout-ct");
+    container.setScrollMode(Style.Scroll.AUTOY);
+    container.addStyleName("contact-details-container");
+    add(container);
 
+    saveButton = Forms.button(I18N.CONSTANTS.save(), IconImageBundle.ICONS.save());
+
+    toolBar = new ToolBar();
+    toolBar.setAlignment(Style.HorizontalAlignment.LEFT);
+    toolBar.setBorders(false);
+    toolBar.add(saveButton);
+
+    container.setTopComponent(toolBar);
+  }
+
+  @Override
+  public LayoutContainer getDetailsContainer() {
+    return container;
+  }
+
+  @Override
+  public void fillContainer(Widget widget) {
+    container.add(widget);
+    container.layout();
+  }
+
+  @Override
+  public Button getSaveButton() {
+    return saveButton;
   }
 }

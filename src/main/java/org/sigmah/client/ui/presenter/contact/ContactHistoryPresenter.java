@@ -29,6 +29,7 @@ import org.sigmah.client.inject.Injector;
 import org.sigmah.client.ui.presenter.base.AbstractPresenter;
 import org.sigmah.client.ui.view.base.ViewInterface;
 import org.sigmah.client.ui.view.contact.ContactHistoryView;
+import org.sigmah.shared.dto.ContactDTO;
 
 public class ContactHistoryPresenter extends AbstractPresenter<ContactHistoryPresenter.View> implements ContactPresenter.ContactSubPresenter<ContactHistoryPresenter.View> {
   @ImplementedBy(ContactHistoryView.class)
@@ -44,5 +45,10 @@ public class ContactHistoryPresenter extends AbstractPresenter<ContactHistoryPre
   @Override
   public String getTabHeader() {
     return I18N.CONSTANTS.contactHistoryHeader();
+  }
+
+  @Override
+  public void refresh(ContactDTO contactDTO) {
+    // TODO
   }
 }

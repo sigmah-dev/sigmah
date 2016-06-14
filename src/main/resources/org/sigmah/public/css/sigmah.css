@@ -410,3 +410,10 @@ ul.x-tab-strip {
 .contact-card-avatar-organization {
   background-image: url("../images/icon/organization-128.png");
 }
+.contact-details-photo {
+  max-width: 150px;
+  max-height: 150px;
+}
+.contact-details-container .x-box-inner {
+  overflow: auto !important;
+}
