@@ -25,34 +25,43 @@ package org.sigmah.shared.dto.element;
 import com.extjs.gxt.ui.client.data.ModelData;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
+import org.sigmah.shared.dto.ContactDTO;
 import org.sigmah.shared.dto.UserDTO;
 import org.sigmah.shared.dto.base.EntityDTO;
 import org.sigmah.shared.dto.country.CountryDTO;
+import org.sigmah.shared.dto.orgunit.OrgUnitDTO;
 import org.sigmah.shared.dto.referential.DefaultFlexibleElementType;
 
 public interface DefaultContactFlexibleElementContainer extends FlexibleElementContainer, ModelData, EntityDTO<Integer> {
 
-	String getFamilyName();
+  String getFamilyName();
 
-	String getFirstName();
+  String getFirstname();
 
-	String getOrganizationName();
+  String getOrganizationName();
 
-	Integer getMainOrgUnitId();
+  OrgUnitDTO getMainOrgUnit();
 
-	Set<Integer> getSecondaryOrgUnitIds();
+  List<OrgUnitDTO> getSecondaryOrgUnits();
 
-	Date getCreationDate();
+  CountryDTO getCountry();
 
-	String getLogin();
+  Date getDateCreated();
 
-	String getEmailAddress();
+  String getLogin();
 
-	String getPhoneNumber();
+  String getEmail();
 
-	String getPostalAddress();
+  String getPhoneNumber();
 
-	String getPhotoUrl();
+  String getPostalAddress();
+
+  String getPhoto();
+
+  ContactDTO getParent();
+
+  ContactDTO getRoot();
 }

@@ -21,17 +21,22 @@ package org.sigmah.shared.dto;
  * #L%
  */
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.sigmah.shared.dto.base.AbstractModelDataEntityDTO;
 import org.sigmah.shared.dto.base.mapping.CustomMappingField;
 import org.sigmah.shared.dto.base.mapping.IsMappingMode;
 import org.sigmah.shared.dto.base.mapping.MappingField;
 import org.sigmah.shared.dto.country.CountryDTO;
+import org.sigmah.shared.dto.element.DefaultContactFlexibleElementContainer;
+import org.sigmah.shared.dto.element.FlexibleElementDTO;
 import org.sigmah.shared.dto.orgunit.OrgUnitDTO;
 
-public class ContactDTO extends AbstractModelDataEntityDTO<Integer> {
+public class ContactDTO extends AbstractModelDataEntityDTO<Integer> implements DefaultContactFlexibleElementContainer {
   private static final long serialVersionUID = -6688968774985926447L;
 
   public static final String ENTITY_NAME = "Contact";
@@ -198,6 +203,15 @@ public class ContactDTO extends AbstractModelDataEntityDTO<Integer> {
     set(SECONDARY_ORG_UNITS, secondaryOrgUnits);
   }
 
+  public Set<Integer> getOrgUnitIds() {
+    HashSet<Integer> ids = new HashSet<Integer>();
+    ids.add(getMainOrgUnit().getId());
+    for (OrgUnitDTO orgUnitDTO : getSecondaryOrgUnits()) {
+      ids.add(orgUnitDTO.getId());
+    }
+    return ids;
+  }
+
   public String getLogin() {
     return get(LOGIN);
   }
@@ -273,5 +287,44 @@ public class ContactDTO extends AbstractModelDataEntityDTO<Integer> {
   @Override
   public String getEntityName() {
     return ENTITY_NAME;
+  }
+
+  @Override
+  public String getFamilyName() {
+    return getName();
+  }
+
+  @Override
+  public String getOrganizationName() {
+    return getName();
+  }
+
+  /**
+   * Gets all the flexible elements instances of the given class in this organizational unit (details page). The banner
+   * is ignored because the elements in it are read-only.
+   *
+   * @param clazz
+   *          The class of the searched flexible elements.
+   * @return The elements localized for the given class, or <code>null</code> if there is no element of this class.
+   */
+  public List<LocalizedElement> getLocalizedElements(Class<? extends FlexibleElementDTO> clazz) {
+
+    final ArrayList<LocalizedElement> elements = new ArrayList<LocalizedElement>();
+
+    final List<ContactModelDTO.LocalizedElement> localizedElements = getContactModel().getLocalizedElements(clazz);
+
+    if (localizedElements != null) {
+      for (final ContactModelDTO.LocalizedElement localized : localizedElements) {
+        elements.add(new LocalizedElement(localized));
+      }
+    }
+
+    return elements;
+  }
+
+  public static final class LocalizedElement extends OrgUnitModelDTO.LocalizedElement {
+    public LocalizedElement(ContactModelDTO.LocalizedElement localized) {
+      super(localized.getElement());
+    }
   }
 }

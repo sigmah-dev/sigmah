@@ -77,7 +77,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
  * @author Denis Colliot (dcolliot@ideia.fr)
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
-public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
+public class DefaultFlexibleElementDTO extends AbstractDefaultFlexibleElementDTO {
 
 	/**
 	 * Serial version UID.
@@ -88,9 +88,7 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 	
 	private static final String EMPTY_VALUE = "-";
 
-	private transient ListStore<CountryDTO> countriesStore;
 	private transient ListStore<UserDTO> usersStore;
-	private transient ListStore<OrgUnitDTO> orgUnitsStore;
 	protected transient DefaultFlexibleElementContainer container;
 
 	/**
@@ -197,7 +195,7 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 				break;
 				
 			case ORG_UNIT:
-				component = buildOrgUnitField(container.getOrgUnitId(), enabled);
+				component = buildOrgUnitField(I18N.CONSTANTS.orgunit(), container.getOrgUnitId(), enabled);
 				break;
 				
 			default:
@@ -244,7 +242,7 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 				break;
 				
 			case ORG_UNIT:
-				component = buildOrgUnitField(valueResult.getValueObject(), enabled);
+				component = buildOrgUnitField(I18N.CONSTANTS.orgunit(), valueResult.getValueObject(), enabled);
 				break;
 				
 			default:
@@ -260,26 +258,6 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 		// These elements don't have any value.
 		return true;
 	}
-
-	/**
-	 * Method in charge of firing value events.
-	 * 
-	 * @param value
-	 *          The raw value which is serialized to the server and saved to the data layer.
-	 * @param isValueOn
-	 *          If the value is correct.
-	 */
-	protected void fireEvents(String value, boolean isValueOn) {
-
-		Log.debug("raw Value is : " + value + "  isValueOn is :" + isValueOn);
-
-		handlerManager.fireEvent(new ValueEvent(this, value));
-
-		// Required element ?
-		if (getValidates()) {
-			handlerManager.fireEvent(new RequiredValueEvent(isValueOn));
-		}
-	}
 	
 	/**
 	 * Creates the code field.
@@ -289,7 +267,7 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 	 * @return The code field.
 	 */
 	private Field<?> buildCodeField(String value, boolean enabled) {
-		return buildTextField(I18N.CONSTANTS.projectName(), value, 50, enabled);
+		return buildTextField(I18N.CONSTANTS.projectName(), value, 50, enabled, false);
 	}
 	
 	/**
@@ -300,37 +278,7 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 	 * @return The title field.
 	 */
 	private Field<?> buildTitleField(String value, boolean enabled) {
-		return buildTextField(I18N.CONSTANTS.projectFullName(), value, 500, enabled);
-	}
-	
-	/**
-	 * Creates a text field.
-	 * This method is shared between the code and the title fields.
-	 * 
-	 * @param label Label of the field.
-	 * @param value Current value.
-	 * @param size Maximum number of characters allowed.
-	 * @param enabled <code>true</code> if the field must be editable, <code>false</code> otherwise.
-	 * @return A new text field.
-	 */
-	private Field<?> buildTextField(String label, String value, int size, boolean enabled) {
-		final Field<?> field;
-
-		// Builds the field and sets its value.
-		if (enabled) {
-			final TextField<String> textField = createStringField(size, false);
-			textField.setValue(value);
-			field = textField;
-
-		} else {
-			field = createLabelField(value);
-		}
-
-		// Sets the field label.
-		setLabel(label);
-		field.setFieldLabel(getLabel());
-		
-		return field;
+		return buildTextField(I18N.CONSTANTS.projectFullName(), value, 500, enabled, false);
 	}
 	
 	/**
@@ -376,170 +324,14 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 	private Field<?> buildEndDateField(String date, boolean enabled) {
 		return buildDateField(I18N.CONSTANTS.projectEndDate(), new Date(Long.parseLong(date)), enabled);
 	}
-	
-	/**
-	 * Creates a date field.
-	 * This method is shared between the start date and the end date fields.
-	 * 
-	 * @param label Label of the field.
-	 * @param value Current value.
-	 * @param enabled <code>true</code> if the field must be editable, <code>false</code> otherwise.
-	 * @return A new date field.
-	 */
-	private Field<?> buildDateField(String label, Date value, boolean enabled) {
-		final Field<?> field;
 
-		// Builds the field and sets its value.
-		if (enabled) {
-			final DateField dateField = createDateField(true);
-			dateField.setValue(value);
-			field = dateField;
-
-		} else {
-			final LabelField labelField = createLabelField();
-			if (value != null) {
-				labelField.setValue(DateUtils.DATE_SHORT.format(value));
-			} else {
-				labelField.setValue(EMPTY_VALUE);
-			}
-			field = labelField;
-		}
-
-		// Sets the field label.
-		setLabel(label);
-		field.setFieldLabel(getLabel());
-
-		return field;
-	}
-	
-	/**
-	 * Creates the country field.
-	 * 
-	 * @param country Country of the container.
-	 * @param enabled <code>true</code> if the field must be editable, <code>false</code> otherwise.
-	 * @return The country field.
-	 */
-	private Field<?> buildCountryField(CountryDTO country, boolean enabled) {
-		// COUNTRY of project should not be changeable except OrgUnit's
-		enabled &= !(currentContainerDTO instanceof ProjectDTO);
-
-		final Field<?> field;
-		
-		if (enabled) {
-			final ComboBox<CountryDTO> comboBox = new ComboBox<CountryDTO>();
-			comboBox.setEmptyText(I18N.CONSTANTS.flexibleElementDefaultSelectCountry());
-
-			ensureCountryStore();
-
-			comboBox.setStore(countriesStore);
-			comboBox.setDisplayField(CountryDTO.NAME);
-			comboBox.setValueField(CountryDTO.ID);
-			comboBox.setTriggerAction(TriggerAction.ALL);
-			comboBox.setEditable(true);
-			comboBox.setAllowBlank(true);
-
-			// Listens to the selection changes.
-			comboBox.addSelectionChangedListener(new SelectionChangedListener<CountryDTO>() {
-
-				@Override
-				public void selectionChanged(SelectionChangedEvent<CountryDTO> se) {
-
-					String value = null;
-					final boolean isValueOn;
-
-					// Gets the selected choice.
-					final CountryDTO choice = se.getSelectedItem();
-
-					// Checks if the choice isn't the default empty choice.
-					isValueOn = choice != null && choice.getId() != null && choice.getId() != -1;
-
-					if (choice != null) {
-						value = String.valueOf(choice.getId());
-					}
-
-					if (value != null) {
-						// Fires value change event.
-						handlerManager.fireEvent(new ValueEvent(DefaultFlexibleElementDTO.this, value));
-					}
-
-					// Required element ?
-					if (getValidates()) {
-						handlerManager.fireEvent(new RequiredValueEvent(isValueOn));
-					}
-				}
-			});
-
-			if (country != null) {
-				comboBox.setValue(country);
-			}
-
-			field = comboBox;
-			
-		} else /* not enabled */{
-
-			final LabelField labelField = createLabelField();
-
-			if (country == null) {
-				labelField.setValue(EMPTY_VALUE);
-			} else {
-				labelField.setValue(country.getName());
-			}
-
-			field = labelField;
-		}
-
-		// Sets the field label.
-		setLabel(I18N.CONSTANTS.projectCountry());
-		field.setFieldLabel(getLabel());
-		
-		return field;
-	}
-	
-	/**
-	 * Creates the country field.
-	 * 
-	 * @param country Country of the container.
-	 * @param enabled <code>true</code> if the field must be editable, <code>false</code> otherwise.
-	 * @return The country field.
-	 */
-	private Field<?> buildCountryField(String country, boolean enabled) {
-		final Field<?> field = buildCountryField((CountryDTO)null, enabled);
-		
-		final int countryId = Integer.parseInt(country);
-
-		dispatch.execute(new GetCountry(countryId), new CommandResultHandler<org.sigmah.shared.dto.country.CountryDTO>() {
-
-			@Override
-			public void onCommandFailure(final Throwable caught) {
-			}
-
-			@Override
-			public void onCommandSuccess(final CountryDTO result) {
-				// BUGFIX #694: Disable events on first set.
-				field.enableEvents(false);
-				
-				if(field instanceof ComboBox) {
-					((ComboBox<CountryDTO>)field).setValue(result);
-
-				} else if(field instanceof LabelField) {
-					((LabelField)field).setValue(result.getName());
-				}
-				
-				field.enableEvents(true);
-			}
-
-		});
-		
-		return field;
-	}
-	
 	/**
 	 * Creates the owner field.
 	 * This field is always read-only.
 	 * 
 	 * @param firstName First name of the owner.
 	 * @param lastName Last name of the owner.
-	 * @return The owner field.
+	 * @return The owner field.@
 	 */
 	private Field<?> buildOwnerField(String firstName, String lastName) {
 		return buildOwnerField(firstName != null ? firstName + ' ' + lastName : lastName);
@@ -703,113 +495,9 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 
 		return field;
 	}
-	
-	/**
-	 * Creates the organization unit field.
-	 * 
-	 * @param orgUnitId ID of the organization unit.
-	 * @param enabled <code>true</code> if the field must be editable, <code>false</code> otherwise.
-	 * @return The organization unit field.
-	 */
-	private Field<?> buildOrgUnitField(String orgUnitId, boolean enabled) {
-		return buildOrgUnitField(Integer.parseInt(orgUnitId), enabled);
-	}
-	
-	/**
-	 * Creates the organization unit field.
-	 * 
-	 * @param orgUnitId ID of the organization unit.
-	 * @param enabled <code>true</code> if the field must be editable, <code>false</code> otherwise.
-	 * @return The organization unit field.
-	 */
-	private Field<?> buildOrgUnitField(Integer orgUnitId, boolean enabled) {
-		final Field<?> field;
 
-		// Org unit field is always read-only for org unit.
-		enabled &= !(container instanceof OrgUnitDTO);
-
-		if (enabled) {
-
-			final ComboBox<OrgUnitDTO> comboBox = new ComboBox<OrgUnitDTO>();
-
-			ensureOrgUnitStore();
-
-			comboBox.setStore(orgUnitsStore);
-			comboBox.setDisplayField(OrgUnitDTO.COMPLETE_NAME);
-			comboBox.setValueField(OrgUnitDTO.ID);
-			comboBox.setTriggerAction(TriggerAction.ALL);
-			comboBox.setEditable(true);
-			comboBox.setAllowBlank(true);
-
-			// BUGFIX #694 : SelectionChangedEvent listener is added AFTER 
-			// setting the initial value to avoid sending a 
-			// SelectionChangedEvent during view initialization.
-			
-			// Loading the current value from the cache.
-			cache.getOrganizationCache().get(orgUnitId, new AsyncCallback<OrgUnitDTO>() {
-
-				@Override
-				public void onFailure(final Throwable caught) {
-					// Not found.
-					
-					// Listens to the selection changes.
-					addSelectionChangedListener(comboBox);
-				}
-
-				@Override
-				public void onSuccess(final OrgUnitDTO result) {
-					comboBox.setValue(result);
-					
-					// Listens to the selection changes.
-					addSelectionChangedListener(comboBox);
-				}
-
-			});
-
-			field = comboBox;
-			
-		} else {
-			// Builds the field and sets its value.
-			final LabelField labelField = createLabelField();
-
-			cache.getOrganizationCache().get(orgUnitId, new AsyncCallback<OrgUnitDTO>() {
-
-				@Override
-				public void onSuccess(final OrgUnitDTO result) {
-					// BUGFIX: Issue #718
-					if(result != null) {
-						labelField.setValue(result.getName() + " - " + result.getFullName());
-					} else {
-						labelField.setValue(EMPTY_VALUE);
-					}
-				}
-
-				@Override
-				public void onFailure(final Throwable caught) {
-					labelField.setValue(EMPTY_VALUE);
-				}
-			});
-
-			// Sets the field label.
-			setLabel(I18N.CONSTANTS.orgunit());
-			labelField.setFieldLabel(getLabel());
-
-			field = labelField;
-		}
-
-		// Sets the field label.
-		setLabel(I18N.CONSTANTS.orgunit());
-		field.setFieldLabel(getLabel());
-
-		return field;
-	}
-
-	/**
-	 * Adds the selection changed listener to the given orgunit combobox.
-	 * 
-	 * @param comboBox Combo box to configure.
-	 */
-	private void addSelectionChangedListener(final ComboBox<OrgUnitDTO> comboBox) {
+	@Override
+	protected void addOrgUnitSelectionChangedListener(final ComboBox<OrgUnitDTO> comboBox) {
 		comboBox.addSelectionChangedListener(new SelectionChangedListener<OrgUnitDTO>() {
 			
 			@Override
@@ -914,202 +602,6 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 			}
 		});
 	}
-
-	/**
-	 * Create a text field to represent a default flexible element.
-	 * 
-	 * @param length
-	 *          The max length of the field.
-	 * @param allowBlank
-	 *          If the field allow blank value.
-	 * @return The text field.
-	 */
-	private TextField<String> createStringField(final int length, final boolean allowBlank) {
-
-		final TextField<String> textField = new TextField<String>();
-		textField.setAllowBlank(allowBlank);
-
-		// Sets the max length.
-		textField.setMaxLength(length);
-
-		// Adds the listeners.
-		textField.addListener(Events.OnKeyUp, new Listener<BaseEvent>() {
-
-			@Override
-			public void handleEvent(BaseEvent be) {
-
-				String rawValue = textField.getValue();
-
-				if (rawValue == null) {
-					rawValue = "";
-				}
-
-				// The value is valid if it contains at least one non-blank
-				// character.
-				final boolean isValueOn = !rawValue.trim().equals("") && !(rawValue.length() > length);
-
-				if (!(!allowBlank && !isValueOn)) {
-					fireEvents(rawValue, isValueOn);
-				}
-			}
-		});
-
-		return textField;
-	}
-
-	/**
-	 * Create a date field to represent a default flexible element.
-	 * 
-	 * @param allowBlank
-	 *          If the field allow blank value.
-	 * @return The date field.
-	 */
-	private DateField createDateField(final boolean allowBlank) {
-
-		final DateTimeFormat dateFormat = DateUtils.DATE_SHORT;
-
-		// Creates a date field which manages date picker selections and
-		// manual selections.
-		final DateField dateField = new DateField();
-		dateField.getPropertyEditor().setFormat(dateFormat);
-		dateField.setEditable(allowBlank);
-		dateField.setAllowBlank(allowBlank);
-		preferredWidth = FlexibleElementDTO.NUMBER_FIELD_WIDTH;
-
-		// Adds the listeners.
-
-		dateField.getDatePicker().addListener(Events.Select, new Listener<DatePickerEvent>() {
-
-			@Override
-			public void handleEvent(DatePickerEvent be) {
-
-				// The date is saved as a timestamp.
-				final String rawValue = String.valueOf(be.getDate().getTime());
-				// The date picker always returns a valid date.
-				final boolean isValueOn = true;
-
-				fireEvents(rawValue, isValueOn);
-			}
-		});
-
-		dateField.addListener(Events.OnKeyUp, new Listener<BaseEvent>() {
-
-			@Override
-			public void handleEvent(BaseEvent be) {
-
-				final Date date = dateField.getValue();
-
-				// The date is invalid, fires only a required event to
-				// invalidate some previously valid date.
-				if (date == null) {
-
-					// Required element ?
-					if (getValidates()) {
-						handlerManager.fireEvent(new RequiredValueEvent(false));
-					}
-
-					if (allowBlank) {
-						fireEvents("", false);
-					}
-
-					return;
-				}
-
-				// The date is saved as a timestamp.
-				final String rawValue = String.valueOf(date.getTime());
-				// The date is valid here.
-				final boolean isValueOn = true;
-
-				if (!(!allowBlank && !isValueOn)) {
-					fireEvents(rawValue, isValueOn);
-				}
-			}
-		});
-
-		return dateField;
-	}
-
-	/**
-	 * Create a number field to represent a default flexible element.
-	 * 
-	 * @param allowBlank
-	 *          If the field allow blank value.
-	 * @return The number field.
-	 */
-	protected NumberField createNumberField(final boolean allowBlank) {
-
-		final NumberField numberField = new NumberField();
-		numberField.setAllowDecimals(true);
-		numberField.setAllowNegative(false);
-		numberField.setAllowBlank(allowBlank);
-		preferredWidth = FlexibleElementDTO.NUMBER_FIELD_WIDTH;
-
-		// Decimal format
-		final NumberFormat format = NumberFormat.getDecimalFormat();
-		numberField.setFormat(format);
-
-		// Sets the min value.
-		final Number minValue = 0.0;
-		numberField.setMinValue(minValue);
-
-		return numberField;
-	}
-
-	/**
-	 * Create a label field to represent a default flexible element.
-	 * 
-	 * @return The label field.
-	 */
-	protected LabelField createLabelField() {
-
-		final LabelField labelField = new LabelField();
-		labelField.setLabelSeparator(":");
-
-		return labelField;
-	}
-	
-	/**
-	 * Create a label field and sets its value.
-	 * 
-	 * @param value Value to set.
-	 * @return The label field.
-	 */
-	protected LabelField createLabelField(String value) {
-		final LabelField labelField = createLabelField();
-		labelField.setValue(value);
-		return labelField;
-	}
-	
-	private String formatCountry(String value) {
-		if (cache != null) {
-			try {
-				final CountryDTO c = cache.getCountryCache().get(Integer.valueOf(value));
-				if (c != null) {
-					return c.getName();
-				} else {
-					return '#' + value;
-				}
-			} catch(NumberFormatException e) {
-				return "";
-			}
-		} else {
-			return '#' + value;
-		}
-	}
-	
-	private String formatDate(String value) {
-		try {
-			final long time = Long.parseLong(value);
-			final Date date = new Date(time);
-
-			// Using a shared instance to allow parsing from client and server side.
-			final com.google.gwt.i18n.shared.DateTimeFormat formatter = DateUtils.SHARED_DATE_SHORT;
-			return formatter.format(date);
-			
-		} catch(NumberFormatException e) {
-			return "";
-		}
-	}
 	
 	private String formatManager(String value) {
 		if (cache != null) {
@@ -1125,72 +617,6 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 			}
 		} else {
 			return '#' + value;
-		}
-	}
-	
-	private String formatOrgUnit(String value) {
-		if (cache != null) {
-			try {
-				final OrgUnitDTO o = cache.getOrganizationCache().get(Integer.valueOf(value));
-				if (o != null) {
-					return o.getName() + " - " + o.getFullName();
-				} else {
-					return '#' + value;
-				}
-			} catch(NumberFormatException e) {
-				return "";
-			}
-		} else {
-			return '#' + value;
-		}
-	}
-	
-	private String formatText(String value) {
-		return value.replace("\n", "<br>");
-	}
-	
-	/**
-	 * Creates and populates the shared country store if needed.
-	 */
-	private void ensureCountryStore() {
-		if (countriesStore == null) {
-			countriesStore = new ListStore<CountryDTO>();
-		}
-		
-		// if country store is empty
-		if (countriesStore.getCount() == 0) {
-
-			if (cache != null) {
-				cache.getCountryCache().get(new AsyncCallback<List<CountryDTO>>() {
-
-					@Override
-					public void onFailure(Throwable e) {
-						Log.error("[getComponent] Error while getting countries list.", e);
-					}
-
-					@Override
-					public void onSuccess(List<CountryDTO> result) {
-						// Fills the store.
-						countriesStore.add(result);
-					}
-				});
-				
-			} else /* cache is null */ {
-				dispatch.execute(new GetCountries(CountryDTO.Mode.BASE), new CommandResultHandler<ListResult<CountryDTO>>() {
-
-					@Override
-					protected void onCommandSuccess(final ListResult<CountryDTO> result) {
-						// Fills the store.
-						countriesStore.add(result.getData());
-					}
-
-					@Override
-					protected void onCommandFailure(final Throwable caught) {
-						Log.error("[getComponent] Error while getting countries list.", caught);
-					};
-
-				});
-			}
 		}
 	}
 	
@@ -1245,48 +671,22 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 			onLoad.onAction();
 		}
 	}
-	
-	/**
-	 * Creates and populates the shared org unit store if needed.
-	 */
-	private void ensureOrgUnitStore() {
-		if (orgUnitsStore == null) {
-			orgUnitsStore = new ListStore<OrgUnitDTO>();
-		}
-		
-		if(orgUnitsStore.getCount() == 0) {
-			cache.getOrganizationCache().get(new AsyncCallback<OrgUnitDTO>() {
-				
-				@Override
-				public void onFailure(Throwable e) {
-					Log.error("[getComponent] Error while getting users info.", e);
-				}
 
-				@Override
-				public void onSuccess(OrgUnitDTO result) {
-					// Fills the store.
-					recursiveFillOrgUnitsList(result);
-				}
-			});
-		}
+	@Override
+	protected Field<?> buildCountryField(CountryDTO country, boolean enabled) {
+		// COUNTRY of project should not be changeable except OrgUnit's
+		enabled &= !(currentContainerDTO instanceof ProjectDTO);
+
+		return super.buildCountryField(country, enabled);
 	}
-	
-	/**
-	* Fills recursively the org unit store from the given root org unit.
-	* 
-	* @param root
-	*          The root org unit.
-	*/
-   private void recursiveFillOrgUnitsList(OrgUnitDTO root) {
 
-	   if (root.isCanContainProjects()) {
-		   orgUnitsStore.add(root);
-	   }
+	@Override
+	protected Field<?> buildOrgUnitField(String label, Integer orgUnitId, boolean enabled) {
+		// Org unit field is always read-only for org unit.
+		enabled &= !(container instanceof OrgUnitDTO);
 
-	   for (final OrgUnitDTO child : root.getChildrenOrgUnits()) {
-		   recursiveFillOrgUnitsList(child);
-	   }
-   }
+		return super.buildOrgUnitField(label, orgUnitId, enabled);
+	}
 
 	@Override
 	public Object renderHistoryToken(HistoryTokenListDTO token) {

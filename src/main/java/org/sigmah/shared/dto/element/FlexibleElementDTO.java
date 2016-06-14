@@ -38,6 +38,7 @@ import org.sigmah.shared.command.GetHistory;
 import org.sigmah.shared.command.result.Authentication;
 import org.sigmah.shared.command.result.ListResult;
 import org.sigmah.shared.command.result.ValueResult;
+import org.sigmah.shared.dto.ContactDTO;
 import org.sigmah.shared.dto.ProjectDTO;
 import org.sigmah.shared.dto.base.AbstractModelDataEntityDTO;
 import org.sigmah.shared.dto.element.event.RequiredValueEvent;
@@ -66,7 +67,11 @@ import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.google.gwt.event.shared.HandlerManager;
+
+import java.util.Collections;
 import java.util.Date;
+import java.util.Set;
+
 import org.sigmah.client.ui.widget.Loadable;
 import org.sigmah.shared.dto.referential.GlobalPermissionEnum;
 import org.sigmah.shared.dto.referential.ValueEventChangeType;
@@ -245,7 +250,7 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 	 * @return The widget component.
 	 */
 	private Component getComponentWithHistory(ValueResult valueResult, boolean phaseIsEnded, boolean inBanner) {
-		if(ProfileUtils.getPermissionForOrgUnit(auth(), getOrgUnitId(), getPrivacyGroup()) == PrivacyGroupPermissionEnum.NONE) {
+		if (getPermission() == PrivacyGroupPermissionEnum.NONE) {
 			return null;
 		}
 		
@@ -284,14 +289,34 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 		return component;
 	}
 
-	private Integer getOrgUnitId() {
-		Integer orgUnitId = null;
+	private Set<Integer> getOrgUnitIds() {
 		if (currentContainerDTO instanceof OrgUnitDTO) {
-			orgUnitId = ((OrgUnitDTO) currentContainerDTO).getOrgUnitId();
+			return Collections.singleton(((OrgUnitDTO) currentContainerDTO).getOrgUnitId());
 		} else if (currentContainerDTO instanceof ProjectDTO) {
-			orgUnitId = ((ProjectDTO) currentContainerDTO).getOrgUnitId();
+			return Collections.singleton(((ProjectDTO) currentContainerDTO).getOrgUnitId());
+		} else if (currentContainerDTO instanceof ContactDTO) {
+			return ((ContactDTO) currentContainerDTO).getOrgUnitIds();
+		} else {
+			return Collections.emptySet();
 		}
-		return orgUnitId;
+	}
+
+	private PrivacyGroupPermissionEnum getPermission() {
+		PrivacyGroupPermissionEnum permission = PrivacyGroupPermissionEnum.NONE;
+		for (Integer orgUnitId : getOrgUnitIds()) {
+			switch (ProfileUtils.getPermissionForOrgUnit(auth(), orgUnitId, getPrivacyGroup())) {
+				case NONE:
+					break;
+				case READ:
+					permission = PrivacyGroupPermissionEnum.READ;
+					break;
+				case WRITE:
+					return PrivacyGroupPermissionEnum.WRITE;
+				default:
+					throw new IllegalStateException();
+			}
+		}
+		return permission;
 	}
 
 	/**
@@ -376,17 +401,21 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 	 * <code>changeType</code>, <code>false</code> otherwise.
 	 */
 	protected boolean userCanPerformChangeType(ValueEventChangeType changeType) {
-		final PrivacyGroupPermissionEnum permission = ProfileUtils.getPermissionForOrgUnit(auth(), getOrgUnitId(), getPrivacyGroup());
-		
-		if(permission == PrivacyGroupPermissionEnum.READ) {
-			return false;
-			
-		} else if(permission == PrivacyGroupPermissionEnum.WRITE) {
-			if(currentContainerDTO instanceof ProjectDTO) {
-				return userCanPerformChangeTypeOnProject(changeType, (ProjectDTO)currentContainerDTO);
+		final PrivacyGroupPermissionEnum permission = getPermission();
 
-			} else if(currentContainerDTO instanceof OrgUnitDTO) {
-				return userCanPerformChangeTypeOnOrgUnit(changeType, (OrgUnitDTO)currentContainerDTO);
+		if (permission == PrivacyGroupPermissionEnum.READ) {
+			return false;
+
+		} else if (permission == PrivacyGroupPermissionEnum.WRITE) {
+			if (currentContainerDTO instanceof ProjectDTO) {
+				return userCanPerformChangeTypeOnProject(changeType, (ProjectDTO) currentContainerDTO);
+
+			} else if (currentContainerDTO instanceof OrgUnitDTO) {
+				return userCanPerformChangeTypeOnOrgUnit(changeType, (OrgUnitDTO) currentContainerDTO);
+
+			} else if (currentContainerDTO instanceof ContactDTO) {
+				return userCanPerformChangeTypeOnContact(changeType, (ContactDTO) currentContainerDTO);
+
 			}
 		}
 		
@@ -454,6 +483,11 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 			!orgUnit.getOrgUnitModel().isUnderMaintenance() &&
 			// The is granted edit rights on organizational units.
 			ProfileUtils.isGranted(auth(), GlobalPermissionEnum.EDIT_ORG_UNIT);
+	}
+
+	protected boolean userCanPerformChangeTypeOnContact(ValueEventChangeType changeType, ContactDTO contact) {
+		// TODO: Verify the future permission EDIT_CONTACT
+		return !contact.getContactModel().isUnderMaintenance();
 	}
 
 	/**
