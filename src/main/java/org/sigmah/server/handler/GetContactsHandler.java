@@ -43,7 +43,9 @@ public class GetContactsHandler extends AbstractCommandHandler<GetContacts, List
 
   @Override
   protected ListResult<ContactDTO> execute(GetContacts command, UserDispatch.UserExecutionContext context) throws CommandException {
-    List<Contact> contacts = contactDAO.findTypedContacts(context.getUser().getOrganization().getId(), command.getType());
+    Integer organizationId = context.getUser().getOrganization().getId();
+    List<Contact> contacts = contactDAO.findContactsByTypeAndContactModels(organizationId, command.getType(), command.getContactModelIds());
+
     // FIXME: Add ContactDTO.Mode.MAIN_INFORMATION when dozer 5.5.2 will be ready
     // see https://github.com/DozerMapper/dozer/commit/5e179bb68c91e60d63bf9f44bf64b7ca70f61520
     return new ListResult<>(mapper().mapCollection(contacts, ContactDTO.class));

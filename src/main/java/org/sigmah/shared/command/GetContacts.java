@@ -21,6 +21,8 @@ package org.sigmah.shared.command;
  * #L%
  */
 
+import java.util.Set;
+
 import org.sigmah.client.util.ToStringBuilder;
 import org.sigmah.shared.command.base.AbstractCommand;
 import org.sigmah.shared.command.result.ListResult;
@@ -28,18 +30,30 @@ import org.sigmah.shared.dto.ContactDTO;
 import org.sigmah.shared.dto.referential.ContactModelType;
 
 public class GetContacts extends AbstractCommand<ListResult<ContactDTO>> {
+  private static final long serialVersionUID = -945246727047007961L;
+
   private ContactModelType type;
+  private Set<Integer> contactModelIds;
 
   public GetContacts() {
     // Serialization
   }
 
   public GetContacts(ContactModelType type) {
+    this(type, null);
+  }
+
+  public GetContacts(ContactModelType type, Set<Integer> contactModelIds) {
     this.type = type;
+    this.contactModelIds = contactModelIds;
   }
 
   public ContactModelType getType() {
     return type;
+  }
+
+  public Set<Integer> getContactModelIds() {
+    return contactModelIds;
   }
 
   @Override

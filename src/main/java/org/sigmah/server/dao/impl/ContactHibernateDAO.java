@@ -21,7 +21,16 @@ package org.sigmah.server.dao.impl;
  * #L%
  */
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.JoinType;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 
 import org.sigmah.server.dao.ContactDAO;
 import org.sigmah.server.dao.base.AbstractDAO;
@@ -30,19 +39,28 @@ import org.sigmah.shared.dto.referential.ContactModelType;
 
 public class ContactHibernateDAO extends AbstractDAO<Contact, Integer> implements ContactDAO {
   @Override
-  public List<Contact> findTypedContacts(Integer organizationId, ContactModelType type) {
-    return em()
-        .createQuery(
-            "SELECT c " +
-            "FROM Contact c " +
-            "JOIN c.contactModel cm " +
-            "WHERE c.organization.id = :organizationId " +
-            "AND cm.type = :type ",
-            Contact.class
-        )
-        .setParameter("organizationId", organizationId)
-        .setParameter("type", type)
-        .getResultList();
+  public List<Contact> findContactsByTypeAndContactModels(Integer organizationId, ContactModelType type, Set<Integer> contactModelIds) {
+    // Too much nullable parameters, let's use criteria query builder to ease the query creation
+    // and to avoid using dangerous string concatenation
+    CriteriaBuilder criteriaBuilder = em().getCriteriaBuilder();
+    CriteriaQuery<Contact> criteriaQuery = criteriaBuilder.createQuery(Contact.class);
+    Root<Contact> contactRoot = criteriaQuery.from(Contact.class);
+    Join<Object, Object> contactModelJoin = contactRoot.join("contactModel", JoinType.INNER);
+    Join<Object, Object> organizationJoin = contactModelJoin.join("organization", JoinType.INNER);
+
+    List<Predicate> predicates = new ArrayList<>();
+    predicates.add(criteriaBuilder.equal(organizationJoin.get("id"), organizationId));
+    if (type != null) {
+      predicates.add(criteriaBuilder.equal(contactModelJoin.get("type"), type));
+    }
+    if (contactModelIds != null && !contactModelIds.isEmpty()) {
+      predicates.add(contactModelJoin.get("id").in(contactModelIds));
+    }
+    criteriaQuery.where(predicates.toArray(new Predicate[predicates.size()]));
+    criteriaQuery.select(contactRoot);
+    criteriaQuery.orderBy(criteriaBuilder.asc(contactRoot.get("name")));
+
+    return em().createQuery(criteriaQuery).getResultList();
   }
 
   @Override

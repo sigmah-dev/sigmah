@@ -22,6 +22,7 @@ package org.sigmah.server.dao;
  */
 
 import java.util.List;
+import java.util.Set;
 
 import org.sigmah.server.dao.base.DAO;
 import org.sigmah.server.domain.Contact;
@@ -29,9 +30,13 @@ import org.sigmah.shared.dto.referential.ContactModelType;
 
 public interface ContactDAO extends DAO<Contact, Integer> {
   /**
-   * Return contacts from a targeted organization and with a defined type (INDIVIDUAL or ORGANIZATION)
+   * Return contacts from a targeted organization filtered by type and models
+   *
+   * @param organizationId
+   * @param type Filter the contacts by the type of the model, if provided.
+   * @param contactModelIds Filter the contacts by the id of the model, if provided.
    */
-  List<Contact> findTypedContacts(Integer organizationId, ContactModelType type);
+  List<Contact> findContactsByTypeAndContactModels(Integer organizationId, ContactModelType type, Set<Integer> contactModelIds);
 
   Contact update(Contact contact);
 }
