@@ -1635,4 +1635,16 @@ public final class EntityConstants extends org.sigmah.shared.dto.util.EntityCons
 
 	public static final String CONTACT_ORG_UNIT_LINK_TABLE = "contact_unit";
 	public static final String CONTACT_ORG_UNIT_COLUMN_ORG_UNIT = "id_org_unit";
+
+	// --------------------------------------------------------------------------------
+	//
+	// CONTACT LIST ELEMENT ENTITY.
+	//
+	// --------------------------------------------------------------------------------
+	public static final String CONTACT_LIST_ELEMENT_TABLE = "contact_list_element";
+	public static final String CONTACT_LIST_ELEMENT_COLUMN_ALLOWED_TYPE = "allowed_type";
+	public static final String CONTACT_LIST_ELEMENT_COLUMN_LIMIT = "contact_limit";
+	public static final String CONTACT_LIST_ELEMENT_COLUMN_IS_MEMBER = "is_member";
+
+	public static final String CONTACT_LIST_ELEMENT_ALLOWED_MODEL_LINK_TABLE = "contact_list_element_allowed_model";
 }
