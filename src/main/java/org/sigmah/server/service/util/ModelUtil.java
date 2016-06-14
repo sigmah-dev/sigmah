@@ -29,6 +29,7 @@ import com.google.inject.Provider;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -38,6 +39,8 @@ import javax.persistence.Table;
 import javax.persistence.TypedQuery;
 
 import org.sigmah.client.util.AdminUtil;
+import org.sigmah.server.dao.ContactModelDAO;
+import org.sigmah.server.domain.ContactModel;
 import org.sigmah.server.domain.OrgUnitModel;
 import org.sigmah.server.domain.ProjectModel;
 import org.sigmah.server.domain.category.CategoryElement;
@@ -54,9 +57,11 @@ import org.sigmah.shared.dto.element.FlexibleElementDTO;
 import org.sigmah.shared.dto.layout.LayoutConstraintDTO;
 import org.sigmah.shared.dto.layout.LayoutGroupDTO;
 import org.sigmah.shared.dto.profile.PrivacyGroupDTO;
+import org.sigmah.shared.dto.referential.ContactModelType;
 import org.sigmah.shared.dto.referential.DefaultFlexibleElementType;
 import org.sigmah.shared.dto.referential.ElementTypeEnum;
 import org.sigmah.shared.dto.report.ReportModelDTO;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,10 +79,13 @@ public class ModelUtil {
 	private final Provider<EntityManager> entityManagerProvider;
 	private final Mapper mapper;
 
+	private final ContactModelDAO contactModelDAO;
+
 	@Inject
-	public ModelUtil(Provider<EntityManager> entityManagerProvider, Mapper mapper) {
+	public ModelUtil(Provider<EntityManager> entityManagerProvider, Mapper mapper, ContactModelDAO contactModelDAO) {
 		this.entityManagerProvider = entityManagerProvider;
 		this.mapper = mapper;
+		this.contactModelDAO = contactModelDAO;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -130,6 +138,10 @@ public class ModelUtil {
 		final BudgetSubFieldDTO ratioDividend = changes.get(AdminUtil.PROP_FX_B_BUDGET_RATIO_DIVIDEND);
 		final BudgetSubFieldDTO ratioDivisor = changes.get(AdminUtil.PROP_FX_B_BUDGET_RATIO_DIVISOR);
 		final String computationRule = changes.get(AdminUtil.PROP_FX_COMPUTATION_RULE);
+		Number contactListLimit = changes.get(AdminUtil.PROP_FX_CONTACT_LIST_LIMIT);
+		boolean contactListIsMember = changes.get(AdminUtil.PROP_FX_CONTACT_LIST_IS_MEMBER);
+		ContactModelType contactListType = changes.get(AdminUtil.PROP_FX_CONTACT_LIST_ALLOWED_TYPE);
+		Set<Integer> contactListAllowedModelIds = changes.get(AdminUtil.PROP_FX_CONTACT_LIST_ALLOWED_MODEL_IDS);
 
 		final FlexibleElementDTO flexibleEltDTO = changes.get(AdminUtil.PROP_FX_FLEXIBLE_ELEMENT);
 
@@ -440,6 +452,47 @@ public class ModelUtil {
 					flexibleElt = em.merge(computationElement);
 				}
 			}
+		} else if (type == ElementTypeEnum.CONTACT_LIST || (type == null && oldType == ElementTypeEnum.CONTACT_LIST)) {
+			ContactListElement contactListElement = (ContactListElement) flexibleElt;
+			if (contactListElement != null) {
+				if ((contactListElement.getLimit() > 0 && contactListLimit == null) || (contactListLimit != null && contactListElement.getLimit() != contactListLimit.intValue())) {
+					contactListElement.setLimit(contactListLimit == null ? 0 : contactListLimit.intValue());
+					specificChanges = true;
+				}
+				if (contactListElement.getAllowedType() != contactListType) {
+					contactListElement.setAllowedType(contactListType);
+					specificChanges = true;
+				}
+				if (contactListElement.isMember() != contactListIsMember) {
+					contactListElement.setMember(contactListIsMember);
+					specificChanges = true;
+				}
+
+				// Let's check if there are newly added or removed allowed contact models
+				Set<Integer> modelsToCompare = new HashSet<>(contactListAllowedModelIds);
+				boolean contactModelsModified = false;
+				for (ContactModel contactModel : contactListElement.getAllowedModels()) {
+					// If the current contact model cannot be removed from the new set,
+					// it means that it was removed
+					if (!modelsToCompare.remove(contactModel.getId())) {
+						contactModelsModified = true;
+						break;
+					}
+				}
+				// If there are remaining models in the set, it means these ones were newly added
+				if (!modelsToCompare.isEmpty()) {
+					contactModelsModified = true;
+				}
+				if (contactModelsModified) {
+					contactListElement.setAllowedModels(contactModelDAO.findByIds(contactListAllowedModelIds));
+					specificChanges = true;
+				}
+
+				if (specificChanges) {
+					flexibleElt = em.merge(contactListElement);
+				}
+			}
+
 		}
 		em.flush();
 		em.clear();

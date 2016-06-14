@@ -21,7 +21,9 @@ package org.sigmah.server.domain.element;
  * #L%
  */
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.*;
 
@@ -68,6 +70,14 @@ public class ContactListElement extends FlexibleElement {
 
   public List<ContactModel> getAllowedModels() {
     return allowedModels;
+  }
+
+  public Set<Integer> getAllowedModelIds() {
+    Set<Integer> ids = new HashSet<>();
+    for (ContactModel allowedModel : allowedModels) {
+      ids.add(allowedModel.getId());
+    }
+    return ids;
   }
 
   public void setAllowedModels(List<ContactModel> allowedModels) {

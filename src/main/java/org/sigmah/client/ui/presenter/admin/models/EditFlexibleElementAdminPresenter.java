@@ -1376,6 +1376,15 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 		
 		final String computationRule = Computations.formatRuleForServer(view.getFormulaField().getValue(), otherElements);
 
+		final Number contactListLimit = view.getContactListLimit().getValue();
+		final boolean contactListIsMember = view.getContactIsMember().getValue();
+		final ContactModelType contactListType = view.getContactListTypeFilter().getValue() != null ?
+				view.getContactListTypeFilter().getValue().getEnum() : null;
+		final Set<Integer> contactListModelIds = new HashSet<Integer>();
+		for (ContactModelDTO contactModelDTO : view.getContactListModelsFilter().getListStore().getModels()) {
+			contactListModelIds.add(contactModelDTO.getId());
+		}
+
 		// --
 		// Initializing 'NEW' properties map.
 		// --
@@ -1441,6 +1450,11 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 		}
 		
 		newFieldProperties.put(AdminUtil.PROP_FX_COMPUTATION_RULE, computationRule);
+
+		newFieldProperties.put(AdminUtil.PROP_FX_CONTACT_LIST_LIMIT, contactListLimit);
+		newFieldProperties.put(AdminUtil.PROP_FX_CONTACT_LIST_ALLOWED_TYPE, contactListType);
+		newFieldProperties.put(AdminUtil.PROP_FX_CONTACT_LIST_ALLOWED_MODEL_IDS, contactListModelIds);
+		newFieldProperties.put(AdminUtil.PROP_FX_CONTACT_LIST_IS_MEMBER, contactListIsMember);
 
 		// --
 		// Logging old/new properties & filtering actual modifications.
