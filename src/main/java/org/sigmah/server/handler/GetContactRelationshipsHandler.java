@@ -43,12 +43,14 @@ import org.sigmah.server.domain.layout.LayoutGroup;
 import org.sigmah.server.domain.value.Value;
 import org.sigmah.server.handler.base.AbstractCommandHandler;
 import org.sigmah.server.i18n.I18nServer;
+import org.sigmah.server.service.ModelPropertyService;
 import org.sigmah.shared.Language;
 import org.sigmah.shared.command.GetContactRelationships;
 import org.sigmah.shared.command.result.ContactRelationship;
 import org.sigmah.shared.command.result.ListResult;
 import org.sigmah.shared.dispatch.CommandException;
 import org.sigmah.shared.dto.referential.ContactModelType;
+import org.sigmah.shared.dto.referential.DefaultContactFlexibleElementType;
 import org.sigmah.shared.util.ValueResultUtils;
 
 public class GetContactRelationshipsHandler extends AbstractCommandHandler<GetContactRelationships, ListResult<ContactRelationship>> {
@@ -58,33 +60,37 @@ public class GetContactRelationshipsHandler extends AbstractCommandHandler<GetCo
   private final OrgUnitDAO orgUnitDAO;
   private final LayoutGroupDAO layoutGroupDAO;
   private final I18nServer i18nServer;
+  private final ModelPropertyService modelPropertyService;
 
   @Inject
-  public GetContactRelationshipsHandler(ValueDAO valueDAO, ContactDAO contactDAO, ProjectDAO projectDAO, OrgUnitDAO orgUnitDAO, LayoutGroupDAO layoutGroupDAO, I18nServer i18nServer) {
+  public GetContactRelationshipsHandler(ValueDAO valueDAO, ContactDAO contactDAO, ProjectDAO projectDAO, OrgUnitDAO orgUnitDAO, LayoutGroupDAO layoutGroupDAO, I18nServer i18nServer, ModelPropertyService modelPropertyService) {
     this.valueDAO = valueDAO;
     this.contactDAO = contactDAO;
     this.projectDAO = projectDAO;
     this.orgUnitDAO = orgUnitDAO;
     this.layoutGroupDAO = layoutGroupDAO;
     this.i18nServer = i18nServer;
+    this.modelPropertyService = modelPropertyService;
   }
 
   @Override
   protected ListResult<ContactRelationship> execute(GetContactRelationships command, UserDispatch.UserExecutionContext context) throws CommandException {
+    Contact contact = contactDAO.findById(command.getContactId());
+
     List<ContactRelationship> contactRelationships = new ArrayList<>();
     if (command.getDirections().contains(ContactRelationship.Direction.INBOUND)) {
-      contactRelationships.addAll(getInboundRelationships(command.getContactId(), context.getLanguage()));
+      contactRelationships.addAll(getInboundRelationships(contact, context.getLanguage()));
     }
     if (command.getDirections().contains(ContactRelationship.Direction.OUTBOUND)) {
-      contactRelationships.addAll(getOutboundRelationships(command.getContactId(), context.getLanguage()));
+      contactRelationships.addAll(getOutboundRelationships(contact, context.getLanguage()));
     }
     return new ListResult<>(contactRelationships);
   }
 
-  private List<ContactRelationship> getInboundRelationships(Integer contactId, Language language) {
+  private List<ContactRelationship> getInboundRelationships(Contact contact, Language language) {
     List<ContactRelationship> relations = new ArrayList<>();
 
-    List<Value> values = valueDAO.findValuesByContainerId(contactId);
+    List<Value> values = valueDAO.findValuesByContainerId(contact.getId());
     for (Value value : values) {
       FlexibleElement flexibleElement = value.getElement();
       if (!(flexibleElement instanceof ContactListElement)) {
@@ -109,13 +115,32 @@ public class GetContactRelationshipsHandler extends AbstractCommandHandler<GetCo
       }
     }
 
+    // Let's get direct membership relationships
+    List<Contact> children = contactDAO.findByDirectMembership(contact.getId());
+    for (Contact child : children) {
+      LayoutGroup directMembershipLayoutGroup = layoutGroupDAO.getGroupOfDirectMembershipElementByContact(child.getId());
+      if (directMembershipLayoutGroup == null) {
+        continue;
+      }
+
+      ContactRelationship contactRelationship = new ContactRelationship();
+      contactRelationship.setDirection(ContactRelationship.Direction.INBOUND);
+      contactRelationship.setFieldName(modelPropertyService.getDefaultContactPropertyLabel(DefaultContactFlexibleElementType.DIRECT_MEMBERSHIP, language));
+      contactRelationship.setGroupName(directMembershipLayoutGroup.getTitle());
+      contactRelationship.setType(ContactRelationship.Type.CONTACT);
+      contactRelationship.setFormattedType(child.getContactModel().getName());
+      contactRelationship.setName(child.getFullName());
+      contactRelationship.setRelationshipId(child.getId());
+      relations.add(contactRelationship);
+    }
+
     return relations;
   }
 
-  private List<ContactRelationship> getOutboundRelationships(Integer contactId, Language language) {
+  private List<ContactRelationship> getOutboundRelationships(Contact contact, Language language) {
     List<ContactRelationship> relations = new ArrayList<>();
 
-    List<Value> values = valueDAO.findValuesByIdInSerializedValue(contactId);
+    List<Value> values = valueDAO.findValuesByIdInSerializedValue(contact.getId());
     for (Value value : values) {
       FlexibleElement flexibleElement = value.getElement();
       LayoutGroup layoutGroup = layoutGroupDAO.getByElementId(flexibleElement.getId());
@@ -137,6 +162,25 @@ public class GetContactRelationshipsHandler extends AbstractCommandHandler<GetCo
       relations.add(contactRelationship);
     }
 
+    if (contact.getParent() == null) {
+      return relations;
+    }
+
+    // Let's get direct membership relationship
+    LayoutGroup directMembershipLayoutGroup = layoutGroupDAO.getGroupOfDirectMembershipElementByContact(contact.getId());
+    if (directMembershipLayoutGroup == null) {
+      return relations;
+    }
+
+    ContactRelationship contactRelationship = new ContactRelationship();
+    contactRelationship.setDirection(ContactRelationship.Direction.OUTBOUND);
+    contactRelationship.setFieldName(modelPropertyService.getDefaultContactPropertyLabel(DefaultContactFlexibleElementType.DIRECT_MEMBERSHIP, language));
+    contactRelationship.setGroupName(directMembershipLayoutGroup.getTitle());
+    contactRelationship.setType(ContactRelationship.Type.CONTACT);
+    contactRelationship.setFormattedType(contact.getParent().getContactModel().getName());
+    contactRelationship.setName(contact.getParent().getFullName());
+    contactRelationship.setRelationshipId(contact.getParent().getId());
+    relations.add(contactRelationship);
     return relations;
   }
 

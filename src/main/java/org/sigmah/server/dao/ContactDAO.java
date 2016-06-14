@@ -40,5 +40,7 @@ public interface ContactDAO extends DAO<Contact, Integer> {
 
   List<Contact> findContactsByEmailOrSimilarName(Integer organizationId, Integer contactId, String email, String firstName, String name);
 
+  List<Contact> findByDirectMembership(Integer directMembershipId);
+
   Contact update(Contact contact);
 }

@@ -129,6 +129,17 @@ public class ContactHibernateDAO extends AbstractDAO<Contact, Integer> implement
     return em().createQuery(criteriaQuery).getResultList();
   }
 
+  @Override
+  public List<Contact> findByDirectMembership(Integer directMembershipId) {
+    return em().createQuery("" +
+        "SELECT c " +
+        "FROM Contact c " +
+        "WHERE c.parent.id = :directMembershipId ",
+        Contact.class)
+        .setParameter("directMembershipId", directMembershipId)
+        .getResultList();
+  }
+
   private Predicate similarity(CriteriaBuilder criteriaBuilder,
                                Expression<String> nameExpression, String nameValue,
                                Expression<String> firstNameExpression, String firstNameValue) {

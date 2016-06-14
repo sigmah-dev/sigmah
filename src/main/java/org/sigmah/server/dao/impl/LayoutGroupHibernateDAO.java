@@ -26,6 +26,7 @@ import javax.persistence.NonUniqueResultException;
 import org.sigmah.server.dao.LayoutGroupDAO;
 import org.sigmah.server.dao.base.AbstractDAO;
 import org.sigmah.server.domain.layout.LayoutGroup;
+import org.sigmah.shared.dto.referential.DefaultContactFlexibleElementType;
 
 public class LayoutGroupHibernateDAO extends AbstractDAO<LayoutGroup, Integer> implements LayoutGroupDAO {
   @Override
@@ -37,6 +38,25 @@ public class LayoutGroupHibernateDAO extends AbstractDAO<LayoutGroup, Integer> i
           "JOIN lg.constraints lc " +
           "WHERE lc.element.id = :elementId", LayoutGroup.class)
           .setParameter("elementId", elementId)
+          .getSingleResult();
+    } catch (NonUniqueResultException e) {
+      return null;
+    }
+  }
+
+  @Override
+  public LayoutGroup getGroupOfDirectMembershipElementByContact(Integer contactId) {
+    try {
+      return (LayoutGroup) em().createNativeQuery("" +
+          "SELECT lg.* " +
+          "FROM contact c " +
+          "JOIN contact_details cd ON (cd.id_contact_model = c.id_contact_model) " +
+          "JOIN layout_group lg ON (lg.id_layout = cd.id_layout) " +
+          "JOIN layout_constraint lc ON (lc.id_layout_group = lg.id_layout_group) " +
+          "JOIN default_contact_flexible_element fe ON (fe.id_flexible_element = lc.id_flexible_element) " +
+          "WHERE c.id_contact = :contactId " +
+          "AND fe.type = 'DIRECT_MEMBERSHIP'", LayoutGroup.class)
+          .setParameter("contactId", contactId)
           .getSingleResult();
     } catch (NonUniqueResultException e) {
       return null;

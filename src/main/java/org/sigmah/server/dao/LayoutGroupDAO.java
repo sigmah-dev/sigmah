@@ -26,4 +26,6 @@ import org.sigmah.server.domain.layout.LayoutGroup;
 
 public interface LayoutGroupDAO extends DAO<LayoutGroup, Integer> {
   LayoutGroup getByElementId(Integer elementId);
+
+  LayoutGroup getGroupOfDirectMembershipElementByContact(Integer contactId);
 }
