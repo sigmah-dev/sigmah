@@ -38,6 +38,7 @@ import org.sigmah.client.page.Page;
 import org.sigmah.client.ui.notif.ConfirmCallback;
 import org.sigmah.client.ui.notif.N10N;
 import org.sigmah.client.ui.presenter.admin.models.FlexibleElementsAdminPresenter;
+import org.sigmah.client.ui.presenter.admin.models.GroupsAdminPresenter;
 import org.sigmah.client.ui.presenter.admin.models.base.AbstractModelsAdminPresenter;
 import org.sigmah.client.ui.presenter.admin.models.importer.ImportationSchemeModelsAdminPresenter;
 import org.sigmah.client.ui.view.admin.models.project.ProjectModelsAdminView;
@@ -115,8 +116,8 @@ public class ProjectModelsAdminPresenter extends AbstractModelsAdminPresenter<Pr
 	 *			The {@link ImportationSchemeModelsAdminPresenter} provider.
 	 */
 	@Inject
-	protected ProjectModelsAdminPresenter(final View view, final Injector injector, final Provider<FlexibleElementsAdminPresenter<ProjectModelDTO>> flexibleElementsProvider, final Provider<PhaseModelsAdminPresenter> phaseModelsAdminPresenterProvider, final Provider<LogFrameModelsAdminPresenter> logFrameModelsAdminPresenterProvider, final Provider<ImportationSchemeModelsAdminPresenter<ProjectModelDTO>> importationSchemeModelsAdminPresenterProvider) {
-		super(view, injector, flexibleElementsProvider.get(), phaseModelsAdminPresenterProvider.get(), logFrameModelsAdminPresenterProvider.get(),
+	protected ProjectModelsAdminPresenter(final View view, final Injector injector, final Provider<FlexibleElementsAdminPresenter<ProjectModelDTO>> flexibleElementsProvider, final Provider<GroupsAdminPresenter<ProjectModelDTO>> groupsAdminPresenterProvider, final Provider<PhaseModelsAdminPresenter> phaseModelsAdminPresenterProvider, final Provider<LogFrameModelsAdminPresenter> logFrameModelsAdminPresenterProvider, final Provider<ImportationSchemeModelsAdminPresenter<ProjectModelDTO>> importationSchemeModelsAdminPresenterProvider) {
+		super(view, injector, flexibleElementsProvider.get(), groupsAdminPresenterProvider.get(), phaseModelsAdminPresenterProvider.get(), logFrameModelsAdminPresenterProvider.get(),
 			importationSchemeModelsAdminPresenterProvider.get());
 	}
 
