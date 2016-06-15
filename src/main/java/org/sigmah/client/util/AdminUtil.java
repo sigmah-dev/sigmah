@@ -142,7 +142,11 @@ public final class AdminUtil {
 	public static final String PROP_VAR_REFERENCE = "reference";
 	public static final String PROP_VAR_FLE_ID_KEY = "importationSchemeIdKey";
 	public static final String PROP_VAR_FLE_BUDGETSUBFIELDS = "variableBudgetSubFields";
-
+	
+	public static final String PROP_GRP = "NewGroup";
+	public static final String PROP_GRP_CONTAINER = "Container";
+	public static final String PROP_GRP_POSITION = "Position";
+	
 	private AdminUtil() {
 		// Only provides static constants.
 	}
