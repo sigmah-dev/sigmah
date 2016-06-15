@@ -93,8 +93,8 @@ public class OrgUnitModelsAdminPresenter extends AbstractModelsAdminPresenter<Or
 	 *          The {@link FlexibleElementsAdminPresenter} provider.
 	 */
 	@Inject
-	protected OrgUnitModelsAdminPresenter(final View view, final Injector injector, final Provider<FlexibleElementsAdminPresenter<OrgUnitModelDTO>> flexibleElementsProvider, final Provider<ImportationSchemeModelsAdminPresenter<OrgUnitModelDTO>> importationSchemeModelsAdminPresenterProvider) {
-		super(view, injector, flexibleElementsProvider.get(), importationSchemeModelsAdminPresenterProvider.get());
+	protected OrgUnitModelsAdminPresenter(final View view, final Injector injector, final Provider<FlexibleElementsAdminPresenter<OrgUnitModelDTO>> flexibleElementsProvider,  final Provider<GroupsAdminPresenter<OrgUnitModelDTO>> GroupsAdminPresenterProvider, final Provider<ImportationSchemeModelsAdminPresenter<OrgUnitModelDTO>> importationSchemeModelsAdminPresenterProvider) {
+		super(view, injector, flexibleElementsProvider.get(), GroupsAdminPresenterProvider.get(), importationSchemeModelsAdminPresenterProvider.get());
 	}
 
 	/**
