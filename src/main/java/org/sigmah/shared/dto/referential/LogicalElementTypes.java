@@ -22,6 +22,7 @@ package org.sigmah.shared.dto.referential;
  * #L%
  */
 
+import org.sigmah.shared.dto.element.DefaultContactFlexibleElementDTO;
 import org.sigmah.shared.dto.element.DefaultFlexibleElementDTO;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
 import org.sigmah.shared.dto.element.TextAreaElementDTO;
@@ -52,31 +53,33 @@ public final class LogicalElementTypes {
 	 * @return The given {@code flexibleElement} corresponding flexible element type, or an instance of
      * {@code NoElementType}.
 	 */
-	public static LogicalElementType of(final FlexibleElementDTO flexibleElement) {
-        
-        final LogicalElementType type;
-        
-        if (flexibleElement instanceof TextAreaElementDTO) {
-            type = TextAreaType.fromCode(((TextAreaElementDTO) flexibleElement).getType());
-        } else if (flexibleElement instanceof DefaultFlexibleElementDTO) {
-            type = ((DefaultFlexibleElementDTO) flexibleElement).getType();
-        } else if (flexibleElement != null) {
-			final ElementTypeEnum elementType = flexibleElement.getElementType();
-			if (elementType == ElementTypeEnum.TEXT_AREA) {
-				// A case where type is null exists in production but is the result
-				// of a bug. Until the cause is found and fixed, null is handled
-				// the same as PARAGRAPH.
-				// TODO: This special case should be removed to return only the element type.
-				type = TextAreaType.PARAGRAPH;
+		public static LogicalElementType of(final FlexibleElementDTO flexibleElement) {
+
+			final LogicalElementType type;
+
+			if (flexibleElement instanceof TextAreaElementDTO) {
+				type = TextAreaType.fromCode(((TextAreaElementDTO) flexibleElement).getType());
+			} else if (flexibleElement instanceof DefaultFlexibleElementDTO) {
+				type = ((DefaultFlexibleElementDTO) flexibleElement).getType();
+			} else if (flexibleElement instanceof DefaultContactFlexibleElementDTO) {
+				type = ((DefaultContactFlexibleElementDTO) flexibleElement).getType();
+			} else if (flexibleElement != null) {
+				final ElementTypeEnum elementType = flexibleElement.getElementType();
+				if (elementType == ElementTypeEnum.TEXT_AREA) {
+					// A case where type is null exists in production but is the result
+					// of a bug. Until the cause is found and fixed, null is handled
+					// the same as PARAGRAPH.
+					// TODO: This special case should be removed to return only the element type.
+					type = TextAreaType.PARAGRAPH;
+				} else {
+					type = elementType;
+				}
 			} else {
-				type = elementType;
+				type = null;
 			}
-        } else {
-            type = null;
-        }
-        
-        return notNull(type);
-	}
+
+			return notNull(type);
+		}
 	
 	/**
 	 * Returns a non-null value from the given type.

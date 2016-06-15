@@ -227,10 +227,9 @@ public class ModelUtil {
 		// ////////////////Banner
 		if (inBanner != null) {// Fact of being or not in banner has changed
 			if (inBanner) {// New to banner
-				if (model instanceof ProjectModel)
+				if (model instanceof ProjectModel || model instanceof OrgUnitModel || model instanceof ContactModel) {
 					changeBanner(em, posB, model, flexibleElt);
-				else if (model instanceof OrgUnitModel)
-					changeBanner(em, posB, model, flexibleElt);
+				}
 			} else {// delete from banner
 				if (oldBannerLayoutConstraintDTO != null) {
 					LayoutConstraint oldBannerLayoutConstraint = mapper.map(oldBannerLayoutConstraintDTO, new LayoutConstraint());
@@ -240,13 +239,12 @@ public class ModelUtil {
 			}
 		} else {// same state on banner
 			if (posB != null) {// Position has changed means surely element
-				// was already in banner so there's an old
-				// banner layout constraint
-				LayoutConstraint oldBannerLayoutConstraint = mapper.map(oldBannerLayoutConstraintDTO, new LayoutConstraint());
-				if (model instanceof ProjectModel)
+				if (model instanceof ProjectModel || model instanceof OrgUnitModel || model instanceof ContactModel) {
+					// was already in banner so there's an old
+					// banner layout constraint
+					LayoutConstraint oldBannerLayoutConstraint = mapper.map(oldBannerLayoutConstraintDTO, new LayoutConstraint());
 					changePositionInBanner(em, posB, model, flexibleElt, oldBannerLayoutConstraint);
-				else if (model instanceof OrgUnitModel)
-					changePositionInBanner(em, posB, model, flexibleElt, oldBannerLayoutConstraint);
+				}
 			}
 		}
 
@@ -576,6 +574,22 @@ public class ModelUtil {
 		} else if (model instanceof OrgUnitModel) {
 			bannerGroup = ((OrgUnitModel) model).getBanner().getLayout().getGroups().get(posB);
 
+		} else if (model instanceof ContactModel) {
+			// model.getCard().getLayout().getGroups().get(0) => Avatar in contact card
+			// model.getCard().getLayout().getGroups().get(1) => Contact information in contact card
+			bannerGroup = ((ContactModel) model).getCard().getLayout().getGroups().get(1);
+
+			// Just change the order of the affected layout constraint
+			// it's not important that several elements have the same order in the contact card
+			for (final LayoutConstraint layoutConstraint : bannerGroup.getConstraints()) {
+				if (flexibleElt.equals(layoutConstraint.getElement())) {
+					layoutConstraint.setSortOrder(posB + 1);
+					em.merge(layoutConstraint);
+					break;
+				}
+			}
+			return;
+
 		} else {
 			throw new UnsupportedOperationException("Invalid model type.");
 		}
@@ -613,6 +627,22 @@ public class ModelUtil {
 
 		} else if (model instanceof OrgUnitModel) {
 			bannerGroup = ((OrgUnitModel) model).getBanner().getLayout().getGroups().get(posB);
+
+		} else if (model instanceof ContactModel) {
+			// model.getCard().getLayout().getGroups().get(0) => Avatar in contact card
+			// model.getCard().getLayout().getGroups().get(1) => Contact information in contact card
+			bannerGroup = ((ContactModel) model).getCard().getLayout().getGroups().get(1);
+
+			// Just change the order of the affected layout constraint
+			// it's not important that several elements have the same order in the contact card
+			for (final LayoutConstraint layoutConstraint : bannerGroup.getConstraints()) {
+				if (flexibleElt.equals(layoutConstraint.getElement())) {
+					layoutConstraint.setSortOrder(posB + 1);
+					em.merge(layoutConstraint);
+					break;
+				}
+			}
+			return;
 
 		} else {
 			throw new UnsupportedOperationException("Invalid model type.");

@@ -77,6 +77,7 @@ import org.sigmah.shared.dto.element.FlexibleElementDTO;
 import org.sigmah.shared.dto.layout.LayoutGroupDTO;
 import org.sigmah.shared.dto.profile.PrivacyGroupDTO;
 import org.sigmah.shared.dto.referential.ContactModelType;
+import org.sigmah.shared.dto.referential.DefaultContactFlexibleElementType;
 import org.sigmah.shared.dto.referential.DefaultFlexibleElementType;
 import org.sigmah.shared.dto.referential.ElementTypeEnum;
 import org.sigmah.shared.dto.referential.LogicalElementType;
@@ -241,10 +242,12 @@ public class EditFlexibleElementAdminView extends AbstractPopupView<PopupWidget>
 
 		textAreaFields = new HashSet<Field<?>>();
 
-		bannerField = Forms.checkbox("", null, I18N.CONSTANTS.Admin_BANNER(), false);
+		// No label for the moment as it depends on the model type
+		bannerField = Forms.checkbox("", null, "", false);
 		bannerField.setFireChangeEventOnSetValue(true);
 
-		bannerPositionField = Forms.simpleCombobox(I18N.CONSTANTS.adminFlexibleBannerPosition(), false);
+		// No label for the moment as it depends on the model type
+		bannerPositionField = Forms.simpleCombobox("", false);
 		bannerPositionField.disable();
 
 		lengthField = Forms.number(I18N.CONSTANTS.adminFlexibleLength(), false);
@@ -855,6 +858,14 @@ public class EditFlexibleElementAdminView extends AbstractPopupView<PopupWidget>
                     anchorAddSubField.setVisible(true);
                     ratioFlexTable.setVisible(true);
                 }
+				break;
+
+			case DEFAULT_CONTACT:
+
+				bannerField.show();
+				if (type != DefaultContactFlexibleElementType.PHOTO) {
+					bannerPositionField.show();
+				}
 				break;
 
 			case FILES_LIST:

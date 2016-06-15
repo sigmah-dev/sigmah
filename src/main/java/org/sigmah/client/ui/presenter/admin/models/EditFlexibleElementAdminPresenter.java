@@ -277,7 +277,10 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 	/**
 	 * Banner positions.
 	 */
-	private static final Integer[] BANNER_POSITIONS = { 1, 2, 3, 4, 5, 6 };
+	private static final int BANNER_POSITIONS_MIN = 1;
+	private static final int BANNER_POSITIONS_MAX = 6;
+	private static final int CARD_POSITIONS_MIN = 1;
+	private static final int CARD_POSITIONS_MAX = 10;
 
 	/**
 	 * Default category type.
@@ -942,7 +945,31 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 		// Loads banner positions.
 		view.getBannerPositionField().removeAll();
 
-		for (final Integer position : BANNER_POSITIONS) {
+		int minPosition;
+		int maxPosition;
+		switch (currentModel.getModelType()) {
+			case ContactModel:
+				minPosition = CARD_POSITIONS_MIN;
+				maxPosition = CARD_POSITIONS_MAX;
+
+				view.getBannerField().setFieldLabel(I18N.CONSTANTS.Admin_CARD());
+				view.getBannerPositionField().setFieldLabel(I18N.CONSTANTS.adminFlexibleCardPosition());
+
+				break;
+			case OrgUnitModel:
+			case ProjectModel:
+				minPosition = BANNER_POSITIONS_MIN;
+				maxPosition = BANNER_POSITIONS_MAX;
+
+				view.getBannerField().setFieldLabel(I18N.CONSTANTS.Admin_BANNER());
+				view.getBannerPositionField().setFieldLabel(I18N.CONSTANTS.adminFlexibleBannerPosition());
+
+				break;
+			default:
+				throw new IllegalStateException();
+		}
+
+		for (int position = minPosition; position <= maxPosition; position++) {
 			view.getBannerPositionField().add(position);
 		}
 	}
