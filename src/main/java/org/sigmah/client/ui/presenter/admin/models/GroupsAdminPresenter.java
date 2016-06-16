@@ -252,19 +252,4 @@ public class GroupsAdminPresenter<E extends IsModel> extends AbstractPresenter<G
 			}
 		});
 	}
-
-	/**
-	 * Updates the groups store after a model is deleted.<br>
-	 * Removes the given deleted {@code groups}.
-	 * 
-	 * @param GroupsDeleted
-	 *          The deleted group.
-	 */
-	private void updateStore(final GroupsDTO groupDeleted) {
-
-		view.getStore().remove(groupDeleted);
-
-		}
-
-		view.getStore().commitChanges();
 }
