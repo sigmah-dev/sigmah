@@ -267,6 +267,4 @@ public class GroupsAdminPresenter<E extends IsModel> extends AbstractPresenter<G
 		}
 
 		view.getStore().commitChanges();
-	}
-
 }
