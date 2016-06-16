@@ -191,18 +191,8 @@ public class EditGroupsAdminPresenter extends AbstractPagePresenter<EditGroupsAd
 
 		
 
-		void loadContainers(final IsModel parentProjectModel) {
-
-		view.getContainerField().getStore().removeAll();
-
-		if (ClientUtils.isNotEmpty(parentProjectModel.getHasLayoutElements())) {
-			for (final AbstractModelDataEntityDTO<?> hasLayout : currentModel.getHasLayoutElements()) {
-				view.getContainerField().getStore().add(hasLayout);
-			}
-		}
-
-		view.getContainerField().getStore().commitChanges();
-	}
+		// Loads containers.
+		loadContainers(currentModel);
 		// --
 		// Form loading
 		// --
