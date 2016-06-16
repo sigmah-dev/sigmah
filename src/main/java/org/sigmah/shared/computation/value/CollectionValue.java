@@ -24,32 +24,32 @@ public class CollectionValue implements ComputedValue {
 
 	@Override
 	public int matchesConstraints(ComputedValue minimum, ComputedValue maximum) {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+		return 0;
 	}
 
 	@Override
 	public int matchesConstraints(ComputationElementDTO element) {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+		return matchesConstraints(element.getMinimumValueConstraint(), element.getMaximumValueConstraint());
 	}
 
 	@Override
 	public ComputedValue addTo(ComputedValue other) {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+		return ComputationError.BAD_FORMULA;
 	}
 
 	@Override
 	public ComputedValue multiplyWith(ComputedValue other) {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+		return ComputationError.BAD_FORMULA;
 	}
 
 	@Override
 	public ComputedValue divide(ComputedValue other) {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+		return ComputationError.BAD_FORMULA;
 	}
 
 	@Override
 	public ComputedValue substractFrom(ComputedValue other) {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+		return ComputationError.BAD_FORMULA;
 	}
 	
 }
