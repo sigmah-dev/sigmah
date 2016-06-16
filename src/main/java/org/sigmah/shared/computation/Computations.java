@@ -114,6 +114,10 @@ public final class Computations {
 		final HashMap<String, FlexibleElementDTO> references = new HashMap<String, FlexibleElementDTO>();
 		
 		for (final FlexibleElementDTO element : allElements) {
+			// fields in iterative groups cannot be part of formula
+			if(element.getGroup().getHasIterations()) {
+				continue;
+			}
 			references.put(Instructions.ID_PREFIX + element.getId().toString(), element);
 			references.put(element.getCode(), element);
 		}

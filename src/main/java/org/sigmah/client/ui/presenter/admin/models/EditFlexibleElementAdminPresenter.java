@@ -892,6 +892,11 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 			store.removeAll();
 
 			for (final FlexibleElementDTO otherElement : otherElements) {
+				// fields in iterative groups cannot be part of formula
+				if(otherElement.getGroup().getHasIterations()) {
+					continue;
+				}
+
 				final LogicalElementType otherType = LogicalElementTypes.of(otherElement);
 				final ElementTypeEnum otherElementType = otherType.toElementTypeEnum();
 
@@ -1392,6 +1397,28 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 		final Boolean exportable = view.getExportableField().getValue();
 		final String code = view.getCodeField().getValue();
 
+		// A field cannot be in an iterative group AND in a computation field
+		// + a computation field cannot be in an iterative group
+		if(group.getHasIterations()) {
+			if(type == ElementTypeEnum.COMPUTATION) {
+				N10N.warn(I18N.CONSTANTS.cannotAddComputationElementToIterativeGroup());
+				return;
+			}
+
+			Collection<ComputationElementDTO> computationFields = getComputationElementsUsingField(flexibleElement);
+			if(!computationFields.isEmpty()) {
+				N10N.warn(I18N.MESSAGES.cannotAddComputationElementFormulaFieldToIterativeGroup(
+						Collections.join(computationFields, new Collections.Mapper<ComputationElementDTO, String>() {
+
+							@Override
+							public String forEntry(ComputationElementDTO entry) {
+								return "<span style=\"font-weight: bold\">" + entry.getLabel() + "</span>";
+							}
+						}, ", ")));
+				return;
+			}
+		}
+
 		// --
 		// Specific properties.
 		// --
@@ -1624,6 +1651,38 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 				hideView();
 			}
 		}, view.getSaveButton());
+	}
+
+	// ---------------------------------------------------------------------------------------------------------------
+	//
+	// UTILITY METHODS.
+	//
+	// ---------------------------------------------------------------------------------------------------------------
+
+	/**
+	 * Find the computation fields using the given flexible element.
+	 *
+	 * @param flexibleElement
+	 *          Flexible element.
+	 * @return A collection of every computation element using the given element.
+	 */
+	private Collection<ComputationElementDTO> getComputationElementsUsingField(final FlexibleElementDTO flexibleElement) {
+
+		final ArrayList<ComputationElementDTO> computationElements = new ArrayList<ComputationElementDTO>();
+		final List<FlexibleElementDTO> allElements = view.getStore().getModels();
+
+		for (final FlexibleElementDTO other : otherElements) {
+			if (other instanceof ComputationElementDTO) {
+				final ComputationElementDTO computationElement = (ComputationElementDTO) other;
+
+				final Computation computation = Computations.parse(computationElement.getRule(), allElements);
+				if (computation.getDependencies().contains(flexibleElement)) {
+					computationElements.add(computationElement);
+				}
+			}
+		}
+
+		return computationElements;
 	}
 
 }
