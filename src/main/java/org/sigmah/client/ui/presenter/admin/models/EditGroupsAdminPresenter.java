@@ -181,9 +181,6 @@ public class EditGroupsAdminPresenter extends AbstractPagePresenter<EditGroupsAd
 			throw new IllegalArgumentException("Invalid parent project model.");
 		}
 
-		//Loads Containers
-		loadContainers(parentProjectModel);
-
 		// The existing Groups list 
 		final List<GroupsDTO> groups = request.getData(RequestParameter.CONTENT);
 
@@ -194,7 +191,7 @@ public class EditGroupsAdminPresenter extends AbstractPagePresenter<EditGroupsAd
 
 		
 
-		private void loadContainers(final IsModel parentProjectModel) {
+		void loadContainers(final IsModel parentProjectModel) {
 
 		view.getContainerField().getStore().removeAll();
 
