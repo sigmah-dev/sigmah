@@ -27,7 +27,6 @@ import com.google.gwt.core.client.JsArray;
 import java.util.Date;
 import java.util.EnumMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 /**
  * Active strategy, record executions.

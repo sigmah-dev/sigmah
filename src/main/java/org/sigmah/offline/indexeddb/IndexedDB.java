@@ -177,17 +177,17 @@ public class IndexedDB {
 	 * @param email Name of the database to remove.
 	 * @return A request to delete the database.
 	 */
-    private static OpenDatabaseRequest deleteUserDatabase(String email) {
+    private static OpenDatabaseRequest<Store> deleteUserDatabase(String email) {
         if(email == null) {
-			return new NoopDatabaseRequest();
+			return new NoopDatabaseRequest<Store>();
 		}
 		if(!isSupported()) {
 			Log.warn("IndexedDB is not supported by this web browser.");
-			return new NoopDatabaseRequest();
+			return new NoopDatabaseRequest<Store>();
 		}
         
         final IndexedDB indexedDB = new IndexedDB();
-        return indexedDB.deleteDatabase(email);
+        return indexedDB.deleteDatabase(email, Store.class);
     }
 	
 	/**
@@ -245,8 +245,8 @@ public class IndexedDB {
 	 * @param name Name of the database to delete.
 	 * @return An open database request.
 	 */
-    public NativeOpenDatabaseRequest deleteDatabase(String name) {
-        return new NativeOpenDatabaseRequest(nativeIndexedDB.deleteDatabase(name), null);
+    public <S extends Enum<S> & Schema> NativeOpenDatabaseRequest<S> deleteDatabase(String name, final Class<S> stores) {
+        return new NativeOpenDatabaseRequest<S>(nativeIndexedDB.deleteDatabase(name), stores);
     }
     
 	/**

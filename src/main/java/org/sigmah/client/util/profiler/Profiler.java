@@ -23,11 +23,7 @@ package org.sigmah.client.util.profiler;
  */
 
 import com.google.gwt.core.client.JavaScriptObject;
-import com.google.gwt.i18n.client.DateTimeFormat;
-import com.google.gwt.user.client.rpc.AsyncCallback;
-import java.util.List;
 import org.sigmah.client.security.AuthenticationProvider;
-import org.sigmah.offline.appcache.ApplicationCache;
 import org.sigmah.offline.event.JavaScriptEvent;
 import org.sigmah.offline.indexeddb.IndexedDB;
 import org.sigmah.offline.indexeddb.NativeOpenDatabaseRequest;
@@ -57,7 +53,6 @@ public class Profiler implements ProfilerStrategy {
 	private AuthenticationProvider authenticationProvider;
 	private ApplicationStateManager applicationStateManager;
 	
-	
 	/**
 	 * Activate or deactivate profiling.
 	 * 
@@ -73,21 +68,19 @@ public class Profiler implements ProfilerStrategy {
 		}
 	}
 	/**
-	 * check if profiler is active or not.
-	 * @return 
+	 * Check if the profiler is active or not.
+	 * @return <code>true</code> if the profiler is active, 
+	 * <code>false</code> otherwise.
 	 */
-	public boolean isActive(){
-		if(strategy instanceof ActiveProfilerStrategy){
-			return true;
-		}			
-		return false;
+	public boolean isActive() {
+		return strategy instanceof ActiveProfilerStrategy;
 	}
 	/**
 	 * Removes the database used by the profiler.
 	 */
 	public void deleteDatabase() {
 		final IndexedDB indexedDB = new IndexedDB();
-		final NativeOpenDatabaseRequest<ProfilerStore> request = indexedDB.deleteDatabase(DATABASE_NAME);
+		final NativeOpenDatabaseRequest<ProfilerStore> request = indexedDB.deleteDatabase(DATABASE_NAME, ProfilerStore.class);
 
 		request.addSuccessHandler(new JavaScriptEvent() {
 
@@ -131,9 +124,6 @@ public class Profiler implements ProfilerStrategy {
 		strategy.markCheckpoint(scenario, checkpoint);
 	}
 	
-	public void putDateActivation(){
-		
-	}
 	/**
 	 * {@inheritDoc}
 	 */
@@ -148,8 +138,6 @@ public class Profiler implements ProfilerStrategy {
 		return execution;
 	}
 	
-	
-
 	// ---
 	// GETTERS & SETTERS
 	// ---
