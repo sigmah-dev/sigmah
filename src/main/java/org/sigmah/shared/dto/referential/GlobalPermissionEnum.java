@@ -276,6 +276,11 @@ public enum GlobalPermissionEnum implements Result {
 	EXPORT_HXL(GlobalPermissionCategory.OTHER),
 
 	/**
+	 * Create a new layout group iteration
+	 */
+	CREATE_ITERATIONS(GlobalPermissionCategory.OTHER),
+
+	/**
      * For changing own password.
      */
 	CHANGE_PASSWORD(GlobalPermissionCategory.OTHER);
@@ -546,6 +551,9 @@ public enum GlobalPermissionEnum implements Result {
 
 			case GLOBAL_EXPORT:
 				return I18N.CONSTANTS.GLOBAL_EXPORT();
+
+			case CREATE_ITERATIONS:
+				return I18N.CONSTANTS.CREATE_ITERATIONS();
 
 			case EDIT_ORG_UNIT:
 				return I18N.CONSTANTS.EDIT_ORG_UNIT();

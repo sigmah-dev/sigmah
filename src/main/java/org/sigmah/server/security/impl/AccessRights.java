@@ -175,6 +175,7 @@ final class AccessRights {
 		sperm(commandToken(GetGlobalExports.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetHistory.class), GrantType.AUTHENTICATED_ONLY);
 		// TODO: Add the missing commands
+		sperm(commandToken(GetLayoutGroupIterations.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetLinkedProjects.class), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_MY_PROJECTS);
 		sperm(commandToken(GetMonitoredPoints.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetOrganization.class), GrantType.AUTHENTICATED_ONLY);
@@ -200,6 +201,7 @@ final class AccessRights {
 		sperm(commandToken(GetValue.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(Synchronize.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(UpdateContact.class), GrantType.AUTHENTICATED_ONLY);
+		sperm(commandToken(UpdateLayoutGroupIterations.class), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.CREATE_ITERATIONS);
 		sperm(commandToken(UpdateProject.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(UpdateProjectFavorite.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(UpdateProjectTeamMembers.class), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.EDIT_PROJECT_TEAM_MEMBERS);
