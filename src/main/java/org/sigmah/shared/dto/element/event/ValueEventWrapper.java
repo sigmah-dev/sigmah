@@ -45,6 +45,7 @@ public class ValueEventWrapper implements Serializable {
 	private Set<Integer> multivaluedIdsValue;
 	private ValueEventChangeType changeType;
 	private boolean isProjectCountryChanged;
+	private Integer iterationId;
 
 	/**
 	 * @return the isProjectCountryChanged
@@ -104,6 +105,14 @@ public class ValueEventWrapper implements Serializable {
 		this.multivaluedIdsValue = multivaluedIdsValue;
 	}
 
+	public Integer getIterationId() {
+		return iterationId;
+	}
+
+	public void setIterationId(Integer iterationId) {
+		this.iterationId = iterationId;
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -116,6 +125,7 @@ public class ValueEventWrapper implements Serializable {
 		result = prime * result + ((singleValue == null) ? 0 : singleValue.hashCode());
 		result = prime * result + ((multivaluedIdsValue == null) ? 0 : multivaluedIdsValue.hashCode());
 		result = prime * result + ((sourceElement == null) ? 0 : sourceElement.hashCode());
+		result = prime * result + ((iterationId == null) ? 0 : iterationId.hashCode());
 		return result;
 	}
 
@@ -153,6 +163,11 @@ public class ValueEventWrapper implements Serializable {
 				return false;
 		} else if (!sourceElement.equals(other.sourceElement))
 			return false;
+		if (iterationId == null) {
+			if (other.iterationId != null)
+				return false;
+		} else if (!iterationId.equals(other.iterationId))
+			return false;
 		return true;
 	}
 
@@ -170,6 +185,8 @@ public class ValueEventWrapper implements Serializable {
 			+ changeType
 			+ ", isProjectCountryChanged="
 			+ isProjectCountryChanged
+			+ ", iterationId="
+			+ iterationId
 			+ "]";
 	}
 

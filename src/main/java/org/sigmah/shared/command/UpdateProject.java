@@ -62,7 +62,7 @@ public class UpdateProject extends AbstractCommand<VoidResult> {
 
 		this.values.clear();
 
-		final HashMap<Integer, ValueEvent> basicValues = new HashMap<Integer, ValueEvent>();
+		final HashMap<EntityDTOKey, ValueEvent> basicValues = new HashMap<EntityDTOKey, ValueEvent>();
 		final HashMap<ListEntityDTOKey, ValueEvent> listValues = new HashMap<ListEntityDTOKey, ValueEvent>();
 		final HashMap<ListEntityDTOKey, ValueEvent> editedValues = new HashMap<ListEntityDTOKey, ValueEvent>();
 		final HashMap<Integer, List<ValueEvent>> multivaluedValues = new HashMap<Integer, List<ValueEvent>>();
@@ -72,7 +72,7 @@ public class UpdateProject extends AbstractCommand<VoidResult> {
 			// Manages basic values changes.
 			if (event.getSingleValue() != null) {
 				// Keep only the last modification to avoid events repetition.
-				basicValues.put(event.getSourceElement().getId(), event);
+				basicValues.put(new EntityDTOKey(event.getSourceElement().getId(), event.getIterationId()), event);
 			} else if (event.getMultivaluedIdsValue() != null && !event.getMultivaluedIdsValue().isEmpty()) {
 				if (!multivaluedValues.containsKey(event.getSourceElement().getId())) {
 					multivaluedValues.put(event.getSourceElement().getId(), new ArrayList<ValueEvent>());
@@ -89,13 +89,13 @@ public class UpdateProject extends AbstractCommand<VoidResult> {
 
 					switch (event.getChangeType()) {
 						case ADD:
-							listValues.put(new ListEntityDTOKey(event.getSourceElement().getId(), element.getIndex()), event);
+							listValues.put(new ListEntityDTOKey(event.getSourceElement().getId(), event.getIterationId(), element.getIndex()), event);
 							break;
 						case REMOVE:
-							listValues.remove(new ListEntityDTOKey(event.getSourceElement().getId(), element.getIndex()));
+							listValues.remove(new ListEntityDTOKey(event.getSourceElement().getId(), event.getIterationId(), element.getIndex()));
 							break;
 						case EDIT:
-							listValues.put(new ListEntityDTOKey(event.getSourceElement().getId(), element.getIndex()), event);
+							listValues.put(new ListEntityDTOKey(event.getSourceElement().getId(), event.getIterationId(), element.getIndex()), event);
 							break;
 						default:
 							break;
@@ -105,7 +105,7 @@ public class UpdateProject extends AbstractCommand<VoidResult> {
 					// Keep only the last state of each edited element before sending events to the server.
 					switch (event.getChangeType()) {
 						case EDIT:
-							editedValues.put(new ListEntityDTOKey(event.getSourceElement().getId(), element.getIndex()), event);
+							editedValues.put(new ListEntityDTOKey(event.getSourceElement().getId(), event.getIterationId(), element.getIndex()), event);
 							break;
 						default:
 							this.values.add(wrapEvent(event, event.isProjectCountryChanged()));
@@ -121,16 +121,16 @@ public class UpdateProject extends AbstractCommand<VoidResult> {
 
 		// Store each event for new elements as an 'add' event with the last state of the element.
 		for (final ValueEvent event : listValues.values()) {
-			this.values.add(wrapEvent(new ValueEvent(event.getSourceElement(), event.getTripletValue(), ValueEventChangeType.ADD), event.isProjectCountryChanged()));
+			this.values.add(wrapEvent(new ValueEvent(event.getSourceElement(), event.getTripletValue(), ValueEventChangeType.ADD, event.getIterationId()), event.isProjectCountryChanged()));
 		}
 
 		for (final ValueEvent event : editedValues.values()) {
-			this.values.add(wrapEvent(new ValueEvent(event.getSourceElement(), event.getTripletValue(), ValueEventChangeType.EDIT), event.isProjectCountryChanged()));
+			this.values.add(wrapEvent(new ValueEvent(event.getSourceElement(), event.getTripletValue(), ValueEventChangeType.EDIT, event.getIterationId()), event.isProjectCountryChanged()));
 		}
 
 		for (final List<ValueEvent> events : multivaluedValues.values()) {
 			for (final ValueEvent event : events) {
-				this.values.add(wrapEvent(new ValueEvent(event.getSourceElement(), event.getMultivaluedIdsValue(), event.getChangeType()), event.isProjectCountryChanged()));
+				this.values.add(wrapEvent(new ValueEvent(event.getSourceElement(), event.getMultivaluedIdsValue(), event.getChangeType(), event.getIterationId()), event.isProjectCountryChanged()));
 			}
 		}
 	}
@@ -200,19 +200,20 @@ public class UpdateProject extends AbstractCommand<VoidResult> {
 		wrapper.setTripletValue(event.getTripletValue());
 		wrapper.setChangeType(event.getChangeType());
 		wrapper.setProjectCountryChanged(isProjectCountryChange);
+		wrapper.setIterationId(event.getIterationId());
 
 		return wrapper;
 	}
 
-	private static class ListEntityDTOKey {
+	private static class EntityDTOKey {
 
 		private int flexibleElement;
-		private int index;
+		private Integer iteration;
 
-		public ListEntityDTOKey(int flexibleElement, int index) {
+		public EntityDTOKey(int flexibleElement, Integer iteration) {
 			super();
 			this.flexibleElement = flexibleElement;
-			this.index = index;
+			this.iteration = iteration;
 		}
 
 		/**
@@ -223,7 +224,9 @@ public class UpdateProject extends AbstractCommand<VoidResult> {
 			final int prime = 31;
 			int result = 1;
 			result = prime * result + flexibleElement;
-			result = prime * result + index;
+			if(iteration != null) {
+				result = prime * result + iteration;
+			}
 			return result;
 		}
 
@@ -238,9 +241,43 @@ public class UpdateProject extends AbstractCommand<VoidResult> {
 				return false;
 			if (getClass() != obj.getClass())
 				return false;
-			ListEntityDTOKey other = (ListEntityDTOKey) obj;
+			EntityDTOKey other = (EntityDTOKey) obj;
 			if (flexibleElement != other.flexibleElement)
 				return false;
+			if (iteration != other.iteration && (iteration != null && !iteration.equals(other.iteration)))
+				return false;
+			return true;
+		}
+	}
+
+	private static class ListEntityDTOKey extends EntityDTOKey {
+
+		private int index;
+
+		public ListEntityDTOKey(int flexibleElement, Integer iteration, int index) {
+			super(flexibleElement, iteration);
+			this.index = index;
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = super.hashCode();
+			result = prime * result + index;
+			return result;
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public boolean equals(Object obj) {
+			if (!super.equals(obj))
+				return false;
+			ListEntityDTOKey other = (ListEntityDTOKey) obj;
 			if (index != other.index)
 				return false;
 			return true;

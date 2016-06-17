@@ -95,7 +95,7 @@ public class GetValueHandler extends AbstractCommandHandler<GetValue, ValueResul
 
 		// Amendment
 		String historyValue = null;
-		if (cmd.getAmendmentId() != null) {
+		if (cmd.getAmendmentId() != null & cmd.getIterationId() == null) {
 
 			final TypedQuery<Amendment> amedmentQuery = em().createQuery("SELECT a FROM Amendment a WHERE a.id = :amendmentId", Amendment.class);
 			amedmentQuery.setParameter("amendmentId", cmd.getAmendmentId());
@@ -121,7 +121,7 @@ public class GetValueHandler extends AbstractCommandHandler<GetValue, ValueResul
 		if(DefaultFlexibleElementDTO.ENTITY_NAME.equals(cmd.getElementEntityName())) {
 			valueFromDatabase = findCurrentValueOfDefaultElement(cmd.getProjectId(), cmd.getElementId());
 		} else {
-			valueFromDatabase = findCurrentValue(cmd.getProjectId(), cmd.getElementId());
+			valueFromDatabase = findCurrentValue(cmd.getProjectId(), cmd.getElementId(), cmd.getIterationId());
 		}
 		
 		String valueAsString = valueFromDatabase;
@@ -259,17 +259,24 @@ public class GetValueHandler extends AbstractCommandHandler<GetValue, ValueResul
 
 		return valueResult;
 	}
-	
-	private String findCurrentValue(int projectId, int elementId) {
+
+	private String findCurrentValue(int projectId, int elementId, Integer iterationId) {
 		// Creates the query to get the value for the flexible element (as
 		// string) in the Value table.
-		final TypedQuery<String> valueQuery =
-			em().createQuery("SELECT v.value FROM Value v WHERE v.containerId = :projectId AND v.element.id = :elementId", String.class);
-		valueQuery.setParameter("projectId", projectId);
-		valueQuery.setParameter("elementId", elementId);
+		final TypedQuery<String> valueQuery;
+
+		if(iterationId == null) {
+			valueQuery = em().createQuery("SELECT v.value FROM Value v WHERE v.containerId = :projectId AND v.element.id = :elementId", String.class);
+			valueQuery.setParameter("projectId", projectId);
+			valueQuery.setParameter("elementId", elementId);
+		} else {
+			valueQuery = em().createQuery("SELECT v.value FROM Value v WHERE v.element.id = :elementId AND v.layoutGroupIteration.id = :iterationId", String.class);
+			valueQuery.setParameter("elementId", elementId);
+			valueQuery.setParameter("iterationId", iterationId);
+		}
 
 		String valueAsString;
-		
+
 		// Executes the query and tests if a value exists for this flexible
 		// element.
 		try {
@@ -280,7 +287,7 @@ public class GetValueHandler extends AbstractCommandHandler<GetValue, ValueResul
 		} catch (NoResultException | ClassCastException e) {
 			valueAsString = null;
 		}
-		
+
 		return valueAsString;
 	}
 	

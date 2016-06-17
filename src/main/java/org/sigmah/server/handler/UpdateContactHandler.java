@@ -46,6 +46,7 @@ import org.sigmah.server.domain.Country;
 import org.sigmah.server.domain.HistoryToken;
 import org.sigmah.server.domain.User;
 import org.sigmah.server.domain.element.FlexibleElement;
+import org.sigmah.server.domain.layout.LayoutGroupIteration;
 import org.sigmah.server.domain.util.Deleteable;
 import org.sigmah.server.domain.value.TripletValue;
 import org.sigmah.server.domain.value.Value;
@@ -124,9 +125,10 @@ public class UpdateContactHandler extends AbstractCommandHandler<UpdateContact, 
       TripletValueDTO updateListValue = valueEvent.getTripletValue();
       String updateSingleValue = valueEvent.getSingleValue();
       Set<Integer> multivaluedIdsValue = valueEvent.getMultivaluedIdsValue();
+      final Integer iterationId = valueEvent.getIterationId();
 
       LOG.debug("[execute] Updates value of element #{} ({})", source.getId(), source.getEntityName());
-      LOG.debug("[execute] Event of type {} with value {} and list value {}.", valueEvent.getChangeType(), updateSingleValue, updateListValue);
+      LOG.debug("[execute] Event of type {} with value {} and list value {} (iteration : {}).", valueEvent.getChangeType(), updateSingleValue, updateListValue, iterationId);
 
       // Case of the default flexible element which values arent't stored
       // like other values. These values impact directly the contact.
@@ -146,25 +148,26 @@ public class UpdateContactHandler extends AbstractCommandHandler<UpdateContact, 
         List<HistoryToken> results = null;
         if (element != null) {
           TypedQuery<HistoryToken> query =
-              em().createQuery("SELECT h FROM HistoryToken h WHERE h.elementId = :elementId AND h.projectId = :contactId", HistoryToken.class);
+              em().createQuery("SELECT h FROM HistoryToken h WHERE h.elementId = :elementId AND h.projectId = :contactId AND h.layoutGroupIterationId = :iterationId", HistoryToken.class);
           query.setParameter("elementId", element.getId());
           query.setParameter("contactId", contactId);
+          query.setParameter("iterationId", iterationId);
           results = query.getResultList();
         }
 
         if ((results == null || results.isEmpty()) && oldValue != null) {
           // Historize the first value.
-          historize(contact.getDateCreated(), element, contactId, null, ValueEventChangeType.ADD, oldValue, null, null);
+          historize(contact.getDateCreated(), element, contactId, iterationId, null, ValueEventChangeType.ADD, oldValue, null, null);
         }
 
         // Historize the value.
-        historize(historyDate, element, contactId, user, ValueEventChangeType.EDIT, updateSingleValue, null, comment);
+        historize(historyDate, element, contactId, iterationId, user, ValueEventChangeType.EDIT, updateSingleValue, null, comment);
 
         continue;
       }
 
       // Retrieving the current value
-      Value currentValue = retrieveOrCreateValue(contactId, source.getId(), user);
+      Value currentValue = retrieveOrCreateValue(contactId, source.getId(), iterationId, user);
 
       // Unique value of the flexible element.
       if (updateSingleValue != null) {
@@ -176,7 +179,7 @@ public class UpdateContactHandler extends AbstractCommandHandler<UpdateContact, 
         currentValue.setValue(updateSingleValue);
 
         // Historize the value.
-        historize(historyDate, element, contactId, user, ValueEventChangeType.EDIT, updateSingleValue, null, comment);
+        historize(historyDate, element, contactId, iterationId, user, ValueEventChangeType.EDIT, updateSingleValue, null, comment);
       } else if (multivaluedIdsValue != null) {
 
         if (LOG.isDebugEnabled()) {
@@ -201,10 +204,10 @@ public class UpdateContactHandler extends AbstractCommandHandler<UpdateContact, 
         currentValue.setValue(serializedValue);
 
         if (valueEvent.getChangeType() == ValueEventChangeType.EDIT) {
-          historize(historyDate, element, contactId, user, valueEvent.getChangeType(), serializedValue, null, comment);
+          historize(historyDate, element, contactId, iterationId, user, valueEvent.getChangeType(), serializedValue, null, comment);
         } else {
           for (Integer id : multivaluedIdsValue) {
-            historize(historyDate, element, contactId, user, valueEvent.getChangeType(), String.valueOf(id), null, comment);
+            historize(historyDate, element, contactId, iterationId, user, valueEvent.getChangeType(), String.valueOf(id), null, comment);
           }
         }
       }
@@ -225,18 +228,18 @@ public class UpdateContactHandler extends AbstractCommandHandler<UpdateContact, 
         // Cast the update value (as a DTO).
         switch (valueEvent.getChangeType()) {
           case ADD:
-            onAdd(updateListValue, ids, currentValue, historyDate, element, contactId, user, comment);
+            onAdd(updateListValue, ids, currentValue, historyDate, element, contactId, iterationId, user, comment);
             break;
 
           case REMOVE:
-            if (!onDelete(updateListValue, ids, currentValue, historyDate, element, contactId, user, comment)) {
+            if (!onDelete(updateListValue, ids, currentValue, historyDate, element, contactId, iterationId, user, comment)) {
               // Do not historize, the value hasn't been changed.
               continue;
             }
             break;
 
           case EDIT:
-            onEdit(updateListValue, historyDate, element, contactId, user, comment);
+            onEdit(updateListValue, historyDate, element, contactId, iterationId, user, comment);
             break;
 
           default:
@@ -257,7 +260,7 @@ public class UpdateContactHandler extends AbstractCommandHandler<UpdateContact, 
     }
   }
 
-  protected void onAdd(TripletValueDTO item, List<Integer> ids, Value currentValue, Date historyDate, FlexibleElement element, Integer projectId, User user, String comment) {
+  protected void onAdd(TripletValueDTO item, List<Integer> ids, Value currentValue, Date historyDate, FlexibleElement element, Integer projectId, Integer iterationId, User user, String comment) {
     LOG.debug("[execute] Adds an element to the list.");
 
     // Adds the element.
@@ -271,10 +274,10 @@ public class UpdateContactHandler extends AbstractCommandHandler<UpdateContact, 
     currentValue.setValue(ValueResultUtils.mergeElements(ids));
 
     // Historize the value.
-    historize(historyDate, element, projectId, user, ValueEventChangeType.ADD, null, entity, comment);
+    historize(historyDate, element, projectId, iterationId, user, ValueEventChangeType.ADD, null, entity, comment);
   }
 
-  protected boolean onDelete(TripletValueDTO item, List<Integer> ids, Value currentValue, Date historyDate, FlexibleElement element, Integer projectId, User user, String comment) {
+  protected boolean onDelete(TripletValueDTO item, List<Integer> ids, Value currentValue, Date historyDate, FlexibleElement element, Integer projectId, Integer iterationId, User user, String comment) {
     LOG.debug("[execute] Removes a element from the list.");
 
     // Retrieves the element.
@@ -298,11 +301,11 @@ public class UpdateContactHandler extends AbstractCommandHandler<UpdateContact, 
     currentValue.setValue(ValueResultUtils.mergeElements(ids));
 
     // Historize the value.
-    historize(historyDate, element, projectId, user, ValueEventChangeType.REMOVE, null, entity, comment);
+    historize(historyDate, element, projectId, iterationId, user, ValueEventChangeType.REMOVE, null, entity, comment);
     return true;
   }
 
-  protected void onEdit(TripletValueDTO item, Date historyDate, FlexibleElement element, Integer projectId, User user, String comment) {
+  protected void onEdit(TripletValueDTO item, Date historyDate, FlexibleElement element, Integer projectId, Integer iterationId, User user, String comment) {
     if (LOG.isDebugEnabled()) {
       LOG.debug("[execute] Edits a element from the list.");
     }
@@ -316,10 +319,10 @@ public class UpdateContactHandler extends AbstractCommandHandler<UpdateContact, 
     }
 
     // Historize the value.
-    historize(historyDate, element, projectId, user, ValueEventChangeType.EDIT, null, entity, comment);
+    historize(historyDate, element, projectId, iterationId, user, ValueEventChangeType.EDIT, null, entity, comment);
   }
 
-  private void historize(Date date, FlexibleElement element, Integer contactId, User user, ValueEventChangeType type, String singleValue, TripletValue listValue, String comment) {
+  private void historize(Date date, FlexibleElement element, Integer contactId, Integer iterationId, User user, ValueEventChangeType type, String singleValue, TripletValue listValue, String comment) {
 
     // Manages history.
     if (element != null && element.isHistorable()) {
@@ -332,6 +335,7 @@ public class UpdateContactHandler extends AbstractCommandHandler<UpdateContact, 
       historyToken.setUser(user);
       historyToken.setType(type);
       historyToken.setComment(comment);
+      historyToken.setLayoutGroupIterationId(iterationId);
 
       // Sets the value or list value.
       if (listValue == null) {
@@ -353,10 +357,10 @@ public class UpdateContactHandler extends AbstractCommandHandler<UpdateContact, 
    * @param user      The user which launch the command.
    * @return The value.
    */
-  public Value retrieveOrCreateValue(int contactId, Integer elementId, User user) {
+  public Value retrieveOrCreateValue(int contactId, Integer elementId, Integer iterationId, User user) {
 
     // Retrieving the current value
-    Value currentValue = retrieveCurrentValue(contactId, elementId);
+    Value currentValue = retrieveCurrentValue(contactId, elementId, iterationId);
 
     // Update operation.
     if (currentValue != null) {
@@ -376,6 +380,12 @@ public class UpdateContactHandler extends AbstractCommandHandler<UpdateContact, 
 
       // Container
       currentValue.setContainerId(contactId);
+
+      // Iteration
+      if(iterationId != null) {
+        final LayoutGroupIteration iteration = em().find(LayoutGroupIteration.class, iterationId);
+        currentValue.setLayoutGroupIteration(iteration);
+      }
     }
 
     // Updates the value's fields.
@@ -393,10 +403,18 @@ public class UpdateContactHandler extends AbstractCommandHandler<UpdateContact, 
    * @param elementId The source element id.
    * @return The value or <code>null</code> if not found.
    */
-  private Value retrieveCurrentValue(int contactId, Integer elementId) {
-    Query query = em().createQuery("SELECT v FROM Value v WHERE v.containerId = :contactId and v.element.id = :elementId");
-    query.setParameter("contactId", contactId);
-    query.setParameter("elementId", elementId);
+  private Value retrieveCurrentValue(int contactId, Integer elementId, Integer iterationId) {
+    final Query query;
+
+    if(iterationId == null) {
+      query = em().createQuery("SELECT v FROM Value v WHERE v.containerId = :contactId and v.element.id = :elementId and v.layoutGroupIteration.id IS NULL");
+      query.setParameter("contactId", contactId);
+      query.setParameter("elementId", elementId);
+    } else {
+      query = em().createQuery("SELECT v FROM Value v WHERE v.element.id = :elementId and v.layoutGroupIteration.id = :iterationId");
+      query.setParameter("elementId", elementId);
+      query.setParameter("iterationId", iterationId);
+    }
 
     Value currentValue = null;
 

@@ -47,6 +47,11 @@ public class GetHistory extends AbstractCommand<ListResult<HistoryTokenListDTO>>
 	private int projectId;
 
 	/**
+	 * The group iteration id.
+	 */
+	private Integer iterationId;
+
+	/**
 	 * The date before which the history is ignored. Set to <code>null</code> to retrieves the complete history.
 	 */
 	private Date maxDate;
@@ -56,14 +61,18 @@ public class GetHistory extends AbstractCommand<ListResult<HistoryTokenListDTO>>
 	}
 
 	public GetHistory(int elementId, int projectId) {
-		this.elementId = elementId;
-		this.projectId = projectId;
+		this(elementId, projectId, null, null);
 	}
 
-	public GetHistory(int elementId, int projectId, Date maxDate) {
+	public GetHistory(int elementId, int projectId, Integer iterationId) {
+		this(elementId, projectId, iterationId, null);
+	}
+
+	public GetHistory(int elementId, int projectId, Integer iterationId, Date maxDate) {
 		this.elementId = elementId;
-		this.maxDate = maxDate;
 		this.projectId = projectId;
+		this.iterationId = iterationId;
+		this.maxDate = maxDate;
 	}
 
 	public int getElementId() {
@@ -78,4 +87,7 @@ public class GetHistory extends AbstractCommand<ListResult<HistoryTokenListDTO>>
 		return projectId;
 	}
 
+	public Integer getIterationId() {
+		return iterationId;
+	}
 }

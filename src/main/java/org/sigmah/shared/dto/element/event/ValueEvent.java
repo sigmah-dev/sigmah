@@ -56,6 +56,8 @@ public class ValueEvent extends GWTImmortalEvent<ValueHandler> implements Serial
 	// Only used for the elements part of a list.
 	private ValueEventChangeType changeType;
 	boolean isProjectCountryChanged = false;
+	//Only used if the element is part of an iteration
+	private Integer iterationId;
 
 	public ValueEvent(FlexibleElementDTO sourceElement, String singleValue) {
 		this.sourceElement = sourceElement;
@@ -66,6 +68,13 @@ public class ValueEvent extends GWTImmortalEvent<ValueHandler> implements Serial
 		this.sourceElement = sourceElement;
 		this.multivaluedIdsValue = multivaluedIdsValue;
 		this.changeType = changeType;
+	}
+
+	public ValueEvent(FlexibleElementDTO sourceElement, Set<Integer> multivaluedIdsValue, ValueEventChangeType changeType, Integer iterationId) {
+		this.sourceElement = sourceElement;
+		this.multivaluedIdsValue = multivaluedIdsValue;
+		this.changeType = changeType;
+		this.iterationId = iterationId;
 	}
 
 	/**
@@ -99,6 +108,17 @@ public class ValueEvent extends GWTImmortalEvent<ValueHandler> implements Serial
 		} else {
 			this.changeType = changeType;
 		}
+	}
+
+	public ValueEvent(FlexibleElementDTO sourceElement, TripletValueDTO tripletValue, ValueEventChangeType changeType, Integer iterationId) {
+		this.sourceElement = sourceElement;
+		this.tripletValue = tripletValue;
+		if (changeType == null) {
+			this.changeType = ValueEventChangeType.ADD;
+		} else {
+			this.changeType = changeType;
+		}
+		this.iterationId = iterationId;
 	}
 
 	@Override
@@ -170,6 +190,14 @@ public class ValueEvent extends GWTImmortalEvent<ValueHandler> implements Serial
 		this.isProjectCountryChanged = isProjectCountryChanged;
 	}
 
+	public Integer getIterationId() {
+		return iterationId;
+	}
+
+	public void setIterationId(Integer iterationId) {
+		this.iterationId = iterationId;
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -181,6 +209,7 @@ public class ValueEvent extends GWTImmortalEvent<ValueHandler> implements Serial
 		builder.append("value", singleValue);
 		builder.append("tripletValue", tripletValue);
 		builder.append("changeType", changeType);
+		builder.append("iterationId", iterationId);
 
 		return builder.toString();
 	}

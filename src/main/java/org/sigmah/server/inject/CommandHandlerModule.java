@@ -97,6 +97,7 @@ public class CommandHandlerModule extends AbstractCommandHandlerModule {
 		bindHandler(GetImportInformation.class, GetImportInformationHandler.class);
 		bindHandler(GetIndicatorDataSources.class, GetIndicatorDataSourcesHandler.class);
 		bindHandler(GetIndicators.class, GetIndicatorsHandler.class);
+		bindHandler(GetLayoutGroupIterations.class, GetLayoutGroupIterationsHandler.class);
 		bindHandler(GetLinkedProjects.class, GetLinkedProjectsHandler.class);
 		bindHandler(GetMainSite.class, GetMainSiteHandler.class);
 		bindHandler(GetMonitoredPoints.class, GetMonitoredPointsHandler.class);
@@ -156,6 +157,7 @@ public class CommandHandlerModule extends AbstractCommandHandlerModule {
 		bindHandler(UpdateContact.class, UpdateContactHandler.class);
 		bindHandler(UpdateEntity.class, UpdateEntityHandler.class);
 		bindHandler(UpdateGlobalExportSettingsCommand.class, UpdateGlobalExportSettingsHandler.class);
+		bindHandler(UpdateLayoutGroupIterations.class, UpdateLayoutGroupIterationsHandler.class);
 		bindHandler(UpdateLogFrame.class, UpdateLogFrameHandler.class);
 		bindHandler(UpdateMonitoredPoints.class, UpdateMonitoredPointsHandler.class);
 		bindHandler(UpdateMonthlyReports.class, UpdateMonthlyReportsHandler.class);

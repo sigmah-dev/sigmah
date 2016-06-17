@@ -37,6 +37,7 @@ import org.sigmah.server.domain.OrgUnit;
 import org.sigmah.server.domain.Project;
 import org.sigmah.server.domain.User;
 import org.sigmah.server.domain.element.FlexibleElement;
+import org.sigmah.server.domain.layout.LayoutGroupIteration;
 import org.sigmah.server.domain.util.Deleteable;
 import org.sigmah.server.domain.value.TripletValue;
 import org.sigmah.server.domain.value.Value;
@@ -200,9 +201,10 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 			final String updateSingleValue = valueEvent.getSingleValue();
 			final Set<Integer> multivaluedIdsValue = valueEvent.getMultivaluedIdsValue();
 			final boolean isProjectCountryChanged = valueEvent.isProjectCountryChanged();
+			final Integer iterationId = valueEvent.getIterationId();
 
 			LOG.debug("[execute] Updates value of element #{} ({})", source.getId(), source.getEntityName());
-			LOG.debug("[execute] Event of type {} with value {} and list value {}.", valueEvent.getChangeType(), updateSingleValue, updateListValue);
+			LOG.debug("[execute] Event of type {} with value {} and list value {} (iteration : {}).", valueEvent.getChangeType(), updateSingleValue, updateListValue, iterationId);
 
 			// Verify if the core version has been modified.
 			coreVersionHasBeenModified = coreVersionHasBeenModified || element != null && element.isAmendable();
@@ -222,9 +224,10 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 				List<HistoryToken> results = null;
 				if (element != null) {
 					final TypedQuery<HistoryToken> query =
-						em().createQuery("SELECT h FROM HistoryToken h WHERE h.elementId = :elementId AND h.projectId = :projectId", HistoryToken.class);
+						em().createQuery("SELECT h FROM HistoryToken h WHERE h.elementId = :elementId AND h.projectId = :projectId AND h.layoutGroupIterationId = :iterationId", HistoryToken.class);
 					query.setParameter("elementId", element.getId());
 					query.setParameter("projectId", projectId);
+					query.setParameter("iterationId", iterationId);
 					results = query.getResultList();
 				}
 
@@ -241,18 +244,18 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 
 					// Historize the first value.
 					if (oldValue != null) {
-						historize(oldDate, element, projectId, oldOwner, ValueEventChangeType.ADD, oldValue, null, null);
+						historize(oldDate, element, projectId, iterationId, oldOwner, ValueEventChangeType.ADD, oldValue, null, null);
 					}
 				}
 
 				// Historize the value.
-				historize(historyDate, element, projectId, user, ValueEventChangeType.EDIT, updateSingleValue, null, comment);
+				historize(historyDate, element, projectId, iterationId, user, ValueEventChangeType.EDIT, updateSingleValue, null, comment);
 
 				continue;
 			}
 
 			// Retrieving the current value
-			final Value currentValue = retrieveOrCreateValue(projectId, source.getId(), user);
+			final Value currentValue = retrieveOrCreateValue(projectId, source.getId(), iterationId, user);
 
 			// Unique value of the flexible element.
 			if (updateSingleValue != null) {
@@ -264,7 +267,7 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 				currentValue.setValue(updateSingleValue);
 
 				// Historize the value.
-				historize(historyDate, element, projectId, user, ValueEventChangeType.EDIT, updateSingleValue, null, comment);
+				historize(historyDate, element, projectId, iterationId, user, ValueEventChangeType.EDIT, updateSingleValue, null, comment);
 			} else if (multivaluedIdsValue != null) {
 
 				if (LOG.isDebugEnabled()) {
@@ -294,10 +297,10 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 				currentValue.setValue(serializedValue);
 
 				if (valueEvent.getChangeType() == ValueEventChangeType.EDIT) {
-					historize(historyDate, element, projectId, user, valueEvent.getChangeType(), serializedValue, null, comment);
+					historize(historyDate, element, projectId, iterationId, user, valueEvent.getChangeType(), serializedValue, null, comment);
 				} else {
 					for (Integer id : multivaluedIdsValue) {
-						historize(historyDate, element, projectId, user, valueEvent.getChangeType(), String.valueOf(id), null, comment);
+						historize(historyDate, element, projectId, iterationId, user, valueEvent.getChangeType(), String.valueOf(id), null, comment);
 					}
 				}
 			}
@@ -319,18 +322,18 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 				// Cast the update value (as a DTO).
 				switch (valueEvent.getChangeType()) {
 					case ADD:
-						onAdd(updateListValue, ids, currentValue, historyDate, element, projectId, user, comment);
+						onAdd(updateListValue, ids, currentValue, historyDate, element, projectId, iterationId, user, comment);
 						break;
 
 					case REMOVE:
-						if(!onDelete(updateListValue,  ids, currentValue, historyDate, element, projectId, user, comment)) {
+						if(!onDelete(updateListValue,  ids, currentValue, historyDate, element, projectId, iterationId, user, comment)) {
 							// Do not historize, the value hasn't been changed.
 							continue;
 						}
 						break;
 
 					case EDIT:
-						onEdit(updateListValue, historyDate, element, projectId, user, comment);
+						onEdit(updateListValue, historyDate, element, projectId, iterationId, user, comment);
 						break;
 
 					default:
@@ -368,7 +371,7 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 		}
 	}
 
-	protected void onAdd(final TripletValueDTO item, final List<Integer> ids, final Value currentValue, final Date historyDate, final FlexibleElement element, final Integer projectId, User user, String comment) {
+	protected void onAdd(final TripletValueDTO item, final List<Integer> ids, final Value currentValue, final Date historyDate, final FlexibleElement element, final Integer projectId, final Integer iterationId, User user, String comment) {
 		LOG.debug("[execute] Adds an element to the list.");
 
 		// Adds the element.
@@ -382,10 +385,10 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 		currentValue.setValue(ValueResultUtils.mergeElements(ids));
 
 		// Historize the value.
-		historize(historyDate, element, projectId, user, ValueEventChangeType.ADD, null, entity, comment);
+		historize(historyDate, element, projectId, iterationId, user, ValueEventChangeType.ADD, null, entity, comment);
 	}
 
-	protected boolean onDelete(final TripletValueDTO item, final List<Integer> ids, final Value currentValue, final Date historyDate, final FlexibleElement element, final Integer projectId, User user, String comment) {
+	protected boolean onDelete(final TripletValueDTO item, final List<Integer> ids, final Value currentValue, final Date historyDate, final FlexibleElement element, final Integer projectId, final Integer iterationId, User user, String comment) {
 		LOG.debug("[execute] Removes a element from the list.");
 
 		// Retrieves the element.
@@ -409,11 +412,11 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 		currentValue.setValue(ValueResultUtils.mergeElements(ids));
 
 		// Historize the value.
-		historize(historyDate, element, projectId, user, ValueEventChangeType.REMOVE, null, entity, comment);
+		historize(historyDate, element, projectId, iterationId, user, ValueEventChangeType.REMOVE, null, entity, comment);
 		return true;
 	}
 
-	protected void onEdit(final TripletValueDTO item, final Date historyDate, final FlexibleElement element, final Integer projectId, User user, String comment) {
+	protected void onEdit(final TripletValueDTO item, final Date historyDate, final FlexibleElement element, final Integer projectId, final Integer iterationId, User user, String comment) {
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("[execute] Edits a element from the list.");
 		}
@@ -427,10 +430,10 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 		}
 
 		// Historize the value.
-		historize(historyDate, element, projectId, user, ValueEventChangeType.EDIT, null, entity, comment);
+		historize(historyDate, element, projectId, iterationId, user, ValueEventChangeType.EDIT, null, entity, comment);
 	}
 
-	private void historize(Date date, FlexibleElement element, Integer projectId, User user, ValueEventChangeType type, String singleValue, TripletValue listValue, String comment) {
+	private void historize(Date date, FlexibleElement element, Integer projectId, Integer iterationId, User user, ValueEventChangeType type, String singleValue, TripletValue listValue, String comment) {
 
 		// Manages history.
 		if (element != null && element.isHistorable()) {
@@ -443,6 +446,7 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 			historyToken.setUser(user);
 			historyToken.setType(type);
 			historyToken.setComment(comment);
+			historyToken.setLayoutGroupIterationId(iterationId);
 
 			// Sets the value or list value.
 			if (listValue == null) {
@@ -453,6 +457,10 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 
 			em().persist(historyToken);
 		}
+	}
+
+	public Value retrieveOrCreateValue(int projectId, Integer elementId, User user) {
+		return retrieveOrCreateValue(projectId, elementId, null, user);
 	}
 
 	/**
@@ -467,10 +475,10 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 	 *          The user which launch the command.
 	 * @return The value.
 	 */
-	public Value retrieveOrCreateValue(int projectId, Integer elementId, User user) {
+	public Value retrieveOrCreateValue(int projectId, Integer elementId, Integer iterationId, User user) {
 
 		// Retrieving the current value
-		Value currentValue = retrieveCurrentValue(projectId, elementId);
+		Value currentValue = retrieveCurrentValue(projectId, elementId, iterationId);
 
 		// Update operation.
 		if (currentValue != null) {
@@ -490,6 +498,12 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 
 			// Container
 			currentValue.setContainerId(projectId);
+
+			// Iteration
+			if(iterationId != null) {
+				final LayoutGroupIteration iteration = em().find(LayoutGroupIteration.class, iterationId);
+				currentValue.setLayoutGroupIteration(iteration);
+			}
 		}
 
 		// Updates the value's fields.
@@ -509,10 +523,20 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 	 *          The source element id.
 	 * @return  The value or <code>null</code> if not found.
 	 */
-	private Value retrieveCurrentValue(int projectId, Integer elementId) {
-		final Query query = em().createQuery("SELECT v FROM Value v WHERE v.containerId = :projectId and v.element.id = :elementId");
-		query.setParameter("projectId", projectId);
-		query.setParameter("elementId", elementId);
+	private Value retrieveCurrentValue(int projectId, Integer elementId, Integer iterationId) {
+		final Query query;
+
+
+		if(iterationId == null) {
+			query = em().createQuery("SELECT v FROM Value v WHERE v.containerId = :projectId and v.element.id = :elementId and v.layoutGroupIteration.id IS NULL");
+			query.setParameter("projectId", projectId);
+			query.setParameter("elementId", elementId);
+		} else {
+			query = em().createQuery("SELECT v FROM Value v WHERE v.element.id = :elementId AND v.layoutGroupIteration.id = :iterationId");
+			query.setParameter("elementId", elementId);
+			query.setParameter("iterationId", iterationId);
+		}
+
 
 		Value currentValue = null;
 
@@ -536,7 +560,7 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
      */
 	private String getCurrentValueFormatted(int projectId, FlexibleElementDTO element) {
         
-		final Value value = retrieveCurrentValue(projectId, element.getId());
+		final Value value = retrieveCurrentValue(projectId, element.getId(), null);
 
 		if(value != null) {
 			return element.toHTML(value.getValue());
@@ -864,7 +888,7 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 					if (source.getAmendable()) {
 						if (source instanceof BudgetElementDTO) {
 							final BudgetSubFieldDTO divisorField = ((BudgetElementDTO)source).getRatioDivisor();
-							final Value value = retrieveCurrentValue(project.getId(), source.getId());
+							final Value value = retrieveCurrentValue(project.getId(), source.getId(), valueEvent.getIterationId());
 							conflict = getValueOfSubField(value.getValue(), divisorField) != getValueOfSubField(valueEvent.getSingleValue(), divisorField);
 
 						} else {
@@ -947,7 +971,7 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
                     
                     conflicts.add(i18nServer.t(language, "conflictComputationOutOfBound",
                             fieldList, value.getSingleValue(), source.getFormattedLabel(), greaterOrLess, breachedConstraint) 
-                            + dependenciesLastValuesForComputation(computation, project.getId(), language));
+                            + dependenciesLastValuesForComputation(computation, project.getId(), value.getIterationId(), language));
                 }
             }
         }
@@ -971,16 +995,16 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
      *          Language to use to create the messages.
      * @return A list of details about the dependencies.
      * 
-     * @see #flexibleElementDetails(org.sigmah.shared.dto.element.FlexibleElementDTO, int, org.sigmah.shared.Language, java.text.DateFormat) 
+     * @see #flexibleElementDetails(org.sigmah.shared.dto.element.FlexibleElementDTO, int, Integer, org.sigmah.shared.Language, java.text.DateFormat)
      */
-    private String dependenciesLastValuesForComputation(final Computation computation, final int projectId, final Language language) {
+    private String dependenciesLastValuesForComputation(final Computation computation, final int projectId, final Integer iterationId, final Language language) {
         final DateFormat formatter = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, Locale.forLanguageTag(language.getLocale()));
         
         return org.sigmah.shared.util.Collections.join(computation.getDependencies(), new org.sigmah.shared.util.Collections.Mapper<FlexibleElementDTO, String>() {
                         
             @Override
             public String forEntry(final FlexibleElementDTO entry) {
-                return "\n" + flexibleElementDetails(entry, projectId, language, formatter);
+                return "\n" + flexibleElementDetails(entry, projectId, iterationId, language, formatter);
             }
         }, "");
     }
@@ -1006,12 +1030,12 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
      *          Date formatter.
      * @return The formatted line.
      */
-    private String flexibleElementDetails(final FlexibleElementDTO entry, final int projectId, final Language language, final DateFormat formatter) {
+    private String flexibleElementDetails(final FlexibleElementDTO entry, final int projectId, Integer iterationId, final Language language, final DateFormat formatter) {
         
         final String title = entry.getFormattedLabel();
         final String value, author, date;
 
-        final Value currentValue = retrieveCurrentValue(projectId, entry.getId());
+        final Value currentValue = retrieveCurrentValue(projectId, entry.getId(), iterationId);
         if (currentValue != null) {
             value = currentValue.getValue();
             author = User.getUserShortName(currentValue.getLastModificationUser());
