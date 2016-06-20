@@ -246,7 +246,7 @@ public final class EntityConstants extends org.sigmah.shared.dto.util.EntityCons
 	// TODO Replace with 'id_flexible_element' column.
 	public static final String BUDGET_SUB_FIELD_COLMUN_ID_BUDGET_ELEMENT = "id_budget_element";
 	public static final String BUDGET_SUB_FIELD_COLMUN_LABEL = "label";
-	public static final String BUDGET_SUB_FIELD_COLMUN_FIELD_ORDER = "fieldOrder";
+	public static final String BUDGET_SUB_FIELD_COLMUN_FIELD_ORDER = "fieldorder";
 	public static final String BUDGET_SUB_FIELD_COLMUN_TYPE = "type";
 
 	// --------------------------------------------------------------------------------
