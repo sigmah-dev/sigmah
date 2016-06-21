@@ -180,7 +180,7 @@ event.getParam(2);
 	 */
 	@Override
 	public String getTabTitle() {
-		return I18N.CONSTANTS.adminGroups();
+		return I18N.CONSTANTS.adminFlexibleGroup();
 	}
 
 	/**
