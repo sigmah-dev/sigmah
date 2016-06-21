@@ -153,8 +153,10 @@ public interface IconImageBundle extends ImageBundle {
 
 	AbstractImagePrototype attach();
 	
-	@Resource(value = "link_delete.png")
 	AbstractImagePrototype remove();
+	
+	@Resource(value = "link_delete.png")
+	AbstractImagePrototype linkDelete();
 
 	@Resource(value = "bullet_green.png")
 	AbstractImagePrototype elementCompleted();
