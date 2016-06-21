@@ -21,166 +21,115 @@ package org.sigmah.client.ui.view.admin.models;
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+import java.util.ArrayList;
+import java.util.List;
 
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.ui.presenter.admin.models.LayoutGroupAdminPresenter;
-import org.sigmah.client.ui.res.icon.IconImageBundle;
-import org.sigmah.client.ui.view.base.AbstractView;
-import org.sigmah.client.ui.widget.button.Button;
-import org.sigmah.client.ui.widget.form.Forms;
-import org.sigmah.client.ui.widget.panel.Panels;
-import org.sigmah.shared.dto.layout.LayoutGroupDTO;
-import org.sigmah.shared.dto.layout.LayoutDTO;
+import org.sigmah.client.ui.widget.HasGrid.GridEventHandler;
+import org.sigmah.client.util.ColumnProviders;
 import org.sigmah.shared.dto.layout.LayoutConstraintDTO;
+import org.sigmah.shared.dto.layout.LayoutGroupDTO;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
+import org.sigmah.shared.dto.referential.ElementTypeEnum;
 
-import com.extjs.gxt.ui.client.Style.SelectionMode;
+import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.store.ListStore;
-import com.extjs.gxt.ui.client.widget.Component;
-import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
+import com.extjs.gxt.ui.client.widget.grid.ColumnData;
+import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
-import com.extjs.gxt.ui.client.widget.grid.GridSelectionModel;
-import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
+import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 
-public class LayoutGroupAdminView extends AbstractView implements LayoutGroupAdminPresenter.View {
-
-	private Grid<LayoutGroupDTO> grid;
-	private ToolBar toolbar;
-	private Button addButton;
-	private Button deleteButton;
-	private boolean editable;
-
-	private GridEventHandler<LayoutGroupDTO> gridEventHandler;
+abstract class LayoutGroupColumnsProvider {
 
 	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void initialize() {
-
-		final ContentPanel mainPanel = Panels.content(null);
-
-		mainPanel.add(createGrid());
-		mainPanel.setTopComponent(createToolBar());
-
-		add(mainPanel);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public Grid<LayoutGroupDTO> getGrid() {
-		return grid;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public ListStore<LayoutGroupDTO> getStore() {
-		return grid.getStore();
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void setGridEventHandler(final GridEventHandler<LayoutGroupDTO> handler) {
-		this.gridEventHandler = handler;
-	}
-    
-    @Override
-	public void setModelEditable(final boolean editable) {
-		this.editable = editable;
-	}
-    
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public Button getAddButton() {
-		return addButton;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public Button getDeleteButton() {
-		return deleteButton;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void setToolbarEnabled(final boolean enabled) {
-		if (enabled) {
-			toolbar.show();
-		} else {
-			toolbar.hide();
-		}
-		toolbar.setEnabled(enabled);
-		addButton.setEnabled(enabled);
-		deleteButton.setEnabled(false); 
-	}
-
-	// ---------------------------------------------------------------------------------------------------------------
-	//
-	// UTILITY METHODS.
-	//
-	// ---------------------------------------------------------------------------------------------------------------
-
-	/**
-	 * Creates the grid component.
+	 * Returns <code>true</code> if the parent model is editable.
 	 * 
-	 * @return The grid component.
+	 * @return <code>true</code> if the parent model is editable, <code>false</code> otherwise.
 	 */
+	protected abstract boolean isEditable();
 	
-    private Component createGrid() {
-
-		grid = new Grid<LayoutGroupDTO>(new ListStore<LayoutGroupDTO>(), new LayoutGroupColumnsProvider() {
-
-			@Override
-			protected boolean isEditable() {
-				return editable;
-			}
-
-			@Override
-			protected GridEventHandler<LayoutGroupDTO> getGridEventHandler() {
-				return gridEventHandler;
-			}
-
-		}.getColumnModel());
-
-		grid.setAutoHeight(true);
-		grid.getView().setForceFit(true);
-		grid.getStore().setSortField(LayoutGroupDTO.ROW);
-
-		final GridSelectionModel<LayoutGroupDTO> selectionModel = new GridSelectionModel<LayoutGroupDTO>();
-		selectionModel.setSelectionMode(SelectionMode.MULTI);
-		grid.setSelectionModel(selectionModel);
-		
-		return grid;
-	}
 	/**
-	 * Creates the toolbar component and its buttons.
+	 * Returns the {@link GridEventHandler} implementation.
 	 * 
-	 * @return The toolbar component.
+	 * @return The {@link GridEventHandler} implementation.
 	 */
-	private Component createToolBar() {
+	protected abstract GridEventHandler<LayoutGroupDTO> getGridEventHandler();
 
-		toolbar = new ToolBar();
+	/**
+	 * Gets the columns model for the flexible elements admin grid.
+	 * 
+	 * @return The columns model for the flexible elements admin grid.
+	 */
+	public ColumnModel getColumnModel() {
 
-		addButton = Forms.button(I18N.CONSTANTS.addItem(), IconImageBundle.ICONS.add());
-		toolbar.add(addButton);
 
-		deleteButton = Forms.button(I18N.CONSTANTS.delete(), IconImageBundle.ICONS.delete());
-		deleteButton.disable();
-		toolbar.add(deleteButton);
+		final List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
 
-		return toolbar;
+		// --
+		// Group Name column.
+		// --
+
+		
+		ColumnConfig column = new ColumnConfig(LayoutGroupDTO.TITLE, I18N.CONSTANTS.adminFlexibleName(), 200);
+		column.setRenderer(new GridCellRenderer<LayoutGroupDTO>() {
+
+			@Override
+			public Object render(final LayoutGroupDTO model, final String property, final ColumnData config, final int rowIndex, final int colIndex,
+					final ListStore<LayoutGroupDTO> store, final Grid<LayoutGroupDTO> grid) {
+
+				return ColumnProviders.renderLink(model.getTitle(), new ClickHandler() {
+
+					@Override
+					public void onClick(final ClickEvent event) {
+						model.set
+(LayoutGroupAdminPresenter.ON_GROUP_CLICK_EVENT_KEY, Boolean.TRUE);
+						getGridEventHandler().onRowClickEvent
+(model);
+					}
+
+				});
+			}
+		});
+		configs.add(column);
+		
+		// --
+		// Containers column.
+		// --
+
+		column = new ColumnConfig(LayoutGroupDTO.PARENT_LAYOUT, I18N.CONSTANTS.adminFlexibleContainer(), 120);
+		column.setRenderer(new GridCellRenderer<LayoutGroupDTO>() {
+
+			@Override
+			public Object render(final LayoutGroupDTO model, final String property, final ColumnData config, final int rowIndex, final int colIndex,
+					final ListStore<LayoutGroupDTO> store, final Grid<LayoutGroupDTO> grid) {
+
+				final BaseModelData container = model.getParentLayout();
+				return ColumnProviders.renderText(container.get("name"));
+			}
+
+		});
+		configs.add(column);
+        // --
+		// Position column.
+		// --
+
+		column = new ColumnConfig("position", I18N.CONSTANTS.adminGroupsPosition(), 50);
+		column.setRenderer(new GridCellRenderer<LayoutGroupDTO>() {
+
+			@Override
+			public Object render(final LayoutGroupDTO model, final String property, final ColumnData config, final int rowIndex, final int colIndex,
+					final ListStore<LayoutGroupDTO> store, final Grid<LayoutGroupDTO> grid) {
+
+				return ColumnProviders.renderText(model.getRow());
+			}
+		});
+		configs.add(column);
+    	return new ColumnModel(configs);
 	}
 
+	
 }
