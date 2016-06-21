@@ -101,6 +101,9 @@ public final class AdminUtil {
 	public static final String PROP_FX_OLD_FIELDS = "oldFieldProperties";
 
 	public static final String PROP_NEW_GROUP_LAYOUT = "NewLayoutGroup";
+	public static final String PROP_GROUP_CONTAINER = "Container";
+ 	public static final String PROP_GROUP_POSITION = "Position";
+
 
 	public static final String PROP_PHASE_MODEL = "NewPhaseModel";
 	public static final String PROP_PHASE_ROWS = "PhaseRows";
@@ -142,10 +145,6 @@ public final class AdminUtil {
 	public static final String PROP_VAR_REFERENCE = "reference";
 	public static final String PROP_VAR_FLE_ID_KEY = "importationSchemeIdKey";
 	public static final String PROP_VAR_FLE_BUDGETSUBFIELDS = "variableBudgetSubFields";
-	
-	public static final String PROP_GRP = "NewGroup";
-	public static final String PROP_GRP_CONTAINER = "Container";
-	public static final String PROP_GRP_POSITION = "Position";
 	
 	private AdminUtil() {
 		// Only provides static constants.
