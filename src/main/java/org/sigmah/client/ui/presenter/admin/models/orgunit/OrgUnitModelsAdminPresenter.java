@@ -35,6 +35,7 @@ import org.sigmah.client.page.Page;
 import org.sigmah.client.ui.notif.ConfirmCallback;
 import org.sigmah.client.ui.notif.N10N;
 import org.sigmah.client.ui.presenter.admin.models.FlexibleElementsAdminPresenter;
+import org.sigmah.client.ui.presenter.admin.models.LayoutGroupAdminPresenter;
 import org.sigmah.client.ui.presenter.admin.models.base.AbstractModelsAdminPresenter;
 import org.sigmah.client.ui.presenter.admin.models.importer.ImportationSchemeModelsAdminPresenter;
 import org.sigmah.client.ui.view.admin.models.orgunit.OrgUnitModelsAdminView;
@@ -93,8 +94,8 @@ public class OrgUnitModelsAdminPresenter extends AbstractModelsAdminPresenter<Or
 	 *          The {@link FlexibleElementsAdminPresenter} provider.
 	 */
 	@Inject
-	protected OrgUnitModelsAdminPresenter(final View view, final Injector injector, final Provider<FlexibleElementsAdminPresenter<OrgUnitModelDTO>> flexibleElementsProvider, final Provider<ImportationSchemeModelsAdminPresenter<OrgUnitModelDTO>> importationSchemeModelsAdminPresenterProvider) {
-		super(view, injector, flexibleElementsProvider.get(), importationSchemeModelsAdminPresenterProvider.get());
+	protected OrgUnitModelsAdminPresenter(final View view, final Injector injector, final Provider<FlexibleElementsAdminPresenter<OrgUnitModelDTO>> flexibleElementsProvider,  final Provider<LayoutGroupAdminPresenter<OrgUnitModelDTO>> layoutGroupAdminPresenterProvider, final Provider<ImportationSchemeModelsAdminPresenter<OrgUnitModelDTO>> importationSchemeModelsAdminPresenterProvider) {
+		super(view, injector, flexibleElementsProvider.get(), layoutGroupAdminPresenterProvider.get(), importationSchemeModelsAdminPresenterProvider.get());
 	}
 
 	/**
