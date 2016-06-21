@@ -23,13 +23,16 @@ package org.sigmah.client.ui.view.admin.models;
  */
 
 import org.sigmah.client.i18n.I18N;
-import org.sigmah.client.ui.presenter.admin.models.GroupsAdminPresenter;
+import org.sigmah.client.ui.presenter.admin.models.LayoutGroupAdminPresenter;
 import org.sigmah.client.ui.res.icon.IconImageBundle;
 import org.sigmah.client.ui.view.base.AbstractView;
 import org.sigmah.client.ui.widget.button.Button;
 import org.sigmah.client.ui.widget.form.Forms;
 import org.sigmah.client.ui.widget.panel.Panels;
-import org.sigmah.shared.dto.GroupsDTO;
+import org.sigmah.shared.dto.layout.LayoutGroupDTO;
+import org.sigmah.shared.dto.layout.LayoutDTO;
+import org.sigmah.shared.dto.layout.LayoutConstraintDTO;
+import org.sigmah.shared.dto.element.FlexibleElementDTO;
 
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.store.ListStore;
@@ -39,15 +42,15 @@ import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridSelectionModel;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 
-public class GroupsAdminView extends AbstractView implements GroupsAdminPresenter.View {
+public class LayoutGroupAdminView extends AbstractView implements LayoutGroupAdminPresenter.View {
 
-	private Grid<GroupsDTO> grid;
+	private Grid<LayoutGroupDTO> grid;
 	private ToolBar toolbar;
 	private Button addButton;
 	private Button deleteButton;
 	private boolean editable;
 
-	private GridEventHandler<GroupsDTO> gridEventHandler;
+	private GridEventHandler<LayoutGroupDTO> gridEventHandler;
 
 	/**
 	 * {@inheritDoc}
@@ -67,7 +70,7 @@ public class GroupsAdminView extends AbstractView implements GroupsAdminPresente
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Grid<GroupsDTO> getGrid() {
+	public Grid<LayoutGroupDTO> getGrid() {
 		return grid;
 	}
 
@@ -75,7 +78,7 @@ public class GroupsAdminView extends AbstractView implements GroupsAdminPresente
 	 * {@inheritDoc}
 	 */
 	@Override
-	public ListStore<GroupsDTO> getStore() {
+	public ListStore<LayoutGroupDTO> getStore() {
 		return grid.getStore();
 	}
 
@@ -83,15 +86,15 @@ public class GroupsAdminView extends AbstractView implements GroupsAdminPresente
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setGridEventHandler(final GridEventHandler<GroupsDTO> handler) {
+	public void setGridEventHandler(final GridEventHandler<LayoutGroupDTO> handler) {
 		this.gridEventHandler = handler;
 	}
-
-	@Override
+    
+    @Override
 	public void setModelEditable(final boolean editable) {
 		this.editable = editable;
 	}
-
+    
 	/**
 	 * {@inheritDoc}
 	 */
@@ -134,31 +137,33 @@ public class GroupsAdminView extends AbstractView implements GroupsAdminPresente
 	 * 
 	 * @return The grid component.
 	 */
-	private Component createGrid() {
+	
+    private Component createGrid() {
 
-		grid = new Grid<GroupsDTO>(new ListStore<GroupsDTO>(), new GroupsColumnsProvider() {
+		grid = new Grid<LayoutGroupDTO>(new ListStore<LayoutGroupDTO>(), new LayoutGroupColumnsProvider() {
+
 			@Override
 			protected boolean isEditable() {
 				return editable;
 			}
 
 			@Override
-			protected GridEventHandler<GroupsDTO> getGridEventHandler() {
+			protected GridEventHandler<LayoutGroupDTO> getGridEventHandler() {
 				return gridEventHandler;
 			}
+
 		}.getColumnModel());
 
 		grid.setAutoHeight(true);
 		grid.getView().setForceFit(true);
-		grid.getStore().setSortField(GroupsDTO.CONTAINER);
+		grid.getStore().setSortField(LayoutGroupDTO.ROW);
 
-		final GridSelectionModel<GroupsDTO> selectionModel = new GridSelectionModel<GroupsDTO>();
-		selectionModel.setSelectionMode(SelectionMode.SINGLE);
+		final GridSelectionModel<LayoutGroupDTO> selectionModel = new GridSelectionModel<LayoutGroupDTO>();
+		selectionModel.setSelectionMode(SelectionMode.MULTI);
 		grid.setSelectionModel(selectionModel);
-
+		
 		return grid;
 	}
-
 	/**
 	 * Creates the toolbar component and its buttons.
 	 * 
