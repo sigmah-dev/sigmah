@@ -214,7 +214,7 @@ body {font-family:Arial;font-size:8pt}
 .important-label{font-size:8pt;padding:5px}
 .important-label-white{font-size:8pt;padding:5px;color:white}
 .monitor-progress-bar{width:50%;z-index:200}
-.delete-anchor {background: url("image/link_delete.png") no-repeat;padding-left: 20px;}
+/*.delete-anchor {background: url("image/link_delete.png") no-repeat;padding-left: 20px;} */
 .filtered-column-header{font-weight:bold;font-style:italic;background:url("../images/icon/filter.png") no-repeat right}
 .project-model-type-radio,.project-model-type-radio *{cursor:pointer}
 
