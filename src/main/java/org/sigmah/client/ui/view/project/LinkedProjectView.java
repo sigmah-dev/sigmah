@@ -121,7 +121,7 @@ public class LinkedProjectView extends AbstractPopupView<PopupWidget> implements
 		percentageField = Forms.label(I18N.CONSTANTS.createProjectPercentage());
 
 		saveButton = Forms.button(I18N.CONSTANTS.formWindowSubmitAction(), IconImageBundle.ICONS.save());
-		deleteButton = Forms.button(I18N.CONSTANTS.formWindowDeleteAction(), IconImageBundle.ICONS.remove());
+		deleteButton = Forms.button(I18N.CONSTANTS.formWindowDeleteAction(), IconImageBundle.ICONS.linkDelete());
 
 		form.add(headerLabel);
 		form.add(projectsField);
