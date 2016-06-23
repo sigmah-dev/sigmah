@@ -76,7 +76,7 @@ public enum CalendarType {
 			this.colorCode = colorCode;
 		}
 	}
-
+    
 	/**
 	 * Returns the given {@code type} corresponding {@link CalendarIdentifier} instance for the given {@code id}.
 	 * 
@@ -86,7 +86,10 @@ public enum CalendarType {
 	 *          The calendar id.
 	 * @return The {@link CalendarIdentifier} instance.
 	 */
+    static int projectId;
 	public static CalendarIdentifier getIdentifier(final CalendarType type, final Integer id) {
+        
+        
 
 		if (type == null) {
 			throw new IllegalArgumentException("Invalid calendar type.");
@@ -95,6 +98,7 @@ public enum CalendarType {
 		switch (type) {
 
 			case Activity:
+                projectId = id;
 				return new ActivityCalendarIdentifier(id, I18N.CONSTANTS.logFrameActivities(), I18N.CONSTANTS.logFrameActivitiesCode());
 
 			case Personal:
@@ -102,11 +106,11 @@ public enum CalendarType {
 
 			case MonitoredPoint:
 				return new MonitoredPointCalendarIdentifier(id, I18N.CONSTANTS.monitoredPoints(), I18N.CONSTANTS.monitoredPointClosed(),
-					I18N.CONSTANTS.monitoredPointExpectedDate(), DateUtils.DATE_SHORT.getPattern());
+					I18N.CONSTANTS.monitoredPointExpectedDate(), DateUtils.DATE_SHORT.getPattern() , projectId);
 
 			case Reminder:
 				return new ReminderCalendarIdentifier(id, I18N.CONSTANTS.reminderPoints(), I18N.CONSTANTS.monitoredPointClosed(),
-					I18N.CONSTANTS.monitoredPointExpectedDate(), DateUtils.DATE_SHORT.getPattern());
+					I18N.CONSTANTS.monitoredPointExpectedDate(), DateUtils.DATE_SHORT.getPattern(),projectId);
 
 			default:
 				throw new IllegalArgumentException("Invalid calendar type.");

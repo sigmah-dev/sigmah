@@ -120,8 +120,8 @@ public class MonitoredPointCalendarHandler implements CalendarHandler {
 						sb.append(format.format(point.getExpectedDate()));
 						sb.append(')');
 					}
-
-					event.setDescription(sb.toString());
+                    
+					event.setDescription(sb.toString() + calendarIdentifier.getProjectId());
 
 					// Adding the event to the event map
 					final Date key = event.getKey();

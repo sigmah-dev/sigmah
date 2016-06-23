@@ -118,11 +118,10 @@ public class OrgUnitCalendarPresenter extends AbstractOrgUnitPresenter<OrgUnitCa
         calendars.put(calendarId++, getOrgUnit().getId());
         calendars.put(calendarId, getOrgUnit().getCalendarId());
         calendarId = calendarId + 3;
-        java.util.Iterator<OrgUnitDTO> iter = getOrgUnit().getChildrenOrgUnits().iterator();
-        while (iter.hasNext()) {
-            calendars.put(calendarId++, getOrgUnit().getChildrenOrgUnits().iterator().next().getId());
-            calendars.put(calendarId, getOrgUnit().getChildrenOrgUnits().iterator().next().getCalendarId());
-            iter.next();
+        
+        for(final OrgUnitDTO child : getOrgUnit().getChildrenOrgUnits()) {
+            calendars.put(calendarId++, child.getId());
+            calendars.put(calendarId, child.getCalendarId());
             calendarId = calendarId + 3;
         }
 		calendarPresenter.reload(calendars);
