@@ -63,9 +63,9 @@ import org.sigmah.offline.fileapi.Files;
  * Transfert files by slicing them.
  * Files are stored inside IndexedDB to allow offline re-download and on-connect
  * upload.
- * <p/>
+ *
  * When uploading, files are stored before the transfert.
- * <p/>
+ *
  * When downloading, files are transfered, then stored inside IndexedDB and
  * finally actually downloaded by the client.
  * 

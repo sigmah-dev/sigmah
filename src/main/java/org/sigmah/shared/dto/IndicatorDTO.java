@@ -310,7 +310,7 @@ public final class IndicatorDTO extends AbstractModelDataEntityDTO<Integer> impl
 
 	/**
 	 * Returns the name of the property in which values for Indicators of this id are stored, for example in the
-	 * {@link org.sigmah.shared.dto.SiteDTO} object. For example, an indicator with the id of 3 will be stored as I3 =>
+	 * {@link org.sigmah.shared.dto.SiteDTO} object. For example, an indicator with the id of 3 will be stored as I3 =&gt;
 	 * 1432.32 in a SiteDTO.
 	 * 
 	 * @param id

@@ -71,7 +71,7 @@ public enum ImportStatusCode implements Serializable {
 	SEVERAL_ORGUNITS_FOUND_CODE;
 
 	/**
-	 * Returns the given {@code code} corresponding string value.<br/>
+	 * Returns the given {@code code} corresponding string value.
 	 * This method should be executed from client-side. If executed from server-side, it returns the enum constant name.
 	 * 
 	 * @param code

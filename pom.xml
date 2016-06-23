@@ -202,9 +202,9 @@
 
 		<!-- Default database access properties, shared by both Flyway and Hibernate (may be override in profiles) -->
 
-		<sigmah.database.url>jdbc:postgresql://localhost:5432/sigmah-dev</sigmah.database.url>
-		<sigmah.database.user>postgres</sigmah.database.user>
-		<sigmah.database.password>********</sigmah.database.password>
+		<sigmah.database.url>jdbc:postgresql://localhost:5432/sigmah</sigmah.database.url>
+		<sigmah.database.user>sigmah</sigmah.database.user>
+		<sigmah.database.password>sigmah</sigmah.database.password>
 
 		<!-- Hibernate properties. -->
 
@@ -1080,7 +1080,83 @@
                         </build>
 
                 </profile>
-		
+
+		<profile>
+			<id>sigmah-check-bundles-integrity</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.nuiton.i18n</groupId>
+						<artifactId>i18n-maven-plugin</artifactId>
+						<version>3.5</version>
+						<configuration>
+							<verbose>true</verbose>
+							<bundles>en_GB,es,fr</bundles>
+							<src>${basedir}/src/main/resources/org/sigmah/client/i18n</src>
+						</configuration>
+						<executions>
+							<execution>
+								<id>sigmah-check-bundle-1</id>
+								<goals>
+									<goal>check-bundles-integrity</goal>
+								</goals>
+								<phase>prepare-package</phase>
+								<configuration>
+									<artifactId>UIMessages</artifactId>
+								</configuration>
+							</execution>
+							<execution>
+								<id>sigmah-check-bundle-2</id>
+								<goals>
+									<goal>check-bundles-integrity</goal>
+								</goals>
+								<phase>prepare-package</phase>
+								<configuration>
+									<artifactId>UIConstants</artifactId>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+
+		<profile>
+			<!-- Profil qui doit être activé pour les builds de release -->
+			<id>sigmah-release-profile</id>
+			<activation>
+				<property>
+					<name>performRelease</name>
+					<value>true</value>
+				</property>
+			</activation>
+			<properties>
+				<!-- au release:perform, on ne souhaite pas déployer vers un dépôt d'artifact maven, on ne produit pas la javadoc car trop d'erreur de validation -->
+				<maven.deploy.skip>true</maven.deploy.skip>
+				<maven.javadoc.skip>true</maven.javadoc.skip>
+			</properties>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>de.jutzig</groupId>
+						<artifactId>github-release-plugin</artifactId>
+						<version>1.1.1</version>
+						<executions>
+							<execution>
+								<goals>
+									<goal>release</goal>
+								</goals>
+							</execution>
+						</executions>
+						<configuration>
+							<description>Sigmah ${project.version}</description>
+							<releaseName>${project.version}</releaseName>
+							<tag>${project.version}</tag>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
 	</profiles>
 
 </project>

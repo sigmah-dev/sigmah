@@ -62,7 +62,7 @@ public abstract class AbstractDAO<E extends Entity, K extends Serializable> exte
 	protected final Class<E> entityClass;
 
 	/**
-	 * Initializes a new AbstractDAO.<br/>
+	 * Initializes a new AbstractDAO.
 	 * Populates the {@link #entityClass} attribute.
 	 */
 	@SuppressWarnings("unchecked")
@@ -239,7 +239,7 @@ public abstract class AbstractDAO<E extends Entity, K extends Serializable> exte
 	// ------------------------------------------------------------------------------------------
 
 	/**
-	 * Executes the given JPQL or native SQL {@code updateQuery}.<br/>
+	 * Executes the given JPQL or native SQL {@code updateQuery}.
 	 * Checks the transaction before execution (see {@link #checkTransaction(EntityManager)}).
 	 * 
 	 * @param updateQuery
@@ -275,7 +275,7 @@ public abstract class AbstractDAO<E extends Entity, K extends Serializable> exte
 	}
 
 	/**
-	 * Returns the {@code java.sql.Connection} from the given {@code em}.<br/>
+	 * Returns the {@code java.sql.Connection} from the given {@code em}.
 	 * Entity manager is flushed if active transaction is running.
 	 * 
 	 * @param em

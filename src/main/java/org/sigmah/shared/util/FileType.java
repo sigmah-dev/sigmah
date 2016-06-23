@@ -87,11 +87,11 @@ public enum FileType {
 	 * Returns the current {@code FileType} extension value (with separator).
 	 * 
 	 * <pre>
-	 * FileType._DEFAULT.getExtension() -> "";
-	 * FileType.TXT.getExtension() -> ".txt";
-	 * FileType.DOCXML.getExtension() -> ".xml";
-	 * FileType.XML.getExtension() -> ".xml";
-	 * FileType.PDF.getExtension() -> ".pdf";
+	 * FileType._DEFAULT.getExtension() → "";
+	 * FileType.TXT.getExtension() → ".txt";
+	 * FileType.DOCXML.getExtension() → ".xml";
+	 * FileType.XML.getExtension() → ".xml";
+	 * FileType.PDF.getExtension() → ".pdf";
 	 * </pre>
 	 * 
 	 * @return the current {@code FileType} extension value (with extension separator).
@@ -104,12 +104,12 @@ public enum FileType {
 	 * Returns the current {@code FileType} extension value (with separator).
 	 * 
 	 * <pre>
-	 * FileType._DEFAULT.getExtension(true) -> "";
-	 * FileType._DEFAULT.getExtension(false) -> "";
-	 * FileType.TXT.getExtension(true) -> ".txt";
-	 * FileType.TXT.getExtension(false) -> "txt";
-	 * FileType.PDF.getExtension(true) -> ".pdf";
-	 * FileType.PDF.getExtension(false) -> "pdf";
+	 * FileType._DEFAULT.getExtension(true) → "";
+	 * FileType._DEFAULT.getExtension(false) → "";
+	 * FileType.TXT.getExtension(true) → ".txt";
+	 * FileType.TXT.getExtension(false) → "txt";
+	 * FileType.PDF.getExtension(true) → ".pdf";
+	 * FileType.PDF.getExtension(false) → "pdf";
 	 * </pre>
 	 * 
 	 * @param addExtensionSeparator
@@ -229,12 +229,12 @@ public enum FileType {
 	 * Retrieves the {@code FileType} from the given {@code extension}.
 	 * 
 	 * <pre>
-	 * fromExtension(null) -> null
-	 * fromExtension("") -> null
-	 * fromExtension("pdf") -> FileType.PDF
-	 * fromExtension(".pdf") -> FileType.PDF
-	 * fromExtension("  .pdf  ") -> FileType.PDF
-	 * fromExtension("toto") -> null
+	 * fromExtension(null) → null
+	 * fromExtension("") → null
+	 * fromExtension("pdf") → FileType.PDF
+	 * fromExtension(".pdf") → FileType.PDF
+	 * fromExtension("  .pdf  ") → FileType.PDF
+	 * fromExtension("toto") → null
 	 * </pre>
 	 * 
 	 * @param extension
@@ -250,12 +250,12 @@ public enum FileType {
 	 * If no known file type can be parsed, returns the given {@code defaultType}.
 	 * 
 	 * <pre>
-	 * fromExtension(null) -> (defaultType)
-	 * fromExtension("") -> (defaultType)
-	 * fromExtension("pdf") -> FileType.PDF
-	 * fromExtension(".pdf") -> FileType.PDF
-	 * fromExtension("  .pdf  ") -> FileType.PDF
-	 * fromExtension("toto") -> (defaultType)
+	 * fromExtension(null) → (defaultType)
+	 * fromExtension("") → (defaultType)
+	 * fromExtension("pdf") → FileType.PDF
+	 * fromExtension(".pdf") → FileType.PDF
+	 * fromExtension("  .pdf  ") → FileType.PDF
+	 * fromExtension("toto") → (defaultType)
 	 * </pre>
 	 * 
 	 * @param extension
@@ -282,18 +282,18 @@ public enum FileType {
 	}
 
 	/**
-	 * Builds the {@code String} describing given {@code fileTypes} extensions.<br/>
+	 * Builds the {@code String} describing given {@code fileTypes} extensions.
 	 * If {@code fileTypes} is {@code null} or empty, returns empty String.
 	 * 
 	 * <pre>
-	 * asExtensions(false, FileType.PDF, FileType.CSV) -> "*.pdf;*.csv"
-	 * asExtensions(true, FileType.PDF, FileType.CSV) -> "pdf, csv"
+	 * asExtensions(false, FileType.PDF, FileType.CSV) → "*.pdf;*.csv"
+	 * asExtensions(true, FileType.PDF, FileType.CSV) → "pdf, csv"
 	 * </pre>
 	 * 
 	 * @param description
-	 *          {@code true} to add {@code *.} before each file type extension.<br/>
-	 *          description = {@code false} -> {@code *.pdf}<br/>
-	 *          description = {@code true} -> {@code pdf}
+	 *          {@code true} to add {@code *.} before each file type extension.
+	 *          description = {@code false} → {@code *.pdf}
+	 *          description = {@code true} → {@code pdf}
 	 * @param fileTypes
 	 *          The {@code FileType} instances.
 	 * @return the {@code String} describing given {@code fileTypes} extensions.
@@ -320,11 +320,11 @@ public enum FileType {
 
 	/**
 	 * Retrieves the {@code FileType} collection corresponding to the given {@code extensions} (separated by {@code ","}
-	 * ).<br/>
+	 * ).
 	 * Unknown extensions are ignored.
 	 * 
 	 * <pre>
-	 * fromString(" csv,  jpeg,pdf, truc, txt") -> [FileType.CSV, FileType.JPEG, FileType.PDF, FileType.TXT]
+	 * fromString(" csv,  jpeg,pdf, truc, txt") → [FileType.CSV, FileType.JPEG, FileType.PDF, FileType.TXT]
 	 * </pre>
 	 * 
 	 * @param extensions
@@ -391,10 +391,10 @@ public enum FileType {
 	 * the dot.
 	 * 
 	 * <pre>
-	 * foo.txt      --> "txt"
-	 * a/b/c.jpg    --> "jpg"
-	 * a/b.txt/c    --> ""
-	 * a/b/c        --> ""
+	 * foo.txt      → "txt"
+	 * a/b/c.jpg    → "jpg"
+	 * a/b.txt/c    → ""
+	 * a/b/c        → ""
 	 * </pre>
 	 * <p>
 	 * The output will be the same irrespective of the machine that the code is running on.

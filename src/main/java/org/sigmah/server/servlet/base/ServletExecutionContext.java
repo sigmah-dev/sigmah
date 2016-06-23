@@ -36,7 +36,7 @@ import org.sigmah.shared.Language;
 public class ServletExecutionContext {
 
 	/**
-	 * Anonymous user representing a non-authenticated user.<br/>
+	 * Anonymous user representing a non-authenticated user.
 	 * Its <em>id</em> is {@code null}.
 	 */
 	public static final User ANONYMOUS_USER;

@@ -1,1 +1,13 @@
+# see https://docs.travis-ci.com/user/languages/java
+
 language: java
+
+# The build require a postgres instance, see https://docs.travis-ci.com/user/database-setup/
+services:
+  - postgresql
+addons:
+  postgresql: "9.3"
+before_script:
+  - psql --username postgres --command "CREATE ROLE sigmah LOGIN UNENCRYPTED PASSWORD 'sigmah';"
+  - psql --username postgres --command "CREATE DATABASE sigmah WITH OWNER = sigmah ENCODING = 'UTF8';"
+  - mvn flyway:migrate

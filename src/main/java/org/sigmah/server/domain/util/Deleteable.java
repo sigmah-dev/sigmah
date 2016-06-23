@@ -30,7 +30,7 @@ package org.sigmah.server.domain.util;
 public interface Deleteable {
 
 	/**
-	 * Marks this current element as deleted.<br/>
+	 * Marks this current element as deleted.
 	 * The row is not removed from the database.
 	 */
 	void delete();

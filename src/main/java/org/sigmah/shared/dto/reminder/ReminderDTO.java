@@ -59,7 +59,7 @@ public class ReminderDTO extends AbstractModelDataEntityDTO<Integer> {
 	public static final String HISTORY = "history";
 
 	/**
-	 * Project name& code used for reminder in dashboard.
+	 * Project name and code used for reminder in dashboard.
 	 */
 	public static final String PROJECT_ID = "projectId";
     public static final String PROJECT_NAME = "projectName";

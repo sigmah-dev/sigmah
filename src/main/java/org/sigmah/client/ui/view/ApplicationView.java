@@ -77,7 +77,7 @@ public class ApplicationView implements ApplicationPresenter.View, HasPageMessag
 	 * </p>
 	 * <p>
 	 * Slightly edited version of {@link com.extjs.gxt.ui.client.widget.Viewport} that do not necessarily span to the
-	 * entire page dimensions.<br/>
+	 * entire page dimensions.
 	 * A simple inheritance is not possible due to {@link #onAttach()} method implementation.
 	 * </p>
 	 * 

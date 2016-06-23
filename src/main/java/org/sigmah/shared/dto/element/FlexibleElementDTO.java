@@ -177,7 +177,7 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 
 	/**
 	 * Method called just before the {@link FlexibleElementDTO#getElementComponent(ValueResult)} method to ensure the
-	 * instantiation of the attributes used by the client-side.<br/>
+	 * instantiation of the attributes used by the client-side.
 	 * This method can be override by subclasses.
 	 */
 	public void init() {
@@ -385,7 +385,7 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 	/**
 	 * Returns <code>true</code> if the current user is allowed to perform
 	 * the given change type on the given project.
-	 * <br/>
+	 *
 	 * The default implementation checks for the 
 	 * {@link GlobalPermissionEnum#EDIT_PROJECT} right and to the current
 	 * amendment state.
@@ -428,7 +428,7 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 	/**
 	 * Returns <code>true</code> if the current user is allowed to perform
 	 * the given change type on the given organization unit.
-	 * <br/>
+	 *
 	 * For organization units, the default implementation only checks for the
 	 * {@link GlobalPermissionEnum#EDIT_ORG_UNIT} right.
 	 * 

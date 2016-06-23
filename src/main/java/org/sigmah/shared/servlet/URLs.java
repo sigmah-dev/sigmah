@@ -49,7 +49,7 @@ public final class URLs {
 	 * @param url
 	 *          The URL to test.
 	 * @param callback
-	 *          The callback.<br/>
+	 *          The callback.
 	 *          Available results (depending on the response status code):
 	 *          <ul>
 	 *          <li><strong>200</strong> : {@code AsyncCallback#onSuccess(true)};</li>

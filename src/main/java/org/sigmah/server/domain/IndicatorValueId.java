@@ -30,7 +30,7 @@ import org.sigmah.server.domain.util.EntityConstants;
 
 /**
  * <p>
- * Indicator value composite id.<br/>
+ * Indicator value composite id.
  * Not an entity.
  * </p>
  * 

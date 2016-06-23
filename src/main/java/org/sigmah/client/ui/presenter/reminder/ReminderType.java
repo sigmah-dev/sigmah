@@ -75,7 +75,7 @@ public enum ReminderType {
 	 * Returns the given {@code dto} corresponding {@link ReminderType}.
 	 * 
 	 * @param dto
-	 *          The DTO value.<br/>
+	 *          The DTO value.
 	 *          Only {@link ReminderDTO} and {@link MonitoredPointDTO} are supported.
 	 * @return The given {@code dto} corresponding {@link ReminderType}, or {@code null} if {@code dto} is {@code null}.
 	 */

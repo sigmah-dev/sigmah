@@ -147,7 +147,7 @@ public class UpdateUserPermissionsHandler extends AbstractCommandHandler<UpdateU
 
 	/**
 	 * Verifies that the user executing the command has the permission to do assign these permissions.
-	 * <p/>
+	 *
 	 * Static and visible for testing
 	 * 
 	 * @param cmd

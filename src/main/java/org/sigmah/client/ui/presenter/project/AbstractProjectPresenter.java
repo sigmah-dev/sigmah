@@ -42,7 +42,7 @@ import org.sigmah.client.ui.notif.N10N;
 import org.sigmah.shared.dispatch.NotCachedException;
 
 /**
- * Project's presenters abstract code.<br/>
+ * Project's presenters abstract code.
  * This super-class assumes that all inherited classes are a sub-presenter of {@link ProjectPresenter}. Can be changed
  * by overriding the {@link #getParentPresenter()} method.
  * 

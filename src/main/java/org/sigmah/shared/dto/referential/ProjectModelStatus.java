@@ -78,7 +78,7 @@ public enum ProjectModelStatus implements Result {
 	}
 
 	/**
-	 * Returns the given {@code status} corresponding {@code ProjectModelStatus} instance.<br/>
+	 * Returns the given {@code status} corresponding {@code ProjectModelStatus} instance.
 	 * Default returned value is {@link #DRAFT}.
 	 * 
 	 * @param status

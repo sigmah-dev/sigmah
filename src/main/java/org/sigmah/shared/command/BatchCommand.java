@@ -36,14 +36,14 @@ import org.sigmah.shared.command.result.Result;
 /**
  *
  * Executes a batch of commands atomically.
- * <p/>
+ *
  * Unlike sending multiple commands to the server using
  * {@link org.sigmah.shared.command.RemoteCommandService#execute(String, java.util.List)},
  * the commands in the given list are guaranted to be executed in sequence and within
  * a single transaction. If one command fails, all commands will be rolled back and the
  * BatchCommand will fail.
- * <p/>
- * Returns {@link org.sigmah.shared.command.result.ListResult&lt;Result&gt;}
+ *
+ * Returns {@link org.sigmah.shared.command.result.ListResult<Result>}
  *
  * @author Alexander Bertram (akbertram@gmail.com)
  */

@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Set;
 import org.sigmah.server.domain.User;
 import org.sigmah.shared.dto.pivot.content.FilterDescription;
+import org.sigmah.shared.dto.pivot.model.Report;
 import org.sigmah.shared.dto.pivot.model.ReportElement;
 import org.sigmah.shared.dto.referential.DimensionType;
 import org.sigmah.shared.util.DateRange;
@@ -49,9 +50,9 @@ public abstract class BaseGenerator<T extends ReportElement> implements ContentG
      * Resolves an element's filter into a the effective filter, taking into
      * account inherited restrictions and the overall <code>DateRange</code> of the
      * report.
-     * <p/>
+     *
      * Interaction between the report's date range <code>DateRange</code> and the
-     * element's filter is specified in {@link org.sigmah.shared.report.model.ReportElement#getFilter()}
+     * element's filter is specified in {@link ReportElement#getFilter()}
      *
      * @param element         The report element for which to resolve the filter
      * @param inheritedFilter The <code>Filter</code> that is inherited from the enclosing <code>Report</code> or other container
@@ -120,7 +121,7 @@ public abstract class BaseGenerator<T extends ReportElement> implements ContentG
      * @param range    The date range of the report
      * @param user     The user for whom the report will be generated (required for the locale)
      * @return The resolved file name
-     * @see org.sigmah.shared.report.model.Report#getFileName()
+     * @see Report#getFileName()
      */
     protected String resolveTemplate(String template, DateRange range, User user) {
 

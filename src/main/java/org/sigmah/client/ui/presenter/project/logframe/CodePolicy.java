@@ -36,14 +36,14 @@ public final class CodePolicy {
 
 	/**
 	 * Gets the character indexed by the given <code>index</code> in the alphabet. Indexes start at <code>0</code> and
-	 * ends at <code>25</code>.<br/>
-	 * <br/>
+	 * ends at <code>25</code>.
+	 *
 	 * <ul>
-	 * <li>0 -> a</li>
-	 * <li>1 -> b</li>
-	 * <li>2 -> c</li>
+	 * <li>0 → a</li>
+	 * <li>1 → b</li>
+	 * <li>2 → c</li>
 	 * <li>...</li>
-	 * <li>25 -> z</li>
+	 * <li>25 → z</li>
 	 * </ul>
 	 * 
 	 * @param index
@@ -58,14 +58,14 @@ public final class CodePolicy {
 
 	/**
 	 * Gets the character indexed by the given <code>index</code> in the alphabet. Indexes start at <code>start</code> and
-	 * ends at <code>start + 25</code>.<br/>
-	 * <br/>
+	 * ends at <code>start + 25</code>.
+	 *
 	 * <ul>
-	 * <li>start -> a</li>
-	 * <li>start + 1 -> b</li>
-	 * <li>start + 2 -> c</li>
+	 * <li>start → a</li>
+	 * <li>start + 1 → b</li>
+	 * <li>start + 2 → c</li>
 	 * <li>...</li>
-	 * <li>start + 25 -> z</li>
+	 * <li>start + 25 → z</li>
 	 * </ul>
 	 * 
 	 * @param index

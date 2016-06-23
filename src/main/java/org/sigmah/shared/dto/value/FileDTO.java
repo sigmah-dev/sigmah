@@ -90,7 +90,7 @@ public class FileDTO extends AbstractModelDataEntityDTO<Integer> implements List
 		}
 
 		/**
-		 * Returns the given {@code scope} corresponding i18n name.<br/>
+		 * Returns the given {@code scope} corresponding i18n name.
 		 * This method should be executed from client-side. If executed from server-side, it returns the enum constant name.
 		 * 
 		 * @param scope

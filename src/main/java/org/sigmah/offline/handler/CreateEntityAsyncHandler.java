@@ -58,7 +58,7 @@ import org.sigmah.shared.dto.report.ProjectReportDTO;
 /**
  * JavaScript implementation of {@link org.sigmah.server.handler.CreateEntityHandler}.
  * Used when the user is offline.
- * <p/>
+ *
  * Server-side, this handler is used as a generic handler to create entities.
  * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)

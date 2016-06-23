@@ -63,7 +63,7 @@ public class PasswordManagementCommandHandler extends AbstractCommandHandler<Pas
 
 	/**
 	 * <p>
-	 * Timeout for "<em>change password</em>" tokens (in seconds).<br/>
+	 * Timeout for "<em>change password</em>" tokens (in seconds).
 	 * After this amount of time, token becomes invalid.
 	 * </p>
 	 * <p>

@@ -122,7 +122,7 @@ public class CsvImporter extends Importer {
 	
 	/**
 	 * Read fully the given input stream and return it as a <code>String</code>.
-	 * <p/>
+	 *
 	 * The input stream is not closed by this method.
 	 * 
 	 * @param inputStream 

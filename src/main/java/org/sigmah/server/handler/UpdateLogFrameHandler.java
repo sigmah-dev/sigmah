@@ -95,7 +95,7 @@ public class UpdateLogFrameHandler extends AbstractCommandHandler<UpdateLogFrame
 
 	/**
 	 * Update the given log frame with the data contained in the DTO.
-	 * <p/>
+	 *
 	 * Executed in a transaction.
 	 * 
 	 * @param logFrame

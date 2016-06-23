@@ -46,10 +46,10 @@ public final class Panels {
 	 * Builds a new {@link ContentPanel} with default {@link FitLayout} that is not collapsible.
 	 * 
 	 * @param title
-	 *          The panel header title (html is supported).<br/>
+	 *          The panel header title (html is supported).
 	 *          If {@code null}, header is disabled and automatically hidden.
 	 * @param stylenames
-	 *          (optional) Style names added to the panel component.<br/>
+	 *          (optional) Style names added to the panel component.
 	 *          {@code null} values are ignored.
 	 * @return The {@link ContentPanel} instance.
 	 * @see ContentPanel
@@ -64,12 +64,12 @@ public final class Panels {
 	 * Builds a new {@link ContentPanel} with default {@link FitLayout}.
 	 * 
 	 * @param title
-	 *          The panel header title (html is supported).<br/>
+	 *          The panel header title (html is supported).
 	 *          If {@code null}, header is disabled and automatically hidden.
 	 * @param collapsible
 	 *          {@code true} to set the panel collapsible (expand/collapse toggle button).
 	 * @param stylenames
-	 *          (optional) Style names added to the panel component.<br/>
+	 *          (optional) Style names added to the panel component.
 	 *          {@code null} values are ignored.
 	 * @return The {@link ContentPanel} instance.
 	 * @see ContentPanel
@@ -84,12 +84,12 @@ public final class Panels {
 	 * Builds a new {@link ContentPanel} with default {@link FitLayout}.
 	 * 
 	 * @param title
-	 *          The panel header title (html is supported).<br/>
+	 *          The panel header title (html is supported).
 	 *          If {@code null}, header is disabled and automatically hidden.
 	 * @param scroll
 	 *          The {@link Scroll} configuration. If {@code null}, no scroll is set.
 	 * @param stylenames
-	 *          (optional) Style names added to the panel component.<br/>
+	 *          (optional) Style names added to the panel component.
 	 *          {@code null} values are ignored.
 	 * @return The {@link ContentPanel} instance.
 	 * @see ContentPanel
@@ -104,12 +104,12 @@ public final class Panels {
 	 * Builds a new {@link ContentPanel} with the given {@code layout}.
 	 * 
 	 * @param title
-	 *          The panel header title (html is supported).<br/>
+	 *          The panel header title (html is supported).
 	 *          If {@code null}, header is disabled and automatically hidden.
 	 * @param layout
 	 *          The panel layout. If {@code null}, default {@link FitLayout} is set.
 	 * @param stylenames
-	 *          (optional) Style names added to the panel component.<br/>
+	 *          (optional) Style names added to the panel component.
 	 *          {@code null} values are ignored.
 	 * @return The {@link ContentPanel} instance.
 	 * @see ContentPanel
@@ -124,14 +124,14 @@ public final class Panels {
 	 * Builds a new {@link ContentPanel}.
 	 * 
 	 * @param title
-	 *          The panel header title (html is supported).<br/>
+	 *          The panel header title (html is supported).
 	 *          If {@code null}, header is disabled and automatically hidden.
 	 * @param collapsible
 	 *          {@code true} to set the panel collapsible (expand/collapse toggle button).
 	 * @param layout
 	 *          The panel layout. If {@code null}, default {@link FitLayout} is set.
 	 * @param stylenames
-	 *          (optional) Style names added to the panel component.<br/>
+	 *          (optional) Style names added to the panel component.
 	 *          {@code null} values are ignored.
 	 * @return The {@link ContentPanel} instance.
 	 * @see ContentPanel
@@ -146,7 +146,7 @@ public final class Panels {
 	 * Builds a new {@link ContentPanel}.
 	 * 
 	 * @param title
-	 *          The panel header title (html is supported).<br/>
+	 *          The panel header title (html is supported).
 	 *          If {@code null}, header is disabled and automatically hidden.
 	 * @param collapsible
 	 *          {@code true} to set the panel collapsible (expand/collapse toggle button).
@@ -155,7 +155,7 @@ public final class Panels {
 	 * @param scroll
 	 *          The {@link Scroll} configuration. If {@code null}, no scroll is set.
 	 * @param stylenames
-	 *          (optional) Style names added to the panel component.<br/>
+	 *          (optional) Style names added to the panel component.
 	 *          {@code null} values are ignored.
 	 * @return The {@link ContentPanel} instance.
 	 * @see ContentPanel
@@ -192,7 +192,7 @@ public final class Panels {
 	 * Builds a new {@link TabPanel} with default transparent background.
 	 * 
 	 * @param stylenames
-	 *          (optional) Style names added to the panel content component.<br/>
+	 *          (optional) Style names added to the panel content component.
 	 *          {@code null} values are ignored.
 	 * @return The {@link TabPanel} instance.
 	 * @see TabPanel

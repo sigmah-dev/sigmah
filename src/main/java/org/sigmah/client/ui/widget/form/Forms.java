@@ -107,7 +107,7 @@ public final class Forms {
 
 	/**
 	 * <p>
-	 * Default forms panels right padding (in pixels).<br/>
+	 * Default forms panels right padding (in pixels).
 	 * This specific right padding is used to properly display fields error icons.
 	 * </p>
 	 */
@@ -122,7 +122,7 @@ public final class Forms {
 	 * Builds a new {@link org.sigmah.client.ui.widget.form.FormPanel} with default {@link FormLayout}.
 	 * 
 	 * @param stylenames
-	 *          (optional) Style names added to the panel component.<br/>
+	 *          (optional) Style names added to the panel component.
 	 *          {@code null} values are ignored.
 	 * @return The {@link org.sigmah.client.ui.widget.form.FormPanel} instance.
 	 */
@@ -137,7 +137,7 @@ public final class Forms {
 	 * @param labelWidth
 	 *          The width of the form fields labels.
 	 * @param stylenames
-	 *          (optional) Style names added to the panel component.<br/>
+	 *          (optional) Style names added to the panel component.
 	 *          {@code null} values are ignored.
 	 * @return The {@link org.sigmah.client.ui.widget.form.FormPanel} instance.
 	 */
@@ -154,7 +154,7 @@ public final class Forms {
 	 * @param fieldWidth
 	 *          The width of the form fields. Set a default value if {@code null}.
 	 * @param stylenames
-	 *          (optional) Style names added to the panel component.<br/>
+	 *          (optional) Style names added to the panel component.
 	 *          {@code null} values are ignored.
 	 * @return The {@link org.sigmah.client.ui.widget.form.FormPanel} instance.
 	 */
@@ -167,7 +167,7 @@ public final class Forms {
 	 * Builds a new {@link org.sigmah.client.ui.widget.form.FormPanel} with default {@link FormLayout}.
 	 * 
 	 * @param title
-	 *          The panel header title (html is supported).<br/>
+	 *          The panel header title (html is supported).
 	 *          If {@code null}, header is disabled and automatically hidden.
 	 * @param collapsible
 	 *          {@code true} to set the panel collapsible (expand/collapse toggle button).
@@ -176,7 +176,7 @@ public final class Forms {
 	 * @param fieldWidth
 	 *          The width of the form fields. Set a default value if {@code null}.
 	 * @param stylenames
-	 *          (optional) Style names added to the panel component.<br/>
+	 *          (optional) Style names added to the panel component.
 	 *          {@code null} values are ignored.
 	 * @return The {@link org.sigmah.client.ui.widget.form.FormPanel} instance.
 	 */
@@ -230,7 +230,7 @@ public final class Forms {
 	 * @param fieldWidth
 	 *          The width of the form fields. Set a default value if {@code null}.
 	 * @param stylenames
-	 *          (optional) Style names added to the layout.<br/>
+	 *          (optional) Style names added to the layout.
 	 *          {@code null} values are ignored.
 	 * @return The {@link FormLayout} instance.
 	 */

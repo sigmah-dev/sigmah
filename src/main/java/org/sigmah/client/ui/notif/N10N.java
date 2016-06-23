@@ -34,8 +34,8 @@ import org.sigmah.client.util.ClientUtils;
 import org.sigmah.client.util.MessageType;
 
 /**
- * Displays messages, notifications.<br/>
- * <br/>
+ * Displays messages, notifications.
+ *
  * N10N: Notifications.
  * 
  * @author Tom Miette (tmiette@ideia.fr)

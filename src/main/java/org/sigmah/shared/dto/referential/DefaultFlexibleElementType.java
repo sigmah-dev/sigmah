@@ -46,7 +46,7 @@ public enum DefaultFlexibleElementType implements Result, LogicalElementType {
 	ORG_UNIT;
 
 	/**
-	 * Returns the given {@code flexibleElementType} corresponding name.<br/>
+	 * Returns the given {@code flexibleElementType} corresponding name.
 	 * This method should be executed from client-side. If executed from server-side, it returns the enum constant name.
 	 * 
 	 * @param flexibleElementType

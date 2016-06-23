@@ -26,7 +26,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 import java.io.Serializable;
 
 /**
- * Interface implemented by all dispatch commands results.<br/>
+ * Interface implemented by all dispatch commands results.
  * Ensures that command results implement {@code IsSerializable}.
  * 
  * @author Denis Colliot (dcolliot@ideia.fr)

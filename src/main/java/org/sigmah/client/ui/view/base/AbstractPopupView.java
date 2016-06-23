@@ -48,7 +48,7 @@ public abstract class AbstractPopupView<P extends IsPopupWidget> implements View
 	 * Visible pop-ups views.
 	 * </p>
 	 * <p>
-	 * Using a {@link Set} ensures pop-up views references uniqueness.<br/>
+	 * Using a {@link Set} ensures pop-up views references uniqueness.
 	 * {@link #equals(Object)} and {@link #hashCode()} methods should not be overridden (declared as {@code final}).
 	 * </p>
 	 */

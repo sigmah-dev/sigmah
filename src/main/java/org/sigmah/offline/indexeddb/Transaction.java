@@ -31,7 +31,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
  * IndexedDB Transaction.
- * <p/>
+ *
  * Active only while operations are done on the transaction. Closed
  * automatically when unused.
  * 

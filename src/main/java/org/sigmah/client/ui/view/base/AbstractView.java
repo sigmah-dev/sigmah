@@ -35,7 +35,7 @@ import com.google.gwt.user.client.ui.Widget;
 
 /**
  * <p>
- * Default abstract view.<br/>
+ * Default abstract view.
  * The abstract view uses a default {@link BorderLayout} container to layout its component(s).
  * </p>
  * <p>
@@ -66,7 +66,7 @@ public abstract class AbstractView implements ViewInterface {
 	}
 
 	/**
-	 * Adds the given {@code widget} into the <b>center</b> region of the parent layout.<br/>
+	 * Adds the given {@code widget} into the <b>center</b> region of the parent layout.
 	 * To specify another region, see {@link #add(IsWidget, BorderLayoutData)}.
 	 * 
 	 * @param widget

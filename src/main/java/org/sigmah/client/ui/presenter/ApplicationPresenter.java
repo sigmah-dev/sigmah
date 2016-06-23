@@ -55,10 +55,10 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 /**
- * Application presenter.<br/>
+ * Application presenter.
  * This is the main presenter in charge of displaying the page that the user is navigating to using
- * {@link #showPresenter(Presenter)} method.<br/>
- * <br/>
+ * {@link #showPresenter(Presenter)} method.
+ *
  * The application presenter is also in charge of displaying the application message (if one is defined).
  * 
  * @author Denis Colliot (dcolliot@ideia.fr)
@@ -275,7 +275,7 @@ public class ApplicationPresenter extends AbstractPresenter<ApplicationPresenter
 	}
 
 	/**
-	 * Updates page title. Can be used to update title after asynchronous data loading for example.<br/>
+	 * Updates page title. Can be used to update title after asynchronous data loading for example.
 	 * The title area is automatically hidden if the given {@code pageTitle} is invalid.
 	 * 
 	 * @param pageTitle

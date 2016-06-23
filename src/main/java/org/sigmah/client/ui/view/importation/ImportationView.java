@@ -44,7 +44,7 @@ import org.sigmah.shared.dto.value.FileUploadUtils;
 
 /**
  * View of {@link ImportationPresenter}.
- * <p/>
+ *
  * This view is a popup that contains a a file selector and a combo box to 
  * select the import scheme to use.
  * 

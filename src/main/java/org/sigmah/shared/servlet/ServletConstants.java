@@ -130,7 +130,7 @@ public final class ServletConstants {
 	 * </p>
 	 * <p>
 	 * If a new servlet is served by the application, its methods must be added here in order to be accessed by
-	 * client-side.<br/>
+	 * client-side.
 	 * Methods names must be unique.
 	 * </p>
 	 * 
@@ -311,7 +311,7 @@ public final class ServletConstants {
 		EXPORT_MODEL_REPORT("exportReportModel"),
 
 		/**
-		 * <pr> Model Project Export</p>
+		 * <p> Model Project Export</p>
 		 * <p>
 		 * Expected request parameter(s):
 		 * <ul>
@@ -514,13 +514,13 @@ public final class ServletConstants {
 	public static final String ORIGIN_PAGE_TOKEN = "_s_op";
 
 	/**
-	 * Servlet parameter key referencing random value.<br/>
+	 * Servlet parameter key referencing random value.
 	 * Avoids cache related issues.
 	 */
 	static final String RANDOM = "_s_ra";
 
 	/**
-	 * Servlet parameter key referencing ajax request flag.<br/>
+	 * Servlet parameter key referencing ajax request flag.
 	 * Allows server-side servlet to detect ajax call from regular access.
 	 */
 	public static final String AJAX = "_s_aj";

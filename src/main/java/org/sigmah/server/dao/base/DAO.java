@@ -165,7 +165,7 @@ public interface DAO<E extends Entity, K extends Serializable> {
 	 * </p>
 	 * <p>
 	 * If the {@code primaryKey} corresponding entity is a {@link Deleteable} instance, its {@link Deleteable#delete()}
-	 * method is executed and a <b>logical</b> deletion is processed.<br/>
+	 * method is executed and a <b>logical</b> deletion is processed.
 	 * Otherwise, a <b>physical</b> deletion action is processed.
 	 * </p>
 	 * 
@@ -182,7 +182,7 @@ public interface DAO<E extends Entity, K extends Serializable> {
 	 * </p>
 	 * <p>
 	 * If the {@code entity} is a {@link Deleteable} instance, its {@link Deleteable#delete()} method is executed and a
-	 * <b>logical</b> deletion is processed.<br/>
+	 * <b>logical</b> deletion is processed.
 	 * Otherwise, a <b>physical</b> deletion action is processed.
 	 * </p>
 	 * 
@@ -199,7 +199,7 @@ public interface DAO<E extends Entity, K extends Serializable> {
 	 * </p>
 	 * <p>
 	 * If the {@code primaryKey} corresponding entity is a {@link Deleteable} instance, its {@link Deleteable#delete()}
-	 * method is executed and a <b>logical</b> deletion is processed.<br/>
+	 * method is executed and a <b>logical</b> deletion is processed.
 	 * Otherwise, a <b>physical</b> deletion action is processed.
 	 * </p>
 	 * 
@@ -216,7 +216,7 @@ public interface DAO<E extends Entity, K extends Serializable> {
 	 * </p>
 	 * <p>
 	 * If the {@code entity} is a {@link Deleteable} instance, its {@link Deleteable#delete()} method is executed and a
-	 * <b>logical</b> deletion is processed.<br/>
+	 * <b>logical</b> deletion is processed.
 	 * Otherwise, a <b>physical</b> deletion action is processed.
 	 * </p>
 	 * 

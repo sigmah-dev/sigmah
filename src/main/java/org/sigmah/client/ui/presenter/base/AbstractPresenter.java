@@ -51,7 +51,7 @@ import com.google.inject.Inject;
  * <li>Create a new class inheriting {@link AbstractPresenter} with {@link com.google.inject.Singleton} annotation or
  * not, depending on its uniqueness.</li>
  * <li>Define an inner <em>static</em> interface representing the presenter's view. This interface must have the
- * {@link com.google.inject.ImplementedBy} annotation referencing the view implementation (<u>crucial</u>).<br/>
+ * {@link com.google.inject.ImplementedBy} annotation referencing the view implementation (<u>crucial</u>).
  * See {@link AbstractView} javadoc to initialize the view implementation.</li>
  * <li>Add an accessor to the presenter into client-side {@link Injector} and call it into {@link Sigmah#onModuleLoad()}
  * entry point in order to register presenter.</li>
@@ -98,7 +98,7 @@ public abstract class AbstractPresenter<V extends ViewInterface> implements Pres
 	protected final DispatchAsync dispatch;
 
 	/**
-	 * Flag indicating if the presenter has already been initialized.<br/>
+	 * Flag indicating if the presenter has already been initialized.
 	 * Each presenter is initialized only once.
 	 */
 	private boolean initialized;

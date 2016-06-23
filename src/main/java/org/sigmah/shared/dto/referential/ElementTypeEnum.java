@@ -76,7 +76,7 @@ public enum ElementTypeEnum implements LogicalElementType {
 	private static final String ROOT_PACKAGE = "org.sigmah.server.domain.element.";
 
 	/**
-	 * Returns the given {@code elementType} corresponding name value.<br/>
+	 * Returns the given {@code elementType} corresponding name value.
 	 * This method should be executed from client-side. If executed from server-side, it returns a default name.
 	 * 
 	 * @param elementType

@@ -360,7 +360,7 @@ public class DispatchQueue {
 	}
 
 	/**
-	 * Method executed once <b>all</b> executed commands are complete (success or error).<br/>
+	 * Method executed once <b>all</b> executed commands are complete (success or error).
 	 * <em>Can be overridden by custom implementation (default implementation does nothing).</em>
 	 */
 	protected void onComplete() {

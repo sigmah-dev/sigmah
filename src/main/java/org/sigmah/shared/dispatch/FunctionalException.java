@@ -105,7 +105,7 @@ public class FunctionalException extends CommandException {
 		// --
 		
 		/**
-		 * Cannot create a new archive file. <br/>
+		 * Cannot create a new archive file.
 		 * {0} = Archive path.
 		 */
 		ADMIN_BACKUP_ARCHIVE_CREATION_FAILED,
@@ -115,8 +115,8 @@ public class FunctionalException extends CommandException {
 		// --
 		
 		/**
-		 * A conflict happened while modifying a project. <br/>
-		 * Parameters:<br/>
+		 * A conflict happened while modifying a project.
+		 * Parameters:
 		 * - a list of error messages.
 		 */
 		UPDATE_CONFLICT,
@@ -141,7 +141,7 @@ public class FunctionalException extends CommandException {
 	}
 
 	/**
-	 * Returns the functional exception message.<br/>
+	 * Returns the functional exception message.
 	 * Method {@link FunctionalException#getParameter(int)} can be used to populate message dynamic parameters.
 	 * 
 	 * @param exception
@@ -198,7 +198,7 @@ public class FunctionalException extends CommandException {
 	}
 	
 	/**
-	 * Returns the functional exception title.<br/>
+	 * Returns the functional exception title.
 	 * Method {@link FunctionalException#getParameter(int)} can be used to populate title dynamic parameters.
 	 * 
 	 * @param exception
@@ -237,7 +237,7 @@ public class FunctionalException extends CommandException {
 	private ErrorCode errorCode;
 
 	/**
-	 * The error message relative parameters. Can be {@code null}.<br/>
+	 * The error message relative parameters. Can be {@code null}.
 	 * They are used to populate dynamic message parameters (be careful with order).
 	 */
 	protected String[] parameters;

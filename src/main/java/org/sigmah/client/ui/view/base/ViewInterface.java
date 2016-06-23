@@ -35,13 +35,13 @@ import com.google.gwt.user.client.ui.IsWidget;
 public interface ViewInterface extends IsWidget {
 
 	/**
-	 * Initializes the view components.<br/>
+	 * Initializes the view components.
 	 * <b>Executed only one time on first load.</b>
 	 */
 	void initialize();
 
 	/**
-	 * View revealed callback.<br/>
+	 * View revealed callback.
 	 * <b>Executed each time the view is revealed.</b>
 	 */
 	void onViewRevealed();

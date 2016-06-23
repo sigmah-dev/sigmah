@@ -24,7 +24,7 @@ package org.sigmah.offline.indexeddb;
 
 /**
  * Types of DOMError used by IndexedDB.
- * <p/>
+ *
  * Comments taken from {@code http://www.w3.org/TR/IndexedDB/#exceptions}.
  * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)

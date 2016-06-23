@@ -239,7 +239,7 @@ public enum Page implements IsSerializable {
 	}
 
 	/**
-	 * Sets the page title.<br/>
+	 * Sets the page title.
 	 * If not {@code null}, this value will be returned by {@link #getTitle(Page)} method.
 	 * 
 	 * @param pageTitle

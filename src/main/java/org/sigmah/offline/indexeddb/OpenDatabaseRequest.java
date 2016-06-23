@@ -33,7 +33,7 @@ import org.sigmah.offline.event.JavaScriptEvent;
 public interface OpenDatabaseRequest<S extends Enum<S> & Schema> {
 	/**
 	 * Retrieve the opened database instance.
-	 * <p/>
+	 *
 	 * Returned value is null during the opening.
 	 * 
 	 * @return Instance of the opened database or <code>null</code> while loading.

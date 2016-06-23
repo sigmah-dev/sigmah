@@ -304,7 +304,7 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 	}
 	
 	/**
-	 * Creates a text field. <br/>
+	 * Creates a text field.
 	 * This method is shared between the code and the title fields.
 	 * 
 	 * @param label Label of the field.
@@ -378,7 +378,7 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 	}
 	
 	/**
-	 * Creates a date field. <br/>
+	 * Creates a date field.
 	 * This method is shared between the start date and the end date fields.
 	 * 
 	 * @param label Label of the field.
@@ -534,7 +534,7 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 	}
 	
 	/**
-	 * Creates the owner field. <br/>
+	 * Creates the owner field.
 	 * This field is always read-only.
 	 * 
 	 * @param firstName First name of the owner.
@@ -546,7 +546,7 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 	}
 	
 	/**
-	 * Creates the owner field. <br/>
+	 * Creates the owner field.
 	 * This field is always read-only.
 	 * 
 	 * @param fullName Full name of the owner.

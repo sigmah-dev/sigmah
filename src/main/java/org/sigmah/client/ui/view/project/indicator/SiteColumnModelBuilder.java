@@ -59,7 +59,7 @@ import org.sigmah.shared.util.Filter;
 /**
  * Helper class that builds the ColumnModel for the SiteGrid, based 
  * on the provided filter.
- * <p/>
+ *
  * Migration Note: this file has been migrated (almost) as is. It does not follow
  * the 2.0 convention because of its "temporary" nature (as requested by Olivier Sarrat).
  * 

@@ -73,7 +73,7 @@ public final class Servlets {
 	}
 
 	/**
-	 * Returns the given {@code user} corresponding <em>loggable</em> string.<br/>
+	 * Returns the given {@code user} corresponding <em>loggable</em> string.
 	 * If the {@code user} is {@code null}, the method returns "<em>unknow</em>" value.
 	 * 
 	 * @param user
@@ -125,8 +125,8 @@ public final class Servlets {
 	 * Returns the given {@code displayed} corresponding CSS {@code display} property value.
 	 * 
 	 * <pre>
-	 * cssDisplay(true) -> 'block'
-	 * cssDisplay(false) -> 'none'
+	 * cssDisplay(true) → 'block'
+	 * cssDisplay(false) → 'none'
 	 * </pre>
 	 * 
 	 * @param displayed

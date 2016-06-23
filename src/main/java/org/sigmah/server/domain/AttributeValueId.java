@@ -32,7 +32,7 @@ import org.sigmah.server.domain.util.EntityConstants;
 
 /**
  * <p>
- * Attribute value id - Composite primary key for {@link AttributeValue}.<br/>
+ * Attribute value id - Composite primary key for {@link AttributeValue}.
  * Not an entity.
  * </p>
  * 

@@ -29,7 +29,7 @@ import org.sigmah.offline.event.JavaScriptEvent;
 
 /**
  * Open request done on an already opened database.
- * <p/>
+ *
  * Reuse the given database instance instead of creating a new connection.
  * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)

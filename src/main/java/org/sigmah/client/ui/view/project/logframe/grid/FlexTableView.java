@@ -386,7 +386,7 @@ public class FlexTableView {
 	 * 
 	 * @param position
 	 *          The position at which the group will be inserted among the groups list (for example, a index equals to
-	 *          <code>2</code> means that the group will be the second one).<br/>
+	 *          <code>2</code> means that the group will be the second one).
 	 *          If this index is lower or equal than <code>0</code>, the group will be the first one. An index greater
 	 *          than the number of group will insert the group at the last position.
 	 * @param group
@@ -460,12 +460,12 @@ public class FlexTableView {
 
 	/**
 	 * Gets the index at which a group must be inserted to be at the given position. This index <strong>does'nt</strong>
-	 * consider the shift.<br/>
+	 * consider the shift.
 	 * Use the {@link FlexTableView#insertTableRow(int)} method to insert a row considering the shift.
 	 * 
 	 * @param position
 	 *          The position at which the group will be inserted among the groups list (for example, a index equals to
-	 *          <code>2</code> means that the group will be the second one).<br/>
+	 *          <code>2</code> means that the group will be the second one).
 	 *          If this index is lower or equal than <code>0</code>, the group will be the first one. An index greater
 	 *          than the number of group will insert the group at the last position.
 	 * @see FlexTableView#insertTableRow(int)
@@ -628,7 +628,7 @@ public class FlexTableView {
 	 *          The type of the user object contained in this row.
 	 * @param position
 	 *          The row position in its group (for example, a index equals to <code>2</code> means that the row will be
-	 *          the second one in its group).<br/>
+	 *          the second one in its group).
 	 *          If this index is lower or equal than <code>0</code>, the row will be the first one. An index greater than
 	 *          the number of rows in this group will insert the row at the last position.
 	 * @param groupId
@@ -863,9 +863,9 @@ public class FlexTableView {
 	 *          The id of the row to move.
 	 * @param move
 	 *          The number of moves to execute. If this count is higher than the available moves inside the row's group,
-	 *          the excess is ignored. <br/>
-	 *          A null integer has no effect. <br/>
-	 *          A positive integer will move the row upward.<br/>
+	 *          the excess is ignored.
+	 *          A null integer has no effect.
+	 *          A positive integer will move the row upward.
 	 *          A negative integer will move the row downward.
 	 * @throws NullPointerException
 	 *           If the group is <code>null</code>.
@@ -945,9 +945,9 @@ public class FlexTableView {
 	 *          The id of the row to move.
 	 * @param move
 	 *          The number of moves to execute. If this count is higher than the available moves inside the row's group,
-	 *          the excess is ignored. <br/>
-	 *          A null integer has no effect. <br/>
-	 *          A positive integer will move the row upward.<br/>
+	 *          the excess is ignored.
+	 *          A null integer has no effect.
+	 *          A positive integer will move the row upward.
 	 *          A negative integer will move the row downward.
 	 * @return If the row can be moved for the given moves count.
 	 * @throws NullPointerException
@@ -1002,14 +1002,14 @@ public class FlexTableView {
 
 	/**
 	 * Gets the index at which a row must be inserted to be contained in the given group at the given position. This index
-	 * <strong>does'nt</strong> consider the shift.<br/>
+	 * <strong>does'nt</strong> consider the shift.
 	 * Use the {@link FlexTableView#insertTableRow(int)} method to insert a row considering the shift.
 	 * 
 	 * @param group
 	 *          The group in which the row will be inserted.
 	 * @param position
 	 *          The row position in its group (for example, a index equals to <code>2</code> means that the row will be
-	 *          the second one in its group).<br/>
+	 *          the second one in its group).
 	 *          If this index is lower or equal than <code>0</code>, the row will be the first one. An index greater than
 	 *          the number of rows in this group will insert the row at the last position.
 	 * @throws NullPointerException

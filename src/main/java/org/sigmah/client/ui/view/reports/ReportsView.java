@@ -90,7 +90,7 @@ import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.RichTextArea;
 
 /**
- * Reports & Documents widget view.
+ * Reports and Documents widget view.
  * 
  * @author Denis Colliot (dcolliot@ideia.fr) (v2.0)
  */

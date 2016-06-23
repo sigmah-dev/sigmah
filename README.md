@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/sigmah-dev/sigmah.svg?branch=master)](https://travis-ci.org/sigmah-dev/sigmah)
+
 Sigmah
 ====
 

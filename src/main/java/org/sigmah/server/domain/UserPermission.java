@@ -130,7 +130,7 @@ public class UserPermission extends AbstractEntityId<Integer> implements SchemaE
 	private boolean allowManageAllUsers;
 
 	/**
-	 * The timestamp on which the schema, as visible to the <code>user</code> was last updated.<br/>
+	 * The timestamp on which the schema, as visible to the <code>user</code> was last updated.
 	 * Note: owners of databases do not have a <code>UserPermission</code> record, so to establish the last update to the
 	 * schema, the <code>UserDatabase</code> table also needs to be checked.
 	 */

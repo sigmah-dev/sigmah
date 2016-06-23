@@ -32,7 +32,7 @@ import org.junit.Assert;
 
 /**
  * Test implementation of the mail sender.
- * <p/>
+ *
  * Does not send any actual email but test if the given arguments are corrects
  * and display the requested e-mail on the standard output.
  * 

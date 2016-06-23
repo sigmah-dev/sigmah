@@ -77,7 +77,7 @@ public class Location extends AbstractEntityId<Integer> {
 	private Integer id;
 
 	/**
-	 * This is the Guid of the location.<br/>
+	 * This is the Guid of the location.
 	 * This column is not used in Sigmah.
 	 */
 	@Column(name = EntityConstants.LOCATION_COLUMN_LOCATION_GUID, length = EntityConstants.LOCATION_GUID_MAX_LENGTH)

@@ -111,7 +111,7 @@ public class GetOrgUnitModelCopyHandler extends AbstractCommandHandler<GetOrgUni
 	 *          The entity manager.
 	 */
 	private static void saveFlexibleElement(OrgUnitModel orgUnitModel, EntityManager em) {
-		// OrgUnitModel --> Banner --> Layout --> Groups --> Constraints
+		// OrgUnitModel → Banner → Layout → Groups → Constraints
 		if (orgUnitModel.getBanner() != null && orgUnitModel.getBanner().getLayout() != null) {
 			List<LayoutGroup> bannerLayoutGroups = orgUnitModel.getBanner().getLayout().getGroups();
 			if (bannerLayoutGroups != null) {
@@ -200,7 +200,7 @@ public class GetOrgUnitModelCopyHandler extends AbstractCommandHandler<GetOrgUni
 				}
 			}
 		}
-		// OrgUnitModel --> Detail --> Layout --> Groups --> Constraints
+		// OrgUnitModel → Detail → Layout → Groups → Constraints
 		if (orgUnitModel.getDetails() != null && orgUnitModel.getDetails().getLayout() != null) {
 			List<LayoutGroup> detailLayoutGroups = orgUnitModel.getDetails().getLayout().getGroups();
 			if (detailLayoutGroups != null) {

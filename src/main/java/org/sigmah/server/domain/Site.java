@@ -137,7 +137,7 @@ public class Site extends AbstractEntityId<Integer> implements Deleteable {
 	private Date dateDeleted;
 
 	/**
-	 * The type of site: 0 for work complete, 1 for program targets.<br/>
+	 * The type of site: 0 for work complete, 1 for program targets.
 	 * <b>Note: Not yet implemented.</b>
 	 */
 	@Column(name = EntityConstants.SITE_COLUMN_TARGET, nullable = false)

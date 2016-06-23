@@ -69,7 +69,7 @@ public class GetIndicatorsHandler extends AbstractCommandHandler<GetIndicators, 
 
 	/**
 	 * Find the requested indicators in a transaction.
-	 * <p/>
+	 *
 	 * The transaction is required by IndicatorDAO.
 	 * 
 	 * @param entityManager An Hibernate entity manager.

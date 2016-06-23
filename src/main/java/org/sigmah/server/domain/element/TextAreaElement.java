@@ -47,7 +47,7 @@ public class TextAreaElement extends FlexibleElement {
 	private static final long serialVersionUID = 1147116003259320146L;
 
 	/**
-	 * The type of the value expected in this text field. This character defines this type.<br/>
+	 * The type of the value expected in this text field. This character defines this type.
 	 * See the other attributes which define the expected format for each type of value.
 	 * <ul>
 	 * <li><strong>T</strong> ; &quot;Text&quot;: a short text.</li>
@@ -61,7 +61,7 @@ public class TextAreaElement extends FlexibleElement {
 
 	/**
 	 * If the type of the value is Number or Date, this attribute defines the min value allowed (stored as a timestamp for
-	 * a date).<br/>
+	 * a date).
 	 * Could be <code>null</code> to avoid this constraint.
 	 */
 	@Column(name = EntityConstants.TEXTAREA_ELEMENT_COLUMN_MIN_VALUE, nullable = true)
@@ -69,7 +69,7 @@ public class TextAreaElement extends FlexibleElement {
 
 	/**
 	 * If the type of the value is Number or Date, this attribute defines the max value allowed (stored as a timestamp for
-	 * a date).<br/>
+	 * a date).
 	 * Could be <code>null</code> to avoid this constraint.
 	 */
 	@Column(name = EntityConstants.TEXTAREA_ELEMENT_COLUMN_MAX_VALUE, nullable = true)
@@ -82,7 +82,7 @@ public class TextAreaElement extends FlexibleElement {
 	private Boolean isDecimal;
 
 	/**
-	 * If the type of the value is Text or Paragraph, this attribute defines the max length allowed for the text.<br/>
+	 * If the type of the value is Text or Paragraph, this attribute defines the max length allowed for the text.
 	 * Could be <code>null</code> to avoid this constraint.
 	 */
 	@Column(name = EntityConstants.TEXTAREA_ELEMENT_COLUMN_LENGTH, nullable = true)

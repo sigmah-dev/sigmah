@@ -113,7 +113,7 @@ public final class Handlers {
 	 * Aggregates the list of profiles of a {@code user}.
 	 * </p>
 	 * <p>
-	 * The {@link User} may have several profiles which link it to its {@link OrgUnit}.<br/>
+	 * The {@link User} may have several profiles which link it to its {@link OrgUnit}.
 	 * This handler merges also all the profiles in one <em>aggregated profile</em>.
 	 * </p>
 	 * 

@@ -35,7 +35,7 @@ import com.google.gwt.core.client.GWT;
 
 /**
  * <p>
- * Abstract layer for <em>model data</em> entity DTO (with id).<br/>
+ * Abstract layer for <em>model data</em> entity DTO (with id).
  * Implements default {@code equals()} and {@code hashCode()} methods based on entity id.
  * </p>
  * <p>

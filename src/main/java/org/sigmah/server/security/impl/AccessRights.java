@@ -124,7 +124,7 @@ final class AccessRights {
 	private static final Set<String> grantedTokens = new HashSet<>();
 
 	/**
-	 * Token representing <em>missing tokens</em>.<br/>
+	 * Token representing <em>missing tokens</em>.
 	 * If a token is not declared among security permissions, this token is used.
 	 */
 	private static final String MISSING_TOKEN = "*";
@@ -399,7 +399,7 @@ final class AccessRights {
 	}
 
 	/**
-	 * Transforms the given {@code gpes} array into a {@link Set}.<br/>
+	 * Transforms the given {@code gpes} array into a {@link Set}.
 	 * Ignores {@code null} values in the process.
 	 * 
 	 * @param gpes

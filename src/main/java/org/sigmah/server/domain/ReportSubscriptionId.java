@@ -32,7 +32,7 @@ import org.sigmah.server.domain.util.EntityConstants;
 
 /**
  * <p>
- * ReportSubscriptionId composite id (primary key).<br/>
+ * ReportSubscriptionId composite id (primary key).
  * Not an entity.
  * </p>
  * 

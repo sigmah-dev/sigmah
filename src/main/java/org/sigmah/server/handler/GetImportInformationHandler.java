@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Handler for {@link GetImportInformation} command.
- * <p/>
+ *
  * Retrieve the file matching the given <code>fileId</code> and parse it with 
  * the given importation scheme. Results are not applied by this command.
  * 

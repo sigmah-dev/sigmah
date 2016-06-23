@@ -50,7 +50,7 @@ import com.google.inject.Singleton;
 /**
  * JavaScript implementation of {@link org.sigmah.server.handler.calendar.ActivityCalendarHandler}.
  * Used when the user is offline.
- * <p/>
+ *
  * Creates a <code>Calendar</code> from the activities of the log frame.
  * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)

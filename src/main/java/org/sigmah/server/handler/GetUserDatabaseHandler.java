@@ -64,7 +64,7 @@ public class GetUserDatabaseHandler extends AbstractCommandHandler<GetUserDataba
 		// Gets all users entities.
 		final List<UserDatabase> dbs = query.getResultList();
 
-		// Mapping (entity -> dto).
+		// Mapping (entity → dto).
 		if (dbs != null) {
 			for (final UserDatabase oneDB : dbs) {
 				userDatabaseDTOList.add(mapper().map(oneDB, new UserDatabaseDTO()));

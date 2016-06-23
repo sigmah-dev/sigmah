@@ -40,7 +40,7 @@ import org.sigmah.shared.command.result.Authentication;
 /**
  * JavaScript implementation of {@link org.sigmah.server.handler.GetCalendarHandler}.
  * Used when the user is offline.
- * <p/>
+ *
  * This is a global handler to retrieves every type of calendars.
  * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)

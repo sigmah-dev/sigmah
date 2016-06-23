@@ -74,11 +74,11 @@ public final class ServletUrlBuilder {
 
 	/**
 	 * <p>
-	 * Adds a parameter to the request URL.<br/>
+	 * Adds a parameter to the request URL.
 	 * If a previous parameter was already present with the given {@code key}, its value is override.
 	 * </p>
 	 * <p>
-	 * Empty and {@code null} values are skipped.<br/>
+	 * Empty and {@code null} values are skipped.
 	 * {@code String.valueOf(value)} is used for each preserved value.
 	 * </p>
 	 * 
@@ -94,11 +94,11 @@ public final class ServletUrlBuilder {
 
 	/**
 	 * <p>
-	 * Adds a parameter to the request URL.<br/>
+	 * Adds a parameter to the request URL.
 	 * If a previous parameter was already present with the given {@code key}, its value is override.
 	 * </p>
 	 * <p>
-	 * Empty and {@code null} values are skipped.<br/>
+	 * Empty and {@code null} values are skipped.
 	 * {@code String.valueOf(value)} is used for each preserved value.
 	 * </p>
 	 * 
@@ -114,11 +114,11 @@ public final class ServletUrlBuilder {
 
 	/**
 	 * <p>
-	 * Adds a parameter to the request URL.<br/>
+	 * Adds a parameter to the request URL.
 	 * If a previous parameter was already present with the given {@code key}, its value is override.
 	 * </p>
 	 * <p>
-	 * Empty and {@code null} values are skipped.<br/>
+	 * Empty and {@code null} values are skipped.
 	 * {@code String.valueOf(value)} is used for each preserved value.
 	 * </p>
 	 * 

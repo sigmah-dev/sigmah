@@ -100,7 +100,7 @@ import org.sigmah.shared.servlet.ServletUrlBuilder;
 
 /**
  * Data import presenter.
- * <p/>
+ *
  * Based on work done by Guerline Jean-Baptiste.
  * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)

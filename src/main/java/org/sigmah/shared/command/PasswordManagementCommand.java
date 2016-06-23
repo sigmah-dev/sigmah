@@ -31,15 +31,14 @@ import org.sigmah.shared.command.result.StringResult;
  * <p>
  * Manages a user password.
  * </p>
- * <p>
+ *
  * This command handles multiple actions:
  * <ul>
  * <li>{@link Action#ForgotPassword}.</li>
  * <li>{@link Action#UpdatePassword}.</li>
  * <li>{@link Action#RetrieveEmailFromToken}.</li>
  * </ul>
- * </p>
- * 
+ *
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
 public class PasswordManagementCommand extends AbstractCommand<StringResult> {
@@ -52,19 +51,19 @@ public class PasswordManagementCommand extends AbstractCommand<StringResult> {
 	public static enum Action {
 
 		/**
-		 * Sends a 'lost password' email to the user.<br/>
+		 * Sends a 'lost password' email to the user.
 		 * Returns {@code null}.
 		 */
 		ForgotPassword,
 
 		/**
-		 * Updates the user password with a new one.<br/>
+		 * Updates the user password with a new one.
 		 * Returns {@code null}.
 		 */
 		UpdatePassword,
 
 		/**
-		 * Retrieves a user email from a "<em>change password</em>" token.<br/>
+		 * Retrieves a user email from a "<em>change password</em>" token.
 		 * Returns the user email, or {@code null} if no user found or token is out-of-date.
 		 */
 		RetrieveEmailFromToken;

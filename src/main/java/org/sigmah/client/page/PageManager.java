@@ -133,7 +133,7 @@ public class PageManager implements ValueChangeHandler<String>, PageChangedHandl
 	}
 
 	/**
-	 * Returns if the given {@link Page} instance is associated to a popup view.<br/>
+	 * Returns if the given {@link Page} instance is associated to a popup view.
 	 * If the page is {@code null} or is not registered into page manager, the method returns {@code false}.
 	 * 
 	 * @param page
@@ -197,7 +197,7 @@ public class PageManager implements ValueChangeHandler<String>, PageChangedHandl
 	}
 
 	/**
-	 * Updates zones.<br/>
+	 * Updates zones.
 	 * Does nothing if given {@code pageRequest} references a pop-up view.
 	 * 
 	 * @param pageRequest
@@ -219,7 +219,7 @@ public class PageManager implements ValueChangeHandler<String>, PageChangedHandl
 	}
 
 	/**
-	 * Adds a new browser history entry only if the requested page exists among the {@code pages} map attribute.<br/>
+	 * Adds a new browser history entry only if the requested page exists among the {@code pages} map attribute.
 	 * Does nothing if given {@code pageRequest} references a pop-up view or a <em>skip history</em> page.
 	 * 
 	 * @param request

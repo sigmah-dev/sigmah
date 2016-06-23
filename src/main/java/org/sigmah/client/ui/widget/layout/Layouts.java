@@ -687,7 +687,7 @@ public final class Layouts {
 	 * @param region
 	 *          The border layout region. If {@code null}, default <em>center</em> region is set.
 	 * @param size
-	 *          The data size in pixels (width or height, depending on the region).<br/>
+	 *          The data size in pixels (width or height, depending on the region).
 	 *          Values of 1 or less are treated as percentages (defaults to 200).
 	 * @return The {@link BorderLayoutData} instance.
 	 */
@@ -714,7 +714,7 @@ public final class Layouts {
 	 * @param region
 	 *          The border layout region. If {@code null}, default <em>center</em> region is set.
 	 * @param size
-	 *          The data size in pixels (width or height, depending on the region).<br/>
+	 *          The data size in pixels (width or height, depending on the region).
 	 *          Values of 1 or less are treated as percentages (defaults to 200).
 	 * @param margins
 	 *          The margin(s).
@@ -730,7 +730,7 @@ public final class Layouts {
 	 * @param region
 	 *          The border layout region. If {@code null}, default <em>center</em> region is set.
 	 * @param size
-	 *          The data size in pixels (width or height, depending on the region).<br/>
+	 *          The data size in pixels (width or height, depending on the region).
 	 *          Values of 1 or less are treated as percentages (defaults to 200).
 	 * @param collapsible
 	 *          If the layout data is collapsible.
@@ -833,7 +833,7 @@ public final class Layouts {
 		 * Merges the given {@code margins} instance(s) into a new {@link com.extjs.gxt.ui.client.util.Margins Margins}.
 		 * 
 		 * @param margins
-		 *          The {@link Margin} instance(s) (may be {@code null}).<br/>
+		 *          The {@link Margin} instance(s) (may be {@code null}).
 		 *          {@code null} values are ignored.
 		 * @return The merged {@link com.extjs.gxt.ui.client.util.Margins Margins} result, never {@code null}.
 		 * @see com.extjs.gxt.ui.client.util.Margins

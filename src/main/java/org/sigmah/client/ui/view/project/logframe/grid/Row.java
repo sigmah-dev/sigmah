@@ -159,8 +159,8 @@ public abstract class Row<T> {
 	public abstract int getId(T userObject);
 
 	/**
-	 * Gets the widget which must be displayed at the given column index.<br/>
-	 * <br/>
+	 * Gets the widget which must be displayed at the given column index.
+	 *
 	 * If there is no widget to display at this index, the method must return <code>null</code>. In this case, the
 	 * right-adjacent column will be merged with this column.
 	 * 
@@ -173,8 +173,8 @@ public abstract class Row<T> {
 	}
 
 	/**
-	 * Gets the widget which must be displayed at the given column index.<br/>
-	 * <br/>
+	 * Gets the widget which must be displayed at the given column index.
+	 *
 	 * If there is no widget to display at this index, the method must return <code>null</code>. In this case, the
 	 * right-adjacent column will be merged with this column.
 	 * 
@@ -188,7 +188,7 @@ public abstract class Row<T> {
 
 	/**
 	 * Returns if the property displayed at the given column index for this row is similar (or equals) at the same
-	 * property for the <code>other</code> row. <br/>
+	 * property for the <code>other</code> row.
 	 * By default this method returns false.
 	 * 
 	 * @param column

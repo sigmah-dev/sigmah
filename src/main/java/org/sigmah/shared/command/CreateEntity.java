@@ -37,14 +37,14 @@ import com.extjs.gxt.ui.client.data.RpcMap;
 
 /**
  * Creates and persists a domain entity on the server.
- * <p/>
+ *
  * Note: Some entities require specialized commands to create or update, such as:
  * <ul>
  * <li>{@link org.sigmah.shared.command.AddPartner}</li>
  * <li>{@link UpdateUserPermissions}</li>
  * <li>{@link org.sigmah.shared.command.CreateReportDef}</li>
  * </ul>
- * <p/>
+ *
  * Returns {@link org.sigmah.shared.command.result.CreateResult}
  *
  * @author Alex Bertram (akbertram@gmail.com)
@@ -88,10 +88,10 @@ public class CreateEntity extends AbstractCommand<CreateResult> {
 
 	/**
 	 * A map of properties to create.
-	 * <p/>
+	 *
 	 * Note: For the most part, references to related entities should be specified by id: for example,
 	 * {@link org.sigmah.server.domain.Activity#database} should be entered as databaseId in the property map.
-	 * <p/>
+	 *
 	 * There are some exceptions to this that will take some time to fix:
 	 * <ul>
 	 * <li>{@link org.sigmah.server.domain.Site#partner}</li>

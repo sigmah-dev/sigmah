@@ -124,7 +124,7 @@ public final class Languages {
 	}
 
 	/**
-	 * Returns the given {@code language} or default language if {@code null}.<br/>
+	 * Returns the given {@code language} or default language if {@code null}.
 	 * Ensures that a valid language is always returned.
 	 * 
 	 * @param language
@@ -140,12 +140,12 @@ public final class Languages {
 	 * Returns the given {@code language} corresponding file suffix.
 	 * 
 	 * <pre>
-	 * getFileSuffix(EN, null) -> "" (<em>Special case for default language</em>)
-	 * getFileSuffix(FR, null) -> "_fr"
-	 * getFileSuffix(ES, null) -> "_es"
-	 * getFileSuffix(EN, ".properties") -> ".properties" (<em>Special case for default language</em>)
-	 * getFileSuffix(FR, ".properties") -> "_fr.properties"
-	 * getFileSuffix(ES, ".properties") -> "_es.properties"
+	 * getFileSuffix(EN, null) → "" (<em>Special case for default language</em>)
+	 * getFileSuffix(FR, null) → "_fr"
+	 * getFileSuffix(ES, null) → "_es"
+	 * getFileSuffix(EN, ".properties") → ".properties" (<em>Special case for default language</em>)
+	 * getFileSuffix(FR, ".properties") → "_fr.properties"
+	 * getFileSuffix(ES, ".properties") → "_es.properties"
 	 * </pre>
 	 * 
 	 * @param language
