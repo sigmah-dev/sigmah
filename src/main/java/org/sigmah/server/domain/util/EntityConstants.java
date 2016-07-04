@@ -473,6 +473,21 @@ public final class EntityConstants extends org.sigmah.shared.dto.util.EntityCons
 
 	// --------------------------------------------------------------------------------
 	//
+	// ITERATION HISTORY TOKEN ENTITY.
+	//
+	// --------------------------------------------------------------------------------
+
+	public static final String ITERATION_HISTORY_TOKEN_TABLE = "iteration_history_token";
+	public static final String ITERATION_HISTORY_TOKEN_COLUMN_ID = "id_iteration_history_token";
+	public static final String ITERATION_HISTORY_TOKEN_COLUMN_DATE = "history_date";
+	public static final String ITERATION_HISTORY_TOKEN_COLUMN_ITERATION = "id_layout_group_iteration";
+	public static final String ITERATION_HISTORY_TOKEN_COLUMN_LAYOUT_GROUP = "id_layout_group";
+	public static final String ITERATION_HISTORY_TOKEN_COLUMN_PROJECT = "id_project";
+	public static final String ITERATION_HISTORY_TOKEN_COLUMN_NAME = "name";
+	public static final String ITERATION_HISTORY_TOKEN_COLUMN_CORE_VERSION = "core_version";
+
+	// --------------------------------------------------------------------------------
+	//
 	// IMPORTATION SCHEME ENTITY.
 	//
 	// --------------------------------------------------------------------------------
