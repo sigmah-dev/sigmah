@@ -32,13 +32,16 @@ public class GetLayoutGroupIterations extends AbstractCommand<ListResult<LayoutG
 
 	private int containerId;
 
+	private int amendmentId;
+
 	protected GetLayoutGroupIterations() {
 		// Serialization.
 	}
 
-	public GetLayoutGroupIterations(int layoutGroupId, int containerId) {
+	public GetLayoutGroupIterations(int layoutGroupId, int containerId, int amendmentId) {
 		this.layoutGroupId = layoutGroupId;
 		this.containerId = containerId;
+		this.amendmentId = amendmentId;
 	}
 
 	public int getLayoutGroupId() {
@@ -47,5 +50,9 @@ public class GetLayoutGroupIterations extends AbstractCommand<ListResult<LayoutG
 
 	public int getContainerId() {
 		return containerId;
+	}
+
+	public int getAmendmentId() {
+		return amendmentId;
 	}
 }

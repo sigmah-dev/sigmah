@@ -45,6 +45,6 @@ public class GetLayoutGroupIterationsHandler extends AbstractCommandHandler<GetL
 	 */
 	@Override
 	public ListResult<LayoutGroupIterationDTO> execute(final GetLayoutGroupIterations cmd, final UserExecutionContext context) throws CommandException {
-    return new ListResult<>(mapper().mapCollection(layoutGroupIterationDAO.findByLayoutGroupAndContainer(cmd.getLayoutGroupId(), cmd.getContainerId()), LayoutGroupIterationDTO.class));
+    return new ListResult<>(mapper().mapCollection(layoutGroupIterationDAO.findByLayoutGroupAndContainer(cmd.getLayoutGroupId(), cmd.getContainerId(), cmd.getAmendmentId()), LayoutGroupIterationDTO.class));
 	}
 }

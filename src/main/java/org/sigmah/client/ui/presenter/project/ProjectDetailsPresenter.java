@@ -257,7 +257,14 @@ public class ProjectDetailsPresenter extends AbstractProjectPresenter<ProjectDet
 			tabPanel.setBorders(true);
 			tabPanel.setBodyBorder(false);
 
-			GetLayoutGroupIterations getIterations = new GetLayoutGroupIterations(groupLayout.getId(), getProject().getId());
+			Integer amendmentId;
+
+			if (getProject().getCurrentAmendment() != null) {
+				amendmentId = getProject().getCurrentAmendment().getId();
+			} else {
+				amendmentId = -1;
+			}
+			GetLayoutGroupIterations getIterations = new GetLayoutGroupIterations(groupLayout.getId(), getProject().getId(), amendmentId);
 
 			queue.add(getIterations, new CommandResultHandler<ListResult<LayoutGroupIterationDTO>>() {
 

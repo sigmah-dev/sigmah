@@ -224,10 +224,9 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 				List<HistoryToken> results = null;
 				if (element != null) {
 					final TypedQuery<HistoryToken> query =
-						em().createQuery("SELECT h FROM HistoryToken h WHERE h.elementId = :elementId AND h.projectId = :projectId AND h.layoutGroupIterationId = :iterationId", HistoryToken.class);
+						em().createQuery("SELECT h FROM HistoryToken h WHERE h.elementId = :elementId AND h.projectId = :projectId", HistoryToken.class);
 					query.setParameter("elementId", element.getId());
 					query.setParameter("projectId", projectId);
-					query.setParameter("iterationId", iterationId);
 					results = query.getResultList();
 				}
 
@@ -244,12 +243,12 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 
 					// Historize the first value.
 					if (oldValue != null) {
-						historize(oldDate, element, projectId, iterationId, oldOwner, ValueEventChangeType.ADD, oldValue, null, null);
+						historize(oldDate, element, projectId, null, oldOwner, ValueEventChangeType.ADD, oldValue, null, null);
 					}
 				}
 
 				// Historize the value.
-				historize(historyDate, element, projectId, iterationId, user, ValueEventChangeType.EDIT, updateSingleValue, null, comment);
+				historize(historyDate, element, projectId, null, user, ValueEventChangeType.EDIT, updateSingleValue, null, comment);
 
 				continue;
 			}

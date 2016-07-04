@@ -32,5 +32,5 @@ import org.sigmah.server.domain.layout.LayoutGroupIteration;
  */
 public interface LayoutGroupIterationDAO extends DAO<LayoutGroupIteration, Integer> {
 
-  List<LayoutGroupIteration> findByLayoutGroupAndContainer(Integer layoutGroupId, Integer containerId);
+  List<LayoutGroupIteration> findByLayoutGroupAndContainer(Integer layoutGroupId, Integer containerId, Integer amendmentId);
 }

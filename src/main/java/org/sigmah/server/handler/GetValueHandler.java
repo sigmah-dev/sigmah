@@ -95,7 +95,7 @@ public class GetValueHandler extends AbstractCommandHandler<GetValue, ValueResul
 
 		// Amendment
 		String historyValue = null;
-		if (cmd.getAmendmentId() != null & cmd.getIterationId() == null) {
+		if (cmd.getAmendmentId() != null) {
 
 			final TypedQuery<Amendment> amedmentQuery = em().createQuery("SELECT a FROM Amendment a WHERE a.id = :amendmentId", Amendment.class);
 			amedmentQuery.setParameter("amendmentId", cmd.getAmendmentId());
@@ -106,7 +106,7 @@ public class GetValueHandler extends AbstractCommandHandler<GetValue, ValueResul
 
 			if (tokens != null) {
 				for (final HistoryToken token : tokens) {
-					if (token.getElementId().equals(cmd.getElementId())) {
+					if (token.getElementId().equals(cmd.getElementId()) && token.getLayoutGroupIterationId().equals(cmd.getIterationId())) {
 						historyValue = token.getValue();
 					}
 				}

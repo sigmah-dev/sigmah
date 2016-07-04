@@ -31,19 +31,26 @@ import javax.persistence.NoResultException;
 import javax.persistence.Query;
 
 import org.sigmah.server.dao.AmendmentDAO;
+import org.sigmah.server.dao.LayoutGroupIterationDAO;
 import org.sigmah.server.dao.ProjectDAO;
 import org.sigmah.server.dispatch.impl.UserDispatch.UserExecutionContext;
 import org.sigmah.server.domain.Amendment;
 import org.sigmah.server.domain.HistoryToken;
+import org.sigmah.server.domain.IterationHistoryToken;
 import org.sigmah.server.domain.PhaseModel;
 import org.sigmah.server.domain.Project;
 import org.sigmah.server.domain.element.FlexibleElement;
 import org.sigmah.server.domain.layout.LayoutConstraint;
 import org.sigmah.server.domain.layout.LayoutGroup;
+import org.sigmah.server.domain.layout.LayoutGroupIteration;
 import org.sigmah.server.domain.logframe.LogFrameCopyContext;
+import org.sigmah.server.handler.GetLayoutGroupIterationsHandler;
 import org.sigmah.server.service.base.AbstractEntityService;
 import org.sigmah.server.service.util.PropertyMap;
+import org.sigmah.shared.command.GetLayoutGroupIterations;
+import org.sigmah.shared.command.result.ListResult;
 import org.sigmah.shared.dto.AmendmentDTO;
+import org.sigmah.shared.dto.layout.LayoutGroupIterationDTO;
 import org.sigmah.shared.dto.referential.IndicatorCopyStrategy;
 
 import com.google.inject.Inject;
@@ -68,6 +75,9 @@ public class AmendmentService extends AbstractEntityService<Amendment, Integer, 
 
 	@Inject
 	private AmendmentDAO amendmentDAO;
+
+	@Inject
+	private LayoutGroupIterationDAO layoutGroupIterationDAO;
 
 	/**
 	 * {@inheritDoc}
@@ -138,34 +148,32 @@ public class AmendmentService extends AbstractEntityService<Amendment, Integer, 
 
 		// Iterating on groups
 		for (final LayoutGroup group : groups) {
-			for (final LayoutConstraint constraint : group.getConstraints()) {
-				final FlexibleElement element = constraint.getElement();
-				
-				// Since the transformation of amendments into project core
-				// versions, every value has to be saved.
-				
-				// The value of the current flexible element must be saved.
-				final Query maxDateQuery = em().createQuery("SELECT MAX(h.date) FROM HistoryToken h WHERE h.elementId = :elementId AND h.projectId = :projectId");
-				maxDateQuery.setParameter("projectId", project.getId());
-				maxDateQuery.setParameter("elementId", element.getId());
+			// simple group
+			if(!group.getHasIterations()) {
+				for (final LayoutConstraint constraint : group.getConstraints()) {
+					final FlexibleElement element = constraint.getElement();
 
-				try {
-					final Date maxDate = (Date) maxDateQuery.getSingleResult();
+					// Since the transformation of amendments into project core
+					// versions, every value has to be saved.
 
-					final Query query =
-							em().createQuery("SELECT h FROM HistoryToken h WHERE h.elementId = :elementId AND h.projectId = :projectId AND h.date = :maxDate");
-					query.setParameter("projectId", project.getId());
-					query.setParameter("elementId", element.getId());
-					query.setParameter("maxDate", maxDate);
+					storeValue(project.getId(), element.getId(), null, amendment, historyTokens);
+				}
+			}
 
-					final HistoryToken token = (HistoryToken) query.getSingleResult();
-					token.setCoreVersion(amendment);
-					em().merge(token);
-					
-					historyTokens.add(token);
+			// iterative group
 
-				} catch (NoResultException e) {
-					// There is no history token for the given element. No action.
+			List<LayoutGroupIteration> iterations = layoutGroupIterationDAO.findByLayoutGroupAndContainer(group.getId(), project.getId(), -1);
+			for(LayoutGroupIteration iteration : iterations) {
+
+				storeIteration(iteration, amendment);
+
+				for (final LayoutConstraint constraint : group.getConstraints()) {
+					final FlexibleElement element = constraint.getElement();
+
+					// Since the transformation of amendments into project core
+					// versions, every value has to be saved.
+
+					storeValue(project.getId(), element.getId(), iteration.getId(), amendment, historyTokens);
 				}
 			}
 		}
@@ -174,6 +182,61 @@ public class AmendmentService extends AbstractEntityService<Amendment, Integer, 
 		em().merge(amendment);
 
 		return amendment;
+	}
+
+	private void storeIteration(LayoutGroupIteration iteration, Amendment amendment) {
+		IterationHistoryToken iterationToken = new IterationHistoryToken();
+		iterationToken.setDate(new Date());
+		iterationToken.setCoreVersion(amendment);
+		iterationToken.setLayoutGroup(iteration.getLayoutGroup());
+		iterationToken.setLayoutGroupIterationId(iteration.getId());
+		iterationToken.setName(iteration.getName());
+		iterationToken.setProjectId(iteration.getContainerId());
+
+		em().merge(iterationToken);
+	}
+
+	private void storeValue(Integer projectId, Integer elementId, Integer iterationId, Amendment amendment, List<HistoryToken> historyTokens) {
+		// The value of the current flexible element must be saved.
+		final Query maxDateQuery;
+		if(iterationId == null) {
+			maxDateQuery = em().createQuery("SELECT MAX(h.date) FROM HistoryToken h WHERE h.elementId = :elementId AND h.projectId = :projectId");
+			maxDateQuery.setParameter("projectId", projectId);
+			maxDateQuery.setParameter("elementId", elementId);
+		} else {
+			maxDateQuery = em().createQuery("SELECT MAX(h.date) FROM HistoryToken h WHERE h.elementId = :elementId AND h.projectId = :projectId AND h.layoutGroupIterationId = :iterationId");
+			maxDateQuery.setParameter("projectId", projectId);
+			maxDateQuery.setParameter("elementId", elementId);
+			maxDateQuery.setParameter("iterationId", iterationId);
+		}
+
+		try {
+			final Date maxDate = (Date) maxDateQuery.getSingleResult();
+
+			final Query query;
+
+			if(iterationId == null) {
+				query = em().createQuery("SELECT h FROM HistoryToken h WHERE h.elementId = :elementId AND h.projectId = :projectId AND h.date = :maxDate");
+				query.setParameter("projectId", projectId);
+				query.setParameter("elementId", elementId);
+				query.setParameter("maxDate", maxDate);
+			} else {
+				query = em().createQuery("SELECT h FROM HistoryToken h WHERE h.elementId = :elementId AND h.projectId = :projectId AND h.date = :maxDate AND h.layoutGroupIterationId = :iterationId");
+				query.setParameter("projectId", projectId);
+				query.setParameter("elementId", elementId);
+				query.setParameter("maxDate", maxDate);
+				query.setParameter("iterationId", iterationId);
+			}
+
+			final HistoryToken token = (HistoryToken) query.getSingleResult();
+			token.setCoreVersion(amendment);
+			em().merge(token);
+
+			historyTokens.add(token);
+
+		} catch (NoResultException e) {
+			// There is no history token for the given element. No action.
+		}
 	}
 
 }
