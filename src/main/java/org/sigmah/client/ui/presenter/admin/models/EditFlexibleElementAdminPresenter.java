@@ -1399,9 +1399,15 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 
 		// A field cannot be in an iterative group AND in a computation field
 		// + a computation field cannot be in an iterative group
+		// + a core field cannot be in an iterative group
 		if(group.getHasIterations()) {
 			if(type == ElementTypeEnum.COMPUTATION) {
 				N10N.warn(I18N.CONSTANTS.cannotAddComputationElementToIterativeGroup());
+				return;
+			}
+
+			if(amendable) {
+				N10N.warn(I18N.CONSTANTS.cannotAddCoreElementToIterativeGroup());
 				return;
 			}
 

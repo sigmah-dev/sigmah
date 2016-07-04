@@ -313,12 +313,16 @@ public class EditLayoutGroupAdminPresenter extends AbstractPagePresenter<EditLay
 		final Boolean hasIterations = view.getHasIterationsField().getValue();
 		final LayoutDTO container = getLayout(view.getContainerField().getValue());
 
-		// iterative groups cannot contain default fields
+  	// iterative groups cannot contain default fields nor core fields
 		if(hasIterations && layoutGroup != null) {
 			for(LayoutConstraintDTO constraint : layoutGroup.getConstraints()) {
 				if(constraint.getFlexibleElementDTO().getElementType() == ElementTypeEnum.DEFAULT
 						|| constraint.getFlexibleElementDTO().getElementType() == ElementTypeEnum.DEFAULT_CONTACT) {
 					N10N.error(I18N.CONSTANTS.adminFlexibleGroup(), I18N.CONSTANTS.adminErrorDefaultFieldIterable());
+					return;
+				}
+				if(constraint.getFlexibleElementDTO().getAmendable()) {
+					N10N.error(I18N.CONSTANTS.adminFlexibleGroup(), I18N.CONSTANTS.adminErrorCoreFieldIterable());
 					return;
 				}
 			}
