@@ -38,6 +38,7 @@ import org.sigmah.shared.computation.instruction.BadVariable;
 import org.sigmah.shared.computation.instruction.HasHumanReadableFormat;
 import org.sigmah.shared.computation.instruction.Operator;
 import org.sigmah.shared.computation.instruction.OperatorPriority;
+import org.sigmah.shared.computation.instruction.Tag;
 import org.sigmah.shared.computation.value.ComputationError;
 import org.sigmah.shared.computation.value.ComputedValue;
 import org.sigmah.shared.computation.value.ComputedValues;
@@ -220,6 +221,9 @@ public class Computation {
             if (instruction instanceof Variable) {
                 elements.add(((Variable) instruction).getFlexibleElement());
             }
+			else if (instruction instanceof Tag) {
+				// TODO: Ajouter 
+			}
         }
 
         this.dependencies = elements;

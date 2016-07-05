@@ -15,16 +15,43 @@ import org.sigmah.shared.computation.value.ComputedValue;
  */
 public class Tag implements Instruction {
 	
+	public static enum Scope {
+		
+		SELF,
+		GIVEN_PROJECT_MODEL,
+		FUNDING_SOURCES,
+		FUNDED_PROJECTS
+	}
+	
+	public static enum Category {
+		
+		CONTRIBUTION,
+		BUDGET_SPENT,
+		BUDGET_TOTAL;
+		
+		private final String code;
+
+		private Category() {
+			this.code = name().toLowerCase().replace('_', '.');
+		}
+
+		public String getCode() {
+			return code;
+		}
+	}
+	
+	/**
+	 * Scope of this tag.
+	 */
+	private Scope scope;
+	
+	private Integer projectModelId;
+	
 	/**
 	 * Category of fields.
 	 */
-	private String label;
+	private Category category;
 	
-	/**
-	 * Child category. Optional.
-	 */
-	private String child;
-
 	@Override
 	public void execute(Stack<ComputedValue> stack, Map<Integer, ComputedValue> variables) {
 		// TODO: Ajouter une valeur CollectionValue dans la pile.

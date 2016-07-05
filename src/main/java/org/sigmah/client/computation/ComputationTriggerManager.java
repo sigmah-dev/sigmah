@@ -81,6 +81,8 @@ public class ComputationTriggerManager {
 			final ComputationElementDTO computationElement = localizedElement.getElement();
 			prepareForComputationElement(computationElement, model);
 		}
+		
+		// TODO: Chercher les ComputationField des projets liés et appeler prepareForComputationElement.
 	}
 
 	/**
