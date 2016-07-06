@@ -273,11 +273,9 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 					LOG.debug("[execute] Multivalued ids value case.");
 				}
 
-				Set<Integer> currentIds;
+				Set<Integer> currentIds = new HashSet<>();
 				if (currentValue != null && currentValue.getValue() != null && !currentValue.getValue().isEmpty()) {
-					currentIds = new HashSet<>(ValueResultUtils.splitValuesAsInteger(currentValue.getValue()));
-				} else {
-					currentIds = Collections.emptySet();
+					currentIds.addAll(ValueResultUtils.splitValuesAsInteger(currentValue.getValue()));
 				}
 				switch (valueEvent.getChangeType()) {
 					case ADD:
