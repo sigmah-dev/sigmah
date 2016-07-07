@@ -21,6 +21,7 @@ package org.sigmah.client.ui.presenter.contact;
  * #L%
  */
 
+import com.extjs.gxt.ui.client.widget.Layout;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.Image;
@@ -41,7 +42,10 @@ import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.sigmah.client.computation.ComputationTriggerManager;
 import org.sigmah.client.dispatch.CommandResultHandler;
@@ -58,6 +62,9 @@ import org.sigmah.client.ui.view.contact.ContactDetailsView;
 import org.sigmah.client.ui.widget.button.Button;
 import org.sigmah.client.ui.widget.contact.DedupeContactDialog;
 import org.sigmah.client.ui.widget.form.Forms;
+import org.sigmah.client.ui.widget.form.IterableGroupPanel;
+import org.sigmah.client.ui.widget.form.IterableGroupPanel.IterableGroupItem;
+import org.sigmah.client.ui.widget.layout.Layouts;
 import org.sigmah.client.util.AdminUtil;
 import org.sigmah.client.util.ClientUtils;
 import org.sigmah.client.util.ImageProvider;
@@ -67,8 +74,11 @@ import org.sigmah.shared.command.DedupeContact;
 import org.sigmah.shared.command.GetContact;
 import org.sigmah.shared.command.GetContactDuplicatedProperties;
 import org.sigmah.shared.command.GetCountry;
+import org.sigmah.shared.command.GetLayoutGroupIterations;
 import org.sigmah.shared.command.GetValue;
 import org.sigmah.shared.command.UpdateContact;
+import org.sigmah.shared.command.UpdateLayoutGroupIterations;
+import org.sigmah.shared.command.UpdateLayoutGroupIterations.IterationChange;
 import org.sigmah.shared.command.result.ContactDuplicatedProperty;
 import org.sigmah.shared.command.result.ListResult;
 import org.sigmah.shared.command.result.ValueResult;
@@ -76,18 +86,24 @@ import org.sigmah.shared.command.result.VoidResult;
 import org.sigmah.shared.dto.ContactDTO;
 import org.sigmah.shared.dto.country.CountryDTO;
 import org.sigmah.shared.dto.element.DefaultContactFlexibleElementDTO;
+import org.sigmah.shared.dto.element.FlexibleElementContainer;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
+import org.sigmah.shared.dto.element.event.RequiredValueEvent;
+import org.sigmah.shared.dto.element.event.RequiredValueHandler;
 import org.sigmah.shared.dto.element.event.ValueEvent;
 import org.sigmah.shared.dto.element.event.ValueHandler;
 import org.sigmah.shared.dto.layout.LayoutConstraintDTO;
 import org.sigmah.shared.dto.layout.LayoutDTO;
 import org.sigmah.shared.dto.layout.LayoutGroupDTO;
+import org.sigmah.shared.dto.layout.LayoutGroupIterationDTO;
 import org.sigmah.shared.dto.referential.DefaultContactFlexibleElementType;
 import org.sigmah.shared.dto.referential.ElementTypeEnum;
 
 import com.allen_sauer.gwt.log.client.Log;
+import org.sigmah.shared.dto.referential.GlobalPermissionEnum;
+import org.sigmah.shared.util.ProfileUtils;
 
-public class ContactDetailsPresenter extends AbstractPresenter<ContactDetailsPresenter.View> implements ContactPresenter.ContactSubPresenter<ContactDetailsPresenter.View> {
+public class ContactDetailsPresenter extends AbstractPresenter<ContactDetailsPresenter.View> implements ContactPresenter.ContactSubPresenter<ContactDetailsPresenter.View>, IterableGroupPanel.Delegate {
   @ImplementedBy(ContactDetailsView.class)
   public interface View extends ViewInterface {
     LayoutContainer getDetailsContainer();
@@ -103,6 +119,12 @@ public class ContactDetailsPresenter extends AbstractPresenter<ContactDetailsPre
   private final ImageProvider imageProvider;
 
   private List<ValueEvent> valueChanges = new ArrayList<ValueEvent>();
+
+  private final Map<Integer, IterationChange> iterationChanges = new HashMap<Integer, IterationChange>();
+
+  private final Map<Integer, IterableGroupItem> newIterationsTabItems = new HashMap<Integer, IterableGroupItem>();
+
+  private FormPanel formPanel;
 
   @Inject
   public ContactDetailsPresenter(View view, Injector injector, ComputationTriggerManager computationTriggerManager, ImageProvider imageProvider) {
@@ -140,7 +162,7 @@ public class ContactDetailsPresenter extends AbstractPresenter<ContactDetailsPre
       return;
     }
 
-    final FormPanel formPanel = Forms.panel();
+    formPanel = Forms.panel();
     final Grid gridLayout = new Grid(layout.getRowsCount(), layout.getColumnsCount());
     gridLayout.setCellPadding(0);
     gridLayout.setCellSpacing(0);
@@ -149,109 +171,69 @@ public class ContactDetailsPresenter extends AbstractPresenter<ContactDetailsPre
 
     for (final LayoutGroupDTO groupLayout : layout.getGroups()) {
 
-      // Creates the fieldset and positions it.
-      final FieldSet fieldSet = (FieldSet) groupLayout.getWidget();
-      gridLayout.setWidget(groupLayout.getRow(), groupLayout.getColumn(), fieldSet);
+      // simple group
+      if(!groupLayout.getHasIterations()) {
 
-      // For each constraint in the current layout group.
-      if (ClientUtils.isEmpty(groupLayout.getConstraints())) {
+        FieldSet fieldSet = createGroupLayoutFieldSet(contactDTO, groupLayout, queue, null, null, null);
+        gridLayout.setWidget(groupLayout.getRow(), groupLayout.getColumn(), fieldSet);
         continue;
       }
 
-      for (final LayoutConstraintDTO constraintDTO : groupLayout.getConstraints()) {
+      final FieldSet fieldSet = (FieldSet) groupLayout.getWidget();
+      gridLayout.setWidget(groupLayout.getRow(), groupLayout.getColumn(), fieldSet);
 
-        // Gets the element managed by this constraint.
-        final FlexibleElementDTO elementDTO = constraintDTO.getFlexibleElementDTO();
+      // iterative group
+      final IterableGroupPanel tabPanel = Forms.iterableGroupPanel(dispatch, groupLayout, contactDTO, ProfileUtils.isGranted(auth(), GlobalPermissionEnum.CREATE_ITERATIONS));
+      tabPanel.setDelegate(this);
+      fieldSet.add(tabPanel);
 
-        if (elementDTO.isDisabled()) {
-          continue;
+      tabPanel.setAutoHeight(true);
+      tabPanel.setAutoWidth(true);
+      tabPanel.setTabScroll(true);
+      tabPanel.addStyleName("white-tab-body");
+      tabPanel.setBorders(true);
+      tabPanel.setBodyBorder(false);
+
+      GetLayoutGroupIterations getIterations = new GetLayoutGroupIterations(groupLayout.getId(), contactDTO.getId(), -1);
+
+      queue.add(getIterations, new CommandResultHandler<ListResult<LayoutGroupIterationDTO>>() {
+
+        @Override
+        public void onCommandFailure(final Throwable throwable) {
+          if (Log.isErrorEnabled()) {
+            Log.error("Error, layout group iterations not loaded.", throwable);
+          }
+          throw new RuntimeException(throwable);
         }
 
-        // Check if the element is a default element and is visible or not for the contactModel type
-        if (elementDTO.getElementType() == ElementTypeEnum.DEFAULT_CONTACT &&
-            !((DefaultContactFlexibleElementDTO) elementDTO).getType().isVisibleForType(contactDTO.getContactModel().getType())) {
-          continue;
+        @Override
+        protected void onCommandSuccess(ListResult<LayoutGroupIterationDTO> result) {
+          DispatchQueue iterationsQueue = new DispatchQueue(dispatch, true);
+
+          for(final LayoutGroupIterationDTO iteration : result.getList()) {
+
+            final IterableGroupItem tab = new IterableGroupItem(tabPanel, iteration.getId(), iteration.getName());
+            tabPanel.addIterationTab(tab);
+
+            Layout tabLayout = Layouts.fitLayout();
+
+            tab.setLayout(tabLayout);
+
+            FieldSet tabSet = createGroupLayoutFieldSet(contactDTO, groupLayout, iterationsQueue, iteration == null ? null : iteration.getId(), tabPanel, tab);
+
+            tab.add(tabSet);
+          }
+
+          iterationsQueue.start();
+
+          if(tabPanel.getItemCount() > 0) {
+            tabPanel.setSelection(tabPanel.getItem(0));
+          }
+
         }
+      }, new LoadingMask(view.getDetailsContainer()));
 
-        // Remote call to ask for this element value.
-        queue.add(new GetValue(contactDTO.getId(), elementDTO.getId(), elementDTO.getEntityName()), new CommandResultHandler<ValueResult>() {
-
-          @Override
-          public void onCommandFailure(final Throwable throwable) {
-            if (Log.isErrorEnabled()) {
-              Log.error("Error, element value not loaded.", throwable);
-            }
-            throw new RuntimeException(throwable);
-          }
-
-          @Override
-          public void onCommandSuccess(final ValueResult valueResult) {
-
-            if (Log.isDebugEnabled()) {
-              Log.debug("Element value(s) object : " + valueResult);
-            }
-
-            // --
-            // -- ELEMENT COMPONENT
-            // --
-
-            // Configures the flexible element for the current application state before generating its component.
-            elementDTO.setService(dispatch);
-            elementDTO.setAuthenticationProvider(injector.getAuthenticationProvider());
-            elementDTO.setEventBus(eventBus);
-            elementDTO.setCache(injector.getClientCache());
-            elementDTO.setCurrentContainerDTO(contactDTO);
-            elementDTO.setTransfertManager(injector.getTransfertManager());
-            elementDTO.assignValue(valueResult);
-            elementDTO.setImageProvider(imageProvider);
-            if (elementDTO instanceof DefaultContactFlexibleElementDTO) {
-              ((DefaultContactFlexibleElementDTO) elementDTO).setFormPanel(formPanel);
-
-            }
-
-            // Generates element component (with the value).
-            elementDTO.init();
-            final Component elementComponent = elementDTO.getElementComponent(valueResult);
-
-            // Component width.
-            final FormData formData;
-            if (elementDTO.getPreferredWidth() == 0) {
-              formData = new FormData("100%");
-            } else {
-              formData = new FormData(elementDTO.getPreferredWidth(), -1);
-            }
-
-            if (elementComponent != null) {
-              fieldSet.add(elementComponent, formData);
-            }
-            fieldSet.layout();
-
-            // --
-            // -- ELEMENT HANDLERS
-            // --
-
-            // Adds a value change handler if this element is a dependency of a ComputationElementDTO.
-            computationTriggerManager.listenToValueChangesOfElement(elementDTO, elementComponent, valueChanges);
-
-            // Adds a value change handler to this element.
-            elementDTO.addValueHandler(new ValueHandler() {
-
-              @Override
-              public void onValueChange(ValueEvent event) {
-
-                // Stores the change to be saved later.
-                valueChanges.add(event);
-
-                // Enables the save action.
-                view.getSaveButton().enable();
-              }
-
-            });
-
-            view.getDetailsContainer().layout();
-          }
-        }, new LoadingMask(view.getDetailsContainer()));
-      }
+      fieldSet.layout();
     }
 
     view.getSaveButton().removeAllListeners();
@@ -366,35 +348,245 @@ public class ContactDetailsPresenter extends AbstractPresenter<ContactDetailsPre
     return checkDuplicationCommand;
   }
 
-  private void updateContact(final ContactDTO contactDTO, final AsyncCallback<ContactDTO> callback, Component target) {
-    dispatch.execute(new UpdateContact(contactDTO.getId(), valueChanges), new CommandResultHandler<VoidResult>() {
+  @Override
+  public IterationChange getIterationChange(int iterationId) {
+    return iterationChanges.get(iterationId);
+  }
+
+  @Override
+  public void setIterationChange(IterationChange iterationChange) {
+    iterationChanges.put(iterationChange.getIterationId(), iterationChange);
+
+    view.getSaveButton().enable();
+  }
+
+  @Override
+  public void addIterationTabItem(int iterationId, IterableGroupItem tab) {
+    newIterationsTabItems.put(iterationId, tab);
+  }
+
+  @Override
+  public FieldSet createGroupLayoutFieldSet(FlexibleElementContainer container, LayoutGroupDTO groupLayout, DispatchQueue queue, final Integer iterationId, final IterableGroupPanel tabPanel, final IterableGroupItem tabItem) {
+    final ContactDTO contact = (ContactDTO)container;
+
+    // Creates the fieldset and positions it.
+    final FieldSet fieldSet = (FieldSet) groupLayout.getWidget();
+
+    // For each constraint in the current layout group.
+    if (ClientUtils.isEmpty(groupLayout.getConstraints())) {
+      return fieldSet;
+    }
+
+    for (final LayoutConstraintDTO constraintDTO : groupLayout.getConstraints()) {
+
+      // Gets the element managed by this constraint.
+      final FlexibleElementDTO elementDTO = constraintDTO.getFlexibleElementDTO();
+
+      // --
+      // -- DISABLED ELEMENTS
+      // --
+
+      if(elementDTO.isDisabled()) {
+        continue;
+      }
+
+      // Check if the element is a default element and is visible or not for the contactModel type
+      if (elementDTO.getElementType() == ElementTypeEnum.DEFAULT_CONTACT &&
+          !((DefaultContactFlexibleElementDTO) elementDTO).getType().isVisibleForType(contact.getContactModel().getType())) {
+        continue;
+      }
+
+      // --
+      // -- ELEMENT VALUE
+      // --
+
+      // Remote call to ask for this element value.
+      queue.add(new GetValue(contact.getId(), elementDTO.getId(), elementDTO.getEntityName(), null, iterationId), new CommandResultHandler<ValueResult>() {
+
+        @Override
+        public void onCommandFailure(final Throwable throwable) {
+          if (Log.isErrorEnabled()) {
+            Log.error("Error, element value not loaded.", throwable);
+          }
+          throw new RuntimeException(throwable);
+        }
+
+        @Override
+        public void onCommandSuccess(final ValueResult valueResult) {
+
+          if (Log.isDebugEnabled()) {
+            Log.debug("Element value(s) object : " + valueResult);
+          }
+
+          // --
+          // -- ELEMENT COMPONENT
+          // --
+
+          // Configures the flexible element for the current application state before generating its component.
+          elementDTO.setService(dispatch);
+          elementDTO.setAuthenticationProvider(injector.getAuthenticationProvider());
+          elementDTO.setEventBus(eventBus);
+          elementDTO.setCache(injector.getClientCache());
+          elementDTO.setCurrentContainerDTO(contact);
+          elementDTO.setTransfertManager(injector.getTransfertManager());
+          elementDTO.assignValue(valueResult);
+          elementDTO.setImageProvider(imageProvider);
+          if (elementDTO instanceof DefaultContactFlexibleElementDTO) {
+            ((DefaultContactFlexibleElementDTO) elementDTO).setFormPanel(formPanel);
+          }
+          elementDTO.setTabPanel(tabPanel);
+
+          // Generates element component (with the value).
+          elementDTO.init();
+          final Component elementComponent = elementDTO.getElementComponent(valueResult);
+
+          // Component width.
+          final FormData formData;
+          if (elementDTO.getPreferredWidth() == 0) {
+            formData = new FormData("100%");
+          } else {
+            formData = new FormData(elementDTO.getPreferredWidth(), -1);
+          }
+
+          if (elementComponent != null) {
+            fieldSet.add(elementComponent, formData);
+          }
+          fieldSet.layout();
+
+          // --
+          // -- ELEMENT HANDLERS
+          // --
+
+          // Adds a value change handler if this element is a dependency of a ComputationElementDTO.
+          computationTriggerManager.listenToValueChangesOfElement(elementDTO, elementComponent, valueChanges);
+
+          // Adds a value change handler to this element.
+          elementDTO.addValueHandler(new ValueHandler() {
+
+            @Override
+            public void onValueChange(final ValueEvent event) {
+
+              if(tabPanel != null) {
+                event.setIterationId(tabPanel.getCurrentIterationId());
+              }
+
+              // TODO: Find linked computation fields if any and recompute the value.
+
+              // Stores the change to be saved later.
+              valueChanges.add(event);
+
+              // Enables the save action.
+              view.getSaveButton().enable();
+            }
+          });
+
+          if(elementDTO.getValidates() && tabItem != null) {
+            tabItem.setElementValidity(elementDTO, elementDTO.isCorrectRequiredValue(valueResult));
+            tabItem.refreshTitle();
+            elementDTO.addRequiredValueHandler(new RequiredValueHandlerImpl(elementDTO));
+          }
+        }
+      }, new LoadingMask(view.getDetailsContainer()));
+    }
+
+    fieldSet.setCollapsible(false);
+    fieldSet.setAutoHeight(true);
+    fieldSet.setBorders(false);
+    fieldSet.setHeadingHtml("");
+
+    return fieldSet;
+  }
+
+  /**
+   * Internal class handling the value changes of the required elements.
+   */
+  private class RequiredValueHandlerImpl implements RequiredValueHandler {
+
+    private final FlexibleElementDTO elementDTO;
+
+    public RequiredValueHandlerImpl(FlexibleElementDTO elementDTO) {
+      this.elementDTO = elementDTO;
+    }
+
+    @Override
+    public void onRequiredValueChange(RequiredValueEvent event) {
+
+      // Refresh the panel's header
+      elementDTO.getTabPanel().setElementValidity(elementDTO, event.isValueOn());
+      elementDTO.getTabPanel().validateElements();
+    }
+  }
+
+  private void updateContact(final ContactDTO contactDTO, final AsyncCallback<ContactDTO> callback, final Component target) {
+
+    // Checks if there are any changes regarding layout group iterations
+    dispatch.execute(new UpdateLayoutGroupIterations(new ArrayList<IterationChange>(iterationChanges.values()), contactDTO.getId()), new CommandResultHandler<ListResult<IterationChange>>() {
 
       @Override
-      protected void onCommandFailure(final Throwable caught) {
+      public void onCommandFailure(final Throwable caught) {
         N10N.error(I18N.CONSTANTS.save(), I18N.CONSTANTS.saveError());
-
-        if (callback != null) {
-          callback.onFailure(caught);
-        }
       }
 
       @Override
-      protected void onCommandSuccess(final VoidResult result) {
+      protected void onCommandSuccess(ListResult<IterationChange> result) {
 
-        N10N.infoNotif(I18N.CONSTANTS.infoConfirmation(), I18N.CONSTANTS.saveConfirm());
+        for (IterationChange iterationChange : result.getList()) {
+          if (iterationChange.isDeleted()) {
+            // remove corresponding valueEvents
 
-        // Checks if there is any update needed to the local project instance.
-        for (final ValueEvent event : valueChanges) {
-          if (event.getSource() instanceof DefaultContactFlexibleElementDTO) {
-            updateCurrentContact(contactDTO, (DefaultContactFlexibleElementDTO) event.getSource(), event.getSingleValue());
+            Iterator<ValueEvent> valuesIterator = valueChanges.iterator();
+            while (valuesIterator.hasNext()) {
+              ValueEvent valueEvent = valuesIterator.next();
+
+              if (valueEvent.getIterationId() == iterationChange.getIterationId()) {
+                valuesIterator.remove();
+              }
+            }
+          } else if (iterationChange.isCreated()) {
+            // change ids in valueEvents
+            int oldId = iterationChange.getIterationId();
+            int newId = iterationChange.getNewIterationId();
+
+            // updating tabitem id
+            newIterationsTabItems.get(oldId).setIterationId(newId);
+
+            for (ValueEvent valueEvent : valueChanges) {
+              if (valueEvent.getIterationId() == oldId) {
+                valueEvent.setIterationId(newId);
+              }
+            }
           }
         }
 
-        valueChanges.clear();
+        iterationChanges.clear();
+        newIterationsTabItems.clear();
 
-        if (callback != null) {
-          callback.onSuccess(contactDTO);
-        }
+        dispatch.execute(new UpdateContact(contactDTO.getId(), valueChanges), new CommandResultHandler<VoidResult>() {
+
+          @Override
+          public void onCommandFailure(final Throwable caught) {
+            N10N.error(I18N.CONSTANTS.save(), I18N.CONSTANTS.saveError());
+          }
+
+          @Override
+          protected void onCommandSuccess(final VoidResult result) {
+
+            N10N.infoNotif(I18N.CONSTANTS.infoConfirmation(), I18N.CONSTANTS.saveConfirm());
+
+            // Checks if there is any update needed to the local project instance.
+            for (final ValueEvent event : valueChanges) {
+              if (event.getSource() instanceof DefaultContactFlexibleElementDTO) {
+                updateCurrentContact(contactDTO, (DefaultContactFlexibleElementDTO) event.getSource(), event.getSingleValue());
+              }
+            }
+
+            valueChanges.clear();
+
+            if (callback != null) {
+              callback.onSuccess(contactDTO);
+            }
+          }
+        }, view.getSaveButton(), new LoadingMask(view.getDetailsContainer()), new LoadingMask(target));
       }
     }, view.getSaveButton(), new LoadingMask(view.getDetailsContainer()), new LoadingMask(target));
   }
