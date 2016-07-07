@@ -28,9 +28,13 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import com.extjs.gxt.ui.client.widget.Layout;
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.dispatch.DispatchQueue;
 import org.sigmah.client.dispatch.monitor.LoadingMask;
@@ -44,9 +48,18 @@ import org.sigmah.client.ui.res.icon.IconImageBundle;
 import org.sigmah.client.ui.view.base.ViewInterface;
 import org.sigmah.client.ui.view.project.dashboard.PhasesView;
 import org.sigmah.client.ui.widget.button.Button;
+import org.sigmah.client.ui.widget.form.Forms;
+import org.sigmah.client.ui.widget.form.IterableGroupPanel;
+import org.sigmah.client.ui.widget.form.IterableGroupPanel.IterableGroupItem;
+import org.sigmah.client.ui.widget.layout.Layouts;
+import org.sigmah.client.util.ClientUtils;
 import org.sigmah.shared.command.ChangePhase;
+import org.sigmah.shared.command.GetLayoutGroupIterations;
 import org.sigmah.shared.command.GetValue;
+import org.sigmah.shared.command.UpdateLayoutGroupIterations;
+import org.sigmah.shared.command.UpdateLayoutGroupIterations.IterationChange;
 import org.sigmah.shared.command.UpdateProject;
+import org.sigmah.shared.command.result.ListResult;
 import org.sigmah.shared.command.result.ValueResult;
 import org.sigmah.shared.command.result.VoidResult;
 import org.sigmah.shared.dto.PhaseDTO;
@@ -58,6 +71,7 @@ import org.sigmah.shared.dto.country.CountryDTO;
 import org.sigmah.shared.dto.element.BudgetElementDTO;
 import org.sigmah.shared.dto.element.BudgetSubFieldDTO;
 import org.sigmah.shared.dto.element.DefaultFlexibleElementDTO;
+import org.sigmah.shared.dto.element.FlexibleElementContainer;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
 import org.sigmah.shared.dto.element.event.RequiredValueEvent;
 import org.sigmah.shared.dto.element.event.RequiredValueHandler;
@@ -65,6 +79,7 @@ import org.sigmah.shared.dto.element.event.ValueEvent;
 import org.sigmah.shared.dto.element.event.ValueHandler;
 import org.sigmah.shared.dto.layout.LayoutConstraintDTO;
 import org.sigmah.shared.dto.layout.LayoutGroupDTO;
+import org.sigmah.shared.dto.layout.LayoutGroupIterationDTO;
 import org.sigmah.shared.dto.referential.GlobalPermissionEnum;
 import org.sigmah.shared.util.ProfileUtils;
 import org.sigmah.shared.util.ValueResultUtils;
@@ -103,7 +118,7 @@ import org.sigmah.shared.dispatch.FunctionalException;
  * 
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
-public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> {
+public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> implements IterableGroupPanel.Delegate {
 
 	/**
 	 * Description of the view managed by this presenter.
@@ -151,63 +166,15 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> {
 	}
 
 	/**
-	 * Internal class handling the value changes of the flexible elements.
-	 */
-	private class ValueHandlerImpl implements ValueHandler {
-
-		@Override
-		public void onValueChange(ValueEvent event) {
-
-			// Stores the change to be saved later.
-			valueChanges.add(event);
-
-			// Enables the save action.
-			view.getButtonSavePhase().enable();
-		}
-	}
-
-	/**
-	 * Internal class handling the value changes of the required elements.
-	 */
-	private class RequiredValueHandlerImpl implements RequiredValueHandler {
-
-		private final FlexibleElementDTO elementDTO;
-
-		public RequiredValueHandlerImpl(FlexibleElementDTO elementDTO) {
-			this.elementDTO = elementDTO;
-		}
-
-		@Override
-		public void onRequiredValueChange(RequiredValueEvent event) {
-
-			// Updates the element state for the new value.
-			elementDTO.setFilledIn(event.isValueOn());
-			view.getGridRequiredElements().getStore().update(elementDTO);
-
-			// Map the required element for the current displayed phase.
-			currentPhaseRequiredElements.putActual(elementDTO.getId(), event.isValueOn());
-
-			// If the current displayed phase is the active one,
-			// map the required element for the active phase.
-			if (isCurrentPhase(getCurrentProject().getCurrentPhase())) {
-				activePhaseRequiredElements.putActual(elementDTO.getId(), event.isValueOn());
-			}
-
-			// The element is in charge of the saving of its values. The state
-			// of the current project must be refreshed here.
-			if (event.isImmediate()) {
-				view.getButtonSavePhase().fireEvent(Events.OnClick);
-			}
-
-			// Refresh the panel's header
-			refreshRequiredElementContentPanelHeader();
-		}
-	}
-
-	/**
 	 * List of values changes.
 	 */
 	private List<ValueEvent> valueChanges;
+
+	private final Map<Integer, IterationChange> iterationChanges = new HashMap<Integer, IterationChange>();
+
+	private final Map<Integer, IterableGroupItem> newIterationsTabItems = new HashMap<Integer, IterableGroupItem>();
+
+	private final Set<FlexibleElementDTO> requiredElementsSet = new HashSet<FlexibleElementDTO>();
 
 	/**
 	 * Mapping between phases models ids and tabs items (to quickly get a tab).
@@ -315,28 +282,8 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> {
 		eventBus.fireEvent(new UpdateEvent(UpdateEvent.PROJECT_BANNER_UPDATE));
 	}
 
-	/**
-	 * Masks the phases widget.
-	 * 
-	 * @param count
-	 *          The mask counter.
-	 */
-	private void mask(final int count) {
-		view.mask(count);
-	}
-
-	/**
-	 * Unmasks the phases widget.
-	 */
-	private void unmask() {
-		if (view.unmask()) {
-			// Refreshes the toolbar.
-			refreshActionsToolbar();
-		}
-	}
-
 	public boolean hasValueChanged() {
-		return !valueChanges.isEmpty();
+		return !valueChanges.isEmpty() || !iterationChanges.isEmpty();
 	}
 
 	public void clearChangedValues() {
@@ -570,16 +517,6 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> {
 		// If the element are read only.
 		final boolean phaseIsEnded = isEndedPhase(phaseDTO);
 
-		// Masks the main panel.
-		int count = 0;
-		for (final LayoutGroupDTO groupDTO : phaseDTO.getPhaseModel().getLayout().getGroups()) {
-			count += groupDTO.getConstraints().size();
-		}
-
-		if (count > 0) {
-			mask(count);
-		}
-
 		// Sets current project status.
 		setCurrentDisplayedPhase(phaseDTO);
 
@@ -602,7 +539,7 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> {
 		view.getTabPanelPhases().getSelectedItem().add(view.getPanelProjectModel());
 
 		// Store required elements
-		final List<FlexibleElementDTO> requiredElemetsList = new ArrayList<FlexibleElementDTO>();
+		requiredElementsSet.clear();
 
 		// --
 		// -- PHASE LAYOUT
@@ -634,147 +571,308 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> {
 		// For each layout group.
 		for (final LayoutGroupDTO groupDTO : phaseDTO.getPhaseModel().getLayout().getGroups()) {
 
-			// Creates the fieldset and positions it.
-			final FieldSet formPanel = (FieldSet) groupDTO.getWidget();
-			layoutGrid.setWidget(groupDTO.getRow(), groupDTO.getColumn(), formPanel);
-
-			// For each constraint in the current layout group.
-			for (final LayoutConstraintDTO constraintDTO : groupDTO.getConstraints()) {
-
-				// Gets the element managed by this constraint.
-				final FlexibleElementDTO elementDTO = constraintDTO.getFlexibleElementDTO();
-				
-				// --
-				// -- DISABLED ELEMENTS
-				// --
-				if(elementDTO.isDisabled() && 
-					(phaseDTO.getEndDate() == null || phaseDTO.getEndDate().after(elementDTO.getDisabledDate()))) {
-					// Hiding the field if the current phase is opened or
-					// if it has been closed AFTER the field was disabled.
-					unmask();
-					continue;
-				}
-
-				// --
-				// -- ELEMENT VALUE
-				// --
-
-				// Retrieving the current amendment id.
-				final Integer amendmentId;
-				if (project.getCurrentAmendment() != null) {
-					amendmentId = project.getCurrentAmendment().getId();
-				} else {
-					amendmentId = null;
-				}
-
-				// Remote call to ask for this element value.
-				queue.add(new GetValue(getCurrentProject().getId(), elementDTO.getId(), elementDTO.getEntityName(), amendmentId),
-					new CommandResultHandler<ValueResult>() {
-
-						@Override
-						public void onCommandFailure(final Throwable throwable) {
-							if (Log.isErrorEnabled()) {
-								Log.error("Error, element value not loaded.", throwable);
-							}
-							unmask();
-						}
-
-						@Override
-						public void onCommandSuccess(final ValueResult valueResult) {
-
-							if (Log.isDebugEnabled()) {
-								Log.debug("Element value(s) object : " + valueResult);
-							}
-
-							// --
-							// -- ELEMENT COMPONENT
-							// --
-
-							// Configures the flexible element for the current application state before generating its component.
-							elementDTO.setService(dispatch);
-							elementDTO.setEventBus(eventBus);
-							elementDTO.setAuthenticationProvider(injector.getAuthenticationProvider());
-							elementDTO.setCache(injector.getClientCache());
-							elementDTO.setCurrentContainerDTO(getCurrentProject());
-							elementDTO.setTransfertManager(injector.getTransfertManager());
-							elementDTO.assignValue(valueResult);
-
-							final ProjectPresenter projectPresenter = injector.getProjectPresenter();
-							
-							// Generates element component (with the value).
-							elementDTO.init();
-							final Component elementComponent = elementDTO.getElementComponent(valueResult, phaseIsEnded);
-							
-							if(elementDTO.getAmendable() && projectPresenter.projectIsLocked() && projectPresenter.canUnlockProject() && !ProfileUtils.isGranted(auth(), GlobalPermissionEnum.MODIFY_LOCKED_CONTENT)) {
-								projectPresenter.addUnlockProjectPopup(elementDTO, elementComponent, view);
-							}
-							
-							// Component width.
-							final FormData formData;
-							if (elementDTO.getPreferredWidth() == 0) {
-								formData = new FormData("100%");
-							} else {
-								formData = new FormData(elementDTO.getPreferredWidth(), -1);
-							}
-
-							if (elementComponent != null) {
-								formPanel.add(elementComponent, formData);
-							}
-
-							formPanel.layout();
-
-							// --
-							// -- ELEMENT HANDLERS
-							// --
-
-							// Adds a value change handler to this element.
-							elementDTO.addValueHandler(new ValueHandlerImpl());
-							
-							// Adds a value change handler if this element is a dependency of a ComputationElementDTO.
-							computationTriggerManager.listenToValueChangesOfElement(elementDTO, elementComponent, valueChanges);
-
-							// If this element id a required one.
-							if (elementDTO.getValidates()) {
-
-								// Adds a specific handler.
-								elementDTO.addRequiredValueHandler(new RequiredValueHandlerImpl(elementDTO));
-
-								// Set the groupDTO into the element
-								elementDTO.setGroup(groupDTO);
-
-								elementDTO.setConstraint(constraintDTO);
-
-								// Adds the element to the tmp list for sorting
-								requiredElemetsList.add(elementDTO);
-
-								// Clear the store
-								view.getGridRequiredElements().getStore().removeAll();
-
-								// Sorting and add the list to the view
-								view.getGridRequiredElements().getStore().add(sortRequiredElements(requiredElemetsList));
-
-								// Refresh header
-								refreshRequiredElementContentPanelHeader();
-
-								// Map the required element for the current
-								// displayed phase.
-								currentPhaseRequiredElements.putSaved(elementDTO.getId(), elementDTO.isFilledIn());
-
-								// If the current displayed phase is the active one,
-								// map the required element for the active phase.
-								if (isCurrentPhase(getCurrentProject().getCurrentPhase())) {
-									activePhaseRequiredElements.putSaved(elementDTO.getId(), elementDTO.isFilledIn());
-								}
-							}
-
-							unmask();
-						}
-					});
+			// simple group
+			if(!groupDTO.getHasIterations()) {
+				FieldSet fieldSet = createGroupLayoutFieldSet(getCurrentProject(), groupDTO, queue, null, null, null);
+				layoutGrid.setWidget(groupDTO.getRow(), groupDTO.getColumn(), fieldSet);
+				continue;
 			}
+
+			final FieldSet fieldSet = (FieldSet) groupDTO.getWidget();
+			layoutGrid.setWidget(groupDTO.getRow(), groupDTO.getColumn(), fieldSet);
+
+			// iterative group
+			final IterableGroupPanel tabPanel = Forms.iterableGroupPanel(dispatch, groupDTO, getCurrentProject(), ProfileUtils.isGranted(auth(), GlobalPermissionEnum.CREATE_ITERATIONS) && getCurrentProject().getCurrentAmendment() == null);
+			tabPanel.setDelegate(this);
+			fieldSet.add(tabPanel);
+
+			tabPanel.setAutoHeight(true);
+			tabPanel.setAutoWidth(true);
+			tabPanel.setTabScroll(true);
+			tabPanel.addStyleName("white-tab-body");
+			tabPanel.setBorders(true);
+			tabPanel.setBodyBorder(false);
+
+			Integer amendmentId;
+
+			if (getCurrentProject().getCurrentAmendment() != null) {
+				amendmentId = getCurrentProject().getCurrentAmendment().getId();
+			} else {
+				amendmentId = -1;
+			}
+
+			GetLayoutGroupIterations getIterations = new GetLayoutGroupIterations(groupDTO.getId(), getCurrentProject().getId(), amendmentId);
+
+			queue.add(getIterations, new CommandResultHandler<ListResult<LayoutGroupIterationDTO>>() {
+
+				@Override
+				public void onCommandFailure(final Throwable throwable) {
+				  if (Log.isErrorEnabled()) {
+					  Log.error("Error, layout group iterations not loaded.", throwable);
+					}
+					throw new RuntimeException(throwable);
+				}
+
+				@Override
+				protected void onCommandSuccess(ListResult<LayoutGroupIterationDTO> result) {
+					DispatchQueue iterationsQueue = new DispatchQueue(dispatch, true);
+
+					for(final LayoutGroupIterationDTO iteration : result.getList()) {
+
+						final IterableGroupItem tab = new IterableGroupItem(tabPanel, iteration.getId(), iteration.getName());
+						tabPanel.addIterationTab(tab);
+
+						Layout tabLayout = Layouts.fitLayout();
+
+						tab.setLayout(tabLayout);
+
+						FieldSet tabSet = createGroupLayoutFieldSet(getCurrentProject(), groupDTO, iterationsQueue, iteration == null ? null : iteration.getId(), tabPanel, tab);
+
+						tab.add(tabSet);
+					}
+
+					iterationsQueue.start();
+
+					if(tabPanel.getItemCount() > 0) {
+						tabPanel.setSelection(tabPanel.getItem(0));
+					}
+				}
+			}, new LoadingMask(view.getTabPanelPhases()));
+
+			fieldSet.layout();
+
 		}
 
 		queue.start();
 
+	}
+
+	@Override
+	public IterationChange getIterationChange(int iterationId) {
+		return iterationChanges.get(iterationId);
+	}
+
+	@Override
+	public void setIterationChange(IterationChange iterationChange) {
+		iterationChanges.put(iterationChange.getIterationId(), iterationChange);
+
+		if (!getCurrentDisplayedPhase().isEnded()) {
+			view.getButtonSavePhase().enable();
+		}
+
+		refreshSaveButtonState();
+	}
+
+	@Override
+	public void addIterationTabItem(int iterationId, IterableGroupItem tab) {
+		newIterationsTabItems.put(iterationId, tab);
+	}
+
+	@Override
+	public FieldSet createGroupLayoutFieldSet(FlexibleElementContainer container, final LayoutGroupDTO groupLayout, DispatchQueue queue, final Integer iterationId, final IterableGroupPanel tabPanel, final IterableGroupItem tabItem) {
+		final ProjectDTO project = (ProjectDTO)container;
+
+		// Creates the fieldset and positions it.
+		final FieldSet fieldSet = (FieldSet) groupLayout.getWidget();
+
+		// For each constraint in the current layout group.
+		if (ClientUtils.isEmpty(groupLayout.getConstraints())) {
+			return fieldSet;
+		}
+
+		for (final LayoutConstraintDTO constraintDTO : groupLayout.getConstraints()) {
+
+			// Gets the element managed by this constraint.
+			final FlexibleElementDTO elementDTO = constraintDTO.getFlexibleElementDTO();
+
+			// --
+			// -- DISABLED ELEMENTS
+			// --
+
+			if(elementDTO.isDisabled()) {
+				continue;
+			}
+
+			// --
+			// -- ELEMENT VALUE
+			// --
+
+			// Retrieving the current amendment id.
+			final Integer amendmentId;
+			if (project.getCurrentAmendment() != null) {
+				amendmentId = project.getCurrentAmendment().getId();
+			} else {
+				amendmentId = null;
+			}
+
+			// Remote call to ask for this element value.
+			GetValue getValue;
+
+			getValue = new GetValue(project.getId(), elementDTO.getId(), elementDTO.getEntityName(), amendmentId, iterationId);
+
+			queue.add(getValue, new CommandResultHandler<ValueResult>() {
+
+				@Override
+				public void onCommandFailure(final Throwable throwable) {
+					if (Log.isErrorEnabled()) {
+						Log.error("Error, element value not loaded.", throwable);
+					}
+					throw new RuntimeException(throwable);
+				}
+
+				@Override
+				public void onCommandSuccess(final ValueResult valueResult) {
+
+					if (Log.isDebugEnabled()) {
+						Log.debug("Element value(s) object : " + valueResult);
+					}
+
+					// --
+					// -- ELEMENT COMPONENT
+					// --
+
+					// Configures the flexible element for the current application state before generating its component.
+					elementDTO.setService(dispatch);
+					elementDTO.setAuthenticationProvider(injector.getAuthenticationProvider());
+					elementDTO.setEventBus(eventBus);
+					elementDTO.setCache(injector.getClientCache());
+					elementDTO.setCurrentContainerDTO(project);
+					elementDTO.setTransfertManager(injector.getTransfertManager());
+					elementDTO.assignValue(valueResult);
+					elementDTO.setTabPanel(tabPanel);
+
+					final ProjectPresenter projectPresenter = injector.getProjectPresenter();
+
+					// Generates element component (with the value).
+					elementDTO.init();
+					final Component elementComponent = elementDTO.getElementComponent(valueResult);
+
+					if(elementDTO.getAmendable() && projectPresenter.projectIsLocked() && projectPresenter.canUnlockProject() && !ProfileUtils.isGranted(auth(), GlobalPermissionEnum.MODIFY_LOCKED_CONTENT)) {
+						projectPresenter.addUnlockProjectPopup(elementDTO, elementComponent, new LoadingMask(view.getTabPanelPhases()));
+					}
+
+					// Component width.
+					final FormData formData;
+					if (elementDTO.getPreferredWidth() == 0) {
+						formData = new FormData("100%");
+					} else {
+						formData = new FormData(elementDTO.getPreferredWidth(), -1);
+					}
+
+					if (elementComponent != null) {
+						fieldSet.add(elementComponent, formData);
+					}
+					fieldSet.layout();
+
+					// --
+					// -- ELEMENT HANDLERS
+					// --
+
+					// Adds a value change handler if this element is a dependency of a ComputationElementDTO.
+					computationTriggerManager.listenToValueChangesOfElement(elementDTO, elementComponent, valueChanges);
+
+					// Adds a value change handler to this element.
+					elementDTO.addValueHandler(new ValueHandler() {
+
+						@Override
+						public void onValueChange(final ValueEvent event) {
+
+							if(tabPanel != null) {
+								event.setIterationId(tabPanel.getCurrentIterationId());
+							}
+
+							// TODO: Find linked computation fields if any and recompute the value.
+
+							// Stores the change to be saved later.
+							valueChanges.add(event);
+
+							if (!getCurrentDisplayedPhase().isEnded()) {
+
+								// Enables the save action.
+								refreshSaveButtonState();
+							}
+						}
+					});
+
+					// If this element id a required one.
+					if (elementDTO.getValidates()) {
+
+						// Adds a specific handler.
+						//elementDTO.addRequiredValueHandler(new RequiredValueHandlerImpl(elementDTO, iterationId));
+
+						elementDTO.addRequiredValueHandler(new RequiredValueHandler() {
+
+							@Override
+							public void onRequiredValueChange(RequiredValueEvent event) {
+
+								// Map the required element for the current displayed phase.
+								currentPhaseRequiredElements.putActual(tabPanel.getCurrentIterationId(), elementDTO.getId(), event.isValueOn());
+
+								// If the current displayed phase is the active one,
+								// map the required element for the active phase.
+								if (isCurrentPhase(getCurrentProject().getCurrentPhase())) {
+									activePhaseRequiredElements.putActual(tabPanel.getCurrentIterationId(), elementDTO.getId(), event.isValueOn());
+								}
+
+								// The element is in charge of the saving of its values. The state
+								// of the current project must be refreshed here.
+								if (event.isImmediate()) {
+									view.getButtonSavePhase().fireEvent(Events.OnClick);
+								}
+
+								// Updates the element state for the new value.
+								elementDTO.setFilledIn(currentPhaseRequiredElements.isActuallyTrue(elementDTO.getId()));
+								view.getGridRequiredElements().getStore().update(elementDTO);
+
+								// Refresh the panel's header
+								elementDTO.getTabPanel().setElementValidity(elementDTO, event.isValueOn());
+								refreshRequiredElementContentPanelHeader();
+							}
+						});
+
+
+						if(tabItem != null) {
+							tabItem.setElementValidity(elementDTO, elementDTO.isCorrectRequiredValue(valueResult));
+							tabItem.refreshTitle();
+						}
+
+						// Set the groupDTO into the element
+						elementDTO.setGroup(groupLayout);
+
+						elementDTO.setConstraint(constraintDTO);
+
+						// Adds the element to the tmp list for sorting
+						requiredElementsSet.add(elementDTO);
+
+						// Clear the store
+						view.getGridRequiredElements().getStore().removeAll();
+
+						// Sorting and add the list to the view
+						view.getGridRequiredElements().getStore().add(sortRequiredElements(new ArrayList<FlexibleElementDTO>(requiredElementsSet)));
+
+						// Refresh header
+						refreshRequiredElementContentPanelHeader();
+
+						// Map the required element for the current
+						// displayed phase.
+						currentPhaseRequiredElements.putSaved(iterationId, elementDTO.getId(), elementDTO.isFilledIn());
+
+						// If the current displayed phase is the active one,
+						// map the required element for the active phase.
+						if (isCurrentPhase(getCurrentProject().getCurrentPhase())) {
+							activePhaseRequiredElements.putSaved(iterationId, elementDTO.getId(), elementDTO.isFilledIn());
+						}
+					}
+				}
+			}, new LoadingMask(view.getTabPanelPhases()));
+		}
+
+		fieldSet.setCollapsible(false);
+		fieldSet.setAutoHeight(true);
+		fieldSet.setBorders(false);
+		fieldSet.setHeadingHtml("");
+
+		return fieldSet;
 	}
 
 	/**
@@ -879,16 +977,7 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> {
 		// -- ACTION: SAVE MODIFICATIONS
 		// --
 
-		// Disabled until a field is modified.
-		if (hasValueChanged()) {
-			view.getButtonSavePhase().setEnabled(true);
-		} else {
-			view.getButtonSavePhase().setEnabled(false);
-			view.getButtonSavePhase().removeAllListeners();
-		}
-
-		// Adds the save action.
-		view.getButtonSavePhase().addListener(Events.OnClick, new SaveListener());
+		refreshSaveButtonState();
 
 		// --
 		// -- ACTION: PHASE GUIDE
@@ -913,6 +1002,18 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> {
 		} else {
 			view.getButtonPhaseGuide().setEnabled(false);
 			view.getButtonPhaseGuide().setTitle(I18N.CONSTANTS.projectPhaseGuideUnavailable());
+		}
+	}
+
+	private void refreshSaveButtonState() {
+		view.getButtonSavePhase().removeAllListeners();
+
+		// Disabled unless a field is modified.
+		if (hasValueChanged()) {
+			view.getButtonSavePhase().setEnabled(true);
+			view.getButtonSavePhase().addListener(Events.OnClick, new SaveListener());
+		} else {
+			view.getButtonSavePhase().setEnabled(false);
 		}
 	}
 
@@ -1192,65 +1293,108 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> {
 		@Override
 		public void handleEvent(final ButtonEvent be) {
             view.getButtonSavePhase().disable();
-			final UpdateProject updateProject = new UpdateProject(getCurrentProject().getId(), valueChanges);
-            
-			dispatch.execute(updateProject, new CommandResultHandler<VoidResult>() {
+
+			// Checks if there are any changes regarding layout group iterations
+			dispatch.execute(new UpdateLayoutGroupIterations(new ArrayList<IterationChange>(iterationChanges.values()), getCurrentProject().getId()), new CommandResultHandler<ListResult<IterationChange>>() {
 
 				@Override
 				public void onCommandFailure(final Throwable caught) {
-
-					N10N.warn(I18N.CONSTANTS.save(), I18N.CONSTANTS.saveError());
-
-					currentPhaseRequiredElements.clearState();
-
-					if (isActivePhase(getCurrentDisplayedPhase())) {
-						activePhaseRequiredElements.clearState();
-					}
+					N10N.error(I18N.CONSTANTS.save(), I18N.CONSTANTS.saveError());
 				}
-
-                @Override
-                protected void onFunctionalException(FunctionalException exception) {
-                    super.onFunctionalException(exception);
-                    
-                    view.getButtonSavePhase().setEnabled(true);
-                }
 
 				@Override
-				public void onCommandSuccess(final VoidResult result) {
+				protected void onCommandSuccess(ListResult<IterationChange> result) {
 
-					N10N.infoNotif(I18N.CONSTANTS.infoConfirmation(), I18N.CONSTANTS.saveConfirm());
-                    
-					// Checks if there is any update needed to the local project instance.
-					boolean refreshBanner = false;
-					boolean coreVersionUpdated = false;
-					
-					for (final ValueEvent event : valueChanges) {
-						if (event.getSource() instanceof DefaultFlexibleElementDTO) {
-							updateCurrentProject(((DefaultFlexibleElementDTO) event.getSource()), event.getSingleValue());
-							refreshBanner = true;
+					for (IterationChange iterationChange : result.getList()) {
+						if (iterationChange.isDeleted()) {
+							// remove corresponding valueEvents
+
+							Iterator<ValueEvent> valuesIterator = valueChanges.iterator();
+							while (valuesIterator.hasNext()) {
+								ValueEvent valueEvent = valuesIterator.next();
+
+								if (valueEvent.getIterationId() == iterationChange.getIterationId()) {
+									valuesIterator.remove();
+								}
+							}
+						} else if (iterationChange.isCreated()) {
+							// change ids in valueEvents
+							int oldId = iterationChange.getIterationId();
+							int newId = iterationChange.getNewIterationId();
+
+							// updating tabitem id
+							newIterationsTabItems.get(oldId).setIterationId(newId);
+
+							for (ValueEvent valueEvent : valueChanges) {
+								if (valueEvent.getIterationId() == oldId) {
+									valueEvent.setIterationId(newId);
+								}
+							}
 						}
-						coreVersionUpdated |= event.getSourceElement().getAmendable();
 					}
 
-					clearChangedValues();
+					iterationChanges.clear();
+					newIterationsTabItems.clear();
 
-					currentPhaseRequiredElements.saveState();
+					dispatch.execute(new UpdateProject(getCurrentProject().getId(), valueChanges), new CommandResultHandler<VoidResult>() {
 
-					if (isActivePhase(getCurrentDisplayedPhase())) {
-						activePhaseRequiredElements.saveState();
-					}
+						@Override
+						public void onCommandFailure(final Throwable caught) {
 
-					refreshActionsToolbar();
+							N10N.warn(I18N.CONSTANTS.save(), I18N.CONSTANTS.saveError());
 
-					if (refreshBanner) {
-						refreshProjectBanner();
-					}
-					
-					if(coreVersionUpdated) {
-						eventBus.fireEvent(new UpdateEvent(UpdateEvent.CORE_VERSION_UPDATED));
-					}
+							currentPhaseRequiredElements.clearState();
+
+							if (isActivePhase(getCurrentDisplayedPhase())) {
+								activePhaseRequiredElements.clearState();
+							}
+						}
+
+						@Override
+						protected void onFunctionalException(FunctionalException exception) {
+							super.onFunctionalException(exception);
+
+							view.getButtonSavePhase().setEnabled(true);
+						}
+
+						@Override
+						public void onCommandSuccess(final VoidResult result) {
+
+							N10N.infoNotif(I18N.CONSTANTS.infoConfirmation(), I18N.CONSTANTS.saveConfirm());
+
+							// Checks if there is any update needed to the local project instance.
+							boolean refreshBanner = false;
+							boolean coreVersionUpdated = false;
+
+							for (final ValueEvent event : valueChanges) {
+								if (event.getSource() instanceof DefaultFlexibleElementDTO) {
+									updateCurrentProject(((DefaultFlexibleElementDTO) event.getSource()), event.getSingleValue());
+									refreshBanner = true;
+								}
+								coreVersionUpdated |= event.getSourceElement().getAmendable();
+							}
+
+							clearChangedValues();
+
+							currentPhaseRequiredElements.saveState();
+
+							if (isActivePhase(getCurrentDisplayedPhase())) {
+								activePhaseRequiredElements.saveState();
+							}
+
+							refreshActionsToolbar();
+
+							if (refreshBanner) {
+								refreshProjectBanner();
+							}
+
+							if(coreVersionUpdated) {
+								eventBus.fireEvent(new UpdateEvent(UpdateEvent.CORE_VERSION_UPDATED));
+							}
+						}
+					}, new LoadingMask(view.getTabPanelPhases()));
 				}
-			}, new LoadingMask(view.getTabPanelPhases()));
+			}, view.getButtonSavePhase(), new LoadingMask(view.getPanelSelectedPhase()));
 		}
 	}
 
