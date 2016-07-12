@@ -21,6 +21,8 @@ package org.sigmah.server.domain;
  * #L%
  */
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -71,7 +73,7 @@ public class Contact extends AbstractEntityId<Integer> implements Deleteable {
           EntityConstants.CONTACT_ORG_UNIT_COLUMN_ORG_UNIT
       })
   )
-  private List<OrgUnit> secondaryOrgUnits;
+  private List<OrgUnit> secondaryOrgUnits = new ArrayList<>();
 
   @Column(name = EntityConstants.CONTACT_COLUMN_LOGIN)
   private String login;
@@ -236,6 +238,18 @@ public class Contact extends AbstractEntityId<Integer> implements Deleteable {
       return;
     }
     this.secondaryOrgUnits = secondaryOrgUnits;
+  }
+
+  @Transient
+  public List<OrgUnit> getOrgUnits() {
+    if (mainOrgUnit == null) {
+      return Collections.emptyList();
+    }
+
+    List<OrgUnit> orgUnits = new ArrayList<>();
+    orgUnits.add(mainOrgUnit);
+    orgUnits.addAll(secondaryOrgUnits);
+    return orgUnits;
   }
 
   public String getLogin() {
