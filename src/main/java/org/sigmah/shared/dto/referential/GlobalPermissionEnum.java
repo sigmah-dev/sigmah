@@ -210,6 +210,34 @@ public enum GlobalPermissionEnum implements Result {
 	 */
 	EDIT_ORG_UNIT_AGENDA(VIEW_ORG_UNIT_AGENDA),
 
+	/*
+	 * Contact related permissions.
+	 */
+
+	/**
+	 * For viewing contacts related to available org units.
+	 */
+	VIEW_VISIBLE_CONTACTS(GlobalPermissionCategory.CONTACT),
+
+	/**
+	 * For exporting all contacts
+	 */
+	EXPORT_ALL_CONTACTS(VIEW_VISIBLE_CONTACTS),
+
+	/**
+	 * For creating/deleting/modifying visible contacts
+	 */
+	EDIT_VISIBLE_CONTACTS(VIEW_VISIBLE_CONTACTS),
+
+	/**
+	 * For importing or creating contacts
+	 */
+	IMPORT_CONTACTS(VIEW_VISIBLE_CONTACTS),
+
+	/**
+	 * For deleting contacts
+	 */
+	DELETE_VISIBLE_CONTACTS(VIEW_VISIBLE_CONTACTS),
 
 	/*
 	 * Administration-related permissions.
@@ -373,6 +401,8 @@ public enum GlobalPermissionEnum implements Result {
 
 		ORG_UNIT,
 
+		CONTACT,
+
 		ADMINISTRATION,
 
 		OTHER,
@@ -416,6 +446,9 @@ public enum GlobalPermissionEnum implements Result {
 
 				case ORG_UNIT:
 					return I18N.CONSTANTS.categoryOrgUnit();
+
+				case CONTACT:
+					return I18N.CONSTANTS.categoryContact();
 
 				case ADMINISTRATION:
 					return I18N.CONSTANTS.categoryAdministration();
@@ -518,7 +551,7 @@ public enum GlobalPermissionEnum implements Result {
 
 			case EDIT_PROJECT_AGENDA:
 				return I18N.CONSTANTS.EDIT_AGENDA();
-				
+
 			case EDIT_ALL_REMINDERS:
 				return I18N.CONSTANTS.EDIT_ALL_REMINDERS();
 
@@ -566,6 +599,21 @@ public enum GlobalPermissionEnum implements Result {
 
 			case EDIT_ORG_UNIT_AGENDA:
 				return I18N.CONSTANTS.EDIT_ORG_UNIT_AGENDA();
+
+			case VIEW_VISIBLE_CONTACTS:
+				return I18N.CONSTANTS.contactPermissionViewVisibleContacts();
+
+			case EXPORT_ALL_CONTACTS:
+				return I18N.CONSTANTS.contactPermissionExportAllContacts();
+
+			case EDIT_VISIBLE_CONTACTS:
+				return I18N.CONSTANTS.contactPermissionEditVisibleContacts();
+
+			case IMPORT_CONTACTS:
+				return I18N.CONSTANTS.contactPermissionImportContacts();
+
+			case DELETE_VISIBLE_CONTACTS:
+				return I18N.CONSTANTS.contactPermissionDeleteVisibleContacts();
 
 			case VIEW_ADMIN:
 				return I18N.CONSTANTS.VIEW_ADMIN();
