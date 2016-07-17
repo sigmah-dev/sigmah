@@ -22,7 +22,6 @@ package org.sigmah.client.ui.presenter.orgunit;
  * #L%
  */
 
-import java.util.EnumMap;
 
 import org.sigmah.client.inject.Injector;
 import org.sigmah.client.page.Page;
@@ -30,12 +29,14 @@ import org.sigmah.client.page.PageRequest;
 import org.sigmah.client.ui.presenter.calendar.CalendarPresenter;
 import org.sigmah.client.ui.view.base.ViewInterface;
 import org.sigmah.client.ui.view.orgunit.OrgUnitCalendarView;
-import org.sigmah.shared.dto.calendar.CalendarType;
 
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
+import java.util.HashMap;
+import java.util.Map;
+import org.sigmah.shared.dto.orgunit.OrgUnitDTO;
 
 /**
  * <p>
@@ -111,10 +112,18 @@ public class OrgUnitCalendarPresenter extends AbstractOrgUnitPresenter<OrgUnitCa
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void onPageRequest(final PageRequest request) {
-		final EnumMap<CalendarType, Integer> calendars = new EnumMap<CalendarType, Integer>(CalendarType.class);
-		calendars.put(CalendarType.Activity, getOrgUnit().getId());
-		calendars.put(CalendarType.Personal, getOrgUnit().getCalendarId());
+	   public void onPageRequest(final PageRequest request) {
+        final Map<Integer, Integer> calendars = new HashMap<Integer, Integer>();
+        Integer calendarId = 1;
+        calendars.put(calendarId++, getOrgUnit().getId());
+        calendars.put(calendarId, getOrgUnit().getCalendarId());
+        calendarId = calendarId + 3;
+        
+        for(final OrgUnitDTO child : getOrgUnit().getChildrenOrgUnits()) {
+            calendars.put(calendarId++, child.getId());
+            calendars.put(calendarId, child.getCalendarId());
+            calendarId = calendarId + 3;
+        }
 		calendarPresenter.reload(calendars);
 	}
 

@@ -36,6 +36,8 @@ import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * <p>
@@ -109,14 +111,32 @@ public class ProjectCalendarPresenter extends AbstractProjectPresenter<ProjectCa
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void onPageRequest(final PageRequest request) {
-		final EnumMap<CalendarType, Integer> calendars = new EnumMap<CalendarType, Integer>(CalendarType.class);
-		calendars.put(CalendarType.Activity, getProject().getId());
-		calendars.put(CalendarType.Personal, getProject().getCalendarId());
-		calendars.put(CalendarType.MonitoredPoint, getProject().getPointsList().getId());
-		calendars.put(CalendarType.Reminder, getProject().getRemindersList().getId());
-		calendarPresenter.reload(calendars);
-	}
+	   public void onPageRequest(final PageRequest request) {
+        final Map<Integer, Integer> calendars = new HashMap<Integer, Integer>();
+        Integer calendarId = 1;
+        calendars.put(calendarId++, getProject().getId());
+        calendars.put(calendarId++, getProject().getCalendarId());
+        calendars.put(calendarId++, getProject().getPointsList().getId());
+        calendars.put(calendarId++, getProject().getRemindersList().getId());
+
+        if (!getProject().getFunded().isEmpty()) {
+            for (int i = 0; i < getProject().getFunded().size(); i++) {
+                calendars.put(calendarId++, getProject().getFunded().get(i).getFunded().getId());
+                calendars.put(calendarId++, getProject().getFunded().get(i).getFunded().getCalendarId());
+                calendars.put(calendarId++, getProject().getFunded().get(i).getFunded().getPointsList().getId());
+                calendars.put(calendarId++, getProject().getFunded().get(i).getFunded().getRemindersList().getId());
+            }
+        }
+        if (!getProject().getFunding().isEmpty()) {
+            for (int i = 0; i < getProject().getFunding().size(); i++) {
+                calendars.put(calendarId++, getProject().getFunding().get(i).getFunding().getId());
+                calendars.put(calendarId++, getProject().getFunding().get(i).getFunding().getCalendarId());
+                calendars.put(calendarId++, getProject().getFunding().get(i).getFunding().getPointsList().getId());
+                calendars.put(calendarId++, getProject().getFunding().get(i).getFunding().getRemindersList().getId());
+            }
+        }
+        calendarPresenter.reload(calendars);
+    }
 
 	/**
 	 * {@inheritDoc}

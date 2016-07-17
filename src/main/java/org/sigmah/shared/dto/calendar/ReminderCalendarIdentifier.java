@@ -37,17 +37,19 @@ public class ReminderCalendarIdentifier implements CalendarIdentifier {
 	private String completedEventString;
 	private String expectedDateString;
 	private String dateFormat;
+    private int projectId;
 
 	public ReminderCalendarIdentifier() {
 		// Serialization.
 	}
 
-	public ReminderCalendarIdentifier(int reminderListId, String calendarName, String completedEventString, String expectedDateString, String dateFormat) {
+	public ReminderCalendarIdentifier(int reminderListId, String calendarName, String completedEventString, String expectedDateString, String dateFormat, int projectId) {
 		this.reminderListId = reminderListId;
 		this.calendarName = calendarName;
 		this.completedEventString = completedEventString;
 		this.expectedDateString = expectedDateString;
 		this.dateFormat = dateFormat;
+        this.projectId = projectId;
 	}
 
 	public int getReminderListId() {
@@ -89,6 +91,16 @@ public class ReminderCalendarIdentifier implements CalendarIdentifier {
 	public void setDateFormat(String dateFormat) {
 		this.dateFormat = dateFormat;
 	}
+
+    public int getProjectId() {
+        return projectId;
+    }
+
+    public void setProjectId(int projectId) {
+        this.projectId = projectId;
+    }
+    
+    
 
 	/**
 	 * {@inheritDoc}

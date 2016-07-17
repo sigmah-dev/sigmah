@@ -132,7 +132,7 @@ public class CalendarView extends AbstractView implements CalendarPresenter.View
 
 		selectionModel = new CheckBoxSelectionModel<CalendarWrapper>();
 
-		final ColumnModel calendarColumnModel = new ColumnModel(Arrays.asList(selectionModel.getColumn(), calendarName, calendarColor));
+		final ColumnModel calendarColumnModel = new ColumnModel(Arrays.asList(calendarColor, calendarName, selectionModel.getColumn()));
 
 		calendarsStore = new ListStore<CalendarWrapper>();
 

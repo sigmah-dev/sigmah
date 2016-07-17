@@ -317,6 +317,14 @@ body {font-family:Arial;font-size:8pt}
 .calendar-fullday-event-5{background-color:#9643a5}
 .calendar-event-6{color:#737373}
 .calendar-fullday-event-6{background-color:#737373}
+.calendar-event-7{color:#ffcd39}
+.calendar-fullday-event-7{background-color:#ffcd39}
+.calendar-event-8{color:#2787ff}
+.calendar-fullday-event-8{background-color:#2787ff}
+.calendar-event-9{color:#c4ff59}
+.calendar-fullday-event-9{background-color:#c4ff59}
+.calendar-event-10{color:#f23f3f}
+.calendar-fullday-event-10{background-color:#f23f3f}
 .calendar-event-limit{color:#482A1E;text-align:center;font-weight:700;width:100%;height:16px;display:block;text-decoration:none}
 .calendar-event-limit:hover{color:#EE9329}
 
