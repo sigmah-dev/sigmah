@@ -388,7 +388,7 @@ public class CalendarPresenter extends AbstractPresenter<CalendarPresenter.View>
 				continue;
 			}
 
-			Integer assign=calendarEntry.getKey();
+			final Integer assign=calendarEntry.getKey();
             final CalendarType calendarType;
             switch (assign%4) {
                 case 1:
@@ -412,7 +412,12 @@ public class CalendarPresenter extends AbstractPresenter<CalendarPresenter.View>
 				public void onCommandSuccess(final Calendar result) {
 					if(result != null) {
 						// Defines the color index of the calendar.
+						if(assign<5){
 						result.setStyle(calendarType.getColorCode());
+						}
+						else{
+						result.setStyle(calendarType.getColorCode() + 6);
+						}
                         result.setType(calendarType);
 
 						view.getCalendarsStore().add(new CalendarWrapper(result));

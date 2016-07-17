@@ -67,6 +67,10 @@ public enum CalendarType {
 		BLUE(2),
 		GREEN(3),
 		RED(4),
+        ORANGERelated(7),
+		BLUERelated(8),
+		GREENRelated(9),
+		REDRelated(10),
 		VIOLET(5),
 		GRAY(6);
 
@@ -88,9 +92,6 @@ public enum CalendarType {
 	 */
     static int projectId;
 	public static CalendarIdentifier getIdentifier(final CalendarType type, final Integer id) {
-        
-        
-
 		if (type == null) {
 			throw new IllegalArgumentException("Invalid calendar type.");
 		}
