@@ -30,16 +30,26 @@ public class GetContactHistory extends AbstractCommand<ListResult<ContactHistory
 
   private Integer contactId;
 
+  private Boolean lastOnly;
+
   public GetContactHistory() {
     // Serialization
   }
 
   public GetContactHistory(Integer contactId) {
-    this.contactId = contactId;
+    this(contactId, false);
+  }
 
+  public GetContactHistory(Integer contactId, Boolean lastOnly) {
+    this.contactId = contactId;
+    this.lastOnly = lastOnly;
   }
 
   public Integer getContactId() {
     return contactId;
+  }
+
+  public boolean isLastOnly() {
+    return lastOnly;
   }
 }

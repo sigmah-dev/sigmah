@@ -36,6 +36,7 @@ import org.sigmah.client.page.Page;
 import org.sigmah.client.page.PageRequest;
 import org.sigmah.client.page.RequestParameter;
 import org.sigmah.client.ui.presenter.base.AbstractPagePresenter;
+import org.sigmah.client.ui.presenter.contact.dashboardlist.ContactsListWidget;
 import org.sigmah.client.ui.presenter.project.treegrid.ProjectsListWidget;
 import org.sigmah.client.ui.presenter.project.treegrid.ProjectsListWidget.LoadingMode;
 import org.sigmah.client.ui.presenter.project.treegrid.ProjectsListWidget.RefreshMode;
@@ -168,6 +169,13 @@ public class DashboardPresenter extends AbstractPagePresenter<DashboardPresenter
 		void setPanelsTitleSuffix(String title);
 
 		/**
+		 * Returns the {@link ContactsListWidget} widget.
+		 *
+		 * @return The contacts list widget.
+		 */
+		ContactsListWidget getContactsList();
+
+		/**
 		 * Returns the {@link ProjectsListWidget} widget.
 		 * 
 		 * @return The projects list widget.
@@ -223,6 +231,7 @@ public class DashboardPresenter extends AbstractPagePresenter<DashboardPresenter
 				public void handleEvent(BaseEvent event) {
 					loadReminders();
 					loadMonitoredPoints();
+					loadContacts();
 					loadProjects(true);
 					loadOrgUnits();
 				}
@@ -268,6 +277,9 @@ public class DashboardPresenter extends AbstractPagePresenter<DashboardPresenter
 
 		// Reloads OrgUnits.
 		loadOrgUnits();
+
+		// Reloads contacts.
+		loadContacts();
 
 		// Reloads projects.
 		loadProjects(false);
@@ -485,6 +497,10 @@ public class DashboardPresenter extends AbstractPagePresenter<DashboardPresenter
 				WorkInProgressWidget.popup(true);
 			}
 		}
+	}
+
+	private void loadContacts() {
+		view.getContactsList().refresh(view.getOrgUnitsTreeGrid().getDisplayOnlyMainOrgUnitCheckbox().getValue());
 	}
 
 	private void loadProjects(boolean forceRefresh) {

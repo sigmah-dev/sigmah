@@ -35,6 +35,7 @@ import org.sigmah.shared.dto.country.CountryDTO;
 import org.sigmah.shared.dto.element.DefaultContactFlexibleElementContainer;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
 import org.sigmah.shared.dto.orgunit.OrgUnitDTO;
+import org.sigmah.shared.dto.referential.ContactModelType;
 
 public class ContactDTO extends AbstractModelDataEntityDTO<Integer> implements DefaultContactFlexibleElementContainer {
   private static final long serialVersionUID = -6688968774985926447L;
@@ -60,6 +61,7 @@ public class ContactDTO extends AbstractModelDataEntityDTO<Integer> implements D
   public static final String ROOT = "root";
   public static final String DATE_CREATED = "dateCreated";
   public static final String EMAIL_WITH_FULLNAME = "emailWithFullname";
+  public static final String TYPE = "type";
 
   public enum Mode implements IsMappingMode {
     BASIC_INFORMATION(new MappingField(MAIN_ORG_UNIT), new MappingField(SECONDARY_ORG_UNITS), new MappingField(COUNTRY),
@@ -125,6 +127,7 @@ public class ContactDTO extends AbstractModelDataEntityDTO<Integer> implements D
 
   public void setContactModel(ContactModelDTO contactModel) {
     set(CONTACT_MODEL, contactModel);
+    initType();
   }
 
   public Integer getUserId() {
@@ -315,6 +318,17 @@ public class ContactDTO extends AbstractModelDataEntityDTO<Integer> implements D
       set(EMAIL_WITH_FULLNAME, email);
     }
     set(EMAIL_WITH_FULLNAME, email + " (" + fullName + ")");
+  }
+
+  public ContactModelType getType() {
+    return get(TYPE);
+  }
+
+  public void initType() {
+    ContactModelDTO model = getContactModel();
+    ContactModelType type = model.getType();
+
+    set(TYPE, type);
   }
 
   /**

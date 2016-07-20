@@ -1,4 +1,4 @@
-package org.sigmah.client.ui.presenter.project.treegrid;
+package org.sigmah.client.ui.presenter.contact.dashboardlist;
 
 /*
  * #%L
@@ -25,37 +25,33 @@ package org.sigmah.client.ui.presenter.project.treegrid;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.allen_sauer.gwt.log.client.Log;
+import com.extjs.gxt.ui.client.widget.Component;
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.dispatch.DispatchAsync;
 import org.sigmah.client.dispatch.monitor.LoadingMask;
 import org.sigmah.client.dispatch.monitor.ProgressMask;
 import org.sigmah.client.i18n.I18N;
-import org.sigmah.shared.command.GetProjects;
-import org.sigmah.shared.command.GetProjectsFromId;
+import org.sigmah.client.ui.view.contact.dashboardlist.DashboardContact;
+import org.sigmah.shared.command.GetContactHistory;
+import org.sigmah.shared.command.GetContacts;
+import org.sigmah.shared.command.result.ContactHistory;
 import org.sigmah.shared.command.result.ListResult;
-import org.sigmah.shared.dto.ProjectDTO;
-
-import com.allen_sauer.gwt.log.client.Log;
-import com.extjs.gxt.ui.client.widget.Component;
+import org.sigmah.shared.dto.ContactDTO;
 
 /**
- * Represents a worker which get projects chunk by chunk.
- * 
- * @author tmi
- * @author Denis Colliot (dcolliot@ideia.fr)
+ * Represents a worker which get contacts chunk by chunk.
  */
-final class GetProjectsWorker {
+final class GetContactsWorker {
 
 	/**
 	 * Receives the worker events.
-	 * 
-	 * @author tmi
 	 */
 	public static interface WorkerListener {
 
 		/**
 		 * Method called if a server error occurs.
-		 * 
+		 *
 		 * @param error
 		 *          The error.
 		 */
@@ -63,11 +59,11 @@ final class GetProjectsWorker {
 
 		/**
 		 * Method called when a chunk is retrieved.
-		 * 
-		 * @param projects
+		 *
+		 * @param contact
 		 *          The chunk.
 		 */
-		void chunkRetrieved(List<ProjectDTO> projects);
+		void chunkRetrieved(DashboardContact contact);
 
 		/**
 		 * Method called after the last chunk has been retrieved.
@@ -82,9 +78,9 @@ final class GetProjectsWorker {
 	private final DispatchAsync dispatch;
 
 	/**
-	 * The {@link GetProjects} command to execute.
+	 * The {@link GetContacts} command to execute.
 	 */
-	private final GetProjects cmd;
+	private final GetContacts cmd;
 
 	/**
 	 * The component to mask while the worker runs.
@@ -92,24 +88,19 @@ final class GetProjectsWorker {
 	private final Component component;
 
 	/**
-	 * The size of each chunk.
-	 */
-	private final int chunkSize;
-
-	/**
 	 * Listeners.
 	 */
 	private final ArrayList<WorkerListener> listeners;
 
 	/**
-	 * The list of projects ids to retrieve by chunks.
+	 * The list of contacts to retrieve.
 	 */
-	private List<Integer> projectsIds;
+	private List<ContactDTO> contactsList;
 
 	/**
-	 * The number of projects ids to retrieve by chunks.
+	 * The number of contacts to retrieve.
 	 */
-	private int projectsIdsSize;
+	private int contactsSize;
 
 	/**
 	 * The async monitor.
@@ -117,37 +108,22 @@ final class GetProjectsWorker {
 	private ProgressMask monitor;
 
 	/**
-	 * Builds a new worker with a default chuck size to 1.
-	 * 
-	 * @param dispatch
-	 *          The dispatcher.
-	 * @param cmd
-	 *          The {@link GetProjects} command to execute.
-	 */
-	public GetProjectsWorker(DispatchAsync dispatch, GetProjects cmd, Component component) {
-		this(dispatch, cmd, component, 1);
-	}
-
-	/**
 	 * Builds a new worker.
-	 * 
+	 *
 	 * @param dispatch
 	 *          The dispatcher.
 	 * @param cmd
-	 *          The {@link GetProjects} command to execute.
+	 *          The {@link GetContacts} command to execute.
 	 * @param component
 	 *          The component to mask while the worker runs.
-	 * @param chunkSize
-	 *          The size of each chunk.
 	 */
-	public GetProjectsWorker(final DispatchAsync dispatch, final GetProjects cmd, final Component component, final int chunkSize) {
+	public GetContactsWorker(final DispatchAsync dispatch, final GetContacts cmd, final Component component) {
 		assert dispatch != null;
 		assert cmd != null;
 		assert component != null;
 		this.dispatch = dispatch;
 		this.cmd = cmd;
 		this.component = component;
-		this.chunkSize = chunkSize <= 0 ? 1 : chunkSize;
 		this.listeners = new ArrayList<WorkerListener>();
 	}
 
@@ -166,36 +142,29 @@ final class GetProjectsWorker {
 	 */
 	public void run() {
 
-		monitor = new ProgressMask(component, I18N.CONSTANTS.refreshProjectListProjectLoaded());
+		monitor = new ProgressMask(component, I18N.CONSTANTS.refreshContactListContactLoaded());
 
-		// First call to get the list of projects ids.
-		cmd.setMappingMode(ProjectDTO.Mode.BASE);
+		// First call to get the list of contacts.
 
-		dispatch.execute(cmd, new CommandResultHandler<ListResult<ProjectDTO>>() {
+		dispatch.execute(cmd, new CommandResultHandler<ListResult<ContactDTO>>() {
 
 			@Override
 			public void onCommandFailure(final Throwable e) {
 				if (Log.isErrorEnabled()) {
-					Log.error("[GetProjects command] Error while getting projects.", e);
+					Log.error("[GetContacts command] Error while getting contacts.", e);
 				}
 				monitor.initCounter(0);
 				fireServerError(e);
 			}
 
 			@Override
-			public void onCommandSuccess(final ListResult<ProjectDTO> result) {
+			public void onCommandSuccess(final ListResult<ContactDTO> result) {
 
-				// List of the projects ids.
-				final List<Integer> ids = new ArrayList<Integer>();
-				for (final ProjectDTO project : result.getList()) {
-					ids.add(project.getId());
-				}
-
-				// Retrieves projects by chunks.
-				if (ids != null && !ids.isEmpty()) {
-					projectsIds = ids;
-					projectsIdsSize = ids.size();
-					monitor.initCounter(projectsIdsSize);
+				// Retrieves contacts by chunks.
+				if (!result.isEmpty()) {
+					contactsList = result.getList();
+					contactsSize = contactsList.size();
+					monitor.initCounter(contactsSize);
 					chunk();
 
 				} else {
@@ -207,39 +176,37 @@ final class GetProjectsWorker {
 
 	private void chunk() {
 
-		// No more project to get.
-		if (projectsIds.isEmpty()) {
+		// No more contact to get.
+		if (contactsList.isEmpty()) {
 			fireEnded();
 			return;
 		}
 
 		// Store the next ids to retrieve.
-		final ArrayList<Integer> nextWaveIds = new ArrayList<Integer>(chunkSize);
-		final int count = projectsIds.size() >= chunkSize ? chunkSize : projectsIds.size();
-		for (int i = 0; i < count; i++) {
-			nextWaveIds.add(projectsIds.remove(0));
-		}
+		final ContactDTO nextContact = contactsList.remove(0);
 
-		// Retrieves these projects.
-		dispatch.execute(new GetProjectsFromId(nextWaveIds, ProjectDTO.Mode._USE_PROJECT_MAPPER), new CommandResultHandler<ListResult<ProjectDTO>>() {
+		// Retrieves these contacts.
+		dispatch.execute(new GetContactHistory(nextContact.getId()), new CommandResultHandler<ListResult<ContactHistory>>() {
 
 			@Override
 			public void onCommandFailure(final Throwable e) {
 				if (Log.isErrorEnabled()) {
-					Log.error("[GetProjectsFromId command] Error while getting projects.", e);
+					Log.error("[GetContactHistory command] Error while getting contact history.", e);
 				}
-				monitor.increment(projectsIdsSize);
+				monitor.increment(contactsSize);
 				fireServerError(e);
 			}
 
 			@Override
-			public void onCommandSuccess(final ListResult<ProjectDTO> result) {
+			public void onCommandSuccess(final ListResult<ContactHistory> result) {
 
 				// Updates the monitor.
-				monitor.increment(count);
+				monitor.increment(1);
 
 				// Fires event.
-				fireChunkRetrieved(result.getList());
+				ContactHistory lastChange = result.isEmpty() ? new ContactHistory() : result.getList().get(0);
+				DashboardContact contact = new DashboardContact(nextContact, lastChange);
+				fireChunkRetrieved(contact);
 
 				// Next chunk.
 				chunk();
@@ -262,12 +229,12 @@ final class GetProjectsWorker {
 	/**
 	 * Method called when a chunk is retrieved.
 	 * 
-	 * @param projects
+	 * @param contact
 	 *          The chunk.
 	 */
-	protected void fireChunkRetrieved(final List<ProjectDTO> projects) {
+	protected void fireChunkRetrieved(final DashboardContact contact) {
 		for (final WorkerListener listener : listeners) {
-			listener.chunkRetrieved(projects);
+			listener.chunkRetrieved(contact);
 		}
 	}
 

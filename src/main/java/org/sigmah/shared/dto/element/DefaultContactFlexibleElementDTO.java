@@ -413,7 +413,7 @@ public class DefaultContactFlexibleElementDTO extends AbstractDefaultFlexibleEle
 
     setLabel(I18N.CONSTANTS.contactPhoto());
 
-    if (imageId != null && imageId.length() > 0) {
+    if (imageId != null && imageId.length() > 0 && imageProvider != null) {
       imageProvider.provideDataUrl(imageId, new AsyncCallback<String>() {
         @Override
         public void onFailure(Throwable caught) {

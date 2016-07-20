@@ -47,7 +47,7 @@ public class GetContactsHandler extends AbstractCommandHandler<GetContacts, List
     List<Contact> contacts;
     if (command.getContactIds() == null || command.getContactIds().isEmpty()) {
       contacts = contactDAO.findContactsByTypeAndContactModels(organizationId, command.getType(),
-          command.getContactModelIds(), command.isOnlyContactWithoutUser(), command.isWithEmailNotNull());
+          command.getContactModelIds(), command.isOnlyContactWithoutUser(), command.isWithEmailNotNull(), command.getOrgUnitsIds());
     } else {
       contacts = contactDAO.findByIds(command.getContactIds());
     }

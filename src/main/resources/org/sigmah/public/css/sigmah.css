@@ -389,6 +389,8 @@ ul.x-tab-strip {
 }
 
 /* Contact */
+.contact-grid-name a{text-decoration:underline;cursor:pointer;color:#4B3E2D}
+
 .contact-card-label {
   -moz-box-sizing: border-box;
   box-sizing: border-box;

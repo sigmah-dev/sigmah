@@ -38,9 +38,10 @@ public class GetContacts extends AbstractCommand<ListResult<ContactDTO>> {
   private Set<Integer> contactModelIds;
   private boolean onlyContactWithoutUser;
   private boolean withEmailNotNull;
+  private Set<Integer> orgUnitsIds;
 
   public GetContacts() {
-    // Serialization
+    // no-op
   }
 
   public GetContacts(Set<Integer> contactIds) {
@@ -84,6 +85,14 @@ public class GetContacts extends AbstractCommand<ListResult<ContactDTO>> {
 
   public boolean isWithEmailNotNull() {
     return withEmailNotNull;
+  }
+
+  public Set<Integer> getOrgUnitsIds() {
+    return orgUnitsIds;
+  }
+
+  public void setOrgUnitsIds(Set<Integer> orgUnitsIds) {
+    this.orgUnitsIds = orgUnitsIds;
   }
 
   @Override

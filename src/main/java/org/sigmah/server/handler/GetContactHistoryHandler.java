@@ -23,6 +23,7 @@ package org.sigmah.server.handler;
 
 import com.google.inject.Inject;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.sigmah.server.dispatch.impl.UserDispatch;
@@ -44,6 +45,11 @@ public class GetContactHistoryHandler extends AbstractCommandHandler<GetContactH
   @Override
   protected ListResult<ContactHistory> execute(GetContactHistory command, UserDispatch.UserExecutionContext context) throws CommandException {
     List<ContactHistory> contactHistories = contactHistoryService.findHistory(command.getContactId(), context.getLanguage());
+
+    if(command.isLastOnly() && !contactHistories.isEmpty()) {
+      contactHistories = new ArrayList<ContactHistory>(contactHistories.subList(contactHistories.size()-1, contactHistories.size()));
+    }
+
     return new ListResult<ContactHistory>(contactHistories);
   }
 }

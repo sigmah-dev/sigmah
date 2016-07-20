@@ -28,9 +28,11 @@ import java.util.List;
 
 import javax.persistence.*;
 
+import org.sigmah.client.i18n.I18N;
 import org.sigmah.server.domain.base.AbstractEntityId;
 import org.sigmah.server.domain.util.Deleteable;
 import org.sigmah.server.domain.util.EntityConstants;
+import org.sigmah.shared.dto.referential.ContactModelType;
 import org.sigmah.shared.dto.referential.ContainerInformation;
 
 @Entity
@@ -200,6 +202,18 @@ public class Contact extends AbstractEntityId<Integer> implements Deleteable {
 
     return firstname + " " + name.toUpperCase();
 
+  }
+
+  public String getType() {
+    String typeLabel = I18N.CONSTANTS.contactTypeIndividualLabel();
+
+    ContactModelType type = getContactModel().getType();
+
+    if(type == ContactModelType.ORGANIZATION) {
+      typeLabel = I18N.CONSTANTS.contactTypeOrganizationLabel();
+    }
+
+    return typeLabel;
   }
 
   public OrgUnit getMainOrgUnit() {

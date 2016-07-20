@@ -14,4 +14,4 @@ CREATE TABLE iteration_history_token
   CONSTRAINT fk_iteration_history_token_layout_group FOREIGN KEY (id_layout_group)
       REFERENCES layout_group (id_layout_group) MATCH SIMPLE
       ON UPDATE NO ACTION ON DELETE NO ACTION
-)
+);
