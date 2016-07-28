@@ -70,11 +70,12 @@ import org.sigmah.shared.dto.value.ListableValue;
 import org.sigmah.shared.dto.value.TripletValueDTO;
 import org.sigmah.shared.util.ValueResultUtils;
 
-import com.google.gwt.core.client.GWT;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
 import org.sigmah.shared.dto.referential.TextAreaType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Utility class Provides global export data
@@ -83,6 +84,8 @@ import org.sigmah.shared.dto.referential.TextAreaType;
  */
 @Singleton
 public class GlobalExportDataProvider {
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(GlobalExportDataProvider.class);
 
 	public static class ValueLabel {
 
@@ -290,7 +293,7 @@ public class GlobalExportDataProvider {
 						values[valueIndex++] = valueStr;
 
 					} catch (Exception e) {
-						GWT.log("Failed to get element value" + e.getMessage());
+						LOGGER.error("Failed to get the value of element '" + element.getId() + "' of project '" + project.getId() + "'.", e);
 					}
 
 				}
@@ -378,7 +381,8 @@ public class GlobalExportDataProvider {
 
 		if (valueResult != null && valueResult.isValueDefined()) {
 			final QuestionElement questionElement = (QuestionElement) element;
-			if (questionElement.getMultiple()) {
+			final Boolean multiple = questionElement.getMultiple();
+			if (multiple != null && multiple) {
 				final MultiItemText item = formatMultipleChoices(questionElement.getChoices(), valueResult.getValueObject());
 				value = item.text;
 				lines = item.lineCount;
