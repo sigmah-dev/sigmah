@@ -32,6 +32,7 @@ import org.sigmah.shared.dto.PartnerDTO;
  * @author Alex Bertram
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
+@Deprecated
 public class AddPartner extends AbstractCommand<CreateResult> {
 
 	private int databaseId;

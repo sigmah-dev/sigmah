@@ -201,49 +201,10 @@ public class UserDatabase extends AbstractEntityId<Integer> implements Deleteabl
 
 	/**
 	 * @param user
-	 * @return True if the given user has the right to view this database at all.
-	 */
-	public boolean isAllowedView(final User user) {
-		if (getOwner().getId().equals(user.getId()) || getOwner().equals(user)) {
-			return true;
-		}
-
-		final UserPermission permission = this.getPermissionByUser(user);
-		return permission != null && permission.isAllowView();
-	}
-
-	/**
-	 * @param user
-	 * @return True if the given user has the right to view data from all partners in this database. False if they have
-	 *         only the right to view the data from their partner organization
-	 */
-	public boolean isAllowedViewAll(final User user) {
-		if (getOwner().getId().equals(user.getId()) || getOwner().equals(user)) {
-			return true;
-		}
-
-		final UserPermission permission = this.getPermissionByUser(user);
-		return permission != null && permission.isAllowViewAll();
-	}
-
-	/**
-	 * @param user
-	 * @return True if the given user has the right to create or modify sites on behalf of their (partner) organization
-	 */
-	public boolean isAllowedEdit(final User user) {
-		if (getOwner().getId().equals(user.getId())) {
-			return true;
-		}
-
-		final UserPermission permission = this.getPermissionByUser(user);
-		return permission != null && permission.isAllowEdit();
-	}
-
-	/**
-	 * @param user
 	 * @return True if the given user has the right to modify the definition of the database, such as adding or removing
 	 *         activities, indicators, etc
 	 */
+	@Deprecated
 	public boolean isAllowedDesign(final User user) {
 		if (getOwner().getId().equals(user.getId())) {
 			return true;
@@ -253,30 +214,11 @@ public class UserDatabase extends AbstractEntityId<Integer> implements Deleteabl
 		return permission != null && permission.isAllowDesign();
 	}
 
-	@SuppressWarnings("deprecation")
-	public boolean isAllowedManageUsers(final User user, final OrgUnit partner) {
-		if (getOwner().getId().equals(user.getId())) {
-			return true;
-		}
-
-		UserPermission permission = this.getPermissionByUser(user);
-		if (permission == null) {
-			return false;
-		}
-		if (!permission.isAllowManageUsers()) {
-			return false;
-		}
-		if (!permission.isAllowManageAllUsers() && !permission.getPartner().getId().equals(partner.getId())) {
-			return false;
-		}
-
-		return true;
-	}
-
 	/**
 	 * @param user
 	 * @return The permission descriptor for the given user, or null if this user has no rights to this database.
 	 */
+	@Deprecated
 	public UserPermission getPermissionByUser(final User user) {
 		for (final UserPermission perm : this.getUserPermissions()) {
 			if (perm.getUser().getId().equals(user.getId()) || perm.getUser().equals(user)) {
@@ -284,19 +226,6 @@ public class UserDatabase extends AbstractEntityId<Integer> implements Deleteabl
 			}
 		}
 		return null;
-	}
-
-	/**
-	 * @param user
-	 * @return True if the given user has the right to create and modify sites on behalf of all partner organizations.
-	 */
-	public boolean isAllowedEditAll(final User user) {
-		if (getOwner().getId().equals(user.getId())) {
-			return true;
-		}
-
-		final UserPermission permission = this.getPermissionByUser(user);
-		return permission != null && permission.isAllowEditAll();
 	}
 
 	/**

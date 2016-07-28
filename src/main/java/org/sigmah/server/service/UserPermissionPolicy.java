@@ -101,6 +101,7 @@ public class UserPermissionPolicy {
 	 * (projects attached to the user main orgunit, and all the child orgunits of it), and add a row in the table
 	 * userpermission for each of them if the user has the EDIT_PROJECT global privilege
 	 */
+	@Deprecated
 	public void updateUserPermissionByUser(User user) throws CommandException {
 
 		final OrgUnitProfile userOrgUnit = user.getOrgUnitWithProfiles();
@@ -133,6 +134,7 @@ public class UserPermissionPolicy {
 	/**
 	 * Overloaded version of updateUserPermissionByUser(User)
 	 */
+	@Deprecated
 	public void updateUserPermissionByUser(Integer userId) throws CommandException {
 		final User user = userDAO.findById(userId);
 		updateUserPermissionByUser(user);
@@ -142,6 +144,7 @@ public class UserPermissionPolicy {
 	 * When the global privilege "EDIT_PROJECT" is added/removed to a profile, UserPermissions is updated for the users
 	 * who have included this profile
 	 */
+	@Deprecated
 	public void updateUserPermissionByProfile(Integer profileId) throws CommandException {
 		// for newly created profile no need to update userpermission
 		if (profileId == null || profileId < 0) {
@@ -165,6 +168,7 @@ public class UserPermissionPolicy {
 	 * <li>update userpermission for each user</li>
 	 * </ol>
 	 */
+	@Deprecated
 	public void updateUserPermissionByOrgUnit(OrgUnit orgUnit) throws CommandException {
 
 		List<OrgUnit> orgUnitList = new LinkedList<OrgUnit>();
@@ -183,6 +187,7 @@ public class UserPermissionPolicy {
 	/**
 	 * Delete UserPermission by OrgUnit's projects
 	 */
+	@Deprecated
 	public void deleteUserPermssionByOrgUnit(OrgUnit orgUnit) {
 		List<Project> projects = userPermissionDAO.getOrgUnitProjects(orgUnit);
 		if (!projects.isEmpty()) {
@@ -193,6 +198,7 @@ public class UserPermissionPolicy {
 	/**
 	 * Deletes UserPermission by project
 	 */
+	@Deprecated
 	public void deleteUserPemissionByProject(int projectId) {
 		userPermissionDAO.deleteByProject(projectId);
 	}
@@ -200,6 +206,7 @@ public class UserPermissionPolicy {
 	/**
 	 * Fetch orgUnits recursively until root(including) element
 	 */
+	@Deprecated
 	private void fetchParentsUntilRoot(OrgUnit orgUnit, List<OrgUnit> list) {
 		OrgUnit parent = orgUnit.getParentOrgUnit();
 		if (parent != null) {
@@ -212,6 +219,7 @@ public class UserPermissionPolicy {
 	 * Utiliy to check the user's grant for a given permission
 	 */
 	public boolean isGranted(final OrgUnitProfile userOrgUnit, final GlobalPermissionEnum permission) {
+		// TODO: Move this function elsewhere and delete this entire class.
 		List<Profile> profiles = userOrgUnit.getProfiles();
 
 		for (final Profile profile : profiles) {

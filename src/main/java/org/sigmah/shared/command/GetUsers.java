@@ -36,6 +36,7 @@ import org.sigmah.shared.command.result.UserResult;
  * 
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
+@Deprecated
 public class GetUsers extends PagingGetCommand<UserResult> {
 
 	private int databaseId;

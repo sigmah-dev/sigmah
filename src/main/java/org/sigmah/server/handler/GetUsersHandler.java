@@ -43,6 +43,7 @@ import java.util.ArrayList;
  * @author Alex Bertram
  * @author Maxime Lombard (mlombard@ideia.fr)
  */
+@Deprecated
 public class GetUsersHandler extends AbstractCommandHandler<GetUsers, UserResult> {
 
 	/**

@@ -44,6 +44,7 @@ import com.google.inject.Inject;
  * @author Alex Bertram (v1.3)
  * @author Maxime Lombard (mlombard@ideia.fr) (v2.0)
  */
+@Deprecated
 public class AddPartnerHandler extends AbstractCommandHandler<AddPartner, CreateResult> {
 
 	private final Mapper mapper;

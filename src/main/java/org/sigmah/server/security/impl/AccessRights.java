@@ -36,7 +36,6 @@ import org.sigmah.server.handler.util.Handlers;
 import org.sigmah.server.mapper.Mapper;
 import org.sigmah.server.servlet.base.ServletExecutionContext;
 import org.sigmah.shared.command.AddOrgUnit;
-import org.sigmah.shared.command.AddPartner;
 import org.sigmah.shared.command.AmendmentActionCommand;
 import org.sigmah.shared.command.BackupArchiveManagementCommand;
 import org.sigmah.shared.command.BatchCommand;
@@ -83,7 +82,6 @@ import org.sigmah.shared.command.GetProjects;
 import org.sigmah.shared.command.GetProjectsByModel;
 import org.sigmah.shared.command.GetProjectsFromId;
 import org.sigmah.shared.command.GetReminders;
-import org.sigmah.shared.command.GetUsers;
 import org.sigmah.shared.command.GetUsersByOrganization;
 import org.sigmah.shared.command.GetUsersWithProfiles;
 import org.sigmah.shared.command.GetValue;
@@ -182,7 +180,6 @@ final class AccessRights {
 
 		// Commands.
 		sperm(commandToken(AddOrgUnit.class), GrantType.AUTHENTICATED_ONLY);
-		sperm(commandToken(AddPartner.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(AmendmentActionCommand.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(BackupArchiveManagementCommand.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(BatchCommand.class), GrantType.AUTHENTICATED_ONLY);
@@ -231,7 +228,6 @@ final class AccessRights {
 		sperm(commandToken(GetProjectsFromId.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetReminders.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetUsersByOrganization.class), GrantType.AUTHENTICATED_ONLY);
-		sperm(commandToken(GetUsers.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetUsersWithProfiles.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetValue.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(Synchronize.class), GrantType.AUTHENTICATED_ONLY);

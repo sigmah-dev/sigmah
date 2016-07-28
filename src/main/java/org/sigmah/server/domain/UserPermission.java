@@ -67,6 +67,7 @@ import org.sigmah.server.domain.util.SchemaElement;
 					@Filter(name = EntityFilters.USER_VISIBLE, condition = EntityFilters.USER_PERMISSION_USER_VISIBLE_CONDITION),
 					@Filter(name = EntityFilters.HIDE_DELETED, condition = EntityFilters.USER_PERMISSION_HIDE_DELETED_CONDITION)
 })
+@Deprecated
 public class UserPermission extends AbstractEntityId<Integer> implements SchemaElement {
 
 	/**

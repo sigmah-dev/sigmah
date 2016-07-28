@@ -41,6 +41,7 @@ import org.sigmah.shared.dispatch.CommandException;
  * @author Alex Bertram
  * @author Maxime Lombard (mlombard@ideia.fr)
  */
+@Deprecated
 public class RemovePartnerHandler extends AbstractCommandHandler<RemovePartner, VoidResult> {
 
 	/**

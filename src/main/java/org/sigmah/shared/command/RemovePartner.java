@@ -28,6 +28,7 @@ import org.sigmah.shared.command.result.VoidResult;
 /**
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
+@Deprecated
 public class RemovePartner extends AbstractCommand<VoidResult> {
 
 	private int databaseId;

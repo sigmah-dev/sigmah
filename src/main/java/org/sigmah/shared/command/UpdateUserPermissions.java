@@ -39,6 +39,7 @@ import org.sigmah.shared.dto.UserPermissionDTO;
  *
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
+@Deprecated
 public class UpdateUserPermissions extends AbstractCommand<VoidResult> {
 
 	private int databaseId;

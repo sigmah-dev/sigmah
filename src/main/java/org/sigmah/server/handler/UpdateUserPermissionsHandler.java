@@ -53,6 +53,7 @@ import com.google.inject.Inject;
  * @author Alex Bertram
  * @author Maxime Lombard (mlombard@ideia.fr)
  */
+@Deprecated
 public class UpdateUserPermissionsHandler extends AbstractCommandHandler<UpdateUserPermissions, VoidResult> {
 
 	private final UserDAO userDAO;
