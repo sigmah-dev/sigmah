@@ -189,24 +189,6 @@ public class UserPermissionPolicy {
 		}
 	}
 
-	/**
-	 * Utiliy to check the user's grant for a given permission
-	 */
-	public boolean isGranted(final OrgUnitProfile userOrgUnit, final GlobalPermissionEnum permission) {
-		// TODO: Move this function elsewhere and delete this entire class.
-		List<Profile> profiles = userOrgUnit.getProfiles();
-
-		for (final Profile profile : profiles) {
-			if (profile.getGlobalPermissions() != null) {
-				for (final GlobalPermission p : profile.getGlobalPermissions()) {
-					if (p.getPermission().equals(permission)) {
-						return true;
-					}
-				}
-			}
-		}
-
-		return false;
-	}
+	
 
 }
