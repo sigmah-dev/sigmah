@@ -104,27 +104,27 @@ public class UserPermissionPolicy {
 	@Deprecated
 	public void updateUserPermissionByUser(User user) throws CommandException {
 
-		final OrgUnitProfile userOrgUnit = user.getOrgUnitWithProfiles();
-
-		// delete existing userpermission entries related to the user
-		userPermissionDAO.deleteByUser(user.getId());
-
-		// check new profile set for EDIT_PROJECT global permission
-		boolean granted = isGranted(userOrgUnit, GlobalPermissionEnum.EDIT_PROJECT);
-		if (!granted) /* skip the rest of part if user has no enough permission */
-			return;
-
-		final GetProjects getCommand = new GetProjects();
-		List<Integer> orgUnitIds = new ArrayList<Integer>(Arrays.asList(userOrgUnit.getOrgUnit().getId()));
-		getCommand.setOrgUnitsIds(orgUnitIds);
-		getCommand.setMappingMode(ProjectDTO.Mode.BASE);
-
-		final ListResult<ProjectDTO> result = projectsHandler.execute(getCommand, null);
-
-		// create and persist userpermission entity for each project
-		for (final ProjectDTO project : result.getList()) {
-			userPermissionDAO.createAndPersist(user, userOrgUnit.getOrgUnit(), project.getId());
-		}
+//		final OrgUnitProfile userOrgUnit = user.getOrgUnitWithProfiles();
+//
+//		// delete existing userpermission entries related to the user
+//		userPermissionDAO.deleteByUser(user.getId());
+//
+//		// check new profile set for EDIT_PROJECT global permission
+//		boolean granted = isGranted(userOrgUnit, GlobalPermissionEnum.EDIT_PROJECT);
+//		if (!granted) /* skip the rest of part if user has no enough permission */
+//			return;
+//
+//		final GetProjects getCommand = new GetProjects();
+//		List<Integer> orgUnitIds = new ArrayList<Integer>(Arrays.asList(userOrgUnit.getOrgUnit().getId()));
+//		getCommand.setOrgUnitsIds(orgUnitIds);
+//		getCommand.setMappingMode(ProjectDTO.Mode.BASE);
+//
+//		final ListResult<ProjectDTO> result = projectsHandler.execute(getCommand, null);
+//
+//		// create and persist userpermission entity for each project
+//		for (final ProjectDTO project : result.getList()) {
+//			userPermissionDAO.createAndPersist(user, userOrgUnit.getOrgUnit(), project.getId());
+//		}
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("UserPermission updated.");
@@ -215,24 +215,6 @@ public class UserPermissionPolicy {
 		}
 	}
 
-	/**
-	 * Utiliy to check the user's grant for a given permission
-	 */
-	public boolean isGranted(final OrgUnitProfile userOrgUnit, final GlobalPermissionEnum permission) {
-		// TODO: Move this function elsewhere and delete this entire class.
-		List<Profile> profiles = userOrgUnit.getProfiles();
-
-		for (final Profile profile : profiles) {
-			if (profile.getGlobalPermissions() != null) {
-				for (final GlobalPermission p : profile.getGlobalPermissions()) {
-					if (p.getPermission().equals(permission)) {
-						return true;
-					}
-				}
-			}
-		}
-
-		return false;
-	}
+	
 
 }

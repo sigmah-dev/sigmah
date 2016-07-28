@@ -28,6 +28,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -276,6 +277,26 @@ public final class Handlers {
 		for (final OrgUnit unit : units) {
 			if (orgUnit.getId().equals(unit.getId())) {
 				return true;
+			}
+		}
+
+		return false;
+	}
+	
+	/**
+	 * Utiliy to check the user's grant for a given permission
+	 */
+	public static boolean isGranted(final OrgUnitProfile userOrgUnit, final GlobalPermissionEnum permission) {
+		// TODO: Move this function elsewhere and delete this entire class.
+		List<Profile> profiles = userOrgUnit.getProfiles();
+
+		for (final Profile profile : profiles) {
+			if (profile.getGlobalPermissions() != null) {
+				for (final GlobalPermission p : profile.getGlobalPermissions()) {
+					if (p.getPermission().equals(permission)) {
+						return true;
+					}
+				}
 			}
 		}
 

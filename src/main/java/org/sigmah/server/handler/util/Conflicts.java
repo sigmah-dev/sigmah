@@ -37,7 +37,6 @@ import org.sigmah.server.domain.element.FilesListElement;
 import org.sigmah.server.domain.value.File;
 import org.sigmah.server.domain.value.Value;
 import org.sigmah.server.i18n.I18nServer;
-import org.sigmah.server.service.UserPermissionPolicy;
 import org.sigmah.shared.Language;
 import org.sigmah.shared.dispatch.UpdateConflictException;
 import org.sigmah.shared.dto.referential.AmendmentState;
@@ -59,8 +58,6 @@ public class Conflicts extends EntityManagerProvider {
 	@Inject
 	private I18nServer i18nServer;
 	
-	@Inject
-	private UserPermissionPolicy permissionPolicy;
 	
 	/**
 	 * Identify if the phase containing the given element is closed.
@@ -104,7 +101,7 @@ public class Conflicts extends EntityManagerProvider {
 		final int projectId = ClientUtils.asInt(properties.get(FileUploadUtils.DOCUMENT_PROJECT), 0);
 		final Project project = em().find(Project.class, projectId);
 		
-		if(project != null && !permissionPolicy.isGranted(user.getOrgUnitWithProfiles(), GlobalPermissionEnum.MODIFY_LOCKED_CONTENT)) {
+		if(project != null && !Handlers.isGranted(user.getOrgUnitWithProfiles(), GlobalPermissionEnum.MODIFY_LOCKED_CONTENT)) {
 			if(project.getCloseDate() != null) {
 				final String fileName = ValueResultUtils.normalizeFileName(properties.get(FileUploadUtils.DOCUMENT_NAME));
 				throw new UpdateConflictException(project.toContainerInformation(), true, i18nServer.t(language, "conflictAddingFileToAClosedProject", fileName, filesListElement.getLabel()));
@@ -157,7 +154,7 @@ public class Conflicts extends EntityManagerProvider {
 	 * @throws UpdateConflictException If a conflict has been detected.
 	 */
 	public void searchForFileDeleteConflicts(final File file, final Language language, final User user) throws UpdateConflictException {
-		if (permissionPolicy.isGranted(user.getOrgUnitWithProfiles(), GlobalPermissionEnum.MODIFY_LOCKED_CONTENT)) {
+		if (Handlers.isGranted(user.getOrgUnitWithProfiles(), GlobalPermissionEnum.MODIFY_LOCKED_CONTENT)) {
 			return;
 		}
 		

@@ -24,7 +24,6 @@ package org.sigmah.server.inject;
 
 
 import org.sigmah.server.handler.AddOrgUnitHandler;
-import org.sigmah.server.handler.AddPartnerHandler;
 import org.sigmah.server.handler.AmendmentActionCommandHandler;
 import org.sigmah.server.handler.AutomatedImportHandler;
 import org.sigmah.server.handler.BackupArchiveManagementHandler;
@@ -100,7 +99,6 @@ import org.sigmah.server.handler.GetSyncRegionsHandler;
 import org.sigmah.server.handler.GetTestProjectsHandler;
 import org.sigmah.server.handler.GetUserDatabaseHandler;
 import org.sigmah.server.handler.GetUsersByOrganizationHandler;
-import org.sigmah.server.handler.GetUsersHandler;
 import org.sigmah.server.handler.GetUsersWithProfilesHandler;
 import org.sigmah.server.handler.GetValueHandler;
 import org.sigmah.server.handler.LoginCommandHandler;
@@ -110,7 +108,6 @@ import org.sigmah.server.handler.PingHandler;
 import org.sigmah.server.handler.PrepareFileUploadHandler;
 import org.sigmah.server.handler.PromoteProjectReportDraftHandler;
 import org.sigmah.server.handler.RemoveOrgUnitHandler;
-import org.sigmah.server.handler.RemovePartnerHandler;
 import org.sigmah.server.handler.RemoveProjectReportDraftHandler;
 import org.sigmah.server.handler.SecureNavigationCommandHandler;
 import org.sigmah.server.handler.SynchronizeHandler;
@@ -128,7 +125,6 @@ import org.sigmah.server.handler.UpdateSubscriptionHandler;
 import org.sigmah.server.handler.UploadSliceHandler;
 import org.sigmah.server.inject.dispatch.AbstractCommandHandlerModule;
 import org.sigmah.shared.command.AddOrgUnit;
-import org.sigmah.shared.command.AddPartner;
 import org.sigmah.shared.command.AmendmentActionCommand;
 import org.sigmah.shared.command.AutomatedImport;
 import org.sigmah.shared.command.BackupArchiveManagementCommand;
@@ -203,7 +199,6 @@ import org.sigmah.shared.command.GetSitesCount;
 import org.sigmah.shared.command.GetSyncRegions;
 import org.sigmah.shared.command.GetTestProjects;
 import org.sigmah.shared.command.GetUserDatabase;
-import org.sigmah.shared.command.GetUsers;
 import org.sigmah.shared.command.GetUsersByOrganization;
 import org.sigmah.shared.command.GetUsersWithProfiles;
 import org.sigmah.shared.command.GetValue;
@@ -214,7 +209,6 @@ import org.sigmah.shared.command.Ping;
 import org.sigmah.shared.command.PrepareFileUpload;
 import org.sigmah.shared.command.PromoteProjectReportDraft;
 import org.sigmah.shared.command.RemoveOrgUnit;
-import org.sigmah.shared.command.RemovePartner;
 import org.sigmah.shared.command.RemoveProjectReportDraft;
 import org.sigmah.shared.command.SecureNavigationCommand;
 import org.sigmah.shared.command.Synchronize;
@@ -251,7 +245,6 @@ public class CommandHandlerModule extends AbstractCommandHandlerModule {
 	protected void configureHandlers() {
 		// Thank you for maintaining alphabetical order.
 		bindHandler(AddOrgUnit.class, AddOrgUnitHandler.class);
-		bindHandler(AddPartner.class, AddPartnerHandler.class);
 		bindHandler(AmendmentActionCommand.class, AmendmentActionCommandHandler.class);
 		bindHandler(AutomatedImport.class, AutomatedImportHandler.class);
 		bindHandler(BackupArchiveManagementCommand.class, BackupArchiveManagementHandler.class);
@@ -327,7 +320,6 @@ public class CommandHandlerModule extends AbstractCommandHandlerModule {
 		bindHandler(GetTestProjects.class, GetTestProjectsHandler.class);
 		bindHandler(GetUserDatabase.class, GetUserDatabaseHandler.class);
 		bindHandler(GetUsersByOrganization.class, GetUsersByOrganizationHandler.class);
-		bindHandler(GetUsers.class, GetUsersHandler.class);
 		bindHandler(GetUsersWithProfiles.class, GetUsersWithProfilesHandler.class);
 		bindHandler(GetValue.class, GetValueHandler.class);
 		bindHandler(LoginCommand.class, LoginCommandHandler.class);
@@ -337,7 +329,6 @@ public class CommandHandlerModule extends AbstractCommandHandlerModule {
 		bindHandler(PrepareFileUpload.class, PrepareFileUploadHandler.class);
 		bindHandler(PromoteProjectReportDraft.class, PromoteProjectReportDraftHandler.class);
 		bindHandler(RemoveOrgUnit.class, RemoveOrgUnitHandler.class);
-		bindHandler(RemovePartner.class, RemovePartnerHandler.class);
 		bindHandler(RemoveProjectReportDraft.class, RemoveProjectReportDraftHandler.class);
 		bindHandler(SecureNavigationCommand.class, SecureNavigationCommandHandler.class);
 		bindHandler(Synchronize.class, SynchronizeHandler.class);
