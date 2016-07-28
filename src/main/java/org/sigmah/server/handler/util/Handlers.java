@@ -28,6 +28,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -36,6 +37,7 @@ import org.sigmah.server.domain.OrgUnit;
 import org.sigmah.server.domain.Organization;
 import org.sigmah.server.domain.Project;
 import org.sigmah.server.domain.User;
+import org.sigmah.server.domain.UserDatabase;
 import org.sigmah.server.domain.profile.GlobalPermission;
 import org.sigmah.server.domain.profile.OrgUnitProfile;
 import org.sigmah.server.domain.profile.PrivacyGroupPermission;
@@ -48,6 +50,7 @@ import org.sigmah.shared.dto.profile.PrivacyGroupDTO;
 import org.sigmah.shared.dto.profile.ProfileDTO;
 import org.sigmah.shared.dto.referential.GlobalPermissionEnum;
 import org.sigmah.shared.dto.referential.PrivacyGroupPermissionEnum;
+import org.sigmah.shared.security.UnauthorizedAccessException;
 import org.sigmah.shared.util.Month;
 
 /**
@@ -210,38 +213,36 @@ public final class Handlers {
 	/**
 	 * Returns if the project is visible for the given user.
 	 * 
-	 * @param project
+	 * @param database
 	 *          The project.
 	 * @param user
 	 *          The user.
 	 * @return If the project is visible for the user.
 	 */
-	public static boolean isProjectVisible(final Project project, final User user) {
+	public static boolean isProjectVisible(final UserDatabase database, final User user) {
 
 		// Checks that the project is not deleted
-		if (project.isDeleted()) {
+		if (database.isDeleted()) {
 			return false;
 		}
 
 		// Owner.
-		if (project.getOwner() != null) {
-			if (project.getOwner().getId().equals(user.getId())) {
-				return true;
-			}
+		final User owner = database.getOwner();
+		if (owner != null && owner.getId().equals(user.getId())) {
+			return true;
 		}
 
 		// Manager.
-		if (project.getManager() != null) {
-			if (project.getManager().getId().equals(user.getId())) {
-				return true;
-			}
+		final User manager = database instanceof Project ? ((Project) database).getManager() : null;
+		if (manager != null && manager.getId().equals(user.getId())) {
+			return true;
 		}
 
 		// Checks that the user can see this project.
 		final HashSet<OrgUnit> units = new HashSet<OrgUnit>();
 		crawlUnits(user.getOrgUnitWithProfiles().getOrgUnit(), units, true);
 
-		for (final OrgUnit partner : project.getPartners()) {
+		for (final OrgUnit partner : database.getPartners()) {
 			for (final OrgUnit unit : units) {
 				if (partner.getId().equals(unit.getId())) {
 					return true;
@@ -280,6 +281,55 @@ public final class Handlers {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Utiliy to check the user's grant for a given permission.
+	 * 
+	 * @param userOrgUnit
+	 *			Link between user and orgunit to check.
+	 * @param permission
+	 *			Permission to search.
+	 * @return <code>true</code> if the given user is granted the given permission,
+	 * <code>false</code> otherwise.
+	 */
+	public static boolean isGranted(final OrgUnitProfile userOrgUnit, final GlobalPermissionEnum permission) {
+		List<Profile> profiles = userOrgUnit.getProfiles();
+
+		for (final Profile profile : profiles) {
+			if (profile.getGlobalPermissions() != null) {
+				for (final GlobalPermission p : profile.getGlobalPermissions()) {
+					if (p.getPermission().equals(permission)) {
+						return true;
+					}
+				}
+			}
+		}
+
+		return false;
+	}
+	
+	/**
+	 * Asserts that the user has permission to modify the structure of the given database.
+	 * 
+	 * NOTE: Design privilege from Activity Info have been removed.
+	 * To satisfy this check a user must now be able to view the given database
+	 * and must have the {@link GlobalPermissionEnum#EDIT_INDICATOR} permission.
+	 * 
+	 * @param user
+	 *          The user for whom to check permissions.
+	 * @param database
+	 *          The database the user is trying to modify.
+	 * @throws UnauthorizedAccessException
+	 *           If the user does not have design permission.
+	 */
+	public static void assertDesignPrivileges(User user, UserDatabase database) throws UnauthorizedAccessException {
+		if (isGranted(user.getOrgUnitWithProfiles(), GlobalPermissionEnum.EDIT_INDICATOR)) {
+			throw new UnauthorizedAccessException("Access denied to database '" + database.getId() + "'.");
+		}
+		if (!isProjectVisible(database, user)) {
+			throw new UnauthorizedAccessException("Database '" + database.getId() + "' is not visible by user '" + user.getEmail() + "'.");
+		}
 	}
 
 }

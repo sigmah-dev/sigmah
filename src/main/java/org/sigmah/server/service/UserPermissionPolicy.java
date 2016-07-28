@@ -22,8 +22,6 @@ package org.sigmah.server.service;
  * #L%
  */
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -38,10 +36,7 @@ import org.sigmah.server.domain.profile.GlobalPermission;
 import org.sigmah.server.domain.profile.OrgUnitProfile;
 import org.sigmah.server.domain.profile.Profile;
 import org.sigmah.server.handler.GetProjectsHandler;
-import org.sigmah.shared.command.GetProjects;
-import org.sigmah.shared.command.result.ListResult;
 import org.sigmah.shared.dispatch.CommandException;
-import org.sigmah.shared.dto.ProjectDTO;
 import org.sigmah.shared.dto.referential.GlobalPermissionEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -104,27 +99,6 @@ public class UserPermissionPolicy {
 	@Deprecated
 	public void updateUserPermissionByUser(User user) throws CommandException {
 
-		final OrgUnitProfile userOrgUnit = user.getOrgUnitWithProfiles();
-
-		// delete existing userpermission entries related to the user
-		userPermissionDAO.deleteByUser(user.getId());
-
-		// check new profile set for EDIT_PROJECT global permission
-		boolean granted = isGranted(userOrgUnit, GlobalPermissionEnum.EDIT_PROJECT);
-		if (!granted) /* skip the rest of part if user has no enough permission */
-			return;
-
-		final GetProjects getCommand = new GetProjects();
-		List<Integer> orgUnitIds = new ArrayList<Integer>(Arrays.asList(userOrgUnit.getOrgUnit().getId()));
-		getCommand.setOrgUnitsIds(orgUnitIds);
-		getCommand.setMappingMode(ProjectDTO.Mode.BASE);
-
-		final ListResult<ProjectDTO> result = projectsHandler.execute(getCommand, null);
-
-		// create and persist userpermission entity for each project
-		for (final ProjectDTO project : result.getList()) {
-			userPermissionDAO.createAndPersist(user, userOrgUnit.getOrgUnit(), project.getId());
-		}
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("UserPermission updated.");

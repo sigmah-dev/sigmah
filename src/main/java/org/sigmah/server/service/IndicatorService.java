@@ -40,6 +40,7 @@ import org.sigmah.shared.security.UnauthorizedAccessException;
 
 import com.google.inject.Singleton;
 import java.util.ArrayList;
+import org.sigmah.server.handler.util.Handlers;
 
 /**
  * {@link Indicator} corresponding service implementation.
@@ -61,12 +62,12 @@ public class IndicatorService extends AbstractEntityService<Indicator, Integer, 
 		if (properties.containsKey("activityId")) {
 			Object o = properties.get("activityId");
 			indicator.setActivity(em().getReference(Activity.class, o));
-			assertDesignPriviledges(user, indicator.getActivity().getDatabase());
+			Handlers.assertDesignPrivileges(user, indicator.getActivity().getDatabase());
 
 		} else if (properties.containsKey("databaseId")) {
 			Object o = properties.get("databaseId");
 			indicator.setDatabase(em().getReference(UserDatabase.class, o));
-			assertDesignPriviledges(user, indicator.getDatabase());
+			Handlers.assertDesignPrivileges(user, indicator.getDatabase());
 		}
 
 		updateIndicatorProperties(indicator, properties);
@@ -93,7 +94,7 @@ public class IndicatorService extends AbstractEntityService<Indicator, Integer, 
 			db = indicator.getActivity().getDatabase();
 		}
 
-		assertDesignPriviledges(context.getUser(), db);
+		Handlers.assertDesignPrivileges(context.getUser(), db);
 
 		if (indicator.getName().length() > 1024) {
 			indicator.setName(indicator.getName().substring(0, 1024));
@@ -188,24 +189,6 @@ public class IndicatorService extends AbstractEntityService<Indicator, Integer, 
 		} else {
 			indicator.getDatabase().setLastSchemaUpdate(new Date());
 		}
-	}
-
-	/**
-	 * Asserts that the user has permission to modify the structure of the given database.
-	 * 
-	 * @param user
-	 *          THe user for whom to check permissions
-	 * @param database
-	 *          The database the user is trying to modify
-	 * @throws RuntimeException
-	 *           If the user does not have permission.
-	 */
-	private void assertDesignPriviledges(final User user, final UserDatabase database) throws UnauthorizedAccessException {
-
-		if (!database.isAllowedDesign(user)) {
-			throw new UnauthorizedAccessException("Illegal access.");
-		}
-
 	}
 
 }

@@ -42,7 +42,6 @@ import org.sigmah.server.domain.ReportingPeriod;
 import org.sigmah.server.domain.Site;
 import org.sigmah.server.domain.User;
 import org.sigmah.server.domain.UserDatabase;
-import org.sigmah.server.domain.UserPermission;
 import org.sigmah.server.service.base.AbstractEntityService;
 import org.sigmah.server.service.util.PropertyMap;
 import org.sigmah.shared.dto.ActivityDTO;
@@ -54,6 +53,8 @@ import org.sigmah.shared.dto.PartnerDTO;
 import org.sigmah.shared.dto.SiteDTO;
 
 import com.google.inject.Inject;
+import org.sigmah.server.handler.util.Handlers;
+import org.sigmah.shared.dto.referential.GlobalPermissionEnum;
 
 /**
  * {@link Site} srevice implementation.
@@ -70,7 +71,10 @@ public class SitePolicy extends AbstractEntityService<Site, Integer, SiteDTO> {
 	private final ReportingPeriodDAO reportingPeriodDAO;
 	private final SiteDAO siteDAO;
 	private final UserDatabaseDAO userDatabaseDAO;
-
+	
+	@Inject
+	private UserPermissionPolicy permissionPolicy;
+	
 	@Inject
 	public SitePolicy(ActivityDAO activityDAO, AdminDAO adminDAO, LocationDAO locationDAO, PartnerDAO partnerDAO, SiteDAO siteDAO, ReportingPeriodDAO reportingPeriodDAO, UserDatabaseDAO userDatabaseDAO) {
 		this.locationDAO = locationDAO;
@@ -81,7 +85,7 @@ public class SitePolicy extends AbstractEntityService<Site, Integer, SiteDTO> {
 		this.adminDAO = adminDAO;
 		this.userDatabaseDAO = userDatabaseDAO;
 	}
-
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -197,21 +201,18 @@ public class SitePolicy extends AbstractEntityService<Site, Integer, SiteDTO> {
 	/**
 	 * Asserts that the user has permission to edit a site in a given database belonging to a given partner
 	 */
-	protected static void assertSiteEditPrivileges(User user, UserDatabase db, OrgUnit partner) {
-
+	protected void assertSiteEditPrivileges(User user, UserDatabase db, OrgUnit partner) {
+		
 		if (db.getOwner().getId().equals(user.getId())) {
 			return;
 		}
-
-		UserPermission perm = db.getPermissionByUser(user);
-		if (perm.isAllowEditAll()) {
-			return;
+		
+		if (!permissionPolicy.isGranted(user.getOrgUnitWithProfiles(), GlobalPermissionEnum.EDIT_INDICATOR)) {
+			throw new IllegalAccessError("User '" + user.getEmail() + "' can't edit database '" + db.getId() + "' because he misses '" + GlobalPermissionEnum.EDIT_INDICATOR + "' permission.");
 		}
-		if (!perm.isAllowEdit()) {
-			throw new IllegalAccessError();
-		}
-		if (!perm.getPartner().getId().equals(partner.getId())) {
-			throw new IllegalAccessError();
+		
+		if (!Handlers.isProjectVisible(db, user)) {
+			throw new IllegalAccessError("Database '" + db.getId() + "' is not visible by user '" + user.getEmail() + "'.");
 		}
 	}
 

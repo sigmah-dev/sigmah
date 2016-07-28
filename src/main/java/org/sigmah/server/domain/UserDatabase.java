@@ -177,13 +177,6 @@ public class UserDatabase extends AbstractEntityId<Integer> implements Deleteabl
 	@org.hibernate.annotations.Filter(name = EntityFilters.HIDE_DELETED, condition = EntityFilters.USER_DATABASE_HIDE_DELETED_CONDITION)
 	private Set<Activity> activities = new HashSet<Activity>(0);
 
-	/**
-	 * The list of users who have access to this database and their respective permissions. (Read, write, read all
-	 * partners).
-	 */
-	@OneToMany(mappedBy = "database", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-	private Set<UserPermission> userPermissions = new HashSet<UserPermission>(0);
-
 	// --------------------------------------------------------------------------------
 	//
 	// METHODS.
@@ -197,35 +190,6 @@ public class UserDatabase extends AbstractEntityId<Integer> implements Deleteabl
 	public UserDatabase(final Integer id, final String name) {
 		this.id = id;
 		this.name = name;
-	}
-
-	/**
-	 * @param user
-	 * @return True if the given user has the right to modify the definition of the database, such as adding or removing
-	 *         activities, indicators, etc
-	 */
-	@Deprecated
-	public boolean isAllowedDesign(final User user) {
-		if (getOwner().getId().equals(user.getId())) {
-			return true;
-		}
-
-		final UserPermission permission = this.getPermissionByUser(user);
-		return permission != null && permission.isAllowDesign();
-	}
-
-	/**
-	 * @param user
-	 * @return The permission descriptor for the given user, or null if this user has no rights to this database.
-	 */
-	@Deprecated
-	public UserPermission getPermissionByUser(final User user) {
-		for (final UserPermission perm : this.getUserPermissions()) {
-			if (perm.getUser().getId().equals(user.getId()) || perm.getUser().equals(user)) {
-				return perm;
-			}
-		}
-		return null;
 	}
 
 	/**
@@ -329,14 +293,6 @@ public class UserDatabase extends AbstractEntityId<Integer> implements Deleteabl
 
 	public void setActivities(Set<Activity> activities) {
 		this.activities = activities;
-	}
-
-	public Set<UserPermission> getUserPermissions() {
-		return this.userPermissions;
-	}
-
-	public void setUserPermissions(Set<UserPermission> userPermissions) {
-		this.userPermissions = userPermissions;
 	}
 
 	public Date getDateDeleted() {

@@ -40,6 +40,7 @@ import org.sigmah.shared.dto.LocationTypeDTO;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import org.sigmah.server.handler.util.Handlers;
 import org.sigmah.shared.security.UnauthorizedAccessException;
 
 /**
@@ -69,7 +70,7 @@ public class ActivityService extends AbstractEntityService<Activity, Integer, Ac
 	public Activity create(final PropertyMap properties, final UserExecutionContext context) throws UnauthorizedAccessException {
 
 		final UserDatabase database = getDatabase(properties);
-		assertDesignPrivileges(context.getUser(), database);
+		Handlers.assertDesignPrivileges(context.getUser(), database);
 
 		// Create the entity.
 		final Activity activity = new Activity();
@@ -90,7 +91,7 @@ public class ActivityService extends AbstractEntityService<Activity, Integer, Ac
 
 		final Activity activity = activityDAO.findById(entityId);
 
-		assertDesignPrivileges(context.getUser(), activity.getDatabase());
+		Handlers.assertDesignPrivileges(context.getUser(), activity.getDatabase());
 		applyProperties(activity, changes);
 
 		return activityDAO.persist(activity, context.getUser());
@@ -101,12 +102,6 @@ public class ActivityService extends AbstractEntityService<Activity, Integer, Ac
 	// UTILITY METHODS.
 	//
 	// -------------------------------------------------------------------------------------------------------------
-
-	private static void assertDesignPrivileges(User user, UserDatabase database) throws UnauthorizedAccessException {
-		if (!database.isAllowedDesign(user)) {
-			throw new UnauthorizedAccessException("Access denied to database '" + database.getId() + "'.");
-		}
-	}
 
 	private UserDatabase getDatabase(PropertyMap properties) {
 		int databaseId = (Integer) properties.get("databaseId");
