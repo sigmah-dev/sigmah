@@ -84,26 +84,6 @@
 	</mapping>
 
 	<mapping wildcard="true">
-		<class-a>org.sigmah.server.domain.UserPermission</class-a>
-		<class-b>org.sigmah.shared.dto.UserPermissionDTO</class-b>
-
-		<field>
-			<a>user.name</a>
-			<b>name</b>
-		</field>
-
-		<field>
-			<a>user.firstName</a>
-			<b>firstName</b>
-		</field>
-
-		<field>
-			<a>user.email</a>
-			<b>email</b>
-		</field>
-	</mapping>
-
-	<mapping wildcard="true">
 		<class-a>org.sigmah.server.domain.Indicator</class-a>
 		<class-b>org.sigmah.shared.dto.IndicatorDTO</class-b>
 

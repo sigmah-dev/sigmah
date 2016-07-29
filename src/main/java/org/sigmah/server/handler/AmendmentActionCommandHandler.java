@@ -40,7 +40,6 @@ import org.sigmah.shared.dto.referential.AmendmentState;
 import com.google.inject.Inject;
 import com.google.inject.persist.Transactional;
 import org.sigmah.server.handler.util.Handlers;
-import org.sigmah.server.service.UserPermissionPolicy;
 import org.sigmah.shared.dto.referential.AmendmentAction;
 import org.sigmah.shared.dto.referential.GlobalPermissionEnum;
 import org.sigmah.shared.security.UnauthorizedAccessException;

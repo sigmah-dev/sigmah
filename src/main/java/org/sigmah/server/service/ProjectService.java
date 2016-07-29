@@ -659,11 +659,6 @@ public class ProjectService extends AbstractEntityService<Project, Integer, Proj
 				for (ProjectFunding pf : listfundingsToDelete) {
 					em().remove(pf);
 				}
-				/*
-				 * [UserPermission trigger] Deletes related entries in UserPermission table after project deleted
-				 */
-				UserPermissionPolicy policy = injector.getInstance(UserPermissionPolicy.class);
-				policy.deleteUserPemissionByProject(entityId);
 			}
 		}
 
@@ -675,14 +670,6 @@ public class ProjectService extends AbstractEntityService<Project, Integer, Proj
 	 */
 	@Override
 	protected EntityDTO<?> handleMapping(final Project createdProject) throws CommandException {
-
-		if (createdProject.getPartners() != null) {
-			UserPermissionPolicy permissionPolicy = injector.getInstance(UserPermissionPolicy.class);
-			for (OrgUnit orgUnit : createdProject.getPartners()) {
-				permissionPolicy.updateUserPermissionByOrgUnit(orgUnit);
-				break;
-			}
-		}
 
 		final ProjectDTO mappedProject = projectMapper.map(createdProject, false);
 		mappedProject.setSpendBudget(0.0);

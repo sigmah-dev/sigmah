@@ -41,7 +41,6 @@ import org.sigmah.server.domain.value.TripletValue;
 import org.sigmah.server.domain.value.Value;
 import org.sigmah.server.handler.base.AbstractCommandHandler;
 import org.sigmah.server.mapper.Mapper;
-import org.sigmah.server.service.UserPermissionPolicy;
 import org.sigmah.shared.command.UpdateProject;
 import org.sigmah.shared.command.result.VoidResult;
 import org.sigmah.shared.dispatch.CommandException;
@@ -301,11 +300,6 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 			for (OrgUnit orgUnit : updatedProject.getPartners()) {
 				newOrgUnit = orgUnit;
 				break;
-			}
-			if (newOrgUnit != null) {
-				final UserPermissionPolicy permissionPolicy = injector.getInstance(UserPermissionPolicy.class);
-				permissionPolicy.deleteUserPemissionByProject(projectId);
-				permissionPolicy.updateUserPermissionByOrgUnit(newOrgUnit);
 			}
 			
 			if(coreVersionHasBeenModified) {

@@ -27,7 +27,6 @@ import org.sigmah.server.dao.OrgUnitDAO;
 import org.sigmah.server.dispatch.impl.UserDispatch.UserExecutionContext;
 import org.sigmah.server.domain.OrgUnit;
 import org.sigmah.server.handler.base.AbstractCommandHandler;
-import org.sigmah.server.service.UserPermissionPolicy;
 import org.sigmah.shared.command.MoveOrgUnit;
 import org.sigmah.shared.command.result.VoidResult;
 import org.sigmah.shared.dispatch.CommandException;
@@ -55,12 +54,10 @@ public class MoveOrgUnitHandler extends AbstractCommandHandler<MoveOrgUnit, Void
 	private static final Logger LOG = LoggerFactory.getLogger(MoveOrgUnitHandler.class);
 
 	private final OrgUnitDAO orgUnitDAO;
-	private final UserPermissionPolicy permissionPolicy;
 
 	@Inject
-	public MoveOrgUnitHandler(OrgUnitDAO orgUnitDAO, UserPermissionPolicy permissionPolicy) {
+	public MoveOrgUnitHandler(OrgUnitDAO orgUnitDAO) {
 		this.orgUnitDAO = orgUnitDAO;
-		this.permissionPolicy = permissionPolicy;
 	}
 
 	/**
@@ -116,10 +113,6 @@ public class MoveOrgUnitHandler extends AbstractCommandHandler<MoveOrgUnit, Void
 	@Transactional
 	protected void performMove(OrgUnit moonWalk, User michael) throws CommandException {
 		orgUnitDAO.persist(moonWalk, michael);
-
-		// [UserPermission trigger] Updates UserPermission table when org unit changes its parent.
-		permissionPolicy.deleteUserPermssionByOrgUnit(moonWalk);
-		permissionPolicy.updateUserPermissionByOrgUnit(moonWalk);
 	}
 
 	/**

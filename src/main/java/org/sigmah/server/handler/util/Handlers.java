@@ -324,7 +324,7 @@ public final class Handlers {
 	 *           If the user does not have design permission.
 	 */
 	public static void assertDesignPrivileges(User user, UserDatabase database) throws UnauthorizedAccessException {
-		if (isGranted(user.getOrgUnitWithProfiles(), GlobalPermissionEnum.EDIT_INDICATOR)) {
+		if (!isGranted(user.getOrgUnitWithProfiles(), GlobalPermissionEnum.EDIT_INDICATOR)) {
 			throw new UnauthorizedAccessException("Access denied to database '" + database.getId() + "'.");
 		}
 		if (!isProjectVisible(database, user)) {

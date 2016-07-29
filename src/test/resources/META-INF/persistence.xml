@@ -64,7 +64,6 @@
 		<class>org.sigmah.server.domain.Site</class>
 		<class>org.sigmah.server.domain.User</class>
 		<class>org.sigmah.server.domain.UserDatabase</class>
-		<class>org.sigmah.server.domain.UserPermission</class>
 
 		<!-- calendar package. -->
 		<class>org.sigmah.server.domain.calendar.PersonalCalendar</class>

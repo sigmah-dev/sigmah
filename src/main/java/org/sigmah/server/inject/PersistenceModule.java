@@ -62,7 +62,6 @@ import org.sigmah.server.dao.SiteDAO;
 import org.sigmah.server.dao.SiteTableDAO;
 import org.sigmah.server.dao.UserDAO;
 import org.sigmah.server.dao.UserDatabaseDAO;
-import org.sigmah.server.dao.UserPermissionDAO;
 import org.sigmah.server.dao.UserUnitDAO;
 import org.sigmah.server.dao.ValueDAO;
 import org.sigmah.server.dao.impl.ActivityHibernateDAO;
@@ -101,7 +100,6 @@ import org.sigmah.server.dao.impl.SiteHibernateDAO;
 import org.sigmah.server.dao.impl.SiteTableHibernateDAO;
 import org.sigmah.server.dao.impl.UserDatabaseHibernateDAO;
 import org.sigmah.server.dao.impl.UserHibernateDAO;
-import org.sigmah.server.dao.impl.UserPermissionHibernateDAO;
 import org.sigmah.server.dao.impl.UserUnitDAOImpl;
 import org.sigmah.server.dao.impl.ValueHibernateDAO;
 import org.sigmah.server.dao.util.SQLDialect;
@@ -186,7 +184,6 @@ public class PersistenceModule extends AbstractModule {
 		bind(SiteTableDAO.class).to(SiteTableHibernateDAO.class).in(Singleton.class);
 		bind(UserDAO.class).to(UserHibernateDAO.class).in(Singleton.class);
 		bind(UserDatabaseDAO.class).to(UserDatabaseHibernateDAO.class).in(Singleton.class);
-		bind(UserPermissionDAO.class).to(UserPermissionHibernateDAO.class).in(Singleton.class);
 		bind(UserUnitDAO.class).to(UserUnitDAOImpl.class).in(Singleton.class);
 		bind(ValueDAO.class).to(ValueHibernateDAO.class).in(Singleton.class);
 
