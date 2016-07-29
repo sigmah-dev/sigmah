@@ -73,9 +73,6 @@ public class SitePolicy extends AbstractEntityService<Site, Integer, SiteDTO> {
 	private final UserDatabaseDAO userDatabaseDAO;
 	
 	@Inject
-	private UserPermissionPolicy permissionPolicy;
-	
-	@Inject
 	public SitePolicy(ActivityDAO activityDAO, AdminDAO adminDAO, LocationDAO locationDAO, PartnerDAO partnerDAO, SiteDAO siteDAO, ReportingPeriodDAO reportingPeriodDAO, UserDatabaseDAO userDatabaseDAO) {
 		this.locationDAO = locationDAO;
 		this.siteDAO = siteDAO;
@@ -207,7 +204,7 @@ public class SitePolicy extends AbstractEntityService<Site, Integer, SiteDTO> {
 			return;
 		}
 		
-		if (!permissionPolicy.isGranted(user.getOrgUnitWithProfiles(), GlobalPermissionEnum.EDIT_INDICATOR)) {
+		if (!Handlers.isGranted(user.getOrgUnitWithProfiles(), GlobalPermissionEnum.EDIT_INDICATOR)) {
 			throw new IllegalAccessError("User '" + user.getEmail() + "' can't edit database '" + db.getId() + "' because he misses '" + GlobalPermissionEnum.EDIT_INDICATOR + "' permission.");
 		}
 		
