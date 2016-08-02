@@ -1,6 +1,10 @@
 package org.sigmah.shared.computation;
 
+import java.util.Collections;
+import java.util.List;
 import org.junit.Assert;
+import org.junit.Test;
+import org.sigmah.shared.dto.element.FlexibleElementDTO;
 
 /**
  * Test of the new functionalities of computations.
@@ -12,24 +16,30 @@ public class ExtendedComputationsTest {
 	/**
 	 * Test of parse method, of class Computations.
 	 */
+	@Test
 	public void testParseAverage() {
-		Computation formula = Computations.parse("fundingSources().avg(@contribution)", null);
+		List<FlexibleElementDTO> allElements = Collections.emptyList();
+		Computation formula = Computations.parse("fundingSources().avg(@contribution)", allElements);
 		Assert.assertFalse(formula.isBadFormula());
 	}
 	
 	/**
 	 * Test of parse method, of class Computations.
 	 */
+	@Test
 	public void testParseSum() {
-		Computation formula = Computations.parse("fundedProjects(Local partner project v2).sum(field56)", null);
+		List<FlexibleElementDTO> allElements = Collections.emptyList();
+		Computation formula = Computations.parse("fundedProjects(Local partner project v2).sum(field56)", allElements);
 		Assert.assertFalse(formula.isBadFormula());
 	}
 	
 	/**
 	 * Test of parse method, of class Computations.
 	 */
+	@Test
 	public void testParseFullExample() {
-		Computation formula = Computations.parse("fundingSources().sum(@contribution) - fundedProjects(Local partner project v2).sum(field56)", null);
+		List<FlexibleElementDTO> allElements = Collections.emptyList();
+		Computation formula = Computations.parse("fundingSources().sum(@contribution) - fundedProjects(Local partner project v2).sum(field56)", allElements);
 		Assert.assertFalse(formula.isBadFormula());
 	}
 	
