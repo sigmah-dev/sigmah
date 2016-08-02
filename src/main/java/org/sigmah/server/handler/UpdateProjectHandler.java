@@ -74,6 +74,11 @@ import org.sigmah.shared.Language;
 import org.sigmah.shared.command.result.ValueResult;
 import org.sigmah.shared.computation.Computation;
 import org.sigmah.shared.computation.Computations;
+import org.sigmah.shared.computation.dependency.CollectionDependency;
+import org.sigmah.shared.computation.dependency.ContributionDependency;
+import org.sigmah.shared.computation.dependency.Dependency;
+import org.sigmah.shared.computation.dependency.DependencyVisitor;
+import org.sigmah.shared.computation.dependency.SingleDependency;
 import org.sigmah.shared.computation.value.ComputedValue;
 import org.sigmah.shared.computation.value.ComputedValues;
 import org.sigmah.shared.dispatch.FunctionalException;
@@ -910,11 +915,34 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
     private String dependenciesLastValuesForComputation(final Computation computation, final int projectId, final Language language) {
         final DateFormat formatter = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, Locale.forLanguageTag(language.getLocale()));
         
-        return org.sigmah.shared.util.Collections.join(computation.getDependencies(), new org.sigmah.shared.util.Collections.Mapper<FlexibleElementDTO, String>() {
+        return org.sigmah.shared.util.Collections.join(computation.getDependencies(), new org.sigmah.shared.util.Collections.Mapper<Dependency, String>() {
                         
             @Override
-            public String forEntry(final FlexibleElementDTO entry) {
-                return "\n" + flexibleElementDetails(entry, projectId, language, formatter);
+            public String forEntry(final Dependency entry) {
+				final StringBuilder stringBuilder = new StringBuilder();
+				
+				entry.visitBy(new DependencyVisitor() {
+					
+					@Override
+					public void visit(SingleDependency dependency) {
+						stringBuilder
+							.append("\n")
+							.append(flexibleElementDetails(dependency.getFlexibleElement(), projectId, language, formatter));
+					}
+
+					@Override
+					public void visit(CollectionDependency dependency) {
+						throw new UnsupportedOperationException("Not supported yet.");
+					}
+
+					@Override
+					public void visit(ContributionDependency dependency) {
+						throw new UnsupportedOperationException("Not supported yet.");
+					}
+					
+				});
+				
+				return stringBuilder.toString();
             }
         }, "");
     }

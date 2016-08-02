@@ -62,6 +62,8 @@ import java.util.Date;
 import org.sigmah.shared.command.DisableFlexibleElements;
 import org.sigmah.shared.computation.Computation;
 import org.sigmah.shared.computation.Computations;
+import org.sigmah.shared.computation.dependency.Dependency;
+import org.sigmah.shared.computation.dependency.SingleDependency;
 import org.sigmah.shared.dto.element.ComputationElementDTO;
 import org.sigmah.shared.util.Collections;
 
@@ -300,7 +302,20 @@ public class FlexibleElementsAdminPresenter<E extends IsModel> extends AbstractP
 				final ComputationElementDTO computationElement = (ComputationElementDTO) other;
 
 				final Computation computation = Computations.parse(computationElement.getRule(), allElements);
-				if (Collections.containsOneOf(computation.getDependencies(), flexibleElements)) {
+				final List<FlexibleElementDTO> dependencies = Collections.map(computation.getDependencies(), new Collections.OptionnalMapper<Dependency, FlexibleElementDTO>() {
+					
+					@Override
+					public boolean skipEntry(Dependency entry) {
+						return entry instanceof SingleDependency;
+					}
+
+					@Override
+					public FlexibleElementDTO forEntry(Dependency entry) {
+						return ((SingleDependency) entry).getFlexibleElement();
+					}
+				});
+				
+				if (Collections.containsOneOf(dependencies, flexibleElements)) {
 					computationElements.add(computationElement);
 				}
 			}

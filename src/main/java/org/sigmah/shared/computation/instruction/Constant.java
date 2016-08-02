@@ -24,6 +24,7 @@ package org.sigmah.shared.computation.instruction;
 
 import java.util.Map;
 import java.util.Stack;
+import org.sigmah.shared.computation.dependency.Dependency;
 import org.sigmah.shared.computation.value.ComputedValue;
 import org.sigmah.shared.computation.value.ComputedValues;
 
@@ -57,7 +58,7 @@ class Constant implements Instruction {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void execute(Stack<ComputedValue> stack, Map<Integer, ComputedValue> variables) {
+	public void execute(Stack<ComputedValue> stack, Map<Dependency, ComputedValue> variables) {
 		stack.push(value);
 	}
 	

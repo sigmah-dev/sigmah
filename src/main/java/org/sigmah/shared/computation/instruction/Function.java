@@ -11,5 +11,11 @@ package org.sigmah.shared.computation.instruction;
  */
 public interface Function extends Instruction {
 	
-	// Empty interface.
+	/**
+	 * Creates a new instance of this function.
+	 * 
+	 * @return A new instance.
+	 */
+	public Function instantiate();
+	
 }

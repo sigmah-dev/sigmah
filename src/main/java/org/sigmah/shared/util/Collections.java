@@ -25,7 +25,6 @@ package org.sigmah.shared.util;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Utility class for <code>Collection</code> types.
@@ -53,7 +52,7 @@ public final class Collections {
      * @return <code>true</code> if one of the <code>needles</code> is found in <code>haystack</code>,
      * <code>false</code> if none are found.
      */
-    public static <T> boolean containsOneOf(final Set<T> haystack, final Collection<T> needles) {
+    public static <T> boolean containsOneOf(final Collection<T> haystack, final Collection<T> needles) {
         
         for (final T needle : needles) {
             if (haystack.contains(needle)) {

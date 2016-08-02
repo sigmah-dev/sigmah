@@ -2,6 +2,7 @@ package org.sigmah.shared.computation.instruction;
 
 import java.util.Map;
 import java.util.Stack;
+import org.sigmah.shared.computation.dependency.Dependency;
 import org.sigmah.shared.computation.value.ComputedValue;
 import org.sigmah.shared.computation.value.DoubleValue;
 
@@ -11,12 +12,12 @@ import org.sigmah.shared.computation.value.DoubleValue;
  * @author Raphaël Calabro (raphael.calabro@netapsys.fr)
  * @since 2.2
  */
-public class Sum implements VariadicFuntion {
+public class Sum implements ReduceFunction, VariadicFunction {
 
-	private int numberOfArguments;
+	private int numberOfArguments = 1;
 	
 	@Override
-	public void execute(Stack<ComputedValue> stack, Map<Integer, ComputedValue> variables) {
+	public void execute(Stack<ComputedValue> stack, Map<Dependency, ComputedValue> variables) {
 		final SumReductor reductor = new SumReductor();
 		for (int index = 0; index < numberOfArguments; index++) {
 			stack.pop().feedToReductor(reductor);
@@ -27,6 +28,11 @@ public class Sum implements VariadicFuntion {
 	@Override
 	public void setNumberOfArguments(int numberOfArguments) {
 		this.numberOfArguments = numberOfArguments;
+	}
+
+	@Override
+	public Function instantiate() {
+		return new Sum();
 	}
 	
 	private static class SumReductor implements Reductor {

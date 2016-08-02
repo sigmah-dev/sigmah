@@ -2,6 +2,7 @@ package org.sigmah.shared.computation.instruction;
 
 import java.util.Map;
 import java.util.Stack;
+import org.sigmah.shared.computation.dependency.Dependency;
 import org.sigmah.shared.computation.value.ComputedValue;
 
 /**
@@ -53,7 +54,7 @@ public class Tag implements Instruction {
 	private Category category;
 	
 	@Override
-	public void execute(Stack<ComputedValue> stack, Map<Integer, ComputedValue> variables) {
+	public void execute(Stack<ComputedValue> stack, Map<Dependency, ComputedValue> variables) {
 		// TODO: Ajouter une valeur CollectionValue dans la pile.
 		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
 	}

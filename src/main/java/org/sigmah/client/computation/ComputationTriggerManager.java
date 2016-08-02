@@ -34,6 +34,8 @@ import org.sigmah.client.ui.widget.Loadable;
 import org.sigmah.client.ui.widget.form.StringField;
 import org.sigmah.offline.sync.SuccessCallback;
 import org.sigmah.shared.computation.Computation;
+import org.sigmah.shared.computation.dependency.Dependency;
+import org.sigmah.shared.computation.dependency.SingleDependency;
 import org.sigmah.shared.dto.IsModel;
 import org.sigmah.shared.dto.OrgUnitModelDTO;
 import org.sigmah.shared.dto.ProjectDTO;
@@ -127,12 +129,17 @@ public class ComputationTriggerManager {
 		final Computation computation = computationElement.getComputationForModel(model);
 		computations.put(computationElement, computation);
 
-		for (final FlexibleElementDTO dependency : computation.getDependencies()) {
+		for (final Dependency dependency : computation.getDependencies()) {
 			List<ComputationElementDTO> list = dependencies.get(dependency);
 
 			if (list == null) {
 				list = new ArrayList<ComputationElementDTO>();
-				dependencies.put(dependency, list);
+				
+				if (dependency instanceof SingleDependency) {
+					dependencies.put(((SingleDependency) dependency).getFlexibleElement(), list);
+				} else {
+					throw new UnsupportedOperationException("Not supported yet.");
+				}
 			}
 
 			list.add(computationElement);

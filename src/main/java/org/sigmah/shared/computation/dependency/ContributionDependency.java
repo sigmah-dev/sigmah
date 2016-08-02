@@ -1,22 +1,18 @@
 package org.sigmah.shared.computation.dependency;
 
-import org.sigmah.shared.dto.element.FlexibleElementDTO;
-
 /**
  *
  * @author Raphaël Calabro (raphael.calabro@netapsys.fr)
  */
-public class CollectionDependency implements Dependency {
+public class ContributionDependency implements Dependency {
 	
 	private Scope scope;
-	private FlexibleElementDTO flexibleElement;
 
-	public CollectionDependency() {
+	public ContributionDependency() {
 	}
 
-	public CollectionDependency(Scope scope, FlexibleElementDTO flexibleElement) {
+	public ContributionDependency(Scope scope) {
 		this.scope = scope;
-		this.flexibleElement = flexibleElement;
 	}
 
 	@Override

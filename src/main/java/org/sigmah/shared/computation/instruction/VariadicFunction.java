@@ -7,7 +7,8 @@ package org.sigmah.shared.computation.instruction;
  * @author Raphaël Calabro (raphael.calabro@netapsys.fr)
  * @since 2.2
  */
-public interface VariadicFuntion extends Function {
+@Deprecated
+public interface VariadicFunction extends Function {
 	
 	void setNumberOfArguments(int numberOfArguments);
 }

@@ -26,6 +26,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
+import org.sigmah.shared.computation.dependency.Scope;
+import org.sigmah.shared.computation.instruction.Function;
 import org.sigmah.shared.computation.instruction.Instruction;
 import org.sigmah.shared.computation.instruction.Operator;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
@@ -160,6 +162,25 @@ class ParserEnvironment {
 		return contexts.peek().instructions;
 	}
 	
+	Scope getCurrentScope() {
+		return contexts.peek().scope;
+	}
+	
+	void setCurrentScope(Scope scope) {
+		contexts.peek().scope = scope;
+	}
+	
+	Function popLastFunction() {
+		final Context peek = contexts.peek();
+		final Function function = peek.function;
+		peek.function = null;
+		return function;
+	}
+	
+	void setLastFunction(Function function) {
+		contexts.peek().function = function;
+	}
+	
 	// CONTEXT
 	
 	/**
@@ -170,10 +191,18 @@ class ParserEnvironment {
 		 * Instruction list.
 		 */
 		private final List<Instruction> instructions = new ArrayList<Instruction>();
+		
 		/**
 		 * Operator stack.
 		 */
 		private final Stack<Operator> operators = new Stack<Operator>();
+		
+		private Function function;
+		
+		/**
+		 * Current scope of the context. May be null.
+		 */
+		private Scope scope;
 	}
 	
 }

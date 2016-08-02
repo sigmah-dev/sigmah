@@ -25,8 +25,8 @@ package org.sigmah.shared.computation;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import java.util.Collection;
 import java.util.Map;
+import org.sigmah.shared.computation.dependency.Dependency;
 import org.sigmah.shared.computation.value.ComputedValue;
-import org.sigmah.shared.dto.element.FlexibleElementDTO;
 
 /**
  * Retrieve values of the dependencies of a <code>Computation</code> element.
@@ -43,6 +43,6 @@ public interface ValueResolver {
 	 * @param containerId Identifier of the container (project or orgunit).
 	 * @param callback To be called when every value has been retrieved.
 	 */
-	void resolve(Collection<FlexibleElementDTO> elements, int containerId, AsyncCallback<Map<Integer, ComputedValue>> callback);
+	void resolve(Collection<Dependency> elements, int containerId, AsyncCallback<Map<Dependency, ComputedValue>> callback);
 	
 }

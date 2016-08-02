@@ -30,6 +30,11 @@ import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 import org.sigmah.server.dao.base.EntityManagerProvider;
 import org.sigmah.shared.computation.ValueResolver;
+import org.sigmah.shared.computation.dependency.CollectionDependency;
+import org.sigmah.shared.computation.dependency.ContributionDependency;
+import org.sigmah.shared.computation.dependency.Dependency;
+import org.sigmah.shared.computation.dependency.DependencyVisitor;
+import org.sigmah.shared.computation.dependency.SingleDependency;
 import org.sigmah.shared.computation.value.ComputedValue;
 import org.sigmah.shared.computation.value.ComputedValues;
 import org.sigmah.shared.dto.element.DefaultFlexibleElementDTO;
@@ -47,32 +52,60 @@ public class ServerValueResolver extends EntityManagerProvider implements ValueR
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void resolve(Collection<FlexibleElementDTO> elements, int containerId, AsyncCallback<Map<Integer, ComputedValue>> callback) {
-		final HashMap<Integer, ComputedValue> values = new HashMap<>();
+	public void resolve(Collection<Dependency> dependencies, int containerId, AsyncCallback<Map<Dependency, ComputedValue>> callback) {
+		final HashMap<Dependency, ComputedValue> values = new HashMap<>();
 		
 		final TypedQuery<String> query = em().createQuery("SELECT v.value FROM Value v WHERE v.containerId = :containerId AND v.element.id = :elementId", String.class);
 		query.setParameter("containerId", containerId);
 		
-		for (final FlexibleElementDTO element : elements) {
-			if (!(element instanceof DefaultFlexibleElementDTO)) {
-				final Integer id = element.getId();
-				query.setParameter("elementId", id);
-				
-				String result = null;
-				try {
-					result = query.getSingleResult();
-				} catch(NoResultException e) {
-					// Ignored.
+		for (final Dependency dependency : dependencies) {
+			dependency.visitBy(new DependencyVisitor() {
+				@Override
+				public void visit(SingleDependency dependency) {
+					resolve(dependency, query, values);
 				}
 
-				values.put(id, ComputedValues.from(result));
-			} else {
-				// TODO: Should also handle DefaultFlexibleElement.
-				throw new UnsupportedOperationException("DefaultFlexibleElement are not supported yet.");
-			}
+				@Override
+				public void visit(CollectionDependency dependency) {
+					throw new UnsupportedOperationException("Not supported yet.");
+				}
+
+				@Override
+				public void visit(ContributionDependency dependency) {
+					throw new UnsupportedOperationException("Not supported yet.");
+				}
+			});
 		}
 		
 		callback.onSuccess(values);
 	}
 	
+	/**
+	 * Resolve a <code>SingleDependency</code> with the given query.
+	 * 
+	 * @param dependency Dependency to resolve.
+	 * @param query Query to use to fetch the value from the database.
+	 * @param values Map where to associate the given dependency with the retrieved value.
+	 */
+	private void resolve(final SingleDependency dependency, final TypedQuery<String> query, final Map<Dependency, ComputedValue> values) {
+		final FlexibleElementDTO element = dependency.getFlexibleElement();
+		
+		if (!(element instanceof DefaultFlexibleElementDTO)) {
+			final Integer id = element.getId();
+			query.setParameter("elementId", id);
+
+			String result = null;
+			try {
+				result = query.getSingleResult();
+			} catch(NoResultException e) {
+				// Ignored.
+			}
+
+			values.put(dependency, ComputedValues.from(result));
+		} else {
+			// NOTE: In the future, this method should also handle DefaultFlexibleElement.
+			throw new UnsupportedOperationException("DefaultFlexibleElement are not supported yet.");
+		}
+	}
+
 }

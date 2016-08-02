@@ -1,6 +1,8 @@
 package org.sigmah.shared.computation.dependency;
 
+import org.sigmah.shared.computation.instruction.Instructions;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
+import org.sigmah.shared.dto.element.TextAreaElementDTO;
 
 /**
  *
@@ -9,6 +11,23 @@ import org.sigmah.shared.dto.element.FlexibleElementDTO;
 public class SingleDependency implements Dependency {
 	
 	private FlexibleElementDTO flexibleElement;
+
+	public SingleDependency() {
+	}
+
+	public SingleDependency(FlexibleElementDTO flexibleElement) {
+		this.flexibleElement = flexibleElement;
+	}
+
+	public SingleDependency(int flexibleElementId) {
+		final FlexibleElementDTO element = new TextAreaElementDTO();
+		element.setId(flexibleElementId);
+		this.flexibleElement = element;
+	}
+
+	public FlexibleElementDTO getFlexibleElement() {
+		return flexibleElement;
+	}
 
 	@Override
 	public int hashCode() {
@@ -34,6 +53,33 @@ public class SingleDependency implements Dependency {
 		} else {
 			return other.flexibleElement == null;
 		}
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String toString() {
+		return new StringBuilder()
+                .append(Instructions.ID_PREFIX)
+                .append(flexibleElement.getId())
+                .toString();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String toHumanReadableString() {
+		return flexibleElement.getCode();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void visitBy(DependencyVisitor visitor) {
+		visitor.visit(this);
 	}
 	
 }

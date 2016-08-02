@@ -6,6 +6,7 @@ package org.sigmah.shared.computation.instruction;
  * @author Raphaël Calabro (raphael.calabro@netapsys.fr)
  * @since 2.2
  */
+@Deprecated
 public interface NaryFunction {
 	
 	int getNumberOfArguments();
