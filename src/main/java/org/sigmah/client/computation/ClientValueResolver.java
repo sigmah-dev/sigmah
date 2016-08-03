@@ -29,7 +29,9 @@ import java.util.HashMap;
 import java.util.Map;
 import org.sigmah.client.dispatch.DispatchAsync;
 import org.sigmah.shared.command.BatchCommand;
+import org.sigmah.shared.command.GetLinkedProjects;
 import org.sigmah.shared.command.GetValue;
+import org.sigmah.shared.command.base.Command;
 import org.sigmah.shared.command.result.ListResult;
 import org.sigmah.shared.command.result.Result;
 import org.sigmah.shared.command.result.ValueResult;
@@ -41,6 +43,7 @@ import org.sigmah.shared.computation.dependency.DependencyVisitor;
 import org.sigmah.shared.computation.dependency.SingleDependency;
 import org.sigmah.shared.computation.value.ComputedValue;
 import org.sigmah.shared.computation.value.ComputedValues;
+import org.sigmah.shared.dto.ProjectDTO;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
 
 /**
@@ -63,7 +66,7 @@ public class ClientValueResolver implements ValueResolver {
 		final HashMap<Integer, Dependency> elementIdToDependencyMap = new HashMap<Integer, Dependency>();
 		
 		for (final Dependency dependency : dependencies) {
-			dependency.visitBy(new DependencyVisitor() {
+			dependency.accept(new DependencyVisitor() {
 				
 				@Override
 				public void visit(SingleDependency dependency) {
@@ -81,7 +84,7 @@ public class ClientValueResolver implements ValueResolver {
 
 				@Override
 				public void visit(ContributionDependency dependency) {
-					throw new UnsupportedOperationException("Not supported yet.");
+					batchCommand.add(new GetLinkedProjects(containerId, dependency.getScope().getLinkedProjectType(), ProjectDTO.Mode.BASE));
 				}
 			});
 		}
@@ -99,10 +102,16 @@ public class ClientValueResolver implements ValueResolver {
 				
 				final int size = result.getSize();
 				for (int index = 0; index < size; index++) {
-					final GetValue getValue = (GetValue) batchCommand.getCommands().get(index);
-					final ValueResult valueResult = (ValueResult) result.getList().get(index);
-					
-					values.put(elementIdToDependencyMap.get(getValue.getElementId()), ComputedValues.from(valueResult));
+					final Command<?> command = batchCommand.getCommands().get(index);
+					if (command instanceof GetValue) {
+						final GetValue getValue = (GetValue) batchCommand.getCommands().get(index);
+						final ValueResult valueResult = (ValueResult) result.getList().get(index);
+
+						values.put(elementIdToDependencyMap.get(getValue.getElementId()), ComputedValues.from(valueResult));
+					}
+					else if(command instanceof GetLinkedProjects) {
+						// TODO: À continuer.
+					}
 				}
 				
 				callback.onSuccess(values);

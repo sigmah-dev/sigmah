@@ -1,6 +1,6 @@
 package org.sigmah.shared.computation.dependency;
 
-import org.sigmah.shared.dto.ProjectModelDTO;
+import org.sigmah.shared.dto.ProjectFundingDTO;
 
 /**
  *
@@ -8,32 +8,27 @@ import org.sigmah.shared.dto.ProjectModelDTO;
  */
 public class Scope {
 	
-	private Relation relation;
-	private ProjectModelDTO projectModel;
+	private ProjectFundingDTO.LinkedProjectType linkedProjectType;
+	private String modelName;
 
 	public Scope() {
 	}
 
-	public Scope(Relation relation, String modelName) {
-		this.relation = relation;
-		
-		if (modelName != null) {
-			this.projectModel = new ProjectModelDTO();
-			projectModel.setName(modelName);
-		}
+	public Scope(ProjectFundingDTO.LinkedProjectType linkedProjectType, String modelName) {
+		this.linkedProjectType = linkedProjectType;
+		this.modelName = modelName;
 	}
 
-	public Relation getRelation() {
-		return relation;
+	public ProjectFundingDTO.LinkedProjectType getLinkedProjectType() {
+		return linkedProjectType;
 	}
 
-	public ProjectModelDTO getProjectModel() {
-		return projectModel;
+	public String getModelName() {
+		return modelName;
 	}
-	
-	public void setProjectModelName(String modelName) {
-		this.projectModel = new ProjectModelDTO();
-		projectModel.setName(modelName);
+
+	public void setModelName(String modelName) {
+		this.modelName = modelName;
 	}
 	
 }

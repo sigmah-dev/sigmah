@@ -202,7 +202,7 @@ enum ParserState {
 						if (CONTRIBUTION_DEPENDENCY.equals(argument)) {
 							dependency = new ContributionDependency(scope);
 						} else {
-							if (scope.getProjectModel() == null) {
+							if (scope.getModelName() == null) {
 								throw new IllegalArgumentException("Project model is mandatory for field codes.");
 							}
 							// TODO: Rechercher l'élément flexible correspondant.

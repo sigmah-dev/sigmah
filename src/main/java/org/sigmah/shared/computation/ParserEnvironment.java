@@ -54,6 +54,9 @@ class ParserEnvironment {
 	 * Flexible elements of the parent model.
 	 */
 	private final Map<String, FlexibleElementDTO> elements;
+	
+	// TODO: À utiliser.
+	private boolean hasUnresolvedDependencies;
 
 	/**
 	 * Create a new environment and push an initial context.

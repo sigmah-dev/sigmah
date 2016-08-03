@@ -30,6 +30,11 @@ public class SingleDependency implements Dependency {
 	}
 
 	@Override
+	public boolean isResolved() {
+		return true;
+	}
+
+	@Override
 	public int hashCode() {
 		int hash = 5;
 		hash = 53 * hash + (flexibleElement != null ? flexibleElement.hashCode() : 0);
@@ -78,7 +83,7 @@ public class SingleDependency implements Dependency {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void visitBy(DependencyVisitor visitor) {
+	public void accept(DependencyVisitor visitor) {
 		visitor.visit(this);
 	}
 	

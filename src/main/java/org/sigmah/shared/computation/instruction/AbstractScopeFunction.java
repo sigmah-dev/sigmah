@@ -3,9 +3,9 @@ package org.sigmah.shared.computation.instruction;
 import java.util.Map;
 import java.util.Stack;
 import org.sigmah.shared.computation.dependency.Dependency;
-import org.sigmah.shared.computation.dependency.Relation;
 import org.sigmah.shared.computation.dependency.Scope;
 import org.sigmah.shared.computation.value.ComputedValue;
+import org.sigmah.shared.dto.ProjectFundingDTO;
 
 /**
  *
@@ -32,11 +32,11 @@ public abstract class AbstractScopeFunction implements ScopeFunction {
 		return modelName;
 	}
 	
-	public abstract Relation getRelation();
+	public abstract ProjectFundingDTO.LinkedProjectType getLinkedProjectType();
 
 	@Override
 	public Scope toScope() {
-		return new Scope(getRelation(), modelName);
+		return new Scope(getLinkedProjectType(), modelName);
 	}
 	
 	/**

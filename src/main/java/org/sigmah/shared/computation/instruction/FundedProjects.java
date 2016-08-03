@@ -1,6 +1,6 @@
 package org.sigmah.shared.computation.instruction;
 
-import org.sigmah.shared.computation.dependency.Relation;
+import org.sigmah.shared.dto.ProjectFundingDTO;
 
 /**
  *
@@ -28,8 +28,8 @@ public class FundedProjects extends AbstractScopeFunction {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Relation getRelation() {
-		return Relation.FUNDED_PROJECTS;
+	public ProjectFundingDTO.LinkedProjectType getLinkedProjectType() {
+		return ProjectFundingDTO.LinkedProjectType.FUNDED_PROJECT;
 	}
-	
+
 }

@@ -124,6 +124,22 @@ public final class ServerComputations {
 		dtos.addAll(toDTOCollection(orgUnitModel.getDetails().getLayout()));
 		return dtos;
 	}
+	
+	public static Collection<Layout> getAllLayoutsFromModel(final ProjectModel projectModel) {
+		
+		if (projectModel == null) {
+			return Collections.<Layout>emptyList();
+		}
+		
+		final ArrayList<Layout> layouts = new ArrayList<>();
+		layouts.add(projectModel.getProjectDetails().getLayout());
+		
+		for (final PhaseModel phaseModel : projectModel.getPhaseModels()) {
+			layouts.add(phaseModel.getLayout());
+		}
+		
+		return layouts;
+	}
 
 	/**
 	 * Extract every element with a code from the given layout and creates a 
@@ -160,6 +176,44 @@ public final class ServerComputations {
 		}
 		
 		return dtos;
+	}
+	
+	public static FlexibleElementDTO getElementWithCodeInModel(final String code, final ProjectModel projectModel) {
+		
+		if (code == null) {
+			return null;
+		}
+		
+		for (final Layout layout : getAllLayoutsFromModel(projectModel)) {
+			final FlexibleElementDTO element = getElementWithCodeInLayout(code, layout);
+			if (element != null) {
+				return element;
+			}
+		}
+		
+		return null;
+	}
+	
+	private static FlexibleElementDTO getElementWithCodeInLayout(final String code, final Layout layout) {
+		
+		if (layout == null) {
+			return null;
+		}
+		
+		for (final LayoutGroup group : layout.getGroups()) {
+			for (final LayoutConstraint constraint : group.getConstraints()) {
+				final FlexibleElement element = constraint.getElement();
+				
+				if (element != null && code.equals(element.getCode())) {
+					final FlexibleElementDTO dto = toDTO(element);
+					dto.setId(element.getId());
+					dto.setCode(element.getCode());
+					return dto;
+				}
+			}
+		}
+		
+		return null;
 	}
 	
 	// --

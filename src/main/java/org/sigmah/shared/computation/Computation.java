@@ -291,19 +291,10 @@ public class Computation {
      * @return A String representing this computation.
      */
     public String toHumanReadableString() {
-        final Stack<String> stack = new Stack<String>();
-
-        for (final Instruction instruction : instructions) {
-            if (instruction instanceof Operator) {
-                addOperatorToStack((Operator) instruction, stack);
-            } else if (instruction instanceof HasHumanReadableFormat) {
-                stack.add(((HasHumanReadableFormat) instruction).toHumanReadableString());
-            } else {
-                stack.add(instruction.toString());
-            }
-        }
-
-        return stack.peek();
+        return new ComputationStringBuilder()
+				.setHumanReadableFormat(true)
+				.add(instructions)
+				.toString();
     }
 
     /**
@@ -311,79 +302,9 @@ public class Computation {
      */
     @Override
     public String toString() {
-        final Stack<String> stack = new Stack<String>();
-
-        for (final Instruction instruction : instructions) {
-            if (instruction instanceof Operator) {
-                addOperatorToStack((Operator) instruction, stack);
-            } else {
-                stack.add(instruction.toString());
-            }
-        }
-
-        return stack.peek();
-    }
-
-    /**
-     * Adds the given operator to the <code>Stack</code> of <code>String</code>s.
-     *
-     * @param operator Operator to add.
-	 * @param stack Stack of Strings.
-     */
-    private void addOperatorToStack(final Operator operator, final Stack<String> stack) {
-        final StringBuilder builder = new StringBuilder();
-        final String right = stack.pop();
-
-        if (operator.getPriority() == OperatorPriority.UNARY) {
-            addUnaryOperatorToStack(builder, operator, right);
-        } else if (operator.getPriority().ordinal() > OperatorPriority.ADD_SUBSTRACT.ordinal()) {
-            addOperatorWithHighPriorityToStack(stack, builder, operator, right);
-        } else {
-            builder.append(stack.pop())
-                    .append(' ').append(operator).append(' ')
-                    .append(right);
-        }
-
-        stack.add(builder.toString());
-    }
-
-    /**
-     * Adds the given operator to the <code>Stack</code> of <code>String</code>s.
-     *
-	 * @param stack Stack of Strings.
-	 * @param builder Builder for the current operator <code>String</code>.
-	 * @param operator Operator to add.
-	 * @param right Right operand.
-     */
-    private void addOperatorWithHighPriorityToStack(final Stack<String> stack, final StringBuilder builder, final Operator operator, final String right) {
-        final String left = stack.pop();
-        if (left.contains(" ")) {
-            builder.append('(').append(left).append(") ");
-        } else {
-            builder.append(left).append(' ');
-        }
-        builder.append(operator);
-        if (right.contains(" ")) {
-            builder.append(" (").append(right).append(')');
-        } else {
-            builder.append(' ').append(right);
-        }
-    }
-
-    /**
-     * Adds the given operator to the <code>Stack</code> of <code>String</code>s.
-     *
-	 * @param builder Builder for the current operator <code>String</code>.
-	 * @param operator Operator to add.
-	 * @param right Right operand.
-     */
-    private void addUnaryOperatorToStack(final StringBuilder builder, final Operator operator, final String right) {
-        builder.append(operator);
-        if (right.contains(" ")) {
-            builder.append('(').append(right).append(')');
-        } else {
-            builder.append(right);
-        }
+        return new ComputationStringBuilder()
+				.add(instructions)
+				.toString();
     }
 
     /**

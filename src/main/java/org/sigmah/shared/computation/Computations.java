@@ -72,6 +72,11 @@ public final class Computations {
         }
 	}
 	
+	public static Computation parse(String rule, Collection<FlexibleElementDTO> allElements, DependencyResolver resolver) {
+		final Computation computation = parse(rule, allElements);
+		return computation;
+	}
+	
 	/**
 	 * Parse the given rule and format it as a human readable rule.
 	 * 

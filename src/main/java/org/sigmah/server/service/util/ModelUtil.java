@@ -418,6 +418,7 @@ public final class ModelUtil {
 			ComputationElement computationElement = (ComputationElement) flexibleElt;
 			if (computationElement != null) {
 				if (computationRule != null) {
+					// TODO: Parser ici la règle et faire un resolve dependencies
 					computationElement.setRule(computationRule);
 					specificChanges = true;
                     

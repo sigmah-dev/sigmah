@@ -1,7 +1,8 @@
 package org.sigmah.shared.computation.value;
 
+import java.util.Collection;
+import java.util.Collections;
 import org.sigmah.shared.computation.instruction.Reductor;
-import org.sigmah.shared.dto.element.ComputationElementDTO;
 
 /**
  * Contains multiple values. Can be used by functions.
@@ -11,10 +12,21 @@ import org.sigmah.shared.dto.element.ComputationElementDTO;
  */
 public class CollectionValue extends ComputedValueAdapter {
 
+	private final Collection<ComputedValue> values;
+
+	public CollectionValue() {
+		this.values = Collections.emptyList();
+	}
+
+	public CollectionValue(final Collection<ComputedValue> values) {
+		this.values = values;
+	}
+	
 	@Override
 	public void feedToReductor(Reductor reductor) {
-		// TODO: Itérer sur les valeurs présentes en base de données et les ajouter au réducteur.
-		reductor.feed(this);
+		for (final ComputedValue value : values) {
+			value.feedToReductor(reductor);
+		}
 	}
 	
 }

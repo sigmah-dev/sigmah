@@ -15,7 +15,18 @@ import org.sigmah.shared.computation.value.DoubleValue;
 public class Sum implements ReduceFunction, VariadicFunction {
 
 	private int numberOfArguments = 1;
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String toString() {
+		return "sum";
+	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void execute(Stack<ComputedValue> stack, Map<Dependency, ComputedValue> variables) {
 		final SumReductor reductor = new SumReductor();
@@ -25,25 +36,40 @@ public class Sum implements ReduceFunction, VariadicFunction {
 		stack.push(reductor.reduce());
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void setNumberOfArguments(int numberOfArguments) {
 		this.numberOfArguments = numberOfArguments;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Function instantiate() {
 		return new Sum();
 	}
 	
+	/**
+	 * Reductor used to calculate the sum.
+	 */
 	private static class SumReductor implements Reductor {
 		
 		private ComputedValue sum = new DoubleValue(0.0);
 
+		/**
+		 * {@inheritDoc}
+		 */
 		@Override
 		public void feed(ComputedValue value) {
 			sum = value.addTo(sum);
 		}
 
+		/**
+		 * {@inheritDoc}
+		 */
 		@Override
 		public ComputedValue reduce() {
 			return sum;

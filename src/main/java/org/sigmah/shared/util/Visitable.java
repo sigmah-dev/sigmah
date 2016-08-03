@@ -8,5 +8,5 @@ package org.sigmah.shared.util;
  */
 public interface Visitable<V extends Visitor> {
 	
-	void visitBy(V visitor);
+	void accept(V visitor);
 }

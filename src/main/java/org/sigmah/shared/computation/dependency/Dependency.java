@@ -9,4 +9,5 @@ import org.sigmah.shared.util.Visitable;
  */
 public interface Dependency extends Visitable<DependencyVisitor>, HasHumanReadableFormat {
 	
+	boolean isResolved();
 }

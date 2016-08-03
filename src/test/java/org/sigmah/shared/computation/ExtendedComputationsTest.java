@@ -20,6 +20,7 @@ public class ExtendedComputationsTest {
 	public void testParseAverage() {
 		List<FlexibleElementDTO> allElements = Collections.emptyList();
 		Computation formula = Computations.parse("fundingSources().avg(@contribution)", allElements);
+		System.out.println(formula.toString());
 		Assert.assertFalse(formula.isBadFormula());
 	}
 	
@@ -30,6 +31,7 @@ public class ExtendedComputationsTest {
 	public void testParseSum() {
 		List<FlexibleElementDTO> allElements = Collections.emptyList();
 		Computation formula = Computations.parse("fundedProjects(Local partner project v2).sum(field56)", allElements);
+		System.out.println(formula.toString());
 		Assert.assertFalse(formula.isBadFormula());
 	}
 	
@@ -40,6 +42,7 @@ public class ExtendedComputationsTest {
 	public void testParseFullExample() {
 		List<FlexibleElementDTO> allElements = Collections.emptyList();
 		Computation formula = Computations.parse("fundingSources().sum(@contribution) - fundedProjects(Local partner project v2).sum(field56)", allElements);
+		System.out.println(formula.toString());
 		Assert.assertFalse(formula.isBadFormula());
 	}
 	

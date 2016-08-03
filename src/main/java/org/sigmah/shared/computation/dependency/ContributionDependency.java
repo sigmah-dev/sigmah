@@ -7,6 +7,8 @@ package org.sigmah.shared.computation.dependency;
 public class ContributionDependency implements Dependency {
 	
 	private Scope scope;
+	
+	private Integer projectModelId;
 
 	public ContributionDependency() {
 	}
@@ -15,6 +17,15 @@ public class ContributionDependency implements Dependency {
 		this.scope = scope;
 	}
 
+	public Scope getScope() {
+		return scope;
+	}
+
+	@Override
+	public boolean isResolved() {
+		return scope.getModelName() == null || projectModelId != null;
+	}
+	
 	@Override
 	public String toHumanReadableString() {
 		throw new UnsupportedOperationException("Not supported yet.");
@@ -24,7 +35,16 @@ public class ContributionDependency implements Dependency {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void visitBy(DependencyVisitor visitor) {
+	public void accept(DependencyVisitor visitor) {
 		visitor.visit(this);
 	}
+
+	public void setProjectModelId(Integer projectModelId) {
+		this.projectModelId = projectModelId;
+	}
+
+	public Integer getProjectModelId() {
+		return projectModelId;
+	}
+	
 }

@@ -921,7 +921,7 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
             public String forEntry(final Dependency entry) {
 				final StringBuilder stringBuilder = new StringBuilder();
 				
-				entry.visitBy(new DependencyVisitor() {
+				entry.accept(new DependencyVisitor() {
 					
 					@Override
 					public void visit(SingleDependency dependency) {

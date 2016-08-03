@@ -66,8 +66,10 @@ import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.google.gwt.event.shared.HandlerManager;
+import java.util.Collection;
 import java.util.Date;
 import org.sigmah.client.ui.widget.Loadable;
+import org.sigmah.shared.dto.computation.ComputationTriggerDTO;
 import org.sigmah.shared.dto.referential.GlobalPermissionEnum;
 import org.sigmah.shared.dto.referential.ValueEventChangeType;
 
@@ -101,6 +103,7 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 	public static final String BANNER = "banner";
 	public static final String DISABLED_DATE = "disabledDate";
 	public static final String CREATION_DATE = "creationDate";
+	public static final String COMPUTATION_TRIGGERS = "computationTriggers";
 
 	// Provided elements.
 	protected transient HandlerManager handlerManager;
@@ -581,6 +584,14 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 
 	public void setPrivacyGroup(PrivacyGroupDTO privacyGroup) {
 		set(PRIVACY_GROUP, privacyGroup);
+	}
+	
+	public Collection<ComputationTriggerDTO> getComputationTriggers() {
+		return get(COMPUTATION_TRIGGERS);
+	}
+	
+	public void setComputationTriggers(Collection<ComputationTriggerDTO> computationTriggers) {
+		set(COMPUTATION_TRIGGERS, computationTriggers);
 	}
 
 	protected void ensureHistorable() {

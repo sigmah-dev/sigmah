@@ -88,4 +88,16 @@ public class ProjectModelHibernateDAO extends AbstractDAO<ProjectModel, Integer>
 		return query.getResultList();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<ProjectModel> findProjectModelsWithName(final String name) {
+		
+		final TypedQuery<ProjectModel> query = em().createQuery("SELECT pm FROM ProjectModel pm WHERE pm.name = :name", ProjectModel.class);
+		query.setParameter("name", name);
+		
+		return query.getResultList();
+	}
+
 }
