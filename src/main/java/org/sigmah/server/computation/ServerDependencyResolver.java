@@ -4,7 +4,7 @@ import com.google.inject.Inject;
 import java.util.List;
 import org.sigmah.server.dao.ProjectModelDAO;
 import org.sigmah.server.domain.ProjectModel;
-import org.sigmah.shared.computation.DependencyResolver;
+import org.sigmah.shared.computation.AbstractDependencyResolver;
 import org.sigmah.shared.computation.dependency.CollectionDependency;
 import org.sigmah.shared.computation.dependency.ContributionDependency;
 import org.sigmah.shared.computation.dependency.Dependency;
@@ -15,17 +15,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- *
+ * Resolve dependencies of <code>Computation</code>s to external elements.
+ * 
  * @author Raphaël Calabro (raphael.calabro@netapsys.fr)
  * @since 2.2
  */
-public class ServerDependencyResolver implements DependencyResolver {
+public class ServerDependencyResolver extends AbstractDependencyResolver {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(ServerDependencyResolver.class);
 
 	@Inject
 	private ProjectModelDAO projectModelDAO;
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -50,6 +51,12 @@ public class ServerDependencyResolver implements DependencyResolver {
 		});
 	}
 	
+	/**
+	 * Resolve the given <code>CollectionDependency</code>.
+	 * 
+	 * @param dependency 
+	 *			Dependency to resolve.
+	 */
 	private void resolve(final CollectionDependency dependency) {
 		final List<ProjectModel> projectModels = projectModelDAO.findProjectModelsWithName(dependency.getScope().getModelName());
 				
@@ -71,6 +78,12 @@ public class ServerDependencyResolver implements DependencyResolver {
 		}
 	}
 	
+	/**
+	 * Resolve the given <code>ContributionDependency</code>.
+	 * 
+	 * @param dependency 
+	 *			Dependency to resolve.
+	 */
 	private void resolve(final ContributionDependency dependency) {
 		final String modelName = dependency.getScope().getModelName();
 		if (modelName == null) {

@@ -253,6 +253,21 @@ public class Computation {
 
         return errors;
     }
+	
+	/**
+	 * Checks if every dependency is resolved.
+	 * 
+	 * @return <code>true</code> if every dependency is resolved,
+	 * <code>false</code> otherwise.
+	 */
+	public boolean isResolved() {
+		for (final Dependency dependency : getDependencies()) {
+			if (!dependency.isResolved()) {
+				return false;
+			}
+		}
+		return true;
+	}
     
     /**
      * Identify the changes that are part of the dependencies of this computation.

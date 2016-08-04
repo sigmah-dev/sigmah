@@ -125,6 +125,13 @@ public final class ServerComputations {
 		return dtos;
 	}
 	
+	/**
+	 * Creates a collection of every layout contained in the given model.
+	 * 
+	 * @param projectModel
+	 *			Project model to search.
+	 * @return A collection of every <code>Layout</code> object.
+	 */
 	public static Collection<Layout> getAllLayoutsFromModel(final ProjectModel projectModel) {
 		
 		if (projectModel == null) {

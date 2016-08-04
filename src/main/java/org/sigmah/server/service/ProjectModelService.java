@@ -58,6 +58,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import java.util.Date;
 import java.util.HashSet;
+import org.sigmah.server.computation.ServerDependencyResolver;
 
 /**
  * Handler for updating Project model command.
@@ -85,6 +86,12 @@ public class ProjectModelService extends AbstractEntityService<ProjectModel, Int
 	 */
 	@Inject
 	private ProjectModelDAO projectModelDAO;
+	
+	/**
+	 * Injected {@link ServerDependencyResolver}.
+	 */
+	@Inject
+	private ServerDependencyResolver dependencyResolver;
 
 	/**
 	 * {@inheritDoc}
@@ -362,7 +369,7 @@ public class ProjectModelService extends AbstractEntityService<ProjectModel, Int
 
 		if (changes.get(AdminUtil.PROP_FX_FLEXIBLE_ELEMENT) != null) {
 
-			ModelUtil.persistFlexibleElement(em(), mapper, changes, model);
+			ModelUtil.persistFlexibleElement(em(), mapper, dependencyResolver, changes, model);
 			model = projectModelDAO.findById(model.getId());
 
 		}
