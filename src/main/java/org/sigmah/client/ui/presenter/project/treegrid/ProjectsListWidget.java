@@ -26,7 +26,9 @@ package org.sigmah.client.ui.presenter.project.treegrid;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.dispatch.monitor.LoadingMask;
@@ -94,7 +96,7 @@ import org.sigmah.client.util.profiler.Scenario;
  * <li>The widget's view is implemented by {@link ProjectsListView}.</li>
  * </ul>
  * </p>
- * 
+ *
  * @author Tom Miette (tmiette@ideia.fr)
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
@@ -102,7 +104,7 @@ public class ProjectsListWidget extends AbstractPresenter<ProjectsListWidget.Vie
 
 	/**
 	 * The widget view interface.
-	 * 
+	 *
 	 * @author Denis Colliot (dcolliot@ideia.fr)
 	 */
 	@ImplementedBy(ProjectsListView.class)
@@ -120,7 +122,7 @@ public class ProjectsListWidget extends AbstractPresenter<ProjectsListWidget.Vie
 
 		/**
 		 * Allows the presenter to provide necessary handlers to the view.
-		 * 
+		 *
 		 * @param handlerProvider
 		 *          The {@link HandlerProvider} implementation.
 		 */
@@ -128,7 +130,7 @@ public class ProjectsListWidget extends AbstractPresenter<ProjectsListWidget.Vie
 
 		/**
 		 * Updates the widget accessibility state.
-		 * 
+		 *
 		 * @param authorized
 		 *          If {@code true}, the widget is accessible and rendered. If {@code false}, the widget is hidden and a
 		 *          proper label is rendered.
@@ -141,14 +143,14 @@ public class ProjectsListWidget extends AbstractPresenter<ProjectsListWidget.Vie
 
 		/**
 		 * Returns the project model type field.
-		 * 
+		 *
 		 * @return The project model type field.
 		 */
 		Field<ProjectModelType> getProjectModelTypeField();
 
 		/**
 		 * Display the given date as the last refreshed date.
-		 * 
+		 *
 		 * @param date
 		 *          The last refreshed date.
 		 */
@@ -160,7 +162,7 @@ public class ProjectsListWidget extends AbstractPresenter<ProjectsListWidget.Vie
 
 		/**
 		 * Updates the view toolbar.
-		 * 
+		 *
 		 * @param refresh
 		 *          {@code true} to enable <em>refresh</em> functionality, {@code false} to disable it.
 		 * @param export
@@ -170,11 +172,11 @@ public class ProjectsListWidget extends AbstractPresenter<ProjectsListWidget.Vie
 
 		/**
 		 * Returns the export button.
-		 * 
+		 *
 		 * @return The export button.
 		 */
 		Button getExportButton();
-		
+
 		/**
 		 * Resynchronize the size of the grid.
 		 */
@@ -184,14 +186,14 @@ public class ProjectsListWidget extends AbstractPresenter<ProjectsListWidget.Vie
 
 	/**
 	 * Allows the presenter to provide necessary handlers to the view.
-	 * 
+	 *
 	 * @author Denis Colliot (dcolliot@ideia.fr)
 	 */
 	public static interface HandlerProvider {
 
 		/**
 		 * Returns if the given {@code model} is a favorite project.
-		 * 
+		 *
 		 * @param model
 		 *          The corresponding project.
 		 * @return {@code true} if the given {@code model} is a favorite project, {@code false} otherwise.
@@ -200,7 +202,7 @@ public class ProjectsListWidget extends AbstractPresenter<ProjectsListWidget.Vie
 
 		/**
 		 * Returns the given {@code model} corresponding {@link ProjectModelType} value.
-		 * 
+		 *
 		 * @param model
 		 *          The corresponding project.
 		 * @return The given {@code model} corresponding {@link ProjectModelType} value.
@@ -209,7 +211,7 @@ public class ProjectsListWidget extends AbstractPresenter<ProjectsListWidget.Vie
 
 		/**
 		 * Method executed on given {@code model} corresponding star icon (favorite) click event.
-		 * 
+		 *
 		 * @param model
 		 *          The corresponding project.
 		 */
@@ -217,15 +219,19 @@ public class ProjectsListWidget extends AbstractPresenter<ProjectsListWidget.Vie
 
 	}
 
+	public interface TitleSupplier {
+		String supplyTitle(int projectCount);
+	}
+
 	/**
 	 * Defines the refreshing mode.
-	 * 
+	 *
 	 * @author Tom Miette (tmiette@ideia.fr)
 	 */
 	public static enum RefreshMode {
 
 		/**
-		 * The project list is refreshed each time the {@link ProjectsListWidget#refresh(boolean, Integer...)} method is
+		 * The project list is refreshed each time the {@link ProjectsListWidget#refresh(boolean, boolean, Integer...)} method is
 		 * called.
 		 */
 		ALWAYS,
@@ -236,7 +242,7 @@ public class ProjectsListWidget extends AbstractPresenter<ProjectsListWidget.Vie
 		MANUAL,
 
 		/**
-		 * Refresh the project list when {@link ProjectsListWidget#refresh(boolean, Integer...)} is called for the first
+		 * Refresh the project list when {@link ProjectsListWidget#refresh(boolean, boolean, Integer...)} is called for the first
 		 * time. Subsequent refreshs are called by the refresh button.
 		 */
 		ON_FIRST_TIME;
@@ -245,7 +251,7 @@ public class ProjectsListWidget extends AbstractPresenter<ProjectsListWidget.Vie
 
 	/**
 	 * Defines the loading mode.
-	 * 
+	 *
 	 * @author Tom Miette (tmiette@ideia.fr)
 	 */
 	public static enum LoadingMode {
@@ -262,9 +268,18 @@ public class ProjectsListWidget extends AbstractPresenter<ProjectsListWidget.Vie
 
 	}
 
+	public static final TitleSupplier DEFAULT_TITLE_SUPPLIER = new TitleSupplier() {
+		@Override
+		public String supplyTitle(int projectCount) {
+			return I18N.CONSTANTS.projects() + " (" + projectCount + ")";
+		}
+	};
+
 	// Current projects grid parameters.
 	private ProjectModelType currentModelType;
 	private final ArrayList<Integer> orgUnitsIds;
+	private boolean currentlyLoading = false;
+	private final Queue<GetProjects> commandQueue = new LinkedList<GetProjects>();
 
 	/**
 	 * The refreshing mode (automatic by default).
@@ -285,6 +300,8 @@ public class ProjectsListWidget extends AbstractPresenter<ProjectsListWidget.Vie
 	 * Has the project grid already been loaded once?
 	 */
 	private boolean loaded;
+
+	private TitleSupplier titleSupplier = DEFAULT_TITLE_SUPPLIER;
 
 	/**
 	 * Builds a new project list panel with default values.
@@ -458,6 +475,16 @@ public class ProjectsListWidget extends AbstractPresenter<ProjectsListWidget.Vie
 		});
 	}
 
+	public void setTitleSupplier(TitleSupplier titleSupplier) {
+		this.titleSupplier = titleSupplier;
+
+		updateTitle(titleSupplier);
+	}
+
+	private void updateTitle(TitleSupplier titleSupplier) {
+		view.getProjectsPanel().setHeadingText(titleSupplier.supplyTitle(view.getStore().getChildCount()));
+	}
+
 	/**
 	 * <p>
 	 * Initializes the widget.
@@ -465,7 +492,7 @@ public class ProjectsListWidget extends AbstractPresenter<ProjectsListWidget.Vie
 	 * <p>
 	 * This method should be called in parent presenter's {@code onBind()} method.
 	 * </p>
-	 * 
+	 *
 	 * @param refreshMode
 	 *          The {@link RefreshMode} value. If {@code null}, default {@link RefreshMode#ALWAYS} value is set.
 	 * @param loadingMode
@@ -481,7 +508,7 @@ public class ProjectsListWidget extends AbstractPresenter<ProjectsListWidget.Vie
 	/**
 	 * Asks for a refresh of the projects list. If the refreshing mode is set to {@link RefreshMode#ALWAYS}, the list
 	 * will be refreshed immediately. Otherwise, the list will be refreshed depending on the selected refreshing mode.
-	 * 
+	 *
 	 * @param viewOwnOrManage
 	 *          If the projects that the user own or manage must be included in the list (no matter of their
 	 *          organizational units).
@@ -489,7 +516,7 @@ public class ProjectsListWidget extends AbstractPresenter<ProjectsListWidget.Vie
 	 *          The list of ids of the organizational units for which the projects will be retrieved. The projects of each
 	 *          the sub-organizational units are retrieved automatically.
 	 */
-	public void refresh(final boolean viewOwnOrManage, final Integer... orgUnitsIds) {
+	public void refresh(final boolean viewOwnOrManage, final boolean forceRefresh, final Integer... orgUnitsIds) {
 
 		// Updates toolbar.
 		final boolean refreshEnabled = refreshMode == RefreshMode.MANUAL || refreshMode == RefreshMode.ON_FIRST_TIME;
@@ -497,7 +524,7 @@ public class ProjectsListWidget extends AbstractPresenter<ProjectsListWidget.Vie
 		view.updateToolbar(refreshEnabled, exportEnabled);
 
 		// Updates accessibility.
-		view.updateAccessibilityState(ProfileUtils.isGranted(auth(), GlobalPermissionEnum.VIEW_PROJECT));
+		view.updateAccessibilityState(ProfileUtils.isGranted(auth(), GlobalPermissionEnum.VIEW_MY_PROJECTS));
 
 		final List<Integer> orgUnitsIdsAsList = orgUnitsIds != null ? Arrays.asList(orgUnitsIds) : null;
 
@@ -509,7 +536,7 @@ public class ProjectsListWidget extends AbstractPresenter<ProjectsListWidget.Vie
 		command.setViewOwnOrManage(viewOwnOrManage);
 
 		// If the mode is automatic, the list is refreshed immediately.
-		if (refreshMode == RefreshMode.ALWAYS || (refreshMode == RefreshMode.ON_FIRST_TIME && !loaded)) {
+		if (forceRefresh || refreshMode == RefreshMode.ALWAYS || (refreshMode == RefreshMode.ON_FIRST_TIME && !loaded)) {
 			refreshProjectGrid(command);
 			loaded = true;
 		}
@@ -546,7 +573,7 @@ public class ProjectsListWidget extends AbstractPresenter<ProjectsListWidget.Vie
 
 			@Override
 			public void handleEvent(StoreEvent<ProjectDTO> be) {
-				view.getProjectsPanel().setHeadingText(I18N.CONSTANTS.projects() + " (" + view.getStore().getChildCount() + ')');
+				updateTitle(titleSupplier);
 			}
 		});
 
@@ -588,7 +615,7 @@ public class ProjectsListWidget extends AbstractPresenter<ProjectsListWidget.Vie
 					// On 'draft' project delete event.
 					final ProjectDTO deletedDraftProject = event.getParam(0);
 					onDraftProjectDeleted(deletedDraftProject);
-					
+
 				} else if(event.concern(UpdateEvent.USER_LOGGED_IN)) {
 					// Force dashboard to load projects for the new user.
 					loaded = false;
@@ -670,21 +697,27 @@ public class ProjectsListWidget extends AbstractPresenter<ProjectsListWidget.Vie
 
 	/**
 	 * Refreshes the projects grid with the current parameters.
-	 * 
+	 *
 	 * @param cmd
 	 *          The {@link GetProjects} command to execute.
 	 */
 	private void refreshProjectGrid(final GetProjects cmd) {
 
 		// Checks that the user can view projects.
-		if (!ProfileUtils.isGranted(auth(), GlobalPermissionEnum.VIEW_PROJECT)) {
+		if (!ProfileUtils.isGranted(auth(), GlobalPermissionEnum.VIEW_MY_PROJECTS)) {
 			return;
 		}
 
 		if (cmd == null) {
 			return;
 		}
-		
+
+		if (currentlyLoading) {
+			commandQueue.add(cmd);
+			return;
+		}
+
+		currentlyLoading = true;
 		// Reload filter labels for category filter list store.
 		reloadCategoryListFilterStore();
 
@@ -703,7 +736,7 @@ public class ProjectsListWidget extends AbstractPresenter<ProjectsListWidget.Vie
 	/**
 	 * Loads projects using one request.<br>
 	 * To load the projects with a progress bar, see {@link #loadProjectsInMultipleChunks(GetProjects)}.
-	 * 
+	 *
 	 * @param cmd
 	 *          The command retrieving projects.
 	 */
@@ -725,6 +758,10 @@ public class ProjectsListWidget extends AbstractPresenter<ProjectsListWidget.Vie
 
 				applyProjectFilters();
 				view.updateRefreshingDate(new Date());
+
+				currentlyLoading = false;
+				// Try to execute the next loader
+				refreshProjectGrid(commandQueue.poll());
 			}
 
 		}, new LoadingMask(view.getProjectsPanel()));
@@ -733,7 +770,7 @@ public class ProjectsListWidget extends AbstractPresenter<ProjectsListWidget.Vie
 	/**
 	 * Loads projects using multiple <em>chunks</em> (see {@link GetProjectsWorker}).<br>
 	 * This mechanism allows the application to render a progress bar.
-	 * 
+	 *
 	 * @param cmd
 	 *          The command retrieving projects.
 	 */
@@ -770,6 +807,10 @@ public class ProjectsListWidget extends AbstractPresenter<ProjectsListWidget.Vie
 			public void ended() {
 				applyProjectFilters();
 				view.updateRefreshingDate(new Date());
+
+				currentlyLoading = false;
+				// Try to execute the next loader
+				refreshProjectGrid(commandQueue.poll());
 			}
 		});
 
@@ -849,7 +890,7 @@ public class ProjectsListWidget extends AbstractPresenter<ProjectsListWidget.Vie
 
 	/**
 	 * Method executed when a <b>draft</b> project is deleted.
-	 * 
+	 *
 	 * @param deletedDraftProject
 	 *          The deleted <b>draft</b> project.
 	 */

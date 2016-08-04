@@ -27,6 +27,7 @@ import java.util.List;
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.dispatch.DispatchAsync;
 import org.sigmah.client.security.AuthenticationProvider;
+import org.sigmah.offline.indexeddb.IndexedDB;
 import org.sigmah.shared.command.GetCountries;
 import org.sigmah.shared.command.GetOrganization;
 import org.sigmah.shared.command.GetUsersByOrganization;
@@ -36,6 +37,8 @@ import org.sigmah.shared.dto.country.CountryDTO;
 import org.sigmah.shared.dto.organization.OrganizationDTO;
 
 import com.allen_sauer.gwt.log.client.Log;
+
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -43,7 +46,7 @@ import org.sigmah.offline.dispatch.LocalDispatchServiceAsync;
 
 /**
  * Stores data widely used on client-side for the current user.
- * 
+ *
  * @author tmi
  * @author Denis Colliot (dcolliot@ideia.fr)
  * @deprecated [TO DELETE] use the command each time it's necessary.
@@ -92,7 +95,7 @@ public class UserLocalCache {
 
 	/**
 	 * Gets the cache of the countries.
-	 * 
+	 *
 	 * @return The cache of the countries.
 	 */
 	public LocalCachedCollection<CountryDTO> getCountryCache() {
@@ -101,7 +104,7 @@ public class UserLocalCache {
 
 	/**
 	 * Gets the cache of the current organization members.
-	 * 
+	 *
 	 * @return The cache of the current organization members.
 	 */
 	public LocalCachedCollection<UserDTO> getUserCache() {
@@ -110,7 +113,7 @@ public class UserLocalCache {
 
 	/**
 	 * Gets the cache of the current organization.
-	 * 
+	 *
 	 * @return The cache of the current organization.
 	 */
 	public LocalCachedOrganization getOrganizationCache() {
@@ -147,27 +150,31 @@ public class UserLocalCache {
 		if (Log.isDebugEnabled()) {
 			Log.debug("[init] Initializes local cache.");
 		}
-		
-		localDispatch.execute(new GetCountries(), new AsyncCallback<ListResult<CountryDTO>>() {
 
-			@Override
-			public void onFailure(Throwable caught) {
-				// IndexedDB is unavailable or forbidden.
-				loadCountriesFromServer();
-			}
+		if (!IndexedDB.isSupported() || !GWT.isProdMode()) {
+			loadCountriesFromServer();
+		} else {
+			localDispatch.execute(new GetCountries(), new AsyncCallback<ListResult<CountryDTO>>() {
 
-			@Override
-			public void onSuccess(ListResult<CountryDTO> result) {
-				if (result.isEmpty()) {
+				@Override
+				public void onFailure(Throwable caught) {
+					// IndexedDB is unavailable or forbidden.
 					loadCountriesFromServer();
-				} else {
-					countries.set(result.getList());
-					
-					Log.debug("[init] The local cache of the countries has been set from IndexedDB (" + result.getSize() + " countries cached).");
 				}
-			}
-			
-		});
+
+				@Override
+				public void onSuccess(ListResult<CountryDTO> result) {
+					if (result.isEmpty()) {
+						loadCountriesFromServer();
+					} else {
+						countries.set(result.getList());
+
+						Log.debug("[init] The local cache of the countries has been set from IndexedDB (" + result.getSize() + " countries cached).");
+					}
+				}
+
+			});
+		}
 
 		// Gets users list.
 		dispatch.execute(new GetUsersByOrganization(authenticationProvider.get().getOrganizationId(), null), new CommandResultHandler<ListResult<UserDTO>>() {
@@ -199,14 +206,14 @@ public class UserLocalCache {
 	/**
 	 * Refreshes the cached {@code OrganizationDTO} and executes the given {@code callback} once refresh process is
 	 * complete.
-	 * 
+	 *
 	 * @param callback
 	 *          If not {@code null}, the callback is executed once {@code OrganizationDTO} has been loaded.
 	 */
 	public void refreshOrganization(final AsyncCallback<OrganizationDTO> callback) {
 
 		final Integer organizationId = authenticationProvider.get().getOrganizationId();
-		final Integer orgUnitId = authenticationProvider.get().getOrgUnitId();
+		final Integer orgUnitId = authenticationProvider.get().getMainOrgUnitId();
 
 		// Gets the organization.
 		dispatch.execute(new GetOrganization(OrganizationDTO.Mode.WITH_ROOT, organizationId), new CommandResultHandler<OrganizationDTO>() {

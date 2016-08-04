@@ -46,6 +46,7 @@ import org.sigmah.shared.dto.reminder.MonitoredPointDTO;
 import org.sigmah.shared.dto.reminder.ReminderDTO;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
+import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
@@ -228,7 +229,7 @@ public class DashboardView extends AbstractView implements DashboardPresenter.Vi
 	 * {@inheritDoc}
 	 */
 	@Override
-	public HasTreeGrid<OrgUnitDTO> getOrgUnitsTreeGrid() {
+	public OrgUnitTreeGrid getOrgUnitsTreeGrid() {
 		return orgUnitsTreeGrid;
 	}
 
@@ -236,8 +237,15 @@ public class DashboardView extends AbstractView implements DashboardPresenter.Vi
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setOrgUnitsPanelTitle(final String title) {
-		orgUnitsPanel.setHeadingText(title);
+	public void setPanelsTitleSuffix(final String suffix) {
+		orgUnitsPanel.setHeadingText(I18N.CONSTANTS.orgunitTree() + suffix);
+
+		projectsListWidget.setTitleSupplier(new ProjectsListWidget.TitleSupplier() {
+			@Override
+			public String supplyTitle(int projectCount) {
+				return ProjectsListWidget.DEFAULT_TITLE_SUPPLIER.supplyTitle(projectCount) + suffix;
+			}
+		});
 	}
 
 	/**

@@ -38,6 +38,11 @@
 		<class>org.sigmah.server.domain.AttributeValue</class>
 		<class>org.sigmah.server.domain.Authentication</class>
 		<class>org.sigmah.server.domain.Country</class>
+		<class>org.sigmah.server.domain.Framework</class>
+		<class>org.sigmah.server.domain.FrameworkElement</class>
+		<class>org.sigmah.server.domain.FrameworkElementImplementation</class>
+		<class>org.sigmah.server.domain.FrameworkFulfillment</class>
+		<class>org.sigmah.server.domain.FrameworkHierarchy</class>
 		<class>org.sigmah.server.domain.HistoryToken</class>
 		<class>org.sigmah.server.domain.Indicator</class>
 		<class>org.sigmah.server.domain.IndicatorValue</class>

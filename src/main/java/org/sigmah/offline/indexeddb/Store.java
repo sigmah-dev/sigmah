@@ -30,7 +30,7 @@ import java.util.Map;
  * @author Raphaël Calabro (raphael.calabro@netapsys.fr)
  */
 public enum Store implements Schema {
-	
+
 	AUTHENTICATION,
 	CATEGORY_TYPE,
 	CATEGORY_ELEMENT,
@@ -48,18 +48,22 @@ public enum Store implements Schema {
 	PAGE_ACCESS,
 	PHASE,
 	PHASE_MODEL,
+	PROFILE,
 	PROJECT("orgUnit", "orgUnit",
 			"remindersListId", "remindersListId",
 			"pointsListId", "pointsListId"),
 	PROJECT_MODEL,
 	PROJECT_REPORT("versionId", "versionId"),
+	PROJECT_TEAM_MEMBERS,
 	REMINDER("parentListId", "parentListId"),
 	REPORT_REFERENCE("parentId", "parentId"),
 	TRANSFERT(true, "type", "type",
 			"fileVersionId", "fileVersion.id"),
-	USER("organization", "organization"),
+	USER("organization", "organization",
+			"orgUnit", "orgUnits"),
+	USER_UNITS_RESULT,
 	VALUE;
-	
+
 	private final boolean autoIncrement;
 	private final boolean enabled;
 	private final Map<String, String> indexes;

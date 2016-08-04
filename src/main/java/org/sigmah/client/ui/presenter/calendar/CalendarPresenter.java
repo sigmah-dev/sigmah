@@ -66,10 +66,11 @@ import com.google.inject.Inject;
 import org.sigmah.client.ui.presenter.reminder.ReminderType;
 import org.sigmah.shared.dto.calendar.CalendarIdentifier;
 import org.sigmah.shared.dto.calendar.PersonalCalendarIdentifier;
+import org.sigmah.shared.util.ProjectUtils;
 
 /**
  * Calendar widget presenter.
- * 
+ *
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
 public class CalendarPresenter extends AbstractPresenter<CalendarPresenter.View> {
@@ -115,7 +116,7 @@ public class CalendarPresenter extends AbstractPresenter<CalendarPresenter.View>
 
 	/**
 	 * Presenters's initialization.
-	 * 
+	 *
 	 * @param view
 	 *          Presenter's view interface.
 	 * @param injector
@@ -158,7 +159,7 @@ public class CalendarPresenter extends AbstractPresenter<CalendarPresenter.View>
 			@Override
 			public void delete(final Event event, final CalendarWidget calendarWidget) {
 				final CalendarIdentifier calendarIdentifier = event.getParent().getIdentifier();
-				final Integer parentId = calendarIdentifier instanceof PersonalCalendarIdentifier ? 
+				final Integer parentId = calendarIdentifier instanceof PersonalCalendarIdentifier ?
 					((PersonalCalendarIdentifier)calendarIdentifier).getId() : null;
 
 				dispatch.execute(new Delete(PersonalEventDTO.ENTITY_NAME, event.getIdentifier(), parentId), new CommandResultHandler<VoidResult>() {
@@ -320,16 +321,16 @@ public class CalendarPresenter extends AbstractPresenter<CalendarPresenter.View>
 
 	/**
 	 * Reloads the calendars data (if necessary).
-	 * 
+	 *
 	 * @param calendars
 	 *          The calendar types with their corresponding identifier.
 	 */
-	public void reload(final Map<CalendarType, Integer> calendars) {
+	public void reload(final Map<CalendarType, Integer> calendars, boolean editable) {
 
 		calendar.refresh();
         this.projectId = calendars.get(CalendarType.Activity);
 
-		view.setAddEventButtonEnabled(ProfileUtils.isGranted(auth(), GlobalPermissionEnum.EDIT_PROJECT_AGENDA, GlobalPermissionEnum.EDIT_PROJECT));
+		view.setAddEventButtonEnabled(editable);
 		reloadEvents(calendars);
 	}
 
@@ -344,7 +345,7 @@ public class CalendarPresenter extends AbstractPresenter<CalendarPresenter.View>
 
 	/**
 	 * Returns the {@link CalendarWrapper} list from the view store.
-	 * 
+	 *
 	 * @return The collection.
 	 */
 	private List<CalendarWrapper> getCalendars() {
@@ -361,7 +362,7 @@ public class CalendarPresenter extends AbstractPresenter<CalendarPresenter.View>
 
 	/**
 	 * Reloads the calendar events using a {@link GetCalendar} command.
-	 * 
+	 *
 	 * @param calendars
 	 *          The calendar types with their corresponding identifier.
 	 */

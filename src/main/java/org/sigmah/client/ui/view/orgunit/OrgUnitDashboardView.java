@@ -69,6 +69,7 @@ public class OrgUnitDashboardView extends AbstractView implements OrgUnitDashboa
 
 		contentPanelOrgUnit = Panels.content(I18N.CONSTANTS.orgunitTree());
 		tree = new OrgUnitTreeGrid(false);
+		tree.getDisplayOnlyMainOrgUnitCheckbox().setVisible(false);
 		contentPanelOrgUnit.setTopComponent(tree.getToolbar());
 		contentPanelOrgUnit.add(tree.getTreeGrid());
 
@@ -101,7 +102,7 @@ public class OrgUnitDashboardView extends AbstractView implements OrgUnitDashboa
 
 	/**
 	 * Creates the projects component.
-	 * 
+	 *
 	 * @return The projects component widget.
 	 */
 	private Widget createProjectsPanel() {

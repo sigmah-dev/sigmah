@@ -69,11 +69,7 @@ import org.sigmah.client.ui.presenter.orgunit.OrgUnitPresenter;
 import org.sigmah.client.ui.presenter.orgunit.OrgUnitReportsPresenter;
 import org.sigmah.client.ui.presenter.password.LostPasswordPresenter;
 import org.sigmah.client.ui.presenter.password.ResetPasswordPresenter;
-import org.sigmah.client.ui.presenter.project.LinkedProjectPresenter;
-import org.sigmah.client.ui.presenter.project.ProjectCalendarPresenter;
-import org.sigmah.client.ui.presenter.project.ProjectDetailsPresenter;
-import org.sigmah.client.ui.presenter.project.ProjectPresenter;
-import org.sigmah.client.ui.presenter.project.ProjectReportsPresenter;
+import org.sigmah.client.ui.presenter.project.*;
 import org.sigmah.client.ui.presenter.project.dashboard.ProjectDashboardPresenter;
 import org.sigmah.client.ui.presenter.project.export.ExportProjectsPresenter;
 import org.sigmah.client.ui.presenter.project.export.ExportProjectsSettingPresenter;
@@ -111,7 +107,7 @@ import org.sigmah.offline.status.ApplicationStateManager;
 
 /**
  * GIN injector.
- * 
+ *
  * @author Tom Miette (tmiette@ideia.fr)
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
@@ -188,7 +184,7 @@ public interface Injector extends Ginjector {
 	LostPasswordPresenter getLostPasswordPresenter();
 
 	ResetPasswordPresenter getResetPasswordPresenter();
-	
+
 	ChangeOwnPasswordPresenter getChangeOwnPasswordPresenter();
 
 	CreateProjectPresenter getCreateProjectPresenter();
@@ -210,6 +206,8 @@ public interface Injector extends Ginjector {
 	ProjectLogFramePresenter getProjectLogFramePresenter();
 
 	ProjectDetailsPresenter getProjectDetailsPresenter();
+
+	ProjectTeamMembersPresenter getProjectTeamMembersPresenter();
 
 	ProjectCalendarPresenter getProjectCalendarPresenter();
 
@@ -302,9 +300,9 @@ public interface Injector extends Ginjector {
 	AddImportationSchemeModelsAdminPresenter getAddImportationSchemeModelsAdminPresenter();
 
 	AddMatchingRuleImportationShemeModelsAdminPresenter getAddMatchingRuleImportationShemeModelsAdminPresenter();
-	
+
 	// ---- Offline presenters
-	
+
 	FileSelectionPresenter getFileSelectionPresenter();
-	
+
 }

@@ -22,18 +22,23 @@ package org.sigmah.server.dao.impl;
  * #L%
  */
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.NoResultException;
+import javax.persistence.TypedQuery;
 
-import org.apache.commons.collections4.CollectionUtils;
 import org.sigmah.server.dao.UserDAO;
 import org.sigmah.server.dao.base.AbstractDAO;
 import org.sigmah.server.domain.User;
+import org.sigmah.server.domain.util.DomainFilters;
+
+import org.apache.commons.collections4.CollectionUtils;
 
 /**
  * UserDAO implementation.
- * 
+ *
  * @author Alex Bertram
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
@@ -44,7 +49,10 @@ public class UserHibernateDAO extends AbstractDAO<User, Integer> implements User
 	 */
 	@Override
 	public boolean doesUserExist(final String email) {
-		return CollectionUtils.isNotEmpty(em().createQuery("SELECT u FROM User u WHERE u.email = :email", User.class).setParameter("email", email).getResultList());
+		List<User> results = em().createQuery("SELECT u FROM User u WHERE u.email = :email", User.class)
+			.setParameter("email", email)
+			.getResultList();
+		return CollectionUtils.isNotEmpty(results);
 	}
 
 	/**
@@ -53,12 +61,11 @@ public class UserHibernateDAO extends AbstractDAO<User, Integer> implements User
 	@Override
 	public User findUserByEmail(final String email) {
 		try {
-
-			return em().createQuery("SELECT u FROM User u WHERE u.email = :email", User.class).setParameter("email", email).getSingleResult();
-
+			return em().createQuery("SELECT u FROM User u WHERE u.email = :email", User.class)
+				.setParameter("email", email)
+				.getSingleResult();
 		} catch (final NoResultException e) {
 			return null;
-
 		} catch (final Exception e) {
 			throw e;
 		}
@@ -70,12 +77,11 @@ public class UserHibernateDAO extends AbstractDAO<User, Integer> implements User
 	@Override
 	public User findUserByChangePasswordKey(final String key) {
 		try {
-
-			return em().createQuery("SELECT u FROM User u WHERE u.changePasswordKey = :key", User.class).setParameter("key", key).getSingleResult();
-
+			return em().createQuery("SELECT u FROM User u WHERE u.changePasswordKey = :key", User.class)
+				.setParameter("key", key)
+				.getSingleResult();
 		} catch (final NoResultException e) {
 			return null;
-
 		} catch (final Exception e) {
 			throw e;
 		}
@@ -86,19 +92,17 @@ public class UserHibernateDAO extends AbstractDAO<User, Integer> implements User
 	 */
 	@Override
 	public int countUsersByProfile(final Integer profileId) {
-
-		final StringBuilder query = new StringBuilder();
-
-		query.append("SELECT ");
-		query.append("  COUNT(u) ");
-		query.append("FROM ");
-		query.append("  User u ");
-		query.append("  JOIN u.orgUnitWithProfiles oup ");
-		query.append("  JOIN oup.profiles p ");
-		query.append("WHERE ");
-		query.append("  p.id = :profileId");
-
-		return em().createQuery(query.toString(), Number.class).setParameter("profileId", profileId).getSingleResult().intValue();
+		TypedQuery<Number> query = em().createQuery(
+			"SELECT count(u) " +
+				"FROM OrgUnitProfile oup " +
+				"JOIN oup.user u " +
+				"JOIN oup.profiles p " +
+				"WHERE p.id = :profileId ",
+			Number.class
+		);
+		return query.setParameter("profileId", profileId)
+			.getSingleResult()
+			.intValue();
 	}
 
 	/**
@@ -106,19 +110,84 @@ public class UserHibernateDAO extends AbstractDAO<User, Integer> implements User
 	 */
 	@Override
 	public List<User> findUsersByProfile(final Integer profileId) {
-
-		final StringBuilder query = new StringBuilder();
-
-		query.append("SELECT ");
-		query.append("  u ");
-		query.append("FROM ");
-		query.append("  User u ");
-		query.append("  JOIN FETCH u.orgUnitWithProfiles oup ");
-		query.append("  JOIN oup.profiles p ");
-		query.append("WHERE ");
-		query.append("  p.id = :profileId");
-
-		return em().createQuery(query.toString(), User.class).setParameter("profileId", profileId).getResultList();
+		TypedQuery<User> query = em().createQuery(
+			"SELECT u " +
+			"FROM User u " +
+			"JOIN FETCH u.orgUnitsWithProfiles up " +
+			"WHERE EXISTS( SELECT p.id FROM up.profiles p WHERE p.id = :profileId ) ",
+			User.class
+		);
+		return query.setParameter("profileId", profileId).getResultList();
 	}
 
+	@Override
+	public List<User> findUsersByOrgUnitIds(Set<Integer> orgUnitIds) {
+		if (orgUnitIds == null || orgUnitIds.isEmpty()) {
+			return Collections.emptyList();
+		}
+
+		TypedQuery<User> query = em().createQuery(
+			"SELECT u " +
+			"FROM OrgUnitProfile oup " +
+			"JOIN oup.user u " +
+			"WHERE oup.orgUnit.id IN (:orgUnitIds) ",
+			User.class
+		);
+		return query.setParameter("orgUnitIds", orgUnitIds).getResultList();
+	}
+
+	@Override
+	public List<User> findUsersByOrgUnitIds(Set<Integer> orgUnitIds, Set<Integer> withoutIds) {
+		if (withoutIds == null || withoutIds.isEmpty()) {
+			return findUsersByOrgUnitIds(orgUnitIds);
+		}
+
+		TypedQuery<User> query = em().createQuery(
+			"SELECT u " +
+			"FROM OrgUnitProfile oup " +
+			"JOIN oup.user u " +
+			"WHERE oup.orgUnit.id IN (:orgUnitIds) " +
+			"AND u.id NOT IN (:withoutIds)",
+			User.class
+		);
+
+		return query.setParameter("orgUnitIds", orgUnitIds)
+				.setParameter("withoutIds", withoutIds)
+				.getResultList();
+	}
+
+	@Override
+	public User getProjectManager(Integer projectId) {
+		// Disable the ActivityInfo filter on Userdatabase.
+		DomainFilters.disableUserFilter(em());
+
+		TypedQuery<User> query = em().createQuery(
+			"SELECT p.manager " +
+			"FROM Project p " +
+			"WHERE p.id = :projectId",
+			User.class
+		);
+		query.setParameter("projectId", projectId);
+		try {
+			return query.getSingleResult();
+		} catch (NoResultException e) {
+			return null;
+		}
+	}
+
+	@Override
+	public List<User> getProjectTeamMembers(Integer projectId) {
+		// Disable the ActivityInfo filter on Userdatabase.
+		DomainFilters.disableUserFilter(em());
+
+		TypedQuery<User> query = em().createQuery(
+			"SELECT u " +
+			"FROM Project p " +
+			"JOIN p.teamMembers u " +
+			"WHERE p.id = :projectId",
+			User.class
+		);
+		query.setParameter("projectId", projectId);
+		return query.getResultList();
+	}
 }
