@@ -30,6 +30,11 @@ import java.util.Set;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 
+import com.google.inject.Inject;
+
+import org.sigmah.server.dao.MonitoredPointDAO;
+import org.sigmah.server.dao.OrgUnitDAO;
+import org.sigmah.server.dao.ProjectDAO;
 import org.sigmah.server.dispatch.impl.UserDispatch.UserExecutionContext;
 import org.sigmah.server.domain.OrgUnit;
 import org.sigmah.server.domain.Project;
@@ -49,6 +54,16 @@ import org.sigmah.shared.dto.reminder.ReminderDTO;
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
 public class GetMonitoredPointsHandler extends AbstractCommandHandler<GetMonitoredPoints, ListResult<MonitoredPointDTO>> {
+	private final OrgUnitDAO orgUnitDAO;
+	private final ProjectDAO projectDAO;
+	private final MonitoredPointDAO monitoredPointDAO;
+
+	@Inject
+	GetMonitoredPointsHandler(OrgUnitDAO orgUnitDAO, ProjectDAO projectDAO, MonitoredPointDAO monitoredPointDAO) {
+		this.orgUnitDAO = orgUnitDAO;
+		this.projectDAO = projectDAO;
+		this.monitoredPointDAO = monitoredPointDAO;
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -62,7 +77,7 @@ public class GetMonitoredPointsHandler extends AbstractCommandHandler<GetMonitor
 			dtos = findProjectPoints(cmd.getProjectId(), cmd.getMappingMode(), context);
 
 		} else {
-			dtos = findAllProjectsPoints(cmd.getMappingMode(), context);
+			dtos = findAllProjectsPoints(cmd.getOrgUnitIds(), cmd.getMappingMode(), context);
 		}
 
 		return new ListResult<>(dtos);
@@ -102,52 +117,45 @@ public class GetMonitoredPointsHandler extends AbstractCommandHandler<GetMonitor
 	 *          The user execution context.
 	 * @return The monitored points DTOs.
 	 */
-	private List<MonitoredPointDTO> findAllProjectsPoints(final MonitoredPointDTO.Mode mappingMode, final UserExecutionContext context) {
-
-		final List<MonitoredPointDTO> dtos = new ArrayList<>();
-
-		DomainFilters.disableUserFilter(em());
-
-		// Use a set to be avoid duplicated entries.
-		final Set<OrgUnit> units = new HashSet<>();
+	private List<MonitoredPointDTO> findAllProjectsPoints(Set<Integer> orgUnitIds, MonitoredPointDTO.Mode mappingMode, UserExecutionContext context) {
+		List<OrgUnit> orgUnits = orgUnitDAO.findByIds(orgUnitIds);
+		// Use a set to avoid duplicated entries.
+		final Set<Integer> crawledOrgUnitIds = new HashSet<>();
 
 		// Crawl the org units hierarchy from the user root org unit.
-		Handlers.crawlUnits(context.getUser(), units, true);
+		for (OrgUnit orgUnit : orgUnits) {
+			final List<OrgUnit> crawledOrgUnits = new ArrayList<>();
+			Handlers.crawlUnits(orgUnit, crawledOrgUnits, true);
 
-		// Retrieves all the corresponding org units.
-		for (final OrgUnit unit : units) {
-
-			// Builds and executes the query.
-			final Query query = em().createQuery("SELECT p.pointsList.points FROM Project p WHERE :unit MEMBER OF p.partners");
-			query.setParameter("unit", unit);
-
-			@SuppressWarnings("unchecked")
-			final List<MonitoredPoint> monitoredPoints = query.getResultList();
-
-			for (final MonitoredPoint monitoredPoint : monitoredPoints) {
-
-				if (monitoredPoint.getCompletionDate() != null) {
-					continue; // Not completed only.
-				}
-
-                final TypedQuery<Project> fullNameQuery = em().createQuery("SELECT p FROM Project p WHERE p.pointsList = :pointsList", Project.class);
-                
-                fullNameQuery.setParameter("pointsList", monitoredPoint.getParentList());
-               
-                final MonitoredPointDTO monitoredPointDTO = mapper().map(monitoredPoint, new MonitoredPointDTO(), mappingMode);
-                
-                Project project = fullNameQuery.getSingleResult();
-                
-                monitoredPointDTO.setProjectId(project.getId());
-                monitoredPointDTO.setProjectName(project.getName());
-                monitoredPointDTO.setProjectCode(project.getFullName());
-                
-				dtos.add(monitoredPointDTO);
-
+			for (OrgUnit crawledOrgUnit : crawledOrgUnits) {
+				crawledOrgUnitIds.add(crawledOrgUnit.getId());
 			}
 		}
 
-		return dtos;
+		List<Project> projects = projectDAO.findProjectByTeamMemberIdAndOrgUnitIds(context.getUser().getId(), crawledOrgUnitIds);
+		Set<Integer> visibleProjectIds = new HashSet<>();
+		for (Project project : projects) {
+			if (Handlers.isProjectVisible(project, context.getUser())) {
+				visibleProjectIds.add(project.getId());
+			}
+		}
+
+		List<MonitoredPoint> monitoredPoints = monitoredPointDAO.findNotCompletedByProjectIds(visibleProjectIds);
+		List<MonitoredPointDTO> monitoredPointDTOs = new ArrayList<>(monitoredPoints.size());
+		for (MonitoredPoint monitoredPoint : monitoredPoints) {
+			MonitoredPointDTO monitoredPointDTO = mapper().map(monitoredPoint, new MonitoredPointDTO(), mappingMode);
+
+			// FIXME: Put this code into a DAO
+			TypedQuery<Project> fullNameQuery = em().createQuery("SELECT p FROM Project p WHERE p.pointsList = :pointsList", Project.class);
+			fullNameQuery.setParameter("pointsList", monitoredPoint.getParentList());
+			Project project = fullNameQuery.getSingleResult();
+			monitoredPointDTO.setProjectId(project.getId());
+			monitoredPointDTO.setProjectName(project.getName());
+			monitoredPointDTO.setProjectCode(project.getFullName());
+			monitoredPointDTOs.add(monitoredPointDTO);
+		}
+
+		return monitoredPointDTOs;
 	}
 
 }

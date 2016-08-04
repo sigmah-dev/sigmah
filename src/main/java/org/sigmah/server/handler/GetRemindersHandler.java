@@ -30,6 +30,11 @@ import java.util.Set;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 
+import com.google.inject.Inject;
+
+import org.sigmah.server.dao.OrgUnitDAO;
+import org.sigmah.server.dao.ProjectDAO;
+import org.sigmah.server.dao.ReminderDAO;
 import org.sigmah.server.dispatch.impl.UserDispatch.UserExecutionContext;
 import org.sigmah.server.domain.OrgUnit;
 import org.sigmah.server.domain.Project;
@@ -49,6 +54,16 @@ import org.sigmah.shared.dto.reminder.ReminderDTO;
  * @author Maxime Lombard (mlombard@ideia.fr)
  */
 public class GetRemindersHandler extends AbstractCommandHandler<GetReminders, ListResult<ReminderDTO>> {
+	private final OrgUnitDAO orgUnitDAO;
+	private final ProjectDAO projectDAO;
+	private final ReminderDAO reminderDAO;
+
+	@Inject
+	GetRemindersHandler(OrgUnitDAO orgUnitDAO, ProjectDAO projectDAO, ReminderDAO reminderDAO) {
+		this.orgUnitDAO = orgUnitDAO;
+		this.projectDAO = projectDAO;
+		this.reminderDAO = reminderDAO;
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -62,7 +77,7 @@ public class GetRemindersHandler extends AbstractCommandHandler<GetReminders, Li
 			dtos = findProjectReminders(cmd.getProjectId(), cmd.getMappingMode(), context);
 
 		} else {
-			dtos = findAllProjectsReminders(cmd.getMappingMode(), context);
+			dtos = findAllProjectsReminders(cmd.getOrgUnitIds(), cmd.getMappingMode(), context);
 		}
 
 		return new ListResult<>(dtos);
@@ -102,51 +117,47 @@ public class GetRemindersHandler extends AbstractCommandHandler<GetReminders, Li
 	 *          The user execution context.
 	 * @return The reminders DTOs.
 	 */
-	private List<ReminderDTO> findAllProjectsReminders(final ReminderDTO.Mode mappingMode, final UserExecutionContext context) {
-
-		final List<ReminderDTO> dtos = new ArrayList<ReminderDTO>();
-
-		DomainFilters.disableUserFilter(em());
-
-		// Use a set to be avoid duplicated entries.
-		final Set<OrgUnit> units = new HashSet<OrgUnit>();
+	private List<ReminderDTO> findAllProjectsReminders(Set<Integer> orgUnitIds, ReminderDTO.Mode mappingMode, UserExecutionContext context) {
+		List<OrgUnit> orgUnits = orgUnitDAO.findByIds(orgUnitIds);
+		// Use a set to avoid duplicated entries.
+		final Set<Integer> crawledOrgUnitIds = new HashSet<>();
 
 		// Crawl the org units hierarchy from the user root org unit.
-		Handlers.crawlUnits(context.getUser(), units, true);
+		for (OrgUnit orgUnit : orgUnits) {
+			final List<OrgUnit> crawledOrgUnits = new ArrayList<>();
+			Handlers.crawlUnits(orgUnit, crawledOrgUnits, true);
 
-		// Retrieves all the corresponding org units.
-		for (final OrgUnit unit : units) {
-
-			// Builds and executes the query.
-			final Query query = em().createQuery("SELECT p.remindersList.reminders FROM Project p WHERE :unit MEMBER OF p.partners");
-			query.setParameter("unit", unit);
-
-			@SuppressWarnings("unchecked")
-			final List<Reminder> reminders = query.getResultList();
-
-			for (final Reminder reminder : reminders) {
-
-				if (reminder.getCompletionDate() != null) {
-					continue; // Not completed only.
+			for (OrgUnit crawledOrgUnit : crawledOrgUnits) {
+				crawledOrgUnitIds.add(crawledOrgUnit.getId());
+			}
 				}
 
-                final TypedQuery<Project> fullNameQuery = em().createQuery("SELECT p FROM Project p WHERE p.remindersList = :remindersList", Project.class);
-                
-                fullNameQuery.setParameter("remindersList", reminder.getParentList());
-               
-                final ReminderDTO reminderDTO = mapper().map(reminder, new ReminderDTO(), mappingMode);
-                
-                Project project = fullNameQuery.getSingleResult();
-                
-                reminderDTO.setProjectId(project.getId());
-                reminderDTO.setProjectName(project.getName());
-                reminderDTO.setProjectCode(project.getFullName());
-                
-				dtos.add(reminderDTO);
+		List<Project> projects = projectDAO.findProjectByTeamMemberIdAndOrgUnitIds(context.getUser().getId(), crawledOrgUnitIds);
+		Set<Integer> visibleProjectIds = new HashSet<>();
+		for (Project project : projects) {
+			if (Handlers.isProjectVisible(project, context.getUser())) {
+				visibleProjectIds.add(project.getId());
 			}
 		}
 
-		return dtos;
+		List<Reminder> reminders = reminderDAO.findNotCompletedByProjectIds(visibleProjectIds);
+		List<ReminderDTO> reminderDTOs = new ArrayList<>(reminders.size());
+		for (Reminder reminder : reminders) {
+			final TypedQuery<Project> fullNameQuery = em().createQuery("SELECT p FROM Project p WHERE p.remindersList = :remindersList", Project.class);
+
+			fullNameQuery.setParameter("remindersList", reminder.getParentList());
+
+			final ReminderDTO reminderDTO = mapper().map(reminder, new ReminderDTO(), mappingMode);
+
+			Project project = fullNameQuery.getSingleResult();
+
+			reminderDTO.setProjectId(project.getId());
+			reminderDTO.setProjectName(project.getName());
+			reminderDTO.setProjectCode(project.getFullName());
+			reminderDTOs.add(reminderDTO);
+		}
+
+		return reminderDTOs;
 	}
 
 }

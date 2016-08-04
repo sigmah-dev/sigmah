@@ -26,7 +26,9 @@ package org.sigmah.client.ui.presenter.project.treegrid;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.dispatch.monitor.LoadingMask;
@@ -217,6 +219,10 @@ public class ProjectsListWidget extends AbstractPresenter<ProjectsListWidget.Vie
 
 	}
 
+	public interface TitleSupplier {
+		String supplyTitle(int projectCount);
+	}
+
 	/**
 	 * Defines the refreshing mode.
 	 * 
@@ -225,7 +231,7 @@ public class ProjectsListWidget extends AbstractPresenter<ProjectsListWidget.Vie
 	public static enum RefreshMode {
 
 		/**
-		 * The project list is refreshed each time the {@link ProjectsListWidget#refresh(boolean, Integer...)} method is
+		 * The project list is refreshed each time the {@link ProjectsListWidget#refresh(boolean, boolean, Integer...)} method is
 		 * called.
 		 */
 		ALWAYS,
@@ -236,7 +242,7 @@ public class ProjectsListWidget extends AbstractPresenter<ProjectsListWidget.Vie
 		MANUAL,
 
 		/**
-		 * Refresh the project list when {@link ProjectsListWidget#refresh(boolean, Integer...)} is called for the first
+		 * Refresh the project list when {@link ProjectsListWidget#refresh(boolean, boolean, Integer...)} is called for the first
 		 * time. Subsequent refreshs are called by the refresh button.
 		 */
 		ON_FIRST_TIME;
@@ -262,9 +268,18 @@ public class ProjectsListWidget extends AbstractPresenter<ProjectsListWidget.Vie
 
 	}
 
+	public static final TitleSupplier DEFAULT_TITLE_SUPPLIER = new TitleSupplier() {
+		@Override
+		public String supplyTitle(int projectCount) {
+			return I18N.CONSTANTS.projects() + " (" + projectCount + ")";
+		}
+	};
+
 	// Current projects grid parameters.
 	private ProjectModelType currentModelType;
 	private final ArrayList<Integer> orgUnitsIds;
+	private boolean currentlyLoading = false;
+	private final Queue<GetProjects> commandQueue = new LinkedList<GetProjects>();
 
 	/**
 	 * The refreshing mode (automatic by default).
@@ -285,6 +300,8 @@ public class ProjectsListWidget extends AbstractPresenter<ProjectsListWidget.Vie
 	 * Has the project grid already been loaded once?
 	 */
 	private boolean loaded;
+
+	private TitleSupplier titleSupplier = DEFAULT_TITLE_SUPPLIER;
 
 	/**
 	 * Builds a new project list panel with default values.
@@ -458,6 +475,16 @@ public class ProjectsListWidget extends AbstractPresenter<ProjectsListWidget.Vie
 		});
 	}
 
+	public void setTitleSupplier(TitleSupplier titleSupplier) {
+		this.titleSupplier = titleSupplier;
+
+		updateTitle(titleSupplier);
+	}
+
+	private void updateTitle(TitleSupplier titleSupplier) {
+		view.getProjectsPanel().setHeadingText(titleSupplier.supplyTitle(view.getStore().getChildCount()));
+	}
+
 	/**
 	 * <p>
 	 * Initializes the widget.
@@ -489,7 +516,7 @@ public class ProjectsListWidget extends AbstractPresenter<ProjectsListWidget.Vie
 	 *          The list of ids of the organizational units for which the projects will be retrieved. The projects of each
 	 *          the sub-organizational units are retrieved automatically.
 	 */
-	public void refresh(final boolean viewOwnOrManage, final Integer... orgUnitsIds) {
+	public void refresh(final boolean viewOwnOrManage, final boolean forceRefresh, final Integer... orgUnitsIds) {
 
 		// Updates toolbar.
 		final boolean refreshEnabled = refreshMode == RefreshMode.MANUAL || refreshMode == RefreshMode.ON_FIRST_TIME;
@@ -497,7 +524,7 @@ public class ProjectsListWidget extends AbstractPresenter<ProjectsListWidget.Vie
 		view.updateToolbar(refreshEnabled, exportEnabled);
 
 		// Updates accessibility.
-		view.updateAccessibilityState(ProfileUtils.isGranted(auth(), GlobalPermissionEnum.VIEW_PROJECT));
+		view.updateAccessibilityState(ProfileUtils.isGranted(auth(), GlobalPermissionEnum.VIEW_MY_PROJECTS));
 
 		final List<Integer> orgUnitsIdsAsList = orgUnitsIds != null ? Arrays.asList(orgUnitsIds) : null;
 
@@ -509,7 +536,7 @@ public class ProjectsListWidget extends AbstractPresenter<ProjectsListWidget.Vie
 		command.setViewOwnOrManage(viewOwnOrManage);
 
 		// If the mode is automatic, the list is refreshed immediately.
-		if (refreshMode == RefreshMode.ALWAYS || (refreshMode == RefreshMode.ON_FIRST_TIME && !loaded)) {
+		if (forceRefresh || refreshMode == RefreshMode.ALWAYS || (refreshMode == RefreshMode.ON_FIRST_TIME && !loaded)) {
 			refreshProjectGrid(command);
 			loaded = true;
 		}
@@ -546,7 +573,7 @@ public class ProjectsListWidget extends AbstractPresenter<ProjectsListWidget.Vie
 
 			@Override
 			public void handleEvent(StoreEvent<ProjectDTO> be) {
-				view.getProjectsPanel().setHeadingText(I18N.CONSTANTS.projects() + " (" + view.getStore().getChildCount() + ')');
+				updateTitle(titleSupplier);
 			}
 		});
 
@@ -677,7 +704,7 @@ public class ProjectsListWidget extends AbstractPresenter<ProjectsListWidget.Vie
 	private void refreshProjectGrid(final GetProjects cmd) {
 
 		// Checks that the user can view projects.
-		if (!ProfileUtils.isGranted(auth(), GlobalPermissionEnum.VIEW_PROJECT)) {
+		if (!ProfileUtils.isGranted(auth(), GlobalPermissionEnum.VIEW_MY_PROJECTS)) {
 			return;
 		}
 
@@ -685,6 +712,12 @@ public class ProjectsListWidget extends AbstractPresenter<ProjectsListWidget.Vie
 			return;
 		}
 		
+		if (currentlyLoading) {
+			commandQueue.add(cmd);
+			return;
+		}
+
+		currentlyLoading = true;
 		// Reload filter labels for category filter list store.
 		reloadCategoryListFilterStore();
 
@@ -724,6 +757,10 @@ public class ProjectsListWidget extends AbstractPresenter<ProjectsListWidget.Vie
 
 				applyProjectFilters();
 				view.updateRefreshingDate(new Date());
+
+				currentlyLoading = false;
+				// Try to execute the next loader
+				refreshProjectGrid(commandQueue.poll());
 			}
 
 		}, new LoadingMask(view.getProjectsPanel()));
@@ -768,6 +805,10 @@ public class ProjectsListWidget extends AbstractPresenter<ProjectsListWidget.Vie
 			public void ended() {
 				applyProjectFilters();
 				view.updateRefreshingDate(new Date());
+
+				currentlyLoading = false;
+				// Try to execute the next loader
+				refreshProjectGrid(commandQueue.poll());
 			}
 		});
 

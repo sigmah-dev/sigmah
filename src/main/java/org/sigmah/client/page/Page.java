@@ -32,7 +32,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
  * Page enumeration which values represent URL tokens.
- * 
+ *
  * @author Denis Colliot (dcolliot@ideia.fr)
  * @author Claire Yang (cyang@ideia.fr)
  * @author Tom Miette (tmiette@ideia.fr)
@@ -51,6 +51,7 @@ public enum Page implements IsSerializable {
 	PROJECT_EXPORTS_SETTING(Pages.PROJECT_PARENT_KEY, "exports-setting"),
 	PROJECT_AMENDMENT_RENAME(Pages.PROJECT_PARENT_KEY, "amendment-rename"),
 	PROJECT_AMENDMENT_DIFF(Pages.PROJECT_PARENT_KEY, "amendment-diff"),
+	PROJECT_TEAM_MEMBERS(Pages.PROJECT_PARENT_KEY, "team-members"),
 
 	REMINDER_EDIT("reminder-edit"),
 	REMINDER_HISTORY("reminder-history"),
@@ -93,7 +94,7 @@ public enum Page implements IsSerializable {
 	ADMIN_EDIT_FLEXIBLE_ELEMENT("flexible-element-edit"),
 	ADMIN_EDIT_FLEXIBLE_ELEMENT_ADD_BUDGETSUBFIELD("add-budgetsubfield-flexible-element-edit"),
 	ADMIN_EDIT_PHASE_MODEL("phase-model-edit"),
-	
+
 	OFFLINE_SELECT_FILES("offline-select-files"),
 
 	// OTHER PAGES.
@@ -116,7 +117,7 @@ public enum Page implements IsSerializable {
 
 	/**
 	 * Instantiates a new {@code Page} object.
-	 * 
+	 *
 	 * @param token
 	 *          The page token (must be unique).
 	 * @throws IllegalArgumentException
@@ -128,7 +129,7 @@ public enum Page implements IsSerializable {
 
 	/**
 	 * Instantiates a new {@code Page} object with its title.
-	 * 
+	 *
 	 * @param parentKey
 	 *          The parent key.
 	 * @param token
@@ -142,7 +143,7 @@ public enum Page implements IsSerializable {
 
 	/**
 	 * Instantiates a new {@code Page} object with its history configuration.
-	 * 
+	 *
 	 * @param token
 	 *          The page token (must be unique).
 	 * @param skipHistory
@@ -156,7 +157,7 @@ public enum Page implements IsSerializable {
 
 	/**
 	 * Instantiates a new {@code Page} object with its title and history configuration.
-	 * 
+	 *
 	 * @param parentKey
 	 *          The parent key.
 	 * @param token
@@ -182,7 +183,7 @@ public enum Page implements IsSerializable {
 
 	/**
 	 * Indicates if the page needs to be considered in the history.
-	 * 
+	 *
 	 * @return {@code true} if the page needs to be considered in the history, {@code false} otherwise.
 	 */
 	public boolean skipHistory() {
@@ -191,7 +192,7 @@ public enum Page implements IsSerializable {
 
 	/**
 	 * Returns the parent key.
-	 * 
+	 *
 	 * @return The parent key.
 	 */
 	public String getParentKey() {
@@ -200,7 +201,7 @@ public enum Page implements IsSerializable {
 
 	/**
 	 * Returns the page token.
-	 * 
+	 *
 	 * @return The page token.
 	 */
 	public String getToken() {
@@ -209,7 +210,7 @@ public enum Page implements IsSerializable {
 
 	/**
 	 * Returns a new request for this page.
-	 * 
+	 *
 	 * @return A new {@link PageRequest} instance for the current page.
 	 */
 	public PageRequest request() {
@@ -218,7 +219,7 @@ public enum Page implements IsSerializable {
 
 	/**
 	 * A convenience method for calling {@code request().addParameter(name, value)}.
-	 * 
+	 *
 	 * @param name
 	 *          The URL parameter name.
 	 * @param value
@@ -241,7 +242,7 @@ public enum Page implements IsSerializable {
 	/**
 	 * Sets the page title.
 	 * If not {@code null}, this value will be returned by {@link #getTitle(Page)} method.
-	 * 
+	 *
 	 * @param pageTitle
 	 *          The new page title carried by this instance.
 	 */
@@ -262,7 +263,7 @@ public enum Page implements IsSerializable {
 	 * <li>Returns an error value containing the page token.</li>
 	 * </ol>
 	 * </p>
-	 * 
+	 *
 	 * @param page
 	 *          The {@link Page} instance.
 	 * @return The given {@code page} corresponding title, or {@code null}.

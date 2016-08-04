@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE module PUBLIC "-//Google Inc.//DTD Google Web Toolkit 2.5.0//EN"
+        "http://google-web-toolkit.googlecode.com/svn/tags/2.5.0/distro-source/core/src/gwt-module.dtd">
+<!--
+  GWT module to use in development mode.
+  It removes a lot a permutations (no permutation for fr and es locales, no permutation for webkit or old ie).
+  It's mainly useful when executing 'mvn package -P sigmah-dev', not in development mode as permutations are done at runtime.
+  Instead of 24 permutations, it will only produce 1 permutation.
+-->
+<module rename-to="sigmah">
+    <inherits name="org.sigmah.Sigmah" />
+
+    <set-property name="locale" value="default" />
+    <set-property-fallback name="locale" value="default" />
+    <!-- Only FF compilation as it's the only suppported browser -->
+    <set-property name="user.agent" value="gecko1_8" />
+</module>

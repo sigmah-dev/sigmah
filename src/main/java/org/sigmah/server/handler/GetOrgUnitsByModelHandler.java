@@ -40,7 +40,7 @@ import org.sigmah.shared.dto.orgunit.OrgUnitDTO;
 
 /**
  * {@link GetOrgUnitsByModel} command execution.
- * 
+ *
  * @author Guerline Jean-Baptiste (gjbaptiste@ideia.fr) (v1.3)
  * @author Maxime Lombard (mlombard@ideia.fr) (v2.0)
  */
@@ -77,7 +77,7 @@ public class GetOrgUnitsByModelHandler extends AbstractCommandHandler<GetOrgUnit
 
 	/**
 	 * Returns if the org unit is visible for the given user.
-	 * 
+	 *
 	 * @param orgUnit
 	 *          The org unit.
 	 * @param user
@@ -92,7 +92,7 @@ public class GetOrgUnitsByModelHandler extends AbstractCommandHandler<GetOrgUnit
 
 		// Checks that the user can see this org unit.
 		final HashSet<OrgUnit> units = new HashSet<OrgUnit>();
-		Handlers.crawlUnits(user.getOrgUnitWithProfiles().getOrgUnit(), units, true);
+		Handlers.crawlUnits(user, units, true);
 
 		for (final OrgUnit unit : units) {
 			if (orgUnit.getId().equals(unit.getId())) {

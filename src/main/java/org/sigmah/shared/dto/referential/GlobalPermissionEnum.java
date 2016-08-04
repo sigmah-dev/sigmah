@@ -45,14 +45,25 @@ public enum GlobalPermissionEnum implements Result {
 	 */
 
 	/**
-	 * View the projects list and the project page.
+	 * View all projects for which the user is a member of the project team.
 	 */
-	VIEW_PROJECT(GlobalPermissionCategory.PROJECT),
+	VIEW_MY_PROJECTS(GlobalPermissionCategory.PROJECT),
+
+	/**
+	 * Edit and save the project details, the project phases, the project funding, the log frame and the calendar of
+	 * projects for which the user is a member of the project team.
+	 */
+	EDIT_PROJECT(VIEW_MY_PROJECTS),
+
+	/**
+	 * View all the projects list and the project page.
+	 */
+	VIEW_ALL_PROJECTS(VIEW_MY_PROJECTS),
 
 	/**
 	 * Edit and save the project details, the project phases, the project funding, the log frame and the calendar.
 	 */
-	EDIT_PROJECT(VIEW_PROJECT),
+	EDIT_ALL_PROJECTS(VIEW_ALL_PROJECTS),
 
 	/**
 	 * Create a new project or a new funding.
@@ -67,12 +78,12 @@ public enum GlobalPermissionEnum implements Result {
 	/**
 	 * Delete a project.
 	 */
-	DELETE_PROJECT(GlobalPermissionCategory.PROJECT),
+	DELETE_PROJECT(VIEW_MY_PROJECTS),
 	
 	/**
 	 * Lock or unlock a project.
 	 */
-	LOCK_PROJECT(GlobalPermissionCategory.PROJECT),
+	LOCK_PROJECT(VIEW_MY_PROJECTS),
 	
 	/**
 	 * Modify locked content. (i. e. content of closed phases and content of closed projects).
@@ -102,7 +113,7 @@ public enum GlobalPermissionEnum implements Result {
 	/**
 	 * for viewing the logframe sub-tab.
 	 */
-	VIEW_LOGFRAME(VIEW_PROJECT),
+	VIEW_LOGFRAME(VIEW_MY_PROJECTS),
 
 	/**
 	 * for creating/modifying/deleting objectives, expected results, activities,
@@ -113,7 +124,7 @@ public enum GlobalPermissionEnum implements Result {
 	/**
 	 * for viewing the agenda sub-tab.
 	 */
-	VIEW_PROJECT_AGENDA(VIEW_PROJECT),
+	VIEW_PROJECT_AGENDA(VIEW_MY_PROJECTS),
 
 	/**
 	 * for creating/deleting/modifying events in the agenda.
@@ -124,7 +135,7 @@ public enum GlobalPermissionEnum implements Result {
 	 * for creating/deleting/modifying/closing reminders created by the user.
 	 */
 
-	EDIT_OWN_REMINDERS(VIEW_PROJECT),
+	EDIT_OWN_REMINDERS(VIEW_MY_PROJECTS),
 	
 	/**
 	 * for displaying the import button.
@@ -141,7 +152,7 @@ public enum GlobalPermissionEnum implements Result {
 	/**
 	 * for viewing the two indicator sub-tabs.
 	 */
-	VIEW_INDICATOR(VIEW_PROJECT),
+	VIEW_INDICATOR(VIEW_MY_PROJECTS),
 
 	/**
 	 * for creating/deleting/modifying indicator definitions.
@@ -168,6 +179,12 @@ public enum GlobalPermissionEnum implements Result {
 	 */
 	MANAGE_SITES(VIEW_MAPTAB),
 	
+	/**
+	 *
+	 */
+	VIEW_PROJECT_TEAM_MEMBERS(VIEW_MY_PROJECTS),
+
+	EDIT_PROJECT_TEAM_MEMBERS(VIEW_PROJECT_TEAM_MEMBERS),
 	
 	/*
 	 * Org unit-related permissions. 
@@ -445,12 +462,17 @@ public enum GlobalPermissionEnum implements Result {
 		}
 
 		switch (globalPermission) {
-
-			case VIEW_PROJECT:
-				return I18N.CONSTANTS.VIEW_PROJECT();
+			case VIEW_MY_PROJECTS:
+				return I18N.CONSTANTS.VIEW_MY_PROJECTS();
 
 			case EDIT_PROJECT:
 				return I18N.CONSTANTS.EDIT_PROJECT();
+
+			case VIEW_ALL_PROJECTS:
+				return I18N.CONSTANTS.VIEW_ALL_PROJECTS();
+
+			case EDIT_ALL_PROJECTS:
+				return I18N.CONSTANTS.EDIT_ALL_PROJECTS();
 
 			case CREATE_PROJECT:
 				return I18N.CONSTANTS.CREATE_PROJECT();
@@ -514,6 +536,12 @@ public enum GlobalPermissionEnum implements Result {
 				
 			case MANAGE_SITES:
 				return I18N.CONSTANTS.MANAGE_SITES();
+
+			case VIEW_PROJECT_TEAM_MEMBERS:
+				return I18N.CONSTANTS.VIEW_PROJECT_TEAM_MEMBERS();
+
+			case EDIT_PROJECT_TEAM_MEMBERS:
+				return I18N.CONSTANTS.EDIT_PROJECT_TEAM_MEMBERS();
 
 			case GLOBAL_EXPORT:
 				return I18N.CONSTANTS.GLOBAL_EXPORT();

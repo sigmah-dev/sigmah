@@ -22,8 +22,7 @@ package org.sigmah.server.dao.impl;
  * #L%
  */
 
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 import javax.persistence.TypedQuery;
 
@@ -31,11 +30,14 @@ import org.sigmah.server.dao.ProjectDAO;
 import org.sigmah.server.dao.base.AbstractDAO;
 import org.sigmah.server.domain.Project;
 import org.sigmah.server.domain.ProjectModel;
+import org.sigmah.server.domain.User;
+import org.sigmah.server.domain.profile.Profile;
+import org.sigmah.server.domain.util.DomainFilters;
 import org.sigmah.shared.dto.referential.ProjectModelStatus;
 
 /**
  * {@link ProjectDAO} implementation.
- * 
+ *
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
 public class ProjectHibernateDAO extends AbstractDAO<Project, Integer> implements ProjectDAO {
@@ -77,4 +79,70 @@ public class ProjectHibernateDAO extends AbstractDAO<Project, Integer> implement
 		return query.getResultList();
 	}
 
+	@Override
+	public Project updateProjectTeamMembers(Project project, List<User> teamMembers, List<Profile> teamMemberProfiles, User modifier) {
+		project.setTeamMembers(teamMembers);
+		project.setTeamMemberProfiles(teamMemberProfiles);
+		return persist(project, modifier);
+	}
+
+	@Override
+	public Set<Integer> findProjectIdsByTeamMemberIdAndOrgUnitIds(Integer userId, Set<Integer> orgUnitIds) {
+		if (orgUnitIds.isEmpty()) {
+			return Collections.emptySet();
+		}
+
+		// Disable the ActivityInfo filter on Userdatabase.
+		DomainFilters.disableUserFilter(em());
+
+		TypedQuery<Integer> query = em().createQuery("SELECT pr.id " +
+			"FROM Project pr " +
+			"WHERE pr.manager.id = :userId " +
+			"OR pr.owner.id = :userId " +
+			"OR :userId IN ( " +
+			" SELECT tm.id " +
+			" FROM pr.teamMembers tm " +
+			") " +
+			"OR :userId IN ( " +
+			" SELECT oup.user.id " +
+			" FROM pr.teamMemberProfiles tmp, OrgUnitProfile oup " +
+			" JOIN oup.profiles oupp " +
+			" WHERE tmp.id = oupp.id " +
+			" AND oup.orgUnit.id IN (:orgUnitIds) " +
+			") ", Integer.class);
+		query.setParameter("userId", userId);
+		query.setParameter("orgUnitIds", orgUnitIds);
+
+		return new HashSet<>(query.getResultList());
+	}
+
+	@Override
+	public List<Project> findProjectByTeamMemberIdAndOrgUnitIds(Integer userId, Set<Integer> orgUnitIds) {
+		if (orgUnitIds.isEmpty()) {
+			return Collections.emptyList();
+		}
+
+		// Disable the ActivityInfo filter on Userdatabase.
+		DomainFilters.disableUserFilter(em());
+
+		TypedQuery<Project> query = em().createQuery("SELECT pr " +
+			"FROM Project pr " +
+			"WHERE pr.manager.id = :userId " +
+			"OR pr.owner.id = :userId " +
+			"OR :userId IN ( " +
+			" SELECT tm.id " +
+			" FROM pr.teamMembers tm " +
+			") " +
+			"OR :userId IN ( " +
+			" SELECT oup.user.id " +
+			" FROM pr.teamMemberProfiles tmp, OrgUnitProfile oup " +
+			" JOIN oup.profiles oupp " +
+			" WHERE tmp.id = oupp.id " +
+			" AND oup.orgUnit.id IN (:orgUnitIds) " +
+			") ", Project.class);
+		query.setParameter("userId", userId);
+		query.setParameter("orgUnitIds", orgUnitIds);
+
+		return query.getResultList();
+	}
 }
