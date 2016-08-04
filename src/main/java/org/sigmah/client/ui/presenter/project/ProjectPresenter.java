@@ -396,6 +396,7 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 		view.getSubMenuWidget().setRequiredPermissions(Page.PROJECT_INDICATORS_MAP, GlobalPermissionEnum.VIEW_MAPTAB);
 		view.getSubMenuWidget().setRequiredPermissions(Page.PROJECT_INDICATORS_ENTRIES, GlobalPermissionEnum.VIEW_INDICATOR);
 		view.getSubMenuWidget().setRequiredPermissions(Page.PROJECT_CALENDAR, GlobalPermissionEnum.VIEW_PROJECT_AGENDA);
+		view.getSubMenuWidget().setRequiredPermissions(Page.PROJECT_TEAM_MEMBERS, GlobalPermissionEnum.VIEW_PROJECT_TEAM_MEMBERS);
 	}
 
 	/**

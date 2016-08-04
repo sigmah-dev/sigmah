@@ -22,6 +22,7 @@ package org.sigmah.offline.handler;
  * #L%
  */
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -70,7 +71,7 @@ public class GetProjectsAsyncHandler implements AsyncCommandHandler<GetProjects,
 		final HashSet<Integer> orgUnits = new HashSet<Integer>();
 
 		if (command.getOrgUnitsIds() == null) {
-			command.setOrgUnitsIds(Collections.singletonList(authentication.getOrgUnitId()));
+			command.setOrgUnitsIds(new ArrayList<Integer>(authentication.getOrgUnitIds()));
 		}
 		
 		// Adding the org unit 0 to also retrieve draft projects.

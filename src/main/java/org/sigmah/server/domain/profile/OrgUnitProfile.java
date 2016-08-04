@@ -24,18 +24,7 @@ package org.sigmah.server.domain.profile;
 
 import java.util.List;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
 import org.sigmah.server.domain.OrgUnit;
@@ -50,7 +39,7 @@ import org.sigmah.server.domain.util.EntityConstants;
  * <p>
  * A profile which associates a user to an organizational unit.
  * </p>
- * 
+ *
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
 @Entity
@@ -84,15 +73,21 @@ public class OrgUnitProfile extends AbstractEntityId<Integer> {
 	@NotNull
 	private OrgUnit orgUnit;
 
-	@ManyToMany
-	@JoinTable(name = EntityConstants.ORG_UNIT_PROFILE_PROFILE_LINK_TABLE, joinColumns = { @JoinColumn(name = EntityConstants.ORG_UNIT_PROFILE_COLUMN_ID)
-	}, inverseJoinColumns = { @JoinColumn(name = EntityConstants.PROFILE_COLUMN_ID)
-	}, uniqueConstraints = { @UniqueConstraint(columnNames = {
-																														EntityConstants.ORG_UNIT_PROFILE_COLUMN_ID,
-																														EntityConstants.PROFILE_COLUMN_ID
-	})
-	})
+	@ManyToMany(cascade = CascadeType.ALL)
+	@JoinTable(
+		name = EntityConstants.ORG_UNIT_PROFILE_PROFILE_LINK_TABLE,
+		joinColumns = @JoinColumn(name = EntityConstants.ORG_UNIT_PROFILE_COLUMN_ID),
+		inverseJoinColumns = @JoinColumn(name = EntityConstants.PROFILE_COLUMN_ID),
+		uniqueConstraints = @UniqueConstraint(columnNames = {
+			EntityConstants.ORG_UNIT_PROFILE_COLUMN_ID,
+			EntityConstants.PROFILE_COLUMN_ID
+		})
+	)
 	private List<Profile> profiles;
+
+	@Column(name = EntityConstants.ORG_UNIT_PROFILE_COLUMN_TYPE)
+	@Enumerated(value = EnumType.STRING)
+	private OrgUnitProfileType type;
 
 	public OrgUnitProfile() {
 	}
@@ -145,4 +140,15 @@ public class OrgUnitProfile extends AbstractEntityId<Integer> {
 		this.profiles = profiles;
 	}
 
+	public OrgUnitProfileType getType() {
+		return type;
+	}
+
+	public void setType(OrgUnitProfileType type) {
+		this.type = type;
+	}
+
+	public enum OrgUnitProfileType {
+		MAIN, SECONDARY
+	}
 }

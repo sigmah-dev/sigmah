@@ -120,7 +120,7 @@ public class OrgUnitDashboardPresenter extends AbstractOrgUnitPresenter<OrgUnitD
 		loadOrgUnits(getOrgUnit());
 
 		// Reloads projects.
-		view.getProjectsList().refresh(false, getOrgUnit().getId());
+		view.getProjectsList().refresh(false, true, getOrgUnit().getId());
 	}
 
 	/**

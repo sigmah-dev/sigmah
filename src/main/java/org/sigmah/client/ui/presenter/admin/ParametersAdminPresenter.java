@@ -39,9 +39,10 @@ import org.sigmah.client.ui.widget.form.FormPanel;
 import org.sigmah.client.util.ClientUtils;
 import org.sigmah.shared.command.BackupArchiveManagementCommand;
 import org.sigmah.shared.command.GetGlobalExportSettings;
-import org.sigmah.shared.command.GetOrgUnit;
+import org.sigmah.shared.command.GetOrgUnits;
 import org.sigmah.shared.command.UpdateGlobalExportSettingsCommand;
 import org.sigmah.shared.command.UpdateOrganization;
+import org.sigmah.shared.command.result.ListResult;
 import org.sigmah.shared.command.result.VoidResult;
 import org.sigmah.shared.dto.BackupDTO;
 import org.sigmah.shared.dto.GlobalExportSettingsDTO;
@@ -340,13 +341,14 @@ public class ParametersAdminPresenter extends AbstractAdminPresenter<ParametersA
 		displayLogo(auth().getOrganizationLogo());
 
 		// Retrieves OrgUnits and populates store.
-		dispatch.execute(new GetOrgUnit(auth().getOrgUnitId(), OrgUnitDTO.Mode.WITH_TREE), new CommandResultHandler<OrgUnitDTO>() {
+		dispatch.execute(new GetOrgUnits(OrgUnitDTO.Mode.WITH_TREE), new CommandResultHandler<ListResult<OrgUnitDTO>>() {
 
 			@Override
-			public void onCommandSuccess(final OrgUnitDTO result) {
-
-				// Recursily fills the store.
-				fillOrgUnitsCombobox(result, view.getBackupManagementOrgUnitsComboBox().getStore());
+			public void onCommandSuccess(final ListResult<OrgUnitDTO> result) {
+				for (OrgUnitDTO orgUnitDTO : result.getData()) {
+					// Recursily fills the store.
+					fillOrgUnitsCombobox(orgUnitDTO, view.getBackupManagementOrgUnitsComboBox().getStore());
+				}
 			}
 
 		});

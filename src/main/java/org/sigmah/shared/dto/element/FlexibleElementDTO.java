@@ -70,6 +70,7 @@ import java.util.Date;
 import org.sigmah.client.ui.widget.Loadable;
 import org.sigmah.shared.dto.referential.GlobalPermissionEnum;
 import org.sigmah.shared.dto.referential.ValueEventChangeType;
+import org.sigmah.shared.util.ProjectUtils;
 
 /**
  * Abstract flexible element DTO.
@@ -243,8 +244,7 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 	 * @return The widget component.
 	 */
 	private Component getComponentWithHistory(ValueResult valueResult, boolean phaseIsEnded, boolean inBanner) {
-
-		if(ProfileUtils.getPermission(auth(), getPrivacyGroup()) == PrivacyGroupPermissionEnum.NONE) {
+		if(ProfileUtils.getPermissionForOrgUnit(auth(), getOrgUnitId(), getPrivacyGroup()) == PrivacyGroupPermissionEnum.NONE) {
 			return null;
 		}
 		
@@ -282,7 +282,17 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 
 		return component;
 	}
-	
+
+	private Integer getOrgUnitId() {
+		Integer orgUnitId = null;
+		if (currentContainerDTO instanceof OrgUnitDTO) {
+			orgUnitId = ((OrgUnitDTO) currentContainerDTO).getOrgUnitId();
+		} else if (currentContainerDTO instanceof ProjectDTO) {
+			orgUnitId = ((ProjectDTO) currentContainerDTO).getOrgUnitId();
+		}
+		return orgUnitId;
+	}
+
 	/**
 	 * Creates the history menu. Displayed when the user right click a flexible 
 	 * element.
@@ -365,7 +375,7 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 	 * <code>changeType</code>, <code>false</code> otherwise.
 	 */
 	protected boolean userCanPerformChangeType(ValueEventChangeType changeType) {
-		final PrivacyGroupPermissionEnum permission = ProfileUtils.getPermission(auth(), getPrivacyGroup());
+		final PrivacyGroupPermissionEnum permission = ProfileUtils.getPermissionForOrgUnit(auth(), getOrgUnitId(), getPrivacyGroup());
 		
 		if(permission == PrivacyGroupPermissionEnum.READ) {
 			return false;
@@ -387,7 +397,7 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 	 * the given change type on the given project.
 	 *
 	 * The default implementation checks for the 
-	 * {@link GlobalPermissionEnum#EDIT_PROJECT} right and to the current
+	 * {@link GlobalPermissionEnum#EDIT_ALL_PROJECTS} right and to the current
 	 * amendment state.
 	 * 
 	 * @param changeType Type of change to verify.
@@ -414,8 +424,8 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 			!phaseIsEnded &&
 			// Current project is opened.
 			!project.isClosed() &&
-			// The user is granted edit rights on the project.
-			ProfileUtils.isGranted(auth(), GlobalPermissionEnum.EDIT_PROJECT) && (
+			// Check that the user can edit the project
+			ProjectUtils.isProjectEditable(project, auth()) && (
 				// This element is not part of the core version
 				!getAmendable() || 
 				// OR the core version is in an editable state

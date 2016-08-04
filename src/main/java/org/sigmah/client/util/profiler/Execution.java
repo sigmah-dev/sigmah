@@ -121,7 +121,7 @@ public final class Execution extends JavaScriptObject implements Serializable{
 		return this.online;
 	}-*/;
 	
-	public native boolean setOnline(boolean online) /*-{
+	public native void setOnline(boolean online) /*-{
 		this.online = online;
 	}-*/;
 	

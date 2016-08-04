@@ -138,7 +138,7 @@ public class DefaultFlexibleElement extends FlexibleElement {
 				break;
 				
 			case ORG_UNIT:
-				final OrgUnit orgUnit = container.getPartners() != null && !container.getPartners().isEmpty() ? container.getPartners().iterator().next() : null;
+				final OrgUnit orgUnit = container.getOrgUnit();
 				valueAsString = orgUnit != null && orgUnit.getId() != null ? orgUnit.getId().toString() : null;
 				break;
 				

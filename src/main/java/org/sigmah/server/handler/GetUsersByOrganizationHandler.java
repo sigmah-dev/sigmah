@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Handler for {@link GetUsersByOrganization} command
- * 
+ *
  * @author Maxime Lombard (mlombard@ideia.fr) (v2.0)
  * @author Denis Colliot (dcolliot@ideia.fr) (v2.0)
  */
@@ -73,7 +73,7 @@ public class GetUsersByOrganizationHandler extends AbstractCommandHandler<GetUse
 			if (users != null) {
 				for (final User u : users) {
 					final UserDTO userDTO = mapper().map(u, new UserDTO(), cmd.getMappingMode());
-					userDTO.setCompleteName(userDTO.getFirstName() != null ? userDTO.getFirstName() + " " + userDTO.getName() : userDTO.getName());
+					userDTO.generateCompleteName();
 					userDTOList.add(userDTO);
 				}
 			}
@@ -87,7 +87,7 @@ public class GetUsersByOrganizationHandler extends AbstractCommandHandler<GetUse
 			try {
 				final User u = q.getSingleResult();
 				final UserDTO userDTO = mapper().map(u, new UserDTO(), cmd.getMappingMode());
-				userDTO.setCompleteName(userDTO.getFirstName() != null ? userDTO.getFirstName() + " " + userDTO.getName() : userDTO.getName());
+				userDTO.generateCompleteName();
 				userDTOList.add(userDTO);
 			} catch (NoResultException e) {
 				// nothing.

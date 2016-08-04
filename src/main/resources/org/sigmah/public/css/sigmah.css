@@ -378,6 +378,9 @@ body {font-family:Arial;font-size:8pt}
 /* Maintenance */
 .header-alert {color: black !important;background-color: rgb(255, 90, 90) !important;background-image: none !important;border: 1px black solid !important;}
 
+.list-combobox__elements { display: flex; flex-wrap: wrap; padding-bottom: 10px; }
+.list-combobox__elements__element { display: flex; padding: 5px 10px 5px 0; }
+.list-combobox__form { display: flex; }
 
 .messageElement{line-height: 1.8em;font-size: 12px;}
 

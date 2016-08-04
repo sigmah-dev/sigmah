@@ -10,12 +10,12 @@ package org.sigmah.offline.dao;
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -24,6 +24,7 @@ package org.sigmah.offline.dao;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 
 import org.sigmah.offline.indexeddb.ObjectStore;
@@ -35,17 +36,20 @@ import org.sigmah.shared.dto.OrgUnitModelDTO;
 import org.sigmah.shared.dto.country.CountryDTO;
 import org.sigmah.shared.dto.orgunit.OrgUnitDTO;
 
-import com.google.gwt.core.client.JsArrayInteger;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.extjs.gxt.ui.client.data.ModelData;
+
 import org.sigmah.offline.indexeddb.Cursor;
 import org.sigmah.offline.indexeddb.OpenCursorRequest;
 import org.sigmah.shared.command.result.ListResult;
 
+import com.allen_sauer.gwt.log.client.Log;
+
 /**
  * Asynchronous DAO for saving and loading <code>OrgUnitDTO</code> objects.
- * 
+ *
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
 @Singleton
@@ -95,77 +99,134 @@ public class OrgUnitAsyncDAO extends AbstractUserDatabaseAsyncDAO<OrgUnitDTO, Or
 		final ObjectStore orgUnitStore = transaction.getObjectStore(Store.ORG_UNIT);
 		orgUnitStore.get(id).addCallback(new AsyncCallback<Request>() {
 
-            @Override
-            public void onFailure(Throwable caught) {
-                callback.onFailure(caught);
-            }
+			@Override
+			public void onFailure(Throwable caught) {
+				callback.onFailure(caught);
+			}
 
-            @Override
-            public void onSuccess(Request request) {
-                final OrgUnitJS orgUnitJS = request.getResult();
-				if(orgUnitJS != null) {
-					final OrgUnitDTO orgUnitDTO = orgUnitJS.toDTO();
-
-					transaction.getObjectCache().put(id, orgUnitDTO);
-
-					final RequestManager<OrgUnitDTO> requestManager = new RequestManager<OrgUnitDTO>(orgUnitDTO, callback);
-
-					if (orgUnitJS.hasOrgUnitModel()) {
-						orgUnitModelAsyncDAO.get(orgUnitJS.getOrgUnitModel(), new RequestManagerCallback<OrgUnitDTO, OrgUnitModelDTO>(requestManager) {
-
-							@Override
-							public void onRequestSuccess(OrgUnitModelDTO result) {
-								orgUnitDTO.setOrgUnitModel(result);
-							}
-						}, transaction);
-					}
-
-					if (orgUnitJS.getChildren() != null) {
-						orgUnitDTO.setChildrenOrgUnits(new HashSet<OrgUnitDTO>());
-
-						final JsArrayInteger children = orgUnitJS.getChildren();
-						final int length = children.length();
-
-						for (int index = 0; index < length; index++) {
-							final int child = children.get(index);
-							get(child, new RequestManagerCallback<OrgUnitDTO, OrgUnitDTO>(requestManager) {
-
-								@Override
-								public void onRequestSuccess(OrgUnitDTO result) {
-									result.setParent(orgUnitDTO);
-									orgUnitDTO.getChildrenOrgUnits().add(result);
-									orgUnitDTO.getChildren().add(result);
-								}
-							}, transaction);
-						}
-					}
-
-					if (orgUnitJS.hasCountry()) {
-						countryAsyncDAO.get(orgUnitJS.getOfficeLocationCountry(), new RequestManagerCallback<OrgUnitDTO, CountryDTO>(requestManager) {
-
-							@Override
-							public void onRequestSuccess(CountryDTO result) {
-								orgUnitDTO.setOfficeLocationCountry(result);
-							}
-						}, transaction);
-					}
-
-					requestManager.ready();
-					
-				} else {
+			@Override
+			public void onSuccess(Request request) {
+				final OrgUnitJS orgUnitJS = request.getResult();
+				if (orgUnitJS == null) {
 					callback.onSuccess(null);
+					return;
 				}
-            }
-        });
+
+				final OrgUnitDTO orgUnitDTO = orgUnitJS.toDTO();
+
+				transaction.getObjectCache().put(id, orgUnitDTO);
+
+				final RequestManager<OrgUnitDTO> requestManager = new RequestManager<OrgUnitDTO>(orgUnitDTO, callback);
+
+				if (orgUnitJS.hasOrgUnitModel()) {
+					orgUnitModelAsyncDAO.get(orgUnitJS.getOrgUnitModel(), new RequestManagerCallback<OrgUnitDTO, OrgUnitModelDTO>(requestManager) {
+
+						@Override
+						public void onRequestSuccess(OrgUnitModelDTO result) {
+							orgUnitDTO.setOrgUnitModel(result);
+						}
+					}, transaction);
+				}
+
+				fillParent(orgUnitJS, orgUnitDTO, requestManager, transaction);
+				fillChildren(orgUnitJS, orgUnitDTO, requestManager, transaction);
+				fillCountry(orgUnitJS, orgUnitDTO, requestManager, transaction);
+
+				requestManager.ready();
+			}
+		});
 	}
-	
+
+	public void fillParent(final OrgUnitJS childJS, final OrgUnitDTO childDTO,
+												 final RequestManager<OrgUnitDTO> requestManager, final Transaction<Store> transaction) {
+		if (!childJS.hasParent()) {
+			return;
+		}
+
+		final ObjectStore orgUnitObjectStore = transaction.getObjectStore(getRequiredStore());
+
+		orgUnitObjectStore.get(childJS.getParent()).addCallback(new RequestManagerCallback<OrgUnitDTO, Request>(requestManager) {
+
+			@Override
+			public void onFailure(Throwable caught) {
+				Log.error("Error while getting org unit " + childJS.getParent());
+			}
+
+			@Override
+			public void onRequestSuccess(Request request) {
+				if (request.getResult() == null) {
+					return;
+				}
+
+
+				OrgUnitJS orgUnitJS = request.getResult();
+				final OrgUnitDTO orgUnitDTO = orgUnitJS.toDTO();
+				childDTO.setParentOrgUnit(orgUnitDTO);
+				orgUnitDTO.setChildrenOrgUnits(Collections.singleton(childDTO));
+				orgUnitDTO.setChildren(Collections.<ModelData>singletonList(childDTO));
+
+				fillParent(orgUnitJS, orgUnitDTO, requestManager, transaction);
+				fillCountry(orgUnitJS, orgUnitDTO, requestManager, transaction);
+			}
+		});
+	}
+
+	public void fillChildren(final OrgUnitJS parentJS, final OrgUnitDTO parentDTO,
+													 final RequestManager<OrgUnitDTO> requestManager, final Transaction<Store> transaction) {
+		final ObjectStore orgUnitObjectStore = transaction.getObjectStore(getRequiredStore());
+		parentDTO.setChildrenOrgUnits(new HashSet<OrgUnitDTO>());
+		parentDTO.setChildren(new ArrayList<ModelData>());
+
+		for (int i = 0; i < parentJS.getChildren().length(); i++) {
+			final int childId = i;
+			orgUnitObjectStore.get(parentJS.getChildren().get(i)).addCallback(new RequestManagerCallback<OrgUnitDTO, Request>(requestManager) {
+
+				@Override
+				public void onFailure(Throwable caught) {
+					Log.error("Error while getting org unit " + parentJS.getChildren().get(childId));
+				}
+
+				@Override
+				public void onRequestSuccess(Request request) {
+					if (request.getResult() == null) {
+						return;
+					}
+
+					OrgUnitJS orgUnitJS = request.getResult();
+					final OrgUnitDTO orgUnitDTO = orgUnitJS.toDTO();
+					orgUnitDTO.setParentOrgUnit(parentDTO);
+					orgUnitDTO.getChildrenOrgUnits().add(orgUnitDTO);
+					orgUnitDTO.getChildren().add(orgUnitDTO);
+
+					fillChildren(orgUnitJS, orgUnitDTO, requestManager, transaction);
+					fillCountry(orgUnitJS, orgUnitDTO, requestManager, transaction);
+				}
+			});
+		}
+	}
+
+	public void fillCountry(final OrgUnitJS orgUnitJS, final OrgUnitDTO orgUnitDTO,
+													final RequestManager<OrgUnitDTO> requestManager, Transaction<Store> transaction) {
+		countryAsyncDAO.get(orgUnitJS.getOfficeLocationCountry(), new RequestManagerCallback<OrgUnitDTO, CountryDTO>(requestManager) {
+			@Override
+			public void onRequestSuccess(CountryDTO countryDTO) {
+				orgUnitDTO.setOfficeLocationCountry(countryDTO);
+			}
+
+			@Override
+			public void onFailure(Throwable throwable) {
+				Log.error("Error while getting country " + orgUnitJS.getOfficeLocationCountry());
+			}
+		}, transaction);
+	}
+
 	public void getWithoutDependencies(final int id, final AsyncCallback<OrgUnitDTO> callback) {
 		openTransaction(Transaction.Mode.READ_ONLY, new OpenTransactionHandler<Store>() {
 
 			@Override
 			public void onTransaction(Transaction<Store> transaction) {
 				final ObjectStore orgUnitObjectStore = transaction.getObjectStore(getRequiredStore());
-				
+
 				orgUnitObjectStore.get(id).addCallback(new AsyncCallback<Request>() {
 
 					@Override
@@ -181,17 +242,17 @@ public class OrgUnitAsyncDAO extends AbstractUserDatabaseAsyncDAO<OrgUnitDTO, Or
 			}
 		});
 	}
-	
+
 	public void getAll(final AsyncCallback<ListResult<OrgUnitDTO>> callback) {
 		openTransaction(Transaction.Mode.READ_ONLY, new OpenTransactionHandler<Store>() {
 
 			@Override
 			public void onTransaction(Transaction<Store> transaction) {
 				final ArrayList<OrgUnitDTO> units = new ArrayList<OrgUnitDTO>();
-				
+
 				final ObjectStore objectStore = transaction.getObjectStore(getRequiredStore());
 				final OpenCursorRequest cursorRequest = objectStore.openCursor();
-				
+
 				cursorRequest.addCallback(new AsyncCallback<Request>() {
 
 					@Override
@@ -206,7 +267,7 @@ public class OrgUnitAsyncDAO extends AbstractUserDatabaseAsyncDAO<OrgUnitDTO, Or
 							final OrgUnitJS orgUnitJS = (OrgUnitJS) cursor.getValue();
 							units.add(orgUnitJS.toDTO());
 							cursor.next();
-							
+
 						} else {
 							callback.onSuccess(new ListResult<OrgUnitDTO>(units));
 						}
@@ -250,5 +311,4 @@ public class OrgUnitAsyncDAO extends AbstractUserDatabaseAsyncDAO<OrgUnitDTO, Or
 	public OrgUnitDTO toJavaObject(OrgUnitJS js) {
 		return js.toDTO();
 	}
-	
 }

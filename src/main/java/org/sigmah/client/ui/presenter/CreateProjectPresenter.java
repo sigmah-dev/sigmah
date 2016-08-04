@@ -47,7 +47,7 @@ import org.sigmah.client.util.ClientUtils;
 import org.sigmah.client.util.MessageType;
 import org.sigmah.client.util.NumberUtils;
 import org.sigmah.shared.command.CreateEntity;
-import org.sigmah.shared.command.GetOrgUnit;
+import org.sigmah.shared.command.GetOrgUnits;
 import org.sigmah.shared.command.GetProjectModels;
 import org.sigmah.shared.command.GetTestProjects;
 import org.sigmah.shared.command.UpdateEntity;
@@ -624,9 +624,7 @@ public class CreateProjectPresenter extends AbstractPagePresenter<CreateProjectP
 	 *          The current creation mode.
 	 */
 	private void loadOrgUnits(final Mode mode) {
-
-		dispatch.execute(new GetOrgUnit(auth().getOrgUnitId(), OrgUnitDTO.Mode.WITH_TREE), new CommandResultHandler<OrgUnitDTO>() {
-
+		dispatch.execute(new GetOrgUnits(OrgUnitDTO.Mode.WITH_TREE), new CommandResultHandler<ListResult<OrgUnitDTO>>() {
 			@Override
 			public void onCommandFailure(Throwable e) {
 				if (Log.isErrorEnabled()) {
@@ -637,20 +635,17 @@ public class CreateProjectPresenter extends AbstractPagePresenter<CreateProjectP
 			}
 
 			@Override
-			public void onCommandSuccess(OrgUnitDTO result) {
-
+			public void onCommandSuccess(final ListResult<OrgUnitDTO> result) {
 				if (result == null) {
 					N10N.warn(I18N.CONSTANTS.createProjectDisableOrgUnit());
 					hideView();
 					return;
 				}
 
-				// Recursively fills the store.
-				fillOrgUnitsCombobox(result);
-				view.getOrgUnitsField().getStore().commitChanges();
-
+				for (OrgUnitDTO orgUnitDTO : result.getData()) {
+					fillOrgUnitsCombobox(orgUnitDTO);
+				}
 			}
-
 		}, view.getCreateButton());
 
 	}
@@ -663,7 +658,7 @@ public class CreateProjectPresenter extends AbstractPagePresenter<CreateProjectP
 	 */
 	private void fillOrgUnitsCombobox(OrgUnitDTO unit) {
 
-		if (unit.isCanContainProjects()) {
+		if (unit.isCanContainProjects() && view.getOrgUnitsField().getStore().findModel(OrgUnitDTO.ID, unit.getId()) == null) {
 			view.getOrgUnitsField().getStore().add(unit);
 		}
 

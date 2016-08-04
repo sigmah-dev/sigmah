@@ -22,7 +22,17 @@ package org.sigmah.offline.js;
  * #L%
  */
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.core.client.JsArray;
+import com.google.gwt.core.client.JsArrayInteger;
+import com.google.gwt.core.client.JsArrayString;
+
 import org.sigmah.shared.Language;
 import org.sigmah.shared.command.result.Authentication;
 import org.sigmah.shared.dto.profile.ProfileDTO;
@@ -33,15 +43,15 @@ import org.sigmah.shared.dto.profile.ProfileDTO;
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
 public final class AuthenticationJS extends JavaScriptObject {
-	
+
 	public static final int DEFAULT_ID = 1;
-	
+
 	protected AuthenticationJS() {
 	}
-	
+
 	public static AuthenticationJS toJavaScript(Authentication authentication) {
 		final AuthenticationJS authenticationJS = Values.createJavaScriptObject(AuthenticationJS.class);
-		
+
 		authenticationJS.setId(DEFAULT_ID);
 		authenticationJS.setAuthenticationToken(authentication.getAuthenticationToken());
 		authenticationJS.setUserId(authentication.getUserId());
@@ -52,37 +62,41 @@ public final class AuthenticationJS extends JavaScriptObject {
 		authenticationJS.setOrganizationId(authentication.getOrganizationId());
 		authenticationJS.setOrganizationName(authentication.getOrganizationName());
 		authenticationJS.setOrganizationLogo(authentication.getOrganizationLogo());
-		authenticationJS.setOrgUnitId(authentication.getOrgUnitId());
-		authenticationJS.setAggregatedProfile(authentication.getAggregatedProfile());
-		
+		authenticationJS.setMainOrgUnitId(authentication.getMainOrgUnitId());
+		authenticationJS.setSecondaryOrgUnitIds(authentication.getSecondaryOrgUnitIds());
+		authenticationJS.setAggregatedProfiles(authentication.getAggregatedProfiles());
+		authenticationJS.setMemberOfProjectIds(authentication.getMemberOfProjectIds());
+
 		return authenticationJS;
 	}
-	
+
 	public Authentication toAuthentication() {
 		final Authentication authentication = new Authentication(
-				getUserId(), 
-				getUserEmail(), 
-				getUserName(),
-				getUserFirstName(),
-				getLanguage(), 
-				getOrganizationId(), 
-				getOrganizationName(), 
-				getOrganizationLogo(), 
-				getOrgUnitId(), 
-				getAggregatedProfileDTO(),
-				getUserId() != null);
+			getUserId(),
+			getUserEmail(),
+			getUserName(),
+			getUserFirstName(),
+			getLanguage(),
+			getOrganizationId(),
+			getOrganizationName(),
+			getOrganizationLogo(),
+			getMainOrgUnitId(),
+			getSecondaryOrgUnitIdsDTO(),
+			getAggregatedProfilesDTO(),
+			getMemberOfProjectIdsDTO(),
+			getUserId() != null);
 		authentication.setAuthenticationToken(getAuthenticationToken());
 		return authentication;
 	}
-	
+
 	public native void setId(int id) /*-{
 		this.id = id;
 	}-*/;
-	
+
 	public native int getId() /*-{
 		return this.id;
 	}-*/;
-	
+
 	public native String getAuthenticationToken() /*-{
 		return this.authenticationToken;
 	}-*/;
@@ -155,34 +169,114 @@ public final class AuthenticationJS extends JavaScriptObject {
 		this.organizationLogo = organizationLogo;
 	}-*/;
 
-	public Integer getOrgUnitId() {
+	public Integer getMainOrgUnitId() {
 		return Values.getInteger(this, "orgUnitId");
 	}
 
-	public void setOrgUnitId(Integer orgUnitId) {
+	public void setMainOrgUnitId(Integer orgUnitId) {
 		Values.setInteger(this, "orgUnitId", orgUnitId);
 	}
 
-	public native ProfileJS getAggregatedProfile() /*-{
-		return this.aggregatedProfile;
-	}-*/;
-	
-	public ProfileDTO getAggregatedProfileDTO() {
-		if(getAggregatedProfile() != null) {
-			return getAggregatedProfile().toDTO();
-		} else {
-			return null;
+	public Set<Integer> getSecondaryOrgUnitIdsDTO() {
+		Set<Integer> orgUnitIds = new HashSet<Integer>();
+		JsArrayInteger secondaryOrgUnitIds = getSecondaryOrgUnitIds();
+		if (secondaryOrgUnitIds == null) {
+			return Collections.emptySet();
 		}
+
+		for (int i = 0; i < secondaryOrgUnitIds.length(); i++) {
+			orgUnitIds.add(secondaryOrgUnitIds.get(i));
+		}
+		return orgUnitIds;
 	}
 
-	public native void setAggregatedProfile(ProfileJS aggregatedProfile) /*-{
-		this.aggregatedProfile = aggregatedProfile;
+	public native JsArrayInteger getSecondaryOrgUnitIds() /*-{
+		return this.secondaryOrgUnitIds;
 	}-*/;
-	
-	public void setAggregatedProfile(ProfileDTO aggregatedProfile) {
-        if(aggregatedProfile != null) {
-            setAggregatedProfile(ProfileJS.toJavaScript(aggregatedProfile));
-        }
+
+	public native void setSecondaryOrgUnitIds(JsArrayInteger secondaryOrgUnitIds) /*-{
+		this.secondaryOrgUnitIds = secondaryOrgUnitIds;
+	}-*/;
+
+	public void setSecondaryOrgUnitIds(Set<Integer> secondaryOrgUnitIds) {
+		JsArrayInteger array = JavaScriptObject.createArray().cast();
+		for (Integer orgUnitId : secondaryOrgUnitIds) {
+			array.push(orgUnitId);
+		}
+		setSecondaryOrgUnitIds(array);
 	}
-	
+
+	public native JsMap<Integer, ProfileJS> getAggregatedProfiles() /*-{
+		if (this.aggregatedProfiles) {
+			return this.aggregatedProfiles;
+		}
+
+		var aggregatedProfiles = [];
+		if (this.orgUnitId && this.aggregatedProfile) {
+			var aggregatedProfiles = {};
+			aggregatedProfiles[this.orgUnitId] = this.aggregatedProfile;
+			return [aggregatedProfiles];
+		}
+		return [];
+	}-*/;
+
+	public Map<Integer, ProfileDTO> getAggregatedProfilesDTO() {
+		JsMap<Integer, ProfileJS> aggregatedProfilesJS = getAggregatedProfiles();
+		if (aggregatedProfilesJS == null) {
+			return null;
+		}
+
+		HashMap<Integer, ProfileDTO> aggregatedProfiles = new HashMap<Integer, ProfileDTO>();
+		JsArrayString keyArray = aggregatedProfilesJS.keyArray();
+		for (int i = 0; i < keyArray.length(); i++) {
+			int orgUnitId = Integer.parseInt(keyArray.get(i));
+			aggregatedProfiles.put(orgUnitId, aggregatedProfilesJS.get(orgUnitId).toDTO());
+		}
+		return aggregatedProfiles;
+	}
+
+	public native void setAggregatedProfiles(JsMap<Integer, ProfileJS> aggregatedProfiles) /*-{
+		this.aggregatedProfiles = aggregatedProfiles;
+	}-*/;
+
+	public void setAggregatedProfiles(Map<Integer, ProfileDTO> aggregatedProfiles) {
+		if (aggregatedProfiles == null) {
+			return;
+		}
+
+		JsMap<Integer, ProfileJS> aggregatedProfilesJS = JsMap.<Integer, ProfileJS>createMap();
+		for (Map.Entry<Integer, ProfileDTO> aggregatedProfileEntry : aggregatedProfiles.entrySet()) {
+			aggregatedProfilesJS.put(aggregatedProfileEntry.getKey(), ProfileJS.toJavaScript(aggregatedProfileEntry.getValue()));
+		}
+		setAggregatedProfiles(aggregatedProfilesJS);
+	}
+
+	public native JsArrayInteger getMemberOfProjectIds() /*-{
+		return this.memberOfProjectIds;
+	}-*/;
+
+	public Set<Integer> getMemberOfProjectIdsDTO() {
+		Set<Integer> projectIds = new HashSet<Integer>();
+		JsArrayInteger memberOfProjectIds = getMemberOfProjectIds();
+		if (memberOfProjectIds == null) {
+			return Collections.emptySet();
+		}
+
+		for (int i = 0; i < memberOfProjectIds.length(); i++) {
+			projectIds.add(memberOfProjectIds.get(i));
+		}
+		return projectIds;
+	}
+
+	public native void setMemberOfProjectIds(JsArrayInteger memberOfProjectIds) /*-{
+		this.memberOfProjectIds = memberOfProjectIds;
+	}-*/;
+
+	public void setMemberOfProjectIds(Set<Integer> memberOfProjectIds) {
+		JsArrayInteger array = JavaScriptObject.createArray().cast();
+		for (Integer memberOfProjectId : memberOfProjectIds) {
+			array.push(memberOfProjectId);
+		}
+		setMemberOfProjectIds(array);
+	}
 }

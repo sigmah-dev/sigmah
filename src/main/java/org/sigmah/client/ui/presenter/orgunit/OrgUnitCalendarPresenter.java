@@ -31,6 +31,8 @@ import org.sigmah.client.ui.presenter.calendar.CalendarPresenter;
 import org.sigmah.client.ui.view.base.ViewInterface;
 import org.sigmah.client.ui.view.orgunit.OrgUnitCalendarView;
 import org.sigmah.shared.dto.calendar.CalendarType;
+import org.sigmah.shared.dto.referential.GlobalPermissionEnum;
+import org.sigmah.shared.util.ProfileUtils;
 
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
@@ -44,7 +46,7 @@ import com.google.inject.Singleton;
  * <p>
  * Delegates its entire logic business to the {@link CalendarPresenter}.
  * </p>
- * 
+ *
  * @author Mehdi Benabdeslam (mehdi.benabdeslam@netapsys.fr) (v2.0)
  * @author Denis Colliot (dcolliot@ideia.fr) (v2.0)
  */
@@ -60,7 +62,7 @@ public class OrgUnitCalendarPresenter extends AbstractOrgUnitPresenter<OrgUnitCa
 		/**
 		 * Provides the reports presenter's view.<br>
 		 * Should be called before view initialization.
-		 * 
+		 *
 		 * @param view
 		 *          The view.
 		 */
@@ -76,7 +78,7 @@ public class OrgUnitCalendarPresenter extends AbstractOrgUnitPresenter<OrgUnitCa
 
 	/**
 	 * Presenters's initialization.
-	 * 
+	 *
 	 * @param view
 	 *          Presenter's view interface.
 	 * @param injector
@@ -115,7 +117,7 @@ public class OrgUnitCalendarPresenter extends AbstractOrgUnitPresenter<OrgUnitCa
 		final EnumMap<CalendarType, Integer> calendars = new EnumMap<CalendarType, Integer>(CalendarType.class);
 		calendars.put(CalendarType.Activity, getOrgUnit().getId());
 		calendars.put(CalendarType.Personal, getOrgUnit().getCalendarId());
-		calendarPresenter.reload(calendars);
+		calendarPresenter.reload(calendars, ProfileUtils.isGranted(auth(), GlobalPermissionEnum.EDIT_ORG_UNIT_AGENDA));
 	}
 
 	/**
