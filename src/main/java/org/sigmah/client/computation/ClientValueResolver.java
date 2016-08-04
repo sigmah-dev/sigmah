@@ -24,6 +24,7 @@ package org.sigmah.client.computation;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -41,9 +42,12 @@ import org.sigmah.shared.computation.dependency.ContributionDependency;
 import org.sigmah.shared.computation.dependency.Dependency;
 import org.sigmah.shared.computation.dependency.DependencyVisitor;
 import org.sigmah.shared.computation.dependency.SingleDependency;
+import org.sigmah.shared.computation.value.CollectionValue;
 import org.sigmah.shared.computation.value.ComputedValue;
 import org.sigmah.shared.computation.value.ComputedValues;
+import org.sigmah.shared.computation.value.DoubleValue;
 import org.sigmah.shared.dto.ProjectDTO;
+import org.sigmah.shared.dto.ProjectFundingDTO;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
 
 /**
@@ -63,7 +67,7 @@ public class ClientValueResolver implements ValueResolver {
 	@Override
 	public void resolve(final Collection<Dependency> dependencies, final int containerId, final AsyncCallback<Map<Dependency, ComputedValue>> callback) {
 		final BatchCommand batchCommand = new BatchCommand();
-		final HashMap<Integer, Dependency> elementIdToDependencyMap = new HashMap<Integer, Dependency>();
+		final HashMap<Command<?>, Dependency> commandToDependencyMap = new HashMap<Command<?>, Dependency>();
 		
 		for (final Dependency dependency : dependencies) {
 			dependency.accept(new DependencyVisitor() {
@@ -71,10 +75,12 @@ public class ClientValueResolver implements ValueResolver {
 				@Override
 				public void visit(SingleDependency dependency) {
 					final FlexibleElementDTO element = dependency.getFlexibleElement();
-					elementIdToDependencyMap.put(element.getId(), dependency);
 					
 					// TODO: Should support core versions.
-					batchCommand.add(new GetValue(containerId, element.getId(), element.getEntityName()));
+					final GetValue command = new GetValue(containerId, element.getId(), element.getEntityName());
+					
+					commandToDependencyMap.put(command, dependency);
+					batchCommand.add(command);
 				}
 
 				@Override
@@ -84,7 +90,10 @@ public class ClientValueResolver implements ValueResolver {
 
 				@Override
 				public void visit(ContributionDependency dependency) {
-					batchCommand.add(new GetLinkedProjects(containerId, dependency.getScope().getLinkedProjectType(), ProjectDTO.Mode.BASE));
+					final GetLinkedProjects command = new GetLinkedProjects(containerId, dependency.getScope().getLinkedProjectType(), ProjectDTO.Mode.BASE);
+					
+					commandToDependencyMap.put(command, dependency);
+					batchCommand.add(command);
 				}
 			});
 		}
@@ -103,15 +112,28 @@ public class ClientValueResolver implements ValueResolver {
 				final int size = result.getSize();
 				for (int index = 0; index < size; index++) {
 					final Command<?> command = batchCommand.getCommands().get(index);
+					final ComputedValue computedValue;
+					
 					if (command instanceof GetValue) {
-						final GetValue getValue = (GetValue) batchCommand.getCommands().get(index);
 						final ValueResult valueResult = (ValueResult) result.getList().get(index);
-
-						values.put(elementIdToDependencyMap.get(getValue.getElementId()), ComputedValues.from(valueResult));
+						computedValue = ComputedValues.from(valueResult);
 					}
 					else if(command instanceof GetLinkedProjects) {
-						// TODO: À continuer.
+						final ListResult<ProjectFundingDTO> projectFundings = (ListResult<ProjectFundingDTO>) result.getList().get(index);
+						final ArrayList<ComputedValue> computedValues = new ArrayList<ComputedValue>();
+						for (final ProjectFundingDTO projectFunding : projectFundings.getList()) {
+							final Double contribution = projectFunding.getPercentage();
+							if (contribution != null) {
+								computedValues.add(new DoubleValue(contribution));
+							}
+						}
+						computedValue = new CollectionValue(computedValues);
 					}
+					else {
+						throw new UnsupportedOperationException("Not supported yet.");
+					}
+					
+					values.put(commandToDependencyMap.get(command), computedValue);
 				}
 				
 				callback.onSuccess(values);
