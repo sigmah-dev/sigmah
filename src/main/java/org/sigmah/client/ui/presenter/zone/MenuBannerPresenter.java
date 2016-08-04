@@ -197,9 +197,9 @@ public class MenuBannerPresenter extends AbstractZonePresenter<MenuBannerPresent
 		if (request == null || request.getPage() == null) {
 			throw new IllegalArgumentException("Invalid PageRequest instance.");
 		}
-		final String tabDomId = zoneRequest.getData(RequestParameter.PROJECT_ID);
-		if(tabDomId!=null){
-			view.getTabBar().updateClosableTabDomId(new MenuTabId(request), DASHBOARD_PROJECT_TAB_ID+tabDomId);	
+		final Object tabDomId = zoneRequest.getData(RequestParameter.PROJECT_ID);
+		if (tabDomId != null) {
+			view.getTabBar().updateClosableTabDomId(new MenuTabId(request), DASHBOARD_PROJECT_TAB_ID + tabDomId);	
 		}
 		// Retrieves a tab title ?
 		final String tabTitle = zoneRequest.getData(RequestParameter.HEADER);
