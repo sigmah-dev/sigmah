@@ -31,7 +31,6 @@ import java.util.List;
 import java.util.Map;
 import org.sigmah.client.dispatch.monitor.LoadingMask;
 import org.sigmah.client.ui.widget.Loadable;
-import org.sigmah.client.ui.widget.form.StringField;
 import org.sigmah.offline.sync.SuccessCallback;
 import org.sigmah.shared.computation.Computation;
 import org.sigmah.shared.computation.dependency.Dependency;
@@ -137,8 +136,6 @@ public class ComputationTriggerManager {
 				
 				if (dependency instanceof SingleDependency) {
 					dependencies.put(((SingleDependency) dependency).getFlexibleElement(), list);
-				} else {
-					throw new UnsupportedOperationException("Not supported yet.");
 				}
 			}
 
@@ -163,7 +160,7 @@ public class ComputationTriggerManager {
 			components.put(element, (Field<String>) component);
 			elementsWithHandlers.put(element.getId(), (ComputationElementDTO) element);
 
-			initialUpdateIfCurrentValueIsEmpty((ComputationElementDTO) element, (StringField) component);
+			initialUpdateIfCurrentValueIsEmpty((ComputationElementDTO) element, (Field<String>) component);
 		}
 
 		final List<ComputationElementDTO> computationElements = dependencies.get(element);
@@ -187,7 +184,7 @@ public class ComputationTriggerManager {
 	 * @param component
 	 *          Component associated to the given element.
 	 */
-	private void initialUpdateIfCurrentValueIsEmpty(final ComputationElementDTO computationElement, final StringField field) {
+	private void initialUpdateIfCurrentValueIsEmpty(final ComputationElementDTO computationElement, final Field<String> field) {
 
 		if (field.getValue() == null || field.getValue().isEmpty()) {
 			updateComputation(computationElement, new ArrayList<ValueEvent>(), false);
