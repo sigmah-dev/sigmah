@@ -314,7 +314,7 @@ implements OfflineEvent.Source {
 				executionAsyncDAO.getAllExecutions( new AsyncCallback<List<Execution>>() {
 						@Override
 						public void onFailure(Throwable caught) {
-							Log.error("Excpetion occured ");
+							Log.error("Exception occurred ");
 						}
 						@Override
 						public void onSuccess(List<Execution> listExecution) {
@@ -416,7 +416,7 @@ implements OfflineEvent.Source {
 		// BUGFIX #714: Dates are refreshed when the current user changes.
 		view.getMenuPanel().setSigmahUpdateDate(ApplicationCacheManager.getUpdateDate());
         view.getMenuPanel().setDatabaseUpdateDate(getDatabaseUpdateDate());
-		if(ProfileUtils.isGranted(auth(), GlobalPermissionEnum.PROBES_MANGMENT)){
+		if(ProfileUtils.isGranted(auth(), GlobalPermissionEnum.PROBES_MANAGEMENT)){
 			view.getTraceHandle().setVisible(true);
 			view.getTraceHandle().getElement().getStyle().setDisplay(Display.INLINE_BLOCK);
 		}else{

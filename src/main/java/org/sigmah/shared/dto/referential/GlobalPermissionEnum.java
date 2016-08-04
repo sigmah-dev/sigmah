@@ -275,9 +275,9 @@ public enum GlobalPermissionEnum implements Result {
      */
 	CHANGE_PASSWORD(GlobalPermissionCategory.OTHER),
 	/**
-	 * For mangment measure performances.
+	 * For management measure performances.
 	 */
-	PROBES_MANGMENT(GlobalPermissionCategory.OTHER);
+	PROBES_MANAGEMENT(GlobalPermissionCategory.OTHER);
 	
 	/**
 	 * The global permission category (never {@code null}).
@@ -588,8 +588,8 @@ public enum GlobalPermissionEnum implements Result {
 			case EXPORT_HXL:
 				return I18N.CONSTANTS.EXPORT_HXL();
 				
-			case PROBES_MANGMENT:
-				return I18N.CONSTANTS.PROBES_MANGMENT();
+			case PROBES_MANAGEMENT:
+				return I18N.CONSTANTS.PROBES_MANAGEMENT();
 			default:
 				return globalPermission.name();
 		}
