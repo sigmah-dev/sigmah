@@ -199,14 +199,13 @@ enum ParserState {
 						final Scope scope = environment.getCurrentScope();
 						
 						final Dependency dependency;
-						if (CONTRIBUTION_DEPENDENCY.equals(argument)) {
+						if (ContributionDependency.REFERENCE.equals(argument)) {
 							dependency = new ContributionDependency(scope);
 						} else {
 							if (scope.getModelName() == null) {
 								throw new IllegalArgumentException("Project model is mandatory for field codes.");
 							}
-							// TODO: Rechercher l'élément flexible correspondant.
-							dependency = new CollectionDependency(scope, null);
+							dependency = new CollectionDependency(scope, argument);
 						}
 						
 						environment.add(new Variable(dependency));
@@ -309,7 +308,6 @@ enum ParserState {
     private static final char ID_MARK = Instructions.ID_PREFIX;
     private static final char MINUS_ALIAS = '-';
     private static final String MINUS_OPERATOR = "minus";
-	private static final String CONTRIBUTION_DEPENDENCY = "@contribution";
 	
 	/**
 	 * Execute the current state.
@@ -400,10 +398,6 @@ enum ParserState {
 		} else {
 			return null;
 		}
-	}
-	
-	private static void addFunctionCall(final String functionName, final ParserEnvironment environment) {
-		
 	}
 	
 	/**

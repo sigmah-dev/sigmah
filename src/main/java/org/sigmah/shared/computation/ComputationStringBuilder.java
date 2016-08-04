@@ -4,9 +4,11 @@ import java.util.Collection;
 import java.util.Stack;
 import org.sigmah.shared.computation.instruction.HasHumanReadableFormat;
 import org.sigmah.shared.computation.instruction.Instruction;
+import org.sigmah.shared.computation.instruction.Instructions;
 import org.sigmah.shared.computation.instruction.Operator;
 import org.sigmah.shared.computation.instruction.OperatorPriority;
 import org.sigmah.shared.computation.instruction.ReduceFunction;
+import org.sigmah.shared.util.ValueResultUtils;
 
 /**
  *
@@ -113,7 +115,26 @@ class ComputationStringBuilder {
     }
 	
 	private void addReduceFunctionToStack(final ReduceFunction reduceFunction) {
-		// TODO: Écrire la méthode.
+		final String dependency = stack.pop();
+		final String[] parts = dependency.split(ValueResultUtils.DEFAULT_VALUE_SEPARATOR);
+		
+		if (parts.length != 3) {
+			throw new IllegalArgumentException("The argument of a reduce function should be splittable into 3 parts.");
+		}
+		
+		final String linkedProjectType = parts[0];
+		final String modelName = replaceNullByEmptyString(parts[1]);
+		final String fieldCode = replaceNullByEmptyString(parts[2]);
+		
+		stack.push(linkedProjectType + '(' + modelName + ")." + reduceFunction + '(' + fieldCode + ')');
+	}
+	
+	private String replaceNullByEmptyString(String entry) {
+		if (!"null".equals(entry)) {
+			return entry;
+		} else {
+			return "";
+		}
 	}
 	
 }

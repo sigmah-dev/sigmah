@@ -1,7 +1,8 @@
 package org.sigmah.shared.computation.dependency;
 
-import org.sigmah.shared.dto.ProjectFundingDTO;
+import org.sigmah.shared.computation.instruction.Instructions;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
+import org.sigmah.shared.util.ValueResultUtils;
 
 /**
  *
@@ -45,25 +46,35 @@ public class CollectionDependency implements Dependency {
 	
 	@Override
 	public String toString() {
-		final ProjectFundingDTO.LinkedProjectType linkedProjectType = scope.getLinkedProjectType();
-		if (linkedProjectType != null) switch (linkedProjectType) {
-			case FUNDED_PROJECT:
-				return "fundedProjects";
-			case FUNDING_PROJECT:
-				return "fundingSources";
+		final StringBuilder stringBuilder = new StringBuilder()
+				.append(scope.getLinkedProjectTypeName())
+				.append(ValueResultUtils.DEFAULT_VALUE_SEPARATOR)
+				.append(scope.getModelName())
+				.append(ValueResultUtils.DEFAULT_VALUE_SEPARATOR);
+		
+		if (flexibleElement != null) {
+			stringBuilder.append(Instructions.ID_PREFIX).append(flexibleElement.getId());
+		} else {
+			stringBuilder.append(elementCode);
 		}
-		throw new UnsupportedOperationException("Unsupported LinkedProjectType: " + linkedProjectType);
+		
+		return stringBuilder.toString();
 	}
 	
 	@Override
 	public String toHumanReadableString() {
-		final StringBuilder stringBuilder = new StringBuilder();
-		stringBuilder.append(toString()).append('(');
-		if (scope.getModelName() != null) {
-			stringBuilder.append(scope.getModelName());
+		final StringBuilder stringBuilder = new StringBuilder()
+				.append(scope.getLinkedProjectTypeName())
+				.append(ValueResultUtils.DEFAULT_VALUE_SEPARATOR)
+				.append(scope.getModelName())
+				.append(ValueResultUtils.DEFAULT_VALUE_SEPARATOR);
+		
+		if (flexibleElement != null) {
+			stringBuilder.append(flexibleElement.getCode());
+		} else {
+			stringBuilder.append(elementCode);
 		}
-		stringBuilder.append(").");
-		// TODO: Trouver un moyen d'incorporer le nom de la fonction de réduction.
+		
 		return stringBuilder.toString();
 	}
 

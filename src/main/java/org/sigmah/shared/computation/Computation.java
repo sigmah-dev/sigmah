@@ -37,10 +37,6 @@ import org.sigmah.client.ui.widget.Loadable;
 import org.sigmah.shared.computation.dependency.Dependency;
 import org.sigmah.shared.computation.dependency.SingleDependency;
 import org.sigmah.shared.computation.instruction.BadVariable;
-import org.sigmah.shared.computation.instruction.HasHumanReadableFormat;
-import org.sigmah.shared.computation.instruction.Operator;
-import org.sigmah.shared.computation.instruction.OperatorPriority;
-import org.sigmah.shared.computation.instruction.Tag;
 import org.sigmah.shared.computation.value.ComputationError;
 import org.sigmah.shared.computation.value.ComputedValue;
 import org.sigmah.shared.computation.value.ComputedValues;
@@ -225,9 +221,6 @@ public class Computation {
             if (instruction instanceof Variable) {
                 elements.add(((Variable) instruction).getDependency());
             }
-			else if (instruction instanceof Tag) {
-				// TODO: Ajouter 
-			}
         }
 
         this.dependencies = elements;

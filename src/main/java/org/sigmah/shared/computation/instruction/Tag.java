@@ -14,6 +14,7 @@ import org.sigmah.shared.computation.value.ComputedValue;
  * @author Raphaël Calabro (raphael.calabro@netapsys.fr)
  * @since 2.2
  */
+@Deprecated
 public class Tag implements Instruction {
 	
 	public static enum Scope {

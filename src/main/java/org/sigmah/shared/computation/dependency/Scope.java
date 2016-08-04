@@ -22,6 +22,16 @@ public class Scope {
 	public ProjectFundingDTO.LinkedProjectType getLinkedProjectType() {
 		return linkedProjectType;
 	}
+	
+	public String getLinkedProjectTypeName() {
+		if (linkedProjectType != null) switch (linkedProjectType) {
+			case FUNDED_PROJECT:
+				return "fundedProjects";
+			case FUNDING_PROJECT:
+				return "fundingSources";
+		}
+		return null;
+	}
 
 	public String getModelName() {
 		return modelName;
