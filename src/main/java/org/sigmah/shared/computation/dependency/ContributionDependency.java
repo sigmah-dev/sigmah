@@ -1,5 +1,6 @@
 package org.sigmah.shared.computation.dependency;
 
+import com.google.gwt.core.client.GWT;
 import org.sigmah.shared.computation.instruction.Instructions;
 import org.sigmah.shared.util.ValueResultUtils;
 
@@ -20,6 +21,19 @@ public class ContributionDependency implements Dependency {
 
 	public ContributionDependency(Scope scope) {
 		this.scope = scope;
+		
+		final String modelName = scope.getModelName();
+		if (modelName != null && modelName.length() > 1 && modelName.charAt(0) == Instructions.ID_PREFIX) {
+			final String[] parts = modelName.split(ValueResultUtils.BUDGET_VALUE_SEPARATOR);
+			if (parts.length == 2) {
+				try {
+					projectModelId = Integer.parseInt(parts[0].substring(1));
+					scope.setModelName(parts[1]);
+				} catch (NumberFormatException e) {
+					GWT.log("Given model name starts by the identifier prefix but is not an identifier: " + modelName, e);
+				}
+			}
+		}
 	}
 
 	public Scope getScope() {
@@ -38,7 +52,10 @@ public class ContributionDependency implements Dependency {
 				.append(ValueResultUtils.DEFAULT_VALUE_SEPARATOR);
 		
 		if (projectModelId != null) {
-			stringBuilder.append(Instructions.ID_PREFIX).append(projectModelId);
+			stringBuilder.append(Instructions.ID_PREFIX)
+					.append(projectModelId)
+					.append(ValueResultUtils.BUDGET_VALUE_SEPARATOR)
+					.append(scope.getModelName());
 		} else {
 			stringBuilder.append(scope.getModelName());
 		}

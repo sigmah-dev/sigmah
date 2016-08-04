@@ -222,6 +222,9 @@ enum ParserState {
 		
 	},
 	
+	/**
+	 * Waiting for a reduce function (like average or sum).
+	 */
 	WAITING_FOR_REDUCE_FUNCTION {
 		
 		@Override

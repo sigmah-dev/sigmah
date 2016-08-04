@@ -78,6 +78,33 @@ public final class LogicalElementTypes {
         return notNull(type);
 	}
 	
+	public static LogicalElementType fromName(final String name) {
+		
+		if (name == null) { 
+			return NoElementType.INSTANCE;
+		}
+		
+		try {
+			return TextAreaType.valueOf(name);
+		} catch (IllegalArgumentException e) {
+			// Ignored.
+		}
+		
+		try {
+			return DefaultFlexibleElementType.valueOf(name);
+		} catch (IllegalArgumentException e) {
+			// Ignored.
+		}
+		
+		try {
+			return ElementTypeEnum.valueOf(name);
+		} catch (IllegalArgumentException e) {
+			// Ignored.
+		}
+		
+		return NoElementType.INSTANCE;
+	}
+	
 	/**
 	 * Returns a non-null value from the given type.
 	 * 
@@ -92,5 +119,5 @@ public final class LogicalElementTypes {
 			return NoElementType.INSTANCE;
 		}
 	}
-    
+	
 }

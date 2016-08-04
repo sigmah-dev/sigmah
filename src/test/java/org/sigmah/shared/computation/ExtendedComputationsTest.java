@@ -66,7 +66,7 @@ public class ExtendedComputationsTest {
 			Assert.assertTrue(dependency.isResolved());
 		}
 		
-		Assert.assertEquals("fundedProjects(Local partner project v2).sum($56)", formula.toString());
+		Assert.assertEquals("fundedProjects(Local partner project v2).sum($56%new_name_56%NUMBER)", formula.toString());
 		Assert.assertEquals("fundedProjects(Local partner project v2).sum(new_name_56)", formula.toHumanReadableString());
 	}
 	
@@ -104,18 +104,19 @@ public class ExtendedComputationsTest {
 			Assert.assertTrue(dependency.isResolved());
 		}
 		
-		Assert.assertEquals("fundingSources($42).avg(@contribution)", formula.toString());
+		Assert.assertEquals("fundingSources($42%Local partner project v2).avg(@contribution)", formula.toString());
 		Assert.assertEquals("fundingSources(Local partner project v2).avg(@contribution)", formula.toHumanReadableString());
 	}
 	
 	/**
 	 * Test of parse method, of class Computations.
 	 */
+	@Test
 	public void testParseCollectionFromId() {
 		List<FlexibleElementDTO> allElements = Collections.emptyList();
-		Computation formula = Computations.parse("fundedProjects(Local partner project v2).sum($56)", allElements);
+		Computation formula = Computations.parse("fundedProjects(Local partner project v2).sum($56%field56%NUMBER)", allElements);
 		Assert.assertFalse(formula.isBadFormula());
-		Assert.assertEquals("fundedProjects(Local partner project v2).sum($56)", formula.toString());
+		Assert.assertEquals("fundedProjects(Local partner project v2).sum($56%field56%NUMBER)", formula.toString());
 		
 		final Set<Dependency> dependencies = formula.getDependencies();
 		Assert.assertEquals(1, dependencies.size());
@@ -125,20 +126,19 @@ public class ExtendedComputationsTest {
 			Assert.assertTrue(dependency.isResolved());
 		}
 		
-		// TODO: Find a way to link $56 with field56.
-		
-		Assert.assertEquals("fundedProjects(Local partner project v2).sum($56)", formula.toString());
+		Assert.assertEquals("fundedProjects(Local partner project v2).sum($56%field56%NUMBER)", formula.toString());
 		Assert.assertEquals("fundedProjects(Local partner project v2).sum(field56)", formula.toHumanReadableString());
 	}
 	
 	/**
 	 * Test of parse method, of class Computations.
 	 */
+	@Test
 	public void testParseContributionFromId() {
 		List<FlexibleElementDTO> allElements = Collections.emptyList();
-		Computation formula = Computations.parse("fundedProjects($42).sum(@contribution)", allElements);
+		Computation formula = Computations.parse("fundedProjects($42%Local partner project v2).sum(@contribution)", allElements);
 		Assert.assertFalse(formula.isBadFormula());
-		Assert.assertEquals("fundedProjects($42).sum(@contribution)", formula.toString());
+		Assert.assertEquals("fundedProjects($42%Local partner project v2).sum(@contribution)", formula.toString());
 		
 		final Set<Dependency> dependencies = formula.getDependencies();
 		Assert.assertEquals(1, dependencies.size());
@@ -148,9 +148,7 @@ public class ExtendedComputationsTest {
 			Assert.assertTrue(dependency.isResolved());
 		}
 		
-		// TODO: Find a way to link $42 with Local partner project v2.
-		
-		Assert.assertEquals("fundedProjects($42).sum(@contribution)", formula.toString());
+		Assert.assertEquals("fundedProjects($42%Local partner project v2).sum(@contribution)", formula.toString());
 		Assert.assertEquals("fundedProjects(Local partner project v2).sum(@contribution)", formula.toHumanReadableString());
 	}
 	
