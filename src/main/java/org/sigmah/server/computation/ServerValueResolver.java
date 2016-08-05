@@ -99,22 +99,22 @@ public class ServerValueResolver extends EntityManagerProvider implements ValueR
 	private void resolve(final SingleDependency dependency, final TypedQuery<String> query, final Map<Dependency, ComputedValue> values) {
 		final FlexibleElementDTO element = dependency.getFlexibleElement();
 		
-		if (!(element instanceof DefaultFlexibleElementDTO)) {
-			final Integer id = element.getId();
-			query.setParameter("elementId", id);
-
-			String result = null;
-			try {
-				result = query.getSingleResult();
-			} catch(NoResultException e) {
-				// Ignored.
-			}
-
-			values.put(dependency, ComputedValues.from(result));
-		} else {
+		if (element instanceof DefaultFlexibleElementDTO) {
 			// NOTE: In the future, this method should also handle DefaultFlexibleElement.
 			throw new UnsupportedOperationException("DefaultFlexibleElement are not supported yet.");
 		}
+		
+		final Integer id = element.getId();
+		query.setParameter("elementId", id);
+
+		String result = null;
+		try {
+			result = query.getSingleResult();
+		} catch(NoResultException e) {
+			// Ignored.
+		}
+
+		values.put(dependency, ComputedValues.from(result));
 	}
 	
 	/**
