@@ -27,11 +27,13 @@ import com.google.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.sigmah.client.dispatch.DispatchAsync;
 import org.sigmah.shared.command.BatchCommand;
 import org.sigmah.shared.command.GetLinkedProjects;
 import org.sigmah.shared.command.GetValue;
+import org.sigmah.shared.command.GetValueFromLinkedProjects;
 import org.sigmah.shared.command.base.Command;
 import org.sigmah.shared.command.result.ListResult;
 import org.sigmah.shared.command.result.Result;
@@ -49,6 +51,7 @@ import org.sigmah.shared.computation.value.DoubleValue;
 import org.sigmah.shared.dto.ProjectDTO;
 import org.sigmah.shared.dto.ProjectFundingDTO;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
+import org.sigmah.shared.util.Collections;
 
 /**
  * Client implementation of {@link ValueResolver}.
@@ -85,7 +88,10 @@ public class ClientValueResolver implements ValueResolver {
 
 				@Override
 				public void visit(CollectionDependency dependency) {
-					throw new UnsupportedOperationException("Not supported yet.");
+					final GetValueFromLinkedProjects command = new GetValueFromLinkedProjects(containerId, dependency.getScope().getLinkedProjectType(), dependency.getFlexibleElement());
+					
+					commandToDependencyMap.put(command, dependency);
+					batchCommand.add(command);
 				}
 
 				@Override
@@ -129,8 +135,20 @@ public class ClientValueResolver implements ValueResolver {
 						}
 						computedValue = new CollectionValue(computedValues);
 					}
+					else if (command instanceof GetValueFromLinkedProjects) {
+						final ListResult<String> strings = (ListResult<String>) result.getList().get(index);
+						final List<ComputedValue> computedValues = Collections.map(strings.getList(), new Collections.Mapper<String, ComputedValue>() {
+							
+							@Override
+							public ComputedValue forEntry(String entry) {
+								return ComputedValues.from(entry);
+							}
+							
+						});
+						computedValue = new CollectionValue(computedValues);
+					}
 					else {
-						throw new UnsupportedOperationException("Not supported yet.");
+						throw new UnsupportedOperationException("Command type '" + command.getClass() + "' is not supported.");
 					}
 					
 					values.put(commandToDependencyMap.get(command), computedValue);

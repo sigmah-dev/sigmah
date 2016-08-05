@@ -146,8 +146,9 @@ public class ServerValueResolver extends EntityManagerProvider implements ValueR
 				throw new UnsupportedOperationException("Linked project type not supported: " + dependency.getScope().getLinkedProjectType());
 		}
 
-		final TypedQuery<String> query = em().createQuery("SELECT v.value FROM Value v WHERE v.containerId IN :containerIds AND v.element.id = :elementId", String.class);
+		final TypedQuery<String> query = em().createQuery("SELECT v.value FROM Value v WHERE v.containerId IN :containerIds AND v.element = :element", String.class);
 		query.setParameter("containerIds", containerIds);
+		query.setParameter("element", dependency.getFlexibleElement());
 
 		final ArrayList<ComputedValue> computedValues = new ArrayList<>();
 		for (final String value : query.getResultList()) {

@@ -1,7 +1,7 @@
 package org.sigmah.shared.computation.value;
 
 import java.util.Collection;
-import java.util.Collections;
+import org.sigmah.shared.command.result.Result;
 import org.sigmah.shared.computation.instruction.Reductor;
 
 /**
@@ -10,12 +10,11 @@ import org.sigmah.shared.computation.instruction.Reductor;
  * @author Raphaël Calabro (raphael.calabro@netapsys.fr)
  * @since 2.2
  */
-public class CollectionValue extends ComputedValueAdapter {
+public class CollectionValue extends ComputedValueAdapter implements Result {
 
-	private final Collection<ComputedValue> values;
+	private Collection<ComputedValue> values;
 
 	public CollectionValue() {
-		this.values = Collections.emptyList();
 	}
 
 	public CollectionValue(final Collection<ComputedValue> values) {
@@ -27,6 +26,14 @@ public class CollectionValue extends ComputedValueAdapter {
 		for (final ComputedValue value : values) {
 			value.feedToReductor(reductor);
 		}
+	}
+
+	public Collection<ComputedValue> getValues() {
+		return values;
+	}
+	
+	public void setValues(Collection<ComputedValue> values) {
+		this.values = values;
 	}
 	
 }

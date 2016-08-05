@@ -87,6 +87,7 @@ import org.sigmah.shared.command.GetUsers;
 import org.sigmah.shared.command.GetUsersByOrganization;
 import org.sigmah.shared.command.GetUsersWithProfiles;
 import org.sigmah.shared.command.GetValue;
+import org.sigmah.shared.command.GetValueFromLinkedProjects;
 import org.sigmah.shared.command.SecureNavigationCommand;
 import org.sigmah.shared.command.Synchronize;
 import org.sigmah.shared.command.UpdateProject;
@@ -234,6 +235,7 @@ final class AccessRights {
 		sperm(commandToken(GetUsers.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetUsersWithProfiles.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetValue.class), GrantType.AUTHENTICATED_ONLY);
+		sperm(commandToken(GetValueFromLinkedProjects.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(Synchronize.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(UpdateProject.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(UpdateProjectFavorite.class), GrantType.AUTHENTICATED_ONLY);
