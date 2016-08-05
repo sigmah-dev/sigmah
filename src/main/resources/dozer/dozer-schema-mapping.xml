@@ -125,7 +125,8 @@
 				org.sigmah.server.domain.element.ReportListElement,
 				org.sigmah.server.domain.element.BudgetElement,
 				org.sigmah.server.domain.element.CoreVersionElement,
-				org.sigmah.server.domain.element.ComputationElement
+				org.sigmah.server.domain.element.ComputationElement,
+				org.sigmah.server.domain.element.BudgetRatioElement
 			</a-hint>
 			<b-hint>
 				org.sigmah.shared.dto.element.DefaultFlexibleElementDTO,
@@ -141,7 +142,8 @@
 				org.sigmah.shared.dto.element.ReportListElementDTO,
 				org.sigmah.shared.dto.element.BudgetElementDTO,
 				org.sigmah.shared.dto.element.CoreVersionElementDTO,
-				org.sigmah.shared.dto.element.ComputationElementDTO
+				org.sigmah.shared.dto.element.ComputationElementDTO,
+				org.sigmah.shared.dto.element.BudgetRatioElementDTO
 			</b-hint>
 		</field>
 	</mapping>

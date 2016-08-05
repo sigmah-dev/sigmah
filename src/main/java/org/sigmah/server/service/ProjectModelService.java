@@ -58,6 +58,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import java.util.Date;
 import java.util.HashSet;
+import org.sigmah.server.domain.element.BudgetRatioElement;
 
 /**
  * Handler for updating Project model command.
@@ -159,7 +160,9 @@ public class ProjectModelService extends AbstractEntityService<ProjectModel, Int
 					y++;
 				}
 				((BudgetElement) defaultElement).setBudgetSubFields(budgetSubFields);
-			} else {
+			}else if (DefaultFlexibleElementType.BUDGET_RATIO.equals(e)) { 
+				defaultElement = new BudgetRatioElement();
+			}else {
 				defaultElement = new DefaultFlexibleElement();
 			}
 			defaultElement.setType(e);

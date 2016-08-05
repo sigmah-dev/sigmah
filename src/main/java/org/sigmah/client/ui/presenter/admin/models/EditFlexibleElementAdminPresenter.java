@@ -200,12 +200,19 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 		FlexTable getBudgetFields();
 
 		FlexTable getRatioFlexTable();
+		
+		ComboBox<FlexibleElementDTO> getBudgetSubFieldSpentCombo();
+	    ComboBox<FlexibleElementDTO> getBudgetSubFieldPlannedCombo();
 
 		ComboBox<BudgetSubFieldDTO> getUpBudgetSubFieldCombo();
 
 		ComboBox<BudgetSubFieldDTO> getDownBudgetSubFieldCombo();
 
 		ListStore<BudgetSubFieldDTO> getUpBudgetSubFieldStore();
+		
+		ListStore<FlexibleElementDTO> getBudgetSubFieldSpentStore();
+		
+		ListStore<FlexibleElementDTO> getBudgetSubFieldPlannedStore();
 
 		ListStore<BudgetSubFieldDTO> getDownBudgetSubFieldStore();
 
@@ -635,8 +642,10 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 		final LogicalElementType type = LogicalElementTypes.of(flexibleElement);
 		final boolean defaultFlexibleElement = type.toDefaultFlexibleElementType() != null;
 
-		view.getNameField().setVisible(!defaultFlexibleElement);
-		view.getNameReadOnlyField().setVisible(defaultFlexibleElement);
+		boolean isBudgetRatioElement = type == DefaultFlexibleElementType.BUDGET_RATIO;
+		
+		view.getNameField().setVisible(!defaultFlexibleElement || isBudgetRatioElement);
+		view.getNameReadOnlyField().setVisible(defaultFlexibleElement && !isBudgetRatioElement);
 		view.getTypeField().setEnabled(flexibleElement == null);
 		view.getExportableField().setValue(true);
 
@@ -866,15 +875,24 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 		}
 		if (type == ElementTypeEnum.COMPUTATION) {
 			// Related flexible elements code grid.
-			final ListStore<FlexibleElementDTO> store = view.getStore();
+			addNumberTypeToStore(view.getStore());
+		}
+		if (type == DefaultFlexibleElementType.BUDGET_RATIO) {
+			addNumberTypeToStore(view.getBudgetSubFieldSpentStore(), view.getBudgetSubFieldPlannedStore());
+		}
+	}
+	
+	private void addNumberTypeToStore(ListStore<FlexibleElementDTO>... stores){
+		for (ListStore<FlexibleElementDTO> store : stores) {
 			store.removeAll();
+		}
+		for (final FlexibleElementDTO otherElement : otherElements) {
+			final LogicalElementType otherType = LogicalElementTypes.of(otherElement);
+			final ElementTypeEnum otherElementType = otherType.toElementTypeEnum();
 
-			for (final FlexibleElementDTO otherElement : otherElements) {
-				final LogicalElementType otherType = LogicalElementTypes.of(otherElement);
-				final ElementTypeEnum otherElementType = otherType.toElementTypeEnum();
-
-				if ((otherElementType == ElementTypeEnum.TEXT_AREA && otherType.toTextAreaType() == TextAreaType.NUMBER)
-						|| otherElementType == ElementTypeEnum.COMPUTATION) {
+			if ((otherElementType == ElementTypeEnum.TEXT_AREA && otherType.toTextAreaType() == TextAreaType.NUMBER)
+					|| otherElementType == ElementTypeEnum.COMPUTATION) {
+				for (ListStore<FlexibleElementDTO> store : stores) {
 					store.add(otherElement);
 				}
 			}
@@ -1287,6 +1305,10 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 		final Boolean multiple = view.getMultipleChoicesField().getValue();
 		final CategoryTypeDTO category = view.getCategoryTypeField().getValue();
 		
+		final FlexibleElementDTO budgetSpent = view.getBudgetSubFieldSpentCombo().getValue();
+		final FlexibleElementDTO budgetPlanned = view.getBudgetSubFieldPlannedCombo().getValue();
+		
+		
 		final String computationRule = Computations.formatRuleForServer(view.getFormulaField().getValue(), otherElements);
 
 		// --
@@ -1310,6 +1332,9 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 		newFieldProperties.put(AdminUtil.PROP_FX_LENGTH, length);
 		newFieldProperties.put(AdminUtil.PROP_FX_MAX_LIMIT, maxLimit);
 		newFieldProperties.put(AdminUtil.PROP_FX_MIN_LIMIT, minLimit);
+		
+		newFieldProperties.put(AdminUtil.PROP_BUDGET_SPENT, budgetSpent);
+		newFieldProperties.put(AdminUtil.PROP_BUDGET_PLANNED, budgetPlanned);
 		
 		if (textAreaType == TextAreaType.DATE) {
 			newFieldProperties.put(AdminUtil.PROP_FX_MAX_LIMIT, maxLimitDate);
