@@ -29,12 +29,15 @@ import java.util.List;
 import org.sigmah.shared.command.result.Result;
 
 /**
- *
+ * IndexedDB request.
+ * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
 public class Request implements Result {
-	final IDBRequest request;
-    private final List<AsyncCallback<Request>> callbacks = new ArrayList<AsyncCallback<Request>>();
+	
+	IDBRequest request;
+	
+    private List<AsyncCallback<Request>> callbacks = new ArrayList<AsyncCallback<Request>>();
 
 	public Request() {
 		this.request = null;
