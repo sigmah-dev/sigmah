@@ -26,12 +26,16 @@ package org.sigmah.server.servlet.exporter.data;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 import javax.persistence.EntityManager;
 
+import com.google.gwt.dev.util.collect.HashSet;
+import com.google.gwt.thirdparty.guava.common.base.Joiner;
 import org.sigmah.server.dao.GlobalExportDAO;
 import org.sigmah.server.dao.ProjectDAO;
 import org.sigmah.server.dao.impl.GlobalExportHibernateDAO;
@@ -41,8 +45,11 @@ import org.sigmah.server.domain.OrgUnit;
 import org.sigmah.server.domain.Organization;
 import org.sigmah.server.domain.PhaseModel;
 import org.sigmah.server.domain.Project;
+import org.sigmah.server.domain.ProjectFunding;
 import org.sigmah.server.domain.ProjectModel;
 import org.sigmah.server.domain.User;
+import org.sigmah.server.domain.category.CategoryElement;
+import org.sigmah.server.domain.category.CategoryType;
 import org.sigmah.server.domain.element.BudgetElement;
 import org.sigmah.server.domain.element.DefaultFlexibleElement;
 import org.sigmah.server.domain.element.FlexibleElement;
@@ -187,7 +194,7 @@ public class GlobalExportDataProvider {
 		}
 
 		// project model and its globally exportable fields
-		final Map<String, List<FlexibleElement>> pModelElementsMap = new HashMap<String, List<FlexibleElement>>();
+		final Map<String, List<FlexibleElement>> pModelElementsMap = new TreeMap<String, List<FlexibleElement>>();
 		for (final ProjectModel projectModel : pModels) {
 			if (projectModel.getStatus() != ProjectModelStatus.DRAFT) {
 				final String pModelName = projectModel.getName();
@@ -208,7 +215,10 @@ public class GlobalExportDataProvider {
 		// final CommandHandler<GetValue, ValueResult> handler = new GetValueHandler();
 		final CommandHandler<GetValue, ValueResult> handler = injector.getInstance(GetValueHandler.class);
 
-		final Map<String, List<String[]>> pModelExportDataMap = new TreeMap<String, List<String[]>>();
+		final Map<String, List<String[]>> pModelExportDataMap = new LinkedHashMap<String, List<String[]>>();
+
+		// categories
+		final Set<CategoryType> categories = new HashSet<>();
 
 		// collect export data
 		for (final String pModelName : pModelElementsMap.keySet()) {
@@ -223,16 +233,25 @@ public class GlobalExportDataProvider {
 			pModelExportDataMap.put(pModelName, exportData);
 
 			// field titles
-			final String[] titles = new String[elements.size()];
+			final List<String> titles = new ArrayList<String>();
+
+			// special fields for BI
+			titles.add(i18nTranslator.t(language, "permanentId"));
+			titles.add(i18nTranslator.t(language, "projectActivePhase"));
 
 			boolean isFirstLine = true;
 			// projects
 			for (final Project project : pModelProjectsMap.get(pModelName)) {
 
-				final String[] values = new String[elements.size()];
+				final List<String> values = new ArrayList<String>();
 
-				int titleIndex = 0;
-				int valueIndex = 0;
+				// special fields for BI
+				values.add(String.valueOf(project.getId()));
+				if(project.getCloseDate() == null) {
+					values.add(project.getCurrentPhase().getPhaseModel().getName());
+				} else {
+					values.add(i18nTranslator.t(language, "closedProject"));
+				}
 
 				// fields
 				for (final FlexibleElement element : elements) {
@@ -248,9 +267,16 @@ public class GlobalExportDataProvider {
 						// prepare value and label
 						ValueLabel pair = null;
 						/* DEF FLEXIBLE */
-						if (elementName.equals("element.DefaultFlexibleElement") || elementName.equals("element.BudgetElement")) {
+						if (elementName.equals("element.DefaultFlexibleElement")) {
 							pair = getDefElementPair(valueResult, element, project, entityManager, i18nTranslator, language);
 
+						} else /* BUDGET */ if(elementName.equals("element.BudgetElement")) {
+							// budget is a special case where the element corresponds to 3 columns
+							if (isFirstLine) {
+								addBudgetTitles(titles, element, i18nTranslator, language);
+							}
+							addBudgetValues(values, valueResult, element, i18nTranslator, language);
+							continue;
 						} else /* CHECKBOX */if (elementName.equals("element.CheckboxElement")) {
 							pair = getCheckboxElementPair(valueResult, element, i18nTranslator, language);
 						} else /* TEXT AREA */if (elementName.equals("element.TextAreaElement")) {
@@ -262,13 +288,18 @@ public class GlobalExportDataProvider {
 
 						}/* CHOICE */
 						if (elementName.equals("element.QuestionElement")) {
-							pair = getChoicePair(element, valueResult);
+							// choice is a special case where the element corresponds to 2 columns and 1 additional tab
+							if(isFirstLine) {
+								addChoiceTitles(titles, categories, element, i18nTranslator, language);
+							}
+							addChoiceValues(values, valueResult, element);
+							continue;
 						}
 
 						// titles
 
 						if (isFirstLine) {
-							titles[titleIndex++] = pair != null ? pair.getFormattedLabel() : null;
+							titles.add(pair != null ? pair.getFormattedLabel() : null);
 						}
 
 						// values
@@ -290,7 +321,7 @@ public class GlobalExportDataProvider {
 							}
 						}
 
-						values[valueIndex++] = valueStr;
+						values.add(valueStr);
 
 					} catch (Exception e) {
 						LOGGER.error("Failed to get the value of element '" + element.getId() + "' of project '" + project.getId() + "'.", e);
@@ -300,18 +331,77 @@ public class GlobalExportDataProvider {
 
 				// add titles
 				if (isFirstLine) {
-					exportData.add(titles);
+					exportData.add(titles.toArray(new String[titles.size()]));
 					isFirstLine = false;
 				}
 
 				// add values
-				exportData.add(values);
+				exportData.add(values.toArray(new String[values.size()]));
 
 			}// projects
 
 		}
 
+		addProjectFundings(projects, pModelExportDataMap, i18nTranslator, language);
+
+		addCategories(categories, pModelExportDataMap, i18nTranslator, language);
+
 		return pModelExportDataMap;
+	}
+
+	private void addProjectFundings(List<Project> projects, Map<String, List<String[]>> exportDataMap, I18nServer i18nTranslator, Language language) {
+		List<String[]> dataFundings = new ArrayList<>();
+
+		String[] row = new String[7];
+		row[0] = String.valueOf(i18nTranslator.t(language, "fundingId"));
+		row[1] = String.valueOf(i18nTranslator.t(language, "fundingCode"));
+		row[2] = String.valueOf(i18nTranslator.t(language, "fundingTitle"));
+		row[3] = String.valueOf(i18nTranslator.t(language, "fundedId"));
+		row[4] = String.valueOf(i18nTranslator.t(language, "fundedCode"));
+		row[5] = String.valueOf(i18nTranslator.t(language, "fundedTitle"));
+		row[6] = String.valueOf(i18nTranslator.t(language, "fundingAmount"));
+		dataFundings.add(row);
+
+		for(Project project : projects) {
+			List<ProjectFunding> fundings = project.getFunded();
+			if(project.getFunded() != null) {
+				for(ProjectFunding funding : fundings) {
+					row = new String[7];
+					row[0] = String.valueOf(project.getId());
+					row[1] = project.getName();
+					row[2] = project.getFullName();
+					row[3] = String.valueOf(funding.getFunded().getId());
+					row[4] = funding.getFunded().getName();
+					row[5] = funding.getFunded().getFullName();
+					row[6] = String.valueOf(funding.getPercentage());
+					dataFundings.add(row);
+				}
+			}
+		}
+
+		exportDataMap.put(i18nTranslator.t(language, "projectsFundings"), dataFundings);
+	}
+
+	private void addCategories(Set<CategoryType> categories, Map<String, List<String[]>> exportDataMap, I18nServer i18nTranslator, Language language) {
+		for(CategoryType category : categories) {
+			List<String[]> data = new ArrayList<>();
+
+			// titles
+			String[] row = new String[2];
+			row[0] = String.valueOf(i18nTranslator.t(language, "categoryElementId"));
+			row[1] = String.valueOf(i18nTranslator.t(language, "categoryElementLabel"));
+			data.add(row);
+
+			for(CategoryElement c : category.getElements()) {
+				row = new String[2];
+				row[0] = String.valueOf(c.getId());
+				row[1] = c.getLabel();
+
+				data.add(row);
+			}
+
+			exportDataMap.put(i18nTranslator.t(language, "category") + " " + category.getLabel(), data);
+		}
 	}
 
 	public MultiItemText formatMultipleChoices(List<QuestionChoiceElement> list, String values) {
@@ -465,6 +555,103 @@ public class GlobalExportDataProvider {
 			return getDefElementPair(valueResult, element, (Project) object, entityManager, i18nTranslator, language);
 		} else {
 			return getDefElementPair(valueResult, element, (OrgUnit) object, entityManager, i18nTranslator, language);
+		}
+	}
+
+	public void addBudgetTitles(final List<String> titles, final FlexibleElement element, final I18nServer i18nTranslator, final Language language) {
+		String budgetLabel = ExporterUtil.getFlexibleElementLabel(element, i18nTranslator, language);
+
+		titles.add(budgetLabel + " " + i18nTranslator.t(language, "spentBudget"));
+		titles.add(budgetLabel + " " + i18nTranslator.t(language, "plannedBudget"));
+		titles.add(budgetLabel + " " + i18nTranslator.t(language, "consumptionRatioBudget"));
+	}
+
+	public void addBudgetValues(final List<String> values, final ValueResult valueResult, final FlexibleElement element, final I18nServer i18nTranslator, final Language language) {
+		BudgetElement budgetElement = (BudgetElement) element;
+		boolean hasValue = valueResult != null && valueResult.isValueDefined();
+
+		Double plannedBudget = 0d;
+		Double spentBudget = 0d;
+		if (hasValue) {
+			final Map<Integer, String> val = ValueResultUtils.splitMapElements(valueResult.getValueObject());
+
+			if (budgetElement.getRatioDividend() != null) {
+				if (val.get(budgetElement.getRatioDividend().getId()) != null) {
+					spentBudget = Double.valueOf(val.get(budgetElement.getRatioDividend().getId()));
+
+				}
+			}
+
+			if (budgetElement.getRatioDivisor() != null) {
+				if (val.get(budgetElement.getRatioDivisor().getId()) != null) {
+					plannedBudget = Double.valueOf(val.get(budgetElement.getRatioDivisor().getId()));
+
+				}
+			}
+		}
+
+		values.add(spentBudget.toString());
+		values.add(plannedBudget.toString());
+
+		Double ratio = spentBudget / plannedBudget;
+
+		values.add(ratio.toString());
+	}
+
+	public void addChoiceTitles(final List<String> titles, final Set<CategoryType> categories, final FlexibleElement element, final I18nServer i18nTranslator, final Language language) {
+		final QuestionElement questionElement = (QuestionElement) element;
+		String choiceLabel = ExporterUtil.getFlexibleElementLabel(element, i18nTranslator, language);
+
+		titles.add(choiceLabel);
+		if (questionElement.getCategoryType() != null) {
+			titles.add(choiceLabel + " (" + questionElement.getCategoryType().getLabel() + ") " + i18nTranslator.t(language, "categoryId"));
+			categories.add(((QuestionElement) element).getCategoryType());
+		}
+	}
+
+	public void addChoiceValues(final List<String> values, final ValueResult valueResult, final FlexibleElement element) {
+
+		String valueLabels = null;
+		String valueIds = null;
+
+		if (valueResult != null && valueResult.isValueDefined()) {
+			final QuestionElement questionElement = (QuestionElement) element;
+			if (questionElement.getMultiple()) {
+				final MultiItemText item = formatMultipleChoices(questionElement.getChoices(), valueResult.getValueObject());
+				valueLabels = item.text;
+
+				final List<Integer> selectedChoicesIds = new ArrayList<>();
+				for (Integer id : ValueResultUtils.splitValuesAsInteger(valueResult.getValueObject())) {
+					for (QuestionChoiceElement choice : questionElement.getChoices()) {
+						if (id.equals(choice.getId())) {
+							if (choice.getCategoryElement() != null) {
+								id = choice.getCategoryElement().getId();
+							}
+							break;
+						}
+					}
+					selectedChoicesIds.add(id);
+				}
+				valueIds = Joiner.on(", ").join(selectedChoicesIds);
+			} else {
+				final String idChoice = valueResult.getValueObject();
+				for (QuestionChoiceElement choice : questionElement.getChoices()) {
+					if (idChoice.equals(String.valueOf(choice.getId()))) {
+						if (choice.getCategoryElement() != null) {
+							valueLabels = choice.getCategoryElement().getLabel();
+							valueIds = String.valueOf(choice.getCategoryElement().getId());
+						} else {
+							valueLabels = choice.getLabel();
+						}
+						break;
+					}
+				}
+			}
+		}
+
+		values.add(valueLabels);
+		if (((QuestionElement)element).getCategoryType() != null) {
+			values.add(valueIds);
 		}
 	}
 
