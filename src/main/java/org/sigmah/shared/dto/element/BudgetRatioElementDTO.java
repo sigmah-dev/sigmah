@@ -1,7 +1,10 @@
 package org.sigmah.shared.dto.element;
 
 import com.extjs.gxt.ui.client.widget.Component;
+import com.extjs.gxt.ui.client.widget.form.Field;
 import org.sigmah.client.dispatch.CommandResultHandler;
+import org.sigmah.client.event.UpdateEvent;
+import org.sigmah.client.event.handler.UpdateHandler;
 import org.sigmah.client.ui.widget.form.StringField;
 import org.sigmah.client.util.NumberUtils;
 import org.sigmah.shared.command.BatchCommand;
@@ -73,6 +76,35 @@ public class BudgetRatioElementDTO extends DefaultFlexibleElementDTO {
     
 		preferredWidth = FlexibleElementDTO.NUMBER_FIELD_WIDTH;
 		
+		updateComponentValue(field);
+		
+		eventBus.addHandler(UpdateEvent.getType(), new UpdateHandler() {
+			
+			@Override
+			public void onUpdate(UpdateEvent event) {
+				// TODO: Create an update event type for the project value updates.
+				if (event.concern(ENTITY_NAME)) {
+					updateComponentValue(field);
+				}
+			}
+			
+		});
+		
+		// Sets the value of the field.
+		if (valueResult != null && valueResult.isValueDefined()) {
+			field.setValue(valueResult.getValueObject());
+		}
+        
+		return field;
+	}
+	
+	/**
+	 * Update the value displayed in the given budget ratio field.
+	 * 
+	 * @param field
+	 *			Field to update.
+	 */
+	private void updateComponentValue(final StringField field) {
 		final FlexibleElementDTO plannedBudgetElement = getPlannedBudget();
 		final FlexibleElementDTO spentBudgetElement = getSpentBudget();
 		
@@ -98,13 +130,6 @@ public class BudgetRatioElementDTO extends DefaultFlexibleElementDTO {
 			}
 			
 		}, field);
-		
-		// Sets the value of the field.
-		if (valueResult != null && valueResult.isValueDefined()) {
-			field.setValue(valueResult.getValueObject());
-		}
-        
-		return field;
 	}
 	
 	public void setPlannedBudget(FlexibleElementDTO plannedBudget) {
