@@ -1,7 +1,6 @@
 package org.sigmah.shared.dto.element;
 
 import com.extjs.gxt.ui.client.widget.Component;
-import com.extjs.gxt.ui.client.widget.form.Field;
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.event.UpdateEvent;
 import org.sigmah.client.event.handler.UpdateHandler;
@@ -148,5 +147,12 @@ public class BudgetRatioElementDTO extends DefaultFlexibleElementDTO {
 		return get(SPENT_BUDGET);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean isHistorable() {
+		return false;
+	}
 
 }

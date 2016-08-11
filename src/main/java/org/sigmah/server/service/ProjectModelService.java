@@ -141,6 +141,8 @@ public class ProjectModelService extends AbstractEntityService<ProjectModel, Int
 		for (DefaultFlexibleElementType e : DefaultFlexibleElementType.values()) {
 			DefaultFlexibleElement defaultElement;
 			if (DefaultFlexibleElementType.BUDGET.equals(e)) {
+				continue;
+				/*
 				defaultElement = new BudgetElement();
 
 				List<BudgetSubField> budgetSubFields = new ArrayList<BudgetSubField>();
@@ -159,7 +161,7 @@ public class ProjectModelService extends AbstractEntityService<ProjectModel, Int
 					budgetSubFields.add(b);
 					y++;
 				}
-				((BudgetElement) defaultElement).setBudgetSubFields(budgetSubFields);
+				((BudgetElement) defaultElement).setBudgetSubFields(budgetSubFields);*/
 			}else if (DefaultFlexibleElementType.BUDGET_RATIO.equals(e)) { 
 				defaultElement = new BudgetRatioElement();
 			}else {
