@@ -3,7 +3,8 @@ package org.sigmah.shared.computation.dependency;
 import org.sigmah.shared.dto.ProjectFundingDTO;
 
 /**
- *
+ * Scope of a dependency.
+ * 
  * @author Raphaël Calabro (raphael.calabro@netapsys.fr)
  */
 public class Scope {

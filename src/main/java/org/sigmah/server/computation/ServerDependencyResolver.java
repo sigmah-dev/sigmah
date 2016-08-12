@@ -71,9 +71,11 @@ public class ServerDependencyResolver extends AbstractDependencyResolver {
 							+ "'. The computation may behave incorrectly.");
 					// Marks the dependency as 'not resolved' by nulling its flexible element.
 					dependency.setFlexibleElement(null);
+					dependency.setProjectModelId(null);
 					return;
 				}
 				dependency.setFlexibleElement(element);
+				dependency.setProjectModelId(projectModel.getId());
 			}
 		}
 	}

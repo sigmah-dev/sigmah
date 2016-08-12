@@ -12,14 +12,16 @@ import org.sigmah.shared.dto.referential.TextAreaType;
 import org.sigmah.shared.util.ValueResultUtils;
 
 /**
- *
+ * Dependency to multiple value for the same flexible element.
+ * 
  * @author Raphaël Calabro (raphael.calabro@netapsys.fr)
  */
 public class CollectionDependency implements Dependency {
 	
 	private Scope scope;
 	private String elementCode;
-			
+	
+	private Integer projectModelId;
 	private FlexibleElementDTO flexibleElement;
 
 	public CollectionDependency() {
@@ -31,6 +33,18 @@ public class CollectionDependency implements Dependency {
 		
 		if (elementCode != null && elementCode.length() > 1 && elementCode.charAt(0) == Instructions.ID_PREFIX) {
 			this.flexibleElement = createFlexibleElement(elementCode);
+		}
+		final String modelName = scope.getModelName();
+		if (modelName != null && modelName.length() > 1 && modelName.charAt(0) == Instructions.ID_PREFIX) {
+			final String[] parts = modelName.split(ValueResultUtils.BUDGET_VALUE_SEPARATOR);
+			if (parts.length == 2) {
+				try {
+					projectModelId = Integer.parseInt(parts[0].substring(1));
+					scope.setModelName(parts[1]);
+				} catch (NumberFormatException e) {
+					GWT.log("Given model name starts by the identifier prefix but is not an identifier: " + modelName, e);
+				}
+			}
 		}
 	}
 
@@ -50,17 +64,31 @@ public class CollectionDependency implements Dependency {
 		this.flexibleElement = flexibleElement;
 	}
 
+	public Integer getProjectModelId() {
+		return projectModelId;
+	}
+
+	public void setProjectModelId(Integer projectModelId) {
+		this.projectModelId = projectModelId;
+	}
+	
 	@Override
 	public boolean isResolved() {
-		return flexibleElement != null;
+		return flexibleElement != null && projectModelId != null;
 	}
 	
 	@Override
 	public String toString() {
 		final StringBuilder stringBuilder = new StringBuilder()
 				.append(scope.getLinkedProjectTypeName())
-				.append(ValueResultUtils.DEFAULT_VALUE_SEPARATOR)
-				.append(scope.getModelName())
+				.append(ValueResultUtils.DEFAULT_VALUE_SEPARATOR);
+		
+		if (projectModelId != null) {
+			stringBuilder.append(Instructions.ID_PREFIX)
+					.append(projectModelId)
+					.append(ValueResultUtils.BUDGET_VALUE_SEPARATOR);
+		}
+		stringBuilder.append(scope.getModelName())
 				.append(ValueResultUtils.DEFAULT_VALUE_SEPARATOR);
 		
 		if (flexibleElement != null) {

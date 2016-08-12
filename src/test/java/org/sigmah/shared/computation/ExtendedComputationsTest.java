@@ -63,10 +63,11 @@ public class ExtendedComputationsTest {
 			element56.setIsDecimal(Boolean.TRUE);
 			
 			collectionDependency.setFlexibleElement(element56);
+			collectionDependency.setProjectModelId(42);
 			Assert.assertTrue(dependency.isResolved());
 		}
 		
-		Assert.assertEquals("fundedProjects(Local partner project v2).sum($56%new_name_56%NUMBER)", formula.toString());
+		Assert.assertEquals("fundedProjects($42%Local partner project v2).sum($56%new_name_56%NUMBER)", formula.toString());
 		Assert.assertEquals("fundedProjects(Local partner project v2).sum(new_name_56)", formula.toHumanReadableString());
 	}
 	
@@ -114,9 +115,9 @@ public class ExtendedComputationsTest {
 	@Test
 	public void testParseCollectionFromId() {
 		List<FlexibleElementDTO> allElements = Collections.emptyList();
-		Computation formula = Computations.parse("fundedProjects(Local partner project v2).sum($56%field56%NUMBER)", allElements);
+		Computation formula = Computations.parse("fundedProjects($42%Local partner project v2).sum($56%field56%NUMBER)", allElements);
 		Assert.assertFalse(formula.isBadFormula());
-		Assert.assertEquals("fundedProjects(Local partner project v2).sum($56%field56%NUMBER)", formula.toString());
+		Assert.assertEquals("fundedProjects($42%Local partner project v2).sum($56%field56%NUMBER)", formula.toString());
 		
 		final Set<Dependency> dependencies = formula.getDependencies();
 		Assert.assertEquals(1, dependencies.size());
@@ -126,7 +127,7 @@ public class ExtendedComputationsTest {
 			Assert.assertTrue(dependency.isResolved());
 		}
 		
-		Assert.assertEquals("fundedProjects(Local partner project v2).sum($56%field56%NUMBER)", formula.toString());
+		Assert.assertEquals("fundedProjects($42%Local partner project v2).sum($56%field56%NUMBER)", formula.toString());
 		Assert.assertEquals("fundedProjects(Local partner project v2).sum(field56)", formula.toHumanReadableString());
 	}
 	

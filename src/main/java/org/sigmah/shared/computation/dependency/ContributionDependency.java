@@ -54,13 +54,10 @@ public class ContributionDependency implements Dependency {
 		if (projectModelId != null) {
 			stringBuilder.append(Instructions.ID_PREFIX)
 					.append(projectModelId)
-					.append(ValueResultUtils.BUDGET_VALUE_SEPARATOR)
-					.append(scope.getModelName());
-		} else {
-			stringBuilder.append(scope.getModelName());
+					.append(ValueResultUtils.BUDGET_VALUE_SEPARATOR);
 		}
-		
-		stringBuilder.append(ValueResultUtils.DEFAULT_VALUE_SEPARATOR)
+		stringBuilder.append(scope.getModelName())
+				.append(ValueResultUtils.DEFAULT_VALUE_SEPARATOR)
 				.append(REFERENCE);
 		
 		return stringBuilder.toString();
