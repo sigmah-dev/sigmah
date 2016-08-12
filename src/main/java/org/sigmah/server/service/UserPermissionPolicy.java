@@ -23,7 +23,6 @@ package org.sigmah.server.service;
  */
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -43,6 +42,8 @@ import org.sigmah.shared.command.result.ListResult;
 import org.sigmah.shared.dispatch.CommandException;
 import org.sigmah.shared.dto.ProjectDTO;
 import org.sigmah.shared.dto.referential.GlobalPermissionEnum;
+import org.sigmah.shared.util.OrgUnitUtils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,7 +58,7 @@ import com.google.inject.Singleton;
  * <li>Project created/modified/deleted.</li>
  * <li>Profile modified.</li>
  * </ol>
- * 
+ *
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
 @Singleton
@@ -99,30 +100,40 @@ public class UserPermissionPolicy {
 	/**
 	 * Each time a user is created or modified a method will go through all projects which are editable by the user
 	 * (projects attached to the user main orgunit, and all the child orgunits of it), and add a row in the table
-	 * userpermission for each of them if the user has the EDIT_PROJECT global privilege
+	 * userpermission for each of them if the user has the EDIT_ALL_PROJECTS global privilege
 	 */
 	public void updateUserPermissionByUser(User user) throws CommandException {
 
-		final OrgUnitProfile userOrgUnit = user.getOrgUnitWithProfiles();
+		final List<OrgUnitProfile> userOrgUnits = user.getOrgUnitsWithProfiles();
 
 		// delete existing userpermission entries related to the user
 		userPermissionDAO.deleteByUser(user.getId());
 
-		// check new profile set for EDIT_PROJECT global permission
-		boolean granted = isGranted(userOrgUnit, GlobalPermissionEnum.EDIT_PROJECT);
+		// check new profile set for EDIT_ALL_PROJECTS global permission
+		boolean granted = isGranted(userOrgUnits, GlobalPermissionEnum.EDIT_ALL_PROJECTS) ||
+			isGranted(userOrgUnits, GlobalPermissionEnum.EDIT_PROJECT);
 		if (!granted) /* skip the rest of part if user has no enough permission */
 			return;
 
 		final GetProjects getCommand = new GetProjects();
-		List<Integer> orgUnitIds = new ArrayList<Integer>(Arrays.asList(userOrgUnit.getOrgUnit().getId()));
+		List<Integer> orgUnitIds = new ArrayList<>(user.getOrgUnitsWithProfiles().size());
+		for (OrgUnitProfile orgUnitProfile : user.getOrgUnitsWithProfiles()) {
+			orgUnitIds.add(orgUnitProfile.getOrgUnit().getId());
+		}
+
 		getCommand.setOrgUnitsIds(orgUnitIds);
 		getCommand.setMappingMode(ProjectDTO.Mode.BASE);
 
-		final ListResult<ProjectDTO> result = projectsHandler.execute(getCommand, null);
+		final ListResult<ProjectDTO> result = projectsHandler.execute(getCommand, user);
 
 		// create and persist userpermission entity for each project
 		for (final ProjectDTO project : result.getList()) {
-			userPermissionDAO.createAndPersist(user, userOrgUnit.getOrgUnit(), project.getId());
+			for (OrgUnitProfile orgUnitProfile : user.getOrgUnitsWithProfiles()) {
+				if (!OrgUnitUtils.areOrgUnitsEqualOrParent(orgUnitProfile.getOrgUnit(), project.getOrgUnitId())) {
+					continue;
+				}
+				userPermissionDAO.createAndPersist(user, orgUnitProfile.getOrgUnit(), project.getId());
+			}
 		}
 
 		if (LOG.isInfoEnabled()) {
@@ -139,7 +150,7 @@ public class UserPermissionPolicy {
 	}
 
 	/**
-	 * When the global privilege "EDIT_PROJECT" is added/removed to a profile, UserPermissions is updated for the users
+	 * When the global privilege "EDIT_ALL_PROJECTS" is added/removed to a profile, UserPermissions is updated for the users
 	 * who have included this profile
 	 */
 	public void updateUserPermissionByProfile(Integer profileId) throws CommandException {
@@ -227,4 +238,24 @@ public class UserPermissionPolicy {
 		return false;
 	}
 
+	public boolean isGranted(List<OrgUnitProfile> userUnits, GlobalPermissionEnum permission) {
+		for (OrgUnitProfile userUnit : userUnits) {
+			if (isGranted(userUnit, permission)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public boolean isGranted(List<OrgUnitProfile> userUnits, OrgUnit targetOrgUnit, GlobalPermissionEnum permission) {
+		for (OrgUnitProfile userUnit : userUnits) {
+			if (!OrgUnitUtils.areOrgUnitsEqualOrParent(userUnit.getOrgUnit(), targetOrgUnit.getId())) {
+				continue;
+			}
+			if (isGranted(userUnit, permission)) {
+				return true;
+			}
+		}
+		return false;
+	}
 }

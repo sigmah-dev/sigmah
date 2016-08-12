@@ -22,13 +22,20 @@ package org.sigmah.server.dao;
  * #L%
  */
 
+import java.util.List;
+
 import org.sigmah.server.dao.base.DAO;
 import org.sigmah.server.domain.profile.Profile;
 
 /**
  * Data Access Object for the {@link org.sigmah.server.domain.profile.Profile} domain object.
- * 
+ *
  * @author Denis Colliot (dcolliot@ideia.fr) (v2.0)
  */
 public interface ProfileDAO extends DAO<Profile, Integer> {
+
+	/**
+	 * Retrieves all team member profiles for the defined project
+	 */
+	List<Profile> getProjectTeamMemberProfiles(Integer projectId);
 }

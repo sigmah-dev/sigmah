@@ -24,7 +24,14 @@ package org.sigmah.client.ui.presenter.admin.models.base;
 
 
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.validation.constraints.NotNull;
 
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.event.UpdateEvent;
@@ -44,15 +51,24 @@ import org.sigmah.client.ui.widget.Loadable;
 import org.sigmah.client.ui.widget.button.Button;
 import org.sigmah.client.ui.widget.form.FormPanel;
 import org.sigmah.client.util.ClientUtils;
+import org.sigmah.client.util.DateUtils;
 import org.sigmah.client.util.EnumModel;
 import org.sigmah.shared.command.Delete;
+import org.sigmah.shared.command.GetAvailableFrameworks;
 import org.sigmah.shared.command.GetAvailableStatusForModel;
+import org.sigmah.shared.command.GetFrameworkFulfillmentsByProjectModelId;
 import org.sigmah.shared.command.base.Command;
 import org.sigmah.shared.command.result.ListResult;
 import org.sigmah.shared.command.result.VoidResult;
+import org.sigmah.shared.dto.FrameworkDTO;
+import org.sigmah.shared.dto.FrameworkElementDTO;
+import org.sigmah.shared.dto.FrameworkElementImplementationDTO;
+import org.sigmah.shared.dto.FrameworkFulfillmentDTO;
+import org.sigmah.shared.dto.FrameworkHierarchyDTO;
 import org.sigmah.shared.dto.IsModel;
 import org.sigmah.shared.dto.OrgUnitModelDTO;
 import org.sigmah.shared.dto.ProjectModelDTO;
+import org.sigmah.shared.dto.element.FlexibleElementDTO;
 import org.sigmah.shared.dto.referential.ProjectModelStatus;
 import org.sigmah.shared.servlet.ServletConstants.Servlet;
 import org.sigmah.shared.servlet.ServletConstants.ServletMethod;
@@ -76,9 +92,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
-import java.util.Date;
-import javax.validation.constraints.NotNull;
-import org.sigmah.client.util.DateUtils;
+
 
 /**
  * Abstract layer for models administration presenters.
@@ -412,7 +426,81 @@ public abstract class AbstractModelsAdminPresenter<E extends IsModel, V extends 
 					}
 				}
 
+				if ((currentStatus != ProjectModelStatus.DRAFT && currentStatus != ProjectModelStatus.UNAVAILABLE) || targetStatus != ProjectModelStatus.READY) {
 				onStatusChangeEvent(currentModel.getId(), currentStatus, targetStatus, callback);
+					return;
+				}
+
+				// Let's verify that the current model fulfill all related frameworks
+				dispatch.execute(new GetAvailableFrameworks(), new CommandResultHandler<ListResult<FrameworkDTO>>() {
+					@Override
+					protected void onCommandSuccess(final ListResult<FrameworkDTO> frameworkResult) {
+						if (frameworkResult.isEmpty()) {
+							onStatusChangeEvent(currentModel.getId(), currentStatus, targetStatus, callback);
+							return;
+						}
+
+						final Map<Integer, FrameworkDTO> frameworkById = new HashMap<Integer, FrameworkDTO>();
+						final Map<Integer, FrameworkElementDTO> frameworkElementById = new HashMap<Integer, FrameworkElementDTO>();
+						final Map<Integer, Set<Integer>> elementIdsByFrameworkId = new HashMap<Integer, Set<Integer>>();
+						for (FrameworkDTO frameworkDTO : frameworkResult.getData()) {
+							frameworkById.put(frameworkDTO.getId(), frameworkDTO);
+							Set<Integer> elementIds = new HashSet<Integer>();
+
+							for (FrameworkHierarchyDTO frameworkHierarchyDTO : frameworkDTO.getFrameworkHierarchies()) {
+								for (FrameworkElementDTO frameworkElementDTO : frameworkHierarchyDTO.getFrameworkElements()) {
+									elementIds.add(frameworkElementDTO.getId());
+									frameworkElementById.put(frameworkElementDTO.getId(), frameworkElementDTO);
+								}
+							}
+
+							elementIdsByFrameworkId.put(frameworkDTO.getId(), elementIds);
+						}
+
+						final Map<Integer, FlexibleElementDTO> flexibleElementById = new HashMap<Integer, FlexibleElementDTO>();
+						for (FlexibleElementDTO flexibleElementDTO : currentModel.getAllElements()) {
+							flexibleElementById.put(flexibleElementDTO.getId(), flexibleElementDTO);
+						}
+
+						dispatch.execute(new GetFrameworkFulfillmentsByProjectModelId(currentModel.getId()), new CommandResultHandler<ListResult<FrameworkFulfillmentDTO>>() {
+							@Override
+							protected void onCommandSuccess(final ListResult<FrameworkFulfillmentDTO> frameworkFulfillmentResult) {
+								for (FrameworkFulfillmentDTO frameworkFulfillmentDTO : frameworkFulfillmentResult.getData()) {
+									if (frameworkFulfillmentDTO.getRejectReason() != null) {
+										// This framework fulfillment is rejected
+										continue;
+									}
+
+									Set<Integer> elementIds = new HashSet<Integer>(elementIdsByFrameworkId.get(frameworkFulfillmentDTO.getFrameworkId()));
+									String relatedFrameworkLabel = frameworkById.get(frameworkFulfillmentDTO.getFrameworkId()).getLabel();
+
+									for (FrameworkElementImplementationDTO frameworkElementImplementationDTO : frameworkFulfillmentDTO.getFrameworkElementImplementations()) {
+										FlexibleElementDTO flexibleElementDTO = flexibleElementById.get(frameworkElementImplementationDTO.getFlexibleElementId());
+										FrameworkElementDTO frameworkElementDTO = frameworkElementById.get(frameworkElementImplementationDTO.getFrameworkElementId());
+										// This element has not the same type than the framework element
+										if (flexibleElementDTO.getElementType() != frameworkElementDTO.getDataType()) {
+											N10N.warn(I18N.CONSTANTS.error(),
+													I18N.MESSAGES.adminProjectModelFrameworkElementTypeNotCorrectMessage(relatedFrameworkLabel,
+															flexibleElementDTO.getElementLabel(), frameworkElementDTO.getDataType().name()));
+											callback.onFailure(null);
+											return;
+										}
+
+										elementIds.remove(frameworkElementImplementationDTO.getFrameworkElementId());
+									}
+
+									// The current framework is not entirely fulfilled
+									if (!elementIds.isEmpty()) {
+										N10N.warn(I18N.CONSTANTS.error(),
+												I18N.MESSAGES.adminProjectModelFrameworkNotFulfilledMessage(relatedFrameworkLabel));
+										callback.onFailure(null);
+										return;
+									}
+								}
+							}
+						});
+					}
+				});
 			}
 		});
 

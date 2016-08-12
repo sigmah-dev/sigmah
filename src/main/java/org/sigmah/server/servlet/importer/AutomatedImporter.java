@@ -454,7 +454,7 @@ public class AutomatedImporter {
 	 */
 	private String getOrgUnitId() {
 		final User user = importer.getExecutionContext().getUser();
-		final Integer orgUnitId = user.getOrgUnitWithProfiles().getOrgUnit().getId();
+		final Integer orgUnitId = user.getMainOrgUnitWithProfiles().getOrgUnit().getId();
 		
 		if (orgUnitId != null) {
 			return orgUnitId.toString();

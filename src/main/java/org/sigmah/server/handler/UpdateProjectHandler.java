@@ -88,7 +88,7 @@ import org.sigmah.shared.util.ProfileUtils;
 
 /**
  * Updates the values of the flexible elements for a specific project.
- * 
+ *
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
 public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, VoidResult> {
@@ -115,7 +115,7 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 	 */
 	@Inject
 	private I18nServer i18nServer;
-	
+
 	/**
 	 * Conflict detector.
 	 */
@@ -143,7 +143,7 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 		final List<ValueEventWrapper> values = cmd.getValues();
 		final Integer projectId = cmd.getProjectId();
 		final String comment = cmd.getComment();
-		
+
 		updateProject(values, projectId, context, comment);
 
 		return null;
@@ -162,21 +162,32 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 	protected void updateProject(final List<ValueEventWrapper> values, final Integer projectId, UserExecutionContext context, String comment) throws CommandException {
 		// This date must be the same for all the saved values !
 		final Date historyDate = new Date();
-		
+
+		final User user = context.getUser();
+
 		// Search the given project.
 		final Project project = em().find(Project.class, projectId);
-		
+		if (project != null) {
+			if (!Handlers.isProjectEditable(project, user)) {
+				throw new IllegalStateException();
+			}
+		} else {
+			// If project is null, it means the user is not trying to update a project but an org unit
+			OrgUnit orgUnit = em().find(OrgUnit.class, projectId);
+			if (!Handlers.isOrgUnitVisible(orgUnit, user)) {
+				throw new IllegalStateException();
+			}
+		}
+
 		// Verify if the modifications conflicts with the project state.
 		final List<String> conflicts = searchForConflicts(project, values, context);
-		
-		final User user = context.getUser();
-		
+
 		// Track if an element part of the core version has been modified.
 		boolean coreVersionHasBeenModified = false;
-		
+
 		// Iterating over the value change events
 		for (final ValueEventWrapper valueEvent : values) {
-			
+
 			// Event parameters.
 			final FlexibleElementDTO source = valueEvent.getSourceElement();
 			final FlexibleElement element = em().find(FlexibleElement.class, source.getId());
@@ -223,7 +234,7 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 	/**
 	 * Retrieves the value for the given project and the given element.
 	 * If there isn't a value yet, it will be created.
-	 * 
+	 *
 	 * @param projectId
 	 *          The project id.
 	 * @param elementId
@@ -263,11 +274,11 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 
 		return currentValue;
 	}
-	
+
 	/**
 	 * Retrieves the value for the given project and the given element but 
 	 * don't create an empty value if none exists.
-	 * 
+	 *
 	 * @param projectId
 	 *          The project id.
 	 * @param elementId
@@ -286,7 +297,7 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 		} catch (NoResultException nre) {
 			// No current value
 		}
-		
+
 		return currentValue;
 	}
 	
@@ -303,46 +314,65 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 	
 	/**
 	 * Throw a functional exception if a conflict if found.
-	 * 
+	 *
 	 * @param project Updated project.
 	 * @param values Values to update.
-	 * @param projectId 
-	 * @throws FunctionalException 
+	 * @param projectId
+	 * @throws FunctionalException
 	 */
 	private List<String> searchForConflicts(final Project project, final List<ValueEventWrapper> values, final UserExecutionContext context) throws FunctionalException {
-		
+
 		final ArrayList<String> conflicts = new ArrayList<>();
-		
+
 		if (project == null) {
 			// The user is modifying an org unit.
 			// TODO: Verify if the user has the right to modify the org unit.
 			return conflicts;
 		}
-		
+
+		Integer projectOrgUnitId = null;
+		if (project.getOrgUnit() == null) {
+			// The project should be a draft project
+			// Let's verify it
+			if (project.getProjectModel().getStatus() != ProjectModelStatus.DRAFT) {
+				LOG.error("Project {} doesn't have an OrgUnit.", project.getId());
+			} else if (context.getUser().getMainOrgUnitWithProfiles() == null) {
+				LOG.error("User {} doesn't have a main org unit.", context.getUser().getId());
+			} else {
+				// Let's get the main org unit from the user
+				projectOrgUnitId = context.getUser().getMainOrgUnitWithProfiles().getOrgUnit().getId();
+			}
+		} else {
+			projectOrgUnitId = project.getOrgUnit().getId();
+		}
+
 		final Language language = context.getLanguage();
-		final ProfileDTO profile = Handlers.aggregateProfiles(context.getUser(), mapper);
-		
+		ProfileDTO profile = null;
+		if (projectOrgUnitId != null) {
+			profile = Handlers.aggregateProfiles(context.getUser(), mapper).get(projectOrgUnitId);
+		}
+
 		if (project.getProjectModel().isUnderMaintenance()) {
 			// BUGFIX #730: Verifying the maintenance status of projects.
 			conflicts.add(i18nServer.t(language, "conflictEditingUnderMaintenanceProject",
 				project.getName(), project.getFullName()));
-			
+
 			return conflicts;
 		}
-        
+
         // Verify computated values.
         conflictsRelatedToComputedElements(values, project, conflicts, language);
-		
+
 		if (ProfileUtils.isGranted(profile, GlobalPermissionEnum.MODIFY_LOCKED_CONTENT)) {
 			// The user is allowed to edit locked fields.
 			final boolean projectIsClosed = project.getCloseDate() != null;
 			final boolean projectIsLocked = project.getAmendmentState() == AmendmentState.LOCKED;
-			
+
 			for (final ValueEventWrapper value : values) {
 				final FlexibleElementDTO source = value.getSourceElement();
-				
+
 				final boolean phaseIsClosed = conflictHandler.isParentPhaseClosed(source.getId(), project.getId());
-				
+
 				if (projectIsClosed || phaseIsClosed || (source.getAmendable() && projectIsLocked)) {
 					final ValueResult result = new ValueResult();
 					result.setValueObject(value.getSingleValue());
@@ -354,19 +384,19 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 					}
 				}
 			}
-			
+
 			return conflicts;
 		}
-		
+
 		if (project.getCloseDate() != null) {
 			// User is trying to modify a closed project.
 			for (final ValueEventWrapper valueEvent : values) {
 				final FlexibleElementDTO source = valueEvent.getSourceElement();
-				
+
 				conflicts.add(i18nServer.t(language, "conflictUpdatingAClosedProject",
 					source.getFormattedLabel(), valueService.getCurrentValueFormatted(project.getId(), source), getTargetValueFormatted(valueEvent)));
 			}
-			
+
 		} else {
 			// Verify if the user is trying to modify a closed phase.
 			Iterator<ValueEventWrapper> iterator = values.iterator();
@@ -377,12 +407,12 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 				if (conflictHandler.isParentPhaseClosed(source.getId(), project.getId())) {
 					// Removing the current value event from the update list.
 					iterator.remove();
-					
+
 					conflicts.add(i18nServer.t(language, "conflictUpdatingAClosedPhase",
 						source.getFormattedLabel(), valueService.getCurrentValueFormatted(project.getId(), source), getTargetValueFormatted(valueEvent)));
 				}
 			}
-			
+
 			// Verify if the user is trying to modify a locked field.
 			if (project.getAmendmentState() == AmendmentState.LOCKED) {
 				iterator = values.iterator();
@@ -407,14 +437,14 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 					if (conflict) {
 						// Removing the current value event from the update list.
 						iterator.remove();
-						
+
 						conflicts.add(i18nServer.t(language, "conflictUpdatingALockedField",
 							source.getFormattedLabel(), valueService.getCurrentValueFormatted(project.getId(), source), getTargetValueFormatted(valueEvent)));
 					}
 				}
 			}
 		}
-		
+
 		return conflicts;
 	}
 
@@ -580,7 +610,7 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
     
 	/**
 	 * Retrieves the value of the given field as a double.
-	 * 
+	 *
 	 * @param valueResult
      *          Raw value of a budget element.
 	 * @param budgetSubField
@@ -588,15 +618,15 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 	 * @return The value of the given budget sub field.
 	 */
 	private double getValueOfSubField(final String valueResult, final BudgetSubFieldDTO budgetSubField) {
-        
+
 		final Map<Integer, String> values = ValueResultUtils.splitMapElements(valueResult);
 		final String value = values.get(budgetSubField.getId());
-		
+
 		if (value != null && value.matches("^[0-9]+(([.][0-9]+)|)$")) {
 			return Double.parseDouble(value);
 		} else {
 			return 0.0;
 		}
 	}
-	
+
 }

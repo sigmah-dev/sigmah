@@ -22,6 +22,8 @@ package org.sigmah.shared.command;
  * #L%
  */
 
+import java.util.Set;
+
 import org.sigmah.shared.command.base.AbstractCommand;
 import org.sigmah.shared.command.result.ListResult;
 import org.sigmah.shared.dto.reminder.MonitoredPointDTO;
@@ -35,14 +37,16 @@ import org.sigmah.shared.dto.reminder.MonitoredPointDTO;
 public class GetMonitoredPoints extends AbstractCommand<ListResult<MonitoredPointDTO>> {
 
 	private Integer projectId;
+	private Set<Integer> orgUnitIds;
 	private MonitoredPointDTO.Mode mappingMode;
 
 	protected GetMonitoredPoints() {
 		// Serialization.
 	}
 
-	public GetMonitoredPoints(MonitoredPointDTO.Mode mappingMode) {
+	public GetMonitoredPoints(MonitoredPointDTO.Mode mappingMode, Set<Integer> orgUnitIds) {
 		this(null, mappingMode);
+		this.orgUnitIds = orgUnitIds;
 	}
 
 	public GetMonitoredPoints(final Integer projectId, MonitoredPointDTO.Mode mappingMode) {
@@ -52,6 +56,10 @@ public class GetMonitoredPoints extends AbstractCommand<ListResult<MonitoredPoin
 
 	public Integer getProjectId() {
 		return projectId;
+	}
+
+	public Set<Integer> getOrgUnitIds() {
+		return orgUnitIds;
 	}
 
 	public MonitoredPointDTO.Mode getMappingMode() {

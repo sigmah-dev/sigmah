@@ -22,9 +22,14 @@ package org.sigmah.server.dao.impl;
  * #L%
  */
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+
 import org.sigmah.server.dao.ReminderDAO;
 import org.sigmah.server.dao.base.AbstractDAO;
 import org.sigmah.server.domain.reminder.Reminder;
+import org.sigmah.server.domain.util.DomainFilters;
 
 /**
  * {@link ReminderDAO} implementation.
@@ -32,5 +37,23 @@ import org.sigmah.server.domain.reminder.Reminder;
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
 public class ReminderHibernateDAO extends AbstractDAO<Reminder, Integer> implements ReminderDAO {
+	@Override
+	public List<Reminder> findNotCompletedByProjectIds(Set<Integer> projectIds) {
+		if (projectIds == null || projectIds.isEmpty()) {
+			return Collections.emptyList();
+		}
 
+		// Disable the ActivityInfo filter on Userdatabase.
+		DomainFilters.disableUserFilter(em());
+
+		return em().createQuery(
+			"SELECT r " +
+			"FROM Project p " +
+			"JOIN p.remindersList.reminders r " +
+			"WHERE p.id IN (:projectIds) " +
+			"AND r.completionDate IS NULL " +
+			"AND r.deleted = false ",
+			Reminder.class
+		).setParameter("projectIds", projectIds).getResultList();
+	}
 }

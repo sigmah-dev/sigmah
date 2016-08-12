@@ -22,22 +22,24 @@ package org.sigmah.offline.handler;
  * #L%
  */
 
-import org.sigmah.client.dispatch.DispatchListener;
-import org.sigmah.offline.dao.MonitoredPointAsyncDAO;
-import org.sigmah.offline.dispatch.AsyncCommandHandler;
-import org.sigmah.offline.dispatch.OfflineExecutionContext;
-import org.sigmah.shared.command.GetMonitoredPoints;
-import org.sigmah.shared.command.result.ListResult;
-
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+
+import org.sigmah.client.dispatch.DispatchListener;
+import org.sigmah.offline.dao.MonitoredPointAsyncDAO;
 import org.sigmah.offline.dao.ProjectAsyncDAO;
 import org.sigmah.offline.dao.RequestManager;
 import org.sigmah.offline.dao.RequestManagerCallback;
+import org.sigmah.offline.dispatch.AsyncCommandHandler;
+import org.sigmah.offline.dispatch.OfflineExecutionContext;
+import org.sigmah.shared.command.GetMonitoredPoints;
 import org.sigmah.shared.command.result.Authentication;
+import org.sigmah.shared.command.result.ListResult;
 import org.sigmah.shared.dto.ProjectDTO;
 import org.sigmah.shared.dto.reminder.MonitoredPointDTO;
 
@@ -62,7 +64,7 @@ public class GetMonitoredPointsAsyncHandler implements AsyncCommandHandler<GetMo
 	@Override
 	public void execute(GetMonitoredPoints command, OfflineExecutionContext executionContext, final AsyncCallback<ListResult<MonitoredPointDTO>> callback) {
 		if(command.getProjectId() == null) {
-			loadAllMonitoredPoints(callback);
+			loadAllMonitoredPoints(command, callback);
 		} else {
 			loadProjectMonitoredPoints(command.getProjectId(), callback);
 		}
@@ -76,31 +78,50 @@ public class GetMonitoredPointsAsyncHandler implements AsyncCommandHandler<GetMo
 		monitoredPointAsyncDAO.saveAll(result, null);
 	}
 
-	private void loadAllMonitoredPoints(final AsyncCallback<ListResult<MonitoredPointDTO>> callback) {
-		monitoredPointAsyncDAO.getAllWithoutCompletionDate(new AsyncCallback<List<MonitoredPointDTO>>() {
-				@Override
-				public void onFailure(Throwable caught) {
-					callback.onFailure(caught);
-				}
+	private void loadAllMonitoredPoints(GetMonitoredPoints command, final AsyncCallback<ListResult<MonitoredPointDTO>> callback) {
 
-				@Override
-			public void onSuccess(List<MonitoredPointDTO> result) {
-				final RequestManager<ListResult<MonitoredPointDTO>> manager = new RequestManager<ListResult<MonitoredPointDTO>>(new ListResult<MonitoredPointDTO>(result), callback);
-						
-				for (final MonitoredPointDTO monitoredPoint : result) {
-					projectAsyncDAO.getByIndexWithoutDependencies("pointsListId", monitoredPoint.getParentListId(), new RequestManagerCallback<ListResult<MonitoredPointDTO>, ProjectDTO>(manager) {
+		Set<Integer> orgUnitIds = command.getOrgUnitIds();
+		projectAsyncDAO.getProjectsByIds(orgUnitIds, new AsyncCallback<ListResult<ProjectDTO>>() {
+			@Override
+			public void onFailure(Throwable caught) {
+				callback.onFailure(caught);
+			}
+
+			@Override
+			public void onSuccess(final ListResult<ProjectDTO> projectsResult) {
+				final List<MonitoredPointDTO> monitoredPointDTOs = new ArrayList<MonitoredPointDTO>();
+				for (ProjectDTO projectDTO : projectsResult.getData()) {
+					monitoredPointAsyncDAO.getAllByParentListId(projectDTO.getRemindersList().getId(), new AsyncCallback<List<MonitoredPointDTO>>() {
 						@Override
-						public void onRequestSuccess(ProjectDTO result) {
-							if (result != null) {
-								monitoredPoint.setProjectId(result.getId());
-								monitoredPoint.setProjectCode(result.getName());
-								monitoredPoint.setProjectName(result.getFullName());
-					}
+						public void onFailure(Throwable caught) {
+							callback.onFailure(caught);
+						}
+
+						@Override
+						public void onSuccess(List<MonitoredPointDTO> result) {
+							final RequestManager<ListResult<MonitoredPointDTO>> manager = new RequestManager<ListResult<MonitoredPointDTO>>(new ListResult<MonitoredPointDTO>(monitoredPointDTOs), callback);
+
+							for (final MonitoredPointDTO monitoredPoint : result) {
+								if (monitoredPoint.getCompletionDate() != null) {
+									continue;
+								}
+
+								projectAsyncDAO.getByIndexWithoutDependencies("pointsListId", monitoredPoint.getParentListId(), new RequestManagerCallback<ListResult<MonitoredPointDTO>, ProjectDTO>(manager) {
+									@Override
+									public void onRequestSuccess(ProjectDTO result) {
+										if (result != null) {
+											monitoredPoint.setProjectId(result.getId());
+											monitoredPoint.setProjectCode(result.getName());
+											monitoredPoint.setProjectName(result.getFullName());
+										}
+									}
+								});
+							}
+							manager.ready();
+						}
+					});
 				}
-			});
-		}
-				manager.ready();
-	}
+			}
 		});
 	}
 	

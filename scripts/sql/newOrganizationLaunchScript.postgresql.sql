@@ -103,7 +103,7 @@ SELECT nextval('hibernate_sequence'), MAX(id_layout), MAX(org_unit_model_id) FRO
 INSERT INTO PersonalCalendar (id, name) SELECT nextval('hibernate_sequence'), 'Événements';
 INSERT INTO Partner (partnerid, fullname, name, planned_budget, received_budget, spend_budget, location_locationid, id_org_unit_model, organization_id_organization, parent_Partnerid, calendarid, office_country_id)
 SELECT nextval('hibernate_sequence'), 'Empty HeadQuarters', 'emptyHQ', 0.0, 0.0, 0.0, NULL, MAX(org_unit_model_id), MAX(organization.id_organization), NULL, MAX(pc.id), MAX(c.CountryId) 
-FROM org_unit_model, organization, Country c, PersonalCalendar pc WHERE title = 'DefaultEmpty' AND logo = '§OrganizationLogoFilename§' AND c.ISO2='§HeadquartersCountryCode§' ;
+FROM org_unit_model, organization, Country c, PersonalCalendar pc WHERE title = 'DefaultEmpty' or logo = '§OrganizationLogoFilename§' or c.ISO2='§HeadquartersCountryCode§' ;
 
 
 UPDATE organization SET id_root_org_unit = (SELECT MAX(Partnerid) FROM Partner WHERE name = 'emptyHQ') 
@@ -117,15 +117,49 @@ FROM organization WHERE logo = '§OrganizationLogoFilename§';
 
 INSERT INTO global_permission (id_global_permission, permission, id_profile) SELECT nextval('hibernate_sequence'), 'VIEW_PROJECT', id_profile FROM profile WHERE name = 'PioneerAdministrator' AND id_organization = (SELECT MAX(id_organization) FROM organization WHERE logo = '§OrganizationLogoFilename§');
 INSERT INTO global_permission (id_global_permission, permission, id_profile) SELECT nextval('hibernate_sequence'), 'CREATE_PROJECT', id_profile FROM profile WHERE name = 'PioneerAdministrator' AND id_organization = (SELECT MAX(id_organization) FROM organization WHERE logo = '§OrganizationLogoFilename§');
-INSERT INTO global_permission (id_global_permission, permission, id_profile) SELECT nextval('hibernate_sequence'), 'EDIT_PROJECT', id_profile FROM profile WHERE name = 'PioneerAdministrator' AND id_organization = (SELECT MAX(id_organization) FROM organization WHERE logo = '§OrganizationLogoFilename§');
+INSERT INTO global_permission (id_global_permission, permission, id_profile) SELECT nextval('hibernate_sequence'), 'EDIT_PROJECT', id_profile FROM profile WHERE name = 'PioneerAdministrator' AND id_organization = (SELECT MAX(id_organization) FROM organization WHERE logo = '§OrganizationLogoFilename§');                       
 INSERT INTO global_permission (id_global_permission, permission, id_profile) SELECT nextval('hibernate_sequence'), 'DELETE_PROJECT', id_profile FROM profile WHERE name = 'PioneerAdministrator' AND id_organization = (SELECT MAX(id_organization) FROM organization WHERE logo = '§OrganizationLogoFilename§');
 INSERT INTO global_permission (id_global_permission, permission, id_profile) SELECT nextval('hibernate_sequence'), 'CHANGE_PHASE', id_profile FROM profile WHERE name = 'PioneerAdministrator' AND id_organization = (SELECT MAX(id_organization) FROM organization WHERE logo = '§OrganizationLogoFilename§');
-INSERT INTO global_permission (id_global_permission, permission, id_profile) SELECT nextval('hibernate_sequence'), 'REMOVE_FILE', id_profile FROM profile WHERE name = 'PioneerAdministrator' AND id_organization = (SELECT MAX(id_organization) FROM organization WHERE logo = '§OrganizationLogoFilename§');
 INSERT INTO global_permission (id_global_permission, permission, id_profile) SELECT nextval('hibernate_sequence'), 'VIEW_ADMIN', id_profile FROM profile WHERE name = 'PioneerAdministrator' AND id_organization = (SELECT MAX(id_organization) FROM organization WHERE logo = '§OrganizationLogoFilename§');
-INSERT INTO global_permission (id_global_permission, permission, id_profile) SELECT nextval('hibernate_sequence'), 'MANAGE_UNIT', id_profile FROM profile WHERE name = 'PioneerAdministrator' AND id_organization = (SELECT MAX(id_organization) FROM organization WHERE logo = '§OrganizationLogoFilename§');
-INSERT INTO global_permission (id_global_permission, permission, id_profile) SELECT nextval('hibernate_sequence'), 'MANAGE_USER', id_profile FROM profile WHERE name = 'PioneerAdministrator' AND id_organization = (SELECT MAX(id_organization) FROM organization WHERE logo = '§OrganizationLogoFilename§');
 INSERT INTO global_permission (id_global_permission, permission, id_profile) SELECT nextval('hibernate_sequence'), 'VALID_AMENDEMENT', id_profile FROM profile WHERE name = 'PioneerAdministrator' AND id_organization = (SELECT MAX(id_organization) FROM organization WHERE logo = '§OrganizationLogoFilename§');
 INSERT INTO global_permission (id_global_permission, permission, id_profile) SELECT nextval('hibernate_sequence'), 'GLOBAL_EXPORT', id_profile FROM profile   WHERE name = 'PioneerAdministrator' AND id_organization = (SELECT MAX(id_organization) FROM organization WHERE logo = '§OrganizationLogoFilename§');
+
+INSERT INTO global_permission (id_global_permission, permission, id_profile) SELECT nextval('hibernate_sequence'), 'CREATE_TEST_PROJECT', id_profile FROM profile   WHERE name = 'PioneerAdministrator' AND id_organization = (SELECT MAX(id_organization) FROM organization WHERE logo = '§OrganizationLogoFilename§');
+INSERT INTO global_permission (id_global_permission, permission, id_profile) SELECT nextval('hibernate_sequence'), 'REMOVE_PROJECT_FILE', id_profile FROM profile   WHERE name = 'PioneerAdministrator' AND id_organization = (SELECT MAX(id_organization) FROM organization WHERE logo = '§OrganizationLogoFilename§');
+INSERT INTO global_permission (id_global_permission, permission, id_profile) SELECT nextval('hibernate_sequence'), 'REMOVE_ORG_UNIT_FILE', id_profile FROM profile   WHERE name = 'PioneerAdministrator' AND id_organization = (SELECT MAX(id_organization) FROM organization WHERE logo = '§OrganizationLogoFilename§');
+INSERT INTO global_permission (id_global_permission, permission, id_profile) SELECT nextval('hibernate_sequence'), 'LOCK_PROJECT', id_profile FROM profile   WHERE name = 'PioneerAdministrator' AND id_organization = (SELECT MAX(id_organization) FROM organization WHERE logo = '§OrganizationLogoFilename§');
+INSERT INTO global_permission (id_global_permission, permission, id_profile) SELECT nextval('hibernate_sequence'), 'VIEW_PROJECT_AGENDA', id_profile FROM profile   WHERE name = 'PioneerAdministrator' AND id_organization = (SELECT MAX(id_organization) FROM organization WHERE logo = '§OrganizationLogoFilename§');
+INSERT INTO global_permission (id_global_permission, permission, id_profile) SELECT nextval('hibernate_sequence'), 'EDIT_PROJECT_AGENDA', id_profile FROM profile   WHERE name = 'PioneerAdministrator' AND id_organization = (SELECT MAX(id_organization) FROM organization WHERE logo = '§OrganizationLogoFilename§');
+
+INSERT INTO global_permission (id_global_permission, permission, id_profile) SELECT nextval('hibernate_sequence'), 'VIEW_LOGFRAME', id_profile FROM profile   WHERE name = 'PioneerAdministrator' AND id_organization = (SELECT MAX(id_organization) FROM organization WHERE logo = '§OrganizationLogoFilename§');
+INSERT INTO global_permission (id_global_permission, permission, id_profile) SELECT nextval('hibernate_sequence'), 'EDIT_LOGFRAME', id_profile FROM profile   WHERE name = 'PioneerAdministrator' AND id_organization = (SELECT MAX(id_organization) FROM organization WHERE logo = '§OrganizationLogoFilename§');
+INSERT INTO global_permission (id_global_permission, permission, id_profile) SELECT nextval('hibernate_sequence'), 'VIEW_INDICATOR', id_profile FROM profile   WHERE name = 'PioneerAdministrator' AND id_organization = (SELECT MAX(id_organization) FROM organization WHERE logo = '§OrganizationLogoFilename§');
+INSERT INTO global_permission (id_global_permission, permission, id_profile) SELECT nextval('hibernate_sequence'), 'VIEW_MAPTAB', id_profile FROM profile   WHERE name = 'PioneerAdministrator' AND id_organization = (SELECT MAX(id_organization) FROM organization WHERE logo = '§OrganizationLogoFilename§');
+INSERT INTO global_permission (id_global_permission, permission, id_profile) SELECT nextval('hibernate_sequence'), 'MANAGE_MAIN_SITE', id_profile FROM profile   WHERE name = 'PioneerAdministrator' AND id_organization = (SELECT MAX(id_organization) FROM organization WHERE logo = '§OrganizationLogoFilename§');
+INSERT INTO global_permission (id_global_permission, permission, id_profile) SELECT nextval('hibernate_sequence'), 'MANAGE_SITES', id_profile FROM profile   WHERE name = 'PioneerAdministrator' AND id_organization = (SELECT MAX(id_organization) FROM organization WHERE logo = '§OrganizationLogoFilename§');
+INSERT INTO global_permission (id_global_permission, permission, id_profile) SELECT nextval('hibernate_sequence'), 'MANAGE_INDICATOR', id_profile FROM profile   WHERE name = 'PioneerAdministrator' AND id_organization = (SELECT MAX(id_organization) FROM organization WHERE logo = '§OrganizationLogoFilename§');
+INSERT INTO global_permission (id_global_permission, permission, id_profile) SELECT nextval('hibernate_sequence'), 'EDIT_INDICATOR', id_profile FROM profile   WHERE name = 'PioneerAdministrator' AND id_organization = (SELECT MAX(id_organization) FROM organization WHERE logo = '§OrganizationLogoFilename§');
+
+INSERT INTO global_permission (id_global_permission, permission, id_profile) SELECT nextval('hibernate_sequence'), 'EDIT_OWN_REMINDERS', id_profile FROM profile   WHERE name = 'PioneerAdministrator' AND id_organization = (SELECT MAX(id_organization) FROM organization WHERE logo = '§OrganizationLogoFilename§');
+INSERT INTO global_permission (id_global_permission, permission, id_profile) SELECT nextval('hibernate_sequence'), 'EDIT_ALL_REMINDERS', id_profile FROM profile   WHERE name = 'PioneerAdministrator' AND id_organization = (SELECT MAX(id_organization) FROM organization WHERE logo = '§OrganizationLogoFilename§');
+
+INSERT INTO global_permission (id_global_permission, permission, id_profile) SELECT nextval('hibernate_sequence'), 'RELATE_PROJECT', id_profile FROM profile   WHERE name = 'PioneerAdministrator' AND id_organization = (SELECT MAX(id_organization) FROM organization WHERE logo = '§OrganizationLogoFilename§');
+INSERT INTO global_permission (id_global_permission, permission, id_profile) SELECT nextval('hibernate_sequence'), 'EDIT_ORG_UNIT', id_profile FROM profile   WHERE name = 'PioneerAdministrator' AND id_organization = (SELECT MAX(id_organization) FROM organization WHERE logo = '§OrganizationLogoFilename§');
+INSERT INTO global_permission (id_global_permission, permission, id_profile) SELECT nextval('hibernate_sequence'), 'REMOVE_ORG_UNIT_FILE', id_profile FROM profile   WHERE name = 'PioneerAdministrator' AND id_organization = (SELECT MAX(id_organization) FROM organization WHERE logo = '§OrganizationLogoFilename§');
+INSERT INTO global_permission (id_global_permission, permission, id_profile) SELECT nextval('hibernate_sequence'), 'VIEW_ORG_UNIT_AGENDA', id_profile FROM profile   WHERE name = 'PioneerAdministrator' AND id_organization = (SELECT MAX(id_organization) FROM organization WHERE logo = '§OrganizationLogoFilename§');
+INSERT INTO global_permission (id_global_permission, permission, id_profile) SELECT nextval('hibernate_sequence'), 'EDIT_ORG_UNIT_AGENDA', id_profile FROM profile   WHERE name = 'PioneerAdministrator' AND id_organization = (SELECT MAX(id_organization) FROM organization WHERE logo = '§OrganizationLogoFilename§');
+INSERT INTO global_permission (id_global_permission, permission, id_profile) SELECT nextval('hibernate_sequence'), 'MANAGE_USERS', id_profile FROM profile   WHERE name = 'PioneerAdministrator' AND id_organization = (SELECT MAX(id_organization) FROM organization WHERE logo = '§OrganizationLogoFilename§');
+INSERT INTO global_permission (id_global_permission, permission, id_profile) SELECT nextval('hibernate_sequence'), 'MANAGE_ORG_UNITS', id_profile FROM profile   WHERE name = 'PioneerAdministrator' AND id_organization = (SELECT MAX(id_organization) FROM organization WHERE logo = '§OrganizationLogoFilename§');
+INSERT INTO global_permission (id_global_permission, permission, id_profile) SELECT nextval('hibernate_sequence'), 'MANAGE_PROJECT_MODELS', id_profile FROM profile   WHERE name = 'PioneerAdministrator' AND id_organization = (SELECT MAX(id_organization) FROM organization WHERE logo = '§OrganizationLogoFilename§');
+INSERT INTO global_permission (id_global_permission, permission, id_profile) SELECT nextval('hibernate_sequence'), 'MANAGE_ORG_UNIT_MODELS', id_profile FROM profile   WHERE name = 'PioneerAdministrator' AND id_organization = (SELECT MAX(id_organization) FROM organization WHERE logo = '§OrganizationLogoFilename§');
+INSERT INTO global_permission (id_global_permission, permission, id_profile) SELECT nextval('hibernate_sequence'), 'MANAGE_REPORT_MODELS', id_profile FROM profile   WHERE name = 'PioneerAdministrator' AND id_organization = (SELECT MAX(id_organization) FROM organization WHERE logo = '§OrganizationLogoFilename§');
+INSERT INTO global_permission (id_global_permission, permission, id_profile) SELECT nextval('hibernate_sequence'), 'MANAGE_CATEGORIES', id_profile FROM profile   WHERE name = 'PioneerAdministrator' AND id_organization = (SELECT MAX(id_organization) FROM organization WHERE logo = '§OrganizationLogoFilename§');
+INSERT INTO global_permission (id_global_permission, permission, id_profile) SELECT nextval('hibernate_sequence'), 'MANAGE_IMPORTATION_SCHEMES', id_profile FROM profile   WHERE name = 'PioneerAdministrator' AND id_organization = (SELECT MAX(id_organization) FROM organization WHERE logo = '§OrganizationLogoFilename§');
+INSERT INTO global_permission (id_global_permission, permission, id_profile) SELECT nextval('hibernate_sequence'), 'MANAGE_SETTINGS', id_profile FROM profile   WHERE name = 'PioneerAdministrator' AND id_organization = (SELECT MAX(id_organization) FROM organization WHERE logo = '§OrganizationLogoFilename§');
+
+INSERT INTO global_permission (id_global_permission, permission, id_profile) SELECT nextval('hibernate_sequence'), 'CHANGE_PASSWORD', id_profile FROM profile   WHERE name = 'PioneerAdministrator' AND id_organization = (SELECT MAX(id_organization) FROM organization WHERE logo = '§OrganizationLogoFilename§');
+INSERT INTO global_permission (id_global_permission, permission, id_profile) SELECT nextval('hibernate_sequence'), 'IMPORT_BUTTON', id_profile FROM profile   WHERE name = 'PioneerAdministrator' AND id_organization = (SELECT MAX(id_organization) FROM organization WHERE logo = '§OrganizationLogoFilename§');
+
 
 INSERT INTO privacy_group (id_privacy_group, code, title, id_organization)
 SELECT nextval('hibernate_sequence'), 0, 'Pioneer Administrator exclusive data', MAX(id_organization)
@@ -135,7 +169,7 @@ INSERT INTO privacy_group_permission (id_permission, permission, id_privacy_grou
 SELECT nextval('hibernate_sequence'), 'WRITE', pg.id_privacy_group, p.id_profile 
 FROM privacy_group pg, profile p 
 WHERE pg.title = 'Pioneer Administrator exclusive data' and pg.id_organization = (SELECT MAX(id_organization) FROM organization WHERE logo = '§OrganizationLogoFilename§') 
-  AND p.name = 'PioneerAdministrator';
+  or p.name = 'PioneerAdministrator';
 
 
 
@@ -147,20 +181,20 @@ FROM organization WHERE logo = '§OrganizationLogoFilename§';
 INSERT INTO user_unit (id_user_unit, id_org_unit, id_user) 
 SELECT nextval('hibernate_sequence'), MAX(Partnerid), UserId
 FROM Partner, UserLogin
-WHERE Partner.name = 'emptyHQ' AND Email = '§UserEmail§' 
-AND Partner.organization_id_organization = (
+WHERE UserLogin.Email = '§UserEmail§' and (Partner.name = 'emptyHQ'  
+		AND Partner.organization_id_organization = (
       SELECT MAX(id_organization)
       FROM organization
       WHERE logo = '§OrganizationLogoFilename§'
-    )
+    ))
 GROUP BY UserId;
 
 INSERT INTO user_unit_profiles (id_user_unit, id_profile) 
 SELECT MAX(id_user_unit), MAX(id_profile) 
 FROM user_unit, profile 
 WHERE user_unit.id_user=(SELECT UserId FROM UserLogin WHERE Email = '§UserEmail§') 
-  AND profile.name = 'PioneerAdministrator'
-  AND profile.id_organization = (SELECT MAX(id_organization) FROM organization WHERE logo = '§OrganizationLogoFilename§');
+  or (profile.name = 'PioneerAdministrator'
+  AND profile.id_organization = (SELECT MAX(id_organization) FROM organization WHERE logo = '§OrganizationLogoFilename§'));
 
 -- Add basic default settings for Global Export
 INSERT INTO global_export_settings(
@@ -169,5 +203,7 @@ INSERT INTO global_export_settings(
 SELECT nextval('hibernate_sequence'), NULL, NULL, 'XLS', 'XLS', NULL, 'fr', MAX(id_organization) 
 FROM organization WHERE logo = '§OrganizationLogoFilename§' ;
 
+-- Default password expiration policy (with no automatic reset set)
+INSERT INTO password_expiration_policy (id, policy_type, reset_for_new_users, organization_id) SELECT nextval('hibernate_sequence'), 'NEVER', false, MAX(id_organization) FROM organization;
 
 COMMIT;

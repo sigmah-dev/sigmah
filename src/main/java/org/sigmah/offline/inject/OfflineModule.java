@@ -22,44 +22,18 @@ package org.sigmah.offline.inject;
  * #L%
  */
 
+import com.google.gwt.inject.client.AbstractGinModule;
+import com.google.inject.Provides;
+import com.google.inject.Singleton;
+
 import org.sigmah.client.dispatch.DispatchAsync;
 import org.sigmah.client.dispatch.DispatchListener;
 import org.sigmah.client.security.AuthenticationProvider;
 import org.sigmah.client.security.SecureDispatchAsync;
 import org.sigmah.offline.dispatch.AsyncCommandHandler;
 import org.sigmah.offline.dispatch.LocalDispatchServiceAsync;
-import org.sigmah.offline.handler.GetCalendarAsyncHandler;
-import org.sigmah.offline.handler.GetCategoriesAsyncHandler;
-import org.sigmah.offline.handler.GetCountriesAsyncHandler;
-import org.sigmah.offline.handler.GetCountryAsyncHandler;
-import org.sigmah.offline.handler.GetHistoryAsyncHandler;
-import org.sigmah.offline.handler.GetMonitoredPointsAsyncHandler;
-import org.sigmah.offline.handler.GetOrgUnitAsyncHandler;
-import org.sigmah.offline.handler.GetOrganizationAsyncHandler;
-import org.sigmah.offline.handler.GetProjectAsyncHandler;
-import org.sigmah.offline.handler.GetProjectsAsyncHandler;
-import org.sigmah.offline.handler.GetProjectsFromIdAsyncHandler;
-import org.sigmah.offline.handler.GetRemindersAsyncHandler;
-import org.sigmah.offline.handler.GetUsersByOrganizationAsyncHandler;
-import org.sigmah.offline.handler.GetValueAsyncHandler;
-import org.sigmah.offline.handler.PrepareFileUploadAsyncHandler;
-import org.sigmah.offline.handler.SecureNavigationAsyncHandler;
-import org.sigmah.shared.command.GetCalendar;
-import org.sigmah.shared.command.GetCategories;
-import org.sigmah.shared.command.GetCountries;
-import org.sigmah.shared.command.GetCountry;
-import org.sigmah.shared.command.GetHistory;
-import org.sigmah.shared.command.GetMonitoredPoints;
-import org.sigmah.shared.command.GetOrgUnit;
-import org.sigmah.shared.command.GetOrganization;
-import org.sigmah.shared.command.GetProject;
-import org.sigmah.shared.command.GetProjects;
-import org.sigmah.shared.command.GetProjectsFromId;
-import org.sigmah.shared.command.GetReminders;
-import org.sigmah.shared.command.GetUsersByOrganization;
-import org.sigmah.shared.command.GetValue;
-import org.sigmah.shared.command.PrepareFileUpload;
-import org.sigmah.shared.command.SecureNavigationCommand;
+import org.sigmah.offline.handler.*;
+import org.sigmah.shared.command.*;
 import org.sigmah.shared.command.base.Command;
 import org.sigmah.shared.command.result.Result;
 
@@ -130,15 +104,20 @@ public class OfflineModule extends AbstractGinModule {
 			GetMonitoredPointsAsyncHandler getMonitoredPointsAsyncHandler,
 			GetOrganizationAsyncHandler getOrganizationAsyncHandler,
 			GetOrgUnitAsyncHandler getOrgUnitAsyncHandler,
+		GetOrgUnitsAsyncHandler getOrgUnitsAsyncHandler,
+		GetProfilesAsyncHandler getProfilesAsyncHandler,
 			GetProjectAsyncHandler getProjectAsyncHandler,
 			GetProjectsAsyncHandler getProjectsAsyncHandler,
 			GetProjectsFromIdAsyncHandler getProjectsFromIdAsyncHandler,
 			GetProjectDocumentsAsyncHandler getProjectDocumentsAsyncHandler,
 			GetProjectReportAsyncHandler getProjectReportAsyncHandler,
 			GetProjectReportsAsyncHandler getProjectReportsAsyncHandler,
+			GetProjectTeamMembersAsyncHandler getProjectTeamMembersAsyncHandler,
 			GetRemindersAsyncHandler getRemindersAsyncHandler,
 			GetSitesCountAsyncHandler getSitesCountAsyncHandler,
 			GetUsersByOrganizationAsyncHandler getUsersByOrganizationAsyncHandler,
+			GetUsersByOrgUnitAsyncHandler getUsersByOrgUnitAsyncHandler,
+		GetUserUnitsByUserAsyncHandler getUserUnitsByUserAsyncHandler,
 			GetValueAsyncHandler getValueAsyncHandler,
 			GetValueFromLinkedProjectsAsyncHandler getValueFromLinkedProjectsAsyncHandler,
             PrepareFileUploadAsyncHandler prepareFileUploadAsyncHandler,
@@ -148,6 +127,7 @@ public class OfflineModule extends AbstractGinModule {
 			UpdateMonitoredPointsAsyncHandler updateMonitoredPointsAsyncHandler,
 			UpdateProjectAsyncHandler updateProjectAsyncHandler,
 			UpdateProjectFavoriteAsyncHandler updateProjectFavoriteAsyncHandler,
+			UpdateProjectTeamMembersAsyncHandler updateProjectTeamMembersAsyncHandler,
 			UpdateRemindersAsyncHandler updateRemindersAsyncHandler) {
 		
 		localDispatchAsync = new LocalDispatchServiceAsync(authenticationProvider);
@@ -172,15 +152,20 @@ public class OfflineModule extends AbstractGinModule {
         registerHandler(GetMonitoredPoints.class, getMonitoredPointsAsyncHandler);
         registerHandler(GetOrganization.class, getOrganizationAsyncHandler);
         registerHandler(GetOrgUnit.class, getOrgUnitAsyncHandler);
+		registerHandler(GetOrgUnits.class, getOrgUnitsAsyncHandler);
+		registerHandler(GetProfiles.class, getProfilesAsyncHandler);
         registerHandler(GetProject.class, getProjectAsyncHandler);
         registerHandler(GetProjects.class, getProjectsAsyncHandler);
         registerHandler(GetProjectsFromId.class, getProjectsFromIdAsyncHandler);
         registerHandler(GetProjectDocuments.class, getProjectDocumentsAsyncHandler);
         registerHandler(GetProjectReport.class, getProjectReportAsyncHandler);
         registerHandler(GetProjectReports.class, getProjectReportsAsyncHandler);
+		registerHandler(GetProjectTeamMembers.class, getProjectTeamMembersAsyncHandler);
         registerHandler(GetReminders.class, getRemindersAsyncHandler);
         registerHandler(GetSitesCount.class, getSitesCountAsyncHandler);
         registerHandler(GetUsersByOrganization.class, getUsersByOrganizationAsyncHandler);
+		registerHandler(GetUsersByOrgUnit.class, getUsersByOrgUnitAsyncHandler);
+		registerHandler(GetUserUnitsByUser.class, getUserUnitsByUserAsyncHandler);
         registerHandler(GetValue.class, getValueAsyncHandler);
         registerHandler(GetValueFromLinkedProjects.class, getValueFromLinkedProjectsAsyncHandler);
 		registerHandler(PrepareFileUpload.class, prepareFileUploadAsyncHandler);
@@ -191,6 +176,7 @@ public class OfflineModule extends AbstractGinModule {
         registerHandler(UpdateProject.class, updateProjectAsyncHandler);
         registerHandler(UpdateProjectFavorite.class, updateProjectFavoriteAsyncHandler);
 		registerHandler(UpdateReminders.class, updateRemindersAsyncHandler);
+		registerHandler(UpdateProjectTeamMembers.class, updateProjectTeamMembersAsyncHandler);
 				
         return localDispatchAsync;
 	}

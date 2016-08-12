@@ -48,6 +48,7 @@ import org.sigmah.shared.servlet.ServletConstants.Servlet;
 import org.sigmah.shared.servlet.ServletConstants.ServletMethod;
 import org.sigmah.shared.servlet.ServletUrlBuilder;
 import org.sigmah.shared.util.ProfileUtils;
+import org.sigmah.shared.util.ProjectUtils;
 
 import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.event.BaseEvent;
@@ -62,7 +63,7 @@ import com.google.inject.Singleton;
 
 /**
  * Project's log frame presenter which manages the {@link ProjectLogFrameView}.
- * 
+ *
  * @author Denis Colliot (dcolliot@ideia.fr)
  * @author Tom Miette (tmiette@ideia.fr)
  */
@@ -115,7 +116,7 @@ public class ProjectLogFramePresenter extends AbstractProjectPresenter<ProjectLo
 
 	/**
 	 * Presenters's initialization.
-	 * 
+	 *
 	 * @param view
 	 *          Presenter's view interface.
 	 * @param injector
@@ -243,14 +244,14 @@ public class ProjectLogFramePresenter extends AbstractProjectPresenter<ProjectLo
 
 	/**
 	 * Returns if the current {@link #logFrame} is editable or not.
-	 * 
+	 *
 	 * @return {@code true} if the current {@link #logFrame} is editable.
 	 */
 	private boolean isEditable() {
 		return logFrame != null
 			&& getProject().getAmendmentState() == AmendmentState.DRAFT
 			&& getProject().getCurrentAmendment() == null
-			&& ProfileUtils.isGranted(auth(), GlobalPermissionEnum.EDIT_PROJECT)
+			&& ProjectUtils.isProjectEditable(getProject(), auth())
 			&& ProfileUtils.isGranted(auth(), GlobalPermissionEnum.EDIT_LOGFRAME);
 	}
 

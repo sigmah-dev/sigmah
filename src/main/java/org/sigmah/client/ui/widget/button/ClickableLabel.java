@@ -34,7 +34,7 @@ import com.google.gwt.user.client.ui.Image;
 
 /**
  * Label field with a delete icon.
- * 
+ *
  * @author nrebiai v1.3
  * @author Mehdi Benabdeslam (mehdi.benabdeslam@netapsys.fr) v2.0
  * @author Denis Colliot (dcolliot@ideia.fr) (v2.0)
@@ -45,7 +45,7 @@ public class ClickableLabel extends AdapterField implements HasClickHandlers {
 
 	/**
 	 * Initializes a new removable label field.
-	 * 
+	 *
 	 * @param label
 	 *          The label, may be {@code null}.
 	 */
@@ -64,7 +64,7 @@ public class ClickableLabel extends AdapterField implements HasClickHandlers {
 
 	/**
 	 * Simply casts the parent {@code widget} attribute into the proper type.
-	 * 
+	 *
 	 * @return The grid widget instance.
 	 */
 	private Grid asGrid() {
@@ -73,7 +73,7 @@ public class ClickableLabel extends AdapterField implements HasClickHandlers {
 
 	/**
 	 * Sets the label.
-	 * 
+	 *
 	 * @param label
 	 *          The new label.
 	 */
@@ -89,4 +89,8 @@ public class ClickableLabel extends AdapterField implements HasClickHandlers {
 		return deleteIcon.addClickHandler(handler);
 	}
 
+	@Override
+	public void addStyleName(String style) {
+		widget.addStyleName(style);
+	}
 }

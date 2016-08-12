@@ -29,8 +29,10 @@ import javax.persistence.TypedQuery;
 
 import org.sigmah.server.dispatch.impl.UserDispatch.UserExecutionContext;
 import org.sigmah.server.domain.Project;
+import org.sigmah.server.domain.ProjectFunding;
 import org.sigmah.server.domain.util.DomainFilters;
 import org.sigmah.server.handler.base.AbstractCommandHandler;
+import org.sigmah.server.handler.util.Handlers;
 import org.sigmah.server.handler.util.ProjectMapper;
 import org.sigmah.shared.command.GetProjectsFromId;
 import org.sigmah.shared.command.result.ListResult;
@@ -90,9 +92,30 @@ public class GetProjectsFromIdHandler extends AbstractCommandHandler<GetProjects
 		if (mappingMode == ProjectDTO.Mode._USE_PROJECT_MAPPER) {
 			// Using specific project mapper.
 			for (final Project project : projects) {
+				if (!Handlers.isProjectVisible(project, context.getUser())) {
+					continue;
+				}
+
+				List<ProjectFunding> projectsFunded = new ArrayList<>();
+				for (ProjectFunding projectFunding : project.getFunded()) {
+					if (!Handlers.isProjectVisible(projectFunding.getFunded(), context.getUser())) {
+						continue;
+					}
+					projectsFunded.add(projectFunding);
+				}
+				project.setFunded(projectsFunded);
+
+				List<ProjectFunding> projectsFunding = new ArrayList<>();
+				for (ProjectFunding projectFunding : project.getFunding()) {
+					if (!Handlers.isProjectVisible(projectFunding.getFunding(), context.getUser())) {
+						continue;
+					}
+					projectsFunding.add(projectFunding);
+				}
+				project.setFunding(projectsFunding);
+
 				projectDTOList.add(projectMapper.map(project, true));
 			}
-
 		} else {
 			// Using provided mapping mode.
 			projectDTOList.addAll(mapper().mapCollection(projects, ProjectDTO.class, cmd.getMappingMode()));
