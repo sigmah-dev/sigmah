@@ -38,7 +38,7 @@ import org.sigmah.client.util.profiler.Scenario;
 
 /**
  * GWT module entry point.
- * 
+ *
  * @author Tom Miette (tmiette@ideia.fr)
  */
 public class Sigmah implements EntryPoint {
@@ -142,6 +142,7 @@ public class Sigmah implements EntryPoint {
 		injector.getProjectDashboardPresenter();
 		injector.getProjectLogFramePresenter();
 		injector.getProjectDetailsPresenter();
+		injector.getProjectTeamMembersPresenter();
 		injector.getProjectCalendarPresenter();
 		injector.getProjectReportsPresenter();
 		injector.getProjectIndicatorEntriesPresenter();

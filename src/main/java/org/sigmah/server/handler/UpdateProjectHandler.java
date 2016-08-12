@@ -41,6 +41,7 @@ import org.sigmah.shared.dispatch.CommandException;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
 import org.sigmah.shared.dto.element.event.ValueEventWrapper;
 import org.sigmah.shared.dto.referential.DefaultFlexibleElementType;
+import org.sigmah.shared.dto.referential.ProjectModelStatus;
 import org.sigmah.shared.dto.value.TripletValueDTO;
 import org.sigmah.shared.util.ValueResultUtils;
 import org.slf4j.Logger;
@@ -57,6 +58,7 @@ import java.util.Map;
 import org.sigmah.offline.sync.SuccessCallback;
 import org.sigmah.server.computation.ServerComputations;
 import org.sigmah.server.computation.ServerValueResolver;
+import org.sigmah.server.domain.OrgUnit;
 import org.sigmah.server.domain.element.DefaultFlexibleElement;
 import org.sigmah.server.handler.util.Conflicts;
 import org.sigmah.server.handler.util.Handlers;
@@ -212,6 +214,9 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 				// the TripletValue class for the moment)
 				valueService.saveValue(updateListValue, valueEvent.getChangeType(), historyDate, element, projectId, user, comment);
 			}
+
+			// Special case : this value is a part of a list which is the true value of the flexible element. (only used for
+			// the TripletValue class for the moment)
 			else {
 				valueService.saveValue(updateSingleValue, historyDate, element, projectId, user, comment);
 			}
@@ -219,10 +224,12 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 			
 		// Update user permissions
 		final Project updatedProject = em().find(Project.class, projectId);
-		if (updatedProject != null && coreVersionHasBeenModified) {
-			// Update the revision number
-			updatedProject.setAmendmentRevision(updatedProject.getAmendmentRevision() == null ? 2 : updatedProject.getAmendmentRevision() + 1);
-			em().merge(updatedProject);
+		if (updatedProject != null) {
+			if(coreVersionHasBeenModified) {
+				// Update the revision number
+				updatedProject.setAmendmentRevision(updatedProject.getAmendmentRevision() == null ? 2 : updatedProject.getAmendmentRevision() + 1);
+				em().merge(updatedProject);
+			}
 		}
 
 		if (!conflicts.isEmpty()) {
