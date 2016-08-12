@@ -22,6 +22,7 @@ package org.sigmah.server.service;
  * #L%
  */
 
+import com.google.inject.Inject;
 import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 
@@ -33,6 +34,22 @@ import org.sigmah.server.service.util.PropertyMap;
 import org.sigmah.shared.dto.ProjectFundingDTO;
 
 import com.google.inject.Singleton;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import org.sigmah.server.computation.ServerComputations;
+import org.sigmah.server.computation.ServerValueResolver;
+import org.sigmah.server.domain.ProjectModel;
+import org.sigmah.server.domain.element.ComputationElement;
+import org.sigmah.shared.computation.Computation;
+import org.sigmah.shared.computation.Computations;
+import org.sigmah.shared.computation.instruction.Instructions;
+import org.sigmah.shared.computation.value.ComputedValue;
+import org.sigmah.shared.computation.value.ComputedValues;
+import org.sigmah.shared.util.Future;
+import org.sigmah.shared.util.ValueResultUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * {@link ProjectFunding} corresponding service implementation.
@@ -42,6 +59,14 @@ import com.google.inject.Singleton;
 @Singleton
 public class ProjectFundingService extends AbstractEntityService<ProjectFunding, Integer, ProjectFundingDTO> {
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(ProjectFundingService.class);
+	
+	@Inject
+	private ServerValueResolver valueResolver;
+	
+	@Inject
+	private ValueService valueService;
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -79,7 +104,35 @@ public class ProjectFundingService extends AbstractEntityService<ProjectFunding,
 
 		// Saves.
 		em().persist(funding);
+		
+		// Updating related computation elements.
+		final List<ComputationElement> impactedComputations = getImpactedComputationsForModels(fundingProject.getProjectModel(), fundedProject.getProjectModel());
 
+		for (final ComputationElement computationElement : impactedComputations) {
+			final TypedQuery<ProjectModel> modelQuery = em().createQuery("SELECT pm From ProjectModel pm WHERE :element = pm.phaseModels.layout.groups.constraints.element OR :element = pm.projectDetails.layout.groups.constraints.element", ProjectModel.class);
+			modelQuery.setParameter("element", computationElement);
+			
+			final ProjectModel parentModel = modelQuery.getSingleResult();
+			
+			if (parentModel != null) {
+				final Computation computation = Computations.parse(computationElement.getRule(), ServerComputations.getAllElementsFromModel(parentModel));
+				
+				for (final Project project : Arrays.asList(fundingProject, fundedProject)) {
+					if (parentModel.equals(project.getProjectModel())) {
+						final Future<String> computedValue = new Future<>();
+						computation.computeValueWithResolver(project.getId(), valueResolver, computedValue.defer());
+
+						try {
+							final ComputedValue value = ComputedValues.from(computedValue.getOrThrow());
+							valueService.saveValue(value.toString(), computationElement, project.getId(), context.getUser());
+						} catch (Throwable t) {
+							LOGGER.error("An error occured when computing the formula of the element '" + computationElement.getId() + "' for project '" + project.getId() + "'.", t);
+						}
+					}
+				}
+			}
+		}
+		
 		return funding;
 	}
 
@@ -95,8 +148,21 @@ public class ProjectFundingService extends AbstractEntityService<ProjectFunding,
 			projectFunding.setPercentage((Double) changes.get(ProjectFundingDTO.PERCENTAGE));
 			projectFunding = em().merge(projectFunding);
 		}
-
+		
 		return projectFunding;
+	}
+	
+	private List<ComputationElement> getImpactedComputationsForModels(final ProjectModel... models) {
+		final List<ComputationElement> impactedComputations = new ArrayList<>();
+		
+		for (final ProjectModel model : models) {
+			final TypedQuery<ComputationElement> query = em().createQuery("SELECT ce FROM ComputationElement ce WHERE ce.rule LIKE :modelReference", ComputationElement.class);
+			query.setParameter("modelReference", '%' + Instructions.ID_PREFIX + model.getId() + ValueResultUtils.BUDGET_VALUE_SEPARATOR + model.getName() + '%');
+			
+			impactedComputations.addAll(query.getResultList());
+		}
+		
+		return impactedComputations;
 	}
 
 }
