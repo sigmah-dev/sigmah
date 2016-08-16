@@ -112,6 +112,10 @@ public final class NumberUtils {
 	 * @return The ratio.
 	 */
 	public static String ratioAsString(Number n, Number in) {
+		
+		if (n == null || in == null) {
+			return "-";
+		}
 		return truncate(ratio(n, in)) + " %";
 	}
 
