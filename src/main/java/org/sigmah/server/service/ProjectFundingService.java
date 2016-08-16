@@ -35,21 +35,12 @@ import org.sigmah.shared.dto.ProjectFundingDTO;
 
 import com.google.inject.Singleton;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import org.sigmah.server.computation.ServerComputations;
-import org.sigmah.server.computation.ServerValueResolver;
 import org.sigmah.server.domain.ProjectModel;
+import org.sigmah.server.domain.User;
 import org.sigmah.server.domain.element.ComputationElement;
-import org.sigmah.shared.computation.Computation;
-import org.sigmah.shared.computation.Computations;
 import org.sigmah.shared.computation.instruction.Instructions;
-import org.sigmah.shared.computation.value.ComputedValue;
-import org.sigmah.shared.computation.value.ComputedValues;
-import org.sigmah.shared.util.Future;
 import org.sigmah.shared.util.ValueResultUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * {@link ProjectFunding} corresponding service implementation.
@@ -59,13 +50,11 @@ import org.slf4j.LoggerFactory;
 @Singleton
 public class ProjectFundingService extends AbstractEntityService<ProjectFunding, Integer, ProjectFundingDTO> {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(ProjectFundingService.class);
-	
+	/**
+	 * Injection of the service updating the computation elements.
+	 */
 	@Inject
-	private ServerValueResolver valueResolver;
-	
-	@Inject
-	private ValueService valueService;
+	private ComputationService computationService;
 	
 	/**
 	 * {@inheritDoc}
@@ -106,32 +95,7 @@ public class ProjectFundingService extends AbstractEntityService<ProjectFunding,
 		em().persist(funding);
 		
 		// Updating related computation elements.
-		final List<ComputationElement> impactedComputations = getImpactedComputationsForModels(fundingProject.getProjectModel(), fundedProject.getProjectModel());
-
-		for (final ComputationElement computationElement : impactedComputations) {
-			final TypedQuery<ProjectModel> modelQuery = em().createQuery("SELECT pm From ProjectModel pm WHERE :element = pm.phaseModels.layout.groups.constraints.element OR :element = pm.projectDetails.layout.groups.constraints.element", ProjectModel.class);
-			modelQuery.setParameter("element", computationElement);
-			
-			final ProjectModel parentModel = modelQuery.getSingleResult();
-			
-			if (parentModel != null) {
-				final Computation computation = Computations.parse(computationElement.getRule(), ServerComputations.getAllElementsFromModel(parentModel));
-				
-				for (final Project project : Arrays.asList(fundingProject, fundedProject)) {
-					if (parentModel.equals(project.getProjectModel())) {
-						final Future<String> computedValue = new Future<>();
-						computation.computeValueWithResolver(project.getId(), valueResolver, computedValue.defer());
-
-						try {
-							final ComputedValue value = ComputedValues.from(computedValue.getOrThrow());
-							valueService.saveValue(value.toString(), computationElement, project.getId(), context.getUser());
-						} catch (Throwable t) {
-							LOGGER.error("An error occured when computing the formula of the element '" + computationElement.getId() + "' for project '" + project.getId() + "'.", t);
-						}
-					}
-				}
-			}
-		}
+		updateComputationsReferencingModelsOfProjects(fundingProject, fundedProject, context.getUser());
 		
 		return funding;
 	}
@@ -147,22 +111,64 @@ public class ProjectFundingService extends AbstractEntityService<ProjectFunding,
 		if (projectFunding != null) {
 			projectFunding.setPercentage((Double) changes.get(ProjectFundingDTO.PERCENTAGE));
 			projectFunding = em().merge(projectFunding);
+			
+			// Updating related computation elements.
+			updateComputationsReferencingModelsOfProjects(projectFunding.getFunding(), projectFunding.getFunded(), context.getUser());
 		}
 		
 		return projectFunding;
 	}
 	
-	private List<ComputationElement> getImpactedComputationsForModels(final ProjectModel... models) {
+	/**
+	 * Update the computation elements referencing the contribution of the given
+	 * projects.
+	 * 
+	 * @param fundingProject
+	 *			Project funding the `fundedProject`.
+	 * @param fundedProject
+	 *			Project founded by `fundingProject`.
+	 * @param user 
+	 *			User changing the value of the contribution.
+	 */
+	private void updateComputationsReferencingModelsOfProjects(final Project fundingProject, final Project fundedProject, final User user) {
+		
+		final List<ComputationElement> impactedComputations = getComputationsReferencingModels(fundingProject.getProjectModel(), fundedProject.getProjectModel());
+		
+		for (final ComputationElement computationElement : impactedComputations) {
+			
+			final ProjectModel parentModel = computationService.getParentProjectModel(computationElement);
+			
+			if (parentModel != null) {
+				if (parentModel.equals(fundedProject.getProjectModel())) {
+					computationService.updateComputationValueForProject(computationElement, fundedProject, user);
+				}
+				if (parentModel.equals(fundingProject.getProjectModel())) {
+					computationService.updateComputationValueForProject(computationElement, fundingProject, user);
+				}
+			}
+		}
+	}
+	
+	/**
+	 * Find computation elements whose formula references the given project
+	 * models.
+	 * 
+	 * @param models
+	 *			Array of project models to search.
+	 * @return A list of computation elements. Empty if none matched.
+	 */
+	private List<ComputationElement> getComputationsReferencingModels(final ProjectModel... models) {
+		
 		final List<ComputationElement> impactedComputations = new ArrayList<>();
 		
 		for (final ProjectModel model : models) {
 			final TypedQuery<ComputationElement> query = em().createQuery("SELECT ce FROM ComputationElement ce WHERE ce.rule LIKE :modelReference", ComputationElement.class);
-			query.setParameter("modelReference", '%' + Instructions.ID_PREFIX + model.getId() + ValueResultUtils.BUDGET_VALUE_SEPARATOR + model.getName() + '%');
+			query.setParameter("modelReference", '%' + Instructions.ID_PREFIX + model.getId() + ValueResultUtils.BUDGET_VALUE_SEPARATOR + model.getName() + "%@contribution%");
 			
 			impactedComputations.addAll(query.getResultList());
 		}
 		
 		return impactedComputations;
 	}
-
+	
 }
