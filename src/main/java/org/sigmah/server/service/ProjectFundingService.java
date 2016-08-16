@@ -34,13 +34,10 @@ import org.sigmah.server.service.util.PropertyMap;
 import org.sigmah.shared.dto.ProjectFundingDTO;
 
 import com.google.inject.Singleton;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 import org.sigmah.server.domain.ProjectModel;
 import org.sigmah.server.domain.User;
 import org.sigmah.server.domain.element.ComputationElement;
-import org.sigmah.shared.computation.instruction.Instructions;
-import org.sigmah.shared.util.ValueResultUtils;
 
 /**
  * {@link ProjectFunding} corresponding service implementation.
@@ -132,43 +129,23 @@ public class ProjectFundingService extends AbstractEntityService<ProjectFunding,
 	 */
 	private void updateComputationsReferencingModelsOfProjects(final Project fundingProject, final Project fundedProject, final User user) {
 		
-		final List<ComputationElement> impactedComputations = getComputationsReferencingModels(fundingProject.getProjectModel(), fundedProject.getProjectModel());
+		final Collection<ComputationElement> impactedComputations = computationService.getComputationElementsReferencingContributions();
 		
 		for (final ComputationElement computationElement : impactedComputations) {
 			
 			final ProjectModel parentModel = computationService.getParentProjectModel(computationElement);
 			
 			if (parentModel != null) {
-				if (parentModel.equals(fundedProject.getProjectModel())) {
+				final Integer parentModelId = parentModel.getId();
+				
+				if (parentModelId.equals(fundedProject.getProjectModel().getId())) {
 					computationService.updateComputationValueForProject(computationElement, fundedProject, user);
 				}
-				if (parentModel.equals(fundingProject.getProjectModel())) {
+				if (parentModelId.equals(fundingProject.getProjectModel().getId())) {
 					computationService.updateComputationValueForProject(computationElement, fundingProject, user);
 				}
 			}
 		}
-	}
-	
-	/**
-	 * Find computation elements whose formula references the given project
-	 * models.
-	 * 
-	 * @param models
-	 *			Array of project models to search.
-	 * @return A list of computation elements. Empty if none matched.
-	 */
-	private List<ComputationElement> getComputationsReferencingModels(final ProjectModel... models) {
-		
-		final List<ComputationElement> impactedComputations = new ArrayList<>();
-		
-		for (final ProjectModel model : models) {
-			final TypedQuery<ComputationElement> query = em().createQuery("SELECT ce FROM ComputationElement ce WHERE ce.rule LIKE :modelReference", ComputationElement.class);
-			query.setParameter("modelReference", '%' + Instructions.ID_PREFIX + model.getId() + ValueResultUtils.BUDGET_VALUE_SEPARATOR + model.getName() + "%@contribution%");
-			
-			impactedComputations.addAll(query.getResultList());
-		}
-		
-		return impactedComputations;
 	}
 	
 }

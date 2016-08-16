@@ -68,12 +68,12 @@ public class ValueService extends EntityManagerProvider {
 		final String oldValue = saveDefaultElement(projectId, element.getType(), value, isProjectCountryChanged);
 
 		// Checks if the first value has already been historized or not.
-		List<HistoryToken> results = null;
 		final TypedQuery<HistoryToken> query =
 			em().createQuery("SELECT h FROM HistoryToken h WHERE h.elementId = :elementId AND h.projectId = :projectId", HistoryToken.class);
 		query.setParameter("elementId", element.getId());
 		query.setParameter("projectId", projectId);
-		results = query.getResultList();
+		
+		final List<HistoryToken> results = query.getResultList();
 
 		if (results == null || results.isEmpty()) {
 			final Date oldDate;

@@ -2,6 +2,8 @@ package org.sigmah.server.service;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import java.util.Collection;
+import java.util.List;
 import javax.persistence.TypedQuery;
 import org.sigmah.server.computation.ServerComputations;
 import org.sigmah.server.computation.ServerValueResolver;
@@ -50,10 +52,23 @@ public class ComputationService extends EntityManagerProvider {
 	 */
 	public ProjectModel getParentProjectModel(final ComputationElement computationElement) {
 		
-		final TypedQuery<ProjectModel> modelQuery = em().createQuery("SELECT pm From ProjectModel pm WHERE :element = pm.phaseModels.layout.groups.constraints.element OR :element = pm.projectDetails.layout.groups.constraints.element", ProjectModel.class);
-		modelQuery.setParameter("element", computationElement);
-			
-		return modelQuery.getSingleResult();
+		final TypedQuery<ProjectModel> phaseModelsQuery = em().createQuery("SELECT pm From ProjectModel pm join pm.phaseModels phm join phm.layout l join l.groups g join g.constraints c WHERE :element = c.element", ProjectModel.class);
+		phaseModelsQuery.setParameter("element", computationElement);
+		
+		final List<ProjectModel> modelsInPhaseModels = phaseModelsQuery.getResultList();
+		if (!modelsInPhaseModels.isEmpty()) {
+			return modelsInPhaseModels.get(0);
+		}
+		
+		final TypedQuery<ProjectModel> detailsQuery = em().createQuery("SELECT pm From ProjectModel pm join pm.projectDetails d join d.layout l join l.groups g join g.constraints c WHERE :element = c.element", ProjectModel.class);
+		detailsQuery.setParameter("element", computationElement);
+		
+		final List<ProjectModel> modelsInDetails = detailsQuery.getResultList();
+		if (!modelsInDetails.isEmpty()) {
+			return modelsInDetails.get(0);
+		}
+		
+		return null;
 	}
 	
 	/**
@@ -79,5 +94,17 @@ public class ComputationService extends EntityManagerProvider {
 		} catch (Throwable t) {
 			LOGGER.error("An error occured when computing the formula of the element '" + computationElement.getId() + "' for project '" + project.getId() + "'.", t);
 		}
+	}
+	
+	/**
+	 * Search every computation element referencing contributions.
+	 * 
+	 * @return A collection of every computation element whose formula includes
+	 * a contribution.
+	 */
+	public Collection<ComputationElement> getComputationElementsReferencingContributions() {
+		
+		final TypedQuery<ComputationElement> query = em().createQuery("SELECT ce FROM ComputationElement ce WHERE ce.rule LIKE '%@contribution%'", ComputationElement.class);
+		return query.getResultList();
 	}
 }
