@@ -247,7 +247,8 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 	 * @return The widget component.
 	 */
 	private Component getComponentWithHistory(ValueResult valueResult, boolean phaseIsEnded, boolean inBanner) {
-		if(ProfileUtils.getPermissionForOrgUnit(auth(), getOrgUnitId(), getPrivacyGroup()) == PrivacyGroupPermissionEnum.NONE) {
+		
+		if (ProfileUtils.getPermissionForOrgUnit(auth(), getOrgUnitId(), getPrivacyGroup()) == PrivacyGroupPermissionEnum.NONE) {
 			return null;
 		}
 		
@@ -288,10 +289,8 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 
 	private Integer getOrgUnitId() {
 		Integer orgUnitId = null;
-		if (currentContainerDTO instanceof OrgUnitDTO) {
-			orgUnitId = ((OrgUnitDTO) currentContainerDTO).getOrgUnitId();
-		} else if (currentContainerDTO instanceof ProjectDTO) {
-			orgUnitId = ((ProjectDTO) currentContainerDTO).getOrgUnitId();
+		if (currentContainerDTO instanceof DefaultFlexibleElementContainer) {
+			orgUnitId = ((DefaultFlexibleElementContainer) currentContainerDTO).getOrgUnitId();
 		}
 		return orgUnitId;
 	}

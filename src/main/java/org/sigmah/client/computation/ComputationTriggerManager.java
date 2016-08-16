@@ -22,6 +22,7 @@ package org.sigmah.client.computation;
  * #L%
  */
 
+import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.google.inject.Inject;
@@ -156,11 +157,19 @@ public class ComputationTriggerManager {
 	 */
 	public void listenToValueChangesOfElement(final FlexibleElementDTO element, final Component component, final List<ValueEvent> modifications) {
 
+		if (component == null) {
+			Log.trace("Element '" + element.getId() + "' is not accessible by the current user.");
+			return;
+		}
+		
 		if (element instanceof ComputationElementDTO) {
-			components.put(element, (Field<String>) component);
+			@SuppressWarnings("unchecked")
+			final Field<String> field = (Field<String>)component;
+			
+			components.put(element, field);
 			elementsWithHandlers.put(element.getId(), (ComputationElementDTO) element);
 
-			initialUpdateIfCurrentValueIsEmpty((ComputationElementDTO) element, (Field<String>) component);
+			initialUpdateIfCurrentValueIsEmpty((ComputationElementDTO) element, field);
 		}
 
 		final List<ComputationElementDTO> computationElements = dependencies.get(element);
