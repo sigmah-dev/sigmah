@@ -129,7 +129,12 @@ public final class ProfileUtils {
 		if (authentication == null) {
 			return PrivacyGroupPermissionEnum.NONE;
 		}
-
+		
+		if (orgUnitId == null) {
+			// Special case for test projects.
+			return PrivacyGroupPermissionEnum.WRITE;
+		}
+		
 		Map<Integer, ProfileDTO> aggregatedProfiles = authentication.getAggregatedProfiles();
 		if (aggregatedProfiles == null) {
 			return PrivacyGroupPermissionEnum.NONE;
