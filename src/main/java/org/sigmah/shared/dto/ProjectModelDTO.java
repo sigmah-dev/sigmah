@@ -38,13 +38,14 @@ import org.sigmah.shared.dto.layout.LayoutConstraintDTO;
 import org.sigmah.shared.dto.layout.LayoutDTO;
 import org.sigmah.shared.dto.layout.LayoutGroupDTO;
 import org.sigmah.shared.dto.logframe.LogFrameModelDTO;
+import org.sigmah.shared.dto.profile.ProfileDTO;
 import org.sigmah.shared.dto.referential.ElementTypeEnum;
 import org.sigmah.shared.dto.referential.ProjectModelStatus;
 import org.sigmah.shared.dto.referential.ProjectModelType;
 
 /**
  * ProjectModelDTO.
- * 
+ *
  * @author Denis Colliot (dcolliot@ideia.fr) (v2.0)
  */
 public class ProjectModelDTO extends AbstractModelDataEntityDTO<Integer> implements IsModel {
@@ -71,10 +72,11 @@ public class ProjectModelDTO extends AbstractModelDataEntityDTO<Integer> impleme
 	public static final String LOG_FRAME_MODEL = "logFrameModel";
 	public static final String MAINTENANCE_DATE = "dateMaintenance";
 	public static final String UNDER_MAINTENANCE = "underMaintenance";
+	public static final String DEFAULT_TEAM_MEMBER_PROFILES = "defaultTeamMemberProfiles";
 
 	/**
 	 * Mapping configurations.
-	 * 
+	 *
 	 * @author Denis Colliot (dcolliot@ideia.fr) (v2.0)
 	 */
 	public static enum Mode implements IsMappingMode {
@@ -161,7 +163,7 @@ public class ProjectModelDTO extends AbstractModelDataEntityDTO<Integer> impleme
 
 	/**
 	 * Localizes an flexible element in the project model.
-	 * 
+	 *
 	 * @author tmi (v1.3)
 	 */
 	protected static class LocalizedElement<E extends FlexibleElementDTO> {
@@ -176,7 +178,7 @@ public class ProjectModelDTO extends AbstractModelDataEntityDTO<Integer> impleme
 
 		/**
 		 * Gets the flexible element.
-		 * 
+		 *
 		 * @return The flexible element.
 		 */
 		public E getElement() {
@@ -186,7 +188,7 @@ public class ProjectModelDTO extends AbstractModelDataEntityDTO<Integer> impleme
 		/**
 		 * Get the phase model in which the element is displayed, or <code>null</code> if the element is in the details
 		 * page.
-		 * 
+		 *
 		 * @return The phase model of the element or <code>null</code>.
 		 */
 		public PhaseModelDTO getPhaseModel() {
@@ -203,7 +205,7 @@ public class ProjectModelDTO extends AbstractModelDataEntityDTO<Integer> impleme
 
 	/**
 	 * Initializes a new project model with the given {@code status}.
-	 * 
+	 *
 	 * @param status
 	 *          The project model status.
 	 */
@@ -262,7 +264,7 @@ public class ProjectModelDTO extends AbstractModelDataEntityDTO<Integer> impleme
 	// ---------------------------------------------------------------------------------------------
 
 	// Project model name.
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -330,7 +332,7 @@ public class ProjectModelDTO extends AbstractModelDataEntityDTO<Integer> impleme
 	}
 
 	// Status.
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -342,9 +344,9 @@ public class ProjectModelDTO extends AbstractModelDataEntityDTO<Integer> impleme
 	public void setStatus(ProjectModelStatus status) {
 		set(STATUS, status);
 	}
-	
+
 	// Maintenance.
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -352,7 +354,7 @@ public class ProjectModelDTO extends AbstractModelDataEntityDTO<Integer> impleme
 	public boolean isUnderMaintenance() {
 		return get(UNDER_MAINTENANCE);
 	}
-	
+
 	public void setUnderMaintenance(boolean underMaintenance) {
 		set(UNDER_MAINTENANCE, underMaintenance);
 	}
@@ -364,13 +366,13 @@ public class ProjectModelDTO extends AbstractModelDataEntityDTO<Integer> impleme
 	public boolean isEditable() {
 		return getStatus().isEditable() || isUnderMaintenance();
 	}
-	
+
 	// Maintenance start date.
 	@Override
 	public Date getDateMaintenance() {
 		return get(MAINTENANCE_DATE);
 	}
-	
+
 	public void setDateMaintenance(Date date) {
 		set(MAINTENANCE_DATE, date);
 	}
@@ -384,7 +386,7 @@ public class ProjectModelDTO extends AbstractModelDataEntityDTO<Integer> impleme
 	/**
 	 * Gets the type of this model for the given organization. If this model isn't visible for this organization,
 	 * <code>null</code> is returned.
-	 * 
+	 *
 	 * @param organizationId
 	 *          The organization.
 	 * @return The type of this model for the given organization, <code>null</code> otherwise.
@@ -404,6 +406,14 @@ public class ProjectModelDTO extends AbstractModelDataEntityDTO<Integer> impleme
 		return null;
 	}
 
+	public List<ProfileDTO> getDefaultTeamMemberProfiles() {
+		return get(DEFAULT_TEAM_MEMBER_PROFILES);
+	}
+
+	public void setDefaultTeamMemberProfiles(List<ProfileDTO> profiles) {
+		set(DEFAULT_TEAM_MEMBER_PROFILES, profiles);
+	}
+
 	/**
 	 * Returns the current project model corresponding global export elements.<br>
 	 * Only the following types of elements are returned:
@@ -414,7 +424,7 @@ public class ProjectModelDTO extends AbstractModelDataEntityDTO<Integer> impleme
 	 * <li>{@link ElementTypeEnum#TRIPLETS}</li>
 	 * <li>{@link ElementTypeEnum#QUESTION}</li>
 	 * </ul>
-	 * 
+	 *
 	 * @return The current project model corresponding global export elements.
 	 */
 	public List<FlexibleElementDTO> getGlobalExportElements() {
@@ -554,7 +564,7 @@ public class ProjectModelDTO extends AbstractModelDataEntityDTO<Integer> impleme
 	/**
 	 * Gets all the flexible elements instances of the given class in this model (phases and details page). The banner is
 	 * ignored cause the elements in it are read-only.
-	 * 
+	 *
 	 * @param clazz
 	 *          The class of the searched flexible elements.
 	 * @return The elements localized for the given class, or <code>null</code> if there is no element of this class.

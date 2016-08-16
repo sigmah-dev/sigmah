@@ -125,6 +125,7 @@ public final class AdminUtil {
 	public static final String PROP_PM_USE = "ProjectModelUse";
 	public static final String PROP_PM_STATUS = "ProjectModelStatus";
 	public static final String PROP_PM_MAINTENANCE_DATE = "ProjectModelMaintenanceDate";
+	public static final String PROP_PM_DEFAULT_TEAM_MEMBER_PROFILES = "ProjectModelDefaultTeamMemberProfiles";
 
 	public static final String PROP_OM_NAME = "OrgUnitModelName";
 	public static final String PROP_OM_STATUS = "OrgUnitModelStatus";

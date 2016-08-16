@@ -35,61 +35,7 @@ import org.sigmah.server.domain.User;
 import org.sigmah.server.handler.util.Handlers;
 import org.sigmah.server.mapper.Mapper;
 import org.sigmah.server.servlet.base.ServletExecutionContext;
-import org.sigmah.shared.command.AddOrgUnit;
-import org.sigmah.shared.command.AmendmentActionCommand;
-import org.sigmah.shared.command.BackupArchiveManagementCommand;
-import org.sigmah.shared.command.BatchCommand;
-import org.sigmah.shared.command.ChangePasswordCommand;
-import org.sigmah.shared.command.ChangePhase;
-import org.sigmah.shared.command.CheckModelUsage;
-import org.sigmah.shared.command.CopyLogFrame;
-import org.sigmah.shared.command.CreateEntity;
-import org.sigmah.shared.command.DeactivateUsers;
-import org.sigmah.shared.command.Delete;
-import org.sigmah.shared.command.DeleteCategories;
-import org.sigmah.shared.command.DeleteFlexibleElements;
-import org.sigmah.shared.command.DeleteImportationSchemeModels;
-import org.sigmah.shared.command.DeleteImportationSchemes;
-import org.sigmah.shared.command.DeletePrivacyGroups;
-import org.sigmah.shared.command.DeleteProfiles;
-import org.sigmah.shared.command.DeleteReportModels;
-import org.sigmah.shared.command.DisableFlexibleElements;
-import org.sigmah.shared.command.DownloadSlice;
-import org.sigmah.shared.command.GenerateElement;
-import org.sigmah.shared.command.GetAdminEntities;
-import org.sigmah.shared.command.GetAvailableStatusForModel;
-import org.sigmah.shared.command.GetBaseMaps;
-import org.sigmah.shared.command.GetCalendar;
-import org.sigmah.shared.command.GetCategories;
-import org.sigmah.shared.command.GetCountries;
-import org.sigmah.shared.command.GetCountry;
-import org.sigmah.shared.command.GetFilesFromFavoriteProjects;
-import org.sigmah.shared.command.GetGlobalExportSettings;
-import org.sigmah.shared.command.GetGlobalExports;
-import org.sigmah.shared.command.GetHistory;
-import org.sigmah.shared.command.GetLinkedProjects;
-import org.sigmah.shared.command.GetMonitoredPoints;
-import org.sigmah.shared.command.GetOrgUnit;
-import org.sigmah.shared.command.GetOrgUnitModel;
-import org.sigmah.shared.command.GetOrganization;
-import org.sigmah.shared.command.GetProject;
-import org.sigmah.shared.command.GetProjectDocuments;
-import org.sigmah.shared.command.GetProjectModel;
-import org.sigmah.shared.command.GetProjectModels;
-import org.sigmah.shared.command.GetProjectReport;
-import org.sigmah.shared.command.GetProjectReports;
-import org.sigmah.shared.command.GetProjects;
-import org.sigmah.shared.command.GetProjectsByModel;
-import org.sigmah.shared.command.GetProjectsFromId;
-import org.sigmah.shared.command.GetReminders;
-import org.sigmah.shared.command.GetUsersByOrganization;
-import org.sigmah.shared.command.GetUsersWithProfiles;
-import org.sigmah.shared.command.GetValue;
-import org.sigmah.shared.command.SecureNavigationCommand;
-import org.sigmah.shared.command.Synchronize;
-import org.sigmah.shared.command.UpdateProject;
-import org.sigmah.shared.command.UpdateProjectFavorite;
-import org.sigmah.shared.command.UploadSlice;
+import org.sigmah.shared.command.*;
 import org.sigmah.shared.command.base.Command;
 import org.sigmah.shared.dto.profile.ProfileDTO;
 import org.sigmah.shared.dto.referential.GlobalPermissionEnum;
@@ -101,7 +47,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Access rights configuration.
- * 
+ *
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
 final class AccessRights {
@@ -148,18 +94,19 @@ final class AccessRights {
 
 		sperm(pageToken(Page.DASHBOARD), GrantType.AUTHENTICATED_ONLY);
 
-		sperm(pageToken(Page.PROJECT_DASHBOARD), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_PROJECT);
-		sperm(pageToken(Page.PROJECT_DETAILS), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_PROJECT);
-		sperm(pageToken(Page.PROJECT_CALENDAR), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_PROJECT, GlobalPermissionEnum.VIEW_PROJECT_AGENDA);
-		sperm(pageToken(Page.PROJECT_INDICATORS_ENTRIES), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_PROJECT, GlobalPermissionEnum.VIEW_INDICATOR);
-		sperm(pageToken(Page.PROJECT_INDICATORS_MANAGEMENT), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_PROJECT, GlobalPermissionEnum.VIEW_INDICATOR);
-		sperm(pageToken(Page.PROJECT_INDICATORS_MAP), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_PROJECT, GlobalPermissionEnum.VIEW_INDICATOR);
-		sperm(pageToken(Page.PROJECT_LOGFRAME), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_PROJECT, GlobalPermissionEnum.VIEW_LOGFRAME);
-		sperm(pageToken(Page.PROJECT_REPORTS), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_PROJECT);
+		sperm(pageToken(Page.PROJECT_DASHBOARD), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_MY_PROJECTS);
+		sperm(pageToken(Page.PROJECT_DETAILS), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_MY_PROJECTS);
+		sperm(pageToken(Page.PROJECT_CALENDAR), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_MY_PROJECTS, GlobalPermissionEnum.VIEW_PROJECT_AGENDA);
+		sperm(pageToken(Page.PROJECT_INDICATORS_ENTRIES), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_MY_PROJECTS, GlobalPermissionEnum.VIEW_INDICATOR);
+		sperm(pageToken(Page.PROJECT_INDICATORS_MANAGEMENT), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_MY_PROJECTS, GlobalPermissionEnum.VIEW_INDICATOR);
+		sperm(pageToken(Page.PROJECT_INDICATORS_MAP), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_MY_PROJECTS, GlobalPermissionEnum.VIEW_INDICATOR);
+		sperm(pageToken(Page.PROJECT_LOGFRAME), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_MY_PROJECTS, GlobalPermissionEnum.VIEW_LOGFRAME);
+		sperm(pageToken(Page.PROJECT_REPORTS), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_MY_PROJECTS);
+		sperm(pageToken(Page.PROJECT_TEAM_MEMBERS), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_MY_PROJECTS, GlobalPermissionEnum.VIEW_PROJECT_TEAM_MEMBERS);
 
 		sperm(pageToken(Page.INDICATOR_EDIT), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.MANAGE_INDICATOR);
 		sperm(pageToken(Page.SITE_EDIT), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.MANAGE_INDICATOR);
-		
+
 		sperm(pageToken(Page.CREATE_PROJECT), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.CREATE_PROJECT);
 
 		sperm(pageToken(Page.ORGUNIT_DASHBOARD), GrantType.AUTHENTICATED_ONLY);
@@ -201,6 +148,7 @@ final class AccessRights {
 		sperm(commandToken(DownloadSlice.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GenerateElement.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetAdminEntities.class), GrantType.AUTHENTICATED_ONLY);
+		sperm(commandToken(GetAvailableFrameworks.class), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.MANAGE_PROJECT_MODELS);
 		sperm(commandToken(GetAvailableStatusForModel.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetBaseMaps.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetCalendar.class), GrantType.AUTHENTICATED_ONLY);
@@ -208,15 +156,18 @@ final class AccessRights {
 		sperm(commandToken(GetCountries.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetCountry.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetFilesFromFavoriteProjects.class), GrantType.AUTHENTICATED_ONLY);
+		sperm(commandToken(GetFrameworkFulfillmentsByProjectModelId.class), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.MANAGE_PROJECT_MODELS);
 		sperm(commandToken(GetGlobalExportSettings.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetGlobalExports.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetHistory.class), GrantType.AUTHENTICATED_ONLY);
 		// TODO: Add the missing commands
-		sperm(commandToken(GetLinkedProjects.class), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_PROJECT);
+		sperm(commandToken(GetLinkedProjects.class), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_MY_PROJECTS);
 		sperm(commandToken(GetMonitoredPoints.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetOrganization.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetOrgUnit.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetOrgUnitModel.class), GrantType.AUTHENTICATED_ONLY);
+		sperm(commandToken(GetUserUnitsByUser.class), GrantType.AUTHENTICATED_ONLY);
+		sperm(commandToken(GetProfiles.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetProject.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetProjectDocuments.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetProjectModel.class), GrantType.AUTHENTICATED_ONLY);
@@ -226,13 +177,16 @@ final class AccessRights {
 		sperm(commandToken(GetProjects.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetProjectsByModel.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetProjectsFromId.class), GrantType.AUTHENTICATED_ONLY);
+		sperm(commandToken(GetProjectTeamMembers.class), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_PROJECT_TEAM_MEMBERS);
 		sperm(commandToken(GetReminders.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetUsersByOrganization.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetUsersWithProfiles.class), GrantType.AUTHENTICATED_ONLY);
+		sperm(commandToken(GetUsersByOrgUnit.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetValue.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(Synchronize.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(UpdateProject.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(UpdateProjectFavorite.class), GrantType.AUTHENTICATED_ONLY);
+		sperm(commandToken(UpdateProjectTeamMembers.class), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.EDIT_PROJECT_TEAM_MEMBERS);
 		sperm(commandToken(UploadSlice.class), GrantType.AUTHENTICATED_ONLY);
 
 		// Servlet methods.
@@ -250,7 +204,7 @@ final class AccessRights {
 
 	/**
 	 * Grants or refuse {@code user} access to the given {@code token}.
-	 * 
+	 *
 	 * @param user
 	 *          The user (authenticated or anonymous).
 	 * @param token
@@ -278,24 +232,22 @@ final class AccessRights {
 		final Pair<GrantType, Set<GlobalPermissionEnum>> grantData = permissions.get(token);
 		final GrantType grantType = grantData.left;
 
-		final boolean granted;
-
 		if (user == null || ServletExecutionContext.ANONYMOUS_USER.equals(user)) {
 			// Anonymous user.
-			granted = grantType != null && grantType != GrantType.AUTHENTICATED_ONLY;
-
+			return grantType != null && grantType != GrantType.AUTHENTICATED_ONLY;
 		} else {
 			// Authenticated user.
 			if (grantType != null && grantType == GrantType.ANONYMOUS_ONLY) {
-				granted = false;
-
+				return false;
 			} else {
-				final ProfileDTO aggregatedProfile = Handlers.aggregateProfiles(user, mapper);
-				granted = CollectionUtils.containsAll(aggregatedProfile.getGlobalPermissions(), grantData.right);
+				for (Map.Entry<Integer, ProfileDTO> aggregatedProfileEntry : Handlers.aggregateProfiles(user, mapper).entrySet()) {
+					if (CollectionUtils.containsAll(aggregatedProfileEntry.getValue().getGlobalPermissions(), grantData.right)) {
+						return true;
+					}
+				}
 			}
 		}
-
-		return granted;
+		return false;
 	}
 
 	// -------------------------------------------------------------------------------------
@@ -306,7 +258,7 @@ final class AccessRights {
 
 	/**
 	 * Return the <em>resource</em> token for the given servlet arguments.
-	 * 
+	 *
 	 * @param servlet
 	 *          The {@link Servlet} name.
 	 * @param method
@@ -322,7 +274,7 @@ final class AccessRights {
 
 	/**
 	 * Return the <em>resource</em> token for the given {@code commandClass}.
-	 * 
+	 *
 	 * @param commandClass
 	 *          The {@link Command} class.
 	 * @return the <em>resource</em> token for the given {@code commandClass}, or {@code null}.
@@ -337,7 +289,7 @@ final class AccessRights {
 
 	/**
 	 * Return the <em>resource</em> token for the given {@code page}.
-	 * 
+	 *
 	 * @param page
 	 *          The {@link Page} instance.
 	 * @return the <em>resource</em> token for the given {@code page}, or {@code null}.
@@ -381,7 +333,7 @@ final class AccessRights {
 	 * <p>
 	 * ;-)
 	 * </p>
-	 * 
+	 *
 	 * @param token
 	 *          The resource token.
 	 * @param grantType
@@ -397,7 +349,7 @@ final class AccessRights {
 	/**
 	 * Transforms the given {@code gpes} array into a {@link Set}.
 	 * Ignores {@code null} values in the process.
-	 * 
+	 *
 	 * @param gpes
 	 *          The {@link GlobalPermissionEnum} array.
 	 * @return the given {@code gpes} array transformed into a {@link Set} with no {@code null} values.

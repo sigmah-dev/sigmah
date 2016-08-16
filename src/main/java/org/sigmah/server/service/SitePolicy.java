@@ -53,6 +53,7 @@ import org.sigmah.shared.dto.PartnerDTO;
 import org.sigmah.shared.dto.SiteDTO;
 
 import com.google.inject.Inject;
+import org.sigmah.server.domain.Project;
 import org.sigmah.server.handler.util.Handlers;
 import org.sigmah.shared.dto.referential.GlobalPermissionEnum;
 
@@ -204,11 +205,11 @@ public class SitePolicy extends AbstractEntityService<Site, Integer, SiteDTO> {
 			return;
 		}
 		
-		if (!Handlers.isGranted(user.getOrgUnitWithProfiles(), GlobalPermissionEnum.EDIT_INDICATOR)) {
+		if (!Handlers.isGranted(user.getOrgUnitsWithProfiles(), GlobalPermissionEnum.EDIT_INDICATOR)) {
 			throw new IllegalAccessError("User '" + user.getEmail() + "' can't edit database '" + db.getId() + "' because he misses '" + GlobalPermissionEnum.EDIT_INDICATOR + "' permission.");
 		}
 		
-		if (!Handlers.isProjectVisible(db, user)) {
+		if (!Handlers.isProjectVisible((Project) db, user)) {
 			throw new IllegalAccessError("Database '" + db.getId() + "' is not visible by user '" + user.getEmail() + "'.");
 		}
 	}

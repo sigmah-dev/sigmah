@@ -23,20 +23,14 @@ package org.sigmah.server.domain;
  */
 
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -129,8 +123,14 @@ public class User extends AbstractEntityId<Integer> {
 	@JoinColumn(name = EntityConstants.ORGANIZATION_COLUMN_ID, nullable = true)
 	private Organization organization;
 
-	@OneToOne(mappedBy = "user", optional = true, fetch = FetchType.LAZY)
-	private OrgUnitProfile orgUnitWithProfiles;
+	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<OrgUnitProfile> orgUnitsWithProfiles = new ArrayList<>();
+
+	@Transient
+	private OrgUnitProfile mainOrgUnitWithProfiles;
+
+	@Transient
+	private List<OrgUnitProfile> secondaryOrgUnitsWithProfiles = new ArrayList<>();
 
 	public User() {
 	}
@@ -337,12 +337,71 @@ public class User extends AbstractEntityId<Integer> {
 		this.organization = organization;
 	}
 
-	public OrgUnitProfile getOrgUnitWithProfiles() {
-		return orgUnitWithProfiles;
+	public List<OrgUnitProfile> getOrgUnitsWithProfiles() {
+		return orgUnitsWithProfiles;
 	}
 
-	public void setOrgUnitWithProfiles(OrgUnitProfile orgUnitWithProfiles) {
-		this.orgUnitWithProfiles = orgUnitWithProfiles;
+	public void setOrgUnitsWithProfiles(List<OrgUnitProfile> orgUnitsWithProfiles) {
+		this.orgUnitsWithProfiles = orgUnitsWithProfiles;
 	}
 
+	public OrgUnitProfile getMainOrgUnitWithProfiles() {
+		if (mainOrgUnitWithProfiles == null) {
+			// FIXME: For some reason, the are some cases where postLoad is not called when getting this entity
+			// For the moment, let's execute postLoad manually in case it was not called
+			postLoad();
+		}
+		return mainOrgUnitWithProfiles;
+	}
+
+	public List<OrgUnitProfile> getSecondaryOrgUnitsWithProfiles() {
+		if (secondaryOrgUnitsWithProfiles == null) {
+			// FIXME: For some reason, the are some cases where postLoad is not called when getting this entity
+			// For the moment, let's execute postLoad manually in case it was not called
+			postLoad();
+		}
+		return secondaryOrgUnitsWithProfiles;
+	}
+
+	/*
+	 * Helper for Dozer.
+	 * Dozer can't map a User.secondaryOrgUnitsWithProfiles.*.orgUnit to a orgUnit list
+	 */
+	public List<OrgUnit> getSecondaryOrgUnits() {
+		if (secondaryOrgUnitsWithProfiles == null) {
+			return null;
+		}
+
+		List<OrgUnit> orgUnits = new ArrayList<OrgUnit>(secondaryOrgUnitsWithProfiles.size());
+		for (OrgUnitProfile orgUnitProfile : secondaryOrgUnitsWithProfiles) {
+			orgUnits.add(orgUnitProfile.getOrgUnit());
+		}
+		return orgUnits;
+	}
+
+	@PostLoad
+	void postLoad() {
+		List<OrgUnitProfile> secondaryOrgUnitProfiles = new ArrayList<>();
+
+		for (OrgUnitProfile orgUnitsWithProfile : orgUnitsWithProfiles) {
+			if (orgUnitsWithProfile.getType() == null) {
+				// In case the related user unit is not updated since last Sigmah update,
+				// this value can be null
+				// Let's prevent a NPE by making it the main OrgUnitProfile
+				orgUnitsWithProfile.setType(OrgUnitProfile.OrgUnitProfileType.MAIN);
+			}
+
+			switch (orgUnitsWithProfile.getType()) {
+				case MAIN:
+					mainOrgUnitWithProfiles = orgUnitsWithProfile;
+					break;
+				case SECONDARY:
+					secondaryOrgUnitProfiles.add(orgUnitsWithProfile);
+					break;
+				default:
+					throw new IllegalStateException();
+			}
+		}
+		this.secondaryOrgUnitsWithProfiles = Collections.unmodifiableList(secondaryOrgUnitProfiles);
+	}
 }

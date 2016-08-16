@@ -115,12 +115,12 @@ import org.sigmah.shared.dto.referential.CoreVersionAction;
  * <p>
  * Does not respond to a page token. Manages sub-presenters.
  * </p>
- * 
+ *
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
 @Singleton
 public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> implements HasSubPresenter<ProjectPresenter.View> {
-	
+
 	private static final String ALERT_STYLE = "header-alert";
 
 	/**
@@ -131,7 +131,7 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 
 		/**
 		 * Returns the sub-menu widget.
-		 * 
+		 *
 		 * @return The sub-menu widget.
 		 */
 		SubMenuWidget getSubMenuWidget();
@@ -141,7 +141,7 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 		Button getDeleteButton();
 
 		void buildExportDialog(ExportActionHandler handler);
-		
+
 		void buildCreateCoreVersionDialog(SelectionListener<ButtonEvent> callback);
 
 		// --
@@ -150,17 +150,17 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 
 		/**
 		 * Sets the project view title.
-		 * 
+		 *
 		 * @param projectName
 		 *          The project name.
 		 * @param projectFullName
 		 *          The project full name.
 		 */
 		void setProjectTitle(String projectName, String projectFullName);
-		
+
 		/**
 		 * Sets the project type icon.
-		 * 
+		 *
 		 * @param projectType
 		 *          The project type.
 		 */
@@ -179,30 +179,30 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 		ContentPanel getProjectCoreVersionPanel();
 
 		Button getLockProjectCoreButton();
-		
+
 		Button getUnlockProjectCoreButton();
 
 		Button getValidateVersionButton();
-		
+
 		Button getBackToWorkingVersionButton();
-		
+
 		ComboBox<CoreVersionAction> getCoreVersionActionComboBox();
 
 		void setProjectCoreVersionState(AmendmentState state, boolean coreVersionWasModified);
-		
+
 		void setProjectCoreVersions(List<AmendmentDTO> coreVersions, boolean coreVersionWasModified, boolean canRenameVersion);
 	}
 
 	/**
 	 * Export action handler.
-	 * 
+	 *
 	 * @author Denis Colliot (dcolliot@ideia.fr)
 	 */
 	public static interface ExportActionHandler {
 
 		/**
 		 * Method executed on export dialog validation event.
-		 * 
+		 *
 		 * @param indicatorField
 		 *          The indicator field.
 		 * @param logFrameField
@@ -227,7 +227,7 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 
 	/**
 	 * Presenters's initialization.
-	 * 
+	 *
 	 * @param view
 	 *          Presenter's view interface.
 	 * @param injector
@@ -243,7 +243,7 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 	 */
 	@Override
 	public void onBind() {
-		
+
 		// --
 		// SubMenu listener.
 		// --
@@ -265,11 +265,11 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 			@Override
 			public void selectionChanged(SelectionChangedEvent<CoreVersionAction> se) {
 				final CoreVersionAction action = se.getSelectedItem();
-				
+
 				if(action == currentCoreVersion) {
 					return;
 				}
-				
+
 				switch(action.getType()) {
 					case FUNCTION_COMPARE:
 						eventBus.navigateRequest(Page.PROJECT_AMENDMENT_DIFF.request().addData(RequestParameter.DTO, project));
@@ -288,7 +288,7 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 				}
 			}
 		});
-		
+
 		// --
 		// Lock project core version button handler.
 		// --
@@ -299,7 +299,7 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 				onCoreVersionAction(project, AmendmentAction.LOCK, view.getLockProjectCoreButton());
 			}
 		});
-		
+
 		// --
 		// Unlock project core version button handler.
 		// --
@@ -374,10 +374,10 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 			public void onUpdate(final UpdateEvent event) {
 				if (event.concern(UpdateEvent.PROJECT_BANNER_UPDATE)) {
 					refreshBanner(project);
-					
+
 				} else if (event.concern(UpdateEvent.AMENDMENT_RENAME)) {
 					loadAmendments(project, currentCoreVersion != null ? currentCoreVersion.getId() : null);
-					
+
 				} else if(event.concern(UpdateEvent.CORE_VERSION_UPDATED)) {
 					// This is really harsh but it was the simplest to have to latest project revision.
 					// If too much, it is possible to set revision to revision + 1 and call loadAmendments instead.
@@ -385,7 +385,7 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 				}
 			}
 		}));
-		
+
 		// --
 		// Sub menu visibility.
 		// --
@@ -394,6 +394,7 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 		view.getSubMenuWidget().setRequiredPermissions(Page.PROJECT_INDICATORS_MAP, GlobalPermissionEnum.VIEW_MAPTAB);
 		view.getSubMenuWidget().setRequiredPermissions(Page.PROJECT_INDICATORS_ENTRIES, GlobalPermissionEnum.VIEW_INDICATOR);
 		view.getSubMenuWidget().setRequiredPermissions(Page.PROJECT_CALENDAR, GlobalPermissionEnum.VIEW_PROJECT_AGENDA);
+		view.getSubMenuWidget().setRequiredPermissions(Page.PROJECT_TEAM_MEMBERS, GlobalPermissionEnum.VIEW_PROJECT_TEAM_MEMBERS);
 	}
 
 	/**
@@ -422,7 +423,7 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 
 	/**
 	 * Returns the current loaded project.
-	 * 
+	 *
 	 * @return The current loaded project instance.
 	 */
 	public ProjectDTO getCurrentProject() {
@@ -431,7 +432,7 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 
 	/**
 	 * Sets the current project.
-	 * 
+	 *
 	 * @param project
 	 *          The project instance.
 	 */
@@ -441,7 +442,7 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 
 	/**
 	 * Returns the current displayed phase.
-	 * 
+	 *
 	 * @return The current displayed phase, or {@code null} if no phase is displayed.
 	 */
 	public PhaseDTO getCurrentDisplayedPhase() {
@@ -450,36 +451,36 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 
 	/**
 	 * Sets the current displayed phase.
-	 * 
+	 *
 	 * @param displayedPhase
 	 *          The displayed phase.
 	 */
 	public void setCurrentDisplayedPhase(final PhaseDTO displayedPhase) {
 		this.displayedPhase = displayedPhase;
 	}
-	
+
 	/**
 	 * Indicates if the current loaded project is locked.
-	 * 
+	 *
 	 * @return <code>true</code> if the current project is loaded, <code>false</code> otherwise.
 	 */
 	public boolean projectIsLocked() {
 		return project.getAmendmentState() == AmendmentState.LOCKED;
 	}
-	
+
 	/**
 	 * Indicates if the user has the permission to unlock projects.
-	 * 
+	 *
 	 * @return <code>true</code> if the current user can unlock projects, <code>false</code> otherwise.
 	 */
 	public boolean canUnlockProject() {
 		return ProfileUtils.isGranted(auth(), GlobalPermissionEnum.LOCK_PROJECT);
 	}
-	
+
 	/**
-	 * Asks the user if he wants to unlock the project to edit the clicked 
+	 * Asks the user if he wants to unlock the project to edit the clicked
 	 * flexible element.
-	 * 
+	 *
 	 * @param element Element that is part of the project core version.
 	 * @param component Component of the element.
 	 * @param loadable Loadable to mask while unlocking the project.
@@ -515,14 +516,14 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 
 	/**
 	 * Loads amendments for the given {@code project}.
-	 * 
+	 *
 	 * @param project
 	 *          The project.
 	 */
 	private void loadAmendments(ProjectDTO project, Integer coreVersionId) {
 
 		Log.debug("Loading amendments for project '" + project.getName() + "'...");
-		
+
 		if(coreVersionId != null) {
 			for(AmendmentDTO coreVersion : project.getAmendments()) {
 				if(coreVersionId.equals(coreVersion.getId())) {
@@ -530,12 +531,12 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 				}
 			}
 		}
-		
+
 		project.setCurrentAmendment(currentCoreVersion);
 		view.getCoreVersionActionComboBox().setValue(currentCoreVersion);
-		
+
 		final boolean coreVersionWasModified = project.getAmendmentVersion() == 1 || project.getAmendmentRevision() > 1;
-		
+
 		if(currentCoreVersion != null) {
 			view.setProjectCoreVersionState(currentCoreVersion.getState(), coreVersionWasModified);
 		} else if(project.getCurrentPhase().isEnded()) {
@@ -543,12 +544,12 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 		} else {
 			view.setProjectCoreVersionState(project.getAmendmentState(), coreVersionWasModified);
 		}
-		
+
 		final boolean canValidateCoreVersion = ProfileUtils.isGranted(auth(), GlobalPermissionEnum.VALID_AMENDEMENT);
 		final boolean canLockOrUnlock = canUnlockProject();
-		
+
 		view.setProjectCoreVersions(project.getAmendments(), coreVersionWasModified, canValidateCoreVersion);
-		
+
 		if(coreVersionWasModified) {
 			view.getProjectCoreVersionPanel().setHeadingHtml("<span title=\"" + I18N.CONSTANTS.projectCoreModified() + "\">" + I18N.CONSTANTS.projectCoreBoxTitle() + ' ' + IconImageBundle.ICONS.warningSmall().getHTML() + "</span>");
 		} else {
@@ -563,7 +564,7 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 
 	/**
 	 * Handles the given amendment {@code action} click event.
-	 * 
+	 *
 	 * @param project
 	 *          The current project.
 	 * @param action
@@ -572,10 +573,10 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 	private void onCoreVersionAction(final ProjectDTO project, final AmendmentAction action, final Button source) {
 		onCoreVersionAction(project, action, source, null);
 	}
-	
+
 	/**
 	 * Handles the given amendment {@code action} click event.
-	 * 
+	 *
 	 * @param project
 	 *          The current project.
 	 * @param action
@@ -628,7 +629,7 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 	 * Retrieves the selected amendment value and loads it.
 	 */
 	private void onDisplayCoreVersion(final AmendmentDTO coreVersion) {
-		
+
 		currentCoreVersion = coreVersion;
 
 		injector.getPageManager().getCurrentPresenter().beforeLeaving(new LeavingCallback() {
@@ -652,7 +653,7 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 			}
 		});
 	}
-	
+
 	/**
 	 * <p>
 	 * Refreshes the project banner for the current project.
@@ -665,7 +666,7 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 	 * <li>{@link ProjectDTO#CURRENT_AMENDMENT}</li>
 	 * </ul>
 	 * </p>
-	 * 
+	 *
 	 * @param project
 	 *          The current loaded project.
 	 */
@@ -673,20 +674,20 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 
 		view.setProjectTitle(project.getName(), project.getFullName());
 		view.setProjectLogo(project.getProjectModel().getVisibility(auth().getOrganizationId()));
-		
+
 		// Maintenance alert
 		final Header header = view.getProjectBannerPanel().getHeader();
-		
+
 		if (project.getProjectModel().isUnderMaintenance()) {
 			header.addStyleName(ALERT_STYLE);
 			header.setHtml(header.getHtml() + " - " + I18N.MESSAGES.projectMaintenanceMessage());
-			
+
 		} else if (project.getProjectModel().getDateMaintenance() != null) {
 			header.addStyleName(ALERT_STYLE);
-			
+
 			String maintenanceDate = DateUtils.DATE_TIME_SHORT.format(project.getProjectModel().getDateMaintenance());
 			header.setHtml(header.getHtml() + " - " + I18N.MESSAGES.projectMaintenanceScheduledMessage(maintenanceDate));
-			
+
 		} else {
 			header.removeStyleName(ALERT_STYLE);
 		}
@@ -836,7 +837,7 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 
 	/**
 	 * Method executed on export project action.
-	 * 
+	 *
 	 * @param project
 	 *          The project to export.
 	 */
@@ -883,7 +884,7 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 
 	/**
 	 * Method executed on delete project action.
-	 * 
+	 *
 	 * @param project
 	 *          The project to delete.
 	 */
@@ -922,7 +923,7 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 
 	/**
 	 * Returns if the current authenticated user is authorized to delete a project.
-	 * 
+	 *
 	 * @return {@code true} if the current authenticated user is authorized to delete a project.
 	 */
 	private boolean canDeleteProject() {

@@ -101,7 +101,7 @@ public class Conflicts extends EntityManagerProvider {
 		final int projectId = ClientUtils.asInt(properties.get(FileUploadUtils.DOCUMENT_PROJECT), 0);
 		final Project project = em().find(Project.class, projectId);
 		
-		if(project != null && !Handlers.isGranted(user.getOrgUnitWithProfiles(), GlobalPermissionEnum.MODIFY_LOCKED_CONTENT)) {
+		if(project != null && !Handlers.isGranted(user.getOrgUnitsWithProfiles(), project.getOrgUnit(), GlobalPermissionEnum.MODIFY_LOCKED_CONTENT)) {
 			if(project.getCloseDate() != null) {
 				final String fileName = ValueResultUtils.normalizeFileName(properties.get(FileUploadUtils.DOCUMENT_NAME));
 				throw new UpdateConflictException(project.toContainerInformation(), true, i18nServer.t(language, "conflictAddingFileToAClosedProject", fileName, filesListElement.getLabel()));
@@ -154,11 +154,10 @@ public class Conflicts extends EntityManagerProvider {
 	 * @throws UpdateConflictException If a conflict has been detected.
 	 */
 	public void searchForFileDeleteConflicts(final File file, final Language language, final User user) throws UpdateConflictException {
-		if (Handlers.isGranted(user.getOrgUnitWithProfiles(), GlobalPermissionEnum.MODIFY_LOCKED_CONTENT)) {
+        final Project project = getParentProjectOfFile(file);
+		if (Handlers.isGranted(user.getOrgUnitsWithProfiles(), project.getOrgUnit(), GlobalPermissionEnum.MODIFY_LOCKED_CONTENT)) {
 			return;
 		}
-		
-		final Project project = getParentProjectOfFile(file);
 		final FilesListElement filesListElement = getParentFilesListElement(file);
 
 		if(filesListElement != null && project != null) {

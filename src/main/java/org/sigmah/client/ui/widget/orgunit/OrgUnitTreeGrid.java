@@ -29,6 +29,7 @@ import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.ui.res.icon.IconImageBundle;
 import org.sigmah.client.ui.res.icon.orgunit.OrgUnitImageBundle;
 import org.sigmah.client.ui.widget.HasTreeGrid;
+import org.sigmah.client.ui.widget.form.Forms;
 import org.sigmah.client.util.TreeGridCheckboxSelectionModel;
 import org.sigmah.shared.dto.country.CountryDTO;
 import org.sigmah.shared.dto.orgunit.OrgUnitDTO;
@@ -44,6 +45,7 @@ import com.extjs.gxt.ui.client.store.Store;
 import com.extjs.gxt.ui.client.store.StoreSorter;
 import com.extjs.gxt.ui.client.store.TreeStore;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
@@ -65,7 +67,7 @@ import com.google.gwt.event.dom.client.ClickHandler;
  * <p>
  * To handle component events, see {@link #setTreeGridEventHandler(TreeGridEventHandler)}.
  * </p>
- * 
+ *
  * @author tmi
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
@@ -94,9 +96,11 @@ public class OrgUnitTreeGrid implements HasTreeGrid<OrgUnitDTO> {
 	 */
 	private TreeGridCheckboxSelectionModel<OrgUnitDTO> selectionModel;
 
+	private final CheckBox displayOnlyMainOrgUnitCheckbox;
+
 	/**
 	 * Initializes a new {@code OrgUnitTreeGrid} widget.
-	 * 
+	 *
 	 * @param hasSelectionModel
 	 *          {@code true} if the tree grid widget manages a selection model, {@code false} if it does not.
 	 */
@@ -241,11 +245,13 @@ public class OrgUnitTreeGrid implements HasTreeGrid<OrgUnitDTO> {
 
 		toolbar.add(expandButton);
 		toolbar.add(collapseButton);
+		displayOnlyMainOrgUnitCheckbox = Forms.checkbox(I18N.CONSTANTS.dashboardOnlyMainOrgUnitCheckboxLabel());
+		toolbar.add(displayOnlyMainOrgUnitCheckbox);
 	}
 
 	/**
 	 * Creates filters for OrgUnits tree grid widget.
-	 * 
+	 *
 	 * @return The {@link GridFilters} instance.
 	 */
 	private static GridFilters createOrgUnitFilters() {
@@ -310,4 +316,7 @@ public class OrgUnitTreeGrid implements HasTreeGrid<OrgUnitDTO> {
 		toolbar.add(button);
 	}
 
+	public CheckBox getDisplayOnlyMainOrgUnitCheckbox() {
+		return displayOnlyMainOrgUnitCheckbox;
+	}
 }

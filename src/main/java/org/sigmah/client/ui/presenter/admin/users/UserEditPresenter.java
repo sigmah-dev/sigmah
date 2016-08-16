@@ -22,8 +22,10 @@ package org.sigmah.client.ui.presenter.admin.users;
  * #L%
  */
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -44,17 +46,21 @@ import org.sigmah.client.util.ClientUtils;
 import org.sigmah.client.util.EnumModel;
 import org.sigmah.shared.Language;
 import org.sigmah.shared.command.CreateEntity;
-import org.sigmah.shared.command.GetOrgUnit;
+import org.sigmah.shared.command.GetOrgUnits;
 import org.sigmah.shared.command.GetProfiles;
+import org.sigmah.shared.command.GetUserUnitsByUser;
 import org.sigmah.shared.command.result.CreateResult;
 import org.sigmah.shared.command.result.ListResult;
+import org.sigmah.shared.command.result.UserUnitsResult;
 import org.sigmah.shared.dto.UserDTO;
+import org.sigmah.shared.dto.UserUnitDTO;
 import org.sigmah.shared.dto.orgunit.OrgUnitDTO;
 import org.sigmah.shared.dto.orgunit.OrgUnitDTO.Mode;
 import org.sigmah.shared.dto.profile.ProfileDTO;
 
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -84,23 +90,6 @@ public class UserEditPresenter extends AbstractPagePresenter<UserEditPresenter.V
 		 */
 		void clearForm();
 
-		/**
-		 * Adds the given {@code profile} to the selected profiles panel.<br>
-		 * The {@code profile}'s {@code name} property must be set.
-		 * 
-		 * @param profile
-		 *          The profile.
-		 * @param deleteHandler
-		 *          The delete handler.
-		 */
-		void addProfile(ProfileDTO profile, ClickHandler deleteHandler);
-
-		ComboBox<ProfileDTO> getProfilesField();
-
-		Button getAddProfileButton();
-
-		ComboBox<OrgUnitDTO> getOrgUnitsField();
-
 		ComboBox<EnumModel<Language>> getLanguageField();
 
 		Field<String> getEmailField();
@@ -117,12 +106,24 @@ public class UserEditPresenter extends AbstractPagePresenter<UserEditPresenter.V
 
 		Button getCreateButton();
 
+		ListStore<UserUnitDTO> getUserUnitStore();
+
+		Button getAddUserUnitButton();
+
+		void setAvailableOrgUnits(List<OrgUnitDTO> orgUnits);
+
+		void setAvailableProfiles(List<ProfileDTO> profiles);
+
+		void attachProfileHandler(UserUnitActionHandler userUnitActionHandler);
 	}
 
-	/**
-	 * The selected profiles ids.
-	 */
-	private Set<Integer> selectedProfiles;
+	public interface UserUnitActionHandler {
+		void onAddProfile(UserUnitDTO userUnitDTO, ProfileDTO profileDTO);
+
+		void onRemoveProfile(UserUnitDTO userUnitDTO, ProfileDTO profileDTO);
+
+		void onRemoveUserUnit(UserUnitDTO userUnitDTO);
+	}
 
 	/**
 	 * The edited user.<br>
@@ -157,9 +158,6 @@ public class UserEditPresenter extends AbstractPagePresenter<UserEditPresenter.V
 	 */
 	@Override
 	public void onBind() {
-
-		selectedProfiles = new HashSet<Integer>();
-
 		// --
 		// Create button event handler.
 		// --
@@ -176,12 +174,31 @@ public class UserEditPresenter extends AbstractPagePresenter<UserEditPresenter.V
 		// Add profile button event handler.
 		// --
 
-		view.getAddProfileButton().addSelectionListener(new SelectionListener<ButtonEvent>() {
+		view.getAddUserUnitButton().addSelectionListener(new SelectionListener<ButtonEvent>() {
+			@Override
+			public void componentSelected(ButtonEvent event) {
+				UserUnitDTO userUnit = new UserUnitDTO();
+				// If this UserUnit is the first one, he is considered as the main UserUnit
+				userUnit.setMainUserUnit(view.getUserUnitStore().getCount() == 0);
+				userUnit.setProfiles(new ArrayList<ProfileDTO>());
+				view.getUserUnitStore().add(userUnit);
+			}
+		});
+
+		view.attachProfileHandler(new UserUnitActionHandler() {
+			@Override
+			public void onAddProfile(UserUnitDTO userUnit, ProfileDTO profileDTO) {
+				userUnit.getProfiles().add(profileDTO);
+			}
 
 			@Override
-			public void componentSelected(final ButtonEvent event) {
-				onProfileAdded(view.getProfilesField().getValue());
-				view.getProfilesField().clear();
+			public void onRemoveProfile(UserUnitDTO userUnit, ProfileDTO profileDTO) {
+				userUnit.getProfiles().remove(profileDTO);
+			}
+
+			@Override
+			public void onRemoveUserUnit(UserUnitDTO userUnitDTO) {
+				view.getUserUnitStore().remove(userUnitDTO);
 			}
 		});
 	}
@@ -193,7 +210,6 @@ public class UserEditPresenter extends AbstractPagePresenter<UserEditPresenter.V
 	public void onPageRequest(final PageRequest request) {
 
 		view.clearForm();
-		selectedProfiles.clear();
 
 		setPageTitle(I18N.CONSTANTS.newUser());
 
@@ -203,29 +219,27 @@ public class UserEditPresenter extends AbstractPagePresenter<UserEditPresenter.V
 		// Loads org units.
 		// --
 
-		view.getOrgUnitsField().getStore().removeAll();
+		view.getUserUnitStore().removeAll();
 
-		dispatch.execute(new GetOrgUnit(auth().getOrgUnitId(), Mode.WITH_TREE), new CommandResultHandler<OrgUnitDTO>() {
-
+		dispatch.execute(new GetOrgUnits(Mode.WITH_TREE), new CommandResultHandler<ListResult<OrgUnitDTO>>() {
 			@Override
 			public void onCommandFailure(final Throwable caught) {
 				N10N.error(I18N.CONSTANTS.adminChoiceProblem());
 			}
 
 			@Override
-			public void onCommandSuccess(final OrgUnitDTO result) {
-				if (result != null) {
-					fillOrgUnitsList(result, true);
-					view.getOrgUnitsField().getStore().commitChanges();
+			public void onCommandSuccess(final ListResult<OrgUnitDTO> result) {
+				List<OrgUnitDTO> orgUnitDTOs = new ArrayList<OrgUnitDTO>();
+				for (OrgUnitDTO orgUnitDTO : result.getData()) {
+					orgUnitDTOs.addAll(crawlOrgUnits(orgUnitDTO));
 				}
+				view.setAvailableOrgUnits(orgUnitDTOs);
 			}
 		});
 
 		// --
 		// Loads profiles.
 		// --
-
-		view.getProfilesField().getStore().removeAll();
 
 		dispatch.execute(new GetProfiles(ProfileDTO.Mode.BASE), new CommandResultHandler<ListResult<ProfileDTO>>() {
 
@@ -237,8 +251,7 @@ public class UserEditPresenter extends AbstractPagePresenter<UserEditPresenter.V
 			@Override
 			public void onCommandSuccess(final ListResult<ProfileDTO> result) {
 				if (result != null) {
-					view.getProfilesField().getStore().add(result.getList());
-					view.getProfilesField().getStore().commitChanges();
+					view.setAvailableProfiles(result.getList());
 				}
 			}
 		});
@@ -255,18 +268,23 @@ public class UserEditPresenter extends AbstractPagePresenter<UserEditPresenter.V
 		view.getChangePwdLink().setVisible(true);
 		view.getLanguageField().setValue(new EnumModel<Language>(Language.fromString(user.getLocale())));
 
-		if (user.getOrgUnit() != null && ClientUtils.isNotBlank(user.getOrgUnit().getFullName())) {
+		if (user.getMainOrgUnit() != null && ClientUtils.isNotBlank(user.getMainOrgUnit().getFullName())) {
 			final OrgUnitDTO orgUnitDTOLight = new OrgUnitDTO();
-			orgUnitDTOLight.setId(user.getOrgUnit().getId());
-			orgUnitDTOLight.setFullName(user.getOrgUnit().getFullName());
-			view.getOrgUnitsField().setValue(orgUnitDTOLight);
+			orgUnitDTOLight.setId(user.getMainOrgUnit().getId());
+			orgUnitDTOLight.setFullName(user.getMainOrgUnit().getFullName());
 		}
 
-		if (user.getOrgUnit() != null && user.getProfiles() != null) {
-			for (final ProfileDTO profile : user.getProfiles()) {
-				onProfileAdded(profile);
+		dispatch.execute(new GetUserUnitsByUser(user.getId(), Mode.WITH_TREE), new CommandResultHandler<UserUnitsResult>() {
+			@Override
+			protected void onCommandSuccess(UserUnitsResult result) {
+				if (result.getMainUserUnit() != null) {
+					view.getUserUnitStore().add(result.getMainUserUnit());
+				}
+				if (result.getSecondaryUserUnits() != null) {
+					view.getUserUnitStore().add(result.getSecondaryUserUnits());
+				}
 			}
-		}
+		});
 	}
 
 	// ---------------------------------------------------------------------------------------------------------------
@@ -274,31 +292,6 @@ public class UserEditPresenter extends AbstractPagePresenter<UserEditPresenter.V
 	// UTILITY METHODS.
 	//
 	// ---------------------------------------------------------------------------------------------------------------
-
-	/**
-	 * Method executed on profile selection.<br>
-	 * Does nothing if the profile is {@code null} or already selected.
-	 * 
-	 * @param profile
-	 *          The profile.
-	 */
-	private void onProfileAdded(final ProfileDTO profile) {
-
-		if (profile == null || selectedProfiles.contains(profile.getId())) {
-			// Invalid profile or already selected.
-			return;
-		}
-
-		view.addProfile(profile, new ClickHandler() {
-
-			@Override
-			public void onClick(final ClickEvent event) {
-				selectedProfiles.remove(profile.getId());
-			}
-		});
-
-		selectedProfiles.add(profile.getId());
-	}
 
 	/**
 	 * Method executed on user creation or edition.
@@ -321,7 +314,6 @@ public class UserEditPresenter extends AbstractPagePresenter<UserEditPresenter.V
 		final String password = view.getPwdField().isVisible() ? view.getPwdField().getValue() : null;
 
 		final EnumModel<Language> languageValue = view.getLanguageField().getValue();
-		final Integer orgUnit = view.getOrgUnitsField().getValue().getId();
 
 		// --
 		// Validates specific form data.
@@ -333,10 +325,16 @@ public class UserEditPresenter extends AbstractPagePresenter<UserEditPresenter.V
 			return;
 		}
 
-		if (selectedProfiles.isEmpty()) {
+		UserUnitDTO mainUserUnit = view.getUserUnitStore().findModel(UserUnitDTO.MAIN_USER_UNIT, true);
+		if (mainUserUnit == null) {
 			N10N.warn(I18N.CONSTANTS.createFormIncomplete(), I18N.MESSAGES.createUserFormIncompleteDetails());
 			return;
 		}
+
+		List<UserUnitDTO> secondaryUserUnits = view.getUserUnitStore().findModels(UserUnitDTO.MAIN_USER_UNIT, false);
+		UserUnitsResult userUnitsResult = new UserUnitsResult();
+		userUnitsResult.setMainUserUnit(mainUserUnit);
+		userUnitsResult.setSecondaryUserUnits(secondaryUserUnits);
 
 		// --
 		// Executes command process.
@@ -350,8 +348,7 @@ public class UserEditPresenter extends AbstractPagePresenter<UserEditPresenter.V
 		userProperties.put(UserDTO.PASSWORD, password);
 		userProperties.put(UserDTO.EMAIL, email);
 		userProperties.put(UserDTO.LOCALE, languageValue.getEnum());
-		userProperties.put(UserDTO.ORG_UNIT, orgUnit);
-		userProperties.put(UserDTO.PROFILES, selectedProfiles);
+		userProperties.put(UserDTO.USER_UNITS, userUnitsResult);
 
 		dispatch.execute(new CreateEntity(UserDTO.ENTITY_NAME, userProperties), new CommandResultHandler<CreateResult>() {
 
@@ -378,21 +375,16 @@ public class UserEditPresenter extends AbstractPagePresenter<UserEditPresenter.V
 
 	/**
 	 * Fills recursively the units field with the children of the given org {@code unit}.
-	 * 
-	 * @param unit
-	 *          The org unit.
-	 * @param root
-	 *          {@code true} if the given {@code unit} is the <em>root</em> one.
 	 */
-	private void fillOrgUnitsList(final OrgUnitDTO unit, final boolean root) {
-
-		if (root || unit.isCanContainProjects()) {
-			view.getOrgUnitsField().getStore().add(unit);
-		}
+	private List<OrgUnitDTO> crawlOrgUnits(OrgUnitDTO unit) {
+		List<OrgUnitDTO> orgUnits = new ArrayList<OrgUnitDTO>();
+		orgUnits.add(unit);
 
 		for (final OrgUnitDTO child : unit.getChildrenOrgUnits()) {
-			fillOrgUnitsList(child, false);
+			orgUnits.addAll(crawlOrgUnits(child));
 		}
+
+		return orgUnits;
 	}
 
 }
