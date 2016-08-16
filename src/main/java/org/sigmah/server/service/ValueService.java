@@ -2,6 +2,8 @@ package org.sigmah.server.service;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import javax.persistence.NoResultException;
@@ -12,7 +14,10 @@ import org.sigmah.server.domain.Country;
 import org.sigmah.server.domain.HistoryToken;
 import org.sigmah.server.domain.OrgUnit;
 import org.sigmah.server.domain.Project;
+import org.sigmah.server.domain.ProjectFunding;
+import org.sigmah.server.domain.ProjectModel;
 import org.sigmah.server.domain.User;
+import org.sigmah.server.domain.element.ComputationElement;
 import org.sigmah.server.domain.element.DefaultFlexibleElement;
 import org.sigmah.server.domain.element.FlexibleElement;
 import org.sigmah.server.domain.util.Deleteable;
@@ -44,6 +49,9 @@ public class ValueService extends EntityManagerProvider {
 	@Inject
 	private Mapper mapper;
 	
+	@Inject
+	private ComputationService computationService;
+	
 	public void saveValue(final String value, final FlexibleElement element, final Integer projectId, final User user) {
 		
 		saveValue(value, new Date(), element, projectId, user, null);
@@ -60,6 +68,8 @@ public class ValueService extends EntityManagerProvider {
 		
 		// Historize the value.
 		historize(historyDate, element, projectId, user, value, comment);
+		
+		updateImpactedComputations(element, projectId, user);
 	}
 	
 	public void saveValue(final String value, final boolean isProjectCountryChanged, final Date historyDate, final DefaultFlexibleElement element, final Integer projectId, final User user, final String comment) {
@@ -531,6 +541,48 @@ public class ValueService extends EntityManagerProvider {
 			}
 
 			em().persist(historyToken);
+		}
+	}
+	
+	/**
+	 * Update the computation elements referencing the given element.
+	 * 
+	 * @param element
+	 *			Flexible element whose value was updated.
+	 * @param projectId
+	 *			Identifier of the project containing the flexible element.
+	 * @param user 
+	 *			User changing the value of the flexible element.
+	 */
+	private void updateImpactedComputations(final FlexibleElement element, final Integer projectId, final User user) {
+		final Collection<ComputationElement> computationElements = computationService.getComputationElementsReferencingElement(element);
+		
+		if (computationElements.isEmpty()) {
+			return;
+		}
+		
+		final Project project = em().find(Project.class, projectId);
+		
+		final ArrayList<ProjectFunding> allFundings = new ArrayList<>();
+		allFundings.addAll(project.getFunded());
+		allFundings.addAll(project.getFunding());
+		
+		for (final ComputationElement computationElement : computationElements) {
+			final ProjectModel parentModel = computationService.getParentProjectModel(computationElement);
+			
+			if (parentModel != null) {
+				final Integer parentModelId = parentModel.getId();
+				for (final ProjectFunding projectFunding : allFundings) {
+					final Project fundedProject = projectFunding.getFunded();
+					if (parentModelId.equals(fundedProject.getProjectModel().getId())) {
+						computationService.updateComputationValueForProject(computationElement, fundedProject, user);
+					}
+					final Project fundingProject = projectFunding.getFunding();
+					if (parentModelId.equals(fundingProject.getProjectModel().getId())) {
+						computationService.updateComputationValueForProject(computationElement, fundingProject, user);
+					}
+				}
+			}
 		}
 	}
 	

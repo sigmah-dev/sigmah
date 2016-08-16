@@ -12,11 +12,15 @@ import org.sigmah.server.domain.Project;
 import org.sigmah.server.domain.ProjectModel;
 import org.sigmah.server.domain.User;
 import org.sigmah.server.domain.element.ComputationElement;
+import org.sigmah.server.domain.element.FlexibleElement;
+import org.sigmah.server.util.EntityLogicalElementTypes;
 import org.sigmah.shared.computation.Computation;
 import org.sigmah.shared.computation.Computations;
+import org.sigmah.shared.computation.instruction.Instructions;
 import org.sigmah.shared.computation.value.ComputedValue;
 import org.sigmah.shared.computation.value.ComputedValues;
 import org.sigmah.shared.util.Future;
+import org.sigmah.shared.util.ValueResultUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -105,6 +109,19 @@ public class ComputationService extends EntityManagerProvider {
 	public Collection<ComputationElement> getComputationElementsReferencingContributions() {
 		
 		final TypedQuery<ComputationElement> query = em().createQuery("SELECT ce FROM ComputationElement ce WHERE ce.rule LIKE '%@contribution%'", ComputationElement.class);
+		return query.getResultList();
+	}
+	
+	public Collection<ComputationElement> getComputationElementsReferencingElement(final FlexibleElement element) {
+		
+		final TypedQuery<ComputationElement> query = em().createQuery("SELECT ce FROM ComputationElement ce WHERE ce.rule LIKE :criteria", ComputationElement.class);
+		query.setParameter("criteria", "%" + Instructions.ID_PREFIX 
+				+ element.getId() 
+				+ ValueResultUtils.BUDGET_VALUE_SEPARATOR 
+				+ element.getCode() 
+				+ ValueResultUtils.BUDGET_VALUE_SEPARATOR 
+				+ EntityLogicalElementTypes.of(element) + '%');
+		
 		return query.getResultList();
 	}
 }

@@ -648,7 +648,7 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 	}
 
 	public ElementTypeEnum getElementType() {
-		ElementTypeEnum type = null;
+		final ElementTypeEnum type;
 		
 		// INFO: Budget elements are handled like DEFAULT elements.
 		
@@ -676,6 +676,8 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 			type = ElementTypeEnum.CORE_VERSION;
 		} else if (this instanceof ComputationElementDTO) {
 			type = ElementTypeEnum.COMPUTATION;
+		} else {
+			throw new UnsupportedOperationException("Type '" + getClass() + "' is not supported.");
 		}
 		return type;
 	}
