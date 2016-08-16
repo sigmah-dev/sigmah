@@ -32,7 +32,6 @@ import org.sigmah.server.dispatch.impl.UserDispatch.UserExecutionContext;
 import org.sigmah.server.domain.Activity;
 import org.sigmah.server.domain.Indicator;
 import org.sigmah.server.domain.User;
-import org.sigmah.server.domain.UserDatabase;
 import org.sigmah.server.service.base.AbstractEntityService;
 import org.sigmah.server.service.util.PropertyMap;
 import org.sigmah.shared.dto.IndicatorDTO;
@@ -40,6 +39,7 @@ import org.sigmah.shared.security.UnauthorizedAccessException;
 
 import com.google.inject.Singleton;
 import java.util.ArrayList;
+import org.sigmah.server.domain.Project;
 import org.sigmah.server.handler.util.Handlers;
 
 /**
@@ -66,7 +66,7 @@ public class IndicatorService extends AbstractEntityService<Indicator, Integer, 
 
 		} else if (properties.containsKey("databaseId")) {
 			Object o = properties.get("databaseId");
-			indicator.setDatabase(em().getReference(UserDatabase.class, o));
+			indicator.setDatabase(em().getReference(Project.class, o));
 			Handlers.assertDesignPrivileges(user, indicator.getDatabase());
 		}
 
@@ -89,7 +89,7 @@ public class IndicatorService extends AbstractEntityService<Indicator, Integer, 
 		Indicator indicator = em().find(Indicator.class, entityId);
 
 		// todo: make UserDatabase non-nullable
-		UserDatabase db = indicator.getDatabase();
+		Project db = indicator.getDatabase();
 		if (db == null) {
 			db = indicator.getActivity().getDatabase();
 		}

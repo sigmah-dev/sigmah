@@ -211,7 +211,7 @@ public class Indicator extends AbstractEntityId<Integer> implements Orderable, D
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = EntityConstants.USER_DATABASE_COLUMN_ID, nullable = true)
-	private UserDatabase database;
+	private Project database;
 
 	@ManyToOne(optional = true, fetch = FetchType.LAZY)
 	@JoinColumn(name = EntityConstants.QUALITY_CRITERION_COLUMN_ID, nullable = true)
@@ -240,7 +240,7 @@ public class Indicator extends AbstractEntityId<Integer> implements Orderable, D
 	 *          The instance to set into the cloned current {@code Indicator}.
 	 * @return the cloned current {@code Indicator} instance.
 	 */
-	public Indicator copy(final UserDatabase databaseCopy) {
+	public Indicator copy(final Project databaseCopy) {
 
 		final Indicator copy = new Indicator();
 
@@ -427,11 +427,11 @@ public class Indicator extends AbstractEntityId<Integer> implements Orderable, D
 		this.qualityCriterion = qualityCriterion;
 	}
 
-	public UserDatabase getDatabase() {
+	public Project getDatabase() {
 		return this.database;
 	}
 
-	public void setDatabase(UserDatabase database) {
+	public void setDatabase(Project database) {
 		this.database = database;
 	}
 

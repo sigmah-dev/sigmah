@@ -32,7 +32,6 @@ import org.sigmah.server.domain.OrgUnit;
 import org.sigmah.server.domain.Organization;
 import org.sigmah.server.domain.Project;
 import org.sigmah.server.domain.User;
-import org.sigmah.server.domain.UserDatabase;
 import org.sigmah.server.domain.profile.GlobalPermission;
 import org.sigmah.server.domain.profile.OrgUnitProfile;
 import org.sigmah.server.domain.profile.PrivacyGroupPermission;
@@ -247,6 +246,7 @@ public final class Handlers {
 	}
 
 	public static boolean isProjectAccessible(Project project, User user, boolean edition) {
+		
 		// Checks that the project is not deleted
 		if (project.isDeleted()) {
 			return false;
@@ -435,9 +435,7 @@ public final class Handlers {
 	 * @throws UnauthorizedAccessException
 	 *           If the user does not have design permission.
 	 */
-	public static void assertDesignPrivileges(final User user, final UserDatabase database) throws UnauthorizedAccessException {
-		
-		final Project project = (Project) database;
+	public static void assertDesignPrivileges(final User user, final Project project) throws UnauthorizedAccessException {
 		
 		if (!isGranted(user.getOrgUnitsWithProfiles(), GlobalPermissionEnum.EDIT_INDICATOR)) {
 			throw new UnauthorizedAccessException("Access denied to project '" + project.getId() + "'.");

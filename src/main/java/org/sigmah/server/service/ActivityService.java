@@ -27,7 +27,6 @@ import java.util.Date;
 
 import org.sigmah.server.dao.ActivityDAO;
 import org.sigmah.server.dao.LocationTypeDAO;
-import org.sigmah.server.dao.UserDatabaseDAO;
 import org.sigmah.server.dispatch.impl.UserDispatch.UserExecutionContext;
 import org.sigmah.server.domain.Activity;
 import org.sigmah.server.domain.LocationType;
@@ -40,6 +39,8 @@ import org.sigmah.shared.dto.LocationTypeDTO;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import org.sigmah.server.dao.ProjectDAO;
+import org.sigmah.server.domain.Project;
 import org.sigmah.server.handler.util.Handlers;
 import org.sigmah.shared.security.UnauthorizedAccessException;
 
@@ -53,13 +54,13 @@ import org.sigmah.shared.security.UnauthorizedAccessException;
 public class ActivityService extends AbstractEntityService<Activity, Integer, ActivityDTO> {
 
 	private final ActivityDAO activityDAO;
-	private final UserDatabaseDAO databaseDAO;
+	private final ProjectDAO projectDAO;
 	private final LocationTypeDAO locationTypeDAO;
 
 	@Inject
-	public ActivityService(ActivityDAO activityDAO, UserDatabaseDAO databaseDAO, LocationTypeDAO locationTypeDAO) {
+	public ActivityService(ActivityDAO activityDAO, ProjectDAO projectDAO, LocationTypeDAO locationTypeDAO) {
 		this.activityDAO = activityDAO;
-		this.databaseDAO = databaseDAO;
+		this.projectDAO = projectDAO;
 		this.locationTypeDAO = locationTypeDAO;
 	}
 
@@ -69,14 +70,14 @@ public class ActivityService extends AbstractEntityService<Activity, Integer, Ac
 	@Override
 	public Activity create(final PropertyMap properties, final UserExecutionContext context) throws UnauthorizedAccessException {
 
-		final UserDatabase database = getDatabase(properties);
-		Handlers.assertDesignPrivileges(context.getUser(), database);
+		final Project project = getDatabase(properties);
+		Handlers.assertDesignPrivileges(context.getUser(), project);
 
 		// Create the entity.
 		final Activity activity = new Activity();
-		activity.setDatabase(database);
-		activity.setSortOrder(calculateNextSortOrderIndex(database.getId()));
-		activity.setLocationType(getLocationType(database, properties, context.getUser()));
+		activity.setDatabase(project);
+		activity.setSortOrder(calculateNextSortOrderIndex(project.getId()));
+		activity.setLocationType(getLocationType(project, properties, context.getUser()));
 
 		applyProperties(activity, properties);
 
@@ -103,11 +104,11 @@ public class ActivityService extends AbstractEntityService<Activity, Integer, Ac
 	//
 	// -------------------------------------------------------------------------------------------------------------
 
-	private UserDatabase getDatabase(PropertyMap properties) {
+	private Project getDatabase(PropertyMap properties) {
 		int databaseId = (Integer) properties.get("databaseId");
 
-		UserDatabase database = databaseDAO.findById(databaseId);
-		return database;
+		Project project = projectDAO.findById(databaseId);
+		return project;
 	}
 
 	private LocationType getLocationType(UserDatabase database, PropertyMap properties, final User user) {
