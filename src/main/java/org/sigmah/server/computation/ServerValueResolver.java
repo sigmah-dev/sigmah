@@ -139,7 +139,7 @@ public class ServerValueResolver extends EntityManagerProvider implements ValueR
 				break;
 			case FUNDING_PROJECT:
 				for (final ProjectFunding link : project.getFunding()) {
-					containerIds.add(link.getFunded().getId());
+					containerIds.add(link.getFunding().getId());
 				}
 				break;
 			default:
