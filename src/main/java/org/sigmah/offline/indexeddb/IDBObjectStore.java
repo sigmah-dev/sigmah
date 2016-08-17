@@ -25,22 +25,30 @@ package org.sigmah.offline.indexeddb;
 import com.google.gwt.core.client.JavaScriptObject;
 
 /**
- *
+ * Native IndexedDB object store (equivalent to an SQL table).
+ * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
- * @param <V> Type des objets contenus dans le store
- * @param <K> Type de la clef des objets
+ * @param <V> Type of the stored objects.
+ * @param <K> Type of the key.
  */
 final class IDBObjectStore<K, V> extends JavaScriptObject {
+	
+	/**
+	 * Empty protected constructor. Required for subclasses of JavaScriptObject.
+	 */
 	protected IDBObjectStore() {
+		// Empty.
 	}
 	
 	/**
 	 * Adds a new object to the object store. If an object with the same key
 	 * already exists, an exception will be thrown.
+	 * <br>
 	 * Result is the key of the added object.
 	 * 
 	 * @param object
-	 * @return 
+	 *			Object to add.
+	 * @return A request to add the given object.
 	 */
 	public native IDBRequest<K> add(V object) /*-{
 		return this.add(object);
@@ -75,7 +83,8 @@ final class IDBObjectStore<K, V> extends JavaScriptObject {
 	 * Result is the key of the added object.
 	 * 
 	 * @param object
-	 * @return 
+	 *			Object to update.
+	 * @return A request to update the given object.
 	 */
 	public native IDBRequest<K> put(V object) /*-{
 		return this.put(object);
@@ -145,7 +154,8 @@ final class IDBObjectStore<K, V> extends JavaScriptObject {
 	 * Removes the object associated with the given key.
 	 * 
 	 * @param key
-	 * @return 
+	 *			Key of the object to delete.
+	 * @return A request to delete the object with the given key.
 	 */
 	public native IDBRequest<Object> delete(K key) /*-{
 		return this['delete'](key);
@@ -175,7 +185,8 @@ final class IDBObjectStore<K, V> extends JavaScriptObject {
 	 * Retrieves the object associated with the given key.
 	 * 
 	 * @param key
-	 * @return 
+	 *			Key of the object to search.
+	 * @return A request to retrieve the object with the given key.
 	 */
 	public native IDBRequest<V> get(K key) /*-{
 		return this.get(key);
@@ -235,4 +246,5 @@ final class IDBObjectStore<K, V> extends JavaScriptObject {
 	public native final IDBTransaction getTransaction() /*-{
 		return this.transaction;
 	}-*/;
+	
 }

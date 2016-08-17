@@ -33,7 +33,6 @@ import com.google.inject.Singleton;
 
 import org.sigmah.offline.indexeddb.*;
 import org.sigmah.offline.js.UserJS;
-import org.sigmah.offline.js.Values;
 import org.sigmah.shared.command.result.ListResult;
 import org.sigmah.shared.dto.UserDTO;
 import org.sigmah.shared.dto.orgunit.OrgUnitDTO;
@@ -74,6 +73,14 @@ public class UserAsyncDAO extends AbstractUserDatabaseAsyncDAO<UserDTO, UserJS> 
 		}
 	}
 	
+	/**
+	 * Open a new transaction and save or replace the given objects.
+	 * 
+	 * @param userListResult
+	 *			<code>ListResult</code> of the <code>UserDTO</code> objects to save or update.
+	 * @param organizationId 
+	 *			Identifier of the parent organization.
+	 */
 	public void saveAll(final ListResult<UserDTO> userListResult, final Integer organizationId) {
 		if(userListResult != null && userListResult.getList() != null) {
             openTransaction(Transaction.Mode.READ_WRITE, new OpenTransactionHandler<Store>() {
@@ -185,11 +192,11 @@ public class UserAsyncDAO extends AbstractUserDatabaseAsyncDAO<UserDTO, UserJS> 
         });
 	}
 
-public void getByOrgUnit(final int orgUnitId, final AsyncCallback<ListResult<UserDTO>> callback) {
-		openTransaction(Transaction.Mode.READ_ONLY, new OpenTransactionHandler() {
+	public void getByOrgUnit(final int orgUnitId, final AsyncCallback<ListResult<UserDTO>> callback) {
+		openTransaction(Transaction.Mode.READ_ONLY, new OpenTransactionHandler<Store>() {
 
 			@Override
-			public void onTransaction(final Transaction transaction) {
+			public void onTransaction(final Transaction<Store> transaction) {
 				final ObjectStore userObjectStore = transaction.getObjectStore(Store.USER);
 				final Index orgUnitIndex = userObjectStore.index("orgUnit");
 				final OpenCursorRequest openCursorRequest = orgUnitIndex.openCursor(IDBKeyRange.only(orgUnitId));

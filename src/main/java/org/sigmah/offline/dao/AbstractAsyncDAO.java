@@ -52,7 +52,7 @@ public abstract class AbstractAsyncDAO<T, S extends Enum<S> & Schema> extends Ba
 	 */
 	@Override
 	public void saveOrUpdate(T t) {
-		saveOrUpdate(t, (AsyncCallback<T>) null);
+		saveOrUpdate(t, null);
 	}
 	
 	/**

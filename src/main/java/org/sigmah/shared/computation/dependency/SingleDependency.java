@@ -5,14 +5,21 @@ import org.sigmah.shared.dto.element.FlexibleElementDTO;
 import org.sigmah.shared.dto.element.TextAreaElementDTO;
 
 /**
- *
+ * Dependency to a single flexible element existing in the same project as the
+ * computation.
+ * 
  * @author Raphaël Calabro (raphael.calabro@netapsys.fr)
+ * @since 2.2
  */
 public class SingleDependency implements Dependency {
 	
 	private FlexibleElementDTO flexibleElement;
 
+	/**
+	 * Empty constructor, required for serialization.
+	 */
 	public SingleDependency() {
+		// Empty.
 	}
 
 	public SingleDependency(FlexibleElementDTO flexibleElement) {
@@ -29,11 +36,17 @@ public class SingleDependency implements Dependency {
 		return flexibleElement;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public boolean isResolved() {
 		return true;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public int hashCode() {
 		int hash = 5;
@@ -41,6 +54,9 @@ public class SingleDependency implements Dependency {
 		return hash;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) {

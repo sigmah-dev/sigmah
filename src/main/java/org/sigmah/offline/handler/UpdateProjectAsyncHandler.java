@@ -87,7 +87,6 @@ public class UpdateProjectAsyncHandler implements AsyncCommandHandler<UpdateProj
         
 		for(final ValueEventWrapper valueEventWrapper : command.getValues()) {
 			final String id = ValueJSIdentifierFactory.toIdentifier(command, valueEventWrapper);
-			Log.info("Modification de la valeur de l'élément " + id);
 			
 			final int futureRequestId = requestManager.prepareRequest();
 			final int delayId = requestManager.prepareRequest();

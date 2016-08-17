@@ -42,7 +42,9 @@ public interface AsyncDAO<T, S extends Enum<S> & Schema> {
 	/**
 	 * Open a new transaction and save or replace the given object in the 
 	 * database.
-	 * @param t Object to save.
+	 * 
+	 * @param t
+	 *			Object to save.
 	 */
 	void saveOrUpdate(T t);
 	
@@ -53,32 +55,41 @@ public interface AsyncDAO<T, S extends Enum<S> & Schema> {
 	 * Open a new transaction with {@link #saveOrUpdate(Object)} and save its children
 	 * with this method.
 	 * 
-	 * @param t Object to be saved.
-	 * @param callback Called when the object is saved or in case of failure (not always supported).
-	 * @param transaction An open transaction to use.
+	 * @param t
+	 *			Object to be saved.
+	 * @param callback
+	 *			Called when the object is saved or in case of failure (not always supported).
+	 * @param transaction
+	 *			An open transaction to use.
 	 */
 	void saveOrUpdate(T t, AsyncCallback<T> callback, Transaction<S> transaction);
 	
 	/**
 	 * Open a new transaction and retrieve the object associated to the given id.
 	 * 
-	 * @param id Identifier of the object to retrieve.
-	 * @param callback Called when the object is retrieved or in case of failure.
+	 * @param id
+	 *			Identifier of the object to retrieve.
+	 * @param callback
+	 *			Called when the object is retrieved or in case of failure.
 	 */
 	void get(int id, AsyncCallback<T> callback);
 	
 	/**
 	 * Retrieve the object associated to the given id using the given transaction.
 	 * 
-	 * @param id Identifier of the object to retrieve.
-	 * @param callback Called when the object is retrieved or in case of failure.
-	 * @param transaction An open transaction to use.
+	 * @param id
+	 *			Identifier of the object to retrieve.
+	 * @param callback
+	 *			Called when the object is retrieved or in case of failure.
+	 * @param transaction
+	 *			An open transaction to use.
 	 */
 	void get(int id, AsyncCallback<T> callback, Transaction<S> transaction);
 	
 	/**
 	 * Retrieve the store directly required to save and load the kind of object 
 	 * handled by this DAO.
+	 * 
 	 * @return The required store.
 	 */
 	S getRequiredStore();

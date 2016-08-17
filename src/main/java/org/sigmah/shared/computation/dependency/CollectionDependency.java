@@ -15,6 +15,7 @@ import org.sigmah.shared.util.ValueResultUtils;
  * Dependency to multiple value for the same flexible element.
  * 
  * @author Raphaël Calabro (raphael.calabro@netapsys.fr)
+ * @since 2.2
  */
 public class CollectionDependency implements Dependency {
 	
@@ -24,7 +25,11 @@ public class CollectionDependency implements Dependency {
 	private Integer projectModelId;
 	private FlexibleElementDTO flexibleElement;
 
+	/**
+	 * Empty constructor, required for serialization.
+	 */
 	public CollectionDependency() {
+		// Empty.
 	}
 
 	public CollectionDependency(Scope scope, String elementCode) {
@@ -72,11 +77,17 @@ public class CollectionDependency implements Dependency {
 		this.projectModelId = projectModelId;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public boolean isResolved() {
 		return flexibleElement != null && projectModelId != null;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String toString() {
 		final StringBuilder stringBuilder = new StringBuilder()
@@ -105,6 +116,9 @@ public class CollectionDependency implements Dependency {
 		return stringBuilder.toString();
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String toHumanReadableString() {
 		final StringBuilder stringBuilder = new StringBuilder()

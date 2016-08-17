@@ -5,8 +5,10 @@ import org.sigmah.shared.computation.instruction.Instructions;
 import org.sigmah.shared.util.ValueResultUtils;
 
 /**
- *
+ * Dependency to the given or received contribution throught funding links.
+ * 
  * @author Raphaël Calabro (raphael.calabro@netapsys.fr)
+ * @since 2.2
  */
 public class ContributionDependency implements Dependency {
 	
@@ -16,10 +18,14 @@ public class ContributionDependency implements Dependency {
 	
 	private Integer projectModelId;
 
+	/**
+	 * Empty constructor, required for serialization.
+	 */
 	public ContributionDependency() {
+		// Empty.
 	}
 
-	public ContributionDependency(Scope scope) {
+	public ContributionDependency(final Scope scope) {
 		this.scope = scope;
 		
 		final String modelName = scope.getModelName();
@@ -40,11 +46,17 @@ public class ContributionDependency implements Dependency {
 		return scope;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public boolean isResolved() {
 		return scope.getModelName() == null || projectModelId != null;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String toString() {
 		final StringBuilder stringBuilder = new StringBuilder()
@@ -63,6 +75,9 @@ public class ContributionDependency implements Dependency {
 		return stringBuilder.toString();
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String toHumanReadableString() {
 		return new StringBuilder()
@@ -78,11 +93,11 @@ public class ContributionDependency implements Dependency {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void accept(DependencyVisitor visitor) {
+	public void accept(final DependencyVisitor visitor) {
 		visitor.visit(this);
 	}
 
-	public void setProjectModelId(Integer projectModelId) {
+	public void setProjectModelId(final Integer projectModelId) {
 		this.projectModelId = projectModelId;
 	}
 
