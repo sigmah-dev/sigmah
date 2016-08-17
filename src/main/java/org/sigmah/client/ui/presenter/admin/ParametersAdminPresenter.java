@@ -191,8 +191,10 @@ public class ParametersAdminPresenter extends AbstractAdminPresenter<ParametersA
 	 *          Injected client injector.
 	 */
 	@Inject
-	protected ParametersAdminPresenter(View view, Injector injector) {
+	protected ParametersAdminPresenter(View view, Injector injector, ImageProvider imageProvider) {
 		super(view, injector);
+
+		this.imageProvider = imageProvider;
 	}
 
 	/**
