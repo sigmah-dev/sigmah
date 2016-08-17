@@ -82,13 +82,13 @@ public class OrgUnitSynthesisExporter extends Exporter {
 
 				case XLS: {
 					final HSSFWorkbook wb = new HSSFWorkbook();
-					template = new OrgUnitSynthesisExcelTemplate(synthesisData, wb, getContext(), getI18ntranslator(), getLanguage());
+					template = new OrgUnitSynthesisExcelTemplate(synthesisData, wb, getContext(), getI18ntranslator(), getLanguage(), injector);
 				}
 					break;
 
 				case ODS: {
 					final SpreadsheetDocument doc = SpreadsheetDocument.newSpreadsheetDocument();
-					template = new OrgUnitSynthesisCalcTemplate(synthesisData, doc, getContext(), getI18ntranslator(), getLanguage());
+					template = new OrgUnitSynthesisCalcTemplate(synthesisData, doc, getContext(), getI18ntranslator(), getLanguage(), injector);
 				}
 					break;
 

@@ -130,7 +130,7 @@ public class ProjectSynthesisExporter extends Exporter {
 
 				case XLS: {
 					final HSSFWorkbook wb = new HSSFWorkbook();
-					template = new ProjectSynthesisExcelTemplate(synthesisData, wb, getContext(), getI18ntranslator(), getLanguage());
+					template = new ProjectSynthesisExcelTemplate(synthesisData, wb, getContext(), getI18ntranslator(), getLanguage(), injector);
 					if (logFrameData != null)
 						template = new LogFrameExcelTemplate(logFrameData, wb);
 					if (indicatorData != null)
@@ -140,7 +140,7 @@ public class ProjectSynthesisExporter extends Exporter {
 
 				case ODS: {
 					final SpreadsheetDocument doc = SpreadsheetDocument.newSpreadsheetDocument();
-					template = new ProjectSynthesisCalcTemplate(synthesisData, doc, getContext(), getI18ntranslator(), getLanguage());
+					template = new ProjectSynthesisCalcTemplate(synthesisData, doc, getContext(), getI18ntranslator(), getLanguage(), injector);
 					if (logFrameData != null)
 						template = new LogFrameCalcTemplate(logFrameData, doc);
 					if (indicatorData != null)

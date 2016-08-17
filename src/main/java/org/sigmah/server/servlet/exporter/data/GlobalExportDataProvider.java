@@ -509,7 +509,7 @@ public class GlobalExportDataProvider {
 								for (LayoutConstraint constraint : constraints) {
 									FlexibleElement element = constraint.getElement();
 									String elementName = element.getClass().getSimpleName();
-									GetValue cmd = new GetValue(project.getId(), constraint.getElement().getId(), "element." + constraint.getElement().type(), null, iteration.getId());
+									GetValue cmd = new GetValue(project.getId(), constraint.getElement().getId(), "element." + constraint.getElement().getClass().getSimpleName(), null, iteration.getId());
 									try {
 										final ValueResult iterationValueResult = handler.execute(cmd, null);
 

@@ -105,4 +105,5 @@ public final class ExportConstants {
 	 */
 
 	public static final String INDICATOR_SHEET_PREFIX = "IND_";
+	public static final String GROUP_ITERATIONS_SHEET_PREFIX = "ITER_";
 }

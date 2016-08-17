@@ -22,6 +22,7 @@ package org.sigmah.server.servlet.exporter.template;
  * #L%
  */
 
+import com.google.inject.Injector;
 import org.odftoolkit.simple.SpreadsheetDocument;
 import org.sigmah.server.domain.OrgUnit;
 import org.sigmah.server.i18n.I18nServer;
@@ -34,8 +35,8 @@ import org.sigmah.shared.Language;
  */
 public class OrgUnitSynthesisCalcTemplate extends BaseSynthesisCalcTemplate {
 
-	public OrgUnitSynthesisCalcTemplate(final OrgUnitSynthesisData data, final SpreadsheetDocument doc, final ServletExecutionContext context, final I18nServer i18nTranslator, final Language language) throws Throwable {
-		super(data, doc, OrgUnit.class, context, i18nTranslator, language);
+	public OrgUnitSynthesisCalcTemplate(final OrgUnitSynthesisData data, final SpreadsheetDocument doc, final ServletExecutionContext context, final I18nServer i18nTranslator, final Language language, final Injector injector) throws Throwable {
+		super(data, doc, OrgUnit.class, context, i18nTranslator, language, injector);
 	}
 
 }

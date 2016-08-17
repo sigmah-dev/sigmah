@@ -22,6 +22,7 @@ package org.sigmah.server.servlet.exporter.template;
  * #L%
  */
 
+import com.google.inject.Injector;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.sigmah.server.domain.OrgUnit;
 import org.sigmah.server.i18n.I18nServer;
@@ -34,8 +35,8 @@ import org.sigmah.shared.Language;
  */
 public class OrgUnitSynthesisExcelTemplate extends BaseSynthesisExcelTemplate {
 
-	public OrgUnitSynthesisExcelTemplate(final OrgUnitSynthesisData data, final HSSFWorkbook wb, final ServletExecutionContext context, final I18nServer i18nTranslator, final Language language) throws Throwable {
-		super(data, wb, OrgUnit.class, context, i18nTranslator, language);
+	public OrgUnitSynthesisExcelTemplate(final OrgUnitSynthesisData data, final HSSFWorkbook wb, final ServletExecutionContext context, final I18nServer i18nTranslator, final Language language, final Injector injector) throws Throwable {
+		super(data, wb, OrgUnit.class, context, i18nTranslator, language, injector);
 	}
 
 }
