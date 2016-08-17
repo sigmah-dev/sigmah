@@ -31,13 +31,17 @@ import org.sigmah.shared.dto.orgunit.OrgUnitDTO;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArrayInteger;
+import java.util.HashSet;
 
 /**
+ * Javascript version of OrgUnitDTO.
+ * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
 public final class OrgUnitJS extends JavaScriptObject {
 
 	protected OrgUnitJS() {
+		// Empty.
 	}
 
 	public static OrgUnitJS toJavaScript(OrgUnitDTO orgUnitDTO) {
@@ -79,6 +83,7 @@ public final class OrgUnitJS extends JavaScriptObject {
 			orgUnitDTO.setCalendarId(getCalendarId());
 		}
 		orgUnitDTO.setDeleted(getDeleted());
+		orgUnitDTO.setChildrenOrgUnits(new HashSet<OrgUnitDTO>());
 
 		return orgUnitDTO;
 	}

@@ -42,8 +42,9 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import java.util.ArrayList;
 import java.util.List;
+import org.sigmah.client.computation.ClientValueResolver;
 import org.sigmah.client.i18n.I18N;
-import org.sigmah.client.ui.notif.N10N;
+import org.sigmah.offline.dao.ComputationAsyncDAO;
 import org.sigmah.offline.dao.ProjectAsyncDAO;
 import org.sigmah.offline.sync.SuccessCallback;
 import org.sigmah.shared.command.result.Authentication;
@@ -74,45 +75,34 @@ public class UpdateProjectAsyncHandler implements AsyncCommandHandler<UpdateProj
     
     @Inject
     private ProjectAsyncDAO projectAsyncDAO;
+	
+	@Inject
+	private ComputationAsyncDAO computationAsyncDAO;
+	
+	@Inject
+	private ClientValueResolver clientValueResolver;
 
     /**
      * {@inheritDoc}
      */
 	@Override
 	public void execute(final UpdateProject command, final OfflineExecutionContext executionContext, final AsyncCallback<VoidResult> callback) {
-		// Updating the local database
-		final RequestManager<VoidResult> requestManager = new RequestManager<VoidResult>(null, callback);
-        
-        checkComputations(command.getValues(), command.getProjectId());
-        
-		for(final ValueEventWrapper valueEventWrapper : command.getValues()) {
-			final String id = ValueJSIdentifierFactory.toIdentifier(command, valueEventWrapper);
-			
-			final int futureRequestId = requestManager.prepareRequest();
-			final int delayId = requestManager.prepareRequest();
-			valueAsyncDAO.get(id, new RequestManagerCallback<VoidResult, ValueResult>(requestManager) {
-				@Override
-				public void onRequestSuccess(ValueResult result) {
-					valueAsyncDAO.saveOrUpdate(command, valueEventWrapper, result, new RequestManagerCallback<VoidResult, VoidResult>(requestManager, futureRequestId) {
-						@Override
-						public void onRequestSuccess(VoidResult result) {
-                            // Delay the callback to allow IndexedDB to cleanly
-                            // close its transaction.
-                            new Timer() {
-                                @Override
-                                public void run() {
-                                    requestManager.setRequestSuccess(delayId);
-                                }
-                            }.schedule(100);
-						}
-					});
-				}
-			});
-		}
 		
-		// Saving the action in the local database
-		updateDiaryAsyncDAO.saveOrUpdate(command);
-		requestManager.ready();
+        checkComputations(command.getValues(), command.getProjectId(), new SuccessCallback<ProjectDTO>(callback) {
+			
+			@Override
+			public void onSuccess(final ProjectDTO project) {
+				saveValues(command, new SuccessCallback<VoidResult>(callback) {
+
+					@Override
+					public void onSuccess(VoidResult result) {
+						updateImpactedComputations(command, project, callback);
+					}
+					
+				});
+			}
+			
+		});
 	}
 
     /**
@@ -121,7 +111,7 @@ public class UpdateProjectAsyncHandler implements AsyncCommandHandler<UpdateProj
 	@Override
 	public void onSuccess(final UpdateProject command, VoidResult result, Authentication authentication) {
 		// Updating local database
-		for(final ValueEventWrapper valueEventWrapper : command.getValues()) {
+		for (final ValueEventWrapper valueEventWrapper : command.getValues()) {
 			final String id = ValueJSIdentifierFactory.toIdentifier(command, valueEventWrapper);
 			
 			valueAsyncDAO.get(id, new AsyncCallback<ValueResult>() {
@@ -132,15 +122,77 @@ public class UpdateProjectAsyncHandler implements AsyncCommandHandler<UpdateProj
 
 				@Override
 				public void onSuccess(ValueResult result) {
-					valueAsyncDAO.saveOrUpdate(command, valueEventWrapper, result, new AsyncCallback<VoidResult>() {
+					valueAsyncDAO.saveOrUpdate(command, valueEventWrapper, result, null);
+				}
+			});
+		}
+	}
+	
+	private void saveValues(final UpdateProject command, final AsyncCallback<VoidResult> callback) {
+		
+		// Updating the local database
+		final RequestManager<VoidResult> requestManager = new RequestManager<VoidResult>(null, callback);
+        
+		for (final ValueEventWrapper valueEventWrapper : command.getValues()) {
+			final String id = ValueJSIdentifierFactory.toIdentifier(command, valueEventWrapper);
+			
+			valueAsyncDAO.get(id, new RequestManagerCallback<VoidResult, ValueResult>(requestManager) {
+
+				@Override
+				public void onRequestSuccess(ValueResult result) {
+					valueAsyncDAO.saveOrUpdate(command, valueEventWrapper, result, new RequestManagerCallback<VoidResult, VoidResult>(requestManager) {
 						@Override
-						public void onFailure(Throwable caught) {
-						}
-						@Override
-						public void onSuccess(VoidResult result) {
+						public void onRequestSuccess(VoidResult result) {
+							// Delay the callback to allow IndexedDB to cleanly
+                            // close its transaction.
+							final int delayId = requestManager.prepareRequest();
+                            new Timer() {
+                                @Override
+                                public void run() {
+                                    requestManager.setRequestSuccess(delayId);
+                                }
+                            }.schedule(100);
 						}
 					});
 				}
+
+			});
+		}
+		
+		// Saving the action in the local database
+		updateDiaryAsyncDAO.saveOrUpdate(command);
+		requestManager.ready();
+	}
+
+	private void updateImpactedComputations(final UpdateProject command, final ProjectDTO project, final AsyncCallback<VoidResult> callback) {
+		
+		final RequestManager<VoidResult> requestManager = new RequestManager<VoidResult>(null, callback);
+        
+		for (final ValueEventWrapper valueEventWrapper : command.getValues()) {
+			computationAsyncDAO.get(valueEventWrapper.getSourceElement(), new RequestManagerCallback<VoidResult, List<ComputationElementDTO>>(requestManager) {
+			
+				@Override
+				public void onRequestSuccess(final List<ComputationElementDTO> result) {
+					for (final ComputationElementDTO computationElement : result) {
+						final Computation computation = computationElement.getComputationForModel(project.getProjectModel());
+						computation.computeValueWithWrappersAndResolver(project.getId(), command.getValues(), clientValueResolver, new RequestManagerCallback<VoidResult, String>(requestManager) {
+
+							@Override
+							public void onRequestSuccess(String result) {
+								valueAsyncDAO.saveOrUpdate(result, computationElement, project.getId(), new RequestManagerCallback<VoidResult, VoidResult>(requestManager) {
+
+									@Override
+									public void onRequestSuccess(VoidResult result) {
+										// Success.
+									}
+
+								});
+							}
+
+						});
+					}
+				}
+
 			});
 		}
 	}
@@ -153,17 +205,17 @@ public class UpdateProjectAsyncHandler implements AsyncCommandHandler<UpdateProj
      * @param projectId
      *          Identifier of the modified project.
      */
-    private void checkComputations(final List<ValueEventWrapper> valueEvents, int projectId) {
+    private void checkComputations(final List<ValueEventWrapper> valueEvents, final int projectId, final AsyncCallback<ProjectDTO> callback) {
         
-        projectAsyncDAO.get(projectId, new SuccessCallback<ProjectDTO>() {
+        projectAsyncDAO.get(projectId, new SuccessCallback<ProjectDTO>(callback) {
 
             @Override
             public void onSuccess(final ProjectDTO project) {
-                
                 try {
                     checkComputations(valueEvents, project);
+					callback.onSuccess(project);
                 } catch (UpdateConflictException e) {
-                    N10N.info(e.getTitle(), e.getMessage());
+					onFailure(e);
                 }
             }
         });
@@ -175,17 +227,17 @@ public class UpdateProjectAsyncHandler implements AsyncCommandHandler<UpdateProj
      * @param valueEvents
      *          List of changes.
      */
-    private void checkComputations(final List<ValueEventWrapper> valueEvents, ProjectDTO project) throws UpdateConflictException {
+    private void checkComputations(final List<ValueEventWrapper> valueEvents, final ProjectDTO project) throws UpdateConflictException {
         
-        final ArrayList<String> conflicts = new ArrayList<String>();
-        
+        final List<String> conflicts = new ArrayList<String>();
+		
         for (final ValueEventWrapper valueEvent : valueEvents) {
             final FlexibleElementDTO source = valueEvent.getSourceElement();
             if (source instanceof ComputationElementDTO && ((ComputationElementDTO) source).hasConstraints()) {
                 checkComputation((ComputationElementDTO) source, ComputedValues.from(valueEvent.getSingleValue()), project, valueEvents, conflicts);
             }
         }
-        
+		
         if (!conflicts.isEmpty()) {
 			// At least one conflict was found.
 			throw new UpdateConflictException(

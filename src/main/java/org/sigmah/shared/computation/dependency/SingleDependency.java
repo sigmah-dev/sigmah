@@ -41,7 +41,7 @@ public class SingleDependency implements Dependency {
 	 */
 	@Override
 	public boolean isResolved() {
-		return true;
+		return flexibleElement != null;
 	}
 
 	/**

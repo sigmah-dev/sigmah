@@ -116,7 +116,7 @@ public abstract class BaseAsyncDAO<S extends Enum<S> & Schema> {
 	 * @param handler 
 	 *			Handler executed in a new transaction.
 	 */
-	protected void openTransaction(final Transaction.Mode mode, final OpenTransactionHandler<S> handler) {
+	public void openTransaction(final Transaction.Mode mode, final OpenTransactionHandler<S> handler) {
         final OpenDatabaseRequest<S> openDatabaseRequest = openDatabase();
         
         handler.setMode(mode);

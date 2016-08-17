@@ -40,11 +40,13 @@ import org.sigmah.offline.dao.UpdateDiaryAsyncDAO;
 import org.sigmah.offline.dispatch.AsyncCommandHandler;
 import org.sigmah.offline.dispatch.OfflineExecutionContext;
 import org.sigmah.offline.dispatch.UnavailableCommandException;
+import org.sigmah.offline.sync.SuccessCallback;
 import org.sigmah.shared.command.UpdateEntity;
 import org.sigmah.shared.command.result.Authentication;
 import org.sigmah.shared.command.result.Calendar;
 import org.sigmah.shared.command.result.VoidResult;
 import org.sigmah.shared.dto.ProjectDTO;
+import org.sigmah.shared.dto.ProjectFundingDTO;
 import org.sigmah.shared.dto.calendar.CalendarWrapper;
 import org.sigmah.shared.dto.calendar.Event;
 import org.sigmah.shared.dto.calendar.PersonalCalendarIdentifier;
@@ -95,7 +97,7 @@ public class UpdateEntityAsyncHandler implements AsyncCommandHandler<UpdateEntit
 	}
 	
 	private void executeCommand(UpdateEntity command, Authentication authentication, AsyncCallback<VoidResult> callback) {
-		if(MonitoredPointDTO.ENTITY_NAME.equals(command.getEntityName())) {
+		if (MonitoredPointDTO.ENTITY_NAME.equals(command.getEntityName())) {
 			updateMonitoredPoint(command.getId(), command.getChanges(), callback);
 			
 		} else if(ProjectReportDTO.ENTITY_NAME.equals(command.getEntityName())) {
@@ -110,13 +112,16 @@ public class UpdateEntityAsyncHandler implements AsyncCommandHandler<UpdateEntit
 		} else if(ReminderDTO.ENTITY_NAME.equals(command.getEntityName())) {
 			updateReminder(command.getId(), command.getChanges(), callback);
 			
+		} else if (ProjectFundingDTO.ENTITY_NAME.equals(command.getEntityName())) {
+			updateProjectFunding(command.getId(), command.getChanges(), callback);
+			
 		} else {
 			exception(command, callback != null);
 		}
 	}
 	
 	private void exception(UpdateEntity command, boolean throwException) throws UnsupportedOperationException {
-		if(throwException) {
+		if (throwException) {
 			throw new UnavailableCommandException("Update of type '" + command.getEntityName() + "' is not supported yet.");
 		}
 	}
@@ -257,11 +262,7 @@ public class UpdateEntityAsyncHandler implements AsyncCommandHandler<UpdateEntit
 	}
 	
 	private void updateMonitoredPoint(final int entityId, final RpcMap changes, final AsyncCallback<VoidResult> callback) {
-		monitoredPointAsyncDAO.get(entityId, new AsyncCallback<MonitoredPointDTO>() {
-			@Override
-			public void onFailure(Throwable caught) {
-				callback.onFailure(caught);
-			}
+		monitoredPointAsyncDAO.get(entityId, new SuccessCallback<MonitoredPointDTO>(callback) {
 
 			@Override
 			public void onSuccess(MonitoredPointDTO point) {
@@ -276,5 +277,11 @@ public class UpdateEntityAsyncHandler implements AsyncCommandHandler<UpdateEntit
 				monitoredPointAsyncDAO.saveOrUpdate(point, monitoredPointCallback);
 			}
 		});
+	}
+	
+	private void updateProjectFunding(final int entityId, final RpcMap changes, final AsyncCallback<VoidResult> callback) {
+		// TODO: Find the projects using the given project founding.
+		final Double amount = (Double) changes.get(ProjectFundingDTO.PERCENTAGE);
+		callback.onFailure(new UnavailableCommandException("Update of 'ProjectFunding' is not supported offline."));
 	}
 }

@@ -37,6 +37,9 @@ import com.google.gwt.core.client.JsArrayInteger;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import java.util.Arrays;
+import org.sigmah.shared.dto.element.ComputationElementDTO;
+import org.sigmah.shared.dto.element.FlexibleElementDTO;
 
 /**
  * Asynchronous DAO for saving and loading <code>ProjectModelDTO</code> objects.
@@ -46,15 +49,11 @@ import com.google.inject.Singleton;
 @Singleton
 public class ProjectModelAsyncDAO extends AbstractUserDatabaseAsyncDAO<ProjectModelDTO, ProjectModelJS> {
 	
-	private final PhaseModelAsyncDAO phaseModelAsyncDAO;
-
-	/**
-	 * {@inheritDoc}
-	 */
 	@Inject
-	public ProjectModelAsyncDAO(PhaseModelAsyncDAO phaseModelAsyncDAO) {
-		this.phaseModelAsyncDAO = phaseModelAsyncDAO;
-	}
+	private PhaseModelAsyncDAO phaseModelAsyncDAO;
+	
+	@Inject
+	private ComputationAsyncDAO computationAsyncDAO;
 
 	/**
 	 * {@inheritDoc}
@@ -65,6 +64,12 @@ public class ProjectModelAsyncDAO extends AbstractUserDatabaseAsyncDAO<ProjectMo
 		
 		for (final PhaseModelDTO phaseModel : t.getPhaseModels()) {
 			phaseModelAsyncDAO.saveOrUpdate(phaseModel, null, transaction);
+		}
+		
+		for (final FlexibleElementDTO flexibleElement : t.getAllElements()) {
+			if (flexibleElement instanceof ComputationElementDTO) {
+				computationAsyncDAO.saveOrUpdate((ComputationElementDTO)flexibleElement, null, transaction);
+			}
 		}
 	}
 	
@@ -89,23 +94,23 @@ public class ProjectModelAsyncDAO extends AbstractUserDatabaseAsyncDAO<ProjectMo
             @Override
             public void onSuccess(Request request) {
                 final ProjectModelJS projectModelJS = request.getResult();
-				if(projectModelJS != null) {
+				if (projectModelJS != null) {
 					final ProjectModelDTO projectModelDTO = projectModelJS.toDTO();
 
 					final RequestManager<ProjectModelDTO> requestManager = new RequestManager<ProjectModelDTO>(projectModelDTO, callback);
 
 					final JsArrayInteger phaseModels = projectModelJS.getPhaseModels();
-					if(phaseModels != null) {
+					if (phaseModels != null) {
 						final ArrayList<PhaseModelDTO> dtos = new ArrayList<PhaseModelDTO>();
 						projectModelDTO.setPhaseModels(dtos);
 
-						for(int index = 0; index < phaseModels.length(); index++) {
+						for (int index = 0; index < phaseModels.length(); index++) {
 							phaseModelAsyncDAO.get(phaseModels.get(index), new RequestManagerCallback<ProjectModelDTO, PhaseModelDTO>(requestManager) {
 								@Override
 								public void onRequestSuccess(PhaseModelDTO result) {
 									if (result != null) {
-									dtos.add(result);
-								}
+										dtos.add(result);
+									}
 								}
 							}, transaction);
 						}
@@ -133,9 +138,7 @@ public class ProjectModelAsyncDAO extends AbstractUserDatabaseAsyncDAO<ProjectMo
 	 */
 	@Override
 	public Collection<BaseAsyncDAO<Store>> getDependencies() {
-		final ArrayList<BaseAsyncDAO<Store>> dependencies = new ArrayList<BaseAsyncDAO<Store>>();
-		dependencies.add(phaseModelAsyncDAO);
-		return dependencies;
+		return Arrays.<BaseAsyncDAO<Store>>asList(phaseModelAsyncDAO, computationAsyncDAO);
 	}
 
 	/**

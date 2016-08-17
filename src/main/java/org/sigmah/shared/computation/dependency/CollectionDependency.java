@@ -99,8 +99,20 @@ public class CollectionDependency implements Dependency {
 					.append(projectModelId)
 					.append(ValueResultUtils.BUDGET_VALUE_SEPARATOR);
 		}
-		stringBuilder.append(scope.getModelName())
-				.append(ValueResultUtils.DEFAULT_VALUE_SEPARATOR);
+		return stringBuilder.append(scope.getModelName())
+				.append(ValueResultUtils.DEFAULT_VALUE_SEPARATOR)
+				.append(flexibleElementString())
+				.toString();
+	}
+	
+	/**
+	 * Returns a string representation of the flexible element referenced
+	 * by this dependency.
+	 * 
+	 * @return A string representation of the flexible element.
+	 */
+	public String flexibleElementString() {
+		final StringBuilder stringBuilder = new StringBuilder();
 		
 		if (flexibleElement != null) {
 			stringBuilder.append(Instructions.ID_PREFIX)
@@ -135,7 +147,7 @@ public class CollectionDependency implements Dependency {
 		
 		return stringBuilder.toString();
 	}
-
+	
 	/**
 	 * {@inheritDoc}
 	 */
