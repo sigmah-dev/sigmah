@@ -61,22 +61,33 @@ import org.sigmah.server.domain.export.GlobalExportContent;
 import org.sigmah.server.domain.layout.Layout;
 import org.sigmah.server.domain.layout.LayoutConstraint;
 import org.sigmah.server.domain.layout.LayoutGroup;
+import org.sigmah.server.handler.GetLayoutGroupIterationsHandler;
 import org.sigmah.server.handler.GetValueHandler;
 import org.sigmah.server.i18n.I18nServer;
 import org.sigmah.server.servlet.base.ServletExecutionContext;
+import org.sigmah.server.servlet.exporter.data.cells.GlobalExportDataCell;
+import org.sigmah.server.servlet.exporter.data.cells.GlobalExportLinkCell;
+import org.sigmah.server.servlet.exporter.data.cells.GlobalExportStringCell;
+import org.sigmah.server.servlet.exporter.data.columns.GlobalExportDataColumn;
+import org.sigmah.server.servlet.exporter.data.columns.GlobalExportFlexibleElementColumn;
+import org.sigmah.server.servlet.exporter.data.columns.GlobalExportIterativeGroupColumn;
 import org.sigmah.server.servlet.exporter.utils.CsvBuilder;
 import org.sigmah.server.servlet.exporter.utils.CsvParser;
 import org.sigmah.server.servlet.exporter.utils.ExportConstants;
 import org.sigmah.server.servlet.exporter.utils.ExportConstants.MultiItemText;
 import org.sigmah.server.servlet.exporter.utils.ExporterUtil;
 import org.sigmah.shared.Language;
+import org.sigmah.shared.command.GetLayoutGroupIterations;
 import org.sigmah.shared.command.GetValue;
+import org.sigmah.shared.command.result.ListResult;
 import org.sigmah.shared.command.result.ValueResult;
+import org.sigmah.shared.dto.layout.LayoutGroupIterationDTO;
 import org.sigmah.shared.dto.referential.ProjectModelStatus;
 import org.sigmah.shared.dto.value.ListableValue;
 import org.sigmah.shared.dto.value.TripletValueDTO;
 import org.sigmah.shared.util.ValueResultUtils;
 
+import com.google.gwt.core.client.GWT;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
@@ -91,8 +102,101 @@ import org.slf4j.LoggerFactory;
  */
 @Singleton
 public class GlobalExportDataProvider {
-	
+
 	private static final Logger LOGGER = LoggerFactory.getLogger(GlobalExportDataProvider.class);
+
+	public static class BudgetValues {
+		private Double spent;
+		private Double planned;
+
+		public BudgetValues(BudgetElement budgetElement, ValueResult valueResult) {
+			boolean hasValue = valueResult != null && valueResult.isValueDefined();
+
+			Double plannedBudget = 0d;
+			Double spentBudget = 0d;
+			if (hasValue) {
+				final Map<Integer, String> val = ValueResultUtils.splitMapElements(valueResult.getValueObject());
+
+				if (budgetElement.getRatioDividend() != null) {
+					if (val.get(budgetElement.getRatioDividend().getId()) != null) {
+						spentBudget = Double.valueOf(val.get(budgetElement.getRatioDividend().getId()));
+
+					}
+				}
+
+				if (budgetElement.getRatioDivisor() != null) {
+					if (val.get(budgetElement.getRatioDivisor().getId()) != null) {
+						plannedBudget = Double.valueOf(val.get(budgetElement.getRatioDivisor().getId()));
+
+					}
+				}
+			}
+
+			spent = spentBudget;
+			planned = plannedBudget;
+		}
+
+		public Double getSpent() {
+			return spent;
+		}
+
+		public Double getPlanned() {
+			return planned;
+		}
+
+		public Double getRatio() {
+			return spent/planned;
+		}
+	}
+
+	public static class ChoiceValue {
+		private String valueLabels;
+		private String valueIds;
+
+		public ChoiceValue(QuestionElement questionElement, ValueResult valueResult) {
+			if (valueResult != null && valueResult.isValueDefined()) {
+				if (questionElement.getMultiple()) {
+					final MultiItemText item = formatMultipleChoices(questionElement.getChoices(), valueResult.getValueObject());
+					valueLabels = item.text;
+
+					final List<Integer> selectedChoicesIds = new ArrayList<>();
+					for (Integer id : ValueResultUtils.splitValuesAsInteger(valueResult.getValueObject())) {
+						for (QuestionChoiceElement choice : questionElement.getChoices()) {
+							if (id.equals(choice.getId())) {
+								if (choice.getCategoryElement() != null) {
+									id = choice.getCategoryElement().getId();
+								}
+								break;
+							}
+						}
+						selectedChoicesIds.add(id);
+					}
+					valueIds = Joiner.on(", ").join(selectedChoicesIds);
+				} else {
+					final String idChoice = valueResult.getValueObject();
+					for (QuestionChoiceElement choice : questionElement.getChoices()) {
+						if (idChoice.equals(String.valueOf(choice.getId()))) {
+							if (choice.getCategoryElement() != null) {
+								valueLabels = choice.getCategoryElement().getLabel();
+								valueIds = String.valueOf(choice.getCategoryElement().getId());
+							} else {
+								valueLabels = choice.getLabel();
+							}
+							break;
+						}
+					}
+				}
+			}
+		}
+
+		public String getValueLabels() {
+			return valueLabels;
+		}
+
+		public String getValueIds() {
+			return valueIds;
+		}
+	}
 
 	public static class ValueLabel {
 
@@ -144,7 +248,7 @@ public class GlobalExportDataProvider {
 		this.csvParser = new CsvParser();
 	}
 
-	public void persistGlobalExportDataAsCsv(final GlobalExport globalExport, EntityManager em, Map<String, List<String[]>> exportData) throws Exception {
+	public void persistGlobalExportDataAsCsv(final GlobalExport globalExport, EntityManager em, Map<String, List<GlobalExportDataCell[]>> exportData) throws Exception {
 		for (final String pModelName : exportData.keySet()) {
 			final GlobalExportContent content = new GlobalExportContent();
 			content.setGlobalExport(globalExport);
@@ -154,18 +258,34 @@ public class GlobalExportDataProvider {
 		}
 	}
 
-	public Map<String, List<String[]>> getBackedupGlobalExportData(EntityManager em, Integer gExportId) {
-		final Map<String, List<String[]>> exportData = new TreeMap<String, List<String[]>>();
+	public Map<String, List<GlobalExportDataCell[]>> getBackedupGlobalExportData(EntityManager em, Integer gExportId) {
+		final Map<String, List<GlobalExportDataCell[]>> exportData = new TreeMap<String, List<GlobalExportDataCell[]>>();
 		final GlobalExport export = em.find(GlobalExport.class, gExportId);
 		final List<GlobalExportContent> contents = export.getContents();
 		for (final GlobalExportContent content : contents) {
 			final List<String[]> csvData = csvParser.parseCsv(content.getCsvContent());
-			exportData.put(content.getProjectModelName(), csvData);
+			exportData.put(content.getProjectModelName(), CSVDataToGlobalExportData(csvData));
 		}
 		return exportData;
 	}
 
-	public Map<String, List<String[]>> generateGlobalExportData(final Integer organizationId, EntityManager entityManager, final I18nServer i18nTranslator,
+	private List<GlobalExportDataCell[]> CSVDataToGlobalExportData(List<String[]> csvData) {
+		List<GlobalExportDataCell[]> globalExportData = new ArrayList<>();
+
+		for(String[] line : csvData) {
+			GlobalExportDataCell[] convertedLine = new GlobalExportDataCell[line.length];
+
+			for(int i = 0; i < line.length; i++) {
+				convertedLine[i] = new GlobalExportStringCell(line[i]);
+			}
+
+			globalExportData.add(convertedLine);
+		}
+
+		return globalExportData;
+	}
+
+	public Map<String, List<GlobalExportDataCell[]>> generateGlobalExportData(final Integer organizationId, EntityManager entityManager, final I18nServer i18nTranslator,
 			final Language language, final ServletExecutionContext context) throws Exception {
 		if (entityManager == null) {
 			entityManager = injector.getInstance(EntityManager.class);
@@ -194,12 +314,12 @@ public class GlobalExportDataProvider {
 		}
 
 		// project model and its globally exportable fields
-		final Map<String, List<FlexibleElement>> pModelElementsMap = new TreeMap<String, List<FlexibleElement>>();
+		final Map<String, List<GlobalExportDataColumn>> pModelElementsMap = new TreeMap<String, List<GlobalExportDataColumn>>();
 		for (final ProjectModel projectModel : pModels) {
 			if (projectModel.getStatus() != ProjectModelStatus.DRAFT) {
 				final String pModelName = projectModel.getName();
 
-				final List<FlexibleElement> pModelElements = new ArrayList<FlexibleElement>();
+				final List<GlobalExportDataColumn> pModelElements = new ArrayList<GlobalExportDataColumn>();
 				pModelElementsMap.put(pModelName, pModelElements);
 
 				// detail elements
@@ -214,8 +334,9 @@ public class GlobalExportDataProvider {
 
 		// final CommandHandler<GetValue, ValueResult> handler = new GetValueHandler();
 		final CommandHandler<GetValue, ValueResult> handler = injector.getInstance(GetValueHandler.class);
+		final CommandHandler<GetLayoutGroupIterations, ListResult<LayoutGroupIterationDTO>> iterationsHandler = injector.getInstance(GetLayoutGroupIterationsHandler.class);
 
-		final Map<String, List<String[]>> pModelExportDataMap = new LinkedHashMap<String, List<String[]>>();
+		final Map<String, List<GlobalExportDataCell[]>> pModelExportDataMap = new LinkedHashMap<String, List<GlobalExportDataCell[]>>();
 
 		// categories
 		final Set<CategoryType> categories = new HashSet<>();
@@ -228,115 +349,224 @@ public class GlobalExportDataProvider {
 			if (pModelProjectsMap.get(pModelName) == null)
 				continue;
 
-			final List<FlexibleElement> elements = pModelElementsMap.get(pModelName);
-			final List<String[]> exportData = new ArrayList<String[]>();
+			final List<GlobalExportDataColumn> elements = pModelElementsMap.get(pModelName);
+			final List<GlobalExportDataCell[]> exportData = new ArrayList<GlobalExportDataCell[]>();
 			pModelExportDataMap.put(pModelName, exportData);
 
 			// field titles
-			final List<String> titles = new ArrayList<String>();
+			final List<GlobalExportDataCell> titles = new ArrayList<GlobalExportDataCell>();
+
+			// layout group tabs
+			final Map<String, List<GlobalExportDataCell[]>> layoutGroupsData = new LinkedHashMap<>();
 
 			// special fields for BI
-			titles.add(i18nTranslator.t(language, "permanentId"));
-			titles.add(i18nTranslator.t(language, "projectActivePhase"));
+			titles.add(new GlobalExportStringCell(i18nTranslator.t(language, "permanentId")));
+			titles.add(new GlobalExportStringCell(i18nTranslator.t(language, "projectActivePhase")));
 
 			boolean isFirstLine = true;
 			// projects
 			for (final Project project : pModelProjectsMap.get(pModelName)) {
 
-				final List<String> values = new ArrayList<String>();
+				final List<GlobalExportDataCell> values = new ArrayList<GlobalExportDataCell>();
 
 				// special fields for BI
-				values.add(String.valueOf(project.getId()));
-				if(project.getCloseDate() == null) {
-					values.add(project.getCurrentPhase().getPhaseModel().getName());
+				values.add(new GlobalExportStringCell(String.valueOf(project.getId())));
+				if (project.getCloseDate() == null) {
+					values.add(new GlobalExportStringCell(project.getCurrentPhase().getPhaseModel().getName()));
 				} else {
-					values.add(i18nTranslator.t(language, "closedProject"));
+					values.add(new GlobalExportStringCell(i18nTranslator.t(language, "closedProject")));
 				}
 
 				// fields
-				for (final FlexibleElement element : elements) {
+				for (final GlobalExportDataColumn column : elements) {
 
-					// command to get element value
-					final String elementName = "element." + element.getClass().getSimpleName();
-					final GetValue command = new GetValue(project.getId(), element.getId(), elementName, null);
+					if (column instanceof GlobalExportFlexibleElementColumn) {
 
-					try {
+						FlexibleElement element = ((GlobalExportFlexibleElementColumn)column).getFlexibleElement();
 
-						final ValueResult valueResult = handler.execute(command, null);
+						// command to get element value
+						final String elementName = "element." + element.getClass().getSimpleName();
+						final GetValue command = new GetValue(project.getId(), element.getId(), elementName, null);
 
-						// prepare value and label
-						ValueLabel pair = null;
-						/* DEF FLEXIBLE */
-						if (elementName.equals("element.DefaultFlexibleElement")) {
-							pair = getDefElementPair(valueResult, element, project, entityManager, i18nTranslator, language);
+						try {
 
-						} else /* BUDGET */ if(elementName.equals("element.BudgetElement")) {
-							// budget is a special case where the element corresponds to 3 columns
+							final ValueResult valueResult = handler.execute(command, null);
+
+							// prepare value and label
+							ValueLabel pair = null;
+						  /* DEF FLEXIBLE */
+							if (elementName.equals("element.DefaultFlexibleElement")) {
+								pair = getDefElementPair(valueResult, element, project, entityManager, i18nTranslator, language);
+
+							} else /* BUDGET */ if (elementName.equals("element.BudgetElement")) {
+								// budget is a special case where the element corresponds to 3 columns
+								if (isFirstLine) {
+									addBudgetTitles(titles, element, i18nTranslator, language);
+								}
+								addBudgetValues(values, valueResult, element, i18nTranslator, language);
+								continue;
+							} else /* CHECKBOX */if (elementName.equals("element.CheckboxElement")) {
+								pair = getCheckboxElementPair(valueResult, element, i18nTranslator, language);
+							} else /* TEXT AREA */if (elementName.equals("element.TextAreaElement")) {
+								pair = getTextAreaElementPair(valueResult, element);
+
+							}/* TRIPLET */
+							if (elementName.equals("element.TripletsListElement")) {
+								pair = getTripletPair(element, valueResult);
+
+							}/* CHOICE */
+							if (elementName.equals("element.QuestionElement")) {
+								// choice is a special case where the element corresponds to 2 columns and 1 additional tab
+								if (isFirstLine) {
+									addChoiceTitles(titles, categories, element, i18nTranslator, language);
+								}
+								addChoiceValues(values, valueResult, element);
+								continue;
+							}
+
+							// titles
+
 							if (isFirstLine) {
-								addBudgetTitles(titles, element, i18nTranslator, language);
+								titles.add(new GlobalExportStringCell(pair != null ? pair.getFormattedLabel() : null));
 							}
-							addBudgetValues(values, valueResult, element, i18nTranslator, language);
+
+							// values
+							values.add(new GlobalExportStringCell(pairToValueString(pair)));
+
+						} catch (Exception e) {
+							GWT.log("Failed to get element value" + e.getMessage());
+						}
+
+					} else if (column instanceof GlobalExportIterativeGroupColumn) {
+						LayoutGroup group = ((GlobalExportIterativeGroupColumn)column).getLayoutGroup();
+						List<LayoutConstraint> allConstraints = group.getConstraints();
+						List<LayoutConstraint> constraints = new ArrayList<>();
+
+						// keeping only exportable constraints
+						for (LayoutConstraint constraint : allConstraints) {
+							if (constraint.getElement().isGloballyExportable()) {
+								constraints.add(constraint);
+							}
+						}
+
+						if (constraints.isEmpty()) {
 							continue;
-						} else /* CHECKBOX */if (elementName.equals("element.CheckboxElement")) {
-							pair = getCheckboxElementPair(valueResult, element, i18nTranslator, language);
-						} else /* TEXT AREA */if (elementName.equals("element.TextAreaElement")) {
-							pair = getTextAreaElementPair(valueResult, element);
+						}
 
-						}/* TRIPLET */
-						if (elementName.equals("element.TripletsListElement")) {
-							pair = getTripletPair(element, valueResult);
+						// command to get element value
+						final String groupName = pModelName + "_" + group.getTitle();
+						final GetLayoutGroupIterations command = new GetLayoutGroupIterations(group.getId(), project.getId(), -1);
 
-						}/* CHOICE */
-						if (elementName.equals("element.QuestionElement")) {
-							// choice is a special case where the element corresponds to 2 columns and 1 additional tab
-							if(isFirstLine) {
-								addChoiceTitles(titles, categories, element, i18nTranslator, language);
+						try {
+
+							if (isFirstLine) {
+								titles.add(new GlobalExportStringCell(group.getTitle()));
+
+								// iterative layout group columns titles
+								ArrayList<GlobalExportDataCell[]> groupTitles = new ArrayList<>();
+								List<GlobalExportDataCell> columns = new ArrayList<GlobalExportDataCell>();
+
+								columns.add(new GlobalExportStringCell(i18nTranslator.t(language, "projectId")));
+								columns.add(new GlobalExportStringCell(i18nTranslator.t(language, "projectCode")));
+								columns.add(new GlobalExportStringCell(i18nTranslator.t(language, "projectTitle")));
+								columns.add(new GlobalExportStringCell(i18nTranslator.t(language, "iterationName")));
+
+								for (LayoutConstraint constraint : constraints) {
+									FlexibleElement element = constraint.getElement();
+									String elementName = element.getClass().getSimpleName();
+									if (elementName.equals("QuestionElement")) {
+										// choice is a special case where the element corresponds to 2 columns and 1 additional tab
+										final QuestionElement questionElement = (QuestionElement) element;
+										String choiceLabel = element.getLabel();
+
+										columns.add(new GlobalExportStringCell(choiceLabel));
+										if (questionElement.getCategoryType() != null) {
+											columns.add(new GlobalExportStringCell(choiceLabel + " (" + questionElement.getCategoryType().getLabel() + ") " + i18nTranslator.t(language, "categoryId")));
+											categories.add(((QuestionElement) element).getCategoryType());
+										}
+									} else {
+										columns.add(new GlobalExportStringCell(element.getLabel()));
+									}
+								}
+								groupTitles.add(columns.toArray(new GlobalExportDataCell[columns.size()]));
+								layoutGroupsData.put(groupName, groupTitles);
 							}
-							addChoiceValues(values, valueResult, element);
-							continue;
-						}
 
-						// titles
+							final ListResult<LayoutGroupIterationDTO> iterationsResult = iterationsHandler.execute(command, null);
 
-						if (isFirstLine) {
-							titles.add(pair != null ? pair.getFormattedLabel() : null);
-						}
+							values.add(new GlobalExportLinkCell(String.valueOf(iterationsResult.getSize()), groupName));
 
-						// values
-						String valueStr = null;
-						if (pair != null) {
-							Object value = pair.getValue();
-							if (value == null) {
-								valueStr = null;
-							} else if (value instanceof String) {
-								valueStr = (String) value;
-							} else if (value instanceof Double) {
-								Double d = (Double) value;
-								valueStr = LogFrameExportData.AGGR_AVG_FORMATTER.format(d.doubleValue());
-							} else if (value instanceof Long) {
-								Long l = (Long) value;
-								valueStr = LogFrameExportData.AGGR_SUM_FORMATTER.format(l.longValue());
-							} else { // date
-								valueStr = ExportConstants.EXPORT_DATE_FORMAT.format((Date) value);
+							// iterative layout group values
+							List<GlobalExportDataCell[]> groupValues = layoutGroupsData.get(groupName);
+							for (LayoutGroupIterationDTO iteration : iterationsResult.getList()) {
+								List<GlobalExportDataCell> columns = new ArrayList<>();
+								// default columns
+								columns.add(new GlobalExportStringCell(String.valueOf(project.getId())));
+								columns.add(new GlobalExportStringCell(project.getName()));
+								columns.add(new GlobalExportStringCell(project.getFullName()));
+								columns.add(new GlobalExportStringCell(iteration.getName()));
+
+								for (LayoutConstraint constraint : constraints) {
+									FlexibleElement element = constraint.getElement();
+									String elementName = element.getClass().getSimpleName();
+									GetValue cmd = new GetValue(project.getId(), constraint.getElement().getId(), "element." + constraint.getElement().type(), null, iteration.getId());
+									try {
+										final ValueResult iterationValueResult = handler.execute(cmd, null);
+
+										// prepare value and label
+										ValueLabel pair = null;
+						  			/* CHECKBOX */
+										if (elementName.equals("CheckboxElement")) {
+											pair = getCheckboxElementPair(iterationValueResult, element, i18nTranslator, language);
+										} else /* TEXT AREA */if (elementName.equals("TextAreaElement")) {
+											pair = getTextAreaElementPair(iterationValueResult, element);
+										}/* TRIPLET */
+										if (elementName.equals("TripletsListElement")) {
+											pair = getTripletPair(element, iterationValueResult);
+										}/* CHOICE */
+										if (elementName.equals("QuestionElement")) {
+											// choice is a special case where the element corresponds to 2 columns and 1 additional tab
+											ChoiceValue choiceValue = new ChoiceValue((QuestionElement) element, iterationValueResult);
+
+											columns.add(new GlobalExportStringCell(choiceValue.getValueLabels()));
+											if (((QuestionElement)element).getCategoryType() != null) {
+												columns.add(new GlobalExportStringCell(choiceValue.getValueIds()));
+											}
+											continue;
+										}
+										columns.add(new GlobalExportStringCell(pairToValueString(pair)));
+
+									} catch (Exception e) {
+										// no value found in database : empty cells
+										columns.add(new GlobalExportStringCell(""));
+										if (elementName.equals("QuestionElement")) {
+											columns.add(new GlobalExportStringCell(""));
+										}
+									}
+								}
+
+								groupValues.add(columns.toArray(new GlobalExportDataCell[columns.size()]));
 							}
+
+						} catch (Exception e) {
+							LOGGER.error("Failed to get the value of element '" + element.getId() + "' of project '" + project.getId() + "'.", e);
 						}
-
-						values.add(valueStr);
-
-					} catch (Exception e) {
-						LOGGER.error("Failed to get the value of element '" + element.getId() + "' of project '" + project.getId() + "'.", e);
 					}
-
 				}
 
 				// add titles
 				if (isFirstLine) {
-					exportData.add(titles.toArray(new String[titles.size()]));
+					exportData.add(titles.toArray(new GlobalExportDataCell[titles.size()]));
 					isFirstLine = false;
 				}
 
 				// add values
-				exportData.add(values.toArray(new String[values.size()]));
+				exportData.add(values.toArray(new GlobalExportDataCell[values.size()]));
+
+				// add iterative layout groups tabs
+				for(String groupName : layoutGroupsData.keySet()) {
+					pModelExportDataMap.put(groupName, layoutGroupsData.get(groupName));
+				}
 
 			}// projects
 
@@ -349,31 +579,54 @@ public class GlobalExportDataProvider {
 		return pModelExportDataMap;
 	}
 
-	private void addProjectFundings(List<Project> projects, Map<String, List<String[]>> exportDataMap, I18nServer i18nTranslator, Language language) {
-		List<String[]> dataFundings = new ArrayList<>();
+	private String pairToValueString(ValueLabel pair) {
+		// values
+		String valueStr = null;
+		if (pair != null) {
+			Object value = pair.getValue();
+			if (value == null) {
+				valueStr = null;
+			} else if (value instanceof String) {
+				valueStr = (String) value;
+			} else if (value instanceof Double) {
+				Double d = (Double) value;
+				valueStr = LogFrameExportData.AGGR_AVG_FORMATTER.format(d.doubleValue());
+			} else if (value instanceof Long) {
+				Long l = (Long) value;
+				valueStr = LogFrameExportData.AGGR_SUM_FORMATTER.format(l.longValue());
+			} else { // date
+				valueStr = ExportConstants.EXPORT_DATE_FORMAT.format((Date) value);
+			}
+		}
 
-		String[] row = new String[7];
-		row[0] = String.valueOf(i18nTranslator.t(language, "fundingId"));
-		row[1] = String.valueOf(i18nTranslator.t(language, "fundingCode"));
-		row[2] = String.valueOf(i18nTranslator.t(language, "fundingTitle"));
-		row[3] = String.valueOf(i18nTranslator.t(language, "fundedId"));
-		row[4] = String.valueOf(i18nTranslator.t(language, "fundedCode"));
-		row[5] = String.valueOf(i18nTranslator.t(language, "fundedTitle"));
-		row[6] = String.valueOf(i18nTranslator.t(language, "fundingAmount"));
+		return valueStr;
+	}
+
+	private void addProjectFundings(List<Project> projects, Map<String, List<GlobalExportDataCell[]>> exportDataMap, I18nServer i18nTranslator, Language language) {
+		List<GlobalExportDataCell[]> dataFundings = new ArrayList<>();
+
+		GlobalExportDataCell[] row = new GlobalExportDataCell[7];
+		row[0] = new GlobalExportStringCell(String.valueOf(i18nTranslator.t(language, "fundingId")));
+		row[1] = new GlobalExportStringCell(String.valueOf(i18nTranslator.t(language, "fundingCode")));
+		row[2] = new GlobalExportStringCell(String.valueOf(i18nTranslator.t(language, "fundingTitle")));
+		row[3] = new GlobalExportStringCell(String.valueOf(i18nTranslator.t(language, "fundedId")));
+		row[4] = new GlobalExportStringCell(String.valueOf(i18nTranslator.t(language, "fundedCode")));
+		row[5] = new GlobalExportStringCell(String.valueOf(i18nTranslator.t(language, "fundedTitle")));
+		row[6] = new GlobalExportStringCell(String.valueOf(i18nTranslator.t(language, "fundingAmount")));
 		dataFundings.add(row);
 
 		for(Project project : projects) {
 			List<ProjectFunding> fundings = project.getFunded();
 			if(project.getFunded() != null) {
 				for(ProjectFunding funding : fundings) {
-					row = new String[7];
-					row[0] = String.valueOf(project.getId());
-					row[1] = project.getName();
-					row[2] = project.getFullName();
-					row[3] = String.valueOf(funding.getFunded().getId());
-					row[4] = funding.getFunded().getName();
-					row[5] = funding.getFunded().getFullName();
-					row[6] = String.valueOf(funding.getPercentage());
+					row = new GlobalExportDataCell[7];
+					row[0] = new GlobalExportStringCell(String.valueOf(project.getId()));
+					row[1] = new GlobalExportStringCell(project.getName());
+					row[2] = new GlobalExportStringCell(project.getFullName());
+					row[3] = new GlobalExportStringCell(String.valueOf(funding.getFunded().getId()));
+					row[4] = new GlobalExportStringCell(funding.getFunded().getName());
+					row[5] = new GlobalExportStringCell(funding.getFunded().getFullName());
+					row[6] = new GlobalExportStringCell(String.valueOf(funding.getPercentage()));
 					dataFundings.add(row);
 				}
 			}
@@ -382,20 +635,20 @@ public class GlobalExportDataProvider {
 		exportDataMap.put(i18nTranslator.t(language, "projectsFundings"), dataFundings);
 	}
 
-	private void addCategories(Set<CategoryType> categories, Map<String, List<String[]>> exportDataMap, I18nServer i18nTranslator, Language language) {
+	private void addCategories(Set<CategoryType> categories, Map<String, List<GlobalExportDataCell[]>> exportDataMap, I18nServer i18nTranslator, Language language) {
 		for(CategoryType category : categories) {
-			List<String[]> data = new ArrayList<>();
+			List<GlobalExportDataCell[]> data = new ArrayList<>();
 
 			// titles
-			String[] row = new String[2];
-			row[0] = String.valueOf(i18nTranslator.t(language, "categoryElementId"));
-			row[1] = String.valueOf(i18nTranslator.t(language, "categoryElementLabel"));
+			GlobalExportDataCell[] row = new GlobalExportDataCell[2];
+			row[0] = new GlobalExportStringCell(String.valueOf(i18nTranslator.t(language, "categoryElementId")));
+			row[1] = new GlobalExportStringCell(String.valueOf(i18nTranslator.t(language, "categoryElementLabel")));
 			data.add(row);
 
 			for(CategoryElement c : category.getElements()) {
-				row = new String[2];
-				row[0] = String.valueOf(c.getId());
-				row[1] = c.getLabel();
+				row = new GlobalExportDataCell[2];
+				row[0] = new GlobalExportStringCell(String.valueOf(c.getId()));
+				row[1] = new GlobalExportStringCell(c.getLabel());
 
 				data.add(row);
 			}
@@ -404,7 +657,7 @@ public class GlobalExportDataProvider {
 		}
 	}
 
-	public MultiItemText formatMultipleChoices(List<QuestionChoiceElement> list, String values) {
+	public static MultiItemText formatMultipleChoices(List<QuestionChoiceElement> list, String values) {
 		final List<Integer> selectedChoicesId = ValueResultUtils.splitValuesAsInteger(values);
 		final StringBuffer builder = new StringBuffer();
 		int lines = 1;
@@ -558,100 +811,42 @@ public class GlobalExportDataProvider {
 		}
 	}
 
-	public void addBudgetTitles(final List<String> titles, final FlexibleElement element, final I18nServer i18nTranslator, final Language language) {
+	public void addBudgetTitles(final List<GlobalExportDataCell> titles, final FlexibleElement element, final I18nServer i18nTranslator, final Language language) {
 		String budgetLabel = ExporterUtil.getFlexibleElementLabel(element, i18nTranslator, language);
 
-		titles.add(budgetLabel + " " + i18nTranslator.t(language, "spentBudget"));
-		titles.add(budgetLabel + " " + i18nTranslator.t(language, "plannedBudget"));
-		titles.add(budgetLabel + " " + i18nTranslator.t(language, "consumptionRatioBudget"));
+		titles.add(new GlobalExportStringCell(budgetLabel + " " + i18nTranslator.t(language, "spentBudget")));
+		titles.add(new GlobalExportStringCell(budgetLabel + " " + i18nTranslator.t(language, "plannedBudget")));
+		titles.add(new GlobalExportStringCell(budgetLabel + " " + i18nTranslator.t(language, "consumptionRatioBudget")));
 	}
 
-	public void addBudgetValues(final List<String> values, final ValueResult valueResult, final FlexibleElement element, final I18nServer i18nTranslator, final Language language) {
+	public void addBudgetValues(final List<GlobalExportDataCell> values, final ValueResult valueResult, final FlexibleElement element, final I18nServer i18nTranslator, final Language language) {
 		BudgetElement budgetElement = (BudgetElement) element;
-		boolean hasValue = valueResult != null && valueResult.isValueDefined();
 
-		Double plannedBudget = 0d;
-		Double spentBudget = 0d;
-		if (hasValue) {
-			final Map<Integer, String> val = ValueResultUtils.splitMapElements(valueResult.getValueObject());
+		BudgetValues budget = new BudgetValues(budgetElement, valueResult);
 
-			if (budgetElement.getRatioDividend() != null) {
-				if (val.get(budgetElement.getRatioDividend().getId()) != null) {
-					spentBudget = Double.valueOf(val.get(budgetElement.getRatioDividend().getId()));
-
-				}
-			}
-
-			if (budgetElement.getRatioDivisor() != null) {
-				if (val.get(budgetElement.getRatioDivisor().getId()) != null) {
-					plannedBudget = Double.valueOf(val.get(budgetElement.getRatioDivisor().getId()));
-
-				}
-			}
-		}
-
-		values.add(spentBudget.toString());
-		values.add(plannedBudget.toString());
-
-		Double ratio = spentBudget / plannedBudget;
-
-		values.add(ratio.toString());
+		values.add(new GlobalExportStringCell(String.valueOf(budget.getSpent())));
+		values.add(new GlobalExportStringCell(String.valueOf(budget.getPlanned())));
+		values.add(new GlobalExportStringCell(String.valueOf(budget.getRatio())));
 	}
 
-	public void addChoiceTitles(final List<String> titles, final Set<CategoryType> categories, final FlexibleElement element, final I18nServer i18nTranslator, final Language language) {
+	public void addChoiceTitles(final List<GlobalExportDataCell> titles, final Set<CategoryType> categories, final FlexibleElement element, final I18nServer i18nTranslator, final Language language) {
 		final QuestionElement questionElement = (QuestionElement) element;
 		String choiceLabel = ExporterUtil.getFlexibleElementLabel(element, i18nTranslator, language);
 
-		titles.add(choiceLabel);
+		titles.add(new GlobalExportStringCell(choiceLabel));
 		if (questionElement.getCategoryType() != null) {
-			titles.add(choiceLabel + " (" + questionElement.getCategoryType().getLabel() + ") " + i18nTranslator.t(language, "categoryId"));
+			titles.add(new GlobalExportStringCell(choiceLabel + " (" + questionElement.getCategoryType().getLabel() + ") " + i18nTranslator.t(language, "categoryId")));
 			categories.add(((QuestionElement) element).getCategoryType());
 		}
 	}
 
-	public void addChoiceValues(final List<String> values, final ValueResult valueResult, final FlexibleElement element) {
+	public void addChoiceValues(final List<GlobalExportDataCell> values, final ValueResult valueResult, final FlexibleElement element) {
 
-		String valueLabels = null;
-		String valueIds = null;
+		ChoiceValue choiceValue = new ChoiceValue((QuestionElement) element, valueResult);
 
-		if (valueResult != null && valueResult.isValueDefined()) {
-			final QuestionElement questionElement = (QuestionElement) element;
-			if (questionElement.getMultiple()) {
-				final MultiItemText item = formatMultipleChoices(questionElement.getChoices(), valueResult.getValueObject());
-				valueLabels = item.text;
-
-				final List<Integer> selectedChoicesIds = new ArrayList<>();
-				for (Integer id : ValueResultUtils.splitValuesAsInteger(valueResult.getValueObject())) {
-					for (QuestionChoiceElement choice : questionElement.getChoices()) {
-						if (id.equals(choice.getId())) {
-							if (choice.getCategoryElement() != null) {
-								id = choice.getCategoryElement().getId();
-							}
-							break;
-						}
-					}
-					selectedChoicesIds.add(id);
-				}
-				valueIds = Joiner.on(", ").join(selectedChoicesIds);
-			} else {
-				final String idChoice = valueResult.getValueObject();
-				for (QuestionChoiceElement choice : questionElement.getChoices()) {
-					if (idChoice.equals(String.valueOf(choice.getId()))) {
-						if (choice.getCategoryElement() != null) {
-							valueLabels = choice.getCategoryElement().getLabel();
-							valueIds = String.valueOf(choice.getCategoryElement().getId());
-						} else {
-							valueLabels = choice.getLabel();
-						}
-						break;
-					}
-				}
-			}
-		}
-
-		values.add(valueLabels);
+		values.add(new GlobalExportStringCell(choiceValue.getValueLabels()));
 		if (((QuestionElement)element).getCategoryType() != null) {
-			values.add(valueIds);
+			values.add(new GlobalExportStringCell(choiceValue.getValueIds()));
 		}
 	}
 
@@ -869,12 +1064,17 @@ public class GlobalExportDataProvider {
 		return text;
 	}
 
-	private void fillElementList(final List<FlexibleElement> elements, final Layout layout) {
+	private void fillElementList(final List<GlobalExportDataColumn> elements, final Layout layout) {
 		for (final LayoutGroup group : layout.getGroups()) {
+			if(group.getHasIterations()) {
+				elements.add(new GlobalExportIterativeGroupColumn(group));
+				continue;
+			}
+
 			for (final LayoutConstraint constraint : group.getConstraints()) {
 				final FlexibleElement element = constraint.getElement();
 				if (element.isGloballyExportable())
-					elements.add(element);
+					elements.add(new GlobalExportFlexibleElementColumn(element));
 			}
 		}
 	}

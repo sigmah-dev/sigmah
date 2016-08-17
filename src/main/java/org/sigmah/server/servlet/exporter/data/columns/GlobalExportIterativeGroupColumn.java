@@ -1,4 +1,4 @@
-package org.sigmah.server.servlet.exporter.data;
+package org.sigmah.server.servlet.exporter.data.columns;
 
 /*
  * #%L
@@ -22,26 +22,17 @@ package org.sigmah.server.servlet.exporter.data;
  * #L%
  */
 
-import java.util.List;
-import java.util.Map;
+import org.sigmah.server.domain.layout.LayoutGroup;
 
-import org.sigmah.server.servlet.exporter.data.cells.GlobalExportDataCell;
+public class GlobalExportIterativeGroupColumn extends GlobalExportDataColumn {
 
-/**
- * Shared global data for excel/calc
- * 
- * @author sherzod (v1.3)
- */
-public class GlobalExportData {
+  private final LayoutGroup layoutGroup;
 
-	private final Map<String, List<GlobalExportDataCell[]>> exportData;
+  public GlobalExportIterativeGroupColumn(final LayoutGroup layoutGroup) {
+    this.layoutGroup = layoutGroup;
+  }
 
-	public GlobalExportData(final Map<String, List<GlobalExportDataCell[]>> exportData) {
-		this.exportData = exportData;
-	}
-
-	public Map<String, List<GlobalExportDataCell[]>> getExportData() {
-		return exportData;
-	}
-
+  public LayoutGroup getLayoutGroup() {
+    return layoutGroup;
+  }
 }

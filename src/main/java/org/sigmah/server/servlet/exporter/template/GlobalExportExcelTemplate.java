@@ -31,6 +31,9 @@ import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.sigmah.server.servlet.exporter.data.GlobalExportData;
+import org.sigmah.server.servlet.exporter.data.cells.GlobalExportDataCell;
+import org.sigmah.server.servlet.exporter.data.cells.GlobalExportLinkCell;
+import org.sigmah.server.servlet.exporter.data.cells.GlobalExportStringCell;
 import org.sigmah.server.servlet.exporter.utils.ExcelUtils;
 import org.sigmah.server.servlet.exporter.utils.ExportConstants;
 
@@ -56,7 +59,7 @@ public class GlobalExportExcelTemplate implements ExportTemplate {
 		final Map<Integer, Integer> contentWidthMap = new HashMap<Integer, Integer>();
 
 		for (final String pModelName : data.getExportData().keySet()) {
-			List<String[]> dataList = data.getExportData().get(pModelName);
+			List<GlobalExportDataCell[]> dataList = data.getExportData().get(pModelName);
 			sheet = wb.createSheet(pModelName);
 			rowIndex = -1;
 
@@ -64,12 +67,22 @@ public class GlobalExportExcelTemplate implements ExportTemplate {
 			contentWidthMap.clear();
 
 			// titles
-			final String[] header = dataList.get(0);
+			final GlobalExportDataCell[] header = dataList.get(0);
 			row = sheet.createRow(++rowIndex);
 			for (int i = 0; i < header.length; i++) {
-				utils.putGlobalExportHeader(row, i, header[i]);
-				if (header[i] != null) {
-					headerWidthMap.put(i, header[i].length() / 2);
+				int width = -1;
+				if (header[i] instanceof GlobalExportStringCell) {
+					GlobalExportStringCell cell = (GlobalExportStringCell)header[i];
+					utils.putGlobalExportHeader(row, i, cell.getText());
+					width = cell.getText().length() / 2;
+				} else if (header[i] instanceof GlobalExportLinkCell) {
+					// no links on headers for the moment
+					GlobalExportLinkCell cell = (GlobalExportLinkCell)header[i];
+					utils.putGlobalExportHeader(row, i, cell.getText());
+					width = cell.getText().length() / 2;
+				}
+				if (width != -1) {
+					headerWidthMap.put(i, width);
 				}
 
 			}
@@ -78,23 +91,39 @@ public class GlobalExportExcelTemplate implements ExportTemplate {
 			// values
 			for (int j = 1; j < dataList.size(); j++) {
 				row = sheet.createRow(++rowIndex);
-				final String[] values = dataList.get(j);
+				final GlobalExportDataCell[] values = dataList.get(j);
 				int devider = 2;
 				for (int i = 0; i < header.length; i++) {
-					utils.putBorderedBasicCell(sheet, rowIndex, i, values[i]);
 
-					if (values[i] != null) {
-						String parts[] = values[i].split("\n");
-						if (parts.length > devider) {
-							devider = parts.length;
-						}
+					int width = -1;
 
-						int currentWidth = values[i].length() / devider;
-						Integer oldWidth = contentWidthMap.get(i);
-						if (oldWidth != null) {
-							currentWidth = Math.max(oldWidth, currentWidth);
+					if(values[i] instanceof GlobalExportStringCell) {
+
+						String text = ((GlobalExportStringCell)values[i]).getText();
+
+						utils.putBorderedBasicCell(sheet, rowIndex, i, text);
+
+						if (text != null) {
+							String parts[] = text.split("\n");
+							if (parts.length > devider) {
+								devider = parts.length;
+							}
+
+							int currentWidth = text.length() / devider;
+							Integer oldWidth = contentWidthMap.get(i);
+							if (oldWidth != null) {
+								currentWidth = Math.max(oldWidth, currentWidth);
+							}
+							width = currentWidth;
 						}
-						contentWidthMap.put(i, currentWidth);
+					} else if (values[i] instanceof GlobalExportLinkCell) {
+						GlobalExportLinkCell linkCell = (GlobalExportLinkCell)values[i];
+						utils.createLinkCell(row.createCell(i), linkCell.getText(), linkCell.getTarget(), true);
+						width = linkCell.getText().length() / 2;
+					}
+
+					if(width != -1) {
+						contentWidthMap.put(i, width);
 					}
 				}
 				row.setHeightInPoints(devider * defHeight);

@@ -1,4 +1,4 @@
-package org.sigmah.server.servlet.exporter.data;
+package org.sigmah.server.servlet.exporter.data.cells;
 
 /*
  * #%L
@@ -22,26 +22,19 @@ package org.sigmah.server.servlet.exporter.data;
  * #L%
  */
 
-import java.util.List;
-import java.util.Map;
+public class GlobalExportStringCell extends GlobalExportDataCell {
 
-import org.sigmah.server.servlet.exporter.data.cells.GlobalExportDataCell;
+  private final String text;
 
-/**
- * Shared global data for excel/calc
- * 
- * @author sherzod (v1.3)
- */
-public class GlobalExportData {
+  public GlobalExportStringCell(final String text) {
+    this.text = text;
+  }
 
-	private final Map<String, List<GlobalExportDataCell[]>> exportData;
+  public String toCSVString() {
+    return text;
+  }
 
-	public GlobalExportData(final Map<String, List<GlobalExportDataCell[]>> exportData) {
-		this.exportData = exportData;
-	}
-
-	public Map<String, List<GlobalExportDataCell[]>> getExportData() {
-		return exportData;
-	}
-
+  public String getText() {
+    return text;
+  }
 }

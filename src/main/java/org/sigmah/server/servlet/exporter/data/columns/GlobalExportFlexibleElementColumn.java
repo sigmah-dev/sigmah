@@ -1,4 +1,4 @@
-package org.sigmah.server.servlet.exporter.data;
+package org.sigmah.server.servlet.exporter.data.columns;
 
 /*
  * #%L
@@ -22,26 +22,17 @@ package org.sigmah.server.servlet.exporter.data;
  * #L%
  */
 
-import java.util.List;
-import java.util.Map;
+import org.sigmah.server.domain.element.FlexibleElement;
 
-import org.sigmah.server.servlet.exporter.data.cells.GlobalExportDataCell;
+public class GlobalExportFlexibleElementColumn extends GlobalExportDataColumn {
 
-/**
- * Shared global data for excel/calc
- * 
- * @author sherzod (v1.3)
- */
-public class GlobalExportData {
+  private final FlexibleElement flexibleElement;
 
-	private final Map<String, List<GlobalExportDataCell[]>> exportData;
+  public GlobalExportFlexibleElementColumn(final FlexibleElement flexibleElement) {
+    this.flexibleElement = flexibleElement;
+  }
 
-	public GlobalExportData(final Map<String, List<GlobalExportDataCell[]>> exportData) {
-		this.exportData = exportData;
-	}
-
-	public Map<String, List<GlobalExportDataCell[]>> getExportData() {
-		return exportData;
-	}
-
+  public FlexibleElement getFlexibleElement() {
+    return flexibleElement;
+  }
 }
