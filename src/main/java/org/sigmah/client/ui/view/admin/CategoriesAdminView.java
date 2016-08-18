@@ -148,26 +148,23 @@ public class CategoriesAdminView extends AbstractView implements CategoriesAdmin
 		configs.add(column);
 
 		column = new ColumnConfig();
-        //column = new ColumnConfig(CategoryElementDTO.LABEL, I18N.CONSTANTS.adminFlexibleName(), 250);
+        
         
 		column.setId("label");
 		column.setWidth(400);
 		column.setHeaderHtml(I18N.CONSTANTS.adminCategoryElementLabel());
-        column.setRenderer(new GridCellRenderer<CategoryElementDTO>() {
+        	column.setRenderer(new GridCellRenderer<CategoryElementDTO>() {
+        
         @Override
-			public Object render(CategoryElementDTO model, String property, ColumnData config, int rowIndex, int colIndex, ListStore<CategoryElementDTO> store,
+	public Object render(CategoryElementDTO model, String property, ColumnData config, int rowIndex, int colIndex, ListStore<CategoryElementDTO> store,
 					Grid<CategoryElementDTO> grid) {
                 final String label;
                 label = model.getLabel();
                 if(model.getisDisabled()) {
-					return model.renderDisabled(label);
-                    //return label+"(disabled)";
-				}
+			return model.renderDisabled(label);
+                }
                 else {
-                  return model.renderText(label);
-                   // return ColumnProviders.renderDisabled(label);
-                   // return label+"(enabled)";
-                   //return renderText(label);
+                	return model.renderText(label);
                 }
                 
 				
