@@ -117,6 +117,7 @@ public final class AdminUtil {
 	public static final String PROP_CATEGORY_ELEMENT = "NewCategoryElement";
 	public static final String PROP_CATEGORY_ELEMENT_NAME = "NewCategoryElementName";
 	public static final String PROP_CATEGORY_ELEMENT_COLOR = "NewCategoryElementColor";
+	public static final String PROP_CATEGORY_ELEMENT_ISDISABLED = "isdisabled";
 
 	public static final String PROP_PM_NAME = "ProjectModelName";
 	public static final String PROP_PM_USE = "ProjectModelUse";
