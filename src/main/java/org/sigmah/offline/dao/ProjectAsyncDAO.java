@@ -509,12 +509,13 @@ public class ProjectAsyncDAO extends AbstractUserDatabaseAsyncDAO<ProjectDTO, Pr
 	
 	private Set<CategoryElementDTO> getCategoryElements(ValueResult valueResult, QuestionElementDTO questionElement) {
 		if (valueResult != null && valueResult.isValueDefined()) {
-			if(questionElement.getMultiple() == null || !questionElement.getMultiple()) {
+			
+        if(questionElement.getMultiple() == null || !questionElement.getMultiple()) {
 				final String idChoice = valueResult.getValueObject();
 
-				for (final QuestionChoiceElementDTO choice : questionElement.getChoices()) {
+				for (final CategoryElementDTO choice : questionElement.getCategoryType().getCategoryElementsDTO()) {
 					if (idChoice.equals(String.valueOf(choice.getId()))) {
-						return Collections.<CategoryElementDTO>singleton(choice.getCategoryElement());
+						return Collections.<CategoryElementDTO>singleton(choice);
 					}
 				}
 			} else {
@@ -522,9 +523,9 @@ public class ProjectAsyncDAO extends AbstractUserDatabaseAsyncDAO<ProjectDTO, Pr
 				
 				final Set<CategoryElementDTO> elements = new HashSet<CategoryElementDTO>();
 				
-				for (final QuestionChoiceElementDTO choice : questionElement.getChoices()) {
+				for (final CategoryElementDTO choice : questionElement.getCategoryType().getCategoryElementsDTO()) {
 					if (selectedChoicesId.contains(choice.getId())) {
-						elements.add(choice.getCategoryElement());
+						elements.add(choice);
 					}
 				}
 
