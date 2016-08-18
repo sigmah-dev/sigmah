@@ -50,6 +50,7 @@ import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
+import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
@@ -61,6 +62,8 @@ import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.inject.Singleton;
+import org.sigmah.client.ui.widget.form.Forms;
+import org.sigmah.client.util.ColumnProviders;
 
 /**
  * {@link CategoriesAdminPresenter}'s view implementation.
@@ -79,8 +82,11 @@ public class CategoriesAdminView extends AbstractView implements CategoriesAdmin
 	private Grid<CategoryElementDTO> categoryElementsGrid;
 	private Button addCategoryElementButton;
 	private Button deleteCategoryElementButton;
+    private Button disableCategoryElementButton;
+    private Button enableCategoryElementButton;
 	private TextField<String> name;
 	private ColorField colorField;
+    private Boolean isdisable;
 	private ContentPanel categoryElementsPanel;
 	/**
 	 * Category Panel
@@ -142,9 +148,32 @@ public class CategoriesAdminView extends AbstractView implements CategoriesAdmin
 		configs.add(column);
 
 		column = new ColumnConfig();
+        //column = new ColumnConfig(CategoryElementDTO.LABEL, I18N.CONSTANTS.adminFlexibleName(), 250);
+        
 		column.setId("label");
 		column.setWidth(400);
 		column.setHeaderHtml(I18N.CONSTANTS.adminCategoryElementLabel());
+        column.setRenderer(new GridCellRenderer<CategoryElementDTO>() {
+        @Override
+			public Object render(CategoryElementDTO model, String property, ColumnData config, int rowIndex, int colIndex, ListStore<CategoryElementDTO> store,
+					Grid<CategoryElementDTO> grid) {
+                final String label;
+                label = model.getLabel();
+                if(model.getisDisabled()) {
+					return model.renderDisabled(label);
+                    //return label+"(disabled)";
+				}
+                else {
+                  return model.renderText(label);
+                   // return ColumnProviders.renderDisabled(label);
+                   // return label+"(enabled)";
+                   //return renderText(label);
+                }
+                
+				
+            }
+            
+        });
 		configs.add(column);
 
 		ColumnModel cm = new ColumnModel(configs);
@@ -309,6 +338,14 @@ public class CategoriesAdminView extends AbstractView implements CategoriesAdmin
 		deleteCategoryElementButton = new Button(I18N.CONSTANTS.delete(), IconImageBundle.ICONS.delete());
 
 		toolbar.add(deleteCategoryElementButton);
+        
+        disableCategoryElementButton = new Button(I18N.CONSTANTS.disable(), IconImageBundle.ICONS.disable());
+
+		toolbar.add(disableCategoryElementButton);
+        
+        enableCategoryElementButton =new Button(I18N.CONSTANTS.enable(), IconImageBundle.ICONS.checked());
+
+		toolbar.add(enableCategoryElementButton);
 		return toolbar;
 	}
 
@@ -351,6 +388,16 @@ public class CategoriesAdminView extends AbstractView implements CategoriesAdmin
 	public Button getDeleteCategoryElementButton() {
 		return deleteCategoryElementButton;
 	}
+    
+    @Override
+	public Button getDisableCategoryElementButton() {
+		return disableCategoryElementButton;
+	}
+    
+    @Override
+	public Button getEnableCategoryElementButton() {
+		return enableCategoryElementButton;
+	}
 
 	@Override
 	public Button getDeleteCategoryTypeButton() {
@@ -385,6 +432,11 @@ public class CategoriesAdminView extends AbstractView implements CategoriesAdmin
 	@Override
 	public ColorField getColorField() {
 		return colorField;
+	}
+    
+    @Override
+	public Boolean getisdisable() {
+		return false;
 	}
 
 	@Override
