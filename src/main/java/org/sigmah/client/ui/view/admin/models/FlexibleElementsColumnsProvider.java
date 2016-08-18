@@ -47,6 +47,7 @@ import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import org.sigmah.shared.dto.element.TextAreaElementDTO;
 
 /**
  * Provides flexible elements admin grid columns configuration.
@@ -127,8 +128,23 @@ abstract class FlexibleElementsColumnsProvider {
 			@Override
 			public Object render(final FlexibleElementDTO model, final String property, final ColumnData config, final int rowIndex, final int colIndex,
 					final ListStore<FlexibleElementDTO> store, final Grid<FlexibleElementDTO> grid) {
-
+                if(model.getElementType() == ElementTypeEnum.TEXT_AREA){
+                    char type = ((TextAreaElementDTO) model).getType();
+                    switch (type) {
+                        case 'P':
+                            return ColumnProviders.renderText(I18N.CONSTANTS.flexibleElementParagraph());
+                        case 'T':
+                            return ColumnProviders.renderText(I18N.CONSTANTS.flexibleElementTextArea());
+                        case 'D':
+                            return ColumnProviders.renderText(I18N.CONSTANTS.flexibleElementDate());
+                        case 'N':
+                            return ColumnProviders.renderText(I18N.CONSTANTS.flexibleElementNumber());
+                        default:
+                            return ColumnProviders.renderText("checkerror");
+                    }
+                    }else{
 				return ColumnProviders.renderText(ElementTypeEnum.getName(model.getElementType()));
+                }
 			}
 		});
 		configs.add(column);
