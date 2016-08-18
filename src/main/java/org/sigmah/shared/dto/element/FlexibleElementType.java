@@ -68,9 +68,25 @@ public final class FlexibleElementType {
 		if (fe instanceof DefaultFlexibleElementDTO) {
 			return getDefaultFlexibleElementTypeName((DefaultFlexibleElementDTO) fe);
 		}
+        if(fe instanceof TextAreaElementDTO){
+            return getTextAreaFlexibleElementTypeName((TextAreaElementDTO) fe);
+        }
 		return types.get(fe.getClass());
 	}
-
+    private static String getTextAreaFlexibleElementTypeName(TextAreaElementDTO element) {
+		switch (element.getType()) {
+        case 'P':
+            return I18N.CONSTANTS.flexibleElementParagraph();
+        case 'T':
+            return I18N.CONSTANTS.flexibleElementTextArea();
+        case 'D':
+            return I18N.CONSTANTS.flexibleElementDate();
+        case 'N':
+            return I18N.CONSTANTS.flexibleElementNumber();
+        default:
+            return "checkerror";
+        }
+}
 	private static String getDefaultFlexibleElementTypeName(DefaultFlexibleElementDTO element) {
 		switch (element.getType()) {
 			case CODE:
