@@ -189,8 +189,9 @@ public class CategoriesAdminPresenter extends AbstractAdminPresenter<CategoriesA
 		// DELETE ELEMENT CATEGORY
         deleteCategoryElementListener();
 
+		//Disable category elements
         disableCategoryElementListener();
-
+		//Enable category elements
         enableCategoryElementListener();
 
         /**
@@ -354,7 +355,7 @@ public class CategoriesAdminPresenter extends AbstractAdminPresenter<CategoriesA
 
                 // Feedback 
                 N10N.infoNotif(I18N.CONSTANTS.infoConfirmation(),
-                        I18N.CONSTANTS.adminFlexibleDisableFlexibleElementsConfirm());
+                        I18N.CONSTANTS.adminDisableCategoryElementsConfirm());
             }
         });
 
@@ -377,7 +378,7 @@ public class CategoriesAdminPresenter extends AbstractAdminPresenter<CategoriesA
             fields.append(s.getLabel());
         }
 
-        N10N.confirmation(I18N.CONSTANTS.enable(), "Do you wish to automatically add this category item as new personalized choice in all fields already using this category?", elementNames, new ConfirmCallback() {
+        N10N.confirmation(I18N.CONSTANTS.enable(), I18N.CONSTANTS.adminCategoryElementEnableConfirm(), elementNames, new ConfirmCallback() {
 
             @Override
             public void onAction() {
@@ -398,7 +399,7 @@ public class CategoriesAdminPresenter extends AbstractAdminPresenter<CategoriesA
 
                         // Feedback 
                         N10N.infoNotif(I18N.CONSTANTS.infoConfirmation(),
-                                I18N.CONSTANTS.adminFlexibleEnableFlexibleElementsConfirm());
+                                I18N.CONSTANTS.adminEnableCategoryElementsConfirm());
                     }
                 });
             }
@@ -420,7 +421,7 @@ public class CategoriesAdminPresenter extends AbstractAdminPresenter<CategoriesA
 
                     elementNames.add(view.getName().getValue());
 
-                    N10N.confirmation(I18N.CONSTANTS.enable(), "Do you wish to automatically add this category item as new personalized choice in all fields already using this category?", elementNames, new ConfirmCallback() {
+                    N10N.confirmation(I18N.CONSTANTS.categoryElements(), I18N.CONSTANTS.adminCategoryElementEnableConfirm(), elementNames, new ConfirmCallback() {
 
                         @Override
                         public void onAction() {
