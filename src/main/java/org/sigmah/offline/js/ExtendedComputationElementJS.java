@@ -8,6 +8,7 @@ import org.sigmah.shared.computation.Computations;
 import org.sigmah.shared.computation.dependency.CollectionDependency;
 import org.sigmah.shared.computation.dependency.ContributionDependency;
 import org.sigmah.shared.computation.dependency.Dependency;
+import org.sigmah.shared.dto.ProjectModelDTO;
 import org.sigmah.shared.dto.element.ComputationElementDTO;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
 
@@ -52,6 +53,7 @@ public final class ExtendedComputationElementJS extends JavaScriptObject {
 		computationJS.setRule(computationElement.getRule());
 		computationJS.setContribution(contribution);
 		computationJS.setDependencies(dependencies);
+		computationJS.setProjectModel(computationElement.getProjectModel());
 		
 		return computationJS;
 	}
@@ -69,6 +71,7 @@ public final class ExtendedComputationElementJS extends JavaScriptObject {
 		dto.setRule(getRule());
 		dto.setMinimumValue(getMinimumValue());
 		dto.setMaximumValue(getMaximumValue());
+		dto.setProjectModel(getProjectModel());
 		return dto;
 	}
 	
@@ -142,5 +145,18 @@ public final class ExtendedComputationElementJS extends JavaScriptObject {
 	public native void setDependencies(JsArrayString dependencies) /*-{
 		this.dependencies = dependencies;
 	}-*/;
+	
+	public ProjectModelDTO getProjectModel() {
+		final ProjectModelJS projectModelJS = Values.getJavaScriptObject(this, ComputationElementDTO.PROJECT_MODEL);
+		if (projectModelJS != null) {
+			return projectModelJS.toDTO();
+		} else {
+			return null;
+		}
+	}
+
+	public void setProjectModel(ProjectModelDTO projectModel) {
+		Values.setJavaScriptObject(this, ComputationElementDTO.PROJECT_MODEL, ProjectModelJS.toJavaScript(projectModel, true));
+	}
 	
 }

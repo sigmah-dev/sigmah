@@ -30,6 +30,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.sigmah.client.dispatch.DispatchAsync;
+import org.sigmah.offline.sync.SuccessCallback;
 import org.sigmah.shared.command.BatchCommand;
 import org.sigmah.shared.command.GetLinkedProjects;
 import org.sigmah.shared.command.GetValue;
@@ -105,15 +106,10 @@ public class ClientValueResolver implements ValueResolver {
 			});
 		}
 		
-		dispatch.execute(batchCommand, new AsyncCallback<ListResult<Result>>() {
+		dispatch.execute(batchCommand, new SuccessCallback<ListResult<Result>>(callback) {
 
 			@Override
-			public void onFailure(Throwable caught) {
-				callback.onFailure(caught);
-			}
-
-			@Override
-			public void onSuccess(ListResult<Result> result) {
+			public void onSuccess(final ListResult<Result> result) {
 				callback.onSuccess(getComputedValueMap(batchCommand, result, commandToDependencyMap));
 			}
 
@@ -145,10 +141,10 @@ public class ClientValueResolver implements ValueResolver {
 				computedValue = getComputedValueForSingleDependency(results, index);
 			}
 			else if(command instanceof GetLinkedProjects) {
-				computedValue = getComputedValueForCollectionDependency(results, index);
+				computedValue = getComputedValueForContributionDependency(results, index);
 			}
 			else if (command instanceof GetValueFromLinkedProjects) {
-				computedValue = getComputedValueForContributionDependency(results, index);
+				computedValue = getComputedValueForCollectionDependency(results, index);
 			}
 			else {
 				throw new UnsupportedOperationException("Command type '" + command.getClass() + "' is not supported.");
@@ -177,7 +173,7 @@ public class ClientValueResolver implements ValueResolver {
 	
 	/**
 	 * Transform the result at the given index to a <code>ComputedValue</code>
-	 * suitable for a {@link CollectionDependency}.
+	 * suitable for a {@link ContributionDependency}.
 	 * 
 	 * @param results
 	 *			List of results.
@@ -185,12 +181,12 @@ public class ClientValueResolver implements ValueResolver {
 	 *			Index of the result to use.
 	 * @return A new <code>ComputedValue</code>.
 	 */
-	private ComputedValue getComputedValueForCollectionDependency(ListResult<Result> results, int index) {
+	private ComputedValue getComputedValueForContributionDependency(ListResult<Result> results, int index) {
 		
 		@SuppressWarnings("unchecked")
 		final ListResult<ProjectFundingDTO> projectFundings = (ListResult<ProjectFundingDTO>) results.getList().get(index);
 		
-		final ArrayList<ComputedValue> computedValues = new ArrayList<ComputedValue>();
+		final List<ComputedValue> computedValues = new ArrayList<ComputedValue>();
 		for (final ProjectFundingDTO projectFunding : projectFundings.getList()) {
 			final Double contribution = projectFunding.getPercentage();
 			if (contribution != null) {
@@ -202,7 +198,7 @@ public class ClientValueResolver implements ValueResolver {
 	
 	/**
 	 * Transform the result at the given index to a <code>ComputedValue</code>
-	 * suitable for a {@link ContributionDependency}.
+	 * suitable for a {@link CollectionDependency}.
 	 * 
 	 * @param results
 	 *			List of results.
@@ -210,7 +206,7 @@ public class ClientValueResolver implements ValueResolver {
 	 *			Index of the result to use.
 	 * @return A new <code>ComputedValue</code>.
 	 */
-	private ComputedValue getComputedValueForContributionDependency(ListResult<Result> results, int index) {
+	private ComputedValue getComputedValueForCollectionDependency(ListResult<Result> results, int index) {
 		
 		@SuppressWarnings("unchecked")
 		final ListResult<String> strings = (ListResult<String>) results.getList().get(index);

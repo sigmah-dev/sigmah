@@ -22,7 +22,6 @@ package org.sigmah.offline.js;
  * #L%
  */
 
-import com.allen_sauer.gwt.log.client.Log;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -520,21 +519,12 @@ public final class ProjectJS extends JavaScriptObject {
 		this.currentAmendment = currentAmendment;
 	}-*/;
 
-	public native int getOrgUnit() /*-{
-		return this.orgUnit;
-	}-*/;
-
-	public native void setOrgUnit(int orgUnit) /*-{
-		this.orgUnit = orgUnit;
-	}-*/;
-    
+	public Integer getOrgUnit() {
+		return Values.getInteger(this, "orgUnit");
+	}
+	
 	public void setOrgUnit(Integer orgUnit) {
-        if(orgUnit != null) {
-            setOrgUnit(orgUnit.intValue());
-        } else {
-            Log.trace("OrgUnit null.");
-            setOrgUnit(0);
-        }
+		Values.setInteger(this, "orgUnit", orgUnit);
     }
 
 	public native JsArray<UserJS> getFavoriteUsers() /*-{

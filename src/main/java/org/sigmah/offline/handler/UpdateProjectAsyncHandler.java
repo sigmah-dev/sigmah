@@ -53,6 +53,8 @@ import org.sigmah.shared.computation.value.ComputedValue;
 import org.sigmah.shared.computation.value.ComputedValues;
 import org.sigmah.shared.dispatch.UpdateConflictException;
 import org.sigmah.shared.dto.ProjectDTO;
+import org.sigmah.shared.dto.ProjectFundingDTO;
+import org.sigmah.shared.dto.ProjectModelDTO;
 import org.sigmah.shared.dto.element.ComputationElementDTO;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
 import org.sigmah.shared.dto.referential.ContainerInformation;
@@ -164,6 +166,16 @@ public class UpdateProjectAsyncHandler implements AsyncCommandHandler<UpdateProj
 		requestManager.ready();
 	}
 
+	/**
+	 * Update the value of the computations impacted by the changes.
+	 * 
+	 * @param command
+	 *			Instance of <code>UpdateProject</code> command that contains the modifications.
+	 * @param project
+	 *			Project being updated.
+	 * @param callback 
+	 *			Called when the computations are done.
+	 */
 	private void updateImpactedComputations(final UpdateProject command, final ProjectDTO project, final AsyncCallback<VoidResult> callback) {
 		
 		final RequestManager<VoidResult> requestManager = new RequestManager<VoidResult>(null, callback);
@@ -173,28 +185,67 @@ public class UpdateProjectAsyncHandler implements AsyncCommandHandler<UpdateProj
 			
 				@Override
 				public void onRequestSuccess(final List<ComputationElementDTO> result) {
+					final ArrayList<ProjectFundingDTO> allFundings = new ArrayList<ProjectFundingDTO>();
+					allFundings.addAll(project.getFunded());
+					allFundings.addAll(project.getFunding());
+					
 					for (final ComputationElementDTO computationElement : result) {
-						final Computation computation = computationElement.getComputationForModel(project.getProjectModel());
-						computation.computeValueWithWrappersAndResolver(project.getId(), command.getValues(), clientValueResolver, new RequestManagerCallback<VoidResult, String>(requestManager) {
-
-							@Override
-							public void onRequestSuccess(String result) {
-								valueAsyncDAO.saveOrUpdate(result, computationElement, project.getId(), new RequestManagerCallback<VoidResult, VoidResult>(requestManager) {
-
-									@Override
-									public void onRequestSuccess(VoidResult result) {
-										// Success.
-									}
-
-								});
+						final ProjectModelDTO parentModel = computationElement.getProjectModel();
+						
+						if (parentModel != null) {
+							final Computation computation = computationElement.getComputationForModel(parentModel);
+							final Integer parentModelId = parentModel.getId();
+							
+							for (final ProjectFundingDTO projectFunding : allFundings) {
+								final ProjectDTO fundedProject = projectFunding.getFunded();
+								if (parentModelId.equals(fundedProject.getProjectModel().getId())) {
+									updateComputationValueForProject(computationElement, computation, fundedProject, command, requestManager);
+								}
+								final ProjectDTO fundingProject = projectFunding.getFunding();
+								if (parentModelId.equals(fundingProject.getProjectModel().getId())) {
+									updateComputationValueForProject(computationElement, computation, fundingProject, command, requestManager);
+								}
 							}
-
-						});
+						}
 					}
 				}
 
 			});
 		}
+		
+		requestManager.ready();
+	}
+	
+	/**
+	 * Update the value of the given computation for the given project.
+	 * 
+	 * @param computationElement
+	 *			Element to update.
+	 * @param computation
+	 *			Formula of the computation.
+	 * @param project
+	 *			Project to update.
+	 * @param command
+	 *			Instance of <code>UpdateProject</code> command that contains the modifications.
+	 * @param requestManager 
+	 *			Request manager to use.
+	 */
+	private void updateComputationValueForProject(final ComputationElementDTO computationElement, final Computation computation, final ProjectDTO project, final UpdateProject command, final RequestManager<VoidResult> requestManager) {
+		computation.computeValueWithWrappersAndResolver(project.getId(), command.getValues(), clientValueResolver, new RequestManagerCallback<VoidResult, String>(requestManager) {
+
+			@Override
+			public void onRequestSuccess(String result) {
+				valueAsyncDAO.saveOrUpdate(result, computationElement, project.getId(), new RequestManagerCallback<VoidResult, VoidResult>(requestManager) {
+
+					@Override
+					public void onRequestSuccess(VoidResult result) {
+						// Success.
+					}
+
+				});
+			}
+
+		});
 	}
     
     /**

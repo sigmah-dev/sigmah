@@ -137,7 +137,7 @@ public class ProjectAsyncDAO extends AbstractUserDatabaseAsyncDAO<ProjectDTO, Pr
             @Override
             public void onSuccess(Request request) {
                 final ProjectJS projectJS = request.getResult();
-				if(projectJS != null) {
+				if (projectJS != null) {
 					final ProjectDTO projectDTO = projectJS.toDTO();
 
 					final RequestManager<ProjectDTO> requestManager = new RequestManager<ProjectDTO>(projectDTO, callback);
@@ -435,7 +435,7 @@ public class ProjectAsyncDAO extends AbstractUserDatabaseAsyncDAO<ProjectDTO, Pr
 		}, transaction);
 
 		// Loading phases
-		if(projectJS.getPhases() != null) {
+		if (projectJS.getPhases() != null) {
 			final ArrayList<PhaseDTO> phases = new ArrayList<PhaseDTO>();
 			projectDTO.setPhases(phases);
 
@@ -453,7 +453,7 @@ public class ProjectAsyncDAO extends AbstractUserDatabaseAsyncDAO<ProjectDTO, Pr
 			}
 		}
 
-        if(Values.isDefined(projectJS, "currentPhase")) {
+        if (Values.isDefined(projectJS, "currentPhase")) {
             phaseAsyncDAO.get(projectJS.getCurrentPhase(), new RequestManagerCallback<M, PhaseDTO>(requestManager) {
                 @Override
                 public void onRequestSuccess(PhaseDTO result) {
@@ -464,7 +464,7 @@ public class ProjectAsyncDAO extends AbstractUserDatabaseAsyncDAO<ProjectDTO, Pr
         }
 		
 		// Loading log frame
-        if(Values.isDefined(projectJS, "logFrame")) {
+        if (Values.isDefined(projectJS, "logFrame")) {
             logFrameAsyncDAO.get(projectJS.getLogFrame(), new RequestManagerCallback<M, LogFrameDTO>(requestManager) {
                 @Override
                 public void onRequestSuccess(LogFrameDTO result) {
@@ -474,7 +474,7 @@ public class ProjectAsyncDAO extends AbstractUserDatabaseAsyncDAO<ProjectDTO, Pr
         }
 
 		// Loading monitored points and reminders
-		if(projectDTO.getPointsList() != null && projectDTO.getPointsList().getId() != null) {
+		if (projectDTO.getPointsList() != null && projectDTO.getPointsList().getId() != null) {
 			monitoredPointAsyncDAO.getAllByParentListId(projectDTO.getPointsList().getId(), new RequestManagerCallback<M, List<MonitoredPointDTO>>(requestManager) {
 				
 				@Override
@@ -484,7 +484,7 @@ public class ProjectAsyncDAO extends AbstractUserDatabaseAsyncDAO<ProjectDTO, Pr
 			}, transaction);
 		}
 		
-		if(projectDTO.getRemindersList() != null && projectDTO.getRemindersList().getId() != null) {
+		if (projectDTO.getRemindersList() != null && projectDTO.getRemindersList().getId() != null) {
 			reminderAsyncDAO.getAllByParentListId(projectDTO.getRemindersList().getId(), new RequestManagerCallback<M, List<ReminderDTO>>(requestManager) {
 				
 				@Override
@@ -495,11 +495,11 @@ public class ProjectAsyncDAO extends AbstractUserDatabaseAsyncDAO<ProjectDTO, Pr
 		}
 		
 		// Loading OrgUnit name.
-        if(Values.isDefined(projectJS, "orgUnit")) {
+        if (Values.isDefined(projectJS, "orgUnit")) {
             orgUnitAsyncDAO.get(projectJS.getOrgUnit(), new RequestManagerCallback<M, OrgUnitDTO>(requestManager) {
                 @Override
                 public void onRequestSuccess(OrgUnitDTO result) {
-					if(result != null) {
+					if (result != null) {
 						projectDTO.setOrgUnitName(result.getName() + " - " + result.getFullName());
 					}
                 }

@@ -38,21 +38,34 @@ import com.google.gwt.core.client.JsArray;
 import com.google.gwt.core.client.JsArrayInteger;
 
 /**
- *
+ * JavaScript version of <code>ProjectModelDTO</code>.
+ * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
 public final class ProjectModelJS extends JavaScriptObject {
 	
+	/**
+	 * Empty protected constructor. Required for subclasses of JavaScriptObject.
+	 */
 	protected ProjectModelJS() {
+		// Empty.
 	}
 	
-	public static ProjectModelJS toJavaScript(ProjectModelDTO projectModelDTO) {
+	public static ProjectModelJS toJavaScript(final ProjectModelDTO projectModelDTO) {
+		return toJavaScript(projectModelDTO, false);
+	}
+	
+	public static ProjectModelJS toJavaScript(final ProjectModelDTO projectModelDTO, boolean includePhases) {
 		final ProjectModelJS projectModelJS = Values.createJavaScriptObject(ProjectModelJS.class);
 		
 		projectModelJS.setId(projectModelDTO.getId());
 		projectModelJS.setName(projectModelDTO.getName());
 		projectModelJS.setRootPhaseModel(projectModelDTO.getRootPhaseModel());
-		projectModelJS.setPhaseModels(projectModelDTO.getPhaseModels());
+		if (!includePhases) {
+			projectModelJS.setPhaseModels(projectModelDTO.getPhaseModels());
+		} else {
+			projectModelJS.setPhaseModelDTOs(projectModelDTO.getPhaseModels());
+		}
 		projectModelJS.setProjectBanner(projectModelDTO.getProjectBanner());
 		projectModelJS.setProjectDetails(projectModelDTO.getProjectDetails());
 		projectModelJS.setVisibilities(projectModelDTO.getVisibilities());
@@ -68,21 +81,22 @@ public final class ProjectModelJS extends JavaScriptObject {
 		
 		projectModelDTO.setId(getId());
 		projectModelDTO.setName(getName());
+		projectModelDTO.setPhaseModels(getPhaseModelDTOs());
 		
-		if(getProjectBanner() != null) {
+		if (getProjectBanner() != null) {
 			final ProjectBannerDTO projectBannerDTO = getProjectBanner().toDTO();
 			projectBannerDTO.setProjectModelDTO(projectModelDTO);
 			projectModelDTO.setProjectBanner(projectBannerDTO);
 		}
 		
-		if(getProjectDetails() != null) {
+		if (getProjectDetails() != null) {
 			final ProjectDetailsDTO projectDetailsDTO = getProjectDetails().toDTO();
 			projectDetailsDTO.setProjectModel(projectModelDTO);
 			projectModelDTO.setProjectDetails(projectDetailsDTO);
 		}
 		
 		final JsArray<ProjectModelVisibilityJS> visibilities = getVisibilities();
-		if(visibilities != null) {
+		if (visibilities != null) {
 			final ArrayList<ProjectModelVisibilityDTO> dtos = new ArrayList<ProjectModelVisibilityDTO>();
 			for(int index = 0; index < visibilities.length(); index++) {
 				dtos.add(visibilities.get(index).toDTO());
@@ -91,7 +105,7 @@ public final class ProjectModelJS extends JavaScriptObject {
 		}
 		
 		final String status = getStatus();
-		if(status != null) {
+		if (status != null) {
 			projectModelDTO.setStatus(ProjectModelStatus.valueOf(status));
 		}
 		
@@ -121,7 +135,7 @@ public final class ProjectModelJS extends JavaScriptObject {
 	}-*/;
 
 	public void setRootPhaseModel(PhaseModelDTO rootPhaseModel) {
-		if(rootPhaseModel != null) {
+		if (rootPhaseModel != null) {
 			setRootPhaseModel(rootPhaseModel.getId());
 		}
 	}
@@ -134,28 +148,42 @@ public final class ProjectModelJS extends JavaScriptObject {
 		return this.phaseModels;
 	}-*/;
 
-	public void setPhaseModels(List<PhaseModelDTO> phaseModels) {
-		if(phaseModels != null) {
-			final JsArrayInteger array = (JsArrayInteger) JavaScriptObject.createArray();
+	public void setPhaseModels(final List<PhaseModelDTO> phaseModels) {
+		Values.setArrayOfIdentifiers(this, ProjectModelDTO.PHASE_MODELS, phaseModels);
+	}
+
+	public List<PhaseModelDTO> getPhaseModelDTOs() {
+		final List<PhaseModelDTO> dtos;
+		
+		if (Values.isObject(this, ProjectModelDTO.PHASE_MODELS)) {
+			final JsArray<PhaseModelJS> phaseModels = Values.getJavaScriptObject(this, ProjectModelDTO.PHASE_MODELS);
 			
-			for(final PhaseModelDTO phaseModel : phaseModels) {
-				array.push(phaseModel.getId());
+			dtos = new ArrayList<PhaseModelDTO>();
+			for(int index = 0; index < phaseModels.length(); index++) {
+				dtos.add(phaseModels.get(index).toDTO());
 			}
-			
-			setPhaseModels(array);
+		} else {
+			dtos = null;
+		}
+		return dtos;
+	}
+	
+	public void setPhaseModelDTOs(final List<PhaseModelDTO> phaseModels) {
+		if (phaseModels != null) {
+			final JsArray<PhaseModelJS> models = Values.createTypedJavaScriptArray(PhaseModelJS.class);
+			for (final PhaseModelDTO phaseModel : phaseModels) {
+				models.push(PhaseModelJS.toJavaScript(phaseModel));
+			}
+			Values.setJavaScriptObject(this, ProjectModelDTO.PHASE_MODELS, models);
 		}
 	}
 	
-	public native void setPhaseModels(JsArrayInteger phaseModels) /*-{
-		this.phaseModels = phaseModels;
-	}-*/;
-
 	public native ProjectBannerJS getProjectBanner() /*-{
 		return this.projectBanner;
 	}-*/;
 
 	public void setProjectBanner(ProjectBannerDTO projectBanner) {
-		if(projectBanner != null) {
+		if (projectBanner != null) {
 			setProjectBanner(ProjectBannerJS.toJavaScript(projectBanner));
 		}
 	}
@@ -169,7 +197,7 @@ public final class ProjectModelJS extends JavaScriptObject {
 	}-*/;
 
 	public void setProjectDetails(ProjectDetailsDTO projectDetails) {
-		if(projectDetails != null) {
+		if (projectDetails != null) {
 			setProjectDetails(ProjectDetailsJS.toJavaScript(projectDetails));
 		}
 	}
@@ -183,7 +211,7 @@ public final class ProjectModelJS extends JavaScriptObject {
 	}-*/;
 
 	public void setVisibilities(List<ProjectModelVisibilityDTO> visibilities) {
-		if(visibilities != null) {
+		if (visibilities != null) {
 			final JsArray<ProjectModelVisibilityJS> array = (JsArray<ProjectModelVisibilityJS>) JavaScriptObject.createArray();
 			
 			for(final ProjectModelVisibilityDTO visibility : visibilities) {
@@ -203,7 +231,7 @@ public final class ProjectModelJS extends JavaScriptObject {
 	}
 
 	public void setLogFrameModel(LogFrameModelDTO logFrameModel) {
-		if(logFrameModel != null) {
+		if (logFrameModel != null) {
 			Values.setInteger(this, "logFrameModel", logFrameModel.getId());
 		}
 	}
@@ -213,7 +241,7 @@ public final class ProjectModelJS extends JavaScriptObject {
 	}-*/;
 
 	public void setStatus(ProjectModelStatus status) {
-		if(status != null) {
+		if (status != null) {
 			setStatus(status.name());
 		}
 	}

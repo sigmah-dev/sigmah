@@ -68,7 +68,9 @@ public class ProjectModelAsyncDAO extends AbstractUserDatabaseAsyncDAO<ProjectMo
 		
 		for (final FlexibleElementDTO flexibleElement : t.getAllElements()) {
 			if (flexibleElement instanceof ComputationElementDTO) {
-				computationAsyncDAO.saveOrUpdate((ComputationElementDTO)flexibleElement, null, transaction);
+				final ComputationElementDTO computationElement = (ComputationElementDTO)flexibleElement;
+				computationElement.setProjectModel(t);
+				computationAsyncDAO.saveOrUpdate(computationElement, null, transaction);
 			}
 		}
 	}
