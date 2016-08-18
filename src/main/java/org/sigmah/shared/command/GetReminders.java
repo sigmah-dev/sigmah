@@ -22,6 +22,8 @@ package org.sigmah.shared.command;
  * #L%
  */
 
+import java.util.Set;
+
 import org.sigmah.shared.command.base.AbstractCommand;
 import org.sigmah.shared.command.result.ListResult;
 import org.sigmah.shared.dto.reminder.ReminderDTO;
@@ -35,14 +37,17 @@ import org.sigmah.shared.dto.reminder.ReminderDTO;
 public class GetReminders extends AbstractCommand<ListResult<ReminderDTO>> {
 
 	private Integer projectId;
+	private Set<Integer> orgUnitIds;
 	private ReminderDTO.Mode mappingMode;
 
 	protected GetReminders() {
 		// Serialization.
 	}
 
-	public GetReminders(ReminderDTO.Mode mappingMode) {
+	public GetReminders(ReminderDTO.Mode mappingMode, Set<Integer> orgUnitIds) {
 		this(null, mappingMode);
+
+		this.orgUnitIds = orgUnitIds;
 	}
 
 	public GetReminders(final Integer projectId, ReminderDTO.Mode mappingMode) {
@@ -52,6 +57,10 @@ public class GetReminders extends AbstractCommand<ListResult<ReminderDTO>> {
 
 	public Integer getProjectId() {
 		return projectId;
+	}
+
+	public Set<Integer> getOrgUnitIds() {
+		return orgUnitIds;
 	}
 
 	public ReminderDTO.Mode getMappingMode() {

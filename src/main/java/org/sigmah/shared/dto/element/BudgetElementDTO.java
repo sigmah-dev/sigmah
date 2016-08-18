@@ -35,6 +35,7 @@ import org.sigmah.client.util.NumberUtils;
 import org.sigmah.shared.command.result.ValueResult;
 import org.sigmah.shared.dto.history.HistoryTokenListDTO;
 import org.sigmah.shared.dto.referential.BudgetSubFieldType;
+import org.sigmah.shared.util.ProjectUtils;
 import org.sigmah.shared.util.ValueResultUtils;
 
 import com.allen_sauer.gwt.log.client.Log;
@@ -55,7 +56,7 @@ import org.sigmah.shared.dto.referential.GlobalPermissionEnum;
 
 /**
  * BudgetElementDTO.
- * 
+ *
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
 public class BudgetElementDTO extends DefaultFlexibleElementDTO {
@@ -118,7 +119,7 @@ public class BudgetElementDTO extends DefaultFlexibleElementDTO {
 			throw new IllegalArgumentException(
 				"The flexible elements container isn't an instance of DefaultFlexibleElementContainer. The default flexible element connot be instanciated.");
 		}
-		
+
 		final Component component;
 
 		// Creates choices store.
@@ -140,14 +141,14 @@ public class BudgetElementDTO extends DefaultFlexibleElementDTO {
 				final HistoryWrapper<Number> input = new HistoryWrapper(createNumberField(false));
 				fields.put(subField, input);
 				input.setFieldLabel(generateBudgetSubFieldLabel(subField));
-				
+
 				if (values.get(subField.getId()) != null) {
 					// Sets the value to the fields.
 					input.setValue(Double.valueOf(values.get(subField.getId())));
 				} else {
 					input.setValue(0);
 				}
-				
+
 				// Show history.
 				input.getHistoryButton().addSelectionListener(new SelectionListener<ButtonEvent>() {
 
@@ -155,9 +156,9 @@ public class BudgetElementDTO extends DefaultFlexibleElementDTO {
 					public void componentSelected(ButtonEvent ce) {
 						loadAndShowHistory(input.getHistoryButton());
 					}
-					
+
 				});
-				
+
 				if(disabledBecauseAmendable && isRatioDivisor(subField)) {
 					input.setEnabled(false);
 				}
@@ -235,7 +236,7 @@ public class BudgetElementDTO extends DefaultFlexibleElementDTO {
 
 		// Sets the field label.
 		setLabel(I18N.CONSTANTS.projectBudget());
-		
+
 		if(getAmendable()) {
 			fieldset.setHeadingHtml(getLabel() + "&nbsp;" + IconImageBundle.ICONS.DNABrownGreen().getHTML());
 		} else {
@@ -296,30 +297,30 @@ public class BudgetElementDTO extends DefaultFlexibleElementDTO {
 
 			stringValues.add(label + ": " + Double.parseDouble(currentBudget));
 		}
-		
+
 		return stringValues;
 	}
-	
+
 	@Override
 	public Object renderHistoryToken(HistoryTokenListDTO token) {
 
 		ensureHistorable();
 
 		final String value = token.getTokens().get(0).getValue();
-		
+
 		if (Log.isDebugEnabled()) {
 			Log.debug("[renderHistoryToken] Case BUDGET ; value to split '" + value + "'.");
 		}
 
 		return new HistoryTokenText(toLabels(value));
 	}
-	
+
 	@Override
 	public String toHTML(String value) {
 		if(value == null || value.length() == 0) {
 			return "";
 		}
-		
+
 		final StringBuilder htmlBuilder = new StringBuilder();
 		for(final String entry : toLabels(value)) {
 			htmlBuilder.append(" -").append(entry).append("<br>");
@@ -350,23 +351,23 @@ public class BudgetElementDTO extends DefaultFlexibleElementDTO {
 		}
 		return null;
 	}
-	
+
 	private boolean isDisabledBecauseAmendable() {
 		// BUGFIX #794: Checking if this element is amendable before going further.
 		if(currentContainerDTO instanceof ProjectDTO && getAmendable()) {
 			final ProjectDTO project = (ProjectDTO)currentContainerDTO;
-			
+
 			if(project.getAmendmentState() == AmendmentState.LOCKED && project.getCloseDate() == null) {
-				return authenticationProvider.get().getAggregatedProfile().getGlobalPermissions().contains(GlobalPermissionEnum.EDIT_PROJECT);
+				return ProjectUtils.isProjectEditable(project, auth());
 			}
 		}
 		return false;
 	}
-	
+
 	private boolean isRatioDivisor(BudgetSubFieldDTO subField) {
 		final BudgetSubFieldDTO divisor = getRatioDivisor();
-		
-		return subField != null && divisor != null && subField.getId() != null 
+
+		return subField != null && divisor != null && subField.getId() != null
 			&& subField.getId().equals(divisor.getId());
 	}
 }

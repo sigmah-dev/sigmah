@@ -22,6 +22,9 @@ package org.sigmah.server.dao;
  * #L%
  */
 
+import java.util.List;
+import java.util.Set;
+
 import org.sigmah.server.dao.base.DAO;
 import org.sigmah.server.domain.reminder.Reminder;
 
@@ -31,5 +34,5 @@ import org.sigmah.server.domain.reminder.Reminder;
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
 public interface ReminderDAO extends DAO<Reminder, Integer> {
-
+	List<Reminder> findNotCompletedByProjectIds(Set<Integer> projectIds);
 }

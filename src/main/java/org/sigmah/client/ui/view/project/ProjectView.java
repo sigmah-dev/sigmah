@@ -80,7 +80,7 @@ import org.sigmah.shared.dto.referential.CoreVersionActionType;
 
 /**
  * {@link ProjectPresenter} view.
- * 
+ *
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
 @Singleton
@@ -148,6 +148,7 @@ public class ProjectView extends AbstractView implements ProjectPresenter.View {
 		linksMap.put(Page.PROJECT_INDICATORS_MANAGEMENT, I18N.CONSTANTS.projectTabIndicators());
 		linksMap.put(Page.PROJECT_INDICATORS_MAP, I18N.CONSTANTS.projectTabMap());
 		linksMap.put(Page.PROJECT_INDICATORS_ENTRIES, I18N.CONSTANTS.projectTabDataEntry());
+		linksMap.put(Page.PROJECT_TEAM_MEMBERS, I18N.CONSTANTS.projectTabTeamMembers());
 		linksMap.put(Page.PROJECT_CALENDAR, I18N.CONSTANTS.projectTabCalendar());
 		linksMap.put(Page.PROJECT_REPORTS, I18N.CONSTANTS.projectTabReports());
 
@@ -373,7 +374,7 @@ public class ProjectView extends AbstractView implements ProjectPresenter.View {
 		w.add(panel);
 		w.show();
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -383,12 +384,12 @@ public class ProjectView extends AbstractView implements ProjectPresenter.View {
 		box.setTitleHtml(I18N.CONSTANTS.projectCoreValidateVersion());
 		box.setMessage(I18N.CONSTANTS.projectCoreNewVersion());
 		box.setType(MessageBoxType.PROMPT);
-		
+
 		// No automatic button.
 		box.setButtons("");
-		
+
 		final Dialog dialog = box.getDialog();
-		
+
 		final SelectionListener<ButtonEvent> hideDialog = new SelectionListener<ButtonEvent>() {
 
 			@Override
@@ -396,7 +397,7 @@ public class ProjectView extends AbstractView implements ProjectPresenter.View {
 				dialog.hide(ce.getButton());
 			}
 		};
-		
+
 		// Create core version button.
 		final Button okButton = new Button(I18N.CONSTANTS.projectCoreNewVersionButton());
 		okButton.addSelectionListener(hideDialog);
@@ -408,63 +409,63 @@ public class ProjectView extends AbstractView implements ProjectPresenter.View {
 				callback.handleEvent(ce);
 			}
 		});
-		
+
 		// Cancel button.
 		final Button cancelButton = new Button(GXT.MESSAGES.messageBox_cancel());
 		cancelButton.addSelectionListener(hideDialog);
-		
+
 		dialog.addButton(cancelButton);
 		dialog.addButton(okButton);
-		
+
 		box.show();
 	}
 
 	/**
 	 * Changes the current view to match the given state.
-	 * 
+	 *
 	 * @param state Current project core version state.
 	 * @param coreVersionWasModified State of the current project core version (modified or not).
 	 */
 	@Override
 	public void setProjectCoreVersionState(AmendmentState state, boolean coreVersionWasModified) {
-		
+
 		coreVersionTable.clear();
 		coreVersionTable.removeAllRows();
-		
+
 		final boolean locked = state == AmendmentState.LOCKED;
 		final boolean ended = state == AmendmentState.PROJECT_ENDED;
-		
+
 		if(state == AmendmentState.DRAFT || locked || ended) {
 			validateVersionButton.setEnabled(locked && !ended);
 			lockProjectCoreButton.setEnabled(!ended);
 			unlockProjectCoreButton.setEnabled(true);
-			
+
 			coreVersionTable.insertRow(0);
 			coreVersionTable.insertRow(0);
 			coreVersionTable.addCell(0);
 			coreVersionTable.addCell(0);
 			coreVersionTable.addCell(1);
-			
+
 			coreVersionTable.getFlexCellFormatter().setWidth(0, 0, "50%");
 			coreVersionTable.getFlexCellFormatter().setWidth(0, 1, "50%");
 			coreVersionTable.getFlexCellFormatter().setColSpan(1, 0, 2);
-			
+
 			coreVersionTable.setWidget(0, 0, locked && !ended ? unlockProjectCoreButton : lockProjectCoreButton);
 			coreVersionTable.setWidget(0, 1, validateVersionButton);
 			coreVersionTable.setWidget(1, 0, coreVersionActionComboBox);
-			
+
 		} else {
 			coreVersionTable.setWidget(0, 0, backToWorkingVersionButton);
 			coreVersionTable.setWidget(1, 0, coreVersionActionComboBox);
 		}
-		
+
 		coreVersionPanel.layout(true);
-		
+
 	}
 
 	/**
 	 * Displays the given core versions in the core version combo box.
-	 * 
+	 *
 	 * @param coreVersions List of project core versions to display.
 	 * @param coreVersionWasModified State of the current project core version (modified or not).
 	 * @param canRenameVersion <code>true</code> to add the "Rename core version" menu item.
@@ -473,39 +474,39 @@ public class ProjectView extends AbstractView implements ProjectPresenter.View {
 	public void setProjectCoreVersions(List<AmendmentDTO> coreVersions, boolean coreVersionWasModified, boolean canRenameVersion) {
 		final ListStore<CoreVersionAction> store = coreVersionActionComboBox.getStore();
 		store.removeAll();
-		
+
 		// Add compare and rename actions.
 		coreVersionActionComboBox.getStore().add(CoreVersionEntry.create(I18N.CONSTANTS.amendmentCompare(), CoreVersionActionType.FUNCTION_COMPARE));
 		if(canRenameVersion) {
 			coreVersionActionComboBox.getStore().add(CoreVersionEntry.create(I18N.CONSTANTS.amendmentRename(), CoreVersionActionType.FUNCTION_RENAME));
 		}
-		
+
 		// Add the separator if needed.
 		if(!coreVersions.isEmpty()) {
 			// Displays the name of the last core version if the project core has not been modified.
 			final AmendmentDTO lastCoreVersion = coreVersions.get(coreVersions.size() - 1);
 			coreVersionActionComboBox.setEmptyText(!coreVersionWasModified ? lastCoreVersion.getVersion() + ". " + lastCoreVersion.getName() : "");
-			
+
 			// Add a separator between the actions and the core versions.
 			store.add(CoreVersionEntry.createSeparator());
 			store.add(CoreVersionEntry.createComment(I18N.CONSTANTS.projectCoreDisplayVersion()));
-			
+
 			// Add the core versions to the store.
 			for(final AmendmentDTO coreVersion : coreVersions) {
 				coreVersion.set(CoreVersionEntry.TYPE, CoreVersionActionType.CORE_VERSION.name());
 				store.add(coreVersion);
 			}
-			
+
 		} else {
 			coreVersionActionComboBox.setEmptyText(I18N.CONSTANTS.projectCoreNoValidated());
 		}
 	}
-	
-	
+
+
 
 	/**
 	 * Creates the project banner panel.
-	 * 
+	 *
 	 * @return The project banner panel.
 	 */
 	private Component createProjectBannerPanel() {
@@ -531,22 +532,22 @@ public class ProjectView extends AbstractView implements ProjectPresenter.View {
 
 	/**
 	 * Creates the amendments panel.
-	 * 
+	 *
 	 * @return The amendments panel component.
 	 */
 	private Component createAmendmentsPanel() {
 		// Lock project core version button.
 		lockProjectCoreButton = Forms.button(I18N.CONSTANTS.projectCorelockButton(), IconImageBundle.ICONS.lock());
-		
+
 		// Unlock project core version button.
 		unlockProjectCoreButton = Forms.button(I18N.CONSTANTS.projectCoreUnlockButton(), IconImageBundle.ICONS.unlock());
-		
+
 		// Validate project core version button.
 		validateVersionButton = Forms.button(I18N.CONSTANTS.projectCoreValidateVersion(), IconImageBundle.ICONS.validate());
-		
+
 		// Back to working version button.
 		backToWorkingVersionButton = Forms.button(I18N.CONSTANTS.projectCoreBackToWorkingVersion(), IconImageBundle.ICONS.amendment());
-		
+
 		// Core version and actions combo box.
 		coreVersionActionComboBox = new ComboBox<CoreVersionAction>();
 		coreVersionActionComboBox.setDisplayField("name");
@@ -555,14 +556,14 @@ public class ProjectView extends AbstractView implements ProjectPresenter.View {
 		coreVersionActionComboBox.setTemplate(XTemplate.create(getTemplate()));
 		coreVersionActionComboBox.setItemSelector(".x-combo-list-item");
 		coreVersionActionComboBox.setTriggerAction(ComboBox.TriggerAction.ALL);
-		
+
 		// Define a width of 100% to all buttons.
 		expandWidth(lockProjectCoreButton, unlockProjectCoreButton, validateVersionButton, backToWorkingVersionButton, coreVersionActionComboBox);
-		
+
 		// Layout.
 		coreVersionTable = new FlexTable();
 		coreVersionTable.setCellSpacing(6);
-		
+
 		// Content panel.
 		coreVersionPanel = Panels.content(I18N.CONSTANTS.projectCoreBoxTitle());
 		coreVersionPanel.setIcon(IconImageBundle.ICONS.DNABrownRed());
@@ -570,13 +571,13 @@ public class ProjectView extends AbstractView implements ProjectPresenter.View {
 
 		return coreVersionPanel;
 	}
-	
+
 	private void expandWidth(Component... components) {
 		for(final Component component : components) {
 			component.setWidth("100%");
 		}
 	}
-	
+
 	/**
 	 * Creates the XTemplate for the project core version combo box.
 	 * @return The XTemplate used by the project core version combo box.

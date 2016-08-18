@@ -22,9 +22,14 @@ package org.sigmah.server.dao.impl;
  * #L%
  */
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+
 import org.sigmah.server.dao.MonitoredPointDAO;
 import org.sigmah.server.dao.base.AbstractDAO;
 import org.sigmah.server.domain.reminder.MonitoredPoint;
+import org.sigmah.server.domain.util.DomainFilters;
 
 /**
  * {@link MonitoredPointDAO} implementation.
@@ -33,4 +38,23 @@ import org.sigmah.server.domain.reminder.MonitoredPoint;
  */
 public class MonitoredPointHibernateDAO extends AbstractDAO<MonitoredPoint, Integer> implements MonitoredPointDAO {
 
+	@Override
+	public List<MonitoredPoint> findNotCompletedByProjectIds(Set<Integer> projectIds) {
+		if (projectIds == null || projectIds.isEmpty()) {
+			return Collections.emptyList();
+		}
+
+		// Disable the ActivityInfo filter on Userdatabase.
+		DomainFilters.disableUserFilter(em());
+
+		return em().createQuery(
+			"SELECT po " +
+			"FROM Project pr " +
+			"JOIN pr.pointsList.points po " +
+			"WHERE pr.id IN (:projectIds) " +
+			"AND po.completionDate IS NULL " +
+			"AND po.deleted = false ",
+			MonitoredPoint.class
+		).setParameter("projectIds", projectIds).getResultList();
+	}
 }

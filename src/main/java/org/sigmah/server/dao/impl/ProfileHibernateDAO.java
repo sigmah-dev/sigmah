@@ -22,15 +22,32 @@ package org.sigmah.server.dao.impl;
  * #L%
  */
 
+import java.util.List;
+
+import javax.persistence.TypedQuery;
+
 import org.sigmah.server.dao.ProfileDAO;
 import org.sigmah.server.dao.base.AbstractDAO;
 import org.sigmah.server.domain.profile.Profile;
 
 /**
  * {@link ProfileDAO} implementation.
- * 
+ *
  * @author Denis Colliot (dcolliot@ideia.fr) (v2.0)
  */
 public class ProfileHibernateDAO extends AbstractDAO<Profile, Integer> implements ProfileDAO {
+
+	@Override
+	public List<Profile> getProjectTeamMemberProfiles(Integer projectId) {
+		TypedQuery<Profile> query = em().createQuery(
+			"SELECT u " +
+			"FROM Project p " +
+			"JOIN p.teamMemberProfiles u " +
+			"WHERE p.id = :projectId",
+			Profile.class
+		);
+		query.setParameter("projectId", projectId);
+		return query.getResultList();
+	}
 
 }

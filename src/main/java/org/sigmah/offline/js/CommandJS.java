@@ -23,15 +23,8 @@ package org.sigmah.offline.js;
  */
 
 import com.google.gwt.core.client.JavaScriptObject;
-import org.sigmah.shared.command.CreateEntity;
-import org.sigmah.shared.command.Delete;
-import org.sigmah.shared.command.PrepareFileUpload;
-import org.sigmah.shared.command.UpdateEntity;
-import org.sigmah.shared.command.UpdateLogFrame;
-import org.sigmah.shared.command.UpdateMonitoredPoints;
-import org.sigmah.shared.command.UpdateProject;
-import org.sigmah.shared.command.UpdateProjectFavorite;
-import org.sigmah.shared.command.UpdateReminders;
+
+import org.sigmah.shared.command.*;
 import org.sigmah.shared.command.base.Command;
 
 /**
@@ -50,7 +43,8 @@ public class CommandJS extends JavaScriptObject {
 		UPDATE_MONITORED_POINTS,
 		UPDATE_PROJECT,
 		UPDATE_PROJECT_FAVORITE,
-		UPDATE_REMINDERS
+		UPDATE_REMINDERS,
+		UPDATE_PROJECT_TEAM_MEMBERS
 	}
 	
 	public static final Class[] SUPPORTED_COMMANDS = new Class[] {
@@ -62,7 +56,8 @@ public class CommandJS extends JavaScriptObject {
 		UpdateMonitoredPoints.class,
 		UpdateProject.class,
 		UpdateProjectFavorite.class,
-		UpdateReminders.class
+		UpdateReminders.class,
+		UpdateProjectTeamMembers.class
 	};
 	
 	protected CommandJS() {
@@ -106,6 +101,9 @@ public class CommandJS extends JavaScriptObject {
 		} else if(command instanceof PrepareFileUpload) {
 			commandJS = PrepareFileUploadJS.toJavaScript((PrepareFileUpload)command);
 			commandJS.setCommandType(Type.PREPARE_FILE_UPLOAD);
+		} else if(command instanceof UpdateProjectTeamMembers) {
+			commandJS = UpdateProjectTeamMembersJs.toJavascript((UpdateProjectTeamMembers) command);
+			commandJS.setCommandType(Type.UPDATE_PROJECT_TEAM_MEMBERS);
 		}
 		
 		return commandJS;
@@ -141,6 +139,9 @@ public class CommandJS extends JavaScriptObject {
 				break;
 			case UPDATE_REMINDERS:
 				command = ((UpdateRemindersJS)this).toUpdateReminders();
+				break;
+			case UPDATE_PROJECT_TEAM_MEMBERS:
+				command = ((UpdateProjectTeamMembersJs)this).toUpdateProjectTeamMembers();
 				break;
 			default:
 				command = null;

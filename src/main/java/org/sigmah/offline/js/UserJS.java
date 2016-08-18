@@ -30,6 +30,8 @@ import org.sigmah.shared.dto.profile.ProfileDTO;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArray;
+import com.google.gwt.core.client.JsArrayInteger;
+
 import java.util.ArrayList;
 
 /**
@@ -37,13 +39,13 @@ import java.util.ArrayList;
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
 public final class UserJS extends JavaScriptObject {
-	
+
 	protected UserJS() {
 	}
-	
+
 	public static UserJS toJavaScript(UserDTO userDTO) {
 		final UserJS userJS = Values.createJavaScriptObject(UserJS.class);
-		
+
 		userJS.setId(userDTO.getId());
 		userJS.setOrganization((Integer)userDTO.get("organization"));
 		userJS.setName(userDTO.getName());
@@ -51,15 +53,17 @@ public final class UserJS extends JavaScriptObject {
 		userJS.setFirstName(userDTO.getFirstName());
 		userJS.setCompleteName(userDTO.getCompleteName());
 		userJS.setLocale(userDTO.getLocale());
-		userJS.setOrgUnit(userDTO.getOrgUnit());
+		userJS.setMainOrgUnit(userDTO.getMainOrgUnit());
+		userJS.setSecondaryOrgUnits(userDTO.getSecondaryOrgUnits());
 		userJS.setProfiles(userDTO.getProfiles());
-		
+		userJS.computeOrgUnits();
+
 		return userJS;
 	}
-	
+
 	public UserDTO toDTO() {
 		final UserDTO userDTO = new UserDTO();
-		
+
 		userDTO.setId(getId());
 		userDTO.setName(getName());
 		userDTO.setEmail(getEmail());
@@ -67,22 +71,22 @@ public final class UserJS extends JavaScriptObject {
 		userDTO.setCompleteName(getCompleteName());
 		userDTO.setLocale(getLocale());
 		userDTO.setProfiles(getProfilesDTO());
-		
+
 		return userDTO;
 	}
-	
+
 	public native int getId() /*-{
 		return this.id;
 	}-*/;
-	
+
 	public native void setId(int id) /*-{
 		this.id = id;
 	}-*/;
-	
+
 	public native void setOrganization() /*-{
 		this.organization = undefined;
 	}-*/;
-	
+
 	public void setOrganization(Integer id) {
 		if(id != null) {
 			setOrganization(id.intValue());
@@ -90,19 +94,19 @@ public final class UserJS extends JavaScriptObject {
 			setOrganization();
 		}
 	}
-	
+
 	public native void setOrganization(int id) /*-{
 		this.organization = id;
 	}-*/;
-	
+
 	public native int getOrganization() /*-{
 		return this.organization;
 	}-*/;
-	
+
 	public native String getName() /*-{
 		return this.name;
 	}-*/;
-			
+
 	public native void setName(String name) /*-{
 		this.name = name;
 	}-*/;
@@ -139,37 +143,70 @@ public final class UserJS extends JavaScriptObject {
 		this.locale = locale;
 	}-*/;
 
-	public native boolean hasOrgUnit() /*-{
-		return typeof this.orgUnit != 'undefined';
-	}-*/;
-	
-	public native int getOrgUnit() /*-{
-		return this.orgUnit;
+	public native boolean hasMainOrgUnit() /*-{
+		return typeof this.mainOrgUnit != 'undefined';
 	}-*/;
 
-	public void setOrgUnit(OrgUnitDTO orgUnitDTO) {
-		if(orgUnitDTO != null) {
-			setOrgUnit(orgUnitDTO.getId());
+	public native int getMainOrgUnit() /*-{
+		return this.mainOrgUnit;
+	}-*/;
+
+	public void setMainOrgUnit(OrgUnitDTO mainOrgUnitDTO) {
+		if (mainOrgUnitDTO != null) {
+			setMainOrgUnit(mainOrgUnitDTO.getId());
 		}
 	}
-	
-	public native void setOrgUnit(int orgUnit) /*-{
-		this.orgUnit = orgUnit;
+
+	public native void setMainOrgUnit(int mainOrgUnit) /*-{
+		this.mainOrgUnit = mainOrgUnit;
+	}-*/;
+
+	public native JsArrayInteger getSecondaryOrgUnits() /*-{
+		return this.secondaryOrgUnits;
+	}-*/;
+
+	public void setSecondaryOrgUnits(List<OrgUnitDTO> secondaryOrgUnitDTOs) {
+		if (secondaryOrgUnitDTOs == null) {
+			return;
+		}
+
+		JsArrayInteger array = JavaScriptObject.createArray().cast();
+		for (OrgUnitDTO orgUnitDTO : secondaryOrgUnitDTOs) {
+			array.push(orgUnitDTO.getId());
+		}
+		setSecondaryOrgUnits(array);
+	}
+
+	public native void setSecondaryOrgUnits(JsArrayInteger secondaryOrgUnits) /*-{
+		this.secondaryOrgUnits = secondaryOrgUnits;
+	}-*/;
+
+	public native JsArrayInteger computeOrgUnits() /*-{
+		if (!this.mainOrgUnit) {
+			// if mainOrgUnit is not defined, secondaryOrgUnits too
+			return [];
+		}
+
+		if (!this.secondaryOrgUnits) {
+			return [ this.mainOrgUnit ];
+		}
+
+		this.orgUnits = [].concat(this.mainOrgUnit, this.secondaryOrgUnits);
 	}-*/;
 
 	public native JsArray<ProfileJS> getProfiles() /*-{
 		return this.profiles;
 	}-*/;
-	
+
 	public List<ProfileDTO> getProfilesDTO() {
 		if(getProfiles() != null) {
 			final List<ProfileDTO> profilesDTO = new ArrayList<ProfileDTO>();
-			
+
 			final JsArray<ProfileJS> profilesJS = getProfiles();
 			for(int index = 0; index < profilesJS.length(); index++) {
 				profilesDTO.add(profilesJS.get(index).toDTO());
 			}
-			
+
 			return profilesDTO;
 		}
 		return null;
@@ -178,14 +215,14 @@ public final class UserJS extends JavaScriptObject {
 	public void setProfiles(List<ProfileDTO> profilesDTO) {
 		if(profilesDTO != null) {
 			final JsArray<ProfileJS> profilesJS = Values.createTypedJavaScriptArray(ProfileJS.class);
-			
+
 			for(final ProfileDTO profileDTO : profilesDTO) {
 				profilesJS.push(ProfileJS.toJavaScript(profileDTO));
 			}
 			setProfiles(profilesJS);
 		}
 	}
-	
+
 	public native void setProfiles(JsArray<ProfileJS> profiles) /*-{
 		this.profiles = profiles;
 	}-*/;

@@ -227,8 +227,8 @@ public class ProjectReportsPresenter extends AbstractProjectPresenter<ProjectRep
 
 		// For each files list.
 		for (final LocalizedElement<E> element : elements) {
-
-			final PrivacyGroupPermissionEnum permission = ProfileUtils.getPermission(auth(), element.getElement().getPrivacyGroup());
+			final PrivacyGroupPermissionEnum permission = ProfileUtils.getPermissionForOrgUnit(auth(),
+				getProject().getOrgUnitId(), element.getElement().getPrivacyGroup());
 
 			if (permission != PrivacyGroupPermissionEnum.WRITE) {
 				continue;
