@@ -55,6 +55,7 @@ import com.google.inject.Singleton;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import org.sigmah.offline.indexeddb.Indexes;
 import org.sigmah.offline.js.ValueJSIdentifierFactory;
 import org.sigmah.shared.command.result.ValueResult;
 import org.sigmah.shared.dto.category.CategoryElementDTO;
@@ -180,13 +181,15 @@ public class ProjectAsyncDAO extends AbstractUserDatabaseAsyncDAO<ProjectDTO, Pr
 		});
 	}
 	
-	
 	/**
 	 * Retrieves only the informations stored inside ProjectJS.
 	 * 
-	 * @param indexName Name of the index to use.
-	 * @param id Indexed value to retrieve.
-	 * @param callback Handler to call when the search is done.
+	 * @param indexName
+	 *			Name of the index to use.
+	 * @param id
+	 *			Indexed value to retrieve.
+	 * @param callback
+	 *			Handler to call when the search is done.
 	 */
 	public void getByIndexWithoutDependencies(final String indexName, final int id, final AsyncCallback<ProjectDTO> callback) {
 		openTransaction(Transaction.Mode.READ_ONLY, new OpenTransactionHandler<Store>() {
@@ -208,6 +211,58 @@ public class ProjectAsyncDAO extends AbstractUserDatabaseAsyncDAO<ProjectDTO, Pr
 					}
 				});
 			}
+		});
+	}
+	
+	/**
+	 * Returns the 2 projects associated with the given project funding id.
+	 * 
+	 * @param id
+	 *			Identifier of the project funding.
+	 * @param callback
+	 *			Handler to call when the search is done.
+	 */
+	public void getByProjectFundingId(final int id, final AsyncCallback<List<ProjectDTO>> callback) {
+		openTransaction(Transaction.Mode.READ_ONLY, new OpenTransactionHandler<Store>() {
+
+			@Override
+			public void onTransaction(final Transaction<Store> transaction) {
+				final List<ProjectDTO> projects = new ArrayList<ProjectDTO>();
+				final RequestManager<List<ProjectDTO>> requestManager = new RequestManager<>(projects, callback);
+				
+				getProjectsByIndex(Indexes.PROJECT_FUNDEDS, id, requestManager, transaction);
+				getProjectsByIndex(Indexes.PROJECT_FUNDINGS, id, requestManager, transaction);
+				
+				requestManager.ready();
+			}
+		});
+	}
+	
+	private void getProjectsByIndex(final String index, final int id, final RequestManager<List<ProjectDTO>> requestManager, final Transaction<Store> transaction) {
+		final ObjectStore projectStore = transaction.getObjectStore(getRequiredStore());
+		
+		final OpenCursorRequest request = projectStore.index(index).openKeyCursor(IDBKeyRange.only(id));
+		final int cursorRequest = requestManager.prepareRequest();
+		request.addCallback(new AsyncCallback<Request>() {
+
+			@Override
+			public void onFailure(Throwable caught) {
+				requestManager.setRequestFailure(cursorRequest, caught);
+			}
+
+			@Override
+			public void onSuccess(Request result) {
+				final Cursor cursor = request.getResult();
+				if (cursor != null) {
+					final ProjectJS projectJS = cursor.getValue();
+					final ProjectDTO projectDTO = projectJS.toDTO();
+
+					loadProjectDTO(projectJS, true, requestManager, projectDTO, transaction);
+				} else {
+					requestManager.setRequestSuccess(cursorRequest);
+				}
+			}
+
 		});
 	}
 	
