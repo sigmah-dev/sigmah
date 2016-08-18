@@ -138,6 +138,7 @@ final class AccessRights {
 		sperm(commandToken(CopyLogFrame.class), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.EDIT_LOGFRAME);
 		sperm(commandToken(DeactivateUsers.class), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.MANAGE_USERS);
 		sperm(commandToken(DisableFlexibleElements.class), GrantType.AUTHENTICATED_ONLY);
+        	sperm(commandToken(DisableCategoryElements.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(DeleteCategories.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(DeleteFlexibleElements.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(Delete.class), GrantType.AUTHENTICATED_ONLY);
