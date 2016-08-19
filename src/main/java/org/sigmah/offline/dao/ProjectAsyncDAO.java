@@ -228,7 +228,7 @@ public class ProjectAsyncDAO extends AbstractUserDatabaseAsyncDAO<ProjectDTO, Pr
 			@Override
 			public void onTransaction(final Transaction<Store> transaction) {
 				final List<ProjectDTO> projects = new ArrayList<ProjectDTO>();
-				final RequestManager<List<ProjectDTO>> requestManager = new RequestManager<>(projects, callback);
+				final RequestManager<List<ProjectDTO>> requestManager = new RequestManager<List<ProjectDTO>>(projects, callback);
 				
 				getProjectsByIndex(Indexes.PROJECT_FUNDEDS, id, requestManager, transaction);
 				getProjectsByIndex(Indexes.PROJECT_FUNDINGS, id, requestManager, transaction);
