@@ -38,6 +38,7 @@ public class ObjectJsMapBoxer implements AutoBoxingJsMap.Boxer<Object> {
 		BOOLEAN,
 		CALENDAR_WRAPPER,
 		DATE,
+		DOUBLE,
 		INTEGER,
 		LONG,
 		NULL,
@@ -51,7 +52,7 @@ public class ObjectJsMapBoxer implements AutoBoxingJsMap.Boxer<Object> {
 	public String toString(Object object) {
 		final StringBuilder stringBuilder = new StringBuilder();
 		
-		if(object == null) {
+		if (object == null) {
 			stringBuilder.append(Type.NULL)
 				.append(SEPARATOR);
 			
@@ -64,6 +65,10 @@ public class ObjectJsMapBoxer implements AutoBoxingJsMap.Boxer<Object> {
 			stringBuilder.append(Type.DATE)
 				.append(SEPARATOR)
 				.append(((Date)object).getTime());
+		} else if (object instanceof Double) {
+			stringBuilder.append(Type.DOUBLE)
+				.append(SEPARATOR)
+				.append((Double)object);
 			
 		} else if(object instanceof Integer) {
 			stringBuilder.append(Type.INTEGER)
@@ -112,6 +117,8 @@ public class ObjectJsMapBoxer implements AutoBoxingJsMap.Boxer<Object> {
 				return new CalendarWrapper(calendar);
 			case DATE:
 				return new Date(Long.parseLong(string.substring(separator + 1)));
+			case DOUBLE:
+				return Double.parseDouble(string.substring(separator + 1));
 			case INTEGER:
 				return Integer.parseInt(string.substring(separator + 1));
 			case LONG:
