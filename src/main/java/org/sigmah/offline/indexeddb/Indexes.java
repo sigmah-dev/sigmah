@@ -24,8 +24,7 @@ public final class Indexes {
 	public static final String PROJECT_ORGUNIT = "orgUnit";
 	public static final String PROJECT_REMINDERSLISTID = "remindersListId";
 	public static final String PROJECT_POINTSLISTID = "pointsListId";
-	public static final String PROJECT_FUNDEDS = "fundeds";
-	public static final String PROJECT_FUNDINGS = "fundings";
+	public static final String PROJECT_PROJECTFUNDINGS = "projectFundings";
 	
 	public static final String PROJECT_REPORT_VERSIONID = "versionId";
 	

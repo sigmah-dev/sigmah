@@ -273,6 +273,8 @@ public class UpdateEntityAsyncHandler implements AsyncCommandHandler<UpdateEntit
 			}
 			
 		});
+		
+		requestManager.ready();
 	}
 	
 	private void updateProjectFunding(final List<ProjectDTO> projects, final int entityId, final Double percentage, final RequestManager<VoidResult> requestManager) {

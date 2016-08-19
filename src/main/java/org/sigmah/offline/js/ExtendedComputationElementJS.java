@@ -33,7 +33,7 @@ public final class ExtendedComputationElementJS extends JavaScriptObject {
 	public static ExtendedComputationElementJS toJavaScript(final ComputationElementDTO computationElement) {
 		
 		final JsArrayString dependencies = Values.createJavaScriptArray(JsArrayString.class);
-		boolean contribution = false;
+		int contribution = 0;
 		
 		final Computation computation = Computations.parse(computationElement.getRule(), Collections.<FlexibleElementDTO>emptyList());
 		for (final Dependency dependency : computation.getDependencies()) {
@@ -42,7 +42,7 @@ public final class ExtendedComputationElementJS extends JavaScriptObject {
 			}
 			
 			if (dependency instanceof ContributionDependency) {
-				contribution = true;
+				contribution = 1;
 			}
 		}
 		
@@ -130,11 +130,11 @@ public final class ExtendedComputationElementJS extends JavaScriptObject {
 		this.maximumValue = maximumValue;
 	}-*/;
 
-	public native boolean isContribution() /*-{
+	public native int getContribution() /*-{
 		return this.contribution;
 	}-*/;
 
-	public native void setContribution(boolean contribution) /*-{
+	public native void setContribution(int contribution) /*-{
 		this.contribution = contribution;
 	}-*/;
 

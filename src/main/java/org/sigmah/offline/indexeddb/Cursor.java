@@ -24,10 +24,12 @@ package org.sigmah.offline.indexeddb;
 
 
 /**
- *
+ * Java wrapper for IDBCursor.
+ * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
 public class Cursor {
+	
 	private final IDBCursor nativeCursor;
 
 	Cursor(IDBCursor cursor) {
@@ -38,8 +40,20 @@ public class Cursor {
 		nativeCursor.next();
 	}
 	
-	public Object getKey() {
-		return nativeCursor.getKey();
+	public int getKey() {
+		return nativeCursor.getKeyInteger();
+	}
+	
+	public Object getKeyObject() {
+		return nativeCursor.getKeyObject();
+	}
+	
+	public int getPrimaryKey() {
+		return nativeCursor.getPrimaryKeyInteger();
+	}
+	
+	public Object getPrimaryKeyObject() {
+		return nativeCursor.getPrimaryKeyObject();
 	}
 	
 	public <T> T getValue() {

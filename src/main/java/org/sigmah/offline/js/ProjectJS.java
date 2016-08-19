@@ -44,6 +44,7 @@ import com.google.gwt.core.client.JsArray;
 import com.google.gwt.core.client.JsArrayInteger;
 import com.google.gwt.core.client.JsDate;
 import java.util.HashSet;
+import org.sigmah.shared.util.Collections;
 
 /**
  * @author Raphaël Calabro (rcalabro@ideia.fr)
@@ -78,6 +79,7 @@ public final class ProjectJS extends JavaScriptObject {
 		projectJS.setLogFrame(projectDTO.getLogFrame());
 		projectJS.setFunding(projectDTO.getFunding());
 		projectJS.setFunded(projectDTO.getFunded());
+		projectJS.setProjectFundings(projectDTO.getFunded(), projectDTO.getFunding());
 		projectJS.setCountry(projectDTO.getCountry());
 		projectJS.setManager(projectDTO.getManager());
 		projectJS.setPointsList(projectDTO.getPointsList());
@@ -342,6 +344,14 @@ public final class ProjectJS extends JavaScriptObject {
 	public native void setFunded(JsArray<ProjectFundingJS> funded) /*-{
 		this.funded = funded;
 	}-*/;
+	
+	public JsArrayInteger getProjectFundings() {
+		return Values.getJavaScriptObject(this, "projectFundings");
+	}
+	
+	public void setProjectFundings(final List<ProjectFundingDTO> funded, final List<ProjectFundingDTO> funding) {
+		Values.setArrayOfIdentifiers(this, "projectFundings", Collections.merge(funded, funding));
+	}
 
 	public native int getCountry() /*-{
 		return this.country;

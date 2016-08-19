@@ -63,7 +63,7 @@ public class ComputationAsyncDAO extends AbstractUserDatabaseAsyncDAO<Computatio
 		final ObjectStore objectStore = transaction.getObjectStore(getRequiredStore());
 		final Index index = objectStore.index(Indexes.COMPUTATION_CONTRIBUTION);
 		
-		final OpenCursorRequest request = index.openCursor(IDBKeyRange.only(contribution));
+		final OpenCursorRequest request = index.openCursor(IDBKeyRange.only(contribution ? 1 : 0));
 		doGet(request, callback);
 	}
 	

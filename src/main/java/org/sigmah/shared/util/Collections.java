@@ -24,7 +24,9 @@ package org.sigmah.shared.util;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Utility class for <code>Collection</code> types.
@@ -135,6 +137,28 @@ public final class Collections {
 		removeLastSeparator(builder, separator);
         return builder.toString();
     }
+	
+	/**
+	 * Merge the given collections in a new <code>Set</code>.
+	 * 
+	 * @param <T>
+	 *			Type of the objects inside the collections.
+	 * @param collections
+	 *			Collections to merge.
+	 * @return A new <code>Set</code> with the content of the given collections.
+	 */
+	@SafeVarargs
+	public static <T> Set<T> merge(final Collection<T>... collections) {
+		final Set<T> merged = new HashSet<T>();
+		
+		for (final Collection<T> collection : collections) {
+			if (collection != null) {
+				merged.addAll(collection);
+			}
+		}
+		
+		return merged;
+	}
     
     /**
      * Creates a list by mapping the elements from the given collection.

@@ -61,8 +61,7 @@ public enum Store implements Schema {
 			Indexes.PROJECT_ORGUNIT, "orgUnit",
 			Indexes.PROJECT_REMINDERSLISTID, "remindersListId",
 			Indexes.PROJECT_POINTSLISTID, "pointsListId",
-			Indexes.PROJECT_FUNDEDS, "funded",
-			Indexes.PROJECT_FUNDINGS, "funding"
+			Indexes.PROJECT_PROJECTFUNDINGS, "projectFundings"
 	),
 	PROJECT_MODEL,
 	PROJECT_REPORT(

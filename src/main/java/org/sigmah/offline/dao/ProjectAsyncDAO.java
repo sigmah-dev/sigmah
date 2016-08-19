@@ -227,18 +227,15 @@ public class ProjectAsyncDAO extends AbstractUserDatabaseAsyncDAO<ProjectDTO, Pr
 
 			@Override
 			public void onTransaction(final Transaction<Store> transaction) {
-				final List<ProjectDTO> projects = new ArrayList<ProjectDTO>();
-				final RequestManager<List<ProjectDTO>> requestManager = new RequestManager<List<ProjectDTO>>(projects, callback);
-				
-				getProjectsByIndex(Indexes.PROJECT_FUNDEDS, id, requestManager, transaction);
-				getProjectsByIndex(Indexes.PROJECT_FUNDINGS, id, requestManager, transaction);
-				
-				requestManager.ready();
+				getProjectsByIndex(Indexes.PROJECT_PROJECTFUNDINGS, id, callback, transaction);
 			}
 		});
 	}
 	
-	private void getProjectsByIndex(final String index, final int id, final RequestManager<List<ProjectDTO>> requestManager, final Transaction<Store> transaction) {
+	private void getProjectsByIndex(final String index, final int id, final AsyncCallback<List<ProjectDTO>> callback, final Transaction<Store> transaction) {
+		final List<ProjectDTO> projects = new ArrayList<ProjectDTO>();
+		final RequestManager<List<ProjectDTO>> requestManager = new RequestManager<List<ProjectDTO>>(projects, callback);
+				
 		final ObjectStore projectStore = transaction.getObjectStore(getRequiredStore());
 		
 		final OpenCursorRequest request = projectStore.index(index).openKeyCursor(IDBKeyRange.only(id));
@@ -255,15 +252,32 @@ public class ProjectAsyncDAO extends AbstractUserDatabaseAsyncDAO<ProjectDTO, Pr
 				final Cursor cursor = request.getResult();
 				if (cursor != null) {
 					final ProjectJS projectJS = cursor.getValue();
-					final ProjectDTO projectDTO = projectJS.toDTO();
+					if (projectJS != null) {
+						final ProjectDTO projectDTO = projectJS.toDTO();
+						projects.add(projectDTO);
 
-					loadProjectDTO(projectJS, true, requestManager, projectDTO, transaction);
+						loadProjectDTO(projectJS, true, requestManager, projectDTO, transaction);
+					} else {
+						get(cursor.getPrimaryKey(), new RequestManagerCallback<List<ProjectDTO>, ProjectDTO>(requestManager) {
+							
+							@Override
+							public void onRequestSuccess(final ProjectDTO project) {
+								if (project != null) {
+									projects.add(project);
+								}
+							}
+							
+						}, transaction);
+					}
+					cursor.next();
 				} else {
 					requestManager.setRequestSuccess(cursorRequest);
 				}
 			}
 
 		});
+		
+		requestManager.ready();
 	}
 	
 	private void setChildrenProjects(final ProjectDTO project) {
