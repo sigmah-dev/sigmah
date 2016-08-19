@@ -70,6 +70,7 @@ public class ProjectModelDTO extends AbstractModelDataEntityDTO<Integer> impleme
 	public static final String PROJECT_BANNER = "projectBanner";
 	public static final String PROJECT_DETAILS = "projectDetails";
 	public static final String LOG_FRAME_MODEL = "logFrameModel";
+	public static final String LAYOUT_GROUP = "groups";
 	public static final String MAINTENANCE_DATE = "dateMaintenance";
 	public static final String UNDER_MAINTENANCE = "underMaintenance";
 	public static final String DEFAULT_TEAM_MEMBER_PROFILES = "defaultTeamMemberProfiles";
@@ -198,6 +199,7 @@ public class ProjectModelDTO extends AbstractModelDataEntityDTO<Integer> impleme
 
 	private transient HashMap<Class<? extends FlexibleElementDTO>, List> localizedElements;
 	private transient List<FlexibleElementDTO> allElements;
+	private transient List<LayoutGroupDTO> allGroupElements;
 
 	public ProjectModelDTO() {
 		// Serialization.
@@ -561,6 +563,76 @@ public class ProjectModelDTO extends AbstractModelDataEntityDTO<Integer> impleme
 		return allElements;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<LayoutGroupDTO> getAllGroups() {
+		
+		if (this.allGroupElements != null) {
+			return this.allGroupElements;
+		}
+
+		final List<LayoutGroupDTO> allGroupElements = new ArrayList<LayoutGroupDTO>();
+		final List<LayoutGroupDTO> bannerElements = new ArrayList<LayoutGroupDTO>();
+// --
+		// Banner.
+		// --
+
+		if (this.getProjectBanner().getLayout() != null) {
+			for (final LayoutGroupDTO lg : getProjectBanner().getLayout().getGroups()) {
+				
+					bannerElements.add(lg);
+				}
+			}
+		
+
+		// --
+		// Phases.
+		// --
+
+		for (final PhaseModelDTO phaseModel : getPhaseModels()) {
+			if (phaseModel != null) {
+				final LayoutDTO layout = phaseModel.getLayout();
+				if (layout != null) {
+					for (final LayoutGroupDTO lg : layout.getGroups()) {
+						final LayoutConstraintDTO lc = lg.getConstraint();
+							
+							lg.setConstraint(lc);
+									lg.setContainerModel(phaseModel);
+							
+							allGroupElements.add(lg);
+						}
+					}
+				}
+			}
+		
+
+		// --
+		// Project Details.
+		// --
+
+		final ProjectDetailsDTO p = getProjectDetails();
+		p.setName();
+		setProjectDetails(p);
+		if (getProjectDetails().getLayout() != null) {
+			for (final LayoutGroupDTO lg : getProjectDetails().getLayout().getGroups()) {
+				final LayoutConstraintDTO lc = lg.getConstraint();
+					
+					lg.setConstraint(lc);
+                    
+					lg.setContainerModel(getProjectDetails());
+					
+					allGroupElements.add(lg);
+				}
+			}
+		
+		
+		this.allGroupElements = allGroupElements;
+
+		return allGroupElements;
+	}   
+    
 	/**
 	 * Gets all the flexible elements instances of the given class in this model (phases and details page). The banner is
 	 * ignored cause the elements in it are read-only.
