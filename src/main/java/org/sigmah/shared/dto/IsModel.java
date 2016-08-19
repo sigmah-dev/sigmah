@@ -86,6 +86,13 @@ public interface IsModel extends EntityDTO<Integer>, ModelData {
 	 * @return The current model corresponding <b>all</b> flexible elements.
 	 */
 	List<FlexibleElementDTO> getAllElements();
+	
+	/**
+	 * Returns the current model corresponding <b>all</b> layoutGroups.
+	 * 
+	 * @return The current model corresponding <b>all</b> layoutGroups.
+	 */
+         List<LayoutGroupDTO> getAllGroups();
 
 	/**
 	 * Returns the model elements that handle a layout.<br>
