@@ -61,6 +61,7 @@ public class CommandHandlerModule extends AbstractCommandHandlerModule {
 		bindHandler(DisableFlexibleElements.class, DisableFlexibleElementsHandler.class);
 		bindHandler(DeleteCategories.class, DeleteCategoriesHandler.class);
 		bindHandler(DeleteFlexibleElements.class, DeleteFlexibleElementsHandler.class);
+		bindHandler(DeleteGroups.class, DeleteGroupsHandler.class);
 		bindHandler(Delete.class, DeleteHandler.class);
 		bindHandler(DeleteImportationSchemeModels.class, DeleteImportationSchemeModelsHandler.class);
 		bindHandler(DeleteImportationSchemes.class, DeleteImportationSchemesHandler.class);
