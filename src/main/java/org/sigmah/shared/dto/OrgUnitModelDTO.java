@@ -327,7 +327,41 @@ public class OrgUnitModelDTO extends AbstractModelDataEntityDTO<Integer> impleme
 
 		return allElements;
 	}
+     
+     /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<LayoutGroupDTO> getAllGroups() {
+        List<LayoutGroupDTO> allElements = new ArrayList<LayoutGroupDTO>();
+        List<LayoutGroupDTO> bannerElements = new ArrayList<LayoutGroupDTO>();
 
+        // banner
+        if (this.getBanner().getLayout() != null) {
+            for (LayoutGroupDTO lg : getBanner().getLayout().getGroups()) {
+
+                bannerElements.add(lg);
+
+            }
+        }
+
+        // Details
+        OrgUnitDetailsDTO d = getDetails();
+        d.setName();
+        setDetails(d);
+        if (getDetails().getLayout() != null) {
+            for (LayoutGroupDTO lg : getDetails().getLayout().getGroups()) {
+                LayoutConstraintDTO lc = lg.getConstraint();
+                lg.setConstraint(lc);
+
+                lg.setContainerModel(getDetails());
+                allElements.add(lg);
+            }
+        }
+
+        return allElements;
+    }
+    
 	/**
 	 * Gets all the flexible elements instances of the given class in this model (details page). The banner is ignored
 	 * cause the elements in it are read-only.

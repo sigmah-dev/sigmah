@@ -28,6 +28,7 @@ import java.util.List;
 import org.sigmah.shared.dto.base.AbstractModelDataEntityDTO;
 import org.sigmah.shared.dto.base.EntityDTO;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
+import org.sigmah.shared.dto.layout.LayoutGroupDTO;
 import org.sigmah.shared.dto.referential.ProjectModelStatus;
 
 import com.extjs.gxt.ui.client.data.ModelData;
@@ -86,6 +87,13 @@ public interface IsModel extends EntityDTO<Integer>, ModelData {
 	 * @return The current model corresponding <b>all</b> flexible elements.
 	 */
 	List<FlexibleElementDTO> getAllElements();
+	
+	/**
+	 * Returns the current model corresponding <b>all</b> layoutGroups.
+	 * 
+	 * @return The current model corresponding <b>all</b> layoutGroups.
+	 */
+         List<LayoutGroupDTO> getAllGroups();
 
 	/**
 	 * Returns the model elements that handle a layout.<br>
