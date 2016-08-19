@@ -28,6 +28,7 @@ import java.util.List;
 import org.sigmah.shared.dto.base.AbstractModelDataEntityDTO;
 import org.sigmah.shared.dto.base.EntityDTO;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
+import org.sigmah.shared.dto.layout.LayoutGroupDTO;
 import org.sigmah.shared.dto.referential.ProjectModelStatus;
 
 import com.extjs.gxt.ui.client.data.ModelData;
