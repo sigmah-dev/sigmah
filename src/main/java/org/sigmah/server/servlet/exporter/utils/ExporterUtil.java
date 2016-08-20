@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.EntityManager;
+import javax.persistence.Query;
 
 import org.sigmah.server.domain.Contact;
 import org.sigmah.server.domain.Country;
@@ -400,6 +401,36 @@ public class ExporterUtil {
 			final ExportConstants.MultiItemText item = formatTripletValues(valueResult.getValuesObject());
 			value = item.text;
 			lines = item.lineCount;
+		}
+
+		return new ValueLabel(element.getLabel(), value, lines);
+	}
+
+	public static ValueLabel getContactListPair(final FlexibleElement element, final ValueResult valueResult, final EntityManager entityManager) {
+
+		String value = null;
+		int lines = 1;
+
+		if (valueResult != null && valueResult.isValueDefined()) {
+
+			// retrieving list values from database
+			Query query = entityManager.createQuery("SELECT c FROM Contact c WHERE c.id IN (:idList)");
+			query.setParameter("idList", ValueResultUtils.splitValuesAsInteger(valueResult.getValueObject()));
+			final List<Object> objectsList = query.getResultList();
+
+			final StringBuilder builder = new StringBuilder();
+			for (Object s : objectsList) {
+				final Contact contactValue = (Contact) s;
+				builder.append(" - ");
+				builder.append(contactValue.getFullName());
+				builder.append("\n");
+				lines++;
+			}
+
+			if (lines > 1) {
+				value = builder.substring(0, builder.length() - 1);
+				lines--;
+			}
 		}
 
 		return new ValueLabel(element.getLabel(), value, lines);

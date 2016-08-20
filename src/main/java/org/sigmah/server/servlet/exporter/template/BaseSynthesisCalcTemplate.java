@@ -27,12 +27,16 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.persistence.EntityManager;
+import javax.persistence.Query;
+
 import com.google.inject.Injector;
 import org.odftoolkit.simple.SpreadsheetDocument;
 import org.odftoolkit.simple.table.Row;
 import org.odftoolkit.simple.table.Table;
 import org.sigmah.server.dispatch.CommandHandler;
 import org.sigmah.server.dispatch.impl.UserDispatch.UserExecutionContext;
+import org.sigmah.server.domain.Contact;
 import org.sigmah.server.domain.OrgUnit;
 import org.sigmah.server.domain.PhaseModel;
 import org.sigmah.server.domain.Project;
@@ -48,7 +52,6 @@ import org.sigmah.server.handler.GetValueHandler;
 import org.sigmah.server.i18n.I18nServer;
 import org.sigmah.server.servlet.base.ServletExecutionContext;
 import org.sigmah.server.servlet.exporter.data.BaseSynthesisData;
-import org.sigmah.server.servlet.exporter.data.GlobalExportDataProvider;
 import org.sigmah.server.servlet.exporter.data.LogFrameExportData;
 import org.sigmah.server.servlet.exporter.utils.CalcUtils;
 import org.sigmah.server.servlet.exporter.utils.ExportConstants;
@@ -155,6 +158,8 @@ public class BaseSynthesisCalcTemplate implements ExportTemplate {
 
 	private int putLayout(final Table table, final Layout layout, int rowIndex, final I18nServer i18nTranslator, final Language language) throws Throwable {
 
+		EntityManager entityManager = injector.getInstance(EntityManager.class);
+
 		int typeStartRow = rowIndex;
 		boolean firstGroup = true;
 		Integer id = (clazz.equals(Project.class)) ? data.getProject().getId() : data.getOrgUnit().getId();
@@ -164,7 +169,7 @@ public class BaseSynthesisCalcTemplate implements ExportTemplate {
 			// layout group cell
 			if(layoutGroup.getHasIterations()) {
 
-				if(createIterativeGroupSheet(layoutGroup, id, i18nTranslator, language)) {
+				if(createIterativeGroupSheet(layoutGroup, id, i18nTranslator, language, entityManager)) {
 					if (!firstGroup) {
 						row = table.getRowByIndex(++rowIndex);
 					}
@@ -218,6 +223,9 @@ public class BaseSynthesisCalcTemplate implements ExportTemplate {
 				}/* CHOICE */else if (elementName.equals("element.QuestionElement")) {
 					pair = ExporterUtil.getChoicePair(element, valueResult);
 
+				}/* CONTACT LIST */else if (elementName.equals("element.ContactListElement")) {
+					pair = ExporterUtil.getContactListPair(element, valueResult, entityManager);
+
 				}/* MESSAGE */else if (elementName.equals("element.MessageElement")) {
 					pair = new ExporterUtil.ValueLabel(data.getLocalizedVersion("flexibleElementMessage"), ExporterUtil.clearHtmlFormatting(element.getLabel()));
 					isMessage = true;
@@ -235,7 +243,7 @@ public class BaseSynthesisCalcTemplate implements ExportTemplate {
 	}
 
 	// returns true if sheet was really created (if iterative group contains exportable fields)
-	private boolean createIterativeGroupSheet(LayoutGroup group, Integer containerId, I18nServer i18nTranslator, Language language) {
+	private boolean createIterativeGroupSheet(LayoutGroup group, Integer containerId, I18nServer i18nTranslator, Language language, EntityManager entityManager) {
 
 		List<LayoutConstraint> allConstraints = group.getConstraints();
 		List<LayoutConstraint> constraints = new ArrayList<>();
@@ -298,6 +306,8 @@ public class BaseSynthesisCalcTemplate implements ExportTemplate {
 							value = getTripletValue(iterationValueResult);
 						} else /* CHOICE */if (elementName.equals("QuestionElement")) {
 							value = getChoiceValue(iterationValueResult, (QuestionElement)element);
+						} else /* CONTACT_LIST */if (elementName.equals("ContactListElement")) {
+							value = getContactListValue(iterationValueResult, entityManager);
 						}
 						values.add(value);
 
@@ -467,6 +477,35 @@ public class BaseSynthesisCalcTemplate implements ExportTemplate {
 		}
 
 		return valueLabels;
+	}
+
+	public static String getContactListValue(final ValueResult valueResult, final EntityManager entityManager) {
+
+		String value = null;
+		int lines = 0;
+
+		if (valueResult != null && valueResult.isValueDefined()) {
+
+			// retrieving list values from database
+			Query query = entityManager.createQuery("SELECT c FROM Contact c WHERE c.id IN (:idList)");
+			query.setParameter("idList", ValueResultUtils.splitValuesAsInteger(valueResult.getValueObject()));
+			final List<Object> objectsList = query.getResultList();
+
+			final StringBuilder builder = new StringBuilder();
+			for (Object s : objectsList) {
+				final Contact contactValue = (Contact) s;
+				builder.append(" - ");
+				builder.append(contactValue.getFullName());
+				builder.append("\n");
+				lines++;
+			}
+
+			if (lines > 0) {
+				value = builder.substring(0, builder.length() - 1);
+			}
+		}
+
+		return value;
 	}
 
 	public static ExportConstants.MultiItemText formatMultipleChoices(List<QuestionChoiceElement> list, String values) {

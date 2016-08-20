@@ -445,7 +445,8 @@ public class ProjectModelDTO extends AbstractModelDataEntityDTO<Integer> impleme
 						|| ElementTypeEnum.CHECKBOX == type
 						|| ElementTypeEnum.TEXT_AREA == type
 						|| ElementTypeEnum.TRIPLETS == type
-						|| ElementTypeEnum.QUESTION == type) {
+						|| ElementTypeEnum.QUESTION == type
+						|| ElementTypeEnum.CONTACT_LIST == type) {
 						allElements.add(element);
 					}
 				}
@@ -469,7 +470,8 @@ public class ProjectModelDTO extends AbstractModelDataEntityDTO<Integer> impleme
 						|| ElementTypeEnum.CHECKBOX == type
 						|| ElementTypeEnum.TEXT_AREA == type
 						|| ElementTypeEnum.TRIPLETS == type
-						|| ElementTypeEnum.QUESTION == type) {
+						|| ElementTypeEnum.QUESTION == type
+						|| ElementTypeEnum.CONTACT_LIST == type) {
 						allElements.add(element);
 					}
 				}

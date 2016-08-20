@@ -235,6 +235,10 @@ public class GlobalExportDataProjectProvider extends GlobalExportDataProvider {
 								}
 								ExporterUtil.addChoiceValues(values, valueResult, element);
 								continue;
+							}/* CONTACT LIST */
+							if (elementName.equals("element.ContactListElement")) {
+								pair = ExporterUtil.getContactListPair(element, valueResult, entityManager);
+
 							}
 
 							// titles
@@ -346,6 +350,10 @@ public class GlobalExportDataProjectProvider extends GlobalExportDataProvider {
 												columns.add(new GlobalExportStringCell(choiceValue.getValueIds()));
 											}
 											continue;
+										}/* CONTACT LIST */
+										if (elementName.equals("ContactListElement")) {
+											pair = ExporterUtil.getContactListPair(element, iterationValueResult, entityManager);
+
 										}
 										columns.add(new GlobalExportStringCell(ExporterUtil.pairToValueString(pair)));
 
