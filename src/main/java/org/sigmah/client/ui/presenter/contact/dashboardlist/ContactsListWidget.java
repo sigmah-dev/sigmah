@@ -320,7 +320,7 @@ public class ContactsListWidget extends AbstractPresenter<ContactsListWidget.Vie
 
 			@Override
 			public void handleEvent(final BaseEvent be) {
-				// TODO : eventBus.navigate(Page.CONTACT_EXPORTS);
+				eventBus.navigate(Page.CONTACT_EXPORTS);
 			}
 
 		});

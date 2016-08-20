@@ -22,9 +22,11 @@ package org.sigmah.server.dao.impl;
  */
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
@@ -36,6 +38,7 @@ import javax.persistence.criteria.Root;
 import org.sigmah.server.dao.ContactDAO;
 import org.sigmah.server.dao.base.AbstractDAO;
 import org.sigmah.server.domain.Contact;
+import org.sigmah.server.domain.ContactModel;
 import org.sigmah.shared.dto.referential.ContactModelType;
 
 public class ContactHibernateDAO extends AbstractDAO<Contact, Integer> implements ContactDAO {
@@ -140,6 +143,13 @@ public class ContactHibernateDAO extends AbstractDAO<Contact, Integer> implement
     criteriaQuery.orderBy(criteriaBuilder.asc(contactRoot.get("name")));
 
     return em().createQuery(criteriaQuery).getResultList();
+  }
+
+  @Override
+  public List<Contact> getContacts(final Collection<ContactModel> cmodels) {
+    final TypedQuery<Contact> query = em().createQuery("FROM Contact c WHERE c.contactModel IN (:cmodels)", Contact.class);
+    query.setParameter("cmodels", cmodels);
+    return query.getResultList();
   }
 
   @Override

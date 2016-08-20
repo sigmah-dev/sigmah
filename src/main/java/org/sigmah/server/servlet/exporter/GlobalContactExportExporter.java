@@ -32,13 +32,14 @@ import javax.persistence.EntityManager;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
+import com.google.inject.Injector;
 import org.sigmah.client.page.RequestParameter;
 import org.sigmah.server.dao.impl.GlobalExportSettingsHibernateDAO;
 import org.sigmah.server.domain.export.GlobalExportSettings;
 import org.sigmah.server.servlet.base.ServletExecutionContext;
 import org.sigmah.server.servlet.exporter.base.Exporter;
 import org.sigmah.server.servlet.exporter.data.GlobalExportData;
-import org.sigmah.server.servlet.exporter.data.GlobalExportDataProjectProvider;
+import org.sigmah.server.servlet.exporter.data.GlobalExportDataContactProvider;
 import org.sigmah.server.servlet.exporter.data.cells.GlobalExportDataCell;
 import org.sigmah.server.servlet.exporter.template.ExportTemplate;
 import org.sigmah.server.servlet.exporter.template.GlobalExportCalcTemplate;
@@ -47,21 +48,14 @@ import org.sigmah.shared.util.ExportUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.inject.Injector;
-
-/**
- * Exporter for Projects list exportation
- * 
- * @author sherzod (v1.3)
- */
-public class GlobalExportExporter extends Exporter {
+public class GlobalContactExportExporter extends Exporter {
 
 	/**
 	 * Logger.
 	 */
-	private static final Logger LOG = LoggerFactory.getLogger(GlobalExportExporter.class);
+	private static final Logger LOG = LoggerFactory.getLogger(GlobalContactExportExporter.class);
 
-	public GlobalExportExporter(final Injector injector, final HttpServletRequest req, ServletExecutionContext context) throws Exception {
+	public GlobalContactExportExporter(final Injector injector, final HttpServletRequest req, ServletExecutionContext context) throws Exception {
 		super(injector, req, context);
 	}
 
@@ -119,7 +113,7 @@ public class GlobalExportExporter extends Exporter {
 	private GlobalExportData prepareData() throws Exception {
 
 		Map<String, List<GlobalExportDataCell[]>> exportData = null;
-		final GlobalExportDataProjectProvider dataProvider = injector.getInstance(GlobalExportDataProjectProvider.class);
+		final GlobalExportDataContactProvider dataProvider = injector.getInstance(GlobalExportDataContactProvider.class);
 		final EntityManager em = injector.getInstance(EntityManager.class);
 
 		Integer organizationId = Integer.parseInt(requireParameter(RequestParameter.ID));

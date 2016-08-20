@@ -167,6 +167,8 @@ public class Sigmah implements EntryPoint {
 		injector.getProjectIndicatorMapPresenter();
 		injector.getEditIndicatorPresenter();
 		injector.getEditSitePresenter();
+		injector.getExportContactsPresenter();
+		injector.getExportContactsSettingPresenter();
 		injector.getExportProjectsPresenter();
 		injector.getExportProjectsSettingPresenter();
 		injector.getProjectCoreRenameVersionPresenter();

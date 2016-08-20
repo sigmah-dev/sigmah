@@ -67,6 +67,8 @@ import org.sigmah.client.ui.presenter.contact.ContactDetailsPresenter;
 import org.sigmah.client.ui.presenter.contact.ContactHistoryPresenter;
 import org.sigmah.client.ui.presenter.contact.ContactPresenter;
 import org.sigmah.client.ui.presenter.contact.ContactRelationshipsPresenter;
+import org.sigmah.client.ui.presenter.contact.export.ExportContactsPresenter;
+import org.sigmah.client.ui.presenter.contact.export.ExportContactsSettingPresenter;
 import org.sigmah.client.ui.presenter.importation.ImportationPresenter;
 import org.sigmah.client.ui.presenter.orgunit.OrgUnitCalendarPresenter;
 import org.sigmah.client.ui.presenter.orgunit.OrgUnitDashboardPresenter;
@@ -234,6 +236,10 @@ public interface Injector extends Ginjector {
 	EditIndicatorPresenter getEditIndicatorPresenter();
 
 	EditSitePresenter getEditSitePresenter();
+
+	ExportContactsPresenter getExportContactsPresenter();
+
+	ExportContactsSettingPresenter getExportContactsSettingPresenter();
 
 	ExportProjectsPresenter getExportProjectsPresenter();
 

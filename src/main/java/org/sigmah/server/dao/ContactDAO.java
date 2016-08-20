@@ -21,11 +21,13 @@ package org.sigmah.server.dao;
  * #L%
  */
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
 import org.sigmah.server.dao.base.DAO;
 import org.sigmah.server.domain.Contact;
+import org.sigmah.server.domain.ContactModel;
 import org.sigmah.shared.dto.referential.ContactModelType;
 
 public interface ContactDAO extends DAO<Contact, Integer> {
@@ -40,6 +42,8 @@ public interface ContactDAO extends DAO<Contact, Integer> {
                                                    boolean onlyWithoutUsers, boolean withEmailNotNull, Set<Integer> orgUnitsIds);
 
   List<Contact> findContactsByEmailOrSimilarName(Integer organizationId, Integer contactId, String email, String firstName, String name);
+
+  List<Contact> getContacts(final Collection<ContactModel> cmodels);
 
   List<Contact> findByDirectMembership(Integer directMembershipId);
 

@@ -36,11 +36,13 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.sigmah.server.dao.GlobalExportDAO;
 import org.sigmah.server.dao.impl.GlobalExportHibernateDAO;
+import org.sigmah.server.domain.export.GlobalContactExport;
+import org.sigmah.server.domain.export.GlobalContactExportSettings;
 import org.sigmah.server.domain.export.GlobalExport;
 import org.sigmah.server.domain.export.GlobalExportSettings;
 import org.sigmah.server.i18n.I18nServer;
+import org.sigmah.server.servlet.exporter.data.GlobalExportDataContactProvider;
 import org.sigmah.server.servlet.exporter.data.GlobalExportDataProjectProvider;
-import org.sigmah.server.servlet.exporter.data.GlobalExportDataProvider;
 import org.sigmah.server.servlet.exporter.data.cells.GlobalExportDataCell;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -83,7 +85,10 @@ public class AutoExportJob implements Job {
 			tx.begin();
 
 			final GlobalExportDAO exportDAO = injector.getInstance(GlobalExportHibernateDAO.class);
-			final GlobalExportDataProvider dataProvider = injector.getInstance(GlobalExportDataProjectProvider.class);
+
+			// PROJECTS
+
+			final GlobalExportDataProjectProvider dataProvider = injector.getInstance(GlobalExportDataProjectProvider.class);
 
 			final List<GlobalExportSettings> settings = exportDAO.getGlobalExportSettings();
 			for (final GlobalExportSettings setting : settings) {
@@ -165,6 +170,103 @@ public class AutoExportJob implements Job {
 				}
 
 			}
+
+			// CONTACTS
+
+			final GlobalExportDataContactProvider dataContactProvider = injector.getInstance(GlobalExportDataContactProvider.class);
+
+			final List<GlobalContactExportSettings> settingsContacts = exportDAO.getGlobalContactExportSettings();
+			for (final GlobalContactExportSettings settingContacts : settingsContacts) {
+
+				/**
+				 * Check for auto export schedule
+				 */
+
+				// skip if no export schedule is specified
+				if (settingContacts.getAutoExportFrequency() == null || settingContacts.getAutoExportFrequency() < 1)
+					continue;
+
+				final Calendar systemCalendar = Calendar.getInstance();
+
+				boolean doExport = false;
+
+				if ((settingContacts.getAutoExportFrequency() >= 31) && (settingContacts.getAutoExportFrequency() <= 58)) {
+
+					// Case of Monthly Auto Export
+					if ((settingContacts.getAutoExportFrequency() - 30) == systemCalendar.get(Calendar.DAY_OF_MONTH)) {
+						doExport = true;
+					}
+				} else if ((settingContacts.getAutoExportFrequency() >= 61) && (settingContacts.getAutoExportFrequency() <= 67)) {
+
+					// Case of Weekly Auto Export
+					if ((settingContacts.getAutoExportFrequency() - 60) == systemCalendar.get(Calendar.DAY_OF_WEEK)) {
+						doExport = true;
+					}
+
+				} else {
+					// Regular Auto-Export every N-days
+
+					final Calendar scheduledCalendar = Calendar.getInstance();
+					Date lastExportDate = settingContacts.getLastExportDate();
+
+					if (lastExportDate == null) {
+
+						lastExportDate = systemCalendar.getTime();
+						settingContacts.setLastExportDate(lastExportDate);
+						em.merge(settingContacts);
+
+					} else {
+						scheduledCalendar.setTime(lastExportDate);
+						// add scheduled days to the last exported date
+						scheduledCalendar.add(Calendar.DAY_OF_MONTH, settingContacts.getAutoExportFrequency());
+					}
+
+					final Date systemDate = getZeroTimeDate(systemCalendar.getTime());
+					final Date scheduledDate = getZeroTimeDate(scheduledCalendar.getTime());
+
+					if (systemDate.compareTo(scheduledDate) >= 0) {
+						doExport = true;
+					}
+
+				}
+
+				if (doExport) {
+
+					/**
+					 * Start auto export
+					 */
+
+					// persist global export logger
+					final GlobalContactExport globalContactExport = new GlobalContactExport();
+					globalContactExport.setOrganization(settingContacts.getOrganization());
+					globalContactExport.setDate(systemCalendar.getTime());
+					em.persist(globalContactExport);
+
+					em.flush();
+
+					// generate export content
+
+					final Map<String, List<GlobalExportDataCell[]>> exportData =
+							dataProvider.generateGlobalExportData(settingContacts.getOrganization().getId(), em, injector.getInstance(I18nServer.class), null, null);
+
+					// persist export content
+					dataContactProvider.persistGlobalExportDataAsCsv(globalContactExport, em, exportData);
+
+				}
+
+			}
+
+
+
+
+
+
+
+
+
+
+
+
 			tx.commit();
 
 			LOG.info("Scheduled EXPORT of global exports fired");

@@ -35,6 +35,7 @@ import org.sigmah.shared.dto.element.FlexibleElementDTO;
 import org.sigmah.shared.dto.layout.LayoutConstraintDTO;
 import org.sigmah.shared.dto.layout.LayoutGroupDTO;
 import org.sigmah.shared.dto.referential.ContactModelType;
+import org.sigmah.shared.dto.referential.ElementTypeEnum;
 import org.sigmah.shared.dto.referential.ProjectModelStatus;
 
 public class ContactModelDTO extends AbstractModelDataEntityDTO<Integer> implements IsModel {
@@ -321,5 +322,49 @@ public class ContactModelDTO extends AbstractModelDataEntityDTO<Integer> impleme
   private boolean isElementIncompatibleWithCurrentType(FlexibleElementDTO flexibleElementDTO) {
     return flexibleElementDTO instanceof DefaultContactFlexibleElementDTO &&
         !((DefaultContactFlexibleElementDTO) flexibleElementDTO).getType().isVisibleForType(getType());
+  }
+
+  /**
+   * Returns the current contact model corresponding global export elements.<br>
+   * Only the following types of elements are returned:
+   * <ul>
+   * <li>{@link ElementTypeEnum#DEFAULT_CONTACT}</li>
+   * <li>{@link ElementTypeEnum#CHECKBOX}</li>
+   * <li>{@link ElementTypeEnum#TEXT_AREA}</li>
+   * <li>{@link ElementTypeEnum#TRIPLETS}</li>
+   * <li>{@link ElementTypeEnum#QUESTION}</li>
+   * </ul>
+   *
+   * @return The current contact model corresponding global export elements.
+   */
+  public List<FlexibleElementDTO> getGlobalExportElements() {
+
+    final List<FlexibleElementDTO> allElements = new ArrayList<FlexibleElementDTO>();
+
+    // add details groups
+    final ContactDetailsDTO p = getDetails();
+    p.setName();
+    setDetails(p);
+    if (getDetails().getLayout() != null) {
+      for (final LayoutGroupDTO lg : getDetails().getLayout().getGroups()) {
+        for (final LayoutConstraintDTO lc : lg.getConstraints()) {
+          final FlexibleElementDTO element = lc.getFlexibleElementDTO();
+          element.setGroup(lg);
+          element.setConstraint(lc);
+          element.setContainerModel(getDetails());
+
+          final ElementTypeEnum type = element.getElementType();
+          if (ElementTypeEnum.DEFAULT_CONTACT == type
+              || ElementTypeEnum.CHECKBOX == type
+              || ElementTypeEnum.TEXT_AREA == type
+              || ElementTypeEnum.TRIPLETS == type
+              || ElementTypeEnum.QUESTION == type) {
+            allElements.add(element);
+          }
+        }
+      }
+    }
+
+    return allElements;
   }
 }

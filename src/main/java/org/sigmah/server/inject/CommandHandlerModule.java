@@ -89,7 +89,9 @@ public class CommandHandlerModule extends AbstractCommandHandlerModule {
 		bindHandler(GetCountry.class, GetCountryHandler.class);
 		bindHandler(GetFilesFromFavoriteProjects.class, GetFilesFromFavoriteProjectsHandler.class);
 		bindHandler(GetFrameworkFulfillmentsByProjectModelId.class, GetFrameworkFulfillmentsByProjectModelIdHandler.class);
+		bindHandler(GetGlobalContactExportSettings.class, GetGlobalContactExportSettingsHandler.class);
 		bindHandler(GetGlobalExportSettings.class, GetGlobalExportSettingsHandler.class);
+		bindHandler(GetGlobalContactExports.class, GetGlobalContactExportsHandler.class);
 		bindHandler(GetGlobalExports.class, GetGlobalExportsHandler.class);
 		bindHandler(GetHistory.class, GetHistoryHandler.class);
 		bindHandler(GetImportationSchemeModels.class, GetImportationSchemeModelsHandler.class);
@@ -156,6 +158,7 @@ public class CommandHandlerModule extends AbstractCommandHandlerModule {
 		bindHandler(Synchronize.class, SynchronizeHandler.class);
 		bindHandler(UpdateContact.class, UpdateContactHandler.class);
 		bindHandler(UpdateEntity.class, UpdateEntityHandler.class);
+		bindHandler(UpdateGlobalContactExportSettingsCommand.class, UpdateGlobalContactExportSettingsHandler.class);
 		bindHandler(UpdateGlobalExportSettingsCommand.class, UpdateGlobalExportSettingsHandler.class);
 		bindHandler(UpdateLayoutGroupIterations.class, UpdateLayoutGroupIterationsHandler.class);
 		bindHandler(UpdateLogFrame.class, UpdateLogFrameHandler.class);

@@ -294,6 +294,18 @@ public final class ServletConstants {
 		EXPORT_GLOBAL("exportGlobal"),
 
 		/**
+		 * <p> Global Export Contacts. </p>
+		 * <p>
+		 * Expected request parameter(s):
+		 * <ul>
+		 * <li>{@link RequestParameter#ID} : Organization id.</li>
+		 * <li>{@link RequestParameter#GLOBAL_EXPORT_ID} : Global Export id.</li>
+		 * <li>{@link RequestParameter#VERSION} : {@link ExportDataVersion} .</li>
+		 * </ul>
+		 */
+		EXPORT_CONTACT_GLOBAL("exportContactGlobal"),
+
+		/**
 		 * <p> Model Gategory Export.</p>
 		 * <p>
 		 * Expected request parameter(s):

@@ -27,20 +27,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 
 import javax.persistence.EntityManager;
 
 import org.sigmah.server.domain.category.CategoryElement;
 import org.sigmah.server.domain.category.CategoryType;
-import org.sigmah.server.domain.export.GlobalExport;
-import org.sigmah.server.domain.export.GlobalExportContent;
 import org.sigmah.server.i18n.I18nServer;
 import org.sigmah.server.servlet.base.ServletExecutionContext;
 import org.sigmah.server.servlet.exporter.data.cells.GlobalExportDataCell;
 import org.sigmah.server.servlet.exporter.data.cells.GlobalExportStringCell;
-import org.sigmah.server.servlet.exporter.utils.CsvBuilder;
-import org.sigmah.server.servlet.exporter.utils.CsvParser;
 import org.sigmah.shared.Language;
 
 import com.google.inject.Singleton;
@@ -52,51 +47,6 @@ import com.google.inject.Singleton;
  */
 @Singleton
 public abstract class GlobalExportDataProvider {
-
-	private final CsvBuilder csvBuilder;
-	private final CsvParser csvParser;
-
-	public GlobalExportDataProvider() {
-		this.csvBuilder = new CsvBuilder();
-		this.csvParser = new CsvParser();
-	}
-
-	public void persistGlobalExportDataAsCsv(final GlobalExport globalExport, EntityManager em, Map<String, List<GlobalExportDataCell[]>> exportData) throws Exception {
-		for (final String pModelName : exportData.keySet()) {
-			final GlobalExportContent content = new GlobalExportContent();
-			content.setGlobalExport(globalExport);
-			content.setProjectModelName(pModelName);
-			content.setCsvContent(csvBuilder.buildCsv(exportData.get(pModelName)));
-			em.persist(content);
-		}
-	}
-
-	public Map<String, List<GlobalExportDataCell[]>> getBackedupGlobalExportData(EntityManager em, Integer gExportId) {
-		final Map<String, List<GlobalExportDataCell[]>> exportData = new TreeMap<String, List<GlobalExportDataCell[]>>();
-		final GlobalExport export = em.find(GlobalExport.class, gExportId);
-		final List<GlobalExportContent> contents = export.getContents();
-		for (final GlobalExportContent content : contents) {
-			final List<String[]> csvData = csvParser.parseCsv(content.getCsvContent());
-			exportData.put(content.getProjectModelName(), CSVDataToGlobalExportData(csvData));
-		}
-		return exportData;
-	}
-
-	private List<GlobalExportDataCell[]> CSVDataToGlobalExportData(List<String[]> csvData) {
-		List<GlobalExportDataCell[]> globalExportData = new ArrayList<>();
-
-		for(String[] line : csvData) {
-			GlobalExportDataCell[] convertedLine = new GlobalExportDataCell[line.length];
-
-			for(int i = 0; i < line.length; i++) {
-				convertedLine[i] = new GlobalExportStringCell(line[i]);
-			}
-
-			globalExportData.add(convertedLine);
-		}
-
-		return globalExportData;
-	}
 
 	public abstract Map<String, List<GlobalExportDataCell[]>> generateGlobalExportData(final Integer organizationId, EntityManager entityManager, final I18nServer i18nTranslator,
 			final Language language, final ServletExecutionContext context) throws Exception;

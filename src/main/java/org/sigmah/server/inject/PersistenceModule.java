@@ -30,7 +30,6 @@ import org.sigmah.server.dao.*;
 import org.sigmah.server.dao.impl.*;
 import org.sigmah.server.dao.util.SQLDialect;
 import org.sigmah.server.dao.util.SQLDialectProvider;
-import org.sigmah.server.domain.FrameworkFulfillment;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +39,6 @@ import com.google.inject.Singleton;
 import com.google.inject.persist.jpa.JpaPersistModule;
 import org.sigmah.server.dao.PivotDAO;
 import org.sigmah.server.dao.impl.PivotHibernateDAO;
-import org.sigmah.server.domain.value.TripletValue;
 
 /**
  * Abstract module providing methods to install the DAO-layer interfaces.
@@ -87,6 +85,7 @@ public class PersistenceModule extends AbstractModule {
 		bind(FlexibleElementDAO.class).to(FlexibleElementHibernateDAO.class).in(Singleton.class);
 		bind(FrameworkDAO.class).to(FrameworkHibernateDAO.class).in(Singleton.class);
 		bind(FrameworkFulfillmentDAO.class).to(FrameworkFulfillmentHibernateDAO.class).in(Singleton.class);
+		bind(GlobalContactExportSettingsDAO.class).to(GlobalContactExportSettingsHibernateDAO.class).in(Singleton.class);
 		bind(GlobalExportDAO.class).to(GlobalExportHibernateDAO.class).in(Singleton.class);
 		bind(GlobalExportSettingsDAO.class).to(GlobalExportSettingsHibernateDAO.class).in(Singleton.class);
 		bind(HistoryTokenDAO.class).to(HistoryTokenHibernateDAO.class).in(Singleton.class);

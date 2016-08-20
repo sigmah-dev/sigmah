@@ -30,12 +30,14 @@ import java.util.Set;
 
 import javax.persistence.EntityManager;
 
+import org.sigmah.server.domain.Contact;
 import org.sigmah.server.domain.Country;
 import org.sigmah.server.domain.OrgUnit;
 import org.sigmah.server.domain.Project;
 import org.sigmah.server.domain.User;
 import org.sigmah.server.domain.category.CategoryType;
 import org.sigmah.server.domain.element.BudgetElement;
+import org.sigmah.server.domain.element.DefaultContactFlexibleElement;
 import org.sigmah.server.domain.element.DefaultFlexibleElement;
 import org.sigmah.server.domain.element.FlexibleElement;
 import org.sigmah.server.domain.element.QuestionChoiceElement;
@@ -53,8 +55,10 @@ import org.sigmah.server.servlet.exporter.data.columns.GlobalExportFlexibleEleme
 import org.sigmah.server.servlet.exporter.data.columns.GlobalExportIterativeGroupColumn;
 import org.sigmah.shared.Language;
 import org.sigmah.shared.command.result.ValueResult;
+import org.sigmah.shared.dto.element.DefaultContactFlexibleElementDTO;
 import org.sigmah.shared.dto.element.DefaultFlexibleElementDTO;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
+import org.sigmah.shared.dto.referential.DefaultContactFlexibleElementType;
 import org.sigmah.shared.dto.referential.DefaultFlexibleElementType;
 import org.sigmah.shared.dto.referential.TextAreaType;
 import org.sigmah.shared.dto.value.ListableValue;
@@ -77,6 +81,8 @@ public class ExporterUtil {
 			fleName = fleDTO.getLabel();
 		} else if (fleDTO instanceof DefaultFlexibleElementDTO) {
 			fleName = getFlexibleElementLabel(((DefaultFlexibleElementDTO) fleDTO).getType(), i18nTranslator, language);
+		} else if (fleDTO instanceof DefaultContactFlexibleElementDTO) {
+			fleName = getDefaultContactFlexibleElementLabel(((DefaultContactFlexibleElementDTO) fleDTO).getType(), i18nTranslator, language);
 		}
 		return fleName;
 	}
@@ -95,6 +101,8 @@ public class ExporterUtil {
 			fleName = fle.getLabel();
 		} else if (fle instanceof DefaultFlexibleElement) {
 			fleName = getFlexibleElementLabel(((DefaultFlexibleElement) fle).getType(), i18nTranslator, language);
+		} else if (fle instanceof DefaultContactFlexibleElement) {
+			fleName = getDefaultContactFlexibleElementLabel(((DefaultContactFlexibleElement) fle).getType(), i18nTranslator, language);
 		}
 		return fleName;
 	}
@@ -136,6 +144,65 @@ public class ExporterUtil {
 				break;
 			case TITLE:
 				fleName = i18nTranslator.t(language, "projectFullName");
+				break;
+			default:
+				break;
+		}
+		return fleName;
+	}
+
+	/**
+	 * Gets the label of the default contact flexible element type
+	 *
+	 * @param type
+	 * @param i18nTranslator
+	 * @param language
+	 * @return The default contact flexible element i18n label.
+	 */
+	public static String getDefaultContactFlexibleElementLabel(DefaultContactFlexibleElementType type, I18nServer i18nTranslator, final Language language) {
+		String fleName = null;
+		switch (type) {
+			case FAMILY_NAME:
+				fleName = i18nTranslator.t(language, "contactFamilyName");
+				break;
+			case FIRST_NAME:
+				fleName = i18nTranslator.t(language, "contactFirstName");
+				break;
+			case ORGANIZATION_NAME:
+				fleName = i18nTranslator.t(language, "contactOrganizationName");
+				break;
+			case MAIN_ORG_UNIT:
+				fleName = i18nTranslator.t(language, "contactMainOrgUnit");
+				break;
+			case SECONDARY_ORG_UNITS:
+				fleName = i18nTranslator.t(language, "contactSecondaryOrgUnits");
+				break;
+			case CREATION_DATE:
+				fleName = i18nTranslator.t(language, "contactCreationDate");
+				break;
+			case LOGIN:
+				fleName = i18nTranslator.t(language, "contactLogin");
+				break;
+			case EMAIL_ADDRESS:
+				fleName = i18nTranslator.t(language, "contactEmailAddress");
+				break;
+			case PHONE_NUMBER:
+				fleName = i18nTranslator.t(language, "contactPhoneNumber");
+				break;
+			case POSTAL_ADDRESS:
+				fleName = i18nTranslator.t(language, "contactPostalAddress");
+				break;
+			case PHOTO:
+				fleName = i18nTranslator.t(language, "contactPhoto");
+				break;
+			case COUNTRY:
+				fleName = i18nTranslator.t(language, "contactCountry");
+				break;
+			case DIRECT_MEMBERSHIP:
+				fleName = i18nTranslator.t(language, "contactDirectMembership");
+				break;
+			case TOP_MEMBERSHIP:
+				fleName = i18nTranslator.t(language, "contactTopMembership");
 				break;
 			default:
 				break;
@@ -615,32 +682,6 @@ public class ExporterUtil {
 			}
 			break;
 
-			case BUDGET: {
-				BudgetElement budgetElement = (BudgetElement) element;
-
-				Double plannedBudget = 0d;
-				Double spentBudget = 0d;
-				if (hasValue) {
-					final Map<Integer, String> values = ValueResultUtils.splitMapElements(valueResult.getValueObject());
-
-					if (budgetElement.getRatioDividend() != null) {
-						if (values.get(budgetElement.getRatioDividend().getId()) != null) {
-							spentBudget = Double.valueOf(values.get(budgetElement.getRatioDividend().getId()));
-
-						}
-					}
-
-					if (budgetElement.getRatioDivisor() != null) {
-						if (values.get(budgetElement.getRatioDivisor().getId()) != null) {
-							plannedBudget = Double.valueOf(values.get(budgetElement.getRatioDivisor().getId()));
-
-						}
-					}
-				}
-				value = spentBudget + " / " + plannedBudget;
-			}
-			break;
-
 			case COUNTRY: {
 				if (hasValue) {
 					int countryId = Integer.parseInt(valueResult.getValueObject());
@@ -666,6 +707,182 @@ public class ExporterUtil {
 				if (parentOrgUnit == null)
 					parentOrgUnit = orgUnit;
 				value = parentOrgUnit.getName() + " - " + parentOrgUnit.getFullName();
+			}
+			break;
+
+			default:
+				break;
+		}
+		return new ValueLabel(label, value);
+	}
+
+	public static ValueLabel getDefElementPair(final ValueResult valueResult, final FlexibleElement element, final Contact contact, final EntityManager entityManager,
+																						 final I18nServer i18nTranslator, final Language language) {
+		Object value = null;
+		String label = ExporterUtil.getFlexibleElementLabel(element, i18nTranslator, language);
+
+		final DefaultContactFlexibleElement defaultElement = (DefaultContactFlexibleElement) element;
+
+		boolean hasValue = valueResult != null && valueResult.isValueDefined();
+
+		switch (defaultElement.getType()) {
+
+			case FAMILY_NAME: {
+				if (hasValue) {
+					value = valueResult.getValueObject();
+				} else {
+					value = contact.getName();
+				}
+			}
+			break;
+
+			case FIRST_NAME: {
+				if (hasValue) {
+					value = valueResult.getValueObject();
+				} else {
+					value = contact.getFirstname();
+				}
+			}
+			break;
+
+			case ORGANIZATION_NAME: {
+				if (hasValue) {
+					value = valueResult.getValueObject();
+				} else {
+					value = contact.getOrganization() != null ? contact.getOrganization().getName() : null;
+				}
+			}
+			break;
+
+			case MAIN_ORG_UNIT: {
+				int orgUnitId = -1;
+				if (hasValue) {
+					orgUnitId = Integer.parseInt(valueResult.getValueObject());
+				} else {
+					orgUnitId = contact.getMainOrgUnit().getId();
+				}
+				OrgUnit orgUnit = entityManager.find(OrgUnit.class, orgUnitId);
+				if (orgUnit != null) {
+					value = orgUnit.getName() + " - " + orgUnit.getFullName();
+				}
+			}
+			break;
+
+			case SECONDARY_ORG_UNITS: {
+				List<OrgUnit> orgUnits = new ArrayList<>();
+				if (hasValue) {
+					List<Integer> orgUnitsIds = ValueResultUtils.splitValuesAsInteger(valueResult.getValueObject());
+					for (Integer id : orgUnitsIds) {
+						OrgUnit unit = entityManager.find(OrgUnit.class, id);
+						if (unit != null)
+							orgUnits.add(unit);
+					}
+				} else {
+					orgUnits = contact.getSecondaryOrgUnits();
+				}
+				String val = "";
+				for (OrgUnit unit : orgUnits) {
+					val += unit.getName() + " - " + unit.getFullName() + "\n";
+				}
+				if (!val.isEmpty()) {
+					value = val.substring(0, val.length() - 1);
+				}
+			}
+			break;
+
+			case CREATION_DATE: {
+				if (hasValue) {
+					value = new Date(Long.parseLong(valueResult.getValueObject()));
+				} else {
+					value = contact.getDateCreated();
+				}
+			}
+			break;
+
+			case LOGIN: {
+				if (hasValue) {
+					value = valueResult.getValueObject();
+				} else {
+					value = contact.getLogin();
+				}
+			}
+			break;
+
+			case EMAIL_ADDRESS: {
+				if (hasValue) {
+					value = valueResult.getValueObject();
+				} else {
+					value = contact.getEmail();
+				}
+			}
+			break;
+
+			case PHONE_NUMBER: {
+				if (hasValue) {
+					value = valueResult.getValueObject();
+				} else {
+					value = contact.getPhoneNumber();
+				}
+			}
+			break;
+
+			case POSTAL_ADDRESS: {
+				if (hasValue) {
+					value = valueResult.getValueObject();
+				} else {
+					value = contact.getPostalAddress();
+				}
+			}
+			break;
+
+			case PHOTO: {
+				if (hasValue) {
+					value = valueResult.getValueObject();
+				} else {
+					value = contact.getPhoto();
+				}
+			}
+			break;
+
+			case COUNTRY: {
+				if (hasValue) {
+					int countryId = Integer.parseInt(valueResult.getValueObject());
+					value = entityManager.find(Country.class, countryId).getName();
+				} else {
+					value = contact.getCountry() != null ? contact.getCountry().getName() : null;
+				}
+			}
+			break;
+
+			case DIRECT_MEMBERSHIP: {
+				int orgUnitId = -1;
+				if (hasValue) {
+					orgUnitId = Integer.parseInt(valueResult.getValueObject());
+				} else {
+					if (contact.getParent() != null) {
+						orgUnitId = contact.getParent().getId();
+					}
+				}
+				OrgUnit orgUnit = entityManager.find(OrgUnit.class, orgUnitId);
+				if (orgUnit != null) {
+					value = orgUnit.getName() + " - " + orgUnit.getFullName();
+				}
+			}
+			break;
+
+			case TOP_MEMBERSHIP: {
+				int orgUnitId = -1;
+				if (hasValue) {
+					orgUnitId = Integer.parseInt(valueResult.getValueObject());
+				} else {
+					if (contact.getRoot() != null) {
+						orgUnitId = contact.getRoot().getId();
+					}
+				}
+				OrgUnit orgUnit = entityManager.find(OrgUnit.class, orgUnitId);
+				if (orgUnit != null) {
+					value = orgUnit.getName() + " - " + orgUnit.getFullName();
+				}
 			}
 			break;
 

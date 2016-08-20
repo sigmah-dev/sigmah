@@ -171,7 +171,9 @@ final class AccessRights {
 		sperm(commandToken(GetCountry.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetFilesFromFavoriteProjects.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetFrameworkFulfillmentsByProjectModelId.class), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.MANAGE_PROJECT_MODELS);
+		sperm(commandToken(GetGlobalContactExportSettings.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetGlobalExportSettings.class), GrantType.AUTHENTICATED_ONLY);
+		sperm(commandToken(GetGlobalContactExports.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetGlobalExports.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetHistory.class), GrantType.AUTHENTICATED_ONLY);
 		// TODO: Add the missing commands

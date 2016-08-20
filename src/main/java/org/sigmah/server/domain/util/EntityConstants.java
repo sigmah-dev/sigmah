@@ -404,6 +404,7 @@ public final class EntityConstants extends org.sigmah.shared.dto.util.EntityCons
 	// --------------------------------------------------------------------------------
 
 	public static final String GLOBAL_EXPORT_TABLE = "global_export";
+	public static final String GLOBAL_CONTACT_EXPORT_TABLE = "global_contact_export";
 	public static final String GLOBAL_EXPORT_COLUMN_ID = "id";
 	public static final String GLOBAL_EXPORT_COLUMN_DATE = "generated_date";
 	// TODO Replace with 'Organization' id column.
@@ -416,8 +417,10 @@ public final class EntityConstants extends org.sigmah.shared.dto.util.EntityCons
 	// --------------------------------------------------------------------------------
 
 	public static final String GLOBAL_EXPORT_CONTENT_TABLE = "global_export_content";
+	public static final String GLOBAL_CONTACT_EXPORT_CONTENT_TABLE = "global_contact_export_content";
 	public static final String GLOBAL_EXPORT_CONTENT_COLUMN_ID = "id";
 	public static final String GLOBAL_EXPORT_CONTENT_COLUMN_PROJECT_MODEL_NAME = "project_model_name";
+	public static final String GLOBAL_EXPORT_CONTENT_COLUMN_CONTACT_MODEL_NAME = "contact_model_name";
 	public static final String GLOBAL_EXPORT_CONTENT_COLUMN_CSV_CONTENT = "csv_content";
 	// TODO Replace with 'GlobalExport' id column.
 	public static final String GLOBAL_EXPORT_CONTENT_COLUMN_GLOBAL_EXPORT_ID = "global_export_id";
@@ -431,6 +434,7 @@ public final class EntityConstants extends org.sigmah.shared.dto.util.EntityCons
 	// --------------------------------------------------------------------------------
 
 	public static final String GLOBAL_EXPORT_SETTINGS_TABLE = "global_export_settings";
+	public static final String GLOBAL_CONTACT_EXPORT_SETTINGS_TABLE = "global_contact_export_settings";
 	public static final String GLOBAL_EXPORT_SETTINGS_COLUMN_ID = "id";
 	public static final String GLOBAL_EXPORT_SETTINGS_COLUMN_EXPORT_FORMAT = "export_format";
 	public static final String GLOBAL_EXPORT_SETTINGS_COLUMN_DEFAULT_ORG_EXPORT_FORMAT = "default_organization_export_format";

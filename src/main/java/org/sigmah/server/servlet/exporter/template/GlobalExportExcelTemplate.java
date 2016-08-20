@@ -74,12 +74,16 @@ public class GlobalExportExcelTemplate implements ExportTemplate {
 				if (header[i] instanceof GlobalExportStringCell) {
 					GlobalExportStringCell cell = (GlobalExportStringCell)header[i];
 					utils.putGlobalExportHeader(row, i, cell.getText());
-					width = cell.getText().length() / 2;
+					if(cell.getText() != null) {
+						width = cell.getText().length() / 2;
+					}
 				} else if (header[i] instanceof GlobalExportLinkCell) {
 					// no links on headers for the moment
 					GlobalExportLinkCell cell = (GlobalExportLinkCell)header[i];
 					utils.putGlobalExportHeader(row, i, cell.getText());
-					width = cell.getText().length() / 2;
+					if(cell.getText() != null) {
+						width = cell.getText().length() / 2;
+					}
 				}
 				if (width != -1) {
 					headerWidthMap.put(i, width);

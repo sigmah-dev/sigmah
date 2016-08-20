@@ -17,7 +17,7 @@ package org.sigmah.server.servlet.exporter.data;
  * GNU General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public
- * License along with this program.  If not, see
+ * License along with t his program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
@@ -37,20 +37,17 @@ import javax.persistence.EntityManager;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
+import org.sigmah.server.dao.ContactDAO;
 import org.sigmah.server.dao.GlobalExportDAO;
-import org.sigmah.server.dao.ProjectDAO;
 import org.sigmah.server.dao.impl.GlobalExportHibernateDAO;
 import org.sigmah.server.dispatch.CommandHandler;
-import org.sigmah.server.domain.Organization;
-import org.sigmah.server.domain.PhaseModel;
-import org.sigmah.server.domain.Project;
-import org.sigmah.server.domain.ProjectFunding;
-import org.sigmah.server.domain.ProjectModel;
+import org.sigmah.server.domain.Contact;
+import org.sigmah.server.domain.ContactModel;
 import org.sigmah.server.domain.category.CategoryType;
 import org.sigmah.server.domain.element.FlexibleElement;
 import org.sigmah.server.domain.element.QuestionElement;
-import org.sigmah.server.domain.export.GlobalExport;
-import org.sigmah.server.domain.export.GlobalExportContent;
+import org.sigmah.server.domain.export.GlobalContactExport;
+import org.sigmah.server.domain.export.GlobalContactExportContent;
 import org.sigmah.server.domain.layout.LayoutConstraint;
 import org.sigmah.server.domain.layout.LayoutGroup;
 import org.sigmah.server.handler.GetLayoutGroupIterationsHandler;
@@ -82,7 +79,7 @@ import org.slf4j.LoggerFactory;
  * @author sherzod (v1.3)
  */
 @Singleton
-public class GlobalExportDataProjectProvider extends GlobalExportDataProvider {
+public class GlobalExportDataContactProvider extends GlobalExportDataProvider {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(GlobalExportDataProvider.class);
 
@@ -91,7 +88,7 @@ public class GlobalExportDataProjectProvider extends GlobalExportDataProvider {
 	private final CsvParser csvParser;
 
 	@Inject
-	public GlobalExportDataProjectProvider(final Injector injector) {
+	public GlobalExportDataContactProvider(final Injector injector) {
 		super();
 		this.injector = injector;
 		this.csvBuilder = new CsvBuilder();
@@ -105,47 +102,40 @@ public class GlobalExportDataProjectProvider extends GlobalExportDataProvider {
 		}
 
 		final GlobalExportDAO exportDAO = injector.getInstance(GlobalExportHibernateDAO.class);
-		final Organization organization = entityManager.find(Organization.class, organizationId);
-		final List<ProjectModel> pModels = exportDAO.getProjectModelsByOrganization(organization);
+		final List<ContactModel> cModels = exportDAO.getContactModels();
 
-		final ProjectDAO projectDao = injector.getInstance(ProjectDAO.class);
-		final List<Project> projects = projectDao.getProjects(pModels);
+		final ContactDAO contactDao = injector.getInstance(ContactDAO.class);
+		final List<Contact> contacts = contactDao.getContacts(cModels);
 
-		// project model and its projects
-		final Map<String, List<Project>> pModelProjectsMap = new HashMap<String, List<Project>>();
-		for (final Project project : projects) {
-			if (project.getDateDeleted() == null) {
-				final String pModelName = project.getProjectModel().getName();
+		// contact model and its contacts
+		final Map<String, List<Contact>> pModelContactsMap = new HashMap<String, List<Contact>>();
+		for (final Contact contact : contacts) {
+			if (contact.getDateDeleted() == null) {
+				final String pModelName = contact.getContactModel().getName();
 
-				List<Project> pModelProjects = pModelProjectsMap.get(pModelName);
-				if (pModelProjects == null) {
-					pModelProjects = new ArrayList<Project>();
-					pModelProjectsMap.put(pModelName, pModelProjects);
+				List<Contact> pModelContacts = pModelContactsMap.get(pModelName);
+				if (pModelContacts == null) {
+					pModelContacts = new ArrayList<Contact>();
+					pModelContactsMap.put(pModelName, pModelContacts);
 				}
-				pModelProjects.add(project);
+				pModelContacts.add(contact);
 			}
 		}
 
-		// project model and its globally exportable fields
+		// contact model and its globally exportable fields
 		final Map<String, List<GlobalExportDataColumn>> pModelElementsMap = new TreeMap<String, List<GlobalExportDataColumn>>();
-		for (final ProjectModel projectModel : pModels) {
-			if (projectModel.getStatus() != ProjectModelStatus.DRAFT) {
-				final String pModelName = projectModel.getName();
+		for (final ContactModel contactModel : cModels) {
+			if (contactModel.getStatus() != ProjectModelStatus.DRAFT) {
+				final String pModelName = contactModel.getName();
 
 				final List<GlobalExportDataColumn> pModelElements = new ArrayList<GlobalExportDataColumn>();
 				pModelElementsMap.put(pModelName, pModelElements);
 
 				// detail elements
-				ExporterUtil.fillElementList(pModelElements, projectModel.getProjectDetails().getLayout());
-
-				// phase elements
-				for (final PhaseModel phaseModel : projectModel.getPhaseModels()) {
-					ExporterUtil.fillElementList(pModelElements, phaseModel.getLayout());
-				}
+				ExporterUtil.fillElementList(pModelElements, contactModel.getDetails().getLayout());
 			}
 		}
 
-		// final CommandHandler<GetValue, ValueResult> handler = new GetValueHandler();
 		final CommandHandler<GetValue, ValueResult> handler = injector.getInstance(GetValueHandler.class);
 		final CommandHandler<GetLayoutGroupIterations, ListResult<LayoutGroupIterationDTO>> iterationsHandler = injector.getInstance(GetLayoutGroupIterationsHandler.class);
 
@@ -159,7 +149,7 @@ public class GlobalExportDataProjectProvider extends GlobalExportDataProvider {
 
 			// if no project for a given project model, skip even headers for
 			// flexible elements
-			if (pModelProjectsMap.get(pModelName) == null)
+			if (pModelContactsMap.get(pModelName) == null)
 				continue;
 
 			final List<GlobalExportDataColumn> elements = pModelElementsMap.get(pModelName);
@@ -174,21 +164,15 @@ public class GlobalExportDataProjectProvider extends GlobalExportDataProvider {
 
 			// special fields for BI
 			titles.add(new GlobalExportStringCell(i18nTranslator.t(language, "permanentId")));
-			titles.add(new GlobalExportStringCell(i18nTranslator.t(language, "projectActivePhase")));
 
 			boolean isFirstLine = true;
 			// projects
-			for (final Project project : pModelProjectsMap.get(pModelName)) {
+			for (final Contact contact : pModelContactsMap.get(pModelName)) {
 
 				final List<GlobalExportDataCell> values = new ArrayList<GlobalExportDataCell>();
 
 				// special fields for BI
-				values.add(new GlobalExportStringCell(String.valueOf(project.getId())));
-				if (project.getCloseDate() == null) {
-					values.add(new GlobalExportStringCell(project.getCurrentPhase().getPhaseModel().getName()));
-				} else {
-					values.add(new GlobalExportStringCell(i18nTranslator.t(language, "closedProject")));
-				}
+				values.add(new GlobalExportStringCell(String.valueOf(contact.getId())));
 
 				// fields
 				for (final GlobalExportDataColumn column : elements) {
@@ -199,7 +183,7 @@ public class GlobalExportDataProjectProvider extends GlobalExportDataProvider {
 
 						// command to get element value
 						final String elementName = "element." + element.getClass().getSimpleName();
-						final GetValue command = new GetValue(project.getId(), element.getId(), elementName, null);
+						final GetValue command = new GetValue(contact.getId(), element.getId(), elementName, null);
 
 						try {
 
@@ -208,8 +192,8 @@ public class GlobalExportDataProjectProvider extends GlobalExportDataProvider {
 							// prepare value and label
 							ExporterUtil.ValueLabel pair = null;
 						  /* DEF FLEXIBLE */
-							if (elementName.equals("element.DefaultFlexibleElement")) {
-								pair = ExporterUtil.getDefElementPair(valueResult, element, project, entityManager, i18nTranslator, language);
+							if (elementName.equals("element.DefaultContactFlexibleElement")) {
+								pair = ExporterUtil.getDefElementPair(valueResult, element, contact, entityManager, i18nTranslator, language);
 
 							} else /* BUDGET */ if (elementName.equals("element.BudgetElement")) {
 								// budget is a special case where the element corresponds to 3 columns
@@ -247,7 +231,7 @@ public class GlobalExportDataProjectProvider extends GlobalExportDataProvider {
 							values.add(new GlobalExportStringCell(ExporterUtil.pairToValueString(pair)));
 
 						} catch (Exception e) {
-							LOGGER.error("Failed to get the value of element '" + element.getId() + "' of project '" + project.getId() + "'.", e);
+							LOGGER.error("Failed to get the value of element '" + element.getId() + "' of contact '" + contact.getId() + "'.", e);
 						}
 
 					} else if (column instanceof GlobalExportIterativeGroupColumn) {
@@ -268,7 +252,7 @@ public class GlobalExportDataProjectProvider extends GlobalExportDataProvider {
 
 						// command to get element value
 						final String groupName = pModelName + "_" + group.getTitle();
-						final GetLayoutGroupIterations command = new GetLayoutGroupIterations(group.getId(), project.getId(), -1);
+						final GetLayoutGroupIterations command = new GetLayoutGroupIterations(group.getId(), contact.getId(), -1);
 
 						try {
 
@@ -279,9 +263,8 @@ public class GlobalExportDataProjectProvider extends GlobalExportDataProvider {
 								ArrayList<GlobalExportDataCell[]> groupTitles = new ArrayList<>();
 								List<GlobalExportDataCell> columns = new ArrayList<GlobalExportDataCell>();
 
-								columns.add(new GlobalExportStringCell(i18nTranslator.t(language, "projectId")));
-								columns.add(new GlobalExportStringCell(i18nTranslator.t(language, "projectCode")));
-								columns.add(new GlobalExportStringCell(i18nTranslator.t(language, "projectTitle")));
+								columns.add(new GlobalExportStringCell(i18nTranslator.t(language, "contactPermanentId")));
+								columns.add(new GlobalExportStringCell(i18nTranslator.t(language, "contactFullName")));
 								columns.add(new GlobalExportStringCell(i18nTranslator.t(language, "iterationName")));
 
 								for (LayoutConstraint constraint : constraints) {
@@ -314,15 +297,14 @@ public class GlobalExportDataProjectProvider extends GlobalExportDataProvider {
 							for (LayoutGroupIterationDTO iteration : iterationsResult.getList()) {
 								List<GlobalExportDataCell> columns = new ArrayList<>();
 								// default columns
-								columns.add(new GlobalExportStringCell(String.valueOf(project.getId())));
-								columns.add(new GlobalExportStringCell(project.getName()));
-								columns.add(new GlobalExportStringCell(project.getFullName()));
+								columns.add(new GlobalExportStringCell(String.valueOf(contact.getId())));
+								columns.add(new GlobalExportStringCell(contact.getFullName()));
 								columns.add(new GlobalExportStringCell(iteration.getName()));
 
 								for (LayoutConstraint constraint : constraints) {
 									FlexibleElement element = constraint.getElement();
 									String elementName = element.getClass().getSimpleName();
-									GetValue cmd = new GetValue(project.getId(), constraint.getElement().getId(), "element." + constraint.getElement().getClass().getSimpleName(), null, iteration.getId());
+									GetValue cmd = new GetValue(contact.getId(), constraint.getElement().getId(), "element." + constraint.getElement().getClass().getSimpleName(), null, iteration.getId());
 									try {
 										final ValueResult iterationValueResult = handler.execute(cmd, null);
 
@@ -362,7 +344,7 @@ public class GlobalExportDataProjectProvider extends GlobalExportDataProvider {
 							}
 
 						} catch (Exception e) {
-							LOGGER.error("Failed to get iterations of group '" + group.getId() + "' of project '" + project.getId() + "'.", e);
+							LOGGER.error("Failed to get iterations of group '" + group.getId() + "' of contact '" + contact.getId() + "'.", e);
 						}
 					}
 				}
@@ -385,51 +367,16 @@ public class GlobalExportDataProjectProvider extends GlobalExportDataProvider {
 
 		}
 
-		addProjectFundings(projects, pModelExportDataMap, i18nTranslator, language);
-
 		addCategories(categories, pModelExportDataMap, i18nTranslator, language);
 
 		return pModelExportDataMap;
 	}
 
-	private void addProjectFundings(List<Project> projects, Map<String, List<GlobalExportDataCell[]>> exportDataMap, I18nServer i18nTranslator, Language language) {
-		List<GlobalExportDataCell[]> dataFundings = new ArrayList<>();
-
-		GlobalExportDataCell[] row = new GlobalExportDataCell[7];
-		row[0] = new GlobalExportStringCell(String.valueOf(i18nTranslator.t(language, "fundingId")));
-		row[1] = new GlobalExportStringCell(String.valueOf(i18nTranslator.t(language, "fundingCode")));
-		row[2] = new GlobalExportStringCell(String.valueOf(i18nTranslator.t(language, "fundingTitle")));
-		row[3] = new GlobalExportStringCell(String.valueOf(i18nTranslator.t(language, "fundedId")));
-		row[4] = new GlobalExportStringCell(String.valueOf(i18nTranslator.t(language, "fundedCode")));
-		row[5] = new GlobalExportStringCell(String.valueOf(i18nTranslator.t(language, "fundedTitle")));
-		row[6] = new GlobalExportStringCell(String.valueOf(i18nTranslator.t(language, "fundingAmount")));
-		dataFundings.add(row);
-
-		for(Project project : projects) {
-			List<ProjectFunding> fundings = project.getFunded();
-			if(project.getFunded() != null) {
-				for(ProjectFunding funding : fundings) {
-					row = new GlobalExportDataCell[7];
-					row[0] = new GlobalExportStringCell(String.valueOf(project.getId()));
-					row[1] = new GlobalExportStringCell(project.getName());
-					row[2] = new GlobalExportStringCell(project.getFullName());
-					row[3] = new GlobalExportStringCell(String.valueOf(funding.getFunded().getId()));
-					row[4] = new GlobalExportStringCell(funding.getFunded().getName());
-					row[5] = new GlobalExportStringCell(funding.getFunded().getFullName());
-					row[6] = new GlobalExportStringCell(String.valueOf(funding.getPercentage()));
-					dataFundings.add(row);
-				}
-			}
-		}
-
-		exportDataMap.put(i18nTranslator.t(language, "projectsFundings"), dataFundings);
-	}
-
-	public void persistGlobalExportDataAsCsv(final GlobalExport globalExport, EntityManager em, Map<String, List<GlobalExportDataCell[]>> exportData) throws Exception {
+	public void persistGlobalExportDataAsCsv(final GlobalContactExport globalContactExport, EntityManager em, Map<String, List<GlobalExportDataCell[]>> exportData) throws Exception {
 		for (final String pModelName : exportData.keySet()) {
-			final GlobalExportContent content = new GlobalExportContent();
-			content.setGlobalExport(globalExport);
-			content.setProjectModelName(pModelName);
+			final GlobalContactExportContent content = new GlobalContactExportContent();
+			content.setGlobalContactExport(globalContactExport);
+			content.setContactModelName(pModelName);
 			content.setCsvContent(csvBuilder.buildCsv(exportData.get(pModelName)));
 			em.persist(content);
 		}
@@ -437,11 +384,11 @@ public class GlobalExportDataProjectProvider extends GlobalExportDataProvider {
 
 	public Map<String, List<GlobalExportDataCell[]>> getBackedupGlobalExportData(EntityManager em, Integer gExportId) {
 		final Map<String, List<GlobalExportDataCell[]>> exportData = new TreeMap<String, List<GlobalExportDataCell[]>>();
-		final GlobalExport export = em.find(GlobalExport.class, gExportId);
-		final List<GlobalExportContent> contents = export.getContents();
-		for (final GlobalExportContent content : contents) {
+		final GlobalContactExport export = em.find(GlobalContactExport.class, gExportId);
+		final List<GlobalContactExportContent> contents = export.getContents();
+		for (final GlobalContactExportContent content : contents) {
 			final List<String[]> csvData = csvParser.parseCsv(content.getCsvContent());
-			exportData.put(content.getProjectModelName(), CSVDataToGlobalExportData(csvData));
+			exportData.put(content.getContactModelName(), CSVDataToGlobalExportData(csvData));
 		}
 		return exportData;
 	}

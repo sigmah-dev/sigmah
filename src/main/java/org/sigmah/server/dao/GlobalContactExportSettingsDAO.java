@@ -22,40 +22,24 @@ package org.sigmah.server.dao;
  * #L%
  */
 
-import java.util.Date;
-import java.util.List;
-
 import org.sigmah.server.dao.base.DAO;
-import org.sigmah.server.domain.ContactModel;
 import org.sigmah.server.domain.Organization;
-import org.sigmah.server.domain.ProjectModel;
-import org.sigmah.server.domain.export.GlobalContactExport;
 import org.sigmah.server.domain.export.GlobalContactExportSettings;
-import org.sigmah.server.domain.export.GlobalExport;
-import org.sigmah.server.domain.export.GlobalExportSettings;
 
 /**
- * Global Export DAO interface.
+ * {@link GlobalContactExportSettings} DAO interface.
  * 
- * @author sherzod
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
-public interface GlobalExportDAO extends DAO<GlobalExport, Integer> {
+public interface GlobalContactExportSettingsDAO extends DAO<GlobalContactExportSettings, Integer> {
 
-	List<ProjectModel> getProjectModelsByOrganization(Organization organization);
-
-	List<ContactModel> getContactModels();
-
-	List<GlobalExport> getGlobalExports(Date from, Date to);
-
-	List<GlobalExport> getOlderExports(Date oldDate, Organization organization);
-
-	List<GlobalExportSettings> getGlobalExportSettings();
-
-	List<GlobalContactExport> getGlobalContactExports(Date from, Date to);
-
-	List<GlobalContactExport> getOlderContactExports(Date oldDate, Organization organization);
-
-	List<GlobalContactExportSettings> getGlobalContactExportSettings();
+	/**
+	 * Finds the given {@code organizationId} corresponding {@link GlobalContactExportSettings}.
+	 *
+	 * @param organizationId
+	 *          The {@link Organization} id.
+	 * @return The given {@code organizationId} corresponding {@link GlobalContactExportSettings}.
+	 */
+	GlobalContactExportSettings getGlobalExportSettingsByOrganization(Integer organizationId);
 
 }
