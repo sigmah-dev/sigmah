@@ -240,6 +240,18 @@ public class UserEditView extends AbstractPopupView<PopupWidget> implements User
 		languageField.getStore().add(new EnumModel<Language>(Language.ES));
 
 		// --
+		// Hierarchy field
+		// --
+		ColumnConfig hierarchyColumnConfig = new ColumnConfig("hierarchy", I18N.CONSTANTS.adminHierarchy(), 150);
+		hierarchyColumnConfig.setSortable(false);
+		hierarchyColumnConfig.setRenderer(new GridCellRenderer() {
+			@Override
+			public Object render(ModelData modelData, String s, ColumnData columnData, int i, int i1, ListStore listStore, Grid grid) {
+				return ((UserUnitDTO) modelData).getMainUserUnit() ? I18N.CONSTANTS.adminIsMainOrgUnit() : I18N.CONSTANTS.adminIsSecondaryOrgUnit();
+			}
+		});
+
+		// --
 		// OrgUnits field.
 		// --
 		final ColumnConfig orgUnitColumnConfig = new ColumnConfig(UserUnitDTO.ORG_UNIT, I18N.CONSTANTS.orgunit(), 500);
@@ -317,7 +329,7 @@ public class UserEditView extends AbstractPopupView<PopupWidget> implements User
 			}
 		});
 
-		ColumnModel columnModel = new ColumnModel(Arrays.asList(orgUnitColumnConfig, profilesColumnConfig, actionsColumnConfig));
+		ColumnModel columnModel = new ColumnModel(Arrays.asList(hierarchyColumnConfig, orgUnitColumnConfig, profilesColumnConfig, actionsColumnConfig));
 		secondaryUserUnitsGrid = new Grid<UserUnitDTO>(new ListStore<UserUnitDTO>(), columnModel);
 		secondaryUserUnitsGrid.setAutoExpandColumn(UserUnitDTO.ORG_UNIT);
 		secondaryUserUnitsGrid.getView().setForceFit(true);
