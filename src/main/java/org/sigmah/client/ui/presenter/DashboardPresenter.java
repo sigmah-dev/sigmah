@@ -500,7 +500,9 @@ public class DashboardPresenter extends AbstractPagePresenter<DashboardPresenter
 	}
 
 	private void loadContacts() {
-		view.getContactsList().refresh(view.getOrgUnitsTreeGrid().getDisplayOnlyMainOrgUnitCheckbox().getValue());
+		if (view.getContactsList() != null) {
+			view.getContactsList().refresh(view.getOrgUnitsTreeGrid().getDisplayOnlyMainOrgUnitCheckbox().getValue());
+		}
 	}
 
 	private void loadProjects(boolean forceRefresh) {

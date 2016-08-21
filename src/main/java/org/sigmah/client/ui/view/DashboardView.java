@@ -149,10 +149,11 @@ public class DashboardView extends AbstractView implements DashboardPresenter.Vi
 		final LayoutContainer centerUpContainer = Layouts.hBox();
 
 		centerUpContainer.add(createOrgUnitsPanel(), Layouts.hBoxData(1.0));
+
 		centerUpContainer.add(createContactsPanel(), Layouts.hBoxData(1.0, Margin.LEFT));
 
 		centerContainer.add(centerUpContainer, Layouts.vBoxData(1.0, Margin.BOTTOM, Margin.LEFT));
-		centerContainer.add(createProjectsPanel(), Layouts.vBoxData(2.0, Margin.LEFT));
+		centerContainer.add(createProjectsPanel(), Layouts.vBoxData(1.0, Margin.LEFT));
 
 		add(centerContainer);
 
@@ -230,8 +231,10 @@ public class DashboardView extends AbstractView implements DashboardPresenter.Vi
 	 */
 	@Override
 	public void layoutViews() {
-		contactsListWidget.getView().syncSize();
-		projectsListWidget.getView().syncSize();
+		if (contactsListWidget != null) {
+			contactsListWidget.getView().syncSize();
+			projectsListWidget.getView().syncSize();
+		}
 	}
 	
 	/**
