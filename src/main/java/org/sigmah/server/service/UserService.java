@@ -153,10 +153,10 @@ public class UserService extends AbstractEntityService<User, Integer, UserDTO> {
 
 		} else if (userFound != null) {
 			userToPersist.setHashedPassword(userFound.getHashedPassword());
-			userToPersist.setOrgUnitsWithProfiles(userUnitDAO.findAllOrgUnitProfilesByUserId(userFound.getId()));
 		}
 
 		if (userFound != null && userFound.getId() != null) {
+			userToPersist.setOrgUnitsWithProfiles(userUnitDAO.findAllOrgUnitProfilesByUserId(userFound.getId()));
 			// Updates user.
 			userToPersist.setId(userFound.getId());
 			// BUGFIX #736 : Keeping the active state of modified users.
