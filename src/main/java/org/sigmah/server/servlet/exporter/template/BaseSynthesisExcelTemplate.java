@@ -51,10 +51,10 @@ import org.sigmah.server.i18n.I18nServer;
 import org.sigmah.server.servlet.base.ServletExecutionContext;
 import org.sigmah.server.servlet.exporter.data.BaseSynthesisData;
 import org.sigmah.server.servlet.exporter.data.GlobalExportDataProvider;
-import org.sigmah.server.servlet.exporter.data.GlobalExportDataProvider.ValueLabel;
 import org.sigmah.server.servlet.exporter.data.LogFrameExportData;
 import org.sigmah.server.servlet.exporter.utils.ExcelUtils;
 import org.sigmah.server.servlet.exporter.utils.ExportConstants;
+import org.sigmah.server.servlet.exporter.utils.ExporterUtil;
 import org.sigmah.shared.Language;
 import org.sigmah.shared.command.GetLayoutGroupIterations;
 import org.sigmah.shared.command.GetValue;
@@ -212,33 +212,33 @@ public abstract class BaseSynthesisExcelTemplate implements ExportTemplate {
 				final ValueResult valueResult = (ValueResult) data.getHandler().execute(command, new UserExecutionContext(context));
 
 				// prepare value and label
-				ValueLabel pair = null;
+				ExporterUtil.ValueLabel pair = null;
 				boolean isMessage = false;
 				/* DEF FLEXIBLE */
 				if (elementName.equals("element.DefaultFlexibleElement") || elementName.equals("element.BudgetElement")) {
 					pair =
-							data.getDataProvider().getDefElementPair(valueResult, element, data.getProject() != null ? data.getProject() : data.getOrgUnit(), clazz,
+							ExporterUtil.getDefElementPair(valueResult, element, data.getProject() != null ? data.getProject() : data.getOrgUnit(), clazz,
 								data.getEntityManager(), i18nTranslator, language);
 
 				}
 				/* CHECKBOX */
 				else if (elementName.equals("element.CheckboxElement")) {
-					pair = data.getDataProvider().getCheckboxElementPair(valueResult, element, i18nTranslator, language);
+					pair = ExporterUtil.getCheckboxElementPair(valueResult, element, i18nTranslator, language);
 				}
 				/* TEXT AREA */
 				else if (elementName.equals("element.TextAreaElement")) {
-					pair = data.getDataProvider().getTextAreaElementPair(valueResult, element);
+					pair = ExporterUtil.getTextAreaElementPair(valueResult, element);
 
 				}
 				/* TRIPLET */
 				else if (elementName.equals("element.TripletsListElement")) {
-					pair = data.getDataProvider().getTripletPair(element, valueResult);
+					pair = ExporterUtil.getTripletPair(element, valueResult);
 
 				}/* CHOICE */else if (elementName.equals("element.QuestionElement")) {
-					pair = data.getDataProvider().getChoicePair(element, valueResult);
+					pair = ExporterUtil.getChoicePair(element, valueResult);
 
 				}/* MESSAGE */else if (elementName.equals("element.MessageElement")) {
-					pair = new ValueLabel(data.getLocalizedVersion("flexibleElementMessage"), GlobalExportDataProvider.clearHtmlFormatting(element.getLabel()));
+					pair = new ExporterUtil.ValueLabel(data.getLocalizedVersion("flexibleElementMessage"), ExporterUtil.clearHtmlFormatting(element.getLabel()));
 					isMessage = true;
 				}
 
@@ -373,7 +373,7 @@ public abstract class BaseSynthesisExcelTemplate implements ExportTemplate {
 		row.setHeightInPoints(lineHeight * defHeight);
 	}
 
-	private void putElement(HSSFSheet sheet, int rowIndex, ValueLabel pair, boolean isMessage) {
+	private void putElement(HSSFSheet sheet, int rowIndex, ExporterUtil.ValueLabel pair, boolean isMessage) {
 		row = sheet.createRow(rowIndex);
 		utils.putBorderedBasicCell(sheet, rowIndex, 2, pair.getFormattedLabel());
 		utils.putBorderedBasicCell(sheet, rowIndex, 3, pair.getValue());

@@ -22,13 +22,44 @@ package org.sigmah.server.servlet.exporter.utils;
  * #L%
  */
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.persistence.EntityManager;
+
+import org.sigmah.server.domain.Country;
+import org.sigmah.server.domain.OrgUnit;
+import org.sigmah.server.domain.Project;
+import org.sigmah.server.domain.User;
+import org.sigmah.server.domain.category.CategoryType;
+import org.sigmah.server.domain.element.BudgetElement;
 import org.sigmah.server.domain.element.DefaultFlexibleElement;
 import org.sigmah.server.domain.element.FlexibleElement;
+import org.sigmah.server.domain.element.QuestionChoiceElement;
+import org.sigmah.server.domain.element.QuestionElement;
+import org.sigmah.server.domain.element.TextAreaElement;
+import org.sigmah.server.domain.layout.Layout;
+import org.sigmah.server.domain.layout.LayoutConstraint;
+import org.sigmah.server.domain.layout.LayoutGroup;
 import org.sigmah.server.i18n.I18nServer;
+import org.sigmah.server.servlet.exporter.data.LogFrameExportData;
+import org.sigmah.server.servlet.exporter.data.cells.GlobalExportDataCell;
+import org.sigmah.server.servlet.exporter.data.cells.GlobalExportStringCell;
+import org.sigmah.server.servlet.exporter.data.columns.GlobalExportDataColumn;
+import org.sigmah.server.servlet.exporter.data.columns.GlobalExportFlexibleElementColumn;
+import org.sigmah.server.servlet.exporter.data.columns.GlobalExportIterativeGroupColumn;
 import org.sigmah.shared.Language;
+import org.sigmah.shared.command.result.ValueResult;
 import org.sigmah.shared.dto.element.DefaultFlexibleElementDTO;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
 import org.sigmah.shared.dto.referential.DefaultFlexibleElementType;
+import org.sigmah.shared.dto.referential.TextAreaType;
+import org.sigmah.shared.dto.value.ListableValue;
+import org.sigmah.shared.dto.value.TripletValueDTO;
+import org.sigmah.shared.util.ValueResultUtils;
 
 public class ExporterUtil {
 
@@ -110,5 +141,584 @@ public class ExporterUtil {
 				break;
 		}
 		return fleName;
+	}
+
+	public static class BudgetValues {
+		private Double spent;
+		private Double planned;
+
+		public BudgetValues(BudgetElement budgetElement, ValueResult valueResult) {
+			boolean hasValue = valueResult != null && valueResult.isValueDefined();
+
+			Double plannedBudget = 0d;
+			Double spentBudget = 0d;
+			if (hasValue) {
+				final Map<Integer, String> val = ValueResultUtils.splitMapElements(valueResult.getValueObject());
+
+				if (budgetElement.getRatioDividend() != null) {
+					if (val.get(budgetElement.getRatioDividend().getId()) != null) {
+						spentBudget = Double.valueOf(val.get(budgetElement.getRatioDividend().getId()));
+
+					}
+				}
+
+				if (budgetElement.getRatioDivisor() != null) {
+					if (val.get(budgetElement.getRatioDivisor().getId()) != null) {
+						plannedBudget = Double.valueOf(val.get(budgetElement.getRatioDivisor().getId()));
+
+					}
+				}
+			}
+
+			spent = spentBudget;
+			planned = plannedBudget;
+		}
+
+		public Double getSpent() {
+			return spent;
+		}
+
+		public Double getPlanned() {
+			return planned;
+		}
+
+		public Double getRatio() {
+			return spent/planned;
+		}
+	}
+
+	public static class ChoiceValue {
+		private String valueLabels;
+		private String valueIds;
+
+		public ChoiceValue(QuestionElement questionElement, ValueResult valueResult) {
+			if (valueResult != null && valueResult.isValueDefined()) {
+				if (questionElement.getMultiple()) {
+					final ExportConstants.MultiItemText item = formatMultipleChoices(questionElement.getChoices(), valueResult.getValueObject());
+					valueLabels = item.text;
+
+					String selectedChoicesIds = "";
+					for (Integer id : ValueResultUtils.splitValuesAsInteger(valueResult.getValueObject())) {
+						for (QuestionChoiceElement choice : questionElement.getChoices()) {
+							if (id.equals(choice.getId())) {
+								if (choice.getCategoryElement() != null) {
+									id = choice.getCategoryElement().getId();
+								}
+								break;
+							}
+						}
+						selectedChoicesIds += id + ", ";
+					}
+					if (selectedChoicesIds.length() > 0) {
+						valueIds = selectedChoicesIds.substring(0, selectedChoicesIds.length() - 2);
+					}
+				} else {
+					final String idChoice = valueResult.getValueObject();
+					for (QuestionChoiceElement choice : questionElement.getChoices()) {
+						if (idChoice.equals(String.valueOf(choice.getId()))) {
+							if (choice.getCategoryElement() != null) {
+								valueLabels = choice.getCategoryElement().getLabel();
+								valueIds = String.valueOf(choice.getCategoryElement().getId());
+							} else {
+								valueLabels = choice.getLabel();
+							}
+							break;
+						}
+					}
+				}
+			}
+		}
+
+		public String getValueLabels() {
+			return valueLabels;
+		}
+
+		public String getValueIds() {
+			return valueIds;
+		}
+	}
+
+	public static class ValueLabel {
+
+		private String label;
+		private Object value;
+		private int lines = 1;
+
+		public ValueLabel(String label, Object value) {
+			this.label = label;
+			this.value = value;
+		}
+
+		public ValueLabel(String label, Object value, int lines) {
+			this.label = label;
+			this.value = value;
+			this.lines = lines;
+		}
+
+		public String getFormattedLabel() {
+			return clearHtmlFormatting(label);
+		}
+
+		public void setLabel(String label) {
+			this.label = label;
+		}
+
+		public Object getValue() {
+			return value;
+		}
+
+		public void setValue(Object value) {
+			this.value = value;
+		}
+
+		public int getLines() {
+			return lines;
+		}
+
+	}
+
+	public static ExportConstants.MultiItemText formatMultipleChoices(List<QuestionChoiceElement> list, String values) {
+		final List<Integer> selectedChoicesId = ValueResultUtils.splitValuesAsInteger(values);
+		final StringBuffer builder = new StringBuffer();
+		int lines = 1;
+		for (final QuestionChoiceElement choice : list) {
+			for (final Integer id : selectedChoicesId) {
+				if (id.equals(choice.getId())) {
+					builder.append(" - ");
+					if (choice.getCategoryElement() != null) {
+						builder.append(choice.getCategoryElement().getLabel());
+					} else {
+						builder.append(choice.getLabel());
+					}
+					builder.append("\n");
+					lines++;
+				}
+			}
+		}
+		String value = null;
+		if (lines > 1) {
+			value = builder.substring(0, builder.length() - 1);
+			lines--;
+		}
+		return new ExportConstants.MultiItemText(value, lines);
+	}
+
+	public static ExportConstants.MultiItemText formatTripletValues(List<ListableValue> list) {
+		int lines = list.size() + 1;
+		final StringBuilder builder = new StringBuilder();
+		for (ListableValue s : list) {
+			final TripletValueDTO tripletValue = (TripletValueDTO) s;
+			builder.append(" - ");
+			builder.append(tripletValue.getCode());
+			builder.append(" - ");
+			builder.append(tripletValue.getName());
+			builder.append(" : ");
+			builder.append(tripletValue.getPeriod());
+			builder.append("\n");
+		}
+		String value = null;
+		if (lines > 1) {
+			value = builder.substring(0, builder.length() - 2);
+			lines--;
+		}
+
+		return new ExportConstants.MultiItemText(value, lines);
+	}
+
+	public static ValueLabel getTripletPair(final FlexibleElement element, final ValueResult valueResult) {
+		String value = null;
+		int lines = 1;
+
+		if (valueResult != null && valueResult.isValueDefined()) {
+			final ExportConstants.MultiItemText item = formatTripletValues(valueResult.getValuesObject());
+			value = item.text;
+			lines = item.lineCount;
+		}
+
+		return new ValueLabel(element.getLabel(), value, lines);
+	}
+
+	public static ValueLabel getChoicePair(final FlexibleElement element, final ValueResult valueResult) {
+		String value = null;
+		int lines = 1;
+
+		if (valueResult != null && valueResult.isValueDefined()) {
+			final QuestionElement questionElement = (QuestionElement) element;
+			final Boolean multiple = questionElement.getMultiple();
+			if (multiple != null && multiple) {
+				final ExportConstants.MultiItemText item = formatMultipleChoices(questionElement.getChoices(), valueResult.getValueObject());
+				value = item.text;
+				lines = item.lineCount;
+
+			} else {
+				final String idChoice = valueResult.getValueObject();
+				for (QuestionChoiceElement choice : questionElement.getChoices()) {
+					if (idChoice.equals(String.valueOf(choice.getId()))) {
+						if (choice.getCategoryElement() != null) {
+							value = choice.getCategoryElement().getLabel();
+						} else {
+							value = choice.getLabel();
+						}
+						break;
+					}
+				}
+			}
+		}
+
+		return new ValueLabel(element.getLabel(), value, lines);
+	}
+
+	public static ValueLabel getTextAreaElementPair(final ValueResult valueResult, final FlexibleElement element) {
+
+		Object value = null;
+		final TextAreaElement textAreaElement = (TextAreaElement) element;
+
+		if (valueResult != null && valueResult.isValueDefined()) {
+			String strValue = valueResult.getValueObject();
+			final TextAreaType type = TextAreaType.fromCode(textAreaElement.getType());
+			if (type != null) {
+				switch (type) {
+					case NUMBER:
+						if (textAreaElement.getIsDecimal()) {
+							value = Double.parseDouble(strValue);
+						} else {
+							value = Long.parseLong(strValue);
+						}
+						break;
+					case DATE:
+						value = new Date(Long.parseLong(strValue));
+						break;
+					default:
+						value = strValue;
+						break;
+				}
+			} else {
+				value = strValue;
+			}
+
+		}
+
+		return new ValueLabel(element.getLabel(), value);
+	}
+
+	public static ValueLabel getCheckboxElementPair(final ValueResult valueResult, final FlexibleElement element, final I18nServer i18nTranslator,
+																					 final Language language) {
+		String value = i18nTranslator.t(language, "no");
+
+		if (valueResult != null && valueResult.getValueObject() != null) {
+			if (valueResult.getValueObject().equalsIgnoreCase("true"))
+				value = i18nTranslator.t(language, "yes");
+
+		}
+		return new ValueLabel(element.getLabel(), value);
+	}
+
+	private static String getUserName(User u) {
+
+		String name = "";
+		if (u != null)
+			name = u.getFirstName() != null ? u.getFirstName() + " " + u.getName() : u.getName();
+
+		return name;
+	}
+
+	public static ValueLabel getDefElementPair(final ValueResult valueResult, final FlexibleElement element, final Object object, final Class<?> clazz,
+																			final EntityManager entityManager, final I18nServer i18nTranslator, final Language language) {
+		if (clazz.equals(Project.class)) {
+			return getDefElementPair(valueResult, element, (Project) object, entityManager, i18nTranslator, language);
+		} else {
+			return getDefElementPair(valueResult, element, (OrgUnit) object, entityManager, i18nTranslator, language);
+		}
+	}
+
+	public static void addBudgetTitles(final List<GlobalExportDataCell> titles, final FlexibleElement element, final I18nServer i18nTranslator, final Language language) {
+		String budgetLabel = ExporterUtil.getFlexibleElementLabel(element, i18nTranslator, language);
+
+		titles.add(new GlobalExportStringCell(budgetLabel + " " + i18nTranslator.t(language, "spentBudget")));
+		titles.add(new GlobalExportStringCell(budgetLabel + " " + i18nTranslator.t(language, "plannedBudget")));
+		titles.add(new GlobalExportStringCell(budgetLabel + " " + i18nTranslator.t(language, "consumptionRatioBudget")));
+	}
+
+	public static void addBudgetValues(final List<GlobalExportDataCell> values, final ValueResult valueResult, final FlexibleElement element, final I18nServer i18nTranslator, final Language language) {
+		BudgetElement budgetElement = (BudgetElement) element;
+
+		BudgetValues budget = new BudgetValues(budgetElement, valueResult);
+
+		values.add(new GlobalExportStringCell(String.valueOf(budget.getSpent())));
+		values.add(new GlobalExportStringCell(String.valueOf(budget.getPlanned())));
+		values.add(new GlobalExportStringCell(String.valueOf(budget.getRatio())));
+	}
+
+	public static void addChoiceTitles(final List<GlobalExportDataCell> titles, final Set<CategoryType> categories, final FlexibleElement element, final I18nServer i18nTranslator, final Language language) {
+		final QuestionElement questionElement = (QuestionElement) element;
+		String choiceLabel = ExporterUtil.getFlexibleElementLabel(element, i18nTranslator, language);
+
+		titles.add(new GlobalExportStringCell(choiceLabel));
+		if (questionElement.getCategoryType() != null) {
+			titles.add(new GlobalExportStringCell(choiceLabel + " (" + questionElement.getCategoryType().getLabel() + ") " + i18nTranslator.t(language, "categoryId")));
+			categories.add(((QuestionElement) element).getCategoryType());
+		}
+	}
+
+	public static void addChoiceValues(final List<GlobalExportDataCell> values, final ValueResult valueResult, final FlexibleElement element) {
+
+		ChoiceValue choiceValue = new ChoiceValue((QuestionElement) element, valueResult);
+
+		values.add(new GlobalExportStringCell(choiceValue.getValueLabels()));
+		if (((QuestionElement)element).getCategoryType() != null) {
+			values.add(new GlobalExportStringCell(choiceValue.getValueIds()));
+		}
+	}
+
+	public static ValueLabel getDefElementPair(final ValueResult valueResult, final FlexibleElement element, final Project project, final EntityManager entityManager,
+																			final I18nServer i18nTranslator, final Language language) {
+
+		Object value = null;
+		String label = ExporterUtil.getFlexibleElementLabel(element, i18nTranslator, language);
+
+		final DefaultFlexibleElement defaultElement = (DefaultFlexibleElement) element;
+
+		boolean hasValue = valueResult != null && valueResult.isValueDefined();
+
+		switch (defaultElement.getType()) {
+			case CODE: {
+				if (hasValue) {
+					value = valueResult.getValueObject();
+				} else {
+					value = project.getName();
+				}
+			}
+			break;
+			case TITLE: {
+				if (hasValue) {
+					value = valueResult.getValueObject();
+				} else {
+					value = project.getFullName();
+				}
+			}
+			break;
+			case START_DATE: {
+				if (hasValue) {
+					value = new Date(Long.parseLong(valueResult.getValueObject()));
+				} else {
+					value = project.getStartDate();
+				}
+			}
+			break;
+			case END_DATE: {
+				if (hasValue) {
+					value = new Date(Long.parseLong(valueResult.getValueObject()));
+				} else {
+					value = "";
+					if (project.getEndDate() != null)
+						value = project.getEndDate();
+				}
+			}
+			break;
+			case BUDGET: {
+				BudgetElement budgetElement = (BudgetElement) element;
+
+				// BUGFIX #732: Inverted plannedBudget and spentBudget.
+
+				Double plannedBudget = 0d;
+				Double spentBudget = 0d;
+				if (hasValue) {
+					final Map<Integer, String> values = ValueResultUtils.splitMapElements(valueResult.getValueObject());
+
+					if (budgetElement.getRatioDividend() != null) {
+						if (values.get(budgetElement.getRatioDividend().getId()) != null) {
+							spentBudget = Double.valueOf(values.get(budgetElement.getRatioDividend().getId()));
+
+						}
+					}
+
+					if (budgetElement.getRatioDivisor() != null) {
+						if (values.get(budgetElement.getRatioDivisor().getId()) != null) {
+							plannedBudget = Double.valueOf(values.get(budgetElement.getRatioDivisor().getId()));
+
+						}
+					}
+				}
+				value = spentBudget + " / " + plannedBudget;
+			}
+			break;
+			case COUNTRY: {
+				if (hasValue) {
+					int countryId = Integer.parseInt(valueResult.getValueObject());
+					value = entityManager.find(Country.class, countryId).getName();
+				} else {
+					value = project.getCountry().getName();
+				}
+			}
+			break;
+			case OWNER: {
+				if (hasValue) {
+					value = valueResult.getValueObject();
+				} else {
+					value = getUserName(project.getOwner());
+				}
+			}
+			break;
+			case MANAGER: {
+				if (hasValue) {
+					int userId = Integer.parseInt(valueResult.getValueObject());
+					value = getUserName(entityManager.find(User.class, userId));
+				} else {
+					value = getUserName(project.getManager());
+				}
+			}
+			break;
+			case ORG_UNIT: {
+				int orgUnitId = -1;
+				if (hasValue) {
+					orgUnitId = Integer.parseInt(valueResult.getValueObject());
+				} else {
+					orgUnitId = project.getOrgUnit().getId();
+				}
+				OrgUnit orgUnit = entityManager.find(OrgUnit.class, orgUnitId);
+				if (orgUnit != null)
+					value = orgUnit.getName() + " - " + orgUnit.getFullName();
+
+			}
+			break;
+
+		}
+		return new ValueLabel(label, value);
+	}
+
+	public static ValueLabel getDefElementPair(final ValueResult valueResult, final FlexibleElement element, final OrgUnit orgUnit, final EntityManager entityManager,
+																			final I18nServer i18nTranslator, final Language language) {
+		Object value = null;
+		String label = ExporterUtil.getFlexibleElementLabel(element, i18nTranslator, language);
+
+		final DefaultFlexibleElement defaultElement = (DefaultFlexibleElement) element;
+
+		boolean hasValue = valueResult != null && valueResult.isValueDefined();
+
+		switch (defaultElement.getType()) {
+
+			case CODE: {
+				if (hasValue) {
+					value = valueResult.getValueObject();
+				} else {
+					value = orgUnit.getName();
+				}
+			}
+			break;
+
+			case TITLE: {
+				if (hasValue) {
+					value = valueResult.getValueObject();
+				} else {
+					value = orgUnit.getFullName();
+				}
+			}
+			break;
+
+			case BUDGET: {
+				BudgetElement budgetElement = (BudgetElement) element;
+
+				Double plannedBudget = 0d;
+				Double spentBudget = 0d;
+				if (hasValue) {
+					final Map<Integer, String> values = ValueResultUtils.splitMapElements(valueResult.getValueObject());
+
+					if (budgetElement.getRatioDividend() != null) {
+						if (values.get(budgetElement.getRatioDividend().getId()) != null) {
+							spentBudget = Double.valueOf(values.get(budgetElement.getRatioDividend().getId()));
+
+						}
+					}
+
+					if (budgetElement.getRatioDivisor() != null) {
+						if (values.get(budgetElement.getRatioDivisor().getId()) != null) {
+							plannedBudget = Double.valueOf(values.get(budgetElement.getRatioDivisor().getId()));
+
+						}
+					}
+				}
+				value = spentBudget + " / " + plannedBudget;
+			}
+			break;
+
+			case COUNTRY: {
+				if (hasValue) {
+					int countryId = Integer.parseInt(valueResult.getValueObject());
+					value = entityManager.find(Country.class, countryId).getName();
+				} else {
+					value = orgUnit.getOfficeLocationCountry() != null ? orgUnit.getOfficeLocationCountry().getName() : null;
+				}
+			}
+			break;
+
+			case MANAGER: {
+				if (hasValue) {
+					int userId = Integer.parseInt(valueResult.getValueObject());
+					value = getUserName(entityManager.find(User.class, userId));
+				} else {
+					value = "";
+				}
+			}
+			break;
+
+			case ORG_UNIT: {
+				OrgUnit parentOrgUnit = orgUnit.getParentOrgUnit();
+				if (parentOrgUnit == null)
+					parentOrgUnit = orgUnit;
+				value = parentOrgUnit.getName() + " - " + parentOrgUnit.getFullName();
+			}
+			break;
+
+			default:
+				break;
+		}
+		return new ValueLabel(label, value);
+	}
+
+	public static String clearHtmlFormatting(String text) {
+		if (text != null && text.length() > 0) {
+			text = text.replaceAll("<br>", " ");
+			text = text.replaceAll("<[^>]+>|\\n", "");
+			text = text.trim().replaceAll(" +", " ");
+		}
+		return text;
+	}
+
+	public static void fillElementList(final List<GlobalExportDataColumn> elements, final Layout layout) {
+		for (final LayoutGroup group : layout.getGroups()) {
+			if(group.getHasIterations()) {
+				elements.add(new GlobalExportIterativeGroupColumn(group));
+				continue;
+			}
+
+			for (final LayoutConstraint constraint : group.getConstraints()) {
+				final FlexibleElement element = constraint.getElement();
+				if (element.isGloballyExportable())
+					elements.add(new GlobalExportFlexibleElementColumn(element));
+			}
+		}
+	}
+
+	public static String pairToValueString(ValueLabel pair) {
+		// values
+		String valueStr = null;
+		if (pair != null) {
+			Object value = pair.getValue();
+			if (value == null) {
+				valueStr = null;
+			} else if (value instanceof String) {
+				valueStr = (String) value;
+			} else if (value instanceof Double) {
+				Double d = (Double) value;
+				valueStr = LogFrameExportData.AGGR_AVG_FORMATTER.format(d.doubleValue());
+			} else if (value instanceof Long) {
+				Long l = (Long) value;
+				valueStr = LogFrameExportData.AGGR_SUM_FORMATTER.format(l.longValue());
+			} else { // date
+				valueStr = ExportConstants.EXPORT_DATE_FORMAT.format((Date) value);
+			}
+		}
+
+		return valueStr;
 	}
 }

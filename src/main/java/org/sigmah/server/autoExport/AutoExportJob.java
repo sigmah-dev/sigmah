@@ -39,6 +39,7 @@ import org.sigmah.server.dao.impl.GlobalExportHibernateDAO;
 import org.sigmah.server.domain.export.GlobalExport;
 import org.sigmah.server.domain.export.GlobalExportSettings;
 import org.sigmah.server.i18n.I18nServer;
+import org.sigmah.server.servlet.exporter.data.GlobalExportDataProjectProvider;
 import org.sigmah.server.servlet.exporter.data.GlobalExportDataProvider;
 import org.sigmah.server.servlet.exporter.data.cells.GlobalExportDataCell;
 import org.slf4j.Logger;
@@ -82,7 +83,7 @@ public class AutoExportJob implements Job {
 			tx.begin();
 
 			final GlobalExportDAO exportDAO = injector.getInstance(GlobalExportHibernateDAO.class);
-			final GlobalExportDataProvider dataProvider = injector.getInstance(GlobalExportDataProvider.class);
+			final GlobalExportDataProvider dataProvider = injector.getInstance(GlobalExportDataProjectProvider.class);
 
 			final List<GlobalExportSettings> settings = exportDAO.getGlobalExportSettings();
 			for (final GlobalExportSettings setting : settings) {

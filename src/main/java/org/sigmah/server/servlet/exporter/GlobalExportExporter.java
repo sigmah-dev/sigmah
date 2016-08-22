@@ -38,6 +38,7 @@ import org.sigmah.server.domain.export.GlobalExportSettings;
 import org.sigmah.server.servlet.base.ServletExecutionContext;
 import org.sigmah.server.servlet.exporter.base.Exporter;
 import org.sigmah.server.servlet.exporter.data.GlobalExportData;
+import org.sigmah.server.servlet.exporter.data.GlobalExportDataProjectProvider;
 import org.sigmah.server.servlet.exporter.data.GlobalExportDataProvider;
 import org.sigmah.server.servlet.exporter.data.cells.GlobalExportDataCell;
 import org.sigmah.server.servlet.exporter.template.ExportTemplate;
@@ -119,7 +120,7 @@ public class GlobalExportExporter extends Exporter {
 	private GlobalExportData prepareData() throws Exception {
 
 		Map<String, List<GlobalExportDataCell[]>> exportData = null;
-		final GlobalExportDataProvider dataProvider = injector.getInstance(GlobalExportDataProvider.class);
+		final GlobalExportDataProvider dataProvider = injector.getInstance(GlobalExportDataProjectProvider.class);
 		final EntityManager em = injector.getInstance(EntityManager.class);
 
 		Integer organizationId = Integer.parseInt(requireParameter(RequestParameter.ID));

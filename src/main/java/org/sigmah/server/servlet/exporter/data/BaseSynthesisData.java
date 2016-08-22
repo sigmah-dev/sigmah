@@ -40,7 +40,6 @@ import com.google.inject.Injector;
 public abstract class BaseSynthesisData extends ExportData {
 
 	protected final EntityManager entityManager;
-	private final GlobalExportDataProvider dataProvider;
 	private final CommandHandler<GetValue, ?> handler;
 
 	/*
@@ -49,15 +48,10 @@ public abstract class BaseSynthesisData extends ExportData {
 	public BaseSynthesisData(final Exporter exporter, final Injector injector) {
 		super(exporter, 3);
 		entityManager = injector.getInstance(EntityManager.class);
-		dataProvider = injector.getInstance(GlobalExportDataProvider.class);
 		handler = injector.getInstance(GetValueHandler.class);
 		/*
 		 * this.locale = locale; translator = new UIConstantsTranslator(new Locale(""));
 		 */
-	}
-
-	public GlobalExportDataProvider getDataProvider() {
-		return dataProvider;
 	}
 
 	public CommandHandler<GetValue, ?> getHandler() {

@@ -371,8 +371,6 @@ public abstract class Importer implements Iterator<ImportDetails> {
 			return null;
 		}
 
-		GlobalExportDataProvider gdp = new GlobalExportDataProvider(injector);
-
 		final FlexibleElement element;
 		final Serializable valueObject;
 		
@@ -389,7 +387,7 @@ public abstract class Importer implements Iterator<ImportDetails> {
 		case DEFAULT:
 			element = mapper.map(flexibleElement, new DefaultFlexibleElement());
 			if (!DefaultFlexibleElementType.BUDGET.equals(((DefaultFlexibleElement) element).type())) {
-				valueObject = (Serializable) gdp.getDefElementPair(valueResult, element, entity, entity.getClass(), em(),
+				valueObject = (Serializable) ExporterUtil.getDefElementPair(valueResult, element, entity, entity.getClass(), em(),
 				                translator, language).getValue();
 			} else {
 				valueObject = null;
@@ -398,7 +396,7 @@ public abstract class Importer implements Iterator<ImportDetails> {
 		case DEFAULT_CONTACT:
 			element = mapper.map(flexibleElement, new DefaultContactFlexibleElement());
 			if (!DefaultFlexibleElementType.BUDGET.equals(((DefaultContactFlexibleElement) element).type())) {
-				valueObject = (Serializable) gdp.getDefElementPair(valueResult, element, entity, entity.getClass(), em(),
+				valueObject = (Serializable) ExporterUtil.getDefElementPair(valueResult, element, entity, entity.getClass(), em(),
 						translator, language).getValue();
 			} else {
 				valueObject = null;
@@ -406,15 +404,15 @@ public abstract class Importer implements Iterator<ImportDetails> {
 			break;
 		case QUESTION:
 			element = mapper.map(flexibleElement, new QuestionElement());
-			valueObject = (Serializable) gdp.getChoicePair(element, valueResult).getValue();
+			valueObject = (Serializable) ExporterUtil.getChoicePair(element, valueResult).getValue();
 			break;
 		case TEXT_AREA:
 			element = mapper.map(flexibleElement, new TextAreaElement());
-			valueObject = (Serializable) gdp.getTextAreaElementPair(valueResult, element).getValue();
+			valueObject = (Serializable) ExporterUtil.getTextAreaElementPair(valueResult, element).getValue();
 			break;
 		case TRIPLETS:
 			element = mapper.map(flexibleElement, new TripletsListElement());
-			valueObject = (Serializable) gdp.getTripletPair(element, valueResult).getValue();
+			valueObject = (Serializable) ExporterUtil.getTripletPair(element, valueResult).getValue();
 			break;
 		default:
 			valueObject = null;
