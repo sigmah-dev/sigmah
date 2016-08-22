@@ -95,6 +95,7 @@
 		<class>org.sigmah.server.domain.element.ReportListElement</class>
 		<class>org.sigmah.server.domain.element.TextAreaElement</class>
 		<class>org.sigmah.server.domain.element.TripletsListElement</class>
+		<class>org.sigmah.server.domain.element.ComputationElement</class>
 
 		<!-- export package. -->
 		<class>org.sigmah.server.domain.export.GlobalExport</class>
