@@ -82,6 +82,7 @@
 		<class>org.sigmah.server.domain.element.BudgetDistributionElement</class>
 		<class>org.sigmah.server.domain.element.BudgetElement</class>
 		<class>org.sigmah.server.domain.element.BudgetSubField</class>
+		<class>org.sigmah.server.domain.element.BudgetRatioElement</class>
 		<class>org.sigmah.server.domain.element.CheckboxElement</class>
 		<class>org.sigmah.server.domain.element.DefaultFlexibleElement</class>
 		<class>org.sigmah.server.domain.element.FilesListElement</class>
