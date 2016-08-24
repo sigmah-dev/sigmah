@@ -33,12 +33,18 @@ import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArray;
 
 /**
- *
+ * JavaScript version of {@link BudgetElementDTO}.
+ * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
+@Deprecated
 public final class BudgetElementJS extends DefaultFlexibleElementJS {
 	
+	/**
+	 * Protected constructor, required for JavaScript objects.
+	 */
 	protected BudgetElementJS() {
+		// Empty.
 	}
 	
 	public static BudgetElementJS toJavaScript(BudgetElementDTO budgetElementDTO) {
@@ -50,7 +56,7 @@ public final class BudgetElementJS extends DefaultFlexibleElementJS {
 		
 		return budgetElementJS;
 	}
-
+	
 	public BudgetElementDTO toBudgetElementDTO() {
 		final BudgetElementDTO budgetElementDTO = new BudgetElementDTO();
 		

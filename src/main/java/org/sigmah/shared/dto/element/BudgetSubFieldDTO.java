@@ -32,6 +32,7 @@ import org.sigmah.shared.dto.referential.BudgetSubFieldType;
  * 
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
+@Deprecated
 public class BudgetSubFieldDTO extends AbstractModelDataEntityDTO<Integer> {
 
 	/**

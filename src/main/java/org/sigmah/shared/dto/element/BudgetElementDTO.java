@@ -52,13 +52,13 @@ import com.extjs.gxt.ui.client.widget.form.LabelField;
 import org.sigmah.client.ui.res.icon.IconImageBundle;
 import org.sigmah.shared.dto.ProjectDTO;
 import org.sigmah.shared.dto.referential.AmendmentState;
-import org.sigmah.shared.dto.referential.GlobalPermissionEnum;
 
 /**
  * BudgetElementDTO.
  *
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
+@Deprecated
 public class BudgetElementDTO extends DefaultFlexibleElementDTO {
 
 	/**
