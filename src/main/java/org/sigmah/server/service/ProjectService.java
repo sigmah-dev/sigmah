@@ -29,7 +29,6 @@ import javax.persistence.NoResultException;
 import javax.persistence.Query;
 
 import com.google.inject.Inject;
-import com.google.inject.Injector;
 import com.google.inject.Singleton;
 
 import org.sigmah.client.ui.presenter.CreateProjectPresenter;
@@ -38,8 +37,9 @@ import org.sigmah.server.dispatch.impl.UserDispatch.UserExecutionContext;
 import org.sigmah.server.domain.*;
 import org.sigmah.server.domain.calendar.PersonalCalendar;
 import org.sigmah.server.domain.element.BudgetElement;
-import org.sigmah.server.domain.element.BudgetSubField;
+import org.sigmah.server.domain.element.BudgetRatioElement;
 import org.sigmah.server.domain.element.DefaultFlexibleElement;
+import org.sigmah.server.domain.element.FlexibleElement;
 import org.sigmah.server.domain.layout.LayoutConstraint;
 import org.sigmah.server.domain.layout.LayoutGroup;
 import org.sigmah.server.domain.logframe.LogFrame;
@@ -56,9 +56,7 @@ import org.sigmah.shared.dispatch.CommandException;
 import org.sigmah.shared.dto.ProjectDTO;
 import org.sigmah.shared.dto.ProjectFundingDTO;
 import org.sigmah.shared.dto.base.EntityDTO;
-import org.sigmah.shared.dto.element.BudgetSubFieldDTO;
 import org.sigmah.shared.dto.referential.*;
-import org.sigmah.shared.util.ValueResultUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,11 +75,6 @@ public class ProjectService extends AbstractEntityService<Project, Integer, Proj
 	private static final Logger LOG = LoggerFactory.getLogger(ProjectService.class);
 
 	/**
-	 * Application injector.
-	 */
-	private final Injector injector;
-
-	/**
 	 * Project mapper.
 	 */
 	@Inject
@@ -92,11 +85,6 @@ public class ProjectService extends AbstractEntityService<Project, Integer, Proj
 	 */
 	@Inject
 	private ProjectFundingService fundingService;
-
-	@Inject
-	public ProjectService(final Injector injector) {
-		this.injector = injector;
-	}
 
 	/**
 	 * {@inheritDoc}
@@ -253,7 +241,7 @@ public class ProjectService extends AbstractEntityService<Project, Integer, Proj
 		final Double budgetPlanned = properties.<Double> get(ProjectDTO.BUDGET);
 		final String budgetValue;
 		if (budgetPlanned != null) {
-			budgetValue = createBudgetValues(budgetPlanned, model, project, user);
+			budgetValue = createPlannedBudgetValue(budgetPlanned, model, project, user);
 		} else {
 			budgetValue = null;
 		}
@@ -302,48 +290,39 @@ public class ProjectService extends AbstractEntityService<Project, Integer, Proj
 	}
 
 	/**
-	 * Create the required budget values.
+	 * Create the planned budget initial value.
 	 *
-	 * @param budgetPlanned Planned budget. Null values will result in a NullPointerException.
-	 * @param model Project model to read.
-	 * @param project Project to edit.
-	 * @param user User creating the project.
+	 * @param budgetPlanned
+	 *			Planned budget. <code>null</code> value will result in a <code>NullPointerException</code>.
+	 * @param model
+	 *			Project model to read.
+	 * @param project
+	 *			Project to edit.
+	 * @param user
+	 *			User creating the project.
+	 * @return  The saved value.
 	 */
-	private String createBudgetValues(Double budgetPlanned, ProjectModel model, Project project, final User user) {
-		final String budgetValue;
-
-		final Map<BudgetSubFieldDTO, Double> budgetValues = new HashMap<BudgetSubFieldDTO, Double>();
-
-		final BudgetElement budgetElement = getBudgetElement(model);
-		if (budgetElement != null) {
-			for (BudgetSubField budgetSubField : budgetElement.getBudgetSubFields()) {
-				BudgetSubFieldDTO budgetSubFieldDTO = new BudgetSubFieldDTO();
-				budgetSubFieldDTO.setId(budgetSubField.getId());
-				if (BudgetSubFieldType.PLANNED == budgetSubField.getType()) {
-					budgetValues.put(budgetSubFieldDTO, budgetPlanned);
-				} else {
-					budgetValues.put(budgetSubFieldDTO, 0.0);
-				}
-			}
-
-			budgetValue = ValueResultUtils.mergeElements(budgetValues);
-
-			final Value value = new Value();
-			value.setContainerId(project.getId());
-			value.setElement(budgetElement);
-			value.setLastModificationAction('C');
-			value.setLastModificationDate(new Date());
-			value.setLastModificationUser(user);
-			value.setValue(budgetValue);
-			em().persist(value);
-
-		} else {
-			budgetValue = null;
+	private String createPlannedBudgetValue(final Double budgetPlanned, final ProjectModel model, final Project project, final User user) {
+		
+		final BudgetRatioElement budgetRatioElement = model.getFirstElementOfType(BudgetRatioElement.class);
+		if (budgetRatioElement == null || budgetRatioElement.getPlannedBudget() == null) {
+			return null;
 		}
-
+		
+		final String budgetValue = budgetPlanned.toString();
+		
+		final Value value = new Value();
+		value.setContainerId(project.getId());
+		value.setElement(budgetRatioElement.getPlannedBudget());
+		value.setLastModificationAction('C');
+		value.setLastModificationDate(new Date());
+		value.setLastModificationUser(user);
+		value.setValue(budgetValue);
+		em().persist(value);
+		
 		return budgetValue;
 	}
-
+	
 	/**
 	 * Creates a well-configured default log frame for the new project.
 	 *
@@ -416,21 +395,26 @@ public class ProjectService extends AbstractEntityService<Project, Integer, Proj
 	 * @param user
 	 *			User creating the project.
 	 */
-	private void createInitialHistoryTokens(Project project, String budgetValue, User user) {
-		for(final DefaultFlexibleElement element : getDefaultElements(project)) {
+	private void createInitialHistoryTokens(final Project project, final String budgetValue, final User user) {
+		
+		for (final DefaultFlexibleElement element : getDefaultElements(project)) {
+			final Integer elementId;
 			final String value;
 
-			if(element instanceof BudgetElement) {
+			if (element instanceof BudgetRatioElement) {
 				value = budgetValue;
+				final FlexibleElement plannedBudgetElement = ((BudgetRatioElement) element).getPlannedBudget();
+				elementId = plannedBudgetElement != null ? plannedBudgetElement.getId() : null;
 			} else {
 				value = element.getValue(project);
+				elementId = element.getId();
 			}
 
-			if(value != null) {
+			if (value != null && elementId != null) {
 				final HistoryToken historyToken = new HistoryToken();
 
 				historyToken.setDate(new Date());
-				historyToken.setElementId(element.getId());
+				historyToken.setElementId(elementId);
 				historyToken.setProjectId(project.getId());
 				historyToken.setType(ValueEventChangeType.ADD);
 				historyToken.setUser(user);
