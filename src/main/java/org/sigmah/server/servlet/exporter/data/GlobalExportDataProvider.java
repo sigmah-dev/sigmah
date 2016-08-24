@@ -73,7 +73,15 @@ import org.sigmah.shared.util.ValueResultUtils;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
+import javax.persistence.NoResultException;
+import javax.persistence.TypedQuery;
+import org.sigmah.client.util.NumberUtils;
+import org.sigmah.server.domain.element.BudgetRatioElement;
+import org.sigmah.shared.computation.value.ComputationError;
+import org.sigmah.shared.computation.value.ComputedValue;
+import org.sigmah.shared.computation.value.ComputedValues;
 import org.sigmah.shared.dto.element.BudgetElementDTO;
+import org.sigmah.shared.dto.element.BudgetRatioElementDTO;
 import org.sigmah.shared.dto.element.CheckboxElementDTO;
 import org.sigmah.shared.dto.element.DefaultFlexibleElementDTO;
 import org.sigmah.shared.dto.element.QuestionElementDTO;
@@ -142,7 +150,7 @@ public class GlobalExportDataProvider {
 		this.csvBuilder = new CsvBuilder();
 		this.csvParser = new CsvParser();
 	}
-
+	
 	public void persistGlobalExportDataAsCsv(final GlobalExport globalExport, EntityManager em, Map<String, List<String[]>> exportData) throws Exception {
 		for (final String pModelName : exportData.keySet()) {
 			final GlobalExportContent content = new GlobalExportContent();
@@ -256,18 +264,27 @@ public class GlobalExportDataProvider {
 						/* DEF FLEXIBLE */
 						if (elementName.equals(DefaultFlexibleElementDTO.ENTITY_NAME) || elementName.equals(BudgetElementDTO.ENTITY_NAME)) {
 							pair = getDefElementPair(valueResult, element, project, entityManager, i18nTranslator, language);
-
-						} else /* CHECKBOX */if (elementName.equals(CheckboxElementDTO.ENTITY_NAME)) {
+						}
+						/* BUDGET RATIO */
+						else if(elementName.equals(BudgetRatioElementDTO.ENTITY_NAME)) {
+							pair = getBudgetRatioElementPair(element, project, entityManager);
+						}
+						/* CHECKBOX */
+						else if (elementName.equals(CheckboxElementDTO.ENTITY_NAME)) {
 							pair = getCheckboxElementPair(valueResult, element, i18nTranslator, language);
-						} else /* TEXT AREA */if (elementName.equals(TextAreaElementDTO.ENTITY_NAME)) {
+						}
+						/* TEXT AREA */
+						else if (elementName.equals(TextAreaElementDTO.ENTITY_NAME)) {
 							pair = getTextAreaElementPair(valueResult, element);
 
-						}/* TRIPLET */
-						if (elementName.equals(TripletsListElementDTO.ENTITY_NAME)) {
+						}
+						/* TRIPLET */
+						else if (elementName.equals(TripletsListElementDTO.ENTITY_NAME)) {
 							pair = getTripletPair(element, valueResult);
 
-						}/* CHOICE */
-						if (elementName.equals(QuestionElementDTO.ENTITY_NAME)) {
+						}
+						/* CHOICE */
+						else if (elementName.equals(QuestionElementDTO.ENTITY_NAME)) {
 							pair = getChoicePair(element, valueResult);
 						}
 
@@ -589,7 +606,7 @@ public class GlobalExportDataProvider {
 		}
 		return new ValueLabel(label, value);
 	}
-
+	
 	public ValueLabel getDefElementPair(final ValueResult valueResult, final FlexibleElement element, final OrgUnit orgUnit, final EntityManager entityManager,
 			final I18nServer i18nTranslator, final Language language) {
 		Object value = null;
@@ -677,6 +694,54 @@ public class GlobalExportDataProvider {
 				break;
 		}
 		return new ValueLabel(label, value);
+	}
+	
+	/**
+	 * Get the label/value pair of the given budget ratio element.
+	 * 
+	 * @param element
+	 *			Budget ratio element.
+	 * @param project
+	 *			Parent project.
+	 * @param em
+	 *			Entity manager to use.
+	 * @return The <code>ValueLabel</code> containing the label of the element and its value.
+	 */
+	public ValueLabel getBudgetRatioElementPair(final FlexibleElement element, final Project project, final EntityManager em) {
+		
+		final BudgetRatioElement budgetRatioElement = (BudgetRatioElement) element;
+		
+		final TypedQuery<String> valueQuery = em.createQuery("SELECT v.value FROM Value v WHERE v.containerId = :containerId AND v.element = :element", String.class);
+		valueQuery.setParameter("containerId", project.getId());
+		
+		final ComputedValue spentBudget = getElementValue(budgetRatioElement.getSpentBudget(), valueQuery);
+		final ComputedValue plannedBudget = getElementValue(budgetRatioElement.getPlannedBudget(), valueQuery);
+		
+		final Double value = plannedBudget.divide(spentBudget).get();
+		
+		return new ValueLabel(budgetRatioElement.getLabel(), NumberUtils.truncateDouble(value));
+	}
+
+	/**
+	 * Find the value of the given element with the given query.
+	 * 
+	 * @param element
+	 *			Element to search.
+	 * @param valueQuery
+	 *			Query to use.
+	 * @return The value of the given element as a <code>ComputedValue</code> or {@link ComputationError#NO_VALUE} if no value was found.
+	 */
+	private ComputedValue getElementValue(final FlexibleElement element, final TypedQuery<String> valueQuery) {
+		
+		if (element != null) {
+			valueQuery.setParameter("element", element);
+			try {
+				return ComputedValues.from(valueQuery.getSingleResult(), false);
+			} catch (NoResultException e) {
+				// Ignored.
+			}
+		}
+		return ComputationError.NO_VALUE;
 	}
 
 	public static String clearHtmlFormatting(String text) {
