@@ -47,6 +47,14 @@ import org.sigmah.server.servlet.exporter.utils.ExportConstants;
 import org.sigmah.shared.Language;
 import org.sigmah.shared.command.GetValue;
 import org.sigmah.shared.command.result.ValueResult;
+import org.sigmah.shared.dto.element.BudgetElementDTO;
+import org.sigmah.shared.dto.element.BudgetRatioElementDTO;
+import org.sigmah.shared.dto.element.CheckboxElementDTO;
+import org.sigmah.shared.dto.element.DefaultFlexibleElementDTO;
+import org.sigmah.shared.dto.element.MessageElementDTO;
+import org.sigmah.shared.dto.element.QuestionElementDTO;
+import org.sigmah.shared.dto.element.TextAreaElementDTO;
+import org.sigmah.shared.dto.element.TripletsListElementDTO;
 
 /**
  * Base excel template for project/orgunit excel templates
@@ -171,29 +179,34 @@ public abstract class BaseSynthesisExcelTemplate implements ExportTemplate {
 				ValueLabel pair = null;
 				boolean isMessage = false;
 				/* DEF FLEXIBLE */
-				if (elementName.equals("element.DefaultFlexibleElement") || elementName.equals("element.BudgetElement")) {
+				if (elementName.equals(DefaultFlexibleElementDTO.ENTITY_NAME) || elementName.equals(BudgetElementDTO.ENTITY_NAME)) {
 					pair =
 							data.getDataProvider().getDefElementPair(valueResult, element, data.getProject() != null ? data.getProject() : data.getOrgUnit(), clazz,
 								data.getEntityManager(), i18nTranslator, language);
 
 				}
+				/* BUDGET RATIO */
+				else if (elementName.equals(BudgetRatioElementDTO.ENTITY_NAME)) {
+					// TODO: Support this element type.
+				}
 				/* CHECKBOX */
-				else if (elementName.equals("element.CheckboxElement")) {
+				else if (elementName.equals(CheckboxElementDTO.ENTITY_NAME)) {
 					pair = data.getDataProvider().getCheckboxElementPair(valueResult, element, i18nTranslator, language);
 				}
 				/* TEXT AREA */
-				else if (elementName.equals("element.TextAreaElement")) {
+				else if (elementName.equals(TextAreaElementDTO.ENTITY_NAME)) {
 					pair = data.getDataProvider().getTextAreaElementPair(valueResult, element);
-
 				}
 				/* TRIPLET */
-				else if (elementName.equals("element.TripletsListElement")) {
+				else if (elementName.equals(TripletsListElementDTO.ENTITY_NAME)) {
 					pair = data.getDataProvider().getTripletPair(element, valueResult);
-
-				}/* CHOICE */else if (elementName.equals("element.QuestionElement")) {
+				}
+				/* CHOICE */
+				else if (elementName.equals(QuestionElementDTO.ENTITY_NAME)) {
 					pair = data.getDataProvider().getChoicePair(element, valueResult);
-
-				}/* MESSAGE */else if (elementName.equals("element.MessageElement")) {
+				}
+				/* MESSAGE */
+				else if (elementName.equals(MessageElementDTO.ENTITY_NAME)) {
 					pair = new ValueLabel(data.getLocalizedVersion("flexibleElementMessage"), GlobalExportDataProvider.clearHtmlFormatting(element.getLabel()));
 					isMessage = true;
 				}
