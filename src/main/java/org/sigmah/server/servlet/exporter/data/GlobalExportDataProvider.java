@@ -73,6 +73,12 @@ import org.sigmah.shared.util.ValueResultUtils;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
+import org.sigmah.shared.dto.element.BudgetElementDTO;
+import org.sigmah.shared.dto.element.CheckboxElementDTO;
+import org.sigmah.shared.dto.element.DefaultFlexibleElementDTO;
+import org.sigmah.shared.dto.element.QuestionElementDTO;
+import org.sigmah.shared.dto.element.TextAreaElementDTO;
+import org.sigmah.shared.dto.element.TripletsListElementDTO;
 import org.sigmah.shared.dto.referential.TextAreaType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -248,20 +254,20 @@ public class GlobalExportDataProvider {
 						// prepare value and label
 						ValueLabel pair = null;
 						/* DEF FLEXIBLE */
-						if (elementName.equals("element.DefaultFlexibleElement") || elementName.equals("element.BudgetElement")) {
+						if (elementName.equals(DefaultFlexibleElementDTO.ENTITY_NAME) || elementName.equals(BudgetElementDTO.ENTITY_NAME)) {
 							pair = getDefElementPair(valueResult, element, project, entityManager, i18nTranslator, language);
 
-						} else /* CHECKBOX */if (elementName.equals("element.CheckboxElement")) {
+						} else /* CHECKBOX */if (elementName.equals(CheckboxElementDTO.ENTITY_NAME)) {
 							pair = getCheckboxElementPair(valueResult, element, i18nTranslator, language);
-						} else /* TEXT AREA */if (elementName.equals("element.TextAreaElement")) {
+						} else /* TEXT AREA */if (elementName.equals(TextAreaElementDTO.ENTITY_NAME)) {
 							pair = getTextAreaElementPair(valueResult, element);
 
 						}/* TRIPLET */
-						if (elementName.equals("element.TripletsListElement")) {
+						if (elementName.equals(TripletsListElementDTO.ENTITY_NAME)) {
 							pair = getTripletPair(element, valueResult);
 
 						}/* CHOICE */
-						if (elementName.equals("element.QuestionElement")) {
+						if (elementName.equals(QuestionElementDTO.ENTITY_NAME)) {
 							pair = getChoicePair(element, valueResult);
 						}
 
