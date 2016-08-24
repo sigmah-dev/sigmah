@@ -33,6 +33,7 @@ import org.sigmah.server.dispatch.impl.UserDispatch.UserExecutionContext;
 import org.sigmah.server.domain.OrgUnit;
 import org.sigmah.server.domain.PhaseModel;
 import org.sigmah.server.domain.Project;
+import org.sigmah.server.domain.base.EntityId;
 import org.sigmah.server.domain.element.FlexibleElement;
 import org.sigmah.server.domain.layout.Layout;
 import org.sigmah.server.domain.layout.LayoutConstraint;
@@ -180,14 +181,12 @@ public abstract class BaseSynthesisExcelTemplate implements ExportTemplate {
 				boolean isMessage = false;
 				/* DEF FLEXIBLE */
 				if (elementName.equals(DefaultFlexibleElementDTO.ENTITY_NAME) || elementName.equals(BudgetElementDTO.ENTITY_NAME)) {
-					pair =
-							data.getDataProvider().getDefElementPair(valueResult, element, data.getProject() != null ? data.getProject() : data.getOrgUnit(), clazz,
-								data.getEntityManager(), i18nTranslator, language);
-
+					final EntityId<Integer> container = data.getProject() != null ? data.getProject() : data.getOrgUnit();
+					pair = data.getDataProvider().getDefElementPair(valueResult, element, container, clazz, data.getEntityManager(), i18nTranslator, language);
 				}
 				/* BUDGET RATIO */
 				else if (elementName.equals(BudgetRatioElementDTO.ENTITY_NAME)) {
-					// TODO: Support this element type.
+					pair = data.getDataProvider().getBudgetRatioElementPair(element, data.getProject(), data.getEntityManager());
 				}
 				/* CHECKBOX */
 				else if (elementName.equals(CheckboxElementDTO.ENTITY_NAME)) {
@@ -211,8 +210,9 @@ public abstract class BaseSynthesisExcelTemplate implements ExportTemplate {
 					isMessage = true;
 				}
 
-				if (pair != null)
+				if (pair != null) {
 					putElement(sheet, ++rowIndex, pair, isMessage);
+				}
 
 			}// elements
 		}
