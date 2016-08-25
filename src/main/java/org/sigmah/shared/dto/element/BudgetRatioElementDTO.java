@@ -81,8 +81,7 @@ public class BudgetRatioElementDTO extends DefaultFlexibleElementDTO {
 			
 			@Override
 			public void onUpdate(UpdateEvent event) {
-				// TODO: Create an update event type for the project value updates.
-				if (event.concern(ENTITY_NAME)) {
+				if (event.concern(UpdateEvent.VALUE_UPDATE) && event.getParam(0).equals(currentContainerDTO)) {
 					updateComponentValue(field);
 				}
 			}
@@ -90,10 +89,13 @@ public class BudgetRatioElementDTO extends DefaultFlexibleElementDTO {
 		});
 		
 		// Sets the value of the field.
-		if (valueResult != null && valueResult.isValueDefined()) {
-			field.setValue(valueResult.getValueObject());
+		final Double value = ComputedValues.from(valueResult).get();
+		if (value != null) {
+			field.setValue(NumberUtils.truncate(value * 100.0) + " %");
+		} else {
+			field.setValue("0 %");
 		}
-        
+		
 		return field;
 	}
 	
