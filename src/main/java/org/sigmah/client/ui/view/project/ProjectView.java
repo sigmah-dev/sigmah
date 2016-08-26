@@ -352,9 +352,10 @@ public class ProjectView extends AbstractView implements ProjectPresenter.View {
 		synthesisBox.setEnabled(false);
 		final CheckBox indicatorBox = Forms.checkbox(I18N.CONSTANTS.flexibleElementIndicatorsList());
 		final CheckBox logFrameBox = Forms.checkbox(I18N.CONSTANTS.logFrame());
+		final CheckBox contactsBox = Forms.checkbox(I18N.CONSTANTS.contacts());
 
 		final CheckBoxGroup options =
-				Forms.checkBoxGroup(I18N.CONSTANTS.exportOptions(), com.extjs.gxt.ui.client.Style.Orientation.VERTICAL, synthesisBox, logFrameBox, indicatorBox);
+				Forms.checkBoxGroup(I18N.CONSTANTS.exportOptions(), com.extjs.gxt.ui.client.Style.Orientation.VERTICAL, synthesisBox, logFrameBox, indicatorBox, contactsBox);
 
 		panel.add(options);
 
@@ -365,7 +366,7 @@ public class ProjectView extends AbstractView implements ProjectPresenter.View {
 			@Override
 			public void componentSelected(final ButtonEvent ce) {
 				if (handler != null) {
-					handler.onExportProject(indicatorBox, logFrameBox);
+					handler.onExportProject(indicatorBox, logFrameBox, contactsBox);
 				}
 				w.hide();
 			}

@@ -32,9 +32,9 @@ import org.odftoolkit.simple.table.Cell;
 import org.odftoolkit.simple.table.Row;
 import org.odftoolkit.simple.table.Table;
 import org.sigmah.server.servlet.exporter.data.GlobalExportData;
-import org.sigmah.server.servlet.exporter.data.cells.GlobalExportDataCell;
-import org.sigmah.server.servlet.exporter.data.cells.GlobalExportLinkCell;
-import org.sigmah.server.servlet.exporter.data.cells.GlobalExportStringCell;
+import org.sigmah.server.servlet.exporter.data.cells.ExportDataCell;
+import org.sigmah.server.servlet.exporter.data.cells.ExportLinkCell;
+import org.sigmah.server.servlet.exporter.data.cells.ExportStringCell;
 import org.sigmah.server.servlet.exporter.utils.CalcUtils;
 
 public class GlobalExportCalcTemplate implements ExportTemplate {
@@ -53,7 +53,7 @@ public class GlobalExportCalcTemplate implements ExportTemplate {
 		final Map<Integer, Integer> contentWidthMap = new HashMap<Integer, Integer>();
 
 		for (final String pModelName : data.getExportData().keySet()) {
-			final List<GlobalExportDataCell[]> dataList = data.getExportData().get(pModelName);
+			final List<ExportDataCell[]> dataList = data.getExportData().get(pModelName);
 			if (first) {
 				table.setTableName(pModelName);
 			} else {
@@ -67,19 +67,19 @@ public class GlobalExportCalcTemplate implements ExportTemplate {
 			int defaultWidth = 30;
 
 			// titles
-			final GlobalExportDataCell[] header = dataList.get(0);
+			final ExportDataCell[] header = dataList.get(0);
 			row = table.getRowByIndex(++rowIndex);
 			for (int i = 0; i < header.length; i++) {
 				int width = -1;
-				if (header[i] instanceof GlobalExportStringCell) {
-					GlobalExportStringCell cell = (GlobalExportStringCell)header[i];
+				if (header[i] instanceof ExportStringCell) {
+					ExportStringCell cell = (ExportStringCell)header[i];
 					CalcUtils.putGlobalExportHeader(row, i, cell.getText());
 					if (cell.getText() != null) {
 						width = cell.getText().length() / 2;
 					}
-				} else if (header[i] instanceof GlobalExportLinkCell) {
+				} else if (header[i] instanceof ExportLinkCell) {
 					// no links on headers for the moment
-					GlobalExportLinkCell cell = (GlobalExportLinkCell)header[i];
+					ExportLinkCell cell = (ExportLinkCell)header[i];
 					CalcUtils.putGlobalExportHeader(row, i, cell.getText());
 					if (cell.getText() != null) {
 						width = cell.getText().length() / 2;
@@ -93,15 +93,15 @@ public class GlobalExportCalcTemplate implements ExportTemplate {
 			// values
 			for (int j = 1; j < dataList.size(); j++) {
 				row = table.getRowByIndex(++rowIndex);
-				final GlobalExportDataCell[] values = dataList.get(j);
+				final ExportDataCell[] values = dataList.get(j);
 				int devider = 2;
 				for (int i = 0; i < header.length; i++) {
 
 					int width = -1;
 
-					if(values[i] instanceof GlobalExportStringCell) {
+					if(values[i] instanceof ExportStringCell) {
 
-						String text = ((GlobalExportStringCell) values[i]).getText();
+						String text = ((ExportStringCell) values[i]).getText();
 						CalcUtils.createBasicCell(table, i, rowIndex, text);
 						if (text != null) {
 							String parts[] = text.split("\n");
@@ -116,9 +116,9 @@ public class GlobalExportCalcTemplate implements ExportTemplate {
 							}
 							width = currentWidth;
 						}
-					} else if (values[i] instanceof GlobalExportLinkCell) {
+					} else if (values[i] instanceof ExportLinkCell) {
 
-						GlobalExportLinkCell linkCell = (GlobalExportLinkCell)values[i];
+						ExportLinkCell linkCell = (ExportLinkCell)values[i];
 
 						Cell cell = table.getCellByPosition(1, rowIndex);
 						CalcUtils.applyLink(cell, linkCell.getText(), linkCell.getTarget());

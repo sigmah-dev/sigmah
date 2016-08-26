@@ -26,6 +26,7 @@ package org.sigmah.server.servlet.exporter;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.servlet.ServletException;
@@ -41,6 +42,9 @@ import org.sigmah.server.servlet.exporter.data.IndicatorEntryData;
 import org.sigmah.server.servlet.exporter.data.LogFrameExportData;
 import org.sigmah.server.servlet.exporter.data.ProjectSynthesisData;
 import org.sigmah.server.servlet.exporter.data.SpreadsheetDataUtil;
+import org.sigmah.server.servlet.exporter.utils.ContactSynthesisCalcTemplate;
+import org.sigmah.server.servlet.exporter.utils.ContactSynthesisExcelTemplate;
+import org.sigmah.server.servlet.exporter.utils.ContactSynthesisUtils;
 import org.sigmah.server.servlet.exporter.template.ExportTemplate;
 import org.sigmah.server.servlet.exporter.template.IndicatorEntryCalcTemplate;
 import org.sigmah.server.servlet.exporter.template.IndicatorEntryExcelTemplate;
@@ -88,14 +92,18 @@ public class ProjectSynthesisExporter extends Exporter {
 
 		try {
 
-			// data
-			final ProjectSynthesisData synthesisData = prepareSynthesisData(projectId);
-			LogFrameExportData logFrameData = null;
-			IndicatorEntryData indicatorData = null;
-
 			// appending options
 			final String typeString = requireParameter(RequestParameter.TYPE);
 			final ExportUtils.ExportType type = ExportUtils.ExportType.valueOfOrNull(typeString);
+
+			final String withContactsString = requireParameter(RequestParameter.WITH_CONTACTS);
+			final boolean withContacts = "true".equals(withContactsString);
+
+			// data
+			final ProjectSynthesisData synthesisData = prepareSynthesisData(projectId, withContacts);
+			LogFrameExportData logFrameData = null;
+			IndicatorEntryData indicatorData = null;
+			List<ContactSynthesisUtils.ContactSheetData> contactSheetDatas = null;
 
 			switch (type) {
 
@@ -111,8 +119,8 @@ public class ProjectSynthesisExporter extends Exporter {
 					break;
 
 				case PROJECT_SYNTHESIS_LOGFRAME_INDICATORS: {
-					// logframe data
 					final Project project = injector.getInstance(EntityManager.class).find(Project.class, projectId);
+					// logframe data
 					logFrameData = SpreadsheetDataUtil.prepareLogFrameData(project, this);
 					logFrameData.setIndicatorsSheetExist(true);
 					// indicator data
@@ -125,6 +133,10 @@ public class ProjectSynthesisExporter extends Exporter {
 					break;
 			}
 
+			if (withContacts) {
+				contactSheetDatas = ContactSynthesisUtils.createProjectContactListData(projectId, this, getI18ntranslator(), getLanguage());
+			}
+
 			ExportTemplate template = null;
 			switch (exportFormat) {
 
@@ -135,6 +147,10 @@ public class ProjectSynthesisExporter extends Exporter {
 						template = new LogFrameExcelTemplate(logFrameData, wb);
 					if (indicatorData != null)
 						template = new IndicatorEntryExcelTemplate(indicatorData, wb);
+					if (contactSheetDatas != null) {
+						template = new ContactSynthesisExcelTemplate(contactSheetDatas, wb);
+						((ContactSynthesisExcelTemplate) template).generate();
+					}
 				}
 					break;
 
@@ -145,6 +161,10 @@ public class ProjectSynthesisExporter extends Exporter {
 						template = new LogFrameCalcTemplate(logFrameData, doc);
 					if (indicatorData != null)
 						template = new IndicatorEntryCalcTemplate(indicatorData, doc);
+					if (contactSheetDatas != null) {
+						template = new ContactSynthesisCalcTemplate(contactSheetDatas, doc);
+						((ContactSynthesisCalcTemplate)template).generate();
+					}
 				}
 					break;
 
@@ -160,8 +180,8 @@ public class ProjectSynthesisExporter extends Exporter {
 		}
 	}
 
-	private ProjectSynthesisData prepareSynthesisData(Integer projectId) throws Throwable {
-		return new ProjectSynthesisData(this, projectId, injector);
+	private ProjectSynthesisData prepareSynthesisData(Integer projectId, boolean withContacts) throws Throwable {
+		return new ProjectSynthesisData(this, projectId, injector, withContacts);
 	}
 
 }

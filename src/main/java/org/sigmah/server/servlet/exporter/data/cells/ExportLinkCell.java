@@ -22,12 +22,12 @@ package org.sigmah.server.servlet.exporter.data.cells;
  * #L%
  */
 
-public class GlobalExportLinkCell extends GlobalExportDataCell {
+public class ExportLinkCell extends ExportDataCell {
 
   private final String text;
   private final String target;
 
-  public GlobalExportLinkCell(final String text, final String target) {
+  public ExportLinkCell(final String text, final String target) {
     this.text = text;
     this.target = target;
   }

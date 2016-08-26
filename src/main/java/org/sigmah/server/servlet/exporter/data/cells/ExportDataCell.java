@@ -22,7 +22,7 @@ package org.sigmah.server.servlet.exporter.data.cells;
  * #L%
  */
 
-public abstract class GlobalExportDataCell {
+public abstract class ExportDataCell {
 
   public abstract String toCSVString();
 }

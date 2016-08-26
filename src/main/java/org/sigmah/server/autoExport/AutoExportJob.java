@@ -43,7 +43,7 @@ import org.sigmah.server.domain.export.GlobalExportSettings;
 import org.sigmah.server.i18n.I18nServer;
 import org.sigmah.server.servlet.exporter.data.GlobalExportDataContactProvider;
 import org.sigmah.server.servlet.exporter.data.GlobalExportDataProjectProvider;
-import org.sigmah.server.servlet.exporter.data.cells.GlobalExportDataCell;
+import org.sigmah.server.servlet.exporter.data.cells.ExportDataCell;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -161,7 +161,7 @@ public class AutoExportJob implements Job {
 
 					// generate export content
 
-					final Map<String, List<GlobalExportDataCell[]>> exportData =
+					final Map<String, List<ExportDataCell[]>> exportData =
 							dataProvider.generateGlobalExportData(setting.getOrganization().getId(), em, injector.getInstance(I18nServer.class), null, null);
 
 					// persist export content
@@ -246,7 +246,7 @@ public class AutoExportJob implements Job {
 
 					// generate export content
 
-					final Map<String, List<GlobalExportDataCell[]>> exportData =
+					final Map<String, List<ExportDataCell[]>> exportData =
 							dataProvider.generateGlobalExportData(settingContacts.getOrganization().getId(), em, injector.getInstance(I18nServer.class), null, null);
 
 					// persist export content

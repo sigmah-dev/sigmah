@@ -33,7 +33,7 @@ public class OrgUnitSynthesisData extends BaseSynthesisData {
 	private final OrgUnit orgUnit;
 
 	public OrgUnitSynthesisData(final Exporter exporter, final Integer orgUnitId, final Injector injector) {
-		super(exporter, injector);
+		super(exporter, injector, false);
 		orgUnit = entityManager.find(OrgUnit.class, orgUnitId);
 	}
 

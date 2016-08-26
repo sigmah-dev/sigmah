@@ -37,9 +37,9 @@ public class ProjectSynthesisData extends BaseSynthesisData {
 
 	private final Project project;
 
-	public ProjectSynthesisData(final Exporter exporter, final Integer projectId, final Injector injector) {
+	public ProjectSynthesisData(final Exporter exporter, final Integer projectId, final Injector injector, final Boolean withContacts) {
 
-		super(exporter, injector);
+		super(exporter, injector, withContacts);
 		project = entityManager.find(Project.class, projectId);
 
 	}

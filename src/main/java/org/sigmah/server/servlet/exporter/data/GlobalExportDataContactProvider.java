@@ -54,9 +54,9 @@ import org.sigmah.server.handler.GetLayoutGroupIterationsHandler;
 import org.sigmah.server.handler.GetValueHandler;
 import org.sigmah.server.i18n.I18nServer;
 import org.sigmah.server.servlet.base.ServletExecutionContext;
-import org.sigmah.server.servlet.exporter.data.cells.GlobalExportDataCell;
-import org.sigmah.server.servlet.exporter.data.cells.GlobalExportLinkCell;
-import org.sigmah.server.servlet.exporter.data.cells.GlobalExportStringCell;
+import org.sigmah.server.servlet.exporter.data.cells.ExportDataCell;
+import org.sigmah.server.servlet.exporter.data.cells.ExportLinkCell;
+import org.sigmah.server.servlet.exporter.data.cells.ExportStringCell;
 import org.sigmah.server.servlet.exporter.data.columns.GlobalExportDataColumn;
 import org.sigmah.server.servlet.exporter.data.columns.GlobalExportFlexibleElementColumn;
 import org.sigmah.server.servlet.exporter.data.columns.GlobalExportIterativeGroupColumn;
@@ -95,8 +95,8 @@ public class GlobalExportDataContactProvider extends GlobalExportDataProvider {
 		this.csvParser = new CsvParser();
 	}
 
-	public Map<String, List<GlobalExportDataCell[]>> generateGlobalExportData(final Integer organizationId, EntityManager entityManager, final I18nServer i18nTranslator,
-			final Language language, final ServletExecutionContext context) throws Exception {
+	public Map<String, List<ExportDataCell[]>> generateGlobalExportData(final Integer organizationId, EntityManager entityManager, final I18nServer i18nTranslator,
+																																			final Language language, final ServletExecutionContext context) throws Exception {
 		if (entityManager == null) {
 			entityManager = injector.getInstance(EntityManager.class);
 		}
@@ -139,7 +139,7 @@ public class GlobalExportDataContactProvider extends GlobalExportDataProvider {
 		final CommandHandler<GetValue, ValueResult> handler = injector.getInstance(GetValueHandler.class);
 		final CommandHandler<GetLayoutGroupIterations, ListResult<LayoutGroupIterationDTO>> iterationsHandler = injector.getInstance(GetLayoutGroupIterationsHandler.class);
 
-		final Map<String, List<GlobalExportDataCell[]>> pModelExportDataMap = new LinkedHashMap<String, List<GlobalExportDataCell[]>>();
+		final Map<String, List<ExportDataCell[]>> pModelExportDataMap = new LinkedHashMap<String, List<ExportDataCell[]>>();
 
 		// categories
 		final Set<CategoryType> categories = new HashSet<>();
@@ -153,26 +153,26 @@ public class GlobalExportDataContactProvider extends GlobalExportDataProvider {
 				continue;
 
 			final List<GlobalExportDataColumn> elements = pModelElementsMap.get(pModelName);
-			final List<GlobalExportDataCell[]> exportData = new ArrayList<GlobalExportDataCell[]>();
+			final List<ExportDataCell[]> exportData = new ArrayList<ExportDataCell[]>();
 			pModelExportDataMap.put(pModelName, exportData);
 
 			// field titles
-			final List<GlobalExportDataCell> titles = new ArrayList<GlobalExportDataCell>();
+			final List<ExportDataCell> titles = new ArrayList<ExportDataCell>();
 
 			// layout group tabs
-			final Map<String, List<GlobalExportDataCell[]>> layoutGroupsData = new LinkedHashMap<>();
+			final Map<String, List<ExportDataCell[]>> layoutGroupsData = new LinkedHashMap<>();
 
 			// special fields for BI
-			titles.add(new GlobalExportStringCell(i18nTranslator.t(language, "permanentId")));
+			titles.add(new ExportStringCell(i18nTranslator.t(language, "permanentId")));
 
 			boolean isFirstLine = true;
 			// projects
 			for (final Contact contact : pModelContactsMap.get(pModelName)) {
 
-				final List<GlobalExportDataCell> values = new ArrayList<GlobalExportDataCell>();
+				final List<ExportDataCell> values = new ArrayList<ExportDataCell>();
 
 				// special fields for BI
-				values.add(new GlobalExportStringCell(String.valueOf(contact.getId())));
+				values.add(new ExportStringCell(String.valueOf(contact.getId())));
 
 				// fields
 				for (final GlobalExportDataColumn column : elements) {
@@ -228,11 +228,11 @@ public class GlobalExportDataContactProvider extends GlobalExportDataProvider {
 							// titles
 
 							if (isFirstLine) {
-								titles.add(new GlobalExportStringCell(pair != null ? pair.getFormattedLabel() : null));
+								titles.add(new ExportStringCell(pair != null ? pair.getFormattedLabel() : null));
 							}
 
 							// values
-							values.add(new GlobalExportStringCell(ExporterUtil.pairToValueString(pair)));
+							values.add(new ExportStringCell(ExporterUtil.pairToValueString(pair)));
 
 						} catch (Exception e) {
 							LOGGER.error("Failed to get the value of element '" + element.getId() + "' of contact '" + contact.getId() + "'.", e);
@@ -261,15 +261,15 @@ public class GlobalExportDataContactProvider extends GlobalExportDataProvider {
 						try {
 
 							if (isFirstLine) {
-								titles.add(new GlobalExportStringCell(group.getTitle()));
+								titles.add(new ExportStringCell(group.getTitle()));
 
 								// iterative layout group columns titles
-								ArrayList<GlobalExportDataCell[]> groupTitles = new ArrayList<>();
-								List<GlobalExportDataCell> columns = new ArrayList<GlobalExportDataCell>();
+								ArrayList<ExportDataCell[]> groupTitles = new ArrayList<>();
+								List<ExportDataCell> columns = new ArrayList<ExportDataCell>();
 
-								columns.add(new GlobalExportStringCell(i18nTranslator.t(language, "contactPermanentId")));
-								columns.add(new GlobalExportStringCell(i18nTranslator.t(language, "contactFullName")));
-								columns.add(new GlobalExportStringCell(i18nTranslator.t(language, "iterationName")));
+								columns.add(new ExportStringCell(i18nTranslator.t(language, "contactPermanentId")));
+								columns.add(new ExportStringCell(i18nTranslator.t(language, "contactFullName")));
+								columns.add(new ExportStringCell(i18nTranslator.t(language, "iterationName")));
 
 								for (LayoutConstraint constraint : constraints) {
 									FlexibleElement element = constraint.getElement();
@@ -279,31 +279,31 @@ public class GlobalExportDataContactProvider extends GlobalExportDataProvider {
 										final QuestionElement questionElement = (QuestionElement) element;
 										String choiceLabel = element.getLabel();
 
-										columns.add(new GlobalExportStringCell(choiceLabel));
+										columns.add(new ExportStringCell(choiceLabel));
 										if (questionElement.getCategoryType() != null) {
-											columns.add(new GlobalExportStringCell(choiceLabel + " (" + questionElement.getCategoryType().getLabel() + ") " + i18nTranslator.t(language, "categoryId")));
+											columns.add(new ExportStringCell(choiceLabel + " (" + questionElement.getCategoryType().getLabel() + ") " + i18nTranslator.t(language, "categoryId")));
 											categories.add(((QuestionElement) element).getCategoryType());
 										}
 									} else {
-										columns.add(new GlobalExportStringCell(element.getLabel()));
+										columns.add(new ExportStringCell(element.getLabel()));
 									}
 								}
-								groupTitles.add(columns.toArray(new GlobalExportDataCell[columns.size()]));
+								groupTitles.add(columns.toArray(new ExportDataCell[columns.size()]));
 								layoutGroupsData.put(groupName, groupTitles);
 							}
 
 							final ListResult<LayoutGroupIterationDTO> iterationsResult = iterationsHandler.execute(command, null);
 
-							values.add(new GlobalExportLinkCell(String.valueOf(iterationsResult.getSize()), groupName));
+							values.add(new ExportLinkCell(String.valueOf(iterationsResult.getSize()), groupName));
 
 							// iterative layout group values
-							List<GlobalExportDataCell[]> groupValues = layoutGroupsData.get(groupName);
+							List<ExportDataCell[]> groupValues = layoutGroupsData.get(groupName);
 							for (LayoutGroupIterationDTO iteration : iterationsResult.getList()) {
-								List<GlobalExportDataCell> columns = new ArrayList<>();
+								List<ExportDataCell> columns = new ArrayList<>();
 								// default columns
-								columns.add(new GlobalExportStringCell(String.valueOf(contact.getId())));
-								columns.add(new GlobalExportStringCell(contact.getFullName()));
-								columns.add(new GlobalExportStringCell(iteration.getName()));
+								columns.add(new ExportStringCell(String.valueOf(contact.getId())));
+								columns.add(new ExportStringCell(contact.getFullName()));
+								columns.add(new ExportStringCell(iteration.getName()));
 
 								for (LayoutConstraint constraint : constraints) {
 									FlexibleElement element = constraint.getElement();
@@ -327,9 +327,9 @@ public class GlobalExportDataContactProvider extends GlobalExportDataProvider {
 											// choice is a special case where the element corresponds to 2 columns and 1 additional tab
 											ExporterUtil.ChoiceValue choiceValue = new ExporterUtil.ChoiceValue((QuestionElement) element, iterationValueResult);
 
-											columns.add(new GlobalExportStringCell(choiceValue.getValueLabels()));
+											columns.add(new ExportStringCell(choiceValue.getValueLabels()));
 											if (((QuestionElement)element).getCategoryType() != null) {
-												columns.add(new GlobalExportStringCell(choiceValue.getValueIds()));
+												columns.add(new ExportStringCell(choiceValue.getValueIds()));
 											}
 											continue;
 										}/* CONTACT LIST */
@@ -337,18 +337,18 @@ public class GlobalExportDataContactProvider extends GlobalExportDataProvider {
 											pair = ExporterUtil.getContactListPair(element, iterationValueResult, entityManager);
 
 										}
-										columns.add(new GlobalExportStringCell(ExporterUtil.pairToValueString(pair)));
+										columns.add(new ExportStringCell(ExporterUtil.pairToValueString(pair)));
 
 									} catch (Exception e) {
 										// no value found in database : empty cells
-										columns.add(new GlobalExportStringCell(""));
+										columns.add(new ExportStringCell(""));
 										if (elementName.equals("QuestionElement")) {
-											columns.add(new GlobalExportStringCell(""));
+											columns.add(new ExportStringCell(""));
 										}
 									}
 								}
 
-								groupValues.add(columns.toArray(new GlobalExportDataCell[columns.size()]));
+								groupValues.add(columns.toArray(new ExportDataCell[columns.size()]));
 							}
 
 						} catch (Exception e) {
@@ -359,12 +359,12 @@ public class GlobalExportDataContactProvider extends GlobalExportDataProvider {
 
 				// add titles
 				if (isFirstLine) {
-					exportData.add(titles.toArray(new GlobalExportDataCell[titles.size()]));
+					exportData.add(titles.toArray(new ExportDataCell[titles.size()]));
 					isFirstLine = false;
 				}
 
 				// add values
-				exportData.add(values.toArray(new GlobalExportDataCell[values.size()]));
+				exportData.add(values.toArray(new ExportDataCell[values.size()]));
 
 				// add iterative layout groups tabs
 				for(String groupName : layoutGroupsData.keySet()) {
@@ -380,7 +380,7 @@ public class GlobalExportDataContactProvider extends GlobalExportDataProvider {
 		return pModelExportDataMap;
 	}
 
-	public void persistGlobalExportDataAsCsv(final GlobalContactExport globalContactExport, EntityManager em, Map<String, List<GlobalExportDataCell[]>> exportData) throws Exception {
+	public void persistGlobalExportDataAsCsv(final GlobalContactExport globalContactExport, EntityManager em, Map<String, List<ExportDataCell[]>> exportData) throws Exception {
 		for (final String pModelName : exportData.keySet()) {
 			final GlobalContactExportContent content = new GlobalContactExportContent();
 			content.setGlobalContactExport(globalContactExport);
@@ -390,8 +390,8 @@ public class GlobalExportDataContactProvider extends GlobalExportDataProvider {
 		}
 	}
 
-	public Map<String, List<GlobalExportDataCell[]>> getBackedupGlobalExportData(EntityManager em, Integer gExportId) {
-		final Map<String, List<GlobalExportDataCell[]>> exportData = new TreeMap<String, List<GlobalExportDataCell[]>>();
+	public Map<String, List<ExportDataCell[]>> getBackedupGlobalExportData(EntityManager em, Integer gExportId) {
+		final Map<String, List<ExportDataCell[]>> exportData = new TreeMap<String, List<ExportDataCell[]>>();
 		final GlobalContactExport export = em.find(GlobalContactExport.class, gExportId);
 		final List<GlobalContactExportContent> contents = export.getContents();
 		for (final GlobalContactExportContent content : contents) {
@@ -401,14 +401,14 @@ public class GlobalExportDataContactProvider extends GlobalExportDataProvider {
 		return exportData;
 	}
 
-	private List<GlobalExportDataCell[]> CSVDataToGlobalExportData(List<String[]> csvData) {
-		List<GlobalExportDataCell[]> globalExportData = new ArrayList<>();
+	private List<ExportDataCell[]> CSVDataToGlobalExportData(List<String[]> csvData) {
+		List<ExportDataCell[]> globalExportData = new ArrayList<>();
 
 		for(String[] line : csvData) {
-			GlobalExportDataCell[] convertedLine = new GlobalExportDataCell[line.length];
+			ExportDataCell[] convertedLine = new ExportDataCell[line.length];
 
 			for(int i = 0; i < line.length; i++) {
-				convertedLine[i] = new GlobalExportStringCell(line[i]);
+				convertedLine[i] = new ExportStringCell(line[i]);
 			}
 
 			globalExportData.add(convertedLine);

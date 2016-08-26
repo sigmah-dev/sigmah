@@ -55,6 +55,9 @@ import org.sigmah.server.i18n.I18nServer;
 import org.sigmah.server.servlet.base.ServletExecutionContext;
 import org.sigmah.server.servlet.exporter.data.BaseSynthesisData;
 import org.sigmah.server.servlet.exporter.data.LogFrameExportData;
+import org.sigmah.server.servlet.exporter.data.cells.ExportDataCell;
+import org.sigmah.server.servlet.exporter.data.cells.ExportLinkCell;
+import org.sigmah.server.servlet.exporter.data.cells.ExportStringCell;
 import org.sigmah.server.servlet.exporter.utils.ExcelUtils;
 import org.sigmah.server.servlet.exporter.utils.ExportConstants;
 import org.sigmah.server.servlet.exporter.utils.ExporterUtil;
@@ -243,7 +246,12 @@ public abstract class BaseSynthesisExcelTemplate implements ExportTemplate {
 					pair = ExporterUtil.getChoicePair(element, valueResult);
 
 				}/* CONTACT LIST */else if (elementName.equals("element.ContactListElement")) {
-					pair = ExporterUtil.getContactListPair(element, valueResult, entityManager);
+					if(data.getWithContacts()) {
+						utils.putBorderedBasicCell(sheet, rowIndex, 2, element.getLabel());
+						utils.createLinkCell(sheet.getRow(rowIndex).createCell(3), String.valueOf(ExporterUtil.getContactListCount(valueResult)), ExportConstants.CONTACT_SHEET_PREFIX + element.getLabel(), true);
+					} else {
+						pair = ExporterUtil.getContactListPair(element, valueResult, entityManager);
+					}
 
 				}/* MESSAGE */else if (elementName.equals("element.MessageElement")) {
 					pair = new ExporterUtil.ValueLabel(data.getLocalizedVersion("flexibleElementMessage"), ExporterUtil.clearHtmlFormatting(element.getLabel()));
@@ -304,9 +312,9 @@ public abstract class BaseSynthesisExcelTemplate implements ExportTemplate {
 			int rowIndex = 1;
 
 			for (LayoutGroupIterationDTO iteration : iterationsResult.getList()) {
-				List<String> values = new ArrayList<>();
+				List<ExportDataCell> values = new ArrayList<>();
 
-				values.add(iteration.getName());
+				values.add(new ExportStringCell(iteration.getName()));
 
 				for(LayoutConstraint constraint : constraints) {
 					FlexibleElement element = constraint.getElement();
@@ -317,31 +325,35 @@ public abstract class BaseSynthesisExcelTemplate implements ExportTemplate {
 						final ValueResult iterationValueResult = handler.execute(cmd, new UserExecutionContext(context));
 
 						// prepare value and label
-						String value = null;
+						ExportDataCell value = null;
             /* CHECKBOX */
 						if (elementName.equals("CheckboxElement")) {
-							value = getCheckboxElementValue(iterationValueResult, element, i18nTranslator, language);
+							value = new ExportStringCell(getCheckboxElementValue(iterationValueResult, element, i18nTranslator, language));
 						} else /* TEXT AREA */if (elementName.equals("TextAreaElement")) {
-							value = getTextAreaElementValue(iterationValueResult, element);
+							value = new ExportStringCell(getTextAreaElementValue(iterationValueResult, element));
 						} else /* TRIPLET */if (elementName.equals("TripletsListElement")) {
-							value = getTripletValue(iterationValueResult);
+							value = new ExportStringCell(getTripletValue(iterationValueResult));
 						} else /* CHOICE */if (elementName.equals("QuestionElement")) {
-							value = getChoiceValue(iterationValueResult, (QuestionElement)element);
+							value = new ExportStringCell(getChoiceValue(iterationValueResult, (QuestionElement)element));
 						} else /* CONTACT_LIST */if (elementName.equals("ContactListElement")) {
-							value = getContactListValue(iterationValueResult, entityManager);
+							if(data.getWithContacts()) {
+								value = new ExportLinkCell(String.valueOf(ExporterUtil.getContactListCount(iterationValueResult)), ExportConstants.CONTACT_SHEET_PREFIX + element.getLabel());
+							} else {
+								value = new ExportStringCell(getContactListValue(iterationValueResult, entityManager));
+							}
 						}
 						values.add(value);
 
 					} catch (Exception e) {
 						// no value found in database : empty cells
-						values.add("");
+						values.add(new ExportStringCell(""));
 						if (elementName.equals("QuestionElement")) {
-							values.add("");
+							values.add(new ExportStringCell(""));
 						}
 					}
 				}
 
-				putLine(sheet, rowIndex++, values.toArray(new String[values.size()]));
+				putLine(sheet, rowIndex++, values.toArray(new ExportDataCell[values.size()]));
 			}
 
 		} catch(Exception e) {
@@ -367,14 +379,21 @@ public abstract class BaseSynthesisExcelTemplate implements ExportTemplate {
 		row.setHeightInPoints(lineHeight * defHeight);
 	}
 
-	private void putLine(HSSFSheet sheet, int rowIndex, String[] values) {
+	private void putLine(HSSFSheet sheet, int rowIndex, ExportDataCell[] values) {
 		int lineHeight = -1;
 
 		row = sheet.createRow(rowIndex);
 
 		for (int i = 0; i < values.length; i++) {
-			utils.putBorderedBasicCell(sheet, rowIndex, i, values[i]);
-			int cellHeight = utils.calculateLineCount(values[i], labelColWidth);
+			ExportDataCell cell = values[i];
+			if (cell instanceof ExportStringCell) {
+				utils.putBorderedBasicCell(sheet, rowIndex, i, cell.toCSVString());
+			} else {
+				ExportLinkCell link = (ExportLinkCell)cell;
+				utils.createLinkCell(sheet.getRow(rowIndex).createCell(i), link.getText(), link.getTarget(), true);
+			}
+
+			int cellHeight = utils.calculateLineCount(cell.toCSVString(), labelColWidth);
 			if (cellHeight > lineHeight) {
 				lineHeight = cellHeight;
 			}

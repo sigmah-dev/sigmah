@@ -34,6 +34,7 @@ public enum RequestParameter {
 
 	ID(true),
 	TYPE,
+	WITH_CONTACTS,
 	HEADER,
 	CONTENT,
 	REPORT_ID,

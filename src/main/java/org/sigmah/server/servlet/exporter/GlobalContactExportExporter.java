@@ -40,7 +40,7 @@ import org.sigmah.server.servlet.base.ServletExecutionContext;
 import org.sigmah.server.servlet.exporter.base.Exporter;
 import org.sigmah.server.servlet.exporter.data.GlobalExportData;
 import org.sigmah.server.servlet.exporter.data.GlobalExportDataContactProvider;
-import org.sigmah.server.servlet.exporter.data.cells.GlobalExportDataCell;
+import org.sigmah.server.servlet.exporter.data.cells.ExportDataCell;
 import org.sigmah.server.servlet.exporter.template.ExportTemplate;
 import org.sigmah.server.servlet.exporter.template.GlobalExportCalcTemplate;
 import org.sigmah.server.servlet.exporter.template.GlobalExportExcelTemplate;
@@ -112,7 +112,7 @@ public class GlobalContactExportExporter extends Exporter {
 
 	private GlobalExportData prepareData() throws Exception {
 
-		Map<String, List<GlobalExportDataCell[]>> exportData = null;
+		Map<String, List<ExportDataCell[]>> exportData = null;
 		final GlobalExportDataContactProvider dataProvider = injector.getInstance(GlobalExportDataContactProvider.class);
 		final EntityManager em = injector.getInstance(EntityManager.class);
 

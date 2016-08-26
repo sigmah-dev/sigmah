@@ -41,14 +41,16 @@ public abstract class BaseSynthesisData extends ExportData {
 
 	protected final EntityManager entityManager;
 	private final CommandHandler<GetValue, ?> handler;
+	private final Boolean withContacts;
 
 	/*
 	 * private final Locale locale; private final Translator translator;
 	 */
-	public BaseSynthesisData(final Exporter exporter, final Injector injector) {
+	public BaseSynthesisData(final Exporter exporter, final Injector injector, final Boolean withContacts) {
 		super(exporter, 3);
 		entityManager = injector.getInstance(EntityManager.class);
 		handler = injector.getInstance(GetValueHandler.class);
+		this.withContacts = withContacts;
 		/*
 		 * this.locale = locale; translator = new UIConstantsTranslator(new Locale(""));
 		 */
@@ -69,4 +71,7 @@ public abstract class BaseSynthesisData extends ExportData {
 
 	public abstract OrgUnit getOrgUnit();
 
+	public Boolean getWithContacts() {
+		return withContacts;
+	}
 }

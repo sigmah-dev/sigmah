@@ -34,8 +34,8 @@ import org.sigmah.server.domain.category.CategoryElement;
 import org.sigmah.server.domain.category.CategoryType;
 import org.sigmah.server.i18n.I18nServer;
 import org.sigmah.server.servlet.base.ServletExecutionContext;
-import org.sigmah.server.servlet.exporter.data.cells.GlobalExportDataCell;
-import org.sigmah.server.servlet.exporter.data.cells.GlobalExportStringCell;
+import org.sigmah.server.servlet.exporter.data.cells.ExportDataCell;
+import org.sigmah.server.servlet.exporter.data.cells.ExportStringCell;
 import org.sigmah.shared.Language;
 
 import com.google.inject.Singleton;
@@ -48,23 +48,23 @@ import com.google.inject.Singleton;
 @Singleton
 public abstract class GlobalExportDataProvider {
 
-	public abstract Map<String, List<GlobalExportDataCell[]>> generateGlobalExportData(final Integer organizationId, EntityManager entityManager, final I18nServer i18nTranslator,
-			final Language language, final ServletExecutionContext context) throws Exception;
+	public abstract Map<String, List<ExportDataCell[]>> generateGlobalExportData(final Integer organizationId, EntityManager entityManager, final I18nServer i18nTranslator,
+																																							 final Language language, final ServletExecutionContext context) throws Exception;
 
-	protected void addCategories(Set<CategoryType> categories, Map<String, List<GlobalExportDataCell[]>> exportDataMap, I18nServer i18nTranslator, Language language) {
+	protected void addCategories(Set<CategoryType> categories, Map<String, List<ExportDataCell[]>> exportDataMap, I18nServer i18nTranslator, Language language) {
 		for(CategoryType category : categories) {
-			List<GlobalExportDataCell[]> data = new ArrayList<>();
+			List<ExportDataCell[]> data = new ArrayList<>();
 
 			// titles
-			GlobalExportDataCell[] row = new GlobalExportDataCell[2];
-			row[0] = new GlobalExportStringCell(String.valueOf(i18nTranslator.t(language, "categoryElementId")));
-			row[1] = new GlobalExportStringCell(String.valueOf(i18nTranslator.t(language, "categoryElementLabel")));
+			ExportDataCell[] row = new ExportDataCell[2];
+			row[0] = new ExportStringCell(String.valueOf(i18nTranslator.t(language, "categoryElementId")));
+			row[1] = new ExportStringCell(String.valueOf(i18nTranslator.t(language, "categoryElementLabel")));
 			data.add(row);
 
 			for(CategoryElement c : category.getElements()) {
-				row = new GlobalExportDataCell[2];
-				row[0] = new GlobalExportStringCell(String.valueOf(c.getId()));
-				row[1] = new GlobalExportStringCell(c.getLabel());
+				row = new ExportDataCell[2];
+				row[0] = new ExportStringCell(String.valueOf(c.getId()));
+				row[1] = new ExportStringCell(c.getLabel());
 
 				data.add(row);
 			}

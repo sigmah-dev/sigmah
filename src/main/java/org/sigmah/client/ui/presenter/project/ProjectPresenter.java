@@ -207,8 +207,10 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 		 *          The indicator field.
 		 * @param logFrameField
 		 *          The log frame field.
+		 * @param contactsField
+		 *          The contacts field.
 		 */
-		void onExportProject(Field<Boolean> indicatorField, Field<Boolean> logFrameField);
+		void onExportProject(Field<Boolean> indicatorField, Field<Boolean> logFrameField, Field<Boolean> contactsField);
 
 	}
 
@@ -846,28 +848,30 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 		view.buildExportDialog(new ExportActionHandler() {
 
 			@Override
-			public void onExportProject(final Field<Boolean> indicatorField, final Field<Boolean> logFrameField) {
+			public void onExportProject(final Field<Boolean> indicatorField, final Field<Boolean> logFrameField, final Field<Boolean> contactsField) {
 
 				final ServletUrlBuilder urlBuilder =
 						new ServletUrlBuilder(injector.getAuthenticationProvider(), injector.getPageManager(), Servlet.EXPORT, ServletMethod.EXPORT_PROJECT);
 
 				final ExportType type;
 
-				if (indicatorField.getValue() && logFrameField.getValue()) {
-					type = ExportType.PROJECT_SYNTHESIS_LOGFRAME_INDICATORS;
-
-				} else if (indicatorField.getValue() && !logFrameField.getValue()) {
-					type = ExportType.PROJECT_SYNTHESIS_INDICATORS;
-
-				} else if (!indicatorField.getValue() && logFrameField.getValue()) {
-					type = ExportType.PROJECT_SYNTHESIS_LOGFRAME;
-
+				if (indicatorField.getValue()) {
+					if (logFrameField.getValue()) {
+						type = ExportType.PROJECT_SYNTHESIS_LOGFRAME_INDICATORS;
+					} else {
+						type = ExportType.PROJECT_SYNTHESIS_INDICATORS;
+					}
 				} else {
-					type = ExportType.PROJECT_SYNTHESIS;
+					if (logFrameField.getValue()) {
+						type = ExportType.PROJECT_SYNTHESIS_LOGFRAME;
+					} else {
+						type = ExportType.PROJECT_SYNTHESIS;
+					}
 				}
 
 				urlBuilder.addParameter(RequestParameter.ID, project.getId());
 				urlBuilder.addParameter(RequestParameter.TYPE, type);
+				urlBuilder.addParameter(RequestParameter.WITH_CONTACTS, contactsField.getValue());
 
 				final FormElement form = FormElement.as(DOM.createForm());
 				form.setAction(urlBuilder.toString());

@@ -49,8 +49,8 @@ import org.sigmah.server.domain.layout.LayoutConstraint;
 import org.sigmah.server.domain.layout.LayoutGroup;
 import org.sigmah.server.i18n.I18nServer;
 import org.sigmah.server.servlet.exporter.data.LogFrameExportData;
-import org.sigmah.server.servlet.exporter.data.cells.GlobalExportDataCell;
-import org.sigmah.server.servlet.exporter.data.cells.GlobalExportStringCell;
+import org.sigmah.server.servlet.exporter.data.cells.ExportDataCell;
+import org.sigmah.server.servlet.exporter.data.cells.ExportStringCell;
 import org.sigmah.server.servlet.exporter.data.columns.GlobalExportDataColumn;
 import org.sigmah.server.servlet.exporter.data.columns.GlobalExportFlexibleElementColumn;
 import org.sigmah.server.servlet.exporter.data.columns.GlobalExportIterativeGroupColumn;
@@ -436,6 +436,15 @@ public class ExporterUtil {
 		return new ValueLabel(element.getLabel(), value, lines);
 	}
 
+	public static Integer getContactListCount(final ValueResult valueResult) {
+
+		if (valueResult != null && valueResult.isValueDefined()) {
+			return ValueResultUtils.splitValuesAsInteger(valueResult.getValueObject()).size();
+		}
+
+		return 0;
+	}
+
 	public static ValueLabel getChoicePair(final FlexibleElement element, final ValueResult valueResult) {
 		String value = null;
 		int lines = 1;
@@ -529,42 +538,42 @@ public class ExporterUtil {
 		}
 	}
 
-	public static void addBudgetTitles(final List<GlobalExportDataCell> titles, final FlexibleElement element, final I18nServer i18nTranslator, final Language language) {
+	public static void addBudgetTitles(final List<ExportDataCell> titles, final FlexibleElement element, final I18nServer i18nTranslator, final Language language) {
 		String budgetLabel = ExporterUtil.getFlexibleElementLabel(element, i18nTranslator, language);
 
-		titles.add(new GlobalExportStringCell(budgetLabel + " " + i18nTranslator.t(language, "spentBudget")));
-		titles.add(new GlobalExportStringCell(budgetLabel + " " + i18nTranslator.t(language, "plannedBudget")));
-		titles.add(new GlobalExportStringCell(budgetLabel + " " + i18nTranslator.t(language, "consumptionRatioBudget")));
+		titles.add(new ExportStringCell(budgetLabel + " " + i18nTranslator.t(language, "spentBudget")));
+		titles.add(new ExportStringCell(budgetLabel + " " + i18nTranslator.t(language, "plannedBudget")));
+		titles.add(new ExportStringCell(budgetLabel + " " + i18nTranslator.t(language, "consumptionRatioBudget")));
 	}
 
-	public static void addBudgetValues(final List<GlobalExportDataCell> values, final ValueResult valueResult, final FlexibleElement element, final I18nServer i18nTranslator, final Language language) {
+	public static void addBudgetValues(final List<ExportDataCell> values, final ValueResult valueResult, final FlexibleElement element, final I18nServer i18nTranslator, final Language language) {
 		BudgetElement budgetElement = (BudgetElement) element;
 
 		BudgetValues budget = new BudgetValues(budgetElement, valueResult);
 
-		values.add(new GlobalExportStringCell(String.valueOf(budget.getSpent())));
-		values.add(new GlobalExportStringCell(String.valueOf(budget.getPlanned())));
-		values.add(new GlobalExportStringCell(String.valueOf(budget.getRatio())));
+		values.add(new ExportStringCell(String.valueOf(budget.getSpent())));
+		values.add(new ExportStringCell(String.valueOf(budget.getPlanned())));
+		values.add(new ExportStringCell(String.valueOf(budget.getRatio())));
 	}
 
-	public static void addChoiceTitles(final List<GlobalExportDataCell> titles, final Set<CategoryType> categories, final FlexibleElement element, final I18nServer i18nTranslator, final Language language) {
+	public static void addChoiceTitles(final List<ExportDataCell> titles, final Set<CategoryType> categories, final FlexibleElement element, final I18nServer i18nTranslator, final Language language) {
 		final QuestionElement questionElement = (QuestionElement) element;
 		String choiceLabel = ExporterUtil.getFlexibleElementLabel(element, i18nTranslator, language);
 
-		titles.add(new GlobalExportStringCell(choiceLabel));
+		titles.add(new ExportStringCell(choiceLabel));
 		if (questionElement.getCategoryType() != null) {
-			titles.add(new GlobalExportStringCell(choiceLabel + " (" + questionElement.getCategoryType().getLabel() + ") " + i18nTranslator.t(language, "categoryId")));
+			titles.add(new ExportStringCell(choiceLabel + " (" + questionElement.getCategoryType().getLabel() + ") " + i18nTranslator.t(language, "categoryId")));
 			categories.add(((QuestionElement) element).getCategoryType());
 		}
 	}
 
-	public static void addChoiceValues(final List<GlobalExportDataCell> values, final ValueResult valueResult, final FlexibleElement element) {
+	public static void addChoiceValues(final List<ExportDataCell> values, final ValueResult valueResult, final FlexibleElement element) {
 
 		ChoiceValue choiceValue = new ChoiceValue((QuestionElement) element, valueResult);
 
-		values.add(new GlobalExportStringCell(choiceValue.getValueLabels()));
+		values.add(new ExportStringCell(choiceValue.getValueLabels()));
 		if (((QuestionElement)element).getCategoryType() != null) {
-			values.add(new GlobalExportStringCell(choiceValue.getValueIds()));
+			values.add(new ExportStringCell(choiceValue.getValueIds()));
 		}
 	}
 

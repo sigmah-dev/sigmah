@@ -24,7 +24,7 @@ package org.sigmah.server.servlet.exporter.utils;
 
 import java.util.List;
 
-import org.sigmah.server.servlet.exporter.data.cells.GlobalExportDataCell;
+import org.sigmah.server.servlet.exporter.data.cells.ExportDataCell;
 
 public class CsvBuilder {
 
@@ -68,16 +68,16 @@ public class CsvBuilder {
 	/*
 	 * For given list of arrays builds CSV string
 	 */
-	public String buildCsv(List<GlobalExportDataCell[]> allLines) {
+	public String buildCsv(List<ExportDataCell[]> allLines) {
 		final StringBuilder container = new StringBuilder(INITIAL_STRING_SIZE);
-		for (GlobalExportDataCell[] line : allLines) {
+		for (ExportDataCell[] line : allLines) {
 			buildLine(line, container);
 		}
 
 		return container.toString();
 	}
 
-	private void buildLine(GlobalExportDataCell[] nextLine, StringBuilder container) {
+	private void buildLine(ExportDataCell[] nextLine, StringBuilder container) {
 
 		if (nextLine == null)
 			return;
