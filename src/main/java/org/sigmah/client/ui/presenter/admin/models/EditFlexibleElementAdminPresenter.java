@@ -921,11 +921,12 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 	private void loadStaticValues() {
 
 		// Loads element types.
-		view.getTypeField().getStore().removeAll();
+		final ListStore<TypeModel> store = view.getTypeField().getStore();
+		store.removeAll();
 
 		for (final LogicalElementType type : getLogicalElementTypes()) {
 			if (type != ElementTypeEnum.DEFAULT && type != ElementTypeEnum.INDICATORS) {
-				view.getTypeField().getStore().add(new TypeModel(type));
+				store.add(new TypeModel(type));
 			}
 		}
 
@@ -952,7 +953,9 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 		});
 
 		for (final ElementTypeEnum type : ElementTypeEnum.values()) {
-			types.add(type);
+			if (type != ElementTypeEnum.TEXT_AREA) {
+				types.add(type);
+			}
 		}
 
 		for (final TextAreaType type : TextAreaType.values()) {
