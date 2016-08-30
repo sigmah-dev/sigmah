@@ -337,7 +337,6 @@ public class CalendarPresenter extends AbstractPresenter<CalendarPresenter.View>
 		view.setAddEventButtonEnabled(editable);
 		Profiler.INSTANCE.markCheckpoint(Scenario.AGENDA, "Before refresh.");
 		reloadEvents(calendars);
-		
 	}
 
 	/**

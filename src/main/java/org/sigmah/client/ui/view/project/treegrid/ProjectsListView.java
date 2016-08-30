@@ -123,7 +123,7 @@ public class ProjectsListView extends AbstractView implements ProjectsListWidget
 	private static final String STYLE_PROJECT_GRID_LEAF = "project-grid-leaf";
 	private static final String STYLE_PROJECT_GRID_CODE_ICON = "project-grid-code-icon";
 	private static final String STYLE_PROJECT_GRID_CODE = "project-grid-code";
-	private static final String PORJECT_CODE_COLUMN_ID="projectCodeColumnId_";
+	private static final String PROJECT_CODE_COLUMN_ID="projectCodeColumnId_";
 
 	/**
 	 * HTML double spaces characters.
@@ -585,7 +585,7 @@ public class ProjectsListView extends AbstractView implements ProjectsListWidget
 					final ListStore<ProjectDTO> store, final Grid<ProjectDTO> grid) {
 
 				final Anchor nameLink = new Anchor((String) model.get(property));
-				nameLink.ensureDebugId(nameLink.getElement(),PORJECT_CODE_COLUMN_ID+model.getId());
+				nameLink.ensureDebugId(nameLink.getElement(),PROJECT_CODE_COLUMN_ID+model.getId());
 				if (!model.isLeaf()) {
 					nameLink.setStyleName(STYLE_PROJECT_GRID_NODE );
 				} else {
@@ -610,10 +610,10 @@ public class ProjectsListView extends AbstractView implements ProjectsListWidget
 				panel.setWidget(0, 0, FundingIconProvider.getProjectTypeIcon(handlerProvider.getProjectModelType(model), IconSize.SMALL_MEDIUM).createImage());
 				panel.getCellFormatter().addStyleName(0, 0, STYLE_PROJECT_GRID_CODE_ICON);
 				nameLink.getElement().getId();
-				nameLink.getElement().setId(PORJECT_CODE_COLUMN_ID+"-4"+model.getId());
+				nameLink.getElement().setId(PROJECT_CODE_COLUMN_ID+"-4"+model.getId());
 				panel.setWidget(0, 1, nameLink);
 				panel.getCellFormatter().addStyleName(0, 1, STYLE_PROJECT_GRID_CODE);
-				//panel.getElement().setId(PORJECT_CODE_COLUMN_ID+model.getId());
+				//panel.getElement().setId(PROJECT_CODE_COLUMN_ID+model.getId());
 				return panel;
 			}
 		});
