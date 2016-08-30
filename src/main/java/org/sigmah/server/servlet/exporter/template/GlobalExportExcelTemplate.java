@@ -40,6 +40,8 @@ import org.sigmah.server.servlet.exporter.utils.ExportConstants;
  * @author sherzod (v1.3)
  */
 public class GlobalExportExcelTemplate implements ExportTemplate {
+	
+	private static final int MAXIMUM_COLUMN_WIDTH = 255 * 256;
 
 	private final HSSFWorkbook wb;
 
@@ -109,7 +111,7 @@ public class GlobalExportExcelTemplate implements ExportTemplate {
 				if (contentWidthMap.get(i) != null) {
 					width = Math.max(contentWidthMap.get(i), width);
 				}
-				sheet.setColumnWidth(i, 256 * (width + 15));
+				sheet.setColumnWidth(i, Math.min(256 * (width + 15), MAXIMUM_COLUMN_WIDTH));
 			}
 		}
 
