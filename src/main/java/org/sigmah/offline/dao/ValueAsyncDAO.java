@@ -45,6 +45,9 @@ import org.sigmah.offline.js.FileDataJS;
 import org.sigmah.offline.js.FileJS;
 import org.sigmah.offline.js.FileVersionJS;
 import org.sigmah.offline.js.ListableValueJS;
+import org.sigmah.offline.sync.AsyncAdapter;
+import org.sigmah.offline.sync.SuccessCallback;
+import org.sigmah.shared.dto.element.FlexibleElementDTO;
 
 /**
  * Asynchronous DAO for saving and loading the values of the flexible elements.
@@ -81,64 +84,49 @@ public class ValueAsyncDAO extends BaseAsyncDAO<Store> {
 		openTransaction(Transaction.Mode.READ_WRITE, new OpenTransactionHandler<Store>() {
 
 			@Override
-			public void onTransaction(Transaction<Store> transaction) {
+			public void onTransaction(final Transaction<Store> transaction) {
 				saveOrUpdate(getValue, valueResult, callback, transaction);
 			}
 		});
 	}
 	
-	public void saveOrUpdate(GetValue getValue, ValueResult valueResult, final AsyncCallback<VoidResult> callback, Transaction transaction) {
+	public void saveOrUpdate(final GetValue getValue, final ValueResult valueResult, final AsyncCallback<VoidResult> callback, final Transaction<Store> transaction) {
 		final ObjectStore valueObjectStore = transaction.getObjectStore(getRequiredStore());
 		
 		final ValueJS valueJS = ValueJS.toJavaScript(getValue, valueResult);
-		valueObjectStore.put(valueJS).addCallback(new AsyncCallback<Request>() {
-
-            @Override
-            public void onFailure(Throwable caught) {
-                Log.error("Error while saving value " + valueJS.getId() + ".", caught);
-				if(callback != null) {
-					callback.onFailure(caught);
-				}
-            }
-
-            @Override
-            public void onSuccess(Request result) {
-                Log.trace("Value " + valueJS.getId() + " has been successfully saved.");
-				if(callback != null) {
-					callback.onSuccess(null);
-				}
-            }
-        });
+		valueObjectStore.put(valueJS).addCallback(new AsyncAdapter<Request, VoidResult>(callback));
 	}
 
 	public void saveOrUpdate(final UpdateProject updateProject, final ValueEventWrapper valueEventWrapper, final ValueResult originalValue, final AsyncCallback<VoidResult> callback) {
 		openTransaction(Transaction.Mode.READ_WRITE, new OpenTransactionHandler<Store>() {
 
 			@Override
-			public void onTransaction(Transaction<Store> transaction) {
+			public void onTransaction(final Transaction<Store> transaction) {
 				saveOrUpdate(updateProject, valueEventWrapper, originalValue, callback, transaction);
 			}
 		});
 	}
 	
-	public void saveOrUpdate(final UpdateProject updateProject, final ValueEventWrapper valueEventWrapper, final ValueResult originalValue, final AsyncCallback<VoidResult> callback, Transaction transaction) {
+	public void saveOrUpdate(final UpdateProject updateProject, final ValueEventWrapper valueEventWrapper, final ValueResult originalValue, final AsyncCallback<VoidResult> callback, final Transaction<Store> transaction) {
 		final ObjectStore valueObjectStore = transaction.getObjectStore(getRequiredStore());
-		
 		final ValueJS valueJS = ValueJS.toJavaScript(updateProject, valueEventWrapper, originalValue);
-		valueObjectStore.put(valueJS).addCallback(new AsyncCallback<Request>() {
+		valueObjectStore.put(valueJS).addCallback(new AsyncAdapter<Request, VoidResult>(callback));
+	}
+	
+	public void saveOrUpdate(final String value, final FlexibleElementDTO flexibleElement, final int projectId, final AsyncCallback<VoidResult> callback) {
+		openTransaction(Transaction.Mode.READ_WRITE, new OpenTransactionHandler<Store>() {
 
-            @Override
-            public void onFailure(Throwable caught) {
-                Log.error("Error while saving value " + valueJS.getId() + ".");
-				callback.onFailure(caught);
-            }
-
-            @Override
-            public void onSuccess(Request result) {
-                Log.trace("Value " + valueJS.getId() + " has been successfully saved.");
-				callback.onSuccess(null);
-            }
-        });
+			@Override
+			public void onTransaction(final Transaction<Store> transaction) {
+				saveOrUpdate(value, flexibleElement, projectId, callback, transaction);
+			}
+		});
+	}
+	
+	public void saveOrUpdate(final String value, final FlexibleElementDTO flexibleElement, final int projectId, final AsyncCallback<VoidResult> callback, final Transaction<Store> transaction) {
+		final ObjectStore valueObjectStore = transaction.getObjectStore(getRequiredStore());
+		final ValueJS valueJS = ValueJS.toJavaScript(value, flexibleElement, projectId);
+		valueObjectStore.put(valueJS).addCallback(new AsyncAdapter<Request, VoidResult>(callback));
 	}
 	
 	public void get(final GetValue getValue, final AsyncCallback<ValueResult> callback) {
@@ -155,20 +143,15 @@ public class ValueAsyncDAO extends BaseAsyncDAO<Store> {
 		});
 	}
 	
-	public void get(final String id, final AsyncCallback<ValueResult> callback, Transaction transaction) {
+	public void get(final String id, final AsyncCallback<ValueResult> callback, Transaction<Store> transaction) {
 		final ObjectStore valueObjectStore = transaction.getObjectStore(getRequiredStore());
 		
-		valueObjectStore.get(id).addCallback(new AsyncCallback<Request>() {
-
-            @Override
-            public void onFailure(Throwable caught) {
-                callback.onFailure(caught);
-            }
+		valueObjectStore.get(id).addCallback(new SuccessCallback<Request>(callback) {
 
             @Override
             public void onSuccess(Request request) {
                 final ValueJS valueJS = (ValueJS) request.getResult();
-				if(valueJS != null) {
+				if (valueJS != null) {
 					verifyIfFileVersionsAreAvailable(valueJS);
 					callback.onSuccess(valueJS.toValueResult());
 				} else {
@@ -188,24 +171,19 @@ public class ValueAsyncDAO extends BaseAsyncDAO<Store> {
 	 */
 	private void verifyIfFileVersionsAreAvailable(ValueJS valueJS) {
 		final JsArray<ListableValueJS> values = valueJS.getValues();
-		if(values != null) {
+		if (values != null) {
 			
-			for(int parent = 0; parent < values.length(); parent++) {
+			for (int parent = 0; parent < values.length(); parent++) {
 				final ListableValueJS listableValue = values.get(parent);
 				
-				if(listableValue.getListableValueTypeEnum() == ListableValueJS.Type.FILE) {
+				if (listableValue.getListableValueTypeEnum() == ListableValueJS.Type.FILE) {
 					final FileJS file = (FileJS)listableValue;
 					final JsArray<FileVersionJS> versions = file.getVersions();
 					
-					for(int child = 0; child < versions.length(); child++) {
+					for (int child = 0; child < versions.length(); child++) {
 						final FileVersionJS version = versions.get(child);
 						
-						fileDataAsyncDAO.getByFileVersionId(version.getId(), new AsyncCallback<FileDataJS>() {
-
-							@Override
-							public void onFailure(Throwable caught) {
-								// Ignored.
-							}
+						fileDataAsyncDAO.getByFileVersionId(version.getId(), new SuccessCallback<FileDataJS>() {
 
 							@Override
 							public void onSuccess(FileDataJS result) {

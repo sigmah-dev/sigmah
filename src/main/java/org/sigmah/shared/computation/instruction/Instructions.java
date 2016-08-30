@@ -52,6 +52,11 @@ public final class Instructions {
 		put(map, new Divide(), "/", "÷");
 		put(map, new Minus(), "minus");
 		
+		put(map, new FundingSources(), "fundingSources");
+		put(map, new FundedProjects(), "fundedProjects");
+		put(map, new Average(), "avg");
+		put(map, new Sum(), "sum");
+		
 		INSTRUCTIONS = map;
 	}
 	
@@ -96,6 +101,22 @@ public final class Instructions {
 		
 		if (instruction instanceof Operator) {
 			return (Operator) instruction;
+		} else {
+			return null;
+		}
+	}
+	
+	/**
+     * Search for a function with the given alias and returns a new instance.
+     * 
+     * @param name Alias of a function.
+     * @return A new instance of the function or <code>null</code> if none matches.
+     */
+	public static Function getFunctionNamed(final String name) {
+		final Instruction instruction = INSTRUCTIONS.get(name);
+		
+		if (instruction instanceof Function) {
+			return ((Function) instruction).instantiate();
 		} else {
 			return null;
 		}

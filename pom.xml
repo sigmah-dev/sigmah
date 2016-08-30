@@ -192,6 +192,7 @@
 		<itext.version>2.1.7</itext.version>
 		<itext-rtf.version>2.1.7</itext-rtf.version>
 		<quartz.version>1.5.2</quartz.version>
+		<gson.version>2.6.1</gson.version>
 		
 		<!-- ========= [ DEFAULT PROFILES PROPERTIES. ] ========= -->
 		
@@ -246,6 +247,13 @@
 		<mail.contentType>text/html</mail.contentType>
 
 		<mail.support.to>support@sigmah.org</mail.support.to>
+		
+		<!-- Optimisation email properties. -->
+		
+		<mail.optimisation.to.address>sigmah1@yopmail.com;sigmah2@yopmail.com;sigmah3@yopmail.com;</mail.optimisation.to.address>
+		<mail.optimisation.copy.address>sigmahadmin@yopmail.com</mail.optimisation.copy.address>
+		<mail.optimisation.markdownfile.name>sigmah_performance_report.txt</mail.optimisation.markdownfile.name>
+		<mail.optimisation.jsonfile.name>sigmah_performance_brut_report.txt</mail.optimisation.jsonfile.name>
 
 		<!-- Maps API properties. -->
 
@@ -559,6 +567,11 @@
 			<groupId>org.bouncycastle</groupId>
 			<artifactId>bcprov-jdk14</artifactId>
 			<version>1.38</version>
+		</dependency>
+		<dependency>
+			<groupId>com.google.code.gson</groupId>
+			<artifactId>gson</artifactId>
+			<version>${gson.version}</version>
 		</dependency>
 
 	</dependencies>

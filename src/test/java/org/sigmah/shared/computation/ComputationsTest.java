@@ -31,6 +31,8 @@ import java.util.List;
 import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
+import org.sigmah.shared.computation.dependency.Dependency;
+import org.sigmah.shared.computation.dependency.SingleDependency;
 import org.sigmah.shared.computation.value.ComputationError;
 import org.sigmah.shared.computation.value.ComputedValue;
 import org.sigmah.shared.computation.value.ComputedValues;
@@ -98,9 +100,9 @@ public class ComputationsTest {
 	 */
 	@Test
 	public void testParseVariable() {
-		final HashMap<Integer, ComputedValue> values = new HashMap<>();
-		values.put(9, new DoubleValue(9.0));
-		values.put(42, new DoubleValue(42.0));
+		final HashMap<Dependency, ComputedValue> values = new HashMap<>();
+		values.put(new SingleDependency(9), new DoubleValue(9.0));
+		values.put(new SingleDependency(42), new DoubleValue(42.0));
 		
 		final Computation result = Computations.parse("12 * $9 + 3.14 * quarante_2", getAllElements());
 		
@@ -113,10 +115,6 @@ public class ComputationsTest {
 	 */
 	@Test
 	public void testParseFunction() {
-		final HashMap<Integer, ComputedValue> values = new HashMap<>();
-		values.put(9, new DoubleValue(9.0));
-		values.put(42, new DoubleValue(42.0));
-		
 		final Computation result = Computations.parse("min(neuf, quarante_2) / max(neuf, quarante_2)", getAllElements());
 		Assert.assertEquals("Computation was not parsed correctly.", "BAD_FORMULA", result.toString());
 	}
@@ -126,8 +124,8 @@ public class ComputationsTest {
 	 */
 	@Test
 	public void testDivisionError() {
-		final HashMap<Integer, ComputedValue> values = new HashMap<>();
-		values.put(9, new DoubleValue(0.0));
+		final HashMap<Dependency, ComputedValue> values = new HashMap<>();
+		values.put(new SingleDependency(9), new DoubleValue(0.0));
 		
 		final Computation result = Computations.parse("(12 / $9 + 3.14) * 2", getAllElements());
 		
@@ -140,8 +138,8 @@ public class ComputationsTest {
 	 */
 	@Test
 	public void testReferenceError() {
-		final HashMap<Integer, ComputedValue> values = new HashMap<>();
-		values.put(9, new DoubleValue(9.0));
+		final HashMap<Dependency, ComputedValue> values = new HashMap<>();
+		values.put(new SingleDependency(9), new DoubleValue(9.0));
 		
 		final Computation result = Computations.parse("12 * $10 + 3.14 * quarante_3", getAllElements());
 		
@@ -154,9 +152,9 @@ public class ComputationsTest {
 	 */
 	@Test
 	public void testBadValue() {
-		final HashMap<Integer, ComputedValue> values = new HashMap<>();
-		values.put(9, ComputedValues.from("9,1"));
-		values.put(42, ComputedValues.from("quarante deux"));
+		final HashMap<Dependency, ComputedValue> values = new HashMap<>();
+		values.put(new SingleDependency(9), ComputedValues.from("9,1"));
+		values.put(new SingleDependency(42), ComputedValues.from("quarante deux"));
 		
 		final Computation result = Computations.parse("12 * $9 + 3.14 * quarante_2", getAllElements());
 		
@@ -217,14 +215,17 @@ public class ComputationsTest {
 		result.computeValueWithResolver(1, new ValueResolver() {
 
 			@Override
-			public void resolve(Collection<FlexibleElementDTO> elements, int containerId, AsyncCallback<Map<Integer, ComputedValue>> onResult) {
-				Assert.assertEquals("Elements size is incorrect.", 2, elements.size());
+			public void resolve(Collection<Dependency> dependencies, int containerId, AsyncCallback<Map<Dependency, ComputedValue>> onResult) {
+				Assert.assertEquals("Elements size is incorrect.", 2, dependencies.size());
 				
-				final HashMap<Integer, ComputedValue> map = new HashMap<>();
+				final HashMap<Dependency, ComputedValue> map = new HashMap<>();
 				
-				for (final FlexibleElementDTO element : elements) {
+				for (final Dependency dependency : dependencies) {
+					final SingleDependency singleDependency = (SingleDependency) dependency;
+					final FlexibleElementDTO element = singleDependency.getFlexibleElement();
+					
 					final double value = Math.random() * 50;
-					map.put(element.getId(), new DoubleValue(value));
+					map.put(dependency, new DoubleValue(value));
 					
 					if (element.getId() == 9) {
 						values[0] = value;

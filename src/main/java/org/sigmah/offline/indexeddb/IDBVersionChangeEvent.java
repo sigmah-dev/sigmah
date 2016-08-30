@@ -25,12 +25,17 @@ package org.sigmah.offline.indexeddb;
 import com.google.gwt.core.client.JavaScriptObject;
 
 /**
- *
+ * IndexedDB version change event. Happens when an upgrade is needed.
+ * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
 public final class IDBVersionChangeEvent extends JavaScriptObject {
 	
+	/**
+	 * Protected constructor, required for <code>JavaScriptObject</code>.
+	 */
 	protected IDBVersionChangeEvent() {
+		// Empty.
 	}
 	
 	public native int getOldVersion() /*-{

@@ -25,13 +25,28 @@ package org.sigmah.offline.sync;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
- *
+ * Defines a callback handling only the success case.
+ * The failure case can be delegated to another callback.
+ * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
 public abstract class SuccessCallback<T> implements AsyncCallback<T> {
+	
+	private final AsyncCallback<?> failureCallback;
 
+	public SuccessCallback() {
+		this.failureCallback = null;
+	}
+
+	public SuccessCallback(AsyncCallback<?> failureCallback) {
+		this.failureCallback = failureCallback;
+	}
+	
 	@Override
 	public void onFailure(Throwable caught) {
+		if (failureCallback != null) {
+			failureCallback.onFailure(caught);
+		}
 	}
 	
 }

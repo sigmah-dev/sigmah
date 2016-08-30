@@ -35,6 +35,7 @@ import javax.persistence.Table;
 import javax.persistence.TypedQuery;
 
 import org.sigmah.client.util.AdminUtil;
+import org.sigmah.server.computation.ServerComputations;
 import org.sigmah.server.domain.OrgUnitModel;
 import org.sigmah.server.domain.ProjectModel;
 import org.sigmah.server.domain.category.CategoryElement;
@@ -55,6 +56,9 @@ import org.sigmah.server.domain.layout.LayoutGroup;
 import org.sigmah.server.domain.profile.PrivacyGroup;
 import org.sigmah.server.domain.report.ProjectReportModel;
 import org.sigmah.server.mapper.Mapper;
+import org.sigmah.shared.computation.Computation;
+import org.sigmah.shared.computation.Computations;
+import org.sigmah.shared.computation.DependencyResolver;
 import org.sigmah.shared.dto.category.CategoryTypeDTO;
 import org.sigmah.shared.dto.element.BudgetSubFieldDTO;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
@@ -78,8 +82,12 @@ public final class ModelUtil {
 	 */
 	private static final Logger LOG = LoggerFactory.getLogger(ModelUtil.class);
 
-	@SuppressWarnings("unchecked")
 	public static void persistFlexibleElement(final EntityManager em, final Mapper mapper, final PropertyMap changes, final Object model) {
+		persistFlexibleElement(em, mapper, null, changes, model);
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static void persistFlexibleElement(final EntityManager em, final Mapper mapper, final DependencyResolver dependencyResolver, final PropertyMap changes, final Object model) {
 
 		if (changes.get(AdminUtil.PROP_FX_FLEXIBLE_ELEMENT) == null) {
 			return;
@@ -418,7 +426,8 @@ public final class ModelUtil {
 			ComputationElement computationElement = (ComputationElement) flexibleElt;
 			if (computationElement != null) {
 				if (computationRule != null) {
-					computationElement.setRule(computationRule);
+					final String rule = resolveComputationRule(em, dependencyResolver, model, computationRule);
+					computationElement.setRule(rule);
 					specificChanges = true;
                     
                     removeAllValuesForElement(computationElement, em);
@@ -439,6 +448,35 @@ public final class ModelUtil {
 		}
 		em.flush();
 		em.clear();
+	}
+
+	/**
+	 * Parse and resolve each dependency contained in the given formula.
+	 * 
+	 * @param em
+	 *			Instance of the EntityManager
+	 * @param dependencyResolver
+	 *			Dependency resolver to use.
+	 * @param model
+	 *			Project or org unit model.
+	 * @param computationRule
+	 *			Formula to parse and format.
+	 * @return The formula with its dependencies resolved.
+	 * @throws IllegalArgumentException If a dependency could not be resolved.
+	 */
+	private static String resolveComputationRule(final EntityManager em, final DependencyResolver dependencyResolver, final Object model, final String computationRule) throws IllegalArgumentException {
+		if (dependencyResolver != null && model instanceof ProjectModel) {
+			final ProjectModel projectModel = em.find(ProjectModel.class, ((ProjectModel) model).getId());
+			final Computation computation = Computations.parse(computationRule, ServerComputations.getAllElementsFromModel(projectModel));
+			dependencyResolver.resolve(computation);
+			
+			if (!computation.isResolved()) {
+				throw new IllegalArgumentException("Computation '" + computationRule + "' could not be resolved.");
+			}
+			
+			return computation.toString();
+		}
+		return computationRule;
 	}
 
 	private static String retrieveTable(final String className) {
@@ -597,7 +635,7 @@ public final class ModelUtil {
                 .setParameter("element", element)
                 .executeUpdate();
     }
-
+	
 	/**
 	 * Utility class private constructor.
 	 */

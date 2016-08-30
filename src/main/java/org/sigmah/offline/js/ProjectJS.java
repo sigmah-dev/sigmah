@@ -22,7 +22,6 @@ package org.sigmah.offline.js;
  * #L%
  */
 
-import com.allen_sauer.gwt.log.client.Log;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -45,6 +44,7 @@ import com.google.gwt.core.client.JsArray;
 import com.google.gwt.core.client.JsArrayInteger;
 import com.google.gwt.core.client.JsDate;
 import java.util.HashSet;
+import org.sigmah.shared.util.Collections;
 
 /**
  * @author Raphaël Calabro (rcalabro@ideia.fr)
@@ -79,6 +79,7 @@ public final class ProjectJS extends JavaScriptObject {
 		projectJS.setLogFrame(projectDTO.getLogFrame());
 		projectJS.setFunding(projectDTO.getFunding());
 		projectJS.setFunded(projectDTO.getFunded());
+		projectJS.setProjectFundings(projectDTO.getFunded(), projectDTO.getFunding());
 		projectJS.setCountry(projectDTO.getCountry());
 		projectJS.setManager(projectDTO.getManager());
 		projectJS.setPointsList(projectDTO.getPointsList());
@@ -343,6 +344,14 @@ public final class ProjectJS extends JavaScriptObject {
 	public native void setFunded(JsArray<ProjectFundingJS> funded) /*-{
 		this.funded = funded;
 	}-*/;
+	
+	public JsArrayInteger getProjectFundings() {
+		return Values.getJavaScriptObject(this, "projectFundings");
+	}
+	
+	public void setProjectFundings(final List<ProjectFundingDTO> funded, final List<ProjectFundingDTO> funding) {
+		Values.setArrayOfIdentifiers(this, "projectFundings", Collections.merge(funded, funding));
+	}
 
 	public native int getCountry() /*-{
 		return this.country;
@@ -520,21 +529,12 @@ public final class ProjectJS extends JavaScriptObject {
 		this.currentAmendment = currentAmendment;
 	}-*/;
 
-	public native int getOrgUnit() /*-{
-		return this.orgUnit;
-	}-*/;
-
-	public native void setOrgUnit(int orgUnit) /*-{
-		this.orgUnit = orgUnit;
-	}-*/;
-    
+	public Integer getOrgUnit() {
+		return Values.getInteger(this, "orgUnit");
+	}
+	
 	public void setOrgUnit(Integer orgUnit) {
-        if(orgUnit != null) {
-            setOrgUnit(orgUnit.intValue());
-        } else {
-            Log.trace("OrgUnit null.");
-            setOrgUnit(0);
-        }
+		Values.setInteger(this, "orgUnit", orgUnit);
     }
 
 	public native JsArray<UserJS> getFavoriteUsers() /*-{

@@ -26,7 +26,10 @@ import java.util.Date;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArray;
+import com.google.gwt.core.client.JsArrayInteger;
 import com.google.gwt.core.client.JsDate;
+import java.util.Collection;
+import org.sigmah.shared.dto.base.EntityDTO;
 
 /**
  * Utility class to create and handle JavaScriptObjects.
@@ -35,26 +38,30 @@ import com.google.gwt.core.client.JsDate;
  */
 public final class Values {
 	
+	/**
+	 * Private constructor.
+	 */
 	private Values() {
+		// Empty.
 	}
 	
 	public static native <T> T createJavaScriptObject() /*-{
 		return {};
 	}-*/;
 	
-	public static native <T> T createJavaScriptObject(Class<T> clazz) /*-{
+	public static native <T> T createJavaScriptObject(final Class<T> clazz) /*-{
 		return {};
 	}-*/;
 	
-	public static native <T> T createJavaScriptArray(Class<T> clazz) /*-{
+	public static native <T> T createJavaScriptArray(final Class<T> clazz) /*-{
 		return [];
 	}-*/;
 	
-	public static native <T extends JavaScriptObject> JsArray<T> createTypedJavaScriptArray(Class<T> clazz) /*-{
+	public static native <T extends JavaScriptObject> JsArray<T> createTypedJavaScriptArray(final Class<T> clazz) /*-{
 		return [];
 	}-*/;
 	
-	public static JsDate toJsDate(Date date) {
+	public static JsDate toJsDate(final Date date) {
 		if(date != null) {
 			return JsDate.create(date.getTime());
 		} else {
@@ -62,7 +69,7 @@ public final class Values {
 		}
 	}
 	
-	public static Date toDate(JsDate date) {
+	public static Date toDate(final JsDate date) {
 		if(date != null) {
 			return new Date((long) date.getTime());
 		} else {
@@ -70,71 +77,90 @@ public final class Values {
 		}
 	}
 	
-	public static native boolean isDefined(JavaScriptObject object, String property) /*-{
-		return typeof object[property] != 'undefined';
+	public static native boolean isDefined(final JavaScriptObject object, final String property) /*-{
+		return typeof object[property] !== 'undefined';
 	}-*/;
 	
-	public static Integer getInteger(JavaScriptObject object, String property) {
+	public static native boolean isObject(final JavaScriptObject object, final String property) /*-{
+		return typeof object[property] === 'object';
+	}-*/;
+	
+	public static native boolean isNumber(final JavaScriptObject object, final String property) /*-{
+		return typeof object[property] === 'number';
+	}-*/;
+	
+	public static Integer getInteger(final JavaScriptObject object, final String property) {
 		if(isDefined(object, property)) {
 			return getInt(object, property);
 		}
 		return null;
 	}
 	
-	public static void setInteger(JavaScriptObject object, String property, Integer value) {
+	public static void setInteger(final JavaScriptObject object, final String property, final Integer value) {
 		if(value != null) {
 			setInt(object, property, value);
 		}
 	}
 	
-	public static native int getInt(JavaScriptObject object, String property) /*-{
+	public static native int getInt(final JavaScriptObject object, final String property) /*-{
 		return object[property];
 	}-*/;
 	
-	public static native void setInt(JavaScriptObject object, String property, int value) /*-{
+	public static native void setInt(final JavaScriptObject object, final String property, final int value) /*-{
 		object[property] = value;
 	}-*/;
 	
-	public static <E extends Enum<E>> E getEnum(JavaScriptObject object, String property, Class<E> enumClass) {
+	public static <E extends Enum<E>> E getEnum(final JavaScriptObject object, final String property, final Class<E> enumClass) {
 		if(isDefined(object, property)) {
 			return Enum.valueOf(enumClass, getString(object, property));
 		}
 		return null;
 	}
 	
-	public static <E extends Enum<E>> void setEnum(JavaScriptObject object, String property, E value) {
+	public static <E extends Enum<E>> void setEnum(final JavaScriptObject object, final String property, final E value) {
 		if(value != null) {
 			setString(object, property, value.name());
 		}
 	}
 	
-	public static native String getString(JavaScriptObject object, String property) /*-{
+	public static native String getString(final JavaScriptObject object, final String property) /*-{
 		return object[property];
 	}-*/;
 	
-	public static native void setString(JavaScriptObject object, String property, String value) /*-{
+	public static native void setString(final JavaScriptObject object, final String property, final String value) /*-{
 		object[property] = value;
 	}-*/;
 	
-	public static native <J extends JavaScriptObject> J getJavaScriptObject(JavaScriptObject object, String property) /*-{
+	public static native <J extends JavaScriptObject> J getJavaScriptObject(final JavaScriptObject object, final String property) /*-{
 		return object[property];
 	}-*/;
 	
-	public static native <J extends JavaScriptObject> void setJavaScriptObject(JavaScriptObject object, String property, J value) /*-{
+	public static native <J extends JavaScriptObject> void setJavaScriptObject(final JavaScriptObject object, final String property, final J value) /*-{
 		object[property] = value;
 	}-*/;
 	
-	public static Date getDate(JavaScriptObject object, String property) {
+	public static Date getDate(final JavaScriptObject object, final String property) {
 		final JsDate date = getJavaScriptObject(object, property);
 		return toDate(date);
 	}
 	
-	public static void setDate(JavaScriptObject object, String property, Date value) {
+	public static void setDate(final JavaScriptObject object, final String property, final Date value) {
 		setJavaScriptObject(object, property, toJsDate(value));
 	}
 	
-	public static native boolean isDeleted(JavaScriptObject object) /*-{
+	public static native boolean isDeleted(final JavaScriptObject object) /*-{
 		return typeof object != 'undefined' && object['deleted'] == true;
 	}-*/;
+	
+	public static void setArrayOfIdentifiers(final JavaScriptObject object, final String property, final Collection<? extends EntityDTO<Integer>> dtos) {
+		if (dtos == null) {
+			return;
+		}
+		final JsArrayInteger array = createJavaScriptArray(JsArrayInteger.class);
+		for(final EntityDTO<Integer> dto : dtos) {
+			array.push(dto.getId());
+		}
+		setJavaScriptObject(object, property, array);
+	}
 	
 }

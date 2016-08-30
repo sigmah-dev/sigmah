@@ -37,6 +37,39 @@ import org.sigmah.shared.command.*;
 import org.sigmah.shared.command.base.Command;
 import org.sigmah.shared.command.result.Result;
 
+import com.google.gwt.inject.client.AbstractGinModule;
+import com.google.inject.Provides;
+import com.google.inject.Singleton;
+import org.sigmah.offline.handler.BatchCommandAsyncHandler;
+import org.sigmah.offline.handler.CreateEntityAsyncHandler;
+import org.sigmah.offline.handler.DeleteAsyncHandler;
+import org.sigmah.offline.handler.GetLinkedProjectsAsyncHandler;
+import org.sigmah.offline.handler.GetProjectDocumentsAsyncHandler;
+import org.sigmah.offline.handler.GetProjectReportAsyncHandler;
+import org.sigmah.offline.handler.GetProjectReportsAsyncHandler;
+import org.sigmah.offline.handler.GetSitesCountAsyncHandler;
+import org.sigmah.offline.handler.GetValueFromLinkedProjectsAsyncHandler;
+import org.sigmah.offline.handler.UpdateEntityAsyncHandler;
+import org.sigmah.offline.handler.UpdateLogFrameAsyncHandler;
+import org.sigmah.offline.handler.UpdateMonitoredPointsAsyncHandler;
+import org.sigmah.offline.handler.UpdateProjectAsyncHandler;
+import org.sigmah.offline.handler.UpdateProjectFavoriteAsyncHandler;
+import org.sigmah.offline.handler.UpdateRemindersAsyncHandler;
+import org.sigmah.shared.command.BatchCommand;
+import org.sigmah.shared.command.CreateEntity;
+import org.sigmah.shared.command.Delete;
+import org.sigmah.shared.command.GetLinkedProjects;
+import org.sigmah.shared.command.GetProjectDocuments;
+import org.sigmah.shared.command.GetProjectReport;
+import org.sigmah.shared.command.GetProjectReports;
+import org.sigmah.shared.command.GetSitesCount;
+import org.sigmah.shared.command.GetValueFromLinkedProjects;
+import org.sigmah.shared.command.UpdateEntity;
+import org.sigmah.shared.command.UpdateLogFrame;
+import org.sigmah.shared.command.UpdateMonitoredPoints;
+import org.sigmah.shared.command.UpdateProject;
+import org.sigmah.shared.command.UpdateProjectFavorite;
+import org.sigmah.shared.command.UpdateReminders;
 import org.sigmah.shared.file.TransfertManager;
 import org.sigmah.shared.file.TransfertManagerProvider;
 
@@ -86,6 +119,7 @@ public class OfflineModule extends AbstractGinModule {
 			GetUsersByOrgUnitAsyncHandler getUsersByOrgUnitAsyncHandler,
 		GetUserUnitsByUserAsyncHandler getUserUnitsByUserAsyncHandler,
 			GetValueAsyncHandler getValueAsyncHandler,
+			GetValueFromLinkedProjectsAsyncHandler getValueFromLinkedProjectsAsyncHandler,
             PrepareFileUploadAsyncHandler prepareFileUploadAsyncHandler,
 			SecureNavigationAsyncHandler secureNavigationAsyncHandler,
 			UpdateEntityAsyncHandler updateEntityAsyncHandler,
@@ -133,6 +167,7 @@ public class OfflineModule extends AbstractGinModule {
 		registerHandler(GetUsersByOrgUnit.class, getUsersByOrgUnitAsyncHandler);
 		registerHandler(GetUserUnitsByUser.class, getUserUnitsByUserAsyncHandler);
         registerHandler(GetValue.class, getValueAsyncHandler);
+        registerHandler(GetValueFromLinkedProjects.class, getValueFromLinkedProjectsAsyncHandler);
 		registerHandler(PrepareFileUpload.class, prepareFileUploadAsyncHandler);
         registerHandler(SecureNavigationCommand.class, secureNavigationAsyncHandler);
         registerHandler(UpdateEntity.class, updateEntityAsyncHandler);

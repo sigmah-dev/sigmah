@@ -66,7 +66,7 @@ public class MenuBannerView extends AbstractView implements MenuBannerPresenter.
 
 		tabBar = new TabBar();
 		tabsPanel.add(tabBar);
-
+		
 		// Decoration.
 
 		final SimplePanel decorationLeftPanel = new SimplePanel();

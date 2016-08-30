@@ -33,6 +33,7 @@ import org.sigmah.shared.computation.Computations;
 import org.sigmah.shared.computation.value.ComputedValue;
 import org.sigmah.shared.computation.value.ComputedValues;
 import org.sigmah.shared.dto.IsModel;
+import org.sigmah.shared.dto.ProjectModelDTO;
 import org.sigmah.shared.dto.element.event.ValueEvent;
 
 /**
@@ -50,6 +51,7 @@ public class ComputationElementDTO extends FlexibleElementDTO {
 	public static final String RULE = "rule";
 	public static final String MINIMUM_VALUE = "minimumValue";
 	public static final String MAXIMUM_VALUE = "maximumValue";
+	public static final String PROJECT_MODEL = "projectModel";
 	
 	/**
 	 * {@inheritDoc}
@@ -198,6 +200,28 @@ public class ComputationElementDTO extends FlexibleElementDTO {
 
 	public void setMaximumValue(String maximumValue) {
 		set(MAXIMUM_VALUE, maximumValue);
+	}
+
+	/**
+	 * Returns the project model containing this computation element.
+	 * This value is not available in normales cases. It is only filled when
+	 * this element is saved or loaded from the local database.
+	 * 
+	 * @return <code>null</code> or the project model containing this element
+	 * if it was loaded from the local database.
+	 */
+	public ProjectModelDTO getProjectModel() {
+		return get(PROJECT_MODEL);
+	}
+
+	/**
+	 * Defines the project model containing this element.
+	 * 
+	 * @param projectModel 
+	 *			The project model containing this element.
+	 */
+	public void setProjectModel(ProjectModelDTO projectModel) {
+		set(PROJECT_MODEL, projectModel);
 	}
 	
 }

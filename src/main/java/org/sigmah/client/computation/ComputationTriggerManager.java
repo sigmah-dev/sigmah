@@ -22,6 +22,7 @@ package org.sigmah.client.computation;
  * #L%
  */
 
+import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.google.inject.Inject;
@@ -31,9 +32,10 @@ import java.util.List;
 import java.util.Map;
 import org.sigmah.client.dispatch.monitor.LoadingMask;
 import org.sigmah.client.ui.widget.Loadable;
-import org.sigmah.client.ui.widget.form.StringField;
 import org.sigmah.offline.sync.SuccessCallback;
 import org.sigmah.shared.computation.Computation;
+import org.sigmah.shared.computation.dependency.Dependency;
+import org.sigmah.shared.computation.dependency.SingleDependency;
 import org.sigmah.shared.dto.IsModel;
 import org.sigmah.shared.dto.OrgUnitModelDTO;
 import org.sigmah.shared.dto.ProjectDTO;
@@ -81,6 +83,8 @@ public class ComputationTriggerManager {
 			final ComputationElementDTO computationElement = localizedElement.getElement();
 			prepareForComputationElement(computationElement, model);
 		}
+		
+		// TODO: Chercher les ComputationField des projets liés et appeler prepareForComputationElement.
 	}
 
 	/**
@@ -125,12 +129,15 @@ public class ComputationTriggerManager {
 		final Computation computation = computationElement.getComputationForModel(model);
 		computations.put(computationElement, computation);
 
-		for (final FlexibleElementDTO dependency : computation.getDependencies()) {
+		for (final Dependency dependency : computation.getDependencies()) {
 			List<ComputationElementDTO> list = dependencies.get(dependency);
 
 			if (list == null) {
 				list = new ArrayList<ComputationElementDTO>();
-				dependencies.put(dependency, list);
+				
+				if (dependency instanceof SingleDependency) {
+					dependencies.put(((SingleDependency) dependency).getFlexibleElement(), list);
+				}
 			}
 
 			list.add(computationElement);
@@ -150,11 +157,19 @@ public class ComputationTriggerManager {
 	 */
 	public void listenToValueChangesOfElement(final FlexibleElementDTO element, final Component component, final List<ValueEvent> modifications) {
 
+		if (component == null) {
+			Log.trace("Element '" + element.getId() + "' is not accessible by the current user.");
+			return;
+		}
+		
 		if (element instanceof ComputationElementDTO) {
-			components.put(element, (Field<String>) component);
+			@SuppressWarnings("unchecked")
+			final Field<String> field = (Field<String>)component;
+			
+			components.put(element, field);
 			elementsWithHandlers.put(element.getId(), (ComputationElementDTO) element);
 
-			initialUpdateIfCurrentValueIsEmpty((ComputationElementDTO) element, (StringField) component);
+			initialUpdateIfCurrentValueIsEmpty((ComputationElementDTO) element, field);
 		}
 
 		final List<ComputationElementDTO> computationElements = dependencies.get(element);
@@ -178,7 +193,7 @@ public class ComputationTriggerManager {
 	 * @param component
 	 *          Component associated to the given element.
 	 */
-	private void initialUpdateIfCurrentValueIsEmpty(final ComputationElementDTO computationElement, final StringField field) {
+	private void initialUpdateIfCurrentValueIsEmpty(final ComputationElementDTO computationElement, final Field<String> field) {
 
 		if (field.getValue() == null || field.getValue().isEmpty()) {
 			updateComputation(computationElement, new ArrayList<ValueEvent>(), false);

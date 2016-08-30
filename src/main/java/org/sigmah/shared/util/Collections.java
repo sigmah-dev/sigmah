@@ -24,6 +24,7 @@ package org.sigmah.shared.util;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -53,7 +54,7 @@ public final class Collections {
      * @return <code>true</code> if one of the <code>needles</code> is found in <code>haystack</code>,
      * <code>false</code> if none are found.
      */
-    public static <T> boolean containsOneOf(final Set<T> haystack, final Collection<T> needles) {
+    public static <T> boolean containsOneOf(final Collection<T> haystack, final Collection<T> needles) {
         
         for (final T needle : needles) {
             if (haystack.contains(needle)) {
@@ -136,6 +137,28 @@ public final class Collections {
 		removeLastSeparator(builder, separator);
         return builder.toString();
     }
+	
+	/**
+	 * Merge the given collections in a new <code>Set</code>.
+	 * 
+	 * @param <T>
+	 *			Type of the objects inside the collections.
+	 * @param collections
+	 *			Collections to merge.
+	 * @return A new <code>Set</code> with the content of the given collections.
+	 */
+	@SafeVarargs
+	public static <T> Set<T> merge(final Collection<T>... collections) {
+		final Set<T> merged = new HashSet<T>();
+		
+		for (final Collection<T> collection : collections) {
+			if (collection != null) {
+				merged.addAll(collection);
+			}
+		}
+		
+		return merged;
+	}
     
     /**
      * Creates a list by mapping the elements from the given collection.

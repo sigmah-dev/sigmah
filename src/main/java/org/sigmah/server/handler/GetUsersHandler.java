@@ -38,7 +38,7 @@ import com.extjs.gxt.ui.client.Style;
 import java.util.ArrayList;
 
 /**
- * Handler for {@link GetUsers} command
+ * Handler for {@link GetUsers} command.
  * 
  * @author Alex Bertram
  * @author Maxime Lombard (mlombard@ideia.fr)

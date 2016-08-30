@@ -417,7 +417,7 @@ public class LinkedProjectPresenter extends AbstractPagePresenter<LinkedProjectP
 
 				final Map<Integer, String> values = ValueResultUtils.splitMapElements(result.getValueObject());
 
-				if (values.containsKey(plannedBudgetField.getId())) {
+				if (plannedBudgetField != null && values.containsKey(plannedBudgetField.getId())) {
 					plannedBudget = Double.valueOf(values.get(plannedBudgetField.getId()));
 				}
 

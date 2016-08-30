@@ -22,6 +22,7 @@ package org.sigmah.server.service;
  * #L%
  */
 
+import com.google.inject.Inject;
 import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 
@@ -33,6 +34,10 @@ import org.sigmah.server.service.util.PropertyMap;
 import org.sigmah.shared.dto.ProjectFundingDTO;
 
 import com.google.inject.Singleton;
+import java.util.Collection;
+import org.sigmah.server.domain.ProjectModel;
+import org.sigmah.server.domain.User;
+import org.sigmah.server.domain.element.ComputationElement;
 
 /**
  * {@link ProjectFunding} corresponding service implementation.
@@ -42,6 +47,12 @@ import com.google.inject.Singleton;
 @Singleton
 public class ProjectFundingService extends AbstractEntityService<ProjectFunding, Integer, ProjectFundingDTO> {
 
+	/**
+	 * Injection of the service updating the computation elements.
+	 */
+	@Inject
+	private ComputationService computationService;
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -79,7 +90,10 @@ public class ProjectFundingService extends AbstractEntityService<ProjectFunding,
 
 		// Saves.
 		em().persist(funding);
-
+		
+		// Updating related computation elements.
+		updateComputationsReferencingModelsOfProjects(fundingProject, fundedProject, context.getUser());
+		
 		return funding;
 	}
 
@@ -94,9 +108,44 @@ public class ProjectFundingService extends AbstractEntityService<ProjectFunding,
 		if (projectFunding != null) {
 			projectFunding.setPercentage((Double) changes.get(ProjectFundingDTO.PERCENTAGE));
 			projectFunding = em().merge(projectFunding);
+			
+			// Updating related computation elements.
+			updateComputationsReferencingModelsOfProjects(projectFunding.getFunding(), projectFunding.getFunded(), context.getUser());
 		}
-
+		
 		return projectFunding;
 	}
-
+	
+	/**
+	 * Update the computation elements referencing the contribution of the given
+	 * projects.
+	 * 
+	 * @param fundingProject
+	 *			Project funding the `fundedProject`.
+	 * @param fundedProject
+	 *			Project founded by `fundingProject`.
+	 * @param user 
+	 *			User changing the value of the contribution.
+	 */
+	private void updateComputationsReferencingModelsOfProjects(final Project fundingProject, final Project fundedProject, final User user) {
+		
+		final Collection<ComputationElement> impactedComputations = computationService.getComputationElementsReferencingContributions();
+		
+		for (final ComputationElement computationElement : impactedComputations) {
+			
+			final ProjectModel parentModel = computationService.getParentProjectModel(computationElement);
+			
+			if (parentModel != null) {
+				final Integer parentModelId = parentModel.getId();
+				
+				if (parentModelId.equals(fundedProject.getProjectModel().getId())) {
+					computationService.updateComputationValueForProject(computationElement, fundedProject, user);
+				}
+				if (parentModelId.equals(fundingProject.getProjectModel().getId())) {
+					computationService.updateComputationValueForProject(computationElement, fundingProject, user);
+				}
+			}
+		}
+	}
+	
 }

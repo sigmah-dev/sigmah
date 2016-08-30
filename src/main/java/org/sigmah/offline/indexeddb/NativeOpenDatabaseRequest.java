@@ -35,11 +35,12 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
  * Request to open an IndexedDB database.
  * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
+ * @param <S> Type defining the schema of the database.
  */
 public class NativeOpenDatabaseRequest<S extends Enum<S> & Schema> extends Request implements OpenDatabaseRequest<S> {
 	
-	private final List<JavaScriptEvent> upgradeNeededHandlers = new ArrayList<JavaScriptEvent>();
-	private final List<JavaScriptEvent> blockedHandlers = new ArrayList<JavaScriptEvent>();
+	private final List<JavaScriptEvent<IDBVersionChangeEvent>> upgradeNeededHandlers = new ArrayList<JavaScriptEvent<IDBVersionChangeEvent>>();
+	private final List<JavaScriptEvent<JavaScriptObject>> blockedHandlers = new ArrayList<JavaScriptEvent<JavaScriptObject>>();
 	
 	private final Class<S> stores;
 	
@@ -51,7 +52,13 @@ public class NativeOpenDatabaseRequest<S extends Enum<S> & Schema> extends Reque
 		registerEvents(request);
 	}
 	
-	private native void registerEvents(IDBRequest request) /*-{
+	/**
+	 * Register the listeners for the native events.
+	 * 
+	 * @param request 
+	 *			Request to listen.
+	 */
+	private native void registerEvents(IDBOpenDBRequest request) /*-{
 		if(typeof $wnd.Object.getPrototypeOf != 'undefined') {
 			$wnd.Object.getPrototypeOf(this).handleEvent = function(event) {
 				switch(event.type) {
@@ -62,7 +69,7 @@ public class NativeOpenDatabaseRequest<S extends Enum<S> & Schema> extends Reque
 						this.@org.sigmah.offline.indexeddb.NativeOpenDatabaseRequest::fireError(Lcom/google/gwt/core/client/JavaScriptObject;)(event);
 						break;
 					case 'upgradeneeded':
-						this.@org.sigmah.offline.indexeddb.NativeOpenDatabaseRequest::fireUpgradeNeeded(Lcom/google/gwt/core/client/JavaScriptObject;)(event);
+						this.@org.sigmah.offline.indexeddb.NativeOpenDatabaseRequest::fireUpgradeNeeded(Lorg/sigmah/offline/indexeddb/IDBVersionChangeEvent;)(event);
 						break;
 					case 'blocked':
 						this.@org.sigmah.offline.indexeddb.NativeOpenDatabaseRequest::fireBlocked(Lcom/google/gwt/core/client/JavaScriptObject;)(event);
@@ -76,17 +83,23 @@ public class NativeOpenDatabaseRequest<S extends Enum<S> & Schema> extends Reque
 		}
 	}-*/;
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Database<S> getResult() {
-		if(!openFailed) {
+		if (!openFailed) {
 			return new Database<S>((IDBDatabase) super.getResult(), stores);
 		} else {
 			return null;
 		}
 	}
     
+	/**
+	 * {@inheritDoc}
+	 */
     @Override
-    public void addSuccessHandler(final JavaScriptEvent successHandler) {
+    public void addSuccessHandler(final JavaScriptEvent<?> successHandler) {
         addCallback(new AsyncCallback<Request>() {
 
             @Override
@@ -104,21 +117,47 @@ public class NativeOpenDatabaseRequest<S extends Enum<S> & Schema> extends Reque
         });
     }
 	
-	public void addUpgradeNeededHandler(JavaScriptEvent<IDBVersionChangeEvent> handler) {
+	/**
+	 * Adds the given handler to the list of handlers called when an upgrade is
+	 * needed.
+	 * 
+	 * @param handler 
+	 *			Handler to add.
+	 */
+	public void addUpgradeNeededHandler(final JavaScriptEvent<IDBVersionChangeEvent> handler) {
 		upgradeNeededHandlers.add(handler);
 	}
 	
-	protected void fireUpgradeNeeded(JavaScriptObject event) {
+	/**
+	 * Fire the given <code>upgrade</code> event.
+	 * 
+	 * @param event 
+	 *			Event to fire.
+	 */
+	protected void fireUpgradeNeeded(final IDBVersionChangeEvent event) {
 		for(int index = upgradeNeededHandlers.size() - 1; index >= 0; index--) {
 			upgradeNeededHandlers.get(index).onEvent(event);
 		}
 	}
 	
-	public void addBlockedHandler(JavaScriptEvent handler) {
+	/**
+	 * Adds the given handler to the list of handlers called when a
+	 * <code>blocked</code> event occurs.
+	 * 
+	 * @param handler 
+	 *			Handler to add.
+	 */
+	public void addBlockedHandler(final JavaScriptEvent<JavaScriptObject> handler) {
 		blockedHandlers.add(handler);
 	}
 	
-	protected void fireBlocked(JavaScriptObject event) {
+	/**
+	 * Fire the given <code>blocked</code> event.
+	 * 
+	 * @param event 
+	 *			Event to fire.
+	 */
+	protected void fireBlocked(final JavaScriptObject event) {
 		for(int index = blockedHandlers.size() - 1; index >= 0; index--) {
 			blockedHandlers.get(index).onEvent(event);
 		}

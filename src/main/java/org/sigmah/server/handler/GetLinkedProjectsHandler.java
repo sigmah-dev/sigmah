@@ -25,7 +25,6 @@ package org.sigmah.server.handler;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.Query;
 
 import org.sigmah.server.dispatch.impl.UserDispatch.UserExecutionContext;
 import org.sigmah.server.domain.ProjectFunding;
@@ -41,20 +40,28 @@ import org.sigmah.shared.dto.ProjectFundingDTO.LinkedProjectType;
 import org.sigmah.shared.dto.base.mapping.IsMappingMode;
 
 import com.google.inject.Inject;
+import org.sigmah.server.dao.ProjectFundingDAO;
 
 /**
  * Handler for the {@link GetLinkedProjects} command.
  *
  * @author Denis Colliot (dcolliot@ideia.fr)
+ * @author Raphaël Calabro (raphael.calabro@netapsys.fr)
  */
 public class GetLinkedProjectsHandler extends AbstractCommandHandler<GetLinkedProjects, ListResult<ProjectFundingDTO>> {
 
+	/**
+	 * Injected project project funding DAO.
+	 */
+	@Inject
+	private ProjectFundingDAO projectFundingDAO;
+	
 	/**
 	 * Injected project mapper.
 	 */
 	@Inject
 	private ProjectMapper projectMapper;
-
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -69,25 +76,7 @@ public class GetLinkedProjectsHandler extends AbstractCommandHandler<GetLinkedPr
 			throw new CommandException("Invalid command arguments.");
 		}
 
-		final String queryTerm;
-		switch (type) {
-			case FUNDING_PROJECT:
-				queryTerm = "funding";
-				break;
-
-			case FUNDED_PROJECT:
-				queryTerm = "funded";
-				break;
-
-			default:
-				throw new CommandException("Invalid linked project type.");
-		}
-
-		final Query query = em().createQuery("SELECT p." + queryTerm + " FROM Project p WHERE p.id = :projectId");
-		query.setParameter("projectId", projectId);
-
-		@SuppressWarnings("unchecked")
-		final List<ProjectFunding> results = query.getResultList();
+		final List<ProjectFunding> results = projectFundingDAO.getLinkedProjects(projectId, type);
 
 		final List<ProjectFundingDTO> dtos = new ArrayList<ProjectFundingDTO>();
 		for (final ProjectFunding pf : results) {

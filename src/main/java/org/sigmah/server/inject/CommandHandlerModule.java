@@ -132,6 +132,7 @@ public class CommandHandlerModule extends AbstractCommandHandlerModule {
 		bindHandler(GetUsers.class, GetUsersHandler.class);
 		bindHandler(GetUsersWithProfiles.class, GetUsersWithProfilesHandler.class);
 		bindHandler(GetValue.class, GetValueHandler.class);
+		bindHandler(GetValueFromLinkedProjects.class, GetValueFromLinkedProjectsHandler.class);
 		bindHandler(LoginCommand.class, LoginCommandHandler.class);
 		bindHandler(MoveOrgUnit.class, MoveOrgUnitHandler.class);
 		bindHandler(PasswordManagementCommand.class, PasswordManagementCommandHandler.class);
@@ -156,6 +157,7 @@ public class CommandHandlerModule extends AbstractCommandHandlerModule {
 		bindHandler(UpdateReminders.class, UpdateRemindersHandler.class);
 		bindHandler(UpdateSubscription.class, UpdateSubscriptionHandler.class);
 		bindHandler(UploadSlice.class, UploadSliceHandler.class);
+		bindHandler(SendProbeReport.class, SendProbeReportHandler.class);
 	}
 
 }

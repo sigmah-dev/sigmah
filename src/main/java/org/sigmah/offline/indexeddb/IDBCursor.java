@@ -62,11 +62,19 @@ final class IDBCursor<T> extends JavaScriptObject {
 		return this.direction;
 	}-*/;
 	
-	public native Object getKey() /*-{
+	public native Object getKeyObject() /*-{
+		return this.key;
+	}-*/;
+	
+	public native int getKeyInteger() /*-{
 		return this.key;
 	}-*/;
 
-	public native Object getPrimaryKey() /*-{
+	public native Object getPrimaryKeyObject() /*-{
+		return this.primaryKey;
+	}-*/;
+
+	public native int getPrimaryKeyInteger() /*-{
 		return this.primaryKey;
 	}-*/;
 	

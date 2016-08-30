@@ -56,5 +56,15 @@ public interface MailSender {
 	 * @throws EmailException 
 	 */
 	void sendFile(final Email email, String fileName, InputStream fileStream) throws EmailException;
-	
+	/**
+	 * Sends the given email with a many files as attached content
+	 * @param email 
+	 *			Email to send.
+	 * @param fileNames
+	 *			Array of files names
+	 * @param fileStreams
+	 *			Array of conntent of attachement
+	 * @throws EmailException 
+	 */
+	public void sendEmailWithMultiAttachmenets(Email email, String[] fileNames, InputStream[] fileStreams) throws EmailException;
 }

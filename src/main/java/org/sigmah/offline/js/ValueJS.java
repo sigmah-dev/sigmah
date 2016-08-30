@@ -39,12 +39,29 @@ import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArray;
 
 /**
- *
+ * JavaScript object storing the value of a flexible element.
+ * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
 public final class ValueJS extends JavaScriptObject {
 	
 	protected ValueJS() {
+		// Empty.
+	}
+	
+	public static ValueJS toJavaScript(final String value, final FlexibleElementDTO element, final int projectId) {
+		final ValueJS valueJS = Values.createJavaScriptObject(ValueJS.class);
+		
+		valueJS.setId(ValueJSIdentifierFactory.toIdentifier(element.getEntityName(), projectId, element.getId(), null));
+		valueJS.setElementEntityName(element.getEntityName());
+		valueJS.setProjectId(projectId);
+		valueJS.setElementId(element.getId());
+		valueJS.setAmendmentId(null);
+		
+		valueJS.setValue(value);
+		valueJS.setAmendment(false);
+		
+		return valueJS;
 	}
 	
 	public static ValueJS toJavaScript(GetValue getValue, ValueResult valueResult) {
@@ -76,7 +93,7 @@ public final class ValueJS extends JavaScriptObject {
 		valueJS.setElementId(valueEventWrapper.getSourceElement().getId());
 		valueJS.setAmendmentId(null);
 		
-		if(originalValue != null) {
+		if (originalValue != null) {
 			valueJS.setValue(originalValue.getValueObject());
 			valueJS.setValues(originalValue.getValuesObject());
 			valueJS.setAmendment(originalValue.isAmendment());
@@ -98,10 +115,10 @@ public final class ValueJS extends JavaScriptObject {
 		valueResult.setValueObject(getValue());
 		
 		final JsArray<ListableValueJS> values = getValues();
-		if(values != null) {
+		if (values != null) {
 			final ArrayList<ListableValue> list = new ArrayList<ListableValue>();
 			
-			for(int index = 0; index < values.length(); index++) {
+			for (int index = 0; index < values.length(); index++) {
 				list.add(values.get(index).toDTO());
 			}
 			
@@ -118,14 +135,14 @@ public final class ValueJS extends JavaScriptObject {
 		valueEventWrapper.setProjectCountryChanged(isProjectCountryChanged());
 		valueEventWrapper.setSingleValue(getValue());
 		
-		if(getValues() != null && getValues().length() == 1) {
+		if (getValues() != null && getValues().length() == 1) {
 			final ListableValue listableValue = getValues().get(0).toDTO();
-			if(listableValue instanceof TripletValueDTO) {
+			if (listableValue instanceof TripletValueDTO) {
 				valueEventWrapper.setListValue((TripletValueDTO)listableValue);
 			}
 		}
 		
-		if(getSourceElement() != null) {
+		if (getSourceElement() != null) {
 			valueEventWrapper.setSourceElement(getSourceElement().toDTO());
 		}
 		
@@ -135,9 +152,9 @@ public final class ValueJS extends JavaScriptObject {
 	public void update(ValueEventWrapper valueEventWrapper) {
 		setValue(valueEventWrapper.getSingleValue());
 		
-		if(valueEventWrapper.getListValue() instanceof ListableValue) {
+		if (valueEventWrapper.getListValue() instanceof ListableValue) {
 			JsArray<ListableValueJS> values = getValues();
-			if(values == null) {
+			if (values == null) {
 				values = (JsArray<ListableValueJS>) JavaScriptObject.createArray();
 				setValues(values);
 			}
@@ -150,9 +167,9 @@ public final class ValueJS extends JavaScriptObject {
 				case REMOVE:
 					final JsArray<ListableValueJS> trimmedArray = (JsArray<ListableValueJS>) JavaScriptObject.createArray();
 					
-					for(int index = 0; index < values.length(); index++) {
+					for (int index = 0; index < values.length(); index++) {
 						final ListableValueJS entry = values.get(index);
-						if(entry.getId() != valueEventWrapper.getListValue().getId()) {
+						if (entry.getId() != valueEventWrapper.getListValue().getId()) {
 							trimmedArray.push(entry);
 						} else {
 							Log.info("Removing entry " + entry.getId() + " from " + getId());
@@ -205,7 +222,7 @@ public final class ValueJS extends JavaScriptObject {
 	}-*/;
 
 	public void setAmendmentId(Integer amendmentId) {
-		if(amendmentId != null) {
+		if (amendmentId != null) {
 			setAmendmentId(amendmentId.intValue());
 		}
 	}
@@ -227,10 +244,10 @@ public final class ValueJS extends JavaScriptObject {
 	}-*/;
 
 	public void setValues(List<ListableValue> values) {
-		if(values != null) {
+		if (values != null) {
 			final JsArray<ListableValueJS> array = Values.createTypedJavaScriptArray(ListableValueJS.class);
 			
-			for(final ListableValue value : values) {
+			for (final ListableValue value : values) {
 				array.push(ListableValueJS.toJavaScript(value));
 			}
 			
@@ -284,7 +301,7 @@ public final class ValueJS extends JavaScriptObject {
 	}-*/;
 
 	public void setSourceElement(FlexibleElementDTO sourceElement) {
-		if(sourceElement != null) {
+		if (sourceElement != null) {
 			setSourceElement(FlexibleElementJS.toJavaScript(sourceElement));
 		}
 	}

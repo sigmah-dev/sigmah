@@ -79,6 +79,8 @@ import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.sigmah.client.ui.view.project.dashboard.LinkedProjectsColumnsProvider;
+import org.sigmah.client.util.profiler.Profiler;
+import org.sigmah.client.util.profiler.Scenario;
 import org.sigmah.shared.util.ProjectUtils;
 
 /**
@@ -509,7 +511,6 @@ public class ProjectDashboardPresenter extends AbstractProjectPresenter<ProjectD
 		// --
 		// Updates reminders and monitored points toolbars.
 		// --
-
 		final boolean canEditReminders =
 			ProfileUtils.isGranted(auth(), GlobalPermissionEnum.EDIT_ALL_REMINDERS) ||
 			ProfileUtils.isGranted(auth(), GlobalPermissionEnum.EDIT_OWN_REMINDERS);
@@ -533,9 +534,7 @@ public class ProjectDashboardPresenter extends AbstractProjectPresenter<ProjectD
 		// --
 		// Updates reminders / monitored points.
 		// --
-
 		loadReminders();
-
 		loadMonitoredPoints();
 
 		// --

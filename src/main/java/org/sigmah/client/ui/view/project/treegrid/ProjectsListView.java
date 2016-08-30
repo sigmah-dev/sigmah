@@ -104,9 +104,8 @@ import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Widget;
-import org.sigmah.client.util.profiler.Profiler;
-import org.sigmah.client.util.profiler.Scenario;
 
+import com.allen_sauer.gwt.log.client.Log;
 /**
  * {@link ProjectsListWidget} corresponding view implementation.
  * 
@@ -124,6 +123,7 @@ public class ProjectsListView extends AbstractView implements ProjectsListWidget
 	private static final String STYLE_PROJECT_GRID_LEAF = "project-grid-leaf";
 	private static final String STYLE_PROJECT_GRID_CODE_ICON = "project-grid-code-icon";
 	private static final String STYLE_PROJECT_GRID_CODE = "project-grid-code";
+	private static final String PORJECT_CODE_COLUMN_ID="projectCodeColumnId_";
 
 	/**
 	 * HTML double spaces characters.
@@ -438,12 +438,8 @@ public class ProjectsListView extends AbstractView implements ProjectsListWidget
 		if (date == null) {
 			return;
 		}
-
 		refreshDateLabel.setHtml('(' + REFRESH_TIME_FORMAT.format(date) + ')');
-		Profiler.INSTANCE.markCheckpoint(Scenario.LOGIN, "Project list loading ended.");
-		Profiler.INSTANCE.endScenario(Scenario.LOGIN);
 	}
-
 	/**
 	 * {@inheritDoc}
 	 */
@@ -583,21 +579,20 @@ public class ProjectsListView extends AbstractView implements ProjectsListWidget
 
 		// Code
 		final ColumnConfig codeColumn = new ColumnConfig(ProjectDTO.NAME, I18N.CONSTANTS.projectName(), 110);
-		codeColumn.setRenderer(new WidgetTreeGridCellRenderer<ProjectDTO>() {
-
+		codeColumn.setRenderer(new WidgetTreeGridCellRenderer<ProjectDTO>() {		
 			@Override
 			public Widget getWidget(final ProjectDTO model, final String property, final ColumnData config, final int rowIndex, final int colIndex,
 					final ListStore<ProjectDTO> store, final Grid<ProjectDTO> grid) {
 
 				final Anchor nameLink = new Anchor((String) model.get(property));
+				nameLink.ensureDebugId(nameLink.getElement(),PORJECT_CODE_COLUMN_ID+model.getId());
 				if (!model.isLeaf()) {
-					nameLink.setStyleName(STYLE_PROJECT_GRID_NODE);
+					nameLink.setStyleName(STYLE_PROJECT_GRID_NODE );
 				} else {
 					nameLink.setStyleName(STYLE_PROJECT_GRID_LEAF);
 				}
-
+				
 				nameLink.addClickHandler(new ClickHandler() {
-
 					@Override
 					public void onClick(ClickEvent event) {
 						if (treeHandler == null) {
@@ -614,9 +609,11 @@ public class ProjectsListView extends AbstractView implements ProjectsListWidget
 
 				panel.setWidget(0, 0, FundingIconProvider.getProjectTypeIcon(handlerProvider.getProjectModelType(model), IconSize.SMALL_MEDIUM).createImage());
 				panel.getCellFormatter().addStyleName(0, 0, STYLE_PROJECT_GRID_CODE_ICON);
+				nameLink.getElement().getId();
+				nameLink.getElement().setId(PORJECT_CODE_COLUMN_ID+"-4"+model.getId());
 				panel.setWidget(0, 1, nameLink);
 				panel.getCellFormatter().addStyleName(0, 1, STYLE_PROJECT_GRID_CODE);
-
+				//panel.getElement().setId(PORJECT_CODE_COLUMN_ID+model.getId());
 				return panel;
 			}
 		});

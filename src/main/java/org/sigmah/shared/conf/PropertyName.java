@@ -41,7 +41,7 @@ public final class PropertyName {
 	public static final String PREFIX_MAIL_MODEL = n("mail", "model");
 
 	private static final String ERROR_TAG = "???";
-
+	
 	/**
 	 * Builds a property name which {@code parts} are separated by a dot character.
 	 * 

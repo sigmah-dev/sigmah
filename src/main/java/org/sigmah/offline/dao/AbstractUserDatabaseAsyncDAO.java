@@ -34,6 +34,7 @@ import org.sigmah.offline.indexeddb.Request;
 import org.sigmah.offline.indexeddb.Store;
 import org.sigmah.offline.indexeddb.Transaction;
 import org.sigmah.offline.js.Values;
+import org.sigmah.offline.sync.SuccessCallback;
 import org.sigmah.shared.command.result.ListResult;
 
 /**
@@ -101,6 +102,14 @@ public abstract class AbstractUserDatabaseAsyncDAO<T extends Serializable, J ext
 		});
 	}
 	
+	/**
+	 * Open a new transaction and save or replace the given objects.
+	 * 
+	 * @param listResult
+	 *			<code>ListResult</code> containing the objects to save or update.
+	 * @param callback
+	 *			Called when the object is saved or in case of failure (not always supported).
+	 */
 	public void saveAll(final ListResult<T> listResult, final AsyncCallback<Void> callback) {
 		if (listResult != null && listResult.getList() != null) {
 			saveAll(listResult.getList(), callback);
@@ -134,6 +143,12 @@ public abstract class AbstractUserDatabaseAsyncDAO<T extends Serializable, J ext
         });
 	}
 	
+	/**
+	 * Returns every saved object in a <code>ListResult</code>
+	 * 
+	 * @param callback 
+	 *			Called with the created list result.
+	 */
 	public void getListResult(final AsyncCallback<ListResult<T>> callback) {
 		openTransaction(Transaction.Mode.READ_ONLY, new OpenTransactionHandler<Store>() {
 
@@ -141,13 +156,8 @@ public abstract class AbstractUserDatabaseAsyncDAO<T extends Serializable, J ext
 			public void onTransaction(Transaction<Store> transaction) {
 				final ArrayList<T> ts = new ArrayList<T>();
 				
-				final ObjectStore countryObjectStore = transaction.getObjectStore(getRequiredStore());
-				countryObjectStore.openCursor().addCallback(new AsyncCallback<Request>() {
-
-					@Override
-					public void onFailure(Throwable caught) {
-						callback.onFailure(caught);
-					}
+				final ObjectStore objectStore = transaction.getObjectStore(getRequiredStore());
+				objectStore.openCursor().addCallback(new SuccessCallback<Request>(callback) {
 
 					@Override
 					public void onSuccess(Request result) {
@@ -162,6 +172,7 @@ public abstract class AbstractUserDatabaseAsyncDAO<T extends Serializable, J ext
 							callback.onSuccess(new ListResult<T>(ts));
 						}
 					}
+					
 				});
 			}
 		});

@@ -24,6 +24,8 @@ package org.sigmah.shared.computation.instruction;
 
 import java.util.Map;
 import java.util.Stack;
+import org.sigmah.shared.computation.dependency.Dependency;
+import org.sigmah.shared.computation.dependency.SingleDependency;
 import org.sigmah.shared.computation.value.ComputedValue;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
 
@@ -35,22 +37,26 @@ import org.sigmah.shared.dto.element.FlexibleElementDTO;
  */
 public class Variable implements Instruction, HasHumanReadableFormat {
 	
-	private final FlexibleElementDTO flexibleElement;
+	private final Dependency dependency;
 
 	public Variable(FlexibleElementDTO flexibleElement) {
-		this.flexibleElement = flexibleElement;
+		this.dependency = new SingleDependency(flexibleElement);
 	}
 	
-	public FlexibleElementDTO getFlexibleElement() {
-		return flexibleElement;
+	public Variable(Dependency dependency) {
+		this.dependency = dependency;
+	}
+
+	public Dependency getDependency() {
+		return dependency;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void execute(Stack<ComputedValue> stack, Map<Integer, ComputedValue> variables) {
-		stack.push(variables.get(flexibleElement.getId()));
+	public void execute(Stack<ComputedValue> stack, Map<Dependency, ComputedValue> variables) {
+		stack.push(variables.get(dependency));
 	}
 
 	/**
@@ -58,10 +64,7 @@ public class Variable implements Instruction, HasHumanReadableFormat {
 	 */
 	@Override
 	public String toString() {
-		return new StringBuilder()
-                .append(Instructions.ID_PREFIX)
-                .append(flexibleElement.getId())
-                .toString();
+		return dependency.toString();
 	}
 
 	/**
@@ -69,7 +72,7 @@ public class Variable implements Instruction, HasHumanReadableFormat {
 	 */
 	@Override
 	public String toHumanReadableString() {
-		return flexibleElement.getCode();
+		return dependency.toHumanReadableString();
 	}
 	
 }

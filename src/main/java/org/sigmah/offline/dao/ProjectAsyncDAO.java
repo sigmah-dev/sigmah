@@ -55,6 +55,7 @@ import com.google.inject.Singleton;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import org.sigmah.offline.indexeddb.Indexes;
 import org.sigmah.offline.js.ValueJSIdentifierFactory;
 import org.sigmah.shared.command.result.ValueResult;
 import org.sigmah.shared.dto.category.CategoryElementDTO;
@@ -137,7 +138,7 @@ public class ProjectAsyncDAO extends AbstractUserDatabaseAsyncDAO<ProjectDTO, Pr
             @Override
             public void onSuccess(Request request) {
                 final ProjectJS projectJS = request.getResult();
-				if(projectJS != null) {
+				if (projectJS != null) {
 					final ProjectDTO projectDTO = projectJS.toDTO();
 
 					final RequestManager<ProjectDTO> requestManager = new RequestManager<ProjectDTO>(projectDTO, callback);
@@ -180,13 +181,15 @@ public class ProjectAsyncDAO extends AbstractUserDatabaseAsyncDAO<ProjectDTO, Pr
 		});
 	}
 	
-	
 	/**
 	 * Retrieves only the informations stored inside ProjectJS.
 	 * 
-	 * @param indexName Name of the index to use.
-	 * @param id Indexed value to retrieve.
-	 * @param callback Handler to call when the search is done.
+	 * @param indexName
+	 *			Name of the index to use.
+	 * @param id
+	 *			Indexed value to retrieve.
+	 * @param callback
+	 *			Handler to call when the search is done.
 	 */
 	public void getByIndexWithoutDependencies(final String indexName, final int id, final AsyncCallback<ProjectDTO> callback) {
 		openTransaction(Transaction.Mode.READ_ONLY, new OpenTransactionHandler<Store>() {
@@ -209,6 +212,72 @@ public class ProjectAsyncDAO extends AbstractUserDatabaseAsyncDAO<ProjectDTO, Pr
 				});
 			}
 		});
+	}
+	
+	/**
+	 * Returns the 2 projects associated with the given project funding id.
+	 * 
+	 * @param id
+	 *			Identifier of the project funding.
+	 * @param callback
+	 *			Handler to call when the search is done.
+	 */
+	public void getByProjectFundingId(final int id, final AsyncCallback<List<ProjectDTO>> callback) {
+		openTransaction(Transaction.Mode.READ_ONLY, new OpenTransactionHandler<Store>() {
+
+			@Override
+			public void onTransaction(final Transaction<Store> transaction) {
+				getProjectsByIndex(Indexes.PROJECT_PROJECTFUNDINGS, id, callback, transaction);
+			}
+		});
+	}
+	
+	private void getProjectsByIndex(final String index, final int id, final AsyncCallback<List<ProjectDTO>> callback, final Transaction<Store> transaction) {
+		final List<ProjectDTO> projects = new ArrayList<ProjectDTO>();
+		final RequestManager<List<ProjectDTO>> requestManager = new RequestManager<List<ProjectDTO>>(projects, callback);
+				
+		final ObjectStore projectStore = transaction.getObjectStore(getRequiredStore());
+		
+		final OpenCursorRequest request = projectStore.index(index).openKeyCursor(IDBKeyRange.only(id));
+		final int cursorRequest = requestManager.prepareRequest();
+		request.addCallback(new AsyncCallback<Request>() {
+
+			@Override
+			public void onFailure(Throwable caught) {
+				requestManager.setRequestFailure(cursorRequest, caught);
+			}
+
+			@Override
+			public void onSuccess(Request result) {
+				final Cursor cursor = request.getResult();
+				if (cursor != null) {
+					final ProjectJS projectJS = cursor.getValue();
+					if (projectJS != null) {
+						final ProjectDTO projectDTO = projectJS.toDTO();
+						projects.add(projectDTO);
+
+						loadProjectDTO(projectJS, true, requestManager, projectDTO, transaction);
+					} else {
+						get(cursor.getPrimaryKey(), new RequestManagerCallback<List<ProjectDTO>, ProjectDTO>(requestManager) {
+							
+							@Override
+							public void onRequestSuccess(final ProjectDTO project) {
+								if (project != null) {
+									projects.add(project);
+								}
+							}
+							
+						}, transaction);
+					}
+					cursor.next();
+				} else {
+					requestManager.setRequestSuccess(cursorRequest);
+				}
+			}
+
+		});
+		
+		requestManager.ready();
 	}
 	
 	private void setChildrenProjects(final ProjectDTO project) {
@@ -435,7 +504,7 @@ public class ProjectAsyncDAO extends AbstractUserDatabaseAsyncDAO<ProjectDTO, Pr
 		}, transaction);
 
 		// Loading phases
-		if(projectJS.getPhases() != null) {
+		if (projectJS.getPhases() != null) {
 			final ArrayList<PhaseDTO> phases = new ArrayList<PhaseDTO>();
 			projectDTO.setPhases(phases);
 
@@ -453,7 +522,7 @@ public class ProjectAsyncDAO extends AbstractUserDatabaseAsyncDAO<ProjectDTO, Pr
 			}
 		}
 
-        if(Values.isDefined(projectJS, "currentPhase")) {
+        if (Values.isDefined(projectJS, "currentPhase")) {
             phaseAsyncDAO.get(projectJS.getCurrentPhase(), new RequestManagerCallback<M, PhaseDTO>(requestManager) {
                 @Override
                 public void onRequestSuccess(PhaseDTO result) {
@@ -464,7 +533,7 @@ public class ProjectAsyncDAO extends AbstractUserDatabaseAsyncDAO<ProjectDTO, Pr
         }
 		
 		// Loading log frame
-        if(Values.isDefined(projectJS, "logFrame")) {
+        if (Values.isDefined(projectJS, "logFrame")) {
             logFrameAsyncDAO.get(projectJS.getLogFrame(), new RequestManagerCallback<M, LogFrameDTO>(requestManager) {
                 @Override
                 public void onRequestSuccess(LogFrameDTO result) {
@@ -474,7 +543,7 @@ public class ProjectAsyncDAO extends AbstractUserDatabaseAsyncDAO<ProjectDTO, Pr
         }
 
 		// Loading monitored points and reminders
-		if(projectDTO.getPointsList() != null && projectDTO.getPointsList().getId() != null) {
+		if (projectDTO.getPointsList() != null && projectDTO.getPointsList().getId() != null) {
 			monitoredPointAsyncDAO.getAllByParentListId(projectDTO.getPointsList().getId(), new RequestManagerCallback<M, List<MonitoredPointDTO>>(requestManager) {
 				
 				@Override
@@ -484,7 +553,7 @@ public class ProjectAsyncDAO extends AbstractUserDatabaseAsyncDAO<ProjectDTO, Pr
 			}, transaction);
 		}
 		
-		if(projectDTO.getRemindersList() != null && projectDTO.getRemindersList().getId() != null) {
+		if (projectDTO.getRemindersList() != null && projectDTO.getRemindersList().getId() != null) {
 			reminderAsyncDAO.getAllByParentListId(projectDTO.getRemindersList().getId(), new RequestManagerCallback<M, List<ReminderDTO>>(requestManager) {
 				
 				@Override
@@ -495,11 +564,11 @@ public class ProjectAsyncDAO extends AbstractUserDatabaseAsyncDAO<ProjectDTO, Pr
 		}
 		
 		// Loading OrgUnit name.
-        if(Values.isDefined(projectJS, "orgUnit")) {
+        if (Values.isDefined(projectJS, "orgUnit")) {
             orgUnitAsyncDAO.get(projectJS.getOrgUnit(), new RequestManagerCallback<M, OrgUnitDTO>(requestManager) {
                 @Override
                 public void onRequestSuccess(OrgUnitDTO result) {
-					if(result != null) {
+					if (result != null) {
 						projectDTO.setOrgUnitName(result.getName() + " - " + result.getFullName());
 					}
                 }
