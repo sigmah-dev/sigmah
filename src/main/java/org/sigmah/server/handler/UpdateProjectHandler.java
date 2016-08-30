@@ -222,7 +222,6 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 			}
 		}
 			
-		// Update user permissions
 		final Project updatedProject = em().find(Project.class, projectId);
 		if (updatedProject != null) {
 			if(coreVersionHasBeenModified) {

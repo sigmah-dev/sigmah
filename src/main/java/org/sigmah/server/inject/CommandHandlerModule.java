@@ -47,7 +47,6 @@ public class CommandHandlerModule extends AbstractCommandHandlerModule {
 	protected void configureHandlers() {
 		// Thank you for maintaining alphabetical order.
 		bindHandler(AddOrgUnit.class, AddOrgUnitHandler.class);
-		bindHandler(AddPartner.class, AddPartnerHandler.class);
 		bindHandler(AmendmentActionCommand.class, AmendmentActionCommandHandler.class);
 		bindHandler(AutomatedImport.class, AutomatedImportHandler.class);
 		bindHandler(BackupArchiveManagementCommand.class, BackupArchiveManagementHandler.class);
@@ -129,7 +128,6 @@ public class CommandHandlerModule extends AbstractCommandHandlerModule {
 		bindHandler(GetUserDatabase.class, GetUserDatabaseHandler.class);
 		bindHandler(GetUsersByOrganization.class, GetUsersByOrganizationHandler.class);
 		bindHandler(GetUsersByOrgUnit.class, GetUsersByOrgUnitHandler.class);
-		bindHandler(GetUsers.class, GetUsersHandler.class);
 		bindHandler(GetUsersWithProfiles.class, GetUsersWithProfilesHandler.class);
 		bindHandler(GetValue.class, GetValueHandler.class);
 		bindHandler(GetValueFromLinkedProjects.class, GetValueFromLinkedProjectsHandler.class);
@@ -140,7 +138,6 @@ public class CommandHandlerModule extends AbstractCommandHandlerModule {
 		bindHandler(PrepareFileUpload.class, PrepareFileUploadHandler.class);
 		bindHandler(PromoteProjectReportDraft.class, PromoteProjectReportDraftHandler.class);
 		bindHandler(RemoveOrgUnit.class, RemoveOrgUnitHandler.class);
-		bindHandler(RemovePartner.class, RemovePartnerHandler.class);
 		bindHandler(RemoveProjectReportDraft.class, RemoveProjectReportDraftHandler.class);
 		bindHandler(SecureNavigationCommand.class, SecureNavigationCommandHandler.class);
 		bindHandler(Synchronize.class, SynchronizeHandler.class);

@@ -23,6 +23,7 @@ package org.sigmah.client.ui.view.admin.models;
  */
 
 
+import com.allen_sauer.gwt.log.client.Log;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
@@ -149,11 +150,19 @@ public class EditFlexibleElementAdminView extends AbstractPopupView<PopupWidget>
 
 	private FlexTable budgetFields;
 	private FlexTable ratioFlexTable;
+	
+	private ComboBox<FlexibleElementDTO> budgetSubFieldSpentCombo;
+	private ComboBox<FlexibleElementDTO> budgetSubFieldPlannedCombo;
+	private ListStore<FlexibleElementDTO> budgetSubFieldSpentStore;
+	private ListStore<FlexibleElementDTO> budgetSubFieldPlannedStore;
+	
 	private ComboBox<BudgetSubFieldDTO> upBudgetSubFieldCombo;
 	private ComboBox<BudgetSubFieldDTO> downBudgetSubFieldCombo;
 	private ListStore<BudgetSubFieldDTO> upBudgetSubFieldStore;
 	private ListStore<BudgetSubFieldDTO> downBudgetSubFieldStore;
 	private Anchor anchorAddSubField;
+	
+	
 	
     // --
     // Computation specific fields.
@@ -277,9 +286,6 @@ public class EditFlexibleElementAdminView extends AbstractPopupView<PopupWidget>
 		// specific properties for budget field
 		// --
 
-		upBudgetSubFieldStore = new ListStore<BudgetSubFieldDTO>();
-		downBudgetSubFieldStore = new ListStore<BudgetSubFieldDTO>();
-
 		budgetFields = new FlexTable();
 		budgetFields.setVisible(false);
 		budgetFields.setCellSpacing(5);
@@ -296,6 +302,13 @@ public class EditFlexibleElementAdminView extends AbstractPopupView<PopupWidget>
 		anchorAddSubField.setVisible(false);
 
 		ratioFlexTable = new FlexTable();
+		
+		budgetSubFieldSpentStore = new ListStore<FlexibleElementDTO>();
+		budgetSubFieldPlannedStore = new ListStore<FlexibleElementDTO>();
+		
+		budgetSubFieldSpentCombo = Forms.combobox(I18N.CONSTANTS.flexibleElementBudgetDistributionRatio(), true, FlexibleElementDTO.ID, FlexibleElementDTO.LABEL, budgetSubFieldSpentStore);
+		budgetSubFieldPlannedCombo = Forms.combobox(I18N.CONSTANTS.projectPlannedBudget(), true, FlexibleElementDTO.ID, FlexibleElementDTO.LABEL, budgetSubFieldPlannedStore);
+		
 
 		upBudgetSubFieldCombo = new ComboBox<BudgetSubFieldDTO>();
 		upBudgetSubFieldCombo.setDisplayField("label");
@@ -357,6 +370,8 @@ public class EditFlexibleElementAdminView extends AbstractPopupView<PopupWidget>
 		specificForm.add(budgetFields);
 		specificForm.add(anchorAddSubField);
 		specificForm.add(ratioFlexTable);
+		specificForm.add(budgetSubFieldSpentCombo);
+		specificForm.add(budgetSubFieldPlannedCombo);
 		// --
 		// Other components.
 		// --
@@ -636,6 +651,21 @@ public class EditFlexibleElementAdminView extends AbstractPopupView<PopupWidget>
 	 * {@inheritDoc}
 	 */
 	@Override
+	public ComboBox<FlexibleElementDTO> getBudgetSubFieldSpentCombo(){
+		return budgetSubFieldSpentCombo;
+	}
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public ComboBox<FlexibleElementDTO> getBudgetSubFieldPlannedCombo(){
+		return budgetSubFieldPlannedCombo;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public ComboBox<BudgetSubFieldDTO> getUpBudgetSubFieldCombo() {
 		return upBudgetSubFieldCombo;
 	}
@@ -654,6 +684,21 @@ public class EditFlexibleElementAdminView extends AbstractPopupView<PopupWidget>
 	@Override
 	public ListStore<BudgetSubFieldDTO> getUpBudgetSubFieldStore() {
 		return upBudgetSubFieldStore;
+	}
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public ListStore<FlexibleElementDTO> getBudgetSubFieldPlannedStore() {
+		return budgetSubFieldPlannedStore;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public ListStore<FlexibleElementDTO> getBudgetSubFieldSpentStore() {
+		return budgetSubFieldSpentStore;
 	}
 
 	/**
@@ -807,14 +852,16 @@ public class EditFlexibleElementAdminView extends AbstractPopupView<PopupWidget>
 				break;
 
 			case DEFAULT:
-
 				bannerField.show();
 				bannerPositionField.show();
-                
+				
                 if (type == DefaultFlexibleElementType.BUDGET) {
                     budgetFields.setVisible(true);
                     anchorAddSubField.setVisible(true);
                     ratioFlexTable.setVisible(true);
+                }else if (type == DefaultFlexibleElementType.BUDGET_RATIO) {
+					budgetSubFieldSpentCombo.setVisible(true);
+					budgetSubFieldPlannedCombo.setVisible(true);
                 }
 				break;
 

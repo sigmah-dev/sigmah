@@ -227,7 +227,7 @@ public final class ServerComputations {
 	// TODO: Merge the following methods with the ones from the #844 branch.
 	// --
 	
-	private static LogicalElementType logicalElementTypeOf(final FlexibleElement element) {
+	public static LogicalElementType logicalElementTypeOf(final FlexibleElement element) {
 		
 		final LogicalElementType type;
 		

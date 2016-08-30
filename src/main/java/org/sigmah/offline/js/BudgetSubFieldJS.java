@@ -29,12 +29,18 @@ import org.sigmah.shared.dto.referential.BudgetSubFieldType;
 import com.google.gwt.core.client.JavaScriptObject;
 
 /**
- *
+ * JavaScript version of <code>BudgetSubFieldDTO</code>.
+ * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
+@Deprecated
 public final class BudgetSubFieldJS extends JavaScriptObject {
 	
+	/**
+	 * Protected constructor, required for JavaScript objects.
+	 */
 	protected BudgetSubFieldJS() {
+		// Empty.
 	}
 	
 	public static BudgetSubFieldJS toJavaScript(BudgetSubFieldDTO budgetSubFieldDTO) {

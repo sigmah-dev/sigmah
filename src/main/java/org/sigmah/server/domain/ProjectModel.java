@@ -23,8 +23,8 @@ package org.sigmah.server.domain;
  */
 
 
-import static com.extjs.gxt.ui.client.Style.SortDir.ASC;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
@@ -38,6 +38,10 @@ import org.hibernate.annotations.FilterDef;
 import org.hibernate.annotations.FilterDefs;
 import org.hibernate.annotations.Filters;
 import org.sigmah.server.domain.base.AbstractEntityId;
+import org.sigmah.server.domain.element.FlexibleElement;
+import org.sigmah.server.domain.layout.Layout;
+import org.sigmah.server.domain.layout.LayoutConstraint;
+import org.sigmah.server.domain.layout.LayoutGroup;
 import org.sigmah.server.domain.logframe.LogFrameModel;
 import org.sigmah.server.domain.profile.Profile;
 import org.sigmah.server.domain.util.Deleteable;
@@ -251,6 +255,56 @@ public class ProjectModel extends AbstractEntityId<Integer> implements Deleteabl
 		if (logFrameModel != null) {
 			logFrameModel.resetImport();
 		}
+	}
+	
+	/**
+	 * Returns the first flexible element matching the given type.
+	 * 
+	 * @param <E>
+	 *			Type of the flexible element to search.
+	 * @param elementType
+	 *			Class of the flexible element to search.
+	 * @return The first flexible element matching the given type or <code>null</code> if none was found.
+	 */
+	public <E extends FlexibleElement> E getFirstElementOfType(final Class<E> elementType) {
+		for (final Layout layout : getAllLayouts()) {
+			for (final LayoutGroup group : layout.getGroups()) {
+				for (final LayoutConstraint constraint : group.getConstraints()) {
+					final FlexibleElement flexibleElement = constraint.getElement();
+					if (flexibleElement != null && elementType.isAssignableFrom(flexibleElement.getClass())) {
+						return elementType.cast(flexibleElement);
+					}
+				}
+			}
+		}
+		return null;
+	}
+	
+	/**
+	 * Returns a new collection of every layout in this model.
+	 * 
+	 * @return A new collection of every layout in this model.
+	 */
+	public Collection<Layout> getAllLayouts() {
+		final ArrayList<Layout> layouts = new ArrayList<>();
+		
+		if (projectBanner != null && projectBanner.getLayout() != null) {
+			layouts.add(projectBanner.getLayout());
+		}
+		
+		if (projectDetails != null && projectDetails.getLayout() != null) {
+			layouts.add(projectDetails.getLayout());
+		}
+		
+		if (phaseModels != null) {
+			for (final PhaseModel phase : phaseModels) {
+				if (phase != null && phase.getLayout() != null) {
+					layouts.add(phase.getLayout());
+				}
+			}
+		}
+		
+		return layouts;
 	}
 
 	/**

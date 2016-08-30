@@ -50,6 +50,7 @@ import org.sigmah.shared.dto.referential.BudgetSubFieldType;
  */
 @Entity
 @Table(name = EntityConstants.BUDGET_SUB_FIELD_TABLE)
+@Deprecated
 public class BudgetSubField extends AbstractEntityId<Integer> {
 
 	/**

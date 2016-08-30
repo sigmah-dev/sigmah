@@ -41,6 +41,7 @@ import org.sigmah.server.domain.ProjectModel;
 import org.sigmah.server.domain.category.CategoryElement;
 import org.sigmah.server.domain.category.CategoryType;
 import org.sigmah.server.domain.element.BudgetElement;
+import org.sigmah.server.domain.element.BudgetRatioElement;
 import org.sigmah.server.domain.element.BudgetSubField;
 import org.sigmah.server.domain.element.ComputationElement;
 import org.sigmah.server.domain.element.DefaultFlexibleElement;
@@ -67,6 +68,8 @@ import org.sigmah.shared.dto.layout.LayoutGroupDTO;
 import org.sigmah.shared.dto.profile.PrivacyGroupDTO;
 import org.sigmah.shared.dto.referential.DefaultFlexibleElementType;
 import org.sigmah.shared.dto.referential.ElementTypeEnum;
+import org.sigmah.shared.dto.referential.LogicalElementType;
+import org.sigmah.shared.dto.referential.LogicalElementTypes;
 import org.sigmah.shared.dto.report.ReportModelDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -134,6 +137,9 @@ public final class ModelUtil {
 		final BudgetSubFieldDTO ratioDividend = changes.get(AdminUtil.PROP_FX_B_BUDGET_RATIO_DIVIDEND);
 		final BudgetSubFieldDTO ratioDivisor = changes.get(AdminUtil.PROP_FX_B_BUDGET_RATIO_DIVISOR);
 		final String computationRule = changes.get(AdminUtil.PROP_FX_COMPUTATION_RULE);
+		final FlexibleElementDTO budgetSpent = changes.get(AdminUtil.PROP_BUDGET_SPENT);
+		final FlexibleElementDTO budgetPlanned = changes.get(AdminUtil.PROP_BUDGET_PLANNED);
+		
 
 		final FlexibleElementDTO flexibleEltDTO = changes.get(AdminUtil.PROP_FX_FLEXIBLE_ELEMENT);
 
@@ -253,7 +259,9 @@ public final class ModelUtil {
 		// ////////////////Specific changes
 		Boolean specificChanges = false;
 
-		if ((ElementTypeEnum.DEFAULT.equals(oldType) && type == null) && DefaultFlexibleElementType.BUDGET.equals(((DefaultFlexibleElement) flexibleElt).getType())) {
+		final LogicalElementType logicalElementType = ServerComputations.logicalElementTypeOf(flexibleElt);
+		
+		if ((ElementTypeEnum.DEFAULT.equals(oldType) && type == null) && DefaultFlexibleElementType.BUDGET == logicalElementType.toDefaultFlexibleElementType()) {
 			List<BudgetSubField> budgetFieldsToDelete = new ArrayList<BudgetSubField>();
 			BudgetElement budgetElement = (BudgetElement) flexibleElt;
 			budgetFieldsToDelete.addAll(budgetElement.getBudgetSubFields());
@@ -296,6 +304,21 @@ public final class ModelUtil {
 			}
 
 			flexibleElt = em.merge(budgetElement);
+			
+		} else if ((ElementTypeEnum.DEFAULT.equals(oldType) && type == null) && DefaultFlexibleElementType.BUDGET_RATIO == logicalElementType.toDefaultFlexibleElementType()) {	
+			BudgetRatioElement budgetRatioElement = (BudgetRatioElement) flexibleElt;
+			if (budgetSpent != null) {
+				FlexibleElement flexibleElement = new DefaultFlexibleElement();
+				flexibleElement.setId(budgetSpent.getId());
+				budgetRatioElement.setSpentBudget(flexibleElement);
+			}
+			if (budgetPlanned != null) {
+				FlexibleElement flexibleElement = new DefaultFlexibleElement();
+				flexibleElement.setId(budgetPlanned.getId());
+				budgetRatioElement.setPlannedBudget(flexibleElement);
+			}
+		
+			flexibleElt = em.merge(budgetRatioElement);
 		} else if (ElementTypeEnum.FILES_LIST.equals(type) || (ElementTypeEnum.FILES_LIST.equals(oldType) && type == null)) {
 			FilesListElement filesListElement = (FilesListElement) flexibleElt;
 			// FilesListElement filesListElement =

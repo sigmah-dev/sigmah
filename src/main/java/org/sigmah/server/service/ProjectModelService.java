@@ -60,6 +60,7 @@ import com.google.inject.Singleton;
 import java.util.Date;
 import java.util.HashSet;
 import org.sigmah.server.computation.ServerDependencyResolver;
+import org.sigmah.server.domain.element.BudgetRatioElement;
 
 /**
  * Handler for updating Project model command.
@@ -153,25 +154,9 @@ public class ProjectModelService extends AbstractEntityService<ProjectModel, Int
 		for (DefaultFlexibleElementType e : DefaultFlexibleElementType.values()) {
 			DefaultFlexibleElement defaultElement;
 			if (DefaultFlexibleElementType.BUDGET.equals(e)) {
-				defaultElement = new BudgetElement();
-
-				List<BudgetSubField> budgetSubFields = new ArrayList<BudgetSubField>();
-				// Adds the 3 default budget sub fields
-				int y = 1;
-				for (BudgetSubFieldType type : BudgetSubFieldType.values()) {
-					BudgetSubField b = new BudgetSubField();
-					b.setBudgetElement(((BudgetElement) defaultElement));
-					b.setType(type);
-					b.setFieldOrder(y);
-					if (BudgetSubFieldType.PLANNED.equals(type)) {
-						((BudgetElement) defaultElement).setRatioDivisor(b);
-					} else if (BudgetSubFieldType.SPENT.equals(type)) {
-						((BudgetElement) defaultElement).setRatioDividend(b);
-					}
-					budgetSubFields.add(b);
-					y++;
-				}
-				((BudgetElement) defaultElement).setBudgetSubFields(budgetSubFields);
+				continue;
+			} else if (DefaultFlexibleElementType.BUDGET_RATIO.equals(e)) {
+				defaultElement = new BudgetRatioElement();
 			} else {
 				defaultElement = new DefaultFlexibleElement();
 			}
@@ -264,7 +249,7 @@ public class ProjectModelService extends AbstractEntityService<ProjectModel, Int
 			model.setName((String) changes.get(AdminUtil.PROP_PM_NAME));
 		}
 		if (changes.get(AdminUtil.PROP_PM_STATUS) != null) {
-			ProjectModelStatus newStatus = changes.get(AdminUtil.PROP_PM_STATUS);
+			final ProjectModelStatus newStatus = changes.get(AdminUtil.PROP_PM_STATUS);
 			if (frameworkDAO.countNotImplementedElementsByProjectModelId(model.getId()) > 0) {
 				throw new IllegalArgumentException("A framework requirement was not entirely fulfilled.");
 			}

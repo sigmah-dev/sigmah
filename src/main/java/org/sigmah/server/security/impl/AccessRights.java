@@ -127,7 +127,6 @@ final class AccessRights {
 
 		// Commands.
 		sperm(commandToken(AddOrgUnit.class), GrantType.AUTHENTICATED_ONLY);
-		sperm(commandToken(AddPartner.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(AmendmentActionCommand.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(BackupArchiveManagementCommand.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(BatchCommand.class), GrantType.AUTHENTICATED_ONLY);
@@ -181,7 +180,6 @@ final class AccessRights {
 		sperm(commandToken(GetProjectTeamMembers.class), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_PROJECT_TEAM_MEMBERS);
 		sperm(commandToken(GetReminders.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetUsersByOrganization.class), GrantType.AUTHENTICATED_ONLY);
-		sperm(commandToken(GetUsers.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetUsersWithProfiles.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetUsersByOrgUnit.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetValue.class), GrantType.AUTHENTICATED_ONLY);
