@@ -51,6 +51,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.inject.persist.Transactional;
+import org.sigmah.server.domain.util.DomainFilters;
 import static org.sigmah.shared.util.ValueResultUtils.normalizeFileName;
 
 /**
@@ -316,9 +317,7 @@ public class FileHibernateDAO extends AbstractDAO<File, Integer> implements File
 
 		final EntityManager em = em();
 
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("[save] New file version.");
-		}
+		LOGGER.debug("[save] New file version.");
 
 		// Gets the details of the name of the file.
 		final String fullName = normalizeFileName(properties.get(FileUploadUtils.DOCUMENT_NAME));
@@ -335,8 +334,10 @@ public class FileHibernateDAO extends AbstractDAO<File, Integer> implements File
 		}
 
 		Integer versionNumber;
+		
+		DomainFilters.disableDeletedFilter(em);
 
-		Query query = em.createQuery("SELECT max(fv.versionNumber)+1 AS newVersionNumber FROM FileVersion AS fv WHERE parentFile=:parentFile");
+		final Query query = em.createQuery("SELECT max(fv.versionNumber)+1 AS newVersionNumber FROM FileVersion AS fv WHERE parentFile=:parentFile");
 		query.setParameter("parentFile", file);
 		versionNumber = (Integer) query.getSingleResult();
 		if (versionNumber == null) {
