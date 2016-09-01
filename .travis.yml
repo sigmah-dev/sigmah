@@ -8,7 +8,7 @@ services:
 addons:
   postgresql: "9.3"
 before_script:
-  - psql --username postgres --command "CREATE EXTENSION IF NOT EXISTS pg_trgm;"
   - psql --username postgres --command "CREATE ROLE sigmah LOGIN UNENCRYPTED PASSWORD 'sigmah';"
   - psql --username postgres --command "CREATE DATABASE sigmah WITH OWNER = sigmah ENCODING = 'UTF8';"
+  - psql --username postgres sigmah --command "CREATE EXTENSION IF NOT EXISTS pg_trgm;"
   - mvn flyway:migrate
