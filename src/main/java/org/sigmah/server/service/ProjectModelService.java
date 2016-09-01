@@ -25,8 +25,6 @@ package org.sigmah.server.service;
 
 import java.util.*;
 
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 
 import org.sigmah.client.util.AdminUtil;
 import org.sigmah.server.dao.FrameworkDAO;
@@ -34,8 +32,6 @@ import org.sigmah.server.dao.ProfileDAO;
 import org.sigmah.server.dao.ProjectModelDAO;
 import org.sigmah.server.dispatch.impl.UserDispatch.UserExecutionContext;
 import org.sigmah.server.domain.*;
-import org.sigmah.server.domain.element.BudgetElement;
-import org.sigmah.server.domain.element.BudgetSubField;
 import org.sigmah.server.domain.element.DefaultFlexibleElement;
 import org.sigmah.server.domain.layout.Layout;
 import org.sigmah.server.domain.layout.LayoutConstraint;
@@ -48,7 +44,6 @@ import org.sigmah.server.service.util.ModelUtil;
 import org.sigmah.server.service.util.PropertyMap;
 import org.sigmah.shared.dto.PhaseModelDTO;
 import org.sigmah.shared.dto.ProjectModelDTO;
-import org.sigmah.shared.dto.referential.BudgetSubFieldType;
 import org.sigmah.shared.dto.referential.DefaultFlexibleElementType;
 import org.sigmah.shared.dto.referential.ProjectModelStatus;
 import org.sigmah.shared.dto.referential.ProjectModelType;
@@ -61,6 +56,7 @@ import java.util.Date;
 import java.util.HashSet;
 import org.sigmah.server.computation.ServerDependencyResolver;
 import org.sigmah.server.domain.element.BudgetRatioElement;
+import org.sigmah.server.i18n.I18nServer;
 
 /**
  * Handler for updating Project model command.
@@ -94,12 +90,19 @@ public class ProjectModelService extends AbstractEntityService<ProjectModel, Int
 	 */
 	@Inject
 	private ServerDependencyResolver dependencyResolver;
+	
+	/**
+	 * Injected {@link I18nServer}. Handle localization of lables.
+	 */
+	@Inject
+	private I18nServer i18n;
     
 	@Inject
 	private ProfileDAO profileDAO;
+	
 	@Inject
 	private FrameworkDAO frameworkDAO;
-
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -151,16 +154,17 @@ public class ProjectModelService extends AbstractEntityService<ProjectModel, Int
 
 		// Default flexible elements all in default details group
 		int order = 0;
-		for (DefaultFlexibleElementType e : DefaultFlexibleElementType.values()) {
+		for (final DefaultFlexibleElementType type : DefaultFlexibleElementType.values()) {
 			DefaultFlexibleElement defaultElement;
-			if (DefaultFlexibleElementType.BUDGET.equals(e)) {
+			if (type == DefaultFlexibleElementType.BUDGET) {
 				continue;
-			} else if (DefaultFlexibleElementType.BUDGET_RATIO.equals(e)) {
+			} else if (type == DefaultFlexibleElementType.BUDGET_RATIO) {
 				defaultElement = new BudgetRatioElement();
+				defaultElement.setLabel(i18n.t(context.getLanguage(), "flexibleElementBudgetRatio"));
 			} else {
 				defaultElement = new DefaultFlexibleElement();
 			}
-			defaultElement.setType(e);
+			defaultElement.setType(type);
 			defaultElement.setValidates(false);
 			defaultElement.setAmendable(true);
 			em().persist(defaultElement);
