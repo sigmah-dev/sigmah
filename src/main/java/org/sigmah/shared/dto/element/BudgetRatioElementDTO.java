@@ -109,6 +109,11 @@ public class BudgetRatioElementDTO extends DefaultFlexibleElementDTO {
 		final FlexibleElementDTO plannedBudgetElement = getPlannedBudget();
 		final FlexibleElementDTO spentBudgetElement = getSpentBudget();
 		
+		if (plannedBudgetElement == null || spentBudgetElement == null) {
+			// No update if at least one of plannedBudget or spentBudget is not set.
+			return;
+		}
+		
 		final BatchCommand batchCommand = new BatchCommand();
 		
 		batchCommand.add(new GetValue(currentContainerDTO.getId(), plannedBudgetElement.getId(), plannedBudgetElement.getEntityName()));
