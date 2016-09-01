@@ -132,7 +132,7 @@ public class IndicatorHibernateDAO extends AbstractDAO<Indicator, Integer> imple
 							dto.setCurrentValue(currentValue);
 						}
 					} else if (dto.getAggregation() == IndicatorDTO.AGGREGATE_AVG) {
-						currentValue = rs.getDouble(10);
+						currentValue = rs.getDouble(9) / rs.getDouble(10);
 						if (!rs.wasNull()) {
 							dto.setCurrentValue(currentValue);
 						}

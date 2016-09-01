@@ -58,10 +58,15 @@ public class UpdateMonthlyReportsHandler extends AbstractCommandHandler<UpdateMo
 
 		Site site = em().find(Site.class, cmd.getSiteId());
 
-		Map<Month, ReportingPeriod> periods = new HashMap<Month, ReportingPeriod>();
+		final Map<Month, ReportingPeriod> periods = new HashMap<>();
 
 		for (ReportingPeriod period : site.getReportingPeriods()) {
-			periods.put(Handlers.monthFromRange(period.getDate1(), period.getDate2()), period);
+			final ReportingPeriod oldPeriod = periods.put(
+                    Handlers.monthFromRange(period.getDate1(), period.getDate2()), period);
+            
+            if (oldPeriod != null) {
+                removeUnusedPeriod(oldPeriod);
+            }
 		}
 
 		performChanges(cmd, periods, site);
@@ -78,7 +83,8 @@ public class UpdateMonthlyReportsHandler extends AbstractCommandHandler<UpdateMo
 			if (period == null) {
 				period = new ReportingPeriod(site);
 
-				Calendar calendar = Calendar.getInstance();
+				final Calendar calendar = Calendar.getInstance();
+                calendar.clear();
 				calendar.set(Calendar.YEAR, change.month.getYear());
 				calendar.set(Calendar.MONTH, change.month.getMonth() - 1);
 				calendar.set(Calendar.DATE, 5);
@@ -91,7 +97,7 @@ public class UpdateMonthlyReportsHandler extends AbstractCommandHandler<UpdateMo
 
 				periods.put(change.month, period);
 			} else {
-				boolean wasValid = ReportingPeriodValidation.validate(period);
+				final boolean wasValid = ReportingPeriodValidation.validate(period);
 				if (!wasValid) {
 					em().merge(period);
 				}
@@ -100,6 +106,17 @@ public class UpdateMonthlyReportsHandler extends AbstractCommandHandler<UpdateMo
 			updateIndicatorValue(em(), period, change.indicatorId, change.value, false);
 		}
 	}
+	
+	@Transactional
+    protected void removeUnusedPeriod(final ReportingPeriod period) {
+        // Removing every values associated with the given period.
+        em().createQuery("delete from IndicatorValue v where v.reportingPeriod.id = :period")
+                .setParameter("period", period.getId())
+                .executeUpdate();
+        
+        // Removing the unused period.
+        em().remove(period);
+    }
 
 	private void updateIndicatorValue(EntityManager em, ReportingPeriod period, int indicatorId, Double value, boolean creating) {
 		if (value == null && !creating) {
@@ -114,6 +131,7 @@ public class UpdateMonthlyReportsHandler extends AbstractCommandHandler<UpdateMo
 			int rowsAffected = 0;
 
 			if (!creating) {
+				// Updating the row with the new value.
 				rowsAffected =
 						em.createQuery("update IndicatorValue v set v.value = ?1 where " + "v.indicator.id = ?2 and " + "v.reportingPeriod.id = ?3")
 							.setParameter(1, value).setParameter(2, indicatorId).setParameter(3, period.getId()).executeUpdate();
