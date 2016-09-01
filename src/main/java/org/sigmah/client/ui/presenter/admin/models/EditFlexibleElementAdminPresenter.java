@@ -116,6 +116,7 @@ import org.sigmah.shared.command.result.VoidResult;
 import org.sigmah.shared.computation.Computation;
 import org.sigmah.shared.computation.Computations;
 import org.sigmah.shared.computation.value.ComputedValues;
+import org.sigmah.shared.dto.element.BudgetRatioElementDTO;
 import org.sigmah.shared.dto.element.ComputationElementDTO;
 import org.sigmah.shared.dto.referential.LogicalElementType;
 import org.sigmah.shared.dto.referential.LogicalElementTypes;
@@ -879,6 +880,21 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 		}
 		if (type == DefaultFlexibleElementType.BUDGET_RATIO) {
 			addNumberTypeToStore(view.getBudgetSubFieldSpentStore(), view.getBudgetSubFieldPlannedStore());
+		}
+		if (flexibleElement instanceof BudgetRatioElementDTO) {
+			
+			final BudgetRatioElementDTO budgetRatioElementDTO = (BudgetRatioElementDTO) flexibleElement;
+			
+			if (budgetRatioElementDTO.getSpentBudget() != null) {
+				view.getBudgetSubFieldSpentCombo().setSelection(
+						java.util.Collections.singletonList(budgetRatioElementDTO.getSpentBudget()));
+			}
+			
+			if (budgetRatioElementDTO.getPlannedBudget() != null) {
+				view.getBudgetSubFieldPlannedCombo().setSelection(
+						java.util.Collections.singletonList(budgetRatioElementDTO.getPlannedBudget()));
+			}
+			
 		}
 	}
 	
