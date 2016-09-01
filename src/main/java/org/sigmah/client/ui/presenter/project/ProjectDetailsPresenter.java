@@ -383,6 +383,7 @@ public class ProjectDetailsPresenter extends AbstractProjectPresenter<ProjectDet
 				
 				// Avoid tight coupling with other project events.
 				// FIXME (from v1.3) eventBus.fireEvent(new ProjectEvent(ProjectEvent.CHANGED, getProject().getId()));
+				eventBus.fireEvent(new UpdateEvent(UpdateEvent.VALUE_UPDATE, getProject()));
 
 				if (newProject != null) {
 					load(newProject.getProjectModel().getProjectDetails());
