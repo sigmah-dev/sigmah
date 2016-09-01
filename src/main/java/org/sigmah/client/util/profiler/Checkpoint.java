@@ -24,6 +24,7 @@ package org.sigmah.client.util.profiler;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import org.sigmah.offline.js.Values;
+import org.sigmah.shared.dto.profile.CheckPointDTO;
 
 /**
  * Checkpoint of an execution.
@@ -48,6 +49,22 @@ public final class Checkpoint extends JavaScriptObject {
 	
 	protected Checkpoint() {
 		// Protected constructor (required for JavaScript objects).
+	}
+	
+	/**
+	 * Creates a new <code>CheckPointDTO</code> with the data contained in this
+	 * instance.
+	 * 
+	 * @return A new <code>CheckPointDTO</code>.
+	 */
+	public CheckPointDTO toDTO() {
+		final CheckPointDTO dto = new CheckPointDTO();
+		
+		dto.setDuration(getDuration());
+		dto.setName(getName());
+		dto.setTime(getTime());
+		
+		return dto;
 	}
 	
 	/**

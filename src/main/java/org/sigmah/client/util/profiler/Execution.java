@@ -31,13 +31,32 @@ import org.sigmah.client.Sigmah;
 import org.sigmah.client.util.JsIterable;
 import org.sigmah.offline.appcache.ApplicationCache;
 import org.sigmah.offline.js.Values;
+import org.sigmah.shared.dto.profile.ExecutionDTO;
+import org.sigmah.shared.util.Collections;
 
 /**
  * Execution of a scenario.
  * 
  * @author Raphaël Calabro (raphael.calabro@netapsys.fr)
  */
-public final class Execution extends JavaScriptObject implements Serializable{
+public final class Execution extends JavaScriptObject implements Serializable {
+	
+	/**
+	 * Mapper to convert an instance of <code>Execution</code> to an instance
+	 * of <code>ExecutionDTO</code>.
+	 */
+	public static final Collections.Mapper<Execution, ExecutionDTO> DTO_MAPPER;
+	
+	static {
+		DTO_MAPPER = new Collections.Mapper<Execution, ExecutionDTO>() {
+			
+			@Override
+			public ExecutionDTO forEntry(final Execution entry) {
+				return entry.toDTO();
+			}
+			
+		};
+	}
 	
 	/**
 	 * Creates a new execution for the given scenario.
@@ -56,9 +75,34 @@ public final class Execution extends JavaScriptObject implements Serializable{
 		execution.setCheckpoints(Values.createTypedJavaScriptArray(Checkpoint.class));
 		return execution;
 	}
-
+	
 	protected Execution() {
 		// Not accessible.
+	}
+	
+	/**
+	 * Creates a new <code>ExecutionDTO</code> with the data contained in this
+	 * instance.
+	 * 
+	 * @return A new <code>ExecutionDTO</code>.
+	 */
+	public ExecutionDTO toDTO() {
+		final ExecutionDTO dto = new ExecutionDTO();
+		
+		dto.setApplicationCacheStatus(getApplicationCacheStatus());
+		dto.setDate(getDate());
+		dto.setOnligne(isOnline());
+		dto.setScenario(getScenario());
+		dto.setUserAgent(getUserAgent());
+		dto.setUserEmailAddress(getUserEmailAddress());
+		dto.setVersionNumber(getVersionNumber());
+		dto.setDuration(getDuration());
+		
+		for (final Checkpoint checkPoint : getCheckpointSequence()) {
+			dto.getCheckpoints().add(checkPoint.toDTO());
+		}
+		
+		return dto;
 	}
 
 	public Scenario getScenario() {

@@ -80,20 +80,17 @@ import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.dom.client.Style.Display;
 import com.google.gwt.i18n.shared.DateTimeFormat;
 import com.google.gwt.user.client.ui.Image;
-import java.util.ArrayList;
 import java.util.List;
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.ui.res.icon.offline.OfflineIconBundle;
-import org.sigmah.client.util.ClientUtils;
-import org.sigmah.client.util.profiler.Checkpoint;
 import org.sigmah.client.util.profiler.Execution;
 import org.sigmah.client.util.profiler.ExecutionAsyncDAO;
 import org.sigmah.client.util.profiler.ProfilerStore;
 import org.sigmah.shared.command.SendProbeReport;
 import org.sigmah.shared.command.result.Result;
-import org.sigmah.shared.dto.profile.CheckPointDTO;
 import org.sigmah.shared.dto.profile.ExecutionDTO;
 import org.sigmah.shared.dto.referential.GlobalPermissionEnum;
+import org.sigmah.shared.util.Collections;
 import org.sigmah.shared.util.ProfileUtils;
 /**
  * Offline banner presenter displaying offline status.
@@ -311,52 +308,36 @@ implements OfflineEvent.Source {
 			@Override
 			public void onClick(ClickEvent event) {
 				
-				executionAsyncDAO.getAllExecutions( new AsyncCallback<List<Execution>>() {
-						@Override
-						public void onFailure(Throwable caught) {
-							Log.error("Exception occurred ");
-						}
-						@Override
-						public void onSuccess(List<Execution> listExecution) {
-							List<ExecutionDTO> dtos=new ArrayList<ExecutionDTO>();
-							Log.info("listExecution:"+listExecution);
-							if(listExecution!=null && ! listExecution.isEmpty()){
-								//Mapping from Execution JavaScriptObject to ExecutionDTO
-								for(Execution execution :listExecution){
-									ExecutionDTO executionDTO=new ExecutionDTO();
-									executionDTO.setApplicationCacheStatus(execution.getApplicationCacheStatus());
-									executionDTO.setDate(execution.getDate());
-									executionDTO.setOnligne(execution.isOnline());
-									executionDTO.setScenario(execution.getScenario());
-									executionDTO.setUserAgent(execution.getUserAgent());
-									executionDTO.setUserEmailAddress(execution.getUserEmailAddress());
-									executionDTO.setVersionNumber(execution.getVersionNumber());
-									executionDTO.setDuration(execution.getDuration());
-									for(Checkpoint checkPoint:execution.getCheckpointSequence()){
-										CheckPointDTO checkPointDto=new CheckPointDTO();
-										checkPointDto.setDuration(checkPoint.getDuration());
-										checkPointDto.setName(checkPoint.getName());
-										checkPoint.setTime(checkPoint.getTime());
-										executionDTO.getCheckpoints().add(checkPointDto);
-									}
-									dtos.add(executionDTO);
+				executionAsyncDAO.getAllExecutions(new AsyncCallback<List<Execution>>() {
+					
+					@Override
+					public void onFailure(final Throwable caught) {
+						Log.error("An exception occurred while fetching the executions in the local database.", caught);
+					}
+					
+					@Override
+					public void onSuccess(final List<Execution> executions) {
+						if (executions != null && !executions.isEmpty()) {
+							final List<ExecutionDTO> dtos = Collections.map(executions, Execution.DTO_MAPPER);
+							
+							dispatch.execute(new SendProbeReport(dtos), new CommandResultHandler<Result>() {
+								
+								@Override
+								protected void onCommandSuccess(final Result result) {
+									N10N.infoNotif(I18N.CONSTANTS.infoConfirmation(), I18N.CONSTANTS.probeReportSentSucces());
+									executionAsyncDAO.removeDataBase(ProfilerStore.EXECUTION);
 								}
-								//call server
-								dispatch.execute(new SendProbeReport(dtos), new CommandResultHandler<Result>(){
-									@Override
-									protected void onCommandSuccess(Result result) {
-										N10N.infoNotif("Info", "<p>"+I18N.CONSTANTS.probeReportSentSucces() +"</p>");
-										executionAsyncDAO.removeDataBase(ProfilerStore.EXECUTION);
-									}
-									protected void onCommandFailure(Result result) {
-										N10N.errorNotif("Error", "<p>"+I18N.CONSTANTS.probeReportSentFailure()+"</p>");
-									}
-								});
-							}else{
-								N10N.errorNotif("Error", "<p>"+I18N.CONSTANTS.probeReportEmpty()+"</p>");
-							}							
-						}
-					});
+								
+								protected void onCommandFailure(final Result result) {
+									N10N.errorNotif(I18N.CONSTANTS.error(), I18N.CONSTANTS.probeReportSentFailure());
+								}
+								
+							});
+						} else {
+							N10N.errorNotif(I18N.CONSTANTS.error(), I18N.CONSTANTS.probeReportEmpty());
+						}							
+					}
+				});
 			}
 		});
 		
