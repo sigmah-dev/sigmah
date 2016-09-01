@@ -102,7 +102,7 @@
 			<b>organizationId</b>
 		</field>
 	</mapping>
-
+	
 	<!-- LayoutConstraint/LayoutContraintDTO Mapping -->
 	<mapping wildcard="true">
 		<class-a>org.sigmah.server.domain.layout.LayoutConstraint</class-a>
@@ -144,6 +144,37 @@
 				org.sigmah.shared.dto.element.CoreVersionElementDTO,
 				org.sigmah.shared.dto.element.ComputationElementDTO,
 				org.sigmah.shared.dto.element.BudgetRatioElementDTO
+			</b-hint>
+		</field>
+	</mapping>
+	
+	<!-- BudgetRatioElement/BudgetRatioElementDTO Mapping -->
+	<mapping wildcard="true">
+		<class-a>org.sigmah.server.domain.element.BudgetRatioElement</class-a>
+		<class-b>org.sigmah.shared.dto.element.BudgetRatioElementDTO</class-b>
+
+		<field>
+			<a>plannedBudget</a>
+			<b>plannedBudget</b>
+			<a-hint>
+				org.sigmah.server.domain.element.TextAreaElement,
+				org.sigmah.server.domain.element.ComputationElement,
+			</a-hint>
+			<b-hint>
+				org.sigmah.shared.dto.element.TextAreaElementDTO,
+				org.sigmah.shared.dto.element.ComputationElementDTO,
+			</b-hint>
+		</field>
+		<field>
+			<a>spentBudget</a>
+			<b>spentBudget</b>
+			<a-hint>
+				org.sigmah.server.domain.element.TextAreaElement,
+				org.sigmah.server.domain.element.ComputationElement,
+			</a-hint>
+			<b-hint>
+				org.sigmah.shared.dto.element.TextAreaElementDTO,
+				org.sigmah.shared.dto.element.ComputationElementDTO,
 			</b-hint>
 		</field>
 	</mapping>
@@ -351,7 +382,8 @@
 				org.sigmah.server.domain.element.ReportListElement,
 				org.sigmah.server.domain.element.BudgetElement,
 				org.sigmah.server.domain.element.CoreVersionElement,
-				org.sigmah.server.domain.element.ComputationElement
+				org.sigmah.server.domain.element.ComputationElement,
+				org.sigmah.server.domain.element.BudgetRatioElement
 			</a-hint>
 			<b-hint>
 				org.sigmah.shared.dto.element.DefaultFlexibleElementDTO,
@@ -367,7 +399,8 @@
 				org.sigmah.shared.dto.element.ReportListElementDTO,
 				org.sigmah.shared.dto.element.BudgetElementDTO,
 				org.sigmah.shared.dto.element.CoreVersionElementDTO,
-				org.sigmah.shared.dto.element.ComputationElementDTO
+				org.sigmah.shared.dto.element.ComputationElementDTO,
+				org.sigmah.shared.dto.element.BudgetRatioElementDTO
 			</b-hint>
 		</field>
 	</mapping>
