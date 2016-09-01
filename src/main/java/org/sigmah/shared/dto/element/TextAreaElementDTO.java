@@ -243,13 +243,22 @@ public class TextAreaElementDTO extends FlexibleElementDTO {
 		numberField.setAllowNegative(true);
 		preferredWidth = FlexibleElementDTO.NUMBER_FIELD_WIDTH;
 
+		Double doubleValue = null;
+		if (valueResult != null && valueResult.isValueDefined()) {
+			try {
+				doubleValue = Double.parseDouble(valueResult.getValueObject());
+			} catch (IllegalArgumentException e) {
+				// Ignored.
+			}
+		}
+		
 		// Decimal value
 		if (isDecimal) {
 			numberField.setFormat(NumberFormat.getDecimalFormat());
 
 			// Sets the value to the field.
-			if (valueResult != null && valueResult.isValueDefined()) {
-				numberField.setValue(Double.parseDouble(valueResult.getValueObject()));
+			if (doubleValue != null) {
+				numberField.setValue(doubleValue);
 			}
 		}
 		// Non-decimal value
@@ -257,8 +266,8 @@ public class TextAreaElementDTO extends FlexibleElementDTO {
 			numberField.setFormat(NumberFormat.getFormat("#"));
 
 			// Sets the value to the field.
-			if (valueResult != null && valueResult.isValueDefined()) {
-				numberField.setValue(Long.parseLong(valueResult.getValueObject()));
+			if (doubleValue != null) {
+				numberField.setValue(doubleValue.longValue());
 			}
 		}
 
@@ -500,13 +509,20 @@ public class TextAreaElementDTO extends FlexibleElementDTO {
 		final Long minValue = getMinValue();
 		final Long maxValue = getMaxValue();
 
+		double doubleValue = 0.0;
+		
+		try {
+			doubleValue = Double.parseDouble(value);
+		} catch (IllegalArgumentException e) {
+			// Ignored.
+		}
+		
 		// Checks the number range.
 		if (decimal) {
-			final double d = Double.parseDouble(value);
-			return (minValue == null || d >= minValue) && (maxValue == null || d <= maxValue);
+			return (minValue == null || doubleValue >= minValue) && (maxValue == null || doubleValue <= maxValue);
 		} else {
-			final long l = Long.parseLong(value);
-			return (minValue == null || l >= minValue) && (maxValue == null || l <= maxValue);
+			final long longValue = (long)doubleValue;
+			return (minValue == null || longValue >= minValue) && (maxValue == null || longValue <= maxValue);
 		}
 	}
 	
