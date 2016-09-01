@@ -266,7 +266,7 @@ public class UpdateEvent extends GwtEvent<UpdateHandler> {
 
 	/**
 	 * <p>
-	 * When a {@code FlexbibleElement} has been created/updated.
+	 * When a {@code FlexibleElement} has been created/updated.
 	 * </p>
 	 * <p>
 	 * <ul>
@@ -278,6 +278,16 @@ public class UpdateEvent extends GwtEvent<UpdateHandler> {
 	 * </p>
 	 */
 	public static final String FLEXIBLE_ELEMENT_UPDATE = "FLEXIBLE_ELEMENT_UPDATE";
+	
+	/**
+	 * <p>
+	 * When the value of one or more {@code FlexibleElement} have been updated.
+	 * </p>
+	 * <ul>
+	 * <li>param[0] = The updated container instance (project or org unit).</li>
+	 * </ul>
+	 */
+	public static final String VALUE_UPDATE = "VALUE_UPDATE";
 
 	/**
 	 * After Importing category model

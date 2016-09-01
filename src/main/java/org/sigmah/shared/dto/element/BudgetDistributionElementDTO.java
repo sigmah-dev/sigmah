@@ -38,14 +38,18 @@ public class BudgetDistributionElementDTO extends FlexibleElementDTO {
 	 * Serial version UID.
 	 */
 	private static final long serialVersionUID = 8520711106031085130L;
+	
+	/**
+	 * Entity name mapped by the current DTO starting from the "server.domain" package name.
+	 */
+	public static final String ENTITY_NAME = "element.BudgetDistributionElement";
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public String getEntityName() {
-		// Gets the entity name mapped by the current DTO starting from the "server.domain" package name.
-		return "element.BudgetDistributionElement";
+		return ENTITY_NAME;
 	}
 
 	/**

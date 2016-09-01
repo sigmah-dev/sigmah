@@ -130,7 +130,7 @@ public class Activity extends AbstractEntityId<Integer> implements Deleteable, O
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = EntityConstants.USER_DATABASE_COLUMN_ID, nullable = false)
 	@NotNull
-	private UserDatabase database;
+	private Project database;
 
 	@OneToMany(mappedBy = "activity", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	@org.hibernate.annotations.OrderBy(clause = EntityConstants.COLUMN_SORT_ORDER)
@@ -218,11 +218,11 @@ public class Activity extends AbstractEntityId<Integer> implements Deleteable, O
 		this.locationType = locationType;
 	}
 
-	public UserDatabase getDatabase() {
+	public Project getDatabase() {
 		return this.database;
 	}
 
-	public void setDatabase(UserDatabase database) {
+	public void setDatabase(Project database) {
 		this.database = database;
 	}
 

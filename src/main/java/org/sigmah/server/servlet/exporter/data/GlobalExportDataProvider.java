@@ -73,6 +73,23 @@ import org.sigmah.shared.util.ValueResultUtils;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
+import javax.persistence.NoResultException;
+import javax.persistence.TypedQuery;
+import org.sigmah.client.util.NumberUtils;
+import org.sigmah.server.domain.base.EntityId;
+import org.sigmah.server.domain.element.BudgetRatioElement;
+import org.sigmah.shared.computation.value.ComputationError;
+import org.sigmah.shared.computation.value.ComputedValue;
+import org.sigmah.shared.computation.value.ComputedValues;
+import org.sigmah.shared.dispatch.CommandException;
+import org.sigmah.shared.dto.element.BudgetElementDTO;
+import org.sigmah.shared.dto.element.BudgetRatioElementDTO;
+import org.sigmah.shared.dto.element.CheckboxElementDTO;
+import org.sigmah.shared.dto.element.DefaultFlexibleElementDTO;
+import org.sigmah.shared.dto.element.MessageElementDTO;
+import org.sigmah.shared.dto.element.QuestionElementDTO;
+import org.sigmah.shared.dto.element.TextAreaElementDTO;
+import org.sigmah.shared.dto.element.TripletsListElementDTO;
 import org.sigmah.shared.dto.referential.TextAreaType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,6 +109,8 @@ public class GlobalExportDataProvider {
 		private String label;
 		private Object value;
 		private int lines = 1;
+		
+		private boolean message;
 
 		public ValueLabel(String label, Object value) {
 			this.label = label;
@@ -124,6 +143,14 @@ public class GlobalExportDataProvider {
 			return lines;
 		}
 
+		public boolean isMessage() {
+			return message;
+		}
+
+		public void setMessage(boolean message) {
+			this.message = message;
+		}
+
 	}
 
 	private final Injector injector;
@@ -136,7 +163,7 @@ public class GlobalExportDataProvider {
 		this.csvBuilder = new CsvBuilder();
 		this.csvParser = new CsvParser();
 	}
-
+	
 	public void persistGlobalExportDataAsCsv(final GlobalExport globalExport, EntityManager em, Map<String, List<String[]>> exportData) throws Exception {
 		for (final String pModelName : exportData.keySet()) {
 			final GlobalExportContent content = new GlobalExportContent();
@@ -237,64 +264,36 @@ public class GlobalExportDataProvider {
 				// fields
 				for (final FlexibleElement element : elements) {
 
-					// command to get element value
-					final String elementName = "element." + element.getClass().getSimpleName();
-					final GetValue command = new GetValue(project.getId(), element.getId(), elementName, null);
+					// prepare value and label
+					final ValueLabel pair = getPair(element, project, entityManager, i18nTranslator, language, null);
 
-					try {
-
-						final ValueResult valueResult = handler.execute(command, null);
-
-						// prepare value and label
-						ValueLabel pair = null;
-						/* DEF FLEXIBLE */
-						if (elementName.equals("element.DefaultFlexibleElement") || elementName.equals("element.BudgetElement")) {
-							pair = getDefElementPair(valueResult, element, project, entityManager, i18nTranslator, language);
-
-						} else /* CHECKBOX */if (elementName.equals("element.CheckboxElement")) {
-							pair = getCheckboxElementPair(valueResult, element, i18nTranslator, language);
-						} else /* TEXT AREA */if (elementName.equals("element.TextAreaElement")) {
-							pair = getTextAreaElementPair(valueResult, element);
-
-						}/* TRIPLET */
-						if (elementName.equals("element.TripletsListElement")) {
-							pair = getTripletPair(element, valueResult);
-
-						}/* CHOICE */
-						if (elementName.equals("element.QuestionElement")) {
-							pair = getChoicePair(element, valueResult);
-						}
-
-						// titles
-
-						if (isFirstLine) {
-							titles[titleIndex++] = pair != null ? pair.getFormattedLabel() : null;
-						}
-
-						// values
-						String valueStr = null;
-						if (pair != null) {
-							Object value = pair.getValue();
-							if (value == null) {
-								valueStr = null;
-							} else if (value instanceof String) {
-								valueStr = (String) value;
-							} else if (value instanceof Double) {
-								Double d = (Double) value;
-								valueStr = LogFrameExportData.AGGR_AVG_FORMATTER.format(d.doubleValue());
-							} else if (value instanceof Long) {
-								Long l = (Long) value;
-								valueStr = LogFrameExportData.AGGR_SUM_FORMATTER.format(l.longValue());
-							} else { // date
-								valueStr = ExportConstants.EXPORT_DATE_FORMAT.format((Date) value);
-							}
-						}
-
-						values[valueIndex++] = valueStr;
-
-					} catch (Exception e) {
-						LOGGER.error("Failed to get the value of element '" + element.getId() + "' of project '" + project.getId() + "'.", e);
+					// titles
+					if (isFirstLine) {
+						titles[titleIndex++] = pair != null ? pair.getFormattedLabel() : null;
 					}
+
+					// values
+					String valueStr = null;
+					if (pair != null && !pair.isMessage()) {
+						final Object value = pair.getValue();
+
+						if (value instanceof String) {
+							valueStr = (String) value;
+						}
+						else if (value instanceof Double) {
+							final Double d = (Double) value;
+							valueStr = LogFrameExportData.AGGR_AVG_FORMATTER.format(d.doubleValue());
+						}
+						else if (value instanceof Long) {
+							final Long l = (Long) value;
+							valueStr = LogFrameExportData.AGGR_SUM_FORMATTER.format(l.longValue());
+						}
+						else if (value instanceof Date) {
+							valueStr = ExportConstants.EXPORT_DATE_FORMAT.format((Date) value);
+						}
+					}
+
+					values[valueIndex++] = valueStr;
 
 				}
 
@@ -360,6 +359,80 @@ public class GlobalExportDataProvider {
 		}
 
 		return new MultiItemText(value, lines);
+	}
+	
+	/**
+	 * Returns the label/value pair for the given element.
+	 * 
+	 * @param element
+	 *			Flexible element.
+	 * @param container
+	 *			Container of the flexible element (can be a <code>Project</code> or an <code>OrgUnit</code>).
+	 * @param em
+	 *			Instance of the entity manager.
+	 * @param i18nTranslator
+	 *			Translator for localized strings.
+	 * @param language
+	 *			Language of the export.
+	 * @param data
+	 *			Export data.
+	 * @return The label/value pair for the given element.
+	 */
+	public ValueLabel getPair(final FlexibleElement element, final EntityId<Integer> container, final EntityManager em, final I18nServer i18nTranslator, final Language language, final ExportData data) {
+		
+		final CommandHandler<GetValue, ValueResult> handler = injector.getInstance(GetValueHandler.class);
+		final String elementName = "element." + element.getClass().getSimpleName();
+		final GetValue command = new GetValue(container.getId(), element.getId(), elementName, null);
+		
+		final ValueResult valueResult;
+		
+		try {
+			valueResult = handler.execute(command, null);
+		} catch (CommandException e) {
+			LOGGER.error("Failed to get the value of element '" + element.getId() + "' of container '" + container.getId() + "'.", e);
+			return null;
+		}
+		
+		final ValueLabel pair;
+		
+		/* DEF FLEXIBLE */
+		if (elementName.equals(DefaultFlexibleElementDTO.ENTITY_NAME) || elementName.equals(BudgetElementDTO.ENTITY_NAME)) {
+			if (container instanceof Project) {
+				return getDefElementPair(valueResult, element, (Project)container, em, i18nTranslator, language);
+			} else {
+				return getDefElementPair(valueResult, element, (OrgUnit)container, em, i18nTranslator, language);
+			}
+		}
+		/* BUDGET RATIO */
+		else if (elementName.equals(BudgetRatioElementDTO.ENTITY_NAME)) {
+			pair = getBudgetRatioElementPair(element, container.getId(), em);
+		}
+		/* CHECKBOX */
+		else if (elementName.equals(CheckboxElementDTO.ENTITY_NAME)) {
+			pair = getCheckboxElementPair(valueResult, element, i18nTranslator, language);
+		}
+		/* TEXT AREA */
+		else if (elementName.equals(TextAreaElementDTO.ENTITY_NAME)) {
+			pair = getTextAreaElementPair(valueResult, element);
+		}
+		/* TRIPLET */
+		else if (elementName.equals(TripletsListElementDTO.ENTITY_NAME)) {
+			pair = getTripletPair(element, valueResult);
+		}
+		/* CHOICE */
+		else if (elementName.equals(QuestionElementDTO.ENTITY_NAME)) {
+			pair = getChoicePair(element, valueResult);
+		}
+		/* MESSAGE */
+		else if (elementName.equals(MessageElementDTO.ENTITY_NAME)) {
+			pair = new ValueLabel(data.getLocalizedVersion("flexibleElementMessage"), GlobalExportDataProvider.clearHtmlFormatting(element.getLabel()));
+			pair.setMessage(true);
+		}
+		else {
+			pair = null;
+		}
+		
+		return pair;
 	}
 
 	public ValueLabel getTripletPair(final FlexibleElement element, final ValueResult valueResult) {
@@ -583,7 +656,7 @@ public class GlobalExportDataProvider {
 		}
 		return new ValueLabel(label, value);
 	}
-
+	
 	public ValueLabel getDefElementPair(final ValueResult valueResult, final FlexibleElement element, final OrgUnit orgUnit, final EntityManager entityManager,
 			final I18nServer i18nTranslator, final Language language) {
 		Object value = null;
@@ -671,6 +744,54 @@ public class GlobalExportDataProvider {
 				break;
 		}
 		return new ValueLabel(label, value);
+	}
+	
+	/**
+	 * Get the label/value pair of the given budget ratio element.
+	 * 
+	 * @param element
+	 *			Budget ratio element.
+	 * @param containerId
+	 *			Identifier of the parent container.
+	 * @param em
+	 *			Entity manager to use.
+	 * @return The <code>ValueLabel</code> containing the label of the element and its value.
+	 */
+	public ValueLabel getBudgetRatioElementPair(final FlexibleElement element, final Integer containerId, final EntityManager em) {
+		
+		final BudgetRatioElement budgetRatioElement = (BudgetRatioElement) element;
+		
+		final TypedQuery<String> valueQuery = em.createQuery("SELECT v.value FROM Value v WHERE v.containerId = :containerId AND v.element = :element", String.class);
+		valueQuery.setParameter("containerId", containerId);
+		
+		final ComputedValue spentBudget = getElementValue(budgetRatioElement.getSpentBudget(), valueQuery);
+		final ComputedValue plannedBudget = getElementValue(budgetRatioElement.getPlannedBudget(), valueQuery);
+		
+		final Double value = plannedBudget.divide(spentBudget).get();
+		
+		return new ValueLabel(budgetRatioElement.getLabel(), NumberUtils.truncateDouble(value));
+	}
+
+	/**
+	 * Find the value of the given element with the given query.
+	 * 
+	 * @param element
+	 *			Element to search.
+	 * @param valueQuery
+	 *			Query to use.
+	 * @return The value of the given element as a <code>ComputedValue</code> or {@link ComputationError#NO_VALUE} if no value was found.
+	 */
+	private ComputedValue getElementValue(final FlexibleElement element, final TypedQuery<String> valueQuery) {
+		
+		if (element != null) {
+			valueQuery.setParameter("element", element);
+			try {
+				return ComputedValues.from(valueQuery.getSingleResult(), false);
+			} catch (NoResultException e) {
+				// Ignored.
+			}
+		}
+		return ComputationError.NO_VALUE;
 	}
 
 	public static String clearHtmlFormatting(String text) {

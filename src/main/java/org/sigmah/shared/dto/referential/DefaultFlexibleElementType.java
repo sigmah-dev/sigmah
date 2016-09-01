@@ -38,6 +38,7 @@ public enum DefaultFlexibleElementType implements Result, LogicalElementType {
 	CODE,
 	TITLE,
 	BUDGET,
+	BUDGET_RATIO,
 	START_DATE,
 	END_DATE,
 	COUNTRY,
@@ -72,6 +73,9 @@ public enum DefaultFlexibleElementType implements Result, LogicalElementType {
 
 			case BUDGET:
 				return I18N.CONSTANTS.projectBudget();
+
+			case BUDGET_RATIO:
+				return I18N.CONSTANTS.projectBudgetRatio();
 
 			case START_DATE:
 				return I18N.CONSTANTS.projectStartDate();

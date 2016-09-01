@@ -114,7 +114,6 @@ public class PersistenceModule extends AbstractModule {
 		bind(SiteTableDAO.class).to(SiteTableHibernateDAO.class).in(Singleton.class);
 		bind(UserDAO.class).to(UserHibernateDAO.class).in(Singleton.class);
 		bind(UserDatabaseDAO.class).to(UserDatabaseHibernateDAO.class).in(Singleton.class);
-		bind(UserPermissionDAO.class).to(UserPermissionHibernateDAO.class).in(Singleton.class);
 		bind(UserUnitDAO.class).to(UserUnitDAOImpl.class).in(Singleton.class);
 		bind(ValueDAO.class).to(ValueHibernateDAO.class).in(Singleton.class);
 

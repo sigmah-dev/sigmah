@@ -118,10 +118,6 @@ public class SiteColumnModelBuilder {
             columns.add(createDateColumn());		
         }
 
-        if(activity.getDatabase().isViewAllAllowed()) {
-            columns.add(new ColumnConfig("partner", I18N.CONSTANTS.partner(), 100));
-        }				
-        
         addIndicatorColumns(activity);
         addGeographicColumns(activity.getDatabase());
 	}

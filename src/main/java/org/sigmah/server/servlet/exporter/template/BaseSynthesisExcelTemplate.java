@@ -29,10 +29,10 @@ import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.util.CellRangeAddress;
-import org.sigmah.server.dispatch.impl.UserDispatch.UserExecutionContext;
 import org.sigmah.server.domain.OrgUnit;
 import org.sigmah.server.domain.PhaseModel;
 import org.sigmah.server.domain.Project;
+import org.sigmah.server.domain.base.EntityId;
 import org.sigmah.server.domain.element.FlexibleElement;
 import org.sigmah.server.domain.layout.Layout;
 import org.sigmah.server.domain.layout.LayoutConstraint;
@@ -40,13 +40,10 @@ import org.sigmah.server.domain.layout.LayoutGroup;
 import org.sigmah.server.i18n.I18nServer;
 import org.sigmah.server.servlet.base.ServletExecutionContext;
 import org.sigmah.server.servlet.exporter.data.BaseSynthesisData;
-import org.sigmah.server.servlet.exporter.data.GlobalExportDataProvider;
 import org.sigmah.server.servlet.exporter.data.GlobalExportDataProvider.ValueLabel;
 import org.sigmah.server.servlet.exporter.utils.ExcelUtils;
 import org.sigmah.server.servlet.exporter.utils.ExportConstants;
 import org.sigmah.shared.Language;
-import org.sigmah.shared.command.GetValue;
-import org.sigmah.shared.command.result.ValueResult;
 
 /**
  * Base excel template for project/orgunit excel templates
@@ -136,6 +133,8 @@ public abstract class BaseSynthesisExcelTemplate implements ExportTemplate {
 
 	private int putLayout(final HSSFSheet sheet, final Layout layout, int rowIndex, final I18nServer i18nTranslator, final Language language) throws Throwable {
 
+		final EntityId<Integer> container = data.getProject() != null ? data.getProject() : data.getOrgUnit();
+		
 		int typeStartRow = rowIndex;
 		boolean firstGroup = true;
 		// layout groups for each phase
@@ -158,48 +157,14 @@ public abstract class BaseSynthesisExcelTemplate implements ExportTemplate {
 				final FlexibleElement element = constraint.getElement();
 
 				// skip if element is not exportable
-				if (!element.isExportable())
+				if (!element.isExportable()) {
 					continue;
-
-				final String elementName = "element." + element.getClass().getSimpleName();
-				Integer id = (clazz.equals(Project.class)) ? data.getProject().getId() : data.getOrgUnit().getId();
-				final GetValue command = new GetValue(id, element.getId(), elementName, null);
-
-				final ValueResult valueResult = (ValueResult) data.getHandler().execute(command, new UserExecutionContext(context));
-
-				// prepare value and label
-				ValueLabel pair = null;
-				boolean isMessage = false;
-				/* DEF FLEXIBLE */
-				if (elementName.equals("element.DefaultFlexibleElement") || elementName.equals("element.BudgetElement")) {
-					pair =
-							data.getDataProvider().getDefElementPair(valueResult, element, data.getProject() != null ? data.getProject() : data.getOrgUnit(), clazz,
-								data.getEntityManager(), i18nTranslator, language);
-
 				}
-				/* CHECKBOX */
-				else if (elementName.equals("element.CheckboxElement")) {
-					pair = data.getDataProvider().getCheckboxElementPair(valueResult, element, i18nTranslator, language);
+				
+				final ValueLabel pair = data.getDataProvider().getPair(element, container, data.getEntityManager(), i18nTranslator, language, data);
+				if (pair != null) {
+					putElement(sheet, ++rowIndex, pair, pair.isMessage());
 				}
-				/* TEXT AREA */
-				else if (elementName.equals("element.TextAreaElement")) {
-					pair = data.getDataProvider().getTextAreaElementPair(valueResult, element);
-
-				}
-				/* TRIPLET */
-				else if (elementName.equals("element.TripletsListElement")) {
-					pair = data.getDataProvider().getTripletPair(element, valueResult);
-
-				}/* CHOICE */else if (elementName.equals("element.QuestionElement")) {
-					pair = data.getDataProvider().getChoicePair(element, valueResult);
-
-				}/* MESSAGE */else if (elementName.equals("element.MessageElement")) {
-					pair = new ValueLabel(data.getLocalizedVersion("flexibleElementMessage"), GlobalExportDataProvider.clearHtmlFormatting(element.getLabel()));
-					isMessage = true;
-				}
-
-				if (pair != null)
-					putElement(sheet, ++rowIndex, pair, isMessage);
 
 			}// elements
 		}

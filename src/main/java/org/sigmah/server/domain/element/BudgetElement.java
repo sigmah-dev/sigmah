@@ -47,6 +47,7 @@ import org.sigmah.server.domain.util.EntityConstants;
 @Entity
 @Table(name = EntityConstants.BUDGET_ELEMENT_TABLE)
 @Inheritance(strategy = InheritanceType.JOINED)
+@Deprecated
 public class BudgetElement extends DefaultFlexibleElement {
 
 	/**

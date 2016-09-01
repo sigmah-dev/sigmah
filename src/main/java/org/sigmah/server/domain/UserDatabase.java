@@ -177,13 +177,6 @@ public class UserDatabase extends AbstractEntityId<Integer> implements Deleteabl
 	@org.hibernate.annotations.Filter(name = EntityFilters.HIDE_DELETED, condition = EntityFilters.USER_DATABASE_HIDE_DELETED_CONDITION)
 	private Set<Activity> activities = new HashSet<Activity>(0);
 
-	/**
-	 * The list of users who have access to this database and their respective permissions. (Read, write, read all
-	 * partners).
-	 */
-	@OneToMany(mappedBy = "database", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-	private Set<UserPermission> userPermissions = new HashSet<UserPermission>(0);
-
 	// --------------------------------------------------------------------------------
 	//
 	// METHODS.
@@ -197,106 +190,6 @@ public class UserDatabase extends AbstractEntityId<Integer> implements Deleteabl
 	public UserDatabase(final Integer id, final String name) {
 		this.id = id;
 		this.name = name;
-	}
-
-	/**
-	 * @param user
-	 * @return True if the given user has the right to view this database at all.
-	 */
-	public boolean isAllowedView(final User user) {
-		if (getOwner().getId().equals(user.getId()) || getOwner().equals(user)) {
-			return true;
-		}
-
-		final UserPermission permission = this.getPermissionByUser(user);
-		return permission != null && permission.isAllowView();
-	}
-
-	/**
-	 * @param user
-	 * @return True if the given user has the right to view data from all partners in this database. False if they have
-	 *         only the right to view the data from their partner organization
-	 */
-	public boolean isAllowedViewAll(final User user) {
-		if (getOwner().getId().equals(user.getId()) || getOwner().equals(user)) {
-			return true;
-		}
-
-		final UserPermission permission = this.getPermissionByUser(user);
-		return permission != null && permission.isAllowViewAll();
-	}
-
-	/**
-	 * @param user
-	 * @return True if the given user has the right to create or modify sites on behalf of their (partner) organization
-	 */
-	public boolean isAllowedEdit(final User user) {
-		if (getOwner().getId().equals(user.getId())) {
-			return true;
-		}
-
-		final UserPermission permission = this.getPermissionByUser(user);
-		return permission != null && permission.isAllowEdit();
-	}
-
-	/**
-	 * @param user
-	 * @return True if the given user has the right to modify the definition of the database, such as adding or removing
-	 *         activities, indicators, etc
-	 */
-	public boolean isAllowedDesign(final User user) {
-		if (getOwner().getId().equals(user.getId())) {
-			return true;
-		}
-
-		final UserPermission permission = this.getPermissionByUser(user);
-		return permission != null && permission.isAllowDesign();
-	}
-
-	@SuppressWarnings("deprecation")
-	public boolean isAllowedManageUsers(final User user, final OrgUnit partner) {
-		if (getOwner().getId().equals(user.getId())) {
-			return true;
-		}
-
-		UserPermission permission = this.getPermissionByUser(user);
-		if (permission == null) {
-			return false;
-		}
-		if (!permission.isAllowManageUsers()) {
-			return false;
-		}
-		if (!permission.isAllowManageAllUsers() && !permission.getPartner().getId().equals(partner.getId())) {
-			return false;
-		}
-
-		return true;
-	}
-
-	/**
-	 * @param user
-	 * @return The permission descriptor for the given user, or null if this user has no rights to this database.
-	 */
-	public UserPermission getPermissionByUser(final User user) {
-		for (final UserPermission perm : this.getUserPermissions()) {
-			if (perm.getUser().getId().equals(user.getId()) || perm.getUser().equals(user)) {
-				return perm;
-			}
-		}
-		return null;
-	}
-
-	/**
-	 * @param user
-	 * @return True if the given user has the right to create and modify sites on behalf of all partner organizations.
-	 */
-	public boolean isAllowedEditAll(final User user) {
-		if (getOwner().getId().equals(user.getId())) {
-			return true;
-		}
-
-		final UserPermission permission = this.getPermissionByUser(user);
-		return permission != null && permission.isAllowEditAll();
 	}
 
 	/**
@@ -400,14 +293,6 @@ public class UserDatabase extends AbstractEntityId<Integer> implements Deleteabl
 
 	public void setActivities(Set<Activity> activities) {
 		this.activities = activities;
-	}
-
-	public Set<UserPermission> getUserPermissions() {
-		return this.userPermissions;
-	}
-
-	public void setUserPermissions(Set<UserPermission> userPermissions) {
-		this.userPermissions = userPermissions;
 	}
 
 	public Date getDateDeleted() {

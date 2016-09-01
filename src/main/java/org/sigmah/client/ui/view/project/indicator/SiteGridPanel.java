@@ -37,7 +37,6 @@ import org.sigmah.shared.command.result.VoidResult;
 import org.sigmah.shared.dto.IndicatorDTO;
 import org.sigmah.shared.dto.SchemaDTO;
 import org.sigmah.shared.dto.SiteDTO;
-import org.sigmah.shared.dto.UserDatabaseDTO;
 
 import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.data.BasePagingLoader;
@@ -606,28 +605,14 @@ public class SiteGridPanel extends ContentPanel implements SelectionProvider<Sit
 					|| !this.mainSiteId.equals(event.getSelectedItem().getId())) {
 
 				// Not the main site, check editable
-				if(canManageSites()) {
-					deleteButton.setEnabled(isEditable(event.getSelectedItem()));
-					editButton.setEnabled(isEditable(event.getSelectedItem()));
-				}
+				final boolean canManageSites = canManageSites();
+				deleteButton.setEnabled(canManageSites);
+				editButton.setEnabled(canManageSites);
 			}
 		}
 
 		fireEvent(Events.SelectionChange, event);
     }
-
-    private boolean isEditable(final SiteDTO selectedSite) {
-		final UserDatabaseDTO db = schema.getDatabaseById(selectedSite.getDatabaseId());
-		
-		return db.isEditAllAllowed() || 
-			(db.isEditAllowed() && db.getMyPartnerId() == selectedSite.getPartner().getId());
-    }
-
-    // TODO: update export module to work for databases to
-    // private void onExport() {
-    // String url = GWT.getModuleBaseURL() + "export?auth=#AUTH#&a=" + currentActivity.getId();
-    // eventBus.fireEvent(new DownloadRequestEvent("siteExport", url));
-    // }
 
     private class SiteProxy extends RpcProxy<SiteResult> {
 

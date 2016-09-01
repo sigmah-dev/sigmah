@@ -26,9 +26,7 @@ package org.sigmah.server.handler.util;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.TypedQuery;
@@ -43,8 +41,6 @@ import org.sigmah.server.domain.ProjectModelVisibility;
 import org.sigmah.server.domain.User;
 import org.sigmah.server.domain.category.CategoryElement;
 import org.sigmah.server.domain.category.CategoryType;
-import org.sigmah.server.domain.element.BudgetElement;
-import org.sigmah.server.domain.element.BudgetSubField;
 import org.sigmah.server.domain.element.QuestionChoiceElement;
 import org.sigmah.server.domain.value.Value;
 import org.sigmah.server.mapper.Mapper;
@@ -60,6 +56,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
+import javax.persistence.NoResultException;
+import org.sigmah.server.domain.element.BudgetRatioElement;
+import org.sigmah.server.domain.element.FlexibleElement;
+import org.sigmah.shared.computation.value.ComputedValue;
+import org.sigmah.shared.computation.value.ComputedValues;
 
 /**
  * Responsible for the mapping of project objects.
@@ -327,68 +328,67 @@ public class ProjectMapper extends EntityManagerProvider {
 		return projectDTO;
 	}
 
-	public void fillBudget(final Project project, final ProjectDTO projectDTO) throws NumberFormatException {
-		final List<Integer> budgetElementIds = em().createQuery("SELECT b.id FROM BudgetElement b", Integer.class).getResultList();
+	/**
+	 * Fill the budget values of the given project.
+	 * 
+	 * @param project
+	 *			Project.
+	 * @param projectDTO
+	 *			DTO to fill.
+	 */
+	public void fillBudget(final Project project, final ProjectDTO projectDTO) {
+		final TypedQuery<BudgetRatioElement> budgetRatioQuery = em().createQuery("SELECT b FROM BudgetRatioElement b "
+				+ "WHERE EXISTS(SELECT 1 FROM Project p JOIN p.projectModel.projectDetails.layout.groups g join g.constraints c WHERE p = :project AND c.element = b) "
+				+ "OR EXISTS(SELECT 1 FROM Project p JOIN p.projectModel.phaseModels phm join phm.layout.groups g join g.constraints c WHERE p = :project AND c.element = b)", BudgetRatioElement.class);
+		budgetRatioQuery.setParameter("project", project);
 		
-		if (budgetElementIds.isEmpty()) {
+		final BudgetRatioElement budgetRatioElement;
+		try {
+			budgetRatioElement = budgetRatioQuery.getSingleResult();
+		} catch (NoResultException e) {
+			LOG.error("No budget ratio element was found for project #" + project.getId(), e);
 			return;
 		}
 		
-		final TypedQuery<Value> budgetValueQuery = em().createQuery("SELECT v FROM Value v WHERE v.containerId = :projectId AND v.element.id IN (:ids)", Value.class);
-		budgetValueQuery.setParameter("projectId", project.getId());
-		budgetValueQuery.setParameter("ids", budgetElementIds);
+		final TypedQuery<Value> valueQuery = em().createQuery("SELECT v FROM Value v WHERE v.containerId = :projectId AND v.element = :element", Value.class);
+		valueQuery.setParameter("projectId", project.getId());
 		
-		final Iterator<Value> i = budgetValueQuery.getResultList().iterator();
-		
-		if (i.hasNext()) {
-			final Value budgetValue = i.next();
-			final BudgetElement budgetElement = (BudgetElement) budgetValue.getElement();
-			final Map<Integer, String> values = ValueResultUtils.splitMapElements(budgetValue.getValue());
-			
-			if (budgetElement.getRatioDividend() != null) {
-				if (budgetElement.getRatioDividend().getType() != null) {
-					projectDTO.setRatioDividendType(budgetElement.getRatioDividend().getType());
-				} else {
-					projectDTO.setRatioDividendLabel(budgetElement.getRatioDividend().getLabel());
-				}
-				if (values.get(budgetElement.getRatioDividend().getId().intValue()) != null) {
-					projectDTO.setRatioDividendValue(Double.parseDouble(values.get(budgetElement.getRatioDividend().getId().intValue())));
-				}
-			}
-			
-			if (budgetElement.getRatioDivisor() != null) {
-				if (budgetElement.getRatioDivisor().getType() != null) {
-					projectDTO.setRatioDivisorType(budgetElement.getRatioDivisor().getType());
-				} else {
-					projectDTO.setRatioDivisorLabel(budgetElement.getRatioDivisor().getLabel());
-				}
-				if (values.get(budgetElement.getRatioDivisor().getId().intValue()) != null) {
-					projectDTO.setRatioDivisorValue(Double.parseDouble(values.get(budgetElement.getRatioDivisor().getId().intValue())));
-				}
-			}
-			
-			for (BudgetSubField budgetSubField : budgetElement.getBudgetSubFields()) {
-				if (budgetSubField.getType() != null) {
-					if (values.get(budgetSubField.getId().intValue()) != null) {
-						switch (budgetSubField.getType()) {
-							case PLANNED:
-								projectDTO.setPlannedBudget(Double.parseDouble(values.get(budgetSubField.getId().intValue())));
-								break;
-							case RECEIVED:
-								projectDTO.setReceivedBudget(Double.parseDouble(values.get(budgetSubField.getId().intValue())));
-								break;
-							case SPENT:
-								projectDTO.setSpendBudget(Double.parseDouble(values.get(budgetSubField.getId().intValue())));
-								break;
-							default:
-								break;
-								
-						}
-					}
-					
-				}
-			}
+		final FlexibleElement spentBudgetElement = budgetRatioElement.getSpentBudget();
+		if (spentBudgetElement != null) {
+			final Double spentBudget = getBudgetValue(valueQuery, spentBudgetElement);
+			projectDTO.setSpendBudget(spentBudget);
+			projectDTO.setRatioDividendValue(spentBudget);
+			projectDTO.setRatioDividendLabel(spentBudgetElement.getLabel());
 		}
+		
+		final FlexibleElement plannedBudgetElement = budgetRatioElement.getPlannedBudget();
+		if (plannedBudgetElement != null) {
+			final Double plannedBudget = getBudgetValue(valueQuery, plannedBudgetElement);
+			projectDTO.setPlannedBudget(plannedBudget);
+			projectDTO.setRatioDivisorValue(plannedBudget);
+			projectDTO.setRatioDivisorLabel(plannedBudgetElement.getLabel());
+		}
+	}
+
+	/**
+	 * Get the value of the given flexible element.
+	 * 
+	 * @param valueQuery
+	 *			Query to use.
+	 * @param element
+	 *			Flexible element to query.
+	 * @return The value of the given flexible element as a <code>Double</code> or <code>null</code> if no value was found.
+	 */
+	private Double getBudgetValue(final TypedQuery<Value> valueQuery, final FlexibleElement element) {
+		valueQuery.setParameter("element", element);
+		try {
+			final Value spentValue = valueQuery.getSingleResult();
+			final ComputedValue computedValue = ComputedValues.from(spentValue.getValue());
+			return computedValue.get();
+		} catch (NoResultException e) {
+			LOG.trace("No value was found for element #" + element.getId() + ".", e);
+		}
+		return null;
 	}
 
 }

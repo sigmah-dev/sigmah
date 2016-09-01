@@ -23,25 +23,31 @@ package org.sigmah.offline.js;
  */
 
 import org.sigmah.shared.dto.element.BudgetElementDTO;
+import org.sigmah.shared.dto.element.BudgetRatioElementDTO;
 import org.sigmah.shared.dto.element.DefaultFlexibleElementDTO;
 import org.sigmah.shared.dto.referential.DefaultFlexibleElementType;
 
 /**
- *
+ * JavaScript version of <code>DefaultFlexibleElementDTO</code>.
+ * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
 public class DefaultFlexibleElementJS extends FlexibleElementJS {
 	
+	/**
+	 * Protected constructor, required for JavaScript objects.
+	 */
 	protected DefaultFlexibleElementJS() {
+		// Empty.
 	}
 	
 	public static DefaultFlexibleElementJS toJavaScript(DefaultFlexibleElementDTO defaultFlexibleElementDTO) {
 		final DefaultFlexibleElementJS defaultFlexibleElementJS;
 		
-		if(defaultFlexibleElementDTO.getType() == DefaultFlexibleElementType.BUDGET
-				// FIXME: the following test should not be mandatory
-				&& defaultFlexibleElementDTO.getClass() == BudgetElementDTO.class) {
+		if (defaultFlexibleElementDTO instanceof BudgetElementDTO) {
 			defaultFlexibleElementJS = BudgetElementJS.toJavaScript((BudgetElementDTO) defaultFlexibleElementDTO);
+		} else if (defaultFlexibleElementDTO instanceof BudgetRatioElementDTO) {
+			defaultFlexibleElementJS = BudgetRatioElementJS.toJavaScript((BudgetRatioElementDTO) defaultFlexibleElementDTO);
 		} else {
 			defaultFlexibleElementJS = Values.createJavaScriptObject(DefaultFlexibleElementJS.class);
 		}
@@ -54,8 +60,10 @@ public class DefaultFlexibleElementJS extends FlexibleElementJS {
 	public final DefaultFlexibleElementDTO toDefaultFlexibleElementDTO() {
 		final DefaultFlexibleElementDTO defaultFlexibleElementDTO;
 		
-		if(getTypeEnum() == DefaultFlexibleElementType.BUDGET) {
+		if (getTypeEnum() == DefaultFlexibleElementType.BUDGET) {
 			defaultFlexibleElementDTO = ((BudgetElementJS)this).toBudgetElementDTO();
+		} else if (getTypeEnum() == DefaultFlexibleElementType.BUDGET_RATIO) {
+			defaultFlexibleElementDTO = ((BudgetRatioElementJS)this).toBudgetRatioElementDTO();
 		} else {
 			defaultFlexibleElementDTO = new DefaultFlexibleElementDTO();
 		}

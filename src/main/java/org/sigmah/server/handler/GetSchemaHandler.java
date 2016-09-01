@@ -31,12 +31,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.sigmah.server.dao.UserDatabaseDAO;
-import org.sigmah.server.dao.base.AbstractDAO;
 import org.sigmah.server.dispatch.impl.UserDispatch;
 import org.sigmah.server.domain.Activity;
 import org.sigmah.server.domain.User;
 import org.sigmah.server.domain.UserDatabase;
-import org.sigmah.server.domain.UserPermission;
 import org.sigmah.server.handler.base.AbstractCommandHandler;
 import org.sigmah.shared.dispatch.CommandException;
 import org.sigmah.shared.dto.ActivityDTO;
@@ -100,32 +98,6 @@ public class GetSchemaHandler extends AbstractCommandHandler<GetSchema, SchemaDT
             
             databaseDTO.setCountry(country);
             databaseDTO.setAmOwner(database.getOwner().getId() != null && database.getOwner().getId().equals(user.getId()));
-
-            UserPermission permission = null;
-            if (!databaseDTO.getAmOwner()) {
-            	// don't support user permission when running in browser
-            	if (database.getPermissionByUser(user) != null) {
-            		if (database.getPermissionByUser(user).getPartner() != null) {
-            			  databaseDTO.setMyPartnerId(database.getPermissionByUser(user).getPartner().getId());
-            		}
-            	}
-
-                permission = database.getPermissionByUser(user);
-
-                if (permission != null && permission.getLastSchemaUpdate().after(lastUpdate)) {
-                    lastUpdate = permission.getLastSchemaUpdate();
-                }
-            }
-            if (permission == null) {
-            	// don't support user permission when running in browser
-            	permission = new UserPermission();
-            }
-            databaseDTO.setViewAllAllowed(databaseDTO.getAmOwner() || permission.isAllowViewAll());
-            databaseDTO.setEditAllowed(databaseDTO.getAmOwner() || permission.isAllowEdit());
-            databaseDTO.setEditAllAllowed(databaseDTO.getAmOwner() || permission.isAllowEditAll());
-            databaseDTO.setDesignAllowed(databaseDTO.getAmOwner() || permission.isAllowDesign());
-            databaseDTO.setManageUsersAllowed(databaseDTO.getAmOwner() || permission.isAllowManageUsers());
-            databaseDTO.setManageAllUsersAllowed(databaseDTO.getAmOwner() || permission.isAllowManageAllUsers());
 
 			databaseDTO.setPartners(mapper().mapCollection(database.getPartners(), PartnerDTO.class));
             

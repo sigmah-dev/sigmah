@@ -58,15 +58,20 @@ public class LayoutComposer {
 	/**
 	 * Using the project start date as a guideline, generate a date
 	 * range of at least six months.
-	 * @param date
+	 * 
+	 * @param startDate
+	 *			Start date of the project.
 	 * @param endDate 
+	 *			End date of the project.
 	 * @return
 	 */
-	private DateRange computeProjectDateRange(Date startDate, Date endDate) {
-		Month startMonth = dates.monthFromDate(startDate);
+	private DateRange computeProjectDateRange(final Date startDate, final Date endDate) {
+		final Date notNullStartDate = startDate != null ? startDate : new Date();
+				
+		final Month startMonth = dates.monthFromDate(notNullStartDate);
 		Month endMonth =  endDate == null ? startMonth : dates.monthFromDate(endDate);
 		
-		if(Month.monthsBetween(startMonth, endMonth) < 6) {
+		if (Month.monthsBetween(startMonth, endMonth) < 6) {
 			endMonth = startMonth.plus(6);
 		}
 		
