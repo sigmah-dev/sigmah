@@ -31,7 +31,6 @@ import org.sigmah.client.ui.widget.button.Button;
 
 import com.google.gwt.dom.client.Style.Position;
 import com.google.gwt.event.dom.client.HasClickHandlers;
-import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.FlowPanel;
@@ -70,18 +69,21 @@ public class LoginView extends AbstractView implements LoginPresenter.View {
 	private ListBox languageListBox;
 	private Anchor lostPasswordLink;
 	private Button loginButton;
+	
 	/**
-	 * Id of email input.
+	 * HTML identifier set to the email input field.
 	 */
-	private final String LOGIN_EMAIL_ID="loginEmailId";
+	private final String LOGIN_EMAIL_ID = "loginEmailId";
+	
 	/**
-	 * Id of password input.
+	 * HTML identifier set to the password input field.
 	 */
-	private final String LOGIN_PASSWORD_ID="loginPasswordId";
+	private final String LOGIN_PASSWORD_ID = "loginPasswordId";
+	
 	/**
-	 * Id of open session button;
+	 * HTML identifier set to the 'open session' button.
 	 */
-	private final String LOGIN_OUVRIR_SESSION_ID="ouvrirSessionId";
+	private final String OPEN_SESSION_ID = "ouvrirSessionId";
 
 	/**
 	 * {@inheritDoc}
@@ -167,7 +169,7 @@ public class LoginView extends AbstractView implements LoginPresenter.View {
 
 		// Login button.
 		loginButton = new Button(I18N.CONSTANTS.loginConnectButton());
-		loginButton.setId(LOGIN_OUVRIR_SESSION_ID);
+		loginButton.setId(OPEN_SESSION_ID);
 		loginButton.setWidth("120px");
 		form.setWidget(y, 1, loginButton);
 		form.getCellFormatter().setHorizontalAlignment(y, 1, HasHorizontalAlignment.ALIGN_RIGHT);
