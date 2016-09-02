@@ -22,25 +22,21 @@ package org.sigmah.server.servlet.exporter.data;
  * #L%
  */
 
+import com.google.inject.Injector;
 import org.sigmah.server.domain.Contact;
 import org.sigmah.server.domain.OrgUnit;
 import org.sigmah.server.domain.Project;
 import org.sigmah.server.servlet.exporter.base.Exporter;
 
-import com.google.inject.Injector;
+public class ContactSynthesisData extends BaseSynthesisData {
 
-public class OrgUnitSynthesisData extends BaseSynthesisData {
+	private final Contact contact;
 
-	private final OrgUnit orgUnit;
+	public ContactSynthesisData(final Exporter exporter, final Integer contactId, final Injector injector) {
 
-	public OrgUnitSynthesisData(final Exporter exporter, final Integer orgUnitId, final Injector injector) {
 		super(exporter, injector, false);
-		orgUnit = entityManager.find(OrgUnit.class, orgUnitId);
-	}
+		contact = entityManager.find(Contact.class, contactId);
 
-	@Override
-	public OrgUnit getOrgUnit() {
-		return orgUnit;
 	}
 
 	@Override
@@ -49,8 +45,13 @@ public class OrgUnitSynthesisData extends BaseSynthesisData {
 	}
 
 	@Override
-	public Contact getContact() {
+	public OrgUnit getOrgUnit() {
 		return null;
+	}
+
+	@Override
+	public Contact getContact() {
+		return contact;
 	}
 
 }

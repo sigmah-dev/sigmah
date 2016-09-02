@@ -533,8 +533,10 @@ public class ExporterUtil {
 																			final EntityManager entityManager, final I18nServer i18nTranslator, final Language language) {
 		if (clazz.equals(Project.class)) {
 			return getDefElementPair(valueResult, element, (Project) object, entityManager, i18nTranslator, language);
-		} else {
+		} else if (clazz.equals(OrgUnit.class)) {
 			return getDefElementPair(valueResult, element, (OrgUnit) object, entityManager, i18nTranslator, language);
+		} else {
+			return getDefElementPair(valueResult, element, (Contact) object, entityManager, i18nTranslator, language);
 		}
 	}
 

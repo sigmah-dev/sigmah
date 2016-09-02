@@ -21,6 +21,12 @@ package org.sigmah.client.ui.view.contact;
  * #L%
  */
 
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.widget.Window;
+import com.extjs.gxt.ui.client.widget.form.CheckBox;
+import com.extjs.gxt.ui.client.widget.form.CheckBoxGroup;
+import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.user.client.ui.Widget;
 import com.extjs.gxt.ui.client.Style;
 import com.extjs.gxt.ui.client.util.Padding;
@@ -35,6 +41,7 @@ import org.sigmah.client.ui.res.icon.IconImageBundle;
 import org.sigmah.client.ui.view.base.AbstractView;
 import org.sigmah.client.ui.widget.button.Button;
 import org.sigmah.client.ui.widget.contact.DedupeContactDialog;
+import org.sigmah.client.ui.widget.form.FormPanel;
 import org.sigmah.client.ui.widget.form.Forms;
 import org.sigmah.client.ui.widget.layout.Layouts;
 import org.sigmah.client.ui.widget.panel.Panels;
@@ -43,6 +50,7 @@ public class ContactDetailsView extends AbstractView implements ContactDetailsPr
   private ContentPanel container;
   private ToolBar toolBar;
   private Button saveButton;
+  private Button exportButton;
 
   @Override
   public void initialize() {
@@ -52,13 +60,59 @@ public class ContactDetailsView extends AbstractView implements ContactDetailsPr
     add(container);
 
     saveButton = Forms.button(I18N.CONSTANTS.save(), IconImageBundle.ICONS.save());
+    exportButton = Forms.button(I18N.CONSTANTS.export(), IconImageBundle.ICONS.excel());
 
     toolBar = new ToolBar();
     toolBar.setAlignment(Style.HorizontalAlignment.LEFT);
     toolBar.setBorders(false);
     toolBar.add(saveButton);
+    toolBar.add(exportButton);
 
     container.setTopComponent(toolBar);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void buildExportDialog(final ContactDetailsPresenter.ExportActionHandler handler) {
+
+    final Window w = new Window();
+    w.setPlain(true);
+    w.setModal(true);
+    w.setBlinkModal(true);
+    w.setLayout(new FitLayout());
+    w.setSize(400, 180);
+    w.setHeadingHtml(I18N.CONSTANTS.exportData());
+
+    final FormPanel panel = Forms.panel();
+
+    final CheckBox synthesisBox = Forms.checkbox(I18N.CONSTANTS.caracteristics(), Boolean.TRUE);
+    synthesisBox.setEnabled(false);
+    final CheckBox allRelationsBox = Forms.checkbox(I18N.CONSTANTS.allRelations());
+    final CheckBox frameworkRelationsBox = Forms.checkbox(I18N.CONSTANTS.frameworkRelations());
+    final CheckBox relationsByElementBox = Forms.checkbox(I18N.CONSTANTS.relationsByElement());
+
+    final CheckBoxGroup options =
+        Forms.checkBoxGroup(I18N.CONSTANTS.exportOptions(), com.extjs.gxt.ui.client.Style.Orientation.VERTICAL, synthesisBox, allRelationsBox, frameworkRelationsBox, relationsByElementBox);
+
+    panel.add(options);
+
+    final Button export = Forms.button(I18N.CONSTANTS.export());
+    panel.getButtonBar().add(export);
+    export.addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+      @Override
+      public void componentSelected(final ButtonEvent ce) {
+        if (handler != null) {
+          handler.onExportContact(synthesisBox.getValue(), allRelationsBox.getValue(), frameworkRelationsBox.getValue(), relationsByElementBox.getValue());
+        }
+        w.hide();
+      }
+    });
+
+    w.add(panel);
+    w.show();
   }
 
   @Override
@@ -75,6 +129,11 @@ public class ContactDetailsView extends AbstractView implements ContactDetailsPr
   @Override
   public Button getSaveButton() {
     return saveButton;
+  }
+
+  @Override
+  public Button getExportButton() {
+    return exportButton;
   }
 
   @Override

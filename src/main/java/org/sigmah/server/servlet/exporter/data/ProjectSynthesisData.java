@@ -22,6 +22,7 @@ package org.sigmah.server.servlet.exporter.data;
  * #L%
  */
 
+import org.sigmah.server.domain.Contact;
 import org.sigmah.server.domain.OrgUnit;
 import org.sigmah.server.domain.Project;
 import org.sigmah.server.servlet.exporter.base.Exporter;
@@ -51,6 +52,11 @@ public class ProjectSynthesisData extends BaseSynthesisData {
 
 	@Override
 	public OrgUnit getOrgUnit() {
+		return null;
+	}
+
+	@Override
+	public Contact getContact() {
 		return null;
 	}
 

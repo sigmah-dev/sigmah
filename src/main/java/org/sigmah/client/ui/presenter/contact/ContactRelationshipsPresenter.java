@@ -21,6 +21,10 @@ package org.sigmah.client.ui.presenter.contact;
  * #L%
  */
 
+import com.extjs.gxt.ui.client.widget.form.FormPanel;
+import com.google.gwt.dom.client.FormElement;
+import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.ui.RootPanel;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -39,15 +43,22 @@ import org.sigmah.client.page.RequestParameter;
 import org.sigmah.client.ui.presenter.base.AbstractPresenter;
 import org.sigmah.client.ui.view.base.ViewInterface;
 import org.sigmah.client.ui.view.contact.ContactRelationshipsView;
+import org.sigmah.client.ui.widget.button.Button;
 import org.sigmah.shared.command.GetContactRelationships;
 import org.sigmah.shared.command.result.ContactRelationship;
 import org.sigmah.shared.command.result.ListResult;
 import org.sigmah.shared.dto.ContactDTO;
+import org.sigmah.shared.servlet.ServletConstants;
+import org.sigmah.shared.servlet.ServletUrlBuilder;
 
 public class ContactRelationshipsPresenter extends AbstractPresenter<ContactRelationshipsPresenter.View> implements ContactPresenter.ContactSubPresenter<ContactRelationshipsPresenter.View> {
   @ImplementedBy(ContactRelationshipsView.class)
   public interface View extends ViewInterface {
     void reloadView(ContactDTO contactDTO, AnchorHandler anchorHandler);
+
+    Button getExportButton();
+
+    void buildExportDialog(ExportActionHandler handler);
 
     Grid<ContactRelationship> getRelationshipsGrid();
 
@@ -56,6 +67,11 @@ public class ContactRelationshipsPresenter extends AbstractPresenter<ContactRela
     ToggleButton inboundToggleButton();
 
     void updateGridData(List<ContactRelationship> relationships);
+  }
+
+  public static interface ExportActionHandler {
+    void onExportContactRelationships(boolean characteristicsField, boolean allRelationsField, boolean frameworkRelationsField, boolean relationsByElementField);
+
   }
 
   public interface AnchorHandler {
@@ -113,6 +129,18 @@ public class ContactRelationshipsPresenter extends AbstractPresenter<ContactRela
         reloadData(contactDTO.getId(), view.outboundToggleButton().isPressed() ? ContactRelationship.Direction.OUTBOUND : null);
       }
     });
+
+    // --
+    // Contact export button handler.
+    // --
+    view.getExportButton().removeAllListeners();
+    view.getExportButton().addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+      @Override
+      public void componentSelected(final ButtonEvent ce) {
+        onExportContactRelationships(contactDTO);
+      }
+    });
   }
 
   private void reloadData(Integer contactId, ContactRelationship.Direction direction) {
@@ -122,5 +150,40 @@ public class ContactRelationshipsPresenter extends AbstractPresenter<ContactRela
         view.updateGridData(result.getList());
       }
     }, new LoadingMask(view.getRelationshipsGrid()));
+  }
+
+  /**
+   * Method executed on export relationships action.
+   *
+   * @param contact
+   *          The contact to export.
+   */
+  private void onExportContactRelationships(final ContactDTO contact) {
+
+    view.buildExportDialog(new ExportActionHandler() {
+
+      @Override
+      public void onExportContactRelationships(final boolean characteristicsField, final boolean allRelationsField, final boolean frameworkRelationsField, final boolean relationsByElementField) {
+
+        final ServletUrlBuilder urlBuilder =
+            new ServletUrlBuilder(injector.getAuthenticationProvider(), injector.getPageManager(), ServletConstants.Servlet.EXPORT, ServletConstants.ServletMethod.EXPORT_CONTACT);
+
+        urlBuilder.addParameter(RequestParameter.ID, contact.getId());
+        urlBuilder.addParameter(RequestParameter.WITH_CHARACTERISTICS, characteristicsField);
+        urlBuilder.addParameter(RequestParameter.WITH_ALL_RELATIONS, allRelationsField);
+        urlBuilder.addParameter(RequestParameter.WITH_FRAMEWORK_RELATIONS, frameworkRelationsField);
+        urlBuilder.addParameter(RequestParameter.WITH_RELATIONS_BY_ELEMENT, relationsByElementField);
+
+        final FormElement form = FormElement.as(DOM.createForm());
+        form.setAction(urlBuilder.toString());
+        form.setTarget("_downloadFrame");
+        form.setMethod(FormPanel.Method.POST.name());
+
+        RootPanel.getBodyElement().appendChild(form);
+
+        form.submit();
+        form.removeFromParent();
+      }
+    });
   }
 }

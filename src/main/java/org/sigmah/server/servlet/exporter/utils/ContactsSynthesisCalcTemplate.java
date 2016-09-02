@@ -8,13 +8,19 @@ import org.odftoolkit.simple.table.Table;
 import org.sigmah.server.servlet.exporter.data.cells.ExportDataCell;
 import org.sigmah.server.servlet.exporter.data.cells.ExportLinkCell;
 
-public class ContactSynthesisCalcTemplate extends AbstractContactSynthesisTemplate {
+public class ContactsSynthesisCalcTemplate extends AbstractContactsSynthesisTemplate {
 
   private SpreadsheetDocument doc;
   private Table currentSheet;
 
-  public ContactSynthesisCalcTemplate(final List<ContactSynthesisUtils.ContactSheetData> data, final SpreadsheetDocument doc) throws Throwable {
-    super(data);
+  public ContactsSynthesisCalcTemplate(final List<ContactsSynthesisUtils.ContactSheetData> data, final SpreadsheetDocument doc, final String prefix) throws Throwable {
+    super(data, prefix);
+
+    this.doc = doc;
+  }
+
+  public ContactsSynthesisCalcTemplate(final ContactsSynthesisUtils.ContactSheetData data, final SpreadsheetDocument doc, final String prefix) throws Throwable {
+    super(data, prefix);
 
     this.doc = doc;
   }

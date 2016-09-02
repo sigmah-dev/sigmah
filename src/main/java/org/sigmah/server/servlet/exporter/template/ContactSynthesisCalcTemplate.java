@@ -1,4 +1,4 @@
-package org.sigmah.server.servlet.exporter.data;
+package org.sigmah.server.servlet.exporter.template;
 
 /*
  * #%L
@@ -22,35 +22,18 @@ package org.sigmah.server.servlet.exporter.data;
  * #L%
  */
 
-import org.sigmah.server.domain.Contact;
-import org.sigmah.server.domain.OrgUnit;
-import org.sigmah.server.domain.Project;
-import org.sigmah.server.servlet.exporter.base.Exporter;
-
 import com.google.inject.Injector;
+import org.odftoolkit.simple.SpreadsheetDocument;
+import org.sigmah.server.domain.Contact;
+import org.sigmah.server.i18n.I18nServer;
+import org.sigmah.server.servlet.base.ServletExecutionContext;
+import org.sigmah.server.servlet.exporter.data.ContactSynthesisData;
+import org.sigmah.shared.Language;
 
-public class OrgUnitSynthesisData extends BaseSynthesisData {
+public class ContactSynthesisCalcTemplate extends BaseSynthesisCalcTemplate {
 
-	private final OrgUnit orgUnit;
-
-	public OrgUnitSynthesisData(final Exporter exporter, final Integer orgUnitId, final Injector injector) {
-		super(exporter, injector, false);
-		orgUnit = entityManager.find(OrgUnit.class, orgUnitId);
-	}
-
-	@Override
-	public OrgUnit getOrgUnit() {
-		return orgUnit;
-	}
-
-	@Override
-	public Project getProject() {
-		return null;
-	}
-
-	@Override
-	public Contact getContact() {
-		return null;
+	public ContactSynthesisCalcTemplate(final ContactSynthesisData data, final SpreadsheetDocument doc, final ServletExecutionContext context, final I18nServer i18nTranslator, final Language language, final Injector injector) throws Throwable {
+		super(data, doc, Contact.class, context, i18nTranslator, language, injector);
 	}
 
 }

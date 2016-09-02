@@ -73,7 +73,7 @@ import org.sigmah.shared.dto.value.TripletValueDTO;
 import org.sigmah.shared.util.ValueResultUtils;
 
 /**
- * Base excel template for project/orgunit excel templates
+ * Base excel template for project/orgunit/contact excel templates
  * 
  * @author sherzod (v1.3)
  */
@@ -104,6 +104,8 @@ public abstract class BaseSynthesisExcelTemplate implements ExportTemplate {
 		String title = data.getLocalizedVersion("projectSynthesis");
 		if (clazz.equals(OrgUnit.class))
 			title = data.getLocalizedVersion("orgUnitSynthesis");
+		if (clazz.equals(Contact.class))
+			title = data.getLocalizedVersion("contactSynthesis");
 
 		final HSSFSheet sheet = wb.createSheet(title);
 		utils = new ExcelUtils(wb);
@@ -149,9 +151,12 @@ public abstract class BaseSynthesisExcelTemplate implements ExportTemplate {
 				rowIndex = putLayout(sheet, phaseModel.getLayout(), rowIndex, i18nTranslator, language);
 
 			}
-		} else {
+		} else if (clazz.equals(OrgUnit.class)) {
 			// Org Unit synthesis
 			rowIndex = putLayout(sheet, data.getOrgUnit().getOrgUnitModel().getDetails().getLayout(), rowIndex, i18nTranslator, language);
+		} else {
+			// Contact synthesis
+			rowIndex = putLayout(sheet, data.getContact().getContactModel().getDetails().getLayout(), rowIndex, i18nTranslator, language);
 		}
 
 		sheet.setColumnWidth(0, 256 * 2);
@@ -166,7 +171,18 @@ public abstract class BaseSynthesisExcelTemplate implements ExportTemplate {
 
 		int typeStartRow = rowIndex;
 		boolean firstGroup = true;
-		Integer id = (clazz.equals(Project.class)) ? data.getProject().getId() : data.getOrgUnit().getId();
+		Integer id;
+		Object container;
+		if (clazz.equals(Project.class)) {
+			id = data.getProject().getId();
+			container = data.getProject();
+		} else if (clazz.equals(OrgUnit.class)) {
+			id = data.getOrgUnit().getId();
+			container = data.getOrgUnit();
+		} else {
+			id = data.getContact().getId();
+			container = data.getContact();
+		}
 		// layout groups for each phase
 		for (final LayoutGroup layoutGroup : layout.getGroups()) {
 
@@ -223,9 +239,9 @@ public abstract class BaseSynthesisExcelTemplate implements ExportTemplate {
 				ExporterUtil.ValueLabel pair = null;
 				boolean isMessage = false;
 				/* DEF FLEXIBLE */
-				if (elementName.equals("element.DefaultFlexibleElement") || elementName.equals("element.BudgetElement")) {
+				if (elementName.equals("element.DefaultFlexibleElement") || elementName.equals("element.DefaultContactFlexibleElement") || elementName.equals("element.BudgetElement")) {
 					pair =
-							ExporterUtil.getDefElementPair(valueResult, element, data.getProject() != null ? data.getProject() : data.getOrgUnit(), clazz,
+							ExporterUtil.getDefElementPair(valueResult, element, container, clazz,
 								data.getEntityManager(), i18nTranslator, language);
 
 				}

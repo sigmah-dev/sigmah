@@ -31,6 +31,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.sigmah.client.page.RequestParameter;
 import org.sigmah.server.servlet.base.AbstractServlet;
 import org.sigmah.server.servlet.base.ServletExecutionContext;
+import org.sigmah.server.servlet.exporter.ContactSynthesisExporter;
 import org.sigmah.server.servlet.exporter.GlobalContactExportExporter;
 import org.sigmah.server.servlet.exporter.GlobalExportExporter;
 import org.sigmah.server.servlet.exporter.LogFrameExporter;
@@ -131,6 +132,24 @@ public class ExportServlet extends AbstractServlet {
 	protected void exportOrgUnit(final HttpServletRequest request, final HttpServletResponse response, final ServletExecutionContext context) throws Exception {
 
 		executeExport(new OrgUnitSynthesisExporter(injector, request, context), request, response);
+
+	}
+
+	/**
+	 * See {@link ServletMethod#EXPORT_CONTACT} for JavaDoc.
+	 *
+	 * @param request
+	 *          The HTTP request containing the file id parameter.
+	 * @param response
+	 *          The HTTP response on which the file content is written.
+	 * @param context
+	 *          The execution context.
+	 * @throws Exception
+	 *           If an error occurs during process.
+	 */
+	protected void exportContact(final HttpServletRequest request, final HttpServletResponse response, final ServletExecutionContext context) throws Exception {
+
+		executeExport(new ContactSynthesisExporter(injector, request, context), request, response);
 
 	}
 

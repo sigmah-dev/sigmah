@@ -244,6 +244,22 @@ public final class ServletConstants {
 
 		/**
 		 * <p>
+		 * Exports a contact data.
+		 * </p>
+		 * <p>
+		 * Expected request parameter(s):
+		 * <ul>
+		 * <li>{@link RequestParameter#ID} : Project id.</li>
+		 * <li>{@link RequestParameter#WITH_ALL_RELATIONS} : Relations tab.</li>
+		 * <li>{@link RequestParameter#WITH_FRAMEWORK_RELATIONS} : Relations linked to frameworks tab.</li>
+		 * <li>{@link RequestParameter#WITH_RELATIONS_BY_ELEMENT} : Relations grouped by FlexibleElement tab.</li>
+		 * </ul>
+		 * </p>
+		 */
+		EXPORT_CONTACT("exportContact"),
+
+		/**
+		 * <p>
 		 * Exports a project LogFrame.
 		 * </p>
 		 * <p>

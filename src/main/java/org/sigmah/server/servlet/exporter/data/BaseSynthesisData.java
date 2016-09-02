@@ -25,6 +25,7 @@ package org.sigmah.server.servlet.exporter.data;
 import javax.persistence.EntityManager;
 
 import org.sigmah.server.dispatch.CommandHandler;
+import org.sigmah.server.domain.Contact;
 import org.sigmah.server.domain.OrgUnit;
 import org.sigmah.server.domain.Project;
 import org.sigmah.server.handler.GetValueHandler;
@@ -70,6 +71,8 @@ public abstract class BaseSynthesisData extends ExportData {
 	public abstract Project getProject();
 
 	public abstract OrgUnit getOrgUnit();
+
+	public abstract Contact getContact();
 
 	public Boolean getWithContacts() {
 		return withContacts;

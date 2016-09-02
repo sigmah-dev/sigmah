@@ -22,10 +22,13 @@ package org.sigmah.client.ui.presenter.contact;
  */
 
 import com.extjs.gxt.ui.client.widget.Layout;
+import com.google.gwt.dom.client.FormElement;
+import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
@@ -39,6 +42,7 @@ import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
+import com.extjs.gxt.ui.client.widget.form.FormPanel.Method;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
 
 import java.util.ArrayList;
@@ -65,7 +69,6 @@ import org.sigmah.client.ui.widget.form.Forms;
 import org.sigmah.client.ui.widget.form.IterableGroupPanel;
 import org.sigmah.client.ui.widget.form.IterableGroupPanel.IterableGroupItem;
 import org.sigmah.client.ui.widget.layout.Layouts;
-import org.sigmah.client.util.AdminUtil;
 import org.sigmah.client.util.ClientUtils;
 import org.sigmah.client.util.ImageProvider;
 import org.sigmah.offline.sync.SuccessCallback;
@@ -101,6 +104,9 @@ import org.sigmah.shared.dto.referential.ElementTypeEnum;
 
 import com.allen_sauer.gwt.log.client.Log;
 import org.sigmah.shared.dto.referential.GlobalPermissionEnum;
+import org.sigmah.shared.servlet.ServletConstants.Servlet;
+import org.sigmah.shared.servlet.ServletConstants.ServletMethod;
+import org.sigmah.shared.servlet.ServletUrlBuilder;
 import org.sigmah.shared.util.ProfileUtils;
 
 public class ContactDetailsPresenter extends AbstractPresenter<ContactDetailsPresenter.View> implements ContactPresenter.ContactSubPresenter<ContactDetailsPresenter.View>, IterableGroupPanel.Delegate {
@@ -110,9 +116,18 @@ public class ContactDetailsPresenter extends AbstractPresenter<ContactDetailsPre
 
     Button getSaveButton();
 
+    Button getExportButton();
+
+    void buildExportDialog(ExportActionHandler handler);
+
     DedupeContactDialog generateDedupeDialog();
 
     void fillContainer(final Widget widget);
+  }
+
+  public static interface ExportActionHandler {
+    void onExportContact(boolean characteristicsField, boolean allRelationsField, boolean frameworkRelationsField, boolean relationsByElementField);
+
   }
 
   private final ComputationTriggerManager computationTriggerManager;
@@ -319,6 +334,18 @@ public class ContactDetailsPresenter extends AbstractPresenter<ContactDetailsPre
             dedupeContactDialog.show();
           }
         });
+      }
+    });
+
+    // --
+    // Contact export button handler.
+    // --
+    view.getExportButton().removeAllListeners();
+    view.getExportButton().addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+      @Override
+      public void componentSelected(final ButtonEvent ce) {
+        onExportContact(contactDTO);
       }
     });
 
@@ -681,5 +708,40 @@ public class ContactDetailsPresenter extends AbstractPresenter<ContactDetailsPre
     }
 
     return singleValue;
+  }
+
+  /**
+   * Method executed on export contact action.
+   *
+   * @param contact
+   *          The contact to export.
+   */
+  private void onExportContact(final ContactDTO contact) {
+
+    view.buildExportDialog(new ExportActionHandler() {
+
+      @Override
+      public void onExportContact(final boolean characteristicsField, final boolean allRelationsField, final boolean frameworkRelationsField, final boolean relationsByElementField) {
+
+        final ServletUrlBuilder urlBuilder =
+            new ServletUrlBuilder(injector.getAuthenticationProvider(), injector.getPageManager(), Servlet.EXPORT, ServletMethod.EXPORT_CONTACT);
+
+        urlBuilder.addParameter(RequestParameter.ID, contact.getId());
+        urlBuilder.addParameter(RequestParameter.WITH_CHARACTERISTICS, characteristicsField);
+        urlBuilder.addParameter(RequestParameter.WITH_ALL_RELATIONS, allRelationsField);
+        urlBuilder.addParameter(RequestParameter.WITH_FRAMEWORK_RELATIONS, frameworkRelationsField);
+        urlBuilder.addParameter(RequestParameter.WITH_RELATIONS_BY_ELEMENT, relationsByElementField);
+
+        final FormElement form = FormElement.as(DOM.createForm());
+        form.setAction(urlBuilder.toString());
+        form.setTarget("_downloadFrame");
+        form.setMethod(Method.POST.name());
+
+        RootPanel.getBodyElement().appendChild(form);
+
+        form.submit();
+        form.removeFromParent();
+      }
+    });
   }
 }

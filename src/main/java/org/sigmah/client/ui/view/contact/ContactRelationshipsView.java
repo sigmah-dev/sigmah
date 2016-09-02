@@ -21,6 +21,13 @@ package org.sigmah.client.ui.view.contact;
  * #L%
  */
 
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.form.CheckBox;
+import com.extjs.gxt.ui.client.widget.form.CheckBoxGroup;
+import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.ResizeEvent;
@@ -49,7 +56,11 @@ import java.util.List;
 
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.ui.presenter.contact.ContactRelationshipsPresenter;
+import org.sigmah.client.ui.res.icon.IconImageBundle;
 import org.sigmah.client.ui.view.base.AbstractView;
+import org.sigmah.client.ui.widget.button.Button;
+import org.sigmah.client.ui.widget.form.FormPanel;
+import org.sigmah.client.ui.widget.form.Forms;
 import org.sigmah.client.ui.widget.layout.Layouts;
 import org.sigmah.client.ui.widget.panel.Panels;
 import org.sigmah.shared.command.result.ContactRelationship;
@@ -60,7 +71,9 @@ public class ContactRelationshipsView extends AbstractView implements ContactRel
   private static final int BUTTONS_PANEL_HEIGHT = 50;
   private static final int PADDING = 10;
 
-  private LayoutContainer container;
+  private ContentPanel container;
+  private ToolBar toolBar;
+  private Button exportButton;
   private Grid<ContactRelationship> grid;
   private LayoutContainer buttonsContainer;
   private ToggleButton inboundToggleButton;
@@ -71,6 +84,64 @@ public class ContactRelationshipsView extends AbstractView implements ContactRel
     container = Panels.content(null, false, Layouts.vBoxLayout(VBoxLayout.VBoxLayoutAlign.STRETCH, new Layouts.LayoutOptions(new Padding(10))), "x-border-layout-ct");
     container.setScrollMode(Style.Scroll.AUTOY);
     add(container);
+
+    exportButton = Forms.button(I18N.CONSTANTS.export(), IconImageBundle.ICONS.excel());
+
+    toolBar = new ToolBar();
+    toolBar.setAlignment(Style.HorizontalAlignment.LEFT);
+    toolBar.setBorders(false);
+    toolBar.add(exportButton);
+
+    container.setTopComponent(toolBar);
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void buildExportDialog(final ContactRelationshipsPresenter.ExportActionHandler handler) {
+
+    final com.extjs.gxt.ui.client.widget.Window w = new com.extjs.gxt.ui.client.widget.Window();
+    w.setPlain(true);
+    w.setModal(true);
+    w.setBlinkModal(true);
+    w.setLayout(new FitLayout());
+    w.setSize(400, 180);
+    w.setHeadingHtml(I18N.CONSTANTS.exportData());
+
+    final FormPanel panel = Forms.panel();
+
+    final CheckBox allRelationsBox = Forms.checkbox(I18N.CONSTANTS.allRelations());
+    final CheckBox frameworkRelationsBox = Forms.checkbox(I18N.CONSTANTS.frameworkRelations());
+    final CheckBox relationsByElementBox = Forms.checkbox(I18N.CONSTANTS.relationsByElement());
+
+    final CheckBoxGroup options =
+        Forms.checkBoxGroup(I18N.CONSTANTS.exportOptions(), com.extjs.gxt.ui.client.Style.Orientation.VERTICAL, allRelationsBox, frameworkRelationsBox, relationsByElementBox);
+
+    panel.add(options);
+
+    final Button export = Forms.button(I18N.CONSTANTS.export());
+    panel.getButtonBar().add(export);
+    export.addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+      @Override
+      public void componentSelected(final ButtonEvent ce) {
+        if (handler != null) {
+          handler.onExportContactRelationships(false, allRelationsBox.getValue(), frameworkRelationsBox.getValue(), relationsByElementBox.getValue());
+        }
+        w.hide();
+      }
+    });
+
+    w.add(panel);
+    w.show();
+  }
+
+  @Override
+  public Button getExportButton() {
+    return exportButton;
   }
 
   @Override

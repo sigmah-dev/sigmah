@@ -1,27 +1,36 @@
 package org.sigmah.server.servlet.exporter.utils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.sigmah.server.servlet.exporter.data.cells.ExportDataCell;
 import org.sigmah.server.servlet.exporter.template.ExportTemplate;
 
-public abstract class AbstractContactSynthesisTemplate implements ExportTemplate {
+public abstract class AbstractContactsSynthesisTemplate implements ExportTemplate {
 
-  private final List<ContactSynthesisUtils.ContactSheetData> data;
+  private final List<ContactsSynthesisUtils.ContactSheetData> data;
+  private final String prefix;
 
-  public AbstractContactSynthesisTemplate(final List<ContactSynthesisUtils.ContactSheetData> data) throws Throwable {
+  public AbstractContactsSynthesisTemplate(final List<ContactsSynthesisUtils.ContactSheetData> data, final String prefix) throws Throwable {
     this.data = data;
+    this.prefix = prefix;
+  }
+
+  public AbstractContactsSynthesisTemplate(final ContactsSynthesisUtils.ContactSheetData data, final String prefix) throws Throwable {
+    this.data = new ArrayList<>();
+    this.data.add(data);
+    this.prefix = prefix;
   }
 
   public void generate() throws Throwable {
 
-    for (ContactSynthesisUtils.ContactSheetData contactSheetData : data) {
+    for (ContactsSynthesisUtils.ContactSheetData contactSheetData : data) {
 
       if (contactSheetData.getLines().isEmpty()) {
         return;
       }
 
-      createSheet(ExportConstants.CONTACT_SHEET_PREFIX + contactSheetData.getTitle());
+      createSheet(prefix + contactSheetData.getTitle());
 
       int rowIndex = 0;
       int colIndex = 0;

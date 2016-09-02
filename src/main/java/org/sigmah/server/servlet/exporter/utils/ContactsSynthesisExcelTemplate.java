@@ -8,14 +8,20 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.sigmah.server.servlet.exporter.data.cells.ExportDataCell;
 import org.sigmah.server.servlet.exporter.data.cells.ExportLinkCell;
 
-public class ContactSynthesisExcelTemplate extends AbstractContactSynthesisTemplate {
+public class ContactsSynthesisExcelTemplate extends AbstractContactsSynthesisTemplate {
 
   private final HSSFWorkbook wb;
   private final ExcelUtils utils;
   private HSSFSheet currentSheet;
 
-  public ContactSynthesisExcelTemplate(final List<ContactSynthesisUtils.ContactSheetData> data, final HSSFWorkbook wb) throws Throwable {
-    super(data);
+  public ContactsSynthesisExcelTemplate(final List<ContactsSynthesisUtils.ContactSheetData> data, final HSSFWorkbook wb, final String prefix) throws Throwable {
+    super(data, prefix);
+    this.wb = wb;
+    this.utils = new ExcelUtils(wb);
+  }
+
+  public ContactsSynthesisExcelTemplate(final ContactsSynthesisUtils.ContactSheetData data, final HSSFWorkbook wb, final String prefix) throws Throwable {
+    super(data, prefix);
     this.wb = wb;
     this.utils = new ExcelUtils(wb);
   }
