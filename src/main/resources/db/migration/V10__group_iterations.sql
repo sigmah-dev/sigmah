@@ -28,7 +28,6 @@ ALTER TABLE layout_group_iteration
 ALTER TABLE layout_group ADD has_iterations boolean NOT NULL DEFAULT false;
 
 ALTER TABLE value ADD id_layout_group_iteration integer;
-ALTER TABLE value DROP CONSTRAINT uk_ev3lt5f4afcgkonu6exlm9be8;
 ALTER TABLE value DROP CONSTRAINT value_id_flexible_element_key;
 ALTER TABLE value ADD CONSTRAINT uk_ev3lt5f4afcgkonu6exlm9be8
   UNIQUE (id_flexible_element, id_project, id_layout_group_iteration);
