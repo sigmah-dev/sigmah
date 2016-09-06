@@ -119,6 +119,7 @@
 		<class>org.sigmah.server.domain.layout.Layout</class>
 		<class>org.sigmah.server.domain.layout.LayoutConstraint</class>
 		<class>org.sigmah.server.domain.layout.LayoutGroup</class>
+		<class>org.sigmah.server.domain.layout.LayoutGroupIteration</class>
 
 		<!-- Logframe package. -->
 		<class>org.sigmah.server.domain.logframe.ExpectedResult</class>
