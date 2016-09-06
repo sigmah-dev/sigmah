@@ -115,7 +115,7 @@ public final class Computations {
 		
 		for (final FlexibleElementDTO element : allElements) {
 			// fields in iterative groups cannot be part of formula
-			if(element.getGroup().getHasIterations()) {
+			if(element.getGroup() != null && element.getGroup().getHasIterations()) {
 				continue;
 			}
 			references.put(Instructions.ID_PREFIX + element.getId().toString(), element);
