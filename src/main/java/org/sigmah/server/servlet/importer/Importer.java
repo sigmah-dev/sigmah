@@ -81,6 +81,7 @@ import org.sigmah.shared.dto.ElementExtractedValue;
 import org.sigmah.shared.dto.ImportDetails;
 import org.sigmah.shared.dto.base.EntityDTO;
 import org.sigmah.shared.dto.element.BudgetElementDTO;
+import org.sigmah.shared.dto.element.BudgetRatioElementDTO;
 import org.sigmah.shared.dto.element.CheckboxElementDTO;
 import org.sigmah.shared.dto.element.ComputationElementDTO;
 import org.sigmah.shared.dto.element.CoreVersionElementDTO;
@@ -1066,8 +1067,10 @@ public abstract class Importer implements Iterator<ImportDetails> {
 		case DEFAULT:
 			if (type == DefaultFlexibleElementType.BUDGET) {
 				dto = new BudgetElementDTO();
+			} else if (type == DefaultFlexibleElementType.BUDGET_RATIO) {
+				dto = new BudgetRatioElementDTO();
 			} else {
-				dto = new DefaultFlexibleElementDTO();
+				dto = new DefaultFlexibleElementDTO(type.toDefaultFlexibleElementType());
 			}
 			break;
 		case FILES_LIST:
@@ -1089,7 +1092,7 @@ public abstract class Importer implements Iterator<ImportDetails> {
 			dto = new ReportListElementDTO();
 			break;
 		case TEXT_AREA:
-			dto = new TextAreaElementDTO();
+			dto = new TextAreaElementDTO(type.toTextAreaType());
 			break;
 		case TRIPLETS:
 			dto = new TripletsListElementDTO();
