@@ -47,6 +47,14 @@ import com.google.inject.Singleton;
 
 /**
  * Application event bus implementation.
+ * <p>
+ * FIXME: This implementation makes strong references on the registered
+ * handlers. This can create memory leaks and undesired network usage when the
+ * view associated to the handler is destroyed.
+ * 
+ * A better implementation should use a 
+ * <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakSet">WeakSet</a>
+ * to avoid storing strong references.
  * 
  * @author Denis Colliot (dcolliot@ideia.fr)
  * @author Tom Miette (tmiette@ideia.fr)

@@ -64,6 +64,7 @@ import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Component;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
@@ -73,8 +74,17 @@ import org.sigmah.client.event.handler.OfflineHandler;
 import org.sigmah.client.ui.notif.ConfirmCallback;
 import org.sigmah.client.ui.notif.N10N;
 import org.sigmah.client.ui.zone.Zone;
+import org.sigmah.client.util.profiler.Checkpoint;
+import org.sigmah.client.util.profiler.Execution;
+import org.sigmah.client.util.profiler.ExecutionAsyncDAO;
+import org.sigmah.client.util.profiler.Profiler;
+import org.sigmah.client.util.profiler.Scenario;
 import org.sigmah.offline.status.ApplicationState;
 import org.sigmah.offline.sync.UpdateDates;
+import org.sigmah.shared.command.SendProbeReport;
+import org.sigmah.shared.command.result.Result;
+import org.sigmah.shared.dto.profile.CheckPointDTO;
+import org.sigmah.shared.dto.profile.ExecutionDTO;
 
 /**
  * Dashboard page presenter.
@@ -179,6 +189,8 @@ public class DashboardPresenter extends AbstractPagePresenter<DashboardPresenter
 	
 	private Integer lastUserId;
 	
+	private final ExecutionAsyncDAO executionAsyncDAO = new ExecutionAsyncDAO();
+	
 	/**
 	 * Presenters's initialization.
 	 * 
@@ -237,6 +249,7 @@ public class DashboardPresenter extends AbstractPagePresenter<DashboardPresenter
         view.setReminderOrMonitoredPointHandler(new ReminderOrMonitoredPointHandler() {
             @Override
             public void onLabelClickEvent(Integer projectId) {
+				Profiler.INSTANCE.startScenario(Scenario.OPEN_PROJECT);
                 eventBus.navigateRequest(Page.PROJECT_DASHBOARD.requestWith(RequestParameter.ID, projectId));
             }
         });
@@ -410,6 +423,7 @@ public class DashboardPresenter extends AbstractPagePresenter<DashboardPresenter
 		if (online && ProfileUtils.isGranted(auth(), GlobalPermissionEnum.IMPORT_BUTTON)) {
 			view.addMenuButton(I18N.CONSTANTS.importItem(), null, new ButtonClickHandler(Page.IMPORT_VALUES));
 		}
+		
 		
 		// TODO Handle other menus buttons.
 		// There are two ways to show these menus (authentication / profile).

@@ -45,6 +45,7 @@ import org.sigmah.server.domain.layout.Layout;
 import org.sigmah.server.domain.layout.LayoutConstraint;
 import org.sigmah.server.domain.layout.LayoutGroup;
 import org.sigmah.shared.dto.element.BudgetElementDTO;
+import org.sigmah.shared.dto.element.BudgetRatioElementDTO;
 import org.sigmah.shared.dto.element.CheckboxElementDTO;
 import org.sigmah.shared.dto.element.ComputationElementDTO;
 import org.sigmah.shared.dto.element.CoreVersionElementDTO;
@@ -124,6 +125,29 @@ public final class ServerComputations {
 		dtos.addAll(toDTOCollection(orgUnitModel.getDetails().getLayout()));
 		return dtos;
 	}
+	
+	/**
+	 * Creates a collection of every layout contained in the given model.
+	 * 
+	 * @param projectModel
+	 *			Project model to search.
+	 * @return A collection of every <code>Layout</code> object.
+	 */
+	public static Collection<Layout> getAllLayoutsFromModel(final ProjectModel projectModel) {
+		
+		if (projectModel == null) {
+			return Collections.<Layout>emptyList();
+		}
+		
+		final ArrayList<Layout> layouts = new ArrayList<>();
+		layouts.add(projectModel.getProjectDetails().getLayout());
+		
+		for (final PhaseModel phaseModel : projectModel.getPhaseModels()) {
+			layouts.add(phaseModel.getLayout());
+		}
+		
+		return layouts;
+	}
 
 	/**
 	 * Extract every element with a code from the given layout and creates a 
@@ -162,11 +186,49 @@ public final class ServerComputations {
 		return dtos;
 	}
 	
+	public static FlexibleElementDTO getElementWithCodeInModel(final String code, final ProjectModel projectModel) {
+		
+		if (code == null) {
+			return null;
+		}
+		
+		for (final Layout layout : getAllLayoutsFromModel(projectModel)) {
+			final FlexibleElementDTO element = getElementWithCodeInLayout(code, layout);
+			if (element != null) {
+				return element;
+			}
+		}
+		
+		return null;
+	}
+	
+	private static FlexibleElementDTO getElementWithCodeInLayout(final String code, final Layout layout) {
+		
+		if (layout == null) {
+			return null;
+		}
+		
+		for (final LayoutGroup group : layout.getGroups()) {
+			for (final LayoutConstraint constraint : group.getConstraints()) {
+				final FlexibleElement element = constraint.getElement();
+				
+				if (element != null && code.equals(element.getCode())) {
+					final FlexibleElementDTO dto = toDTO(element);
+					dto.setId(element.getId());
+					dto.setCode(element.getCode());
+					return dto;
+				}
+			}
+		}
+		
+		return null;
+	}
+	
 	// --
 	// TODO: Merge the following methods with the ones from the #844 branch.
 	// --
 	
-	private static LogicalElementType logicalElementTypeOf(final FlexibleElement element) {
+	public static LogicalElementType logicalElementTypeOf(final FlexibleElement element) {
 		
 		final LogicalElementType type;
 		
@@ -224,8 +286,10 @@ public final class ServerComputations {
 		case DEFAULT:
 			if (type == DefaultFlexibleElementType.BUDGET) {
 				dto = new BudgetElementDTO();
+			} else if (type == DefaultFlexibleElementType.BUDGET_RATIO) {
+				dto = new BudgetRatioElementDTO();
 			} else {
-				dto = new DefaultFlexibleElementDTO();
+				dto = new DefaultFlexibleElementDTO(type.toDefaultFlexibleElementType());
 			}
 			break;
 		case FILES_LIST:
@@ -247,7 +311,7 @@ public final class ServerComputations {
 			dto = new ReportListElementDTO();
 			break;
 		case TEXT_AREA:
-			dto = new TextAreaElementDTO();
+			dto = new TextAreaElementDTO(type.toTextAreaType());
 			break;
 		case TRIPLETS:
 			dto = new TripletsListElementDTO();

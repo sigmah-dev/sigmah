@@ -214,6 +214,17 @@ public final class EntityConstants extends org.sigmah.shared.dto.util.EntityCons
 
 	// --------------------------------------------------------------------------------
 	//
+	// BUDGET ELEMENT ENTITY.
+	//
+	// --------------------------------------------------------------------------------
+
+	public static final String BUDGET_RATIO_ELEMENT_TABLE = "budget_ratio_element";
+	public static final String BUDGET_RATIO_ELEMENT_COLUMN_ID = "id_flexible_element";
+	public static final String BUDGET_RATIO_ELEMENT_COLUMN_SPENT = "id_spent_field";
+	public static final String BUDGET_RATIO_ELEMENT_COLUMN_PLANNED = "id_planned_field";
+
+	// --------------------------------------------------------------------------------
+	//
 	// BUDGET PART ENTITY.
 	//
 	// --------------------------------------------------------------------------------

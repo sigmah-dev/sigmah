@@ -34,10 +34,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 import org.sigmah.client.ui.widget.Loadable;
+import org.sigmah.shared.computation.dependency.Dependency;
+import org.sigmah.shared.computation.dependency.SingleDependency;
 import org.sigmah.shared.computation.instruction.BadVariable;
-import org.sigmah.shared.computation.instruction.HasHumanReadableFormat;
-import org.sigmah.shared.computation.instruction.Operator;
-import org.sigmah.shared.computation.instruction.OperatorPriority;
 import org.sigmah.shared.computation.value.ComputationError;
 import org.sigmah.shared.computation.value.ComputedValue;
 import org.sigmah.shared.computation.value.ComputedValues;
@@ -55,7 +54,7 @@ import org.sigmah.shared.dto.element.event.ValueEventWrapper;
 public class Computation {
 
     private final List<Instruction> instructions;
-    private Set<FlexibleElementDTO> dependencies;
+    private Set<Dependency> dependencies;
 
     /**
      * Creates a new computation with the given instructions.
@@ -86,13 +85,14 @@ public class Computation {
     public void computeValueWithModificationsAndResolver(final FlexibleElementContainer container, final List<ValueEvent> modifications, 
             final ValueResolver resolver, final AsyncCallback<String> callback, final Loadable... loadables) {
 
-        final HashSet<FlexibleElementDTO> dependencies = new HashSet<FlexibleElementDTO>(getDependencies());
+        final HashSet<Dependency> dependencies = new HashSet<Dependency>(getDependencies());
 
-        final HashMap<Integer, ComputedValue> variables = new HashMap<Integer, ComputedValue>();
+        final HashMap<Dependency, ComputedValue> variables = new HashMap<Dependency, ComputedValue>();
         for (final ValueEvent modification : modifications) {
             final FlexibleElementDTO source = modification.getSourceElement();
-            variables.put(source.getId(), ComputedValues.from(modification.getSingleValue()));
-            dependencies.remove(source);
+			final Dependency dependency = new SingleDependency(source);
+            variables.put(dependency, ComputedValues.from(modification.getSingleValue()));
+            dependencies.remove(dependency);
         }
 
         computeValueWithVariablesDependenciesAndResolver(container.getId(), variables, dependencies, resolver, callback, loadables);
@@ -113,13 +113,14 @@ public class Computation {
     public void computeValueWithWrappersAndResolver(final int containerId, final List<ValueEventWrapper> modifications, 
             final ValueResolver resolver, final AsyncCallback<String> callback) {
         
-        final HashSet<FlexibleElementDTO> dependencies = new HashSet<FlexibleElementDTO>(getDependencies());
+        final HashSet<Dependency> dependencies = new HashSet<Dependency>(getDependencies());
 
-        final HashMap<Integer, ComputedValue> variables = new HashMap<Integer, ComputedValue>();
+        final HashMap<Dependency, ComputedValue> variables = new HashMap<Dependency, ComputedValue>();
         for (final ValueEventWrapper modification : modifications) {
             final FlexibleElementDTO source = modification.getSourceElement();
-            variables.put(source.getId(), ComputedValues.from(modification.getSingleValue()));
-            dependencies.remove(source);
+			final Dependency dependency = new SingleDependency(source);
+            variables.put(dependency, ComputedValues.from(modification.getSingleValue()));
+            dependencies.remove(dependency);
         }
 
         computeValueWithVariablesDependenciesAndResolver(containerId, variables, dependencies, resolver, callback);
@@ -136,7 +137,7 @@ public class Computation {
      *          Called when the value has been computed.
      */
     public void computeValueWithResolver(final int containerId, final ValueResolver resolver, final AsyncCallback<String> callback) {
-        computeValueWithVariablesDependenciesAndResolver(containerId, new HashMap<Integer, ComputedValue>(), getDependencies(), resolver, callback);
+        computeValueWithVariablesDependenciesAndResolver(containerId, new HashMap<Dependency, ComputedValue>(), getDependencies(), resolver, callback);
     }
     
     /**
@@ -159,8 +160,8 @@ public class Computation {
      * @param loadables
      *          Element to mask during the computation.
      */
-    private void computeValueWithVariablesDependenciesAndResolver(final int containerId, final Map<Integer, ComputedValue> variables, 
-            final Set<FlexibleElementDTO> dependencies, final ValueResolver resolver, final AsyncCallback<String> callback, final Loadable... loadables) {
+    private void computeValueWithVariablesDependenciesAndResolver(final int containerId, final Map<Dependency, ComputedValue> variables, 
+            final Set<Dependency> dependencies, final ValueResolver resolver, final AsyncCallback<String> callback, final Loadable... loadables) {
         
         if (dependencies.isEmpty()) {
             // Resolver is not needed, every required value is available.
@@ -168,7 +169,7 @@ public class Computation {
             setLoading(false, loadables);
         } else {
             // Resolving values.
-            resolver.resolve(dependencies, containerId, new AsyncCallback<Map<Integer, ComputedValue>>() {
+            resolver.resolve(dependencies, containerId, new AsyncCallback<Map<Dependency, ComputedValue>>() {
 
                 @Override
                 public void onFailure(Throwable caught) {
@@ -177,7 +178,7 @@ public class Computation {
                 }
 
                 @Override
-                public void onSuccess(Map<Integer, ComputedValue> result) {
+                public void onSuccess(Map<Dependency, ComputedValue> result) {
                     variables.putAll(result);
                     callback.onSuccess(computeValue(variables).toString());
                     setLoading(false, loadables);
@@ -194,7 +195,7 @@ public class Computation {
      *
      * @return Result of the computation.
      */
-    ComputedValue computeValue(Map<Integer, ComputedValue> variables) {
+    ComputedValue computeValue(Map<Dependency, ComputedValue> variables) {
         final Stack<ComputedValue> stack = new Stack<ComputedValue>();
 
         for (final Instruction instruction : instructions) {
@@ -209,16 +210,16 @@ public class Computation {
      *
      * @return A set of the dependencies required to compute this rule.
      */
-    public Set<FlexibleElementDTO> getDependencies() {
+    public Set<Dependency> getDependencies() {
         if (dependencies != null) {
             return dependencies;
         }
 
-        final LinkedHashSet<FlexibleElementDTO> elements = new LinkedHashSet<FlexibleElementDTO>();
+        final LinkedHashSet<Dependency> elements = new LinkedHashSet<Dependency>();
 
         for (final Instruction instruction : instructions) {
             if (instruction instanceof Variable) {
-                elements.add(((Variable) instruction).getFlexibleElement());
+                elements.add(((Variable) instruction).getDependency());
             }
         }
 
@@ -252,6 +253,21 @@ public class Computation {
 
         return errors;
     }
+	
+	/**
+	 * Checks if every dependency is resolved.
+	 * 
+	 * @return <code>true</code> if every dependency is resolved,
+	 * <code>false</code> otherwise.
+	 */
+	public boolean isResolved() {
+		for (final Dependency dependency : getDependencies()) {
+			if (!dependency.isResolved()) {
+				return false;
+			}
+		}
+		return true;
+	}
     
     /**
      * Identify the changes that are part of the dependencies of this computation.
@@ -263,7 +279,7 @@ public class Computation {
     public List<ValueEventWrapper> getRelatedChanges(final List<ValueEventWrapper> changes) {
         final ArrayList<ValueEventWrapper> result = new ArrayList<ValueEventWrapper>();
 
-        final Set<FlexibleElementDTO> dependencies = getDependencies();
+        final Set<Dependency> dependencies = getDependencies();
         
         for (final ValueEventWrapper change : changes) {
             if (dependencies.contains(change.getSourceElement())) {
@@ -283,19 +299,10 @@ public class Computation {
      * @return A String representing this computation.
      */
     public String toHumanReadableString() {
-        final Stack<String> stack = new Stack<String>();
-
-        for (final Instruction instruction : instructions) {
-            if (instruction instanceof Operator) {
-                addOperatorToStack((Operator) instruction, stack);
-            } else if (instruction instanceof HasHumanReadableFormat) {
-                stack.add(((HasHumanReadableFormat) instruction).toHumanReadableString());
-            } else {
-                stack.add(instruction.toString());
-            }
-        }
-
-        return stack.peek();
+        return new ComputationStringBuilder()
+				.setHumanReadableFormat(true)
+				.add(instructions)
+				.toString();
     }
 
     /**
@@ -303,79 +310,9 @@ public class Computation {
      */
     @Override
     public String toString() {
-        final Stack<String> stack = new Stack<String>();
-
-        for (final Instruction instruction : instructions) {
-            if (instruction instanceof Operator) {
-                addOperatorToStack((Operator) instruction, stack);
-            } else {
-                stack.add(instruction.toString());
-            }
-        }
-
-        return stack.peek();
-    }
-
-    /**
-     * Adds the given operator to the <code>Stack</code> of <code>String</code>s.
-     *
-     * @param operator Operator to add.
-	 * @param stack Stack of Strings.
-     */
-    private void addOperatorToStack(final Operator operator, final Stack<String> stack) {
-        final StringBuilder builder = new StringBuilder();
-        final String right = stack.pop();
-
-        if (operator.getPriority() == OperatorPriority.UNARY) {
-            addUnaryOperatorToStack(builder, operator, right);
-        } else if (operator.getPriority().ordinal() > OperatorPriority.ADD_SUBSTRACT.ordinal()) {
-            addOperatorWithHighPriorityToStack(stack, builder, operator, right);
-        } else {
-            builder.append(stack.pop())
-                    .append(' ').append(operator).append(' ')
-                    .append(right);
-        }
-
-        stack.add(builder.toString());
-    }
-
-    /**
-     * Adds the given operator to the <code>Stack</code> of <code>String</code>s.
-     *
-	 * @param stack Stack of Strings.
-	 * @param builder Builder for the current operator <code>String</code>.
-	 * @param operator Operator to add.
-	 * @param right Right operand.
-     */
-    private void addOperatorWithHighPriorityToStack(final Stack<String> stack, final StringBuilder builder, final Operator operator, final String right) {
-        final String left = stack.pop();
-        if (left.contains(" ")) {
-            builder.append('(').append(left).append(") ");
-        } else {
-            builder.append(left).append(' ');
-        }
-        builder.append(operator);
-        if (right.contains(" ")) {
-            builder.append(" (").append(right).append(')');
-        } else {
-            builder.append(' ').append(right);
-        }
-    }
-
-    /**
-     * Adds the given operator to the <code>Stack</code> of <code>String</code>s.
-     *
-	 * @param builder Builder for the current operator <code>String</code>.
-	 * @param operator Operator to add.
-	 * @param right Right operand.
-     */
-    private void addUnaryOperatorToStack(final StringBuilder builder, final Operator operator, final String right) {
-        builder.append(operator);
-        if (right.contains(" ")) {
-            builder.append('(').append(right).append(')');
-        } else {
-            builder.append(right);
-        }
+        return new ComputationStringBuilder()
+				.add(instructions)
+				.toString();
     }
 
     /**

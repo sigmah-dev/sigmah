@@ -102,6 +102,9 @@ public final class AdminUtil {
 
 	public static final String PROP_NEW_GROUP_LAYOUT = "NewLayoutGroup";
 
+	public static final String PROP_BUDGET_SPENT = "budgetSpent";
+	public static final String PROP_BUDGET_PLANNED = "budgetPlanned";
+	
 	public static final String PROP_PHASE_MODEL = "NewPhaseModel";
 	public static final String PROP_PHASE_ROWS = "PhaseRows";
 	public static final String PROP_PHASE_ROOT = "PhaseRoot";

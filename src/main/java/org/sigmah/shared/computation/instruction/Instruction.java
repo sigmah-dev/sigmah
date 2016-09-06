@@ -24,6 +24,7 @@ package org.sigmah.shared.computation.instruction;
 
 import java.util.Map;
 import java.util.Stack;
+import org.sigmah.shared.computation.dependency.Dependency;
 import org.sigmah.shared.computation.value.ComputedValue;
 
 /**
@@ -40,6 +41,6 @@ public interface Instruction {
 	 * @param stack Stack of values.
 	 * @param variables Values of the variables.
 	 */
-	void execute(Stack<ComputedValue> stack, Map<Integer, ComputedValue> variables);
+	void execute(Stack<ComputedValue> stack, Map<Dependency, ComputedValue> variables);
 	
 }

@@ -94,6 +94,23 @@ public class DefaultFlexibleElementDTO extends FlexibleElementDTO {
 	protected transient DefaultFlexibleElementContainer container;
 
 	/**
+	 * Creates a new default flexible element DTO.
+	 */
+	public DefaultFlexibleElementDTO() {
+		// Empty constructor.
+	}
+	
+	/**
+	 * Creates a new default flexible DTO with the given type.
+	 * 
+	 * @param type 
+	 *			Type of the default flexible element DTO to create.
+	 */
+	public DefaultFlexibleElementDTO(final DefaultFlexibleElementType type) {
+		setType(type);
+	}
+
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override

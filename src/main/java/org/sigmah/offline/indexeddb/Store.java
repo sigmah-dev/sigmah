@@ -30,17 +30,25 @@ import java.util.Map;
  * @author Raphaël Calabro (raphael.calabro@netapsys.fr)
  */
 public enum Store implements Schema {
-
+	
 	AUTHENTICATION,
 	CATEGORY_TYPE,
 	CATEGORY_ELEMENT,
 	COUNTRY,
 	COMMAND(true),
-	FILE_DATA(true, "fileVersionId", "fileVersion.id"),
+	COMPUTATION(
+			Indexes.COMPUTATION_DEPENDENCIES, "dependencies",
+			Indexes.COMPUTATION_CONTRIBUTION, "contribution"
+	),
+	FILE_DATA(true, 
+			Indexes.FILE_DATA_FILEVERSIONID, "fileVersion.id"
+	),
 	HISTORY,
 	LOG_FRAME,
 	LOGO,
-	MONITORED_POINT("parentListId", "parentListId"),
+	MONITORED_POINT(
+			Indexes.MONITORED_POINT_PARENTLISTID, "parentListId"
+	),
 	ORGANIZATION,
 	ORG_UNIT,
 	ORG_UNIT_MODEL,
@@ -49,21 +57,33 @@ public enum Store implements Schema {
 	PHASE,
 	PHASE_MODEL,
 	PROFILE,
-	PROJECT("orgUnit", "orgUnit",
-			"remindersListId", "remindersListId",
-			"pointsListId", "pointsListId"),
+	PROJECT(
+			Indexes.PROJECT_ORGUNIT, "orgUnit",
+			Indexes.PROJECT_REMINDERSLISTID, "remindersListId",
+			Indexes.PROJECT_POINTSLISTID, "pointsListId",
+			Indexes.PROJECT_PROJECTFUNDINGS, "projectFundings"
+	),
 	PROJECT_MODEL,
-	PROJECT_REPORT("versionId", "versionId"),
+	PROJECT_REPORT(
+			Indexes.PROJECT_REPORT_VERSIONID, "versionId"
+	),
 	PROJECT_TEAM_MEMBERS,
-	REMINDER("parentListId", "parentListId"),
-	REPORT_REFERENCE("parentId", "parentId"),
-	TRANSFERT(true, "type", "type",
-			"fileVersionId", "fileVersion.id"),
-	USER("organization", "organization",
-			"orgUnit", "orgUnits"),
+	REMINDER(
+			Indexes.REMINDER_PARENTLISTID, "parentListId"
+	),
+	REPORT_REFERENCE(
+			Indexes.REPORT_REFERENCE_PARENTID, "parentId"
+	),
+	TRANSFERT(true, 
+			Indexes.TRANSFERT_TYPE, "type",
+			Indexes.TRANSFERT_FILEVERSIONID, "fileVersion.id"),
+	USER(
+			Indexes.USER_ORGANIZATION, "organization",
+			Indexes.USER_ORGUNIT, "orgUnits"
+	),
 	USER_UNITS_RESULT,
 	VALUE;
-
+	
 	private final boolean autoIncrement;
 	private final boolean enabled;
 	private final Map<String, String> indexes;

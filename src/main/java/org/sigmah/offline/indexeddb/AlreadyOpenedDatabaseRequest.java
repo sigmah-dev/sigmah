@@ -33,10 +33,11 @@ import org.sigmah.offline.event.JavaScriptEvent;
  * Reuse the given database instance instead of creating a new connection.
  * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
+ * @param <S> Type defining the schema of the database.
  */
 public class AlreadyOpenedDatabaseRequest<S extends Enum<S> & Schema> implements OpenDatabaseRequest<S> {
     
-    private final List<JavaScriptEvent> handlers = new ArrayList<JavaScriptEvent>();
+    private final List<JavaScriptEvent<?>> handlers = new ArrayList<JavaScriptEvent<?>>();
     private Database<S> result;
     
 	/**
@@ -70,7 +71,7 @@ public class AlreadyOpenedDatabaseRequest<S extends Enum<S> & Schema> implements
 	 */
     public void setResult(Database<S> result) {
         this.result = result;
-        for(final JavaScriptEvent handler : handlers) {
+        for(final JavaScriptEvent<?> handler : handlers) {
             handler.onEvent(null);
         }
     }
@@ -79,7 +80,7 @@ public class AlreadyOpenedDatabaseRequest<S extends Enum<S> & Schema> implements
 	 * {@inheritDoc}
 	 */
     @Override
-    public void addSuccessHandler(JavaScriptEvent handler) {
+    public void addSuccessHandler(JavaScriptEvent<?> handler) {
         if(result != null) {
             handler.onEvent(null);
         } else {

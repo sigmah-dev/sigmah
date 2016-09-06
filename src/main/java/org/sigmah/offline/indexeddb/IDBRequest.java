@@ -32,12 +32,35 @@ import org.sigmah.offline.event.JavaScriptEvent;
  * @param <R>
  */
 class IDBRequest<R> extends JavaScriptObject {
+	
+	/**
+	 * Defines a handler that will be called when a request is done.
+	 */
 	public interface RequestSuccessHandler {
+		
+		/**
+		 * Method called if the request succeeded.
+		 * 
+		 * @param event 
+		 *			JavaScript event.
+		 */
 		void onSuccess(JavaScriptObject event);
+		
+		/**
+		 * Method called if the request failed.
+		 * 
+		 * @param event 
+		 *			Javascript event.
+		 */
 		void onError(JavaScriptObject event);
+		
 	}
 	
+	/**
+	 * Empty protected constructor. Required for subclasses of JavaScriptObject.
+	 */
 	protected IDBRequest() {
+		// Empty.
 	}
 	
 	public final native R getResult() /*-{
@@ -70,19 +93,22 @@ class IDBRequest<R> extends JavaScriptObject {
 	}-*/;
 
 	/**
-	 * pending	The request is pending.
-	 * done	The request is done.
-	 * @return 
+	 * Returns the 'ready' state of this request.
+	 * <ul>
+	 * <li><code>pending</code>: The request is pending.
+	 * <li><code>done</code>: The request is done.
+	 * </ul>
+	 * @return The ready state.
 	 */
 	public final native String getReadyState() /*-{
 		return this.readyState;
 	}-*/;
 
-	public final native void setOnSuccess(JavaScriptEvent handler) /*-{
+	public final native void setOnSuccess(JavaScriptEvent<?> handler) /*-{
 		this.onsuccess = handler.@org.sigmah.offline.event.JavaScriptEvent::onEvent(Lcom/google/gwt/core/client/JavaScriptObject;);
 	}-*/;
 	
-	public final native void setOnError(JavaScriptEvent handler) /*-{
+	public final native void setOnError(JavaScriptEvent<?> handler) /*-{
 		this.onerror = handler.@org.sigmah.offline.event.JavaScriptEvent::onEvent(Lcom/google/gwt/core/client/JavaScriptObject;);
 	}-*/;
 	

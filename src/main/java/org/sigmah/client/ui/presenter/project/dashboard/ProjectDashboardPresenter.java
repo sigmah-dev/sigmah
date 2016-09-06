@@ -79,6 +79,8 @@ import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.sigmah.client.ui.view.project.dashboard.LinkedProjectsColumnsProvider;
+import org.sigmah.client.util.profiler.Profiler;
+import org.sigmah.client.util.profiler.Scenario;
 import org.sigmah.shared.util.ProjectUtils;
 
 /**
@@ -229,7 +231,7 @@ public class ProjectDashboardPresenter extends AbstractProjectPresenter<ProjectD
 
 		final CheckColumnConfig remindersCheckPlugin = (CheckColumnConfig) view.getRemindersGrid().getColumnModel().getColumn(0);
 
-		// Removed the need to have "EDIT_ALL_PROJECTS" privilege to see reminders.
+		// Removed the need to have "EDIT_PROJECT" privilege to see reminders.
 		if (ProfileUtils.isGranted(auth(), GlobalPermissionEnum.EDIT_ALL_REMINDERS) || ProfileUtils.isGranted(auth(), GlobalPermissionEnum.EDIT_OWN_REMINDERS)) {
 			view.getRemindersGrid().addPlugin(remindersCheckPlugin);
 		}
@@ -301,7 +303,7 @@ public class ProjectDashboardPresenter extends AbstractProjectPresenter<ProjectD
 			 */
 			@Override
 			public boolean isAuthorizedToEditReminder() {
-				// BUGFIX #741: Removed the need to have "EDIT_ALL_PROJECTS" privilege to edit reminders.
+				// BUGFIX #741: Removed the need to have "EDIT_PROJECT" privilege to edit reminders.
 				return ProfileUtils.isGranted(auth(), GlobalPermissionEnum.EDIT_ALL_REMINDERS) ||
 					ProfileUtils.isGranted(auth(), GlobalPermissionEnum.EDIT_OWN_REMINDERS);
 			}

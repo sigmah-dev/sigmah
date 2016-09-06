@@ -66,8 +66,10 @@ import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.google.gwt.event.shared.HandlerManager;
+import java.util.Collection;
 import java.util.Date;
 import org.sigmah.client.ui.widget.Loadable;
+import org.sigmah.shared.dto.computation.ComputationTriggerDTO;
 import org.sigmah.shared.dto.referential.GlobalPermissionEnum;
 import org.sigmah.shared.dto.referential.ValueEventChangeType;
 import org.sigmah.shared.util.ProjectUtils;
@@ -102,6 +104,7 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 	public static final String BANNER = "banner";
 	public static final String DISABLED_DATE = "disabledDate";
 	public static final String CREATION_DATE = "creationDate";
+	public static final String COMPUTATION_TRIGGERS = "computationTriggers";
 
 	// Provided elements.
 	protected transient HandlerManager handlerManager;
@@ -244,7 +247,8 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 	 * @return The widget component.
 	 */
 	private Component getComponentWithHistory(ValueResult valueResult, boolean phaseIsEnded, boolean inBanner) {
-		if(ProfileUtils.getPermissionForOrgUnit(auth(), getOrgUnitId(), getPrivacyGroup()) == PrivacyGroupPermissionEnum.NONE) {
+		
+		if (ProfileUtils.getPermissionForOrgUnit(auth(), getOrgUnitId(), getPrivacyGroup()) == PrivacyGroupPermissionEnum.NONE) {
 			return null;
 		}
 		
@@ -285,10 +289,8 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 
 	private Integer getOrgUnitId() {
 		Integer orgUnitId = null;
-		if (currentContainerDTO instanceof OrgUnitDTO) {
-			orgUnitId = ((OrgUnitDTO) currentContainerDTO).getOrgUnitId();
-		} else if (currentContainerDTO instanceof ProjectDTO) {
-			orgUnitId = ((ProjectDTO) currentContainerDTO).getOrgUnitId();
+		if (currentContainerDTO instanceof DefaultFlexibleElementContainer) {
+			orgUnitId = ((DefaultFlexibleElementContainer) currentContainerDTO).getOrgUnitId();
 		}
 		return orgUnitId;
 	}
@@ -592,6 +594,14 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 	public void setPrivacyGroup(PrivacyGroupDTO privacyGroup) {
 		set(PRIVACY_GROUP, privacyGroup);
 	}
+	
+	public Collection<ComputationTriggerDTO> getComputationTriggers() {
+		return get(COMPUTATION_TRIGGERS);
+	}
+	
+	public void setComputationTriggers(Collection<ComputationTriggerDTO> computationTriggers) {
+		set(COMPUTATION_TRIGGERS, computationTriggers);
+	}
 
 	protected void ensureHistorable() {
 		if (!isHistorable()) {
@@ -638,7 +648,7 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 	}
 
 	public ElementTypeEnum getElementType() {
-		ElementTypeEnum type = null;
+		final ElementTypeEnum type;
 		
 		// INFO: Budget elements are handled like DEFAULT elements.
 		
@@ -666,6 +676,8 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 			type = ElementTypeEnum.CORE_VERSION;
 		} else if (this instanceof ComputationElementDTO) {
 			type = ElementTypeEnum.COMPUTATION;
+		} else {
+			throw new UnsupportedOperationException("Type '" + getClass() + "' is not supported.");
 		}
 		return type;
 	}

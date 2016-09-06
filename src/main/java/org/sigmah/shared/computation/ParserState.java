@@ -22,9 +22,16 @@ package org.sigmah.shared.computation;
  * #L%
  */
 
+import org.sigmah.shared.computation.dependency.CollectionDependency;
+import org.sigmah.shared.computation.dependency.ContributionDependency;
+import org.sigmah.shared.computation.dependency.Dependency;
+import org.sigmah.shared.computation.dependency.Scope;
 import org.sigmah.shared.computation.instruction.BadVariable;
+import org.sigmah.shared.computation.instruction.Function;
 import org.sigmah.shared.computation.instruction.Instructions;
 import org.sigmah.shared.computation.instruction.Operator;
+import org.sigmah.shared.computation.instruction.ReduceFunction;
+import org.sigmah.shared.computation.instruction.ScopeFunction;
 import org.sigmah.shared.computation.instruction.Variable;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
 
@@ -145,6 +152,11 @@ enum ParserState {
 				final char c = array[index];
 				if (isLetter(c) || isDigit(c) || c == '_') {
 					codeBuilder.append(c);
+				} else if (c == LEFT_PARENTHESIS) {
+					final Function function = Instructions.getFunctionNamed(codeBuilder.toString());
+					environment.setLastFunction(function);
+					environment.setState(WAITING_FOR_FUNCTION_ARGUMENT);
+					return index + 1;
 				} else {
 					addVariable(codeBuilder.toString(), environment);
 					environment.setState(WAITING_FOR_OPERATOR);
@@ -153,6 +165,77 @@ enum ParserState {
 			}
 			
 			addVariable(codeBuilder.toString(), environment);
+			return array.length;
+		}
+		
+	},
+	
+	/**
+	 * Waiting for the argument of a function.
+	 */
+	WAITING_FOR_FUNCTION_ARGUMENT {
+
+		@Override
+		int execute(final int offset, final char[] array, final ParserEnvironment environment) {
+			final StringBuilder argumentBuilder = new StringBuilder();
+			
+			for (int index = offset; index < array.length; index++) {
+				final char c = array[index];
+				if (c == RIGHT_PARENTHESIS) {
+					final Function function = environment.popLastFunction();
+					final String argument = toStringOrNull(argumentBuilder);
+					
+					if (function instanceof ScopeFunction) {
+						final ScopeFunction scopeFunction = (ScopeFunction) function;
+						scopeFunction.setModelName(argument);
+						environment.setCurrentScope(scopeFunction.toScope());
+						environment.setState(WAITING_FOR_REDUCE_FUNCTION);
+					}
+					else if (function instanceof ReduceFunction) {
+						if (argument == null) {
+							throw new IllegalArgumentException("Argument is mandatory for reduce functions.");
+						}
+						
+						final Scope scope = environment.getCurrentScope();
+						
+						final Dependency dependency;
+						if (ContributionDependency.REFERENCE.equals(argument)) {
+							dependency = new ContributionDependency(scope);
+						} else {
+							if (scope.getModelName() == null) {
+								throw new IllegalArgumentException("Project model is mandatory for field codes.");
+							}
+							dependency = new CollectionDependency(scope, argument);
+						}
+						
+						environment.add(new Variable(dependency));
+						environment.add(function);
+						environment.setState(WAITING_FOR_OPERATOR);
+					}
+					return index + 1;
+				} else {
+					argumentBuilder.append(c);
+				}
+			}
+			return array.length;
+		}
+		
+	},
+	
+	/**
+	 * Waiting for a reduce function (like average or sum).
+	 */
+	WAITING_FOR_REDUCE_FUNCTION {
+		
+		@Override
+		int execute(int offset, char[] array, ParserEnvironment environment) {
+			for (int index = offset; index < array.length; index++) {
+				final char c = array[index];
+				if (c == '.') {
+					environment.setState(VARIABLE_CODE);
+					return index + 1;
+				}
+			}
 			return array.length;
 		}
 		
@@ -310,6 +393,16 @@ enum ParserState {
 		}
 	}
 	
+	private static String toStringOrNull(final StringBuilder stringBuilder) {
+		final String content = stringBuilder.toString().trim();
+		
+		if (!content.isEmpty()) {
+			return content;
+		} else {
+			return null;
+		}
+	}
+	
 	/**
 	 * Push the given operator to the operator stack. It will be added to the
 	 * instructions after reading the next operator and if its priority is
@@ -330,8 +423,8 @@ enum ParserState {
 			}
 		
 			environment.pushOnStack(operator);
-			
-		} else {
+		}
+		else {
 			throw new IllegalArgumentException("Operator '" + operatorName + "' is invalid.");
 		}
 	}

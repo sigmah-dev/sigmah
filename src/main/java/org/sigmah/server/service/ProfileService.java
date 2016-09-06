@@ -150,8 +150,6 @@ public class ProfileService extends AbstractEntityService<Profile, Integer, Prof
 	@Override
 	protected EntityDTO<?> handleMapping(final Profile createdProfile) throws CommandException {
 
-		injector.getInstance(UserPermissionPolicy.class).updateUserPermissionByProfile(createdProfile.getId());
-
 		return super.handleMapping(createdProfile);
 	}
 

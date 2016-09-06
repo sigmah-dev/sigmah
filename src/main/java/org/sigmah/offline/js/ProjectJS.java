@@ -45,6 +45,9 @@ import com.google.gwt.core.client.JsArray;
 import com.google.gwt.core.client.JsArrayInteger;
 import com.google.gwt.core.client.JsDate;
 import java.util.HashSet;
+import org.sigmah.shared.util.Collections;
+import org.sigmah.shared.dto.category.CategoryElementDTO;
+import org.sigmah.shared.dto.referential.BudgetSubFieldType;
 
 /**
  * @author Raphaël Calabro (rcalabro@ideia.fr)
@@ -79,6 +82,7 @@ public final class ProjectJS extends JavaScriptObject {
 		projectJS.setLogFrame(projectDTO.getLogFrame());
 		projectJS.setFunding(projectDTO.getFunding());
 		projectJS.setFunded(projectDTO.getFunded());
+		projectJS.setProjectFundings(projectDTO.getFunded(), projectDTO.getFunding());
 		projectJS.setCountry(projectDTO.getCountry());
 		projectJS.setManager(projectDTO.getManager());
 		projectJS.setPointsList(projectDTO.getPointsList());
@@ -89,6 +93,14 @@ public final class ProjectJS extends JavaScriptObject {
 		projectJS.setReceivedBudget(projectDTO.getReceivedBudget());
 		projectJS.setCurrentAmendment(projectDTO.getCurrentAmendment());
 		projectJS.setOrgUnit(projectDTO.getOrgUnitId());
+		
+		projectJS.setRatioDividendValue(projectDTO.getRatioDividendValue());
+		projectJS.setRatioDividendLabel(projectDTO.getRatioDividendLabel());
+		projectJS.setRatioDividendType(projectDTO.getRatioDividendType());
+		projectJS.setRatioDivisorValue(projectDTO.getRatioDivisorValue());
+		projectJS.setRatioDivisorLabel(projectDTO.getRatioDivisorLabel());
+		projectJS.setRatioDivisorType(projectDTO.getRatioDivisorType());
+		projectJS.setCategoryElements(projectDTO.getCategoryElements());
         
 		return projectJS;
 	}
@@ -117,6 +129,14 @@ public final class ProjectJS extends JavaScriptObject {
 		projectDTO.setPlannedBudget(getPlannedBudget());
 		projectDTO.setSpendBudget(getSpendBudget());
 		projectDTO.setReceivedBudget(getReceivedBudget());
+		
+		projectDTO.setRatioDividendValue(getRatioDividendValue());
+		projectDTO.setRatioDividendLabel(getRatioDividendLabel());
+		projectDTO.setRatioDividendType(getRatioDividendType());
+		projectDTO.setRatioDivisorValue(getRatioDivisorValue());
+		projectDTO.setRatioDivisorLabel(getRatioDivisorLabel());
+		projectDTO.setRatioDivisorType(getRatioDivisorType());
+		projectDTO.setCategoryElements(getCategoryElements());
 
 		return projectDTO;
 	}
@@ -343,6 +363,14 @@ public final class ProjectJS extends JavaScriptObject {
 	public native void setFunded(JsArray<ProjectFundingJS> funded) /*-{
 		this.funded = funded;
 	}-*/;
+	
+	public JsArrayInteger getProjectFundings() {
+		return Values.getJavaScriptObject(this, "projectFundings");
+	}
+	
+	public void setProjectFundings(final List<ProjectFundingDTO> funded, final List<ProjectFundingDTO> funding) {
+		Values.setArrayOfIdentifiers(this, "projectFundings", Collections.merge(funded, funding));
+	}
 
 	public native int getCountry() /*-{
 		return this.country;
@@ -520,21 +548,12 @@ public final class ProjectJS extends JavaScriptObject {
 		this.currentAmendment = currentAmendment;
 	}-*/;
 
-	public native int getOrgUnit() /*-{
-		return this.orgUnit;
-	}-*/;
-
-	public native void setOrgUnit(int orgUnit) /*-{
-		this.orgUnit = orgUnit;
-	}-*/;
-    
+	public Integer getOrgUnit() {
+		return Values.getInteger(this, "orgUnit");
+	}
+	
 	public void setOrgUnit(Integer orgUnit) {
-        if(orgUnit != null) {
-            setOrgUnit(orgUnit.intValue());
-        } else {
-            Log.trace("OrgUnit null.");
-            setOrgUnit(0);
-        }
+		Values.setInteger(this, "orgUnit", orgUnit);
     }
 
 	public native JsArray<UserJS> getFavoriteUsers() /*-{
@@ -570,4 +589,82 @@ public final class ProjectJS extends JavaScriptObject {
 			setFavoriteUsers(array);
 		}
 	}
+	
+	// ---------------------------------------------------------------------------------------------
+	//
+	// MANUAL MAPPING METHODS EQUIVALENTS.
+	//
+	// ---------------------------------------------------------------------------------------------
+	
+	public Double getRatioDividendValue() {
+		return Values.getDouble(this, ProjectDTO.RATIO_DIVIDEND_VALUE);
+	}
+
+	public void setRatioDividendValue(final Double ratioDividendValue) {
+		Values.setDouble(this, ProjectDTO.RATIO_DIVIDEND_VALUE, ratioDividendValue);
+	}
+
+	public String getRatioDividendLabel() {
+		return Values.getString(this, ProjectDTO.RATIO_DIVIDEND_LABEL);
+	}
+
+	public void setRatioDividendLabel(final String ratioDividendLabel) {
+		Values.setString(this, ProjectDTO.RATIO_DIVIDEND_LABEL, ratioDividendLabel);
+	}
+
+	public BudgetSubFieldType getRatioDividendType() {
+		return Values.getEnum(this, ProjectDTO.RATIO_DIVIDEND_TYPE, BudgetSubFieldType.class);
+	}
+
+	public void setRatioDividendType(final BudgetSubFieldType ratioDividendType) {
+		Values.setEnum(this, ProjectDTO.RATIO_DIVIDEND_TYPE, ratioDividendType);
+	}
+
+	public Double getRatioDivisorValue() {
+		return Values.getDouble(this, ProjectDTO.RATIO_DIVISOR_VALUE);
+	}
+
+	public void setRatioDivisorValue(final Double ratioDivisorValue) {
+		Values.setDouble(this, ProjectDTO.RATIO_DIVISOR_VALUE, ratioDivisorValue);
+	}
+
+	public String getRatioDivisorLabel() {
+		return Values.getString(this, ProjectDTO.RATIO_DIVISOR_LABEL);
+	}
+
+	public void setRatioDivisorLabel(final String ratioDivisorLabel) {
+		Values.setString(this, ProjectDTO.RATIO_DIVISOR_LABEL, ratioDivisorLabel);
+	}
+
+	public BudgetSubFieldType getRatioDivisorType() {
+		return Values.getEnum(this, ProjectDTO.RATIO_DIVISOR_TYPE, BudgetSubFieldType.class);
+	}
+
+	public void setRatioDivisorType(final BudgetSubFieldType ratioDivisorType) {
+		Values.setEnum(this, ProjectDTO.RATIO_DIVISOR_TYPE, ratioDivisorType);
+	}
+
+	public Set<CategoryElementDTO> getCategoryElements() {
+		if (!Values.isDefined(this, ProjectDTO.CATEGORY_ELEMENTS)) {
+			return null;
+		}
+		final JsArray<CategoryElementJS> array = Values.getJavaScriptObject(this, ProjectDTO.CATEGORY_ELEMENTS);
+		final HashSet<CategoryElementDTO> set = new HashSet<CategoryElementDTO>();
+		for (int index = 0; index < array.length(); index++) {
+			set.add(array.get(index).toDTO());
+		}
+		return set;
+	}
+
+	public void setCategoryElements(final Set<CategoryElementDTO> categoryElements) {
+		if (categoryElements == null) {
+			return;
+		}
+		final JsArray<CategoryElementJS> array = Values.createTypedJavaScriptArray(CategoryElementJS.class);
+		for (final CategoryElementDTO categoryElement : categoryElements) {
+			array.push(CategoryElementJS.toJavaScript(categoryElement));
+		}
+		Values.setJavaScriptObject(this, ProjectDTO.CATEGORY_ELEMENTS, array);
+	}
+	
 }

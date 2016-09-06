@@ -92,19 +92,19 @@ public class IndexedDB {
 			}
         }
         
-		if(email == null) {
+		if (email == null) {
 			return new NoopDatabaseRequest<Store>();
 		}
-		if(!isSupported()) {
+		if (!isSupported()) {
 			Log.warn("IndexedDB is not supported by this web browser.");
 			return new NoopDatabaseRequest<Store>();
 		}
-		if(!GWT.isProdMode()) {
+		if (!GWT.isProdMode()) {
 			Log.info("IndexedDB is unavailable in Hosted Mode.");
 			return new NoopDatabaseRequest<Store>();
 		}
         
-        switch(state) {
+        switch (state) {
             case CLOSED:
                 state = State.OPENING;
                 
@@ -155,17 +155,20 @@ public class IndexedDB {
 		Log.info("Local IndexedDB database is being updated from version " + event.getOldVersion() + " to version " + Stores.getVersion(database.getSchema()) + '.');
 		UpdateDates.setDatabaseUpdateDate(name, null);
 		
-		for(final String store : database.getObjectStoreNames()) {
+		for (final String store : database.getObjectStoreNames()) {
 			database.deleteObjectStore(store);
 		}
 
 		final Set<S> stores = database.getObjectStores();
 
-		for(final S store : database.getSchema().getEnumConstants()) {
+		for (final S store : database.getSchema().getEnumConstants()) {
 			if (!stores.contains(store) && store.isEnabled()) {
 				final ObjectStore objectStore = database.createObjectStore(store, "id", store.isAutoIncrement());
 				for (final Map.Entry<String, String> index : store.getIndexes().entrySet()) {
-					objectStore.createIndex(index.getKey(), index.getValue());
+					final String indexName = index.getKey();
+					final boolean multiple = indexName.charAt(indexName.length() - 1) == 's';
+					
+					objectStore.createIndex(indexName, index.getValue(), false, multiple);
 				}
 			}
 		}
@@ -177,24 +180,24 @@ public class IndexedDB {
 	 * @param email Name of the database to remove.
 	 * @return A request to delete the database.
 	 */
-    private static OpenDatabaseRequest deleteUserDatabase(String email) {
-        if(email == null) {
-			return new NoopDatabaseRequest();
+    private static OpenDatabaseRequest<Store> deleteUserDatabase(String email) {
+        if (email == null) {
+			return new NoopDatabaseRequest<Store>();
 		}
-		if(!isSupported()) {
+		if (!isSupported()) {
 			Log.warn("IndexedDB is not supported by this web browser.");
-			return new NoopDatabaseRequest();
+			return new NoopDatabaseRequest<Store>();
 		}
         
         final IndexedDB indexedDB = new IndexedDB();
-        return indexedDB.deleteDatabase(email);
+        return indexedDB.deleteDatabase(email, Store.class);
     }
 	
 	/**
 	 * Close and release the currently opened user database.
 	 */
 	public static void closeDatabase() {
-		if(userDatabase != null) {
+		if (userDatabase != null) {
 			userDatabase.close();
 			state = State.CLOSED;
 		}
@@ -211,7 +214,7 @@ public class IndexedDB {
 	 * @throws UnsupportedOperationException If IndexedDB is not supported by the web browser.
 	 */
 	public IndexedDB() throws UnsupportedOperationException {
-		if(!isSupported()) {
+		if (!isSupported()) {
 			throw new UnsupportedOperationException("IndexedDB is not supported by this web browser.");
 		}
 		this.nativeIndexedDB = NativeIndexedDB.getIndexedDB();
@@ -245,8 +248,8 @@ public class IndexedDB {
 	 * @param name Name of the database to delete.
 	 * @return An open database request.
 	 */
-    public NativeOpenDatabaseRequest deleteDatabase(String name) {
-        return new NativeOpenDatabaseRequest(nativeIndexedDB.deleteDatabase(name), null);
+    public <S extends Enum<S> & Schema> NativeOpenDatabaseRequest<S> deleteDatabase(String name, final Class<S> stores) {
+        return new NativeOpenDatabaseRequest<S>(nativeIndexedDB.deleteDatabase(name), stores);
     }
     
 	/**

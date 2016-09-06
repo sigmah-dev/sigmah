@@ -56,11 +56,13 @@ public final class LogicalElementTypes {
         
         final LogicalElementType type;
         
-        if (flexibleElement instanceof TextAreaElementDTO) {
+		if (flexibleElement == null) {
+			type = NoElementType.INSTANCE;
+		} else if (flexibleElement instanceof TextAreaElementDTO) {
             type = TextAreaType.fromCode(((TextAreaElementDTO) flexibleElement).getType());
         } else if (flexibleElement instanceof DefaultFlexibleElementDTO) {
             type = ((DefaultFlexibleElementDTO) flexibleElement).getType();
-        } else if (flexibleElement != null) {
+        } else {
 			final ElementTypeEnum elementType = flexibleElement.getElementType();
 			if (elementType == ElementTypeEnum.TEXT_AREA) {
 				// A case where type is null exists in production but is the result
@@ -71,11 +73,36 @@ public final class LogicalElementTypes {
 			} else {
 				type = elementType;
 			}
-        } else {
-            type = null;
         }
         
-        return notNull(type);
+        return type;
+	}
+	
+	public static LogicalElementType fromName(final String name) {
+		
+		if (name == null) { 
+			return NoElementType.INSTANCE;
+		}
+		
+		try {
+			return TextAreaType.valueOf(name);
+		} catch (IllegalArgumentException e) {
+			// Ignored.
+		}
+		
+		try {
+			return DefaultFlexibleElementType.valueOf(name);
+		} catch (IllegalArgumentException e) {
+			// Ignored.
+		}
+		
+		try {
+			return ElementTypeEnum.valueOf(name);
+		} catch (IllegalArgumentException e) {
+			// Ignored.
+		}
+		
+		return NoElementType.INSTANCE;
 	}
 	
 	/**
@@ -92,5 +119,5 @@ public final class LogicalElementTypes {
 			return NoElementType.INSTANCE;
 		}
 	}
-    
+	
 }

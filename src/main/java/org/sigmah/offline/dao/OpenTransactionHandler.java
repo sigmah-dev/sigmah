@@ -38,7 +38,7 @@ import org.sigmah.offline.indexeddb.Schema;
  * @param <S> Store type.
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
-public abstract class OpenTransactionHandler<S extends Enum<S> & Schema> implements JavaScriptEvent {
+public abstract class OpenTransactionHandler<S extends Enum<S> & Schema> implements JavaScriptEvent<JavaScriptObject> {
     
 	/**
 	 * Open a new transaction.
@@ -92,7 +92,7 @@ public abstract class OpenTransactionHandler<S extends Enum<S> & Schema> impleme
         this.mode = mode;
     }
 
-    public void setOpenDatabaseRequest(OpenDatabaseRequest openDatabaseRequest) {
+    public void setOpenDatabaseRequest(OpenDatabaseRequest<S> openDatabaseRequest) {
         this.openDatabaseRequest = openDatabaseRequest;
     }
     

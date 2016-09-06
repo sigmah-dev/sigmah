@@ -50,6 +50,22 @@ public final class NumberUtils {
 	}
 
 	/**
+	 * Truncate the decimal part of a double to keep only 2 decimals.
+	 * 
+	 * @param value
+	 *			Value to truncate (can be <code>null</code>).
+	 * @return The truncated number or <code>null</code> if the given value was <code>null</code>.
+	 */
+	public static Double truncateDouble(final Double value) {
+		
+		if (value == null) {
+			return null;
+		}
+		
+		return Double.valueOf(truncate(value));
+	}
+
+	/**
 	 * Truncate the decimal part of a number.
 	 * 
 	 * @param n
@@ -112,6 +128,10 @@ public final class NumberUtils {
 	 * @return The ratio.
 	 */
 	public static String ratioAsString(Number n, Number in) {
+		
+		if (n == null || in == null) {
+			return "-";
+		}
 		return truncate(ratio(n, in)) + " %";
 	}
 

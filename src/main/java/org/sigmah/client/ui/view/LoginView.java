@@ -69,6 +69,21 @@ public class LoginView extends AbstractView implements LoginPresenter.View {
 	private ListBox languageListBox;
 	private Anchor lostPasswordLink;
 	private Button loginButton;
+	
+	/**
+	 * HTML identifier set to the email input field.
+	 */
+	private final String LOGIN_EMAIL_ID = "loginEmailId";
+	
+	/**
+	 * HTML identifier set to the password input field.
+	 */
+	private final String LOGIN_PASSWORD_ID = "loginPasswordId";
+	
+	/**
+	 * HTML identifier set to the 'open session' button.
+	 */
+	private final String OPEN_SESSION_ID = "ouvrirSessionId";
 
 	/**
 	 * {@inheritDoc}
@@ -96,6 +111,7 @@ public class LoginView extends AbstractView implements LoginPresenter.View {
 		form.getCellFormatter().setStyleName(y, 0, LOGIN_BOX_FORM_LABEL);
 
 		loginTextBox = new TextBox();
+		loginTextBox.getElement().setId(LOGIN_EMAIL_ID);
 		loginTextBox.setWidth("100%");
 		form.setWidget(y, 1, loginTextBox);
 		form.getFlexCellFormatter().setColSpan(y, 1, 2);
@@ -112,6 +128,7 @@ public class LoginView extends AbstractView implements LoginPresenter.View {
 		form.getCellFormatter().setStyleName(y, 0, LOGIN_BOX_FORM_LABEL);
 
 		passwordTextBox = new PasswordTextBox();
+		passwordTextBox.getElement().setId(LOGIN_PASSWORD_ID);
 		passwordTextBox.setWidth("100%");
 		form.setWidget(y, 1, passwordTextBox);
 		form.getFlexCellFormatter().setColSpan(y, 1, 2);
@@ -152,6 +169,7 @@ public class LoginView extends AbstractView implements LoginPresenter.View {
 
 		// Login button.
 		loginButton = new Button(I18N.CONSTANTS.loginConnectButton());
+		loginButton.setId(OPEN_SESSION_ID);
 		loginButton.setWidth("120px");
 		form.setWidget(y, 1, loginButton);
 		form.getCellFormatter().setHorizontalAlignment(y, 1, HasHorizontalAlignment.ALIGN_RIGHT);

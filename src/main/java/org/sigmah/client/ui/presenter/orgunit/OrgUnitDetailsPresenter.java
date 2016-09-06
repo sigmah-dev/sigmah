@@ -74,6 +74,7 @@ import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.sigmah.client.computation.ComputationTriggerManager;
+import org.sigmah.client.event.UpdateEvent;
 
 /**
  * OrgUnit Details Presenter.
@@ -158,6 +159,8 @@ public class OrgUnitDetailsPresenter extends AbstractOrgUnitPresenter<OrgUnitDet
 						}
 
 						valueChanges.clear();
+						
+						eventBus.fireEvent(new UpdateEvent(UpdateEvent.VALUE_UPDATE, getOrgUnit()));
 
 					}
 				}, view.getSaveButton(), view.getExcelExportButton(), new LoadingMask(view.getContentOrgUnitDetailsPanel()));

@@ -35,11 +35,13 @@ import javax.persistence.Table;
 import javax.persistence.TypedQuery;
 
 import org.sigmah.client.util.AdminUtil;
+import org.sigmah.server.computation.ServerComputations;
 import org.sigmah.server.domain.OrgUnitModel;
 import org.sigmah.server.domain.ProjectModel;
 import org.sigmah.server.domain.category.CategoryElement;
 import org.sigmah.server.domain.category.CategoryType;
 import org.sigmah.server.domain.element.BudgetElement;
+import org.sigmah.server.domain.element.BudgetRatioElement;
 import org.sigmah.server.domain.element.BudgetSubField;
 import org.sigmah.server.domain.element.ComputationElement;
 import org.sigmah.server.domain.element.DefaultFlexibleElement;
@@ -55,6 +57,9 @@ import org.sigmah.server.domain.layout.LayoutGroup;
 import org.sigmah.server.domain.profile.PrivacyGroup;
 import org.sigmah.server.domain.report.ProjectReportModel;
 import org.sigmah.server.mapper.Mapper;
+import org.sigmah.shared.computation.Computation;
+import org.sigmah.shared.computation.Computations;
+import org.sigmah.shared.computation.DependencyResolver;
 import org.sigmah.shared.dto.category.CategoryTypeDTO;
 import org.sigmah.shared.dto.element.BudgetSubFieldDTO;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
@@ -63,6 +68,8 @@ import org.sigmah.shared.dto.layout.LayoutGroupDTO;
 import org.sigmah.shared.dto.profile.PrivacyGroupDTO;
 import org.sigmah.shared.dto.referential.DefaultFlexibleElementType;
 import org.sigmah.shared.dto.referential.ElementTypeEnum;
+import org.sigmah.shared.dto.referential.LogicalElementType;
+import org.sigmah.shared.dto.referential.LogicalElementTypes;
 import org.sigmah.shared.dto.report.ReportModelDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,8 +85,12 @@ public final class ModelUtil {
 	 */
 	private static final Logger LOG = LoggerFactory.getLogger(ModelUtil.class);
 
-	@SuppressWarnings("unchecked")
 	public static void persistFlexibleElement(final EntityManager em, final Mapper mapper, final PropertyMap changes, final Object model) {
+		persistFlexibleElement(em, mapper, null, changes, model);
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static void persistFlexibleElement(final EntityManager em, final Mapper mapper, final DependencyResolver dependencyResolver, final PropertyMap changes, final Object model) {
 
 		if (changes.get(AdminUtil.PROP_FX_FLEXIBLE_ELEMENT) == null) {
 			return;
@@ -126,6 +137,9 @@ public final class ModelUtil {
 		final BudgetSubFieldDTO ratioDividend = changes.get(AdminUtil.PROP_FX_B_BUDGET_RATIO_DIVIDEND);
 		final BudgetSubFieldDTO ratioDivisor = changes.get(AdminUtil.PROP_FX_B_BUDGET_RATIO_DIVISOR);
 		final String computationRule = changes.get(AdminUtil.PROP_FX_COMPUTATION_RULE);
+		final FlexibleElementDTO budgetSpent = changes.get(AdminUtil.PROP_BUDGET_SPENT);
+		final FlexibleElementDTO budgetPlanned = changes.get(AdminUtil.PROP_BUDGET_PLANNED);
+		
 
 		final FlexibleElementDTO flexibleEltDTO = changes.get(AdminUtil.PROP_FX_FLEXIBLE_ELEMENT);
 
@@ -245,7 +259,9 @@ public final class ModelUtil {
 		// ////////////////Specific changes
 		Boolean specificChanges = false;
 
-		if ((ElementTypeEnum.DEFAULT.equals(oldType) && type == null) && DefaultFlexibleElementType.BUDGET.equals(((DefaultFlexibleElement) flexibleElt).getType())) {
+		final LogicalElementType logicalElementType = ServerComputations.logicalElementTypeOf(flexibleElt);
+		
+		if ((ElementTypeEnum.DEFAULT.equals(oldType) && type == null) && DefaultFlexibleElementType.BUDGET == logicalElementType.toDefaultFlexibleElementType()) {
 			List<BudgetSubField> budgetFieldsToDelete = new ArrayList<BudgetSubField>();
 			BudgetElement budgetElement = (BudgetElement) flexibleElt;
 			budgetFieldsToDelete.addAll(budgetElement.getBudgetSubFields());
@@ -288,6 +304,21 @@ public final class ModelUtil {
 			}
 
 			flexibleElt = em.merge(budgetElement);
+			
+		} else if ((ElementTypeEnum.DEFAULT.equals(oldType) && type == null) && DefaultFlexibleElementType.BUDGET_RATIO == logicalElementType.toDefaultFlexibleElementType()) {	
+			BudgetRatioElement budgetRatioElement = (BudgetRatioElement) flexibleElt;
+			if (budgetSpent != null) {
+				FlexibleElement flexibleElement = new DefaultFlexibleElement();
+				flexibleElement.setId(budgetSpent.getId());
+				budgetRatioElement.setSpentBudget(flexibleElement);
+			}
+			if (budgetPlanned != null) {
+				FlexibleElement flexibleElement = new DefaultFlexibleElement();
+				flexibleElement.setId(budgetPlanned.getId());
+				budgetRatioElement.setPlannedBudget(flexibleElement);
+			}
+		
+			flexibleElt = em.merge(budgetRatioElement);
 		} else if (ElementTypeEnum.FILES_LIST.equals(type) || (ElementTypeEnum.FILES_LIST.equals(oldType) && type == null)) {
 			FilesListElement filesListElement = (FilesListElement) flexibleElt;
 			// FilesListElement filesListElement =
@@ -418,7 +449,8 @@ public final class ModelUtil {
 			ComputationElement computationElement = (ComputationElement) flexibleElt;
 			if (computationElement != null) {
 				if (computationRule != null) {
-					computationElement.setRule(computationRule);
+					final String rule = resolveComputationRule(em, dependencyResolver, model, computationRule);
+					computationElement.setRule(rule);
 					specificChanges = true;
                     
                     removeAllValuesForElement(computationElement, em);
@@ -439,6 +471,35 @@ public final class ModelUtil {
 		}
 		em.flush();
 		em.clear();
+	}
+
+	/**
+	 * Parse and resolve each dependency contained in the given formula.
+	 * 
+	 * @param em
+	 *			Instance of the EntityManager
+	 * @param dependencyResolver
+	 *			Dependency resolver to use.
+	 * @param model
+	 *			Project or org unit model.
+	 * @param computationRule
+	 *			Formula to parse and format.
+	 * @return The formula with its dependencies resolved.
+	 * @throws IllegalArgumentException If a dependency could not be resolved.
+	 */
+	private static String resolveComputationRule(final EntityManager em, final DependencyResolver dependencyResolver, final Object model, final String computationRule) throws IllegalArgumentException {
+		if (dependencyResolver != null && model instanceof ProjectModel) {
+			final ProjectModel projectModel = em.find(ProjectModel.class, ((ProjectModel) model).getId());
+			final Computation computation = Computations.parse(computationRule, ServerComputations.getAllElementsFromModel(projectModel));
+			dependencyResolver.resolve(computation);
+			
+			if (!computation.isResolved()) {
+				throw new IllegalArgumentException("Computation '" + computationRule + "' could not be resolved.");
+			}
+			
+			return computation.toString();
+		}
+		return computationRule;
 	}
 
 	private static String retrieveTable(final String className) {
@@ -597,7 +658,7 @@ public final class ModelUtil {
                 .setParameter("element", element)
                 .executeUpdate();
     }
-
+	
 	/**
 	 * Utility class private constructor.
 	 */

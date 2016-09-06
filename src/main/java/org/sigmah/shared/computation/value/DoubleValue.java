@@ -24,6 +24,7 @@ package org.sigmah.shared.computation.value;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.i18n.client.LocaleInfo;
+import org.sigmah.shared.computation.instruction.Reductor;
 import org.sigmah.shared.dto.element.ComputationElementDTO;
 
 /**
@@ -37,7 +38,10 @@ public class DoubleValue implements ComputedValue {
     
     private static final int DECIMAL_PART_MAX_LENGTH = 4;
 
-	private final double value;
+	private double value;
+
+	public DoubleValue() {
+	}
 
 	public DoubleValue(double value) {
 		this.value = value;
@@ -49,6 +53,14 @@ public class DoubleValue implements ComputedValue {
 	@Override
 	public Double get() {
 		return value;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void feedToReductor(Reductor reductor) {
+		reductor.feed(this);
 	}
 	
     /**
@@ -173,7 +185,8 @@ public class DoubleValue implements ComputedValue {
      * Returns the given value with a decimal part reduced to a length of {@link #DECIMAL_PART_MAX_LENGTH}.
      * If client-side, also replace the decimal separator by the one specified in the current locale.
      * 
-     * @param value Value to convert.
+     * @param value
+	 *			Value to convert.
      * @return the given double as a <code>String</code>.
      */
     private String doubleToString(double value) {

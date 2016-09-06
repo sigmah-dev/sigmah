@@ -44,14 +44,16 @@ public class NoopDatabaseRequest<S extends Enum<S> & Schema> implements OpenData
 	 * {@inheritDoc}
 	 */
     @Override
-    public void addSuccessHandler(JavaScriptEvent handler) {
+    public void addSuccessHandler(final JavaScriptEvent<?> handler) {
+		// No operation.
     }
 
 	/**
 	 * {@inheritDoc}
 	 */
     @Override
-    public void addCallback(AsyncCallback<Request> callback) {
+    public void addCallback(final AsyncCallback<Request> callback) {
+		// No operation.
     }
     
 }

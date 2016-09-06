@@ -231,11 +231,6 @@ public class UserService extends AbstractEntityService<User, Integer, UserDTO> {
 			userPersisted.setIdd(createdUser.getId());
 		}
 
-		if (userPersisted != null) {
-			// [UserPermission trigger] Updates UserPermission table after user creation/modification.
-			injector.getInstance(UserPermissionPolicy.class).updateUserPermissionByUser(userPersisted.getIdd());
-		}
-
 		return userPersisted;
 	}
 

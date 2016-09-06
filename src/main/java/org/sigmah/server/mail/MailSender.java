@@ -23,7 +23,6 @@ package org.sigmah.server.mail;
  */
 
 
-import java.io.InputStream;
 import org.apache.commons.mail.EmailException;
 
 /**
@@ -49,12 +48,11 @@ public interface MailSender {
 	 * 
 	 * @param email
 	 *			Email to send.
-	 * @param fileName
-	 *			Name of the attachment.
-	 * @param fileStream
-	 *			Content of the attachment.
+	 * @param attachments
+	 *			Array of files to attach.
 	 * @throws EmailException 
+	 *			If an error occurs while sending the email.
 	 */
-	void sendFile(final Email email, String fileName, InputStream fileStream) throws EmailException;
+	void sendWithAttachments(final Email email, final EmailAttachment... attachments) throws EmailException;
 	
 }

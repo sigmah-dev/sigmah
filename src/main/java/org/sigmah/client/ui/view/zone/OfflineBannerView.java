@@ -24,16 +24,19 @@ package org.sigmah.client.ui.view.zone;
 
 
 import com.google.gwt.dom.client.Style;
+import com.google.gwt.dom.client.Style.Display;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.FlowPanel;
 import org.sigmah.client.ui.presenter.zone.OfflineBannerPresenter;
 import org.sigmah.client.ui.view.base.AbstractView;
-
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Panel;
+import java.util.Date;
 import org.sigmah.client.ui.res.icon.offline.OfflineIconBundle;
+import org.sigmah.client.ui.view.trace.TraceMenuPanel;
 import org.sigmah.client.ui.widget.RatioBar;
 import org.sigmah.offline.status.ApplicationState;
+import org.sigmah.offline.sync.UpdateDates;
 import org.sigmah.offline.view.OfflineMenuPanel;
 import org.sigmah.offline.view.SynchronizePopup;
 
@@ -45,35 +48,72 @@ import org.sigmah.offline.view.SynchronizePopup;
  */
 public class OfflineBannerView extends AbstractView implements OfflineBannerPresenter.View {
 
+	/**
+	 * id of trace icon.
+	 */
+	private final static String TRACE_MODE_ICON_ID="traceModeIconId" ;
 	private Panel statusPanel;
 	private FlowPanel menuHandle;
+	// Menu
+	private OfflineMenuPanel menuPanel;	
+	
+	//icon in the statusPanel
+	private FlowPanel traceHandle;
+	/**
+	 * Panel for trace menu.
+	 */
+	private TraceMenuPanel traceMenuPanel;
+	
     private RatioBar progressBar;
-    private OfflineMenuPanel menuPanel;
+    
     private SynchronizePopup synchronizePopup;
+	
     private Image warningIcon;
     private Image onlineIcon;
     private Image signalIcon;
+	/**
+	 * Icon for trace mode.
+	 */
+	private Image traceModeIcon;
+	
+	
+	
 	
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public void initialize() {
-
+		
 		statusPanel = new FlowPanel();
-		statusPanel.getElement().setId("offline-status");
-        
-        warningIcon = new Image(OfflineIconBundle.INSTANCE.error());
-        warningIcon.setVisible(false);
+		statusPanel.getElement().setId("offline-status");		
+		traceModeIcon = new Image(OfflineIconBundle.INSTANCE.traceOn());
+		traceModeIcon.getElement().setId(TRACE_MODE_ICON_ID);
+		Date dateActivation=UpdateDates.getSigmahActivationTraceDate();
+		if(dateActivation == null ){
+			traceModeIcon.setResource(OfflineIconBundle.INSTANCE.traceOff());
+		}		
+		traceHandle = new FlowPanel();		
+		traceHandle.add(traceModeIcon);	
+		traceHandle.getElement().getStyle().setDisplay(Display.INLINE_BLOCK);
+		statusPanel.add(traceHandle);
+		
+		traceMenuPanel = new TraceMenuPanel();
+        traceMenuPanel.setVisible(false);
+		statusPanel.add(traceMenuPanel);
+		
+        warningIcon = new Image(OfflineIconBundle.INSTANCE.error());        
 		statusPanel.add(warningIcon);
+		warningIcon.setVisible(false);
         
         onlineIcon = new Image(OfflineIconBundle.INSTANCE.connect());
-        signalIcon = new Image(OfflineIconBundle.INSTANCE.signalOn());
+        signalIcon = new Image(OfflineIconBundle.INSTANCE.signalOn());		
 
 		menuHandle = new FlowPanel();
-		menuHandle.addStyleName("offline-button");
+		menuHandle.addStyleName("offline-button");		
 		menuHandle.add(signalIcon);
-		menuHandle.add(onlineIcon);
+		menuHandle.add(onlineIcon);		
+		menuHandle.getElement().getStyle().setDisplay(Display.INLINE_BLOCK);
 		statusPanel.add(menuHandle);
         
         progressBar = new RatioBar(0);
@@ -83,11 +123,19 @@ public class OfflineBannerView extends AbstractView implements OfflineBannerPres
 		
 		menuPanel = new OfflineMenuPanel();
         menuPanel.setVisible(false);
-		statusPanel.add(menuPanel);
-        
+		statusPanel.add(menuPanel);	
+		
         synchronizePopup = new SynchronizePopup();
 		
 		// initWidget(); Useless.
+	}
+	@Override
+	public TraceMenuPanel getTraceMenuPanel() {
+		return traceMenuPanel;
+	}
+
+	public void setTraceMenuPanel(TraceMenuPanel traceMenuPanel) {
+		this.traceMenuPanel = traceMenuPanel;
 	}
 
 	/**
@@ -104,6 +152,14 @@ public class OfflineBannerView extends AbstractView implements OfflineBannerPres
 	@Override
 	public Panel getStatusPanel() {
 		return statusPanel;
+	}
+	@Override
+	public FlowPanel getTraceHandle() {
+		return traceHandle;
+	}
+
+	public void setTraceHandle(FlowPanel traceHandle) {
+		this.traceHandle = traceHandle;
 	}
     
     /**
@@ -167,6 +223,19 @@ public class OfflineBannerView extends AbstractView implements OfflineBannerPres
             progressBar.setRatio(progress * 100.0);
         }
     }
+	/**
+	 * Update css of button.
+	 * @param anchor
+	 * @param enabled 
+	 */
+	private void setAnchorEnabled(Anchor anchor, boolean enabled) {
+        anchor.setEnabled(enabled);
+        if(enabled) {
+            anchor.removeStyleName("offline-action-disabled");
+        } else {
+            anchor.addStyleName("offline-action-disabled");
+        }
+	}
 	
     @Override
     public void setSynchronizeAnchorEnabled(boolean enabled) {
@@ -182,19 +251,15 @@ public class OfflineBannerView extends AbstractView implements OfflineBannerPres
 	public boolean isEnabled(Anchor anchor) {
 		return !anchor.getStyleName().contains("offline-action-disabled");
 	}
-	
-	private void setAnchorEnabled(Anchor anchor, boolean enabled) {
-        anchor.setEnabled(enabled);
-        if(enabled) {
-            anchor.removeStyleName("offline-action-disabled");
-        } else {
-            anchor.addStyleName("offline-action-disabled");
-        }
-	}
-    
+	    
     @Override
     public void setWarningIconVisible(boolean visible) {
         warningIcon.setVisible(visible);
     }
+	@Override
+	public Image getTraceModeIcon() {
+		return traceModeIcon;
+	}
+	
     
 }

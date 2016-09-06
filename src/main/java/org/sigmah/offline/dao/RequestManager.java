@@ -27,6 +27,7 @@ import com.google.gwt.user.client.Timer;
 import java.util.ArrayList;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import java.util.List;
 
 /**
  * Handle simultaneous requests and call a given callback when every request
@@ -37,7 +38,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
  */
 public class RequestManager<T> {
     
-	private final ArrayList<Boolean> status = new ArrayList<Boolean>();
+	private final List<Boolean> status = new ArrayList<Boolean>();
 	private Throwable caught;
 	private boolean preparing;
 	private boolean errorSent;
@@ -56,7 +57,7 @@ public class RequestManager<T> {
 	public void setPreparing(boolean preparing) {
 		this.preparing = preparing;
 		
-		if(!preparing) {
+		if (!preparing) {
 			callSuccessIfAllRequestsAreSuccessful();
 		}
 	}
@@ -76,7 +77,7 @@ public class RequestManager<T> {
 					index++;
 				}
 				
-				if(errorBuilder.length() == 0) {
+				if (errorBuilder.length() == 0) {
 					Log.warn("RequestManager : callSuccess required ?");
 				} else {
 					Log.warn("RequestManager Timeout : " + errorBuilder.toString());
@@ -105,33 +106,40 @@ public class RequestManager<T> {
 		status.set(request, Boolean.FALSE);
 		
 		errorSent = true;
-        if(callback != null) {
+        if (callback != null) {
             callback.onFailure(caught);
         }
 	}
 	
 	private void callSuccessIfAllRequestsAreSuccessful() {
-		if(preparing || callback == null || errorSent) {
+		if (preparing || errorSent) {
 			return;
 		}
 		
-		for(Boolean entry : status) {
-			if(entry == null) {
+		for (final Boolean entry : status) {
+			if (entry == null) {
 				return;
-				
-			} else if(!entry) {
+			}
+			else if(!entry) {
 				errorSent = true;
-				callback.onFailure(caught);
+				cancelTimer();
+				if (callback != null) {
+					callback.onFailure(caught);
+				}
 				return;
 			}
 		}
-		if(timer != null) {
+		cancelTimer();
+        if (callback != null) {
+            callback.onSuccess(result);
+        }
+	}
+	
+	private void cancelTimer() {
+		if (timer != null) {
 			timer.cancel();
 			timer = null;
 		}
-        if(callback != null) {
-            callback.onSuccess(result);
-        }
 	}
     
 }

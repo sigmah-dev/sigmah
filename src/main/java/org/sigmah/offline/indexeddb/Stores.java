@@ -46,7 +46,7 @@ public final class Stores {
 	public static <S extends Enum<S> & Schema> int getVersion(final Class<S> stores) {
 		int version = 0;
 		for (final S store : stores.getEnumConstants()) {
-			version += 1 + store.getIndexes().size();
+			version += 100 + store.getIndexes().size();
 		}
 		return version;
 	}

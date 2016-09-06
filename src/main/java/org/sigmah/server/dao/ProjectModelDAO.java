@@ -56,5 +56,14 @@ public interface ProjectModelDAO extends DAO<ProjectModel, Integer> {
 	 * @return The project models visible to the given {@code organizationId}, ordered by name.
 	 */
 	List<ProjectModel> findProjectModelsVisibleToOrganization(Integer organizationId, List<ProjectModelStatus> status);
+	
+	/**
+	 * Finds the project models with the given name.
+	 * 
+	 * @param name
+	 *			Name of the project models to find.
+	 * @return A list of the project models with the given name.
+	 */
+	List<ProjectModel> findProjectModelsWithName(String name);
 
 }

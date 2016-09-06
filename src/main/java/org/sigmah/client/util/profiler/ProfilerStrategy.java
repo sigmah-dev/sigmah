@@ -66,4 +66,6 @@ public interface ProfilerStrategy {
 	 */
 	void markCheckpoint(Scenario scenario, String checkpoint);
 	
+	
+	
 }

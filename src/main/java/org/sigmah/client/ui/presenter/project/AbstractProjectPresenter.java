@@ -42,7 +42,7 @@ import org.sigmah.client.ui.notif.N10N;
 import org.sigmah.shared.dispatch.NotCachedException;
 
 /**
- * Project's presenters abstract code.
+ * Project's presenters abstract code.<br/>
  * This super-class assumes that all inherited classes are a sub-presenter of {@link ProjectPresenter}. Can be changed
  * by overriding the {@link #getParentPresenter()} method.
  * 
@@ -142,8 +142,8 @@ public abstract class AbstractProjectPresenter<V extends AbstractProjectPresente
 		final PageRequest request = event.getRequest();
 
 		// Updates the tab title.
-		eventBus.updateZoneRequest(Zone.MENU_BANNER.requestWith(RequestParameter.REQUEST, request).addData(RequestParameter.HEADER, loadedProject.getName()));
-
+		eventBus.updateZoneRequest(Zone.MENU_BANNER.requestWith(RequestParameter.REQUEST, request).addData(RequestParameter.HEADER, loadedProject.getName()).addData(RequestParameter.PROJECT_ID, loadedProject.getId()));
+				
 		// Executes child page 'onPageRequest()'.
 		afterOnPageRequest(event, page);
 	}

@@ -97,11 +97,26 @@ public abstract class BaseAsyncDAO<S extends Enum<S> & Schema> {
         return authenticationProvider.isAnonymous();
     }
 
+	/**
+	 * Defines the authentication provider used by this DAO.
+	 * 
+	 * @param authenticationProvider 
+	 *			Authentication provider to use.
+	 */
 	public void setAuthenticationProvider(AuthenticationProvider authenticationProvider) {
 		this.authenticationProvider = authenticationProvider;
 	}
 	
-	protected void openTransaction(Transaction.Mode mode, OpenTransactionHandler<S> handler) {
+	/**
+	 * Execute the given handler in a new transaction opened by locking the 
+	 * stores required by this DAO.
+	 * 
+	 * @param mode
+	 *			Opening mode (read-only or read-write).
+	 * @param handler 
+	 *			Handler executed in a new transaction.
+	 */
+	public void openTransaction(final Transaction.Mode mode, final OpenTransactionHandler<S> handler) {
         final OpenDatabaseRequest<S> openDatabaseRequest = openDatabase();
         
         handler.setMode(mode);
@@ -111,19 +126,25 @@ public abstract class BaseAsyncDAO<S extends Enum<S> & Schema> {
 		openDatabaseRequest.addSuccessHandler(handler);
     }
 	
+	/**
+	 * Returns all required stores for this DAO by computing dependencies of
+	 * every dependencies.
+	 * 
+	 * @return A set of every required stores to create a new transaction.
+	 */
 	public Set<S> getRequiredStores() {
-		final HashSet<BaseAsyncDAO> dependencies = new HashSet<BaseAsyncDAO>();
+		final HashSet<BaseAsyncDAO<S>> dependencies = new HashSet<BaseAsyncDAO<S>>();
 		dependencies.add(this);
 		
 		int previousSize = 0;
 		int size = dependencies.size();
 		
         // Expands dependencies by adding their dependencies until no new dependency is added.
-		while(previousSize != size) {
+		while (previousSize != size) {
 			previousSize = size;
 			
-            final HashSet<BaseAsyncDAO> entries = new HashSet<BaseAsyncDAO>(dependencies);
-			for(final BaseAsyncDAO entry : entries) {
+            final HashSet<BaseAsyncDAO<S>> entries = new HashSet<BaseAsyncDAO<S>>(dependencies);
+			for(final BaseAsyncDAO<S> entry : entries) {
                 dependencies.addAll(entry.getDependencies());
 			}
 			
@@ -137,8 +158,14 @@ public abstract class BaseAsyncDAO<S extends Enum<S> & Schema> {
 		return requiredStores;
 	}
 
+	/**
+	 * Returns a collection of the DAO required to save or read an object with
+	 * this DAO.
+	 * 
+	 * @return A collection of the required DAO.
+	 */
 	public Collection<BaseAsyncDAO<S>> getDependencies() {
-		return Collections.EMPTY_LIST;
+		return Collections.<BaseAsyncDAO<S>>emptyList();
 	}
 	
 }

@@ -22,7 +22,7 @@ package org.sigmah.client.dispatch;
  * #L%
  */
 
-
+import com.allen_sauer.gwt.log.client.Log;
 import org.sigmah.shared.command.base.Command;
 import org.sigmah.shared.command.result.Result;
 
@@ -84,6 +84,7 @@ public abstract class AbstractDispatchAsync implements DispatchAsync, OfflineEve
 				callback.onFailure(caught);
 				break;
 			case RETRY_OFFLINE:
+				Log.warn("An error happened while handling the command '" + command + "'. Retrying offline.", caught);
 				eventBus.fireEvent(new OfflineEvent(this, ApplicationState.OFFLINE));
 				execute(command, callback, loadables);
 				break;

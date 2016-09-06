@@ -23,10 +23,7 @@ package org.sigmah.client.util.profiler;
  */
 
 import com.google.gwt.core.client.JavaScriptObject;
-import com.google.gwt.i18n.client.DateTimeFormat;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.sigmah.client.security.AuthenticationProvider;
-import org.sigmah.offline.appcache.ApplicationCache;
 import org.sigmah.offline.event.JavaScriptEvent;
 import org.sigmah.offline.indexeddb.IndexedDB;
 import org.sigmah.offline.indexeddb.NativeOpenDatabaseRequest;
@@ -50,7 +47,7 @@ public class Profiler implements ProfilerStrategy {
 	/**
 	 * Current strategy.
 	 */
-	private ProfilerStrategy strategy = new ActiveProfilerStrategy();
+	private ProfilerStrategy strategy = new InactiveProfilerStrategy();
 	
 	private final ExecutionAsyncDAO executionAsyncDAO = new ExecutionAsyncDAO();
 	private AuthenticationProvider authenticationProvider;
@@ -70,13 +67,20 @@ public class Profiler implements ProfilerStrategy {
 			strategy = new InactiveProfilerStrategy();
 		}
 	}
-	
+	/**
+	 * Check if the profiler is active or not.
+	 * @return <code>true</code> if the profiler is active, 
+	 * <code>false</code> otherwise.
+	 */
+	public boolean isActive() {
+		return strategy instanceof ActiveProfilerStrategy;
+	}
 	/**
 	 * Removes the database used by the profiler.
 	 */
 	public void deleteDatabase() {
 		final IndexedDB indexedDB = new IndexedDB();
-		final NativeOpenDatabaseRequest<ProfilerStore> request = indexedDB.deleteDatabase(DATABASE_NAME);
+		final NativeOpenDatabaseRequest<ProfilerStore> request = indexedDB.deleteDatabase(DATABASE_NAME, ProfilerStore.class);
 
 		request.addSuccessHandler(new JavaScriptEvent() {
 
@@ -134,69 +138,6 @@ public class Profiler implements ProfilerStrategy {
 		return execution;
 	}
 	
-	/**
-	 * Generates a CSV file from the collected data.
-	 * 
-	 * @param callback
-	 *			Called when the generation is done.
-	 */
-	public void generateCSV(final AsyncCallback<String> callback) {
-		executionAsyncDAO.forEach(new AsyncCallback<Execution>() {
-			
-			private final StringBuilder csvBuilder = new StringBuilder("scenario;duration;date;version;user-agent\n");
-			private final DateTimeFormat formatter = DateTimeFormat.getFormat(DateTimeFormat.PredefinedFormat.DATE_TIME_FULL);
-
-			@Override
-			public void onFailure(Throwable caught) {
-				callback.onFailure(caught);
-			}
-
-			@Override
-			public void onSuccess(Execution execution) {
-				if (execution != null) {
-					if (execution.isOnline() && ApplicationCache.Status.IDLE.name().equals(execution.getApplicationCacheStatus())) {
-						csvBuilder.append(execution.getScenarioName()).append(';')
-								.append(formatDoubleForCSV(execution.getDuration())).append(';')
-								.append(formatter.format(execution.getDate())).append(';')
-								.append(execution.getVersionNumber()).append(";\"")
-								.append(execution.getUserAgent()).append('\"');
-
-						for (final Checkpoint checkpoint : execution.getCheckpointSequence()) {
-							csvBuilder.append(';').append(checkpoint.getName())
-									.append(';').append(formatDoubleForCSV(checkpoint.getDuration()));
-						}
-
-						csvBuilder.append("\r\n");
-					}
-				} else {
-					callback.onSuccess(csvBuilder.toString());
-				}
-			}
-		});
-	}
-	
-	/**
-	 * Generates a markdown report from the collected data.
-	 */
-	public void generateMarkdownReport() {
-		// TODO: Write the generation code.
-		throw new UnsupportedOperationException("Not implemented yet.");
-	}
-	
-	/**
-	 * Format the given double value to a <code>String</code> suitable for a CSV file.
-	 * <p>
-	 * Dots are replaced by commas and the decimal part is truncated to 3 digits.
-	 * For example, <code>Math.PI</code> will be formatted as <code>3,141</code>.
-	 * 
-	 * @param value
-	 *			Double value to format.
-	 * @return The formatted value.
-	 */
-	private String formatDoubleForCSV(final double value) {
-		return Double.toString(((int) (value * 1000)) / 1000.0).replace('.', ',');
-	}
-
 	// ---
 	// GETTERS & SETTERS
 	// ---

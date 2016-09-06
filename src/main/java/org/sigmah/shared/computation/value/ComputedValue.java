@@ -22,6 +22,7 @@ package org.sigmah.shared.computation.value;
  * #L%
  */
 
+import org.sigmah.shared.computation.instruction.Reductor;
 import org.sigmah.shared.dto.element.ComputationElementDTO;
 
 /**
@@ -40,10 +41,20 @@ public interface ComputedValue {
 	Double get();
 	
 	/**
+	 * Add the current value to the given reductor.
+	 * 
+	 * @param reductor
+	 *			Reductor to feed.
+	 */
+	void feedToReductor(Reductor reductor);
+	
+	/**
 	 * Returns <code>true</code> if this value matches the given constraints.
 	 * 
-	 * @param minimum Minimum value.
-	 * @param maximum Maximum value.
+	 * @param minimum
+	 *			Minimum value.
+	 * @param maximum
+	 *			Maximum value.
 	 * @return <code>0</code> if this value matches the given constraints,
 	 * <code>-1</code> if the value is too low,
      * <code>1</code> if the value is too high.
@@ -56,7 +67,8 @@ public interface ComputedValue {
      * Identical to <code>matchesConstraints(element.getMinimumConstraint(), 
      * element.getMaximumConstraint())</code>.
      * 
-     * @param element Computation element.
+     * @param element
+	 *			Computation element.
      * @return <code>0</code> if this value matches the given constraints,
 	 * <code>-1</code> if the value is too low,
      * <code>1</code> if the value is too high.
@@ -69,7 +81,8 @@ public interface ComputedValue {
 	 * Result will be equals to "<code>other + this</code>".
 	 * </p>
 	 * 
-	 * @param other Value to add.
+	 * @param other
+	 *			Value to add.
 	 * @return A new value combining this value and the given one.
 	 */
 	ComputedValue addTo(ComputedValue other);
@@ -80,7 +93,8 @@ public interface ComputedValue {
 	 * Result will be equals to "<code>other * this</code>".
 	 * </p>
 	 * 
-	 * @param other Value to multiply.
+	 * @param other
+	 *			Value to multiply.
 	 * @return A new value combining this value and the given one.
 	 */
 	ComputedValue multiplyWith(ComputedValue other);
@@ -91,7 +105,8 @@ public interface ComputedValue {
 	 * Result will be equals to "<code>other / this</code>".
 	 * </p>
 	 * 
-	 * @param other Value to divide.
+	 * @param other
+	 *			Value to divide.
 	 * @return A new value combining this value and the given one.
 	 */
 	ComputedValue divide(ComputedValue other);
@@ -102,7 +117,8 @@ public interface ComputedValue {
 	 * Result will be equals to "<code>other - this</code>".
 	 * </p>
 	 * 
-	 * @param other Value to substract from.
+	 * @param other
+	 *			Value to substract from.
 	 * @return A new value combining this value and the given one.
 	 */
 	ComputedValue substractFrom(ComputedValue other);

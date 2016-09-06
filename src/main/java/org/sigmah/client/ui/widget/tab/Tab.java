@@ -125,4 +125,12 @@ public class Tab extends Composite implements HasClickHandlers {
 		return closePanel.addClickHandler(handler);
 	}
 
+	public FocusPanel getClosePanel() {
+		return closePanel;
+	}
+
+	public void setClosePanel(FocusPanel closePanel) {
+		this.closePanel = closePanel;
+	}
+
 }

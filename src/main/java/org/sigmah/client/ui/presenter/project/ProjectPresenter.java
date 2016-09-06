@@ -253,6 +253,8 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 			public void onSubMenuClick(final SubMenuItem menuItem) {
 
 				final PageRequest currentPageRequest = injector.getPageManager().getCurrentPageRequest(false);
+				Profiler.INSTANCE.startScenario(Scenario.AGENDA);	
+				Profiler.INSTANCE.markCheckpoint(Scenario.AGENDA, "Before navigateRequest");
 				eventBus.navigateRequest(menuItem.getRequest().addAllParameters(currentPageRequest.getParameters(false)));
 			}
 		});
@@ -405,7 +407,7 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 
 		// Updates sub-menu widget.
 		view.getSubMenuWidget().initializeMenu(subPageRequest.getPage(), auth());
-
+		Profiler.INSTANCE.markCheckpoint(Scenario.OPEN_PROJECT, "End initializeMenu");
 		// Updates delete button enabled state.
 		final boolean canDeleteProject = canDeleteProject();
 		view.getDeleteButton().setEnabled(canDeleteProject);
@@ -416,9 +418,10 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 
 		// Updates parent view elements.
 		loadAmendments(project, coreVersionId);
+		Profiler.INSTANCE.markCheckpoint(Scenario.OPEN_PROJECT, "End loadAmendments");
 		refreshBanner(project);
-		
-		Profiler.INSTANCE.endScenario(Scenario.OPEN_PROJECT);
+		Profiler.INSTANCE.markCheckpoint(Scenario.OPEN_PROJECT, "End refreshBanner");
+		//Profiler.INSTANCE.endScenario(Scenario.OPEN_PROJECT);
 	}
 
 	/**

@@ -22,10 +22,11 @@ package org.sigmah.server.mail;
  * #L%
  */
 
-import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeBodyPart;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.mail.EmailException;
 import org.junit.Assert;
@@ -40,6 +41,9 @@ import org.junit.Assert;
  */
 public class DummyMailSender implements MailSender {
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void send(Email email) throws EmailException {
 		if (email == null || ArrayUtils.isEmpty(email.getToAddresses())) {
@@ -90,9 +94,23 @@ public class DummyMailSender implements MailSender {
 		System.out.println(email.getContent());
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public void sendFile(Email email, String fileName, InputStream fileStream) throws EmailException {
+	public void sendWithAttachments(final Email email, final EmailAttachment... attachments) throws EmailException {
 		send(email);
+		System.out.println(attachments.length + " attachement(s)");
+		for (int index = 0; index < attachments.length; index++) {
+			final int attachmentNumber = index + 1;
+			try {
+				final EmailAttachment attachment = attachments[index];
+				final MimeBodyPart mimeBodyPart = attachment.toMimeBodyPart();
+				System.out.println("Attachment #" + attachmentNumber + ": name '" + attachment.getFileName() + "', type '" + mimeBodyPart.getContentType());
+			} catch (MessagingException ex) {
+				throw new EmailException("An error occured while accessing the attachment #" + attachmentNumber, ex);
+			}
+		}
 	}
 
 }

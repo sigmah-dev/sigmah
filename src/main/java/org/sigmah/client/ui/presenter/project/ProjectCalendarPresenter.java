@@ -39,6 +39,8 @@ import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
+import org.sigmah.client.util.profiler.Profiler;
+import org.sigmah.client.util.profiler.Scenario;
 
 /**
  * <p>
@@ -113,6 +115,7 @@ public class ProjectCalendarPresenter extends AbstractProjectPresenter<ProjectCa
 	 */
 	@Override
 	public void onPageRequest(final PageRequest request) {
+		Profiler.INSTANCE.markCheckpoint(Scenario.AGENDA, "onPageRequest started");
 		final EnumMap<CalendarType, Integer> calendars = new EnumMap<CalendarType, Integer>(CalendarType.class);
 		calendars.put(CalendarType.Activity, getProject().getId());
 		calendars.put(CalendarType.Personal, getProject().getCalendarId());

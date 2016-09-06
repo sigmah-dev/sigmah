@@ -66,6 +66,7 @@ public final class Computations {
             
         } catch (RuntimeException e) {
             // Exception is ignored.
+			e.printStackTrace();
             return new Computation(Collections.singletonList(
                     Instructions.getConstantWithValue(ComputationError.BAD_FORMULA)));
         }
