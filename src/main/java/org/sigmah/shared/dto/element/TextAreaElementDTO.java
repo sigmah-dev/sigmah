@@ -63,6 +63,23 @@ public class TextAreaElementDTO extends FlexibleElementDTO {
     public static final String ENTITY_NAME = "element.TextAreaElement";
 
 	/**
+	 * Creates a new text area element DTO.
+	 */
+	public TextAreaElementDTO() {
+		// Empty constructor.
+	}
+	
+	/**
+	 * Creates a new text area element DTO with the given type.
+	 * 
+	 * @param type 
+	 *			Type of the text area element DTO to create.
+	 */
+	public TextAreaElementDTO(final TextAreaType type) {
+		setType(type.getCode());
+	}
+	
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
