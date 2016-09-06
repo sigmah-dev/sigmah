@@ -166,7 +166,7 @@ public class ProjectModelDTO extends AbstractModelDataEntityDTO<Integer> impleme
 	 *
 	 * @author tmi (v1.3)
 	 */
-	protected static class LocalizedElement<E extends FlexibleElementDTO> {
+	public static class LocalizedElement<E extends FlexibleElementDTO> {
 
 		private final PhaseModelDTO phaseModel;
 		private final E element;

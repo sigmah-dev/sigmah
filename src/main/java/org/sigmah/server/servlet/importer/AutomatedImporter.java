@@ -35,13 +35,16 @@ import org.sigmah.shared.command.AutomatedImport;
 import org.sigmah.shared.command.CreateEntity;
 import org.sigmah.shared.command.UpdateProject;
 import org.sigmah.shared.command.result.CreateResult;
+import org.sigmah.shared.computation.value.ComputedValues;
 import org.sigmah.shared.dispatch.CommandException;
 import org.sigmah.shared.dto.ElementExtractedValue;
 import org.sigmah.shared.dto.ImportDetails;
 import org.sigmah.shared.dto.ProjectDTO;
 import org.sigmah.shared.dto.base.EntityDTO;
 import org.sigmah.shared.dto.element.BudgetElementDTO;
+import org.sigmah.shared.dto.element.BudgetRatioElementDTO;
 import org.sigmah.shared.dto.element.BudgetSubFieldDTO;
+import org.sigmah.shared.dto.element.FlexibleElementDTO;
 import org.sigmah.shared.dto.element.event.ValueEvent;
 import org.sigmah.shared.dto.orgunit.OrgUnitDTO;
 import org.sigmah.shared.dto.referential.AmendmentAction;
@@ -331,6 +334,8 @@ public class AutomatedImporter {
 		
 		final HashMap<String, Object> projectProperties = new HashMap<String, Object>();
 		
+		FlexibleElementDTO plannedBudgetElement = null;
+		
 		for (final ElementExtractedValue extractedValue : values) {
 			final LogicalElementType type = LogicalElementTypes.of(extractedValue.getElement());
 			final DefaultFlexibleElementType defaultType = type.toDefaultFlexibleElementType();
@@ -352,8 +357,26 @@ public class AutomatedImporter {
 						}
 					}
 					break;
+				case BUDGET_RATIO:
+					final BudgetRatioElementDTO budgetRatioElement = (BudgetRatioElementDTO) extractedValue.getElement();
+					plannedBudgetElement = budgetRatioElement.getPlannedBudget();
+					break;
 				default:
 					break;
+			}
+		}
+		
+		if (plannedBudgetElement != null) {
+			for (final ElementExtractedValue extractedValue : values) {
+				if (plannedBudgetElement.equals(extractedValue.getElement())) {
+					final String newValue = extractedValue.getNewValue() != null ? extractedValue.getNewValue().toString() : null;
+					final Double value = ComputedValues.from(newValue).get();
+					
+					if (value != null) {
+						projectProperties.put(ProjectDTO.BUDGET, value);
+					}
+					break;
+				}
 			}
 		}
 		
