@@ -26,30 +26,36 @@ import java.util.Date;
 import java.util.List;
 
 /**
- *
+ * Detail of a probing session.
+ * 
  * @author Mohamed KHADHRAOUI (mohamed.khadhraoui@netapsys.fr)
  */
 public class ProbesReportDetails {
+	
 	/**
-	 * Start time
+	 * Start time.
 	 */
 	private Date startTime;
+	
 	/**
 	 * End time.
 	 */
 	private Date endTime;
+	
 	/**
 	 * user agent name.
 	 */
 	private String userAgent;
+	
 	/**
-	 * simah version
+	 * Version number of Sigmah.
 	 */
 	private String  versionNumber;
+	
 	/**
-	 * List of scenarions details.
+	 * List of scenarios details.
 	 */
-	private List<ScenarioDetailsDTO> senarios=new ArrayList<ScenarioDetailsDTO>();
+	private List<ScenarioDetailsDTO> senarios = new ArrayList<ScenarioDetailsDTO>();
 
 	public Date getStartTime() {
 		return startTime;
@@ -83,14 +89,8 @@ public class ProbesReportDetails {
 		this.versionNumber = versionNumber;
 	}
 
-	
-
 	public List<ScenarioDetailsDTO> getSenarios() {
 		return senarios;
 	}
 
-	public void setSenarios(List<ScenarioDetailsDTO> senarios) {
-		this.senarios = senarios;
-	}
-	
 }

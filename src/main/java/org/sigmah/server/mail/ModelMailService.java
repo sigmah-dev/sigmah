@@ -148,7 +148,7 @@ public class ModelMailService implements MailService {
 			if(fileName == null || fileStream == null) {
 				sender.send(email);
 			} else {
-				sender.sendFile(email, fileName, fileStream);
+				sender.sendWithAttachments(email, new EmailAttachment(fileName, fileStream));
 			}
 
 			if (LOG.isInfoEnabled()) {
