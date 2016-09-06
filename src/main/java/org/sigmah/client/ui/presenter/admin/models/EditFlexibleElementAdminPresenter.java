@@ -982,7 +982,7 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 
 				break;
 			default:
-				throw new IllegalStateException();
+				throw new IllegalStateException("Unknown ModelType : " + currentModel.getModelType());
 		}
 
 		for (int position = minPosition; position <= maxPosition; position++) {

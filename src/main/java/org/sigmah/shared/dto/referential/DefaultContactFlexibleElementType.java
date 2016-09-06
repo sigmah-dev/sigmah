@@ -79,7 +79,7 @@ public enum DefaultContactFlexibleElementType implements Result, LogicalElementT
       case ORGANIZATION:
         return isVisibleForOrganizationType();
       default:
-        throw new IllegalStateException();
+        throw new IllegalStateException("Unknown ContactModelType : " + type);
     }
   }
 

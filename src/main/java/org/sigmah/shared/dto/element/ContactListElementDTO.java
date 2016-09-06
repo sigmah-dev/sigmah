@@ -311,7 +311,7 @@ public class ContactListElementDTO extends FlexibleElementDTO {
               formattedTokens.add(stringBuilder.toString());
               break;
             default:
-              throw new IllegalStateException();
+              throw new IllegalStateException("Unknown ValueEventChangeType : " + historyTokenDTO.getType());
           }
           historyTokenText.setHistoryTokenValue(formattedTokens);
         }

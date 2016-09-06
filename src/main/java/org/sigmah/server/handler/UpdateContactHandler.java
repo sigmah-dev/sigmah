@@ -198,7 +198,7 @@ public class UpdateContactHandler extends AbstractCommandHandler<UpdateContact, 
             currentIds = multivaluedIdsValue;
             break;
           default:
-            throw new IllegalStateException();
+            throw new IllegalStateException("Unknown ValueEventChangeType : " + valueEvent.getChangeType());
         }
         String serializedValue = ValueResultUtils.mergeElements(new ArrayList<Integer>(currentIds));
         currentValue.setValue(serializedValue);
@@ -537,7 +537,7 @@ public class UpdateContactHandler extends AbstractCommandHandler<UpdateContact, 
         }
         return null;
       default:
-        throw new IllegalStateException();
+        throw new IllegalStateException("Unknown DefaultContactFlexibleElementType : " + type);
     }
 
     LOG.debug("[saveDefaultElement] Updates the container.");

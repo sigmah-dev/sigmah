@@ -175,13 +175,13 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 		final Project project = em().find(Project.class, projectId);
 		if (project != null) {
 			if (!Handlers.isProjectEditable(project, user)) {
-				throw new IllegalStateException();
+				throw new IllegalStateException("The project " + project.getId() + " is not editable by the user " + user.getId());
 			}
 		} else {
 			// If project is null, it means the user is not trying to update a project but an org unit
 			OrgUnit orgUnit = em().find(OrgUnit.class, projectId);
 			if (!Handlers.isOrgUnitVisible(orgUnit, user)) {
-				throw new IllegalStateException();
+				throw new IllegalStateException("The orgunit " + orgUnit.getId() + " is not editable by the user " + user.getId());
 			}
 		}
 
@@ -288,7 +288,7 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 						currentIds = multivaluedIdsValue;
 						break;
 					default:
-						throw new IllegalStateException();
+						throw new IllegalStateException("Unknown ValueEventChangeType : " + valueEvent.getChangeType());
 				}
 				String serializedValue = ValueResultUtils.mergeElements(new ArrayList<Integer>(currentIds));
 				currentValue.setValue(serializedValue);

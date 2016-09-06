@@ -418,7 +418,7 @@ public class User extends AbstractEntityId<Integer> {
 					secondaryOrgUnitProfiles.add(orgUnitsWithProfile);
 					break;
 				default:
-					throw new IllegalStateException();
+					throw new IllegalStateException("Unknown OrgUnitProfileType : " + orgUnitsWithProfile.getType());
 			}
 		}
 		this.secondaryOrgUnitsWithProfiles = Collections.unmodifiableList(secondaryOrgUnitProfiles);

@@ -315,7 +315,8 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 	private PrivacyGroupPermissionEnum getPermission() {
 		PrivacyGroupPermissionEnum permission = PrivacyGroupPermissionEnum.NONE;
 		for (Integer orgUnitId : getOrgUnitIds()) {
-			switch (ProfileUtils.getPermissionForOrgUnit(auth(), orgUnitId, getPrivacyGroup())) {
+			PrivacyGroupPermissionEnum privacyGroupPermission = ProfileUtils.getPermissionForOrgUnit(auth(), orgUnitId, getPrivacyGroup());
+			switch (privacyGroupPermission) {
 				case NONE:
 					break;
 				case READ:
@@ -324,7 +325,7 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 				case WRITE:
 					return PrivacyGroupPermissionEnum.WRITE;
 				default:
-					throw new IllegalStateException();
+					throw new IllegalStateException("Unknown PrivacyGroupPermissionEnum : " + privacyGroupPermission);
 			}
 		}
 		return permission;

@@ -186,7 +186,7 @@ public class ContactHistoryService {
         return i18nServer.t(language, "contactHistoryChangeTypeRemoved" + modelName + "Relationship");
       case EDIT: // fall through (always ADD or REMOVE in case of ContactListElement)
       default:
-        throw new IllegalStateException();
+        throw new IllegalStateException("ValueEventChangeType not supported : " + valueEventChangeType);
     }
   }
 }

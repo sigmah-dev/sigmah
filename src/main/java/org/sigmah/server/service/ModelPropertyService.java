@@ -93,7 +93,7 @@ public class ModelPropertyService {
     } else if (element instanceof ComputationElement) {
       return value;
     } else {
-      throw new IllegalStateException();
+      throw new IllegalStateException("Unknown Flexible Element type : " + element.getClass());
     }
   }
 
@@ -150,7 +150,7 @@ public class ModelPropertyService {
       case TEXT:
         return value;
       default:
-        throw new IllegalStateException();
+        throw new IllegalStateException("Unknown TextAreaType : " + textAreaType);
     }
   }
 
@@ -244,7 +244,7 @@ public class ModelPropertyService {
       case POSTAL_ADDRESS:
         return value;
       default:
-        throw new IllegalStateException();
+        throw new IllegalStateException("Unknown DefaultContactFlexibleElementType : " + type);
     }
   }
 
@@ -279,7 +279,7 @@ public class ModelPropertyService {
       case TOP_MEMBERSHIP:
         return i18nServer.t(language, "contactTopMembership");
       default:
-        throw new IllegalStateException();
+        throw new IllegalStateException("Unknown DefaultContactFlexibleElementType : " + type);
     }
   }
 }

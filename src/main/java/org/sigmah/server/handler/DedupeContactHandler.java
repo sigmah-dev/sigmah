@@ -154,7 +154,7 @@ public class DedupeContactHandler extends AbstractCommandHandler<DedupeContact, 
         // NOOP, shouldn't be possible
         break;
       default:
-        throw new IllegalStateException();
+        throw new IllegalStateException("Unknown DefaultContactFlexibleElementType : " + flexibleElement.getType());
     }
   }
 
@@ -232,7 +232,7 @@ public class DedupeContactHandler extends AbstractCommandHandler<DedupeContact, 
           // NOOP, shouldn't be possible
           break;
         default:
-          throw new IllegalStateException();
+          throw new IllegalStateException("Unknown DefaultContactFlexibleElementType : " + flexibleElement.getType());
       }
     }
   }
