@@ -32,10 +32,13 @@ import java.util.List;
 import java.util.Map;
 import org.sigmah.client.dispatch.monitor.LoadingMask;
 import org.sigmah.client.ui.widget.Loadable;
+import org.sigmah.client.ui.widget.form.StringField;
 import org.sigmah.offline.sync.SuccessCallback;
 import org.sigmah.shared.computation.Computation;
 import org.sigmah.shared.computation.dependency.Dependency;
 import org.sigmah.shared.computation.dependency.SingleDependency;
+import org.sigmah.shared.dto.ContactDTO;
+import org.sigmah.shared.dto.ContactModelDTO;
 import org.sigmah.shared.dto.IsModel;
 import org.sigmah.shared.dto.OrgUnitModelDTO;
 import org.sigmah.shared.dto.ProjectDTO;
@@ -43,6 +46,7 @@ import org.sigmah.shared.dto.ProjectModelDTO;
 import org.sigmah.shared.dto.element.ComputationElementDTO;
 import org.sigmah.shared.dto.element.FlexibleElementContainer;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
+import org.sigmah.shared.dto.element.HistoryWrapper;
 import org.sigmah.shared.dto.element.event.ValueEvent;
 import org.sigmah.shared.dto.element.event.ValueHandler;
 import org.sigmah.shared.dto.orgunit.OrgUnitDTO;
@@ -108,6 +112,24 @@ public class ComputationTriggerManager {
 	}
 
 	/**
+	 * Prepare the trigger manager.
+	 *
+	 * @param contactDTO
+	 *          Contact to display.
+	 */
+	public void prepareForContact(ContactDTO contactDTO) {
+
+		this.container = contactDTO;
+
+		clearMaps();
+
+		for (final ContactDTO.LocalizedElement localizedElement : contactDTO.getLocalizedElements(ComputationElementDTO.class)) {
+			final ComputationElementDTO computationElement = (ComputationElementDTO) localizedElement.getElement();
+			prepareForComputationElement(computationElement, contactDTO.getContactModel());
+		}
+	}
+
+	/**
 	 * Remove the content of every maps.
 	 */
 	private void clearMaps() {
@@ -163,13 +185,18 @@ public class ComputationTriggerManager {
 		}
 		
 		if (element instanceof ComputationElementDTO) {
-			@SuppressWarnings("unchecked")
-			final Field<String> field = (Field<String>)component;
-			
-			components.put(element, field);
-			elementsWithHandlers.put(element.getId(), (ComputationElementDTO) element);
+			StringField stringField = null;
+			if (component instanceof StringField) {
+				stringField = (StringField) component;
+			} else if (component instanceof HistoryWrapper && ((HistoryWrapper) component).getField() instanceof StringField) {
+				stringField = (StringField) ((HistoryWrapper) component).getField();
+			}
+			if (stringField != null) {
+				components.put(element, stringField);
+				elementsWithHandlers.put(element.getId(), (ComputationElementDTO) element);
 
-			initialUpdateIfCurrentValueIsEmpty((ComputationElementDTO) element, field);
+				initialUpdateIfCurrentValueIsEmpty((ComputationElementDTO) element, stringField);
+			}
 		}
 
 		final List<ComputationElementDTO> computationElements = dependencies.get(element);

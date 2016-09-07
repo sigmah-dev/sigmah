@@ -25,6 +25,7 @@ package org.sigmah.client.ui.presenter.admin.models;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.event.UpdateEvent;
 import org.sigmah.client.i18n.I18N;
@@ -43,12 +44,15 @@ import org.sigmah.client.util.AdminUtil;
 import org.sigmah.client.util.ClientUtils;
 import org.sigmah.shared.command.CreateEntity;
 import org.sigmah.shared.command.result.CreateResult;
+import org.sigmah.shared.dto.ContactDetailsDTO;
+import org.sigmah.shared.dto.ContactModelDTO;
 import org.sigmah.shared.dto.IsModel;
 import org.sigmah.shared.dto.OrgUnitDetailsDTO;
 import org.sigmah.shared.dto.PhaseModelDTO;
 import org.sigmah.shared.dto.ProjectDetailsDTO;
 import org.sigmah.shared.dto.base.AbstractModelDataEntityDTO;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
+import org.sigmah.shared.dto.layout.LayoutConstraintDTO;
 import org.sigmah.shared.dto.layout.LayoutDTO;
 import org.sigmah.shared.dto.layout.LayoutGroupDTO;
 
@@ -66,6 +70,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.sigmah.shared.command.Delete;
 import org.sigmah.shared.command.result.VoidResult;
+import org.sigmah.shared.dto.referential.ElementTypeEnum;
 
 /**
  * Presenter in charge of creating/editing a layout group.
@@ -89,6 +94,7 @@ public class EditLayoutGroupAdminPresenter extends AbstractPagePresenter<EditLay
 
 		SimpleComboBox<Integer> getRowField();
 
+		CheckBox getHasIterationsField();
 		Button getSaveButton();
 
 		Button getDeleteButton();
@@ -211,6 +217,7 @@ public class EditLayoutGroupAdminPresenter extends AbstractPagePresenter<EditLay
 			view.getNameField().setValue(layoutGroup.getTitle());
 			view.getContainerField().setValue(flexibleElement.getContainerModel());
 			setRowFieldValues(flexibleElement.getContainerModel(), layoutGroup.getRow());
+			view.getHasIterationsField().setValue(layoutGroup.getHasIterations());
 		} else {
 			layoutGroup = null;
 		}
@@ -283,6 +290,9 @@ public class EditLayoutGroupAdminPresenter extends AbstractPagePresenter<EditLay
 		} else if (hasLayout instanceof OrgUnitDetailsDTO) {
 			return ((OrgUnitDetailsDTO) hasLayout).getLayout();
 
+		} else if (hasLayout instanceof ContactDetailsDTO) {
+			return ((ContactDetailsDTO) hasLayout).getLayout();
+
 		} else {
 			return null;
 		}
@@ -300,12 +310,29 @@ public class EditLayoutGroupAdminPresenter extends AbstractPagePresenter<EditLay
 		final String name = view.getNameField().getValue();
 		final Integer row = view.getRowField().getSimpleValue();
 		final Integer column = 0;
+		final Boolean hasIterations = view.getHasIterationsField().getValue();
 		final LayoutDTO container = getLayout(view.getContainerField().getValue());
+
+  	// iterative groups cannot contain default fields nor core fields
+		if(hasIterations && layoutGroup != null) {
+			for(LayoutConstraintDTO constraint : layoutGroup.getConstraints()) {
+				if(constraint.getFlexibleElementDTO().getElementType() == ElementTypeEnum.DEFAULT
+						|| constraint.getFlexibleElementDTO().getElementType() == ElementTypeEnum.DEFAULT_CONTACT) {
+					N10N.error(I18N.CONSTANTS.adminFlexibleGroup(), I18N.CONSTANTS.adminErrorDefaultFieldIterable());
+					return;
+				}
+				if(constraint.getFlexibleElementDTO().getAmendable()) {
+					N10N.error(I18N.CONSTANTS.adminFlexibleGroup(), I18N.CONSTANTS.adminErrorCoreFieldIterable());
+					return;
+				}
+			}
+		}
 
 		final LayoutGroupDTO layoutGroupDTO = layoutGroup != null ? layoutGroup : new LayoutGroupDTO();
 		layoutGroupDTO.setTitle(name);
 		layoutGroupDTO.setRow(row);
 		layoutGroupDTO.setColumn(column);
+		layoutGroupDTO.setHasIterations(hasIterations);
 		layoutGroupDTO.setParentLayout(container);
 
 		final Map<String, Object> newGroupProperties = new HashMap<String, Object>();

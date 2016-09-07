@@ -169,6 +169,11 @@ public final class ServletConstants {
 		UPLOAD_ORGANIZATION_LOGO("uploadOrganizationLogo"),
 
 		/**
+	   * Upload a new avatar.
+		 */
+		UPLOAD_AVATAR("uploadAvatar"),
+
+		/**
 		 * <p>
 		 * Downloads a file version.
 		 * </p>
@@ -239,6 +244,22 @@ public final class ServletConstants {
 
 		/**
 		 * <p>
+		 * Exports a contact data.
+		 * </p>
+		 * <p>
+		 * Expected request parameter(s):
+		 * <ul>
+		 * <li>{@link RequestParameter#ID} : Project id.</li>
+		 * <li>{@link RequestParameter#WITH_ALL_RELATIONS} : Relations tab.</li>
+		 * <li>{@link RequestParameter#WITH_FRAMEWORK_RELATIONS} : Relations linked to frameworks tab.</li>
+		 * <li>{@link RequestParameter#WITH_RELATIONS_BY_ELEMENT} : Relations grouped by FlexibleElement tab.</li>
+		 * </ul>
+		 * </p>
+		 */
+		EXPORT_CONTACT("exportContact"),
+
+		/**
+		 * <p>
 		 * Exports a project LogFrame.
 		 * </p>
 		 * <p>
@@ -289,6 +310,18 @@ public final class ServletConstants {
 		EXPORT_GLOBAL("exportGlobal"),
 
 		/**
+		 * <p> Global Export Contacts. </p>
+		 * <p>
+		 * Expected request parameter(s):
+		 * <ul>
+		 * <li>{@link RequestParameter#ID} : Organization id.</li>
+		 * <li>{@link RequestParameter#GLOBAL_EXPORT_ID} : Global Export id.</li>
+		 * <li>{@link RequestParameter#VERSION} : {@link ExportDataVersion} .</li>
+		 * </ul>
+		 */
+		EXPORT_CONTACT_GLOBAL("exportContactGlobal"),
+
+		/**
 		 * <p> Model Gategory Export.</p>
 		 * <p>
 		 * Expected request parameter(s):
@@ -333,6 +366,17 @@ public final class ServletConstants {
 		EXPORT_MODEL_ORGUNIT("exportOrgUnitModel"),
 
 		/**
+		 * <p> Model Contact Export.</p>
+		 * <p>
+		 * Expected request parameter(s):
+		 * <ul>
+		 * <li>{@link RequestParameter#ID} : Contact id.</li>
+		 * </ul>
+		 */
+
+		EXPORT_MODEL_CONTACT("exportContactModel"),
+
+		/**
 		 * <p> Model Gategory Import.</p>
 		 * <p>
 		 * Expected request parameter(s):
@@ -375,6 +419,17 @@ public final class ServletConstants {
 		 */
 
 		IMPORT_MODEL_ORGUNIT("importOrgUnitModel"),
+
+		/**
+		 * <p> Model Contact Import</p>
+		 * <p>
+		 * Expected request parameter(s):
+		 * <ul>
+		 * <li></li>
+		 * </ul>
+		 */
+
+		IMPORT_MODEL_CONTACT("importContactModel"),
 		
 		/**
 		 * <p>Prepare the importation a file containing values by storing it on

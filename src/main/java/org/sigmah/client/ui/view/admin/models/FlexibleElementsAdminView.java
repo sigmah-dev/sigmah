@@ -47,6 +47,7 @@ import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
  */
 public class FlexibleElementsAdminView extends AbstractView implements FlexibleElementsAdminPresenter.View {
 
+	private ContentPanel mainPanel;
 	private Grid<FlexibleElementDTO> grid;
 	private ToolBar toolbar;
 	private Button addButton;
@@ -64,9 +65,8 @@ public class FlexibleElementsAdminView extends AbstractView implements FlexibleE
 	@Override
 	public void initialize() {
 
-		final ContentPanel mainPanel = Panels.content(null);
+		mainPanel = Panels.content(null);
 
-		mainPanel.add(createGrid());
 		mainPanel.setTopComponent(createToolBar());
 
 		add(mainPanel);
@@ -163,7 +163,14 @@ public class FlexibleElementsAdminView extends AbstractView implements FlexibleE
 		disableButton.setEnabled(false);
 	}
 
-	// ---------------------------------------------------------------------------------------------------------------
+	@Override
+	public void resetGrid(boolean canHaveMandatoryFields, boolean hasBanner, boolean hasCard) {
+		this.mainPanel.remove(grid);
+		createGrid(canHaveMandatoryFields, hasBanner, hasCard);
+		this.mainPanel.add(grid);
+		this.mainPanel.layout();
+	}
+// ---------------------------------------------------------------------------------------------------------------
 	//
 	// UTILITY METHODS.
 	//
@@ -174,7 +181,7 @@ public class FlexibleElementsAdminView extends AbstractView implements FlexibleE
 	 * 
 	 * @return The grid component.
 	 */
-	private Component createGrid() {
+	private Component createGrid(boolean canHaveMandatoryFields, boolean hasBanner, boolean hasCard) {
 
 		grid = new Grid<FlexibleElementDTO>(new ListStore<FlexibleElementDTO>(), new FlexibleElementsColumnsProvider() {
 
@@ -188,7 +195,7 @@ public class FlexibleElementsAdminView extends AbstractView implements FlexibleE
 				return gridEventHandler;
 			}
 
-		}.getColumnModel());
+		}.getColumnModel(canHaveMandatoryFields, hasBanner, hasCard));
 
 		grid.setAutoHeight(true);
 		grid.getView().setForceFit(true);
@@ -197,7 +204,7 @@ public class FlexibleElementsAdminView extends AbstractView implements FlexibleE
 		final GridSelectionModel<FlexibleElementDTO> selectionModel = new GridSelectionModel<FlexibleElementDTO>();
 		selectionModel.setSelectionMode(SelectionMode.MULTI);
 		grid.setSelectionModel(selectionModel);
-		
+
 		return grid;
 	}
 

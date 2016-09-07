@@ -205,7 +205,9 @@ public class AddMatchingRuleImportationShemeModelsAdminPresenter extends Abstrac
 		view.getFlexibleElementStore().removeAll();
 		
 		for(final FlexibleElementDTO flexibleElement : allElements) {
-			if(flexibleElement instanceof DefaultFlexibleElementDTO) {
+			if(flexibleElement.getConstraint().getParentLayoutGroup().getHasIterations()) {
+				continue;
+			} else if(flexibleElement instanceof DefaultFlexibleElementDTO) {
 				final DefaultFlexibleElementDTO defaultFlexibleElement = (DefaultFlexibleElementDTO)flexibleElement;
 				defaultFlexibleElement.setLabel(defaultFlexibleElement.getFormattedLabel());
 				view.getFlexibleElementStore().add(defaultFlexibleElement);

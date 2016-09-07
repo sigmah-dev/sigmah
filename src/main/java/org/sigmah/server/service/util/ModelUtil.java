@@ -23,9 +23,13 @@ package org.sigmah.server.service.util;
  */
 
 
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -36,6 +40,9 @@ import javax.persistence.TypedQuery;
 
 import org.sigmah.client.util.AdminUtil;
 import org.sigmah.server.computation.ServerComputations;
+import org.sigmah.server.computation.ServerDependencyResolver;
+import org.sigmah.server.dao.ContactModelDAO;
+import org.sigmah.server.domain.ContactModel;
 import org.sigmah.server.domain.OrgUnitModel;
 import org.sigmah.server.domain.ProjectModel;
 import org.sigmah.server.domain.category.CategoryElement;
@@ -52,6 +59,18 @@ import org.sigmah.server.domain.element.QuestionElement;
 import org.sigmah.server.domain.element.ReportElement;
 import org.sigmah.server.domain.element.ReportListElement;
 import org.sigmah.server.domain.element.TextAreaElement;
+import org.sigmah.server.domain.element.BudgetElement;
+import org.sigmah.server.domain.element.BudgetSubField;
+import org.sigmah.server.domain.element.ComputationElement;
+import org.sigmah.server.domain.element.DefaultFlexibleElement;
+import org.sigmah.server.domain.element.FilesListElement;
+import org.sigmah.server.domain.element.FlexibleElement;
+import org.sigmah.server.domain.element.QuestionChoiceElement;
+import org.sigmah.server.domain.element.QuestionElement;
+import org.sigmah.server.domain.element.ReportElement;
+import org.sigmah.server.domain.element.ReportListElement;
+import org.sigmah.server.domain.element.TextAreaElement;
+import org.sigmah.server.domain.element.*;
 import org.sigmah.server.domain.layout.LayoutConstraint;
 import org.sigmah.server.domain.layout.LayoutGroup;
 import org.sigmah.server.domain.profile.PrivacyGroup;
@@ -66,11 +85,13 @@ import org.sigmah.shared.dto.element.FlexibleElementDTO;
 import org.sigmah.shared.dto.layout.LayoutConstraintDTO;
 import org.sigmah.shared.dto.layout.LayoutGroupDTO;
 import org.sigmah.shared.dto.profile.PrivacyGroupDTO;
+import org.sigmah.shared.dto.referential.ContactModelType;
 import org.sigmah.shared.dto.referential.DefaultFlexibleElementType;
 import org.sigmah.shared.dto.referential.ElementTypeEnum;
 import org.sigmah.shared.dto.referential.LogicalElementType;
 import org.sigmah.shared.dto.referential.LogicalElementTypes;
 import org.sigmah.shared.dto.report.ReportModelDTO;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,23 +99,36 @@ import org.slf4j.LoggerFactory;
  * @author Maxime Lombard (mlombard@ideia.fr) (v2.0)
  * @author Denis Colliot (dcolliot@ideia.fr) (v2.0)
  */
-public final class ModelUtil {
+public class ModelUtil {
 
 	/**
 	 * Logger.
 	 */
 	private static final Logger LOG = LoggerFactory.getLogger(ModelUtil.class);
+	private final Provider<EntityManager> entityManagerProvider;
+	private final Mapper mapper;
+	private final ContactModelDAO contactModelDAO;
 
-	public static void persistFlexibleElement(final EntityManager em, final Mapper mapper, final PropertyMap changes, final Object model) {
-		persistFlexibleElement(em, mapper, null, changes, model);
+	/**
+	 * Injected {@link ServerDependencyResolver}.
+	 */
+	@Inject
+	private ServerDependencyResolver dependencyResolver;
+
+	@Inject
+	public ModelUtil(Provider<EntityManager> entityManagerProvider, Mapper mapper, ContactModelDAO contactModelDAO) {
+		this.entityManagerProvider = entityManagerProvider;
+		this.mapper = mapper;
+		this.contactModelDAO = contactModelDAO;
 	}
-	
-	@SuppressWarnings("unchecked")
-	public static void persistFlexibleElement(final EntityManager em, final Mapper mapper, final DependencyResolver dependencyResolver, final PropertyMap changes, final Object model) {
+
+	public void persistFlexibleElement(final PropertyMap changes, final Object model) {
 
 		if (changes.get(AdminUtil.PROP_FX_FLEXIBLE_ELEMENT) == null) {
 			return;
 		}
+
+		EntityManager em = entityManagerProvider.get();
 
 		// Common attributes
 		final String name = changes.get(AdminUtil.PROP_FX_NAME);
@@ -139,7 +173,11 @@ public final class ModelUtil {
 		final String computationRule = changes.get(AdminUtil.PROP_FX_COMPUTATION_RULE);
 		final FlexibleElementDTO budgetSpent = changes.get(AdminUtil.PROP_BUDGET_SPENT);
 		final FlexibleElementDTO budgetPlanned = changes.get(AdminUtil.PROP_BUDGET_PLANNED);
-		
+
+		Number contactListLimit = changes.get(AdminUtil.PROP_FX_CONTACT_LIST_LIMIT);
+		boolean contactListIsMember = changes.get(AdminUtil.PROP_FX_CONTACT_LIST_IS_MEMBER);
+		ContactModelType contactListType = changes.get(AdminUtil.PROP_FX_CONTACT_LIST_ALLOWED_TYPE);
+		Set<Integer> contactListAllowedModelIds = changes.get(AdminUtil.PROP_FX_CONTACT_LIST_ALLOWED_MODEL_IDS);
 
 		final FlexibleElementDTO flexibleEltDTO = changes.get(AdminUtil.PROP_FX_FLEXIBLE_ELEMENT);
 
@@ -225,10 +263,9 @@ public final class ModelUtil {
 		// ////////////////Banner
 		if (inBanner != null) {// Fact of being or not in banner has changed
 			if (inBanner) {// New to banner
-				if (model instanceof ProjectModel)
+				if (model instanceof ProjectModel || model instanceof OrgUnitModel || model instanceof ContactModel) {
 					changeBanner(em, posB, model, flexibleElt);
-				else if (model instanceof OrgUnitModel)
-					changeBanner(em, posB, model, flexibleElt);
+				}
 			} else {// delete from banner
 				if (oldBannerLayoutConstraintDTO != null) {
 					LayoutConstraint oldBannerLayoutConstraint = mapper.map(oldBannerLayoutConstraintDTO, new LayoutConstraint());
@@ -238,13 +275,12 @@ public final class ModelUtil {
 			}
 		} else {// same state on banner
 			if (posB != null) {// Position has changed means surely element
-				// was already in banner so there's an old
-				// banner layout constraint
-				LayoutConstraint oldBannerLayoutConstraint = mapper.map(oldBannerLayoutConstraintDTO, new LayoutConstraint());
-				if (model instanceof ProjectModel)
+				if (model instanceof ProjectModel || model instanceof OrgUnitModel || model instanceof ContactModel) {
+					// was already in banner so there's an old
+					// banner layout constraint
+					LayoutConstraint oldBannerLayoutConstraint = mapper.map(oldBannerLayoutConstraintDTO, new LayoutConstraint());
 					changePositionInBanner(em, posB, model, flexibleElt, oldBannerLayoutConstraint);
-				else if (model instanceof OrgUnitModel)
-					changePositionInBanner(em, posB, model, flexibleElt, oldBannerLayoutConstraint);
+				}
 			}
 		}
 
@@ -468,6 +504,47 @@ public final class ModelUtil {
 					flexibleElt = em.merge(computationElement);
 				}
 			}
+		} else if (type == ElementTypeEnum.CONTACT_LIST || (type == null && oldType == ElementTypeEnum.CONTACT_LIST)) {
+			ContactListElement contactListElement = (ContactListElement) flexibleElt;
+			if (contactListElement != null) {
+				if ((contactListElement.getLimit() > 0 && contactListLimit == null) || (contactListLimit != null && contactListElement.getLimit() != contactListLimit.intValue())) {
+					contactListElement.setLimit(contactListLimit == null ? 0 : contactListLimit.intValue());
+					specificChanges = true;
+				}
+				if (contactListElement.getAllowedType() != contactListType) {
+					contactListElement.setAllowedType(contactListType);
+					specificChanges = true;
+				}
+				if (contactListElement.isMember() != contactListIsMember) {
+					contactListElement.setMember(contactListIsMember);
+					specificChanges = true;
+				}
+
+				// Let's check if there are newly added or removed allowed contact models
+				Set<Integer> modelsToCompare = new HashSet<>(contactListAllowedModelIds);
+				boolean contactModelsModified = false;
+				for (ContactModel contactModel : contactListElement.getAllowedModels()) {
+					// If the current contact model cannot be removed from the new set,
+					// it means that it was removed
+					if (!modelsToCompare.remove(contactModel.getId())) {
+						contactModelsModified = true;
+						break;
+					}
+				}
+				// If there are remaining models in the set, it means these ones were newly added
+				if (!modelsToCompare.isEmpty()) {
+					contactModelsModified = true;
+				}
+				if (contactModelsModified) {
+					contactListElement.setAllowedModels(contactModelDAO.findByIds(contactListAllowedModelIds));
+					specificChanges = true;
+				}
+
+				if (specificChanges) {
+					flexibleElt = em.merge(contactListElement);
+				}
+			}
+
 		}
 		em.flush();
 		em.clear();
@@ -502,8 +579,7 @@ public final class ModelUtil {
 		return computationRule;
 	}
 
-	private static String retrieveTable(final String className) {
-
+	private String retrieveTable(final String className) {
 		final int bI = className.lastIndexOf(".") + 1;
 		String table = className.substring(bI);
 
@@ -520,7 +596,7 @@ public final class ModelUtil {
 		return table;
 	}
 
-	private static void changeOldType(final EntityManager em, final ElementTypeEnum type, final FlexibleElement flexibleElement) {
+	private void changeOldType(final EntityManager em, final ElementTypeEnum type, final FlexibleElement flexibleElement) {
 
 		final String oldflexTable = retrieveTable(ElementTypeEnum.getClassName(type));
 
@@ -537,7 +613,7 @@ public final class ModelUtil {
 		}
 	}
 
-	private static Object createNewFlexibleElement(final EntityManager em, final ElementTypeEnum oldType, final ElementTypeEnum type,
+	private Object createNewFlexibleElement(final EntityManager em, final ElementTypeEnum oldType, final ElementTypeEnum type,
 			final FlexibleElement flexibleElement) {
 
 		Object newElement = null;
@@ -571,7 +647,7 @@ public final class ModelUtil {
 		return newElement;
 	}
 
-	private static void changeBanner(final EntityManager em, final Integer posB, final Object model, final FlexibleElement flexibleElt) {
+	private void changeBanner(final EntityManager em, final Integer posB, final Object model, final FlexibleElement flexibleElt) {
 
 		final LayoutGroup bannerGroup;
 		if (model instanceof ProjectModel) {
@@ -579,6 +655,22 @@ public final class ModelUtil {
 
 		} else if (model instanceof OrgUnitModel) {
 			bannerGroup = ((OrgUnitModel) model).getBanner().getLayout().getGroups().get(posB);
+
+		} else if (model instanceof ContactModel) {
+			// model.getCard().getLayout().getGroups().get(0) => Avatar in contact card
+			// model.getCard().getLayout().getGroups().get(1) => Contact information in contact card
+			bannerGroup = ((ContactModel) model).getCard().getLayout().getGroups().get(1);
+
+			// Just change the order of the affected layout constraint
+			// it's not important that several elements have the same order in the contact card
+			for (final LayoutConstraint layoutConstraint : bannerGroup.getConstraints()) {
+				if (flexibleElt.equals(layoutConstraint.getElement())) {
+					layoutConstraint.setSortOrder(posB + 1);
+					em.merge(layoutConstraint);
+					break;
+				}
+			}
+			return;
 
 		} else {
 			throw new UnsupportedOperationException("Invalid model type.");
@@ -608,7 +700,7 @@ public final class ModelUtil {
 		}
 	}
 
-	private static void changePositionInBanner(final EntityManager em, final Integer posB, final Object model, final FlexibleElement flexibleElt,
+	private void changePositionInBanner(final EntityManager em, final Integer posB, final Object model, final FlexibleElement flexibleElt,
 			final LayoutConstraint oldBannerLayoutConstraint) {
 
 		final LayoutGroup bannerGroup;
@@ -617,6 +709,22 @@ public final class ModelUtil {
 
 		} else if (model instanceof OrgUnitModel) {
 			bannerGroup = ((OrgUnitModel) model).getBanner().getLayout().getGroups().get(posB);
+
+		} else if (model instanceof ContactModel) {
+			// model.getCard().getLayout().getGroups().get(0) => Avatar in contact card
+			// model.getCard().getLayout().getGroups().get(1) => Contact information in contact card
+			bannerGroup = ((ContactModel) model).getCard().getLayout().getGroups().get(1);
+
+			// Just change the order of the affected layout constraint
+			// it's not important that several elements have the same order in the contact card
+			for (final LayoutConstraint layoutConstraint : bannerGroup.getConstraints()) {
+				if (flexibleElt.equals(layoutConstraint.getElement())) {
+					layoutConstraint.setSortOrder(posB + 1);
+					em.merge(layoutConstraint);
+					break;
+				}
+			}
+			return;
 
 		} else {
 			throw new UnsupportedOperationException("Invalid model type.");
@@ -633,7 +741,7 @@ public final class ModelUtil {
 		em.merge(oldBannerLayoutConstraint);
 	}
 
-	private static ProjectReportModel findReportModel(final EntityManager em, final String reportName) {
+	private ProjectReportModel findReportModel(final EntityManager em, final String reportName) {
 
 		final TypedQuery<ProjectReportModel> query = em.createQuery("SELECT r FROM ProjectReportModel r WHERE r.name = :name", ProjectReportModel.class);
 		query.setParameter("name", reportName);
@@ -653,16 +761,9 @@ public final class ModelUtil {
      * @param element 
      *          Element to purge.
      */
-    private static void removeAllValuesForElement(final FlexibleElement element, final EntityManager em) {
+    private void removeAllValuesForElement(final FlexibleElement element, final EntityManager em) {
         em.createQuery("DELETE FROM Value AS v WHERE v.element = :element")
                 .setParameter("element", element)
                 .executeUpdate();
     }
-	
-	/**
-	 * Utility class private constructor.
-	 */
-	private ModelUtil() {
-		// Only provides static methods.
-	}
 }

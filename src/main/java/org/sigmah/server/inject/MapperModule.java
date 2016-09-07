@@ -22,6 +22,8 @@ package org.sigmah.server.inject;
  * #L%
  */
 
+import org.sigmah.server.domain.Contact;
+import org.sigmah.server.domain.ContactModel;
 import org.sigmah.server.domain.OrgUnit;
 import org.sigmah.server.domain.OrgUnitModel;
 import org.sigmah.server.domain.Organization;
@@ -37,6 +39,8 @@ import org.sigmah.server.mapper.Mapper;
 import org.sigmah.server.mapper.MapperProvider;
 import org.sigmah.server.mapper.MappingModeDefinition;
 import org.sigmah.server.mapper.MappingModeDefinitions;
+import org.sigmah.shared.dto.ContactDTO;
+import org.sigmah.shared.dto.ContactModelDTO;
 import org.sigmah.shared.dto.OrgUnitModelDTO;
 import org.sigmah.shared.dto.ProjectDTO;
 import org.sigmah.shared.dto.ProjectModelDTO;
@@ -94,7 +98,8 @@ public class MapperModule extends AbstractModule {
 		bindMappingMode(modes, User.class, UserDTO.class, UserDTO.Mode.values());
 		bindMappingMode(modes, Reminder.class, ReminderDTO.class, ReminderDTO.Mode.values());
 		bindMappingMode(modes, MonitoredPoint.class, MonitoredPointDTO.class, MonitoredPointDTO.Mode.values());
-
+		bindMappingMode(modes, Contact.class, ContactDTO.class, ContactDTO.Mode.values());
+		bindMappingMode(modes, ContactModel.class, ContactModelDTO.class, ContactModelDTO.Mode.values());
 	}
 
 	private <E extends Entity, D extends DTO> void bindMappingMode(final MappingModeDefinitions defs, final Class<E> entityClass, final Class<D> dtoClass,

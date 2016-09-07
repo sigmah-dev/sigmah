@@ -41,6 +41,8 @@ import org.sigmah.client.ui.widget.popup.PopupWidget;
 import org.sigmah.client.util.ClientUtils;
 import org.sigmah.client.util.EnumModel;
 import org.sigmah.shared.Language;
+import org.sigmah.shared.dto.ContactDTO;
+import org.sigmah.shared.dto.ContactModelDTO;
 import org.sigmah.shared.dto.UserUnitDTO;
 import org.sigmah.shared.dto.orgunit.OrgUnitDTO;
 import org.sigmah.shared.dto.profile.ProfileDTO;
@@ -94,6 +96,8 @@ public class UserEditView extends AbstractPopupView<PopupWidget> implements User
 	private LabelField changePwdLink;
 	private TextField<String> emailField;
 	private ComboBox<EnumModel<Language>> languageField;
+	private ComboBox<ContactDTO> contactOrganizationField;
+	private ComboBox<ContactModelDTO> contactModelField;
 	private Grid<UserUnitDTO> secondaryUserUnitsGrid;
 	private List<ListStore<OrgUnitDTO>> orgUnitStores;
 	private List<OrgUnitDTO> availableOrgUnits = Collections.emptyList();
@@ -217,6 +221,16 @@ public class UserEditView extends AbstractPopupView<PopupWidget> implements User
 		});
 
 		// --
+		// Contact organization field
+		// --
+		contactOrganizationField = Forms.combobox(I18N.CONSTANTS.adminUserContactOrganizationFieldLabel(), false, ContactDTO.ID, ContactDTO.FULLNAME);
+
+		// --
+		// Contact model field
+		// --
+		contactModelField = Forms.combobox(I18N.CONSTANTS.adminUserContactModelFieldLabel(), false, ContactModelDTO.ID, ContactModelDTO.NAME);
+
+		// --
 		// Language field.
 		// --
 
@@ -224,6 +238,18 @@ public class UserEditView extends AbstractPopupView<PopupWidget> implements User
 		languageField.getStore().add(new EnumModel<Language>(Language.FR));
 		languageField.getStore().add(new EnumModel<Language>(Language.EN));
 		languageField.getStore().add(new EnumModel<Language>(Language.ES));
+
+		// --
+		// Hierarchy field
+		// --
+		ColumnConfig hierarchyColumnConfig = new ColumnConfig("hierarchy", I18N.CONSTANTS.adminHierarchy(), 150);
+		hierarchyColumnConfig.setSortable(false);
+		hierarchyColumnConfig.setRenderer(new GridCellRenderer() {
+			@Override
+			public Object render(ModelData modelData, String s, ColumnData columnData, int i, int i1, ListStore listStore, Grid grid) {
+				return ((UserUnitDTO) modelData).getMainUserUnit() ? I18N.CONSTANTS.adminIsMainOrgUnit() : I18N.CONSTANTS.adminIsSecondaryOrgUnit();
+			}
+		});
 
 		// --
 		// OrgUnits field.
@@ -303,7 +329,7 @@ public class UserEditView extends AbstractPopupView<PopupWidget> implements User
 			}
 		});
 
-		ColumnModel columnModel = new ColumnModel(Arrays.asList(orgUnitColumnConfig, profilesColumnConfig, actionsColumnConfig));
+		ColumnModel columnModel = new ColumnModel(Arrays.asList(hierarchyColumnConfig, orgUnitColumnConfig, profilesColumnConfig, actionsColumnConfig));
 		secondaryUserUnitsGrid = new Grid<UserUnitDTO>(new ListStore<UserUnitDTO>(), columnModel);
 		secondaryUserUnitsGrid.setAutoExpandColumn(UserUnitDTO.ORG_UNIT);
 		secondaryUserUnitsGrid.getView().setForceFit(true);
@@ -328,6 +354,8 @@ public class UserEditView extends AbstractPopupView<PopupWidget> implements User
 		formPanel.add(changePwdLink);
 		formPanel.add(pwdField);
 		formPanel.add(checkPwdField);
+		formPanel.add(contactOrganizationField);
+		formPanel.add(contactModelField);
 		formPanel.add(languageField);
 		formPanel.add(secondaryUserUnitsGrid);
 		formPanel.addButton(addUserUnitButton);
@@ -395,6 +423,16 @@ public class UserEditView extends AbstractPopupView<PopupWidget> implements User
 	@Override
 	public Field<String> getEmailField() {
 		return emailField;
+	}
+
+	@Override
+	public ComboBox<ContactDTO> getContactOrganizationField() {
+		return contactOrganizationField;
+	}
+
+	@Override
+	public ComboBox<ContactModelDTO> getContactModelField() {
+		return contactModelField;
 	}
 
 	/**

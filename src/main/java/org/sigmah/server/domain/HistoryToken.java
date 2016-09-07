@@ -106,6 +106,9 @@ public class HistoryToken extends AbstractEntityId<Integer> {
 	@JoinColumn(name = EntityConstants.HISTORY_TOKEN_COLUMN_CORE_VERSION, nullable = true)
 	private Amendment coreVersion;
 
+	@Column(name = EntityConstants.VALUE_COLUMN_LAYOUT_GROUP_ITERATION, nullable = true)
+	private Integer layoutGroupIterationId;
+
 	// --------------------------------------------------------------------------------
 	//
 	// METHODS.
@@ -122,6 +125,7 @@ public class HistoryToken extends AbstractEntityId<Integer> {
 		builder.append("date", date);
 		builder.append("value", value);
 		builder.append("type", type);
+		builder.append("layoutGroupIterationId", layoutGroupIterationId);
 	}
 
 	// --------------------------------------------------------------------------------
@@ -204,4 +208,11 @@ public class HistoryToken extends AbstractEntityId<Integer> {
 		this.coreVersion = coreVersion;
 	}
 
+	public Integer getLayoutGroupIterationId() {
+		return layoutGroupIterationId;
+	}
+
+	public void setLayoutGroupIterationId(Integer layoutGroupIterationId) {
+		this.layoutGroupIterationId = layoutGroupIterationId;
+	}
 }

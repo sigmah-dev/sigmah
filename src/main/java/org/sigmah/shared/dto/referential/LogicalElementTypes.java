@@ -22,6 +22,7 @@ package org.sigmah.shared.dto.referential;
  * #L%
  */
 
+import org.sigmah.shared.dto.element.DefaultContactFlexibleElementDTO;
 import org.sigmah.shared.dto.element.DefaultFlexibleElementDTO;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
 import org.sigmah.shared.dto.element.TextAreaElementDTO;
@@ -62,6 +63,8 @@ public final class LogicalElementTypes {
             type = TextAreaType.fromCode(((TextAreaElementDTO) flexibleElement).getType());
         } else if (flexibleElement instanceof DefaultFlexibleElementDTO) {
             type = ((DefaultFlexibleElementDTO) flexibleElement).getType();
+        } else if (flexibleElement instanceof DefaultContactFlexibleElementDTO) {
+            type = ((DefaultContactFlexibleElementDTO) flexibleElement).getType();
         } else {
 			final ElementTypeEnum elementType = flexibleElement.getElementType();
 			if (elementType == ElementTypeEnum.TEXT_AREA) {

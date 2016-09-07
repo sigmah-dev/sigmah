@@ -22,14 +22,6 @@ package org.sigmah.client.ui.widget.form;
  * #L%
  */
 
-import com.extjs.gxt.ui.client.data.ModelData;
-import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.store.ListStore;
-import com.extjs.gxt.ui.client.store.StoreEvent;
-import com.extjs.gxt.ui.client.store.StoreListener;
-import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Composite;
@@ -38,6 +30,15 @@ import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.Widget;
+import com.extjs.gxt.ui.client.data.ModelData;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.store.StoreEvent;
+import com.extjs.gxt.ui.client.store.StoreListener;
+import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.extjs.gxt.ui.client.widget.form.Field;
 
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.ui.res.icon.IconImageBundle;
@@ -49,9 +50,11 @@ public class ListComboBox<T extends ModelData> extends Composite {
 	private ListStore<T> availableValuesStore = new ListStore<T>();
 	private String noAvailableValueTooltip;
 
+	private ComboBox<T> comboBox;
 	private String valueField;
 	private String displayField;
 	private FlexTable flexTable;
+	private FlowPanel formPanel;
 	private Panel rootPanel;
 	private boolean enabled = true;
 
@@ -133,6 +136,10 @@ public class ListComboBox<T extends ModelData> extends Composite {
 		return availableValuesStore;
 	}
 
+	public Field<T> getField() {
+		return comboBox;
+	}
+
 	public void copyAvailableValueStore(ListStore<T> store) {
 		availableValuesStore.add(store.getModels());
 
@@ -167,7 +174,7 @@ public class ListComboBox<T extends ModelData> extends Composite {
 		this.enabled = enabled;
 	}
 
-	private void buildComponent() {
+	protected void buildComponent() {
 		if (rootPanel == null) {
 			// not yet initialized
 			return;
@@ -175,11 +182,11 @@ public class ListComboBox<T extends ModelData> extends Composite {
 
 		rootPanel.clear();
 
-		FlowPanel formPanel = new FlowPanel();
+		formPanel = new FlowPanel();
 		formPanel.addStyleName("list-combobox__form");
 
 		if (enabled) {
-			final ComboBox<T> comboBox = Forms.combobox(null, false, valueField, displayField, availableValuesStore);
+			comboBox = Forms.combobox(null, false, valueField, displayField, availableValuesStore);
 			comboBox.setStyleName("list-combobox__form__choices");
 			if (availableValuesStore.getModels().isEmpty() && !ClientUtils.isBlank(noAvailableValueTooltip)) {
 				comboBox.setToolTip(noAvailableValueTooltip);
@@ -203,6 +210,8 @@ public class ListComboBox<T extends ModelData> extends Composite {
 				}
 			});
 			formPanel.add(addButton);
+		} else {
+			comboBox = null;
 		}
 
 		formPanel.setWidth("100%");
@@ -210,7 +219,8 @@ public class ListComboBox<T extends ModelData> extends Composite {
 
 		FlowPanel elementsPanel = new FlowPanel();
 		elementsPanel.setStyleName("list-combobox__elements");
-		for (final T element : dataStore.getModels()) {
+		for (int i = 0; i < dataStore.getModels().size(); i++) {
+			final T element = dataStore.getModels().get(i);
 			Widget label;
 			if (enabled) {
 				label = new ClickableLabel(element.get(displayField).toString());
@@ -223,10 +233,14 @@ public class ListComboBox<T extends ModelData> extends Composite {
 					}
 				});
 			} else {
-				label = new Label(element.get(displayField).toString());
+				label = new Label(i == 0 ? element.get(displayField).toString() : ", " + element.get(displayField).toString());
 			}
 			elementsPanel.add(label);
 		}
 		rootPanel.add(elementsPanel);
+	}
+
+	protected Panel getButtonPanel() {
+		return formPanel;
 	}
 }

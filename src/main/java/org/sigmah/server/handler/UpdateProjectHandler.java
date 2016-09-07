@@ -55,6 +55,8 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
+
 import org.sigmah.offline.sync.SuccessCallback;
 import org.sigmah.server.computation.ServerComputations;
 import org.sigmah.server.computation.ServerValueResolver;
@@ -193,13 +195,15 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 			// Event parameters.
 			final FlexibleElementDTO source = valueEvent.getSourceElement();
 			final FlexibleElement element = em().find(FlexibleElement.class, source.getId());
-			final TripletValueDTO updateListValue = valueEvent.getListValue();
+			final TripletValueDTO updateListValue = valueEvent.getTripletValue();
 			final String updateSingleValue = valueEvent.getSingleValue();
 			
 			final LogicalElementType type = LogicalElementTypes.of(source);
+			final Set<Integer> multivaluedIdsValue = valueEvent.getMultivaluedIdsValue();
+			final Integer iterationId = valueEvent.getIterationId();
 
 			LOG.debug("[execute] Updates value of element #{} ({})", source.getId(), source.getEntityName());
-			LOG.debug("[execute] Event of type {} with value {} and list value {}.", valueEvent.getChangeType(), updateSingleValue, updateListValue);
+			LOG.debug("[execute] Event of type {} with value {} and list value {} (iteration : {}).", valueEvent.getChangeType(), updateSingleValue, updateListValue, iterationId);
 
 			// Verify if the core version has been modified.
 			coreVersionHasBeenModified = coreVersionHasBeenModified || element != null && element.isAmendable();
@@ -209,16 +213,16 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 				// like other values. These values impact directly the project.
 				valueService.saveValue(updateSingleValue, valueEvent.isProjectCountryChanged(), historyDate, (DefaultFlexibleElement) element, projectId, user, comment);
 			}
+			else if (updateSingleValue != null) {
+				valueService.saveValue(updateSingleValue, historyDate, element, projectId, iterationId, user, comment);
+			}
+			else if (multivaluedIdsValue != null) {
+				valueService.saveValue(multivaluedIdsValue, valueEvent, historyDate, element, projectId, iterationId, user, comment);
+			}
 			else if (updateListValue != null) {
 				// Special case : this value is a part of a list which is the true value of the flexible element. (only used for
 				// the TripletValue class for the moment)
-				valueService.saveValue(updateListValue, valueEvent.getChangeType(), historyDate, element, projectId, user, comment);
-			}
-
-			// Special case : this value is a part of a list which is the true value of the flexible element. (only used for
-			// the TripletValue class for the moment)
-			else {
-				valueService.saveValue(updateSingleValue, historyDate, element, projectId, user, comment);
+				valueService.saveValue(updateListValue, valueEvent.getChangeType(), historyDate, element, projectId, iterationId, user, comment);
 			}
 		}
 			
@@ -282,7 +286,7 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 	}
 
 	/**
-	 * Retrieves the value for the given project and the given element but 
+	 * Retrieves the value for the given project and the given element but
 	 * don't create an empty value if none exists.
 	 *
 	 * @param projectId
@@ -306,7 +310,7 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 
 		return currentValue;
 	}
-	
+
 	/**
      * Format the given value event.
      * 
@@ -382,7 +386,7 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 				if (projectIsClosed || phaseIsClosed || (source.getAmendable() && projectIsLocked)) {
 					final ValueResult result = new ValueResult();
 					result.setValueObject(value.getSingleValue());
-					result.setValuesObject(value.getListValue() != null ? Collections.<ListableValue>singletonList(value.getListValue()) : null);
+					result.setValuesObject(value.getTripletValue() != null ? Collections.<ListableValue>singletonList(value.getTripletValue()) : null);
 
 					if(!source.isCorrectRequiredValue(result)) {
 						conflicts.add(i18nServer.t(language, "conflictModifyLockedContentEmptyValue",
@@ -430,7 +434,7 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 					if (source.getAmendable()) {
 						if (source instanceof BudgetElementDTO) {
 							final BudgetSubFieldDTO divisorField = ((BudgetElementDTO)source).getRatioDivisor();
-							final Value value = retrieveCurrentValue(project.getId(), source.getId());
+							final Value value = valueService.retrieveCurrentValue(project.getId(), source.getId(), valueEvent.getIterationId());
 							conflict = getValueOfSubField(value.getValue(), divisorField) != getValueOfSubField(valueEvent.getSingleValue(), divisorField);
 
 						} else {
@@ -513,7 +517,7 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
                     
                     conflicts.add(i18nServer.t(language, "conflictComputationOutOfBound",
                             fieldList, value.getSingleValue(), source.getFormattedLabel(), greaterOrLess, breachedConstraint) 
-                            + dependenciesLastValuesForComputation(computation, project.getId(), language));
+                            + dependenciesLastValuesForComputation(computation, project.getId(), value.getIterationId(), language));
                 }
             }
         }
@@ -537,9 +541,9 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
      *          Language to use to create the messages.
      * @return A list of details about the dependencies.
      * 
-     * @see #flexibleElementDetails(org.sigmah.shared.dto.element.FlexibleElementDTO, int, org.sigmah.shared.Language, java.text.DateFormat) 
+     * @see #flexibleElementDetails(org.sigmah.shared.dto.element.FlexibleElementDTO, int, Integer, org.sigmah.shared.Language, java.text.DateFormat)
      */
-    private String dependenciesLastValuesForComputation(final Computation computation, final int projectId, final Language language) {
+    private String dependenciesLastValuesForComputation(final Computation computation, final int projectId, final Integer iterationId, final Language language) {
         final DateFormat formatter = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, Locale.forLanguageTag(language.getLocale()));
         
         return org.sigmah.shared.util.Collections.join(computation.getDependencies(), new org.sigmah.shared.util.Collections.Mapper<Dependency, String>() {
@@ -554,7 +558,7 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 					public void visit(SingleDependency dependency) {
 						stringBuilder
 							.append("\n")
-							.append(flexibleElementDetails(dependency.getFlexibleElement(), projectId, language, formatter));
+							.append(flexibleElementDetails(dependency.getFlexibleElement(), projectId, iterationId, language, formatter));
 					}
 
 					@Override
@@ -595,12 +599,12 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
      *          Date formatter.
      * @return The formatted line.
      */
-    private String flexibleElementDetails(final FlexibleElementDTO entry, final int projectId, final Language language, final DateFormat formatter) {
+    private String flexibleElementDetails(final FlexibleElementDTO entry, final int projectId, Integer iterationId, final Language language, final DateFormat formatter) {
         
         final String title = entry.getFormattedLabel();
         final String value, author, date;
 
-        final Value currentValue = retrieveCurrentValue(projectId, entry.getId());
+        final Value currentValue = valueService.retrieveCurrentValue(projectId, entry.getId(), iterationId);
         if (currentValue != null) {
             value = currentValue.getValue();
             author = User.getUserShortName(currentValue.getLastModificationUser());

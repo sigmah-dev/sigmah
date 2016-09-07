@@ -27,6 +27,7 @@ public final class AdminUtil {
 
 	public static final String ADMIN_PROJECT_MODEL = "projectModel";
 	public static final String ADMIN_ORG_UNIT_MODEL = "orgUnitModel";
+	public static final String ADMIN_CONTACT_MODEL = "contactModel";
 	public static final String ADMIN_CATEGORY_MODEL = "categoryModel";
 	public static final String ADMIN_REPORT_MODEL = "reportModel";
 
@@ -79,6 +80,11 @@ public final class AdminUtil {
 	public static final String PROP_FX_B_BUDGET_RATIO_DIVISOR = "FlexibleElementBudgetRatioDivisor";
 	public static final String PROP_FX_COMPUTATION_RULE = "FlexibleElementComputationRule";
 
+	public static final String PROP_FX_CONTACT_LIST_ALLOWED_TYPE = "FlexibleElementContactListAllowedType";
+	public static final String PROP_FX_CONTACT_LIST_ALLOWED_MODEL_IDS = "FlexibleElementContactListAllowedModelIds";
+	public static final String PROP_FX_CONTACT_LIST_LIMIT = "FlexibleElementContactListLimit";
+	public static final String PROP_FX_CONTACT_LIST_IS_MEMBER = "FlexibleElementContactListIsMember";
+
 	public static final String PROP_FX_NAME = "name";
 	public static final String PROP_FX_CODE = "code";
 	public static final String PROP_FX_TYPE = "type";
@@ -120,6 +126,11 @@ public final class AdminUtil {
 	public static final String PROP_CATEGORY_ELEMENT = "NewCategoryElement";
 	public static final String PROP_CATEGORY_ELEMENT_NAME = "NewCategoryElementName";
 	public static final String PROP_CATEGORY_ELEMENT_COLOR = "NewCategoryElementColor";
+
+	public static final String PROP_CM_NAME = "ContactModelName";
+	public static final String PROP_CM_TYPE = "ContactModelType";
+	public static final String PROP_CM_STATUS = "ContactModelStatus";
+	public static final String PROP_CM_MAINTENANCE_DATE = "ContactModelMaintenanceDate";
 
 	public static final String PROP_PM_NAME = "ProjectModelName";
 	public static final String PROP_PM_USE = "ProjectModelUse";

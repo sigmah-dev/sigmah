@@ -45,6 +45,8 @@ import org.sigmah.client.ui.presenter.admin.importation.ImportationSchemeAdminPr
 import org.sigmah.client.ui.presenter.admin.models.AddBudgetSubFieldPresenter;
 import org.sigmah.client.ui.presenter.admin.models.EditFlexibleElementAdminPresenter;
 import org.sigmah.client.ui.presenter.admin.models.EditLayoutGroupAdminPresenter;
+import org.sigmah.client.ui.presenter.admin.models.contact.AddContactModelAdminPresenter;
+import org.sigmah.client.ui.presenter.admin.models.contact.ContactModelsAdminPresenter;
 import org.sigmah.client.ui.presenter.admin.models.importer.AddImportationSchemeModelsAdminPresenter;
 import org.sigmah.client.ui.presenter.admin.models.importer.AddMatchingRuleImportationShemeModelsAdminPresenter;
 import org.sigmah.client.ui.presenter.admin.models.importer.ImportModelPresenter;
@@ -61,6 +63,12 @@ import org.sigmah.client.ui.presenter.admin.users.ProfileEditPresenter;
 import org.sigmah.client.ui.presenter.admin.users.UserEditPresenter;
 import org.sigmah.client.ui.presenter.admin.users.UsersAdminPresenter;
 import org.sigmah.client.ui.presenter.calendar.CalendarEventPresenter;
+import org.sigmah.client.ui.presenter.contact.ContactDetailsPresenter;
+import org.sigmah.client.ui.presenter.contact.ContactHistoryPresenter;
+import org.sigmah.client.ui.presenter.contact.ContactPresenter;
+import org.sigmah.client.ui.presenter.contact.ContactRelationshipsPresenter;
+import org.sigmah.client.ui.presenter.contact.export.ExportContactsPresenter;
+import org.sigmah.client.ui.presenter.contact.export.ExportContactsSettingPresenter;
 import org.sigmah.client.ui.presenter.importation.ImportationPresenter;
 import org.sigmah.client.ui.presenter.orgunit.OrgUnitCalendarPresenter;
 import org.sigmah.client.ui.presenter.orgunit.OrgUnitDashboardPresenter;
@@ -229,6 +237,10 @@ public interface Injector extends Ginjector {
 
 	EditSitePresenter getEditSitePresenter();
 
+	ExportContactsPresenter getExportContactsPresenter();
+
+	ExportContactsSettingPresenter getExportContactsSettingPresenter();
+
 	ExportProjectsPresenter getExportProjectsPresenter();
 
 	ExportProjectsSettingPresenter getExportProjectsSettingPresenter();
@@ -248,6 +260,16 @@ public interface Injector extends Ginjector {
 	OrgUnitCalendarPresenter getOrgUnitCalendarPresenter();
 
 	OrgUnitReportsPresenter getOrgUnitReportsPresenter();
+
+	// ---- Contact presenters
+
+	ContactPresenter getContactPresenter();
+
+	ContactDetailsPresenter getContactDetailsPresenter();
+
+	ContactRelationshipsPresenter getContactRelationshipsPresenter();
+
+	ContactHistoryPresenter getContactHistoryPresenter();
 
 	// ---- Admin presenters
 
@@ -278,6 +300,10 @@ public interface Injector extends Ginjector {
 	ProjectModelsAdminPresenter getProjectModelsAdminPresenter();
 
 	AddProjectModelAdminPresenter getAddProjectModelAdminPresenter();
+
+	ContactModelsAdminPresenter getContactModelsAdminPresenter();
+
+	AddContactModelAdminPresenter getAddContactModelAdminPresenter();
 
 	AddImportationSchemePresenter getAddImportationSchemePresenter();
 

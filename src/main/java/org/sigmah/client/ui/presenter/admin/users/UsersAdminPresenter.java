@@ -46,6 +46,7 @@ import org.sigmah.client.util.ClientUtils;
 import org.sigmah.shared.command.DeactivateUsers;
 import org.sigmah.shared.command.DeletePrivacyGroups;
 import org.sigmah.shared.command.DeleteProfiles;
+import org.sigmah.shared.command.GetContacts;
 import org.sigmah.shared.command.GetPrivacyGroups;
 import org.sigmah.shared.command.GetProfilesWithDetails;
 import org.sigmah.shared.command.GetUsersWithProfiles;
@@ -53,10 +54,12 @@ import org.sigmah.shared.command.result.DeleteResult;
 import org.sigmah.shared.command.result.DeleteResult.DeleteErrorCause;
 import org.sigmah.shared.command.result.ListResult;
 import org.sigmah.shared.command.result.VoidResult;
+import org.sigmah.shared.dto.ContactDTO;
 import org.sigmah.shared.dto.UserDTO;
 import org.sigmah.shared.dto.base.EntityDTO;
 import org.sigmah.shared.dto.profile.PrivacyGroupDTO;
 import org.sigmah.shared.dto.profile.ProfileDTO;
+import org.sigmah.shared.dto.referential.ContactModelType;
 
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
@@ -101,11 +104,15 @@ public class UsersAdminPresenter extends AbstractAdminPresenter<UsersAdminPresen
 
 		Button getUsersAddButton();
 
+		Button getUsersAddByEmailButton();
+
 		Button getUsersActiveButton();
 
 		Button getUsersRefreshButton();
 
 		Loadable[] getUsersLoadable();
+
+		void buildAddUserByEmailWindow(List<ContactDTO> availableContacts, AddUserByEmailHandler handler);
 
 		/**
 		 * Clear the store filters as well as the search field.
@@ -148,6 +155,10 @@ public class UsersAdminPresenter extends AbstractAdminPresenter<UsersAdminPresen
 
 		void setGridEditHandler(GridEditHandler handler);
 
+	}
+
+	public interface AddUserByEmailHandler {
+		void handleSubmit(ContactDTO contactDTO);
 	}
 
 	/**
@@ -227,6 +238,23 @@ public class UsersAdminPresenter extends AbstractAdminPresenter<UsersAdminPresen
 			@Override
 			public void componentSelected(final ButtonEvent be) {
 				eventBus.navigate(Page.ADMIN_USER_EDIT);
+			}
+		});
+
+		view.getUsersAddByEmailButton().addSelectionListener(new SelectionListener<ButtonEvent>() {
+			@Override
+			public void componentSelected(ButtonEvent ce) {
+				dispatch.execute(new GetContacts(ContactModelType.INDIVIDUAL, true, true), new CommandResultHandler<ListResult<ContactDTO>>() {
+					@Override
+					protected void onCommandSuccess(ListResult<ContactDTO> result) {
+						view.buildAddUserByEmailWindow(result.getList(), new AddUserByEmailHandler() {
+							@Override
+							public void handleSubmit(ContactDTO contactDTO) {
+								eventBus.navigateRequest(Page.ADMIN_USER_EDIT.requestWith(RequestParameter.CONTACT_ID, contactDTO.getId()));
+							}
+						});
+					}
+				});
 			}
 		});
 

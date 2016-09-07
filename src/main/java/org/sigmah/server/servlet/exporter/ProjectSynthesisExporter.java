@@ -26,6 +26,7 @@ package org.sigmah.server.servlet.exporter;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.servlet.ServletException;
@@ -41,6 +42,9 @@ import org.sigmah.server.servlet.exporter.data.IndicatorEntryData;
 import org.sigmah.server.servlet.exporter.data.LogFrameExportData;
 import org.sigmah.server.servlet.exporter.data.ProjectSynthesisData;
 import org.sigmah.server.servlet.exporter.data.SpreadsheetDataUtil;
+import org.sigmah.server.servlet.exporter.utils.ContactsSynthesisCalcTemplate;
+import org.sigmah.server.servlet.exporter.utils.ContactsSynthesisExcelTemplate;
+import org.sigmah.server.servlet.exporter.utils.ContactsSynthesisUtils;
 import org.sigmah.server.servlet.exporter.template.ExportTemplate;
 import org.sigmah.server.servlet.exporter.template.IndicatorEntryCalcTemplate;
 import org.sigmah.server.servlet.exporter.template.IndicatorEntryExcelTemplate;
@@ -48,6 +52,7 @@ import org.sigmah.server.servlet.exporter.template.LogFrameCalcTemplate;
 import org.sigmah.server.servlet.exporter.template.LogFrameExcelTemplate;
 import org.sigmah.server.servlet.exporter.template.ProjectSynthesisCalcTemplate;
 import org.sigmah.server.servlet.exporter.template.ProjectSynthesisExcelTemplate;
+import org.sigmah.server.servlet.exporter.utils.ExportConstants;
 import org.sigmah.shared.util.ExportUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -88,14 +93,18 @@ public class ProjectSynthesisExporter extends Exporter {
 
 		try {
 
-			// data
-			final ProjectSynthesisData synthesisData = prepareSynthesisData(projectId);
-			LogFrameExportData logFrameData = null;
-			IndicatorEntryData indicatorData = null;
-
 			// appending options
 			final String typeString = requireParameter(RequestParameter.TYPE);
 			final ExportUtils.ExportType type = ExportUtils.ExportType.valueOfOrNull(typeString);
+
+			final String withContactsString = requireParameter(RequestParameter.WITH_CONTACTS);
+			final boolean withContacts = "true".equals(withContactsString);
+
+			// data
+			final ProjectSynthesisData synthesisData = prepareSynthesisData(projectId, withContacts);
+			LogFrameExportData logFrameData = null;
+			IndicatorEntryData indicatorData = null;
+			List<ContactsSynthesisUtils.ContactSheetData> contactSheetDatas = null;
 
 			switch (type) {
 
@@ -111,8 +120,8 @@ public class ProjectSynthesisExporter extends Exporter {
 					break;
 
 				case PROJECT_SYNTHESIS_LOGFRAME_INDICATORS: {
-					// logframe data
 					final Project project = injector.getInstance(EntityManager.class).find(Project.class, projectId);
+					// logframe data
 					logFrameData = SpreadsheetDataUtil.prepareLogFrameData(project, this);
 					logFrameData.setIndicatorsSheetExist(true);
 					// indicator data
@@ -125,26 +134,38 @@ public class ProjectSynthesisExporter extends Exporter {
 					break;
 			}
 
+			if (withContacts) {
+				contactSheetDatas = ContactsSynthesisUtils.createProjectContactListData(projectId, this, getI18ntranslator(), getLanguage());
+			}
+
 			ExportTemplate template = null;
 			switch (exportFormat) {
 
 				case XLS: {
 					final HSSFWorkbook wb = new HSSFWorkbook();
-					template = new ProjectSynthesisExcelTemplate(synthesisData, wb, getContext(), getI18ntranslator(), getLanguage());
+					template = new ProjectSynthesisExcelTemplate(synthesisData, wb, getContext(), getI18ntranslator(), getLanguage(), injector);
 					if (logFrameData != null)
 						template = new LogFrameExcelTemplate(logFrameData, wb);
 					if (indicatorData != null)
 						template = new IndicatorEntryExcelTemplate(indicatorData, wb);
+					if (contactSheetDatas != null) {
+						template = new ContactsSynthesisExcelTemplate(contactSheetDatas, wb, ExportConstants.CONTACT_SHEET_PREFIX);
+						((ContactsSynthesisExcelTemplate) template).generate();
+					}
 				}
 					break;
 
 				case ODS: {
 					final SpreadsheetDocument doc = SpreadsheetDocument.newSpreadsheetDocument();
-					template = new ProjectSynthesisCalcTemplate(synthesisData, doc, getContext(), getI18ntranslator(), getLanguage());
+					template = new ProjectSynthesisCalcTemplate(synthesisData, doc, getContext(), getI18ntranslator(), getLanguage(), injector);
 					if (logFrameData != null)
 						template = new LogFrameCalcTemplate(logFrameData, doc);
 					if (indicatorData != null)
 						template = new IndicatorEntryCalcTemplate(indicatorData, doc);
+					if (contactSheetDatas != null) {
+						template = new ContactsSynthesisCalcTemplate(contactSheetDatas, doc, ExportConstants.CONTACT_SHEET_PREFIX);
+						((ContactsSynthesisCalcTemplate)template).generate();
+					}
 				}
 					break;
 
@@ -160,8 +181,8 @@ public class ProjectSynthesisExporter extends Exporter {
 		}
 	}
 
-	private ProjectSynthesisData prepareSynthesisData(Integer projectId) throws Throwable {
-		return new ProjectSynthesisData(this, projectId, injector);
+	private ProjectSynthesisData prepareSynthesisData(Integer projectId, boolean withContacts) throws Throwable {
+		return new ProjectSynthesisData(this, projectId, injector, withContacts);
 	}
 
 }

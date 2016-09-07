@@ -27,7 +27,9 @@ import com.google.inject.Singleton;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
@@ -42,11 +44,13 @@ import org.sigmah.server.domain.User;
 import org.sigmah.server.domain.element.ComputationElement;
 import org.sigmah.server.domain.element.DefaultFlexibleElement;
 import org.sigmah.server.domain.element.FlexibleElement;
+import org.sigmah.server.domain.layout.LayoutGroupIteration;
 import org.sigmah.server.domain.util.Deleteable;
 import org.sigmah.server.domain.value.TripletValue;
 import org.sigmah.server.domain.value.Value;
 import org.sigmah.server.mapper.Mapper;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
+import org.sigmah.shared.dto.element.event.ValueEventWrapper;
 import org.sigmah.shared.dto.referential.DefaultFlexibleElementType;
 import org.sigmah.shared.dto.referential.ValueEventChangeType;
 import org.sigmah.shared.dto.value.TripletValueDTO;
@@ -74,22 +78,22 @@ public class ValueService extends EntityManagerProvider {
 	@Inject
 	private ComputationService computationService;
 	
-	public void saveValue(final String value, final FlexibleElement element, final Integer projectId, final User user) {
+	public void saveValue(final String value, final FlexibleElement element, final Integer projectId, final Integer iterationId, final User user) {
 		
-		saveValue(value, new Date(), element, projectId, user, null);
+		saveValue(value, new Date(), element, projectId, iterationId, user, null);
 	}
 	
-	public void saveValue(final String value, final Date historyDate, final FlexibleElement element, final Integer projectId, final User user, final String comment) {
+	public void saveValue(final String value, final Date historyDate, final FlexibleElement element, final Integer projectId, final Integer iterationId, final User user, final String comment) {
 		
 		// Retrieving the current value
-		final Value currentValue = retrieveOrCreateValue(projectId, element.getId(), user);
+		final Value currentValue = retrieveOrCreateValue(projectId, element.getId(), iterationId, user);
 		currentValue.setValue(value);
 		
 		// Store the value.
 		em().merge(currentValue);
 		
 		// Historize the value.
-		historize(historyDate, element, projectId, user, value, comment);
+		historize(historyDate, element, projectId, iterationId, user, value, comment);
 		
 		updateImpactedComputations(element, projectId, user);
 	}
@@ -122,18 +126,18 @@ public class ValueService extends EntityManagerProvider {
 
 			// Historize the first value.
 			if (oldValue != null) {
-				historize(oldDate, element, projectId, oldOwner, ValueEventChangeType.ADD, oldValue, null, null);
+				historize(oldDate, element, projectId, null, oldOwner, ValueEventChangeType.ADD, oldValue, null, null);
 			}
 		}
 
 		// Historize the value.
-		historize(historyDate, element, projectId, user, ValueEventChangeType.EDIT, value, null, comment);
+		historize(historyDate, element, projectId, null, user, ValueEventChangeType.EDIT, value, null, comment);
 	}
 	
-	public void saveValue(final TripletValueDTO value, final ValueEventChangeType changeType, final Date historyDate, final FlexibleElement element, final Integer projectId, final User user, final String comment) {
+	public void saveValue(final TripletValueDTO value, final ValueEventChangeType changeType, final Date historyDate, final FlexibleElement element, final Integer projectId, final Integer iterationId, final User user, final String comment) {
 		
 		// Retrieving the current value
-		final Value currentValue = retrieveOrCreateValue(projectId, element.getId(), user);
+		final Value currentValue = retrieveOrCreateValue(projectId, element.getId(), iterationId, user);
 		
 		// The value of the element is a list of ids (default separated).
 		final List<Integer> ids = ValueResultUtils.splitValuesAsInteger(currentValue.getValue());
@@ -145,18 +149,18 @@ public class ValueService extends EntityManagerProvider {
 		// Cast the update value (as a DTO).
 		switch (changeType) {
 			case ADD:
-				onAdd(value, ids, currentValue, historyDate, element, projectId, user, comment);
+				onAdd(value, ids, currentValue, historyDate, element, projectId, iterationId, user, comment);
 				break;
 
 			case REMOVE:
-				if(!onDelete(value,  ids, currentValue, historyDate, element, projectId, user, comment)) {
+				if(!onDelete(value,  ids, currentValue, historyDate, element, projectId, iterationId, user, comment)) {
 					// Do not save, the value hasn't been changed.
 					return;
 				}
 				break;
 
 			case EDIT:
-				onEdit(value, historyDate, element, projectId, user, comment);
+				onEdit(value, historyDate, element, projectId, iterationId, user, comment);
 				break;
 
 			default:
@@ -168,6 +172,44 @@ public class ValueService extends EntityManagerProvider {
 		
 		// Store the value.
 		em().merge(currentValue);
+	}
+
+	public void saveValue(Set<Integer> multivaluedIdsValue, ValueEventWrapper changeType, Date historyDate, FlexibleElement element, Integer projectId, Integer iterationId, User user, String comment) {
+
+		// Retrieving the current value
+		final Value currentValue = retrieveOrCreateValue(projectId, element.getId(), iterationId, user);
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("[execute] Multivalued ids value case.");
+		}
+
+		Set<Integer> currentIds = new HashSet<>();
+		if (currentValue != null && currentValue.getValue() != null && !currentValue.getValue().isEmpty()) {
+			currentIds.addAll(ValueResultUtils.splitValuesAsInteger(currentValue.getValue()));
+		}
+		switch (changeType.getChangeType()) {
+			case ADD:
+				currentIds.addAll(multivaluedIdsValue);
+				break;
+			case REMOVE:
+				currentIds.removeAll(multivaluedIdsValue);
+				break;
+			case EDIT:
+				currentIds = multivaluedIdsValue;
+				break;
+			default:
+				throw new IllegalStateException();
+		}
+		String serializedValue = ValueResultUtils.mergeElements(new ArrayList<Integer>(currentIds));
+		currentValue.setValue(serializedValue);
+
+		if (changeType.getChangeType() == ValueEventChangeType.EDIT) {
+			historize(historyDate, element, projectId, iterationId, user, changeType.getChangeType(), serializedValue, null, comment);
+		} else {
+			for (Integer id : multivaluedIdsValue) {
+				historize(historyDate, element, projectId, iterationId, user, changeType.getChangeType(), String.valueOf(id), null, comment);
+			}
+		}
 	}
 	
 	/**
@@ -181,7 +223,7 @@ public class ValueService extends EntityManagerProvider {
      */
 	public String getCurrentValueFormatted(int projectId, FlexibleElementDTO element) {
         
-		final Value value = retrieveCurrentValue(projectId, element.getId());
+		final Value value = retrieveCurrentValue(projectId, element.getId(), null);
 		
 		if(value != null) {
 			return element.toHTML(value.getValue());
@@ -202,19 +244,23 @@ public class ValueService extends EntityManagerProvider {
 	 *          The user which launch the command.
 	 * @return The value.
 	 */
-	public Value retrieveOrCreateValue(final int projectId, final Integer elementId, final User user) {
+	public Value retrieveOrCreateValue(int projectId, Integer elementId, User user) {
+		return retrieveOrCreateValue(projectId, elementId, null, user);
+	}
+
+	public Value retrieveOrCreateValue(int projectId, Integer elementId, Integer iterationId, User user) {
 
 		// Retrieving the current value
-		Value currentValue = retrieveCurrentValue(projectId, elementId);
+		Value currentValue = retrieveCurrentValue(projectId, elementId, iterationId);
 
 		// Update operation.
 		if (currentValue != null) {
-			LOGGER.debug("Retrieves a value for element #{0}.", elementId);
+			LOGGER.debug("[execute] Retrieves a value for element #{0}.", elementId);
 			currentValue.setLastModificationAction('U');
 		}
 		// Create operation
 		else {
-			LOGGER.debug("Creates a value for element #{0}.", elementId);
+			LOGGER.debug("[execute] Creates a value for element #{0}.", elementId);
 
 			currentValue = new Value();
 			currentValue.setLastModificationAction('C');
@@ -225,6 +271,12 @@ public class ValueService extends EntityManagerProvider {
 
 			// Container
 			currentValue.setContainerId(projectId);
+
+			// Iteration
+			if(iterationId != null) {
+				final LayoutGroupIteration iteration = em().find(LayoutGroupIteration.class, iterationId);
+				currentValue.setLayoutGroupIteration(iteration);
+			}
 		}
 
 		// Updates the value's fields.
@@ -244,10 +296,19 @@ public class ValueService extends EntityManagerProvider {
 	 *          The source element id.
 	 * @return  The value or <code>null</code> if not found.
 	 */
-	private Value retrieveCurrentValue(final int projectId, final Integer elementId) {
-		final Query query = em().createQuery("SELECT v FROM Value v WHERE v.containerId = :projectId and v.element.id = :elementId");
-		query.setParameter("projectId", projectId);
-		query.setParameter("elementId", elementId);
+	public Value retrieveCurrentValue(int projectId, Integer elementId, Integer iterationId) {
+		final Query query;
+
+
+		if(iterationId == null) {
+			query = em().createQuery("SELECT v FROM Value v WHERE v.containerId = :projectId and v.element.id = :elementId and v.layoutGroupIteration.id IS NULL");
+			query.setParameter("projectId", projectId);
+			query.setParameter("elementId", elementId);
+		} else {
+			query = em().createQuery("SELECT v FROM Value v WHERE v.element.id = :elementId AND v.layoutGroupIteration.id = :iterationId");
+			query.setParameter("elementId", elementId);
+			query.setParameter("iterationId", iterationId);
+		}
 
 		Value currentValue = null;
 
@@ -256,7 +317,7 @@ public class ValueService extends EntityManagerProvider {
 		} catch (NoResultException nre) {
 			// No current value
 		}
-		
+
 		return currentValue;
 	}
 	
@@ -454,7 +515,7 @@ public class ValueService extends EntityManagerProvider {
 		return oldValue;
 	}
 	
-	protected void onAdd(final TripletValueDTO item, final List<Integer> ids, final Value currentValue, final Date historyDate, final FlexibleElement element, final Integer projectId, User user, String comment) {
+	protected void onAdd(final TripletValueDTO item, final List<Integer> ids, final Value currentValue, final Date historyDate, final FlexibleElement element, final Integer projectId, final Integer iterationId, User user, String comment) {
 		
 		LOGGER.debug("[execute] Adds an element to the list.");
 		
@@ -469,10 +530,10 @@ public class ValueService extends EntityManagerProvider {
 		currentValue.setValue(ValueResultUtils.mergeElements(ids));
 		
 		// Historize the value.
-		historize(historyDate, element, projectId, user, ValueEventChangeType.ADD, null, entity, comment);
+		historize(historyDate, element, projectId, iterationId, user, ValueEventChangeType.ADD, null, entity, comment);
 	}
 
-	protected boolean onDelete(final TripletValueDTO item, final List<Integer> ids, final Value currentValue, final Date historyDate, final FlexibleElement element, final Integer projectId, User user, String comment) {
+	protected boolean onDelete(final TripletValueDTO item, final List<Integer> ids, final Value currentValue, final Date historyDate, final FlexibleElement element, final Integer projectId, final Integer iterationId, User user, String comment) {
 		
 		LOGGER.debug("[execute] Removes a element from the list.");
 
@@ -495,11 +556,11 @@ public class ValueService extends EntityManagerProvider {
 		currentValue.setValue(ValueResultUtils.mergeElements(ids));
 		
 		// Historize the value.
-		historize(historyDate, element, projectId, user, ValueEventChangeType.REMOVE, null, entity, comment);
+		historize(historyDate, element, projectId, iterationId, user, ValueEventChangeType.REMOVE, null, entity, comment);
 		return true;
 	}
 
-	protected void onEdit(final TripletValueDTO item, final Date historyDate, final FlexibleElement element, final Integer projectId, User user, String comment) {
+	protected void onEdit(final TripletValueDTO item, final Date historyDate, final FlexibleElement element, final Integer projectId, final Integer iterationId, User user, String comment) {
 		
 		LOGGER.debug("[execute] Edits a element from the list.");
 		
@@ -512,7 +573,7 @@ public class ValueService extends EntityManagerProvider {
 		}
 		
 		// Historize the value.
-		historize(historyDate, element, projectId, user, ValueEventChangeType.EDIT, null, entity, comment);
+		historize(historyDate, element, projectId, iterationId, user, ValueEventChangeType.EDIT, null, entity, comment);
 	}
 	
 	/**
@@ -525,8 +586,8 @@ public class ValueService extends EntityManagerProvider {
 	 * @param singleValue
 	 * @param comment 
 	 */
-	private void historize(final Date date, final FlexibleElement element, final Integer projectId, final User user, final String singleValue, final String comment) {
-		historize(date, element, projectId, user, ValueEventChangeType.EDIT, singleValue, null, comment);
+	private void historize(final Date date, final FlexibleElement element, final Integer projectId, final Integer iterationId, final User user, final String singleValue, final String comment) {
+		historize(date, element, projectId, iterationId, user, ValueEventChangeType.EDIT, singleValue, null, comment);
 	}
 	
 	/**
@@ -541,7 +602,7 @@ public class ValueService extends EntityManagerProvider {
 	 * @param listValue
 	 * @param comment 
 	 */
-	private void historize(final Date date, final FlexibleElement element, final Integer projectId, final User user, final ValueEventChangeType type, final String singleValue, final TripletValue listValue, final String comment) {
+	private void historize(final Date date, final FlexibleElement element, final Integer projectId, final Integer iterationId, final User user, final ValueEventChangeType type, final String singleValue, final TripletValue listValue, final String comment) {
 
 		// Manages history.
 		if (element != null && element.isHistorable()) {
@@ -554,6 +615,7 @@ public class ValueService extends EntityManagerProvider {
 			historyToken.setUser(user);
 			historyToken.setType(type);
 			historyToken.setComment(comment);
+			historyToken.setLayoutGroupIterationId(iterationId);
 
 			// Sets the value or list value.
 			if (listValue == null) {

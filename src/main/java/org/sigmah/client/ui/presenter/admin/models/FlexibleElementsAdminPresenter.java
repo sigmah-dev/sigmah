@@ -46,8 +46,10 @@ import org.sigmah.client.util.ClientUtils;
 import org.sigmah.shared.command.DeleteFlexibleElements;
 import org.sigmah.shared.command.result.VoidResult;
 import org.sigmah.shared.dto.IsModel;
+import org.sigmah.shared.dto.element.DefaultContactFlexibleElementDTO;
 import org.sigmah.shared.dto.element.DefaultFlexibleElementDTO;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
+import org.sigmah.shared.dto.referential.DefaultContactFlexibleElementType;
 import org.sigmah.shared.dto.referential.DefaultFlexibleElementType;
 
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -84,6 +86,8 @@ public class FlexibleElementsAdminPresenter<E extends IsModel> extends AbstractP
 		void setModelEditable(final boolean editable);
 
 		void setToolbarEnabled(final boolean enabled);
+
+		void resetGrid(boolean canHaveMandatoryFields, boolean hasBanner, boolean hasCard);
 
 		Button getAddButton();
 
@@ -125,22 +129,6 @@ public class FlexibleElementsAdminPresenter<E extends IsModel> extends AbstractP
 	 */
 	@Override
 	public void onBind() {
-
-		// --
-		// Grid selection change handler.
-		// --
-
-		view.getGrid().getSelectionModel().addSelectionChangedListener(new SelectionChangedListener<FlexibleElementDTO>() {
-
-			@Override
-			public void selectionChanged(final SelectionChangedEvent<FlexibleElementDTO> event) {
-				final boolean enabled = ClientUtils.isNotEmpty(event.getSelection());
-				
-				view.getDeleteButton().setEnabled(enabled);
-				view.getEnableButton().setEnabled(enabled);
-				view.getDisableButton().setEnabled(enabled);
-			}
-		});
 
 		// --
 		// Grid events handler.
@@ -261,6 +249,27 @@ public class FlexibleElementsAdminPresenter<E extends IsModel> extends AbstractP
 		view.setToolbarEnabled(model.getStatus() != null && model.isEditable());
 
 		view.setModelEditable(model.isEditable());
+		view.resetGrid(
+				model.getModelType().canHaveMandatoryFields(),
+				model.getModelType().hasBanner(),
+				model.getModelType().hasCard()
+		);
+
+		// --
+		// Grid selection change handler.
+		// --
+
+		view.getGrid().getSelectionModel().addSelectionChangedListener(new SelectionChangedListener<FlexibleElementDTO>() {
+
+			@Override
+			public void selectionChanged(final SelectionChangedEvent<FlexibleElementDTO> event) {
+				final boolean enabled = ClientUtils.isNotEmpty(event.getSelection());
+
+				view.getDeleteButton().setEnabled(enabled);
+				view.getEnableButton().setEnabled(enabled);
+				view.getDisableButton().setEnabled(enabled);
+			}
+		});
 		
 		view.getDeleteButton().setVisible(!model.isUnderMaintenance());
 		view.getEnableButton().setVisible(model.isUnderMaintenance());
@@ -395,6 +404,8 @@ public class FlexibleElementsAdminPresenter<E extends IsModel> extends AbstractP
 
 			if (element instanceof DefaultFlexibleElementDTO) {
 				defaultElementNames.add(DefaultFlexibleElementType.getName(((DefaultFlexibleElementDTO) element).getType()));
+			} else if (element instanceof DefaultContactFlexibleElementDTO && !((DefaultContactFlexibleElementDTO) element).getType().isDeletable()) {
+				defaultElementNames.add(DefaultContactFlexibleElementType.getName(((DefaultContactFlexibleElementDTO) element).getType()));
 			}
 		}
 

@@ -143,6 +143,16 @@ public class ImportModelPresenter extends AbstractPagePresenter<ImportModelPrese
 
 			view.removeProjectPerspective();
 
+		} else if (AdminUtil.ADMIN_CONTACT_MODEL.equals(type)) {
+
+			method = ServletMethod.IMPORT_MODEL_CONTACT;
+
+			setPageTitle(I18N.CONSTANTS.adminContactModelImport());
+
+			message = I18N.CONSTANTS.adminContactModelStandard();
+
+			view.removeProjectPerspective();
+
 		}
 
 	}
@@ -184,6 +194,10 @@ public class ImportModelPresenter extends AbstractPagePresenter<ImportModelPrese
 
 						N10N.warn(I18N.CONSTANTS.error(), I18N.CONSTANTS.adminOrgUnitsModelImportError());
 
+					} else if (AdminUtil.ADMIN_CONTACT_MODEL.equals(type)) {
+
+						N10N.warn(I18N.CONSTANTS.error(), I18N.CONSTANTS.adminContactModelImportError());
+
 					}
 
 				} else {
@@ -211,6 +225,12 @@ public class ImportModelPresenter extends AbstractPagePresenter<ImportModelPrese
 						N10N.infoNotif(I18N.CONSTANTS.adminOrgUnitsModelImport(), I18N.CONSTANTS.adminOrgUnitsModelImportDetail());
 
 						eventBus.fireEvent(new UpdateEvent(UpdateEvent.ORG_UNIT_MODEL_IMPORT));
+
+					} else if (AdminUtil.ADMIN_CONTACT_MODEL.equals(type)) {
+
+						N10N.infoNotif(I18N.CONSTANTS.adminContactModelImport(), I18N.CONSTANTS.adminContactModelImportDetail());
+
+						eventBus.fireEvent(new UpdateEvent(UpdateEvent.CONTACT_MODEL_IMPORT));
 					}
 
 				}

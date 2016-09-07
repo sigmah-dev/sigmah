@@ -35,10 +35,10 @@ final class RequiredValueStateList {
 	/**
 	 * Map the required element, its saved value completion (in db) and its actual value completion (not yet saved).
 	 */
-	private final HashMap<Integer, RequiredValueState> list;
+	private final HashMap<Integer, RequiredListValueState> list;
 
 	public RequiredValueStateList() {
-		list = new HashMap<Integer, RequiredValueState>();
+		list = new HashMap<Integer, RequiredListValueState>();
 	}
 
 	/**
@@ -66,18 +66,32 @@ final class RequiredValueStateList {
 	 * @param savedState
 	 *          The saved value completion.
 	 */
-	public void putSaved(Integer elementDTOId, Boolean savedState) {
+	public void putSaved(Integer iterationId, Integer elementDTOId, Boolean savedState) {
 
-		RequiredValueState state = list.get(elementDTOId);
-
-		if (state == null) {
-			state = new RequiredValueState();
-			list.put(elementDTOId, state);
-		}
+		RequiredValueState state = retrieveOrCreateState(iterationId, elementDTOId);
 
 		state.setSavedState(savedState);
 
-		putActual(elementDTOId, savedState);
+		putActual(iterationId, elementDTOId, savedState);
+	}
+
+	private RequiredValueState retrieveOrCreateState(Integer iterationId, Integer elementDTOId) {
+
+		RequiredListValueState listState = list.get(elementDTOId);
+
+		if (listState == null) {
+			listState = new RequiredListValueState();
+			list.put(elementDTOId, listState);
+		}
+
+		RequiredValueState state = list.get(elementDTOId).get(iterationId);
+
+		if (state == null) {
+			state = new RequiredValueState();
+			listState.put(iterationId, state);
+		}
+
+		return state;
 	}
 
 	/**
@@ -88,14 +102,9 @@ final class RequiredValueStateList {
 	 * @param actualState
 	 *          The actual value completion.
 	 */
-	public void putActual(Integer elementDTOId, Boolean actualState) {
+	public void putActual(Integer iterationId, Integer elementDTOId, Boolean actualState) {
 
-		RequiredValueState state = list.get(elementDTOId);
-
-		if (state == null) {
-			state = new RequiredValueState();
-			list.put(elementDTOId, state);
-		}
+	RequiredValueState state = retrieveOrCreateState(iterationId, elementDTOId);
 
 		state.setActualState(actualState);
 	}
@@ -104,7 +113,7 @@ final class RequiredValueStateList {
 	 * Informs that all actual values completions has been saved to the data layer.
 	 */
 	public void saveState() {
-		for (final RequiredValueState state : list.values()) {
+		for (final RequiredListValueState state : list.values()) {
 			state.saveState();
 		}
 	}
@@ -113,7 +122,7 @@ final class RequiredValueStateList {
 	 * Informs that all actual values completions has been discarded.
 	 */
 	public void clearState() {
-		for (final RequiredValueState state : list.values()) {
+		for (final RequiredListValueState state : list.values()) {
 			state.clearState();
 		}
 	}
@@ -124,7 +133,7 @@ final class RequiredValueStateList {
 	 * @return If all saved values completions are valid.
 	 */
 	public boolean isTrue() {
-		for (final RequiredValueState state : list.values()) {
+		for (final RequiredListValueState state : list.values()) {
 			if (!state.isTrue()) {
 				return false;
 			}
@@ -134,11 +143,25 @@ final class RequiredValueStateList {
 
 	/**
 	 * Returns if all actual values completions are valid.
+	 *
+	 * @return If all actual values completions are valid.
+	 */
+	public boolean isActuallyTrue(Integer elementDTOId) {
+		RequiredListValueState state = list.get(elementDTOId);
+		if(state == null) {
+			return true;
+		}
+
+		return state.isActuallyTrue();
+	}
+
+	/**
+	 * Returns if all actual values completions are valid.
 	 * 
 	 * @return If all actual values completions are valid.
 	 */
 	public boolean isActuallyTrue() {
-		for (final RequiredValueState state : list.values()) {
+		for (final RequiredListValueState state : list.values()) {
 			if (!state.isActuallyTrue()) {
 				return false;
 			}

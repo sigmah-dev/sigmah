@@ -37,6 +37,10 @@
 		<class>org.sigmah.server.domain.AttributeGroup</class>
 		<class>org.sigmah.server.domain.AttributeValue</class>
 		<class>org.sigmah.server.domain.Authentication</class>
+		<class>org.sigmah.server.domain.Contact</class>
+		<class>org.sigmah.server.domain.ContactModel</class>
+		<class>org.sigmah.server.domain.ContactCard</class>
+		<class>org.sigmah.server.domain.ContactDetails</class>
 		<class>org.sigmah.server.domain.Country</class>
 		<class>org.sigmah.server.domain.Framework</class>
 		<class>org.sigmah.server.domain.FrameworkElement</class>
@@ -84,6 +88,7 @@
 		<class>org.sigmah.server.domain.element.BudgetSubField</class>
 		<class>org.sigmah.server.domain.element.BudgetRatioElement</class>
 		<class>org.sigmah.server.domain.element.CheckboxElement</class>
+		<class>org.sigmah.server.domain.element.ContactListElement</class>
 		<class>org.sigmah.server.domain.element.DefaultFlexibleElement</class>
 		<class>org.sigmah.server.domain.element.FilesListElement</class>
 		<class>org.sigmah.server.domain.element.FlexibleElement</class>
@@ -115,6 +120,7 @@
 		<class>org.sigmah.server.domain.layout.Layout</class>
 		<class>org.sigmah.server.domain.layout.LayoutConstraint</class>
 		<class>org.sigmah.server.domain.layout.LayoutGroup</class>
+		<class>org.sigmah.server.domain.layout.LayoutGroupIteration</class>
 
 		<!-- Logframe package. -->
 		<class>org.sigmah.server.domain.logframe.ExpectedResult</class>

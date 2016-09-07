@@ -805,6 +805,7 @@ public class ProjectsListWidget extends AbstractPresenter<ProjectsListWidget.Vie
 			public void ended() {
 				applyProjectFilters();
 				view.updateRefreshingDate(new Date());
+				view.getProjectsPanel().layout();
 
 				currentlyLoading = false;
 				// Try to execute the next loader

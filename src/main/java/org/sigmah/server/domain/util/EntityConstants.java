@@ -415,6 +415,7 @@ public final class EntityConstants extends org.sigmah.shared.dto.util.EntityCons
 	// --------------------------------------------------------------------------------
 
 	public static final String GLOBAL_EXPORT_TABLE = "global_export";
+	public static final String GLOBAL_CONTACT_EXPORT_TABLE = "global_contact_export";
 	public static final String GLOBAL_EXPORT_COLUMN_ID = "id";
 	public static final String GLOBAL_EXPORT_COLUMN_DATE = "generated_date";
 	// TODO Replace with 'Organization' id column.
@@ -427,8 +428,10 @@ public final class EntityConstants extends org.sigmah.shared.dto.util.EntityCons
 	// --------------------------------------------------------------------------------
 
 	public static final String GLOBAL_EXPORT_CONTENT_TABLE = "global_export_content";
+	public static final String GLOBAL_CONTACT_EXPORT_CONTENT_TABLE = "global_contact_export_content";
 	public static final String GLOBAL_EXPORT_CONTENT_COLUMN_ID = "id";
 	public static final String GLOBAL_EXPORT_CONTENT_COLUMN_PROJECT_MODEL_NAME = "project_model_name";
+	public static final String GLOBAL_EXPORT_CONTENT_COLUMN_CONTACT_MODEL_NAME = "contact_model_name";
 	public static final String GLOBAL_EXPORT_CONTENT_COLUMN_CSV_CONTENT = "csv_content";
 	// TODO Replace with 'GlobalExport' id column.
 	public static final String GLOBAL_EXPORT_CONTENT_COLUMN_GLOBAL_EXPORT_ID = "global_export_id";
@@ -442,6 +445,7 @@ public final class EntityConstants extends org.sigmah.shared.dto.util.EntityCons
 	// --------------------------------------------------------------------------------
 
 	public static final String GLOBAL_EXPORT_SETTINGS_TABLE = "global_export_settings";
+	public static final String GLOBAL_CONTACT_EXPORT_SETTINGS_TABLE = "global_contact_export_settings";
 	public static final String GLOBAL_EXPORT_SETTINGS_COLUMN_ID = "id";
 	public static final String GLOBAL_EXPORT_SETTINGS_COLUMN_EXPORT_FORMAT = "export_format";
 	public static final String GLOBAL_EXPORT_SETTINGS_COLUMN_DEFAULT_ORG_EXPORT_FORMAT = "default_organization_export_format";
@@ -481,6 +485,21 @@ public final class EntityConstants extends org.sigmah.shared.dto.util.EntityCons
 	public static final String HISTORY_TOKEN_COLUMN_USER_ID = "id_user";
 	public static final String HISTORY_TOKEN_COLUMN_COMMENT = "comment";
 	public static final String HISTORY_TOKEN_COLUMN_CORE_VERSION = "core_version";
+
+	// --------------------------------------------------------------------------------
+	//
+	// ITERATION HISTORY TOKEN ENTITY.
+	//
+	// --------------------------------------------------------------------------------
+
+	public static final String ITERATION_HISTORY_TOKEN_TABLE = "iteration_history_token";
+	public static final String ITERATION_HISTORY_TOKEN_COLUMN_ID = "id_iteration_history_token";
+	public static final String ITERATION_HISTORY_TOKEN_COLUMN_DATE = "history_date";
+	public static final String ITERATION_HISTORY_TOKEN_COLUMN_ITERATION = "id_layout_group_iteration";
+	public static final String ITERATION_HISTORY_TOKEN_COLUMN_LAYOUT_GROUP = "id_layout_group";
+	public static final String ITERATION_HISTORY_TOKEN_COLUMN_PROJECT = "id_project";
+	public static final String ITERATION_HISTORY_TOKEN_COLUMN_NAME = "name";
+	public static final String ITERATION_HISTORY_TOKEN_COLUMN_CORE_VERSION = "core_version";
 
 	// --------------------------------------------------------------------------------
 	//
@@ -656,8 +675,21 @@ public final class EntityConstants extends org.sigmah.shared.dto.util.EntityCons
 	public static final String LAYOUT_GROUP_COLUMN_ROW_INDEX = "row_index";
 	public static final String LAYOUT_GROUP_COLUMN_COLUMN_INDEX = "column_index";
 	public static final String LAYOUT_GROUP_COLUMN_TITLE = "title";
+	public static final String LAYOUT_GROUP_COLUMN_HAS_ITERATIONS = "has_iterations";
 
 	public static final int LAYOUT_GROUP_TITLE_MAX_LENGTH = 8192;
+
+	// --------------------------------------------------------------------------------
+	//
+	// LAYOUT GROUP ITERATION ENTITY.
+	//
+	// --------------------------------------------------------------------------------
+
+	public static final String LAYOUT_GROUP_ITERATION_TABLE = "layout_group_iteration";
+	public static final String LAYOUT_GROUP_ITERATION_COLUMN_ID = "id_layout_group_iteration";
+	public static final String LAYOUT_GROUP_ITERATION_COLUMN_ID_CONTAINER = "id_container";
+	public static final String LAYOUT_GROUP_ITERATION_COLUMN_NAME = "name";
+
 
 	// --------------------------------------------------------------------------------
 	//
@@ -1523,6 +1555,7 @@ public final class EntityConstants extends org.sigmah.shared.dto.util.EntityCons
 	public static final String VALUE_COLUMN_ACTION_LAST_MODIF = "action_last_modif";
 	public static final String VALUE_COLUMN_DATE_LAST_MODIF = "date_last_modif";
 	public static final String VALUE_COLUMN_VALUE = "value";
+	public static final String VALUE_COLUMN_LAYOUT_GROUP_ITERATION = "id_layout_group_iteration";
 
 	// --------------------------------------------------------------------------------
 	//
@@ -1578,4 +1611,84 @@ public final class EntityConstants extends org.sigmah.shared.dto.util.EntityCons
 
 	public static final String FRAMEWORK_ELEMENT_IMPLEMENTATION_TABLE = "framework_element_implementation";
 	public static final String FRAMEWORK_ELEMENT_IMPLEMENTATION_COLUMN_ID = "id_framework_element_implementation";
+
+	// --------------------------------------------------------------------------------
+	//
+	// CONTACT MODEL ENTITY.
+	//
+	// --------------------------------------------------------------------------------
+
+	public static final String CONTACT_MODEL_TABLE = "contact_model";
+	public static final String CONTACT_MODEL_COLUMN_ID = "id_contact_model";
+	public static final String CONTACT_MODEL_COLUMN_TYPE = "type";
+	public static final String CONTACT_MODEL_COLUMN_NAME = "name";
+	public static final String CONTACT_MODEL_COLUMN_STATUS = "status";
+	public static final String CONTACT_MODEL_COLUMN_DATE_DELETED = "date_deleted";
+	public static final String CONTACT_MODEL_COLUMN_DATE_MAINTENANCE = "date_maintenance";
+
+	public static final int CONTACT_MODEL_NAME_MAX_LENGTH = 8192;
+
+	// --------------------------------------------------------------------------------
+	//
+	// CONTACT CARD ENTITY.
+	//
+	// --------------------------------------------------------------------------------
+
+	public static final String CONTACT_CARD_TABLE = "contact_card";
+	public static final String CONTACT_CARD_COLUMN_ID = "id_contact_card";
+
+	// --------------------------------------------------------------------------------
+	//
+	// CONTACT DETAILS ENTITY.
+	//
+	// --------------------------------------------------------------------------------
+
+	public static final String CONTACT_DETAILS_TABLE = "contact_details";
+	public static final String CONTACT_DETAILS_COLUMN_ID = "id_contact_details";
+
+	// --------------------------------------------------------------------------------
+	//
+	// CONTACT DETAILS ENTITY.
+	//
+	// --------------------------------------------------------------------------------
+
+	public static final String DEFAULT_CONTACT_FLEXIBLE_ELEMENT_TABLE = "default_contact_flexible_element";
+	public static final String DEFAULT_CONTACT_FLEXIBLE_ELEMENT_COLUMN_TYPE = "type";
+
+	// --------------------------------------------------------------------------------
+	//
+	// CONTACT ENTITY.
+	//
+	// --------------------------------------------------------------------------------
+
+	public static final String CONTACT_TABLE = "contact";
+	public static final String CONTACT_COLUMN_ID = "id_contact";
+	public static final String CONTACT_COLUMN_NAME = "name";
+	public static final String CONTACT_COLUMN_FIRSTNAME = "firstname";
+	public static final String CONTACT_COLUMN_MAIN_ORG_UNIT = "id_main_org_unit";
+	public static final String CONTACT_COLUMN_LOGIN = "login";
+	public static final String CONTACT_COLUMN_EMAIL = "email";
+	public static final String CONTACT_COLUMN_PHONE_NUMBER = "phone_number";
+	public static final String CONTACT_COLUMN_POSTAL_ADDRESS = "postal_address";
+	public static final String CONTACT_COLUMN_PHOTO = "photo";
+	public static final String CONTACT_COLUMN_COUNTRY = "id_country";
+	public static final String CONTACT_COLUMN_PARENT = "id_parent";
+	public static final String CONTACT_COLUMN_USER = "id_user";
+	public static final String CONTACT_COLUMN_DATE_CREATED = "date_created";
+	public static final String CONTACT_COLUMN_DATE_DELETED = "date_deleted";
+
+	public static final String CONTACT_ORG_UNIT_LINK_TABLE = "contact_unit";
+	public static final String CONTACT_ORG_UNIT_COLUMN_ORG_UNIT = "id_org_unit";
+
+	// --------------------------------------------------------------------------------
+	//
+	// CONTACT LIST ELEMENT ENTITY.
+	//
+	// --------------------------------------------------------------------------------
+	public static final String CONTACT_LIST_ELEMENT_TABLE = "contact_list_element";
+	public static final String CONTACT_LIST_ELEMENT_COLUMN_ALLOWED_TYPE = "allowed_type";
+	public static final String CONTACT_LIST_ELEMENT_COLUMN_LIMIT = "contact_limit";
+	public static final String CONTACT_LIST_ELEMENT_COLUMN_IS_MEMBER = "is_member";
+
+	public static final String CONTACT_LIST_ELEMENT_ALLOWED_MODEL_LINK_TABLE = "contact_list_element_allowed_model";
 }

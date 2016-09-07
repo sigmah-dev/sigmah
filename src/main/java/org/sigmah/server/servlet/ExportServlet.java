@@ -31,6 +31,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.sigmah.client.page.RequestParameter;
 import org.sigmah.server.servlet.base.AbstractServlet;
 import org.sigmah.server.servlet.base.ServletExecutionContext;
+import org.sigmah.server.servlet.exporter.ContactSynthesisExporter;
+import org.sigmah.server.servlet.exporter.GlobalContactExportExporter;
 import org.sigmah.server.servlet.exporter.GlobalExportExporter;
 import org.sigmah.server.servlet.exporter.LogFrameExporter;
 import org.sigmah.server.servlet.exporter.OrgUnitSynthesisExporter;
@@ -38,6 +40,7 @@ import org.sigmah.server.servlet.exporter.ProjectReportExporter;
 import org.sigmah.server.servlet.exporter.ProjectSynthesisExporter;
 import org.sigmah.server.servlet.exporter.base.Exporter;
 import org.sigmah.server.servlet.exporter.models.CategoryTypeHandler;
+import org.sigmah.server.servlet.exporter.models.ContactModelHandler;
 import org.sigmah.server.servlet.exporter.models.ModelHandler;
 import org.sigmah.server.servlet.exporter.models.OrgUnitModelHandler;
 import org.sigmah.server.servlet.exporter.models.ProjectModelHandler;
@@ -81,8 +84,25 @@ public class ExportServlet extends AbstractServlet {
 	}
 
 	/**
-	 * See {@link ServletMethod#EXPORT_GLOBAL} for JavaDoc.
+	 * See {@link ServletMethod#EXPORT_CONTACT_GLOBAL} for JavaDoc.
 	 * 
+	 * @param request
+	 *          The HTTP request containing the file id parameter.
+	 * @param response
+	 *          The HTTP response on which the file content is written.
+	 * @param context
+	 *          The execution context.
+	 * @throws Exception
+	 */
+	protected void exportContactGlobal(final HttpServletRequest request, final HttpServletResponse response, final ServletExecutionContext context) throws Exception {
+
+		executeExport(new GlobalContactExportExporter(injector, request, context), request, response);
+
+	}
+
+	/**
+	 * See {@link ServletMethod#EXPORT_GLOBAL} for JavaDoc.
+	 *
 	 * @param request
 	 *          The HTTP request containing the file id parameter.
 	 * @param response
@@ -112,6 +132,24 @@ public class ExportServlet extends AbstractServlet {
 	protected void exportOrgUnit(final HttpServletRequest request, final HttpServletResponse response, final ServletExecutionContext context) throws Exception {
 
 		executeExport(new OrgUnitSynthesisExporter(injector, request, context), request, response);
+
+	}
+
+	/**
+	 * See {@link ServletMethod#EXPORT_CONTACT} for JavaDoc.
+	 *
+	 * @param request
+	 *          The HTTP request containing the file id parameter.
+	 * @param response
+	 *          The HTTP response on which the file content is written.
+	 * @param context
+	 *          The execution context.
+	 * @throws Exception
+	 *           If an error occurs during process.
+	 */
+	protected void exportContact(final HttpServletRequest request, final HttpServletResponse response, final ServletExecutionContext context) throws Exception {
+
+		executeExport(new ContactSynthesisExporter(injector, request, context), request, response);
 
 	}
 
@@ -238,6 +276,16 @@ public class ExportServlet extends AbstractServlet {
 			throws Exception {
 
 		executeExportModel(new OrgUnitModelHandler(), request, response);
+
+	}
+
+	/**
+	 * Export Contact Model
+	 */
+	protected void exportContactModel(final HttpServletRequest request, final HttpServletResponse response, final ServletExecutionContext context)
+			throws Exception {
+
+		executeExportModel(injector.getInstance(ContactModelHandler.class), request, response);
 
 	}
 

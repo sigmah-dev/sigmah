@@ -28,9 +28,13 @@ import java.util.List;
 import java.util.Map;
 
 import org.odftoolkit.simple.SpreadsheetDocument;
+import org.odftoolkit.simple.table.Cell;
 import org.odftoolkit.simple.table.Row;
 import org.odftoolkit.simple.table.Table;
 import org.sigmah.server.servlet.exporter.data.GlobalExportData;
+import org.sigmah.server.servlet.exporter.data.cells.ExportDataCell;
+import org.sigmah.server.servlet.exporter.data.cells.ExportLinkCell;
+import org.sigmah.server.servlet.exporter.data.cells.ExportStringCell;
 import org.sigmah.server.servlet.exporter.utils.CalcUtils;
 
 public class GlobalExportCalcTemplate implements ExportTemplate {
@@ -49,7 +53,7 @@ public class GlobalExportCalcTemplate implements ExportTemplate {
 		final Map<Integer, Integer> contentWidthMap = new HashMap<Integer, Integer>();
 
 		for (final String pModelName : data.getExportData().keySet()) {
-			final List<String[]> dataList = data.getExportData().get(pModelName);
+			final List<ExportDataCell[]> dataList = data.getExportData().get(pModelName);
 			if (first) {
 				table.setTableName(pModelName);
 			} else {
@@ -63,34 +67,66 @@ public class GlobalExportCalcTemplate implements ExportTemplate {
 			int defaultWidth = 30;
 
 			// titles
-			final String[] header = dataList.get(0);
+			final ExportDataCell[] header = dataList.get(0);
 			row = table.getRowByIndex(++rowIndex);
 			for (int i = 0; i < header.length; i++) {
-				CalcUtils.putGlobalExportHeader(row, i, header[i]);
-				if (header[i] != null) {
-					headerWidthMap.put(i, header[i].length() / 2);
+				int width = -1;
+				if (header[i] instanceof ExportStringCell) {
+					ExportStringCell cell = (ExportStringCell)header[i];
+					CalcUtils.putGlobalExportHeader(row, i, cell.getText());
+					if (cell.getText() != null) {
+						width = cell.getText().length() / 2;
+					}
+				} else if (header[i] instanceof ExportLinkCell) {
+					// no links on headers for the moment
+					ExportLinkCell cell = (ExportLinkCell)header[i];
+					CalcUtils.putGlobalExportHeader(row, i, cell.getText());
+					if (cell.getText() != null) {
+						width = cell.getText().length() / 2;
+					}
+				}
+				if (width != -1) {
+					headerWidthMap.put(i, width);
 				}
 			}
 
 			// values
 			for (int j = 1; j < dataList.size(); j++) {
 				row = table.getRowByIndex(++rowIndex);
-				final String[] values = dataList.get(j);
+				final ExportDataCell[] values = dataList.get(j);
 				int devider = 2;
 				for (int i = 0; i < header.length; i++) {
-					CalcUtils.createBasicCell(table, i, rowIndex, values[i]);
-					if (values[i] != null) {
-						String parts[] = values[i].split("\n");
-						if (parts.length > devider) {
-							devider = parts.length;
-						}
 
-						int currentWidth = values[i].length() / devider;
-						Integer activeWidth = contentWidthMap.get(i);
-						if (activeWidth != null) {
-							currentWidth = Math.max(activeWidth, currentWidth);
+					int width = -1;
+
+					if(values[i] instanceof ExportStringCell) {
+
+						String text = ((ExportStringCell) values[i]).getText();
+						CalcUtils.createBasicCell(table, i, rowIndex, text);
+						if (text != null) {
+							String parts[] = text.split("\n");
+							if (parts.length > devider) {
+								devider = parts.length;
+							}
+
+							int currentWidth = text.length() / devider;
+							Integer activeWidth = contentWidthMap.get(i);
+							if (activeWidth != null) {
+								currentWidth = Math.max(activeWidth, currentWidth);
+							}
+							width = currentWidth;
 						}
-						contentWidthMap.put(i, currentWidth);
+					} else if (values[i] instanceof ExportLinkCell) {
+
+						ExportLinkCell linkCell = (ExportLinkCell)values[i];
+
+						Cell cell = table.getCellByPosition(1, rowIndex);
+						CalcUtils.applyLink(cell, linkCell.getText(), linkCell.getTarget());
+						width = linkCell.getText().length() / 2;
+					}
+
+					if(width != -1) {
+						contentWidthMap.put(i, width);
 					}
 				}
 			}

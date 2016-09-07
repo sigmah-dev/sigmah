@@ -39,6 +39,7 @@ final class Pages {
 	static final String PROJECT_PARENT_KEY = "project";
 	static final String ORGUNIT_PARENT_KEY = "orgunit";
 	static final String ADMIN_PARENT_KEY = "admin";
+	static final String CONTACT_PARENT_KEY = "contact";
 
 	static final String KEY_SUFFIX = "-";
 

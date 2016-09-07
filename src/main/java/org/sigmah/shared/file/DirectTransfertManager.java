@@ -40,6 +40,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.sigmah.client.event.EventBus;
 import org.sigmah.client.event.OfflineEvent;
 import org.sigmah.client.event.handler.OfflineHandler;
+import org.sigmah.shared.util.FileType;
 
 /**
  * Download and upload files with classic http requests.
@@ -86,8 +87,16 @@ class DirectTransfertManager implements TransfertManager {
 
 	@Override
 	public void upload(final FormPanel formPanel, final ProgressListener progressListener) {
-		final ServletUrlBuilder urlBuilder =
-				new ServletUrlBuilder(authenticationProvider, pageManager, ServletConstants.Servlet.FILE, ServletConstants.ServletMethod.UPLOAD);
+		upload(formPanel, progressListener, ServletConstants.ServletMethod.UPLOAD);
+	}
+
+	@Override
+	public void uploadAvatar(final FormPanel formPanel, final ProgressListener progressListener) {
+		upload(formPanel, progressListener, ServletConstants.ServletMethod.UPLOAD_AVATAR);
+	}
+
+	private void upload(final FormPanel formPanel, final ProgressListener progressListener, ServletConstants.ServletMethod servletMethod) {
+		ServletUrlBuilder urlBuilder = new ServletUrlBuilder(authenticationProvider, pageManager, ServletConstants.Servlet.FILE, servletMethod);
 
 		formPanel.setAction(urlBuilder.toString());
 		formPanel.setEncoding(FormPanel.Encoding.MULTIPART);

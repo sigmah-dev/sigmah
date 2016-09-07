@@ -25,6 +25,7 @@ package org.sigmah.server.servlet.exporter.data;
 import javax.persistence.EntityManager;
 
 import org.sigmah.server.dispatch.CommandHandler;
+import org.sigmah.server.domain.Contact;
 import org.sigmah.server.domain.OrgUnit;
 import org.sigmah.server.domain.Project;
 import org.sigmah.server.handler.GetValueHandler;
@@ -40,24 +41,20 @@ import com.google.inject.Injector;
 public abstract class BaseSynthesisData extends ExportData {
 
 	protected final EntityManager entityManager;
-	private final GlobalExportDataProvider dataProvider;
 	private final CommandHandler<GetValue, ?> handler;
+	private final Boolean withContacts;
 
 	/*
 	 * private final Locale locale; private final Translator translator;
 	 */
-	public BaseSynthesisData(final Exporter exporter, final Injector injector) {
+	public BaseSynthesisData(final Exporter exporter, final Injector injector, final Boolean withContacts) {
 		super(exporter, 3);
 		entityManager = injector.getInstance(EntityManager.class);
-		dataProvider = injector.getInstance(GlobalExportDataProvider.class);
 		handler = injector.getInstance(GetValueHandler.class);
+		this.withContacts = withContacts;
 		/*
 		 * this.locale = locale; translator = new UIConstantsTranslator(new Locale(""));
 		 */
-	}
-
-	public GlobalExportDataProvider getDataProvider() {
-		return dataProvider;
 	}
 
 	public CommandHandler<GetValue, ?> getHandler() {
@@ -75,4 +72,9 @@ public abstract class BaseSynthesisData extends ExportData {
 
 	public abstract OrgUnit getOrgUnit();
 
+	public abstract Contact getContact();
+
+	public Boolean getWithContacts() {
+		return withContacts;
+	}
 }

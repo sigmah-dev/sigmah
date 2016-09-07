@@ -395,5 +395,38 @@ body {font-family:Arial;font-size:8pt}
 .trace-action.disable-trace{background: #FFF url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAABGdBTUEAAK/INwWK6QAAAAlwSFlzAAAOxAAADsQBlSsOGwAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAADYUExURcwiANU8HdZMMdoyENtIJttXPdxFJt5dQt9rU+I/HeNBH+Q6GORgROVQLuWOfeWQf+Z1XudiQOhHJelJJ+pLKeyYhuypm+13Ve2qne6vo/BwVfByUPK1qPNKKPNNK/RSMPRbOfWIcfdkQvdxT/fb1fhuT/h/ZPiolvjd1/m/s/ni3vpsSvt/XfxjQfyEavyTe/1hP/12V/2Mav2ScP3Asv6CYP6GZP7BtP7FuP7k3v7o5P9VM/9ePP9jQf9mRP97Wf+DaP+EYv+Zd/+qiP+xoP+yof/m4P///5IuMgkAAAC6SURBVBjTXc/JdgFRAIThMoSgEbO0mMcESdAdEVxDi//938jikpOjdl+tqsRdBHA+7Y3Zn863Yjnzj0Fw9GdLW3jjRSUqRSuLsQdi1Z/nHp7h0QTz/gox7Nbib/BrAtW6Q4Q7Sb9YP6UnLiJ/SFhnSRzyiOSucDWFXRLhdFpt69dWx0GUilPrn8G0WEKMYs0vfcD3+2czNkJQjTQ2W2O2m0akaqeXQ6n6el1Phcq3c71MWApnen9v/+cCydYyJ9Lg6qMAAAAASUVORK5CYII=") 4px center no-repeat}
 .trace-menu-variable{margin-left: 5px}
 
+ul.x-tab-strip {
+  width: auto !important;
+}
 
+/* Contact */
+.contact-grid-name a{text-decoration:underline;cursor:pointer;color:#4B3E2D}
 
+.contact-card-label {
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  padding: 5px 0;
+  font-size: 14px;
+}
+.contact-card-avatar {
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  padding: 5px;
+  background-repeat: no-repeat;
+  background-origin: content-box;
+  background-position: 50% 0%;
+  background-size: contain;
+}
+.contact-card-avatar-individual {
+  background-image: url("../images/icon/individual-128.png");
+}
+.contact-card-avatar-organization {
+  background-image: url("../images/icon/organization-128.png");
+}
+.contact-details-photo {
+  max-width: 150px;
+  max-height: 150px;
+}
+.contact-details-container .x-box-inner {
+  overflow: auto !important;
+}

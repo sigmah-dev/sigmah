@@ -36,6 +36,7 @@ public class GetValue extends AbstractCommand<ValueResult> {
 
 	private Integer projectId;
 	private Integer elementId;
+	private Integer iterationId;
 
 	/**
 	 * Do not use the getClass().getName() on client side to identify a flexible element type. Always use the
@@ -50,14 +51,19 @@ public class GetValue extends AbstractCommand<ValueResult> {
 	}
 
 	public GetValue(Integer projectId, Integer elementId, String elementEntityName) {
-		this(projectId, elementId, elementEntityName, null);
+		this(projectId, elementId, elementEntityName, null, null);
 	}
 
 	public GetValue(Integer projectId, Integer elementId, String elementEntityName, Integer amendmentId) {
+		this(projectId, elementId, elementEntityName, amendmentId, null);
+	}
+
+	public GetValue(Integer projectId, Integer elementId, String elementEntityName, Integer amendmentId, Integer iterationId) {
 		this.projectId = projectId;
 		this.elementId = elementId;
 		this.elementEntityName = elementEntityName;
 		this.amendmentId = amendmentId;
+		this.iterationId = iterationId;
 	}
 
 	/**
@@ -67,6 +73,7 @@ public class GetValue extends AbstractCommand<ValueResult> {
 	protected void appendToString(final ToStringBuilder builder) {
 		builder.append("projectId", projectId);
 		builder.append("elementId", elementId);
+		builder.append("iterationId", iterationId);
 		builder.append("elementEntityName", elementEntityName);
 	}
 
@@ -102,4 +109,11 @@ public class GetValue extends AbstractCommand<ValueResult> {
 		this.amendmentId = amendmentId;
 	}
 
+	public Integer getIterationId() {
+		return iterationId;
+	}
+
+	public void setIterationId(Integer iterationId) {
+		this.iterationId = iterationId;
+	}
 }

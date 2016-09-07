@@ -22,19 +22,20 @@ package org.sigmah.shared.dto.element.event;
  * #L%
  */
 
+import com.google.gwt.event.shared.GwtEvent;
+
 import java.io.Serializable;
+import java.util.Set;
 
 import org.sigmah.client.util.ToStringBuilder;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
 import org.sigmah.shared.dto.referential.ValueEventChangeType;
 import org.sigmah.shared.dto.value.TripletValueDTO;
 
-import com.google.gwt.event.shared.GwtEvent;
-
 /**
  * Event transmitted to the {@link org.sigmah.client.ui.presenter.orgunit.OrgUnitPresenter OrgUnitPresenter} when a
  * flexible element value changes.
- * 
+ *
  * @author HUZHE
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
@@ -48,15 +49,32 @@ public class ValueEvent extends GWTImmortalEvent<ValueHandler> implements Serial
 	private final static GwtEvent.Type<ValueHandler> TYPE = new GwtEvent.Type<ValueHandler>();
 
 	private FlexibleElementDTO sourceElement;
-	private TripletValueDTO listValue;
+	private TripletValueDTO tripletValue;
 	private String singleValue;
+	private Set<Integer> multivaluedIdsValue;
+
 	// Only used for the elements part of a list.
 	private ValueEventChangeType changeType;
 	boolean isProjectCountryChanged = false;
+	//Only used if the element is part of an iteration
+	private Integer iterationId;
 
 	public ValueEvent(FlexibleElementDTO sourceElement, String singleValue) {
 		this.sourceElement = sourceElement;
 		this.singleValue = singleValue;
+	}
+
+	public ValueEvent(FlexibleElementDTO sourceElement, Set<Integer> multivaluedIdsValue, ValueEventChangeType changeType) {
+		this.sourceElement = sourceElement;
+		this.multivaluedIdsValue = multivaluedIdsValue;
+		this.changeType = changeType;
+	}
+
+	public ValueEvent(FlexibleElementDTO sourceElement, Set<Integer> multivaluedIdsValue, ValueEventChangeType changeType, Integer iterationId) {
+		this.sourceElement = sourceElement;
+		this.multivaluedIdsValue = multivaluedIdsValue;
+		this.changeType = changeType;
+		this.iterationId = iterationId;
 	}
 
 	/**
@@ -76,20 +94,31 @@ public class ValueEvent extends GWTImmortalEvent<ValueHandler> implements Serial
 		this.isProjectCountryChanged = isProjectCountryChanged;
 	}
 
-	public ValueEvent(FlexibleElementDTO sourceElement, TripletValueDTO listValue) {
+	public ValueEvent(FlexibleElementDTO sourceElement, TripletValueDTO tripletValue) {
 		this.sourceElement = sourceElement;
-		this.listValue = listValue;
+		this.tripletValue = tripletValue;
 		this.changeType = ValueEventChangeType.ADD;
 	}
 
-	public ValueEvent(FlexibleElementDTO sourceElement, TripletValueDTO listValue, ValueEventChangeType changeType) {
+	public ValueEvent(FlexibleElementDTO sourceElement, TripletValueDTO tripletValue, ValueEventChangeType changeType) {
 		this.sourceElement = sourceElement;
-		this.listValue = listValue;
+		this.tripletValue = tripletValue;
 		if (changeType == null) {
 			this.changeType = ValueEventChangeType.ADD;
 		} else {
 			this.changeType = changeType;
 		}
+	}
+
+	public ValueEvent(FlexibleElementDTO sourceElement, TripletValueDTO tripletValue, ValueEventChangeType changeType, Integer iterationId) {
+		this.sourceElement = sourceElement;
+		this.tripletValue = tripletValue;
+		if (changeType == null) {
+			this.changeType = ValueEventChangeType.ADD;
+		} else {
+			this.changeType = changeType;
+		}
+		this.iterationId = iterationId;
 	}
 
 	@Override
@@ -122,12 +151,12 @@ public class ValueEvent extends GWTImmortalEvent<ValueHandler> implements Serial
 		this.changeType = changeType;
 	}
 
-	public TripletValueDTO getListValue() {
-		return listValue;
+	public TripletValueDTO getTripletValue() {
+		return tripletValue;
 	}
 
-	public void setListValue(TripletValueDTO listValue) {
-		this.listValue = listValue;
+	public void setTripletValue(TripletValueDTO tripletValue) {
+		this.tripletValue = tripletValue;
 	}
 
 	public String getSingleValue() {
@@ -136,6 +165,14 @@ public class ValueEvent extends GWTImmortalEvent<ValueHandler> implements Serial
 
 	public void setSingleValue(String singleValue) {
 		this.singleValue = singleValue;
+	}
+
+	public Set<Integer> getMultivaluedIdsValue() {
+		return multivaluedIdsValue;
+	}
+
+	public void setMultivaluedIdsValue(Set<Integer> multivaluedIdsValue) {
+		this.multivaluedIdsValue = multivaluedIdsValue;
 	}
 
 	/**
@@ -153,6 +190,14 @@ public class ValueEvent extends GWTImmortalEvent<ValueHandler> implements Serial
 		this.isProjectCountryChanged = isProjectCountryChanged;
 	}
 
+	public Integer getIterationId() {
+		return iterationId;
+	}
+
+	public void setIterationId(Integer iterationId) {
+		this.iterationId = iterationId;
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -162,8 +207,9 @@ public class ValueEvent extends GWTImmortalEvent<ValueHandler> implements Serial
 
 		builder.append("source", sourceElement.getId());
 		builder.append("value", singleValue);
-		builder.append("values", listValue);
+		builder.append("tripletValue", tripletValue);
 		builder.append("changeType", changeType);
+		builder.append("iterationId", iterationId);
 
 		return builder.toString();
 	}
