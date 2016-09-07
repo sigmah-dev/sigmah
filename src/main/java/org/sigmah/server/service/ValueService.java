@@ -198,7 +198,7 @@ public class ValueService extends EntityManagerProvider {
 				currentIds = multivaluedIdsValue;
 				break;
 			default:
-				throw new IllegalStateException();
+				throw new IllegalStateException("Unknown ValueEventChangeType : " + changeType.getChangeType());
 		}
 		String serializedValue = ValueResultUtils.mergeElements(new ArrayList<Integer>(currentIds));
 		currentValue.setValue(serializedValue);
