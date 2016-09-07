@@ -33,6 +33,10 @@ import org.sigmah.client.page.RequestParameter;
 import org.sigmah.shared.servlet.ServletConstants;
 import org.sigmah.shared.servlet.ServletRequestBuilder;
 
+/**
+ * This class provides access to images being given their id
+ */
+
 public class ImageProvider {
   private final Injector injector;
 

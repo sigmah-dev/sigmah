@@ -106,7 +106,7 @@ public class DefaultContactFlexibleElement extends FlexibleElement {
         }
         return contact.getRoot().getFullName();
       default:
-        throw new IllegalStateException();
+        throw new IllegalStateException("Unknown DefaultContactFlexibleElementType : " + getType());
     }
   }
 
@@ -163,7 +163,7 @@ public class DefaultContactFlexibleElement extends FlexibleElement {
         }
         return String.valueOf(contact.getRoot().getId());
       default:
-        throw new IllegalStateException();
+        throw new IllegalStateException("Unknown DefaultContactFlexibleElementType : " + getType());
     }
   }
 
@@ -187,7 +187,7 @@ public class DefaultContactFlexibleElement extends FlexibleElement {
       case TOP_MEMBERSHIP:
         return false;
       default:
-        throw new IllegalStateException();
+        throw new IllegalStateException("Unknown DefaultContactFlexibleElementType : " + getType());
     }
   }
 }

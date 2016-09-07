@@ -105,7 +105,7 @@ public class ContactRelationshipsPresenter extends AbstractPresenter<ContactRela
             page = Page.CONTACT_DASHBOARD;
             break;
           default:
-            throw new IllegalStateException();
+            throw new IllegalStateException("Unknown container type : " + type);
         }
         eventBus.navigateRequest(page.requestWith(RequestParameter.ID, id));
       }

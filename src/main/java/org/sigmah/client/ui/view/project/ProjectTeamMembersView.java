@@ -136,6 +136,7 @@ public class ProjectTeamMembersView extends AbstractView implements ProjectTeamM
 		nameColumnConfig.setRenderer(new GridCellRenderer() {
 			@Override
 			public Object render(ModelData model, String property, ColumnData config, int rowIndex, int colIndex, ListStore store, Grid grid) {
+				TeamMemberDTO.TeamMemberType teamMemberType = (TeamMemberDTO.TeamMemberType) model.get(TeamMemberDTO.TYPE);
 				switch ((TeamMemberDTO.TeamMemberType) model.get(TeamMemberDTO.TYPE)) {
 					case MANAGER:
 						return I18N.MESSAGES.projectTeamMemberManagerLabel(model.get(UserDTO.COMPLETE_NAME).toString());
@@ -144,7 +145,7 @@ public class ProjectTeamMembersView extends AbstractView implements ProjectTeamM
 					case TEAM_MEMBER:
 						return model.get(UserDTO.COMPLETE_NAME);
 					default:
-						throw new IllegalStateException();
+						throw new IllegalStateException("Unknown TeamMemberType : " + teamMemberType);
 				}
 			}
 		});

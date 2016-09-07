@@ -271,7 +271,7 @@ public class DedupeContactDialog extends Window {
         image.getElement().getStyle().setHeight(50, com.google.gwt.dom.client.Style.Unit.PX);
         return image;
       default:
-        throw new IllegalStateException();
+        throw new IllegalStateException("Unknown ValueType : " + valueType);
     }
   }
 

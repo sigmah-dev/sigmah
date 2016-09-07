@@ -852,7 +852,7 @@ public abstract class AbstractModelsAdminPresenter<E extends IsModel, V extends 
 		} else if (model instanceof ContactModelDTO) {
 			urlBuilder = new ServletUrlBuilder(injector.getAuthenticationProvider(), injector.getPageManager(), Servlet.EXPORT, ServletMethod.EXPORT_MODEL_CONTACT);
 		} else {
-			throw new IllegalStateException();
+			throw new IllegalStateException("Model type not supported : " + model.getClass());
 		}
 
 		urlBuilder.addParameter(RequestParameter.ID, model.getId());

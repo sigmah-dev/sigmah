@@ -370,7 +370,7 @@ public class ContactDetailsPresenter extends AbstractPresenter<ContactDetailsPre
         checkDuplicationCommand = new CheckContactDuplication(contactDTO.getId(), currentEmail, currentOrganizationName, null);
         break;
       default:
-        throw new IllegalStateException();
+        throw new IllegalStateException("Unknown ContactModelType : " + contactDTO.getContactModel().getType());
     }
     return checkDuplicationCommand;
   }
@@ -690,7 +690,7 @@ public class ContactDetailsPresenter extends AbstractPresenter<ContactDetailsPre
       case CREATION_DATE:
         break;
       default:
-        throw new IllegalStateException();
+        throw new IllegalStateException("Unknown DefaultContactFlexibleElementType : " + element.getType());
     }
   }
 

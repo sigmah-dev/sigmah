@@ -258,7 +258,7 @@ public class ContactPresenter extends AbstractPagePresenter<ContactPresenter.Vie
           view.addLabel(contactDTO.getRoot().getName());
           break;
         default:
-          throw new IllegalStateException();
+          throw new IllegalStateException("Unknown DefaultContactFlexibleElementType : " + flexibleElementDTO.getType());
       }
     }
 

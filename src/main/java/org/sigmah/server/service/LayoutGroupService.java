@@ -197,7 +197,7 @@ public class LayoutGroupService extends AbstractEntityService<LayoutGroup, Integ
 											((BudgetElement) parent).setRatioDividend(budgetSubField);
 											break;
 										default:
-											throw new IllegalStateException();
+											throw new IllegalStateException("Unknown BudgetSubFieldType : " + budgetSubField.getType());
 									}
 								}
 								budgetSubField.setBudgetElement((BudgetElement) parent);

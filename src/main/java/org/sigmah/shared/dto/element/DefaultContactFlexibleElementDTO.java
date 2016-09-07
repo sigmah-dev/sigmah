@@ -136,7 +136,7 @@ public class DefaultContactFlexibleElementDTO extends AbstractDefaultFlexibleEle
       case TOP_MEMBERSHIP:
         return buildTopMembershipField(valueResult.getValueObject());
       default:
-        throw new IllegalStateException();
+        throw new IllegalStateException("Unknown DefaultContactFlexibleElementType : " + getType());
     }
   }
 
@@ -171,7 +171,7 @@ public class DefaultContactFlexibleElementDTO extends AbstractDefaultFlexibleEle
       case TOP_MEMBERSHIP:
         return buildTopMembershipField(container.getRoot());
       default:
-        throw new IllegalStateException();
+        throw new IllegalStateException("Unknown DefaultContactFlexibleElementType : " + getType());
     }
   }
 
@@ -667,7 +667,7 @@ public class DefaultContactFlexibleElementDTO extends AbstractDefaultFlexibleEle
       case CREATION_DATE: // fall through
       case TOP_MEMBERSHIP: // fall through
       default:
-        throw new IllegalStateException();
+        throw new IllegalStateException("Unknown DefaultContactFlexibleElementType : " + getType());
     }
   }
 

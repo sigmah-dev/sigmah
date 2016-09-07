@@ -139,7 +139,7 @@ public class ContactView extends AbstractView implements ContactPresenter.View {
         avatar.addStyleName(AVATAR_DEFAULT_ORGANIZATION_STYLE_NAME);
         break;
       default:
-        throw new IllegalStateException();
+        throw new IllegalStateException("Unknown ContactModelType : " + type);
     }
   }
 
