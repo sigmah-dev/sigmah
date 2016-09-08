@@ -240,7 +240,8 @@ public class ContactListComboBox extends ListComboBox<ContactDTO> {
         contactModelComboBox.getStore().add(result.getList());
       }
     });
-    dispatch.execute(new GetOrgUnits(OrgUnitDTO.Mode.BASE), new AsyncCallback<ListResult<OrgUnitDTO>>() {
+
+    dispatch.execute(new GetOrgUnits(OrgUnitDTO.Mode.WITH_TREE), new AsyncCallback<ListResult<OrgUnitDTO>>() {
       @Override
       public void onFailure(Throwable caught) {
         Log.error("Error while retrieving org units for contact creation dialog.");
@@ -248,8 +249,10 @@ public class ContactListComboBox extends ListComboBox<ContactDTO> {
 
       @Override
       public void onSuccess(ListResult<OrgUnitDTO> result) {
-        mainOrgUnitComboBox.getStore().add(result.getList());
-        secondaryOrgUnitsComboBox.getAvailableValuesStore().add(result.getList());
+
+        for (OrgUnitDTO orgUnitDTO : result.getData()) {
+          fillOrgUnitsComboboxes(orgUnitDTO, mainOrgUnitComboBox, secondaryOrgUnitsComboBox);
+        }
       }
     });
 
@@ -306,6 +309,20 @@ public class ContactListComboBox extends ListComboBox<ContactDTO> {
 
     window.add(formPanel);
     window.show();
+  }
+
+  private void fillOrgUnitsComboboxes(OrgUnitDTO unit, final ComboBox<OrgUnitDTO> mainOrgUnitComboBox, final ListComboBox<OrgUnitDTO> secondaryOrgUnitsComboBox) {
+
+    mainOrgUnitComboBox.getStore().add(unit);
+    secondaryOrgUnitsComboBox.getAvailableValuesStore().add(unit);
+
+    final Set<OrgUnitDTO> children = unit.getChildrenOrgUnits();
+    if (children != null && !children.isEmpty()) {
+      for (final OrgUnitDTO child : children) {
+        fillOrgUnitsComboboxes(child, mainOrgUnitComboBox, secondaryOrgUnitsComboBox);
+      }
+    }
+
   }
 
   private boolean isFormValid(ContactModelDTO contactModelDTO, OrgUnitDTO mainOrgUnitDTO, List<OrgUnitDTO> secondaryOrgUnits) {
