@@ -33,7 +33,7 @@ public enum DefaultContactFlexibleElementType implements Result, LogicalElementT
   MAIN_ORG_UNIT(false, false, true, true, null),
   SECONDARY_ORG_UNITS(false, false, true, true, null),
   CREATION_DATE(false, false, true, true, null),
-  LOGIN(false, false, true, true, null),
+  LOGIN(false, false, false, false, null),
   EMAIL_ADDRESS(true, true, true, true, 4),
   PHONE_NUMBER(true, true, true, true, 5),
   POSTAL_ADDRESS(true, true, true, true, 6),

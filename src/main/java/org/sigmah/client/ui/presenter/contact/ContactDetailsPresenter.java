@@ -182,6 +182,9 @@ public class ContactDetailsPresenter extends AbstractPresenter<ContactDetailsPre
     gridLayout.setCellPadding(0);
     gridLayout.setCellSpacing(0);
 
+    // unique id
+    formPanel.add(new Label(I18N.CONSTANTS.contactUniqueId() + contactDTO.getId()));
+
     final DispatchQueue queue = new DispatchQueue(dispatch, true);
 
     for (final LayoutGroupDTO groupLayout : layout.getGroups()) {

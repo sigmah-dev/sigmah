@@ -21,6 +21,7 @@ package org.sigmah.shared.dto.element;
  * #L%
  */
 
+import com.extjs.gxt.ui.client.widget.form.TextArea;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -262,6 +263,49 @@ public abstract class AbstractDefaultFlexibleElementDTO extends FlexibleElementD
     field.setFieldLabel(getLabel());
 
     return field;
+  }
+
+  protected Field<?> buildParagraphField(final String label, final String value, final int size, final boolean enabled, boolean allowBlank) {
+
+    // Builds the field and sets its value.
+    final TextField<String> textArea = new TextArea();
+    textArea.addStyleName("flexibility-textarea");
+    textArea.setAllowBlank(allowBlank);
+
+    // Sets the max length.
+      textArea.setMaxLength(size);
+      textArea.setToolTip(I18N.MESSAGES.flexibleElementTextAreaTextLength(String.valueOf(size)));
+
+    // Adds the listeners.
+    textArea.addListener(Events.OnKeyUp, new Listener<BaseEvent>() {
+
+      @Override
+      public void handleEvent(BaseEvent be) {
+
+        String rawValue = textArea.getValue();
+
+        if (rawValue == null) {
+          rawValue = "";
+        }
+
+        // The value is valid if it contains at least one
+        // non-blank character.
+        final boolean isValueOn = !rawValue.trim().equals("") && !(rawValue.length() > size);
+
+        fireEvents(rawValue, isValueOn);
+      }
+    });
+
+    // Sets the value to the field.
+    if (value != null) {
+      textArea.setValue(value);
+    }
+
+    setLabel(label);
+    textArea.setFieldLabel(getLabel());
+    textArea.setEnabled(enabled);
+
+    return textArea;
   }
 
   /**

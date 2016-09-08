@@ -400,7 +400,7 @@ public class DefaultContactFlexibleElementDTO extends AbstractDefaultFlexibleEle
   }
 
   private Field<?> buildPostalAddressField(String postalAddress, boolean enabled) {
-    return buildTextField(I18N.CONSTANTS.contactPostalAddress(), postalAddress, 50, enabled, true);
+    return buildParagraphField(I18N.CONSTANTS.contactPostalAddress(), postalAddress, 50, enabled, true);
   }
 
   private Field<?> buildPhotoField(String imageId, boolean enabled) {
