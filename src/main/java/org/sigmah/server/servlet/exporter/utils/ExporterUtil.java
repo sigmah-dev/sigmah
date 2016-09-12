@@ -29,15 +29,21 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.EntityManager;
-import javax.persistence.Query;
+import javax.persistence.NoResultException;
+import javax.persistence.TypedQuery;
+import org.sigmah.client.util.NumberUtils;
+import org.sigmah.server.dispatch.CommandHandler;
 
 import org.sigmah.server.domain.Contact;
 import org.sigmah.server.domain.Country;
 import org.sigmah.server.domain.OrgUnit;
 import org.sigmah.server.domain.Project;
 import org.sigmah.server.domain.User;
+import org.sigmah.server.domain.base.EntityId;
 import org.sigmah.server.domain.category.CategoryType;
 import org.sigmah.server.domain.element.BudgetElement;
+import org.sigmah.server.domain.element.BudgetRatioElement;
+import org.sigmah.server.domain.element.ContactListElement;
 import org.sigmah.server.domain.element.DefaultContactFlexibleElement;
 import org.sigmah.server.domain.element.DefaultFlexibleElement;
 import org.sigmah.server.domain.element.FlexibleElement;
@@ -48,26 +54,59 @@ import org.sigmah.server.domain.layout.Layout;
 import org.sigmah.server.domain.layout.LayoutConstraint;
 import org.sigmah.server.domain.layout.LayoutGroup;
 import org.sigmah.server.i18n.I18nServer;
-import org.sigmah.server.servlet.exporter.data.LogFrameExportData;
+import org.sigmah.server.servlet.exporter.data.BaseSynthesisData;
+import org.sigmah.server.servlet.exporter.data.ExportData;
 import org.sigmah.server.servlet.exporter.data.cells.ExportDataCell;
+import org.sigmah.server.servlet.exporter.data.cells.ExportLinkCell;
 import org.sigmah.server.servlet.exporter.data.cells.ExportStringCell;
 import org.sigmah.server.servlet.exporter.data.columns.GlobalExportDataColumn;
 import org.sigmah.server.servlet.exporter.data.columns.GlobalExportFlexibleElementColumn;
 import org.sigmah.server.servlet.exporter.data.columns.GlobalExportIterativeGroupColumn;
 import org.sigmah.shared.Language;
+import org.sigmah.shared.command.GetValue;
 import org.sigmah.shared.command.result.ValueResult;
+import org.sigmah.shared.computation.value.ComputationError;
+import org.sigmah.shared.computation.value.ComputedValue;
+import org.sigmah.shared.computation.value.ComputedValues;
+import org.sigmah.shared.dispatch.CommandException;
+import org.sigmah.shared.dto.element.BudgetElementDTO;
+import org.sigmah.shared.dto.element.BudgetRatioElementDTO;
+import org.sigmah.shared.dto.element.CheckboxElementDTO;
+import org.sigmah.shared.dto.element.ContactListElementDTO;
 import org.sigmah.shared.dto.element.DefaultContactFlexibleElementDTO;
 import org.sigmah.shared.dto.element.DefaultFlexibleElementDTO;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
+import org.sigmah.shared.dto.element.MessageElementDTO;
+import org.sigmah.shared.dto.element.QuestionElementDTO;
+import org.sigmah.shared.dto.element.TextAreaElementDTO;
+import org.sigmah.shared.dto.element.TripletsListElementDTO;
+import org.sigmah.shared.dto.layout.LayoutGroupIterationDTO;
 import org.sigmah.shared.dto.referential.DefaultContactFlexibleElementType;
 import org.sigmah.shared.dto.referential.DefaultFlexibleElementType;
 import org.sigmah.shared.dto.referential.TextAreaType;
 import org.sigmah.shared.dto.value.ListableValue;
 import org.sigmah.shared.dto.value.TripletValueDTO;
 import org.sigmah.shared.util.ValueResultUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class ExporterUtil {
+/**
+ * Utility class for exporters.
+ * 
+ * @author sherzod
+ * @author Raphaël Calabro (raphael.calabro@netapsys.fr)
+ */
+public final class ExporterUtil {
+	
+	/**
+	 * Logger.
+	 */
+	private static final Logger LOGGER = LoggerFactory.getLogger(ExporterUtil.class);
 
+	// -------------------------------------------------------------------------
+	// LABELS
+	// -------------------------------------------------------------------------
+	
 	/**
 	 * Gets the label of the flexible element.
 	 * 
@@ -210,149 +249,11 @@ public class ExporterUtil {
 		}
 		return fleName;
 	}
-
-	public static class BudgetValues {
-		private Double spent;
-		private Double planned;
-
-		public BudgetValues(BudgetElement budgetElement, ValueResult valueResult) {
-			boolean hasValue = valueResult != null && valueResult.isValueDefined();
-
-			Double plannedBudget = 0d;
-			Double spentBudget = 0d;
-			if (hasValue) {
-				final Map<Integer, String> val = ValueResultUtils.splitMapElements(valueResult.getValueObject());
-
-				if (budgetElement.getRatioDividend() != null) {
-					if (val.get(budgetElement.getRatioDividend().getId()) != null) {
-						spentBudget = Double.valueOf(val.get(budgetElement.getRatioDividend().getId()));
-
-					}
-				}
-
-				if (budgetElement.getRatioDivisor() != null) {
-					if (val.get(budgetElement.getRatioDivisor().getId()) != null) {
-						plannedBudget = Double.valueOf(val.get(budgetElement.getRatioDivisor().getId()));
-
-					}
-				}
-			}
-
-			spent = spentBudget;
-			planned = plannedBudget;
-		}
-
-		public Double getSpent() {
-			return spent;
-		}
-
-		public Double getPlanned() {
-			return planned;
-		}
-
-		public Double getRatio() {
-			return spent/planned;
-		}
-	}
-
-	public static class ChoiceValue {
-		private String valueLabels;
-		private String valueIds;
-
-		public ChoiceValue(QuestionElement questionElement, ValueResult valueResult) {
-			if (valueResult != null && valueResult.isValueDefined()) {
-				if (questionElement.getMultiple()) {
-					final ExportConstants.MultiItemText item = formatMultipleChoices(questionElement.getChoices(), valueResult.getValueObject());
-					valueLabels = item.text;
-
-					String selectedChoicesIds = "";
-					for (Integer id : ValueResultUtils.splitValuesAsInteger(valueResult.getValueObject())) {
-						for (QuestionChoiceElement choice : questionElement.getChoices()) {
-							if (id.equals(choice.getId())) {
-								if (choice.getCategoryElement() != null) {
-									id = choice.getCategoryElement().getId();
-								}
-								break;
-							}
-						}
-						selectedChoicesIds += id + ", ";
-					}
-					if (selectedChoicesIds.length() > 0) {
-						valueIds = selectedChoicesIds.substring(0, selectedChoicesIds.length() - 2);
-					}
-				} else {
-					final String idChoice = valueResult.getValueObject();
-					for (QuestionChoiceElement choice : questionElement.getChoices()) {
-						if (idChoice.equals(String.valueOf(choice.getId()))) {
-							if (choice.getCategoryElement() != null) {
-								valueLabels = choice.getCategoryElement().getLabel();
-								valueIds = String.valueOf(choice.getCategoryElement().getId());
-							} else {
-								valueLabels = choice.getLabel();
-							}
-							break;
-						}
-					}
-				}
-			}
-		}
-
-		public String getValueLabels() {
-			return valueLabels;
-		}
-
-		public String getValueIds() {
-			return valueIds;
-		}
-	}
-
-	public static class ValueLabel {
-
-		private String label;
-		private Object value;
-		private int lines = 1;
-		private boolean message;
-
-		public ValueLabel(String label, Object value) {
-			this.label = label;
-			this.value = value;
-		}
-
-		public ValueLabel(String label, Object value, int lines) {
-			this.label = label;
-			this.value = value;
-			this.lines = lines;
-		}
-
-		public String getFormattedLabel() {
-			return clearHtmlFormatting(label);
-		}
-
-		public void setLabel(String label) {
-			this.label = label;
-		}
-
-		public Object getValue() {
-			return value;
-		}
-
-		public void setValue(Object value) {
-			this.value = value;
-		}
-
-		public int getLines() {
-			return lines;
-		}
-
-		public boolean isMessage() {
-			return message;
-		}
-
-		public void setMessage(boolean message) {
-			this.message = message;
-		}
-	}
-
+	
+	// -------------------------------------------------------------------------
+	// FORMATS
+	// -------------------------------------------------------------------------
+	
 	public static ExportConstants.MultiItemText formatMultipleChoices(List<QuestionChoiceElement> list, String values) {
 		final List<Integer> selectedChoicesId = ValueResultUtils.splitValuesAsInteger(values);
 		final StringBuffer builder = new StringBuffer();
@@ -400,6 +301,204 @@ public class ExporterUtil {
 
 		return new ExportConstants.MultiItemText(value, lines);
 	}
+	
+	/**
+	 * Removes tags from the given html string.
+	 * 
+	 * @param html
+	 *			HTML string to clear of its formatting.
+	 * @return The text value contained in the given html string.
+	 */
+	public static String clearHtmlFormatting(final String html) {
+		String text = html;
+		if (text != null && text.length() > 0) {
+			text = text.replaceAll("<br>", " ");
+			text = text.replaceAll("<[^>]+>|\\n", "");
+			text = text.trim().replaceAll(" +", " ");
+		}
+		return text;
+	}
+	
+	// -------------------------------------------------------------------------
+	// TITLES & VALUES
+	// -------------------------------------------------------------------------
+	
+	public static void addBudgetTitles(final List<ExportDataCell> titles, final FlexibleElement element, final I18nServer i18nTranslator, final Language language) {
+		
+		String budgetLabel = ExporterUtil.getFlexibleElementLabel(element, i18nTranslator, language);
+
+		titles.add(new ExportStringCell(budgetLabel + " " + i18nTranslator.t(language, "spentBudget")));
+		titles.add(new ExportStringCell(budgetLabel + " " + i18nTranslator.t(language, "plannedBudget")));
+		titles.add(new ExportStringCell(budgetLabel + " " + i18nTranslator.t(language, "consumptionRatioBudget")));
+	}
+
+	public static void addBudgetValues(final List<ExportDataCell> values, final ValueResult valueResult, final FlexibleElement element, final I18nServer i18nTranslator, final Language language) {
+		
+		BudgetElement budgetElement = (BudgetElement) element;
+
+		BudgetValues budget = new BudgetValues(budgetElement, valueResult);
+
+		values.add(new ExportStringCell(String.valueOf(budget.getSpent())));
+		values.add(new ExportStringCell(String.valueOf(budget.getPlanned())));
+		values.add(new ExportStringCell(String.valueOf(budget.getRatio())));
+	}
+
+	public static void addChoiceTitles(final List<ExportDataCell> titles, final Set<CategoryType> categories, final FlexibleElement element, final I18nServer i18nTranslator, final Language language) {
+		
+		final QuestionElement questionElement = (QuestionElement) element;
+		String choiceLabel = ExporterUtil.getFlexibleElementLabel(element, i18nTranslator, language);
+
+		titles.add(new ExportStringCell(choiceLabel));
+		if (questionElement.getCategoryType() != null) {
+			titles.add(new ExportStringCell(choiceLabel + " (" + questionElement.getCategoryType().getLabel() + ") " + i18nTranslator.t(language, "categoryId")));
+			categories.add(((QuestionElement) element).getCategoryType());
+		}
+	}
+
+	public static void addChoiceValues(final List<ExportDataCell> values, final ValueResult valueResult, final FlexibleElement element) {
+
+		ChoiceValue choiceValue = new ChoiceValue((QuestionElement) element, valueResult);
+
+		values.add(new ExportStringCell(choiceValue.getValueLabels()));
+		if (((QuestionElement)element).getCategoryType() != null) {
+			values.add(new ExportStringCell(choiceValue.getValueIds()));
+		}
+	}
+	
+	// -------------------------------------------------------------------------
+	// VALUE RESULTS
+	// -------------------------------------------------------------------------
+	
+	public static ValueResult getValueResult(final FlexibleElement element, final EntityId<Integer> container, final CommandHandler<GetValue, ValueResult> handler) {
+		return getValueResult(element, null, container, handler);
+	}
+	
+	public static ValueResult getValueResult(final FlexibleElement element, final Integer iterationId, final EntityId<Integer> container, final CommandHandler<GetValue, ValueResult> handler) {
+		
+		final String elementName = "element." + element.getClass().getSimpleName();
+		final GetValue command = new GetValue(container.getId(), element.getId(), elementName, null, iterationId);
+		
+		try {
+			return handler.execute(command, null);
+		} catch (CommandException e) {
+			LOGGER.error("Failed to get the value of element '" + element.getId() + "' of container '" + container.getId() + "'.", e);
+			return null;
+		}
+	}
+	
+	// -------------------------------------------------------------------------
+	// PAIRS
+	// -------------------------------------------------------------------------
+	
+	/**
+	 * Returns the label/value pair for the given element.
+	 * 
+	 * @param element
+	 *			Flexible element.
+	 * @param container
+	 *			Container of the flexible element (can be a <code>Project</code> or an <code>OrgUnit</code>).
+	 * @param em
+	 *			Instance of the entity manager.
+	 * @param handler
+	 *			Handler of the <code>GetValue</code> command.
+	 * @param i18nTranslator
+	 *			Translator for localized strings.
+	 * @param language
+	 *			Language of the export.
+	 * @param data
+	 *			Export data.
+	 * @return The label/value pair for the given element.
+	 */
+	public static ValueLabel getPair(final FlexibleElement element, final EntityId<Integer> container, final EntityManager em, final CommandHandler<GetValue, ValueResult> handler, final I18nServer i18nTranslator, final Language language, final ExportData data) {
+		
+		final String elementName = "element." + element.getClass().getSimpleName();
+		final GetValue command = new GetValue(container.getId(), element.getId(), elementName, null);
+		
+		final ValueResult valueResult;
+		
+		try {
+			valueResult = handler.execute(command, null);
+		} catch (CommandException e) {
+			LOGGER.error("Failed to get the value of element '" + element.getId() + "' of container '" + container.getId() + "'.", e);
+			return null;
+		}
+		
+		return getPair(valueResult, element, container, em, i18nTranslator, language, data);
+	}
+	
+	/**
+	 * Returns the label/value pair for the given element.
+	 * 
+	 * @param valueResult
+	 *			Value of the given flexible element.
+	 * @param element
+	 *			Flexible element.
+	 * @param container
+	 *			Container of the flexible element (can be a <code>Project</code> or an <code>OrgUnit</code>).
+	 * @param em
+	 *			Instance of the entity manager.
+	 * @param i18nTranslator
+	 *			Translator for localized strings.
+	 * @param language
+	 *			Language of the export.
+	 * @param data
+	 *			Export data.
+	 * @return The label/value pair for the given element.
+	 */
+	public static ValueLabel getPair(final ValueResult valueResult, final FlexibleElement element, final EntityId<Integer> container, final EntityManager em, final I18nServer i18nTranslator, final Language language, final ExportData data) {
+		
+		final String elementName = "element." + element.getClass().getSimpleName();
+		final ValueLabel pair;
+		
+		/* DEF FLEXIBLE & BUDGET ELEMENT */
+		if (elementName.equals(DefaultFlexibleElementDTO.ENTITY_NAME) || elementName.equals(BudgetElementDTO.ENTITY_NAME)) {
+			if (container instanceof Project) {
+				pair = getDefElementPair(valueResult, element, (Project)container, em, i18nTranslator, language);
+			} else if (container instanceof OrgUnit) {
+				pair = getDefElementPair(valueResult, element, (OrgUnit)container, em, i18nTranslator, language);
+			} else {
+				throw new UnsupportedOperationException("Container of DefaultFlexibleElement should be either Project or OrgUnit, received: " + container.getClass());
+			}
+		}
+		/* CONTACT DEF FLEXIBLE */
+		else if (elementName.equals(DefaultContactFlexibleElementDTO.ENTITY_NAME)) {
+			pair = ExporterUtil.getDefElementPair(valueResult, element, (Contact)container, em, i18nTranslator, language);
+		}
+		/* BUDGET RATIO */
+		else if (elementName.equals(BudgetRatioElementDTO.ENTITY_NAME)) {
+			pair = getBudgetRatioElementPair(element, container.getId(), em);
+		}
+		/* CHECKBOX */
+		else if (elementName.equals(CheckboxElementDTO.ENTITY_NAME)) {
+			pair = getCheckboxElementPair(valueResult, element, i18nTranslator, language);
+		}
+		/* TEXT AREA */
+		else if (elementName.equals(TextAreaElementDTO.ENTITY_NAME)) {
+			pair = getTextAreaElementPair(valueResult, element);
+		}
+		/* TRIPLET */
+		else if (elementName.equals(TripletsListElementDTO.ENTITY_NAME)) {
+			pair = getTripletPair(element, valueResult);
+		}
+		/* CHOICE */
+		else if (elementName.equals(QuestionElementDTO.ENTITY_NAME)) {
+			pair = getChoicePair(element, valueResult);
+		}
+		/* CONTACT LIST */
+		else if (elementName.equals(ContactListElementDTO.ENTITY_NAME)) {
+			pair = ExporterUtil.getContactListPair(element, valueResult, em);
+		}
+		/* MESSAGE */
+		else if (elementName.equals(MessageElementDTO.ENTITY_NAME)) {
+			pair = new ValueLabel(data.getLocalizedVersion("flexibleElementMessage"), clearHtmlFormatting(element.getLabel()));
+			pair.setMessage(true);
+		}
+		else {
+			pair = null;
+		}
+		
+		return pair;
+	}
 
 	public static ValueLabel getTripletPair(final FlexibleElement element, final ValueResult valueResult) {
 		String value = null;
@@ -421,17 +520,16 @@ public class ExporterUtil {
 
 		if (valueResult != null && valueResult.isValueDefined()) {
 
-			// retrieving list values from database
-			Query query = entityManager.createQuery("SELECT c FROM Contact c WHERE c.id IN (:idList)");
+			// Retrieving list values from database.
+			final TypedQuery<Contact> query = entityManager.createQuery("SELECT c FROM Contact c WHERE c.id IN (:idList)", Contact.class);
 			query.setParameter("idList", ValueResultUtils.splitValuesAsInteger(valueResult.getValueObject()));
-			final List<Object> objectsList = query.getResultList();
+			final List<Contact> contacts = query.getResultList();
 
 			final StringBuilder builder = new StringBuilder();
-			for (Object s : objectsList) {
-				final Contact contactValue = (Contact) s;
-				builder.append(" - ");
-				builder.append(contactValue.getFullName());
-				builder.append("\n");
+			for (final Contact contact : contacts) {
+				builder.append(" - ")
+					.append(contact.getFullName())
+					.append("\n");
 				lines++;
 			}
 
@@ -442,15 +540,6 @@ public class ExporterUtil {
 		}
 
 		return new ValueLabel(element.getLabel(), value, lines);
-	}
-
-	public static Integer getContactListCount(final ValueResult valueResult) {
-
-		if (valueResult != null && valueResult.isValueDefined()) {
-			return ValueResultUtils.splitValuesAsInteger(valueResult.getValueObject()).size();
-		}
-
-		return 0;
 	}
 
 	public static ValueLabel getChoicePair(final FlexibleElement element, final ValueResult valueResult) {
@@ -467,7 +556,7 @@ public class ExporterUtil {
 
 			} else {
 				final String idChoice = valueResult.getValueObject();
-				for (QuestionChoiceElement choice : questionElement.getChoices()) {
+				for (final QuestionChoiceElement choice : questionElement.getChoices()) {
 					if (idChoice.equals(String.valueOf(choice.getId()))) {
 						if (choice.getCategoryElement() != null) {
 							value = choice.getCategoryElement().getLabel();
@@ -528,67 +617,23 @@ public class ExporterUtil {
 		return new ValueLabel(element.getLabel(), value);
 	}
 
-	private static String getUserName(User u) {
-
-		String name = "";
-		if (u != null)
-			name = u.getFirstName() != null ? u.getFirstName() + " " + u.getName() : u.getName();
-
-		return name;
-	}
-
-	public static ValueLabel getDefElementPair(final ValueResult valueResult, final FlexibleElement element, final Object object, final Class<?> clazz,
-																			final EntityManager entityManager, final I18nServer i18nTranslator, final Language language) {
+	public static ValueLabel getDefElementPair(final ValueResult valueResult, final FlexibleElement element, final Object object, final Class<?> clazz, final EntityManager entityManager, final I18nServer i18nTranslator, final Language language) {
+		
 		if (clazz.equals(Project.class)) {
 			return getDefElementPair(valueResult, element, (Project) object, entityManager, i18nTranslator, language);
-		} else if (clazz.equals(OrgUnit.class)) {
+		}
+		else if (clazz.equals(OrgUnit.class)) {
 			return getDefElementPair(valueResult, element, (OrgUnit) object, entityManager, i18nTranslator, language);
-		} else {
+		}
+		else if (clazz.equals(Contact.class)) {
 			return getDefElementPair(valueResult, element, (Contact) object, entityManager, i18nTranslator, language);
 		}
-	}
-
-	public static void addBudgetTitles(final List<ExportDataCell> titles, final FlexibleElement element, final I18nServer i18nTranslator, final Language language) {
-		String budgetLabel = ExporterUtil.getFlexibleElementLabel(element, i18nTranslator, language);
-
-		titles.add(new ExportStringCell(budgetLabel + " " + i18nTranslator.t(language, "spentBudget")));
-		titles.add(new ExportStringCell(budgetLabel + " " + i18nTranslator.t(language, "plannedBudget")));
-		titles.add(new ExportStringCell(budgetLabel + " " + i18nTranslator.t(language, "consumptionRatioBudget")));
-	}
-
-	public static void addBudgetValues(final List<ExportDataCell> values, final ValueResult valueResult, final FlexibleElement element, final I18nServer i18nTranslator, final Language language) {
-		BudgetElement budgetElement = (BudgetElement) element;
-
-		BudgetValues budget = new BudgetValues(budgetElement, valueResult);
-
-		values.add(new ExportStringCell(String.valueOf(budget.getSpent())));
-		values.add(new ExportStringCell(String.valueOf(budget.getPlanned())));
-		values.add(new ExportStringCell(String.valueOf(budget.getRatio())));
-	}
-
-	public static void addChoiceTitles(final List<ExportDataCell> titles, final Set<CategoryType> categories, final FlexibleElement element, final I18nServer i18nTranslator, final Language language) {
-		final QuestionElement questionElement = (QuestionElement) element;
-		String choiceLabel = ExporterUtil.getFlexibleElementLabel(element, i18nTranslator, language);
-
-		titles.add(new ExportStringCell(choiceLabel));
-		if (questionElement.getCategoryType() != null) {
-			titles.add(new ExportStringCell(choiceLabel + " (" + questionElement.getCategoryType().getLabel() + ") " + i18nTranslator.t(language, "categoryId")));
-			categories.add(((QuestionElement) element).getCategoryType());
+		else {
+			throw new UnsupportedOperationException("Unsupported container type: " + clazz);
 		}
 	}
 
-	public static void addChoiceValues(final List<ExportDataCell> values, final ValueResult valueResult, final FlexibleElement element) {
-
-		ChoiceValue choiceValue = new ChoiceValue((QuestionElement) element, valueResult);
-
-		values.add(new ExportStringCell(choiceValue.getValueLabels()));
-		if (((QuestionElement)element).getCategoryType() != null) {
-			values.add(new ExportStringCell(choiceValue.getValueIds()));
-		}
-	}
-
-	public static ValueLabel getDefElementPair(final ValueResult valueResult, final FlexibleElement element, final Project project, final EntityManager entityManager,
-																			final I18nServer i18nTranslator, final Language language) {
+	public static ValueLabel getDefElementPair(final ValueResult valueResult, final FlexibleElement element, final Project project, final EntityManager entityManager, final I18nServer i18nTranslator, final Language language) {
 
 		Object value = null;
 		String label = ExporterUtil.getFlexibleElementLabel(element, i18nTranslator, language);
@@ -703,8 +748,8 @@ public class ExporterUtil {
 		return new ValueLabel(label, value);
 	}
 
-	public static ValueLabel getDefElementPair(final ValueResult valueResult, final FlexibleElement element, final OrgUnit orgUnit, final EntityManager entityManager,
-																			final I18nServer i18nTranslator, final Language language) {
+	public static ValueLabel getDefElementPair(final ValueResult valueResult, final FlexibleElement element, final OrgUnit orgUnit, final EntityManager entityManager, final I18nServer i18nTranslator, final Language language) {
+		
 		Object value = null;
 		String label = ExporterUtil.getFlexibleElementLabel(element, i18nTranslator, language);
 
@@ -766,8 +811,8 @@ public class ExporterUtil {
 		return new ValueLabel(label, value);
 	}
 
-	public static ValueLabel getDefElementPair(final ValueResult valueResult, final FlexibleElement element, final Contact contact, final EntityManager entityManager,
-																						 final I18nServer i18nTranslator, final Language language) {
+	public static ValueLabel getDefElementPair(final ValueResult valueResult, final FlexibleElement element, final Contact contact, final EntityManager entityManager, final I18nServer i18nTranslator, final Language language) {
+		
 		Object value = null;
 		String label = ExporterUtil.getFlexibleElementLabel(element, i18nTranslator, language);
 
@@ -941,14 +986,130 @@ public class ExporterUtil {
 		}
 		return new ValueLabel(label, value);
 	}
+	
+	/**
+	 * Get the label/value pair of the given budget ratio element.
+	 * 
+	 * @param element
+	 *			Budget ratio element.
+	 * @param containerId
+	 *			Identifier of the parent container.
+	 * @param em
+	 *			Entity manager to use.
+	 * @return The <code>ValueLabel</code> containing the label of the element and its value.
+	 */
+	public static ValueLabel getBudgetRatioElementPair(final FlexibleElement element, final Integer containerId, final EntityManager em) {
+		
+		final BudgetRatioElement budgetRatioElement = (BudgetRatioElement) element;
+		
+		final TypedQuery<String> valueQuery = em.createQuery("SELECT v.value FROM Value v WHERE v.containerId = :containerId AND v.element = :element", String.class);
+		valueQuery.setParameter("containerId", containerId);
+		
+		final ComputedValue spentBudget = getElementValue(budgetRatioElement.getSpentBudget(), valueQuery);
+		final ComputedValue plannedBudget = getElementValue(budgetRatioElement.getPlannedBudget(), valueQuery);
+		
+		final Double value = plannedBudget.divide(spentBudget).get();
+		
+		return new ValueLabel(budgetRatioElement.getLabel(), NumberUtils.truncateDouble(value));
+	}
+	
+	// -------------------------------------------------------------------------
+	// ITERATIONS
+	// -------------------------------------------------------------------------
+	
+	/**
+	 * Returns the list of cells to export for the given iteration.
+	 * 
+	 * @param iteration
+	 *			Current iteration.
+	 * @param constraints
+	 *			Layout constraints of the given iteration.
+	 * @param container
+	 *			Instance of the container.
+	 * @param em
+	 *			Instance of the entity manager.
+	 * @param i18nTranslator
+	 *			Translator of strings.
+	 * @param language
+	 *			Language of the current user.
+	 * @param data
+	 *			General export data.
+	 * @return A list of <code>ExportDataCell</code> for the given iteration (never <code>null</code>).
+	 */
+	public static List<ExportDataCell> getCellsForIteration(final LayoutGroupIterationDTO iteration, final List<LayoutConstraint> constraints, final EntityId<Integer> container, final EntityManager em, final I18nServer i18nTranslator, final Language language, final BaseSynthesisData data) {
+		
+		final List<ExportDataCell> cells = new ArrayList<>();
+		
+		for(final LayoutConstraint constraint : constraints) {
+			final FlexibleElement element = constraint.getElement();
+			
+			try {
+				final ExportDataCell cell;
 
-	public static String clearHtmlFormatting(String text) {
-		if (text != null && text.length() > 0) {
-			text = text.replaceAll("<br>", " ");
-			text = text.replaceAll("<[^>]+>|\\n", "");
-			text = text.trim().replaceAll(" +", " ");
+				if (data.isWithContacts() && element instanceof ContactListElement) {
+					final ValueResult iterationValueResult = getValueResult(element, iteration.getId(), container, data.getHandler());
+					cell = new ExportLinkCell(String.valueOf(ExporterUtil.getContactListCount(iterationValueResult)), ExportConstants.CONTACT_SHEET_PREFIX + element.getLabel());
+				}
+				else {
+					final ValueLabel pair = getPair(element, container, em, data.getHandler(), i18nTranslator, language, data);
+					final String value = pair.toValueString();
+
+					cell = new ExportStringCell(value != null ? value : "");
+				}
+
+				cells.add(cell);
+			}
+			catch (final Exception e) {
+				LOGGER.warn("No value found for the element #" + element.getId() + " (" + element.getLabel() + ")", e);
+				cells.add(new ExportStringCell(""));
+			}
 		}
-		return text;
+		
+		return cells;
+	}
+	
+	// -------------------------------------------------------------------------
+	// OTHERS
+	// -------------------------------------------------------------------------
+	
+	/**
+	 * Find the value of the given element with the given query.
+	 * 
+	 * @param element
+	 *			Element to search.
+	 * @param valueQuery
+	 *			Query to use.
+	 * @return The value of the given element as a <code>ComputedValue</code> or {@link ComputationError#NO_VALUE} if no value was found.
+	 */
+	private static ComputedValue getElementValue(final FlexibleElement element, final TypedQuery<String> valueQuery) {
+		
+		if (element != null) {
+			valueQuery.setParameter("element", element);
+			try {
+				return ComputedValues.from(valueQuery.getSingleResult(), false);
+			} catch (NoResultException e) {
+				// Ignored.
+			}
+		}
+		return ComputationError.NO_VALUE;
+	}
+	
+	public static Integer getContactListCount(final ValueResult valueResult) {
+
+		if (valueResult != null && valueResult.isValueDefined()) {
+			return ValueResultUtils.splitValuesAsInteger(valueResult.getValueObject()).size();
+		}
+
+		return 0;
+	}
+	
+	private static String getUserName(User u) {
+
+		String name = "";
+		if (u != null)
+			name = u.getFirstName() != null ? u.getFirstName() + " " + u.getName() : u.getName();
+
+		return name;
 	}
 
 	public static void fillElementList(final List<GlobalExportDataColumn> elements, final Layout layout) {
@@ -966,26 +1127,4 @@ public class ExporterUtil {
 		}
 	}
 
-	public static String pairToValueString(ValueLabel pair) {
-		// values
-		String valueStr = null;
-		if (pair != null) {
-			Object value = pair.getValue();
-			if (value == null) {
-				valueStr = null;
-			} else if (value instanceof String) {
-				valueStr = (String) value;
-			} else if (value instanceof Double) {
-				Double d = (Double) value;
-				valueStr = LogFrameExportData.AGGR_AVG_FORMATTER.format(d.doubleValue());
-			} else if (value instanceof Long) {
-				Long l = (Long) value;
-				valueStr = LogFrameExportData.AGGR_SUM_FORMATTER.format(l.longValue());
-			} else { // date
-				valueStr = ExportConstants.EXPORT_DATE_FORMAT.format((Date) value);
-			}
-		}
-
-		return valueStr;
-	}
 }

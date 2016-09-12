@@ -9,12 +9,12 @@ package org.sigmah.shared.dto.element;
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- *
+ * 
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -50,7 +50,6 @@ import org.sigmah.offline.sync.SuccessCallback;
 import org.sigmah.shared.command.CheckContactDuplication;
 import org.sigmah.shared.command.CreateEntity;
 import org.sigmah.shared.command.DedupeContact;
-import org.sigmah.shared.command.GetContact;
 import org.sigmah.shared.command.GetContactDuplicatedProperties;
 import org.sigmah.shared.command.GetContacts;
 import org.sigmah.shared.command.result.ContactDuplicatedProperty;
@@ -72,7 +71,7 @@ import com.allen_sauer.gwt.log.client.Log;
 public class ContactListElementDTO extends FlexibleElementDTO {
   private static final long serialVersionUID = 646913359144175456L;
 
-  private static final String ENTITY_NAME = "element.ContactListElement";
+  public static final String ENTITY_NAME = "element.ContactListElement";
 
   public static final String ALLOWED_TYPE = "allowedType";
   public static final String ALLOWED_MODEL_IDS = "allowedModels";

@@ -9,12 +9,12 @@ package org.sigmah.shared.dto.element;
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- *
+ * 
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -61,8 +61,6 @@ import org.sigmah.offline.sync.SuccessCallback;
 import org.sigmah.shared.command.GetContact;
 import org.sigmah.shared.command.GetContacts;
 import org.sigmah.shared.command.GetCountry;
-import org.sigmah.shared.command.GetOrgUnit;
-import org.sigmah.shared.command.GetOrgUnits;
 import org.sigmah.shared.command.result.ListResult;
 import org.sigmah.shared.command.result.ValueResult;
 import org.sigmah.shared.dto.ContactDTO;
@@ -77,14 +75,13 @@ import org.sigmah.shared.dto.referential.DefaultContactFlexibleElementType;
 import org.sigmah.shared.dto.value.FileUploadUtils;
 import org.sigmah.shared.file.Cause;
 import org.sigmah.shared.file.ProgressListener;
-import org.sigmah.shared.util.ValueResultUtils;
 
 import com.allen_sauer.gwt.log.client.Log;
 
 public class DefaultContactFlexibleElementDTO extends AbstractDefaultFlexibleElementDTO {
   private static final long serialVersionUID = -1251850749619288873L;
 
-  private static final String ENTITY_NAME = "element.DefaultContactFlexibleElement";
+  public static final String ENTITY_NAME = "element.DefaultContactFlexibleElement";
 
   private transient DefaultContactFlexibleElementContainer container;
   private transient ListStore<ContactDTO> contactsStore;

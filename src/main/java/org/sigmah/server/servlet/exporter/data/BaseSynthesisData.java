@@ -33,31 +33,31 @@ import org.sigmah.server.servlet.exporter.base.Exporter;
 import org.sigmah.shared.command.GetValue;
 
 import com.google.inject.Injector;
+import org.sigmah.server.domain.base.EntityId;
+import org.sigmah.shared.command.result.ValueResult;
 
-/*
- * Base synthesis data for project and org unit synthesis exports
+/**
+ * Base synthesis data for project and org unit synthesis exports.
+ * 
  * @author sherzod
  */
 public abstract class BaseSynthesisData extends ExportData {
 
 	protected final EntityManager entityManager;
-	private final CommandHandler<GetValue, ?> handler;
-	private final Boolean withContacts;
+	private final CommandHandler<GetValue, ValueResult> handler;
+	private final boolean withContacts;
 
 	/*
 	 * private final Locale locale; private final Translator translator;
 	 */
-	public BaseSynthesisData(final Exporter exporter, final Injector injector, final Boolean withContacts) {
+	public BaseSynthesisData(final Exporter exporter, final Injector injector, final boolean withContacts) {
 		super(exporter, 3);
 		entityManager = injector.getInstance(EntityManager.class);
 		handler = injector.getInstance(GetValueHandler.class);
 		this.withContacts = withContacts;
-		/*
-		 * this.locale = locale; translator = new UIConstantsTranslator(new Locale(""));
-		 */
 	}
 
-	public CommandHandler<GetValue, ?> getHandler() {
+	public CommandHandler<GetValue, ValueResult> getHandler() {
 		return handler;
 	}
 
@@ -65,16 +65,33 @@ public abstract class BaseSynthesisData extends ExportData {
 		return entityManager;
 	}
 
-	/*
-	 * public Locale getLocale() { return locale; } public Translator getTranslator() { return translator; }
-	 */
 	public abstract Project getProject();
 
 	public abstract OrgUnit getOrgUnit();
 
 	public abstract Contact getContact();
-
-	public Boolean getWithContacts() {
+	
+	/**
+	 * Returns the container with the given class.
+	 * 
+	 * @param clazz
+	 *			Class of the container to retrieve.
+	 * @return The container with the given class.
+	 */
+	public EntityId<Integer> getContainerWithClass(final Class<?> clazz) {
+		
+		if (clazz.equals(Project.class)) {
+			return getProject();
+		} else if (clazz.equals(OrgUnit.class)) {
+			return getOrgUnit();
+		} else if (clazz.equals(Contact.class)) {
+			return getContact();
+		} else {
+			throw new UnsupportedOperationException("Container class '" + clazz + "' is not supported.");
+		}
+	}
+	
+	public boolean isWithContacts() {
 		return withContacts;
 	}
 }
