@@ -116,7 +116,7 @@ public class ComputationService extends EntityManagerProvider {
 
 		try {
 			final ComputedValue value = ComputedValues.from(computedValue.getOrThrow());
-			valueService.saveValue(value.toString(), computationElement, project.getId(), user);
+			valueService.saveValue(value.toString(), computationElement, project.getId(), null, user);
 		} catch (Throwable t) {
 			LOGGER.error("An error occured when computing the formula of the element '" + computationElement.getId() + "' for project '" + project.getId() + "'.", t);
 		}
