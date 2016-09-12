@@ -244,11 +244,27 @@ public class ValueService extends EntityManagerProvider {
 	 *          The user which launch the command.
 	 * @return The value.
 	 */
-	public Value retrieveOrCreateValue(int projectId, Integer elementId, User user) {
+	public Value retrieveOrCreateValue(final int projectId, final Integer elementId, final User user) {
 		return retrieveOrCreateValue(projectId, elementId, null, user);
 	}
 
-	public Value retrieveOrCreateValue(int projectId, Integer elementId, Integer iterationId, User user) {
+	/**
+	 * Retrieves the value for the given project, the given element and the
+	 * given iteration.
+	 * 
+	 * If there isn't a value yet, it will be created.
+	 * 
+	 * @param projectId
+	 *          The project id.
+	 * @param elementId
+	 *          The source element id.
+	 * @param iterationId 
+	 *			The iteration id or <code>null</code> if the element is not located in an iteration.
+	 * @param user
+	 *          The user which launch the command.
+	 * @return The value.
+	 */
+	public Value retrieveOrCreateValue(final int projectId, final Integer elementId, final Integer iterationId, final User user) {
 
 		// Retrieving the current value
 		Value currentValue = retrieveCurrentValue(projectId, elementId, iterationId);
@@ -273,7 +289,7 @@ public class ValueService extends EntityManagerProvider {
 			currentValue.setContainerId(projectId);
 
 			// Iteration
-			if(iterationId != null) {
+			if (iterationId != null) {
 				final LayoutGroupIteration iteration = em().find(LayoutGroupIteration.class, iterationId);
 				currentValue.setLayoutGroupIteration(iteration);
 			}

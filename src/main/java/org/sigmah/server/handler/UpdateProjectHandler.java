@@ -25,8 +25,6 @@ package org.sigmah.server.handler;
 import java.util.Date;
 import java.util.List;
 
-import javax.persistence.NoResultException;
-import javax.persistence.Query;
 
 import org.sigmah.server.dispatch.impl.UserDispatch.UserExecutionContext;
 import org.sigmah.server.domain.Project;
@@ -84,6 +82,7 @@ import org.sigmah.shared.dto.element.BudgetSubFieldDTO;
 import org.sigmah.shared.dto.element.ComputationElementDTO;
 import org.sigmah.shared.dto.profile.ProfileDTO;
 import org.sigmah.shared.dto.referential.AmendmentState;
+import org.sigmah.shared.dto.referential.ContainerInformation;
 import org.sigmah.shared.dto.referential.GlobalPermissionEnum;
 import org.sigmah.shared.dto.referential.LogicalElementType;
 import org.sigmah.shared.dto.referential.LogicalElementTypes;
@@ -168,19 +167,23 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 		final Date historyDate = new Date();
 
 		final User user = context.getUser();
-
+		
+		final ContainerInformation containerInformation;
+		
 		// Search the given project.
 		final Project project = em().find(Project.class, projectId);
 		if (project != null) {
 			if (!Handlers.isProjectEditable(project, user)) {
 				throw new IllegalStateException("The project " + project.getId() + " is not editable by the user " + user.getId());
 			}
+			containerInformation = project.toContainerInformation();
 		} else {
 			// If project is null, it means the user is not trying to update a project but an org unit
-			OrgUnit orgUnit = em().find(OrgUnit.class, projectId);
+			final OrgUnit orgUnit = em().find(OrgUnit.class, projectId);
 			if (!Handlers.isOrgUnitVisible(orgUnit, user)) {
 				throw new IllegalStateException("The orgunit " + orgUnit.getId() + " is not editable by the user " + user.getId());
 			}
+			containerInformation = orgUnit.toContainerInformation();
 		}
 
 		// Verify if the modifications conflicts with the project state.
@@ -227,7 +230,7 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 		}
 			
 		final Project updatedProject = em().find(Project.class, projectId);
-		if (updatedProject != null) {
+		if (updatedProject == null) {
 			if(coreVersionHasBeenModified) {
 				// Update the revision number
 				updatedProject.setAmendmentRevision(updatedProject.getAmendmentRevision() == null ? 2 : updatedProject.getAmendmentRevision() + 1);
@@ -237,78 +240,8 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 
 		if (!conflicts.isEmpty()) {
 			// A conflict was found.
-			throw new UpdateConflictException(updatedProject.toContainerInformation(), conflicts.toArray(new String[0]));
+			throw new UpdateConflictException(containerInformation, conflicts.toArray(new String[0]));
 		}
-	}
-
-	/**
-	 * Retrieves the value for the given project and the given element.
-	 * If there isn't a value yet, it will be created.
-	 *
-	 * @param projectId
-	 *          The project id.
-	 * @param elementId
-	 *          The source element id.
-	 * @param user
-	 *          The user which launch the command.
-	 * @return The value.
-	 */
-	public Value retrieveOrCreateValue(int projectId, Integer elementId, User user) {
-
-		// Retrieving the current value
-		Value currentValue = retrieveCurrentValue(projectId, elementId);
-
-		// Update operation.
-		if (currentValue != null) {
-			LOG.debug("[execute] Retrieves a value for element #{0}.", elementId);
-			currentValue.setLastModificationAction('U');
-		}
-		// Create operation
-		else {
-			LOG.debug("[execute] Creates a value for element #{0}.", elementId);
-
-			currentValue = new Value();
-			currentValue.setLastModificationAction('C');
-
-			// Parent element
-			final FlexibleElement element = em().find(FlexibleElement.class, elementId);
-			currentValue.setElement(element);
-
-			// Container
-			currentValue.setContainerId(projectId);
-		}
-
-		// Updates the value's fields.
-		currentValue.setLastModificationDate(new Date());
-		currentValue.setLastModificationUser(user);
-
-		return currentValue;
-	}
-
-	/**
-	 * Retrieves the value for the given project and the given element but
-	 * don't create an empty value if none exists.
-	 *
-	 * @param projectId
-	 *          The project id.
-	 * @param elementId
-	 *          The source element id.
-	 * @return  The value or <code>null</code> if not found.
-	 */
-	private Value retrieveCurrentValue(int projectId, Integer elementId) {
-		final Query query = em().createQuery("SELECT v FROM Value v WHERE v.containerId = :projectId and v.element.id = :elementId");
-		query.setParameter("projectId", projectId);
-		query.setParameter("elementId", elementId);
-
-		Value currentValue = null;
-
-		try {
-			currentValue = (Value) query.getSingleResult();
-		} catch (NoResultException nre) {
-			// No current value
-		}
-
-		return currentValue;
 	}
 
 	/**
