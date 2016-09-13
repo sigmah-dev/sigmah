@@ -131,6 +131,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
+import org.sigmah.shared.computation.dependency.SingleDependency;
 
 /**
  * Presenter in charge of creating/editing a flexible element.
@@ -1452,7 +1453,7 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 		// A field cannot be in an iterative group AND in a computation field
 		// + a computation field cannot be in an iterative group
 		// + a core field cannot be in an iterative group
-		if(group.getHasIterations()) {
+		if(group.getHasIterations() != null && group.getHasIterations()) {
 			if(type == ElementTypeEnum.COMPUTATION) {
 				N10N.warn(I18N.CONSTANTS.cannotAddComputationElementToIterativeGroup());
 				return;
@@ -1732,16 +1733,20 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 	 * @return A collection of every computation element using the given element.
 	 */
 	private Collection<ComputationElementDTO> getComputationElementsUsingField(final FlexibleElementDTO flexibleElement) {
+		
+		// FIXME: Should also search in the database since other project models may reference the given element.
 
 		final ArrayList<ComputationElementDTO> computationElements = new ArrayList<ComputationElementDTO>();
 		final List<FlexibleElementDTO> allElements = view.getStore().getModels();
+		
+		final SingleDependency dependency = new SingleDependency(flexibleElement);
 
 		for (final FlexibleElementDTO other : otherElements) {
 			if (other instanceof ComputationElementDTO) {
 				final ComputationElementDTO computationElement = (ComputationElementDTO) other;
 
 				final Computation computation = Computations.parse(computationElement.getRule(), allElements);
-				if (computation.getDependencies().contains(flexibleElement)) {
+				if (computation.getDependencies().contains(dependency)) {
 					computationElements.add(computationElement);
 				}
 			}
