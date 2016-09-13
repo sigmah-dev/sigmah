@@ -61,12 +61,16 @@ public class Conflicts extends EntityManagerProvider {
 	
 	/**
 	 * Identify if the phase containing the given element is closed.
-	 * @param elementId Identifier of a flexible element.
-	 * @param projectId Identifier of the project.
+	 * 
+	 * @param elementId
+	 *			Identifier of a flexible element.
+	 * @param projectId
+	 *			Identifier of the project.
 	 * @return <code>true</code> if the parent phase is closed,
 	 * <code>false</code> if the parent phase is opened.
 	 */
 	public boolean isParentPhaseClosed(int elementId, int projectId) {
+		
 		// Retrieves the parent phase only if it exists and has been closed.
 		final TypedQuery<Phase> query = em().createQuery("SELECT p FROM "
 			+ "Phase p "
@@ -87,12 +91,16 @@ public class Conflicts extends EntityManagerProvider {
 	/**
 	 * Find if a conflict will happen when adding a file.
 	 * 
-	 * @param properties Properties of the file flexible element.
-	 * @param language Language of the message.
-	 * @param user User.
+	 * @param properties
+	 *			Properties of the file flexible element.
+	 * @param language
+	 *			Language of the message.
+	 * @param user
+	 *			User.
 	 * @throws UpdateConflictException If a conflict has been detected.
 	 */
 	public void searchForFileAddConflicts(final Map<String, String> properties, final Language language, final User user) throws UpdateConflictException {
+		
 		// Element.
 		final int elementId = ClientUtils.asInt(properties.get(FileUploadUtils.DOCUMENT_FLEXIBLE_ELEMENT), -1);
 		final FilesListElement filesListElement = elementId != -1 ? em().find(FilesListElement.class, elementId) : null;
@@ -101,7 +109,7 @@ public class Conflicts extends EntityManagerProvider {
 		final int projectId = ClientUtils.asInt(properties.get(FileUploadUtils.DOCUMENT_PROJECT), 0);
 		final Project project = em().find(Project.class, projectId);
 		
-		if(project != null && !Handlers.isGranted(user.getOrgUnitsWithProfiles(), project.getOrgUnit(), GlobalPermissionEnum.MODIFY_LOCKED_CONTENT)) {
+		if (project != null && !Handlers.isGranted(user.getOrgUnitsWithProfiles(), project.getOrgUnit(), GlobalPermissionEnum.MODIFY_LOCKED_CONTENT)) {
 			if(project.getCloseDate() != null) {
 				final String fileName = ValueResultUtils.normalizeFileName(properties.get(FileUploadUtils.DOCUMENT_NAME));
 				throw new UpdateConflictException(project.toContainerInformation(), true, i18nServer.t(language, "conflictAddingFileToAClosedProject", fileName, filesListElement.getLabel()));
@@ -118,7 +126,10 @@ public class Conflicts extends EntityManagerProvider {
 			}
 		}
 		
-		if(filesListElement != null && filesListElement.getLimit() != null) {
+		final boolean isAdd = ClientUtils.asInt(properties.get(FileUploadUtils.DOCUMENT_ID)) == null;
+		
+		// For add operation, checking if adding a file does not break the limit.
+		if (isAdd && filesListElement != null && filesListElement.getLimit() != null) {
 			// Retrieving the current value
 			final TypedQuery<Value> valueQuery = em().createQuery("SELECT v FROM Value v WHERE v.containerId = :projectId and v.element.id = :elementId", Value.class);
 			valueQuery.setParameter("projectId", projectId);
@@ -132,12 +143,12 @@ public class Conflicts extends EntityManagerProvider {
 				// No current value
 			}
 
-			if(currentValue != null) {
+			if (currentValue != null) {
 				final TypedQuery<File> fileQuery = em().createQuery("SELECT f FROM File f WHERE f.id IN (:idsList)", File.class);
 				fileQuery.setParameter("idsList", ValueResultUtils.splitValuesAsInteger(currentValue.getValue()));
-
+				
 				final List<File> files = fileQuery.getResultList();
-				if(files.size() >= filesListElement.getLimit()) {
+				if (files.size() >= filesListElement.getLimit()) {
 					final String fileName = ValueResultUtils.normalizeFileName(properties.get(FileUploadUtils.DOCUMENT_NAME));
 					throw new UpdateConflictException(project.toContainerInformation(), true, i18nServer.t(language, "conflictAddingFileToAFullFileField", fileName, filesListElement.getLabel()));
 				}
@@ -148,9 +159,12 @@ public class Conflicts extends EntityManagerProvider {
 	/**
 	 * Find if a conflict will happen when deleting a file.
 	 * 
-	 * @param file File to delete.
-	 * @param language Language of the message.
-	 * @param user User.
+	 * @param file
+	 *			File to delete.
+	 * @param language
+	 *			Language of the message.
+	 * @param user
+	 *			User.
 	 * @throws UpdateConflictException If a conflict has been detected.
 	 */
 	public void searchForFileDeleteConflicts(final File file, final Language language, final User user) throws UpdateConflictException {
@@ -160,7 +174,7 @@ public class Conflicts extends EntityManagerProvider {
 		}
 		final FilesListElement filesListElement = getParentFilesListElement(file);
 
-		if(filesListElement != null && project != null) {
+		if (filesListElement != null && project != null) {
 			if(project.getCloseDate() != null) {
 				throw new UpdateConflictException(project.toContainerInformation(), i18nServer.t(language, "conflictRemovingFileFromAClosedProject", filesListElement.getLabel()));
 
@@ -178,10 +192,12 @@ public class Conflicts extends EntityManagerProvider {
 	/**
 	 * Find the project containing the given file.
 	 * 
-	 * @param file File contained in a file flexible element.
+	 * @param file
+	 *			File contained in a file flexible element.
 	 * @return The parent project.
 	 */
 	public Project getParentProjectOfFile(final File file) {
+		
 		final TypedQuery<Project> phaseQuery = em().createQuery("SELECT p FROM "
 				+ "Value v, "
 				+ "Project p "
@@ -214,10 +230,12 @@ public class Conflicts extends EntityManagerProvider {
 	/**
 	 * Find the FilesListElement containing the given file.
 	 * 
-	 * @param file File contained in a file flexible element.
+	 * @param file
+	 *			File contained in a file flexible element.
 	 * @return The parent flexible element.
 	 */
 	public FilesListElement getParentFilesListElement(final File file) {
+		
 		final TypedQuery<FilesListElement> query = em().createQuery("SELECT fle FROM "
 			+ "Value v, "
 			+ "FilesListElement fle "
@@ -241,10 +259,13 @@ public class Conflicts extends EntityManagerProvider {
 	/**
 	 * Affect the parameters of the given query to search for the given file.
 	 * 
-	 * @param query Query to configure.
-	 * @param fileId Identifier of the file.
+	 * @param query
+	 *			Query to configure.
+	 * @param fileId
+	 *			Identifier of the file.
 	 */
 	private void setFileQueryParameters(TypedQuery<?> query, Integer fileId) {
+		
 		query.setParameter("fileId", fileId.toString());
 		query.setParameter("fileIdLeft", '%' + ValueResultUtils.DEFAULT_VALUE_SEPARATOR + fileId);
 		query.setParameter("fileIdRight", fileId + ValueResultUtils.DEFAULT_VALUE_SEPARATOR + '%');
