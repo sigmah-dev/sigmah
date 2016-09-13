@@ -66,6 +66,12 @@ public class ProjectUtils {
 			return false;
 		}
 
+		if (project.getOrgUnitId() == null) {
+			// only draft projects does not have any org units :
+			// if you can see the project you can do what you want with it
+			return true;
+		}
+
 		Map<Integer, ProfileDTO> aggregatedProfiles = authentication.getAggregatedProfiles();
 		if (aggregatedProfiles == null) {
 			return false;

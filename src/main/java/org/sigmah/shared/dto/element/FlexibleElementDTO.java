@@ -315,7 +315,15 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 	}
 
 	private PrivacyGroupPermissionEnum getPermission() {
+
+		if (getOrgUnitIds().contains(null)) {
+			// only draft projects does not have any org units :
+			// if you can see the project you can do what you want with it
+			return PrivacyGroupPermissionEnum.WRITE;
+		}
+
 		PrivacyGroupPermissionEnum permission = PrivacyGroupPermissionEnum.NONE;
+
 		for (Integer orgUnitId : getOrgUnitIds()) {
 			PrivacyGroupPermissionEnum privacyGroupPermission = ProfileUtils.getPermissionForOrgUnit(auth(), orgUnitId, getPrivacyGroup());
 			switch (privacyGroupPermission) {
