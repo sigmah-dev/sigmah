@@ -109,7 +109,7 @@ public class DedupeContactDialog extends Window {
 
     duplicatedPropertiesGrid = generateDuplicatedPropertiesGrid();
 
-    secondStepMainButton = generateFirstStepMainButton();
+    secondStepMainButton = generateSecondStepMainButton();
     LayoutContainer secondStepButtonsContainer = Layouts.border();
     secondStepButtonsContainer.add(secondStepMainButton, Layouts.borderLayoutData(Style.LayoutRegion.EAST));
 
@@ -144,6 +144,17 @@ public class DedupeContactDialog extends Window {
     } else {
       button = new Button(I18N.CONSTANTS.dedupeContactUpdateIndependently());
     }
+    button.addSelectionListener(new SelectionListener<ButtonEvent>() {
+      @Override
+      public void componentSelected(ButtonEvent ce) {
+        secondStepHandler.handleDedupeContact(selectedContact.getId(), selectedProperties);
+      }
+    });
+    return button;
+  }
+
+  private Button generateSecondStepMainButton() {
+    Button button = new Button(I18N.CONSTANTS.dedupeContactUpdateButton());
     button.addSelectionListener(new SelectionListener<ButtonEvent>() {
       @Override
       public void componentSelected(ButtonEvent ce) {

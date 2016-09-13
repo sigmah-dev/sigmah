@@ -59,7 +59,7 @@ public class GetContactDuplicatedPropertiesHandler extends AbstractCommandHandle
     } else {
       // The contact was not created.
       // Let's generate a new contact from the user data without persisting it
-      newContact = contactService.create(new PropertyMap(command.getNewContactProperties()), context);
+      newContact = contactService.createVirtual(new PropertyMap(command.getNewContactProperties()), context);
     }
     oldContact = contactDAO.findById(command.getOldContactId());
 

@@ -59,6 +59,15 @@ public class ContactService extends AbstractEntityService<Contact, Integer, Cont
     return contactDAO.persist(contact, context.getUser());
   }
 
+  public Contact createVirtual(PropertyMap properties, UserDispatch.UserExecutionContext context) throws CommandException {
+    Contact contact = generateContact(properties);
+    if (contact == null) {
+      return null;
+    }
+
+    return contact;
+  }
+
   @Override
   public Contact update(Integer entityId, PropertyMap changes, UserDispatch.UserExecutionContext context) throws CommandException {
     throw new UnsupportedOperationException();
