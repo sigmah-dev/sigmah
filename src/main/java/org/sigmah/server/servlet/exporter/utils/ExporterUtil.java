@@ -586,7 +586,7 @@ public final class ExporterUtil {
 						if (textAreaElement.getIsDecimal()) {
 							value = Double.parseDouble(strValue);
 						} else {
-							value = Long.parseLong(strValue);
+							value = (long) Double.parseDouble(strValue);
 						}
 						break;
 					case DATE:
