@@ -24,6 +24,7 @@ package org.sigmah.client.util;
 
 
 import org.sigmah.shared.Language;
+import org.sigmah.shared.dto.referential.ContactModelType;
 import org.sigmah.shared.dto.referential.ElementTypeEnum;
 import org.sigmah.shared.dto.referential.PrivacyGroupPermissionEnum;
 import org.sigmah.shared.dto.referential.ProjectModelStatus;
@@ -91,6 +92,11 @@ public final class EnumModel<E extends Enum<E>> extends BaseModelData {
 	@SuppressWarnings("unchecked")
 	public EnumModel(final ProjectModelStatus projectModelStatus) {
 		this((E) projectModelStatus, ProjectModelStatus.getName(projectModelStatus));
+	}
+
+	@SuppressWarnings("unchecked")
+	public EnumModel(ContactModelType contactModelType) {
+		this((E) contactModelType, ContactModelType.getName(contactModelType));
 	}
 
 	/**

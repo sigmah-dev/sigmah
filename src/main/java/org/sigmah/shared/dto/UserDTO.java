@@ -70,6 +70,9 @@ public class UserDTO extends AbstractModelDataEntityDTO<Integer> {
 	public static final String SECONDARY_ORG_UNITS = "secondaryOrgUnits";
 	public static final String PROFILES = "profiles";
 	public static final String USER_UNITS = "userUnits";
+	public static final String CONTACT = "contact";
+	public static final String CONTACT_ORGANIZATION = "contactOrganization";
+	public static final String CONTACT_MODEL = "contactModel";
 
 	// Service properties keys.
 	public static final String PASSWORD = "pwd";
@@ -250,6 +253,14 @@ public class UserDTO extends AbstractModelDataEntityDTO<Integer> {
 
 	public boolean getActive() {
 		return ClientUtils.isTrue(get(ACTIVE));
+	}
+
+	public ContactDTO getContact() {
+		return get(CONTACT);
+	}
+
+	public void setContact(ContactDTO contact) {
+		set(CONTACT, contact);
 	}
 
 	public OrgUnitDTO getMainOrgUnit() {

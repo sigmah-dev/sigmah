@@ -56,11 +56,15 @@ public class GetHistoryHandler extends AbstractCommandHandler<GetHistory, ListRe
 		// Gets query parameters.
 		final int elementId = cmd.getElementId();
 		final int projectId = cmd.getProjectId();
+		final Integer iterationId = cmd.getIterationId();
 		final Date maxDate = cmd.getMaxDate();
 
 		// Builds query.
 		final StringBuilder sb = new StringBuilder();
 		sb.append("SELECT h FROM HistoryToken h WHERE h.elementId = :elementId AND h.projectId = :projectId");
+		if (iterationId != null) {
+			sb.append(" AND h.layoutGroupIterationId = :iterationId");
+		}
 		if (maxDate != null) {
 			sb.append(" AND h.date >= :maxDate");
 		}
@@ -69,6 +73,9 @@ public class GetHistoryHandler extends AbstractCommandHandler<GetHistory, ListRe
 		final TypedQuery<HistoryToken> query = em().createQuery(sb.toString(), HistoryToken.class);
 		query.setParameter("elementId", elementId);
 		query.setParameter("projectId", projectId);
+		if (iterationId != null) {
+			query.setParameter("iterationId", iterationId);
+		}
 		if (maxDate != null) {
 			query.setParameter("maxDate", maxDate);
 		}

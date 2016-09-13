@@ -28,6 +28,7 @@ import java.util.*;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.map.HashedMap;
 import org.sigmah.server.dispatch.CommandHandler;
+import org.sigmah.server.domain.Contact;
 import org.sigmah.server.domain.OrgUnit;
 import org.sigmah.server.domain.Organization;
 import org.sigmah.server.domain.Project;
@@ -264,40 +265,7 @@ public final class Handlers {
 			return true;
 		}
 
-		// Checks that the user can see this project.
-		// let's get the nearest OrgUnitProfile from the target OrgUnit
-		int minDistance = Integer.MAX_VALUE;
-		OrgUnitProfile targetedOrgUnitProfile = null;
-		for (OrgUnitProfile orgUnitProfile : user.getOrgUnitsWithProfiles()) {
-			if (Objects.equals(orgUnitProfile.getOrgUnit().getId(), project.getOrgUnit().getId())) {
-				// This OrgUnitProfile is directly related to the targeted OrgUnit, so he is obviously the nearest OrgUnitProfile
-				targetedOrgUnitProfile = orgUnitProfile;
-					break;
-				}
-
-			if (minDistance == 1) {
-				// The nearest OrgUnitProfile is either the current one or a OrgUnitProfile directly related to the targeted OrgUnit
-				continue;
-			}
-
-			List<OrgUnit> orgUnits = new ArrayList<>();
-			crawlUnits(orgUnitProfile.getOrgUnit(), orgUnits, false);
-			int currentDistance = 1;
-			for (OrgUnit orgUnit : orgUnits) {
-				// This loop is over the distance of the currently selected OrgUnitProfile
-				if (currentDistance >= minDistance) {
-				break;
-			}
-
-				if (Objects.equals(orgUnit.getId(), project.getOrgUnit().getId())) {
-					targetedOrgUnitProfile = orgUnitProfile;
-					minDistance = currentDistance;
-					break;
-		}
-
-				currentDistance++;
-			}
-		}
+		OrgUnitProfile targetedOrgUnitProfile = getTargetedOrgUnitProfile(project.getOrgUnit().getId(), user);
 		if (targetedOrgUnitProfile == null) {
 			return false;
 		}
@@ -340,6 +308,61 @@ public final class Handlers {
 		}
 
 		return false;
+	}
+
+	/**
+	 *
+	 * @param contact The contact to check
+	 * @param user The user attempting to access contact data
+	 * @param contactProjects The projects related to the contact
+	 * @param edition Does the user need right access?
+	 * @return true if the contact is accessible for the user attempting to access contact data
+   */
+	public static boolean isContactAccessible(Contact contact, User user, List<Project> contactProjects, boolean edition) {
+		if (contact.isDeleted()) {
+			return false;
+		}
+
+		if (Objects.equals(contact.getUser().getId(), user.getId())) {
+			return true;
+		}
+
+		List<OrgUnit> orgUnitsRelatedToContact = new ArrayList<>();
+		orgUnitsRelatedToContact.addAll(contact.getOrgUnits());
+		for (Project contactProject : contactProjects) {
+			orgUnitsRelatedToContact.add(contactProject.getOrgUnit());
+		}
+
+		// Get the list of profiles compatible with the contact
+		List<OrgUnitProfile> targetedOrgUnitProfiles = new ArrayList<>();
+		for (OrgUnit orgUnit : orgUnitsRelatedToContact) {
+			OrgUnitProfile targetedOrgUnitProfile = getTargetedOrgUnitProfile(orgUnit.getId(), user);
+			if (targetedOrgUnitProfile != null) {
+				targetedOrgUnitProfiles.add(targetedOrgUnitProfile);
+			}
+		}
+
+		if (targetedOrgUnitProfiles.isEmpty()) {
+			return false;
+		}
+
+		boolean canSeeContact = false;
+		boolean canEditContact = false;
+		for (OrgUnitProfile targetedOrgUnitProfile : targetedOrgUnitProfiles) {
+			for (Profile profile : targetedOrgUnitProfile.getProfiles()) {
+				for (GlobalPermission globalPermission : profile.getGlobalPermissions()) {
+					if (globalPermission.getPermission() == GlobalPermissionEnum.VIEW_VISIBLE_CONTACTS) {
+						canSeeContact = true;
+					} else if (globalPermission.getPermission() == GlobalPermissionEnum.EDIT_VISIBLE_CONTACTS) {
+						canEditContact = true;
+						// If the profile has EDIT_VISIBLE_CONTACT permission, it has VIEW_MY_CONTACTS too
+						canSeeContact = true;
+					}
+				}
+			}
+		}
+
+		return (!edition && canSeeContact) || (edition && canEditContact);
 	}
 
 	/**
@@ -445,4 +468,40 @@ public final class Handlers {
 		}
 	}
 
+	private static OrgUnitProfile getTargetedOrgUnitProfile(Integer orgUnitIdRelatedToContainer, User user) {
+		// let's get the nearest OrgUnitProfile from the target OrgUnit
+		int minDistance = Integer.MAX_VALUE;
+		OrgUnitProfile targetedOrgUnitProfile = null;
+		for (OrgUnitProfile orgUnitProfile : user.getOrgUnitsWithProfiles()) {
+			if (Objects.equals(orgUnitProfile.getOrgUnit().getId(), orgUnitIdRelatedToContainer)) {
+				// This OrgUnitProfile is directly related to the targeted OrgUnit, so he is obviously the nearest OrgUnitProfile
+				targetedOrgUnitProfile = orgUnitProfile;
+				break;
+			}
+
+			if (minDistance == 1) {
+				// The nearest OrgUnitProfile is either the current one or a OrgUnitProfile directly related to the targeted OrgUnit
+				continue;
+			}
+
+			List<OrgUnit> orgUnits = new ArrayList<>();
+			crawlUnits(orgUnitProfile.getOrgUnit(), orgUnits, false);
+			int currentDistance = 1;
+			for (OrgUnit orgUnit : orgUnits) {
+				// This loop is over the distance of the currently selected OrgUnitProfile
+				if (currentDistance >= minDistance) {
+					break;
+				}
+
+				if (Objects.equals(orgUnit.getId(), orgUnitIdRelatedToContainer)) {
+					targetedOrgUnitProfile = orgUnitProfile;
+					minDistance = currentDistance;
+					break;
+				}
+
+				currentDistance++;
+			}
+		}
+		return targetedOrgUnitProfile;
+	}
 }

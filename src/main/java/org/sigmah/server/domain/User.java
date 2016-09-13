@@ -126,6 +126,9 @@ public class User extends AbstractEntityId<Integer> {
 	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<OrgUnitProfile> orgUnitsWithProfiles = new ArrayList<>();
 
+	@OneToOne(fetch = FetchType.LAZY, mappedBy = "user")
+	private Contact contact;
+
 	@Transient
 	private OrgUnitProfile mainOrgUnitWithProfiles;
 
@@ -268,6 +271,14 @@ public class User extends AbstractEntityId<Integer> {
 		this.name = name;
 	}
 
+	@Transient
+	public String getFullName() {
+		if (firstName == null) {
+			return name;
+		}
+		return firstName + " " + name.toUpperCase();
+	}
+
 	public String getFirstName() {
 		return firstName;
 	}
@@ -345,6 +356,14 @@ public class User extends AbstractEntityId<Integer> {
 		this.orgUnitsWithProfiles = orgUnitsWithProfiles;
 	}
 
+	public Contact getContact() {
+		return contact;
+	}
+
+	public void setContact(Contact contact) {
+		this.contact = contact;
+	}
+
 	public OrgUnitProfile getMainOrgUnitWithProfiles() {
 		if (mainOrgUnitWithProfiles == null) {
 			// FIXME: For some reason, the are some cases where postLoad is not called when getting this entity
@@ -399,7 +418,7 @@ public class User extends AbstractEntityId<Integer> {
 					secondaryOrgUnitProfiles.add(orgUnitsWithProfile);
 					break;
 				default:
-					throw new IllegalStateException();
+					throw new IllegalStateException("Unknown OrgUnitProfileType : " + orgUnitsWithProfile.getType());
 			}
 		}
 		this.secondaryOrgUnitsWithProfiles = Collections.unmodifiableList(secondaryOrgUnitProfiles);

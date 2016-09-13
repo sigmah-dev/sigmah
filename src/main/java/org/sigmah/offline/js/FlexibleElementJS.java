@@ -24,8 +24,10 @@ package org.sigmah.offline.js;
 
 import com.google.gwt.core.client.JavaScriptObject;
 
+import org.sigmah.server.domain.element.ContactListElement;
 import org.sigmah.shared.dto.element.CheckboxElementDTO;
 import org.sigmah.shared.dto.element.ComputationElementDTO;
+import org.sigmah.shared.dto.element.ContactListElementDTO;
 import org.sigmah.shared.dto.element.CoreVersionElementDTO;
 import org.sigmah.shared.dto.element.DefaultFlexibleElementDTO;
 import org.sigmah.shared.dto.element.FilesListElementDTO;
@@ -61,6 +63,9 @@ public abstract class FlexibleElementJS extends JavaScriptObject {
 				break;
 			case COMPUTATION:
 				flexibleElementJS = ComputationElementJS.toJavaScript((ComputationElementDTO)flexibleElementDTO);
+				break;
+			case CONTACT_LIST:
+				flexibleElementJS = ContactListElementJS.toJavaScript((ContactListElementDTO)flexibleElementDTO);
 				break;
 			case CORE_VERSION:
 				flexibleElementJS = Values.createJavaScriptObject(FlexibleElementJS.class);
@@ -123,6 +128,9 @@ public abstract class FlexibleElementJS extends JavaScriptObject {
 				break;
 			case COMPUTATION:
 				flexibleElementDTO = ((ComputationElementJS)this).toComputationElementDTO();
+				break;
+			case CONTACT_LIST:
+				flexibleElementDTO = ((ContactListElementJS)this).toContactListElementDTO();
 				break;
 			case CORE_VERSION:
 				flexibleElementDTO = new CoreVersionElementDTO();

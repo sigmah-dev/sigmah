@@ -23,43 +23,17 @@ package org.sigmah.server.servlet.importer;
  */
 
 
-import java.io.Serializable;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.persistence.EntityManager;
-
-import org.sigmah.server.servlet.exporter.data.GlobalExportDataProvider;
-import org.sigmah.shared.command.GetValue;
-import org.sigmah.shared.command.result.ValueResult;
-import org.sigmah.shared.util.ValueResultUtils;
-import org.sigmah.shared.dto.referential.AmendmentState;
-import org.sigmah.server.domain.User;
-import org.sigmah.shared.dto.referential.ElementExtractedValueStatus;
-import org.sigmah.shared.dto.ProjectDTO;
-import org.sigmah.shared.dto.importation.ImportationSchemeDTO;
-
 import com.google.inject.Injector;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Iterator;
-import javax.persistence.NoResultException;
-import javax.persistence.TypedQuery;
 import org.sigmah.server.dispatch.impl.UserDispatch;
 import org.sigmah.server.domain.Country;
 import org.sigmah.server.domain.OrgUnit;
 import org.sigmah.server.domain.OrgUnitModel;
 import org.sigmah.server.domain.Project;
 import org.sigmah.server.domain.ProjectModel;
+import org.sigmah.server.domain.User;
 import org.sigmah.server.domain.base.EntityId;
 import org.sigmah.server.domain.element.CheckboxElement;
+import org.sigmah.server.domain.element.DefaultContactFlexibleElement;
 import org.sigmah.server.domain.element.DefaultFlexibleElement;
 import org.sigmah.server.domain.element.FlexibleElement;
 import org.sigmah.server.domain.element.QuestionChoiceElement;
@@ -75,15 +49,19 @@ import org.sigmah.server.i18n.I18nServer;
 import org.sigmah.server.mapper.Mapper;
 import org.sigmah.server.servlet.exporter.utils.ExporterUtil;
 import org.sigmah.shared.Language;
+import org.sigmah.shared.command.GetValue;
+import org.sigmah.shared.command.result.ValueResult;
 import org.sigmah.shared.dispatch.CommandException;
 import org.sigmah.shared.dispatch.FunctionalException;
 import org.sigmah.shared.dto.ElementExtractedValue;
 import org.sigmah.shared.dto.ImportDetails;
+import org.sigmah.shared.dto.ProjectDTO;
 import org.sigmah.shared.dto.base.EntityDTO;
 import org.sigmah.shared.dto.element.BudgetElementDTO;
 import org.sigmah.shared.dto.element.BudgetRatioElementDTO;
 import org.sigmah.shared.dto.element.CheckboxElementDTO;
 import org.sigmah.shared.dto.element.ComputationElementDTO;
+import org.sigmah.shared.dto.element.ContactListElementDTO;
 import org.sigmah.shared.dto.element.CoreVersionElementDTO;
 import org.sigmah.shared.dto.element.DefaultFlexibleElementDTO;
 import org.sigmah.shared.dto.element.FilesListElementDTO;
@@ -95,15 +73,37 @@ import org.sigmah.shared.dto.element.ReportElementDTO;
 import org.sigmah.shared.dto.element.ReportListElementDTO;
 import org.sigmah.shared.dto.element.TextAreaElementDTO;
 import org.sigmah.shared.dto.element.TripletsListElementDTO;
+import org.sigmah.shared.dto.importation.ImportationSchemeDTO;
 import org.sigmah.shared.dto.orgunit.OrgUnitDTO;
+import org.sigmah.shared.dto.referential.AmendmentState;
 import org.sigmah.shared.dto.referential.DefaultFlexibleElementType;
+import org.sigmah.shared.dto.referential.ElementExtractedValueStatus;
 import org.sigmah.shared.dto.referential.ImportStatusCode;
 import org.sigmah.shared.dto.referential.ImportationSchemeFileFormat;
 import org.sigmah.shared.dto.referential.ImportationSchemeImportType;
 import org.sigmah.shared.dto.referential.LogicalElementType;
 import org.sigmah.shared.util.Collections;
+import org.sigmah.shared.util.ValueResultUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
+import javax.persistence.TypedQuery;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Serializable;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Class for importing datas from spreadsheet and CSV documents
@@ -381,8 +381,6 @@ public abstract class Importer implements Iterator<ImportDetails> {
 			return null;
 		}
 
-		GlobalExportDataProvider gdp = new GlobalExportDataProvider(injector);
-
 		final FlexibleElement element;
 		final Serializable valueObject;
 		
@@ -393,10 +391,22 @@ public abstract class Importer implements Iterator<ImportDetails> {
 			element = mapper.map(flexibleElement, new CheckboxElement());
 			valueObject = getCheckboxValue(valueResult, element);
 			break;
+		case CONTACT_LIST:
+			valueObject = getContactListValue(valueResult);
+			break;
 		case DEFAULT:
 			element = mapper.map(flexibleElement, new DefaultFlexibleElement());
 			if (!DefaultFlexibleElementType.BUDGET.equals(((DefaultFlexibleElement) element).type())) {
-				valueObject = (Serializable) gdp.getDefElementPair(valueResult, element, entity, entity.getClass(), em(),
+				valueObject = (Serializable) ExporterUtil.getDefElementPair(valueResult, element, entity, entity.getClass(), em(),
+				                translator, language).getValue();
+			} else {
+				valueObject = null;
+			}
+			break;
+		case DEFAULT_CONTACT:
+			element = mapper.map(flexibleElement, new DefaultContactFlexibleElement());
+			if (!DefaultFlexibleElementType.BUDGET.equals(((DefaultContactFlexibleElement) element).type())) {
+				valueObject = (Serializable) ExporterUtil.getDefElementPair(valueResult, element, entity, entity.getClass(), em(),
 				                translator, language).getValue();
 			} else {
 				valueObject = null;
@@ -404,15 +414,15 @@ public abstract class Importer implements Iterator<ImportDetails> {
 			break;
 		case QUESTION:
 			element = mapper.map(flexibleElement, new QuestionElement());
-			valueObject = (Serializable) gdp.getChoicePair(element, valueResult).getValue();
+			valueObject = (Serializable) ExporterUtil.getChoicePair(element, valueResult).getValue();
 			break;
 		case TEXT_AREA:
 			element = mapper.map(flexibleElement, new TextAreaElement());
-			valueObject = (Serializable) gdp.getTextAreaElementPair(valueResult, element).getValue();
+			valueObject = (Serializable) ExporterUtil.getTextAreaElementPair(valueResult, element).getValue();
 			break;
 		case TRIPLETS:
 			element = mapper.map(flexibleElement, new TripletsListElement());
-			valueObject = (Serializable) gdp.getTripletPair(element, valueResult).getValue();
+			valueObject = (Serializable) ExporterUtil.getTripletPair(element, valueResult).getValue();
 			break;
 		default:
 			valueObject = null;
@@ -783,7 +793,28 @@ public abstract class Importer implements Iterator<ImportDetails> {
 					}
 				}
 				break;
+				case DEFAULT_CONTACT:
+					if (stringValue.isEmpty()) {
+						break;
+					}
 				
+					switch (type.toDefaultContactFlexibleElementType()) {
+						case COUNTRY:
+						case DIRECT_MEMBERSHIP:
+						case MAIN_ORG_UNIT:
+						case ORGANIZATION_NAME:
+						case SECONDARY_ORG_UNITS:
+						case CREATION_DATE:
+							// fall through
+						case TOP_MEMBERSHIP:
+							// Do not import it, it will be computed
+							break;
+						default:
+							formattedValue = stringValue;
+							statusCode = ElementExtractedValueStatus.VALID_VALUE;
+							break;
+					}
+					break;
 			case QUESTION:
 				// Accepted formats:
 				// Multiple : label(-label)+
@@ -837,11 +868,11 @@ public abstract class Importer implements Iterator<ImportDetails> {
 				break;
 			case TEXT_AREA:
 				// Accepted formats:
-				// Type DATE → dd/MM/yyyy
-				// Type NUMBER → 0
-				// Type NUMBER + decimal → 0.00
-				// Type PARAGRAPH → *
-				// Type TEXT → *
+					// Type DATE -> dd/MM/yyyy
+					// Type NUMBER -> 0
+					// Type NUMBER + decimal -> 0.00
+					// Type PARAGRAPH -> *
+					// Type TEXT -> *
 				TextAreaElement textAreaElement = (TextAreaElement) flexibleElement;
 				switch (type.toTextAreaType()) {
 				case DATE: {
@@ -989,6 +1020,19 @@ public abstract class Importer implements Iterator<ImportDetails> {
 		return value;
 	}
 
+	public HashSet<Integer> getContactListValue(ValueResult valueResult) {
+		if (valueResult == null || valueResult.getValueObject() == null) {
+			return new HashSet<>(0);
+		}
+
+		String[] values = valueResult.getValueObject().split(",");
+		HashSet<Integer> contactIds = new HashSet<>(values.length);
+		for (String value : values) {
+			contactIds.add(Integer.parseInt(value));
+		}
+		return contactIds;
+	}
+
 	protected int getColumnFromReference(String reference) {
 		int column = 0;
 		
@@ -1057,6 +1101,9 @@ public abstract class Importer implements Iterator<ImportDetails> {
 		switch (type.toElementTypeEnum()) {
 		case CHECKBOX:
 			dto = new CheckboxElementDTO();
+			break;
+		case CONTACT_LIST:
+			dto = new ContactListElementDTO();
 			break;
 		case COMPUTATION:
 			dto = new ComputationElementDTO();

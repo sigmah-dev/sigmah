@@ -206,4 +206,25 @@ FROM organization WHERE logo = '§OrganizationLogoFilename§' ;
 -- Default password expiration policy (with no automatic reset set)
 INSERT INTO password_expiration_policy (id, policy_type, reset_for_new_users, organization_id) SELECT nextval('hibernate_sequence'), 'NEVER', false, MAX(id_organization) FROM organization;
 
+-- Add default contact models
+SELECT
+  contact_model_create(o.id_organization, 'ORGANIZATION', o.name || ' model'),
+  contact_model_create(o.id_organization, 'INDIVIDUAL', 'Sigmah user model')
+FROM organization o
+WHERE o.id_organization = (SELECT MAX(o2.id_organization) FROM organization o2);
+
+-- Add a contact for each new contact model previously created
+INSERT INTO contact (id_contact, id_contact_model, id_organization, date_created)
+SELECT nextval('hibernate_sequence'), cm.id_contact_model, o.id_organization, NOW()
+FROM organization o
+JOIN contact_model cm ON (cm.id_organization = o.id_organization AND cm.name = o.name || ' model')
+WHERE o.id_organization = (SELECT MAX(o2.id_organization) FROM organization o2);
+
+INSERT INTO contact (id_contact, id_contact_model, id_user, id_parent, date_created)
+SELECT nextval('hibernate_sequence'), cm.id_contact_model, u.userid, parent.id_contact, NOW()
+FROM userlogin u
+JOIN contact_model cm ON (cm.id_organization = u.id_organization AND cm.name = 'Sigmah user model')
+JOIN contact parent ON (parent.id_organization = u.id_organization)
+WHERE u.email = '§UserEmail§';
+
 COMMIT;

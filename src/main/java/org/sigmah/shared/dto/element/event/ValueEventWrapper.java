@@ -23,6 +23,7 @@ package org.sigmah.shared.dto.element.event;
  */
 
 import java.io.Serializable;
+import java.util.Set;
 
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
 import org.sigmah.shared.dto.referential.ValueEventChangeType;
@@ -39,10 +40,12 @@ public class ValueEventWrapper implements Serializable {
 	private static final long serialVersionUID = 8800087226429558970L;
 
 	private FlexibleElementDTO sourceElement;
-	private TripletValueDTO listValue;
+	private TripletValueDTO tripletValue;
 	private String singleValue;
+	private Set<Integer> multivaluedIdsValue;
 	private ValueEventChangeType changeType;
 	private boolean isProjectCountryChanged;
+	private Integer iterationId;
 
 	/**
 	 * @return the isProjectCountryChanged
@@ -78,12 +81,12 @@ public class ValueEventWrapper implements Serializable {
 		this.changeType = changeType;
 	}
 
-	public TripletValueDTO getListValue() {
-		return listValue;
+	public TripletValueDTO getTripletValue() {
+		return tripletValue;
 	}
 
-	public void setListValue(TripletValueDTO listValue) {
-		this.listValue = listValue;
+	public void setTripletValue(TripletValueDTO tripletValue) {
+		this.tripletValue = tripletValue;
 	}
 
 	public String getSingleValue() {
@@ -94,6 +97,22 @@ public class ValueEventWrapper implements Serializable {
 		this.singleValue = singleValue;
 	}
 
+	public Set<Integer> getMultivaluedIdsValue() {
+		return multivaluedIdsValue;
+	}
+
+	public void setMultivaluedIdsValue(Set<Integer> multivaluedIdsValue) {
+		this.multivaluedIdsValue = multivaluedIdsValue;
+	}
+
+	public Integer getIterationId() {
+		return iterationId;
+	}
+
+	public void setIterationId(Integer iterationId) {
+		this.iterationId = iterationId;
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -102,9 +121,11 @@ public class ValueEventWrapper implements Serializable {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((changeType == null) ? 0 : changeType.hashCode());
-		result = prime * result + ((listValue == null) ? 0 : listValue.hashCode());
+		result = prime * result + ((tripletValue == null) ? 0 : tripletValue.hashCode());
 		result = prime * result + ((singleValue == null) ? 0 : singleValue.hashCode());
+		result = prime * result + ((multivaluedIdsValue == null) ? 0 : multivaluedIdsValue.hashCode());
 		result = prime * result + ((sourceElement == null) ? 0 : sourceElement.hashCode());
+		result = prime * result + ((iterationId == null) ? 0 : iterationId.hashCode());
 		return result;
 	}
 
@@ -122,20 +143,30 @@ public class ValueEventWrapper implements Serializable {
 		ValueEventWrapper other = (ValueEventWrapper) obj;
 		if (changeType != other.changeType)
 			return false;
-		if (listValue == null) {
-			if (other.listValue != null)
+		if (tripletValue == null) {
+			if (other.tripletValue != null)
 				return false;
-		} else if (!listValue.equals(other.listValue))
+		} else if (!tripletValue.equals(other.tripletValue))
 			return false;
 		if (singleValue == null) {
 			if (other.singleValue != null)
 				return false;
 		} else if (!singleValue.equals(other.singleValue))
 			return false;
+		if (multivaluedIdsValue == null) {
+			if (other.multivaluedIdsValue != null)
+				return false;
+		} else if (!multivaluedIdsValue.equals(other.multivaluedIdsValue))
+			return false;
 		if (sourceElement == null) {
 			if (other.sourceElement != null)
 				return false;
 		} else if (!sourceElement.equals(other.sourceElement))
+			return false;
+		if (iterationId == null) {
+			if (other.iterationId != null)
+				return false;
+		} else if (!iterationId.equals(other.iterationId))
 			return false;
 		return true;
 	}
@@ -144,14 +175,18 @@ public class ValueEventWrapper implements Serializable {
 	public String toString() {
 		return "ValueEventWrapper [sourceElement="
 			+ sourceElement
-			+ ", listValue="
-			+ listValue
+			+ ", tripletValue="
+			+ tripletValue
 			+ ", singleValue="
 			+ singleValue
+			+ ", multivaluedIdsValue="
+			+ multivaluedIdsValue
 			+ ", changeType="
 			+ changeType
 			+ ", isProjectCountryChanged="
 			+ isProjectCountryChanged
+			+ ", iterationId="
+			+ iterationId
 			+ "]";
 	}
 

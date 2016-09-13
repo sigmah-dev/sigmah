@@ -34,6 +34,9 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.sigmah.server.dao.GlobalExportDAO;
 import org.sigmah.server.dao.impl.GlobalExportHibernateDAO;
+import org.sigmah.server.domain.export.GlobalContactExport;
+import org.sigmah.server.domain.export.GlobalContactExportContent;
+import org.sigmah.server.domain.export.GlobalContactExportSettings;
 import org.sigmah.server.domain.export.GlobalExport;
 import org.sigmah.server.domain.export.GlobalExportContent;
 import org.sigmah.server.domain.export.GlobalExportSettings;
@@ -79,6 +82,8 @@ public class AutoDeleteJob implements Job {
 
 			final GlobalExportDAO exportDAO = injector.getInstance(GlobalExportHibernateDAO.class);
 
+			// PROJECTS
+
 			final List<GlobalExportSettings> settings = exportDAO.getGlobalExportSettings();
 			for (final GlobalExportSettings setting : settings) {
 
@@ -103,6 +108,39 @@ public class AutoDeleteJob implements Job {
 				for (final GlobalExport export : exports) {
 					final List<GlobalExportContent> contents = export.getContents();
 					for (GlobalExportContent content : contents) {
+						em.remove(content);
+					}
+					em.remove(export);
+				}
+
+			}
+
+			// CONTACTS
+
+			final List<GlobalContactExportSettings> settingsContacts = exportDAO.getGlobalContactExportSettings();
+			for (final GlobalContactExportSettings settingContacts : settingsContacts) {
+
+				/**
+				 * Check for auto delete schedule
+				 */
+
+				// skip if no delete schedule is specified
+
+				if (settingContacts.getAutoDeleteFrequency() == null || settingContacts.getAutoDeleteFrequency() < 1)
+					continue;
+
+				final Calendar scheduledCalendar = Calendar.getInstance();
+
+				// subtract months from current date
+				scheduledCalendar.add(Calendar.MONTH, 0 - settingContacts.getAutoDeleteFrequency().intValue());
+
+				// get older exports
+				List<GlobalContactExport> exports = exportDAO.getOlderContactExports(scheduledCalendar.getTime(), settingContacts.getOrganization());
+
+				// delete exports and their contents
+				for (final GlobalContactExport export : exports) {
+					final List<GlobalContactExportContent> contents = export.getContents();
+					for (GlobalContactExportContent content : contents) {
 						em.remove(content);
 					}
 					em.remove(export);

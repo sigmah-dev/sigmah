@@ -29,8 +29,11 @@ import javax.persistence.TypedQuery;
 
 import org.sigmah.server.dao.GlobalExportDAO;
 import org.sigmah.server.dao.base.AbstractDAO;
+import org.sigmah.server.domain.ContactModel;
 import org.sigmah.server.domain.Organization;
 import org.sigmah.server.domain.ProjectModel;
+import org.sigmah.server.domain.export.GlobalContactExport;
+import org.sigmah.server.domain.export.GlobalContactExportSettings;
 import org.sigmah.server.domain.export.GlobalExport;
 import org.sigmah.server.domain.export.GlobalExportSettings;
 
@@ -49,6 +52,15 @@ public class GlobalExportHibernateDAO extends AbstractDAO<GlobalExport, Integer>
 	public List<ProjectModel> getProjectModelsByOrganization(final Organization organization) {
 		final TypedQuery<ProjectModel> query = em().createQuery("SELECT pmv.model FROM ProjectModelVisibility pmv WHERE pmv.organization=:org", ProjectModel.class);
 		query.setParameter("org", organization);
+		return query.getResultList();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<ContactModel> getContactModels() {
+		final TypedQuery<ContactModel> query = em().createQuery("SELECT cm FROM ContactModel cm", ContactModel.class);
 		return query.getResultList();
 	}
 
@@ -78,6 +90,30 @@ public class GlobalExportHibernateDAO extends AbstractDAO<GlobalExport, Integer>
 	public List<GlobalExportSettings> getGlobalExportSettings() {
 
 		final TypedQuery<GlobalExportSettings> query = em().createQuery("FROM GlobalExportSettings ges", GlobalExportSettings.class);
+		return query.getResultList();
+
+	}
+
+	@Override
+	public List<GlobalContactExport> getGlobalContactExports(final Date from, final Date to) {
+		final TypedQuery<GlobalContactExport> query = em().createQuery("FROM GlobalContactExport e where e.date between :fromDate and :toDate", GlobalContactExport.class);
+		query.setParameter("fromDate", from);
+		query.setParameter("toDate", to);
+		return query.getResultList();
+	}
+
+	@Override
+	public List<GlobalContactExport> getOlderContactExports(final Date oldDate, final Organization organization) {
+		final TypedQuery<GlobalContactExport> query = em().createQuery("FROM GlobalContactExport e WHERE e.organization = :org and e.date < :oldDate", GlobalContactExport.class);
+		query.setParameter("oldDate", oldDate);
+		query.setParameter("org", organization);
+		return query.getResultList();
+	}
+
+	@Override
+	public List<GlobalContactExportSettings> getGlobalContactExportSettings() {
+
+		final TypedQuery<GlobalContactExportSettings> query = em().createQuery("FROM GlobalContactExportSettings ges", GlobalContactExportSettings.class);
 		return query.getResultList();
 
 	}

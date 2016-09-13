@@ -22,6 +22,7 @@ package org.sigmah.client.ui.view.admin.models;
  * #L%
  */
 
+import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.ui.presenter.admin.models.EditLayoutGroupAdminPresenter;
 import org.sigmah.client.ui.res.icon.IconImageBundle;
@@ -52,6 +53,7 @@ public class EditLayoutGroupAdminView extends AbstractPopupView<PopupWidget> imp
 	private TextField<String> nameField;
 	private ComboBox<BaseModelData> containerField;
 	private SimpleComboBox<Integer> rowField;
+	private CheckBox hasIterationsField;
 	private Button saveButton;
 	private Button deleteButton;
 
@@ -91,6 +93,12 @@ public class EditLayoutGroupAdminView extends AbstractPopupView<PopupWidget> imp
 		rowField.disable();
 
 		// --
+		// HasIterations field.
+		// --
+
+		hasIterationsField = Forms.checkbox("", null, I18N.CONSTANTS.adminFlexibleGroupHasIterations(), false);
+
+		// --
 		// Save button.
 		// --
 
@@ -100,6 +108,8 @@ public class EditLayoutGroupAdminView extends AbstractPopupView<PopupWidget> imp
 		form.add(nameField);
 		form.add(containerField);
 		form.add(rowField);
+		
+		form.add(hasIterationsField);
 		
 //		form.addButton(deleteButton);
 		form.addButton(saveButton);
@@ -137,6 +147,14 @@ public class EditLayoutGroupAdminView extends AbstractPopupView<PopupWidget> imp
 	@Override
 	public SimpleComboBox<Integer> getRowField() {
 		return rowField;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public CheckBox getHasIterationsField() {
+		return hasIterationsField;
 	}
 
 	/**

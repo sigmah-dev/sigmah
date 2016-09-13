@@ -60,6 +60,7 @@ import org.sigmah.shared.command.GetFrameworkFulfillmentsByProjectModelId;
 import org.sigmah.shared.command.base.Command;
 import org.sigmah.shared.command.result.ListResult;
 import org.sigmah.shared.command.result.VoidResult;
+import org.sigmah.shared.dto.ContactModelDTO;
 import org.sigmah.shared.dto.FrameworkDTO;
 import org.sigmah.shared.dto.FrameworkElementDTO;
 import org.sigmah.shared.dto.FrameworkElementImplementationDTO;
@@ -551,7 +552,7 @@ public abstract class AbstractModelsAdminPresenter<E extends IsModel, V extends 
 					final E updatedModel = event.getParam(0);
 					updateModel(updatedModel);
 
-				} else if (event.concern(UpdateEvent.PROJECT_MODEL_IMPORT) || event.concern(UpdateEvent.ORG_UNIT_MODEL_IMPORT)) {
+				} else if (event.concern(UpdateEvent.PROJECT_MODEL_IMPORT) || event.concern(UpdateEvent.ORG_UNIT_MODEL_IMPORT) || event.concern(UpdateEvent.CONTACT_MODEL_IMPORT)) {
 					// Import update event.
 					loadModels();
 				}
@@ -843,27 +844,20 @@ public abstract class AbstractModelsAdminPresenter<E extends IsModel, V extends 
 	 *          The model to export.
 	 */
 	private void onExportAction(final E model) {
-
+		final ServletUrlBuilder urlBuilder;
 		if (model instanceof ProjectModelDTO) {
-
-			final ServletUrlBuilder urlBuilder =
-					new ServletUrlBuilder(injector.getAuthenticationProvider(), injector.getPageManager(), Servlet.EXPORT, ServletMethod.EXPORT_MODEL_PROJECT);
-
-			urlBuilder.addParameter(RequestParameter.ID, model.getId());
-
-			ClientUtils.launchDownload(urlBuilder.toString());
-
+			urlBuilder = new ServletUrlBuilder(injector.getAuthenticationProvider(), injector.getPageManager(), Servlet.EXPORT, ServletMethod.EXPORT_MODEL_PROJECT);
 		} else if (model instanceof OrgUnitModelDTO) {
-
-			final ServletUrlBuilder urlBuilder =
-					new ServletUrlBuilder(injector.getAuthenticationProvider(), injector.getPageManager(), Servlet.EXPORT, ServletMethod.EXPORT_MODEL_ORGUNIT);
-
-			urlBuilder.addParameter(RequestParameter.ID, model.getId());
-
-			ClientUtils.launchDownload(urlBuilder.toString());
-
+			urlBuilder = new ServletUrlBuilder(injector.getAuthenticationProvider(), injector.getPageManager(), Servlet.EXPORT, ServletMethod.EXPORT_MODEL_ORGUNIT);
+		} else if (model instanceof ContactModelDTO) {
+			urlBuilder = new ServletUrlBuilder(injector.getAuthenticationProvider(), injector.getPageManager(), Servlet.EXPORT, ServletMethod.EXPORT_MODEL_CONTACT);
+		} else {
+			throw new IllegalStateException("Model type not supported : " + model.getClass());
 		}
 
+		urlBuilder.addParameter(RequestParameter.ID, model.getId());
+
+		ClientUtils.launchDownload(urlBuilder.toString());
 	}
 
 	/**
@@ -896,6 +890,12 @@ public abstract class AbstractModelsAdminPresenter<E extends IsModel, V extends 
 				notificationContent = I18N.CONSTANTS.adminOrgUnitModelDeleteDetail();
 				break;
 
+			case ContactModel:
+				errorMessage = I18N.CONSTANTS.adminDeleteNotDraftContactModelError();
+				confirmationMessage = I18N.CONSTANTS.adminDeleteDraftContactModelConfirm();
+				notificationTitle = I18N.CONSTANTS.adminContactModelDelete();
+				notificationContent = I18N.CONSTANTS.adminContactModelDeleteDetail();
+				break;
 			default:
 				throw new UnsupportedOperationException("Invalid model type.");
 		}

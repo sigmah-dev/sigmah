@@ -42,7 +42,6 @@ import org.sigmah.server.domain.report.ProjectReportModelSection;
 import org.sigmah.server.domain.report.ProjectReportVersion;
 import org.sigmah.server.domain.report.RichTextElement;
 import org.sigmah.server.domain.value.Value;
-import org.sigmah.server.handler.UpdateProjectHandler;
 import org.sigmah.server.service.base.AbstractEntityService;
 import org.sigmah.server.service.util.PropertyMap;
 import org.sigmah.shared.dto.report.ProjectReportDTO;
@@ -71,12 +70,12 @@ public class ProjectReportService extends AbstractEntityService<ProjectReport, I
 	private static final Logger LOG = LoggerFactory.getLogger(ProjectService.class);
 
 	private final ProjectReportDAO dao;
-	private final UpdateProjectHandler updateProjectHandler;
+	private final ValueService valueService;
 
 	@Inject
-	public ProjectReportService(ProjectReportDAO dao, UpdateProjectHandler updateProjectHandler) {
+	public ProjectReportService(final ProjectReportDAO dao, final ValueService valueService) {
 		this.dao = dao;
-		this.updateProjectHandler = updateProjectHandler;
+		this.valueService = valueService;
 	}
 
 	/**
@@ -257,7 +256,7 @@ public class ProjectReportService extends AbstractEntityService<ProjectReport, I
 			element.setId(flexibleElementId);
 			report.setFlexibleElement(element);
 
-			flexibleElementValue = updateProjectHandler.retrieveOrCreateValue(containerId, flexibleElementId, user);
+			flexibleElementValue = valueService.retrieveOrCreateValue(containerId, flexibleElementId, user);
 			if (!multiple && !(flexibleElementValue == null || flexibleElementValue.getValue() == null || "".equals(flexibleElementValue.getValue()))) {
 				throw new IllegalStateException("A report has already been created for the flexible element " + flexibleElementId);
 			}

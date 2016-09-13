@@ -25,9 +25,12 @@ package org.sigmah.client.ui.presenter.project;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import com.extjs.gxt.ui.client.widget.Layout;
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.dispatch.DispatchQueue;
 import org.sigmah.client.dispatch.monitor.LoadingMask;
@@ -39,10 +42,18 @@ import org.sigmah.client.page.PageRequest;
 import org.sigmah.client.ui.notif.N10N;
 import org.sigmah.client.ui.view.project.ProjectDetailsView;
 import org.sigmah.client.ui.widget.button.Button;
+import org.sigmah.client.ui.widget.form.Forms;
+import org.sigmah.client.ui.widget.form.IterableGroupPanel;
+import org.sigmah.client.ui.widget.form.IterableGroupPanel.IterableGroupItem;
+import org.sigmah.client.ui.widget.layout.Layouts;
 import org.sigmah.client.util.ClientUtils;
+import org.sigmah.shared.command.GetLayoutGroupIterations;
 import org.sigmah.shared.command.GetOrgUnit;
 import org.sigmah.shared.command.GetValue;
+import org.sigmah.shared.command.UpdateLayoutGroupIterations;
+import org.sigmah.shared.command.UpdateLayoutGroupIterations.IterationChange;
 import org.sigmah.shared.command.UpdateProject;
+import org.sigmah.shared.command.result.ListResult;
 import org.sigmah.shared.command.result.ValueResult;
 import org.sigmah.shared.command.result.VoidResult;
 import org.sigmah.shared.dto.ProjectDTO;
@@ -54,12 +65,16 @@ import org.sigmah.shared.dto.country.CountryDTO;
 import org.sigmah.shared.dto.element.BudgetElementDTO;
 import org.sigmah.shared.dto.element.BudgetSubFieldDTO;
 import org.sigmah.shared.dto.element.DefaultFlexibleElementDTO;
+import org.sigmah.shared.dto.element.FlexibleElementContainer;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
+import org.sigmah.shared.dto.element.event.RequiredValueEvent;
+import org.sigmah.shared.dto.element.event.RequiredValueHandler;
 import org.sigmah.shared.dto.element.event.ValueEvent;
 import org.sigmah.shared.dto.element.event.ValueHandler;
 import org.sigmah.shared.dto.layout.LayoutConstraintDTO;
 import org.sigmah.shared.dto.layout.LayoutDTO;
 import org.sigmah.shared.dto.layout.LayoutGroupDTO;
+import org.sigmah.shared.dto.layout.LayoutGroupIterationDTO;
 import org.sigmah.shared.dto.orgunit.OrgUnitDTO;
 import org.sigmah.shared.dto.referential.GlobalPermissionEnum;
 import org.sigmah.shared.util.ProfileUtils;
@@ -88,7 +103,7 @@ import org.sigmah.client.util.profiler.Scenario;
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
 @Singleton
-public class ProjectDetailsPresenter extends AbstractProjectPresenter<ProjectDetailsPresenter.View> {
+public class ProjectDetailsPresenter extends AbstractProjectPresenter<ProjectDetailsPresenter.View> implements IterableGroupPanel.Delegate {
 
 	// CSS style names.
 	private static final String STYLE_PROJECT_LABEL_10 = "project-label-10";
@@ -111,6 +126,10 @@ public class ProjectDetailsPresenter extends AbstractProjectPresenter<ProjectDet
 	 * List of values changes.
 	 */
 	private final ArrayList<ValueEvent> valueChanges = new ArrayList<ValueEvent>();
+	
+	private final Map<Integer, IterationChange> iterationChanges = new HashMap<Integer, IterationChange>();
+
+	private final Map<Integer, IterableGroupItem> newIterationsTabItems = new HashMap<Integer, IterableGroupItem>();
 	
 	/**
 	 * Listen to the values of flexible elements to update computated values.
@@ -171,7 +190,7 @@ public class ProjectDetailsPresenter extends AbstractProjectPresenter<ProjectDet
 	 */
 	@Override
 	public boolean hasValueChanged() {
-		return !valueChanges.isEmpty();
+		return !valueChanges.isEmpty() || !iterationChanges.isEmpty();
 	}
 
 	// ---------------------------------------------------------------------------------------------------------------
@@ -217,13 +236,112 @@ public class ProjectDetailsPresenter extends AbstractProjectPresenter<ProjectDet
 
 		for (final LayoutGroupDTO groupLayout : layout.getGroups()) {
 
+			// simple group
+			if(!groupLayout.getHasIterations()) {
+
+				FieldSet fieldSet = createGroupLayoutFieldSet(getProject(), groupLayout, queue, null, null, null);
+				gridLayout.setWidget(groupLayout.getRow(), groupLayout.getColumn(), fieldSet);
+				continue;
+			}
+
+			final FieldSet fieldSet = (FieldSet) groupLayout.getWidget();
+			gridLayout.setWidget(groupLayout.getRow(), groupLayout.getColumn(), fieldSet);
+
+			// iterative group
+			final IterableGroupPanel tabPanel = Forms.iterableGroupPanel(dispatch, groupLayout, getProject(), ProfileUtils.isGranted(auth(), GlobalPermissionEnum.CREATE_ITERATIONS) && getProject().getCurrentAmendment() == null);
+			tabPanel.setDelegate(this);
+			fieldSet.add(tabPanel);
+
+			tabPanel.setAutoHeight(true);
+			tabPanel.setAutoWidth(true);
+			tabPanel.setTabScroll(true);
+			tabPanel.addStyleName("white-tab-body");
+			tabPanel.setBorders(true);
+			tabPanel.setBodyBorder(false);
+
+			Integer amendmentId;
+
+			if (getProject().getCurrentAmendment() != null) {
+				amendmentId = getProject().getCurrentAmendment().getId();
+			} else {
+				amendmentId = -1;
+			}
+			GetLayoutGroupIterations getIterations = new GetLayoutGroupIterations(groupLayout.getId(), getProject().getId(), amendmentId);
+
+			queue.add(getIterations, new CommandResultHandler<ListResult<LayoutGroupIterationDTO>>() {
+
+				@Override
+				public void onCommandFailure(final Throwable throwable) {
+					if (Log.isErrorEnabled()) {
+						Log.error("Error, layout group iterations not loaded.", throwable);
+					}
+					throw new RuntimeException(throwable);
+				}
+
+				@Override
+				protected void onCommandSuccess(ListResult<LayoutGroupIterationDTO> result) {
+					DispatchQueue iterationsQueue = new DispatchQueue(dispatch, true);
+
+					for(final LayoutGroupIterationDTO iteration : result.getList()) {
+
+						final IterableGroupItem tab = new IterableGroupItem(tabPanel, iteration.getId(), iteration.getName());
+						tabPanel.addIterationTab(tab);
+
+						Layout tabLayout = Layouts.fitLayout();
+
+						tab.setLayout(tabLayout);
+
+						FieldSet tabSet = createGroupLayoutFieldSet(getProject(), groupLayout, iterationsQueue, iteration == null ? null : iteration.getId(), tabPanel, tab);
+
+						tab.add(tabSet);
+					}
+
+					iterationsQueue.start();
+
+					if(tabPanel.getItemCount() > 0) {
+						tabPanel.setSelection(tabPanel.getItem(0));
+					}
+
+				}
+			}, new LoadingMask(view.getMainPanel()));
+
+			fieldSet.layout();
+		}
+
+		queue.start();
+
+		view.setMainPanelWidget(gridLayout);
+	}
+
+	@Override
+	public IterationChange getIterationChange(int iterationId) {
+		return iterationChanges.get(iterationId);
+	}
+
+	@Override
+	public void setIterationChange(IterationChange iterationChange) {
+		iterationChanges.put(iterationChange.getIterationId(), iterationChange);
+
+		if (!getParentPresenter().getCurrentDisplayedPhase().isEnded()) {
+			view.getSaveButton().enable();
+		}
+	}
+
+	@Override
+	public void addIterationTabItem(int iterationId, IterableGroupItem tab) {
+		newIterationsTabItems.put(iterationId, tab);
+	}
+
+	@Override
+	public FieldSet createGroupLayoutFieldSet(FlexibleElementContainer container, LayoutGroupDTO groupLayout, DispatchQueue queue, final Integer iterationId, final IterableGroupPanel tabPanel, final IterableGroupItem tabItem) {
+		final ProjectDTO project = (ProjectDTO)container;
+
 			// Creates the fieldset and positions it.
-			final FieldSet formPanel = (FieldSet) groupLayout.getWidget();
-			gridLayout.setWidget(groupLayout.getRow(), groupLayout.getColumn(), formPanel);
+		final FieldSet fieldSet = (FieldSet) groupLayout.getWidget();
 
 			// For each constraint in the current layout group.
 			if (ClientUtils.isEmpty(groupLayout.getConstraints())) {
-				continue;
+			return fieldSet;
 			}
 
 			for (final LayoutConstraintDTO constraintDTO : groupLayout.getConstraints()) {
@@ -245,14 +363,18 @@ public class ProjectDetailsPresenter extends AbstractProjectPresenter<ProjectDet
 
 				// Retrieving the current amendment id.
 				final Integer amendmentId;
-				if (getProject().getCurrentAmendment() != null) {
-					amendmentId = getProject().getCurrentAmendment().getId();
+			if (project.getCurrentAmendment() != null) {
+				amendmentId = project.getCurrentAmendment().getId();
 				} else {
 					amendmentId = null;
 				}
 
 				// Remote call to ask for this element value.
-				queue.add(new GetValue(getProject().getId(), elementDTO.getId(), elementDTO.getEntityName(), amendmentId), new CommandResultHandler<ValueResult>() {
+			GetValue getValue;
+
+  		getValue = new GetValue(project.getId(), elementDTO.getId(), elementDTO.getEntityName(), amendmentId, iterationId);
+
+			queue.add(getValue, new CommandResultHandler<ValueResult>() {
 
 					@Override
 					public void onCommandFailure(final Throwable throwable) {
@@ -278,9 +400,10 @@ public class ProjectDetailsPresenter extends AbstractProjectPresenter<ProjectDet
 						elementDTO.setAuthenticationProvider(injector.getAuthenticationProvider());
 						elementDTO.setEventBus(eventBus);
 						elementDTO.setCache(injector.getClientCache());
-						elementDTO.setCurrentContainerDTO(getProject());
+					elementDTO.setCurrentContainerDTO(project);
                         elementDTO.setTransfertManager(injector.getTransfertManager());
 						elementDTO.assignValue(valueResult);
+					elementDTO.setTabPanel(tabPanel);
 						
 						final ProjectPresenter projectPresenter = injector.getProjectPresenter();
 
@@ -301,9 +424,9 @@ public class ProjectDetailsPresenter extends AbstractProjectPresenter<ProjectDet
 						}
 
 						if (elementComponent != null) {
-							formPanel.add(elementComponent, formData);
+						fieldSet.add(elementComponent, formData);
 						}
-						formPanel.layout();
+					fieldSet.layout();
 
 						// --
 						// -- ELEMENT HANDLERS
@@ -318,6 +441,10 @@ public class ProjectDetailsPresenter extends AbstractProjectPresenter<ProjectDet
 							@Override
 							public void onValueChange(final ValueEvent event) {
 								
+							if(tabPanel != null) {
+								event.setIterationId(tabPanel.getCurrentIterationId());
+							}
+
 								// TODO: Find linked computation fields if any and recompute the value.
 
 								// Stores the change to be saved later.
@@ -330,20 +457,91 @@ public class ProjectDetailsPresenter extends AbstractProjectPresenter<ProjectDet
 								}
 							}
 						});
+
+
+					if(elementDTO.getValidates() && tabItem != null) {
+						tabItem.setElementValidity(elementDTO, elementDTO.isCorrectRequiredValue(valueResult));
+						tabItem.refreshTitle();
+						elementDTO.addRequiredValueHandler(new RequiredValueHandlerImpl(elementDTO));
+					}
 					}
 				}, new LoadingMask(view.getMainPanel()));
 			}
+
+		fieldSet.setCollapsible(false);
+		fieldSet.setAutoHeight(true);
+		fieldSet.setBorders(false);
+		fieldSet.setHeadingHtml("");
+
+		return fieldSet;
 		}
 
-		queue.start();
+	/**
+	 * Internal class handling the value changes of the required elements.
+	 */
+	private class RequiredValueHandlerImpl implements RequiredValueHandler {
 
-		view.setMainPanelWidget(gridLayout);
+		private final FlexibleElementDTO elementDTO;
+
+		public RequiredValueHandlerImpl(FlexibleElementDTO elementDTO) {
+			this.elementDTO = elementDTO;
+		}
+
+		@Override
+		public void onRequiredValueChange(RequiredValueEvent event) {
+
+			// Refresh the panel's header
+			elementDTO.getTabPanel().setElementValidity(elementDTO, event.isValueOn());
+			elementDTO.getTabPanel().validateElements();
+		}
 	}
 
 	/**
 	 * Method executed on save button action.
 	 */
 	private void onSaveAction() {
+
+		// Checks if there are any changes regarding layout group iterations
+		dispatch.execute(new UpdateLayoutGroupIterations(new ArrayList<IterationChange>(iterationChanges.values()), getProject().getId()), new CommandResultHandler<ListResult<IterationChange>>() {
+
+			@Override
+			public void onCommandFailure(final Throwable caught) {
+				N10N.error(I18N.CONSTANTS.save(), I18N.CONSTANTS.saveError());
+			}
+
+			@Override
+			protected void onCommandSuccess(ListResult<IterationChange> result) {
+
+        for(IterationChange iterationChange : result.getList()) {
+					if(iterationChange.isDeleted()) {
+						// remove corresponding valueEvents
+
+						Iterator<ValueEvent> valuesIterator = valueChanges.iterator();
+						while(valuesIterator.hasNext()) {
+							ValueEvent valueEvent = valuesIterator.next();
+
+							if(valueEvent.getIterationId() == iterationChange.getIterationId()) {
+								valuesIterator.remove();
+							}
+						}
+					} else if(iterationChange.isCreated()) {
+						// change ids in valueEvents
+						int oldId = iterationChange.getIterationId();
+						int newId = iterationChange.getNewIterationId();
+
+						// updating tabitem id
+						newIterationsTabItems.get(oldId).setIterationId(newId);
+
+						for(ValueEvent valueEvent : valueChanges) {
+							if(valueEvent.getIterationId() == oldId) {
+								valueEvent.setIterationId(newId);
+							}
+						}
+					}
+				}
+
+				iterationChanges.clear();
+				newIterationsTabItems.clear();
 
 		dispatch.execute(new UpdateProject(getProject().getId(), valueChanges), new CommandResultHandler<VoidResult>() {
 
@@ -390,6 +588,8 @@ public class ProjectDetailsPresenter extends AbstractProjectPresenter<ProjectDet
 				}
 			}
 
+		}, view.getSaveButton(), new LoadingMask(view.getMainPanel()));
+	}
 		}, view.getSaveButton(), new LoadingMask(view.getMainPanel()));
 	}
 

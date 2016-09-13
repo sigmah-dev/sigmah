@@ -67,10 +67,15 @@ public enum Page implements IsSerializable {
 	ORGUNIT_CALENDAR(Pages.ORGUNIT_PARENT_KEY, "calendar"),
 	ORGUNIT_REPORTS(Pages.ORGUNIT_PARENT_KEY, "reports"),
 
+	CONTACT_DASHBOARD(Pages.CONTACT_PARENT_KEY, "dashboard"),
+	CONTACT_EXPORTS(Pages.PROJECT_PARENT_KEY, "contact-exports"),
+	CONTACT_EXPORTS_SETTING(Pages.PROJECT_PARENT_KEY, "contact-exports-setting"),
+
 	ADMIN_USERS(Pages.ADMIN_PARENT_KEY, "users"),
 	ADMIN_ORG_UNITS(Pages.ADMIN_PARENT_KEY, "org-units"),
 	ADMIN_PROJECTS_MODELS(Pages.ADMIN_PARENT_KEY, "projects-models"),
 	ADMIN_ORG_UNITS_MODELS(Pages.ADMIN_PARENT_KEY, "org-units-models"),
+	ADMIN_CONTACT_MODELS(Pages.ADMIN_PARENT_KEY, "contact-models"),
 	ADMIN_REPORTS_MODELS(Pages.ADMIN_PARENT_KEY, "reports"),
 	ADMIN_CATEGORIES(Pages.ADMIN_PARENT_KEY, "categories"),
 	ADMIN_PARAMETERS(Pages.ADMIN_PARENT_KEY, "parameters"),
@@ -90,6 +95,7 @@ public enum Page implements IsSerializable {
 
 	ADMIN_ADD_PROJECT_MODEL("add-project-model"),
 	ADMIN_ADD_ORG_UNIT_MODEL("add-org-unit-model"),
+	ADMIN_ADD_CONTACT_MODEL("add-contact-model"),
 	ADMIN_EDIT_LAYOUT_GROUP_MODEL("layout-group-edit"),
 	ADMIN_EDIT_FLEXIBLE_ELEMENT("flexible-element-edit"),
 	ADMIN_EDIT_FLEXIBLE_ELEMENT_ADD_BUDGETSUBFIELD("add-budgetsubfield-flexible-element-edit"),
@@ -301,6 +307,8 @@ public enum Page implements IsSerializable {
 			case ADMIN_PROJECTS_MODELS:
 				return I18N.CONSTANTS.adminboard();
 			case ADMIN_ORG_UNITS_MODELS:
+				return I18N.CONSTANTS.adminboard();
+			case ADMIN_CONTACT_MODELS:
 				return I18N.CONSTANTS.adminboard();
 			case ADMIN_REPORTS_MODELS:
 				return I18N.CONSTANTS.adminboard();

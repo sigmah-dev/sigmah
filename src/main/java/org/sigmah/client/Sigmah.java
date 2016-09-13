@@ -150,6 +150,8 @@ public class Sigmah implements EntryPoint {
 		injector.getProjectIndicatorMapPresenter();
 		injector.getEditIndicatorPresenter();
 		injector.getEditSitePresenter();
+		injector.getExportContactsPresenter();
+		injector.getExportContactsSettingPresenter();
 		injector.getExportProjectsPresenter();
 		injector.getExportProjectsSettingPresenter();
 		injector.getProjectCoreRenameVersionPresenter();
@@ -178,6 +180,8 @@ public class Sigmah implements EntryPoint {
 		injector.getAddOrgUnitModelAdminPresenter();
 		injector.getProjectModelsAdminPresenter();
 		injector.getAddProjectModelAdminPresenter();
+		injector.getContactModelsAdminPresenter();
+		injector.getAddContactModelAdminPresenter();
 		injector.getReportModelsAdminPresenter();
 		injector.getEditPhaseModelAdminPresenter();
 		injector.getEditLayoutGroupAdminPresenter();
@@ -195,6 +199,11 @@ public class Sigmah implements EntryPoint {
 		injector.getOrgUnitDetailsPresenter();
 		injector.getOrgUnitReportsPresenter();
 		injector.getAddImportationSchemePresenter();
+
+		injector.getContactPresenter();
+		injector.getContactDetailsPresenter();
+		injector.getContactRelationshipsPresenter();
+		injector.getContactHistoryPresenter();
 
 		injector.getFileSelectionPresenter();
 

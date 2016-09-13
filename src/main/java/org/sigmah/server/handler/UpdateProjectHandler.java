@@ -25,8 +25,6 @@ package org.sigmah.server.handler;
 import java.util.Date;
 import java.util.List;
 
-import javax.persistence.NoResultException;
-import javax.persistence.Query;
 
 import org.sigmah.server.dispatch.impl.UserDispatch.UserExecutionContext;
 import org.sigmah.server.domain.Project;
@@ -55,6 +53,8 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
+
 import org.sigmah.offline.sync.SuccessCallback;
 import org.sigmah.server.computation.ServerComputations;
 import org.sigmah.server.computation.ServerValueResolver;
@@ -82,6 +82,7 @@ import org.sigmah.shared.dto.element.BudgetSubFieldDTO;
 import org.sigmah.shared.dto.element.ComputationElementDTO;
 import org.sigmah.shared.dto.profile.ProfileDTO;
 import org.sigmah.shared.dto.referential.AmendmentState;
+import org.sigmah.shared.dto.referential.ContainerInformation;
 import org.sigmah.shared.dto.referential.GlobalPermissionEnum;
 import org.sigmah.shared.dto.referential.LogicalElementType;
 import org.sigmah.shared.dto.referential.LogicalElementTypes;
@@ -98,7 +99,7 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 	/**
 	 * Logger.
 	 */
-	private final static Logger LOG = LoggerFactory.getLogger(UpdateProjectHandler.class);
+	private final static Logger LOGGER = LoggerFactory.getLogger(UpdateProjectHandler.class);
 
 	/**
 	 * Service handling the update of Value objects.
@@ -138,8 +139,8 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 	@Override
 	public VoidResult execute(final UpdateProject cmd, final UserExecutionContext context) throws CommandException {
 
-		if (LOG.isDebugEnabled()) {
-			LOG.debug("[execute] Updates project #" + cmd.getProjectId() + " with following values #" + cmd.getValues().size() + " : " + cmd.getValues());
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("[execute] Updates project #" + cmd.getProjectId() + " with following values #" + cmd.getValues().size() + " : " + cmd.getValues());
 		}
 
 		final List<ValueEventWrapper> values = cmd.getValues();
@@ -166,20 +167,12 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 		final Date historyDate = new Date();
 
 		final User user = context.getUser();
-
+		
+		final ContainerInformation containerInformation;
+		
 		// Search the given project.
 		final Project project = em().find(Project.class, projectId);
-		if (project != null) {
-			if (!Handlers.isProjectEditable(project, user)) {
-				throw new IllegalStateException();
-			}
-		} else {
-			// If project is null, it means the user is not trying to update a project but an org unit
-			OrgUnit orgUnit = em().find(OrgUnit.class, projectId);
-			if (!Handlers.isOrgUnitVisible(orgUnit, user)) {
-				throw new IllegalStateException();
-			}
-		}
+		containerInformation = throwIfProjectOrOrgUnitIsNotEditable(project, projectId, user);
 
 		// Verify if the modifications conflicts with the project state.
 		final List<String> conflicts = searchForConflicts(project, values, context);
@@ -193,13 +186,15 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 			// Event parameters.
 			final FlexibleElementDTO source = valueEvent.getSourceElement();
 			final FlexibleElement element = em().find(FlexibleElement.class, source.getId());
-			final TripletValueDTO updateListValue = valueEvent.getListValue();
+			final TripletValueDTO updateListValue = valueEvent.getTripletValue();
 			final String updateSingleValue = valueEvent.getSingleValue();
 			
 			final LogicalElementType type = LogicalElementTypes.of(source);
+			final Set<Integer> multivaluedIdsValue = valueEvent.getMultivaluedIdsValue();
+			final Integer iterationId = valueEvent.getIterationId();
 
-			LOG.debug("[execute] Updates value of element #{} ({})", source.getId(), source.getEntityName());
-			LOG.debug("[execute] Event of type {} with value {} and list value {}.", valueEvent.getChangeType(), updateSingleValue, updateListValue);
+			LOGGER.debug("[execute] Updates value of element #{} ({})", source.getId(), source.getEntityName());
+			LOGGER.debug("[execute] Event of type {} with value {} and list value {} (iteration : {}).", valueEvent.getChangeType(), updateSingleValue, updateListValue, iterationId);
 
 			// Verify if the core version has been modified.
 			coreVersionHasBeenModified = coreVersionHasBeenModified || element != null && element.isAmendable();
@@ -209,21 +204,24 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 				// like other values. These values impact directly the project.
 				valueService.saveValue(updateSingleValue, valueEvent.isProjectCountryChanged(), historyDate, (DefaultFlexibleElement) element, projectId, user, comment);
 			}
+			else if (updateSingleValue != null) {
+				valueService.saveValue(updateSingleValue, historyDate, element, projectId, iterationId, user, comment);
+			}
+			else if (multivaluedIdsValue != null) {
+				valueService.saveValue(multivaluedIdsValue, valueEvent, historyDate, element, projectId, iterationId, user, comment);
+			}
 			else if (updateListValue != null) {
 				// Special case : this value is a part of a list which is the true value of the flexible element. (only used for
 				// the TripletValue class for the moment)
-				valueService.saveValue(updateListValue, valueEvent.getChangeType(), historyDate, element, projectId, user, comment);
+				valueService.saveValue(updateListValue, valueEvent.getChangeType(), historyDate, element, projectId, iterationId, user, comment);
 			}
-
-			// Special case : this value is a part of a list which is the true value of the flexible element. (only used for
-			// the TripletValue class for the moment)
 			else {
-				valueService.saveValue(updateSingleValue, historyDate, element, projectId, user, comment);
+				LOGGER.warn("Empty value event received for element #{} ({}) of container #{}.", source.getId(), source.getEntityName(), projectId);
 			}
 		}
 			
 		final Project updatedProject = em().find(Project.class, projectId);
-		if (updatedProject != null) {
+		if (updatedProject == null) {
 			if(coreVersionHasBeenModified) {
 				// Update the revision number
 				updatedProject.setAmendmentRevision(updatedProject.getAmendmentRevision() == null ? 2 : updatedProject.getAmendmentRevision() + 1);
@@ -233,80 +231,39 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 
 		if (!conflicts.isEmpty()) {
 			// A conflict was found.
-			throw new UpdateConflictException(updatedProject.toContainerInformation(), conflicts.toArray(new String[0]));
+			throw new UpdateConflictException(containerInformation, conflicts.toArray(new String[0]));
 		}
 	}
 
 	/**
-	 * Retrieves the value for the given project and the given element.
-	 * If there isn't a value yet, it will be created.
-	 *
-	 * @param projectId
-	 *          The project id.
-	 * @param elementId
-	 *          The source element id.
+	 * Ensure that the user has edition access for the updated container.
+	 * 
+	 * @param project
+	 *			Updated project (or <code>null</code> if an org unit is being updated).
+	 * @param containerId
+	 *			Identifier of the updated container.
 	 * @param user
-	 *          The user which launch the command.
-	 * @return The value.
+	 *			User trying to update the container.
+	 * @return The informations about the updated container.
+	 * @throws IllegalStateException If the user can not edit the given container.
 	 */
-	public Value retrieveOrCreateValue(int projectId, Integer elementId, User user) {
-
-		// Retrieving the current value
-		Value currentValue = retrieveCurrentValue(projectId, elementId);
-
-		// Update operation.
-		if (currentValue != null) {
-			LOG.debug("[execute] Retrieves a value for element #{0}.", elementId);
-			currentValue.setLastModificationAction('U');
+	private ContainerInformation throwIfProjectOrOrgUnitIsNotEditable(final Project project, final Integer containerId, final User user) throws IllegalStateException {
+		
+		if (project != null) {
+			if (!Handlers.isProjectEditable(project, user)) {
+				throw new IllegalStateException("The project " + project.getId() + " is not editable by the user " + user.getId());
+			}
+			return project.toContainerInformation();
+		} else {
+			// If project is null, it means the user is not trying to update a project but an org unit
+			final OrgUnit orgUnit = em().find(OrgUnit.class, containerId);
+			if (!Handlers.isOrgUnitVisible(orgUnit, user)) {
+				throw new IllegalStateException("The orgunit " + orgUnit.getId() + " is not editable by the user " + user.getId());
+			}
+			return orgUnit.toContainerInformation();
 		}
-		// Create operation
-		else {
-			LOG.debug("[execute] Creates a value for element #{0}.", elementId);
-
-			currentValue = new Value();
-			currentValue.setLastModificationAction('C');
-
-			// Parent element
-			final FlexibleElement element = em().find(FlexibleElement.class, elementId);
-			currentValue.setElement(element);
-
-			// Container
-			currentValue.setContainerId(projectId);
-		}
-
-		// Updates the value's fields.
-		currentValue.setLastModificationDate(new Date());
-		currentValue.setLastModificationUser(user);
-
-		return currentValue;
 	}
 
-	/**
-	 * Retrieves the value for the given project and the given element but 
-	 * don't create an empty value if none exists.
-	 *
-	 * @param projectId
-	 *          The project id.
-	 * @param elementId
-	 *          The source element id.
-	 * @return  The value or <code>null</code> if not found.
-	 */
-	private Value retrieveCurrentValue(int projectId, Integer elementId) {
-		final Query query = em().createQuery("SELECT v FROM Value v WHERE v.containerId = :projectId and v.element.id = :elementId");
-		query.setParameter("projectId", projectId);
-		query.setParameter("elementId", elementId);
-
-		Value currentValue = null;
-
-		try {
-			currentValue = (Value) query.getSingleResult();
-		} catch (NoResultException nre) {
-			// No current value
-		}
-
-		return currentValue;
-	}
-	
 	/**
      * Format the given value event.
      * 
@@ -341,9 +298,9 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 			// The project should be a draft project
 			// Let's verify it
 			if (project.getProjectModel().getStatus() != ProjectModelStatus.DRAFT) {
-				LOG.error("Project {} doesn't have an OrgUnit.", project.getId());
+				LOGGER.error("Project {} doesn't have an OrgUnit.", project.getId());
 			} else if (context.getUser().getMainOrgUnitWithProfiles() == null) {
-				LOG.error("User {} doesn't have a main org unit.", context.getUser().getId());
+				LOGGER.error("User {} doesn't have a main org unit.", context.getUser().getId());
 			} else {
 				// Let's get the main org unit from the user
 				projectOrgUnitId = context.getUser().getMainOrgUnitWithProfiles().getOrgUnit().getId();
@@ -382,7 +339,7 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 				if (projectIsClosed || phaseIsClosed || (source.getAmendable() && projectIsLocked)) {
 					final ValueResult result = new ValueResult();
 					result.setValueObject(value.getSingleValue());
-					result.setValuesObject(value.getListValue() != null ? Collections.<ListableValue>singletonList(value.getListValue()) : null);
+					result.setValuesObject(value.getTripletValue() != null ? Collections.<ListableValue>singletonList(value.getTripletValue()) : null);
 
 					if(!source.isCorrectRequiredValue(result)) {
 						conflicts.add(i18nServer.t(language, "conflictModifyLockedContentEmptyValue",
@@ -430,7 +387,7 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 					if (source.getAmendable()) {
 						if (source instanceof BudgetElementDTO) {
 							final BudgetSubFieldDTO divisorField = ((BudgetElementDTO)source).getRatioDivisor();
-							final Value value = retrieveCurrentValue(project.getId(), source.getId());
+							final Value value = valueService.retrieveCurrentValue(project.getId(), source.getId(), valueEvent.getIterationId());
 							conflict = getValueOfSubField(value.getValue(), divisorField) != getValueOfSubField(valueEvent.getSingleValue(), divisorField);
 
 						} else {
@@ -513,7 +470,7 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
                     
                     conflicts.add(i18nServer.t(language, "conflictComputationOutOfBound",
                             fieldList, value.getSingleValue(), source.getFormattedLabel(), greaterOrLess, breachedConstraint) 
-                            + dependenciesLastValuesForComputation(computation, project.getId(), language));
+                            + dependenciesLastValuesForComputation(computation, project.getId(), value.getIterationId(), language));
                 }
             }
         }
@@ -537,9 +494,9 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
      *          Language to use to create the messages.
      * @return A list of details about the dependencies.
      * 
-     * @see #flexibleElementDetails(org.sigmah.shared.dto.element.FlexibleElementDTO, int, org.sigmah.shared.Language, java.text.DateFormat) 
+     * @see #flexibleElementDetails(org.sigmah.shared.dto.element.FlexibleElementDTO, int, Integer, org.sigmah.shared.Language, java.text.DateFormat)
      */
-    private String dependenciesLastValuesForComputation(final Computation computation, final int projectId, final Language language) {
+    private String dependenciesLastValuesForComputation(final Computation computation, final int projectId, final Integer iterationId, final Language language) {
         final DateFormat formatter = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, Locale.forLanguageTag(language.getLocale()));
         
         return org.sigmah.shared.util.Collections.join(computation.getDependencies(), new org.sigmah.shared.util.Collections.Mapper<Dependency, String>() {
@@ -554,7 +511,7 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 					public void visit(SingleDependency dependency) {
 						stringBuilder
 							.append("\n")
-							.append(flexibleElementDetails(dependency.getFlexibleElement(), projectId, language, formatter));
+							.append(flexibleElementDetails(dependency.getFlexibleElement(), projectId, iterationId, language, formatter));
 					}
 
 					@Override
@@ -595,12 +552,12 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
      *          Date formatter.
      * @return The formatted line.
      */
-    private String flexibleElementDetails(final FlexibleElementDTO entry, final int projectId, final Language language, final DateFormat formatter) {
+    private String flexibleElementDetails(final FlexibleElementDTO entry, final int projectId, Integer iterationId, final Language language, final DateFormat formatter) {
         
         final String title = entry.getFormattedLabel();
         final String value, author, date;
 
-        final Value currentValue = retrieveCurrentValue(projectId, entry.getId());
+        final Value currentValue = valueService.retrieveCurrentValue(projectId, entry.getId(), iterationId);
         if (currentValue != null) {
             value = currentValue.getValue();
             author = User.getUserShortName(currentValue.getLastModificationUser());

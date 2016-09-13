@@ -63,6 +63,8 @@ public class OrgUnitModelService extends AbstractEntityService<OrgUnitModel, Int
 
 	@Inject
 	private Mapper mapper;
+	@Inject
+	private ModelUtil modelUtil;
 
 	/**
 	 * {@inheritDoc}
@@ -205,7 +207,7 @@ public class OrgUnitModelService extends AbstractEntityService<OrgUnitModel, Int
 		}
 
 		if (changes.get(AdminUtil.PROP_FX_FLEXIBLE_ELEMENT) != null) {
-			ModelUtil.persistFlexibleElement(em(), mapper, changes, model);
+			modelUtil.persistFlexibleElement(changes, model);
 			return em().find(OrgUnitModel.class, model.getId());
 		}
 		

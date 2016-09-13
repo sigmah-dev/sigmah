@@ -41,6 +41,7 @@ public final class FlexibleElementType {
 		types = new HashMap<Class<? extends FlexibleElementDTO>, String>();
 		types.put(BudgetDistributionElementDTO.class, I18N.CONSTANTS.flexibleElementBudgetDistribution());
 		types.put(CheckboxElementDTO.class, I18N.CONSTANTS.flexibleElementCheckbox());
+		types.put(ContactListElementDTO.class, I18N.CONSTANTS.flexibleElementContactList());
 		types.put(FilesListElementDTO.class, I18N.CONSTANTS.flexibleElementFilesList());
 		types.put(IndicatorsListElementDTO.class, I18N.CONSTANTS.flexibleElementIndicatorsList());
 		types.put(MessageElementDTO.class, I18N.CONSTANTS.flexibleElementMessage());

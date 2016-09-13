@@ -30,6 +30,7 @@ import org.sigmah.server.domain.PhaseModel;
 import org.sigmah.server.domain.ProjectModel;
 import org.sigmah.server.domain.element.CheckboxElement;
 import org.sigmah.server.domain.element.ComputationElement;
+import org.sigmah.server.domain.element.ContactListElement;
 import org.sigmah.server.domain.element.CoreVersionElement;
 import org.sigmah.server.domain.element.DefaultFlexibleElement;
 import org.sigmah.server.domain.element.FilesListElement;
@@ -48,6 +49,7 @@ import org.sigmah.shared.dto.element.BudgetElementDTO;
 import org.sigmah.shared.dto.element.BudgetRatioElementDTO;
 import org.sigmah.shared.dto.element.CheckboxElementDTO;
 import org.sigmah.shared.dto.element.ComputationElementDTO;
+import org.sigmah.shared.dto.element.ContactListElementDTO;
 import org.sigmah.shared.dto.element.CoreVersionElementDTO;
 import org.sigmah.shared.dto.element.DefaultFlexibleElementDTO;
 import org.sigmah.shared.dto.element.FilesListElementDTO;
@@ -61,9 +63,6 @@ import org.sigmah.shared.dto.element.TextAreaElementDTO;
 import org.sigmah.shared.dto.element.TripletsListElementDTO;
 import org.sigmah.shared.dto.referential.DefaultFlexibleElementType;
 import org.sigmah.shared.dto.referential.ElementTypeEnum;
-import static org.sigmah.shared.dto.referential.ElementTypeEnum.CHECKBOX;
-import static org.sigmah.shared.dto.referential.ElementTypeEnum.CORE_VERSION;
-import static org.sigmah.shared.dto.referential.ElementTypeEnum.FILES_LIST;
 import org.sigmah.shared.dto.referential.LogicalElementType;
 import org.sigmah.shared.dto.referential.NoElementType;
 import org.sigmah.shared.dto.referential.TextAreaType;
@@ -236,6 +235,8 @@ public final class ServerComputations {
 			type = TextAreaType.fromCode(((TextAreaElement) element).getType());
 		} else if (element instanceof CheckboxElement) {
 			type = ElementTypeEnum.CHECKBOX;
+		} else if (element instanceof ContactListElement) {
+			type = ElementTypeEnum.CONTACT_LIST;
 		} else if (element instanceof DefaultFlexibleElement) {
 			type = ((DefaultFlexibleElement) element).getType();
 		} else if (element instanceof FilesListElement) {
@@ -276,6 +277,9 @@ public final class ServerComputations {
 		switch (type.toElementTypeEnum()) {
 		case CHECKBOX:
 			dto = new CheckboxElementDTO();
+			break;
+		case CONTACT_LIST:
+			dto = new ContactListElementDTO();
 			break;
 		case COMPUTATION:
 			dto = new ComputationElementDTO();

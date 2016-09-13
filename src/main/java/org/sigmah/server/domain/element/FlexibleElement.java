@@ -205,8 +205,12 @@ public abstract class FlexibleElement extends AbstractEntityId<Integer> implemen
 			type = TextAreaType.fromCode(((TextAreaElement) this).getType());
 		} else if (this instanceof CheckboxElement) {
 			type = ElementTypeEnum.CHECKBOX;
+		} else if (this instanceof ContactListElement) {
+			type = ElementTypeEnum.CONTACT_LIST;
 		} else if (this instanceof DefaultFlexibleElement) {
 			type = ((DefaultFlexibleElement) this).getType();
+		} else if (this instanceof DefaultContactFlexibleElement) {
+			type = ((DefaultContactFlexibleElement) this).getType();
 		} else if (this instanceof FilesListElement) {
 			type = ElementTypeEnum.FILES_LIST;
 		} else if (this instanceof IndicatorsListElement) {

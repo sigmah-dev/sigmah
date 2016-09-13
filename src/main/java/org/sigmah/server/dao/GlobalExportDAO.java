@@ -26,8 +26,11 @@ import java.util.Date;
 import java.util.List;
 
 import org.sigmah.server.dao.base.DAO;
+import org.sigmah.server.domain.ContactModel;
 import org.sigmah.server.domain.Organization;
 import org.sigmah.server.domain.ProjectModel;
+import org.sigmah.server.domain.export.GlobalContactExport;
+import org.sigmah.server.domain.export.GlobalContactExportSettings;
 import org.sigmah.server.domain.export.GlobalExport;
 import org.sigmah.server.domain.export.GlobalExportSettings;
 
@@ -41,10 +44,18 @@ public interface GlobalExportDAO extends DAO<GlobalExport, Integer> {
 
 	List<ProjectModel> getProjectModelsByOrganization(Organization organization);
 
+	List<ContactModel> getContactModels();
+
 	List<GlobalExport> getGlobalExports(Date from, Date to);
 
 	List<GlobalExport> getOlderExports(Date oldDate, Organization organization);
 
 	List<GlobalExportSettings> getGlobalExportSettings();
+
+	List<GlobalContactExport> getGlobalContactExports(Date from, Date to);
+
+	List<GlobalContactExport> getOlderContactExports(Date oldDate, Organization organization);
+
+	List<GlobalContactExportSettings> getGlobalContactExportSettings();
 
 }

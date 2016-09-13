@@ -25,6 +25,8 @@ package org.sigmah.server.servlet.exporter.data;
 import java.util.List;
 import java.util.Map;
 
+import org.sigmah.server.servlet.exporter.data.cells.ExportDataCell;
+
 /**
  * Shared global data for excel/calc
  * 
@@ -32,13 +34,13 @@ import java.util.Map;
  */
 public class GlobalExportData {
 
-	private final Map<String, List<String[]>> exportData;
+	private final Map<String, List<ExportDataCell[]>> exportData;
 
-	public GlobalExportData(final Map<String, List<String[]>> exportData) {
+	public GlobalExportData(final Map<String, List<ExportDataCell[]>> exportData) {
 		this.exportData = exportData;
 	}
 
-	public Map<String, List<String[]>> getExportData() {
+	public Map<String, List<ExportDataCell[]>> getExportData() {
 		return exportData;
 	}
 

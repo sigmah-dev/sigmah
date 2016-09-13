@@ -27,6 +27,8 @@ import org.sigmah.client.event.handler.UpdateHandler;
 import org.sigmah.client.page.PageRequest;
 import org.sigmah.client.ui.presenter.CreateProjectPresenter.Mode;
 import org.sigmah.client.ui.presenter.reminder.ReminderType;
+import org.sigmah.shared.dto.ContactDTO;
+import org.sigmah.shared.dto.ContactModelDTO;
 import org.sigmah.shared.dto.IsModel;
 import org.sigmah.shared.dto.OrgUnitModelDTO;
 import org.sigmah.shared.dto.ProjectDTO;
@@ -62,6 +64,25 @@ public class UpdateEvent extends GwtEvent<UpdateHandler> {
 	 * </p>
 	 */
 	public static final String VIEWPORT_SIZE_UPDATE = "VIEWPORT_SIZE_UPDATE";
+
+	/**
+	 * When a contact is created.
+	 * <ul>
+	 * <li>params[0] = current creation {@link Mode mode}</li>
+	 * <li>params[1] = the created {@link ContactDTO contact}</li>
+	 * </ul>
+	 */
+	public static final String CONTACT_CREATE = "CONTACT_CREATE";
+
+	/**
+	 * <p>
+	 * When a contact is deleted.
+	 * </p>
+	 * <p>
+	 * <li>params[0] = The current {@link PageRequest} at the time of the delete action.</li>
+	 * </p>
+	 */
+	public static final String CONTACT_DELETE = "CONTACT_DELETE";
 
 	/**
 	 * <p>
@@ -242,6 +263,18 @@ public class UpdateEvent extends GwtEvent<UpdateHandler> {
 
 	/**
 	 * <p>
+	 * When a {@code ContactModel} has been created.
+	 * </p>
+	 * <p>
+	 * <ul>
+	 * <li>param[0] = The created {@link ContactModelDTO} instance.</li>
+	 * </ul>
+	 * </p>
+	 */
+	public static final String CONTACT_MODEL_ADD = "CONTACT_MODEL_ADD";
+
+	/**
+	 * <p>
 	 * When a {@code PhaseModel} has been created/updated.
 	 * </p>
 	 * <p>
@@ -308,6 +341,11 @@ public class UpdateEvent extends GwtEvent<UpdateHandler> {
 	 * After Importing OrgUnit model
 	 */
 	public static final String ORG_UNIT_MODEL_IMPORT = "ORG_UNIT_MODEL_IMPORT";
+
+	/**
+	 * After Importing Contact model
+	 */
+	public static final String CONTACT_MODEL_IMPORT = "CONTACT_MODEL_IMPORT";
 
 	/**
 	 * <p>

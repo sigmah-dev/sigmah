@@ -44,6 +44,7 @@ import org.sigmah.server.domain.base.AbstractEntityId;
 import org.sigmah.server.domain.element.CheckboxElement;
 import org.sigmah.server.domain.element.FlexibleElement;
 import org.sigmah.server.domain.element.TextAreaElement;
+import org.sigmah.server.domain.layout.LayoutGroupIteration;
 import org.sigmah.server.domain.util.EntityConstants;
 
 /**
@@ -101,6 +102,10 @@ public class Value extends AbstractEntityId<Integer> {
 	@JoinColumn(name = EntityConstants.VALUE_COLUMN_ID_USER_LAST_MODIF, nullable = false)
 	private User lastModificationUser;
 
+	@ManyToOne(optional = true)
+	@JoinColumn(name = EntityConstants.VALUE_COLUMN_LAYOUT_GROUP_ITERATION, nullable = true)
+	private LayoutGroupIteration layoutGroupIteration;
+
 	// --------------------------------------------------------------------------------
 	//
 	// METHODS.
@@ -112,6 +117,7 @@ public class Value extends AbstractEntityId<Integer> {
 		builder.append("value", value);
 		builder.append("lastModificationDate", lastModificationDate);
 		builder.append("lastModificationAction", lastModificationAction);
+		builder.append("layoutGroupIteration", layoutGroupIteration);
 	}
 
 	/**
@@ -201,5 +207,13 @@ public class Value extends AbstractEntityId<Integer> {
 
 	public Character getLastModificationAction() {
 		return lastModificationAction;
+	}
+
+	public LayoutGroupIteration getLayoutGroupIteration() {
+		return layoutGroupIteration;
+	}
+
+	public void setLayoutGroupIteration(LayoutGroupIteration layoutGroupIteration) {
+		this.layoutGroupIteration = layoutGroupIteration;
 	}
 }

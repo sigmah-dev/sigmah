@@ -50,13 +50,39 @@ public interface IsModel extends EntityDTO<Integer>, ModelData {
 		/**
 		 * Project model type.
 		 */
-		ProjectModel,
+		ProjectModel(true, true, false),
 
 		/**
 		 * Organization unit model type.
 		 */
-		OrgUnitModel;
+		OrgUnitModel(true, true, false),
 
+		/**
+		 * Contact model type
+		 */
+		ContactModel(false, false, true);
+
+		private final boolean canHaveMandatoryFields;
+		private final boolean hasBanner;
+		private final boolean hasCard;
+
+		ModelType(Boolean canHaveMandatoryFields, boolean hasBanner, boolean hasCard) {
+			this.canHaveMandatoryFields = canHaveMandatoryFields;
+			this.hasBanner = hasBanner;
+			this.hasCard = hasCard;
+		}
+
+		public boolean canHaveMandatoryFields() {
+			return canHaveMandatoryFields;
+		}
+
+		public boolean hasBanner() {
+			return hasBanner;
+		}
+
+		public boolean hasCard() {
+			return hasCard;
+		}
 	}
 
 	/**

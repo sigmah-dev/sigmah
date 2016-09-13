@@ -42,6 +42,7 @@ import org.sigmah.client.ui.widget.panel.Panels;
 import org.sigmah.client.ui.widget.toolbar.ActionToolBar;
 import org.sigmah.client.util.ClientUtils;
 import org.sigmah.client.util.DateUtils;
+import org.sigmah.shared.dto.ContactDTO;
 import org.sigmah.shared.dto.UserDTO;
 import org.sigmah.shared.dto.orgunit.OrgUnitDTO;
 import org.sigmah.shared.dto.profile.PrivacyGroupDTO;
@@ -62,7 +63,10 @@ import com.extjs.gxt.ui.client.store.StoreFilter;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Text;
+import com.extjs.gxt.ui.client.widget.Window;
+import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.Field;
+import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
@@ -70,8 +74,10 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.grid.GridSelectionModel;
+import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.google.gwt.i18n.client.DateTimeFormat;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Singleton;
 
 /**
@@ -106,6 +112,7 @@ public class UsersAdminView extends AbstractView implements UsersAdminPresenter.
 	private Grid<UserDTO> usersGrid;
 	private ContentPanel usersListPanel;
 	private Button usersAddButton;
+	private Button usersAddByEmailButton;
 	private Button usersDesactiveActiveButton;
 	private Button usersRefreshButton;
 	private Field<String> usersFilterField;
@@ -222,6 +229,37 @@ public class UsersAdminView extends AbstractView implements UsersAdminPresenter.
 		};
 	}
 
+	@Override
+	public void buildAddUserByEmailWindow(List<ContactDTO> availableContacts, final UsersAdminPresenter.AddUserByEmailHandler handler) {
+		final Window window = new Window();
+		window.setHeadingText(I18N.CONSTANTS.adminContactAddUserByEmail());
+		window.setPlain(true);
+		window.setModal(true);
+		window.setBlinkModal(true);
+		window.setLayout(new FitLayout());
+		window.setSize(650, 150);
+
+		final ComboBox<ContactDTO> combobox = Forms.combobox(I18N.CONSTANTS.email(), true, ContactDTO.ID, ContactDTO.EMAIL_WITH_FULLNAME);
+		combobox.getStore().add(availableContacts);
+		combobox.setEditable(true);
+		Button button = Forms.button(I18N.CONSTANTS.addUser());
+		button.addSelectionListener(new SelectionListener<ButtonEvent>() {
+			@Override
+			public void componentSelected(ButtonEvent ce) {
+				handler.handleSubmit(combobox.getValue());
+				window.hide();
+			}
+		});
+
+		FormPanel formPanel = new FormPanel();
+		formPanel.setHeaderVisible(false);
+		formPanel.setLayout(Forms.layout(100, 500));
+		formPanel.add(combobox);
+		formPanel.getButtonBar().add(button);
+		window.add(formPanel);
+		window.show();
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -311,6 +349,11 @@ public class UsersAdminView extends AbstractView implements UsersAdminPresenter.
 	@Override
 	public Button getUsersAddButton() {
 		return usersAddButton;
+	}
+
+	@Override
+	public Button getUsersAddByEmailButton() {
+		return usersAddByEmailButton;
 	}
 
 	/**
@@ -649,6 +692,7 @@ public class UsersAdminView extends AbstractView implements UsersAdminPresenter.
 
 			case USERS:
 				usersAddButton = toolBar.addButton(I18N.CONSTANTS.addUser(), IconImageBundle.ICONS.addUser());
+				usersAddByEmailButton = toolBar.addButton(I18N.CONSTANTS.adminContactAddUserByEmail(), IconImageBundle.ICONS.addUser());
 				usersDesactiveActiveButton = toolBar.addButton(I18N.CONSTANTS.adminUserDisable(), IconImageBundle.ICONS.deleteUser());
 
 				toolBar.add(new LabelToolItem(I18N.CONSTANTS.adminUsersSearchByName()));

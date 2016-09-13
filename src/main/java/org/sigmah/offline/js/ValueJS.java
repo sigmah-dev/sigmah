@@ -134,11 +134,12 @@ public final class ValueJS extends JavaScriptObject {
 		valueEventWrapper.setChangeType(getChangeTypeEnum());
 		valueEventWrapper.setProjectCountryChanged(isProjectCountryChanged());
 		valueEventWrapper.setSingleValue(getValue());
+		// TODO: set multivalued values
 		
 		if (getValues() != null && getValues().length() == 1) {
 			final ListableValue listableValue = getValues().get(0).toDTO();
 			if (listableValue instanceof TripletValueDTO) {
-				valueEventWrapper.setListValue((TripletValueDTO)listableValue);
+				valueEventWrapper.setTripletValue((TripletValueDTO)listableValue);
 			}
 		}
 		
@@ -152,7 +153,7 @@ public final class ValueJS extends JavaScriptObject {
 	public void update(ValueEventWrapper valueEventWrapper) {
 		setValue(valueEventWrapper.getSingleValue());
 		
-		if (valueEventWrapper.getListValue() instanceof ListableValue) {
+		if(valueEventWrapper.getTripletValue() instanceof ListableValue) {
 			JsArray<ListableValueJS> values = getValues();
 			if (values == null) {
 				values = (JsArray<ListableValueJS>) JavaScriptObject.createArray();
@@ -161,7 +162,7 @@ public final class ValueJS extends JavaScriptObject {
 			
 			switch(valueEventWrapper.getChangeType()) {
 				case ADD:
-					values.push(ListableValueJS.toJavaScript(valueEventWrapper.getListValue()));
+					values.push(ListableValueJS.toJavaScript(valueEventWrapper.getTripletValue()));
 					break;
 					
 				case REMOVE:
@@ -169,7 +170,7 @@ public final class ValueJS extends JavaScriptObject {
 					
 					for (int index = 0; index < values.length(); index++) {
 						final ListableValueJS entry = values.get(index);
-						if (entry.getId() != valueEventWrapper.getListValue().getId()) {
+						if(entry.getId() != valueEventWrapper.getTripletValue().getId()) {
 							trimmedArray.push(entry);
 						} else {
 							Log.info("Removing entry " + entry.getId() + " from " + getId());

@@ -22,6 +22,7 @@ package org.sigmah.server.servlet.exporter.data;
  * #L%
  */
 
+import org.sigmah.server.domain.Contact;
 import org.sigmah.server.domain.OrgUnit;
 import org.sigmah.server.domain.Project;
 import org.sigmah.server.servlet.exporter.base.Exporter;
@@ -33,7 +34,7 @@ public class OrgUnitSynthesisData extends BaseSynthesisData {
 	private final OrgUnit orgUnit;
 
 	public OrgUnitSynthesisData(final Exporter exporter, final Integer orgUnitId, final Injector injector) {
-		super(exporter, injector);
+		super(exporter, injector, false);
 		orgUnit = entityManager.find(OrgUnit.class, orgUnitId);
 	}
 
@@ -44,6 +45,11 @@ public class OrgUnitSynthesisData extends BaseSynthesisData {
 
 	@Override
 	public Project getProject() {
+		return null;
+	}
+
+	@Override
+	public Contact getContact() {
 		return null;
 	}
 

@@ -114,6 +114,8 @@ final class AccessRights {
 		sperm(pageToken(Page.ORGUNIT_DETAILS), GrantType.AUTHENTICATED_ONLY);
 		sperm(pageToken(Page.ORGUNIT_REPORTS), GrantType.AUTHENTICATED_ONLY);
 
+		sperm(pageToken(Page.CONTACT_DASHBOARD), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_VISIBLE_CONTACTS);
+
 		sperm(pageToken(Page.ADMIN_PARAMETERS), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_ADMIN, GlobalPermissionEnum.MANAGE_SETTINGS);
 		sperm(pageToken(Page.ADMIN_CATEGORIES), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_ADMIN, GlobalPermissionEnum.MANAGE_CATEGORIES);
 		sperm(pageToken(Page.ADMIN_ORG_UNITS), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_ADMIN, GlobalPermissionEnum.MANAGE_ORG_UNITS);
@@ -121,6 +123,7 @@ final class AccessRights {
 		sperm(pageToken(Page.ADMIN_PROJECTS_MODELS), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_ADMIN, GlobalPermissionEnum.MANAGE_PROJECT_MODELS);
 		sperm(pageToken(Page.ADMIN_REPORTS_MODELS), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_ADMIN, GlobalPermissionEnum.MANAGE_REPORT_MODELS);
 		sperm(pageToken(Page.ADMIN_ORG_UNITS_MODELS), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_ADMIN, GlobalPermissionEnum.MANAGE_ORG_UNIT_MODELS);
+		sperm(pageToken(Page.ADMIN_CONTACT_MODELS), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_ADMIN, GlobalPermissionEnum.MANAGE_CONTACT_MODELS);
 		sperm(pageToken(Page.ADMIN_IMPORTATION_SCHEME), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_ADMIN, GlobalPermissionEnum.MANAGE_IMPORTATION_SCHEMES);
 		sperm(pageToken(Page.ADMIN_ADD_IMPORTATION_SCHEME), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_ADMIN, GlobalPermissionEnum.MANAGE_IMPORTATION_SCHEMES);
 		sperm(pageToken(Page.ADMIN_ADD_VARIABLE_IMPORTATION_SCHEME), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_ADMIN, GlobalPermissionEnum.MANAGE_IMPORTATION_SCHEMES);
@@ -132,10 +135,12 @@ final class AccessRights {
 		sperm(commandToken(BatchCommand.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(ChangePasswordCommand.class), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.CHANGE_PASSWORD);
 		sperm(commandToken(ChangePhase.class), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.CHANGE_PHASE);
+		sperm(commandToken(CheckContactDuplication.class), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_VISIBLE_CONTACTS);
 		sperm(commandToken(CheckModelUsage.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(CreateEntity.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(CopyLogFrame.class), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.EDIT_LOGFRAME);
 		sperm(commandToken(DeactivateUsers.class), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.MANAGE_USERS);
+		sperm(commandToken(DedupeContact.class), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_VISIBLE_CONTACTS);
 		sperm(commandToken(DisableFlexibleElements.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(DeleteCategories.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(DeleteFlexibleElements.class), GrantType.AUTHENTICATED_ONLY);
@@ -153,14 +158,25 @@ final class AccessRights {
 		sperm(commandToken(GetBaseMaps.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetCalendar.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetCategories.class), GrantType.AUTHENTICATED_ONLY);
+		sperm(commandToken(GetContact.class), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_VISIBLE_CONTACTS);
+		sperm(commandToken(GetContacts.class), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_VISIBLE_CONTACTS);
+		sperm(commandToken(GetContactDuplicatedProperties.class), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_VISIBLE_CONTACTS);
+		sperm(commandToken(GetContactHistory.class), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_VISIBLE_CONTACTS);
+		sperm(commandToken(GetContactModel.class), GrantType.AUTHENTICATED_ONLY);
+		sperm(commandToken(GetContactModelCopy.class), GrantType.AUTHENTICATED_ONLY);
+		sperm(commandToken(GetContactModels.class), GrantType.AUTHENTICATED_ONLY);
+		sperm(commandToken(GetContactRelationships.class), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_VISIBLE_CONTACTS);
 		sperm(commandToken(GetCountries.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetCountry.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetFilesFromFavoriteProjects.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetFrameworkFulfillmentsByProjectModelId.class), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.MANAGE_PROJECT_MODELS);
+		sperm(commandToken(GetGlobalContactExportSettings.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetGlobalExportSettings.class), GrantType.AUTHENTICATED_ONLY);
+		sperm(commandToken(GetGlobalContactExports.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetGlobalExports.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetHistory.class), GrantType.AUTHENTICATED_ONLY);
 		// TODO: Add the missing commands
+		sperm(commandToken(GetLayoutGroupIterations.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetLinkedProjects.class), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_MY_PROJECTS);
 		sperm(commandToken(GetMonitoredPoints.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetOrganization.class), GrantType.AUTHENTICATED_ONLY);
@@ -185,6 +201,8 @@ final class AccessRights {
 		sperm(commandToken(GetValue.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetValueFromLinkedProjects.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(Synchronize.class), GrantType.AUTHENTICATED_ONLY);
+		sperm(commandToken(UpdateContact.class), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_VISIBLE_CONTACTS);
+		sperm(commandToken(UpdateLayoutGroupIterations.class), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.CREATE_ITERATIONS);
 		sperm(commandToken(UpdateProject.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(UpdateProjectFavorite.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(UpdateProjectTeamMembers.class), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.EDIT_PROJECT_TEAM_MEMBERS);

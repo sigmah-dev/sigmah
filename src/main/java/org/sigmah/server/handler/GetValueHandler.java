@@ -114,7 +114,7 @@ public class GetValueHandler extends AbstractCommandHandler<GetValue, ValueResul
 
 			if (tokens != null) {
 				for (final HistoryToken token : tokens) {
-					if (token.getElementId().equals(cmd.getElementId())) {
+					if (token.getElementId().equals(cmd.getElementId()) && token.getLayoutGroupIterationId().equals(cmd.getIterationId())) {
 						historyValue = token.getValue();
 					}
 				}
@@ -131,7 +131,7 @@ public class GetValueHandler extends AbstractCommandHandler<GetValue, ValueResul
 		} else if (BudgetRatioElementDTO.ENTITY_NAME.equals(cmd.getElementEntityName())) {
 			valueFromDatabase = findCurrentValueOfBudgetRatioElement(cmd.getProjectId(), cmd.getElementId());
 		} else {
-			valueFromDatabase = findCurrentValue(cmd.getProjectId(), cmd.getElementId());
+			valueFromDatabase = findCurrentValue(cmd.getProjectId(), cmd.getElementId(), cmd.getIterationId());
 		}
 		
 		String valueAsString = valueFromDatabase;
@@ -270,13 +270,20 @@ public class GetValueHandler extends AbstractCommandHandler<GetValue, ValueResul
 		return valueResult;
 	}
 	
-	private String findCurrentValue(int projectId, int elementId) {
+	private String findCurrentValue(int projectId, int elementId, Integer iterationId) {
 		// Creates the query to get the value for the flexible element (as
 		// string) in the Value table.
-		final TypedQuery<String> valueQuery =
-			em().createQuery("SELECT v.value FROM Value v WHERE v.containerId = :projectId AND v.element.id = :elementId", String.class);
+		final TypedQuery<String> valueQuery;
+
+		if(iterationId == null) {
+			valueQuery = em().createQuery("SELECT v.value FROM Value v WHERE v.containerId = :projectId AND v.element.id = :elementId", String.class);
 		valueQuery.setParameter("projectId", projectId);
 		valueQuery.setParameter("elementId", elementId);
+		} else {
+			valueQuery = em().createQuery("SELECT v.value FROM Value v WHERE v.element.id = :elementId AND v.layoutGroupIteration.id = :iterationId", String.class);
+			valueQuery.setParameter("elementId", elementId);
+			valueQuery.setParameter("iterationId", iterationId);
+		}
 
 		String valueAsString;
 		

@@ -24,6 +24,7 @@ package org.sigmah.server.dao;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import org.sigmah.server.dao.base.DAO;
 import org.sigmah.server.domain.OrgUnit;
@@ -45,4 +46,15 @@ public interface ValueDAO extends DAO<Value, Integer> {
 	 */
 	List<Value> findValuesForOrgUnits(Collection<OrgUnit> orgUnits);
 
+	Value getValueByElementAndContainer(Integer elementId, Integer containerId);
+
+	List<Value> findValuesByContainerId(Integer containerId);
+
+	/**
+	 * Find values with a value equals to or containing the given id.
+	 * <p>
+	 *   The value can be a multivalued value.
+	 * </p>
+   */
+	List<Value> findValuesByIdInSerializedValue(Integer containerId);
 }

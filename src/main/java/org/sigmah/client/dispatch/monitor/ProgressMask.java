@@ -47,10 +47,13 @@ public class ProgressMask extends LoadingMask {
 	private final ProgressBar bar;
 	private int counter;
 	private Integer max;
+	private String entityLoadedCaption;
 
-	public ProgressMask(final Component component) {
+	public ProgressMask(final Component component, final String entityLoadedCaption) {
 
 		super(component, null);
+
+		this.entityLoadedCaption = entityLoadedCaption;
 
 		this.bar = buildBar(new Listener<ComponentEvent>() {
 
@@ -132,7 +135,7 @@ public class ProgressMask extends LoadingMask {
 			bar.updateProgress(1, I18N.CONSTANTS.loading());
 
 		} else {
-			bar.updateProgress(new Double(counter) / new Double(max), counter + " / " + max + " " + I18N.CONSTANTS.refreshProjectListProjectLoaded() + ".");
+			bar.updateProgress(new Double(counter) / new Double(max), counter + " / " + max + " " + entityLoadedCaption + ".");
 		}
 	}
 }

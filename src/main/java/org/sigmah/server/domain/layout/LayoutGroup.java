@@ -77,6 +77,10 @@ public class LayoutGroup extends AbstractEntityId<Integer> {
 	@Size(max = EntityConstants.LAYOUT_GROUP_TITLE_MAX_LENGTH)
 	private String title;
 
+	@Column(name = EntityConstants.LAYOUT_GROUP_COLUMN_HAS_ITERATIONS, nullable = false)
+	@NotNull
+	private Boolean hasIterations = false;
+
 	// --------------------------------------------------------------------------------
 	//
 	// FOREIGN KEYS.
@@ -146,6 +150,7 @@ public class LayoutGroup extends AbstractEntityId<Integer> {
 		builder.append("row", row);
 		builder.append("column", column);
 		builder.append("title", title);
+		builder.append("hasIterations", hasIterations);
 	}
 
 	// --------------------------------------------------------------------------------
@@ -204,4 +209,11 @@ public class LayoutGroup extends AbstractEntityId<Integer> {
 		return constraints;
 	}
 
+	public Boolean getHasIterations() {
+		return hasIterations;
+	}
+
+	public void setHasIterations(Boolean hasIterations) {
+		this.hasIterations = hasIterations;
+	}
 }

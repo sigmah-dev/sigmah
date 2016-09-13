@@ -29,6 +29,7 @@ import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.dispatch.DispatchAsync;
 import org.sigmah.client.dispatch.monitor.LoadingMask;
 import org.sigmah.client.dispatch.monitor.ProgressMask;
+import org.sigmah.client.i18n.I18N;
 import org.sigmah.shared.command.GetProjects;
 import org.sigmah.shared.command.GetProjectsFromId;
 import org.sigmah.shared.command.result.ListResult;
@@ -165,7 +166,7 @@ final class GetProjectsWorker {
 	 */
 	public void run() {
 
-		monitor = new ProgressMask(component);
+		monitor = new ProgressMask(component, I18N.CONSTANTS.refreshProjectListProjectLoaded());
 
 		// First call to get the list of projects ids.
 		cmd.setMappingMode(ProjectDTO.Mode.BASE);
