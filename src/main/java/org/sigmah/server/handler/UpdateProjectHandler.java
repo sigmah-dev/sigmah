@@ -99,7 +99,7 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 	/**
 	 * Logger.
 	 */
-	private final static Logger LOG = LoggerFactory.getLogger(UpdateProjectHandler.class);
+	private final static Logger LOGGER = LoggerFactory.getLogger(UpdateProjectHandler.class);
 
 	/**
 	 * Service handling the update of Value objects.
@@ -139,8 +139,8 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 	@Override
 	public VoidResult execute(final UpdateProject cmd, final UserExecutionContext context) throws CommandException {
 
-		if (LOG.isDebugEnabled()) {
-			LOG.debug("[execute] Updates project #" + cmd.getProjectId() + " with following values #" + cmd.getValues().size() + " : " + cmd.getValues());
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("[execute] Updates project #" + cmd.getProjectId() + " with following values #" + cmd.getValues().size() + " : " + cmd.getValues());
 		}
 
 		final List<ValueEventWrapper> values = cmd.getValues();
@@ -172,19 +172,7 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 		
 		// Search the given project.
 		final Project project = em().find(Project.class, projectId);
-		if (project != null) {
-			if (!Handlers.isProjectEditable(project, user)) {
-				throw new IllegalStateException("The project " + project.getId() + " is not editable by the user " + user.getId());
-			}
-			containerInformation = project.toContainerInformation();
-		} else {
-			// If project is null, it means the user is not trying to update a project but an org unit
-			final OrgUnit orgUnit = em().find(OrgUnit.class, projectId);
-			if (!Handlers.isOrgUnitVisible(orgUnit, user)) {
-				throw new IllegalStateException("The orgunit " + orgUnit.getId() + " is not editable by the user " + user.getId());
-			}
-			containerInformation = orgUnit.toContainerInformation();
-		}
+		containerInformation = throwIfProjectOrOrgUnitIsNotEditable(project, projectId, user);
 
 		// Verify if the modifications conflicts with the project state.
 		final List<String> conflicts = searchForConflicts(project, values, context);
@@ -205,8 +193,8 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 			final Set<Integer> multivaluedIdsValue = valueEvent.getMultivaluedIdsValue();
 			final Integer iterationId = valueEvent.getIterationId();
 
-			LOG.debug("[execute] Updates value of element #{} ({})", source.getId(), source.getEntityName());
-			LOG.debug("[execute] Event of type {} with value {} and list value {} (iteration : {}).", valueEvent.getChangeType(), updateSingleValue, updateListValue, iterationId);
+			LOGGER.debug("[execute] Updates value of element #{} ({})", source.getId(), source.getEntityName());
+			LOGGER.debug("[execute] Event of type {} with value {} and list value {} (iteration : {}).", valueEvent.getChangeType(), updateSingleValue, updateListValue, iterationId);
 
 			// Verify if the core version has been modified.
 			coreVersionHasBeenModified = coreVersionHasBeenModified || element != null && element.isAmendable();
@@ -227,6 +215,9 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 				// the TripletValue class for the moment)
 				valueService.saveValue(updateListValue, valueEvent.getChangeType(), historyDate, element, projectId, iterationId, user, comment);
 			}
+			else {
+				LOGGER.warn("Empty value event received for element #{} ({}) of container #{}.", source.getId(), source.getEntityName(), projectId);
+			}
 		}
 			
 		final Project updatedProject = em().find(Project.class, projectId);
@@ -241,6 +232,35 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 		if (!conflicts.isEmpty()) {
 			// A conflict was found.
 			throw new UpdateConflictException(containerInformation, conflicts.toArray(new String[0]));
+		}
+	}
+
+	/**
+	 * Ensure that the user has edition access for the updated container.
+	 * 
+	 * @param project
+	 *			Updated project (or <code>null</code> if an org unit is being updated).
+	 * @param containerId
+	 *			Identifier of the updated container.
+	 * @param user
+	 *			User trying to update the container.
+	 * @return The informations about the updated container.
+	 * @throws IllegalStateException If the user can not edit the given container.
+	 */
+	private ContainerInformation throwIfProjectOrOrgUnitIsNotEditable(final Project project, final Integer containerId, final User user) throws IllegalStateException {
+		
+		if (project != null) {
+			if (!Handlers.isProjectEditable(project, user)) {
+				throw new IllegalStateException("The project " + project.getId() + " is not editable by the user " + user.getId());
+			}
+			return project.toContainerInformation();
+		} else {
+			// If project is null, it means the user is not trying to update a project but an org unit
+			final OrgUnit orgUnit = em().find(OrgUnit.class, containerId);
+			if (!Handlers.isOrgUnitVisible(orgUnit, user)) {
+				throw new IllegalStateException("The orgunit " + orgUnit.getId() + " is not editable by the user " + user.getId());
+			}
+			return orgUnit.toContainerInformation();
 		}
 	}
 
@@ -278,9 +298,9 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 			// The project should be a draft project
 			// Let's verify it
 			if (project.getProjectModel().getStatus() != ProjectModelStatus.DRAFT) {
-				LOG.error("Project {} doesn't have an OrgUnit.", project.getId());
+				LOGGER.error("Project {} doesn't have an OrgUnit.", project.getId());
 			} else if (context.getUser().getMainOrgUnitWithProfiles() == null) {
-				LOG.error("User {} doesn't have a main org unit.", context.getUser().getId());
+				LOGGER.error("User {} doesn't have a main org unit.", context.getUser().getId());
 			} else {
 				// Let's get the main org unit from the user
 				projectOrgUnitId = context.getUser().getMainOrgUnitWithProfiles().getOrgUnit().getId();
