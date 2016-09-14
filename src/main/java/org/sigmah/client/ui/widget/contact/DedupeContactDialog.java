@@ -144,12 +144,6 @@ public class DedupeContactDialog extends Window {
     } else {
       button = new Button(I18N.CONSTANTS.dedupeContactUpdateIndependently());
     }
-    button.addSelectionListener(new SelectionListener<ButtonEvent>() {
-      @Override
-      public void componentSelected(ButtonEvent ce) {
-        secondStepHandler.handleDedupeContact(selectedContact.getId(), selectedProperties);
-      }
-    });
     return button;
   }
 
