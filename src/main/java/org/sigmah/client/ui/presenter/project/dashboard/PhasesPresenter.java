@@ -577,6 +577,9 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> imp
 			// simple group
 			if(!groupDTO.getHasIterations()) {
 				FieldSet fieldSet = createGroupLayoutFieldSet(getCurrentProject(), groupDTO, queue, null, null, null);
+				fieldSet.setHeadingHtml(groupDTO.getTitle());
+				fieldSet.setCollapsible(true);
+				fieldSet.setBorders(true);
 				layoutGrid.setWidget(groupDTO.getRow(), groupDTO.getColumn(), fieldSet);
 				continue;
 			}

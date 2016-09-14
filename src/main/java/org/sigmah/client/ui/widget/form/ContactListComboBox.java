@@ -214,7 +214,6 @@ public class ContactListComboBox extends ListComboBox<ContactDTO> {
     window.setHeadingHtml(I18N.CONSTANTS.createContactDialogTitle());
 
     final ComboBox<ContactModelDTO> contactModelComboBox = Forms.combobox(I18N.CONSTANTS.contactModelLabel(), true, ContactModelDTO.ID, ContactModelDTO.NAME);
-    final TextField<String> loginField = Forms.text(I18N.CONSTANTS.contactLogin(), false);
 
     final TextField<String> firstNameField = Forms.text(I18N.CONSTANTS.contactFirstName(), false);
     final TextField<String> familyNameField = Forms.text(I18N.CONSTANTS.contactFamilyName(), false);
@@ -240,7 +239,8 @@ public class ContactListComboBox extends ListComboBox<ContactDTO> {
         contactModelComboBox.getStore().add(result.getList());
       }
     });
-    dispatch.execute(new GetOrgUnits(OrgUnitDTO.Mode.BASE), new AsyncCallback<ListResult<OrgUnitDTO>>() {
+
+    dispatch.execute(new GetOrgUnits(OrgUnitDTO.Mode.WITH_TREE), new AsyncCallback<ListResult<OrgUnitDTO>>() {
       @Override
       public void onFailure(Throwable caught) {
         Log.error("Error while retrieving org units for contact creation dialog.");
@@ -248,8 +248,10 @@ public class ContactListComboBox extends ListComboBox<ContactDTO> {
 
       @Override
       public void onSuccess(ListResult<OrgUnitDTO> result) {
-        mainOrgUnitComboBox.getStore().add(result.getList());
-        secondaryOrgUnitsComboBox.getAvailableValuesStore().add(result.getList());
+
+        for (OrgUnitDTO orgUnitDTO : result.getData()) {
+          fillOrgUnitsComboboxes(orgUnitDTO, mainOrgUnitComboBox, secondaryOrgUnitsComboBox);
+        }
       }
     });
 
@@ -282,7 +284,6 @@ public class ContactListComboBox extends ListComboBox<ContactDTO> {
 
     final FormPanel formPanel = Forms.panel(200);
     formPanel.add(contactModelComboBox);
-    formPanel.add(loginField);
     formPanel.add(firstNameField);
     formPanel.add(familyNameField);
     formPanel.add(organizationNameField);
@@ -297,7 +298,7 @@ public class ContactListComboBox extends ListComboBox<ContactDTO> {
           return;
         }
 
-        createContactHandler.handleContactCreation(contactModelComboBox.getValue(), loginField.getValue(),
+        createContactHandler.handleContactCreation(contactModelComboBox.getValue(),
             firstNameField.getValue(), familyNameField.getValue(), organizationNameField.getValue(),
             mainOrgUnitComboBox.getValue(), secondaryOrgUnitsComboBox.getListStore().getModels());
         window.hide();
@@ -306,6 +307,20 @@ public class ContactListComboBox extends ListComboBox<ContactDTO> {
 
     window.add(formPanel);
     window.show();
+  }
+
+  private void fillOrgUnitsComboboxes(OrgUnitDTO unit, final ComboBox<OrgUnitDTO> mainOrgUnitComboBox, final ListComboBox<OrgUnitDTO> secondaryOrgUnitsComboBox) {
+
+    mainOrgUnitComboBox.getStore().add(unit);
+    secondaryOrgUnitsComboBox.getAvailableValuesStore().add(unit);
+
+    final Set<OrgUnitDTO> children = unit.getChildrenOrgUnits();
+    if (children != null && !children.isEmpty()) {
+      for (final OrgUnitDTO child : children) {
+        fillOrgUnitsComboboxes(child, mainOrgUnitComboBox, secondaryOrgUnitsComboBox);
+      }
+    }
+
   }
 
   private boolean isFormValid(ContactModelDTO contactModelDTO, OrgUnitDTO mainOrgUnitDTO, List<OrgUnitDTO> secondaryOrgUnits) {
@@ -317,7 +332,7 @@ public class ContactListComboBox extends ListComboBox<ContactDTO> {
   }
 
   public interface CreateContactHandler {
-    void handleContactCreation(ContactModelDTO contactModelDTO, String login, String firstName, String familyName, String organizationName, OrgUnitDTO mainOrgUnit, List<OrgUnitDTO> secondaryOrgUnits);
+    void handleContactCreation(ContactModelDTO contactModelDTO, String firstName, String familyName, String organizationName, OrgUnitDTO mainOrgUnit, List<OrgUnitDTO> secondaryOrgUnits);
   }
 
   public interface ChangeHandler {

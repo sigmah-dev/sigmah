@@ -91,7 +91,7 @@ public class ContactListElementDTO extends FlexibleElementDTO {
     });
     listComboBox.setCreateContactHandler(new ContactListComboBox.CreateContactHandler() {
       @Override
-      public void handleContactCreation(final ContactModelDTO contactModelDTO, final String login, final String firstName, final String familyName, final String organizationName, final OrgUnitDTO mainOrgUnit, final List<OrgUnitDTO> secondaryOrgUnits) {
+      public void handleContactCreation(final ContactModelDTO contactModelDTO, final String firstName, final String familyName, final String organizationName, final OrgUnitDTO mainOrgUnit, final List<OrgUnitDTO> secondaryOrgUnits) {
         CheckContactDuplication checkContactDuplication;
         if (contactModelDTO.getType() == ContactModelType.INDIVIDUAL) {
           checkContactDuplication = new CheckContactDuplication(null, null, familyName, firstName);
@@ -106,7 +106,7 @@ public class ContactListElementDTO extends FlexibleElementDTO {
 
           @Override
           public void onSuccess(ListResult<ContactDTO> result) {
-            final HashMap<String, Object> properties = buildPropertyMap(contactModelDTO, login, firstName, familyName, organizationName, mainOrgUnit, secondaryOrgUnits);
+            final HashMap<String, Object> properties = buildPropertyMap(contactModelDTO, firstName, familyName, organizationName, mainOrgUnit, secondaryOrgUnits);
             if (result == null || result.getSize() == 0) {
               createEntity(properties, listComboBox);
               return;
@@ -263,10 +263,9 @@ public class ContactListElementDTO extends FlexibleElementDTO {
     });
   }
 
-  private HashMap<String, Object> buildPropertyMap(ContactModelDTO contactModelDTO, String login, String firstName, String familyName, String organizationName, OrgUnitDTO mainOrgUnit, List<OrgUnitDTO> secondaryOrgUnits) {
+  private HashMap<String, Object> buildPropertyMap(ContactModelDTO contactModelDTO, String firstName, String familyName, String organizationName, OrgUnitDTO mainOrgUnit, List<OrgUnitDTO> secondaryOrgUnits) {
     HashMap<String, Object> properties = new HashMap<String, Object>();
     properties.put(ContactDTO.CONTACT_MODEL, contactModelDTO.getId());
-    properties.put(ContactDTO.LOGIN, login);
     properties.put(ContactDTO.FIRSTNAME, contactModelDTO.getType() == ContactModelType.INDIVIDUAL ? firstName : null);
     properties.put(ContactDTO.NAME, contactModelDTO.getType() == ContactModelType.INDIVIDUAL ? familyName : organizationName);
     if (mainOrgUnit != null) {

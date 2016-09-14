@@ -55,6 +55,12 @@ public class ContactDuplicationService {
 
     List<ContactDuplicatedProperty> properties = new ArrayList<>();
     for (LayoutGroup group : newContact.getContactModel().getDetails().getLayout().getGroups()) {
+
+      if (group.getHasIterations()) {
+        // iterative groups are not handled by the dedupe mechanism
+        continue;
+      }
+
       for (LayoutConstraint layoutConstraint : group.getConstraints()) {
         FlexibleElement element = layoutConstraint.getElement();
 

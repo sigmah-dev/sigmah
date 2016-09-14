@@ -248,6 +248,9 @@ public class OrgUnitDetailsPresenter extends AbstractOrgUnitPresenter<OrgUnitDet
 			if(!groupLayout.getHasIterations()) {
 
 				FieldSet fieldSet = createGroupLayoutFieldSet(getOrgUnit(), groupLayout, queue, null, null, null);
+				fieldSet.setHeadingHtml(groupLayout.getTitle());
+				fieldSet.setCollapsible(true);
+				fieldSet.setBorders(true);
 				gridLayout.setWidget(groupLayout.getRow(), groupLayout.getColumn(), fieldSet);
 				continue;
 			}
