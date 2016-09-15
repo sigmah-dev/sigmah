@@ -42,6 +42,11 @@ public class GetContactHandler extends AbstractCommandHandler<GetContact, Contac
   @Override
   protected ContactDTO execute(GetContact command, UserDispatch.UserExecutionContext context) throws CommandException {
     Contact contact = contactDAO.findById(command.getContactId());
+
+    if (contact.isDeleted()) {
+      return null;
+    }
+
     // FIXME: Add command.mode when dozer 5.5.2 will be ready
     // see https://github.com/DozerMapper/dozer/commit/5e179bb68c91e60d63bf9f44bf64b7ca70f61520
     return mapper().map(contact, new ContactDTO());

@@ -24,6 +24,7 @@ package org.sigmah.server.service;
 import com.google.inject.Inject;
 
 import java.util.Date;
+import java.util.Map;
 import java.util.Set;
 
 import org.sigmah.server.dao.ContactDAO;
@@ -70,7 +71,23 @@ public class ContactService extends AbstractEntityService<Contact, Integer, Cont
 
   @Override
   public Contact update(Integer entityId, PropertyMap changes, UserDispatch.UserExecutionContext context) throws CommandException {
-    throw new UnsupportedOperationException();
+
+    for (Map.Entry<String, Object> entry : changes.entrySet()) {
+      if ("dateDeleted".equals(entry.getKey())) {
+
+        // Get the current contact
+        Contact contact = em().find(Contact.class, entityId);
+
+        // Mark the project in the state "deleted" (but don't delete it
+        // really)
+        contact.delete();
+
+        // Save
+        em().merge(contact);
+      }
+    }
+
+    return em().find(Contact.class, entityId);
   }
 
   public Contact generateContact(PropertyMap properties) {

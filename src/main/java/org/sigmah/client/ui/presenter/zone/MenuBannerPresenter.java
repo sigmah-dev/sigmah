@@ -177,6 +177,19 @@ public class MenuBannerPresenter extends AbstractZonePresenter<MenuBannerPresent
 			}
 		}));
 
+		// Contact delete event handler.
+		registerHandler(eventBus.addHandler(UpdateEvent.getType(), new UpdateHandler() {
+
+			@Override
+			public void onUpdate(final UpdateEvent event) {
+
+				if (event.concern(UpdateEvent.CONTACT_DELETE)) {
+					final PageRequest request = event.getParam(0);
+					view.getTabBar().removeTab(new MenuTabId(request));
+				}
+			}
+		}));
+
 	}
 
 	/**

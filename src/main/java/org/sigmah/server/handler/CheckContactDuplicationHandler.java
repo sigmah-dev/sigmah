@@ -23,6 +23,7 @@ package org.sigmah.server.handler;
 
 import com.google.inject.Inject;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.sigmah.server.dao.ContactDAO;
@@ -46,8 +47,16 @@ public class CheckContactDuplicationHandler extends AbstractCommandHandler<Check
   protected ListResult<ContactDTO> execute(CheckContactDuplication command, UserDispatch.UserExecutionContext context) throws CommandException {
     List<Contact> contacts = contactDAO.findContactsByEmailOrSimilarName(context.getUser().getOrganization().getId(),
         command.getContactId(), command.getEmail(), command.getFirstName(), command.getName());
+
+    List<ContactDTO> contactDTOs = new ArrayList<>();
+    for (Contact contact : contacts) {
+      if (!contact.isDeleted()) {
+        contactDTOs.add(mapper().map(contact, ContactDTO.class));
+      }
+    }
+
     // FIXME: Add command.mode when dozer 5.5.2 will be ready
     // see https://github.com/DozerMapper/dozer/commit/5e179bb68c91e60d63bf9f44bf64b7ca70f61520
-    return new ListResult<>(mapper().mapCollection(contacts, ContactDTO.class));
+    return new ListResult<>(contactDTOs);
   }
 }
