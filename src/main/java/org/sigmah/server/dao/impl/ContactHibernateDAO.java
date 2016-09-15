@@ -173,7 +173,7 @@ public class ContactHibernateDAO extends AbstractDAO<Contact, Integer> implement
       fullnameValue = (nameValue + " " + firstNameValue).toLowerCase();
     } else {
       fullNameExpression = nameExpression;
-      fullnameValue = nameValue.toLowerCase();
+      fullnameValue = nameValue != null ? nameValue.toLowerCase() : "";
     }
     return criteriaBuilder.greaterThanOrEqualTo(
         criteriaBuilder.function("similarity", Float.class, criteriaBuilder.lower(fullNameExpression), criteriaBuilder.literal(fullnameValue)),
