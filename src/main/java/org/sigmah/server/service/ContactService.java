@@ -95,7 +95,7 @@ public class ContactService extends AbstractEntityService<Contact, Integer, Cont
     if (contactModelId == null) {
       return null;
     }
-    String login = properties.get(ContactDTO.LOGIN);
+    String email = properties.get(ContactDTO.EMAIL);
     String firstName = properties.get(ContactDTO.FIRSTNAME);
     String name = properties.get(ContactDTO.NAME);
     Integer mainOrgUnitId = properties.get(ContactDTO.MAIN_ORG_UNIT);
@@ -112,7 +112,7 @@ public class ContactService extends AbstractEntityService<Contact, Integer, Cont
 
     Contact contact = new Contact();
     contact.setContactModel(contactModel);
-    contact.setLogin(login);
+    contact.setEmail(email);
     contact.setFirstname(firstName);
     contact.setName(name);
     if (mainOrgUnitId != null) {

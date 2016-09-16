@@ -214,6 +214,7 @@ public class ContactListComboBox extends ListComboBox<ContactDTO> {
     window.setHeadingHtml(I18N.CONSTANTS.createContactDialogTitle());
 
     final ComboBox<ContactModelDTO> contactModelComboBox = Forms.combobox(I18N.CONSTANTS.contactModelLabel(), true, ContactModelDTO.ID, ContactModelDTO.NAME);
+    final TextField<String> emailField = Forms.text(I18N.CONSTANTS.contactEmailAddress(), false);
 
     final TextField<String> firstNameField = Forms.text(I18N.CONSTANTS.contactFirstName(), false);
     final TextField<String> familyNameField = Forms.text(I18N.CONSTANTS.contactFamilyName(), false);
@@ -284,6 +285,7 @@ public class ContactListComboBox extends ListComboBox<ContactDTO> {
 
     final FormPanel formPanel = Forms.panel(200);
     formPanel.add(contactModelComboBox);
+    formPanel.add(emailField);
     formPanel.add(firstNameField);
     formPanel.add(familyNameField);
     formPanel.add(organizationNameField);
@@ -298,7 +300,7 @@ public class ContactListComboBox extends ListComboBox<ContactDTO> {
           return;
         }
 
-        createContactHandler.handleContactCreation(contactModelComboBox.getValue(),
+        createContactHandler.handleContactCreation(contactModelComboBox.getValue(), emailField.getValue(),
             firstNameField.getValue(), familyNameField.getValue(), organizationNameField.getValue(),
             mainOrgUnitComboBox.getValue(), secondaryOrgUnitsComboBox.getListStore().getModels());
         window.hide();
@@ -332,7 +334,7 @@ public class ContactListComboBox extends ListComboBox<ContactDTO> {
   }
 
   public interface CreateContactHandler {
-    void handleContactCreation(ContactModelDTO contactModelDTO, String firstName, String familyName, String organizationName, OrgUnitDTO mainOrgUnit, List<OrgUnitDTO> secondaryOrgUnits);
+    void handleContactCreation(ContactModelDTO contactModelDTO, String email, String firstName, String familyName, String organizationName, OrgUnitDTO mainOrgUnit, List<OrgUnitDTO> secondaryOrgUnits);
   }
 
   public interface ChangeHandler {
