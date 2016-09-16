@@ -205,7 +205,7 @@ public class ContactRelationshipsView extends AbstractView implements ContactRel
     List<ColumnConfig> columnConfigs = new ArrayList<ColumnConfig>();
     columnConfigs.add(new ColumnConfig(ContactRelationship.FIELD_NAME, I18N.CONSTANTS.contactRelationshipElementLabel(), 200));
     columnConfigs.add(new ColumnConfig(ContactRelationship.GROUP_NAME, I18N.CONSTANTS.contactRelationshipGroupTitle(), 200));
-    columnConfigs.add(new ColumnConfig(ContactRelationship.FIELD_NAME, I18N.CONSTANTS.contactRelationshipType(), 100));
+    columnConfigs.add(new ColumnConfig(ContactRelationship.FORMATTED_TYPE, I18N.CONSTANTS.contactRelationshipType(), 100));
 
     ColumnConfig nameColumnConfig = new ColumnConfig(ContactRelationship.FIELD_NAME, I18N.CONSTANTS.contactRelationshipName(), 250);
     nameColumnConfig.setRenderer(new GridCellRenderer<ContactRelationship>() {

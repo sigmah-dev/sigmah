@@ -24,6 +24,7 @@ package org.sigmah.server.service;
 import com.google.inject.Inject;
 
 import java.util.Date;
+import java.util.Map;
 import java.util.Set;
 
 import org.sigmah.server.dao.ContactDAO;
@@ -70,7 +71,23 @@ public class ContactService extends AbstractEntityService<Contact, Integer, Cont
 
   @Override
   public Contact update(Integer entityId, PropertyMap changes, UserDispatch.UserExecutionContext context) throws CommandException {
-    throw new UnsupportedOperationException();
+
+    for (Map.Entry<String, Object> entry : changes.entrySet()) {
+      if ("dateDeleted".equals(entry.getKey())) {
+
+        // Get the current contact
+        Contact contact = em().find(Contact.class, entityId);
+
+        // Mark the project in the state "deleted" (but don't delete it
+        // really)
+        contact.delete();
+
+        // Save
+        em().merge(contact);
+      }
+    }
+
+    return em().find(Contact.class, entityId);
   }
 
   public Contact generateContact(PropertyMap properties) {
@@ -78,7 +95,7 @@ public class ContactService extends AbstractEntityService<Contact, Integer, Cont
     if (contactModelId == null) {
       return null;
     }
-    String login = properties.get(ContactDTO.LOGIN);
+    String email = properties.get(ContactDTO.EMAIL);
     String firstName = properties.get(ContactDTO.FIRSTNAME);
     String name = properties.get(ContactDTO.NAME);
     Integer mainOrgUnitId = properties.get(ContactDTO.MAIN_ORG_UNIT);
@@ -95,7 +112,7 @@ public class ContactService extends AbstractEntityService<Contact, Integer, Cont
 
     Contact contact = new Contact();
     contact.setContactModel(contactModel);
-    contact.setLogin(login);
+    contact.setEmail(email);
     contact.setFirstname(firstName);
     contact.setName(name);
     if (mainOrgUnitId != null) {

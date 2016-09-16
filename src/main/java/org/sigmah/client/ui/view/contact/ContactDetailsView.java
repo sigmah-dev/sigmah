@@ -50,6 +50,7 @@ public class ContactDetailsView extends AbstractView implements ContactDetailsPr
   private ContentPanel container;
   private ToolBar toolBar;
   private Button saveButton;
+  private Button deleteButton;
   private Button exportButton;
 
   @Override
@@ -60,12 +61,14 @@ public class ContactDetailsView extends AbstractView implements ContactDetailsPr
     add(container);
 
     saveButton = Forms.button(I18N.CONSTANTS.save(), IconImageBundle.ICONS.save());
+    deleteButton = Forms.button(I18N.CONSTANTS.delete(), IconImageBundle.ICONS.remove());
     exportButton = Forms.button(I18N.CONSTANTS.export(), IconImageBundle.ICONS.excel());
 
     toolBar = new ToolBar();
     toolBar.setAlignment(Style.HorizontalAlignment.LEFT);
     toolBar.setBorders(false);
     toolBar.add(saveButton);
+    toolBar.add(deleteButton);
     toolBar.add(exportButton);
 
     container.setTopComponent(toolBar);
@@ -129,6 +132,11 @@ public class ContactDetailsView extends AbstractView implements ContactDetailsPr
   @Override
   public Button getSaveButton() {
     return saveButton;
+  }
+
+  @Override
+  public Button getDeleteButton() {
+    return deleteButton;
   }
 
   @Override
