@@ -918,6 +918,8 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 		if (type == ElementTypeEnum.COMPUTATION) {
 			// Related flexible elements code grid.
 			addNumberTypeToStore(view.getStore());
+		} else if (type == ElementTypeEnum.CONTACT_LIST) {
+			loadContactListOptions((ContactListElementDTO) flexibleElement);
 		}
 		if (type == DefaultFlexibleElementType.BUDGET_RATIO) {
 			addNumberTypeToStore(view.getBudgetSubFieldSpentStore(), view.getBudgetSubFieldPlannedStore());
@@ -957,8 +959,6 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 				for (ListStore<FlexibleElementDTO> store : stores) {
 					store.add(otherElement);
 				}
-			} else if (otherElementType == ElementTypeEnum.CONTACT_LIST) {
-				loadContactListOptions((ContactListElementDTO) flexibleElement);
 			}
 		}
 	}
