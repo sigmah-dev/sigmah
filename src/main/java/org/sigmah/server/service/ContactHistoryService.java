@@ -80,7 +80,7 @@ public class ContactHistoryService {
     Collections.sort(contactHistories, new Comparator<ContactHistory>() {
       @Override
       public int compare(ContactHistory first, ContactHistory second) {
-        return first.getUpdatedAt().compareTo(second.getUpdatedAt());
+        return -first.getUpdatedAt().compareTo(second.getUpdatedAt());
       }
     });
 

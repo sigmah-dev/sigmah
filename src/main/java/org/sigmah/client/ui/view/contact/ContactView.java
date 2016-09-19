@@ -58,6 +58,8 @@ public class ContactView extends AbstractView implements ContactPresenter.View {
   private final String AVATAR_DEFAULT_INDIVIDUAL_STYLE_NAME = "contact-card-avatar-individual";
   private final String AVATAR_DEFAULT_ORGANIZATION_STYLE_NAME = "contact-card-avatar-organization";
   private final String LABEL_STYLE_NAME = "contact-card-label";
+  public final String NAME_STYLE_NAME = "contact-card-name";
+  public final String ORGANIZATION_STYLE_NAME = "contact-card-organization";
 
   private ContentPanel contentPanel;
   private HTML avatar;
@@ -154,13 +156,28 @@ public class ContactView extends AbstractView implements ContactPresenter.View {
 
   @Override
   public void addLabel(String label) {
+    addLabel(label, LABEL_STYLE_NAME);
+  }
+
+  @Override
+  public void addNameLabel(String name) {
+    addLabel(name, NAME_STYLE_NAME);
+  }
+
+  @Override
+  public void addOrganizationLabel(String organization) {
+    addLabel(organization, ORGANIZATION_STYLE_NAME);
+  }
+
+  @Override
+  public void addLabel(String label, String style) {
     if (ClientUtils.isBlank(label)) {
       return;
     }
 
     HTML html = new HTML(label);
     html.setHeight(LABEL_HEIGHT + "px");
-    html.setStyleName(LABEL_STYLE_NAME);
+    html.setStyleName(style);
     html.setWordWrap(false);
     if ((topDetailsContainer.getItemCount() + 1 ) * LABEL_HEIGHT > AVATAR_HEIGHT) {
       bottomDetailsContainer.add(html);

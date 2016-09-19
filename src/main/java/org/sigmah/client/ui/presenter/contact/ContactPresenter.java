@@ -71,6 +71,12 @@ public class ContactPresenter extends AbstractPagePresenter<ContactPresenter.Vie
 
     void addLabel(String label);
 
+    void addNameLabel(String name);
+
+    void addOrganizationLabel(String organization);
+
+    void addLabel(String label, String style);
+
     void setHeaderText(String header);
 
     void addTab(final String tabTitle, final Widget tabView);
@@ -223,10 +229,10 @@ public class ContactPresenter extends AbstractPagePresenter<ContactPresenter.Vie
           view.addLabel(contactDTO.getEmail());
           break;
         case FAMILY_NAME:
-          view.addLabel(contactDTO.getName());
+          view.addNameLabel(contactDTO.getName());
           break;
         case FIRST_NAME:
-          view.addLabel(contactDTO.getFirstname());
+          view.addNameLabel(contactDTO.getFirstname());
           break;
         case LOGIN:
           view.addLabel(contactDTO.getLogin());
@@ -238,7 +244,7 @@ public class ContactPresenter extends AbstractPagePresenter<ContactPresenter.Vie
           view.addLabel(contactDTO.getMainOrgUnit().getName());
           break;
         case ORGANIZATION_NAME:
-          view.addLabel(contactDTO.getName());
+          view.addNameLabel(contactDTO.getName());
           break;
         case PHONE_NUMBER:
           view.addLabel(contactDTO.getPhoneNumber());
@@ -255,7 +261,7 @@ public class ContactPresenter extends AbstractPagePresenter<ContactPresenter.Vie
           if (contactDTO.getRoot() == null) {
             break;
           }
-          view.addLabel(contactDTO.getRoot().getName());
+          view.addOrganizationLabel(contactDTO.getRoot().getName());
           break;
         default:
           throw new IllegalStateException("Unknown DefaultContactFlexibleElementType : " + flexibleElementDTO.getType());
