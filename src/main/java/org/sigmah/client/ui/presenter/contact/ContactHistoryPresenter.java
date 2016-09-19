@@ -30,6 +30,8 @@ import com.extjs.gxt.ui.client.widget.grid.Grid;
 import java.util.List;
 
 import org.sigmah.client.dispatch.CommandResultHandler;
+import org.sigmah.client.event.UpdateEvent;
+import org.sigmah.client.event.handler.UpdateHandler;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.inject.Injector;
 import org.sigmah.client.ui.presenter.base.AbstractPresenter;
@@ -61,6 +63,24 @@ public class ContactHistoryPresenter extends AbstractPresenter<ContactHistoryPre
   @Override
   public String getTabHeader() {
     return I18N.CONSTANTS.contactHistoryHeader();
+  }
+
+  @Override
+  public void onBind() {
+
+
+    // Contact delete event handler.
+    registerHandler(eventBus.addHandler(UpdateEvent.getType(), new UpdateHandler() {
+
+      @Override
+      public void onUpdate(final UpdateEvent event) {
+
+        if (event.concern(UpdateEvent.CONTACT_UPDATE)) {
+          final ContactDTO contact = event.getParam(0);
+          refresh(contact);
+        }
+      }
+    }));
   }
 
   @Override

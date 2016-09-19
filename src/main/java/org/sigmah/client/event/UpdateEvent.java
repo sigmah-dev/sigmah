@@ -76,6 +76,16 @@ public class UpdateEvent extends GwtEvent<UpdateHandler> {
 
 	/**
 	 * <p>
+	 * When a contact is updated.
+	 * </p>
+	 * <p>
+	 * <li>params[0] = The updated {@link ContactDTO contact}</li>
+	 * </p>
+	 */
+	public static final String CONTACT_UPDATE = "CONTACT_UPDATE";
+
+	/**
+	 * <p>
 	 * When a contact is deleted.
 	 * </p>
 	 * <p>

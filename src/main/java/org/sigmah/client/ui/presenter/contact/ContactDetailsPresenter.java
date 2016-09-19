@@ -626,6 +626,7 @@ public class ContactDetailsPresenter extends AbstractPresenter<ContactDetailsPre
           protected void onCommandSuccess(final VoidResult result) {
 
             N10N.infoNotif(I18N.CONSTANTS.infoConfirmation(), I18N.CONSTANTS.saveConfirm());
+            eventBus.fireEvent(new UpdateEvent(UpdateEvent.CONTACT_UPDATE, contactDTO));
 
             // Checks if there is any update needed to the local project instance.
             for (final ValueEvent event : valueChanges) {
