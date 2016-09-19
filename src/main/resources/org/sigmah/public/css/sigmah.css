@@ -408,6 +408,19 @@ ul.x-tab-strip {
   padding: 5px 0;
   font-size: 14px;
 }
+.contact-card-name {
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  padding: 5px 0;
+  font-size: 18px;
+  font-weight: bold;
+}
+.contact-card-organization {
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  padding: 5px 0;
+  font-size: 18px;
+}
 .contact-card-avatar {
   -moz-box-sizing: border-box;
   box-sizing: border-box;
