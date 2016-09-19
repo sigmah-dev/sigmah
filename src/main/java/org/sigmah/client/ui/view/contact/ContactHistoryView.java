@@ -99,21 +99,20 @@ public class ContactHistoryView extends AbstractView implements ContactHistoryPr
   }
 
   private ColumnModel buildColumnModel() {
-    ColumnConfig dateColumn = new ColumnConfig();
+    ColumnConfig dateColumn = new ColumnConfig(ContactHistory.UPDATED_AT, 120);
     dateColumn.setRenderer(new GridCellRenderer<ContactHistory>() {
       @Override
       public Object render(ContactHistory contactHistory, String property, ColumnData config, int rowIndex, int colIndex, ListStore store, Grid grid) {
-        return DateTimeFormat.getFormat(DateTimeFormat.PredefinedFormat.DATE_TIME_MEDIUM).format(contactHistory.getUpdatedAt());
+        return DateTimeFormat.getFormat(DateTimeFormat.PredefinedFormat.DATE_TIME_SHORT).format(contactHistory.getUpdatedAt());
       }
     });
-    dateColumn.setWidth(120);
     dateColumn.setHeaderText(I18N.CONSTANTS.contactHistoryUpdatedAtHeader());
 
     ColumnConfig userColumn = new ColumnConfig(ContactHistory.USER_FULL_NAME, I18N.CONSTANTS.contactHistoryUserHeader(), 150);
     ColumnConfig changeTypeColumn = new ColumnConfig(ContactHistory.FORMATTED_CHANGE_TYPE, I18N.CONSTANTS.contactHistoryChangeTypeHeader(), 150);
     ColumnConfig subjectColumn = new ColumnConfig(ContactHistory.SUBJECT, I18N.CONSTANTS.contactHistorySubjectHeader(), 150);
 
-    ColumnConfig valueColumn = new ColumnConfig();
+    ColumnConfig valueColumn = new ColumnConfig(ContactHistory.FORMATTED_VALUE, 150);
     valueColumn.setRenderer(new GridCellRenderer<ContactHistory>() {
       @Override
       public Object render(ContactHistory contactHistory, String property, ColumnData config, int rowIndex, int colIndex, ListStore<ContactHistory> store, Grid<ContactHistory> grid) {
@@ -132,7 +131,6 @@ public class ContactHistoryView extends AbstractView implements ContactHistoryPr
         return image;
       }
     });
-    valueColumn.setWidth(150);
     valueColumn.setHeaderText(I18N.CONSTANTS.contactHistoryValueHeader());
 
     ColumnConfig commentColumn = new ColumnConfig(ContactHistory.COMMENT, I18N.CONSTANTS.contactHistoryCommentHeader(), 150);
