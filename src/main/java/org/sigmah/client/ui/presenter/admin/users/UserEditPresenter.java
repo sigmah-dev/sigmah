@@ -475,12 +475,18 @@ public class UserEditPresenter extends AbstractPagePresenter<UserEditPresenter.V
 		}
 
 		UserUnitDTO mainUserUnit = view.getUserUnitStore().findModel(UserUnitDTO.MAIN_USER_UNIT, true);
-		if (mainUserUnit == null) {
+		if (mainUserUnit == null || mainUserUnit.getProfiles().isEmpty()) {
 			N10N.warn(I18N.CONSTANTS.createFormIncomplete(), I18N.MESSAGES.createUserFormIncompleteDetails());
 			return;
 		}
 
 		List<UserUnitDTO> secondaryUserUnits = view.getUserUnitStore().findModels(UserUnitDTO.MAIN_USER_UNIT, false);
+		for (UserUnitDTO unit : secondaryUserUnits) {
+			if (unit.getProfiles().isEmpty()) {
+				N10N.warn(I18N.CONSTANTS.createFormIncomplete(), I18N.MESSAGES.createUserFormIncompleteDetails());
+				return;
+			}
+		}
 		UserUnitsResult userUnitsResult = new UserUnitsResult();
 		userUnitsResult.setMainUserUnit(mainUserUnit);
 		userUnitsResult.setSecondaryUserUnits(secondaryUserUnits);
